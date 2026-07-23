@@ -1,0 +1,280 @@
+---
+title: "Troubleshooting"
+description: "Why your Betterlytics tracking isn't recording data, and how to fix it. Walks through verifying the script, browser-level blocking, framework gotchas, CSP, and self-hosting issues."
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# Troubleshooting your integration
+
+If you've installed the tracking script but the dashboard isn't showing data, this guide walks through the most common reasons and how to fix them.
+
+<Callout type="info">
+Most "no data" reports come down to one of two things: the script isn't actually on the page, or the Site ID doesn't match the dashboard you're checking. The quick checklist below rules those out in a minute.
+</Callout>
+
+## Start here: quick checklist
+
+Before diving deeper, run through these in order:
+
+1. **Open your live website** (not a local preview) in a regular browser window.
+2. **View page source** (`Ctrl/Cmd + U`) and confirm the `<script>` tag is present with the correct `data-site-id`.
+3. **Open the integration panel** in your dashboard and click **Verify installation**. This checks whether any event has been received for your Site ID in the last few minutes.
+4. **Visit a couple of pages** on your site, then click **Verify installation** again. Events arrive within seconds, but you have to generate one first.
+5. If verification still fails, open your browser's **DevTools → Network tab**, filter for `event`, and reload the page. You should see a `POST` to `/event` returning `200 OK`.
+
+If any of these steps reveals the problem, the rest of this page can usually be skipped.
+
+---
+
+## Step 1: Confirm the script is on the page
+
+The most common cause of missing data is that the snippet never made it into the rendered HTML, often because it was added to a template that isn't included on every page, or the change wasn't deployed.
+
+**Check the rendered HTML, not your source file.** Open your live site, hit `Ctrl/Cmd + U`, and search the page source for `analytics.js`. You should see something like:
+
+```html
+<script async
+    src="https://betterlytics.io/analytics.js"
+    data-site-id="your-site-id">
+</script>
+```
+
+If you don't see it:
+
+- Confirm the snippet is in a template that wraps **every** page (usually `<head>` of a base layout).
+- Re-deploy your site and hard-refresh (`Ctrl/Cmd + Shift + R`) to bypass cache.
+- If you use a CDN (Cloudflare, Fastly, etc.), purge the cache for your HTML pages.
+
+If you see the script tag but the `data-site-id` is missing, empty, or doesn't match the Site ID in your Betterlytics integration panel, fix it. The Site ID is the only thing that links incoming events to your dashboard.
+
+## Step 2: Confirm events are being sent
+
+In your browser's **DevTools → Network tab**:
+
+1. Reload the page (or navigate around if it's an SPA).
+2. Filter the request list for `event`.
+3. You're looking for a `POST` request to `https://betterlytics.io/event` (or your self-hosted endpoint).
+
+What you might see:
+
+- **`200 OK`**: events are reaching Betterlytics. If the dashboard is still empty, jump to [The verify button says "no data"](#the-verify-button-says-no-data-received).
+- **No request at all**: the script didn't load or didn't run. Check the **Console tab** for errors, and see [The script is in the page but doesn't run](#the-script-is-in-the-page-but-doesnt-run) below.
+- **A blocked request** (shown in red with "blocked" status): usually a Content Security Policy header on your site. Occasionally a browser extension or privacy setting. See [Content Security Policy (CSP)](#content-security-policy-csp) and [Browser-level blocking](#browser-level-blocking).
+- **`4xx` or `5xx`**: copy the response body and contact support.
+
+## Step 3: Use the in-app verify button
+
+The integration panel in your dashboard has a **Verify installation** button. It queries the database for any event recorded for your Site ID, and if one exists the integration status flips to "Fully integrated."
+
+A few things to know:
+
+- Verification needs **at least one event**. Open your site in a normal browser tab first, then click verify.
+- Events show up almost immediately, but if your network is slow or your site uses heavy caching, give it 10–30 seconds.
+- Visits from **known bots are filtered server-side**, so the verify button won't be satisfied by a crawler hitting your homepage. You need a real browser visit.
+
+---
+
+## Common reasons events don't arrive
+
+### Browser-level blocking
+
+Because Betterlytics is cookieless and doesn't collect personal data, it generally isn't caught by mainstream tracker blockers. That said, a particularly strict setup can still block any analytics request:
+
+- Aggressive ad / tracker blockers running custom or expanded blocklists.
+- DNS-level blockers (Pi-hole, NextDNS) configured to block analytics broadly.
+- Hardened browsers or enterprise policies that block all third-party requests.
+
+**How to verify a blocker is the cause:**
+
+1. Open your site in an **incognito/private window with all extensions disabled**.
+2. Reload and check the Network tab. If the `POST /event` request now succeeds, something on the client side was blocking it.
+
+The share of real visitors affected by this is small, but never zero for any analytics tool.
+
+### Content Security Policy (CSP)
+
+If your site sets a `Content-Security-Policy` header, the browser will silently refuse to load or call out to any host not on the allowlist. Open the **Console tab** and look for CSP violations, which show up as red error messages mentioning `script-src` or `connect-src`.
+
+For the hosted service, you need to allow:
+
+```text
+script-src 'self' https://betterlytics.io;
+connect-src 'self' https://betterlytics.io;
+```
+
+If you also use [Session Replay](/integration/session-replay) or [Web Vitals](/integration/web-vitals), the replay/web-vitals scripts load from the same origin, so the same allowlist covers them.
+
+### Page caching or CDN serving stale HTML
+
+If you added the snippet but the live HTML still doesn't contain it:
+
+- Purge your CDN's HTML cache (Cloudflare, Fastly, Vercel, Netlify, etc.).
+- Clear caching-plugin output if you're on WordPress (WP Rocket, W3 Total Cache, LiteSpeed Cache).
+- Hard-refresh in the browser (`Ctrl/Cmd + Shift + R`). A regular reload may still serve the cached page.
+
+### Cloudflare Rocket Loader
+
+Cloudflare's **Rocket Loader** rewrites `<script>` tags and can interfere with how the snippet detects itself. If you use Cloudflare and `analytics.js` either doesn't run or runs without a Site ID, add the `data-cfasync="false"` attribute to opt the script out of Rocket Loader:
+
+```html
+<script async
+    src="https://betterlytics.io/analytics.js"
+    data-site-id="your-site-id"
+    data-cfasync="false">
+</script>
+```
+
+### The script is in the page but doesn't run
+
+Open the **Console tab** and reload. The snippet logs an error if `data-site-id` is missing:
+
+```text
+Betterlytics: data-site-id attribute missing
+```
+
+Other things to rule out:
+
+- The script tag is inside a comment, a `<noscript>` block, or a JS string that never executes.
+- A previous `<script>` on the page is throwing an exception and stopping further script execution. Look for the first error in the Console; that's usually the culprit, not anything Betterlytics-related.
+
+---
+
+## SPA navigation isn't being tracked
+
+The hosted script auto-tracks SPA navigation by hooking into `history.pushState` and the `popstate` event. The first pageview should always appear; subsequent route changes will only fire a new pageview when `window.location.pathname` actually changes.
+
+If you're on a framework that does its own URL manipulation (or you use a hash-based router), use the [`@betterlytics/tracker` npm package](https://www.npmjs.com/package/@betterlytics/tracker) instead. It has cleaner SPA support and a typed API, and the integration panel in your dashboard shows the recommended setup for your framework.
+
+For frameworks that ship with their own analytics-friendly conventions (Next.js App Router, Nuxt, SvelteKit), follow the per-framework setup shown in the integration panel.
+
+---
+
+## Custom events aren't being recorded
+
+If page views work but [custom events](/integration/custom-events) don't, the usual cause is that `betterlytics.event(...)` ran **before** the async script finished loading.
+
+If you load `analytics.js` with `async`, add this snippet **before** the analytics script tag so calls made during page load are queued and flushed once the script is ready:
+
+```html
+<script>
+  window.betterlytics = window.betterlytics || {
+    event: function () {
+      (window.betterlytics.q = window.betterlytics.q || []).push(arguments);
+    }
+  };
+</script>
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-site-id"
+></script>
+```
+
+If you use the npm package this is handled for you. Just make sure `betterlytics.init('your-site-id')` runs once on the client before any `betterlytics.event()` call.
+
+---
+
+## Framework-specific gotchas
+
+<details>
+<summary><strong>Next.js</strong>: script in the wrong place, or only running on one route</summary>
+
+The Next.js setup shown in the integration panel uses either the built-in `next/script` (15.3+) or initializes `@betterlytics/tracker` from a client component mounted in your root layout. Common mistakes:
+
+- Putting the snippet inside a single page component. It only loads on that page.
+- Using a Server Component to call `betterlytics.init()`. It needs to run in the browser, so the call has to be inside a `'use client'` component (typically wrapped in a `useEffect`).
+- Forgetting that the App Router strips raw `<script>` tags from server components. Use `next/script` or the npm package.
+
+</details>
+
+<details>
+<summary><strong>React / Vue / SPAs</strong>: init never runs</summary>
+
+Make sure `betterlytics.init('your-site-id')` is called exactly once when the app mounts. Calling it inside a component that doesn't render on first load (e.g. behind a route guard or feature flag) is the most common reason pageviews never appear.
+
+</details>
+
+<details>
+<summary><strong>WordPress</strong>: caching plugins stripping or caching the snippet</summary>
+
+Aggressive caching plugins (WP Rocket, W3 Total Cache, LiteSpeed Cache, Autoptimize) can:
+
+- Combine or defer scripts in a way that changes how `document.currentScript` resolves.
+- Cache the rendered HTML before you added the snippet.
+
+Add `analytics.js` to your plugin's "exclude from optimization / combine / defer" list, then purge the cache.
+
+</details>
+
+<details>
+<summary><strong>Google Tag Manager</strong>: only fires in preview, not on the live site</summary>
+
+If the snippet works in GTM Preview mode but not on the live site, you almost certainly forgot to **Submit & Publish** the container version. GTM Preview uses a different runtime than the published container.
+
+</details>
+
+<details>
+<summary><strong>Shopify / Wix / Squarespace</strong>: script stripped by the theme</summary>
+
+Some themes sanitize `<script>` tags added via custom HTML blocks. Use the platform's dedicated "custom code injection" or "header scripts" field instead of a content block, and verify with View Page Source that the tag is actually present on the rendered page.
+
+</details>
+
+<details>
+<summary><strong>Webflow</strong>: script placed in footer instead of head</summary>
+
+Webflow's "Custom Code → Footer" injects scripts right before `</body>`. That works, but if you also have other custom scripts that error early, they can block ours. Prefer the **Head Code** field so the snippet runs as early as possible.
+
+</details>
+
+---
+
+## Why my numbers look different from another tool
+
+Cross-tool comparisons rarely line up, because every analytics tool defines visitors and sessions differently. A few specifics about how Betterlytics counts compared to cookie-based tools like Google Analytics:
+
+- **Unique visitors are counted daily.** Visitors are identified by a privacy-preserving daily hash, so the same person visiting on three different days is counted as three unique visitors. Cookie-based tools that persist an ID for months will report a lower unique-visitor number over a long date range.
+- **Cookieless analytics aren't blocked by cookie banners.** Cookie-based tools only count visitors who accept the banner, often a fraction of real traffic. Betterlytics doesn't need consent for basic counts, so it tends to report more visitors than GA on the same site.
+- **Known bots are filtered server-side.** Tools that don't filter bots will show inflated traffic compared to Betterlytics.
+- **A small share of visitors block all analytics.** This affects every tool, including Betterlytics, but the share is small.
+
+The net effect depends on your traffic mix and the other tool's setup, but on most sites Betterlytics ends up reporting more, not fewer, visitors than a typical cookie-based setup.
+
+For metric definitions and how each number is calculated, see the [Metrics Glossary](/dashboard/metrics-glossary).
+
+---
+
+## The verify button says "no data received"
+
+If `POST /event` returns `200 OK` in the Network tab but the in-app verify button keeps reporting no data:
+
+- Make sure you're checking the **same dashboard** that owns the Site ID in your snippet. If you have multiple sites, double-check by copying the `data-site-id` from the live HTML and comparing it to the one shown in the integration panel.
+- Wait 10–30 seconds and try again. Verification reads from the analytics database, and there's a small ingestion delay.
+- Confirm the request you saw wasn't from a bot user-agent (curl, headless scripts, monitoring tools). Bot traffic is filtered before it lands in the database, so it won't satisfy verification.
+
+---
+
+## Self-hosted instances
+
+If you're running a self-hosted instance and data isn't arriving:
+
+- Confirm the containers are running and healthy: `docker compose ps` and `docker compose logs`.
+- Verify the `/event` endpoint on **your** domain is reachable from the browser. The Network tab should show the `POST` going to your instance, not to `betterlytics.io`.
+- If a specific feature seems missing rather than broken, check its current self-hosted status in the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted). New features reach the self-hosted image with periodic updates, and [updating](/installation/self-hosting#updating) may be all you need.
+- See the [self-hosting troubleshooting section](/installation/self-hosting#troubleshooting) for container, HTTPS, and certificate issues, or open an issue on [GitHub](https://github.com/betterlytics/betterlytics-selfhost/issues).
+
+---
+
+## Still stuck?
+
+If none of the above helps, we'd like to take a look:
+
+- **[Discord community](https://discord.gg/vwqSvPn6sP)**: fast informal help from other users and the team.
+- **[Email support](mailto:support@betterlytics.io)**: please include your dashboard domain, the URL where the snippet is installed, a screenshot of the Network tab showing the request (or absence of it), and anything you've already tried.
+
+Useful related guides while you're here:
+
+- [Installation Overview](/installation): choose hosted or self-hosted setup
+- [Custom Events](/integration/custom-events): including the async queue snippet
+- [FAQ](/faq): privacy, retention, and how Betterlytics compares to other tools

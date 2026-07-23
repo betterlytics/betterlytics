@@ -12,6 +12,8 @@ import {
   Gauge,
   Video,
   Activity,
+  AlertTriangle,
+  Radio,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -110,12 +112,20 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
 
   const observabilityItems: SidebarItem[] = [
     { name: t('webVitals'), key: 'webVitals', href: '/web-vitals', icon: <Gauge size={ICON_SIZE} /> },
+    { name: t('errorTracking'), key: 'errors', href: '/errors', icon: <AlertTriangle size={ICON_SIZE} /> },
     {
       name: t('monitoring'),
       key: 'monitoring',
       href: '/monitoring',
       icon: <Activity size={ICON_SIZE} />,
       hidden: !isFeatureEnabled('enableUptimeMonitoring'),
+    },
+    {
+      name: t('statusPages'),
+      key: 'statusPages',
+      href: '/status-pages',
+      icon: <Radio size={ICON_SIZE} />,
+      hidden: !isFeatureEnabled('enablePublicStatusPages'),
     },
   ];
 
@@ -181,7 +191,6 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         <span>{item.name}</span>
                       </div>
 
-                      {item.key === 'sessionReplay' && <Badge variant='outline'>Beta</Badge>}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -208,7 +217,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         <span>{item.name}</span>
                       </div>
 
-                      {item.key === 'monitoring' && <Badge variant='outline'>Beta</Badge>}
+                      {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

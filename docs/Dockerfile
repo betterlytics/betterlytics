@@ -4,7 +4,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
 
 # --------------------------
 
@@ -13,6 +13,8 @@ FROM base as builder
 WORKDIR /app
 
 COPY package*.json .
+# zod >= 4.4 breaks nextra's MDX prerender.
+RUN npm pkg set "pnpm.overrides[nextra>zod]=4.3.2" "pnpm.overrides[nextra-theme-docs>zod]=4.3.2"
 RUN pnpm install
 
 COPY . .

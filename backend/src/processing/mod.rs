@@ -1,9 +1,9 @@
 use anyhow::Result;
 use tokio::sync::mpsc;
 use tracing::{error, debug};
-use crate::analytics::{AnalyticsEvent, generate_fingerprint};
+use crate::analytics::{AnalyticsEvent, VisitorAttrs};
 use crate::geoip::GeoIpService;
-use crate::session;
+use crate::visitor;
 use crate::bot_detection;
 use crate::referrer::{ReferrerInfo, parse_referrer};
 use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
@@ -12,19 +12,25 @@ use crate::campaign::{CampaignInfo, parse_campaign_params};
 use crate::ua_parser;
 use crate::outbound_link::process_outbound_link;
 use crate::analytics::detect_device_type_from_resolution_with_fallback;
+use crate::error_fingerprint::generate_error_fingerprint;
 
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
     /// Base original event data sent from client through analytics.js script
     pub event: AnalyticsEvent,
     /// Sessionization - new sessions are created if the user has not generated any events in over 30 minutes
-    pub session_id: String,
+    pub session_id: u64,
+    pub session_created_at: chrono::DateTime<chrono::Utc>,
     /// Contains the domain of the URL (e.g. "example.com" or "subdomain.example.com")
     pub domain: Option<String>,
     /// Contains only the path of the URL (e.g. "/path/to/page" or "/")
     pub url: String,
     /// Geolocation data - Planning to use ip-api.com or maxmind to get this data
     pub country_code: Option<String>,
+    /// Subdivision/region code in ISO 3166-2 format (e.g. "US-CA")
+    pub subdivision_code: Option<String>,
+    /// City name from GeoIP lookup (English)
+    pub city: Option<String>,
     /// Browser information - Parsed from user_agent string
     pub browser: Option<String>,
     pub browser_version: Option<String>,
@@ -34,7 +40,7 @@ pub struct ProcessedEvent {
     /// Device type (mobile, desktop, tablet) - Parsed from user_agent string
     pub device_type: Option<String>,
     pub site_id: String,
-    pub visitor_fingerprint: String,
+    pub visitor_fingerprint: u64,
     pub timestamp: chrono::DateTime<chrono::Utc>,
     /// Parsed referrer information
     pub referrer_info: ReferrerInfo,
@@ -54,6 +60,15 @@ pub struct ProcessedEvent {
     pub cwv_ttfb: Option<f32>,
     pub scroll_depth_percentage: Option<f32>,
     pub scroll_depth_pixels: Option<f32>,
+    /// JS error tracking
+    pub error_exceptions: String,
+    pub error_type: String,
+    pub error_message: String,
+    pub error_fingerprint: String,
+    pub global_properties_keys: Vec<String>,
+    pub global_properties_values: Vec<String>,
+    /// Duration for engagement events
+    pub page_duration_seconds: u32,
 }
 
 /// Event processor that handles real-time processing
@@ -87,15 +102,18 @@ impl EventProcessor {
         let mut processed = ProcessedEvent {
             event: event.clone(),
             event_type: String::new(),
-            session_id: String::new(),
+            session_id: 0,
+            session_created_at: chrono::Utc::now(),
             country_code: None,
+            subdivision_code: None,
+            city: None,
             browser: None,
             browser_version: None,
             os: None,
             os_version: None,
             device_type: None,
             site_id: site_id.clone(),
-            visitor_fingerprint: String::new(),
+            visitor_fingerprint: 0u64,
             timestamp: timestamp.clone(),
             domain,
             url: path,
@@ -112,6 +130,13 @@ impl EventProcessor {
             cwv_ttfb: None,
             scroll_depth_percentage: None,
             scroll_depth_pixels: None,
+            error_exceptions: String::new(),
+            error_type: String::new(),
+            error_message: String::new(),
+            error_fingerprint: String::new(),
+            global_properties_keys: Vec::new(),
+            global_properties_values: Vec::new(),
+            page_duration_seconds: 0,
         };
 
         // Handle event types
@@ -140,28 +165,22 @@ impl EventProcessor {
         }
 
         let root_domain = processed.domain.as_ref().and_then(|d| extract_root_domain(d));
-        
-        processed.visitor_fingerprint = generate_fingerprint(
-            &processed.event.ip_address,
-            processed.device_type.as_deref(),
-            processed.browser.as_deref(),
-            processed.browser_version.as_deref(),
-            processed.os.as_deref(),
-            root_domain.as_deref(),
-        );
 
-        let session_id_result = session::get_or_create_session_id(
-            &site_id, 
-            &processed.visitor_fingerprint, 
-        );
-
-        match session_id_result {
-            Ok(id) => processed.session_id = id,
-            Err(e) => {
-                error!("Failed to get session ID: {}. Event processing aborted for: {:?}", e, processed.event);
-                return Ok(());
-            }
+        let identity = {
+            let attrs = VisitorAttrs {
+                ip: &processed.event.ip_address,
+                device_type: processed.device_type.as_deref(),
+                browser: processed.browser.as_deref(),
+                browser_version: processed.browser_version.as_deref(),
+                os: processed.os.as_deref(),
+                root_domain: root_domain.as_deref(),
+            };
+            visitor::identify(&site_id, &attrs, timestamp)
         };
+
+        processed.visitor_fingerprint = identity.fingerprint;
+        processed.session_id = identity.session_id;
+        processed.session_created_at = identity.session_created_at;
 
         debug!("Site ID: {}", processed.site_id);
         debug!("Session ID: {}", processed.session_id);
@@ -199,22 +218,46 @@ impl EventProcessor {
             processed.cwv_fcp = processed.event.raw.cwv_fcp;
             processed.cwv_ttfb = processed.event.raw.cwv_ttfb;
         } else if event_name == "scroll_depth" {
-            processed.event_type = "scroll_depth".to_string();
+            // Legacy event from old cached trackers. Translate to engagement at ingest
+            // so queries only need to read 'engagement' rows. page_duration_seconds = 0
+            // is the canonical sentinel for "no usable duration"; the
+            // `page_duration_seconds > 0` query gate excludes these from time-on-page
+            // averages while still letting their scroll values contribute.
+            processed.event_type = "engagement".to_string();
+            processed.page_duration_seconds = 0;
+            processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
+            processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
+        } else if event_name == "client_error" {
+            processed.event_type = "client_error".to_string();
+            self.process_client_error(processed);
+        } else if event_name == "engagement" {
+            processed.event_type = "engagement".to_string();
+            processed.page_duration_seconds = processed.event.raw.page_duration_seconds.unwrap_or(0);
             processed.scroll_depth_percentage = processed.event.raw.scroll_depth_percentage;
             processed.scroll_depth_pixels = processed.event.raw.scroll_depth_pixels;
         } else {
             processed.event_type = event_name;
         }
-        
+
+        if let Some(ref gp) = processed.event.raw.global_properties {
+            let (keys, values) = decompose_global_properties(gp);
+            processed.global_properties_keys = keys;
+            processed.global_properties_values = values;
+        }
+
         Ok(())
     }
 
-    /// Get geolocation data for the IP
     async fn get_geolocation(&self, processed: &mut ProcessedEvent) -> Result<()> {
-        debug!("Performing Geolocation lookup");
-        processed.country_code = self.geoip_service.lookup_country_code(&processed.event.ip_address);
+        let geo = self.geoip_service.lookup(&processed.event.ip_address);
+
+        processed.country_code = geo.country_code;
+        processed.subdivision_code = geo.subdivision_code;
+        processed.city = geo.city;
+
         if processed.country_code.is_some() {
-            debug!("Geolocation successful: {:?}", processed.country_code);
+            debug!("Geolocation successful: country={:?}, subdivision={:?}, city={:?}",
+                processed.country_code, processed.subdivision_code, processed.city);
         } else {
             debug!("Geolocation lookup returned no country code.");
         }
@@ -237,9 +280,41 @@ impl EventProcessor {
         Ok(())
     }
     
+    fn process_client_error(&self, processed: &mut ProcessedEvent) {
+        let list = processed.event.raw.error_exceptions.clone().unwrap_or_default();
+        if let Ok(arr) = serde_json::from_str::<serde_json::Value>(&list) {
+            processed.error_type = arr[0]["type"].as_str().unwrap_or("").to_string();
+            processed.error_message = arr[0]["value"].as_str().unwrap_or("").to_string();
+        }
+        processed.error_fingerprint = generate_error_fingerprint(
+            &processed.error_type,
+            &list,
+        );
+        processed.error_exceptions = list;
+    }
+
     async fn detect_device_type_from_resolution(&self, processed: &mut ProcessedEvent) -> Result<()> {
         let device_type = detect_device_type_from_resolution_with_fallback(&processed.event.raw.screen_resolution);
         processed.device_type = Some(device_type);
         Ok(())
-    } 
+    }
+}
+
+fn decompose_global_properties(value: &serde_json::Value) -> (Vec<String>, Vec<String>) {
+    let Some(obj) = value.as_object() else {
+        return (Vec::new(), Vec::new());
+    };
+    let mut keys = Vec::with_capacity(obj.len());
+    let mut values = Vec::with_capacity(obj.len());
+    for (key, val) in obj {
+        let value_str = match val {
+            serde_json::Value::String(s) => s.clone(),
+            serde_json::Value::Number(n) => n.to_string(),
+            serde_json::Value::Bool(b) => b.to_string(),
+            _ => continue,
+        };
+        keys.push(key.clone());
+        values.push(value_str);
+    }
+    (keys, values)
 }

@@ -3,15 +3,15 @@ use std::time::Duration;
 use std::sync::Arc;
 
 use axum::{extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode}, Json};
+use tracing::error;
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 
-use crate::session;
 use crate::storage::s3::S3Service;
 use crate::site_config::SiteConfigCache;
 use crate::ua_parser;
-use crate::analytics::detect_device_type_from_resolution;
-use crate::analytics::generate_fingerprint;
+use crate::visitor;
+use crate::analytics::{VisitorAttrs, detect_device_type_from_resolution};
 use chrono::{DateTime, Utc};
 
 use crate::db::{SharedDatabase, SessionReplayRow};
@@ -19,6 +19,7 @@ use crate::processing::EventProcessor;
 use crate::metrics::MetricsCollector;
 use crate::validation::EventValidator;
 use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
+use crate::error_fingerprint::generate_error_fingerprint;
 
 #[derive(Clone)]
 pub struct FinalizeMeta {
@@ -27,6 +28,7 @@ pub struct FinalizeMeta {
     pub size_bytes: u64,
     pub start_url: String,
     pub event_count: u32,
+    pub error_fingerprints: Vec<String>,
 }
 
 static FINALIZE_CACHE: Lazy<Cache<String, FinalizeMeta>> = Lazy::new(|| {
@@ -35,12 +37,12 @@ static FINALIZE_CACHE: Lazy<Cache<String, FinalizeMeta>> = Lazy::new(|| {
         .build()
 });
 
-fn cache_key(site_id: &str, session_id: &str) -> String {
+fn cache_key(site_id: &str, session_id: u64) -> String {
     format!("{}:{}", site_id, session_id)
 }
 
 const PRESIGNED_PUT_TTL_SECS: u64 = 30;
-const MAX_CONTENT_LENGTH_BYTES: u64 = 1 * 1024 * 1024;
+const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
 const CONTENT_TYPE: &str = "application/json";
 
 #[derive(serde::Deserialize)]
@@ -57,9 +59,23 @@ pub struct PresignPutRequest {
 pub struct PresignPutResponse {
     pub url: String,
     pub key: String,
-    pub session_id: String,
-    pub visitor_id: String,
+    #[serde(with = "u64_as_string")]
+    pub session_id: u64,
+    #[serde(with = "u64_as_string")]
+    pub visitor_id: u64,
     pub sse: bool,
+}
+
+mod u64_as_string {
+    use serde::{Deserialize, Deserializer, Serializer};
+
+    pub fn serialize<S: Serializer>(v: &u64, s: S) -> Result<S::Ok, S::Error> {
+        s.collect_str(v)
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<u64, D::Error> {
+        String::deserialize(d)?.parse().map_err(serde::de::Error::custom)
+    }
 }
 
 pub async fn presign_put_segment(
@@ -69,7 +85,7 @@ pub async fn presign_put_segment(
     Json(req): Json<PresignPutRequest>,
 ) -> Result<Json<PresignPutResponse>, (StatusCode, String)> {
     let s3 = s3.ok_or((StatusCode::SERVICE_UNAVAILABLE, "S3 not configured".to_string()))?;
-    let ip_address = crate::parse_ip(headers.clone()).unwrap_or(addr.ip()).to_string();
+    let ip_address = crate::ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
 
     let user_agent = headers
         .get(axum::http::header::USER_AGENT)
@@ -85,24 +101,26 @@ pub async fn presign_put_segment(
         .and_then(|url| extract_domain_and_path_from_url(url).0)
         .and_then(|domain| extract_root_domain(&domain));
 
-    let fingerprint = generate_fingerprint(
-        &ip_address,
-        device_type_from_res.as_deref(),
-        Some(parsed.browser.as_str()),
-        parsed.browser_version.as_deref(),
-        Some(parsed.os.as_str()),
-        root_domain.as_deref(),
-    );
-
-    let session_id = session::get_or_create_session_id(&req.site_id, &fingerprint)
-        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    let identity = {
+        let attrs = VisitorAttrs {
+            ip: &ip_address,
+            device_type: device_type_from_res.as_deref(),
+            browser: Some(parsed.browser.as_str()),
+            browser_version: parsed.browser_version.as_deref(),
+            os: Some(parsed.os.as_str()),
+            root_domain: root_domain.as_deref(),
+        };
+        visitor::identify(&req.site_id, &attrs, Utc::now())
+    };
+    let fingerprint = identity.fingerprint;
+    let session_id = identity.session_id;
 
     if req.content_length == 0 || req.content_length > MAX_CONTENT_LENGTH_BYTES {
         return Err((StatusCode::BAD_REQUEST, "invalid content_length".to_string()));
     }
 
     let epoch_ms = req.ended_at_ms.unwrap_or_else(|| chrono::Utc::now().timestamp_millis());
-    let key = s3.build_replay_object_key(&req.site_id, &session_id, epoch_ms);
+    let key = s3.build_replay_object_key(&req.site_id, session_id, epoch_ms);
     let url = s3.presign_replay_put(
         &key,
         CONTENT_TYPE,
@@ -112,7 +130,10 @@ pub async fn presign_put_segment(
         },
         req.content_length,
         PRESIGNED_PUT_TTL_SECS,
-    ).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    ).await.map_err(|e| {
+        error!("Failed to presign replay PUT: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+    })?;
 
     Ok(Json(PresignPutResponse { url, key, session_id, visitor_id: fingerprint, sse: s3.sse_enabled }))
 }
@@ -120,20 +141,24 @@ pub async fn presign_put_segment(
 #[derive(serde::Deserialize)]
 pub struct FinalizeRequest {
     pub site_id: String,
-    pub session_id: String,
-    pub visitor_id: String,
+    #[serde(with = "u64_as_string")]
+    pub session_id: u64,
+    #[serde(with = "u64_as_string")]
+    pub visitor_id: u64,
     pub started_at: i64,
     pub ended_at: i64,
     pub size_bytes: u64,
     pub start_url: Option<String>,
     pub event_count: Option<u32>,
+    pub error_type: Option<String>,
+    pub error_exceptions: Option<String>,
 }
 
 pub async fn finalize_session_replay(
     State((db, _, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
     Json(req): Json<FinalizeRequest>,
 ) -> Result<StatusCode, (StatusCode, String)> {
-    let key = cache_key(&req.site_id, &req.session_id);
+    let key = cache_key(&req.site_id, req.session_id);
     let started = chrono::DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
     let ended = chrono::DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;
     let normalized_start_url = req
@@ -154,6 +179,7 @@ pub async fn finalize_session_replay(
             size_bytes: 0,
             start_url: normalized_start_url.clone(),
             event_count: 0,
+            error_fingerprints: Vec::new(),
         }
     };
 
@@ -163,6 +189,13 @@ pub async fn finalize_session_replay(
     meta.event_count = meta.event_count.saturating_add(req.event_count.unwrap_or_default());
     if meta.start_url.is_empty() {
         meta.start_url = normalized_start_url.clone();
+    }
+
+    if let (Some(error_type), Some(error_exceptions)) = (&req.error_type, &req.error_exceptions) {
+        let fp = generate_error_fingerprint(error_type, error_exceptions);
+        if !fp.is_empty() && !meta.error_fingerprints.contains(&fp) {
+            meta.error_fingerprints.push(fp);
+        }
     }
 
     let duration = (meta.ended_at.timestamp() - meta.started_at.timestamp()).max(0) as u32;
@@ -181,9 +214,13 @@ pub async fn finalize_session_replay(
         event_count: meta.event_count,
         s3_prefix,
         start_url: meta.start_url.clone(),
+        error_fingerprints: meta.error_fingerprints.clone(),
     };
 
-    db.upsert_session_replay(row).await.map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?;
+    db.upsert_session_replay(row).await.map_err(|e| {
+        error!("Failed to upsert session replay: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+    })?;
     FINALIZE_CACHE.insert(key, meta);
     Ok(StatusCode::OK)
 }

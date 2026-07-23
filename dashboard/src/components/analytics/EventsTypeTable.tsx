@@ -2,12 +2,15 @@
 
 import { EventTypeRow } from '@/entities/analytics/events.entities';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import { useLocale } from 'next-intl';
 
 interface EventsTableProps {
   data: EventTypeRow[];
 }
 
 export default function EventsTable({ data }: EventsTableProps) {
+  const locale = useLocale();
+
   return (
     <div className='border-border bg-card rounded-lg border shadow'>
       <div className='p-6'>
@@ -33,7 +36,7 @@ export default function EventsTable({ data }: EventsTableProps) {
                   <TableRow key={eventStat.event_name} className='border-border border-b last:border-b-0'>
                     <TableCell className='text-foreground py-4 font-medium'>{eventStat.event_name}</TableCell>
                     <TableCell className='text-foreground py-4 text-right'>
-                      {eventStat.count.toLocaleString()}
+                      {eventStat.count.toLocaleString(locale)}
                     </TableCell>
                   </TableRow>
                 ))

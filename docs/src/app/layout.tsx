@@ -13,7 +13,10 @@ import { docsTrackingEnabled, env } from "@/lib/env";
 import Logo from "./components/logo";
 
 export const metadata: Metadata = {
-  title: "Betterlytics Docs",
+  title: {
+    default: "Betterlytics Docs",
+    template: "%s - Betterlytics Docs",
+  },
   description:
     "Betterlytics documentation — guides, tutorials, and references for the privacy-first, cookieless analytics platform.",
   metadataBase: new URL("https://betterlytics.io"),
@@ -53,7 +56,16 @@ export const metadata: Metadata = {
 const navbar = (
   <>
     <Navbar
-      logo={<Logo variant="icon" width={32} height={32} priority />}
+      logo={
+        <>
+          <span className="md:hidden">
+            <Logo variant="icon" width={32} height={32} priority />
+          </span>
+          <span className="hidden md:inline-block">
+            <Logo variant="simple" width={28} height={28} showText textSize="sm" priority />
+          </span>
+        </>
+      }
       projectLink="https://github.com/betterlytics/betterlytics"
       chatLink="https://discord.gg/vwqSvPn6sP"
     >
@@ -118,9 +130,9 @@ export default async function RootLayout({
         )}
         <Layout
           navbar={navbar}
-          sidebar={{ autoCollapse: true }}
           pageMap={await getPageMap()}
           docsRepositoryBase="https://github.com/betterlytics/betterlytics/tree/main/docs"
+          editLink={null}
           footer={footer}
         >
           {children}

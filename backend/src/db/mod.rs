@@ -11,7 +11,7 @@ use crate::config::Config;
 use crate::processing::ProcessedEvent;
 
 mod models;
-pub use models::{EventRow, SessionReplayRow};
+pub use models::{ActiveSessionRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
 
 const NUM_INSERT_WORKERS: usize = 1;
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
@@ -36,6 +36,17 @@ impl Database {
         Self::spawn_dispatcher(event_rx, worker_senders);
 
         Ok(Self { clickhouse, event_tx, config })
+    }
+
+    /// Fetch the current session of every visitor active within `window`, from `analytics.sessions`
+    pub async fn fetch_active_sessions(&self, window: Duration) -> Result<Vec<ActiveSessionRow>> {
+        let rows = self
+            .clickhouse
+            .inner()
+            .query(&active_sessions_query(window))
+            .fetch_all::<ActiveSessionRow>()
+            .await?;
+        Ok(rows)
     }
 
     fn create_channels() -> (mpsc::Sender<ProcessedEvent>, mpsc::Receiver<ProcessedEvent>) {
@@ -120,15 +131,6 @@ impl Database {
             );
         }
 
-        if self.config.enable_billing {
-            if let Err(e) = self.ensure_billing_materialized_view().await {
-                eprintln!("[ERROR] Could not create billing materialized view: {}", e);
-                return Err(e);
-            }
-        } else {
-            println!("[INFO] Billing disabled - skipping billing materialized view creation.");
-        }
-
         println!("Database schema validation and TTL setup complete.");
         Ok(())
     }
@@ -166,43 +168,6 @@ impl Database {
         Ok(())
     }
 
-    async fn ensure_billing_materialized_view(&self) -> Result<()> {
-        println!("[INFO] Checking billing materialized view...");
-        
-        let mv_exists: u8 = self.clickhouse.inner()
-            .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'usage_by_site_daily' AND engine LIKE '%MaterializedView%'")
-            .fetch_one()
-            .await?;
-
-        if mv_exists == 0 {
-            println!("[INFO] Creating billing usage materialized view...");
-            
-            let create_mv_query = r#"
-                CREATE MATERIALIZED VIEW analytics.usage_by_site_daily
-                ENGINE = SummingMergeTree()
-                ORDER BY (site_id, date)
-                AS SELECT
-                    site_id,
-                    toDate(timestamp) as date,
-                    count() as event_count
-                FROM analytics.events
-                GROUP BY site_id, date
-            "#;
-
-            self.clickhouse.inner()
-                .query(create_mv_query)
-                .execute()
-                .await
-                .map_err(|e| anyhow::anyhow!("Failed to create billing materialized view: {}", e))?;
-            
-            println!("[INFO] Billing usage materialized view created successfully.");
-        } else {
-            println!("[INFO] Billing usage materialized view already exists.");
-        }
-
-        Ok(())
-    }
-
     pub async fn insert_event(&self, event: ProcessedEvent) -> Result<()> {
         self.event_tx.send(event).await?;
         Ok(())
@@ -212,6 +177,44 @@ impl Database {
         println!("Checking database connection");
         self.clickhouse.inner().query("SELECT 1").execute().await?;
         println!("Database connection check successful");
+        Ok(())
+    }
+
+    pub async fn referrer_dictionary_ready(&self) -> Result<bool> {
+        let table_exists: u8 = self.clickhouse.inner()
+            .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'referrer_source_categories'")
+            .fetch_one()
+            .await?;
+
+        let dictionary_exists: u8 = self.clickhouse.inner()
+            .query("SELECT count() FROM system.tables WHERE database = 'analytics' AND name = 'referrer_source_categories_dict' AND engine = 'Dictionary'")
+            .fetch_one()
+            .await?;
+
+        Ok(table_exists != 0 && dictionary_exists != 0)
+    }
+
+    pub async fn write_referrer_categories(
+        &self,
+        rows: Vec<ReferrerSourceCategoryRow>,
+    ) -> Result<()> {
+        let mut inserter = self
+            .clickhouse
+            .inner()
+            .inserter("analytics.referrer_source_categories")?
+            .with_max_rows(100_000);
+
+        for row in rows {
+            inserter.write(&row)?;
+        }
+
+        inserter.end().await?;
+        self.clickhouse
+            .inner()
+            .query("SYSTEM RELOAD DICTIONARY analytics.referrer_source_categories_dict")
+            .execute()
+            .await?;
+
         Ok(())
     }
 
@@ -314,4 +317,19 @@ async fn run_inserter_worker(
         worker_id, stats
     );
     Ok(())
+}
+
+/// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
+/// `idx_session_end` minmax skip index, so the cost is bounded by the number of *active*
+/// sessions, not total history; `argMax(.., session_end)` picks each visitor's current session.
+fn active_sessions_query(window: Duration) -> String {
+    let window_secs = window.as_secs();
+    format!(
+        "SELECT site_id, toUInt64(visitor_id) AS visitor_id, \
+                argMax(session_id, session_end) AS session_id, \
+                argMax(session_created_at, session_end) AS session_created_at \
+         FROM analytics.sessions \
+         WHERE session_end > now() - toIntervalSecond({window_secs}) \
+         GROUP BY site_id, visitor_id"
+    )
 }

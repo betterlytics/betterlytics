@@ -1,23 +1,42 @@
 'server-only';
 
-import { getVisitorsByCountry } from '@/repositories/clickhouse/geography.repository';
-import { toDateTimeString } from '@/utils/dateFormatters';
-import { GeoVisitor } from '@/entities/analytics/geography.entities';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import {
+  getVisitorsByCountry,
+  getVisitorsBySubdivision,
+  getVisitorsByCity,
+  getCompareVisitorsByCountry,
+  getCompareVisitorsBySubdivision,
+  getCompareVisitorsByCity,
+} from '@/repositories/clickhouse/geography.repository';
+import { GeoVisitor, GeoLevel } from '@/entities/analytics/geography.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-/**
- * Fetches visitor data aggregated by country code from the database
- * @param limit Limit for top countries. Defaults to 1000 to get all countries in practice.
- */
-export async function fetchVisitorsByGeography(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
+export async function fetchVisitorsByGeoLevel(
+  siteQuery: BASiteQuery,
+  level: GeoLevel,
   limit: number = 1000,
 ): Promise<GeoVisitor[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
+  switch (level) {
+    case 'country_code':
+      return getVisitorsByCountry(siteQuery, limit);
+    case 'subdivision_code':
+      return getVisitorsBySubdivision(siteQuery, limit);
+    case 'city':
+      return getVisitorsByCity(siteQuery, limit);
+  }
+}
 
-  return getVisitorsByCountry(siteId, formattedStart, formattedEnd, queryFilters, limit);
+export async function fetchCompareVisitorsByGeoLevel(
+  siteQuery: BASiteQuery,
+  level: GeoLevel,
+  keys: string[] | string[][],
+): Promise<GeoVisitor[]> {
+  switch (level) {
+    case 'country_code':
+      return getCompareVisitorsByCountry(siteQuery, keys as [string][]);
+    case 'subdivision_code':
+      return getCompareVisitorsBySubdivision(siteQuery, keys as [string, string][]);
+    case 'city':
+      return getCompareVisitorsByCity(siteQuery, keys as [string, string, string][]);
+  }
 }

@@ -7,9 +7,11 @@ import {
   handleInvoicePaymentFailed,
   handleSubscriptionDeleted,
   handleSubscriptionUpdated,
+  handlePendingUpdateApplied,
 } from '@/services/system/webhookHandlers.service';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { NonRetryableWebhookError } from '@/lib/exceptions';
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +30,7 @@ export async function POST(req: NextRequest) {
 
     let event: Stripe.Event;
     try {
-      event = stripe.webhooks.constructEvent(body, stripeSignature as string, env.STRIPE_WEBHOOK_SECRET);
+      event = stripe.webhooks.constructEvent(body, stripeSignature, env.STRIPE_WEBHOOK_SECRET);
     } catch (err) {
       console.error('Webhook signature verification failed:', err);
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
@@ -36,19 +38,23 @@ export async function POST(req: NextRequest) {
 
     switch (event.type) {
       case 'checkout.session.completed':
-        await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);
+        await handleCheckoutCompleted(event.data.object, event.id);
         break;
 
       case 'invoice.payment_failed':
-        await handleInvoicePaymentFailed(event.data.object as Stripe.Invoice);
+        await handleInvoicePaymentFailed(event.data.object);
         break;
 
       case 'customer.subscription.deleted':
-        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
+        await handleSubscriptionDeleted(event.data.object, event.id);
         break;
 
       case 'customer.subscription.updated':
-        await handleSubscriptionUpdated(event.data.object as Stripe.Subscription);
+        await handleSubscriptionUpdated(event.data.object, event.id);
+        break;
+
+      case 'customer.subscription.pending_update_applied':
+        await handlePendingUpdateApplied(event.data.object, event.id);
         break;
 
       default:
@@ -57,6 +63,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true });
   } catch (error) {
+    if (error instanceof NonRetryableWebhookError) {
+      console.error('Dropping non-retryable webhook event:', error.message);
+      return NextResponse.json({ received: true, dropped: true });
+    }
     console.error('Webhook error:', error);
     return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
   }

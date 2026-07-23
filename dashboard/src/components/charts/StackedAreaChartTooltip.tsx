@@ -6,6 +6,9 @@ import { getTrendInfo, formatDifference, defaultDateLabelFormatter } from '@/uti
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { Separator } from '@/components/ui/separator';
+import { useLocale, useTranslations } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
+import { usePartialBucketRange } from '@/hooks/use-partial-bucket-range';
 
 interface PayloadEntry {
   value: number;
@@ -18,8 +21,8 @@ interface StackedAreaChartTooltipProps {
   active?: boolean;
   payload?: any;
   label?: string | number;
-  formatter?: (value: number) => string;
-  labelFormatter?: (date: string | number, granularity?: GranularityRangeValues) => string;
+  formatter?: (value: number, locale?: SupportedLanguages) => string;
+  labelFormatter?: (date: string | number, granularity?: GranularityRangeValues, locale?: SupportedLanguages) => string;
   comparisonMap?: ComparisonMapping[];
   granularity?: GranularityRangeValues;
 }
@@ -28,20 +31,23 @@ export function StackedAreaChartTooltip({
   active,
   payload,
   label,
-  formatter = (value) => value.toLocaleString(),
+  formatter: formatterProp,
   labelFormatter = defaultDateLabelFormatter,
   comparisonMap,
   granularity,
 }: StackedAreaChartTooltipProps) {
+  const locale = useLocale();
+  const t = useTranslations('charts.tooltip');
+  const formatter = formatterProp ?? ((value: number, loc?: SupportedLanguages) => value.toLocaleString(loc));
+  const comparisonData = comparisonMap?.find((mapping) => mapping.currentDate === Number(label)) ?? null;
+
+  const { partialRange, comparePartialRange } = usePartialBucketRange(label, comparisonData?.compareDate);
+
   if (!active || !payload || !payload.length || !label) {
     return null;
   }
 
   const hasComparison = !!comparisonMap;
-
-  const comparisonData = hasComparison
-    ? comparisonMap.find((mapping) => mapping.currentDate === Number(label))
-    : null;
 
   const getCurrentValue = (entry: PayloadEntry): number => {
     return entry.value || 0;
@@ -59,17 +65,29 @@ export function StackedAreaChartTooltip({
   const sortedPayload = [...payload].sort((a, b) => getCurrentValue(b) - getCurrentValue(a));
 
   const totalTrend = getTrendInfo(currentTotal, compareTotal, hasComparison);
-  const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter, false);
+  const totalDifference = formatDifference(currentTotal, compareTotal, hasComparison, formatter, false, locale);
 
   return (
     <div className='border-border bg-popover/95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm'>
       <div className='mb-2'>
         <div className='text-muted-foreground text-sm font-medium tracking-wide'>
-          {labelFormatter(label, granularity)}
+          {labelFormatter(label, granularity, locale)}
         </div>
+        {partialRange && (
+          <div className='text-muted-foreground/60 mt-0.5 text-xs'>
+            (<span className='italic'>{t('partial')}: </span>
+            {partialRange})
+          </div>
+        )}
         {hasComparison && comparisonData && (
-          <div className='text-muted-foreground/60 mt-0.5 text-sm'>
-            {labelFormatter(comparisonData.compareDate, granularity)}
+          <div className='text-muted-foreground/60 mt-0.5'>
+            <div className='text-sm'>{labelFormatter(comparisonData.compareDate, granularity, locale)}</div>
+            {comparePartialRange && (
+              <div className='text-xs'>
+                (<span className='italic'>{t('partial')}: </span>
+                {comparePartialRange})
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -81,7 +99,7 @@ export function StackedAreaChartTooltip({
           const currentValue = getCurrentValue(entry);
           const compareValue = getCompareValue(entry);
           const trend = getTrendInfo(currentValue, compareValue, hasComparison);
-          const difference = formatDifference(currentValue, compareValue, hasComparison, formatter, false);
+          const difference = formatDifference(currentValue, compareValue, hasComparison, formatter, false, locale);
 
           return (
             <div key={entry.dataKey || index} className='space-y-1'>
@@ -101,7 +119,7 @@ export function StackedAreaChartTooltip({
                       )}
                     </>
                   )}
-                  <span className='text-popover-foreground text-sm font-medium'>{formatter(currentValue)}</span>
+                  <span className='text-popover-foreground text-sm font-medium'>{formatter(currentValue, locale)}</span>
                 </div>
               </div>
             </div>
@@ -113,7 +131,7 @@ export function StackedAreaChartTooltip({
         <div className='flex items-center justify-between gap-3'>
           <div className='flex items-center gap-2'>
             <div className='w-2 shrink-0' />
-            <span className='text-popover-foreground text-sm font-medium'>Total</span>
+            <span className='text-popover-foreground text-sm font-medium'>{t('total')}</span>
           </div>
           <div className='flex items-center gap-2'>
             {hasComparison && (
@@ -126,7 +144,7 @@ export function StackedAreaChartTooltip({
                 )}
               </>
             )}
-            <span className='text-popover-foreground text-sm font-medium'>{formatter(currentTotal)}</span>
+            <span className='text-popover-foreground text-sm font-medium'>{formatter(currentTotal, locale)}</span>
           </div>
         </div>
       </div>

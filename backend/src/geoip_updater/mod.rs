@@ -15,7 +15,8 @@ use tar::Archive;
 use httpdate::parse_http_date;
 use bytes::Bytes;
 
-const GEOIP_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databases/GeoLite2-Country/download?suffix=tar.gz";
+const GEOIP_CITY_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databases/GeoLite2-City/download?suffix=tar.gz";
+const GEOIP_COUNTRY_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databases/GeoLite2-Country/download?suffix=tar.gz";
 
 /// Notifies watchers when the GeoIP database is updated.
 pub type GeoIpWatchRx = watch::Receiver<Option<Arc<Reader<Vec<u8>>>>>;
@@ -26,6 +27,7 @@ pub struct GeoIpUpdater {
     config: Arc<Config>,
     client: Client,
     db_path: PathBuf,
+    database_url: &'static str,
     update_interval: Duration,
     watch_tx: GeoIpWatchTx,
 }
@@ -35,9 +37,16 @@ impl GeoIpUpdater {
     pub fn new(config: Arc<Config>) -> Result<(Self, GeoIpWatchRx)> {
         let (watch_tx, watch_rx) = watch::channel(None);
 
+        let database_url = if config.geolocation_mode.has_subdivisions() {
+            GEOIP_CITY_DATABASE_URL
+        } else {
+            GEOIP_COUNTRY_DATABASE_URL
+        };
+
         let updater = Self {
             client: Client::builder().user_agent("betterlytics-updater/0.1").build()?,
             db_path: config.geoip_db_path.clone(),
+            database_url,
             update_interval: config.geoip_update_interval,
             config,
             watch_tx,
@@ -47,7 +56,7 @@ impl GeoIpUpdater {
 
     /// Starts the background update check loop.
     pub async fn run(self: Arc<Self>) {
-        if !self.config.enable_geolocation || self.config.maxmind_account_id.is_none() || self.config.maxmind_license_key.is_none() {
+        if !self.config.geolocation_mode.is_enabled() || self.config.maxmind_account_id.is_none() || self.config.maxmind_license_key.is_none() {
             info!("GeoIP database auto-update disabled (geolocation disabled or credentials missing).");
             return;
         }
@@ -97,9 +106,9 @@ impl GeoIpUpdater {
         let account_id = self.config.maxmind_account_id.as_ref().unwrap();
         let license_key = self.config.maxmind_license_key.as_ref().unwrap();
 
-        debug!("Sending HEAD request to {}", GEOIP_DATABASE_URL);
+        debug!("Sending HEAD request to {}", self.database_url);
         let response = self.client
-            .head(GEOIP_DATABASE_URL)
+            .head(self.database_url)
             .basic_auth(account_id, Some(license_key))
             .send()
             .await?;
@@ -158,9 +167,9 @@ impl GeoIpUpdater {
         let account_id = self.config.maxmind_account_id.as_ref().unwrap();
         let license_key = self.config.maxmind_license_key.as_ref().unwrap();
 
-        debug!("Downloading database archive from {}", GEOIP_DATABASE_URL);
+        debug!("Downloading database archive from {}", self.database_url);
         let response = self.client
-            .get(GEOIP_DATABASE_URL)
+            .get(self.database_url)
             .basic_auth(account_id, Some(license_key))
             .send()
             .await?;

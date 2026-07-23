@@ -3,7 +3,12 @@ use std::sync::OnceLock;
 use url::Url;
 use std::path::Path;
 use tracing::info;
-use crate::url_utils::normalize_url;
+use crate::url_utils::{normalize_url, extract_root_domain};
+
+mod source_categories;
+mod sync;
+
+pub use sync::sync_referrer_categories;
 
 /// Referrer source categories
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -55,6 +60,8 @@ pub struct ReferrerInfo {
     pub url: Option<String>,
     /// Source category (direct, search, social, etc.)
     pub source_type: ReferrerSource,
+    /// Canonical source name from the referrer database (e.g. "Google", "LinkedIn")
+    pub source_canonical: Option<String>,
     /// Source name (e.g., "Google", "Facebook", etc.)
     pub source_name: Option<String>,
     /// Search term (if available from search engines)
@@ -133,6 +140,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
             return ReferrerInfo {
                 url: None,
                 source_type: ReferrerSource::Direct,
+                source_canonical: None,
                 source_name: None,
                 search_term: None,
             }
@@ -145,15 +153,34 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
             return ReferrerInfo {
                 url: Some(referrer_str.to_string()),
                 source_type: ReferrerSource::Other,
+                source_canonical: None,
                 source_name: None,
                 search_term: None,
             };
         }
     };
     
-    // Get the parser and lookup the referrer URL
+    // Get the parser and lookup the referrer URL.
+    // The refparser crate only accepts http/https schemes and matches domains verbatim,
+    // so we normalize the URL before lookup:
+    // - android-app://com.linkedin.android -> http://com.linkedin.android/
+    // - https://www.linkedin.com/feed/     -> http://linkedin.com/feed/
     let parser = get_parser();
-    let referrer_info = parser.lookup(&referrer_url);
+    let is_http_scheme = matches!(referrer_url.scheme(), "http" | "https");
+    let lookup_url: Option<Url> = if is_http_scheme {
+        let host = referrer_url.host_str().unwrap_or("");
+        let normalized_host = host.strip_prefix("www.").unwrap_or(host);
+        Url::parse(&format!("http://{}{}", normalized_host, referrer_url.path())).ok()
+    } else {
+        referrer_url
+            .host_str()
+            .and_then(|h| Url::parse(&format!("http://{}/", h)).ok())
+    };
+    let referrer_info = lookup_url.as_ref().and_then(|u| parser.lookup(u));
+    let source_canonical = referrer_info
+        .as_ref()
+        .map(|ref_info| ref_info.source.clone())
+        .filter(|source| !source.is_empty());
 
     // Determine the source based on refparser result
     let source_type = if let Some(ref_info) = &referrer_info {
@@ -197,7 +224,11 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
         None
     };
     
-    let referrer_name = referrer_info.as_ref().map(|r| r.source.clone());
+    let referrer_name = if is_http_scheme {
+        referrer_url.host_str().and_then(|h| extract_root_domain(h))
+    } else {
+        referrer_url.host_str().map(|h| h.to_string())
+    };
 
     // Determine if this is a search medium and get search parameters
     let (is_search_engine, search_params) = if let Some(ref_info) = &referrer_info {
@@ -212,6 +243,7 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
     ReferrerInfo {
         url: Some(sanitized_referrer),
         source_type,
+        source_canonical,
         source_name: referrer_name,
         search_term,
     }

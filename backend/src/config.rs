@@ -2,6 +2,22 @@ use std::env;
 use std::path::PathBuf;
 use std::time::Duration;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GeolocationMode {
+    Disabled,
+    Countries,
+    Subdivisions,
+}
+
+impl GeolocationMode {
+    pub fn is_enabled(self) -> bool {
+        self != GeolocationMode::Disabled
+    }
+
+    pub fn has_subdivisions(self) -> bool {
+        self == GeolocationMode::Subdivisions
+    }
+}
 
 #[derive(Debug)]
 pub struct Config {
@@ -12,17 +28,17 @@ pub struct Config {
     pub clickhouse_user: String,
     pub clickhouse_password: String,
     // GeoIP configuration
-    pub enable_geolocation: bool,
+    pub geolocation_mode: GeolocationMode,
     pub maxmind_account_id: Option<String>,
     pub maxmind_license_key: Option<String>,
     pub geoip_db_path: PathBuf,
     pub geoip_update_interval: Duration,
     // Referrer and User Agent parsing configuration
     pub referrer_db_path: PathBuf,
+    pub custom_referrers_path: PathBuf,
+    pub ga4_source_categories_path: PathBuf,
     pub ua_regexes_path: PathBuf,
     pub data_retention_days: i32,
-    // Billing configuration
-    pub enable_billing: bool,
     // Monitoring configuration
     pub enable_monitoring: bool,
     pub enable_uptime_monitoring: bool,
@@ -31,6 +47,8 @@ pub struct Config {
     pub monitor_incidents_table: String,
     // Session replay configuration
     pub enable_session_replay: bool,
+    // Warm the in-memory session cache from ClickHouse on boot (so sessions survive restarts)
+    pub session_cache_warm_enabled: bool,
     // S3 session replay storage configuration
     pub s3_enabled: bool,
     pub s3_region: Option<String>,
@@ -42,12 +60,18 @@ pub struct Config {
     pub s3_sse_enabled: bool,        // enable SSE (AES256) on uploaded objects
     // Site-config cache database (read-only)
     pub site_config_database_url: String,
+    // Salt database (read-write) - stores the secret rotating fingerprint salts
+    pub salts_database_url: String,
     // Development mode - allows localhost monitoring targets
     pub is_development: bool,
     // Public-facing base URL (used for dashboard links in emails, etc.)
     pub public_base_url: String,
     // Email configuration (None = email disabled)
     pub email: Option<EmailConfig>,
+    // Integration config encryption key (32 bytes)
+    pub integration_encryption_key: Option<[u8; 32]>,
+    // Pushover integration
+    pub pushover_app_token: Option<String>,
 }
 
 impl Config {
@@ -55,6 +79,20 @@ impl Config {
         // Load environment variables from the root directory (parent of backend)
         let root_env_path = PathBuf::from("../.env");
         dotenv::from_path(&root_env_path).ok();
+
+        let geo_enabled = env::var("ENABLE_GEOLOCATION")
+            .map(|val| val.to_lowercase() == "true")
+            .unwrap_or(false);
+        let geo_mode = env::var("GEOLOCATION_MODE")
+            .unwrap_or_else(|_| "country".to_string())
+            .to_lowercase();
+        let geolocation_mode = if !geo_enabled {
+            GeolocationMode::Disabled
+        } else if geo_mode == "full" {
+            GeolocationMode::Subdivisions
+        } else {
+            GeolocationMode::Countries
+        };
 
         Config {
             server_port: env::var("SERVER_PORT")
@@ -72,14 +110,16 @@ impl Config {
             clickhouse_password: env::var("CLICKHOUSE_BACKEND_PASSWORD")
                 .unwrap_or_else(|_| "password".to_string()),
             // GeoIP configuration
-            enable_geolocation: env::var("ENABLE_GEOLOCATION")
-                .map(|val| val.to_lowercase() == "true")
-                .unwrap_or(false),
+            geolocation_mode,
             maxmind_account_id: env::var("MAXMIND_ACCOUNT_ID").ok(),
             maxmind_license_key: env::var("MAXMIND_LICENSE_KEY").ok(),
             geoip_db_path: env::var("GEOIP_DB_PATH")
                 .map(PathBuf::from)
-                .unwrap_or_else(|_| PathBuf::from("assets/geoip/GeoLite2-Country.mmdb")),
+                .unwrap_or_else(|_| if geolocation_mode.has_subdivisions() {
+                    PathBuf::from("assets/geoip/GeoLite2-City.mmdb")
+                } else {
+                    PathBuf::from("assets/geoip/GeoLite2-Country.mmdb")
+                }),
             geoip_update_interval: Duration::from_secs(
                 env::var("GEOIP_UPDATE_INTERVAL")
                     .ok()
@@ -90,6 +130,12 @@ impl Config {
             referrer_db_path: env::var("REFERRER_DB_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/snowplow_referers/referers-latest.json")),
+            custom_referrers_path: env::var("CUSTOM_REFERRERS_PATH")
+                .map(PathBuf::from)
+                .unwrap_or_else(|_| PathBuf::from("assets/referrers_lists/custom_referrers.json")),
+            ga4_source_categories_path: env::var("GA4_SOURCE_CATEGORIES_PATH")
+                .map(PathBuf::from)
+                .unwrap_or_else(|_| PathBuf::from("assets/referrers_lists/ga4-source-categories.csv")),
             ua_regexes_path: env::var("UA_REGEXES_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/user_agent_headers/regexes.yaml")),
@@ -97,10 +143,6 @@ impl Config {
                 .unwrap_or_else(|_| "365".to_string())
                 .parse()
                 .unwrap_or(365),
-            // Billing configuration
-            enable_billing: env::var("ENABLE_BILLING")
-                .map(|val| val.to_lowercase() == "true")
-                .unwrap_or(false),
             // Monitoring configuration
             enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")
@@ -117,6 +159,10 @@ impl Config {
             enable_session_replay: env::var("SESSION_REPLAYS_ENABLED")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
+            // On by default; can be used to disable session warming if it catches a bad query plan
+            session_cache_warm_enabled: env::var("ENABLE_SESSION_CACHE_WARM")
+                .map(|val| val.to_lowercase() != "false")
+                .unwrap_or(true),
             // S3 configuration (optional; defaults to disabled)
             s3_enabled: env::var("S3_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             s3_region: env::var("S3_REGION").ok(),
@@ -128,6 +174,8 @@ impl Config {
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
                 .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
+            salts_database_url: env::var("SALTS_DATABASE_URL")
+                .expect("SALTS_DATABASE_URL must be set to a valid read-write Postgres URL for the fingerprint salts table"),
             is_development: env::var("IS_DEVELOPMENT")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
@@ -136,6 +184,20 @@ impl Config {
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
             // Email configuration (None = email disabled)
             email: EmailConfig::from_env(),
+            // Integration config encryption key
+            integration_encryption_key: env::var("INTEGRATION_ENCRYPTION_KEY").ok().map(|key| {
+                let bytes = key.as_bytes();
+                assert!(
+                    bytes.len() == 32,
+                    "INTEGRATION_ENCRYPTION_KEY must be exactly 32 bytes, got {}",
+                    bytes.len()
+                );
+                let mut arr = [0u8; 32];
+                arr.copy_from_slice(bytes);
+                arr
+            }),
+            // Pushover integration
+            pushover_app_token: env::var("PUSHOVER_APP_TOKEN").ok(),
         }
     }
 }

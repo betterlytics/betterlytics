@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useBannerContext } from '@/contexts/BannerProvider';
+import { useBillingFlow } from '@/contexts/BillingFlowProvider';
 import { getUserBillingData } from '@/actions/billing.action';
 
 interface UsageAlertBannerProps {
@@ -15,8 +15,10 @@ interface UsageAlertBannerProps {
 
 export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBannerProps) {
   const t = useTranslations('banners.usageAlert');
+  const locale = useLocale();
   const billingData = use(billingDataPromise);
   const { addBanner, removeBanner } = useBannerContext();
+  const { openPlanPicker } = useBillingFlow();
 
   useEffect(() => {
     if (!billingData.success) {
@@ -36,19 +38,19 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
       level: 'warning',
       title: t('title'),
       description: t.rich('description', {
-        percentage: formatPercentage(usage.usagePercentage),
-        current: usage.current.toLocaleString(),
-        limit: usage.limit.toLocaleString(),
+        percentage: formatPercentage(usage.usagePercentage, locale),
+        current: usage.current.toLocaleString(locale),
+        limit: usage.limit.toLocaleString(locale),
         strong: (chunks) => <strong>{chunks}</strong>,
       }),
       action: (
         <Button
-          asChild
           variant='default'
+          onClick={openPlanPicker}
           className='text-primary-foreground cursor-pointer border-1 border-white bg-amber-600/50 shadow-md hover:bg-amber-600/20'
           size='sm'
         >
-          <Link href='/billing'>{t('action')}</Link>
+          {t('action')}
         </Button>
       ),
       dismissible: true,
@@ -57,7 +59,7 @@ export default function UsageAlertBanner({ billingDataPromise }: UsageAlertBanne
     });
 
     return () => removeBanner('usage-alert-banner');
-  }, [addBanner, removeBanner, t]);
+  }, [billingData, addBanner, removeBanner, openPlanPicker, t, locale]);
 
   return null;
 }

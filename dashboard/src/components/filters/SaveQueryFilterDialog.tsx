@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { SaveIcon, Loader2Icon } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,6 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
         })),
       });
       toast.success(t('selector.toastFilterSavedSuccess'));
-      setFilterName('');
       onOpenChange(false);
     } catch {
       toast.error(t('selector.toastFilterSavedError'));
@@ -46,19 +45,15 @@ export function SaveQueryFilterDialog({ open, onOpenChange, filters }: SaveQuery
     baEvent('query-filter-saved');
   }, [filterName, filters, createSavedFilterMutation, onOpenChange, t]);
 
-  const handleOpenChange = useCallback(
-    (isOpen: boolean) => {
-      if (!isOpen) {
-        setFilterName('');
-      }
-      onOpenChange(isOpen);
-    },
-    [onOpenChange],
-  );
+  useEffect(() => {
+    if (open) {
+      setFilterName('');
+    }
+  }, [open]);
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='max-w-[320px]'>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent aria-describedby={undefined} className='max-w-[320px]'>
         <DialogHeader>
           <DialogTitle>{t('selector.saveFiltersTitle')}</DialogTitle>
         </DialogHeader>

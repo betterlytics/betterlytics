@@ -59,6 +59,7 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
       .httpMethod(payload.httpMethod)
       .statusCodes(payload.acceptedStatusCodes)
       .customHeaders(payload.requestHeaders)
+      .expectedKeyword(payload.expectedKeyword, payload.httpMethod)
       .monitorLimit(() => countMonitorChecks(ctx.dashboardId))
       .validate();
 
@@ -87,6 +88,7 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
       .httpMethod(payload.httpMethod)
       .statusCodes(payload.acceptedStatusCodes)
       .customHeaders(payload.requestHeaders)
+      .expectedKeyword(payload.expectedKeyword, payload.httpMethod)
       .validate();
 
     const updated = await updateMonitorCheck(ctx.dashboardId, payload);

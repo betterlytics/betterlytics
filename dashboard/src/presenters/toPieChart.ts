@@ -5,7 +5,7 @@ type DataToPieChartProps<K extends string, D extends string> = {
 };
 
 type ToPieChartProps<K extends string, D extends string> = DataToPieChartProps<K, D> & {
-  compare?: Array<Record<K, string> & Record<D, number>>;
+  compare?: Array<Record<K, string> & Record<D, number>> | null;
 };
 
 function dataToPieChart<K extends string, D extends string>({ key, dataKey, data }: ToPieChartProps<K, D>) {
@@ -35,7 +35,7 @@ export function toPieChart<K extends string, D extends string>({
     data,
   });
 
-  if (compare === undefined) {
+  if (compare === undefined || compare === null) {
     return chart;
   }
 

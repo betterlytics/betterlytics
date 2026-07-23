@@ -935,10 +935,9 @@
           "Betterlytics"
         ]
       },
-
       "hero": {
         "title": "A <highlight>Better Alternative</highlight> to Google Analytics",
-        "description": "Simple, powerful analytics that respect privacy.<br></br>Cookieless, GDPR-ready, and no cookie banners required.",
+        "description": "Simple, powerful analytics that respect privacy. <br></br>Cookieless, GDPR-ready, and no cookie banners required.",
         "ctaPrimary": "Get Started for Free",
         "ctaGithub": "View on GitHub",
         "ctaDemo": "View live demo",
@@ -987,7 +986,7 @@
         "categories": {
           "analytics": "Analytics & Insights",
           "engagement": "Engagement & Behavior",
-          "performance": "Performance & Sources"
+          "performance": "Monitoring & Performance"
         },
         "featuresButton": "Explore All Features",
         "featuresTitle": "Explore all Betterlytics features"
@@ -1006,17 +1005,29 @@
           "script": {
             "title": "Simple Script Tag",
             "description": "Add one line to your HTML and start tracking immediately. Works with any website or CMS.",
-            "features": { "f1": "One-line installation", "f2": "Works anywhere", "f3": "No build process needed" }
+            "features": {
+              "f1": "One-line installation",
+              "f2": "Works anywhere",
+              "f3": "No build process needed"
+            }
           },
           "framework": {
             "title": "Framework Ready",
             "description": "Native support for React, Next.js, Vue, and other modern frameworks with TypeScript.",
-            "features": { "f1": "TypeScript support", "f2": "Framework components", "f3": "Tree-shakeable" }
+            "features": {
+              "f1": "TypeScript support",
+              "f2": "Framework components",
+              "f3": "Tree-shakeable"
+            }
           },
           "selfHosted": {
             "title": "Self-Hosted Option",
             "description": "Deploy on your own infrastructure with Docker for complete data ownership and control.",
-            "features": { "f1": "Docker deployment", "f2": "Complete control", "f3": "GDPR compliant" }
+            "features": {
+              "f1": "Docker deployment",
+              "f2": "Complete control",
+              "f3": "GDPR compliant"
+            }
           }
         },
         "guideButton": "View Integration Guide",
@@ -1047,10 +1058,6 @@
           "title": "Core Web Vitals",
           "description": "Monitor and measure your site's performance with Core Web Vitals."
         },
-        "outboundLinks": {
-          "title": "Outbound Links",
-          "description": "Track clicks to external sites, social links, docs, and more."
-        },
         "trafficSources": {
           "title": "Traffic Sources",
           "description": "Discover where your visitors are arriving from and optimize your marketing efforts.",
@@ -1064,6 +1071,18 @@
             "email": "Email",
             "other": "Other"
           }
+        },
+        "errorTracking": {
+          "title": "Error Tracking",
+          "description": "Catch client-side errors early. Inspect stack traces and replay sessions to see exactly what went wrong.",
+          "status": {
+            "unresolved": "Unresolved",
+            "resolved": "Resolved"
+          },
+          "watchReplay": "Watch replay",
+          "usersAffected": "{count} users",
+          "summary": "37 errors this month",
+          "unresolved": "{count} unresolved"
         },
         "funnels": {
           "title": "Funnels",
@@ -1095,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Uptime Monitoring",
-          "description": "Get alerts when your site goes down, plus automatic SSL certificate monitoring.",
+          "description": "Get alerts when your site goes down, with SSL certificate monitoring and public status pages you can host on your own domain.",
           "alertDown": "{site} is down",
           "alertSent": "Alert sent to {email}",
           "incidentDetected": "{count, plural, one {{count} incident detected} other {{count} incidents detected}}",
@@ -1117,11 +1136,13 @@
           "Conversion Funnels",
           "Session Replay",
           "Custom Events",
+          "Uptime Monitoring",
+          "Public Status Pages",
           "Web Analytics Features"
         ]
       },
       "hero": {
-        "title": "Every Feature You Need for<br></br><highlight>Better Analytics</highlight>",
+        "title": "Every Feature You Need for <br></br><highlight>Better Analytics</highlight>",
         "description": "Explore everything Betterlytics offers, from real-time dashboards to conversion funnels. All the analytics you need, without cookies, consent banners, or compromising on privacy.",
         "ctaPrimary": "Get Started Free",
         "ctaDemo": "View Live Demo"
@@ -1184,9 +1205,17 @@
           "title": "Link Tracking",
           "description": "Monitor clicks on internal and outbound links to understand user engagement."
         },
+        "globalProperties": {
+          "title": "Global Properties",
+          "description": "Set persistent properties once and automatically attach them to all events, like user plan, role, or app version."
+        },
         "sessionReplay": {
           "title": "Session Replay",
           "description": "Replay user sessions to see exactly how visitors interact with your site and uncover usability issues."
+        },
+        "errorTracking": {
+          "title": "Error Tracking",
+          "description": "Automatically capture and group client-side errors, with stack traces and session replay links so you can reproduce and fix bugs fast."
         },
         "userJourneys": {
           "title": "User Journeys",
@@ -1208,6 +1237,10 @@
           "title": "Outbound Link Tracking",
           "description": "Track clicks on links leaving your site to measure user engagement."
         },
+        "emailReports": {
+          "title": "Email Reports",
+          "description": "Receive automated weekly or monthly analytics summaries delivered directly to your inbox."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Measure and optimize Google's page performance metrics to improve loading, interactivity, and search rankings."
@@ -1219,6 +1252,14 @@
         "sslMonitoring": {
           "title": "SSL Certificate Monitoring",
           "description": "Monitor SSL certificate status to avoid expired or insecure connections."
+        },
+        "statusPages": {
+          "title": "Public Status Pages",
+          "description": "Share live uptime and incident history with your users on a branded status page you can host on your own domain."
+        },
+        "notificationIntegrations": {
+          "title": "Notification Integrations",
+          "description": "Get alerted via Slack, Discord, Microsoft Teams, webhooks, and more when something needs your attention."
         },
         "cookieless": {
           "title": "No Cookies",
@@ -1280,6 +1321,10 @@
           "title": "High Performance",
           "description": "ClickHouse-powered analytics engine delivers sub-second query times at any scale."
         },
+        "mcpServer": {
+          "title": "MCP Server",
+          "description": "Query your analytics data from AI assistants like Claude. Built-in MCP server for natural language access to metrics, funnels, and user journeys."
+        },
         "emailSupport": {
           "title": "Email Support",
           "description": "Get help via email for any questions or issues."
@@ -1321,6 +1366,7 @@
       "documentation": "Documentation",
       "changelog": "Changelog",
       "pricing": "Pricing",
+      "status": "Status",
       "features": "Features",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1360,7 +1406,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Monthly Events"
+    "monthlyEvents": "Monthly Events",
+    "suggested": "Suggested",
+    "recommend": "Based on your estimated traffic, we recommend <emphasis>{events} events / month</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/month",
@@ -1371,19 +1419,29 @@
     },
     "features": {
       "upToEventsPerMonth": "Up to {events} events/month",
-      "allFeatures": "All dashboard & analytics features",
+      "customEventVolume": "Custom event volume",
       "twoSites": "Up to 2 sites",
       "upTo50Sites": "Up to 50 sites",
       "unlimitedSites": "Unlimited sites",
+      "threeTeamMembers": "Up to 3 team members",
+      "upTo50TeamMembers": "Up to 50 team members",
+      "unlimitedTeamMembers": "Unlimited team members",
       "retention1PlusYear": "1+ year data retention",
       "retention3PlusYears": "3+ years data retention",
       "retention5PlusYears": "5+ years data retention",
-      "emailSupport": "Email support",
-      "prioritySupport": "Priority support",
-      "dedicatedSupport": "Dedicated support & help",
+      "fullDashboard": "Full web analytics dashboard",
+      "funnelsJourneys": "Funnels & user journeys",
+      "sessionReplay": "Session replay",
+      "errorTracking": "Error tracking",
+      "uptime1": "1 uptime monitor & public status page",
+      "uptime50": "50 uptime monitors with 1-minute checks",
+      "uptimeUnlimited": "Unlimited uptime monitors & status pages",
+      "statusPagesPro": "White-label status pages on your own domain",
+      "emailReports": "Scheduled email reports",
+      "dedicatedSupport": "Dedicated support",
       "slaGuarantee": "SLA guarantee",
-      "everythingInStarter": "Everything in Growth",
-      "everythingInProfessional": "Everything in Professional"
+      "everythingInStarter": "Everything in Growth, plus:",
+      "everythingInProfessional": "Everything in Professional, plus:"
     },
     "cta": {
       "getStartedForFree": "Get Started for Free",
@@ -1394,12 +1452,12 @@
       "contactUs": "Contact Us"
     },
     "badges": {
-      "mostPopular": "Most Popular",
+      "mostPopular": "Recommended",
       "current": "Current"
     },
     "labels": {
       "free": "Free",
-      "custom": "Contact us"
+      "custom": "Custom"
     }
   },
   "pricingComparison": {
@@ -1419,7 +1477,6 @@
       "monthlyEvents": {
         "name": "Monthly events",
         "values": {
-          "range": "10K – 10M+",
           "custom": "Custom"
         }
       },
@@ -1442,8 +1499,8 @@
       "teamMembers": {
         "name": "Team members",
         "values": {
-          "1": "1",
-          "upTo5": "Up to 5",
+          "upTo3": "Up to 3",
+          "upTo50": "Up to 50",
           "unlimited": "Unlimited"
         }
       },
@@ -1467,6 +1524,12 @@
       },
       "campaignTracking": {
         "name": "Campaign & UTM tracking"
+      },
+      "errorTracking": {
+        "name": "Client-side error tracking"
+      },
+      "emailReports": {
+        "name": "Email reports"
       },
       "uptimeMonitoring": {
         "name": "Uptime monitoring",
@@ -1494,6 +1557,23 @@
       },
       "customStatusCodes": {
         "name": "Custom accepted status codes"
+      },
+      "notificationIntegrations": {
+        "name": "Notification integrations (Slack, Discord, etc.)"
+      },
+      "statusPages": {
+        "name": "Public status pages",
+        "values": {
+          "1": "1 status page",
+          "3": "3 status pages",
+          "unlimited": "Unlimited status pages"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Status page custom domain"
+      },
+      "statusPageWhiteLabel": {
+        "name": "White-label status pages"
       },
       "emailSupport": {
         "name": "Email support"
@@ -1525,7 +1605,8 @@
         "outboundLinks": "Outbound link tracking",
         "advancedFiltering": "Advanced filtering",
         "cookieFree": "Cookie-free",
-        "gdprCcpa": "GDPR & CCPA ready"
+        "gdprCcpa": "GDPR & CCPA ready",
+        "errorTracking": "Client-side error tracking"
       }
     }
   },
@@ -1545,12 +1626,14 @@
       "webVitals": "Web Vitals",
       "sessionReplay": "Session Replay",
       "monitoring": "Monitoring",
+      "statusPages": "Status Pages",
       "categories": {
         "analytics": "Analytics",
         "behavior": "Behavior",
         "observability": "Observability"
       },
-      "collapseNav": "Collapse nav"
+      "collapseNav": "Collapse nav",
+      "errorTracking": "Error Tracking"
     },
     "settings": {
       "sidebar": {
@@ -1559,6 +1642,9 @@
         "data": "Data",
         "rules": "Rules",
         "members": "Members",
+        "reports": "Email Reports",
+        "mcp": "MCP",
+        "integrations": "Integrations",
         "dangerZone": "Danger Zone"
       }
     },
@@ -1576,7 +1662,7 @@
       "geography": "Geography",
       "devicesBreakdown": "Devices",
       "trafficSources": "Traffic Sources",
-      "customEvents": "Custom Events",
+      "events": "Events",
       "weeklyTrends": "Weekly Trends"
     },
     "goTo": "Go to {section}",
@@ -1584,7 +1670,9 @@
       "pages": "Pages",
       "entryPages": "Entry Pages",
       "exitPages": "Exit Pages",
-      "topCountries": "Top Countries",
+      "countries": "Countries",
+      "regions": "Regions",
+      "cities": "Cities",
       "worldMap": "World Map",
       "browsers": "Browsers",
       "devices": "Devices",
@@ -1592,17 +1680,14 @@
       "referrers": "Referrers",
       "sources": "Sources",
       "channels": "Channels",
-      "events": "Events"
+      "events": "Custom Events",
+      "topProperties": "Global Properties"
     },
     "emptyStates": {
       "adjustTimeRange": "Adjust time range or filters",
       "noUserJourneyData": "No user journey data available",
       "noData": "No data available"
     }
-  },
-  "devicesPage": {
-    "title": "Devices",
-    "description": "Visitor device breakdown and usage analytics"
   },
   "dashboardsPage": {
     "title": "Your Dashboards",
@@ -1611,6 +1696,8 @@
     "emptyTitle": "No dashboards yet",
     "emptyDescription": "Create your first dashboard to start tracking analytics for your website.",
     "memberCountTooltip": "{count, plural, one {{count} member} other {{count} members}}",
+    "goToDashboardTooltip": "Go to {domain}",
+    "settingsTooltip": "Dashboard settings",
     "createCard": {
       "title": "Create Dashboard",
       "description": "Add a new dashboard"
@@ -1702,12 +1789,12 @@
       "blocked_ip_literal": "IP address not allowed",
       "dns_blocked": "DNS resolved to blocked address",
       "dns_error": "DNS resolution failed",
+      "keyword_not_found": "Expected keyword not found in response",
       "unknown": "Unknown error"
     }
   },
   "monitoringPage": {
     "title": "Monitoring",
-    "table": {},
     "filters": {
       "statusLabel": "Status",
       "sortLabel": "Sort",
@@ -1778,7 +1865,8 @@
           "label": "Incident sensitivity",
           "description": "Number of consecutive failures before an incident is triggered",
           "valueOne": "1 failure",
-          "valueOther": "{count} failures"
+          "valueOther": "{count} failures",
+          "unit": "{count, plural, one {failure} other {failures}}"
         }
       },
       "actions": {
@@ -1957,6 +2045,12 @@
           "invalidFormat": "Please enter a valid status code (e.g., 200) or range (e.g., 2xx)",
           "outOfRange": "Status code must be between 100 and 599"
         }
+      },
+      "expectedKeyword": {
+        "label": "Expected keyword",
+        "description": "Alert if this text is missing from the HTML source (first 32 KB). Use text visible in the raw HTML, not content rendered by JavaScript.",
+        "placeholder": "e.g. Welcome, Dashboard, OK",
+        "requiresGet": "Keyword validation requires the GET method"
       }
     },
     "alerts": {
@@ -1976,14 +2070,17 @@
       "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
       "sslExpiryDays": "Days before expiry",
       "sslExpiryDaysDescription": "Send an alert this many days before the SSL certificate expires",
-      "daysCount": "{count, plural, one {{count} day} other {{count} days}}"
+      "daysCount": "{count, plural, one {{count} day} other {{count} days}}",
+      "unit": "{count, plural, one {day} other {days}}"
     }
   },
   "charts": {
     "tooltip": {
       "vs": "vs",
       "currentPeriod": "Current Period",
-      "previousPeriod": "Previous Period"
+      "previousPeriod": "Previous Period",
+      "partial": "Partial",
+      "total": "Total"
     }
   },
   "misc": {
@@ -2004,22 +2101,11 @@
     "save": "Save",
     "saving": "Saving..."
   },
-  "languages": {
-    "da": "Danish",
-    "en": "English",
-    "it": "Italiano"
-  },
   "components": {
-    "weeklyHeatmap": {
-      "days": {
-        "monShort": "Mon.",
-        "tueShort": "Tue.",
-        "wedShort": "Wed.",
-        "thuShort": "Thu.",
-        "friShort": "Fri.",
-        "satShort": "Sat.",
-        "sunShort": "Sun."
-      }
+    "pagination": {
+      "pageOf": "Page {currentPage} of {totalPages}",
+      "showing": "Showing {startItem}-{endItem} of {totalItems} items",
+      "perPage": "per page"
     },
     "annotations": {
       "dialogs": {
@@ -2132,11 +2218,58 @@
         }
       },
       "interactive": {
-        "checkoutCanceled": "Checkout was canceled. You can try again anytime.",
         "contactForCustomPlan": "Please contact us for a custom plan",
-        "planSelectionFailed": "Failed to process plan selection, please try again.",
-        "subscriptionChangesNote": "Changes to your subscription will be processed immediately through Stripe's secure billing portal.",
-        "freePlanNote": "Start with our free plan - no credit card required."
+        "subscriptionChangesNote": "Changes to your subscription will be processed immediately, with prorated billing for any difference.",
+        "freePlanNote": "Start with our free plan — no credit card required."
+      },
+      "embeddedCheckout": {
+        "title": "Complete your subscription",
+        "description": "Securely complete your purchase with Stripe.",
+        "loadError": "We couldn't load the checkout. Please try again.",
+        "creatingSession": "Creating a secure checkout session…",
+        "successTitle": "Payment successful",
+        "successDescription": "You're now on {tier}. Welcome to Betterlytics!"
+      },
+      "planPicker": {
+        "title": "Choose your plan",
+        "description": "Choose the plan that fits your needs.",
+        "showComparison": "Compare all features",
+        "hideComparison": "Hide feature comparison"
+      },
+      "changePlan": {
+        "title": "Confirm plan change",
+        "description": "Review the prorated charges before confirming.",
+        "resumeNote": "Your subscription is scheduled to cancel — confirming this change keeps it active and resumes billing.",
+        "summaryCharge": "You'll switch to {tier} ({events} events / month) right away. {amount} will be charged now for the remaining period, and {nextAmount}/month thereafter starting {date}.",
+        "summaryCredit": "You'll switch to {tier} ({events} events / month). {amount} credit for unused time will be applied to your next invoice of {nextAmount}/month on {date}.",
+        "loading": "Calculating proration…",
+        "error": "Could not calculate proration. Please try again.",
+        "newPlanCharge": "New plan charge (prorated)",
+        "unusedTimeCredit": "Credit for unused time",
+        "accountCreditApplied": "Account credit applied",
+        "totalDueToday": "Due today",
+        "totalCreditedToday": "Credited today",
+        "confirm": "Confirm change",
+        "back": "Back",
+        "successLabel": "Plan changed",
+        "successDescription": "You're now on {tier}.",
+        "failureLabel": "Plan change failed",
+        "authRequiredLabel": "Verification needed",
+        "authenticatingLabel": "Verifying your payment",
+        "authenticatingDescription": "Complete the verification from your bank to finish your upgrade.",
+        "finalizingLabel": "Completing your upgrade…",
+        "close": "Close",
+        "tryAgain": "Try again",
+        "updatePaymentMethod": "Update payment method",
+        "errors": {
+          "cardDeclined": "We could not charge your payment method. Please update your card and try again.",
+          "authenticationRetry": "We couldn't verify your payment. Please try again to complete your upgrade.",
+          "unexpected": "Something went wrong. Please try again."
+        }
+      },
+      "creditBalance": {
+        "label": "Account credit",
+        "hint": "Applied automatically to future invoices"
       },
       "currentPlan": {
         "title": "Current Plan",
@@ -2150,19 +2283,24 @@
         "usageProgress": "{current} of {limit} events",
         "resetsInDays": "Resets in {days} days",
         "expiresInDays": "Expires in {days} days",
-        "canceled": "Canceled",
         "manage": "Manage Subscription",
         "reactivate": "Reactivate Subscription",
-        "cancel": "Cancel Subscription"
+        "cancel": "Cancel Subscription",
+        "pastDueBannerTitle": "Payment Past Due",
+        "pastDueBannerBody": "We couldn't process your last payment. Update your payment method to keep your subscription active.",
+        "updatePayment": "Update Payment Method"
+      },
+      "planStatus": {
+        "active": "Active",
+        "canceling": "Canceling",
+        "pastDue": "Past due",
+        "inactive": "Inactive"
       },
       "planNames": {
         "growth": "Growth Plan",
         "professional": "Pro Plan",
         "enterprise": "Enterprise"
       }
-    },
-    "dataTable": {
-      "noResults": "No results."
     },
     "timeRange": {
       "disabled": "Disabled",
@@ -2190,6 +2328,8 @@
         "1y": "Past Year"
       },
       "granularityLabels": {
+        "month": "Month",
+        "week": "Week",
         "day": "Day",
         "hour": "Hour",
         "minute_30": "30 min",
@@ -2202,6 +2342,10 @@
       "dashboard": {
         "initializing": "Initializing Dashboard",
         "loadingSettings": "Loading your dashboard settings..."
+      },
+      "geography": {
+        "title": "Initializing world map",
+        "description": "Preparing a geographic visualization of visitor data..."
       }
     },
     "devices": {
@@ -2218,10 +2362,6 @@
       "charts": {
         "deviceTypes": "Device Types",
         "deviceUsageTrend": "Device Usage Trend"
-      },
-      "trends": {
-        "noData": "No trend data available",
-        "adjustTimeRange": "Try adjusting the time range or filters"
       }
     },
     "campaign": {
@@ -2282,10 +2422,6 @@
       }
     },
     "events": {
-      "page": {
-        "title": "Events",
-        "description": "Analytics and insights for your custom events"
-      },
       "log": {
         "waiting": "Waiting for events...",
         "realTimeDesc": "Events will appear here in real-time as they occur",
@@ -2324,12 +2460,17 @@
       "operator": "Operator",
       "is": "is",
       "isNot": "is not",
+      "globalProperties": "{count, plural, one {Global Property} other {Global Properties}}",
+      "selectProperty": "Select property",
+      "noProperties": "No properties found",
       "namePlaceholder": "Enter step name",
       "columns": {
         "url": "URL",
         "domain": "Hostname",
         "device_type": "Device type",
         "country_code": "Country",
+        "subdivision_code": "Region",
+        "city": "City",
         "browser": "Browser",
         "os": "Operating system",
         "referrer_source": "Referrer source",
@@ -2342,7 +2483,8 @@
         "utm_term": "UTM term",
         "utm_content": "UTM content",
         "custom_event_name": "Event",
-        "event_type": "Event type"
+        "event_type": "Event type",
+        "outbound_link_url": "Outbound link"
       },
       "selector": {
         "triggerLabel": "Filters",
@@ -2363,9 +2505,12 @@
         "toastFilterDeletedSuccess": "Filter deleted",
         "toastFilterDeletedError": "Failed to delete filter",
         "toastUndo": "Undo",
-        "savedFiltersLimitReached": "Maximum saved filters reached"
+        "savedFiltersLimitReached": "Maximum saved filters reached",
+        "maxFiltersReached": "Maximum {max} filters",
+        "maxFiltersReachedToast": "You can apply up to {max} filters. Remove one to add another."
       },
-      "filterBy": "Filter by {label}"
+      "filterBy": "Filter by {label}",
+      "removeFilter": "Remove filter"
     },
     "funnels": {
       "skeleton": {
@@ -2377,13 +2522,6 @@
         },
         "step": "Step",
         "visitors": "Visitors"
-      },
-      "list": {
-        "steps": "steps",
-        "conversionRate": "Conversion rate",
-        "completed": "Completed",
-        "totalUsers": "Total users",
-        "largestDropOff": "Largest drop-off"
       },
       "create": {
         "defaultName": "My new funnel",
@@ -2398,7 +2536,14 @@
         "create": "Create",
         "createDisabledHint": "Enter a funnel name and define at least two steps. <br></br> Each step needs both a name and a selected value.",
         "successMessage": "Funnel created!",
-        "errorMessage": "Funnel creation failed!"
+        "errorMessage": "Funnel creation failed!",
+        "filterCount": "{count, plural, =0 {No filters} =1 {1 filter} other {# filters}}",
+        "tooltip": {
+          "deleteStep": "Delete step {index}",
+          "minStepsHint": "A funnel needs at least {count} steps",
+          "reorderStep": "Reorder step {index}",
+          "toggleStep": "Toggle step {index}"
+        }
       },
       "edit": {
         "title": "Edit funnel",
@@ -2429,7 +2574,8 @@
         "stepLabel": "Step {index}",
         "visitors": "Visitors",
         "dropOff": "Drop-off",
-        "conversion": "Conversion"
+        "conversion": "Conversion",
+        "and": "and"
       },
       "delete": {
         "title": "Delete funnel",
@@ -2439,25 +2585,9 @@
         "successMessage": "Funnel deleted!",
         "errorMessage": "Funnel deletion failed!"
       },
-      "page": {
-        "title": "Funnels",
-        "description": "Analyze user conversion paths"
-      },
+      "strictModeInfo": "When enabled, visitors must complete the steps in order without visiting any other pages in between.",
       "preview": {
-        "loading": "Loading preview...",
         "defineAtLeastTwoSteps": "Define at least 2 steps to see the preview."
-      },
-      "details": {
-        "title": "Funnel Analysis",
-        "steps": "steps",
-        "users": "users",
-        "dropped": "dropped",
-        "summary": {
-          "overallConversion": "Overall conversion",
-          "totalVisitors": "Total visitors",
-          "totalCompleted": "Total completed",
-          "biggestDropOff": "Biggest drop-off"
-        }
       },
       "emptyState": {
         "title": "Visualize your conversion funnel",
@@ -2477,8 +2607,10 @@
         "filterByPath": "Filter by {path}",
         "visitors": "Visitors",
         "pageviews": "Pageviews",
+        "sessionPageviews": "Session Pageviews",
         "bounceRate": "Bounce Rate",
         "avgTime": "Avg. Time",
+        "avgSessionTime": "Avg. Session Time",
         "entryRate": "Entry Rate",
         "exitRate": "Exit Rate",
         "avgScrollDepth": "Scroll depth",
@@ -2489,9 +2621,6 @@
       }
     },
     "referrers": {
-      "page": {
-        "description": "Analyze referral sources, traffic share, and performance trends."
-      },
       "summary": {
         "referralSessions": "Referral Sessions",
         "referralTrafficPct": "Referral Traffic %",
@@ -2528,7 +2657,8 @@
     "geography": {
       "noData": "No geographic data available for the selected period",
       "loading": "Loading map...",
-      "visitors": "Visitors"
+      "visitors": "Visitors",
+      "regionLoadError": "Failed to load region data"
     },
     "userJourney": {
       "steps": "Steps",
@@ -2536,12 +2666,6 @@
       "sessions": "Sessions"
     },
     "outboundLinks": {
-      "summary": {
-        "totalUniqueClicks": "Total Unique Clicks",
-        "uniqueVisitors": "Unique Visitors",
-        "topDomain": "Top Domain",
-        "topSourcePage": "Top Source Page"
-      },
       "table": {
         "title": "Outbound Link Performance",
         "destinationUrl": "Destination URL",
@@ -2628,7 +2752,8 @@
         "empty": {
           "title": "No session replays available",
           "description": "Try expanding your time range or adjusting filters."
-        }
+        },
+        "sessionErrorsTooltip": "This session captured {count}+ client-side errors"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -2650,7 +2775,10 @@
         "scroll": "Scroll",
         "input": "Input",
         "pageview": "Pageview",
-        "blacklist": "Blacklisted"
+        "blacklist": "Blacklisted",
+        "viewportResize": "Viewport Resize",
+        "mediaInteraction": "Media Interaction",
+        "clientError": "Client Error"
       },
       "player": {
         "skipInactive": "Skip inactivity",
@@ -2737,55 +2865,50 @@
     },
     "userSettings": {
       "tabs": {
-        "profile": "Profile",
+        "account": "Account",
         "preferences": "Preferences",
-        "usage": "Usage",
-        "billing": "Billing",
-        "security": "Security",
-        "danger": "Danger Zone"
+        "billing": "Billing"
       },
       "dialog": {
         "title": "User Settings",
         "description": "Manage your account settings and preferences.",
-        "loading": "Loading settings...",
-        "loadFailed": "Failed to load settings",
-        "noSettings": "No settings found",
-        "buttons": {
-          "cancel": "Cancel",
-          "saving": "Saving...",
-          "saveChanges": "Save Changes"
-        },
+        "upgradePlan": "Upgrade plan",
         "toast": {
-          "success": "Settings saved successfully!",
           "error": "Failed to save settings. Please try again."
+        },
+        "help": {
+          "trigger": "Need help?",
+          "documentation": "Documentation",
+          "reportBug": "Report a bug",
+          "contactSupport": "Contact support"
         }
       },
       "profile": {
         "title": "Profile",
-        "description": "Change your personal information",
         "nameLabel": "Name",
         "namePlaceholder": "Enter your name",
-        "optional": "Optional",
         "emailLabel": "Email",
         "verified": "Verified",
         "unverified": "Unverified",
-        "updateButton": "Update Profile",
+        "signedInWith": "Signed in with {provider}",
+        "memberSince": "Member since {date}",
+        "updateButton": "Update",
         "toast": {
-          "success": "Profile updated successfully",
-          "error": "Failed to update profile. Please try again."
+          "nameSuccess": "Name updated"
         }
       },
       "preferences": {
         "appearance": {
           "title": "Appearance",
-          "description": "Customize the visual appearance of your dashboard",
           "themeLabel": "Theme",
+          "themeDescription": "Choose a personal theme for the dashboard",
           "light": "Light",
           "dark": "Dark",
           "system": "System"
         },
         "avatar": {
           "label": "Avatar",
+          "description": "How your profile picture is shown",
           "none": "None",
           "gravatar": "Gravatar",
           "noteIntro": "Note: Gravatar is a third-party service - enabling it may share your email hash with their servers.",
@@ -2793,37 +2916,70 @@
         },
         "localization": {
           "title": "Localization",
-          "description": "Set your language preferences",
-          "language": "Language"
+          "language": "Language",
+          "languageDescription": "Choose your dashboard language"
         },
         "notifications": {
           "title": "Notifications",
-          "description": "Configure your notification preferences",
-          "emailNotifications": "Email notifications",
-          "marketingEmails": "Marketing emails"
+          "marketingEmails": "Marketing emails",
+          "marketingEmailsDescription": "Product updates, announcements, and tips"
         }
       },
-      "usage": {
-        "cta": {
-          "needMore": "Need more events?",
-          "upgradeHint": "Upgrade your plan to get more events and unlock additional features.",
-          "viewPlans": "View Plans"
+      "billing": {
+        "loadError": "Unable to load billing data.",
+        "currentPlan": {
+          "title": "Current Plan",
+          "free": "Free",
+          "pricePerMonth": "{price} / month",
+          "renewsOn": "Renews on {date}",
+          "endsOn": "Subscription ends on {date}",
+          "upgrade": "Upgrade",
+          "changePlan": "Change plan",
+          "pastDue": "Payment past due"
         },
-        "error": "Unable to load usage data"
-      },
-      "billingPortal": {
-        "title": "Billing Portal",
-        "description": "Manage your billing details and access your full billing history",
-        "access": "Access Billing Portal",
-        "accessButton": "Open Billing Portal",
-        "explainer": "View all past invoices, update payment methods, and manage your billing through Stripe's secure customer portal.",
-        "notAvailable": "Billing portal will be available once you upgrade to a paid plan.",
-        "needHelp": "Need help with billing?",
-        "contactSupport": "Contact support",
-        "toastError": "Failed to open billing portal, please try again."
+        "usage": {
+          "title": "Usage",
+          "eventsLabel": "Events",
+          "eventsUsed": "{current} / {limit} ({percentage})",
+          "resetsInDays": "Resets in {days} days"
+        },
+        "payment": {
+          "title": "Payment & Invoices",
+          "label": "Manage in billing portal",
+          "description": "Payment method, invoices, and billing details.",
+          "openPortal": "Open Billing Portal"
+        },
+        "invoices": {
+          "title": "Invoices",
+          "view": "View",
+          "columns": {
+            "date": "Date",
+            "total": "Total",
+            "status": "Status",
+            "actions": "Actions"
+          },
+          "status": {
+            "draft": "Draft",
+            "open": "Open",
+            "paid": "Paid",
+            "uncollectible": "Uncollectible",
+            "void": "Void",
+            "credit": "Credit"
+          }
+        },
+        "cancellation": {
+          "title": "Cancellation",
+          "label": "Cancel subscription",
+          "description": "Stop billing at the end of the current period.",
+          "cancel": "Cancel"
+        },
+        "portal": {
+          "openError": "Failed to open billing portal, please try again."
+        }
       },
       "security": {
-        "title": "Password & Authentication",
+        "title": "Account security",
+        "passwordRowLabel": "Password",
         "description": "Change your account password",
         "currentPassword": "Current Password",
         "newPassword": "New Password",
@@ -2832,12 +2988,14 @@
         "passwordsMatch": "Passwords match",
         "changePassword": "Change Password",
         "passwordManagedByOAuth": "Password managed by OAuth",
+        "togglePasswordVisibility": "Toggle {field} visibility",
+        "cancel": "Cancel",
         "toast": {
           "success": "Password updated successfully"
         },
         "totp": {
           "title": "Two-Factor Authentication",
-          "description": "Add an extra layer of security to your account by requiring a second form of verification in addition to your password",
+          "description": "Add an extra layer of security to your account.",
           "enable": "Enable 2FA",
           "instructions": "To enable 2FA, scan the QR code with your authenticator app or use the <setup>setup key</setup> to manually configure it, then enter the verification code below.",
           "cancel": "Cancel",
@@ -2845,16 +3003,34 @@
           "enabled": "Enabled",
           "disable": "Disable",
           "disableTitle": "Disable 2FA",
-          "disableDescription": "Are you sure you want to disable two-factor authentication for your account?",
+          "disableDescription": "Enter the verification code from your authenticator app to disable two-factor authentication.",
           "disabledSuccess": "Two-factor authentication disabled successfully",
-          "disableFailed": "Failed to disable two-factor authentication. Please try again."
+          "disableFailed": "Failed to disable two-factor authentication. Please try again.",
+          "setupFailed": "Failed to setup two-factor authentication. Please try again.",
+          "copyFailed": "Failed to copy",
+          "enabledSuccess": "Two-factor authentication enabled successfully",
+          "enableFailed": "Failed to enable two-factor authentication. Please try again.",
+          "managedByOAuth": "Two-factor authentication is managed by your sign-in provider"
+        }
+      },
+      "sessions": {
+        "title": "Sessions",
+        "activeCount": "Signed in on {count, plural, =0 {no devices} =1 {1 device} other {# devices}}",
+        "description": "Sign out from everywhere except this device.",
+        "signOutOthers": "Sign out other devices",
+        "dialog": {
+          "title": "Sign out other devices?",
+          "description": "All other sessions will be ended immediately. Your current device will stay signed in.",
+          "cancel": "Cancel",
+          "confirm": "Sign out other devices"
+        },
+        "toast": {
+          "success": "Signed out {count, plural, =0 {no other devices} =1 {1 other device} other {# other devices}}."
         }
       },
       "danger": {
-        "title": "Delete Account",
-        "description": "Permanently delete your account and all associated data",
-        "warning": "Warning: This action cannot be undone",
-        "details": "This will permanently delete your account, remove access to all dashboards, and delete all your personal settings.",
+        "sectionTitle": "Danger Zone",
+        "details": "Permanently delete your account and all associated data.",
         "delete": "Delete Account",
         "dialog": {
           "title": "Delete Account Permanently",
@@ -2891,16 +3067,15 @@
         "retentionLabel": "Data Retention Period",
         "retentionHelp": "How long to keep analytics data before automatic deletion",
         "presets": {
-          "d30": "30 days",
-          "m3": "3 months",
           "m6": "6 months",
           "y1": "1 year",
           "y2": "2 years",
-          "y3": "3 years"
+          "y3": "3 years",
+          "y5": "5 years"
         },
         "retentionConfirm": {
           "title": "Change retention period?",
-          "description": "Are you sure you want to change the data retention period to {period}?"
+          "description": "Changing retention to {period} means events older than {period} may be permanently deleted during the next scheduled cleanup."
         },
         "siteRules": {
           "title": "Site Rules",
@@ -3084,16 +3259,32 @@
     "termsOfServiceRequired": "You must accept the terms of service to continue.",
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
     "monitorAlreadyExists": "A monitor for this URL already exists",
+    "statusPageSlugTaken": "This URL slug is already in use",
+    "statusPageDomainTaken": "This domain is already in use on another status page",
+    "statusPageDomainReserved": "This domain is reserved",
+    "statusPageIncidentLimit": "This status page has reached its incident limit",
+    "statusPageIncidentUpdateLimit": "This incident has reached its update limit",
+    "statusPageIncidentUpdateLast": "An incident must keep at least one update",
+    "statusPageIncidentInvalidMonitor": "One of the affected monitors isn't on this status page",
+    "statusPageImageInvalid": "That file could not be read as an image",
+    "statusPageImageTooLarge": "The image is too large",
+    "statusPageImageBadType": "The image must be a PNG, JPEG or WebP image",
+    "statusPageImageSvgUnsafe": "The SVG file contains unsupported or unsafe content",
     "capabilities": {
       "dashboardLimit": "You have reached your dashboard limit. Upgrade to Pro to create more dashboards.",
       "monitorLimit": "You have reached your monitor limit. Upgrade to Pro to create more monitors.",
       "minInterval": "Faster monitoring intervals require a Professional plan",
       "httpMethod": "Custom HTTP methods require a Professional plan",
       "statusCodes": "Custom status codes require a Professional plan",
-      "customHeaders": "Custom request headers require a Professional plan"
+      "customHeaders": "Custom request headers require a Professional plan",
+      "keywordValidation": "Keyword validation requires a Professional plan",
+      "statusPageLimit": "You have reached your status page limit. Upgrade to Pro to create more status pages.",
+      "statusPageCustomDomain": "Custom domains require a Professional plan",
+      "statusPageBranding": "Removing Betterlytics branding requires a Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "User already has access to this dashboard",
+      "memberLimitReached": "Your plan allows up to {limit} team members on this dashboard. Upgrade to invite more.",
       "invitationAlreadySent": "An invitation has already been sent to this email",
       "invitationNotFoundOrProcessed": "Invitation not found or already processed",
       "invitationExpired": "This invitation has expired",
@@ -3131,11 +3322,13 @@
       "action": "Learn more"
     }
   },
+  "githubStar": {
+    "title": "Enjoying Betterlytics?",
+    "description": "A star on GitHub helps more developers discover the project.",
+    "action": "Star on GitHub",
+    "dismiss": "Dismiss"
+  },
   "members": {
-    "page": {
-      "title": "Members",
-      "description": "Manage who has access to this dashboard"
-    },
     "table": {
       "title": "Members",
       "searchPlaceholder": "Search members...",
@@ -3186,6 +3379,7 @@
       "emailPlaceholder": "colleague@example.com",
       "roleLabel": "Role",
       "inviteButton": "Invite",
+      "upgradeToInvite": "Upgrade to invite more",
       "sending": "Sending...",
       "pending": "Pending",
       "invited": "Invited",
@@ -3445,7 +3639,699 @@
           "description": "Click Submit to publish the changes"
         },
         "note": "Make sure GTM is properly installed on your website."
+      },
+      "default": {
+        "step1": {
+          "title": "Add the tracking script",
+          "description": "Paste this inside your HTML <head> section"
+        }
       }
     }
+  },
+  "reportsSettings": {
+    "title": "Email Reports",
+    "emailsNotConfigured": {
+      "title": "Email delivery is not configured",
+      "description": "Report settings can be saved, but emails won't be sent until an email provider is configured (SMTP or MailerSend)."
+    },
+    "weekly": {
+      "title": "Weekly Reports",
+      "description": "Receive a summary of your website's performance each week",
+      "toggle": "Enable weekly email reports",
+      "dayLabel": "Report day",
+      "dayDescription": "Which day of the week to send the report"
+    },
+    "monthly": {
+      "title": "Monthly Reports",
+      "description": "Send a monthly email report on the 1st of each month",
+      "toggle": "Enable monthly email reports"
+    },
+    "recipients": {
+      "weeklyLabel": "Recipients ({count}/{max})",
+      "monthlyLabel": "Recipients ({count}/{max})",
+      "placeholder": "colleague@example.com",
+      "addButton": "Add",
+      "invalidEmail": "Please enter a valid email address",
+      "emailRequired": "Email address is required",
+      "duplicateEmail": "This email is already added",
+      "maxReached": "Maximum of {max} recipients reached"
+    },
+    "toast": {
+      "saved": "Report settings saved",
+      "error": "Failed to save report settings"
+    }
+  },
+  "mcp": {
+    "settings": {
+      "title": "API Tokens",
+      "description": "Create tokens to connect AI agents to your analytics data via the Model Context Protocol.",
+      "tokenNameLabel": "Token name",
+      "tokenNamePlaceholder": "e.g. Claude Desktop",
+      "createButton": "Create token",
+      "creating": "Creating...",
+      "newTokenNotice": "Copy this token now. You won't be able to see it again.",
+      "created": "Created {date}",
+      "lastUsed": "Last used {date}"
+    },
+    "toast": {
+      "created": "Token created",
+      "createError": "Failed to create token",
+      "deleted": "Token deleted",
+      "deleteError": "Failed to delete token"
+    },
+    "deleteDialog": {
+      "title": "Delete {name}",
+      "description": "This token will be permanently revoked. Any MCP clients using it will lose access immediately."
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrations",
+    "section": {
+      "description": "Connect third-party services to receive uptime monitoring notifications when your website goes down or recovers."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Push notifications to your mobile devices and desktop."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Get important status updates in your Discord messages."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Receive notifications in a Slack channel."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Receive notifications in a Microsoft Teams channel."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Send notifications to any URL via HTTP POST."
+      }
+    },
+    "moreIntegrations": "Need a different integration? Contact us and we'll consider adding it.",
+    "history": {
+      "title": "Notification Log",
+      "button": "Notification Log",
+      "empty": "No notifications sent yet.",
+      "error": "Failed to load notification history.",
+      "attempts": "{count} attempts",
+      "columns": {
+        "time": "Time",
+        "integration": "Integration",
+        "notification": "Notification",
+        "status": "Status",
+        "error": "Error"
+      },
+      "status": {
+        "sent": "Sent",
+        "failed": "Failed"
+      }
+    },
+    "status": {
+      "connected": "Connected",
+      "disabled": "Disabled"
+    },
+    "actions": {
+      "configure": "Configure",
+      "add": "Add",
+      "edit": "Edit",
+      "disconnect": "Disconnect"
+    },
+    "disconnect": {
+      "title": "Disconnect {name}",
+      "description": "Are you sure you want to disconnect this integration? This will remove the configuration and stop all notifications from this source.",
+      "confirm": "Disconnect"
+    },
+    "pushoverDialog": {
+      "title": "Pushover Integration",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "Your Pushover user key",
+      "priorityLabel": "Notification Priority",
+      "priorities": {
+        "0": "Normal (Recommended)",
+        "1": "High: Bypass quiet hours",
+        "-2": "Lowest: No notification",
+        "-1": "Low: No sound or vibration"
+      },
+      "credentialsHint": "Find your user key at <link>pushover.net</link>",
+      "priorityHint": "Learn more about priority levels <link>here</link>.",
+      "errors": {
+        "userKeyRequired": "User key is required",
+        "userKeyInvalid": "Invalid user key"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "discordDialog": {
+      "title": "Discord Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookHint": "Learn how to create a webhook <link>here</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid Discord webhook URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "slackDialog": {
+      "title": "Slack Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Follow steps 1–3 of the <link>Incoming Webhooks guide</link> to get your webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid Slack webhook URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "teamsDialog": {
+      "title": "Microsoft Teams Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Your Teams webhook URL",
+      "webhookHint": "Create an Incoming Webhook using a Teams Workflow. <link>Learn how</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid HTTPS URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "webhookDialog": {
+      "title": "Webhook Integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://example.com/webhook",
+      "webhookHint": "Enter a publicly accessible HTTPS URL. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL is required",
+        "webhookUrlInvalid": "Must be a valid HTTPS URL"
+      },
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "toast": {
+      "saved": "Integration saved",
+      "deleted": "Integration disconnected",
+      "error": "Failed to update integration",
+      "fetchError": "Failed to load integrations",
+      "invalidPushoverKey": "Invalid Pushover user key or no devices registered",
+      "invalidDiscordWebhook": "Invalid Discord webhook URL",
+      "invalidSlackWebhook": "Invalid Slack webhook URL",
+      "invalidTeamsWebhook": "Invalid Teams webhook URL",
+      "invalidWebhookUrl": "Invalid webhook URL"
+    }
+  },
+  "errors": {
+    "page": {
+      "title": "Error Overview"
+    },
+    "table": {
+      "columns": {
+        "error": "Error",
+        "volume": "Volume",
+        "occurrences": "Occurrences",
+        "sessions": "Sessions",
+        "firstSeen": "First seen",
+        "lastSeen": "Last seen",
+        "status": "Status"
+      },
+      "selectAll": "Select all",
+      "selectRow": "Select row",
+      "rowActionsAria": "Row actions",
+      "ago": "{time} ago",
+      "emptySearch": "No errors matching your search.",
+      "emptyPeriod": "No errors recorded in this period."
+    },
+    "toolbar": {
+      "searchPlaceholder": "Search by type and message...",
+      "selectedCount": "{count} selected",
+      "reload": "Reload",
+      "reloadAria": "Reload errors"
+    },
+    "statusFilter": {
+      "all": "All",
+      "unresolved": "Unresolved",
+      "resolved": "Resolved",
+      "ignored": "Ignored"
+    },
+    "statusActions": {
+      "resolve": "Resolve",
+      "ignore": "Ignore",
+      "unresolve": "Unresolve",
+      "markResolved": "Mark resolved",
+      "markUnresolved": "Mark unresolved"
+    },
+    "status": {
+      "unresolved": "Unresolved",
+      "resolved": "Resolved",
+      "ignored": "Ignored"
+    },
+    "emptyState": {
+      "title": "No errors detected",
+      "description": "When client-side errors occur on your site, they will appear here grouped by type. Set up error tracking to catch and monitor client-side exceptions.",
+      "learnMore": "Learn about error tracking"
+    },
+    "detail": {
+      "header": {
+        "backToErrors": "Back to errors",
+        "copied": "Copied!",
+        "share": "Share"
+      },
+      "sidebar": {
+        "overview": "Overview",
+        "firstSeen": "First seen",
+        "lastSeen": "Last seen",
+        "occurrences": "Occurrences",
+        "sessions": "Sessions",
+        "occurrenceHistory": "Occurrence history",
+        "browsers": "Browsers",
+        "deviceType": "Device type",
+        "watchReplay": "Watch latest session replay",
+        "watchReplayDescription": "See what the user did before this error",
+        "noReplay": "No session replay for this error",
+        "noReplayDescription": "Replay captures what users did before an error occurred.",
+        "learnMore": "Learn more"
+      },
+      "navigator": {
+        "occurrenceOf": "Occurrence {number} of {total}",
+        "firstOccurrence": "First occurrence",
+        "olderOccurrence": "Older occurrence",
+        "newerOccurrence": "Newer occurrence",
+        "latestOccurrence": "Latest occurrence"
+      },
+      "stacktrace": {
+        "title": "Stacktrace",
+        "frames": "{count, plural, one {# frame} other {# frames}}",
+        "showLess": "Show less",
+        "showMoreFrames": "Show {count} more {count, plural, one {frame} other {frames}}",
+        "at": "at",
+        "inApp": "in app"
+      },
+      "sessionTrail": {
+        "title": "Session trail",
+        "eventCount": "{count, plural, one {# event} other {# events}} in this session",
+        "watchReplay": "Watch replay"
+      },
+      "occurrence": {
+        "browser": "Browser",
+        "operatingSystem": "Operating System",
+        "device": "Device",
+        "country": "Country"
+      },
+      "volumeChart": {
+        "errorCount": "{count, plural, one {# error} other {# errors}}"
+      }
+    }
+  },
+  "publicStatusPage": {
+    "banner": {
+      "operational": "All systems operational",
+      "degraded": "Degraded performance",
+      "partial_outage": "Some systems are down",
+      "outage": "Major outage",
+      "unknown": "Status unavailable"
+    },
+    "meta": {
+      "description": "Latest uptime status for {name}"
+    },
+    "statusNote": {
+      "degraded": "Some services are slower than usual"
+    },
+    "lastUpdated": "Last updated on {date}",
+    "lastUpdatedInline": "last updated on {date}",
+    "uptimeValue": "{uptime} uptime",
+    "noData": "No data",
+    "monitorStatus": {
+      "operational": "Operational",
+      "degraded": "Degraded",
+      "down": "Down",
+      "unknown": "No data"
+    },
+    "uptimeWindow": {
+      "start": "{days} days ago",
+      "today": "Today"
+    },
+    "overallUptime": "Overall uptime <value>{uptime}</value> · last {days} days",
+    "activeIncidents": "Active incidents",
+    "pastIncidents": "Past incidents",
+    "showPastIncidents": "Show past incidents",
+    "hidePastIncidents": "Hide past incidents",
+    "noPastIncidents": "No past incidents in the last {days} days.",
+    "incident": {
+      "resolved": "Resolved after {duration}",
+      "ongoing": "Ongoing for {duration}, since {time}",
+      "showMore": "Show {count} earlier {count, plural, one {update} other {updates}}",
+      "showLess": "Hide earlier updates",
+      "descriptionMore": "Read more",
+      "descriptionLess": "Show less",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "impact": {
+        "degraded": "Degraded",
+        "partial_outage": "Partial Outage",
+        "outage": "Major Outage"
+      },
+      "status": {
+        "investigating": "Investigating",
+        "identified": "Identified",
+        "monitoring": "Monitoring",
+        "resolved": "Resolved"
+      }
+    },
+    "duration": {
+      "minutes": "{count, plural, one {# minute} other {# minutes}}",
+      "hours": "{count, plural, one {# hour} other {# hours}}",
+      "days": "{count, plural, one {# day} other {# days}}"
+    },
+    "poweredBy": "Powered by"
+  },
+  "statusPagesPage": {
+    "title": "Status Pages",
+    "newStatusPage": "New status page",
+    "upgradeToCreate": "Upgrade to add more",
+    "error": "Something went wrong",
+    "empty": {
+      "title": "No status pages yet",
+      "description": "Pick which monitors to show, add your logo and colors, and share a public page your users can check during incidents.",
+      "cta": "Create your first status page"
+    },
+    "badge": {
+      "public": "Public",
+      "draft": "Draft"
+    },
+    "monitorCount": "{count, plural, one {# monitor} other {# monitors}}",
+    "actions": {
+      "copyLink": "Copy link",
+      "viewPage": "View page",
+      "more": "More actions",
+      "linkCopied": "Link copied to clipboard",
+      "openPublicPage": "Open public page",
+      "editPage": "Edit page",
+      "manageIncidents": "Manage incidents",
+      "settings": "Settings",
+      "copyUrl": "Copy public URL",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "publishedToast": "Status page published",
+      "unpublishedToast": "Status page taken offline",
+      "publishConfirmTitle": "Publish status page?",
+      "publishConfirmDescription": "It will become publicly accessible at its URL.",
+      "unpublishConfirmTitle": "Unpublish status page?",
+      "unpublishConfirmDescription": "It will be taken offline and visitors will no longer be able to access it."
+    },
+    "editor": {
+      "back": "Status Pages",
+      "save": "Save changes",
+      "discard": "Discard changes",
+      "confirmLeave": {
+        "title": "Leave with unsaved changes?",
+        "description": "You've made changes that haven't been saved. If you leave now, they'll be lost.",
+        "stay": "Keep editing",
+        "leave": "Leave"
+      },
+      "statusPublished": "Published",
+      "statusDraft": "Draft",
+      "viewPage": "View page",
+      "copyUrl": "Copy URL",
+      "publish": "Publish status page",
+      "unpublish": "Unpublish",
+      "saved": "Status page saved",
+      "unpublished": "Status page unpublished",
+      "publishSuccess": {
+        "title": "Your status page is live",
+        "copy": "Copy link",
+        "copied": "Link copied to clipboard",
+        "view": "View page"
+      },
+      "deleted": "Status page deleted",
+      "error": "Something went wrong",
+      "delete": "Delete status page",
+      "deleteConfirmTitle": "Delete this status page?",
+      "deleteConfirmDescription": "The public page stops working immediately. This cannot be undone.",
+      "deleteConfirm": "Delete",
+      "cancel": "Cancel",
+      "pageName": "Page name",
+      "nameRequired": "Page name is required.",
+      "editPage": "Edit page",
+      "unsavedChanges": "Unsaved changes",
+      "publishNeedsSave": "Save your changes before publishing.",
+      "confirmPublish": {
+        "title": "Publish these changes?",
+        "description": "Your edits will appear on the public status page right away.",
+        "confirm": "Publish changes"
+      },
+      "publicUrl": "Public URL",
+      "publicUrlHint": "The web address where your status page is published.",
+      "slugStatus": {
+        "checking": "Checking…",
+        "available": "Available",
+        "taken": "Already taken",
+        "invalid": "Invalid slug"
+      },
+      "homepageUrl": "Homepage URL",
+      "homepageUrlHint": "Where the logo and page title link to.",
+      "customDomain": "Custom domain",
+      "customDomainHint": "Host the page on your own domain.",
+      "hideBranding": "Hide Betterlytics branding",
+      "hideBrandingHint": "Remove the \"Powered by Betterlytics\" footer from your public page.",
+      "homepageUrlInvalid": "Enter a valid URL starting with http:// or https://.",
+      "customDomainInvalid": "Enter a subdomain, e.g. status.example.com.",
+      "customDomainSetup": {
+        "intro": "Add this DNS record at your domain provider to point <strong>{domain}</strong> at Betterlytics.",
+        "recordType": "Type",
+        "recordName": "Name",
+        "recordValue": "Value",
+        "copy": "Copy value",
+        "copied": "Value copied",
+        "nameHint": "Some providers add your domain automatically. If so, enter just <mono>{label}</mono> as the Name instead of the full <monoBreak>{domain}</monoBreak>.",
+        "propagation": "DNS changes can take up to a few hours to take effect."
+      },
+      "visibility": {
+        "title": "Search engine visibility",
+        "public": "Public",
+        "publicHint": "Anyone with the link can view. Indexed by search engines.",
+        "unlisted": "Unlisted",
+        "unlistedHint": "Anyone with the link can view, but hidden from search engines."
+      },
+      "dangerZone": {
+        "title": "Danger zone",
+        "unpublishDescription": "Take the page offline. Visitors won't be able to reach it, but you can publish again anytime.",
+        "deleteDescription": "Permanently delete this status page and its incident history. This can't be undone."
+      },
+      "logo": "Logo",
+      "uploadLogo": "Upload logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Upload favicon",
+      "replaceImage": "Replace",
+      "removeImage": "Remove",
+      "imageTooLarge": "That image is too large. Please choose a smaller file.",
+      "svgUnsafe": "That SVG contains unsupported or unsafe content. Try a plain vector export.",
+      "accentColor": "Accent color",
+      "theme": "Theme",
+      "themes": {
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "showPastIncidents": "Show past incidents",
+      "showPastIncidentsHint": "Display a history of resolved incidents on your public page.",
+      "minMonitorsHint": "Add at least one monitor to save changes.",
+      "publicNamePlaceholder": "Public display name",
+      "reorderMonitor": "Reorder monitor",
+      "preview": "Live preview",
+      "enlargePreview": "Enlarge preview",
+      "loadingPreview": "Loading preview…",
+      "tabs": {
+        "incidents": "Incidents",
+        "settings": "Settings"
+      },
+      "studio": {
+        "tabs": {
+          "monitors": "Monitors",
+          "branding": "Branding",
+          "publish": "Publish"
+        },
+        "tabIssue": "Needs attention",
+        "draft": "Draft",
+        "publicNamesHint": "Renaming here only changes what visitors see. Your monitor keeps its internal name.",
+        "pageNameHint": "Used in the browser tab and link previews. A logo replaces it in the page header.",
+        "themeHint": "The theme visitors see. System follows each visitor's device setting.",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out",
+        "zoomFit": "Fit to screen",
+        "desktopPreview": "Desktop preview",
+        "mobilePreview": "Mobile preview",
+        "customDomainLater": "Want to host this page on your own domain, like status.{domain}? Connect it from your page settings once the page is created.",
+        "discardEdits": {
+          "title": "Discard your edits?",
+          "description": "Changes made in the editor will be reverted to the last saved state.",
+          "keep": "Keep editing",
+          "discard": "Discard"
+        }
+      },
+      "wizard": {
+        "title": "New status page",
+        "close": "Close",
+        "loading": "Loading editor…",
+        "saveDraft": "Save as draft",
+        "monitorsHeading": "Monitors on this page",
+        "searchMonitors": "Search monitors",
+        "noSearchResults": "No monitors match your search.",
+        "noMonitorsTitle": "No monitors yet",
+        "noMonitors": "Create your first monitor to start tracking uptime, then add it to this page.",
+        "noMonitorYet": "Don't see one?",
+        "createMonitor": "Create a monitor",
+        "addMonitor": "Add monitor",
+        "allOnPage": "All monitors are on the page.",
+        "addAll": "Add all ({count})",
+        "removeFromPage": "Remove from page",
+        "shownCount": "{selected} of {total} shown",
+        "minMonitors": "Add at least one monitor to continue.",
+        "emptyPageTitle": "Add monitors to this status page",
+        "emptyPageHint": "Their status and uptime will appear on your public page.",
+        "confirmDiscard": {
+          "title": "Discard this status page?",
+          "description": "You've made changes that will be lost if you close now. Nothing has been saved yet.",
+          "keep": "Keep editing",
+          "discard": "Discard"
+        }
+      },
+      "incidents": {
+        "title": "Incidents",
+        "activeIncidents": "Active incidents",
+        "pastIncidents": "Past incidents",
+        "filters": {
+          "search": "Search incidents",
+          "state": "State",
+          "stateAll": "All states",
+          "stateActive": "Active",
+          "stateResolved": "Resolved",
+          "noMatch": "No incidents match your filters."
+        },
+        "autoDetected": "Auto-detected",
+        "affectedMore": "+{count} more",
+        "detectedPanelTitle": "{count, plural, one {# detected outage to review} other {# detected outages to review}}",
+        "detectedGroupMulti": "Outage across {count} monitors",
+        "hint": "Write and publish incidents. Detected outages are suggested below. Nothing goes public until you publish it.",
+        "newIncident": "New incident",
+        "editIncident": "Edit incident",
+        "formHint": "Visitors see this on your public status page once published.",
+        "createFromSuggestion": "Create incident",
+        "suggestedTitle": "{monitor} outage",
+        "suggestedTitleMulti": "Outage affecting {count} services",
+        "noIncidents": "No incidents yet.",
+        "emptyHint": "When something breaks, post an incident here to keep your visitors in the loop.",
+        "suggestionsHint": "Auto-detected from your monitors. Review and publish to make them public.",
+        "unspecified": "Unspecified",
+        "ongoingFor": "Ongoing for {duration}",
+        "lasted": "Lasted {duration}",
+        "draft": "Draft",
+        "edit": "Edit",
+        "delete": "Delete",
+        "actions": "Actions",
+        "table": {
+          "incident": "Incident",
+          "status": "Status",
+          "impact": "Impact",
+          "affected": "Affected",
+          "started": "Started",
+          "duration": "Duration"
+        },
+        "suggestionsTable": {
+          "outage": "Outage",
+          "monitors": "Monitors",
+          "detected": "Detected",
+          "duration": "Duration",
+          "status": "Status",
+          "ongoing": "Ongoing",
+          "resolved": "Resolved"
+        },
+        "saved": "Incident saved",
+        "deleted": "Incident deleted",
+        "error": "Something went wrong",
+        "impact": {
+          "degraded": "Degraded",
+          "partial_outage": "Partial Outage",
+          "outage": "Major Outage"
+        },
+        "status": {
+          "investigating": "Investigating",
+          "identified": "Identified",
+          "monitoring": "Monitoring",
+          "resolved": "Resolved"
+        },
+        "form": {
+          "title": "Title",
+          "titleRequired": "Title is required",
+          "description": "Description",
+          "descriptionPlaceholder": "e.g. Some users may see errors at checkout — we’re investigating",
+          "optional": "(optional)",
+          "timelineRequired": "Add at least one timeline entry",
+          "detailsSection": "Incident details",
+          "impact": "Impact",
+          "monitor": "Affected monitors",
+          "monitorNotSpecified": "Page-wide (no specific monitors)",
+          "monitorAllToken": "All monitors",
+          "monitorSearchPlaceholder": "Search monitors",
+          "monitorNoMatch": "No monitors found",
+          "monitorRemove": "Remove {monitor}",
+          "monitorCountSelected": "{selected} of {total} selected",
+          "monitorSelectAll": "Select all",
+          "monitorClear": "Clear",
+          "monitorSummaryPageWide": "Page-wide, all {count, plural, one {# monitor} other {# monitors}}",
+          "monitorSummaryScoped": "{count} of {total} monitors affected",
+          "cancel": "Cancel",
+          "publishCta": "Publish",
+          "updatePublic": "Update public page",
+          "unsaved": "Unsaved changes",
+          "deleteIncident": "Delete incident"
+        },
+        "composer": {
+          "section": "Add a timeline entry",
+          "sectionHelp": "The most recent entry sets the incident’s status.",
+          "statusLabel": "Status",
+          "messagePlaceholder": "What’s the latest? (optional)",
+          "time": "Time"
+        },
+        "timeline": {
+          "title": "Timeline",
+          "today": "Today",
+          "yesterday": "Yesterday",
+          "addUpdate": "Add",
+          "pendingLabel": "Not saved yet",
+          "empty": "No timeline entries yet.",
+          "editMessage": "Edit message",
+          "deleteUpdate": "Delete update",
+          "done": "Done",
+          "removePending": "Remove update"
+        },
+        "discard": {
+          "title": "Discard changes?",
+          "description": "You have unsaved changes. If you close now, they will be lost.",
+          "keep": "Keep editing",
+          "confirm": "Discard"
+        }
+      },
+      "publicAddress": "Public address"
+    },
+    "table": {
+      "statusPage": "Status page",
+      "visibility": "Visibility",
+      "monitors": "Monitors",
+      "status": "Status"
+    },
+    "status": {
+      "operational": "Operational",
+      "ongoingIncident": "Ongoing incident"
+    },
+    "banner": {
+      "incidentTitle": "{count, plural, one {# status page has an active incident} other {# status pages have active incidents}}",
+      "viewIncidents": "View incidents"
+    },
+    "monitorsEmpty": "No monitors",
+    "monitorsUp": "up"
   }
 }

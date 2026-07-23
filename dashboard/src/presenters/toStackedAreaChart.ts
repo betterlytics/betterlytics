@@ -16,7 +16,7 @@ type ToStackedAreaChartProps<CategoryKey extends string, ValueKey extends string
     start: Date;
     end: Date;
   };
-  compare?: RawStackedData<CategoryKey, ValueKey>;
+  compare?: RawStackedData<CategoryKey, ValueKey> | null;
   compareDateRange?: {
     start?: Date;
     end?: Date;

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { signIn } from 'next-auth/react';
+import type { getEnabledOAuthProviders } from '@/lib/auth';
 import { useBARouter } from '@/hooks/use-ba-router';
 import OtpInput from '@/components/ui/otp-input';
 import {
@@ -15,7 +16,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { getProviders } from 'next-auth/react';
 import ExternalLink from '@/components/ExternalLink';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { useTranslations } from 'next-intl';
@@ -26,9 +26,15 @@ import { Label } from '@/components/ui/label';
 
 type LoginFormProps = {
   registrationDisabledMessage?: string | null;
+  forgotPasswordEnabled?: boolean;
+  providers: ReturnType<typeof getEnabledOAuthProviders>;
 };
 
-export default function LoginForm({ registrationDisabledMessage }: LoginFormProps) {
+export default function LoginForm({
+  registrationDisabledMessage,
+  forgotPasswordEnabled,
+  providers,
+}: LoginFormProps) {
   const router = useBARouter();
   const isMobile = useIsMobile();
   const t = useTranslations('public.auth.signin.form');
@@ -38,16 +44,11 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
   const [totp, setTotp] = useState('');
   const [error, setError] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [providers, setProviders] = useState<Record<string, any> | null>(null);
 
   const [isPending, startTransition] = useTransition();
 
   const [isGooglePending, startGoogleTransition] = useTransition();
   const [isGithubPending, startGithubTransition] = useTransition();
-
-  useEffect(() => {
-    getProviders().then(setProviders);
-  }, []);
 
   useEffect(() => {
     if (!registrationDisabledMessage) return;
@@ -150,13 +151,15 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
         <div className='space-y-2'>
           <div className='flex items-center justify-between'>
             <Label htmlFor='password'>{t('passwordLabel')}</Label>
-            <ExternalLink
-              href='/forgot-password'
-              className='text-primary hover:text-primary/80 text-sm font-medium underline'
-              tabIndex={2}
-            >
-              {t('forgotPassword')}
-            </ExternalLink>
+            {forgotPasswordEnabled && (
+              <ExternalLink
+                href='/forgot-password'
+                className='text-primary hover:text-primary/80 text-sm font-medium underline'
+                tabIndex={2}
+              >
+                {t('forgotPassword')}
+              </ExternalLink>
+            )}
           </div>
           <Input
             id='password'
@@ -184,7 +187,7 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
         </Button>
       </div>
 
-      {providers?.google || providers?.github ? (
+      {providers.google || providers.github ? (
         <div className='relative my-6 flex items-center'>
           <div className='border-border flex-grow border-t'></div>
           <span className='text-muted-foreground mx-4 flex-shrink text-sm'>{t('orDivider')}</span>
@@ -193,7 +196,7 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
       ) : null}
 
       <div className='space-y-3'>
-        {providers?.google && (
+        {providers.google && (
           <button
             type='button'
             tabIndex={1}
@@ -208,7 +211,7 @@ export default function LoginForm({ registrationDisabledMessage }: LoginFormProp
           </button>
         )}
 
-        {providers?.github && (
+        {providers.github && (
           <button
             type='button'
             tabIndex={1}

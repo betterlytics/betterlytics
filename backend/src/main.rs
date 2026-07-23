@@ -1,12 +1,12 @@
 use axum::{
     Json, Router,
-    extract::{ConnectInfo, State},
+    extract::{ConnectInfo, DefaultBodyLimit, State},
     http::{HeaderMap, StatusCode},
     response::IntoResponse,
     routing::{get, post},
 };
 use std::sync::Arc;
-use std::{net::IpAddr, net::SocketAddr, str::FromStr};
+use std::net::SocketAddr;
 use tower_http::cors::CorsLayer;
 use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -18,20 +18,26 @@ mod clickhouse;
 mod config;
 mod db;
 mod email;
+mod error_fingerprint;
 mod geoip;
 mod geoip_updater;
 mod metrics;
 mod monitor;
+mod notifications;
 mod outbound_link;
 mod postgres;
 mod processing;
 mod referrer;
+mod salt;
+mod sanitize;
 mod session;
+mod ip_parser;
 mod session_replay;
 mod site_config;
 mod storage;
 mod ua_parser;
 mod url_utils;
+mod visitor;
 mod utils;
 mod validation;
 
@@ -101,6 +107,21 @@ async fn main() {
         .await
         .expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
+
+    if let Err(e) = referrer::sync_referrer_categories(
+        &db,
+        &config.referrer_db_path,
+        &config.ga4_source_categories_path,
+        &config.custom_referrers_path,
+    )
+    .await
+    {
+        warn!(
+            "Referrer category sync failed: {}. Using existing dictionary data.",
+            e
+        );
+    }
+
     let db = Arc::new(db);
 
     let metrics_collector = if config.enable_monitoring {
@@ -130,6 +151,22 @@ async fn main() {
         SiteConfigRepository::new(Arc::clone(&site_config_pool)),
     );
 
+    // Initialize the secret rotating salt used to anonymize visitor fingerprints.
+    // Uses a dedicated read-write Postgres role; loads (or creates) today's salt now so
+    // the first event does not pay the rotation cost.
+    let salts_pool = Arc::new(
+        PostgresPool::new(&config.salts_database_url, "betterlytics_salts", 5)
+            .await
+            .expect("Failed to create salts PostgreSQL pool"),
+    );
+    salt::init(salts_pool)
+        .await
+        .expect("Failed to initialize salt service");
+
+    if config.session_cache_warm_enabled {
+        warm_session_cache(&db).await;
+    }
+
     let refresh_config = RefreshConfig::default();
 
     let site_cfg_cache =
@@ -137,11 +174,20 @@ async fn main() {
             .await
             .expect("Failed to init SiteConfigCache");
 
+    let notification_engine = crate::notifications::initialize_notification_engine(
+        Arc::clone(&site_config_pool),
+        Arc::clone(&clickhouse),
+        &config,
+    )
+    .await
+    .expect("Failed to initialize notification engine");
+
     if config.enable_uptime_monitoring {
         monitor::spawn_monitoring(
             config.clone(),
             Arc::clone(&clickhouse),
             metrics_collector.clone(),
+            Some(notification_engine),
         );
     } else {
         info!("uptime monitoring disabled by configuration");
@@ -195,6 +241,7 @@ async fn main() {
 
     let app = router
         .fallback(fallback_handler)
+        .layer(DefaultBodyLimit::max(64 * 1024))
         .with_state((
             db,
             processor,
@@ -215,7 +262,21 @@ async fn main() {
     .unwrap();
 }
 
-
+/// Warm the session cache from ClickHouse so in-flight sessions survive a restart
+async fn warm_session_cache(db: &Database) {
+    match db.fetch_active_sessions(session::SESSION_EXPIRY).await {
+        Ok(rows) => {
+            let warmed = session::warm(rows.into_iter().map(|r| session::WarmSession {
+                site_id: r.site_id,
+                visitor_fingerprint: r.visitor_id,
+                session_id: r.session_id,
+                created_at: r.session_created_at,
+            }));
+            info!("Warmed {} active sessions into the session cache", warmed);
+        }
+        Err(e) => warn!("Session cache warm failed (starting with empty cache): {}", e),
+    }
+}
 
 async fn health_check(
     State((db, _, _, _, _, _)): State<(
@@ -250,15 +311,16 @@ async fn track_event(
     )>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
     headers: HeaderMap,
-    Json(raw_event): Json<RawTrackingEvent>,
+    Json(mut raw_event): Json<RawTrackingEvent>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
 
-    let ip_address = parse_ip(headers).unwrap_or(addr.ip()).to_string();
+    let ip_address = ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
+
+    sanitize::sanitize_event(&mut raw_event, &sanitize::SanitizeConfig::default());
 
     let validation_start = std::time::Instant::now();
 
-    // Validate and sanitize event
     let validated_event = match validator
         .validate_event(raw_event, ip_address.clone())
         .await
@@ -349,20 +411,6 @@ async fn fallback_handler() -> impl IntoResponse {
     (StatusCode::NOT_FOUND, "Not found")
 }
 
-pub fn parse_ip(headers: HeaderMap) -> Result<IpAddr, ()> {
-    // Get IP from X-Forwarded-For header
-    if let Some(forwarded_for) = headers.get("x-forwarded-for") {
-        if let Ok(forwarded_str) = forwarded_for.to_str() {
-            if let Some(first_ip) = forwarded_str.split(',').next() {
-                if let Ok(ip) = IpAddr::from_str(first_ip.trim()) {
-                    return Ok(ip);
-                }
-            }
-        }
-    }
-
-    Err(())
-}
 
 /// Temporary endpoint to generate a site ID
 async fn generate_site_id_handler() -> impl IntoResponse {

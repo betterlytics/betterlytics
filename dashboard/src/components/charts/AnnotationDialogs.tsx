@@ -1,13 +1,15 @@
 'use client';
 
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
+import { ColorSwatchPicker as SharedColorSwatchPicker } from '@/components/ColorSwatchPicker';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
-import { DateTimePicker24h } from '@/app/(protected)/dashboards/DateTimePicker';
+import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
@@ -41,7 +43,7 @@ export interface AnnotationDialogsRef {
   openEditDialog: (annotation: ChartAnnotation) => void;
 }
 
-interface ColorSwatchPickerProps {
+interface AnnotationColorSwatchPickerProps {
   palette: readonly AnnotationColorToken[];
   value: AnnotationColorToken;
   onChange: (color: AnnotationColorToken) => void;
@@ -56,7 +58,7 @@ interface AnnotationFormState {
   color: AnnotationColorToken;
 }
 
-const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
+const ColorSwatchPicker: React.FC<AnnotationColorSwatchPickerProps> = ({
   palette,
   value,
   onChange,
@@ -67,33 +69,23 @@ const ColorSwatchPicker: React.FC<ColorSwatchPickerProps> = ({
   const isDark = resolvedTheme === 'dark';
 
   return (
-    <div className='grid gap-2'>
-      {label ? <Label className='text-sm font-medium'>{label}</Label> : null}
-      <div className='flex flex-wrap gap-2'>
-        {palette.map((colorToken) => {
-          const hex = resolveAnnotationColor(colorToken, isDark ? 'dark' : 'light');
-          const isSelected = value === colorToken;
-          return (
-            <button
-              key={colorToken}
-              type='button'
-              onClick={() => onChange(colorToken)}
-              className={`h-8 w-8 rounded-full border transition ${
-                isSelected ? 'ring-offset-background ring-primary ring-2 ring-offset-2' : 'border-border'
-              }`}
-              style={{ backgroundColor: hex }}
-              aria-label={ariaLabelForColor ? ariaLabelForColor(colorToken) : `Select color ${colorToken}`}
-            />
-          );
-        })}
-      </div>
-    </div>
+    <SharedColorSwatchPicker
+      options={palette.map((colorToken) => ({
+        value: colorToken,
+        hex: resolveAnnotationColor(colorToken, isDark ? 'dark' : 'light'),
+      }))}
+      value={value}
+      onChange={onChange}
+      label={label}
+      ariaLabelForValue={ariaLabelForColor}
+    />
   );
 };
 
 const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProps>(
   ({ onAddAnnotation, onUpdateAnnotation, onDeleteAnnotation }, ref) => {
     const t = useTranslations('components.annotations.dialogs');
+    const locale = useLocale();
     const colorPalette = Object.keys(ANNOTATION_COLOR_MAP) as AnnotationColorToken[];
     const defaultColorToken = DEFAULT_ANNOTATION_COLOR_TOKEN;
     const emptyForm: AnnotationFormState = {
@@ -112,6 +104,14 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
     const [selectedAnnotation, setSelectedAnnotation] = useState<ChartAnnotation | null>(null);
     const [editForm, setEditForm] = useState<AnnotationFormState>(emptyForm);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    const { markPending: markCreatePending, onAnimationEnd: onCreateAnimationEnd } = useOverlayReset(() =>
+      setCreateForm(emptyForm),
+    );
+    const { markPending: markEditPending, onAnimationEnd: onEditAnimationEnd } = useOverlayReset(() => {
+      setEditForm(emptyForm);
+      setSelectedAnnotation(null);
+    });
 
     useImperativeHandle(ref, () => ({
       openCreateDialog: (date: number) => {
@@ -149,8 +149,8 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         colorToken: createForm.color,
       });
 
+      markCreatePending();
       setShowCreateDialog(false);
-      setCreateForm(emptyForm);
     };
 
     const handleUpdateAnnotation = () => {
@@ -163,9 +163,8 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
         date: (editForm.date ?? new Date(selectedAnnotation.date)).getTime(),
       });
 
+      markEditPending();
       setShowEditDialog(false);
-      setSelectedAnnotation(null);
-      setEditForm(emptyForm);
     };
 
     const handleDeleteAnnotation = () => {
@@ -173,16 +172,25 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
 
       onDeleteAnnotation(selectedAnnotation.id);
 
+      markEditPending();
       setShowDeleteConfirm(false);
       setShowEditDialog(false);
-      setSelectedAnnotation(null);
-      setEditForm(emptyForm);
+    };
+
+    const handleCreateCancel = () => {
+      markCreatePending();
+      setShowCreateDialog(false);
+    };
+
+    const handleEditCancel = () => {
+      markEditPending();
+      setShowEditDialog(false);
     };
 
     return (
       <>
         <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogContent className='sm:max-w-md'>
+          <DialogContent className='sm:max-w-md' onAnimationEnd={onCreateAnimationEnd}>
             <DialogHeader>
               <DialogTitle>{t('addTitle')}</DialogTitle>
             </DialogHeader>
@@ -212,9 +220,12 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               </div>
               <div className='grid gap-2'>
                 <Label className='text-sm font-medium'>{t('dateTimeLabel')}</Label>
-                <DateTimePicker24h
+                <DateTimePicker
                   value={createForm.date ?? new Date()}
-                  onChange={(d) => setCreateForm((prev) => ({ ...prev, date: d ?? null }))}
+                  onChange={(d) => setCreateForm((prev) => ({ ...prev, date: d }))}
+                  locale={locale}
+                  dateLabel={t('dateTimeLabel')}
+                  className='w-full'
                 />
               </div>
               <ColorSwatchPicker
@@ -226,7 +237,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               />
             </div>
             <DialogFooter>
-              <Button variant='outline' className='cursor-pointer' onClick={() => setShowCreateDialog(false)}>
+              <Button variant='outline' className='cursor-pointer' onClick={handleCreateCancel}>
                 {t('cancel')}
               </Button>
               <Button
@@ -249,7 +260,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
             }
           }}
         >
-          <DialogContent className='sm:max-w-md'>
+          <DialogContent className='sm:max-w-md' onAnimationEnd={onEditAnimationEnd}>
             <DialogHeader>
               <DialogTitle>{t('editTitle')}</DialogTitle>
             </DialogHeader>
@@ -282,9 +293,12 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
               </div>
               <div className='grid gap-2'>
                 <Label className='text-sm font-medium'>{t('dateTimeLabel')}</Label>
-                <DateTimePicker24h
+                <DateTimePicker
                   value={editForm.date ?? new Date(selectedAnnotation?.date ?? Date.now())}
-                  onChange={(d) => setEditForm((prev) => ({ ...prev, date: d ?? null }))}
+                  onChange={(d) => setEditForm((prev) => ({ ...prev, date: d }))}
+                  locale={locale}
+                  dateLabel={t('dateTimeLabel')}
+                  className='w-full'
                 />
               </div>
               <ColorSwatchPicker
@@ -326,7 +340,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 <Button
                   variant='outline'
                   className='min-w-[104px] cursor-pointer'
-                  onClick={() => setShowEditDialog(false)}
+                  onClick={handleEditCancel}
                 >
                   {t('cancel')}
                 </Button>

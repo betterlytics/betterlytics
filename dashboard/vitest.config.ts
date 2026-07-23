@@ -1,10 +1,17 @@
 import { defineConfig } from 'vitest/config'
+import path from 'path'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'src'),
+      'server-only': path.resolve(__dirname, 'src/test/server-only-stub.ts'),
+    },
+  },
   test: {
     globals: true,
-    environment: 'node', // node is faster and all you need
-    include: ['**/*.test.ts'], // or whatever folder pattern
+    environment: 'node',
+    include: ['**/*.test.ts'],
     exclude: ['node_modules']
   },
 })

@@ -13,9 +13,10 @@ import { useFilterClick } from '@/hooks/use-filter-click';
 
 interface BrowserTableProps {
   data: ToDataTable<'browser', BrowserStats>[];
+  loading?: boolean;
 }
 
-export default function BrowserTable({ data }: BrowserTableProps) {
+export default function BrowserTable({ data, loading }: BrowserTableProps) {
   const tCols = useTranslations('components.devices.tables.columns');
   const tFilters = useTranslations('components.filters');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
@@ -23,11 +24,12 @@ export default function BrowserTable({ data }: BrowserTableProps) {
     {
       accessorKey: 'browser',
       header: tCols('browser'),
+      minSize: 150,
       cell: ({ row }) => (
         <Button
           variant='ghost'
           onClick={() => makeFilterClick('browser')(row.original.browser)}
-          className='cursor-pointer bg-transparent p-1 text-left text-sm font-medium'
+          className='cursor-pointer bg-transparent p-1 text-left text-sm font-medium select-text'
           title={tFilters('filterBy', { label: row.original.browser })}
         >
           <span className='flex items-center gap-2'>
@@ -56,6 +58,7 @@ export default function BrowserTable({ data }: BrowserTableProps) {
       <DataTable
         columns={columns}
         data={data}
+        loading={loading}
         defaultSorting={[{ id: 'visitors', desc: true }]}
         className='w-full'
       />

@@ -21,6 +21,8 @@ import prisma from '@/lib/postgres';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 import { setLocaleCookie } from '@/constants/cookies';
+import { isFeatureEnabled } from './feature-flags';
+import { sendVerificationEmail } from '@/services/account/verification.service';
 
 const adapter = PrismaAdapter(prisma) as Adapter;
 
@@ -60,7 +62,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: '/signin',
     error: '/signin',
-    newUser: '/dashboards',
+    newUser: '/onboarding?newUser=true',
   },
   session: {
     strategy: 'database',
@@ -86,6 +88,17 @@ export const authOptions: NextAuthOptions = {
       } catch (error) {
         console.error('Failed to create initial user settings for user in NextAuth event:', error);
       }
+
+      if (user.email && isFeatureEnabled('enableAccountVerification')) {
+        try {
+          const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { emailVerified: true } });
+          if (!dbUser?.emailVerified) {
+            await sendVerificationEmail({ email: user.email });
+          }
+        } catch (error) {
+          console.error('Failed to send verification email for new user:', error);
+        }
+      }
     },
   },
   callbacks: {
@@ -105,17 +118,6 @@ export const authOptions: NextAuthOptions = {
         } catch (error) {
           console.error('Failed to create session for credentials:', error);
           return false;
-        }
-      }
-
-      if (account?.provider === 'google') {
-        const emailVerifiedByGoogle = Boolean((user as unknown as { email_verified?: boolean })?.email_verified);
-        if (emailVerifiedByGoogle && !user.emailVerified) {
-          try {
-            await prisma.user.update({ where: { id: user.id }, data: { emailVerified: new Date() } });
-          } catch (e) {
-            console.error('Failed to update verified email from Google:', e);
-          }
         }
       }
 
@@ -147,6 +149,8 @@ export const authOptions: NextAuthOptions = {
       session.user.termsAcceptedAt = user.termsAcceptedAt;
       session.user.termsAcceptedVersion = user.termsAcceptedVersion;
       session.user.changelogVersionSeen = user.changelogVersionSeen;
+      session.user.createdAt = user.createdAt;
+      session.user.githubStarPromptState = user.githubStarPromptState;
       session.user.settings = settings;
 
       if (session.user.settings?.language) {
@@ -160,6 +164,13 @@ export const authOptions: NextAuthOptions = {
 
 function isUserException(error: unknown): error is UserException {
   return error instanceof UserException;
+}
+
+export function getEnabledOAuthProviders(): { google: boolean; github: boolean } {
+  return {
+    google: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+    github: Boolean(env.GITHUB_ID && env.GITHUB_SECRET),
+  };
 }
 
 function buildSocialProviders(): Provider[] {

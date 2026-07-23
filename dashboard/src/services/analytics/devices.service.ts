@@ -8,7 +8,6 @@ import {
   getBrowserRollup,
   getOperatingSystemRollup,
 } from '@/repositories/clickhouse/devices.repository';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   DeviceType,
   BrowserStats,
@@ -18,33 +17,15 @@ import {
   DeviceUsageTrendRow,
 } from '@/entities/analytics/devices.entities';
 import { getDeviceLabel } from '@/constants/deviceTypes';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
-import { TimeRangeValue } from '@/utils/timeRanges';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getDeviceTypeBreakdownForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-): Promise<DeviceType[]> {
-  return getDeviceTypeBreakdown(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
+export async function getDeviceTypeBreakdownForSite(siteQuery: BASiteQuery): Promise<DeviceType[]> {
+  return getDeviceTypeBreakdown(siteQuery);
 }
 
-export async function getBrowserBreakdownForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-): Promise<BrowserStats[]> {
-  const browserData = await getBrowserBreakdown(
-    siteId,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
-    queryFilters,
-  );
+export async function getBrowserBreakdownForSite(siteQuery: BASiteQuery): Promise<BrowserStats[]> {
+  const browserData = await getBrowserBreakdown(siteQuery);
 
-  // Calculate total visitors for percentage calculation
   const totalVisitors = browserData.reduce((sum, item) => sum + item.visitors, 0);
 
   const statsWithPercentages = browserData.map((item) => ({
@@ -56,36 +37,16 @@ export async function getBrowserBreakdownForSite(
   return BrowserStatsSchema.array().parse(statsWithPercentages);
 }
 
-export async function getBrowserRollupForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-) {
-  return getBrowserRollup(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
+export async function getBrowserRollupForSite(siteQuery: BASiteQuery) {
+  return getBrowserRollup(siteQuery);
 }
 
-export async function getOperatingSystemRollupForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-) {
-  return getOperatingSystemRollup(siteId, toDateTimeString(startDate), toDateTimeString(endDate), queryFilters);
+export async function getOperatingSystemRollupForSite(siteQuery: BASiteQuery) {
+  return getOperatingSystemRollup(siteQuery);
 }
 
-export async function getOperatingSystemBreakdownForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-): Promise<OperatingSystemStats[]> {
-  const osData = await getOperatingSystemBreakdown(
-    siteId,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
-    queryFilters,
-  );
+export async function getOperatingSystemBreakdownForSite(siteQuery: BASiteQuery): Promise<OperatingSystemStats[]> {
+  const osData = await getOperatingSystemBreakdown(siteQuery);
 
   const totalVisitors = osData.reduce((sum, item) => sum + item.visitors, 0);
 
@@ -98,25 +59,10 @@ export async function getOperatingSystemBreakdownForSite(
   return OperatingSystemStatsSchema.array().parse(statsWithPercentages);
 }
 
-export async function getDeviceUsageTrendForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
-): Promise<DeviceUsageTrendRow[]> {
-  return getDeviceUsageTrend(
-    siteId,
-    toDateTimeString(startDate),
-    toDateTimeString(endDate),
-    granularity,
-    queryFilters,
-    timezone,
-  );
+export async function getDeviceUsageTrendForSite(siteQuery: BASiteQuery): Promise<DeviceUsageTrendRow[]> {
+  return getDeviceUsageTrend(siteQuery);
 }
 
-// Helper to find top item and calculate percentage from a breakdown list
 const calculateTopItem = <T extends { visitors: number }>(breakdown: T[], nameKey: keyof T) => {
   if (breakdown.length === 0) {
     return { name: 'None', visitors: 0, percentage: 0 };

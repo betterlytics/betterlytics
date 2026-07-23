@@ -1,6 +1,6 @@
 use chrono::{DateTime, Duration, Utc};
 
-use crate::email::templates::{email_signature, html_escape, wrap_html, wrap_text};
+use crate::email::templates::{html_escape, wrap_html, wrap_text};
 use crate::email::EmailRequest;
 use crate::monitor::ReasonCode;
 
@@ -137,8 +137,7 @@ fn build_down_alert_html(
 
             <p style="color: #6b7280; font-size: 14px; margin-top: 24px;">
                 We'll notify you again when the monitor recovers.
-            </p>
-            {signature}"#,
+            </p>"#,
         error_heading = "margin: 0 0 10px 0; color: #dc2626; font-size: 18px;",
         monitor_name = html_escape(monitor_name),
         url = html_escape(url),
@@ -146,7 +145,6 @@ fn build_down_alert_html(
         status_section = status_section,
         reason_section = reason_section,
         monitor_url = monitor_url,
-        signature = email_signature(),
     );
 
     wrap_html(&content)
@@ -216,15 +214,13 @@ fn build_recovery_alert_html(
 
             <div class="center">
                 <a href="{monitor_url}" class="button button-success">View Monitor Details</a>
-            </div>
-            {signature}"#,
+            </div>"#,
         success_heading = "margin: 0 0 10px 0; color: #059669; font-size: 18px;",
         monitor_name = html_escape(monitor_name),
         url = html_escape(url),
         time = chrono::Utc::now().format("%Y-%m-%d %H:%M:%S UTC"),
         downtime_section = downtime_section,
         monitor_url = monitor_url,
-        signature = email_signature(),
     );
 
     wrap_html(&content)
@@ -314,8 +310,7 @@ fn build_ssl_alert_html(
 
             <div class="center">
                 <a href="{monitor_url}" class="button">View Monitor Details</a>
-            </div>
-            {signature}"#,
+            </div>"#,
         box_class = box_class,
         heading_style = heading_style,
         icon = icon,
@@ -325,7 +320,6 @@ fn build_ssl_alert_html(
         days_text = days_text,
         expiry_section = expiry_section,
         monitor_url = monitor_url,
-        signature = email_signature(),
     );
 
     wrap_html(&content)

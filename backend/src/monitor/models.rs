@@ -70,6 +70,7 @@ pub enum ReasonCode {
     BlockedIpLiteral,
     DnsBlocked,
     DnsError,
+    KeywordNotFound,
 }
 
 impl ReasonCode {
@@ -103,6 +104,7 @@ impl ReasonCode {
             ReasonCode::BlockedIpLiteral => "blocked_ip_literal",
             ReasonCode::DnsBlocked => "dns_blocked",
             ReasonCode::DnsError => "dns_error",
+            ReasonCode::KeywordNotFound => "keyword_not_found",
         }
     }
 
@@ -137,6 +139,7 @@ impl ReasonCode {
             ReasonCode::BlockedIpLiteral => "IP address not allowed",
             ReasonCode::DnsBlocked => "DNS resolved to blocked address",
             ReasonCode::DnsError => "DNS resolution failed",
+            ReasonCode::KeywordNotFound => "Expected keyword not found in response",
         }
     }
 
@@ -193,6 +196,7 @@ pub struct MonitorCheck {
     pub http_method: HttpMethod,
     pub request_headers: Vec<RequestHeader>,
     pub accepted_status_codes: Vec<StatusCodeValue>,
+    pub expected_keyword: Option<String>,
     pub check_ssl_errors: bool,
     pub alert: AlertConfig,
 }
@@ -252,6 +256,7 @@ pub struct ProbeOutcome {
     pub tls_not_after: Option<DateTime<Utc>>,
     pub final_url: Option<String>,
     pub redirect_hops: usize,
+    pub body_size: Option<usize>,
 }
 
 impl ProbeOutcome {
@@ -266,6 +271,7 @@ impl ProbeOutcome {
             tls_not_after: None,
             final_url: None,
             redirect_hops: 0,
+            body_size: None,
         }
     }
 
@@ -284,6 +290,7 @@ impl ProbeOutcome {
             tls_not_after: None,
             final_url: None,
             redirect_hops: 0,
+            body_size: None,
         }
     }
 }
@@ -353,6 +360,7 @@ impl MonitorResultRow {
         row.extra = serde_json::json!({
             "redirect_hops": outcome.redirect_hops,
             "final_url": outcome.final_url,
+            "body_size": outcome.body_size,
         })
         .to_string();
 

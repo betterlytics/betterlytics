@@ -1,0 +1,348 @@
+'use client';
+
+import { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { CampaignEmptyState } from './CampaignEmptyState';
+import { Button } from '@/components/ui/button';
+import { formatNumber, formatPercentage } from '@/utils/formatters';
+import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
+import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
+import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
+import { Spinner } from '@/components/ui/spinner';
+import type { inferRouterOutputs } from '@trpc/server';
+import type { AppRouter } from '@/trpc/routers/_app';
+import { trpc } from '@/trpc/client';
+import { useBAQueryParams } from '@/trpc/hooks';
+import CampaignSparkline from './CampaignSparkline';
+import CampaignAudienceProfile from './CampaignAudienceProfile';
+import { useLocale, useTranslations } from 'next-intl';
+import { CompactPagination } from '@/components/CompactPagination';
+import { PaginationControls } from '@/components/PaginationControls';
+import CampaignRowSkeleton from '@/components/skeleton/CampaignRowSkeleton';
+
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type CampaignExpandedDetails = RouterOutputs['campaign']['expandedDetails'];
+
+type CampaignListItem = CampaignListRowSummary;
+
+const DEFAULT_PAGE_SIZE = 10;
+
+export default function CampaignList() {
+  const [expandedCampaign, setExpandedCampaign] = useState<string | null>(null);
+  const [pageIndex, setPageIndex] = useState<number>(0);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_PAGE_SIZE);
+  const { input, options } = useBAQueryParams();
+
+  const { data: performancePage, isLoading } = trpc.campaign.performance.useQuery(
+    { ...input, pageIndex, pageSize },
+    options,
+  );
+
+  const campaigns = (performancePage?.campaigns as CampaignListItem[]) ?? [];
+  const totalCampaigns = performancePage?.totalCampaigns ?? 0;
+
+  const totalPages = Math.max(1, Math.ceil(totalCampaigns / pageSize));
+  const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);
+
+  const toggleCampaignExpanded = (campaignName: string) => {
+    setExpandedCampaign((prev) => (prev === campaignName ? null : campaignName));
+  };
+
+  const handlePageChange = (newIndex: number) => {
+    if (newIndex === pageIndex) return;
+    setExpandedCampaign(null);
+    setPageIndex(newIndex);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    if (newSize === pageSize) return;
+    setExpandedCampaign(null);
+    setPageIndex(0);
+    setPageSize(newSize);
+  };
+
+  if (!isLoading && campaigns.length === 0) {
+    return <CampaignEmptyState />;
+  }
+
+  const showTopPagination = pageSize >= 25 && totalPages > 1;
+  const isInitialLoading = isLoading && campaigns.length === 0;
+  const skeletonRowCount = pageSize || DEFAULT_PAGE_SIZE;
+
+  return (
+    <div className='space-y-4 pb-8 md:pb-0'>
+      {showTopPagination && (
+        <CompactPagination pageIndex={safePageIndex} totalPages={totalPages} onPageChange={handlePageChange} />
+      )}
+
+      {isInitialLoading
+        ? Array.from({ length: skeletonRowCount }).map((_, index) => <CampaignRowSkeleton key={index} />)
+        : campaigns.map((campaign) => {
+            return (
+              <CampaignListEntry
+                key={campaign.name}
+                campaign={campaign}
+                isExpanded={expandedCampaign === campaign.name}
+                onToggle={() => toggleCampaignExpanded(campaign.name)}
+              />
+            );
+          })}
+
+      <PaginationControls
+        pageIndex={safePageIndex}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalItems={totalCampaigns}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
+    </div>
+  );
+}
+
+type CampaignListEntryProps = {
+  campaign: CampaignListItem;
+  isExpanded: boolean;
+  onToggle: () => void;
+};
+
+function CampaignListEntry({ campaign, isExpanded, onToggle }: CampaignListEntryProps) {
+  const locale = useLocale();
+  const t = useTranslations('components.campaign.campaignRow');
+  const visitorsLabel = t('visitors', { count: campaign.visitors });
+  const detailsId = `campaign-${campaign.name}-details`;
+  return (
+    <article className='border-border/70 bg-card/80 hover:bg-card/90 hover:border-border/90 group relative rounded-lg border p-1 shadow-sm transition duration-200 ease-out'>
+      <div className='from-chart-1/70 to-chart-1/30 absolute top-0 left-0 h-full w-1 rounded-l-lg bg-gradient-to-b' />
+
+      {/* Mobile / tablet header row */}
+      <div
+        className='flex cursor-pointer items-center justify-between gap-3 px-4 py-3 lg:hidden'
+        onClick={onToggle}
+      >
+        <CampaignHeaderTitle name={campaign.name} sessionsLabel={visitorsLabel} />
+        <div className='flex items-center gap-2'>
+          <div className='h-11 min-w-[150px] flex-1'>
+            <CampaignSparkline data={campaign.sparkline} />
+          </div>
+          <CampaignToggleButton isExpanded={isExpanded} onToggle={onToggle} controlsId={detailsId} />
+        </div>
+      </div>
+
+      {/* Desktop header row */}
+      <div
+        className='hidden cursor-pointer grid-cols-[minmax(180px,1.5fr)_repeat(3,auto)_minmax(140px,220px)_auto] items-center gap-4 px-4 py-3 lg:grid'
+        onClick={onToggle}
+      >
+        <CampaignHeaderTitle name={campaign.name} sessionsLabel={visitorsLabel} />
+
+        <CampaignMetric
+          label={t('bounceRate')}
+          value={formatPercentage(campaign.bounceRate, locale)}
+          className='flex'
+        />
+        <CampaignMetric label={t('avgSessionDuration')} value={campaign.avgSessionDuration} className='flex' />
+        <CampaignMetric
+          label={t('pagesPerSession')}
+          value={formatNumber(campaign.pagesPerSession, locale)}
+          className='flex'
+        />
+
+        <div className='h-14'>
+          <CampaignSparkline data={campaign.sparkline} />
+        </div>
+
+        <CampaignToggleButton isExpanded={isExpanded} onToggle={onToggle} controlsId={detailsId} />
+      </div>
+      <CampaignExpandedRow
+        isExpanded={isExpanded}
+        campaignName={campaign.name}
+        summary={{
+          visitors: campaign.visitors,
+          bounceRate: campaign.bounceRate,
+          avgSessionDuration: campaign.avgSessionDuration,
+          pagesPerSession: campaign.pagesPerSession,
+        }}
+      />
+    </article>
+  );
+}
+
+type CampaignHeaderTitleProps = {
+  name: string;
+  sessionsLabel: string;
+};
+
+function CampaignHeaderTitle({ name, sessionsLabel }: CampaignHeaderTitleProps) {
+  return (
+    <div className='min-w-0'>
+      <p className='truncate text-sm leading-tight font-semibold'>{name}</p>
+      <p className='text-muted-foreground mt-0.5 text-xs tabular-nums'>{sessionsLabel}</p>
+    </div>
+  );
+}
+
+type CampaignToggleButtonProps = {
+  isExpanded: boolean;
+  onToggle: () => void;
+  controlsId: string;
+};
+
+function CampaignToggleButton({ isExpanded, onToggle, controlsId }: CampaignToggleButtonProps) {
+  return (
+    <Button
+      variant='ghost'
+      size='icon'
+      className='shrink-0 cursor-pointer'
+      onClick={(event) => {
+        event.stopPropagation();
+        onToggle();
+      }}
+      aria-expanded={isExpanded}
+      aria-controls={controlsId}
+    >
+      {isExpanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
+    </Button>
+  );
+}
+
+function CampaignMetric({ label, value, className }: { label: string; value: string; className?: string }) {
+  return (
+    <div className={`flex flex-col justify-end ${className ?? ''}`}>
+      <span className='text-muted-foreground text-[10px] leading-tight font-medium tracking-wide uppercase'>
+        {label}
+      </span>
+      <span className='text-foreground text-sm font-semibold tabular-nums'>{value}</span>
+    </div>
+  );
+}
+
+type CampaignInlineUTMSectionProps = {
+  details: CampaignExpandedDetails;
+  campaignName: string;
+  summary: {
+    visitors: number;
+    bounceRate: number;
+    avgSessionDuration: string;
+    pagesPerSession: number;
+  };
+};
+
+function CampaignInlineUTMSection({ details, campaignName, summary }: CampaignInlineUTMSectionProps) {
+  const { utmSource, landingPages, devices, countries, browsers, operatingSystems } = details;
+  const locale = useLocale();
+  const t = useTranslations('components.campaign.campaignExpandedRow');
+  const tRow = useTranslations('components.campaign.campaignRow');
+
+  return (
+    <div className='space-y-4'>
+      <div className='text-muted-foreground flex items-center gap-3 text-[11px] font-medium tracking-wide uppercase'>
+        <div className='bg-border/60 h-px flex-1' />
+        <span>{t('campaignDetails')}</span>
+        <div className='bg-border/60 h-px flex-1' />
+      </div>
+      <div className='mt-1 grid gap-3 lg:grid-cols-5'>
+        <div className='hidden lg:col-span-3 lg:block'>
+          <UTMBreakdownTabbedTable
+            campaignName={campaignName}
+            initialSource={utmSource}
+            landingPages={landingPages}
+          />
+        </div>
+        <div className='space-y-3 lg:col-span-2'>
+          <div className='lg:hidden'>
+            <div className='grid grid-cols-2 gap-x-4 gap-y-3 px-2'>
+              <div className='space-y-0.5'>
+                <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
+                  {tRow('bounceRate')}
+                </p>
+                <p className='text-foreground text-sm font-semibold tabular-nums'>
+                  {formatPercentage(summary.bounceRate, locale)}
+                </p>
+              </div>
+              <div className='space-y-0.5'>
+                <p className='text-muted-foreground text-[10px] font-medium tracking-wide uppercase'>
+                  {tRow('pagesPerSession')}
+                </p>
+                <p className='text-foreground text-sm font-semibold tabular-nums'>
+                  {formatNumber(summary.pagesPerSession, locale)}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className='flex flex-col gap-3'>
+            <CampaignAudienceProfile
+              devices={devices}
+              countries={countries}
+              browsers={browsers}
+              operatingSystems={operatingSystems}
+            />
+            <UTMBreakdownTabbedChart campaignName={campaignName} initialSource={utmSource} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type CampaignExpandedRowProps = {
+  isExpanded: boolean;
+  campaignName: string;
+  summary: {
+    visitors: number;
+    bounceRate: number;
+    avgSessionDuration: string;
+    pagesPerSession: number;
+  };
+};
+
+function CampaignExpandedRow({ isExpanded, campaignName, summary }: CampaignExpandedRowProps) {
+  const { input, options } = useBAQueryParams();
+  const { data, status } = trpc.campaign.expandedDetails.useQuery(
+    { ...input, campaignName },
+    {
+      ...options,
+      enabled: isExpanded,
+      staleTime: getExpandedDetailsStaleTime(input.query.startDate, input.query.endDate),
+      gcTime: 15 * 60 * 1000,
+      placeholderData: undefined,
+    },
+  );
+  const t = useTranslations('components.campaign.campaignExpandedRow');
+  if (!isExpanded) {
+    return null;
+  }
+
+  return (
+    <div id={`campaign-${campaignName}-details`} className='mx-3 ml-5 space-y-4 pb-3'>
+      {status === 'pending' ? (
+        <div className='flex items-center justify-center gap-3 py-8'>
+          <Spinner size='sm' aria-label='Loading campaign details' />
+          <span className='text-muted-foreground text-sm'>{t('loading')}</span>
+        </div>
+      ) : null}
+
+      {status === 'error' ? (
+        <div className='bg-destructive/10 border-destructive/30 rounded-md border px-4 py-3'>
+          <p className='text-destructive text-sm'>{t('error')}</p>
+        </div>
+      ) : null}
+
+      {status === 'success' && data ? (
+        <CampaignInlineUTMSection details={data} campaignName={campaignName} summary={summary} />
+      ) : null}
+    </div>
+  );
+}
+
+function getExpandedDetailsStaleTime(startDate: Date, endDate: Date) {
+  const rangeMs = endDate.getTime() - startDate.getTime();
+  const hourMs = 60 * 60 * 1000;
+  if (rangeMs <= hourMs) {
+    return 30_000;
+  }
+  if (rangeMs <= 24 * hourMs) {
+    return 5 * 60 * 1000;
+  }
+  return 15 * 60 * 1000;
+}

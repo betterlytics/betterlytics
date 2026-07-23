@@ -1,0 +1,43 @@
+'use client';
+
+import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { useEffect } from 'react';
+
+type TrackingScriptProps = {
+  siteId: string;
+};
+
+export function TrackingScript({ siteId }: TrackingScriptProps) {
+  const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
+
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `${PUBLIC_ANALYTICS_BASE_URL}/analytics.js`;
+    script.setAttribute('data-site-id', siteId);
+    script.setAttribute('data-server-url', `${PUBLIC_TRACKING_SERVER_ENDPOINT}/event`);
+    script.setAttribute('data-scripts-base-url', PUBLIC_ANALYTICS_BASE_URL);
+    script.setAttribute(
+      'data-dynamic-urls',
+      '/dashboard/*/errors/detail/*,/dashboard/*/funnels/*,/dashboard/*/monitoring/*,/dashboard/*/status-pages/*,/dashboard/*,/share/*/errors/detail/*,/*/share/*/errors/detail/*,/share/*/funnels/*,/*/share/*/funnels/*,/share/*/monitoring/*,/*/share/*/monitoring/*,/share/*/status-pages/*,/*/share/*/status-pages/*,/share/*,/*/share/*,/accept-invite/*,/*/accept-invite/*,/status/*',
+    );
+    script.setAttribute('data-outbound-links', 'full');
+    script.setAttribute('data-web-vitals', 'true');
+    script.setAttribute('data-replay', 'true');
+    script.setAttribute('data-replay-sample', '100');
+    script.setAttribute('data-consent-replay', 'true');
+    script.setAttribute('data-disable-replay-on-urls', '/dashboard/*/replay');
+    script.setAttribute('data-track-errors', 'true');
+    script.setAttribute('data-track-console-errors', 'true');
+    script.setAttribute('data-global-properties', JSON.stringify({ siteId }));
+    document.head.appendChild(script);
+
+    return () => {
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
+    };
+  }, [siteId, PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT]);
+
+  return null;
+}

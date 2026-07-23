@@ -1,5 +1,7 @@
-'server-only';
+import 'server-only';
 
+import type { Stripe } from 'stripe';
+import { stripe } from '@/lib/billing/stripe';
 import {
   getSubscriptionByPaymentId as getSubscriptionByPaymentIdRepository,
   upsertSubscription as upsertSubscriptionRepository,
@@ -32,4 +34,14 @@ export async function findSubscriptionByPaymentId(
   ...args: Parameters<typeof getSubscriptionByPaymentIdRepository>
 ): ReturnType<typeof getSubscriptionByPaymentIdRepository> {
   return getSubscriptionByPaymentIdRepository(...args);
+}
+
+export async function clearScheduledCancellation(sub: Stripe.Subscription): Promise<Stripe.Subscription> {
+  if (sub.cancel_at_period_end) {
+    return stripe.subscriptions.update(sub.id, { cancel_at_period_end: false });
+  }
+  if (sub.cancel_at !== null) {
+    return stripe.subscriptions.update(sub.id, { cancel_at: null });
+  }
+  return sub;
 }

@@ -1,61 +1,33 @@
 ---
 title: "Installation Overview"
-description: "Choose the best installation method for your needs - cloud hosting or self-hosting."
+description: "Get started with Betterlytics in minutes on our managed cloud, or self-host on your own infrastructure. Includes a full cloud vs self-hosted feature comparison."
 ---
 
 # Installation Overview
 
-Choose the installation method that best fits your needs and technical requirements.
+The fastest way to get started is **Betterlytics Cloud**: create an account, add one script tag, and see your first data within minutes. No servers to run, no updates to manage, and always the latest features.
 
-## Hosting Options Comparison
+[**Get started in under a minute →**](/installation/cloud-hosting)
 
-### ☁️ Cloud Hosting (Recommended)
+Prefer to run everything on your own infrastructure? Betterlytics is open source and can be [self-hosted with Docker](/installation/self-hosting).
 
-**Perfect for:** Most users, small to large websites, teams who want to focus on analytics rather than infrastructure management.
+## Cloud vs Self-Hosted
 
-**✅ Pros:**
+Both options provide the same privacy-first, cookieless analytics experience. Cloud is fully managed and always up to date, while self-hosting gives you full control over your data and infrastructure.
 
-- **Ready in under 60 seconds** - No technical setup required
-- **Free plan available** - Perfect for smaller sites
-- **Automatic updates** - Always get the latest features
-- **EU infrastructure** - GDPR-compliant hosting
-- **Expert support** - Professional help when you need it
-- **Automatic backups** - Your data is safe and recoverable
+<HostingComparisonTable />
 
-[**Get Started with Cloud Hosting**](/installation/cloud-hosting)
+**How to read the table:**
 
----
+- **Configurable** - Included in the self-hosted image, but requires configuration on your side (for example SMTP credentials for email features).
+- A cross in the self-hosted column does not mean never. Most features are planned for self-hosting and arrive with later image updates, while some depend on additional infrastructure first (for example, session replays require S3-compatible object storage).
 
-### 🏠 Self-Hosting
+New features launch on Betterlytics Cloud first and reach the self-hosted image with periodic updates. See [feature availability for self-hosting](/installation/self-hosting#feature-availability) for how this works.
 
-**Perfect for:** Organizations with specific privacy requirements, developers who want full control, teams with technical expertise, or for those who just want to explore the platform.
+## Next Steps
 
-**✅ Pros:**
+- [**Cloud Quick Start**](/installation/cloud-hosting) - Create an account and install the tracking script
+- [**Self-Hosting Setup**](/installation/self-hosting) - Deploy with Docker on your own server
+- [**Integration Overview**](/integration) - Enable custom events, error tracking, session replay, and more
 
-- **Maximum privacy** - Data never leaves your infrastructure
-- **Full control** - Customize everything to your needs
-- **No recurring fees** - Pay only for your infrastructure
-- **Custom modifications** - Adapt the platform to your requirements
-
-**⚠️ Considerations:**
-
-- Technical setup required - Installation and configuration needed
-- Maintenance responsibility - Updates, security, backups are on you
-- Infrastructure costs - Server, CDN, and associated costs
-
-[**Get Started with Self-Hosting**](/installation/self-hosting)
-
----
-
-## What's Next?
-
-Once you've decided on your hosting approach:
-
-1. **Cloud Hosting:** [Set up your account](/installation/cloud-hosting)
-2. **Self-Hosting:** [Install on your servers](/installation/self-hosting)
-
-Need help deciding? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for personalized advice!
-
----
-
-_Both options provide the same powerful, privacy-first analytics experience._
+Need help deciding? Join our [Discord community](https://discord.gg/vwqSvPn6sP).

@@ -25,6 +25,7 @@ export const MONITOR_LIMITS = {
   REQUEST_HEADER_VALUE_MAX: 2048,
   ALERT_EMAILS_MAX: 5,
   ACCEPTED_STATUS_CODES_MAX: 5,
+  EXPECTED_KEYWORD_MAX: 256,
 } as const;
 
 export const MONITOR_DEFAULTS = {
@@ -67,6 +68,7 @@ export const MonitorCheckBaseSchema = z.object({
     .array(StatusCodeValueSchema)
     .max(MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX)
     .default([...MONITOR_DEFAULTS.acceptedStatusCodes]),
+  expectedKeyword: z.string().trim().max(MONITOR_LIMITS.EXPECTED_KEYWORD_MAX).optional().nullable(),
   alertsEnabled: z.boolean().default(MONITOR_DEFAULTS.alertsEnabled),
   alertEmails: z
     .array(z.string().email())
@@ -215,3 +217,14 @@ export type MonitorResult = z.infer<typeof MonitorResultSchema>;
 export type MonitorTlsResult = z.infer<typeof MonitorTlsResultSchema>;
 export type MonitorIncidentSegment = z.infer<typeof MonitorIncidentSegmentSchema>;
 export type MonitorDailyUptime = z.infer<typeof MonitorDailyUptimeSchema>;
+
+export const DetectedOutageRowSchema = z.object({
+  detectedIncidentId: z.string(),
+  monitorCheckId: z.string(),
+  reasonCode: z.string(),
+  ongoing: z.boolean(),
+  startedAt: z.string(),
+  resolvedAt: z.string().nullable(),
+  severity: z.string(),
+});
+export type DetectedOutageRow = z.infer<typeof DetectedOutageRowSchema>;

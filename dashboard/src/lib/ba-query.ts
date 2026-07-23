@@ -1,10 +1,19 @@
-'server only';
+import 'server-only';
 
-import { QueryFilter, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import {
+  isUsableFilter,
+  parseFilterColumn,
+  QueryFilter,
+  QueryFilterSchema,
+} from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
+import { filterColumnSql } from './filter-sql';
 import { DateTimeString } from '@/types/dates';
+import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
+import { setSiteConcurrencyLimit } from '@/observability/clickhouse-concurrency';
+import { env } from '@/lib/env';
 
 // Utility for filter query
 const INTERNAL_FILTER_OPERATORS = {
@@ -20,6 +29,7 @@ const INTERNAL_FILTER_OPERATORS = {
 
 const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   ...filter,
+  rawOperator: filter.operator,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
   values: filter.values.map((value) => value.replaceAll('*', '%')),
 }));
@@ -28,10 +38,7 @@ const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
  * Build query filters using `safeSql`
  */
 function getFilterQuery(queryFilters: QueryFilter[]) {
-  const nonEmptyFilters = queryFilters.filter(
-    (filter) =>
-      Boolean(filter.column) && Boolean(filter.operator) && filter.values.every((value) => Boolean(value)),
-  );
+  const nonEmptyFilters = queryFilters.filter(isUsableFilter);
 
   const filters = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
 
@@ -43,17 +50,40 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 }
 
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
-  const column = SQL.Unsafe(filter.column);
+  const parsed = parseFilterColumn(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
-  const quantifier = filter.operator.quantifier;
-  const operator = filter.operator.operater;
 
-  return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
+  switch (parsed.kind) {
+    case 'gp': {
+      const key = SQL.String({ [`gp_key_${filterIndex}`]: parsed.key });
+      const isWildcard = filter.values.length === 1 && filter.values[0] === '%';
+      if (isWildcard) {
+        const hasKey = safeSql`has(global_properties_keys, ${key})`;
+        return filter.rawOperator === '=' ? hasKey : safeSql`NOT ${hasKey}`;
+      }
+      const extract = safeSql`global_properties_values[indexOf(global_properties_keys, ${key})]`;
+      return safeSql`${filter.operator.quantifier}(pattern -> ${extract} ${filter.operator.operater} pattern, ${values})`;
+    }
+    default: {
+      const column = filterColumnSql(parsed.col);
+      return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+    }
+  }
 }
 
 // Utility for granularity
-const GranularityIntervalSchema = z.enum(['1 DAY', '1 HOUR', '30 MINUTE', '15 MINUTE', '1 MINUTE']);
+const GranularityIntervalSchema = z.enum([
+  '1 MONTH',
+  '1 WEEK',
+  '1 DAY',
+  '1 HOUR',
+  '30 MINUTE',
+  '15 MINUTE',
+  '1 MINUTE',
+]);
 const granularityIntervalMapper = {
+  month: GranularityIntervalSchema.enum['1 MONTH'],
+  week: GranularityIntervalSchema.enum['1 WEEK'],
   day: GranularityIntervalSchema.enum['1 DAY'],
   hour: GranularityIntervalSchema.enum['1 HOUR'],
   minute_30: GranularityIntervalSchema.enum['30 MINUTE'],
@@ -99,13 +129,18 @@ function getTimestampRange(
 
   // Create the fill
   const intervalFrom = safeSql`toStartOfInterval(${start}, ${interval}, ${SQL.String({ timezone })})`;
-  const intervalTo = safeSql`toStartOfInterval(addSeconds(${end}, 1), ${interval}, ${SQL.String({ timezone })})`;
+
+  const isCoarseGranularity = granularity === 'week' || granularity === 'month';
+  const intervalTo = isCoarseGranularity
+    ? safeSql`toStartOfInterval(${end}, ${interval}, ${SQL.String({ timezone })}) + ${interval}`
+    : safeSql`toStartOfInterval(addSeconds(${end}, 1), ${interval}, ${SQL.String({ timezone })})`;
 
   const fill = safeSql`WITH FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
 
   // Wrapper for converting final date from user timezone to UTC
+  // Note: toStartOfInterval with week/month returns Date type, not DateTime, hence the cast
   const timeWrapper = (sql: ReturnType<typeof safeSql>) => {
-    return safeSql`SELECT toTimezone(date, 'UTC') as date, q.* EXCEPT (date) FROM (${sql}) q`;
+    return safeSql`SELECT toTimezone(toDateTime64(date, 0), 'UTC') as date, q.* EXCEPT (date) FROM (${sql}) q`;
   };
 
   // Granularity function
@@ -119,7 +154,21 @@ function getTimestampRange(
   };
 }
 
+async function getSampling(siteId: string, startDate: DateTimeString, endDate: DateTimeString) {
+  const highTraffic = await isHighTrafficSite(siteId, startDate, endDate);
+  const sampleFactor = highTraffic ? env.SAMPLING_FACTOR : 1;
+
+  if (highTraffic) {
+    setSiteConcurrencyLimit(siteId, env.HIGH_TRAFFIC_CONCURRENCY_LIMIT);
+  }
+
+  const sample = safeSql`SAMPLE ${SQL.Unsafe(sampleFactor.toString())}`;
+
+  return { sample };
+}
+
 export const BAQuery = {
   getFilterQuery,
   getTimestampRange,
+  getSampling,
 };

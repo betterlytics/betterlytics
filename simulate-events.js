@@ -11,6 +11,7 @@ const DEFAULT_ARGS = {
   SIMULATED_DAYS: 7,
   BATCH_SIZE: 500,
   CUSTOM_EVENT_FREQUENCY: 0.2,
+  OUTBOUND_LINK_FREQUENCY: 0.05,
   CAMPAIGN_FREQUENCY: 0.3,
   NUM_CAMPAIGNS: 6,
 }
@@ -33,6 +34,7 @@ if (!args[0] || args[0].startsWith("--")) {
     | '--days'         | Number of days to spread events across (0 = today only)    | ${formatNumber(DEFAULT_ARGS.SIMULATED_DAYS)} |
     | '--batch-size'   | Number of events sent per batch (concurrent POSTs)         | ${formatNumber(DEFAULT_ARGS.BATCH_SIZE)} |
     | '--event-freq'   | Fraction (0–1) of events that are custom (non-pageview)    | ${formatNumber(DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY)} |
+    | '--outbound-freq'| Fraction (0–1) of events that are outbound link clicks     | ${formatNumber(DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY)} |
     | '--campaign-freq'| Fraction (0–1) of events that have campaign UTM tags       | ${formatNumber(DEFAULT_ARGS.CAMPAIGN_FREQUENCY)} |
     | '--campaigns'    | Number of unique campaigns to generate                     | ${formatNumber(DEFAULT_ARGS.NUM_CAMPAIGNS)} |
     ------------------------------------------------------------------------------------------------
@@ -44,6 +46,7 @@ if (!args[0] || args[0].startsWith("--")) {
       --days=${DEFAULT_ARGS.SIMULATED_DAYS} \\
       --batch-size=${DEFAULT_ARGS.BATCH_SIZE} \\
       --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY} \\
+      --outbound-freq=${DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY} \\
       --campaign-freq=${DEFAULT_ARGS.CAMPAIGN_FREQUENCY} \\
       --campaigns=${DEFAULT_ARGS.NUM_CAMPAIGNS}
   `);
@@ -65,6 +68,7 @@ const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
 const SIMULATED_DAYS = getFlag("days", DEFAULT_ARGS.SIMULATED_DAYS);
 const BATCH_SIZE = getFlag("batch-size", DEFAULT_ARGS.BATCH_SIZE);
 const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY);
+const OUTBOUND_LINK_FREQUENCY = getFlag("outbound-freq", DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY);
 const CAMPAIGN_FREQUENCY = getFlag("campaign-freq", DEFAULT_ARGS.CAMPAIGN_FREQUENCY);
 const NUM_CAMPAIGNS = getFlag("campaigns", DEFAULT_ARGS.NUM_CAMPAIGNS);
 
@@ -77,6 +81,14 @@ const CUSTOM_EVENTS = [
     event_name: "product-clicked",
     properties: JSON.stringify({ product_id: "abc123" }),
   },
+];
+
+const OUTBOUND_LINK_URLS = [
+  "https://github.com",
+  "https://twitter.com",
+  "https://linkedin.com",
+  "https://youtube.com",
+  "https://partner.com",
 ];
 const SCREEN_SIZES = ["1920x1080", "900x400", "500x300"];
 
@@ -91,6 +103,31 @@ const CAMPAIGN_DATA = {
   utm_term: ["analytics", "dashboard", "tracking", "marketing", "conversion", ""],
   utm_content: ["banner_a", "banner_b", "sidebar", "footer", "hero", ""],
 };
+
+const APP_VERSIONS = [
+  "v1.0.0", "v1.0.1", "v1.1.0", "v1.2.0", "v1.2.1", "v1.3.0",
+  "v2.0.0", "v2.0.1", "v2.1.0", "v2.1.1", "v2.2.0", "v2.3.0", "v2.3.1",
+  "v3.0.0-alpha", "v3.0.0-beta", "v3.0.0-rc1", "v3.0.0", "v3.0.1", "v3.1.0",
+];
+
+const REGIONS = [
+  "us-east", "us-west", "eu-west", "eu-central", "ap-south", "ap-northeast",
+  "sa-east", "af-south", "me-south", "ca-central", "ap-southeast",
+];
+
+const GLOBAL_PROPERTIES_POOL = [
+  { plan: "free", region: "us-east", theme: "light", locale: "en", role: "viewer", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)] },
+  { plan: "premium", region: "eu-west", theme: "dark", locale: "de", role: "editor", org_id: "org-acme", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)] },
+  { plan: "enterprise", region: "ap-south", theme: "system", locale: "ja", role: "admin", org_id: "org-globex", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)] },
+  { plan: "premium", environment: "production", browser_lang: "en-US", signup_source: "google", referral_code: "REF123", team_size: "10", region: REGIONS[Math.floor(Math.random() * REGIONS.length)] },
+  { plan: "free", environment: "staging", app_version: "v3.0.0-beta", feature_flags: "beta_ui", onboarding_step: "3", user_tier: "trial", region: REGIONS[Math.floor(Math.random() * REGIONS.length)] },
+  { plan: "enterprise", department: "engineering", cost_center: "CC-100", project: "atlas", sprint: "24", priority: "high", region: REGIONS[Math.floor(Math.random() * REGIONS.length)] },
+  { plan: "premium", country: "US", currency: "USD", timezone: "America/New_York", device_class: "desktop", connection_type: "wifi", price: 19.99, app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)] },
+  { plan: "free", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)], score: 4.5, active: true, seats: 1 },
+  { plan: "enterprise", app_version: APP_VERSIONS[Math.floor(Math.random() * APP_VERSIONS.length)], score: 87.125, active: false, seats: 250 },
+  {},
+  {},
+];
 
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -213,6 +250,7 @@ console.log("[+] Setting up...");
 const users = new Array(NUMBER_OF_USERS).fill(0).map(() => ({
   visitor_id: uuidv4(),
   ip: getRandomPublicIp(),
+  globalProperties: getRandomElement(GLOBAL_PROPERTIES_POOL),
 }));
 
 // Generate unique campaign IDs (short UUIDs)
@@ -224,10 +262,20 @@ function getExtraPayload(payload) {
   const hasCampaign = Math.random() < CAMPAIGN_FREQUENCY;
   const baseUrl = `${PUBLIC_BASE_URL}/dashboard`;
 
+  // Mutually exclusive event-class roll: outbound_link, custom event, or pageview
+  const r = Math.random();
+  const isOutboundLink = r < OUTBOUND_LINK_FREQUENCY;
+  const isCustomEvent = !isOutboundLink && r < OUTBOUND_LINK_FREQUENCY + CUSTOM_EVENT_FREQUENCY;
+
   return {
     ...payload,
     url: hasCampaign ? generateCampaignUrl(baseUrl) : baseUrl,
-    ...(Math.random() < CUSTOM_EVENT_FREQUENCY
+    ...(isOutboundLink
+      ? {
+          event_name: "outbound_link",
+          outbound_link_url: getRandomElement(OUTBOUND_LINK_URLS),
+        }
+      : isCustomEvent
       ? {
           ...CUSTOM_EVENTS[Math.floor(Math.random() * CUSTOM_EVENTS.length)],
           is_custom_event: true,
@@ -235,6 +283,8 @@ function getExtraPayload(payload) {
       : {}),
   };
 }
+
+const usersByVisitorId = new Map(users.map((u) => [u.visitor_id, u]));
 
 const events = new Array(NUMBER_OF_EVENTS)
   .fill(0)
@@ -258,7 +308,14 @@ const events = new Array(NUMBER_OF_EVENTS)
   })
   .sort((a, b) => a.timestamp - b.timestamp)
   .map((payload) => getExtraPayload(payload))
-  .map((payload) => ({ ...BASE_PAYLOAD, ...payload }));
+  .map((payload) => {
+    const gp = usersByVisitorId.get(payload.visitor_id)?.globalProperties ?? {};
+    return {
+      ...BASE_PAYLOAD,
+      ...payload,
+      ...(Object.keys(gp).length > 0 ? { global_properties: gp } : {}),
+    };
+  });
 
 console.log("[+] Running...");
 console.time("events");

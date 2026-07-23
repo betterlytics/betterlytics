@@ -88,7 +88,7 @@ export const EventLogItem = React.memo(function EventLogItem({
         <div className='min-w-0 flex-1 space-y-3'>
           <div className='flex items-center justify-between gap-3'>
             <div className='flex items-center gap-2'>
-              <h3 className='text-foreground text-sm leading-tight font-semibold'>{event.event_name}</h3>
+              <span className='text-foreground text-sm leading-tight font-semibold'>{event.event_name}</span>
               <div className='bg-muted-foreground/40 h-1 w-1 rounded-full' />
               <Badge variant='secondary' className='border-border border text-xs font-medium shadow-xs'>
                 {formatRelativeTimeFromNow(event.timestamp)}
@@ -97,10 +97,10 @@ export const EventLogItem = React.memo(function EventLogItem({
           </div>
 
           <div className='flex flex-wrap items-center gap-4 text-xs'>
-            {event.visitor_id && (
+            {Boolean(event.visitor_id) && (
               <MetadataItem icon={User}>
                 <span className='bg-muted/60 rounded px-1.5 py-0.5 font-mono text-[10px] font-medium'>
-                  {event.visitor_id.slice(-6)}
+                  {String(event.visitor_id).slice(0, 6)}
                 </span>
               </MetadataItem>
             )}

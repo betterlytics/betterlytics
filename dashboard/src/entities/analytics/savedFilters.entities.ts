@@ -1,9 +1,9 @@
 import { z } from 'zod';
-import { FILTER_COLUMNS, FILTER_OPERATORS } from './filter.entities';
+import { FilterColumnSchema, FILTER_OPERATORS, MAX_FILTER_ROWS } from './filter.entities';
 
 export const SavedFilterEntrySchema = z.object({
   id: z.string(),
-  column: z.enum(FILTER_COLUMNS),
+  column: FilterColumnSchema,
   operator: z.enum(FILTER_OPERATORS),
   values: z.string().min(1).array().min(1),
 });
@@ -20,7 +20,8 @@ export const CreateSavedFilterSchema = z.object({
   dashboardId: z.string().cuid(),
   entries: z
     .array(SavedFilterEntrySchema.omit({ id: true }).extend({ values: z.string().min(1).array().min(1) }))
-    .min(1, 'At least one filter is required'),
+    .min(1, 'At least one filter is required')
+    .max(MAX_FILTER_ROWS, 'Too many filters'),
 });
 
 export type SavedFilter = z.infer<typeof SavedFilterSchema>;

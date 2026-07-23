@@ -4,15 +4,13 @@ import {
   getReferrerDistribution,
   getReferrerTableData,
   getReferrerTrafficTrendBySource,
-  getTopReferrerUrls,
+  getReferrerUrlRollup,
   getTopChannels,
-  getTopReferrerSources,
   getDailyReferralSessions,
   getDailyReferralTrafficPercentage,
   getDailyReferralSessionDuration,
   getTopReferrerSource,
 } from '@/repositories/clickhouse/index.repository';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   ReferrerSourceAggregation,
   ReferrerSummaryWithCharts,
@@ -20,138 +18,51 @@ import {
   ReferrerTableRow,
   ReferrerTableRowSchema,
   ReferrerTrafficBySourceRow,
-  TopReferrerUrl,
+  ReferrerUrlRollupRow,
   TopChannel,
-  TopReferrerSource,
 } from '@/entities/analytics/referrers.entities';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-/**
- * Gets the aggregated referrers by source for a given site and time period
- */
 export async function getReferrerSourceAggregationDataForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
+  siteQuery: BASiteQuery,
 ): Promise<ReferrerSourceAggregation[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  return getReferrerDistribution(siteId, formattedStart, formattedEnd, queryFilters);
+  return getReferrerDistribution(siteQuery);
 }
 
-/**
- * Gets the referrer traffic trend data grouped by source for a given site and time period
- */
 export async function getReferrerTrafficTrendBySourceDataForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
+  siteQuery: BASiteQuery,
 ): Promise<ReferrerTrafficBySourceRow[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  return getReferrerTrafficTrendBySource(
-    siteId,
-    formattedStart,
-    formattedEnd,
-    granularity,
-    queryFilters,
-    timezone,
-  );
+  return getReferrerTrafficTrendBySource(siteQuery);
 }
 
-/**
- * Gets detailed referrer data for table display
- */
 export async function getReferrerTableDataForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
+  siteQuery: BASiteQuery,
   limit = 100,
 ): Promise<ReferrerTableRow[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  const result = await getReferrerTableData(siteId, formattedStart, formattedEnd, queryFilters, limit);
-
+  const result = await getReferrerTableData(siteQuery, limit);
   return result.map((row) => ReferrerTableRowSchema.parse(row));
 }
 
-/**
- * Gets top referrer URLs
- */
-export async function getTopReferrerUrlsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
+export async function getReferrerUrlRollupForSite(
+  siteQuery: BASiteQuery,
   limit = 10,
-): Promise<TopReferrerUrl[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  return getTopReferrerUrls(siteId, formattedStart, formattedEnd, queryFilters, limit);
+): Promise<ReferrerUrlRollupRow[]> {
+  return getReferrerUrlRollup(siteQuery, limit);
 }
 
-/**
- * Gets top traffic channels
- */
-export async function getTopChannelsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-  limit = 10,
-): Promise<TopChannel[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  return getTopChannels(siteId, formattedStart, formattedEnd, queryFilters, limit);
+export async function getTopChannelsForSite(siteQuery: BASiteQuery, limit = 10): Promise<TopChannel[]> {
+  return getTopChannels(siteQuery, limit);
 }
 
-/**
- * Gets top referrer sources with visit counts
- */
-export async function getTopReferrerSourcesForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-  limit = 10,
-): Promise<TopReferrerSource[]> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  return getTopReferrerSources(siteId, formattedStart, formattedEnd, queryFilters, limit);
-}
-
-/**
- * Gets summary data about referrers with chart data for a given site and time period
- */
 export async function getReferrerSummaryWithChartsForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  granularity: GranularityRangeValues,
-  queryFilters: QueryFilter[],
-  timezone: string,
+  siteQuery: BASiteQuery,
 ): Promise<ReferrerSummaryWithCharts> {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
   const [referralSessionsChartData, referralPercentageChartData, avgSessionDurationChartData, topReferrerSource] =
     await Promise.all([
-      getDailyReferralSessions(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone),
-      getDailyReferralTrafficPercentage(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone),
-      getDailyReferralSessionDuration(siteId, formattedStart, formattedEnd, granularity, queryFilters, timezone),
-      getTopReferrerSource(siteId, formattedStart, formattedEnd, queryFilters),
+      getDailyReferralSessions(siteQuery),
+      getDailyReferralTrafficPercentage(siteQuery),
+      getDailyReferralSessionDuration(siteQuery),
+      getTopReferrerSource(siteQuery),
     ]);
 
   const referralSessions = referralSessionsChartData.reduce((sum, day) => sum + day.referralSessions, 0);

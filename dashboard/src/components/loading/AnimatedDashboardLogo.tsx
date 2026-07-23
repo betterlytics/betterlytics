@@ -26,9 +26,33 @@ export const AnimatedDashboardLogo = memo(function AnimatedDashboardLogo({
       <svg height={size} viewBox='0 0 1071 1069' fill='none' xmlns='http://www.w3.org/2000/svg'>
         <defs>
           <mask id={maskId}>
-            <rect x='0' y='0' width='375' height='1069' fill='white' className='animate-fill-up-1' />
-            <rect x='375' y='0' width='375' height='1069' fill='white' className='animate-fill-up-2' />
-            <rect x='750' y='0' width='321' height='1069' fill='white' className='animate-fill-up-3' />
+            <rect
+              x='0'
+              y='0'
+              width='375'
+              height='1069'
+              fill='white'
+              className='animate-fill-up-1'
+              shapeRendering='crispEdges'
+            />
+            <rect
+              x='375'
+              y='0'
+              width='375'
+              height='1069'
+              fill='white'
+              className='animate-fill-up-2'
+              shapeRendering='crispEdges'
+            />
+            <rect
+              x='750'
+              y='0'
+              width='321'
+              height='1069'
+              fill='white'
+              className='animate-fill-up-3'
+              shapeRendering='crispEdges'
+            />
           </mask>
         </defs>
 
@@ -68,43 +92,6 @@ export const AnimatedDashboardLogo = memo(function AnimatedDashboardLogo({
         </g>
       </svg>
 
-      <style jsx>{`
-        @keyframes fill-up {
-          0% {
-            transform: translateY(100%) translateZ(0);
-          }
-          35% {
-            transform: translateY(0%) translateZ(0);
-          }
-          65% {
-            transform: translateY(0%) translateZ(0);
-          }
-          100% {
-            transform: translateY(100%) translateZ(0);
-          }
-        }
-
-        .animate-fill-up-1,
-        .animate-fill-up-2,
-        .animate-fill-up-3 {
-          will-change: transform;
-          backface-visibility: hidden;
-        }
-
-        .animate-fill-up-1 {
-          animation: fill-up 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-
-        .animate-fill-up-2 {
-          animation: fill-up 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          animation-delay: 0.12s;
-        }
-
-        .animate-fill-up-3 {
-          animation: fill-up 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-          animation-delay: 0.24s;
-        }
-      `}</style>
     </div>
   );
 });

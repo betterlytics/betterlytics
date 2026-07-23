@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { env } from '@/lib/env';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
-import { getCompetitorSlugs } from './[locale]/(public)/vs/[competitor]/config';
+import { getCompetitorSlugs } from './(app)/[locale]/(public)/vs/[competitor]/config';
 
 type PageCfg = {
   path: string;
@@ -22,6 +22,8 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/dpa', changeFrequency: 'monthly', priority: 0.4, localized: true },
   { path: '/changelog', changeFrequency: 'weekly', priority: 0.8, localized: true },
   { path: '/pricing', changeFrequency: 'monthly', priority: 0.8, localized: true },
+  { path: '/features', changeFrequency: 'monthly', priority: 0.8, localized: true },
+  { path: '/subprocessors', changeFrequency: 'monthly', priority: 0.3, localized: true },
 
   /****************** PUBLIC PAGES ******************/
 
@@ -30,13 +32,19 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/docs/installation', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/installation/cloud-hosting', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/installation/self-hosting', changeFrequency: 'monthly', priority: 0.6, localized: false },
+  { path: '/docs/integration', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/custom-events', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/integration/global-properties', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/dynamic-urls', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/outbound-links', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/web-vitals', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/integration/session-replay', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/integration/errors', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/integration/custom-status-page-domain', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/referrers', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/geography', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/campaigns', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/user-journey', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/devices', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/events', changeFrequency: 'monthly', priority: 0.8, localized: false },
@@ -45,12 +53,20 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/docs/dashboard/filtering', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/outbound-links', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/web-vitals', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/errors', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/session-replay', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/monitoring', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/status-pages', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/email-reports', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/integrations', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/dashboard/mcp', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/upgrading', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/changing-plans', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/managing-subscription', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/pricing/cancellation', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/troubleshooting', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  { path: '/docs/faq', changeFrequency: 'monthly', priority: 0.8, localized: false },
 ];
 
 // Generate comparison pages dynamically
@@ -95,6 +111,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const alt of SUPPORTED_LANGUAGES) {
       languages[alt] = `${baseUrl}${localizedPath(page.path, alt)}`;
     }
+    languages['x-default'] = `${baseUrl}${page.path}`;
 
     entries.push({
       url: `${baseUrl}${page.path}`,

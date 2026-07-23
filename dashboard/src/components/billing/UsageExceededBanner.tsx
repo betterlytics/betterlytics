@@ -2,11 +2,11 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { use } from 'react';
 import { formatPercentage } from '@/utils/formatters';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useBannerContext } from '@/contexts/BannerProvider';
+import { useBillingFlow } from '@/contexts/BillingFlowProvider';
 import { getUserBillingData } from '@/actions/billing.action';
 
 interface UsageExceededBannerProps {
@@ -15,8 +15,10 @@ interface UsageExceededBannerProps {
 
 export default function UsageExceededBanner({ billingDataPromise }: UsageExceededBannerProps) {
   const t = useTranslations('banners.usageLimitExceeded');
+  const locale = useLocale();
   const billingData = use(billingDataPromise);
   const { addBanner, removeBanner } = useBannerContext();
+  const { openPlanPicker } = useBillingFlow();
 
   useEffect(() => {
     if (!billingData.success) {
@@ -38,18 +40,18 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
       level: 'error',
       title: t('title'),
       description: t('description', {
-        percentage: formatPercentage(overagePercentage),
-        current: usage.current.toLocaleString(),
-        limit: usage.limit.toLocaleString(),
+        percentage: formatPercentage(overagePercentage, locale),
+        current: usage.current.toLocaleString(locale),
+        limit: usage.limit.toLocaleString(locale),
       }),
       action: (
         <Button
-          asChild
           variant='default'
+          onClick={openPlanPicker}
           className='text-primary-foreground cursor-pointer border-1 border-white bg-red-500 shadow-md hover:bg-red-400'
           size='sm'
         >
-          <Link href='/billing'>{t('action')}</Link>
+          {t('action')}
         </Button>
       ),
       dismissible: false,
@@ -58,7 +60,7 @@ export default function UsageExceededBanner({ billingDataPromise }: UsageExceede
     });
 
     return () => removeBanner('usage-exceeded-banner');
-  }, [billingData, addBanner, removeBanner, t]);
+  }, [billingData, addBanner, removeBanner, openPlanPicker, t, locale]);
 
   return null;
 }

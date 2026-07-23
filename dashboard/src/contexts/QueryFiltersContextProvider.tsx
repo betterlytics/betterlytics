@@ -15,10 +15,11 @@ const QueryFiltersContext = React.createContext<QueryFiltersContextProps>({} as 
 
 type QueryFiltersContextProviderProps = {
   children: React.ReactNode;
+  initialQueryFilters?: QueryFilter[];
 };
 
-export function QueryFiltersContextProvider({ children }: QueryFiltersContextProviderProps) {
-  const localQueryFilters = useQueryFilters();
+export function QueryFiltersContextProvider({ children, initialQueryFilters }: QueryFiltersContextProviderProps) {
+  const localQueryFilters = useQueryFilters(initialQueryFilters);
 
   return <QueryFiltersContext.Provider value={localQueryFilters}>{children}</QueryFiltersContext.Provider>;
 }

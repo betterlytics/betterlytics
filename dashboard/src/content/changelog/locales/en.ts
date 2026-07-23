@@ -1,57 +1,604 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-export const latestChangelogModalEn: ChangelogEntryData = {
+const v145ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.3',
-    releasedAt: '2026-01-26',
-    title: 'Scroll Depth & UI Improvements',
-    summary: 'Track scroll depth to better understand content engagement and scrolling behavior.',
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Public Status Pages',
+    summary:
+      'Share your uptime with the world. Build a branded public status page on top of your uptime monitors, complete with uptime history, incident communication, and support for your own custom domain.',
   },
   sections: [
     {
-      id: 'v133-new-features',
+      id: 'v145-new-features',
       title: 'New Features',
       blocks: [
         {
+          type: 'text',
+          body: 'You can now create public status pages. Built directly on top of your uptime monitors, a status page gives your users an always-up-to-date view of your services: current status, uptime history per monitor, and a timeline of incidents.',
+        },
+        {
           type: 'list',
           items: [
-            'Scroll Depth Tracking: See how far users scroll down your pages to better understand content engagement and drop-off points.',
+            'Design your page in a studio with a live preview: choose which monitors to show and in what order, and give them public display names.',
+            'Brand it with your logo, favicon, accent color, and theme.',
+            'Publish on a Betterlytics URL of your choice, or serve the page from your own custom domain.',
+            'Keep your users informed during downtime with incident updates, and get suggested incidents when your monitors detect an outage.',
           ],
         },
       ],
     },
     {
-      id: 'v133-improvements',
+      id: 'v145-improvements',
       title: 'Improvements',
       blocks: [
         {
           type: 'list',
           items: [
-            'Collapsible Sidebar: Sidebar categories are now collapsible, giving you more control over your navigation space.',
-            'Core Web Vitals Thresholds: Improved indicators make it easier to see when metrics cross into "Fair" or "Poor" territory.',
-            'Usage Quota Reset: Added a clear label to the usage summary showing when your monthly quota resets.',
-            'UI Polish: Added subtle animations throughout the application for a smoother experience.',
+            'Funnel steps now highlight filters with empty values, making incomplete steps easier to spot and fix.',
+            'The documentation has been refreshed with a reorganized structure, an expanded FAQ, and new guides for status pages and custom domains.',
           ],
         },
       ],
     },
     {
-      id: 'v133-fixes',
+      id: 'v145-fixes',
       title: 'Fixes',
       blocks: [
         {
           type: 'list',
-          items: [
-            'Fixed an issue where Realtime did not properly refresh, causing outdated data to be shown.',
-            'Fixed an issue where Session Replay sometimes failed to save recorded sessions.',
-          ],
+          items: ['Fixed broken documentation links on the errors page and in the FAQ.'],
         },
       ],
     },
   ],
 };
 
+const v144ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.4',
+    releasedAt: '2026-06-14',
+    title: 'Multi-Condition Funnels, Smoother Billing & Stronger Privacy',
+    summary:
+      'Build more precise funnels with multiple conditions per step, now fully usable on mobile. Manage your subscription and invoices without leaving the app, and benefit from even stronger visitor privacy.',
+  },
+  sections: [
+    {
+      id: 'v144-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Funnel steps now support multiple conditions. Each step can combine several filters, for example a specific page and a referrer, so you can define much more precise conversion paths.',
+            'You can now create and edit funnels on mobile, with a builder that works smoothly on phones and tablets.',
+            'Manage your subscription without leaving Betterlytics. You can now upgrade, downgrade, or change your plan directly in the app, with a clear preview of any prorated charges or credits before you confirm. Checkout also happens securely in the app, with no redirect to an external page.',
+            'View and open your past invoices directly from your account settings.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-privacy-security',
+      title: 'Privacy & Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "We've further hardened how visitor data is anonymized, reinforcing our privacy-first commitment that analytics can never be tied back to individual people.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Account credit for unused subscription time is now shown in your billing settings and applied automatically to future invoices.',
+            'Payment issues are now clearer, with a notice when a payment is past due and a one-click way to update your payment method.',
+            'The pricing page has been refreshed with a suggested event volume based on your estimated traffic and a clearer breakdown of what each plan includes.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Fixed a brief visual flicker that could appear when closing dialogs across the app.'],
+        },
+      ],
+    },
+  ],
+};
+
+export const latestChangelogModalEn = v145ChangelogEntryEn;
+
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v145ChangelogEntryEn,
+  v144ChangelogEntryEn,
+  {
+    metadata: {
+      version: 'v1.4.3',
+      releasedAt: '2026-05-24',
+      title: 'Refreshed Account Settings & Stronger Security',
+      summary:
+        'A redesigned user settings dialog, new options to manage active sessions, stronger controls around two-factor authentication, plus a handful of fixes and polish.',
+    },
+    sections: [
+      {
+        id: 'v143-security',
+        title: 'Security',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'You can now sign out of all other active sessions from your account settings.',
+              'Disabling two-factor authentication now requires a valid TOTP code, adding an extra layer of protection against unauthorized changes.',
+              'Two-factor authentication is no longer offered for accounts signed in through Google or GitHub, since the provider already handles it.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The user settings dialog has been redesigned with a cleaner, more organized layout.',
+              'Favicons for dashboard domains now resolve more reliably for more sites.',
+              'Various small UI polish across the dashboard.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where users without a name set on their account could not update their settings.',
+              'Fixed an issue where canceling a theme change could leave the displayed theme out of sync with the saved setting.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.4.2',
+      releasedAt: '2026-05-17',
+      title: 'Funnel Global Properties, Outbound Link Filter & Smarter Referrer Grouping',
+      summary:
+        'Filter funnel steps by Global Properties, segment analytics by outbound link, and enjoy more accurate referrer classification. This release also extends default data retention and fixes a session replay loading issue.',
+    },
+    sections: [
+      {
+        id: 'v142-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Funnels now support Global Properties. Filter funnel steps by any global property you attach to your events, just like elsewhere in the dashboard.',
+              'A new outbound link filter lets you filter and segment analytics by which external URLs visitors clicked.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Referrer classification is now significantly more accurate, with cleaner grouping of traffic sources throughout the dashboard.',
+              'Minimum data retention has been increased from 3 months to 6 months (session replay remains at 2 months).',
+              'Various small UX and accessibility polish across filters, dashboard cards, and the sign-in form.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where session replays could fail to load their segments, leaving recordings unplayable.',
+              'Ironically, fixed a bug where submitting a bug report from outside a dashboard would itself fail.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.4.1',
+      releasedAt: '2026-05-05',
+      title: 'Faster Pages, Active Time & Event Property Insights',
+      summary:
+        'This release makes the Pages report faster, improves time-on-page accuracy with active time measurement, adds Global Properties insights to the Events table on the Overview page, and fixes a few dashboard annoyances.',
+    },
+    sections: [
+      {
+        id: 'v141-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The Events table on the Overview page now includes a Global Properties tab, making it easier to see which properties and values appear across unique visitors.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-performance',
+        title: 'Performance',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The Pages report has been heavily optimized and should now load significantly faster, especially for larger datasets.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Time on page is now based on active time instead of wall-clock time, so duration metrics better reflect how long visitors actually engaged with a page.',
+              'Your selected time range is now preserved when switching between dashboards.',
+              'Entry and exit page reports now focus on the metrics that fit those views. Scroll depth has been removed from both tabs, and bounce rate has also been removed from exit pages.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue where world map tooltips could stay visible after your cursor left the map.',
+              'Improved timezone detection so pages load more reliably for visitors in affected environments.',
+              'Fixed a Firefox issue that made certain table columns difficult to select and copy.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.4.0',
+      releasedAt: '2026-04-19',
+      title: 'Global Properties & Performance Improvements',
+      summary:
+        'Segment your analytics by any dimension you care about with the new Global Properties feature, and enjoy significantly faster dashboard load times thanks to broad performance improvements.',
+    },
+    sections: [
+      {
+        id: 'v140-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Global Properties let you attach shared context to every event sent from your site, such as logged-in status, plan tier, or user role. This makes it easy to segment any report by these properties, for example comparing logged-in users to anonymous visitors.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-performance',
+        title: 'Performance',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dashboards now load significantly faster, with the biggest improvements on high-traffic sites and longer time ranges.',
+              'Charts and tables now load as you scroll to them, so the data at the top of the page appears sooner instead of waiting for the entire page to finish.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Session metrics are now more accurate, especially for long-lasting sessions. Session count, bounce rate, and time on site now better reflect what visitors actually did on your site.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.9',
+      releasedAt: '2026-03-29',
+      title: 'Client-Side Error Tracking',
+      summary:
+        'Betterlytics now tracks client-side errors. See every error with stack traces and breadcrumbs, track trends over time, and optionally replay the session that triggered each error.',
+    },
+    sections: [
+      {
+        id: 'v139-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Client-side error tracking is here. Errors and console.error calls can now be captured and grouped by fingerprint, so you can see which errors affect the most users and how often they occur.',
+              'Every error comes with a stack trace and a breadcrumb trail showing what the user did leading up to it. Enable session replay on error to also capture a full replay of the session.',
+              'Errors are fully accessible through the MCP server, so your AI assistants can query error data and help you understand and debug what causes each error.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.8',
+      releasedAt: '2026-03-22',
+      title: 'City & Region Geolocation, Performance Improvements & Bug Fixes',
+      summary:
+        'Visitor locations are now shown at the city and region level. Large dashboards load faster thanks to performance improvements across the board. A bug causing the uptime monitoring page to fail for certain timezones has been fixed.',
+    },
+    sections: [
+      {
+        id: 'v138-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Geolocation now includes city and region-level data, giving you a more detailed picture of where your visitors are coming from.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Improved performance for large dashboards, reducing load times when working with high-traffic sites.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-bug-fixes',
+        title: 'Bug Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed an issue on the uptime monitoring page that caused it to fail to load for certain timezones.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.7',
+      releasedAt: '2026-03-08',
+      title: 'MCP Server, Smarter Referrer Grouping & Notification Logs',
+      summary:
+        'Query your analytics data directly from AI agents with the new MCP server. Referrer sources are now grouped more accurately and expandable in the overview. Integrations now show a full notification delivery log, and number formatting has been improved throughout the dashboard.',
+    },
+    sections: [
+      {
+        id: 'v137-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Added an MCP (Model Context Protocol) server, allowing you to connect your analytics data to AI assistants and agents. You can now ask your AI to pull traffic stats, explore user journeys, or analyze funnels - and combine those insights with other context like your own codebase.',
+              'Integrations now include a notification delivery log, so you can see exactly which notifications were sent, when they were delivered, and whether any failed.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v137-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Referrer sources in the overview table are now expandable, letting you see the breakdown behind each traffic source at a glance.',
+              'Referrer grouping has been improved so that traffic from different subdomains of the same site is correctly merged under one source.',
+              'Numbers throughout the dashboard are now consistently formatted according to your locale.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.6',
+      releasedAt: '2026-03-01',
+      title: 'Notification Integrations for Uptime Alerts & Norwegian Localization',
+      summary:
+        'Uptime monitoring alerts can now be delivered to Slack, Discord, Teams, Pushover, or any custom webhook. The dashboard is also now available in Norwegian, and several reliability fixes improve accuracy across the platform.',
+    },
+    sections: [
+      {
+        id: 'v136-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Uptime monitoring alerts can now be sent to Slack, Discord, Microsoft Teams, Pushover, or any custom webhook endpoint. Configure your notification channels from the Integrations page in your dashboard settings.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'The dashboard is now available in Norwegian.',
+              'Resolved a server-side issue that could cause instability under certain conditions, improving overall platform reliability.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-security',
+        title: 'Security',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Upgraded core dependencies to address a recently disclosed security vulnerability, keeping your data and accounts safe.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Fixed pie charts that could break the dashboard layout on certain views.',
+              'Fixed a sign-in accessibility issue affecting keyboard navigation and assistive technologies.',
+              'Fixed a bug where the timezone could fall back to an incorrect default.',
+              'Fixed an issue where the usage quota reset day could display as a negative number.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.5',
+      releasedAt: '2026-02-19',
+      title: 'Keyword Monitoring & Visual Refinements',
+      summary:
+        'Uptime monitors can now alert when expected keywords are missing from your pages, and dashboards feel smoother with animated gauges, numbers, and other visual touches.',
+    },
+    sections: [
+      {
+        id: 'v135-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Uptime monitors can now check for an expected keyword in the page response, alerting you if critical content goes missing — even when the page still returns a 200 status.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v135-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Core Web Vitals scores now display in an animated gauge, making it easier to read performance at a glance.',
+              'Chart tooltips now clarify when a week or month bucket is only partially covered by the selected time range.',
+              'Numbers, loading indicators, and other small visual touches have been refined for a smoother, more polished feel across the dashboard.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.4',
+      releasedAt: '2026-02-08',
+      title: 'Email Reports & Weekly & Monthly Insights',
+      summary:
+        'Receive scheduled email reports for your dashboards and explore trends with week and month granularity for longer time ranges.',
+    },
+    sections: [
+      {
+        id: 'v134-new-features',
+        title: 'New Features',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Schedule email reports with analytics summaries for your dashboards directly from settings.',
+              'Longer time ranges now support weekly and monthly granularity, making it easier to spot long-term trends.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-improvements',
+        title: 'Improvements',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              "Scroll depth tracking events are now included at no extra cost and don't count toward your monthly usage quota.",
+              'The filter selector now shows how many filters are actively applied.',
+              'Table cells now display comparison data more clearly when one period has no data.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-fixes',
+        title: 'Fixes',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Resolved an issue where the tracking script could send invalid data.',
+              'Corrected a date calculation issue that could show incorrect time ranges.',
+              'Email verification is now properly triggered for OAuth sign-ups.',
+              'Comparison indicators now display correct values when data is null or unchanged.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.3',

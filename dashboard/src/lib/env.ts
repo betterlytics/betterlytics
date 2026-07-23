@@ -1,13 +1,8 @@
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { z } from 'zod';
+import { sharedEmailEnvSchema, zStringBoolean } from '@/lib/env/shared.env';
 
-export const zStringBoolean = z
-  .enum(['true', 'false'])
-  .optional()
-  .default('false')
-  .transform((val) => val === 'true');
-
-const envSchema = z.object({
+const appEnvSchema = z.object({
   CLICKHOUSE_URL: z.string().url(),
   CLICKHOUSE_DASHBOARD_USER: z.string().min(1),
   CLICKHOUSE_DASHBOARD_PASSWORD: z.string().min(1),
@@ -19,24 +14,29 @@ const envSchema = z.object({
   NEXTAUTH_SECRET: z.string().min(1),
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
   ENABLE_REGISTRATION: zStringBoolean,
-  PUBLIC_BASE_URL: z.string().optional().default('https://betterlytics.io'),
   PUBLIC_IS_CLOUD: zStringBoolean,
-  IS_CLOUD: zStringBoolean,
   ENABLE_BILLING: zStringBoolean,
   PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional().default(''),
   STRIPE_SECRET_KEY: z.string().optional().default(''),
   STRIPE_WEBHOOK_SECRET: z.string().optional().default(''),
   ENABLE_EMAILS: zStringBoolean,
   MAILER_SEND_API_TOKEN: z.string().optional().default(''),
-  ENABLE_MAIL_PREVIEW_PAGE: zStringBoolean,
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().optional().default(587),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  SMTP_FROM: z.string().optional(),
   ENABLE_ACCOUNT_VERIFICATION: zStringBoolean,
   TOTP_SECRET_ENCRYPTION_KEY: z.string().length(32),
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_UPTIME_MONITORING: zStringBoolean,
+  ENABLE_PUBLIC_STATUS_PAGES: zStringBoolean,
   ENABLE_APP_TRACKING: zStringBoolean,
   APP_TRACKING_SITE_ID: z.string().optional(),
   ALLOW_CRAWLING: zStringBoolean,
   DEMO_DASHBOARD_ID: z.string().optional(),
+  STATUS_PAGE_DOMAIN: z.string().optional().default('status.betterlytics.io'),
+  STATUS_PAGE_ASK_SECRET: z.string().optional().default(''),
   NEXT_PUBLIC_DEFAULT_LANGUAGE: z
     .enum(SUPPORTED_LANGUAGES)
     .optional()
@@ -55,6 +55,44 @@ const envSchema = z.object({
   S3_FORCE_PATH_STYLE: zStringBoolean,
   S3_SSE_ENABLED: zStringBoolean,
   OTEL_SERVICE_NAME: z.string().optional(),
+  BACKGROUND_JOBS_ENABLED: zStringBoolean,
+  IS_DEVELOPMENT: zStringBoolean,
+  ENABLE_GEOLOCATION: zStringBoolean,
+  GEOLOCATION_MODE: z.enum(['country', 'full']).optional().default('country'),
+  PUSHOVER_APP_TOKEN: z.string().optional(),
+  INTEGRATION_ENCRYPTION_KEY: z.string().length(32),
+  SAMPLING_TRAFFIC_THRESHOLD: z.coerce.number().optional().default(100_000),
+  SAMPLING_FACTOR: z.coerce.number().min(0).max(1).optional().default(0.25),
+  HIGH_TRAFFIC_CONCURRENCY_LIMIT: z.coerce.number().optional().default(20),
+  SUPER_ADMIN_USER_IDS: z
+    .string()
+    .optional()
+    .default('')
+    .transform(
+      (val) =>
+        new Set(
+          val
+            .split(',')
+            .map((id) => id.trim())
+            .filter(Boolean),
+        ),
+    ),
+});
+
+const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx) => {
+  // Validate Caddy ask secret for on-demand-TLS ask endpoint if status page is enabled
+  if (
+    !env.IS_DEVELOPMENT &&
+    env.ENABLE_UPTIME_MONITORING &&
+    env.ENABLE_PUBLIC_STATUS_PAGES &&
+    !env.STATUS_PAGE_ASK_SECRET
+  ) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'ENABLE_PUBLIC_STATUS_PAGES=true requires STATUS_PAGE_ASK_SECRET to be set in production',
+      path: ['STATUS_PAGE_ASK_SECRET'],
+    });
+  }
 });
 
 export const env = envSchema.parse(process.env);

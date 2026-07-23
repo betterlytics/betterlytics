@@ -1,0 +1,4 @@
+backend/target/
+**/node_modules/
+dashboard/.next/
+.git/

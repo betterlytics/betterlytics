@@ -937,7 +937,7 @@
       },
       "hero": {
         "title": "Et <highlight>Bedre Alternativ</highlight> til Google Analytics",
-        "description": "Enkel, kraftfuld analyse, der respekterer privatliv.<br></br>Cookieløs, GDPR-klar og ingen cookiebannere.",
+        "description": "Enkel, kraftfuld analyse, der respekterer privatliv. <br></br>Cookieløs, GDPR-klar og ingen cookiebannere.",
         "ctaPrimary": "Kom i Gang Gratis",
         "ctaGithub": "Se på GitHub",
         "ctaDemo": "Prøv live demo",
@@ -986,7 +986,7 @@
         "categories": {
           "analytics": "Analyser og indblik",
           "engagement": "Engagement og adfærd",
-          "performance": "Ydeevne og kilder"
+          "performance": "Overvågning og ydeevne"
         },
         "featuresButton": "Udforsk alle funktioner",
         "featuresTitle": "Udforsk alle Betterlytics funktioner"
@@ -1014,12 +1014,20 @@
           "framework": {
             "title": "Klar til frameworks",
             "description": "Native support til React, Next.js, Vue og andre moderne frameworks med TypeScript.",
-            "features": { "f1": "TypeScript support", "f2": "Framework-komponenter", "f3": "Tree-shakeable" }
+            "features": {
+              "f1": "TypeScript support",
+              "f2": "Framework-komponenter",
+              "f3": "Tree-shakeable"
+            }
           },
           "selfHosted": {
             "title": "Self-hosted mulighed",
             "description": "Udrul på din egen infrastruktur med Docker for fuldt dataejerskab og kontrol.",
-            "features": { "f1": "Docker-udrulning", "f2": "Fuld kontrol", "f3": "GDPR-kompatibel" }
+            "features": {
+              "f1": "Docker-udrulning",
+              "f2": "Fuld kontrol",
+              "f3": "GDPR-kompatibel"
+            }
           }
         },
         "guideButton": "Se integrationsguide",
@@ -1050,10 +1058,6 @@
           "title": "Core Web Vitals",
           "description": "Overvåg og mål din hjemmesides ydeevne med Core Web Vitals."
         },
-        "outboundLinks": {
-          "title": "Udgående links",
-          "description": "Spor klik til eksterne sider, sociale links, dokumenter og mere."
-        },
         "trafficSources": {
           "title": "Trafikkilder",
           "description": "Find ud af, hvor dine besøgende kommer fra, og optimer din markedsføring.",
@@ -1067,6 +1071,18 @@
             "email": "E-mail",
             "other": "Andet"
           }
+        },
+        "errorTracking": {
+          "title": "Fejlsporing",
+          "description": "Opfang fejl på klientsiden tidligt. Undersøg stack traces og afspil sessioner for at se, hvad der gik galt.",
+          "status": {
+            "unresolved": "Uløst",
+            "resolved": "Løst"
+          },
+          "watchReplay": "Se optagelse",
+          "usersAffected": "{count} brugere",
+          "summary": "37 fejl denne måned",
+          "unresolved": "{count} uløste"
         },
         "funnels": {
           "title": "Tragte",
@@ -1098,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Oppetidsovervågning",
-          "description": "Få advarsler når dit site går ned, plus automatisk SSL-certifikatovervågning.",
+          "description": "Få advarsler når dit site går ned, med SSL-certifikatovervågning og offentlige statussider, som du kan hoste på dit eget domæne.",
           "alertDown": "{site} er nede",
           "alertSent": "Advarsel sendt til {email}",
           "incidentDetected": "{count, plural, one {{count} hændelse opdaget} other {{count} hændelser opdaget}}",
@@ -1120,11 +1136,13 @@
           "Konverteringsfunnels",
           "Session Replay",
           "Brugerdefinerede Events",
+          "Oppetidsovervågning",
+          "Offentlige Statussider",
           "Webanalysefunktioner"
         ]
       },
       "hero": {
-        "title": "Alle funktioner du har brug for til<br></br><highlight>bedre analyse</highlight>",
+        "title": "Alle funktioner du har brug for til <br></br><highlight>bedre analyse</highlight>",
         "description": "Udforsk alt hvad Betterlytics tilbyder, fra realtids-dashboards til konverteringsfunnels. Al den analyse du har brug for, uden cookies, samtykkebannere eller kompromiser på privatliv.",
         "ctaPrimary": "Kom i gang gratis",
         "ctaDemo": "Se live demo"
@@ -1187,9 +1205,17 @@
           "title": "Linksporing",
           "description": "Overvåg klik på interne og udgående links for at forstå brugerengagement."
         },
+        "globalProperties": {
+          "title": "Globale egenskaber",
+          "description": "Sæt vedvarende egenskaber én gang og vedhæft dem automatisk til alle events, f.eks. brugerplan, rolle eller app-version."
+        },
         "sessionReplay": {
           "title": "Session Replay",
           "description": "Afspil brugersessioner for at se præcis hvordan besøgende interagerer med dit site og find usability-problemer."
+        },
+        "errorTracking": {
+          "title": "Fejlsporing",
+          "description": "Registrer automatisk klientfejl og gruppér dem med stack traces og session replay-links, så du hurtigt kan genskabe og rette fejl."
         },
         "userJourneys": {
           "title": "Brugerrejser",
@@ -1211,6 +1237,10 @@
           "title": "Udgående link-sporing",
           "description": "Spor klik på links der forlader dit site for at måle brugerengagement."
         },
+        "emailReports": {
+          "title": "E-mail-rapporter",
+          "description": "Modtag automatiske ugentlige eller månedlige analyseoversigter direkte i din indbakke."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Mål og optimér Googles performance-metrics for at forbedre loading, interaktivitet og søgerangeringer."
@@ -1222,6 +1252,14 @@
         "sslMonitoring": {
           "title": "SSL-certifikatovervågning",
           "description": "Overvåg SSL-certifikatstatus for at undgå udløbne eller usikre forbindelser."
+        },
+        "statusPages": {
+          "title": "Offentlige statussider",
+          "description": "Del live oppetid og hændelseshistorik med dine brugere på en statusside med dit eget brand, som du kan hoste på dit eget domæne."
+        },
+        "notificationIntegrations": {
+          "title": "Notifikationsintegrationer",
+          "description": "Bliv advaret via Slack, Discord, Microsoft Teams, webhooks og mere, når noget kræver din opmærksomhed."
         },
         "cookieless": {
           "title": "Ingen cookies",
@@ -1283,6 +1321,10 @@
           "title": "Høj performance",
           "description": "ClickHouse-drevet analysemotor leverer sub-sekund query-tider ved enhver skala."
         },
+        "mcpServer": {
+          "title": "MCP-server",
+          "description": "Forespørg dine analysedata fra AI-assistenter som Claude. Indbygget MCP-server til naturlig sprogadgang til metrics, funnels og brugerrejser."
+        },
         "emailSupport": {
           "title": "E-mail-support",
           "description": "Få hjælp via e-mail til spørgsmål eller problemer."
@@ -1324,6 +1366,7 @@
       "documentation": "Dokumentation",
       "changelog": "Ændringslog",
       "pricing": "Priser",
+      "status": "Status",
       "features": "Funktioner",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1363,7 +1406,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Månedlige events"
+    "monthlyEvents": "Månedlige events",
+    "suggested": "Anbefalet",
+    "recommend": "Baseret på din estimerede trafik anbefaler vi <emphasis>{events} events / måned</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/måned",
@@ -1374,19 +1419,29 @@
     },
     "features": {
       "upToEventsPerMonth": "Op til {events} events/måned",
-      "allFeatures": "Alle dashboard- og analysefunktioner",
+      "customEventVolume": "Tilpasset event-mængde",
       "twoSites": "Op til 2 hjemmesider",
       "upTo50Sites": "Op til 50 hjemmesider",
       "unlimitedSites": "Ubegrænsede hjemmesider",
+      "threeTeamMembers": "Op til 3 team-medlemmer",
+      "upTo50TeamMembers": "Op til 50 team-medlemmer",
+      "unlimitedTeamMembers": "Ubegrænset antal team-medlemmer",
       "retention1PlusYear": "1+ års dataopbevaring",
       "retention3PlusYears": "3+ års dataopbevaring",
       "retention5PlusYears": "5+ års dataopbevaring",
-      "emailSupport": "E-mail support",
-      "prioritySupport": "Prioriteret support",
-      "dedicatedSupport": "Dedikeret support og hjælp",
+      "fullDashboard": "Komplet web-analytics dashboard",
+      "funnelsJourneys": "Funnels og brugerrejser",
+      "sessionReplay": "Session replay",
+      "errorTracking": "Fejlsporing",
+      "uptime1": "1 uptime-monitor og offentlig statusside",
+      "uptime50": "50 uptime-monitorer med 1-minuts tjek",
+      "uptimeUnlimited": "Ubegrænset antal uptime-monitorer og statussider",
+      "statusPagesPro": "White-label statussider på dit eget domæne",
+      "emailReports": "Planlagte e-mailrapporter",
+      "dedicatedSupport": "Dedikeret support",
       "slaGuarantee": "SLA-garanti",
-      "everythingInStarter": "Alt i Growth",
-      "everythingInProfessional": "Alt i Professional"
+      "everythingInStarter": "Alt i Growth, plus:",
+      "everythingInProfessional": "Alt i Professional, plus:"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
@@ -1397,12 +1452,12 @@
       "contactUs": "Kontakt os"
     },
     "badges": {
-      "mostPopular": "Mest populær",
+      "mostPopular": "Anbefalet",
       "current": "Nuværende"
     },
     "labels": {
       "free": "Gratis",
-      "custom": "Kontakt os"
+      "custom": "Tilpasset"
     }
   },
   "pricingComparison": {
@@ -1422,7 +1477,6 @@
       "monthlyEvents": {
         "name": "Månedlige hændelser",
         "values": {
-          "range": "10K – 10M+",
           "custom": "Tilpasset"
         }
       },
@@ -1443,11 +1497,11 @@
         }
       },
       "teamMembers": {
-        "name": "Teammedlemmer",
+        "name": "Team-medlemmer",
         "values": {
-          "1": "1",
-          "upTo5": "Op til 5",
-          "unlimited": "Ubegrænsede"
+          "upTo3": "Op til 3",
+          "upTo50": "Op til 50",
+          "unlimited": "Ubegrænset"
         }
       },
       "dashboardFeatures": {
@@ -1470,6 +1524,12 @@
       },
       "campaignTracking": {
         "name": "Kampagne- og UTM-sporing"
+      },
+      "errorTracking": {
+        "name": "Klientside-fejlsporing"
+      },
+      "emailReports": {
+        "name": "E-mail-rapporter"
       },
       "uptimeMonitoring": {
         "name": "Oppetidsovervågning",
@@ -1497,6 +1557,23 @@
       },
       "customStatusCodes": {
         "name": "Brugerdefinerede statuskoder"
+      },
+      "notificationIntegrations": {
+        "name": "Notifikationsintegrationer (Slack, Discord osv.)"
+      },
+      "statusPages": {
+        "name": "Offentlige statussider",
+        "values": {
+          "1": "1 statusside",
+          "3": "3 statussider",
+          "unlimited": "Ubegrænsede statussider"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Eget domæne til statusside"
+      },
+      "statusPageWhiteLabel": {
+        "name": "White-label statussider"
       },
       "emailSupport": {
         "name": "E-mail support"
@@ -1528,7 +1605,8 @@
         "outboundLinks": "Udgående linksporing",
         "advancedFiltering": "Avanceret filtrering",
         "cookieFree": "Cookie-fri",
-        "gdprCcpa": "GDPR og CCPA klar"
+        "gdprCcpa": "GDPR og CCPA klar",
+        "errorTracking": "Klientside-fejlsporing"
       }
     }
   },
@@ -1548,12 +1626,14 @@
       "webVitals": "Web Vitals",
       "sessionReplay": "Sessionsafspilninger",
       "monitoring": "Overvågning",
+      "statusPages": "Statussider",
       "categories": {
         "analytics": "Analyse",
         "behavior": "Adfærd",
         "observability": "Overvågning"
       },
-      "collapseNav": "Skjul navigation"
+      "collapseNav": "Skjul navigation",
+      "errorTracking": "Fejlsporing"
     },
     "settings": {
       "sidebar": {
@@ -1562,6 +1642,9 @@
         "data": "Data",
         "rules": "Regler",
         "members": "Medlemmer",
+        "reports": "E-mail-rapporter",
+        "mcp": "MCP",
+        "integrations": "Integrationer",
         "dangerZone": "Farezone"
       }
     },
@@ -1579,7 +1662,7 @@
       "geography": "Geografi",
       "devicesBreakdown": "Enhedsopdeling",
       "trafficSources": "Trafikkilder",
-      "customEvents": "Brugerdefinerede hændelser",
+      "events": "Hændelser",
       "weeklyTrends": "Ugentlige trends"
     },
     "goTo": "Gå til {section}",
@@ -1587,7 +1670,9 @@
       "pages": "Sider",
       "entryPages": "Indgangssider",
       "exitPages": "Udgangssider",
-      "topCountries": "Top lande",
+      "countries": "Lande",
+      "regions": "Regioner",
+      "cities": "Byer",
       "worldMap": "Verdenskort",
       "browsers": "Browsere",
       "devices": "Enheder",
@@ -1595,17 +1680,14 @@
       "referrers": "Henvisninger",
       "sources": "Kilder",
       "channels": "Kanaler",
-      "events": "Hændelser"
+      "events": "Brugerdefinerede hændelser",
+      "topProperties": "Globale egenskaber"
     },
     "emptyStates": {
       "adjustTimeRange": "Prøv at justere tidsperioden eller filtre",
       "noUserJourneyData": "Ingen brugerrejse data tilgængelig",
       "noData": "Ingen data tilgængelig"
     }
-  },
-  "devicesPage": {
-    "title": "Enheder",
-    "description": "Opdeling af besøgendes enheder og anvendelsesanalyse"
   },
   "dashboardsPage": {
     "title": "Dine dashboards",
@@ -1614,6 +1696,8 @@
     "emptyTitle": "Ingen dashboards endnu",
     "emptyDescription": "Opret dit første dashboard for at begynde at indsamle analysedata for din hjemmeside.",
     "memberCountTooltip": "{count, plural, one {{count} medlem} other {{count} medlemmer}}",
+    "goToDashboardTooltip": "Gå til {domain}",
+    "settingsTooltip": "Dashboard-indstillinger",
     "createCard": {
       "title": "Opret dashboard",
       "description": "Tilføj et nyt dashboard"
@@ -1705,6 +1789,7 @@
       "blocked_ip_literal": "IP-adresse ikke tilladt",
       "dns_blocked": "DNS peger på blokeret adresse",
       "dns_error": "DNS-opslag mislykkedes",
+      "keyword_not_found": "Forventet nøgleord blev ikke fundet i svaret",
       "unknown": "Ukendt fejl"
     }
   },
@@ -1748,7 +1833,6 @@
       "create": "Ny overvågning",
       "upgradeToCreate": "Opgrader for flere",
       "title": "Opret overvågning",
-      "description": "Overvåg et endpoint for oppetid, responstid og SSL-status.",
       "fields": {
         "name": "Navn",
         "url": "URL"
@@ -1781,7 +1865,8 @@
           "label": "Hændelsesfølsomhed",
           "description": "Antal fejl i træk før der oprettes en hændelse",
           "valueOne": "1 fejl",
-          "valueOther": "{count} fejl"
+          "valueOther": "{count} fejl",
+          "unit": "{count, plural, one {fejl} other {fejl}}"
         }
       },
       "actions": {
@@ -1960,6 +2045,12 @@
           "invalidFormat": "Indtast venligst en gyldig statuskode (f.eks. 200) eller interval (f.eks. 2xx)",
           "outOfRange": "Statuskode skal være mellem 100 og 599"
         }
+      },
+      "expectedKeyword": {
+        "label": "Forventet nøgleord",
+        "description": "Alarmér, hvis denne tekst mangler i HTML-kildekoden (første 32 KB). Brug tekst, der er synlig i rå HTML, ikke indhold gengivet af JavaScript.",
+        "placeholder": "f.eks. Velkommen, Dashboard, OK",
+        "requiresGet": "Nøgleordsvalidering kræver GET-metoden"
       }
     },
     "alerts": {
@@ -1979,14 +2070,17 @@
       "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",
       "sslExpiryDays": "Dage før udløb",
       "sslExpiryDaysDescription": "Send alarm så mange dage før SSL-certifikatet udløber",
-      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}"
+      "daysCount": "{count, plural, one {{count} dag} other {{count} dage}}",
+      "unit": "{count, plural, one {dag} other {dage}}"
     }
   },
   "charts": {
     "tooltip": {
       "vs": "vs",
       "currentPeriod": "Nuværende periode",
-      "previousPeriod": "Forrige periode"
+      "previousPeriod": "Forrige periode",
+      "partial": "Delvis",
+      "total": "Total"
     }
   },
   "misc": {
@@ -2007,22 +2101,11 @@
     "save": "Gem",
     "saving": "Gemmer..."
   },
-  "languages": {
-    "da": "Dansk",
-    "en": "Engelsk",
-    "it": "Italiano"
-  },
   "components": {
-    "weeklyHeatmap": {
-      "days": {
-        "monShort": "Man.",
-        "tueShort": "Tir.",
-        "wedShort": "Ons.",
-        "thuShort": "Tor.",
-        "friShort": "Fre.",
-        "satShort": "Lør.",
-        "sunShort": "Søn."
-      }
+    "pagination": {
+      "pageOf": "Side {currentPage} af {totalPages}",
+      "showing": "Viser {startItem}-{endItem} af {totalItems} elementer",
+      "perPage": "pr. side"
     },
     "annotations": {
       "dialogs": {
@@ -2135,11 +2218,58 @@
         }
       },
       "interactive": {
-        "checkoutCanceled": "Betalingen blev annulleret. Du kan prøve igen når som helst.",
         "contactForCustomPlan": "Kontakt os for en tilpasset plan",
-        "planSelectionFailed": "Kunne ikke behandle valg af plan. Prøv igen.",
-        "subscriptionChangesNote": "Ændringer i dit abonnement behandles straks gennem Stripes sikre faktureringsportal.",
+        "subscriptionChangesNote": "Ændringer i dit abonnement træder i kraft med det samme, med forholdsmæssig fakturering for differencen.",
         "freePlanNote": "Start med vores gratis plan – intet kreditkort krævet."
+      },
+      "embeddedCheckout": {
+        "title": "Fuldfør dit abonnement",
+        "description": "Gennemfør dit køb sikkert med Stripe.",
+        "loadError": "Vi kunne ikke indlæse betalingen. Prøv venligst igen.",
+        "creatingSession": "Opretter en sikker betalingssession…",
+        "successTitle": "Betaling gennemført",
+        "successDescription": "Du er nu på {tier}. Velkommen til Betterlytics!"
+      },
+      "planPicker": {
+        "title": "Vælg din plan",
+        "description": "Vælg den plan, der passer til dine behov.",
+        "showComparison": "Sammenlign alle funktioner",
+        "hideComparison": "Skjul funktionssammenligning"
+      },
+      "changePlan": {
+        "title": "Bekræft planændring",
+        "description": "Gennemgå den forholdsmæssige beregning, før du bekræfter.",
+        "resumeNote": "Dit abonnement er planlagt til at blive annulleret – bekræfter du denne ændring, forbliver det aktivt, og faktureringen genoptages.",
+        "summaryCharge": "Du skifter til {tier} ({events} events / måned) med det samme. {amount} opkræves nu for resten af perioden, og {nextAmount}/måned derefter fra {date}.",
+        "summaryCredit": "Du skifter til {tier} ({events} events / måned). {amount} kredit for ubrugt tid trækkes fra din næste faktura på {nextAmount}/måned den {date}.",
+        "loading": "Beregner forholdsmæssig pris…",
+        "error": "Kunne ikke beregne forholdsmæssig pris. Prøv igen.",
+        "newPlanCharge": "Forholdsmæssig betaling for ny plan",
+        "unusedTimeCredit": "Kredit for ubrugt tid",
+        "accountCreditApplied": "Anvendt tilgodehavende",
+        "totalDueToday": "Betales i dag",
+        "totalCreditedToday": "Krediteres i dag",
+        "confirm": "Bekræft ændring",
+        "back": "Tilbage",
+        "successLabel": "Plan ændret",
+        "successDescription": "Du er nu på {tier}.",
+        "failureLabel": "Planændring mislykkedes",
+        "authRequiredLabel": "Bekræftelse påkrævet",
+        "authenticatingLabel": "Bekræfter din betaling",
+        "authenticatingDescription": "Gennemfør bekræftelsen fra din bank for at fuldføre din opgradering.",
+        "finalizingLabel": "Fuldfører din opgradering…",
+        "close": "Luk",
+        "tryAgain": "Prøv igen",
+        "updatePaymentMethod": "Opdater betalingsmetode",
+        "errors": {
+          "cardDeclined": "Vi kunne ikke debitere din betalingsmetode. Opdater dit kort og prøv igen.",
+          "authenticationRetry": "Vi kunne ikke bekræfte din betaling. Prøv igen for at fuldføre din opgradering.",
+          "unexpected": "Noget gik galt. Prøv igen."
+        }
+      },
+      "creditBalance": {
+        "label": "Kontokredit",
+        "hint": "Anvendes automatisk på fremtidige fakturaer"
       },
       "currentPlan": {
         "title": "Nuværende plan",
@@ -2153,19 +2283,24 @@
         "usageProgress": "{current} af {limit} events",
         "resetsInDays": "Nulstilles om {days} dage",
         "expiresInDays": "Udløber om {days} dage",
-        "canceled": "Annulleret",
         "manage": "Administrér abonnement",
         "reactivate": "Genaktivér abonnement",
-        "cancel": "Annullér abonnement"
+        "cancel": "Annullér abonnement",
+        "pastDueBannerTitle": "Betaling forfalden",
+        "pastDueBannerBody": "Vi kunne ikke behandle din seneste betaling. Opdater din betalingsmetode for at beholde dit abonnement.",
+        "updatePayment": "Opdater betalingsmetode"
+      },
+      "planStatus": {
+        "active": "Aktiv",
+        "canceling": "Annulleres",
+        "pastDue": "Forfalden",
+        "inactive": "Inaktiv"
       },
       "planNames": {
         "growth": "Growth-plan",
         "professional": "Pro-plan",
         "enterprise": "Enterprise"
       }
-    },
-    "dataTable": {
-      "noResults": "Ingen resultater."
     },
     "timeRange": {
       "disabled": "Deaktiveret",
@@ -2193,6 +2328,8 @@
         "1y": "Seneste år"
       },
       "granularityLabels": {
+        "month": "Måned",
+        "week": "Uge",
         "day": "Dag",
         "hour": "Time",
         "minute_30": "30 min",
@@ -2205,6 +2342,10 @@
       "dashboard": {
         "initializing": "Initialiserer dashboard",
         "loadingSettings": "Indlæser dine dashboard-indstillinger..."
+      },
+      "geography": {
+        "title": "Initialiserer verdenskort",
+        "description": "Forbereder en geografisk visualisering af besøgsdata..."
       }
     },
     "devices": {
@@ -2221,10 +2362,6 @@
       "charts": {
         "deviceTypes": "Enhedstyper",
         "deviceUsageTrend": "Enhedsanvendelsestrend"
-      },
-      "trends": {
-        "noData": "Ingen trenddata tilgængelig",
-        "adjustTimeRange": "Prøv at justere tidsperioden eller filtre"
       }
     },
     "campaign": {
@@ -2285,10 +2422,6 @@
       }
     },
     "events": {
-      "page": {
-        "title": "Hændelser",
-        "description": "Analyser og indsigter for dine brugerdefinerede hændelser"
-      },
       "log": {
         "waiting": "Venter på hændelser...",
         "realTimeDesc": "Hændelser vil vises her i realtid, når de opstår",
@@ -2327,12 +2460,17 @@
       "operator": "Operator",
       "is": "er",
       "isNot": "er ikke",
+      "globalProperties": "{count, plural, one {Global egenskab} other {Globale egenskaber}}",
+      "selectProperty": "Vælg egenskab",
+      "noProperties": "Ingen egenskaber fundet",
       "namePlaceholder": "Angiv trinnavn",
       "columns": {
         "url": "URL",
         "domain": "Hostname",
         "device_type": "Enhedstype",
         "country_code": "Landekode",
+        "subdivision_code": "Region",
+        "city": "By",
         "browser": "Browser",
         "os": "Operativsystem",
         "referrer_source": "Henvisningskilde",
@@ -2345,7 +2483,8 @@
         "utm_term": "UTM-term",
         "utm_content": "UTM-indhold",
         "custom_event_name": "Hændelse",
-        "event_type": "Type"
+        "event_type": "Type",
+        "outbound_link_url": "Udgående link"
       },
       "selector": {
         "triggerLabel": "Filtre",
@@ -2366,9 +2505,12 @@
         "toastFilterDeletedSuccess": "Filter slettet",
         "toastFilterDeletedError": "Kunne ikke slette filter",
         "toastUndo": "Fortryd",
-        "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået"
+        "savedFiltersLimitReached": "Maksimalt antal gemte filtre nået",
+        "maxFiltersReached": "Maksimalt {max} filtre",
+        "maxFiltersReachedToast": "Du kan anvende op til {max} filtre. Fjern ét for at tilføje et nyt."
       },
-      "filterBy": "Filtrer efter {label}"
+      "filterBy": "Filtrer efter {label}",
+      "removeFilter": "Fjern filter"
     },
     "funnels": {
       "skeleton": {
@@ -2380,13 +2522,6 @@
         },
         "step": "Trin",
         "visitors": "Besøgende"
-      },
-      "list": {
-        "steps": "trin",
-        "conversionRate": "Konverteringsrate",
-        "completed": "Fuldført",
-        "totalUsers": "Totale brugere",
-        "largestDropOff": "Største frafald"
       },
       "create": {
         "defaultName": "Min nye tragt",
@@ -2401,7 +2536,14 @@
         "create": "Opret",
         "createDisabledHint": "Angiv et tragtnavn og definér mindst to trin. <br></br> Hvert trin skal have både et navn og en valgt værdi.",
         "successMessage": "Tragt oprettet!",
-        "errorMessage": "Tragtoprettelse mislykkedes!"
+        "errorMessage": "Tragtoprettelse mislykkedes!",
+        "filterCount": "{count, plural, =0 {Ingen filtre} =1 {1 filter} other {# filtre}}",
+        "tooltip": {
+          "deleteStep": "Slet trin {index}",
+          "minStepsHint": "En tragt skal have mindst {count} trin",
+          "reorderStep": "Omarranger trin {index}",
+          "toggleStep": "Vis/skjul trin {index}"
+        }
       },
       "edit": {
         "title": "Rediger tragt",
@@ -2432,7 +2574,8 @@
         "stepLabel": "Trin {index}",
         "visitors": "Besøgende",
         "dropOff": "Frafald",
-        "conversion": "Konvertering"
+        "conversion": "Konvertering",
+        "and": "og"
       },
       "delete": {
         "title": "Slet tragt",
@@ -2442,25 +2585,9 @@
         "successMessage": "Tragt slettet!",
         "errorMessage": "Sletning af tragt mislykkedes!"
       },
-      "page": {
-        "title": "Tragter",
-        "description": "Analyser brugerens konverteringsforløb"
-      },
+      "strictModeInfo": "Når aktiveret, skal besøgende gennemføre trinnene i rækkefølge uden at besøge andre sider undervejs.",
       "preview": {
-        "loading": "Indlæser forhåndsvisning...",
         "defineAtLeastTwoSteps": "Definér mindst 2 trin for at se forhåndsvisningen."
-      },
-      "details": {
-        "title": "Tragtanalyse",
-        "steps": "trin",
-        "users": "brugere",
-        "dropped": "frafald",
-        "summary": {
-          "overallConversion": "Samlet konvertering",
-          "totalVisitors": "Samlede besøgende",
-          "totalCompleted": "Samlet fuldført",
-          "biggestDropOff": "Største frafald"
-        }
       },
       "emptyState": {
         "title": "Visualisér din konverteringstragt",
@@ -2480,8 +2607,10 @@
         "filterByPath": "Filtrer efter {path}",
         "visitors": "Besøgende",
         "pageviews": "Sidevisninger",
+        "sessionPageviews": "Sidevisninger i sessioner",
         "bounceRate": "Afvisningsprocent",
         "avgTime": "Gns. tid",
+        "avgSessionTime": "Gns. sessionstid",
         "entryRate": "Indgangsrate",
         "exitRate": "Udgangsrate",
         "avgScrollDepth": "Scroll-dybde",
@@ -2492,9 +2621,6 @@
       }
     },
     "referrers": {
-      "page": {
-        "description": "Analyser henvisningskilder, trafikandel og præstationstrends."
-      },
       "charts": {
         "distribution": "Henvisningsfordeling",
         "trafficTrends": "Henvisningstrafik trends"
@@ -2531,7 +2657,8 @@
     "geography": {
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
       "loading": "Indlæser kort...",
-      "visitors": "Besøgende"
+      "visitors": "Besøgende",
+      "regionLoadError": "Kunne ikke indlæse regionsdata"
     },
     "userJourney": {
       "steps": "Trin",
@@ -2539,12 +2666,6 @@
       "sessions": "Sessioner"
     },
     "outboundLinks": {
-      "summary": {
-        "totalUniqueClicks": "Samlede unikke klik",
-        "uniqueVisitors": "Unikke besøgende",
-        "topDomain": "Top domæne",
-        "topSourcePage": "Top kildeside"
-      },
       "table": {
         "title": "Udgående link performance",
         "destinationUrl": "Destinations-URL",
@@ -2631,7 +2752,8 @@
         "empty": {
           "title": "Ingen sessionsafspilninger tilgængelige",
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
-        }
+        },
+        "sessionErrorsTooltip": "Denne session opfangede {count}+ klientsidefejl"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -2653,12 +2775,18 @@
         "scroll": "Rulning",
         "input": "Indtastning",
         "pageview": "Sidevisning",
-        "blacklist": "Sortlistet"
+        "blacklist": "Sortlistet",
+        "viewportResize": "Viewport-ændring",
+        "mediaInteraction": "Medieinteraktion",
+        "clientError": "Klientfejl"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Afspilningshastighed",
         "recordingDisabled": "Optagelse er deaktiveret på denne side"
+      },
+      "timeline": {
+        "viewErrorDetails": "Se fejldetaljer"
       }
     },
     "integration": {
@@ -2740,55 +2868,50 @@
     },
     "userSettings": {
       "tabs": {
-        "profile": "Profil",
+        "account": "Konto",
         "preferences": "Præferencer",
-        "usage": "Forbrug",
-        "billing": "Fakturering",
-        "security": "Sikkerhed",
-        "danger": "Farezone"
+        "billing": "Fakturering"
       },
       "dialog": {
         "title": "Brugerindstillinger",
         "description": "Administrér dine kontoinstillinger og præferencer.",
-        "loading": "Indlæser indstillinger...",
-        "loadFailed": "Kunne ikke indlæse indstillinger",
-        "noSettings": "Ingen indstillinger fundet",
-        "buttons": {
-          "cancel": "Annuller",
-          "saving": "Gemmer...",
-          "saveChanges": "Gem ændringer"
-        },
         "toast": {
-          "success": "Indstillinger gemt!",
           "error": "Kunne ikke gemme indstillinger. Prøv igen."
+        },
+        "upgradePlan": "Opgrader plan",
+        "help": {
+          "trigger": "Brug for hjælp?",
+          "documentation": "Dokumentation",
+          "reportBug": "Rapportér en fejl",
+          "contactSupport": "Kontakt support"
         }
       },
       "profile": {
         "title": "Profil",
-        "description": "Redigér dine personlige oplysninger",
         "nameLabel": "Navn",
         "namePlaceholder": "Indtast dit navn",
-        "optional": "Valgfrit",
         "emailLabel": "E-mail",
         "verified": "Bekræftet",
         "unverified": "Ikke bekræftet",
-        "updateButton": "Opdater profil",
+        "signedInWith": "Logget ind med {provider}",
+        "memberSince": "Medlem siden {date}",
+        "updateButton": "Opdater",
         "toast": {
-          "success": "Profil opdateret",
-          "error": "Kunne ikke opdatere profil. Prøv igen."
+          "nameSuccess": "Navn opdateret"
         }
       },
       "preferences": {
         "appearance": {
           "title": "Udseende",
-          "description": "Tilpas det visuelle udtryk for dit dashboard",
           "themeLabel": "Tema",
+          "themeDescription": "Vælg et personligt tema til dashboardet",
           "light": "Lyst",
           "dark": "Mørkt",
           "system": "System"
         },
         "avatar": {
           "label": "Avatar",
+          "description": "Hvordan dit profilbillede vises",
           "none": "Ingen",
           "gravatar": "Gravatar",
           "noteIntro": "Bemærk: Gravatar er en tredjepartstjeneste – aktivering kan dele din e-mail-hash med deres servere.",
@@ -2796,37 +2919,70 @@
         },
         "localization": {
           "title": "Lokalisering",
-          "description": "Vælg dit sprog",
-          "language": "Sprog"
+          "language": "Sprog",
+          "languageDescription": "Vælg sproget for dashboardet"
         },
         "notifications": {
           "title": "Notifikationer",
-          "description": "Konfigurer dine notifikationspræferencer",
-          "emailNotifications": "E-mail notifikationer",
-          "marketingEmails": "Marketing-e-mails"
+          "marketingEmails": "Marketing-e-mails",
+          "marketingEmailsDescription": "Produktopdateringer, meddelelser og tips"
         }
       },
-      "usage": {
-        "cta": {
-          "needMore": "Brug for flere events?",
-          "upgradeHint": "Opgrader din plan for at få flere events og låse op for flere funktioner.",
-          "viewPlans": "Se planer"
+      "billing": {
+        "loadError": "Kunne ikke indlæse faktureringsdata.",
+        "currentPlan": {
+          "title": "Nuværende plan",
+          "free": "Gratis",
+          "pricePerMonth": "{price} / måned",
+          "renewsOn": "Fornyes den {date}",
+          "endsOn": "Abonnement udløber den {date}",
+          "upgrade": "Opgradér",
+          "changePlan": "Skift plan",
+          "pastDue": "Betaling forfalden"
         },
-        "error": "Kan ikke indlæse forbrugsdata"
-      },
-      "billingPortal": {
-        "title": "Faktureringsportal",
-        "description": "Administrér dine faktureringsoplysninger og se din fulde fakturahistorik",
-        "access": "Adgang til faktureringsportal",
-        "accessButton": "Åbn faktureringsportal",
-        "explainer": "Se tidligere fakturaer, opdatér betalingsmetoder og administrér din fakturering via Stripes sikre kundeportal.",
-        "notAvailable": "Faktureringsportalen er tilgængelig, når du opgraderer til en betalt plan.",
-        "needHelp": "Brug for hjælp til fakturering?",
-        "contactSupport": "Kontakt support",
-        "toastError": "Kunne ikke åbne faktureringsportal, prøv igen."
+        "usage": {
+          "title": "Forbrug",
+          "eventsLabel": "Events",
+          "eventsUsed": "{current} / {limit} ({percentage})",
+          "resetsInDays": "Nulstilles om {days} dage"
+        },
+        "payment": {
+          "title": "Betaling og fakturaer",
+          "label": "Administrér i faktureringsportalen",
+          "description": "Betalingsmetode, fakturaer og faktureringsoplysninger.",
+          "openPortal": "Åbn faktureringsportal"
+        },
+        "invoices": {
+          "title": "Fakturaer",
+          "view": "Vis",
+          "columns": {
+            "date": "Dato",
+            "total": "Beløb",
+            "status": "Status",
+            "actions": "Handlinger"
+          },
+          "status": {
+            "draft": "Kladde",
+            "open": "Åben",
+            "paid": "Betalt",
+            "uncollectible": "Uinddrivelig",
+            "void": "Annulleret",
+            "credit": "Kredit"
+          }
+        },
+        "cancellation": {
+          "title": "Annullering",
+          "label": "Annullér abonnement",
+          "description": "Stop fakturering ved udgangen af den nuværende periode.",
+          "cancel": "Annullér"
+        },
+        "portal": {
+          "openError": "Kunne ikke åbne faktureringsportal, prøv igen."
+        }
       },
       "security": {
-        "title": "Adgangskode og godkendelse",
+        "title": "Kontosikkerhed",
+        "passwordRowLabel": "Adgangskode",
         "description": "Skift din kontoadgangskode",
         "currentPassword": "Nuværende adgangskode",
         "newPassword": "Ny adgangskode",
@@ -2835,12 +2991,14 @@
         "passwordsMatch": "Adgangskoderne matcher",
         "changePassword": "Skift adgangskode",
         "passwordManagedByOAuth": "Adgangskode håndteres af OAuth",
+        "togglePasswordVisibility": "Vis/skjul {field}",
+        "cancel": "Annuller",
         "toast": {
           "success": "Adgangskode opdateret"
         },
         "totp": {
           "title": "To-faktor-godkendelse",
-          "description": "Tilføj et ekstra sikkerhedslag ved at kræve en ekstra godkendelse ud over din adgangskode",
+          "description": "Føj et ekstra sikkerhedslag til din konto.",
           "enable": "Aktivér 2FA",
           "instructions": "For at aktivere 2FA skal du scanne QR-koden med din autentificeringsapp eller bruge <setup>opsætningsnøglen</setup> til manuel konfiguration og derefter indtaste verifikationskoden nedenfor.",
           "cancel": "Annuller",
@@ -2848,16 +3006,34 @@
           "enabled": "Aktiveret",
           "disable": "Deaktivér",
           "disableTitle": "Deaktivér 2FA",
-          "disableDescription": "Er du sikker på, at du vil deaktivere to-faktor-godkendelse for din konto?",
+          "disableDescription": "Indtast bekræftelseskoden fra din autentificeringsapp for at deaktivere to-faktor-godkendelse.",
           "disabledSuccess": "To-faktor-godkendelse deaktiveret",
-          "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen."
+          "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen.",
+          "setupFailed": "Kunne ikke konfigurere to-faktor-godkendelse. Prøv igen.",
+          "copyFailed": "Kunne ikke kopiere",
+          "enabledSuccess": "To-faktor-godkendelse aktiveret",
+          "enableFailed": "Kunne ikke aktivere to-faktor-godkendelse. Prøv igen.",
+          "managedByOAuth": "To-faktor-godkendelse håndteres af din login-udbyder"
+        }
+      },
+      "sessions": {
+        "title": "Sessioner",
+        "activeCount": "Logget ind på {count, plural, =0 {ingen enheder} =1 {1 enhed} other {# enheder}}",
+        "description": "Log ud overalt undtagen på denne enhed.",
+        "signOutOthers": "Log ud af andre enheder",
+        "dialog": {
+          "title": "Log ud af andre enheder?",
+          "description": "Alle andre sessioner afsluttes med det samme. Den nuværende enhed forbliver logget ind.",
+          "cancel": "Annullér",
+          "confirm": "Log ud af andre enheder"
+        },
+        "toast": {
+          "success": "Loggede ud af {count, plural, =0 {ingen andre enheder} =1 {1 anden enhed} other {# andre enheder}}."
         }
       },
       "danger": {
-        "title": "Slet konto",
-        "description": "Slet din konto og alle tilknyttede data permanent",
-        "warning": "Advarsel: Denne handling kan ikke fortrydes",
-        "details": "Dette vil permanent slette din konto, fjerne adgang til alle dashboards og slette alle dine personlige indstillinger.",
+        "sectionTitle": "Farezone",
+        "details": "Slet din konto og alle tilknyttede data permanent.",
         "delete": "Slet konto",
         "dialog": {
           "title": "Slet konto permanent",
@@ -2894,16 +3070,15 @@
         "retentionLabel": "Periode for dataopbevaring",
         "retentionHelp": "Hvor længe analysedata gemmes før automatisk sletning",
         "presets": {
-          "d30": "30 dage",
-          "m3": "3 måneder",
           "m6": "6 måneder",
           "y1": "1 år",
           "y2": "2 år",
-          "y3": "3 år"
+          "y3": "3 år",
+          "y5": "5 år"
         },
         "retentionConfirm": {
           "title": "Ændre opbevaringsperiode?",
-          "description": "Er du sikker på, at du vil ændre dataopbevaringsperioden til {period}?"
+          "description": "Hvis du ændrer opbevaringen til {period}, kan hændelser ældre end {period} blive slettet permanent ved næste planlagte oprydning."
         },
         "siteRules": {
           "title": "Webstedsregler",
@@ -3087,16 +3262,32 @@
     "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
     "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
     "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede",
+    "statusPageSlugTaken": "Denne URL-slug er allerede i brug",
+    "statusPageDomainTaken": "Dette domæne er allerede i brug på en anden statusside",
+    "statusPageDomainReserved": "Dette domæne er reserveret",
+    "statusPageIncidentLimit": "Denne statusside har nået sin grænse for hændelser",
+    "statusPageIncidentUpdateLimit": "Denne hændelse har nået sin grænse for opdateringer",
+    "statusPageIncidentUpdateLast": "En hændelse skal have mindst én opdatering",
+    "statusPageIncidentInvalidMonitor": "En af de påvirkede monitorer er ikke på denne statusside",
+    "statusPageImageInvalid": "Filen kunne ikke læses som et billede",
+    "statusPageImageTooLarge": "Billedet er for stort",
+    "statusPageImageBadType": "Billedet skal være et PNG-, JPEG- eller WebP-billede",
+    "statusPageImageSvgUnsafe": "SVG-filen indeholder indhold, der ikke understøttes eller er usikkert",
     "capabilities": {
       "dashboardLimit": "Du har nået din dashboard-grænse. Opgrader til Pro for at oprette flere dashboards.",
       "monitorLimit": "Du har nået din monitor-grænse. Opgrader til Pro for at oprette flere monitorer.",
       "minInterval": "Hurtigere overvågningsintervaller kræver en Professional plan",
       "httpMethod": "Brugerdefinerede HTTP-metoder kræver en Professional plan",
       "statusCodes": "Brugerdefinerede statuskoder kræver en Professional plan",
-      "customHeaders": "Brugerdefinerede request headers kræver en Professional plan"
+      "customHeaders": "Brugerdefinerede request headers kræver en Professional plan",
+      "keywordValidation": "Nøgleordsvalidering kræver en Professional plan",
+      "statusPageLimit": "Du har nået din grænse for statussider. Opgrader til Pro for at oprette flere statussider.",
+      "statusPageCustomDomain": "Eget domæne kræver en Professional plan",
+      "statusPageBranding": "Fjernelse af Betterlytics-branding kræver en Professional plan"
     },
     "invitations": {
       "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",
+      "memberLimitReached": "Din plan tillader op til {limit} team-medlemmer på dette dashboard. Opgrader for at invitere flere.",
       "invitationAlreadySent": "Der er allerede sendt en invitation til denne e-mail",
       "invitationNotFoundOrProcessed": "Invitation ikke fundet eller allerede behandlet",
       "invitationExpired": "Denne invitation er udløbet",
@@ -3134,11 +3325,13 @@
       "action": "Læs mere"
     }
   },
+  "githubStar": {
+    "title": "Kan du lide Betterlytics?",
+    "description": "En stjerne på GitHub hjælper flere udviklere med at opdage projektet.",
+    "action": "Giv en stjerne på GitHub",
+    "dismiss": "Luk"
+  },
   "members": {
-    "page": {
-      "title": "Medlemmer",
-      "description": "Administrer hvem der har adgang til dette dashboard"
-    },
     "table": {
       "title": "Medlemmer",
       "searchPlaceholder": "Søg medlemmer...",
@@ -3189,6 +3382,7 @@
       "emailPlaceholder": "kollega@example.com",
       "roleLabel": "Rolle",
       "inviteButton": "Inviter",
+      "upgradeToInvite": "Opgrader for at invitere flere",
       "sending": "Sender...",
       "pending": "Afventer",
       "invited": "Inviteret",
@@ -3456,5 +3650,691 @@
         }
       }
     }
+  },
+  "reportsSettings": {
+    "title": "E-mail-rapporter",
+    "emailsNotConfigured": {
+      "title": "E-mail-afsendelse er ikke konfigureret",
+      "description": "Rapportindstillinger kan gemmes, men e-mails bliver ikke sendt, før en e-mail-udbyder er konfigureret (SMTP eller MailerSend)."
+    },
+    "weekly": {
+      "title": "Ugentlige rapporter",
+      "description": "Modtag en opsummering af dit websites præstation hver uge",
+      "toggle": "Aktivér ugentlige e-mail-rapporter",
+      "dayLabel": "Rapportdag",
+      "dayDescription": "Hvilken ugedag rapporten skal sendes"
+    },
+    "monthly": {
+      "title": "Månedlige rapporter",
+      "description": "Send en månedlig e-mail-rapport den 1. i hver måned",
+      "toggle": "Aktivér månedlige e-mail-rapporter"
+    },
+    "recipients": {
+      "weeklyLabel": "Modtagere ({count}/{max})",
+      "monthlyLabel": "Modtagere ({count}/{max})",
+      "placeholder": "kollega@eksempel.dk",
+      "addButton": "Tilføj",
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
+      "emailRequired": "E-mailadresse er påkrævet",
+      "duplicateEmail": "Denne e-mail er allerede tilføjet",
+      "maxReached": "Maksimalt {max} modtagere nået"
+    },
+    "toast": {
+      "saved": "Rapportindstillinger gemt",
+      "error": "Kunne ikke gemme rapportindstillinger"
+    }
+  },
+  "mcp": {
+    "settings": {
+      "title": "API-tokens",
+      "description": "Opret tokens for at forbinde AI-agenter til dine analysedata via Model Context Protocol.",
+      "tokenNameLabel": "Token-navn",
+      "tokenNamePlaceholder": "f.eks. Claude Desktop",
+      "createButton": "Opret token",
+      "creating": "Opretter...",
+      "newTokenNotice": "Kopier denne token nu. Du vil ikke kunne se den igen.",
+      "created": "Oprettet {date}",
+      "lastUsed": "Sidst brugt {date}"
+    },
+    "toast": {
+      "created": "Token oprettet",
+      "createError": "Kunne ikke oprette token",
+      "deleted": "Token slettet",
+      "deleteError": "Kunne ikke slette token"
+    },
+    "deleteDialog": {
+      "title": "Slet {name}",
+      "description": "Denne token vil blive permanent tilbagekaldt. Alle MCP-klienter, der bruger den, mister adgang øjeblikkeligt."
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrationer",
+    "section": {
+      "description": "Forbind tredjepartstjenester for at modtage uptimeovervågningsnotifikationer, når din hjemmeside går ned eller kommer op igen."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Push-notifikationer til dine mobile enheder og desktop."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Få vigtige statusopdateringer i dine Discord-beskeder."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Modtag notifikationer i en Slack-kanal."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Modtag notifikationer i en Microsoft Teams-kanal."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Send notifikationer til enhver URL via HTTP POST."
+      }
+    },
+    "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så overvejer vi at tilføje den.",
+    "history": {
+      "title": "Notifikationslog",
+      "button": "Notifikationslog",
+      "empty": "Ingen notifikationer sendt endnu.",
+      "error": "Kunne ikke indlæse notifikationshistorik.",
+      "attempts": "{count} forsøg",
+      "columns": {
+        "time": "Tid",
+        "integration": "Integration",
+        "notification": "Notifikation",
+        "status": "Status",
+        "error": "Fejl"
+      },
+      "status": {
+        "sent": "Sendt",
+        "failed": "Fejlet"
+      }
+    },
+    "status": {
+      "connected": "Forbundet",
+      "disabled": "Deaktiveret"
+    },
+    "actions": {
+      "configure": "Konfigurer",
+      "add": "Tilføj",
+      "edit": "Rediger",
+      "disconnect": "Afbryd"
+    },
+    "disconnect": {
+      "title": "Afbryd {name}",
+      "description": "Er du sikker på, at du vil afbryde denne integration? Dette vil fjerne konfigurationen og stoppe alle notifikationer fra denne kilde.",
+      "confirm": "Afbryd"
+    },
+    "pushoverDialog": {
+      "title": "Pushover-integration",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "Din Pushover user key",
+      "priorityLabel": "Notifikationsprioritet",
+      "priorities": {
+        "0": "Normal (anbefalet)",
+        "1": "Høj: Ignorer stille timer",
+        "-2": "Lavest: Ingen notifikation",
+        "-1": "Lav: Ingen lyd eller vibration"
+      },
+      "credentialsHint": "Find din user key på <link>pushover.net</link>",
+      "priorityHint": "Læs mere om prioritetsniveauer <link>her</link>.",
+      "errors": {
+        "userKeyRequired": "User key er påkrævet",
+        "userKeyInvalid": "Ugyldig user key"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "discordDialog": {
+      "title": "Discord-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookHint": "Lær hvordan du opretter en webhook <link>her</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig Discord webhook URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "slackDialog": {
+      "title": "Slack-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Følg trin 1–3 i <link>guiden til Incoming Webhooks</link> for at få din webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig Slack webhook URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "teamsDialog": {
+      "title": "Microsoft Teams-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Din Teams webhook URL",
+      "webhookHint": "Opret en Incoming Webhook ved hjælp af et Teams Workflow. <link>Lær hvordan</link>.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig HTTPS URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "webhookDialog": {
+      "title": "Webhook-integration",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://eksempel.dk/webhook",
+      "webhookHint": "Indtast en offentligt tilgængelig HTTPS URL. Notifikationer sendes som JSON POST-anmodninger med felterne title, message, url og url_title.",
+      "errors": {
+        "webhookUrlRequired": "Webhook URL er påkrævet",
+        "webhookUrlInvalid": "Skal være en gyldig HTTPS URL"
+      },
+      "cancel": "Annuller",
+      "save": "Gem"
+    },
+    "toast": {
+      "saved": "Integration gemt",
+      "deleted": "Integration afbrudt",
+      "error": "Kunne ikke opdatere integration",
+      "fetchError": "Kunne ikke indlæse integrationer",
+      "invalidPushoverKey": "Ugyldig Pushover user key eller ingen enheder registreret",
+      "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
+      "invalidSlackWebhook": "Ugyldig Slack webhook URL",
+      "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
+      "invalidWebhookUrl": "Ugyldig webhook URL"
+    }
+  },
+  "errors": {
+    "page": {
+      "title": "Fejloversigt"
+    },
+    "table": {
+      "columns": {
+        "error": "Fejl",
+        "volume": "Volumen",
+        "occurrences": "Forekomster",
+        "sessions": "Sessioner",
+        "firstSeen": "Først set",
+        "lastSeen": "Senest set",
+        "status": "Status"
+      },
+      "selectAll": "Vælg alle",
+      "selectRow": "Vælg række",
+      "rowActionsAria": "Rækkehandlinger",
+      "ago": "{time} siden",
+      "emptySearch": "Ingen fejl matcher din søgning.",
+      "emptyPeriod": "Ingen fejl registreret i denne periode."
+    },
+    "toolbar": {
+      "searchPlaceholder": "Søg efter type og besked...",
+      "selectedCount": "{count} valgt",
+      "reload": "Genindlæs",
+      "reloadAria": "Genindlæs fejl"
+    },
+    "statusFilter": {
+      "all": "Alle",
+      "unresolved": "Ikke løst",
+      "resolved": "Løst",
+      "ignored": "Ignoreret"
+    },
+    "statusActions": {
+      "resolve": "Løs",
+      "ignore": "Ignorér",
+      "unresolve": "Fjern som løst",
+      "markResolved": "Markér som løst",
+      "markUnresolved": "Markér som ikke løst"
+    },
+    "status": {
+      "unresolved": "Ikke løst",
+      "resolved": "Løst",
+      "ignored": "Ignoreret"
+    },
+    "emptyState": {
+      "title": "Ingen fejl registreret",
+      "description": "Når der opstår klientside-fejl på dit site, vises de her grupperet efter type. Opsæt fejlsporing for at fange og overvåge klientside-fejl.",
+      "learnMore": "Læs om fejlsporing"
+    },
+    "detail": {
+      "header": {
+        "backToErrors": "Tilbage til fejl",
+        "copied": "Kopieret!",
+        "share": "Del"
+      },
+      "sidebar": {
+        "overview": "Overblik",
+        "firstSeen": "Først set",
+        "lastSeen": "Senest set",
+        "occurrences": "Forekomster",
+        "sessions": "Sessioner",
+        "occurrenceHistory": "Historik",
+        "browsers": "Browsere",
+        "deviceType": "Enhedstype",
+        "watchReplay": "Se seneste session replay",
+        "watchReplayDescription": "Se hvad brugeren gjorde før fejlen",
+        "noReplay": "Ingen session replay for denne fejl",
+        "noReplayDescription": "Replay viser hvad brugere gjorde før en fejl opstod.",
+        "learnMore": "Læs mere"
+      },
+      "navigator": {
+        "occurrenceOf": "Forekomst {number} af {total}",
+        "firstOccurrence": "Første forekomst",
+        "olderOccurrence": "Ældre forekomst",
+        "newerOccurrence": "Nyere forekomst",
+        "latestOccurrence": "Seneste forekomst"
+      },
+      "stacktrace": {
+        "title": "Stacktrace",
+        "frames": "{count, plural, one {# frame} other {# frames}}",
+        "showLess": "Vis mindre",
+        "showMoreFrames": "Vis {count} flere {count, plural, one {frame} other {frames}}",
+        "at": "ved",
+        "inApp": "i app"
+      },
+      "sessionTrail": {
+        "title": "Sessionsforløb",
+        "eventCount": "{count, plural, one {# hændelse} other {# hændelser}} i denne session",
+        "watchReplay": "Se replay"
+      },
+      "occurrence": {
+        "browser": "Browser",
+        "operatingSystem": "Operativsystem",
+        "device": "Enhed",
+        "country": "Land"
+      },
+      "volumeChart": {
+        "errorCount": "{count, plural, one {# fejl} other {# fejl}}"
+      }
+    }
+  },
+  "publicStatusPage": {
+    "banner": {
+      "operational": "Alle systemer kører normalt",
+      "degraded": "Nedsat ydeevne",
+      "partial_outage": "Nogle systemer er nede",
+      "outage": "Større nedbrud",
+      "unknown": "Status utilgængelig"
+    },
+    "meta": {
+      "description": "Seneste driftsstatus for {name}"
+    },
+    "statusNote": {
+      "degraded": "Nogle tjenester er langsommere end normalt"
+    },
+    "lastUpdated": "Senest opdateret {date}",
+    "lastUpdatedInline": "senest opdateret {date}",
+    "uptimeValue": "{uptime} oppetid",
+    "noData": "Ingen data",
+    "monitorStatus": {
+      "operational": "Operationel",
+      "degraded": "Nedsat",
+      "down": "Nede",
+      "unknown": "Ingen data"
+    },
+    "uptimeWindow": {
+      "start": "{days} dage siden",
+      "today": "I dag"
+    },
+    "overallUptime": "Samlet oppetid <value>{uptime}</value> · seneste {days} dage",
+    "activeIncidents": "Aktive hændelser",
+    "pastIncidents": "Tidligere hændelser",
+    "showPastIncidents": "Vis tidligere hændelser",
+    "hidePastIncidents": "Skjul tidligere hændelser",
+    "noPastIncidents": "Ingen tidligere hændelser i de seneste {days} dage.",
+    "incident": {
+      "resolved": "Løst efter {duration}",
+      "ongoing": "Igangværende i {duration}, siden {time}",
+      "showMore": "Vis {count} tidligere {count, plural, one {opdatering} other {opdateringer}}",
+      "showLess": "Skjul tidligere opdateringer",
+      "descriptionMore": "Læs mere",
+      "descriptionLess": "Vis mindre",
+      "today": "I dag",
+      "yesterday": "I går",
+      "impact": {
+        "degraded": "Forringet",
+        "partial_outage": "Delvist nedbrud",
+        "outage": "Større nedbrud"
+      },
+      "status": {
+        "investigating": "Undersøger",
+        "identified": "Identificeret",
+        "monitoring": "Overvåger",
+        "resolved": "Løst"
+      }
+    },
+    "duration": {
+      "minutes": "{count, plural, one {# minut} other {# minutter}}",
+      "hours": "{count, plural, one {# time} other {# timer}}",
+      "days": "{count, plural, one {# dag} other {# dage}}"
+    },
+    "poweredBy": "Drevet af"
+  },
+  "statusPagesPage": {
+    "title": "Statussider",
+    "newStatusPage": "Ny statusside",
+    "upgradeToCreate": "Opgrader for flere",
+    "error": "Noget gik galt",
+    "empty": {
+      "title": "Ingen statussider endnu",
+      "description": "Vælg hvilke monitorer der skal vises, tilføj dit logo og dine farver, og del en offentlig side dine brugere kan tjekke under hændelser.",
+      "cta": "Opret din første statusside"
+    },
+    "badge": {
+      "public": "Offentlig",
+      "draft": "Kladde"
+    },
+    "monitorCount": "{count, plural, one {# monitor} other {# monitorer}}",
+    "actions": {
+      "copyLink": "Kopiér link",
+      "viewPage": "Vis side",
+      "more": "Flere handlinger",
+      "linkCopied": "Link kopieret til udklipsholderen",
+      "openPublicPage": "Åbn offentlig side",
+      "editPage": "Rediger side",
+      "manageIncidents": "Administrer hændelser",
+      "settings": "Indstillinger",
+      "copyUrl": "Kopiér offentlig URL",
+      "publish": "Udgiv",
+      "unpublish": "Fjern udgivelse",
+      "publishedToast": "Statusside udgivet",
+      "unpublishedToast": "Statusside taget offline",
+      "publishConfirmTitle": "Udgiv statusside?",
+      "publishConfirmDescription": "Den bliver offentligt tilgængelig på sin URL.",
+      "unpublishConfirmTitle": "Fjern udgivelse af statusside?",
+      "unpublishConfirmDescription": "Den tages offline, og besøgende kan ikke længere få adgang til den."
+    },
+    "editor": {
+      "back": "Statussider",
+      "save": "Gem ændringer",
+      "discard": "Kassér ændringer",
+      "confirmLeave": {
+        "title": "Forlad med ugemte ændringer?",
+        "description": "Du har lavet ændringer, der ikke er gemt. Hvis du forlader siden nu, går de tabt.",
+        "stay": "Fortsæt redigering",
+        "leave": "Forlad"
+      },
+      "statusPublished": "Udgivet",
+      "statusDraft": "Kladde",
+      "viewPage": "Vis side",
+      "copyUrl": "Kopiér URL",
+      "publish": "Udgiv statusside",
+      "unpublish": "Afpublicér",
+      "saved": "Statusside gemt",
+      "unpublished": "Statusside afpubliceret",
+      "publishSuccess": {
+        "title": "Din statusside er live",
+        "copy": "Kopiér link",
+        "copied": "Link kopieret til udklipsholderen",
+        "view": "Vis side"
+      },
+      "deleted": "Statusside slettet",
+      "error": "Noget gik galt",
+      "delete": "Slet statusside",
+      "deleteConfirmTitle": "Slet denne statusside?",
+      "deleteConfirmDescription": "Den offentlige side holder op med at virke med det samme. Dette kan ikke fortrydes.",
+      "deleteConfirm": "Slet",
+      "cancel": "Annuller",
+      "pageName": "Sidenavn",
+      "nameRequired": "Sidenavn er påkrævet.",
+      "unsavedChanges": "Ugemte ændringer",
+      "publishNeedsSave": "Gem dine ændringer før du udgiver.",
+      "confirmPublish": {
+        "title": "Offentliggør disse ændringer?",
+        "description": "Dine ændringer vises på den offentlige statusside med det samme.",
+        "confirm": "Offentliggør ændringer"
+      },
+      "publicUrl": "Offentlig URL",
+      "publicUrlHint": "Webadressen hvor din statusside er offentliggjort.",
+      "slugStatus": {
+        "checking": "Tjekker…",
+        "available": "Ledig",
+        "taken": "Allerede i brug",
+        "invalid": "Ugyldig slug"
+      },
+      "homepageUrl": "Hjemmeside-URL",
+      "homepageUrlHint": "Hvor logoet og sidetitlen linker hen.",
+      "customDomain": "Eget domæne",
+      "customDomainHint": "Host siden på dit eget domæne.",
+      "homepageUrlInvalid": "Indtast en gyldig URL, der starter med http:// eller https://.",
+      "customDomainInvalid": "Indtast et underdomæne, f.eks. status.example.com.",
+      "customDomainSetup": {
+        "intro": "Tilføj denne DNS-post hos din domæneudbyder for at pege <strong>{domain}</strong> mod Betterlytics.",
+        "recordType": "Type",
+        "recordName": "Navn",
+        "recordValue": "Værdi",
+        "copy": "Kopiér værdi",
+        "copied": "Værdi kopieret",
+        "nameHint": "Nogle udbydere tilføjer automatisk dit domæne. Hvis det er tilfældet, skal du kun indtaste <mono>{label}</mono> som Navn i stedet for hele <monoBreak>{domain}</monoBreak>.",
+        "propagation": "DNS-ændringer kan tage op til nogle timer at træde i kraft."
+      },
+      "hideBranding": "Skjul Betterlytics-branding",
+      "hideBrandingHint": "Fjern \"Powered by Betterlytics\"-foden fra din offentlige side.",
+      "visibility": {
+        "title": "Synlighed i søgemaskiner",
+        "public": "Offentlig",
+        "publicHint": "Alle med linket kan se siden. Indekseres af søgemaskiner.",
+        "unlisted": "Ikke listet",
+        "unlistedHint": "Alle med linket kan se siden, men den skjules for søgemaskiner."
+      },
+      "dangerZone": {
+        "title": "Farezone",
+        "unpublishDescription": "Tag siden offline. Besøgende vil ikke kunne tilgå den, men du kan udgive igen når som helst.",
+        "deleteDescription": "Slet denne statusside og dens hændelseshistorik permanent. Dette kan ikke fortrydes."
+      },
+      "logo": "Logo",
+      "uploadLogo": "Upload logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Upload favicon",
+      "replaceImage": "Erstat",
+      "removeImage": "Fjern",
+      "imageTooLarge": "Billedet er for stort. Vælg en mindre fil.",
+      "svgUnsafe": "SVG'en indeholder indhold, der ikke understøttes eller er usikkert. Prøv en enkel vektoreksport.",
+      "accentColor": "Accentfarve",
+      "theme": "Tema",
+      "themes": {
+        "light": "Lys",
+        "dark": "Mørk",
+        "system": "System"
+      },
+      "showPastIncidents": "Vis tidligere hændelser",
+      "showPastIncidentsHint": "Vis en historik over løste hændelser på din offentlige side.",
+      "minMonitorsHint": "Tilføj mindst én monitor for at gemme ændringer.",
+      "publicNamePlaceholder": "Offentligt visningsnavn",
+      "reorderMonitor": "Omarranger monitor",
+      "preview": "Live forhåndsvisning",
+      "enlargePreview": "Forstør forhåndsvisning",
+      "loadingPreview": "Indlæser forhåndsvisning…",
+      "tabs": {
+        "incidents": "Hændelser",
+        "settings": "Indstillinger"
+      },
+      "studio": {
+        "tabs": {
+          "monitors": "Monitorer",
+          "branding": "Branding",
+          "publish": "Udgiv"
+        },
+        "tabIssue": "Kræver opmærksomhed",
+        "draft": "Kladde",
+        "publicNamesHint": "Omdøbning her ændrer kun, hvad besøgende ser. Din monitor beholder sit interne navn.",
+        "pageNameHint": "Bruges i browserfanen og linkforhåndsvisninger. Et logo erstatter det i sidens header.",
+        "themeHint": "Temaet besøgende ser. System følger den besøgendes enhedsindstilling.",
+        "zoomIn": "Zoom ind",
+        "zoomOut": "Zoom ud",
+        "zoomFit": "Tilpas til skærmen",
+        "desktopPreview": "Desktop-forhåndsvisning",
+        "mobilePreview": "Mobil-forhåndsvisning",
+        "customDomainLater": "Vil du hoste siden på dit eget domæne, som status.{domain}? Forbind det fra sidens indstillinger, når siden er oprettet.",
+        "discardEdits": {
+          "title": "Kassér dine ændringer?",
+          "description": "Ændringer foretaget i editoren rulles tilbage til den senest gemte tilstand.",
+          "keep": "Fortsæt redigering",
+          "discard": "Kassér"
+        }
+      },
+      "wizard": {
+        "title": "Ny statusside",
+        "close": "Luk",
+        "loading": "Indlæser editor…",
+        "saveDraft": "Gem som kladde",
+        "monitorsHeading": "Monitorer på denne side",
+        "searchMonitors": "Søg efter monitorer",
+        "noSearchResults": "Ingen monitorer matcher din søgning.",
+        "noMonitorsTitle": "Ingen monitorer endnu",
+        "noMonitors": "Opret din første monitor for at begynde at spore oppetid, og tilføj den så til denne side.",
+        "noMonitorYet": "Kan du ikke se den?",
+        "createMonitor": "Opret en monitor",
+        "addMonitor": "Tilføj monitor",
+        "allOnPage": "Alle monitorer er på siden.",
+        "addAll": "Tilføj alle ({count})",
+        "removeFromPage": "Fjern fra siden",
+        "shownCount": "{selected} af {total} vist",
+        "minMonitors": "Tilføj mindst én monitor for at fortsætte.",
+        "emptyPageTitle": "Tilføj monitorer til denne statusside",
+        "emptyPageHint": "Deres status og oppetid vises på din offentlige side.",
+        "confirmDiscard": {
+          "title": "Vil du kassere denne statusside?",
+          "description": "Du har lavet ændringer, der går tabt, hvis du lukker nu. Intet er gemt endnu.",
+          "keep": "Fortsæt redigering",
+          "discard": "Kasser"
+        }
+      },
+      "incidents": {
+        "title": "Hændelser",
+        "activeIncidents": "Aktive hændelser",
+        "pastIncidents": "Tidligere hændelser",
+        "filters": {
+          "search": "Søg hændelser",
+          "state": "Tilstand",
+          "stateAll": "Alle tilstande",
+          "stateActive": "Aktive",
+          "stateResolved": "Løst",
+          "noMatch": "Ingen hændelser matcher dine filtre."
+        },
+        "autoDetected": "Automatisk registreret",
+        "affectedMore": "+{count} flere",
+        "detectedPanelTitle": "{count, plural, one {# registreret nedbrud at gennemgå} other {# registrerede nedbrud at gennemgå}}",
+        "detectedGroupMulti": "Nedbrud på tværs af {count} monitorer",
+        "hint": "Skriv og udgiv hændelser. Registrerede nedbrud foreslås nedenfor. Intet bliver offentligt, før du udgiver det.",
+        "newIncident": "Ny hændelse",
+        "editIncident": "Rediger hændelse",
+        "formHint": "Besøgende ser dette på din offentlige statusside, når den er udgivet.",
+        "createFromSuggestion": "Opret hændelse",
+        "suggestedTitle": "{monitor} nedbrud",
+        "suggestedTitleMulti": "Nedbrud der påvirker {count} tjenester",
+        "noIncidents": "Ingen hændelser endnu.",
+        "emptyHint": "Når noget går galt, så opret en hændelse her, så dine besøgende holdes opdateret.",
+        "suggestionsHint": "Automatisk registreret fra dine monitorer. Gennemse og udgiv for at gøre dem offentlige.",
+        "unspecified": "Ikke angivet",
+        "ongoingFor": "I gang i {duration}",
+        "lasted": "Varede {duration}",
+        "draft": "Kladde",
+        "edit": "Rediger",
+        "delete": "Slet",
+        "actions": "Handlinger",
+        "table": {
+          "incident": "Hændelse",
+          "status": "Status",
+          "impact": "Påvirkning",
+          "affected": "Påvirket",
+          "started": "Startet",
+          "duration": "Varighed"
+        },
+        "suggestionsTable": {
+          "outage": "Nedbrud",
+          "monitors": "Monitorer",
+          "detected": "Registreret",
+          "duration": "Varighed",
+          "status": "Status",
+          "ongoing": "I gang",
+          "resolved": "Løst"
+        },
+        "saved": "Hændelse gemt",
+        "deleted": "Hændelse slettet",
+        "error": "Noget gik galt",
+        "impact": {
+          "degraded": "Forringet",
+          "partial_outage": "Delvist nedbrud",
+          "outage": "Større nedbrud"
+        },
+        "status": {
+          "investigating": "Undersøger",
+          "identified": "Identificeret",
+          "monitoring": "Overvåger",
+          "resolved": "Løst"
+        },
+        "form": {
+          "title": "Titel",
+          "titleRequired": "Titel er påkrævet",
+          "description": "Beskrivelse",
+          "descriptionPlaceholder": "f.eks. Nogle brugere kan opleve fejl ved checkout — vi undersøger det",
+          "optional": "(valgfrit)",
+          "timelineRequired": "Tilføj mindst én tidslinjepost",
+          "detailsSection": "Hændelsesdetaljer",
+          "impact": "Påvirkning",
+          "monitor": "Påvirkede monitorer",
+          "monitorNotSpecified": "Hele siden (ingen bestemte monitorer)",
+          "monitorAllToken": "Alle monitorer",
+          "monitorSearchPlaceholder": "Søg monitorer",
+          "monitorNoMatch": "Ingen monitorer fundet",
+          "monitorRemove": "Fjern {monitor}",
+          "monitorCountSelected": "{selected} af {total} valgt",
+          "monitorSelectAll": "Vælg alle",
+          "monitorClear": "Ryd",
+          "monitorSummaryPageWide": "Hele siden, alle {count, plural, one {# monitor} other {# monitorer}}",
+          "monitorSummaryScoped": "{count} af {total} monitorer påvirket",
+          "cancel": "Annuller",
+          "publishCta": "Udgiv",
+          "updatePublic": "Opdatér offentlig side",
+          "unsaved": "Ugemte ændringer",
+          "deleteIncident": "Slet hændelse"
+        },
+        "composer": {
+          "section": "Tilføj en tidslinjepost",
+          "sectionHelp": "Den nyeste post angiver hændelsens status.",
+          "statusLabel": "Status",
+          "messagePlaceholder": "Hvad er der nyt? (valgfrit)",
+          "time": "Tidspunkt"
+        },
+        "timeline": {
+          "title": "Tidslinje",
+          "today": "I dag",
+          "yesterday": "I går",
+          "addUpdate": "Tilføj",
+          "pendingLabel": "Not saved yet",
+          "empty": "Ingen tidslinjeposter endnu.",
+          "editMessage": "Rediger besked",
+          "deleteUpdate": "Slet opdatering",
+          "done": "Færdig",
+          "removePending": "Fjern opdatering"
+        },
+        "discard": {
+          "title": "Kassér ændringer?",
+          "description": "Du har ugemte ændringer. Hvis du lukker nu, går de tabt.",
+          "keep": "Fortsæt redigering",
+          "confirm": "Kassér"
+        }
+      },
+      "editPage": "Rediger side",
+      "publicAddress": "Offentlig adresse"
+    },
+    "table": {
+      "statusPage": "Statusside",
+      "visibility": "Synlighed",
+      "monitors": "Monitorer",
+      "status": "Status"
+    },
+    "status": {
+      "operational": "Operationel",
+      "ongoingIncident": "Igangværende hændelse"
+    },
+    "banner": {
+      "incidentTitle": "{count, plural, one {# statusside har en aktiv hændelse} other {# statussider har aktive hændelser}}",
+      "viewIncidents": "Se hændelser"
+    },
+    "monitorsEmpty": "Ingen monitorer",
+    "monitorsUp": "oppe"
   }
 }

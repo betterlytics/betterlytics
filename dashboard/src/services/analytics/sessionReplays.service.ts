@@ -1,23 +1,12 @@
 'server-only';
 
 import { getSessionReplays } from '@/repositories/clickhouse/index.repository';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import { S3ReplaySegmentsRepository } from '@/repositories/s3ReplaySegmentsRepository';
 import type { ReplaySegmentManifest } from '@/entities/analytics/sessionReplays.entities';
-import type { QueryFilter } from '@/entities/analytics/filter.entities';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getSessionReplaysForSite(
-  siteId: string,
-  startDate: Date,
-  endDate: Date,
-  queryFilters: QueryFilter[],
-  limit: number,
-  offset: number,
-) {
-  const formattedStart = toDateTimeString(startDate);
-  const formattedEnd = toDateTimeString(endDate);
-
-  return getSessionReplays(siteId, formattedStart, formattedEnd, queryFilters, limit, offset);
+export async function getSessionReplaysForSite(siteQuery: BASiteQuery, limit: number, offset: number) {
+  return getSessionReplays(siteQuery, limit, offset);
 }
 
 const s3Repository = new S3ReplaySegmentsRepository();

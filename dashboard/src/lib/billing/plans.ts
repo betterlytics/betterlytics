@@ -1,9 +1,6 @@
-import { formatNumber } from '@/utils/formatters';
-
 export const EVENT_RANGES = [
   {
     value: 10_000,
-    label: formatNumber(10_000, 0),
     growth: {
       price: {
         usd_cents: 0,
@@ -21,7 +18,6 @@ export const EVENT_RANGES = [
   },
   {
     value: 50_000,
-    label: formatNumber(50_000, 0),
     growth: {
       price: {
         usd_cents: 700,
@@ -39,7 +35,6 @@ export const EVENT_RANGES = [
   },
   {
     value: 100_000,
-    label: formatNumber(100_000, 0),
     growth: {
       price: {
         usd_cents: 1400,
@@ -57,7 +52,6 @@ export const EVENT_RANGES = [
   },
   {
     value: 200_000,
-    label: formatNumber(200_000, 0),
     growth: {
       price: {
         usd_cents: 2500,
@@ -75,7 +69,6 @@ export const EVENT_RANGES = [
   },
   {
     value: 500_000,
-    label: formatNumber(500_000, 0),
     growth: {
       price: {
         usd_cents: 3900,
@@ -93,7 +86,6 @@ export const EVENT_RANGES = [
   },
   {
     value: 1_000_000,
-    label: formatNumber(1_000_000, 0),
     growth: {
       price: {
         usd_cents: 5900,
@@ -111,7 +103,6 @@ export const EVENT_RANGES = [
   },
   {
     value: 2_000_000,
-    label: formatNumber(2_000_000, 0),
     growth: {
       price: {
         usd_cents: 8900,
@@ -129,7 +120,6 @@ export const EVENT_RANGES = [
   },
   {
     value: 5_000_000,
-    label: formatNumber(5_000_000, 0),
     growth: {
       price: {
         usd_cents: 12900,
@@ -147,7 +137,6 @@ export const EVENT_RANGES = [
   },
   {
     value: 10_000_000,
-    label: formatNumber(10_000_000, 0),
     growth: {
       price: {
         usd_cents: 16900,
@@ -165,7 +154,6 @@ export const EVENT_RANGES = [
   },
   {
     value: 10_000_001,
-    label: '10M+',
     growth: {
       price: {
         usd_cents: -1,
@@ -185,6 +173,10 @@ export const EVENT_RANGES = [
 
 export type EventRange = (typeof EVENT_RANGES)[number];
 export type TierName = 'growth' | 'professional' | 'enterprise';
+
+export function isContactSalesRange(range: EventRange): boolean {
+  return range.growth.lookup_key === null && range.professional.lookup_key === null;
+}
 
 export const TIER_TO_PLANNAME_KEY: Record<TierName, 'growth' | 'professional' | 'enterprise'> = {
   growth: 'growth',

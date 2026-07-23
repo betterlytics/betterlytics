@@ -1,52 +1,99 @@
 'use client';
 
-import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
-import { useTranslations } from 'next-intl';
+import * as SliderPrimitive from '@radix-ui/react-slider';
+import { ChevronDown } from 'lucide-react';
+import { EVENT_RANGES, EventRange, isContactSalesRange } from '@/lib/billing/plans';
+import { cn } from '@/lib/utils';
+import { formatEventCount } from '@/utils/pricing';
+import { useLocale, useTranslations } from 'next-intl';
+import NumberFlow from '@number-flow/react';
 
 interface PricingSliderProps {
   currentRange: EventRange;
   selectedRangeIndex: number;
-  handleSliderChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSelectIndex: (index: number) => void;
+  suggestedRangeIndex?: number;
   className?: string;
 }
 
 export function PricingSlider({
   currentRange,
   selectedRangeIndex,
-  handleSliderChange,
+  onSelectIndex,
+  suggestedRangeIndex,
   className = '',
 }: PricingSliderProps) {
   const t = useTranslations('pricingSlider');
+  const locale = useLocale();
+
+  const isUnlimited = isContactSalesRange(currentRange);
+  const lastIndex = EVENT_RANGES.length - 1;
+  const suggestedLeft =
+    suggestedRangeIndex === undefined
+      ? undefined
+      : `calc(0.625rem + (100% - 1.25rem) * ${suggestedRangeIndex / lastIndex})`; // This is to match the slider calculation
+
   return (
     <div className={className}>
-      <div className='mb-4 text-center'>
-        <div className='text-muted-foreground mb-2 text-sm'>{t('monthlyEvents')}</div>
-        <div className='text-3xl font-bold'>{currentRange.label}</div>
+      <div className='mb-3 flex items-baseline justify-center gap-2'>
+        <NumberFlow
+          className='text-2xl font-semibold tabular-nums'
+          value={currentRange.value}
+          locales={locale}
+          format={{ notation: 'compact' }}
+          suffix={isUnlimited ? '+' : undefined}
+          willChange
+        />
+        <span className='text-muted-foreground text-sm'>{t('monthlyEvents')}</span>
       </div>
 
-      <div className='relative'>
-        <input
-          type='range'
-          value={selectedRangeIndex}
-          onChange={handleSliderChange}
-          max={EVENT_RANGES.length - 1}
-          min={0}
-          step={1}
-          className='slider h-3 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700'
-        />
-
-        <div className='mt-3 flex justify-between'>
-          {EVENT_RANGES.map((range) => (
-            <div
-              key={range.label}
-              className={`text-xs transition-colors ${
-                range.label === currentRange.label ? 'text-primary font-semibold' : 'text-muted-foreground'
-              }`}
-            >
-              {range.label}
-            </div>
-          ))}
+      {suggestedRangeIndex !== undefined && (
+        <div className='relative -mb-1.5 h-7 w-full'>
+          <div
+            className='text-muted-foreground absolute bottom-0 flex -translate-x-1/2 flex-col items-center text-sm leading-tight'
+            style={{ left: suggestedLeft }}
+          >
+            <span className='whitespace-nowrap'>{t('suggested')}</span>
+            <ChevronDown
+              className={cn('h-3.5 w-3.5', suggestedRangeIndex === selectedRangeIndex && 'invisible')}
+            />
+          </div>
         </div>
+      )}
+
+      <SliderPrimitive.Root
+        value={[selectedRangeIndex]}
+        onValueChange={([v]) => onSelectIndex(v)}
+        min={0}
+        max={lastIndex}
+        step={1}
+        className='relative flex h-5 w-full cursor-pointer touch-none items-center select-none'
+      >
+        <SliderPrimitive.Track className='bg-muted relative h-2 w-full grow overflow-hidden rounded-full'>
+          <SliderPrimitive.Range className='bg-primary absolute h-full' />
+        </SliderPrimitive.Track>
+        <SliderPrimitive.Thumb className='border-background bg-primary block h-5 w-5 cursor-pointer rounded-full border-[3px] shadow-[0_0_0_1px_color-mix(in_oklab,var(--primary)_25%,transparent),0_2px_6px_rgba(0,0,0,0.15)] transition-[transform,box-shadow] duration-150 ease-out hover:scale-110 focus-visible:shadow-[0_0_0_4px_color-mix(in_oklab,var(--primary)_30%,transparent),0_2px_6px_rgba(0,0,0,0.15)] focus-visible:outline-none active:scale-105' />
+      </SliderPrimitive.Root>
+
+      <div className='relative mt-3 h-4 w-full'>
+        {EVENT_RANGES.map((range, index) => {
+          const isActive = range.value === currentRange.value;
+          const label = formatEventCount(range.value, locale);
+          return (
+            <button
+              key={range.value}
+              type='button'
+              onClick={() => onSelectIndex(index)}
+              className={cn(
+                'absolute -translate-x-1/2 cursor-pointer rounded text-[10px] tabular-nums transition-colors sm:text-xs',
+                isActive ? 'text-foreground font-semibold' : 'text-muted-foreground hover:text-foreground',
+              )}
+              style={{ left: `calc(0.625rem + (100% - 1.25rem) * ${index / lastIndex})` }}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

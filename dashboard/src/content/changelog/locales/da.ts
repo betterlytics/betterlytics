@@ -1,49 +1,117 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
-export const latestChangelogModalDa: ChangelogEntryData = {
+const v145ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
-    version: 'v1.3.3',
-    releasedAt: '2026-01-26',
-    title: 'Scroll Depth & UI-forbedringer',
-    summary: 'Spor scroll-dybde for bedre at forstå indholdsengagement og scroll-adfærd.',
+    version: 'v1.4.5',
+    releasedAt: '2026-07-19',
+    title: 'Offentlige statussider',
+    summary:
+      'Del din oppetid med omverdenen. Byg en offentlig statusside med dit eget brand oven på dine uptime-monitorer — med oppetidshistorik, kommunikation om hændelser og mulighed for at bruge dit eget domæne.',
   },
   sections: [
     {
-      id: 'v133-new-features',
+      id: 'v145-new-features',
       title: 'Nye funktioner',
       blocks: [
         {
+          type: 'text',
+          body: 'Du kan nu oprette offentlige statussider. En statusside bygger direkte oven på dine uptime-monitorer og giver dine brugere et løbende opdateret overblik over dine tjenester: aktuel status, oppetidshistorik for hver monitor og en tidslinje over hændelser.',
+        },
+        {
           type: 'list',
           items: [
-            'Scroll Depth Tracking: Se hvor langt brugere scroller ned på dine sider for bedre at forstå indholdsengagement og frafaldspunkter.',
+            'Design din side med live forhåndsvisning: vælg hvilke monitorer der skal vises og i hvilken rækkefølge, og giv dem offentlige visningsnavne.',
+            'Tilpas siden med dit logo, favicon, accentfarve og tema.',
+            'Udgiv siden på en Betterlytics-URL, du selv vælger, eller på dit eget domæne.',
+            'Hold dine brugere orienteret under nedetid med hændelsesopdateringer, og få forslag til hændelser, når dine monitorer registrerer et nedbrud.',
           ],
         },
       ],
     },
     {
-      id: 'v133-improvements',
+      id: 'v145-improvements',
       title: 'Forbedringer',
       blocks: [
         {
           type: 'list',
           items: [
-            'Sammenklappelig sidebar: Sidebar-kategorier kan nu foldes sammen, så du får mere kontrol over navigationen.',
-            'Core Web Vitals-grænser: Forbedrede indikatorer gør det lettere at se, når metrics krydser "Fair" eller "Poor"-grænser.',
-            'Brugsgrænse nulstilles: Tilføjet en tydelig label i brugsoverblikket, der viser, hvornår din månedlige kvote nulstilles.',
-            'UI-polering: Tilføjet subtile animationer i appen for en mere flydende oplevelse.',
+            'Funnel-trin fremhæver nu filtre med tomme værdier, så ufuldstændige trin er nemmere at få øje på og rette.',
+            'Dokumentationen er blevet opdateret med en ny struktur, en udvidet FAQ og nye guides til statussider og eget domæne.',
           ],
         },
       ],
     },
     {
-      id: 'v133-fixes',
-      title: 'Fixes',
+      id: 'v145-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: ["Rettet ødelagte links til dokumentationen på fejlsiden og i FAQ'en."],
+        },
+      ],
+    },
+  ],
+};
+
+const v144ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.4',
+    releasedAt: '2026-06-14',
+    title: 'Funnels med flere kriterier, nemmere betaling og styrket privatliv',
+    summary:
+      'Byg mere præcise funnels med flere kriterier for hvert trin, nu også på mobil. Administrer dit abonnement og dine fakturaer uden at forlade appen, og få endnu bedre beskyttelse af besøgendes privatliv.',
+  },
+  sections: [
+    {
+      id: 'v144-new-features',
+      title: 'Nye funktioner',
       blocks: [
         {
           type: 'list',
           items: [
-            'Fixet et problem, hvor Realtime ikke blev opdateret korrekt, hvilket resulterede i, at der blev vist forældede data.',
-            'Fixet et problem, hvor Session Replay nogle gange ikke gemte optagede sessioner.',
+            'Funnel-trin understøtter nu flere kriterier. Hvert trin kan kombinere flere filtre, for eksempel en bestemt side og en referrer, så du kan definere langt mere præcise konverteringsstier.',
+            'Du kan nu oprette og redigere funnels på mobil, så det fungerer problemfrit på både telefoner og tablets.',
+            'Administrer dit abonnement uden at forlade Betterlytics. Du kan nu opgradere, nedgradere eller skifte abonnement direkte i appen, med et tydeligt overblik over eventuelle forholdsmæssige beløb eller tilgodehavender, før du bekræfter. Betalingen gennemføres også sikkert i appen, uden omdirigering til en ekstern side.',
+            'Se og åbn dine tidligere fakturaer direkte fra dine kontoindstillinger.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-privacy-security',
+      title: 'Privatliv og sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vi har yderligere styrket anonymiseringen af besøgendes data, hvilket understreger vores engagement i at sætte privatliv først: analyser kan aldrig føres tilbage til enkeltpersoner.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tilgodehavende for ubrugt abonnementstid vises nu i dine faktureringsindstillinger og trækkes automatisk fra fremtidige fakturaer.',
+            'Betalingsproblemer er nu tydeligere, med en besked, når en betaling er forfalden, og mulighed for at opdatere din betalingsmetode med ét klik.',
+            'Prissiden er blevet fornyet med et foreslået antal events baseret på din anslåede trafik og et tydeligere overblik over, hvad hver plan indeholder.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v144-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et kortvarigt visuelt flimmer, der kunne opstå, når dialoger blev lukket på tværs af appen.',
           ],
         },
       ],
@@ -51,7 +119,488 @@ export const latestChangelogModalDa: ChangelogEntryData = {
   ],
 };
 
+export const latestChangelogModalDa = v145ChangelogEntryDa;
+
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v145ChangelogEntryDa,
+  v144ChangelogEntryDa,
+  {
+    metadata: {
+      version: 'v1.4.3',
+      releasedAt: '2026-05-24',
+      title: 'Opdaterede kontoindstillinger og styrket sikkerhed',
+      summary:
+        'En redesignet dialog for brugerindstillinger, nye muligheder for at administrere aktive sessioner, styrkede kontroller omkring tofaktorgodkendelse samt en håndfuld rettelser og finpudsninger.',
+    },
+    sections: [
+      {
+        id: 'v143-security',
+        title: 'Sikkerhed',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Du kan nu logge ud af alle andre aktive sessioner direkte fra dine kontoindstillinger.',
+              'Deaktivering af tofaktorgodkendelse kræver nu en gyldig TOTP-kode, hvilket giver ekstra beskyttelse mod uautoriserede ændringer.',
+              'Tofaktorgodkendelse tilbydes ikke længere for konti, der logger ind via Google eller GitHub, da udbyderen allerede håndterer det.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dialogen for brugerindstillinger er blevet redesignet med et mere moderne og overskueligt layout.',
+              'Favicons for dashboard-domæner hentes nu mere pålideligt for flere websteder.',
+              'Mindre UI-finpudsninger på tværs af dashboardet.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v143-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor brugere uden et navn på deres konto ikke kunne opdatere deres indstillinger.',
+              'Rettet et problem, hvor det viste tema ikke længere stemte overens med den gemte indstilling, hvis man annullerede et temaskifte.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.4.2',
+      releasedAt: '2026-05-17',
+      title: 'Globale egenskaber i funnels, filter for udgående links og smartere referrergruppering',
+      summary:
+        'Filtrér funnel-trin efter Globale egenskaber, segmentér analyser efter udgående links, og få mere præcis gruppering af referrers. Denne udgivelse hæver også den korteste tilladte periode for dataopbevaring og retter en fejl, der gjorde session replays uafspilelige.',
+    },
+    sections: [
+      {
+        id: 'v142-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Funnels understøtter nu Globale egenskaber. Du kan nu filtrere funnel-trin efter alle de globale egenskaber, du knytter til dine events — præcis som andre steder i dashboardet.',
+              "Et nyt filter for udgående links gør det muligt at filtrere og segmentere analyser efter, hvilke eksterne URL'er besøgende har klikket på.",
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Gruppering af referrers er nu markant mere præcis, så trafikkilder samles mere ensartet i hele dashboardet.',
+              'Den korteste tilladte periode for dataopbevaring er hævet fra 3 til 6 måneder (session replay er fortsat 2 måneder).',
+              'Mindre forbedringer i brugeroplevelse og tilgængelighed på tværs af filtre, dashboard-kort og login-formularen.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v142-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor session replays ikke kunne hente deres segmenter, så optagelser ikke kunne afspilles.',
+              'Ironisk nok rettet en fejl, hvor det at indsende en fejlrapport uden for et dashboard selv slog fejl.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.4.1',
+      releasedAt: '2026-05-05',
+      title: 'Hurtigere sider, aktiv tid og indsigt i hændelsesegenskaber',
+      summary:
+        'Denne release gør Sider-rapporten hurtigere, forbedrer nøjagtigheden af tid på siden med måling af aktiv tid, tilføjer indsigter om Globale egenskaber til Hændelser-tabellen på Oversigt-siden og retter et par irriterende detaljer i dashboardet.',
+    },
+    sections: [
+      {
+        id: 'v141-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Hændelser-tabellen på Oversigt-siden har nu en Globale egenskaber-fane, så det er nemmere at se, hvilke egenskaber og værdier der optræder på tværs af unikke besøgende.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-performance',
+        title: 'Ydeevne',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Sider-rapporten er blevet optimeret markant og bør nu indlæses betydeligt hurtigere, især ved større datasæt.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Tid på siden er nu baseret på aktiv tid i stedet for almindelig klokketid, så varighedsmålinger bedre afspejler, hvor længe besøgende faktisk var engagerede på en side.',
+              'Din valgte tidsperiode bevares nu, når du skifter mellem dashboards.',
+              'Indgangssider- og Udgangssider-rapporterne fokuserer nu på de målinger, der passer til visningerne. Scroll-dybde er fjernet fra begge faner, og afvisningsprocent er også fjernet fra Udgangssider.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v141-fixes',
+        title: 'Rettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet en fejl, hvor tooltips på verdenskortet kunne forblive synlige, efter markøren havde forladt kortet.',
+              'Forbedret registrering af tidszone, så sider indlæses mere stabilt for besøgende i berørte miljøer.',
+              'Rettet et Firefox-problem, der gjorde visse tabelkolonner svære at markere og kopiere.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.4.0',
+      releasedAt: '2026-04-19',
+      title: 'Globale egenskaber og ydeevneforbedringer',
+      summary:
+        'Segmentér dine analyser efter enhver dimension, du har brug for, med den nye Globale egenskaber-funktion, og oplev markant hurtigere indlæsningstider i dashboardet takket være omfattende ydeevneforbedringer.',
+    },
+    sections: [
+      {
+        id: 'v140-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Globale egenskaber lader dig tilføje fælles kontekst til hver eneste event, der sendes fra dit website, såsom logget ind-status, abonnementsniveau eller brugerrolle. Det gør det nemt at segmentere enhver rapport efter disse egenskaber, for eksempel ved at sammenligne loggede ind-brugere med anonyme besøgende.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-performance',
+        title: 'Ydeevne',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dashboards indlæses nu markant hurtigere, med de største forbedringer på sider med høj trafik og længere tidsintervaller.',
+              'Grafer og tabeller indlæses nu, som du scroller hen til dem, så dataene øverst på siden vises hurtigere i stedet for at vente på, at hele siden bliver færdig.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v140-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Sessionsrelaterede målinger er nu mere præcise, især for langvarige sessioner. Antal sessioner, bounce rate og tid på siden afspejler nu i højere grad, hvad de besøgende faktisk foretog sig på dit website.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.9',
+      releasedAt: '2026-03-29',
+      title: 'Client-Side Error Tracking',
+      summary:
+        'Betterlytics sporer nu fejl på klientsiden. Se hver fejl med stack traces og breadcrumbs, følg trends over tid, og afspil eventuelt den session, der udløste fejlen.',
+    },
+    sections: [
+      {
+        id: 'v139-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Client-side error tracking er her. Fejl og console.error-kald kan nu fanges og grupperes efter fingerprint, så du kan se hvilke fejl der rammer flest brugere, og hvor ofte de opstår.',
+              'Hver fejl inkluderer et stack trace og et breadcrumb-spor, der viser hvad brugeren foretog sig op til fejlen. Aktivér session replay on error for også at optage en fuld genafspilning af sessionen.',
+              'Fejl er fuldt tilgængelige via MCP-serveren, så dine AI-assistenter kan forespørge fejldata og hjælpe dig med at forstå og debugge, hvad der forårsager hver fejl.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.8',
+      releasedAt: '2026-03-22',
+      title: 'By- og regiongeolokation, forbedret ydeevne og fejlrettelser',
+      summary:
+        'Besøgendes placering vises nu på by- og regionniveau. Store dashboards loader hurtigere takket være forbedringer af ydeevnen. En fejl, der forhindrede uptime-monitoreringssiden i at loade for visse tidszoner, er nu rettet.',
+    },
+    sections: [
+      {
+        id: 'v138-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Geolokation inkluderer nu by- og regionniveau, så du får et mere detaljeret billede af, hvor dine besøgende kommer fra.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Forbedret ydeevne for store dashboards, hvilket reducerer indlæsningstider for sites med meget trafik.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v138-bug-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet en fejl på uptime-monitoreringssiden, der forhindrede den i at loade for visse tidszoner.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.7',
+      releasedAt: '2026-03-08',
+      title: 'MCP-server, smartere referrergruppering og notifikationslogger',
+      summary:
+        'Forespørg dine analysedata direkte fra AI-agenter med den nye MCP-server. Referrerkilder er nu grupperet mere præcist og kan udvides i oversigten. Integrationer viser nu en komplet leveringslog for notifikationer, og talformatering er forbedret på tværs af dashboardet.',
+    },
+    sections: [
+      {
+        id: 'v137-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Tilføjet en MCP-server (Model Context Protocol), der lader dig forbinde dine analysedata til AI-assistenter og -agenter. Du kan nu bede din AI om at hente trafikstatistik, udforske User Journeys eller analysere funnels — og kombinere disse indsigter med anden kontekst, f.eks. din egen kodebase.',
+              'Integrationer inkluderer nu en notifikationsleveringslog, så du kan se præcis hvilke notifikationer der blev sendt, hvornår de blev leveret, og om nogen fejlede — herunder årsagen hvis noget gik galt.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v137-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Referrerkilder i oversigtstabellen kan nu udvides, så du med ét blik kan se fordelingen bag hver trafikkilde.',
+              'Referrergruppering er forbedret, så trafik fra forskellige subdomæner på samme site nu korrekt slås sammen under én kilde.',
+              'Tal på tværs af dashboardet er nu konsekvent formateret i henhold til din region.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.6',
+      releasedAt: '2026-03-01',
+      title: 'Notifikationsintegrationer til uptime-advarsler og norsk lokalisering',
+      summary:
+        'Advarsler fra uptime-overvågning kan nu leveres til Slack, Discord, Teams, Pushover eller et valgfrit webhook. Dashboardet er desuden nu tilgængeligt på norsk, og flere stabilitetsrettelser forbedrer pålideligheden på platformen.',
+    },
+    sections: [
+      {
+        id: 'v136-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Advarsler fra uptime-overvågning kan nu sendes til Slack, Discord, Microsoft Teams, Pushover eller et valgfrit webhook-endpoint. Konfigurér dine notifikationskanaler fra Integrationer-siden i dine dashboard-indstillinger.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Dashboardet er nu tilgængeligt på norsk.',
+              'Løst et problem på serversiden, der under visse betingelser kunne forårsage ustabilitet, og dermed forbedret den overordnede platformstabilitet.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-security',
+        title: 'Sikkerhed',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Opdateret centrale afhængigheder for at adressere en nyligt offentliggjort sikkerhedssårbarhed, så dine data og konti forbliver sikre.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v136-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem med cirkeldiagrammer, der kunne bryde layoutet på visse dashboard-visninger.',
+              'Rettet et tilgængelighedsproblem ved login, der påvirkede tastaturnavigation og hjælpeteknologier.',
+              'Rettet en fejl, hvor tidszonen kunne falde tilbage til en forkert standardværdi.',
+              'Rettet et problem, hvor kvotens nulstillingsdato kunne vises som et negativt tal.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.5',
+      releasedAt: '2026-02-19',
+      title: 'Nøgleordsovervågning & visuelle forbedringer',
+      summary:
+        'Uptime-monitorer kan nu give besked, hvis et forventet nøgleord mangler på dine sider. Dashboardet føles desuden glattere med animerede målere, tal og andre visuelle detaljer.',
+    },
+    sections: [
+      {
+        id: 'v135-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Uptime-monitorer kan nu kontrollere, om et forventet nøgleord findes i sidens svar, og advare dig hvis vigtigt indhold mangler — selv når siden returnerer en 200-statuskode.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v135-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Core Web Vitals-scorer vises nu i en animeret måler, så du hurtigere kan aflæse din sides ydeevne.',
+              'Tooltips i grafer viser nu tydeligt, når en uge- eller månedsperiode kun er delvist dækket af det valgte tidsinterval.',
+              'Tal, indlæsningsindikatorer og andre små visuelle detaljer er finpudset for en glattere og mere poleret oplevelse på tværs af dashboardet.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    metadata: {
+      version: 'v1.3.4',
+      releasedAt: '2026-02-08',
+      title: 'E-mailrapporter & ugentlige og månedlige indsigter',
+      summary:
+        'Modtag planlagte e-mailrapporter for dine dashboards og analysér langsigtede trends med ugentlig og månedlig visning.',
+    },
+    sections: [
+      {
+        id: 'v134-new-features',
+        title: 'Nye funktioner',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Planlæg e-mailrapporter med overblik over dine dashboards direkte fra indstillingerne.',
+              'Ved længere tidsperioder kan data nu vises med ugentlig og månedlig opdeling, hvilket gør det lettere at identificere langsigtede trends.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-improvements',
+        title: 'Forbedringer',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Scroll depth-events er nu inkluderet uden ekstra omkostninger og tæller ikke med i dit månedlige forbrug.',
+              'Filtervælgeren viser nu, hvor mange filtre der er aktive.',
+              'Tabelceller viser nu sammenligningsdata tydeligere, når der mangler data for én af perioderne.',
+            ],
+          },
+        ],
+      },
+      {
+        id: 'v134-fixes',
+        title: 'Fejlrettelser',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              'Rettet et problem, hvor tracking-scriptet i visse tilfælde kunne sende ugyldige data.',
+              'Rettet et problem i datoberegningen, som kunne medføre forkerte tidsperioder.',
+              'Rettet en fejl, hvor e-mailbekræftelse ikke blev sendt korrekt ved tilmelding via OAuth.',
+              'Rettet visning af sammenligningsindikatorer, når data manglede eller var uændrede.',
+            ],
+          },
+        ],
+      },
+    ],
+  },
   {
     metadata: {
       version: 'v1.3.3',
@@ -82,7 +631,7 @@ export const changelogEntriesDa: readonly ChangelogEntryData[] = [
             type: 'list',
             items: [
               'Sammenklappelig sidebar: Sidebar-kategorier kan nu foldes sammen, så du får mere kontrol over navigationen.',
-              'Forbedrede Core Web Vitals-indikatorer gør det lettere at se, når metrics krydser "Fair" eller "Poor"-grænser.',
+              'Forbedrede Core Web Vitals-indikatorer gør det lettere at se, når metrics krydser "Middel" eller "Dårlig"-grænser.',
               'Brugsgrænse nulstilles: Tilføjet en tydelig label i brugsoverblikket, der viser, hvornår din månedlige kvote nulstilles.',
               'UI-polering: Tilføjet subtile animationer i appen for en mere flydende og responsiv oplevelse.',
             ],

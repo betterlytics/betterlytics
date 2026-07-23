@@ -3,7 +3,7 @@ type DataType<K extends string> = Record<K, number>;
 type DataToPartialPercentageCompareProps<Keys extends Array<string>> = {
   keys: Keys;
   data: DataType<Keys[number]>;
-  compare?: DataType<Keys[number]>;
+  compare?: DataType<Keys[number]> | null;
 };
 
 export function toPartialPercentageCompare<Keys extends Array<string>>({

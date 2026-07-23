@@ -1,0 +1,217 @@
+---
+title: "MCP Server"
+description: "Connect AI agents to your Betterlytics analytics data using the Model Context Protocol (MCP)."
+---
+
+import { Callout, Tabs } from "nextra/components";
+
+# MCP Server
+
+Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI agents about your website's traffic in natural language, and connect real analytics data to your UI, UX, and code to make data-driven optimizations directly from your development workflow. No dashboards or manual queries needed.
+
+## Creating an API Token
+
+1. Navigate to **Dashboard > Settings > MCP**
+2. Enter a name for your token (e.g. "Claude Desktop")
+3. Click **Create token**
+4. Copy the token immediately, it is only shown once
+
+## Setup
+
+### Claude Desktop
+
+Claude Desktop's **Connectors** UI only supports OAuth-based remote servers, so it can't pass a bearer token directly. Use the [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) proxy instead (requires [Node.js](https://nodejs.org/) installed).
+
+Open **Settings > Developer > Edit Config** to reveal `claude_desktop_config.json`, then add `betterlytics` to `mcpServers`.
+
+<Tabs items={['macOS / Linux', 'Windows']}>
+  <Tabs.Tab>
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://betterlytics.io/api/mcp",
+        "--header",
+        "Authorization:Bearer btl_your_token_here"
+      ]
+    }
+  }
+}
+```
+  </Tabs.Tab>
+  <Tabs.Tab>
+Claude Desktop spawns `npx.cmd` through `cmd.exe /C` without quoting the path, which breaks on the space in `C:\Program Files\nodejs\`. Invoke `cmd` yourself instead so it can resolve `npx` via PATH:
+
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "mcp-remote",
+        "https://betterlytics.io/api/mcp",
+        "--header",
+        "Authorization:Bearer btl_your_token_here"
+      ]
+    }
+  }
+}
+```
+  </Tabs.Tab>
+</Tabs>
+
+After saving, fully quit Claude Desktop (tray icon > Quit on Windows, ⌘Q on macOS) and reopen it.
+
+### Claude Code
+
+```bash
+claude mcp add betterlytics https://betterlytics.io/api/mcp \
+  --transport http \
+  --header "Authorization: Bearer btl_your_token_here"
+```
+
+### Cursor
+
+Add to `.cursor/mcp.json` in your project directory:
+
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "url": "https://betterlytics.io/api/mcp",
+      "headers": {
+        "Authorization": "Bearer btl_your_token_here"
+      }
+    }
+  }
+}
+```
+
+### Windsurf
+
+Add to your [MCP config](https://docs.windsurf.com/windsurf/cascade/mcp) (`~/.codeium/windsurf/mcp_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "serverUrl": "https://betterlytics.io/api/mcp",
+      "headers": {
+        "Authorization": "Bearer btl_your_token_here"
+      }
+    }
+  }
+}
+```
+
+### Antigravity
+
+Add to your [MCP config](https://antigravity.google/docs/mcp) (`~/.gemini/antigravity/mcp_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "betterlytics": {
+      "serverUrl": "https://betterlytics.io/api/mcp",
+      "headers": {
+        "Authorization": "Bearer btl_your_token_here"
+      }
+    }
+  }
+}
+```
+
+### Codex
+
+Add to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.betterlytics]
+url = "https://betterlytics.io/api/mcp"
+http_headers = { "Authorization" = "Bearer btl_your_token_here" }
+```
+
+<Callout>
+Replace `btl_your_token_here` with the token you copied in all examples above.
+</Callout>
+
+## What You Can Ask About
+
+Once connected, your AI assistant has access to your analytics data. You can query it conversationally, or let your agent use it to inform UI, UX, and code changes. Here are some of the things you can explore:
+
+- **Traffic overview**: visitors, sessions, and pageviews over any time period
+- **Page performance**: top pages, specific URL analysis, scroll depth
+- **Devices and browsers**: desktop vs mobile vs tablet, browser breakdown
+- **Geographic distribution**: visitor counts by country
+- **Traffic sources**: where your visitors are coming from (search, social, direct, referrers)
+- **UTM campaign tracking**: analyze traffic by source, medium, campaign, term, and content
+- **Custom events**: track and analyze custom events you've set up
+- **Trends over time**: daily or hourly breakdowns to spot patterns
+- **Funnels**: list saved funnels with step-by-step conversion data, or run ad-hoc funnel analyses with custom steps
+- **User journeys**: analyze navigation paths through your site, showing page-to-page transitions with traffic volumes
+- **Error tracking**: list captured errors, inspect stack traces, and see the session trail leading up to each error
+
+## Example Questions
+
+Here are some questions you can try:
+
+**Traffic analysis**
+- "Compare my daily visitors this week vs last week. Is traffic trending up or down?"
+- "What percentage of my traffic comes from search vs social vs direct over the last 90 days?"
+- "Which countries had the most visitors this month, and what devices do they use?"
+
+**Content performance**
+- "Which pages have the highest pageviews but lowest scroll depth? I might need to improve them."
+- "Show me the top 10 landing pages by sessions, broken down by traffic source."
+- "What's the average scroll depth on my blog posts vs my product pages?"
+
+**Conversion and events**
+- "How many cart-checkout events happened on mobile vs desktop this month?"
+- "What's my product-clicked to cart-checkout ratio, and is it better on desktop or mobile?"
+- "Show me a daily trend of custom events for the past 28 days, any spikes?"
+
+**Campaign attribution**
+- "Break down visitors by UTM campaign for Q1. Which campaigns drove the most traffic?"
+- "How did traffic from my spring-sale UTM campaign perform compared to organic search?"
+
+**Funnels**
+- "How did my funnels perform last month?"
+- "What's my signup conversion rate? Show me the drop-off at each step."
+- "Run a funnel from /pricing to /signup to /dashboard. How many visitors make it through?"
+
+**User journeys**
+- "What are the most common navigation paths on my site?"
+- "Show me user journeys from last month. Where do visitors go after the landing page?"
+- "What pages do visitors explore after viewing the demo?"
+
+**Error tracking**
+- "What are the most common errors on my site this week?"
+- "Show me the stack trace for the TypeError that's affecting the most users."
+- "Where in my code is this error occurring?"
+- "What was the user doing right before this error occurred? Walk me through the session trail."
+- "Are there any new errors since my last deploy?"
+
+**Cross-dimensional**
+- "What browsers do my mobile visitors from Germany use?"
+- "Show me the hourly traffic pattern for today. When is my peak hour?"
+- "Which referrer sources bring visitors that scroll the deepest on my pages?"
+
+## Managing Tokens
+
+View and manage your tokens from **Dashboard > Settings > MCP**. Each token shows its creation date and when it was last used. You can delete tokens at any time. Deleted tokens are immediately revoked.
+
+## Security
+
+- Each token is scoped to a single dashboard
+- Requests are rate-limited to 60 per minute per site
+
+---
+
+*Questions? Join our [Discord community](https://discord.gg/vwqSvPn6sP) for help!*

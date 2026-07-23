@@ -1,7 +1,7 @@
 type ToDataTableProps<K extends string, D> = {
-  categoryKey: K;
+  categoryKey: K | K[];
   data: Array<Record<K, string> & D>;
-  compare?: Array<Record<K, string> & D>;
+  compare?: Array<Record<K, string> & D> | null;
 };
 
 type RowProps<D extends Record<string, unknown>> = {
@@ -19,7 +19,16 @@ function rowChange<D extends Record<string, unknown>>({ row, compareRow, enabled
       };
     }
 
-    const compareValue = (compareRow?.[key] as number | undefined) || 0;
+    const rawCompareValue = compareRow?.[key];
+
+    if (compareRow && rawCompareValue === null) {
+      return {
+        ...acc,
+        [key]: undefined,
+      };
+    }
+
+    const compareValue = (rawCompareValue as number | undefined) ?? 0;
     const difference = value - compareValue;
 
     return {
@@ -36,11 +45,25 @@ export type ToDataTable<K extends string, D> = Record<K, string> & {
 };
 
 export function toDataTable<K extends string, D>({ categoryKey, data, compare }: ToDataTableProps<K, D>) {
+  const keysToMatch = Array.isArray(categoryKey) ? categoryKey : [categoryKey];
+
   return data.map((row) => {
-    const compareRow = compare?.find((comp) => comp[categoryKey] === row[categoryKey]);
+    const compareRow = compare?.find((comp) =>
+      keysToMatch.every((key) => (comp as Record<string, unknown>)[key] === (row as Record<string, unknown>)[key]),
+    );
+
+    const categories = keysToMatch.reduce(
+      (acc, curr) => {
+        return {
+          ...acc,
+          [curr]: row[curr],
+        };
+      },
+      {} as Record<K, string>,
+    );
 
     return {
-      [categoryKey]: row[categoryKey],
+      ...categories,
       current: row,
       compare: compareRow,
       change: rowChange<Record<K, string> & D>({ row, compareRow, enabled: Boolean(compare) }),

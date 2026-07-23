@@ -8,12 +8,14 @@ use crate::processing::ProcessedEvent;
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
 pub struct EventRow {
     pub site_id: String,
-    pub visitor_id: String,
-    pub session_id: String,
+    pub visitor_id: u64,
+    pub session_id: u64,
     pub domain: String,
     pub url: String,
     pub device_type: String,
-    pub country_code: Option<String>,
+    pub country_code: String,
+    pub subdivision_code: String,
+    pub city: String,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub timestamp: DateTime<Utc>,
     #[serde(with = "clickhouse::serde::chrono::date")]
@@ -23,6 +25,7 @@ pub struct EventRow {
     pub os: String,
     pub os_version: String,
     pub referrer_source: String,
+    pub referrer_source_canonical: String,
     pub referrer_source_name: String,
     pub referrer_search_term: String,
     pub referrer_url: String,
@@ -42,13 +45,33 @@ pub struct EventRow {
     pub cwv_ttfb: Option<f32>,
     pub scroll_depth_percentage: Option<f32>,
     pub scroll_depth_pixels: Option<f32>,
+    pub error_exceptions: String,
+    pub error_type: String,
+    pub error_message: String,
+    pub error_fingerprint: String,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub session_created_at: DateTime<Utc>,
+    pub global_properties_keys: Vec<String>,
+    pub global_properties_values: Vec<String>,
+    pub page_duration_seconds: u32,
+}
+
+/// One active session recovered from `analytics.sessions`, used to warm the in-memory
+/// session cache on boot. Field order must match the `SELECT` in `fetch_active_sessions`.
+#[derive(clickhouse::Row, Deserialize)]
+pub struct ActiveSessionRow {
+    pub site_id: String,
+    pub visitor_id: u64,
+    pub session_id: u64,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub session_created_at: DateTime<Utc>,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
 pub struct SessionReplayRow {
     pub site_id: String,
-    pub session_id: String,
-    pub visitor_id: String,
+    pub session_id: u64,
+    pub visitor_id: u64,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
     pub started_at: DateTime<Utc>,
     #[serde(with = "clickhouse::serde::chrono::datetime")]
@@ -60,6 +83,7 @@ pub struct SessionReplayRow {
     pub event_count: u32,
     pub s3_prefix: String,
     pub start_url: String,
+    pub error_fingerprints: Vec<String>,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]
@@ -71,6 +95,15 @@ pub enum EventType {
     OutboundLink = 3,
     Cwv = 4,
     ScrollDepth = 5,
+    ClientError = 6,
+    Engagement = 7,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug)]
+pub struct ReferrerSourceCategoryRow {
+    pub generation: u64,
+    pub key: String,
+    pub medium: String,
 }
 
 impl EventRow {
@@ -84,7 +117,9 @@ impl EventRow {
             domain: event.domain.unwrap_or_else(|| "unknown".to_string()),
             url: event.url,
             device_type: event.device_type.unwrap_or_else(|| "unknown".to_string()),
-            country_code: event.country_code,
+            country_code: event.country_code.unwrap_or_default(),
+            subdivision_code: event.subdivision_code.unwrap_or_default(),
+            city: event.city.unwrap_or_default(),
             timestamp,
             date: timestamp.date_naive(),
             browser: event.browser.unwrap_or_else(|| "unknown".to_string()),
@@ -92,6 +127,7 @@ impl EventRow {
             os: event.os.unwrap_or_else(|| "unknown".to_string()),
             os_version: event.os_version.unwrap_or_default(),
             referrer_source: event.referrer_info.source_type.as_str().to_string(),
+            referrer_source_canonical: event.referrer_info.source_canonical.unwrap_or_default(),
             referrer_source_name: event.referrer_info.source_name.unwrap_or_default(),
             referrer_search_term: event.referrer_info.search_term.unwrap_or_default(),
             referrer_url: event.referrer_info.url.unwrap_or_default(),
@@ -111,6 +147,14 @@ impl EventRow {
             cwv_ttfb: event.cwv_ttfb,
             scroll_depth_percentage: event.scroll_depth_percentage,
             scroll_depth_pixels: event.scroll_depth_pixels,
+            error_exceptions: event.error_exceptions,
+            error_type: event.error_type,
+            error_message: event.error_message,
+            error_fingerprint: event.error_fingerprint,
+            session_created_at: event.session_created_at,
+            global_properties_keys: event.global_properties_keys,
+            global_properties_values: event.global_properties_values,
+            page_duration_seconds: event.page_duration_seconds,
         }
     }
 }

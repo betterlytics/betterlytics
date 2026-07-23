@@ -37,6 +37,16 @@
   
   <timezone>UTC</timezone>
 
+  <named_collections>
+    <referrer_dict_source>
+      <host overridable="false">localhost</host>
+      <port overridable="false">9000</port>
+      <database overridable="false">analytics</database>
+      <user overridable="false" from_env="CLICKHOUSE_BACKEND_USER" />
+      <password overridable="false" from_env="CLICKHOUSE_BACKEND_PASSWORD" />
+    </referrer_dict_source>
+  </named_collections>
+
   <!-- User settings -->
   <user_directories>
     <local_directory>

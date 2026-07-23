@@ -7,12 +7,13 @@ export const featureFlags = {
   enableDashboardTracking: env.ENABLE_DASHBOARD_TRACKING,
   enableRegistration: env.ENABLE_REGISTRATION,
   enableEmails: env.ENABLE_EMAILS,
-  enableEmailPreview: env.ENABLE_MAIL_PREVIEW_PAGE,
   enableAccountVerification: env.ENABLE_ACCOUNT_VERIFICATION,
   enableBilling: env.ENABLE_BILLING,
   enableSessionReplay: env.SESSION_REPLAYS_ENABLED,
   enableBugReports: env.IS_CLOUD,
   enableUptimeMonitoring: env.ENABLE_UPTIME_MONITORING,
+  // Status pages publish uptime data, so they additionally require monitoring to be enabled
+  enablePublicStatusPages: env.ENABLE_UPTIME_MONITORING && env.ENABLE_PUBLIC_STATUS_PAGES,
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {

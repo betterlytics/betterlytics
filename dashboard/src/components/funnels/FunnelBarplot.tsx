@@ -7,72 +7,149 @@ import { ChevronDown } from 'lucide-react';
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatQueryFilter } from '@/utils/queryFilterFormatters';
-import { useTranslations } from 'next-intl';
+import { FilterDescription } from '@/components/filters/FilterDescription';
+import { useLocale, useTranslations } from 'next-intl';
+import { Spinner } from '@/components/ui/spinner';
+import { FunnelChartSkeleton } from '@/components/skeleton/FunnelChartSkeleton';
 
 type EmptyStep = {
+  id: string;
   name: string;
 };
 
-type FunnelChartProps = {
-  funnel: PresentedFunnel;
+export type FunnelBarplotStatus = 'empty' | 'loading' | 'data';
+
+type FunnelBarplotProps = {
+  funnel: PresentedFunnel | null;
   emptySteps?: EmptyStep[];
+  status?: FunnelBarplotStatus;
+  refetching?: boolean;
+  emptyMessage?: string;
+  fill?: boolean;
+  className?: string;
 };
 
-export default function FunnelBarplot({ funnel, emptySteps }: FunnelChartProps) {
+export default function FunnelBarplot({
+  funnel,
+  emptySteps,
+  status = 'data',
+  refetching = false,
+  emptyMessage,
+  fill = false,
+  className,
+}: FunnelBarplotProps) {
+  const locale = useLocale();
   const tPlot = useTranslations('components.funnels.plot');
+  const tPreview = useTranslations('components.funnels.preview');
+
+  if (status === 'empty') {
+    return (
+      <div className={cn('flex min-h-[16rem] flex-col', fill && 'h-full', className)}>
+        <div className='bg-card flex w-full flex-1 flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center'>
+          <svg
+            className='text-muted-foreground/60 mb-3 size-12'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='1.2'
+            aria-hidden
+          >
+            <path d='M21 5H3l7 9v6l4-2v-4z' />
+          </svg>
+          <p className='text-muted-foreground text-sm'>{emptyMessage ?? tPreview('defineAtLeastTwoSteps')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'loading' || !funnel) {
+    return (
+      <div className={cn(fill && 'flex h-full flex-col', className)}>
+        <FunnelChartSkeleton fill={fill} />
+      </div>
+    );
+  }
+
   const hasEmptySteps = Boolean(emptySteps?.length);
   return (
-    <div className='bg-card w-full overflow-x-auto rounded-xl border shadow-sm'>
-      <div className='group/steps relative flex w-fit flex-col sm:flex-row'>
-        {funnel.steps.map((step, i) => (
-          <FunnelStep key={i} step={step} index={i} funnel={funnel} hasEmptySteps={hasEmptySteps} />
-        ))}
-        {emptySteps?.map((step, i) => (
-          <div
-            key={i}
-            className='group-hover/steps:[&:not(:hover)]:bg-background/30 bg-muted/30 flex h-40 flex-row-reverse transition-all duration-200 ease-out sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-60'
-          >
+    <div className={cn('relative', fill && 'flex h-full flex-col', className)}>
+      {refetching && (
+        <div className='pointer-events-none absolute inset-0 z-10 flex items-center justify-center'>
+          <Spinner />
+        </div>
+      )}
+      <div
+        className={cn(
+          'bg-card w-full overflow-x-auto rounded-lg border shadow-sm transition-opacity',
+          '[scrollbar-width:thin] [scrollbar-color:var(--border)_transparent]',
+          '[&::-webkit-scrollbar]:h-2',
+          '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border',
+          '[&::-webkit-scrollbar-track]:bg-transparent',
+          fill && 'flex flex-1 flex-col',
+          refetching && 'pointer-events-none opacity-60',
+        )}
+      >
+        <div className={cn('group/steps relative flex flex-col sm:flex-row', fill ? 'w-full min-w-fit sm:flex-1' : 'w-fit')}>
+          {funnel.steps.map((step, i) => (
+            <FunnelStep
+              key={step.step.id}
+              step={step}
+              index={i}
+              funnel={funnel}
+              hasEmptySteps={hasEmptySteps}
+              fill={fill}
+            />
+          ))}
+          {emptySteps?.map((step, i) => (
             <div
+              key={step.id}
               className={cn(
-                'border-border/40 w-35 border-b px-3 pt-2.5 pb-1.5 sm:w-full sm:border-r sm:border-b-0',
-                i === emptySteps.length - 1 && 'border-b-0 sm:border-r-0',
+                'flex h-40 flex-row-reverse sm:h-auto sm:flex-col',
+                fill ? 'sm:min-w-40 sm:flex-1' : 'sm:w-50',
+                'bg-muted/30 transition-all duration-200 ease-out',
+                'group-hover/steps:[&:not(:hover)]:bg-background/30 group-hover/steps:[&:not(:hover)]:opacity-60',
               )}
             >
-              <div>
-                <p className='text-muted-foreground/60 text-[11px] font-medium tracking-wide uppercase'>
-                  {tPlot('stepLabel', { index: i + funnel.steps.length + 1 })}
-                </p>
-              </div>
-              <h4 className='text-foreground/70 truncate text-sm font-semibold'>{step.name}</h4>
-            </div>
-            <div
-              className={cn(
-                'hidden h-40 w-full pt-2 sm:flex',
-                i === funnel.steps.length - 1 &&
-                  'dark:border-muted/40 border-muted-foreground/10 border-r-2 border-dashed',
-              )}
-            >
-              <HorizontalProgress key={i} percentage={1} isFirst={false} isLast={i === emptySteps.length - 1} />
-              {i < emptySteps.length - 1 && <HorizontalConnector previousPercentage={1} currentPercentage={1} />}
-            </div>
-            <div className='flex h-40 w-40 flex-col sm:hidden'>
-              <VerticalProgress key={i} percentage={1} />
-              {i < funnel.steps.length - 1 && <VerticalConnector previousPercentage={1} currentPercentage={1} />}
-            </div>
-            <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
-              <div className='flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-25'></div>
-              {i < emptySteps.length - 1 ? (
-                <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center rounded-sm p-2 sm:h-full sm:w-25'></div>
-              ) : (
-                <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
-                  <p className='text-muted-foreground/75 text-xs'>{tPlot('conversion')}</p>
-                  <p className='text-md text-foreground/75 font-semibold'>{formatPercentage(0)}</p>
+              <div
+                className={cn(
+                  'border-border/40 w-35 border-b px-3 pt-2.5 pb-1.5 sm:w-full sm:border-r sm:border-b-0',
+                  i === emptySteps.length - 1 && 'border-b-0 sm:border-r-0',
+                )}
+              >
+                <div>
+                  <p className='text-muted-foreground/60 text-[11px] font-medium tracking-wide uppercase'>
+                    {tPlot('stepLabel', { index: i + funnel.steps.length + 1 })}
+                  </p>
                 </div>
-              )}
+                <h4 className='text-foreground/70 truncate text-sm font-semibold'>{step.name}</h4>
+              </div>
+              <div
+                className={cn(
+                  'hidden w-full pt-2 sm:flex',
+                  fill ? 'sm:flex-1' : 'h-40',
+                )}
+              >
+                <HorizontalProgress percentage={1} isFirst={false} isLast={i === emptySteps.length - 1} />
+                {i < emptySteps.length - 1 && <HorizontalConnector previousPercentage={1} currentPercentage={1} />}
+              </div>
+              <div className='flex h-40 w-40 flex-col sm:hidden'>
+                <VerticalProgress percentage={1} />
+                {i < emptySteps.length - 1 && <VerticalConnector previousPercentage={1} currentPercentage={1} />}
+              </div>
+              <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-full sm:flex-row'>
+                <div className='flex h-20 w-20 flex-col items-center p-2 sm:h-full sm:w-1/2'></div>
+                {i < emptySteps.length - 1 ? (
+                  <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center rounded-sm p-2 sm:h-full sm:w-1/2'></div>
+                ) : (
+                  <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-1/2'>
+                    <p className='text-muted-foreground/75 text-xs'>{tPlot('conversion')}</p>
+                    <p className='text-md text-foreground/75 font-semibold'>{formatPercentage(0, locale)}</p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -83,18 +160,27 @@ function FunnelStep({
   index,
   funnel,
   hasEmptySteps,
+  fill,
 }: {
   step: PresentedFunnel['steps'][number];
   index: number;
   funnel: PresentedFunnel;
   hasEmptySteps: boolean;
+  fill: boolean;
 }) {
-  const tFilters = useTranslations('components.filters');
+  const locale = useLocale();
   const tPlot = useTranslations('components.funnels.plot');
   return (
     <Tooltip key={index} delayDuration={0}>
       <TooltipTrigger asChild>
-        <div className='bg-card hover:bg-primary/[0.02] group-hover/steps:[&:not(:hover)]:bg-background/30 group/step flex h-40 flex-row-reverse transition-all duration-200 ease-out sm:h-auto sm:w-50 sm:flex-col group-hover/steps:[&:not(:hover)]:opacity-60'>
+        <div
+          className={cn(
+            'group/step flex h-40 flex-row-reverse sm:h-auto sm:flex-col',
+            fill ? 'sm:min-w-40 sm:flex-1' : 'sm:w-50',
+            'bg-card hover:bg-primary/[0.02] transition-all duration-200 ease-out',
+            'group-hover/steps:[&:not(:hover)]:bg-background/30 group-hover/steps:[&:not(:hover)]:opacity-60',
+          )}
+        >
           <div
             className={cn(
               'border-border/50 w-35 border-b px-3 pt-2.5 pb-1.5 sm:w-full sm:border-r sm:border-b-0',
@@ -110,7 +196,8 @@ function FunnelStep({
           </div>
           <div
             className={cn(
-              'hidden h-40 w-full pt-2 sm:flex',
+              'hidden w-full pt-2 sm:flex',
+              fill ? 'sm:flex-1' : 'h-40',
               index === funnel.steps.length - 1 &&
                 'dark:border-muted/40 border-muted-foreground/10 border-r-2 border-dashed',
             )}
@@ -136,17 +223,19 @@ function FunnelStep({
               />
             )}
           </div>
-          <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-50 sm:flex-row'>
-            <div className='flex h-20 w-20 flex-col items-center justify-center gap-0.5 p-2 sm:h-full sm:w-25'>
+          <div className='flex h-40 w-20 flex-col sm:h-20 sm:w-full sm:flex-row'>
+            <div className='flex h-20 w-20 flex-col items-center justify-center gap-0.5 p-2 sm:h-full sm:w-1/2'>
               <p className='text-muted-foreground text-xs'>{tPlot('visitors')}</p>
-              <p className='text-md font-semibold'>{formatNumber(step.visitors)}</p>
-              <p className='text-muted-foreground/80 text-xs'>{formatPercentage(100 * step.visitorsRatio)}</p>
+              <p className='text-md font-semibold'>{formatNumber(step.visitors, locale)}</p>
+              <p className='text-muted-foreground/80 text-xs'>
+                {formatPercentage(100 * step.visitorsRatio, locale)}
+              </p>
             </div>
             {index < funnel.steps.length - 1 || hasEmptySteps ? (
-              <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
+              <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-1/2'>
                 <p className='text-muted-foreground text-xs'>{tPlot('dropOff')}</p>
                 <p className='text-md font-semibold'>
-                  {step.dropoffCount <= 0 ? '0' : `-${formatNumber(step.dropoffCount)}`}
+                  {step.dropoffCount <= 0 ? '0' : `-${formatNumber(step.dropoffCount, locale)}`}
                 </p>
                 <div className='flex items-center gap-0.5'>
                   {step.dropoffCount <= 0 ? (
@@ -154,25 +243,30 @@ function FunnelStep({
                   ) : (
                     <>
                       <ChevronDown className='text-trend-down h-2.5 w-2.5' fill='currentColor' />
-                      <p className='text-trend-down text-xs'>{formatPercentage(100 * step.dropoffRatio)}</p>
+                      <p className='text-trend-down text-xs'>
+                        {formatPercentage(100 * step.dropoffRatio, locale)}
+                      </p>
                     </>
                   )}
                 </div>
               </div>
             ) : (
-              <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-25'>
+              <div className='dark:bg-background/30 bg-muted/40 flex h-20 w-20 flex-col items-center justify-center rounded-sm p-2 sm:h-full sm:w-1/2'>
                 <p className='text-muted-foreground text-xs'>{tPlot('conversion')}</p>
-                <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio)}</p>
+                <p className='text-md font-semibold'>{formatPercentage(100 * step.visitorsRatio, locale)}</p>
               </div>
             )}
           </div>
         </div>
       </TooltipTrigger>
       <TooltipContent sideOffset={8} className='bg-popover border shadow-xl'>
-        <div className='space-y-0 text-center'>
-          <p className='text-popover-foreground rounded-md p-2 font-medium'>
-            {formatQueryFilter(step.step, tFilters)}
-          </p>
+        <div className='text-popover-foreground flex flex-wrap items-center gap-1 rounded-md p-2 font-medium'>
+          {step.step.filters.map((filter, i) => (
+            <React.Fragment key={filter.id}>
+              {i > 0 && <span className='text-muted-foreground/80'>{tPlot('and')}</span>}
+              <FilterDescription filter={filter} />
+            </React.Fragment>
+          ))}
         </div>
       </TooltipContent>
     </Tooltip>
@@ -251,7 +345,7 @@ function HorizontalProgress({
   isLast: boolean;
 }) {
   return (
-    <div className='relative flex h-full w-25 flex-col justify-end'>
+    <div className='relative flex h-full w-1/2 flex-col justify-end'>
       <div
         className={cn(
           'from-primary via-primary/80 to-primary/55 group-hover/step:to-primary/70 w-full bg-gradient-to-b transition-colors duration-200 ease-out',
@@ -303,7 +397,7 @@ function HorizontalConnector({
   `;
 
   return (
-    <div ref={ref} className='relative h-full w-25'>
+    <div ref={ref} className='relative h-full w-1/2'>
       {width > 0 && height > 0 && (
         <svg
           className='fill-primary/35 group-hover/step:fill-primary/50 absolute inset-0 transition-colors duration-200 ease-out'

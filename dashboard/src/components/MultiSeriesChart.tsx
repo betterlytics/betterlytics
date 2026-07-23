@@ -12,11 +12,13 @@ import {
   ReferenceArea,
 } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
 import { cn } from '@/lib/utils';
 
 interface ChartDataPoint {
@@ -53,9 +55,10 @@ export interface YReferenceAreaConfig {
 
 interface MultiSeriesChartProps {
   title: React.ReactNode;
+  loading?: boolean;
   data: ChartDataPoint[];
   granularity?: GranularityRangeValues;
-  formatValue?: (value: number) => string;
+  formatValue?: (value: number, locale?: SupportedLanguages) => string;
   series: ReadonlyArray<MultiSeriesConfig>;
   referenceAreas?: Array<ReferenceAreaConfig>;
   yReferenceAreas?: Array<YReferenceAreaConfig>;
@@ -77,6 +80,7 @@ interface MultiSeriesChartProps {
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
   ({
     title,
+    loading,
     data,
     granularity,
     formatValue,
@@ -95,10 +99,10 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
-        const text = formatValue ? formatValue(value) : value.toLocaleString();
+        const text = formatValue ? formatValue(value, locale) : value.toLocaleString(locale);
         return typeof text === 'string' ? text.replace(/\s/g, '\u00A0') : text;
       };
-    }, [formatValue]);
+    }, [formatValue, locale]);
     const isMobile = useIsMobile();
 
     return (
@@ -114,6 +118,11 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
 
         <CardContent className={cn('p-0', contentClassName)}>
           {headerContent && <div className='mb-2 p-0 sm:px-4'>{headerContent}</div>}
+          {loading ? (
+            <div className='relative h-80 py-1 sm:px-2 md:px-4'>
+              <Skeleton className='h-80 w-full' />
+            </div>
+          ) : (
           <div className='h-80 overflow-hidden py-1 md:px-4'>
             <ResponsiveContainer width='100%' height='100%' className='mt-0'>
               <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }}>
@@ -204,6 +213,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
               </ComposedChart>
             </ResponsiveContainer>
           </div>
+          )}
         </CardContent>
       </Card>
     );

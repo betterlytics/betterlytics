@@ -1,16 +1,16 @@
 'use client';
 
-import { getFilterOptionsAction } from '@/app/actions/analytics/filters.actions';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { trpc } from '@/trpc/client';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useQuery } from '@tanstack/react-query';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
 import { subDays } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const SEARCH_LIMIT = 5000;
 const EXTENDED_RANGE_DAYS = 30;
+const EMPTY_OPTIONS: string[] = [];
 
 type SearchMetadataResult = {
   shouldUseServerSearch: boolean;
@@ -21,23 +21,21 @@ type UseQueryFilterSearchOptions = {
 };
 
 export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilterSearchOptions) {
-  const { startDate: dashboardStartDate, endDate: dashboardEndDate } = useTimeRangeContext();
+  const baseQuery = useAnalyticsQuery();
 
   // When useExtendedRange is true, it uses a range of minimum 30 days
-  const { startDate, endDate } = useMemo(() => {
+  const query = useMemo(() => {
     if (!options?.useExtendedRange) {
-      return { startDate: dashboardStartDate, endDate: dashboardEndDate };
+      return baseQuery;
     }
 
-    const now = new Date();
-    const extendedStartDate = subDays(now, EXTENDED_RANGE_DAYS);
+    const extendedStartDate = subDays(baseQuery.endDate, EXTENDED_RANGE_DAYS);
 
     const effectiveStartDate =
-      dashboardStartDate && dashboardStartDate < extendedStartDate ? dashboardStartDate : extendedStartDate;
-    const effectiveEndDate = dashboardEndDate && dashboardEndDate > now ? dashboardEndDate : now;
+      baseQuery.startDate && baseQuery.startDate < extendedStartDate ? baseQuery.startDate : extendedStartDate;
 
-    return { startDate: effectiveStartDate, endDate: effectiveEndDate };
-  }, [options?.useExtendedRange, dashboardStartDate, dashboardEndDate]);
+    return { ...baseQuery, startDate: effectiveStartDate };
+  }, [options?.useExtendedRange, baseQuery]);
 
   const dashboardId = useDashboardId();
 
@@ -58,20 +56,20 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     return searchMetadataResult === null || searchMetadataResult.shouldUseServerSearch;
   }, [searchMetadataResult]);
 
-  const { data: fetchedOptions = [], isLoading } = useQuery({
-    queryKey: ['filter-options', filter.column, startDate?.toString(), endDate?.toString(), debouncedSearch],
-    queryFn: () =>
-      getFilterOptionsAction(dashboardId, {
-        startDate,
-        endDate,
-        column: filter.column,
-        search: isDirty ? debouncedSearch || undefined : undefined,
-        limit: SEARCH_LIMIT,
-      }),
-    staleTime: 5 * 60 * 1000,
-    gcTime: 5 * 60 * 1000,
-    enabled: shouldSearchServer,
-  });
+  const { data: fetchedOptions = EMPTY_OPTIONS, isLoading } = trpc.filters.getFilterOptions.useQuery(
+    {
+      dashboardId,
+      query,
+      column: filter.column,
+      search: isDirty ? debouncedSearch || undefined : undefined,
+      limit: SEARCH_LIMIT,
+    },
+    {
+      staleTime: 5 * 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+      enabled: shouldSearchServer,
+    },
+  );
 
   useEffect(() => {
     setSearchMetadataResult(null);

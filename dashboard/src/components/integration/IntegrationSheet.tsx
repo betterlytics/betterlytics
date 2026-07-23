@@ -210,23 +210,25 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
                     </CardHeader>
                     <CardContent className='space-y-2'>
                       <ExternalLink
-                        href='/docs'
+                        href='https://betterlytics.io/docs'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> {t('documentation')}
                       </ExternalLink>
                       <ExternalLink
-                        href='/docs/troubleshooting'
+                        href='https://betterlytics.io/docs/troubleshooting'
                         className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
                       >
                         <Info className='mr-2 h-4 w-4' /> {t('troubleshooting')}
                       </ExternalLink>
-                      <ExternalLink
-                        href='/contact'
-                        className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
-                      >
-                        <Info className='mr-2 h-4 w-4' /> {t('contactSupport')}
-                      </ExternalLink>
+                      {IS_CLOUD && (
+                        <ExternalLink
+                          href='/contact'
+                          className='flex items-center text-sm text-blue-500 hover:text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300'
+                        >
+                          <Info className='mr-2 h-4 w-4' /> {t('contactSupport')}
+                        </ExternalLink>
+                      )}
                     </CardContent>
                   </Card>
                 </div>

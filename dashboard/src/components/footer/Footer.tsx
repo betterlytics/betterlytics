@@ -60,7 +60,7 @@ export async function Footer() {
             <ul className='text-muted-foreground space-y-2 text-sm'>
               <li>
                 <ExternalLink
-                  href='/docs'
+                  href='https://betterlytics.io/docs'
                   title={t('documentation')}
                   className='hover:text-foreground transition-colors'
                 >
@@ -81,6 +81,15 @@ export async function Footer() {
                 <Link href='/pricing' className='hover:text-foreground transition-colors'>
                   {t('pricing')}
                 </Link>
+              </li>
+              <li>
+                <ExternalLink
+                  href='https://status.betterlytics.io'
+                  title={t('status')}
+                  className='hover:text-foreground transition-colors'
+                >
+                  {t('status')}
+                </ExternalLink>
               </li>
             </ul>
           </div>

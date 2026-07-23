@@ -1,6 +1,8 @@
 'use client';
 
 import { cn } from '@/lib/utils';
+import { useLocale } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 interface MultiLineChartTooltipProps {
   payload?: Array<{
@@ -10,7 +12,7 @@ interface MultiLineChartTooltipProps {
     name?: string;
     payload: { date: string | number; name?: string; label?: string; color?: string; value: number[] };
   }>;
-  formatter?: (value: any) => string;
+  formatter?: (value: number, locale?: SupportedLanguages) => string;
   labelFormatter: (date: any) => string;
   active?: boolean;
   label?: Date;
@@ -25,6 +27,7 @@ export function MultiLineChartTooltip({
   labelFormatter,
   className,
 }: MultiLineChartTooltipProps) {
+  const locale = useLocale();
   if (!active || !payload || !payload.length) {
     return null;
   }
@@ -63,7 +66,7 @@ export function MultiLineChartTooltip({
       <div className='space-y-2'>
         {sorted.map((item) => {
           const labelText = item.name ?? item.dataKey;
-          const valueContent = formatter ? formatter(item.value) : item.value;
+          const valueContent = formatter ? formatter(item.value, locale) : item.value;
           return (
             <div key={String(item.dataKey)} className='flex items-center justify-between text-sm'>
               <div className='flex items-center gap-2'>

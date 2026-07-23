@@ -16,6 +16,7 @@ import {
   LogOut,
   ExternalLink as ExternalLinkIcon,
   LayoutDashboard,
+  ArrowUpCircle,
   CreditCard,
   Bug,
 } from 'lucide-react';
@@ -31,6 +32,9 @@ import { useIsEmbedded } from '@/hooks/use-is-embedded';
 import { ChangelogModal } from '@/components/changelog/ChangelogModal';
 import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { useBillingFlow } from '@/contexts/BillingFlowProvider';
+import { useBillingData } from '@/hooks/useBillingData';
+import { cn } from '@/lib/utils';
 import { Link as LocaleLink } from '@/i18n/navigation';
 
 export default function BATopbar() {
@@ -45,7 +49,6 @@ export default function BATopbar() {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
   const isBillingEnabled = isFeatureFlagEnabled('enableBilling');
-  const isCloud = isFeatureFlagEnabled('isCloud');
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -125,20 +128,13 @@ export default function BATopbar() {
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
+                      {isBillingEnabled && <UpgradePlanEntry />}
                       <DropdownMenuItem asChild className='cursor-pointer'>
                         <NextLink href='/dashboards'>
                           <LayoutDashboard className='mr-2 h-4 w-4' />
                           <span>{t('dashboards')}</span>
                         </NextLink>
                       </DropdownMenuItem>
-                      {isBillingEnabled && (
-                        <DropdownMenuItem asChild className='cursor-pointer'>
-                          <NextLink href='/billing'>
-                            <CreditCard className='mr-2 h-4 w-4' />
-                            <span>{t('upgradePlan')}</span>
-                          </NextLink>
-                        </DropdownMenuItem>
-                      )}
                       <DropdownMenuItem onClick={handleSettingsClick} className='cursor-pointer'>
                         <Settings className='mr-2 h-4 w-4' />
                         <span>{t('settings')}</span>
@@ -153,14 +149,12 @@ export default function BATopbar() {
                         </DropdownMenuItem>
                       )}
 
-                      {isCloud && (
-                        <DropdownMenuItem asChild className='cursor-pointer'>
-                          <ExternalLink href='/docs' title={t('documentationTitle')}>
-                            <ExternalLinkIcon className='mr-2 h-4 w-4' />
-                            <span>{t('documentation')}</span>
-                          </ExternalLink>
-                        </DropdownMenuItem>
-                      )}
+                      <DropdownMenuItem asChild className='cursor-pointer'>
+                        <ExternalLink href='https://betterlytics.io/docs' title={t('documentationTitle')}>
+                          <ExternalLinkIcon className='mr-2 h-4 w-4' />
+                          <span>{t('documentation')}</span>
+                        </ExternalLink>
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={handleSignOut} className='cursor-pointer'>
                         <LogOut className='mr-2 h-4 w-4' />
                         <span>{t('logout')}</span>
@@ -177,5 +171,32 @@ export default function BATopbar() {
       {session && <UserSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />}
       {isBugReportsEnabled && <BugReportDialog open={showBugReportDialog} onOpenChange={setShowBugReportDialog} />}
     </>
+  );
+}
+
+function UpgradePlanEntry() {
+  const t = useTranslations('components.topbar.userMenu');
+  const { openPlanPicker } = useBillingFlow();
+  const { billingData } = useBillingData();
+
+  if (!billingData) {
+    return null;
+  }
+
+  const isPaid = billingData.isExistingPaidSubscriber;
+  const Icon = isPaid ? CreditCard : ArrowUpCircle;
+
+  return (
+    <DropdownMenuItem
+      onClick={openPlanPicker}
+      className={cn(
+        'cursor-pointer',
+        !isPaid &&
+          'font-medium text-blue-600 focus:bg-blue-500/10 focus:text-blue-600 dark:text-blue-400 dark:focus:text-blue-400',
+      )}
+    >
+      <Icon className={cn('mr-2 h-4 w-4', !isPaid && 'text-blue-600 dark:text-blue-400')} />
+      <span>{t('upgradePlan')}</span>
+    </DropdownMenuItem>
   );
 }

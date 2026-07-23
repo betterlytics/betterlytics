@@ -1,29 +1,28 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { JourneyTransition, JourneyTransitionSchema } from '@/entities/analytics/userJourney.entities';
-import { DateTimeString } from '@/types/dates';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BAQuery } from '@/lib/ba-query';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 /**
  * Gets aggregated link transitions suitable for Sankey without client-side path expansion.
  * Each row represents a transition between consecutive steps (depth preserved).
  */
 export async function getUserJourneyTransitions(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
+  siteQuery: BASiteQuery,
   maxPathLength: number = 3,
   limit: number = 50,
-  queryFilters: QueryFilter[],
 ): Promise<JourneyTransition[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
   const query = safeSql`
     WITH ordered_events AS (
       SELECT
         session_id,
-        arraySort(x -> x.1, groupArray((timestamp, url))) AS sorted_tuples
-      FROM analytics.events
+        arraySort(x -> x.1, groupArray((timestamp, url))) AS sorted_tuples,
+        any(_sample_factor) as _sample_factor
+      FROM analytics.events ${sample}
       WHERE
         site_id = {site_id:String}
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -46,11 +45,12 @@ export async function getUserJourneyTransitions(
             1,
             {max_length:UInt8}
           )
-        ) AS path
+        ) AS path,
+        _sample_factor
       FROM ordered_events
     ),
     filtered_paths AS (
-      SELECT path
+      SELECT path, _sample_factor
       FROM session_paths
       WHERE length(path) > 1
     ),
@@ -58,7 +58,8 @@ export async function getUserJourneyTransitions(
     top_paths AS (
       SELECT
         path,
-        COUNT(*) AS path_count
+        COUNT(*) AS path_count,
+        any(_sample_factor) as _sample_factor
       FROM filtered_paths
       GROUP BY path
       ORDER BY path_count DESC
@@ -70,7 +71,7 @@ export async function getUserJourneyTransitions(
       path[i + 1] AS target,
       (i - 1)     AS source_depth,
       i           AS target_depth,
-      SUM(path_count) AS value
+      SUM(path_count) * any(_sample_factor) AS value
     FROM top_paths
     ARRAY JOIN arrayEnumerate(path) AS i
     WHERE i < length(path)
@@ -83,8 +84,8 @@ export async function getUserJourneyTransitions(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start: startDate,
-        end: endDate,
+        start: startDateTime,
+        end: endDateTime,
         max_length: maxPathLength,
         limit,
       },

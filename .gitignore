@@ -61,7 +61,7 @@ Thumbs.db
 node_modules
 
 # GeoLite
-/backend/assets/geoip/GeoLite2-Country.mmdb
+/backend/assets/geoip/*.mmdb
 
 # Docker volumnes
 /data/
@@ -70,3 +70,12 @@ node_modules
 # Backups
 /postgresbackups
 /clickhousebackups
+
+# AI
+/ai-development/
+.claude/
+.codex/
+CLAUDE.local.md
+
+# bl-wt parallel worktree manager
+.bl-worktrees.json

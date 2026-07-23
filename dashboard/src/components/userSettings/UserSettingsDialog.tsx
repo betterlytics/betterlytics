@@ -1,265 +1,267 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import {
+  ArrowUpCircle,
+  ArrowUpRight,
+  Bug,
+  BookOpen,
+  CreditCard,
+  HelpCircle,
+  Mail,
+  Settings,
+  User,
+} from 'lucide-react';
+import UserAccountSettings from '@/components/userSettings/account/UserAccountSettings';
+import UserPreferencesSettings from '@/components/userSettings/preferences/UserPreferencesSettings';
+import UserBillingSettings from '@/components/userSettings/billing/UserBillingSettings';
+import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings, Shield, AlertTriangle, Loader2, Save, BarChart3, Receipt, User } from 'lucide-react';
-import { useUserSettings } from '@/hooks/useUserSettings';
-import { UserSettings, UserSettingsUpdate } from '@/entities/account/userSettings.entities';
-import { toast } from 'sonner';
-import UserProfileSettings from '@/components/userSettings/UserProfileSettings';
-import UserPreferencesSettings from '@/components/userSettings/UserPreferencesSettings';
-import UserSecuritySettings from '@/components/userSettings/UserSecuritySettings';
-import UserDangerZoneSettings from '@/components/userSettings/UserDangerZoneSettings';
-import UserUsageSettings from '@/components/userSettings/UserUsageSettings';
-import UserBillingHistory from '@/components/userSettings/UserBillingHistory';
-import { Spinner } from '../ui/spinner';
-import { useSessionRefresh } from '@/hooks/use-session-refresh';
-import useIsChanged from '@/hooks/use-is-changed';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import ExternalLink from '@/components/ExternalLink';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
-import { useRouter } from 'next/navigation';
+import { useBillingFlow } from '@/contexts/BillingFlowProvider';
+import { useBillingData } from '@/hooks/useBillingData';
+import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
-import type { Theme } from '@prisma/client';
+import { cn } from '@/lib/utils';
 
 interface UserSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-interface UserSettingsTabConfig {
+interface TabConfig {
   id: string;
   label: string;
   icon: React.ElementType;
-  component: React.ComponentType<{
-    formData: UserSettingsUpdate;
-    onUpdate: (updates: Partial<UserSettingsUpdate>) => void;
-    onCloseDialog?: () => void;
-  }>;
+  render: (props: { closeDialog: () => void }) => React.ReactNode;
   disabled?: boolean;
 }
 
+const DESKTOP_TAB_CLASSES = cn(
+  'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
+  'data-[state=active]:bg-accent data-[state=active]:text-accent-foreground',
+  'flex h-auto w-full flex-none cursor-pointer items-center justify-start gap-2.5 rounded-md border-0 px-3 py-2 text-sm font-medium transition-colors data-[state=active]:shadow-none',
+);
+
+const MOBILE_TAB_CLASSES = cn(
+  'text-muted-foreground hover:text-foreground bg-transparent dark:bg-transparent',
+  'data-[state=active]:text-foreground data-[state=active]:bg-transparent dark:data-[state=active]:bg-transparent',
+  'data-[state=active]:border-foreground dark:data-[state=active]:border-foreground border-x-0 border-t-0 border-b-2 border-transparent',
+  'flex flex-none flex-shrink-0 cursor-pointer items-center gap-2 rounded-none px-3 py-3 text-sm font-medium shadow-none transition-colors data-[state=active]:shadow-none',
+);
+
 export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
-  const { settings, isLoading, isSaving, error, saveSettings } = useUserSettings();
   const tDialog = useTranslations('components.userSettings.dialog');
 
-  if (isLoading) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <DialogTitle>{tDialog('title')}</DialogTitle>
-          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
-            <Spinner />
-            <p className='text-muted-foreground text-sm'>{tDialog('loading')}</p>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (error) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <DialogTitle>{tDialog('title')}</DialogTitle>
-          <div className='flex flex-col items-center justify-center space-y-3 py-16'>
-            <AlertTriangle className='text-destructive h-8 w-8' />
-            <div className='text-center'>
-              <p className='text-destructive font-medium'>{tDialog('loadFailed')}</p>
-              <p className='text-muted-foreground mt-1 text-sm'>{error}</p>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  if (!settings) {
-    return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className='sm:max-w-[800px] md:min-w-[700px] lg:min-w-[900px]'>
-          <DialogTitle>{tDialog('title')}</DialogTitle>
-          <div className='flex items-center justify-center py-8'>
-            <span>{tDialog('noSettings')}</span>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
-    <UserSettingsDialogContent
-      open={open}
-      onOpenChange={onOpenChange}
-      settings={settings}
-      isSaving={isSaving}
-      saveSettings={saveSettings}
-    />
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='h-[90vh] max-h-[900px] w-[95vw] max-w-[1000px] gap-0 overflow-hidden p-0 sm:max-w-[1000px]'>
+        <DialogHeader className='sr-only'>
+          <DialogTitle>{tDialog('title')}</DialogTitle>
+          <DialogDescription>{tDialog('description')}</DialogDescription>
+        </DialogHeader>
+
+        <UserSettingsDialogContent closeDialog={() => onOpenChange(false)} />
+      </DialogContent>
+    </Dialog>
   );
 }
 
 interface UserSettingsDialogContentProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  settings: UserSettings;
-  isSaving: boolean;
-  saveSettings: (newSettings?: Partial<UserSettingsUpdate>) => Promise<{ success: boolean; error?: string }>;
+  closeDialog: () => void;
 }
 
-function UserSettingsDialogContent({
-  open,
-  onOpenChange,
-  settings,
-  isSaving,
-  saveSettings,
-}: UserSettingsDialogContentProps) {
-  const { setTheme } = useTheme();
-  const [originalTheme] = useState<Theme | undefined>(settings.theme);
+function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentProps) {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
-  const router = useRouter();
   const tTabs = useTranslations('components.userSettings.tabs');
-  const tDialog = useTranslations('components.userSettings.dialog');
+  const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
 
-  const USER_SETTINGS_TABS: UserSettingsTabConfig[] = useMemo(
+  const tabs: TabConfig[] = useMemo(
     () => [
       {
-        id: 'profile',
-        label: tTabs('profile'),
+        id: 'account',
+        label: tTabs('account'),
         icon: User,
-        component: UserProfileSettings,
+        render: () => <UserAccountSettings />,
       },
       {
         id: 'preferences',
         label: tTabs('preferences'),
         icon: Settings,
-        component: UserPreferencesSettings,
-      },
-      {
-        id: 'usage',
-        label: tTabs('usage'),
-        icon: BarChart3,
-        component: UserUsageSettings,
-        disabled: !isFeatureFlagEnabled('enableBilling'),
+        render: () => <UserPreferencesSettings />,
       },
       {
         id: 'billing',
         label: tTabs('billing'),
-        icon: Receipt,
-        component: UserBillingHistory,
+        icon: CreditCard,
         disabled: !isFeatureFlagEnabled('enableBilling'),
-      },
-      {
-        id: 'security',
-        label: tTabs('security'),
-        icon: Shield,
-        component: UserSecuritySettings,
-      },
-      {
-        id: 'danger',
-        label: tTabs('danger'),
-        icon: AlertTriangle,
-        component: UserDangerZoneSettings,
+        render: ({ closeDialog }) => <UserBillingSettings onCloseDialog={closeDialog} />,
       },
     ],
-    [isFeatureFlagEnabled, tTabs],
+    [tTabs, isFeatureFlagEnabled],
   );
 
-  const availableTabs = USER_SETTINGS_TABS.filter((tab) => !tab.disabled);
-  const [activeTab, setActiveTab] = useState(availableTabs[0].id);
-  const [formData, setFormData] = useState<UserSettingsUpdate>({ ...settings });
-  const { refreshSession } = useSessionRefresh();
-  const isFormChanged = useIsChanged(formData, settings);
+  const availableTabs = tabs.filter((tab) => !tab.disabled);
+  const [activeTabId, setActiveTabId] = useState<string>(availableTabs[0].id);
+  const activeTab = availableTabs.find((tab) => tab.id === activeTabId) ?? availableTabs[0];
 
-  useEffect(() => {
-    if (open) {
-      setFormData({ ...settings });
-    }
-  }, [settings, open]);
+  return (
+    <Tabs
+      value={activeTabId}
+      onValueChange={setActiveTabId}
+      orientation='vertical'
+      className='flex h-full min-h-0 flex-col gap-0 md:flex-row'
+    >
+      {/* Desktop sidebar */}
+      <div className='bg-muted/30 hidden h-full w-56 flex-shrink-0 flex-col border-r md:flex'>
+        <div className='flex min-h-0 flex-1 flex-col overflow-y-auto'>
+          <TabsList className='flex h-auto w-full flex-col items-stretch justify-start gap-1 rounded-none bg-transparent px-2 pt-4 pb-2'>
+            {availableTabs.map((tab) => (
+              <TabTriggerItem key={tab.id} tab={tab} className={DESKTOP_TAB_CLASSES} />
+            ))}
+          </TabsList>
 
-  const handleUpdate = (updates: Partial<UserSettingsUpdate>) => {
-    setFormData((prev) => ({ ...prev, ...updates }));
-  };
+          {isFeatureFlagEnabled('enableBilling') && <SidebarUpgradeLink closeDialog={closeDialog} />}
+        </div>
 
-  const handleSave = async () => {
-    const result = await saveSettings(formData);
-    if (result.success) {
-      await refreshSession();
-      if (formData.language && formData.language !== settings?.language) {
-        router.refresh();
-      }
-      toast.success(tDialog('toast.success'));
-      onOpenChange(false);
-    } else {
-      toast.error(tDialog('toast.error'));
-    }
-  };
+        {PUBLIC_IS_CLOUD && <SidebarHelpPopover />}
+      </div>
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen && originalTheme) {
-      setTheme(originalTheme);
-    }
-    onOpenChange(isOpen);
+      {/* Mobile-only header */}
+      <div className='border-border border-b px-5 py-4 md:hidden'>
+        <h2 className='text-lg font-semibold'>{activeTab.label}</h2>
+      </div>
+
+      {/* Mobile horizontal tab bar */}
+      <TabsList className='border-border flex h-auto w-full flex-shrink-0 justify-start overflow-x-auto rounded-none border-b bg-transparent p-0 px-2 md:hidden'>
+        {availableTabs.map((tab) => (
+          <TabTriggerItem key={tab.id} tab={tab} className={MOBILE_TAB_CLASSES} />
+        ))}
+      </TabsList>
+
+      <ScrollArea className='min-h-0 min-w-0 flex-1'>
+        <div className='px-5 pt-6 pb-8 md:px-8 md:pt-8 md:pb-10'>
+          <h2 className='mb-8 hidden text-2xl font-semibold md:block'>{activeTab.label}</h2>
+          {availableTabs.map((tab) => (
+            <TabsContent key={tab.id} value={tab.id} className='mt-0'>
+              {tab.render({ closeDialog })}
+            </TabsContent>
+          ))}
+        </div>
+      </ScrollArea>
+    </Tabs>
+  );
+}
+
+interface TabTriggerItemProps {
+  tab: TabConfig;
+  className: string;
+}
+
+function TabTriggerItem({ tab, className }: TabTriggerItemProps) {
+  const Icon = tab.icon;
+  return (
+    <TabsTrigger value={tab.id} className={className}>
+      <Icon className='h-4 w-4 flex-shrink-0' />
+      <span>{tab.label}</span>
+    </TabsTrigger>
+  );
+}
+
+function SidebarUpgradeLink({ closeDialog }: { closeDialog: () => void }) {
+  const tDialog = useTranslations('components.userSettings.dialog');
+  const { openPlanPicker } = useBillingFlow();
+  const { billingData } = useBillingData();
+
+  if (!billingData || billingData.isExistingPaidSubscriber) {
+    return null;
+  }
+
+  const handleUpgrade = () => {
+    closeDialog();
+    openPlanPicker();
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='max-h-[80vh] min-w-11/12 overflow-y-auto p-3 sm:p-6 md:max-w-11/12 md:min-w-[700px] lg:max-w-[900px] lg:min-w-[900px]'>
-        <DialogHeader>
-          <DialogTitle>{tDialog('title')}</DialogTitle>
-          <DialogDescription>{tDialog('description')}</DialogDescription>
-        </DialogHeader>
+    <div className='border-border border-t px-2 pt-2'>
+      <Button
+        variant='ghost'
+        onClick={handleUpgrade}
+        className='text-blue-600 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-400 hover:bg-blue-500/10 w-full cursor-pointer justify-start gap-2 font-medium'
+      >
+        <ArrowUpCircle className='h-4 w-4 flex-shrink-0' />
+        <span>{tDialog('upgradePlan')}</span>
+      </Button>
+    </div>
+  );
+}
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className='w-full'>
-          <TabsList className='bg-secondary dark:inset-shadow-background flex w-full gap-1 px-1 inset-shadow-sm'>
-            {availableTabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className='hover:bg-accent text-muted-foreground data-[state=active]:border-border data-[state=active]:bg-background data-[state=active]:text-foreground flex cursor-pointer items-center gap-2 rounded-sm border border-transparent px-3 py-1 text-xs font-medium data-[state=active]:shadow-sm'
-                >
-                  <Icon className='h-4 w-4' />
-                  <span className='hidden lg:inline'>{tab.label}</span>
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+function SidebarHelpPopover() {
+  const tHelp = useTranslations('components.userSettings.dialog.help');
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
+  const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isBugReportOpen, setIsBugReportOpen] = useState(false);
 
-          {availableTabs.map((tab) => {
-            const Component = tab.component;
-            return (
-              <TabsContent key={tab.id} value={tab.id} className='mt-6 min-h-[420px]'>
-                <Component
-                  formData={formData}
-                  onUpdate={handleUpdate}
-                  onCloseDialog={() => handleOpenChange(false)}
-                />
-              </TabsContent>
-            );
-          })}
-        </Tabs>
+  const closeHelp = () => setIsHelpOpen(false);
+  const openBugReport = () => {
+    closeHelp();
+    setIsBugReportOpen(true);
+  };
 
-        <div className='flex justify-end space-x-2 border-t pt-4'>
-          <Button variant='outline' onClick={() => handleOpenChange(false)} className='cursor-pointer'>
-            {tDialog('buttons.cancel')}
-          </Button>
-          <Button onClick={handleSave} disabled={isSaving || !isFormChanged} className='cursor-pointer'>
-            {isSaving ? (
-              <>
-                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                {tDialog('buttons.saving')}
-              </>
-            ) : (
-              <>
-                <Save className='mr-2 h-4 w-4' />
-                {tDialog('buttons.saveChanges')}
-              </>
+  return (
+    <>
+      <div className='px-2 pb-3'>
+        <Popover open={isHelpOpen} onOpenChange={setIsHelpOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type='button'
+              className='text-muted-foreground hover:text-foreground flex w-full cursor-pointer items-center gap-1.5 rounded-md px-3 py-1.5 text-xs transition-colors'
+            >
+              <HelpCircle className='h-3.5 w-3.5 flex-shrink-0' />
+              <span>{tHelp('trigger')}</span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent side='top' align='start' sideOffset={4} className='w-56 p-1'>
+            <ExternalLink
+              href='https://betterlytics.io/docs'
+              target='_blank'
+              rel='noopener noreferrer'
+              className='hover:bg-accent flex items-center gap-2.5 rounded-md px-3 py-2 text-sm no-underline'
+              onClick={closeHelp}
+            >
+              <BookOpen className='h-4 w-4' />
+              <span className='flex-1'>{tHelp('documentation')}</span>
+              <ArrowUpRight className='text-muted-foreground h-3.5 w-3.5' />
+            </ExternalLink>
+            {isBugReportsEnabled && (
+              <button
+                type='button'
+                onClick={openBugReport}
+                className='hover:bg-accent flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm'
+              >
+                <Bug className='h-4 w-4' />
+                <span>{tHelp('reportBug')}</span>
+              </button>
             )}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+            <a
+              href='mailto:support@betterlytics.io'
+              className='hover:bg-accent flex items-center gap-2.5 rounded-md px-3 py-2 text-sm no-underline'
+              onClick={closeHelp}
+            >
+              <Mail className='h-4 w-4' />
+              <span className='flex-1'>{tHelp('contactSupport')}</span>
+              <ArrowUpRight className='text-muted-foreground h-3.5 w-3.5' />
+            </a>
+          </PopoverContent>
+        </Popover>
+      </div>
+      {isBugReportsEnabled && <BugReportDialog open={isBugReportOpen} onOpenChange={setIsBugReportOpen} />}
+    </>
   );
 }

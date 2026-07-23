@@ -20,6 +20,7 @@
     script
       .getAttribute("data-dynamic-urls")
       ?.split(",")
+      .filter(Boolean)
       .map(function (p) {
         p = p.trim();
         return {
@@ -41,6 +42,12 @@
   var enableReplay = script.getAttribute("data-replay") === "true";
   var consentReplay = script.getAttribute("data-consent-replay") === "true";
 
+  var enableErrors = script.getAttribute("data-track-errors") === "true";
+  var enableReplayOnError =
+    script.getAttribute("data-replay-on-error") === "true";
+  var enableConsoleErrors =
+    script.getAttribute("data-track-console-errors") === "true";
+
   var replaySamplePct = parseInt(
     script.getAttribute("data-replay-sample") || "5",
     10,
@@ -50,6 +57,18 @@
     replaySamplePct = 0;
   }
 
+  var initialGlobalProperties = null;
+  var initialGlobalPropertiesRaw = script.getAttribute(
+    "data-global-properties",
+  );
+  if (initialGlobalPropertiesRaw) {
+    try {
+      initialGlobalProperties = JSON.parse(initialGlobalPropertiesRaw);
+    } catch (e) {
+      console.warn("Betterlytics: data-global-properties is not valid JSON", e);
+    }
+  }
+
   if (!siteId) {
     return console.error("Betterlytics: data-site-id attribute missing");
   }
@@ -57,10 +76,12 @@
   // Store current URL for SPA navigation
   var currentPath = window.location.pathname;
 
-  // Scroll depth tracking state
+  var globalProperties = {};
+
+  // Engagement tracking state (duration + scroll depth)
+  var pageStartTime = performance.now();
   var currentUrl = null;
   var maxScrollDepthPx = 0;
-  var lastSentScrollDepthPx = 0;
   var currentDocHeight = 0;
 
   function normalize(url) {
@@ -85,7 +106,6 @@
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
 
-    // Send event data
     fetch(serverUrl, {
       method: "POST",
       keepalive: true,
@@ -102,13 +122,14 @@
         user_agent: userAgent,
         screen_resolution: screenResolution,
         timestamp: Math.floor(Date.now() / 1000),
+        ...(Object.keys(globalProperties).length > 0 && {
+          global_properties: Object.assign({}, globalProperties),
+        }),
         ...overrides,
       }),
     })
       .then((res) => res.text())
-      .catch(function (error) {
-        console.error("Analytics event failed:", error);
-      });
+      .catch(function () {});
   }
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
@@ -121,6 +142,20 @@
         is_custom_event: true,
         properties: JSON.stringify(eventProps),
       }),
+    setGlobalProperties: function (props) {
+      if (props == null || typeof props !== "object" || Array.isArray(props)) {
+        return console.error(
+          "Betterlytics: setGlobalProperties requires a flat object",
+        );
+      }
+      Object.assign(globalProperties, props);
+    },
+    clearGlobalProperties: function () {
+      globalProperties = {};
+    },
+    getGlobalProperties: function () {
+      return Object.assign({}, globalProperties);
+    },
     setReplayConsent: function (consented) {
       var CONSENT_KEY = "betterlytics:replay_consent";
       try {
@@ -144,6 +179,10 @@
       }
     },
   };
+
+  if (initialGlobalProperties !== null) {
+    window.betterlytics.setGlobalProperties(initialGlobalProperties);
+  }
 
   for (var i = 0; i < queuedEvents.length; i++) {
     window.betterlytics.event.apply(this, queuedEvents[i]);
@@ -256,40 +295,51 @@
     }
   }
 
-  function flushScrollDepth(urlOverride) {
-    if (maxScrollDepthPx <= lastSentScrollDepthPx) return;
-
-    lastSentScrollDepthPx = maxScrollDepthPx;
-
-    var percentage = Math.min(
-      100,
-      Math.round((maxScrollDepthPx / currentDocHeight) * 100),
-    );
+  function flushEngagement(urlOverride) {
+    var duration = Math.round((performance.now() - pageStartTime) / 1000);
+    if (duration <= 0 && maxScrollDepthPx <= 0) return;
 
     var overrides = {
-      scroll_depth_percentage: percentage,
-      scroll_depth_pixels: maxScrollDepthPx,
+      page_duration_seconds: duration > 0 ? duration : undefined,
     };
+
+    if (maxScrollDepthPx > 0 && currentDocHeight > 0) {
+      overrides.scroll_depth_percentage = Math.min(
+        100,
+        Math.round((maxScrollDepthPx / currentDocHeight) * 100),
+      );
+      overrides.scroll_depth_pixels = maxScrollDepthPx;
+    }
+
     if (urlOverride) overrides.url = urlOverride;
 
-    sendEvent("scroll_depth", overrides);
+    sendEvent("engagement", overrides);
+
+    // Reset after sending so this function become idempotent: a second consecutive call will compute
+    // duration=0 and scroll=0 and hit the early-return guard above.
+    pageStartTime = performance.now();
+    maxScrollDepthPx = 0;
   }
 
-  function resetScrollDepth() {
+  function resetEngagement() {
+    pageStartTime = performance.now();
     currentUrl = normalize(window.location.href);
     maxScrollDepthPx = 0;
-    lastSentScrollDepthPx = 0;
   }
 
   window.addEventListener("scroll", () => updateScrollDepth(), {
     passive: true,
   });
 
-  document.addEventListener(
-    "visibilitychange",
-    () => document.visibilityState === "hidden" && flushScrollDepth(),
-  );
-  window.addEventListener("pagehide", () => flushScrollDepth());
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") {
+      flushEngagement();
+    } else {
+      pageStartTime = performance.now();
+    }
+  });
+
+  window.addEventListener("pagehide", () => flushEngagement());
 
   // Initialize currentUrl and capture initial viewport
   currentUrl = normalize(window.location.href);
@@ -313,25 +363,23 @@
 
   // Detect SPA navigation
   if (window.history.pushState) {
-    // Override pushState to send navigation
     var originalPushState = history.pushState;
     history.pushState = function () {
-      flushScrollDepth(); // Flush before URL changes (uses current URL)
+      flushEngagement(); // Flush before URL changes (uses current URL)
       originalPushState.apply(this, arguments); // URL changes here
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
-        resetScrollDepth();
+        resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
       }
     };
 
-    // Detect popstate (back/forward navigation)
     window.addEventListener("popstate", function () {
       if (currentPath !== window.location.pathname) {
         currentPath = window.location.pathname;
-        flushScrollDepth(currentUrl); // Pass old URL as override
-        resetScrollDepth();
+        flushEngagement(currentUrl); // Pass old URL as override
+        resetEngagement();
         monitorContentHeight();
         sendEvent("pageview");
       }
@@ -367,7 +415,115 @@
     });
   }
 
-  if (enableReplay) {
+  if (enableErrors || enableReplayOnError) {
+    var errorCounts = {},
+      errorWindowStart = Date.now();
+    function isRateLimited(type) {
+      var now = Date.now();
+      if (now - errorWindowStart > 10000) {
+        errorCounts = {};
+        errorWindowStart = now;
+      }
+      errorCounts[type] = (errorCounts[type] || 0) + 1;
+      return errorCounts[type] > 10;
+    }
+
+    function captureError(err, mechanismType) {
+      var type, value, stack;
+      if (err != null && typeof err === "object") {
+        type = err.name ? String(err.name) : "Error";
+        if (err.message != null) {
+          value = String(err.message);
+        } else {
+          try {
+            value = JSON.stringify(err);
+          } catch (e) {
+            value = String(err);
+          }
+        }
+        stack = err.stack ? String(err.stack).replace(/\?[^:)\s\n]+/g, "") : "";
+      } else {
+        type = "Error";
+        value = err != null ? String(err) : "unknown error";
+        stack = "";
+      }
+      if (
+        /chrome-extension:|moz-extension:|safari-(web-)?extension:/.test(stack)
+      )
+        return;
+      if (isRateLimited(type)) return;
+      var errorExceptionsJson = JSON.stringify([
+        {
+          type: type,
+          value: value.substring(0, 1000),
+          mechanism: mechanismType,
+          stack: stack.substring(0, 10000),
+        },
+      ]);
+      sendEvent("client_error", { error_exceptions: errorExceptionsJson });
+      if (window.__betterlytics_replay__?.notifyError) {
+        window.__betterlytics_replay__.notifyError(type, errorExceptionsJson);
+      }
+    }
+
+    window.addEventListener("error", function (event) {
+      if (!event.error && !event.message) return;
+      captureError(
+        event.error || { name: "Error", message: event.message },
+        "onuncaughtexception",
+      );
+    });
+
+    window.addEventListener("unhandledrejection", function (event) {
+      captureError(
+        event.reason != null
+          ? event.reason
+          : {
+              name: "UnhandledRejection",
+              message: "Promise rejected with no reason",
+            },
+        "onunhandledrejection",
+      );
+    });
+
+    if (enableConsoleErrors) {
+      var _origConsoleError = console.error;
+      var _inConsoleCapture = false;
+      console.error = function () {
+        _origConsoleError.apply(console, arguments);
+        if (_inConsoleCapture) return;
+        _inConsoleCapture = true;
+        try {
+          var args = Array.prototype.slice.call(arguments);
+          var first = args[0];
+          if (first != null && typeof first === "object") {
+            if (!first.name) {
+              first = Object.assign({ name: "ConsoleError" }, first);
+            }
+            captureError(first, "onconsole");
+          } else {
+            captureError(
+              {
+                name: "ConsoleError",
+                message: args
+                  .map(function (a) {
+                    return typeof a === "object"
+                      ? JSON.stringify(a)
+                      : String(a);
+                  })
+                  .join(" "),
+              },
+              "onconsole",
+            );
+          }
+        } finally {
+          _inConsoleCapture = false;
+        }
+      };
+    }
+  }
+
+  if (enableReplay || enableReplayOnError) {
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
     var THIRTY_MIN_MS = 30 * 60 * 1000;
@@ -420,27 +576,29 @@
     function initReplay() {
       if (replayLoaded) return;
 
-      var hasCustomConsent = checkReplayConsent();
+      var hasConsent = checkReplayConsent();
+      if (!hasConsent) return;
 
-      if (hasCustomConsent) {
-        if (shouldSample()) {
-          replayLoaded = true;
-          loadScript(`${scriptsBaseUrl}/replay.js`);
-        }
+      var sampled = enableReplay && shouldSample();
+      var shouldLoadForError = enableReplayOnError;
+
+      if (sampled || shouldLoadForError) {
+        window.__betterlytics_replay_sampled__ = sampled;
+        replayLoaded = true;
+        loadScript(`${scriptsBaseUrl}/replay.js`);
       }
     }
 
     replayConsentCallbacks.push(function (consented) {
-      if (consented && !replayLoaded && shouldSample()) {
-        replayLoaded = true;
-        loadScript(`${scriptsBaseUrl}/replay.js`);
-      } else if (!consented && replayLoaded && window.__betterlytics_replay__) {
-        if (
-          window.__betterlytics_replay__.stop &&
-          typeof window.__betterlytics_replay__.stop === "function"
-        ) {
-          window.__betterlytics_replay__.stop();
+      if (consented && !replayLoaded) {
+        var sampled = enableReplay && shouldSample();
+        if (sampled || enableReplayOnError) {
+          window.__betterlytics_replay_sampled__ = sampled;
+          replayLoaded = true;
+          loadScript(`${scriptsBaseUrl}/replay.js`);
         }
+      } else if (!consented && replayLoaded) {
+        window.__betterlytics_replay__?.stop();
       }
     });
 

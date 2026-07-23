@@ -45,25 +45,18 @@ export const ReferrerTableRowSchema = z.object({
   avg_visit_duration: z.number().min(0),
 });
 
-export const TopReferrerUrlSchema = z.object({
-  referrer_url: z.string(),
-  visits: z.number().int(),
+const rollupToBoolean = (val: unknown): boolean => Number(val) === 1;
+
+export const ReferrerUrlRollupRowSchema = z.object({
+  source_name: z.string(),
+  referrer_url: z.string().nullable(),
+  visitors: z.number(),
+  is_rollup: z.preprocess(rollupToBoolean, z.boolean()),
 });
 
 export const TopChannelSchema = z.object({
   channel: z.string(),
   visits: z.number().int(),
-});
-
-export const TopReferrerSourceSchema = z.object({
-  referrer_source: z.string(),
-  visits: z.number().int(),
-});
-
-export const TrafficSourcesCombinedSchema = z.object({
-  topReferrerUrls: z.array(TopReferrerUrlSchema),
-  topReferrerSources: z.array(TopReferrerSourceSchema),
-  topChannels: z.array(TopChannelSchema),
 });
 
 export type ReferrerSourceAggregation = z.infer<typeof ReferrerSourceAggregationSchema>;
@@ -73,7 +66,5 @@ export type DailyReferralPercentageRow = z.infer<typeof DailyReferralPercentageR
 export type DailyReferralSessionDurationRow = z.infer<typeof DailyReferralSessionDurationRowSchema>;
 export type ReferrerSummaryWithCharts = z.infer<typeof ReferrerSummaryWithChartsSchema>;
 export type ReferrerTableRow = z.infer<typeof ReferrerTableRowSchema>;
-export type TopReferrerUrl = z.infer<typeof TopReferrerUrlSchema>;
+export type ReferrerUrlRollupRow = z.infer<typeof ReferrerUrlRollupRowSchema>;
 export type TopChannel = z.infer<typeof TopChannelSchema>;
-export type TopReferrerSource = z.infer<typeof TopReferrerSourceSchema>;
-export type TrafficSourcesCombined = z.infer<typeof TrafficSourcesCombinedSchema>;

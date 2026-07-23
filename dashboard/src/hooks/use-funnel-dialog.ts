@@ -1,10 +1,10 @@
 import { useDebounce } from '@/hooks/useDebounce';
 import { useCallback, useMemo, useState } from 'react';
 import { useFunnelSteps } from '@/hooks/use-funnel-steps';
-import { useQuery } from '@tanstack/react-query';
-import { fetchFunnelPreviewAction } from '@/app/actions/index.actions';
+import { trpc } from '@/trpc/client';
+import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
+import { useQueryState } from '@/hooks/use-query-state';
 import type { FunnelStep } from '@/entities/analytics/funnels.entities';
-import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 
 export type FunnelMetadata = {
   name: string;
@@ -17,6 +17,10 @@ type UseFunnelDialogOptions = {
   initialIsStrict?: boolean;
   initialSteps?: FunnelStep[];
 };
+
+const isStepSearchable = (step: FunnelStep) =>
+  step.filters.length > 0 &&
+  step.filters.every((f) => Boolean(f.column) && Boolean(f.operator) && f.values.length > 0);
 
 export function useFunnelDialog({
   dashboardId,
@@ -31,57 +35,56 @@ export function useFunnelDialog({
     isStrict: initialIsStrict,
   });
   const debouncedFunnelSteps = useDebounce(funnelSteps, 500);
+  const analyticsQuery = useAnalyticsQuery();
 
   const searchableFunnelSteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.values.length)),
-    );
+    const findFilterableIndex = debouncedFunnelSteps.findIndex((step) => !isStepSearchable(step));
 
     const steps =
       findFilterableIndex === -1 ? debouncedFunnelSteps : debouncedFunnelSteps.slice(0, findFilterableIndex);
 
-    return steps.map((step) => ({
-      ...step,
-      name: '',
-    }));
+    return steps.map((step) => (step.name === '' ? step : { ...step, name: '' }));
   }, [debouncedFunnelSteps]);
 
-  const { startDate, endDate } = useTimeRangeContext();
-
-  const { data: funnelPreviewData, isLoading: isPreviewLoading } = useQuery({
-    queryKey: ['funnelPreview', dashboardId, startDate, endDate, searchableFunnelSteps, metadata.isStrict],
-    queryFn: async () => {
-      return fetchFunnelPreviewAction(dashboardId, startDate, endDate, searchableFunnelSteps, metadata.isStrict);
-    },
-    enabled: searchableFunnelSteps.length >= 2,
-  });
+  const previewQuery = trpc.funnels.preview.useQuery(
+    { dashboardId, query: analyticsQuery, funnelSteps: searchableFunnelSteps, isStrict: metadata.isStrict },
+    { enabled: searchableFunnelSteps.length >= 2 },
+  );
+  const {
+    data: funnelPreviewData,
+    loading: previewLoading,
+    refetching: previewRefetching,
+  } = useQueryState(previewQuery, searchableFunnelSteps.length >= 2);
 
   const funnelPreview = useMemo(() => {
     if (!funnelPreviewData) return null;
+    const stepNamesById = new Map(debouncedFunnelSteps.map((s) => [s.id, s.name]));
     return {
       ...funnelPreviewData,
       steps: funnelPreviewData.steps.map((step) => ({
         ...step,
         step: {
           ...step.step,
-          name: debouncedFunnelSteps.find((s) => s.id === step.step.id)?.name || ' - ',
+          name: stepNamesById.get(step.step.id) || ' - ',
         },
       })),
     };
   }, [funnelPreviewData, debouncedFunnelSteps]);
 
   const emptySteps = useMemo(() => {
-    const findFilterableIndex = debouncedFunnelSteps.findIndex(
-      (step) => false === (Boolean(step.column) && Boolean(step.operator) && Boolean(step.values.length)),
-    );
-
-    const steps = findFilterableIndex === -1 ? [] : debouncedFunnelSteps.slice(findFilterableIndex);
-
-    return steps.map((step) => ({
+    const firstEmpty = debouncedFunnelSteps.findIndex((step) => !isStepSearchable(step));
+    if (firstEmpty === -1) return [];
+    return debouncedFunnelSteps.slice(firstEmpty).map((step) => ({
       ...step,
-      name: debouncedFunnelSteps.find((s) => s.id === step.id)?.name || ' - ',
+      name: step.name || ' - ',
     }));
   }, [debouncedFunnelSteps]);
+
+  const previewStatus: 'empty' | 'loading' | 'data' = useMemo(() => {
+    if (searchableFunnelSteps.length < 2) return 'empty';
+    if (previewLoading || !funnelPreview) return 'loading';
+    return 'data';
+  }, [searchableFunnelSteps.length, previewLoading, funnelPreview]);
 
   const setName = useCallback((name: string) => {
     setMetadata((prev) => ({ ...prev, name }));
@@ -114,7 +117,8 @@ export function useFunnelDialog({
     searchableFunnelSteps,
     funnelPreview,
     emptySteps,
-    isPreviewLoading,
+    previewStatus,
+    previewRefetching,
     reset,
     setFunnelSteps,
   };

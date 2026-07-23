@@ -1,0 +1,104 @@
+'use client';
+
+import { useCallback, useRef, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { type StatusPageWithMonitors } from '@/entities/analytics/statusPage/statusPage.entities';
+import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
+import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
+import {
+  useDeleteStatusPageMutation,
+  useSetStatusPagePublishedMutation,
+} from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageMutations';
+import { updateStatusPageAction } from '@/app/actions/analytics/statusPage.actions';
+
+type UseStatusPageEditorArgs = {
+  dashboardId: string;
+  statusPage: StatusPageWithMonitors;
+  form: StatusPageFormState;
+  markSaved: () => void;
+  closeStudio: () => void;
+};
+
+export function useStatusPageEditor({
+  dashboardId,
+  statusPage,
+  form,
+  markSaved,
+  closeStudio,
+}: UseStatusPageEditorArgs) {
+  const t = useTranslations('statusPagesPage.editor');
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { resolveHref } = useDashboardNavigation();
+
+  const savedSnapshotRef = useRef(form.snapshot);
+  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
+
+  const saveMutation = useMutation({
+    mutationFn: async (section: 'settings' | 'studio') => {
+      if (section === 'settings') {
+        return updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.settingsInput });
+      }
+      const images = await collectStagedImages(form);
+      return updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.studioInput }, images);
+    },
+    onSuccess: (page) => {
+      if (page) {
+        form.logo.commit(page.logoUrl);
+        form.favicon.commit(page.faviconUrl);
+      }
+      markSaved();
+      savedSnapshotRef.current = form.snapshot;
+      queryClient.invalidateQueries({ queryKey: ['statusPageLivePreview', dashboardId, statusPage.id] });
+      router.refresh();
+    },
+    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+  });
+
+  const publishMutation = useSetStatusPagePublishedMutation(dashboardId, { onSuccess: () => router.refresh() });
+
+  const deleteMutation = useDeleteStatusPageMutation(dashboardId, {
+    onSuccess: () => router.push(resolveHref('status-pages')),
+  });
+
+  const handleDiscard = useCallback(() => form.reset(savedSnapshotRef.current), [form]);
+
+  const saveNow = () => saveMutation.mutate('settings', { onSuccess: () => toast.success(t('saved')) });
+  const studioSaveNow = () =>
+    saveMutation.mutate('studio', {
+      onSuccess: () => {
+        toast.success(t('saved'));
+        closeStudio();
+      },
+    });
+
+  // Both save entry points share the publish-confirm gate; the ref remembers which one to run.
+  const pendingSaveRef = useRef<() => void>(saveNow);
+  const requestSave = (run: () => void) => {
+    if (statusPage.isPublished) {
+      pendingSaveRef.current = run;
+      setShowPublishConfirm(true);
+    } else {
+      run();
+    }
+  };
+
+  return {
+    saveMutation,
+    publishMutation,
+    deleteMutation,
+    handleDiscard,
+    handleSave: () => requestSave(saveNow),
+    handleStudioSave: () => requestSave(studioSaveNow),
+    showPublishConfirm,
+    setShowPublishConfirm,
+    confirmPendingSave: () => {
+      setShowPublishConfirm(false);
+      pendingSaveRef.current();
+    },
+  };
+}

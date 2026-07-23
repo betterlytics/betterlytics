@@ -56,6 +56,7 @@ export function withServerAction<T, Args extends unknown[]>(handler: (...args: A
           error: {
             message: error.message,
             name: error.name,
+            ...(error.code ? { code: error.code } : {}),
           },
         };
       }

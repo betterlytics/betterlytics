@@ -532,7 +532,7 @@
       "lastUpdated": "Ultimo aggiornamento:",
       "scope": {
         "title": "Ambito di Questo DPA",
-        "body": "Questo Accordo sul Trattamento dei Dati (\u201cDPA\u201d) fa parte dei Termini di Servizio di Betterlytics e disciplina il trattamento dei dati quando utilizzi il servizio cloud ospitato Betterlytics disponibile su betterlytics.io e sui nostri domini ufficiali. Questo DPA non si applica alle installazioni self-hosted del nostro software open source; se esegui il self-hosting di Betterlytics, sei responsabile dei tuoi accordi sul trattamento dei dati e della conformità alle leggi applicabili.",
+        "body": "Questo Accordo sul Trattamento dei Dati (“DPA”) fa parte dei Termini di Servizio di Betterlytics e disciplina il trattamento dei dati quando utilizzi il servizio cloud ospitato Betterlytics disponibile su betterlytics.io e sui nostri domini ufficiali. Questo DPA non si applica alle installazioni self-hosted del nostro software open source; se esegui il self-hosting di Betterlytics, sei responsabile dei tuoi accordi sul trattamento dei dati e della conformità alle leggi applicabili.",
         "appliesTo": "Questo DPA si applica al trattamento dei dati dei visitatori del sito web raccolti tramite gli script di analisi Betterlytics, includendo sia:",
         "li1": "Dati anonimi (analitiche predefinite e anonimizzate), e",
         "li2": "Dati personali o pseudo-anonimi (funzionalità opzionali o qualsiasi inclusione accidentale di dati personali o pseudo-anonimi in URL, parametri di query o payload degli eventi), ad es. session replay, identificatori personalizzati o eventi personalizzati."
@@ -937,7 +937,7 @@
       },
       "hero": {
         "title": "Una <highlight>Migliore Alternativa</highlight> a Google Analytics",
-        "description": "Analytics semplici e potenti che rispettano la privacy.<br></br>Senza cookie, conformi al GDPR e senza banner dei cookie.",
+        "description": "Analytics semplici e potenti che rispettano la privacy. <br></br>Senza cookie, conformi al GDPR e senza banner dei cookie.",
         "ctaPrimary": "Inizia Gratis",
         "ctaGithub": "Vedi su GitHub",
         "ctaDemo": "Prova live demo",
@@ -986,7 +986,7 @@
         "categories": {
           "analytics": "Analisi e approfondimenti",
           "engagement": "Coinvolgimento e comportamento",
-          "performance": "Prestazioni e sorgenti"
+          "performance": "Monitoraggio e prestazioni"
         },
         "featuresButton": "Esplora tutte le funzionalità",
         "featuresTitle": "Esplora tutte le funzionalità di Betterlytics"
@@ -1058,10 +1058,6 @@
           "title": "Core Web Vitals",
           "description": "Monitora e misura le prestazioni del tuo sito con i Core Web Vitals."
         },
-        "outboundLinks": {
-          "title": "Link in uscita",
-          "description": "Tieni traccia dei clic verso siti esterni, link social, documenti e altro ancora."
-        },
         "trafficSources": {
           "title": "Fonti di traffico",
           "description": "Scopri da dove arrivano i tuoi visitatori e ottimizza i tuoi sforzi di marketing.",
@@ -1075,6 +1071,18 @@
             "email": "Email",
             "other": "Altro"
           }
+        },
+        "errorTracking": {
+          "title": "Tracciamento errori",
+          "description": "Cattura gli errori lato client in anticipo. Ispeziona gli stack trace e riproduci le sessioni per capire cosa è andato storto.",
+          "status": {
+            "unresolved": "Non risolto",
+            "resolved": "Risolto"
+          },
+          "watchReplay": "Guarda registrazione",
+          "usersAffected": "{count} utenti",
+          "summary": "37 errori questo mese",
+          "unresolved": "{count} non risolti"
         },
         "funnels": {
           "title": "Funnel",
@@ -1106,7 +1114,7 @@
         },
         "uptimeMonitoring": {
           "title": "Monitoraggio uptime",
-          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, più monitoraggio automatico dei certificati SSL.",
+          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, con monitoraggio dei certificati SSL e pagine di stato pubbliche che puoi ospitare sul tuo dominio.",
           "alertDown": "{site} è offline",
           "alertSent": "Avviso inviato a {email}",
           "incidentDetected": "{count, plural, one {{count} incidente rilevato} other {{count} incidenti rilevati}}",
@@ -1128,11 +1136,13 @@
           "Funnel Conversione",
           "Replay Sessioni",
           "Eventi Personalizzati",
+          "Monitoraggio Uptime",
+          "Pagine di Stato Pubbliche",
           "Funzionalità Web Analytics"
         ]
       },
       "hero": {
-        "title": "Tutte le funzionalità di cui hai bisogno per<br></br><highlight>analytics migliori</highlight>",
+        "title": "Tutte le funzionalità di cui hai bisogno per <br></br><highlight>analytics migliori</highlight>",
         "description": "Esplora tutto ciò che Betterlytics offre, dalle dashboard in tempo reale ai funnel di conversione. Tutte le analytics di cui hai bisogno, senza cookie, banner di consenso o compromessi sulla privacy.",
         "ctaPrimary": "Inizia Gratis",
         "ctaDemo": "Vedi Demo Live"
@@ -1195,9 +1205,17 @@
           "title": "Tracciamento Link",
           "description": "Monitora i click sui link interni e in uscita per comprendere l'engagement utente."
         },
+        "globalProperties": {
+          "title": "Proprietà Globali",
+          "description": "Imposta proprietà persistenti una volta sola e allegale automaticamente a tutti gli eventi, come il piano utente, il ruolo o la versione dell'app."
+        },
         "sessionReplay": {
           "title": "Session Replay",
           "description": "Riproduci le sessioni utente per vedere esattamente come i visitatori interagiscono con il tuo sito e scoprire problemi di usabilità."
+        },
+        "errorTracking": {
+          "title": "Monitoraggio errori",
+          "description": "Acquisisci automaticamente gli errori lato client e raggruppali con stack trace e link ai replay di sessione per riprodurre e risolvere i bug rapidamente."
         },
         "userJourneys": {
           "title": "Percorsi Utente",
@@ -1219,6 +1237,10 @@
           "title": "Tracciamento Link in Uscita",
           "description": "Traccia i click sui link che lasciano il tuo sito per misurare l'engagement utente."
         },
+        "emailReports": {
+          "title": "Report Email",
+          "description": "Ricevi riepiloghi analitici automatici settimanali o mensili direttamente nella tua casella di posta."
+        },
         "coreWebVitals": {
           "title": "Core Web Vitals",
           "description": "Misura e ottimizza le metriche di performance di Google per migliorare caricamento, interattività e ranking."
@@ -1230,6 +1252,14 @@
         "sslMonitoring": {
           "title": "Monitoraggio Certificati SSL",
           "description": "Monitora lo stato del certificato SSL per evitare connessioni scadute o non sicure."
+        },
+        "statusPages": {
+          "title": "Pagine di Stato Pubbliche",
+          "description": "Condividi uptime e cronologia degli incidenti con i tuoi utenti su una pagina di stato personalizzata che puoi ospitare sul tuo dominio."
+        },
+        "notificationIntegrations": {
+          "title": "Integrazioni di Notifica",
+          "description": "Ricevi avvisi tramite Slack, Discord, Microsoft Teams, webhook e altro quando qualcosa richiede la tua attenzione."
         },
         "cookieless": {
           "title": "Nessun Cookie",
@@ -1291,6 +1321,10 @@
           "title": "Alte Prestazioni",
           "description": "Motore analytics basato su ClickHouse con tempi di query sotto il secondo a qualsiasi scala."
         },
+        "mcpServer": {
+          "title": "Server MCP",
+          "description": "Interroga i tuoi dati analytics da assistenti AI come Claude. Server MCP integrato per accesso in linguaggio naturale a metriche, funnel e percorsi utente."
+        },
         "emailSupport": {
           "title": "Supporto Email",
           "description": "Ricevi assistenza via email per qualsiasi domanda o problema."
@@ -1332,6 +1366,7 @@
       "documentation": "Documentazione",
       "changelog": "Changelog",
       "pricing": "Prezzi",
+      "status": "Stato",
       "features": "Funzionalità",
       "github": "GitHub",
       "bluesky": "Bluesky",
@@ -1371,7 +1406,9 @@
     }
   },
   "pricingSlider": {
-    "monthlyEvents": "Eventi mensili"
+    "monthlyEvents": "Eventi mensili",
+    "suggested": "Consigliato",
+    "recommend": "In base al tuo traffico stimato, ti consigliamo <emphasis>{events} eventi / mese</emphasis>."
   },
   "pricingCards": {
     "periodPerMonth": "/mese",
@@ -1382,19 +1419,29 @@
     },
     "features": {
       "upToEventsPerMonth": "Fino a {events} eventi/mese",
-      "allFeatures": "Tutte le funzionalità dashboard e analitiche",
+      "customEventVolume": "Volume eventi personalizzato",
       "twoSites": "Fino a 2 siti",
       "upTo50Sites": "Fino a 50 siti",
       "unlimitedSites": "Siti illimitati",
+      "threeTeamMembers": "Fino a 3 membri del team",
+      "upTo50TeamMembers": "Fino a 50 membri del team",
+      "unlimitedTeamMembers": "Membri del team illimitati",
       "retention1PlusYear": "Conservazione dati 1+ anno",
       "retention3PlusYears": "Conservazione dati 3+ anni",
       "retention5PlusYears": "Conservazione dati 5+ anni",
-      "emailSupport": "Supporto email",
-      "prioritySupport": "Supporto prioritario",
-      "dedicatedSupport": "Supporto dedicato e aiuto",
+      "fullDashboard": "Dashboard di web analytics completa",
+      "funnelsJourneys": "Funnel e percorsi utente",
+      "sessionReplay": "Session replay",
+      "errorTracking": "Tracciamento errori",
+      "uptime1": "1 monitor uptime e pagina di stato pubblica",
+      "uptime50": "50 monitor uptime con controlli ogni minuto",
+      "uptimeUnlimited": "Monitor uptime e pagine di stato illimitati",
+      "statusPagesPro": "Pagine di stato white-label sul tuo dominio",
+      "emailReports": "Report email pianificati",
+      "dedicatedSupport": "Supporto dedicato",
       "slaGuarantee": "Garanzia SLA",
-      "everythingInStarter": "Tutto in Growth",
-      "everythingInProfessional": "Tutto in Professional"
+      "everythingInStarter": "Tutto in Growth, più:",
+      "everythingInProfessional": "Tutto in Professional, più:"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",
@@ -1405,12 +1452,12 @@
       "contactUs": "Contattaci"
     },
     "badges": {
-      "mostPopular": "Più popolare",
+      "mostPopular": "Consigliato",
       "current": "Attuale"
     },
     "labels": {
       "free": "Gratuito",
-      "custom": "Contattaci"
+      "custom": "Personalizzato"
     }
   },
   "pricingComparison": {
@@ -1430,7 +1477,6 @@
       "monthlyEvents": {
         "name": "Eventi mensili",
         "values": {
-          "range": "10K – 10M+",
           "custom": "Personalizzato"
         }
       },
@@ -1453,8 +1499,8 @@
       "teamMembers": {
         "name": "Membri del team",
         "values": {
-          "1": "1",
-          "upTo5": "Fino a 5",
+          "upTo3": "Fino a 3",
+          "upTo50": "Fino a 50",
           "unlimited": "Illimitati"
         }
       },
@@ -1478,6 +1524,12 @@
       },
       "campaignTracking": {
         "name": "Tracciamento campagne e UTM"
+      },
+      "errorTracking": {
+        "name": "Monitoraggio errori lato client"
+      },
+      "emailReports": {
+        "name": "Report email"
       },
       "uptimeMonitoring": {
         "name": "Monitoraggio uptime",
@@ -1505,6 +1557,23 @@
       },
       "customStatusCodes": {
         "name": "Codici di stato accettati personalizzati"
+      },
+      "notificationIntegrations": {
+        "name": "Integrazioni di notifica (Slack, Discord, ecc.)"
+      },
+      "statusPages": {
+        "name": "Pagine di stato pubbliche",
+        "values": {
+          "1": "1 pagina di stato",
+          "3": "3 pagine di stato",
+          "unlimited": "Pagine di stato illimitate"
+        }
+      },
+      "statusPageCustomDomain": {
+        "name": "Dominio personalizzato per la pagina di stato"
+      },
+      "statusPageWhiteLabel": {
+        "name": "Pagine di stato white-label"
       },
       "emailSupport": {
         "name": "Supporto email"
@@ -1536,7 +1605,8 @@
         "outboundLinks": "Tracciamento link in uscita",
         "advancedFiltering": "Filtri avanzati",
         "cookieFree": "Senza cookie",
-        "gdprCcpa": "Pronto per GDPR e CCPA"
+        "gdprCcpa": "Pronto per GDPR e CCPA",
+        "errorTracking": "Monitoraggio errori lato client"
       }
     }
   },
@@ -1556,12 +1626,14 @@
       "webVitals": "Web Vitals",
       "sessionReplay": "Replay sessioni",
       "monitoring": "Monitoraggio",
+      "statusPages": "Pagine di stato",
       "categories": {
         "analytics": "Analisi",
         "behavior": "Comportamento",
         "observability": "Osservabilità"
       },
-      "collapseNav": "Comprimi navigazione"
+      "collapseNav": "Comprimi navigazione",
+      "errorTracking": "Monitoraggio errori"
     },
     "settings": {
       "sidebar": {
@@ -1570,6 +1642,9 @@
         "data": "Dati",
         "rules": "Regole",
         "members": "Membri",
+        "reports": "Report Email",
+        "mcp": "MCP",
+        "integrations": "Integrazioni",
         "dangerZone": "Zona pericolosa"
       }
     },
@@ -1587,7 +1662,7 @@
       "geography": "Geografia",
       "devicesBreakdown": "Suddivisione per dispositivo",
       "trafficSources": "Sorgenti di traffico",
-      "customEvents": "Eventi personalizzati",
+      "events": "Eventi",
       "weeklyTrends": "Andamenti settimanali"
     },
     "goTo": "Vai a {section}",
@@ -1595,7 +1670,9 @@
       "pages": "Pagine",
       "entryPages": "Pagine di ingresso",
       "exitPages": "Pagine di uscita",
-      "topCountries": "Paesi principali",
+      "countries": "Paesi",
+      "regions": "Regioni",
+      "cities": "Città",
       "worldMap": "Mappa mondiale",
       "browsers": "Browser",
       "devices": "Dispositivi",
@@ -1603,17 +1680,14 @@
       "referrers": "Siti di riferimento",
       "sources": "Fonti",
       "channels": "Canali",
-      "events": "Eventi"
+      "events": "Eventi personalizzati",
+      "topProperties": "Proprietà globali"
     },
     "emptyStates": {
       "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri",
       "noUserJourneyData": "Nessun dato per percorso utente disponibile",
       "noData": "Nessun dato disponibile"
     }
-  },
-  "devicesPage": {
-    "title": "Dispositivi",
-    "description": "Suddivisione dei dispositivi dei visitatori e analisi d'uso"
   },
   "dashboardsPage": {
     "title": "Le tue dashboard",
@@ -1622,6 +1696,8 @@
     "emptyTitle": "Nessuna dashboard ancora",
     "emptyDescription": "Crea la tua prima dashboard per iniziare a tracciare le analitiche del tuo sito.",
     "memberCountTooltip": "{count, plural, one {{count} membro} other {{count} membri}}",
+    "goToDashboardTooltip": "Vai a {domain}",
+    "settingsTooltip": "Impostazioni dashboard",
     "createCard": {
       "title": "Crea dashboard",
       "description": "Aggiungi una nuova dashboard"
@@ -1713,6 +1789,7 @@
       "blocked_ip_literal": "Indirizzo IP non consentito",
       "dns_blocked": "DNS risolto a indirizzo bloccato",
       "dns_error": "Risoluzione DNS fallita",
+      "keyword_not_found": "Parola chiave prevista non trovata nella risposta",
       "unknown": "Errore sconosciuto"
     }
   },
@@ -1756,7 +1833,6 @@
       "create": "Nuovo monitor",
       "upgradeToCreate": "Upgrade per altri",
       "title": "Crea monitor",
-      "description": "Monitora un endpoint per uptime, latenza e stato SSL.",
       "fields": {
         "name": "Nome",
         "url": "URL"
@@ -1779,17 +1855,18 @@
         "title": "Tempi e Sensibilità",
         "interval": {
           "label": "Intervallo di monitoraggio",
-          "description": "Il tuo sito verr\u00e0 controllato ogni {value}"
+          "description": "Il tuo sito verrà controllato ogni {value}"
         },
         "timeout": {
           "label": "Timeout richiesta",
-          "description": "Troppo breve pu\u00f2 causare falsi positivi"
+          "description": "Troppo breve può causare falsi positivi"
         },
         "sensitivity": {
-          "label": "Sensibilit\u00e0 incidenti",
+          "label": "Sensibilità incidenti",
           "description": "Numero di errori consecutivi prima che venga attivato un incidente",
           "valueOne": "1 errore",
-          "valueOther": "{count} errori"
+          "valueOther": "{count} errori",
+          "unit": "{count, plural, one {errore} other {errori}}"
         }
       },
       "actions": {
@@ -1968,6 +2045,12 @@
           "invalidFormat": "Inserisci un codice di stato valido (es. 200) o un intervallo (es. 2xx)",
           "outOfRange": "Il codice di stato deve essere compreso tra 100 e 599"
         }
+      },
+      "expectedKeyword": {
+        "label": "Parola chiave prevista",
+        "description": "Avvisa se questo testo è assente dal codice sorgente HTML (primi 32 KB). Usa testo visibile nell'HTML grezzo, non contenuti generati da JavaScript.",
+        "placeholder": "es. Benvenuto, Dashboard, OK",
+        "requiresGet": "La validazione della parola chiave richiede il metodo GET"
       }
     },
     "alerts": {
@@ -1987,14 +2070,17 @@
       "failureCount": "{count, plural, one {{count} errore} other {{count} errori}}",
       "sslExpiryDays": "Giorni prima della scadenza",
       "sslExpiryDaysDescription": "Invia un avviso con questo anticipo rispetto alla scadenza del certificato SSL",
-      "daysCount": "{count, plural, one {{count} giorno} other {{count} giorni}}"
+      "daysCount": "{count, plural, one {{count} giorno} other {{count} giorni}}",
+      "unit": "{count, plural, one {giorno} other {giorni}}"
     }
   },
   "charts": {
     "tooltip": {
       "vs": "vs",
       "currentPeriod": "Periodo attuale",
-      "previousPeriod": "Periodo precedente"
+      "previousPeriod": "Periodo precedente",
+      "partial": "Parziale",
+      "total": "Totale"
     }
   },
   "misc": {
@@ -2015,22 +2101,11 @@
     "save": "Salva",
     "saving": "Salvataggio..."
   },
-  "languages": {
-    "da": "Danish",
-    "en": "English",
-    "it": "Italiano"
-  },
   "components": {
-    "weeklyHeatmap": {
-      "days": {
-        "monShort": "Lun.",
-        "tueShort": "Mar.",
-        "wedShort": "Mer.",
-        "thuShort": "Gio.",
-        "friShort": "Ven.",
-        "satShort": "Sab.",
-        "sunShort": "Dom."
-      }
+    "pagination": {
+      "pageOf": "Pagina {currentPage} di {totalPages}",
+      "showing": "Mostrando {startItem}-{endItem} di {totalItems} elementi",
+      "perPage": "per pagina"
     },
     "annotations": {
       "dialogs": {
@@ -2143,11 +2218,58 @@
         }
       },
       "interactive": {
-        "checkoutCanceled": "Il checkout è stato annullato. Puoi riprovare in qualsiasi momento.",
         "contactForCustomPlan": "Contattaci per un piano personalizzato",
-        "planSelectionFailed": "Impossibile elaborare la selezione del piano, riprova.",
-        "subscriptionChangesNote": "Le modifiche al tuo abbonamento saranno elaborate immediatamente tramite il portale di fatturazione sicuro di Stripe.",
-        "freePlanNote": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta."
+        "subscriptionChangesNote": "Le modifiche al tuo abbonamento avranno effetto immediato, con fatturazione proporzionale per la differenza.",
+        "freePlanNote": "Inizia con il nostro piano gratuito — nessuna carta di credito richiesta."
+      },
+      "embeddedCheckout": {
+        "title": "Completa il tuo abbonamento",
+        "description": "Completa il tuo acquisto in modo sicuro con Stripe.",
+        "loadError": "Non è stato possibile caricare il checkout. Riprova.",
+        "creatingSession": "Creazione di una sessione di pagamento sicura…",
+        "successTitle": "Pagamento riuscito",
+        "successDescription": "Sei ora su {tier}. Benvenuto in Betterlytics!"
+      },
+      "planPicker": {
+        "title": "Scegli il tuo piano",
+        "description": "Scegli il piano più adatto alle tue esigenze.",
+        "showComparison": "Confronta tutte le funzionalità",
+        "hideComparison": "Nascondi confronto funzionalità"
+      },
+      "changePlan": {
+        "title": "Conferma cambio piano",
+        "description": "Rivedi gli addebiti proporzionali prima di confermare.",
+        "resumeNote": "Il tuo abbonamento è programmato per essere annullato: confermando questa modifica rimarrà attivo e la fatturazione riprenderà.",
+        "summaryCharge": "Passerai a {tier} ({events} eventi / mese) immediatamente. {amount} verranno addebitati ora per il resto del periodo, poi {nextAmount}/mese a partire dal {date}.",
+        "summaryCredit": "Passerai a {tier} ({events} eventi / mese). {amount} di credito per il tempo non utilizzato sarà applicato alla prossima fattura di {nextAmount}/mese il {date}.",
+        "loading": "Calcolo della proporzione in corso…",
+        "error": "Impossibile calcolare la proporzione. Riprova.",
+        "newPlanCharge": "Addebito proporzionale del nuovo piano",
+        "unusedTimeCredit": "Credito per tempo non utilizzato",
+        "accountCreditApplied": "Credito dell'account applicato",
+        "totalDueToday": "Dovuto oggi",
+        "totalCreditedToday": "Accreditato oggi",
+        "confirm": "Conferma cambio",
+        "back": "Indietro",
+        "successLabel": "Piano cambiato",
+        "successDescription": "Sei ora su {tier}.",
+        "failureLabel": "Modifica piano non riuscita",
+        "authRequiredLabel": "Verifica richiesta",
+        "authenticatingLabel": "Verifica del pagamento in corso",
+        "authenticatingDescription": "Completa la verifica della tua banca per finalizzare l'aggiornamento.",
+        "finalizingLabel": "Completamento dell'aggiornamento…",
+        "close": "Chiudi",
+        "tryAgain": "Riprova",
+        "updatePaymentMethod": "Aggiorna metodo di pagamento",
+        "errors": {
+          "cardDeclined": "Non è stato possibile addebitare il tuo metodo di pagamento. Aggiorna la tua carta e riprova.",
+          "authenticationRetry": "Non è stato possibile verificare il pagamento. Riprova per completare l'aggiornamento.",
+          "unexpected": "Qualcosa è andato storto. Riprova."
+        }
+      },
+      "creditBalance": {
+        "label": "Credito sul conto",
+        "hint": "Applicato automaticamente alle fatture future"
       },
       "currentPlan": {
         "title": "Piano attuale",
@@ -2161,19 +2283,24 @@
         "usageProgress": "{current} di {limit} eventi",
         "resetsInDays": "Si azzera tra {days} giorni",
         "expiresInDays": "Scade tra {days} giorni",
-        "canceled": "Annullato",
         "manage": "Gestisci abbonamento",
         "reactivate": "Riattiva abbonamento",
-        "cancel": "Annulla abbonamento"
+        "cancel": "Annulla abbonamento",
+        "pastDueBannerTitle": "Pagamento scaduto",
+        "pastDueBannerBody": "Non è stato possibile elaborare il tuo ultimo pagamento. Aggiorna il metodo di pagamento per mantenere attivo il tuo abbonamento.",
+        "updatePayment": "Aggiorna metodo di pagamento"
+      },
+      "planStatus": {
+        "active": "Attivo",
+        "canceling": "In annullamento",
+        "pastDue": "Scaduto",
+        "inactive": "Inattivo"
       },
       "planNames": {
         "growth": "Piano Growth",
         "professional": "Piano Pro",
         "enterprise": "Enterprise"
       }
-    },
-    "dataTable": {
-      "noResults": "Nessun risultato."
     },
     "timeRange": {
       "disabled": "Disattivato",
@@ -2201,6 +2328,8 @@
         "1y": "Ultimi 12 mesi"
       },
       "granularityLabels": {
+        "month": "Mese",
+        "week": "Settimana",
         "day": "Giorno",
         "hour": "Ora",
         "minute_30": "30 min",
@@ -2213,6 +2342,10 @@
       "dashboard": {
         "initializing": "Inizializzazione dashboard",
         "loadingSettings": "Caricamento impostazioni della dashboard..."
+      },
+      "geography": {
+        "title": "Inizializzazione mappa mondiale",
+        "description": "Preparazione di una visualizzazione geografica dei dati dei visitatori..."
       }
     },
     "devices": {
@@ -2229,10 +2362,6 @@
       "charts": {
         "deviceTypes": "Tipo di dispositivo",
         "deviceUsageTrend": "Tendenza utilizzo dispositivi"
-      },
-      "trends": {
-        "noData": "Nessun dato di tendenza disponibile",
-        "adjustTimeRange": "Prova a modificare l'intervallo di tempo o i filtri"
       }
     },
     "campaign": {
@@ -2293,10 +2422,6 @@
       }
     },
     "events": {
-      "page": {
-        "title": "Eventi",
-        "description": "Analitiche e insight per i tuoi eventi personalizzati"
-      },
       "log": {
         "waiting": "In attesa di eventi...",
         "realTimeDesc": "Gli eventi appariranno qui in tempo reale appena si verificano",
@@ -2335,12 +2460,17 @@
       "operator": "Operatore",
       "is": "è",
       "isNot": "non è",
+      "globalProperties": "{count, plural, one {Proprietà globale} other {Proprietà globali}}",
+      "selectProperty": "Seleziona proprietà",
+      "noProperties": "Nessuna proprietà trovata",
       "namePlaceholder": "Inserisci nome passaggio",
       "columns": {
         "url": "URL",
         "domain": "Hostname",
         "device_type": "Tipo di dispositivo",
         "country_code": "Prefisso internazionale",
+        "subdivision_code": "Regione",
+        "city": "Città",
         "browser": "Browser",
         "os": "Sistema operativo",
         "referrer_source": "Sorgente referrer",
@@ -2353,7 +2483,8 @@
         "utm_term": "Termine UTM",
         "utm_content": "Contenuto UTM",
         "custom_event_name": "Evento",
-        "event_type": "Tipo di evento"
+        "event_type": "Tipo di evento",
+        "outbound_link_url": "Link in uscita"
       },
       "selector": {
         "triggerLabel": "Filtri",
@@ -2374,9 +2505,12 @@
         "toastFilterDeletedSuccess": "Filtro eliminato",
         "toastFilterDeletedError": "Impossibile eliminare il filtro",
         "toastUndo": "Annulla",
-        "savedFiltersLimitReached": "Numero massimo di filtri salvati raggiunto"
+        "savedFiltersLimitReached": "Numero massimo di filtri salvati raggiunto",
+        "maxFiltersReached": "Massimo {max} filtri",
+        "maxFiltersReachedToast": "Puoi applicare fino a {max} filtri. Rimuovine uno per aggiungerne un altro."
       },
-      "filterBy": "Filtra per {label}"
+      "filterBy": "Filtra per {label}",
+      "removeFilter": "Rimuovi filtro"
     },
     "funnels": {
       "skeleton": {
@@ -2388,13 +2522,6 @@
         },
         "step": "Passaggio",
         "visitors": "Visitatori"
-      },
-      "list": {
-        "steps": "passaggi",
-        "conversionRate": "Tasso di conversione",
-        "completed": "Completato",
-        "totalUsers": "Utenti totali",
-        "largestDropOff": "Perdita maggiore"
       },
       "create": {
         "defaultName": "Il mio nuovo funnel",
@@ -2409,7 +2536,14 @@
         "create": "Crea",
         "createDisabledHint": "Inserisci un nome per il funnel e definisci almeno due passaggi. <br></br> Ogni passaggio deve avere sia un nome che un valore selezionato.",
         "successMessage": "Funnel creato!",
-        "errorMessage": "Creazione funnel fallita!"
+        "errorMessage": "Creazione funnel fallita!",
+        "filterCount": "{count, plural, =0 {Nessun filtro} =1 {1 filtro} other {# filtri}}",
+        "tooltip": {
+          "deleteStep": "Elimina passaggio {index}",
+          "minStepsHint": "Un funnel deve avere almeno {count} passaggi",
+          "reorderStep": "Riordina passaggio {index}",
+          "toggleStep": "Mostra/nascondi passaggio {index}"
+        }
       },
       "edit": {
         "title": "Modifica funnel",
@@ -2440,7 +2574,8 @@
         "stepLabel": "Passaggio {index}",
         "visitors": "Visitatori",
         "dropOff": "Abbandono",
-        "conversion": "Conversione"
+        "conversion": "Conversione",
+        "and": "e"
       },
       "delete": {
         "title": "Elimina funnel",
@@ -2450,25 +2585,9 @@
         "successMessage": "Funnel eliminato!",
         "errorMessage": "Eliminazione funnel fallita!"
       },
-      "page": {
-        "title": "Funnel",
-        "description": "Analizza i percorsi di conversione degli utenti"
-      },
+      "strictModeInfo": "Se attivata, i visitatori devono completare i passaggi in ordine senza visitare altre pagine nel frattempo.",
       "preview": {
-        "loading": "Caricamento anteprima...",
         "defineAtLeastTwoSteps": "Definisci almeno 2 passaggi per vedere l'anteprima."
-      },
-      "details": {
-        "title": "Analisi funnel",
-        "steps": "passaggi",
-        "users": "utenti",
-        "dropped": "abbandoni",
-        "summary": {
-          "overallConversion": "Conversione complessiva",
-          "totalVisitors": "Visitatori totali",
-          "totalCompleted": "Completati totali",
-          "biggestDropOff": "Perdita maggiore"
-        }
       },
       "emptyState": {
         "title": "Visualizza il tuo funnel di conversione",
@@ -2488,8 +2607,10 @@
         "filterByPath": "Filtra per {path}",
         "visitors": "Visitatori",
         "pageviews": "Visualizzazioni",
+        "sessionPageviews": "Visualizzazioni sessione",
         "bounceRate": "Frequenza di rimbalzo",
         "avgTime": "Tempo medio",
+        "avgSessionTime": "Tempo medio sessione",
         "entryRate": "Tasso di ingresso",
         "exitRate": "Tasso di uscita",
         "avgScrollDepth": "Profondità di scorrimento",
@@ -2500,9 +2621,6 @@
       }
     },
     "referrers": {
-      "page": {
-        "description": "Analizza le fonti di riferimento, la quota di traffico e le tendenze."
-      },
       "summary": {
         "referralSessions": "Sessioni da referrer",
         "referralTrafficPct": "Traffico da referrer %",
@@ -2539,7 +2657,8 @@
     "geography": {
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
       "loading": "Caricamento mappa...",
-      "visitors": "Visitatori"
+      "visitors": "Visitatori",
+      "regionLoadError": "Impossibile caricare i dati della regione"
     },
     "userJourney": {
       "steps": "Passaggi",
@@ -2547,12 +2666,6 @@
       "sessions": "Sessioni"
     },
     "outboundLinks": {
-      "summary": {
-        "totalUniqueClicks": "Clic unici totali",
-        "uniqueVisitors": "Visitatori unici",
-        "topDomain": "Dominio principale",
-        "topSourcePage": "Pagina sorgente principale"
-      },
       "table": {
         "title": "Performance link in uscita",
         "destinationUrl": "URL di destinazione",
@@ -2639,7 +2752,8 @@
         "empty": {
           "title": "Nessuna sessione replay disponibile",
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
-        }
+        },
+        "sessionErrorsTooltip": "Questa sessione ha catturato {count}+ errori lato client"
       },
       "playerTopbar": {
         "startLabel": "Inizio:",
@@ -2661,12 +2775,18 @@
         "scroll": "Scorrimento",
         "input": "Inserimento",
         "pageview": "Visualizzazione pagina",
-        "blacklist": "Nascosto"
+        "blacklist": "Nascosto",
+        "viewportResize": "Ridimensionamento viewport",
+        "mediaInteraction": "Interazione media",
+        "clientError": "Errore lato client"
       },
       "player": {
         "skipInactive": "Salta inattività",
         "playbackSpeedAria": "Velocità di riproduzione",
         "recordingDisabled": "Registrazione disabilitata su questa pagina"
+      },
+      "timeline": {
+        "viewErrorDetails": "Visualizza dettagli errore"
       }
     },
     "integration": {
@@ -2748,55 +2868,50 @@
     },
     "userSettings": {
       "tabs": {
-        "profile": "Profilo",
+        "account": "Account",
         "preferences": "Preferenze",
-        "usage": "Utilizzo",
-        "billing": "Fatturazione",
-        "security": "Sicurezza",
-        "danger": "Zona pericolosa"
+        "billing": "Fatturazione"
       },
       "dialog": {
         "title": "Impostazioni utente",
         "description": "Gestisci le impostazioni e le preferenze del tuo account.",
-        "loading": "Caricamento impostazioni...",
-        "loadFailed": "Caricamento impostazioni non riuscito",
-        "noSettings": "Nessuna impostazione trovata",
-        "buttons": {
-          "cancel": "Annulla",
-          "saving": "Salvataggio...",
-          "saveChanges": "Salva modifiche"
-        },
         "toast": {
-          "success": "Impostazioni salvate con successo!",
           "error": "Impossibile salvare le impostazioni. Riprova."
+        },
+        "upgradePlan": "Aggiorna piano",
+        "help": {
+          "trigger": "Hai bisogno di aiuto?",
+          "documentation": "Documentazione",
+          "reportBug": "Segnala un bug",
+          "contactSupport": "Contatta l'assistenza"
         }
       },
       "profile": {
         "title": "Profilo",
-        "description": "Modifica le tue informazioni personali",
         "nameLabel": "Nome",
         "namePlaceholder": "Inserisci il tuo nome",
-        "optional": "Opzionale",
         "emailLabel": "Email",
         "verified": "Verificato",
         "unverified": "Non verificato",
-        "updateButton": "Aggiorna profilo",
+        "signedInWith": "Connesso con {provider}",
+        "memberSince": "Membro da {date}",
+        "updateButton": "Aggiorna",
         "toast": {
-          "success": "Profilo aggiornato con successo",
-          "error": "Impossibile aggiornare il profilo. Riprova."
+          "nameSuccess": "Nome aggiornato"
         }
       },
       "preferences": {
         "appearance": {
           "title": "Aspetto",
-          "description": "Personalizza l'aspetto visivo della tua dashboard",
           "themeLabel": "Tema",
+          "themeDescription": "Scegli un tema personale per la dashboard",
           "light": "Chiaro",
           "dark": "Scuro",
           "system": "Sistema"
         },
         "avatar": {
           "label": "Avatar",
+          "description": "Come viene mostrata la tua immagine del profilo",
           "none": "Nessuno",
           "gravatar": "Gravatar",
           "noteIntro": "Nota: Gravatar è un servizio di terze parti: abilitarlo può condividere l'hash della tua email con i loro server.",
@@ -2804,37 +2919,70 @@
         },
         "localization": {
           "title": "Localizzazione",
-          "description": "Imposta le tue preferenze linguistiche",
-          "language": "Lingua"
+          "language": "Lingua",
+          "languageDescription": "Scegli la lingua della dashboard"
         },
         "notifications": {
           "title": "Notifiche",
-          "description": "Configura le tue preferenze di notifica",
-          "emailNotifications": "Notifiche email",
-          "marketingEmails": "Email marketing"
+          "marketingEmails": "Email marketing",
+          "marketingEmailsDescription": "Aggiornamenti sul prodotto, annunci e consigli"
         }
       },
-      "usage": {
-        "cta": {
-          "needMore": "Hai bisogno di più eventi?",
-          "upgradeHint": "Aggiorna il tuo piano per ottenere più eventi e sbloccare funzionalità aggiuntive.",
-          "viewPlans": "Vedi i piani"
+      "billing": {
+        "loadError": "Impossibile caricare i dati di fatturazione.",
+        "currentPlan": {
+          "title": "Piano attuale",
+          "free": "Gratis",
+          "pricePerMonth": "{price} / mese",
+          "renewsOn": "Si rinnova il {date}",
+          "endsOn": "L'abbonamento termina il {date}",
+          "upgrade": "Aggiorna",
+          "changePlan": "Cambia piano",
+          "pastDue": "Pagamento scaduto"
         },
-        "error": "Impossibile caricare i dati di utilizzo"
-      },
-      "billingPortal": {
-        "title": "Portale di fatturazione",
-        "description": "Gestisci i dettagli di fatturazione e accedi alla cronologia completa",
-        "access": "Accedi al portale di fatturazione",
-        "accessButton": "Apri portale di fatturazione",
-        "explainer": "Visualizza tutte le fatture passate, aggiorna i metodi di pagamento e gestisci la fatturazione tramite il portale clienti sicuro di Stripe.",
-        "notAvailable": "Il portale di fatturazione sarà disponibile una volta effettuato l'upgrade a un piano a pagamento.",
-        "needHelp": "Hai bisogno di aiuto con la fatturazione?",
-        "contactSupport": "Contatta il supporto",
-        "toastError": "Impossibile aprire il portale di fatturazione, riprova."
+        "usage": {
+          "title": "Utilizzo",
+          "eventsLabel": "Eventi",
+          "eventsUsed": "{current} / {limit} ({percentage})",
+          "resetsInDays": "Si reimposta tra {days} giorni"
+        },
+        "payment": {
+          "title": "Pagamento e fatture",
+          "label": "Gestisci nel portale di fatturazione",
+          "description": "Metodo di pagamento, fatture e dettagli di fatturazione.",
+          "openPortal": "Apri portale di fatturazione"
+        },
+        "invoices": {
+          "title": "Fatture",
+          "view": "Visualizza",
+          "columns": {
+            "date": "Data",
+            "total": "Totale",
+            "status": "Stato",
+            "actions": "Azioni"
+          },
+          "status": {
+            "draft": "Bozza",
+            "open": "Aperta",
+            "paid": "Pagata",
+            "uncollectible": "Non riscuotibile",
+            "void": "Annullata",
+            "credit": "Credito"
+          }
+        },
+        "cancellation": {
+          "title": "Annullamento",
+          "label": "Annulla abbonamento",
+          "description": "Interrompi la fatturazione al termine del periodo corrente.",
+          "cancel": "Annulla"
+        },
+        "portal": {
+          "openError": "Impossibile aprire il portale di fatturazione, riprova."
+        }
       },
       "security": {
-        "title": "Password e autenticazione",
+        "title": "Sicurezza account",
+        "passwordRowLabel": "Password",
         "description": "Modifica la password del tuo account",
         "currentPassword": "Password attuale",
         "newPassword": "Nuova password",
@@ -2843,12 +2991,14 @@
         "passwordsMatch": "Le password coincidono",
         "changePassword": "Cambia password",
         "passwordManagedByOAuth": "Password gestita da OAuth",
+        "togglePasswordVisibility": "Mostra/nascondi {field}",
+        "cancel": "Annulla",
         "toast": {
           "success": "Password aggiornata con successo"
         },
         "totp": {
           "title": "Autenticazione a due fattori",
-          "description": "Aggiungi un ulteriore livello di sicurezza richiedendo una seconda forma di verifica oltre alla password",
+          "description": "Aggiungi un ulteriore livello di sicurezza al tuo account.",
           "enable": "Abilita 2FA",
           "instructions": "Per abilitare la 2FA, scansiona il QR code con la tua app di autenticazione oppure usa la <setup>chiave di configurazione</setup> per impostarla manualmente, poi inserisci il codice di verifica qui sotto.",
           "cancel": "Annulla",
@@ -2856,16 +3006,34 @@
           "enabled": "Abilitato",
           "disable": "Disabilita",
           "disableTitle": "Disabilita 2FA",
-          "disableDescription": "Sei sicuro di voler disabilitare l'autenticazione a due fattori per il tuo account?",
+          "disableDescription": "Inserisci il codice di verifica dalla tua app di autenticazione per disabilitare l'autenticazione a due fattori.",
           "disabledSuccess": "Autenticazione a due fattori disabilitata con successo",
-          "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova."
+          "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova.",
+          "setupFailed": "Impossibile configurare l'autenticazione a due fattori. Riprova.",
+          "copyFailed": "Impossibile copiare",
+          "enabledSuccess": "Autenticazione a due fattori abilitata con successo",
+          "enableFailed": "Impossibile abilitare l'autenticazione a due fattori. Riprova.",
+          "managedByOAuth": "L'autenticazione a due fattori è gestita dal tuo provider di accesso"
+        }
+      },
+      "sessions": {
+        "title": "Sessioni",
+        "activeCount": "Connesso su {count, plural, =0 {nessun dispositivo} =1 {1 dispositivo} other {# dispositivi}}",
+        "description": "Disconnetti da ovunque tranne che da questo dispositivo.",
+        "signOutOthers": "Disconnetti altri dispositivi",
+        "dialog": {
+          "title": "Disconnettere altri dispositivi?",
+          "description": "Tutte le altre sessioni verranno terminate immediatamente. Il dispositivo attuale rimarrà connesso.",
+          "cancel": "Annulla",
+          "confirm": "Disconnetti altri dispositivi"
+        },
+        "toast": {
+          "success": "Disconnesso da {count, plural, =0 {nessun altro dispositivo} =1 {1 altro dispositivo} other {# altri dispositivi}}."
         }
       },
       "danger": {
-        "title": "Elimina account",
-        "description": "Elimina definitivamente il tuo account e tutti i dati associati",
-        "warning": "Attenzione: questa azione non può essere annullata",
-        "details": "Questo eliminerà definitivamente il tuo account, rimuoverà l'accesso a tutte le dashboard e cancellerà tutte le impostazioni personali.",
+        "sectionTitle": "Zona pericolosa",
+        "details": "Elimina definitivamente il tuo account e tutti i dati associati.",
         "delete": "Elimina account",
         "dialog": {
           "title": "Elimina account definitivamente",
@@ -2902,16 +3070,15 @@
         "retentionLabel": "Periodo di conservazione dati",
         "retentionHelp": "Per quanto tempo conservare i dati analitici prima dell'eliminazione automatica",
         "presets": {
-          "d30": "30 giorni",
-          "m3": "3 mesi",
           "m6": "6 mesi",
           "y1": "1 anno",
           "y2": "2 anni",
-          "y3": "3 anni"
+          "y3": "3 anni",
+          "y5": "5 anni"
         },
         "retentionConfirm": {
           "title": "Cambiare periodo di conservazione?",
-          "description": "Sei sicuro di voler cambiare il periodo di conservazione dei dati a {period}?"
+          "description": "Modificare la conservazione a {period} significa che gli eventi più vecchi di {period} potrebbero essere eliminati definitivamente alla prossima pulizia programmata."
         },
         "siteRules": {
           "title": "Regole del sito",
@@ -3095,16 +3262,32 @@
     "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare.",
     "urlMustBeOnDomain": "L'URL deve essere su {domain} o un sottodominio",
     "monitorAlreadyExists": "Esiste già un monitor per questo URL",
+    "statusPageSlugTaken": "Questo slug URL è già in uso",
+    "statusPageDomainTaken": "Questo dominio è già in uso su un'altra pagina di stato",
+    "statusPageDomainReserved": "Questo dominio è riservato",
+    "statusPageIncidentLimit": "Questa pagina di stato ha raggiunto il limite di incidenti",
+    "statusPageIncidentUpdateLimit": "Questo incidente ha raggiunto il limite di aggiornamenti",
+    "statusPageIncidentUpdateLast": "Un incidente deve mantenere almeno un aggiornamento",
+    "statusPageIncidentInvalidMonitor": "Uno dei monitor interessati non è in questa pagina di stato",
+    "statusPageImageInvalid": "Impossibile leggere il file come immagine",
+    "statusPageImageTooLarge": "L'immagine è troppo grande",
+    "statusPageImageBadType": "L'immagine deve essere un file PNG, JPEG o WebP",
+    "statusPageImageSvgUnsafe": "Il file SVG contiene contenuti non supportati o non sicuri",
     "capabilities": {
       "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a Pro per crearne di più.",
       "monitorLimit": "Hai raggiunto il limite di monitor. Passa a Pro per crearne di più.",
       "minInterval": "Intervalli di monitoraggio più veloci richiedono un piano Professional",
       "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
       "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
-      "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional"
+      "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional",
+      "keywordValidation": "La validazione delle parole chiave richiede un piano Professional",
+      "statusPageLimit": "Hai raggiunto il limite di pagine di stato. Esegui l'upgrade a Pro per crearne altre.",
+      "statusPageCustomDomain": "I domini personalizzati richiedono un piano Professional",
+      "statusPageBranding": "La rimozione del branding Betterlytics richiede un piano Professional"
     },
     "invitations": {
       "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
+      "memberLimitReached": "Il tuo piano consente fino a {limit} membri del team su questa dashboard. Effettua l'upgrade per invitare altri.",
       "invitationAlreadySent": "È già stato inviato un invito a questa email",
       "invitationNotFoundOrProcessed": "Invito non trovato o già elaborato",
       "invitationExpired": "Questo invito è scaduto",
@@ -3142,11 +3325,13 @@
       "action": "Scopri di più"
     }
   },
+  "githubStar": {
+    "title": "Ti piace Betterlytics?",
+    "description": "Una stella su GitHub aiuta più sviluppatori a scoprire il progetto.",
+    "action": "Metti una stella su GitHub",
+    "dismiss": "Chiudi"
+  },
   "members": {
-    "page": {
-      "title": "Membri",
-      "description": "Gestisci chi ha accesso a questa dashboard"
-    },
     "table": {
       "title": "Membri",
       "searchPlaceholder": "Cerca membri...",
@@ -3197,6 +3382,7 @@
       "emailPlaceholder": "collega@example.com",
       "roleLabel": "Ruolo",
       "inviteButton": "Invita",
+      "upgradeToInvite": "Esegui l'upgrade per invitare altri",
       "sending": "Invio in corso...",
       "pending": "In sospeso",
       "invited": "Invitato",
@@ -3464,5 +3650,691 @@
         }
       }
     }
+  },
+  "reportsSettings": {
+    "title": "Report Email",
+    "emailsNotConfigured": {
+      "title": "L'invio di email non è configurato",
+      "description": "Le impostazioni dei report possono essere salvate, ma le email non verranno inviate finché non viene configurato un provider email (SMTP o MailerSend)."
+    },
+    "weekly": {
+      "title": "Report Settimanali",
+      "description": "Ricevi un riepilogo delle prestazioni del tuo sito ogni settimana",
+      "toggle": "Attiva report email settimanali",
+      "dayLabel": "Giorno del report",
+      "dayDescription": "Quale giorno della settimana inviare il report"
+    },
+    "monthly": {
+      "title": "Report Mensili",
+      "description": "Invia un report email mensile il 1° di ogni mese",
+      "toggle": "Attiva report email mensili"
+    },
+    "recipients": {
+      "weeklyLabel": "Destinatari ({count}/{max})",
+      "monthlyLabel": "Destinatari ({count}/{max})",
+      "placeholder": "collega@example.com",
+      "addButton": "Aggiungi",
+      "invalidEmail": "Inserisci un indirizzo email valido",
+      "emailRequired": "L'indirizzo email è obbligatorio",
+      "duplicateEmail": "Questa email è già stata aggiunta",
+      "maxReached": "Massimo {max} destinatari raggiunto"
+    },
+    "toast": {
+      "saved": "Impostazioni report salvate",
+      "error": "Impossibile salvare le impostazioni del report"
+    }
+  },
+  "mcp": {
+    "settings": {
+      "title": "Token API",
+      "description": "Crea token per connettere agenti AI ai tuoi dati analitici tramite il Model Context Protocol.",
+      "tokenNameLabel": "Nome token",
+      "tokenNamePlaceholder": "es. Claude Desktop",
+      "createButton": "Crea token",
+      "creating": "Creazione...",
+      "newTokenNotice": "Copia questo token adesso. Non potrai vederlo di nuovo.",
+      "created": "Creato {date}",
+      "lastUsed": "Ultimo utilizzo {date}"
+    },
+    "toast": {
+      "created": "Token creato",
+      "createError": "Impossibile creare il token",
+      "deleted": "Token eliminato",
+      "deleteError": "Impossibile eliminare il token"
+    },
+    "deleteDialog": {
+      "title": "Elimina {name}",
+      "description": "Questo token verrà revocato permanentemente. Tutti i client MCP che lo utilizzano perderanno immediatamente l'accesso."
+    }
+  },
+  "integrationsSettings": {
+    "title": "Integrazioni",
+    "section": {
+      "description": "Collega servizi di terze parti per ricevere notifiche di monitoraggio dell'uptime quando il tuo sito web va offline o si ripristina."
+    },
+    "integrations": {
+      "pushover": {
+        "name": "Pushover",
+        "description": "Notifiche push sui tuoi dispositivi mobili e desktop."
+      },
+      "discord": {
+        "name": "Discord",
+        "description": "Ricevi aggiornamenti di stato importanti nei tuoi messaggi Discord."
+      },
+      "slack": {
+        "name": "Slack",
+        "description": "Ricevi notifiche in un canale Slack."
+      },
+      "teams": {
+        "name": "Microsoft Teams",
+        "description": "Ricevi notifiche in un canale Microsoft Teams."
+      },
+      "webhook": {
+        "name": "Webhook",
+        "description": "Invia notifiche a qualsiasi URL tramite HTTP POST."
+      }
+    },
+    "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
+    "history": {
+      "title": "Registro notifiche",
+      "button": "Registro notifiche",
+      "empty": "Nessuna notifica inviata finora.",
+      "error": "Impossibile caricare la cronologia delle notifiche.",
+      "attempts": "{count} tentativi",
+      "columns": {
+        "time": "Ora",
+        "integration": "Integrazione",
+        "notification": "Notifica",
+        "status": "Stato",
+        "error": "Errore"
+      },
+      "status": {
+        "sent": "Inviata",
+        "failed": "Fallita"
+      }
+    },
+    "status": {
+      "connected": "Connesso",
+      "disabled": "Disabilitato"
+    },
+    "actions": {
+      "configure": "Configura",
+      "add": "Aggiungi",
+      "edit": "Modifica",
+      "disconnect": "Disconnetti"
+    },
+    "disconnect": {
+      "title": "Disconnetti {name}",
+      "description": "Sei sicuro di voler disconnettere questa integrazione? Questo rimuoverà la configurazione e interromperà tutte le notifiche da questa fonte.",
+      "confirm": "Disconnetti"
+    },
+    "pushoverDialog": {
+      "title": "Integrazione Pushover",
+      "userKeyLabel": "User Key",
+      "userKeyPlaceholder": "La tua user key Pushover",
+      "priorityLabel": "Priorità notifica",
+      "priorities": {
+        "0": "Normale (consigliato)",
+        "1": "Alta: Ignora le ore silenziose",
+        "-2": "Minima: Nessuna notifica",
+        "-1": "Bassa: Nessun suono o vibrazione"
+      },
+      "credentialsHint": "Trova la tua user key su <link>pushover.net</link>",
+      "priorityHint": "Scopri di più sui livelli di priorità <link>qui</link>.",
+      "errors": {
+        "userKeyRequired": "La user key è obbligatoria",
+        "userKeyInvalid": "User key non valida"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "discordDialog": {
+      "title": "Integrazione Discord",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookHint": "Scopri come creare un webhook <link>qui</link>.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un webhook URL Discord valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "slackDialog": {
+      "title": "Integrazione Slack",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://hooks.slack.com/services/...",
+      "webhookHint": "Segui i passaggi 1–3 della <link>guida agli Incoming Webhooks</link> per ottenere il tuo webhook URL.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un webhook URL Slack valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "teamsDialog": {
+      "title": "Integrazione Microsoft Teams",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "Il tuo webhook URL di Teams",
+      "webhookHint": "Crea un Incoming Webhook usando un Teams Workflow. <link>Scopri come</link>.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un URL HTTPS valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "webhookDialog": {
+      "title": "Integrazione Webhook",
+      "webhookUrlLabel": "Webhook URL",
+      "webhookUrlPlaceholder": "https://esempio.com/webhook",
+      "webhookHint": "Inserisci un URL HTTPS accessibile pubblicamente. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
+      "errors": {
+        "webhookUrlRequired": "Il webhook URL è obbligatorio",
+        "webhookUrlInvalid": "Deve essere un URL HTTPS valido"
+      },
+      "cancel": "Annulla",
+      "save": "Salva"
+    },
+    "toast": {
+      "saved": "Integrazione salvata",
+      "deleted": "Integrazione disconnessa",
+      "error": "Impossibile aggiornare l'integrazione",
+      "fetchError": "Impossibile caricare le integrazioni",
+      "invalidPushoverKey": "User key Pushover non valida o nessun dispositivo registrato",
+      "invalidDiscordWebhook": "Webhook URL Discord non valido",
+      "invalidSlackWebhook": "Webhook URL Slack non valido",
+      "invalidTeamsWebhook": "Webhook URL Teams non valido",
+      "invalidWebhookUrl": "Webhook URL non valido"
+    }
+  },
+  "errors": {
+    "page": {
+      "title": "Panoramica errori"
+    },
+    "table": {
+      "columns": {
+        "error": "Errore",
+        "volume": "Volume",
+        "occurrences": "Occorrenze",
+        "sessions": "Sessioni",
+        "firstSeen": "Prima occorrenza",
+        "lastSeen": "Ultima occorrenza",
+        "status": "Stato"
+      },
+      "selectAll": "Seleziona tutto",
+      "selectRow": "Seleziona riga",
+      "rowActionsAria": "Azioni riga",
+      "ago": "{time} fa",
+      "emptySearch": "Nessun errore corrisponde alla ricerca.",
+      "emptyPeriod": "Nessun errore registrato in questo periodo."
+    },
+    "toolbar": {
+      "searchPlaceholder": "Cerca per tipo e messaggio...",
+      "selectedCount": "{count} selezionati",
+      "reload": "Ricarica",
+      "reloadAria": "Ricarica errori"
+    },
+    "statusFilter": {
+      "all": "Tutti",
+      "unresolved": "Non risolto",
+      "resolved": "Risolto",
+      "ignored": "Ignorato"
+    },
+    "statusActions": {
+      "resolve": "Risolvi",
+      "ignore": "Ignora",
+      "unresolve": "Segna come non risolto",
+      "markResolved": "Segna come risolto",
+      "markUnresolved": "Segna come non risolto"
+    },
+    "status": {
+      "unresolved": "Non risolto",
+      "resolved": "Risolto",
+      "ignored": "Ignorato"
+    },
+    "emptyState": {
+      "title": "Nessun errore rilevato",
+      "description": "Quando si verificano errori lato client sul tuo sito, verranno mostrati qui raggruppati per tipo. Configura il monitoraggio errori per rilevare e monitorare le eccezioni lato client.",
+      "learnMore": "Scopri di più sul monitoraggio errori"
+    },
+    "detail": {
+      "header": {
+        "backToErrors": "Torna agli errori",
+        "copied": "Copiato!",
+        "share": "Condividi"
+      },
+      "sidebar": {
+        "overview": "Panoramica",
+        "firstSeen": "Prima occorrenza",
+        "lastSeen": "Ultima occorrenza",
+        "occurrences": "Occorrenze",
+        "sessions": "Sessioni",
+        "occurrenceHistory": "Cronologia",
+        "browsers": "Browser",
+        "deviceType": "Tipo di dispositivo",
+        "watchReplay": "Guarda l’ultima sessione",
+        "watchReplayDescription": "Scopri cosa ha fatto l’utente prima dell’errore",
+        "noReplay": "Nessun replay disponibile",
+        "noReplayDescription": "I replay mostrano cosa fanno gli utenti prima di un errore.",
+        "learnMore": "Scopri di più"
+      },
+      "navigator": {
+        "occurrenceOf": "Occorrenza {number} di {total}",
+        "firstOccurrence": "Prima occorrenza",
+        "olderOccurrence": "Occorrenza precedente",
+        "newerOccurrence": "Occorrenza successiva",
+        "latestOccurrence": "Ultima occorrenza"
+      },
+      "stacktrace": {
+        "title": "Stacktrace",
+        "frames": "{count, plural, one {# frame} other {# frame}}",
+        "showLess": "Mostra meno",
+        "showMoreFrames": "Mostra {count} altri {count, plural, one {frame} other {frame}}",
+        "at": "in",
+        "inApp": "nell'app"
+      },
+      "sessionTrail": {
+        "title": "Traccia sessione",
+        "eventCount": "{count, plural, one {# evento} other {# eventi}} in questa sessione",
+        "watchReplay": "Guarda replay"
+      },
+      "occurrence": {
+        "browser": "Browser",
+        "operatingSystem": "Sistema operativo",
+        "device": "Dispositivo",
+        "country": "Paese"
+      },
+      "volumeChart": {
+        "errorCount": "{count, plural, one {# errore} other {# errori}}"
+      }
+    }
+  },
+  "publicStatusPage": {
+    "banner": {
+      "operational": "Tutti i sistemi sono operativi",
+      "degraded": "Prestazioni ridotte",
+      "partial_outage": "Alcuni sistemi sono fuori servizio",
+      "outage": "Interruzione grave",
+      "unknown": "Stato non disponibile"
+    },
+    "meta": {
+      "description": "Ultimo stato di uptime per {name}"
+    },
+    "statusNote": {
+      "degraded": "Alcuni servizi sono più lenti del solito"
+    },
+    "lastUpdated": "Ultimo aggiornamento: {date}",
+    "lastUpdatedInline": "ultimo aggiornamento: {date}",
+    "uptimeValue": "{uptime} di uptime",
+    "noData": "Nessun dato",
+    "monitorStatus": {
+      "operational": "Operativo",
+      "degraded": "Ridotto",
+      "down": "Fuori servizio",
+      "unknown": "Nessun dato"
+    },
+    "uptimeWindow": {
+      "start": "{days} giorni fa",
+      "today": "Oggi"
+    },
+    "overallUptime": "Uptime complessivo <value>{uptime}</value> · ultimi {days} giorni",
+    "activeIncidents": "Incidenti attivi",
+    "pastIncidents": "Incidenti passati",
+    "showPastIncidents": "Mostra incidenti passati",
+    "hidePastIncidents": "Nascondi incidenti passati",
+    "noPastIncidents": "Nessun incidente passato negli ultimi {days} giorni.",
+    "incident": {
+      "resolved": "Risolto dopo {duration}",
+      "ongoing": "In corso da {duration}, dal {time}",
+      "showMore": "Mostra {count} {count, plural, one {aggiornamento precedente} other {aggiornamenti precedenti}}",
+      "showLess": "Nascondi aggiornamenti precedenti",
+      "descriptionMore": "Leggi di più",
+      "descriptionLess": "Mostra meno",
+      "today": "Oggi",
+      "yesterday": "Ieri",
+      "impact": {
+        "degraded": "Degradato",
+        "partial_outage": "Interruzione parziale",
+        "outage": "Interruzione totale"
+      },
+      "status": {
+        "investigating": "In esame",
+        "identified": "Identificato",
+        "monitoring": "Monitoraggio",
+        "resolved": "Risolto"
+      }
+    },
+    "duration": {
+      "minutes": "{count, plural, one {# minuto} other {# minuti}}",
+      "hours": "{count, plural, one {# ora} other {# ore}}",
+      "days": "{count, plural, one {# giorno} other {# giorni}}"
+    },
+    "poweredBy": "Realizzato con"
+  },
+  "statusPagesPage": {
+    "title": "Pagine di stato",
+    "newStatusPage": "Nuova pagina di stato",
+    "upgradeToCreate": "Upgrade per altri",
+    "error": "Qualcosa è andato storto",
+    "empty": {
+      "title": "Nessuna pagina di stato",
+      "description": "Scegli quali monitor mostrare, aggiungi il tuo logo e i tuoi colori, e condividi una pagina pubblica che i tuoi utenti possono consultare durante gli incidenti.",
+      "cta": "Crea la tua prima pagina di stato"
+    },
+    "badge": {
+      "public": "Pubblica",
+      "draft": "Bozza"
+    },
+    "monitorCount": "{count, plural, one {# monitor} other {# monitor}}",
+    "actions": {
+      "copyLink": "Copia link",
+      "viewPage": "Vedi pagina",
+      "more": "Altre azioni",
+      "linkCopied": "Link copiato negli appunti",
+      "openPublicPage": "Apri pagina pubblica",
+      "editPage": "Modifica pagina",
+      "manageIncidents": "Gestisci incidenti",
+      "settings": "Impostazioni",
+      "copyUrl": "Copia URL pubblico",
+      "publish": "Pubblica",
+      "unpublish": "Annulla pubblicazione",
+      "publishedToast": "Pagina di stato pubblicata",
+      "unpublishedToast": "Pagina di stato messa offline",
+      "publishConfirmTitle": "Pubblicare la pagina di stato?",
+      "publishConfirmDescription": "Diventerà accessibile pubblicamente al suo URL.",
+      "unpublishConfirmTitle": "Annullare la pubblicazione della pagina di stato?",
+      "unpublishConfirmDescription": "Verrà messa offline e i visitatori non potranno più accedervi."
+    },
+    "editor": {
+      "back": "Pagine di stato",
+      "save": "Salva modifiche",
+      "discard": "Annulla modifiche",
+      "confirmLeave": {
+        "title": "Uscire con modifiche non salvate?",
+        "description": "Hai apportato modifiche che non sono state salvate. Se esci ora, andranno perse.",
+        "stay": "Continua a modificare",
+        "leave": "Esci"
+      },
+      "statusPublished": "Pubblicato",
+      "statusDraft": "Bozza",
+      "viewPage": "Vedi pagina",
+      "copyUrl": "Copia URL",
+      "publish": "Pubblica pagina di stato",
+      "unpublish": "Annulla pubblicazione",
+      "saved": "Pagina di stato salvata",
+      "unpublished": "Pubblicazione annullata",
+      "publishSuccess": {
+        "title": "La tua pagina di stato è online",
+        "copy": "Copia link",
+        "copied": "Link copiato negli appunti",
+        "view": "Vedi pagina"
+      },
+      "deleted": "Pagina di stato eliminata",
+      "error": "Qualcosa è andato storto",
+      "delete": "Elimina pagina di stato",
+      "deleteConfirmTitle": "Eliminare questa pagina di stato?",
+      "deleteConfirmDescription": "La pagina pubblica smetterà di funzionare immediatamente. Questa azione non può essere annullata.",
+      "deleteConfirm": "Elimina",
+      "cancel": "Annulla",
+      "pageName": "Nome pagina",
+      "nameRequired": "Il nome della pagina è obbligatorio.",
+      "unsavedChanges": "Modifiche non salvate",
+      "publishNeedsSave": "Salva le modifiche prima di pubblicare.",
+      "confirmPublish": {
+        "title": "Pubblicare queste modifiche?",
+        "description": "Le tue modifiche appariranno subito sulla pagina di stato pubblica.",
+        "confirm": "Pubblica modifiche"
+      },
+      "publicUrl": "URL pubblico",
+      "publicUrlHint": "L'indirizzo web dove viene pubblicata la tua pagina di stato.",
+      "slugStatus": {
+        "checking": "Verifica in corso…",
+        "available": "Disponibile",
+        "taken": "Già in uso",
+        "invalid": "Slug non valido"
+      },
+      "homepageUrl": "URL della homepage",
+      "homepageUrlHint": "Dove rimandano il logo e il titolo della pagina.",
+      "customDomain": "Dominio personalizzato",
+      "customDomainHint": "Ospita la pagina sul tuo dominio.",
+      "homepageUrlInvalid": "Inserisci un URL valido che inizia con http:// o https://.",
+      "customDomainInvalid": "Inserisci un sottodominio, es. status.example.com.",
+      "customDomainSetup": {
+        "intro": "Aggiungi questo record DNS presso il tuo provider di dominio per puntare <strong>{domain}</strong> a Betterlytics.",
+        "recordType": "Tipo",
+        "recordName": "Nome",
+        "recordValue": "Valore",
+        "copy": "Copia valore",
+        "copied": "Valore copiato",
+        "nameHint": "Alcuni provider aggiungono automaticamente il tuo dominio. In tal caso, inserisci solo <mono>{label}</mono> come Nome invece del <monoBreak>{domain}</monoBreak> completo.",
+        "propagation": "Le modifiche al DNS possono richiedere fino a qualche ora per avere effetto."
+      },
+      "hideBranding": "Nascondi il branding Betterlytics",
+      "hideBrandingHint": "Rimuovi il footer \"Powered by Betterlytics\" dalla tua pagina pubblica.",
+      "visibility": {
+        "title": "Visibilità sui motori di ricerca",
+        "public": "Pubblica",
+        "publicHint": "Chiunque abbia il link può vederla. Indicizzata dai motori di ricerca.",
+        "unlisted": "Non in elenco",
+        "unlistedHint": "Chiunque abbia il link può vederla, ma è nascosta ai motori di ricerca."
+      },
+      "dangerZone": {
+        "title": "Zona pericolosa",
+        "unpublishDescription": "Metti la pagina offline. I visitatori non potranno raggiungerla, ma puoi pubblicarla di nuovo in qualsiasi momento.",
+        "deleteDescription": "Elimina definitivamente questa pagina di stato e la sua cronologia degli incidenti. Questa azione non può essere annullata."
+      },
+      "logo": "Logo",
+      "uploadLogo": "Carica logo",
+      "favicon": "Favicon",
+      "uploadFavicon": "Carica favicon",
+      "replaceImage": "Sostituisci",
+      "removeImage": "Rimuovi",
+      "imageTooLarge": "L'immagine è troppo grande. Scegli un file più piccolo.",
+      "svgUnsafe": "L'SVG contiene contenuti non supportati o non sicuri. Prova un'esportazione vettoriale semplice.",
+      "accentColor": "Colore principale",
+      "theme": "Tema",
+      "themes": {
+        "light": "Chiaro",
+        "dark": "Scuro",
+        "system": "Sistema"
+      },
+      "showPastIncidents": "Mostra incidenti passati",
+      "showPastIncidentsHint": "Mostra una cronologia degli incidenti risolti sulla tua pagina pubblica.",
+      "minMonitorsHint": "Aggiungi almeno un monitor per salvare le modifiche.",
+      "publicNamePlaceholder": "Nome visualizzato pubblico",
+      "reorderMonitor": "Riordina monitor",
+      "preview": "Anteprima live",
+      "enlargePreview": "Ingrandisci anteprima",
+      "loadingPreview": "Caricamento anteprima…",
+      "tabs": {
+        "incidents": "Incidenti",
+        "settings": "Impostazioni"
+      },
+      "studio": {
+        "tabs": {
+          "monitors": "Monitor",
+          "branding": "Branding",
+          "publish": "Pubblica"
+        },
+        "tabIssue": "Richiede attenzione",
+        "draft": "Bozza",
+        "publicNamesHint": "Rinominare qui cambia solo ciò che vedono i visitatori. Il monitor mantiene il suo nome interno.",
+        "pageNameHint": "Usato nella scheda del browser e nelle anteprime dei link. Un logo lo sostituisce nell'intestazione della pagina.",
+        "themeHint": "Il tema che vedono i visitatori. Sistema segue l'impostazione del dispositivo di ciascun visitatore.",
+        "zoomIn": "Aumenta zoom",
+        "zoomOut": "Riduci zoom",
+        "zoomFit": "Adatta allo schermo",
+        "desktopPreview": "Anteprima desktop",
+        "mobilePreview": "Anteprima mobile",
+        "customDomainLater": "Vuoi ospitare la pagina sul tuo dominio, come status.{domain}? Collegalo dalle impostazioni della pagina una volta creata.",
+        "discardEdits": {
+          "title": "Annullare le modifiche?",
+          "description": "Le modifiche apportate nell'editor verranno riportate all'ultimo stato salvato.",
+          "keep": "Continua a modificare",
+          "discard": "Scarta"
+        }
+      },
+      "wizard": {
+        "title": "Nuova pagina di stato",
+        "close": "Chiudi",
+        "loading": "Caricamento editor…",
+        "saveDraft": "Salva come bozza",
+        "monitorsHeading": "Monitor su questa pagina",
+        "searchMonitors": "Cerca monitor",
+        "noSearchResults": "Nessun monitor corrisponde alla ricerca.",
+        "noMonitorsTitle": "Ancora nessun monitor",
+        "noMonitors": "Crea il tuo primo monitor per iniziare a tracciare l'uptime, poi aggiungilo a questa pagina.",
+        "noMonitorYet": "Non lo vedi?",
+        "createMonitor": "Crea un monitor",
+        "addMonitor": "Aggiungi monitor",
+        "allOnPage": "Tutti i monitor sono sulla pagina.",
+        "addAll": "Aggiungi tutti ({count})",
+        "removeFromPage": "Rimuovi dalla pagina",
+        "shownCount": "{selected} di {total} mostrati",
+        "minMonitors": "Aggiungi almeno un monitor per continuare.",
+        "emptyPageTitle": "Aggiungi monitor a questa pagina di stato",
+        "emptyPageHint": "Il loro stato e uptime appariranno sulla tua pagina pubblica.",
+        "confirmDiscard": {
+          "title": "Vuoi annullare questa pagina di stato?",
+          "description": "Hai apportato modifiche che andranno perse se chiudi ora. Non è stato salvato nulla.",
+          "keep": "Continua a modificare",
+          "discard": "Annulla modifiche"
+        }
+      },
+      "incidents": {
+        "title": "Incidenti",
+        "activeIncidents": "Incidenti attivi",
+        "pastIncidents": "Incidenti passati",
+        "filters": {
+          "search": "Cerca incidenti",
+          "state": "Stato",
+          "stateAll": "Tutti gli stati",
+          "stateActive": "Attivi",
+          "stateResolved": "Risolti",
+          "noMatch": "Nessun incidente corrisponde ai filtri."
+        },
+        "autoDetected": "Rilevato automaticamente",
+        "affectedMore": "+{count} altri",
+        "detectedPanelTitle": "{count, plural, one {# interruzione rilevata da esaminare} other {# interruzioni rilevate da esaminare}}",
+        "detectedGroupMulti": "Interruzione su {count} monitor",
+        "hint": "Scrivi e pubblica gli incidenti. Le interruzioni rilevate sono suggerite qui sotto. Nulla diventa pubblico finché non lo pubblichi.",
+        "newIncident": "Nuovo incidente",
+        "editIncident": "Modifica incidente",
+        "formHint": "I visitatori lo vedranno sulla tua pagina di stato pubblica una volta pubblicato.",
+        "createFromSuggestion": "Crea incidente",
+        "suggestedTitle": "Interruzione di {monitor}",
+        "suggestedTitleMulti": "Interruzione che coinvolge {count} servizi",
+        "noIncidents": "Ancora nessun incidente.",
+        "emptyHint": "Quando qualcosa si rompe, pubblica un incidente qui per tenere informati i tuoi visitatori.",
+        "suggestionsHint": "Rilevati automaticamente dai tuoi monitor: esamina e pubblica per renderli pubblici.",
+        "unspecified": "Non specificato",
+        "ongoingFor": "In corso da {duration}",
+        "lasted": "Durata {duration}",
+        "draft": "Bozza",
+        "edit": "Modifica",
+        "delete": "Elimina",
+        "actions": "Azioni",
+        "table": {
+          "incident": "Incidente",
+          "status": "Stato",
+          "impact": "Impatto",
+          "affected": "Interessato",
+          "started": "Iniziato",
+          "duration": "Durata"
+        },
+        "suggestionsTable": {
+          "outage": "Interruzione",
+          "monitors": "Monitor",
+          "detected": "Rilevata",
+          "duration": "Durata",
+          "status": "Stato",
+          "ongoing": "In corso",
+          "resolved": "Risolta"
+        },
+        "saved": "Incidente salvato",
+        "deleted": "Incidente eliminato",
+        "error": "Qualcosa è andato storto",
+        "impact": {
+          "degraded": "Degradato",
+          "partial_outage": "Interruzione parziale",
+          "outage": "Interruzione totale"
+        },
+        "status": {
+          "investigating": "In esame",
+          "identified": "Identificato",
+          "monitoring": "Monitoraggio",
+          "resolved": "Risolto"
+        },
+        "form": {
+          "title": "Titolo",
+          "titleRequired": "Il titolo è obbligatorio",
+          "description": "Descrizione",
+          "descriptionPlaceholder": "es. Alcuni utenti potrebbero riscontrare errori al checkout — stiamo indagando",
+          "optional": "(facoltativo)",
+          "timelineRequired": "Aggiungi almeno una voce alla cronologia",
+          "detailsSection": "Dettagli incidente",
+          "impact": "Impatto",
+          "monitor": "Monitor interessati",
+          "monitorNotSpecified": "Intera pagina (nessun monitor specifico)",
+          "monitorAllToken": "Tutti i monitor",
+          "monitorSearchPlaceholder": "Cerca monitor",
+          "monitorNoMatch": "Nessun monitor trovato",
+          "monitorRemove": "Rimuovi {monitor}",
+          "monitorCountSelected": "{selected} di {total} selezionati",
+          "monitorSelectAll": "Seleziona tutti",
+          "monitorClear": "Cancella",
+          "monitorSummaryPageWide": "Intera pagina, tutti i {count} monitor",
+          "monitorSummaryScoped": "{count} di {total} monitor interessati",
+          "cancel": "Annulla",
+          "publishCta": "Pubblica",
+          "updatePublic": "Aggiorna pagina pubblica",
+          "unsaved": "Modifiche non salvate",
+          "deleteIncident": "Elimina incidente"
+        },
+        "composer": {
+          "section": "Aggiungi una voce alla cronologia",
+          "sectionHelp": "La voce più recente imposta lo stato dell’incidente.",
+          "statusLabel": "Status",
+          "messagePlaceholder": "Quali novità? (facoltativo)",
+          "time": "Ora"
+        },
+        "timeline": {
+          "title": "Cronologia",
+          "today": "Oggi",
+          "yesterday": "Ieri",
+          "addUpdate": "Aggiungi",
+          "pendingLabel": "Not saved yet",
+          "empty": "Nessuna voce nella cronologia.",
+          "editMessage": "Modifica messaggio",
+          "deleteUpdate": "Elimina aggiornamento",
+          "done": "Fatto",
+          "removePending": "Rimuovi aggiornamento"
+        },
+        "discard": {
+          "title": "Ignorare le modifiche?",
+          "description": "Hai modifiche non salvate. Se chiudi ora, andranno perse.",
+          "keep": "Continua a modificare",
+          "confirm": "Ignora"
+        }
+      },
+      "editPage": "Modifica pagina",
+      "publicAddress": "Indirizzo pubblico"
+    },
+    "table": {
+      "statusPage": "Pagina di stato",
+      "visibility": "Visibilità",
+      "monitors": "Monitor",
+      "status": "Stato"
+    },
+    "status": {
+      "operational": "Operativo",
+      "ongoingIncident": "Incidente in corso"
+    },
+    "banner": {
+      "incidentTitle": "{count, plural, one {# pagina di stato ha un incidente attivo} other {# pagine di stato hanno incidenti attivi}}",
+      "viewIncidents": "Vedi incidenti"
+    },
+    "monitorsEmpty": "Nessun monitor",
+    "monitorsUp": "attivi"
   }
 }

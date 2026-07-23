@@ -4,6 +4,7 @@ import { createChangelogEntry } from './entry-renderer';
 import { changelogEntriesEn, latestChangelogModalEn } from './locales/en';
 import { changelogEntriesDa, latestChangelogModalDa } from './locales/da';
 import { changelogEntriesIt, latestChangelogModalIt } from './locales/it';
+import { changelogEntriesNb, latestChangelogModalNb } from './locales/nb';
 
 export type { ChangelogEntry } from '@/entities/system/changelog.entities';
 
@@ -16,17 +17,20 @@ function mapEntries(entries: readonly ChangelogEntryData[]): readonly ChangelogE
 const enEntries = mapEntries(changelogEntriesEn);
 const daEntries = mapEntries(changelogEntriesDa);
 const itEntries = mapEntries(changelogEntriesIt);
+const nbEntries = mapEntries(changelogEntriesNb);
 
 const changelogEntriesByLocale: Record<SupportedLanguages, readonly ChangelogEntry[]> = {
   en: enEntries,
   da: daEntries,
   it: itEntries,
+  nb: nbEntries,
 };
 
 const modalEntriesByLocale: Record<SupportedLanguages, ChangelogEntry> = {
   en: createChangelogEntry(latestChangelogModalEn),
   da: createChangelogEntry(latestChangelogModalDa),
   it: createChangelogEntry(latestChangelogModalIt),
+  nb: createChangelogEntry(latestChangelogModalNb),
 };
 
 export const currentChangelogModalDisplay: ChangelogEntry = modalEntriesByLocale[defaultLocale];

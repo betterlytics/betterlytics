@@ -1,5 +1,4 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { DateTimeString } from '@/types/dates';
 import {
   EventTypeRow,
   EventOccurrenceAggregate,
@@ -8,42 +7,40 @@ import {
 } from '@/entities/analytics/events.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { EventLogEntry, EventLogEntrySchema } from '@/entities/analytics/events.entities';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BAQuery } from '@/lib/ba-query';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
+import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
-export async function getCustomEventsOverview(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<EventTypeRow[]> {
+export async function getCustomEventsOverview(siteQuery: BASiteQuery, limit: number): Promise<EventTypeRow[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
   const query = safeSql`
     SELECT
       custom_event_name as event_name,
-      count() as count,
-      uniq(visitor_id) as unique_users,
+      count() * any(_sample_factor) as count,
+      uniq(visitor_id) * any(_sample_factor) as unique_users,
       max(timestamp) as last_seen,
       round(count() / uniq(visitor_id), 2) as avg_per_user
-    FROM analytics.events
+    FROM analytics.events ${sample}
     WHERE
           site_id = {site_id:String}
-      AND event_type = 'custom' 
+      AND event_type = 'custom'
       AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       AND ${SQL.AND(filters)}
     GROUP BY event_name
     ORDER BY count DESC
-    LIMIT 100
+    LIMIT {limit:UInt32}
   `;
   const result = (await clickhouse
     .query(query.taggedSql, {
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
+        limit,
       },
     })
     .toPromise()) as any[];
@@ -57,12 +54,10 @@ export async function getCustomEventsOverview(
 }
 
 export async function getEventPropertyData(
-  siteId: string,
+  siteQuery: BASiteQuery,
   eventName: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
 ): Promise<RawEventPropertyData[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const eventsQuery = safeSql`
@@ -84,8 +79,8 @@ export async function getEventPropertyData(
         ...eventsQuery.taggedParams,
         site_id: siteId,
         event_name: eventName,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as Array<{ custom_event_json: string }>;
@@ -94,20 +89,18 @@ export async function getEventPropertyData(
 }
 
 export async function getRecentEvents(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
+  siteQuery: BASiteQuery,
   limit: number = 50,
   offset: number = 0,
-  queryFilters?: QueryFilter[],
 ): Promise<EventLogEntry[]> {
-  const filters = BAQuery.getFilterQuery(queryFilters || []);
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
     SELECT
       timestamp,
       custom_event_name as event_name,
-      visitor_id,
+      toString(visitor_id) as visitor_id,
       url,
       custom_event_json,
       country_code,
@@ -129,8 +122,8 @@ export async function getRecentEvents(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
         limit,
         offset,
       },
@@ -140,12 +133,31 @@ export async function getRecentEvents(
   return result.map((row) => EventLogEntrySchema.parse({ ...row, timestamp: parseClickHouseDate(row.timestamp) }));
 }
 
-export async function getTotalEventCount(
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-  queryFilters: QueryFilter[],
-): Promise<number> {
+export async function anySiteHasEventsWithinDays(
+  siteIds: string[],
+  withinDays: number,
+): Promise<boolean> {
+  if (siteIds.length === 0) return false;
+
+  const query = safeSql`
+    SELECT 1
+    FROM analytics.events
+    WHERE site_id IN ({site_ids:Array(String)})
+      AND timestamp > now() - INTERVAL {within_days:UInt32} DAY
+    LIMIT 1
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_ids: siteIds, within_days: withinDays },
+    })
+    .toPromise()) as Array<unknown>;
+
+  return result.length > 0;
+}
+
+export async function getTotalEventCount(siteQuery: BASiteQuery): Promise<number> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -163,8 +175,8 @@ export async function getTotalEventCount(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDate,
-        end_date: endDate,
+        start_date: startDateTime,
+        end_date: endDateTime,
       },
     })
     .toPromise()) as Array<{ total: number }>;
