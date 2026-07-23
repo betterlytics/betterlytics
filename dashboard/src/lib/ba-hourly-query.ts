@@ -3,6 +3,7 @@ import 'server-only';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { safeSql, SQL } from './safe-sql';
+import { matchAnyValueFilterSql } from './filter-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 const HOUR_MS = 3_600_000;
@@ -65,10 +66,9 @@ function buildHourlyMvFilters(
 
   return applicable.map((filter, i) => {
     const col = SQL.Unsafe(filter.column);
-    // a lone literal % is indistinguishable from * in the builders that transform before checking
-    const isMatchAnyValue = filter.values.length === 1 && (filter.values[0] === '*' || filter.values[0] === '%');
-    if (isMatchAnyValue) {
-      return filter.operator === '=' ? safeSql`${col} != ''` : safeSql`${col} = ''`;
+    const presenceCheck = matchAnyValueFilterSql(filter.values, filter.operator, col);
+    if (presenceCheck) {
+      return presenceCheck;
     }
 
     const hasWildcard = filter.values.some((v) => v.includes('*'));

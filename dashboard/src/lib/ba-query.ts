@@ -9,7 +9,7 @@ import {
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
-import { filterColumnSql } from './filter-sql';
+import { filterColumnSql, isMatchAnyValueFilter, matchAnyValueFilterSql } from './filter-sql';
 import { DateTimeString } from '@/types/dates';
 import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
 import { setSiteConcurrencyLimit } from '@/observability/clickhouse-concurrency';
@@ -52,12 +52,11 @@ function getFilterQuery(queryFilters: QueryFilter[]) {
 function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, filterIndex: number) {
   const parsed = parseFilterColumn(filter.column);
   const values = SQL.StringArray({ [`query_filter_${filterIndex}`]: filter.values });
-  const isMatchAnyValue = filter.values.length === 1 && filter.values[0] === '%';
 
   switch (parsed.kind) {
     case 'gp': {
       const key = SQL.String({ [`gp_key_${filterIndex}`]: parsed.key });
-      if (isMatchAnyValue) {
+      if (isMatchAnyValueFilter(filter.values)) {
         const hasKey = safeSql`has(global_properties_keys, ${key})`;
         return filter.rawOperator === '=' ? hasKey : safeSql`NOT ${hasKey}`;
       }
@@ -66,11 +65,10 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
     }
     default: {
       const column = filterColumnSql(parsed.col);
-      // event_type is an Enum8 - comparing it to '' throws, and it is never unset anyway
-      if (isMatchAnyValue && parsed.col !== 'event_type') {
-        return filter.rawOperator === '=' ? safeSql`${column} != ''` : safeSql`${column} = ''`;
-      }
-      return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+      return (
+        matchAnyValueFilterSql(filter.values, filter.rawOperator, column, parsed.col) ??
+        safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`
+      );
     }
   }
 }

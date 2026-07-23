@@ -10,7 +10,12 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL, type SQLTaggedExpression } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
-import { filterColumnSql, filterColumnSqlForSession } from './filter-sql';
+import {
+  filterColumnSql,
+  filterColumnSqlForSession,
+  isMatchAnyValueFilter,
+  matchAnyValueFilterSql,
+} from './filter-sql';
 
 // Filters
 const MAIN_TABLE_FILTERS: TableFilterColumn[] = [
@@ -287,8 +292,7 @@ function buildGlobalPropertyFilterQuery(filter: GpFilter) {
   const key = SQL.String({ [`gp_key_${filterHash}`]: filter.gpKey });
   const isEquals = filter.rawOperator === '=';
 
-  const isMatchAnyValue = filter.values.length === 1 && filter.values[0] === '%';
-  if (isMatchAnyValue) {
+  if (isMatchAnyValueFilter(filter.values)) {
     return isEquals
       ? safeSql`arrayExists(t -> t.1 = ${key}, all_props)`
       : safeSql`NOT arrayExists(t -> t.1 = ${key}, all_props)`;
@@ -301,17 +305,15 @@ function buildGlobalPropertyFilterQuery(filter: GpFilter) {
 
 function buildSessionFilterQuery(filter: StandardFilter) {
   const column = filterColumnSqlForSession(filter.col, SESSION_TUPLE_COLUMNS);
-  const isMatchAnyValue = filter.values.length === 1 && filter.values[0] === '%';
-  if (isMatchAnyValue) {
-    return filter.rawOperator === '=' ? safeSql`${column} != ''` : safeSql`${column} = ''`;
-  }
-
   const filterHash = hashFilterQuery(filter);
   const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
   const quantifier = filter.operator.quantifier;
   const operator = filter.operator.operater;
 
-  return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
+  return (
+    matchAnyValueFilterSql(filter.values, filter.rawOperator, column, filter.col) ??
+    safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`
+  );
 }
 
 // Utility for granularity
