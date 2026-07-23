@@ -51,10 +51,11 @@ export function FilterColumnDropdown<TEntity>({
 
   const columnOptions = useMemo(
     () =>
-      FILTER_COLUMN_SELECT_OPTIONS.map((column) => ({ column, status: getColumnStatus(column.value) })).filter(
-        ({ status }) => mode === 'disable' || status.reason !== 'page',
-      ),
-    [getColumnStatus, mode],
+      FILTER_COLUMN_SELECT_OPTIONS.map((column) => {
+        const status = getColumnStatus(column.value);
+        return { column, status, disabledMessage: getDisabledMessage(status) };
+      }).filter(({ status }) => mode === 'disable' || status.reason !== 'page'),
+    [getColumnStatus, getDisabledMessage, mode],
   );
 
   const strategy = getFilterStrategy(filter.column);
@@ -87,9 +88,8 @@ export function FilterColumnDropdown<TEntity>({
             {t('type')}
           </BADropdownMenuLabel>
           <BADropdownMenuGroup>
-            {columnOptions.map(({ column, status }) => {
+            {columnOptions.map(({ column, status, disabledMessage }) => {
               const active = filter.column === column.value;
-              const disabledMessage = getDisabledMessage(status);
               return (
                 <BADropdownMenuItem
                   key={column.value}
