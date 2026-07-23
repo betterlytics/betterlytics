@@ -4,6 +4,7 @@ import { useFilterColumnStatus, useFilterColumnDisabledMessage } from '@/hooks/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui-extended/tooltip';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { XIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { FilterDescription } from '@/components/filters/FilterDescription';
@@ -32,16 +33,9 @@ export function ActiveQueryFilters() {
               status.disabled && 'opacity-50',
             )}
           >
-            {disabledMessage ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <FilterDescription filter={filter} />
-                </TooltipTrigger>
-                <TooltipContent>{disabledMessage}</TooltipContent>
-              </Tooltip>
-            ) : (
-              <FilterDescription filter={filter} />
-            )}
+            <DisabledTooltip disabled={status.disabled} message={disabledMessage} wrapperClassName='inline-flex'>
+              {() => <FilterDescription filter={filter} />}
+            </DisabledTooltip>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
