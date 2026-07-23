@@ -132,12 +132,19 @@ Use the asterisk (`*`) character for flexible pattern matching:
 - `*example` - Matches anything **ending** with "example"
 - `example*` - Matches anything **starting** with "example"
 - `*example*` - Matches anything **containing** "example"
+- `*` on its own - Matches any **non-empty** value
 
 **Real-world examples:**
 - **URL is `/blog/*`** - All blog pages and subpages
 - **Browser is `*Chrome*`** - All Chrome variants (Chrome, Chrome Mobile, etc.)
 - **UTM source is `*google*`** - All Google traffic sources (google, google-ads, google-organic)
 - **Event is `*click*`** - All click-related events (button-click, link-click, etc.)
+
+**Checking presence or absence:**
+
+A bare `*` works as a presence check, since it only matches values that are actually set:
+- **UTM source is `*`** - Only traffic that arrived with a UTM source
+- **Event is not `*`** - Sessions that never fired a custom event
 
 ## Working with multiple filters
 

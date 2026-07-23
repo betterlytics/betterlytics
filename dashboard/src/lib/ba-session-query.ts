@@ -10,7 +10,12 @@ import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL, type SQLTaggedExpression } from './safe-sql';
 import { DateTimeString } from '@/types/dates';
-import { filterColumnSql, filterColumnSqlForSession } from './filter-sql';
+import {
+  filterColumnSql,
+  filterColumnSqlForSession,
+  isMatchAnyValueFilter,
+  matchAnyValueFilterSql,
+} from './filter-sql';
 
 // Filters
 const MAIN_TABLE_FILTERS: TableFilterColumn[] = [
@@ -184,7 +189,7 @@ function getSessionFilterQuery(
 /**
  * Bridge event-scoped columns through analytics.events, since they don't exist
  * on session rows. `=` means "the session has a matching event"; `!=` must
- * exclude the whole session, so it becomes NOT IN over the positive match — a
+ * exclude the whole session, so it becomes NOT IN over the positive match - a
  * per-event NOT ILIKE inside IN would pass any session with at least one other event.
  */
 function buildEventsBridgeQueries(
@@ -196,31 +201,61 @@ function buildEventsBridgeQueries(
   const bridge = (predicate: SQLTaggedExpression) =>
     safeSql`( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${predicate} )`;
 
-  const includes = eventsFilters
-    .filter((filter) => filter.rawOperator === '=')
-    .map((filter) => buildFilterQuery(filter));
+  const includes = eventsFilters.filter((filter) => filter.rawOperator === '=');
   const excludes = eventsFilters
     .filter((filter) => filter.rawOperator === '!=')
     .map((filter) => buildEventMatchQuery(filter));
 
+  const includeBridges = buildIncludePredicates(includes).map(
+    (predicate) => safeSql`session_id IN ${bridge(predicate)}`,
+  );
+
   return [
-    ...(includes.length > 0 ? [safeSql`session_id IN ${bridge(SQL.AND(includes))}`] : []),
+    ...includeBridges,
     ...(excludes.length > 0 ? [safeSql`session_id NOT IN ${bridge(safeSql`(${SQL.OR(excludes)})`)}`] : []),
   ];
 }
 
+/**
+ * One IN-bridge per event type: columns carried by different event types can
+ * never match on the same event row, so conjoining their guarded predicates
+ * per-event would be unsatisfiable. Unguarded columns (url, event_type) join
+ * every bridge, preserving same-event conjunction semantics within each type.
+ */
+function buildIncludePredicates(includes: StandardFilter[]) {
+  if (includes.length === 0) {
+    return [];
+  }
+
+  const guardOf = (filter: StandardFilter) => EVENT_MATCH_TYPE_GUARDS[filter.col];
+  const guards = [...new Set(includes.map(guardOf))].filter((guard) => guard !== undefined);
+  const unguarded = includes.filter((filter) => !guardOf(filter)).map((filter) => buildFilterQuery(filter));
+
+  if (guards.length === 0) {
+    return [SQL.AND(unguarded)];
+  }
+
+  return guards.map((guard) =>
+    SQL.AND([
+      ...includes.filter((filter) => guardOf(filter) === guard).map((filter) => buildFilterQuery(filter)),
+      ...unguarded,
+    ]),
+  );
+}
+
+/**
+ * Pins event-scoped columns to the only event type that carries them. This
+ * prunes both bridge subqueries on the (site_id, event_type, date) primary key
+ * and keeps all-wildcard patterns (`*` → `%`) from matching events where the
+ * column is unset - so `custom_event_name != *` reads "sessions with no custom
+ * events" and `custom_event_name = *` reads "sessions with at least one".
+ */
 const EVENT_MATCH_TYPE_GUARDS: Partial<Record<TableFilterColumn, SQLTaggedExpression>> = {
   custom_event_name: safeSql`event_type = 'custom'`,
   outbound_link_url: safeSql`event_type = 'outbound_link'`,
 };
 
-/**
- * Positive per-event match used by the NOT IN bridge. The event_type guard pins
- * columns to the only event type that carries them, which both prunes on the
- * (site_id, event_type, date) primary key and keeps all-wildcard patterns
- * (`*` → `%`) from matching events where the column is unset — so
- * `custom_event_name != *` reads "sessions with no custom events".
- */
+// Positive per-event match for filters negated at the session level via NOT IN
 function buildEventMatchQuery(filter: StandardFilter) {
   const filterHash = hashFilterQuery(filter);
   const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
@@ -243,7 +278,9 @@ function buildFilterQuery(filter: StandardFilter) {
   const filterHash = hashFilterQuery(filter);
   const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
   const column = filterColumnSql(filter.col);
-  return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+  const match = safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+  const guard = EVENT_MATCH_TYPE_GUARDS[filter.col];
+  return guard ? safeSql`(${guard} AND ${match})` : match;
 }
 
 // Global-property filter against the unioned all_props on analytics.sessions.
@@ -255,8 +292,7 @@ function buildGlobalPropertyFilterQuery(filter: GpFilter) {
   const key = SQL.String({ [`gp_key_${filterHash}`]: filter.gpKey });
   const isEquals = filter.rawOperator === '=';
 
-  const isMatchAnyValue = filter.values.length === 1 && filter.values[0] === '%';
-  if (isMatchAnyValue) {
+  if (isMatchAnyValueFilter(filter.values)) {
     return isEquals
       ? safeSql`arrayExists(t -> t.1 = ${key}, all_props)`
       : safeSql`NOT arrayExists(t -> t.1 = ${key}, all_props)`;
@@ -274,7 +310,10 @@ function buildSessionFilterQuery(filter: StandardFilter) {
   const quantifier = filter.operator.quantifier;
   const operator = filter.operator.operater;
 
-  return safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`;
+  return (
+    matchAnyValueFilterSql(filter.values, filter.rawOperator, column, filter.col) ??
+    safeSql`${quantifier}(pattern -> ${column} ${operator} pattern, ${values})`
+  );
 }
 
 // Utility for granularity

@@ -76,6 +76,62 @@ describe('getSessionTableSubQuery event-column filters', () => {
     expect(taggedSql).toMatch(/custom_event_name ILIKE pattern.*\) OR \(.*outbound_link_url ILIKE pattern/);
   });
 
+  it('guards the = bridge by event type for primary key pruning', () => {
+    const { taggedSql } = buildSubQuery([makeFilter('custom_event_name', '=', ['signup'])]);
+
+    expect(taggedSql).toMatch(/event_type = 'custom' AND arrayExists\(pattern -> custom_event_name ILIKE pattern/);
+  });
+
+  it('treats = * on the bridge as "session has such an event"', () => {
+    const { taggedSql, taggedParams } = buildSubQuery([makeFilter('custom_event_name', '=', ['*'])]);
+
+    expect(taggedSql).toContain('session_id IN ( SELECT session_id FROM analytics.events');
+    expect(taggedSql).toContain(`event_type = 'custom' AND arrayExists`);
+    expect(Object.values(taggedParams)).toContainEqual(['%']);
+  });
+
+  it('treats = * on session-native columns as "value present"', () => {
+    const { taggedSql } = buildSubQuery([makeFilter('utm_source', '=', ['*'])]);
+
+    expect(taggedSql).toContain(`utm_source.2 != ''`);
+    expect(taggedSql).not.toContain('analytics.events');
+  });
+
+  it('treats != * on session-native columns as "value absent"', () => {
+    const { taggedSql } = buildSubQuery([makeFilter('utm_source', '!=', ['*'])]);
+
+    expect(taggedSql).toContain(`utm_source.2 = ''`);
+  });
+
+  it('splits = filters on different event types into separate IN bridges', () => {
+    const { taggedSql } = buildSubQuery([
+      makeFilter('custom_event_name', '=', ['signup'], 'filter-1'),
+      makeFilter('outbound_link_url', '=', ['https://example.com*'], 'filter-2'),
+    ]);
+
+    expect(taggedSql.match(/session_id IN \( SELECT/g)).toHaveLength(2);
+    expect(taggedSql).toMatch(/event_type = 'custom' AND arrayExists\(pattern -> custom_event_name/);
+    expect(taggedSql).toMatch(/event_type = 'outbound_link' AND arrayExists\(pattern -> outbound_link_url/);
+  });
+
+  it('keeps same-event conjunction for url combined with a guarded column', () => {
+    const { taggedSql } = buildSubQuery([
+      makeFilter('custom_event_name', '=', ['signup'], 'filter-1'),
+      makeFilter('url', '=', ['/pricing'], 'filter-2'),
+    ]);
+
+    expect(taggedSql.match(/session_id IN \( SELECT/g)).toHaveLength(1);
+    expect(taggedSql).toMatch(/custom_event_name ILIKE pattern.*AND.*arrayExists\(pattern -> url ILIKE pattern/);
+  });
+
+  it('keeps gp bare wildcard as session-level key existence', () => {
+    const equals = buildSubQuery([makeFilter('gp.plan', '=', ['*'])]);
+    const notEquals = buildSubQuery([makeFilter('gp.plan', '!=', ['*'])]);
+
+    expect(equals.taggedSql).toMatch(/arrayExists\(t -> t\.1 = \{gp_key_[0-9a-f]+:String\}, all_props\)/);
+    expect(notEquals.taggedSql).toMatch(/NOT arrayExists\(t -> t\.1 = \{gp_key_[0-9a-f]+:String\}, all_props\)/);
+  });
+
   it('keeps != on session-native columns as an inline per-session predicate', () => {
     const { taggedSql } = buildSubQuery([makeFilter('device_type', '!=', ['mobile'])]);
 
