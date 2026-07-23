@@ -8,9 +8,6 @@ const meta = {
   "session-replay": "Session Replay",
   errors: "Error Tracking",
   "custom-status-page-domain": "Custom Status Page Domain",
-  wordpress: {
-    title: "WordPress Plugin",
-  },
 };
 
 export default meta;
