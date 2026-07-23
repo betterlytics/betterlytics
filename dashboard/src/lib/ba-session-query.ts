@@ -168,7 +168,7 @@ function getSessionFilterQuery(
     }
   }
 
-  const hasEventsFilters = stdFilters.some((f) => MAIN_TABLE_FILTERS.includes(f.col));
+  const eventsFilters = stdFilters.filter((filter) => MAIN_TABLE_FILTERS.includes(filter.col));
 
   const gpWhere = gpFilters.map((filter) => buildGlobalPropertyFilterQuery(filter));
 
@@ -181,15 +181,60 @@ function getSessionFilterQuery(
   const baseWhere = [...gpWhere, ...sessionWhere, ...cepWhere];
   const WHERE = baseWhere.length > 0 ? baseWhere : [safeSql`1=1`];
 
-  if (hasEventsFilters) {
-    const eventsQueries = stdFilters
-      .filter((filter) => MAIN_TABLE_FILTERS.includes(filter.col))
-      .map((filter) => buildFilterQuery(filter));
-    const eventsQuery = safeSql`session_id IN ( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${SQL.AND(eventsQueries)} )`;
-    return [...WHERE, eventsQuery];
+  if (eventsFilters.length > 0) {
+    return [...WHERE, ...buildEventsBridgeQueries(eventsFilters, siteId, startDate, endDate)];
   }
 
   return WHERE;
+}
+
+/**
+ * Bridge event-scoped columns through analytics.events, since they don't exist
+ * on session rows. `=` means "the session has a matching event"; `!=` must
+ * exclude the whole session, so it becomes NOT IN over the positive match — a
+ * per-event NOT ILIKE inside IN would pass any session with at least one other event.
+ */
+function buildEventsBridgeQueries(
+  eventsFilters: StandardFilter[],
+  siteId: string,
+  startDate: DateTimeString,
+  endDate: DateTimeString,
+) {
+  const bridge = (predicate: SQLTaggedExpression) =>
+    safeSql`( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${predicate} )`;
+
+  const includes = eventsFilters
+    .filter((filter) => filter.rawOperator === '=')
+    .map((filter) => buildFilterQuery(filter));
+  const excludes = eventsFilters
+    .filter((filter) => filter.rawOperator === '!=')
+    .map((filter) => buildEventMatchQuery(filter));
+
+  return [
+    ...(includes.length > 0 ? [safeSql`session_id IN ${bridge(SQL.AND(includes))}`] : []),
+    ...(excludes.length > 0 ? [safeSql`session_id NOT IN ${bridge(safeSql`(${SQL.OR(excludes)})`)}`] : []),
+  ];
+}
+
+const EVENT_MATCH_TYPE_GUARDS: Partial<Record<TableFilterColumn, SQLTaggedExpression>> = {
+  custom_event_name: safeSql`event_type = 'custom'`,
+  outbound_link_url: safeSql`event_type = 'outbound_link'`,
+};
+
+/**
+ * Positive per-event match used by the NOT IN bridge. The event_type guard pins
+ * columns to the only event type that carries them, which both prunes on the
+ * (site_id, event_type, date) primary key and keeps all-wildcard patterns
+ * (`*` → `%`) from matching events where the column is unset — so
+ * `custom_event_name != *` reads "sessions with no custom events".
+ */
+function buildEventMatchQuery(filter: StandardFilter) {
+  const filterHash = hashFilterQuery(filter);
+  const values = SQL.StringArray({ [`query_filter_${filterHash}`]: filter.values });
+  const column = filterColumnSql(filter.col);
+  const match = safeSql`arrayExists(pattern -> ${column} ILIKE pattern, ${values})`;
+  const guard = EVENT_MATCH_TYPE_GUARDS[filter.col];
+  return guard ? safeSql`(${guard} AND ${match})` : safeSql`(${match})`;
 }
 
 function hashFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>) {
