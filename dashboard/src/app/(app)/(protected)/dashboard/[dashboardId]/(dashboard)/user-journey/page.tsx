@@ -8,7 +8,7 @@ import { getTranslations } from 'next-intl/server';
 export default async function UserJourneyPage() {
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <QueryFilterColumnsVisibilityProvider hide={['outbound_link_url', 'custom_event_name']}>
+    <QueryFilterColumnsVisibilityProvider exclude={['outbound_link_url', 'custom_event_name']}>
       <div className='container flex flex-col space-y-3 overflow-y-auto p-2 pt-4 pb-0 sm:p-6'>
         <DashboardHeader title={t('userJourney')}>
           <DashboardFilters showComparison={false}>

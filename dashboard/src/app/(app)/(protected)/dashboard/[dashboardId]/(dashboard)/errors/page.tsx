@@ -8,7 +8,7 @@ export default async function ErrorsPage() {
   const t = await getTranslations('errors.page');
 
   return (
-    <QueryFilterColumnsVisibilityProvider hide={['outbound_link_url', 'custom_event_name']}>
+    <QueryFilterColumnsVisibilityProvider exclude={['outbound_link_url', 'custom_event_name']}>
       <div className='container space-y-4 p-2 pt-4 sm:p-6'>
         <DashboardHeader title={t('title')}>
           <DashboardFilters showComparison={false} />

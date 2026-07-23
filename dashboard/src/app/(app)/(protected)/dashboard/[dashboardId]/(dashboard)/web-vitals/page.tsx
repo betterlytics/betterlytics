@@ -9,7 +9,7 @@ import { WebVitalsBanner } from './WebVitalsBanner';
 export default async function WebVitalsPage() {
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <QueryFilterColumnsVisibilityProvider hide={['outbound_link_url', 'custom_event_name']}>
+    <QueryFilterColumnsVisibilityProvider exclude={['outbound_link_url', 'custom_event_name']}>
       <div className='container space-y-4 p-2 pt-4 sm:p-6'>
         <DashboardHeader title={t('webVitals')}>
           <DashboardFilters showComparison={false} />

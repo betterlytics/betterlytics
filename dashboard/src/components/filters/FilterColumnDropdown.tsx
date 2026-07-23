@@ -20,7 +20,8 @@ import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
-import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
+import { useQueryFilterColumnsVisibility } from '@/contexts/QueryFilterColumnsVisibilityProvider';
+import { useFilterColumnStatus, useFilterColumnDisabledMessage } from '@/hooks/use-is-filter-column-allowed';
 import { cn } from '@/lib/utils';
 import { ChevronDownIcon, TagsIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -45,13 +46,15 @@ export function FilterColumnDropdown<TEntity>({
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
   const getColumnStatus = useFilterColumnStatus();
+  const getDisabledMessage = useFilterColumnDisabledMessage();
+  const { mode } = useQueryFilterColumnsVisibility();
 
-  const visibleColumns = useMemo(
+  const columnOptions = useMemo(
     () =>
-      FILTER_COLUMN_SELECT_OPTIONS.map((column) => ({ column, status: getColumnStatus(column.value) }))
-        .filter(({ status }) => status.reason !== 'page')
-        .map(({ column, status }) => ({ ...column, optionDisabled: status.disabled })),
-    [getColumnStatus],
+      FILTER_COLUMN_SELECT_OPTIONS.map((column) => ({ column, status: getColumnStatus(column.value) })).filter(
+        ({ status }) => mode === 'disable' || status.reason !== 'page',
+      ),
+    [getColumnStatus, mode],
   );
 
   const strategy = getFilterStrategy(filter.column);
@@ -84,13 +87,13 @@ export function FilterColumnDropdown<TEntity>({
             {t('type')}
           </BADropdownMenuLabel>
           <BADropdownMenuGroup>
-            {visibleColumns.map((column) => {
-              const { optionDisabled } = column;
+            {columnOptions.map(({ column, status }) => {
               const active = filter.column === column.value;
+              const disabledMessage = getDisabledMessage(status);
               return (
                 <BADropdownMenuItem
                   key={column.value}
-                  disabled={optionDisabled}
+                  disabled={status.disabled}
                   active={active}
                   onSelect={() => {
                     if (filter.column === column.value) return;
@@ -99,8 +102,8 @@ export function FilterColumnDropdown<TEntity>({
                 >
                   {column.icon}
                   {t(`columns.${column.value}`)}
-                  {optionDisabled && (
-                    <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
+                  {disabledMessage && (
+                    <span className='text-muted-foreground ml-auto text-xs'>{disabledMessage}</span>
                   )}
                   <BADropdownMenuActiveIndicator />
                 </BADropdownMenuItem>

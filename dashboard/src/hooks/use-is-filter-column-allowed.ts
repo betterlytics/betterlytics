@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
-import { useHiddenQueryFilterColumns } from '@/contexts/QueryFilterColumnsVisibilityProvider';
+import { useQueryFilterColumnsVisibility } from '@/contexts/QueryFilterColumnsVisibilityProvider';
 import {
   parseFilterColumn,
   type FilterColumn,
@@ -15,7 +15,7 @@ const DEMO_ALLOWED_COLUMNS = new Set<TableFilterColumn>(['url', 'device_type']);
 
 /**
  * Why a filter column cannot be used on the current page:
- * - `page`: the column is hidden here (its data is not available on this page)
+ * - `page`: the column is excluded here (its data is not available on this page)
  * - `demo`: demo mode does not permit this column
  */
 export type FilterColumnDisabledReason = 'demo' | 'page';
@@ -28,20 +28,20 @@ const ENABLED: FilterColumnStatus = { disabled: false, reason: null };
 
 /**
  * Resolves whether a column is usable on the current page and, if not, why.
- * Per-page hiding takes precedence over the demo reason.
+ * Per-page exclusion takes precedence over the demo reason.
  */
 export function useFilterColumnStatus() {
   const { isDemo } = useDashboardAuth();
-  const hidden = useHiddenQueryFilterColumns();
+  const { excluded } = useQueryFilterColumnsVisibility();
   return useCallback(
     (column: FilterColumn): FilterColumnStatus => {
       const parsed = parseFilterColumn(column);
       if (parsed.kind === 'gp') return isDemo ? { disabled: true, reason: 'demo' } : ENABLED;
-      if (hidden.has(parsed.col)) return { disabled: true, reason: 'page' };
+      if (excluded.has(parsed.col)) return { disabled: true, reason: 'page' };
       if (isDemo && !DEMO_ALLOWED_COLUMNS.has(parsed.col)) return { disabled: true, reason: 'demo' };
       return ENABLED;
     },
-    [isDemo, hidden],
+    [isDemo, excluded],
   );
 }
 

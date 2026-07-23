@@ -3,31 +3,45 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { type TableFilterColumn } from '@/entities/analytics/filter.entities';
 
-const QueryFilterColumnsHiddenContext = createContext<ReadonlySet<TableFilterColumn>>(
-  new Set<TableFilterColumn>(),
-);
+export type QueryFilterColumnsMode = 'disable' | 'hide';
+
+type QueryFilterColumnsVisibility = {
+  excluded: ReadonlySet<TableFilterColumn>;
+  mode: QueryFilterColumnsMode;
+};
+
+const QueryFilterColumnsVisibilityContext = createContext<QueryFilterColumnsVisibility>({
+  excluded: new Set<TableFilterColumn>(),
+  mode: 'disable',
+});
 
 type QueryFilterColumnsVisibilityProviderProps = {
-  hide?: TableFilterColumn[];
+  exclude?: TableFilterColumn[];
+  mode?: QueryFilterColumnsMode;
   children: ReactNode;
 };
 
 /**
- * Declares which filter columns do not apply to the current page. Hidden columns are not
- * offered in the filter dropdowns, existing filters on them render disabled (but deletable),
- * and they are excluded from the analytics query - while staying in the URL so they
- * re-activate automatically on pages where the column is available.
+ * Declares which filter columns do not apply to the current page. Excluded columns are
+ * disabled in the filter column dropdown with a "not available" hint (mode 'disable',
+ * the default) or left out of it entirely (mode 'hide'). Either way, existing filters
+ * on them render disabled (but deletable) and are excluded from the analytics query -
+ * while staying in the URL so they re-activate automatically on pages where the column
+ * is available.
  */
 export function QueryFilterColumnsVisibilityProvider({
-  hide,
+  exclude,
+  mode = 'disable',
   children,
 }: QueryFilterColumnsVisibilityProviderProps) {
-  const hidden = useMemo(() => new Set<TableFilterColumn>(hide), [hide]);
+  const value = useMemo(() => ({ excluded: new Set<TableFilterColumn>(exclude), mode }), [exclude, mode]);
   return (
-    <QueryFilterColumnsHiddenContext.Provider value={hidden}>{children}</QueryFilterColumnsHiddenContext.Provider>
+    <QueryFilterColumnsVisibilityContext.Provider value={value}>
+      {children}
+    </QueryFilterColumnsVisibilityContext.Provider>
   );
 }
 
-export function useHiddenQueryFilterColumns(): ReadonlySet<TableFilterColumn> {
-  return useContext(QueryFilterColumnsHiddenContext);
+export function useQueryFilterColumnsVisibility(): QueryFilterColumnsVisibility {
+  return useContext(QueryFilterColumnsVisibilityContext);
 }
