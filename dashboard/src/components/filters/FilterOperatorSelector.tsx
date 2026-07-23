@@ -18,21 +18,24 @@ type FilterOperatorSelectorProps<TEntity> = {
   filter: QueryFilter & TEntity;
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   className?: string;
+  disabled?: boolean;
 };
 
 export function FilterOperatorSelector<TEntity>({
   filter,
   onFilterUpdate,
   className,
+  disabled,
 }: FilterOperatorSelectorProps<TEntity>) {
   const t = useTranslations('components.filters');
 
   return (
     <Select
       value={filter.operator}
+      disabled={disabled}
       onValueChange={(operator: FilterOperator) => onFilterUpdate({ ...filter, operator })}
     >
-      <SelectTrigger className={cn('w-full cursor-pointer', className)}>
+      <SelectTrigger className={cn('w-full cursor-pointer disabled:cursor-default', className)}>
         <SelectValue />
       </SelectTrigger>
       <SelectContent align='start' position='popper'>

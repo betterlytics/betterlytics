@@ -5,7 +5,7 @@ import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { MAX_FILTER_ROWS, type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
 
@@ -16,7 +16,7 @@ type Options = {
 
 export function useFilterClick(defaults?: Options) {
   const { queryFilters, addQueryFilter, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
-  const { isDemo } = useDashboardAuth();
+  const getColumnStatus = useFilterColumnStatus();
   const t = useTranslations('components.demoMode');
   const tFilters = useTranslations('components.filters');
 
@@ -30,8 +30,10 @@ export function useFilterClick(defaults?: Options) {
 
   const applyFilter = useCallback(
     (column: FilterColumn, value: string, opts?: Options) => {
-      if (isDemo && column !== 'url' && column !== 'device_type') {
-        toast.info(t('interactionDisabled'));
+      const status = getColumnStatus(column);
+      if (status.disabled) {
+        if (status.reason === 'demo') toast.info(t('interactionDisabled'));
+        else if (status.reason === 'page') toast.info(tFilters('notAvailableOnPage'));
         return;
       }
 
@@ -81,8 +83,9 @@ export function useFilterClick(defaults?: Options) {
       queryFilters,
       defaultOperator,
       defaultBehavior,
-      isDemo,
+      getColumnStatus,
       t,
+      tFilters,
       notifyCapReached,
     ],
   );
