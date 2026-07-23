@@ -176,13 +176,11 @@ function getSessionFilterQuery(
     .filter((filter) => !MAIN_TABLE_FILTERS.includes(filter.col))
     .map((filter) => buildSessionFilterQuery(filter));
 
-  const cepWhere = buildCustomEventPropertySessionFilters(cepFilters, siteId, startDate, endDate);
-
-  const baseWhere = [...gpWhere, ...sessionWhere, ...cepWhere];
+  const baseWhere = [...gpWhere, ...sessionWhere];
   const WHERE = baseWhere.length > 0 ? baseWhere : [safeSql`1=1`];
 
-  if (eventsFilters.length > 0) {
-    return [...WHERE, ...buildEventsBridgeQueries(eventsFilters, siteId, startDate, endDate)];
+  if (eventsFilters.length > 0 || cepFilters.length > 0) {
+    return [...WHERE, ...buildEventsBridgeQueries(eventsFilters, cepFilters, siteId, startDate, endDate)];
   }
 
   return WHERE;
@@ -193,9 +191,12 @@ function getSessionFilterQuery(
  * on session rows. `=` means "the session has a matching event"; `!=` must
  * exclude the whole session, so it becomes NOT IN over the positive match — a
  * per-event NOT ILIKE inside IN would pass any session with at least one other event.
+ * Custom event property filters ride the same bridge as guarded positive matches,
+ * so combined with event-column filters they must match the same event.
  */
 function buildEventsBridgeQueries(
   eventsFilters: StandardFilter[],
+  cepFilters: CepFilter[],
   siteId: string,
   startDate: DateTimeString,
   endDate: DateTimeString,
@@ -203,12 +204,14 @@ function buildEventsBridgeQueries(
   const bridge = (predicate: SQLTaggedExpression) =>
     safeSql`( SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND ${predicate} )`;
 
-  const includes = eventsFilters
-    .filter((filter) => filter.rawOperator === '=')
-    .map((filter) => buildFilterQuery(filter));
-  const excludes = eventsFilters
-    .filter((filter) => filter.rawOperator === '!=')
-    .map((filter) => buildEventMatchQuery(filter));
+  const includes = [
+    ...eventsFilters.filter((filter) => filter.rawOperator === '=').map((filter) => buildFilterQuery(filter)),
+    ...cepFilters.filter((filter) => filter.rawOperator === '=').map((filter) => buildCustomEventPropertyMatch(filter)),
+  ];
+  const excludes = [
+    ...eventsFilters.filter((filter) => filter.rawOperator === '!=').map((filter) => buildEventMatchQuery(filter)),
+    ...cepFilters.filter((filter) => filter.rawOperator === '!=').map((filter) => buildCustomEventPropertyMatch(filter)),
+  ];
 
   return [
     ...(includes.length > 0 ? [safeSql`session_id IN ${bridge(SQL.AND(includes))}`] : []),
@@ -274,50 +277,19 @@ function buildGlobalPropertyFilterQuery(filter: GpFilter) {
   return isEquals ? anyValueMatches : safeSql`NOT ${anyValueMatches}`;
 }
 
-/* Each `!=` is its own NOT IN of the equals-form so it excludes sessions rather than no-opping on pageview rows; positives collapse into one IN. */
-function buildCustomEventPropertySessionFilters(
-  cepFilters: CepFilter[],
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-) {
-  const positives = cepFilters.filter((filter) => filter.rawOperator === '=');
-  const negatives = cepFilters.filter((filter) => filter.rawOperator === '!=');
-
-  const positiveMemberships =
-    positives.length > 0
-      ? [customEventSessionMembership(positives.map(buildCustomEventPropertyMatch), true, siteId, startDate, endDate)]
-      : [];
-
-  const negativeMemberships = negatives.map((filter) =>
-    customEventSessionMembership([buildCustomEventPropertyMatch(filter)], false, siteId, startDate, endDate),
-  );
-
-  return [...positiveMemberships, ...negativeMemberships];
-}
-
+/* Always the equals-form: the NOT IN bridge needs the positive match, mirroring buildEventMatchQuery. */
 function buildCustomEventPropertyMatch(filter: CepFilter) {
   const filterHash = hashFilterQuery(filter);
   const keySql = SQL.String({ [`cep_key_${filterHash}`]: filter.cepKey });
   const valuesSql = SQL.StringArray({ [`cep_vals_${filterHash}`]: filter.values });
-  return buildPropertyFilterSql('cep', {
+  const match = buildPropertyFilterSql('cep', {
     keySql,
     valuesSql,
     values: filter.values,
     operator: INTERNAL_FILTER_OPERATORS['='],
     rawOperator: '=',
   });
-}
-
-function customEventSessionMembership(
-  matches: SQLTaggedExpression[],
-  include: boolean,
-  siteId: string,
-  startDate: DateTimeString,
-  endDate: DateTimeString,
-) {
-  const subquery = safeSql`SELECT session_id FROM analytics.events WHERE site_id = ${SQL.String({ siteId })} AND timestamp BETWEEN ${SQL.DateTime({ startDate })} AND ${SQL.DateTime({ endDate })} AND event_type = 'custom' AND ${SQL.AND(matches)}`;
-  return include ? safeSql`session_id IN ( ${subquery} )` : safeSql`session_id NOT IN ( ${subquery} )`;
+  return safeSql`(event_type = 'custom' AND ${match})`;
 }
 
 function buildSessionFilterQuery(filter: StandardFilter) {

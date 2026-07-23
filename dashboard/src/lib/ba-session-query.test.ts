@@ -90,3 +90,53 @@ describe('getSessionTableSubQuery event-column filters', () => {
     expect(taggedSql).not.toContain('analytics.events');
   });
 });
+
+describe('getSessionTableSubQuery custom event property filters', () => {
+  it('bridges = filters through the events IN subquery with a custom event guard', () => {
+    const { taggedSql, taggedParams } = buildSubQuery([makeFilter('cep.plan', '=', ['pro'])]);
+
+    expect(taggedSql).toContain('session_id IN ( SELECT session_id FROM analytics.events');
+    expect(taggedSql).toMatch(
+      /event_type = 'custom' AND arrayExists\(pattern -> JSONExtractString\(custom_event_json, \{cep_key_[0-9a-f]+:String\}\) ILIKE pattern/,
+    );
+    expect(taggedSql).not.toContain('session_id NOT IN');
+    expect(Object.values(taggedParams)).toContainEqual(['pro']);
+  });
+
+  it('bridges != filters through the NOT IN subquery with a positive match', () => {
+    const { taggedSql, taggedParams } = buildSubQuery([makeFilter('cep.plan', '!=', ['pro'])]);
+
+    expect(taggedSql).toContain('session_id NOT IN ( SELECT session_id FROM analytics.events');
+    expect(taggedSql).toMatch(/event_type = 'custom' AND arrayExists\(pattern -> JSONExtractString/);
+    expect(taggedSql).not.toContain('NOT ILIKE');
+    expect(Object.values(taggedParams)).toContainEqual(['pro']);
+  });
+
+  it('treats a lone wildcard as key existence so != * reads "no custom event with the key"', () => {
+    const { taggedSql } = buildSubQuery([makeFilter('cep.plan', '!=', ['*'])]);
+
+    expect(taggedSql).toContain('session_id NOT IN');
+    expect(taggedSql).toMatch(/event_type = 'custom' AND JSONHas\(custom_event_json, \{cep_key_[0-9a-f]+:String\}\)/);
+  });
+
+  it('shares a single IN bridge with event-column = filters so both match the same event', () => {
+    const { taggedSql } = buildSubQuery([
+      makeFilter('custom_event_name', '=', ['signup'], 'filter-1'),
+      makeFilter('cep.plan', '=', ['pro'], 'filter-2'),
+    ]);
+
+    expect(taggedSql.match(/SELECT session_id FROM analytics\.events/g)).toHaveLength(1);
+    expect(taggedSql).toMatch(/custom_event_name ILIKE pattern.* AND .*JSONExtractString/);
+  });
+
+  it('shares a single NOT IN bridge with event-column != filters via OR', () => {
+    const { taggedSql } = buildSubQuery([
+      makeFilter('custom_event_name', '!=', ['signup'], 'filter-1'),
+      makeFilter('cep.plan', '!=', ['pro'], 'filter-2'),
+    ]);
+
+    expect(taggedSql.match(/session_id NOT IN/g)).toHaveLength(1);
+    expect(taggedSql.match(/SELECT session_id FROM analytics\.events/g)).toHaveLength(1);
+    expect(taggedSql).toMatch(/custom_event_name ILIKE pattern.*\) OR \(.*JSONExtractString/);
+  });
+});
