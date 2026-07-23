@@ -35,6 +35,7 @@ export function FilterValueSearch<TEntity>({
 
   const { search, setSearch, options } = useQueryFilterSearch(filter, {
     useExtendedRange,
+    disabled,
   });
 
   const formatLabel = (value: string) => formatString(strategy.formatValue(value, locale), formatLength);
