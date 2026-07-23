@@ -199,7 +199,8 @@ export async function getReferrerUrlRollup(
       source_name,
       referrer_url,
       uniq(session_id) * any(_sample_factor) as visitors,
-      any(nullIf(referrer_source_name, '')) as stored_source_name,
+      /* pre-#813 events store legacy parser names here, not root domains; topK picks the majority */
+      arrayElement(topK(1)(nullIf(referrer_source_name, '')), 1) as stored_source_name,
       grouping(referrer_url) as is_rollup
     FROM enriched
     WHERE source_name IN (SELECT source_name FROM top_parents)
