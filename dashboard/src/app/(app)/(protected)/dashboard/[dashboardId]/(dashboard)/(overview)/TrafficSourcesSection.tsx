@@ -1,10 +1,10 @@
 'use client';
 
-import MultiProgressTable from '@/components/MultiProgressTable';
+import MultiProgressTable, { type ProgressBarData } from '@/components/MultiProgressTable';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
-import { useFilterClick } from '@/hooks/use-filter-click';
+import { useProgressTableFilterClick } from '@/hooks/use-progress-table-filter-click';
 import { useState } from 'react';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
@@ -13,7 +13,7 @@ import { useQueryState } from '@/hooks/use-query-state';
 export default function TrafficSourcesSection() {
   const [activeTab, setActiveTab] = useState('referrers');
   const t = useTranslations('dashboard');
-  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const { onItemClick, isItemInteractive } = useProgressTableFilterClick();
   const { input, options } = useBAQueryParams();
 
   const referrersQuery = trpc.referrers.referrerUrlRollup.useQuery(input, {
@@ -31,16 +31,6 @@ export default function TrafficSourcesSection() {
     activeTab as 'referrers' | 'channels'
   ];
 
-  const onItemClick = (tabKey: string, item: { label: string; children?: unknown[] }) => {
-    if (tabKey === 'referrers') {
-      if (item.children) return;
-      return makeFilterClick('referrer_url')(item.label);
-    }
-    if (tabKey === 'channels') return makeFilterClick('referrer_source')(item.label);
-  };
-
-  const isItemInteractive = (tabKey: string) => tabKey === 'referrers' || tabKey === 'channels';
-
   return (
     <MultiProgressTable
       title={t('sections.trafficSources')}
@@ -48,35 +38,45 @@ export default function TrafficSourcesSection() {
       defaultTab='referrers'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
-      isItemInteractive={(tabKey) => isItemInteractive(tabKey)}
+      isItemInteractive={isItemInteractive}
       tabs={[
         {
           key: 'referrers',
           label: t('tabs.referrers'),
           loading: referrersState.loading,
-          data: (referrersQuery.data ?? []).map((item) => ({
-            label: item.source_name,
-            value: item.current.visitors,
-            trendPercentage: item.change?.visitors,
-            comparisonValue: item.compare?.visitors,
-            children: item.children?.map((child) => ({
-              label: child.referrer_url,
-              value: child.current.visitors,
-              trendPercentage: child.change?.visitors,
-              comparisonValue: child.compare?.visitors,
-            })),
-          })),
+          data: (referrersQuery.data ?? []).map(
+            (item): ProgressBarData => ({
+              label: item.source_name,
+              value: item.current.visitors,
+              trendPercentage: item.change?.visitors,
+              comparisonValue: item.compare?.visitors,
+              filterColumn: item.stored_source_name ? 'referrer_source_name' : undefined,
+              filterValue: item.stored_source_name ?? undefined,
+              children: item.children?.map(
+                (child): ProgressBarData => ({
+                  label: child.referrer_url,
+                  value: child.current.visitors,
+                  trendPercentage: child.change?.visitors,
+                  comparisonValue: child.compare?.visitors,
+                  filterColumn: 'referrer_url',
+                }),
+              ),
+            }),
+          ),
         },
         {
           key: 'channels',
           label: t('tabs.channels'),
           loading: channelsState.loading,
-          data: (channelsQuery.data ?? []).map((item) => ({
-            label: item.channel,
-            value: item.current.visits,
-            trendPercentage: item.change?.visits,
-            comparisonValue: item.compare?.visits,
-          })),
+          data: (channelsQuery.data ?? []).map(
+            (item): ProgressBarData => ({
+              label: item.channel,
+              value: item.current.visits,
+              trendPercentage: item.change?.visits,
+              comparisonValue: item.compare?.visits,
+              filterColumn: 'referrer_source',
+            }),
+          ),
         },
       ]}
       footer={

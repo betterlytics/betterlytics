@@ -14,6 +14,7 @@ const DEFAULT_ARGS = {
   OUTBOUND_LINK_FREQUENCY: 0.05,
   CAMPAIGN_FREQUENCY: 0.3,
   NUM_CAMPAIGNS: 6,
+  REFERRER_FREQUENCY: 0.6,
 }
 
 
@@ -37,6 +38,7 @@ if (!args[0] || args[0].startsWith("--")) {
     | '--outbound-freq'| Fraction (0–1) of events that are outbound link clicks     | ${formatNumber(DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY)} |
     | '--campaign-freq'| Fraction (0–1) of events that have campaign UTM tags       | ${formatNumber(DEFAULT_ARGS.CAMPAIGN_FREQUENCY)} |
     | '--campaigns'    | Number of unique campaigns to generate                     | ${formatNumber(DEFAULT_ARGS.NUM_CAMPAIGNS)} |
+    | '--referrer-freq'| Fraction (0–1) of users arriving via an external referrer  | ${formatNumber(DEFAULT_ARGS.REFERRER_FREQUENCY)} |
     ------------------------------------------------------------------------------------------------
 
     Example:
@@ -48,7 +50,8 @@ if (!args[0] || args[0].startsWith("--")) {
       --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY} \\
       --outbound-freq=${DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY} \\
       --campaign-freq=${DEFAULT_ARGS.CAMPAIGN_FREQUENCY} \\
-      --campaigns=${DEFAULT_ARGS.NUM_CAMPAIGNS}
+      --campaigns=${DEFAULT_ARGS.NUM_CAMPAIGNS} \\
+      --referrer-freq=${DEFAULT_ARGS.REFERRER_FREQUENCY}
   `);
   process.exit(1);
 }
@@ -71,6 +74,7 @@ const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_F
 const OUTBOUND_LINK_FREQUENCY = getFlag("outbound-freq", DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY);
 const CAMPAIGN_FREQUENCY = getFlag("campaign-freq", DEFAULT_ARGS.CAMPAIGN_FREQUENCY);
 const NUM_CAMPAIGNS = getFlag("campaigns", DEFAULT_ARGS.NUM_CAMPAIGNS);
+const REFERRER_FREQUENCY = getFlag("referrer-freq", DEFAULT_ARGS.REFERRER_FREQUENCY);
 
 const CUSTOM_EVENTS = [
   {
@@ -89,6 +93,22 @@ const OUTBOUND_LINK_URLS = [
   "https://linkedin.com",
   "https://youtube.com",
   "https://partner.com",
+];
+
+const REFERRER_URLS = [
+  "https://duckduckgo.com/",
+  "https://www.bing.com/search",
+  "https://www.google.com/",
+  "https://www.google.com/search",
+  "https://news.google.com/",
+  "https://www.reddit.com/r/selfhosted/",
+  "https://old.reddit.com/r/webdev/",
+  "https://news.ycombinator.com/",
+  "https://news.ycombinator.com/item?id=39538522",
+  "https://github.com/betterlytics/betterlytics",
+  "https://t.co/9fKzXqLm",
+  "https://www.linkedin.com/feed/",
+  "https://www.facebook.com/",
 ];
 const SCREEN_SIZES = ["1920x1080", "900x400", "500x300"];
 
@@ -251,6 +271,8 @@ const users = new Array(NUMBER_OF_USERS).fill(0).map(() => ({
   visitor_id: uuidv4(),
   ip: getRandomPublicIp(),
   globalProperties: getRandomElement(GLOBAL_PROPERTIES_POOL),
+  referrer:
+    Math.random() < REFERRER_FREQUENCY ? getRandomElement(REFERRER_URLS) : null,
 }));
 
 // Generate unique campaign IDs (short UUIDs)
@@ -309,10 +331,12 @@ const events = new Array(NUMBER_OF_EVENTS)
   .sort((a, b) => a.timestamp - b.timestamp)
   .map((payload) => getExtraPayload(payload))
   .map((payload) => {
-    const gp = usersByVisitorId.get(payload.visitor_id)?.globalProperties ?? {};
+    const user = usersByVisitorId.get(payload.visitor_id);
+    const gp = user?.globalProperties ?? {};
     return {
       ...BASE_PAYLOAD,
       ...payload,
+      referrer: user?.referrer ?? null,
       ...(Object.keys(gp).length > 0 ? { global_properties: gp } : {}),
     };
   });
