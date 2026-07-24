@@ -67,6 +67,17 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/docs/pricing/cancellation', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/troubleshooting', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/faq', changeFrequency: 'monthly', priority: 0.8, localized: false },
+
+  // Non-localized blog
+  { path: '/blog', changeFrequency: 'weekly', priority: 0.7, localized: false },
+  { path: '/blog/meet-betterlytics', changeFrequency: 'monthly', priority: 0.6, localized: false },
+  { path: '/blog/mock-clickhouse-pipelines', changeFrequency: 'monthly', priority: 0.6, localized: false },
+  { path: '/blog/mock-cookieless-tracking', changeFrequency: 'monthly', priority: 0.6, localized: false },
+  { path: '/blog/mock-mcp-server', changeFrequency: 'monthly', priority: 0.6, localized: false },
+  { path: '/blog/mock-open-source', changeFrequency: 'monthly', priority: 0.6, localized: false },
+  { path: '/blog/mock-realtime-architecture', changeFrequency: 'monthly', priority: 0.6, localized: false },
+  { path: '/blog/mock-self-hosting', changeFrequency: 'monthly', priority: 0.6, localized: false },
+  { path: '/blog/mock-why-rust', changeFrequency: 'monthly', priority: 0.6, localized: false },
 ];
 
 // Generate comparison pages dynamically

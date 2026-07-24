@@ -1,19 +1,34 @@
 import { generateStaticParamsFor, importPage } from "nextra/pages";
 import { useMDXComponents as getMDXComponents } from "@/mdx-components";
-import { getAssetPath } from "@/lib/constants";
 
-export const generateStaticParams = generateStaticParamsFor("mdxPath");
+const baseGenerateStaticParams = generateStaticParamsFor("mdxPath");
+
+export async function generateStaticParams() {
+  const all = await baseGenerateStaticParams();
+  return all
+    .filter(
+      (p: { mdxPath?: string[] }) =>
+        Array.isArray(p.mdxPath) && p.mdxPath[0] === "docs"
+    )
+    .map((p: { mdxPath?: string[] }) => ({
+      mdxPath: (p.mdxPath ?? []).slice(1),
+    }));
+}
+
+function withDocsPrefix(mdxPath: string[] | undefined) {
+  return ["docs", ...(mdxPath ?? [])];
+}
 
 export async function generateMetadata(props: {
   params: Promise<{ mdxPath?: string[] }>;
 }) {
   const params = await props.params;
-  const { metadata } = await importPage(params.mdxPath);
+  const { metadata } = await importPage(withDocsPrefix(params.mdxPath));
 
   const canonicalPath =
     Array.isArray(params.mdxPath) && params.mdxPath.length > 0
-      ? getAssetPath(`/${params.mdxPath.join("/")}`)
-      : getAssetPath("/");
+      ? `/docs/${params.mdxPath.join("/")}`
+      : "/docs";
 
   const category =
     Array.isArray(params.mdxPath) && params.mdxPath.length > 0
@@ -34,7 +49,7 @@ export async function generateMetadata(props: {
     ogImageParams.set("description", metadata.description);
   }
 
-  const ogImageUrl = getAssetPath(`/api/og?${ogImageParams.toString()}`);
+  const ogImageUrl = `/docs-static/api/og?${ogImageParams.toString()}`;
 
   return {
     ...metadata,
@@ -67,7 +82,7 @@ export default async function Page(props: {
   params: Promise<{ mdxPath?: string[] }>;
 }) {
   const params = await props.params;
-  const result = await importPage(params.mdxPath);
+  const result = await importPage(withDocsPrefix(params.mdxPath));
   const { default: MDXContent, toc, metadata } = result;
   return (
     <Wrapper toc={toc} metadata={metadata}>
