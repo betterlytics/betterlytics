@@ -99,3 +99,26 @@ function isGlobalPropertyColumn(col: FilterColumn): col is `gp.${string}` {
 export function isFilterColumn(value: string): value is FilterColumn {
   return FilterColumnSchema.safeParse(value).success;
 }
+
+export type FilterPair = { column: FilterColumn; value: string };
+
+/**
+ * Atomic multi-column filter replacement for compound row clicks (e.g. a
+ * "Chrome 120" row applying browser + browser_version). The replace set may be
+ * wider than the pairs so a click can clear columns it does not set.
+ */
+export function applyFilterPairs(
+  current: QueryFilter[],
+  pairs: FilterPair[],
+  replaceColumns?: FilterColumn[],
+): QueryFilter[] {
+  const replaced = new Set<FilterColumn>(replaceColumns ?? pairs.map((pair) => pair.column));
+  const kept = current.filter((filter) => !replaced.has(filter.column));
+  const added = pairs.map((pair) => ({
+    id: generateTempId(),
+    column: pair.column,
+    operator: '=' as const,
+    values: [pair.value],
+  }));
+  return [...kept, ...added];
+}
