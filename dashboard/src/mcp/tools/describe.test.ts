@@ -54,6 +54,20 @@ describe('getSchemaDescription', () => {
     }
   });
 
+  it('documents global properties and points to the list_global_properties tool', () => {
+    const result = getSchemaDescription();
+    expect(result).toHaveProperty('globalProperties');
+    expect(result.globalProperties.description).toContain('gp.');
+    expect(result.globalProperties.description).toContain('list_global_properties');
+  });
+
+  it('includes list_global_properties in the tools section', () => {
+    const { tools } = getSchemaDescription();
+    expect(tools).toEqual(
+      expect.arrayContaining([expect.objectContaining({ name: 'list_global_properties' })]),
+    );
+  });
+
   it('does not include custom in the timeRanges list', () => {
     const { timeRanges } = getSchemaDescription();
     expect(timeRanges).not.toContain('custom');
