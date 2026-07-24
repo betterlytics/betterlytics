@@ -2,7 +2,13 @@
 
 import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { MAX_FILTER_ROWS, type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
+import {
+  applyFilterPairs,
+  MAX_FILTER_ROWS,
+  type FilterColumn,
+  type FilterOperator,
+  type FilterPair,
+} from '@/entities/analytics/filter.entities';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
@@ -90,10 +96,31 @@ export function useFilterClick(defaults?: Options) {
     ],
   );
 
+  const applyFilters = useCallback(
+    (pairs: FilterPair[], opts?: { replaceColumns?: FilterColumn[] }) => {
+      for (const pair of pairs) {
+        const status = getColumnStatus(pair.column);
+        if (status.disabled) {
+          if (status.reason === 'demo') toast.info(t('interactionDisabled'));
+          else if (status.reason === 'page') toast.info(tFilters('notAvailableOnPage'));
+          return;
+        }
+      }
+
+      const next = applyFilterPairs(queryFilters, pairs, opts?.replaceColumns);
+      if (next.length > MAX_FILTER_ROWS) {
+        notifyCapReached();
+        return;
+      }
+      setQueryFilters(next);
+    },
+    [getColumnStatus, queryFilters, setQueryFilters, t, tFilters, notifyCapReached],
+  );
+
   const makeFilterClick = useCallback(
     (column: FilterColumn, opts?: Options) => (value: string) => applyFilter(column, value, opts),
     [applyFilter],
   );
 
-  return { applyFilter, makeFilterClick };
+  return { applyFilter, applyFilters, makeFilterClick };
 }
