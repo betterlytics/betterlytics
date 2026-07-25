@@ -2427,6 +2427,7 @@
         "realTimeDesc": "Events will appear here in real-time as they occur",
         "loadingMore": "Loading more events...",
         "endOfLog": "You've reached the end of the event log",
+        "newEvents": "{count, plural, one {{count} new event} other {{count} new events}}",
         "title": "Event Log",
         "description": "Real-time activity tracking",
         "loading": "Loading events..."

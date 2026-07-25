@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
 import { trpc } from '@/trpc/client';
@@ -16,6 +16,9 @@ import { useTranslations } from 'next-intl';
 import { useInView } from '@/hooks/useInView';
 
 const DEFAULT_PAGE_SIZE = 25;
+const NEW_EVENTS_POLL_INTERVAL_MS = 30 * 1000; // 30 seconds
+const NEW_EVENTS_HIGHLIGHT_MS = 2 * 1000;
+const NEW_EVENTS_BADGE_MS = 4 * 1000;
 
 type EventLogTranslation = ReturnType<typeof useTranslations<'components.events.log'>>;
 
@@ -68,6 +71,88 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   const allEvents: EventLogEntry[] = useMemo(() => data?.pages.flatMap((page) => page.events) ?? [], [data]);
 
+  const utils = trpc.useUtils();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const newestTsRef = useRef<Date | null>(null);
+  newestTsRef.current = allEvents[0]?.timestamp ?? null;
+
+  // Rows have no natural unique key, so each row object gets a stable uid
+  // (row identity is stable: pages never refetch and structural sharing is off).
+  const uidsRef = useRef({ map: new WeakMap<EventLogEntry, string>(), next: 0 });
+  const getUid = (e: EventLogEntry) => {
+    let uid = uidsRef.current.map.get(e);
+    if (uid === undefined) {
+      uid = String(uidsRef.current.next++);
+      uidsRef.current.map.set(e, uid);
+    }
+    return uid;
+  };
+  const [newUids, setNewUids] = useState<Set<string>>(new Set());
+  const [newEventsBadge, setNewEventsBadge] = useState<{ count: number } | null>(null);
+  const prependScrollHeightRef = useRef<number | null>(null);
+  const highlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const badgeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const id = setInterval(async () => {
+      if (document.hidden) return;
+      const since = newestTsRef.current;
+      if (!since) {
+        // Nothing loaded yet (empty state) — just re-ask for the first page.
+        void utils.events.recentEvents.refetch({ ...input, limit: pageSize });
+        return;
+      }
+      const fresh = await utils.client.events.newEvents.query({ ...input, since, limit: pageSize });
+      if (fresh.length === 0) return;
+      if (fresh.length >= pageSize) {
+        // Gap too large to stitch — restart from a fresh first page.
+        void utils.events.recentEvents.reset({ ...input, limit: pageSize });
+        return;
+      }
+
+      // When scrolled down, record the scroll height so the prepend can be
+      // compensated and the viewport doesn't jump; at the top, let rows push in.
+      const el = scrollRef.current;
+      if (el && el.scrollTop > 10) {
+        prependScrollHeightRef.current = el.scrollHeight;
+      }
+
+      setNewUids(new Set(fresh.map(getUid)));
+      utils.events.recentEvents.setInfiniteData({ ...input, limit: pageSize }, (old) => {
+        if (!old) return old;
+        const [first, ...rest] = old.pages;
+        return {
+          ...old,
+          pages: [{ ...first, events: [...fresh, ...first.events] }, ...rest],
+        };
+      });
+      setNewEventsBadge({ count: fresh.length });
+
+      if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+      highlightTimeoutRef.current = setTimeout(() => setNewUids(new Set()), NEW_EVENTS_HIGHLIGHT_MS);
+      if (badgeTimeoutRef.current) clearTimeout(badgeTimeoutRef.current);
+      badgeTimeoutRef.current = setTimeout(() => setNewEventsBadge(null), NEW_EVENTS_BADGE_MS);
+    }, NEW_EVENTS_POLL_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [input, pageSize, utils]);
+
+  useEffect(
+    () => () => {
+      if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+      if (badgeTimeoutRef.current) clearTimeout(badgeTimeoutRef.current);
+    },
+    [],
+  );
+
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    const recorded = prependScrollHeightRef.current;
+    if (el && recorded !== null) {
+      el.scrollTop += el.scrollHeight - recorded;
+      prependScrollHeightRef.current = null;
+    }
+  }, [allEvents]);
+
   const { ref: loadMoreRef, inView } = useInView<HTMLDivElement>({
     rootMargin: '100px',
     threshold: 0.1,
@@ -112,34 +197,52 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
       </CardHeader>
 
       <CardContent className='p-0'>
-        <div className='scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent max-h-[32rem] overflow-y-auto'>
-          {isLoading ? (
-            <div className='flex flex-col items-center justify-center space-y-3 py-16'>
-              <Spinner />
-              <p className='text-muted-foreground text-sm'>{t('loading')}</p>
+        <div className='relative'>
+          {newEventsBadge && (
+            <div className='animate-in fade-in slide-in-from-top-1 absolute top-2 left-1/2 z-10 -translate-x-1/2'>
+              <span className='bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-medium shadow-md'>
+                {t('newEvents', { count: newEventsBadge.count })}
+              </span>
             </div>
-          ) : allEvents.length === 0 ? (
-            <EmptyState t={t} />
-          ) : (
-            <>
-              <div className='divide-border/60 divide-y'>
-                {allEvents.map((event: EventLogEntry, index: number) => (
-                  <EventLogItem key={`${event.timestamp}-${index}`} event={event} />
-                ))}
-              </div>
-
-              {/* Sentinel element for infinite scroll - only attach ref to this single element */}
-              {hasNextPage && <div ref={loadMoreRef} className='h-1' aria-hidden='true' />}
-
-              {isFetchingNextPage && <LoadingMoreIndicator t={t} />}
-
-              {!hasNextPage && allEvents.length > 0 && (
-                <div className='text-muted-foreground border-border/60 border-t py-6 text-center text-xs'>
-                  {t('endOfLog')}
-                </div>
-              )}
-            </>
           )}
+          {/* overflow-anchor off: the prepend compensates scroll manually; native anchoring would double it */}
+          <div
+            ref={scrollRef}
+            className='scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent max-h-[32rem] overflow-y-auto [overflow-anchor:none]'
+          >
+            {isLoading ? (
+              <div className='flex flex-col items-center justify-center space-y-3 py-16'>
+                <Spinner />
+                <p className='text-muted-foreground text-sm'>{t('loading')}</p>
+              </div>
+            ) : allEvents.length === 0 ? (
+              <EmptyState t={t} />
+            ) : (
+              <>
+                <div className='divide-border/60 divide-y'>
+                  {allEvents.map((event: EventLogEntry) => (
+                    <div
+                      key={getUid(event)}
+                      className={newUids.has(getUid(event)) ? 'animate-monitor-row-added' : undefined}
+                    >
+                      <EventLogItem event={event} />
+                    </div>
+                  ))}
+                </div>
+
+                {/* Sentinel element for infinite scroll - only attach ref to this single element */}
+                {hasNextPage && <div ref={loadMoreRef} className='h-1' aria-hidden='true' />}
+
+                {isFetchingNextPage && <LoadingMoreIndicator t={t} />}
+
+                {!hasNextPage && allEvents.length > 0 && (
+                  <div className='text-muted-foreground border-border/60 border-t py-6 text-center text-xs'>
+                    {t('endOfLog')}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

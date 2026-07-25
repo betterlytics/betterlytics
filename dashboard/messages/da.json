@@ -2427,6 +2427,7 @@
         "realTimeDesc": "Hændelser vil vises her i realtid, når de opstår",
         "loadingMore": "Indlæser flere hændelser...",
         "endOfLog": "Du har nået slutningen af hændelsesloggen",
+        "newEvents": "{count, plural, one {{count} ny hændelse} other {{count} nye hændelser}}",
         "title": "Hændelseslog",
         "description": "Realtids aktivitetssporing",
         "loading": "Indlæser hændelser..."

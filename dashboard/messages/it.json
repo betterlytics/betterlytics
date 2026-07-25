@@ -2427,6 +2427,7 @@
         "realTimeDesc": "Gli eventi appariranno qui in tempo reale appena si verificano",
         "loadingMore": "Caricamento di altri eventi...",
         "endOfLog": "Hai raggiunto la fine del registro eventi",
+        "newEvents": "{count, plural, one {{count} nuovo evento} other {{count} nuovi eventi}}",
         "title": "Registro eventi",
         "description": "Tracciamento attività in tempo reale",
         "loading": "Caricamento eventi..."
