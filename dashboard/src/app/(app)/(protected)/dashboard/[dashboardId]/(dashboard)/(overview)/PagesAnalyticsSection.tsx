@@ -1,9 +1,9 @@
 'use client';
-import MultiProgressTable from '@/components/MultiProgressTable';
+import MultiProgressTable, { type ProgressBarData } from '@/components/MultiProgressTable';
 import { useTranslations } from 'next-intl';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
-import { useFilterClick } from '@/hooks/use-filter-click';
+import { useProgressTableFilterClick } from '@/hooks/use-progress-table-filter-click';
 import { useState } from 'react';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
@@ -12,7 +12,7 @@ import { useQueryState } from '@/hooks/use-query-state';
 export default function PagesAnalyticsSection() {
   const [activeTab, setActiveTab] = useState('pages');
   const t = useTranslations('dashboard');
-  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const { onItemClick, isItemInteractive } = useProgressTableFilterClick();
   const { input, options } = useBAQueryParams();
 
   const pagesQuery = trpc.overview.topPages.useQuery(input, { ...options, enabled: activeTab === 'pages' });
@@ -24,20 +24,17 @@ export default function PagesAnalyticsSection() {
   const exitState = useQueryState(exitQuery, activeTab === 'exit');
   const activeState = { pages: pagesState, entry: entryState, exit: exitState }[activeTab as 'pages' | 'entry' | 'exit'];
 
-  const onItemClick = (_tabKey: string, item: { label: string }) => {
-    return makeFilterClick('url')(item.label);
-  };
-
   const mapPage = (page: {
     url: string;
     current: { visitors: number };
     change?: { visitors: number };
     compare?: { visitors: number };
-  }) => ({
+  }): ProgressBarData => ({
     label: page.url,
     value: page.current.visitors,
     trendPercentage: page.change?.visitors,
     comparisonValue: page.compare?.visitors,
+    filterColumn: 'url',
   });
 
   return (
@@ -47,6 +44,7 @@ export default function PagesAnalyticsSection() {
       defaultTab='pages'
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
+      isItemInteractive={isItemInteractive}
       tabs={[
         {
           key: 'pages',

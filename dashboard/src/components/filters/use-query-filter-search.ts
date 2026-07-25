@@ -18,9 +18,11 @@ type SearchMetadataResult = {
 
 type UseQueryFilterSearchOptions = {
   useExtendedRange?: boolean;
+  disabled?: boolean;
 };
 
 export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilterSearchOptions) {
+  const disabled = options?.disabled ?? false;
   const baseQuery = useAnalyticsQuery();
 
   // When useExtendedRange is true, it uses a range of minimum 30 days
@@ -67,7 +69,7 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     {
       staleTime: 5 * 60 * 1000,
       gcTime: 5 * 60 * 1000,
-      enabled: shouldSearchServer,
+      enabled: shouldSearchServer && !disabled,
     },
   );
 
@@ -77,16 +79,18 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   }, [filter.column]);
 
   useEffect(() => {
+    if (disabled) return;
     if (shouldSearchServer && isLoading === false) {
       setServerOptions(fetchedOptions);
     }
-  }, [fetchedOptions, shouldSearchServer, isLoading]);
+  }, [fetchedOptions, shouldSearchServer, isLoading, disabled]);
 
   useEffect(() => {
+    if (disabled) return;
     if (searchMetadataResult === null && isLoading === false) {
       setSearchMetadataResult({ shouldUseServerSearch: fetchedOptions.length > SEARCH_LIMIT });
     }
-  }, [fetchedOptions.length, searchMetadataResult, isLoading]);
+  }, [fetchedOptions.length, searchMetadataResult, isLoading, disabled]);
 
   const filteredOptions = useMemo(() => {
     if (shouldSearchServer) {

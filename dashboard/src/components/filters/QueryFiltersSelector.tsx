@@ -1,6 +1,6 @@
 'use client';
 
-import { ComponentProps, useCallback, useEffect, useRef, useState, type AnimationEvent } from 'react';
+import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState, type AnimationEvent } from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -14,6 +14,7 @@ import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { baEvent } from '@/lib/ba-event';
 import { usePropertyKeys } from '@/hooks/use-property-keys';
+import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
 const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
@@ -32,6 +33,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
   const filters = useQueryFilters(initOrDefault(contextQueryFilters));
+  const nonEmptyFilters = useMemo(() => filterEmptyQueryFilters(contextQueryFilters), [contextQueryFilters]);
 
   useEffect(() => {
     filters.setQueryFilters(initOrDefault(contextQueryFilters));
@@ -72,7 +74,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     [setQueryFilters],
   );
 
-  const activeFilterCount = filterEmptyQueryFilters(contextQueryFilters).length;
+  const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
 
   const trigger = (
     <Button

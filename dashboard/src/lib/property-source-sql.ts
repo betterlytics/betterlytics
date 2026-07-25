@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { safeSql, type SQLTaggedExpression } from './safe-sql';
+import { isMatchAnyValueFilter } from './filter-sql';
 import type { PropertySourceKind } from '@/entities/analytics/propertySources';
 
 type PropertySqlLeaf = {
@@ -63,12 +64,11 @@ type PropertyFilterArgs = {
 
 /**
  * WHERE fragment for a property filter, shared by the events and session query
- * builders. A single `%` value means "key exists".
+ * builders. A bare wildcard value means "key exists".
  */
 export function buildPropertyFilterSql(source: PropertySourceKind, args: PropertyFilterArgs): SQLTaggedExpression {
   const leaf = PROPERTY_SQL[source].sql;
-  const isWildcard = args.values.length === 1 && args.values[0] === '%';
-  if (isWildcard) {
+  if (isMatchAnyValueFilter(args.values)) {
     const hasKey = leaf.hasKey(args.keySql);
     return args.rawOperator === '=' ? hasKey : safeSql`NOT ${hasKey}`;
   }

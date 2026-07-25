@@ -1,5 +1,5 @@
 'use client';
-import MultiProgressTable from '@/components/MultiProgressTable';
+import MultiProgressTable, { type ProgressBarData } from '@/components/MultiProgressTable';
 import { getCountryName } from '@/utils/countryCodes';
 import { getSubdivisionName } from '@/utils/subdivisionCodes';
 import { useState } from 'react';
@@ -7,9 +7,8 @@ import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useFilterClick } from '@/hooks/use-filter-click';
+import { useProgressTableFilterClick } from '@/hooks/use-progress-table-filter-click';
 import { type GeoLevel } from '@/entities/analytics/geography.entities';
-import type { FilterColumn } from '@/entities/analytics/filter.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import dynamic from 'next/dynamic';
 import { useBAQueryParams } from '@/trpc/hooks';
@@ -48,7 +47,7 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
 
   const t = useTranslations('dashboard');
   const locale = useLocale();
-  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const { onItemClick, isItemInteractive } = useProgressTableFilterClick();
 
   const geoLevelTabLabels = {
     country_code: t('tabs.countries'),
@@ -72,19 +71,23 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
       key: level,
       label: geoLevelTabLabels[level],
       loading: stateForLevel.loading,
-      data: (data ?? []).map((item) => ({
-        label: GEO_LABEL_FORMATTERS[level](item[level], locale),
-        key: item[level],
-        value: item.current.visitors,
-        trendPercentage: item.change?.visitors,
-        comparisonValue: item.compare?.visitors,
-        icon: (
-          <FlagIcon
-            countryCode={item.current.country_code as FlagIconProps['countryCode']}
-            countryName={getCountryName(item.current.country_code, locale)}
-          />
-        ),
-      })),
+      data: (data ?? []).map(
+        (item): ProgressBarData => ({
+          label: GEO_LABEL_FORMATTERS[level](item[level], locale),
+          key: item[level],
+          value: item.current.visitors,
+          trendPercentage: item.change?.visitors,
+          comparisonValue: item.compare?.visitors,
+          filterColumn: item[level] ? level : undefined,
+          filterValue: item[level],
+          icon: (
+            <FlagIcon
+              countryCode={item.current.country_code as FlagIconProps['countryCode']}
+              countryName={getCountryName(item.current.country_code, locale)}
+            />
+          ),
+        }),
+      ),
     };
   });
 
@@ -96,10 +99,6 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
     worldmap: worldMapState,
   }[activeTab as 'country_code' | 'subdivision_code' | 'city' | 'worldmap'];
 
-  const onItemClick = (tabKey: string, item: { key?: string }) => {
-    if (item.key) makeFilterClick(tabKey as FilterColumn)(item.key);
-  };
-
   return (
     <MultiProgressTable
       title={t('sections.geography')}
@@ -107,6 +106,7 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
       defaultTab={activeTab}
       onTabChange={setActiveTab}
       onItemClick={onItemClick}
+      isItemInteractive={isItemInteractive}
       tabs={[
         ...geoLevelTabs,
         {

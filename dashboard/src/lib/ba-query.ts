@@ -9,7 +9,7 @@ import {
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
-import { filterColumnSql } from './filter-sql';
+import { filterColumnSql, matchAnyValueFilterSql } from './filter-sql';
 import { buildPropertyFilterSql } from './property-source-sql';
 import { DateTimeString } from '@/types/dates';
 import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
@@ -67,7 +67,10 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
     }
     default: {
       const column = filterColumnSql(parsed.col);
-      return safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`;
+      return (
+        matchAnyValueFilterSql(filter.values, filter.rawOperator, column, parsed.col) ??
+        safeSql`${filter.operator.quantifier}(pattern -> ${column} ${filter.operator.operater} pattern, ${values})`
+      );
     }
   }
 }
