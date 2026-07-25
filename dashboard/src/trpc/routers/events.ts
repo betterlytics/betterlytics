@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { createRouter, analyticsProcedure } from '@/trpc/init';
+import { createRouter, analyticsProcedure, dashboardProcedure } from '@/trpc/init';
+import { QueryFilterSchema, MAX_FILTER_ROWS } from '@/entities/analytics/filter.entities';
 import {
   getCustomEventsOverviewForSite,
   getEventPropertiesAnalyticsForSite,
@@ -16,6 +17,8 @@ const RECENT_EVENTS_MAX_PAGE_SIZE = 100;
 
 const GLOBAL_PROPERTIES_KEY_LIMIT = 10;
 const GLOBAL_PROPERTIES_VALUE_LIMIT = 20;
+
+const EventLogFiltersSchema = z.array(QueryFilterSchema).max(MAX_FILTER_ROWS);
 
 export const eventsRouter = createRouter({
   customEventsOverview: analyticsProcedure.query(async ({ ctx }) => {
@@ -45,9 +48,10 @@ export const eventsRouter = createRouter({
       return getEventPropertiesAnalyticsForSite(main, input.eventName);
     }),
 
-  recentEvents: analyticsProcedure
+  recentEvents: dashboardProcedure
     .input(
       z.object({
+        queryFilters: EventLogFiltersSchema,
         limit: z
           .number()
           .int()
@@ -59,12 +63,12 @@ export const eventsRouter = createRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { main } = ctx;
-      return getRecentEventsForSite(main, input.limit, input.cursor ?? 0);
+      return getRecentEventsForSite(ctx.authContext.siteId, input.queryFilters, input.limit, input.cursor ?? 0);
     }),
 
-  totalEventCount: analyticsProcedure.query(async ({ ctx }) => {
-    const { main } = ctx;
-    return getTotalEventCountForSite(main);
-  }),
+  totalEventCount: dashboardProcedure
+    .input(z.object({ queryFilters: EventLogFiltersSchema }))
+    .query(async ({ ctx, input }) => {
+      return getTotalEventCountForSite(ctx.authContext.siteId, input.queryFilters);
+    }),
 });

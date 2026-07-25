@@ -10,6 +10,10 @@ import { EventLogEntry, EventLogEntrySchema } from '@/entities/analytics/events.
 import { BAQuery } from '@/lib/ba-query';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
+
+// Rolling window for the "real-time" event log; also bounds its total count.
+const EVENT_LOG_LOOKBACK_DAYS = 30;
 
 export async function getCustomEventsOverview(siteQuery: BASiteQuery, limit: number): Promise<EventTypeRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
@@ -89,11 +93,11 @@ export async function getEventPropertyData(
 }
 
 export async function getRecentEvents(
-  siteQuery: BASiteQuery,
+  siteId: string,
+  queryFilters: QueryFilter[],
   limit: number = 50,
   offset: number = 0,
 ): Promise<EventLogEntry[]> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -110,7 +114,7 @@ export async function getRecentEvents(
     WHERE
           site_id = {site_id:String}
       AND event_type = 'custom'
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND timestamp >= now() - INTERVAL {lookback_days:UInt32} DAY
       AND ${SQL.AND(filters)}
     ORDER BY timestamp DESC
     LIMIT {limit:UInt32}
@@ -122,8 +126,7 @@ export async function getRecentEvents(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
+        lookback_days: EVENT_LOG_LOOKBACK_DAYS,
         limit,
         offset,
       },
@@ -156,8 +159,7 @@ export async function anySiteHasEventsWithinDays(
   return result.length > 0;
 }
 
-export async function getTotalEventCount(siteQuery: BASiteQuery): Promise<number> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+export async function getTotalEventCount(siteId: string, queryFilters: QueryFilter[]): Promise<number> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -166,7 +168,7 @@ export async function getTotalEventCount(siteQuery: BASiteQuery): Promise<number
     WHERE
           site_id = {site_id:String}
       AND event_type = 'custom'
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND timestamp >= now() - INTERVAL {lookback_days:UInt32} DAY
       AND ${SQL.AND(filters)}
   `;
 
@@ -175,8 +177,7 @@ export async function getTotalEventCount(siteQuery: BASiteQuery): Promise<number
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
+        lookback_days: EVENT_LOG_LOOKBACK_DAYS,
       },
     })
     .toPromise()) as Array<{ total: number }>;

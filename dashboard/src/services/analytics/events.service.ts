@@ -13,6 +13,7 @@ import {
 } from '@/entities/analytics/events.entities';
 import { calculatePercentage } from '@/utils/mathUtils';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 
 const MAX_TOP_VALUES = 10;
 
@@ -20,12 +21,17 @@ export async function getCustomEventsOverviewForSite(siteQuery: BASiteQuery, lim
   return getCustomEventsOverview(siteQuery, limit);
 }
 
-export async function getRecentEventsForSite(siteQuery: BASiteQuery, limit?: number, offset?: number) {
-  return getRecentEvents(siteQuery, limit, offset);
+export async function getRecentEventsForSite(
+  siteId: string,
+  queryFilters: QueryFilter[],
+  limit?: number,
+  offset?: number,
+) {
+  return getRecentEvents(siteId, queryFilters, limit, offset);
 }
 
-export async function getTotalEventCountForSite(siteQuery: BASiteQuery) {
-  return getTotalEventCount(siteQuery);
+export async function getTotalEventCountForSite(siteId: string, queryFilters: QueryFilter[]) {
+  return getTotalEventCount(siteId, queryFilters);
 }
 
 export async function getEventPropertiesAnalyticsForSite(

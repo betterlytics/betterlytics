@@ -2,8 +2,11 @@
 
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Clock } from 'lucide-react';
+import { keepPreviousData } from '@tanstack/react-query';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
-import { useBAQueryParams } from '@/trpc/hooks';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 import { trpc } from '@/trpc/client';
 
 import { formatNumber } from '@/utils/formatters';
@@ -73,13 +76,15 @@ const createShowingText = (
 export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const t = useTranslations('components.events.log');
   const locale = useLocale();
-  const { input, options } = useBAQueryParams();
+  const dashboardId = useDashboardId();
+  const { queryFilters } = useQueryFiltersContext();
+  const allowedQueryFilters = useAllowedQueryFilters(queryFilters);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     trpc.events.recentEvents.useInfiniteQuery(
-      { ...input, limit: pageSize },
+      { dashboardId, queryFilters: allowedQueryFilters, limit: pageSize },
       {
-        ...options,
+        placeholderData: keepPreviousData,
         initialCursor: 0,
         getNextPageParam: (lastPage, _allPages, lastPageParam) => {
           if (lastPage.length < pageSize) return undefined;
@@ -89,10 +94,10 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
       },
     );
 
-  const { data: totalCount = 0 } = trpc.events.totalEventCount.useQuery(input, {
-    ...options,
-    refetchInterval: COUNT_REFRESH_INTERVAL_MS,
-  });
+  const { data: totalCount = 0 } = trpc.events.totalEventCount.useQuery(
+    { dashboardId, queryFilters: allowedQueryFilters },
+    { placeholderData: keepPreviousData, refetchInterval: COUNT_REFRESH_INTERVAL_MS },
+  );
 
   const allEvents: EventLogEntry[] = useMemo(
     () => data?.pages.flatMap((page: EventLogEntry[]) => page) ?? [],
