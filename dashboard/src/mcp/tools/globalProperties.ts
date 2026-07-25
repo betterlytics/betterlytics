@@ -22,7 +22,7 @@ export const McpListGlobalPropertiesInputBaseSchema = McpDateRangeSchema.extend(
     .string()
     .optional()
     .describe(
-      'A global-property key (with or without the "gp." prefix). If given, returns example values for that key instead of the key list.',
+      'A property key as returned by this tool, e.g. "gp.plan". If given, returns example values for that key instead of the key list.',
     ),
 });
 

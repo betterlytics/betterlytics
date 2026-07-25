@@ -219,7 +219,7 @@ export function getSchemaDescription(): SchemaDescription {
             type: 'string',
             required: false,
             description:
-              'A global-property key (with or without the "gp." prefix). If given, returns example values for that key instead of the key list.',
+              'A property key as returned by this tool, e.g. "gp.plan". If given, returns example values for that key instead of the key list.',
           },
         ],
       },
