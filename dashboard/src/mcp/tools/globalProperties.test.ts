@@ -87,4 +87,13 @@ describe('executeListGlobalProperties', () => {
 
     expect(getValues.mock.calls[0][1]).toEqual(['plan']);
   });
+
+  it('rejects an invalid key without querying the repository', async () => {
+    await expect(executeListGlobalProperties({ timeRange: '7d', key: 'gp.' }, 'site-1')).rejects.toThrow(
+      'Invalid global property key',
+    );
+
+    expect(getValues).not.toHaveBeenCalled();
+    expect(getKeys).not.toHaveBeenCalled();
+  });
 });

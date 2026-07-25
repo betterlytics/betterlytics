@@ -9,7 +9,7 @@ import {
   getTopGlobalPropertyKeys,
   getTopGlobalPropertyValuesForKeys,
 } from '@/repositories/clickhouse/globalProperties.repository';
-import { GP_PREFIX } from '@/entities/analytics/filter.entities';
+import { FilterColumnSchema, GP_PREFIX } from '@/entities/analytics/filter.entities';
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 // Keys are one string + a count each, so we can afford a generous limit and still
@@ -48,9 +48,15 @@ export async function executeListGlobalProperties(rawInput: unknown, siteId: str
 
   if (input.key) {
     const bareKey = input.key.startsWith(GP_PREFIX) ? input.key.slice(GP_PREFIX.length) : input.key;
+    const column = `${GP_PREFIX}${bareKey}`;
+    // FilterColumnSchema is a union, whose raw ZodError is an unreadable JSON dump —
+    // runTool surfaces error.message verbatim to the agent, so throw a concise one.
+    if (!FilterColumnSchema.safeParse(column).success) {
+      throw new Error(`Invalid global property key: "${input.key}"`);
+    }
     const values = await getTopGlobalPropertyValuesForKeys(siteQuery, [bareKey], GP_VALUE_LIMIT);
     return {
-      column: `${GP_PREFIX}${bareKey}`,
+      column,
       values: values.map((v) => v.value),
       truncated: values.length === GP_VALUE_LIMIT,
     };
