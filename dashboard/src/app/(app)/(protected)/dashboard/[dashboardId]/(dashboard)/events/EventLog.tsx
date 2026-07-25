@@ -7,6 +7,7 @@ import { EventLogEntry } from '@/entities/analytics/events.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
+import { EVENT_LOG_LOOKBACK_DAYS } from '@/constants/eventLog';
 import { trpc } from '@/trpc/client';
 
 import { formatNumber } from '@/utils/formatters';
@@ -64,7 +65,7 @@ const createShowingText = (
   const totalFormatted = formatNumber(totalCount, locale);
 
   if (loadedCount >= totalCount) {
-    return t('showingAll', { count: totalFormatted });
+    return t('showingAll', { count: totalFormatted, days: EVENT_LOG_LOOKBACK_DAYS });
   }
 
   return t('showingPartial', {
@@ -173,6 +174,12 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               {hasNextPage && <div ref={loadMoreRef} className='h-1' aria-hidden='true' />}
 
               {isFetchingNextPage && <LoadingMoreIndicator t={t} />}
+
+              {!hasNextPage && (
+                <div className='border-border/60 text-muted-foreground/80 border-t py-4 text-center text-xs'>
+                  {t('endOfLiveView')}
+                </div>
+              )}
             </>
           )}
         </div>

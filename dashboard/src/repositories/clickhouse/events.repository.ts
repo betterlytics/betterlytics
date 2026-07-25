@@ -11,9 +11,7 @@ import { BAQuery } from '@/lib/ba-query';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
-
-// Rolling window for the "real-time" event log; also bounds its total count.
-const EVENT_LOG_LOOKBACK_DAYS = 30;
+import { EVENT_LOG_LOOKBACK_DAYS } from '@/constants/eventLog';
 
 export async function getCustomEventsOverview(siteQuery: BASiteQuery, limit: number): Promise<EventTypeRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
