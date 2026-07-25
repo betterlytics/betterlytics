@@ -52,6 +52,7 @@ export async function executeListGlobalProperties(rawInput: unknown, siteId: str
     return {
       column: `${GP_PREFIX}${bareKey}`,
       values: values.map((v) => v.value),
+      truncated: values.length === GP_VALUE_LIMIT,
     };
   }
 

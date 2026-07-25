@@ -66,7 +66,18 @@ describe('executeListGlobalProperties', () => {
     expect(result).toEqual({
       column: 'gp.plan',
       values: ['pro', 'free'],
+      truncated: false,
     });
+  });
+
+  it('reports truncation when the values response hits the limit', async () => {
+    getValues.mockResolvedValue(
+      Array.from({ length: 20 }, (_, i) => ({ property_key: 'plan', value: `value-${i}`, visitors: 20 - i })),
+    );
+
+    const result = await executeListGlobalProperties({ timeRange: '7d', key: 'gp.plan' }, 'site-1');
+
+    expect(result).toMatchObject({ truncated: true });
   });
 
   it('accepts a key without the gp. prefix', async () => {
