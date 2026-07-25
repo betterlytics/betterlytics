@@ -3,23 +3,19 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
-import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 
-import { formatNumber } from '@/utils/formatters';
-import type { SupportedLanguages } from '@/constants/i18n';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from '@/components/events/EventLogItem';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useInView } from '@/hooks/useInView';
 
 const DEFAULT_PAGE_SIZE = 25;
-const COUNT_REFRESH_INTERVAL_MS = 60 * 1000; // 1 minute
 
 type EventLogTranslation = ReturnType<typeof useTranslations<'components.events.log'>>;
 
@@ -49,34 +45,8 @@ const LoadingMoreIndicator = ({ t }: { t: EventLogTranslation }) => (
   </div>
 );
 
-const createShowingText = (
-  allEvents: EventLogEntry[],
-  totalCount: number,
-  t: EventLogTranslation,
-  locale: SupportedLanguages,
-): string => {
-  if (totalCount === 0) {
-    return t('noEvents');
-  }
-
-  const loadedCount = allEvents.length;
-  const totalFormatted = formatNumber(totalCount, locale);
-
-  if (loadedCount >= totalCount) {
-    return t('showingAll', { count: totalFormatted });
-  }
-
-  return t('showingPartial', {
-    loaded: formatNumber(loadedCount, locale),
-    total: totalFormatted,
-  });
-};
-
 export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const t = useTranslations('components.events.log');
-  const locale = useLocale();
-  const { input: baInput, options: baOptions } = useBAQueryParams();
-
   const dashboardId = useDashboardId();
   const { queryFilters } = useQueryFiltersContext();
   const allowedFilters = useAllowedQueryFilters(queryFilters);
@@ -95,11 +65,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         structuralSharing: false,
       },
     );
-
-  const { data: totalCount = 0 } = trpc.events.totalEventCount.useQuery(baInput, {
-    ...baOptions,
-    refetchInterval: COUNT_REFRESH_INTERVAL_MS,
-  });
 
   const allEvents: EventLogEntry[] = useMemo(() => data?.pages.flatMap((page) => page.events) ?? [], [data]);
 
@@ -125,11 +90,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
       isFetchingRef.current = false;
     }
   }, [isFetchingNextPage]);
-
-  const currentCountText = useMemo(
-    () => createShowingText(allEvents, totalCount, t, locale),
-    [allEvents, totalCount, t, locale],
-  );
 
   return (
     <Card className='border-border/50 relative overflow-hidden shadow-sm'>
@@ -172,12 +132,14 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               {hasNextPage && <div ref={loadMoreRef} className='h-1' aria-hidden='true' />}
 
               {isFetchingNextPage && <LoadingMoreIndicator t={t} />}
+
+              {!hasNextPage && allEvents.length > 0 && (
+                <div className='text-muted-foreground border-border/60 border-t py-6 text-center text-xs'>
+                  {t('endOfLog')}
+                </div>
+              )}
             </>
           )}
-        </div>
-
-        <div className='border-border/60 border-t pt-3'>
-          <div className='text-muted-foreground text-center text-xs font-medium'>{currentCountText}</div>
         </div>
       </CardContent>
     </Card>

@@ -7,7 +7,6 @@ import {
   getEventPropertiesAnalyticsForSite,
   getNewEventsForSite,
   getRecentEventsForSite,
-  getTotalEventCountForSite,
 } from '@/services/analytics/events.service';
 import { getGlobalPropertiesOverview } from '@/services/analytics/globalProperties.service';
 import { toDataTable } from '@/presenters/toDataTable';
@@ -83,9 +82,4 @@ export const eventsRouter = createRouter({
     .query(({ ctx, input }) =>
       getNewEventsForSite(ctx.authContext.siteId, input.queryFilters, input.since, input.limit),
     ),
-
-  totalEventCount: analyticsProcedure.query(async ({ ctx }) => {
-    const { main } = ctx;
-    return getTotalEventCountForSite(main);
-  }),
 });

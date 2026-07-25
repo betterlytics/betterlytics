@@ -2426,9 +2426,7 @@
         "waiting": "Waiting for events...",
         "realTimeDesc": "Events will appear here in real-time as they occur",
         "loadingMore": "Loading more events...",
-        "noEvents": "No events found",
-        "showingAll": "Showing all {count} events",
-        "showingPartial": "Showing {loaded} of {total} events",
+        "endOfLog": "You've reached the end of the event log",
         "title": "Event Log",
         "description": "Real-time activity tracking",
         "loading": "Loading events..."

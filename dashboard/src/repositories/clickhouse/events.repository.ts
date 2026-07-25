@@ -203,31 +203,3 @@ export async function anySiteHasEventsWithinDays(
 
   return result.length > 0;
 }
-
-export async function getTotalEventCount(siteQuery: BASiteQuery): Promise<number> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const filters = BAQuery.getFilterQuery(queryFilters);
-
-  const query = safeSql`
-    SELECT count() as total
-    FROM analytics.events
-    WHERE
-          site_id = {site_id:String}
-      AND event_type = 'custom'
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      AND ${SQL.AND(filters)}
-  `;
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
-      },
-    })
-    .toPromise()) as Array<{ total: number }>;
-
-  return result[0]?.total || 0;
-}

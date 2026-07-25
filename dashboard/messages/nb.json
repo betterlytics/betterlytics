@@ -2426,9 +2426,7 @@
         "waiting": "Venter på hendelser...",
         "realTimeDesc": "Hendelser vises her i sanntid når de oppstår",
         "loadingMore": "Laster inn flere hendelser...",
-        "noEvents": "Ingen hendelser fundet",
-        "showingAll": "Viser alle {count} hendelser",
-        "showingPartial": "Viser {loaded} av {total} hendelser",
+        "endOfLog": "Du har nådd slutten av hendelsesloggen",
         "title": "Hendelseslogg",
         "description": "Realtids aktivitetssporing",
         "loading": "Laster inn hendelser..."

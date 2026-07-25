@@ -2426,9 +2426,7 @@
         "waiting": "In attesa di eventi...",
         "realTimeDesc": "Gli eventi appariranno qui in tempo reale appena si verificano",
         "loadingMore": "Caricamento di altri eventi...",
-        "noEvents": "Nessun evento trovato",
-        "showingAll": "Mostrati tutti i {count} eventi",
-        "showingPartial": "Mostrati {loaded} di {total} eventi",
+        "endOfLog": "Hai raggiunto la fine del registro eventi",
         "title": "Registro eventi",
         "description": "Tracciamento attività in tempo reale",
         "loading": "Caricamento eventi..."
