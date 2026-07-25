@@ -6,9 +6,11 @@ import {
   RawEventPropertyDataArraySchema,
 } from '@/entities/analytics/events.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { EventLogEntry, EventLogEntrySchema } from '@/entities/analytics/events.entities';
+import { EventLogCursor, EventLogEntry, EventLogEntrySchema } from '@/entities/analytics/events.entities';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BAQuery } from '@/lib/ba-query';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
+import { toDateTimeString } from '@/utils/dateFormatters';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getCustomEventsOverview(siteQuery: BASiteQuery, limit: number): Promise<EventTypeRow[]> {
@@ -89,11 +91,59 @@ export async function getEventPropertyData(
 }
 
 export async function getRecentEvents(
-  siteQuery: BASiteQuery,
-  limit: number = 50,
-  offset: number = 0,
+  siteId: string,
+  queryFilters: QueryFilter[],
+  limit: number,
+  cursor: EventLogCursor | null,
 ): Promise<EventLogEntry[]> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const filters = BAQuery.getFilterQuery(queryFilters);
+  // The cursor bounds the upper edge so newly arriving events can never shift
+  // already-loaded pages; `skip` re-skips rows already delivered for that second.
+  const cursorClause = cursor ? safeSql`timestamp <= {cursor_ts:DateTime}` : safeSql`1 = 1`;
+
+  const query = safeSql`
+    SELECT
+      timestamp,
+      custom_event_name as event_name,
+      toString(visitor_id) as visitor_id,
+      url,
+      custom_event_json,
+      country_code,
+      device_type,
+      browser
+    FROM analytics.events
+    WHERE
+          site_id = {site_id:String}
+      AND event_type = 'custom'
+      AND ${cursorClause}
+      AND ${SQL.AND(filters)}
+    ORDER BY timestamp DESC, visitor_id, custom_event_name, url,
+             custom_event_json, country_code, device_type, browser
+    LIMIT {limit:UInt32}
+    OFFSET {offset:UInt32}
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        limit,
+        offset: cursor?.skip ?? 0,
+        ...(cursor ? { cursor_ts: toDateTimeString(cursor.timestamp) } : {}),
+      },
+    })
+    .toPromise()) as any[];
+
+  return result.map((row) => EventLogEntrySchema.parse({ ...row, timestamp: parseClickHouseDate(row.timestamp) }));
+}
+
+export async function getEventsSince(
+  siteId: string,
+  queryFilters: QueryFilter[],
+  since: Date,
+  limit: number,
+): Promise<EventLogEntry[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
 
   const query = safeSql`
@@ -110,11 +160,11 @@ export async function getRecentEvents(
     WHERE
           site_id = {site_id:String}
       AND event_type = 'custom'
-      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND timestamp > {since:DateTime}
       AND ${SQL.AND(filters)}
-    ORDER BY timestamp DESC
+    ORDER BY timestamp DESC, visitor_id, custom_event_name, url,
+             custom_event_json, country_code, device_type, browser
     LIMIT {limit:UInt32}
-    OFFSET {offset:UInt32}
   `;
 
   const result = (await clickhouse
@@ -122,10 +172,8 @@ export async function getRecentEvents(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
+        since: toDateTimeString(since),
         limit,
-        offset,
       },
     })
     .toPromise()) as any[];

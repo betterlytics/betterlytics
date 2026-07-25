@@ -5,6 +5,9 @@ import { Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 
 import { formatNumber } from '@/utils/formatters';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -16,7 +19,6 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useInView } from '@/hooks/useInView';
 
 const DEFAULT_PAGE_SIZE = 25;
-const EVENTS_REFRESH_INTERVAL_MS = 30 * 1000; // 30 seconds
 const COUNT_REFRESH_INTERVAL_MS = 60 * 1000; // 1 minute
 
 type EventLogTranslation = ReturnType<typeof useTranslations<'components.events.log'>>;
@@ -73,31 +75,33 @@ const createShowingText = (
 export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const t = useTranslations('components.events.log');
   const locale = useLocale();
-  const { input, options } = useBAQueryParams();
+  const { input: baInput, options: baOptions } = useBAQueryParams();
+
+  const dashboardId = useDashboardId();
+  const { queryFilters } = useQueryFiltersContext();
+  const allowedFilters = useAllowedQueryFilters(queryFilters);
+  const input = useMemo(() => ({ dashboardId, queryFilters: allowedFilters }), [dashboardId, allowedFilters]);
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     trpc.events.recentEvents.useInfiniteQuery(
       { ...input, limit: pageSize },
       {
-        ...options,
-        initialCursor: 0,
-        getNextPageParam: (lastPage, _allPages, lastPageParam) => {
-          if (lastPage.length < pageSize) return undefined;
-          return (lastPageParam ?? 0) + pageSize;
-        },
-        refetchInterval: EVENTS_REFRESH_INTERVAL_MS,
+        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+        staleTime: Infinity,
+        gcTime: 5 * 60_000,
+        refetchOnWindowFocus: false,
+        // Required by the live prepend: structural sharing re-creates row objects
+        // positionally on prepend, which would break WeakMap-based keys.
+        structuralSharing: false,
       },
     );
 
-  const { data: totalCount = 0 } = trpc.events.totalEventCount.useQuery(input, {
-    ...options,
+  const { data: totalCount = 0 } = trpc.events.totalEventCount.useQuery(baInput, {
+    ...baOptions,
     refetchInterval: COUNT_REFRESH_INTERVAL_MS,
   });
 
-  const allEvents: EventLogEntry[] = useMemo(
-    () => data?.pages.flatMap((page: EventLogEntry[]) => page) ?? [],
-    [data],
-  );
+  const allEvents: EventLogEntry[] = useMemo(() => data?.pages.flatMap((page) => page.events) ?? [], [data]);
 
   const { ref: loadMoreRef, inView } = useInView<HTMLDivElement>({
     rootMargin: '100px',
