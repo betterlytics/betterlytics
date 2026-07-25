@@ -203,7 +203,14 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               <button
                 type='button'
                 onClick={() => {
-                  scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                  const el = scrollRef.current;
+                  if (el) {
+                    // Cap the smooth-scroll distance so the glide stays short and consistent
+                    // from any depth; beyond that, jump instantly first.
+                    const glideDistance = el.clientHeight * 8;
+                    if (el.scrollTop > glideDistance) el.scrollTop = glideDistance;
+                    el.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
                   setNewEventsBadge(null);
                 }}
                 className='bg-primary text-primary-foreground cursor-pointer rounded-full px-3 py-1 text-xs font-medium shadow-md'
@@ -215,7 +222,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
           {/* overflow-anchor off: the prepend compensates scroll manually; native anchoring would double it */}
           <div
             ref={scrollRef}
-            className='scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent max-h-[32rem] overflow-y-auto [overflow-anchor:none]'
+            className='scrollbar-thumb-muted max-h-[32rem] scrollbar-thin scrollbar-track-transparent overflow-y-auto [overflow-anchor:none]'
           >
             {isLoading ? (
               <div className='flex flex-col items-center justify-center space-y-3 py-16'>
