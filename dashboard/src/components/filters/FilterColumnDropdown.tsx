@@ -17,7 +17,11 @@ import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { PROPERTY_SOURCE_LIST, type PropertyKeysBySource } from '@/entities/analytics/propertySources';
 import { useQueryFilterColumnsVisibility } from '@/contexts/QueryFilterColumnsVisibilityProvider';
-import { useFilterColumnStatus, useFilterColumnDisabledMessage } from '@/hooks/use-is-filter-column-allowed';
+import {
+  useFilterColumnStatus,
+  useFilterColumnDisabledMessage,
+  usePropertySourceStatus,
+} from '@/hooks/use-is-filter-column-allowed';
 import { cn } from '@/lib/utils';
 import { Braces as BracesIcon, ChevronDownIcon, TagsIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -42,6 +46,7 @@ export function FilterColumnDropdown<TEntity>({
   const tDemo = useTranslations('components.demoMode');
   const { isDemo } = useDashboardAuth();
   const getColumnStatus = useFilterColumnStatus();
+  const getSourceStatus = usePropertySourceStatus();
   const getDisabledMessage = useFilterColumnDisabledMessage();
   const { mode } = useQueryFilterColumnsVisibility();
 
@@ -52,6 +57,15 @@ export function FilterColumnDropdown<TEntity>({
         return { column, status, disabledMessage: getDisabledMessage(status) };
       }).filter(({ status }) => mode === 'disable' || status.reason !== 'page'),
     [getColumnStatus, getDisabledMessage, mode],
+  );
+
+  const propertySources = useMemo(
+    () =>
+      PROPERTY_SOURCE_LIST.map((entry) => {
+        const status = getSourceStatus(entry.source);
+        return { ...entry, status, disabledMessage: getDisabledMessage(status) };
+      }).filter(({ status }) => mode === 'disable' || status.reason !== 'page'),
+    [getSourceStatus, getDisabledMessage, mode],
   );
 
   return (
@@ -112,18 +126,26 @@ export function FilterColumnDropdown<TEntity>({
               <span className='text-muted-foreground ml-auto text-xs'>{tDemo('notAvailable')}</span>
             </BADropdownMenuItem>
           ) : (
-            PROPERTY_SOURCE_LIST.map(({ source, labelKey }) => (
-              <PropertyKeysSubmenu
-                key={source}
-                source={source}
-                label={t(labelKey, { count: 2 })}
-                icon={source === 'cep' ? <BracesIcon /> : <TagsIcon />}
-                emptyLabel={t('noProperties')}
-                keys={propertyKeys?.[source]}
-                filter={filter}
-                onFilterUpdate={onFilterUpdate}
-              />
-            ))
+            propertySources.map(({ source, labelKey, status, disabledMessage }) =>
+              status.disabled ? (
+                <BADropdownMenuItem key={source} disabled>
+                  {source === 'cep' ? <BracesIcon /> : <TagsIcon />}
+                  {t(labelKey, { count: 2 })}
+                  <span className='text-muted-foreground ml-auto text-xs'>{disabledMessage}</span>
+                </BADropdownMenuItem>
+              ) : (
+                <PropertyKeysSubmenu
+                  key={source}
+                  source={source}
+                  label={t(labelKey, { count: 2 })}
+                  icon={source === 'cep' ? <BracesIcon /> : <TagsIcon />}
+                  emptyLabel={t('noProperties')}
+                  keys={propertyKeys?.[source]}
+                  filter={filter}
+                  onFilterUpdate={onFilterUpdate}
+                />
+              ),
+            )
           )}
         </BADropdownMenuContent>
       </BADropdownMenu>
