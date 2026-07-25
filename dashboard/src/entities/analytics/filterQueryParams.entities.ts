@@ -3,18 +3,38 @@ import z from 'zod';
 import { GRANULARITY_RANGE_VALUES } from '@/utils/granularityRanges';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { COMPARE_URL_MODES } from '@/utils/compareRanges';
-import { MAX_FILTER_ROWS, QueryFilterSchema } from '@/entities/analytics/filter.entities';
+import { MAX_FILTER_ROWS, QueryFilterSchema, type QueryFilter } from '@/entities/analytics/filter.entities';
+
+/* Legacy URL shape: a single `value` instead of `values`. */
+function migrateLegacyQueryFilter(filter: unknown): unknown {
+  if (typeof filter === 'object' && filter !== null && 'value' in filter && !('values' in filter)) {
+    const { value, ...rest } = filter as Record<string, unknown>;
+    return { ...rest, values: [value] };
+  }
+  return filter;
+}
+
+/**
+ * Validates each decoded query filter individually and drops the invalid ones,
+ * so one malformed filter in the URL cannot invalidate the rest of the state.
+ */
+export function sanitizeQueryFilters(value: unknown): QueryFilter[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value
+    .slice(0, MAX_FILTER_ROWS)
+    .map(migrateLegacyQueryFilter)
+    .flatMap((filter) => {
+      const parsed = QueryFilterSchema.safeParse(filter);
+      return parsed.success ? [parsed.data] : [];
+    });
+}
 
 export const FilterQueryParamsSchema = z.object({
   queryFilters: z.preprocess((val) => {
     if (Array.isArray(val)) {
-      return val.slice(0, MAX_FILTER_ROWS).map((filter) => {
-        if (typeof filter === 'object' && filter !== null && 'value' in filter && !('values' in filter)) {
-          const { value, ...rest } = filter as Record<string, unknown>;
-          return { ...rest, values: [value] };
-        }
-        return filter;
-      });
+      return val.slice(0, MAX_FILTER_ROWS).map(migrateLegacyQueryFilter);
     }
     return val;
   }, z.array(QueryFilterSchema)),
