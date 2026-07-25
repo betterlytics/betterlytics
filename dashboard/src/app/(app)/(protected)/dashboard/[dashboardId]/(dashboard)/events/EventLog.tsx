@@ -200,9 +200,16 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         <div className='relative'>
           {newEventsBadge && (
             <div className='animate-in fade-in slide-in-from-top-1 absolute top-2 left-1/2 z-10 -translate-x-1/2'>
-              <span className='bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-medium shadow-md'>
+              <button
+                type='button'
+                onClick={() => {
+                  scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                  setNewEventsBadge(null);
+                }}
+                className='bg-primary text-primary-foreground cursor-pointer rounded-full px-3 py-1 text-xs font-medium shadow-md'
+              >
                 {t('newEvents', { count: newEventsBadge.count })}
-              </span>
+              </button>
             </div>
           )}
           {/* overflow-anchor off: the prepend compensates scroll manually; native anchoring would double it */}
