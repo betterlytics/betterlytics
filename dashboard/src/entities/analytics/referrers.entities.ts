@@ -51,6 +51,7 @@ export const ReferrerUrlRollupRowSchema = z.object({
   source_name: z.string(),
   referrer_url: z.string().nullable(),
   visitors: z.number(),
+  stored_source_name: z.string().nullable(),
   is_rollup: z.preprocess(rollupToBoolean, z.boolean()),
 });
 
