@@ -8,6 +8,7 @@ import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
@@ -89,6 +90,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   };
   const [newUids, setNewUids] = useState<Set<string>>(new Set());
   const [newEventsBadge, setNewEventsBadge] = useState<{ count: number } | null>(null);
+  const [isAtTop, setIsAtTop] = useState(true);
   const prependScrollHeightRef = useRef<number | null>(null);
   const highlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const badgeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -198,6 +200,21 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
       <CardContent className='p-0'>
         <div className='relative'>
+          {/* Top-of-list indicator: a hairline while at the top, a shadow scrim once scrolled. */}
+          <div
+            aria-hidden='true'
+            className={cn(
+              'border-border/60 pointer-events-none absolute inset-x-0 top-0 z-10 border-t transition-opacity duration-200',
+              isAtTop ? 'opacity-100' : 'opacity-0',
+            )}
+          />
+          <div
+            aria-hidden='true'
+            className={cn(
+              'pointer-events-none absolute inset-x-0 top-0 z-10 h-2.5 bg-gradient-to-b from-black/5 to-transparent transition-opacity duration-200 dark:from-black/25',
+              isAtTop ? 'opacity-0' : 'opacity-100',
+            )}
+          />
           {newEventsBadge && (
             <div className='animate-in fade-in slide-in-from-top-1 absolute top-2 left-1/2 z-10 -translate-x-1/2'>
               <button
@@ -222,6 +239,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
           {/* overflow-anchor off: the prepend compensates scroll manually; native anchoring would double it */}
           <div
             ref={scrollRef}
+            onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop <= 0)}
             className='scrollbar-thumb-muted max-h-[32rem] scrollbar-thin scrollbar-track-transparent overflow-y-auto [overflow-anchor:none]'
           >
             {isLoading ? (
