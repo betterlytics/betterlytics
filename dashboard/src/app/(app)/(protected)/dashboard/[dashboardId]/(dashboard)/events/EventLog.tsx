@@ -97,46 +97,61 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const badgeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
+    // `inFlight` stops a slow poll from overlapping the next tick (same `since`
+    // twice would prepend duplicates); `cancelled` stops an in-flight response
+    // from touching state after a filter change or unmount.
+    let cancelled = false;
+    let inFlight = false;
     const id = setInterval(async () => {
-      if (document.hidden) return;
+      if (document.hidden || inFlight) return;
       const since = newestTsRef.current;
       if (!since) {
         // Nothing loaded yet (empty state) — just re-ask for the first page.
         void utils.events.recentEvents.refetch({ ...input, limit: pageSize });
         return;
       }
-      const fresh = await utils.client.events.newEvents.query({ ...input, since, limit: pageSize });
-      if (fresh.length === 0) return;
-      if (fresh.length >= pageSize) {
-        // Gap too large to stitch — restart from a fresh first page.
-        void utils.events.recentEvents.reset({ ...input, limit: pageSize });
-        return;
+      inFlight = true;
+      try {
+        const fresh = await utils.client.events.newEvents.query({ ...input, since, limit: pageSize });
+        if (cancelled || fresh.length === 0) return;
+        if (fresh.length >= pageSize) {
+          // Gap too large to stitch — restart from a fresh first page.
+          void utils.events.recentEvents.reset({ ...input, limit: pageSize });
+          return;
+        }
+
+        // When scrolled down, record the scroll height so the prepend can be
+        // compensated and the viewport doesn't jump; at the top, let rows push in.
+        const el = scrollRef.current;
+        if (el && el.scrollTop > 10) {
+          prependScrollHeightRef.current = el.scrollHeight;
+        }
+
+        setNewUids(new Set(fresh.map(getUid)));
+        utils.events.recentEvents.setInfiniteData({ ...input, limit: pageSize }, (old) => {
+          if (!old) return old;
+          const [first, ...rest] = old.pages;
+          return {
+            ...old,
+            pages: [{ ...first, events: [...fresh, ...first.events] }, ...rest],
+          };
+        });
+        setNewEventsBadge({ count: fresh.length });
+
+        if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
+        highlightTimeoutRef.current = setTimeout(() => setNewUids(new Set()), NEW_EVENTS_HIGHLIGHT_MS);
+        if (badgeTimeoutRef.current) clearTimeout(badgeTimeoutRef.current);
+        badgeTimeoutRef.current = setTimeout(() => setNewEventsBadge(null), NEW_EVENTS_BADGE_MS);
+      } catch {
+        // Transient poll failure — the next tick retries.
+      } finally {
+        inFlight = false;
       }
-
-      // When scrolled down, record the scroll height so the prepend can be
-      // compensated and the viewport doesn't jump; at the top, let rows push in.
-      const el = scrollRef.current;
-      if (el && el.scrollTop > 10) {
-        prependScrollHeightRef.current = el.scrollHeight;
-      }
-
-      setNewUids(new Set(fresh.map(getUid)));
-      utils.events.recentEvents.setInfiniteData({ ...input, limit: pageSize }, (old) => {
-        if (!old) return old;
-        const [first, ...rest] = old.pages;
-        return {
-          ...old,
-          pages: [{ ...first, events: [...fresh, ...first.events] }, ...rest],
-        };
-      });
-      setNewEventsBadge({ count: fresh.length });
-
-      if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
-      highlightTimeoutRef.current = setTimeout(() => setNewUids(new Set()), NEW_EVENTS_HIGHLIGHT_MS);
-      if (badgeTimeoutRef.current) clearTimeout(badgeTimeoutRef.current);
-      badgeTimeoutRef.current = setTimeout(() => setNewEventsBadge(null), NEW_EVENTS_BADGE_MS);
     }, NEW_EVENTS_POLL_INTERVAL_MS);
-    return () => clearInterval(id);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
   }, [input, pageSize, utils]);
 
   useEffect(
