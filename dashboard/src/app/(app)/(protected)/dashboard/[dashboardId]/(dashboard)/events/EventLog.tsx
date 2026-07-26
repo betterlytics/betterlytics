@@ -180,7 +180,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   }, [isFetchingNextPage]);
 
   return (
-    <Card className='border-border/50 relative overflow-hidden shadow-sm'>
+    <Card className='border-border/50 relative overflow-hidden pb-0 shadow-sm'>
       <div className='absolute top-0 left-0 h-1 w-full animate-pulse bg-gradient-to-r from-green-500/20 via-green-400/40 to-green-500/20' />
 
       <CardHeader className='pb-2'>
