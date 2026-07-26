@@ -86,7 +86,7 @@ const CUSTOM_EVENTS = [
     properties: JSON.stringify({ product_id: "abc123" }),
   },
   {
-    event_name: "yessir",
+    event_name: "malformed-props-repro",
     properties: JSON.stringify({ "ran\tdom": "b" }),
   },
 ];
