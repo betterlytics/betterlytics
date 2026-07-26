@@ -1,6 +1,6 @@
 'server-only';
 
-import { type FilterColumn, parseFilterColumn } from '@/entities/analytics/filter.entities';
+import { type FilterColumn, parseFilterColumn, PROPERTY_KEY_PATTERN } from '@/entities/analytics/filter.entities';
 import { type PropertySourceKind } from '@/entities/analytics/propertySources';
 import {
   getFilterDistinctValues,
@@ -22,11 +22,13 @@ export async function getDistinctValuesForFilterColumn(
   return getPropertyValues(siteQuery, parsed.source, parsed.key, search?.trim(), limit);
 }
 
+/* Keys that fail the filter-column constraint would be unusable as filters, so discovery hides them. */
 export async function getAvailablePropertyKeys(
   siteQuery: BASiteQuery,
   source: PropertySourceKind,
   search?: string,
   limit?: number,
 ) {
-  return getPropertyKeys(siteQuery, source, search?.trim(), limit);
+  const keys = await getPropertyKeys(siteQuery, source, search?.trim(), limit);
+  return keys.filter((key) => PROPERTY_KEY_PATTERN.test(key));
 }
