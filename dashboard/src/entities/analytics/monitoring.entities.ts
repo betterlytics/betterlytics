@@ -26,6 +26,10 @@ export const MONITOR_LIMITS = {
   ALERT_EMAILS_MAX: 5,
   ACCEPTED_STATUS_CODES_MAX: 5,
   EXPECTED_KEYWORD_MAX: 256,
+  // Single source of truth for the check interval range: the schema below and the
+  // interval slider marks both derive from these so they cannot drift apart.
+  INTERVAL_MIN_SECONDS: 60,
+  INTERVAL_MAX_SECONDS: 86_400,
 } as const;
 
 export const MONITOR_DEFAULTS = {
@@ -57,7 +61,12 @@ export const StatusCodeValueSchema = z.union([
 
 export const MonitorCheckBaseSchema = z.object({
   name: z.string().trim().max(MONITOR_LIMITS.NAME_MAX).optional().nullable(),
-  intervalSeconds: z.number().int().min(60).max(3600).default(MONITOR_DEFAULTS.intervalSeconds),
+  intervalSeconds: z
+    .number()
+    .int()
+    .min(MONITOR_LIMITS.INTERVAL_MIN_SECONDS)
+    .max(MONITOR_LIMITS.INTERVAL_MAX_SECONDS)
+    .default(MONITOR_DEFAULTS.intervalSeconds),
   timeoutMs: z.number().int().min(500).max(120_000).default(MONITOR_DEFAULTS.timeoutMs),
   isEnabled: z.boolean().default(MONITOR_DEFAULTS.isEnabled),
   checkSslErrors: z.boolean().default(MONITOR_DEFAULTS.checkSslErrors),
