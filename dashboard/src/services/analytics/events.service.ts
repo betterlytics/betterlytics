@@ -5,6 +5,7 @@ import {
   getEventPropertyData,
   getEventsSince,
   getRecentEvents,
+  getTotalEventCount,
 } from '@/repositories/clickhouse/index.repository';
 import {
   computeNextEventLogCursor,
@@ -33,6 +34,10 @@ export async function getRecentEventsForSite(
 ): Promise<EventLogPage> {
   const events = await getRecentEvents(siteId, queryFilters, limit, cursor);
   return { events, nextCursor: computeNextEventLogCursor(events, cursor, limit) };
+}
+
+export async function getTotalEventCountForSite(siteId: string, queryFilters: QueryFilter[]): Promise<number> {
+  return getTotalEventCount(siteId, queryFilters);
 }
 
 export async function getNewEventsForSite(

@@ -181,6 +181,27 @@ export async function getEventsSince(
   return result.map((row) => EventLogEntrySchema.parse({ ...row, timestamp: parseClickHouseDate(row.timestamp) }));
 }
 
+export async function getTotalEventCount(siteId: string, queryFilters: QueryFilter[]): Promise<number> {
+  const filters = BAQuery.getFilterQuery(queryFilters);
+
+  const query = safeSql`
+    SELECT count() as total
+    FROM analytics.events
+    WHERE
+          site_id = {site_id:String}
+      AND event_type = 'custom'
+      AND ${SQL.AND(filters)}
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId },
+    })
+    .toPromise()) as Array<{ total: number }>;
+
+  return result[0]?.total || 0;
+}
+
 export async function anySiteHasEventsWithinDays(
   siteIds: string[],
   withinDays: number,

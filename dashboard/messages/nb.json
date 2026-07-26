@@ -2428,6 +2428,8 @@
         "loadingMore": "Laster inn flere hendelser...",
         "endOfLog": "Du har nådd slutten av hendelsesloggen",
         "newEvents": "{count, plural, one {{count} ny hendelse} other {{count} nye hendelser}}",
+        "showingAll": "Viser alle {count} hendelser",
+        "showingPartial": "Viser {loaded} av {total} hendelser",
         "title": "Hendelseslogg",
         "description": "Realtids aktivitetssporing",
         "loading": "Laster inn hendelser..."

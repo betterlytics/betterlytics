@@ -14,7 +14,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from '@/components/events/EventLogItem';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { formatNumber } from '@/utils/formatters';
 import { useInView } from '@/hooks/useInView';
 
 const DEFAULT_PAGE_SIZE = 25;
@@ -52,6 +53,7 @@ const LoadingMoreIndicator = ({ t }: { t: EventLogTranslation }) => (
 
 export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const t = useTranslations('components.events.log');
+  const locale = useLocale();
   const dashboardId = useDashboardId();
   const { queryFilters } = useQueryFiltersContext();
   const allowedFilters = useAllowedQueryFilters(queryFilters);
@@ -70,6 +72,13 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         structuralSharing: false,
       },
     );
+
+  // All custom events for the site under the active filters (no time range) —
+  // fetched once per input; the poll bumps it locally instead of re-polling.
+  const { data: totalCount } = trpc.events.totalEventCount.useQuery(input, {
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
 
   const allEvents: EventLogEntry[] = useMemo(() => data?.pages.flatMap((page) => page.events) ?? [], [data]);
 
@@ -122,6 +131,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         if (fresh.length >= pageSize) {
           // Gap too large to stitch — restart from a fresh first page.
           void utils.events.recentEvents.reset({ ...input, limit: pageSize });
+          void utils.events.totalEventCount.invalidate(input);
           return;
         }
 
@@ -142,6 +152,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
           };
         });
         setNewEventsBadge({ count: fresh.length });
+        utils.events.totalEventCount.setData(input, (old) => (old === undefined ? old : old + fresh.length));
 
         if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
         highlightTimeoutRef.current = setTimeout(() => setNewUids(new Set()), NEW_EVENTS_HIGHLIGHT_MS);
@@ -301,7 +312,22 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               </>
             )}
           </ScrollArea>
+          {/* Smaller counterpart of the top scrim, marking the footer edge. */}
+          <div
+            aria-hidden='true'
+            className='pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-t from-black/5 to-transparent dark:from-black/25'
+          />
         </div>
+        {totalCount !== undefined && totalCount > 0 && (
+          <div className='border-border/60 text-muted-foreground border-t py-2.5 text-center text-xs font-medium'>
+            {allEvents.length >= totalCount
+              ? t('showingAll', { count: formatNumber(totalCount, locale) })
+              : t('showingPartial', {
+                  loaded: formatNumber(allEvents.length, locale),
+                  total: formatNumber(totalCount, locale),
+                })}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -2428,6 +2428,8 @@
         "loadingMore": "Caricamento di altri eventi...",
         "endOfLog": "Hai raggiunto la fine del registro eventi",
         "newEvents": "{count, plural, one {{count} nuovo evento} other {{count} nuovi eventi}}",
+        "showingAll": "Mostrati tutti i {count} eventi",
+        "showingPartial": "Mostrati {loaded} di {total} eventi",
         "title": "Registro eventi",
         "description": "Tracciamento attività in tempo reale",
         "loading": "Caricamento eventi..."

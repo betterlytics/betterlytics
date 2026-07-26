@@ -2428,6 +2428,8 @@
         "loadingMore": "Indlæser flere hændelser...",
         "endOfLog": "Du har nået slutningen af hændelsesloggen",
         "newEvents": "{count, plural, one {{count} ny hændelse} other {{count} nye hændelser}}",
+        "showingAll": "Viser alle {count} hændelser",
+        "showingPartial": "Viser {loaded} af {total} hændelser",
         "title": "Hændelseslog",
         "description": "Realtids aktivitetssporing",
         "loading": "Indlæser hændelser..."
