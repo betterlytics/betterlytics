@@ -100,21 +100,22 @@ export function isFilterColumn(value: string): value is FilterColumn {
   return FilterColumnSchema.safeParse(value).success;
 }
 
-export type FilterPair = { column: FilterColumn; value: string; operator?: FilterOperator };
+export type FilterUpdate = { column: FilterColumn; value: string; operator?: FilterOperator };
 
 /**
  * Atomic multi-column filter replacement for compound row clicks (e.g. a
- * "Chrome 120" row applying browser + browser_version). Existing filters on
- * the pair columns are replaced; filters on all other columns are kept.
+ * "Chrome 120" row applying browser + browser_version). Takes any number of
+ * updates; existing filters on the updated columns are replaced and filters
+ * on all other columns are kept.
  */
-export function applyFilterPairs(current: QueryFilter[], pairs: FilterPair[]): QueryFilter[] {
-  const replaced = new Set<FilterColumn>(pairs.map((pair) => pair.column));
+export function applyFilterUpdates(current: QueryFilter[], updates: FilterUpdate[]): QueryFilter[] {
+  const replaced = new Set<FilterColumn>(updates.map((update) => update.column));
   const kept = current.filter((filter) => !replaced.has(filter.column));
-  const added = pairs.map((pair) => ({
+  const added = updates.map((update) => ({
     id: generateTempId(),
-    column: pair.column,
-    operator: pair.operator ?? ('=' as const),
-    values: [pair.value],
+    column: update.column,
+    operator: update.operator ?? ('=' as const),
+    values: [update.value],
   }));
   return [...kept, ...added];
 }

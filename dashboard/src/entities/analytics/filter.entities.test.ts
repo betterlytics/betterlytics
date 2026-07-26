@@ -1,23 +1,23 @@
 import { describe, it, expect } from 'vitest';
-import { applyFilterPairs, type QueryFilter } from '@/entities/analytics/filter.entities';
+import { applyFilterUpdates, type QueryFilter } from '@/entities/analytics/filter.entities';
 
 function filter(column: QueryFilter['column'], value: string, id = `id-${column}`): QueryFilter {
   return { id, column, operator: '=', values: [value] };
 }
 
-describe('applyFilterPairs', () => {
-  it('appends pairs as equals filters with generated ids', () => {
-    const next = applyFilterPairs([], [{ column: 'browser', value: 'Chrome' }]);
+describe('applyFilterUpdates', () => {
+  it('appends updates as equals filters with generated ids', () => {
+    const next = applyFilterUpdates([], [{ column: 'browser', value: 'Chrome' }]);
 
     expect(next).toHaveLength(1);
     expect(next[0]).toMatchObject({ column: 'browser', operator: '=', values: ['Chrome'] });
     expect(next[0].id).toBeTruthy();
   });
 
-  it('replaces existing filters on the pair columns instead of duplicating', () => {
+  it('replaces existing filters on the updated columns instead of duplicating', () => {
     const current = [filter('browser', 'Safari'), filter('browser_version', '17')];
 
-    const next = applyFilterPairs(current, [
+    const next = applyFilterUpdates(current, [
       { column: 'browser', value: 'Chrome' },
       { column: 'browser_version', value: '120' },
     ]);
@@ -26,10 +26,24 @@ describe('applyFilterPairs', () => {
     expect(next.map((f) => f.values[0])).toEqual(['Chrome', '120']);
   });
 
+  it('applies a country + region + city triplet atomically', () => {
+    const current = [filter('country_code', 'US'), filter('browser', 'Chrome')];
+
+    const next = applyFilterUpdates(current, [
+      { column: 'country_code', value: 'DK' },
+      { column: 'subdivision_code', value: 'DK-84' },
+      { column: 'city', value: 'Aarhus' },
+    ]);
+
+    expect(next).toHaveLength(4);
+    expect(next[0]).toMatchObject({ column: 'browser', values: ['Chrome'] });
+    expect(next.slice(1).map((f) => f.values[0])).toEqual(['DK', 'DK-84', 'Aarhus']);
+  });
+
   it('leaves unrelated columns untouched', () => {
     const current = [filter('url', '/pricing'), filter('browser', 'Safari')];
 
-    const next = applyFilterPairs(current, [{ column: 'browser', value: 'Chrome' }]);
+    const next = applyFilterUpdates(current, [{ column: 'browser', value: 'Chrome' }]);
 
     expect(next).toHaveLength(2);
     expect(next[0]).toMatchObject({ column: 'url', values: ['/pricing'] });
@@ -38,7 +52,7 @@ describe('applyFilterPairs', () => {
   it('keeps a version filter when replacing only its browser', () => {
     const current = [filter('browser_version', '17')];
 
-    const next = applyFilterPairs(current, [{ column: 'browser', value: 'Chrome' }]);
+    const next = applyFilterUpdates(current, [{ column: 'browser', value: 'Chrome' }]);
 
     expect(next).toHaveLength(2);
     expect(next.map((f) => f.column).sort()).toEqual(['browser', 'browser_version']);
@@ -48,7 +62,7 @@ describe('applyFilterPairs', () => {
     const others = Array.from({ length: 8 }, (_, i) => filter('url', `/page-${i}`, `id-${i}`));
     const current = [...others, filter('browser', 'Safari'), filter('browser_version', '17')];
 
-    const next = applyFilterPairs(current, [
+    const next = applyFilterUpdates(current, [
       { column: 'browser', value: 'Chrome' },
       { column: 'browser_version', value: '120' },
     ]);
@@ -59,14 +73,14 @@ describe('applyFilterPairs', () => {
   it('does not mutate the input array', () => {
     const current = [filter('browser', 'Safari')];
 
-    applyFilterPairs(current, [{ column: 'browser', value: 'Chrome' }]);
+    applyFilterUpdates(current, [{ column: 'browser', value: 'Chrome' }]);
 
     expect(current).toHaveLength(1);
     expect(current[0].values).toEqual(['Safari']);
   });
 
-  it('applies a pair operator when given', () => {
-    const next = applyFilterPairs([], [{ column: 'browser', value: 'Chrome', operator: '!=' }]);
+  it('applies an update operator when given', () => {
+    const next = applyFilterUpdates([], [{ column: 'browser', value: 'Chrome', operator: '!=' }]);
 
     expect(next).toHaveLength(1);
     expect(next[0]).toMatchObject({ column: 'browser', operator: '!=', values: ['Chrome'] });

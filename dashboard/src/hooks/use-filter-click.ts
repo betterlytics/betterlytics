@@ -3,11 +3,11 @@
 import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import {
-  applyFilterPairs,
+  applyFilterUpdates,
   MAX_FILTER_ROWS,
   type FilterColumn,
   type FilterOperator,
-  type FilterPair,
+  type FilterUpdate,
 } from '@/entities/analytics/filter.entities';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -65,12 +65,12 @@ export function useFilterClick(defaults?: Options) {
       }
 
       if (behavior === 'replace-same-column') {
-        const next = applyFilterPairs(queryFilters, [{ column, value, operator }]);
+        const next = applyFilterUpdates(queryFilters, [{ column, value, operator }]);
         if (next.length > MAX_FILTER_ROWS) {
           notifyCapReached();
           return;
         }
-        setQueryFilters((fs) => applyFilterPairs(fs, [{ column, value, operator }]));
+        setQueryFilters((fs) => applyFilterUpdates(fs, [{ column, value, operator }]));
         return;
       }
 
@@ -95,9 +95,9 @@ export function useFilterClick(defaults?: Options) {
   );
 
   const applyFilters = useCallback(
-    (pairs: FilterPair[]) => {
-      for (const pair of pairs) {
-        const status = getColumnStatus(pair.column);
+    (updates: FilterUpdate[]) => {
+      for (const update of updates) {
+        const status = getColumnStatus(update.column);
         if (status.disabled) {
           if (status.reason === 'demo') toast.info(t('interactionDisabled'));
           else if (status.reason === 'page') toast.info(tFilters('notAvailableOnPage'));
@@ -105,13 +105,13 @@ export function useFilterClick(defaults?: Options) {
         }
       }
 
-      const applied = pairs.map((pair) => ({ ...pair, operator: pair.operator ?? defaultOperator }));
-      const next = applyFilterPairs(queryFilters, applied);
+      const applied = updates.map((update) => ({ ...update, operator: update.operator ?? defaultOperator }));
+      const next = applyFilterUpdates(queryFilters, applied);
       if (next.length > MAX_FILTER_ROWS) {
         notifyCapReached();
         return;
       }
-      setQueryFilters((fs) => applyFilterPairs(fs, applied));
+      setQueryFilters((fs) => applyFilterUpdates(fs, applied));
     },
     [getColumnStatus, queryFilters, setQueryFilters, defaultOperator, t, tFilters, notifyCapReached],
   );
