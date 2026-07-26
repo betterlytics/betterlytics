@@ -21,8 +21,9 @@ import {
   useFilterColumnDisabledMessage,
   usePropertySourceStatus,
 } from '@/hooks/use-is-filter-column-allowed';
+import { PROPERTY_SOURCE_ICONS } from '@/components/filters/propertySourceIcons';
 import { cn } from '@/lib/utils';
-import { Braces as BracesIcon, ChevronDownIcon, TagsIcon } from 'lucide-react';
+import { ChevronDownIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Dispatch, useMemo } from 'react';
 
@@ -119,7 +120,7 @@ export function FilterColumnDropdown<TEntity>({
           {propertySources.map(({ source, labelKey, status, disabledMessage }) =>
             status.disabled ? (
               <BADropdownMenuItem key={source} disabled>
-                {source === 'cep' ? <BracesIcon /> : <TagsIcon />}
+                {PROPERTY_SOURCE_ICONS[source]}
                 {t(labelKey, { count: 2 })}
                 <span className='text-muted-foreground ml-auto text-xs'>{disabledMessage}</span>
               </BADropdownMenuItem>
@@ -128,7 +129,7 @@ export function FilterColumnDropdown<TEntity>({
                 key={source}
                 source={source}
                 label={t(labelKey, { count: 2 })}
-                icon={source === 'cep' ? <BracesIcon /> : <TagsIcon />}
+                icon={PROPERTY_SOURCE_ICONS[source]}
                 emptyLabel={t('noProperties')}
                 keys={propertyKeys?.[source]}
                 filter={filter}
