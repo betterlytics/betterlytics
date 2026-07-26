@@ -183,7 +183,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     <Card className='border-border/50 relative overflow-hidden pb-0 shadow-sm'>
       <div className='absolute top-0 left-0 h-1 w-full animate-pulse bg-gradient-to-r from-green-500/20 via-green-400/40 to-green-500/20' />
 
-      <CardHeader className='pb-2'>
+      <CardHeader>
         <CardTitle className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
           <div className='flex min-w-0 items-center gap-3'>
             <div className='bg-muted/50 border-border/30 relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border'>
@@ -191,8 +191,10 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               <LiveIndicator />
             </div>
             <div className='flex min-w-0 flex-col'>
-              <span className='text-lg font-semibold'>{t('title')}</span>
-              <span className='text-muted-foreground text-xs font-normal'>{t('description')}</span>
+              <span className='text-lg leading-none font-semibold'>{t('title')}</span>
+              <span className='text-muted-foreground mt-0.5 text-xs leading-none font-normal'>
+                {t('description')}
+              </span>
             </div>
             <div className='ml-2 flex flex-shrink-0 items-center gap-2'></div>
           </div>
