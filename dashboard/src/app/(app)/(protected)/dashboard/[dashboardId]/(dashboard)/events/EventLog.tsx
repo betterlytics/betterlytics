@@ -10,6 +10,7 @@ import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from '@/components/events/EventLogItem';
@@ -237,10 +238,12 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
             </div>
           )}
           {/* overflow-anchor off: the prepend compensates scroll manually; native anchoring would double it */}
-          <div
-            ref={scrollRef}
-            onScroll={(e) => setIsAtTop(e.currentTarget.scrollTop <= 0)}
-            className='scrollbar-thumb-muted max-h-[32rem] scrollbar-thin scrollbar-track-transparent overflow-y-auto [overflow-anchor:none]'
+          <ScrollArea
+            viewportRef={scrollRef}
+            onViewportScroll={(e) => setIsAtTop(e.currentTarget.scrollTop <= 0)}
+            // max-h must sit on the viewport (the scrollable element) — on the root,
+            // the viewport's size-full cannot resolve against a max-height.
+            viewportClassName='max-h-128 [overflow-anchor:none]'
           >
             {isLoading ? (
               <div className='flex flex-col items-center justify-center space-y-3 py-16'>
@@ -274,7 +277,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                 )}
               </>
             )}
-          </div>
+          </ScrollArea>
         </div>
       </CardContent>
     </Card>
