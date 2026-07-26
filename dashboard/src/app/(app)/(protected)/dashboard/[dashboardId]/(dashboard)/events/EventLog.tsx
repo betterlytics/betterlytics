@@ -73,6 +73,11 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   const allEvents: EventLogEntry[] = useMemo(() => data?.pages.flatMap((page) => page.events) ?? [], [data]);
 
+  // Rows never re-render on their own (stable identity + memo), so their relative
+  // timestamps freeze. Refresh them whenever the list changes — prepends, appends,
+  // resets — which is exactly when mixed stale/fresh labels would show.
+  const now = useMemo(() => Date.now(), [data]);
+
   const utils = trpc.useUtils();
   const scrollRef = useRef<HTMLDivElement>(null);
   const newestTsRef = useRef<Date | null>(null);
@@ -277,7 +282,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                       key={getUid(event)}
                       className={newUids.has(getUid(event)) ? 'animate-monitor-row-added' : undefined}
                     >
-                      <EventLogItem event={event} />
+                      <EventLogItem event={event} now={now} />
                     </div>
                   ))}
                 </div>
