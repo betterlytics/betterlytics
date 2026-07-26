@@ -65,14 +65,12 @@ export function useFilterClick(defaults?: Options) {
       }
 
       if (behavior === 'replace-same-column') {
-        // Replacing an existing column keeps the count the same, so only a brand-new column is capped.
-        const replacesExistingColumn = queryFilters.some((f) => f.column === column);
-        if (atCap && !replacesExistingColumn) {
+        const next = applyFilterPairs(queryFilters, [{ column, value, operator }]);
+        if (next.length > MAX_FILTER_ROWS) {
           notifyCapReached();
           return;
         }
-        setQueryFilters((fs) => fs.filter((f) => f.column !== column));
-        addQueryFilter({ column, operator, values: [value] });
+        setQueryFilters((fs) => applyFilterPairs(fs, [{ column, value, operator }]));
         return;
       }
 
@@ -97,7 +95,7 @@ export function useFilterClick(defaults?: Options) {
   );
 
   const applyFilters = useCallback(
-    (pairs: FilterPair[], opts?: { replaceColumns?: FilterColumn[] }) => {
+    (pairs: FilterPair[]) => {
       for (const pair of pairs) {
         const status = getColumnStatus(pair.column);
         if (status.disabled) {
@@ -107,14 +105,15 @@ export function useFilterClick(defaults?: Options) {
         }
       }
 
-      const next = applyFilterPairs(queryFilters, pairs, opts?.replaceColumns);
+      const applied = pairs.map((pair) => ({ ...pair, operator: pair.operator ?? defaultOperator }));
+      const next = applyFilterPairs(queryFilters, applied);
       if (next.length > MAX_FILTER_ROWS) {
         notifyCapReached();
         return;
       }
-      setQueryFilters(next);
+      setQueryFilters((fs) => applyFilterPairs(fs, applied));
     },
-    [getColumnStatus, queryFilters, setQueryFilters, t, tFilters, notifyCapReached],
+    [getColumnStatus, queryFilters, setQueryFilters, defaultOperator, t, tFilters, notifyCapReached],
   );
 
   const makeFilterClick = useCallback(
