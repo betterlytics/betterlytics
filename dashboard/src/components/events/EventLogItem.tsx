@@ -12,7 +12,7 @@ const MAX_PROPERTIES_DISPLAY = 3;
 
 interface EventLogItemProps {
   event: EventLogEntry;
-  /** Render timestamp; a change re-renders the memoized item so the relative time stays current. */
+  /** A change re-renders the memoized item so the relative time stays current. */
   now?: number;
   isNearEnd?: boolean;
   onRef?: (node: HTMLDivElement | null) => void;

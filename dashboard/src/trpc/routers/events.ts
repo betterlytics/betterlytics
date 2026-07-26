@@ -16,8 +16,7 @@ import { toGlobalPropertiesDataTable } from '@/presenters/toGlobalPropertiesData
 const CUSTOM_EVENTS_OVERVIEW_LIMIT = 10;
 const RECENT_EVENTS_DEFAULT_PAGE_SIZE = 25;
 const RECENT_EVENTS_MAX_PAGE_SIZE = 100;
-// The live poll may fetch a whole gap at once (up to a hidden-tab backlog), so
-// its ceiling is deliberately higher than the page size.
+// The live poll may fetch a whole hidden-tab backlog at once, hence above the page size.
 const NEW_EVENTS_MAX_LIMIT = 500;
 
 const GLOBAL_PROPERTIES_KEY_LIMIT = 10;

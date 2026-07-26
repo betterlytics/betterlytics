@@ -20,9 +20,8 @@ import { useInView } from '@/hooks/useInView';
 
 const DEFAULT_PAGE_SIZE = 25;
 const NEW_EVENTS_POLL_INTERVAL_MS = 30 * 1000; // 30 seconds
-// High enough that a visible tab never fills it in one interval — the poll then
-// always returns the complete gap and prepending always stitches. Must not
-// exceed the router's NEW_EVENTS_MAX_LIMIT.
+// High enough that a visible tab never fills it in one interval, so the poll
+// returns the complete gap. Must not exceed the router's NEW_EVENTS_MAX_LIMIT.
 const NEW_EVENTS_POLL_LIMIT = 500;
 const NEW_EVENTS_HIGHLIGHT_MS = 2 * 1000;
 const NEW_EVENTS_BADGE_MS = 4 * 1000;
@@ -71,14 +70,13 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         staleTime: Infinity,
         gcTime: 5 * 60_000,
         refetchOnWindowFocus: false,
-        // Required by the live prepend: structural sharing re-creates row objects
-        // positionally on prepend, which would break WeakMap-based keys.
+        // Structural sharing would re-create row objects positionally on prepend,
+        // breaking the WeakMap-based row keys.
         structuralSharing: false,
       },
     );
 
-  // All custom events for the site under the active filters (no time range) —
-  // fetched once per input; the poll bumps it locally instead of re-polling.
+  // Fetched once per input; the poll keeps it current locally instead of re-polling.
   const { data: totalCount } = trpc.events.totalEventCount.useQuery(input, {
     staleTime: Infinity,
     refetchOnWindowFocus: false,
@@ -86,9 +84,8 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   const allEvents: EventLogEntry[] = useMemo(() => data?.pages.flatMap((page) => page.events) ?? [], [data]);
 
-  // Rows never re-render on their own (stable identity + memo), so their relative
-  // timestamps freeze. Refresh them whenever the list changes — prepends, appends,
-  // resets — which is exactly when mixed stale/fresh labels would show.
+  // Rows are memoized and never re-render on their own, so relative timestamps
+  // refresh only when the list changes.
   const now = useMemo(() => Date.now(), [data]);
 
   const utils = trpc.useUtils();
@@ -96,8 +93,8 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const newestTsRef = useRef<Date | null>(null);
   newestTsRef.current = allEvents[0]?.timestamp ?? null;
 
-  // Rows have no natural unique key, so each row object gets a stable uid
-  // (row identity is stable: pages never refetch and structural sharing is off).
+  // Rows have no natural unique key; object identity is stable (pages never
+  // refetch, structural sharing off), so each row object gets a uid.
   const uidsRef = useRef({ map: new WeakMap<EventLogEntry, string>(), next: 0 });
   const getUid = (e: EventLogEntry) => {
     let uid = uidsRef.current.map.get(e);
@@ -108,8 +105,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     return uid;
   };
   const [newUids, setNewUids] = useState<Set<string>>(new Set());
-  // Stays mounted after its first appearance so opacity/transform can transition
-  // both on entrance and dismissal; `visible` drives the fade.
+  // Never nulled after first appearance — the badge stays mounted so dismissal can transition.
   const [newEventsBadge, setNewEventsBadge] = useState<{ count: number; visible: boolean } | null>(null);
 
   const dismissBadge = () => setNewEventsBadge((badge) => (badge ? { ...badge, visible: false } : badge));
@@ -119,16 +115,15 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const badgeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    // `inFlight` stops a slow poll from overlapping the next tick (same `since`
-    // twice would prepend duplicates); `cancelled` stops an in-flight response
-    // from touching state after a filter change or unmount.
+    // `inFlight`: an overlapping tick would reuse the same `since` and prepend
+    // duplicates. `cancelled`: a response landing after a filter change must not
+    // touch the new view.
     let cancelled = false;
     let inFlight = false;
     const id = setInterval(async () => {
       if (document.hidden || inFlight) return;
       const since = newestTsRef.current;
       if (!since) {
-        // Nothing loaded yet (empty state) — just re-ask for the first page.
         void utils.events.recentEvents.refetch({ ...input, limit: pageSize });
         return;
       }
@@ -137,10 +132,8 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         const fresh = await utils.client.events.newEvents.query({ ...input, since, limit: NEW_EVENTS_POLL_LIMIT });
         if (cancelled || fresh.length === 0) return;
         if (fresh.length >= NEW_EVENTS_POLL_LIMIT) {
-          // The gap may exceed what one poll can return (a long-hidden tab, or an
-          // extreme burst) — swap in a fresh first page built from the newest rows
-          // we already hold. No reset, so no loading spinner; scrolling refills
-          // older pages from the new cursor.
+          // Gap may exceed one poll (hidden-tab backlog) — swap in a first page
+          // built from the rows we already hold instead of resetting to a spinner.
           const events = fresh.slice(0, pageSize);
           utils.events.recentEvents.setInfiniteData({ ...input, limit: pageSize }, () => ({
             pages: [{ events, nextCursor: computeNextEventLogCursor(events, null, pageSize) }],
@@ -151,8 +144,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
           return;
         }
 
-        // When scrolled down, record the scroll height so the prepend can be
-        // compensated and the viewport doesn't jump; at the top, let rows push in.
+        // When scrolled down, the prepend compensates scroll; at the top, rows push in.
         const el = scrollRef.current;
         if (el && el.scrollTop > 10) {
           prependScrollHeightRef.current = el.scrollHeight;
@@ -250,7 +242,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
       <CardContent className='p-0'>
         <div className='relative'>
-          {/* Top-of-list indicator: a hairline while at the top, a shadow scrim once scrolled. */}
           <div
             aria-hidden='true'
             className={cn(
@@ -281,8 +272,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                 onClick={() => {
                   const el = scrollRef.current;
                   if (el) {
-                    // Cap the smooth-scroll distance so the glide stays short and consistent
-                    // from any depth; beyond that, jump instantly first.
+                    // Jump most of the way first so the glide stays short from any depth.
                     const glideDistance = el.clientHeight * 8;
                     if (el.scrollTop > glideDistance) el.scrollTop = glideDistance;
                     el.scrollTo({ top: 0, behavior: 'smooth' });
@@ -296,12 +286,11 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               </button>
             </div>
           )}
-          {/* overflow-anchor off: the prepend compensates scroll manually; native anchoring would double it */}
+          {/* overflow-anchor off: the prepend compensates scroll manually; native anchoring would double it.
+              max-h must sit on the viewport — its size-full can't resolve against a root max-height. */}
           <ScrollArea
             viewportRef={scrollRef}
             onViewportScroll={(e) => setIsAtTop(e.currentTarget.scrollTop <= 0)}
-            // max-h must sit on the viewport (the scrollable element) — on the root,
-            // the viewport's size-full cannot resolve against a max-height.
             viewportClassName='max-h-128 [overflow-anchor:none]'
           >
             {isLoading ? (
@@ -337,7 +326,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               </>
             )}
           </ScrollArea>
-          {/* Smaller counterpart of the top scrim, marking the footer edge. */}
           {allEvents.length > 0 && (
             <div
               aria-hidden='true'
