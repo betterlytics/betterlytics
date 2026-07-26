@@ -59,6 +59,11 @@ export async function executeListGlobalProperties(rawInput: unknown, siteId: str
       column,
       values: values.map((v) => v.value),
       truncated: values.length === GP_VALUE_LIMIT,
+      ...(values.length === 0
+        ? {
+            note: 'No values recorded for this property in the selected time range. Re-check the key against the key list, or broaden the timeRange.',
+          }
+        : {}),
     };
   }
 

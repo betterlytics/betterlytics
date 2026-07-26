@@ -80,6 +80,15 @@ describe('executeListGlobalProperties', () => {
     expect(result).toMatchObject({ truncated: true });
   });
 
+  it('adds a guidance note when a valid key has no recorded values', async () => {
+    getValues.mockResolvedValue([]);
+
+    const result = await executeListGlobalProperties({ timeRange: '7d', key: 'gp.plan' }, 'site-1');
+
+    expect(result).toMatchObject({ column: 'gp.plan', values: [], truncated: false });
+    expect(result.note).toContain('No values recorded');
+  });
+
   it('accepts a key without the gp. prefix', async () => {
     getValues.mockResolvedValue([]);
 
