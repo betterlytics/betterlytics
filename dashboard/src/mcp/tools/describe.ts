@@ -11,6 +11,7 @@ type SchemaDescription = {
   metrics: { key: string; description: string }[];
   dimensions: { key: string; description: string }[];
   filterColumns: { key: string; description: string; note?: string }[];
+  globalProperties: { description: string };
   filterOperators: readonly string[];
   filterFormat: { description: string; example: { column: string; operator: string; values: string[] } };
   timeRanges: string[];
@@ -34,6 +35,10 @@ export function getSchemaDescription(): SchemaDescription {
         ...(isDimension ? {} : { note: 'filter only, not available as a dimension' }),
       };
     }),
+    globalProperties: {
+      description:
+        'This dashboard may record custom event properties you can filter by using the gp.<key> form, e.g. { column: "gp.plan", operator: "=", values: ["pro"] }. These are filter-only (not metrics or dimensions). Call the list_global_properties tool to list the available keys, then call it again with a "key" argument to see example values for a specific property.',
+    },
     filterOperators: FILTER_OPERATORS,
     filterFormat: {
       description:
@@ -195,6 +200,27 @@ export function getSchemaDescription(): SchemaDescription {
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
           { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+        ],
+      },
+      {
+        name: 'list_global_properties',
+        description:
+          'Discover the custom event (global) properties recorded for this dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property\'s example values.',
+        inputs: [
+          {
+            name: 'timeRange',
+            type: 'string',
+            required: true,
+            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
+          },
+          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          {
+            name: 'key',
+            type: 'string',
+            required: false,
+            description:
+              'A property key as returned by this tool, e.g. "gp.plan". If given, returns example values for that key instead of the key list.',
+          },
         ],
       },
       {
