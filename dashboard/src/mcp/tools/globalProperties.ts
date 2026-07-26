@@ -9,8 +9,11 @@ import {
   getTopGlobalPropertyKeys,
   getTopGlobalPropertyValuesForKeys,
 } from '@/repositories/clickhouse/globalProperties.repository';
-import { FilterColumnSchema, GP_PREFIX } from '@/entities/analytics/filter.entities';
+import { FilterColumnSchema } from '@/entities/analytics/filter.entities';
+import { PROPERTY_SOURCES } from '@/entities/analytics/propertySources';
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+
+const GP_PREFIX = PROPERTY_SOURCES.gp.prefix;
 
 // Keys are one string + a count each, so we can afford a generous limit and still
 // stay light on context. Values are the heavy part, so they're fetched per key on demand.
