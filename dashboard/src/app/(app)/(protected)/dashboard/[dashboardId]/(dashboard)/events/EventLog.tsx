@@ -2,7 +2,7 @@
 
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUp, Clock } from 'lucide-react';
-import { EventLogEntry } from '@/entities/analytics/events.entities';
+import { computeNextEventLogCursor, EventLogEntry } from '@/entities/analytics/events.entities';
 import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
@@ -20,6 +20,10 @@ import { useInView } from '@/hooks/useInView';
 
 const DEFAULT_PAGE_SIZE = 25;
 const NEW_EVENTS_POLL_INTERVAL_MS = 30 * 1000; // 30 seconds
+// High enough that a visible tab never fills it in one interval — the poll then
+// always returns the complete gap and prepending always stitches. Must not
+// exceed the router's NEW_EVENTS_MAX_LIMIT.
+const NEW_EVENTS_POLL_LIMIT = 500;
 const NEW_EVENTS_HIGHLIGHT_MS = 2 * 1000;
 const NEW_EVENTS_BADGE_MS = 4 * 1000;
 
@@ -126,11 +130,19 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
       }
       inFlight = true;
       try {
-        const fresh = await utils.client.events.newEvents.query({ ...input, since, limit: pageSize });
+        const fresh = await utils.client.events.newEvents.query({ ...input, since, limit: NEW_EVENTS_POLL_LIMIT });
         if (cancelled || fresh.length === 0) return;
-        if (fresh.length >= pageSize) {
-          // Gap too large to stitch — restart from a fresh first page.
-          void utils.events.recentEvents.reset({ ...input, limit: pageSize });
+        if (fresh.length >= NEW_EVENTS_POLL_LIMIT) {
+          // The gap may exceed what one poll can return (a long-hidden tab, or an
+          // extreme burst) — swap in a fresh first page built from the newest rows
+          // we already hold. No reset, so no loading spinner; scrolling refills
+          // older pages from the new cursor.
+          const events = fresh.slice(0, pageSize);
+          utils.events.recentEvents.setInfiniteData({ ...input, limit: pageSize }, () => ({
+            pages: [{ events, nextCursor: computeNextEventLogCursor(events, null, pageSize) }],
+            pageParams: [null],
+          }));
+          scrollRef.current?.scrollTo({ top: 0 });
           void utils.events.totalEventCount.invalidate(input);
           return;
         }
