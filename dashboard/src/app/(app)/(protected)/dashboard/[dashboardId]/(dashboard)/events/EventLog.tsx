@@ -313,10 +313,12 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
             )}
           </ScrollArea>
           {/* Smaller counterpart of the top scrim, marking the footer edge. */}
-          <div
-            aria-hidden='true'
-            className='pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-t from-black/5 to-transparent dark:from-black/25'
-          />
+          {allEvents.length > 0 && (
+            <div
+              aria-hidden='true'
+              className='pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-t from-black/5 to-transparent dark:from-black/25'
+            />
+          )}
         </div>
         {totalCount !== undefined && totalCount > 0 && (
           <div className='border-border/60 text-muted-foreground border-t py-2.5 text-center text-xs font-medium'>
