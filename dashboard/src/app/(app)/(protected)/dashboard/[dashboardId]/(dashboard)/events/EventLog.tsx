@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Clock } from 'lucide-react';
+import { ArrowUp, Clock } from 'lucide-react';
 import { EventLogEntry } from '@/entities/analytics/events.entities';
 import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
@@ -253,8 +253,9 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                   }
                   setNewEventsBadge(null);
                 }}
-                className='bg-primary text-primary-foreground cursor-pointer rounded-full px-3 py-1 text-xs font-medium shadow-md'
+                className='bg-primary text-primary-foreground inline-flex cursor-pointer items-center gap-1 rounded-full px-3 py-1 text-xs font-medium shadow-md'
               >
+                {!isAtTop && <ArrowUp className='h-3 w-3' aria-hidden='true' />}
                 {t('newEvents', { count: newEventsBadge.count })}
               </button>
             </div>
