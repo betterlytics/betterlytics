@@ -7,22 +7,23 @@ import type { ProgressBarData } from '@/components/MultiProgressTable';
 
 /**
  * Data-driven click handling for MultiProgressTable rows: a row is interactive
- * iff it declares a `filterColumn`, and clicking it applies `filterValue ?? label`
- * to that column.
+ * iff it declares `filters`, and clicking applies them atomically, with each
+ * entry's value defaulting to the row label.
  */
 export function useProgressTableFilterClick() {
-  const { applyFilter } = useFilterClick({ behavior: 'replace-same-column' });
+  const { applyFilters } = useFilterClick();
 
   const onItemClick = useCallback(
     (_tabKey: string, item: ProgressBarData) => {
-      if (!item.filterColumn || !isFilterColumn(item.filterColumn)) return;
-      applyFilter(item.filterColumn, item.filterValue ?? item.label);
+      const rowFilters = item.filters;
+      if (!rowFilters?.length || !rowFilters.every((rowFilter) => isFilterColumn(rowFilter.column))) return;
+      applyFilters(rowFilters.map((rowFilter) => ({ column: rowFilter.column, value: rowFilter.value ?? item.label })));
     },
-    [applyFilter],
+    [applyFilters],
   );
 
   const isItemInteractive = useCallback(
-    (_tabKey: string, item: ProgressBarData) => Boolean(item.filterColumn),
+    (_tabKey: string, item: ProgressBarData) => Boolean(item.filters?.length),
     [],
   );
 
