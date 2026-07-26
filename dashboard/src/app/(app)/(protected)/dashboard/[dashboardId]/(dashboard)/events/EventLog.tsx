@@ -108,7 +108,11 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     return uid;
   };
   const [newUids, setNewUids] = useState<Set<string>>(new Set());
-  const [newEventsBadge, setNewEventsBadge] = useState<{ count: number } | null>(null);
+  // Stays mounted after its first appearance so opacity/transform can transition
+  // both on entrance and dismissal; `visible` drives the fade.
+  const [newEventsBadge, setNewEventsBadge] = useState<{ count: number; visible: boolean } | null>(null);
+
+  const dismissBadge = () => setNewEventsBadge((badge) => (badge ? { ...badge, visible: false } : badge));
   const [isAtTop, setIsAtTop] = useState(true);
   const prependScrollHeightRef = useRef<number | null>(null);
   const highlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -163,13 +167,13 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
             pages: [{ ...first, events: [...fresh, ...first.events] }, ...rest],
           };
         });
-        setNewEventsBadge({ count: fresh.length });
+        setNewEventsBadge({ count: fresh.length, visible: true });
         utils.events.totalEventCount.setData(input, (old) => (old === undefined ? old : old + fresh.length));
 
         if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
         highlightTimeoutRef.current = setTimeout(() => setNewUids(new Set()), NEW_EVENTS_HIGHLIGHT_MS);
         if (badgeTimeoutRef.current) clearTimeout(badgeTimeoutRef.current);
-        badgeTimeoutRef.current = setTimeout(() => setNewEventsBadge(null), NEW_EVENTS_BADGE_MS);
+        badgeTimeoutRef.current = setTimeout(dismissBadge, NEW_EVENTS_BADGE_MS);
       } catch {
         // Transient poll failure — the next tick retries.
       } finally {
@@ -262,9 +266,18 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
             )}
           />
           {newEventsBadge && (
-            <div className='animate-in fade-in slide-in-from-top-1 absolute top-2 left-1/2 z-10 -translate-x-1/2'>
+            <div
+              aria-hidden={!newEventsBadge.visible}
+              className={cn(
+                'absolute top-2 left-1/2 z-10 -translate-x-1/2 transition-[opacity,translate] duration-300',
+                newEventsBadge.visible
+                  ? 'translate-y-0 opacity-100'
+                  : 'pointer-events-none -translate-y-1 opacity-0',
+              )}
+            >
               <button
                 type='button'
+                tabIndex={newEventsBadge.visible ? undefined : -1}
                 onClick={() => {
                   const el = scrollRef.current;
                   if (el) {
@@ -274,7 +287,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                     if (el.scrollTop > glideDistance) el.scrollTop = glideDistance;
                     el.scrollTo({ top: 0, behavior: 'smooth' });
                   }
-                  setNewEventsBadge(null);
+                  dismissBadge();
                 }}
                 className='bg-primary text-primary-foreground inline-flex cursor-pointer items-center gap-1 rounded-full px-3 py-1 text-xs font-medium shadow-md'
               >
