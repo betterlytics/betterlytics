@@ -149,6 +149,7 @@
     "tsx": "^4.19.3",
     "tw-animate-css": "^1.2.8",
     "typescript": "^5",
+    "vite": "^6.4.3",
     "vitest": "4.1.10"
   }
 }
