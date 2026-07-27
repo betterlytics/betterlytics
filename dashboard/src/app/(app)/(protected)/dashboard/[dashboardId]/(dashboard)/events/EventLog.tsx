@@ -10,7 +10,7 @@ import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui-extended/scroll-area';
 import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from '@/components/events/EventLogItem';
@@ -86,6 +86,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   // Rows are memoized and never re-render on their own, so relative timestamps
   // refresh only when the list changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const now = useMemo(() => Date.now(), [data]);
 
   const utils = trpc.useUtils();
