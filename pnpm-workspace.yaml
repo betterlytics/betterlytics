@@ -4,6 +4,6 @@ packages:
   - docs
 
 overrides:
-  qs@<6.14.1: '>=6.14.1'
+  qs@<6.15.2: '>=6.15.2'
   nextra>zod: 4.3.2
   nextra-theme-docs>zod: 4.3.2
