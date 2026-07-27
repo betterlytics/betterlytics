@@ -256,7 +256,7 @@ importers:
         specifier: ^3.8.16
         version: 3.9.17(next@15.5.22(@opentelemetry/api@1.9.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       nodemailer:
-        specifier: ^8.0.1
+        specifier: ^8.0.11
         version: 8.0.11
       otpauth:
         specifier: ^9.4.0
