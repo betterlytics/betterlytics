@@ -6,5 +6,6 @@ packages:
 overrides:
   qs@<6.15.2: '>=6.15.2'
   '@react-email/ui>next': '>=16.2.11 <17'
+  postcss@<8.5.10: '>=8.5.10'
   nextra>zod: 4.3.2
   nextra-theme-docs>zod: 4.3.2
