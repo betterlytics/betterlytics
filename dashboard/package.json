@@ -136,7 +136,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/uuid": "^10.0.0",
-    "esbuild": "^0.28.0",
+    "esbuild": "^0.28.1",
     "eslint": "^9.39.2",
     "eslint-config-next": "15.4.11",
     "eslint-plugin-no-relative-import-paths": "^1.6.1",
