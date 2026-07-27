@@ -26,8 +26,6 @@ export const MONITOR_LIMITS = {
   ALERT_EMAILS_MAX: 5,
   ACCEPTED_STATUS_CODES_MAX: 5,
   EXPECTED_KEYWORD_MAX: 256,
-  // Single source of truth for the check interval range: the schema below and the
-  // interval slider marks both derive from these so they cannot drift apart.
   INTERVAL_MIN_SECONDS: 60,
   INTERVAL_MAX_SECONDS: 86_400,
 } as const;
