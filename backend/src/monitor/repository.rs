@@ -42,8 +42,6 @@ AND mc."deletedAt" IS NULL
 
 const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY mc."updatedAt" ASC"#;
 
-/// Infra backstop against corrupt rows hammering a target — deliberately below the
-/// product minimums, which are enforced by the dashboard's schema and plan capabilities.
 const MIN_INTERVAL_SECS: i32 = 30;
 
 #[derive(Debug, Error)]

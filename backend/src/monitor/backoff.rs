@@ -9,8 +9,6 @@ const DEFAULT_MAX_EFFECTIVE_SECS: u64 = 86_400;
 const DEFAULT_FAILURE_THRESHOLD: u16 = 25;
 const DEFAULT_SUCCESS_THRESHOLD: u16 = 2;
 
-/// Escalation is defined relative to the monitor's own base interval (base × multiplier^level,
-/// capped), so the policy is independent of whichever interval values the dashboard offers.
 #[derive(Clone, Copy, Debug)]
 pub struct BackoffPolicy {
     pub multiplier: u64,
