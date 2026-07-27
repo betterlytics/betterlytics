@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & help
+    url: https://discord.gg/vwqSvPn6sP
+    about: Get help, ask questions, and chat with the community on Discord.
+  - name: Security vulnerability
+    url: https://github.com/betterlytics/betterlytics/security/advisories/new
+    about: Please report security vulnerabilities privately - never in a public issue.
+  - name: Documentation
+    url: https://betterlytics.io/docs
+    about: Setup guides, self-hosting instructions, and feature documentation.
