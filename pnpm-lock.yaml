@@ -58,7 +58,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.2(react@19.2.8)
       '@modelcontextprotocol/sdk':
-        specifier: ^1.27.1
+        specifier: ^1.30.0
         version: 1.30.0(zod@3.25.76)
       '@next-auth/prisma-adapter':
         specifier: ^1.0.7
