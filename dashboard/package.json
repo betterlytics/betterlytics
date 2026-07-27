@@ -114,7 +114,7 @@
     "stripe": "22.1.1",
     "superjson": "^2.2.6",
     "tailwind-merge": "^3.2.0",
-    "uuid": "^11.1.0",
+    "uuid": "^11.1.1",
     "zod": "^3.25.46"
   },
   "devDependencies": {
