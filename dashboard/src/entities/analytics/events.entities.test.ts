@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   computeNextEventLogCursor,
   subtractHeldBoundaryEvents,
+  MAX_EVENT_LOG_CURSOR_SKIP,
   type EventLogEntry,
 } from '@/entities/analytics/events.entities';
 
@@ -41,6 +42,12 @@ describe('computeNextEventLogCursor', () => {
     const events = [event(ts(7)), event(ts(6)), event(ts(5)), event(ts(5))];
     const cursor = { timestamp: ts(7), skip: 1 };
     expect(computeNextEventLogCursor(events, cursor, 4)).toEqual({ timestamp: ts(5), skip: 2 });
+  });
+
+  it('ends the log when the accumulated skip exceeds the cap', () => {
+    const events = [event(ts(7)), event(ts(7)), event(ts(7)), event(ts(7))];
+    const cursor = { timestamp: ts(7), skip: MAX_EVENT_LOG_CURSOR_SKIP - 3 };
+    expect(computeNextEventLogCursor(events, cursor, 4)).toBeNull();
   });
 });
 

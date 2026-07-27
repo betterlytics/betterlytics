@@ -45,9 +45,11 @@ export const EventLogEntrySchema = z.object({
   browser: z.string(),
 });
 
+export const MAX_EVENT_LOG_CURSOR_SKIP = 10_000;
+
 export const EventLogCursorSchema = z.object({
   timestamp: z.date(),
-  skip: z.number().int().min(0),
+  skip: z.number().int().min(0).max(MAX_EVENT_LOG_CURSOR_SKIP),
 });
 
 export type RawEventPropertyData = z.infer<typeof RawEventPropertyDataSchema>;
@@ -79,18 +81,26 @@ export function computeNextEventLogCursor(
   if (cursor && cursor.timestamp.getTime() === last.timestamp.getTime()) {
     skip += cursor.skip;
   }
+
+  if (skip > MAX_EVENT_LOG_CURSOR_SKIP) return null;
   return { timestamp: last.timestamp, skip };
 }
 
 const eventContentKey = (e: EventLogEntry) =>
-  JSON.stringify([e.event_name, e.visitor_id, e.url, e.custom_event_json, e.country_code, e.device_type, e.browser]);
+  JSON.stringify([
+    e.event_name,
+    e.visitor_id,
+    e.url,
+    e.custom_event_json,
+    e.country_code,
+    e.device_type,
+    e.browser,
+  ]);
 
 /**
- * The live poll queries `timestamp >= since` (a strict `>` would permanently drop
- * rows landing in the boundary second after it was read), so already-held boundary
- * rows come back again. Rows have no id, but identical rows are interchangeable and
- * the table is append-only, so subtracting held content-counts from the fetched
- * boundary second yields exactly the new rows.
+ * The live poll queries `timestamp >= since`, so already-held boundary-second rows
+ * come back. Rows have no id, but identical rows are interchangeable — subtracting
+ * held content-counts yields exactly the new rows.
  */
 export function subtractHeldBoundaryEvents(
   fetched: EventLogEntry[],
