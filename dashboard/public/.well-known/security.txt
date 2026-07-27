@@ -1,0 +1,5 @@
+Contact: https://github.com/betterlytics/betterlytics/security/advisories/new
+Policy: https://github.com/betterlytics/betterlytics/blob/main/SECURITY.md
+Canonical: https://betterlytics.io/.well-known/security.txt
+Preferred-Languages: en
+Expires: 2027-07-26T00:00:00.000Z
