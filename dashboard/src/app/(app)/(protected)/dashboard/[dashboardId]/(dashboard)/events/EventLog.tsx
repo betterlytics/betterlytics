@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUp, Clock } from 'lucide-react';
 import { computeNextEventLogCursor, EventLogEntry } from '@/entities/analytics/events.entities';
 import { trpc } from '@/trpc/client';
@@ -11,6 +11,7 @@ import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui-extended/scroll-area';
+import { computeScrollState } from '@/components/ba-scroll-container';
 import { Spinner } from '@/components/ui/spinner';
 import { LiveIndicator } from '@/components/live-indicator';
 import { EventLogItem } from '@/components/events/EventLogItem';
@@ -111,9 +112,31 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   const dismissBadge = () => setNewEventsBadge((badge) => (badge ? { ...badge, visible: false } : badge));
   const [isAtTop, setIsAtTop] = useState(true);
+  const [canScrollDown, setCanScrollDown] = useState(false);
   const prependScrollHeightRef = useRef<number | null>(null);
   const highlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const badgeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const updateScrollState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { canScrollUp, canScrollDown } = computeScrollState({
+      scrollTop: el.scrollTop,
+      clientHeight: el.clientHeight,
+      scrollHeight: el.scrollHeight,
+    });
+    setIsAtTop(!canScrollUp);
+    setCanScrollDown(canScrollDown);
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const el = scrollRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(updateScrollState);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [updateScrollState, allEvents]);
 
   useEffect(() => {
     // `inFlight`: an overlapping tick would reuse the same `since` and prepend
@@ -291,7 +314,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               max-h must sit on the viewport — its size-full can't resolve against a root max-height. */}
           <ScrollArea
             viewportRef={scrollRef}
-            onViewportScroll={(e) => setIsAtTop(e.currentTarget.scrollTop <= 0)}
+            onViewportScroll={updateScrollState}
             viewportClassName='max-h-128 [overflow-anchor:none]'
           >
             {isLoading ? (
@@ -327,12 +350,13 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               </>
             )}
           </ScrollArea>
-          {allEvents.length > 0 && (
-            <div
-              aria-hidden='true'
-              className='pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-t from-black/5 to-transparent dark:from-black/25'
-            />
-          )}
+          <div
+            aria-hidden='true'
+            className={cn(
+              'pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-t from-black/5 to-transparent transition-opacity duration-200 dark:from-black/25',
+              canScrollDown ? 'opacity-100' : 'opacity-0',
+            )}
+          />
         </div>
         {totalCount !== undefined && totalCount > 0 && (
           <div className='border-border/60 text-muted-foreground border-t py-2.5 text-center text-xs font-medium'>
