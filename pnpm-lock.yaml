@@ -244,7 +244,7 @@ importers:
         specifier: 15.5.22
         version: 15.5.22(@opentelemetry/api@1.9.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       next-auth:
-        specifier: ^4.24.13
+        specifier: ^4.24.15
         version: 4.24.15(next@15.5.22(@opentelemetry/api@1.9.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(nodemailer@8.0.11)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       next-intl:
         specifier: 4.13.4
