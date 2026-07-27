@@ -2,7 +2,11 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowUp, Clock } from 'lucide-react';
-import { computeNextEventLogCursor, EventLogEntry } from '@/entities/analytics/events.entities';
+import {
+  computeNextEventLogCursor,
+  subtractHeldBoundaryEvents,
+  EventLogEntry,
+} from '@/entities/analytics/events.entities';
 import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
@@ -92,8 +96,8 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   const utils = trpc.useUtils();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const newestTsRef = useRef<Date | null>(null);
-  newestTsRef.current = allEvents[0]?.timestamp ?? null;
+  const allEventsRef = useRef<EventLogEntry[]>([]);
+  allEventsRef.current = allEvents;
 
   // Rows have no natural unique key; object identity is stable (pages never
   // refetch, structural sharing off), so each row object gets a uid.
@@ -146,7 +150,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     let inFlight = false;
     const id = setInterval(async () => {
       if (document.hidden || inFlight) return;
-      const since = newestTsRef.current;
+      const since = allEventsRef.current[0]?.timestamp ?? null;
       if (!since) {
         void utils.events.recentEvents.refetch({ ...input, limit: pageSize });
         return;
@@ -168,23 +172,26 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
           return;
         }
 
+        const newRows = subtractHeldBoundaryEvents(fresh, allEventsRef.current, since);
+        if (newRows.length === 0) return;
+
         // When scrolled down, the prepend compensates scroll; at the top, rows push in.
         const el = scrollRef.current;
         if (el && el.scrollTop > 10) {
           prependScrollHeightRef.current = el.scrollHeight;
         }
 
-        setNewUids(new Set(fresh.map(getUid)));
+        setNewUids(new Set(newRows.map(getUid)));
         utils.events.recentEvents.setInfiniteData({ ...input, limit: pageSize }, (old) => {
           if (!old) return old;
           const [first, ...rest] = old.pages;
           return {
             ...old,
-            pages: [{ ...first, events: [...fresh, ...first.events] }, ...rest],
+            pages: [{ ...first, events: [...newRows, ...first.events] }, ...rest],
           };
         });
-        setNewEventsBadge({ count: fresh.length, visible: true });
-        utils.events.totalEventCount.setData(input, (old) => (old === undefined ? old : old + fresh.length));
+        setNewEventsBadge({ count: newRows.length, visible: true });
+        utils.events.totalEventCount.setData(input, (old) => (old === undefined ? old : old + newRows.length));
 
         if (highlightTimeoutRef.current) clearTimeout(highlightTimeoutRef.current);
         highlightTimeoutRef.current = setTimeout(() => setNewUids(new Set()), NEW_EVENTS_HIGHLIGHT_MS);

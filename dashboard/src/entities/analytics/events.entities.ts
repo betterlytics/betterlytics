@@ -81,3 +81,35 @@ export function computeNextEventLogCursor(
   }
   return { timestamp: last.timestamp, skip };
 }
+
+const eventContentKey = (e: EventLogEntry) =>
+  JSON.stringify([e.event_name, e.visitor_id, e.url, e.custom_event_json, e.country_code, e.device_type, e.browser]);
+
+/**
+ * The live poll queries `timestamp >= since` (a strict `>` would permanently drop
+ * rows landing in the boundary second after it was read), so already-held boundary
+ * rows come back again. Rows have no id, but identical rows are interchangeable and
+ * the table is append-only, so subtracting held content-counts from the fetched
+ * boundary second yields exactly the new rows.
+ */
+export function subtractHeldBoundaryEvents(
+  fetched: EventLogEntry[],
+  held: EventLogEntry[],
+  since: Date,
+): EventLogEntry[] {
+  const boundary = since.getTime();
+  const heldCounts = new Map<string, number>();
+  for (const e of held) {
+    if (e.timestamp.getTime() !== boundary) continue;
+    const key = eventContentKey(e);
+    heldCounts.set(key, (heldCounts.get(key) ?? 0) + 1);
+  }
+  return fetched.filter((e) => {
+    if (e.timestamp.getTime() !== boundary) return true;
+    const key = eventContentKey(e);
+    const count = heldCounts.get(key) ?? 0;
+    if (count === 0) return true;
+    heldCounts.set(key, count - 1);
+    return false;
+  });
+}

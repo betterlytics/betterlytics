@@ -159,7 +159,7 @@ export async function getEventsSince(
     WHERE
           site_id = {site_id:String}
       AND event_type = 'custom'
-      AND timestamp > {since:DateTime}
+      AND timestamp >= {since:DateTime}
       AND ${SQL.AND(filters)}
     ORDER BY timestamp DESC, visitor_id, custom_event_name, url,
              custom_event_json, country_code, device_type, browser
@@ -201,10 +201,7 @@ export async function getTotalEventCount(siteId: string, queryFilters: QueryFilt
   return result[0]?.total || 0;
 }
 
-export async function anySiteHasEventsWithinDays(
-  siteIds: string[],
-  withinDays: number,
-): Promise<boolean> {
+export async function anySiteHasEventsWithinDays(siteIds: string[], withinDays: number): Promise<boolean> {
   if (siteIds.length === 0) return false;
 
   const query = safeSql`

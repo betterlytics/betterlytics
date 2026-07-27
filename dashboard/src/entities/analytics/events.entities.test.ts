@@ -1,10 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { computeNextEventLogCursor, type EventLogEntry } from '@/entities/analytics/events.entities';
+import {
+  computeNextEventLogCursor,
+  subtractHeldBoundaryEvents,
+  type EventLogEntry,
+} from '@/entities/analytics/events.entities';
 
-function event(timestamp: Date): EventLogEntry {
+function event(timestamp: Date, event_name = 'click'): EventLogEntry {
   return {
     timestamp,
-    event_name: 'click',
+    event_name,
     visitor_id: '1',
     url: '/page',
     custom_event_json: '{}',
@@ -37,5 +41,37 @@ describe('computeNextEventLogCursor', () => {
     const events = [event(ts(7)), event(ts(6)), event(ts(5)), event(ts(5))];
     const cursor = { timestamp: ts(7), skip: 1 };
     expect(computeNextEventLogCursor(events, cursor, 4)).toEqual({ timestamp: ts(5), skip: 2 });
+  });
+});
+
+describe('subtractHeldBoundaryEvents', () => {
+  it('passes rows newer than the boundary second through untouched', () => {
+    const held = [event(ts(5))];
+    const fetched = [event(ts(7)), event(ts(6)), event(ts(5))];
+    expect(subtractHeldBoundaryEvents(fetched, held, ts(5))).toEqual([event(ts(7)), event(ts(6))]);
+  });
+
+  it('keeps boundary-second rows whose content is not held', () => {
+    const held = [event(ts(5), 'click')];
+    const fetched = [event(ts(5), 'purchase'), event(ts(5), 'click')];
+    expect(subtractHeldBoundaryEvents(fetched, held, ts(5))).toEqual([event(ts(5), 'purchase')]);
+  });
+
+  it('subtracts identical duplicates by count', () => {
+    const held = [event(ts(5)), event(ts(5))];
+    const fetched = [event(ts(5)), event(ts(5)), event(ts(5))];
+    expect(subtractHeldBoundaryEvents(fetched, held, ts(5))).toEqual([event(ts(5))]);
+  });
+
+  it('returns nothing when the fetch holds no new rows', () => {
+    const held = [event(ts(5), 'click'), event(ts(5), 'purchase')];
+    const fetched = [event(ts(5), 'purchase'), event(ts(5), 'click')];
+    expect(subtractHeldBoundaryEvents(fetched, held, ts(5))).toEqual([]);
+  });
+
+  it('ignores held rows outside the boundary second', () => {
+    const held = [event(ts(5)), event(ts(4))];
+    const fetched = [event(ts(5)), event(ts(5))];
+    expect(subtractHeldBoundaryEvents(fetched, held, ts(5))).toEqual([event(ts(5))]);
   });
 });
