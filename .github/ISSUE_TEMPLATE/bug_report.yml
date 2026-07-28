@@ -1,0 +1,64 @@
+name: Bug report
+description: Something in Betterlytics isn't working as expected.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please search
+        [existing issues](https://github.com/betterlytics/betterlytics/issues?q=is%3Aissue) first -
+        if your bug is already reported, a 👍 on it helps us prioritize.
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment
+      description: Where are you running Betterlytics?
+      options:
+        - Betterlytics Cloud (betterlytics.io)
+        - Self-hosted
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: For self-hosted - the version/tag or commit you're running. Leave empty for Cloud.
+      placeholder: e.g. v1.4.4
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+      placeholder: Filtering the pages report by country should update the chart to match the table...
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What happens instead? Include error messages if any.
+      placeholder: The chart shows no data even though the table has rows...
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: If you can't reproduce it reliably, describe when it happens instead (how often, after what kind of action).
+      placeholder: |
+        1. Go to...
+        2. Click on...
+        3. See error
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      description: If the issue is visual or dashboard-related - browser + version, OS, and device type.
+      placeholder: e.g. Chrome 138 on Windows 11, desktop
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or screenshots
+      description: Console errors, server logs, or screenshots. Please redact anything sensitive.
