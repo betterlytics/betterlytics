@@ -59,6 +59,14 @@ describe('getSchemaDescription', () => {
     expect(result).toHaveProperty('globalProperties');
     expect(result.globalProperties.description).toContain('gp.');
     expect(result.globalProperties.description).toContain('list_global_properties');
+    expect(result.globalProperties.description).not.toContain('custom event');
+  });
+
+  it('documents custom event properties with the cep.<key> form', () => {
+    const result = getSchemaDescription();
+    expect(result).toHaveProperty('customEventProperties');
+    expect(result.customEventProperties.description).toContain('cep.');
+    expect(result.customEventProperties.description).toContain('custom_event_name');
   });
 
   it('includes list_global_properties in the tools section', () => {

@@ -91,7 +91,7 @@ export function createMcpServer(context: McpContext): McpServer {
     'list_global_properties',
     {
       description:
-        'List the custom event (global) properties recorded for this dashboard. Without a "key" argument it returns the property keys, each as a column in the gp.<key> form you can use directly in a filter, e.g. { column: "gp.plan", operator: "=", values: ["pro"] }. Pass a "key" argument to see example values for that specific property. Use this to discover which custom properties are filterable.',
+        'List the global properties recorded for this dashboard. Without a "key" argument it returns the property keys, each as a column in the gp.<key> form you can use directly in a filter, e.g. { column: "gp.plan", operator: "=", values: ["pro"] }. Pass a "key" argument to see example values for that specific property. Use this to discover which global properties are filterable.',
       inputSchema: McpListGlobalPropertiesInputBaseSchema.shape,
     },
     (params) => runTool('list_global_properties', () => executeListGlobalProperties(params, context.siteId)),
