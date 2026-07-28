@@ -1,0 +1,45 @@
+name: Self-hosting problem
+description: Trouble deploying, upgrading, or operating a self-hosted Betterlytics instance.
+labels: ["Self-Hosted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For setup questions, the [self-hosting docs](https://betterlytics.io/docs/installation/self-hosting)
+        and [Discord](https://discord.gg/vwqSvPn6sP) are often faster. Use this template when something
+        seems broken in the self-hosted deployment itself.
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: e.g. v1.4.4, or a commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: method
+    attributes:
+      label: Deployment method
+      options:
+        - Docker Compose
+        - Kubernetes
+        - Manual / other
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What's the problem?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Relevant container/server logs. Please redact secrets and personal data.
+      render: shell
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, architecture, reverse proxy, anything non-default in your setup or .env (redacted).
