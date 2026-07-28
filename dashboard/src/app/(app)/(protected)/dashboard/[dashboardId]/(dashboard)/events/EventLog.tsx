@@ -304,7 +304,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                   const el = scrollRef.current;
                   if (el) {
                     // Jump most of the way first so the glide stays short from any depth.
-                    const glideDistance = el.clientHeight * 8;
+                    const glideDistance = el.clientHeight * 2;
                     if (el.scrollTop > glideDistance) el.scrollTop = glideDistance;
                     el.scrollTo({ top: 0, behavior: 'smooth' });
                   }
