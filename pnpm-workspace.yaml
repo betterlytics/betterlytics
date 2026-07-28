@@ -9,3 +9,15 @@ overrides:
   postcss@<8.5.10: '>=8.5.10'
   nextra>zod: 4.3.2
   nextra-theme-docs>zod: 4.3.2
+
+# Audit ignores live in package.json (pnpm.auditConfig.ignoreGhsas — pnpm does
+# not read auditConfig from this file). Rationale for each ignored advisory:
+# - GHSA-p6gq-j5cr-w38f (nodemailer raw-option file/URL access bypass): we only
+#   send templated html/text (services/email/transport.ts), never `raw`.
+#   Fixed in nodemailer 9 (major); revisit on the next major bump.
+# - GHSA-f88m-g3jw-g9cj (sharp <0.35 libvips CVEs): pulled in by next's own
+#   `^0.34` optional dep (image optimizer) and the react-email preview. No
+#   remotePatterns configured, so the optimizer only touches local/validated
+#   images. Unfixable until next widens its sharp range.
+# - GHSA-mh99-v99m-4gvg (brace-expansion 1.x/2.x OOM DoS): dev-only (eslint's
+#   minimatch); the only patched line is 5.x, which those parents cannot use.
