@@ -9,12 +9,18 @@ type PropertySqlLeaf = {
   extractValue: (keySql: SQLTaggedExpression) => SQLTaggedExpression;
 };
 
-/* Per-source SQL for discovering a source's keys and values off analytics.events. */
+/**
+ * Per-source SQL for discovering a source's keys and values off analytics.events.
+ * sampleKeys: gp keys live on every event row, so key discovery scans full site
+ * volume and keeps the high-traffic SAMPLE gate. cep discovery is pruned to
+ * custom events by the (site_id, event_type, date) primary key, and sampling by
+ * total volume would drop rare keys - so it always scans unsampled.
+ */
 type PropertyDiscovery = {
   keysSelectExpr: SQLTaggedExpression;
   hasAnyKey: SQLTaggedExpression;
   eventScopeClause: SQLTaggedExpression;
-  sampleValues: boolean;
+  sampleKeys: boolean;
 };
 
 type PropertyDescriptor = {
@@ -37,7 +43,7 @@ export const PROPERTY_SQL: Record<PropertySourceKind, PropertyDescriptor> = {
       keysSelectExpr: safeSql`arrayJoin(global_properties_keys)`,
       hasAnyKey: safeSql`notEmpty(global_properties_keys)`,
       eventScopeClause: safeSql``,
-      sampleValues: false,
+      sampleKeys: true,
     },
   },
   cep: {
@@ -49,7 +55,7 @@ export const PROPERTY_SQL: Record<PropertySourceKind, PropertyDescriptor> = {
       keysSelectExpr: safeSql`arrayJoin(JSONExtractKeys(custom_event_json))`,
       hasAnyKey: safeSql`custom_event_json != '{}'`,
       eventScopeClause: safeSql`AND event_type = 'custom'`,
-      sampleValues: true,
+      sampleKeys: false,
     },
   },
 };

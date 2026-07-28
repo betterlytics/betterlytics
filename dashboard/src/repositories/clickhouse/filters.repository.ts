@@ -49,8 +49,11 @@ export async function getPropertyKeys(
   limit: number = 50,
 ): Promise<string[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
-  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
-  const { keysSelectExpr, hasAnyKey, eventScopeClause } = PROPERTY_SQL[source].discovery;
+  const { keysSelectExpr, hasAnyKey, eventScopeClause, sampleKeys } = PROPERTY_SQL[source].discovery;
+
+  const sample = sampleKeys
+    ? (await BAQuery.getSampling(siteId, startDateTime, endDateTime)).sample
+    : safeSql``;
 
   const searchClause =
     search && search.trim()
@@ -89,10 +92,6 @@ export async function getPropertyValues(
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const { sql, discovery } = PROPERTY_SQL[source];
 
-  const sample = discovery.sampleValues
-    ? (await BAQuery.getSampling(siteId, startDateTime, endDateTime)).sample
-    : safeSql``;
-
   const valueExpr = sql.extractValue(SQL.String({ prop_key: propertyKey }));
   const hasKeyExpr = sql.hasKey(SQL.String({ prop_key_filter: propertyKey }));
 
@@ -103,7 +102,7 @@ export async function getPropertyValues(
 
   const query = safeSql`
     SELECT DISTINCT ${valueExpr} AS value
-    FROM analytics.events ${sample}
+    FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       AND ${hasKeyExpr}
