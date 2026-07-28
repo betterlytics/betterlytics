@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyFilterUpdates, type QueryFilter } from '@/entities/analytics/filter.entities';
+import { applyFilterUpdates, withDependentColumns, type QueryFilter } from '@/entities/analytics/filter.entities';
 
 function filter(column: QueryFilter['column'], value: string, id = `id-${column}`): QueryFilter {
   return { id, column, operator: '=', values: [value] };
@@ -38,6 +38,18 @@ describe('applyFilterUpdates', () => {
     expect(next).toHaveLength(4);
     expect(next[0]).toMatchObject({ column: 'browser', values: ['Chrome'] });
     expect(next.slice(1).map((f) => f.values[0])).toEqual(['DK', 'DK-84', 'Aarhus']);
+  });
+
+  it('clears replaceColumns that have no incoming update', () => {
+    const current = [filter('browser', 'Safari'), filter('browser_version', '17')];
+
+    const next = applyFilterUpdates(current, [{ column: 'browser', value: 'Chrome' }], [
+      'browser',
+      'browser_version',
+    ]);
+
+    expect(next).toHaveLength(1);
+    expect(next[0]).toMatchObject({ column: 'browser', values: ['Chrome'] });
   });
 
   it('leaves unrelated columns untouched', () => {
@@ -84,5 +96,26 @@ describe('applyFilterUpdates', () => {
 
     expect(next).toHaveLength(1);
     expect(next[0]).toMatchObject({ column: 'browser', operator: '!=', values: ['Chrome'] });
+  });
+});
+
+describe('withDependentColumns', () => {
+  it('expands a parent column with its dependents', () => {
+    expect(withDependentColumns(['browser']).sort()).toEqual(['browser', 'browser_version']);
+    expect(withDependentColumns(['os']).sort()).toEqual(['os', 'os_version']);
+  });
+
+  it('never expands a dependent to its parent', () => {
+    expect(withDependentColumns(['browser_version'])).toEqual(['browser_version']);
+    expect(withDependentColumns(['os_version'])).toEqual(['os_version']);
+  });
+
+  it('passes through columns without dependents', () => {
+    expect(withDependentColumns(['url'])).toEqual(['url']);
+    expect(withDependentColumns(['gp.plan'])).toEqual(['gp.plan']);
+  });
+
+  it('deduplicates when a dependent is already listed', () => {
+    expect(withDependentColumns(['browser', 'browser_version']).sort()).toEqual(['browser', 'browser_version']);
   });
 });

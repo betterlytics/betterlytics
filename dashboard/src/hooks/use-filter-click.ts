@@ -5,6 +5,7 @@ import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import {
   applyFilterUpdates,
   MAX_FILTER_ROWS,
+  withDependentColumns,
   type FilterColumn,
   type FilterOperator,
   type FilterUpdate,
@@ -65,12 +66,13 @@ export function useFilterClick(defaults?: Options) {
       }
 
       if (behavior === 'replace-same-column') {
-        const next = applyFilterUpdates(queryFilters, [{ column, value, operator }]);
+        const replaced = withDependentColumns([column]);
+        const next = applyFilterUpdates(queryFilters, [{ column, value, operator }], replaced);
         if (next.length > MAX_FILTER_ROWS) {
           notifyCapReached();
           return;
         }
-        setQueryFilters((fs) => applyFilterUpdates(fs, [{ column, value, operator }]));
+        setQueryFilters((fs) => applyFilterUpdates(fs, [{ column, value, operator }], replaced));
         return;
       }
 
@@ -106,12 +108,13 @@ export function useFilterClick(defaults?: Options) {
       }
 
       const applied = updates.map((update) => ({ ...update, operator: update.operator ?? defaultOperator }));
-      const next = applyFilterUpdates(queryFilters, applied);
+      const replaced = withDependentColumns(updates.map((update) => update.column));
+      const next = applyFilterUpdates(queryFilters, applied, replaced);
       if (next.length > MAX_FILTER_ROWS) {
         notifyCapReached();
         return;
       }
-      setQueryFilters((fs) => applyFilterUpdates(fs, applied));
+      setQueryFilters((fs) => applyFilterUpdates(fs, applied, replaced));
     },
     [getColumnStatus, queryFilters, setQueryFilters, defaultOperator, t, tFilters, notifyCapReached],
   );

@@ -103,13 +103,38 @@ export function isFilterColumn(value: string): value is FilterColumn {
 export type FilterUpdate = { column: FilterColumn; value: string; operator?: FilterOperator };
 
 /**
+ * One-way column dependencies: a filter click on a key column also resets its
+ * dependents, because the clicked row represents "this value, any version".
+ * Applying a dependent never clears its parent.
+ */
+const DEPENDENT_FILTER_COLUMNS: Partial<Record<TableFilterColumn, readonly FilterColumn[]>> = {
+  browser: ['browser_version'],
+  os: ['os_version'],
+};
+
+export function withDependentColumns(columns: FilterColumn[]): FilterColumn[] {
+  const expanded = new Set<FilterColumn>(columns);
+  for (const column of columns) {
+    for (const dependent of DEPENDENT_FILTER_COLUMNS[column as TableFilterColumn] ?? []) {
+      expanded.add(dependent);
+    }
+  }
+  return [...expanded];
+}
+
+/**
  * Atomic multi-column filter replacement for compound row clicks (e.g. a
  * "Chrome 120" row applying browser + browser_version). Takes any number of
  * updates; existing filters on the updated columns are replaced and filters
- * on all other columns are kept.
+ * on all other columns are kept. The replace set may be wider than the
+ * updates so a click can clear columns it does not set.
  */
-export function applyFilterUpdates(current: QueryFilter[], updates: FilterUpdate[]): QueryFilter[] {
-  const replaced = new Set<FilterColumn>(updates.map((update) => update.column));
+export function applyFilterUpdates(
+  current: QueryFilter[],
+  updates: FilterUpdate[],
+  replaceColumns?: FilterColumn[],
+): QueryFilter[] {
+  const replaced = new Set<FilterColumn>(replaceColumns ?? updates.map((update) => update.column));
   const kept = current.filter((filter) => !replaced.has(filter.column));
   const added = updates.map((update) => ({
     id: generateTempId(),
