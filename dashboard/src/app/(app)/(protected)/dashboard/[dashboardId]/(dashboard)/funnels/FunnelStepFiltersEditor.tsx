@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { createEmptyQueryFilter, isNonEmptyValue, type QueryFilter } from '@/entities/analytics/filter.entities';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
 import { cn } from '@/lib/utils';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
@@ -34,7 +33,6 @@ function FunnelStepFiltersEditorComponent({
   showEmptyValueErrors,
 }: FunnelStepFiltersEditorProps) {
   const t = useTranslations('components.filters');
-  const isMobile = useIsMobile();
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
 
@@ -104,7 +102,6 @@ function FunnelStepFiltersEditorComponent({
                 valueError={Boolean(showEmptyValueErrors) && !filter.values.some(isNonEmptyValue)}
                 hideClearAllButton
                 useExtendedRange
-                formatLength={isMobile ? 20 : 35}
                 className={cn(
                   'md:grid-cols-[minmax(0,8fr)_minmax(0,2fr)_minmax(0,2fr)]',
                   'md:[grid-template-areas:"col_op_op"_"val_val_delete"]!',

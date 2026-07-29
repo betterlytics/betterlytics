@@ -5,14 +5,12 @@ import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQueryFilterSearch } from './use-query-filter-search';
 import { cn } from '@/lib/utils';
-import { formatString } from '@/utils/formatters';
 
 type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   className?: string;
   useExtendedRange?: boolean;
-  formatLength?: number;
   valueError?: boolean;
   hideClearAllButton?: boolean;
   disabled?: boolean;
@@ -23,7 +21,6 @@ export function FilterValueSearch<TEntity>({
   onFilterUpdate,
   className,
   useExtendedRange,
-  formatLength = 25,
   valueError,
   hideClearAllButton,
   disabled,
@@ -38,7 +35,7 @@ export function FilterValueSearch<TEntity>({
     disabled,
   });
 
-  const formatLabel = (value: string) => formatString(strategy.formatValue(value, locale), formatLength);
+  const formatLabel = (value: string) => strategy.formatValue(value, locale);
 
   const multiSelectOptions = useMemo(() => {
     const searchOptions = options.map((opt) => ({
@@ -54,7 +51,7 @@ export function FilterValueSearch<TEntity>({
       }));
 
     return [...selectedNotInResults, ...searchOptions];
-  }, [options, filter.values, formatLength, filter.column, locale]);
+  }, [options, filter.values, filter.column, locale]);
 
   return (
     <MultiSelect
@@ -63,7 +60,7 @@ export function FilterValueSearch<TEntity>({
       inputValue={search}
       onInputValueChange={setSearch}
       value={filter.values.map((value) => ({
-        label: formatString(strategy.formatValue(value, locale), Math.floor(formatLength * 0.835)),
+        label: strategy.formatValue(value, locale),
         value,
       }))}
       onChange={(options) => onFilterUpdate({ ...filter, values: options.map((v) => v.value) })}

@@ -9,6 +9,7 @@ import { Command as CommandPrimitive, useCommandState } from 'cmdk';
 import { PlusIcon, XIcon } from 'lucide-react';
 
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import { MidEllipsisText } from '@/components/text-fit/MidEllipsisText';
 import { cn } from '@/lib/utils';
 
 export interface Option {
@@ -493,13 +494,13 @@ export const MultiSelect = ({
                   <div
                     key={option.value}
                     className={cn(
-                      'animate-fadeIn bg-background text-secondary-foreground hover:bg-background relative inline-flex h-[26px] cursor-default items-center rounded-md border pr-7 pl-2 text-xs font-medium transition-all disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 data-fixed:pr-2',
+                      'animate-fadeIn bg-background text-secondary-foreground hover:bg-background relative inline-flex h-[26px] max-w-full cursor-default items-center rounded-md border pr-7 pl-2 text-xs font-medium transition-all disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 data-fixed:pr-2',
                       badgeClassName,
                     )}
                     data-fixed={option.fixed}
                     data-disabled={disabled || undefined}
                   >
-                    {option.label}
+                    <MidEllipsisText value={option.label} />
                     <button
                       disabled={disabled}
                       className='text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute -inset-y-px -right-px flex size-7 cursor-pointer items-center justify-center rounded-r-md border border-transparent p-0 outline-hidden transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed'
@@ -660,7 +661,7 @@ export const MultiSelect = ({
                                 option.disable && 'pointer-events-none cursor-not-allowed opacity-50',
                               )}
                             >
-                              {option.label}
+                              <MidEllipsisText value={option.label} className='w-full' />
                             </CommandItem>
                           );
                         })}

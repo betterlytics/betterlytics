@@ -13,7 +13,6 @@ type QueryFilterInputRowProps<TEntity> = {
   disableDeletion?: boolean;
   globalPropertyKeys?: string[];
   useExtendedRange?: boolean;
-  formatLength?: number;
   valueError?: boolean;
   hideClearAllButton?: boolean;
   className?: string;
@@ -30,7 +29,6 @@ export function QueryFilterInputRow<TEntity>({
   disableDeletion,
   globalPropertyKeys,
   useExtendedRange,
-  formatLength,
   valueError,
   hideClearAllButton,
   className,
@@ -76,7 +74,6 @@ export function QueryFilterInputRow<TEntity>({
             disabled={isDisabled}
             className='[grid-area:val]'
             useExtendedRange={useExtendedRange}
-            formatLength={formatLength}
             valueError={valueError}
             hideClearAllButton={hideClearAllButton}
           />
