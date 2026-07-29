@@ -30,5 +30,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next|.*\\..*|dashboard|dashboards|billing|admin|status).*)', '/status/:path*'],
+  matcher: ['/((?!api|_next|.*\\..*|dashboard|dashboards|billing|admin|status|dev).*)', '/status/:path*'],
 };
