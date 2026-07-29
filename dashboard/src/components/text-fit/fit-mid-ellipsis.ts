@@ -2,9 +2,13 @@ export type MeasureFn = (text: string) => number;
 
 export const ELLIPSIS = '…';
 const SLACK = 1;
-const RISK_GATE = /[\p{M}\u200D\uFE0E\uFE0F\u{1F1E6}-\u{1F1FF}]/u;
-const JOINER = /[\p{M}\u200D\uFE0E\uFE0F]/u;
+const RISK_GATE = /[\p{M}\u200D\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}\u{1F1E6}-\u{1F1FF}]/u;
+const JOINER = /[\p{M}\u200D\uFE0E\uFE0F\u{1F3FB}-\u{1F3FF}]/u;
 const REGIONAL = /[\u{1F1E6}-\u{1F1FF}]/u;
+
+export function toUnits(value: string): string[] {
+  return [...value];
+}
 
 function retractHead(units: string[], end: number): number {
   while (end > 0) {
@@ -48,7 +52,7 @@ export function fitMidEllipsis(value: string, availablePx: number, measure: Meas
   const budget = availablePx - SLACK;
   if (measure(value) <= budget) return value;
 
-  const units = [...value];
+  const units = toUnits(value);
   const risky = RISK_GATE.test(value);
 
   const compose = (k: number): string => {

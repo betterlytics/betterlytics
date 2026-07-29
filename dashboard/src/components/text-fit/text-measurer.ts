@@ -89,6 +89,10 @@ export function subscribeInvalidation(cb: () => void): () => void {
   return () => invalidationSubs.delete(cb);
 }
 
+export function getEpoch(): number {
+  return epoch;
+}
+
 export function getStats() {
   return { measures, cacheHits, epoch };
 }

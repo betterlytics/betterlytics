@@ -28,7 +28,7 @@ export function FilterValueSearch<TEntity>({
   const t = useTranslations('components.filters.selector');
   const tMisc = useTranslations('misc');
   const locale = useLocale();
-  const strategy = getFilterStrategy(filter.column);
+  const strategy = useMemo(() => getFilterStrategy(filter.column), [filter.column]);
 
   const { search, setSearch, options } = useQueryFilterSearch(filter, {
     useExtendedRange,

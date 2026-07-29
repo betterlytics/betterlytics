@@ -408,7 +408,7 @@ export const MultiSelect = ({
           setOpen(false);
         }}
       >
-        <PlusIcon /> {`"${effectiveInputValue}"`}
+        <PlusIcon /> "<MidEllipsisText value={effectiveInputValue} className='max-w-full' />"
       </CommandItem>
     );
 

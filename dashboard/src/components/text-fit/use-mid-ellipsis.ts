@@ -1,16 +1,17 @@
-import { useMemo, useState, type RefObject } from 'react';
+import { useMemo, useState, useSyncExternalStore, type RefObject } from 'react';
 
 import { fitMidEllipsis } from '@/components/text-fit/fit-mid-ellipsis';
-import { measureText, resolveFont, subscribeInvalidation } from '@/components/text-fit/text-measurer';
+import { getEpoch, measureText, resolveFont, subscribeInvalidation } from '@/components/text-fit/text-measurer';
 import { useElementWidth } from '@/components/text-fit/use-element-width';
 import { useIsomorphicLayoutEffect } from '@/components/text-fit/use-isomorphic-layout-effect';
+
+const getServerEpoch = () => 0;
 
 export function useMidEllipsis(ref: RefObject<HTMLElement | null>, value: string) {
   const width = useElementWidth(ref);
   const [font, setFont] = useState<string>();
-  const [epoch, setEpoch] = useState(0);
+  const epoch = useSyncExternalStore(subscribeInvalidation, getEpoch, getServerEpoch);
 
-  useIsomorphicLayoutEffect(() => subscribeInvalidation(() => setEpoch((e) => e + 1)), []);
   useIsomorphicLayoutEffect(() => {
     if (ref.current) setFont(resolveFont(ref.current));
   }, [ref, epoch]);

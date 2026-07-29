@@ -59,3 +59,37 @@ describe('fitMidEllipsis', () => {
     expect(fitMidEllipsis(once, 81, perUnit10)).toBe(once);
   });
 });
+
+describe('fitMidEllipsis cluster integrity', () => {
+  const REGIONAL = /[\u{1F1E6}-\u{1F1FF}]/u;
+  const runsAreEven = (s: string) => {
+    const units = [...s];
+    let run = 0;
+    for (const unit of units) {
+      if (REGIONAL.test(unit)) {
+        run += 1;
+      } else {
+        if (run % 2 === 1) return false;
+        run = 0;
+      }
+    }
+    return run % 2 === 0;
+  };
+
+  it('keeps regional-indicator pairs intact across all widths', () => {
+    const value = 'ab\u{1F1E9}\u{1F1F0}\u{1F1EF}\u{1F1F5}yz';
+    for (let px = 11; px <= 91; px += 10) {
+      expect(runsAreEven(fitMidEllipsis(value, px, perUnit10))).toBe(true);
+    }
+  });
+
+  it('never strands a skin-tone modifier at the cut', () => {
+    const value = 'abcd\u{1F44D}\u{1F3FD}yz';
+    for (let px = 11; px <= 91; px += 10) {
+      const units = [...fitMidEllipsis(value, px, perUnit10)];
+      units.forEach((unit, i) => {
+        if (unit === '\u{1F3FD}') expect(units[i - 1]).toBe('\u{1F44D}');
+      });
+    }
+  });
+});
