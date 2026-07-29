@@ -14,6 +14,8 @@ import MultiProgressTableRowSkeleton from '@/components/skeleton/MultiProgressTa
 import { cn } from '@/lib/utils';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 
+export type ProgressBarRowFilter = { column: FilterColumn; value?: string };
+
 export interface ProgressBarData {
   label: string;
   value: number;
@@ -21,8 +23,7 @@ export interface ProgressBarData {
   trendPercentage?: number;
   comparisonValue?: number;
   icon?: React.ReactElement;
-  filterColumn?: FilterColumn;
-  filterValue?: string;
+  filters?: ProgressBarRowFilter[];
   children?: ProgressBarData[];
 }
 

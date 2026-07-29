@@ -34,7 +34,7 @@ export default function PagesAnalyticsSection() {
     value: page.current.visitors,
     trendPercentage: page.change?.visitors,
     comparisonValue: page.compare?.visitors,
-    filterColumn: 'url',
+    filters: [{ column: 'url' }],
   });
 
   return (

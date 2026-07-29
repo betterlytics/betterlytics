@@ -78,8 +78,7 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
           value: item.current.visitors,
           trendPercentage: item.change?.visitors,
           comparisonValue: item.compare?.visitors,
-          filterColumn: item[level] ? level : undefined,
-          filterValue: item[level],
+          filters: item[level] ? [{ column: level, value: item[level] }] : undefined,
           icon: (
             <FlagIcon
               countryCode={item.current.country_code as FlagIconProps['countryCode']}
