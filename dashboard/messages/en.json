@@ -1822,6 +1822,7 @@
       "noData": "No data yet",
       "intervalMinutes": "{value} min",
       "intervalSeconds": "{value}s",
+      "intervalHours": "{value}h",
       "backoffTooltip": "Monitoring temporarily reduced to {value} because this monitor has been down repeatedly. Normal frequency resumes automatically once the service is healthy.",
       "emptyTitle": "No monitors yet",
       "emptyDescription": "Create your first monitor to start tracking uptime.",
