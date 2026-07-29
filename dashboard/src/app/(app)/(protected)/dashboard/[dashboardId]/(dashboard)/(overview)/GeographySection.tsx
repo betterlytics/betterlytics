@@ -23,6 +23,14 @@ const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLa
   city: (value) => value,
 };
 
+/* A row filters on its own level plus every broader level, so clicking e.g. a
+   city applies exactly the (city, region, country) group the row represents. */
+const GEO_FILTER_HIERARCHY: Record<GeoLevel, GeoLevel[]> = {
+  country_code: ['country_code'],
+  subdivision_code: ['subdivision_code', 'country_code'],
+  city: ['city', 'subdivision_code', 'country_code'],
+};
+
 type GeographySectionProps = {
   enabledLevels: GeoLevel[];
 };
@@ -78,7 +86,11 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
           value: item.current.visitors,
           trendPercentage: item.change?.visitors,
           comparisonValue: item.compare?.visitors,
-          filters: item[level] ? [{ column: level, value: item[level] }] : undefined,
+          filters: item[level]
+            ? GEO_FILTER_HIERARCHY[level]
+                .filter((column) => item[column])
+                .map((column) => ({ column, value: item[column] }))
+            : undefined,
           icon: (
             <FlagIcon
               countryCode={item.current.country_code as FlagIconProps['countryCode']}

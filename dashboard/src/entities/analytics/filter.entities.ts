@@ -104,12 +104,16 @@ export type FilterUpdate = { column: FilterColumn; value: string; operator?: Fil
 
 /**
  * One-way column dependencies: a filter click on a key column also resets its
- * dependents, because the clicked row represents "this value, any version".
- * Applying a dependent never clears its parent.
+ * dependents, because the clicked row represents "this value, any dependent
+ * value" (Chrome = any version, Denmark = any region or city). Applying a
+ * dependent never clears its parent. Expansion is single-level, so transitive
+ * dependents must be listed explicitly.
  */
 const DEPENDENT_FILTER_COLUMNS: Partial<Record<TableFilterColumn, readonly FilterColumn[]>> = {
   browser: ['browser_version'],
   os: ['os_version'],
+  country_code: ['subdivision_code', 'city'],
+  subdivision_code: ['city'],
 };
 
 export function withDependentColumns(columns: FilterColumn[]): FilterColumn[] {
