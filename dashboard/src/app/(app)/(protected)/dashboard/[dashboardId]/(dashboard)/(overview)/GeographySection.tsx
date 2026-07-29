@@ -79,17 +79,17 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
       key: level,
       label: geoLevelTabLabels[level],
       loading: stateForLevel.loading,
-      data: (data ?? []).map(
-        (item): ProgressBarData => ({
+      data: (data ?? []).map((item): ProgressBarData => {
+        const hierarchy = GEO_FILTER_HIERARCHY[level].filter((column) => item[column]);
+        return {
           label: GEO_LABEL_FORMATTERS[level](item[level], locale),
-          key: item[level],
+          key: hierarchy.map((column) => item[column]).join(':'),
           value: item.current.visitors,
           trendPercentage: item.change?.visitors,
           comparisonValue: item.compare?.visitors,
-          filters: item[level]
-            ? GEO_FILTER_HIERARCHY[level]
-                .filter((column) => item[column])
-                .map((column) => ({ column, value: item[column] }))
+          filters: item[level] ? hierarchy.map((column) => ({ column, value: item[column] })) : undefined,
+          filterLabel: item[level]
+            ? hierarchy.map((column) => GEO_LABEL_FORMATTERS[column](item[column], locale)).join(', ')
             : undefined,
           icon: (
             <FlagIcon
@@ -97,8 +97,8 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
               countryName={getCountryName(item.current.country_code, locale)}
             />
           ),
-        }),
-      ),
+        };
+      }),
     };
   });
 
