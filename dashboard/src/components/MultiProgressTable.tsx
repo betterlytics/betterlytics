@@ -24,7 +24,7 @@ export interface ProgressBarData {
   comparisonValue?: number;
   icon?: React.ReactElement;
   filters?: ProgressBarRowFilter[];
-  tooltipLabel?: string; // fills the "Filter by {label}" tooltip when the click applies more than the row label says
+  tooltipLabel?: string; // overrides label in the "Filter by" tooltip
   children?: ProgressBarData[];
 }
 
