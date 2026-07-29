@@ -24,7 +24,7 @@ export interface ProgressBarData {
   comparisonValue?: number;
   icon?: React.ReactElement;
   filters?: ProgressBarRowFilter[];
-  filterLabel?: string; // tooltip label when the click applies more than the row label says
+  tooltipLabel?: string; // fills the "Filter by {label}" tooltip when the click applies more than the row label says
   children?: ProgressBarData[];
 }
 
@@ -106,7 +106,7 @@ function MultiProgressTable<T extends ProgressBarData>({
       return (
         <div className='space-y-2'>
           {data.map((item, index) => {
-            const { key, label, filterLabel, value, children = [], trendPercentage, comparisonValue, icon } = item;
+            const { key, label, tooltipLabel, value, children = [], trendPercentage, comparisonValue, icon } = item;
             const itemKey = key ?? label;
             const isExpandable = children.length > 0;
             const isExpanded = expandedKeys.has(itemKey);
@@ -124,7 +124,7 @@ function MultiProgressTable<T extends ProgressBarData>({
                 tabIndex={interactive ? 0 : undefined}
                 title={
                   interactive && typeof label === 'string'
-                    ? tFilters('filterBy', { label: filterLabel ?? label })
+                    ? tFilters('filterBy', { label: tooltipLabel ?? label })
                     : undefined
                 }
                 onClick={interactive ? () => onItemClick?.(tabKey, item) : undefined}

@@ -88,7 +88,7 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
           trendPercentage: item.change?.visitors,
           comparisonValue: item.compare?.visitors,
           filters: item[level] ? hierarchy.map((column) => ({ column, value: item[column] })) : undefined,
-          filterLabel: item[level]
+          tooltipLabel: item[level]
             ? hierarchy.map((column) => GEO_LABEL_FORMATTERS[column](item[column], locale)).join(', ')
             : undefined,
           icon: (
