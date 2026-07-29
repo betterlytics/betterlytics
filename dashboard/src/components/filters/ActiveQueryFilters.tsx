@@ -29,12 +29,16 @@ export function ActiveQueryFilters() {
             key={filter.id}
             variant='outline'
             className={cn(
-              'border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 gap-1.5 p-1 px-1.5',
+              'border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 max-w-full min-w-0 gap-1.5 p-1 px-1.5',
               status.disabled && 'opacity-50',
             )}
           >
-            <DisabledTooltip disabled={status.disabled} message={disabledMessage} wrapperClassName='inline-flex'>
-              {() => <FilterDescription filter={filter} />}
+            <DisabledTooltip
+              disabled={status.disabled}
+              message={disabledMessage}
+              wrapperClassName='inline-flex min-w-0'
+            >
+              {() => <FilterDescription filter={filter} fitValue />}
             </DisabledTooltip>
             <Tooltip>
               <TooltipTrigger asChild>
