@@ -35,23 +35,21 @@ export function FilterValueSearch<TEntity>({
     disabled,
   });
 
-  const formatLabel = (value: string) => strategy.formatValue(value, locale);
-
   const multiSelectOptions = useMemo(() => {
     const searchOptions = options.map((opt) => ({
-      label: formatLabel(opt),
+      label: strategy.formatValue(opt, locale),
       value: opt,
     }));
 
     const selectedNotInResults = filter.values
       .filter((v) => !options.includes(v))
       .map((v) => ({
-        label: formatLabel(v),
+        label: strategy.formatValue(v, locale),
         value: v,
       }));
 
     return [...selectedNotInResults, ...searchOptions];
-  }, [options, filter.values, filter.column, locale]);
+  }, [options, filter.values, strategy, locale]);
 
   return (
     <MultiSelect
