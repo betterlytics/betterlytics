@@ -115,6 +115,24 @@ const DEPENDENT_FILTER_COLUMNS: Partial<Record<TableFilterColumn, readonly Filte
   subdivision_code: ['city'],
 };
 
+/**
+ * The usable filters among `candidates` that sit on a column dependency-related
+ * to `column` in either direction, and may therefore scope its value
+ * suggestions: browser = Chrome scopes browser_version suggestions, and
+ * city = Aarhus scopes country_code suggestions. Values on related columns
+ * co-occur per event, so scoping can never empty the suggestion list.
+ */
+export function dependencyScopeFilters(column: FilterColumn, candidates: QueryFilter[]): QueryFilter[] {
+  const dependents = DEPENDENT_FILTER_COLUMNS[column as TableFilterColumn] ?? [];
+  const parents = Object.entries(DEPENDENT_FILTER_COLUMNS)
+    .filter(([, deps]) => deps.includes(column))
+    .map(([parent]) => parent);
+  const related = new Set<string>([...parents, ...dependents]);
+  return candidates.filter(
+    (filter) => related.has(filter.column) && filter.values.length > 0 && isUsableFilter(filter),
+  );
+}
+
 export function withDependentColumns(columns: FilterColumn[]): FilterColumn[] {
   const expanded = new Set<FilterColumn>(columns);
   for (const column of columns) {
