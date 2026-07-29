@@ -20,6 +20,7 @@ type QueryFilterInputRowProps<TEntity> = {
   className?: string;
   disabled?: boolean;
   disabledMessage?: ReactNode;
+  siblingFilters?: QueryFilter[];
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   requestRemoval?: (id: QueryFilter['id']) => void;
 };
@@ -37,6 +38,7 @@ export function QueryFilterInputRow<TEntity>({
   className,
   disabled = false,
   disabledMessage,
+  siblingFilters,
 }: QueryFilterInputRowProps<TEntity>) {
   return (
     <div
@@ -80,6 +82,7 @@ export function QueryFilterInputRow<TEntity>({
             formatLength={formatLength}
             valueError={valueError}
             hideClearAllButton={hideClearAllButton}
+            siblingFilters={siblingFilters}
           />
         )}
       </DisabledTooltip>

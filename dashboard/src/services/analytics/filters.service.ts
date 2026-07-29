@@ -1,6 +1,12 @@
 'server-only';
 
-import { type FilterColumn, parseFilterColumn, PROPERTY_KEY_PATTERN } from '@/entities/analytics/filter.entities';
+import {
+  type FilterColumn,
+  type QueryFilter,
+  dependencyScopeFilters,
+  parseFilterColumn,
+  PROPERTY_KEY_PATTERN,
+} from '@/entities/analytics/filter.entities';
 import { type PropertySourceKind } from '@/entities/analytics/propertySources';
 import {
   getFilterDistinctValues,
@@ -14,10 +20,17 @@ export async function getDistinctValuesForFilterColumn(
   column: FilterColumn,
   search?: string,
   limit?: number,
+  scopeFilters?: QueryFilter[],
 ) {
   const parsed = parseFilterColumn(column);
   if (parsed.kind === 'standard') {
-    return getFilterDistinctValues(siteQuery, parsed.col, limit, search?.trim());
+    return getFilterDistinctValues(
+      siteQuery,
+      parsed.col,
+      limit,
+      search?.trim(),
+      dependencyScopeFilters(column, scopeFilters ?? []),
+    );
   }
   return getPropertyValues(siteQuery, parsed.source, parsed.key, search?.trim(), limit);
 }
