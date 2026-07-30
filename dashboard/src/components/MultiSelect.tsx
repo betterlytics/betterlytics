@@ -103,6 +103,9 @@ interface MultiSelectProps {
 
   /** Callback when input value changes. Required when inputValue is controlled. */
   onInputValueChange?: (value: string) => void;
+
+  /** Custom renderer for option content in the dropdown list and selected badges. Defaults to option.label. */
+  renderOption?: (option: Option) => React.ReactNode;
 }
 
 export interface MultiSelectRef {
@@ -210,6 +213,7 @@ export const MultiSelect = ({
   hideClearAllButton = false,
   inputValue: inputValueProp,
   onInputValueChange,
+  renderOption,
 }: MultiSelectProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [open, setOpen] = React.useState(false);
@@ -499,7 +503,7 @@ export const MultiSelect = ({
                     data-fixed={option.fixed}
                     data-disabled={disabled || undefined}
                   >
-                    {option.label}
+                    {renderOption ? renderOption(option) : option.label}
                     <button
                       disabled={disabled}
                       className='text-muted-foreground/80 hover:text-foreground focus-visible:border-ring focus-visible:ring-ring/50 absolute -inset-y-px -right-px flex size-7 cursor-pointer items-center justify-center rounded-r-md border border-transparent p-0 outline-hidden transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed'
@@ -660,7 +664,7 @@ export const MultiSelect = ({
                                 option.disable && 'pointer-events-none cursor-not-allowed opacity-50',
                               )}
                             >
-                              {option.label}
+                              {renderOption ? renderOption(option) : option.label}
                             </CommandItem>
                           );
                         })}
