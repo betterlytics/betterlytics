@@ -72,7 +72,7 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
   const formatDate = (date: Date) =>
     formatLocalDateTime(date, locale, { year: 'numeric', month: 'short', day: 'numeric' }) ?? '';
 
-  const isExpired = (tkn: McpTokenListItem) => tkn.expiresAt !== null && tkn.expiresAt < new Date();
+  const isExpired = (token: McpTokenListItem) => token.expiresAt !== null && token.expiresAt < new Date();
 
   return (
     <div className='space-y-4'>
