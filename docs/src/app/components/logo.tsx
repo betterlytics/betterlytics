@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
-import { useTheme } from "nextra-theme-docs";
 import { getAssetPath } from "@/lib/constants";
 
 interface LogoProps {
@@ -71,6 +71,8 @@ export default function Logo({
     top: "flex-col-reverse items-center",
   };
 
+  // Until mounted, pick the light variant to match SSR and avoid a hydration
+  // mismatch; next-themes resolves the real value once hydrated.
   const isDark = mounted && resolvedTheme === "dark";
   const logoSrc = isDark
     ? logoSources[variant].dark
