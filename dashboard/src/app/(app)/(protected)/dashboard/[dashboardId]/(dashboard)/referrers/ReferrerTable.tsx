@@ -75,10 +75,10 @@ export default function ReferrerTable({ data = [], loading = false }: ReferrerTa
             : t('columns.unknown');
         const handleClick = () => {
           if (data.source_url && data.source_url.trim() !== '') {
-            makeFilterClick('referrer_url')(data.source_url);
+            makeFilterClick('referrer_url')(data.source_url, label);
             return;
           } else {
-            makeFilterClick('referrer_source')(data.source_type);
+            makeFilterClick('referrer_source')(data.source_type, label);
           }
         };
         return (
