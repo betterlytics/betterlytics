@@ -2522,6 +2522,7 @@
         "maxFiltersReachedToast": "You can apply up to {max} filters. Remove one to add another."
       },
       "filterBy": "Filter by {label}",
+      "toastFilterApplied": "Filtered by <label></label>",
       "removeFilter": "Remove filter",
       "notAvailableOnPage": "Not available on this page"
     },
