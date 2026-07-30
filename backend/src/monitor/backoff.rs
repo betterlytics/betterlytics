@@ -3,15 +3,16 @@ use std::time::Duration as StdDuration;
 
 use crate::monitor::{BackoffReason, BackoffSnapshot, MonitorCheck, ProbeOutcome};
 
-const DEFAULT_ALLOWED_INTERVALS_SECS: &[u64] =
-    &[60, 120, 180, 240, 300, 600, 900, 1800, 3600, 7200, 10_800, 21_600];
+const DEFAULT_MULTIPLIER: u64 = 2;
+const DEFAULT_MAX_EFFECTIVE_SECS: u64 = 86_400;
 
 const DEFAULT_FAILURE_THRESHOLD: u16 = 25;
 const DEFAULT_SUCCESS_THRESHOLD: u16 = 2;
 
 #[derive(Clone, Copy, Debug)]
 pub struct BackoffPolicy {
-    pub allowed_intervals_secs: &'static [u64],
+    pub multiplier: u64,
+    pub max_effective_secs: u64,
     pub failure_threshold: u16,
     pub success_threshold: u16,
 }
@@ -19,7 +20,8 @@ pub struct BackoffPolicy {
 impl Default for BackoffPolicy {
     fn default() -> Self {
         Self {
-            allowed_intervals_secs: DEFAULT_ALLOWED_INTERVALS_SECS,
+            multiplier: DEFAULT_MULTIPLIER,
+            max_effective_secs: DEFAULT_MAX_EFFECTIVE_SECS,
             failure_threshold: DEFAULT_FAILURE_THRESHOLD,
             success_threshold: DEFAULT_SUCCESS_THRESHOLD,
         }
@@ -145,22 +147,156 @@ impl BackoffController {
 }
 
 impl BackoffPolicy {
+    /// Level 0 is exactly the base interval; each level multiplies it, capped at
+    /// `max_effective_secs` (a base already above the cap is left untouched).
     pub fn interval_for_level(&self, base: StdDuration, level: u8) -> StdDuration {
-        let base_idx = self.base_index(base);
-        let target_idx = (base_idx + level as usize).min(self.allowed_intervals_secs.len() - 1);
-        StdDuration::from_secs(self.allowed_intervals_secs[target_idx])
+        let secs = base
+            .as_secs()
+            .saturating_mul(self.multiplier.saturating_pow(level as u32));
+        StdDuration::from_secs(secs.min(self.cap_for(base)))
     }
 
+    /// The lowest level at which the effective interval reaches the cap; escalating
+    /// beyond it would not change anything.
     pub fn max_level(&self, base: StdDuration) -> u8 {
-        let base_idx = self.base_index(base);
-        (self.allowed_intervals_secs.len() - 1 - base_idx) as u8
+        if self.multiplier < 2 {
+            return 0;
+        }
+        let cap = self.cap_for(base);
+        let mut secs = base.as_secs().max(1);
+        let mut level = 0u8;
+        while secs < cap && level < u8::MAX {
+            secs = secs.saturating_mul(self.multiplier);
+            level += 1;
+        }
+        level
     }
 
-    fn base_index(&self, base: StdDuration) -> usize {
-        let base_secs = base.as_secs();
-        self.allowed_intervals_secs
-            .iter()
-            .position(|&v| v >= base_secs)
-            .unwrap_or(self.allowed_intervals_secs.len() - 1)
+    fn cap_for(&self, base: StdDuration) -> u64 {
+        self.max_effective_secs.max(base.as_secs())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::monitor::{AlertConfig, HttpMethod, MonitorCheck, ReasonCode};
+    use std::net::{IpAddr, Ipv4Addr};
+
+    fn policy() -> BackoffPolicy {
+        BackoffPolicy::default()
+    }
+
+    fn check(interval_secs: u64) -> MonitorCheck {
+        MonitorCheck {
+            id: "check-1".to_string(),
+            dashboard_id: "dash-1".to_string(),
+            site_id: "site-1".to_string(),
+            name: None,
+            url: url::Url::parse("https://example.com").unwrap(),
+            interval: StdDuration::from_secs(interval_secs),
+            timeout: StdDuration::from_secs(5),
+            updated_at: chrono::Utc::now(),
+            http_method: HttpMethod::Head,
+            request_headers: Vec::new(),
+            accepted_status_codes: Vec::new(),
+            expected_keyword: None,
+            check_ssl_errors: false,
+            alert: AlertConfig::default(),
+        }
+    }
+
+    fn success() -> ProbeOutcome {
+        ProbeOutcome::success(
+            StdDuration::from_millis(50),
+            Some(200),
+            IpAddr::V4(Ipv4Addr::LOCALHOST),
+        )
+    }
+
+    fn failure() -> ProbeOutcome {
+        ProbeOutcome::failure(StdDuration::from_millis(50), Some(503), ReasonCode::Http5xx)
+    }
+
+    #[test]
+    fn level_zero_is_exactly_the_base_interval() {
+        // 44 minutes is not a "round" value; it must not be snapped to anything else.
+        let base = StdDuration::from_secs(44 * 60);
+        assert_eq!(policy().interval_for_level(base, 0), base);
+    }
+
+    #[test]
+    fn levels_multiply_the_base_until_the_cap() {
+        let p = policy();
+        let base = StdDuration::from_secs(44 * 60);
+        assert_eq!(p.interval_for_level(base, 1), StdDuration::from_secs(88 * 60));
+        assert_eq!(p.interval_for_level(base, 2), StdDuration::from_secs(176 * 60));
+        assert_eq!(
+            p.interval_for_level(base, 6),
+            StdDuration::from_secs(DEFAULT_MAX_EFFECTIVE_SECS)
+        );
+    }
+
+    #[test]
+    fn base_at_or_above_the_cap_never_escalates() {
+        let p = policy();
+        let day = StdDuration::from_secs(86_400);
+        assert_eq!(p.max_level(day), 0);
+        assert_eq!(p.interval_for_level(day, 5), day);
+
+        let above_cap = StdDuration::from_secs(100_000);
+        assert_eq!(p.max_level(above_cap), 0);
+        assert_eq!(p.interval_for_level(above_cap, 5), above_cap);
+    }
+
+    #[test]
+    fn max_level_reaches_the_cap_exactly_once() {
+        let p = policy();
+        let base = StdDuration::from_secs(60);
+        let max = p.max_level(base);
+        assert_eq!(max, 11); // 60 * 2^11 = 122880 >= 86400
+        assert_eq!(
+            p.interval_for_level(base, max),
+            StdDuration::from_secs(DEFAULT_MAX_EFFECTIVE_SECS)
+        );
+        assert!(p.interval_for_level(base, max - 1) < StdDuration::from_secs(DEFAULT_MAX_EFFECTIVE_SECS));
+    }
+
+    #[test]
+    fn controller_escalates_after_failure_threshold_and_recovers() {
+        let p = policy();
+        let mut controller = BackoffController::new(p);
+        let check = check(300);
+
+        for _ in 0..p.failure_threshold - 1 {
+            let snapshot = controller.apply_outcome(&check, &failure());
+            assert_eq!(snapshot.backoff_level, 0);
+            assert_eq!(snapshot.effective_interval, check.interval);
+        }
+        let snapshot = controller.apply_outcome(&check, &failure());
+        assert_eq!(snapshot.backoff_level, 1);
+        assert_eq!(snapshot.effective_interval, StdDuration::from_secs(600));
+
+        let snapshot = controller.apply_outcome(&check, &success());
+        assert_eq!(snapshot.backoff_level, 1);
+        let snapshot = controller.apply_outcome(&check, &success());
+        assert_eq!(snapshot.backoff_level, 0);
+        assert_eq!(snapshot.effective_interval, check.interval);
+    }
+
+    #[test]
+    fn base_interval_change_reclamps_the_level() {
+        let p = policy();
+        let mut controller = BackoffController::new(p);
+        let slow = check(86_400);
+
+        // Escalate a 5m monitor one level, then simulate the user changing it to 24h.
+        let fast = check(300);
+        for _ in 0..p.failure_threshold {
+            controller.apply_outcome(&fast, &failure());
+        }
+        let snapshot = controller.current_snapshot(&slow);
+        assert_eq!(snapshot.backoff_level, 0);
+        assert_eq!(snapshot.effective_interval, slow.interval);
     }
 }

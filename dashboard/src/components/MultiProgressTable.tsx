@@ -12,14 +12,18 @@ import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import MultiProgressTableRowSkeleton from '@/components/skeleton/MultiProgressTableSkeleton';
 import { cn } from '@/lib/utils';
+import type { FilterColumn } from '@/entities/analytics/filter.entities';
 
-interface ProgressBarData {
+export type ProgressBarRowFilter = { column: FilterColumn; value?: string };
+
+export interface ProgressBarData {
   label: string;
   value: number;
   key?: string;
   trendPercentage?: number;
   comparisonValue?: number;
   icon?: React.ReactElement;
+  filters?: ProgressBarRowFilter[];
   children?: ProgressBarData[];
 }
 

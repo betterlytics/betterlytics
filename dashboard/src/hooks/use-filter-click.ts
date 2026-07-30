@@ -2,10 +2,17 @@
 
 import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { MAX_FILTER_ROWS, type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
+import {
+  applyFilterUpdates,
+  MAX_FILTER_ROWS,
+  withDependentColumns,
+  type FilterColumn,
+  type FilterOperator,
+  type FilterUpdate,
+} from '@/entities/analytics/filter.entities';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
 
@@ -16,7 +23,7 @@ type Options = {
 
 export function useFilterClick(defaults?: Options) {
   const { queryFilters, addQueryFilter, removeQueryFilter, setQueryFilters } = useQueryFiltersContext();
-  const { isDemo } = useDashboardAuth();
+  const getColumnStatus = useFilterColumnStatus();
   const t = useTranslations('components.demoMode');
   const tFilters = useTranslations('components.filters');
 
@@ -30,8 +37,10 @@ export function useFilterClick(defaults?: Options) {
 
   const applyFilter = useCallback(
     (column: FilterColumn, value: string, opts?: Options) => {
-      if (isDemo && column !== 'url' && column !== 'device_type') {
-        toast.info(t('interactionDisabled'));
+      const status = getColumnStatus(column);
+      if (status.disabled) {
+        if (status.reason === 'demo') toast.info(t('interactionDisabled'));
+        else if (status.reason === 'page') toast.info(tFilters('notAvailableOnPage'));
         return;
       }
 
@@ -57,14 +66,13 @@ export function useFilterClick(defaults?: Options) {
       }
 
       if (behavior === 'replace-same-column') {
-        // Replacing an existing column keeps the count the same, so only a brand-new column is capped.
-        const replacesExistingColumn = queryFilters.some((f) => f.column === column);
-        if (atCap && !replacesExistingColumn) {
+        const replaced = withDependentColumns([column]);
+        const next = applyFilterUpdates(queryFilters, [{ column, value, operator }], replaced);
+        if (next.length > MAX_FILTER_ROWS) {
           notifyCapReached();
           return;
         }
-        setQueryFilters((fs) => fs.filter((f) => f.column !== column));
-        addQueryFilter({ column, operator, values: [value] });
+        setQueryFilters((fs) => applyFilterUpdates(fs, [{ column, value, operator }], replaced));
         return;
       }
 
@@ -81,10 +89,34 @@ export function useFilterClick(defaults?: Options) {
       queryFilters,
       defaultOperator,
       defaultBehavior,
-      isDemo,
+      getColumnStatus,
       t,
+      tFilters,
       notifyCapReached,
     ],
+  );
+
+  const applyFilters = useCallback(
+    (updates: FilterUpdate[]) => {
+      for (const update of updates) {
+        const status = getColumnStatus(update.column);
+        if (status.disabled) {
+          if (status.reason === 'demo') toast.info(t('interactionDisabled'));
+          else if (status.reason === 'page') toast.info(tFilters('notAvailableOnPage'));
+          return;
+        }
+      }
+
+      const applied = updates.map((update) => ({ ...update, operator: update.operator ?? defaultOperator }));
+      const replaced = withDependentColumns(updates.map((update) => update.column));
+      const next = applyFilterUpdates(queryFilters, applied, replaced);
+      if (next.length > MAX_FILTER_ROWS) {
+        notifyCapReached();
+        return;
+      }
+      setQueryFilters((fs) => applyFilterUpdates(fs, applied, replaced));
+    },
+    [getColumnStatus, queryFilters, setQueryFilters, defaultOperator, t, tFilters, notifyCapReached],
   );
 
   const makeFilterClick = useCallback(
@@ -92,5 +124,5 @@ export function useFilterClick(defaults?: Options) {
     [applyFilter],
   );
 
-  return { applyFilter, makeFilterClick };
+  return { applyFilter, applyFilters, makeFilterClick };
 }

@@ -14,6 +14,7 @@ const DEFAULT_ARGS = {
   OUTBOUND_LINK_FREQUENCY: 0.05,
   CAMPAIGN_FREQUENCY: 0.3,
   NUM_CAMPAIGNS: 6,
+  REFERRER_FREQUENCY: 0.6,
 }
 
 
@@ -37,6 +38,7 @@ if (!args[0] || args[0].startsWith("--")) {
     | '--outbound-freq'| Fraction (0–1) of events that are outbound link clicks     | ${formatNumber(DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY)} |
     | '--campaign-freq'| Fraction (0–1) of events that have campaign UTM tags       | ${formatNumber(DEFAULT_ARGS.CAMPAIGN_FREQUENCY)} |
     | '--campaigns'    | Number of unique campaigns to generate                     | ${formatNumber(DEFAULT_ARGS.NUM_CAMPAIGNS)} |
+    | '--referrer-freq'| Fraction (0–1) of users arriving via an external referrer  | ${formatNumber(DEFAULT_ARGS.REFERRER_FREQUENCY)} |
     ------------------------------------------------------------------------------------------------
 
     Example:
@@ -48,7 +50,8 @@ if (!args[0] || args[0].startsWith("--")) {
       --event-freq=${DEFAULT_ARGS.CUSTOM_EVENT_FREQUENCY} \\
       --outbound-freq=${DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY} \\
       --campaign-freq=${DEFAULT_ARGS.CAMPAIGN_FREQUENCY} \\
-      --campaigns=${DEFAULT_ARGS.NUM_CAMPAIGNS}
+      --campaigns=${DEFAULT_ARGS.NUM_CAMPAIGNS} \\
+      --referrer-freq=${DEFAULT_ARGS.REFERRER_FREQUENCY}
   `);
   process.exit(1);
 }
@@ -71,6 +74,7 @@ const CUSTOM_EVENT_FREQUENCY = getFlag("event-freq", DEFAULT_ARGS.CUSTOM_EVENT_F
 const OUTBOUND_LINK_FREQUENCY = getFlag("outbound-freq", DEFAULT_ARGS.OUTBOUND_LINK_FREQUENCY);
 const CAMPAIGN_FREQUENCY = getFlag("campaign-freq", DEFAULT_ARGS.CAMPAIGN_FREQUENCY);
 const NUM_CAMPAIGNS = getFlag("campaigns", DEFAULT_ARGS.NUM_CAMPAIGNS);
+const REFERRER_FREQUENCY = getFlag("referrer-freq", DEFAULT_ARGS.REFERRER_FREQUENCY);
 
 const CUSTOM_EVENTS = [
   {
@@ -90,7 +94,55 @@ const OUTBOUND_LINK_URLS = [
   "https://youtube.com",
   "https://partner.com",
 ];
-const SCREEN_SIZES = ["1920x1080", "900x400", "500x300"];
+
+const REFERRER_URLS = [
+  "https://duckduckgo.com/",
+  "https://www.bing.com/search",
+  "https://www.google.com/",
+  "https://www.google.com/search",
+  "https://news.google.com/",
+  "https://www.reddit.com/r/selfhosted/",
+  "https://old.reddit.com/r/webdev/",
+  "https://news.ycombinator.com/",
+  "https://news.ycombinator.com/item?id=39538522",
+  "https://github.com/betterlytics/betterlytics",
+  "https://t.co/9fKzXqLm",
+  "https://www.linkedin.com/feed/",
+  "https://www.facebook.com/",
+];
+/**
+ * Weighted device profiles, assigned one per user. The backend derives browser,
+ * OS, and their major versions from the user agent, and device type from the
+ * screen width, so each profile pairs a real UA string with resolutions from
+ * the matching device class. All of these feed the visitor fingerprint, which
+ * is why a user keeps the same profile across all of their events.
+ */
+const DEVICE_PROFILES = [
+  { weight: 8, user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36", screen_resolutions: ["1920x1080", "2560x1440"] },
+  { weight: 6, user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", screen_resolutions: ["1920x1080", "1366x768"] },
+  { weight: 4, user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36", screen_resolutions: ["1536x864", "1366x768"] },
+  { weight: 2, user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36", screen_resolutions: ["1280x800"] },
+  { weight: 5, user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36", screen_resolutions: ["1440x900", "2560x1440"] },
+  { weight: 3, user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36", screen_resolutions: ["1440x900"] },
+  { weight: 4, user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36 Edg/135.0.0.0", screen_resolutions: ["1920x1080"] },
+  { weight: 2, user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36 Edg/122.0.0.0", screen_resolutions: ["1366x768"] },
+  { weight: 3, user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:128.0) Gecko/20100101 Firefox/128.0", screen_resolutions: ["1920x1080"] },
+  { weight: 2, user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:126.0) Gecko/20100101 Firefox/126.0", screen_resolutions: ["1440x900"] },
+  { weight: 2, user_agent: "Mozilla/5.0 (X11; Linux x86_64; rv:115.0) Gecko/20100101 Firefox/115.0", screen_resolutions: ["1920x1080"] },
+  { weight: 1, user_agent: "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0", screen_resolutions: ["1366x768"] },
+  { weight: 4, user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15", screen_resolutions: ["1440x900", "2560x1440"] },
+  { weight: 2, user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 12_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Safari/605.1.15", screen_resolutions: ["1280x800"] },
+  { weight: 1, user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 OPR/105.0.0.0", screen_resolutions: ["1920x1080"] },
+  { weight: 6, user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1", screen_resolutions: ["390x844", "430x932"] },
+  { weight: 3, user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1", screen_resolutions: ["390x844"] },
+  { weight: 2, user_agent: "Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1", screen_resolutions: ["375x812"] },
+  { weight: 5, user_agent: "Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Mobile Safari/537.36", screen_resolutions: ["412x915"] },
+  { weight: 3, user_agent: "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36", screen_resolutions: ["412x915"] },
+  { weight: 2, user_agent: "Mozilla/5.0 (Linux; Android 13; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Mobile Safari/537.36", screen_resolutions: ["360x800"] },
+  { weight: 2, user_agent: "Mozilla/5.0 (Linux; Android 14; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/23.0 Chrome/115.0.0.0 Mobile Safari/537.36", screen_resolutions: ["360x780"] },
+  { weight: 2, user_agent: "Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1", screen_resolutions: ["820x1180"] },
+  { weight: 1, user_agent: "Mozilla/5.0 (Linux; Android 14; SM-X710) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36", screen_resolutions: ["800x1280"] },
+];
 
 /**
  * Campaign UTM data for simulating marketing campaigns
@@ -131,6 +183,19 @@ const GLOBAL_PROPERTIES_POOL = [
 
 function getRandomElement(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/**
+ * Select element proportionally to its `weight` field
+ */
+function getWeightedElement(arr) {
+  const totalWeight = arr.reduce((sum, item) => sum + item.weight, 0);
+  let roll = Math.random() * totalWeight;
+  for (const item of arr) {
+    roll -= item.weight;
+    if (roll <= 0) return item;
+  }
+  return arr[arr.length - 1];
 }
 
 /**
@@ -247,11 +312,18 @@ function ipToInt(ip) {
  */
 console.log("[+] Setting up...");
 
-const users = new Array(NUMBER_OF_USERS).fill(0).map(() => ({
-  visitor_id: uuidv4(),
-  ip: getRandomPublicIp(),
-  globalProperties: getRandomElement(GLOBAL_PROPERTIES_POOL),
-}));
+const users = new Array(NUMBER_OF_USERS).fill(0).map(() => {
+  const device = getWeightedElement(DEVICE_PROFILES);
+  return {
+    visitor_id: uuidv4(),
+    ip: getRandomPublicIp(),
+    user_agent: device.user_agent,
+    screen_resolution: getRandomElement(device.screen_resolutions),
+    globalProperties: getRandomElement(GLOBAL_PROPERTIES_POOL),
+    referrer:
+      Math.random() < REFERRER_FREQUENCY ? getRandomElement(REFERRER_URLS) : null,
+  };
+});
 
 // Generate unique campaign IDs (short UUIDs)
 CAMPAIGN_DATA.utm_campaign = new Array(NUM_CAMPAIGNS)
@@ -302,17 +374,19 @@ const events = new Array(NUMBER_OF_EVENTS)
       timestamp,
       visitor_id: user.visitor_id,
       user_ip: user.ip,
-      screen_resolution:
-        SCREEN_SIZES[Math.floor(Math.random() * SCREEN_SIZES.length)],
     };
   })
   .sort((a, b) => a.timestamp - b.timestamp)
   .map((payload) => getExtraPayload(payload))
   .map((payload) => {
-    const gp = usersByVisitorId.get(payload.visitor_id)?.globalProperties ?? {};
+    const user = usersByVisitorId.get(payload.visitor_id);
+    const gp = user?.globalProperties ?? {};
     return {
       ...BASE_PAYLOAD,
       ...payload,
+      user_agent: user?.user_agent ?? BASE_PAYLOAD.user_agent,
+      screen_resolution: user?.screen_resolution ?? BASE_PAYLOAD.screen_resolution,
+      referrer: user?.referrer ?? null,
       ...(Object.keys(gp).length > 0 ? { global_properties: gp } : {}),
     };
   });

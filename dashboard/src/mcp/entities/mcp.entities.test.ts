@@ -130,6 +130,33 @@ describe('McpQueryInputSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('accepts a global-property filter column in gp.<key> form', () => {
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      filters: [{ column: 'gp.plan', operator: '=', values: ['pro'] }],
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a malformed global-property filter column (empty key)', () => {
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      filters: [{ column: 'gp.', operator: '=', values: ['pro'] }],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects an unknown non-gp filter column', () => {
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      filters: [{ column: 'not_a_column', operator: '=', values: ['x'] }],
+    });
+    expect(result.success).toBe(false);
+  });
+
   it('rejects invalid filter operator', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
