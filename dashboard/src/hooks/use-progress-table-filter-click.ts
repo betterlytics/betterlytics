@@ -16,7 +16,10 @@ export function useProgressTableFilterClick() {
   const onItemClick = useCallback(
     (_tabKey: string, item: ProgressBarData) => {
       if (!item.filters?.length || !item.filters.every((rowFilter) => isFilterColumn(rowFilter.column))) return;
-      applyFilters(item.filters.map((rowFilter) => ({ column: rowFilter.column, value: rowFilter.value ?? item.label })));
+      applyFilters(
+        item.filters.map((rowFilter) => ({ column: rowFilter.column, value: rowFilter.value ?? item.label })),
+        item.tooltipLabel ?? item.label,
+      );
     },
     [applyFilters],
   );
