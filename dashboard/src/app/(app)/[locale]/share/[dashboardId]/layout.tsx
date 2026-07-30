@@ -42,7 +42,7 @@ export async function generateMetadata({
 }
 
 type PublicLayoutProps = {
-  params: Promise<{ locale: string; dashboardId: string }>;
+  params: Promise<{ locale: SupportedLanguages; dashboardId: string }>;
   children: React.ReactNode;
 };
 

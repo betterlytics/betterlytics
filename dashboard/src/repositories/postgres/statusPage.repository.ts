@@ -35,7 +35,7 @@ function toStatusPage(
   });
 }
 
-export type StatusPageImageWrite = { data: Uint8Array<ArrayBuffer>; mimeType: string; hash: string };
+export type StatusPageImageWrite = { data: Buffer; mimeType: string; hash: string };
 
 export type StatusPageImageWrites = {
   logo?: StatusPageImageWrite | null;
