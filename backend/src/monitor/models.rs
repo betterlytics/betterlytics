@@ -238,10 +238,10 @@ impl BackoffSnapshot {
         }
     }
 
-    pub fn effective_interval_seconds(&self) -> u16 {
+    pub fn effective_interval_seconds(&self) -> u32 {
         self.effective_interval
             .as_secs()
-            .min(u16::MAX as u64) as u16
+            .min(u32::MAX as u64) as u32
     }
 }
 
@@ -311,7 +311,7 @@ pub struct MonitorResultRow {
     pub port: Option<u16>,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis::option")]
     pub tls_not_after: Option<DateTime<Utc>>,
-    pub effective_interval_seconds: u16,
+    pub effective_interval_seconds: u32,
     pub backoff_level: u8,
     pub consecutive_failures: u16,
     pub consecutive_successes: u16,

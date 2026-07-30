@@ -48,7 +48,7 @@ export default function CustomEventsSection() {
               value: event.current.count,
               trendPercentage: event.change?.count,
               comparisonValue: event.compare?.count,
-              filterColumn: 'custom_event_name',
+              filters: [{ column: 'custom_event_name' }],
             }),
           ),
         },
@@ -64,11 +64,10 @@ export default function CustomEventsSection() {
               value: prop.current.visitors,
               trendPercentage: prop.change?.percentage,
               comparisonValue: prop.compare?.visitors,
-              filterColumn: filterKey,
-              filterValue: '*',
+              filters: [{ column: filterKey, value: '*' }],
               children: prop.children.map(
                 (v): ProgressBarData => ({
-                  filterColumn: filterKey,
+                  filters: [{ column: filterKey }],
                   label: v.value,
                   value: v.current.visitors,
                   trendPercentage: v.change?.percentage,
