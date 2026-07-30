@@ -158,7 +158,7 @@ export default function WebVitalsTableSection() {
             return (
               <Button
                 variant='ghost'
-                onClick={filterColumn ? () => makeFilterClick(filterColumn)(key) : undefined}
+                onClick={filterColumn ? () => makeFilterClick(filterColumn)(key, labelText) : undefined}
                 className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium select-text'
                 title={tFilters('filterBy', { label: labelText })}
               >
