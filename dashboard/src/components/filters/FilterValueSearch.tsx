@@ -1,11 +1,13 @@
 import React, { Dispatch, useMemo } from 'react';
-import { MultiSelect } from '@/components/MultiSelect';
+import { MultiSelect, type Option } from '@/components/MultiSelect';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQueryFilterSearch } from './use-query-filter-search';
 import { cn } from '@/lib/utils';
 import { formatString } from '@/utils/formatters';
+import { FlagIcon, type FlagIconProps } from '@/components/icons';
+import { getCountryName } from '@/utils/countryCodes';
 
 type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
@@ -56,8 +58,22 @@ export function FilterValueSearch<TEntity>({
     return [...selectedNotInResults, ...searchOptions];
   }, [options, filter.values, formatLength, filter.column, locale]);
 
+  const renderOption =
+    filter.column === 'country_code'
+      ? (option: Option) => (
+          <span className='flex min-w-0 items-center gap-1.5'>
+            <FlagIcon
+              countryCode={option.value.toUpperCase() as FlagIconProps['countryCode']}
+              countryName={getCountryName(option.value, locale)}
+            />
+            <span className='truncate'>{option.label}</span>
+          </span>
+        )
+      : undefined;
+
   return (
     <MultiSelect
+      renderOption={renderOption}
       options={multiSelectOptions}
       disabled={disabled}
       inputValue={search}
