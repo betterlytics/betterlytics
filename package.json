@@ -19,7 +19,7 @@
     "unit-tests": "pnpm --filter dashboard unit-tests",
     "check-translations": "node scripts/check-translations.js"
   },
-  "packageManager": "pnpm@10.9.0",
+  "packageManager": "pnpm@10.34.5",
   "dependencies": {
     "@clickhouse/client": "^1.15.0",
     "clickhouse-migrations": "^1.0.4",
