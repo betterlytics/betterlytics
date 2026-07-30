@@ -17,8 +17,9 @@ export async function createMcpToken(data: CreateMcpTokenData, tokenHash: string
       name: validatedData.name,
       dashboardId: validatedData.dashboardId,
       createdBy: validatedData.createdBy,
+      expiresAt: validatedData.expiresAt,
     },
-    omit: { tokenHash: true, expiresAt: true, createdBy: true, deletedAt: true },
+    omit: { tokenHash: true, createdBy: true, deletedAt: true },
   });
 
   return McpTokenListItemSchema.parse(row);
@@ -28,7 +29,7 @@ export async function findMcpTokensByDashboard(dashboardId: string): Promise<Mcp
   const rows = await prisma.mcpToken.findMany({
     where: { dashboardId, deletedAt: null },
     orderBy: { createdAt: 'desc' },
-    omit: { tokenHash: true, expiresAt: true, createdBy: true, deletedAt: true },
+    omit: { tokenHash: true, createdBy: true, deletedAt: true },
   });
 
   return rows.map((row) => McpTokenListItemSchema.parse(row));
