@@ -3695,7 +3695,17 @@
       "creating": "Oppretter...",
       "newTokenNotice": "Kopier denne nøkkelen nå. Du vil ikke kunne se den igjen.",
       "created": "Opprettet {date}",
-      "lastUsed": "Sist brukt {date}"
+      "lastUsed": "Sist brukt {date}",
+      "expirationLabel": "Utløp",
+      "lifetime": {
+        "30d": "30 dager",
+        "90d": "90 dager",
+        "180d": "180 dager",
+        "never": "Uten utløp"
+      },
+      "expires": "Utløper {date}",
+      "expired": "Utløpt {date}",
+      "neverExpires": "Utløper aldri"
     },
     "toast": {
       "created": "Nøkkel opprettet",

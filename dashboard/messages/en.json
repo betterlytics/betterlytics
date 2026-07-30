@@ -3692,7 +3692,17 @@
       "creating": "Creating...",
       "newTokenNotice": "Copy this token now. You won't be able to see it again.",
       "created": "Created {date}",
-      "lastUsed": "Last used {date}"
+      "lastUsed": "Last used {date}",
+      "expirationLabel": "Expiration",
+      "lifetime": {
+        "30d": "30 days",
+        "90d": "90 days",
+        "180d": "180 days",
+        "never": "No expiry"
+      },
+      "expires": "Expires {date}",
+      "expired": "Expired {date}",
+      "neverExpires": "Never expires"
     },
     "toast": {
       "created": "Token created",
