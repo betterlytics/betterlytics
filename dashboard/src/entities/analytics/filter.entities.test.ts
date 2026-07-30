@@ -91,6 +91,22 @@ describe('applyFilterUpdates', () => {
     expect(current[0].values).toEqual(['Safari']);
   });
 
+  it('clears a lingering city filter when a region row applies region + country', () => {
+    const current = [filter('country_code', 'US'), filter('subdivision_code', 'US-IL'), filter('city', 'Springfield')];
+
+    const next = applyFilterUpdates(
+      current,
+      [
+        { column: 'subdivision_code', value: 'DK-84' },
+        { column: 'country_code', value: 'DK' },
+      ],
+      withDependentColumns(['subdivision_code', 'country_code']),
+    );
+
+    expect(next).toHaveLength(2);
+    expect(next.map((f) => f.values[0]).sort()).toEqual(['DK', 'DK-84']);
+  });
+
   it('applies an update operator when given', () => {
     const next = applyFilterUpdates([], [{ column: 'browser', value: 'Chrome', operator: '!=' }]);
 
@@ -105,9 +121,15 @@ describe('withDependentColumns', () => {
     expect(withDependentColumns(['os']).sort()).toEqual(['os', 'os_version']);
   });
 
+  it('expands geography columns to all narrower levels', () => {
+    expect(withDependentColumns(['country_code']).sort()).toEqual(['city', 'country_code', 'subdivision_code']);
+    expect(withDependentColumns(['subdivision_code']).sort()).toEqual(['city', 'subdivision_code']);
+  });
+
   it('never expands a dependent to its parent', () => {
     expect(withDependentColumns(['browser_version'])).toEqual(['browser_version']);
     expect(withDependentColumns(['os_version'])).toEqual(['os_version']);
+    expect(withDependentColumns(['city'])).toEqual(['city']);
   });
 
   it('passes through columns without dependents', () => {
