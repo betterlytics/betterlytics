@@ -2,7 +2,11 @@ import "server-only";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { importPage } from "nextra/pages";
-import { blogFrontmatterSchema, type BlogFrontmatter } from "./schema";
+import {
+  blogFrontmatterSchema,
+  isValidSlug,
+  type BlogFrontmatter,
+} from "./schema";
 
 export type BlogPost = {
   frontmatter: BlogFrontmatter;
@@ -66,9 +70,25 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
         continue;
       }
       const frontmatter = parsed.data;
+
+      // The filename is the slug — `importPage` resolves content by file path,
+      // so a diverging frontmatter slug would list a post whose page cannot
+      // render. Skip it rather than publish a broken link.
+      if (frontmatter.slug && frontmatter.slug !== fileSlug) {
+        warnSkipped(
+          fileSlug,
+          `frontmatter slug '${frontmatter.slug}' does not match filename`,
+        );
+        continue;
+      }
+      if (!isValidSlug(fileSlug)) {
+        warnSkipped(fileSlug, "filename is not a valid slug");
+        continue;
+      }
+
       if (frontmatter.draft && !SHOW_DRAFTS) continue;
 
-      const slug = frontmatter.slug || fileSlug;
+      const slug = fileSlug;
       const raw = readFileSync(
         join(BLOG_CONTENT_DIR, `${fileSlug}.mdx`),
         "utf8",

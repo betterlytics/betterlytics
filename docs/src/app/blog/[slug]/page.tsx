@@ -16,40 +16,36 @@ import {
   blogPostCanonicalUrl,
   buildArticleJsonLd,
   buildFaqJsonLd,
-  SITE_URL,
 } from "../lib/seo";
 import { getAuthor } from "../lib/authors";
 
-type Params = { slug?: string[] };
+// Slugs are single segments (enforced by the registry's slug validation), so
+// a plain dynamic segment suffices — and unlike a catch-all it supports the
+// opengraph-image/twitter-image file conventions.
+type Params = { slug: string };
 
-export async function generateStaticParams(): Promise<{ slug: string[] }[]> {
+// Every publishable slug is known at build time; unknown slugs 404 at the
+// router instead of invoking this page (or its opengraph-image) at runtime.
+export const dynamicParams = false;
+
+export async function generateStaticParams(): Promise<Params[]> {
   const posts = await getBlogPosts();
-  return posts.map((p) => ({ slug: [p.slug] }));
-}
-
-function resolveSlug(params: Params): string | null {
-  if (!params.slug || params.slug.length === 0) return null;
-  return params.slug.join("/");
+  return posts.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata(props: {
   params: Promise<Params>;
 }): Promise<Metadata> {
-  const params = await props.params;
-  const slug = resolveSlug(params);
-  if (!slug) return {};
+  const { slug } = await props.params;
 
   const post = await getBlogPostBySlug(slug);
   if (!post) return {};
 
   const author = getAuthor(post.frontmatter.author);
   const url = blogPostCanonicalUrl(post.slug);
-  const ogImageUrl = post.frontmatter.ogImage
-    ? post.frontmatter.ogImage.startsWith("http")
-      ? post.frontmatter.ogImage
-      : `${SITE_URL}${post.frontmatter.ogImage}`
-    : `${SITE_URL}/docs-static/api/og/blog?slug=${encodeURIComponent(post.slug)}`;
 
+  // og:image / twitter:image come from the sibling opengraph-image.tsx /
+  // twitter-image.tsx file conventions — not set here.
   return {
     title: `${post.frontmatter.title} | Betterlytics Blog`,
     description: post.frontmatter.description,
@@ -67,28 +63,17 @@ export async function generateMetadata(props: {
       modifiedTime: post.frontmatter.updatedAt ?? post.frontmatter.publishedAt,
       authors: [author.name],
       tags: post.frontmatter.tags,
-      images: [
-        {
-          url: ogImageUrl,
-          width: 1200,
-          height: 630,
-          alt: post.frontmatter.title,
-        },
-      ],
     },
     twitter: {
       card: "summary_large_image",
       title: post.frontmatter.title,
       description: post.frontmatter.description,
-      images: [ogImageUrl],
     },
   };
 }
 
 export default async function BlogPostPage(props: { params: Promise<Params> }) {
-  const params = await props.params;
-  const slug = resolveSlug(params);
-  if (!slug) notFound();
+  const { slug } = await props.params;
 
   const post = await getBlogPostBySlug(slug);
   if (!post) notFound();

@@ -14,12 +14,11 @@ export function blogIndexCanonicalUrl(): string {
 export function buildArticleJsonLd(post: BlogPost) {
   const author = getAuthor(post.frontmatter.author);
   const url = blogPostCanonicalUrl(post.slug);
-  // Social/structured-data image: explicit ogImage → photo cover → the dark OG
-  // route (not the light in-page texture cover).
+  // Structured-data image: photo cover → the prerendered dark OG card served
+  // by the opengraph-image file convention (not the light in-page texture cover).
   const image =
-    post.frontmatter.ogImage ??
     post.frontmatter.coverImage?.src ??
-    `/docs-static/api/og/blog?slug=${encodeURIComponent(post.slug)}`;
+    `/blog/${encodeURIComponent(post.slug)}/opengraph-image`;
   const absoluteImage = image.startsWith("http")
     ? image
     : `${SITE_URL}${image}`;

@@ -1,15 +1,26 @@
 import { z } from "zod";
 
-const RESERVED_SLUGS = ["feed.xml", "index", "tag", "tags", "archive", "page"];
+const RESERVED_SLUGS = ["index", "tag", "tags", "archive", "page"];
+const SLUG_PATTERN = /^[a-z0-9-]+$/;
+
+// The effective slug is always the .mdx filename; filenames come from the
+// filesystem rather than the parsed frontmatter, so the registry validates
+// them with this instead of the zod field below.
+export function isValidSlug(slug: string): boolean {
+  return SLUG_PATTERN.test(slug) && !RESERVED_SLUGS.includes(slug);
+}
 
 export const blogFrontmatterSchema = z.object({
   title: z.string().min(10).max(80),
   description: z.string().min(50).max(160),
   blueWord: z.string().min(1).optional(),
+  // Optional — the filename is the slug. When present it must match the
+  // filename (enforced by the registry), so it can only ever restate it.
   slug: z
     .string()
-    .regex(/^[a-z0-9-]+$/)
-    .refine((s) => !RESERVED_SLUGS.includes(s), "reserved slug"),
+    .regex(SLUG_PATTERN)
+    .refine((s) => !RESERVED_SLUGS.includes(s), "reserved slug")
+    .optional(),
   publishedAt: z.string().datetime(),
   updatedAt: z.string().datetime().optional(),
   author: z.string(),
@@ -38,7 +49,6 @@ export const blogFrontmatterSchema = z.object({
       params: z.record(z.string(), z.number()).optional(),
     })
     .optional(),
-  ogImage: z.string().optional(),
   draft: z.boolean().default(false),
   featured: z.boolean().default(false),
   keywords: z.array(z.string()).min(3).max(15),

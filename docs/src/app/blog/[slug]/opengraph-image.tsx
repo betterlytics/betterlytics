@@ -1,8 +1,26 @@
 import { ImageResponse } from "next/og";
-import { NextRequest } from "next/server";
+import { notFound } from "next/navigation";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { getBlogPostBySlug } from "@/app/blog/lib/registry";
+import { getBlogPostBySlug, getBlogPosts } from "@/app/blog/lib/registry";
+
+// Per-post social card (og:image). The file convention wires the meta tags
+// automatically and — unlike the old query-param route — exposes no free-text
+// inputs. Metadata image files are specialized route handlers, so they take
+// their own segment config: force-static + generateStaticParams prerenders one
+// immutable PNG per published slug, leaving no runtime Satori surface (the
+// page's own generateStaticParams does not cover this route).
+
+export const dynamic = "force-static";
+
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  const posts = await getBlogPosts();
+  return posts.map((p) => ({ slug: p.slug }));
+}
+
+export const alt = "Betterlytics Blog";
+export const size = { width: 1200, height: 630 };
+export const contentType = "image/png";
 
 const C = {
   bg: "#101113",
@@ -14,8 +32,6 @@ const C = {
   divider: "#7A7C80",
 };
 
-const W = 1200;
-const H = 630;
 const HEADER_H = 100;
 const RIGHT_COL_W = 100;
 const DIVIDER_W = 2;
@@ -26,7 +42,7 @@ const FONT_DIR = join(process.cwd(), "assets", "fonts");
 const LOGO_PATH = join(
   process.cwd(),
   "public",
-  "betterlytics-logo-light-simple.svg"
+  "betterlytics-logo-light-simple.svg",
 );
 
 let fontCache: { w500: Buffer; w700: Buffer } | null = null;
@@ -62,22 +78,15 @@ function highlight(title: string, blueWord?: string | null): Segment[] {
   ];
 }
 
-export async function GET(req: NextRequest): Promise<ImageResponse> {
-  const { searchParams } = new URL(req.url);
-  const slug = searchParams.get("slug");
-  const titleOverride = searchParams.get("title");
-  const blueWordOverride = searchParams.get("blueWord");
+type Props = { params: Promise<{ slug: string }> };
 
-  let title = titleOverride ?? "Betterlytics Blog";
-  let blueWord: string | null = blueWordOverride;
+export default async function Image(props: Props): Promise<ImageResponse> {
+  const { slug } = await props.params;
+  const post = await getBlogPostBySlug(slug);
+  if (!post) notFound();
 
-  if (slug) {
-    const post = await getBlogPostBySlug(slug);
-    if (post) {
-      title = titleOverride ?? post.frontmatter.title;
-      blueWord = blueWordOverride ?? post.frontmatter.blueWord ?? null;
-    }
-  }
+  const title = post.frontmatter.title;
+  const blueWord = post.frontmatter.blueWord ?? null;
 
   const { w500, w700 } = await loadFonts();
   const logoSrc = await loadLogoDataUrl();
@@ -88,8 +97,8 @@ export async function GET(req: NextRequest): Promise<ImageResponse> {
     (
       <div
         style={{
-          width: W,
-          height: H,
+          width: size.width,
+          height: size.height,
           background: C.bg,
           color: C.fg,
           fontFamily: "Inter Tight",
@@ -193,12 +202,11 @@ export async function GET(req: NextRequest): Promise<ImageResponse> {
       </div>
     ),
     {
-      width: W,
-      height: H,
+      ...size,
       fonts: [
         { name: "Inter Tight", data: w500, weight: 500, style: "normal" },
         { name: "Inter Tight", data: w700, weight: 700, style: "normal" },
       ],
-    }
+    },
   );
 }
