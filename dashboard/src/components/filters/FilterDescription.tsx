@@ -2,6 +2,8 @@ import { useLocale, useTranslations } from 'next-intl';
 import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { FlagIcon, type FlagIconProps } from '@/components/icons';
+import { getCountryName } from '@/utils/countryCodes';
 import { cn } from '@/lib/utils';
 
 type FilterDescriptionProps = {
@@ -25,7 +27,22 @@ export function FilterDescription({ filter, className }: FilterDescriptionProps)
     >
       <FilterColumnLabel column={filter.column} />
       <span className='text-muted-foreground/80'>{operator}</span>
-      <span>{values}</span>
+      {filter.column === 'country_code' ? (
+        filter.values.map((value, index) => (
+          <span key={value} className='inline-flex items-center gap-1'>
+            <FlagIcon
+              countryCode={value.toUpperCase() as FlagIconProps['countryCode']}
+              countryName={getCountryName(value, locale)}
+            />
+            <span>
+              {strategy.formatValue(value, locale)}
+              {index < filter.values.length - 1 && ','}
+            </span>
+          </span>
+        ))
+      ) : (
+        <span>{values}</span>
+      )}
     </span>
   );
 }
