@@ -457,63 +457,6 @@ export const MultiSelect = ({
     return undefined;
   }, [creatable, commandProps?.filter]);
 
-  const listContent = isLoading ? (
-    <>{loadingIndicator}</>
-  ) : (
-    <>
-      {EmptyItem()}
-      {!selectFirstItem && <CommandItem value='-' className='hidden' />}
-      {Object.entries(selectables).map(([key, dropdowns]) => (
-        <CommandGroup key={key} heading={key} className='h-full overflow-auto'>
-          <>
-            {dropdowns.map((option) => {
-              return (
-                <CommandItem
-                  key={option.value}
-                  value={option.value}
-                  disabled={option.disable}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  onSelect={() => {
-                    if (selected.length >= maxSelected) {
-                      onMaxSelected?.(selected.length);
-
-                      return;
-                    }
-
-                    handleInputChange('');
-                    const newOptions = [...selected, option];
-
-                    setSelected(newOptions);
-                    onChange?.(newOptions);
-                    setOpen(false);
-                  }}
-                  className={cn(
-                    'cursor-pointer',
-                    option.disable && 'pointer-events-none cursor-not-allowed opacity-50',
-                  )}
-                >
-                  {option.label}
-                </CommandItem>
-              );
-            })}
-          </>
-        </CommandGroup>
-      ))}
-      {CreatableItem()}
-    </>
-  );
-
-  // Radix keeps the content mounted through the exit animation; keep painting the last-open list
-  const lastOpenListRef = React.useRef<React.ReactNode>(null);
-  useEffect(() => {
-    if (open) {
-      lastOpenListRef.current = listContent;
-    }
-  });
-
   return (
     <PopoverPrimitive.Root open={open} modal={false}>
       <Command
@@ -658,7 +601,7 @@ export const MultiSelect = ({
             onOpenAutoFocus={(e) => e.preventDefault()}
             className={cn(
               'border-input z-50 w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-md border',
-              'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+              'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
             )}
             onMouseDown={(e) => {
               // Prevent blur when clicking inside dropdown
@@ -679,7 +622,54 @@ export const MultiSelect = ({
               onWheel={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
             >
-              {open ? listContent : lastOpenListRef.current}
+              {isLoading ? (
+                <>{loadingIndicator}</>
+              ) : (
+                <>
+                  {EmptyItem()}
+                  {!selectFirstItem && <CommandItem value='-' className='hidden' />}
+                  {Object.entries(selectables).map(([key, dropdowns]) => (
+                    <CommandGroup key={key} heading={key} className='h-full overflow-auto'>
+                      <>
+                        {dropdowns.map((option) => {
+                          return (
+                            <CommandItem
+                              key={option.value}
+                              value={option.value}
+                              disabled={option.disable}
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                              }}
+                              onSelect={() => {
+                                if (selected.length >= maxSelected) {
+                                  onMaxSelected?.(selected.length);
+
+                                  return;
+                                }
+
+                                handleInputChange('');
+                                const newOptions = [...selected, option];
+
+                                setSelected(newOptions);
+                                onChange?.(newOptions);
+                                setOpen(false);
+                              }}
+                              className={cn(
+                                'cursor-pointer',
+                                option.disable && 'pointer-events-none cursor-not-allowed opacity-50',
+                              )}
+                            >
+                              {option.label}
+                            </CommandItem>
+                          );
+                        })}
+                      </>
+                    </CommandGroup>
+                  ))}
+                  {CreatableItem()}
+                </>
+              )}
             </CommandList>
           </PopoverPrimitive.Content>
         </PopoverPrimitive.Portal>
