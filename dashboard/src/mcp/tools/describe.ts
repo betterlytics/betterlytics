@@ -42,7 +42,7 @@ export function getSchemaDescription(): SchemaDescription {
     },
     customEventProperties: {
       description:
-        'Custom event properties are the per-event payload of a specific tracked event. Filter them with the cep.<key> form, e.g. { column: "cep.plan", operator: "=", values: ["pro"] }. These are filter-only. Combine with a custom_event_name filter to target one event type - both must match the same event. There is no discovery tool for these keys yet, so use keys known from the site\'s tracking setup.',
+        'Custom event properties are the per-event payload of a specific tracked event. Filter them with the cep.<key> form, combined with a custom_event_name filter to target one event type - both must match the same event, e.g. { column: "custom_event_name", operator: "=", values: ["purchase"] } plus { column: "cep.currency", operator: "=", values: ["USD"] }. These are filter-only. There is no discovery tool for these keys yet, so use keys known from the site\'s tracking setup.',
     },
     filterOperators: FILTER_OPERATORS,
     filterFormat: {
