@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { EventPropertyAnalytics } from '@/entities/analytics/events.entities';
@@ -24,6 +24,7 @@ export function PropertyRow({ eventName, property, isExpanded, onToggle }: Prope
   const hiddenValueCount = property.uniqueValueCount - property.topValues.length;
 
   const [showAll, setShowAll] = useState(false);
+  const [scrolledToEnd, setScrolledToEnd] = useState(false);
   const { input, options } = useBAQueryParams();
   const valuesQuery = trpc.events.eventPropertyValues.useQuery(
     { ...input, eventName, propertyName: property.propertyName },
@@ -31,6 +32,10 @@ export function PropertyRow({ eventName, property, isExpanded, onToggle }: Prope
   );
 
   const allValues = showAll ? valuesQuery.data : undefined;
+
+  useEffect(() => {
+    setScrolledToEnd(false);
+  }, [showAll]);
 
   return (
     <div className='relative space-y-3'>
@@ -68,7 +73,21 @@ export function PropertyRow({ eventName, property, isExpanded, onToggle }: Prope
 
           <div className='ml-7 space-y-2'>
             {allValues ? (
-              <ScrollArea type='always' className='pr-3 [&_[data-slot=scroll-area-viewport]]:max-h-[22rem]'>
+              // The mask fades the last bars out while more values remain below the
+              // fold, disappearing once the list is scrolled to the end. Scroll events
+              // don't bubble, so listen on the capture phase from the root.
+              <ScrollArea
+                type='always'
+                onScrollCapture={(e) => {
+                  const viewport = e.target as HTMLElement;
+                  setScrolledToEnd(viewport.scrollTop + viewport.clientHeight >= viewport.scrollHeight - 4);
+                }}
+                className={cn(
+                  'pr-3 [&_[data-slot=scroll-area-viewport]]:max-h-[22rem]',
+                  !scrolledToEnd &&
+                    '[&_[data-slot=scroll-area-viewport]]:[mask-image:linear-gradient(to_bottom,black_calc(100%_-_2.5rem),transparent)]',
+                )}
+              >
                 <div className='space-y-2'>
                   {allValues.values.map((value, index) => (
                     <PropertyValueBar key={index} value={value} />
