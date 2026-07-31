@@ -2453,6 +2453,7 @@
         "noProperties": "Ingen egenskaper",
         "noPropertiesDesc": "Denne hendelsen har ingen brukerdefinerte egenskaper.",
         "showAllValues": "Vis alle {count} verdier",
+        "showAllProperties": "Vis alle {count} egenskaper",
         "showLess": "Vis færre",
         "valuesCapped": "Viser topp {shown} av {total} verdier"
       }

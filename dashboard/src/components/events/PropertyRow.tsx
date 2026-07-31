@@ -68,9 +68,7 @@ export function PropertyRow({ eventName, property, isExpanded, onToggle }: Prope
 
           <div className='ml-7 space-y-2'>
             {allValues ? (
-              // 22rem = the height of the top-10 list (10 x h-7 bars + 9 x space-y-2 gaps),
-              // so swapping in the full list never changes the row's height.
-              <ScrollArea className='pr-2 [&_[data-slot=scroll-area-viewport]]:max-h-[22rem]'>
+              <ScrollArea type='always' className='pr-3 [&_[data-slot=scroll-area-viewport]]:max-h-[22rem]'>
                 <div className='space-y-2'>
                   {allValues.values.map((value, index) => (
                     <PropertyValueBar key={index} value={value} />
