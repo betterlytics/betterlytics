@@ -8,11 +8,13 @@ export const EventOccurrenceAggregate = z.object({
   avg_per_user: z.number(),
 });
 
-export const RawEventPropertyDataSchema = z.object({
-  custom_event_json: z.string(),
+export const RawEventPropertySummaryRowSchema = z.object({
+  key: z.string(),
+  value: z.string(),
+  count: z.number(),
+  total_occurrences: z.number(),
+  unique_value_count: z.number(),
 });
-
-export const RawEventPropertyDataArraySchema = z.array(RawEventPropertyDataSchema);
 
 export const EventPropertyValueAggregateSchema = z.object({
   value: z.string(),
@@ -30,7 +32,6 @@ export const EventPropertyAnalyticsSchema = z.object({
 
 export const EventPropertiesOverviewSchema = z.object({
   eventName: z.string(),
-  totalEvents: z.number(),
   properties: z.array(EventPropertyAnalyticsSchema),
 });
 
@@ -59,7 +60,7 @@ export const EventLogEntrySchema = z.object({
   browser: z.string(),
 });
 
-export type RawEventPropertyData = z.infer<typeof RawEventPropertyDataSchema>;
+export type RawEventPropertySummaryRow = z.infer<typeof RawEventPropertySummaryRowSchema>;
 export type RawEventPropertyValueRow = z.infer<typeof RawEventPropertyValueRowSchema>;
 export type EventPropertyValues = z.infer<typeof EventPropertyValuesSchema>;
 export type EventTypeRow = z.infer<typeof EventOccurrenceAggregate>;

@@ -2,8 +2,8 @@ import { clickhouse } from '@/lib/clickhouse';
 import {
   EventTypeRow,
   EventOccurrenceAggregate,
-  RawEventPropertyData,
-  RawEventPropertyDataArraySchema,
+  RawEventPropertySummaryRow,
+  RawEventPropertySummaryRowSchema,
   RawEventPropertyValueRow,
   RawEventPropertyValueRowSchema,
 } from '@/entities/analytics/events.entities';
@@ -55,39 +55,50 @@ export async function getCustomEventsOverview(siteQuery: BASiteQuery, limit: num
   );
 }
 
-export async function getEventPropertyData(
+export async function getEventPropertiesSummary(
   siteQuery: BASiteQuery,
   eventName: string,
-): Promise<RawEventPropertyData[]> {
+  topValuesLimit: number,
+): Promise<RawEventPropertySummaryRow[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
-  const eventsQuery = safeSql`
-    SELECT custom_event_json
+  const query = safeSql`
+    SELECT
+      kv.1 AS key,
+      if(kv.2 LIKE '"%', JSONExtractString(kv.2), kv.2) AS value,
+      count() AS count,
+      sum(count()) OVER (PARTITION BY key) AS total_occurrences,
+      count(*) OVER (PARTITION BY key) AS unique_value_count
     FROM analytics.events
-    WHERE site_id = {site_id:String}
+    ARRAY JOIN JSONExtractKeysAndValuesRaw(custom_event_json) AS kv
+    WHERE
+          site_id = {site_id:String}
       AND event_type = 'custom'
       AND custom_event_name = {event_name:String}
       AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
       AND custom_event_json != '{}'
       AND custom_event_json != ''
       AND ${SQL.AND(filters)}
-    LIMIT 10000
+    GROUP BY key, value
+    ORDER BY key ASC, count DESC, value ASC
+    LIMIT {top_values_limit:UInt32} BY key
   `;
 
-  const eventsResult = (await clickhouse
-    .query(eventsQuery.taggedSql, {
+  const result = (await clickhouse
+    .query(query.taggedSql, {
       params: {
-        ...eventsQuery.taggedParams,
+        ...query.taggedParams,
         site_id: siteId,
         event_name: eventName,
         start_date: startDateTime,
         end_date: endDateTime,
+        top_values_limit: topValuesLimit,
       },
     })
-    .toPromise()) as Array<{ custom_event_json: string }>;
+    .toPromise()) as unknown[];
 
-  return RawEventPropertyDataArraySchema.parse(eventsResult);
+  return result.map((row) => RawEventPropertySummaryRowSchema.parse(row));
 }
 
 export async function getEventPropertyValues(
