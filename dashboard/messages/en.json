@@ -2444,7 +2444,9 @@
         "noEventsDesc": "No custom events were tracked during this time period. Events will appear here once they start being recorded.",
         "eventDetails": "Event Details",
         "uniqueEvent": "Unique Event",
-        "uniqueEvents": "Unique Events"
+        "uniqueEvents": "Unique Events",
+        "searchPlaceholder": "Search events...",
+        "emptySearch": "No events match your search."
       },
       "expandedEventContent": {
         "loading": "Loading properties...",

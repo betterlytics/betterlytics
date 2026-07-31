@@ -2443,6 +2443,8 @@
         "noEvents": "Ingen hændelser fundet",
         "noEventsDesc": "Ingen brugerdefinerede hændelser blev sporet i denne tidsperiode. Hændelser vil vises her, når de begynder at blive registreret.",
         "eventDetails": "Hændelsesdetaljer",
+        "searchPlaceholder": "Søg i hændelser...",
+        "emptySearch": "Ingen hændelser matcher din søgning.",
         "uniqueEvent": "Unik hændelse",
         "uniqueEvents": "Unikke hændelser"
       },

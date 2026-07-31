@@ -2443,6 +2443,8 @@
         "noEvents": "Nessun evento trovato",
         "noEventsDesc": "Nessun evento personalizzato tracciato in questo periodo. Gli eventi appariranno qui quando inizieranno a essere registrati.",
         "eventDetails": "Dettagli evento",
+        "searchPlaceholder": "Cerca eventi...",
+        "emptySearch": "Nessun evento corrisponde alla tua ricerca.",
         "uniqueEvent": "Evento unico",
         "uniqueEvents": "Eventi unici"
       },
