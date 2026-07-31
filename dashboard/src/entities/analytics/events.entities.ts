@@ -66,9 +66,9 @@ export type EventLogPage = {
 };
 
 /**
- * Next cursor = last row's timestamp + how many delivered rows share that exact
- * second (timestamps are second-precision and rows have no unique id, so the next
- * page re-queries `timestamp <= ts` and skips the rows already delivered).
+ * Timestamps are second-precision and rows have no unique id, so the cursor is the
+ * last row's timestamp plus how many delivered rows share that second — the next
+ * page skips those.
  */
 export function computeNextEventLogCursor(
   events: EventLogEntry[],
@@ -98,9 +98,8 @@ const eventContentKey = (e: EventLogEntry) =>
   ]);
 
 /**
- * The live poll queries `timestamp >= since`, so already-held boundary-second rows
- * come back. Rows have no id, but identical rows are interchangeable — subtracting
- * held content-counts yields exactly the new rows.
+ * The live poll fetches `timestamp >= since`, so rows we already hold from the
+ * boundary second come back. Subtract those to keep only the new rows.
  */
 export function subtractHeldBoundaryEvents(
   fetched: EventLogEntry[],

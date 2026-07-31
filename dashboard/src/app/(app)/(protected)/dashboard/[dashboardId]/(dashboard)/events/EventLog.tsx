@@ -23,10 +23,9 @@ import { useLocale, useTranslations } from 'next-intl';
 import { formatNumber } from '@/utils/formatters';
 import { useInView } from '@/hooks/useInView';
 
-const DEFAULT_PAGE_SIZE = 25;
-const NEW_EVENTS_POLL_INTERVAL_MS = 30 * 1000; // 30 seconds
-// High enough that a visible tab never fills it in one interval, so the poll
-// returns the complete gap. Must not exceed the router's NEW_EVENTS_MAX_LIMIT.
+const DEFAULT_PAGE_SIZE = 50;
+const NEW_EVENTS_POLL_INTERVAL_MS = 30 * 1000;
+// High enough that one poll catches the whole gap; capped by the router's NEW_EVENTS_MAX_LIMIT.
 const NEW_EVENTS_POLL_LIMIT = 500;
 const NEW_EVENTS_HIGHLIGHT_MS = 2 * 1000;
 const NEW_EVENTS_BADGE_MS = 4 * 1000;
@@ -75,13 +74,11 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         staleTime: Infinity,
         gcTime: 5 * 60_000,
         refetchOnWindowFocus: false,
-        // Structural sharing would re-create row objects positionally on prepend,
-        // breaking the WeakMap-based row keys.
+        // Structural sharing would recreate row objects, breaking the WeakMap row keys.
         structuralSharing: false,
       },
     );
 
-  // Fetched once per input; the poll keeps it current locally instead of re-polling.
   const { data: totalCount } = trpc.events.totalEventCount.useQuery(input, {
     staleTime: Infinity,
     refetchOnWindowFocus: false,
@@ -89,18 +86,21 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   const allEvents: EventLogEntry[] = useMemo(() => data?.pages.flatMap((page) => page.events) ?? [], [data]);
 
-  // Rows are memoized and never re-render on their own, so relative timestamps
-  // refresh only when the list changes.
+  // Refresh relative timestamps only when the list changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const now = useMemo(() => Date.now(), [data]);
 
   const utils = trpc.useUtils();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
+  const attachScrollRef = useCallback((el: HTMLDivElement | null) => {
+    scrollRef.current = el;
+    setScrollEl(el);
+  }, []);
   const allEventsRef = useRef<EventLogEntry[]>([]);
   allEventsRef.current = allEvents;
 
-  // Rows have no natural unique key; object identity is stable (pages never
-  // refetch, structural sharing off), so each row object gets a uid.
+  // Rows have no unique id, so key them by object identity.
   const uidsRef = useRef({ map: new WeakMap<EventLogEntry, string>(), next: 0 });
   const getUid = (e: EventLogEntry) => {
     let uid = uidsRef.current.map.get(e);
@@ -111,7 +111,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     return uid;
   };
   const [newUids, setNewUids] = useState<Set<string>>(new Set());
-  // Never nulled after first appearance — the badge stays mounted so dismissal can transition.
+  // Stays mounted once shown so dismissal can animate out.
   const [newEventsBadge, setNewEventsBadge] = useState<{ count: number; visible: boolean } | null>(null);
 
   const dismissBadge = () => setNewEventsBadge((badge) => (badge ? { ...badge, visible: false } : badge));
@@ -143,9 +143,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   }, [updateScrollState, allEvents]);
 
   useEffect(() => {
-    // `inFlight`: an overlapping tick would reuse the same `since` and prepend
-    // duplicates. `cancelled`: a response landing after a filter change must not
-    // touch the new view.
     let cancelled = false;
     let inFlight = false;
     const id = setInterval(async () => {
@@ -160,8 +157,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         const fresh = await utils.client.events.newEvents.query({ ...input, since, limit: NEW_EVENTS_POLL_LIMIT });
         if (cancelled || fresh.length === 0) return;
         if (fresh.length >= NEW_EVENTS_POLL_LIMIT) {
-          // Gap may exceed one poll (hidden-tab backlog) — swap in a first page
-          // built from the rows we already hold instead of resetting to a spinner.
+          // Too many new events to prepend — swap in a fresh first page instead.
           const events = fresh.slice(0, pageSize);
           utils.events.recentEvents.setInfiniteData({ ...input, limit: pageSize }, () => ({
             pages: [{ events, nextCursor: computeNextEventLogCursor(events, null, pageSize) }],
@@ -175,7 +171,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         const newRows = subtractHeldBoundaryEvents(fresh, allEventsRef.current, since);
         if (newRows.length === 0) return;
 
-        // When scrolled down, the prepend compensates scroll; at the top, rows push in.
+        // Keep the scroll position stable when the user is scrolled down.
         const el = scrollRef.current;
         if (el && el.scrollTop > 10) {
           prependScrollHeightRef.current = el.scrollHeight;
@@ -198,7 +194,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         if (badgeTimeoutRef.current) clearTimeout(badgeTimeoutRef.current);
         badgeTimeoutRef.current = setTimeout(dismissBadge, NEW_EVENTS_BADGE_MS);
       } catch {
-        // Transient poll failure — the next tick retries.
+        // Next poll retries.
       } finally {
         inFlight = false;
       }
@@ -227,8 +223,9 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   }, [allEvents]);
 
   const { ref: loadMoreRef, inView } = useInView<HTMLDivElement>({
-    rootMargin: '100px',
-    threshold: 0.1,
+    root: scrollEl,
+    rootMargin: '800px',
+    threshold: 0,
   });
 
   const isFetchingRef = useRef(false);
@@ -251,12 +248,12 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   return (
     <Card className='border-border/50 relative overflow-hidden pb-0 shadow-sm'>
-      <div className='absolute top-0 left-0 h-1 w-full animate-pulse bg-gradient-to-r from-green-500/20 via-green-400/40 to-green-500/20' />
+      <div className='absolute top-0 left-0 h-1 w-full animate-pulse bg-linear-to-r from-green-500/20 via-green-400/40 to-green-500/20' />
 
       <CardHeader>
         <CardTitle className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
           <div className='flex min-w-0 items-center gap-3'>
-            <div className='bg-muted/50 border-border/30 relative flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border'>
+            <div className='bg-muted/50 border-border/30 relative flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border'>
               <Clock className='text-primary h-4 w-4' />
               <LiveIndicator />
             </div>
@@ -266,7 +263,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                 {t('description')}
               </span>
             </div>
-            <div className='ml-2 flex flex-shrink-0 items-center gap-2'></div>
+            <div className='ml-2 flex shrink-0 items-center gap-2'></div>
           </div>
         </CardTitle>
       </CardHeader>
@@ -283,7 +280,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
           <div
             aria-hidden='true'
             className={cn(
-              'pointer-events-none absolute inset-x-0 top-0 z-10 h-2.5 bg-gradient-to-b from-black/5 to-transparent transition-opacity duration-200 dark:from-black/25',
+              'pointer-events-none absolute inset-x-0 top-0 z-10 h-2.5 bg-linear-to-b from-black/5 to-transparent transition-opacity duration-200 dark:from-black/25',
               isAtTop ? 'opacity-0' : 'opacity-100',
             )}
           />
@@ -303,7 +300,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                 onClick={() => {
                   const el = scrollRef.current;
                   if (el) {
-                    // Jump most of the way first so the glide stays short from any depth.
+                    // Jump most of the way so the smooth scroll stays short.
                     const glideDistance = el.clientHeight * 2;
                     if (el.scrollTop > glideDistance) el.scrollTop = glideDistance;
                     el.scrollTo({ top: 0, behavior: 'smooth' });
@@ -317,10 +314,9 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               </button>
             </div>
           )}
-          {/* overflow-anchor off: the prepend compensates scroll manually; native anchoring would double it.
-              max-h must sit on the viewport — its size-full can't resolve against a root max-height. */}
+          {/* Scroll anchoring off since we compensate scroll ourselves; max-h must sit on the viewport. */}
           <ScrollArea
-            viewportRef={scrollRef}
+            viewportRef={attachScrollRef}
             onViewportScroll={updateScrollState}
             viewportClassName='max-h-128 [overflow-anchor:none]'
           >
@@ -360,7 +356,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
           <div
             aria-hidden='true'
             className={cn(
-              'pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-gradient-to-t from-black/5 to-transparent transition-opacity duration-200 dark:from-black/25',
+              'pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-linear-to-t from-black/5 to-transparent transition-opacity duration-200 dark:from-black/25',
               canScrollDown ? 'opacity-100' : 'opacity-0',
             )}
           />

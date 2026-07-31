@@ -5,7 +5,7 @@ import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
 import { ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 
-/* ScrollArea variant exposing the Radix viewport (ref, scroll events, className), which the shadcn version keeps internal. */
+/** Like the shadcn ScrollArea, but exposes the Radix viewport (ref, scroll events, className). */
 function ScrollArea({
   className,
   children,

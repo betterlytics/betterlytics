@@ -12,7 +12,7 @@ const MAX_PROPERTIES_DISPLAY = 3;
 
 interface EventLogItemProps {
   event: EventLogEntry;
-  /** A change re-renders the memoized item so the relative time stays current. */
+  /** Bump to re-render and refresh the relative timestamp. */
   now?: number;
   isNearEnd?: boolean;
   onRef?: (node: HTMLDivElement | null) => void;
@@ -77,7 +77,7 @@ export const EventLogItem = React.memo(function EventLogItem({
 }: EventLogItemProps) {
   const locale = useLocale();
   const EventIcon = React.useMemo(() => icon ?? Activity, [icon]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- `now` triggers recomputation against the current time
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- recompute when `now` changes
   const relativeTime = React.useMemo(() => formatRelativeTimeFromNow(event.timestamp), [event.timestamp, now]);
 
   return (
