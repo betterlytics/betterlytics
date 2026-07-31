@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an idea or improvement for Betterlytics.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please search [existing issues](https://github.com/betterlytics/betterlytics/issues?q=is%3Aissue+label%3Aenhancement) first -
+        if the idea already exists, a 👍 and a comment on it helps us prioritize.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the situation or need behind the request - this matters more to us than the specific solution.
+      placeholder: I want to compare traffic between two campaigns, but currently I can only view one filter at a time...
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: What would you like to see?
+      description: Optional - if you have an idea for how Betterlytics could solve it. The problem above matters more.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Current workaround
+      description: Optional - how do you handle this today? (Or how another tool you've used handles it.)
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: How do you use Betterlytics?
+      options:
+        - Betterlytics Cloud (betterlytics.io)
+        - Self-hosted
+        - Not a user yet

@@ -50,15 +50,16 @@ export default function TrafficSourcesSection() {
               value: item.current.visitors,
               trendPercentage: item.change?.visitors,
               comparisonValue: item.compare?.visitors,
-              filterColumn: item.stored_source_name ? 'referrer_source_name' : undefined,
-              filterValue: item.stored_source_name ?? undefined,
+              filters: item.stored_source_name
+                ? [{ column: 'referrer_source_name', value: item.stored_source_name }]
+                : undefined,
               children: item.children?.map(
                 (child): ProgressBarData => ({
                   label: child.referrer_url,
                   value: child.current.visitors,
                   trendPercentage: child.change?.visitors,
                   comparisonValue: child.compare?.visitors,
-                  filterColumn: 'referrer_url',
+                  filters: [{ column: 'referrer_url' }],
                 }),
               ),
             }),
@@ -74,7 +75,7 @@ export default function TrafficSourcesSection() {
               value: item.current.visits,
               trendPercentage: item.change?.visits,
               comparisonValue: item.compare?.visits,
-              filterColumn: 'referrer_source',
+              filters: [{ column: 'referrer_source' }],
             }),
           ),
         },

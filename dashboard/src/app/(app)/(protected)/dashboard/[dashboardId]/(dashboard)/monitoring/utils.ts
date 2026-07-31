@@ -4,6 +4,10 @@ type MonitoringPageTranslation = ReturnType<typeof useTranslations<'monitoringPa
 
 export function formatIntervalLabel(t: MonitoringPageTranslation, intervalSeconds?: number | null): string {
   if (intervalSeconds == null || Number.isNaN(intervalSeconds)) return '—';
+  if (intervalSeconds % 3600 === 0) {
+    const hours = intervalSeconds / 3600;
+    return t('list.intervalHours', { value: hours });
+  }
   if (intervalSeconds % 60 === 0) {
     const mins = intervalSeconds / 60;
     return t('list.intervalMinutes', { value: mins });

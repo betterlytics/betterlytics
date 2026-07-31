@@ -2,7 +2,14 @@
 
 import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { MAX_FILTER_ROWS, type FilterColumn, type FilterOperator } from '@/entities/analytics/filter.entities';
+import {
+  applyFilterUpdates,
+  MAX_FILTER_ROWS,
+  withDependentColumns,
+  type FilterColumn,
+  type FilterOperator,
+  type FilterUpdate,
+} from '@/entities/analytics/filter.entities';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
@@ -59,14 +66,13 @@ export function useFilterClick(defaults?: Options) {
       }
 
       if (behavior === 'replace-same-column') {
-        // Replacing an existing column keeps the count the same, so only a brand-new column is capped.
-        const replacesExistingColumn = queryFilters.some((f) => f.column === column);
-        if (atCap && !replacesExistingColumn) {
+        const replaced = withDependentColumns([column]);
+        const next = applyFilterUpdates(queryFilters, [{ column, value, operator }], replaced);
+        if (next.length > MAX_FILTER_ROWS) {
           notifyCapReached();
           return;
         }
-        setQueryFilters((fs) => fs.filter((f) => f.column !== column));
-        addQueryFilter({ column, operator, values: [value] });
+        setQueryFilters((fs) => applyFilterUpdates(fs, [{ column, value, operator }], replaced));
         return;
       }
 
@@ -90,10 +96,33 @@ export function useFilterClick(defaults?: Options) {
     ],
   );
 
+  const applyFilters = useCallback(
+    (updates: FilterUpdate[]) => {
+      for (const update of updates) {
+        const status = getColumnStatus(update.column);
+        if (status.disabled) {
+          if (status.reason === 'demo') toast.info(t('interactionDisabled'));
+          else if (status.reason === 'page') toast.info(tFilters('notAvailableOnPage'));
+          return;
+        }
+      }
+
+      const applied = updates.map((update) => ({ ...update, operator: update.operator ?? defaultOperator }));
+      const replaced = withDependentColumns(updates.map((update) => update.column));
+      const next = applyFilterUpdates(queryFilters, applied, replaced);
+      if (next.length > MAX_FILTER_ROWS) {
+        notifyCapReached();
+        return;
+      }
+      setQueryFilters((fs) => applyFilterUpdates(fs, applied, replaced));
+    },
+    [getColumnStatus, queryFilters, setQueryFilters, defaultOperator, t, tFilters, notifyCapReached],
+  );
+
   const makeFilterClick = useCallback(
     (column: FilterColumn, opts?: Options) => (value: string) => applyFilter(column, value, opts),
     [applyFilter],
   );
 
-  return { applyFilter, makeFilterClick };
+  return { applyFilter, applyFilters, makeFilterClick };
 }
