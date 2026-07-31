@@ -601,7 +601,7 @@ export const MultiSelect = ({
             onOpenAutoFocus={(e) => e.preventDefault()}
             className={cn(
               'border-input z-50 w-[var(--radix-popover-trigger-width)] overflow-hidden rounded-md border',
-              'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+              'data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
             )}
             onMouseDown={(e) => {
               // Prevent blur when clicking inside dropdown
