@@ -49,6 +49,20 @@ interface EventRowWithExpansion extends TableEventRow {
   totalEvents: number;
 }
 
+const SKELETON_CELL_WIDTHS = ['w-3/5', 'w-16', 'w-16', 'w-16', 'w-20', 'w-12'];
+
+function EventsTableSkeletonRow() {
+  return (
+    <TableRow>
+      {SKELETON_CELL_WIDTHS.map((width) => (
+        <TableCell key={width} className='px-4 py-3'>
+          <Skeleton className={cn('h-4', width)} />
+        </TableCell>
+      ))}
+    </TableRow>
+  );
+}
+
 export function EventsTable({ data, loading, globalFilter = '' }: EventsTableProps) {
   const locale = useLocale();
   const t = useTranslations('components.events.table');
@@ -224,57 +238,7 @@ export function EventsTable({ data, loading, globalFilter = '' }: EventsTablePro
     autoResetPageIndex: false,
   });
 
-  if (loading) {
-    const skeletonHeaders = [
-      t('eventName'),
-      t('count'),
-      t('uniqueUsers'),
-      t('avgPerUser'),
-      t('lastSeen'),
-      t('percentage'),
-    ];
-    return (
-      <div className='dark:border-secondary overflow-hidden rounded-lg border border-gray-200 dark:border-2'>
-        <Table>
-          <TableHeader>
-            <TableRow className='border-muted-foreground bg-accent hover:bg-accent border-b'>
-              {skeletonHeaders.map((header) => (
-                <TableHead key={header} className='text-foreground bg-muted/50 px-4 py-3 text-sm font-medium'>
-                  {header}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody className='divide-secondary divide-y'>
-            {Array.from({ length: SKELETON_ROWS }, (_, i) => (
-              <TableRow key={i}>
-                <TableCell className='px-4 py-3'>
-                  <Skeleton className='h-4 w-3/5' />
-                </TableCell>
-                <TableCell className='px-4 py-3'>
-                  <Skeleton className='h-4 w-16' />
-                </TableCell>
-                <TableCell className='px-4 py-3'>
-                  <Skeleton className='h-4 w-16' />
-                </TableCell>
-                <TableCell className='px-4 py-3'>
-                  <Skeleton className='h-4 w-16' />
-                </TableCell>
-                <TableCell className='px-4 py-3'>
-                  <Skeleton className='h-4 w-20' />
-                </TableCell>
-                <TableCell className='px-4 py-3'>
-                  <Skeleton className='h-4 w-12' />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-    );
-  }
-
-  if (data.length === 0) {
+  if (!loading && data.length === 0) {
     return (
       <div className='p-12 text-center'>
         <div className='bg-muted/30 mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full'>
@@ -330,49 +294,52 @@ export function EventsTable({ data, loading, globalFilter = '' }: EventsTablePro
             ))}
           </TableHeader>
           <TableBody className='divide-secondary divide-y'>
-            {pageRows.length === 0 && (
+            {loading ? (
+              Array.from({ length: SKELETON_ROWS }, (_, i) => <EventsTableSkeletonRow key={i} />)
+            ) : pageRows.length === 0 ? (
               <TableRow className='hover:bg-transparent'>
                 <TableCell colSpan={columns.length} className='py-12 text-center'>
                   <p className='text-muted-foreground text-sm'>{t('emptySearch')}</p>
                 </TableCell>
               </TableRow>
-            )}
-            {pageRows.map((row) => {
-              const event = row.original;
-              const isExpanded = event.isExpanded;
+            ) : (
+              pageRows.map((row) => {
+                const event = row.original;
+                const isExpanded = event.isExpanded;
 
-              return (
-                <React.Fragment key={row.id}>
-                  <TableRow
-                    className='hover:bg-accent/30 dark:hover:bg-accent/60 hover:ring-border/60 cursor-pointer transition-colors hover:ring-1'
-                    onClick={() => toggleRow(event.event_name)}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className='text-foreground px-4 py-3 text-sm'>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-
-                  {isExpanded && (
-                    <TableRow className='hover:bg-transparent'>
-                      <TableCell colSpan={columns.length}>
-                        <ExpandedEventContent
-                          event={event.current}
-                          expandedProperties={expandedRows[event.event_name]?.expandedProperties || new Set()}
-                          onToggleProperty={(propertyName) => toggleProperty(event.event_name, propertyName)}
-                        />
-                      </TableCell>
+                return (
+                  <React.Fragment key={row.id}>
+                    <TableRow
+                      className='hover:bg-accent/30 dark:hover:bg-accent/60 hover:ring-border/60 cursor-pointer transition-colors hover:ring-1'
+                      onClick={() => toggleRow(event.event_name)}
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className='text-foreground px-4 py-3 text-sm'>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      ))}
                     </TableRow>
-                  )}
-                </React.Fragment>
-              );
-            })}
+
+                    {isExpanded && (
+                      <TableRow className='hover:bg-transparent'>
+                        <TableCell colSpan={columns.length}>
+                          <ExpandedEventContent
+                            event={event.current}
+                            expandedProperties={expandedRows[event.event_name]?.expandedProperties || new Set()}
+                            onToggleProperty={(propertyName) => toggleProperty(event.event_name, propertyName)}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            )}
           </TableBody>
         </Table>
       </div>
 
-      {filteredCount > 0 && table.getPageCount() > 1 && (
+      {!loading && filteredCount > 0 && table.getPageCount() > 1 && (
         <PaginationControls
           pageIndex={table.getState().pagination.pageIndex}
           totalPages={table.getPageCount()}

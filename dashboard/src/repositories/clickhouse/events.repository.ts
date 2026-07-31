@@ -110,9 +110,6 @@ export async function getEventPropertyValues(
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const filters = BAQuery.getFilterQuery(queryFilters);
 
-  // Aggregates in ClickHouse for exact counts at any event volume. The window
-  // functions compute totals across all groups before LIMIT is applied, so the
-  // response knows the true value count even when the list is capped.
   const query = safeSql`
     SELECT
       if(
