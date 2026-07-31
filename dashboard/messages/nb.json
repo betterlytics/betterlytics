@@ -2451,7 +2451,10 @@
       "expandedEventContent": {
         "loading": "Laster inn egenskaper...",
         "noProperties": "Ingen egenskaper",
-        "noPropertiesDesc": "Denne hendelsen har ingen brukerdefinerte egenskaper."
+        "noPropertiesDesc": "Denne hendelsen har ingen brukerdefinerte egenskaper.",
+        "showAllValues": "Vis alle {count} verdier",
+        "showLess": "Vis færre",
+        "valuesCapped": "Viser topp {shown} av {total} verdier"
       }
     },
     "tabbedTable": {

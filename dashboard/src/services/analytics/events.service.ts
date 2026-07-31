@@ -3,18 +3,20 @@
 import {
   getCustomEventsOverview,
   getEventPropertyData,
+  getEventPropertyValues,
   getRecentEvents,
   getTotalEventCount,
 } from '@/repositories/clickhouse/index.repository';
 import {
   EventPropertiesOverview,
   EventPropertyAnalytics,
-  EventPropertyValue,
+  EventPropertyValues,
 } from '@/entities/analytics/events.entities';
 import { calculatePercentage } from '@/utils/mathUtils';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 const MAX_TOP_VALUES = 10;
+const MAX_PROPERTY_VALUES = 1000;
 
 export async function getCustomEventsOverviewForSite(siteQuery: BASiteQuery, limit: number) {
   return getCustomEventsOverview(siteQuery, limit);
@@ -44,6 +46,30 @@ export async function getEventPropertiesAnalyticsForSite(
   };
 }
 
+export async function getEventPropertyValuesForSite(
+  siteQuery: BASiteQuery,
+  eventName: string,
+  propertyName: string,
+): Promise<EventPropertyValues> {
+  const rows = await getEventPropertyValues(siteQuery, eventName, propertyName, MAX_PROPERTY_VALUES);
+
+  // Window aggregates are identical on every row; totals cover all values even when the list is capped.
+  const totalOccurrences = rows[0]?.total_occurrences ?? 0;
+  const uniqueValueCount = rows[0]?.unique_value_count ?? 0;
+
+  return {
+    propertyName,
+    uniqueValueCount,
+    totalOccurrences,
+    values: rows.map((row) => ({
+      value: row.value,
+      count: row.count,
+      percentage: calculatePercentage(row.count, totalOccurrences),
+      relativePercentage: calculatePercentage(row.count, totalOccurrences),
+    })),
+  };
+}
+
 function processPropertyData(rawPropertyData: Array<{ custom_event_json: string }>): EventPropertyAnalytics[] {
   const propertyMap = new Map<string, Map<string, number>>();
 
@@ -69,7 +95,9 @@ function processPropertyData(rawPropertyData: Array<{ custom_event_json: string 
     const totalOccurrences = Array.from(valueMap.values()).reduce((sum, count) => sum + count, 0);
 
     const topValues = Array.from(valueMap.entries())
-      .sort(([, a], [, b]) => b - a)
+      // Same ordering as getEventPropertyValues (count DESC, value ASC) so the
+      // "show all" list starts with the exact rows the top-10 already showed.
+      .sort(([aValue, aCount], [bValue, bCount]) => bCount - aCount || (aValue < bValue ? -1 : 1))
       .slice(0, MAX_TOP_VALUES)
       .map(([value, count]) => ({
         value,

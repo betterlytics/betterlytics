@@ -2451,7 +2451,10 @@
       "expandedEventContent": {
         "loading": "Caricamento proprietà...",
         "noProperties": "Nessuna proprietà",
-        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate."
+        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate.",
+        "showAllValues": "Mostra tutti i {count} valori",
+        "showLess": "Mostra meno",
+        "valuesCapped": "Primi {shown} di {total} valori"
       }
     },
     "tabbedTable": {

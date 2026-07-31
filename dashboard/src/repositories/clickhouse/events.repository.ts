@@ -4,6 +4,8 @@ import {
   EventOccurrenceAggregate,
   RawEventPropertyData,
   RawEventPropertyDataArraySchema,
+  RawEventPropertyValueRow,
+  RawEventPropertyValueRowSchema,
 } from '@/entities/analytics/events.entities';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { EventLogEntry, EventLogEntrySchema } from '@/entities/analytics/events.entities';
@@ -88,6 +90,58 @@ export async function getEventPropertyData(
   return RawEventPropertyDataArraySchema.parse(eventsResult);
 }
 
+export async function getEventPropertyValues(
+  siteQuery: BASiteQuery,
+  eventName: string,
+  propertyName: string,
+  limit: number,
+): Promise<RawEventPropertyValueRow[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const filters = BAQuery.getFilterQuery(queryFilters);
+
+  // Aggregates in ClickHouse for exact counts at any event volume. The window
+  // functions compute totals across all groups before LIMIT is applied, so the
+  // response knows the true value count even when the list is capped.
+  const query = safeSql`
+    SELECT
+      if(
+        JSONType(custom_event_json, {property_name:String}) = 'String',
+        JSONExtractString(custom_event_json, {property_name:String}),
+        JSONExtractRaw(custom_event_json, {property_name:String})
+      ) AS value,
+      count() AS count,
+      sum(count()) OVER () AS total_occurrences,
+      count(*) OVER () AS unique_value_count
+    FROM analytics.events
+    WHERE
+          site_id = {site_id:String}
+      AND event_type = 'custom'
+      AND custom_event_name = {event_name:String}
+      AND timestamp BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      AND JSONHas(custom_event_json, {property_name:String})
+      AND ${SQL.AND(filters)}
+    GROUP BY value
+    ORDER BY count DESC, value ASC
+    LIMIT {limit:UInt32}
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        event_name: eventName,
+        property_name: propertyName,
+        start_date: startDateTime,
+        end_date: endDateTime,
+        limit,
+      },
+    })
+    .toPromise()) as unknown[];
+
+  return result.map((row) => RawEventPropertyValueRowSchema.parse(row));
+}
+
 export async function getRecentEvents(
   siteQuery: BASiteQuery,
   limit: number = 50,
@@ -133,10 +187,7 @@ export async function getRecentEvents(
   return result.map((row) => EventLogEntrySchema.parse({ ...row, timestamp: parseClickHouseDate(row.timestamp) }));
 }
 
-export async function anySiteHasEventsWithinDays(
-  siteIds: string[],
-  withinDays: number,
-): Promise<boolean> {
+export async function anySiteHasEventsWithinDays(siteIds: string[], withinDays: number): Promise<boolean> {
   if (siteIds.length === 0) return false;
 
   const query = safeSql`

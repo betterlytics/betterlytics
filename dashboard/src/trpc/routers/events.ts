@@ -3,6 +3,7 @@ import { createRouter, analyticsProcedure } from '@/trpc/init';
 import {
   getCustomEventsOverviewForSite,
   getEventPropertiesAnalyticsForSite,
+  getEventPropertyValuesForSite,
   getRecentEventsForSite,
   getTotalEventCountForSite,
 } from '@/services/analytics/events.service';
@@ -56,6 +57,13 @@ export const eventsRouter = createRouter({
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
       return getEventPropertiesAnalyticsForSite(main, input.eventName);
+    }),
+
+  eventPropertyValues: analyticsProcedure
+    .input(z.object({ eventName: z.string(), propertyName: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { main } = ctx;
+      return getEventPropertyValuesForSite(main, input.eventName, input.propertyName);
     }),
 
   recentEvents: analyticsProcedure

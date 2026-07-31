@@ -2451,7 +2451,10 @@
       "expandedEventContent": {
         "loading": "Loading properties...",
         "noProperties": "No Properties",
-        "noPropertiesDesc": "This event has no custom properties."
+        "noPropertiesDesc": "This event has no custom properties.",
+        "showAllValues": "Show all {count} values",
+        "showLess": "Show less",
+        "valuesCapped": "Showing top {shown} of {total} values"
       }
     },
     "tabbedTable": {

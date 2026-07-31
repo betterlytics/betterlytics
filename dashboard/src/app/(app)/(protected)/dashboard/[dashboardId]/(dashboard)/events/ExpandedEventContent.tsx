@@ -37,6 +37,7 @@ export function ExpandedEventContent({ event, expandedProperties, onToggleProper
             {propertiesData.properties.map((property) => (
               <PropertyRow
                 key={property.propertyName}
+                eventName={event.event_name}
                 property={property}
                 isExpanded={expandedProperties.has(property.propertyName)}
                 onToggle={() => onToggleProperty(property.propertyName)}

@@ -2451,7 +2451,10 @@
       "expandedEventContent": {
         "loading": "Indlæser egenskaber...",
         "noProperties": "Ingen egenskaber",
-        "noPropertiesDesc": "Denne hændelse har ingen brugerdefinerede egenskaber."
+        "noPropertiesDesc": "Denne hændelse har ingen brugerdefinerede egenskaber.",
+        "showAllValues": "Vis alle {count} værdier",
+        "showLess": "Vis færre",
+        "valuesCapped": "Viser top {shown} af {total} værdier"
       }
     },
     "tabbedTable": {
