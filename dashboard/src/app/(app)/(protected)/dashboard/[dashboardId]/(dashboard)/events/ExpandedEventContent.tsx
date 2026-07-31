@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { EventTypeRow } from '@/entities/analytics/events.entities';
 import { PropertyRow } from '@/components/events/PropertyRow';
 import { Spinner } from '@/components/ui/spinner';
@@ -26,6 +26,7 @@ export function ExpandedEventContent({ event, expandedProperties, onToggleProper
   );
 
   const [showAllProperties, setShowAllProperties] = useState(false);
+  const togglePropertiesRef = useRef<HTMLButtonElement>(null);
 
   const properties = propertiesData?.properties ?? [];
   const visibleProperties = showAllProperties ? properties : properties.slice(0, MAX_VISIBLE_PROPERTIES);
@@ -55,9 +56,16 @@ export function ExpandedEventContent({ event, expandedProperties, onToggleProper
 
           {properties.length > MAX_VISIBLE_PROPERTIES && (
             <button
+              ref={togglePropertiesRef}
               type='button'
               className='text-muted-foreground hover:text-foreground mt-3 cursor-pointer px-3 py-1.5 text-xs transition-colors hover:underline'
-              onClick={() => setShowAllProperties((prev) => !prev)}
+              onClick={() => {
+                const collapsing = showAllProperties;
+                setShowAllProperties(!showAllProperties);
+                if (collapsing) {
+                  requestAnimationFrame(() => togglePropertiesRef.current?.scrollIntoView({ block: 'nearest' }));
+                }
+              }}
             >
               {showAllProperties ? t('showLess') : t('showAllProperties', { count: properties.length })}
             </button>
