@@ -1,11 +1,12 @@
 import React, { Dispatch, useMemo } from 'react';
-import { MultiSelect } from '@/components/MultiSelect';
+import { MultiSelect, type Option } from '@/components/MultiSelect';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQueryFilterSearch } from './use-query-filter-search';
 import { cn } from '@/lib/utils';
 import { formatString } from '@/utils/formatters';
+import { FilterValueLabel } from '@/components/filters/FilterValueLabel';
 
 type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
@@ -56,8 +57,15 @@ export function FilterValueSearch<TEntity>({
     return [...selectedNotInResults, ...searchOptions];
   }, [options, filter.values, formatLength, filter.column, locale]);
 
+  const renderOption = (option: Option) => (
+    <FilterValueLabel column={filter.column} value={option.value} className='flex min-w-0'>
+      <span className='truncate'>{option.label}</span>
+    </FilterValueLabel>
+  );
+
   return (
     <MultiSelect
+      renderOption={renderOption}
       options={multiSelectOptions}
       disabled={disabled}
       inputValue={search}
