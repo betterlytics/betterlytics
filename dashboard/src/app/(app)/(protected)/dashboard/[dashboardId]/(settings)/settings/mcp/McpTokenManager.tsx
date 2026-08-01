@@ -110,12 +110,12 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
         <div className='space-y-1.5'>
           <Label className='text-muted-foreground'>{t('settings.expirationLabel')}</Label>
           <Select value={lifetime} onValueChange={(value) => setLifetime(value as McpTokenLifetime)}>
-            <SelectTrigger className='w-full sm:w-40'>
+            <SelectTrigger className='w-full cursor-pointer sm:w-40'>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {McpTokenLifetimeSchema.options.map((option) => (
-                <SelectItem key={option} value={option}>
+                <SelectItem key={option} value={option} className='cursor-pointer'>
                   {t(`settings.lifetime.${option}`)}
                 </SelectItem>
               ))}
@@ -138,14 +138,14 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
                   {t('settings.created', { date: formatDate(tkn.createdAt) })}
                   {tkn.lastUsedAt && <> · {t('settings.lastUsed', { date: formatDate(tkn.lastUsedAt) })}</>}
                   {' · '}
-                  {isExpired(tkn) ? (
-                    <span className='text-destructive font-medium'>
-                      {t('settings.expired', { date: formatDate(tkn.expiresAt!) })}
-                    </span>
-                  ) : tkn.expiresAt ? (
-                    t('settings.expires', { date: formatDate(tkn.expiresAt) })
-                  ) : (
+                  {tkn.expiresAt === null ? (
                     t('settings.neverExpires')
+                  ) : isExpired(tkn) ? (
+                    <span className='text-destructive font-medium'>
+                      {t('settings.expired', { date: formatDate(tkn.expiresAt) })}
+                    </span>
+                  ) : (
+                    t('settings.expires', { date: formatDate(tkn.expiresAt) })
                   )}
                 </p>
               </div>
