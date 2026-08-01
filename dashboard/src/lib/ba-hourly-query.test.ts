@@ -31,10 +31,10 @@ describe('hourly MV filters bare wildcard semantics', () => {
     expect(sql).toBe(`city = ''`);
   });
 
-  it('keeps plain values on the IN path', () => {
+  it('routes plain values through the ILIKE path', () => {
     const sql = buildGeoSql([makeFilter('country_code', '=', ['DK'])]);
 
-    expect(sql).toContain('country_code IN');
+    expect(sql).toMatch(/arrayExists\(pattern -> country_code ILIKE pattern/);
   });
 
   it('keeps partial wildcard patterns on the ILIKE path', () => {
@@ -75,5 +75,26 @@ describe('hourly MV filters bare wildcard semantics', () => {
 
     expect(fastSql).toBe(`city != ''`);
     expect(slow.taggedSql).toContain(`city != ''`);
+  });
+});
+
+describe('hourly MV filters case-insensitive matching', () => {
+  it('keeps != plain values on the arrayAll NOT ILIKE path', () => {
+    const sql = buildGeoSql([makeFilter('country_code', '!=', ['DK'])]);
+
+    expect(sql).toMatch(/arrayAll\(pattern -> country_code NOT ILIKE pattern/);
+  });
+
+  it('passes plain values through untransformed so ILIKE does the case folding', () => {
+    const [part] = BAHourlyQuery.getGeoHourlyFilters([makeFilter('country_code', '=', ['us'])]);
+
+    expect(part.taggedSql).toMatch(/arrayExists\(pattern -> country_code ILIKE pattern/);
+    expect(part.taggedParams).toEqual({ hourly_mv_filter_0: ['us'] });
+  });
+
+  it('still maps * to % in mixed value lists', () => {
+    const [part] = BAHourlyQuery.getGeoHourlyFilters([makeFilter('city', '=', ['Copen*', 'Aarhus'])]);
+
+    expect(part.taggedParams).toEqual({ hourly_mv_filter_0: ['Copen%', 'Aarhus'] });
   });
 });
