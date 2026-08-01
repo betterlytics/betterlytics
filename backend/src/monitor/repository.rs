@@ -42,6 +42,8 @@ AND mc."deletedAt" IS NULL
 
 const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY mc."updatedAt" ASC"#;
 
+const MIN_INTERVAL_SECS: i32 = 30;
+
 #[derive(Debug, Error)]
 pub enum MonitorRepositoryError {
     #[error(transparent)]
@@ -140,7 +142,7 @@ impl TryFrom<MonitorCheckRecord> for MonitorCheck {
             site_id: record.site_id,
             name: record.name,
             url,
-            interval: Duration::from_secs(record.interval_seconds.max(1) as u64),
+            interval: Duration::from_secs(record.interval_seconds.max(MIN_INTERVAL_SECS) as u64),
             timeout: Duration::from_millis(record.timeout_ms.max(1) as u64),
             updated_at: record.updated_at,
             http_method,
