@@ -1,9 +1,8 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
+import { FilterValueLabel } from '@/components/filters/FilterValueLabel';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
-import { FlagIcon, type FlagIconProps } from '@/components/icons';
-import { getCountryName } from '@/utils/countryCodes';
 import { cn } from '@/lib/utils';
 
 type FilterDescriptionProps = {
@@ -16,7 +15,6 @@ export function FilterDescription({ filter, className }: FilterDescriptionProps)
   const locale = useLocale();
   const strategy = getFilterStrategy(filter.column);
   const operator = filter.operator === '=' ? t('is') : t('isNot');
-  const values = filter.values.map((v) => strategy.formatValue(v, locale)).join(', ');
 
   return (
     <span
@@ -27,22 +25,14 @@ export function FilterDescription({ filter, className }: FilterDescriptionProps)
     >
       <FilterColumnLabel column={filter.column} />
       <span className='text-muted-foreground/80'>{operator}</span>
-      {filter.column === 'country_code' ? (
-        filter.values.map((value, index) => (
-          <span key={value} className='inline-flex items-center gap-1'>
-            <FlagIcon
-              countryCode={value.toUpperCase() as FlagIconProps['countryCode']}
-              countryName={getCountryName(value, locale)}
-            />
-            <span>
-              {strategy.formatValue(value, locale)}
-              {index < filter.values.length - 1 && ','}
-            </span>
+      {filter.values.map((value, index) => (
+        <FilterValueLabel key={value} column={filter.column} value={value} className='gap-1'>
+          <span>
+            {strategy.formatValue(value, locale)}
+            {index < filter.values.length - 1 && ','}
           </span>
-        ))
-      ) : (
-        <span>{values}</span>
-      )}
+        </FilterValueLabel>
+      ))}
     </span>
   );
 }
