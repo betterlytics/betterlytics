@@ -1,7 +1,8 @@
 import { NextIntlClientProvider } from 'next-intl';
 import Providers from '@/app/Providers';
 import ThemeColorUpdater from '@/app/ThemeColorUpdater';
-import GlobalPropertiesUpdater from '@/app/GlobalPropertiesUpdater';
+import GlobalPropertiesUpdater from './GlobalPropertiesUpdater';
+import { env } from '@/lib/env';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -22,7 +23,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <NextIntlClientProvider>
       <ThemeColorUpdater />
       <Providers>
-        <GlobalPropertiesUpdater />
+        {env.ENABLE_APP_TRACKING && <GlobalPropertiesUpdater />}
         {children}
       </Providers>
     </NextIntlClientProvider>
