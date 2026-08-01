@@ -26,7 +26,7 @@ export function DemoDashboardIframe({ src }: DemoDashboardIframeProps) {
         src={src}
         title='Betterlytics live demo'
         loading='lazy'
-        sandbox='allow-scripts allow-same-origin'
+        sandbox='allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox'
         referrerPolicy='no-referrer'
         className='absolute inset-0 h-full w-full border-0'
         onLoad={() => setLoaded(true)}
