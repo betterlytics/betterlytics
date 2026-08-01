@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Activity, Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,12 +22,6 @@ export default function EventsTableSection() {
   const t = useTranslations('components.events.table');
 
   const [searchInput, setSearchInput] = useState('');
-  const [globalFilter, setGlobalFilter] = useState('');
-
-  useEffect(() => {
-    const timeout = setTimeout(() => setGlobalFilter(searchInput), 200);
-    return () => clearTimeout(timeout);
-  }, [searchInput]);
 
   return (
     <Card className='border-border/50 overflow-hidden px-3 sm:px-6'>
@@ -66,7 +60,7 @@ export default function EventsTableSection() {
             </div>
           )}
           <div className={cn(refetching && 'pointer-events-none opacity-60')}>
-            <EventsTable data={data ?? []} loading={loading} globalFilter={globalFilter} />
+            <EventsTable data={data ?? []} loading={loading} globalFilter={searchInput} />
           </div>
         </div>
       </CardContent>
