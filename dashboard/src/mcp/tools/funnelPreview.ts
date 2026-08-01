@@ -1,11 +1,11 @@
 import { z } from 'zod';
 import { McpDateRangeSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
-import { FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
+import { FilterColumnSchema, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
 import { getFunnelPreviewData } from '@/services/analytics/funnels.service';
 
 const McpFunnelFilterSchema = z.object({
-  column: z.enum(FILTER_COLUMNS),
+  column: FilterColumnSchema,
   operator: z.enum(FILTER_OPERATORS),
   values: z.array(z.string()).min(1),
 });

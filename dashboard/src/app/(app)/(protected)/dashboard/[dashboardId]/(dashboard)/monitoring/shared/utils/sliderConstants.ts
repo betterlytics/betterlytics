@@ -1,22 +1,32 @@
 import { type SliderMark } from '@/components/inputs/LabeledSlider';
-import { MONITOR_DEFAULTS } from '@/entities/analytics/monitoring.entities';
+import { MONITOR_DEFAULTS, MONITOR_LIMITS } from '@/entities/analytics/monitoring.entities';
 
+// Minute steps up to 1h, then hour steps up to the schema maximum, so every
+// selectable mark is guaranteed to pass MonitorCheckBaseSchema validation.
 export const MONITOR_INTERVAL_MARKS = [
-  ...Array.from({ length: 59 }, (_, i) => (i + 1) * 60),
-  ...Array.from({ length: 24 }, (_, i) => (i + 1) * 3600),
+  ...Array.from(
+    { length: 60 - MONITOR_LIMITS.INTERVAL_MIN_SECONDS / 60 },
+    (_, i) => MONITOR_LIMITS.INTERVAL_MIN_SECONDS + i * 60,
+  ),
+  ...Array.from({ length: MONITOR_LIMITS.INTERVAL_MAX_SECONDS / 3600 }, (_, i) => (i + 1) * 3600),
 ];
 
 export const REQUEST_TIMEOUT_MARKS = Array.from({ length: 30 }, (_, i) => (i + 1) * 1000);
 
+const intervalMark = (seconds: number, label: string): SliderMark => ({
+  idx: MONITOR_INTERVAL_MARKS.indexOf(seconds),
+  label,
+});
+
 export const INTERVAL_DISPLAY_MARKS: SliderMark[] = [
-  { idx: 0, label: '1m' },
-  { idx: 4, label: '5m' },
-  { idx: 14, label: '15m' },
-  { idx: 29, label: '30m' },
-  { idx: 59, label: '1h' },
-  { idx: 64, label: '6h' },
-  { idx: 70, label: '12h' },
-  { idx: 82, label: '24h' },
+  intervalMark(60, '1m'),
+  intervalMark(300, '5m'),
+  intervalMark(900, '15m'),
+  intervalMark(1800, '30m'),
+  intervalMark(3600, '1h'),
+  intervalMark(21_600, '6h'),
+  intervalMark(43_200, '12h'),
+  intervalMark(86_400, '24h'),
 ];
 
 export const TIMEOUT_DISPLAY_MARKS: SliderMark[] = [

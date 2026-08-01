@@ -17,17 +17,12 @@ export function FilterDescription({ filter, className }: FilterDescriptionProps)
   const operator = filter.operator === '=' ? t('is') : t('isNot');
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 [&_svg]:size-3',
-        className,
-      )}
-    >
-      <FilterColumnLabel column={filter.column} />
+    <span className={cn('inline-flex min-w-0 items-center gap-1 [&_svg]:size-3', className)}>
+      <FilterColumnLabel column={filter.column} className='shrink-0' />
       <span className='text-muted-foreground/80'>{operator}</span>
       {filter.values.map((value, index) => (
-        <FilterValueLabel key={value} column={filter.column} value={value} className='gap-1'>
-          <span>
+        <FilterValueLabel key={value} column={filter.column} value={value} className='flex min-w-0 gap-1'>
+          <span className='truncate'>
             {strategy.formatValue(value, locale)}
             {index < filter.values.length - 1 && ','}
           </span>

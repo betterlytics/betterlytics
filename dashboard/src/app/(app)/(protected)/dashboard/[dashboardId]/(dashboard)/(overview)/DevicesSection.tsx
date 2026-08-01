@@ -51,12 +51,14 @@ export default function DevicesSection() {
               value: item.current.visitors,
               trendPercentage: item.change?.visitors,
               comparisonValue: item.compare?.visitors,
-              filterColumn: 'browser',
+              filters: [{ column: 'browser' }],
               icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
               children: item.children?.map(
                 (v): ProgressBarData => ({
-                  filterColumn: 'browser',
-                  filterValue: item.browser,
+                  filters: [
+                    { column: 'browser', value: item.browser },
+                    { column: 'browser_version', value: v.version },
+                  ],
                   icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
                   label: `${item.browser} ${v.version}`,
                   value: v.current.visitors,
@@ -77,12 +79,14 @@ export default function DevicesSection() {
               value: item.current.visitors,
               trendPercentage: item.change?.visitors,
               comparisonValue: item.compare?.visitors,
-              filterColumn: 'os',
+              filters: [{ column: 'os' }],
               icon: <OSIcon name={item.os} className='h-4 w-4' />,
               children: item.children?.map(
                 (v): ProgressBarData => ({
-                  filterColumn: 'os',
-                  filterValue: item.os,
+                  filters: [
+                    { column: 'os', value: item.os },
+                    { column: 'os_version', value: v.version },
+                  ],
                   icon: <OSIcon name={item.os} className='h-4 w-4' />,
                   label: `${item.os} ${v.version}`,
                   value: v.current.visitors,
@@ -103,7 +107,7 @@ export default function DevicesSection() {
               value: item.current.visitors,
               trendPercentage: item.change?.visitors,
               comparisonValue: item.compare?.visitors,
-              filterColumn: 'device_type',
+              filters: [{ column: 'device_type' }],
               icon: <DeviceIcon type={item.device_type} className='h-4 w-4' />,
             }),
           ),

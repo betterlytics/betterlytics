@@ -1,0 +1,22 @@
+name: Documentation issue
+description: Something in the docs is wrong, unclear, or missing.
+labels: ["documentation"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Optional - the docs page this is about, or where you looked and didn't find it.
+      placeholder: https://betterlytics.io/docs/...
+  - type: textarea
+    id: issue
+    attributes:
+      label: What's wrong or missing?
+      description: Quote the confusing part if applicable, and say what you expected to find.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: Optional - how would you phrase or structure it instead?

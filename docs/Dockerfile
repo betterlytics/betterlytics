@@ -4,7 +4,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.34.5 --activate
 
 # --------------------------
 
