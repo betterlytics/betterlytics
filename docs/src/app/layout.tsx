@@ -126,6 +126,7 @@ export default async function RootLayout({
             data-server-url={`${env.PUBLIC_TRACKING_SERVER_ENDPOINT}/event`}
             data-web-vitals="true"
             data-outbound-links="full"
+            data-global-properties='{"surface":"docs"}'
           />
         )}
         <Layout
