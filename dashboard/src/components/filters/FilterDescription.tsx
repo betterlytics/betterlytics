@@ -17,15 +17,10 @@ export function FilterDescription({ filter, className }: FilterDescriptionProps)
   const values = filter.values.map((v) => strategy.formatValue(v, locale)).join(', ');
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center gap-1 [&_svg]:size-3',
-        className,
-      )}
-    >
-      <FilterColumnLabel column={filter.column} />
+    <span className={cn('inline-flex min-w-0 items-center gap-1 [&_svg]:size-3', className)}>
+      <FilterColumnLabel column={filter.column} className='shrink-0' />
       <span className='text-muted-foreground/80'>{operator}</span>
-      <span>{values}</span>
+      <span className='truncate'>{values}</span>
     </span>
   );
 }
