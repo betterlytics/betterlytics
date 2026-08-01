@@ -54,8 +54,8 @@ const SKELETON_CELL_WIDTHS = ['w-3/5', 'w-16', 'w-16', 'w-16', 'w-20', 'w-12'];
 function EventsTableSkeletonRow() {
   return (
     <TableRow>
-      {SKELETON_CELL_WIDTHS.map((width) => (
-        <TableCell key={width} className='px-4 py-3'>
+      {SKELETON_CELL_WIDTHS.map((width, index) => (
+        <TableCell key={index} className='px-4 py-3'>
           <Skeleton className={cn('h-4', width)} />
         </TableCell>
       ))}
@@ -339,7 +339,7 @@ export function EventsTable({ data, loading, globalFilter = '' }: EventsTablePro
         </Table>
       </div>
 
-      {!loading && filteredCount > 0 && table.getPageCount() > 1 && (
+      {!loading && filteredCount > 0 && (
         <PaginationControls
           pageIndex={table.getState().pagination.pageIndex}
           totalPages={table.getPageCount()}
