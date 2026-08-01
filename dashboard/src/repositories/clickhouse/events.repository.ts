@@ -116,10 +116,9 @@ export async function getRecentEvents(
       AND event_type = 'custom'
       AND ${cursorClause}
       AND ${SQL.AND(filters)}
-    ORDER BY timestamp DESC, visitor_id, custom_event_name, url,
-             custom_event_json, country_code, device_type, browser
+    ORDER BY timestamp DESC
     LIMIT {limit:UInt32}
-    OFFSET {offset:UInt32}
+    SETTINGS query_plan_max_limit_for_lazy_materialization = 20000
   `;
 
   const result = (await clickhouse
@@ -127,8 +126,7 @@ export async function getRecentEvents(
       params: {
         ...query.taggedParams,
         site_id: siteId,
-        limit,
-        offset: cursor?.skip ?? 0,
+        limit: limit + (cursor?.skip ?? 0),
         ...(cursor ? { cursor_ts: toDateTimeString(cursor.timestamp) } : {}),
       },
     })
@@ -161,8 +159,7 @@ export async function getEventsSince(
       AND event_type = 'custom'
       AND timestamp >= {since:DateTime}
       AND ${SQL.AND(filters)}
-    ORDER BY timestamp DESC, visitor_id, custom_event_name, url,
-             custom_event_json, country_code, device_type, browser
+    ORDER BY timestamp DESC
     LIMIT {limit:UInt32}
   `;
 

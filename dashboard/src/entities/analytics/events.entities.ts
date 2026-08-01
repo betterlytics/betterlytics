@@ -66,16 +66,15 @@ export type EventLogPage = {
 };
 
 /**
- * Timestamps are second-precision and rows have no unique id, so the cursor is the
- * last row's timestamp plus how many delivered rows share that second — the next
- * page skips those.
+ * Rows have no unique id and timestamps are second-precision, so the next page
+ * refetches limit + skip rows and the client subtracts the held ones.
  */
 export function computeNextEventLogCursor(
   events: EventLogEntry[],
   cursor: EventLogCursor | null,
   limit: number,
 ): EventLogCursor | null {
-  if (events.length < limit) return null;
+  if (events.length < limit + (cursor?.skip ?? 0)) return null;
   const last = events[events.length - 1];
   let skip = events.filter((e) => e.timestamp.getTime() === last.timestamp.getTime()).length;
   if (cursor && cursor.timestamp.getTime() === last.timestamp.getTime()) {
@@ -98,8 +97,8 @@ const eventContentKey = (e: EventLogEntry) =>
   ]);
 
 /**
- * The live poll fetches `timestamp >= since`, so rows we already hold from the
- * boundary second come back. Subtract those to keep only the new rows.
+ * The live poll (`>= since`) and pages (`<= cursor`) both refetch the boundary
+ * second; drop the rows already held.
  */
 export function subtractHeldBoundaryEvents(
   fetched: EventLogEntry[],
@@ -121,4 +120,13 @@ export function subtractHeldBoundaryEvents(
     heldCounts.set(key, count - 1);
     return false;
   });
+}
+
+export function flattenEventLogPages(pages: EventLogPage[]): EventLogEntry[] {
+  const all: EventLogEntry[] = [];
+  pages.forEach((page, i) => {
+    const boundary = i > 0 ? pages[i - 1].nextCursor?.timestamp : undefined;
+    all.push(...(boundary ? subtractHeldBoundaryEvents(page.events, all, boundary) : page.events));
+  });
+  return all;
 }

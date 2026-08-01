@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import { ArrowUp, Clock } from 'lucide-react';
 import {
   computeNextEventLogCursor,
+  flattenEventLogPages,
   subtractHeldBoundaryEvents,
   EventLogEntry,
 } from '@/entities/analytics/events.entities';
@@ -84,7 +85,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     refetchOnWindowFocus: false,
   });
 
-  const allEvents: EventLogEntry[] = useMemo(() => data?.pages.flatMap((page) => page.events) ?? [], [data]);
+  const allEvents: EventLogEntry[] = useMemo(() => flattenEventLogPages(data?.pages ?? []), [data]);
 
   // Refresh relative timestamps only when the list changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,6 +121,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const prependScrollHeightRef = useRef<number | null>(null);
   const highlightTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const badgeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isFetchingRef = useRef(false);
 
   const updateScrollState = useCallback(() => {
     const el = scrollRef.current;
@@ -146,7 +148,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     let cancelled = false;
     let inFlight = false;
     const id = setInterval(async () => {
-      if (document.hidden || inFlight) return;
+      if (document.hidden || inFlight || isFetchingRef.current) return;
       const since = allEventsRef.current[0]?.timestamp ?? null;
       if (!since) {
         void utils.events.recentEvents.refetch({ ...input, limit: pageSize });
@@ -155,7 +157,7 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
       inFlight = true;
       try {
         const fresh = await utils.client.events.newEvents.query({ ...input, since, limit: NEW_EVENTS_POLL_LIMIT });
-        if (cancelled || fresh.length === 0) return;
+        if (cancelled || isFetchingRef.current || fresh.length === 0) return;
         if (fresh.length >= NEW_EVENTS_POLL_LIMIT) {
           // Too many new events to prepend — swap in a fresh first page instead.
           const events = fresh.slice(0, pageSize);
@@ -227,8 +229,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     rootMargin: '800px',
     threshold: 0,
   });
-
-  const isFetchingRef = useRef(false);
 
   useEffect(() => {
     // Prevent duplicate fetches

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   computeNextEventLogCursor,
+  flattenEventLogPages,
   subtractHeldBoundaryEvents,
   MAX_EVENT_LOG_CURSOR_SKIP,
   type EventLogEntry,
@@ -33,21 +34,69 @@ describe('computeNextEventLogCursor', () => {
   });
 
   it('accumulates the cursor skip when the whole page shares the cursor timestamp', () => {
-    const events = [event(ts(7)), event(ts(7)), event(ts(7)), event(ts(7))];
+    const events = Array.from({ length: 8 }, () => event(ts(7)));
     const cursor = { timestamp: ts(7), skip: 4 };
-    expect(computeNextEventLogCursor(events, cursor, 4)).toEqual({ timestamp: ts(7), skip: 8 });
+    expect(computeNextEventLogCursor(events, cursor, 4)).toEqual({ timestamp: ts(7), skip: 12 });
   });
 
   it('does not accumulate the cursor skip when the last timestamp differs from the cursor', () => {
-    const events = [event(ts(7)), event(ts(6)), event(ts(5)), event(ts(5))];
+    const events = [event(ts(7)), event(ts(6)), event(ts(6)), event(ts(5)), event(ts(5))];
     const cursor = { timestamp: ts(7), skip: 1 };
     expect(computeNextEventLogCursor(events, cursor, 4)).toEqual({ timestamp: ts(5), skip: 2 });
   });
 
+  it('returns null when the raw page is shorter than the limit plus the cursor skip', () => {
+    const events = [event(ts(7)), event(ts(7)), event(ts(7)), event(ts(7)), event(ts(7))];
+    const cursor = { timestamp: ts(7), skip: 4 };
+    expect(computeNextEventLogCursor(events, cursor, 4)).toBeNull();
+  });
+
   it('ends the log when the accumulated skip exceeds the cap', () => {
-    const events = [event(ts(7)), event(ts(7)), event(ts(7)), event(ts(7))];
+    const events = Array.from({ length: MAX_EVENT_LOG_CURSOR_SKIP + 1 }, () => event(ts(7)));
     const cursor = { timestamp: ts(7), skip: MAX_EVENT_LOG_CURSOR_SKIP - 3 };
     expect(computeNextEventLogCursor(events, cursor, 4)).toBeNull();
+  });
+});
+
+describe('flattenEventLogPages', () => {
+  it('passes a single page through untouched', () => {
+    const events = [event(ts(7)), event(ts(6))];
+    expect(flattenEventLogPages([{ events, nextCursor: null }])).toEqual(events);
+  });
+
+  it('subtracts redelivered boundary rows from the next page by content count', () => {
+    const pages = [
+      { events: [event(ts(6)), event(ts(5))], nextCursor: { timestamp: ts(5), skip: 1 } },
+      { events: [event(ts(5)), event(ts(4))], nextCursor: null },
+    ];
+    expect(flattenEventLogPages(pages)).toEqual([event(ts(6)), event(ts(5)), event(ts(4))]);
+  });
+
+  it('keeps boundary-second rows whose content is not held', () => {
+    const pages = [
+      { events: [event(ts(6)), event(ts(5), 'click')], nextCursor: { timestamp: ts(5), skip: 1 } },
+      { events: [event(ts(5), 'purchase'), event(ts(4))], nextCursor: null },
+    ];
+    expect(flattenEventLogPages(pages)).toEqual([
+      event(ts(6)),
+      event(ts(5), 'click'),
+      event(ts(5), 'purchase'),
+      event(ts(4)),
+    ]);
+  });
+
+  it('subtracts held rows accumulated across earlier pages within the boundary second', () => {
+    const pages = [
+      { events: [event(ts(5)), event(ts(5))], nextCursor: { timestamp: ts(5), skip: 2 } },
+      { events: [event(ts(5)), event(ts(5)), event(ts(5), 'purchase')], nextCursor: { timestamp: ts(5), skip: 5 } },
+      { events: [event(ts(5)), event(ts(5)), event(ts(5), 'purchase'), event(ts(4))], nextCursor: null },
+    ];
+    expect(flattenEventLogPages(pages)).toEqual([
+      event(ts(5)),
+      event(ts(5)),
+      event(ts(5), 'purchase'),
+      event(ts(4)),
+    ]);
   });
 });
 
