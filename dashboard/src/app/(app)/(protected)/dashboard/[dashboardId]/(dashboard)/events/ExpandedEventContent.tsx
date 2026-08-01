@@ -48,6 +48,7 @@ export function ExpandedEventContent({ event, expandedProperties, onToggleProper
                 key={property.propertyName}
                 eventName={event.event_name}
                 property={property}
+                maxValues={propertiesData?.maxValues}
                 isExpanded={expandedProperties.has(property.propertyName)}
                 onToggle={() => onToggleProperty(property.propertyName)}
               />

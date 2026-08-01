@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Activity, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,17 +28,12 @@ export default function EventsTableSection() {
       <CardHeader className='px-0'>
         <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
           <CardTitle className='flex items-center gap-3'>
-            <div className='bg-primary/10 flex h-8 w-8 items-center justify-center rounded-lg'>
-              <Activity className='text-primary h-4 w-4' />
-            </div>
-            <div className='flex items-center gap-3'>
-              <span>{t('eventDetails')}</span>
-              {data && data.length > 0 && (
-                <Badge variant='secondary' className='text-xs font-normal'>
-                  {data.length} {data.length === 1 ? t('uniqueEvent') : t('uniqueEvents')}
-                </Badge>
-              )}
-            </div>
+            <span>{t('eventDetails')}</span>
+            {data && data.length > 0 && (
+              <Badge variant='secondary' className='text-xs font-normal'>
+                {data.length} {data.length === 1 ? t('uniqueEvent') : t('uniqueEvents')}
+              </Badge>
+            )}
           </CardTitle>
           <div className='relative w-full sm:max-w-xs'>
             <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />

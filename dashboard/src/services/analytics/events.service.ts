@@ -61,7 +61,7 @@ export async function getEventPropertiesAnalyticsForSite(
     (a, b) => b.totalOccurrences - a.totalOccurrences || (a.propertyName < b.propertyName ? -1 : 1),
   );
 
-  return { eventName, properties };
+  return { eventName, properties, maxValues: MAX_PROPERTY_VALUES };
 }
 
 export async function getEventPropertyValuesForSite(

@@ -2453,6 +2453,7 @@
         "noProperties": "Nessuna proprietà",
         "noPropertiesDesc": "Questo evento non ha proprietà personalizzate.",
         "showAllValues": "Mostra tutti i {count} valori",
+        "showTopValues": "Mostra i primi {shown} di {total} valori",
         "showAllProperties": "Mostra tutte le {count} proprietà",
         "showLess": "Mostra meno",
         "valuesCapped": "Primi {shown} di {total} valori"

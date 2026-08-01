@@ -33,6 +33,7 @@ export const EventPropertyAnalyticsSchema = z.object({
 export const EventPropertiesOverviewSchema = z.object({
   eventName: z.string(),
   properties: z.array(EventPropertyAnalyticsSchema),
+  maxValues: z.number(),
 });
 
 export const RawEventPropertyValueRowSchema = z.object({

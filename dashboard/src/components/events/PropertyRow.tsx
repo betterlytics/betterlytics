@@ -14,14 +14,16 @@ import { cn } from '@/lib/utils';
 interface PropertyRowProps {
   eventName: string;
   property: EventPropertyAnalytics;
+  maxValues?: number;
   isExpanded: boolean;
   onToggle: () => void;
 }
 
-export function PropertyRow({ eventName, property, isExpanded, onToggle }: PropertyRowProps) {
+export function PropertyRow({ eventName, property, maxValues, isExpanded, onToggle }: PropertyRowProps) {
   const t = useTranslations('components.events.expandedEventContent');
   const hasValues = property.topValues.length > 0;
   const hiddenValueCount = property.uniqueValueCount - property.topValues.length;
+  const willCapValues = maxValues != null && property.uniqueValueCount > maxValues;
 
   const [showAll, setShowAll] = useState(false);
   const [scrolledToEnd, setScrolledToEnd] = useState(false);
@@ -133,7 +135,11 @@ export function PropertyRow({ eventName, property, isExpanded, onToggle }: Prope
                   }}
                 >
                   {valuesQuery.isFetching && <Spinner size='sm' />}
-                  <span>{t('showAllValues', { count: property.uniqueValueCount })}</span>
+                  <span>
+                    {willCapValues
+                      ? t('showTopValues', { shown: maxValues, total: property.uniqueValueCount })
+                      : t('showAllValues', { count: property.uniqueValueCount })}
+                  </span>
                 </button>
               )
             )}

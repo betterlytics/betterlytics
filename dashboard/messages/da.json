@@ -2453,6 +2453,7 @@
         "noProperties": "Ingen egenskaber",
         "noPropertiesDesc": "Denne hændelse har ingen brugerdefinerede egenskaber.",
         "showAllValues": "Vis alle {count} værdier",
+        "showTopValues": "Vis top {shown} af {total} værdier",
         "showAllProperties": "Vis alle {count} egenskaber",
         "showLess": "Vis færre",
         "valuesCapped": "Viser top {shown} af {total} værdier"
