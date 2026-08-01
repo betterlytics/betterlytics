@@ -23,12 +23,16 @@ export const referrersRouter = createRouter({
       getReferrerUrlRollupForSite(main, TOP_REFERRERS_LIMIT),
       compare && getReferrerUrlRollupForSite(compare, TOP_REFERRERS_LIMIT),
     ]);
-    return toHierarchicalDataTable({
+    const rollup = toHierarchicalDataTable({
       data,
       compare: compareData || undefined,
       parentKey: 'source_name',
       childKey: 'referrer_url',
     });
+    const storedSourceNames = new Map(
+      data.filter((row) => row.is_rollup).map((row) => [row.source_name, row.stored_source_name]),
+    );
+    return rollup.map((row) => ({ ...row, stored_source_name: storedSourceNames.get(row.source_name) ?? null }));
   }),
 
   topChannels: analyticsProcedure.query(async ({ ctx }) => {

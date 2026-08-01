@@ -27,6 +27,9 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository_owner }}/betterlytics-selfhost
+          # Never move :latest - legacy checkouts pull it but can't boot newer images
+          flavor: |
+            latest=false
 
       - name: Building selfhost image
         uses: docker/build-push-action@v6

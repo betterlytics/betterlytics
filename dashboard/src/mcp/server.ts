@@ -6,6 +6,10 @@ import { executeUserJourneys, McpUserJourneysInputBaseSchema } from '@/mcp/tools
 import { executeFunnelPreview, McpFunnelPreviewInputBaseSchema } from '@/mcp/tools/funnelPreview';
 import { executeListFunnels, McpListFunnelsInputBaseSchema } from '@/mcp/tools/listFunnels';
 import {
+  executeListGlobalProperties,
+  McpListGlobalPropertiesInputBaseSchema,
+} from '@/mcp/tools/globalProperties';
+import {
   executeListErrors,
   McpListErrorsInputBaseSchema,
   executeGetError,
@@ -81,6 +85,16 @@ export function createMcpServer(context: McpContext): McpServer {
       inputSchema: McpFunnelPreviewInputBaseSchema.shape,
     },
     (params) => runTool('funnel_preview', () => executeFunnelPreview(params, context.siteId)),
+  );
+
+  server.registerTool(
+    'list_global_properties',
+    {
+      description:
+        'List the custom event (global) properties recorded for this dashboard. Without a "key" argument it returns the property keys, each as a column in the gp.<key> form you can use directly in a filter, e.g. { column: "gp.plan", operator: "=", values: ["pro"] }. Pass a "key" argument to see example values for that specific property. Use this to discover which custom properties are filterable.',
+      inputSchema: McpListGlobalPropertiesInputBaseSchema.shape,
+    },
+    (params) => runTool('list_global_properties', () => executeListGlobalProperties(params, context.siteId)),
   );
 
   server.registerTool(

@@ -122,7 +122,7 @@ async function prepareImageWrites(images?: StatusPageImagesInput): Promise<Statu
       );
     }
     // Store the inspected bytes, not the upload: for SVG that's the sanitizer's re-serialization.
-    const data = Buffer.from(inspected.data);
+    const data = new Uint8Array(inspected.data);
     const hash = createHash('sha256').update(data).digest('hex').slice(0, 16);
     return { data, mimeType: inspected.mimeType, hash };
   };
