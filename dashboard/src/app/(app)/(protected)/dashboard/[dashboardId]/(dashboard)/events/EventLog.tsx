@@ -26,7 +26,6 @@ import { useInView } from '@/hooks/useInView';
 
 const DEFAULT_PAGE_SIZE = 50;
 const NEW_EVENTS_POLL_INTERVAL_MS = 30 * 1000;
-// High enough that one poll catches the whole gap; capped by the router's NEW_EVENTS_MAX_LIMIT.
 const NEW_EVENTS_POLL_LIMIT = 500;
 const NEW_EVENTS_HIGHLIGHT_MS = 2 * 1000;
 const NEW_EVENTS_BADGE_MS = 4 * 1000;
@@ -75,7 +74,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         staleTime: Infinity,
         gcTime: 5 * 60_000,
         refetchOnWindowFocus: false,
-        // Structural sharing would recreate row objects, breaking the WeakMap row keys.
         structuralSharing: false,
       },
     );
@@ -87,7 +85,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
 
   const allEvents: EventLogEntry[] = useMemo(() => flattenEventLogPages(data?.pages ?? []), [data]);
 
-  // Refresh relative timestamps only when the list changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const now = useMemo(() => Date.now(), [data]);
 
@@ -101,7 +98,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
   const allEventsRef = useRef<EventLogEntry[]>([]);
   allEventsRef.current = allEvents;
 
-  // Rows have no unique id, so key them by object identity.
   const uidsRef = useRef({ map: new WeakMap<EventLogEntry, string>(), next: 0 });
   const getUid = (e: EventLogEntry) => {
     let uid = uidsRef.current.map.get(e);
@@ -112,7 +108,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
     return uid;
   };
   const [newUids, setNewUids] = useState<Set<string>>(new Set());
-  // Stays mounted once shown so dismissal can animate out.
   const [newEventsBadge, setNewEventsBadge] = useState<{ count: number; visible: boolean } | null>(null);
 
   const dismissBadge = () => setNewEventsBadge((badge) => (badge ? { ...badge, visible: false } : badge));
@@ -159,7 +154,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         const fresh = await utils.client.events.newEvents.query({ ...input, since, limit: NEW_EVENTS_POLL_LIMIT });
         if (cancelled || isFetchingRef.current || fresh.length === 0) return;
         if (fresh.length >= NEW_EVENTS_POLL_LIMIT) {
-          // Too many new events to prepend — swap in a fresh first page instead.
           const events = fresh.slice(0, pageSize);
           utils.events.recentEvents.setInfiniteData({ ...input, limit: pageSize }, () => ({
             pages: [{ events, nextCursor: computeNextEventLogCursor(events, null, pageSize) }],
@@ -173,7 +167,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
         const newRows = subtractHeldBoundaryEvents(fresh, allEventsRef.current, since);
         if (newRows.length === 0) return;
 
-        // Keep the scroll position stable when the user is scrolled down.
         const el = scrollRef.current;
         if (el && el.scrollTop > 10) {
           prependScrollHeightRef.current = el.scrollHeight;
@@ -300,7 +293,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                 onClick={() => {
                   const el = scrollRef.current;
                   if (el) {
-                    // Jump most of the way so the smooth scroll stays short.
                     const glideDistance = el.clientHeight * 2;
                     if (el.scrollTop > glideDistance) el.scrollTop = glideDistance;
                     el.scrollTo({ top: 0, behavior: 'smooth' });
@@ -314,7 +306,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
               </button>
             </div>
           )}
-          {/* Scroll anchoring off since we compensate scroll ourselves; max-h must sit on the viewport. */}
           <ScrollArea
             viewportRef={attachScrollRef}
             onViewportScroll={updateScrollState}
@@ -340,7 +331,6 @@ export function EventLog({ pageSize = DEFAULT_PAGE_SIZE }: EventLogProps) {
                   ))}
                 </div>
 
-                {/* Sentinel element for infinite scroll - only attach ref to this single element */}
                 {hasNextPage && <div ref={loadMoreRef} className='h-1' aria-hidden='true' />}
 
                 {isFetchingNextPage && <LoadingMoreIndicator t={t} />}

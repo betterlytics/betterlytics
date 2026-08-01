@@ -16,7 +16,6 @@ import { toGlobalPropertiesDataTable } from '@/presenters/toGlobalPropertiesData
 const CUSTOM_EVENTS_OVERVIEW_LIMIT = 10;
 const RECENT_EVENTS_DEFAULT_PAGE_SIZE = 25;
 const RECENT_EVENTS_MAX_PAGE_SIZE = 100;
-// Above the page size so the live poll can catch up after a hidden tab.
 const NEW_EVENTS_MAX_LIMIT = 500;
 
 const GLOBAL_PROPERTIES_KEY_LIMIT = 10;
@@ -56,12 +55,7 @@ export const eventsRouter = createRouter({
     .input(
       z.object({
         queryFilters: EventLogFiltersSchema,
-        limit: z
-          .number()
-          .int()
-          .min(1)
-          .max(RECENT_EVENTS_MAX_PAGE_SIZE)
-          .default(RECENT_EVENTS_DEFAULT_PAGE_SIZE),
+        limit: z.number().int().min(1).max(RECENT_EVENTS_MAX_PAGE_SIZE).default(RECENT_EVENTS_DEFAULT_PAGE_SIZE),
         cursor: EventLogCursorSchema.nullish(),
       }),
     )

@@ -97,7 +97,6 @@ export async function getRecentEvents(
   cursor: EventLogCursor | null,
 ): Promise<EventLogEntry[]> {
   const filters = BAQuery.getFilterQuery(queryFilters);
-  // Bound by the cursor timestamp so new events don't shift already-loaded pages.
   const cursorClause = cursor ? safeSql`timestamp <= {cursor_ts:DateTime}` : safeSql`1 = 1`;
 
   const query = safeSql`

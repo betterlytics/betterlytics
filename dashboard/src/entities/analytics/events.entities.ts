@@ -96,10 +96,6 @@ const eventContentKey = (e: EventLogEntry) =>
     e.browser,
   ]);
 
-/**
- * The live poll (`>= since`) and pages (`<= cursor`) both refetch the boundary
- * second; drop the rows already held.
- */
 export function subtractHeldBoundaryEvents(
   fetched: EventLogEntry[],
   held: EventLogEntry[],
