@@ -29,7 +29,7 @@ export default async function RootLayout({
   const [locale, seoConfig, sessionToken] = await Promise.all([
     getLocale(),
     buildSEOConfig(SEO_CONFIGS.root),
-    getCurrentSessionTokenFromCookies(),
+    env.ENABLE_APP_TRACKING ? getCurrentSessionTokenFromCookies() : undefined,
   ]);
 
   return (
