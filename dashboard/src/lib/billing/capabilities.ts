@@ -69,7 +69,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
     dashboards: { maxDashboards: 9999, maxMembers: 9999 },
     monitoring: {
       maxMonitors: 9999,
-      minIntervalSeconds: 30,
+      minIntervalSeconds: 60,
       httpMethodConfigurable: true,
       customStatusCodes: true,
       customHeaders: true,

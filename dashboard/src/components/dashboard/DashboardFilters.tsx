@@ -20,7 +20,7 @@ export default function DashboardFilters({
   const isMobile = useIsMobile();
 
   return (
-    <div className='space-y-2'>
+    <div className='min-w-0 space-y-2'>
       <div className='flex flex-col justify-end gap-x-8 gap-y-2 sm:flex-row'>
         {!isMobile && <div className='flex gap-4'>{children}</div>}
         {showQueryFilters && <QueryFiltersSelector />}

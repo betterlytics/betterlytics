@@ -8,6 +8,7 @@ import { StructuredData } from '@/components/StructuredData';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
+import { getCurrentSessionTokenFromCookies } from '@/services/session.service';
 
 const robotoSans = Inter({
   variable: '--font-roboto-sans',
@@ -25,7 +26,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [locale, seoConfig] = await Promise.all([getLocale(), buildSEOConfig(SEO_CONFIGS.root)]);
+  const [locale, seoConfig, sessionToken] = await Promise.all([
+    getLocale(),
+    buildSEOConfig(SEO_CONFIGS.root),
+    env.ENABLE_APP_TRACKING ? getCurrentSessionTokenFromCookies() : undefined,
+  ]);
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -41,6 +46,7 @@ export default async function RootLayout({
             data-web-vitals='true'
             data-track-errors='true'
             data-track-console-errors='true'
+            data-global-properties={JSON.stringify({ surface: 'app', logged_in: Boolean(sessionToken), locale })}
           />
         )}
         <StructuredData config={seoConfig} />
