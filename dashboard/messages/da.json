@@ -3700,7 +3700,17 @@
       "creating": "Opretter...",
       "newTokenNotice": "Kopier denne token nu. Du vil ikke kunne se den igen.",
       "created": "Oprettet {date}",
-      "lastUsed": "Sidst brugt {date}"
+      "lastUsed": "Sidst brugt {date}",
+      "expirationLabel": "Udløb",
+      "lifetime": {
+        "30d": "30 dage",
+        "90d": "90 dage",
+        "180d": "180 dage",
+        "never": "Uden udløb"
+      },
+      "expires": "Udløber {date}",
+      "expired": "Udløbet {date}",
+      "neverExpires": "Udløber aldrig"
     },
     "toast": {
       "created": "Token oprettet",

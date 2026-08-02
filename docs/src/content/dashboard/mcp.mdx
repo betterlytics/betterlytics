@@ -13,8 +13,9 @@ Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)
 
 1. Navigate to **Dashboard > Settings > MCP**
 2. Enter a name for your token (e.g. "Claude Desktop")
-3. Click **Create token**
-4. Copy the token immediately, it is only shown once
+3. Choose an expiration: 30, 90, or 180 days (default 90), or no expiry
+4. Click **Create token**
+5. Copy the token immediately, it is only shown once
 
 ## Setup
 
@@ -220,7 +221,9 @@ Here are some questions you can try:
 
 ## Managing Tokens
 
-View and manage your tokens from **Dashboard > Settings > MCP**. Each token shows its creation date and when it was last used. You can delete tokens at any time. Deleted tokens are immediately revoked.
+View and manage your tokens from **Dashboard > Settings > MCP**. Each token shows its creation date, when it was last used, and when it expires (or that it never does). You can delete tokens at any time. Deleted tokens are immediately revoked.
+
+Expired tokens stop authenticating and remain in the list so you can spot and delete them. A token's expiration can't be changed after creation; to extend access, create a new token.
 
 ## Security
 
