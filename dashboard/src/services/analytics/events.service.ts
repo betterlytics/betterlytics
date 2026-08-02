@@ -4,14 +4,20 @@ import {
   getCustomEventsOverview,
   getEventPropertiesSummary,
   getEventPropertyValues,
+  getEventsSince,
   getRecentEvents,
   getTotalEventCount,
 } from '@/repositories/clickhouse/index.repository';
 import {
+  computeNextEventLogCursor,
+  EventLogCursor,
+  EventLogEntry,
+  EventLogPage,
   EventPropertiesOverview,
   EventPropertyAnalytics,
   EventPropertyValues,
 } from '@/entities/analytics/events.entities';
+import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { calculatePercentage } from '@/utils/mathUtils';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -22,12 +28,27 @@ export async function getCustomEventsOverviewForSite(siteQuery: BASiteQuery, lim
   return getCustomEventsOverview(siteQuery, limit);
 }
 
-export async function getRecentEventsForSite(siteQuery: BASiteQuery, limit?: number, offset?: number) {
-  return getRecentEvents(siteQuery, limit, offset);
+export async function getRecentEventsForSite(
+  siteId: string,
+  queryFilters: QueryFilter[],
+  limit: number,
+  cursor: EventLogCursor | null,
+): Promise<EventLogPage> {
+  const events = await getRecentEvents(siteId, queryFilters, limit, cursor);
+  return { events, nextCursor: computeNextEventLogCursor(events, cursor, limit) };
 }
 
-export async function getTotalEventCountForSite(siteQuery: BASiteQuery) {
-  return getTotalEventCount(siteQuery);
+export async function getTotalEventCountForSite(siteId: string, queryFilters: QueryFilter[]): Promise<number> {
+  return getTotalEventCount(siteId, queryFilters);
+}
+
+export async function getNewEventsForSite(
+  siteId: string,
+  queryFilters: QueryFilter[],
+  since: Date,
+  limit: number,
+): Promise<EventLogEntry[]> {
+  return getEventsSince(siteId, queryFilters, since, limit);
 }
 
 export async function getEventPropertiesAnalyticsForSite(
