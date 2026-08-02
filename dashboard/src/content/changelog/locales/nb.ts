@@ -1,5 +1,74 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v146ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.6',
+    releasedAt: '2026-08-02',
+    title: 'Filtre på hendelsesegenskaper og forbedret hendelsesside',
+    summary:
+      'Filtrer analysene dine på hvilken som helst egenskap du sender med egendefinerte hendelser, utforsk alle hendelsene dine med søk og sortering, og koble oppetidsmonitorer og statussider til AI-assistentene dine.',
+  },
+  sections: [
+    {
+      id: 'v146-new-features',
+      title: 'Nye funksjoner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Du kan nå filtrere og segmentere alle rapporter på egenskapene du sender med de egendefinerte hendelsene dine.',
+            'Hendelsessiden viser nå hele hendelseslisten din med søk og sortering.',
+            'Nye filtre for nettleserversjon og OS-versjon.',
+            'Oppetidsovervåking, statussider og Globale egenskaper er nå tilgjengelige via MCP-serveren.',
+            'MCP-nøkler kan nå få en utløpsdato når du oppretter dem.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v146-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filtre som ikke kan gi data på en bestemt side, er nå skjult, og de du allerede har lagt til, vises som inaktive.',
+            'Wildcard-tegnet "*" kan nå brukes alene for å filtrere på om et felt i det hele tatt har en verdi.',
+            'Du kan nå klikke på henvisningsdomener under Trafikkilder på oversiktssiden for å filtrere på dem.',
+            'Mindre forbedringer i design og brukervennlighet på tvers av filtre, hendelsessiden og hendelsesloggen.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v146-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filterverdier er nå uavhengige av store og små bokstaver overalt, slik at små bokstaver ikke lenger gir tomme kort for geografi og enheter.',
+            '"Er ikke"-filtre fungerer nå riktig på sider som rapporterer på sesjonsnivå.',
+            'Når du klikker på en by eller region, filtrerer du nå på hele det geografiske hierarkiet, slik at byer med samme navn ikke lenger slås sammen.',
+            'Rettet et problem der oppetidsmonitorer ikke kunne lagres med sjekkintervall over 1 time.',
+            'Et ugyldig filter i en delt URL tømmer ikke lenger hele filtersettet ditt.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v146-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Generelle sikkerhetsoppdateringer som holder Betterlytics stabil og sikker.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v145ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.5',
@@ -119,9 +188,10 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v145ChangelogEntryNb;
+export const latestChangelogModalNb = v146ChangelogEntryNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v146ChangelogEntryNb,
   v145ChangelogEntryNb,
   v144ChangelogEntryNb,
   {

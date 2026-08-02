@@ -1,5 +1,74 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v146ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.6',
+    releasedAt: '2026-08-02',
+    title: 'Custom Event Property Filters & a Richer Events Page',
+    summary:
+      'Filter your analytics by any custom event property, explore your full event catalog with search and sorting, and connect your uptime monitors and status pages to your AI assistants.',
+  },
+  sections: [
+    {
+      id: 'v146-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'You can now filter and segment any report by the properties you send with your custom events.',
+            'The Events page now shows your complete event list with search and sorting.',
+            'New browser version and OS version filters.',
+            'Uptime monitoring, status pages, and Global Properties are now available through the MCP server.',
+            'MCP tokens can now be given an expiry when you create them.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v146-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Filters that can't return data on a given page are now hidden, and any you already applied are shown as inactive.",
+            'The wildcard "*" can now be used on its own to filter by whether a field has any value at all.',
+            'Referrer domains in the Traffic Sources section on the overview page are now clickable to filter.',
+            'Various small design and usability improvements across filters, the events page, and the event log.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v146-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filter values now match case-insensitively everywhere, so lowercase values no longer show empty geography and device cards.',
+            '"is not" filters no longer silently do nothing on pages that report on sessions.',
+            'Clicking a city or region now filters by the full location hierarchy, so cities with the same name are no longer merged.',
+            'Fixed an issue where uptime monitor check intervals above 1 hour would not save.',
+            'An invalid filter in a shared URL no longer clears your entire filter set.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v146-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: ['General security updates to keep Betterlytics stable and secure.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v145ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.5',
@@ -117,9 +186,10 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v145ChangelogEntryEn;
+export const latestChangelogModalEn = v146ChangelogEntryEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v146ChangelogEntryEn,
   v145ChangelogEntryEn,
   v144ChangelogEntryEn,
   {
