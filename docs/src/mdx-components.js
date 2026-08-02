@@ -9,7 +9,7 @@ import {
   IntegrationIconRow,
   IntegrationIcon,
 } from "./app/components/IntegrationIconRow";
-import { McpSetup } from "./app/components/McpSetup";
+import { McpSetup } from "./app/components/McpSetup/McpSetup";
 
 const themeComponents = getThemeComponents();
 

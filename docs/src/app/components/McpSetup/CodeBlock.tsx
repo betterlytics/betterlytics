@@ -86,7 +86,6 @@ const TOKENIZERS: Record<SnippetLang, (code: string) => Piece[]> = {
   bash: tokenizeBash,
 };
 
-/** Splits pieces so the reader's own token can be visibly marked in place. */
 function markSubstring(pieces: Piece[], needle: string) {
   if (!needle) return pieces.map((piece) => ({ ...piece, marked: false }));
 
@@ -108,7 +107,6 @@ function markSubstring(pieces: Piece[], needle: string) {
 type CodeBlockProps = {
   code: string;
   lang: SnippetLang;
-  /** Substring to visually mark, used for the reader's pasted token. */
   mark?: string;
 };
 
@@ -131,8 +129,6 @@ export function CodeBlock({ code, lang, mark }: CodeBlockProps) {
       await navigator.clipboard.writeText(code);
       setCopied(true);
     } catch {
-      // Clipboard is unavailable (insecure context, denied permission) — the
-      // snippet is selectable, so there is nothing useful to surface here.
     }
   }, [code]);
 
@@ -159,22 +155,9 @@ export function CodeBlock({ code, lang, mark }: CodeBlockProps) {
         type="button"
         onClick={copy}
         aria-label={copied ? "Copied" : "Copy code"}
-        className="absolute right-2 top-2 rounded-md border border-[color:var(--border)] bg-[color:var(--background)] p-1.5 text-[color:var(--muted-foreground)] opacity-0 transition hover:text-[color:var(--foreground)] focus-visible:opacity-100 group-hover:opacity-100 max-md:opacity-100"
+        className="absolute right-2 top-2 flex cursor-pointer items-center justify-center rounded-md border border-[color:var(--border)] bg-[color:var(--background)] p-1.5 text-[color:var(--muted-foreground)] opacity-0 transition hover:text-[color:var(--foreground)] focus-visible:opacity-100 group-hover:opacity-100 max-md:opacity-100"
       >
-        {copied ? (
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="h-3.5 w-3.5 text-[color:var(--primary)]"
-            aria-hidden="true"
-          >
-            <path d="m20 6-11 11-5-5" />
-          </svg>
-        ) : (
+        <span className="relative flex" aria-hidden="true">
           <svg
             viewBox="0 0 24 24"
             fill="none"
@@ -182,13 +165,29 @@ export function CodeBlock({ code, lang, mark }: CodeBlockProps) {
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="h-3.5 w-3.5"
-            aria-hidden="true"
+            className={cn(
+              "h-3.5 w-3.5 transition-all duration-200",
+              copied ? "scale-50 opacity-0" : "scale-100 opacity-100",
+            )}
           >
             <rect x="9" y="9" width="12" height="12" rx="2" />
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
           </svg>
-        )}
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className={cn(
+              "absolute inset-0 m-auto h-3.5 w-3.5 text-emerald-500 transition-all duration-200",
+              copied ? "scale-100 opacity-100" : "scale-50 opacity-0",
+            )}
+          >
+            <path d="m20 6-11 11-5-5" />
+          </svg>
+        </span>
       </button>
     </div>
   );

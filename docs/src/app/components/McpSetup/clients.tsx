@@ -106,7 +106,7 @@ export const CLIENTS: Client[] = [
           >
             Request headers
           </a>{" "}
-          field — add a custom connector pointing at{" "}
+          field: add a custom connector pointing at{" "}
           <code>https://betterlytics.io/api/mcp</code> with an{" "}
           <code>Authorization</code> header set to{" "}
           <code>Bearer &lt;your token&gt;</code>. That feature is still in beta
@@ -210,7 +210,7 @@ export const CLIENTS: Client[] = [
       label: "Add to Cursor",
       href: cursorInstallLink,
       hintWithoutToken:
-        "Opens Cursor with the server pre-filled — paste your token above first and it installs ready to use.",
+        "Opens Cursor with the server pre-filled. Paste your token above first and it installs ready to use.",
     },
     snippetLead: (
       <>
@@ -233,7 +233,7 @@ export const CLIENTS: Client[] = [
       label: "Add to VS Code",
       href: vsCodeInstallLink,
       hintWithoutToken:
-        "Opens VS Code and prompts you for your token — nothing else to fill in.",
+        "Opens VS Code and prompts you for your token, nothing else to fill in.",
     },
     snippetLead: (
       <>
@@ -300,8 +300,8 @@ export const CLIENTS: Client[] = [
         >
           MCP config
         </a>{" "}
-        — <code>~/.gemini/config/mcp_config.json</code> globally, or{" "}
-        <code>.agents/mcp_config.json</code> for a single workspace:
+        (<code>~/.gemini/config/mcp_config.json</code> globally, or{" "}
+        <code>.agents/mcp_config.json</code> for a single workspace):
       </>
     ),
     variants: [
@@ -338,7 +338,7 @@ export const CLIENTS: Client[] = [
         To keep the token out of the config file, drop the{" "}
         <code>http_headers</code> line and use{" "}
         <code>bearer_token_env_var = &quot;BETTERLYTICS_MCP_TOKEN&quot;</code>{" "}
-        instead — Codex then reads the token from your environment at connection
+        instead. Codex then reads the token from your environment at connection
         time.
       </p>
     ),

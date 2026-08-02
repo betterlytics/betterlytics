@@ -1,1 +1,0 @@
-export { McpSetup } from "./McpSetup";

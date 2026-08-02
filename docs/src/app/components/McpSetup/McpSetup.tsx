@@ -10,8 +10,6 @@ import {
   isClientId,
 } from "./clients";
 
-const STORAGE_KEY = "betterlytics.docs.mcp-client";
-
 const PROSE = cn(
   "text-[color:var(--foreground)]",
   "[&_p]:mt-4 [&_p]:leading-7 [&_p:first-child]:mt-0",
@@ -43,30 +41,17 @@ export function McpSetup() {
   const select = useCallback((id: string, fromUser = true) => {
     setSelectedId(id);
     setVariantIndex(0);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, id);
-    } catch {
-    }
     if (fromUser) {
       // Keeps the per-client anchor shareable without triggering a scroll jump.
       window.history.replaceState(null, "", `#${id}`);
     }
   }, []);
 
-  // A legacy `#cursor`-style anchor wins over the remembered client, so shared
-  // links always land on the client they were shared for.
+  // A `#cursor`-style anchor selects that client, so shared links land on the
+  // client they were shared for.
   useEffect(() => {
     const fromHash = clientIdFromHash();
-    if (fromHash) {
-      select(fromHash, false);
-      return;
-    }
-    try {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (isClientId(stored)) select(stored, false);
-    } catch {
-      // See above.
-    }
+    if (fromHash) select(fromHash, false);
   }, [select]);
 
   useEffect(() => {
@@ -171,7 +156,7 @@ export function McpSetup() {
         </div>
         <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
           Paste it to get ready-to-use snippets and install links. It is
-          substituted in your browser only — never sent to us and never saved.
+          substituted in your browser only, never sent to us and never saved.
         </p>
       </div>
 
@@ -209,7 +194,7 @@ export function McpSetup() {
             </a>
             <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
               {hasToken
-                ? "Pre-filled with the token above — click to install."
+                ? "Pre-filled with the token above. Click to install."
                 : selected.install.hintWithoutToken}
             </p>
           </div>
@@ -220,7 +205,7 @@ export function McpSetup() {
         </div>
 
         {selected.variants.length > 1 && (
-          <div className="mt-3 inline-flex rounded-lg border border-[color:var(--border)] p-0.5">
+          <div className="mt-3 inline-flex rounded-lg bg-[color:var(--muted)] p-0.5">
             {selected.variants.map((option, index) => (
               <button
                 key={option.label}
@@ -229,7 +214,7 @@ export function McpSetup() {
                 className={cn(
                   "cursor-pointer rounded-md px-3 py-1 text-xs font-medium transition-colors",
                   index === variantIndex
-                    ? "bg-[color:var(--primary)]/10 text-[color:var(--primary)]"
+                    ? "bg-[color:var(--background)] text-[color:var(--foreground)] shadow-sm"
                     : "text-[color:var(--muted-foreground)] hover:text-[color:var(--foreground)]",
                 )}
               >
