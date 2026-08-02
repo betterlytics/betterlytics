@@ -100,3 +100,25 @@ describe('getFilterQuery regressions', () => {
     expect(notEquals).toContain('NOT has(global_properties_keys');
   });
 });
+
+describe('getFilterQuery custom event properties', () => {
+  it('filters = through JSONExtractString on the blob', () => {
+    const sql = buildSql([makeFilter('cep.plan', '=', ['pro'])]);
+
+    expect(sql).toMatch(/arrayExists\(pattern -> JSONExtractString\(custom_event_json, \{cep_key_0:String\}\) ILIKE pattern/);
+  });
+
+  it('keeps != as a per-event arrayAll NOT ILIKE', () => {
+    const sql = buildSql([makeFilter('cep.plan', '!=', ['pro'])]);
+
+    expect(sql).toMatch(/arrayAll\(pattern -> JSONExtractString\(custom_event_json, \{cep_key_0:String\}\) NOT ILIKE pattern/);
+  });
+
+  it('keeps cep bare wildcard as key existence', () => {
+    const equals = buildSql([makeFilter('cep.plan', '=', ['*'])]);
+    const notEquals = buildSql([makeFilter('cep.plan', '!=', ['*'])]);
+
+    expect(equals).toContain('JSONHas(custom_event_json');
+    expect(notEquals).toContain('NOT JSONHas(custom_event_json');
+  });
+});

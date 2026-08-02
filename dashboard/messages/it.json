@@ -2463,6 +2463,7 @@
       "is": "è",
       "isNot": "non è",
       "globalProperties": "{count, plural, one {Proprietà globale} other {Proprietà globali}}",
+      "customEventProperties": "{count, plural, one {Proprietà evento personalizzato} other {Proprietà eventi personalizzati}}",
       "selectProperty": "Seleziona proprietà",
       "noProperties": "Nessuna proprietà trovata",
       "namePlaceholder": "Inserisci nome passaggio",

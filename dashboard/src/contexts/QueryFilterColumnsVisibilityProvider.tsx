@@ -2,21 +2,25 @@
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { type TableFilterColumn } from '@/entities/analytics/filter.entities';
+import { type PropertySourceKind } from '@/entities/analytics/propertySources';
 
 export type QueryFilterColumnsMode = 'disable' | 'hide';
 
+/* A table column, or a whole property source (e.g. 'cep' on pages without custom events). */
+export type ExcludableFilterColumn = TableFilterColumn | PropertySourceKind;
+
 type QueryFilterColumnsVisibility = {
-  excluded: ReadonlySet<TableFilterColumn>;
+  excluded: ReadonlySet<ExcludableFilterColumn>;
   mode: QueryFilterColumnsMode;
 };
 
 const QueryFilterColumnsVisibilityContext = createContext<QueryFilterColumnsVisibility>({
-  excluded: new Set<TableFilterColumn>(),
+  excluded: new Set<ExcludableFilterColumn>(),
   mode: 'disable',
 });
 
 type QueryFilterColumnsVisibilityProviderProps = {
-  exclude?: TableFilterColumn[];
+  exclude?: ExcludableFilterColumn[];
   mode?: QueryFilterColumnsMode;
   children: ReactNode;
 };
@@ -34,7 +38,7 @@ export function QueryFilterColumnsVisibilityProvider({
   mode = 'disable',
   children,
 }: QueryFilterColumnsVisibilityProviderProps) {
-  const value = useMemo(() => ({ excluded: new Set<TableFilterColumn>(exclude), mode }), [exclude, mode]);
+  const value = useMemo(() => ({ excluded: new Set<ExcludableFilterColumn>(exclude), mode }), [exclude, mode]);
   return (
     <QueryFilterColumnsVisibilityContext.Provider value={value}>
       {children}

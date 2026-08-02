@@ -14,6 +14,7 @@ type SchemaDescription = {
   dimensions: { key: string; description: string }[];
   filterColumns: { key: string; description: string; note?: string }[];
   globalProperties: { description: string };
+  customEventProperties: { description: string };
   filterOperators: readonly string[];
   filterFormat: { description: string; example: { column: string; operator: string; values: string[] } };
   timeRanges: string[];
@@ -39,7 +40,11 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
     }),
     globalProperties: {
       description:
-        'This dashboard may record custom event properties you can filter by using the gp.<key> form, e.g. { column: "gp.plan", operator: "=", values: ["pro"] }. These are filter-only (not metrics or dimensions). Call the list_global_properties tool to list the available keys, then call it again with a "key" argument to see example values for a specific property.',
+        'Global properties are key-value metadata attached to every analytics event sent from a page. Filter them with the gp.<key> form, e.g. { column: "gp.plan", operator: "=", values: ["pro"] }. These are filter-only (not metrics or dimensions). Call the list_global_properties tool to list the available keys, then call it again with a "key" argument to see example values for a specific property.',
+    },
+    customEventProperties: {
+      description:
+        'Custom event properties are the per-event payload of a specific tracked event. Filter them with the cep.<key> form, combined with a custom_event_name filter to target one event type - both must match the same event, e.g. { column: "custom_event_name", operator: "=", values: ["purchase"] } plus { column: "cep.currency", operator: "=", values: ["USD"] }. These are filter-only. There is no discovery tool for these keys yet, so use keys known from the site\'s tracking setup.',
     },
     filterOperators: FILTER_OPERATORS,
     filterFormat: {
@@ -207,7 +212,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
       {
         name: 'list_global_properties',
         description:
-          "Discover the custom event (global) properties recorded for this dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property's example values.",
+          'Discover the global properties recorded for this dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property\'s example values.',
         inputs: [
           {
             name: 'timeRange',

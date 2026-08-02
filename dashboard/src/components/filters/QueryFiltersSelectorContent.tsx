@@ -11,6 +11,7 @@ import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilte
 import { useTranslations } from 'next-intl';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { MAX_FILTER_ROWS, type QueryFilter } from '@/entities/analytics/filter.entities';
+import { type PropertyKeysBySource } from '@/entities/analytics/propertySources';
 import { SaveQueryFilterDialog } from '@/components/filters/SaveQueryFilterDialog';
 import { SavedFiltersSection } from '@/components/filters/SavedFiltersSection';
 import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
@@ -26,7 +27,7 @@ type QueryFiltersSelectorContentProps = {
   onApply: (filters: QueryFilter[]) => void;
   onCancel: () => void;
   onLoadSavedFilter?: (filters: QueryFilter[]) => void;
-  globalPropertyKeys?: string[];
+  propertyKeys?: PropertyKeysBySource;
 };
 
 export function QueryFiltersSelectorContent({
@@ -37,7 +38,7 @@ export function QueryFiltersSelectorContent({
   onApply,
   onCancel,
   onLoadSavedFilter,
-  globalPropertyKeys,
+  propertyKeys,
 }: QueryFiltersSelectorContentProps) {
   const t = useTranslations('components.filters');
   const getColumnStatus = useFilterColumnStatus();
@@ -185,7 +186,7 @@ export function QueryFiltersSelectorContent({
                   onFilterUpdate={updateQueryFilter}
                   filter={filter}
                   requestRemoval={requestFilterRemoval}
-                  globalPropertyKeys={globalPropertyKeys}
+                  propertyKeys={propertyKeys}
                   disabled={status.disabled}
                   disabledMessage={getDisabledMessage(status) ?? undefined}
                 />

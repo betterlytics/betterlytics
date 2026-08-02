@@ -85,6 +85,10 @@ const CUSTOM_EVENTS = [
     event_name: "product-clicked",
     properties: JSON.stringify({ product_id: "abc123" }),
   },
+  {
+    event_name: "malformed-props-repro",
+    properties: JSON.stringify({ "ran\tdom": "b" }),
+  },
 ];
 
 const OUTBOUND_LINK_URLS = [
