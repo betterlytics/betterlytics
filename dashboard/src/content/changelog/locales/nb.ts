@@ -32,7 +32,7 @@ const v146ChangelogEntryNb: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'Filtre som ikke kan gi data på en bestemt side, er nå skjult, og de du allerede har lagt til, vises som inaktive.',
+            'Filtre som ikke kan brukes på den aktuelle siden, vises nå som utilgjengelige i stedet for bare å gi tomme resultater.',
             'Wildcard-tegnet "*" kan nå brukes alene for å filtrere på om et felt i det hele tatt har en verdi.',
             'Du kan nå klikke på henvisningsdomener under Trafikkilder på oversiktssiden for å filtrere på dem.',
             'Mindre forbedringer i design og brukervennlighet på tvers av filtre, hendelsessiden og hendelsesloggen.',

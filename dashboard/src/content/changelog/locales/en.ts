@@ -32,7 +32,7 @@ const v146ChangelogEntryEn: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            "Filters that can't return data on a given page are now hidden, and any you already applied are shown as inactive.",
+            "Filters that don't apply to a page are now shown as unavailable, instead of silently returning no data.",
             'The wildcard "*" can now be used on its own to filter by whether a field has any value at all.',
             'Referrer domains in the Traffic Sources section on the overview page are now clickable to filter.',
             'Various small design and usability improvements across filters, the events page, and the event log.',

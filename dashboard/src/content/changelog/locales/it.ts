@@ -32,7 +32,7 @@ const v146ChangelogEntryIt: ChangelogEntryData = {
         {
           type: 'list',
           items: [
-            'I filtri che non possono restituire dati in una determinata pagina ora sono nascosti e quelli già applicati vengono mostrati come inattivi.',
+            'I filtri che non si applicano a una pagina ora vengono mostrati come non disponibili, invece di restituire semplicemente risultati vuoti.',
             'Il carattere wildcard "*" ora può essere usato da solo per filtrare in base alla presenza o meno di un valore in un campo.',
             'Nella sezione Sorgenti di traffico della Panoramica ora puoi fare clic sui domini di riferimento per filtrare.',
             'Vari piccoli miglioramenti di design e usabilità nei filtri, nella pagina Eventi e nel Registro eventi.',
