@@ -9,6 +9,7 @@ import {
   IntegrationIconRow,
   IntegrationIcon,
 } from "./app/components/IntegrationIconRow";
+import { McpSetup } from "./app/components/McpSetup";
 
 const themeComponents = getThemeComponents();
 
@@ -22,6 +23,7 @@ export function useMDXComponents(components) {
     HostingComparisonTable,
     IntegrationIconRow,
     IntegrationIcon,
+    McpSetup,
     ...components,
   };
 }
