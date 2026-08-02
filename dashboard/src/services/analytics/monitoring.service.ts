@@ -5,10 +5,13 @@ import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   MonitorCheckCreate,
   MonitorCheckUpdate,
+  type IncidentState,
   type MonitorDailyUptime,
   type MonitorIncidentSegment,
+  type MonitorIncidentWithMonitor,
   type MonitorMetrics,
   type MonitorOperationalState,
+  type MonitorRangeSummary,
   type MonitorResult,
   type MonitorTlsResult,
   type MonitorUptimeBucket,
@@ -37,6 +40,9 @@ import {
   getLastResolvedIncidentForMonitors,
   getUptime24h,
   getUptimeBuckets24h,
+  getUptimeStatsForMonitors,
+  getLatencyStatsForMonitors,
+  getMonitorIncidentsInRange,
   getMonitorDailyUptime,
   getIncidentSegments24h,
 } from '@/repositories/clickhouse/monitoring.repository';
@@ -250,6 +256,91 @@ export async function fetchMonitorIncidentSegments(
   limit = 5,
 ): Promise<MonitorIncidentSegment[]> {
   return getMonitorIncidentSegments(monitorId, siteId, days, limit);
+}
+
+export async function getMonitorSummariesForRange(
+  dashboardId: string,
+  siteId: string,
+  start: Date,
+  end: Date,
+): Promise<MonitorRangeSummary[]> {
+  const checks = await listMonitorChecks(dashboardId);
+  if (!checks.length) return [];
+
+  const checkIds = checks.map((check) => check.id);
+  const rangeStart = toDateTimeString(start);
+  const rangeEnd = toDateTimeString(end);
+
+  const [openIncidents, lastResolvedIncidents, latestCheckInfo, uptimeStats, latencyStats, tlsResults] =
+    await Promise.all([
+      getOpenIncidentsForMonitors(checkIds, siteId),
+      getLastResolvedIncidentForMonitors(checkIds, siteId),
+      getLatestCheckInfoForMonitors(checkIds, siteId),
+      getUptimeStatsForMonitors(
+        checks.map((check) => ({ checkId: check.id, createdAt: check.createdAt })),
+        siteId,
+        rangeStart,
+        rangeEnd,
+      ),
+      getLatencyStatsForMonitors(checkIds, siteId, rangeStart, rangeEnd),
+      getLatestTlsResultsForMonitors(checkIds, siteId),
+    ]);
+
+  return checks.map((check) => {
+    const checkInfo = latestCheckInfo[check.id];
+    const openIncident = openIncidents.get(check.id);
+    const operationalState = deriveOperationalState(check.isEnabled, checkInfo?.ts != null, openIncident != null);
+    const uptime = uptimeStats.get(check.id) ?? { uptimeSeconds: 0, totalSeconds: 0 };
+
+    return {
+      monitor: check,
+      operationalState,
+      currentStateSince: deriveCurrentStateSince(operationalState, {
+        openIncident,
+        lastResolvedIncident: lastResolvedIncidents.get(check.id),
+        createdAt: check.createdAt,
+      }),
+      lastCheckAt: checkInfo?.ts ?? null,
+      lastStatus: checkInfo?.status ?? null,
+      effectiveIntervalSeconds: checkInfo?.effectiveIntervalSeconds ?? null,
+      backoffLevel: checkInfo?.backoffLevel ?? null,
+      uptimePercent: uptime.totalSeconds > 0 ? (uptime.uptimeSeconds / uptime.totalSeconds) * 100 : null,
+      uptimeSeconds: uptime.uptimeSeconds,
+      totalSeconds: uptime.totalSeconds,
+      latency: latencyStats.get(check.id) ?? { avgMs: null, minMs: null, maxMs: null },
+      tls: tlsResults[check.id] ?? null,
+    };
+  });
+}
+
+export async function getMonitorIncidentsForRange(
+  dashboardId: string,
+  siteId: string,
+  options: { start: Date; end: Date; monitorId?: string; state?: IncidentState; limit: number },
+): Promise<MonitorIncidentWithMonitor[]> {
+  const scoped = options.monitorId
+    ? [await getMonitorCheckById(dashboardId, options.monitorId)].filter((check) => check != null)
+    : await listMonitorChecks(dashboardId);
+
+  if (options.monitorId && !scoped.length) {
+    throw new Error('Monitor not found');
+  }
+  if (!scoped.length) return [];
+
+  const monitorsById = new Map(scoped.map((check) => [check.id, check]));
+  const incidents = await getMonitorIncidentsInRange(
+    scoped.map((check) => check.id),
+    siteId,
+    toDateTimeString(options.start),
+    toDateTimeString(options.end),
+    options.limit,
+    options.state,
+  );
+
+  return incidents.flatMap((incident) => {
+    const monitor = monitorsById.get(incident.monitorCheckId);
+    return monitor ? [{ ...incident, monitor }] : [];
+  });
 }
 
 function deriveCurrentStateSince(
