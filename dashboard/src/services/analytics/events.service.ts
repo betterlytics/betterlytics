@@ -2,7 +2,8 @@
 
 import {
   getCustomEventsOverview,
-  getEventPropertyData,
+  getEventPropertiesSummary,
+  getEventPropertyValues,
   getEventsSince,
   getRecentEvents,
   getTotalEventCount,
@@ -14,13 +15,14 @@ import {
   EventLogPage,
   EventPropertiesOverview,
   EventPropertyAnalytics,
-  EventPropertyValue,
+  EventPropertyValues,
 } from '@/entities/analytics/events.entities';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { calculatePercentage } from '@/utils/mathUtils';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 const MAX_TOP_VALUES = 10;
+const MAX_PROPERTY_VALUES = 1000;
 
 export async function getCustomEventsOverviewForSite(siteQuery: BASiteQuery, limit: number) {
   return getCustomEventsOverview(siteQuery, limit);
@@ -53,57 +55,56 @@ export async function getEventPropertiesAnalyticsForSite(
   siteQuery: BASiteQuery,
   eventName: string,
 ): Promise<EventPropertiesOverview> {
-  const rawPropertyData = await getEventPropertyData(siteQuery, eventName);
+  const rows = await getEventPropertiesSummary(siteQuery, eventName, MAX_TOP_VALUES);
 
-  const totalEvents = rawPropertyData.length;
-  const properties = processPropertyData(rawPropertyData);
+  // Rows arrive grouped per key (top values first); fold them into one entry per property.
+  const propertyMap = new Map<string, EventPropertyAnalytics>();
+  for (const row of rows) {
+    let property = propertyMap.get(row.key);
+    if (!property) {
+      property = {
+        propertyName: row.key,
+        uniqueValueCount: row.unique_value_count,
+        totalOccurrences: row.total_occurrences,
+        topValues: [],
+      };
+      propertyMap.set(row.key, property);
+    }
+    property.topValues.push({
+      value: row.value,
+      count: row.count,
+      percentage: calculatePercentage(row.count, row.total_occurrences),
+      relativePercentage: calculatePercentage(row.count, row.total_occurrences),
+    });
+  }
 
-  return {
-    eventName,
-    totalEvents,
-    properties,
-  };
+  const properties = Array.from(propertyMap.values()).sort(
+    (a, b) => b.totalOccurrences - a.totalOccurrences || (a.propertyName < b.propertyName ? -1 : 1),
+  );
+
+  return { eventName, properties, maxValues: MAX_PROPERTY_VALUES };
 }
 
-function processPropertyData(rawPropertyData: Array<{ custom_event_json: string }>): EventPropertyAnalytics[] {
-  const propertyMap = new Map<string, Map<string, number>>();
+export async function getEventPropertyValuesForSite(
+  siteQuery: BASiteQuery,
+  eventName: string,
+  propertyName: string,
+): Promise<EventPropertyValues> {
+  const rows = await getEventPropertyValues(siteQuery, eventName, propertyName, MAX_PROPERTY_VALUES);
 
-  rawPropertyData.forEach((row) => {
-    try {
-      const properties = JSON.parse(row.custom_event_json);
+  // Window aggregates are identical on every row; totals cover all values even when the list is capped.
+  const totalOccurrences = rows[0]?.total_occurrences ?? 0;
+  const uniqueValueCount = rows[0]?.unique_value_count ?? 0;
 
-      Object.entries(properties).forEach(([key, value]) => {
-        if (!propertyMap.has(key)) {
-          propertyMap.set(key, new Map());
-        }
-
-        const valueStr = String(value);
-        const valueMap = propertyMap.get(key)!;
-        valueMap.set(valueStr, (valueMap.get(valueStr) || 0) + 1);
-      });
-    } catch {
-      // Skip invalid JSON
-    }
-  });
-
-  return Array.from(propertyMap.entries()).map(([propertyName, valueMap]) => {
-    const totalOccurrences = Array.from(valueMap.values()).reduce((sum, count) => sum + count, 0);
-
-    const topValues = Array.from(valueMap.entries())
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, MAX_TOP_VALUES)
-      .map(([value, count]) => ({
-        value,
-        count,
-        percentage: calculatePercentage(count, totalOccurrences),
-        relativePercentage: calculatePercentage(count, totalOccurrences),
-      }));
-
-    return {
-      propertyName,
-      uniqueValueCount: valueMap.size,
-      totalOccurrences,
-      topValues,
-    };
-  });
+  return {
+    propertyName,
+    uniqueValueCount,
+    totalOccurrences,
+    values: rows.map((row) => ({
+      value: row.value,
+      count: row.count,
+      percentage: calculatePercentage(row.count, totalOccurrences),
+      relativePercentage: calculatePercentage(row.count, totalOccurrences),
+    })),
+  };
 }

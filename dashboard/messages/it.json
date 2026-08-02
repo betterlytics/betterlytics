@@ -2445,13 +2445,20 @@
         "noEvents": "Nessun evento trovato",
         "noEventsDesc": "Nessun evento personalizzato tracciato in questo periodo. Gli eventi appariranno qui quando inizieranno a essere registrati.",
         "eventDetails": "Dettagli evento",
+        "searchPlaceholder": "Cerca eventi...",
+        "emptySearch": "Nessun evento corrisponde alla tua ricerca.",
         "uniqueEvent": "Evento unico",
         "uniqueEvents": "Eventi unici"
       },
       "expandedEventContent": {
         "loading": "Caricamento proprietà...",
         "noProperties": "Nessuna proprietà",
-        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate."
+        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate.",
+        "showAllValues": "Mostra tutti i {count} valori",
+        "showTopValues": "Mostra i primi {shown} di {total} valori",
+        "showAllProperties": "Mostra tutte le {count} proprietà",
+        "showLess": "Mostra meno",
+        "valuesCapped": "Primi {shown} di {total} valori"
       }
     },
     "tabbedTable": {
