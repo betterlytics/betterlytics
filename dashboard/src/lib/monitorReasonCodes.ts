@@ -78,7 +78,7 @@ export function getReasonTranslationKey(reasonCode: string | null | undefined): 
     return 'unknown';
   }
 
-  if (reasonCode in reasonCodeFallbackMessages) {
+  if (Object.hasOwn(reasonCodeFallbackMessages, reasonCode)) {
     return reasonCode as ReasonCodeKey;
   }
 
@@ -107,7 +107,7 @@ const REASON_CODE_TO_PUBLIC_CAUSE: Partial<Record<ReasonCodeKey, PublicIncidentC
 };
 
 export function getPublicIncidentCause(reasonCode: string | null | undefined): PublicIncidentCause {
-  if (reasonCode && reasonCode in REASON_CODE_TO_PUBLIC_CAUSE) {
+  if (reasonCode && Object.hasOwn(REASON_CODE_TO_PUBLIC_CAUSE, reasonCode)) {
     return REASON_CODE_TO_PUBLIC_CAUSE[reasonCode as ReasonCodeKey] ?? 'disruption';
   }
   return 'disruption';

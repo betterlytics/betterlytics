@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const MonitorStatusSchema = z.enum(['ok', 'warn', 'failed']);
 export const IncidentStateSchema = z.enum(['ongoing', 'resolved']);
+export const IncidentSeveritySchema = z.enum(['info', 'warning', 'critical']);
 
 /**
  * Operational state represents the current state of a monitor from a user's perspective.
@@ -205,6 +206,23 @@ export type MonitorWithStatus = MonitorCheck & {
   currentStateSince: string | null;
 };
 
+// Current state plus uptime and latency aggregates over a requested range, without the per-bucket
+// series MonitorWithStatus carries. Used where a summary is wanted rather than a chart.
+export type MonitorRangeSummary = {
+  monitor: MonitorCheck;
+  operationalState: MonitorOperationalState;
+  currentStateSince: string | null;
+  lastCheckAt: string | null;
+  lastStatus: MonitorStatus | null;
+  effectiveIntervalSeconds: number | null;
+  backoffLevel: number | null;
+  uptimePercent: number | null;
+  uptimeSeconds: number;
+  totalSeconds: number;
+  latency: MonitorLatencyStats;
+  tls: MonitorTlsResult | null;
+};
+
 export type UptimeStats = z.infer<typeof UptimeStatsSchema>;
 export type MonitorUptimeBucket = z.infer<typeof MonitorUptimeBucketSchema>;
 export type MonitorLatencyStats = z.infer<typeof MonitorLatencyStatsSchema>;
@@ -217,6 +235,24 @@ export type MonitorResult = z.infer<typeof MonitorResultSchema>;
 export type MonitorTlsResult = z.infer<typeof MonitorTlsResultSchema>;
 export type MonitorIncidentSegment = z.infer<typeof MonitorIncidentSegmentSchema>;
 export type MonitorDailyUptime = z.infer<typeof MonitorDailyUptimeSchema>;
+
+/**
+ * A single detected incident with its identity and severity
+ */
+export const MonitorIncidentRecordSchema = z.object({
+  incidentId: z.string(),
+  monitorCheckId: z.string(),
+  state: IncidentStateSchema,
+  severity: IncidentSeveritySchema,
+  reason: z.string().nullable(),
+  startedAt: z.string(),
+  resolvedAt: z.string().nullable(),
+  durationMs: z.number().nullable(),
+});
+export type MonitorIncidentRecord = z.infer<typeof MonitorIncidentRecordSchema>;
+
+/** An incident paired with the monitor it belongs to, for listings that span several monitors. */
+export type MonitorIncidentWithMonitor = MonitorIncidentRecord & { monitor: MonitorCheck };
 
 export const DetectedOutageRowSchema = z.object({
   detectedIncidentId: z.string(),

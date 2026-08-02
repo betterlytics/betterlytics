@@ -6,6 +6,8 @@ import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { MCP_GRANULARITIES } from '@/mcp/entities/mcp.entities';
 
 type ToolInput = { name: string; type: string; required: boolean; description: string };
+type ToolDescription = { name: string; description: string; inputs: ToolInput[] };
+export type ToolAvailability = { uptimeMonitoring: boolean; publicStatusPages: boolean };
 
 type SchemaDescription = {
   metrics: { key: string; description: string }[];
@@ -23,7 +25,7 @@ type SchemaDescription = {
   tools: { name: string; description: string; inputs: ToolInput[] }[];
 };
 
-export function getSchemaDescription(): SchemaDescription {
+export function getSchemaDescription(available: ToolAvailability): SchemaDescription {
   return {
     metrics: METRICS.map((m) => ({ key: m.key, description: m.description })),
     dimensions: DIMENSIONS.map((d) => ({ key: d.key, description: d.description })),
@@ -205,7 +207,7 @@ export function getSchemaDescription(): SchemaDescription {
       {
         name: 'list_global_properties',
         description:
-          'Discover the custom event (global) properties recorded for this dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property\'s example values.',
+          "Discover the custom event (global) properties recorded for this dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property's example values.",
         inputs: [
           {
             name: 'timeRange',
@@ -246,7 +248,8 @@ export function getSchemaDescription(): SchemaDescription {
             name: 'fingerprint',
             type: 'string',
             required: false,
-            description: 'Look up a specific error by its fingerprint ID. Use a fingerprint from a previous list_errors call, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+            description:
+              'Look up a specific error by its fingerprint ID. Use a fingerprint from a previous list_errors call, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
           },
           {
             name: 'filters',
@@ -271,7 +274,8 @@ export function getSchemaDescription(): SchemaDescription {
             name: 'fingerprint',
             type: 'string',
             required: true,
-            description: 'The error fingerprint identifier. Use list_errors to find it, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+            description:
+              'The error fingerprint identifier. Use list_errors to find it, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
           },
           {
             name: 'occurrenceOffset',
@@ -288,6 +292,88 @@ export function getSchemaDescription(): SchemaDescription {
           },
         ],
       },
+      ...(available.uptimeMonitoring ? MONITORING_TOOLS : []),
+      ...(available.publicStatusPages ? STATUS_PAGE_TOOLS : []),
     ],
   };
 }
+
+const MONITORING_TOOLS: ToolDescription[] = [
+  {
+    name: 'list_monitors',
+    description:
+      'List uptime monitors with their current operational state (up, down, degraded, preparing, paused), uptime percentage, response time summary, and SSL certificate status. Use timeRange "24h" for a current-state check.',
+    inputs: [
+      {
+        name: 'timeRange',
+        type: 'string',
+        required: true,
+        description:
+          'Time range the uptime and response time summary covers. Valid values are listed in the timeRanges field of this schema. Operational state is always current, regardless of this range.',
+      },
+      { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+    ],
+  },
+  {
+    name: 'list_monitor_incidents',
+    description:
+      'List detected downtime incidents (ongoing and resolved) for the uptime monitors, newest first, with severity, duration, and failure reason. SSL certificate incidents are excluded; see the ssl field of list_monitors for cert health.',
+    inputs: [
+      {
+        name: 'timeRange',
+        type: 'string',
+        required: true,
+        description:
+          'Time range to search. Incidents overlapping the range are returned, including ones that started before it. Valid values are listed in the timeRanges field of this schema.',
+      },
+      { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+      {
+        name: 'monitorId',
+        type: 'string',
+        required: false,
+        description: 'Only return incidents for this monitor. Use an id from list_monitors.',
+      },
+      {
+        name: 'state',
+        type: 'string',
+        required: false,
+        description: '"ongoing" (still down) or "resolved". Omit for both.',
+      },
+      {
+        name: 'limit',
+        type: 'number',
+        required: false,
+        description: 'Max incidents to return (1-100). Defaults to 20.',
+      },
+    ],
+  },
+];
+
+const STATUS_PAGE_TOOLS: ToolDescription[] = [
+  {
+    name: 'list_status_pages',
+    description:
+      "The dashboard's public status pages as visitors currently see them: published state, public URL, derived overall status, attached monitors with their public names and uptime, and the incidents shown on the page with their update timelines. Takes no time range; it always reflects right now.",
+    inputs: [
+      {
+        name: 'statusPageId',
+        type: 'string',
+        required: false,
+        description: 'Only look at this status page. Use an id from list_status_pages. Omit for all of them.',
+      },
+    ],
+  },
+  {
+    name: 'list_incident_suggestions',
+    description:
+      'Detected outages that no posted status page incident covers, grouped per status page. Use this to tell whether an ongoing outage is missing an incident. Each suggestion includes its detected incident id and the affected monitors. Sweeps every status page and every monitor attached to them, so an empty result means nothing is uncovered. Scope caveats: only the last 90 days are considered, a resolved outage stops being suggested 3 days after it recovered, outages starting within 10 minutes of each other are folded into one suggestion, and at most 20 suggestions are returned per page.',
+    inputs: [
+      {
+        name: 'statusPageId',
+        type: 'string',
+        required: false,
+        description: 'Only look at this status page. Use an id from list_status_pages. Omit for all of them.',
+      },
+    ],
+  },
+];
