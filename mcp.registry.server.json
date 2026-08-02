@@ -1,0 +1,26 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.betterlytics/mcp",
+  "title": "Betterlytics",
+  "description": "Query your Betterlytics web analytics from AI agents: traffic, funnels, journeys, errors, uptime.",
+  "version": "1.0.1",
+  "websiteUrl": "https://betterlytics.io/docs/dashboard/mcp",
+  "repository": {
+    "url": "https://github.com/betterlytics/betterlytics",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://betterlytics.io/api/mcp",
+      "headers": [
+        {
+          "name": "Authorization",
+          "description": "Bearer token created in Dashboard > Settings > MCP. Enter the full value including the scheme, e.g. 'Bearer btl_...'",
+          "isRequired": true,
+          "isSecret": true
+        }
+      ]
+    }
+  ]
+}
