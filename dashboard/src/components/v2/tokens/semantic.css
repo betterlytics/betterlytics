@@ -10,9 +10,9 @@
   --accent-content: var(--bl-blue-600);
 
   --intent-success: var(--bl-green-600);
-  --intent-success-surface: oklch(from var(--bl-green-500) l c h / 0.1);
-  --intent-success-border: oklch(from var(--bl-green-500) l c h / 0.3);
-  --intent-success-content: var(--bl-green-600);
+  --intent-success-surface: var(--bl-green-100);
+  --intent-success-border: var(--bl-green-300);
+  --intent-success-content: var(--bl-green-700);
 
   --intent-warning: var(--bl-amber-600);
   --intent-warning-surface: oklch(from var(--bl-amber-500) l c h / 0.1);
@@ -53,7 +53,7 @@
   --intent-warning-border: oklch(from var(--bl-amber-500) l c h / 0.3);
   --intent-warning-content: var(--bl-amber-400);
 
-  --intent-danger: var(--bl-red-800);
+  --intent-danger: oklch(from var(--bl-red-450) l c h / 0.6);
   --intent-danger-surface: oklch(from var(--bl-red-500) l c h / 0.1);
   --intent-danger-border: oklch(from var(--bl-red-500) l c h / 0.3);
   --intent-danger-content: var(--bl-red-400);
