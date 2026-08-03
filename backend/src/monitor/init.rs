@@ -26,13 +26,26 @@ pub fn spawn_monitoring(
 ) {
     super::init_dev_mode(config.is_development);
 
+    let monitor_db_url = config
+        .monitor_database_url
+        .clone()
+        .expect("MONITORING_DATABASE_URL must be set to a valid Postgres URL when ENABLE_UPTIME_MONITORING is true; set it or disable uptime monitoring");
+
     tokio::spawn(async move {
-        run_monitoring_init_loop(config, clickhouse, metrics, notification_engine).await;
+        run_monitoring_init_loop(
+            config,
+            monitor_db_url,
+            clickhouse,
+            metrics,
+            notification_engine,
+        )
+        .await;
     });
 }
 
 async fn run_monitoring_init_loop(
     config: Arc<Config>,
+    monitor_db_url: String,
     clickhouse: Arc<ClickHouseClient>,
     metrics: Option<Arc<MetricsCollector>>,
     notification_engine: Option<Arc<NotificationEngine>>,
@@ -42,14 +55,6 @@ async fn run_monitoring_init_loop(
 
     loop {
         info!("uptime monitoring enabled; initializing monitor components");
-
-        let monitor_db_url = match config.monitor_database_url.as_ref() {
-            Some(url) => url.clone(),
-            None => {
-                warn!("MONITORING_DATABASE_URL not set; cannot start uptime monitoring");
-                return;
-            }
-        };
 
         let monitor_pool = match PostgresPool::new(&monitor_db_url, "betterlytics_monitor", 4).await
         {
