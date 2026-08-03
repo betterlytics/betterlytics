@@ -1,5 +1,74 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v146ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.6',
+    releasedAt: '2026-08-02',
+    title: 'Filtri per le proprietà degli eventi personalizzati e una pagina Eventi più ricca',
+    summary:
+      'Filtra le analisi in base a qualsiasi proprietà dei tuoi eventi personalizzati, esplora il catalogo completo degli eventi con ricerca e ordinamento e collega i monitor uptime e le pagine di stato ai tuoi assistenti AI.',
+  },
+  sections: [
+    {
+      id: 'v146-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Ora puoi filtrare e segmentare qualsiasi report in base alle proprietà che invii con i tuoi eventi personalizzati.',
+            "La pagina Eventi ora mostra l'elenco completo degli eventi, con ricerca e ordinamento.",
+            'Nuovi filtri per versione del browser e del sistema operativo.',
+            'Il monitoraggio uptime, le pagine di stato e le Proprietà globali sono ora disponibili tramite il server MCP.',
+            'Ora puoi impostare una scadenza per i token MCP al momento della creazione.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v146-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I filtri che non si applicano a una pagina ora vengono mostrati come non disponibili, invece di restituire semplicemente risultati vuoti.',
+            'Il carattere wildcard "*" ora può essere usato da solo per filtrare in base alla presenza o meno di un valore in un campo.',
+            'Nella sezione Sorgenti di traffico della Panoramica ora puoi fare clic sui domini di riferimento per filtrare.',
+            'Vari piccoli miglioramenti di design e usabilità nei filtri, nella pagina Eventi e nel Registro eventi.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v146-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'I filtri ora ignorano ovunque maiuscole e minuscole, quindi i valori in minuscolo non lasciano più vuote le schede Geografia e Dispositivi.',
+            'I filtri "non è" ora funzionano anche nelle pagine basate sulle sessioni.',
+            "Facendo clic su una città o una regione ora filtri per l'intera gerarchia geografica, così le città con lo stesso nome non vengono più unite.",
+            'Risolto un problema per cui i monitor uptime non salvavano gli intervalli di controllo superiori a 1 ora.',
+            'Un filtro non valido in un URL condiviso non cancella più tutti gli altri filtri.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v146-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Aggiornamenti generali di sicurezza per mantenere Betterlytics stabile e sicuro.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v145ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.5',
@@ -121,9 +190,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v145ChangelogEntryIt;
+export const latestChangelogModalIt = v146ChangelogEntryIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v146ChangelogEntryIt,
   v145ChangelogEntryIt,
   v144ChangelogEntryIt,
   {

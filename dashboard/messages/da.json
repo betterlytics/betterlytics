@@ -2445,13 +2445,20 @@
         "noEvents": "Ingen hændelser fundet",
         "noEventsDesc": "Ingen brugerdefinerede hændelser blev sporet i denne tidsperiode. Hændelser vil vises her, når de begynder at blive registreret.",
         "eventDetails": "Hændelsesdetaljer",
+        "searchPlaceholder": "Søg i hændelser...",
+        "emptySearch": "Ingen hændelser matcher din søgning.",
         "uniqueEvent": "Unik hændelse",
         "uniqueEvents": "Unikke hændelser"
       },
       "expandedEventContent": {
         "loading": "Indlæser egenskaber...",
         "noProperties": "Ingen egenskaber",
-        "noPropertiesDesc": "Denne hændelse har ingen brugerdefinerede egenskaber."
+        "noPropertiesDesc": "Denne hændelse har ingen brugerdefinerede egenskaber.",
+        "showAllValues": "Vis alle {count} værdier",
+        "showTopValues": "Vis top {shown} af {total} værdier",
+        "showAllProperties": "Vis alle {count} egenskaber",
+        "showLess": "Vis færre",
+        "valuesCapped": "Viser top {shown} af {total} værdier"
       }
     },
     "tabbedTable": {
@@ -2463,6 +2470,7 @@
       "is": "er",
       "isNot": "er ikke",
       "globalProperties": "{count, plural, one {Global egenskab} other {Globale egenskaber}}",
+      "customEventProperties": "{count, plural, one {Egenskab for brugerdefineret hændelse} other {Egenskaber for brugerdefinerede hændelser}}",
       "selectProperty": "Vælg egenskab",
       "noProperties": "Ingen egenskaber fundet",
       "namePlaceholder": "Angiv trinnavn",
@@ -3699,7 +3707,17 @@
       "creating": "Opretter...",
       "newTokenNotice": "Kopier denne token nu. Du vil ikke kunne se den igen.",
       "created": "Oprettet {date}",
-      "lastUsed": "Sidst brugt {date}"
+      "lastUsed": "Sidst brugt {date}",
+      "expirationLabel": "Udløb",
+      "lifetime": {
+        "30d": "30 dage",
+        "90d": "90 dage",
+        "180d": "180 dage",
+        "never": "Uden udløb"
+      },
+      "expires": "Udløber {date}",
+      "expired": "Udløbet {date}",
+      "neverExpires": "Udløber aldrig"
     },
     "toast": {
       "created": "Token oprettet",

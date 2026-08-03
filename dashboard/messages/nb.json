@@ -2445,13 +2445,20 @@
         "noEvents": "Ingen hendelser funnet",
         "noEventsDesc": "Ingen egendefinerte hendelser ble sporet i denne perioden. Hendelser vises her når de begynner å bli registrert.",
         "eventDetails": "Hendelsesdetaljer",
+        "searchPlaceholder": "Søk i hendelser...",
+        "emptySearch": "Ingen hendelser samsvarer med søket ditt.",
         "uniqueEvent": "Unik hendelse",
         "uniqueEvents": "Unike hendelser"
       },
       "expandedEventContent": {
         "loading": "Laster inn egenskaper...",
         "noProperties": "Ingen egenskaper",
-        "noPropertiesDesc": "Denne hendelsen har ingen brukerdefinerte egenskaper."
+        "noPropertiesDesc": "Denne hendelsen har ingen brukerdefinerte egenskaper.",
+        "showAllValues": "Vis alle {count} verdier",
+        "showTopValues": "Vis topp {shown} av {total} verdier",
+        "showAllProperties": "Vis alle {count} egenskaper",
+        "showLess": "Vis færre",
+        "valuesCapped": "Viser topp {shown} av {total} verdier"
       }
     },
     "tabbedTable": {
@@ -2463,6 +2470,7 @@
       "is": "er",
       "isNot": "er ikke",
       "globalProperties": "{count, plural, one {Global egenskap} other {Globale egenskaper}}",
+      "customEventProperties": "{count, plural, one {Egenskap for tilpasset hendelse} other {Egenskaper for tilpassede hendelser}}",
       "selectProperty": "Velg egenskap",
       "noProperties": "Ingen egenskaper funnet",
       "namePlaceholder": "Angi trinnnavn",
@@ -3699,7 +3707,17 @@
       "creating": "Oppretter...",
       "newTokenNotice": "Kopier denne nøkkelen nå. Du vil ikke kunne se den igjen.",
       "created": "Opprettet {date}",
-      "lastUsed": "Sist brukt {date}"
+      "lastUsed": "Sist brukt {date}",
+      "expirationLabel": "Utløp",
+      "lifetime": {
+        "30d": "30 dager",
+        "90d": "90 dager",
+        "180d": "180 dager",
+        "never": "Uten utløp"
+      },
+      "expires": "Utløper {date}",
+      "expired": "Utløpt {date}",
+      "neverExpires": "Utløper aldri"
     },
     "toast": {
       "created": "Nøkkel opprettet",

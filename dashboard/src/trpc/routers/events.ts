@@ -5,6 +5,7 @@ import { MAX_FILTER_ROWS, QueryFilterSchema } from '@/entities/analytics/filter.
 import {
   getCustomEventsOverviewForSite,
   getEventPropertiesAnalyticsForSite,
+  getEventPropertyValuesForSite,
   getNewEventsForSite,
   getRecentEventsForSite,
   getTotalEventCountForSite,
@@ -14,6 +15,7 @@ import { toDataTable } from '@/presenters/toDataTable';
 import { toGlobalPropertiesDataTable } from '@/presenters/toGlobalPropertiesDataTable';
 
 const CUSTOM_EVENTS_OVERVIEW_LIMIT = 10;
+const CUSTOM_EVENTS_OVERVIEW_MAX_LIMIT = 1000;
 const RECENT_EVENTS_DEFAULT_PAGE_SIZE = 25;
 const RECENT_EVENTS_MAX_PAGE_SIZE = 100;
 const NEW_EVENTS_MAX_LIMIT = 500;
@@ -24,14 +26,26 @@ const GLOBAL_PROPERTIES_VALUE_LIMIT = 20;
 const EventLogFiltersSchema = z.array(QueryFilterSchema).max(MAX_FILTER_ROWS);
 
 export const eventsRouter = createRouter({
-  customEventsOverview: analyticsProcedure.query(async ({ ctx }) => {
-    const { main, compare } = ctx;
-    const [data, compareData] = await Promise.all([
-      getCustomEventsOverviewForSite(main, CUSTOM_EVENTS_OVERVIEW_LIMIT),
-      compare && getCustomEventsOverviewForSite(compare, CUSTOM_EVENTS_OVERVIEW_LIMIT),
-    ]);
-    return toDataTable({ data, compare: compareData, categoryKey: 'event_name' });
-  }),
+  customEventsOverview: analyticsProcedure
+    .input(
+      z.object({
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(CUSTOM_EVENTS_OVERVIEW_MAX_LIMIT)
+          .optional()
+          .default(CUSTOM_EVENTS_OVERVIEW_LIMIT),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { main, compare } = ctx;
+      const [data, compareData] = await Promise.all([
+        getCustomEventsOverviewForSite(main, input.limit),
+        compare && getCustomEventsOverviewForSite(compare, input.limit),
+      ]);
+      return toDataTable({ data, compare: compareData, categoryKey: 'event_name' });
+    }),
 
   globalPropertiesOverview: analyticsProcedure.query(async ({ ctx }) => {
     const { main, compare } = ctx;
@@ -49,6 +63,13 @@ export const eventsRouter = createRouter({
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
       return getEventPropertiesAnalyticsForSite(main, input.eventName);
+    }),
+
+  eventPropertyValues: analyticsProcedure
+    .input(z.object({ eventName: z.string(), propertyName: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { main } = ctx;
+      return getEventPropertyValuesForSite(main, input.eventName, input.propertyName);
     }),
 
   recentEvents: dashboardProcedure

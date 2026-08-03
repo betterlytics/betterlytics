@@ -13,10 +13,7 @@ import { useTranslations } from 'next-intl';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { baEvent } from '@/lib/ba-event';
-import { trpc } from '@/trpc/client';
-import { useBAQueryParams } from '@/trpc/hooks';
-import { useQueryState } from '@/hooks/use-query-state';
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { usePropertyKeys } from '@/hooks/use-property-keys';
 import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
@@ -32,12 +29,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
-  const { input, options } = useBAQueryParams();
-  const { isDemo } = useDashboardAuth();
-
-  const gpQuery = trpc.filters.getGlobalPropertyKeys.useQuery(input, { ...options, enabled: !isDemo });
-  const { data, loading } = useQueryState(gpQuery, !isDemo);
-  const globalPropertyKeys = isDemo || loading ? undefined : (data ?? []);
+  const propertyKeys = usePropertyKeys();
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
   const filters = useQueryFilters(initOrDefault(contextQueryFilters));
@@ -123,7 +115,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
             onApply={applyFilters}
             onCancel={cancelFilters}
             onLoadSavedFilter={handleLoadSavedFilter}
-            globalPropertyKeys={globalPropertyKeys}
+            propertyKeys={propertyKeys}
           />
         </DialogContent>
       </Dialog>
@@ -146,7 +138,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
           onApply={applyFilters}
           onCancel={cancelFilters}
           onLoadSavedFilter={handleLoadSavedFilter}
-          globalPropertyKeys={globalPropertyKeys}
+          propertyKeys={propertyKeys}
         />
       </PopoverContent>
     </Popover>

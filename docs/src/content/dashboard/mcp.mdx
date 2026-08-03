@@ -3,8 +3,6 @@ title: "MCP Server"
 description: "Connect AI agents to your Betterlytics analytics data using the Model Context Protocol (MCP)."
 ---
 
-import { Callout, Tabs } from "nextra/components";
-
 # MCP Server
 
 Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI agents about your website's traffic in natural language, and connect real analytics data to your UI, UX, and code to make data-driven optimizations directly from your development workflow. No dashboards or manual queries needed.
@@ -13,134 +11,15 @@ Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)
 
 1. Navigate to **Dashboard > Settings > MCP**
 2. Enter a name for your token (e.g. "Claude Desktop")
-3. Click **Create token**
-4. Copy the token immediately, it is only shown once
+3. Choose an expiration: 30, 90, or 180 days (default 90), or no expiry
+4. Click **Create token**
+5. Copy the token immediately, it is only shown once
 
 ## Setup
 
-### Claude Desktop
+Pick your client below to see only its setup steps. Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex are supported.
 
-Claude Desktop's **Connectors** UI only supports OAuth-based remote servers, so it can't pass a bearer token directly. Use the [`mcp-remote`](https://www.npmjs.com/package/mcp-remote) proxy instead (requires [Node.js](https://nodejs.org/) installed).
-
-Open **Settings > Developer > Edit Config** to reveal `claude_desktop_config.json`, then add `betterlytics` to `mcpServers`.
-
-<Tabs items={['macOS / Linux', 'Windows']}>
-  <Tabs.Tab>
-```json
-{
-  "mcpServers": {
-    "betterlytics": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://betterlytics.io/api/mcp",
-        "--header",
-        "Authorization:Bearer btl_your_token_here"
-      ]
-    }
-  }
-}
-```
-  </Tabs.Tab>
-  <Tabs.Tab>
-Claude Desktop spawns `npx.cmd` through `cmd.exe /C` without quoting the path, which breaks on the space in `C:\Program Files\nodejs\`. Invoke `cmd` yourself instead so it can resolve `npx` via PATH:
-
-```json
-{
-  "mcpServers": {
-    "betterlytics": {
-      "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "mcp-remote",
-        "https://betterlytics.io/api/mcp",
-        "--header",
-        "Authorization:Bearer btl_your_token_here"
-      ]
-    }
-  }
-}
-```
-  </Tabs.Tab>
-</Tabs>
-
-After saving, fully quit Claude Desktop (tray icon > Quit on Windows, ⌘Q on macOS) and reopen it.
-
-### Claude Code
-
-```bash
-claude mcp add betterlytics https://betterlytics.io/api/mcp \
-  --transport http \
-  --header "Authorization: Bearer btl_your_token_here"
-```
-
-### Cursor
-
-Add to `.cursor/mcp.json` in your project directory:
-
-```json
-{
-  "mcpServers": {
-    "betterlytics": {
-      "url": "https://betterlytics.io/api/mcp",
-      "headers": {
-        "Authorization": "Bearer btl_your_token_here"
-      }
-    }
-  }
-}
-```
-
-### Windsurf
-
-Add to your [MCP config](https://docs.windsurf.com/windsurf/cascade/mcp) (`~/.codeium/windsurf/mcp_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "betterlytics": {
-      "serverUrl": "https://betterlytics.io/api/mcp",
-      "headers": {
-        "Authorization": "Bearer btl_your_token_here"
-      }
-    }
-  }
-}
-```
-
-### Antigravity
-
-Add to your [MCP config](https://antigravity.google/docs/mcp) (`~/.gemini/antigravity/mcp_config.json`):
-
-```json
-{
-  "mcpServers": {
-    "betterlytics": {
-      "serverUrl": "https://betterlytics.io/api/mcp",
-      "headers": {
-        "Authorization": "Bearer btl_your_token_here"
-      }
-    }
-  }
-}
-```
-
-### Codex
-
-Add to `~/.codex/config.toml`:
-
-```toml
-[mcp_servers.betterlytics]
-url = "https://betterlytics.io/api/mcp"
-http_headers = { "Authorization" = "Bearer btl_your_token_here" }
-```
-
-<Callout>
-Replace `btl_your_token_here` with the token you copied in all examples above.
-</Callout>
+<McpSetup />
 
 ## What You Can Ask About
 
@@ -157,6 +36,9 @@ Once connected, your AI assistant has access to your analytics data. You can que
 - **Funnels**: list saved funnels with step-by-step conversion data, or run ad-hoc funnel analyses with custom steps
 - **User journeys**: analyze navigation paths through your site, showing page-to-page transitions with traffic volumes
 - **Error tracking**: list captured errors, inspect stack traces, and see the session trail leading up to each error
+- **Uptime monitoring**: check whether your monitors are up right now, along with uptime percentage, response times, and SSL certificate status
+- **Downtime incidents**: list ongoing and resolved outages with their severity, duration, and cause
+- **Status pages**: see what your public status page shows visitors right now, and spot detected outages that have no posted incident
 
 ## Example Questions
 
@@ -198,6 +80,18 @@ Here are some questions you can try:
 - "What was the user doing right before this error occurred? Walk me through the session trail."
 - "Are there any new errors since my last deploy?"
 
+**Uptime monitoring**
+- "Are all my monitors up right now?"
+- "What outages did we have this week, and how long did each one last?"
+- "What's the uptime percentage for my API health check over the last 28 days?"
+- "Are any of my SSL certificates expiring soon?"
+- "Which monitor has the slowest response times this month?"
+
+**Status pages**
+- "What does my status page show visitors right now?"
+- "Is there an ongoing outage that I haven't posted an incident for?"
+- "Summarize the incidents currently published on my status page and their latest updates."
+
 **Cross-dimensional**
 - "What browsers do my mobile visitors from Germany use?"
 - "Show me the hourly traffic pattern for today. When is my peak hour?"
@@ -205,7 +99,9 @@ Here are some questions you can try:
 
 ## Managing Tokens
 
-View and manage your tokens from **Dashboard > Settings > MCP**. Each token shows its creation date and when it was last used. You can delete tokens at any time. Deleted tokens are immediately revoked.
+View and manage your tokens from **Dashboard > Settings > MCP**. Each token shows its creation date, when it was last used, and when it expires (or that it never does). You can delete tokens at any time. Deleted tokens are immediately revoked.
+
+Expired tokens stop authenticating and remain in the list so you can spot and delete them. A token's expiration can't be changed after creation; to extend access, create a new token.
 
 ## Security
 

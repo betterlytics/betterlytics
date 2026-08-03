@@ -2445,13 +2445,20 @@
         "noEvents": "Nessun evento trovato",
         "noEventsDesc": "Nessun evento personalizzato tracciato in questo periodo. Gli eventi appariranno qui quando inizieranno a essere registrati.",
         "eventDetails": "Dettagli evento",
+        "searchPlaceholder": "Cerca eventi...",
+        "emptySearch": "Nessun evento corrisponde alla tua ricerca.",
         "uniqueEvent": "Evento unico",
         "uniqueEvents": "Eventi unici"
       },
       "expandedEventContent": {
         "loading": "Caricamento proprietà...",
         "noProperties": "Nessuna proprietà",
-        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate."
+        "noPropertiesDesc": "Questo evento non ha proprietà personalizzate.",
+        "showAllValues": "Mostra tutti i {count} valori",
+        "showTopValues": "Mostra i primi {shown} di {total} valori",
+        "showAllProperties": "Mostra tutte le {count} proprietà",
+        "showLess": "Mostra meno",
+        "valuesCapped": "Primi {shown} di {total} valori"
       }
     },
     "tabbedTable": {
@@ -2463,6 +2470,7 @@
       "is": "è",
       "isNot": "non è",
       "globalProperties": "{count, plural, one {Proprietà globale} other {Proprietà globali}}",
+      "customEventProperties": "{count, plural, one {Proprietà evento personalizzato} other {Proprietà eventi personalizzati}}",
       "selectProperty": "Seleziona proprietà",
       "noProperties": "Nessuna proprietà trovata",
       "namePlaceholder": "Inserisci nome passaggio",
@@ -3699,7 +3707,17 @@
       "creating": "Creazione...",
       "newTokenNotice": "Copia questo token adesso. Non potrai vederlo di nuovo.",
       "created": "Creato {date}",
-      "lastUsed": "Ultimo utilizzo {date}"
+      "lastUsed": "Ultimo utilizzo {date}",
+      "expirationLabel": "Scadenza",
+      "lifetime": {
+        "30d": "30 giorni",
+        "90d": "90 giorni",
+        "180d": "180 giorni",
+        "never": "Nessuna scadenza"
+      },
+      "expires": "Scade {date}",
+      "expired": "Scaduto {date}",
+      "neverExpires": "Non scade mai"
     },
     "toast": {
       "created": "Token creato",

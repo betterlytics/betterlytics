@@ -10,6 +10,7 @@ import {
   type QueryFilter,
   type TableFilterColumn,
 } from '@/entities/analytics/filter.entities';
+import { type PropertySourceKind } from '@/entities/analytics/propertySources';
 
 const DEMO_ALLOWED_COLUMNS = new Set<TableFilterColumn>(['url', 'device_type']);
 
@@ -27,21 +28,38 @@ export type FilterColumnStatus =
 const ENABLED: FilterColumnStatus = { disabled: false, reason: null };
 
 /**
+ * Resolves whether a whole property source (gp/cep) is usable on the current
+ * page - pages exclude a source the same way they exclude a table column.
+ */
+export function usePropertySourceStatus() {
+  const { isDemo } = useDashboardAuth();
+  const { excluded } = useQueryFilterColumnsVisibility();
+  return useCallback(
+    (source: PropertySourceKind): FilterColumnStatus => {
+      if (excluded.has(source)) return { disabled: true, reason: 'page' };
+      return isDemo ? { disabled: true, reason: 'demo' } : ENABLED;
+    },
+    [isDemo, excluded],
+  );
+}
+
+/**
  * Resolves whether a column is usable on the current page and, if not, why.
  * Per-page exclusion takes precedence over the demo reason.
  */
 export function useFilterColumnStatus() {
   const { isDemo } = useDashboardAuth();
   const { excluded } = useQueryFilterColumnsVisibility();
+  const getSourceStatus = usePropertySourceStatus();
   return useCallback(
     (column: FilterColumn): FilterColumnStatus => {
       const parsed = parseFilterColumn(column);
-      if (parsed.kind === 'gp') return isDemo ? { disabled: true, reason: 'demo' } : ENABLED;
+      if (parsed.kind === 'property') return getSourceStatus(parsed.source);
       if (excluded.has(parsed.col)) return { disabled: true, reason: 'page' };
       if (isDemo && !DEMO_ALLOWED_COLUMNS.has(parsed.col)) return { disabled: true, reason: 'demo' };
       return ENABLED;
     },
-    [isDemo, excluded],
+    [isDemo, excluded, getSourceStatus],
   );
 }
 
