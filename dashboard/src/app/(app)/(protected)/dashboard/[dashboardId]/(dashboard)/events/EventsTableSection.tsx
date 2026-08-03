@@ -1,7 +1,7 @@
 'use client';
 
 import { Activity } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/v2/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EventsTable } from './EventsTable';
 import { useBAQueryParams } from '@/trpc/hooks';
@@ -27,7 +27,7 @@ export default function EventsTableSection() {
           <div className='flex items-center gap-3'>
             <span>{t('eventDetails')}</span>
             {data && data.length > 0 && (
-              <Badge variant='secondary' className='text-xs font-normal'>
+              <Badge className='font-normal'>
                 {data.length} {data.length === 1 ? t('uniqueEvent') : t('uniqueEvents')}
               </Badge>
             )}

@@ -1,0 +1,67 @@
+:root {
+  --surface-sunken: var(--bl-neutral-100);
+  --content-secondary: var(--bl-neutral-500);
+  --content-on-accent: var(--bl-neutral-0);
+  --border-default: var(--bl-neutral-300);
+
+  --accent-base: var(--bl-blue-600);
+  --accent-surface: oklch(from var(--bl-blue-600) l c h / 0.1);
+  --accent-border: oklch(from var(--bl-blue-600) l c h / 0.3);
+  --accent-content: var(--bl-blue-600);
+
+  --intent-success: var(--bl-green-600);
+  --intent-success-surface: oklch(from var(--bl-green-500) l c h / 0.1);
+  --intent-success-border: oklch(from var(--bl-green-500) l c h / 0.3);
+  --intent-success-content: var(--bl-green-600);
+
+  --intent-warning: var(--bl-amber-600);
+  --intent-warning-surface: oklch(from var(--bl-amber-500) l c h / 0.1);
+  --intent-warning-border: oklch(from var(--bl-amber-500) l c h / 0.3);
+  --intent-warning-content: var(--bl-amber-600);
+
+  --intent-danger: var(--bl-red-600);
+  --intent-danger-surface: oklch(from var(--bl-red-500) l c h / 0.1);
+  --intent-danger-border: oklch(from var(--bl-red-500) l c h / 0.3);
+  --intent-danger-content: var(--bl-red-600);
+
+  --intent-info: var(--bl-sky-600);
+  --intent-info-surface: oklch(from var(--bl-sky-500) l c h / 0.1);
+  --intent-info-border: oklch(from var(--bl-sky-500) l c h / 0.3);
+  --intent-info-content: var(--bl-sky-600);
+
+  --focus-ring: var(--accent-base);
+}
+
+.dark {
+  --surface-sunken: var(--bl-neutral-900);
+  --content-secondary: var(--bl-neutral-300);
+  --content-on-accent: var(--bl-neutral-0);
+  --border-default: var(--bl-neutral-800);
+
+  --accent-base: var(--bl-blue-700);
+  --accent-surface: oklch(from var(--bl-blue-600) l c h / 0.1);
+  --accent-border: oklch(from var(--bl-blue-600) l c h / 0.3);
+  --accent-content: var(--bl-blue-400);
+
+  --intent-success: var(--bl-green-800);
+  --intent-success-surface: oklch(from var(--bl-green-500) l c h / 0.1);
+  --intent-success-border: oklch(from var(--bl-green-500) l c h / 0.3);
+  --intent-success-content: var(--bl-green-400);
+
+  --intent-warning: var(--bl-amber-600);
+  --intent-warning-surface: oklch(from var(--bl-amber-500) l c h / 0.1);
+  --intent-warning-border: oklch(from var(--bl-amber-500) l c h / 0.3);
+  --intent-warning-content: var(--bl-amber-400);
+
+  --intent-danger: var(--bl-red-800);
+  --intent-danger-surface: oklch(from var(--bl-red-500) l c h / 0.1);
+  --intent-danger-border: oklch(from var(--bl-red-500) l c h / 0.3);
+  --intent-danger-content: var(--bl-red-400);
+
+  --intent-info: var(--bl-sky-800);
+  --intent-info-surface: oklch(from var(--bl-sky-500) l c h / 0.1);
+  --intent-info-border: oklch(from var(--bl-sky-500) l c h / 0.3);
+  --intent-info-content: var(--bl-sky-400);
+
+  --focus-ring: var(--accent-base);
+}
