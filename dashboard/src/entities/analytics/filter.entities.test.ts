@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   applyFilterUpdates,
   areQueryFiltersEquivalent,
+  diffQueryFilters,
   withDependentColumns,
+  withStableIds,
   type QueryFilter,
 } from '@/entities/analytics/filter.entities';
 
@@ -144,6 +146,91 @@ describe('withDependentColumns', () => {
 
   it('deduplicates when a dependent is already listed', () => {
     expect(withDependentColumns(['browser', 'browser_version']).sort()).toEqual(['browser', 'browser_version']);
+  });
+});
+
+describe('applyFilterUpdates identity stability', () => {
+  it('keeps the existing instance and position for a semantically unchanged filter', () => {
+    const region = filter('subdivision_code', 'US-VA');
+    const country = filter('country_code', 'US');
+    const current = [region, country];
+
+    const next = applyFilterUpdates(
+      current,
+      [
+        { column: 'city', value: 'Ashburn' },
+        { column: 'subdivision_code', value: 'US-VA' },
+        { column: 'country_code', value: 'US' },
+      ],
+      ['city', 'subdivision_code', 'country_code'],
+    );
+
+    expect(next).toHaveLength(3);
+    expect(next[0]).toBe(region);
+    expect(next[1]).toBe(country);
+    expect(next[2]).toMatchObject({ column: 'city', values: ['Ashburn'] });
+  });
+
+  it('mints a new id only for the filter whose value changed', () => {
+    const browser = filter('browser', 'Chrome');
+    const next = applyFilterUpdates([browser], [{ column: 'browser', value: 'Firefox' }]);
+
+    expect(next).toHaveLength(1);
+    expect(next[0].id).not.toBe(browser.id);
+  });
+});
+
+describe('withStableIds', () => {
+  it('adopts the reference instance for semantically identical filters', () => {
+    const snapshotRegion = filter('subdivision_code', 'US-VA', 'old-region');
+    const currentRegion = filter('subdivision_code', 'US-VA', 'current-region');
+    const snapshotCity = filter('city', 'Ashburn', 'old-city');
+
+    const restored = withStableIds([snapshotRegion, snapshotCity], [currentRegion]);
+
+    expect(restored[0]).toBe(currentRegion);
+    expect(restored[1]).toBe(snapshotCity);
+  });
+
+  it('consumes each reference instance at most once', () => {
+    const a = filter('url', '/blog', 'a');
+    const b = filter('url', '/blog', 'b');
+    const ref = filter('url', '/blog', 'ref');
+
+    const restored = withStableIds([a, b], [ref]);
+
+    expect(restored[0]).toBe(ref);
+    expect(restored[1]).toBe(b);
+  });
+});
+
+describe('diffQueryFilters', () => {
+  it('reports only actual additions and removals', () => {
+    const region = filter('subdivision_code', 'US-VA');
+    const country = filter('country_code', 'US');
+    const city = filter('city', 'Ashburn');
+
+    const diff = diffQueryFilters([region, country], [region, country, city]);
+
+    expect(diff.added).toEqual([city]);
+    expect(diff.removed).toEqual([]);
+  });
+
+  it('reports a value change as a removal plus an addition', () => {
+    const chrome = filter('browser', 'Chrome');
+    const firefox = filter('browser', 'Firefox');
+
+    const diff = diffQueryFilters([chrome], [firefox]);
+
+    expect(diff.added).toEqual([firefox]);
+    expect(diff.removed).toEqual([chrome]);
+  });
+
+  it('ignores id differences', () => {
+    const diff = diffQueryFilters([filter('url', '/blog', 'x')], [filter('url', '/blog', 'y')]);
+
+    expect(diff.added).toEqual([]);
+    expect(diff.removed).toEqual([]);
   });
 });
 
