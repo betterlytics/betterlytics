@@ -232,6 +232,16 @@ describe('diffQueryFilters', () => {
     expect(diff.added).toEqual([]);
     expect(diff.removed).toEqual([]);
   });
+
+  it('matches duplicate semantic filters one-to-one', () => {
+    const a = filter('url', '/a', 'a1');
+    const b = filter('url', '/a', 'a2');
+
+    const diff = diffQueryFilters([a, b], [filter('url', '/a', 'a3')]);
+
+    expect(diff.added).toEqual([]);
+    expect(diff.removed).toHaveLength(1);
+  });
 });
 
 describe('areQueryFiltersEquivalent', () => {
