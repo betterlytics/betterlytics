@@ -26,7 +26,11 @@ const FILTER_TOAST_DURATION_MS = 10000;
 /* The toast's Undo targets the query-filter state of the shell that hosts
    click-to-filter, so that shell dismisses the toast when it unmounts. */
 export function useDismissFilterToastOnUnmount() {
-  useEffect(() => () => toast.dismiss(FILTER_TOAST_ID), []);
+  useEffect(() => {
+    return () => {
+      toast.dismiss(FILTER_TOAST_ID);
+    };
+  }, []);
 }
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
