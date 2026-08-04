@@ -135,6 +135,18 @@ impl<R: clickhouse::Row + Serialize + Send + Sync + 'static> ClickhouseChannelWr
     }
 }
 
+const MONITOR_BATCH_SIZE: usize = 500;
+const MONITOR_CHANNEL_CAPACITY: usize = 2_000;
+
+pub type MonitorWriter = ClickhouseChannelWriter<MonitorResultRow>;
+
+pub fn new_monitor_writer(
+    clickhouse: Arc<ClickHouseClient>,
+    table: &str,
+) -> Result<Arc<MonitorWriter>> {
+    ClickhouseChannelWriter::new(clickhouse, table, MONITOR_CHANNEL_CAPACITY, MONITOR_BATCH_SIZE)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -177,16 +189,4 @@ mod tests {
         let ns: Vec<u32> = rows1.iter().chain(rows2.iter()).map(|r| r.n).collect();
         assert_eq!(ns, vec![1, 2, 3]);
     }
-}
-
-const MONITOR_BATCH_SIZE: usize = 500;
-const MONITOR_CHANNEL_CAPACITY: usize = 2_000;
-
-pub type MonitorWriter = ClickhouseChannelWriter<MonitorResultRow>;
-
-pub fn new_monitor_writer(
-    clickhouse: Arc<ClickHouseClient>,
-    table: &str,
-) -> Result<Arc<MonitorWriter>> {
-    ClickhouseChannelWriter::new(clickhouse, table, MONITOR_CHANNEL_CAPACITY, MONITOR_BATCH_SIZE)
 }

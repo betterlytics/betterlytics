@@ -267,6 +267,21 @@ async fn run_inserter(
     Ok(())
 }
 
+/// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
+/// `idx_session_end` minmax skip index, so the cost is bounded by the number of *active*
+/// sessions, not total history; `argMax(.., session_end)` picks each visitor's current session.
+fn active_sessions_query(window: Duration) -> String {
+    let window_secs = window.as_secs();
+    format!(
+        "SELECT site_id, toUInt64(visitor_id) AS visitor_id, \
+                argMax(session_id, session_end) AS session_id, \
+                argMax(session_created_at, session_end) AS session_created_at \
+         FROM analytics.sessions \
+         WHERE session_end > now() - toIntervalSecond({window_secs}) \
+         GROUP BY site_id, visitor_id"
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -385,19 +400,4 @@ mod tests {
             .expect("inserter task panicked")
             .ok();
     }
-}
-
-/// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
-/// `idx_session_end` minmax skip index, so the cost is bounded by the number of *active*
-/// sessions, not total history; `argMax(.., session_end)` picks each visitor's current session.
-fn active_sessions_query(window: Duration) -> String {
-    let window_secs = window.as_secs();
-    format!(
-        "SELECT site_id, toUInt64(visitor_id) AS visitor_id, \
-                argMax(session_id, session_end) AS session_id, \
-                argMax(session_created_at, session_end) AS session_created_at \
-         FROM analytics.sessions \
-         WHERE session_end > now() - toIntervalSecond({window_secs}) \
-         GROUP BY site_id, visitor_id"
-    )
 }
