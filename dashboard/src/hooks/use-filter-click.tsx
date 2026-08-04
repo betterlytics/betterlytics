@@ -110,7 +110,7 @@ export function useFilterClick(defaults?: Options) {
           notifyCapReached();
           return;
         }
-        setQueryFilters((fs) => applyFilterUpdates(fs, [{ column, value, operator }], replaced));
+        setQueryFilters(next);
         notifyFiltersUpdated(queryFilters, next);
         return;
       }
@@ -160,7 +160,7 @@ export function useFilterClick(defaults?: Options) {
         notifyCapReached();
         return;
       }
-      setQueryFilters((fs) => applyFilterUpdates(fs, applied, replaced));
+      setQueryFilters(next);
       notifyFiltersUpdated(queryFilters, next);
     },
     [getColumnStatus, queryFilters, setQueryFilters, defaultOperator, t, tFilters, notifyCapReached, notifyFiltersUpdated],
