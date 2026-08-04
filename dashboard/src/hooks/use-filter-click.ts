@@ -17,7 +17,7 @@ import {
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
-import { showFiltersUpdatedToast } from '@/components/filters/FiltersUpdatedToast';
+import { showFiltersUpdatedToast } from '@/components/filters/filtersUpdatedToast';
 import { generateTempId } from '@/utils/temporaryId';
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
