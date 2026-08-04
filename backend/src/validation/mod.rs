@@ -103,7 +103,15 @@ impl EventValidator {
         self.validate_required_fields(raw_event)?;
         self.validate_payload_sizes(raw_event)?;
         self.validate_formats(raw_event, ip_address)?;
-        
+
+        // Non-custom events must use a known event name; anything else has no
+        // ClickHouse event_type enum value and can never be stored.
+        if !raw_event.is_custom_event && !is_known_event_name(&raw_event.event_name) {
+            return Err(ValidationError::InvalidEventName(
+                "Unknown event name for non-custom event".to_string(),
+            ));
+        }
+
         if raw_event.event_name == "outbound_link" {
             self.validate_outbound_link_url(raw_event)?;
         }
@@ -406,6 +414,15 @@ impl EventValidator {
     }
 }
 
+/// Event names for non-custom events that map to a ClickHouse event_type enum
+/// value ("cwv" is matched case-insensitively downstream).
+fn is_known_event_name(name: &str) -> bool {
+    matches!(
+        name,
+        "pageview" | "custom" | "outbound_link" | "scroll_depth" | "engagement" | "client_error"
+    ) || name.eq_ignore_ascii_case("cwv")
+}
+
 /// Check if an IP address is blocked by the provided blacklist entries.
 /// Supports IPv4, IPv6, and CIDR ranges (both v4 and v6).
 pub fn check_blacklist(
@@ -500,4 +517,65 @@ fn contains_control_characters(input: &str) -> bool {
 /// Check if a string contains control characters (excluding newlines and tabs for custom properties)
 fn contains_dangerous_control_characters(input: &str) -> bool {
     input.chars().any(|c| c.is_control() && c != '\n' && c != '\t')
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn raw_event(event_name: &str, is_custom_event: bool) -> RawTrackingEvent {
+        RawTrackingEvent {
+            site_id: "test-site".to_string(),
+            event_name: event_name.to_string(),
+            is_custom_event,
+            properties: String::new(),
+            url: "https://example.com/".to_string(),
+            referrer: None,
+            user_agent: "test-agent".to_string(),
+            screen_resolution: "1920x1080".to_string(),
+            timestamp: 1_700_000_000,
+            outbound_link_url: None,
+            cwv_cls: None,
+            cwv_lcp: None,
+            cwv_inp: None,
+            cwv_fcp: None,
+            cwv_ttfb: None,
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
+            error_exceptions: None,
+            global_properties: None,
+            page_duration_seconds: None,
+        }
+    }
+
+    fn validator() -> EventValidator {
+        EventValidator::new(ValidationConfig {
+            enforce_timestamp_validation: false,
+            ..Default::default()
+        })
+    }
+
+    #[test]
+    fn unknown_non_custom_event_name_is_rejected() {
+        let result = validator().validate_event_internal(&raw_event("not_a_thing", false), "127.0.0.1");
+        assert!(matches!(result, Err(ValidationError::InvalidEventName(_))));
+    }
+
+    #[test]
+    fn known_non_custom_event_names_pass() {
+        for name in ["pageview", "outbound_link", "engagement", "CWV"] {
+            let mut event = raw_event(name, false);
+            if name == "outbound_link" {
+                event.outbound_link_url = Some("https://external.example.org/".to_string());
+            }
+            let result = validator().validate_event_internal(&event, "127.0.0.1");
+            assert!(result.is_ok(), "expected '{name}' to validate");
+        }
+    }
+
+    #[test]
+    fn custom_events_may_use_any_name() {
+        let result = validator().validate_event_internal(&raw_event("my_signup_funnel", true), "127.0.0.1");
+        assert!(result.is_ok());
+    }
 }
