@@ -128,6 +128,24 @@ async fn main() {
         Database::new(Arc::clone(&clickhouse), config.clone(), metrics_collector.clone())
             .await
             .expect("Failed to initialize database");
+
+    // Pipeline pressure sampler. Holds only a weak channel handle so the
+    // ingest channel still closes when the processor drops at shutdown.
+    if let Some(metrics) = metrics_collector.clone() {
+        let ingest_tx = event_tx.downgrade();
+        tokio::spawn(async move {
+            let mut tick = tokio::time::interval(Duration::from_secs(5));
+            loop {
+                tick.tick().await;
+                if let Some(tx) = ingest_tx.upgrade() {
+                    metrics.set_ingest_channel_depth(tx.max_capacity() - tx.capacity());
+                }
+                for (table, depth) in monitor::clickhouse_writer::writer_queue_depths() {
+                    metrics.set_writer_queue_depth(&table, depth);
+                }
+            }
+        });
+    }
     db.validate_schema().await.expect("Invalid database schema");
 
     if let Err(e) = referrer::sync_referrer_categories(

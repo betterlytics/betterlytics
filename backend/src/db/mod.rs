@@ -223,6 +223,9 @@ async fn run_inserter(
                     timestamp = %row.timestamp,
                     "Buffered row for ClickHouse insertion");
                 batch.push(row);
+                if let Some(metrics) = &metrics {
+                    metrics.set_inserter_batch_rows(batch.len());
+                }
 
                 if batch.len() >= INSERTER_MAX_ROWS {
                     flush(&client, &mut batch, &metrics).await;
@@ -265,12 +268,20 @@ async fn flush(
         match try_insert(client, batch, &dedup_token).await {
             Ok(()) => {
                 debug!(rows = batch.len(), "Committed batch to ClickHouse");
+                if let Some(metrics) = metrics {
+                    metrics.increment_events_inserted(batch.len() as u64);
+                    metrics.set_inserter_retry_attempts(0);
+                    metrics.set_inserter_batch_rows(0);
+                }
                 batch.clear();
                 return;
             }
             Err(e) => match classify(&e) {
                 ErrorClass::Transient => {
                     transient_attempts += 1;
+                    if let Some(metrics) = metrics {
+                        metrics.set_inserter_retry_attempts(transient_attempts);
+                    }
                     let exp = transient_attempts.saturating_sub(1).min(5);
                     let backoff = Duration::from_secs(
                         (RETRY_BASE_BACKOFF_SECS << exp).min(RETRY_MAX_BACKOFF_SECS),
@@ -294,6 +305,8 @@ async fn flush(
                         );
                         if let Some(metrics) = metrics {
                             metrics.increment_events_dropped("insert_gave_up", batch.len() as u64);
+                            metrics.set_inserter_retry_attempts(0);
+                            metrics.set_inserter_batch_rows(0);
                         }
                         batch.clear();
                         return;

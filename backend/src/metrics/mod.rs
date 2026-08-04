@@ -1,6 +1,6 @@
 use prometheus::{
-    Encoder, Gauge, Histogram, HistogramOpts, HistogramVec, IntCounter, IntCounterVec, Opts,
-    Registry, TextEncoder,
+    Encoder, Gauge, GaugeVec, Histogram, HistogramOpts, HistogramVec, IntCounter, IntCounterVec,
+    Opts, Registry, TextEncoder,
 };
 use std::sync::Arc;
 use std::time::Duration;
@@ -28,6 +28,13 @@ pub struct MetricsCollector {
     events_dropped_total: IntCounterVec,
     validation_duration: Histogram,
 
+    // Ingest pipeline pressure
+    ingest_channel_depth: Gauge,
+    inserter_batch_rows: Gauge,
+    inserter_retry_attempts: Gauge,
+    events_inserted_total: IntCounter,
+    writer_queue_depth: GaugeVec,
+
     // Cache lookup metrics
     cache_lookups_total: IntCounterVec,
 
@@ -47,7 +54,6 @@ pub struct MetricsCollector {
     monitor_probe_total: IntCounter,
     monitor_probe_latency_seconds: HistogramVec,
     monitor_active_probes: Gauge,
-    monitor_writer_queue_depth: Gauge,
 
     // System info
     system: Arc<RwLock<System>>,
@@ -107,6 +113,34 @@ impl MetricsCollector {
                 "Total number of accepted analytics events lost before reaching ClickHouse",
             ),
             &["reason"],
+        )?;
+
+        let ingest_channel_depth = Gauge::with_opts(Opts::new(
+            "analytics_ingest_channel_depth",
+            "Events waiting in the ingest channel",
+        ))?;
+
+        let inserter_batch_rows = Gauge::with_opts(Opts::new(
+            "analytics_inserter_batch_rows",
+            "Rows held in the inserter's current batch",
+        ))?;
+
+        let inserter_retry_attempts = Gauge::with_opts(Opts::new(
+            "analytics_inserter_retry_attempts",
+            "Consecutive failed insert attempts for the current batch (0 = healthy)",
+        ))?;
+
+        let events_inserted_total = IntCounter::with_opts(Opts::new(
+            "analytics_events_inserted_total",
+            "Total events confirmed inserted into ClickHouse",
+        ))?;
+
+        let writer_queue_depth = GaugeVec::new(
+            Opts::new(
+                "writer_queue_depth",
+                "Queued batches per ClickHouse channel writer",
+            ),
+            &["table"],
         )?;
 
         let validation_duration = Histogram::with_opts(HistogramOpts::new(
@@ -186,11 +220,6 @@ impl MetricsCollector {
             "Current number of concurrent monitor probes in flight",
         ))?;
 
-        let monitor_writer_queue_depth = Gauge::with_opts(Opts::new(
-            "monitor_writer_queue_depth",
-            "Current depth of the monitor writer channel queue",
-        ))?;
-
         registry.register(Box::new(system_cpu_usage.clone()))?;
         registry.register(Box::new(system_memory_usage.clone()))?;
         registry.register(Box::new(system_memory_total.clone()))?;
@@ -200,6 +229,11 @@ impl MetricsCollector {
         registry.register(Box::new(events_processing_duration.clone()))?;
         registry.register(Box::new(events_rejected_total.clone()))?;
         registry.register(Box::new(events_dropped_total.clone()))?;
+        registry.register(Box::new(ingest_channel_depth.clone()))?;
+        registry.register(Box::new(inserter_batch_rows.clone()))?;
+        registry.register(Box::new(inserter_retry_attempts.clone()))?;
+        registry.register(Box::new(events_inserted_total.clone()))?;
+        registry.register(Box::new(writer_queue_depth.clone()))?;
         registry.register(Box::new(validation_duration.clone()))?;
         registry.register(Box::new(cache_lookups_total.clone()))?;
         registry.register(Box::new(site_config_cache_healthy.clone()))?;
@@ -215,7 +249,6 @@ impl MetricsCollector {
         registry.register(Box::new(monitor_probe_total.clone()))?;
         registry.register(Box::new(monitor_probe_latency_seconds.clone()))?;
         registry.register(Box::new(monitor_active_probes.clone()))?;
-        registry.register(Box::new(monitor_writer_queue_depth.clone()))?;
 
         let mut system = System::new_all();
         system.refresh_all(); // This refresh is an attempt to ensure that when the metrics_updater starts it has accurate initial values
@@ -234,6 +267,11 @@ impl MetricsCollector {
             events_processing_duration,
             events_rejected_total,
             events_dropped_total,
+            ingest_channel_depth,
+            inserter_batch_rows,
+            inserter_retry_attempts,
+            events_inserted_total,
+            writer_queue_depth,
             validation_duration,
             cache_lookups_total,
             site_config_cache_healthy,
@@ -247,7 +285,6 @@ impl MetricsCollector {
             monitor_probe_total,
             monitor_probe_latency_seconds,
             monitor_active_probes,
-            monitor_writer_queue_depth,
             system: Arc::new(RwLock::new(system)),
             current_pid,
         };
@@ -390,8 +427,26 @@ impl MetricsCollector {
         self.monitor_active_probes.set(count as f64);
     }
 
-    pub fn set_monitor_writer_queue_depth(&self, depth: usize) {
-        self.monitor_writer_queue_depth.set(depth as f64);
+    pub fn set_ingest_channel_depth(&self, depth: usize) {
+        self.ingest_channel_depth.set(depth as f64);
+    }
+
+    pub fn set_inserter_batch_rows(&self, rows: usize) {
+        self.inserter_batch_rows.set(rows as f64);
+    }
+
+    pub fn set_inserter_retry_attempts(&self, attempts: u32) {
+        self.inserter_retry_attempts.set(f64::from(attempts));
+    }
+
+    pub fn increment_events_inserted(&self, count: u64) {
+        self.events_inserted_total.inc_by(count);
+    }
+
+    pub fn set_writer_queue_depth(&self, table: &str, depth: usize) {
+        self.writer_queue_depth
+            .with_label_values(&[table])
+            .set(depth as f64);
     }
 
     pub fn export_metrics(&self) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
