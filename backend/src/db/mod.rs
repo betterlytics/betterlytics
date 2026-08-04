@@ -18,6 +18,10 @@ pub use models::{ActiveSessionRow, EventRow, ReferrerSourceCategoryRow, SessionR
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const INSERTER_TIMEOUT_SECS: u64 = 5;
+/// Cap on awaiting ClickHouse's insert acknowledgement. Without it a
+/// black-hole connection (paused/vanished server) hangs the flush forever
+/// instead of surfacing a timeout the retry loop can act on.
+const INSERTER_END_TIMEOUT_SECS: u64 = 10;
 const INSERTER_PERIOD_SECS: u64 = 10;
 const INSERTER_MAX_ROWS: u64 = 100_000;
 const INSERTER_MAX_BYTES: u64 = 50 * 1024 * 1024;
@@ -316,7 +320,10 @@ async fn flush(
 async fn try_insert(client: &clickhouse::Client, batch: &[EventRow]) -> Result<(), ClickHouseError> {
     let mut insert = client
         .insert("analytics.events")?
-        .with_timeouts(Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)), None);
+        .with_timeouts(
+            Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
+            Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
+        );
     for row in batch {
         insert.write(row).await?;
     }
