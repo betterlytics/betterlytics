@@ -259,13 +259,22 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     info!("Listening on {}", addr);
-    axum::serve(
-        listener,
-        app.into_make_service_with_connect_info::<SocketAddr>(),
-    )
-    .with_graceful_shutdown(shutdown_signal())
-    .await
-    .unwrap();
+    let mut inserter_handle = inserter_handle;
+    tokio::select! {
+        result = axum::serve(
+            listener,
+            app.into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .with_graceful_shutdown(shutdown_signal()) => result.unwrap(),
+        // The inserter retries all insert errors, so it never exits on its
+        // own: completing here means it panicked. A backend acking events
+        // into a dead channel is worse than a restart - fail fast so the
+        // container restart policy brings up a working process.
+        result = &mut inserter_handle => {
+            error!(?result, "Inserter task exited while the server is running, exiting");
+            std::process::exit(1);
+        }
+    }
 
     info!("HTTP server stopped, draining buffered data");
     let drain = async {
