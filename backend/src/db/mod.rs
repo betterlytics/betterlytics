@@ -245,9 +245,7 @@ async fn run_inserter(
 /// Inserts the whole batch as one INSERT, clearing it only after ClickHouse
 /// confirms. Transient failures retry forever with capped backoff (the
 /// channel buffers upstream); recognized rejections drop the batch after a
-/// few attempts so a poison batch cannot block the pipeline. Retries reuse
-/// one dedup token per batch, so a batch whose ack was lost is ignored by
-/// the server on re-send (migration 37) instead of duplicating events.
+/// few attempts so a poison batch cannot block the pipeline. Retries are deduped.
 async fn flush(
     client: &clickhouse::Client,
     batch: &mut Vec<EventRow>,
@@ -365,21 +363,11 @@ fn server_exception_code(response: &str) -> Option<u32> {
     digits.parse().ok()
 }
 
-/// Rough per-row memory estimate for the batch byte cap. Only fields that
-/// validation allows to grow beyond ~100 bytes are measured; the fixed
-/// overhead generously covers every small column, present and future.
+/// Per-row size for the batch byte threshold, measured by serializing the
+/// row itself so it can never drift from the schema. JSON is a close upper
+/// bound for the RowBinary wire size, so flushes trigger marginally early.
 fn approx_row_bytes(row: &EventRow) -> usize {
-    const FIXED_OVERHEAD: usize = 512;
-    FIXED_OVERHEAD
-        + row.url.len()
-        + row.referrer_url.len()
-        + row.referrer_search_term.len()
-        + row.custom_event_json.len()
-        + row.outbound_link_url.len()
-        + row.error_exceptions.len()
-        + row.error_message.len()
-        + row.global_properties_keys.iter().map(String::len).sum::<usize>()
-        + row.global_properties_values.iter().map(String::len).sum::<usize>()
+    serde_json::to_vec(row).map_or(1024, |bytes| bytes.len())
 }
 
 /// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
