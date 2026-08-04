@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import {
   applyFilterUpdates,
@@ -22,6 +22,12 @@ import { generateTempId } from '@/utils/temporaryId';
 
 const FILTER_TOAST_ID = 'filters-updated';
 const FILTER_TOAST_DURATION_MS = 10000;
+
+/* The toast's Undo targets the query-filter state of the shell that hosts
+   click-to-filter, so that shell dismisses the toast when it unmounts. */
+export function useDismissFilterToastOnUnmount() {
+  useEffect(() => () => toast.dismiss(FILTER_TOAST_ID), []);
+}
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
 
