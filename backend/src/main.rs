@@ -129,22 +129,8 @@ async fn main() {
             .await
             .expect("Failed to initialize database");
 
-    // Pipeline pressure sampler. Holds only a weak channel handle so the
-    // ingest channel still closes when the processor drops at shutdown.
     if let Some(metrics) = metrics_collector.clone() {
-        let ingest_tx = event_tx.downgrade();
-        tokio::spawn(async move {
-            let mut tick = tokio::time::interval(Duration::from_secs(5));
-            loop {
-                tick.tick().await;
-                if let Some(tx) = ingest_tx.upgrade() {
-                    metrics.set_ingest_channel_depth(tx.max_capacity() - tx.capacity());
-                }
-                for (table, depth) in monitor::clickhouse_writer::writer_queue_depths() {
-                    metrics.set_writer_queue_depth(&table, depth);
-                }
-            }
-        });
+        spawn_pressure_sampler(metrics, event_tx.downgrade());
     }
     db.validate_schema().await.expect("Invalid database schema");
 
@@ -344,6 +330,26 @@ async fn shutdown_signal() {
             WATCHDOG_TIMEOUT
         );
         std::process::exit(1);
+    });
+}
+
+/// Samples pipeline buffer depths into metrics every few seconds. Holds only
+/// a weak channel handle so the ingest channel still closes at shutdown.
+fn spawn_pressure_sampler(
+    metrics: Arc<MetricsCollector>,
+    ingest_tx: tokio::sync::mpsc::WeakSender<processing::ProcessedEvent>,
+) {
+    tokio::spawn(async move {
+        let mut tick = tokio::time::interval(Duration::from_secs(5));
+        loop {
+            tick.tick().await;
+            if let Some(tx) = ingest_tx.upgrade() {
+                metrics.set_ingest_channel_depth(tx.max_capacity() - tx.capacity());
+            }
+            for (table, depth) in monitor::clickhouse_writer::writer_queue_depths() {
+                metrics.set_writer_queue_depth(&table, depth);
+            }
+        }
     });
 }
 
