@@ -23,6 +23,12 @@ import { generateTempId } from '@/utils/temporaryId';
 const FILTER_TOAST_ID = 'filters-updated';
 const FILTER_TOAST_DURATION_MS = 10000;
 
+/* As a component, the label re-resolves on locale changes while the toast is open. */
+function UndoLabel() {
+  const t = useTranslations('components.filters');
+  return t('selector.toastUndo');
+}
+
 /* The toast's Undo targets the query-filter state of the shell that hosts
    click-to-filter, so that shell dismisses the toast when it unmounts. */
 export function useDismissFilterToastOnUnmount() {
@@ -62,12 +68,12 @@ export function useFilterClick(defaults?: Options) {
         id: FILTER_TOAST_ID,
         duration: FILTER_TOAST_DURATION_MS,
         action: {
-          label: tFilters('selector.toastUndo'),
+          label: <UndoLabel />,
           onClick: () => setQueryFilters((fs) => withStableIds(prev, fs)),
         },
       });
     },
-    [tFilters, setQueryFilters],
+    [setQueryFilters],
   );
 
   const applyFilter = useCallback(
