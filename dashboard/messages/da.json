@@ -2956,7 +2956,7 @@
         "usage": {
           "title": "Forbrug",
           "eventsLabel": "Events",
-          "eventsUsed": "{current} / {limit} ({percentage})",
+          "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
           "resetsInDays": "Nulstilles om {days} dage",
           "breakdown": {
             "trigger": "Se hvad din kvote går til",
@@ -2972,7 +2972,8 @@
               "cwv": "Core Web Vitals",
               "outbound_link": "Udgående links",
               "client_error": "Fejl"
-            }
+            },
+            "showFewerSites": "Vis færre sider"
           }
         },
         "payment": {

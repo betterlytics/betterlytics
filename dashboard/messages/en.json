@@ -2953,7 +2953,7 @@
         "usage": {
           "title": "Usage",
           "eventsLabel": "Events",
-          "eventsUsed": "{current} / {limit} ({percentage})",
+          "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
           "resetsInDays": "Resets in {days} days",
           "breakdown": {
             "trigger": "See where your quota is going",
@@ -2969,7 +2969,8 @@
               "cwv": "Core Web Vitals",
               "outbound_link": "Outbound links",
               "client_error": "Errors"
-            }
+            },
+            "showFewerSites": "Show fewer sites"
           }
         },
         "payment": {

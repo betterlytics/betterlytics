@@ -135,12 +135,13 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
               color='var(--primary)'
             />
             <span
-              className={`text-right text-xs whitespace-nowrap tabular-nums ${usage.isOverLimit ? 'text-destructive font-medium' : 'text-muted-foreground'}`}
+              className={`text-right text-xs whitespace-nowrap tabular-nums ${usage.isOverLimit ? 'text-destructive font-medium' : ''}`}
             >
-              {t('usage.eventsUsed', {
+              {t.rich('usage.eventsUsed', {
                 current: formatNumber(usage.current, locale),
                 limit: formatNumber(usage.limit, locale),
                 percentage: formatPercentage(usage.usagePercentage, locale),
+                muted: (chunks) => <span className='text-muted-foreground'>{chunks}</span>,
               })}
             </span>
           </div>

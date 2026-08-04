@@ -48,8 +48,9 @@ function BreakdownRow({ label, total, percentageOfLimit }: BreakdownRowProps) {
         color='var(--primary)'
         className='order-last col-span-2 h-1.5 md:order-none md:col-span-1'
       />
-      <span className='text-muted-foreground text-right text-xs whitespace-nowrap tabular-nums'>
-        {formatNumber(total, locale)} ({formatPercentage(percentageOfLimit, locale)})
+      <span className='text-right text-xs whitespace-nowrap tabular-nums'>
+        {formatNumber(total, locale)}{' '}
+        <span className='text-muted-foreground'>({formatPercentage(percentageOfLimit, locale)})</span>
       </span>
     </div>
   );
@@ -61,7 +62,7 @@ function BreakdownRows({ breakdown }: { breakdown: UsageBreakdownData }) {
 
   const hasMultipleSites = breakdown.bySite.length > 1;
   const visibleSites = showAllSites ? breakdown.bySite : breakdown.bySite.slice(0, SITE_PREVIEW_COUNT);
-  const hiddenSiteCount = breakdown.bySite.length - visibleSites.length;
+  const overflowSiteCount = breakdown.bySite.length - SITE_PREVIEW_COUNT;
 
   const eventTypeRows = (
     <div className='flex flex-col gap-2.5'>
@@ -102,13 +103,13 @@ function BreakdownRows({ breakdown }: { breakdown: UsageBreakdownData }) {
                   percentageOfLimit={row.percentageOfLimit}
                 />
               ))}
-              {hiddenSiteCount > 0 && (
+              {overflowSiteCount > 0 && (
                 <button
                   type='button'
-                  onClick={() => setShowAllSites(true)}
-                  className='text-primary hover:text-primary/90 focus-visible:ring-ring/50 self-start rounded-sm text-xs underline underline-offset-2 focus-visible:ring-[3px] focus-visible:outline-none'
+                  onClick={() => setShowAllSites((previous) => !previous)}
+                  className='text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-ring/50 -ml-1.5 cursor-pointer self-start rounded-md px-1.5 py-1 text-xs font-medium focus-visible:ring-[3px] focus-visible:outline-none'
                 >
-                  {t('showAllSites', { count: hiddenSiteCount })}
+                  {showAllSites ? t('showFewerSites') : t('showAllSites', { count: overflowSiteCount })}
                 </button>
               )}
             </div>

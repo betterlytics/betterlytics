@@ -2956,7 +2956,7 @@
         "usage": {
           "title": "Utilizzo",
           "eventsLabel": "Eventi",
-          "eventsUsed": "{current} / {limit} ({percentage})",
+          "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
           "resetsInDays": "Si reimposta tra {days} giorni",
           "breakdown": {
             "trigger": "Scopri come viene usata la tua quota",
@@ -2972,7 +2972,8 @@
               "cwv": "Core Web Vitals",
               "outbound_link": "Link in uscita",
               "client_error": "Errori"
-            }
+            },
+            "showFewerSites": "Mostra meno siti"
           }
         },
         "payment": {
