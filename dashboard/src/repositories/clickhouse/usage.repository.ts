@@ -3,7 +3,9 @@ import { safeSql, SQL } from '@/lib/safe-sql';
 import {
   DailySiteUsageSchema,
   EventCountResultSchema,
+  UsageBreakdownRowSchema,
   type DailySiteUsage,
+  type UsageBreakdownRow,
 } from '@/entities/billing/billing.entities';
 import { DateString, DateTimeString } from '@/types/dates';
 import { cache } from 'react';
@@ -73,6 +75,39 @@ export async function getDailyEventCountsForSites(
     return DailySiteUsageSchema.array().parse(result);
   } catch (error) {
     console.error('Failed to get daily event counts for sites:', error);
+    throw error;
+  }
+}
+
+/**
+ * Billable events for the period grouped by both site and event type. One row per
+ * site/type pair, so a single query serves both breakdown dimensions.
+ */
+export async function getUsageBreakdownForPeriod(
+  siteIds: string[],
+  startDate: DateString,
+): Promise<UsageBreakdownRow[]> {
+  if (siteIds.length === 0) return [];
+
+  const query = safeSql`
+    SELECT usage.site_id, usage.event_type, sum(usage.event_count) AS total
+    FROM analytics.usage_daily AS usage
+    WHERE usage.site_id IN ${SQL.StringArray({ site_ids: siteIds })}
+      AND usage.date >= toDate({start_date:String})
+      AND usage.date <= toDate(now())
+    GROUP BY usage.site_id, usage.event_type
+  `;
+
+  try {
+    const result = await clickhouse
+      .query(query.taggedSql, {
+        params: { ...query.taggedParams, start_date: startDate },
+      })
+      .toPromise();
+
+    return UsageBreakdownRowSchema.array().parse(result);
+  } catch (error) {
+    console.error('Failed to get usage breakdown for period:', error);
     throw error;
   }
 }

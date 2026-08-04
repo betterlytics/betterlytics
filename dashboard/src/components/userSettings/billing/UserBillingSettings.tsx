@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PlanStatusBadge } from '@/components/billing/PlanStatusBadge';
 import { SubscriptionStatusBanner } from '@/components/billing/SubscriptionStatusBanner';
+import UsageBreakdown, { USAGE_ROW_GRID } from '@/components/billing/UsageBreakdown';
 import { formatPrice } from '@/utils/pricing';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { derivePlanStatus } from '@/lib/billing/subscription-status';
@@ -120,17 +121,21 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
       </UserSettingsSection>
 
       <UserSettingsSection title={t('usage.title')}>
-        <div className='flex items-center justify-between gap-6'>
-          <div className='space-y-1'>
-            <div className='text-sm font-medium'>{t('usage.eventsLabel')}</div>
-            <p className='text-muted-foreground text-xs'>
-              {t('usage.resetsInDays', { days: usage.daysUntilReset })}
-            </p>
-          </div>
-          <div className='flex max-w-md flex-1 items-center gap-3'>
-            <Progress value={Math.min(usage.usagePercentage, 100)} className='h-2 flex-1' color='var(--primary)' />
+        <div>
+          <div className={USAGE_ROW_GRID}>
+            <div className='space-y-1'>
+              <div className='text-sm font-medium'>{t('usage.eventsLabel')}</div>
+              <p className='text-muted-foreground text-xs'>
+                {t('usage.resetsInDays', { days: usage.daysUntilReset })}
+              </p>
+            </div>
+            <Progress
+              value={Math.min(usage.usagePercentage, 100)}
+              className='order-last col-span-2 h-1.5 md:order-none md:col-span-1'
+              color='var(--primary)'
+            />
             <span
-              className={`text-xs whitespace-nowrap ${usage.isOverLimit ? 'text-destructive font-medium' : 'text-muted-foreground'}`}
+              className={`text-right text-xs whitespace-nowrap tabular-nums ${usage.isOverLimit ? 'text-destructive font-medium' : 'text-muted-foreground'}`}
             >
               {t('usage.eventsUsed', {
                 current: formatNumber(usage.current, locale),
@@ -139,6 +144,8 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
               })}
             </span>
           </div>
+
+          <UsageBreakdown />
         </div>
       </UserSettingsSection>
 

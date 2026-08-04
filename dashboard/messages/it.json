@@ -2957,7 +2957,23 @@
           "title": "Utilizzo",
           "eventsLabel": "Eventi",
           "eventsUsed": "{current} / {limit} ({percentage})",
-          "resetsInDays": "Si reimposta tra {days} giorni"
+          "resetsInDays": "Si reimposta tra {days} giorni",
+          "breakdown": {
+            "trigger": "Scopri come viene usata la tua quota",
+            "byType": "Per tipo",
+            "bySite": "Per sito",
+            "showAllSites": "Mostra altri {count} siti",
+            "nonBillableNote": "Il monitoraggio del tempo sulla pagina e della profondità di scorrimento non incide sulla tua quota.",
+            "loadError": "Impossibile caricare il dettaglio dell'utilizzo.",
+            "empty": "Nessun evento fatturabile registrato in questo periodo.",
+            "eventTypes": {
+              "pageview": "Visualizzazioni di pagina",
+              "custom": "Eventi personalizzati",
+              "cwv": "Core Web Vitals",
+              "outbound_link": "Link in uscita",
+              "client_error": "Errori"
+            }
+          }
         },
         "payment": {
           "title": "Pagamento e fatture",

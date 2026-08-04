@@ -2957,7 +2957,23 @@
           "title": "Forbruk",
           "eventsLabel": "Hendelser",
           "eventsUsed": "{current} / {limit} ({percentage})",
-          "resetsInDays": "Tilbakestilles om {days} dager"
+          "resetsInDays": "Tilbakestilles om {days} dager",
+          "breakdown": {
+            "trigger": "Se hva kvoten din går til",
+            "byType": "Etter type",
+            "bySite": "Etter nettsted",
+            "showAllSites": "Vis {count} flere nettsteder",
+            "nonBillableNote": "Måling av tid på siden og rulledybde teller ikke med i kvoten din.",
+            "loadError": "Kunne ikke laste forbruksoversikten.",
+            "empty": "Ingen fakturerbare hendelser registrert i denne perioden ennå.",
+            "eventTypes": {
+              "pageview": "Sidevisninger",
+              "custom": "Egendefinerte hendelser",
+              "cwv": "Core Web Vitals",
+              "outbound_link": "Utgående lenker",
+              "client_error": "Feil"
+            }
+          }
         },
         "payment": {
           "title": "Betaling og fakturaer",
