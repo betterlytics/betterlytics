@@ -246,23 +246,22 @@
   @keyframes filter-pill-in {
     from {
       opacity: 0;
-      transform: translateY(-2px);
     }
   }
 
   @keyframes filter-pill-flash {
     0% {
-      box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 35%, transparent);
+      box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 45%, transparent);
     }
     100% {
-      box-shadow: 0 0 0 3px transparent;
+      box-shadow: 0 0 0 2px transparent;
     }
   }
 
   .animate-filter-pill-added {
     animation:
-      filter-pill-in 0.22s ease,
-      filter-pill-flash 1.8s ease-out 0.05s;
+      filter-pill-in 0.15s ease-out,
+      filter-pill-flash 1.2s ease-out;
   }
 
   @media (prefers-reduced-motion: reduce) {
