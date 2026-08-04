@@ -18,9 +18,8 @@ pub use models::{ActiveSessionRow, EventRow, ReferrerSourceCategoryRow, SessionR
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const INSERTER_TIMEOUT_SECS: u64 = 5;
-/// Cap on awaiting ClickHouse's insert acknowledgement. Without it a
-/// black-hole connection (paused/vanished server) hangs the flush forever
-/// instead of surfacing a timeout the retry loop can act on.
+/// Cap on awaiting the insert acknowledgement, so a black-hole connection
+/// surfaces as a retryable timeout instead of hanging the flush.
 const INSERTER_END_TIMEOUT_SECS: u64 = 10;
 const INSERTER_PERIOD_SECS: u64 = 10;
 const INSERTER_MAX_ROWS: u64 = 100_000;
@@ -243,16 +242,12 @@ async fn run_inserter(
     }
 }
 
-/// Inserts the whole batch as one INSERT and clears it only after ClickHouse
-/// confirms. Transient failures (network, timeout, overload) retry forever
-/// with capped backoff while the ingest channel buffers upstream; recognized
-/// server rejections drop the batch after a few attempts so a poison batch
-/// cannot block the pipeline forever.
-///
-/// Delivery is therefore at-least-once: a timeout after the server already
-/// committed duplicates the batch on retry. Accepted trade-off (issue #19);
-/// an insert_deduplication_token would make retries idempotent if the table
-/// gains a non-replicated dedup window.
+/// Inserts the whole batch as one INSERT, clearing it only after ClickHouse
+/// confirms. Transient failures retry forever with capped backoff (the
+/// channel buffers upstream); recognized rejections drop the batch after a
+/// few attempts so a poison batch cannot block the pipeline. Retries reuse
+/// one dedup token per batch, so a batch whose ack was lost is ignored by
+/// the server on re-send (migration 37) instead of duplicating events.
 async fn flush(
     client: &clickhouse::Client,
     batch: &mut Vec<EventRow>,
@@ -263,9 +258,6 @@ async fn flush(
         return;
     }
 
-    // One token per batch, stable across its retries: analytics.events keeps
-    // a window of recently seen tokens (migration 37) and silently ignores a
-    // block it has already committed, making retries exactly-once in effect.
     let dedup_token = uuid::Uuid::new_v4().to_string();
 
     let mut transient_attempts: u32 = 0;
@@ -346,8 +338,7 @@ enum ErrorClass {
     Deterministic,
 }
 
-/// Whether an insert error can plausibly succeed on retry. Only a recognized
-/// ClickHouse rejection is treated as deterministic - when in doubt, retry.
+/// Whether an insert error can plausibly succeed on retry.
 fn classify(error: &ClickHouseError) -> ErrorClass {
     match error {
         ClickHouseError::Network(_) | ClickHouseError::TimedOut => ErrorClass::Transient,
@@ -374,39 +365,19 @@ fn server_exception_code(response: &str) -> Option<u32> {
     digits.parse().ok()
 }
 
-/// Approximate in-memory size of a row, used to bound batch memory between
-/// flushes. Not the exact wire size; string fields dominate, so close enough.
+/// Rough per-row memory estimate for the batch byte cap. Only fields that
+/// validation allows to grow beyond ~100 bytes are measured; the fixed
+/// overhead generously covers every small column, present and future.
 fn approx_row_bytes(row: &EventRow) -> usize {
-    const FIXED_FIELDS: usize = 128;
-    FIXED_FIELDS
-        + row.site_id.len()
-        + row.domain.len()
+    const FIXED_OVERHEAD: usize = 512;
+    FIXED_OVERHEAD
         + row.url.len()
-        + row.device_type.len()
-        + row.country_code.len()
-        + row.subdivision_code.len()
-        + row.city.len()
-        + row.browser.len()
-        + row.browser_version.len()
-        + row.os.len()
-        + row.os_version.len()
-        + row.referrer_source.len()
-        + row.referrer_source_canonical.len()
-        + row.referrer_source_name.len()
-        + row.referrer_search_term.len()
         + row.referrer_url.len()
-        + row.utm_source.len()
-        + row.utm_medium.len()
-        + row.utm_campaign.len()
-        + row.utm_term.len()
-        + row.utm_content.len()
-        + row.custom_event_name.len()
+        + row.referrer_search_term.len()
         + row.custom_event_json.len()
         + row.outbound_link_url.len()
         + row.error_exceptions.len()
-        + row.error_type.len()
         + row.error_message.len()
-        + row.error_fingerprint.len()
         + row.global_properties_keys.iter().map(String::len).sum::<usize>()
         + row.global_properties_values.iter().map(String::len).sum::<usize>()
 }
