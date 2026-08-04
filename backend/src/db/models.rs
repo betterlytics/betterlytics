@@ -107,9 +107,7 @@ pub struct ReferrerSourceCategoryRow {
 }
 
 impl EventRow {
-    /// Returns None when the event type has no ClickHouse enum value: clients
-    /// can send arbitrary event names, and a panic here kills the insert
-    /// pipeline until the container is restarted.
+    /// Returns None when the event type has no ClickHouse enum value.
     pub fn from_processed(event: ProcessedEvent) -> Option<Self> {
         let timestamp = event.timestamp;
 
