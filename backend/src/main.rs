@@ -113,9 +113,21 @@ async fn main() {
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
     info!("ClickHouse client initialized");
 
-    let (db, event_tx, inserter_handle) = Database::new(Arc::clone(&clickhouse), config.clone())
-        .await
-        .expect("Failed to initialize database");
+    let metrics_collector = if config.enable_monitoring {
+        let collector = MetricsCollector::new()
+            .expect("Failed to initialize metrics collector")
+            .start_system_metrics_updater();
+        info!("Metrics collector started");
+        Some(collector)
+    } else {
+        info!("Metrics collection disabled");
+        None
+    };
+
+    let (db, event_tx, inserter_handle) =
+        Database::new(Arc::clone(&clickhouse), config.clone(), metrics_collector.clone())
+            .await
+            .expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
 
     if let Err(e) = referrer::sync_referrer_categories(
@@ -134,18 +146,11 @@ async fn main() {
 
     let db = Arc::new(db);
 
-    let metrics_collector = if config.enable_monitoring {
-        let collector = MetricsCollector::new()
-            .expect("Failed to initialize metrics collector")
-            .start_system_metrics_updater();
-        info!("Metrics collector started");
-        Some(collector)
-    } else {
-        info!("Metrics collection disabled");
-        None
-    };
-
-    let processor = Arc::new(EventProcessor::new(geoip_service, event_tx));
+    let processor = Arc::new(EventProcessor::new(
+        geoip_service,
+        event_tx,
+        metrics_collector.clone(),
+    ));
 
     let site_config_pool = Arc::new(
         PostgresPool::new(

@@ -10,6 +10,7 @@ use tracing::{debug, error, info, warn};
 
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
+use crate::metrics::MetricsCollector;
 use crate::processing::ProcessedEvent;
 
 mod models;
@@ -36,11 +37,12 @@ impl Database {
     pub async fn new(
         clickhouse: Arc<ClickHouseClient>,
         config: Arc<Config>,
+        metrics: Option<Arc<MetricsCollector>>,
     ) -> Result<(Self, Sender<ProcessedEvent>, JoinHandle<()>)> {
         let (event_tx, event_rx) = mpsc::channel(EVENT_CHANNEL_CAPACITY);
 
         let client = clickhouse.inner().clone();
-        let inserter_handle = tokio::spawn(run_inserter(client, event_rx));
+        let inserter_handle = tokio::spawn(run_inserter(client, event_rx, metrics));
 
         Ok((Self { clickhouse, config }, event_tx, inserter_handle))
     }
@@ -188,7 +190,11 @@ impl Database {
     }
 }
 
-async fn run_inserter(client: clickhouse::Client, mut rx: Receiver<ProcessedEvent>) {
+async fn run_inserter(
+    client: clickhouse::Client,
+    mut rx: Receiver<ProcessedEvent>,
+    metrics: Option<Arc<MetricsCollector>>,
+) {
     info!("Inserter starting (owned-batch mode)");
 
     let period = Duration::from_secs(INSERTER_PERIOD_SECS);
@@ -215,18 +221,18 @@ async fn run_inserter(client: clickhouse::Client, mut rx: Receiver<ProcessedEven
                 batch.push(row);
 
                 if batch.len() as u64 >= INSERTER_MAX_ROWS || batch_bytes as u64 >= INSERTER_MAX_BYTES {
-                    flush(&client, &mut batch, &mut batch_bytes).await;
+                    flush(&client, &mut batch, &mut batch_bytes, &metrics).await;
                     flush_deadline = Instant::now() + period;
                 }
             }
             Ok(None) => {
                 info!(rows = batch.len(), "Ingest channel closed, committing final batch");
-                flush(&client, &mut batch, &mut batch_bytes).await;
+                flush(&client, &mut batch, &mut batch_bytes, &metrics).await;
                 info!("Inserter shutdown complete, final batch committed");
                 return;
             }
             Err(_) => {
-                flush(&client, &mut batch, &mut batch_bytes).await;
+                flush(&client, &mut batch, &mut batch_bytes, &metrics).await;
                 flush_deadline = Instant::now() + period;
             }
         }
@@ -243,7 +249,12 @@ async fn run_inserter(client: clickhouse::Client, mut rx: Receiver<ProcessedEven
 /// committed duplicates the batch on retry. Accepted trade-off (issue #19);
 /// an insert_deduplication_token would make retries idempotent if the table
 /// gains a non-replicated dedup window.
-async fn flush(client: &clickhouse::Client, batch: &mut Vec<EventRow>, batch_bytes: &mut usize) {
+async fn flush(
+    client: &clickhouse::Client,
+    batch: &mut Vec<EventRow>,
+    batch_bytes: &mut usize,
+    metrics: &Option<Arc<MetricsCollector>>,
+) {
     if batch.is_empty() {
         return;
     }
@@ -283,6 +294,9 @@ async fn flush(client: &clickhouse::Client, batch: &mut Vec<EventRow>, batch_byt
                             rows = batch.len(),
                             "ClickHouse rejected batch deterministically, dropping it"
                         );
+                        if let Some(metrics) = metrics {
+                            metrics.increment_events_dropped("insert_gave_up", batch.len() as u64);
+                        }
                         batch.clear();
                         *batch_bytes = 0;
                         return;
@@ -477,7 +491,7 @@ mod tests {
         let client = clickhouse::Client::default().with_url(mock.url());
 
         let (tx, rx) = mpsc::channel(100);
-        let handle = tokio::spawn(run_inserter(client, rx));
+        let handle = tokio::spawn(run_inserter(client, rx, None));
 
         for n in 0..5 {
             tx.send(test_event(n)).await.unwrap();
@@ -502,7 +516,7 @@ mod tests {
         let client = clickhouse::Client::default().with_url("http://127.0.0.1:9");
 
         let (tx, rx) = mpsc::channel(100);
-        let handle = tokio::spawn(run_inserter(client, rx));
+        let handle = tokio::spawn(run_inserter(client, rx, None));
 
         tx.send(test_event(0)).await.unwrap();
         drop(tx);

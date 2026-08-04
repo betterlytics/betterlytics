@@ -25,6 +25,7 @@ pub struct MetricsCollector {
 
     // Event rejection and validation metrics
     events_rejected_total: IntCounterVec,
+    events_dropped_total: IntCounterVec,
     validation_duration: Histogram,
 
     // Cache lookup metrics
@@ -96,6 +97,14 @@ impl MetricsCollector {
             Opts::new(
                 "analytics_events_rejected_total",
                 "Total number of analytics events rejected by validation",
+            ),
+            &["reason"],
+        )?;
+
+        let events_dropped_total = IntCounterVec::new(
+            Opts::new(
+                "analytics_events_dropped_total",
+                "Total number of accepted analytics events lost before reaching ClickHouse",
             ),
             &["reason"],
         )?;
@@ -190,6 +199,7 @@ impl MetricsCollector {
         registry.register(Box::new(events_processed_total.clone()))?;
         registry.register(Box::new(events_processing_duration.clone()))?;
         registry.register(Box::new(events_rejected_total.clone()))?;
+        registry.register(Box::new(events_dropped_total.clone()))?;
         registry.register(Box::new(validation_duration.clone()))?;
         registry.register(Box::new(cache_lookups_total.clone()))?;
         registry.register(Box::new(site_config_cache_healthy.clone()))?;
@@ -223,6 +233,7 @@ impl MetricsCollector {
             events_processed_total,
             events_processing_duration,
             events_rejected_total,
+            events_dropped_total,
             validation_duration,
             cache_lookups_total,
             site_config_cache_healthy,
@@ -307,6 +318,14 @@ impl MetricsCollector {
         self.events_rejected_total
             .with_label_values(&[reason])
             .inc();
+    }
+
+    /// Counts accepted (200-acked) events that were lost before reaching
+    /// ClickHouse - the alertable "silent loss" signal from issue #19.
+    pub fn increment_events_dropped(&self, reason: &str, count: u64) {
+        self.events_dropped_total
+            .with_label_values(&[reason])
+            .inc_by(count);
     }
 
     pub fn record_validation_duration(&self, duration: Duration) {
