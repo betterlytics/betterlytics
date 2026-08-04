@@ -265,17 +265,20 @@ async fn main() {
     // Serve returning dropped the router state, and with it the EventProcessor
     // holding the only ingest senders: the channel is now closed, so the
     // inserter commits whatever is buffered and exits.
-    info!("HTTP server stopped, draining ingest pipeline");
-    match tokio::time::timeout(SHUTDOWN_DEADLINE, inserter_handle).await {
-        Ok(Ok(())) => info!("Ingest pipeline drained, buffered events committed"),
-        Ok(Err(e)) => error!("Inserter task failed during drain: {}", e),
-        Err(_) => {
-            error!(
-                "Shutdown deadline of {:?} exceeded, exiting without a full drain",
-                SHUTDOWN_DEADLINE
-            );
-            std::process::exit(1);
+    info!("HTTP server stopped, draining buffered data");
+    let drain = async {
+        match inserter_handle.await {
+            Ok(()) => info!("Ingest pipeline drained, buffered events committed"),
+            Err(e) => error!("Inserter task failed during drain: {}", e),
         }
+        monitor::clickhouse_writer::flush_all_writers().await;
+    };
+    if tokio::time::timeout(SHUTDOWN_DEADLINE, drain).await.is_err() {
+        error!(
+            "Shutdown deadline of {:?} exceeded, exiting without a full drain",
+            SHUTDOWN_DEADLINE
+        );
+        std::process::exit(1);
     }
 
     info!("Shutdown complete");
