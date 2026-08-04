@@ -1,13 +1,45 @@
+import { useEffect } from 'react';
+import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { FilterDescription } from '@/components/filters/FilterDescription';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
+
+const FILTER_TOAST_ID = 'filters-updated';
+const FILTER_TOAST_DURATION_MS = 10000;
 
 type FiltersUpdatedToastProps = {
   added: QueryFilter[];
   removed: QueryFilter[];
 };
 
-export function FiltersUpdatedToast({ added, removed }: FiltersUpdatedToastProps) {
+export function showFiltersUpdatedToast(props: FiltersUpdatedToastProps & { onUndo: () => void }) {
+  toast(<FiltersUpdatedToast added={props.added} removed={props.removed} />, {
+    id: FILTER_TOAST_ID,
+    duration: FILTER_TOAST_DURATION_MS,
+    action: {
+      label: <UndoLabel />,
+      onClick: props.onUndo,
+    },
+  });
+}
+
+/* The toast's Undo targets the query-filter state of the shell that hosts
+   click-to-filter, so that shell dismisses the toast when it unmounts. */
+export function useDismissFilterToastOnUnmount() {
+  useEffect(() => {
+    return () => {
+      toast.dismiss(FILTER_TOAST_ID);
+    };
+  }, []);
+}
+
+/* As a component, the label re-resolves on locale changes while the toast is open. */
+function UndoLabel() {
+  const t = useTranslations('components.filters');
+  return t('selector.toastUndo');
+}
+
+function FiltersUpdatedToast({ added, removed }: FiltersUpdatedToastProps) {
   const t = useTranslations('components.filters');
 
   return (

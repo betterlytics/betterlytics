@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import {
   applyFilterUpdates,
@@ -17,27 +17,8 @@ import {
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
-import { FiltersUpdatedToast } from '@/components/filters/FiltersUpdatedToast';
+import { showFiltersUpdatedToast } from '@/components/filters/FiltersUpdatedToast';
 import { generateTempId } from '@/utils/temporaryId';
-
-const FILTER_TOAST_ID = 'filters-updated';
-const FILTER_TOAST_DURATION_MS = 10000;
-
-/* As a component, the label re-resolves on locale changes while the toast is open. */
-function UndoLabel() {
-  const t = useTranslations('components.filters');
-  return t('selector.toastUndo');
-}
-
-/* The toast's Undo targets the query-filter state of the shell that hosts
-   click-to-filter, so that shell dismisses the toast when it unmounts. */
-export function useDismissFilterToastOnUnmount() {
-  useEffect(() => {
-    return () => {
-      toast.dismiss(FILTER_TOAST_ID);
-    };
-  }, []);
-}
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
 
@@ -64,13 +45,10 @@ export function useFilterClick(defaults?: Options) {
     (prev: QueryFilter[], next: QueryFilter[]) => {
       const { added, removed } = diffQueryFilters(prev, next);
       if (added.length === 0 && removed.length === 0) return;
-      toast(<FiltersUpdatedToast added={added} removed={removed} />, {
-        id: FILTER_TOAST_ID,
-        duration: FILTER_TOAST_DURATION_MS,
-        action: {
-          label: <UndoLabel />,
-          onClick: () => setQueryFilters((fs) => withStableIds(prev, fs)),
-        },
+      showFiltersUpdatedToast({
+        added,
+        removed,
+        onUndo: () => setQueryFilters((fs) => withStableIds(prev, fs)),
       });
     },
     [setQueryFilters],

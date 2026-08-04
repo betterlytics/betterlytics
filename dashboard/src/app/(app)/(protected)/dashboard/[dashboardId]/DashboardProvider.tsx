@@ -8,7 +8,7 @@ import { SettingsProvider } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
 import { useSyncURLFilters } from '@/hooks/use-sync-url-filters';
-import { useDismissFilterToastOnUnmount } from '@/hooks/use-filter-click';
+import { useDismissFilterToastOnUnmount } from '@/components/filters/FiltersUpdatedToast';
 import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextProvider';
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { type DashboardSettings } from '@/entities/dashboard/dashboardSettings.entities';
