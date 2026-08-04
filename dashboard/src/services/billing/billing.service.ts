@@ -13,7 +13,6 @@ import {
 import { toDateString } from '@/utils/dateFormatters';
 import {
   UserBillingDataSchema,
-  UsageBreakdownSchema,
   type UsageData,
   type UserBillingData,
   type UsageBreakdown,
@@ -61,12 +60,14 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
 
 export async function getUserUsageBreakdownStats(userId: string): Promise<UsageBreakdown> {
   try {
-    const subscription = await getUserSubscription(userId);
+    const [subscription, sites] = await Promise.all([
+      getUserSubscription(userId),
+      getOwnedSitesWithDomain(userId, true),
+    ]);
     if (!subscription) {
       throw new Error('No subscription found for user');
     }
 
-    const sites = await getOwnedSitesWithDomain(userId, true);
     const rows = await getUsageBreakdownForPeriod(
       sites.map((site) => site.siteId),
       toDateString(subscription.currentPeriodStart),
@@ -80,25 +81,25 @@ export async function getUserUsageBreakdownStats(userId: string): Promise<UsageB
     const typeTotals = new Map<string, number>();
     const siteTotals = new Map<string, number>();
     for (const row of rows) {
-      typeTotals.set(row.event_type, (typeTotals.get(row.event_type) ?? 0) + row.total);
-      siteTotals.set(row.site_id, (siteTotals.get(row.site_id) ?? 0) + row.total);
+      typeTotals.set(row.eventType, (typeTotals.get(row.eventType) ?? 0) + row.total);
+      siteTotals.set(row.siteId, (siteTotals.get(row.siteId) ?? 0) + row.total);
     }
 
     const byEventType = [...typeTotals.entries()]
       .map(([eventType, value]) => ({ eventType, total: value, percentageOfLimit: share(value) }))
       .sort((a, b) => b.total - a.total);
 
-    const domains = new Map(sites.map((site) => [site.siteId, site.domain]));
-    const bySite = [...siteTotals.entries()]
-      .map(([siteId, value]) => ({
-        siteId,
-        domain: domains.get(siteId) ?? siteId,
-        total: value,
-        percentageOfLimit: share(value),
+    const bySite = sites
+      .filter((site) => siteTotals.has(site.siteId))
+      .map((site) => ({
+        siteId: site.siteId,
+        domain: site.domain,
+        total: siteTotals.get(site.siteId)!,
+        percentageOfLimit: share(siteTotals.get(site.siteId)!),
       }))
       .sort((a, b) => b.total - a.total);
 
-    return UsageBreakdownSchema.parse({ total, byEventType, bySite });
+    return { total, byEventType, bySite };
   } catch (error) {
     console.error('Failed to get usage breakdown:', error);
     throw new UserException('Failed to get usage breakdown');

@@ -5,19 +5,14 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ChevronRight, Info } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
+import { UsageRow } from '@/components/billing/UsageRow';
 import { useUsageBreakdown } from '@/hooks/useUsageBreakdown';
+import { useToggle } from '@/hooks/use-toggle';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
-import type {
-  BillableEventType,
-  UsageBreakdown as UsageBreakdownData,
-} from '@/entities/billing/billing.entities';
+import type { BillableEventType, UsageBreakdown as UsageBreakdownData } from '@/entities/billing/billing.entities';
 
 const SITE_PREVIEW_COUNT = 5;
-
-export const USAGE_ROW_GRID =
-  'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 md:grid-cols-[minmax(0,1fr)_minmax(110px,20rem)_7.5rem]';
 
 const EVENT_TYPE_LABEL_KEYS = {
   pageview: 'eventTypes.pageview',
@@ -37,31 +32,32 @@ function BreakdownRow({ label, total, percentageOfLimit }: BreakdownRowProps) {
   const locale = useLocale();
 
   return (
-    <div className={USAGE_ROW_GRID}>
-      <span className='truncate text-sm'>{label}</span>
-      <Progress
-        value={Math.min(percentageOfLimit, 100)}
-        color='var(--primary)'
-        className='order-last col-span-2 h-1.5 md:order-none md:col-span-1'
-      />
-      <span className='text-right text-xs whitespace-nowrap tabular-nums'>
-        {formatNumber(total, locale)}{' '}
-        <span className='text-muted-foreground'>({formatPercentage(percentageOfLimit, locale)})</span>
-      </span>
-    </div>
+    <UsageRow
+      percentageOfLimit={percentageOfLimit}
+      label={<span className='truncate text-sm'>{label}</span>}
+      value={
+        <>
+          {formatNumber(total, locale)}{' '}
+          <span className='text-muted-foreground'>({formatPercentage(percentageOfLimit, locale)})</span>
+        </>
+      }
+    />
   );
+}
+
+function RowList({ children }: { children: React.ReactNode }) {
+  return <div className='flex flex-col gap-2.5'>{children}</div>;
 }
 
 function BreakdownRows({ breakdown }: { breakdown: UsageBreakdownData }) {
   const t = useTranslations('components.userSettings.billing.usage.breakdown');
-  const [showAllSites, setShowAllSites] = useState(false);
+  const { isOn: showAllSites, toggle: toggleAllSites } = useToggle();
 
-  const hasMultipleSites = breakdown.bySite.length > 1;
   const visibleSites = showAllSites ? breakdown.bySite : breakdown.bySite.slice(0, SITE_PREVIEW_COUNT);
   const overflowSiteCount = breakdown.bySite.length - SITE_PREVIEW_COUNT;
 
   const eventTypeRows = (
-    <div className='flex flex-col gap-2.5'>
+    <RowList>
       {breakdown.byEventType.map((row) => {
         const labelKey = EVENT_TYPE_LABEL_KEYS[row.eventType as BillableEventType];
         return (
@@ -73,12 +69,12 @@ function BreakdownRows({ breakdown }: { breakdown: UsageBreakdownData }) {
           />
         );
       })}
-    </div>
+    </RowList>
   );
 
   return (
     <div className='flex flex-col gap-3.5'>
-      {hasMultipleSites ? (
+      {breakdown.bySite.length > 1 ? (
         <Tabs defaultValue='type' className='gap-3.5'>
           <TabsList className='h-8'>
             <TabsTrigger value='type' className='cursor-pointer text-xs'>
@@ -90,7 +86,7 @@ function BreakdownRows({ breakdown }: { breakdown: UsageBreakdownData }) {
           </TabsList>
           <TabsContent value='type'>{eventTypeRows}</TabsContent>
           <TabsContent value='site'>
-            <div className='flex flex-col gap-2.5'>
+            <RowList>
               {visibleSites.map((row) => (
                 <BreakdownRow
                   key={row.siteId}
@@ -102,13 +98,13 @@ function BreakdownRows({ breakdown }: { breakdown: UsageBreakdownData }) {
               {overflowSiteCount > 0 && (
                 <button
                   type='button'
-                  onClick={() => setShowAllSites((previous) => !previous)}
+                  onClick={toggleAllSites}
                   className='text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:ring-ring/50 -ml-1.5 cursor-pointer self-start rounded-md px-1.5 py-1 text-xs font-medium focus-visible:ring-[3px] focus-visible:outline-none'
                 >
                   {showAllSites ? t('showFewerSites') : t('showAllSites', { count: overflowSiteCount })}
                 </button>
               )}
-            </div>
+            </RowList>
           </TabsContent>
         </Tabs>
       ) : (
@@ -135,22 +131,20 @@ export default function UsageBreakdown() {
         {t('trigger')}
       </CollapsibleTrigger>
 
-      <CollapsibleContent className='border-border mt-3.5 border-t pt-4'>
-        {isLoading && (
-          <div className='flex flex-col gap-2.5'>
+      <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down border-border mt-3.5 overflow-hidden border-t pt-4'>
+        {isLoading ? (
+          <RowList>
             <Skeleton className='h-4 w-full' />
             <Skeleton className='h-4 w-full' />
             <Skeleton className='h-4 w-full' />
-          </div>
+          </RowList>
+        ) : error ? (
+          <p className='text-muted-foreground text-xs'>{t('loadError')}</p>
+        ) : breakdown && breakdown.total > 0 ? (
+          <BreakdownRows breakdown={breakdown} />
+        ) : (
+          <p className='text-muted-foreground text-xs'>{t('empty')}</p>
         )}
-        {error && <p className='text-muted-foreground text-xs'>{t('loadError')}</p>}
-        {breakdown &&
-          !isLoading &&
-          (breakdown.total > 0 ? (
-            <BreakdownRows breakdown={breakdown} />
-          ) : (
-            <p className='text-muted-foreground text-xs'>{t('empty')}</p>
-          ))}
       </CollapsibleContent>
     </Collapsible>
   );

@@ -12,7 +12,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PlanStatusBadge } from '@/components/billing/PlanStatusBadge';
 import { SubscriptionStatusBanner } from '@/components/billing/SubscriptionStatusBanner';
-import UsageBreakdown, { USAGE_ROW_GRID } from '@/components/billing/UsageBreakdown';
+import UsageBreakdown from '@/components/billing/UsageBreakdown';
+import { UsageRow } from '@/components/billing/UsageRow';
 import { formatPrice } from '@/utils/pricing';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { derivePlanStatus } from '@/lib/billing/subscription-status';
@@ -122,29 +123,24 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
 
       <UserSettingsSection title={t('usage.title')}>
         <div>
-          <div className={USAGE_ROW_GRID}>
-            <div className='space-y-1'>
-              <div className='text-sm font-medium'>{t('usage.eventsLabel')}</div>
-              <p className='text-muted-foreground text-xs'>
-                {t('usage.resetsInDays', { days: usage.daysUntilReset })}
-              </p>
-            </div>
-            <Progress
-              value={Math.min(usage.usagePercentage, 100)}
-              className='order-last col-span-2 h-1.5 md:order-none md:col-span-1'
-              color='var(--primary)'
-            />
-            <span
-              className={`text-right text-xs whitespace-nowrap tabular-nums ${usage.isOverLimit ? 'text-destructive font-medium' : ''}`}
-            >
-              {t.rich('usage.eventsUsed', {
-                current: formatNumber(usage.current, locale),
-                limit: formatNumber(usage.limit, locale),
-                percentage: formatPercentage(usage.usagePercentage, locale),
-                muted: (chunks) => <span className='text-muted-foreground'>{chunks}</span>,
-              })}
-            </span>
-          </div>
+          <UsageRow
+            percentageOfLimit={usage.usagePercentage}
+            valueClassName={usage.isOverLimit ? 'text-destructive font-medium' : undefined}
+            label={
+              <div className='space-y-1'>
+                <div className='text-sm font-medium'>{t('usage.eventsLabel')}</div>
+                <p className='text-muted-foreground text-xs'>
+                  {t('usage.resetsInDays', { days: usage.daysUntilReset })}
+                </p>
+              </div>
+            }
+            value={t.rich('usage.eventsUsed', {
+              current: formatNumber(usage.current, locale),
+              limit: formatNumber(usage.limit, locale),
+              percentage: formatPercentage(usage.usagePercentage, locale),
+              muted: (chunks) => <span className='text-muted-foreground'>{chunks}</span>,
+            })}
+          />
 
           <UsageBreakdown />
         </div>

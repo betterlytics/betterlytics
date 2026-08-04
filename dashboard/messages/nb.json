@@ -2962,7 +2962,7 @@
             "trigger": "Se hva kvoten din går til",
             "byType": "Etter type",
             "bySite": "Etter nettsted",
-            "showAllSites": "Vis {count} flere nettsteder",
+            "showAllSites": "{count, plural, one {Vis # nettsted til} other {Vis # flere nettsteder}}",
             "nonBillableNote": "Måling av tid på siden og rulledybde teller ikke med i kvoten din.",
             "loadError": "Kunne ikke laste forbruksoversikten.",
             "empty": "Ingen fakturerbare hendelser registrert i denne perioden ennå.",

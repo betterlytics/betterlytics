@@ -1,5 +1,9 @@
 -- Replace usage_by_site_daily (site_id x date) with usage_daily, adding an event_type
 -- dimension so billable usage can be broken down per event type.
+--
+-- The billable whitelist below is mirrored in the dashboard as BILLABLE_EVENT_TYPES
+-- (billing.entities.ts) for display labels, and described in prose by the
+-- `usage.breakdown.nonBillableNote` message. Changing it here means updating both.
 
 DROP VIEW IF EXISTS analytics.usage_by_site_daily;
 DROP VIEW IF EXISTS analytics.usage_daily_mv;

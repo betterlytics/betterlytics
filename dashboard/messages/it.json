@@ -2962,7 +2962,7 @@
             "trigger": "Scopri come viene usata la tua quota",
             "byType": "Per tipo",
             "bySite": "Per sito",
-            "showAllSites": "Mostra altri {count} siti",
+            "showAllSites": "{count, plural, one {Mostra # altro sito} other {Mostra altri # siti}}",
             "nonBillableNote": "Il monitoraggio del tempo sulla pagina e della profondità di scorrimento non incide sulla tua quota.",
             "loadError": "Impossibile caricare il dettaglio dell'utilizzo.",
             "empty": "Nessun evento fatturabile registrato in questo periodo.",

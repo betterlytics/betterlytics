@@ -2962,7 +2962,7 @@
             "trigger": "Se hvad din kvote går til",
             "byType": "Efter type",
             "bySite": "Efter side",
-            "showAllSites": "Vis {count} flere sider",
+            "showAllSites": "{count, plural, one {Vis # side mere} other {Vis # flere sider}}",
             "nonBillableNote": "Måling af tid på siden og scrolldybde tæller ikke med i din kvote.",
             "loadError": "Kunne ikke indlæse dit forbrugsoverblik.",
             "empty": "Ingen betalbare events registreret i denne periode endnu.",

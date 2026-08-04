@@ -228,25 +228,8 @@ export async function findDashboardOwner(dashboardId: string): Promise<{ userId:
 }
 
 export async function getOwnedSiteIds(userId: string, includeDeleted = false): Promise<string[]> {
-  try {
-    const dashboards = await prisma.userDashboard.findMany({
-      where: {
-        userId,
-        role: 'owner',
-        dashboard: includeDeleted ? {} : { deletedAt: null },
-      },
-      include: {
-        dashboard: {
-          select: { siteId: true },
-        },
-      },
-    });
-
-    return dashboards.map((userDashboard) => userDashboard.dashboard.siteId);
-  } catch (error) {
-    console.error('Failed to get owned site IDs:', error);
-    return [];
-  }
+  const sites = await getOwnedSitesWithDomain(userId, includeDeleted);
+  return sites.map((site) => site.siteId);
 }
 
 export async function getOwnedSitesWithDomain(
@@ -260,7 +243,7 @@ export async function getOwnedSitesWithDomain(
         role: 'owner',
         dashboard: includeDeleted ? {} : { deletedAt: null },
       },
-      include: {
+      select: {
         dashboard: {
           select: { siteId: true, domain: true },
         },

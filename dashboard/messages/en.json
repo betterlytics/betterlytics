@@ -2959,7 +2959,7 @@
             "trigger": "See where your quota is going",
             "byType": "By type",
             "bySite": "By site",
-            "showAllSites": "Show {count} more sites",
+            "showAllSites": "{count, plural, one {Show # more site} other {Show # more sites}}",
             "nonBillableNote": "Tracking time on page and scroll depth doesn't count toward your quota.",
             "loadError": "Could not load your usage breakdown.",
             "empty": "No billable events recorded yet this period.",
