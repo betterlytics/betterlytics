@@ -16,7 +16,7 @@ async function _getSiteEventCountForRange(
 ): Promise<number> {
   const query = safeSql`
     SELECT sum(event_count) as total
-    FROM analytics.usage_by_site_daily
+    FROM analytics.usage_daily
     WHERE site_id = {site_id:String}
       AND date >= toDate({start_date:String})
       AND date <= toDate({end_date:String})
@@ -56,7 +56,7 @@ export async function getDailyEventCountsForSites(
 
   const query = safeSql`
     SELECT usage.site_id, toString(usage.date) AS date, sum(usage.event_count) AS total
-    FROM analytics.usage_by_site_daily AS usage
+    FROM analytics.usage_daily AS usage
     WHERE usage.site_id IN ${SQL.StringArray({ site_ids: siteIds })}
       AND usage.date >= toDate({earliest_start:String})
       AND usage.date <= toDate(now())
@@ -92,7 +92,7 @@ export async function getUserEventCountForPeriod(siteIds: string[], startDate: D
 
   const query = safeSql`
     SELECT sum(event_count) as total
-    FROM analytics.usage_by_site_daily
+    FROM analytics.usage_daily
     WHERE (${SQL.OR(siteIdChecks)})
       AND date >= toDate({start_date:String})
       AND date <= toDate(now())
