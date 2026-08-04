@@ -7,6 +7,7 @@ use axum::{
 };
 use std::sync::Arc;
 use std::net::SocketAddr;
+use std::time::Duration;
 use tower_http::cors::CorsLayer;
 use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -52,6 +53,15 @@ use processing::EventProcessor;
 use site_config::{RefreshConfig, SiteConfigCache, SiteConfigDataSource, SiteConfigRepository};
 use storage::s3::S3Service;
 use validation::{EventValidator, ValidationConfig};
+
+/// Cap on draining buffered events to ClickHouse after the HTTP server stops.
+/// The container stop grace period must comfortably exceed this.
+const SHUTDOWN_DEADLINE: Duration = Duration::from_secs(5);
+
+/// Hard backstop measured from signal receipt. Covers anything that wedges the
+/// graceful path (e.g. a hung in-flight request keeping the server alive) so
+/// shutdown never depends on Docker's SIGKILL.
+const WATCHDOG_TIMEOUT: Duration = Duration::from_secs(10);
 
 #[tokio::main]
 async fn main() {
@@ -103,7 +113,7 @@ async fn main() {
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
     info!("ClickHouse client initialized");
 
-    let (db, event_tx) = Database::new(Arc::clone(&clickhouse), config.clone())
+    let (db, event_tx, inserter_handle) = Database::new(Arc::clone(&clickhouse), config.clone())
         .await
         .expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
@@ -252,7 +262,23 @@ async fn main() {
     .await
     .unwrap();
 
-    info!("HTTP server stopped");
+    // Serve returning dropped the router state, and with it the EventProcessor
+    // holding the only ingest senders: the channel is now closed, so the
+    // inserter commits whatever is buffered and exits.
+    info!("HTTP server stopped, draining ingest pipeline");
+    match tokio::time::timeout(SHUTDOWN_DEADLINE, inserter_handle).await {
+        Ok(Ok(())) => info!("Ingest pipeline drained, buffered events committed"),
+        Ok(Err(e)) => error!("Inserter task failed during drain: {}", e),
+        Err(_) => {
+            error!(
+                "Shutdown deadline of {:?} exceeded, exiting without a full drain",
+                SHUTDOWN_DEADLINE
+            );
+            std::process::exit(1);
+        }
+    }
+
+    info!("Shutdown complete");
 }
 
 /// Resolves when SIGTERM (Unix) or Ctrl+C is received.
@@ -278,6 +304,15 @@ async fn shutdown_signal() {
         _ = ctrl_c => info!("Ctrl+C received, shutting down gracefully"),
         _ = terminate => info!("SIGTERM received, shutting down gracefully"),
     }
+
+    tokio::spawn(async {
+        tokio::time::sleep(WATCHDOG_TIMEOUT).await;
+        error!(
+            "Graceful shutdown did not complete within {:?}, forcing exit",
+            WATCHDOG_TIMEOUT
+        );
+        std::process::exit(1);
+    });
 }
 
 /// Warm the session cache from ClickHouse so in-flight sessions survive a restart

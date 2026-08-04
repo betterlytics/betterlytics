@@ -4,6 +4,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use tokio::sync::mpsc::{self, error::TryRecvError, Receiver, Sender};
+use tokio::task::JoinHandle;
 use tokio::time::timeout;
 
 use crate::clickhouse::ClickHouseClient;
@@ -29,20 +30,22 @@ pub type SharedDatabase = Arc<Database>;
 impl Database {
     /// Creates the database handle plus the ingest channel: events sent on the
     /// returned sender are batched into ClickHouse by a single inserter task.
+    /// The returned handle completes once all senders are dropped and the
+    /// inserter has committed its final batch — await it to drain on shutdown.
     pub async fn new(
         clickhouse: Arc<ClickHouseClient>,
         config: Arc<Config>,
-    ) -> Result<(Self, Sender<ProcessedEvent>)> {
+    ) -> Result<(Self, Sender<ProcessedEvent>, JoinHandle<()>)> {
         let (event_tx, event_rx) = mpsc::channel(EVENT_CHANNEL_CAPACITY);
 
         let client = clickhouse.inner().clone();
-        tokio::spawn(async move {
+        let inserter_handle = tokio::spawn(async move {
             if let Err(e) = run_inserter(client, event_rx).await {
                 eprintln!("Inserter: Error - {}", e);
             }
         });
 
-        Ok((Self { clickhouse, config }, event_tx))
+        Ok((Self { clickhouse, config }, event_tx, inserter_handle))
     }
 
     /// Fetch the current session of every visitor active within `window`, from `analytics.sessions`
