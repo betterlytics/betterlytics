@@ -3,9 +3,9 @@ use clickhouse::error::Error as ClickHouseError;
 use std::sync::Arc;
 use std::time::Duration;
 
-use tokio::sync::mpsc::{self, error::TryRecvError, Receiver, Sender};
+use tokio::sync::mpsc::{self, Receiver, Sender};
 use tokio::task::JoinHandle;
-use tokio::time::timeout;
+use tokio::time::{timeout_at, Instant};
 use tracing::{debug, error, info, warn};
 
 use crate::clickhouse::ClickHouseClient;
@@ -193,75 +193,110 @@ async fn run_inserter(
     client: clickhouse::Client,
     mut rx: Receiver<ProcessedEvent>,
 ) -> Result<(), ClickHouseError> {
-    info!("Inserter starting (sparse stream mode)");
+    info!("Inserter starting (owned-batch mode)");
 
-    let mut inserter = client
-        .inserter("analytics.events")?
-        .with_timeouts(
-            Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
-            None,
-        )
-        .with_period(Some(Duration::from_secs(INSERTER_PERIOD_SECS)))
-        .with_max_rows(INSERTER_MAX_ROWS)
-        .with_max_bytes(INSERTER_MAX_BYTES);
-
-    debug!("Inserter configured");
+    let period = Duration::from_secs(INSERTER_PERIOD_SECS);
+    let mut batch: Vec<EventRow> = Vec::new();
+    let mut batch_bytes: usize = 0;
+    let mut flush_deadline = Instant::now() + period;
 
     loop {
-        let event = match rx.try_recv() {
-            Ok(received_event) => received_event,
-            Err(TryRecvError::Empty) => {
-                // Channel empty, wait for the next event or until the inserter period ends.
-                let time_left = inserter
-                    .time_left()
-                    .unwrap_or_else(|| Duration::from_secs(INSERTER_PERIOD_SECS));
+        match timeout_at(flush_deadline, rx.recv()).await {
+            Ok(Some(event)) => {
+                let row = match EventRow::from_processed(event) {
+                    Some(row) => row,
+                    None => continue,
+                };
+                debug!(
+                    site_id = %row.site_id,
+                    visitor_id = %row.visitor_id,
+                    session_id = %row.session_id,
+                    event_type = ?row.event_type,
+                    url = %row.url,
+                    timestamp = %row.timestamp,
+                    "Buffered row for ClickHouse insertion");
+                batch_bytes += approx_row_bytes(&row);
+                batch.push(row);
 
-                match timeout(time_left, rx.recv()).await {
-                    Ok(Some(received_event)) => received_event,
-                    Ok(None) => {
-                        info!("Ingest channel closed, committing final batch");
-                        inserter.commit().await?;
-                        break;
-                    }
-                    Err(_) => {
-                        inserter.commit().await?;
-                        continue;
-                    }
+                if batch.len() as u64 >= INSERTER_MAX_ROWS || batch_bytes as u64 >= INSERTER_MAX_BYTES {
+                    flush(&client, &mut batch, &mut batch_bytes).await?;
+                    flush_deadline = Instant::now() + period;
                 }
             }
-            Err(TryRecvError::Disconnected) => {
-                info!("Ingest channel disconnected, committing final batch");
-                break;
+            Ok(None) => {
+                info!(rows = batch.len(), "Ingest channel closed, committing final batch");
+                flush(&client, &mut batch, &mut batch_bytes).await?;
+                info!("Inserter shutdown complete, final batch committed");
+                return Ok(());
             }
-        };
-
-        let row = match EventRow::from_processed(event) {
-            Some(row) => row,
-            None => continue,
-        };
-
-        debug!(
-            site_id = %row.site_id,
-            visitor_id = %row.visitor_id,
-            session_id = %row.session_id,
-            event_type = ?row.event_type,
-            custom_event_name = ?row.custom_event_name,
-            url = %row.url,
-            timestamp = %row.timestamp,
-            device_type = %row.device_type,
-            browser = %row.browser,
-            os = %row.os,
-            "Prepared row for ClickHouse insertion");
-        if let Err(e) = inserter.write(&row) {
-            error!("Failed to write row to inserter buffer: {}. Row: {:?}", e, row);
-            // TODO: Implement retry logic or dead-letter queue for inserter write failures.
-            continue;
+            Err(_) => {
+                flush(&client, &mut batch, &mut batch_bytes).await?;
+                flush_deadline = Instant::now() + period;
+            }
         }
     }
+}
 
-    let stats = inserter.end().await?;
-    info!(stats = ?stats, "Inserter shutdown complete, final batch committed");
+/// Inserts the whole batch as one INSERT and clears it only after ClickHouse
+/// confirms, so a failed insert leaves the rows owned and retryable.
+async fn flush(
+    client: &clickhouse::Client,
+    batch: &mut Vec<EventRow>,
+    batch_bytes: &mut usize,
+) -> Result<(), ClickHouseError> {
+    if batch.is_empty() {
+        return Ok(());
+    }
+
+    let mut insert = client
+        .insert("analytics.events")?
+        .with_timeouts(Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)), None);
+    for row in batch.iter() {
+        insert.write(row).await?;
+    }
+    insert.end().await?;
+
+    debug!(rows = batch.len(), "Committed batch to ClickHouse");
+    batch.clear();
+    *batch_bytes = 0;
     Ok(())
+}
+
+/// Approximate in-memory size of a row, used to bound batch memory between
+/// flushes. Not the exact wire size; string fields dominate, so close enough.
+fn approx_row_bytes(row: &EventRow) -> usize {
+    const FIXED_FIELDS: usize = 128;
+    FIXED_FIELDS
+        + row.site_id.len()
+        + row.domain.len()
+        + row.url.len()
+        + row.device_type.len()
+        + row.country_code.len()
+        + row.subdivision_code.len()
+        + row.city.len()
+        + row.browser.len()
+        + row.browser_version.len()
+        + row.os.len()
+        + row.os_version.len()
+        + row.referrer_source.len()
+        + row.referrer_source_canonical.len()
+        + row.referrer_source_name.len()
+        + row.referrer_search_term.len()
+        + row.referrer_url.len()
+        + row.utm_source.len()
+        + row.utm_medium.len()
+        + row.utm_campaign.len()
+        + row.utm_term.len()
+        + row.utm_content.len()
+        + row.custom_event_name.len()
+        + row.custom_event_json.len()
+        + row.outbound_link_url.len()
+        + row.error_exceptions.len()
+        + row.error_type.len()
+        + row.error_message.len()
+        + row.error_fingerprint.len()
+        + row.global_properties_keys.iter().map(String::len).sum::<usize>()
+        + row.global_properties_values.iter().map(String::len).sum::<usize>()
 }
 
 /// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
@@ -286,6 +321,7 @@ mod tests {
     use crate::campaign::CampaignInfo;
     use crate::referrer::ReferrerInfo;
     use clickhouse::test::{handlers, Mock};
+    use tokio::time::timeout;
 
     fn test_event(n: u64) -> ProcessedEvent {
         let raw = RawTrackingEvent {
