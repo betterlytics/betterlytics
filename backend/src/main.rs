@@ -58,9 +58,10 @@ use validation::{EventValidator, ValidationConfig};
 /// The container stop grace period must comfortably exceed this.
 const SHUTDOWN_DEADLINE: Duration = Duration::from_secs(5);
 
-/// Hard backstop measured from signal receipt so
-/// shutdown never depends on Docker's SIGKILL.
-const WATCHDOG_TIMEOUT: Duration = Duration::from_secs(10);
+/// Hard backstop measured from signal receipt so shutdown never depends on
+/// Docker's SIGKILL. Ordering invariant: SHUTDOWN_DEADLINE < WATCHDOG_TIMEOUT
+/// < the container stop grace period (10s Docker default).
+const WATCHDOG_TIMEOUT: Duration = Duration::from_secs(8);
 
 #[tokio::main]
 async fn main() {
