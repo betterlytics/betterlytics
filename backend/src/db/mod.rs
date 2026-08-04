@@ -263,11 +263,16 @@ async fn flush(
         return;
     }
 
+    // One token per batch, stable across its retries: analytics.events keeps
+    // a window of recently seen tokens (migration 37) and silently ignores a
+    // block it has already committed, making retries exactly-once in effect.
+    let dedup_token = uuid::Uuid::new_v4().to_string();
+
     let mut transient_attempts: u32 = 0;
     let mut rejected_attempts: u32 = 0;
 
     loop {
-        match try_insert(client, batch).await {
+        match try_insert(client, batch, &dedup_token).await {
             Ok(()) => {
                 debug!(rows = batch.len(), "Committed batch to ClickHouse");
                 batch.clear();
@@ -317,8 +322,14 @@ async fn flush(
     }
 }
 
-async fn try_insert(client: &clickhouse::Client, batch: &[EventRow]) -> Result<(), ClickHouseError> {
+async fn try_insert(
+    client: &clickhouse::Client,
+    batch: &[EventRow],
+    dedup_token: &str,
+) -> Result<(), ClickHouseError> {
     let mut insert = client
+        .clone()
+        .with_option("insert_deduplication_token", dedup_token)
         .insert("analytics.events")?
         .with_timeouts(
             Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
