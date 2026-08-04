@@ -107,10 +107,25 @@ pub struct ReferrerSourceCategoryRow {
 }
 
 impl EventRow {
-    pub fn from_processed(event: ProcessedEvent) -> Self {
+    /// Returns None when the event type has no ClickHouse enum value: clients
+    /// can send arbitrary event names, and a panic here kills the insert
+    /// pipeline until the container is restarted.
+    pub fn from_processed(event: ProcessedEvent) -> Option<Self> {
         let timestamp = event.timestamp;
 
-        Self {
+        let event_type = match event.event_type.parse() {
+            Ok(event_type) => event_type,
+            Err(_) => {
+                tracing::warn!(
+                    event_type = %event.event_type,
+                    site_id = %event.site_id,
+                    "Unknown event type, dropping event"
+                );
+                return None;
+            }
+        };
+
+        Some(Self {
             site_id: event.site_id,
             visitor_id: event.visitor_fingerprint,
             session_id: event.session_id,
@@ -136,7 +151,7 @@ impl EventRow {
             utm_campaign: event.campaign_info.utm_campaign.unwrap_or_default(),
             utm_term: event.campaign_info.utm_term.unwrap_or_default(),
             utm_content: event.campaign_info.utm_content.unwrap_or_default(),
-            event_type: event.event_type.parse().unwrap(),
+            event_type,
             custom_event_name: event.custom_event_name,
             custom_event_json: event.custom_event_json,
             outbound_link_url: event.outbound_link_url,
@@ -155,6 +170,91 @@ impl EventRow {
             global_properties_keys: event.global_properties_keys,
             global_properties_values: event.global_properties_values,
             page_duration_seconds: event.page_duration_seconds,
+        })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::analytics::{AnalyticsEvent, RawTrackingEvent};
+    use crate::campaign::CampaignInfo;
+    use crate::referrer::ReferrerInfo;
+
+    fn processed_event(event_type: &str) -> ProcessedEvent {
+        let raw = RawTrackingEvent {
+            site_id: "test-site".to_string(),
+            event_name: event_type.to_string(),
+            is_custom_event: false,
+            properties: String::new(),
+            url: "https://example.com/".to_string(),
+            referrer: None,
+            user_agent: "test-agent".to_string(),
+            screen_resolution: "1920x1080".to_string(),
+            timestamp: 1_700_000_000,
+            outbound_link_url: None,
+            cwv_cls: None,
+            cwv_lcp: None,
+            cwv_inp: None,
+            cwv_fcp: None,
+            cwv_ttfb: None,
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
+            error_exceptions: None,
+            global_properties: None,
+            page_duration_seconds: None,
+        };
+
+        ProcessedEvent {
+            event: AnalyticsEvent::new(raw, "127.0.0.1".to_string()),
+            event_type: event_type.to_string(),
+            session_id: 1,
+            session_created_at: chrono::Utc::now(),
+            country_code: None,
+            subdivision_code: None,
+            city: None,
+            browser: None,
+            browser_version: None,
+            os: None,
+            os_version: None,
+            device_type: None,
+            site_id: "test-site".to_string(),
+            visitor_fingerprint: 1,
+            timestamp: chrono::Utc::now(),
+            domain: Some("example.com".to_string()),
+            url: "/".to_string(),
+            referrer_info: ReferrerInfo::default(),
+            user_agent: "test-agent".to_string(),
+            campaign_info: CampaignInfo::default(),
+            custom_event_name: String::new(),
+            custom_event_json: String::new(),
+            outbound_link_url: String::new(),
+            cwv_cls: None,
+            cwv_lcp: None,
+            cwv_inp: None,
+            cwv_fcp: None,
+            cwv_ttfb: None,
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
+            error_exceptions: String::new(),
+            error_type: String::new(),
+            error_message: String::new(),
+            error_fingerprint: String::new(),
+            global_properties_keys: Vec::new(),
+            global_properties_values: Vec::new(),
+            page_duration_seconds: 0,
+        }
+    }
+
+    #[test]
+    fn unknown_event_type_is_dropped_instead_of_panicking() {
+        assert!(EventRow::from_processed(processed_event("not_a_real_event_type")).is_none());
+    }
+
+    #[test]
+    fn known_event_types_convert() {
+        for name in ["pageview", "custom", "outbound_link", "cwv", "engagement"] {
+            assert!(EventRow::from_processed(processed_event(name)).is_some());
         }
     }
 }
