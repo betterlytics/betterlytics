@@ -135,6 +135,50 @@ impl<R: clickhouse::Row + Serialize + Send + Sync + 'static> ClickhouseChannelWr
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use clickhouse::test::{handlers, Mock};
+    use serde::Deserialize;
+    use std::time::Duration;
+
+    #[derive(clickhouse::Row, Serialize, Deserialize, Debug)]
+    struct TestRow {
+        n: u32,
+    }
+
+    /// The fence contract shutdown relies on: when a Flush marker is acked,
+    /// every batch enqueued before it has been fully inserted.
+    #[tokio::test]
+    async fn flush_acks_only_after_prior_batches_are_inserted() {
+        let mock = Mock::new();
+        let first = mock.add(handlers::record());
+        let second = mock.add(handlers::record());
+        let client = clickhouse::Client::default().with_url(mock.url());
+        let clickhouse = Arc::new(ClickHouseClient::from_client(client));
+
+        let writer =
+            ClickhouseChannelWriter::<TestRow>::new(clickhouse, "test.rows", 100, 500).unwrap();
+        writer
+            .enqueue_rows(vec![TestRow { n: 1 }, TestRow { n: 2 }])
+            .unwrap();
+        writer.enqueue_rows(vec![TestRow { n: 3 }]).unwrap();
+
+        let (ack_tx, ack_rx) = oneshot::channel();
+        writer.sender.try_send(Msg::Flush(ack_tx)).unwrap();
+
+        tokio::time::timeout(Duration::from_secs(10), ack_rx)
+            .await
+            .expect("flush ack timed out")
+            .expect("worker dropped the ack");
+
+        let rows1: Vec<TestRow> = first.collect().await;
+        let rows2: Vec<TestRow> = second.collect().await;
+        let ns: Vec<u32> = rows1.iter().chain(rows2.iter()).map(|r| r.n).collect();
+        assert_eq!(ns, vec![1, 2, 3]);
+    }
+}
+
 const MONITOR_BATCH_SIZE: usize = 500;
 const MONITOR_CHANNEL_CAPACITY: usize = 2_000;
 

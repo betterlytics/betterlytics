@@ -6,6 +6,7 @@ use std::time::Duration;
 use tokio::sync::mpsc::{self, error::TryRecvError, Receiver, Sender};
 use tokio::task::JoinHandle;
 use tokio::time::timeout;
+use tracing::{debug, error, info, warn};
 
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
@@ -41,7 +42,7 @@ impl Database {
         let client = clickhouse.inner().clone();
         let inserter_handle = tokio::spawn(async move {
             if let Err(e) = run_inserter(client, event_rx).await {
-                eprintln!("Inserter: Error - {}", e);
+                error!("Inserter task failed: {}", e);
             }
         });
 
@@ -62,14 +63,14 @@ impl Database {
     pub async fn validate_schema(&self) -> Result<()> {
         self.check_connection().await?;
         
-        println!("Validating database schema");
+        info!("Validating database schema");
         let db_exists: u8 = self.clickhouse.inner()
             .query("SELECT count() FROM system.databases WHERE name = 'analytics'")
             .fetch_one()
             .await?;
-        
+
         if db_exists == 0 {
-            println!("[WARNING] Analytics database does not exist. Please run migrations.");
+            warn!("Analytics database does not exist. Please run migrations.");
             return Ok(());
         }
 
@@ -79,29 +80,29 @@ impl Database {
             .await?;
 
         if table_exists == 0 {
-            println!("[WARNING] Events table does not exist. Please run migrations.");
+            warn!("Events table does not exist. Please run migrations.");
             return Ok(());
         }
 
         if self.config.data_retention_days == -1 {
-            println!("[INFO] Data retention explicitly disabled (data_retention_days = -1). Removing TTL if present.");
+            info!("Data retention explicitly disabled (data_retention_days = -1). Removing TTL if present.");
             if let Err(e) = Self::remove_data_retention_policy(self.clickhouse.inner()).await {
-                eprintln!("[ERROR] Could not remove data retention policy: {}", e);
+                error!("Could not remove data retention policy: {}", e);
                 return Err(e);
             }
         } else if self.config.data_retention_days > 0 {
             if let Err(e) = Self::apply_data_retention_policy(self.clickhouse.inner(), self.config.data_retention_days).await {
-                eprintln!("[ERROR] Could not apply data retention policy: {}", e);
+                error!("Could not apply data retention policy: {}", e);
                 return Err(e);
             }
         } else {
-            println!(
-                "[WARNING] Invalid value for DATA_RETENTION_DAYS: {}. TTL policy will not be changed. Use a positive integer to set TTL, or -1 to remove TTL.",
+            warn!(
+                "Invalid value for DATA_RETENTION_DAYS: {}. TTL policy will not be changed. Use a positive integer to set TTL, or -1 to remove TTL.",
                 self.config.data_retention_days
             );
         }
 
-        println!("Database schema validation and TTL setup complete.");
+        info!("Database schema validation and TTL setup complete.");
         Ok(())
     }
 
@@ -123,25 +124,25 @@ impl Database {
             .await?;
 
         if create_table_query.contains("TTL ") {
-            println!("[INFO] TTL policy exists, removing it.");
+            info!("TTL policy exists, removing it.");
             let alter_query = "ALTER TABLE analytics.events REMOVE TTL";
             client
                 .query(alter_query)
                 .execute()
                 .await
                 .map_err(|e| anyhow::anyhow!("Failed to remove data retention policy: {}", e))?;
-            println!("[INFO] TTL policy removed successfully.");
+            info!("TTL policy removed successfully.");
         } else {
-            println!("[INFO] No TTL policy found on events table, nothing to remove.");
+            info!("No TTL policy found on events table, nothing to remove.");
         }
 
         Ok(())
     }
 
     pub async fn check_connection(&self) -> Result<()> {
-        println!("Checking database connection");
+        debug!("Checking database connection");
         self.clickhouse.inner().query("SELECT 1").execute().await?;
-        println!("Database connection check successful");
+        debug!("Database connection check successful");
         Ok(())
     }
 
@@ -195,7 +196,7 @@ async fn run_inserter(
     client: clickhouse::Client,
     mut rx: Receiver<ProcessedEvent>,
 ) -> Result<(), ClickHouseError> {
-    println!("Inserter: Starting (Sparse Stream Mode).");
+    info!("Inserter starting (sparse stream mode)");
 
     let mut inserter = client
         .inserter("analytics.events")?
@@ -207,7 +208,7 @@ async fn run_inserter(
         .with_max_rows(INSERTER_MAX_ROWS)
         .with_max_bytes(INSERTER_MAX_BYTES);
 
-    println!("Inserter: Configured.");
+    debug!("Inserter configured");
 
     loop {
         let event = match rx.try_recv() {
@@ -221,7 +222,7 @@ async fn run_inserter(
                 match timeout(time_left, rx.recv()).await {
                     Ok(Some(received_event)) => received_event,
                     Ok(None) => {
-                        println!("Inserter: Channel closed during timeout wait. Committing final batch.");
+                        info!("Ingest channel closed, committing final batch");
                         inserter.commit().await?;
                         break;
                     }
@@ -232,7 +233,7 @@ async fn run_inserter(
                 }
             }
             Err(TryRecvError::Disconnected) => {
-                println!("Inserter: Channel disconnected. Committing final batch.");
+                info!("Ingest channel disconnected, committing final batch");
                 break;
             }
         };
@@ -242,7 +243,7 @@ async fn run_inserter(
             None => continue,
         };
 
-        tracing::debug!(
+        debug!(
             site_id = %row.site_id,
             visitor_id = %row.visitor_id,
             session_id = %row.session_id,
@@ -255,19 +256,135 @@ async fn run_inserter(
             os = %row.os,
             "Prepared row for ClickHouse insertion");
         if let Err(e) = inserter.write(&row) {
-            eprintln!(
-                "Inserter: Failed to write row to inserter buffer: {}. Row: {:?}",
-                e, row
-            );
+            error!("Failed to write row to inserter buffer: {}. Row: {:?}", e, row);
             // TODO: Implement retry logic or dead-letter queue for inserter write failures.
             continue;
         }
     }
 
-    println!("Inserter: Exiting loop. Finalizing inserter.");
     let stats = inserter.end().await?;
-    println!("Inserter: Shutdown complete. Final stats: {:?}", stats);
+    info!(stats = ?stats, "Inserter shutdown complete, final batch committed");
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::analytics::{AnalyticsEvent, RawTrackingEvent};
+    use crate::campaign::CampaignInfo;
+    use crate::referrer::ReferrerInfo;
+    use clickhouse::test::{handlers, Mock};
+
+    fn test_event(n: u64) -> ProcessedEvent {
+        let raw = RawTrackingEvent {
+            site_id: "test-site".to_string(),
+            event_name: "pageview".to_string(),
+            is_custom_event: false,
+            properties: String::new(),
+            url: format!("https://example.com/page-{n}"),
+            referrer: None,
+            user_agent: "test-agent".to_string(),
+            screen_resolution: "1920x1080".to_string(),
+            timestamp: 1_700_000_000,
+            outbound_link_url: None,
+            cwv_cls: None,
+            cwv_lcp: None,
+            cwv_inp: None,
+            cwv_fcp: None,
+            cwv_ttfb: None,
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
+            error_exceptions: None,
+            global_properties: None,
+            page_duration_seconds: None,
+        };
+
+        ProcessedEvent {
+            event: AnalyticsEvent::new(raw, "127.0.0.1".to_string()),
+            event_type: "pageview".to_string(),
+            session_id: n,
+            session_created_at: chrono::Utc::now(),
+            country_code: None,
+            subdivision_code: None,
+            city: None,
+            browser: None,
+            browser_version: None,
+            os: None,
+            os_version: None,
+            device_type: None,
+            site_id: "test-site".to_string(),
+            visitor_fingerprint: n,
+            timestamp: chrono::Utc::now(),
+            domain: Some("example.com".to_string()),
+            url: format!("/page-{n}"),
+            referrer_info: ReferrerInfo::default(),
+            user_agent: "test-agent".to_string(),
+            campaign_info: CampaignInfo::default(),
+            custom_event_name: String::new(),
+            custom_event_json: String::new(),
+            outbound_link_url: String::new(),
+            cwv_cls: None,
+            cwv_lcp: None,
+            cwv_inp: None,
+            cwv_fcp: None,
+            cwv_ttfb: None,
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
+            error_exceptions: String::new(),
+            error_type: String::new(),
+            error_message: String::new(),
+            error_fingerprint: String::new(),
+            global_properties_keys: Vec::new(),
+            global_properties_values: Vec::new(),
+            page_duration_seconds: 0,
+        }
+    }
+
+    /// The drain contract main relies on at shutdown: once all senders drop,
+    /// the inserter commits everything buffered and its task completes.
+    #[tokio::test]
+    async fn inserter_commits_buffered_events_when_channel_closes() {
+        let mock = Mock::new();
+        let recording = mock.add(handlers::record());
+        let client = clickhouse::Client::default().with_url(mock.url());
+
+        let (tx, rx) = mpsc::channel(100);
+        let handle = tokio::spawn(run_inserter(client, rx));
+
+        for n in 0..5 {
+            tx.send(test_event(n)).await.unwrap();
+        }
+        drop(tx);
+
+        timeout(Duration::from_secs(10), handle)
+            .await
+            .expect("inserter did not exit after channel close")
+            .expect("inserter task panicked")
+            .expect("inserter returned an error");
+
+        let rows: Vec<EventRow> = recording.collect().await;
+        assert_eq!(rows.len(), 5);
+        assert!(rows.iter().all(|r| r.site_id == "test-site"));
+    }
+
+    /// The deadline-safety property: an unreachable ClickHouse must never
+    /// leave the drain hanging - the task finishes (with an error) promptly.
+    #[tokio::test]
+    async fn inserter_exits_when_clickhouse_is_unreachable() {
+        let client = clickhouse::Client::default().with_url("http://127.0.0.1:9");
+
+        let (tx, rx) = mpsc::channel(100);
+        let handle = tokio::spawn(run_inserter(client, rx));
+
+        tx.send(test_event(0)).await.unwrap();
+        drop(tx);
+
+        timeout(Duration::from_secs(10), handle)
+            .await
+            .expect("inserter did not exit after channel close")
+            .expect("inserter task panicked")
+            .ok();
+    }
 }
 
 /// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
