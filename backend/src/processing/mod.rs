@@ -74,8 +74,8 @@ pub struct ProcessedEvent {
     pub page_duration_seconds: u32,
 }
 
-/// Sampling counter so a sustained channel overflow logs once per 1000 drops
-/// instead of flooding: the dropped_total metric carries the exact count.
+/// Logs one in every 1000 drops so a sustained overflow cannot flood the log;
+/// the dropped_total metric carries the exact count.
 static DROP_LOG_SAMPLE: AtomicU64 = AtomicU64::new(0);
 
 /// Event processor that handles real-time processing
@@ -197,9 +197,8 @@ impl EventProcessor {
         debug!("Site ID: {}", processed.site_id);
         debug!("Session ID: {}", processed.session_id);
 
-        // Drop instead of blocking when the ingest buffer is exhausted (e.g.
-        // a ClickHouse outage longer than the channel's ~2-day headroom):
-        // ingestion must stay responsive, and every drop is counted.
+        // try_send, not send: ingestion stays responsive if the buffer fills,
+        // at the cost of dropping the newest events (counted, never silent).
         if let Err(e) = self.event_tx.try_send(processed) {
             let reason = match e {
                 TrySendError::Full(_) => "channel_full",

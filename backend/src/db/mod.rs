@@ -246,10 +246,10 @@ async fn run_inserter(
     }
 }
 
-/// Inserts the whole batch as one INSERT, clearing it only after ClickHouse
-/// confirms. Transient failures retry forever with capped backoff (the
-/// channel buffers upstream); recognized rejections drop the batch after a
-/// few attempts so a poison batch cannot block the pipeline. Retries are deduped.
+/// Clears the batch only once ClickHouse confirms it. Transient failures retry
+/// forever (the channel buffers upstream); recognized rejections drop the batch
+/// after a few attempts so a poison batch cannot block the pipeline. All
+/// attempts share one dedup token, so a re-sent batch is ignored server-side.
 async fn flush(
     client: &clickhouse::Client,
     batch: &mut Vec<EventRow>,
@@ -347,7 +347,6 @@ enum ErrorClass {
     Deterministic,
 }
 
-/// Whether an insert error can plausibly succeed on retry.
 fn classify(error: &ClickHouseError) -> ErrorClass {
     match error {
         ClickHouseError::Network(_) | ClickHouseError::TimedOut => ErrorClass::Transient,
@@ -367,7 +366,6 @@ fn classify(error: &ClickHouseError) -> ErrorClass {
     }
 }
 
-/// Parses the leading "Code: NNN." from a ClickHouse exception message.
 fn server_exception_code(response: &str) -> Option<u32> {
     let rest = response.trim_start().strip_prefix("Code: ")?;
     let digits: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
@@ -489,9 +487,6 @@ mod tests {
         assert!(rows.iter().all(|r| r.site_id == "test-site"));
     }
 
-    /// Transient failures must never kill the inserter: it holds the batch
-    /// and keeps retrying until ClickHouse returns. (At shutdown, main's
-    /// drain deadline caps the wait; the task itself never gives up.)
     #[tokio::test(start_paused = true)]
     async fn inserter_retries_forever_when_clickhouse_is_unreachable() {
         let client = clickhouse::Client::default().with_url("http://127.0.0.1:9");
@@ -502,13 +497,10 @@ mod tests {
         tx.send(test_event(0)).await.unwrap();
         drop(tx);
 
-        // Ten virtual minutes of backoff-retries later, the task is still
-        // alive and still trying - not dead like before issue #19.
+        // Still retrying ten virtual minutes later: the timeout is the pass.
         assert!(timeout(Duration::from_secs(600), handle).await.is_err());
     }
 
-    /// A transient failure (here: a 500 with no ClickHouse exception body)
-    /// must lose nothing: the batch is held and the retry delivers it whole.
     #[tokio::test(start_paused = true)]
     async fn transient_failure_then_recovery_loses_no_events() {
         let mock = Mock::new();
@@ -533,8 +525,6 @@ mod tests {
         assert_eq!(rows.len(), 3);
     }
 
-    /// A batch that ClickHouse can never accept is dropped after a few
-    /// attempts instead of head-of-line-blocking every batch behind it.
     #[tokio::test(start_paused = true)]
     async fn poison_batch_is_dropped_and_does_not_block_later_batches() {
         let mock = Mock::new();
@@ -550,11 +540,9 @@ mod tests {
         poison.timestamp = chrono::DateTime::from_timestamp(5_000_000_000, 0).unwrap();
         tx.send(poison).await.unwrap();
 
-        // Let the flush period elapse and the rejected batch burn its
-        // attempts (virtual time).
+        // Long enough for the flush period plus every rejected attempt.
         tokio::time::sleep(Duration::from_secs(30)).await;
 
-        // A later, healthy batch must go through unimpeded.
         tx.send(test_event(1)).await.unwrap();
         drop(tx);
 

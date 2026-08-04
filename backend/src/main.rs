@@ -270,10 +270,9 @@ async fn main() {
             app.into_make_service_with_connect_info::<SocketAddr>(),
         )
         .with_graceful_shutdown(shutdown_signal()) => result.unwrap(),
-        // The inserter retries all insert errors, so it never exits on its
-        // own: completing here means it panicked. A backend acking events
-        // into a dead channel is worse than a restart - fail fast so the
-        // container restart policy brings up a working process.
+        // The inserter only returns once the ingest channel closes, so reaching
+        // here means it panicked. Exit non-zero rather than keep acking events
+        // into a dead channel; the container restart policy brings us back.
         result = &mut inserter_handle => {
             error!(?result, "Inserter task exited while the server is running, exiting");
             std::process::exit(1);
@@ -333,8 +332,8 @@ async fn shutdown_signal() {
     });
 }
 
-/// Samples pipeline buffer depths into metrics every few seconds. Holds only
-/// a weak channel handle so the ingest channel still closes at shutdown.
+/// Holds only a weak channel handle, so the ingest channel still closes when
+/// the processor drops at shutdown.
 fn spawn_pressure_sampler(
     metrics: Arc<MetricsCollector>,
     ingest_tx: tokio::sync::mpsc::WeakSender<processing::ProcessedEvent>,

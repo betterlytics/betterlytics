@@ -46,7 +46,6 @@ fn register_writer<R: Send + 'static>(
     });
 }
 
-/// Current queue depth of every live writer, for pipeline pressure metrics.
 pub fn writer_queue_depths() -> Vec<(String, usize)> {
     FLUSH_REGISTRY
         .lock()

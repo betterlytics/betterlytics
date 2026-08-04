@@ -357,8 +357,6 @@ impl MetricsCollector {
             .inc();
     }
 
-    /// Counts accepted (200-acked) events that were lost before reaching
-    /// ClickHouse - the alertable "silent loss" signal from issue #19.
     pub fn increment_events_dropped(&self, reason: &str, count: u64) {
         self.events_dropped_total
             .with_label_values(&[reason])
