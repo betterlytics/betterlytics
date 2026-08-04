@@ -4,6 +4,7 @@ import { useCallback, type ReactNode } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import {
   applyFilterUpdates,
+  areQueryFiltersEquivalent,
   MAX_FILTER_ROWS,
   withDependentColumns,
   type FilterColumn,
@@ -89,6 +90,7 @@ export function useFilterClick(defaults?: Options) {
       if (behavior === 'replace-same-column') {
         const replaced = withDependentColumns([column]);
         const next = applyFilterUpdates(queryFilters, [{ column, value, operator }], replaced);
+        if (areQueryFiltersEquivalent(queryFilters, next)) return;
         if (next.length > MAX_FILTER_ROWS) {
           notifyCapReached();
           return;
@@ -98,6 +100,9 @@ export function useFilterClick(defaults?: Options) {
         return;
       }
 
+      if (queryFilters.some((f) => f.column === column && f.operator === operator && f.values[0] === value)) {
+        return;
+      }
       if (atCap) {
         notifyCapReached();
         return;
@@ -134,6 +139,7 @@ export function useFilterClick(defaults?: Options) {
       const applied = updates.map((update) => ({ ...update, operator: update.operator ?? defaultOperator }));
       const replaced = withDependentColumns(updates.map((update) => update.column));
       const next = applyFilterUpdates(queryFilters, applied, replaced);
+      if (areQueryFiltersEquivalent(queryFilters, next)) return;
       if (next.length > MAX_FILTER_ROWS) {
         notifyCapReached();
         return;

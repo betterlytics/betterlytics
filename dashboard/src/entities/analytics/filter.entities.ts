@@ -126,6 +126,20 @@ export function withDependentColumns(columns: FilterColumn[]): FilterColumn[] {
 }
 
 /**
+ * Id- and order-insensitive comparison, so a click that would reproduce the
+ * current filter state can be treated as a no-op.
+ */
+export function areQueryFiltersEquivalent(a: QueryFilter[], b: QueryFilter[]): boolean {
+  if (a.length !== b.length) return false;
+  const signature = (filters: QueryFilter[]) =>
+    filters
+      .map((filter) => JSON.stringify([filter.column, filter.operator, [...filter.values].sort()]))
+      .sort()
+      .join();
+  return signature(a) === signature(b);
+}
+
+/**
  * Atomic multi-column filter replacement for compound row clicks (e.g. a
  * "Chrome 120" row applying browser + browser_version). Takes any number of
  * updates; existing filters on the updated columns are replaced and filters

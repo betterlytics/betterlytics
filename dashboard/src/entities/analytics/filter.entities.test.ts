@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { applyFilterUpdates, withDependentColumns, type QueryFilter } from '@/entities/analytics/filter.entities';
+import {
+  applyFilterUpdates,
+  areQueryFiltersEquivalent,
+  withDependentColumns,
+  type QueryFilter,
+} from '@/entities/analytics/filter.entities';
 
 function filter(column: QueryFilter['column'], value: string, id = `id-${column}`): QueryFilter {
   return { id, column, operator: '=', values: [value] };
@@ -139,5 +144,45 @@ describe('withDependentColumns', () => {
 
   it('deduplicates when a dependent is already listed', () => {
     expect(withDependentColumns(['browser', 'browser_version']).sort()).toEqual(['browser', 'browser_version']);
+  });
+});
+
+describe('areQueryFiltersEquivalent', () => {
+  it('treats identical filters with different ids as equivalent', () => {
+    const a = [filter('browser', 'Chrome', 'id-1')];
+    const b = [filter('browser', 'Chrome', 'id-2')];
+
+    expect(areQueryFiltersEquivalent(a, b)).toBe(true);
+  });
+
+  it('ignores filter order', () => {
+    const a = [filter('browser', 'Chrome'), filter('country_code', 'DK')];
+    const b = [filter('country_code', 'DK', 'other'), filter('browser', 'Chrome', 'ids')];
+
+    expect(areQueryFiltersEquivalent(a, b)).toBe(true);
+  });
+
+  it('ignores value order within a filter', () => {
+    const a: QueryFilter[] = [{ id: '1', column: 'browser', operator: '=', values: ['Chrome', 'Firefox'] }];
+    const b: QueryFilter[] = [{ id: '2', column: 'browser', operator: '=', values: ['Firefox', 'Chrome'] }];
+
+    expect(areQueryFiltersEquivalent(a, b)).toBe(true);
+  });
+
+  it('distinguishes different values, operators, and columns', () => {
+    const chrome = [filter('browser', 'Chrome')];
+
+    expect(areQueryFiltersEquivalent(chrome, [filter('browser', 'Firefox')])).toBe(false);
+    expect(
+      areQueryFiltersEquivalent(chrome, [{ id: 'x', column: 'browser', operator: '!=', values: ['Chrome'] }]),
+    ).toBe(false);
+    expect(areQueryFiltersEquivalent(chrome, [filter('os', 'Chrome')])).toBe(false);
+  });
+
+  it('distinguishes differing lengths', () => {
+    const a = [filter('browser', 'Chrome')];
+
+    expect(areQueryFiltersEquivalent(a, [])).toBe(false);
+    expect(areQueryFiltersEquivalent(a, [...a, filter('country_code', 'DK')])).toBe(false);
   });
 });
