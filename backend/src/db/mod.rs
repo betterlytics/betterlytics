@@ -3,7 +3,7 @@ use clickhouse::error::Error as ClickHouseError;
 use std::sync::Arc;
 use std::time::Duration;
 
-use tokio::sync::mpsc::{self, error::TryRecvError, Receiver};
+use tokio::sync::mpsc::{self, error::TryRecvError, Receiver, Sender};
 use tokio::time::timeout;
 
 use crate::clickhouse::ClickHouseClient;
@@ -13,9 +13,7 @@ use crate::processing::ProcessedEvent;
 mod models;
 pub use models::{ActiveSessionRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
 
-const NUM_INSERT_WORKERS: usize = 1;
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
-const WORKER_CHANNEL_CAPACITY: usize = 10_000;
 const INSERTER_TIMEOUT_SECS: u64 = 5;
 const INSERTER_PERIOD_SECS: u64 = 10;
 const INSERTER_MAX_ROWS: u64 = 100_000;
@@ -23,19 +21,28 @@ const INSERTER_MAX_BYTES: u64 = 50 * 1024 * 1024;
 
 pub struct Database {
     clickhouse: Arc<ClickHouseClient>,
-    event_tx: mpsc::Sender<ProcessedEvent>,
     config: Arc<Config>,
 }
 
 pub type SharedDatabase = Arc<Database>;
 
 impl Database {
-    pub async fn new(clickhouse: Arc<ClickHouseClient>, config: Arc<Config>) -> Result<Self> {
-        let (event_tx, event_rx) = Self::create_channels();
-        let worker_senders = Self::spawn_inserter_workers(clickhouse.inner().clone());
-        Self::spawn_dispatcher(event_rx, worker_senders);
+    /// Creates the database handle plus the ingest channel: events sent on the
+    /// returned sender are batched into ClickHouse by a single inserter task.
+    pub async fn new(
+        clickhouse: Arc<ClickHouseClient>,
+        config: Arc<Config>,
+    ) -> Result<(Self, Sender<ProcessedEvent>)> {
+        let (event_tx, event_rx) = mpsc::channel(EVENT_CHANNEL_CAPACITY);
 
-        Ok(Self { clickhouse, event_tx, config })
+        let client = clickhouse.inner().clone();
+        tokio::spawn(async move {
+            if let Err(e) = run_inserter(client, event_rx).await {
+                eprintln!("Inserter: Error - {}", e);
+            }
+        });
+
+        Ok((Self { clickhouse, config }, event_tx))
     }
 
     /// Fetch the current session of every visitor active within `window`, from `analytics.sessions`
@@ -47,46 +54,6 @@ impl Database {
             .fetch_all::<ActiveSessionRow>()
             .await?;
         Ok(rows)
-    }
-
-    fn create_channels() -> (mpsc::Sender<ProcessedEvent>, mpsc::Receiver<ProcessedEvent>) {
-        mpsc::channel(EVENT_CHANNEL_CAPACITY)
-    }
-
-    fn spawn_inserter_workers(client: clickhouse::Client) -> Vec<mpsc::Sender<ProcessedEvent>> {
-        let mut worker_senders = Vec::with_capacity(NUM_INSERT_WORKERS);
-
-        for i in 0..NUM_INSERT_WORKERS {
-            let (worker_tx, worker_rx) = mpsc::channel(WORKER_CHANNEL_CAPACITY);
-            worker_senders.push(worker_tx);
-            let client_clone = client.clone();
-            tokio::spawn(async move {
-                if let Err(e) = run_inserter_worker(i, client_clone, worker_rx).await {
-                    eprintln!("Worker {}: Error - {}", i, e);
-                }
-            });
-        }
-        worker_senders
-    }
-
-    fn spawn_dispatcher(
-        mut event_rx: mpsc::Receiver<ProcessedEvent>,
-        worker_senders: Vec<mpsc::Sender<ProcessedEvent>>,
-    ) {
-        tokio::spawn(async move {
-            let mut worker_index = 0;
-            while let Some(event) = event_rx.recv().await {
-                if let Err(e) = worker_senders[worker_index].send(event).await {
-                    eprintln!(
-                        "Dispatcher failed to send event to worker {}: {}",
-                        worker_index, e
-                    );
-                    // TODO: Add logic to handle potentially dead worker (e.g., skip, retry with backoff, remove worker from rotation).
-                }
-                worker_index = (worker_index + 1) % NUM_INSERT_WORKERS;
-            }
-            println!("Dispatcher: Event channel closed. Shutting down.");
-        });
     }
 
     pub async fn validate_schema(&self) -> Result<()> {
@@ -168,11 +135,6 @@ impl Database {
         Ok(())
     }
 
-    pub async fn insert_event(&self, event: ProcessedEvent) -> Result<()> {
-        self.event_tx.send(event).await?;
-        Ok(())
-    }
-
     pub async fn check_connection(&self) -> Result<()> {
         println!("Checking database connection");
         self.clickhouse.inner().query("SELECT 1").execute().await?;
@@ -226,15 +188,11 @@ impl Database {
     }
 }
 
-async fn run_inserter_worker(
-    worker_id: usize,
+async fn run_inserter(
     client: clickhouse::Client,
     mut rx: Receiver<ProcessedEvent>,
 ) -> Result<(), ClickHouseError> {
-    println!(
-        "Worker {}: Starting (Inserter Sparse Stream Mode).",
-        worker_id
-    );
+    println!("Inserter: Starting (Sparse Stream Mode).");
 
     let mut inserter = client
         .inserter("analytics.events")?
@@ -246,7 +204,7 @@ async fn run_inserter_worker(
         .with_max_rows(INSERTER_MAX_ROWS)
         .with_max_bytes(INSERTER_MAX_BYTES);
 
-    println!("Worker {}: Inserter configured.", worker_id);
+    println!("Inserter: Configured.");
 
     loop {
         let event = match rx.try_recv() {
@@ -260,10 +218,7 @@ async fn run_inserter_worker(
                 match timeout(time_left, rx.recv()).await {
                     Ok(Some(received_event)) => received_event,
                     Ok(None) => {
-                        println!(
-                            "Worker {}: Channel closed during timeout wait. Committing final batch.",
-                            worker_id
-                        );
+                        println!("Inserter: Channel closed during timeout wait. Committing final batch.");
                         inserter.commit().await?;
                         break;
                     }
@@ -274,10 +229,7 @@ async fn run_inserter_worker(
                 }
             }
             Err(TryRecvError::Disconnected) => {
-                println!(
-                    "Worker {}: Channel disconnected. Committing final batch.",
-                    worker_id
-                );
+                println!("Inserter: Channel disconnected. Committing final batch.");
                 break;
             }
         };
@@ -288,37 +240,30 @@ async fn run_inserter_worker(
         };
 
         tracing::debug!(
-            worker_id = worker_id, 
-            site_id = %row.site_id, 
+            site_id = %row.site_id,
             visitor_id = %row.visitor_id,
             session_id = %row.session_id,
             event_type = ?row.event_type,
             custom_event_name = ?row.custom_event_name,
-            url = %row.url, 
-            timestamp = %row.timestamp, 
+            url = %row.url,
+            timestamp = %row.timestamp,
             device_type = %row.device_type,
-            browser = %row.browser, 
-            os = %row.os, 
+            browser = %row.browser,
+            os = %row.os,
             "Prepared row for ClickHouse insertion");
         if let Err(e) = inserter.write(&row) {
             eprintln!(
-                "Worker {}: Failed to write row to inserter buffer: {}. Row: {:?}",
-                worker_id, e, row
+                "Inserter: Failed to write row to inserter buffer: {}. Row: {:?}",
+                e, row
             );
             // TODO: Implement retry logic or dead-letter queue for inserter write failures.
             continue;
         }
     }
 
-    println!(
-        "Worker {}: Exiting loop. Finalizing inserter.",
-        worker_id
-    );
+    println!("Inserter: Exiting loop. Finalizing inserter.");
     let stats = inserter.end().await?;
-    println!(
-        "Worker {}: Shutdown complete. Final stats: {:?}",
-        worker_id, stats
-    );
+    println!("Inserter: Shutdown complete. Final stats: {:?}", stats);
     Ok(())
 }
 

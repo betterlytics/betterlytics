@@ -103,7 +103,7 @@ async fn main() {
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
     info!("ClickHouse client initialized");
 
-    let db = Database::new(Arc::clone(&clickhouse), config.clone())
+    let (db, event_tx) = Database::new(Arc::clone(&clickhouse), config.clone())
         .await
         .expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
@@ -135,8 +135,7 @@ async fn main() {
         None
     };
 
-    let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
-    let processor = Arc::new(processor);
+    let processor = Arc::new(EventProcessor::new(geoip_service, event_tx));
 
     let site_config_pool = Arc::new(
         PostgresPool::new(
@@ -208,15 +207,6 @@ async fn main() {
             None
         }
     };
-
-    let db_clone = db.clone();
-    tokio::spawn(async move {
-        while let Some(processed) = processed_rx.recv().await {
-            if let Err(e) = db_clone.insert_event(processed).await {
-                tracing::error!("Failed to insert processed event: {}", e);
-            }
-        }
-    });
 
 	let mut router = Router::new()
 		.route("/health", get(health_check))
