@@ -22,8 +22,11 @@ const INSERTER_TIMEOUT_SECS: u64 = 5;
 /// surfaces as a retryable timeout instead of hanging the flush.
 const INSERTER_END_TIMEOUT_SECS: u64 = 10;
 const INSERTER_PERIOD_SECS: u64 = 10;
-const INSERTER_MAX_ROWS: u64 = 100_000;
-const INSERTER_MAX_BYTES: u64 = 50 * 1024 * 1024;
+/// Flush when the batch reaches this many rows. Sized so even validation's
+/// worst-case event (~30 KB of properties + error payload) keeps a batch
+/// around ~60 MB; typical events (~0.5 KB) make ~1 MB batches. Revisit if
+/// validation's payload size caps change.
+const INSERTER_MAX_ROWS: usize = 2_000;
 const RETRY_BASE_BACKOFF_SECS: u64 = 1;
 const RETRY_MAX_BACKOFF_SECS: u64 = 30;
 const REJECTED_BATCH_ATTEMPTS: u32 = 3;
@@ -202,7 +205,6 @@ async fn run_inserter(
 
     let period = Duration::from_secs(INSERTER_PERIOD_SECS);
     let mut batch: Vec<EventRow> = Vec::new();
-    let mut batch_bytes: usize = 0;
     let mut flush_deadline = Instant::now() + period;
 
     loop {
@@ -220,22 +222,21 @@ async fn run_inserter(
                     url = %row.url,
                     timestamp = %row.timestamp,
                     "Buffered row for ClickHouse insertion");
-                batch_bytes += approx_row_bytes(&row);
                 batch.push(row);
 
-                if batch.len() as u64 >= INSERTER_MAX_ROWS || batch_bytes as u64 >= INSERTER_MAX_BYTES {
-                    flush(&client, &mut batch, &mut batch_bytes, &metrics).await;
+                if batch.len() >= INSERTER_MAX_ROWS {
+                    flush(&client, &mut batch, &metrics).await;
                     flush_deadline = Instant::now() + period;
                 }
             }
             Ok(None) => {
                 info!(rows = batch.len(), "Ingest channel closed, committing final batch");
-                flush(&client, &mut batch, &mut batch_bytes, &metrics).await;
+                flush(&client, &mut batch, &metrics).await;
                 info!("Inserter shutdown complete, final batch committed");
                 return;
             }
             Err(_) => {
-                flush(&client, &mut batch, &mut batch_bytes, &metrics).await;
+                flush(&client, &mut batch, &metrics).await;
                 flush_deadline = Instant::now() + period;
             }
         }
@@ -249,7 +250,6 @@ async fn run_inserter(
 async fn flush(
     client: &clickhouse::Client,
     batch: &mut Vec<EventRow>,
-    batch_bytes: &mut usize,
     metrics: &Option<Arc<MetricsCollector>>,
 ) {
     if batch.is_empty() {
@@ -266,7 +266,6 @@ async fn flush(
             Ok(()) => {
                 debug!(rows = batch.len(), "Committed batch to ClickHouse");
                 batch.clear();
-                *batch_bytes = 0;
                 return;
             }
             Err(e) => match classify(&e) {
@@ -297,7 +296,6 @@ async fn flush(
                             metrics.increment_events_dropped("insert_gave_up", batch.len() as u64);
                         }
                         batch.clear();
-                        *batch_bytes = 0;
                         return;
                     }
                     warn!(
@@ -361,13 +359,6 @@ fn server_exception_code(response: &str) -> Option<u32> {
     let rest = response.trim_start().strip_prefix("Code: ")?;
     let digits: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
     digits.parse().ok()
-}
-
-/// Per-row size for the batch byte threshold, measured by serializing the
-/// row itself so it can never drift from the schema. JSON is a close upper
-/// bound for the RowBinary wire size, so flushes trigger marginally early.
-fn approx_row_bytes(row: &EventRow) -> usize {
-    serde_json::to_vec(row).map_or(1024, |bytes| bytes.len())
 }
 
 /// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
