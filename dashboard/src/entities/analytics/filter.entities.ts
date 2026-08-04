@@ -129,14 +129,43 @@ export function withDependentColumns(columns: FilterColumn[]): FilterColumn[] {
  * Id- and order-insensitive comparison, so a click that would reproduce the
  * current filter state can be treated as a no-op.
  */
+function filterSignature(filter: QueryFilter): string {
+  return JSON.stringify([filter.column, filter.operator, [...filter.values].sort()]);
+}
+
 export function areQueryFiltersEquivalent(a: QueryFilter[], b: QueryFilter[]): boolean {
   if (a.length !== b.length) return false;
-  const signature = (filters: QueryFilter[]) =>
-    filters
-      .map((filter) => JSON.stringify([filter.column, filter.operator, [...filter.values].sort()]))
-      .sort()
-      .join();
+  const signature = (filters: QueryFilter[]) => filters.map(filterSignature).sort().join();
   return signature(a) === signature(b);
+}
+
+/**
+ * Rebuilds `target` reusing the instances from `reference` that are
+ * semantically identical, so an undo restore only remounts the pills whose
+ * content actually changed.
+ */
+export function withStableIds(target: QueryFilter[], reference: QueryFilter[]): QueryFilter[] {
+  const consumed = new Set<QueryFilter>();
+  return target.map((filter) => {
+    const match = reference.find((f) => !consumed.has(f) && filterSignature(f) === filterSignature(filter));
+    if (!match) return filter;
+    consumed.add(match);
+    return match;
+  });
+}
+
+export function diffQueryFilters(
+  prev: QueryFilter[],
+  next: QueryFilter[],
+): { added: QueryFilter[]; removed: QueryFilter[] } {
+  const consumed = new Set<QueryFilter>();
+  const added = next.filter((filter) => {
+    const match = prev.find((f) => !consumed.has(f) && filterSignature(f) === filterSignature(filter));
+    if (match) consumed.add(match);
+    return !match;
+  });
+  const removed = prev.filter((filter) => !consumed.has(filter));
+  return { added, removed };
 }
 
 /**
@@ -152,12 +181,19 @@ export function applyFilterUpdates(
   replaceColumns?: FilterColumn[],
 ): QueryFilter[] {
   const replaced = new Set<FilterColumn>(replaceColumns ?? updates.map((update) => update.column));
-  const kept = current.filter((filter) => !replaced.has(filter.column));
-  const added = updates.map((update) => ({
+  const incoming = updates.map((update) => ({
     id: generateTempId(),
     column: update.column,
     operator: update.operator ?? ('=' as const),
     values: [update.value],
   }));
+  // Semantically unchanged filters keep their instance (and position) so pills neither remount nor pulse.
+  const unchanged = new Set<QueryFilter>();
+  const added = incoming.filter((filter) => {
+    const match = current.find((f) => !unchanged.has(f) && filterSignature(f) === filterSignature(filter));
+    if (match) unchanged.add(match);
+    return !match;
+  });
+  const kept = current.filter((filter) => !replaced.has(filter.column) || unchanged.has(filter));
   return [...kept, ...added];
 }
