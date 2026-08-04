@@ -90,3 +90,4 @@ html-escape = "0.2"
 [dev-dependencies]
 clickhouse = { version = "0.13.2", features = ["test-util"] }
 tokio = { version = "1.44.2", features = ["full", "test-util"] }
+http = "1"

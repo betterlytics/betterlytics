@@ -525,4 +525,65 @@ mod tests {
         // alive and still trying - not dead like before issue #19.
         assert!(timeout(Duration::from_secs(600), handle).await.is_err());
     }
+
+    /// A transient failure (here: a 500 with no ClickHouse exception body)
+    /// must lose nothing: the batch is held and the retry delivers it whole.
+    #[tokio::test(start_paused = true)]
+    async fn transient_failure_then_recovery_loses_no_events() {
+        let mock = Mock::new();
+        mock.add(handlers::failure(http::StatusCode::INTERNAL_SERVER_ERROR));
+        let recording = mock.add(handlers::record());
+        let client = clickhouse::Client::default().with_url(mock.url());
+
+        let (tx, rx) = mpsc::channel(100);
+        let handle = tokio::spawn(run_inserter(client, rx, None));
+
+        for n in 0..3 {
+            tx.send(test_event(n)).await.unwrap();
+        }
+        drop(tx);
+
+        timeout(Duration::from_secs(120), handle)
+            .await
+            .expect("inserter did not recover from transient failure")
+            .expect("inserter task panicked");
+
+        let rows: Vec<EventRow> = recording.collect().await;
+        assert_eq!(rows.len(), 3);
+    }
+
+    /// A batch that ClickHouse can never accept is dropped after a few
+    /// attempts instead of head-of-line-blocking every batch behind it.
+    #[tokio::test(start_paused = true)]
+    async fn poison_batch_is_dropped_and_does_not_block_later_batches() {
+        let mock = Mock::new();
+        let recording = mock.add(handlers::record());
+        let client = clickhouse::Client::default().with_url(mock.url());
+
+        let (tx, rx) = mpsc::channel(100);
+        let handle = tokio::spawn(run_inserter(client, rx, None));
+
+        // Timestamp beyond DateTime's u32 range: serializing this row fails
+        // deterministically, poisoning its whole batch.
+        let mut poison = test_event(0);
+        poison.timestamp = chrono::DateTime::from_timestamp(5_000_000_000, 0).unwrap();
+        tx.send(poison).await.unwrap();
+
+        // Let the flush period elapse and the rejected batch burn its
+        // attempts (virtual time).
+        tokio::time::sleep(Duration::from_secs(30)).await;
+
+        // A later, healthy batch must go through unimpeded.
+        tx.send(test_event(1)).await.unwrap();
+        drop(tx);
+
+        timeout(Duration::from_secs(120), handle)
+            .await
+            .expect("inserter blocked on poison batch")
+            .expect("inserter task panicked");
+
+        let rows: Vec<EventRow> = recording.collect().await;
+        assert_eq!(rows.len(), 1, "only the healthy row should be inserted");
+        assert_eq!(rows[0].session_id, 1);
+    }
 }
