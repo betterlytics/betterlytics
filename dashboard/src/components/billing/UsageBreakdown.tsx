@@ -16,10 +16,6 @@ import type {
 
 const SITE_PREVIEW_COUNT = 5;
 
-/**
- * Shared by the headline usage row so both land in the same columns — the child bars
- * only read as a decomposition of the total while they share its track.
- */
 export const USAGE_ROW_GRID =
   'grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 md:grid-cols-[minmax(0,1fr)_minmax(110px,20rem)_7.5rem]';
 

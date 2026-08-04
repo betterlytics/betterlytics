@@ -59,10 +59,6 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
   }
 }
 
-/**
- * Breakdown of the same figure `getUserBillingStats` reports as `usage.current` — same
- * site set (deleted dashboards included) and same period, so the parts sum to the whole.
- */
 export async function getUserUsageBreakdownStats(userId: string): Promise<UsageBreakdown> {
   try {
     const subscription = await getUserSubscription(userId);
@@ -78,8 +74,6 @@ export async function getUserUsageBreakdownStats(userId: string): Promise<UsageB
 
     const total = rows.reduce((sum, row) => sum + row.total, 0);
 
-    // Shares are of the plan limit, not of `total`, so each row's bar sits on the same
-    // scale as the headline usage bar and the rows decompose its fill.
     const eventLimit = Math.max(1, subscription.eventLimit);
     const share = (value: number) => (value / eventLimit) * 100;
 
