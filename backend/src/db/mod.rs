@@ -20,6 +20,9 @@ const INSERTER_TIMEOUT_SECS: u64 = 5;
 const INSERTER_PERIOD_SECS: u64 = 10;
 const INSERTER_MAX_ROWS: u64 = 100_000;
 const INSERTER_MAX_BYTES: u64 = 50 * 1024 * 1024;
+const RETRY_BASE_BACKOFF_SECS: u64 = 1;
+const RETRY_MAX_BACKOFF_SECS: u64 = 30;
+const REJECTED_BATCH_ATTEMPTS: u32 = 3;
 
 pub struct Database {
     clickhouse: Arc<ClickHouseClient>,
@@ -37,11 +40,7 @@ impl Database {
         let (event_tx, event_rx) = mpsc::channel(EVENT_CHANNEL_CAPACITY);
 
         let client = clickhouse.inner().clone();
-        let inserter_handle = tokio::spawn(async move {
-            if let Err(e) = run_inserter(client, event_rx).await {
-                error!("Inserter task failed: {}", e);
-            }
-        });
+        let inserter_handle = tokio::spawn(run_inserter(client, event_rx));
 
         Ok((Self { clickhouse, config }, event_tx, inserter_handle))
     }
@@ -189,10 +188,7 @@ impl Database {
     }
 }
 
-async fn run_inserter(
-    client: clickhouse::Client,
-    mut rx: Receiver<ProcessedEvent>,
-) -> Result<(), ClickHouseError> {
+async fn run_inserter(client: clickhouse::Client, mut rx: Receiver<ProcessedEvent>) {
     info!("Inserter starting (owned-batch mode)");
 
     let period = Duration::from_secs(INSERTER_PERIOD_SECS);
@@ -219,18 +215,18 @@ async fn run_inserter(
                 batch.push(row);
 
                 if batch.len() as u64 >= INSERTER_MAX_ROWS || batch_bytes as u64 >= INSERTER_MAX_BYTES {
-                    flush(&client, &mut batch, &mut batch_bytes).await?;
+                    flush(&client, &mut batch, &mut batch_bytes).await;
                     flush_deadline = Instant::now() + period;
                 }
             }
             Ok(None) => {
                 info!(rows = batch.len(), "Ingest channel closed, committing final batch");
-                flush(&client, &mut batch, &mut batch_bytes).await?;
+                flush(&client, &mut batch, &mut batch_bytes).await;
                 info!("Inserter shutdown complete, final batch committed");
-                return Ok(());
+                return;
             }
             Err(_) => {
-                flush(&client, &mut batch, &mut batch_bytes).await?;
+                flush(&client, &mut batch, &mut batch_bytes).await;
                 flush_deadline = Instant::now() + period;
             }
         }
@@ -238,28 +234,112 @@ async fn run_inserter(
 }
 
 /// Inserts the whole batch as one INSERT and clears it only after ClickHouse
-/// confirms, so a failed insert leaves the rows owned and retryable.
-async fn flush(
-    client: &clickhouse::Client,
-    batch: &mut Vec<EventRow>,
-    batch_bytes: &mut usize,
-) -> Result<(), ClickHouseError> {
+/// confirms. Transient failures (network, timeout, overload) retry forever
+/// with capped backoff while the ingest channel buffers upstream; recognized
+/// server rejections drop the batch after a few attempts so a poison batch
+/// cannot block the pipeline forever.
+///
+/// Delivery is therefore at-least-once: a timeout after the server already
+/// committed duplicates the batch on retry. Accepted trade-off (issue #19);
+/// an insert_deduplication_token would make retries idempotent if the table
+/// gains a non-replicated dedup window.
+async fn flush(client: &clickhouse::Client, batch: &mut Vec<EventRow>, batch_bytes: &mut usize) {
     if batch.is_empty() {
-        return Ok(());
+        return;
     }
 
+    let mut transient_attempts: u32 = 0;
+    let mut rejected_attempts: u32 = 0;
+
+    loop {
+        match try_insert(client, batch).await {
+            Ok(()) => {
+                debug!(rows = batch.len(), "Committed batch to ClickHouse");
+                batch.clear();
+                *batch_bytes = 0;
+                return;
+            }
+            Err(e) => match classify(&e) {
+                ErrorClass::Transient => {
+                    transient_attempts += 1;
+                    let exp = transient_attempts.saturating_sub(1).min(5);
+                    let backoff = Duration::from_secs(
+                        (RETRY_BASE_BACKOFF_SECS << exp).min(RETRY_MAX_BACKOFF_SECS),
+                    );
+                    error!(
+                        error = %e,
+                        attempt = transient_attempts,
+                        backoff_secs = backoff.as_secs(),
+                        rows = batch.len(),
+                        "Transient ClickHouse insert failure, retrying batch"
+                    );
+                    tokio::time::sleep(backoff).await;
+                }
+                ErrorClass::Deterministic => {
+                    rejected_attempts += 1;
+                    if rejected_attempts >= REJECTED_BATCH_ATTEMPTS {
+                        error!(
+                            error = %e,
+                            rows = batch.len(),
+                            "ClickHouse rejected batch deterministically, dropping it"
+                        );
+                        batch.clear();
+                        *batch_bytes = 0;
+                        return;
+                    }
+                    warn!(
+                        error = %e,
+                        attempt = rejected_attempts,
+                        "ClickHouse rejected batch, retrying"
+                    );
+                    tokio::time::sleep(Duration::from_secs(RETRY_BASE_BACKOFF_SECS)).await;
+                }
+            },
+        }
+    }
+}
+
+async fn try_insert(client: &clickhouse::Client, batch: &[EventRow]) -> Result<(), ClickHouseError> {
     let mut insert = client
         .insert("analytics.events")?
         .with_timeouts(Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)), None);
-    for row in batch.iter() {
+    for row in batch {
         insert.write(row).await?;
     }
-    insert.end().await?;
+    insert.end().await
+}
 
-    debug!(rows = batch.len(), "Committed batch to ClickHouse");
-    batch.clear();
-    *batch_bytes = 0;
-    Ok(())
+enum ErrorClass {
+    Transient,
+    Deterministic,
+}
+
+/// Whether an insert error can plausibly succeed on retry. Only a recognized
+/// ClickHouse rejection is treated as deterministic - when in doubt, retry.
+fn classify(error: &ClickHouseError) -> ErrorClass {
+    match error {
+        ClickHouseError::Network(_) | ClickHouseError::TimedOut => ErrorClass::Transient,
+        ClickHouseError::BadResponse(response) => match server_exception_code(response) {
+            // Capacity/availability conditions that clear on their own:
+            // 159 TIMEOUT_EXCEEDED, 202 TOO_MANY_SIMULTANEOUS_QUERIES,
+            // 209 SOCKET_TIMEOUT, 210 NETWORK_ERROR, 241 MEMORY_LIMIT_EXCEEDED,
+            // 242 TABLE_IS_READ_ONLY, 252 TOO_MANY_PARTS
+            Some(159 | 202 | 209 | 210 | 241 | 242 | 252) => ErrorClass::Transient,
+            // Any other exception code rejects these exact bytes every time.
+            Some(_) => ErrorClass::Deterministic,
+            // Unparseable body (proxy mangling, truncation): retryable.
+            None => ErrorClass::Transient,
+        },
+        // Client-side serialization/params errors reproduce on every attempt.
+        _ => ErrorClass::Deterministic,
+    }
+}
+
+/// Parses the leading "Code: NNN." from a ClickHouse exception message.
+fn server_exception_code(response: &str) -> Option<u32> {
+    let rest = response.trim_start().strip_prefix("Code: ")?;
+    let digits: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
+    digits.parse().ok()
 }
 
 /// Approximate in-memory size of a row, used to bound batch memory between
@@ -407,18 +487,18 @@ mod tests {
         timeout(Duration::from_secs(10), handle)
             .await
             .expect("inserter did not exit after channel close")
-            .expect("inserter task panicked")
-            .expect("inserter returned an error");
+            .expect("inserter task panicked");
 
         let rows: Vec<EventRow> = recording.collect().await;
         assert_eq!(rows.len(), 5);
         assert!(rows.iter().all(|r| r.site_id == "test-site"));
     }
 
-    /// The deadline-safety property: an unreachable ClickHouse must never
-    /// leave the drain hanging - the task finishes (with an error) promptly.
-    #[tokio::test]
-    async fn inserter_exits_when_clickhouse_is_unreachable() {
+    /// Transient failures must never kill the inserter: it holds the batch
+    /// and keeps retrying until ClickHouse returns. (At shutdown, main's
+    /// drain deadline caps the wait; the task itself never gives up.)
+    #[tokio::test(start_paused = true)]
+    async fn inserter_retries_forever_when_clickhouse_is_unreachable() {
         let client = clickhouse::Client::default().with_url("http://127.0.0.1:9");
 
         let (tx, rx) = mpsc::channel(100);
@@ -427,10 +507,8 @@ mod tests {
         tx.send(test_event(0)).await.unwrap();
         drop(tx);
 
-        timeout(Duration::from_secs(10), handle)
-            .await
-            .expect("inserter did not exit after channel close")
-            .expect("inserter task panicked")
-            .ok();
+        // Ten virtual minutes of backoff-retries later, the task is still
+        // alive and still trying - not dead like before issue #19.
+        assert!(timeout(Duration::from_secs(600), handle).await.is_err());
     }
 }
