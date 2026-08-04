@@ -29,7 +29,7 @@ export function ActiveQueryFilters() {
             key={filter.id}
             variant='outline'
             className={cn(
-              'border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 max-w-full gap-1.5 p-1 px-1.5',
+              'border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 animate-filter-pill-added max-w-full gap-1.5 p-1 px-1.5',
               status.disabled && 'opacity-50',
             )}
           >
