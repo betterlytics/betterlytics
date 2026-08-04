@@ -58,8 +58,7 @@ use validation::{EventValidator, ValidationConfig};
 /// The container stop grace period must comfortably exceed this.
 const SHUTDOWN_DEADLINE: Duration = Duration::from_secs(5);
 
-/// Hard backstop measured from signal receipt. Covers anything that wedges the
-/// graceful path (e.g. a hung in-flight request keeping the server alive) so
+/// Hard backstop measured from signal receipt so
 /// shutdown never depends on Docker's SIGKILL.
 const WATCHDOG_TIMEOUT: Duration = Duration::from_secs(10);
 
@@ -262,9 +261,6 @@ async fn main() {
     .await
     .unwrap();
 
-    // Serve returning dropped the router state, and with it the EventProcessor
-    // holding the only ingest senders: the channel is now closed, so the
-    // inserter commits whatever is buffered and exits.
     info!("HTTP server stopped, draining buffered data");
     let drain = async {
         match inserter_handle.await {

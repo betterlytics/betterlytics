@@ -8,16 +8,13 @@ use tracing::{info, warn};
 use crate::clickhouse::ClickHouseClient;
 use crate::monitor::MonitorResultRow;
 
-/// Message consumed by a writer's background worker.
 enum Msg<R> {
     Rows(Vec<R>),
     /// Shutdown fence: acked once every batch enqueued before it is inserted.
     Flush(oneshot::Sender<()>),
 }
 
-/// Every live writer, registered at construction. Lets shutdown flush all
-/// writers without threading handles through each subsystem's init (the
-/// monitor writers are created inside a detached retry loop main can't reach).
+/// Every live writer, registered at construction. Lets shutdown flush all writers
 static FLUSH_REGISTRY: Mutex<Vec<FlushHandle>> = Mutex::new(Vec::new());
 
 struct FlushHandle {
@@ -40,7 +37,7 @@ fn register_for_shutdown_flush<R: Send + 'static>(table: &str, sender: mpsc::Wea
 
 /// Sends a flush fence into every live writer, then waits for the acks: once
 /// a writer acks, every batch enqueued into it before the fence is durable in
-/// ClickHouse. Called during graceful shutdown; the caller bounds the wait.
+/// ClickHouse.
 pub async fn flush_all_writers() {
     let pending: Vec<(String, oneshot::Receiver<()>)> = FLUSH_REGISTRY
         .lock()

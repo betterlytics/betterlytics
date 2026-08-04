@@ -1,5 +1,3 @@
 target/
 .gitignore
-# Local cargo config (bl-wt worktrees point target-dir outside the tree,
-# which breaks the containerized build)
 .cargo/config.toml

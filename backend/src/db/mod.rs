@@ -29,10 +29,7 @@ pub struct Database {
 pub type SharedDatabase = Arc<Database>;
 
 impl Database {
-    /// Creates the database handle plus the ingest channel: events sent on the
-    /// returned sender are batched into ClickHouse by a single inserter task.
-    /// The returned handle completes once all senders are dropped and the
-    /// inserter has committed its final batch — await it to drain on shutdown.
+    /// Creates the database handle plus the ingest channel
     pub async fn new(
         clickhouse: Arc<ClickHouseClient>,
         config: Arc<Config>,
