@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -7,12 +9,12 @@ import { type QueryFilter } from '@/entities/analytics/filter.entities';
 const FILTER_TOAST_ID = 'filters-updated';
 const FILTER_TOAST_DURATION_MS = 10000;
 
-type FiltersUpdatedToastProps = {
+type FilterChanges = {
   added: QueryFilter[];
   removed: QueryFilter[];
 };
 
-export function showFiltersUpdatedToast(props: FiltersUpdatedToastProps & { onUndo: () => void }) {
+export function showFiltersUpdatedToast(props: FilterChanges & { onUndo: () => void }) {
   toast(<FiltersUpdatedToast added={props.added} removed={props.removed} />, {
     id: FILTER_TOAST_ID,
     duration: FILTER_TOAST_DURATION_MS,
@@ -39,7 +41,7 @@ function UndoLabel() {
   return t('selector.toastUndo');
 }
 
-function FiltersUpdatedToast({ added, removed }: FiltersUpdatedToastProps) {
+function FiltersUpdatedToast({ added, removed }: FilterChanges) {
   const t = useTranslations('components.filters');
 
   return (
