@@ -7,8 +7,6 @@ type FiltersUpdatedToastProps = {
   removed: QueryFilter[];
 };
 
-/* Rendered inside the sonner toaster, outside the app providers; the caller
-   wraps it in a NextIntlClientProvider so FilterDescription can translate. */
 export function FiltersUpdatedToast({ added, removed }: FiltersUpdatedToastProps) {
   const t = useTranslations('components.filters');
 

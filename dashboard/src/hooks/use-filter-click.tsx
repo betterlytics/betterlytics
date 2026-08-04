@@ -15,7 +15,7 @@ import {
   type QueryFilter,
 } from '@/entities/analytics/filter.entities';
 import { toast } from 'sonner';
-import { NextIntlClientProvider, useLocale, useMessages, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
 import { FiltersUpdatedToast } from '@/components/filters/FiltersUpdatedToast';
 import { generateTempId } from '@/utils/temporaryId';
@@ -45,8 +45,6 @@ export function useFilterClick(defaults?: Options) {
   const getColumnStatus = useFilterColumnStatus();
   const t = useTranslations('components.demoMode');
   const tFilters = useTranslations('components.filters');
-  const locale = useLocale();
-  const messages = useMessages();
 
   const defaultOperator: FilterOperator = defaults?.operator ?? '=';
   const defaultBehavior: Behavior = defaults?.behavior ?? 'replace-same-column';
@@ -60,21 +58,16 @@ export function useFilterClick(defaults?: Options) {
     (prev: QueryFilter[], next: QueryFilter[]) => {
       const { added, removed } = diffQueryFilters(prev, next);
       if (added.length === 0 && removed.length === 0) return;
-      toast(
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <FiltersUpdatedToast added={added} removed={removed} />
-        </NextIntlClientProvider>,
-        {
-          id: FILTER_TOAST_ID,
-          duration: FILTER_TOAST_DURATION_MS,
-          action: {
-            label: tFilters('selector.toastUndo'),
-            onClick: () => setQueryFilters((fs) => withStableIds(prev, fs)),
-          },
+      toast(<FiltersUpdatedToast added={added} removed={removed} />, {
+        id: FILTER_TOAST_ID,
+        duration: FILTER_TOAST_DURATION_MS,
+        action: {
+          label: tFilters('selector.toastUndo'),
+          onClick: () => setQueryFilters((fs) => withStableIds(prev, fs)),
         },
-      );
+      });
     },
-    [locale, messages, tFilters, setQueryFilters],
+    [tFilters, setQueryFilters],
   );
 
   const applyFilter = useCallback(
