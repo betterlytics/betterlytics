@@ -2523,6 +2523,8 @@
       },
       "filterBy": "Filtra per {label}",
       "toastFiltersUpdated": "Filtri aggiornati",
+      "toastFilterAdded": "Aggiunto",
+      "toastFilterRemoved": "Rimosso",
       "removeFilter": "Rimuovi filtro",
       "notAvailableOnPage": "Non disponibile in questa pagina"
     },

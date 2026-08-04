@@ -2523,6 +2523,8 @@
       },
       "filterBy": "Filtrer etter {label}",
       "toastFiltersUpdated": "Filtre oppdatert",
+      "toastFilterAdded": "Lagt til",
+      "toastFilterRemoved": "Fjernet",
       "removeFilter": "Fjern filter",
       "notAvailableOnPage": "Ikke tilgjengelig på denne siden"
     },
