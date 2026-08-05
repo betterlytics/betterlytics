@@ -74,6 +74,7 @@ export function useFilterClick(defaults?: Options) {
         );
         if (existing) {
           removeQueryFilter(existing.id);
+          notifyFiltersUpdated(queryFilters, queryFilters.filter((f) => f.id !== existing.id));
           return;
         }
         if (atCap) {
