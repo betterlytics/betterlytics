@@ -15,12 +15,11 @@ export function CountryFlagLabel({ countryCode, className, children }: CountryFl
   const code = countryCode.toUpperCase();
 
   return (
-    <span className={cn('inline-flex items-center gap-1', className)}>
+    <span className={cn('inline-flex items-center gap-1.5', className)}>
       {hasFlag(code) && (
         <FlagIcon
           countryCode={code as FlagIconProps['countryCode']}
           countryName={getCountryName(countryCode, locale)}
-          className=''
         />
       )}
       {children}

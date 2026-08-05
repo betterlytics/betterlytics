@@ -30,10 +30,11 @@ function FlagIconComponent({ countryCode, countryName, className, ...props }: Fl
     <span title={countryName || 'Unknown'} className='relative flex items-center justify-center'>
       <FlagComponent
         {...props}
-        className={cn('inline-block h-4 rounded-xs dark:rounded-none', className)}
+        className={cn('inline-block rounded-xs dark:rounded-none', className)}
         style={{
           imageRendering: 'auto',
           shapeRendering: 'geometricPrecision',
+          height: '1.1em',
           width: 'auto',
           display: 'inline-block',
         }}
