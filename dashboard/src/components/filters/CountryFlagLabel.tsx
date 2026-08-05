@@ -17,10 +17,7 @@ export function CountryFlagLabel({ countryCode, className, children }: CountryFl
   return (
     <span className={cn('inline-flex items-center gap-1.5', className)}>
       {hasFlag(code) && (
-        <FlagIcon
-          countryCode={code as FlagIconProps['countryCode']}
-          countryName={getCountryName(countryCode, locale)}
-        />
+        <FlagIcon countryCode={code as FlagIconProps['countryCode']} countryName={getCountryName(countryCode, locale)} />
       )}
       {children}
     </span>
