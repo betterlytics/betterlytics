@@ -54,13 +54,17 @@ pub struct AnalyticsEvent {
     pub raw: RawTrackingEvent,
     /// Client IP address
     pub ip_address: String,
+    /// User-Agent HTTP header of the tracking request (as opposed to the
+    /// client-supplied `raw.user_agent` from navigator.userAgent)
+    pub header_user_agent: String,
 }
 
 impl AnalyticsEvent {
-    pub fn new(raw: RawTrackingEvent, ip_address: String) -> Self {
+    pub fn new(raw: RawTrackingEvent, ip_address: String, header_user_agent: String) -> Self {
         Self {
             raw,
             ip_address,
+            header_user_agent,
         }
     }
 }

@@ -382,7 +382,13 @@ async fn track_event(
 
     debug!("validation passed");
 
-    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
+    let header_user_agent = headers
+        .get("user-agent")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or_default()
+        .to_string();
+
+    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address, header_user_agent);
 
     if let Err(e) = processor.process_event(event).await {
         error!("Failed to process validated event: {}", e);

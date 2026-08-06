@@ -113,7 +113,10 @@ impl EventProcessor {
         let user_agent = event.raw.user_agent.clone();
 
         // Bot Detection early to avoid processing bot traffic
-        let bot_reasons = bot_detection::detect(&user_agent);
+        let bot_reasons = bot_detection::detect(&bot_detection::DetectionInput {
+            user_agent: &user_agent,
+            header_user_agent: &event.header_user_agent,
+        });
         if !bot_reasons.is_empty() {
             debug!("Bot detected ({:?}), recording to bot_events: {}", bot_reasons, user_agent);
             if let Some(metrics) = &self.metrics {

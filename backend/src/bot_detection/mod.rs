@@ -23,17 +23,31 @@ pub const REASON_UA_TOO_LONG: &str = "ua-too-long";
 pub const REASON_UA_NON_ASCII: &str = "ua-non-ascii";
 pub const REASON_UA_IP: &str = "ua-ip";
 pub const REASON_UA_UUID: &str = "ua-uuid";
+pub const REASON_UA_MISMATCH: &str = "ua-mismatch";
 
 // Real browser user agents are ~70-150 chars; thresholds follow Pirsch's battle-tested values
 const UA_MIN_LENGTH: usize = 17;
 const UA_MAX_LENGTH: usize = 500;
 
-pub fn detect(user_agent: &str) -> Vec<&'static str> {
+pub struct DetectionInput<'a> {
+    /// Client-supplied navigator.userAgent from the tracking payload
+    pub user_agent: &'a str,
+    /// User-Agent HTTP header of the tracking request
+    pub header_user_agent: &'a str,
+}
+
+pub fn detect(input: &DetectionInput) -> Vec<&'static str> {
+    let user_agent = input.user_agent;
     if user_agent.is_empty() {
         return vec![REASON_UA_EMPTY];
     }
 
     let mut reasons = Vec::new();
+
+    // A real browser sends the same string as the User-Agent header and navigator.userAgent
+    if input.header_user_agent != user_agent {
+        reasons.push(REASON_UA_MISMATCH);
+    }
 
     if user_agent.len() < UA_MIN_LENGTH {
         reasons.push(REASON_UA_TOO_SHORT);
@@ -94,6 +108,13 @@ pub fn is_prefetch(headers: &HeaderMap) -> bool {
 mod tests {
     use super::*;
 
+    fn detect_ua(user_agent: &str) -> Vec<&'static str> {
+        detect(&DetectionInput {
+            user_agent,
+            header_user_agent: user_agent,
+        })
+    }
+
     const BOT_USER_AGENTS: &[&str] = &[
         "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; GPTBot/1.1; +https://openai.com/gptbot",
         "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
@@ -135,30 +156,54 @@ mod tests {
     #[test]
     fn detects_known_bots() {
         for ua in BOT_USER_AGENTS {
-            assert!(detect(ua).contains(&REASON_UA_BLOCKLIST), "should flag: {}", ua);
+            assert!(detect_ua(ua).contains(&REASON_UA_BLOCKLIST), "should flag: {}", ua);
         }
     }
 
     #[test]
     fn detects_malformed_user_agents() {
-        assert!(detect("MyApp/1.0").contains(&REASON_UA_TOO_SHORT));
-        assert!(detect(&"x".repeat(501)).contains(&REASON_UA_TOO_LONG));
-        assert!(detect("Mozilla/5.0 (Windows NT 10.0; Win64; x64) яндекс браузер").contains(&REASON_UA_NON_ASCII));
-        assert!(detect("192.168.1.1").contains(&REASON_UA_IP));
-        assert!(detect("203.0.113.7:8080").contains(&REASON_UA_IP));
-        assert!(detect("550e8400-e29b-41d4-a716-446655440000").contains(&REASON_UA_UUID));
+        assert!(detect_ua("MyApp/1.0").contains(&REASON_UA_TOO_SHORT));
+        assert!(detect_ua(&"x".repeat(501)).contains(&REASON_UA_TOO_LONG));
+        assert!(detect_ua("Mozilla/5.0 (Windows NT 10.0; Win64; x64) яндекс браузер").contains(&REASON_UA_NON_ASCII));
+        assert!(detect_ua("192.168.1.1").contains(&REASON_UA_IP));
+        assert!(detect_ua("203.0.113.7:8080").contains(&REASON_UA_IP));
+        assert!(detect_ua("550e8400-e29b-41d4-a716-446655440000").contains(&REASON_UA_UUID));
     }
 
     #[test]
     fn passes_human_user_agents() {
         for ua in HUMAN_USER_AGENTS {
-            assert!(detect(ua).is_empty(), "should not flag: {}", ua);
+            assert!(detect_ua(ua).is_empty(), "should not flag: {}", ua);
         }
     }
 
     #[test]
     fn empty_user_agent_is_bot() {
-        assert_eq!(detect(""), vec![REASON_UA_EMPTY]);
+        assert_eq!(detect_ua(""), vec![REASON_UA_EMPTY]);
+    }
+
+    #[test]
+    fn detects_header_payload_ua_mismatch() {
+        let chrome = HUMAN_USER_AGENTS[0];
+        let firefox = HUMAN_USER_AGENTS[4];
+
+        let mismatch = detect(&DetectionInput {
+            user_agent: chrome,
+            header_user_agent: firefox,
+        });
+        assert_eq!(mismatch, vec![REASON_UA_MISMATCH]);
+
+        let missing_header = detect(&DetectionInput {
+            user_agent: chrome,
+            header_user_agent: "",
+        });
+        assert_eq!(missing_header, vec![REASON_UA_MISMATCH]);
+
+        let matching = detect(&DetectionInput {
+            user_agent: chrome,
+            header_user_agent: chrome,
+        });
+        assert!(matching.is_empty());
     }
 
     #[test]
