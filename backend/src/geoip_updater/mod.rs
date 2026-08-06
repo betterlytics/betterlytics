@@ -17,6 +17,7 @@ use bytes::Bytes;
 
 const GEOIP_CITY_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databases/GeoLite2-City/download?suffix=tar.gz";
 const GEOIP_COUNTRY_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databases/GeoLite2-Country/download?suffix=tar.gz";
+const GEOIP_ASN_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz";
 
 /// Notifies watchers when the GeoIP database is updated.
 pub type GeoIpWatchRx = watch::Receiver<Option<Arc<Reader<Vec<u8>>>>>;
@@ -30,34 +31,59 @@ pub struct GeoIpUpdater {
     database_url: &'static str,
     update_interval: Duration,
     watch_tx: GeoIpWatchTx,
+    enabled: bool,
 }
 
 impl GeoIpUpdater {
     /// Creates a new updater and returns it along with a watch receiver.
     pub fn new(config: Arc<Config>) -> Result<(Self, GeoIpWatchRx)> {
-        let (watch_tx, watch_rx) = watch::channel(None);
-
         let database_url = if config.geolocation_mode.has_subdivisions() {
             GEOIP_CITY_DATABASE_URL
         } else {
             GEOIP_COUNTRY_DATABASE_URL
         };
 
+        let enabled = config.geolocation_mode.is_enabled() && Self::has_credentials(&config);
+        let db_path = config.geoip_db_path.clone();
+        Self::with_database(config, database_url, db_path, enabled)
+    }
+
+    /// Creates an updater for the ASN database. Independent of geolocation mode:
+    /// ASN data drives bot detection, not geo reports.
+    pub fn new_asn(config: Arc<Config>) -> Result<(Self, GeoIpWatchRx)> {
+        let enabled = Self::has_credentials(&config);
+        let db_path = config.asn_db_path.clone();
+        Self::with_database(config, GEOIP_ASN_DATABASE_URL, db_path, enabled)
+    }
+
+    fn has_credentials(config: &Config) -> bool {
+        config.maxmind_account_id.is_some() && config.maxmind_license_key.is_some()
+    }
+
+    fn with_database(
+        config: Arc<Config>,
+        database_url: &'static str,
+        db_path: PathBuf,
+        enabled: bool,
+    ) -> Result<(Self, GeoIpWatchRx)> {
+        let (watch_tx, watch_rx) = watch::channel(None);
+
         let updater = Self {
             client: Client::builder().user_agent("betterlytics-updater/0.1").build()?,
-            db_path: config.geoip_db_path.clone(),
+            db_path,
             database_url,
             update_interval: config.geoip_update_interval,
             config,
             watch_tx,
+            enabled,
         };
         Ok((updater, watch_rx))
     }
 
     /// Starts the background update check loop.
     pub async fn run(self: Arc<Self>) {
-        if !self.config.geolocation_mode.is_enabled() || self.config.maxmind_account_id.is_none() || self.config.maxmind_license_key.is_none() {
-            info!("GeoIP database auto-update disabled (geolocation disabled or credentials missing).");
+        if !self.enabled {
+            info!("Auto-update disabled for {} (feature disabled or credentials missing).", self.database_url);
             return;
         }
 

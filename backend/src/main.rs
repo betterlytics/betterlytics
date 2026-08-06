@@ -12,6 +12,7 @@ use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod analytics;
+mod asn;
 mod bot_detection;
 mod campaign;
 mod clickhouse;
@@ -94,6 +95,15 @@ async fn main() {
 
     let _updater_handle = tokio::spawn(Arc::clone(&updater).run());
 
+    let (asn_updater, asn_watch_rx) =
+        GeoIpUpdater::new_asn(config.clone()).expect("Failed to create ASN updater");
+    let asn_updater = Arc::new(asn_updater);
+
+    let asn_service = asn::AsnService::new(config.clone(), asn_watch_rx)
+        .expect("Failed to initialize ASN service");
+
+    let _asn_updater_handle = tokio::spawn(Arc::clone(&asn_updater).run());
+
     let validation_config = ValidationConfig {
         enforce_timestamp_validation: !config.is_development,
         ..Default::default()
@@ -136,7 +146,7 @@ async fn main() {
     };
 
     let (processor, mut processed_rx, mut bot_rx) =
-        EventProcessor::new(geoip_service, metrics_collector.clone());
+        EventProcessor::new(geoip_service, asn_service, metrics_collector.clone());
     let processor = Arc::new(processor);
 
     let site_config_pool = Arc::new(

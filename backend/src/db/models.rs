@@ -54,6 +54,8 @@ pub struct EventRow {
     pub global_properties_keys: Vec<String>,
     pub global_properties_values: Vec<String>,
     pub page_duration_seconds: u32,
+    pub asn: u32,
+    pub asn_org: String,
 }
 
 // Ensure field order exactly matches ClickHouse table schema
@@ -71,6 +73,8 @@ pub struct BotEventRow {
     pub screen_resolution: String,
     pub event_name: String,
     pub bot_reasons: Vec<String>,
+    pub asn: u32,
+    pub asn_org: String,
 }
 
 impl BotEventRow {
@@ -86,6 +90,8 @@ impl BotEventRow {
             screen_resolution: event.screen_resolution,
             event_name: event.event_name,
             bot_reasons: event.bot_reasons,
+            asn: event.asn,
+            asn_org: event.asn_org,
         }
     }
 }
@@ -189,6 +195,8 @@ impl EventRow {
             global_properties_keys: event.global_properties_keys,
             global_properties_values: event.global_properties_values,
             page_duration_seconds: event.page_duration_seconds,
+            asn: event.asn,
+            asn_org: event.asn_org,
         }
     }
 }

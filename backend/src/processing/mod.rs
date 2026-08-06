@@ -3,6 +3,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{error, debug};
 use crate::analytics::{AnalyticsEvent, VisitorAttrs};
+use crate::asn::AsnService;
 use crate::geoip::GeoIpService;
 use crate::metrics::MetricsCollector;
 use crate::visitor;
@@ -28,6 +29,8 @@ pub struct BotEvent {
     pub screen_resolution: String,
     pub event_name: String,
     pub bot_reasons: Vec<String>,
+    pub asn: u32,
+    pub asn_org: String,
 }
 
 #[derive(Debug, Clone)]
@@ -85,6 +88,9 @@ pub struct ProcessedEvent {
     pub global_properties_values: Vec<String>,
     /// Duration for engagement events
     pub page_duration_seconds: u32,
+    /// Autonomous system of the client IP (0 / empty when unknown)
+    pub asn: u32,
+    pub asn_org: String,
 }
 
 /// Event processor that handles real-time processing
@@ -92,17 +98,19 @@ pub struct EventProcessor {
     event_tx: mpsc::Sender<ProcessedEvent>,
     bot_tx: mpsc::Sender<BotEvent>,
     geoip_service: GeoIpService,
+    asn_service: AsnService,
     metrics: Option<Arc<MetricsCollector>>,
 }
 
 impl EventProcessor {
     pub fn new(
         geoip_service: GeoIpService,
+        asn_service: AsnService,
         metrics: Option<Arc<MetricsCollector>>,
     ) -> (Self, mpsc::Receiver<ProcessedEvent>, mpsc::Receiver<BotEvent>) {
         let (event_tx, event_rx) = mpsc::channel(100_000);
         let (bot_tx, bot_rx) = mpsc::channel(10_000);
-        (Self { event_tx, bot_tx, geoip_service, metrics }, event_rx, bot_rx)
+        (Self { event_tx, bot_tx, geoip_service, asn_service, metrics }, event_rx, bot_rx)
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
@@ -111,6 +119,8 @@ impl EventProcessor {
         let raw_url = event.raw.url.clone();
         let referrer = event.raw.referrer.clone();
         let user_agent = event.raw.user_agent.clone();
+
+        let asn_info = self.asn_service.lookup(&event.ip_address);
 
         // Bot Detection early to avoid processing bot traffic
         let detection = bot_detection::detect(&bot_detection::DetectionInput {
@@ -139,6 +149,8 @@ impl EventProcessor {
                 screen_resolution: event.raw.screen_resolution.clone(),
                 event_name: event.raw.event_name.clone(),
                 bot_reasons,
+                asn: asn_info.asn,
+                asn_org: asn_info.org.clone(),
             };
             // try_send: recording bot traffic must never backpressure the human event path
             if self.bot_tx.try_send(bot_event).is_err() {
@@ -191,6 +203,8 @@ impl EventProcessor {
             global_properties_keys: Vec::new(),
             global_properties_values: Vec::new(),
             page_duration_seconds: 0,
+            asn: asn_info.asn,
+            asn_org: asn_info.org,
         };
 
         // Handle event types
