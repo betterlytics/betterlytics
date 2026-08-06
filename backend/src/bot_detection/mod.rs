@@ -185,6 +185,10 @@ mod tests {
         })
     }
 
+    // Crawler strings follow each operator's published bot documentation (see the
+    // +URL inside the UA); HTTP-client and headless strings are those tools' default
+    // formats. scripts/update-bot-patterns.js additionally verifies the full pattern
+    // list against upstream's ~550-entry human-browser fixture corpus on every regen.
     const BOT_USER_AGENTS: &[&str] = &[
         "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; GPTBot/1.1; +https://openai.com/gptbot",
         "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
@@ -222,6 +226,9 @@ mod tests {
         "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)",
     ];
 
+    // Real-world browser UA formats, deliberately including the human traffic most
+    // easily mistaken for bots: in-app webviews (Instagram, Facebook, Google app),
+    // Electron shells, and niche browsers. Must never be flagged.
     const HUMAN_USER_AGENTS: &[&str] = &[
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
