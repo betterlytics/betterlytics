@@ -1,5 +1,8 @@
 use fancy_regex::Regex;
 use once_cell::sync::Lazy;
+use std::net::{IpAddr, SocketAddr};
+use std::str::FromStr;
+use uuid::Uuid;
 
 const BOT_PATTERNS: &str = include_str!("bot_patterns.txt");
 
@@ -14,18 +17,50 @@ static BOT_REGEX: Lazy<Regex> = Lazy::new(|| {
 
 pub const REASON_UA_EMPTY: &str = "ua-empty";
 pub const REASON_UA_BLOCKLIST: &str = "ua-blocklist";
+pub const REASON_UA_TOO_SHORT: &str = "ua-too-short";
+pub const REASON_UA_TOO_LONG: &str = "ua-too-long";
+pub const REASON_UA_NON_ASCII: &str = "ua-non-ascii";
+pub const REASON_UA_IP: &str = "ua-ip";
+pub const REASON_UA_UUID: &str = "ua-uuid";
+
+// Real browser user agents are ~70-150 chars; thresholds follow Pirsch's battle-tested values
+const UA_MIN_LENGTH: usize = 17;
+const UA_MAX_LENGTH: usize = 500;
 
 pub fn detect(user_agent: &str) -> Vec<&'static str> {
     if user_agent.is_empty() {
         return vec![REASON_UA_EMPTY];
     }
 
-    // Fail-open: a regex engine error must never reject a potentially human event
-    if BOT_REGEX.is_match(user_agent).unwrap_or(false) {
-        return vec![REASON_UA_BLOCKLIST];
+    let mut reasons = Vec::new();
+
+    if user_agent.len() < UA_MIN_LENGTH {
+        reasons.push(REASON_UA_TOO_SHORT);
+    }
+    if user_agent.len() > UA_MAX_LENGTH {
+        reasons.push(REASON_UA_TOO_LONG);
+    }
+    if !user_agent.is_ascii() {
+        reasons.push(REASON_UA_NON_ASCII);
+    }
+    if parses_as_ip(user_agent) {
+        reasons.push(REASON_UA_IP);
+    }
+    if Uuid::from_str(user_agent.trim()).is_ok() {
+        reasons.push(REASON_UA_UUID);
     }
 
-    Vec::new()
+    // Fail-open: a regex engine error must never reject a potentially human event
+    if BOT_REGEX.is_match(user_agent).unwrap_or(false) {
+        reasons.push(REASON_UA_BLOCKLIST);
+    }
+
+    reasons
+}
+
+fn parses_as_ip(user_agent: &str) -> bool {
+    let trimmed = user_agent.trim();
+    IpAddr::from_str(trimmed).is_ok() || SocketAddr::from_str(trimmed).is_ok()
 }
 
 #[cfg(test)]
@@ -73,8 +108,18 @@ mod tests {
     #[test]
     fn detects_known_bots() {
         for ua in BOT_USER_AGENTS {
-            assert_eq!(detect(ua), vec![REASON_UA_BLOCKLIST], "should flag: {}", ua);
+            assert!(detect(ua).contains(&REASON_UA_BLOCKLIST), "should flag: {}", ua);
         }
+    }
+
+    #[test]
+    fn detects_malformed_user_agents() {
+        assert!(detect("MyApp/1.0").contains(&REASON_UA_TOO_SHORT));
+        assert!(detect(&"x".repeat(501)).contains(&REASON_UA_TOO_LONG));
+        assert!(detect("Mozilla/5.0 (Windows NT 10.0; Win64; x64) яндекс браузер").contains(&REASON_UA_NON_ASCII));
+        assert!(detect("192.168.1.1").contains(&REASON_UA_IP));
+        assert!(detect("203.0.113.7:8080").contains(&REASON_UA_IP));
+        assert!(detect("550e8400-e29b-41d4-a716-446655440000").contains(&REASON_UA_UUID));
     }
 
     #[test]
