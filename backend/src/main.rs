@@ -135,7 +135,8 @@ async fn main() {
         None
     };
 
-    let (processor, mut processed_rx, mut bot_rx) = EventProcessor::new(geoip_service);
+    let (processor, mut processed_rx, mut bot_rx) =
+        EventProcessor::new(geoip_service, metrics_collector.clone());
     let processor = Arc::new(processor);
 
     let site_config_pool = Arc::new(

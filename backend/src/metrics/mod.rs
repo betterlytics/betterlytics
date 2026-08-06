@@ -25,6 +25,7 @@ pub struct MetricsCollector {
 
     // Event rejection and validation metrics
     events_rejected_total: IntCounterVec,
+    bot_events_detected_total: IntCounterVec,
     validation_duration: Histogram,
 
     // Cache lookup metrics
@@ -96,6 +97,14 @@ impl MetricsCollector {
             Opts::new(
                 "analytics_events_rejected_total",
                 "Total number of analytics events rejected by validation",
+            ),
+            &["reason"],
+        )?;
+
+        let bot_events_detected_total = IntCounterVec::new(
+            Opts::new(
+                "analytics_bot_events_detected_total",
+                "Total number of analytics events classified as bot traffic",
             ),
             &["reason"],
         )?;
@@ -190,6 +199,7 @@ impl MetricsCollector {
         registry.register(Box::new(events_processed_total.clone()))?;
         registry.register(Box::new(events_processing_duration.clone()))?;
         registry.register(Box::new(events_rejected_total.clone()))?;
+        registry.register(Box::new(bot_events_detected_total.clone()))?;
         registry.register(Box::new(validation_duration.clone()))?;
         registry.register(Box::new(cache_lookups_total.clone()))?;
         registry.register(Box::new(site_config_cache_healthy.clone()))?;
@@ -223,6 +233,7 @@ impl MetricsCollector {
             events_processed_total,
             events_processing_duration,
             events_rejected_total,
+            bot_events_detected_total,
             validation_duration,
             cache_lookups_total,
             site_config_cache_healthy,
@@ -305,6 +316,12 @@ impl MetricsCollector {
 
     pub fn increment_events_rejected(&self, reason: &str) {
         self.events_rejected_total
+            .with_label_values(&[reason])
+            .inc();
+    }
+
+    pub fn increment_bot_event_detected(&self, reason: &str) {
+        self.bot_events_detected_total
             .with_label_values(&[reason])
             .inc();
     }

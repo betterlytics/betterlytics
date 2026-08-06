@@ -1,8 +1,10 @@
 use anyhow::Result;
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{error, debug};
 use crate::analytics::{AnalyticsEvent, VisitorAttrs};
 use crate::geoip::GeoIpService;
+use crate::metrics::MetricsCollector;
 use crate::visitor;
 use crate::bot_detection;
 use crate::referrer::{ReferrerInfo, parse_referrer};
@@ -90,15 +92,17 @@ pub struct EventProcessor {
     event_tx: mpsc::Sender<ProcessedEvent>,
     bot_tx: mpsc::Sender<BotEvent>,
     geoip_service: GeoIpService,
+    metrics: Option<Arc<MetricsCollector>>,
 }
 
 impl EventProcessor {
     pub fn new(
         geoip_service: GeoIpService,
+        metrics: Option<Arc<MetricsCollector>>,
     ) -> (Self, mpsc::Receiver<ProcessedEvent>, mpsc::Receiver<BotEvent>) {
         let (event_tx, event_rx) = mpsc::channel(100_000);
         let (bot_tx, bot_rx) = mpsc::channel(10_000);
-        (Self { event_tx, bot_tx, geoip_service }, event_rx, bot_rx)
+        (Self { event_tx, bot_tx, geoip_service, metrics }, event_rx, bot_rx)
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
@@ -112,6 +116,11 @@ impl EventProcessor {
         let bot_reasons = bot_detection::detect(&user_agent);
         if !bot_reasons.is_empty() {
             debug!("Bot detected ({:?}), recording to bot_events: {}", bot_reasons, user_agent);
+            if let Some(metrics) = &self.metrics {
+                for reason in &bot_reasons {
+                    metrics.increment_bot_event_detected(reason);
+                }
+            }
             let (domain, path) = extract_domain_and_path_from_url(&raw_url);
             let bot_event = BotEvent {
                 site_id,
