@@ -8,14 +8,15 @@ use tokio::time::timeout;
 
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
-use crate::processing::ProcessedEvent;
+use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
 
 const NUM_INSERT_WORKERS: usize = 1;
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const WORKER_CHANNEL_CAPACITY: usize = 10_000;
+const BOT_CHANNEL_CAPACITY: usize = 10_000;
 const INSERTER_TIMEOUT_SECS: u64 = 5;
 const INSERTER_PERIOD_SECS: u64 = 10;
 const INSERTER_MAX_ROWS: u64 = 100_000;
@@ -24,6 +25,7 @@ const INSERTER_MAX_BYTES: u64 = 50 * 1024 * 1024;
 pub struct Database {
     clickhouse: Arc<ClickHouseClient>,
     event_tx: mpsc::Sender<ProcessedEvent>,
+    bot_event_tx: mpsc::Sender<BotEventRow>,
     config: Arc<Config>,
 }
 
@@ -35,7 +37,15 @@ impl Database {
         let worker_senders = Self::spawn_inserter_workers(clickhouse.inner().clone());
         Self::spawn_dispatcher(event_rx, worker_senders);
 
-        Ok(Self { clickhouse, event_tx, config })
+        let (bot_event_tx, bot_event_rx) = mpsc::channel(BOT_CHANNEL_CAPACITY);
+        let bot_client = clickhouse.inner().clone();
+        tokio::spawn(async move {
+            if let Err(e) = run_row_inserter_worker(bot_client, "analytics.bot_events", bot_event_rx).await {
+                eprintln!("Bot event inserter: Error - {}", e);
+            }
+        });
+
+        Ok(Self { clickhouse, event_tx, bot_event_tx, config })
     }
 
     /// Fetch the current session of every visitor active within `window`, from `analytics.sessions`
@@ -170,6 +180,11 @@ impl Database {
 
     pub async fn insert_event(&self, event: ProcessedEvent) -> Result<()> {
         self.event_tx.send(event).await?;
+        Ok(())
+    }
+
+    pub async fn insert_bot_event(&self, event: BotEvent) -> Result<()> {
+        self.bot_event_tx.send(BotEventRow::from_bot(event)).await?;
         Ok(())
     }
 
@@ -316,6 +331,54 @@ async fn run_inserter_worker(
         "Worker {}: Shutdown complete. Final stats: {:?}",
         worker_id, stats
     );
+    Ok(())
+}
+
+async fn run_row_inserter_worker<R>(
+    client: clickhouse::Client,
+    table: &str,
+    mut rx: Receiver<R>,
+) -> Result<(), ClickHouseError>
+where
+    R: clickhouse::Row + serde::Serialize,
+{
+    let mut inserter = client
+        .inserter(table)?
+        .with_timeouts(Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)), None)
+        .with_period(Some(Duration::from_secs(INSERTER_PERIOD_SECS)))
+        .with_max_rows(INSERTER_MAX_ROWS)
+        .with_max_bytes(INSERTER_MAX_BYTES);
+
+    loop {
+        let row = match rx.try_recv() {
+            Ok(row) => row,
+            Err(TryRecvError::Empty) => {
+                let time_left = inserter
+                    .time_left()
+                    .unwrap_or_else(|| Duration::from_secs(INSERTER_PERIOD_SECS));
+
+                match timeout(time_left, rx.recv()).await {
+                    Ok(Some(row)) => row,
+                    Ok(None) => {
+                        inserter.commit().await?;
+                        break;
+                    }
+                    Err(_) => {
+                        inserter.commit().await?;
+                        continue;
+                    }
+                }
+            }
+            Err(TryRecvError::Disconnected) => break,
+        };
+
+        if let Err(e) = inserter.write(&row) {
+            eprintln!("Inserter for {}: Failed to write row: {}", table, e);
+            continue;
+        }
+    }
+
+    inserter.end().await?;
     Ok(())
 }
 

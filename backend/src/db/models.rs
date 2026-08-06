@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc, NaiveDate};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use strum_macros::EnumString;
-use crate::processing::ProcessedEvent;
+use crate::processing::{BotEvent, ProcessedEvent};
 
 // Ensure field order exactly matches ClickHouse table schema
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -54,6 +54,40 @@ pub struct EventRow {
     pub global_properties_keys: Vec<String>,
     pub global_properties_values: Vec<String>,
     pub page_duration_seconds: u32,
+}
+
+// Ensure field order exactly matches ClickHouse table schema
+#[derive(clickhouse::Row, Serialize, Debug)]
+pub struct BotEventRow {
+    pub site_id: String,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub timestamp: DateTime<Utc>,
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+    pub domain: String,
+    pub url: String,
+    pub referrer: String,
+    pub user_agent: String,
+    pub screen_resolution: String,
+    pub event_name: String,
+    pub bot_reasons: Vec<String>,
+}
+
+impl BotEventRow {
+    pub fn from_bot(event: BotEvent) -> Self {
+        Self {
+            site_id: event.site_id,
+            timestamp: event.timestamp,
+            date: event.timestamp.date_naive(),
+            domain: event.domain.unwrap_or_default(),
+            url: event.url,
+            referrer: event.referrer,
+            user_agent: event.user_agent,
+            screen_resolution: event.screen_resolution,
+            event_name: event.event_name,
+            bot_reasons: event.bot_reasons.into_iter().map(String::from).collect(),
+        }
+    }
 }
 
 /// One active session recovered from `analytics.sessions`, used to warm the in-memory

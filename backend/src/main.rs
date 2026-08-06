@@ -135,7 +135,7 @@ async fn main() {
         None
     };
 
-    let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
+    let (processor, mut processed_rx, mut bot_rx) = EventProcessor::new(geoip_service);
     let processor = Arc::new(processor);
 
     let site_config_pool = Arc::new(
@@ -214,6 +214,15 @@ async fn main() {
         while let Some(processed) = processed_rx.recv().await {
             if let Err(e) = db_clone.insert_event(processed).await {
                 tracing::error!("Failed to insert processed event: {}", e);
+            }
+        }
+    });
+
+    let db_bot_clone = db.clone();
+    tokio::spawn(async move {
+        while let Some(bot_event) = bot_rx.recv().await {
+            if let Err(e) = db_bot_clone.insert_bot_event(bot_event).await {
+                tracing::error!("Failed to insert bot event: {}", e);
             }
         }
     });

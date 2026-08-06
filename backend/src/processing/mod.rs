@@ -14,6 +14,20 @@ use crate::outbound_link::process_outbound_link;
 use crate::analytics::detect_device_type_from_resolution_with_fallback;
 use crate::error_fingerprint::generate_error_fingerprint;
 
+/// An event rejected by bot detection, recorded to `analytics.bot_events` instead of dropped.
+#[derive(Debug, Clone)]
+pub struct BotEvent {
+    pub site_id: String,
+    pub timestamp: chrono::DateTime<chrono::Utc>,
+    pub domain: Option<String>,
+    pub url: String,
+    pub referrer: String,
+    pub user_agent: String,
+    pub screen_resolution: String,
+    pub event_name: String,
+    pub bot_reasons: Vec<&'static str>,
+}
+
 #[derive(Debug, Clone)]
 pub struct ProcessedEvent {
     /// Base original event data sent from client through analytics.js script
@@ -74,13 +88,17 @@ pub struct ProcessedEvent {
 /// Event processor that handles real-time processing
 pub struct EventProcessor {
     event_tx: mpsc::Sender<ProcessedEvent>,
+    bot_tx: mpsc::Sender<BotEvent>,
     geoip_service: GeoIpService,
 }
 
 impl EventProcessor {
-    pub fn new(geoip_service: GeoIpService) -> (Self, mpsc::Receiver<ProcessedEvent>) {
+    pub fn new(
+        geoip_service: GeoIpService,
+    ) -> (Self, mpsc::Receiver<ProcessedEvent>, mpsc::Receiver<BotEvent>) {
         let (event_tx, event_rx) = mpsc::channel(100_000);
-        (Self { event_tx, geoip_service }, event_rx)
+        let (bot_tx, bot_rx) = mpsc::channel(10_000);
+        (Self { event_tx, bot_tx, geoip_service }, event_rx, bot_rx)
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
@@ -91,8 +109,25 @@ impl EventProcessor {
         let user_agent = event.raw.user_agent.clone();
 
         // Bot Detection early to avoid processing bot traffic
-        if bot_detection::is_bot(&user_agent) {
-            debug!("Bot detected, discarding event: {}", user_agent);
+        let bot_reasons = bot_detection::detect(&user_agent);
+        if !bot_reasons.is_empty() {
+            debug!("Bot detected ({:?}), recording to bot_events: {}", bot_reasons, user_agent);
+            let (domain, path) = extract_domain_and_path_from_url(&raw_url);
+            let bot_event = BotEvent {
+                site_id,
+                timestamp,
+                domain,
+                url: path,
+                referrer: referrer.unwrap_or_default(),
+                user_agent,
+                screen_resolution: event.raw.screen_resolution.clone(),
+                event_name: event.raw.event_name.clone(),
+                bot_reasons,
+            };
+            // try_send: recording bot traffic must never backpressure the human event path
+            if self.bot_tx.try_send(bot_event).is_err() {
+                debug!("Bot event channel full, dropping bot event record");
+            }
             return Ok(());
         }
 
