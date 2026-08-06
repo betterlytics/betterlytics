@@ -36,11 +36,13 @@ pub const REASON_UA_UUID: &str = "ua-uuid";
 pub const REASON_UA_MISMATCH: &str = "ua-mismatch";
 pub const REASON_IMPOSSIBLE_RESOLUTION: &str = "impossible-resolution";
 pub const REASON_REFERRER_SPAM: &str = "referrer-spam";
+pub const REASON_CLIENT_AUTOMATION: &str = "client-automation";
 
 // Real browser user agents are ~70-150 chars; thresholds follow Pirsch's battle-tested values
 const UA_MIN_LENGTH: usize = 17;
 const UA_MAX_LENGTH: usize = 500;
 
+#[derive(Default)]
 pub struct DetectionInput<'a> {
     /// Client-supplied navigator.userAgent from the tracking payload
     pub user_agent: &'a str,
@@ -50,6 +52,8 @@ pub struct DetectionInput<'a> {
     pub screen_resolution: &'a str,
     /// Client-supplied document.referrer URL from the tracking payload
     pub referrer: &'a str,
+    /// Tracker-reported automation signal (navigator.webdriver and similar)
+    pub automation: bool,
 }
 
 pub fn detect(input: &DetectionInput) -> Vec<&'static str> {
@@ -87,6 +91,10 @@ pub fn detect(input: &DetectionInput) -> Vec<&'static str> {
 
     if is_spam_referrer(input.referrer) {
         reasons.push(REASON_REFERRER_SPAM);
+    }
+
+    if input.automation {
+        reasons.push(REASON_CLIENT_AUTOMATION);
     }
 
     // Fail-open: a regex engine error must never reject a potentially human event
@@ -173,6 +181,7 @@ mod tests {
             header_user_agent: user_agent,
             screen_resolution: "1920x1080",
             referrer: "",
+            ..Default::default()
         })
     }
 
@@ -244,6 +253,18 @@ mod tests {
     }
 
     #[test]
+    fn detects_client_automation_signal() {
+        let flagged = detect(&DetectionInput {
+            user_agent: HUMAN_USER_AGENTS[0],
+            header_user_agent: HUMAN_USER_AGENTS[0],
+            screen_resolution: "1920x1080",
+            automation: true,
+            ..Default::default()
+        });
+        assert_eq!(flagged, vec![REASON_CLIENT_AUTOMATION]);
+    }
+
+    #[test]
     fn detects_spam_referrers() {
         let detect_ref = |referrer: &str| {
             detect(&DetectionInput {
@@ -251,6 +272,7 @@ mod tests {
                 header_user_agent: HUMAN_USER_AGENTS[0],
                 screen_resolution: "1920x1080",
                 referrer,
+                ..Default::default()
             })
         };
 
@@ -270,6 +292,7 @@ mod tests {
                 header_user_agent: HUMAN_USER_AGENTS[0],
                 screen_resolution,
                 referrer: "",
+                ..Default::default()
             })
         };
 
@@ -293,6 +316,7 @@ mod tests {
             header_user_agent: firefox,
             screen_resolution: "1920x1080",
             referrer: "",
+            ..Default::default()
         });
         assert_eq!(mismatch, vec![REASON_UA_MISMATCH]);
 
@@ -301,6 +325,7 @@ mod tests {
             header_user_agent: "",
             screen_resolution: "1920x1080",
             referrer: "",
+            ..Default::default()
         });
         assert_eq!(missing_header, vec![REASON_UA_MISMATCH]);
 
@@ -309,6 +334,7 @@ mod tests {
             header_user_agent: chrome,
             screen_resolution: "1920x1080",
             referrer: "",
+            ..Default::default()
         });
         assert!(matching.is_empty());
     }

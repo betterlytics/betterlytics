@@ -43,6 +43,9 @@ pub struct RawTrackingEvent {
     /// Global properties - user-defined metadata attached to all events
     #[serde(default)]
     pub global_properties: Option<serde_json::Value>,
+    /// Client-side automation signal (navigator.webdriver and similar)
+    #[serde(default)]
+    pub automation: bool,
     /// Duration for engagement events
     pub page_duration_seconds: Option<u32>,
 }

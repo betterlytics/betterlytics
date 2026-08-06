@@ -118,6 +118,7 @@ impl EventProcessor {
             header_user_agent: &event.header_user_agent,
             screen_resolution: &event.raw.screen_resolution,
             referrer: referrer.as_deref().unwrap_or_default(),
+            automation: event.raw.automation,
         });
         if !bot_reasons.is_empty() {
             debug!("Bot detected ({:?}), recording to bot_events: {}", bot_reasons, user_agent);

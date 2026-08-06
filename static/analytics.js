@@ -105,6 +105,12 @@
     var referrer = document.referrer || null;
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
+    var automation = !!(
+      navigator.webdriver ||
+      window._phantom ||
+      window.__nightmare ||
+      window.Cypress
+    );
 
     fetch(serverUrl, {
       method: "POST",
@@ -122,6 +128,7 @@
         user_agent: userAgent,
         screen_resolution: screenResolution,
         timestamp: Math.floor(Date.now() / 1000),
+        ...(automation && { automation: true }),
         ...(Object.keys(globalProperties).length > 0 && {
           global_properties: Object.assign({}, globalProperties),
         }),
