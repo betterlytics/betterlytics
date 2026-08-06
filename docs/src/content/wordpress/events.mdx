@@ -1,161 +1,90 @@
 ---
 title: "WordPress Plugin Events"
-description: "Track 404 errors, site searches, and file downloads with the Betterlytics WordPress plugin's built-in event tracking."
+description: "Track outbound link clicks, Core Web Vitals, and custom HTML attribute events with the Betterlytics WordPress plugin."
 ---
 
 import { Callout } from "nextra/components";
 
 # Event Tracking
 
-The Betterlytics WordPress plugin includes built-in tracking for common events. All events documented here are sent as [custom events](/integration/custom-events) and appear in the Events section of your Betterlytics dashboard.
+Beyond automatic page view tracking, the Betterlytics WordPress plugin lets you enable additional tracking features directly from the **Settings** tab, with no code required. All events appear in your Betterlytics dashboard alongside your page view data.
 
 <Callout type="info">
-For additional event tracking options like Core Web Vitals, outbound links, and Custom HTML Attribute Events, see the [Integration guides](/integration).
+For programmatic event tracking with custom properties, see the [Custom Events integration guide](/integration/custom-events).
 </Callout>
 
 ---
 
-## 404 Tracking
+## Outbound Links
 
-**404 Error Tracking** allows you to see when visitors land on pages that don't exist on your site. This is helpful for identifying broken links or incorrect URLs.
-
-### How it works
-
-404 tracking uses a hybrid approach to ensure reliable capture of error pages:
-
-1. **Backend Detection**: The plugin hooks into the WordPress `template_redirect` action and uses the native `is_404()` function to detect if the current request is resulting in a "Page Not Found" state.
-2. **Event Queuing**: If a 404 is detected, the requested URL path is added to a queue.
-3. **Frontend Firing**: During page render, a JavaScript snippet processes the queue and sends the event to Betterlytics.
-
-This approach is more reliable than pure client-side detection because it hooks directly into the WordPress routing logic.
-
-### Event data
-
-| Field | Value |
-|-------|-------|
-| **Event Name** | `404` |
-| **Properties** | `path` - The full URL path that caused the error (e.g., `/non-existent-page`) |
-
-### Example payload
-
-```json
-{
-  "event": "404",
-  "properties": {
-    "path": "/broken-link-example"
-  }
-}
-```
-
-### Common use cases
-
-- **Find broken internal links** - Identify pages on your site linking to non-existent content
-- **Detect external broken links** - See when other sites link to pages you've moved or deleted
-- **Monitor after migrations** - Track 404s after changing your URL structure
-- **Catch typos** - Find common URL typos visitors make when trying to reach your content
-
----
-
-## Site Search
-
-**Site Search Tracking** gives you insights into what your visitors are searching for on your website.
+**Outbound Link Tracking** records when visitors click links that take them off your site. Use it to understand the traffic you send to partners, social platforms, or external resources.
 
 ### How it works
 
-Site search tracking integrates directly with the WordPress search engine:
+When a visitor clicks a link pointing to a different hostname, the tracker captures it as an `outbound_link` event. The plugin offers three modes:
 
-1. **Backend Detection**: The plugin hooks into the WordPress `template_redirect` action and uses `is_search()` to determine if the visitor is viewing a search results page.
-2. **Query Extraction**: If a search is active, the plugin retrieves the query string using the native `get_search_query()` function.
-3. **Event Firing**: The search query is sent to your Betterlytics dashboard.
+| Mode | Behavior |
+|------|----------|
+| **Off** | Outbound link clicks are not tracked |
+| **Domain** | Only the external origin is recorded (e.g., `https://example.com`) |
+| **Full** | Origin and path are recorded (e.g., `https://example.com/blog/some-article`) |
 
-This ensures that only actual WordPress searches are tracked, and the query is sanitized according to your WordPress settings.
-
-### Event data
-
-| Field | Value |
-|-------|-------|
-| **Event Name** | `search` |
-| **Properties** | `query` - The keyword or phrase the visitor searched for |
-
-### Example payload
-
-```json
-{
-  "event": "search",
-  "properties": {
-    "query": "pricing plans"
-  }
-}
-```
-
-### Privacy Option
-
-By default, the search query term is **not** included in the event. Enable the **Include Search Query** checkbox in settings (or `track_search.include_query` in the [configuration JSON](/wordpress/configuration)) to send query terms.
-
-| Setting | Behavior |
-|---------|----------|
-| **Disabled** (default) | Only the search event is tracked, query is not sent |
-| **Enabled** | Search query term is included with events |
-
-<Callout type="info">
-This is disabled by default as a privacy safeguard: visitors sometimes search for personal information like names or email addresses.
+<Callout type="warning">
+Privacy note: Consider using **Domain** mode to avoid sending full paths that may contain sensitive information.
 </Callout>
 
-### Common use cases
+### Where to see the data
 
-- **Content gap analysis** - Discover topics visitors want but can't find
-- **Navigation improvement** - Identify content that's hard to find through your menu
-- **Content prioritization** - See which topics generate the most search interest
-- **Search quality monitoring** - Track what visitors search for to improve your search results
+Outbound link clicks appear in the **Outbound Links** section of your dashboard. Learn more in the [Outbound Links dashboard guide](/dashboard/outbound-links).
 
 ---
 
-## File Downloads
+## Core Web Vitals
 
-**File Download Tracking** automatically tracks when visitors download files from your website.
+**Core Web Vitals Tracking** captures real-user performance metrics (RUM) from your visitors' browsers using the official `web-vitals` library.
 
 ### How it works
 
-Unlike 404 and search tracking, file download tracking is handled entirely on the client side:
+When enabled, the tracker records these metrics once per page lifecycle:
 
-1. **Event Listener**: The plugin attaches a click event listener to the document.
-2. **Element Inspection**: When a user clicks a link, the script inspects the `href` attribute.
-3. **Extension Matching**: The script checks if the file extension matches a list of supported download formats.
-4. **Event Firing**: If a match is found, the download event is sent to Betterlytics.
+- **LCP** - Largest Contentful Paint
+- **INP** - Interaction to Next Paint
+- **CLS** - Cumulative Layout Shift
+- **FCP** - First Contentful Paint
+- **TTFB** - Time to First Byte
 
-This approach ensures that all download links are tracked automatically, even those pointing to external servers or added dynamically via JavaScript.
+Because metrics come from real visitors, values often differ from synthetic tools like Lighthouse, which simulate a single device and network. See definitions and thresholds in the [Metrics Glossary](/dashboard/metrics-glossary#core-web-vitals).
 
-### Supported file types
+### Where to see the data
 
-| Category | Extensions |
-|----------|------------|
-| **Documents** | `.pdf`, `.doc`, `.docx`, `.xls`, `.xlsx`, `.ppt`, `.pptx` |
-| **Archives** | `.zip`, `.rar`, `.tar`, `.gz`, `.dmg` |
-| **Executables** | `.exe` |
+Performance metrics appear in the **Web Vitals** section of your dashboard. Learn more in the [Web Vitals dashboard guide](/dashboard/web-vitals) and the [Web Vitals integration guide](/integration/web-vitals).
 
-### Event data
+---
 
-| Field | Value |
-|-------|-------|
-| **Event Name** | `file-download` |
-| **Properties** | `url` - The full source URL of the file |
-| | `filename` - The name of the file extracted from the URL path |
+## Custom HTML Attribute Events
 
-### Example payload
+**Custom HTML Attribute Events** let you track clicks on any element by adding a single HTML attribute, without writing any JavaScript.
 
-```json
-{
-  "event": "file-download",
-  "properties": {
-    "url": "https://example.com/documents/annual-report-2024.pdf",
-    "filename": "annual-report-2024.pdf"
-  }
-}
+### How it works
+
+Once enabled, add the `data-betterlytics-event` attribute to any element you want to track. When a visitor clicks the element, a custom event with that name is sent to Betterlytics:
+
+```html
+<button data-betterlytics-event="signup-click">Sign Up</button>
+
+<a href="/pricing" data-betterlytics-event="pricing-link">View Pricing</a>
 ```
 
-### Common use cases
+Each click sends a custom event named after the attribute value (e.g., `signup-click`).
 
-- **Track resource popularity** - See which PDFs, guides, or documents get downloaded most
-- **Measure content ROI** - Understand which downloadable content drives engagement
-- **Monitor software downloads** - Track application or installer downloads
-- **Audit external file links** - See when visitors download files hosted elsewhere
+<Callout type="tip">
+This works anywhere you can edit HTML in WordPress: block editor custom HTML, theme templates, or page builders that support custom attributes.
+</Callout>
+
+### Where to see the data
+
+Custom events appear in the **Events** section of your dashboard. Learn more in the [Events dashboard guide](/dashboard/events).
+
+<Callout type="info">
+Need event properties or events triggered by something other than clicks? Use the JavaScript API described in the [Custom Events integration guide](/integration/custom-events).
+</Callout>
