@@ -38,6 +38,50 @@ pub const REASON_IMPOSSIBLE_RESOLUTION: &str = "impossible-resolution";
 pub const REASON_REFERRER_SPAM: &str = "referrer-spam";
 pub const REASON_CLIENT_AUTOMATION: &str = "client-automation";
 
+/// Rules without proven precedent run in shadow mode: their hits are recorded to
+/// bot_events (prefixed "shadow:") and counted in metrics, but the event is still
+/// processed as human traffic. Promote a rule only after its recorded hits have
+/// been reviewed for false positives.
+const SHADOW_REASONS: &[&str] = &[
+    REASON_UA_MISMATCH,
+    REASON_UA_TOO_SHORT,
+    REASON_UA_TOO_LONG,
+    REASON_UA_NON_ASCII,
+    REASON_UA_IP,
+    REASON_UA_UUID,
+];
+
+pub struct Detection {
+    pub enforcing: Vec<&'static str>,
+    pub shadow: Vec<&'static str>,
+}
+
+impl Detection {
+    fn from_reasons(reasons: Vec<&'static str>) -> Self {
+        let (shadow, enforcing) = reasons
+            .into_iter()
+            .partition(|reason| SHADOW_REASONS.contains(reason));
+        Self { enforcing, shadow }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.enforcing.is_empty() && self.shadow.is_empty()
+    }
+
+    pub fn should_reject(&self) -> bool {
+        !self.enforcing.is_empty()
+    }
+
+    /// All reasons for recording: enforcing ones verbatim, shadow ones prefixed
+    pub fn tagged_reasons(&self) -> Vec<String> {
+        self.enforcing
+            .iter()
+            .map(|reason| reason.to_string())
+            .chain(self.shadow.iter().map(|reason| format!("shadow:{}", reason)))
+            .collect()
+    }
+}
+
 // Real browser user agents are ~70-150 chars
 const UA_MIN_LENGTH: usize = 17;
 const UA_MAX_LENGTH: usize = 500;
@@ -56,7 +100,11 @@ pub struct DetectionInput<'a> {
     pub automation: bool,
 }
 
-pub fn detect(input: &DetectionInput) -> Vec<&'static str> {
+pub fn detect(input: &DetectionInput) -> Detection {
+    Detection::from_reasons(collect_reasons(input))
+}
+
+fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
     let user_agent = input.user_agent;
     if user_agent.is_empty() {
         return vec![REASON_UA_EMPTY];
@@ -175,7 +223,7 @@ pub fn is_prefetch(headers: &HeaderMap) -> bool {
 mod tests {
     use super::*;
 
-    fn detect_ua(user_agent: &str) -> Vec<&'static str> {
+    fn detect_ua(user_agent: &str) -> Detection {
         detect(&DetectionInput {
             user_agent,
             header_user_agent: user_agent,
@@ -257,18 +305,36 @@ mod tests {
     #[test]
     fn detects_known_bots() {
         for ua in BOT_USER_AGENTS {
-            assert!(detect_ua(ua).contains(&REASON_UA_BLOCKLIST), "should flag: {}", ua);
+            assert!(detect_ua(ua).enforcing.contains(&REASON_UA_BLOCKLIST), "should flag: {}", ua);
         }
     }
 
     #[test]
-    fn detects_malformed_user_agents() {
-        assert!(detect_ua("MyApp/1.0").contains(&REASON_UA_TOO_SHORT));
-        assert!(detect_ua(&"x".repeat(501)).contains(&REASON_UA_TOO_LONG));
-        assert!(detect_ua("Mozilla/5.0 (Windows NT 10.0; Win64; x64) яндекс браузер").contains(&REASON_UA_NON_ASCII));
-        assert!(detect_ua("192.168.1.1").contains(&REASON_UA_IP));
-        assert!(detect_ua("203.0.113.7:8080").contains(&REASON_UA_IP));
-        assert!(detect_ua("550e8400-e29b-41d4-a716-446655440000").contains(&REASON_UA_UUID));
+    fn malformed_user_agents_are_shadow_flagged() {
+        assert!(detect_ua("MyApp/1.0").shadow.contains(&REASON_UA_TOO_SHORT));
+        assert!(detect_ua(&"x".repeat(501)).shadow.contains(&REASON_UA_TOO_LONG));
+        assert!(detect_ua("Mozilla/5.0 (Windows NT 10.0; Win64; x64) яндекс браузер").shadow.contains(&REASON_UA_NON_ASCII));
+        assert!(detect_ua("192.168.1.1").shadow.contains(&REASON_UA_IP));
+        assert!(detect_ua("203.0.113.7:8080").shadow.contains(&REASON_UA_IP));
+        assert!(detect_ua("550e8400-e29b-41d4-a716-446655440000").shadow.contains(&REASON_UA_UUID));
+    }
+
+    #[test]
+    fn shadow_only_detections_do_not_reject() {
+        let detection = detect(&DetectionInput {
+            user_agent: HUMAN_USER_AGENTS[0],
+            header_user_agent: HUMAN_USER_AGENTS[4],
+            screen_resolution: "1920x1080",
+            ..Default::default()
+        });
+        assert!(!detection.should_reject());
+        assert!(!detection.is_empty());
+        assert_eq!(detection.tagged_reasons(), vec!["shadow:ua-mismatch"]);
+
+        let mixed = detect_ua("curl/8.4.0");
+        assert!(mixed.should_reject());
+        assert_eq!(mixed.enforcing, vec![REASON_UA_BLOCKLIST]);
+        assert_eq!(mixed.tagged_reasons(), vec!["ua-blocklist", "shadow:ua-too-short"]);
     }
 
     #[test]
@@ -280,7 +346,9 @@ mod tests {
 
     #[test]
     fn empty_user_agent_is_bot() {
-        assert_eq!(detect_ua(""), vec![REASON_UA_EMPTY]);
+        let detection = detect_ua("");
+        assert_eq!(detection.enforcing, vec![REASON_UA_EMPTY]);
+        assert!(detection.should_reject());
     }
 
     #[test]
@@ -292,7 +360,8 @@ mod tests {
             automation: true,
             ..Default::default()
         });
-        assert_eq!(flagged, vec![REASON_CLIENT_AUTOMATION]);
+        assert_eq!(flagged.enforcing, vec![REASON_CLIENT_AUTOMATION]);
+        assert!(flagged.should_reject());
     }
 
     #[test]
@@ -307,8 +376,8 @@ mod tests {
             })
         };
 
-        assert_eq!(detect_ref("https://semalt.com/some-page"), vec![REASON_REFERRER_SPAM]);
-        assert_eq!(detect_ref("http://sub.semalt.com/"), vec![REASON_REFERRER_SPAM]);
+        assert_eq!(detect_ref("https://semalt.com/some-page").enforcing, vec![REASON_REFERRER_SPAM]);
+        assert_eq!(detect_ref("http://sub.semalt.com/").enforcing, vec![REASON_REFERRER_SPAM]);
         assert!(detect_ref("https://www.google.com/search?q=x").is_empty());
         assert!(detect_ref("https://news.ycombinator.com/").is_empty());
         assert!(detect_ref("").is_empty());
@@ -327,9 +396,9 @@ mod tests {
             })
         };
 
-        assert_eq!(detect_res("0x0"), vec![REASON_IMPOSSIBLE_RESOLUTION]);
-        assert_eq!(detect_res("0x1080"), vec![REASON_IMPOSSIBLE_RESOLUTION]);
-        assert_eq!(detect_res("99999x99999"), vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert_eq!(detect_res("0x0").enforcing, vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert_eq!(detect_res("0x1080").enforcing, vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert_eq!(detect_res("99999x99999").enforcing, vec![REASON_IMPOSSIBLE_RESOLUTION]);
         assert!(detect_res("1920x1080").is_empty());
         assert!(detect_res("390x844").is_empty());
         assert!(detect_res("7680x4320").is_empty());
@@ -349,7 +418,8 @@ mod tests {
             referrer: "",
             ..Default::default()
         });
-        assert_eq!(mismatch, vec![REASON_UA_MISMATCH]);
+        assert_eq!(mismatch.shadow, vec![REASON_UA_MISMATCH]);
+        assert!(!mismatch.should_reject());
 
         let missing_header = detect(&DetectionInput {
             user_agent: chrome,
@@ -358,7 +428,8 @@ mod tests {
             referrer: "",
             ..Default::default()
         });
-        assert_eq!(missing_header, vec![REASON_UA_MISMATCH]);
+        assert_eq!(missing_header.shadow, vec![REASON_UA_MISMATCH]);
+        assert!(!missing_header.should_reject());
 
         let matching = detect(&DetectionInput {
             user_agent: chrome,

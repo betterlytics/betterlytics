@@ -27,7 +27,7 @@ pub struct BotEvent {
     pub user_agent: String,
     pub screen_resolution: String,
     pub event_name: String,
-    pub bot_reasons: Vec<&'static str>,
+    pub bot_reasons: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -113,15 +113,16 @@ impl EventProcessor {
         let user_agent = event.raw.user_agent.clone();
 
         // Bot Detection early to avoid processing bot traffic
-        let bot_reasons = bot_detection::detect(&bot_detection::DetectionInput {
+        let detection = bot_detection::detect(&bot_detection::DetectionInput {
             user_agent: &user_agent,
             header_user_agent: &event.header_user_agent,
             screen_resolution: &event.raw.screen_resolution,
             referrer: referrer.as_deref().unwrap_or_default(),
             automation: event.raw.automation,
         });
-        if !bot_reasons.is_empty() {
-            debug!("Bot detected ({:?}), recording to bot_events: {}", bot_reasons, user_agent);
+        if !detection.is_empty() {
+            let bot_reasons = detection.tagged_reasons();
+            debug!("Bot signals ({:?}), recording to bot_events: {}", bot_reasons, user_agent);
             if let Some(metrics) = &self.metrics {
                 for reason in &bot_reasons {
                     metrics.increment_bot_event_detected(reason);
@@ -129,12 +130,12 @@ impl EventProcessor {
             }
             let (domain, path) = extract_domain_and_path_from_url(&raw_url);
             let bot_event = BotEvent {
-                site_id,
+                site_id: site_id.clone(),
                 timestamp,
                 domain,
                 url: path,
-                referrer: referrer.unwrap_or_default(),
-                user_agent,
+                referrer: referrer.clone().unwrap_or_default(),
+                user_agent: user_agent.clone(),
                 screen_resolution: event.raw.screen_resolution.clone(),
                 event_name: event.raw.event_name.clone(),
                 bot_reasons,
@@ -143,7 +144,10 @@ impl EventProcessor {
             if self.bot_tx.try_send(bot_event).is_err() {
                 debug!("Bot event channel full, dropping bot event record");
             }
-            return Ok(());
+            // Shadow-only detections fall through and are processed as human traffic
+            if detection.should_reject() {
+                return Ok(());
+            }
         }
 
         let (domain, path) = extract_domain_and_path_from_url(&raw_url);

@@ -85,7 +85,7 @@ impl BotEventRow {
             user_agent: event.user_agent,
             screen_resolution: event.screen_resolution,
             event_name: event.event_name,
-            bot_reasons: event.bot_reasons.into_iter().map(String::from).collect(),
+            bot_reasons: event.bot_reasons,
         }
     }
 }
