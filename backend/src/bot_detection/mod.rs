@@ -24,6 +24,7 @@ pub const REASON_UA_NON_ASCII: &str = "ua-non-ascii";
 pub const REASON_UA_IP: &str = "ua-ip";
 pub const REASON_UA_UUID: &str = "ua-uuid";
 pub const REASON_UA_MISMATCH: &str = "ua-mismatch";
+pub const REASON_IMPOSSIBLE_RESOLUTION: &str = "impossible-resolution";
 
 // Real browser user agents are ~70-150 chars; thresholds follow Pirsch's battle-tested values
 const UA_MIN_LENGTH: usize = 17;
@@ -34,6 +35,8 @@ pub struct DetectionInput<'a> {
     pub user_agent: &'a str,
     /// User-Agent HTTP header of the tracking request
     pub header_user_agent: &'a str,
+    /// Client-supplied screen resolution ("WxH") from the tracking payload
+    pub screen_resolution: &'a str,
 }
 
 pub fn detect(input: &DetectionInput) -> Vec<&'static str> {
@@ -65,12 +68,29 @@ pub fn detect(input: &DetectionInput) -> Vec<&'static str> {
         reasons.push(REASON_UA_UUID);
     }
 
+    if has_impossible_resolution(input.screen_resolution) {
+        reasons.push(REASON_IMPOSSIBLE_RESOLUTION);
+    }
+
     // Fail-open: a regex engine error must never reject a potentially human event
     if BOT_REGEX.is_match(user_agent).unwrap_or(false) {
         reasons.push(REASON_UA_BLOCKLIST);
     }
 
     reasons
+}
+
+/// Only flags parseable dimensions that no real display has (headless defaults like 0x0);
+/// empty or malformed values are left to device detection's "unknown" handling
+fn has_impossible_resolution(screen_resolution: &str) -> bool {
+    let Some((w, h)) = screen_resolution.split_once('x') else {
+        return false;
+    };
+    let (Ok(width), Ok(height)) = (w.trim().parse::<u32>(), h.trim().parse::<u32>()) else {
+        return false;
+    };
+
+    width == 0 || height == 0 || width >= 10_000 || height >= 10_000
 }
 
 fn parses_as_ip(user_agent: &str) -> bool {
@@ -112,6 +132,7 @@ mod tests {
         detect(&DetectionInput {
             user_agent,
             header_user_agent: user_agent,
+            screen_resolution: "1920x1080",
         })
     }
 
@@ -183,6 +204,26 @@ mod tests {
     }
 
     #[test]
+    fn detects_impossible_resolutions() {
+        let detect_res = |screen_resolution: &str| {
+            detect(&DetectionInput {
+                user_agent: HUMAN_USER_AGENTS[0],
+                header_user_agent: HUMAN_USER_AGENTS[0],
+                screen_resolution,
+            })
+        };
+
+        assert_eq!(detect_res("0x0"), vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert_eq!(detect_res("0x1080"), vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert_eq!(detect_res("99999x99999"), vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert!(detect_res("1920x1080").is_empty());
+        assert!(detect_res("390x844").is_empty());
+        assert!(detect_res("7680x4320").is_empty());
+        assert!(detect_res("").is_empty());
+        assert!(detect_res("garbage").is_empty());
+    }
+
+    #[test]
     fn detects_header_payload_ua_mismatch() {
         let chrome = HUMAN_USER_AGENTS[0];
         let firefox = HUMAN_USER_AGENTS[4];
@@ -190,18 +231,21 @@ mod tests {
         let mismatch = detect(&DetectionInput {
             user_agent: chrome,
             header_user_agent: firefox,
+            screen_resolution: "1920x1080",
         });
         assert_eq!(mismatch, vec![REASON_UA_MISMATCH]);
 
         let missing_header = detect(&DetectionInput {
             user_agent: chrome,
             header_user_agent: "",
+            screen_resolution: "1920x1080",
         });
         assert_eq!(missing_header, vec![REASON_UA_MISMATCH]);
 
         let matching = detect(&DetectionInput {
             user_agent: chrome,
             header_user_agent: chrome,
+            screen_resolution: "1920x1080",
         });
         assert!(matching.is_empty());
     }

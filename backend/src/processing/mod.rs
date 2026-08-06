@@ -116,6 +116,7 @@ impl EventProcessor {
         let bot_reasons = bot_detection::detect(&bot_detection::DetectionInput {
             user_agent: &user_agent,
             header_user_agent: &event.header_user_agent,
+            screen_resolution: &event.raw.screen_resolution,
         });
         if !bot_reasons.is_empty() {
             debug!("Bot detected ({:?}), recording to bot_events: {}", bot_reasons, user_agent);
