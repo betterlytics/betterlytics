@@ -1,11 +1,21 @@
 use axum::http::HeaderMap;
 use fancy_regex::Regex;
 use once_cell::sync::Lazy;
+use std::collections::HashSet;
 use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
+use url::Url;
 use uuid::Uuid;
 
 const BOT_PATTERNS: &str = include_str!("bot_patterns.txt");
+const REFERRER_SPAM_DOMAINS: &str = include_str!("referrer_spam.txt");
+
+static REFERRER_SPAM_SET: Lazy<HashSet<&'static str>> = Lazy::new(|| {
+    REFERRER_SPAM_DOMAINS
+        .lines()
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        .collect()
+});
 
 static BOT_REGEX: Lazy<Regex> = Lazy::new(|| {
     let pattern = BOT_PATTERNS
@@ -25,6 +35,7 @@ pub const REASON_UA_IP: &str = "ua-ip";
 pub const REASON_UA_UUID: &str = "ua-uuid";
 pub const REASON_UA_MISMATCH: &str = "ua-mismatch";
 pub const REASON_IMPOSSIBLE_RESOLUTION: &str = "impossible-resolution";
+pub const REASON_REFERRER_SPAM: &str = "referrer-spam";
 
 // Real browser user agents are ~70-150 chars; thresholds follow Pirsch's battle-tested values
 const UA_MIN_LENGTH: usize = 17;
@@ -37,6 +48,8 @@ pub struct DetectionInput<'a> {
     pub header_user_agent: &'a str,
     /// Client-supplied screen resolution ("WxH") from the tracking payload
     pub screen_resolution: &'a str,
+    /// Client-supplied document.referrer URL from the tracking payload
+    pub referrer: &'a str,
 }
 
 pub fn detect(input: &DetectionInput) -> Vec<&'static str> {
@@ -72,6 +85,10 @@ pub fn detect(input: &DetectionInput) -> Vec<&'static str> {
         reasons.push(REASON_IMPOSSIBLE_RESOLUTION);
     }
 
+    if is_spam_referrer(input.referrer) {
+        reasons.push(REASON_REFERRER_SPAM);
+    }
+
     // Fail-open: a regex engine error must never reject a potentially human event
     if BOT_REGEX.is_match(user_agent).unwrap_or(false) {
         reasons.push(REASON_UA_BLOCKLIST);
@@ -96,6 +113,28 @@ fn has_impossible_resolution(screen_resolution: &str) -> bool {
 fn parses_as_ip(user_agent: &str) -> bool {
     let trimmed = user_agent.trim();
     IpAddr::from_str(trimmed).is_ok() || SocketAddr::from_str(trimmed).is_ok()
+}
+
+/// Matches the referrer host and each parent domain against the vendored spam list,
+/// so `sub.spam.com` is caught by a `spam.com` entry
+fn is_spam_referrer(referrer: &str) -> bool {
+    if referrer.is_empty() {
+        return false;
+    }
+    let Some(host) = Url::parse(referrer).ok().and_then(|u| u.host_str().map(str::to_ascii_lowercase)) else {
+        return false;
+    };
+
+    let mut candidate = host.as_str();
+    loop {
+        if REFERRER_SPAM_SET.contains(candidate) {
+            return true;
+        }
+        match candidate.split_once('.') {
+            Some((_, rest)) if rest.contains('.') => candidate = rest,
+            _ => return false,
+        }
+    }
 }
 
 /// Browser speculative loads (prefetch/prerender) execute the tracker but are not real
@@ -133,6 +172,7 @@ mod tests {
             user_agent,
             header_user_agent: user_agent,
             screen_resolution: "1920x1080",
+            referrer: "",
         })
     }
 
@@ -204,12 +244,32 @@ mod tests {
     }
 
     #[test]
+    fn detects_spam_referrers() {
+        let detect_ref = |referrer: &str| {
+            detect(&DetectionInput {
+                user_agent: HUMAN_USER_AGENTS[0],
+                header_user_agent: HUMAN_USER_AGENTS[0],
+                screen_resolution: "1920x1080",
+                referrer,
+            })
+        };
+
+        assert_eq!(detect_ref("https://semalt.com/some-page"), vec![REASON_REFERRER_SPAM]);
+        assert_eq!(detect_ref("http://sub.semalt.com/"), vec![REASON_REFERRER_SPAM]);
+        assert!(detect_ref("https://www.google.com/search?q=x").is_empty());
+        assert!(detect_ref("https://news.ycombinator.com/").is_empty());
+        assert!(detect_ref("").is_empty());
+        assert!(detect_ref("not a url").is_empty());
+    }
+
+    #[test]
     fn detects_impossible_resolutions() {
         let detect_res = |screen_resolution: &str| {
             detect(&DetectionInput {
                 user_agent: HUMAN_USER_AGENTS[0],
                 header_user_agent: HUMAN_USER_AGENTS[0],
                 screen_resolution,
+                referrer: "",
             })
         };
 
@@ -232,6 +292,7 @@ mod tests {
             user_agent: chrome,
             header_user_agent: firefox,
             screen_resolution: "1920x1080",
+            referrer: "",
         });
         assert_eq!(mismatch, vec![REASON_UA_MISMATCH]);
 
@@ -239,6 +300,7 @@ mod tests {
             user_agent: chrome,
             header_user_agent: "",
             screen_resolution: "1920x1080",
+            referrer: "",
         });
         assert_eq!(missing_header, vec![REASON_UA_MISMATCH]);
 
@@ -246,6 +308,7 @@ mod tests {
             user_agent: chrome,
             header_user_agent: chrome,
             screen_resolution: "1920x1080",
+            referrer: "",
         });
         assert!(matching.is_empty());
     }
