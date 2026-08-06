@@ -9,6 +9,29 @@ use uuid::Uuid;
 
 const BOT_PATTERNS: &str = include_str!("bot_patterns.txt");
 const REFERRER_SPAM_DOMAINS: &str = include_str!("referrer_spam.txt");
+const HOSTING_ASNS: &str = include_str!("hosting_asns.txt");
+
+/// Networks operated by crawler/scanner companies — no human browses from these.
+/// Every entry verified against registry RDAP data; extend only with verified ASNs.
+const BOT_OPERATOR_ASNS: &[u32] = &[
+    401518, // OpenAI
+    401864, // OpenAI
+    60808,  // Anthropic
+    399358, // Anthropic
+    400243, // Anthropic
+    401551, // Anthropic
+    398324, // Censys
+    398705, // Censys
+    398722, // Censys
+];
+
+static HOSTING_ASN_SET: Lazy<HashSet<u32>> = Lazy::new(|| {
+    HOSTING_ASNS
+        .lines()
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        .filter_map(|line| line.parse().ok())
+        .collect()
+});
 
 static REFERRER_SPAM_SET: Lazy<HashSet<&'static str>> = Lazy::new(|| {
     REFERRER_SPAM_DOMAINS
@@ -37,6 +60,8 @@ pub const REASON_UA_MISMATCH: &str = "ua-mismatch";
 pub const REASON_IMPOSSIBLE_RESOLUTION: &str = "impossible-resolution";
 pub const REASON_REFERRER_SPAM: &str = "referrer-spam";
 pub const REASON_CLIENT_AUTOMATION: &str = "client-automation";
+pub const REASON_BOT_NETWORK: &str = "bot-network";
+pub const REASON_HOSTING_NETWORK: &str = "hosting-network";
 
 /// Rules without proven precedent run in shadow mode: their hits are recorded to
 /// bot_events (prefixed "shadow:") and counted in metrics, but the event is still
@@ -49,6 +74,9 @@ const SHADOW_REASONS: &[&str] = &[
     REASON_UA_NON_ASCII,
     REASON_UA_IP,
     REASON_UA_UUID,
+    // Hosting ASNs carry real humans too (VPN egress, iCloud Private Relay,
+    // corporate proxies) — never promote without an egress allowlist or corroboration
+    REASON_HOSTING_NETWORK,
 ];
 
 pub struct Detection {
@@ -98,6 +126,8 @@ pub struct DetectionInput<'a> {
     pub referrer: &'a str,
     /// Tracker-reported automation signal (navigator.webdriver and similar)
     pub automation: bool,
+    /// Autonomous system number of the client IP (0 = unknown)
+    pub asn: u32,
 }
 
 pub fn detect(input: &DetectionInput) -> Detection {
@@ -143,6 +173,14 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
 
     if input.automation {
         reasons.push(REASON_CLIENT_AUTOMATION);
+    }
+
+    if input.asn != 0 {
+        if BOT_OPERATOR_ASNS.contains(&input.asn) {
+            reasons.push(REASON_BOT_NETWORK);
+        } else if HOSTING_ASN_SET.contains(&input.asn) {
+            reasons.push(REASON_HOSTING_NETWORK);
+        }
     }
 
     // Fail-open: a regex engine error must never reject a potentially human event
@@ -362,6 +400,31 @@ mod tests {
         });
         assert_eq!(flagged.enforcing, vec![REASON_CLIENT_AUTOMATION]);
         assert!(flagged.should_reject());
+    }
+
+    #[test]
+    fn classifies_networks_by_asn() {
+        let detect_asn = |asn: u32| {
+            detect(&DetectionInput {
+                user_agent: HUMAN_USER_AGENTS[0],
+                header_user_agent: HUMAN_USER_AGENTS[0],
+                screen_resolution: "1920x1080",
+                asn,
+                ..Default::default()
+            })
+        };
+
+        let bot_operator = detect_asn(401518);
+        assert_eq!(bot_operator.enforcing, vec![REASON_BOT_NETWORK]);
+        assert!(bot_operator.should_reject());
+
+        let hetzner = detect_asn(24940);
+        assert_eq!(hetzner.shadow, vec![REASON_HOSTING_NETWORK]);
+        assert!(!hetzner.should_reject());
+        assert_eq!(hetzner.tagged_reasons(), vec!["shadow:hosting-network"]);
+
+        assert!(detect_asn(7922).is_empty());
+        assert!(detect_asn(0).is_empty());
     }
 
     #[test]

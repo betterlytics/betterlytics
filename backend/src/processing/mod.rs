@@ -129,6 +129,7 @@ impl EventProcessor {
             screen_resolution: &event.raw.screen_resolution,
             referrer: referrer.as_deref().unwrap_or_default(),
             automation: event.raw.automation,
+            asn: asn_info.asn,
         });
         if !detection.is_empty() {
             let bot_reasons = detection.tagged_reasons();
