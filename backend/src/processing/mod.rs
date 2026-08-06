@@ -210,7 +210,7 @@ impl EventProcessor {
                     processed.outbound_link_url = outbound_info.url;
                 }
             }
-        } else if event_name.eq_ignore_ascii_case("cwv") {
+        } else if event_name == "cwv" {
             processed.event_type = "cwv".to_string();
             processed.cwv_cls = processed.event.raw.cwv_cls;
             processed.cwv_lcp = processed.event.raw.cwv_lcp;

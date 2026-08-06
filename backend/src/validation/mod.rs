@@ -116,7 +116,7 @@ impl EventValidator {
             self.validate_outbound_link_url(raw_event)?;
         }
 
-        if raw_event.event_name.eq_ignore_ascii_case("cwv") {
+        if raw_event.event_name == "cwv" {
             self.validate_cwv_fields(raw_event)?;
         }
 
@@ -414,13 +414,18 @@ impl EventValidator {
     }
 }
 
-/// Event names for non-custom events that map to a ClickHouse event_type enum
-/// value ("cwv" is matched case-insensitively downstream).
+/// Event names for non-custom events that map to a ClickHouse event_type enum value.
 fn is_known_event_name(name: &str) -> bool {
     matches!(
         name,
-        "pageview" | "custom" | "outbound_link" | "scroll_depth" | "engagement" | "client_error"
-    ) || name.eq_ignore_ascii_case("cwv")
+        "pageview"
+            | "custom"
+            | "outbound_link"
+            | "cwv"
+            | "scroll_depth"
+            | "engagement"
+            | "client_error"
+    )
 }
 
 /// Check if an IP address is blocked by the provided blacklist entries.
@@ -563,7 +568,7 @@ mod tests {
 
     #[test]
     fn known_non_custom_event_names_pass() {
-        for name in ["pageview", "outbound_link", "engagement", "CWV"] {
+        for name in ["pageview", "outbound_link", "engagement", "cwv"] {
             let mut event = raw_event(name, false);
             if name == "outbound_link" {
                 event.outbound_link_url = Some("https://external.example.org/".to_string());
