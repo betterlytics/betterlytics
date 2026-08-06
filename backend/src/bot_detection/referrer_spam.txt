@@ -1,4 +1,4 @@
-# Referrer spam domains, vendored from matomo-org/referrer-spam-list.
+# Referrer spam domains, vendored from a community-maintained blocklist.
 # Source: https://raw.githubusercontent.com/matomo-org/referrer-spam-list/master/spammers.txt
 # Generated: 2026-08-06 (2343 domains)
 # Regenerate with: node scripts/update-referrer-spam.js

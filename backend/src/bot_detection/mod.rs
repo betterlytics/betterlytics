@@ -38,7 +38,7 @@ pub const REASON_IMPOSSIBLE_RESOLUTION: &str = "impossible-resolution";
 pub const REASON_REFERRER_SPAM: &str = "referrer-spam";
 pub const REASON_CLIENT_AUTOMATION: &str = "client-automation";
 
-// Real browser user agents are ~70-150 chars; thresholds follow Pirsch's battle-tested values
+// Real browser user agents are ~70-150 chars
 const UA_MIN_LENGTH: usize = 17;
 const UA_MAX_LENGTH: usize = 500;
 

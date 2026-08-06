@@ -15,7 +15,7 @@ async function main() {
     .filter((line) => line !== "" && !line.startsWith("#"));
 
   const header = [
-    "# Referrer spam domains, vendored from matomo-org/referrer-spam-list.",
+    "# Referrer spam domains, vendored from a community-maintained blocklist.",
     `# Source: ${SOURCE}`,
     `# Generated: ${new Date().toISOString().slice(0, 10)} (${domains.length} domains)`,
     "# Regenerate with: node scripts/update-referrer-spam.js",
