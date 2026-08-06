@@ -325,6 +325,13 @@ async fn track_event(
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
 
+    if bot_detection::is_prefetch(&headers) {
+        if let Some(metrics_collector) = &metrics {
+            metrics_collector.increment_prefetch_dropped();
+        }
+        return Ok(StatusCode::OK);
+    }
+
     let ip_address = ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
 
     sanitize::sanitize_event(&mut raw_event, &sanitize::SanitizeConfig::default());

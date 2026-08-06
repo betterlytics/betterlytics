@@ -1,3 +1,4 @@
+use axum::http::HeaderMap;
 use fancy_regex::Regex;
 use once_cell::sync::Lazy;
 use std::net::{IpAddr, SocketAddr};
@@ -61,6 +62,32 @@ pub fn detect(user_agent: &str) -> Vec<&'static str> {
 fn parses_as_ip(user_agent: &str) -> bool {
     let trimmed = user_agent.trim();
     IpAddr::from_str(trimmed).is_ok() || SocketAddr::from_str(trimmed).is_ok()
+}
+
+/// Browser speculative loads (prefetch/prerender) execute the tracker but are not real
+/// pageviews; they are dropped entirely rather than recorded as bot traffic.
+pub fn is_prefetch(headers: &HeaderMap) -> bool {
+    let header_value = |name: &str| {
+        headers
+            .get(name)
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or_default()
+            .to_ascii_lowercase()
+    };
+
+    if header_value("x-moz") == "prefetch" {
+        return true;
+    }
+
+    for name in ["x-purpose", "purpose"] {
+        let value = header_value(name);
+        if value == "prefetch" || value == "preview" {
+            return true;
+        }
+    }
+
+    let sec_purpose = header_value("sec-purpose");
+    sec_purpose.contains("prefetch") || sec_purpose.contains("prerender")
 }
 
 #[cfg(test)]
@@ -132,5 +159,28 @@ mod tests {
     #[test]
     fn empty_user_agent_is_bot() {
         assert_eq!(detect(""), vec![REASON_UA_EMPTY]);
+    }
+
+    #[test]
+    fn detects_prefetch_headers() {
+        let cases = [
+            ("x-moz", "prefetch"),
+            ("x-purpose", "prefetch"),
+            ("x-purpose", "preview"),
+            ("purpose", "prefetch"),
+            ("sec-purpose", "prefetch;prerender"),
+            ("sec-purpose", "prefetch"),
+        ];
+        for (name, value) in cases {
+            let mut headers = HeaderMap::new();
+            headers.insert(name, value.parse().unwrap());
+            assert!(is_prefetch(&headers), "should detect prefetch: {}: {}", name, value);
+        }
+
+        let mut normal = HeaderMap::new();
+        normal.insert("user-agent", "Mozilla/5.0".parse().unwrap());
+        normal.insert("sec-fetch-mode", "cors".parse().unwrap());
+        assert!(!is_prefetch(&normal));
+        assert!(!is_prefetch(&HeaderMap::new()));
     }
 }

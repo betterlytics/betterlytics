@@ -26,6 +26,7 @@ pub struct MetricsCollector {
     // Event rejection and validation metrics
     events_rejected_total: IntCounterVec,
     bot_events_detected_total: IntCounterVec,
+    prefetch_events_dropped_total: IntCounter,
     validation_duration: Histogram,
 
     // Cache lookup metrics
@@ -108,6 +109,11 @@ impl MetricsCollector {
             ),
             &["reason"],
         )?;
+
+        let prefetch_events_dropped_total = IntCounter::with_opts(Opts::new(
+            "analytics_prefetch_events_dropped_total",
+            "Total number of browser prefetch/prerender events dropped",
+        ))?;
 
         let validation_duration = Histogram::with_opts(HistogramOpts::new(
             "analytics_validation_duration_seconds",
@@ -200,6 +206,7 @@ impl MetricsCollector {
         registry.register(Box::new(events_processing_duration.clone()))?;
         registry.register(Box::new(events_rejected_total.clone()))?;
         registry.register(Box::new(bot_events_detected_total.clone()))?;
+        registry.register(Box::new(prefetch_events_dropped_total.clone()))?;
         registry.register(Box::new(validation_duration.clone()))?;
         registry.register(Box::new(cache_lookups_total.clone()))?;
         registry.register(Box::new(site_config_cache_healthy.clone()))?;
@@ -234,6 +241,7 @@ impl MetricsCollector {
             events_processing_duration,
             events_rejected_total,
             bot_events_detected_total,
+            prefetch_events_dropped_total,
             validation_duration,
             cache_lookups_total,
             site_config_cache_healthy,
@@ -324,6 +332,10 @@ impl MetricsCollector {
         self.bot_events_detected_total
             .with_label_values(&[reason])
             .inc();
+    }
+
+    pub fn increment_prefetch_dropped(&self) {
+        self.prefetch_events_dropped_total.inc();
     }
 
     pub fn record_validation_duration(&self, duration: Duration) {
