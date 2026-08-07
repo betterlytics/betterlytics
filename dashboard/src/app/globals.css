@@ -114,6 +114,13 @@
   --chart-comparison: oklch(0.7 0.02 265); /* Neutral gray */
   --chart-error: rgb(248, 113, 113); /* red-400 */
 
+  --usage-segment-1: oklch(58% 0.18 268);
+  --usage-segment-2: oklch(67% 0.15 264);
+  --usage-segment-3: oklch(76% 0.12 260);
+  --usage-segment-4: oklch(84% 0.09 256);
+  --usage-segment-5: oklch(90% 0.06 252);
+  --usage-segment-other: oklch(72% 0.02 265);
+
   /* Core Web Vitals percentile series */
   --cwv-p50: oklch(85% 0.08 255); /* light blue */
   --cwv-p75: oklch(72% 0.12 258);
@@ -216,6 +223,13 @@
   --chart-5: oklch(0.7 0.25 320); /* Purple */
   --chart-comparison: oklch(0.65 0.02 265); /* Slightly lighter gray */
   --chart-error: rgb(248, 113, 113); /* red-400 */
+
+  --usage-segment-1: oklch(62% 0.19 268);
+  --usage-segment-2: oklch(70% 0.16 264);
+  --usage-segment-3: oklch(78% 0.13 260);
+  --usage-segment-4: oklch(85% 0.1 256);
+  --usage-segment-5: oklch(91% 0.07 252);
+  --usage-segment-other: oklch(58% 0.02 265);
 
   /* Core Web Vitals percentile series */
   --cwv-p50: oklch(82% 0.1 255);
