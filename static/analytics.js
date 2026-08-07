@@ -127,7 +127,6 @@
         referrer: referrer,
         user_agent: userAgent,
         screen_resolution: screenResolution,
-        timestamp: Math.floor(Date.now() / 1000),
         ...(automation && { automation: true }),
         ...(Object.keys(globalProperties).length > 0 && {
           global_properties: Object.assign({}, globalProperties),

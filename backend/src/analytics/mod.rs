@@ -25,8 +25,10 @@ pub struct RawTrackingEvent {
     pub user_agent: String,
     /// Screen resolution
     pub screen_resolution: String,
-    /// Timestamp of the event
-    pub timestamp: u64,
+    /// Optional client timestamp, honored only in development so seeding tools can
+    /// backdate events; production always stamps events with server receive time
+    #[serde(default)]
+    pub timestamp: Option<u64>,
     /// Outbound link URL (only for outbound_link events)
     pub outbound_link_url: Option<String>,
     /// Core Web Vitals metrics (only for cwv events)

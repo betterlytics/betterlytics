@@ -100,6 +100,7 @@ pub struct EventProcessor {
     geoip_service: GeoIpService,
     asn_service: AsnService,
     metrics: Option<Arc<MetricsCollector>>,
+    honor_client_timestamps: bool,
 }
 
 impl EventProcessor {
@@ -107,15 +108,22 @@ impl EventProcessor {
         geoip_service: GeoIpService,
         asn_service: AsnService,
         metrics: Option<Arc<MetricsCollector>>,
+        honor_client_timestamps: bool,
     ) -> (Self, mpsc::Receiver<ProcessedEvent>, mpsc::Receiver<BotEvent>) {
         let (event_tx, event_rx) = mpsc::channel(100_000);
         let (bot_tx, bot_rx) = mpsc::channel(10_000);
-        (Self { event_tx, bot_tx, geoip_service, asn_service, metrics }, event_rx, bot_rx)
+        (Self { event_tx, bot_tx, geoip_service, asn_service, metrics, honor_client_timestamps }, event_rx, bot_rx)
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
         let site_id = event.raw.site_id.clone();
-        let timestamp = chrono::DateTime::from_timestamp(event.raw.timestamp as i64, 0).unwrap_or_else(|| chrono::Utc::now());
+        let timestamp = if self.honor_client_timestamps {
+            event.raw.timestamp
+                .and_then(|ts| chrono::DateTime::from_timestamp(ts as i64, 0))
+                .unwrap_or_else(chrono::Utc::now)
+        } else {
+            chrono::Utc::now()
+        };
         let raw_url = event.raw.url.clone();
         let referrer = event.raw.referrer.clone();
         let user_agent = event.raw.user_agent.clone();

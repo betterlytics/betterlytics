@@ -104,11 +104,7 @@ async fn main() {
 
     let _asn_updater_handle = tokio::spawn(Arc::clone(&asn_updater).run());
 
-    let validation_config = ValidationConfig {
-        enforce_timestamp_validation: !config.is_development,
-        ..Default::default()
-    };
-    let validator = Arc::new(EventValidator::new(validation_config));
+    let validator = Arc::new(EventValidator::new(ValidationConfig::default()));
 
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
     info!("ClickHouse client initialized");
@@ -146,7 +142,7 @@ async fn main() {
     };
 
     let (processor, mut processed_rx, mut bot_rx) =
-        EventProcessor::new(geoip_service, asn_service, metrics_collector.clone());
+        EventProcessor::new(geoip_service, asn_service, metrics_collector.clone(), config.is_development);
     let processor = Arc::new(processor);
 
     let site_config_pool = Arc::new(

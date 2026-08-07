@@ -1,5 +1,4 @@
 use anyhow::Result;
-use chrono::{DateTime, Utc};
 use std::net::IpAddr;
 use ipnet::IpNet;
 use std::str::FromStr;
@@ -17,8 +16,6 @@ pub struct ValidationConfig {
     pub max_site_id_length: usize,
     pub max_user_agent_length: usize,
     pub max_error_exceptions_size: usize,
-    pub max_timestamp_drift_seconds: i64,
-    pub enforce_timestamp_validation: bool,
 }
 
 impl Default for ValidationConfig {
@@ -30,8 +27,6 @@ impl Default for ValidationConfig {
             max_site_id_length: 100,                  // Site ID is usually short, but we should keep leeway for extra long domain names
             max_user_agent_length: 8 * 1024,          // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
             max_error_exceptions_size: 16 * 1024,     // 16KB - client caps stack at 10KB + type/value/mechanism overhead
-            max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
-            enforce_timestamp_validation: true,       // Enforce timestamp validation
         }
     }
 }
@@ -44,8 +39,6 @@ pub enum ValidationError {
     InvalidUrl(String),
     #[error("Invalid event name: {0}")]
     InvalidEventName(String),
-    #[error("Invalid timestamp: {0}")]
-    InvalidTimestamp(String),
     #[error("Invalid IP address: {0}")]
     InvalidIpAddress(String),
     #[error("Invalid user agent: {0}")]
@@ -204,19 +197,6 @@ impl EventValidator {
             return Err(ValidationError::InvalidIpAddress("Invalid IP address format".to_string()));
         }
 
-        // Validate timestamp is reasonable (config allows for some clock drift to account for packet latency)
-        if self.config.enforce_timestamp_validation {
-            if let Some(event_time) = DateTime::from_timestamp(raw_event.timestamp as i64, 0) {
-                let now = Utc::now();
-                let drift = (event_time - now).num_seconds().abs();
-                if drift > self.config.max_timestamp_drift_seconds {
-                    return Err(ValidationError::InvalidTimestamp("Timestamp too far from current time".to_string()));
-                }
-            } else {
-                return Err(ValidationError::InvalidTimestamp("Invalid timestamp".to_string()));
-            }
-        }
-
         Ok(())
     }
 
@@ -365,7 +345,6 @@ impl EventValidator {
             ValidationError::InvalidSiteId(_) => "invalid_site_id",
             ValidationError::InvalidUrl(_) => "invalid_url",
             ValidationError::InvalidEventName(_) => "invalid_event_name",
-            ValidationError::InvalidTimestamp(_) => "invalid_timestamp",
             ValidationError::InvalidIpAddress(_) => "invalid_ip_address",
             ValidationError::InvalidUserAgent(_) => "invalid_user_agent",
             ValidationError::PayloadTooLarge(_) => "payload_too_large",
