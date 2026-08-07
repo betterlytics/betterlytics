@@ -166,14 +166,10 @@ describe('dependencyScopeFilters', () => {
     expect(dependencyScopeFilters('city', siblings)).toEqual([siblings[0]]);
   });
 
-  it('scopes upward: a parent by its dependent values', () => {
-    expect(dependencyScopeFilters('country_code', [filter('city', 'Aarhus')])).toEqual([filter('city', 'Aarhus')]);
-    expect(dependencyScopeFilters('subdivision_code', [filter('city', 'Aarhus')])).toEqual([
-      filter('city', 'Aarhus'),
-    ]);
-    expect(dependencyScopeFilters('browser', [filter('browser_version', '120')])).toEqual([
-      filter('browser_version', '120'),
-    ]);
+  it('never scopes a parent by its dependent values', () => {
+    expect(dependencyScopeFilters('country_code', [filter('city', 'Aarhus')])).toEqual([]);
+    expect(dependencyScopeFilters('subdivision_code', [filter('city', 'Aarhus')])).toEqual([]);
+    expect(dependencyScopeFilters('browser', [filter('browser_version', '120')])).toEqual([]);
   });
 
   it('returns nothing for columns without related filters', () => {

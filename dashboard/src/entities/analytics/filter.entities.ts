@@ -55,6 +55,15 @@ export const QueryFilterSchema = z.object({
 
 export type QueryFilter = z.infer<typeof QueryFilterSchema>;
 
+/**
+ * A filter without its client-side row id, for wire formats and SQL building.
+ * Derived by omission: a field added to QueryFilterSchema lands on the wire
+ * unless it joins the omit set, so UI-only fields must be listed here.
+ */
+export const ScopeFilterSchema = QueryFilterSchema.omit({ id: true });
+
+export type ScopeFilter = z.infer<typeof ScopeFilterSchema>;
+
 export function createEmptyQueryFilter(): QueryFilter {
   return { id: generateTempId(), column: 'url', operator: '=', values: [] };
 }
@@ -67,7 +76,7 @@ export function isNonEmptyValue(value: string): boolean {
  * A filter is usable in a query once it has a column, an operator, and at least
  * one non-empty value. Incomplete filters are skipped.
  */
-export function isUsableFilter(filter: QueryFilter): boolean {
+export function isUsableFilter(filter: ScopeFilter): boolean {
   return Boolean(filter.column) && Boolean(filter.operator) && filter.values.every(Boolean);
 }
 
@@ -116,20 +125,20 @@ const DEPENDENT_FILTER_COLUMNS: Partial<Record<TableFilterColumn, readonly Filte
 };
 
 /**
- * The usable filters among `candidates` that sit on a column dependency-related
- * to `column` in either direction, and may therefore scope its value
- * suggestions: browser = Chrome scopes browser_version suggestions, and
- * city = Aarhus scopes country_code suggestions. Values on related columns
- * co-occur per event, so scoping can never empty the suggestion list.
+ * The usable filters among `candidates` that sit on a parent column of
+ * `column`, and should therefore scope its value suggestions: browser = Chrome
+ * scopes browser_version suggestions. Scoping is downward only - a dependent
+ * filter never scopes its parent's suggestions, so the parent dropdown keeps
+ * offering the full list while dependent rows exist.
  */
-export function dependencyScopeFilters(column: FilterColumn, candidates: QueryFilter[]): QueryFilter[] {
-  const dependents = DEPENDENT_FILTER_COLUMNS[column as TableFilterColumn] ?? [];
-  const parents = Object.entries(DEPENDENT_FILTER_COLUMNS)
-    .filter(([, deps]) => deps.includes(column))
-    .map(([parent]) => parent);
-  const related = new Set<string>([...parents, ...dependents]);
+export function dependencyScopeFilters<T extends ScopeFilter>(column: FilterColumn, candidates: T[]): T[] {
+  const parents = new Set(
+    Object.entries(DEPENDENT_FILTER_COLUMNS)
+      .filter(([, dependents]) => dependents.includes(column))
+      .map(([parent]) => parent),
+  );
   return candidates.filter(
-    (filter) => related.has(filter.column) && filter.values.length > 0 && isUsableFilter(filter),
+    (filter) => parents.has(filter.column) && filter.values.length > 0 && isUsableFilter(filter),
   );
 }
 

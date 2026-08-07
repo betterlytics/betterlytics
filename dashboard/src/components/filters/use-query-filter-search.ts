@@ -60,13 +60,13 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   }, [searchMetadataResult]);
 
   const scopeFilters = useMemo(
-    () => dependencyScopeFilters(filter.column, options?.siblingFilters ?? []),
+    () =>
+      dependencyScopeFilters(filter.column, options?.siblingFilters ?? []).map(
+        ({ column, operator, values }) => ({ column, operator, values }),
+      ),
     [filter.column, options?.siblingFilters],
   );
-  const scopeKey = useMemo(
-    () => JSON.stringify(scopeFilters.map(({ column, operator, values }) => [column, operator, values])),
-    [scopeFilters],
-  );
+  const scopeKey = useMemo(() => JSON.stringify(scopeFilters), [scopeFilters]);
 
   const { data: fetchedOptions = EMPTY_OPTIONS, isLoading } = trpc.filters.getFilterOptions.useQuery(
     {
