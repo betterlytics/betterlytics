@@ -85,12 +85,8 @@ pub async fn presign_put_segment(
     Json(req): Json<PresignPutRequest>,
 ) -> Result<Json<PresignPutResponse>, (StatusCode, String)> {
     let s3 = s3.ok_or((StatusCode::SERVICE_UNAVAILABLE, "S3 not configured".to_string()))?;
-    let ip_address = crate::ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
-
-    let user_agent = headers
-        .get(axum::http::header::USER_AGENT)
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("");
+    let ip_address = crate::ip_parser::client_ip(&headers, addr.ip());
+    let user_agent = crate::ip_parser::user_agent(&headers);
 
     if processor.check_replay_request(
         &req.site_id,
@@ -171,18 +167,15 @@ pub async fn finalize_session_replay(
     headers: HeaderMap,
     Json(req): Json<FinalizeRequest>,
 ) -> Result<StatusCode, (StatusCode, String)> {
-    let ip_address = crate::ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
-    let user_agent = headers
-        .get(axum::http::header::USER_AGENT)
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("");
+    let ip_address = crate::ip_parser::client_ip(&headers, addr.ip());
+    let user_agent = crate::ip_parser::user_agent(&headers);
     if processor.check_replay_request(
         &req.site_id,
         &ip_address,
         user_agent,
         req.start_url.as_deref().unwrap_or_default(),
         "",
-        false,
+        crate::bot_detection::is_prefetch(&headers),
     ) {
         return Err((StatusCode::FORBIDDEN, "rejected".to_string()));
     }

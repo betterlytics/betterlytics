@@ -1,10 +1,8 @@
 pub mod velocity;
 
 use axum::http::HeaderMap;
-use fancy_regex::Regex;
 use once_cell::sync::Lazy;
 use std::collections::HashSet;
-use std::net::{IpAddr, SocketAddr};
 use std::str::FromStr;
 use url::Url;
 use uuid::Uuid;
@@ -15,8 +13,7 @@ const BOT_PATTERNS_SHADOW: &str = include_str!("bot_patterns_shadow.txt");
 const REFERRER_SPAM_DOMAINS: &str = include_str!("referrer_spam.txt");
 const HOSTING_ASNS: &str = include_str!("hosting_asns.txt");
 
-/// Networks operated by crawler/scanner companies.
-/// Every entry verified against registry RDAP data; extend only with verified ASNs.
+/// Networks operated by crawler/scanner companies (each ASN verified via RDAP)
 const BOT_OPERATOR_ASNS: &[u32] = &[
     401518, // OpenAI
     401864, // OpenAI
@@ -29,33 +26,61 @@ const BOT_OPERATOR_ASNS: &[u32] = &[
     398722, // Censys
 ];
 
-static HOSTING_ASN_SET: Lazy<HashSet<u32>> = Lazy::new(|| {
-    HOSTING_ASNS
-        .lines()
-        .filter(|line| !line.is_empty() && !line.starts_with('#'))
-        .filter_map(|line| line.parse().ok())
-        .collect()
-});
-
-static REFERRER_SPAM_SET: Lazy<HashSet<&'static str>> = Lazy::new(|| {
-    REFERRER_SPAM_DOMAINS
-        .lines()
-        .filter(|line| !line.is_empty() && !line.starts_with('#'))
-        .collect()
-});
-
-fn compile_patterns(sources: &[&'static str]) -> Regex {
-    let pattern = sources
-        .iter()
-        .flat_map(|source| source.lines())
-        .filter(|line| !line.is_empty() && !line.starts_with('#'))
-        .collect::<Vec<_>>()
-        .join("|");
-    Regex::new(&format!("(?i)(?:{})", pattern)).expect("vendored bot patterns failed to compile")
+fn data_lines(file: &'static str) -> impl Iterator<Item = &'static str> {
+    file.lines().filter(|line| !line.is_empty() && !line.starts_with('#'))
 }
 
-static BOT_REGEX: Lazy<Regex> = Lazy::new(|| compile_patterns(&[BOT_PATTERNS, BOT_PATTERNS_LOCAL]));
-static BOT_HEURISTIC_REGEX: Lazy<Regex> = Lazy::new(|| compile_patterns(&[BOT_PATTERNS_SHADOW]));
+static HOSTING_ASN_SET: Lazy<HashSet<u32>> = Lazy::new(|| {
+    data_lines(HOSTING_ASNS).filter_map(|line| line.parse().ok()).collect()
+});
+
+static REFERRER_SPAM_SET: Lazy<HashSet<&'static str>> =
+    Lazy::new(|| data_lines(REFERRER_SPAM_DOMAINS).collect());
+
+/// Most patterns run on the linear-time `regex` engine; only the few lookaround
+/// patterns fall back to backtracking `fancy_regex`
+struct PatternMatcher {
+    plain: Option<regex::Regex>,
+    fancy: Option<fancy_regex::Regex>,
+}
+
+impl PatternMatcher {
+    fn compile(sources: &[&'static str]) -> Self {
+        let (plain, fancy): (Vec<_>, Vec<_>) = sources
+            .iter()
+            .flat_map(|source| data_lines(source))
+            .partition(|p| regex::Regex::new(p).is_ok());
+
+        let combine = |patterns: &[&str]| format!("(?i)(?:{})", patterns.join("|"));
+        Self {
+            plain: (!plain.is_empty()).then(|| {
+                regex::Regex::new(&combine(&plain)).expect("vendored bot patterns failed to compile")
+            }),
+            fancy: (!fancy.is_empty()).then(|| {
+                fancy_regex::Regex::new(&combine(&fancy)).expect("vendored bot patterns failed to compile")
+            }),
+        }
+    }
+
+    fn is_match(&self, text: &str) -> bool {
+        self.plain.as_ref().is_some_and(|r| r.is_match(text))
+            // Fail-open: a regex engine error must never reject a potentially human event
+            || self.fancy.as_ref().is_some_and(|r| r.is_match(text).unwrap_or(false))
+    }
+}
+
+static BOT_MATCHER: Lazy<PatternMatcher> =
+    Lazy::new(|| PatternMatcher::compile(&[BOT_PATTERNS, BOT_PATTERNS_LOCAL]));
+static BOT_HEURISTIC_MATCHER: Lazy<PatternMatcher> =
+    Lazy::new(|| PatternMatcher::compile(&[BOT_PATTERNS_SHADOW]));
+
+/// Build the pattern matchers and lists at startup instead of on the first event
+pub fn warm() {
+    Lazy::force(&BOT_MATCHER);
+    Lazy::force(&BOT_HEURISTIC_MATCHER);
+    Lazy::force(&HOSTING_ASN_SET);
+    Lazy::force(&REFERRER_SPAM_SET);
+}
 
 pub const REASON_UA_BLOCKLIST: &str = "ua-blocklist";
 pub const REASON_UA_HEURISTIC: &str = "ua-heuristic";
@@ -73,34 +98,13 @@ pub const REASON_HOSTING_NETWORK: &str = "hosting-network";
 pub const REASON_PREFETCH: &str = "prefetch";
 pub const REASON_VELOCITY: &str = "velocity";
 
-/// Rules without proven precedent run in shadow mode: their hits are recorded to
-/// bot_events and counted in metrics, but the event is still
-/// processed as human traffic
-const SHADOW_REASONS: &[&str] = &[
-    // isbot format/generic-word heuristics: they match UA shape (or a common English
-    // word) rather than a named product, so each needs shadow evidence before
-    // promotion into bot_patterns.txt
-    REASON_UA_HEURISTIC,
-    REASON_UA_MISMATCH,
-    REASON_UA_TOO_SHORT,
-    REASON_UA_TOO_LONG,
-    REASON_UA_NON_ASCII,
-    REASON_UA_IP,
-    REASON_UA_UUID,
-    // Hosting ASNs carry real humans too (VPN egress, iCloud Private Relay, corporate proxies)
-    REASON_HOSTING_NETWORK,
-    // Near-certain bot networks, but observe before blocking: promote once shadow
-    // rows confirm no human-like traffic originates from them
-    REASON_BOT_NETWORK,
-    // A prerendered page that the user then activates IS a real visit, and the tracker
-    // does not fire again on activation. Dropping these would lose genuine pageviews
-    REASON_PREFETCH,
-    // Screen dimensions are an unproven signal; the upper bound in particular is
-    // a guess that future high-resolution displays could exceed
-    REASON_IMPOSSIBLE_RESOLUTION,
-    // Rate telemetry: CGNAT can put whole carrier populations behind one IP, so
-    // observe the real-world rate distribution before enforcing any limit
-    REASON_VELOCITY,
+/// Only reasons with ~zero false-positive risk reject events. Everything else —
+/// including any future reason not listed here — runs in shadow mode: recorded to
+/// bot_events and counted in metrics, but processed as human traffic.
+const ENFORCING_REASONS: &[&str] = &[
+    REASON_UA_BLOCKLIST,
+    REASON_REFERRER_SPAM,
+    REASON_CLIENT_AUTOMATION,
 ];
 
 pub struct Detection {
@@ -110,9 +114,9 @@ pub struct Detection {
 
 impl Detection {
     fn from_reasons(reasons: Vec<&'static str>) -> Self {
-        let (shadow, enforcing) = reasons
+        let (enforcing, shadow) = reasons
             .into_iter()
-            .partition(|reason| SHADOW_REASONS.contains(reason));
+            .partition(|reason| ENFORCING_REASONS.contains(reason));
         Self { enforcing, shadow }
     }
 
@@ -138,21 +142,17 @@ const UA_MAX_LENGTH: usize = 500;
 
 #[derive(Default)]
 pub struct DetectionInput<'a> {
-    /// Client-supplied navigator.userAgent from the tracking payload
+    /// Client-supplied navigator.userAgent from the payload, as opposed to the
+    /// User-Agent HTTP header in `header_user_agent`
     pub user_agent: &'a str,
-    /// User-Agent HTTP header of the tracking request
     pub header_user_agent: &'a str,
-    /// Client-supplied screen resolution ("WxH") from the tracking payload
     pub screen_resolution: &'a str,
-    /// Client-supplied document.referrer URL from the tracking payload
     pub referrer: &'a str,
     /// Tracker-reported automation signal (navigator.webdriver and similar)
     pub automation: bool,
     /// Autonomous system number of the client IP (0 = unknown)
     pub asn: u32,
-    /// Request carried a browser speculative-loading header
     pub prefetch: bool,
-    /// Site+IP event rate exceeded the velocity window (see velocity module)
     pub velocity_exceeded: bool,
 }
 
@@ -213,10 +213,9 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
         }
     }
 
-    // Fail-open: a regex engine error must never reject a potentially human event
-    if BOT_REGEX.is_match(user_agent).unwrap_or(false) {
+    if BOT_MATCHER.is_match(user_agent) {
         reasons.push(REASON_UA_BLOCKLIST);
-    } else if BOT_HEURISTIC_REGEX.is_match(user_agent).unwrap_or(false) {
+    } else if BOT_HEURISTIC_MATCHER.is_match(user_agent) {
         reasons.push(REASON_UA_HEURISTIC);
     }
 
@@ -237,12 +236,10 @@ fn has_impossible_resolution(screen_resolution: &str) -> bool {
 }
 
 fn parses_as_ip(user_agent: &str) -> bool {
-    let trimmed = user_agent.trim();
-    IpAddr::from_str(trimmed).is_ok() || SocketAddr::from_str(trimmed).is_ok()
+    crate::ip_parser::parse_ip_str(user_agent.trim()).is_some()
 }
 
-/// Matches the referrer host and each parent domain against the vendored spam list,
-/// so `sub.spam.com` is caught by a `spam.com` entry
+/// Walks parent domains so `sub.spam.com` is caught by a `spam.com` entry
 fn is_spam_referrer(referrer: &str) -> bool {
     if referrer.is_empty() {
         return false;
@@ -263,9 +260,8 @@ fn is_spam_referrer(referrer: &str) -> bool {
     }
 }
 
-/// Detects browser speculative-loading headers. Only prerender actually runs the
-/// tracker (plain prefetch never executes page scripts), and a prerender the user
-/// then activates is a real visit, so this is a shadow signal rather than a reject.
+/// Detects browser speculative-loading headers; an activated prerender is a real
+/// visit, which is why this is a shadow signal
 pub fn is_prefetch(headers: &HeaderMap) -> bool {
     let header_value = |name: &str| {
         headers
@@ -294,6 +290,15 @@ pub fn is_prefetch(headers: &HeaderMap) -> bool {
 mod tests {
     use super::*;
 
+    fn human_input() -> DetectionInput<'static> {
+        DetectionInput {
+            user_agent: HUMAN_USER_AGENTS[0],
+            header_user_agent: HUMAN_USER_AGENTS[0],
+            screen_resolution: "1920x1080",
+            ..Default::default()
+        }
+    }
+
     fn detect_ua(user_agent: &str) -> Detection {
         detect(&DetectionInput {
             user_agent,
@@ -304,10 +309,7 @@ mod tests {
         })
     }
 
-    // Crawler strings follow each operator's published bot documentation (see the
-    // +URL inside the UA); HTTP-client and headless strings are those tools' default
-    // formats. scripts/update-bot-patterns.js additionally verifies the full pattern
-    // list against upstream's ~550-entry human-browser fixture corpus on every regen.
+    // Published crawler UA formats plus HTTP-client and headless defaults
     const BOT_USER_AGENTS: &[&str] = &[
         "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; GPTBot/1.1; +https://openai.com/gptbot",
         "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
@@ -345,9 +347,8 @@ mod tests {
         "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)",
     ];
 
-    // Real-world browser UA formats, deliberately including the human traffic most
-    // easily mistaken for bots: in-app webviews (Instagram, Facebook, Google app),
-    // Electron shells, and niche browsers. Must never be flagged.
+    // Real browser UAs, including in-app webviews, Electron shells, and niche
+    // browsers. Must never be flagged.
     const HUMAN_USER_AGENTS: &[&str] = &[
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
@@ -369,8 +370,10 @@ mod tests {
     ];
 
     #[test]
-    fn combined_pattern_compiles() {
-        assert!(BOT_REGEX.as_str().len() > 0);
+    fn combined_patterns_compile() {
+        warm();
+        assert!(BOT_MATCHER.plain.is_some() && BOT_MATCHER.fancy.is_some());
+        assert!(BOT_HEURISTIC_MATCHER.plain.is_some() && BOT_HEURISTIC_MATCHER.fancy.is_some());
     }
 
     #[test]
@@ -409,10 +412,8 @@ mod tests {
     #[test]
     fn shadow_only_detections_do_not_reject() {
         let detection = detect(&DetectionInput {
-            user_agent: HUMAN_USER_AGENTS[0],
             header_user_agent: HUMAN_USER_AGENTS[4],
-            screen_resolution: "1920x1080",
-            ..Default::default()
+            ..human_input()
         });
         assert!(!detection.should_reject());
         assert!(!detection.is_empty());
@@ -433,28 +434,14 @@ mod tests {
 
     #[test]
     fn detects_client_automation_signal() {
-        let flagged = detect(&DetectionInput {
-            user_agent: HUMAN_USER_AGENTS[0],
-            header_user_agent: HUMAN_USER_AGENTS[0],
-            screen_resolution: "1920x1080",
-            automation: true,
-            ..Default::default()
-        });
+        let flagged = detect(&DetectionInput { automation: true, ..human_input() });
         assert_eq!(flagged.enforcing, vec![REASON_CLIENT_AUTOMATION]);
         assert!(flagged.should_reject());
     }
 
     #[test]
     fn classifies_networks_by_asn() {
-        let detect_asn = |asn: u32| {
-            detect(&DetectionInput {
-                user_agent: HUMAN_USER_AGENTS[0],
-                header_user_agent: HUMAN_USER_AGENTS[0],
-                screen_resolution: "1920x1080",
-                asn,
-                ..Default::default()
-            })
-        };
+        let detect_asn = |asn: u32| detect(&DetectionInput { asn, ..human_input() });
 
         let bot_operator = detect_asn(401518);
         assert_eq!(bot_operator.shadow, vec![REASON_BOT_NETWORK]);
@@ -472,15 +459,7 @@ mod tests {
 
     #[test]
     fn detects_spam_referrers() {
-        let detect_ref = |referrer: &str| {
-            detect(&DetectionInput {
-                user_agent: HUMAN_USER_AGENTS[0],
-                header_user_agent: HUMAN_USER_AGENTS[0],
-                screen_resolution: "1920x1080",
-                referrer,
-                ..Default::default()
-            })
-        };
+        let detect_ref = |referrer: &str| detect(&DetectionInput { referrer, ..human_input() });
 
         assert_eq!(detect_ref("https://semalt.com/some-page").enforcing, vec![REASON_REFERRER_SPAM]);
         assert_eq!(detect_ref("http://sub.semalt.com/").enforcing, vec![REASON_REFERRER_SPAM]);
@@ -492,15 +471,8 @@ mod tests {
 
     #[test]
     fn detects_impossible_resolutions() {
-        let detect_res = |screen_resolution: &str| {
-            detect(&DetectionInput {
-                user_agent: HUMAN_USER_AGENTS[0],
-                header_user_agent: HUMAN_USER_AGENTS[0],
-                screen_resolution,
-                referrer: "",
-                ..Default::default()
-            })
-        };
+        let detect_res =
+            |screen_resolution: &str| detect(&DetectionInput { screen_resolution, ..human_input() });
 
         assert_eq!(detect_res("0x0").shadow, vec![REASON_IMPOSSIBLE_RESOLUTION]);
         assert_eq!(detect_res("0x1080").shadow, vec![REASON_IMPOSSIBLE_RESOLUTION]);
@@ -518,45 +490,20 @@ mod tests {
         let chrome = HUMAN_USER_AGENTS[0];
         let firefox = HUMAN_USER_AGENTS[4];
 
-        let mismatch = detect(&DetectionInput {
-            user_agent: chrome,
-            header_user_agent: firefox,
-            screen_resolution: "1920x1080",
-            referrer: "",
-            ..Default::default()
-        });
+        let mismatch = detect(&DetectionInput { header_user_agent: firefox, ..human_input() });
         assert_eq!(mismatch.shadow, vec![REASON_UA_MISMATCH]);
         assert!(!mismatch.should_reject());
 
-        let missing_header = detect(&DetectionInput {
-            user_agent: chrome,
-            header_user_agent: "",
-            screen_resolution: "1920x1080",
-            referrer: "",
-            ..Default::default()
-        });
+        let missing_header = detect(&DetectionInput { header_user_agent: "", ..human_input() });
         assert_eq!(missing_header.shadow, vec![REASON_UA_MISMATCH]);
         assert!(!missing_header.should_reject());
 
-        let matching = detect(&DetectionInput {
-            user_agent: chrome,
-            header_user_agent: chrome,
-            screen_resolution: "1920x1080",
-            referrer: "",
-            ..Default::default()
-        });
-        assert!(matching.is_empty());
+        assert!(detect(&DetectionInput { header_user_agent: chrome, ..human_input() }).is_empty());
     }
 
     #[test]
     fn velocity_is_shadow_only() {
-        let detection = detect(&DetectionInput {
-            user_agent: HUMAN_USER_AGENTS[0],
-            header_user_agent: HUMAN_USER_AGENTS[0],
-            screen_resolution: "1920x1080",
-            velocity_exceeded: true,
-            ..Default::default()
-        });
+        let detection = detect(&DetectionInput { velocity_exceeded: true, ..human_input() });
         assert_eq!(detection.shadow, vec![REASON_VELOCITY]);
         assert!(!detection.should_reject());
         assert_eq!(detection.tagged_reasons(), vec!["shadow:velocity"]);
@@ -587,13 +534,7 @@ mod tests {
 
     #[test]
     fn prefetch_is_shadow_only() {
-        let detection = detect(&DetectionInput {
-            user_agent: HUMAN_USER_AGENTS[0],
-            header_user_agent: HUMAN_USER_AGENTS[0],
-            screen_resolution: "1920x1080",
-            prefetch: true,
-            ..Default::default()
-        });
+        let detection = detect(&DetectionInput { prefetch: true, ..human_input() });
         assert_eq!(detection.shadow, vec![REASON_PREFETCH]);
         assert!(!detection.should_reject());
         assert_eq!(detection.tagged_reasons(), vec!["shadow:prefetch"]);

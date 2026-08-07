@@ -90,8 +90,7 @@ async fn main() {
         GeoIpUpdater::new(config.clone()).expect("Failed to create GeoIP updater");
     let updater = Arc::new(updater);
 
-    let geoip_service = GeoIpService::new(config.clone(), geoip_watch_rx)
-        .expect("Failed to initialize GeoIP service");
+    let geoip_service = GeoIpService::new(config.clone(), geoip_watch_rx);
 
     let _updater_handle = tokio::spawn(Arc::clone(&updater).run());
 
@@ -99,11 +98,11 @@ async fn main() {
         GeoIpUpdater::new_asn(config.clone()).expect("Failed to create ASN updater");
     let asn_updater = Arc::new(asn_updater);
 
-    let asn_service = asn::AsnService::new(config.clone(), asn_watch_rx)
-        .expect("Failed to initialize ASN service");
+    let asn_service = asn::AsnService::new(config.clone(), asn_watch_rx);
 
     let _asn_updater_handle = tokio::spawn(Arc::clone(&asn_updater).run());
 
+    bot_detection::warm();
     let validator = Arc::new(EventValidator::new(ValidationConfig::default()));
 
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
@@ -333,7 +332,7 @@ async fn track_event(
 
     let prefetch = bot_detection::is_prefetch(&headers);
 
-    let ip_address = ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
+    let ip_address = ip_parser::client_ip(&headers, addr.ip());
 
     sanitize::sanitize_event(&mut raw_event, &sanitize::SanitizeConfig::default());
 
@@ -383,11 +382,7 @@ async fn track_event(
 
     debug!("validation passed");
 
-    let header_user_agent = headers
-        .get("user-agent")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or_default()
-        .to_string();
+    let header_user_agent = ip_parser::user_agent(&headers).to_string();
 
     let event = AnalyticsEvent::new(
         validated_event.raw,

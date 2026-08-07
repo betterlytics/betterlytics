@@ -25,8 +25,7 @@ pub struct RawTrackingEvent {
     pub user_agent: String,
     /// Screen resolution
     pub screen_resolution: String,
-    /// Optional client timestamp, honored only in development so seeding tools can
-    /// backdate events; production always stamps events with server receive time
+    /// Client timestamp, honored only in development (seeding tools backdate events)
     #[serde(default)]
     pub timestamp: Option<u64>,
     /// Outbound link URL (only for outbound_link events)

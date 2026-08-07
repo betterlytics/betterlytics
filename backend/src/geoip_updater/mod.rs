@@ -21,6 +21,98 @@ const GEOIP_ASN_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databas
 
 /// Notifies watchers when the GeoIP database is updated.
 pub type GeoIpWatchRx = watch::Receiver<Option<Arc<Reader<Vec<u8>>>>>;
+
+/// Holds a service's current MMDB reader, refreshed from the updater's watch
+/// channel at most once per `check_interval`.
+#[derive(Clone)]
+pub struct MmdbSource {
+    watch_rx: Arc<std::sync::Mutex<GeoIpWatchRx>>,
+    current_reader: Arc<std::sync::RwLock<Option<Arc<Reader<Vec<u8>>>>>>,
+    last_check: Arc<std::sync::atomic::AtomicU64>,
+    check_interval: Duration,
+}
+
+impl MmdbSource {
+    /// `db_path: None` skips the initial load (feature disabled); the source then
+    /// only ever serves a reader if the watch channel publishes one
+    pub fn new(db_path: Option<&std::path::Path>, label: &str, watch_rx: GeoIpWatchRx, check_interval: Duration) -> Self {
+        let mut initial_reader = None;
+        if let Some(db_path) = db_path {
+            if db_path.exists() {
+                match Reader::open_readfile(db_path) {
+                    Ok(reader) => {
+                        info!("Initial {} database loaded from: {:?}", label, db_path);
+                        initial_reader = Some(Arc::new(reader));
+                    }
+                    Err(e) => {
+                        error!("Failed to load initial {} database from {:?}: {}. Lookups delayed until first update.", label, db_path, e);
+                    }
+                }
+            } else {
+                warn!("{} database not found at {:?}. Lookups disabled until first update.", label, db_path);
+            }
+        }
+
+        let rx_mutex = Arc::new(std::sync::Mutex::new(watch_rx));
+        let reader_to_use = rx_mutex.lock().unwrap().borrow().clone().or(initial_reader);
+        let now_secs = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        Self {
+            watch_rx: rx_mutex,
+            current_reader: Arc::new(std::sync::RwLock::new(reader_to_use)),
+            last_check: Arc::new(std::sync::atomic::AtomicU64::new(now_secs)),
+            check_interval,
+        }
+    }
+
+    pub fn reader(&self) -> Option<Arc<Reader<Vec<u8>>>> {
+        self.current_reader.read().unwrap().clone()
+    }
+
+    /// Swaps in a newly downloaded database when one is available; returns true so
+    /// the caller can invalidate its lookup cache. At most one thread per interval
+    /// pays for the check, claimed via CAS on the timestamp.
+    pub fn refresh_if_due(&self) -> bool {
+        use std::sync::atomic::Ordering;
+
+        let now_secs = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        let last_check_secs = self.last_check.load(Ordering::Relaxed);
+        if now_secs.saturating_sub(last_check_secs) < self.check_interval.as_secs() {
+            return false;
+        }
+        if self.last_check
+            .compare_exchange_weak(last_check_secs, now_secs, Ordering::Relaxed, Ordering::Relaxed)
+            .is_err()
+        {
+            return false;
+        }
+
+        let mut rx_guard = match self.watch_rx.try_lock() {
+            Ok(guard) => guard,
+            Err(_) => {
+                self.last_check.store(last_check_secs, Ordering::Relaxed);
+                return false;
+            }
+        };
+
+        if !rx_guard.has_changed().unwrap_or(false) {
+            return false;
+        }
+        let latest_reader = rx_guard.borrow_and_update().clone();
+        // Release the watch lock before taking the write lock to avoid holding both
+        drop(rx_guard);
+
+        *self.current_reader.write().unwrap() = latest_reader;
+        true
+    }
+}
 /// Sends notifications when the GeoIP database is updated.
 pub type GeoIpWatchTx = watch::Sender<Option<Arc<Reader<Vec<u8>>>>>;
 

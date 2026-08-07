@@ -3,7 +3,10 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{error, debug};
 use crate::analytics::{AnalyticsEvent, VisitorAttrs};
-use crate::asn::{AsnInfo, AsnService};
+use crate::asn::AsnService;
+use moka::sync::Cache;
+use once_cell::sync::Lazy;
+use std::time::Duration;
 use crate::geoip::GeoIpService;
 use crate::metrics::MetricsCollector;
 use crate::visitor;
@@ -17,7 +20,14 @@ use crate::outbound_link::process_outbound_link;
 use crate::analytics::detect_device_type_from_resolution_with_fallback;
 use crate::error_fingerprint::generate_error_fingerprint;
 
-/// An event rejected by bot detection, recorded to `analytics.bot_events` instead of dropped.
+static REPLAY_VERDICTS: Lazy<Cache<u64, bool>> = Lazy::new(|| {
+    Cache::builder()
+        .time_to_live(Duration::from_secs(600))
+        .max_capacity(100_000)
+        .build()
+});
+
+/// A bot-detection hit (enforced or shadow), recorded to `analytics.bot_events`.
 #[derive(Debug, Clone)]
 pub struct BotEvent {
     pub site_id: String,
@@ -118,34 +128,35 @@ impl EventProcessor {
     fn record_detection(
         &self,
         detection: &bot_detection::Detection,
+        input: &bot_detection::DetectionInput,
         site_id: &str,
-        raw_url: &str,
-        referrer: Option<&str>,
-        user_agent: &str,
-        screen_resolution: &str,
+        domain: Option<&str>,
+        path: &str,
         event_name: &str,
-        asn_info: &AsnInfo,
+        asn_org: &str,
     ) {
+        if detection.is_empty() {
+            return;
+        }
         let bot_reasons = detection.tagged_reasons();
-        debug!("Bot signals ({:?}), recording to bot_events: {}", bot_reasons, user_agent);
+        debug!("Bot signals ({:?}), recording to bot_events: {}", bot_reasons, input.user_agent);
         if let Some(metrics) = &self.metrics {
             for reason in &bot_reasons {
                 metrics.increment_bot_event_detected(reason);
             }
         }
-        let (domain, path) = extract_domain_and_path_from_url(raw_url);
         let bot_event = BotEvent {
             site_id: site_id.to_string(),
             timestamp: chrono::Utc::now(),
-            domain,
-            url: path,
-            referrer: referrer.unwrap_or_default().to_string(),
-            user_agent: user_agent.to_string(),
-            screen_resolution: screen_resolution.to_string(),
+            domain: domain.map(str::to_string),
+            url: path.to_string(),
+            referrer: input.referrer.to_string(),
+            user_agent: input.user_agent.to_string(),
+            screen_resolution: input.screen_resolution.to_string(),
             event_name: event_name.to_string(),
             bot_reasons,
-            asn: asn_info.asn,
-            asn_org: asn_info.org.clone(),
+            asn: input.asn,
+            asn_org: asn_org.to_string(),
         };
         // try_send: recording bot traffic must never backpressure the human event path
         if self.bot_tx.try_send(bot_event).is_err() {
@@ -153,10 +164,9 @@ impl EventProcessor {
         }
     }
 
-    /// Bot gate for the replay endpoints, with the same bot_events/metrics telemetry
-    /// as the event path. Only header-derived signals exist here, so payload rules
-    /// (referrer, automation, velocity) can't fire. Returns true if the request
-    /// should be rejected.
+    /// Bot gate for the replay endpoints; only header-derived signals are available
+    /// there. The verdict is cached because presign fires once per uploaded segment
+    /// on inputs that are constant for the session.
     pub fn check_replay_request(
         &self,
         site_id: &str,
@@ -166,20 +176,30 @@ impl EventProcessor {
         screen_resolution: &str,
         prefetch: bool,
     ) -> bool {
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        use std::hash::{Hash, Hasher};
+        (site_id, ip_address, user_agent).hash(&mut hasher);
+        let key = hasher.finish();
+        if let Some(reject) = REPLAY_VERDICTS.get(&key) {
+            return reject;
+        }
+
         let asn_info = self.asn_service.lookup(ip_address);
-        let detection = bot_detection::detect(&bot_detection::DetectionInput {
+        let input = bot_detection::DetectionInput {
             user_agent,
             header_user_agent: user_agent,
             screen_resolution,
             asn: asn_info.asn,
             prefetch,
             ..Default::default()
-        });
-        if detection.is_empty() {
-            return false;
-        }
-        self.record_detection(&detection, site_id, url, None, user_agent, screen_resolution, "replay", &asn_info);
-        detection.should_reject()
+        };
+        let detection = bot_detection::detect(&input);
+        let (domain, path) = extract_domain_and_path_from_url(url);
+        self.record_detection(&detection, &input, site_id, domain.as_deref(), &path, "replay", &asn_info.org);
+
+        let reject = detection.should_reject();
+        REPLAY_VERDICTS.insert(key, reject);
+        reject
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
@@ -197,9 +217,11 @@ impl EventProcessor {
 
         let asn_info = self.asn_service.lookup(&event.ip_address);
         let velocity_exceeded = bot_detection::velocity::record_and_check(&site_id, &event.ip_address);
+        let (domain, path) = extract_domain_and_path_from_url(&raw_url);
+        debug!("Extracted domain '{:?}' and path '{}' from URL '{}'", domain, path, raw_url);
 
         // Bot Detection early to avoid processing bot traffic
-        let detection = bot_detection::detect(&bot_detection::DetectionInput {
+        let input = bot_detection::DetectionInput {
             user_agent: &user_agent,
             header_user_agent: &event.header_user_agent,
             screen_resolution: &event.raw.screen_resolution,
@@ -208,26 +230,12 @@ impl EventProcessor {
             asn: asn_info.asn,
             prefetch: event.prefetch,
             velocity_exceeded,
-        });
-        if !detection.is_empty() {
-            self.record_detection(
-                &detection,
-                &site_id,
-                &raw_url,
-                referrer.as_deref(),
-                &user_agent,
-                &event.raw.screen_resolution,
-                &event.raw.event_name,
-                &asn_info,
-            );
-            // Shadow-only detections fall through and are processed as human traffic
-            if detection.should_reject() {
-                return Ok(());
-            }
+        };
+        let detection = bot_detection::detect(&input);
+        self.record_detection(&detection, &input, &site_id, domain.as_deref(), &path, &event.raw.event_name, &asn_info.org);
+        if detection.should_reject() {
+            return Ok(());
         }
-
-        let (domain, path) = extract_domain_and_path_from_url(&raw_url);
-        debug!("Extracted domain '{:?}' and path '{}' from URL '{}'", domain, path, raw_url);
 
         let mut processed = ProcessedEvent {
             event: event.clone(),

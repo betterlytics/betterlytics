@@ -21,6 +21,18 @@ pub fn anonymize_ip(ip: &str) -> Option<String> {
     }
 }
 
+/// Proxy-aware client IP with the socket address as fallback
+pub fn client_ip(headers: &HeaderMap, fallback: IpAddr) -> String {
+    parse_ip(headers).unwrap_or(fallback).to_string()
+}
+
+pub fn user_agent(headers: &HeaderMap) -> &str {
+    headers
+        .get(axum::http::header::USER_AGENT)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or_default()
+}
+
 const HEADER_CANDIDATES: [&str; 5] = [
     "cf-connecting-ip",
     "true-client-ip",
@@ -52,7 +64,7 @@ pub fn parse_ip(headers: &HeaderMap) -> Result<IpAddr, ()> {
     Err(())
 }
 
-fn parse_ip_str(s: &str) -> Option<IpAddr> {
+pub fn parse_ip_str(s: &str) -> Option<IpAddr> {
     if s.starts_with('[') {
         let end = s.find(']')?;
         IpAddr::from_str(&s[1..end]).ok()

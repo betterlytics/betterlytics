@@ -28,8 +28,7 @@ async function main() {
   const upstream = patterns.map((p) => p.replace(/\\([wdsWDS])-/g, "\\$1\\-"));
   const upstreamSet = new Set(upstream);
 
-  // bot_patterns.txt is the hand-curated promote-list: every line must still exist
-  // upstream so the enforced tier can never drift ahead of the vendored source
+  // Enforced patterns must still exist upstream
   const enforcedSet = new Set(readPatterns(ENFORCED_FILE));
   const gone = [...enforcedSet].filter((p) => !upstreamSet.has(p));
   if (gone.length > 0) {
@@ -39,12 +38,9 @@ async function main() {
     );
   }
 
-  // Everything not explicitly promoted runs in shadow, so a new upstream pattern
-  // can only ever under-block until someone promotes it with bot_events evidence
-  const previousShadow = fs.existsSync(SHADOW_FILE) ? new Set(readPatterns(SHADOW_FILE)) : new Set();
+  // Unpromoted upstream patterns go to shadow
   const enforced = upstream.filter((p) => enforcedSet.has(p));
   const shadow = upstream.filter((p) => !enforcedSet.has(p));
-  const fresh = shadow.filter((p) => !previousShadow.has(p));
   const local = readPatterns(LOCAL_FILE);
 
   // Guard against upstream regressions and local mistakes: no pattern in any tier
@@ -94,9 +90,6 @@ async function main() {
   console.log(
     `Wrote ${enforced.length} enforced + ${shadow.length} shadow patterns (${local.length} local additions untouched)`,
   );
-  if (fresh.length > 0) {
-    console.log(`New upstream patterns (landed in shadow):\n${fresh.join("\n")}`);
-  }
 }
 
 main().catch((e) => {

@@ -63,7 +63,7 @@ impl Database {
         mpsc::channel(EVENT_CHANNEL_CAPACITY)
     }
 
-    fn spawn_inserter_workers(client: clickhouse::Client) -> Vec<mpsc::Sender<ProcessedEvent>> {
+    fn spawn_inserter_workers(client: clickhouse::Client) -> Vec<mpsc::Sender<EventRow>> {
         let mut worker_senders = Vec::with_capacity(NUM_INSERT_WORKERS);
 
         for i in 0..NUM_INSERT_WORKERS {
@@ -71,7 +71,7 @@ impl Database {
             worker_senders.push(worker_tx);
             let client_clone = client.clone();
             tokio::spawn(async move {
-                if let Err(e) = run_inserter_worker(i, client_clone, worker_rx).await {
+                if let Err(e) = run_row_inserter_worker(client_clone, "analytics.events", worker_rx).await {
                     eprintln!("Worker {}: Error - {}", i, e);
                 }
             });
@@ -81,12 +81,13 @@ impl Database {
 
     fn spawn_dispatcher(
         mut event_rx: mpsc::Receiver<ProcessedEvent>,
-        worker_senders: Vec<mpsc::Sender<ProcessedEvent>>,
+        worker_senders: Vec<mpsc::Sender<EventRow>>,
     ) {
         tokio::spawn(async move {
             let mut worker_index = 0;
             while let Some(event) = event_rx.recv().await {
-                if let Err(e) = worker_senders[worker_index].send(event).await {
+                let row = EventRow::from_processed(event);
+                if let Err(e) = worker_senders[worker_index].send(row).await {
                     eprintln!(
                         "Dispatcher failed to send event to worker {}: {}",
                         worker_index, e
@@ -241,99 +242,8 @@ impl Database {
     }
 }
 
-async fn run_inserter_worker(
-    worker_id: usize,
-    client: clickhouse::Client,
-    mut rx: Receiver<ProcessedEvent>,
-) -> Result<(), ClickHouseError> {
-    println!(
-        "Worker {}: Starting (Inserter Sparse Stream Mode).",
-        worker_id
-    );
-
-    let mut inserter = client
-        .inserter("analytics.events")?
-        .with_timeouts(
-            Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
-            None,
-        )
-        .with_period(Some(Duration::from_secs(INSERTER_PERIOD_SECS)))
-        .with_max_rows(INSERTER_MAX_ROWS)
-        .with_max_bytes(INSERTER_MAX_BYTES);
-
-    println!("Worker {}: Inserter configured.", worker_id);
-
-    loop {
-        let event = match rx.try_recv() {
-            Ok(received_event) => received_event,
-            Err(TryRecvError::Empty) => {
-                // Channel empty, wait for the next event or until the inserter period ends.
-                let time_left = inserter
-                    .time_left()
-                    .unwrap_or_else(|| Duration::from_secs(INSERTER_PERIOD_SECS));
-
-                match timeout(time_left, rx.recv()).await {
-                    Ok(Some(received_event)) => received_event,
-                    Ok(None) => {
-                        println!(
-                            "Worker {}: Channel closed during timeout wait. Committing final batch.",
-                            worker_id
-                        );
-                        inserter.commit().await?;
-                        break;
-                    }
-                    Err(_) => {
-                        inserter.commit().await?;
-                        continue;
-                    }
-                }
-            }
-            Err(TryRecvError::Disconnected) => {
-                println!(
-                    "Worker {}: Channel disconnected. Committing final batch.",
-                    worker_id
-                );
-                break;
-            }
-        };
-
-        let row = EventRow::from_processed(event);
-
-        tracing::debug!(
-            worker_id = worker_id, 
-            site_id = %row.site_id, 
-            visitor_id = %row.visitor_id,
-            session_id = %row.session_id,
-            event_type = ?row.event_type,
-            custom_event_name = ?row.custom_event_name,
-            url = %row.url, 
-            timestamp = %row.timestamp, 
-            device_type = %row.device_type,
-            browser = %row.browser, 
-            os = %row.os, 
-            "Prepared row for ClickHouse insertion");
-        if let Err(e) = inserter.write(&row) {
-            eprintln!(
-                "Worker {}: Failed to write row to inserter buffer: {}. Row: {:?}",
-                worker_id, e, row
-            );
-            // TODO: Implement retry logic or dead-letter queue for inserter write failures.
-            continue;
-        }
-    }
-
-    println!(
-        "Worker {}: Exiting loop. Finalizing inserter.",
-        worker_id
-    );
-    let stats = inserter.end().await?;
-    println!(
-        "Worker {}: Shutdown complete. Final stats: {:?}",
-        worker_id, stats
-    );
-    Ok(())
-}
-
+/// Batches rows into ClickHouse, committing on the inserter period even when the
+/// channel is idle
 async fn run_row_inserter_worker<R>(
     client: clickhouse::Client,
     table: &str,
