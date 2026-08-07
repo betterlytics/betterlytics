@@ -282,7 +282,10 @@ async fn run_inserter_worker(
             }
         };
 
-        let row = EventRow::from_processed(event);
+        let row = match EventRow::from_processed(event) {
+            Some(row) => row,
+            None => continue,
+        };
 
         tracing::debug!(
             worker_id = worker_id, 
