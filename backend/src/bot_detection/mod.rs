@@ -74,9 +74,9 @@ pub const REASON_PREFETCH: &str = "prefetch";
 /// bot_events and counted in metrics, but the event is still
 /// processed as human traffic
 const SHADOW_REASONS: &[&str] = &[
-    // isbot format/generic-word heuristics without competitor precedent: they match
-    // UA shape (or a common English word) rather than a named product, so each needs
-    // shadow evidence before promotion into bot_patterns.txt
+    // isbot format/generic-word heuristics: they match UA shape (or a common English
+    // word) rather than a named product, so each needs shadow evidence before
+    // promotion into bot_patterns.txt
     REASON_UA_HEURISTIC,
     REASON_UA_MISMATCH,
     REASON_UA_TOO_SHORT,
@@ -92,8 +92,8 @@ const SHADOW_REASONS: &[&str] = &[
     // A prerendered page that the user then activates IS a real visit, and the tracker
     // does not fire again on activation. Dropping these would lose genuine pageviews
     REASON_PREFETCH,
-    // No other analytics vendor filters on screen dimensions; the upper bound in
-    // particular is a guess that future high-resolution displays could exceed
+    // Screen dimensions are an unproven signal; the upper bound in particular is
+    // a guess that future high-resolution displays could exceed
     REASON_IMPOSSIBLE_RESOLUTION,
 ];
 
