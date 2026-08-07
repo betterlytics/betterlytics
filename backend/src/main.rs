@@ -113,9 +113,25 @@ async fn main() {
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
     info!("ClickHouse client initialized");
 
-    let (db, event_tx, inserter_handle) = Database::new(Arc::clone(&clickhouse), config.clone())
-        .await
-        .expect("Failed to initialize database");
+    let metrics_collector = if config.enable_monitoring {
+        let collector = MetricsCollector::new()
+            .expect("Failed to initialize metrics collector")
+            .start_system_metrics_updater();
+        info!("Metrics collector started");
+        Some(collector)
+    } else {
+        info!("Metrics collection disabled");
+        None
+    };
+
+    let (db, event_tx, inserter_handle) =
+        Database::new(Arc::clone(&clickhouse), config.clone(), metrics_collector.clone())
+            .await
+            .expect("Failed to initialize database");
+
+    if let Some(metrics) = metrics_collector.clone() {
+        spawn_pressure_sampler(metrics, event_tx.downgrade());
+    }
     db.validate_schema().await.expect("Invalid database schema");
 
     if let Err(e) = referrer::sync_referrer_categories(
@@ -134,18 +150,11 @@ async fn main() {
 
     let db = Arc::new(db);
 
-    let metrics_collector = if config.enable_monitoring {
-        let collector = MetricsCollector::new()
-            .expect("Failed to initialize metrics collector")
-            .start_system_metrics_updater();
-        info!("Metrics collector started");
-        Some(collector)
-    } else {
-        info!("Metrics collection disabled");
-        None
-    };
-
-    let processor = Arc::new(EventProcessor::new(geoip_service, event_tx));
+    let processor = Arc::new(EventProcessor::new(
+        geoip_service,
+        event_tx,
+        metrics_collector.clone(),
+    ));
 
     let site_config_pool = Arc::new(
         PostgresPool::new(
@@ -254,13 +263,21 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     info!("Listening on {}", addr);
-    axum::serve(
-        listener,
-        app.into_make_service_with_connect_info::<SocketAddr>(),
-    )
-    .with_graceful_shutdown(shutdown_signal())
-    .await
-    .unwrap();
+    let mut inserter_handle = inserter_handle;
+    tokio::select! {
+        result = axum::serve(
+            listener,
+            app.into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .with_graceful_shutdown(shutdown_signal()) => result.unwrap(),
+        // The inserter only returns once the ingest channel closes, so reaching
+        // here means it panicked. Exit non-zero rather than keep acking events
+        // into a dead channel; the container restart policy brings us back.
+        result = &mut inserter_handle => {
+            error!(?result, "Inserter task exited while the server is running, exiting");
+            std::process::exit(1);
+        }
+    }
 
     info!("HTTP server stopped, draining buffered data");
     let drain = async {
@@ -312,6 +329,26 @@ async fn shutdown_signal() {
             WATCHDOG_TIMEOUT
         );
         std::process::exit(1);
+    });
+}
+
+/// Holds only a weak channel handle, so the ingest channel still closes when
+/// the processor drops at shutdown.
+fn spawn_pressure_sampler(
+    metrics: Arc<MetricsCollector>,
+    ingest_tx: tokio::sync::mpsc::WeakSender<processing::ProcessedEvent>,
+) {
+    tokio::spawn(async move {
+        let mut tick = tokio::time::interval(Duration::from_secs(5));
+        loop {
+            tick.tick().await;
+            if let Some(tx) = ingest_tx.upgrade() {
+                metrics.set_ingest_channel_depth(tx.max_capacity() - tx.capacity());
+            }
+            for (table, depth) in monitor::clickhouse_writer::writer_queue_depths() {
+                metrics.set_writer_queue_depth(&table, depth);
+            }
+        }
     });
 }
 

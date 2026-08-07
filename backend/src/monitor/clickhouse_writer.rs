@@ -20,19 +20,39 @@ static FLUSH_REGISTRY: Mutex<Vec<FlushHandle>> = Mutex::new(Vec::new());
 struct FlushHandle {
     table: String,
     request: Box<dyn Fn() -> Option<oneshot::Receiver<()>> + Send + Sync>,
+    depth: Box<dyn Fn() -> Option<usize> + Send + Sync>,
 }
 
-fn register_for_shutdown_flush<R: Send + 'static>(table: &str, sender: mpsc::WeakSender<Msg<R>>) {
+fn register_writer<R: Send + 'static>(
+    table: &str,
+    sender: mpsc::WeakSender<Msg<R>>,
+    capacity: usize,
+) {
+    let depth_sender = sender.clone();
     let request = Box::new(move || {
         let sender = sender.upgrade()?;
         let (ack_tx, ack_rx) = oneshot::channel();
         sender.try_send(Msg::Flush(ack_tx)).ok()?;
         Some(ack_rx)
     });
+    let depth = Box::new(move || {
+        let sender = depth_sender.upgrade()?;
+        Some(capacity - sender.capacity())
+    });
     FLUSH_REGISTRY.lock().unwrap().push(FlushHandle {
         table: table.to_string(),
         request,
+        depth,
     });
+}
+
+pub fn writer_queue_depths() -> Vec<(String, usize)> {
+    FLUSH_REGISTRY
+        .lock()
+        .unwrap()
+        .iter()
+        .filter_map(|handle| (handle.depth)().map(|depth| (handle.table.clone(), depth)))
+        .collect()
 }
 
 /// Sends a flush fence into every live writer, then waits for the acks: once
@@ -59,7 +79,6 @@ pub async fn flush_all_writers() {
 /// to a background worker for insertion
 pub struct ClickhouseChannelWriter<R: clickhouse::Row + Serialize + Send + Sync + 'static> {
     sender: mpsc::Sender<Msg<R>>,
-    capacity: usize,
 }
 
 impl<R: clickhouse::Row + Serialize + Send + Sync + 'static> ClickhouseChannelWriter<R> {
@@ -70,11 +89,8 @@ impl<R: clickhouse::Row + Serialize + Send + Sync + 'static> ClickhouseChannelWr
         batch_size: usize,
     ) -> Result<Arc<Self>> {
         let (sender, receiver) = mpsc::channel(channel_capacity);
-        register_for_shutdown_flush(table, sender.downgrade());
-        let writer = Arc::new(Self {
-            sender,
-            capacity: channel_capacity,
-        });
+        register_writer(table, sender.downgrade(), channel_capacity);
+        let writer = Arc::new(Self { sender });
 
         Self::spawn_worker(clickhouse, table.to_string(), batch_size, receiver);
 
@@ -85,10 +101,6 @@ impl<R: clickhouse::Row + Serialize + Send + Sync + 'static> ClickhouseChannelWr
         self.sender
             .try_send(Msg::Rows(rows))
             .map_err(|e| anyhow::anyhow!("enqueue_failed: {e}"))
-    }
-
-    pub fn queue_depth(&self) -> usize {
-        self.capacity - self.sender.capacity()
     }
 
     fn spawn_worker(

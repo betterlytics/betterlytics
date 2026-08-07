@@ -3,13 +3,14 @@ use clickhouse::error::Error as ClickHouseError;
 use std::sync::Arc;
 use std::time::Duration;
 
-use tokio::sync::mpsc::{self, error::TryRecvError, Receiver, Sender};
+use tokio::sync::mpsc::{self, Receiver, Sender};
 use tokio::task::JoinHandle;
-use tokio::time::timeout;
+use tokio::time::{timeout_at, Instant};
 use tracing::{debug, error, info, warn};
 
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
+use crate::metrics::MetricsCollector;
 use crate::processing::ProcessedEvent;
 
 mod models;
@@ -17,9 +18,18 @@ pub use models::{ActiveSessionRow, EventRow, ReferrerSourceCategoryRow, SessionR
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const INSERTER_TIMEOUT_SECS: u64 = 5;
+/// Cap on awaiting the insert acknowledgement, so a black-hole connection
+/// surfaces as a retryable timeout instead of hanging the flush.
+const INSERTER_END_TIMEOUT_SECS: u64 = 10;
 const INSERTER_PERIOD_SECS: u64 = 10;
-const INSERTER_MAX_ROWS: u64 = 100_000;
-const INSERTER_MAX_BYTES: u64 = 50 * 1024 * 1024;
+/// Flush when the batch reaches this many rows. Sized so even validation's
+/// worst-case event (~30 KB of properties + error payload) keeps a batch
+/// around ~60 MB; typical events (~0.5 KB) make ~1 MB batches. Revisit if
+/// validation's payload size caps change.
+const INSERTER_MAX_ROWS: usize = 2_000;
+const RETRY_BASE_BACKOFF_SECS: u64 = 1;
+const RETRY_MAX_BACKOFF_SECS: u64 = 30;
+const REJECTED_BATCH_ATTEMPTS: u32 = 3;
 
 pub struct Database {
     clickhouse: Arc<ClickHouseClient>,
@@ -33,15 +43,12 @@ impl Database {
     pub async fn new(
         clickhouse: Arc<ClickHouseClient>,
         config: Arc<Config>,
+        metrics: Option<Arc<MetricsCollector>>,
     ) -> Result<(Self, Sender<ProcessedEvent>, JoinHandle<()>)> {
         let (event_tx, event_rx) = mpsc::channel(EVENT_CHANNEL_CAPACITY);
 
         let client = clickhouse.inner().clone();
-        let inserter_handle = tokio::spawn(async move {
-            if let Err(e) = run_inserter(client, event_rx).await {
-                error!("Inserter task failed: {}", e);
-            }
-        });
+        let inserter_handle = tokio::spawn(run_inserter(client, event_rx, metrics));
 
         Ok((Self { clickhouse, config }, event_tx, inserter_handle))
     }
@@ -192,76 +199,177 @@ impl Database {
 async fn run_inserter(
     client: clickhouse::Client,
     mut rx: Receiver<ProcessedEvent>,
-) -> Result<(), ClickHouseError> {
-    info!("Inserter starting (sparse stream mode)");
+    metrics: Option<Arc<MetricsCollector>>,
+) {
+    info!("Inserter starting (owned-batch mode)");
 
-    let mut inserter = client
-        .inserter("analytics.events")?
-        .with_timeouts(
-            Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
-            None,
-        )
-        .with_period(Some(Duration::from_secs(INSERTER_PERIOD_SECS)))
-        .with_max_rows(INSERTER_MAX_ROWS)
-        .with_max_bytes(INSERTER_MAX_BYTES);
-
-    debug!("Inserter configured");
+    let period = Duration::from_secs(INSERTER_PERIOD_SECS);
+    let mut batch: Vec<EventRow> = Vec::new();
+    let mut flush_deadline = Instant::now() + period;
 
     loop {
-        let event = match rx.try_recv() {
-            Ok(received_event) => received_event,
-            Err(TryRecvError::Empty) => {
-                // Channel empty, wait for the next event or until the inserter period ends.
-                let time_left = inserter
-                    .time_left()
-                    .unwrap_or_else(|| Duration::from_secs(INSERTER_PERIOD_SECS));
+        match timeout_at(flush_deadline, rx.recv()).await {
+            Ok(Some(event)) => {
+                let row = match EventRow::from_processed(event) {
+                    Some(row) => row,
+                    None => continue,
+                };
+                debug!(
+                    site_id = %row.site_id,
+                    visitor_id = %row.visitor_id,
+                    session_id = %row.session_id,
+                    event_type = ?row.event_type,
+                    url = %row.url,
+                    timestamp = %row.timestamp,
+                    "Buffered row for ClickHouse insertion");
+                batch.push(row);
+                if let Some(metrics) = &metrics {
+                    metrics.set_inserter_batch_rows(batch.len());
+                }
 
-                match timeout(time_left, rx.recv()).await {
-                    Ok(Some(received_event)) => received_event,
-                    Ok(None) => {
-                        info!("Ingest channel closed, committing final batch");
-                        inserter.commit().await?;
-                        break;
-                    }
-                    Err(_) => {
-                        inserter.commit().await?;
-                        continue;
-                    }
+                if batch.len() >= INSERTER_MAX_ROWS {
+                    flush(&client, &mut batch, &metrics).await;
+                    flush_deadline = Instant::now() + period;
                 }
             }
-            Err(TryRecvError::Disconnected) => {
-                info!("Ingest channel disconnected, committing final batch");
-                break;
+            Ok(None) => {
+                info!(rows = batch.len(), "Ingest channel closed, committing final batch");
+                flush(&client, &mut batch, &metrics).await;
+                info!("Inserter shutdown complete, final batch committed");
+                return;
             }
-        };
-
-        let row = match EventRow::from_processed(event) {
-            Some(row) => row,
-            None => continue,
-        };
-
-        debug!(
-            site_id = %row.site_id,
-            visitor_id = %row.visitor_id,
-            session_id = %row.session_id,
-            event_type = ?row.event_type,
-            custom_event_name = ?row.custom_event_name,
-            url = %row.url,
-            timestamp = %row.timestamp,
-            device_type = %row.device_type,
-            browser = %row.browser,
-            os = %row.os,
-            "Prepared row for ClickHouse insertion");
-        if let Err(e) = inserter.write(&row) {
-            error!("Failed to write row to inserter buffer: {}. Row: {:?}", e, row);
-            // TODO: Implement retry logic or dead-letter queue for inserter write failures.
-            continue;
+            Err(_) => {
+                flush(&client, &mut batch, &metrics).await;
+                flush_deadline = Instant::now() + period;
+            }
         }
     }
+}
 
-    let stats = inserter.end().await?;
-    info!(stats = ?stats, "Inserter shutdown complete, final batch committed");
-    Ok(())
+/// Clears the batch only once ClickHouse confirms it. Transient failures retry
+/// forever (the channel buffers upstream); recognized rejections drop the batch
+/// after a few attempts so a poison batch cannot block the pipeline. All
+/// attempts share one dedup token, so a re-sent batch is ignored server-side.
+async fn flush(
+    client: &clickhouse::Client,
+    batch: &mut Vec<EventRow>,
+    metrics: &Option<Arc<MetricsCollector>>,
+) {
+    if batch.is_empty() {
+        return;
+    }
+
+    let dedup_token = uuid::Uuid::new_v4().to_string();
+
+    let mut transient_attempts: u32 = 0;
+    let mut rejected_attempts: u32 = 0;
+
+    loop {
+        match try_insert(client, batch, &dedup_token).await {
+            Ok(()) => {
+                debug!(rows = batch.len(), "Committed batch to ClickHouse");
+                if let Some(metrics) = metrics {
+                    metrics.increment_events_inserted(batch.len() as u64);
+                    metrics.set_inserter_retry_attempts(0);
+                    metrics.set_inserter_batch_rows(0);
+                }
+                batch.clear();
+                return;
+            }
+            Err(e) => match classify(&e) {
+                ErrorClass::Transient => {
+                    transient_attempts += 1;
+                    if let Some(metrics) = metrics {
+                        metrics.set_inserter_retry_attempts(transient_attempts);
+                    }
+                    let exp = transient_attempts.saturating_sub(1).min(5);
+                    let backoff = Duration::from_secs(
+                        (RETRY_BASE_BACKOFF_SECS << exp).min(RETRY_MAX_BACKOFF_SECS),
+                    );
+                    error!(
+                        error = %e,
+                        attempt = transient_attempts,
+                        backoff_secs = backoff.as_secs(),
+                        rows = batch.len(),
+                        "Transient ClickHouse insert failure, retrying batch"
+                    );
+                    tokio::time::sleep(backoff).await;
+                }
+                ErrorClass::Deterministic => {
+                    rejected_attempts += 1;
+                    if rejected_attempts >= REJECTED_BATCH_ATTEMPTS {
+                        error!(
+                            error = %e,
+                            rows = batch.len(),
+                            "ClickHouse rejected batch deterministically, dropping it"
+                        );
+                        if let Some(metrics) = metrics {
+                            metrics.increment_events_dropped("insert_gave_up", batch.len() as u64);
+                            metrics.set_inserter_retry_attempts(0);
+                            metrics.set_inserter_batch_rows(0);
+                        }
+                        batch.clear();
+                        return;
+                    }
+                    warn!(
+                        error = %e,
+                        attempt = rejected_attempts,
+                        "ClickHouse rejected batch, retrying"
+                    );
+                    tokio::time::sleep(Duration::from_secs(RETRY_BASE_BACKOFF_SECS)).await;
+                }
+            },
+        }
+    }
+}
+
+async fn try_insert(
+    client: &clickhouse::Client,
+    batch: &[EventRow],
+    dedup_token: &str,
+) -> Result<(), ClickHouseError> {
+    let mut insert = client
+        .clone()
+        .with_option("insert_deduplication_token", dedup_token)
+        .insert("analytics.events")?
+        .with_timeouts(
+            Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
+            Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
+        );
+    for row in batch {
+        insert.write(row).await?;
+    }
+    insert.end().await
+}
+
+enum ErrorClass {
+    Transient,
+    Deterministic,
+}
+
+fn classify(error: &ClickHouseError) -> ErrorClass {
+    match error {
+        ClickHouseError::Network(_) | ClickHouseError::TimedOut => ErrorClass::Transient,
+        ClickHouseError::BadResponse(response) => match server_exception_code(response) {
+            // Capacity/availability conditions that clear on their own:
+            // 159 TIMEOUT_EXCEEDED, 202 TOO_MANY_SIMULTANEOUS_QUERIES,
+            // 209 SOCKET_TIMEOUT, 210 NETWORK_ERROR, 241 MEMORY_LIMIT_EXCEEDED,
+            // 242 TABLE_IS_READ_ONLY, 252 TOO_MANY_PARTS
+            Some(159 | 202 | 209 | 210 | 241 | 242 | 252) => ErrorClass::Transient,
+            // Any other exception code rejects these exact bytes every time.
+            Some(_) => ErrorClass::Deterministic,
+            // Unparseable body (proxy mangling, truncation): retryable.
+            None => ErrorClass::Transient,
+        },
+        // Client-side serialization/params errors reproduce on every attempt.
+        _ => ErrorClass::Deterministic,
+    }
+}
+
+fn server_exception_code(response: &str) -> Option<u32> {
+    let rest = response.trim_start().strip_prefix("Code: ")?;
+    let digits: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
+    digits.parse().ok()
 }
 
 /// SQL to load each active visitor's most recent session. Filtering on `session_end` uses the
@@ -286,6 +394,7 @@ mod tests {
     use crate::campaign::CampaignInfo;
     use crate::referrer::ReferrerInfo;
     use clickhouse::test::{handlers, Mock};
+    use tokio::time::timeout;
 
     fn test_event(n: u64) -> ProcessedEvent {
         let raw = RawTrackingEvent {
@@ -361,7 +470,7 @@ mod tests {
         let client = clickhouse::Client::default().with_url(mock.url());
 
         let (tx, rx) = mpsc::channel(100);
-        let handle = tokio::spawn(run_inserter(client, rx));
+        let handle = tokio::spawn(run_inserter(client, rx, None));
 
         for n in 0..5 {
             tx.send(test_event(n)).await.unwrap();
@@ -371,30 +480,79 @@ mod tests {
         timeout(Duration::from_secs(10), handle)
             .await
             .expect("inserter did not exit after channel close")
-            .expect("inserter task panicked")
-            .expect("inserter returned an error");
+            .expect("inserter task panicked");
 
         let rows: Vec<EventRow> = recording.collect().await;
         assert_eq!(rows.len(), 5);
         assert!(rows.iter().all(|r| r.site_id == "test-site"));
     }
 
-    /// The deadline-safety property: an unreachable ClickHouse must never
-    /// leave the drain hanging - the task finishes (with an error) promptly.
-    #[tokio::test]
-    async fn inserter_exits_when_clickhouse_is_unreachable() {
+    #[tokio::test(start_paused = true)]
+    async fn inserter_retries_forever_when_clickhouse_is_unreachable() {
         let client = clickhouse::Client::default().with_url("http://127.0.0.1:9");
 
         let (tx, rx) = mpsc::channel(100);
-        let handle = tokio::spawn(run_inserter(client, rx));
+        let handle = tokio::spawn(run_inserter(client, rx, None));
 
         tx.send(test_event(0)).await.unwrap();
         drop(tx);
 
-        timeout(Duration::from_secs(10), handle)
+        // Still retrying ten virtual minutes later: the timeout is the pass.
+        assert!(timeout(Duration::from_secs(600), handle).await.is_err());
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn transient_failure_then_recovery_loses_no_events() {
+        let mock = Mock::new();
+        mock.add(handlers::failure(http::StatusCode::INTERNAL_SERVER_ERROR));
+        let recording = mock.add(handlers::record());
+        let client = clickhouse::Client::default().with_url(mock.url());
+
+        let (tx, rx) = mpsc::channel(100);
+        let handle = tokio::spawn(run_inserter(client, rx, None));
+
+        for n in 0..3 {
+            tx.send(test_event(n)).await.unwrap();
+        }
+        drop(tx);
+
+        timeout(Duration::from_secs(120), handle)
             .await
-            .expect("inserter did not exit after channel close")
-            .expect("inserter task panicked")
-            .ok();
+            .expect("inserter did not recover from transient failure")
+            .expect("inserter task panicked");
+
+        let rows: Vec<EventRow> = recording.collect().await;
+        assert_eq!(rows.len(), 3);
+    }
+
+    #[tokio::test(start_paused = true)]
+    async fn poison_batch_is_dropped_and_does_not_block_later_batches() {
+        let mock = Mock::new();
+        let recording = mock.add(handlers::record());
+        let client = clickhouse::Client::default().with_url(mock.url());
+
+        let (tx, rx) = mpsc::channel(100);
+        let handle = tokio::spawn(run_inserter(client, rx, None));
+
+        // Timestamp beyond DateTime's u32 range: serializing this row fails
+        // deterministically, poisoning its whole batch.
+        let mut poison = test_event(0);
+        poison.timestamp = chrono::DateTime::from_timestamp(5_000_000_000, 0).unwrap();
+        tx.send(poison).await.unwrap();
+
+        // Long enough for the flush period plus every rejected attempt.
+        tokio::time::sleep(Duration::from_secs(30)).await;
+
+        tx.send(test_event(1)).await.unwrap();
+        drop(tx);
+
+        timeout(Duration::from_secs(120), handle)
+            .await
+            .expect("inserter blocked on poison batch")
+            .expect("inserter task panicked");
+
+        let rows: Vec<EventRow> = recording.collect().await;
+        assert_eq!(rows.len(), 1, "only the healthy row should be inserted");
+        assert_eq!(rows[0].session_id, 1);
     }
 }
