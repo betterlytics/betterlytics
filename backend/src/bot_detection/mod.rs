@@ -11,7 +11,7 @@ const BOT_PATTERNS: &str = include_str!("bot_patterns.txt");
 const REFERRER_SPAM_DOMAINS: &str = include_str!("referrer_spam.txt");
 const HOSTING_ASNS: &str = include_str!("hosting_asns.txt");
 
-/// Networks operated by crawler/scanner companies — no human browses from these.
+/// Networks operated by crawler/scanner companies.
 /// Every entry verified against registry RDAP data; extend only with verified ASNs.
 const BOT_OPERATOR_ASNS: &[u32] = &[
     401518, // OpenAI
@@ -77,6 +77,9 @@ const SHADOW_REASONS: &[&str] = &[
     // Hosting ASNs carry real humans too (VPN egress, iCloud Private Relay,
     // corporate proxies) — never promote without an egress allowlist or corroboration
     REASON_HOSTING_NETWORK,
+    // Near-certain bot networks, but observe before blocking: promote once shadow
+    // rows confirm no human-like traffic originates from them
+    REASON_BOT_NETWORK,
 ];
 
 pub struct Detection {
@@ -415,8 +418,9 @@ mod tests {
         };
 
         let bot_operator = detect_asn(401518);
-        assert_eq!(bot_operator.enforcing, vec![REASON_BOT_NETWORK]);
-        assert!(bot_operator.should_reject());
+        assert_eq!(bot_operator.shadow, vec![REASON_BOT_NETWORK]);
+        assert!(!bot_operator.should_reject());
+        assert_eq!(bot_operator.tagged_reasons(), vec!["shadow:bot-network"]);
 
         let hetzner = detect_asn(24940);
         assert_eq!(hetzner.shadow, vec![REASON_HOSTING_NETWORK]);
