@@ -1,3 +1,5 @@
+pub mod velocity;
+
 use axum::http::HeaderMap;
 use fancy_regex::Regex;
 use once_cell::sync::Lazy;
@@ -69,6 +71,7 @@ pub const REASON_CLIENT_AUTOMATION: &str = "client-automation";
 pub const REASON_BOT_NETWORK: &str = "bot-network";
 pub const REASON_HOSTING_NETWORK: &str = "hosting-network";
 pub const REASON_PREFETCH: &str = "prefetch";
+pub const REASON_VELOCITY: &str = "velocity";
 
 /// Rules without proven precedent run in shadow mode: their hits are recorded to
 /// bot_events and counted in metrics, but the event is still
@@ -95,6 +98,9 @@ const SHADOW_REASONS: &[&str] = &[
     // Screen dimensions are an unproven signal; the upper bound in particular is
     // a guess that future high-resolution displays could exceed
     REASON_IMPOSSIBLE_RESOLUTION,
+    // Rate telemetry: CGNAT can put whole carrier populations behind one IP, so
+    // observe the real-world rate distribution before enforcing any limit
+    REASON_VELOCITY,
 ];
 
 pub struct Detection {
@@ -146,6 +152,8 @@ pub struct DetectionInput<'a> {
     pub asn: u32,
     /// Request carried a browser speculative-loading header
     pub prefetch: bool,
+    /// Site+IP event rate exceeded the velocity window (see velocity module)
+    pub velocity_exceeded: bool,
 }
 
 pub fn detect(input: &DetectionInput) -> Detection {
@@ -191,6 +199,10 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
 
     if input.prefetch {
         reasons.push(REASON_PREFETCH);
+    }
+
+    if input.velocity_exceeded {
+        reasons.push(REASON_VELOCITY);
     }
 
     if input.asn != 0 {
@@ -534,6 +546,20 @@ mod tests {
             ..Default::default()
         });
         assert!(matching.is_empty());
+    }
+
+    #[test]
+    fn velocity_is_shadow_only() {
+        let detection = detect(&DetectionInput {
+            user_agent: HUMAN_USER_AGENTS[0],
+            header_user_agent: HUMAN_USER_AGENTS[0],
+            screen_resolution: "1920x1080",
+            velocity_exceeded: true,
+            ..Default::default()
+        });
+        assert_eq!(detection.shadow, vec![REASON_VELOCITY]);
+        assert!(!detection.should_reject());
+        assert_eq!(detection.tagged_reasons(), vec!["shadow:velocity"]);
     }
 
     #[test]

@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::{error, debug};
 use crate::analytics::{AnalyticsEvent, VisitorAttrs};
-use crate::asn::AsnService;
+use crate::asn::{AsnInfo, AsnService};
 use crate::geoip::GeoIpService;
 use crate::metrics::MetricsCollector;
 use crate::visitor;
@@ -115,6 +115,73 @@ impl EventProcessor {
         (Self { event_tx, bot_tx, geoip_service, asn_service, metrics, honor_client_timestamps }, event_rx, bot_rx)
     }
 
+    fn record_detection(
+        &self,
+        detection: &bot_detection::Detection,
+        site_id: &str,
+        raw_url: &str,
+        referrer: Option<&str>,
+        user_agent: &str,
+        screen_resolution: &str,
+        event_name: &str,
+        asn_info: &AsnInfo,
+    ) {
+        let bot_reasons = detection.tagged_reasons();
+        debug!("Bot signals ({:?}), recording to bot_events: {}", bot_reasons, user_agent);
+        if let Some(metrics) = &self.metrics {
+            for reason in &bot_reasons {
+                metrics.increment_bot_event_detected(reason);
+            }
+        }
+        let (domain, path) = extract_domain_and_path_from_url(raw_url);
+        let bot_event = BotEvent {
+            site_id: site_id.to_string(),
+            timestamp: chrono::Utc::now(),
+            domain,
+            url: path,
+            referrer: referrer.unwrap_or_default().to_string(),
+            user_agent: user_agent.to_string(),
+            screen_resolution: screen_resolution.to_string(),
+            event_name: event_name.to_string(),
+            bot_reasons,
+            asn: asn_info.asn,
+            asn_org: asn_info.org.clone(),
+        };
+        // try_send: recording bot traffic must never backpressure the human event path
+        if self.bot_tx.try_send(bot_event).is_err() {
+            debug!("Bot event channel full, dropping bot event record");
+        }
+    }
+
+    /// Bot gate for the replay endpoints, with the same bot_events/metrics telemetry
+    /// as the event path. Only header-derived signals exist here, so payload rules
+    /// (referrer, automation, velocity) can't fire. Returns true if the request
+    /// should be rejected.
+    pub fn check_replay_request(
+        &self,
+        site_id: &str,
+        ip_address: &str,
+        user_agent: &str,
+        url: &str,
+        screen_resolution: &str,
+        prefetch: bool,
+    ) -> bool {
+        let asn_info = self.asn_service.lookup(ip_address);
+        let detection = bot_detection::detect(&bot_detection::DetectionInput {
+            user_agent,
+            header_user_agent: user_agent,
+            screen_resolution,
+            asn: asn_info.asn,
+            prefetch,
+            ..Default::default()
+        });
+        if detection.is_empty() {
+            return false;
+        }
+        self.record_detection(&detection, site_id, url, None, user_agent, screen_resolution, "replay", &asn_info);
+        detection.should_reject()
+    }
+
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
         let site_id = event.raw.site_id.clone();
         let timestamp = if self.honor_client_timestamps {
@@ -129,6 +196,7 @@ impl EventProcessor {
         let user_agent = event.raw.user_agent.clone();
 
         let asn_info = self.asn_service.lookup(&event.ip_address);
+        let velocity_exceeded = bot_detection::velocity::record_and_check(&site_id, &event.ip_address);
 
         // Bot Detection early to avoid processing bot traffic
         let detection = bot_detection::detect(&bot_detection::DetectionInput {
@@ -139,33 +207,19 @@ impl EventProcessor {
             automation: event.raw.automation,
             asn: asn_info.asn,
             prefetch: event.prefetch,
+            velocity_exceeded,
         });
         if !detection.is_empty() {
-            let bot_reasons = detection.tagged_reasons();
-            debug!("Bot signals ({:?}), recording to bot_events: {}", bot_reasons, user_agent);
-            if let Some(metrics) = &self.metrics {
-                for reason in &bot_reasons {
-                    metrics.increment_bot_event_detected(reason);
-                }
-            }
-            let (domain, path) = extract_domain_and_path_from_url(&raw_url);
-            let bot_event = BotEvent {
-                site_id: site_id.clone(),
-                timestamp,
-                domain,
-                url: path,
-                referrer: referrer.clone().unwrap_or_default(),
-                user_agent: user_agent.clone(),
-                screen_resolution: event.raw.screen_resolution.clone(),
-                event_name: event.raw.event_name.clone(),
-                bot_reasons,
-                asn: asn_info.asn,
-                asn_org: asn_info.org.clone(),
-            };
-            // try_send: recording bot traffic must never backpressure the human event path
-            if self.bot_tx.try_send(bot_event).is_err() {
-                debug!("Bot event channel full, dropping bot event record");
-            }
+            self.record_detection(
+                &detection,
+                &site_id,
+                &raw_url,
+                referrer.as_deref(),
+                &user_agent,
+                &event.raw.screen_resolution,
+                &event.raw.event_name,
+                &asn_info,
+            );
             // Shadow-only detections fall through and are processed as human traffic
             if detection.should_reject() {
                 return Ok(());

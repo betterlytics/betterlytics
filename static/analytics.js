@@ -78,6 +78,24 @@
 
   var globalProperties = {};
 
+  var automation = (function () {
+    var automated = !!(
+      navigator.webdriver ||
+      window._phantom ||
+      window.__nightmare ||
+      window.Cypress
+    );
+    try {
+      // Headless Chrome hiding navigator.webdriver usually still reports a
+      // "HeadlessChrome" brand in the (Chromium-only) client hints API
+      var brands = (navigator.userAgentData && navigator.userAgentData.brands) || [];
+      for (var b = 0; b < brands.length; b++) {
+        if (/headless/i.test(brands[b].brand)) automated = true;
+      }
+    } catch (e) {}
+    return automated;
+  })();
+
   // Engagement tracking state (duration + scroll depth)
   var pageStartTime = performance.now();
   var currentUrl = null;
@@ -105,18 +123,6 @@
     var referrer = document.referrer || null;
     var userAgent = navigator.userAgent;
     var screenResolution = window.screen.width + "x" + window.screen.height;
-    var automation = !!(
-      navigator.webdriver ||
-      window._phantom ||
-      window.__nightmare ||
-      window.Cypress
-    );
-    try {
-      var brands = (navigator.userAgentData && navigator.userAgentData.brands) || [];
-      for (var b = 0; b < brands.length; b++) {
-        if (/headless/i.test(brands[b].brand)) automation = true;
-      }
-    } catch (e) {}
 
     fetch(serverUrl, {
       method: "POST",
@@ -535,7 +541,8 @@
     }
   }
 
-  if (enableReplay || enableReplayOnError) {
+  // Automated browsers get no replay: recording them only burns storage
+  if ((enableReplay || enableReplayOnError) && !automation) {
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
     var THIRTY_MIN_MS = 30 * 60 * 1000;
