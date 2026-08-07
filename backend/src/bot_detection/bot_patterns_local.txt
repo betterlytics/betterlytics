@@ -1,0 +1,15 @@
+# Local enforced additions, hand-maintained (not part of the vendored isbot list).
+# HTTP client libraries cannot execute JavaScript, so their UA arriving at this
+# JS-only endpoint is a forged POST by definition; the named bots at the bottom are
+# taken from PostHog's blocklist and only caught heuristically by upstream isbot.
+# Keep entries unambiguous product names; generic words belong in shadow instead.
+^curl/
+^axios/
+scrapy
+okhttp
+go-http-client
+aiohttp
+httpx/
+libwww
+meta-externalagent
+bingpreview

@@ -1,35 +1,16 @@
-# Bot user-agent regex patterns, vendored from omrilotan/isbot (Unlicense).
+# Enforced bot user-agent patterns: the curated subset of the vendored isbot list
+# (omrilotan/isbot, Unlicense) that names a specific product, vendor, or bot class.
+# The upstream remainder runs in shadow (bot_patterns_shadow.txt); promote a pattern
+# by moving its line here once bot_events shadow data shows it only hits bots.
 # Source: https://raw.githubusercontent.com/omrilotan/isbot/main/src/patterns.json
-# Generated: 2026-08-06 (209 patterns)
+# Generated: 2026-08-07 (135 of 209 upstream patterns enforced)
 # Regenerate with: node scripts/update-bot-patterns.js
  daum[ /]
  deusu/
-(?:^|[^g])news(?!sapphire)
 (?<! channel/|google/)google(?!(?:wv|app|/google| pixel))
 (?<! cu)bots?(?:\b|_)
-(?<!cam)scan
-(?<!lib)http
 24x7
-;\s\w+;$
-@[a-z][\w\-]+\.
-\(\)
-\.com\b
-\b\w+\.ai
-\bbw/
-\bdlc\b
-\bort/
 \bperl\b
-\btime/
-\|
-^[<\(;]
-^[\w \.\-\(?:\):%]+(?:/v?\d+(?:\.\d+)?(?:\.\d{1,10})*?)?(?:,|$)
-^[\w\-]+/[\w]+$
-^[^ ]{50,}$
-^\d+\b
-^\w*search\b
-^\w+/[\w\(\)]*$
-^\w+/\d\.\d\s\([\w@]+\)$
-^active
 ^ad muncher
 ^amaya
 ^apache/
@@ -40,15 +21,12 @@
 ^bot
 ^clamav[ /]
 ^claude-code/
-^client/
 ^cobweb/
-^custom
 ^ddg[_-]android
 ^discourse
 ^dispatch/\d
 ^downcast/
 ^duckduckgo
-^email
 ^exodusmovement
 ^facebook
 ^getright/
@@ -62,23 +40,14 @@
 ^jigsaw
 ^microsoft bits
 ^movabletype
-^mozilla/\d\.\d\s[\w\.-]+$
-^mozilla/\d\.\d\s\((?:compatible;)?(?:\s?[\w\d\-.]+\/\d+\.\d+)?\)$
 ^navermailapp
-^netsurf
-^offline
 ^openai/
 ^owler
 ^php
 ^postman
 ^ps_daily/
 ^python
-^rank
-^read
-^reed
 ^remove\.bg/
-^rest
-^rss
 ^snapchat
 ^sora 
 ^space bison
@@ -87,7 +56,6 @@
 ^swcd 
 ^taringa
 ^thumbor/
-^track
 ^w3c
 ^webbandit/
 ^webcopier
@@ -99,24 +67,13 @@
 ^yandex
 ^zdm/\d
 ^zoom marketplace/
-abuse
-advisor
-agent\b
-analyzer
-archive
 ask jeeves/teoma
 attracta
-audit
 bluecoat drtr
 browsex
 burpcollaborator
-capture
-catch
-check\b
-checker
 chrome-lighthouse
 chromeframe
-classifier
 cloudflare
 collapsify\b
 convertify
@@ -127,17 +84,11 @@ cypress/
 dareboost
 datanyze
 dejaclick
-detect
-discovery
 dmbrowser
-download
 exaleadcloudview
-feed
-fetcher
 firephp
 foregenix
 functionize
-grab
 hardenize\b
 headless
 hotjar
@@ -145,65 +96,43 @@ httrack
 hubspot marketing grader
 ibisbrowser
 infrawatch
-insight
-inspect
 iplabel
 java(?!;)
-library
 linkcheck
 linktiger
 mail\.ru/
-manager
 manus-user/
 marketgoo/
-measure
-monitor\b
 neustar wpm
 node\b
 nutch
 offbyone
 openvas
-optimize
 pageburst
 pagespeed
-parser
 phantomjs
 pingdom
 playwright
 powermarks
-preview
 productfinder
 prospectingstudio
-proxy
 ptst[ /]\d
-radar
 readable/
-retriever
 rexx;
 rigor
-rss\b
 scrape
 securityheaders
 selenium
-server
 silktide
 sindup/
-sogou
 sparkler/
 speedcurve
 spider
-splash
 statuscake
 supercleaner
 synapse
-synthetic
 testlocally
-tools
-torrent
-transcoder
 upday/
-url
-validator
 virtuoso
 wappalyzer
 watchtowr

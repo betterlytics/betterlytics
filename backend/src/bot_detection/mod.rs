@@ -8,6 +8,8 @@ use url::Url;
 use uuid::Uuid;
 
 const BOT_PATTERNS: &str = include_str!("bot_patterns.txt");
+const BOT_PATTERNS_LOCAL: &str = include_str!("bot_patterns_local.txt");
+const BOT_PATTERNS_SHADOW: &str = include_str!("bot_patterns_shadow.txt");
 const REFERRER_SPAM_DOMAINS: &str = include_str!("referrer_spam.txt");
 const HOSTING_ASNS: &str = include_str!("hosting_asns.txt");
 
@@ -40,16 +42,21 @@ static REFERRER_SPAM_SET: Lazy<HashSet<&'static str>> = Lazy::new(|| {
         .collect()
 });
 
-static BOT_REGEX: Lazy<Regex> = Lazy::new(|| {
-    let pattern = BOT_PATTERNS
-        .lines()
+fn compile_patterns(sources: &[&'static str]) -> Regex {
+    let pattern = sources
+        .iter()
+        .flat_map(|source| source.lines())
         .filter(|line| !line.is_empty() && !line.starts_with('#'))
         .collect::<Vec<_>>()
         .join("|");
     Regex::new(&format!("(?i)(?:{})", pattern)).expect("vendored bot patterns failed to compile")
-});
+}
+
+static BOT_REGEX: Lazy<Regex> = Lazy::new(|| compile_patterns(&[BOT_PATTERNS, BOT_PATTERNS_LOCAL]));
+static BOT_HEURISTIC_REGEX: Lazy<Regex> = Lazy::new(|| compile_patterns(&[BOT_PATTERNS_SHADOW]));
 
 pub const REASON_UA_BLOCKLIST: &str = "ua-blocklist";
+pub const REASON_UA_HEURISTIC: &str = "ua-heuristic";
 pub const REASON_UA_TOO_SHORT: &str = "ua-too-short";
 pub const REASON_UA_TOO_LONG: &str = "ua-too-long";
 pub const REASON_UA_NON_ASCII: &str = "ua-non-ascii";
@@ -67,6 +74,10 @@ pub const REASON_PREFETCH: &str = "prefetch";
 /// bot_events and counted in metrics, but the event is still
 /// processed as human traffic
 const SHADOW_REASONS: &[&str] = &[
+    // isbot format/generic-word heuristics without competitor precedent: they match
+    // UA shape (or a common English word) rather than a named product, so each needs
+    // shadow evidence before promotion into bot_patterns.txt
+    REASON_UA_HEURISTIC,
     REASON_UA_MISMATCH,
     REASON_UA_TOO_SHORT,
     REASON_UA_TOO_LONG,
@@ -193,6 +204,8 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
     // Fail-open: a regex engine error must never reject a potentially human event
     if BOT_REGEX.is_match(user_agent).unwrap_or(false) {
         reasons.push(REASON_UA_BLOCKLIST);
+    } else if BOT_HEURISTIC_REGEX.is_match(user_agent).unwrap_or(false) {
+        reasons.push(REASON_UA_HEURISTIC);
     }
 
     reasons
@@ -363,6 +376,22 @@ mod tests {
         assert!(detect_ua("192.168.1.1").shadow.contains(&REASON_UA_IP));
         assert!(detect_ua("203.0.113.7:8080").shadow.contains(&REASON_UA_IP));
         assert!(detect_ua("550e8400-e29b-41d4-a716-446655440000").shadow.contains(&REASON_UA_UUID));
+    }
+
+    #[test]
+    fn heuristic_patterns_are_shadow_flagged() {
+        // Caught only by a demoted generic-word heuristic ("download"), not by any
+        // named signature: recorded but never rejected
+        let detection = detect_ua("Mozilla/5.0 (Windows NT 10.0; Win64; x64) SuperDownloader Deluxe");
+        assert_eq!(detection.shadow, vec![REASON_UA_HEURISTIC]);
+        assert!(detection.enforcing.is_empty());
+        assert!(!detection.should_reject());
+        assert_eq!(detection.tagged_reasons(), vec!["shadow:ua-heuristic"]);
+
+        // An enforced signature match suppresses the redundant heuristic tag
+        let enforced = detect_ua(BOT_USER_AGENTS[0]);
+        assert!(enforced.enforcing.contains(&REASON_UA_BLOCKLIST));
+        assert!(!enforced.shadow.contains(&REASON_UA_HEURISTIC));
     }
 
     #[test]
