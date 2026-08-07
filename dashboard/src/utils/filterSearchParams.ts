@@ -1,6 +1,7 @@
 import {
   type FilterQueryParams,
   FilterQueryParamsSchema,
+  sanitizeQueryFilters,
   type FilterQuerySearchParams,
 } from '@/entities/analytics/filterQueryParams.entities';
 import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -210,9 +211,16 @@ function enforceGranularityAndDuration(
 function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQuery {
   const defaultFilters = getDefaultFilters();
 
+  /* A param that fails to decode falls back to its default instead of discarding the rest. */
   const decodedEntries = Object.entries(params)
     .filter(([key]) => key in defaultFilters)
-    .map(([key, value]) => [key, decodeValue(key as keyof FilterQueryParams, value, timezone)]);
+    .flatMap(([key, value]) => {
+      try {
+        return [[key, decodeValue(key as keyof FilterQueryParams, value, timezone)] as const];
+      } catch {
+        return [];
+      }
+    });
 
   const decoded = Object.fromEntries(decodedEntries) as Partial<FilterQueryParams>;
 
@@ -220,6 +228,7 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
     ...defaultFilters,
     ...decoded,
   };
+  filters.queryFilters = sanitizeQueryFilters(filters.queryFilters);
 
   const enforced = enforceGranularityAndDuration(timezone, {
     interval: filters.interval,

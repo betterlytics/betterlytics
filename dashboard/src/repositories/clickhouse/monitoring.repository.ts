@@ -20,10 +20,13 @@ import {
   type MonitorLatencyPoint,
   MonitorIncidentSegmentSchema,
   type MonitorIncidentSegment,
+  MonitorIncidentRecordSchema,
+  type MonitorIncidentRecord,
+  type IncidentState,
   DetectedOutageRowSchema,
   type DetectedOutageRow,
 } from '@/entities/analytics/monitoring.entities';
-import { toIsoUtc } from '@/utils/dateHelpers';
+import { parseClickHouseDate, toIsoUtc } from '@/utils/dateHelpers';
 import { groupByKey } from '@/utils/collections';
 
 type UptimeBucketRow = { date: string; uptime_seconds: number | null; total_seconds: number };
@@ -50,7 +53,10 @@ function parseIncidentSegmentRow(row: IncidentSegmentRow): MonitorIncidentSegmen
     reason: row.reason_code,
     start: toIsoUtc(row.started_at) ?? row.started_at,
     end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-    durationMs: row.started_at && end ? new Date(end).getTime() - new Date(row.started_at).getTime() : null,
+    durationMs:
+      row.started_at && end
+        ? parseClickHouseDate(end).getTime() - parseClickHouseDate(row.started_at).getTime()
+        : null,
   });
 }
 
@@ -557,6 +563,179 @@ export async function getIncidentSegmentsForMonitors(
   return groupByKey(rows, (row) => row.check_id, parseIncidentSegmentRow);
 }
 
+export async function getUptimeStatsForMonitors(
+  monitors: Array<{ checkId: string; createdAt: Date }>,
+  siteId: string,
+  rangeStart: string,
+  rangeEnd: string,
+): Promise<Map<string, UptimeStats>> {
+  if (!monitors.length) return new Map();
+
+  const checkIds = monitors.map((monitor) => monitor.checkId);
+  const createdAts = monitors.map((monitor) => toDateTimeString(monitor.createdAt));
+
+  const query = safeSql`
+    WITH
+      monitors AS (
+        SELECT
+          tupleElement(pair, 1) AS check_id,
+          tupleElement(pair, 2) AS created_at
+        FROM (
+          SELECT arrayJoin(arrayZip({check_ids:Array(String)}, {created_ats:Array(DateTime)})) AS pair
+        )
+      ),
+      downtime AS (
+        SELECT
+          check_id,
+          sum(
+            greatest(
+              0,
+              dateDiff(
+                'second',
+                greatest(started_at, ${SQL.DateTime({ rangeStart })}),
+                least(coalesce(resolved_at, now()), ${SQL.DateTime({ rangeEnd })})
+              )
+            )
+          ) AS downtime_seconds
+        FROM analytics.monitor_incidents FINAL
+        WHERE check_id IN ({check_ids:Array(String)})
+          AND site_id = {site_id:String}
+          AND kind != 'tls'
+          AND started_at < ${SQL.DateTime({ rangeEnd })}
+          AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
+        GROUP BY check_id
+      )
+    SELECT
+      m.check_id AS check_id,
+      greatest(0, dateDiff(
+        'second',
+        greatest(m.created_at, ${SQL.DateTime({ rangeStart })}),
+        least(now(), ${SQL.DateTime({ rangeEnd })})
+      )) AS total_seconds,
+      coalesce(d.downtime_seconds, 0) AS downtime_seconds
+    FROM monitors AS m
+    LEFT JOIN downtime AS d ON d.check_id = m.check_id
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        check_ids: checkIds,
+        created_ats: createdAts,
+        site_id: siteId,
+      },
+    })
+    .toPromise()) as { check_id: string; total_seconds: number; downtime_seconds: number }[];
+
+  return new Map(
+    rows.map((row) => [
+      row.check_id,
+      UptimeStatsSchema.parse({
+        uptimeSeconds: Math.max(0, row.total_seconds - row.downtime_seconds),
+        totalSeconds: row.total_seconds,
+      }),
+    ]),
+  );
+}
+
+export async function getLatencyStatsForMonitors(
+  checkIds: string[],
+  siteId: string,
+  rangeStart: string,
+  rangeEnd: string,
+): Promise<Map<string, MonitorLatencyStats>> {
+  if (!checkIds.length) return new Map();
+
+  const query = safeSql`
+    SELECT
+      check_id,
+      avg(latency_ms) AS avg_ms,
+      min(latency_ms) AS min_ms,
+      max(latency_ms) AS max_ms
+    FROM analytics.monitor_results
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+      AND kind != 'tls'
+      AND ts >= ${SQL.DateTime({ rangeStart })}
+      AND ts < ${SQL.DateTime({ rangeEnd })}
+      AND latency_ms IS NOT NULL
+    GROUP BY check_id
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
+    })
+    .toPromise()) as {
+    check_id: string;
+    avg_ms: number | null;
+    min_ms: number | null;
+    max_ms: number | null;
+  }[];
+
+  return new Map(
+    rows.map((row) => [
+      row.check_id,
+      MonitorLatencyStatsSchema.parse({ avgMs: row.avg_ms, minMs: row.min_ms, maxMs: row.max_ms }),
+    ]),
+  );
+}
+
+export async function getMonitorIncidentsInRange(
+  checkIds: string[],
+  siteId: string,
+  rangeStart: string,
+  rangeEnd: string,
+  limit: number,
+  state?: IncidentState,
+): Promise<MonitorIncidentRecord[]> {
+  if (!checkIds.length) return [];
+
+  const stateCondition = state ? safeSql`state = ${SQL.String({ state })}` : safeSql`1=1`;
+
+  const query = safeSql`
+    SELECT
+      toString(incident_id) AS incident_id,
+      check_id,
+      state,
+      severity,
+      reason_code,
+      started_at,
+      resolved_at,
+      last_event_at
+    FROM analytics.monitor_incidents FINAL
+    WHERE check_id IN ({check_ids:Array(String)})
+      AND site_id = {site_id:String}
+      AND kind != 'tls'
+      AND started_at < ${SQL.DateTime({ rangeEnd })}
+      AND (resolved_at IS NULL OR resolved_at > ${SQL.DateTime({ rangeStart })})
+      AND ${stateCondition}
+    ORDER BY started_at DESC
+    LIMIT {limit:UInt32}
+  `;
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId, limit },
+    })
+    .toPromise()) as (IncidentSegmentRow & { incident_id: string; check_id: string; severity: string })[];
+
+  return rows.map((row) => {
+    // An ongoing incident has no resolved_at, so its duration so far runs to the latest failing check.
+    const end = row.resolved_at ?? row.last_event_at;
+    return MonitorIncidentRecordSchema.parse({
+      incidentId: row.incident_id,
+      monitorCheckId: row.check_id,
+      state: row.state,
+      severity: row.severity,
+      reason: row.reason_code,
+      startedAt: toIsoUtc(row.started_at) ?? row.started_at,
+      resolvedAt: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
+      durationMs: end ? parseClickHouseDate(end).getTime() - parseClickHouseDate(row.started_at).getTime() : null,
+    });
+  });
+}
 
 /**
  * Detected outages to suggest as incidents: ongoing ones, plus recently-recovered ones (within

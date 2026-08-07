@@ -78,9 +78,9 @@ pub struct EventProcessor {
 }
 
 impl EventProcessor {
-    pub fn new(geoip_service: GeoIpService) -> (Self, mpsc::Receiver<ProcessedEvent>) {
-        let (event_tx, event_rx) = mpsc::channel(100_000);
-        (Self { event_tx, geoip_service }, event_rx)
+    /// `event_tx` is the ingest channel consumed by the ClickHouse inserter task.
+    pub fn new(geoip_service: GeoIpService, event_tx: mpsc::Sender<ProcessedEvent>) -> Self {
+        Self { event_tx, geoip_service }
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
@@ -210,7 +210,7 @@ impl EventProcessor {
                     processed.outbound_link_url = outbound_info.url;
                 }
             }
-        } else if event_name.eq_ignore_ascii_case("cwv") {
+        } else if event_name == "cwv" {
             processed.event_type = "cwv".to_string();
             processed.cwv_cls = processed.event.raw.cwv_cls;
             processed.cwv_lcp = processed.event.raw.cwv_lcp;

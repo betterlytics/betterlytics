@@ -1,9 +1,12 @@
+import { useRef, useState } from 'react';
 import { EventTypeRow } from '@/entities/analytics/events.entities';
 import { PropertyRow } from '@/components/events/PropertyRow';
 import { Spinner } from '@/components/ui/spinner';
 import { useTranslations } from 'next-intl';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
+
+const MAX_VISIBLE_PROPERTIES = 10;
 
 interface ExpandedEventContentProps {
   event: EventTypeRow;
@@ -22,6 +25,12 @@ export function ExpandedEventContent({ event, expandedProperties, onToggleProper
     options,
   );
 
+  const [showAllProperties, setShowAllProperties] = useState(false);
+  const togglePropertiesRef = useRef<HTMLButtonElement>(null);
+
+  const properties = propertiesData?.properties ?? [];
+  const visibleProperties = showAllProperties ? properties : properties.slice(0, MAX_VISIBLE_PROPERTIES);
+
   return (
     <div className='bg-muted/20 border-primary/30 border-l-2'>
       {propertiesLoading ? (
@@ -31,18 +40,37 @@ export function ExpandedEventContent({ event, expandedProperties, onToggleProper
           </div>
           <p className='text-muted-foreground text-sm'>{t('loading')}</p>
         </div>
-      ) : propertiesData?.properties.length ? (
+      ) : properties.length ? (
         <div className='py-4 pr-6 pl-8'>
           <div className='space-y-4'>
-            {propertiesData.properties.map((property) => (
+            {visibleProperties.map((property) => (
               <PropertyRow
                 key={property.propertyName}
+                eventName={event.event_name}
                 property={property}
+                maxValues={propertiesData?.maxValues}
                 isExpanded={expandedProperties.has(property.propertyName)}
                 onToggle={() => onToggleProperty(property.propertyName)}
               />
             ))}
           </div>
+
+          {properties.length > MAX_VISIBLE_PROPERTIES && (
+            <button
+              ref={togglePropertiesRef}
+              type='button'
+              className='text-muted-foreground hover:text-foreground mt-3 cursor-pointer px-3 py-1.5 text-xs transition-colors hover:underline'
+              onClick={() => {
+                const collapsing = showAllProperties;
+                setShowAllProperties(!showAllProperties);
+                if (collapsing) {
+                  requestAnimationFrame(() => togglePropertiesRef.current?.scrollIntoView({ block: 'nearest' }));
+                }
+              }}
+            >
+              {showAllProperties ? t('showLess') : t('showAllProperties', { count: properties.length })}
+            </button>
+          )}
         </div>
       ) : (
         <div className='py-12 pl-8 text-center'>

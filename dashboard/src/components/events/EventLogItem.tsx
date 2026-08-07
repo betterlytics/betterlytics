@@ -12,6 +12,7 @@ const MAX_PROPERTIES_DISPLAY = 3;
 
 interface EventLogItemProps {
   event: EventLogEntry;
+  now?: number;
   isNearEnd?: boolean;
   onRef?: (node: HTMLDivElement | null) => void;
   icon?: LucideIcon;
@@ -68,12 +69,15 @@ MetadataItem.displayName = 'MetadataItem';
 
 export const EventLogItem = React.memo(function EventLogItem({
   event,
+  now,
   isNearEnd,
   onRef,
   icon,
 }: EventLogItemProps) {
   const locale = useLocale();
   const EventIcon = React.useMemo(() => icon ?? Activity, [icon]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const relativeTime = React.useMemo(() => formatRelativeTimeFromNow(event.timestamp), [event.timestamp, now]);
 
   return (
     <div
@@ -91,7 +95,7 @@ export const EventLogItem = React.memo(function EventLogItem({
               <span className='text-foreground text-sm leading-tight font-semibold'>{event.event_name}</span>
               <div className='bg-muted-foreground/40 h-1 w-1 rounded-full' />
               <Badge variant='secondary' className='border-border border text-xs font-medium shadow-xs'>
-                {formatRelativeTimeFromNow(event.timestamp)}
+                {relativeTime}
               </Badge>
             </div>
           </div>

@@ -2427,7 +2427,8 @@
         "waiting": "Waiting for events...",
         "realTimeDesc": "Events will appear here in real-time as they occur",
         "loadingMore": "Loading more events...",
-        "noEvents": "No events found",
+        "endOfLog": "You've reached the end of the event log",
+        "newEvents": "{count, plural, one {{count} new event} other {{count} new events}}",
         "showingAll": "Showing all {count} events",
         "showingPartial": "Showing {loaded} of {total} events",
         "title": "Event Log",
@@ -2444,13 +2445,20 @@
         "noEvents": "No events found",
         "noEventsDesc": "No custom events were tracked during this time period. Events will appear here once they start being recorded.",
         "eventDetails": "Event Details",
+        "searchPlaceholder": "Search events...",
+        "emptySearch": "No events match your search.",
         "uniqueEvent": "Unique Event",
         "uniqueEvents": "Unique Events"
       },
       "expandedEventContent": {
         "loading": "Loading properties...",
         "noProperties": "No Properties",
-        "noPropertiesDesc": "This event has no custom properties."
+        "noPropertiesDesc": "This event has no custom properties.",
+        "showAllValues": "Show all {count} values",
+        "showTopValues": "Show top {shown} of {total} values",
+        "showAllProperties": "Show all {count} properties",
+        "showLess": "Show less",
+        "valuesCapped": "Showing top {shown} of {total} values"
       }
     },
     "tabbedTable": {
@@ -2462,6 +2470,7 @@
       "is": "is",
       "isNot": "is not",
       "globalProperties": "{count, plural, one {Global Property} other {Global Properties}}",
+      "customEventProperties": "{count, plural, one {Custom Event Property} other {Custom Event Properties}}",
       "selectProperty": "Select property",
       "noProperties": "No properties found",
       "namePlaceholder": "Enter step name",
@@ -3695,7 +3704,17 @@
       "creating": "Creating...",
       "newTokenNotice": "Copy this token now. You won't be able to see it again.",
       "created": "Created {date}",
-      "lastUsed": "Last used {date}"
+      "lastUsed": "Last used {date}",
+      "expirationLabel": "Expiration",
+      "lifetime": {
+        "30d": "30 days",
+        "90d": "90 days",
+        "180d": "180 days",
+        "never": "No expiry"
+      },
+      "expires": "Expires {date}",
+      "expired": "Expired {date}",
+      "neverExpires": "Never expires"
     },
     "toast": {
       "created": "Token created",

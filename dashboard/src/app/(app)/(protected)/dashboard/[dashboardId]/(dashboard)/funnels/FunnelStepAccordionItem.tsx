@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
+import { type PropertyKeysBySource } from '@/entities/analytics/propertySources';
 import type { FunnelStep } from '@/entities/analytics/funnels.entities';
 import { cn } from '@/lib/utils';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
@@ -26,7 +27,7 @@ type FunnelStepAccordionItemProps = {
   canRemoveStep: boolean;
   onUpdate: (next: FunnelStep) => void;
   onRequestRemoval: (id: string) => void;
-  globalPropertyKeys?: string[];
+  propertyKeys?: PropertyKeysBySource;
   userInitiatedOpenRef: RefObject<string | null>;
   appendedStepIdRef: RefObject<string | null>;
 };
@@ -38,7 +39,7 @@ function FunnelStepAccordionItemComponent({
   canRemoveStep,
   onUpdate,
   onRequestRemoval,
-  globalPropertyKeys,
+  propertyKeys,
   userInitiatedOpenRef,
   appendedStepIdRef,
 }: FunnelStepAccordionItemProps) {
@@ -297,7 +298,7 @@ function FunnelStepAccordionItemComponent({
           <FunnelStepFiltersEditor
             filters={step.filters}
             onChange={handleFiltersChange}
-            globalPropertyKeys={globalPropertyKeys}
+            propertyKeys={propertyKeys}
             showEmptyValueErrors={showFilterEmptyError}
           />
         </AccordionContent>

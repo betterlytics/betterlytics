@@ -8,16 +8,24 @@ import {
   getMcpTokensForDashboard,
   removeMcpToken,
 } from '@/services/dashboard/mcpToken.service';
+import { McpTokenLifetime, McpTokenLifetimeSchema } from '@/entities/dashboard/mcpToken.entities';
 
 export const getMcpTokensAction = withDashboardAuthContext(async (ctx: AuthContext) => {
   return await getMcpTokensForDashboard(ctx.dashboardId);
 });
 
-export const createMcpTokenAction = withDashboardMutationAuthContext(async (ctx: AuthContext, name: string) => {
-  const token = await createMcpTokenForDashboard(ctx.dashboardId, name, ctx.userId);
-  revalidatePath(`/dashboard/${ctx.dashboardId}/settings/mcp`);
-  return token;
-});
+export const createMcpTokenAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, name: string, lifetime: McpTokenLifetime) => {
+    const token = await createMcpTokenForDashboard(
+      ctx.dashboardId,
+      name,
+      ctx.userId,
+      McpTokenLifetimeSchema.parse(lifetime),
+    );
+    revalidatePath(`/dashboard/${ctx.dashboardId}/settings/mcp`);
+    return token;
+  },
+);
 
 export const deleteMcpTokenAction = withDashboardMutationAuthContext(async (ctx: AuthContext, tokenId: string) => {
   await removeMcpToken(tokenId, ctx.dashboardId);
