@@ -5,6 +5,7 @@ import { withUserAuth, withDashboardAuthContext, withDashboardMutationAuthContex
 import {
   createNewDashboard,
   getAllUserDashboards,
+  getSoleUserDashboard,
   updateDashboardDomain,
 } from '@/services/dashboard/dashboard.service';
 import {
@@ -36,6 +37,10 @@ export const deleteDashboardAction = withDashboardMutationAuthContext(
 
 export const getFirstUserDashboardAction = withUserAuth(async (user: User): Promise<Dashboard | null> => {
   return findFirstUserDashboard(user.id);
+});
+
+export const getSoleUserDashboardAction = withUserAuth(async (user: User): Promise<Dashboard | null> => {
+  return getSoleUserDashboard(user.id);
 });
 
 export const getAllUserDashboardsAction = withUserAuth(async (user: User): Promise<DashboardWithMemberCount[]> => {

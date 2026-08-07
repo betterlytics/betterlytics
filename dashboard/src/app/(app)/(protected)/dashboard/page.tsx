@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation';
-import { getFirstUserDashboardAction } from '@/app/actions/index.actions';
+import { getSoleUserDashboardAction } from '@/app/actions/index.actions';
 
 export default async function DashboardPage() {
-  const dashboard = await getFirstUserDashboardAction();
+  const dashboard = await getSoleUserDashboardAction();
 
   if (!dashboard.success || dashboard.data === null) {
     redirect(`/dashboards`);

@@ -5,6 +5,7 @@ import {
   createDashboard,
   findAllUserDashboards,
   findOwnedDashboards,
+  findSoleUserDashboard,
   updateDashboardDomain as updateDashboardDomainRepo,
 } from '@/repositories/postgres/dashboard.repository';
 import { generateSiteId } from '@/lib/site-id-generator';
@@ -20,6 +21,10 @@ export async function createNewDashboard(domain: string, userId: string): Promis
 
 export async function getAllUserDashboards(userId: string): Promise<DashboardWithMemberCount[]> {
   return findAllUserDashboards(userId);
+}
+
+export async function getSoleUserDashboard(userId: string): Promise<Dashboard | null> {
+  return findSoleUserDashboard(userId);
 }
 
 export async function getOwnedDashboards(userId: string): Promise<Dashboard[]> {

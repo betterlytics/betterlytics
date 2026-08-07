@@ -85,6 +85,30 @@ export async function findFirstUserDashboard(userId: string): Promise<Dashboard 
   }
 }
 
+export async function findSoleUserDashboard(userId: string): Promise<Dashboard | null> {
+  try {
+    const prismaUserDashboards = await prisma.userDashboard.findMany({
+      where: {
+        userId,
+        dashboard: { deletedAt: null },
+      },
+      include: {
+        dashboard: true,
+      },
+      take: 2,
+    });
+
+    if (prismaUserDashboards.length !== 1) {
+      return null;
+    }
+
+    return DashboardSchema.parse(prismaUserDashboards[0].dashboard);
+  } catch {
+    console.error("Error while finding user's sole dashboard");
+    throw new Error('Failed to find dashboard');
+  }
+}
+
 export async function findAllUserDashboards(userId: string): Promise<DashboardWithMemberCount[]> {
   try {
     const prismaUserDashboards = await prisma.userDashboard.findMany({
