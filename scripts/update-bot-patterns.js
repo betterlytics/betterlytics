@@ -11,7 +11,7 @@ const LOCAL_FILE = path.join(DIR, "bot_patterns_local.txt");
 function readPatterns(file) {
   return fs
     .readFileSync(file, "utf8")
-    .split("\n")
+    .split(/\r?\n/)
     .filter((line) => line && !line.startsWith("#"));
 }
 
