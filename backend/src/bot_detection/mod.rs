@@ -49,7 +49,6 @@ static BOT_REGEX: Lazy<Regex> = Lazy::new(|| {
     Regex::new(&format!("(?i)(?:{})", pattern)).expect("vendored bot patterns failed to compile")
 });
 
-pub const REASON_UA_EMPTY: &str = "ua-empty";
 pub const REASON_UA_BLOCKLIST: &str = "ua-blocklist";
 pub const REASON_UA_TOO_SHORT: &str = "ua-too-short";
 pub const REASON_UA_TOO_LONG: &str = "ua-too-long";
@@ -82,6 +81,9 @@ const SHADOW_REASONS: &[&str] = &[
     // A prerendered page that the user then activates IS a real visit, and the tracker
     // does not fire again on activation. Dropping these would lose genuine pageviews
     REASON_PREFETCH,
+    // No other analytics vendor filters on screen dimensions; the upper bound in
+    // particular is a guess that future high-resolution displays could exceed
+    REASON_IMPOSSIBLE_RESOLUTION,
 ];
 
 pub struct Detection {
@@ -141,10 +143,6 @@ pub fn detect(input: &DetectionInput) -> Detection {
 
 fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
     let user_agent = input.user_agent;
-    if user_agent.is_empty() {
-        return vec![REASON_UA_EMPTY];
-    }
-
     let mut reasons = Vec::new();
 
     // A real browser sends the same string as the User-Agent header and navigator.userAgent
@@ -393,13 +391,6 @@ mod tests {
     }
 
     #[test]
-    fn empty_user_agent_is_bot() {
-        let detection = detect_ua("");
-        assert_eq!(detection.enforcing, vec![REASON_UA_EMPTY]);
-        assert!(detection.should_reject());
-    }
-
-    #[test]
     fn detects_client_automation_signal() {
         let flagged = detect(&DetectionInput {
             user_agent: HUMAN_USER_AGENTS[0],
@@ -470,9 +461,10 @@ mod tests {
             })
         };
 
-        assert_eq!(detect_res("0x0").enforcing, vec![REASON_IMPOSSIBLE_RESOLUTION]);
-        assert_eq!(detect_res("0x1080").enforcing, vec![REASON_IMPOSSIBLE_RESOLUTION]);
-        assert_eq!(detect_res("99999x99999").enforcing, vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert_eq!(detect_res("0x0").shadow, vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert_eq!(detect_res("0x1080").shadow, vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert_eq!(detect_res("99999x99999").shadow, vec![REASON_IMPOSSIBLE_RESOLUTION]);
+        assert!(!detect_res("0x0").should_reject());
         assert!(detect_res("1920x1080").is_empty());
         assert!(detect_res("390x844").is_empty());
         assert!(detect_res("7680x4320").is_empty());
