@@ -2,6 +2,8 @@
   --color-surface-sunken: var(--surface-sunken);
   --color-content-secondary: var(--content-secondary);
   --color-content-on-accent: var(--content-on-accent);
+  --color-content-on-neutral: var(--content-on-neutral);
+  --color-content-on-warning: var(--content-on-warning);
   --color-border-default: var(--border-default);
   --color-accent-base: var(--accent-base);
   --color-accent-surface: var(--accent-surface);
