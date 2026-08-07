@@ -5,11 +5,9 @@ import { getUserUsageBreakdown } from '@/actions/billing.action';
 
 const USAGE_BREAKDOWN_QUERY_KEY = ['userUsageBreakdown'] as const;
 
-/** Fetches only once `enabled` flips true, so the collapsed breakdown costs nothing. */
-export function useUsageBreakdown(enabled: boolean) {
+export function useUsageBreakdown() {
   const query = useQuery({
     queryKey: USAGE_BREAKDOWN_QUERY_KEY,
-    enabled,
     queryFn: async () => {
       const result = await getUserUsageBreakdown();
       if (!result.success) {

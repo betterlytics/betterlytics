@@ -2959,11 +2959,10 @@
           "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
           "resetsInDays": "Tilbakestilles om {days} dager",
           "breakdown": {
-            "trigger": "Se hva kvoten din går til",
             "byType": "Etter type",
             "bySite": "Etter nettsted",
             "showAllSites": "{count, plural, one {Vis # nettsted til} other {Vis # flere nettsteder}}",
-            "nonBillableNote": "Måling av tid på siden og rulledybde teller ikke med i kvoten din.",
+            "nonBillableNote": "Tid på siden og rulledybde måles som separate hendelser, men teller ikke med i kvoten din.",
             "loadError": "Kunne ikke laste forbruksoversikten.",
             "empty": "Ingen fakturerbare hendelser registrert i denne perioden ennå.",
             "eventTypes": {
@@ -2973,7 +2972,8 @@
               "outbound_link": "Utgående lenker",
               "client_error": "Feil"
             },
-            "showFewerSites": "Vis færre nettsteder"
+            "showFewerSites": "Vis færre nettsteder",
+            "otherSites": "{count, plural, one {Andre (# nettsted)} other {Andre (# nettsteder)}}"
           }
         },
         "payment": {

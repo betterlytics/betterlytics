@@ -7,15 +7,12 @@ import { useBillingData } from '@/hooks/useBillingData';
 import { useBillingFlow } from '@/contexts/BillingFlowProvider';
 import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
 import { CancelSubscriptionDialog } from '@/components/billing/CancelSubscriptionDialog';
-import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PlanStatusBadge } from '@/components/billing/PlanStatusBadge';
 import { SubscriptionStatusBanner } from '@/components/billing/SubscriptionStatusBanner';
-import UsageBreakdown from '@/components/billing/UsageBreakdown';
-import { UsageRow } from '@/components/billing/UsageRow';
+import UserBillingUsageSettings from './UserBillingUsageSettings';
 import { formatPrice } from '@/utils/pricing';
-import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { derivePlanStatus } from '@/lib/billing/subscription-status';
 import UserSettingsSection from '../shared/UserSettingsSection';
 import SettingRow from '../shared/SettingRow';
@@ -121,30 +118,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
         />
       </UserSettingsSection>
 
-      <UserSettingsSection title={t('usage.title')}>
-        <div>
-          <UsageRow
-            percentageOfLimit={usage.usagePercentage}
-            valueClassName={usage.isOverLimit ? 'text-destructive font-medium' : undefined}
-            label={
-              <div className='space-y-1'>
-                <div className='text-sm font-medium'>{t('usage.eventsLabel')}</div>
-                <p className='text-muted-foreground text-xs'>
-                  {t('usage.resetsInDays', { days: usage.daysUntilReset })}
-                </p>
-              </div>
-            }
-            value={t.rich('usage.eventsUsed', {
-              current: formatNumber(usage.current, locale),
-              limit: formatNumber(usage.limit, locale),
-              percentage: formatPercentage(usage.usagePercentage, locale),
-              muted: (chunks) => <span className='text-muted-foreground'>{chunks}</span>,
-            })}
-          />
-
-          <UsageBreakdown />
-        </div>
-      </UserSettingsSection>
+      <UserBillingUsageSettings usage={usage} />
 
       {isPaid && (
         <UserSettingsSection title={t('payment.title')}>

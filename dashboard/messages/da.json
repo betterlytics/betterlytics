@@ -2959,11 +2959,10 @@
           "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
           "resetsInDays": "Nulstilles om {days} dage",
           "breakdown": {
-            "trigger": "Se hvad din kvote går til",
             "byType": "Efter type",
             "bySite": "Efter side",
             "showAllSites": "{count, plural, one {Vis # side mere} other {Vis # flere sider}}",
-            "nonBillableNote": "Måling af tid på siden og scrolldybde tæller ikke med i din kvote.",
+            "nonBillableNote": "Tid på siden og scrolldybde måles som separate events, men tæller ikke med i din kvote.",
             "loadError": "Kunne ikke indlæse dit forbrugsoverblik.",
             "empty": "Ingen betalbare events registreret i denne periode endnu.",
             "eventTypes": {
@@ -2973,7 +2972,8 @@
               "outbound_link": "Udgående links",
               "client_error": "Fejl"
             },
-            "showFewerSites": "Vis færre sider"
+            "showFewerSites": "Vis færre sider",
+            "otherSites": "{count, plural, one {Andre (# side)} other {Andre (# sider)}}"
           }
         },
         "payment": {
