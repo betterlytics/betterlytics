@@ -2962,6 +2962,8 @@
             "byType": "Etter type",
             "bySite": "Etter nettsted",
             "showAllSites": "{count, plural, one {Vis # nettsted til} other {Vis # flere nettsteder}}",
+            "showFewerSites": "Vis færre nettsteder",
+            "otherSites": "{count, plural, one {Andre (# nettsted)} other {Andre (# nettsteder)}}",
             "nonBillableNote": "Tid på siden og rulledybde måles som separate hendelser, men teller ikke med i kvoten din.",
             "loadError": "Kunne ikke laste forbruksoversikten.",
             "empty": "Ingen fakturerbare hendelser registrert i denne perioden ennå.",
@@ -2971,9 +2973,7 @@
               "cwv": "Core Web Vitals",
               "outbound_link": "Utgående lenker",
               "client_error": "Feil"
-            },
-            "showFewerSites": "Vis færre nettsteder",
-            "otherSites": "{count, plural, one {Andre (# nettsted)} other {Andre (# nettsteder)}}"
+            }
           }
         },
         "payment": {

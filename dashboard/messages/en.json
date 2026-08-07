@@ -2959,6 +2959,8 @@
             "byType": "By type",
             "bySite": "By site",
             "showAllSites": "{count, plural, one {Show # more site} other {Show # more sites}}",
+            "showFewerSites": "Show fewer sites",
+            "otherSites": "{count, plural, one {Other (# site)} other {Other (# sites)}}",
             "nonBillableNote": "Time on page and scroll depth are tracked as separate events, but don't count toward your quota.",
             "loadError": "Could not load your usage breakdown.",
             "empty": "No billable events recorded yet this period.",
@@ -2968,9 +2970,7 @@
               "cwv": "Core Web Vitals",
               "outbound_link": "Outbound links",
               "client_error": "Errors"
-            },
-            "showFewerSites": "Show fewer sites",
-            "otherSites": "{count, plural, one {Other (# site)} other {Other (# sites)}}"
+            }
           }
         },
         "payment": {

@@ -2962,6 +2962,8 @@
             "byType": "Efter type",
             "bySite": "Efter side",
             "showAllSites": "{count, plural, one {Vis # side mere} other {Vis # flere sider}}",
+            "showFewerSites": "Vis færre sider",
+            "otherSites": "{count, plural, one {Andre (# side)} other {Andre (# sider)}}",
             "nonBillableNote": "Tid på siden og scrolldybde måles som separate events, men tæller ikke med i din kvote.",
             "loadError": "Kunne ikke indlæse dit forbrugsoverblik.",
             "empty": "Ingen betalbare events registreret i denne periode endnu.",
@@ -2971,9 +2973,7 @@
               "cwv": "Core Web Vitals",
               "outbound_link": "Udgående links",
               "client_error": "Fejl"
-            },
-            "showFewerSites": "Vis færre sider",
-            "otherSites": "{count, plural, one {Andre (# side)} other {Andre (# sider)}}"
+            }
           }
         },
         "payment": {
