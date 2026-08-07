@@ -111,6 +111,14 @@
       window.__nightmare ||
       window.Cypress
     );
+    try {
+      // Headless Chrome hiding navigator.webdriver usually still reports a
+      // "HeadlessChrome" brand in the (Chromium-only) client hints API
+      var brands = (navigator.userAgentData && navigator.userAgentData.brands) || [];
+      for (var b = 0; b < brands.length; b++) {
+        if (/headless/i.test(brands[b].brand)) automation = true;
+      }
+    } catch (e) {}
 
     fetch(serverUrl, {
       method: "POST",
