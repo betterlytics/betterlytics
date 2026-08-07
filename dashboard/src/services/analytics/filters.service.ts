@@ -2,7 +2,7 @@
 
 import {
   type FilterColumn,
-  type QueryFilter,
+  type ScopeFilter,
   dependencyScopeFilters,
   parseFilterColumn,
   PROPERTY_KEY_PATTERN,
@@ -20,7 +20,7 @@ export async function getDistinctValuesForFilterColumn(
   column: FilterColumn,
   search?: string,
   limit?: number,
-  scopeFilters?: QueryFilter[],
+  scopeFilters?: ScopeFilter[],
 ) {
   const parsed = parseFilterColumn(column);
   if (parsed.kind === 'standard') {

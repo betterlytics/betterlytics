@@ -1,5 +1,5 @@
 import { clickhouse } from '@/lib/clickhouse';
-import { type QueryFilter, type TableFilterColumn } from '@/entities/analytics/filter.entities';
+import { type ScopeFilter, type TableFilterColumn } from '@/entities/analytics/filter.entities';
 import { type PropertySourceKind } from '@/entities/analytics/propertySources';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { filterColumnSql } from '@/lib/filter-sql';
@@ -12,7 +12,7 @@ export async function getFilterDistinctValues(
   column: TableFilterColumn,
   limit: number = 50,
   search?: string,
-  scopeFilters: QueryFilter[] = [],
+  scopeFilters: ScopeFilter[] = [],
 ): Promise<string[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
 
