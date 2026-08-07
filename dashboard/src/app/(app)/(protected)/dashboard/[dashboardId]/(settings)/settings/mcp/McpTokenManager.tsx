@@ -4,12 +4,18 @@ import { useState, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { createMcpTokenAction, deleteMcpTokenAction } from '@/app/actions/dashboard/mcpToken.action';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { useLocale, useTranslations } from 'next-intl';
-import { McpTokenListItem } from '@/entities/dashboard/mcpToken.entities';
+import {
+  DEFAULT_MCP_TOKEN_LIFETIME,
+  McpTokenLifetime,
+  McpTokenLifetimeSchema,
+  McpTokenListItem,
+} from '@/entities/dashboard/mcpToken.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 interface McpTokenManagerProps {
@@ -21,6 +27,7 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
   const t = useTranslations('mcp');
   const locale = useLocale();
   const [name, setName] = useState('');
+  const [lifetime, setLifetime] = useState<McpTokenLifetime>(DEFAULT_MCP_TOKEN_LIFETIME);
   const [isPending, startTransition] = useTransition();
   const [newlyCreatedToken, setNewlyCreatedToken] = useState<{ id: string; plainToken: string } | null>(null);
   const [copied, setCopied] = useState(false);
@@ -32,7 +39,7 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
 
     startTransition(async () => {
       try {
-        const created = await createMcpTokenAction(dashboardId, trimmed);
+        const created = await createMcpTokenAction(dashboardId, trimmed, lifetime);
         setNewlyCreatedToken({ id: created.id, plainToken: created.plainToken });
         setName('');
         toast.success(t('toast.created'));
@@ -64,6 +71,8 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
 
   const formatDate = (date: Date) =>
     formatLocalDateTime(date, locale, { year: 'numeric', month: 'short', day: 'numeric' }) ?? '';
+
+  const isExpired = (token: McpTokenListItem) => token.expiresAt !== null && token.expiresAt < new Date();
 
   return (
     <div className='space-y-4'>
@@ -98,6 +107,21 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
             onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
           />
         </div>
+        <div className='space-y-1.5'>
+          <Label className='text-muted-foreground'>{t('settings.expirationLabel')}</Label>
+          <Select value={lifetime} onValueChange={(value) => setLifetime(value as McpTokenLifetime)}>
+            <SelectTrigger className='w-full cursor-pointer sm:w-40'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {McpTokenLifetimeSchema.options.map((option) => (
+                <SelectItem key={option} value={option} className='cursor-pointer'>
+                  {t(`settings.lifetime.${option}`)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <Button onClick={handleCreate} disabled={!name.trim() || isPending} className='cursor-pointer sm:w-auto'>
           <Plus className='size-4' />
           {isPending ? t('settings.creating') : t('settings.createButton')}
@@ -113,6 +137,16 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
                 <p className='text-muted-foreground text-xs'>
                   {t('settings.created', { date: formatDate(tkn.createdAt) })}
                   {tkn.lastUsedAt && <> · {t('settings.lastUsed', { date: formatDate(tkn.lastUsedAt) })}</>}
+                  {' · '}
+                  {tkn.expiresAt === null ? (
+                    t('settings.neverExpires')
+                  ) : isExpired(tkn) ? (
+                    <span className='text-destructive font-medium'>
+                      {t('settings.expired', { date: formatDate(tkn.expiresAt) })}
+                    </span>
+                  ) : (
+                    t('settings.expires', { date: formatDate(tkn.expiresAt) })
+                  )}
                 </p>
               </div>
               <Button

@@ -7,26 +7,32 @@ import { mcpRateLimitHitsTotal } from '@/mcp/metrics';
 
 export const runtime = 'nodejs';
 
+const MCP_REALM = 'betterlytics-mcp';
+
 function extractBearerToken(req: NextRequest): string | null {
   const auth = req.headers.get('authorization');
   if (!auth?.startsWith('Bearer ')) return null;
   return auth.slice(7);
 }
 
+function unauthorized(message: string, challenge: string) {
+  return Response.json(
+    { jsonrpc: '2.0', error: { code: -32001, message }, id: null },
+    { status: 401, headers: { 'WWW-Authenticate': challenge } },
+  );
+}
+
 export async function POST(req: NextRequest) {
   const token = extractBearerToken(req);
   if (!token) {
-    return Response.json(
-      { jsonrpc: '2.0', error: { code: -32001, message: 'Missing Authorization header' }, id: null },
-      { status: 401 },
-    );
+    return unauthorized('Missing Authorization header', `Bearer realm="${MCP_REALM}"`);
   }
 
   const result = await validateToken(token);
   if (!result.valid) {
-    return Response.json(
-      { jsonrpc: '2.0', error: { code: -32001, message: result.reason }, id: null },
-      { status: 401 },
+    return unauthorized(
+      result.reason,
+      `Bearer realm="${MCP_REALM}", error="invalid_token", error_description="${result.reason}"`,
     );
   }
 

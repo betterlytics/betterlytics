@@ -71,13 +71,6 @@ function buildHourlyMvFilters(
       return presenceCheck;
     }
 
-    const hasWildcard = filter.values.some((v) => v.includes('*'));
-
-    if (!hasWildcard) {
-      const values = SQL.StringArray({ [`hourly_mv_filter_${i}`]: filter.values });
-      return filter.operator === '=' ? safeSql`${col} IN ${values}` : safeSql`${col} NOT IN ${values}`;
-    }
-
     const patterns = SQL.StringArray({
       [`hourly_mv_filter_${i}`]: filter.values.map((v) => v.replaceAll('*', '%')),
     });

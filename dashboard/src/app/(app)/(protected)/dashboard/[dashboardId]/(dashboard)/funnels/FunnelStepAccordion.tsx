@@ -20,6 +20,7 @@ import { reorderOnDragEnd, useDndDraggingClass, useSortableSensors } from '@/com
 import { Accordion } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { createEmptyQueryFilter } from '@/entities/analytics/filter.entities';
+import { type PropertyKeysBySource } from '@/entities/analytics/propertySources';
 import type { FunnelStep } from '@/entities/analytics/funnels.entities';
 import { cn } from '@/lib/utils';
 
@@ -42,7 +43,7 @@ type FunnelStepAccordionProps = {
   onReorder: (next: FunnelStep[]) => void;
   onUpdateStep: (step: FunnelStep) => void;
   onRemoveStep: (id: string) => void;
-  globalPropertyKeys?: string[];
+  propertyKeys?: PropertyKeysBySource;
   hasAttemptedSubmit: boolean;
   className?: string;
   listRef?: Ref<HTMLDivElement>;
@@ -56,7 +57,7 @@ export function FunnelStepAccordion({
   onReorder,
   onUpdateStep,
   onRemoveStep,
-  globalPropertyKeys,
+  propertyKeys,
   hasAttemptedSubmit,
   className,
   listRef,
@@ -253,7 +254,7 @@ export function FunnelStepAccordion({
                 canRemoveStep={steps.length > 2}
                 onUpdate={onUpdateStep}
                 onRequestRemoval={handleRequestRemoval}
-                globalPropertyKeys={globalPropertyKeys}
+                propertyKeys={propertyKeys}
                 userInitiatedOpenRef={userInitiatedOpenRef}
                 appendedStepIdRef={appendedStepIdRef}
               />

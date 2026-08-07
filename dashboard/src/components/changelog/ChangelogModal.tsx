@@ -122,13 +122,16 @@ function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogMo
               </DialogHeader>
             </div>
 
-            <ScrollArea className='h-full min-h-0'>
-              <section className='text-muted-foreground/90 space-y-3 px-4 py-4 text-[0.8rem] leading-5 sm:space-y-4 sm:px-5 sm:py-6 sm:text-sm sm:leading-6 md:px-6'>
-                <div className='[&_a]:text-primary [&_h2]:text-foreground [&_li]:marker:text-muted-foreground [&_section+section]:border-border/40 space-y-4 [&_a]:underline [&_h2]:text-[0.7rem] [&_h2]:font-semibold [&_h2]:tracking-[0.35em] [&_h2]:uppercase [&_section+section]:mt-4 [&_section+section]:border-t [&_section+section]:pt-4'>
-                  <Content />
-                </div>
-              </section>
-            </ScrollArea>
+            <div className='relative min-h-0'>
+              <ScrollArea className='h-full'>
+                <section className='text-muted-foreground/90 space-y-3 px-4 py-4 text-[0.8rem] leading-5 sm:space-y-4 sm:px-5 sm:py-6 sm:text-sm sm:leading-6 md:px-6'>
+                  <div className='[&_a]:text-primary [&_h2]:text-foreground [&_li]:marker:text-muted-foreground [&_section+section]:border-border/40 space-y-4 [&_a]:underline [&_h2]:text-[0.7rem] [&_h2]:font-semibold [&_h2]:tracking-[0.35em] [&_h2]:uppercase [&_section+section]:mt-4 [&_section+section]:border-t [&_section+section]:pt-4'>
+                    <Content />
+                  </div>
+                </section>
+              </ScrollArea>
+              <div className='from-background pointer-events-none absolute right-2.5 bottom-0 left-0 h-6 bg-gradient-to-t to-transparent sm:h-8' />
+            </div>
 
             <DialogFooter className='border-border/60 bg-muted/30 text-muted-foreground flex shrink-0 flex-col gap-3 rounded-b-[24px] border-t px-4 py-4 text-left text-[0.7rem] sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-5 md:px-6'>
               <p className='text-muted-foreground/80 max-w-sm text-[0.7rem] leading-snug sm:max-w-md'>
