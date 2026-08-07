@@ -62,11 +62,11 @@ pub const REASON_REFERRER_SPAM: &str = "referrer-spam";
 pub const REASON_CLIENT_AUTOMATION: &str = "client-automation";
 pub const REASON_BOT_NETWORK: &str = "bot-network";
 pub const REASON_HOSTING_NETWORK: &str = "hosting-network";
+pub const REASON_PREFETCH: &str = "prefetch";
 
 /// Rules without proven precedent run in shadow mode: their hits are recorded to
-/// bot_events (prefixed "shadow:") and counted in metrics, but the event is still
-/// processed as human traffic. Promote a rule only after its recorded hits have
-/// been reviewed for false positives.
+/// bot_events and counted in metrics, but the event is still
+/// processed as human traffic
 const SHADOW_REASONS: &[&str] = &[
     REASON_UA_MISMATCH,
     REASON_UA_TOO_SHORT,
@@ -74,12 +74,14 @@ const SHADOW_REASONS: &[&str] = &[
     REASON_UA_NON_ASCII,
     REASON_UA_IP,
     REASON_UA_UUID,
-    // Hosting ASNs carry real humans too (VPN egress, iCloud Private Relay,
-    // corporate proxies) — never promote without an egress allowlist or corroboration
+    // Hosting ASNs carry real humans too (VPN egress, iCloud Private Relay, corporate proxies)
     REASON_HOSTING_NETWORK,
     // Near-certain bot networks, but observe before blocking: promote once shadow
     // rows confirm no human-like traffic originates from them
     REASON_BOT_NETWORK,
+    // A prerendered page that the user then activates IS a real visit, and the tracker
+    // does not fire again on activation. Dropping these would lose genuine pageviews
+    REASON_PREFETCH,
 ];
 
 pub struct Detection {
@@ -103,7 +105,6 @@ impl Detection {
         !self.enforcing.is_empty()
     }
 
-    /// All reasons for recording: enforcing ones verbatim, shadow ones prefixed
     pub fn tagged_reasons(&self) -> Vec<String> {
         self.enforcing
             .iter()
@@ -113,7 +114,6 @@ impl Detection {
     }
 }
 
-// Real browser user agents are ~70-150 chars
 const UA_MIN_LENGTH: usize = 17;
 const UA_MAX_LENGTH: usize = 500;
 
@@ -131,6 +131,8 @@ pub struct DetectionInput<'a> {
     pub automation: bool,
     /// Autonomous system number of the client IP (0 = unknown)
     pub asn: u32,
+    /// Request carried a browser speculative-loading header
+    pub prefetch: bool,
 }
 
 pub fn detect(input: &DetectionInput) -> Detection {
@@ -176,6 +178,10 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
 
     if input.automation {
         reasons.push(REASON_CLIENT_AUTOMATION);
+    }
+
+    if input.prefetch {
+        reasons.push(REASON_PREFETCH);
     }
 
     if input.asn != 0 {
@@ -234,8 +240,9 @@ fn is_spam_referrer(referrer: &str) -> bool {
     }
 }
 
-/// Browser speculative loads (prefetch/prerender) execute the tracker but are not real
-/// pageviews; they are dropped entirely rather than recorded as bot traffic.
+/// Detects browser speculative-loading headers. Only prerender actually runs the
+/// tracker (plain prefetch never executes page scripts), and a prerender the user
+/// then activates is a real visit, so this is a shadow signal rather than a reject.
 pub fn is_prefetch(headers: &HeaderMap) -> bool {
     let header_value = |name: &str| {
         headers
@@ -529,5 +536,19 @@ mod tests {
         normal.insert("sec-fetch-mode", "cors".parse().unwrap());
         assert!(!is_prefetch(&normal));
         assert!(!is_prefetch(&HeaderMap::new()));
+    }
+
+    #[test]
+    fn prefetch_is_shadow_only() {
+        let detection = detect(&DetectionInput {
+            user_agent: HUMAN_USER_AGENTS[0],
+            header_user_agent: HUMAN_USER_AGENTS[0],
+            screen_resolution: "1920x1080",
+            prefetch: true,
+            ..Default::default()
+        });
+        assert_eq!(detection.shadow, vec![REASON_PREFETCH]);
+        assert!(!detection.should_reject());
+        assert_eq!(detection.tagged_reasons(), vec!["shadow:prefetch"]);
     }
 }

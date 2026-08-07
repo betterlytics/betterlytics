@@ -335,12 +335,7 @@ async fn track_event(
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
 
-    if bot_detection::is_prefetch(&headers) {
-        if let Some(metrics_collector) = &metrics {
-            metrics_collector.increment_prefetch_dropped();
-        }
-        return Ok(StatusCode::OK);
-    }
+    let prefetch = bot_detection::is_prefetch(&headers);
 
     let ip_address = ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
 
@@ -398,7 +393,12 @@ async fn track_event(
         .unwrap_or_default()
         .to_string();
 
-    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address, header_user_agent);
+    let event = AnalyticsEvent::new(
+        validated_event.raw,
+        validated_event.ip_address,
+        header_user_agent,
+        prefetch,
+    );
 
     if let Err(e) = processor.process_event(event).await {
         error!("Failed to process validated event: {}", e);

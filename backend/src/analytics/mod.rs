@@ -60,14 +60,22 @@ pub struct AnalyticsEvent {
     /// User-Agent HTTP header of the tracking request (as opposed to the
     /// client-supplied `raw.user_agent` from navigator.userAgent)
     pub header_user_agent: String,
+    /// Request carried a browser speculative-loading header
+    pub prefetch: bool,
 }
 
 impl AnalyticsEvent {
-    pub fn new(raw: RawTrackingEvent, ip_address: String, header_user_agent: String) -> Self {
+    pub fn new(
+        raw: RawTrackingEvent,
+        ip_address: String,
+        header_user_agent: String,
+        prefetch: bool,
+    ) -> Self {
         Self {
             raw,
             ip_address,
             header_user_agent,
+            prefetch,
         }
     }
 }

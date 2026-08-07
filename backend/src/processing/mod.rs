@@ -130,6 +130,7 @@ impl EventProcessor {
             referrer: referrer.as_deref().unwrap_or_default(),
             automation: event.raw.automation,
             asn: asn_info.asn,
+            prefetch: event.prefetch,
         });
         if !detection.is_empty() {
             let bot_reasons = detection.tagged_reasons();
