@@ -7,6 +7,7 @@ use axum::{
 };
 use std::sync::Arc;
 use std::net::SocketAddr;
+use std::time::Duration;
 use tower_http::cors::CorsLayer;
 use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -52,6 +53,15 @@ use processing::EventProcessor;
 use site_config::{RefreshConfig, SiteConfigCache, SiteConfigDataSource, SiteConfigRepository};
 use storage::s3::S3Service;
 use validation::{EventValidator, ValidationConfig};
+
+/// Cap on draining buffered events to ClickHouse after the HTTP server stops.
+/// The container stop grace period must comfortably exceed this.
+const SHUTDOWN_DEADLINE: Duration = Duration::from_secs(5);
+
+/// Hard backstop measured from signal receipt so shutdown never depends on
+/// Docker's SIGKILL. Ordering invariant: SHUTDOWN_DEADLINE < WATCHDOG_TIMEOUT
+/// < the container stop grace period (10s Docker default).
+const WATCHDOG_TIMEOUT: Duration = Duration::from_secs(8);
 
 #[tokio::main]
 async fn main() {
@@ -103,7 +113,7 @@ async fn main() {
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
     info!("ClickHouse client initialized");
 
-    let db = Database::new(Arc::clone(&clickhouse), config.clone())
+    let (db, event_tx, inserter_handle) = Database::new(Arc::clone(&clickhouse), config.clone())
         .await
         .expect("Failed to initialize database");
     db.validate_schema().await.expect("Invalid database schema");
@@ -135,8 +145,7 @@ async fn main() {
         None
     };
 
-    let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
-    let processor = Arc::new(processor);
+    let processor = Arc::new(EventProcessor::new(geoip_service, event_tx));
 
     let site_config_pool = Arc::new(
         PostgresPool::new(
@@ -209,15 +218,6 @@ async fn main() {
         }
     };
 
-    let db_clone = db.clone();
-    tokio::spawn(async move {
-        while let Some(processed) = processed_rx.recv().await {
-            if let Err(e) = db_clone.insert_event(processed).await {
-                tracing::error!("Failed to insert processed event: {}", e);
-            }
-        }
-    });
-
 	let mut router = Router::new()
 		.route("/health", get(health_check))
 		.route("/event", post(track_event))
@@ -258,8 +258,61 @@ async fn main() {
         listener,
         app.into_make_service_with_connect_info::<SocketAddr>(),
     )
+    .with_graceful_shutdown(shutdown_signal())
     .await
     .unwrap();
+
+    info!("HTTP server stopped, draining buffered data");
+    let drain = async {
+        match inserter_handle.await {
+            Ok(()) => info!("Ingest pipeline drained, buffered events committed"),
+            Err(e) => error!("Inserter task failed during drain: {}", e),
+        }
+        monitor::clickhouse_writer::flush_all_writers().await;
+    };
+    if tokio::time::timeout(SHUTDOWN_DEADLINE, drain).await.is_err() {
+        error!(
+            "Shutdown deadline of {:?} exceeded, exiting without a full drain",
+            SHUTDOWN_DEADLINE
+        );
+        std::process::exit(1);
+    }
+
+    info!("Shutdown complete");
+}
+
+/// Resolves when SIGTERM (Unix) or Ctrl+C is received.
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("Failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("Failed to install SIGTERM handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => info!("Ctrl+C received, shutting down gracefully"),
+        _ = terminate => info!("SIGTERM received, shutting down gracefully"),
+    }
+
+    tokio::spawn(async {
+        tokio::time::sleep(WATCHDOG_TIMEOUT).await;
+        error!(
+            "Graceful shutdown did not complete within {:?}, forcing exit",
+            WATCHDOG_TIMEOUT
+        );
+        std::process::exit(1);
+    });
 }
 
 /// Warm the session cache from ClickHouse so in-flight sessions survive a restart
