@@ -1,7 +1,7 @@
 'use client';
 
 import { trpc } from '@/trpc/client';
-import { QueryFilter } from '@/entities/analytics/filter.entities';
+import { dependencyScopeFilters, QueryFilter } from '@/entities/analytics/filter.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
@@ -19,6 +19,7 @@ type SearchMetadataResult = {
 type UseQueryFilterSearchOptions = {
   useExtendedRange?: boolean;
   disabled?: boolean;
+  siblingFilters?: QueryFilter[];
 };
 
 export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilterSearchOptions) {
@@ -58,6 +59,15 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     return searchMetadataResult === null || searchMetadataResult.shouldUseServerSearch;
   }, [searchMetadataResult]);
 
+  const scopeFilters = useMemo(
+    () =>
+      dependencyScopeFilters(filter.column, options?.siblingFilters ?? []).map(
+        ({ column, operator, values }) => ({ column, operator, values }),
+      ),
+    [filter.column, options?.siblingFilters],
+  );
+  const scopeKey = useMemo(() => JSON.stringify(scopeFilters), [scopeFilters]);
+
   const { data: fetchedOptions = EMPTY_OPTIONS, isLoading } = trpc.filters.getFilterOptions.useQuery(
     {
       dashboardId,
@@ -65,6 +75,7 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
       column: filter.column,
       search: isDirty ? debouncedSearch || undefined : undefined,
       limit: SEARCH_LIMIT,
+      scopeFilters: scopeFilters.length > 0 ? scopeFilters : undefined,
     },
     {
       staleTime: 5 * 60 * 1000,
@@ -76,7 +87,7 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   useEffect(() => {
     setSearchMetadataResult(null);
     setServerOptions([]);
-  }, [filter.column]);
+  }, [filter.column, scopeKey]);
 
   useEffect(() => {
     if (disabled) return;

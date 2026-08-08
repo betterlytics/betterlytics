@@ -189,6 +189,7 @@ export function QueryFiltersSelectorContent({
                   propertyKeys={propertyKeys}
                   disabled={status.disabled}
                   disabledMessage={getDisabledMessage(status) ?? undefined}
+                  siblingFilters={queryFilters}
                 />
               );
             })}
