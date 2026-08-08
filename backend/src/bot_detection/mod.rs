@@ -96,6 +96,9 @@ pub const REASON_BOT_NETWORK: &str = "bot-network";
 pub const REASON_HOSTING_NETWORK: &str = "hosting-network";
 pub const REASON_PREFETCH: &str = "prefetch";
 pub const REASON_VELOCITY: &str = "velocity";
+pub const REASON_MISSING_CLIENT_HINTS: &str = "missing-client-hints";
+pub const REASON_CLIENT_HINTS_MISMATCH: &str = "client-hints-mismatch";
+pub const REASON_STALE_BROWSER: &str = "stale-browser";
 
 /// Only reasons with ~zero false-positive risk reject events
 const ENFORCING_REASONS: &[&str] = &[
@@ -137,6 +140,12 @@ impl Detection {
 const UA_MIN_LENGTH: usize = 17;
 const UA_MAX_LENGTH: usize = 500;
 
+/// Chromium sends low-entropy client hints on every request since major 89
+const CLIENT_HINTS_MIN_CHROMIUM_MAJOR: u32 = 89;
+/// Desktop Chromium auto-updates; majors older than this are suspect. Starts very
+/// generous (~3 years behind); tighten from shadow data.
+const STALE_DESKTOP_CHROMIUM_MAJOR: u32 = 110;
+
 #[derive(Default)]
 pub struct DetectionInput<'a> {
     /// Client-supplied navigator.userAgent
@@ -151,6 +160,8 @@ pub struct DetectionInput<'a> {
     pub asn: u32,
     pub prefetch: bool,
     pub velocity_exceeded: bool,
+    /// sec-ch-ua header ("" when the client sent none)
+    pub sec_ch_ua: &'a str,
 }
 
 pub fn detect(input: &DetectionInput) -> Detection {
@@ -202,6 +213,19 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
         reasons.push(REASON_VELOCITY);
     }
 
+    if let Some(major) = chromium_major(user_agent) {
+        if major >= CLIENT_HINTS_MIN_CHROMIUM_MAJOR {
+            if input.sec_ch_ua.is_empty() {
+                reasons.push(REASON_MISSING_CLIENT_HINTS);
+            } else if !input.sec_ch_ua.contains(&format!("v=\"{}\"", major)) {
+                reasons.push(REASON_CLIENT_HINTS_MISMATCH);
+            }
+        }
+        if major < STALE_DESKTOP_CHROMIUM_MAJOR && is_desktop_ua(user_agent) {
+            reasons.push(REASON_STALE_BROWSER);
+        }
+    }
+
     if input.asn != 0 {
         if BOT_OPERATOR_ASNS.contains(&input.asn) {
             reasons.push(REASON_BOT_NETWORK);
@@ -250,6 +274,20 @@ fn has_impossible_resolution(screen_resolution: &str) -> bool {
     width == 0 || height == 0 || width >= 10_000 || height >= 10_000
 }
 
+/// Major version from a "Chrome/N..." token (also inside Edge/Opera/headless UAs);
+/// None for non-Chromium engines like CriOS, which send no client hints
+fn chromium_major(user_agent: &str) -> Option<u32> {
+    let rest = &user_agent[user_agent.find("Chrome/")? + "Chrome/".len()..];
+    let digits: String = rest.chars().take_while(|c| c.is_ascii_digit()).collect();
+    digits.parse().ok()
+}
+
+fn is_desktop_ua(user_agent: &str) -> bool {
+    (user_agent.contains("Windows NT") || user_agent.contains("Macintosh") || user_agent.contains("X11;"))
+        && !user_agent.contains("Mobile")
+        && !user_agent.contains("Android")
+}
+
 fn parses_as_ip(user_agent: &str) -> bool {
     crate::ip_parser::parse_ip_str(user_agent.trim()).is_some()
 }
@@ -280,20 +318,30 @@ mod tests {
     use super::*;
 
     fn human_input() -> DetectionInput<'static> {
+        // HUMAN_USER_AGENTS[0] is desktop Chrome 131
         DetectionInput {
             user_agent: HUMAN_USER_AGENTS[0],
             header_user_agent: HUMAN_USER_AGENTS[0],
             screen_resolution: "1920x1080",
+            sec_ch_ua: "\"Chromium\";v=\"131\", \"Not_A Brand\";v=\"24\"",
             ..Default::default()
         }
     }
 
+    /// Client hints consistent with the UA, as a real Chromium browser would send
+    fn hints_for(user_agent: &str) -> String {
+        chromium_major(user_agent)
+            .map(|major| format!("\"Chromium\";v=\"{}\"", major))
+            .unwrap_or_default()
+    }
+
     fn detect_ua(user_agent: &str) -> Detection {
+        let sec_ch_ua = hints_for(user_agent);
         detect(&DetectionInput {
             user_agent,
             header_user_agent: user_agent,
             screen_resolution: "1920x1080",
-            referrer: "",
+            sec_ch_ua: &sec_ch_ua,
             ..Default::default()
         })
     }
@@ -529,6 +577,39 @@ mod tests {
         let detection = detect_ua(&ua);
         assert!(!detection.should_reject());
         assert!(detection.shadow.contains(&REASON_UA_TOO_LONG));
+    }
+
+    #[test]
+    fn chromium_without_client_hints_is_shadow_flagged() {
+        let detection = detect(&DetectionInput { sec_ch_ua: "", ..human_input() });
+        assert_eq!(detection.shadow, vec![REASON_MISSING_CLIENT_HINTS]);
+        assert!(!detection.should_reject());
+    }
+
+    #[test]
+    fn client_hints_major_mismatch_is_shadow_flagged() {
+        let detection = detect(&DetectionInput {
+            sec_ch_ua: "\"Chromium\";v=\"120\", \"Not_A Brand\";v=\"24\"",
+            ..human_input()
+        });
+        assert_eq!(detection.shadow, vec![REASON_CLIENT_HINTS_MISMATCH]);
+        assert!(!detection.should_reject());
+    }
+
+    #[test]
+    fn stale_desktop_chromium_is_shadow_flagged() {
+        // Consistent hints, but a desktop Chrome major years behind auto-update
+        let ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36";
+        let detection = detect_ua(ua);
+        assert_eq!(detection.shadow, vec![REASON_STALE_BROWSER]);
+        assert!(!detection.should_reject());
+
+        // Same major on mobile is exempt: mobile Chromium does not reliably auto-update
+        let mobile = "Mozilla/5.0 (Linux; Android 10; SM-G960F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Mobile Safari/537.36";
+        assert!(detect_ua(mobile).is_empty());
+
+        // Non-Chromium engines have no client-hints or staleness expectations
+        assert!(detect_ua(HUMAN_USER_AGENTS[4]).is_empty());
     }
 
     #[test]

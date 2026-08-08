@@ -183,6 +183,7 @@ impl EventProcessor {
         site_id: &str,
         ip_address: &str,
         user_agent: &str,
+        sec_ch_ua: &str,
         url: &str,
         screen_resolution: &str,
         prefetch: bool,
@@ -199,6 +200,7 @@ impl EventProcessor {
             screen_resolution,
             asn: asn_info.asn,
             prefetch,
+            sec_ch_ua,
             ..Default::default()
         };
         let detection = bot_detection::detect(&input);
@@ -238,6 +240,7 @@ impl EventProcessor {
             asn: asn_info.asn,
             prefetch: event.prefetch,
             velocity_exceeded,
+            sec_ch_ua: &event.sec_ch_ua,
         };
         let detection = bot_detection::detect(&input);
         self.record_detection(&detection, &input, &site_id, domain.as_deref(), &path, &event.raw.event_name, &asn_info.org);

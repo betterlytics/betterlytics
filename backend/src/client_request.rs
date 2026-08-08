@@ -9,6 +9,8 @@ use std::net::SocketAddr;
 pub struct ClientRequest {
     pub ip: String,
     pub user_agent: String,
+    /// sec-ch-ua header; sent by every Chromium >= 89, absent elsewhere
+    pub sec_ch_ua: String,
     pub prefetch: bool,
 }
 
@@ -30,6 +32,7 @@ impl<S: Send + Sync> FromRequestParts<S> for ClientRequest {
         Ok(Self {
             ip,
             user_agent: user_agent(&parts.headers).to_string(),
+            sec_ch_ua: header_str(&parts.headers, "sec-ch-ua").to_string(),
             prefetch: is_prefetch(&parts.headers),
         })
     }
@@ -40,6 +43,10 @@ pub fn user_agent(headers: &HeaderMap) -> &str {
         .get(axum::http::header::USER_AGENT)
         .and_then(|v| v.to_str().ok())
         .unwrap_or_default()
+}
+
+fn header_str<'a>(headers: &'a HeaderMap, name: &str) -> &'a str {
+    headers.get(name).and_then(|v| v.to_str().ok()).unwrap_or_default()
 }
 
 /// Detects browser speculative-loading headers; an activated prerender is a real

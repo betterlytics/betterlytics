@@ -247,7 +247,7 @@ mod tests {
         };
 
         ProcessedEvent {
-            event: AnalyticsEvent::new(raw, "127.0.0.1".to_string(), "test-agent".to_string(), false),
+            event: AnalyticsEvent::new(raw, "127.0.0.1".to_string(), "test-agent".to_string(), String::new(), false),
             event_type: event_type.to_string(),
             session_id: 1,
             session_created_at: chrono::Utc::now(),

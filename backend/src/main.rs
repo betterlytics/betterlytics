@@ -476,6 +476,7 @@ async fn track_event(
         validated_event.raw,
         validated_event.ip_address,
         client.user_agent,
+        client.sec_ch_ua,
         client.prefetch,
     );
 
