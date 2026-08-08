@@ -1,134 +1,87 @@
 ---
 title: "WordPress Plugin Setup"
-description: "Install the Betterlytics WordPress plugin and start tracking your visitors in minutes, with no coding required."
+description: "Install the Betterlytics WordPress plugin, connect it to your dashboard with your Site ID, and confirm data is arriving."
 ---
 
 import { Callout } from "nextra/components";
 
-# Setup Guide
+# Setup
 
-Get Betterlytics running on your WordPress site in a few minutes. The plugin handles the setup for you, with no code to touch.
+Four steps, and no code at any point.
 
 <Callout type="info">
-**Requirements:** WordPress 6.0 or higher and admin access to install plugins.
+**Requirements:** WordPress 6.3 or higher and an administrator account that can install plugins.
 </Callout>
 
-## Step 1: Create Your Betterlytics Account
+## Step 1: Get your Site ID
 
-Before installing the plugin, you'll need a Betterlytics account and your unique Site ID.
+The Site ID is what links your WordPress site to a dashboard in Betterlytics.
 
-1. **Visit** [betterlytics.io](https://betterlytics.io)
-2. **Sign up** with your email address/Google account (or log in if you already have an account)
-3. **Create a dashboard** for your website by entering your domain name
-4. **Copy your Site ID** - you'll find it in the Integration step or in your dashboard settings
+If you don't have an account yet, [create one](https://betterlytics.io/register) and add a dashboard for your domain. The [Cloud Quick Start](/installation/cloud-hosting) covers that in more detail. The Site ID is shown during onboarding, right after you create the dashboard.
 
----
+To find it again later, open your dashboard, click **Integration Setup** in the sidebar, and copy the value under **Your Site ID**.
 
-## Step 2: Install the Plugin
+## Step 2: Install the plugin
 
-1. **Log in** to your WordPress admin area
-2. **Go to** Plugins > Add New
-3. **Search** for "Betterlytics"
-4. **Click** "Install Now" on the Betterlytics plugin
-5. **Click** "Activate" once the installation completes
+1. In wp-admin, go to **Plugins → Add New**
+2. Search for **Betterlytics**
+3. Click **Install Now**, then **Activate**
 
----
+The plugin is also listed on [WordPress.org](https://wordpress.org/plugins/betterlytics/), where you can download it as a `.zip` and upload it under **Plugins → Add New → Upload Plugin** if your site can't install from the directory.
 
-## Step 3: Find the Plugin Settings
-
-Once activated, you can access Betterlytics settings at any time:
-
-**Settings > Betterlytics** in your WordPress sidebar
+The plugin then lives at **Settings → Betterlytics** in the wp-admin sidebar.
 
 <div style={{ textAlign: "center" }}>
-  ![Find Betterlytics settings](/images/wordpress/find-betterlytics-settings.webp)
+  ![The Betterlytics entry under Settings in the wp-admin sidebar](/images/wordpress/find-betterlytics-settings.webp)
 </div>
 
----
+## Step 3: Connect your site
 
-## Step 4: Connect Your Site
-
-When you open the plugin for the first time, you'll see a setup wizard on the **Home** tab:
+Open **Settings → Betterlytics**. The **Home** tab walks you through the remaining steps the first time you visit it.
 
 <div style={{ textAlign: "center" }}>
-  ![Onboarding Wizard](/images/wordpress/onboarding-wizard.webp)
+  ![The plugin's setup wizard on the Home tab](/images/wordpress/onboarding-wizard.webp)
 </div>
 
-1. **Paste your Site ID** into the Site ID field (the one you copied from your Betterlytics dashboard)
-2. **Toggle on** "Enable tracking" to activate analytics
-3. **Click** "Save Settings"
+On the **Settings** tab:
+
+1. Paste your Site ID into **Site ID**
+2. Tick **Enable Tracking**, which is off until you turn it on
+3. Click **Save Settings**
 
 <div style={{ textAlign: "center" }}>
-  ![Onboarding Settings](/images/wordpress/onboarding-settings.webp)
+  ![The Site ID field and Enable Tracking toggle on the Settings tab](/images/wordpress/onboarding-settings.webp)
 </div>
 
-Your WordPress site is now connected to Betterlytics.
+Your site is now connected. The tracking script is added to the footer of every page, and data is recorded from the next visit onward.
 
----
+## Step 4: Confirm data is arriving
 
-## Step 5: Configure Event Tracking (Optional)
+Visit your own site once, then open your Betterlytics dashboard. The visit should appear within a minute or two. The **Resources** section on the plugin's Home tab links straight there.
 
-The **Settings** tab lets you enable additional tracking features:
-
-| Feature | What it does |
-|---------|--------------|
-| **Web Vitals** | Monitor your site's performance scores |
-| **Outbound Links** | Track which external links visitors click |
-| **Custom HTML Attribute Events** | Track clicks on specific elements |
-
-Enable only the features you need. Learn more about each feature in our [Events documentation](/wordpress/events).
-
----
-
-## Step 6: View Your Analytics
-
-Your data will start appearing in your Betterlytics dashboard within a few minutes of your first visitor.
-
-**Ways to access your dashboard:**
-
-- Visit [betterlytics.io/dashboard](https://betterlytics.io/dashboard) directly
-- Click any of the quick links in the **Resources** section of the plugin's Home tab
-- Use the "View Dashboard" link in your plugin settings
-
----
+Optionally, the **Settings** tab can also track outbound link clicks, Core Web Vitals, and clicks on specific elements. The [Events guide](/wordpress/events) covers each one.
 
 ## Troubleshooting
 
-**Plugin not showing up after installation?**
-- Try refreshing the page or logging out and back in
-- Check that you clicked "Activate" after installing
+**No data in your dashboard**
 
-**Can't find Settings > Betterlytics?**
-- Make sure the plugin is activated (Plugins > Installed Plugins)
-- You may need admin privileges to see plugin settings
+- Confirm **Enable Tracking** is ticked and that you saved the settings
+- Check the Site ID for typos or a stray space. It is case-sensitive, and a wrong ID sends data nowhere
+- Load your site in a private window and view the page source. You should see an `analytics.js` script tag near the bottom
+- If you use a caching or optimization plugin, clear its cache so visitors get pages containing the script. Plugins that combine or defer scripts need `analytics.js` excluded, covered under [page caching and CDNs](/troubleshooting#page-caching-or-cdn-serving-stale-html)
 
-**Data not appearing in your dashboard?**
-- Double-check that your Site ID is entered correctly
-- Verify the "Enable tracking" toggle is turned on
-- Visit your site, then give it a few minutes. Data only appears once the site has had a visit
-- Check that you saved your settings
+**Can't find Settings → Betterlytics**
 
-**Need more help?**
-- Check the Resources section in the plugin for documentation links
-- Visit our [FAQ](/faq) for common questions
+Check that the plugin is active under **Plugins → Installed Plugins**. The settings page is only visible to administrators.
 
----
+More causes, including CSP headers and ad blockers, are covered in the [Troubleshooting guide](/troubleshooting).
 
-## What's Next?
+## Next Steps
 
-Your WordPress site is now sending data to Betterlytics. Your dashboard will show:
-
-- Real-time visitor activity
-- Page view statistics
-- Geographic data
-- Device information
-
-**Explore further:**
-
-- **[Settings Reference](/wordpress/settings)** - Detailed settings documentation
-- **[Event Tracking](/wordpress/events)** - Track outbound links, Web Vitals, and custom events
-- **[Advanced Configuration](/wordpress/configuration)** - CI/CD and automation
-- **[Dashboard Features](/dashboard)** - Complete guide to your analytics
+- **[Settings](/wordpress/settings)** - Every setting, its default, and its WP-CLI key
+- **[Events](/wordpress/events)** - Outbound links, Core Web Vitals, and click events
+- **[Configuration](/wordpress/configuration)** - Manage settings from WP-CLI or a deployment pipeline
+- **[Dashboard Features](/dashboard)** - What your analytics can tell you, well beyond pageviews
 
 ## Need Help?
 
