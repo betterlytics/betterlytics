@@ -1,12 +1,12 @@
-use std::net::SocketAddr;
 use std::time::Duration;
 use std::sync::Arc;
 
-use axum::{extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode}, Json};
+use axum::{extract::State, http::StatusCode, Json};
 use tracing::error;
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 
+use crate::client_request::ClientRequest;
 use crate::storage::s3::S3Service;
 use crate::site_config::SiteConfigCache;
 use crate::ua_parser;
@@ -79,20 +79,25 @@ mod u64_as_string {
 }
 
 pub async fn presign_put_segment(
-    State((_, _, _, _, s3, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    headers: HeaderMap,
+    State((_, processor, _, _, s3, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
+    client: ClientRequest,
     Json(req): Json<PresignPutRequest>,
 ) -> Result<Json<PresignPutResponse>, (StatusCode, String)> {
     let s3 = s3.ok_or((StatusCode::SERVICE_UNAVAILABLE, "S3 not configured".to_string()))?;
-    let ip_address = crate::ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
 
-    let user_agent = headers
-        .get(axum::http::header::USER_AGENT)
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("");
+    if processor.check_replay_request(
+        &req.site_id,
+        &client.ip,
+        &client.user_agent,
+        &client.sec_ch_ua,
+        req.url.as_deref().unwrap_or_default(),
+        req.screen_resolution.as_deref().unwrap_or_default(),
+        client.prefetch,
+    ) {
+        return Err((StatusCode::FORBIDDEN, "rejected".to_string()));
+    }
 
-    let parsed = ua_parser::parse_user_agent(user_agent);
+    let parsed = ua_parser::parse_user_agent(&client.user_agent);
 
     let device_type_from_res = req.screen_resolution.as_deref()
         .and_then(|sr| detect_device_type_from_resolution(sr));
@@ -103,7 +108,7 @@ pub async fn presign_put_segment(
 
     let identity = {
         let attrs = VisitorAttrs {
-            ip: &ip_address,
+            ip: &client.ip,
             device_type: device_type_from_res.as_deref(),
             browser: Some(parsed.browser.as_str()),
             browser_version: parsed.browser_version.as_deref(),
@@ -155,9 +160,22 @@ pub struct FinalizeRequest {
 }
 
 pub async fn finalize_session_replay(
-    State((db, _, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
+    State((db, processor, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
+    client: ClientRequest,
     Json(req): Json<FinalizeRequest>,
 ) -> Result<StatusCode, (StatusCode, String)> {
+    if processor.check_replay_request(
+        &req.site_id,
+        &client.ip,
+        &client.user_agent,
+        &client.sec_ch_ua,
+        req.start_url.as_deref().unwrap_or_default(),
+        "",
+        client.prefetch,
+    ) {
+        return Err((StatusCode::FORBIDDEN, "rejected".to_string()));
+    }
+
     let key = cache_key(&req.site_id, req.session_id);
     let started = chrono::DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
     let ended = chrono::DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;

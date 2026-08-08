@@ -25,14 +25,15 @@ pub struct MetricsCollector {
 
     // Event rejection and validation metrics
     events_rejected_total: IntCounterVec,
+    bot_events_detected_total: IntCounterVec,
     events_dropped_total: IntCounterVec,
     validation_duration: Histogram,
 
     // Ingest pipeline pressure
     ingest_channel_depth: Gauge,
-    inserter_batch_rows: Gauge,
-    inserter_retry_attempts: Gauge,
-    events_inserted_total: IntCounter,
+    inserter_batch_rows: GaugeVec,
+    inserter_retry_attempts: GaugeVec,
+    events_inserted_total: IntCounterVec,
     writer_queue_depth: GaugeVec,
 
     // Cache lookup metrics
@@ -107,6 +108,14 @@ impl MetricsCollector {
             &["reason"],
         )?;
 
+        let bot_events_detected_total = IntCounterVec::new(
+            Opts::new(
+                "analytics_bot_events_detected_total",
+                "Total number of analytics events classified as bot traffic",
+            ),
+            &["reason"],
+        )?;
+
         let events_dropped_total = IntCounterVec::new(
             Opts::new(
                 "analytics_events_dropped_total",
@@ -120,20 +129,29 @@ impl MetricsCollector {
             "Events waiting in the ingest channel",
         ))?;
 
-        let inserter_batch_rows = Gauge::with_opts(Opts::new(
-            "analytics_inserter_batch_rows",
-            "Rows held in the inserter's current batch",
-        ))?;
+        let inserter_batch_rows = GaugeVec::new(
+            Opts::new(
+                "analytics_inserter_batch_rows",
+                "Rows held in the inserter's current batch",
+            ),
+            &["table"],
+        )?;
 
-        let inserter_retry_attempts = Gauge::with_opts(Opts::new(
-            "analytics_inserter_retry_attempts",
-            "Consecutive failed insert attempts for the current batch (0 = healthy)",
-        ))?;
+        let inserter_retry_attempts = GaugeVec::new(
+            Opts::new(
+                "analytics_inserter_retry_attempts",
+                "Consecutive failed insert attempts for the current batch (0 = healthy)",
+            ),
+            &["table"],
+        )?;
 
-        let events_inserted_total = IntCounter::with_opts(Opts::new(
-            "analytics_events_inserted_total",
-            "Total events confirmed inserted into ClickHouse",
-        ))?;
+        let events_inserted_total = IntCounterVec::new(
+            Opts::new(
+                "analytics_events_inserted_total",
+                "Total rows confirmed inserted into ClickHouse",
+            ),
+            &["table"],
+        )?;
 
         let writer_queue_depth = GaugeVec::new(
             Opts::new(
@@ -228,6 +246,7 @@ impl MetricsCollector {
         registry.register(Box::new(events_processed_total.clone()))?;
         registry.register(Box::new(events_processing_duration.clone()))?;
         registry.register(Box::new(events_rejected_total.clone()))?;
+        registry.register(Box::new(bot_events_detected_total.clone()))?;
         registry.register(Box::new(events_dropped_total.clone()))?;
         registry.register(Box::new(ingest_channel_depth.clone()))?;
         registry.register(Box::new(inserter_batch_rows.clone()))?;
@@ -266,6 +285,7 @@ impl MetricsCollector {
             events_processed_total,
             events_processing_duration,
             events_rejected_total,
+            bot_events_detected_total,
             events_dropped_total,
             ingest_channel_depth,
             inserter_batch_rows,
@@ -357,6 +377,12 @@ impl MetricsCollector {
             .inc();
     }
 
+    pub fn increment_bot_event_detected(&self, reason: &str) {
+        self.bot_events_detected_total
+            .with_label_values(&[reason])
+            .inc();
+    }
+
     pub fn increment_events_dropped(&self, reason: &str, count: u64) {
         self.events_dropped_total
             .with_label_values(&[reason])
@@ -429,16 +455,16 @@ impl MetricsCollector {
         self.ingest_channel_depth.set(depth as f64);
     }
 
-    pub fn set_inserter_batch_rows(&self, rows: usize) {
-        self.inserter_batch_rows.set(rows as f64);
+    pub fn set_inserter_batch_rows(&self, table: &str, rows: usize) {
+        self.inserter_batch_rows.with_label_values(&[table]).set(rows as f64);
     }
 
-    pub fn set_inserter_retry_attempts(&self, attempts: u32) {
-        self.inserter_retry_attempts.set(f64::from(attempts));
+    pub fn set_inserter_retry_attempts(&self, table: &str, attempts: u32) {
+        self.inserter_retry_attempts.with_label_values(&[table]).set(f64::from(attempts));
     }
 
-    pub fn increment_events_inserted(&self, count: u64) {
-        self.events_inserted_total.inc_by(count);
+    pub fn increment_events_inserted(&self, table: &str, count: u64) {
+        self.events_inserted_total.with_label_values(&[table]).inc_by(count);
     }
 
     pub fn set_writer_queue_depth(&self, table: &str, depth: usize) {

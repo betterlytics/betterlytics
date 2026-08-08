@@ -78,6 +78,19 @@
 
   var globalProperties = {};
 
+  var automation =
+    !!(
+      navigator.webdriver ||
+      window._phantom ||
+      window.__nightmare ||
+      window.Cypress
+    ) ||
+    ((navigator.userAgentData && navigator.userAgentData.brands) || []).some(
+      function (b) {
+        return /headless/i.test(b.brand);
+      },
+    );
+
   // Engagement tracking state (duration + scroll depth)
   var pageStartTime = performance.now();
   var currentUrl = null;
@@ -121,7 +134,7 @@
         referrer: referrer,
         user_agent: userAgent,
         screen_resolution: screenResolution,
-        timestamp: Math.floor(Date.now() / 1000),
+        ...(automation && { automation: true }),
         ...(Object.keys(globalProperties).length > 0 && {
           global_properties: Object.assign({}, globalProperties),
         }),
@@ -523,7 +536,7 @@
     }
   }
 
-  if (enableReplay || enableReplayOnError) {
+  if ((enableReplay || enableReplayOnError) && !automation) {
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
     var THIRTY_MIN_MS = 30 * 60 * 1000;
