@@ -1,5 +1,6 @@
 'server-only';
 
+import { cache } from 'react';
 import { UpdateUserData } from '@/entities/auth/user.entities';
 import { UserSettings, UserSettingsUpdate, DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
@@ -24,6 +25,8 @@ export async function getUserSettings(userId: string): Promise<UserSettings> {
     throw new Error('Failed to get user settings');
   }
 }
+
+export const getCachedUserSettings = cache(getUserSettings);
 
 export async function createDefaultUserSettings(userId: string): Promise<UserSettings> {
   try {

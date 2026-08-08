@@ -11,7 +11,7 @@ import { type SupportedLanguages } from '@/constants/i18n';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import TimezoneCookieInitializer from '@/app/(app)/(protected)/TimezoneCookieInitializer';
 import { UserSettingsProvider } from '@/contexts/UserSettingsProvider';
-import { getUserSettings } from '@/services/account/userSettings.service';
+import { getCachedUserSettings } from '@/services/account/userSettings.service';
 import { getAuthSession } from '@/auth/auth-actions';
 
 export async function generateMetadata({
@@ -56,7 +56,7 @@ export default async function PublicDashboardLayout({ params, children }: Public
     getDashboardSettingsAction(dashboardId),
     getAuthSession(),
   ]);
-  const userSettings = session?.user ? await getUserSettings(session.user.id) : null;
+  const userSettings = session?.user ? await getCachedUserSettings(session.user.id) : null;
 
   const shell = (
     <DashboardLayoutShell

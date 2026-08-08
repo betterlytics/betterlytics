@@ -6,7 +6,7 @@ import { isUserInvitedDashboardMemberAction } from '@/app/actions/index.actions'
 import { env } from '@/lib/env';
 import { DevWidget } from '@/components/dev/DevWidget';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
-import { getUserSettings } from '@/services/account/userSettings.service';
+import { getCachedUserSettings } from '@/services/account/userSettings.service';
 import { UserSettingsProvider } from '@/contexts/UserSettingsProvider';
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { BillingFlowProvider } from '@/contexts/BillingFlowProvider';
@@ -22,7 +22,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
     }
   }
 
-  const initialSettings = await getUserSettings(session.user.id);
+  const initialSettings = await getCachedUserSettings(session.user.id);
 
   const publicEnvironmentVariables = getPublicEnvironmentVariables();
 
