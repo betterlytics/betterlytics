@@ -1,0 +1,90 @@
+---
+title: "WordPress Plugin Events"
+description: "Track outbound link clicks, Core Web Vitals, and custom HTML attribute events with the Betterlytics WordPress plugin."
+---
+
+import { Callout } from "nextra/components";
+
+# Event Tracking
+
+Beyond automatic page view tracking, the Betterlytics WordPress plugin lets you enable additional tracking features directly from the **Settings** tab, with no code required. All events appear in your Betterlytics dashboard alongside your page view data.
+
+<Callout type="info">
+For programmatic event tracking with custom properties, see the [Custom Events integration guide](/integration/custom-events).
+</Callout>
+
+---
+
+## Outbound Links
+
+**Outbound Link Tracking** records when visitors click links that take them off your site. Use it to understand the traffic you send to partners, social platforms, or external resources.
+
+### How it works
+
+When a visitor clicks a link pointing to a different hostname, the tracker captures it as an `outbound_link` event. The plugin offers three modes:
+
+| Mode | Behavior |
+|------|----------|
+| **Off** | Outbound link clicks are not tracked |
+| **Domain** | Only the external origin is recorded (e.g., `https://example.com`) |
+| **Full** | Origin and path are recorded (e.g., `https://example.com/blog/some-article`) |
+
+<Callout type="warning">
+Privacy note: Consider using **Domain** mode to avoid sending full paths that may contain sensitive information.
+</Callout>
+
+### Where to see the data
+
+Outbound link clicks appear in the **Outbound Links** section of your dashboard. Learn more in the [Outbound Links dashboard guide](/dashboard/outbound-links).
+
+---
+
+## Core Web Vitals
+
+**Core Web Vitals Tracking** captures real-user performance metrics (RUM) from your visitors' browsers using the official `web-vitals` library.
+
+### How it works
+
+When enabled, the tracker records these metrics once per page lifecycle:
+
+- **LCP** - Largest Contentful Paint
+- **INP** - Interaction to Next Paint
+- **CLS** - Cumulative Layout Shift
+- **FCP** - First Contentful Paint
+- **TTFB** - Time to First Byte
+
+Because metrics come from real visitors, values often differ from synthetic tools like Lighthouse, which simulate a single device and network. See definitions and thresholds in the [Metrics Glossary](/dashboard/metrics-glossary#core-web-vitals).
+
+### Where to see the data
+
+Performance metrics appear in the **Web Vitals** section of your dashboard. Learn more in the [Web Vitals dashboard guide](/dashboard/web-vitals) and the [Web Vitals integration guide](/integration/web-vitals).
+
+---
+
+## Custom HTML Attribute Events
+
+**Custom HTML Attribute Events** let you track clicks on any element by adding a single HTML attribute, without writing any JavaScript.
+
+### How it works
+
+Once enabled, add the `data-betterlytics-event` attribute to any element you want to track. When a visitor clicks the element, a custom event with that name is sent to Betterlytics:
+
+```html
+<button data-betterlytics-event="signup-click">Sign Up</button>
+
+<a href="/pricing" data-betterlytics-event="pricing-link">View Pricing</a>
+```
+
+Each click sends a custom event named after the attribute value (e.g., `signup-click`).
+
+<Callout type="tip">
+This works anywhere you can edit HTML in WordPress: block editor custom HTML, theme templates, or page builders that support custom attributes.
+</Callout>
+
+### Where to see the data
+
+Custom events appear in the **Events** section of your dashboard. Learn more in the [Events dashboard guide](/dashboard/events).
+
+<Callout type="info">
+Need event properties or events triggered by something other than clicks? Use the JavaScript API described in the [Custom Events integration guide](/integration/custom-events).
+</Callout>
