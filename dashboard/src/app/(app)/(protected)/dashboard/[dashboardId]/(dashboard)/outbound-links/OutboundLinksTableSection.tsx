@@ -6,6 +6,7 @@ import { DataTable } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import ExternalLink from '@/components/ExternalLink';
+import { Button } from '@/components/ui/button';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
@@ -35,20 +36,30 @@ export default function OutboundLinksTableSection() {
         accessorKey: 'outbound_link_url',
         header: t('destinationUrl'),
         minSize: 200,
-        cell: ({ row }) => (
-          <div className='flex items-center gap-2'>
-            <ExternalLink
-              href={`https://${row.original.current.outbound_link_url}`}
-              target='_blank'
-              rel='noopener noreferrer'
-              title={t('goToUrl', { url: row.original.current.outbound_link_url })}
-              className='flex items-center gap-2 font-medium break-all transition-colors hover:text-blue-600'
-            >
-              <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
-              {formatString(row.original.current.outbound_link_url)}
-            </ExternalLink>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const url = row.original.current.outbound_link_url;
+          return (
+            <div className='flex items-start gap-1'>
+              <ExternalLink
+                href={`https://${url}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                title={t('goToUrl', { url })}
+                className='hover:bg-accent flex size-6 shrink-0 items-center justify-center rounded-md transition-colors hover:text-blue-600'
+              >
+                <ExternalLinkIcon className='h-4 w-4' />
+              </ExternalLink>
+              <Button
+                variant='ghost'
+                onClick={() => makeFilterClick('outbound_link_url')(url)}
+                title={tFilters('filterBy', { label: url })}
+                className='h-auto w-full cursor-pointer justify-start bg-transparent px-1 py-1 text-left text-sm font-medium break-all whitespace-normal select-text'
+              >
+                {formatString(url)}
+              </Button>
+            </div>
+          );
+        },
         accessorFn: (row) => row.current.outbound_link_url,
       },
       {
@@ -74,7 +85,7 @@ export default function OutboundLinksTableSection() {
         accessorFn: (row) => row.current.source_url_count,
       },
     ],
-    [t],
+    [t, tFilters, makeFilterClick],
   );
 
   return (
@@ -90,13 +101,7 @@ export default function OutboundLinksTableSection() {
             </div>
           )}
           <div className={cn(refetching && 'pointer-events-none opacity-60')}>
-            <DataTable
-              data={data ?? []}
-              columns={columns}
-              loading={loading}
-              onRowClick={(row) => makeFilterClick('outbound_link_url')(row.original.current.outbound_link_url)}
-              rowTitle={(row) => tFilters('filterBy', { label: row.original.current.outbound_link_url })}
-            />
+            <DataTable data={data ?? []} columns={columns} loading={loading} />
           </div>
         </div>
       </CardContent>

@@ -1,6 +1,6 @@
 'use client';
 
-import { type MouseEvent, type RefObject, useCallback, useEffect, useState } from 'react';
+import { type RefObject, useEffect, useState } from 'react';
 import {
   flexRender,
   getCoreRowModel,
@@ -20,8 +20,6 @@ import DataEmptyComponent from './DataEmptyComponent';
 import { cn } from '@/lib/utils';
 
 const SKELETON_ROWS = 10;
-const INTERACTIVE_ELEMENT_SELECTOR =
-  'a, input, textarea, button, select, [role="button"], [role="combobox"], [role="menuitem"], [contenteditable="true"]';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -29,7 +27,6 @@ interface DataTableProps<TData, TValue> {
   defaultSorting?: SortingState;
   className?: string;
   onRowClick?: (row: Row<TData>) => void;
-  rowTitle?: (row: Row<TData>) => string | undefined;
   tableRef?: RefObject<ReturnType<typeof useReactTable<TData>> | null>;
   loading?: boolean;
 }
@@ -40,7 +37,6 @@ export function DataTable<TData, TValue>({
   defaultSorting = [],
   className,
   onRowClick,
-  rowTitle,
   tableRef,
   loading = false,
 }: DataTableProps<TData, TValue>) {
@@ -67,16 +63,6 @@ export function DataTable<TData, TValue>({
     }
   }, []);
 
-  const handleRowClick = useCallback(
-    (event: MouseEvent<HTMLTableRowElement>, row: Row<TData>) => {
-      const interactiveAncestor = (event.target as Element).closest(INTERACTIVE_ELEMENT_SELECTOR);
-      if (interactiveAncestor && event.currentTarget.contains(interactiveAncestor)) return;
-      if (window.getSelection()?.toString()) return;
-      onRowClick?.(row);
-    },
-    [onRowClick],
-  );
-
   return (
     <div className={cn('border-border overflow-hidden rounded-lg border', className)}>
       <Table>
@@ -91,7 +77,9 @@ export function DataTable<TData, TValue>({
                       ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none'
                       : ''
                   }`}
-                  style={header.column.columnDef.minSize ? { minWidth: header.column.columnDef.minSize } : undefined}
+                  style={
+                    header.column.columnDef.minSize ? { minWidth: header.column.columnDef.minSize } : undefined
+                  }
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   <div className='flex items-center'>
@@ -127,8 +115,7 @@ export function DataTable<TData, TValue>({
               <TableRow
                 key={row.id}
                 className={cn('hover:bg-accent dark:hover:bg-primary/10', onRowClick && 'cursor-pointer')}
-                onClick={(e) => handleRowClick(e, row)}
-                title={rowTitle?.(row)}
+                onClick={() => onRowClick && onRowClick(row)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id} className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
