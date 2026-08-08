@@ -1,7 +1,6 @@
 # Local enforced additions, hand-maintained (not part of the vendored isbot list):
 # named bots with proven precedent that upstream isbot only catches via the demoted
 # heuristics. Everything else (e.g. bare HTTP clients like curl) stays shadow-only
-# until bot_events data justifies promotion — enforcement requires precedent or
-# evidence, never reasoning alone.
+# until bot_events data justifies promotion.
 meta-externalagent
 bingpreview

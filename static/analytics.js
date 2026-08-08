@@ -78,8 +78,6 @@
 
   var globalProperties = {};
 
-  // Headless Chrome hiding navigator.webdriver usually still reports a
-  // "HeadlessChrome" brand in the (Chromium-only) client hints API
   var automation =
     !!(
       navigator.webdriver ||
