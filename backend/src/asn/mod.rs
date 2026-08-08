@@ -33,7 +33,7 @@ impl AsnService {
     }
 
     /// Returns `AsnInfo::default()` (asn 0, empty org) when the database is
-    /// unavailable or the IP is unknown — ASN is a best-effort fact.
+    /// unavailable or the IP is unknown (best-effort).
     pub fn lookup(&self, ip_address: &str) -> AsnInfo {
         if ip_address == "127.0.0.1" || ip_address == "::1" {
             return AsnInfo::default();
