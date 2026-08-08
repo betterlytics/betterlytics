@@ -2,6 +2,7 @@ use crate::ip_parser::anonymize_ip;
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 use std::hash::{Hash, Hasher};
+use std::net::IpAddr;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
@@ -17,14 +18,19 @@ static WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
         .build()
 });
 
-/// Fixed one-minute window per site + anonymized IP: the prefix key collapses
-/// an IPv6 client rotating within its /64 into one counter, and a hash
-/// collision only perturbs a shadow counter
+/// Fixed one-minute window per site + client. IPv6 collapses to its /64 — one
+/// subscriber's prefix, so rotating interface addresses cannot evade the
+/// counter — while IPv4 counts per full address so a carrier's neighboring
+/// customers never pool into one window. A hash collision only perturbs a
+/// shadow counter.
 fn window(site_id: &str, ip_address: &str) -> Arc<AtomicU32> {
-    let anonymized = anonymize_ip(ip_address);
+    let key_ip = match ip_address.parse::<IpAddr>() {
+        Ok(IpAddr::V6(_)) => anonymize_ip(ip_address).unwrap_or_else(|| ip_address.to_string()),
+        _ => ip_address.to_string(),
+    };
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
     site_id.hash(&mut hasher);
-    anonymized.as_deref().unwrap_or(ip_address).hash(&mut hasher);
+    key_ip.hash(&mut hasher);
     WINDOWS.get_with(hasher.finish(), || Arc::new(AtomicU32::new(0)))
 }
 
@@ -60,13 +66,13 @@ mod tests {
     }
 
     #[test]
-    fn windows_are_isolated_per_site_and_subnet() {
+    fn windows_are_isolated_per_site_and_ip() {
         for _ in 0..=MAX_EVENTS_PER_MINUTE {
             record("site-a", "203.0.113.3");
         }
         assert!(!check("site-b", "203.0.113.3"));
-        // Counting is per anonymized /24, so isolation requires a different subnet
-        assert!(!check("site-a", "198.51.100.7"));
+        // IPv4 neighbors in the same /24 do not share a window
+        assert!(!check("site-a", "203.0.113.4"));
     }
 
     #[test]

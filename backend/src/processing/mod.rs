@@ -168,6 +168,9 @@ impl EventProcessor {
         };
         // try_send: recording bot traffic must never backpressure the human event path
         if self.bot_tx.try_send(bot_event).is_err() {
+            if let Some(metrics) = &self.metrics {
+                metrics.increment_events_dropped("bot_channel_full", 1);
+            }
             debug!("Bot event channel full, dropping bot event record");
         }
     }

@@ -40,9 +40,8 @@ pub struct Database {
 pub type SharedDatabase = Arc<Database>;
 
 impl Database {
-    /// Creates the database handle plus the event and bot-event ingest channels.
-    /// Both inserters share the same retry/drain machinery; bot events skip the
-    /// events-pipeline metrics.
+    /// Creates the database handle plus the event and bot-event ingest channels;
+    /// both inserters share the same retry/drain machinery and per-table metrics.
     pub async fn new(
         clickhouse: Arc<ClickHouseClient>,
         config: Arc<Config>,
@@ -57,14 +56,14 @@ impl Database {
             "analytics.events",
             event_rx,
             EventRow::from_processed,
-            metrics,
+            metrics.clone(),
         ));
         let bot_inserter_handle = tokio::spawn(run_inserter(
             client,
             "analytics.bot_events",
             bot_event_rx,
             |event: BotEvent| Some(BotEventRow::from_bot(event)),
-            None,
+            metrics,
         ));
 
         Ok((Self { clickhouse, config }, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle))
@@ -238,7 +237,7 @@ async fn run_inserter<T, R>(
                 };
                 batch.push(row);
                 if let Some(metrics) = &metrics {
-                    metrics.set_inserter_batch_rows(batch.len());
+                    metrics.set_inserter_batch_rows(table, batch.len());
                 }
 
                 if batch.len() >= INSERTER_MAX_ROWS {
@@ -286,9 +285,9 @@ async fn flush<R>(
             Ok(()) => {
                 debug!(table, rows = batch.len(), "Committed batch to ClickHouse");
                 if let Some(metrics) = metrics {
-                    metrics.increment_events_inserted(batch.len() as u64);
-                    metrics.set_inserter_retry_attempts(0);
-                    metrics.set_inserter_batch_rows(0);
+                    metrics.increment_events_inserted(table, batch.len() as u64);
+                    metrics.set_inserter_retry_attempts(table, 0);
+                    metrics.set_inserter_batch_rows(table, 0);
                 }
                 batch.clear();
                 return;
@@ -297,7 +296,7 @@ async fn flush<R>(
                 ErrorClass::Transient => {
                     transient_attempts += 1;
                     if let Some(metrics) = metrics {
-                        metrics.set_inserter_retry_attempts(transient_attempts);
+                        metrics.set_inserter_retry_attempts(table, transient_attempts);
                     }
                     let exp = transient_attempts.saturating_sub(1).min(5);
                     let backoff = Duration::from_secs(
@@ -324,8 +323,8 @@ async fn flush<R>(
                         );
                         if let Some(metrics) = metrics {
                             metrics.increment_events_dropped("insert_gave_up", batch.len() as u64);
-                            metrics.set_inserter_retry_attempts(0);
-                            metrics.set_inserter_batch_rows(0);
+                            metrics.set_inserter_retry_attempts(table, 0);
+                            metrics.set_inserter_batch_rows(table, 0);
                         }
                         batch.clear();
                         return;
