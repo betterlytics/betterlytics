@@ -1,7 +1,10 @@
 use anyhow::Result;
-use tokio::sync::mpsc;
-use tracing::{error, debug};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicU64, Ordering};
+use tokio::sync::mpsc::{self, error::TrySendError};
+use tracing::{error, debug, warn};
 use crate::analytics::{AnalyticsEvent, VisitorAttrs};
+use crate::metrics::MetricsCollector;
 use crate::geoip::GeoIpService;
 use crate::visitor;
 use crate::bot_detection;
@@ -71,16 +74,25 @@ pub struct ProcessedEvent {
     pub page_duration_seconds: u32,
 }
 
+/// Logs one in every 1000 drops so a sustained overflow cannot flood the log;
+/// the dropped_total metric carries the exact count.
+static DROP_LOG_SAMPLE: AtomicU64 = AtomicU64::new(0);
+
 /// Event processor that handles real-time processing
 pub struct EventProcessor {
     event_tx: mpsc::Sender<ProcessedEvent>,
     geoip_service: GeoIpService,
+    metrics: Option<Arc<MetricsCollector>>,
 }
 
 impl EventProcessor {
-    pub fn new(geoip_service: GeoIpService) -> (Self, mpsc::Receiver<ProcessedEvent>) {
-        let (event_tx, event_rx) = mpsc::channel(100_000);
-        (Self { event_tx, geoip_service }, event_rx)
+    /// `event_tx` is the ingest channel consumed by the ClickHouse inserter task.
+    pub fn new(
+        geoip_service: GeoIpService,
+        event_tx: mpsc::Sender<ProcessedEvent>,
+        metrics: Option<Arc<MetricsCollector>>,
+    ) -> Self {
+        Self { event_tx, geoip_service, metrics }
     }
 
     pub async fn process_event(&self, event: AnalyticsEvent) -> Result<()> {
@@ -185,8 +197,20 @@ impl EventProcessor {
         debug!("Site ID: {}", processed.site_id);
         debug!("Session ID: {}", processed.session_id);
 
-        if let Err(e) = self.event_tx.send(processed).await {
-            error!("Failed to send processed event: {}", e);
+        // try_send, not send: ingestion stays responsive if the buffer fills,
+        // at the cost of dropping the newest events (counted, never silent).
+        if let Err(e) = self.event_tx.try_send(processed) {
+            let reason = match e {
+                TrySendError::Full(_) => "channel_full",
+                TrySendError::Closed(_) => "channel_closed",
+            };
+            if let Some(metrics) = &self.metrics {
+                metrics.increment_events_dropped(reason, 1);
+            }
+            let dropped = DROP_LOG_SAMPLE.fetch_add(1, Ordering::Relaxed);
+            if dropped % 1000 == 0 {
+                warn!(reason, sampled_drop_number = dropped + 1, "Ingest channel unavailable, dropping event");
+            }
         }
 
         debug!("Processed event finished!");
@@ -210,7 +234,7 @@ impl EventProcessor {
                     processed.outbound_link_url = outbound_info.url;
                 }
             }
-        } else if event_name.eq_ignore_ascii_case("cwv") {
+        } else if event_name == "cwv" {
             processed.event_type = "cwv".to_string();
             processed.cwv_cls = processed.event.raw.cwv_cls;
             processed.cwv_lcp = processed.event.raw.cwv_lcp;

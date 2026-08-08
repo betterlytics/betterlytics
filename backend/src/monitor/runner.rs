@@ -517,10 +517,6 @@ async fn run_loop<S: RunnerStrategy>(
             if let Err(err) = writer.enqueue_rows(collected) {
                 warn!(runner = config.name, error = ?err, "Failed to enqueue monitor rows");
             }
-
-            if let Some(ref m) = metrics {
-                m.set_monitor_writer_queue_depth(writer.queue_depth());
-            }
         }
     }
 }

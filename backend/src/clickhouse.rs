@@ -24,4 +24,10 @@ impl ClickHouseClient {
     pub fn inner(&self) -> &Client {
         &self.client
     }
+
+    /// Test-only constructor wrapping an arbitrary client (e.g. a mock server).
+    #[cfg(test)]
+    pub fn from_client(client: Client) -> Self {
+        Self { client }
+    }
 }
