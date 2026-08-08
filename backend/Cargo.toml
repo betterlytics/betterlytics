@@ -86,3 +86,8 @@ async-trait = "0.1"
 arc-swap = "1.7"
 dashmap = "5.5"
 html-escape = "0.2"
+
+[dev-dependencies]
+clickhouse = { version = "0.13.2", features = ["test-util"] }
+tokio = { version = "1.44.2", features = ["full", "test-util"] }
+http = "1"
