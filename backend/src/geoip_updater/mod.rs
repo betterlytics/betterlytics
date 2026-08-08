@@ -113,6 +113,7 @@ impl MmdbSource {
         true
     }
 }
+
 /// Sends notifications when the GeoIP database is updated.
 pub type GeoIpWatchTx = watch::Sender<Option<Arc<Reader<Vec<u8>>>>>;
 
@@ -182,9 +183,7 @@ impl GeoIpUpdater {
         info!("Starting GeoIP database update loop every {:?}", self.update_interval);
         let mut interval = interval(self.update_interval);
 
-        interval.tick().await; 
-        self.check_and_update().await;
-
+        // The first tick resolves immediately, so the initial check runs at startup
         loop {
             interval.tick().await;
             self.check_and_update().await;

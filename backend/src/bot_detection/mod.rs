@@ -97,9 +97,7 @@ pub const REASON_HOSTING_NETWORK: &str = "hosting-network";
 pub const REASON_PREFETCH: &str = "prefetch";
 pub const REASON_VELOCITY: &str = "velocity";
 
-/// Only reasons with ~zero false-positive risk reject events. Everything else —
-/// including any future reason not listed here — runs in shadow mode: recorded to
-/// bot_events and counted in metrics, but processed as human traffic.
+/// Only reasons with ~zero false-positive risk reject events
 const ENFORCING_REASONS: &[&str] = &[
     REASON_UA_BLOCKLIST,
     REASON_REFERRER_SPAM,
@@ -141,9 +139,9 @@ const UA_MAX_LENGTH: usize = 500;
 
 #[derive(Default)]
 pub struct DetectionInput<'a> {
-    /// Client-supplied navigator.userAgent from the payload, as opposed to the
-    /// User-Agent HTTP header in `header_user_agent`
+    /// Client-supplied navigator.userAgent
     pub user_agent: &'a str,
+    // User-Agent HTTP header in `header_user_agent`
     pub header_user_agent: &'a str,
     pub screen_resolution: &'a str,
     pub referrer: &'a str,

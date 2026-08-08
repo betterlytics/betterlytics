@@ -40,8 +40,7 @@ pub struct Database {
 pub type SharedDatabase = Arc<Database>;
 
 impl Database {
-    /// Creates the database handle plus the event and bot-event ingest channels;
-    /// both inserters share the same retry/drain machinery and per-table metrics.
+    /// Creates the database handle plus the event and bot-event ingest channels
     pub async fn new(
         clickhouse: Arc<ClickHouseClient>,
         config: Arc<Config>,

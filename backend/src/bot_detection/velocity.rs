@@ -6,8 +6,8 @@ use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
 
-/// No human sustains this rate for a full minute, but CGNAT puts many visitors
-/// behind one IP — shadow-only until bot_events data justifies enforcement
+/// No human sustains this rate for a full minute, but CGNAT puts many visitors 
+/// behind one IP, so the threshold is high enough to avoid false positives.
 pub const MAX_EVENTS_PER_MINUTE: u32 = 120;
 
 static WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
@@ -17,11 +17,7 @@ static WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
         .build()
 });
 
-/// Fixed one-minute window per site + anonymized IP (/24 for v4, /64 for v6),
-/// matching the invariant that no derived computation uses the full IP. The
-/// prefix key also stops IPv6 rotation within a /64 from evading the counter;
-/// v4 /24 pooling (up to 256 neighbors) is accepted while the signal is
-/// shadow-only. A hash collision only perturbs a shadow counter.
+/// Fixed one-minute window per site + anonymized IP
 fn window(site_id: &str, ip_address: &str) -> Arc<AtomicU32> {
     let anonymized = anonymize_ip(ip_address);
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
