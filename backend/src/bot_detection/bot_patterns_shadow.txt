@@ -2,10 +2,12 @@
 # not hand-edit). Upstream isbot patterns not promoted in bot_patterns.txt: format
 # heuristics and generic words that could conceivably match a real client.
 # Source: https://raw.githubusercontent.com/omrilotan/isbot/main/src/patterns.json
-# Generated: 2026-08-07 (74 patterns)
+# Generated: 2026-08-07 (76 patterns)
 (?:^|[^g])news(?!sapphire)
+(?<! channel/|google/)google(?!(?:wv|app|/google| pixel))
 (?<!cam)scan
 (?<!lib)http
+24x7
 ;\s\w+;$
 @[a-z][\w\-]+\.
 \(\)

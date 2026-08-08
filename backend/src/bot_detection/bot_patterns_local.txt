@@ -4,3 +4,18 @@
 # until bot_events data justifies promotion.
 meta-externalagent
 bingpreview
+# Google's documented crawlers without "bot" in the UA (the generic "google"
+# pattern is shadow-only)
+apis-google
+feedfetcher-google
+google favicon
+google-inspectiontool
+google-notebooklm
+google-read-aloud
+google-safety
+google-site-verification
+googleother
+googleproducer
+mediapartners-google
+# Site24x7 monitoring (the bare "24x7" pattern is shadow-only)
+site24x7

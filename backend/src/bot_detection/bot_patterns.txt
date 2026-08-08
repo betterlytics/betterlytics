@@ -3,13 +3,11 @@
 # The upstream remainder runs in shadow (bot_patterns_shadow.txt); promote a pattern
 # by moving its line here once bot_events shadow data shows it only hits bots.
 # Source: https://raw.githubusercontent.com/omrilotan/isbot/main/src/patterns.json
-# Generated: 2026-08-07 (135 of 209 upstream patterns enforced)
+# Generated: 2026-08-07 (133 of 209 upstream patterns enforced)
 # Regenerate with: node scripts/update-bot-patterns.js
  daum[ /]
  deusu/
-(?<! channel/|google/)google(?!(?:wv|app|/google| pixel))
 (?<! cu)bots?(?:\b|_)
-24x7
 \bperl\b
 ^ad muncher
 ^amaya

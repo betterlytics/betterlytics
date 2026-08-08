@@ -375,6 +375,11 @@ mod tests {
         "Python/3.11 aiohttp/3.9.1",
         "Wget/1.21.4",
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/534.34 (KHTML, like Gecko) PhantomJS/2.1.1 Safari/534.34",
+        "Mozilla/5.0 (compatible; GoogleOther)",
+        "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.175 Mobile Safari/537.36 (compatible; Google-InspectionTool/1.0;)",
+        "Mediapartners-Google",
+        "FeedFetcher-Google; (+http://www.google.com/feedfetcher.html)",
+        "Site24x7",
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Chrome-Lighthouse",
         "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)",
     ];
@@ -442,6 +447,20 @@ mod tests {
         assert!(detect_ua("192.168.1.1").shadow.contains(&REASON_UA_IP));
         assert!(detect_ua("203.0.113.7:8080").shadow.contains(&REASON_UA_IP));
         assert!(detect_ua("550e8400-e29b-41d4-a716-446655440000").shadow.contains(&REASON_UA_UUID));
+    }
+
+    #[test]
+    fn demoted_generic_tokens_are_shadow_flagged() {
+        // The generic "google" and "24x7" patterns run in shadow, so novel
+        // vendor-branded tokens are recorded but never rejected
+        for ua in [
+            "Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36 GoogleShoppingApp/2.0",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Pharmacy24x7/3.1",
+        ] {
+            let detection = detect_ua(ua);
+            assert!(!detection.should_reject(), "should not reject: {}", ua);
+            assert!(detection.shadow.contains(&REASON_UA_HEURISTIC), "should shadow-flag: {}", ua);
+        }
     }
 
     #[test]
