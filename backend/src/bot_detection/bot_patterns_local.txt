@@ -1,15 +1,7 @@
-# Local enforced additions, hand-maintained (not part of the vendored isbot list).
-# Named signatures for clients that upstream isbot only catches via the demoted
-# heuristics: HTTP client libraries (which cannot execute JavaScript, so their UA
-# at this JS-only endpoint is a forged POST by definition) and link-preview bots.
-# Keep entries unambiguous product names; generic words belong in shadow instead.
-^curl/
-^axios/
-scrapy
-okhttp
-go-http-client
-aiohttp
-httpx/
-libwww
+# Local enforced additions, hand-maintained (not part of the vendored isbot list):
+# named bots with proven precedent that upstream isbot only catches via the demoted
+# heuristics. Everything else (e.g. bare HTTP clients like curl) stays shadow-only
+# until bot_events data justifies promotion — enforcement requires precedent or
+# evidence, never reasoning alone.
 meta-externalagent
 bingpreview

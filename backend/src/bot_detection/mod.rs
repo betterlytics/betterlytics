@@ -312,13 +312,8 @@ mod tests {
         "Mozilla/5.0 (compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)",
         "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)",
         "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)",
-        "curl/8.4.0",
         "python-requests/2.31.0",
-        "Go-http-client/2.0",
-        "axios/1.6.2",
         "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)",
-        "Scrapy/2.11.0 (+https://scrapy.org)",
-        "okhttp/4.12.0",
         "Java/17.0.2",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7 (Applebot/0.1; +http://www.apple.com/go/applebot)",
         "DuckDuckBot/1.0; (+http://duckduckgo.com/duckduckbot.html)",
@@ -372,6 +367,25 @@ mod tests {
         }
     }
 
+    // HTTP clients with no named signature: caught only by the shadow heuristics,
+    // so they are recorded but never rejected until promoted with evidence
+    const HEURISTIC_ONLY_UAS: &[&str] = &[
+        "curl/8.4.0",
+        "axios/1.6.2",
+        "Go-http-client/2.0",
+        "okhttp/4.12.0",
+        "Scrapy/2.11.0 (+https://scrapy.org)",
+    ];
+
+    #[test]
+    fn unnamed_http_clients_are_shadow_flagged() {
+        for ua in HEURISTIC_ONLY_UAS {
+            let detection = detect_ua(ua);
+            assert!(!detection.should_reject(), "should not reject: {}", ua);
+            assert!(detection.shadow.contains(&REASON_UA_HEURISTIC), "should shadow-flag: {}", ua);
+        }
+    }
+
     #[test]
     fn malformed_user_agents_are_shadow_flagged() {
         assert!(detect_ua("MyApp/1.0").shadow.contains(&REASON_UA_TOO_SHORT));
@@ -408,7 +422,7 @@ mod tests {
         assert!(!detection.is_empty());
         assert_eq!(detection.tagged_reasons(), vec!["shadow:ua-mismatch"]);
 
-        let mixed = detect_ua("curl/8.4.0");
+        let mixed = detect_ua("Wget/1.21.4");
         assert!(mixed.should_reject());
         assert_eq!(mixed.enforcing, vec![REASON_UA_BLOCKLIST]);
         assert_eq!(mixed.tagged_reasons(), vec!["ua-blocklist", "shadow:ua-too-short"]);
@@ -502,7 +516,7 @@ mod tests {
     fn header_ua_blocklist_hit_is_enforced() {
         // Forged POST: clean payload UA, but the HTTP client names itself in the header
         let detection = detect(&DetectionInput {
-            header_user_agent: "curl/8.4.0",
+            header_user_agent: "Wget/1.21.4",
             ..human_input()
         });
         assert!(detection.enforcing.contains(&REASON_UA_BLOCKLIST));
