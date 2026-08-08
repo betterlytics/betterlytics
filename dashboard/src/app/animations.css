@@ -242,4 +242,31 @@
       animation: none;
     }
   }
+
+  @keyframes filter-pill-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes filter-pill-flash {
+    0% {
+      box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 45%, transparent);
+    }
+    100% {
+      box-shadow: 0 0 0 2px transparent;
+    }
+  }
+
+  .animate-filter-pill-added {
+    animation:
+      filter-pill-in 0.15s ease-out,
+      filter-pill-flash 1.2s ease-out;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-filter-pill-added {
+      animation: none;
+    }
+  }
 }

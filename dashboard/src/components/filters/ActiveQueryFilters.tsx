@@ -1,4 +1,5 @@
 'use client';
+import { useRef } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useFilterColumnStatus, useFilterColumnDisabledMessage } from '@/hooks/use-is-filter-column-allowed';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,10 @@ export function ActiveQueryFilters() {
   const getColumnStatus = useFilterColumnStatus();
   const getDisabledMessage = useFilterColumnDisabledMessage();
 
+  // Pills present on first render (e.g. from the URL) must not replay the entrance pulse.
+  const initialIdsRef = useRef<Set<string> | null>(null);
+  const initialIds = (initialIdsRef.current ??= new Set(queryFilters.map((filter) => filter.id)));
+
   if (queryFilters.length === 0) {
     return null;
   }
@@ -30,6 +35,7 @@ export function ActiveQueryFilters() {
             variant='outline'
             className={cn(
               'border-input bg-muted/50 hover:bg-muted/70 dark:bg-secondary dark:hover:bg-secondary/90 max-w-full gap-1.5 p-1 px-1.5',
+              !initialIds.has(filter.id) && 'animate-filter-pill-added',
               status.disabled && 'opacity-50',
             )}
           >

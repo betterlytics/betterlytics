@@ -2522,6 +2522,9 @@
         "maxFiltersReachedToast": "Du kan anvende op til {max} filtre. Fjern ét for at tilføje et nyt."
       },
       "filterBy": "Filtrer efter {label}",
+      "toastFiltersUpdated": "Filtre opdateret",
+      "toastFilterAdded": "Tilføjet",
+      "toastFilterRemoved": "Fjernet",
       "removeFilter": "Fjern filter",
       "notAvailableOnPage": "Ikke tilgængelig på denne side"
     },
