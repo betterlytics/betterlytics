@@ -103,8 +103,8 @@ export async function findSoleUserDashboard(userId: string): Promise<Dashboard |
     }
 
     return DashboardSchema.parse(prismaUserDashboards[0].dashboard);
-  } catch {
-    console.error("Error while finding user's sole dashboard");
+  } catch (error) {
+    console.error("Error while finding user's sole dashboard:", error);
     throw new Error('Failed to find dashboard');
   }
 }
