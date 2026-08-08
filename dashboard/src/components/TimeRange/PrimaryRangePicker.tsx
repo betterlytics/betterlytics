@@ -58,7 +58,7 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
           actions.setPresetRange(v);
           setOpen(false);
         }}
-        allowedValues={isDemo ? ['24h', '7d'] : undefined}
+        allowedValues={isDemo ? ['today', '24h', '7d'] : undefined}
       />
       <Separator className='my-1' />
       <DateRangeSection
