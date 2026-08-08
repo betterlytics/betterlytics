@@ -20,7 +20,8 @@ import DataEmptyComponent from './DataEmptyComponent';
 import { cn } from '@/lib/utils';
 
 const SKELETON_ROWS = 10;
-const INTERACTIVE_ELEMENT_SELECTOR = 'a, button, input, select, textarea';
+const INTERACTIVE_ELEMENT_SELECTOR =
+  'a, input, textarea, button, select, [role="button"], [role="combobox"], [role="menuitem"], [contenteditable="true"]';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
