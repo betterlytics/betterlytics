@@ -1,16 +1,12 @@
 import { useTranslations } from 'next-intl';
-import type { VariantProps } from 'class-variance-authority';
-import { Badge, badgeVariants } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { Badge, type BadgeAppearance, type BadgeIntent } from '@/components/v2/badge';
 import type { PlanStatus } from '@/lib/billing/subscription-status';
 
-type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
-
-const STATUS_BADGE: Record<PlanStatus, { variant: BadgeVariant; className?: string }> = {
-  active: { variant: 'default', className: 'border-transparent bg-emerald-600 text-white dark:bg-emerald-800' },
-  canceling: { variant: 'secondary' },
-  pastDue: { variant: 'destructive' },
-  inactive: { variant: 'secondary' },
+const STATUS_BADGE: Record<PlanStatus, { intent: BadgeIntent; appearance: BadgeAppearance }> = {
+  active: { intent: 'success', appearance: 'solid' },
+  canceling: { intent: 'neutral', appearance: 'soft' },
+  pastDue: { intent: 'danger', appearance: 'solid' },
+  inactive: { intent: 'neutral', appearance: 'soft' },
 };
 
 export function PlanStatusBadge({ planStatus, className }: { planStatus: PlanStatus; className?: string }) {
@@ -18,7 +14,7 @@ export function PlanStatusBadge({ planStatus, className }: { planStatus: PlanSta
   const badge = STATUS_BADGE[planStatus];
 
   return (
-    <Badge variant={badge.variant} className={cn(badge.className, className)}>
+    <Badge intent={badge.intent} appearance={badge.appearance} className={className}>
       {t(planStatus)}
     </Badge>
   );

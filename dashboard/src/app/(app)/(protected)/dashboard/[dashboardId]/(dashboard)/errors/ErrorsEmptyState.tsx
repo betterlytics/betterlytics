@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/v2/badge';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
@@ -95,42 +95,37 @@ export function ErrorsEmptyState() {
               </TableRow>
             </TableHeader>
             <TableBody className='divide-secondary divide-y'>
-              {MOCK_ERRORS.map((error, i) => {
-                const cfg = STATUS_CONFIG[error.status];
-                return (
-                  <TableRow key={i} className='hover:bg-transparent'>
-                    <TableCell className='w-10 py-3 pl-4 sm:pl-6'>
-                      <Checkbox disabled aria-label={t('table.selectRow')} />
-                    </TableCell>
-                    <TableCell className='text-muted-foreground w-full max-w-0 min-w-[200px] py-3 pl-2 text-sm sm:px-6'>
-                      <div className='min-w-0'>
-                        <div className='font-mono text-sm font-semibold'>{error.type}</div>
-                        <div className='text-muted-foreground truncate text-sm'>{error.message}</div>
-                      </div>
-                    </TableCell>
-                    <TableCell className='text-muted-foreground hidden px-3 py-3 text-sm sm:px-6 xl:table-cell'>
-                      <MockSparkline />
-                    </TableCell>
-                    <TableCell className='text-muted-foreground px-3 py-3 text-center text-sm tabular-nums sm:px-6'>
-                      {error.occurrences}
-                    </TableCell>
-                    <TableCell className='text-muted-foreground px-3 py-3 text-center text-sm tabular-nums sm:px-6'>
-                      {error.sessions}
-                    </TableCell>
-                    <TableCell className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
-                      {error.firstSeen}
-                    </TableCell>
-                    <TableCell className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
-                      {error.lastSeen}
-                    </TableCell>
-                    <TableCell className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
-                      <Badge variant='outline' className={cfg.className}>
-                        {t(`status.${error.status}`)}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+              {MOCK_ERRORS.map((error, i) => (
+                <TableRow key={i} className='hover:bg-transparent'>
+                  <TableCell className='w-10 py-3 pl-4 sm:pl-6'>
+                    <Checkbox disabled aria-label={t('table.selectRow')} />
+                  </TableCell>
+                  <TableCell className='text-muted-foreground w-full max-w-0 min-w-[200px] py-3 pl-2 text-sm sm:px-6'>
+                    <div className='min-w-0'>
+                      <div className='font-mono text-sm font-semibold'>{error.type}</div>
+                      <div className='text-muted-foreground truncate text-sm'>{error.message}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell className='text-muted-foreground hidden px-3 py-3 text-sm sm:px-6 xl:table-cell'>
+                    <MockSparkline />
+                  </TableCell>
+                  <TableCell className='text-muted-foreground px-3 py-3 text-center text-sm tabular-nums sm:px-6'>
+                    {error.occurrences}
+                  </TableCell>
+                  <TableCell className='text-muted-foreground px-3 py-3 text-center text-sm tabular-nums sm:px-6'>
+                    {error.sessions}
+                  </TableCell>
+                  <TableCell className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
+                    {error.firstSeen}
+                  </TableCell>
+                  <TableCell className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
+                    {error.lastSeen}
+                  </TableCell>
+                  <TableCell className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
+                    <Badge intent={STATUS_CONFIG[error.status]}>{t(`status.${error.status}`)}</Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>

@@ -27,7 +27,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableHeader, TableHead, TableBody, TableRow, TableCell } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/v2/badge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -359,12 +359,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
         enableGlobalFilter: false,
         cell: ({ row }) => {
           const status = getStatus(row.original.error_fingerprint, row.original.status);
-          const cfg = STATUS_CONFIG[status];
-          return (
-            <Badge variant='outline' className={cfg.className}>
-              {t(`status.${status}`)}
-            </Badge>
-          );
+          return <Badge intent={STATUS_CONFIG[status]}>{t(`status.${status}`)}</Badge>;
         },
       },
       {
