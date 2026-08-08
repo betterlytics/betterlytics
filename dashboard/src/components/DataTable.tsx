@@ -1,6 +1,6 @@
 'use client';
 
-import { type RefObject, useEffect, useState } from 'react';
+import { type KeyboardEvent, type MouseEvent, type RefObject, useEffect, useState } from 'react';
 import {
   flexRender,
   getCoreRowModel,
@@ -20,6 +20,27 @@ import DataEmptyComponent from './DataEmptyComponent';
 import { cn } from '@/lib/utils';
 
 const SKELETON_ROWS = 10;
+const INTERACTIVE_ELEMENT_SELECTOR =
+  'a, input, textarea, button, select, [role="button"], [role="combobox"], [role="menuitem"], [contenteditable="true"]';
+
+/** Per-column opt-in to cell-level interaction, read off `columnDef.meta`. */
+export type DataTableColumnMeta<TData> = {
+  onCellClick?: (data: TData) => void;
+  cellTitle?: (data: TData) => string | undefined;
+};
+
+/**
+ * A clickable cell must not swallow clicks meant for its own interactive
+ * children, so exempt anything matching the selector within this cell. The
+ * cell itself carries role="button", hence the currentTarget exclusion.
+ */
+function shouldIgnoreCellClick(event: MouseEvent<HTMLTableCellElement>) {
+  const interactive = (event.target as Element).closest(INTERACTIVE_ELEMENT_SELECTOR);
+  if (interactive && interactive !== event.currentTarget && event.currentTarget.contains(interactive)) {
+    return true;
+  }
+  return Boolean(window.getSelection()?.toString());
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -117,11 +138,43 @@ export function DataTable<TData, TValue>({
                 className={cn('hover:bg-accent dark:hover:bg-primary/10', onRowClick && 'cursor-pointer')}
                 onClick={() => onRowClick && onRowClick(row)}
               >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className='text-muted-foreground px-3 py-3 text-sm sm:px-6'>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row.getVisibleCells().map((cell) => {
+                  const meta = cell.column.columnDef.meta as DataTableColumnMeta<TData> | undefined;
+                  const onCellClick = meta?.onCellClick;
+                  return (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        'text-muted-foreground px-3 py-3 text-sm sm:px-6',
+                        onCellClick &&
+                          'hover:bg-input/40 dark:hover:bg-accent focus-visible:ring-ring/50 cursor-pointer focus-visible:ring-2 focus-visible:outline-none',
+                      )}
+                      role={onCellClick ? 'button' : undefined}
+                      tabIndex={onCellClick ? 0 : undefined}
+                      title={meta?.cellTitle?.(row.original)}
+                      onClick={
+                        onCellClick
+                          ? (e) => {
+                              if (shouldIgnoreCellClick(e)) return;
+                              onCellClick(row.original);
+                            }
+                          : undefined
+                      }
+                      onKeyDown={
+                        onCellClick
+                          ? (e: KeyboardEvent<HTMLTableCellElement>) => {
+                              if (e.target !== e.currentTarget) return;
+                              if (e.key !== 'Enter' && e.key !== ' ') return;
+                              e.preventDefault();
+                              onCellClick(row.original);
+                            }
+                          : undefined
+                      }
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))
           ) : (

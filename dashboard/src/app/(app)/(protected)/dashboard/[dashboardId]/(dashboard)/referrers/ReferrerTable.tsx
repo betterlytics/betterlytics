@@ -7,11 +7,10 @@ import { formatDuration } from '@/utils/dateFormatters';
 import { ReferrerTableRow } from '@/entities/analytics/referrers.entities';
 import { getReferrerColor } from '@/utils/referrerColors';
 import { Globe, Link } from 'lucide-react';
-import { DataTable } from '@/components/DataTable';
+import { DataTable, type DataTableColumnMeta } from '@/components/DataTable';
 import { ToDataTable } from '@/presenters/toDataTable';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import { useLocale, useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
 export const ReferrerTab = {
@@ -61,44 +60,41 @@ export default function ReferrerTable({ data = [], loading = false }: ReferrerTa
     return row.current.source_type.toLowerCase() === activeTab.toLowerCase();
   });
 
+  const sourceLabel = (source: ReferrerTableRow) =>
+    source.source_url
+      ? formatString(source.source_url)
+      : source.source_type.toLowerCase() === 'direct'
+        ? t('columns.direct')
+        : t('columns.unknown');
+
+  const applySourceFilter = (source: ReferrerTableRow) => {
+    if (source.source_url && source.source_url.trim() !== '') {
+      makeFilterClick('referrer_url')(source.source_url);
+      return;
+    }
+    makeFilterClick('referrer_source')(source.source_type);
+  };
+
   const columns: ColumnDef<ToDataTable<'source_url', ReferrerTableRow>>[] = [
     {
       accessorKey: 'source',
       header: t('columns.source'),
       minSize: 200,
+      meta: {
+        onCellClick: (row) => applySourceFilter(row.current),
+        cellTitle: (row) => tFilters('filterBy', { label: sourceLabel(row.current) }),
+      } satisfies DataTableColumnMeta<ToDataTable<'source_url', ReferrerTableRow>>,
       cell: ({ row }) => {
         const data = row.original.current;
-        const label = data.source_url
-          ? formatString(data.source_url)
-          : data.source_type.toLowerCase() === 'direct'
-            ? t('columns.direct')
-            : t('columns.unknown');
-        const handleClick = () => {
-          if (data.source_url && data.source_url.trim() !== '') {
-            makeFilterClick('referrer_url')(data.source_url);
-            return;
-          } else {
-            makeFilterClick('referrer_source')(data.source_type);
-          }
-        };
         return (
-          <div className='font-medium'>
-            <Button
-              variant='ghost'
-              onClick={handleClick}
-              className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium select-text'
-              title={typeof label === 'string' ? tFilters('filterBy', { label }) : undefined}
-            >
-              <span className='flex items-center gap-2'>
-                {data.source_type.toLowerCase() === 'direct' ? (
-                  <Globe className='h-4 w-4 text-gray-500' />
-                ) : (
-                  <Link className='h-4 w-4 text-gray-500' />
-                )}
-                {label}
-              </span>
-            </Button>
-          </div>
+          <span className='flex items-center gap-2 font-medium'>
+            {data.source_type.toLowerCase() === 'direct' ? (
+              <Globe className='h-4 w-4 text-gray-500' />
+            ) : (
+              <Link className='h-4 w-4 text-gray-500' />
+            )}
+            {sourceLabel(data)}
+          </span>
         );
       },
     },

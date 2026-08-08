@@ -1,13 +1,12 @@
 'use client';
 
-import { DataTable } from '@/components/DataTable';
+import { DataTable, type DataTableColumnMeta } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { OSIcon } from '@/components/icons';
 import type { BARouterOutputs } from '@/trpc/client';
 import { TableTrendIndicator } from '@/components/TableTrendIndicator';
 import { formatPercentage } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
 interface OperatingSystemTableProps {
@@ -25,18 +24,15 @@ export default function OperatingSystemTable({ data, loading }: OperatingSystemT
       accessorKey: 'os',
       header: tCols('os'),
       minSize: 150,
+      meta: {
+        onCellClick: (data) => makeFilterClick('os')(data.os),
+        cellTitle: (data) => tFilters('filterBy', { label: data.os }),
+      } satisfies DataTableColumnMeta<BARouterOutputs['devices']['osBreakdown'][number]>,
       cell: ({ row }) => (
-        <Button
-          variant='ghost'
-          onClick={() => makeFilterClick('os')(row.original.os)}
-          className='cursor-pointer bg-transparent p-1 text-left text-sm font-medium select-text'
-          title={tFilters('filterBy', { label: row.original.os })}
-        >
-          <span className='flex items-center gap-2'>
-            <OSIcon name={row.original.os} className='h-4 w-4' />
-            <span>{row.original.os}</span>
-          </span>
-        </Button>
+        <span className='flex items-center gap-2 font-medium'>
+          <OSIcon name={row.original.os} className='h-4 w-4' />
+          <span>{row.original.os}</span>
+        </span>
       ),
     },
     {

@@ -2,11 +2,10 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { DataTable } from '@/components/DataTable';
+import { DataTable, type DataTableColumnMeta } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import ExternalLink from '@/components/ExternalLink';
-import { Button } from '@/components/ui/button';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
@@ -36,27 +35,24 @@ export default function OutboundLinksTableSection() {
         accessorKey: 'outbound_link_url',
         header: t('destinationUrl'),
         minSize: 200,
+        meta: {
+          onCellClick: (data) => makeFilterClick('outbound_link_url')(data.current.outbound_link_url),
+          cellTitle: (data) => tFilters('filterBy', { label: data.current.outbound_link_url }),
+        } satisfies DataTableColumnMeta<TableOutboundLinkRow>,
         cell: ({ row }) => {
           const url = row.original.current.outbound_link_url;
           return (
-            <div className='flex items-start gap-1'>
+            <div className='flex items-start gap-2'>
               <ExternalLink
                 href={`https://${url}`}
                 target='_blank'
                 rel='noopener noreferrer'
                 title={t('goToUrl', { url })}
-                className='hover:bg-accent flex size-6 shrink-0 items-center justify-center rounded-md transition-colors hover:text-blue-600'
+                className='hover:bg-accent text-muted-foreground flex size-6 shrink-0 items-center justify-center rounded-md transition-colors hover:text-blue-600'
               >
                 <ExternalLinkIcon className='h-4 w-4' />
               </ExternalLink>
-              <Button
-                variant='ghost'
-                onClick={() => makeFilterClick('outbound_link_url')(url)}
-                title={tFilters('filterBy', { label: url })}
-                className='h-auto w-full cursor-pointer justify-start bg-transparent px-1 py-1 text-left text-sm font-medium break-all whitespace-normal select-text'
-              >
-                {formatString(url)}
-              </Button>
+              <span className='font-medium break-all'>{formatString(url)}</span>
             </div>
           );
         },
