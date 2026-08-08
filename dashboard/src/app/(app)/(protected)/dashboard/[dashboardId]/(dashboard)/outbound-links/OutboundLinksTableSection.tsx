@@ -6,12 +6,14 @@ import { DataTable } from '@/components/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TableCompareCell } from '@/components/TableCompareCell';
 import ExternalLink from '@/components/ExternalLink';
+import { Button } from '@/components/ui/button';
 import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatString } from '@/utils/formatters';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { useQueryState } from '@/hooks/use-query-state';
+import { useFilterClick } from '@/hooks/use-filter-click';
 import { Spinner } from '@/components/ui/spinner';
 import { cn } from '@/lib/utils';
 import type { inferRouterOutputs } from '@trpc/server';
@@ -24,6 +26,8 @@ export default function OutboundLinksTableSection() {
   const { input, options } = useBAQueryParams();
   const query = trpc.outboundLinks.analytics.useQuery(input, options);
   const t = useTranslations('components.outboundLinks.table');
+  const tFilters = useTranslations('components.filters');
+  const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
   const { data, loading, refetching } = useQueryState(query);
 
   const columns: ColumnDef<TableOutboundLinkRow>[] = useMemo(
@@ -32,19 +36,30 @@ export default function OutboundLinksTableSection() {
         accessorKey: 'outbound_link_url',
         header: t('destinationUrl'),
         minSize: 200,
-        cell: ({ row }) => (
-          <div className='flex items-center gap-2'>
-            <ExternalLinkIcon className='h-4 w-4 flex-shrink-0' />
-            <ExternalLink
-              href={`https://${row.original.current.outbound_link_url}`}
-              target='_blank'
-              rel='noopener noreferrer'
-              className='flex items-center gap-2 font-medium break-all transition-colors hover:text-blue-600'
-            >
-              {formatString(row.original.current.outbound_link_url)}
-            </ExternalLink>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const url = row.original.current.outbound_link_url;
+          return (
+            <div className='flex items-start gap-1'>
+              <ExternalLink
+                href={`https://${url}`}
+                target='_blank'
+                rel='noopener noreferrer'
+                title={t('goToUrl', { url })}
+                className='hover:bg-accent flex size-6 shrink-0 items-center justify-center rounded-md transition-colors hover:text-blue-600'
+              >
+                <ExternalLinkIcon className='h-4 w-4' />
+              </ExternalLink>
+              <Button
+                variant='ghost'
+                onClick={() => makeFilterClick('outbound_link_url')(url)}
+                title={tFilters('filterBy', { label: url })}
+                className='h-auto w-full cursor-pointer justify-start bg-transparent px-1 py-1 text-left text-sm font-medium break-all whitespace-normal select-text'
+              >
+                {formatString(url)}
+              </Button>
+            </div>
+          );
+        },
         accessorFn: (row) => row.current.outbound_link_url,
       },
       {
@@ -70,7 +85,7 @@ export default function OutboundLinksTableSection() {
         accessorFn: (row) => row.current.source_url_count,
       },
     ],
-    [t],
+    [t, tFilters, makeFilterClick],
   );
 
   return (

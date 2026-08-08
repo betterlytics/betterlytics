@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
 import { ArrowUp, ArrowDown } from 'lucide-react';
 import DataEmptyComponent from './DataEmptyComponent';
+import { cn } from '@/lib/utils';
 
 const SKELETON_ROWS = 10;
 
@@ -63,7 +64,7 @@ export function DataTable<TData, TValue>({
   }, []);
 
   return (
-    <div className={`rounded-lg ${className || ''} border-border overflow-hidden border`}>
+    <div className={cn('border-border overflow-hidden rounded-lg border', className)}>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -76,7 +77,9 @@ export function DataTable<TData, TValue>({
                       ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none'
                       : ''
                   }`}
-                  style={header.column.columnDef.minSize ? { minWidth: header.column.columnDef.minSize } : undefined}
+                  style={
+                    header.column.columnDef.minSize ? { minWidth: header.column.columnDef.minSize } : undefined
+                  }
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   <div className='flex items-center'>
@@ -111,7 +114,7 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className={`hover:bg-accent dark:hover:bg-primary/10 ${onRowClick ? 'cursor-pointer' : ''}`}
+                className={cn('hover:bg-accent dark:hover:bg-primary/10', onRowClick && 'cursor-pointer')}
                 onClick={() => onRowClick && onRowClick(row)}
               >
                 {row.getVisibleCells().map((cell) => (

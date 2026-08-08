@@ -2684,7 +2684,8 @@
         "destinationUrl": "Destinations-URL",
         "uniqueClicks": "Unikke klik",
         "topReferrerPage": "Top henvisningsside",
-        "sourcePages": "Kildesider"
+        "sourcePages": "Kildesider",
+        "goToUrl": "Gå til {url}"
       },
       "chart": {
         "title": "Unikke udgående klik over tid",
