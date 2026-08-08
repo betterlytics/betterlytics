@@ -1,12 +1,12 @@
-use std::net::SocketAddr;
 use std::time::Duration;
 use std::sync::Arc;
 
-use axum::{extract::{ConnectInfo, State}, http::{HeaderMap, StatusCode}, Json};
+use axum::{extract::State, http::StatusCode, Json};
 use tracing::error;
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 
+use crate::client_request::ClientRequest;
 use crate::storage::s3::S3Service;
 use crate::site_config::SiteConfigCache;
 use crate::ua_parser;
@@ -80,26 +80,23 @@ mod u64_as_string {
 
 pub async fn presign_put_segment(
     State((_, processor, _, _, s3, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    headers: HeaderMap,
+    client: ClientRequest,
     Json(req): Json<PresignPutRequest>,
 ) -> Result<Json<PresignPutResponse>, (StatusCode, String)> {
     let s3 = s3.ok_or((StatusCode::SERVICE_UNAVAILABLE, "S3 not configured".to_string()))?;
-    let ip_address = crate::ip_parser::client_ip(&headers, addr.ip());
-    let user_agent = crate::ip_parser::user_agent(&headers);
 
     if processor.check_replay_request(
         &req.site_id,
-        &ip_address,
-        user_agent,
+        &client.ip,
+        &client.user_agent,
         req.url.as_deref().unwrap_or_default(),
         req.screen_resolution.as_deref().unwrap_or_default(),
-        crate::bot_detection::is_prefetch(&headers),
+        client.prefetch,
     ) {
         return Err((StatusCode::FORBIDDEN, "rejected".to_string()));
     }
 
-    let parsed = ua_parser::parse_user_agent(user_agent);
+    let parsed = ua_parser::parse_user_agent(&client.user_agent);
 
     let device_type_from_res = req.screen_resolution.as_deref()
         .and_then(|sr| detect_device_type_from_resolution(sr));
@@ -110,7 +107,7 @@ pub async fn presign_put_segment(
 
     let identity = {
         let attrs = VisitorAttrs {
-            ip: &ip_address,
+            ip: &client.ip,
             device_type: device_type_from_res.as_deref(),
             browser: Some(parsed.browser.as_str()),
             browser_version: parsed.browser_version.as_deref(),
@@ -163,19 +160,16 @@ pub struct FinalizeRequest {
 
 pub async fn finalize_session_replay(
     State((db, processor, _, _, _, _)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<S3Service>>, Arc<SiteConfigCache>)>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    headers: HeaderMap,
+    client: ClientRequest,
     Json(req): Json<FinalizeRequest>,
 ) -> Result<StatusCode, (StatusCode, String)> {
-    let ip_address = crate::ip_parser::client_ip(&headers, addr.ip());
-    let user_agent = crate::ip_parser::user_agent(&headers);
     if processor.check_replay_request(
         &req.site_id,
-        &ip_address,
-        user_agent,
+        &client.ip,
+        &client.user_agent,
         req.start_url.as_deref().unwrap_or_default(),
         "",
-        crate::bot_detection::is_prefetch(&headers),
+        client.prefetch,
     ) {
         return Err((StatusCode::FORBIDDEN, "rejected".to_string()));
     }

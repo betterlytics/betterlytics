@@ -1,7 +1,7 @@
 use axum::{
     Json, Router,
-    extract::{ConnectInfo, DefaultBodyLimit, State},
-    http::{HeaderMap, StatusCode},
+    extract::{DefaultBodyLimit, State},
+    http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
 };
@@ -17,6 +17,7 @@ mod asn;
 mod bot_detection;
 mod campaign;
 mod clickhouse;
+mod client_request;
 mod config;
 mod db;
 mod email;
@@ -45,6 +46,7 @@ mod validation;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use clickhouse::ClickHouseClient;
+use client_request::ClientRequest;
 use db::{Database, SharedDatabase};
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
@@ -416,15 +418,11 @@ async fn track_event(
         Option<Arc<S3Service>>,
         Arc<SiteConfigCache>,
     )>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    headers: HeaderMap,
+    client: ClientRequest,
     Json(mut raw_event): Json<RawTrackingEvent>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
-
-    let prefetch = bot_detection::is_prefetch(&headers);
-
-    let ip_address = ip_parser::client_ip(&headers, addr.ip());
+    let ip_address = client.ip.clone();
 
     sanitize::sanitize_event(&mut raw_event, &sanitize::SanitizeConfig::default());
 
@@ -474,13 +472,11 @@ async fn track_event(
 
     debug!("validation passed");
 
-    let header_user_agent = ip_parser::user_agent(&headers).to_string();
-
     let event = AnalyticsEvent::new(
         validated_event.raw,
         validated_event.ip_address,
-        header_user_agent,
-        prefetch,
+        client.user_agent,
+        client.prefetch,
     );
 
     if let Err(e) = processor.process_event(event).await {

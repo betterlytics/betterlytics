@@ -1,6 +1,7 @@
 # ASNs categorized as hosting/datacenter providers, vendored from a community-maintained dataset.
+# Excludes CDN/consumer-relay egress networks (see RELAY_EGRESS_ASNS in the update script).
 # Source: https://raw.githubusercontent.com/ipverse/as-metadata/master/as.json
-# Generated: 2026-08-06 (12319 ASNs)
+# Generated: 2026-08-06 (12313 ASNs)
 # Regenerate with: node scripts/update-hosting-asns.js
 6
 42
@@ -24,7 +25,6 @@
 575
 600
 603
-714
 766
 786
 801
@@ -823,7 +823,6 @@
 13302
 13331
 13332
-13335
 13354
 13360
 13364
@@ -971,7 +970,6 @@
 15149
 15162
 15164
-15169
 15189
 15191
 15201
@@ -1388,7 +1386,6 @@
 20917
 20928
 20932
-20940
 20949
 20963
 20965
@@ -2555,7 +2552,6 @@
 36114
 36168
 36182
-36183
 36195
 36208
 36218
@@ -4185,7 +4181,6 @@
 54098
 54103
 54104
-54113
 54118
 54133
 54142

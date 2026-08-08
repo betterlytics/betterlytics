@@ -1,3 +1,4 @@
+use crate::ip_parser::anonymize_ip;
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 use std::hash::{Hash, Hasher};
@@ -16,14 +17,26 @@ static WINDOWS: Lazy<Cache<u64, Arc<AtomicU32>>> = Lazy::new(|| {
         .build()
 });
 
-/// Fixed one-minute window per site+IP, keyed by hash — a collision only
-/// perturbs a shadow counter
-pub fn record_and_check(site_id: &str, ip_address: &str) -> bool {
+/// Fixed one-minute window per site + anonymized IP: the prefix key collapses
+/// an IPv6 client rotating within its /64 into one counter, and a hash
+/// collision only perturbs a shadow counter
+fn window(site_id: &str, ip_address: &str) -> Arc<AtomicU32> {
+    let anonymized = anonymize_ip(ip_address);
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
     site_id.hash(&mut hasher);
-    ip_address.hash(&mut hasher);
-    let counter = WINDOWS.get_with(hasher.finish(), || Arc::new(AtomicU32::new(0)));
-    counter.fetch_add(1, Ordering::Relaxed) + 1 > MAX_EVENTS_PER_MINUTE
+    anonymized.as_deref().unwrap_or(ip_address).hash(&mut hasher);
+    WINDOWS.get_with(hasher.finish(), || Arc::new(AtomicU32::new(0)))
+}
+
+/// True when the window is already over the threshold; does not count the event
+pub fn check(site_id: &str, ip_address: &str) -> bool {
+    window(site_id, ip_address).load(Ordering::Relaxed) >= MAX_EVENTS_PER_MINUTE
+}
+
+/// Counts one event. Call only for events that were not enforced-rejected, so a
+/// blocked bot flood cannot poison the window shared with humans behind the same IP
+pub fn record(site_id: &str, ip_address: &str) {
+    window(site_id, ip_address).fetch_add(1, Ordering::Relaxed);
 }
 
 #[cfg(test)]
@@ -32,25 +45,35 @@ mod tests {
 
     #[test]
     fn stays_quiet_under_the_threshold() {
-        for _ in 0..MAX_EVENTS_PER_MINUTE {
-            assert!(!record_and_check("site-under", "203.0.113.1"));
+        for _ in 0..MAX_EVENTS_PER_MINUTE - 1 {
+            record("site-under", "203.0.113.1");
+            assert!(!check("site-under", "203.0.113.1"));
         }
     }
 
     #[test]
-    fn flags_once_the_window_exceeds_the_threshold() {
+    fn flags_once_the_window_reaches_the_threshold() {
         for _ in 0..MAX_EVENTS_PER_MINUTE {
-            record_and_check("site-over", "203.0.113.2");
+            record("site-over", "203.0.113.2");
         }
-        assert!(record_and_check("site-over", "203.0.113.2"));
+        assert!(check("site-over", "203.0.113.2"));
     }
 
     #[test]
-    fn windows_are_isolated_per_site_and_ip() {
+    fn windows_are_isolated_per_site_and_subnet() {
         for _ in 0..=MAX_EVENTS_PER_MINUTE {
-            record_and_check("site-a", "203.0.113.3");
+            record("site-a", "203.0.113.3");
         }
-        assert!(!record_and_check("site-b", "203.0.113.3"));
-        assert!(!record_and_check("site-a", "203.0.113.4"));
+        assert!(!check("site-b", "203.0.113.3"));
+        // Counting is per anonymized /24, so isolation requires a different subnet
+        assert!(!check("site-a", "198.51.100.7"));
+    }
+
+    #[test]
+    fn ipv6_rotation_within_a_prefix_shares_one_window() {
+        for n in 0..=MAX_EVENTS_PER_MINUTE {
+            record("site-v6", &format!("2001:db8:1:2::{:x}", n + 1));
+        }
+        assert!(check("site-v6", "2001:db8:1:2::ffff"));
     }
 }

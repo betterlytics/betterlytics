@@ -1,6 +1,5 @@
 pub mod velocity;
 
-use axum::http::HeaderMap;
 use once_cell::sync::Lazy;
 use std::collections::HashSet;
 use std::str::FromStr;
@@ -213,13 +212,31 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
         }
     }
 
-    if BOT_MATCHER.is_match(user_agent) {
+    // The header UA is matched too: a forged POST can carry a clean payload UA
+    // while the real HTTP client identifies itself in the header
+    let ua = clip(user_agent);
+    let header_ua = clip(input.header_user_agent);
+    if BOT_MATCHER.is_match(ua) || (header_ua != ua && BOT_MATCHER.is_match(header_ua)) {
         reasons.push(REASON_UA_BLOCKLIST);
-    } else if BOT_HEURISTIC_MATCHER.is_match(user_agent) {
+    } else if BOT_HEURISTIC_MATCHER.is_match(ua) {
         reasons.push(REASON_UA_HEURISTIC);
     }
 
     reasons
+}
+
+/// Bounds regex input: validation allows UAs up to 8KB, but beyond the shadow
+/// length limit there is no extra signal and the backtracking tier must not
+/// scan attacker-sized strings
+fn clip(user_agent: &str) -> &str {
+    if user_agent.len() <= UA_MAX_LENGTH {
+        return user_agent;
+    }
+    let mut end = UA_MAX_LENGTH;
+    while !user_agent.is_char_boundary(end) {
+        end -= 1;
+    }
+    &user_agent[..end]
 }
 
 /// Only flags parseable dimensions that no real display has (headless defaults like 0x0);
@@ -258,32 +275,6 @@ fn is_spam_referrer(referrer: &str) -> bool {
             _ => return false,
         }
     }
-}
-
-/// Detects browser speculative-loading headers; an activated prerender is a real
-/// visit, which is why this is a shadow signal
-pub fn is_prefetch(headers: &HeaderMap) -> bool {
-    let header_value = |name: &str| {
-        headers
-            .get(name)
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or_default()
-            .to_ascii_lowercase()
-    };
-
-    if header_value("x-moz") == "prefetch" {
-        return true;
-    }
-
-    for name in ["x-purpose", "purpose"] {
-        let value = header_value(name);
-        if value == "prefetch" || value == "preview" {
-            return true;
-        }
-    }
-
-    let sec_purpose = header_value("sec-purpose");
-    sec_purpose.contains("prefetch") || sec_purpose.contains("prerender")
 }
 
 #[cfg(test)]
@@ -510,26 +501,22 @@ mod tests {
     }
 
     #[test]
-    fn detects_prefetch_headers() {
-        let cases = [
-            ("x-moz", "prefetch"),
-            ("x-purpose", "prefetch"),
-            ("x-purpose", "preview"),
-            ("purpose", "prefetch"),
-            ("sec-purpose", "prefetch;prerender"),
-            ("sec-purpose", "prefetch"),
-        ];
-        for (name, value) in cases {
-            let mut headers = HeaderMap::new();
-            headers.insert(name, value.parse().unwrap());
-            assert!(is_prefetch(&headers), "should detect prefetch: {}: {}", name, value);
-        }
+    fn header_ua_blocklist_hit_is_enforced() {
+        // Forged POST: clean payload UA, but the HTTP client names itself in the header
+        let detection = detect(&DetectionInput {
+            header_user_agent: "curl/8.4.0",
+            ..human_input()
+        });
+        assert!(detection.enforcing.contains(&REASON_UA_BLOCKLIST));
+        assert!(detection.should_reject());
+    }
 
-        let mut normal = HeaderMap::new();
-        normal.insert("user-agent", "Mozilla/5.0".parse().unwrap());
-        normal.insert("sec-fetch-mode", "cors".parse().unwrap());
-        assert!(!is_prefetch(&normal));
-        assert!(!is_prefetch(&HeaderMap::new()));
+    #[test]
+    fn oversized_ua_is_clipped_before_matching() {
+        let ua = format!("Mozilla/5.0 {}", "x".repeat(9000));
+        let detection = detect_ua(&ua);
+        assert!(!detection.should_reject());
+        assert!(detection.shadow.contains(&REASON_UA_TOO_LONG));
     }
 
     #[test]

@@ -21,7 +21,9 @@ use crate::outbound_link::process_outbound_link;
 use crate::analytics::detect_device_type_from_resolution_with_fallback;
 use crate::error_fingerprint::generate_error_fingerprint;
 
-static REPLAY_VERDICTS: Lazy<Cache<u64, bool>> = Lazy::new(|| {
+// Keyed on the full tuple, not a hash: the verdict gates an enforcing 403, so a
+// hash collision must not transfer one visitor's verdict to another
+static REPLAY_VERDICTS: Lazy<Cache<(String, String, String), bool>> = Lazy::new(|| {
     Cache::builder()
         .time_to_live(Duration::from_secs(600))
         .max_capacity(100_000)
@@ -182,10 +184,7 @@ impl EventProcessor {
         screen_resolution: &str,
         prefetch: bool,
     ) -> bool {
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
-        use std::hash::{Hash, Hasher};
-        (site_id, ip_address, user_agent).hash(&mut hasher);
-        let key = hasher.finish();
+        let key = (site_id.to_string(), ip_address.to_string(), user_agent.to_string());
         if let Some(reject) = REPLAY_VERDICTS.get(&key) {
             return reject;
         }
@@ -222,7 +221,7 @@ impl EventProcessor {
         let user_agent = event.raw.user_agent.clone();
 
         let asn_info = self.asn_service.lookup(&event.ip_address);
-        let velocity_exceeded = bot_detection::velocity::record_and_check(&site_id, &event.ip_address);
+        let velocity_exceeded = bot_detection::velocity::check(&site_id, &event.ip_address);
         let (domain, path) = extract_domain_and_path_from_url(&raw_url);
         debug!("Extracted domain '{:?}' and path '{}' from URL '{}'", domain, path, raw_url);
 
@@ -242,6 +241,9 @@ impl EventProcessor {
         if detection.should_reject() {
             return Ok(());
         }
+        // Counted only for accepted events, so a blocked bot flood cannot poison
+        // the velocity window shared with humans behind the same IP
+        bot_detection::velocity::record(&site_id, &event.ip_address);
 
         let mut processed = ProcessedEvent {
             event: event.clone(),
