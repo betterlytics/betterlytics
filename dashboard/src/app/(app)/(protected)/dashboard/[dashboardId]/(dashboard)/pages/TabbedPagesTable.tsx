@@ -3,7 +3,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { useMemo, useCallback } from 'react';
 import { useFilterClick } from '@/hooks/use-filter-click';
-import { Button } from '@/components/ui/button';
+import { type DataTableColumnMeta } from '@/components/DataTable';
 import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import TabbedTable from '@/components/TabbedTable';
 import type { AppRouter } from '@/trpc/routers/_app';
@@ -64,19 +64,11 @@ export default function TabbedPagesTable({
           accessorKey: 'path',
           header: t('path'),
           minSize: 200,
-          cell: ({ row }) => {
-            const path = formatPath(row.original.path);
-            return (
-              <Button
-                variant='ghost'
-                onClick={() => makeFilterClick('url')(path)}
-                className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors select-text'
-                title={t('filterByPath', { path })}
-              >
-                {formatString(path)}
-              </Button>
-            );
-          },
+          meta: {
+            onCellClick: (data) => makeFilterClick('url')(formatPath(data.path)),
+            cellTitle: (data) => t('filterByPath', { path: formatPath(data.path) }),
+          } satisfies DataTableColumnMeta<PageAnalyticsData[number]>,
+          cell: ({ row }) => <span className='font-medium'>{formatString(formatPath(row.original.path))}</span>,
         },
         {
           accessorKey: 'visitors',

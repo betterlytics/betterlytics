@@ -17,7 +17,7 @@ import { PERFORMANCE_SCORE_THRESHOLDS } from '@/constants/coreWebVitals';
 import { InfoTooltip } from '@/components/ui-extended/InfoTooltip';
 import { useLocale, useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
+import { type DataTableColumnMeta } from '@/components/DataTable';
 import { useFilterClick } from '@/hooks/use-filter-click';
 import type { FilterColumn } from '@/entities/analytics/filter.entities';
 
@@ -152,23 +152,18 @@ export default function WebVitalsTableSection() {
           accessorKey: 'key',
           header: label,
           minSize: 200,
-          cell: ({ row }) => {
-            const key = row.original.key;
-            const labelText = formatString(key);
-            return (
-              <Button
-                variant='ghost'
-                onClick={filterColumn ? () => makeFilterClick(filterColumn)(key) : undefined}
-                className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium select-text'
-                title={tFilters('filterBy', { label: labelText })}
-              >
-                <span className='flex max-w-[480px] items-center gap-2 truncate'>
-                  {renderIcon && <span className='shrink-0'>{renderIcon(key)}</span>}
-                  <span className='truncate'>{labelText}</span>
-                </span>
-              </Button>
-            );
-          },
+          meta: (filterColumn
+            ? {
+                onCellClick: (data) => makeFilterClick(filterColumn)(data.key),
+                cellTitle: (data) => tFilters('filterBy', { label: formatString(data.key) }),
+              }
+            : {}) satisfies DataTableColumnMeta<Row>,
+          cell: ({ row }) => (
+            <span className='flex max-w-[480px] items-center gap-2 truncate font-medium'>
+              {renderIcon && <span className='shrink-0'>{renderIcon(row.original.key)}</span>}
+              <span className='truncate'>{formatString(row.original.key)}</span>
+            </span>
+          ),
         },
         {
           accessorKey: 'samples',
@@ -286,9 +281,13 @@ export default function WebVitalsTableSection() {
   const browsersState = useQueryState(browsersQuery, activeTab === 'browsers');
   const osState = useQueryState(osQuery, activeTab === 'os');
 
-  const activeState = { pages: urlState, devices: devicesState, countries: countriesState, browsers: browsersState, os: osState }[
-    activeTab as 'pages' | 'devices' | 'countries' | 'browsers' | 'os'
-  ];
+  const activeState = {
+    pages: urlState,
+    devices: devicesState,
+    countries: countriesState,
+    browsers: browsersState,
+    os: osState,
+  }[activeTab as 'pages' | 'devices' | 'countries' | 'browsers' | 'os'];
 
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [
