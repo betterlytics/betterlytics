@@ -12,6 +12,7 @@
     "unit-tests": "vitest run",
     "migrate": "cd .. && pnpm prisma migrate dev --schema dashboard/prisma/schema.prisma && node scripts/provision_roles.js",
     "generate": "cd .. && pnpm prisma generate --schema dashboard/prisma/schema.prisma",
+    "icons:sync": "tsx scripts/sync-icons.ts",
     "mcp": "tsx src/mcp/index.ts",
     "email": "email dev --dir src/services/email/template"
   },
