@@ -76,6 +76,22 @@ export const authOptions: NextAuthOptions = {
     },
   },
   events: {
+    // Applies the user's saved language when signing in on a browser that doesn't have it yet.
+    // Skipped for new users: their settings are defaults, and overwriting the locale cookie here
+    // would flip the language they were browsing in right before onboarding.
+    async signIn({ user, isNewUser }) {
+      if (isNewUser) return;
+
+      try {
+        const settings = await getUserSettings(user.id);
+        if (settings.language) {
+          await setLocaleCookie(settings.language);
+        }
+      } catch (error) {
+        console.error('Failed to sync locale cookie on sign-in:', error);
+      }
+    },
+
     async createUser({ user }) {
       try {
         await createStarterSubscriptionForUser(user.id);
@@ -136,8 +152,6 @@ export const authOptions: NextAuthOptions = {
     async session({ session, user }) {
       if (!session.user || !user) return session;
 
-      const settings = await getUserSettings(user.id);
-
       session.user.id = user.id;
       session.user.name = user.name;
       session.user.email = user.email;
@@ -151,11 +165,6 @@ export const authOptions: NextAuthOptions = {
       session.user.changelogVersionSeen = user.changelogVersionSeen;
       session.user.createdAt = user.createdAt;
       session.user.githubStarPromptState = user.githubStarPromptState;
-      session.user.settings = settings;
-
-      if (session.user.settings?.language) {
-        await setLocaleCookie(session.user.settings.language);
-      }
 
       return session;
     },

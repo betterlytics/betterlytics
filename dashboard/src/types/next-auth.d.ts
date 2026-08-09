@@ -1,7 +1,6 @@
 import 'next-auth';
 import 'next-auth/jwt';
 import type { GithubStarPromptState } from '@prisma/client';
-import type { UserSettings } from '@/entities/account/userSettings.entities';
 import type { AdapterUser } from 'next-auth/adapters';
 
 declare module 'next-auth' {
@@ -15,7 +14,6 @@ declare module 'next-auth' {
     totpEnabled: boolean;
     hasPassword?: boolean;
     onboardingCompletedAt?: Date | null;
-    settings?: UserSettings;
     termsAcceptedAt?: Date | null;
     termsAcceptedVersion?: number | null;
     changelogVersionSeen?: string | null;
@@ -38,8 +36,6 @@ declare module 'next-auth/jwt' {
     totpEnabled: boolean;
     hasPassword?: boolean;
     onboardingCompletedAt?: Date | null;
-    settings?: UserSettings;
-    userLastFetched?: number;
     termsAcceptedAt?: Date | null;
     termsAcceptedVersion?: number | null;
     changelogVersionSeen?: string | null;
