@@ -1,5 +1,142 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v147ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.7',
+    releasedAt: '2026-08-09',
+    title: 'Betterlytics-plugin til WordPress',
+    summary:
+      'Vores officielle WordPress-plugin er nu ude: kobl dit site til fra wp-admin uden at skrive en eneste linje kode. Denne udgivelse giver dig også et forbrugsoverblik under fakturering og første bølge af et markant stærkere bot-filter.',
+  },
+  sections: [
+    {
+      id: 'v147-wordpress',
+      title: 'WordPress-plugin',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Betterlytics har nu et officielt WordPress-plugin, som ligger i plugin-kataloget på WordPress.org. Installer det fra wp-admin, indsæt dit Site ID, slå tracking til, og dine analysedata begynder at komme ind. Der er ingen kode, du skal sætte ind i dit tema, og intet, der skal laves om efter en temaopdatering.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Sidevisninger, besøgende, sessioner, referrers, kampagner, enheder og geografi, fra det øjeblik, du slår tracking til.',
+            'Registrering af klik på udgående links, Core Web Vitals og klik-tracking på knapper og links, som hver især slås til med ét flueben.',
+            'En guide inde i wp-admin, der tager dig igennem opsætningen.',
+            'Alle indstillinger kan også styres fra WP-CLI, hvis dit site bliver deployet fra en pipeline.',
+          ],
+        },
+        {
+          type: 'text',
+          body: 'Enkelte funktioner sættes op direkte på tracking-scriptet og er endnu ikke en del af pluginet: session replay, fejlsporing, dynamisk URL-gruppering og globale egenskaber. De kræver indtil videre, at du selv indsætter tracking-scriptet. Vores dokumentation har et WordPress-afsnit, der gennemgår opsætning, alle indstillinger og hvad pluginet måler, og hvad det ikke måler.',
+        },
+      ],
+    },
+    {
+      id: 'v147-bot-filtering',
+      title: 'Stærkere bot-filtrering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Automatiseret trafik er en af de største kilder til misvisende analysedata, så vi har bygget vores botgenkendelse om fra bunden. Første bølge af nye regler er nu live og fanger flere bots, crawlere og referrer spam, før de overhovedet når frem til dine rapporter.',
+        },
+        {
+          type: 'text',
+          body: 'Sideløbende kører et langt større sæt regler i observationstilstand: de markerer formodet bot-trafik uden at påvirke dine tal, så vi kan måle hver enkelt regel på rigtig trafik, før den begynder at filtrere. Der kommer flere bølger, efterhånden som reglerne viser deres værd, og dine data bliver lidt renere for hver gang.',
+        },
+      ],
+    },
+    {
+      id: 'v147-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Under fakturering finder du nu et forbrugsoverblik, der viser, hvilke typer events dit månedlige forbrug består af, og hvor meget hvert af dine sites bidrager med.',
+            'Overblikket gør det også tydeligt, hvad der er gratis: tid på siden og scrolldybde måles som separate events, men tæller ikke med i din kvote.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vores event-pipeline er nu mere robust under udrulninger og driftsforstyrrelser, så dine data fortsat kommer ind, som de skal.',
+            'Diverse mindre forbedringer af design og brugervenlighed på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Et gammelt dashboard-link ender ikke længere i et redirect-loop. Du bliver nu sendt videre til listen over dine dashboards.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Modtagelsen af events er nu bedre sikret mod misdannede og ondsindede data, oven i generelle sikkerhedsopdateringer, der holder Betterlytics stabil og sikker.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v147ChangelogModalDa: ChangelogEntryData = {
+  metadata: {
+    ...v147ChangelogEntryDa.metadata,
+    summary:
+      'Vores officielle WordPress-plugin er ude, bot-filtreringen er blevet markant stærkere, og fakturering viser nu, hvad dit forbrug består af.',
+  },
+  sections: [
+    {
+      id: 'v147-modal-highlights',
+      title: 'Højdepunkter',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Betterlytics har nu et officielt WordPress-plugin. Har du et WordPress-site, kan du koble det til fra wp-admin med dit Site ID, helt uden kode og uden noget, der skal laves om efter en temaopdatering.',
+            'Første bølge af vores ombyggede bot-filter er live og holder flere bots, crawlere og referrer spam ude af dine rapporter. Der kommer flere bølger.',
+            'Under fakturering finder du nu et forbrugsoverblik, der viser, hvilke typer events og hvilke sites dit månedlige forbrug består af.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-modal-also',
+      title: 'Også med i denne udgivelse',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Forbedret stabilitet og sikkerhed i vores event-pipeline.',
+            'Rettet et redirect-loop, når man fulgte et gammelt dashboard-link.',
+            'Diverse mindre forbedringer af design og brugervenlighed på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v146ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.6',
@@ -188,9 +325,10 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v146ChangelogEntryDa;
+export const latestChangelogModalDa = v147ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v147ChangelogEntryDa,
   v146ChangelogEntryDa,
   v145ChangelogEntryDa,
   v144ChangelogEntryDa,
