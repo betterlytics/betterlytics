@@ -32,7 +32,7 @@ export function UsageRow({ label, value, percentageOfLimit, segments, valueClass
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={Math.min(percentageOfLimit, 100)}
-            className='bg-primary/20 order-last col-span-2 flex h-1.5 w-full overflow-hidden rounded-full md:order-none md:col-span-1'
+            className='bg-primary/10 dark:bg-primary/20 order-last col-span-2 flex h-1.5 w-full overflow-hidden rounded-full md:order-none md:col-span-1'
           >
             {segments.map((segment, index) => (
               <Tooltip key={segment.key}>
@@ -57,7 +57,7 @@ export function UsageRow({ label, value, percentageOfLimit, segments, valueClass
         <Progress
           value={Math.min(percentageOfLimit, 100)}
           color='var(--primary)'
-          className='order-last col-span-2 h-1.5 md:order-none md:col-span-1'
+          className='bg-primary/10 dark:bg-primary/20 order-last col-span-2 h-1.5 md:order-none md:col-span-1'
         />
       )}
       <span className={cn('text-right text-xs whitespace-nowrap tabular-nums', valueClassName)}>{value}</span>
