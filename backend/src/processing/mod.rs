@@ -183,7 +183,7 @@ impl EventProcessor {
         // try_send: recording bot traffic must never backpressure the human event path
         if self.bot_tx.try_send(bot_event).is_err() {
             if let Some(metrics) = &self.metrics {
-                metrics.increment_events_dropped("bot_channel_full", 1);
+                metrics.increment_events_dropped("bot_channel_full", "analytics.bot_events", 1);
             }
             debug!("Bot event channel full, dropping bot event record");
         }
@@ -361,7 +361,7 @@ impl EventProcessor {
                 TrySendError::Closed(_) => "channel_closed",
             };
             if let Some(metrics) = &self.metrics {
-                metrics.increment_events_dropped(reason, 1);
+                metrics.increment_events_dropped(reason, "analytics.events", 1);
             }
             let dropped = DROP_LOG_SAMPLE.fetch_add(1, Ordering::Relaxed);
             if dropped % 1000 == 0 {

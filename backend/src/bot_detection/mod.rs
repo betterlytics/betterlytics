@@ -26,7 +26,9 @@ const BOT_OPERATOR_ASNS: &[u32] = &[
 ];
 
 fn data_lines(file: &'static str) -> impl Iterator<Item = &'static str> {
-    file.lines().filter(|line| !line.is_empty() && !line.starts_with('#'))
+    file.lines()
+        .map(|line| line.strip_suffix('\r').unwrap_or(line))
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
 }
 
 static HOSTING_ASN_SET: Lazy<HashSet<u32>> = Lazy::new(|| {
@@ -104,7 +106,6 @@ pub const REASON_STALE_BROWSER: &str = "stale-browser";
 /// Only reasons with ~zero false-positive risk reject events
 const ENFORCING_REASONS: &[&str] = &[
     REASON_UA_BLOCKLIST,
-    REASON_REFERRER_SPAM,
     REASON_CLIENT_AUTOMATION,
 ];
 
@@ -540,9 +541,12 @@ mod tests {
     fn detects_spam_referrers() {
         let detect_ref = |referrer: &str| detect(&DetectionInput { referrer, ..human_input() });
 
-        assert_eq!(detect_ref("https://semalt.com/some-page").enforcing, vec![REASON_REFERRER_SPAM]);
-        assert_eq!(detect_ref("http://sub.semalt.com/").enforcing, vec![REASON_REFERRER_SPAM]);
-        assert_eq!(detect_ref("https://semalt.com./").enforcing, vec![REASON_REFERRER_SPAM]);
+        // Shadow, not enforced: the vendored list has no false-positive guard and the
+        // parent-domain walk means one over-broad entry would eat a real referral source
+        assert_eq!(detect_ref("https://semalt.com/some-page").shadow, vec![REASON_REFERRER_SPAM]);
+        assert_eq!(detect_ref("http://sub.semalt.com/").shadow, vec![REASON_REFERRER_SPAM]);
+        assert_eq!(detect_ref("https://semalt.com./").shadow, vec![REASON_REFERRER_SPAM]);
+        assert!(!detect_ref("https://semalt.com/some-page").should_reject());
         assert!(detect_ref("https://www.google.com/search?q=x").is_empty());
         assert!(detect_ref("https://news.ycombinator.com/").is_empty());
         assert!(detect_ref("").is_empty());

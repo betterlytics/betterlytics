@@ -121,7 +121,7 @@ impl MetricsCollector {
                 "analytics_events_dropped_total",
                 "Total number of accepted analytics events lost before reaching ClickHouse",
             ),
-            &["reason"],
+            &["reason", "table"],
         )?;
 
         let ingest_channel_depth = Gauge::with_opts(Opts::new(
@@ -383,9 +383,9 @@ impl MetricsCollector {
             .inc();
     }
 
-    pub fn increment_events_dropped(&self, reason: &str, count: u64) {
+    pub fn increment_events_dropped(&self, reason: &str, table: &str, count: u64) {
         self.events_dropped_total
-            .with_label_values(&[reason])
+            .with_label_values(&[reason, table])
             .inc_by(count);
     }
 

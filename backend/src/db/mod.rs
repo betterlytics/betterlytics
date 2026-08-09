@@ -321,7 +321,7 @@ async fn flush<R>(
                             "ClickHouse rejected batch deterministically, dropping it"
                         );
                         if let Some(metrics) = metrics {
-                            metrics.increment_events_dropped("insert_gave_up", batch.len() as u64);
+                            metrics.increment_events_dropped("insert_gave_up", table, batch.len() as u64);
                             metrics.set_inserter_retry_attempts(table, 0);
                             metrics.set_inserter_batch_rows(table, 0);
                         }
