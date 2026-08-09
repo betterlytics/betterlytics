@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { BROWSERS, type IconAsset } from '../src/constants/browserIcons';
-import { OS_ICONS } from '../src/constants/operatingSystemIcons';
+import { OS_ICONS, type OSDef } from '../src/constants/operatingSystemIcons';
 
 type Target = { dir: string; asset: IconAsset };
 
@@ -11,7 +11,7 @@ async function main() {
   for (const def of Object.values(BROWSERS)) {
     targets.set(`browser-icons/${def.file}`, { dir: 'browser-icons', asset: def });
   }
-  for (const def of Object.values(OS_ICONS)) {
+  for (const def of Object.values<OSDef>(OS_ICONS)) {
     targets.set(`os-icons/${def.icon.file}`, { dir: 'os-icons', asset: def.icon });
     if (def.iconDark) {
       targets.set(`os-icons/${def.iconDark.file}`, { dir: 'os-icons', asset: def.iconDark });
