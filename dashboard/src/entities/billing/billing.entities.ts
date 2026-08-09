@@ -122,6 +122,40 @@ export const DailySiteUsageSchema = z
     total: row.total,
   }));
 
+/** Mirrors the whitelist baked into the analytics.usage_daily materialized view. */
+export const BILLABLE_EVENT_TYPES = ['pageview', 'custom', 'outbound_link', 'cwv', 'client_error'] as const;
+
+export const UsageBreakdownRowSchema = z
+  .object({
+    site_id: z.string(),
+    event_type: z.string(),
+    total: z.coerce.number(),
+  })
+  .transform((row) => ({
+    siteId: row.site_id,
+    eventType: row.event_type,
+    total: row.total,
+  }));
+
+export const UsageByEventTypeSchema = z.object({
+  eventType: z.string(),
+  total: z.number(),
+  percentageOfLimit: z.number(),
+});
+
+export const UsageBySiteSchema = z.object({
+  siteId: z.string(),
+  domain: z.string(),
+  total: z.number(),
+  percentageOfLimit: z.number(),
+});
+
+export const UsageBreakdownSchema = z.object({
+  total: z.number(),
+  byEventType: z.array(UsageByEventTypeSchema),
+  bySite: z.array(UsageBySiteSchema),
+});
+
 export const SubscriptionWithOwnedSitesSchema = z.object({
   userId: z.string(),
   userEmail: z.string(),
@@ -193,6 +227,9 @@ export type UpsertSubscriptionData = z.infer<typeof UpsertSubscriptionSchema>;
 export type UsageData = z.infer<typeof UsageDataSchema>;
 export type EventCountResult = z.infer<typeof EventCountResultSchema>;
 export type DailySiteUsage = z.infer<typeof DailySiteUsageSchema>;
+export type BillableEventType = (typeof BILLABLE_EVENT_TYPES)[number];
+export type UsageBreakdownRow = z.infer<typeof UsageBreakdownRowSchema>;
+export type UsageBreakdown = z.infer<typeof UsageBreakdownSchema>;
 export type SubscriptionWithOwnedSites = z.infer<typeof SubscriptionWithOwnedSitesSchema>;
 export type SubscriptionEndingSoonCandidate = z.infer<typeof SubscriptionEndingSoonCandidateSchema>;
 export type PaymentStatus = z.infer<typeof PaymentStatusSchema>;
