@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS analytics.bot_events (
     asn_org LowCardinality(String) DEFAULT ''
 ) ENGINE = MergeTree()
 PARTITION BY toYYYYMM(date)
-ORDER BY (site_id, date, timestamp);
+ORDER BY (site_id, date, timestamp)
+SETTINGS non_replicated_deduplication_window = 100;
 
 ALTER TABLE analytics.events ADD COLUMN IF NOT EXISTS asn UInt32 DEFAULT 0;
 ALTER TABLE analytics.events ADD COLUMN IF NOT EXISTS asn_org LowCardinality(String) DEFAULT '';
