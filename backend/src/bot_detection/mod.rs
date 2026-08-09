@@ -82,6 +82,7 @@ pub fn warm() {
 }
 
 pub const REASON_UA_BLOCKLIST: &str = "ua-blocklist";
+pub const REASON_UA_BLOCKLIST_HEADER: &str = "ua-blocklist-header";
 pub const REASON_UA_HEURISTIC: &str = "ua-heuristic";
 pub const REASON_UA_TOO_SHORT: &str = "ua-too-short";
 pub const REASON_UA_TOO_LONG: &str = "ua-too-long";
@@ -235,13 +236,20 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
     }
 
     // The header UA is matched too: a forged POST can carry a clean payload UA
-    // while the real HTTP client identifies itself in the header
+    // while the real HTTP client identifies itself in the header. Header-only hits
+    // are shadow: a server-side forwarder can replace a real visitor's header UA,
+    // so enforcement waits until bot_events shows such hits are never human.
     let ua = clip(user_agent);
     let header_ua = clip(input.header_user_agent);
-    if BOT_MATCHER.is_match(ua) || (header_ua != ua && BOT_MATCHER.is_match(header_ua)) {
+    if BOT_MATCHER.is_match(ua) {
         reasons.push(REASON_UA_BLOCKLIST);
-    } else if BOT_HEURISTIC_MATCHER.is_match(ua) {
-        reasons.push(REASON_UA_HEURISTIC);
+    } else {
+        if header_ua != ua && BOT_MATCHER.is_match(header_ua) {
+            reasons.push(REASON_UA_BLOCKLIST_HEADER);
+        }
+        if BOT_HEURISTIC_MATCHER.is_match(ua) {
+            reasons.push(REASON_UA_HEURISTIC);
+        }
     }
 
     reasons
@@ -582,14 +590,24 @@ mod tests {
     }
 
     #[test]
-    fn header_ua_blocklist_hit_is_enforced() {
-        // Forged POST: clean payload UA, but the HTTP client names itself in the header
+    fn header_ua_blocklist_hit_is_shadow_only() {
+        // Forged POST: clean payload UA, but the HTTP client names itself in the header.
+        // Shadow, not enforced: a first-party proxy may legitimately rewrite the header
         let detection = detect(&DetectionInput {
             header_user_agent: "Wget/1.21.4",
             ..human_input()
         });
-        assert!(detection.enforcing.contains(&REASON_UA_BLOCKLIST));
-        assert!(detection.should_reject());
+        assert!(detection.shadow.contains(&REASON_UA_BLOCKLIST_HEADER));
+        assert!(detection.shadow.contains(&REASON_UA_MISMATCH));
+        assert!(!detection.should_reject());
+
+        // A blocklist hit on the payload UA itself still rejects
+        assert!(detect(&DetectionInput {
+            user_agent: "Wget/1.21.4",
+            header_user_agent: "Wget/1.21.4",
+            ..Default::default()
+        })
+        .should_reject());
     }
 
     #[test]
