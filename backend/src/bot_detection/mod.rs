@@ -301,7 +301,8 @@ fn is_spam_referrer(referrer: &str) -> bool {
         return false;
     };
 
-    let mut candidate = host.as_str();
+    // A trailing root dot ("spam.com.") is the same host; strip it so it can't dodge the list
+    let mut candidate = host.trim_end_matches('.');
     loop {
         if REFERRER_SPAM_SET.contains(candidate) {
             return true;
@@ -533,6 +534,7 @@ mod tests {
 
         assert_eq!(detect_ref("https://semalt.com/some-page").enforcing, vec![REASON_REFERRER_SPAM]);
         assert_eq!(detect_ref("http://sub.semalt.com/").enforcing, vec![REASON_REFERRER_SPAM]);
+        assert_eq!(detect_ref("https://semalt.com./").enforcing, vec![REASON_REFERRER_SPAM]);
         assert!(detect_ref("https://www.google.com/search?q=x").is_empty());
         assert!(detect_ref("https://news.ycombinator.com/").is_empty());
         assert!(detect_ref("").is_empty());
