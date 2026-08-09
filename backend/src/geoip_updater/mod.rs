@@ -17,9 +17,103 @@ use bytes::Bytes;
 
 const GEOIP_CITY_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databases/GeoLite2-City/download?suffix=tar.gz";
 const GEOIP_COUNTRY_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databases/GeoLite2-Country/download?suffix=tar.gz";
+const GEOIP_ASN_DATABASE_URL: &str = "https://download.maxmind.com/geoip/databases/GeoLite2-ASN/download?suffix=tar.gz";
 
 /// Notifies watchers when the GeoIP database is updated.
 pub type GeoIpWatchRx = watch::Receiver<Option<Arc<Reader<Vec<u8>>>>>;
+
+/// Holds a service's current MMDB reader, refreshed from the updater's watch
+/// channel at most once per `check_interval`.
+#[derive(Clone)]
+pub struct MmdbSource {
+    watch_rx: Arc<std::sync::Mutex<GeoIpWatchRx>>,
+    current_reader: Arc<std::sync::RwLock<Option<Arc<Reader<Vec<u8>>>>>>,
+    last_check: Arc<std::sync::atomic::AtomicU64>,
+    check_interval: Duration,
+}
+
+impl MmdbSource {
+    /// `db_path: None` skips the initial load (feature disabled); the source then
+    /// only ever serves a reader if the watch channel publishes one
+    pub fn new(db_path: Option<&std::path::Path>, label: &str, watch_rx: GeoIpWatchRx, check_interval: Duration) -> Self {
+        let mut initial_reader = None;
+        if let Some(db_path) = db_path {
+            if db_path.exists() {
+                match Reader::open_readfile(db_path) {
+                    Ok(reader) => {
+                        info!("Initial {} database loaded from: {:?}", label, db_path);
+                        initial_reader = Some(Arc::new(reader));
+                    }
+                    Err(e) => {
+                        error!("Failed to load initial {} database from {:?}: {}. Lookups delayed until first update.", label, db_path, e);
+                    }
+                }
+            } else {
+                warn!("{} database not found at {:?}. Lookups disabled until first update.", label, db_path);
+            }
+        }
+
+        let rx_mutex = Arc::new(std::sync::Mutex::new(watch_rx));
+        let reader_to_use = rx_mutex.lock().unwrap().borrow().clone().or(initial_reader);
+        let now_secs = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        Self {
+            watch_rx: rx_mutex,
+            current_reader: Arc::new(std::sync::RwLock::new(reader_to_use)),
+            last_check: Arc::new(std::sync::atomic::AtomicU64::new(now_secs)),
+            check_interval,
+        }
+    }
+
+    pub fn reader(&self) -> Option<Arc<Reader<Vec<u8>>>> {
+        self.current_reader.read().unwrap().clone()
+    }
+
+    /// Swaps in a newly downloaded database when one is available; returns true so
+    /// the caller can invalidate its lookup cache. At most one thread per interval
+    /// pays for the check, claimed via CAS on the timestamp.
+    pub fn refresh_if_due(&self) -> bool {
+        use std::sync::atomic::Ordering;
+
+        let now_secs = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs();
+
+        let last_check_secs = self.last_check.load(Ordering::Relaxed);
+        if now_secs.saturating_sub(last_check_secs) < self.check_interval.as_secs() {
+            return false;
+        }
+        if self.last_check
+            .compare_exchange_weak(last_check_secs, now_secs, Ordering::Relaxed, Ordering::Relaxed)
+            .is_err()
+        {
+            return false;
+        }
+
+        let mut rx_guard = match self.watch_rx.try_lock() {
+            Ok(guard) => guard,
+            Err(_) => {
+                self.last_check.store(last_check_secs, Ordering::Relaxed);
+                return false;
+            }
+        };
+
+        if !rx_guard.has_changed().unwrap_or(false) {
+            return false;
+        }
+        let latest_reader = rx_guard.borrow_and_update().clone();
+        // Release the watch lock before taking the write lock to avoid holding both
+        drop(rx_guard);
+
+        *self.current_reader.write().unwrap() = latest_reader;
+        true
+    }
+}
+
 /// Sends notifications when the GeoIP database is updated.
 pub type GeoIpWatchTx = watch::Sender<Option<Arc<Reader<Vec<u8>>>>>;
 
@@ -30,43 +124,66 @@ pub struct GeoIpUpdater {
     database_url: &'static str,
     update_interval: Duration,
     watch_tx: GeoIpWatchTx,
+    enabled: bool,
 }
 
 impl GeoIpUpdater {
     /// Creates a new updater and returns it along with a watch receiver.
     pub fn new(config: Arc<Config>) -> Result<(Self, GeoIpWatchRx)> {
-        let (watch_tx, watch_rx) = watch::channel(None);
-
         let database_url = if config.geolocation_mode.has_subdivisions() {
             GEOIP_CITY_DATABASE_URL
         } else {
             GEOIP_COUNTRY_DATABASE_URL
         };
 
+        let enabled = config.geolocation_mode.is_enabled() && Self::has_credentials(&config);
+        let db_path = config.geoip_db_path.clone();
+        Self::with_database(config, database_url, db_path, enabled)
+    }
+
+    /// Creates an updater for the ASN database. Independent of geolocation mode:
+    /// ASN data drives bot detection, not geo reports.
+    pub fn new_asn(config: Arc<Config>) -> Result<(Self, GeoIpWatchRx)> {
+        let enabled = config.enable_asn_lookup && Self::has_credentials(&config);
+        let db_path = config.asn_db_path.clone();
+        Self::with_database(config, GEOIP_ASN_DATABASE_URL, db_path, enabled)
+    }
+
+    fn has_credentials(config: &Config) -> bool {
+        config.maxmind_account_id.is_some() && config.maxmind_license_key.is_some()
+    }
+
+    fn with_database(
+        config: Arc<Config>,
+        database_url: &'static str,
+        db_path: PathBuf,
+        enabled: bool,
+    ) -> Result<(Self, GeoIpWatchRx)> {
+        let (watch_tx, watch_rx) = watch::channel(None);
+
         let updater = Self {
             client: Client::builder().user_agent("betterlytics-updater/0.1").build()?,
-            db_path: config.geoip_db_path.clone(),
+            db_path,
             database_url,
             update_interval: config.geoip_update_interval,
             config,
             watch_tx,
+            enabled,
         };
         Ok((updater, watch_rx))
     }
 
     /// Starts the background update check loop.
     pub async fn run(self: Arc<Self>) {
-        if !self.config.geolocation_mode.is_enabled() || self.config.maxmind_account_id.is_none() || self.config.maxmind_license_key.is_none() {
-            info!("GeoIP database auto-update disabled (geolocation disabled or credentials missing).");
+        if !self.enabled {
+            info!("Auto-update disabled for {} (feature disabled or credentials missing).", self.database_url);
             return;
         }
 
         info!("Starting GeoIP database update loop every {:?}", self.update_interval);
         let mut interval = interval(self.update_interval);
 
-        interval.tick().await; 
-        self.check_and_update().await;
-
+        // The first tick resolves immediately, so the initial check runs at startup
         loop {
             interval.tick().await;
             self.check_and_update().await;

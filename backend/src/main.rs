@@ -1,7 +1,7 @@
 use axum::{
     Json, Router,
-    extract::{ConnectInfo, DefaultBodyLimit, State},
-    http::{HeaderMap, StatusCode},
+    extract::{DefaultBodyLimit, State},
+    http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
 };
@@ -13,9 +13,11 @@ use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod analytics;
+mod asn;
 mod bot_detection;
 mod campaign;
 mod clickhouse;
+mod client_request;
 mod config;
 mod db;
 mod email;
@@ -44,6 +46,7 @@ mod validation;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use clickhouse::ClickHouseClient;
+use client_request::ClientRequest;
 use db::{Database, SharedDatabase};
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
@@ -99,16 +102,22 @@ async fn main() {
         GeoIpUpdater::new(config.clone()).expect("Failed to create GeoIP updater");
     let updater = Arc::new(updater);
 
-    let geoip_service = GeoIpService::new(config.clone(), geoip_watch_rx)
-        .expect("Failed to initialize GeoIP service");
+    let geoip_service = GeoIpService::new(config.clone(), geoip_watch_rx);
 
     let _updater_handle = tokio::spawn(Arc::clone(&updater).run());
 
-    let validation_config = ValidationConfig {
-        enforce_timestamp_validation: !config.is_development,
-        ..Default::default()
+    let asn_service = if config.enable_asn_lookup {
+        let (asn_updater, asn_watch_rx) =
+            GeoIpUpdater::new_asn(config.clone()).expect("Failed to create ASN updater");
+        tokio::spawn(Arc::new(asn_updater).run());
+        Some(asn::AsnService::new(config.clone(), asn_watch_rx))
+    } else {
+        info!("ASN lookup disabled (set ENABLE_ASN_LOOKUP=true to enable)");
+        None
     };
-    let validator = Arc::new(EventValidator::new(validation_config));
+
+    bot_detection::warm();
+    let validator = Arc::new(EventValidator::new(ValidationConfig::default()));
 
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
     info!("ClickHouse client initialized");
@@ -124,7 +133,7 @@ async fn main() {
         None
     };
 
-    let (db, event_tx, inserter_handle) =
+    let (db, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle) =
         Database::new(Arc::clone(&clickhouse), config.clone(), metrics_collector.clone())
             .await
             .expect("Failed to initialize database");
@@ -152,8 +161,12 @@ async fn main() {
 
     let processor = Arc::new(EventProcessor::new(
         geoip_service,
+        asn_service,
         event_tx,
+        bot_event_tx,
         metrics_collector.clone(),
+        config.is_development,
+        config.enable_bot_event_log,
     ));
 
     let site_config_pool = Arc::new(
@@ -264,17 +277,22 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     info!("Listening on {}", addr);
     let mut inserter_handle = inserter_handle;
+    let mut bot_inserter_handle = bot_inserter_handle;
     tokio::select! {
         result = axum::serve(
             listener,
             app.into_make_service_with_connect_info::<SocketAddr>(),
         )
         .with_graceful_shutdown(shutdown_signal()) => result.unwrap(),
-        // The inserter only returns once the ingest channel closes, so reaching
-        // here means it panicked. Exit non-zero rather than keep acking events
+        // The inserters only return once their ingest channels close, so reaching
+        // here means one panicked. Exit non-zero rather than keep acking events
         // into a dead channel; the container restart policy brings us back.
         result = &mut inserter_handle => {
             error!(?result, "Inserter task exited while the server is running, exiting");
+            std::process::exit(1);
+        }
+        result = &mut bot_inserter_handle => {
+            error!(?result, "Bot event inserter task exited while the server is running, exiting");
             std::process::exit(1);
         }
     }
@@ -284,6 +302,10 @@ async fn main() {
         match inserter_handle.await {
             Ok(()) => info!("Ingest pipeline drained, buffered events committed"),
             Err(e) => error!("Inserter task failed during drain: {}", e),
+        }
+        match bot_inserter_handle.await {
+            Ok(()) => info!("Bot event pipeline drained"),
+            Err(e) => error!("Bot event inserter task failed during drain: {}", e),
         }
         monitor::clickhouse_writer::flush_all_writers().await;
     };
@@ -399,13 +421,11 @@ async fn track_event(
         Option<Arc<S3Service>>,
         Arc<SiteConfigCache>,
     )>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    headers: HeaderMap,
+    client: ClientRequest,
     Json(mut raw_event): Json<RawTrackingEvent>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
-
-    let ip_address = ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
+    let ip_address = client.ip.clone();
 
     sanitize::sanitize_event(&mut raw_event, &sanitize::SanitizeConfig::default());
 
@@ -455,7 +475,13 @@ async fn track_event(
 
     debug!("validation passed");
 
-    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
+    let event = AnalyticsEvent::new(
+        validated_event.raw,
+        validated_event.ip_address,
+        client.user_agent,
+        client.sec_ch_ua,
+        client.prefetch,
+    );
 
     if let Err(e) = processor.process_event(event).await {
         error!("Failed to process validated event: {}", e);

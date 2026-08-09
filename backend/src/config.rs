@@ -32,6 +32,10 @@ pub struct Config {
     pub maxmind_account_id: Option<String>,
     pub maxmind_license_key: Option<String>,
     pub geoip_db_path: PathBuf,
+    pub asn_db_path: PathBuf,
+    pub enable_asn_lookup: bool,
+    /// Persist per-event bot signals to analytics.bot_events
+    pub enable_bot_event_log: bool,
     pub geoip_update_interval: Duration,
     // Referrer and User Agent parsing configuration
     pub referrer_db_path: PathBuf,
@@ -120,6 +124,15 @@ impl Config {
                 } else {
                     PathBuf::from("assets/geoip/GeoLite2-Country.mmdb")
                 }),
+            asn_db_path: env::var("ASN_DB_PATH")
+                .map(PathBuf::from)
+                .unwrap_or_else(|_| PathBuf::from("assets/geoip/GeoLite2-ASN.mmdb")),
+            enable_asn_lookup: env::var("ENABLE_ASN_LOOKUP")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
+            enable_bot_event_log: env::var("ENABLE_BOT_EVENT_LOG")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
             geoip_update_interval: Duration::from_secs(
                 env::var("GEOIP_UPDATE_INTERVAL")
                     .ok()
