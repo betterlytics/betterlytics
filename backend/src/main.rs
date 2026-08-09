@@ -106,13 +106,15 @@ async fn main() {
 
     let _updater_handle = tokio::spawn(Arc::clone(&updater).run());
 
-    let (asn_updater, asn_watch_rx) =
-        GeoIpUpdater::new_asn(config.clone()).expect("Failed to create ASN updater");
-    let asn_updater = Arc::new(asn_updater);
-
-    let asn_service = asn::AsnService::new(config.clone(), asn_watch_rx);
-
-    let _asn_updater_handle = tokio::spawn(Arc::clone(&asn_updater).run());
+    let asn_service = if config.enable_asn_lookup {
+        let (asn_updater, asn_watch_rx) =
+            GeoIpUpdater::new_asn(config.clone()).expect("Failed to create ASN updater");
+        tokio::spawn(Arc::new(asn_updater).run());
+        Some(asn::AsnService::new(config.clone(), asn_watch_rx))
+    } else {
+        info!("ASN lookup disabled (set ENABLE_ASN_LOOKUP=true to enable)");
+        None
+    };
 
     bot_detection::warm();
     let validator = Arc::new(EventValidator::new(ValidationConfig::default()));
@@ -164,6 +166,7 @@ async fn main() {
         bot_event_tx,
         metrics_collector.clone(),
         config.is_development,
+        config.enable_bot_event_log,
     ));
 
     let site_config_pool = Arc::new(

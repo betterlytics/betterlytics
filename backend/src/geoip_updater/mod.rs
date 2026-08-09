@@ -144,7 +144,7 @@ impl GeoIpUpdater {
     /// Creates an updater for the ASN database. Independent of geolocation mode:
     /// ASN data drives bot detection, not geo reports.
     pub fn new_asn(config: Arc<Config>) -> Result<(Self, GeoIpWatchRx)> {
-        let enabled = Self::has_credentials(&config);
+        let enabled = config.enable_asn_lookup && Self::has_credentials(&config);
         let db_path = config.asn_db_path.clone();
         Self::with_database(config, GEOIP_ASN_DATABASE_URL, db_path, enabled)
     }

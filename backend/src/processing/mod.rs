@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use tokio::sync::mpsc::{self, error::TrySendError};
 use tracing::{error, debug, warn};
 use crate::analytics::{AnalyticsEvent, VisitorAttrs};
-use crate::asn::AsnService;
+use crate::asn::{AsnInfo, AsnService};
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 use std::time::Duration;
@@ -115,22 +115,33 @@ pub struct EventProcessor {
     event_tx: mpsc::Sender<ProcessedEvent>,
     bot_tx: mpsc::Sender<BotEvent>,
     geoip_service: GeoIpService,
-    asn_service: AsnService,
+    /// None when ASN lookup is disabled; detections then see asn 0 / empty org
+    asn_service: Option<AsnService>,
     metrics: Option<Arc<MetricsCollector>>,
     honor_client_timestamps: bool,
+    /// When false, detections update metrics but are not persisted to bot_events
+    log_bot_events: bool,
 }
 
 impl EventProcessor {
     /// `event_tx`/`bot_tx` are the ingest channels consumed by the ClickHouse inserter tasks.
     pub fn new(
         geoip_service: GeoIpService,
-        asn_service: AsnService,
+        asn_service: Option<AsnService>,
         event_tx: mpsc::Sender<ProcessedEvent>,
         bot_tx: mpsc::Sender<BotEvent>,
         metrics: Option<Arc<MetricsCollector>>,
         honor_client_timestamps: bool,
+        log_bot_events: bool,
     ) -> Self {
-        Self { event_tx, bot_tx, geoip_service, asn_service, metrics, honor_client_timestamps }
+        Self { event_tx, bot_tx, geoip_service, asn_service, metrics, honor_client_timestamps, log_bot_events }
+    }
+
+    fn asn_lookup(&self, ip_address: &str) -> AsnInfo {
+        self.asn_service
+            .as_ref()
+            .map(|service| service.lookup(ip_address))
+            .unwrap_or_default()
     }
 
     fn record_detection(
@@ -152,6 +163,9 @@ impl EventProcessor {
             for reason in &bot_reasons {
                 metrics.increment_bot_event_detected(reason);
             }
+        }
+        if !self.log_bot_events {
+            return;
         }
         let bot_event = BotEvent {
             site_id: site_id.to_string(),
@@ -193,7 +207,7 @@ impl EventProcessor {
             return reject;
         }
 
-        let asn_info = self.asn_service.lookup(ip_address);
+        let asn_info = self.asn_lookup(ip_address);
         let input = bot_detection::DetectionInput {
             user_agent,
             header_user_agent: user_agent,
@@ -225,7 +239,7 @@ impl EventProcessor {
         let referrer = event.raw.referrer.clone();
         let user_agent = event.raw.user_agent.clone();
 
-        let asn_info = self.asn_service.lookup(&event.ip_address);
+        let asn_info = self.asn_lookup(&event.ip_address);
         let velocity_exceeded = bot_detection::velocity::check(&site_id, &event.ip_address);
         let (domain, path) = extract_domain_and_path_from_url(&raw_url);
         debug!("Extracted domain '{:?}' and path '{}' from URL '{}'", domain, path, raw_url);
