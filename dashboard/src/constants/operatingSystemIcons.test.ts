@@ -1,5 +1,7 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { resolveOSIcon } from './operatingSystemIcons';
+import { OS_ICONS, resolveOSIcon } from './operatingSystemIcons';
 
 describe('resolveOSIcon', () => {
   it('normalizes casing and spaces', () => {
@@ -27,5 +29,17 @@ describe('resolveOSIcon', () => {
 
   it('returns null for unknown os names', () => {
     expect(resolveOSIcon('TempleOS')).toBeNull();
+  });
+
+  it('has a committed SVG whose artwork matches the mono flag for every entry', () => {
+    for (const def of Object.values(OS_ICONS)) {
+      const svg = readFileSync(path.join('public', 'os-icons', def.icon.file), 'utf8');
+      expect(svg.includes('currentColor')).toBe(Boolean(def.icon.mono));
+
+      if (def.iconDark) {
+        const svgDark = readFileSync(path.join('public', 'os-icons', def.iconDark.file), 'utf8');
+        expect(svgDark.includes('currentColor')).toBe(Boolean(def.iconDark.mono));
+      }
+    }
   });
 });
