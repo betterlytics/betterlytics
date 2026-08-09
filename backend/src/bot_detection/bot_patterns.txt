@@ -3,7 +3,7 @@
 # The upstream remainder runs in shadow (bot_patterns_shadow.txt); promote a pattern
 # by moving its line here once bot_events shadow data shows it only hits bots.
 # Source: https://raw.githubusercontent.com/omrilotan/isbot/main/src/patterns.json
-# Generated: 2026-08-07 (133 of 209 upstream patterns enforced)
+# Generated: 2026-08-07 (124 of 209 upstream patterns enforced)
 # Regenerate with: node scripts/update-bot-patterns.js
  daum[ /]
  deusu/
@@ -74,10 +74,8 @@ chrome-lighthouse
 chromeframe
 cloudflare
 collapsify\b
-convertify
 cookiehubverify/
 crawl
-cursor/
 cypress/
 dareboost
 datanyze
@@ -102,7 +100,6 @@ mail\.ru/
 manus-user/
 marketgoo/
 neustar wpm
-node\b
 nutch
 offbyone
 openvas
@@ -115,7 +112,6 @@ powermarks
 productfinder
 prospectingstudio
 ptst[ /]\d
-readable/
 rexx;
 rigor
 scrape
@@ -125,13 +121,8 @@ silktide
 sindup/
 sparkler/
 speedcurve
-spider
 statuscake
-supercleaner
-synapse
 testlocally
-upday/
-virtuoso
 wappalyzer
 watchtowr
 webglance

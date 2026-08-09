@@ -361,7 +361,6 @@ mod tests {
         "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; GPTBot/1.1; +https://openai.com/gptbot",
         "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; ClaudeBot/1.0; +claudebot@anthropic.com)",
         "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko; compatible; PerplexityBot/1.0; +https://perplexity.ai/perplexitybot)",
-        "Mozilla/5.0 (compatible; Bytespider; spider-feedback@bytedance.com)",
         "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
         "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)",
         "Mozilla/5.0 (compatible; AhrefsBot/7.0; +http://ahrefs.com/robot/)",
@@ -371,7 +370,6 @@ mod tests {
         "Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)",
         "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)",
         "python-requests/2.31.0",
-        "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)",
         "Java/17.0.2",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/9.1.2 Safari/601.7.7 (Applebot/0.1; +http://www.apple.com/go/applebot)",
         "DuckDuckBot/1.0; (+http://duckduckgo.com/duckduckbot.html)",
@@ -391,7 +389,6 @@ mod tests {
         "FeedFetcher-Google; (+http://www.google.com/feedfetcher.html)",
         "Site24x7",
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Chrome-Lighthouse",
-        "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)",
     ];
 
     // Real browser UAs, including in-app webviews, Electron shells, and niche
@@ -438,6 +435,12 @@ mod tests {
         "Go-http-client/2.0",
         "okhttp/4.12.0",
         "Scrapy/2.11.0 (+https://scrapy.org)",
+        // Named crawlers whose only upstream coverage is a demoted generic token
+        // (spider, node\b); shadow until bot_events evidence promotes a signature
+        "Mozilla/5.0 (compatible; Bytespider; spider-feedback@bytedance.com)",
+        "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)",
+        "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)",
+        "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)",
     ];
 
     #[test]
