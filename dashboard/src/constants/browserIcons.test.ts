@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { BROWSERS, resolveBrowser } from './browserIcons';
 
@@ -27,6 +29,13 @@ describe('resolveBrowser', () => {
   it('gives every entry an svg filename', () => {
     for (const def of Object.values(BROWSERS)) {
       expect(def.file).toMatch(/\.svg$/);
+    }
+  });
+
+  it('has a committed SVG whose artwork matches the mono flag for every entry', () => {
+    for (const def of Object.values(BROWSERS)) {
+      const svg = readFileSync(path.join('public', 'browser-icons', def.file), 'utf8');
+      expect(svg.includes('currentColor')).toBe(Boolean(def.mono));
     }
   });
 });
