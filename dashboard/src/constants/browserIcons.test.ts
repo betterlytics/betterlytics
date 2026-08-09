@@ -14,8 +14,10 @@ describe('resolveBrowser', () => {
     expect(def?.source).toBeUndefined();
   });
 
-  it('returns null for arc until its icon is added', () => {
-    expect(resolveBrowser('Arc')).toBeNull();
+  it('resolves arc to a sourced static file', () => {
+    const def = resolveBrowser('Arc');
+    expect(def?.file).toBe('arc.svg');
+    expect(def?.source).toBe('logos/arc');
   });
 
   it('returns null for unknown browsers', () => {

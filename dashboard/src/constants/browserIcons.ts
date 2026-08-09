@@ -52,6 +52,12 @@ export const BROWSERS: Record<string, BrowserDef> = {
     source: 'logos/vivaldi',
     match: [/vivaldi/],
   },
+  arc: {
+    label: 'Arc',
+    file: 'arc.svg',
+    source: 'logos/arc',
+    match: [/\barc\b/],
+  },
   duckduckgo: {
     label: 'DuckDuckGo',
     file: 'duckduckgo.svg',
