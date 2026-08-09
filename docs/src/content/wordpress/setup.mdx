@@ -53,7 +53,7 @@ On the **Settings** tab:
   ![The Site ID field and Enable Tracking toggle on the Settings tab](/images/wordpress/onboarding-settings.webp)
 </div>
 
-Your site is now connected. The tracking script is added to the footer of every page, and data is recorded from the next visit onward.
+Your site is now connected. The tracking script is added to the `<head>` of every page, where it loads asynchronously, and data is recorded from the next visit onward.
 
 ## Step 4: Confirm data is arriving
 
@@ -67,7 +67,7 @@ Optionally, the **Settings** tab can also track outbound link clicks, Core Web V
 
 - Confirm **Enable Tracking** is ticked and that you saved the settings
 - Check the Site ID for typos or a stray space. It is case-sensitive, and a wrong ID sends data nowhere
-- Load your site in a private window and view the page source. You should see an `analytics.js` script tag near the bottom
+- Load your site in a private window and view the page source. You should see an `analytics.js` script tag in the `<head>`
 - If you use a caching or optimization plugin, clear its cache so visitors get pages containing the script. Plugins that combine or defer scripts need `analytics.js` excluded, covered under [page caching and CDNs](/troubleshooting#page-caching-or-cdn-serving-stale-html)
 
 **Can't find Settings → Betterlytics**
