@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { OS_ICONS, resolveOSIcon } from './operatingSystemIcons';
+import { OS_ICONS, resolveOSIcon, type OSDef } from './operatingSystemIcons';
 
 describe('resolveOSIcon', () => {
   it('normalizes casing and spaces', () => {
@@ -32,7 +32,7 @@ describe('resolveOSIcon', () => {
   });
 
   it('has a committed SVG whose artwork matches the mono flag for every entry', () => {
-    for (const def of Object.values(OS_ICONS)) {
+    for (const def of Object.values<OSDef>(OS_ICONS)) {
       const svg = readFileSync(path.join('public', 'os-icons', def.icon.file), 'utf8');
       expect(svg.includes('currentColor')).toBe(Boolean(def.icon.mono));
 
