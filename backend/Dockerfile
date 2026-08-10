@@ -33,4 +33,5 @@ WORKDIR /app
 COPY --from=builder /app/target/release/betterlytics /app/app
 COPY --from=builder /app/assets /app/assets
 
-CMD ./app
+# Exec form so the binary runs as PID 1 and receives SIGTERM from Docker
+CMD ["./app"]

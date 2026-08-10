@@ -85,6 +85,30 @@ export async function findFirstUserDashboard(userId: string): Promise<Dashboard 
   }
 }
 
+export async function findSoleUserDashboard(userId: string): Promise<Dashboard | null> {
+  try {
+    const prismaUserDashboards = await prisma.userDashboard.findMany({
+      where: {
+        userId,
+        dashboard: { deletedAt: null },
+      },
+      include: {
+        dashboard: true,
+      },
+      take: 2,
+    });
+
+    if (prismaUserDashboards.length !== 1) {
+      return null;
+    }
+
+    return DashboardSchema.parse(prismaUserDashboards[0].dashboard);
+  } catch (error) {
+    console.error("Error while finding user's sole dashboard:", error);
+    throw new Error('Failed to find dashboard');
+  }
+}
+
 export async function findAllUserDashboards(userId: string): Promise<DashboardWithMemberCount[]> {
   try {
     const prismaUserDashboards = await prisma.userDashboard.findMany({
@@ -228,6 +252,14 @@ export async function findDashboardOwner(dashboardId: string): Promise<{ userId:
 }
 
 export async function getOwnedSiteIds(userId: string, includeDeleted = false): Promise<string[]> {
+  const sites = await getOwnedSitesWithDomain(userId, includeDeleted);
+  return sites.map((site) => site.siteId);
+}
+
+export async function getOwnedSitesWithDomain(
+  userId: string,
+  includeDeleted = false,
+): Promise<Array<{ siteId: string; domain: string }>> {
   try {
     const dashboards = await prisma.userDashboard.findMany({
       where: {
@@ -235,16 +267,19 @@ export async function getOwnedSiteIds(userId: string, includeDeleted = false): P
         role: 'owner',
         dashboard: includeDeleted ? {} : { deletedAt: null },
       },
-      include: {
+      select: {
         dashboard: {
-          select: { siteId: true },
+          select: { siteId: true, domain: true },
         },
       },
     });
 
-    return dashboards.map((userDashboard) => userDashboard.dashboard.siteId);
+    return dashboards.map((userDashboard) => ({
+      siteId: userDashboard.dashboard.siteId,
+      domain: userDashboard.dashboard.domain,
+    }));
   } catch (error) {
-    console.error('Failed to get owned site IDs:', error);
+    console.error('Failed to get owned sites with domain:', error);
     return [];
   }
 }

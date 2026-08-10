@@ -1,20 +1,23 @@
 use axum::{
     Json, Router,
-    extract::{ConnectInfo, DefaultBodyLimit, State},
-    http::{HeaderMap, StatusCode},
+    extract::{DefaultBodyLimit, State},
+    http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
 };
 use std::sync::Arc;
 use std::net::SocketAddr;
+use std::time::Duration;
 use tower_http::cors::CorsLayer;
 use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod analytics;
+mod asn;
 mod bot_detection;
 mod campaign;
 mod clickhouse;
+mod client_request;
 mod config;
 mod db;
 mod email;
@@ -43,6 +46,7 @@ mod validation;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use clickhouse::ClickHouseClient;
+use client_request::ClientRequest;
 use db::{Database, SharedDatabase};
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
@@ -52,6 +56,15 @@ use processing::EventProcessor;
 use site_config::{RefreshConfig, SiteConfigCache, SiteConfigDataSource, SiteConfigRepository};
 use storage::s3::S3Service;
 use validation::{EventValidator, ValidationConfig};
+
+/// Cap on draining buffered events to ClickHouse after the HTTP server stops.
+/// The container stop grace period must comfortably exceed this.
+const SHUTDOWN_DEADLINE: Duration = Duration::from_secs(5);
+
+/// Hard backstop measured from signal receipt so shutdown never depends on
+/// Docker's SIGKILL. Ordering invariant: SHUTDOWN_DEADLINE < WATCHDOG_TIMEOUT
+/// < the container stop grace period (10s Docker default).
+const WATCHDOG_TIMEOUT: Duration = Duration::from_secs(8);
 
 #[tokio::main]
 async fn main() {
@@ -89,23 +102,45 @@ async fn main() {
         GeoIpUpdater::new(config.clone()).expect("Failed to create GeoIP updater");
     let updater = Arc::new(updater);
 
-    let geoip_service = GeoIpService::new(config.clone(), geoip_watch_rx)
-        .expect("Failed to initialize GeoIP service");
+    let geoip_service = GeoIpService::new(config.clone(), geoip_watch_rx);
 
     let _updater_handle = tokio::spawn(Arc::clone(&updater).run());
 
-    let validation_config = ValidationConfig {
-        enforce_timestamp_validation: !config.is_development,
-        ..Default::default()
+    let asn_service = if config.enable_asn_lookup {
+        let (asn_updater, asn_watch_rx) =
+            GeoIpUpdater::new_asn(config.clone()).expect("Failed to create ASN updater");
+        tokio::spawn(Arc::new(asn_updater).run());
+        Some(asn::AsnService::new(config.clone(), asn_watch_rx))
+    } else {
+        info!("ASN lookup disabled (set ENABLE_ASN_LOOKUP=true to enable)");
+        None
     };
-    let validator = Arc::new(EventValidator::new(validation_config));
+
+    bot_detection::warm();
+    let validator = Arc::new(EventValidator::new(ValidationConfig::default()));
 
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
     info!("ClickHouse client initialized");
 
-    let db = Database::new(Arc::clone(&clickhouse), config.clone())
-        .await
-        .expect("Failed to initialize database");
+    let metrics_collector = if config.enable_monitoring {
+        let collector = MetricsCollector::new()
+            .expect("Failed to initialize metrics collector")
+            .start_system_metrics_updater();
+        info!("Metrics collector started");
+        Some(collector)
+    } else {
+        info!("Metrics collection disabled");
+        None
+    };
+
+    let (db, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle) =
+        Database::new(Arc::clone(&clickhouse), config.clone(), metrics_collector.clone())
+            .await
+            .expect("Failed to initialize database");
+
+    if let Some(metrics) = metrics_collector.clone() {
+        spawn_pressure_sampler(metrics, event_tx.downgrade());
+    }
     db.validate_schema().await.expect("Invalid database schema");
 
     if let Err(e) = referrer::sync_referrer_categories(
@@ -124,19 +159,15 @@ async fn main() {
 
     let db = Arc::new(db);
 
-    let metrics_collector = if config.enable_monitoring {
-        let collector = MetricsCollector::new()
-            .expect("Failed to initialize metrics collector")
-            .start_system_metrics_updater();
-        info!("Metrics collector started");
-        Some(collector)
-    } else {
-        info!("Metrics collection disabled");
-        None
-    };
-
-    let (processor, mut processed_rx) = EventProcessor::new(geoip_service);
-    let processor = Arc::new(processor);
+    let processor = Arc::new(EventProcessor::new(
+        geoip_service,
+        asn_service,
+        event_tx,
+        bot_event_tx,
+        metrics_collector.clone(),
+        config.is_development,
+        config.enable_bot_event_log,
+    ));
 
     let site_config_pool = Arc::new(
         PostgresPool::new(
@@ -209,15 +240,6 @@ async fn main() {
         }
     };
 
-    let db_clone = db.clone();
-    tokio::spawn(async move {
-        while let Some(processed) = processed_rx.recv().await {
-            if let Err(e) = db_clone.insert_event(processed).await {
-                tracing::error!("Failed to insert processed event: {}", e);
-            }
-        }
-    });
-
 	let mut router = Router::new()
 		.route("/health", get(health_check))
 		.route("/event", post(track_event))
@@ -254,12 +276,102 @@ async fn main() {
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     info!("Listening on {}", addr);
-    axum::serve(
-        listener,
-        app.into_make_service_with_connect_info::<SocketAddr>(),
-    )
-    .await
-    .unwrap();
+    let mut inserter_handle = inserter_handle;
+    let mut bot_inserter_handle = bot_inserter_handle;
+    tokio::select! {
+        result = axum::serve(
+            listener,
+            app.into_make_service_with_connect_info::<SocketAddr>(),
+        )
+        .with_graceful_shutdown(shutdown_signal()) => result.unwrap(),
+        // The inserters only return once their ingest channels close, so reaching
+        // here means one panicked. Exit non-zero rather than keep acking events
+        // into a dead channel; the container restart policy brings us back.
+        result = &mut inserter_handle => {
+            error!(?result, "Inserter task exited while the server is running, exiting");
+            std::process::exit(1);
+        }
+        result = &mut bot_inserter_handle => {
+            error!(?result, "Bot event inserter task exited while the server is running, exiting");
+            std::process::exit(1);
+        }
+    }
+
+    info!("HTTP server stopped, draining buffered data");
+    let drain = async {
+        match inserter_handle.await {
+            Ok(()) => info!("Ingest pipeline drained, buffered events committed"),
+            Err(e) => error!("Inserter task failed during drain: {}", e),
+        }
+        match bot_inserter_handle.await {
+            Ok(()) => info!("Bot event pipeline drained"),
+            Err(e) => error!("Bot event inserter task failed during drain: {}", e),
+        }
+        monitor::clickhouse_writer::flush_all_writers().await;
+    };
+    if tokio::time::timeout(SHUTDOWN_DEADLINE, drain).await.is_err() {
+        error!(
+            "Shutdown deadline of {:?} exceeded, exiting without a full drain",
+            SHUTDOWN_DEADLINE
+        );
+        std::process::exit(1);
+    }
+
+    info!("Shutdown complete");
+}
+
+/// Resolves when SIGTERM (Unix) or Ctrl+C is received.
+async fn shutdown_signal() {
+    let ctrl_c = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("Failed to install Ctrl+C handler");
+    };
+
+    #[cfg(unix)]
+    let terminate = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("Failed to install SIGTERM handler")
+            .recv()
+            .await;
+    };
+
+    #[cfg(not(unix))]
+    let terminate = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => info!("Ctrl+C received, shutting down gracefully"),
+        _ = terminate => info!("SIGTERM received, shutting down gracefully"),
+    }
+
+    tokio::spawn(async {
+        tokio::time::sleep(WATCHDOG_TIMEOUT).await;
+        error!(
+            "Graceful shutdown did not complete within {:?}, forcing exit",
+            WATCHDOG_TIMEOUT
+        );
+        std::process::exit(1);
+    });
+}
+
+/// Holds only a weak channel handle, so the ingest channel still closes when
+/// the processor drops at shutdown.
+fn spawn_pressure_sampler(
+    metrics: Arc<MetricsCollector>,
+    ingest_tx: tokio::sync::mpsc::WeakSender<processing::ProcessedEvent>,
+) {
+    tokio::spawn(async move {
+        let mut tick = tokio::time::interval(Duration::from_secs(5));
+        loop {
+            tick.tick().await;
+            if let Some(tx) = ingest_tx.upgrade() {
+                metrics.set_ingest_channel_depth(tx.max_capacity() - tx.capacity());
+            }
+            for (table, depth) in monitor::clickhouse_writer::writer_queue_depths() {
+                metrics.set_writer_queue_depth(&table, depth);
+            }
+        }
+    });
 }
 
 /// Warm the session cache from ClickHouse so in-flight sessions survive a restart
@@ -309,13 +421,11 @@ async fn track_event(
         Option<Arc<S3Service>>,
         Arc<SiteConfigCache>,
     )>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    headers: HeaderMap,
+    client: ClientRequest,
     Json(mut raw_event): Json<RawTrackingEvent>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
-
-    let ip_address = ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
+    let ip_address = client.ip.clone();
 
     sanitize::sanitize_event(&mut raw_event, &sanitize::SanitizeConfig::default());
 
@@ -365,7 +475,13 @@ async fn track_event(
 
     debug!("validation passed");
 
-    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
+    let event = AnalyticsEvent::new(
+        validated_event.raw,
+        validated_event.ip_address,
+        client.user_agent,
+        client.sec_ch_ua,
+        client.prefetch,
+    );
 
     if let Err(e) = processor.process_event(event).await {
         error!("Failed to process validated event: {}", e);

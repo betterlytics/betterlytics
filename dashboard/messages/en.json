@@ -2953,8 +2953,25 @@
         "usage": {
           "title": "Usage",
           "eventsLabel": "Events",
-          "eventsUsed": "{current} / {limit} ({percentage})",
-          "resetsInDays": "Resets in {days} days"
+          "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "resetsInDays": "Resets in {days} days",
+          "breakdown": {
+            "byType": "By type",
+            "bySite": "By site",
+            "showAllSites": "{count, plural, one {Show # more site} other {Show # more sites}}",
+            "showFewerSites": "Show fewer sites",
+            "otherSites": "{count, plural, one {Other (# site)} other {Other (# sites)}}",
+            "nonBillableNote": "Time on page and scroll depth are tracked as separate events, but don't count toward your quota.",
+            "loadError": "Could not load your usage breakdown.",
+            "empty": "No billable events recorded yet this period.",
+            "eventTypes": {
+              "pageview": "Page views",
+              "custom": "Custom events",
+              "cwv": "Core Web Vitals",
+              "outbound_link": "Outbound links",
+              "client_error": "Errors"
+            }
+          }
         },
         "payment": {
           "title": "Payment & Invoices",

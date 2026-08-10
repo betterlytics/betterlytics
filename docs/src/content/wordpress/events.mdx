@@ -1,0 +1,64 @@
+---
+title: "WordPress Plugin Events"
+description: "Turn on outbound link tracking, Core Web Vitals, and click tracking in the Betterlytics WordPress plugin, and add click events to WordPress content."
+---
+
+import { Callout } from "nextra/components";
+
+# Event Tracking
+
+Traffic and engagement are tracked as soon as you enter your Site ID and turn tracking on. The three capabilities below are extra, and each is a checkbox under **Browser Event Tracking** on the plugin's **Settings** tab. Their defaults are listed in [Settings](/wordpress/settings).
+
+## Outbound Links
+
+Records clicks on links that take visitors off your site, so you can see the traffic you send to partners, social platforms, and external resources.
+
+Choose a mode in the plugin:
+
+- **Domain** (the default) records only the destination site
+- **Full** also records the path of the page linked to
+- **Off** disables it
+
+Full URLs can capture more than you expect from links your visitors paste or your plugins generate, so stay on **Domain** unless you specifically need paths. The [Outbound Links integration guide](/integration/outbound-links) explains exactly what each mode sends, and the [dashboard guide](/dashboard/outbound-links) covers reading the results.
+
+## Core Web Vitals
+
+Collects performance metrics from your visitors' real browsers instead of a synthetic lab run, which is why the numbers won't match Lighthouse or PageSpeed Insights.
+
+Tick **Web Vitals** and the data appears in the [Web Vitals section of your dashboard](/dashboard/web-vitals), which covers which metrics are collected and how to read them. The [Metrics Glossary](/dashboard/metrics-glossary#core-web-vitals) has the definitions and thresholds.
+
+## Custom HTML Attribute Events
+
+Tick **Custom HTML Attribute Events** and the plugin starts watching for a `data-betterlytics-event` attribute. Any element carrying one sends a custom event, named after the attribute's value, when a visitor clicks it:
+
+```html
+<button data-betterlytics-event="signup-click">Sign Up</button>
+
+<a href="/pricing" data-betterlytics-event="pricing-link">View Pricing</a>
+```
+
+No JavaScript, and nothing to register in advance. The event name shows up in your dashboard the first time someone clicks. Each event also carries the element's tag name and its first 100 characters of text, so you can tell two buttons apart even when they share an event name.
+
+### Adding the attribute in WordPress
+
+Where you can put the attribute depends on how the page is built:
+
+- **Block editor** - core blocks have no field for custom attributes, so add the element in a **Custom HTML** block, which passes your markup through untouched.
+- **Theme or block templates** - add the attribute directly in the template file, which is the right place for site-wide elements like a header CTA.
+- **Page builders** - most have a field for custom attributes in each element's advanced or attribute settings. Check your builder's documentation for where it lives and how entries are formatted.
+
+<Callout type="tip">
+The attribute works on any clickable element, including one wrapping others. Putting it on a link that contains an image tracks clicks on the image too.
+</Callout>
+
+### Choosing event names
+
+Pick a small, fixed set of names and reuse them. Names are limited to 100 characters, and each distinct name becomes its own row in your dashboard, so values that vary per visitor or per product (`download-invoice-8412`) produce thousands of one-off events instead of one countable one.
+
+### Where to see the data
+
+Clicks appear in the **Events** section of your dashboard. See the [Events dashboard guide](/dashboard/events) for how to read and filter them.
+
+<Callout type="info">
+Need properties of your own on an event, or an event that fires on something other than a click? Those go through the tracker's JavaScript API, which works alongside the plugin. See the [Custom Events guide](/integration/custom-events).
+</Callout>

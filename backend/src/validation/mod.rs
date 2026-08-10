@@ -1,5 +1,4 @@
 use anyhow::Result;
-use chrono::{DateTime, Utc};
 use std::net::IpAddr;
 use ipnet::IpNet;
 use std::str::FromStr;
@@ -17,8 +16,6 @@ pub struct ValidationConfig {
     pub max_site_id_length: usize,
     pub max_user_agent_length: usize,
     pub max_error_exceptions_size: usize,
-    pub max_timestamp_drift_seconds: i64,
-    pub enforce_timestamp_validation: bool,
 }
 
 impl Default for ValidationConfig {
@@ -30,8 +27,6 @@ impl Default for ValidationConfig {
             max_site_id_length: 100,                  // Site ID is usually short, but we should keep leeway for extra long domain names
             max_user_agent_length: 8 * 1024,          // 8192 bytes - same limit that apache uses (https://httpd.apache.org/docs/2.2/mod/core.html#limitrequestfieldsize)
             max_error_exceptions_size: 16 * 1024,     // 16KB - client caps stack at 10KB + type/value/mechanism overhead
-            max_timestamp_drift_seconds: 300,         // 5 minutes - we should allow for some clock drift to account for packet latency
-            enforce_timestamp_validation: true,       // Enforce timestamp validation
         }
     }
 }
@@ -44,8 +39,6 @@ pub enum ValidationError {
     InvalidUrl(String),
     #[error("Invalid event name: {0}")]
     InvalidEventName(String),
-    #[error("Invalid timestamp: {0}")]
-    InvalidTimestamp(String),
     #[error("Invalid IP address: {0}")]
     InvalidIpAddress(String),
     #[error("Invalid user agent: {0}")]
@@ -103,12 +96,20 @@ impl EventValidator {
         self.validate_required_fields(raw_event)?;
         self.validate_payload_sizes(raw_event)?;
         self.validate_formats(raw_event, ip_address)?;
-        
+
+        // Non-custom events must use a known event name; anything else has no
+        // ClickHouse event_type enum value and can never be stored.
+        if !raw_event.is_custom_event && !is_known_event_name(&raw_event.event_name) {
+            return Err(ValidationError::InvalidEventName(
+                "Unknown event name for non-custom event".to_string(),
+            ));
+        }
+
         if raw_event.event_name == "outbound_link" {
             self.validate_outbound_link_url(raw_event)?;
         }
 
-        if raw_event.event_name.eq_ignore_ascii_case("cwv") {
+        if raw_event.event_name == "cwv" {
             self.validate_cwv_fields(raw_event)?;
         }
 
@@ -202,19 +203,6 @@ impl EventValidator {
         // Validate IP address format
         if IpAddr::from_str(ip_address).is_err() {
             return Err(ValidationError::InvalidIpAddress("Invalid IP address format".to_string()));
-        }
-
-        // Validate timestamp is reasonable (config allows for some clock drift to account for packet latency)
-        if self.config.enforce_timestamp_validation {
-            if let Some(event_time) = DateTime::from_timestamp(raw_event.timestamp as i64, 0) {
-                let now = Utc::now();
-                let drift = (event_time - now).num_seconds().abs();
-                if drift > self.config.max_timestamp_drift_seconds {
-                    return Err(ValidationError::InvalidTimestamp("Timestamp too far from current time".to_string()));
-                }
-            } else {
-                return Err(ValidationError::InvalidTimestamp("Invalid timestamp".to_string()));
-            }
         }
 
         Ok(())
@@ -365,7 +353,6 @@ impl EventValidator {
             ValidationError::InvalidSiteId(_) => "invalid_site_id",
             ValidationError::InvalidUrl(_) => "invalid_url",
             ValidationError::InvalidEventName(_) => "invalid_event_name",
-            ValidationError::InvalidTimestamp(_) => "invalid_timestamp",
             ValidationError::InvalidIpAddress(_) => "invalid_ip_address",
             ValidationError::InvalidUserAgent(_) => "invalid_user_agent",
             ValidationError::PayloadTooLarge(_) => "payload_too_large",
@@ -404,6 +391,20 @@ impl EventValidator {
             "/".to_string()
         }
     }
+}
+
+/// Event names for non-custom events that map to a ClickHouse event_type enum value.
+fn is_known_event_name(name: &str) -> bool {
+    matches!(
+        name,
+        "pageview"
+            | "custom"
+            | "outbound_link"
+            | "cwv"
+            | "scroll_depth"
+            | "engagement"
+            | "client_error"
+    )
 }
 
 /// Check if an IP address is blocked by the provided blacklist entries.
@@ -500,4 +501,63 @@ fn contains_control_characters(input: &str) -> bool {
 /// Check if a string contains control characters (excluding newlines and tabs for custom properties)
 fn contains_dangerous_control_characters(input: &str) -> bool {
     input.chars().any(|c| c.is_control() && c != '\n' && c != '\t')
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn raw_event(event_name: &str, is_custom_event: bool) -> RawTrackingEvent {
+        RawTrackingEvent {
+            site_id: "test-site".to_string(),
+            event_name: event_name.to_string(),
+            is_custom_event,
+            properties: String::new(),
+            url: "https://example.com/".to_string(),
+            referrer: None,
+            user_agent: "test-agent".to_string(),
+            screen_resolution: "1920x1080".to_string(),
+            timestamp: Some(1_700_000_000),
+            automation: false,
+            outbound_link_url: None,
+            cwv_cls: None,
+            cwv_lcp: None,
+            cwv_inp: None,
+            cwv_fcp: None,
+            cwv_ttfb: None,
+            scroll_depth_percentage: None,
+            scroll_depth_pixels: None,
+            error_exceptions: None,
+            global_properties: None,
+            page_duration_seconds: None,
+        }
+    }
+
+    fn validator() -> EventValidator {
+        EventValidator::new(ValidationConfig::default())
+    }
+
+    #[test]
+    fn unknown_non_custom_event_name_is_rejected() {
+        let result = validator().validate_event_internal(&raw_event("not_a_thing", false), "127.0.0.1");
+        assert!(matches!(result, Err(ValidationError::InvalidEventName(_))));
+    }
+
+    #[test]
+    fn known_non_custom_event_names_pass() {
+        for name in ["pageview", "outbound_link", "engagement", "cwv"] {
+            let mut event = raw_event(name, false);
+            if name == "outbound_link" {
+                event.outbound_link_url = Some("https://external.example.org/".to_string());
+            }
+            let result = validator().validate_event_internal(&event, "127.0.0.1");
+            assert!(result.is_ok(), "expected '{name}' to validate");
+        }
+    }
+
+    #[test]
+    fn custom_events_may_use_any_name() {
+        let result = validator().validate_event_internal(&raw_event("my_signup_funnel", true), "127.0.0.1");
+        assert!(result.is_ok());
+    }
 }

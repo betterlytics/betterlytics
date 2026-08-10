@@ -1,5 +1,142 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v147ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.7',
+    releasedAt: '2026-08-09',
+    title: 'Il plugin WordPress di Betterlytics',
+    summary:
+      "Il nostro plugin ufficiale per WordPress è disponibile: collega il tuo sito da wp-admin, senza scrivere una riga di codice. Questa versione porta anche il dettaglio dell'utilizzo nelle impostazioni di fatturazione e la prima ondata di un filtro anti-bot molto più efficace.",
+  },
+  sections: [
+    {
+      id: 'v147-wordpress',
+      title: 'Plugin WordPress',
+      blocks: [
+        {
+          type: 'text',
+          body: "Betterlytics ha ora un plugin ufficiale per WordPress, disponibile nella directory dei plugin di WordPress.org. Installalo da wp-admin, incolla il tuo Site ID, attiva il tracciamento e i dati inizieranno ad arrivare. Non c'è nessuno snippet da aggiungere al tema, e non devi rimettere mano a nulla dopo un aggiornamento.",
+        },
+        {
+          type: 'list',
+          items: [
+            'Visualizzazioni di pagina, visitatori, sessioni, referrer, campagne, dispositivi e geografia, dal momento in cui attivi il tracciamento.',
+            'Clic sui link in uscita, Core Web Vitals e tracciamento dei clic su qualsiasi pulsante o link, ciascuno attivabile con una singola opzione.',
+            "Una procedura guidata all'interno di wp-admin che ti accompagna nel collegare il sito.",
+            'Tutte le impostazioni sono gestibili anche da WP-CLI, per i siti distribuiti tramite una pipeline.',
+          ],
+        },
+        {
+          type: 'text',
+          body: "Alcune funzionalità si configurano direttamente sullo script di tracciamento e non sono ancora disponibili nel plugin: session replay, tracciamento degli errori, raggruppamento dinamico degli URL e proprietà globali. Per ora richiedono l'installazione manuale dello script. La nostra documentazione ha una sezione dedicata a WordPress con la procedura di installazione, tutte le impostazioni e ciò che il plugin misura, e ciò che non misura.",
+        },
+      ],
+    },
+    {
+      id: 'v147-bot-filtering',
+      title: 'Filtro anti-bot più efficace',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Il traffico automatizzato è una delle principali cause di analisi fuorvianti, così abbiamo ricostruito il modo in cui Betterlytics lo riconosce. La prima ondata di nuove regole è attiva e filtra più bot, crawler e referrer spam prima ancora che arrivino nei tuoi report.',
+        },
+        {
+          type: 'text',
+          body: "In parallelo, un insieme molto più ampio di regole lavora in modalità osservazione: segnala il traffico sospetto senza incidere sui tuoi numeri, così possiamo valutare ogni regola sul traffico reale prima che inizi a filtrare. Seguiranno altre ondate man mano che le regole si dimostrano affidabili, e i tuoi dati saranno ogni volta un po' più puliti.",
+        },
+      ],
+    },
+    {
+      id: 'v147-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Le impostazioni di fatturazione includono ora il dettaglio dell'utilizzo, che mostra quali tipi di evento compongono la tua quota mensile e quanto contribuisce ciascuno dei tuoi siti.",
+            'Il dettaglio chiarisce anche cosa è gratuito: il tempo sulla pagina e la profondità di scorrimento sono tracciati come eventi separati, ma non incidono sulla tua quota.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'La nostra pipeline degli eventi è ora più robusta durante i rilasci e le interruzioni di servizio, così i tuoi dati continuano ad arrivare in modo affidabile.',
+            'Vari piccoli miglioramenti di design e usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Un vecchio link alla dashboard non finisce più in un ciclo di reindirizzamenti: ora ti porta all'elenco delle tue dashboard.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Abbiamo rafforzato la ricezione degli eventi contro dati malformati e malevoli, insieme ad aggiornamenti generali di sicurezza per mantenere Betterlytics stabile e sicuro.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v147ChangelogModalIt: ChangelogEntryData = {
+  metadata: {
+    ...v147ChangelogEntryIt.metadata,
+    summary:
+      'Il nostro plugin ufficiale per WordPress è disponibile, il filtro anti-bot è molto più efficace e le impostazioni di fatturazione mostrano ora da cosa è composto il tuo utilizzo.',
+  },
+  sections: [
+    {
+      id: 'v147-modal-highlights',
+      title: 'In evidenza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Betterlytics ha ora un plugin ufficiale per WordPress. Se hai un sito WordPress, puoi collegarlo da wp-admin con il tuo Site ID, senza codice e senza rimettere mano a nulla dopo un aggiornamento del tema.',
+            'La prima ondata del nostro filtro anti-bot ricostruito è attiva e tiene più bot, crawler e referrer spam fuori dai tuoi report. Seguiranno altre ondate.',
+            "Le impostazioni di fatturazione includono ora il dettaglio dell'utilizzo, con i tipi di evento e i siti che compongono la tua quota mensile.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-modal-also',
+      title: 'Anche in questa versione',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Maggiore affidabilità e sicurezza nella pipeline degli eventi.',
+            'Corretto un ciclo di reindirizzamenti quando si segue un vecchio link alla dashboard.',
+            'Vari piccoli miglioramenti di design e usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v146ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.6',
@@ -190,9 +327,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v146ChangelogEntryIt;
+export const latestChangelogModalIt = v147ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v147ChangelogEntryIt,
   v146ChangelogEntryIt,
   v145ChangelogEntryIt,
   v144ChangelogEntryIt,

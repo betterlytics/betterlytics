@@ -1,0 +1,131 @@
+# Enforced bot user-agent patterns: the curated subset of the vendored isbot list
+# (omrilotan/isbot, Unlicense) that names a specific product, vendor, or bot class.
+# The upstream remainder runs in shadow (bot_patterns_shadow.txt); promote a pattern
+# by moving its line here once bot_events shadow data shows it only hits bots.
+# Source: https://raw.githubusercontent.com/omrilotan/isbot/main/src/patterns.json
+# Generated: 2026-08-07 (124 of 209 upstream patterns enforced)
+# Regenerate with: node scripts/update-bot-patterns.js
+ daum[ /]
+ deusu/
+(?<! cu)bots?(?:\b|_)
+\bperl\b
+^ad muncher
+^amaya
+^apache/
+^avsdevicesdk/
+^azure
+^biglotron
+^blackbox exporter
+^bot
+^clamav[ /]
+^claude-code/
+^cobweb/
+^ddg[_-]android
+^discourse
+^dispatch/\d
+^downcast/
+^duckduckgo
+^exodusmovement
+^facebook
+^getright/
+^gozilla/
+^hobbit
+^hotzonu
+^hwcdn/
+^igetter/
+^jeode/
+^jetty/
+^jigsaw
+^microsoft bits
+^movabletype
+^navermailapp
+^openai/
+^owler
+^php
+^postman
+^ps_daily/
+^python
+^remove\.bg/
+^snapchat
+^sora 
+^space bison
+^stape/
+^svn
+^swcd 
+^taringa
+^thumbor/
+^w3c
+^webbandit/
+^webcopier
+^wget
+^whatsapp
+^wordpress
+^xenu link sleuth
+^yahoo
+^yandex
+^zdm/\d
+^zoom marketplace/
+ask jeeves/teoma
+attracta
+bluecoat drtr
+browsex
+burpcollaborator
+chrome-lighthouse
+chromeframe
+cloudflare
+collapsify\b
+cookiehubverify/
+crawl
+cypress/
+dareboost
+datanyze
+dejaclick
+dmbrowser
+exaleadcloudview
+firephp
+foregenix
+functionize
+hardenize\b
+headless
+hotjar
+httrack
+hubspot marketing grader
+ibisbrowser
+infrawatch
+iplabel
+java(?!;)
+linkcheck
+linktiger
+mail\.ru/
+manus-user/
+marketgoo/
+neustar wpm
+nutch
+offbyone
+openvas
+pageburst
+pagespeed
+phantomjs
+pingdom
+playwright
+powermarks
+productfinder
+prospectingstudio
+ptst[ /]\d
+rexx;
+rigor
+scrape
+securityheaders
+selenium
+silktide
+sindup/
+sparkler/
+speedcurve
+statuscake
+testlocally
+wappalyzer
+watchtowr
+webglance
+webkit2png
+whatcms/
+xtate/
