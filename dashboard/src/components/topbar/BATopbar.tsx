@@ -49,6 +49,7 @@ export default function BATopbar() {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
   const isBillingEnabled = isFeatureFlagEnabled('enableBilling');
+  const isChangelogEnabled = isFeatureFlagEnabled('enableChangelog');
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -105,7 +106,7 @@ export default function BATopbar() {
                 </div>
               ) : (
                 <>
-                  <ChangelogModal />
+                  {isChangelogEnabled && <ChangelogModal />}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
