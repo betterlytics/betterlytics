@@ -29,7 +29,6 @@ const appEnvSchema = z.object({
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().optional(),
   ENABLE_ACCOUNT_VERIFICATION: zStringBoolean,
-  TOTP_SECRET_ENCRYPTION_KEY: z.string().length(32),
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_UPTIME_MONITORING: zStringBoolean,
   ENABLE_PUBLIC_STATUS_PAGES: zStringBoolean,
