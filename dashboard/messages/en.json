@@ -3033,14 +3033,19 @@
           "enabled": "Enabled",
           "disable": "Disable",
           "disableTitle": "Disable 2FA",
-          "disableDescription": "Enter the verification code from your authenticator app to disable two-factor authentication.",
+          "disableDescription": "Enter your account password to disable two-factor authentication.",
           "disabledSuccess": "Two-factor authentication disabled successfully",
           "disableFailed": "Failed to disable two-factor authentication. Please try again.",
           "setupFailed": "Failed to setup two-factor authentication. Please try again.",
           "copyFailed": "Failed to copy",
           "enabledSuccess": "Two-factor authentication enabled successfully",
           "enableFailed": "Failed to enable two-factor authentication. Please try again.",
-          "managedByOAuth": "Two-factor authentication is managed by your sign-in provider"
+          "managedByOAuth": "Two-factor authentication is managed by your sign-in provider",
+          "passwordPromptTitle": "Confirm your password",
+          "passwordPromptDescription": "Enter your account password to continue.",
+          "passwordLabel": "Password",
+          "backupCodesTitle": "Backup codes",
+          "backupCodesDescription": "Store these one-time codes somewhere safe — they let you sign in if you lose your authenticator."
         }
       },
       "sessions": {

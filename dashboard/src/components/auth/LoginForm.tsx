@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import { signIn } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import type { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { useBARouter } from '@/hooks/use-ba-router';
 import OtpInput from '@/components/ui/otp-input';
@@ -80,26 +80,28 @@ export default function LoginForm({
 
     startTransition(async () => {
       try {
-        const result = await signIn('credentials', {
-          email,
-          password,
-          totp,
-          redirect: false,
-          callbackUrl: '/dashboards',
-        });
-
-        if (result?.error) {
-          if (result.error === 'missing_otp') {
-            setIsDialogOpen(true);
-          } else if (result.error == 'invalid_otp') {
+        // Second submit (from the dialog): verify the TOTP code for the pending sign-in.
+        if (isDialogOpen) {
+          const { error: totpError } = await authClient.twoFactor.verifyTotp({ code: totp });
+          if (totpError) {
             setTotp('');
             setError(t('errors.invalidOtp'));
-          } else {
-            setError(t('errors.invalidCredentials'));
+            return;
           }
-        } else if (result?.url) {
-          router.push(result.url);
+          router.push('/dashboards');
+          return;
         }
+
+        const { data, error: signInError } = await authClient.signIn.email({ email, password });
+        if (signInError) {
+          setError(t('errors.invalidCredentials'));
+          return;
+        }
+        if (data && 'twoFactorRedirect' in data && data.twoFactorRedirect) {
+          setIsDialogOpen(true);
+          return;
+        }
+        router.push('/dashboards');
       } catch {
         setError(t('errors.generic'));
       }
@@ -114,12 +116,13 @@ export default function LoginForm({
 
       transition(async () => {
         try {
-          const result = await signIn(oauthProvider, {
-            callbackUrl: '/dashboards',
+          // Navigates the browser to the provider's consent screen.
+          const { error: socialError } = await authClient.signIn.social({
+            provider: oauthProvider,
+            callbackURL: '/dashboards',
           });
-
-          if (result?.url) {
-            router.push(result.url);
+          if (socialError) {
+            setError(t('errors.generic'));
           }
         } catch {
           setError(t('errors.generic'));

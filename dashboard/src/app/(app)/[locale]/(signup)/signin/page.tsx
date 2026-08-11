@@ -60,16 +60,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     redirect('/dashboards');
   }
 
-  const getErrorMessage = (error: string) => {
-    switch (error) {
-      case 'CredentialsSignin':
-        return t('errors.CredentialsSignin');
-      case 'OAuthAccountNotLinked':
-        return t('errors.OAuthAccountNotLinked');
-      default:
-        return t('errors.default');
-    }
-  };
+  // Credentials errors surface inline in the form; the query param only carries
+  // OAuth callback failures (better-auth redirects those back with ?error=).
+  const getErrorMessage = (_error: string) => t('errors.default');
 
   return (
     <>

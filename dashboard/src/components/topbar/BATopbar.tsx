@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useSession, signOut } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -38,7 +38,7 @@ import { cn } from '@/lib/utils';
 import { Link as LocaleLink } from '@/i18n/navigation';
 
 export default function BATopbar() {
-  const { data: session, status } = useSession();
+  const { data: session, isPending } = authClient.useSession();
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showBugReportDialog, setShowBugReportDialog] = useState(false);
   const { start: startLoader } = useTopLoader();
@@ -54,7 +54,8 @@ export default function BATopbar() {
 
   const handleSignOut = async () => {
     startLoader();
-    await signOut({ callbackUrl: '/' });
+    await authClient.signOut();
+    window.location.href = '/';
   };
 
   const handleSettingsClick = () => {
@@ -87,7 +88,7 @@ export default function BATopbar() {
           </div>
 
           <div className='flex items-center space-x-4'>
-            {status === 'loading' ? (
+            {isPending ? (
               <div className='flex items-center space-x-2'>
                 <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 <div className='bg-muted h-8 w-8 animate-pulse rounded-full' />

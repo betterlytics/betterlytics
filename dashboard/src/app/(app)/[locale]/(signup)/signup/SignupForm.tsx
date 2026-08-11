@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { isUserInvitedDashboardMemberAction, registerUserAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
-import { signIn } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import type { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
@@ -111,13 +111,12 @@ export default function SignupForm({ providers }: SignupFormProps) {
             return;
           }
 
-          const signInResult = await signIn('credentials', {
+          const { error: signInError } = await authClient.signIn.email({
             email: validatedData.email,
             password: validatedData.password,
-            redirect: false,
           });
 
-          if (signInResult?.error) {
+          if (signInError) {
             setError(t('form.registrationSuccessfulButSignInFailed'));
             return;
           }
@@ -156,13 +155,13 @@ export default function SignupForm({ providers }: SignupFormProps) {
 
       transition(async () => {
         try {
-          const result = await signIn(provider, {
-            redirect: false,
-            callbackUrl: '/dashboards',
+          // Navigates the browser to the provider's consent screen.
+          const { error: socialError } = await authClient.signIn.social({
+            provider,
+            callbackURL: '/dashboards',
           });
-
-          if (result?.url) {
-            window.location.href = result.url;
+          if (socialError) {
+            setError(t('form.signUpError'));
           }
         } catch {
           setError(t('form.signUpError'));
