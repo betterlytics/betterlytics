@@ -39,10 +39,10 @@ describe('resolveBrowser', () => {
     }
   });
 
-  it('resolves instagram to a sourced static file', () => {
+  it('resolves instagram to its hand-maintained file', () => {
     const def = resolveBrowser('Instagram');
     expect(def?.file).toBe('instagram.svg');
-    expect(def?.source).toBe('logos/instagram-icon');
+    expect(def?.source).toBeUndefined();
   });
 
   it('resolves QQ Browser Mobile to its own entry, not the plain QQ Browser rule', () => {
