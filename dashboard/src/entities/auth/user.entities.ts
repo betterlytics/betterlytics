@@ -7,11 +7,10 @@ export const UserSchema = z.object({
   id: z.string(),
   name: z.string().nullable(),
   email: z.string().email(),
-  passwordHash: z.string().nullable().optional(),
   role: z.nativeEnum(UserRole).nullable(),
-  emailVerified: z.date().nullable().optional(),
+  emailVerified: z.boolean().default(false),
   image: z.string().nullable().optional(),
-  totpEnabled: z.boolean().default(false),
+  twoFactorEnabled: z.boolean().default(false),
   totpSecret: z.string().nullable().optional(),
   termsAcceptedVersion: z.number().nullable().optional(),
   termsAcceptedAt: z.date().nullable().optional(),
@@ -33,7 +32,7 @@ export const CreateUserSchema = z.object({
 
 export const UpdateUserSchema = z.object({
   name: z.string().max(64).nullable().optional(),
-  totpEnabled: z.boolean().optional(),
+  twoFactorEnabled: z.boolean().optional(),
   totpSecret: z.string().nullable().optional(),
 });
 

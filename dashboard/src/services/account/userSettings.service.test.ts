@@ -18,6 +18,11 @@ import { enqueueEmail } from '@/services/email/email.service';
 import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import { makeUser } from '@/test/auth-fixtures';
 
+vi.mock('@/lib/env', () => ({
+  env: {
+    NEXT_PUBLIC_DEFAULT_LANGUAGE: 'en',
+  },
+}));
 vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserById: vi.fn(),
   findUserByEmail: vi.fn(),

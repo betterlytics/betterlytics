@@ -78,7 +78,7 @@ function SetupTotp() {
     startTransition(async () => {
       const enabled = await enableTotpAction(totp);
       if (enabled.success) {
-        await setSession({ totpEnabled: true });
+        await setSession({ twoFactorEnabled: true });
         setIsDialogOpen(false);
         toast.success(t('enabledSuccess'));
       } else {
@@ -181,7 +181,7 @@ function DisableTotp() {
     startTransition(async () => {
       const disabled = await disableTotpAction(totp);
       if (disabled.success) {
-        await setSession({ totpEnabled: false });
+        await setSession({ twoFactorEnabled: false });
         setIsDialogOpen(false);
         setTotp('');
         toast.success(t('disabledSuccess'));
@@ -238,7 +238,7 @@ export default function UserSecurityTotpSettings() {
   const t = useTranslations('components.userSettings.security.totp');
   const hasPassword = Boolean(session?.user?.hasPassword);
 
-  const action = session?.user.totpEnabled ? (
+  const action = session?.user.twoFactorEnabled ? (
     <DisableTotp />
   ) : hasPassword ? (
     <SetupTotp />

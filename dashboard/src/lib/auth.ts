@@ -1,5 +1,5 @@
 import type { NextAuthOptions } from 'next-auth';
-import type { Adapter, AdapterUser } from 'next-auth/adapters';
+import type { Adapter } from 'next-auth/adapters';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { Provider } from 'next-auth/providers/index';
 import GithubProvider from 'next-auth/providers/github';
@@ -155,10 +155,15 @@ export const authOptions: NextAuthOptions = {
       session.user.id = user.id;
       session.user.name = user.name;
       session.user.email = user.email;
-      session.user.emailVerified = user.emailVerified;
+      session.user.emailVerified = Boolean(user.emailVerified);
       session.user.role = user.role;
-      session.user.totpEnabled = user.totpEnabled;
-      session.user.hasPassword = Boolean((user as AdapterUser).passwordHash);
+      session.user.twoFactorEnabled = user.twoFactorEnabled;
+      session.user.hasPassword = Boolean(
+        await prisma.account.findFirst({
+          where: { userId: user.id, providerId: 'credential' },
+          select: { id: true },
+        }),
+      );
       session.user.onboardingCompletedAt = user.onboardingCompletedAt;
       session.user.termsAcceptedAt = user.termsAcceptedAt;
       session.user.termsAcceptedVersion = user.termsAcceptedVersion;

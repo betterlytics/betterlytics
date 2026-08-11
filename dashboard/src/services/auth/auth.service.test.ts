@@ -15,7 +15,12 @@ import {
   getAuthorizedDashboardContextOrNull,
   assertPublicDashboardAccess,
 } from '@/services/auth/auth.service';
-import { findUserByEmail, createUser, registerUser } from '@/repositories/postgres/user.repository';
+import {
+  findUserByEmail,
+  createUser,
+  registerUser,
+  verifyUserPassword,
+} from '@/repositories/postgres/user.repository';
 import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard.repository';
 import { UserException } from '@/lib/exceptions';
 import { makeUser, hashPassword, makeTotpEnrollment } from '@/test/auth-fixtures';
@@ -32,6 +37,8 @@ vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserByEmail: vi.fn(),
   createUser: vi.fn(),
   registerUser: vi.fn(),
+  verifyUserPassword: vi.fn(),
+  findCredentialAccount: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
   findUserDashboardWithDashboardOrNull: vi.fn(),
@@ -55,16 +62,9 @@ describe('verifyCredentials', () => {
     expect(result).toBeNull();
   });
 
-  it('returns null for an OAuth-only account (no local password hash)', async () => {
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ passwordHash: null }));
-
-    const result = await verifyCredentials({ email: 'user@example.com', password: PASSWORD });
-
-    expect(result).toBeNull();
-  });
-
-  it('returns null for a wrong password', async () => {
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ passwordHash: hashPassword(PASSWORD) }));
+  it('returns null when the password check fails (wrong password or OAuth-only account)', async () => {
+    vi.mocked(findUserByEmail).mockResolvedValue(makeUser());
+    vi.mocked(verifyUserPassword).mockResolvedValue(false);
 
     const result = await verifyCredentials({ email: 'user@example.com', password: 'Wrong-password-1' });
 
@@ -72,25 +72,20 @@ describe('verifyCredentials', () => {
   });
 
   it('returns the user for a correct password when TOTP is disabled', async () => {
-    const user = makeUser({ passwordHash: hashPassword(PASSWORD) });
+    const user = makeUser();
     vi.mocked(findUserByEmail).mockResolvedValue(user);
+    vi.mocked(verifyUserPassword).mockResolvedValue(true);
 
     const result = await verifyCredentials({ email: 'user@example.com', password: PASSWORD });
 
-    expect(result).toMatchObject({ id: user.id, email: user.email, totpEnabled: false });
-  });
-
-  it('is case-sensitive on the password', async () => {
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ passwordHash: hashPassword(PASSWORD) }));
-
-    const result = await verifyCredentials({ email: 'user@example.com', password: PASSWORD.toUpperCase() });
-
-    expect(result).toBeNull();
+    expect(verifyUserPassword).toHaveBeenCalledWith(user.id, PASSWORD);
+    expect(result).toMatchObject({ id: user.id, email: user.email, twoFactorEnabled: false });
   });
 
   it('returns null (does not throw) when the stored user fails schema validation', async () => {
-    const invalidUser = makeUser({ passwordHash: hashPassword(PASSWORD), email: 'not-an-email' });
+    const invalidUser = makeUser({ email: 'not-an-email' });
     vi.mocked(findUserByEmail).mockResolvedValue(invalidUser);
+    vi.mocked(verifyUserPassword).mockResolvedValue(true);
 
     const result = await verifyCredentials({ email: 'user@example.com', password: PASSWORD });
 
@@ -101,8 +96,7 @@ describe('verifyCredentials', () => {
     function totpUser() {
       const enrollment = makeTotpEnrollment();
       const user = makeUser({
-        passwordHash: hashPassword(PASSWORD),
-        totpEnabled: true,
+        twoFactorEnabled: true,
         totpSecret: enrollment.encryptedSecret,
       });
       return { enrollment, user };
@@ -111,6 +105,7 @@ describe('verifyCredentials', () => {
     it('throws UserException("missing_otp") when no code is provided', async () => {
       const { user } = totpUser();
       vi.mocked(findUserByEmail).mockResolvedValue(user);
+      vi.mocked(verifyUserPassword).mockResolvedValue(true);
 
       const promise = verifyCredentials({ email: 'user@example.com', password: PASSWORD });
 
@@ -121,6 +116,7 @@ describe('verifyCredentials', () => {
     it('throws UserException("invalid_otp") for a wrong code', async () => {
       const { enrollment, user } = totpUser();
       vi.mocked(findUserByEmail).mockResolvedValue(user);
+      vi.mocked(verifyUserPassword).mockResolvedValue(true);
 
       const promise = verifyCredentials({
         email: 'user@example.com',
@@ -134,6 +130,7 @@ describe('verifyCredentials', () => {
     it('returns the user for a valid code', async () => {
       const { enrollment, user } = totpUser();
       vi.mocked(findUserByEmail).mockResolvedValue(user);
+      vi.mocked(verifyUserPassword).mockResolvedValue(true);
 
       const result = await verifyCredentials({
         email: 'user@example.com',
@@ -141,12 +138,13 @@ describe('verifyCredentials', () => {
         totp: enrollment.currentCode(),
       });
 
-      expect(result).toMatchObject({ id: user.id, totpEnabled: true });
+      expect(result).toMatchObject({ id: user.id, twoFactorEnabled: true });
     });
 
     it('checks the password before the TOTP code (wrong password never reaches OTP)', async () => {
       const { user } = totpUser();
       vi.mocked(findUserByEmail).mockResolvedValue(user);
+      vi.mocked(verifyUserPassword).mockResolvedValue(false);
 
       const result = await verifyCredentials({ email: 'user@example.com', password: 'Wrong-password-1' });
 

@@ -1,10 +1,10 @@
 /**
  * Characterization tests for the user repository (internal issue #50).
  *
- * Pins the storage contract the better-auth migration must preserve: bcrypt
- * hashing (existing hashes must keep verifying), registration defaults
- * (starter subscription, default settings, terms acceptance), and account
- * anonymization running as a single transaction that scrubs credentials and
+ * Pins the storage contract under better-auth (#51): bcrypt hashes live on the
+ * credential Account row (accountId = user id), registration provisions the
+ * starter subscription/default settings/terms acceptance, and account
+ * anonymization runs as a single transaction that scrubs credentials and
  * revokes sessions/tokens atomically. Prisma is mocked at the client boundary.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import {
   findUserById,
   findUserByEmail,
+  findCredentialAccount,
   createUser,
   registerUser,
   updateUserPassword,
@@ -21,36 +22,53 @@ import {
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { makeUser, hashPassword } from '@/test/auth-fixtures';
 
-const prismaMock = vi.hoisted(() => ({
-  user: {
-    findUnique: vi.fn(),
-    findMany: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-  },
-  account: {
-    findMany: vi.fn(),
-    deleteMany: vi.fn(),
-  },
-  session: {
-    deleteMany: vi.fn(),
-  },
-  passwordResetToken: {
-    deleteMany: vi.fn(),
-  },
-  mcpToken: {
-    updateMany: vi.fn(),
-  },
-  $transaction: vi.fn(async (ops: unknown[]) => ops),
-}));
+const prismaMock = vi.hoisted(() => {
+  const mock = {
+    user: {
+      findUnique: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
+    account: {
+      findFirst: vi.fn(),
+      findMany: vi.fn(),
+      create: vi.fn(),
+      updateMany: vi.fn(),
+      deleteMany: vi.fn(),
+    },
+    session: {
+      deleteMany: vi.fn(),
+    },
+    twoFactor: {
+      deleteMany: vi.fn(),
+    },
+    passwordResetToken: {
+      deleteMany: vi.fn(),
+    },
+    mcpToken: {
+      updateMany: vi.fn(),
+    },
+    $transaction: vi.fn(),
+  };
+  return mock;
+});
 
+vi.mock('@/lib/env', () => ({
+  env: {
+    NEXT_PUBLIC_DEFAULT_LANGUAGE: 'en',
+  },
+}));
 vi.mock('@/lib/postgres', () => ({
   default: prismaMock,
 }));
 
 beforeEach(() => {
   vi.clearAllMocks();
-  prismaMock.$transaction.mockImplementation(async (ops: unknown[]) => ops);
+  // Supports both forms: an array of operations, or an interactive callback receiving tx.
+  prismaMock.$transaction.mockImplementation(async (arg: unknown) =>
+    typeof arg === 'function' ? (arg as (tx: typeof prismaMock) => unknown)(prismaMock) : arg,
+  );
 });
 
 describe('findUserById / findUserByEmail', () => {
@@ -84,21 +102,39 @@ describe('registerUser', () => {
     language: 'en' as const,
   };
 
-  it('stores a bcrypt hash — never the plaintext password', async () => {
+  beforeEach(() => {
     prismaMock.user.create.mockResolvedValue(makeUser({ email: registration.email }));
+  });
 
+  it('stores a bcrypt hash on the credential account — never the plaintext, never on the user', async () => {
     await registerUser(registration);
 
-    const createData = prismaMock.user.create.mock.calls[0][0].data;
-    expect(createData.passwordHash).toBeDefined();
-    expect(createData.passwordHash).not.toBe(registration.password);
-    expect(createData.password).toBeUndefined();
-    expect(await bcrypt.compare(registration.password, createData.passwordHash)).toBe(true);
+    const userData = prismaMock.user.create.mock.calls[0][0].data;
+    expect(userData.passwordHash).toBeUndefined();
+    expect(userData.password).toBeUndefined();
+
+    const accountData = prismaMock.account.create.mock.calls[0][0].data;
+    expect(accountData.providerId).toBe('credential');
+    expect(accountData.password).not.toBe(registration.password);
+    expect(await bcrypt.compare(registration.password, accountData.password)).toBe(true);
+  });
+
+  it('links the credential account to the created user with accountId = user id', async () => {
+    await registerUser(registration);
+
+    const accountData = prismaMock.account.create.mock.calls[0][0].data;
+    expect(accountData.userId).toBe('user-1');
+    expect(accountData.accountId).toBe('user-1');
+  });
+
+  it('creates the user and credential account in one transaction', async () => {
+    await registerUser(registration);
+
+    expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+    expect(typeof prismaMock.$transaction.mock.calls[0][0]).toBe('function');
   });
 
   it('records terms acceptance with the current terms version', async () => {
-    prismaMock.user.create.mockResolvedValue(makeUser({ email: registration.email }));
-
     await registerUser(registration);
 
     const createData = prismaMock.user.create.mock.calls[0][0].data;
@@ -107,16 +143,12 @@ describe('registerUser', () => {
   });
 
   it('defaults the role to admin', async () => {
-    prismaMock.user.create.mockResolvedValue(makeUser({ email: registration.email }));
-
     await registerUser(registration);
 
     expect(prismaMock.user.create.mock.calls[0][0].data.role).toBe('admin');
   });
 
   it('provisions a starter subscription and default settings alongside the user', async () => {
-    prismaMock.user.create.mockResolvedValue(makeUser({ email: registration.email }));
-
     await registerUser(registration);
 
     const createData = prismaMock.user.create.mock.calls[0][0].data;
@@ -132,48 +164,60 @@ describe('registerUser', () => {
 
 describe('createUser', () => {
   it('wraps validation failures in a generic error', async () => {
-    await expect(
-      createUser({ email: 'not-an-email', passwordHash: 'hash' }),
-    ).rejects.toThrow('Failed to create user.');
+    await expect(createUser({ email: 'not-an-email', passwordHash: 'hash' })).rejects.toThrow(
+      'Failed to create user.',
+    );
     expect(prismaMock.user.create).not.toHaveBeenCalled();
   });
 });
 
 describe('updateUserPassword', () => {
-  it('stores a bcrypt hash of the new password', async () => {
-    prismaMock.user.update.mockResolvedValue(makeUser());
+  it('stores a bcrypt hash of the new password on the credential account', async () => {
+    prismaMock.account.updateMany.mockResolvedValue({ count: 1 });
 
     await updateUserPassword('user-1', 'New-password-1');
 
-    const updateCall = prismaMock.user.update.mock.calls[0][0];
-    expect(updateCall.where).toEqual({ id: 'user-1' });
-    expect(await bcrypt.compare('New-password-1', updateCall.data.passwordHash)).toBe(true);
+    const updateCall = prismaMock.account.updateMany.mock.calls[0][0];
+    expect(updateCall.where).toEqual({ userId: 'user-1', providerId: 'credential' });
+    expect(await bcrypt.compare('New-password-1', updateCall.data.password)).toBe(true);
   });
 });
 
 describe('verifyUserPassword', () => {
   it('returns true for the correct password', async () => {
-    prismaMock.user.findUnique.mockResolvedValue({ passwordHash: hashPassword('Correct-password-1') });
+    prismaMock.account.findFirst.mockResolvedValue({ password: hashPassword('Correct-password-1') });
 
     expect(await verifyUserPassword('user-1', 'Correct-password-1')).toBe(true);
   });
 
   it('returns false for a wrong password', async () => {
-    prismaMock.user.findUnique.mockResolvedValue({ passwordHash: hashPassword('Correct-password-1') });
+    prismaMock.account.findFirst.mockResolvedValue({ password: hashPassword('Correct-password-1') });
 
     expect(await verifyUserPassword('user-1', 'Wrong-password-1')).toBe(false);
   });
 
-  it('returns false for an OAuth-only account (no hash stored)', async () => {
-    prismaMock.user.findUnique.mockResolvedValue({ passwordHash: null });
+  it('is case-sensitive on the password', async () => {
+    prismaMock.account.findFirst.mockResolvedValue({ password: hashPassword('Correct-password-1') });
+
+    expect(await verifyUserPassword('user-1', 'CORRECT-PASSWORD-1')).toBe(false);
+  });
+
+  it('returns false for an OAuth-only account (no credential row)', async () => {
+    prismaMock.account.findFirst.mockResolvedValue(null);
 
     expect(await verifyUserPassword('user-1', 'Any-password-1')).toBe(false);
   });
+});
 
-  it('returns false for a missing user', async () => {
-    prismaMock.user.findUnique.mockResolvedValue(null);
+describe('findCredentialAccount', () => {
+  it('looks up only the credential provider row', async () => {
+    prismaMock.account.findFirst.mockResolvedValue({ id: 'account-1' });
 
-    expect(await verifyUserPassword('missing', 'Any-password-1')).toBe(false);
+    expect(await findCredentialAccount('user-1')).toEqual({ id: 'account-1' });
+    expect(prismaMock.account.findFirst).toHaveBeenCalledWith({
+      where: { userId: 'user-1', providerId: 'credential' },
+      select: { id: true },
+    });
   });
 });
 
@@ -182,7 +226,7 @@ describe('anonymizeUser', () => {
     await anonymizeUser('user-1');
 
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
-    expect(prismaMock.$transaction.mock.calls[0][0]).toHaveLength(5);
+    expect(prismaMock.$transaction.mock.calls[0][0]).toHaveLength(6);
   });
 
   it('scrubs identity and credentials and marks the user deleted', async () => {
@@ -194,20 +238,20 @@ describe('anonymizeUser', () => {
         email: 'deleted_user-1@deleted.invalid',
         name: null,
         image: null,
-        passwordHash: null,
-        totpEnabled: false,
+        twoFactorEnabled: false,
         totpSecret: null,
-        emailVerified: null,
+        emailVerified: false,
         deletedAt: expect.any(Date),
       },
     });
   });
 
-  it('removes OAuth accounts, sessions, and reset tokens, and soft-deletes MCP tokens', async () => {
+  it('removes accounts (incl. credential), sessions, 2FA rows, and reset tokens, and soft-deletes MCP tokens', async () => {
     await anonymizeUser('user-1');
 
     expect(prismaMock.account.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+    expect(prismaMock.twoFactor.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.passwordResetToken.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.mcpToken.updateMany).toHaveBeenCalledWith({
       where: { createdBy: 'user-1', deletedAt: null },

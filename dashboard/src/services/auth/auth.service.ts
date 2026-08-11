@@ -1,7 +1,12 @@
 'server-only';
 
 import * as bcrypt from 'bcrypt';
-import { findUserByEmail, createUser, registerUser } from '@/repositories/postgres/user.repository';
+import {
+  findUserByEmail,
+  createUser,
+  registerUser,
+  verifyUserPassword,
+} from '@/repositories/postgres/user.repository';
 import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard.repository';
 import { env } from '@/lib/env';
 import { type User } from 'next-auth';
@@ -23,11 +28,11 @@ export async function verifyCredentials(loginData: LoginUserData): Promise<User 
   const { email, password, totp } = loginData;
   const dbUser = await findUserByEmail(email);
 
-  if (!dbUser || !dbUser.passwordHash) {
+  if (!dbUser) {
     return null;
   }
 
-  const passwordIsValid = await bcrypt.compare(password, dbUser.passwordHash);
+  const passwordIsValid = await verifyUserPassword(dbUser.id, password);
   if (!passwordIsValid) {
     return null;
   }
@@ -40,7 +45,7 @@ export async function verifyCredentials(loginData: LoginUserData): Promise<User 
     return null;
   }
 
-  if (!validatedUser.totpEnabled) {
+  if (!validatedUser.twoFactorEnabled) {
     return validatedUser;
   }
 

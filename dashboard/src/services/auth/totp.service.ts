@@ -14,11 +14,11 @@ export async function setupTotp(userId: string): Promise<string> {
       throw new Error('User not found');
     }
 
-    if (!user.passwordHash) {
+    if (!(await UsersRepository.findCredentialAccount(userId))) {
       throw new Error('Totp requires a password');
     }
 
-    if (user.totpEnabled) {
+    if (user.twoFactorEnabled) {
       throw new Error('Totp already enabled');
     }
 
@@ -50,11 +50,11 @@ export async function enableTotp(userId: string, totp: string): Promise<void> {
       throw new Error('User not found');
     }
 
-    if (!user.passwordHash) {
+    if (!(await UsersRepository.findCredentialAccount(userId))) {
       throw new Error('Totp requires a password');
     }
 
-    if (user.totpEnabled) {
+    if (user.twoFactorEnabled) {
       throw new Error('Totp already enabled');
     }
 
@@ -68,7 +68,7 @@ export async function enableTotp(userId: string, totp: string): Promise<void> {
     }
 
     await UsersRepository.updateUser(userId, {
-      totpEnabled: true,
+      twoFactorEnabled: true,
     });
 
     if (user.email) {
@@ -94,7 +94,7 @@ export async function disableTotp(userId: string, totp: string): Promise<void> {
       throw new Error('User not found');
     }
 
-    if (!user.totpEnabled) {
+    if (!user.twoFactorEnabled) {
       throw new Error('Totp already disabled');
     }
 
@@ -108,7 +108,7 @@ export async function disableTotp(userId: string, totp: string): Promise<void> {
     }
 
     await UsersRepository.updateUser(userId, {
-      totpEnabled: false,
+      twoFactorEnabled: false,
       totpSecret: null,
     });
 

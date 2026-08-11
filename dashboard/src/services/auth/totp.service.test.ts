@@ -12,7 +12,7 @@ import { setupTotp, enableTotp, disableTotp, isValidTotp } from '@/services/auth
 import * as UsersRepository from '@/repositories/postgres/user.repository';
 import { enqueueEmail } from '@/services/email/email.service';
 import { symmetricDecrypt } from '@/lib/crypto';
-import { makeUser, hashPassword, makeTotpEnrollment, TEST_TOTP_ENCRYPTION_KEY } from '@/test/auth-fixtures';
+import { makeUser, makeTotpEnrollment, TEST_TOTP_ENCRYPTION_KEY } from '@/test/auth-fixtures';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -22,6 +22,7 @@ vi.mock('@/lib/env', () => ({
 vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserById: vi.fn(),
   updateUser: vi.fn(),
+  findCredentialAccount: vi.fn(),
 }));
 vi.mock('@/services/email/email.service', () => ({
   enqueueEmail: vi.fn(),
@@ -29,10 +30,12 @@ vi.mock('@/services/email/email.service', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  // Users have a credential account (a password) unless a test overrides this.
+  vi.mocked(UsersRepository.findCredentialAccount).mockResolvedValue({ id: 'account-1' });
 });
 
 function passwordUser(overrides: Parameters<typeof makeUser>[0] = {}) {
-  return makeUser({ passwordHash: hashPassword('Some-password-1'), ...overrides });
+  return makeUser(overrides);
 }
 
 describe('isValidTotp', () => {
@@ -85,14 +88,15 @@ describe('setupTotp', () => {
   });
 
   it('rejects OAuth-only accounts (TOTP requires a password)', async () => {
-    vi.mocked(UsersRepository.findUserById).mockResolvedValue(makeUser({ passwordHash: null }));
+    vi.mocked(UsersRepository.findUserById).mockResolvedValue(makeUser());
+    vi.mocked(UsersRepository.findCredentialAccount).mockResolvedValue(null);
 
     await expect(setupTotp('user-1')).rejects.toThrow('Failed to setup totp');
     expect(UsersRepository.updateUser).not.toHaveBeenCalled();
   });
 
   it('rejects when TOTP is already enabled', async () => {
-    vi.mocked(UsersRepository.findUserById).mockResolvedValue(passwordUser({ totpEnabled: true }));
+    vi.mocked(UsersRepository.findUserById).mockResolvedValue(passwordUser({ twoFactorEnabled: true }));
 
     await expect(setupTotp('user-1')).rejects.toThrow('Failed to setup totp');
     expect(UsersRepository.updateUser).not.toHaveBeenCalled();
@@ -114,7 +118,7 @@ describe('setupTotp', () => {
     expect(storedSecret).not.toBe(parsed.secret.base32);
     expect(symmetricDecrypt(storedSecret, TEST_TOTP_ENCRYPTION_KEY)).toBe(parsed.secret.base32);
     // Setup alone must not enable TOTP; that happens after code confirmation.
-    expect(updateData.totpEnabled).toBeUndefined();
+    expect(updateData.twoFactorEnabled).toBeUndefined();
   });
 
   it('generates a fresh secret per setup call', async () => {
@@ -135,7 +139,8 @@ describe('enableTotp', () => {
   });
 
   it('rejects OAuth-only accounts', async () => {
-    vi.mocked(UsersRepository.findUserById).mockResolvedValue(makeUser({ passwordHash: null }));
+    vi.mocked(UsersRepository.findUserById).mockResolvedValue(makeUser());
+    vi.mocked(UsersRepository.findCredentialAccount).mockResolvedValue(null);
 
     await expect(enableTotp('user-1', '123456')).rejects.toThrow('Failed to enable totp');
   });
@@ -143,7 +148,7 @@ describe('enableTotp', () => {
   it('rejects when TOTP is already enabled', async () => {
     const enrollment = makeTotpEnrollment();
     vi.mocked(UsersRepository.findUserById).mockResolvedValue(
-      passwordUser({ totpEnabled: true, totpSecret: enrollment.encryptedSecret }),
+      passwordUser({ twoFactorEnabled: true, totpSecret: enrollment.encryptedSecret }),
     );
 
     await expect(enableTotp('user-1', enrollment.currentCode())).rejects.toThrow('Failed to enable totp');
@@ -172,7 +177,7 @@ describe('enableTotp', () => {
 
     await enableTotp(user.id, enrollment.currentCode());
 
-    expect(UsersRepository.updateUser).toHaveBeenCalledWith(user.id, { totpEnabled: true });
+    expect(UsersRepository.updateUser).toHaveBeenCalledWith(user.id, { twoFactorEnabled: true });
     expect(enqueueEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'two-factor-enabled',
@@ -184,7 +189,7 @@ describe('enableTotp', () => {
 
 describe('disableTotp', () => {
   it('rejects when TOTP is not enabled', async () => {
-    vi.mocked(UsersRepository.findUserById).mockResolvedValue(passwordUser({ totpEnabled: false }));
+    vi.mocked(UsersRepository.findUserById).mockResolvedValue(passwordUser({ twoFactorEnabled: false }));
 
     await expect(disableTotp('user-1', '123456')).rejects.toThrow('Failed to disable totp');
   });
@@ -192,7 +197,7 @@ describe('disableTotp', () => {
   it('rejects an invalid code without disabling', async () => {
     const enrollment = makeTotpEnrollment();
     vi.mocked(UsersRepository.findUserById).mockResolvedValue(
-      passwordUser({ totpEnabled: true, totpSecret: enrollment.encryptedSecret }),
+      passwordUser({ twoFactorEnabled: true, totpSecret: enrollment.encryptedSecret }),
     );
 
     await expect(disableTotp('user-1', enrollment.wrongCode())).rejects.toThrow('Failed to disable totp');
@@ -201,7 +206,7 @@ describe('disableTotp', () => {
 
   it('rejects the corrupt state of TOTP enabled without a stored secret', async () => {
     vi.mocked(UsersRepository.findUserById).mockResolvedValue(
-      passwordUser({ totpEnabled: true, totpSecret: null }),
+      passwordUser({ twoFactorEnabled: true, totpSecret: null }),
     );
 
     await expect(disableTotp('user-1', '123456')).rejects.toThrow('Failed to disable totp');
@@ -210,12 +215,12 @@ describe('disableTotp', () => {
 
   it('disables TOTP and clears the secret for a valid code, then notifies by email', async () => {
     const enrollment = makeTotpEnrollment();
-    const user = passwordUser({ totpEnabled: true, totpSecret: enrollment.encryptedSecret });
+    const user = passwordUser({ twoFactorEnabled: true, totpSecret: enrollment.encryptedSecret });
     vi.mocked(UsersRepository.findUserById).mockResolvedValue(user);
 
     await disableTotp(user.id, enrollment.currentCode());
 
-    expect(UsersRepository.updateUser).toHaveBeenCalledWith(user.id, { totpEnabled: false, totpSecret: null });
+    expect(UsersRepository.updateUser).toHaveBeenCalledWith(user.id, { twoFactorEnabled: false, totpSecret: null });
     expect(enqueueEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'two-factor-disabled',
@@ -226,11 +231,11 @@ describe('disableTotp', () => {
 
   it('still succeeds when the notification email fails to enqueue', async () => {
     const enrollment = makeTotpEnrollment();
-    const user = passwordUser({ totpEnabled: true, totpSecret: enrollment.encryptedSecret });
+    const user = passwordUser({ twoFactorEnabled: true, totpSecret: enrollment.encryptedSecret });
     vi.mocked(UsersRepository.findUserById).mockResolvedValue(user);
     vi.mocked(enqueueEmail).mockRejectedValue(new Error('mailer down'));
 
     await expect(disableTotp(user.id, enrollment.currentCode())).resolves.toBeUndefined();
-    expect(UsersRepository.updateUser).toHaveBeenCalledWith(user.id, { totpEnabled: false, totpSecret: null });
+    expect(UsersRepository.updateUser).toHaveBeenCalledWith(user.id, { twoFactorEnabled: false, totpSecret: null });
   });
 });

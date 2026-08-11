@@ -1,17 +1,16 @@
 import 'next-auth';
 import 'next-auth/jwt';
 import type { GithubStarPromptState } from '@prisma/client';
-import type { AdapterUser } from 'next-auth/adapters';
 
 declare module 'next-auth' {
   interface User {
     id: string;
     name: string | null;
     email: string;
-    emailVerified?: Date | null;
+    emailVerified?: boolean;
     image?: string | null;
     role: string | null;
-    totpEnabled: boolean;
+    twoFactorEnabled: boolean;
     hasPassword?: boolean;
     onboardingCompletedAt?: Date | null;
     termsAcceptedAt?: Date | null;
@@ -31,9 +30,9 @@ declare module 'next-auth/jwt' {
     uid: string;
     name: string | null;
     email: string;
-    emailVerified?: Date | null;
+    emailVerified?: boolean;
     role: string | null;
-    totpEnabled: boolean;
+    twoFactorEnabled: boolean;
     hasPassword?: boolean;
     onboardingCompletedAt?: Date | null;
     termsAcceptedAt?: Date | null;
@@ -41,11 +40,5 @@ declare module 'next-auth/jwt' {
     changelogVersionSeen?: string | null;
     createdAt?: Date;
     githubStarPromptState?: GithubStarPromptState;
-  }
-}
-
-declare module 'next-auth/adapters' {
-  interface AdapterUser {
-    passwordHash?: string | null;
   }
 }

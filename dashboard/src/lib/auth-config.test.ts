@@ -12,13 +12,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Session, User } from 'next-auth';
 import { authOptions, getEnabledOAuthProviders } from '@/lib/auth';
-import { findUserByEmail, createUser } from '@/repositories/postgres/user.repository';
+import { findUserByEmail, createUser, verifyUserPassword } from '@/repositories/postgres/user.repository';
 import { getUserSettings, createDefaultUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail } from '@/services/account/verification.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { makeUser, hashPassword, makeTotpEnrollment } from '@/test/auth-fixtures';
+import { makeUser, makeTotpEnrollment } from '@/test/auth-fixtures';
 
 const prismaMock = vi.hoisted(() => ({
   session: {
@@ -26,6 +26,9 @@ const prismaMock = vi.hoisted(() => ({
   },
   user: {
     findUnique: vi.fn(),
+  },
+  account: {
+    findFirst: vi.fn(),
   },
 }));
 
@@ -51,6 +54,8 @@ vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserByEmail: vi.fn(),
   createUser: vi.fn(),
   registerUser: vi.fn(),
+  verifyUserPassword: vi.fn(),
+  findCredentialAccount: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
   findUserDashboardWithDashboardOrNull: vi.fn(),
@@ -118,8 +123,9 @@ describe('authorize (credentials provider)', () => {
   });
 
   it('returns the user for valid credentials', async () => {
-    const user = makeUser({ passwordHash: hashPassword(PASSWORD) });
+    const user = makeUser();
     vi.mocked(findUserByEmail).mockResolvedValue(user);
+    vi.mocked(verifyUserPassword).mockResolvedValue(true);
 
     const result = await getAuthorize()({ email: user.email, password: PASSWORD });
 
@@ -127,7 +133,8 @@ describe('authorize (credentials provider)', () => {
   });
 
   it('returns null for a wrong password', async () => {
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ passwordHash: hashPassword(PASSWORD) }));
+    vi.mocked(findUserByEmail).mockResolvedValue(makeUser());
+    vi.mocked(verifyUserPassword).mockResolvedValue(false);
 
     expect(await getAuthorize()({ email: 'user@example.com', password: 'Wrong-password-1' })).toBeNull();
   });
@@ -135,8 +142,9 @@ describe('authorize (credentials provider)', () => {
   it('propagates UserException codes so the sign-in UI can prompt for 2FA', async () => {
     const enrollment = makeTotpEnrollment();
     vi.mocked(findUserByEmail).mockResolvedValue(
-      makeUser({ passwordHash: hashPassword(PASSWORD), totpEnabled: true, totpSecret: enrollment.encryptedSecret }),
+      makeUser({ twoFactorEnabled: true, totpSecret: enrollment.encryptedSecret }),
     );
+    vi.mocked(verifyUserPassword).mockResolvedValue(true);
 
     await expect(getAuthorize()({ email: 'user@example.com', password: PASSWORD })).rejects.toMatchObject({
       name: 'UserException',
@@ -256,7 +264,7 @@ describe('session callback (session object shape)', () => {
       name: 'Test User',
       email: 'user@example.com',
       role: 'admin',
-      totpEnabled: false,
+      twoFactorEnabled: false,
       onboardingCompletedAt: expect.any(Date),
       termsAcceptedVersion: 1,
       changelogVersionSeen: 'v0',
@@ -264,11 +272,12 @@ describe('session callback (session object shape)', () => {
     });
   });
 
-  it('derives hasPassword instead of exposing the hash', async () => {
-    const withPassword = (await buildSession({ passwordHash: hashPassword('Some-password-1') })) as {
-      user?: { hasPassword?: boolean };
-    };
-    const oauthOnly = (await buildSession({ passwordHash: null })) as { user?: { hasPassword?: boolean } };
+  it('derives hasPassword from the credential account instead of exposing the hash', async () => {
+    prismaMock.account.findFirst.mockResolvedValue({ id: 'account-1' });
+    const withPassword = (await buildSession()) as { user?: { hasPassword?: boolean } };
+
+    prismaMock.account.findFirst.mockResolvedValue(null);
+    const oauthOnly = (await buildSession()) as { user?: { hasPassword?: boolean } };
 
     expect(withPassword.user!.hasPassword).toBe(true);
     expect(oauthOnly.user!.hasPassword).toBe(false);
@@ -317,7 +326,7 @@ describe('events', () => {
 
   it('sends a verification email to new unverified users when verification is enabled', async () => {
     vi.mocked(isFeatureEnabled).mockReturnValue(true);
-    prismaMock.user.findUnique.mockResolvedValue({ emailVerified: null });
+    prismaMock.user.findUnique.mockResolvedValue({ emailVerified: false });
 
     await authOptions.events!.createUser!({ user: makeUser() as never });
 
@@ -326,7 +335,7 @@ describe('events', () => {
 
   it('skips the verification email when the provider already verified the address', async () => {
     vi.mocked(isFeatureEnabled).mockReturnValue(true);
-    prismaMock.user.findUnique.mockResolvedValue({ emailVerified: new Date() });
+    prismaMock.user.findUnique.mockResolvedValue({ emailVerified: true });
 
     await authOptions.events!.createUser!({ user: makeUser() as never });
 

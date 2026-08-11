@@ -79,14 +79,14 @@ describe('sendVerificationEmail', () => {
   });
 
   it('rejects when the email is already verified', async () => {
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ emailVerified: new Date() }));
+    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ emailVerified: true }));
 
     await expect(sendVerificationEmail({ email: EMAIL })).rejects.toThrow('Failed to send verification email');
     expect(createVerificationToken).not.toHaveBeenCalled();
   });
 
   it('purges expired tokens, issues a ~24h token, and emails a verification link containing it', async () => {
-    const user = makeUser({ emailVerified: null });
+    const user = makeUser({ emailVerified: false });
     vi.mocked(findUserByEmail).mockResolvedValue(user);
 
     const before = Date.now();
@@ -146,7 +146,7 @@ describe('verifyEmail', () => {
 
   it('fails when the email is already verified, consuming the token', async () => {
     vi.mocked(findVerificationToken).mockResolvedValue(makeVerificationToken() as never);
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ emailVerified: new Date() }));
+    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ emailVerified: true }));
 
     const result = await verifyEmail({ token: 'valid' });
 
@@ -157,7 +157,7 @@ describe('verifyEmail', () => {
 
   it('marks the email verified and consumes the token on success', async () => {
     vi.mocked(findVerificationToken).mockResolvedValue(makeVerificationToken() as never);
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ emailVerified: null }));
+    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ emailVerified: false }));
 
     const result = await verifyEmail({ token: 'valid' });
 

@@ -6,14 +6,19 @@
  * token expiry handling, and — critically — that a successful reset revokes
  * every session for the user. Repositories and email are mocked.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   initiatePasswordReset,
   resetPassword,
   validateResetToken,
   sendPasswordChangedNotification,
 } from '@/services/auth/passwordReset.service';
-import { findUserByEmail, findUserById, updateUserPassword } from '@/repositories/postgres/user.repository';
+import {
+  findUserByEmail,
+  findUserById,
+  findCredentialAccount,
+  updateUserPassword,
+} from '@/repositories/postgres/user.repository';
 import {
   createPasswordResetToken,
   findPasswordResetToken,
@@ -23,12 +28,18 @@ import {
 import * as SessionRepository from '@/repositories/postgres/session.repository';
 import { enqueueEmail } from '@/services/email/email.service';
 import type { PasswordResetToken } from '@/entities/auth/passwordReset.entities';
-import { makeUser, hashPassword } from '@/test/auth-fixtures';
+import { makeUser } from '@/test/auth-fixtures';
 
 vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserByEmail: vi.fn(),
   findUserById: vi.fn(),
+  findCredentialAccount: vi.fn(),
   updateUserPassword: vi.fn(),
+}));
+vi.mock('@/lib/env', () => ({
+  env: {
+    PUBLIC_BASE_URL: 'https://app.test',
+  },
 }));
 vi.mock('@/repositories/postgres/passwordReset.repository', () => ({
   createPasswordResetToken: vi.fn(),
@@ -60,11 +71,8 @@ function makeResetToken(overrides: Partial<PasswordResetToken> = {}): PasswordRe
 
 beforeEach(() => {
   vi.clearAllMocks();
-  process.env.NEXTAUTH_URL = BASE_URL;
-});
-
-afterEach(() => {
-  delete process.env.NEXTAUTH_URL;
+  // Users have a credential account (a password) unless a test overrides this.
+  vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' });
 });
 
 describe('initiatePasswordReset', () => {
@@ -79,7 +87,8 @@ describe('initiatePasswordReset', () => {
   });
 
   it('reports success for an OAuth-only account without creating a token or sending mail', async () => {
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ passwordHash: null }));
+    vi.mocked(findUserByEmail).mockResolvedValue(makeUser());
+    vi.mocked(findCredentialAccount).mockResolvedValue(null);
 
     const result = await initiatePasswordReset({ email: 'user@example.com' });
 
@@ -90,7 +99,7 @@ describe('initiatePasswordReset', () => {
 
   it('invalidates previous reset tokens before issuing a new one', async () => {
     const order: string[] = [];
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ passwordHash: hashPassword('Old-password-1') }));
+    vi.mocked(findUserByEmail).mockResolvedValue(makeUser());
     vi.mocked(deleteUserPasswordResetTokens).mockImplementation(async () => {
       order.push('deleteOldTokens');
     });
@@ -105,7 +114,7 @@ describe('initiatePasswordReset', () => {
   });
 
   it('issues a 64-char hex token expiring in ~1 hour and emails a reset link containing it', async () => {
-    const user = makeUser({ passwordHash: hashPassword('Old-password-1') });
+    const user = makeUser();
     vi.mocked(findUserByEmail).mockResolvedValue(user);
     vi.mocked(createPasswordResetToken).mockResolvedValue(makeResetToken());
 
@@ -164,7 +173,8 @@ describe('resetPassword', () => {
 
   it('rejects when the target account is OAuth-only, without touching password or sessions', async () => {
     vi.mocked(findPasswordResetToken).mockResolvedValue(makeResetToken());
-    vi.mocked(findUserById).mockResolvedValue(makeUser({ passwordHash: null }));
+    vi.mocked(findUserById).mockResolvedValue(makeUser());
+    vi.mocked(findCredentialAccount).mockResolvedValue(null);
 
     await expect(resetPassword(resetData)).rejects.toThrow('Failed to reset password');
     expect(updateUserPassword).not.toHaveBeenCalled();
@@ -180,7 +190,7 @@ describe('resetPassword', () => {
   });
 
   it('updates the password, revokes ALL sessions, then consumes the tokens — in that order', async () => {
-    const user = makeUser({ passwordHash: hashPassword('Old-password-1') });
+    const user = makeUser();
     const order: string[] = [];
     vi.mocked(findPasswordResetToken).mockResolvedValue(makeResetToken({ userId: user.id }));
     vi.mocked(findUserById).mockResolvedValue(user);
@@ -204,7 +214,7 @@ describe('resetPassword', () => {
   });
 
   it('sends a password-changed notification email on success', async () => {
-    const user = makeUser({ passwordHash: hashPassword('Old-password-1') });
+    const user = makeUser();
     vi.mocked(findPasswordResetToken).mockResolvedValue(makeResetToken({ userId: user.id }));
     vi.mocked(findUserById).mockResolvedValue(user);
 
@@ -219,7 +229,7 @@ describe('resetPassword', () => {
   });
 
   it('does not revoke sessions when the password update fails', async () => {
-    const user = makeUser({ passwordHash: hashPassword('Old-password-1') });
+    const user = makeUser();
     vi.mocked(findPasswordResetToken).mockResolvedValue(makeResetToken({ userId: user.id }));
     vi.mocked(findUserById).mockResolvedValue(user);
     vi.mocked(updateUserPassword).mockRejectedValue(new Error('db down'));

@@ -75,7 +75,7 @@ export async function markUserEmailAsVerified(email: string): Promise<void> {
   try {
     await prisma.user.update({
       where: { email },
-      data: { emailVerified: new Date() },
+      data: { emailVerified: true },
     });
   } catch (error) {
     console.error('Error marking user email as verified:', error);

@@ -20,6 +20,8 @@ import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities'
 import type { SupportedLanguages } from '@/constants/i18n';
 
 const SALT_ROUNDS = 10;
+// better-auth's providerId for email+password accounts; accountId is the user id by its convention.
+const CREDENTIAL_PROVIDER_ID = 'credential';
 
 export async function findUserById(userId: string): Promise<User | null> {
   return await findUserBy({ id: userId });
@@ -27,10 +29,18 @@ export async function findUserById(userId: string): Promise<User | null> {
 
 export async function findUserOAuthProviders(userId: string): Promise<string[]> {
   const accounts = await prisma.account.findMany({
-    where: { userId },
-    select: { provider: true },
+    where: { userId, providerId: { not: CREDENTIAL_PROVIDER_ID } },
+    select: { providerId: true },
   });
-  return accounts.map((a) => a.provider);
+  return accounts.map((a) => a.providerId);
+}
+
+/** The credential Account row holding the user's bcrypt password hash, or null for OAuth-only users. */
+export async function findCredentialAccount(userId: string): Promise<{ id: string } | null> {
+  return prisma.account.findFirst({
+    where: { userId, providerId: CREDENTIAL_PROVIDER_ID },
+    select: { id: true },
+  });
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
@@ -70,7 +80,7 @@ export async function createUser(
   options?: { language?: SupportedLanguages },
 ): Promise<User> {
   try {
-    const validatedData = CreateUserSchema.parse(data);
+    const { passwordHash, ...userData } = CreateUserSchema.parse(data);
 
     const subscriptionData = buildStarterSubscription();
 
@@ -79,12 +89,25 @@ export async function createUser(
       ...(options?.language && { language: options.language }),
     };
 
-    const prismaUser = await prisma.user.create({
-      data: {
-        ...validatedData,
-        subscription: { create: subscriptionData },
-        settings: { create: settingsData },
-      },
+    const prismaUser = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          ...userData,
+          subscription: { create: subscriptionData },
+          settings: { create: settingsData },
+        },
+      });
+
+      await tx.account.create({
+        data: {
+          userId: user.id,
+          accountId: user.id,
+          providerId: CREDENTIAL_PROVIDER_ID,
+          password: passwordHash,
+        },
+      });
+
+      return user;
     });
 
     return UserSchema.parse(prismaUser);
@@ -133,9 +156,9 @@ export async function updateUserPassword(userId: string, newPassword: string): P
   try {
     const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { passwordHash },
+    await prisma.account.updateMany({
+      where: { userId, providerId: CREDENTIAL_PROVIDER_ID },
+      data: { password: passwordHash },
     });
   } catch (error) {
     console.error(`Error updating password for user ${userId}:`, error);
@@ -145,16 +168,16 @@ export async function updateUserPassword(userId: string, newPassword: string): P
 
 export async function verifyUserPassword(userId: string, password: string): Promise<boolean> {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { passwordHash: true },
+    const account = await prisma.account.findFirst({
+      where: { userId, providerId: CREDENTIAL_PROVIDER_ID },
+      select: { password: true },
     });
 
-    if (!user || !user.passwordHash) {
+    if (!account?.password) {
       return false;
     }
 
-    return await bcrypt.compare(password, user.passwordHash);
+    return await bcrypt.compare(password, account.password);
   } catch (error) {
     console.error(`Error verifying password for user ${userId}:`, error);
     throw new Error(`Failed to verify password for user ${userId}.`);
@@ -182,15 +205,15 @@ export async function anonymizeUser(userId: string): Promise<void> {
           email: `deleted_${userId}@deleted.invalid`,
           name: null,
           image: null,
-          passwordHash: null,
-          totpEnabled: false,
+          twoFactorEnabled: false,
           totpSecret: null,
-          emailVerified: null,
+          emailVerified: false,
           deletedAt: new Date(),
         },
       }),
       prisma.account.deleteMany({ where: { userId } }),
       prisma.session.deleteMany({ where: { userId } }),
+      prisma.twoFactor.deleteMany({ where: { userId } }),
       prisma.passwordResetToken.deleteMany({ where: { userId } }),
       prisma.mcpToken.updateMany({
         where: { createdBy: userId, deletedAt: null },
