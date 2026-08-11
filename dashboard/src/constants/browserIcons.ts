@@ -133,6 +133,23 @@ export const BROWSERS: Record<string, BrowserDef> = {
     mono: true,
     match: [/qq\s*browser/],
   },
+  whale: {
+    label: 'Whale',
+    file: 'whale.svg',
+    source: 'arcticons/naver-whale',
+    mono: true,
+    match: [/\bwhale\b/],
+  },
+  midori: {
+    label: 'Midori',
+    file: 'midori.svg',
+    match: [/midori/],
+  },
+  aloha: {
+    label: 'Aloha Browser',
+    file: 'aloha.svg',
+    match: [/aloha/],
+  },
 } as const;
 
 export function resolveBrowser(input: string) {
