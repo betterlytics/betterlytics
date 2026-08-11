@@ -10,8 +10,10 @@ const appEnvSchema = z.object({
   ADMIN_PASSWORD: z.string().min(1),
   PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().min(1),
   PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
+  BETTER_AUTH_URL: z.string().url().optional(),
+  BETTER_AUTH_SECRET: z.string().min(1),
   NEXTAUTH_URL: z.string().url().optional(),
-  NEXTAUTH_SECRET: z.string().min(1),
+  NEXTAUTH_SECRET: z.string().min(1).optional(),
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
   ENABLE_REGISTRATION: zStringBoolean,
   PUBLIC_IS_CLOUD: zStringBoolean,
@@ -95,7 +97,13 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
   }
 });
 
-export const env = envSchema.parse(process.env);
+// NEXTAUTH_* fallbacks keep deploys booting whose env files predate the better-auth
+// rename (e.g. a pulled selfhost image running against a stale mounted entrypoint).
+export const env = envSchema.parse({
+  ...process.env,
+  BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ?? process.env.NEXTAUTH_URL,
+});
 
 export const s3Env = {
   enabled: env.S3_ENABLED,
