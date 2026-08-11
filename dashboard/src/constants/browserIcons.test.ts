@@ -50,4 +50,10 @@ describe('resolveBrowser', () => {
     expect(resolveBrowser('QQ Browser')?.label).toBe('QQ Browser');
     expect(resolveBrowser('QQ Browser Mini')?.label).toBe('QQ Browser');
   });
+
+  it('resolves the hand-maintained newcomers to their files', () => {
+    expect(resolveBrowser('Whale')?.file).toBe('whale.svg');
+    expect(resolveBrowser('Midori')?.file).toBe('midori.svg');
+    expect(resolveBrowser('Aloha Browser')?.file).toBe('aloha.svg');
+  });
 });
