@@ -20,7 +20,6 @@ vi.mock('@/lib/env', () => ({
     ADMIN_EMAIL: 'admin@example.com',
     ADMIN_PASSWORD: 'admin-Password-1',
     DEMO_DASHBOARD_ID: 'demo-dashboard-id',
-    TOTP_SECRET_ENCRYPTION_KEY: 'test-totp-encryption-key-32chars',
   },
 }));
 vi.mock('@/repositories/postgres/user.repository', () => ({
