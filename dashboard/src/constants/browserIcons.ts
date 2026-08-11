@@ -116,28 +116,21 @@ export const BROWSERS: Record<string, BrowserDef> = {
   instagram: {
     label: 'Instagram',
     file: 'instagram.svg',
-    source: 'logos/instagram-icon',
     match: [/instagram/],
   },
   qqbrowsermobile: {
     label: 'QQ Browser Mobile',
     file: 'qq.svg',
-    source: 'simple-icons/qq',
-    mono: true,
     match: [/qq\s*browser\s*mobile/],
   },
   qqbrowser: {
     label: 'QQ Browser',
     file: 'qq.svg',
-    source: 'simple-icons/qq',
-    mono: true,
     match: [/qq\s*browser/],
   },
   whale: {
     label: 'Whale',
     file: 'whale.svg',
-    source: 'arcticons/naver-whale',
-    mono: true,
     match: [/\bwhale\b/],
   },
   midori: {
