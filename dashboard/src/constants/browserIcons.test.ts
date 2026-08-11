@@ -38,4 +38,16 @@ describe('resolveBrowser', () => {
       expect(svg.includes('currentColor')).toBe(Boolean(def.mono));
     }
   });
+
+  it('resolves instagram to a sourced static file', () => {
+    const def = resolveBrowser('Instagram');
+    expect(def?.file).toBe('instagram.svg');
+    expect(def?.source).toBe('logos/instagram-icon');
+  });
+
+  it('resolves QQ Browser Mobile to its own entry, not the plain QQ Browser rule', () => {
+    expect(resolveBrowser('QQ Browser Mobile')?.label).toBe('QQ Browser Mobile');
+    expect(resolveBrowser('QQ Browser')?.label).toBe('QQ Browser');
+    expect(resolveBrowser('QQ Browser Mini')?.label).toBe('QQ Browser');
+  });
 });
