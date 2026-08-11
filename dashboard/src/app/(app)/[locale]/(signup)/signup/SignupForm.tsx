@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { isUserInvitedDashboardMemberAction, registerUserAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { signIn } from 'next-auth/react';
-import type { getEnabledOAuthProviders } from '@/lib/auth';
+import type { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { CheckCircleIcon } from 'lucide-react';

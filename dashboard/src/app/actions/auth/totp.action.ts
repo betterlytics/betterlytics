@@ -2,7 +2,7 @@
 
 import { withUserAuth } from '@/auth/auth-actions';
 import * as TotpService from '@/services/auth/totp.service';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 
 export const setupTotpAction = withUserAuth(async (user: User): Promise<string> => {
   return await TotpService.setupTotp(user.id);

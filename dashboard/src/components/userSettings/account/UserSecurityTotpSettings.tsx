@@ -233,10 +233,9 @@ function DisableTotp() {
   );
 }
 
-export default function UserSecurityTotpSettings() {
+export default function UserSecurityTotpSettings({ hasPassword }: { hasPassword: boolean }) {
   const { data: session } = useSession();
   const t = useTranslations('components.userSettings.security.totp');
-  const hasPassword = Boolean(session?.user?.hasPassword);
 
   const action = session?.user.twoFactorEnabled ? (
     <DisableTotp />

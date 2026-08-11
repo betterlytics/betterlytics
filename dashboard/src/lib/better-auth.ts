@@ -6,8 +6,19 @@ import * as bcrypt from 'bcrypt';
 import prisma from '@/lib/postgres';
 import { env } from '@/lib/env';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
+import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
+import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
+import { sendVerificationEmail } from '@/services/account/verification.service';
+import { setLocaleCookie } from '@/constants/cookies';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { findUserById } from '@/repositories/postgres/user.repository';
 
 const BCRYPT_SALT_ROUNDS = 10;
+
+// A session created within this window of the user's own creation is their very
+// first sign-in; skip the locale sync there so the locale they were browsing in
+// right before onboarding isn't overwritten by default settings.
+const FIRST_SIGN_IN_WINDOW_MS = 60_000;
 
 export const auth = betterAuth({
   appName: 'Betterlytics',
@@ -47,5 +58,61 @@ export const auth = betterAuth({
       githubStarPromptState: { type: 'string', required: false, input: false },
     },
   },
+  databaseHooks: {
+    user: {
+      create: {
+        // Onboarding side effects for every new user (OAuth signups included).
+        // Each block is independent and best-effort, as under next-auth.
+        after: async (user) => {
+          try {
+            await createStarterSubscriptionForUser(user.id);
+          } catch (error) {
+            console.error('Failed to create initial subscription for new user:', error);
+          }
+
+          try {
+            await createDefaultUserSettings(user.id);
+          } catch (error) {
+            console.error('Failed to create initial user settings for new user:', error);
+          }
+
+          if (user.email && !user.emailVerified && isFeatureEnabled('enableAccountVerification')) {
+            try {
+              await sendVerificationEmail({ email: user.email });
+            } catch (error) {
+              console.error('Failed to send verification email for new user:', error);
+            }
+          }
+        },
+      },
+    },
+    session: {
+      create: {
+        // Applies the user's saved language when signing in on a browser that
+        // doesn't have it yet.
+        after: async (session) => {
+          try {
+            const user = await findUserById(session.userId);
+            if (!user?.createdAt) return;
+            if (Date.now() - user.createdAt.getTime() < FIRST_SIGN_IN_WINDOW_MS) return;
+
+            const settings = await getUserSettings(session.userId);
+            if (settings.language) {
+              await setLocaleCookie(settings.language);
+            }
+          } catch (error) {
+            console.error('Failed to sync locale cookie on sign-in:', error);
+          }
+        },
+      },
+    },
+  },
   plugins: [twoFactor({ issuer: 'Betterlytics' }), nextCookies()],
 });
+
+export function getEnabledOAuthProviders(): { google: boolean; github: boolean } {
+  return {
+    google: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET),
+    github: Boolean(env.GITHUB_ID && env.GITHUB_SECRET),
+  };
+}

@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type { Session } from 'next-auth';
+import type { Session } from '@/entities/auth/session.entities';
 import { env } from '@/lib/env';
 import { ForbiddenError } from '@/lib/exceptions';
 

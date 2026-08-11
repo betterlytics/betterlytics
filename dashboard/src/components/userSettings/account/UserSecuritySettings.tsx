@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -9,12 +8,19 @@ import UserSettingsSection from '../shared/UserSettingsSection';
 import SettingRow from '../shared/SettingRow';
 import UserSecurityTotpSettings from './UserSecurityTotpSettings';
 import ChangePasswordDialog from './ChangePasswordDialog';
+import { getPasswordStatusAction } from '@/app/actions/account/userSettings.action';
 
 export default function UserSecuritySettings() {
-  const { data: session } = useSession();
   const t = useTranslations('components.userSettings.security');
-  const hasPassword = Boolean(session?.user?.hasPassword);
+  // hasPassword left the session with #79's identity-only direction; fetched where used.
+  const [hasPassword, setHasPassword] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+
+  useEffect(() => {
+    getPasswordStatusAction()
+      .then((result) => setHasPassword(result.success ? result.data : false))
+      .catch(() => setHasPassword(false));
+  }, []);
 
   const changePasswordButton = (
     <Button
@@ -47,7 +53,7 @@ export default function UserSecuritySettings() {
         }
       />
 
-      <UserSecurityTotpSettings />
+      <UserSecurityTotpSettings hasPassword={hasPassword} />
 
       <ChangePasswordDialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen} />
     </UserSettingsSection>

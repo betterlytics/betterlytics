@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { signIn } from 'next-auth/react';
-import type { getEnabledOAuthProviders } from '@/lib/auth';
+import type { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { useBARouter } from '@/hooks/use-ba-router';
 import OtpInput from '@/components/ui/otp-input';
 import {

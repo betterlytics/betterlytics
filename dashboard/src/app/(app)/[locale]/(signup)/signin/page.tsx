@@ -10,7 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
-import { getEnabledOAuthProviders } from '@/lib/auth';
+import { getEnabledOAuthProviders } from '@/lib/better-auth';
 
 interface SignInPageProps {
   searchParams: Promise<{
