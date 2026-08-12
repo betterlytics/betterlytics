@@ -122,6 +122,7 @@ export default function LoginForm({
           const { error: socialError } = await authClient.signIn.social({
             provider: oauthProvider,
             callbackURL: '/dashboards',
+            newUserCallbackURL: '/onboarding?newUser=true',
             errorCallbackURL: '/signin',
           });
           if (socialError) {
