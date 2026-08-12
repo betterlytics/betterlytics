@@ -98,10 +98,13 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
 
 // NEXTAUTH_* fallbacks keep deploys booting whose env files predate the better-auth
 // rename (e.g. a pulled selfhost image running against a stale mounted entrypoint).
+// The PUBLIC_BASE_URL fallback (explicitly set only, never its zod default) pins
+// better-auth's base URL — and with it the CSRF trusted origin — to the canonical
+// deploy URL instead of trusting whatever Host header the proxy forwards.
 export const env = envSchema.parse({
   ...process.env,
   BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
-  BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ?? process.env.NEXTAUTH_URL,
+  BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ?? process.env.NEXTAUTH_URL ?? process.env.PUBLIC_BASE_URL,
 });
 
 export const s3Env = {
