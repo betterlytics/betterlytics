@@ -50,10 +50,8 @@ function SetupTotp() {
   const [totp, setTotp] = useState('');
   const [totpSecret, setTotpSecret] = useState('');
   const [totpUrl, setTotpUrl] = useState('');
-  const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { copied: totpSecretCopied, copy: copySecret } = useCopy(t('copyFailed'));
-  const { copied: backupCodesCopied, copy: copyBackupCodes } = useCopy(t('copyFailed'));
   const [isPending, startTransition] = useTransition();
 
   const handleDialogOpenChange = (open: boolean) => {
@@ -77,8 +75,10 @@ function SetupTotp() {
         toast.error(t('setupFailed'));
         return;
       }
+      // data.backupCodes is intentionally not surfaced: sign-in has no backup
+      // code entry yet, so showing them would promise a recovery path that
+      // doesn't exist.
       setTotpUrl(data.totpURI);
-      setBackupCodes(data.backupCodes);
     });
   };
 
@@ -176,25 +176,6 @@ function SetupTotp() {
                 <ExternalLink href={totpUrl} className='m-auto'>
                   <QRCode value={totpUrl} size={128} className='m-auto' />
                 </ExternalLink>
-
-                <div className='bg-muted rounded-md p-3'>
-                  <div className='mb-1 flex items-center justify-between'>
-                    <span className='text-sm font-medium'>{t('backupCodesTitle')}</span>
-                    <button
-                      type='button'
-                      className='cursor-pointer py-0.5'
-                      onClick={() => copyBackupCodes(backupCodes.join('\n'))}
-                    >
-                      {backupCodesCopied ? <Check className='size-3' /> : <Clipboard className='size-3' />}
-                    </button>
-                  </div>
-                  <p className='text-muted-foreground mb-2 text-xs'>{t('backupCodesDescription')}</p>
-                  <code className='grid grid-cols-2 gap-x-4 text-xs'>
-                    {backupCodes.map((code) => (
-                      <span key={code}>{code}</span>
-                    ))}
-                  </code>
-                </div>
 
                 <OtpInput value={totp} onValueChange={setTotp} disabled={isPending} ref={totpInputRef} />
               </div>
