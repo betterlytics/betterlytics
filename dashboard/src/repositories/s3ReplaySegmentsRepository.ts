@@ -1,8 +1,8 @@
-'server-only';
+import 'server-only';
 
 import { ListObjectsV2Command, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { getS3Client } from '@/lib/s3-client';
+import { getS3Client, getS3DataPlaneClient } from '@/lib/s3-client';
 import { s3Env } from '@/lib/env';
 import type { ReplaySegmentManifestEntry } from '@/entities/analytics/sessionReplays.entities';
 
@@ -16,14 +16,15 @@ export class S3ReplaySegmentsRepository {
       throw new Error('S3 bucket is not configured');
     }
 
-    const client = getS3Client();
+    const dataPlaneClient = getS3DataPlaneClient();
+    const presignClient = getS3Client();
 
     const listCommand = new ListObjectsV2Command({
       Bucket: s3Env.bucket,
       Prefix: prefix,
     });
 
-    const listed = await client.send(listCommand);
+    const listed = await dataPlaneClient.send(listCommand);
     const contents = (listed.Contents ?? []).filter(
       (obj): obj is { Key: string; Size?: number; LastModified?: Date } => Boolean(obj.Key),
     );
@@ -37,7 +38,7 @@ export class S3ReplaySegmentsRepository {
           Key,
         });
 
-        const url = await getSignedUrl(client, command, { expiresIn: ttlSeconds });
+        const url = await getSignedUrl(presignClient, command, { expiresIn: ttlSeconds });
         const entry: ReplaySegmentManifestEntry = {
           key: Key,
           url,

@@ -98,7 +98,7 @@ impl Config {
             GeolocationMode::Countries
         };
 
-        Config {
+        let config = Config {
             server_port: env::var("SERVER_PORT")
                 .unwrap_or_else(|_| "3000".to_string())
                 .parse()
@@ -213,7 +213,14 @@ impl Config {
             }),
             // Pushover integration
             pushover_app_token: env::var("PUSHOVER_APP_TOKEN").ok(),
-        }
+        };
+
+        assert!(
+            !config.enable_session_replay || (config.s3_enabled && config.s3_bucket.is_some()),
+            "SESSION_REPLAYS_ENABLED=true requires S3 storage: set S3_ENABLED=true and S3_BUCKET"
+        );
+
+        config
     }
 }
 

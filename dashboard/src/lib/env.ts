@@ -50,6 +50,7 @@ const appEnvSchema = z.object({
   S3_BUCKET: z.string().optional(),
   S3_REGION: z.string().optional(),
   S3_ENDPOINT: z.string().optional(),
+  S3_INTERNAL_ENDPOINT: z.string().optional(),
   S3_ACCESS_KEY_ID: z.string().optional(),
   S3_SECRET_ACCESS_KEY: z.string().optional(),
   S3_FORCE_PATH_STYLE: zStringBoolean,
@@ -93,6 +94,14 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
       path: ['STATUS_PAGE_ASK_SECRET'],
     });
   }
+
+  if (env.SESSION_REPLAYS_ENABLED && !env.S3_ENABLED) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'SESSION_REPLAYS_ENABLED=true requires S3_ENABLED=true (session replay stores segments in S3)',
+      path: ['S3_ENABLED'],
+    });
+  }
 });
 
 export const env = envSchema.parse(process.env);
@@ -102,6 +111,7 @@ export const s3Env = {
   bucket: env.S3_BUCKET,
   region: env.S3_REGION,
   endpoint: env.S3_ENDPOINT,
+  internalEndpoint: env.S3_INTERNAL_ENDPOINT,
   accessKeyId: env.S3_ACCESS_KEY_ID,
   secretAccessKey: env.S3_SECRET_ACCESS_KEY,
   forcePathStyle: env.S3_FORCE_PATH_STYLE,
