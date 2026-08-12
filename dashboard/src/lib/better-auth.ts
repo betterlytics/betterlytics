@@ -27,6 +27,9 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: 'postgresql' }),
   emailAndPassword: {
     enabled: true,
+    // Registration goes through registerUserAction (feature-flag gate, terms
+    // acceptance, language); the raw sign-up endpoint would bypass all of it.
+    disableSignUp: true,
     minPasswordLength: 8,
     maxPasswordLength: 100,
     // bcrypt is the permanent hasher (not better-auth's scrypt default) so every
