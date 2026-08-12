@@ -116,10 +116,13 @@ export default function LoginForm({
 
       transition(async () => {
         try {
-          // Navigates the browser to the provider's consent screen.
+          // Navigates the browser to the provider's consent screen. Callback
+          // failures come back to /signin?error=<code> instead of better-auth's
+          // unbranded /api/auth/error page.
           const { error: socialError } = await authClient.signIn.social({
             provider: oauthProvider,
             callbackURL: '/dashboards',
+            errorCallbackURL: '/signin',
           });
           if (socialError) {
             setError(t('errors.generic'));

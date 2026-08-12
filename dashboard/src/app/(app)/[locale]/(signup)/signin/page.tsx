@@ -61,8 +61,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   }
 
   // Credentials errors surface inline in the form; the query param only carries
-  // OAuth callback failures (better-auth redirects those back with ?error=).
-  const getErrorMessage = (_error: string) => t('errors.default');
+  // OAuth callback failures (better-auth redirects those back with ?error=<code>
+  // via the errorCallbackURL passed in signIn.social).
+  const getErrorMessage = (error: string) =>
+    error === 'account_not_linked' ? t('errors.OAuthAccountNotLinked') : t('errors.default');
 
   return (
     <>
