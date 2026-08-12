@@ -181,6 +181,14 @@ describe('updateUserPassword', () => {
     expect(updateCall.where).toEqual({ userId: 'user-1', providerId: 'credential' });
     expect(await bcrypt.compare('New-password-1', updateCall.data.password)).toBe(true);
   });
+
+  it('throws when no credential account row was updated', async () => {
+    prismaMock.account.updateMany.mockResolvedValue({ count: 0 });
+
+    await expect(updateUserPassword('user-1', 'New-password-1')).rejects.toThrow(
+      'Failed to update password',
+    );
+  });
 });
 
 describe('verifyUserPassword', () => {
@@ -210,12 +218,12 @@ describe('verifyUserPassword', () => {
 });
 
 describe('findCredentialAccount', () => {
-  it('looks up only the credential provider row', async () => {
+  it('looks up only the credential provider row with a password set', async () => {
     prismaMock.account.findFirst.mockResolvedValue({ id: 'account-1' });
 
     expect(await findCredentialAccount('user-1')).toEqual({ id: 'account-1' });
     expect(prismaMock.account.findFirst).toHaveBeenCalledWith({
-      where: { userId: 'user-1', providerId: 'credential' },
+      where: { userId: 'user-1', providerId: 'credential', password: { not: null } },
       select: { id: true },
     });
   });

@@ -35,10 +35,14 @@ export async function findUserOAuthProviders(userId: string): Promise<string[]> 
   return accounts.map((a) => a.providerId);
 }
 
-/** The credential Account row holding the user's bcrypt password hash, or null for OAuth-only users. */
+/**
+ * The credential Account row holding the user's bcrypt password hash, or null for
+ * OAuth-only users. Requires a non-null password so the predicate agrees with
+ * better-auth's own sign-in checks, which test the hash value, not row existence.
+ */
 export async function findCredentialAccount(userId: string): Promise<{ id: string } | null> {
   return prisma.account.findFirst({
-    where: { userId, providerId: CREDENTIAL_PROVIDER_ID },
+    where: { userId, providerId: CREDENTIAL_PROVIDER_ID, password: { not: null } },
     select: { id: true },
   });
 }
@@ -156,10 +160,14 @@ export async function updateUserPassword(userId: string, newPassword: string): P
   try {
     const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
-    await prisma.account.updateMany({
+    const result = await prisma.account.updateMany({
       where: { userId, providerId: CREDENTIAL_PROVIDER_ID },
       data: { password: passwordHash },
     });
+
+    if (result.count !== 1) {
+      throw new Error(`Expected exactly one credential account, updated ${result.count}`);
+    }
   } catch (error) {
     console.error(`Error updating password for user ${userId}:`, error);
     throw new Error(`Failed to update password for user ${userId}.`);
