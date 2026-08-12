@@ -1,7 +1,9 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { twoFactor } from 'better-auth/plugins';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
+import { UpdateUserNameSchema } from '@/entities/auth/user.entities';
 import * as bcrypt from 'bcrypt';
 import prisma from '@/lib/postgres';
 import { env } from '@/lib/env';
@@ -62,6 +64,28 @@ export const auth = betterAuth({
       changelogVersionSeen: { type: 'string', required: false, input: false },
       githubStarPromptState: { type: 'string', required: false, input: false },
     },
+  },
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      // Password change/reset runs through our server actions (session
+      // invalidation, notification emails, our reset-token table); the
+      // parallel better-auth endpoints stay closed so there's one live path.
+      if (
+        ctx.path === '/change-password' ||
+        ctx.path === '/request-password-reset' ||
+        ctx.path.startsWith('/reset-password')
+      ) {
+        throw new APIError('NOT_FOUND');
+      }
+
+      // name is the only built-in field /update-user accepts as input; hold it
+      // to the same bounds updateUserNameAction enforces.
+      if (ctx.path === '/update-user' && ctx.body && 'name' in ctx.body) {
+        if (!UpdateUserNameSchema.safeParse({ name: ctx.body.name }).success) {
+          throw new APIError('BAD_REQUEST', { message: 'Invalid name' });
+        }
+      }
+    }),
   },
   databaseHooks: {
     user: {
