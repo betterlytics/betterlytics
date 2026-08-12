@@ -2,11 +2,12 @@
  * Characterization tests for the auth entity schemas (internal issue #50).
  *
  * Pins the validation contract the better-auth migration must preserve:
- * password policy, registration requirements, and the login payload shape.
+ * password policy and registration requirements. (The login payload moved to
+ * better-auth's own sign-in endpoint, so LoginUserSchema is gone.)
  */
 import { describe, it, expect } from 'vitest';
 import { PasswordSchema } from '@/entities/auth/password.entities';
-import { RegisterUserSchema, LoginUserSchema } from '@/entities/auth/user.entities';
+import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 
 describe('PasswordSchema (password policy)', () => {
@@ -60,26 +61,5 @@ describe('RegisterUserSchema', () => {
     if (!other) return; // only meaningful when more than one language is supported
 
     expect(RegisterUserSchema.parse({ ...valid, language: other }).language).toBe(other);
-  });
-});
-
-describe('LoginUserSchema', () => {
-  const valid = { email: 'user@example.com', password: 'whatever' };
-
-  it('accepts credentials without a TOTP code', () => {
-    expect(LoginUserSchema.safeParse(valid).success).toBe(true);
-  });
-
-  it('accepts a 6-digit TOTP code', () => {
-    expect(LoginUserSchema.safeParse({ ...valid, totp: '123456' }).success).toBe(true);
-  });
-
-  it('rejects TOTP codes that are not exactly 6 characters', () => {
-    expect(LoginUserSchema.safeParse({ ...valid, totp: '12345' }).success).toBe(false);
-    expect(LoginUserSchema.safeParse({ ...valid, totp: '1234567' }).success).toBe(false);
-  });
-
-  it('does not enforce the password policy at login (legacy passwords must keep working)', () => {
-    expect(LoginUserSchema.safeParse({ ...valid, password: 'x' }).success).toBe(true);
   });
 });

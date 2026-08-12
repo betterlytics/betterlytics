@@ -735,7 +735,6 @@
         "title": "Logg inn på kontoen din",
         "subtitle": "Få tilgang til analysedashboardet ditt",
         "errors": {
-          "CredentialsSignin": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
           "OAuthAccountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn med e-post og passord i stedet.",
           "default": "Det oppstod en feil under innlogging. Prøv igjen."
         },

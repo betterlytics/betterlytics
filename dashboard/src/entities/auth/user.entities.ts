@@ -11,7 +11,6 @@ export const UserSchema = z.object({
   emailVerified: z.boolean().default(false),
   image: z.string().nullable().optional(),
   twoFactorEnabled: z.boolean().default(false),
-  totpSecret: z.string().nullable().optional(),
   termsAcceptedVersion: z.number().nullable().optional(),
   termsAcceptedAt: z.date().nullable().optional(),
   changelogVersionSeen: z.string().optional().default('v0'),
@@ -32,8 +31,6 @@ export const CreateUserSchema = z.object({
 
 export const UpdateUserSchema = z.object({
   name: z.string().max(64).nullable().optional(),
-  twoFactorEnabled: z.boolean().optional(),
-  totpSecret: z.string().nullable().optional(),
 });
 
 export const UpdateUserNameSchema = z.object({
@@ -54,12 +51,6 @@ export const RegisterUserSchema = z.object({
   ),
 });
 
-export const LoginUserSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-  totp: z.string().length(6).optional(),
-});
-
 export const AuthenticatedUserSchema = UserSchema.extend({
   dashboardId: z.string(),
   siteId: z.string(),
@@ -76,6 +67,5 @@ export type CreateUserData = z.infer<typeof CreateUserSchema>;
 export type UpdateUserData = z.infer<typeof UpdateUserSchema>;
 export type UpdateUserNameData = z.infer<typeof UpdateUserNameSchema>;
 export type RegisterUserData = z.infer<typeof RegisterUserSchema>;
-export type LoginUserData = z.infer<typeof LoginUserSchema>;
 export type AuthenticatedUser = z.infer<typeof AuthenticatedUserSchema>;
 export type UserWithoutDashboardCandidate = z.infer<typeof UserWithoutDashboardCandidateSchema>;

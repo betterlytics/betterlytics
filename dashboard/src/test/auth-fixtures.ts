@@ -10,7 +10,6 @@ export function makeUser(overrides: Partial<User> = {}): User {
     emailVerified: true,
     image: null,
     twoFactorEnabled: false,
-    totpSecret: null,
     termsAcceptedVersion: 1,
     termsAcceptedAt: new Date('2024-01-01T00:00:00Z'),
     changelogVersionSeen: 'v0',
