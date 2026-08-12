@@ -26,8 +26,8 @@ const FIRST_SIGN_IN_WINDOW_MS = 60_000;
 
 export const auth = betterAuth({
   appName: 'Betterlytics',
-  baseURL: env.BETTER_AUTH_URL,
-  secret: env.BETTER_AUTH_SECRET,
+  baseURL: env.AUTH_URL,
+  secret: env.AUTH_SECRET,
   database: prismaAdapter(prisma, { provider: 'postgresql' }),
   emailAndPassword: {
     enabled: true,

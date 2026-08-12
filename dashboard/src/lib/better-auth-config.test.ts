@@ -20,8 +20,8 @@ import { makeUser, hashPassword } from '@/test/auth-fixtures';
 
 vi.mock('@/lib/env', () => ({
   env: {
-    BETTER_AUTH_URL: 'http://localhost:3000',
-    BETTER_AUTH_SECRET: 'test-better-auth-secret',
+    AUTH_URL: 'http://localhost:3000',
+    AUTH_SECRET: 'test-auth-secret',
     GITHUB_ID: '',
     GITHUB_SECRET: '',
     GOOGLE_CLIENT_ID: '',

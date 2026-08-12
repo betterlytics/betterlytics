@@ -10,8 +10,8 @@ const appEnvSchema = z.object({
   ADMIN_PASSWORD: z.string().min(1),
   PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().min(1),
   PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
-  BETTER_AUTH_URL: z.string().url().optional(),
-  BETTER_AUTH_SECRET: z.string().min(1),
+  AUTH_URL: z.string().url(),
+  AUTH_SECRET: z.string().min(1),
   NEXTAUTH_URL: z.string().url().optional(),
   NEXTAUTH_SECRET: z.string().min(1).optional(),
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
@@ -96,15 +96,13 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
   }
 });
 
-// NEXTAUTH_* fallbacks keep deploys booting whose env files predate the better-auth
-// rename (e.g. a pulled selfhost image running against a stale mounted entrypoint).
-// The PUBLIC_BASE_URL fallback (explicitly set only, never its zod default) pins
-// better-auth's base URL — and with it the CSRF trusted origin — to the canonical
-// deploy URL instead of trusting whatever Host header the proxy forwards.
+// AUTH_* is provider-agnostic so a future auth-library swap never renames the env
+// contract again. NEXTAUTH_* fallbacks keep deploys booting whose env files predate
+// the rename (e.g. a pulled selfhost image running against a stale mounted entrypoint).
 export const env = envSchema.parse({
   ...process.env,
-  BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
-  BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ?? process.env.NEXTAUTH_URL ?? process.env.PUBLIC_BASE_URL,
+  AUTH_SECRET: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+  AUTH_URL: process.env.AUTH_URL ?? process.env.NEXTAUTH_URL,
 });
 
 export const s3Env = {
