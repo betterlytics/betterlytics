@@ -60,7 +60,11 @@ function SetupTotp() {
       setTotp('');
       return setIsDialogOpen(false);
     }
+    // Restart from the password step: a cancelled enrollment's secret is stale
+    // (each enable() replaces the previous one), so never reopen onto its QR.
     setTotp('');
+    setTotpUrl('');
+    setTotpSecret('');
     setIsDialogOpen(true);
   };
 
@@ -275,15 +279,13 @@ function DisableTotp() {
   );
 }
 
-export default function UserSecurityTotpSettings({ hasPassword }: { hasPassword: boolean }) {
+export default function UserSecurityTotpSettings({ hasPassword }: { hasPassword: boolean | null }) {
   const { data: session } = authClient.useSession();
   const t = useTranslations('components.userSettings.security.totp');
 
   const action = session?.user.twoFactorEnabled ? (
     <DisableTotp />
-  ) : hasPassword ? (
-    <SetupTotp />
-  ) : (
+  ) : hasPassword === false ? (
     <DisabledTooltip disabled message={t('managedByOAuth')}>
       {(isDisabled) => (
         <Button variant='outline' size='sm' disabled={isDisabled} className='cursor-pointer'>
@@ -291,6 +293,13 @@ export default function UserSecurityTotpSettings({ hasPassword }: { hasPassword:
         </Button>
       )}
     </DisabledTooltip>
+  ) : hasPassword ? (
+    <SetupTotp />
+  ) : (
+    // Password status still resolving: neutral disabled button, no OAuth tooltip.
+    <Button variant='outline' size='sm' disabled className='cursor-pointer'>
+      {t('enable')}
+    </Button>
   );
 
   return <SettingRow label={t('title')} description={t('description')} action={action} />;
