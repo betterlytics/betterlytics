@@ -9,6 +9,8 @@ import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail } from '@/services/account/verification.service';
+import { enqueueEmail } from '@/services/email/email.service';
+import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById } from '@/repositories/postgres/user.repository';
@@ -85,6 +87,30 @@ export const auth = betterAuth({
             } catch (error) {
               console.error('Failed to send verification email for new user:', error);
             }
+          }
+        },
+      },
+      update: {
+        // "Your security settings changed" notifications. The only user-row
+        // updates the two-factor endpoints issue are the twoFactorEnabled flips
+        // (enrollment confirmation and disable) — sign-in verifications never
+        // touch the user row — so the path prefix alone identifies a real state
+        // change. Raw-prisma writes (anonymize, legacy reset) bypass these hooks.
+        after: async (user, ctx) => {
+          if (!ctx?.path?.startsWith('/two-factor/')) return;
+          if (!user.email) return;
+
+          const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
+          const type = enabled ? ('two-factor-enabled' as const) : ('two-factor-disabled' as const);
+          try {
+            await enqueueEmail({
+              type,
+              recipientKey: createUserRecipientKey(user.id),
+              campaignKey: `${type}:${new Date().toISOString()}`,
+              data: { to: user.email, userName: user.name ?? null },
+            });
+          } catch (error) {
+            console.error('Failed to enqueue 2FA change notification:', error);
           }
         },
       },
