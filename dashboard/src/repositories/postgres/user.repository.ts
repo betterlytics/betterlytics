@@ -48,7 +48,7 @@ export async function findCredentialAccount(userId: string): Promise<{ id: strin
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
-  return await findUserBy({ email });
+  return await findUserBy({ email: email.toLowerCase() });
 }
 
 async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | null> {
@@ -271,7 +271,6 @@ export async function findUsersWithoutDashboardsInWindow(
     const users = await prisma.user.findMany({
       where: {
         deletedAt: null,
-        email: { not: null },
         createdAt: { gt: window.signedUpAfter, lt: window.signedUpBefore },
         dashboardAccess: { none: {} },
       },
@@ -280,9 +279,9 @@ export async function findUsersWithoutDashboardsInWindow(
       take: limit,
     });
 
-    return users
-      .filter((u) => u.email)
-      .map((u) => UserWithoutDashboardCandidateSchema.parse({ userId: u.id, email: u.email, name: u.name }));
+    return users.map((u) =>
+      UserWithoutDashboardCandidateSchema.parse({ userId: u.id, email: u.email, name: u.name }),
+    );
   } catch (error) {
     console.error('Error finding users without dashboards in window:', error);
     throw new Error('Failed to find users without dashboards in window');

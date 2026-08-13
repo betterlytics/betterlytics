@@ -4,8 +4,9 @@
  * Successor to the next-auth auth-config tests from #50: pins the engine-level
  * contract — legacy bcrypt hashes keep verifying (permanent custom hasher),
  * the 30-day/24-hour session lifetimes, the twoFactor plugin registration,
- * the identity fields carried on the session user, and the onboarding /
- * locale side effects that moved into database hooks.
+ * the identity fields carried on the session user, the closed better-auth
+ * endpoints (mutations run through our server actions), and the onboarding /
+ * locale / 2FA-notification side effects that moved into database hooks.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
@@ -13,6 +14,7 @@ import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail } from '@/services/account/verification.service';
+import { enqueueEmail } from '@/services/email/email.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById } from '@/repositories/postgres/user.repository';
@@ -48,6 +50,12 @@ vi.mock('@/services/billing/subscription.service', () => ({
 }));
 vi.mock('@/services/account/verification.service', () => ({
   sendVerificationEmail: vi.fn(),
+}));
+vi.mock('@/services/email/email.service', () => ({
+  enqueueEmail: vi.fn(),
+}));
+vi.mock('@/services/email/recipient-key.service', () => ({
+  createUserRecipientKey: vi.fn((userId: string) => `user:${userId}`),
 }));
 vi.mock('@/constants/cookies', () => ({
   setLocaleCookie: vi.fn(),
@@ -198,5 +206,60 @@ describe('session create hook (locale sync)', () => {
     vi.mocked(getUserSettings).mockRejectedValue(new Error('db down'));
 
     await expect(runSessionHook()).resolves.toBeUndefined();
+  });
+});
+
+describe('before hook (closed better-auth endpoints)', () => {
+  type BeforeHook = (ctx: { path: string; body?: unknown }) => Promise<unknown>;
+  const runBeforeHook = (path: string, body: unknown = {}) =>
+    (auth.options.hooks!.before as unknown as BeforeHook)({ path, body });
+
+  it.each(['/change-password', '/request-password-reset', '/reset-password/some-token', '/update-user'])(
+    '%s returns 404 (these mutations run through our server actions)',
+    async (path) => {
+      await expect(runBeforeHook(path)).rejects.toMatchObject({ statusCode: 404 });
+    },
+  );
+
+  it('leaves the live endpoints alone', async () => {
+    await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
+  });
+});
+
+describe('user update hook (2FA change notifications)', () => {
+  const runUpdateHook = (user: unknown, path?: string) =>
+    auth.options.databaseHooks!.user!.update!.after!(user as never, (path ? { path } : undefined) as never);
+
+  it('enqueues an enabled notification when a two-factor endpoint flips the flag on', async () => {
+    await runUpdateHook(makeUser({ twoFactorEnabled: true }), '/two-factor/verify-totp');
+
+    expect(enqueueEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'two-factor-enabled',
+        recipientKey: 'user:user-1',
+        data: { to: 'user@example.com', userName: 'Test User' },
+      }),
+    );
+  });
+
+  it('enqueues a disabled notification when 2FA is turned off', async () => {
+    await runUpdateHook(makeUser({ twoFactorEnabled: false }), '/two-factor/disable');
+
+    expect(enqueueEmail).toHaveBeenCalledWith(expect.objectContaining({ type: 'two-factor-disabled' }));
+  });
+
+  it('ignores user updates from outside the two-factor endpoints', async () => {
+    await runUpdateHook(makeUser({ twoFactorEnabled: true }), '/some-other-path');
+    await runUpdateHook(makeUser({ twoFactorEnabled: true }));
+
+    expect(enqueueEmail).not.toHaveBeenCalled();
+  });
+
+  it('does not fail the update when the email enqueue throws', async () => {
+    vi.mocked(enqueueEmail).mockRejectedValue(new Error('queue down'));
+
+    await expect(
+      runUpdateHook(makeUser({ twoFactorEnabled: true }), '/two-factor/verify-totp'),
+    ).resolves.toBeUndefined();
   });
 });

@@ -26,13 +26,12 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const [agree, setAgree] = useState(false);
-  const { data: session } = authClient.useSession();
+  const { data: session, refetch } = authClient.useSession();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
 
   const effectiveShowTos = isFeatureFlagEnabled('isCloud') && !session?.user?.termsAcceptedAt;
 
   const { setDashboard } = useOnboarding();
-  const { refetch } = authClient.useSession();
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {

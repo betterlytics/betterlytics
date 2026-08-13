@@ -10,6 +10,7 @@ ALTER TABLE "Session" RENAME COLUMN "expires" TO "expiresAt";
 ALTER TABLE "Session" ADD COLUMN "ipAddress" TEXT;
 ALTER TABLE "Session" ADD COLUMN "userAgent" TEXT;
 ALTER INDEX "Session_sessionToken_key" RENAME TO "Session_token_key";
+CREATE INDEX "Session_userId_idx" ON "Session"("userId");
 
 -- Accounts: rename to better-auth's field names.
 ALTER TABLE "Account" RENAME COLUMN "provider" TO "providerId";
@@ -26,6 +27,7 @@ ALTER TABLE "Account" DROP COLUMN "type";
 ALTER TABLE "Account" DROP COLUMN "token_type";
 ALTER TABLE "Account" DROP COLUMN "session_state";
 ALTER INDEX "Account_provider_providerAccountId_key" RENAME TO "Account_providerId_accountId_key";
+CREATE INDEX "Account_userId_idx" ON "Account"("userId");
 
 -- Every password user gets a credential account row (the hash moves off User).
 -- accountId = user id is better-auth's convention for credential accounts.
@@ -39,6 +41,13 @@ ALTER TABLE "User"
   ALTER COLUMN "emailVerified" TYPE BOOLEAN USING ("emailVerified" IS NOT NULL),
   ALTER COLUMN "emailVerified" SET DEFAULT false,
   ALTER COLUMN "emailVerified" SET NOT NULL;
+
+-- better-auth lowercases the email on every lookup, so a mixed-case row could
+-- never sign in again (and an OAuth sign-in would create a duplicate user).
+-- Two rows differing only in case would collide with the unique index and abort
+-- the migration; resolve such duplicates manually before retrying.
+UPDATE "User" SET "email" = LOWER("email") WHERE "email" <> LOWER("email");
+ALTER TABLE "User" ALTER COLUMN "email" SET NOT NULL;
 
 -- twoFactorEnabled keeps its values through the rename; the one-time boot task
 -- disables legacy enrollments (plugin-incompatible secrets) and notifies users.
@@ -75,5 +84,8 @@ CREATE TABLE "TwoFactor" (
 );
 
 CREATE INDEX "TwoFactor_userId_idx" ON "TwoFactor"("userId");
+
+-- Declared by the twoFactor plugin's schema
+CREATE INDEX "TwoFactor_secret_idx" ON "TwoFactor"("secret");
 
 ALTER TABLE "TwoFactor" ADD CONSTRAINT "TwoFactor_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

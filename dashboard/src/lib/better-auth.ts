@@ -3,7 +3,6 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { twoFactor } from 'better-auth/plugins';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
-import { UpdateUserNameSchema } from '@/entities/auth/user.entities';
 import * as bcrypt from 'bcrypt';
 import prisma from '@/lib/postgres';
 import { env } from '@/lib/env';
@@ -44,11 +43,25 @@ export const auth = betterAuth({
     },
   },
   socialProviders: {
+    // disableSignUp makes ENABLE_REGISTRATION=false gate OAuth sign-up the same
+    // way registerUserAction gates email/password; existing users still sign in.
     ...(env.GITHUB_ID && env.GITHUB_SECRET
-      ? { github: { clientId: env.GITHUB_ID, clientSecret: env.GITHUB_SECRET } }
+      ? {
+          github: {
+            clientId: env.GITHUB_ID,
+            clientSecret: env.GITHUB_SECRET,
+            disableSignUp: !isFeatureEnabled('enableRegistration'),
+          },
+        }
       : {}),
     ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
-      ? { google: { clientId: env.GOOGLE_CLIENT_ID, clientSecret: env.GOOGLE_CLIENT_SECRET } }
+      ? {
+          google: {
+            clientId: env.GOOGLE_CLIENT_ID,
+            clientSecret: env.GOOGLE_CLIENT_SECRET,
+            disableSignUp: !isFeatureEnabled('enableRegistration'),
+          },
+        }
       : {}),
   },
   session: {
@@ -67,23 +80,18 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      // Password change/reset runs through our server actions (session
-      // invalidation, notification emails, our reset-token table); the
-      // parallel better-auth endpoints stay closed so there's one live path.
+      // Account mutations run through our server actions (validation, session
+      // invalidation, notification emails, our reset-token table); the parallel
+      // better-auth endpoints stay closed so there's one live path. /update-user
+      // in particular would let any signed-in user write unbounded name/image
+      // values, and nothing in the app calls it.
       if (
         ctx.path === '/change-password' ||
         ctx.path === '/request-password-reset' ||
-        ctx.path.startsWith('/reset-password')
+        ctx.path.startsWith('/reset-password') ||
+        ctx.path === '/update-user'
       ) {
         throw new APIError('NOT_FOUND');
-      }
-
-      // name is the only built-in field /update-user accepts as input; hold it
-      // to the same bounds updateUserNameAction enforces.
-      if (ctx.path === '/update-user' && ctx.body && 'name' in ctx.body) {
-        if (!UpdateUserNameSchema.safeParse({ name: ctx.body.name }).success) {
-          throw new APIError('BAD_REQUEST', { message: 'Invalid name' });
-        }
       }
     }),
   },

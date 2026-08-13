@@ -257,9 +257,6 @@ importers:
       nodemailer:
         specifier: ^8.0.11
         version: 8.0.11
-      otpauth:
-        specifier: ^9.4.0
-        version: 9.5.1
       pg-boss:
         specifier: ^12.15.0
         version: 12.26.3
@@ -5924,9 +5921,6 @@ packages:
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
-
-  otpauth@9.5.1:
-    resolution: {integrity: sha512-fJmDAHc8wImfqqqOXIlBvT1dEKrZK0Cmb2VEgScpNTolCz0PHh6ExUZGv4sLtOsWNaHCQlD+rRqaPgnoxFoZjQ==}
 
   own-keys@1.0.1:
     resolution: {integrity: sha512-qFOyK5PjiWZd+QQIh+1jhdb9LpxTF0qs7Pm8o5QHYZ0M3vKqSqzsZaEB6oWlxZ+q2sJBMI/Ktgd2N5ZwQoRHfg==}
@@ -13025,10 +13019,6 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
       word-wrap: 1.2.5
-
-  otpauth@9.5.1:
-    dependencies:
-      '@noble/hashes': 2.2.0
 
   own-keys@1.0.1:
     dependencies:
