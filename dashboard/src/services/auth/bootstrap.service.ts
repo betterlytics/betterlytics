@@ -64,10 +64,10 @@ export async function resetLegacyTwoFactor(): Promise<void> {
     if (!user.twoFactorEnabled || !user.email) continue;
     try {
       await enqueueEmail({
-        type: 'two-factor-disabled',
+        type: 'two-factor-reset-required',
         recipientKey: createUserRecipientKey(user.id),
         campaignKey: `two-factor-reset-migration:${user.id}`,
-        data: { to: user.email, userName: user.name },
+        data: { to: user.email, userName: user.name, signInUrl: `${env.PUBLIC_BASE_URL}/signin` },
       });
     } catch (err) {
       console.error('Failed to enqueue 2FA reset notification:', { userId: user.id, err });
