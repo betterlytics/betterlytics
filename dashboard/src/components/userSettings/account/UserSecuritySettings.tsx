@@ -12,8 +12,6 @@ import { getPasswordStatusAction } from '@/app/actions/account/userSettings.acti
 
 export default function UserSecuritySettings() {
   const t = useTranslations('components.userSettings.security');
-  // hasPassword left the session with #79's identity-only direction; fetched where
-  // used. null = still resolving, so the first paint doesn't claim OAuth-only.
   const [hasPassword, setHasPassword] = useState<boolean | null>(null);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
 

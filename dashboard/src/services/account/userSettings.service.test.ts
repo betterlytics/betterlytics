@@ -1,12 +1,3 @@
-/**
- * Characterization tests for password change and account deletion (internal
- * issue #50).
- *
- * Pins behavior the better-auth migration must preserve: changing a password
- * requires the current password and revokes every OTHER session (keeping the
- * active one), and account deletion anonymizes the user after tearing down
- * owned dashboards and pending invitations.
- */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { changeUserPassword, deleteUser, getUserSettings } from '@/services/account/userSettings.service';
 import * as UserRepository from '@/repositories/postgres/user.repository';
@@ -87,8 +78,7 @@ describe('changeUserPassword', () => {
   });
 
   it('rejects OAuth-only accounts (no local password): password management belongs to the provider', async () => {
-    // verifyUserPassword returns false when passwordHash is null, so an OAuth-only
-    // account can never set a local password through the change-password flow.
+    // verifyUserPassword returns false when there is no password hash.
     vi.mocked(UserRepository.verifyUserPassword).mockResolvedValue(false);
 
     await expect(

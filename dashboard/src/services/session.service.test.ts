@@ -1,9 +1,3 @@
-/**
- * Characterization tests for the session service (internal issue #50).
- *
- * Pins the 30-day/24-hour session lifetimes, which the better-auth config
- * consumes directly (better-auth-config.test.ts covers that wiring).
- */
 import { describe, it, expect, vi } from 'vitest';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
 

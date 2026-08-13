@@ -12,11 +12,15 @@ import { type AuthContext } from '@/entities/auth/authContext.entities';
 import type { Session } from '@/entities/auth/session.entities';
 import { stableStringify } from '@/utils/stableStringify';
 
+type InferredUser = (typeof auth.$Infer.Session)['user'];
+
+const toSessionUser = (user: InferredUser): Session['user'] => user;
+
 export const getCachedSession = cache(async (): Promise<Session | null> => {
   const result = await auth.api.getSession({ headers: await headers() });
   if (!result) return null;
   return {
-    user: result.user as Session['user'],
+    user: toSessionUser(result.user),
     session: { token: result.session.token, expiresAt: result.session.expiresAt },
   };
 });

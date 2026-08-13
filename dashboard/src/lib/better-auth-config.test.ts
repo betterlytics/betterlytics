@@ -1,13 +1,3 @@
-/**
- * Characterization tests for the better-auth configuration (internal issue #51).
- *
- * Successor to the next-auth auth-config tests from #50: pins the engine-level
- * contract — legacy bcrypt hashes keep verifying (permanent custom hasher),
- * the 30-day/24-hour session lifetimes, the twoFactor plugin registration,
- * the identity fields carried on the session user, the closed better-auth
- * endpoints (mutations run through our server actions), and the onboarding /
- * locale / 2FA-notification side effects that moved into database hooks.
- */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';

@@ -1,10 +1,3 @@
-/**
- * Characterization tests for the auth service (internal issue #50).
- *
- * Sign-in itself moved into better-auth (#51) — its contract is pinned in
- * better-auth-config.test.ts. What remains here: registration uniqueness and
- * dashboard authorization context. Repositories and email are mocked.
- */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   registerNewUser,

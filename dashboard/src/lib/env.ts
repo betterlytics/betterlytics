@@ -96,9 +96,8 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
   }
 });
 
-// AUTH_* is provider-agnostic so a future auth-library swap never renames the env
-// contract again. NEXTAUTH_* fallbacks keep deploys booting whose env files predate
-// the rename (e.g. a pulled selfhost image running against a stale mounted entrypoint).
+// NEXTAUTH_* fallbacks keep deploys booting whose env files predate the rename to
+// the provider-agnostic AUTH_* names.
 export const env = envSchema.parse({
   ...process.env,
   AUTH_SECRET: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,

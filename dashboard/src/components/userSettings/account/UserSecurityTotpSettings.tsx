@@ -60,15 +60,12 @@ function SetupTotp() {
       setTotp('');
       return setIsDialogOpen(false);
     }
-    // Restart from the password step: a cancelled enrollment's secret is stale
-    // (each enable() replaces the previous one), so never reopen onto its QR.
     setTotp('');
     setTotpUrl('');
     setTotpSecret('');
     setIsDialogOpen(true);
   };
 
-  // Step 1: the plugin requires the account password to begin enrollment.
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -79,14 +76,12 @@ function SetupTotp() {
         toast.error(t('setupFailed'));
         return;
       }
-      // data.backupCodes is intentionally not surfaced: sign-in has no backup
-      // code entry yet, so showing them would promise a recovery path that
-      // doesn't exist.
+      // data.backupCodes stays hidden: sign-in has no backup code entry yet, so
+      // showing them would promise a recovery path that doesn't exist.
       setTotpUrl(data.totpURI);
     });
   };
 
-  // Step 2: a valid code from the authenticator confirms and enables 2FA.
   const handleCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -296,7 +291,6 @@ export default function UserSecurityTotpSettings({ hasPassword }: { hasPassword:
   ) : hasPassword ? (
     <SetupTotp />
   ) : (
-    // Password status still resolving: neutral disabled button, no OAuth tooltip.
     <Button variant='outline' size='sm' disabled className='cursor-pointer'>
       {t('enable')}
     </Button>

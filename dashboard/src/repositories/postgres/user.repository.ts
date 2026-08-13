@@ -35,11 +35,6 @@ export async function findUserOAuthProviders(userId: string): Promise<string[]> 
   return accounts.map((a) => a.providerId);
 }
 
-/**
- * The credential Account row holding the user's bcrypt password hash, or null for
- * OAuth-only users. Requires a non-null password so the predicate agrees with
- * better-auth's own sign-in checks, which test the hash value, not row existence.
- */
 export async function findCredentialAccount(userId: string): Promise<{ id: string } | null> {
   return prisma.account.findFirst({
     where: { userId, providerId: CREDENTIAL_PROVIDER_ID, password: { not: null } },
@@ -192,7 +187,6 @@ export async function verifyUserPassword(userId: string, password: string): Prom
   }
 }
 
-/** Users still carrying a legacy (next-auth era) encrypted TOTP secret. */
 export async function findLegacyTwoFactorUsers(): Promise<
   Array<{ id: string; email: string | null; name: string | null; twoFactorEnabled: boolean }>
 > {

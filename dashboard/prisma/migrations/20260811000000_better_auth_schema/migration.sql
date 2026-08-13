@@ -1,9 +1,8 @@
--- next-auth -> better-auth schema migration.
--- Renames preserve data; the only destructive step is the Session wipe (forced
--- logout at cutover, announced) and dropping User.passwordHash after the hashes
--- are copied into credential Account rows.
+-- next-auth -> better-auth schema migration. Renames preserve data; the only
+-- destructive steps are the Session wipe and dropping User.passwordHash after the
+-- hashes are copied into credential Account rows.
 
--- Sessions: cookie name and token semantics change at cutover; drop all rows.
+-- Cookie name and token semantics change at cutover, so every session is a forced logout.
 DELETE FROM "Session";
 ALTER TABLE "Session" RENAME COLUMN "sessionToken" TO "token";
 ALTER TABLE "Session" RENAME COLUMN "expires" TO "expiresAt";
@@ -12,7 +11,6 @@ ALTER TABLE "Session" ADD COLUMN "userAgent" TEXT;
 ALTER INDEX "Session_sessionToken_key" RENAME TO "Session_token_key";
 CREATE INDEX "Session_userId_idx" ON "Session"("userId");
 
--- Accounts: rename to better-auth's field names.
 ALTER TABLE "Account" RENAME COLUMN "provider" TO "providerId";
 ALTER TABLE "Account" RENAME COLUMN "providerAccountId" TO "accountId";
 ALTER TABLE "Account" RENAME COLUMN "refresh_token" TO "refreshToken";
@@ -29,32 +27,29 @@ ALTER TABLE "Account" DROP COLUMN "session_state";
 ALTER INDEX "Account_provider_providerAccountId_key" RENAME TO "Account_providerId_accountId_key";
 CREATE INDEX "Account_userId_idx" ON "Account"("userId");
 
--- Every password user gets a credential account row (the hash moves off User).
--- accountId = user id is better-auth's convention for credential accounts.
+-- The hash moves off User onto a credential Account row; accountId = user id is
+-- better-auth's convention there.
 INSERT INTO "Account" ("id", "userId", "accountId", "providerId", "password", "createdAt", "updatedAt")
 SELECT gen_random_uuid()::text, "id", "id", 'credential', "passwordHash", NOW(), NOW()
 FROM "User"
 WHERE "passwordHash" IS NOT NULL;
 
--- emailVerified: verified-at timestamp -> boolean.
 ALTER TABLE "User"
   ALTER COLUMN "emailVerified" TYPE BOOLEAN USING ("emailVerified" IS NOT NULL),
   ALTER COLUMN "emailVerified" SET DEFAULT false,
   ALTER COLUMN "emailVerified" SET NOT NULL;
 
--- better-auth lowercases the email on every lookup, so a mixed-case row could
--- never sign in again (and an OAuth sign-in would create a duplicate user).
--- Two rows differing only in case would collide with the unique index and abort
--- the migration; resolve such duplicates manually before retrying.
+-- better-auth lowercases the email on every lookup, so a mixed-case row could never
+-- sign in again. Rows differing only in case abort the migration on the unique index;
+-- resolve those duplicates manually before retrying.
 UPDATE "User" SET "email" = LOWER("email") WHERE "email" <> LOWER("email");
 ALTER TABLE "User" ALTER COLUMN "email" SET NOT NULL;
 
--- twoFactorEnabled keeps its values through the rename; the one-time boot task
--- disables legacy enrollments (plugin-incompatible secrets) and notifies users.
+-- Values survive the rename; the one-time boot task then disables legacy enrollments.
 ALTER TABLE "User" RENAME COLUMN "totpEnabled" TO "twoFactorEnabled";
 ALTER TABLE "User" DROP COLUMN "passwordHash";
 
--- better-auth's internal verification storage (OAuth state/PKCE).
+-- better-auth's internal storage (OAuth state/PKCE).
 CREATE TABLE "Verification" (
     "id" TEXT NOT NULL,
     "identifier" TEXT NOT NULL,
@@ -68,7 +63,6 @@ CREATE TABLE "Verification" (
 
 CREATE INDEX "Verification_identifier_idx" ON "Verification"("identifier");
 
--- twoFactor plugin storage.
 CREATE TABLE "TwoFactor" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,

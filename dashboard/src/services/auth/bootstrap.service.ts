@@ -15,11 +15,6 @@ import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 
 const SALT_ROUNDS = 10;
 
-/**
- * Creates the ADMIN_EMAIL account at server start when it doesn't exist yet.
- * Replaces the next-auth-era admin bootstrap that lived inside the credentials
- * authorize callback; runs identically for selfhost, cloud, and worktrees.
- */
 export async function ensureAdminAccount(): Promise<void> {
   if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD) return;
 
@@ -39,10 +34,9 @@ export async function ensureAdminAccount(): Promise<void> {
 }
 
 /**
- * ADMIN_PASSWORD stays authoritative for the admin account so a locked-out
- * operator can always recover by setting a new value and restarting. The flip
- * side is deliberate: changing the admin password in-app reverts on next boot.
- * Best-effort so a failure here never blocks the rest of the bootstrap.
+ * ADMIN_PASSWORD stays authoritative so a locked-out operator can recover by
+ * setting a new value and restarting. The flip side is deliberate: changing the
+ * admin password in-app reverts on next boot.
  */
 async function syncAdminPassword(userId: string, password: string): Promise<void> {
   try {
@@ -56,11 +50,9 @@ async function syncAdminPassword(userId: string, password: string): Promise<void
 }
 
 /**
- * One-time cutover cleanup: legacy TOTP secrets cannot be verified by
- * better-auth's twoFactor plugin (its HMAC key derivation is incompatible with
- * otpauth-generated secrets), so affected users get 2FA disabled and an email
- * asking them to re-enroll. No-ops once no legacy secrets remain; delete this
- * once the release has run everywhere.
+ * One-time cutover cleanup: the twoFactor plugin cannot verify legacy TOTP
+ * secrets (incompatible HMAC key derivation), so affected users get 2FA disabled
+ * and an email asking them to re-enroll. Delete once the release has run everywhere.
  */
 export async function resetLegacyTwoFactor(): Promise<void> {
   const legacyUsers = await findLegacyTwoFactorUsers();

@@ -1,11 +1,3 @@
-/**
- * Characterization tests for the password reset flow (internal issue #50).
- *
- * Pins behavior the better-auth migration must preserve: no email enumeration
- * on initiate, OAuth-only accounts can never (re)gain a password via reset,
- * token expiry handling, and — critically — that a successful reset revokes
- * every session for the user. Repositories and email are mocked.
- */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   initiatePasswordReset,

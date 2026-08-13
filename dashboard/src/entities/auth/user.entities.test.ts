@@ -1,10 +1,3 @@
-/**
- * Characterization tests for the auth entity schemas (internal issue #50).
- *
- * Pins the validation contract the better-auth migration must preserve:
- * password policy and registration requirements. (The login payload moved to
- * better-auth's own sign-in endpoint, so LoginUserSchema is gone.)
- */
 import { describe, it, expect } from 'vitest';
 import { PasswordSchema } from '@/entities/auth/password.entities';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';

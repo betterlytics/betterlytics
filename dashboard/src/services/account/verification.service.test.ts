@@ -1,10 +1,3 @@
-/**
- * Characterization tests for email verification (internal issue #50).
- *
- * Pins behavior the better-auth migration must preserve: verification is
- * feature-flag gated, tokens expire after 24h, already-verified emails are
- * rejected, and the resend rate limit fails open.
- */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { addMinutes, subMinutes } from 'date-fns';
 import { sendVerificationEmail, verifyEmail, checkRateLimit } from '@/services/account/verification.service';

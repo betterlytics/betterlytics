@@ -134,8 +134,7 @@ model User {
   sessions      Session[]
 
   twoFactorEnabled Boolean @default(false)
-  // Legacy next-auth-era TOTP secret, superseded by the TwoFactor table.
-  // Consumed by the one-time boot reset; dropped in the cleanup migration.
+  // Legacy secret superseded by TwoFactor - to be removed once all users are migrated to TwoFactor
   totpSecret String?
   twofactors TwoFactor[]
   role UserRole?
@@ -172,8 +171,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// better-auth's internal verification storage (OAuth state/PKCE); distinct from
-// our own VerificationToken email-verification table above.
+// better-auth's internal storage (OAuth state/PKCE), not our VerificationToken above.
 model Verification {
   id         String   @id @default(cuid())
   identifier String

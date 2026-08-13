@@ -18,9 +18,8 @@ import { findUserById } from '@/repositories/postgres/user.repository';
 
 const BCRYPT_SALT_ROUNDS = 10;
 
-// A session created within this window of the user's own creation is their very
-// first sign-in; skip the locale sync there so the locale they were browsing in
-// right before onboarding isn't overwritten by default settings.
+// A session created this soon after the user row is their first sign-in; skip the
+// locale sync there so default settings don't overwrite the locale they signed up in.
 const FIRST_SIGN_IN_WINDOW_MS = 60_000;
 
 export const auth = betterAuth({
@@ -30,21 +29,17 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: 'postgresql' }),
   emailAndPassword: {
     enabled: true,
-    // Registration goes through registerUserAction (feature-flag gate, terms
-    // acceptance, language); the raw sign-up endpoint would bypass all of it.
+    // Registration goes through registerUserAction
     disableSignUp: true,
     minPasswordLength: 8,
     maxPasswordLength: 100,
-    // bcrypt is the permanent hasher (not better-auth's scrypt default) so every
-    // pre-migration password hash keeps verifying, and the DB stays single-format.
+    // bcrypt so pre-migration hashes keep verifying and the DB stays single-format.
     password: {
       hash: (password) => bcrypt.hash(password, BCRYPT_SALT_ROUNDS),
       verify: ({ hash, password }) => bcrypt.compare(password, hash),
     },
   },
   socialProviders: {
-    // disableSignUp makes ENABLE_REGISTRATION=false gate OAuth sign-up the same
-    // way registerUserAction gates email/password; existing users still sign in.
     ...(env.GITHUB_ID && env.GITHUB_SECRET
       ? {
           github: {
@@ -80,11 +75,7 @@ export const auth = betterAuth({
   },
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      // Account mutations run through our server actions (validation, session
-      // invalidation, notification emails, our reset-token table); the parallel
-      // better-auth endpoints stay closed so there's one live path. /update-user
-      // in particular would let any signed-in user write unbounded name/image
-      // values, and nothing in the app calls it.
+      // Account mutations run through our server actions
       if (
         ctx.path === '/change-password' ||
         ctx.path === '/request-password-reset' ||
@@ -98,8 +89,7 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        // Onboarding side effects for every new user (OAuth signups included).
-        // Each block is independent and best-effort, as under next-auth.
+        // Only runs for Oauth because email/password users are created through our own actions
         after: async (user) => {
           try {
             await createStarterSubscriptionForUser(user.id);
@@ -123,11 +113,7 @@ export const auth = betterAuth({
         },
       },
       update: {
-        // "Your security settings changed" notifications. The only user-row
-        // updates the two-factor endpoints issue are the twoFactorEnabled flips
-        // (enrollment confirmation and disable) — sign-in verifications never
-        // touch the user row — so the path prefix alone identifies a real state
-        // change. Raw-prisma writes (anonymize, legacy reset) bypass these hooks.
+        // Currently only twoFactorChange runs via this update hook, hence the path prefix check
         after: async (user, ctx) => {
           if (!ctx?.path?.startsWith('/two-factor/')) return;
           if (!user.email) return;
@@ -149,8 +135,6 @@ export const auth = betterAuth({
     },
     session: {
       create: {
-        // Applies the user's saved language when signing in on a browser that
-        // doesn't have it yet.
         after: async (session) => {
           try {
             const user = await findUserById(session.userId);

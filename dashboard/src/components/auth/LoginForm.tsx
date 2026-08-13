@@ -80,7 +80,6 @@ export default function LoginForm({
 
     startTransition(async () => {
       try {
-        // Second submit (from the dialog): verify the TOTP code for the pending sign-in.
         if (isDialogOpen) {
           const { error: totpError } = await authClient.twoFactor.verifyTotp({ code: totp });
           if (totpError) {
@@ -116,9 +115,8 @@ export default function LoginForm({
 
       transition(async () => {
         try {
-          // Navigates the browser to the provider's consent screen. Callback
-          // failures come back to /signin?error=<code> instead of better-auth's
-          // unbranded /api/auth/error page.
+          // Navigates the browser to the provider's consent screen. errorCallbackURL
+          // keeps failures off better-auth's unbranded /api/auth/error page.
           const { error: socialError } = await authClient.signIn.social({
             provider: oauthProvider,
             callbackURL: '/dashboards',

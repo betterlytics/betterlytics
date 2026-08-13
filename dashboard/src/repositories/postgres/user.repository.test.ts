@@ -1,12 +1,3 @@
-/**
- * Characterization tests for the user repository (internal issue #50).
- *
- * Pins the storage contract under better-auth (#51): bcrypt hashes live on the
- * credential Account row (accountId = user id), registration provisions the
- * starter subscription/default settings/terms acceptance, and account
- * anonymization runs as a single transaction that scrubs credentials and
- * revokes sessions/tokens atomically. Prisma is mocked at the client boundary.
- */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
 import {

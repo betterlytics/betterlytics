@@ -155,9 +155,6 @@ export default function SignupForm({ providers }: SignupFormProps) {
 
       transition(async () => {
         try {
-          // Navigates the browser to the provider's consent screen. New users
-          // land on onboarding with the newUser flag (fires the account-created
-          // event there); callback failures come back to /signin?error=<code>.
           const { error: socialError } = await authClient.signIn.social({
             provider,
             callbackURL: '/dashboards',
