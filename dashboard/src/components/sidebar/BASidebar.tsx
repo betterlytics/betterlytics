@@ -237,9 +237,9 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
             </>
           )}
         </SidebarMenu>
-        {!isFeatureEnabled('isCloud') && (
+        {!isFeatureEnabled('isCloud') && !isDemo && (
           <span className='text-muted-foreground/70 px-2 pb-1 text-xs group-data-[collapsible=icon]:hidden'>
-            {env.PUBLIC_APP_VERSION}
+            {env.APP_VERSION}
           </span>
         )}
       </SidebarFooter>

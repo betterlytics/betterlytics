@@ -127,4 +127,4 @@ COPY --from=static-builder /app/analytics.min.js /usr/share/nginx/html/analytics
 
 # Bake the release version for the dashboard
 ARG APP_VERSION=dev
-ENV PUBLIC_APP_VERSION=$APP_VERSION
+ENV APP_VERSION=$APP_VERSION
