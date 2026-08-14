@@ -37,8 +37,6 @@ export async function resetLegacyTwoFactor(): Promise<void> {
   const legacyUsers = await findLegacyTwoFactorUsers();
   if (legacyUsers.length === 0) return;
 
-  await clearLegacyTwoFactor();
-
   for (const user of legacyUsers) {
     if (!user.twoFactorEnabled || !user.email) continue;
     try {
@@ -53,5 +51,6 @@ export async function resetLegacyTwoFactor(): Promise<void> {
     }
   }
 
+  await clearLegacyTwoFactor();
   console.info(`[bootstrap] Reset ${legacyUsers.length} legacy TOTP enrollment(s); re-enrollment required.`);
 }
