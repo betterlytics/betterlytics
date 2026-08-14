@@ -34,6 +34,10 @@ SELECT gen_random_uuid()::text, "id", "id", 'credential', "passwordHash", NOW(),
 FROM "User"
 WHERE "passwordHash" IS NOT NULL;
 
+-- better-auth needs the boolean; the timestamps move aside so the audit trail survives.
+ALTER TABLE "User" ADD COLUMN "emailVerifiedAt" TIMESTAMP(3);
+UPDATE "User" SET "emailVerifiedAt" = "emailVerified";
+
 ALTER TABLE "User"
   ALTER COLUMN "emailVerified" TYPE BOOLEAN USING ("emailVerified" IS NOT NULL),
   ALTER COLUMN "emailVerified" SET DEFAULT false,

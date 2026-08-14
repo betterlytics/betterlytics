@@ -66,6 +66,7 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: { type: 'string', required: false, input: false },
+      emailVerifiedAt: { type: 'date', required: false, input: false },
       onboardingCompletedAt: { type: 'date', required: false, input: false },
       termsAcceptedAt: { type: 'date', required: false, input: false },
       termsAcceptedVersion: { type: 'number', required: false, input: false },
@@ -90,6 +91,10 @@ export const auth = betterAuth({
     user: {
       create: {
         // Only runs for Oauth because email/password users are created through our own actions
+        before: async (user) => {
+          if (!user.emailVerified) return;
+          return { data: { ...user, emailVerifiedAt: new Date() } };
+        },
         after: async (user) => {
           try {
             await createStarterSubscriptionForUser(user.id);
