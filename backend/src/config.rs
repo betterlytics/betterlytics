@@ -60,8 +60,11 @@ pub struct Config {
     pub s3_access_key_id: Option<String>,
     pub s3_secret_access_key: Option<String>,
     pub s3_endpoint: Option<String>, // allow custom/local endpoints (e.g., MinIO, LocalStack)
+    pub s3_internal_endpoint: Option<String>, // control-plane endpoint when S3_ENDPOINT is only reachable publicly (bundled Garage)
     pub s3_force_path_style: bool,   // needed for many local providers
     pub s3_sse_enabled: bool,        // enable SSE (AES256) on uploaded objects
+    pub s3_manage_bucket_rules: bool, // apply CORS + lifecycle rules to the bucket at startup (selfhost bundled Garage only)
+    pub replay_retention_days: i32, // falls back to data_retention_days
     // Site-config cache database (read-only)
     pub site_config_database_url: String,
     // Salt database (read-write) - stores the secret rotating fingerprint salts
@@ -97,6 +100,11 @@ impl Config {
         } else {
             GeolocationMode::Countries
         };
+
+        let data_retention_days: i32 = env::var("DATA_RETENTION_DAYS")
+            .unwrap_or_else(|_| "365".to_string())
+            .parse()
+            .unwrap_or(365);
 
         let config = Config {
             server_port: env::var("SERVER_PORT")
@@ -152,10 +160,7 @@ impl Config {
             ua_regexes_path: env::var("UA_REGEXES_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/user_agent_headers/regexes.yaml")),
-            data_retention_days: env::var("DATA_RETENTION_DAYS")
-                .unwrap_or_else(|_| "365".to_string())
-                .parse()
-                .unwrap_or(365),
+            data_retention_days,
             // Monitoring configuration
             enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")
@@ -185,8 +190,14 @@ impl Config {
             s3_access_key_id: env::var("S3_ACCESS_KEY_ID").ok(),
             s3_secret_access_key: env::var("S3_SECRET_ACCESS_KEY").ok(),
             s3_endpoint: env::var("S3_ENDPOINT").ok(),
+            s3_internal_endpoint: env::var("S3_INTERNAL_ENDPOINT").ok(),
             s3_force_path_style: env::var("S3_FORCE_PATH_STYLE").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
+            s3_manage_bucket_rules: env::var("S3_MANAGE_BUCKET_RULES").map(|v| v.to_lowercase() == "true").unwrap_or(false),
+            replay_retention_days: env::var("REPLAY_RETENTION_DAYS")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(data_retention_days),
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
                 .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
             salts_database_url: env::var("SALTS_DATABASE_URL")

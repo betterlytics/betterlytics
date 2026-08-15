@@ -240,6 +240,8 @@ async fn main() {
         }
     };
 
+    storage::s3::spawn_replay_bucket_rules(&config, &s3_service);
+
 	let mut router = Router::new()
 		.route("/health", get(health_check))
 		.route("/event", post(track_event))

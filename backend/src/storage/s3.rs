@@ -4,14 +4,47 @@ use aws_config::BehaviorVersion;
 use aws_sdk_s3::{Client, config::Region};
 use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
 use aws_sdk_s3::presigning::PresigningConfig;
-use aws_sdk_s3::types::ServerSideEncryption;
+use aws_sdk_s3::types::{
+    AbortIncompleteMultipartUpload, BucketLifecycleConfiguration, CorsConfiguration, CorsRule,
+    ExpirationStatus, LifecycleExpiration, LifecycleRule, LifecycleRuleFilter, ServerSideEncryption,
+};
+use std::sync::Arc;
+use tracing::{info, warn};
 use crate::config::Config;
 
 #[derive(Clone, Debug)]
 pub struct S3Service {
+    // Presigning client; signs against the public endpoint since SigV4 covers host + path
     pub client: Client,
+    // Control-plane client; real HTTP calls must not hairpin through the public URL
+    internal_client: Client,
     pub bucket: String,
     pub sse_enabled: bool,
+}
+
+pub fn spawn_replay_bucket_rules(config: &Config, s3_service: &Option<Arc<S3Service>>) {
+    if !config.s3_manage_bucket_rules {
+        return;
+    }
+    let Some(s3) = s3_service.clone() else {
+        return;
+    };
+    let retention = config.replay_retention_days;
+    tokio::spawn(async move {
+        // The bundled Garage starts concurrently under supervisord; retry until it answers
+        for attempt in 1..=30u32 {
+            match s3.ensure_replay_bucket_rules(retention).await {
+                Ok(()) => {
+                    info!("replay bucket CORS and lifecycle rules ensured");
+                    return;
+                }
+                Err(e) if attempt == 30 => {
+                    warn!("giving up on replay bucket CORS/lifecycle rules: {}", e);
+                }
+                Err(_) => tokio::time::sleep(std::time::Duration::from_secs(2)).await,
+            }
+        }
+    });
 }
 
 impl S3Service {
@@ -46,11 +79,67 @@ impl S3Service {
             s3_builder = s3_builder.force_path_style(true);
         }
 
-        let s3_config = s3_builder.build();
-        let client = Client::from_conf(s3_config);
+        let client = Client::from_conf(s3_builder.clone().build());
+        let internal_client = match cfg.s3_internal_endpoint.clone() {
+            Some(endpoint) => Client::from_conf(s3_builder.endpoint_url(endpoint).build()),
+            None => client.clone(),
+        };
         let sse_enabled = cfg.s3_sse_enabled;
 
-        Ok(Some(Self { client, bucket, sse_enabled }))
+        Ok(Some(Self { client, internal_client, bucket, sse_enabled }))
+    }
+
+    pub async fn ensure_replay_bucket_rules(&self, retention_days: i32) -> Result<()> {
+        self.internal_client
+            .put_bucket_cors()
+            .bucket(&self.bucket)
+            .cors_configuration(
+                CorsConfiguration::builder()
+                    .cors_rules(
+                        CorsRule::builder()
+                            .allowed_origins("*")
+                            .allowed_methods("GET")
+                            .allowed_methods("PUT")
+                            .allowed_methods("HEAD")
+                            // presigned PUTs send signed Content-Type/Content-Encoding headers
+                            .allowed_headers("*")
+                            .max_age_seconds(3600)
+                            .build()?,
+                    )
+                    .build()?,
+            )
+            .send()
+            .await?;
+
+        let abort_rule = LifecycleRule::builder()
+            .id("abort-incomplete-uploads")
+            .status(ExpirationStatus::Enabled)
+            .filter(LifecycleRuleFilter::builder().prefix("").build())
+            .abort_incomplete_multipart_upload(
+                AbortIncompleteMultipartUpload::builder().days_after_initiation(1).build(),
+            )
+            .build()?;
+
+        let mut lifecycle = BucketLifecycleConfiguration::builder().rules(abort_rule);
+        if retention_days > 0 {
+            lifecycle = lifecycle.rules(
+                LifecycleRule::builder()
+                    .id("expire-replay-segments")
+                    .status(ExpirationStatus::Enabled)
+                    .filter(LifecycleRuleFilter::builder().prefix("").build())
+                    .expiration(LifecycleExpiration::builder().days(retention_days).build())
+                    .build()?,
+            );
+        }
+
+        self.internal_client
+            .put_bucket_lifecycle_configuration()
+            .bucket(&self.bucket)
+            .lifecycle_configuration(lifecycle.build()?)
+            .send()
+            .await?;
+
+        Ok(())
     }
 
     pub fn build_replay_object_key(&self, site_id: &str, session_id: u64, epoch_ms: i64) -> String {
