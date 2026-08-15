@@ -41,4 +41,5 @@ export const LAYOUT = {
   minNodeHeight: 6,
   compressionThreshold: 60,
   maxNodeHeight: 100,
+  labelMargin: 110,
 };
