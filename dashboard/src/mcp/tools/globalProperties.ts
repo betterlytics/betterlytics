@@ -46,7 +46,7 @@ export async function executeListGlobalProperties(rawInput: unknown, siteId: str
     granularity: 'day',
     queryFilters: [],
     timezone: input.timezone ?? 'UTC',
-    userJourney: { numberOfSteps: 1, numberOfJourneys: 1 },
+    userJourney: { numberOfSteps: 1, numberOfJourneys: 1, stepFilters: {} },
   };
 
   if (input.key) {

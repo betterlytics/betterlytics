@@ -35,7 +35,7 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
       compareAlignWeekdays,
       timezone: timeZone,
       queryFilters: allowedQueryFilters,
-      userJourney: { numberOfSteps, numberOfJourneys },
+      userJourney: { numberOfSteps, numberOfJourneys, stepFilters: {} },
     }),
     [
       resolvedMainRange,

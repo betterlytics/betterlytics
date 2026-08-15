@@ -255,6 +255,7 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
 
   return {
     ...validated,
+    userJourney: { stepFilters: {}, ...validated.userJourney },
     timezone,
   };
 }
