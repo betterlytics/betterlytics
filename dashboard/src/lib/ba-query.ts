@@ -102,6 +102,20 @@ function buildEntryPredicate(filter: QueryFilter, index: number) {
   );
 }
 
+function buildExitPredicate(filter: QueryFilter, index: number) {
+  const parsed = TransformQueryFilterSchema.parse(filter);
+  const parsedColumn = parseFilterColumn(parsed.column);
+  if (parsedColumn.kind !== 'standard') {
+    throw new Error(`Exit predicate requires a standard column: ${parsed.column}`);
+  }
+  const column = filterColumnSql(parsedColumn.col);
+  const values = SQL.StringArray({ [`exit_filter_${index}`]: parsed.values });
+  return (
+    matchAnyValueFilterSql(filter.values, parsed.rawOperator, column, parsedColumn.col) ??
+    safeSql`${parsed.operator.quantifier}(pattern -> ${column} ${parsed.operator.operater} pattern, ${values})`
+  );
+}
+
 // Utility for granularity
 const GranularityIntervalSchema = z.enum([
   '1 MONTH',
@@ -204,4 +218,5 @@ export const BAQuery = {
   getSampling,
   buildPositionalUrlPredicate,
   buildEntryPredicate,
+  buildExitPredicate,
 };
