@@ -177,3 +177,16 @@ describe('buildEntryPredicate', () => {
     expect(() => BAQuery.buildEntryPredicate(makeFilter('gp.tenant', '=', ['x']), 0)).toThrow();
   });
 });
+
+describe('buildExitPredicate', () => {
+  it('targets the outbound link url with namespaced params', () => {
+    const sql = BAQuery.buildExitPredicate(makeFilter('outbound_link_url', '=', ['https://github.com/*']), 0);
+    expect(sql.taggedSql).toContain('outbound_link_url');
+    expect(sql.taggedSql).toContain('ILIKE');
+    expect(sql.taggedParams).toEqual({ exit_filter_0: ['https://github.com/%'] });
+  });
+
+  it('rejects property columns', () => {
+    expect(() => BAQuery.buildExitPredicate(makeFilter('gp.tenant', '=', ['x']), 0)).toThrow();
+  });
+});
