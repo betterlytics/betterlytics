@@ -233,7 +233,10 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
   filters.queryFilters = sanitizeQueryFilters(filters.queryFilters);
   filters.userJourney = {
     ...filters.userJourney,
-    stepFilters: sanitizeStepFilters(filters.userJourney?.stepFilters, filters.userJourney?.numberOfSteps ?? defaultFilters.userJourney.numberOfSteps),
+    stepFilters: sanitizeStepFilters(
+      filters.userJourney?.stepFilters,
+      filters.userJourney?.numberOfSteps ?? defaultFilters.userJourney.numberOfSteps,
+    ),
   };
 
   const enforced = enforceGranularityAndDuration(timezone, {
