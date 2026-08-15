@@ -9,6 +9,10 @@ export const deviceIcons = {
 
 export type DeviceType = keyof typeof deviceIcons;
 
+export function resolveDeviceIcon(type: string) {
+  return deviceIcons[type.toLowerCase() as DeviceType] ?? null;
+}
+
 export const deviceLabels = {
   desktop: 'Desktop',
   mobile: 'Mobile',
