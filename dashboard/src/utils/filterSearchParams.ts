@@ -2,6 +2,7 @@ import {
   type FilterQueryParams,
   FilterQueryParamsSchema,
   sanitizeQueryFilters,
+  sanitizeStepFilters,
   type FilterQuerySearchParams,
 } from '@/entities/analytics/filterQueryParams.entities';
 import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -50,6 +51,7 @@ function getDefaultFilters(): FilterQueryParams {
     userJourney: {
       numberOfSteps: 3,
       numberOfJourneys: 5,
+      stepFilters: {},
     },
     compareStartDate: range.compare?.start,
     compareEndDate: range.compare?.end,
@@ -229,6 +231,10 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
     ...decoded,
   };
   filters.queryFilters = sanitizeQueryFilters(filters.queryFilters);
+  filters.userJourney = {
+    ...filters.userJourney,
+    stepFilters: sanitizeStepFilters(filters.userJourney?.stepFilters, filters.userJourney?.numberOfSteps ?? defaultFilters.userJourney.numberOfSteps),
+  };
 
   const enforced = enforceGranularityAndDuration(timezone, {
     interval: filters.interval,
@@ -255,7 +261,6 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
 
   return {
     ...validated,
-    userJourney: { stepFilters: {}, ...validated.userJourney },
     timezone,
   };
 }
