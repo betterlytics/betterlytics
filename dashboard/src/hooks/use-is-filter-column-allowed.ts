@@ -11,6 +11,7 @@ import {
   type TableFilterColumn,
 } from '@/entities/analytics/filter.entities';
 import { type PropertySourceKind } from '@/entities/analytics/propertySources';
+import { stripInfeasibleStepFilters, type StepFiltersBySlot } from '@/entities/analytics/stepFilters.entities';
 
 const DEMO_ALLOWED_COLUMNS = new Set<TableFilterColumn>(['url', 'device_type']);
 
@@ -98,4 +99,30 @@ export function useAllowedQueryFilters(filters: QueryFilter[]): QueryFilter[] {
     () => filters.filter((filter) => isFilterColumnAllowed(filter.column)),
     [filters, isFilterColumnAllowed],
   );
+}
+
+/**
+ * Journey step filters bypass the page-level visibility provider - their
+ * feasibility is slot-scoped (classifyStepFilter), not page-scoped. Only the
+ * demo-mode restriction applies on top.
+ */
+export function useAllowedStepFilters(stepFilters: StepFiltersBySlot, numberOfSteps: number): StepFiltersBySlot {
+  const { isDemo } = useDashboardAuth();
+  return useMemo(() => {
+    const feasible = stripInfeasibleStepFilters(stepFilters, numberOfSteps);
+    if (!isDemo) return feasible;
+    const entries = Object.entries(feasible)
+      .map(
+        ([slot, filters]) =>
+          [
+            slot,
+            filters.filter((filter) => {
+              const parsed = parseFilterColumn(filter.column);
+              return parsed.kind === 'standard' && DEMO_ALLOWED_COLUMNS.has(parsed.col);
+            }),
+          ] as const,
+      )
+      .filter(([, filters]) => filters.length > 0);
+    return Object.fromEntries(entries);
+  }, [stepFilters, numberOfSteps, isDemo]);
 }

@@ -5,7 +5,7 @@ import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entit
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
-import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
+import { useAllowedQueryFilters, useAllowedStepFilters } from '@/hooks/use-is-filter-column-allowed';
 
 export function useAnalyticsQuery(): BAAnalyticsQuery {
   const {
@@ -19,8 +19,9 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
     timeZone,
   } = useTimeRangeContext();
   const { queryFilters } = useQueryFiltersContext();
-  const { numberOfSteps, numberOfJourneys } = useUserJourneyFilter();
+  const { numberOfSteps, numberOfJourneys, stepFilters } = useUserJourneyFilter();
   const allowedQueryFilters = useAllowedQueryFilters(queryFilters);
+  const allowedStepFilters = useAllowedStepFilters(stepFilters, numberOfSteps);
 
   return useMemo(
     () => ({
@@ -35,7 +36,7 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
       compareAlignWeekdays,
       timezone: timeZone,
       queryFilters: allowedQueryFilters,
-      userJourney: { numberOfSteps, numberOfJourneys, stepFilters: {} },
+      userJourney: { numberOfSteps, numberOfJourneys, stepFilters: allowedStepFilters },
     }),
     [
       resolvedMainRange,
@@ -49,6 +50,7 @@ export function useAnalyticsQuery(): BAAnalyticsQuery {
       allowedQueryFilters,
       numberOfSteps,
       numberOfJourneys,
+      allowedStepFilters,
     ],
   );
 }
