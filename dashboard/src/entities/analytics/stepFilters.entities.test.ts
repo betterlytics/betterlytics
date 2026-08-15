@@ -6,6 +6,7 @@ import {
   pruneStepFilters,
 } from './stepFilters.entities';
 import type { QueryFilter } from './filter.entities';
+import { BAAnalyticsQuerySchema } from './analyticsQuery.entities';
 
 const filter = (column: QueryFilter['column'], values: string[] = ['/x']): QueryFilter => ({
   id: 'f1',
@@ -106,5 +107,59 @@ describe('pruneStepFilters', () => {
   it('removes slots above the new last slot and keeps the rest', () => {
     const pruned = pruneStepFilters({ '0': [filter('url')], '4': [filter('url')] }, 3);
     expect(pruned).toEqual({ '0': [filter('url')] });
+  });
+});
+
+const baseQuery = {
+  startDate: new Date('2026-08-01T00:00:00Z'),
+  endDate: new Date('2026-08-14T00:00:00Z'),
+  granularity: 'day' as const,
+  queryFilters: [],
+  timezone: 'UTC',
+  interval: '7d' as const,
+  compare: 'off' as const,
+  userJourney: { numberOfSteps: 3, numberOfJourneys: 10 },
+};
+
+describe('UserJourneySchema stepFilters', () => {
+  it('defaults stepFilters to an empty object when omitted', () => {
+    const parsed = BAAnalyticsQuerySchema.parse(baseQuery);
+    expect(parsed.userJourney.stepFilters).toEqual({});
+  });
+
+  it('accepts stepFilters keyed by slots within numberOfSteps', () => {
+    const parsed = BAAnalyticsQuerySchema.parse({
+      ...baseQuery,
+      userJourney: { ...baseQuery.userJourney, stepFilters: { '2': [filter('url')] } },
+    });
+    expect(parsed.userJourney.stepFilters['2']).toHaveLength(1);
+  });
+
+  it('rejects slot keys above numberOfSteps', () => {
+    expect(() =>
+      BAAnalyticsQuerySchema.parse({
+        ...baseQuery,
+        userJourney: { ...baseQuery.userJourney, stepFilters: { '4': [filter('url')] } },
+      }),
+    ).toThrow();
+  });
+
+  it('rejects non-integer slot keys', () => {
+    expect(() =>
+      BAAnalyticsQuerySchema.parse({
+        ...baseQuery,
+        userJourney: { ...baseQuery.userJourney, stepFilters: { abc: [filter('url')] } },
+      }),
+    ).toThrow();
+  });
+
+  it('rejects more than MAX_FILTER_ROWS filters in one slot', () => {
+    const filters = Array.from({ length: 11 }, (_, i) => ({ ...filter('url'), id: `f${i}` }));
+    expect(() =>
+      BAAnalyticsQuerySchema.parse({
+        ...baseQuery,
+        userJourney: { ...baseQuery.userJourney, stepFilters: { '0': filters } },
+      }),
+    ).toThrow();
   });
 });
