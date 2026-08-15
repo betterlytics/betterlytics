@@ -25,7 +25,7 @@ const prismaMock = vi.hoisted(() => {
       findFirst: vi.fn(),
       findMany: vi.fn(),
       create: vi.fn(),
-      updateMany: vi.fn(),
+      update: vi.fn(),
       deleteMany: vi.fn(),
     },
     session: {
@@ -164,17 +164,19 @@ describe('createUser', () => {
 
 describe('updateUserPassword', () => {
   it('stores a bcrypt hash of the new password on the credential account', async () => {
-    prismaMock.account.updateMany.mockResolvedValue({ count: 1 });
+    prismaMock.account.update.mockResolvedValue({});
 
     await updateUserPassword('user-1', 'New-password-1');
 
-    const updateCall = prismaMock.account.updateMany.mock.calls[0][0];
-    expect(updateCall.where).toEqual({ userId: 'user-1', providerId: 'credential' });
+    const updateCall = prismaMock.account.update.mock.calls[0][0];
+    expect(updateCall.where).toEqual({
+      providerId_accountId: { providerId: 'credential', accountId: 'user-1' },
+    });
     expect(await bcrypt.compare('New-password-1', updateCall.data.password)).toBe(true);
   });
 
-  it('throws when no credential account row was updated', async () => {
-    prismaMock.account.updateMany.mockResolvedValue({ count: 0 });
+  it('throws when the user has no credential account row', async () => {
+    prismaMock.account.update.mockRejectedValue(new Error('Record to update not found.'));
 
     await expect(updateUserPassword('user-1', 'New-password-1')).rejects.toThrow(
       'Failed to update password',

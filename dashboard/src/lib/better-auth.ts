@@ -3,8 +3,8 @@ import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { twoFactor } from 'better-auth/plugins';
 import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
-import * as bcrypt from 'bcrypt';
 import prisma from '@/lib/postgres';
+import { hashPassword, verifyPasswordHash } from '@/lib/password';
 import { env } from '@/lib/env';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
@@ -15,8 +15,6 @@ import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById } from '@/repositories/postgres/user.repository';
-
-const BCRYPT_SALT_ROUNDS = 10;
 
 // A session created this soon after the user row is their first sign-in; skip the
 // locale sync there so default settings don't overwrite the locale they signed up in.
@@ -33,10 +31,9 @@ export const auth = betterAuth({
     disableSignUp: true,
     minPasswordLength: 8,
     maxPasswordLength: 100,
-    // bcrypt so pre-migration hashes keep verifying and the DB stays single-format.
     password: {
-      hash: (password) => bcrypt.hash(password, BCRYPT_SALT_ROUNDS),
-      verify: ({ hash, password }) => bcrypt.compare(password, hash),
+      hash: (password) => hashPassword(password),
+      verify: ({ hash, password }) => verifyPasswordHash(password, hash),
     },
   },
   socialProviders: {

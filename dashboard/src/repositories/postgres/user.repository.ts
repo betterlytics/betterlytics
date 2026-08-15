@@ -2,7 +2,7 @@ import 'server-only';
 
 import prisma from '@/lib/postgres';
 import { GithubStarPromptState, Prisma } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { hashPassword, verifyPasswordHash } from '@/lib/password';
 import {
   User,
   UserSchema,
@@ -19,7 +19,6 @@ import { buildStarterSubscription } from '@/entities/billing/billing.entities';
 import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 
-const SALT_ROUNDS = 10;
 // better-auth's providerId for email+password accounts; accountId is the user id by its convention.
 const CREDENTIAL_PROVIDER_ID = 'credential';
 
@@ -120,7 +119,7 @@ export async function registerUser(data: RegisterUserData): Promise<User> {
   try {
     const validatedData = RegisterUserSchema.parse(data);
 
-    const passwordHash = await bcrypt.hash(validatedData.password, SALT_ROUNDS);
+    const passwordHash = await hashPassword(validatedData.password);
 
     return await createUser(
       {
@@ -153,16 +152,12 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
 
 export async function updateUserPassword(userId: string, newPassword: string): Promise<void> {
   try {
-    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    const passwordHash = await hashPassword(newPassword);
 
-    const result = await prisma.account.updateMany({
-      where: { userId, providerId: CREDENTIAL_PROVIDER_ID },
+    await prisma.account.update({
+      where: { providerId_accountId: { providerId: CREDENTIAL_PROVIDER_ID, accountId: userId } },
       data: { password: passwordHash },
     });
-
-    if (result.count !== 1) {
-      throw new Error(`Expected exactly one credential account, updated ${result.count}`);
-    }
   } catch (error) {
     console.error(`Error updating password for user ${userId}:`, error);
     throw new Error(`Failed to update password for user ${userId}.`);
@@ -180,7 +175,7 @@ export async function verifyUserPassword(userId: string, password: string): Prom
       return false;
     }
 
-    return await bcrypt.compare(password, account.password);
+    return await verifyPasswordHash(password, account.password);
   } catch (error) {
     console.error(`Error verifying password for user ${userId}:`, error);
     throw new Error(`Failed to verify password for user ${userId}.`);

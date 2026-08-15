@@ -1,7 +1,7 @@
 'server-only';
 
-import * as bcrypt from 'bcrypt';
 import { env } from '@/lib/env';
+import { hashPassword } from '@/lib/password';
 import {
   findUserByEmail,
   createUser,
@@ -10,8 +10,6 @@ import {
 } from '@/repositories/postgres/user.repository';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
-
-const SALT_ROUNDS = 10;
 
 export async function ensureAdminAccount(): Promise<void> {
   if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD) return;
@@ -22,7 +20,7 @@ export async function ensureAdminAccount(): Promise<void> {
   await createUser({
     email: env.ADMIN_EMAIL,
     name: 'Admin',
-    passwordHash: await bcrypt.hash(env.ADMIN_PASSWORD, SALT_ROUNDS),
+    passwordHash: await hashPassword(env.ADMIN_PASSWORD),
     role: 'admin',
   });
   console.info(`[bootstrap] Created admin account for ${env.ADMIN_EMAIL}`);
