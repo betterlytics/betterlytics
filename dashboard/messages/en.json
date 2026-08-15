@@ -2675,7 +2675,12 @@
     "userJourney": {
       "steps": "Steps",
       "topJourneys": "Top {journeys} Journeys",
-      "sessions": "Sessions"
+      "sessions": "Sessions",
+      "stepLabel": "Step {number}",
+      "filterTrigger": "Filter",
+      "stepFilterDialogTitle": "Step {number} filters",
+      "stepFilterBandLabel": "Per-step filters",
+      "stepFilterHint": "Only journeys matching this step are shown. Journeys shorter than this step are excluded."
     },
     "outboundLinks": {
       "table": {
