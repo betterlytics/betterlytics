@@ -14,11 +14,18 @@ import { cn } from '@/lib/utils';
 import { getStepBandCells } from './bandGeometry';
 import { UserJourneyStepFilterPopover } from './UserJourneyStepFilterPopover';
 
-export function UserJourneyStepBand() {
+interface UserJourneyStepBandProps {
+  maxRenderedDepth: number;
+}
+
+export function UserJourneyStepBand({ maxRenderedDepth }: UserJourneyStepBandProps) {
   const t = useTranslations('components.userJourney');
   const { numberOfSteps, stepFilters } = useUserJourneyFilter();
   const allowedStepFilters = useAllowedStepFilters(stepFilters, numberOfSteps);
-  const cells = useMemo(() => getStepBandCells(numberOfSteps), [numberOfSteps]);
+  const cells = useMemo(
+    () => getStepBandCells(numberOfSteps, maxRenderedDepth),
+    [numberOfSteps, maxRenderedDepth],
+  );
 
   return (
     <div
