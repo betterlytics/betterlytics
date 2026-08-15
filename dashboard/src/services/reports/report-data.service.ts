@@ -121,7 +121,7 @@ async function getReportDataForPeriod(
     granularity: 'day',
     queryFilters: [],
     timezone: 'UTC',
-    userJourney: { numberOfSteps: 3, numberOfJourneys: 5 },
+    userJourney: { numberOfSteps: 3, numberOfJourneys: 5, stepFilters: {} },
   };
 
   const currentQuery: BASiteQuery = {

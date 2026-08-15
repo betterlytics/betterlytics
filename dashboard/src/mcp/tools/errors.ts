@@ -85,7 +85,7 @@ export async function executeListErrors(rawInput: unknown, siteId: string, dashb
     granularity: 'day',
     queryFilters: filters,
     timezone: input.timezone,
-    userJourney: { numberOfSteps: 3, numberOfJourneys: 50 },
+    userJourney: { numberOfSteps: 3, numberOfJourneys: 50, stepFilters: {} },
   };
 
   let groups = await getErrorGroupsForSite(siteQuery, dashboardId);
