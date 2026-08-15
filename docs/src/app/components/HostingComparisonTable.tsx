@@ -58,7 +58,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
     features: [
       { name: "Core Web Vitals", cloud: true, selfHosted: true },
       { name: "Error tracking", cloud: true, selfHosted: false },
-      { name: "Session replays", cloud: true, selfHosted: false },
+      { name: "Session replays", cloud: true, selfHosted: true },
       { name: "Uptime monitoring", cloud: true, selfHosted: "Configurable" },
       { name: "SSL certificate monitoring", cloud: true, selfHosted: "Configurable" },
       { name: "Alert integrations (Slack, Discord, Teams, webhooks)", cloud: true, selfHosted: "Configurable" },

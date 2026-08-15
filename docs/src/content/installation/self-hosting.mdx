@@ -16,7 +16,7 @@ All self-hosting files and configuration live in the [betterlytics-selfhost](htt
 
 Betterlytics Cloud always runs the latest version, and new features launch there first. The self-hosted image is updated periodically from our stable releases, so it can temporarily lag behind what you see on Cloud or elsewhere in these docs.
 
-A few features also depend on additional infrastructure and are not yet supported when self-hosting. For example, Session Replay requires S3-compatible object storage.
+A few features are not yet supported when self-hosting. For example, Error Tracking is not included in the self-hosted image yet.
 
 <Callout type="info">
 Before relying on a specific feature, check the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted) for its current self-hosted status. Getting the newest features is as simple as [updating your instance](#updating) when a new image is released.
@@ -200,6 +200,21 @@ When `GEOLOCATION_MODE=full` is set (alongside `ENABLE_GEOLOCATION=true`), both 
 **Forward-only data:** Enabling subdivisions mode only populates city and subdivision data for **new events** going forward. Existing events recorded before enabling this mode will only have country-level data. There is no way to backfill since IP addresses are never stored.
 </Callout>
 
+
+## Session Replay
+
+The self-hosted image ships with Session Replay support ready to use: recording storage is bundled, so there is no external storage to set up. This only makes the feature available. Nothing is recorded until you enable replay in the tracking script for each website, following the [Session Replay integration guide](/integration/session-replay).
+
+| Variable | Default | Behavior |
+|----------|---------|----------|
+| `SESSION_REPLAYS_ENABLED` | `true` | Enables session replay capability |
+| `REPLAY_RETENTION_DAYS` | `DATA_RETENTION_DAYS` | Days to keep recordings before automatic deletion |
+
+After changing either value, restart:
+
+```bash
+docker compose down && docker compose up -d
+```
 
 ## Updating
 
