@@ -110,6 +110,7 @@ export function useSyncURLFilters() {
         userJourney: {
           numberOfSteps,
           numberOfJourneys,
+          stepFilters: {},
         },
         // Only include compare dates for custom mode when both are present
         compareStartDate:
