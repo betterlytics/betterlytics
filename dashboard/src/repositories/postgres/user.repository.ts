@@ -155,7 +155,10 @@ export async function updateUserPassword(userId: string, newPassword: string): P
     const passwordHash = await hashPassword(newPassword);
 
     await prisma.account.update({
-      where: { providerId_accountId: { providerId: CREDENTIAL_PROVIDER_ID, accountId: userId } },
+      where: {
+        providerId_accountId: { providerId: CREDENTIAL_PROVIDER_ID, accountId: userId },
+        userId,
+      },
       data: { password: passwordHash },
     });
   } catch (error) {

@@ -171,6 +171,7 @@ describe('updateUserPassword', () => {
     const updateCall = prismaMock.account.update.mock.calls[0][0];
     expect(updateCall.where).toEqual({
       providerId_accountId: { providerId: 'credential', accountId: 'user-1' },
+      userId: 'user-1',
     });
     expect(await bcrypt.compare('New-password-1', updateCall.data.password)).toBe(true);
   });
