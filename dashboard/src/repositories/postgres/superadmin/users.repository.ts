@@ -28,7 +28,7 @@ export async function listUsers(
         email: true,
         name: true,
         role: true,
-        totpEnabled: true,
+        twoFactorEnabled: true,
         createdAt: true,
         deletedAt: true,
       },

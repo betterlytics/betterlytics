@@ -14,7 +14,7 @@ import {
   deleteDashboard,
   findOwnedDashboards,
 } from '@/repositories/postgres/dashboard.repository';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import { getUserCapabilities } from '@/lib/billing/capabilityAccess';
 import { dashboardValidator } from '@/lib/billing/validators';

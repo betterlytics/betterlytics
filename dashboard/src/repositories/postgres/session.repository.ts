@@ -18,7 +18,7 @@ export async function deleteOtherUserSessions(userId: string, currentSessionToke
   const result = await prisma.session.deleteMany({
     where: {
       userId,
-      sessionToken: { not: currentSessionToken },
+      token: { not: currentSessionToken },
     },
   });
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { Link, usePathname } from '@/i18n/navigation';
 import Logo from '@/components/logo';
@@ -13,7 +13,7 @@ import NextLink from 'next/link';
 
 export default function PublicTopBar() {
   const t = useTranslations('public.nav');
-  const { data: session, status } = useSession();
+  const { data: session, isPending } = authClient.useSession();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -70,7 +70,7 @@ export default function PublicTopBar() {
               >
                 <GitHubIcon className='h-5 w-5' />
               </ExternalLink>
-              {status === 'loading' ? (
+              {isPending ? (
                 <div className='flex items-center space-x-2'>
                   <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 </div>
