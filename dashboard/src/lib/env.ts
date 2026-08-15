@@ -12,8 +12,6 @@ const appEnvSchema = z.object({
   PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
   AUTH_URL: z.string().url(),
   AUTH_SECRET: z.string().min(1),
-  NEXTAUTH_URL: z.string().url().optional(),
-  NEXTAUTH_SECRET: z.string().min(1).optional(),
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
   ENABLE_REGISTRATION: zStringBoolean,
   PUBLIC_IS_CLOUD: zStringBoolean,
@@ -96,13 +94,14 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
   }
 });
 
-// NEXTAUTH_* fallbacks keep deploys booting whose env files predate the rename to
-// the provider-agnostic AUTH_* names.
-export const env = envSchema.parse({
-  ...process.env,
-  AUTH_SECRET: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
-  AUTH_URL: process.env.AUTH_URL ?? process.env.NEXTAUTH_URL,
-});
+if (!process.env.AUTH_SECRET && process.env.NEXTAUTH_SECRET) {
+  throw new Error('NEXTAUTH_SECRET is no longer read. Rename it to AUTH_SECRET (the value can stay the same).');
+}
+if (!process.env.AUTH_URL && process.env.NEXTAUTH_URL) {
+  throw new Error('NEXTAUTH_URL is no longer read. Rename it to AUTH_URL (the value can stay the same).');
+}
+
+export const env = envSchema.parse(process.env);
 
 export const s3Env = {
   enabled: env.S3_ENABLED,
