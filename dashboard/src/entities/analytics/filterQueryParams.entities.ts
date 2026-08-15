@@ -4,6 +4,7 @@ import { GRANULARITY_RANGE_VALUES } from '@/utils/granularityRanges';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { COMPARE_URL_MODES } from '@/utils/compareRanges';
 import { MAX_FILTER_ROWS, QueryFilterSchema, type QueryFilter } from '@/entities/analytics/filter.entities';
+import { type StepFiltersBySlot } from '@/entities/analytics/stepFilters.entities';
 
 /* Legacy URL shape: a single `value` instead of `values`. */
 function migrateLegacyQueryFilter(filter: unknown): unknown {
@@ -31,6 +32,24 @@ export function sanitizeQueryFilters(value: unknown): QueryFilter[] {
     });
 }
 
+/**
+ * Validates each slot and each filter individually so one malformed URL entry
+ * cannot reset the rest of the decoded state.
+ */
+export function sanitizeStepFilters(value: unknown, numberOfSteps: number): StepFiltersBySlot {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return {};
+  }
+  const entries = Object.entries(value)
+    .filter(([slot]) => {
+      const parsed = Number(slot);
+      return Number.isInteger(parsed) && parsed >= 0 && parsed <= numberOfSteps;
+    })
+    .map(([slot, filters]) => [slot, sanitizeQueryFilters(filters)] as const)
+    .filter(([, filters]) => filters.length > 0);
+  return Object.fromEntries(entries);
+}
+
 export const FilterQueryParamsSchema = z.object({
   queryFilters: z.preprocess((val) => {
     if (Array.isArray(val)) {
@@ -50,6 +69,7 @@ export const FilterQueryParamsSchema = z.object({
   userJourney: z.object({
     numberOfSteps: z.number(),
     numberOfJourneys: z.number(),
+    stepFilters: z.record(z.string(), z.array(QueryFilterSchema)).optional().default({}),
   }),
 });
 
