@@ -2675,7 +2675,12 @@
     "userJourney": {
       "steps": "Passaggi",
       "topJourneys": "Principali {journeys} percorsi",
-      "sessions": "Sessioni"
+      "sessions": "Sessioni",
+      "stepLabel": "Passaggio {number}",
+      "filterTrigger": "Filtro",
+      "stepFilterDialogTitle": "Filtri del passaggio {number}",
+      "stepFilterBandLabel": "Filtri per passaggio",
+      "stepFilterHint": "Vengono mostrati solo i percorsi che corrispondono a questo passaggio. I percorsi più brevi di questo passaggio sono esclusi."
     },
     "outboundLinks": {
       "table": {

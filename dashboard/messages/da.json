@@ -2675,7 +2675,12 @@
     "userJourney": {
       "steps": "Trin",
       "topJourneys": "Top {journeys} rejser",
-      "sessions": "Sessioner"
+      "sessions": "Sessioner",
+      "stepLabel": "Trin {number}",
+      "filterTrigger": "Filter",
+      "stepFilterDialogTitle": "Filtre for trin {number}",
+      "stepFilterBandLabel": "Filtre pr. trin",
+      "stepFilterHint": "Kun rejser, der matcher dette trin, vises. Rejser, der er kortere end dette trin, udelades."
     },
     "outboundLinks": {
       "table": {
