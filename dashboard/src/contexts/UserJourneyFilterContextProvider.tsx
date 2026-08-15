@@ -71,7 +71,7 @@ export function UserJourneyFilterProvider({
       setStepFilters,
       replaceStepFilters,
     }),
-    [numberOfSteps, numberOfJourneys, stepFilters, setNumberOfSteps, setStepFilters, replaceStepFilters],
+    [numberOfSteps, numberOfJourneys, stepFilters, setNumberOfSteps, setNumberOfJourneys, setStepFilters, replaceStepFilters],
   );
 
   return <UserJourneyFilterContext.Provider value={value}>{children}</UserJourneyFilterContext.Provider>;
