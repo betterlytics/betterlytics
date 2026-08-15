@@ -122,3 +122,58 @@ describe('getFilterQuery custom event properties', () => {
     expect(notEquals).toContain('NOT JSONHas(custom_event_json');
   });
 });
+
+describe('buildPositionalUrlPredicate', () => {
+  it('targets path at the 1-indexed slot with arrayExists ILIKE for =', () => {
+    const sql = BAQuery.buildPositionalUrlPredicate(makeFilter('url', '=', ['/signup']), 2, 0);
+    expect(sql.taggedSql).toContain('path[3]');
+    expect(sql.taggedSql).toContain('arrayExists');
+    expect(sql.taggedSql).toContain('ILIKE');
+  });
+
+  it('uses arrayAll NOT ILIKE for !=', () => {
+    const sql = BAQuery.buildPositionalUrlPredicate(makeFilter('url', '!=', ['/login']), 0, 0);
+    expect(sql.taggedSql).toContain('path[1]');
+    expect(sql.taggedSql).toContain('arrayAll');
+    expect(sql.taggedSql).toContain('NOT ILIKE');
+  });
+
+  it('rewrites * wildcards to % in the values param', () => {
+    const sql = BAQuery.buildPositionalUrlPredicate(makeFilter('url', '=', ['/dashboard/*']), 1, 4);
+    expect(sql.taggedParams).toEqual({ pos_filter_4: ['/dashboard/%'] });
+  });
+
+  it('compiles a bare wildcard to a presence check on the slot', () => {
+    const sql = BAQuery.buildPositionalUrlPredicate(makeFilter('url', '=', ['*']), 2, 0);
+    expect(sql.taggedSql).toBe(`path[3] != ''`);
+  });
+
+  it('throws on a non-integer or out-of-range slot', () => {
+    expect(() => BAQuery.buildPositionalUrlPredicate(makeFilter('url', '=', ['/x']), 1.5, 0)).toThrow();
+    expect(() => BAQuery.buildPositionalUrlPredicate(makeFilter('url', '=', ['/x']), -1, 0)).toThrow();
+    expect(() => BAQuery.buildPositionalUrlPredicate(makeFilter('url', '=', ['/x']), 33, 0)).toThrow();
+  });
+});
+
+describe('buildEntryPredicate', () => {
+  it('wraps the column in argMin over timestamp', () => {
+    const sql = BAQuery.buildEntryPredicate(makeFilter('utm_source', '=', ['newsletter']), 0);
+    expect(sql.taggedSql).toContain('argMin(utm_source, timestamp)');
+    expect(sql.taggedSql).toContain('arrayExists');
+    expect(sql.taggedParams).toEqual({ entry_filter_0: ['newsletter'] });
+  });
+
+  it('resolves referrer_source through its SQL override', () => {
+    const sql = BAQuery.buildEntryPredicate(makeFilter('referrer_source', '=', ['google']), 1);
+    expect(sql.taggedSql).toContain('argMin(referrer_source_effective, timestamp)');
+  });
+
+  it('compiles a bare wildcard to a presence check on the entry value', () => {
+    const sql = BAQuery.buildEntryPredicate(makeFilter('utm_source', '!=', ['*']), 0);
+    expect(sql.taggedSql).toBe(`argMin(utm_source, timestamp) = ''`);
+  });
+
+  it('rejects property columns', () => {
+    expect(() => BAQuery.buildEntryPredicate(makeFilter('gp.tenant', '=', ['x']), 0)).toThrow();
+  });
+});

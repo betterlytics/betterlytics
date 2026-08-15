@@ -75,6 +75,33 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
   }
 }
 
+function buildPositionalUrlPredicate(filter: QueryFilter, slot: number, index: number) {
+  if (!Number.isInteger(slot) || slot < 0 || slot > 32) {
+    throw new Error(`Invalid journey slot: ${slot}`);
+  }
+  const parsed = TransformQueryFilterSchema.parse(filter);
+  const column = safeSql`path[${SQL.Unsafe(String(slot + 1))}]`;
+  const values = SQL.StringArray({ [`pos_filter_${index}`]: parsed.values });
+  return (
+    matchAnyValueFilterSql(filter.values, parsed.rawOperator, column) ??
+    safeSql`${parsed.operator.quantifier}(pattern -> ${column} ${parsed.operator.operater} pattern, ${values})`
+  );
+}
+
+function buildEntryPredicate(filter: QueryFilter, index: number) {
+  const parsed = TransformQueryFilterSchema.parse(filter);
+  const parsedColumn = parseFilterColumn(parsed.column);
+  if (parsedColumn.kind !== 'standard') {
+    throw new Error(`Entry predicate requires a standard column: ${parsed.column}`);
+  }
+  const column = safeSql`argMin(${filterColumnSql(parsedColumn.col)}, timestamp)`;
+  const values = SQL.StringArray({ [`entry_filter_${index}`]: parsed.values });
+  return (
+    matchAnyValueFilterSql(filter.values, parsed.rawOperator, column, parsedColumn.col) ??
+    safeSql`${parsed.operator.quantifier}(pattern -> ${column} ${parsed.operator.operater} pattern, ${values})`
+  );
+}
+
 // Utility for granularity
 const GranularityIntervalSchema = z.enum([
   '1 MONTH',
@@ -175,4 +202,6 @@ export const BAQuery = {
   getFilterQuery,
   getTimestampRange,
   getSampling,
+  buildPositionalUrlPredicate,
+  buildEntryPredicate,
 };
