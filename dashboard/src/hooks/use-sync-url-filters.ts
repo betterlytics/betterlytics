@@ -29,7 +29,8 @@ export function useSyncURLFilters() {
     compareAlignWeekdays,
     setCompareAlignWeekdays,
   } = useTimeRangeContext();
-  const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
+  const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys, stepFilters, replaceStepFilters } =
+    useUserJourneyFilter();
 
   // URL -> state
   useEffect(() => {
@@ -66,6 +67,7 @@ export function useSyncURLFilters() {
         if (filters.userJourney.numberOfJourneys) {
           setNumberOfJourneys(filters.userJourney.numberOfJourneys);
         }
+        replaceStepFilters(filters.userJourney.stepFilters ?? {});
       }
       if (filters.compare) {
         if (filters.compare === 'off') {
@@ -110,7 +112,7 @@ export function useSyncURLFilters() {
         userJourney: {
           numberOfSteps,
           numberOfJourneys,
-          stepFilters: {},
+          stepFilters,
         },
         // Only include compare dates for custom mode when both are present
         compareStartDate:
@@ -156,6 +158,7 @@ export function useSyncURLFilters() {
     compareAlignWeekdays,
     numberOfSteps,
     numberOfJourneys,
+    stepFilters,
   ]);
 }
 

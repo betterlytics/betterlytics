@@ -39,6 +39,7 @@ export function DashboardProvider({ children, initialSettings }: DashboardProvid
             <UserJourneyFilterProvider
               initialNumberOfSteps={initialFilters.userJourney.numberOfSteps}
               initialNumberOfJourneys={initialFilters.userJourney.numberOfJourneys}
+              initialStepFilters={initialFilters.userJourney.stepFilters}
             >
               <SyncURLFilters />
 
