@@ -8,11 +8,19 @@ export type StepBandCell = { left: number; width: number };
 /**
  * Cell boundaries mirror the chart's own column math (createLayoutConfig) as
  * percentages of the shared container, so dividers land just left of each
- * sankey column at any rendered width.
+ * sankey column at any rendered width. When the rendered data is shallower
+ * than the step window, the chart's columns spread wider than this math
+ * assumes, so cells fall back to equal widths instead.
  */
-export function getStepBandCells(numberOfSteps: number): StepBandCell[] {
-  const { padding, nodeWidth, labelMargin } = LAYOUT;
+export function getStepBandCells(numberOfSteps: number, renderedMaxDepth: number): StepBandCell[] {
   const columns = numberOfSteps + 1;
+
+  if (renderedMaxDepth < numberOfSteps) {
+    const width = 100 / columns;
+    return Array.from({ length: columns }, (_, index) => ({ left: index * width, width }));
+  }
+
+  const { padding, nodeWidth, labelMargin } = LAYOUT;
   const availableWidth = VIEWBOX_WIDTH - padding.left - padding.right - nodeWidth - labelMargin;
   const depthSpacing = numberOfSteps > 0 ? availableWidth / numberOfSteps : 0;
 
