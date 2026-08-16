@@ -76,8 +76,9 @@ FROM node:24-slim AS static-builder
 
 RUN echo "Minifying static files..."
 WORKDIR /app
-COPY static/analytics.js .
-RUN npx --yes esbuild analytics.js --minify --outfile=analytics.min.js
+COPY static/analytics.js static/replay.js ./
+RUN npx --yes esbuild analytics.js --minify --outfile=analytics.min.js \
+ && npx --yes esbuild replay.js --minify --outfile=replay.min.js
 
 ####
 # Runtime image
@@ -122,5 +123,7 @@ COPY scripts/ /app/initializer/scripts/
 COPY migrations/ /app/initializer/migrations/
 COPY dashboard/prisma/ /app/initializer/prisma/
 
-# Copy minified analytics script for nginx
+# Copy static scripts for nginx (web-vitals.js ships pre-minified; esbuild would strip its legal banner)
 COPY --from=static-builder /app/analytics.min.js /usr/share/nginx/html/analytics.js
+COPY --from=static-builder /app/replay.min.js /usr/share/nginx/html/replay.js
+COPY static/web-vitals.js /usr/share/nginx/html/web-vitals.js
