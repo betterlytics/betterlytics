@@ -2680,7 +2680,7 @@
       "filterTrigger": "Filtro",
       "stepFilterDialogTitle": "Filtri del passaggio {number}",
       "stepFilterBandLabel": "Filtri per passaggio",
-      "stepFilterHint": "Vengono mostrati solo i percorsi che corrispondono a questo passaggio. I percorsi più brevi di questo passaggio sono esclusi."
+      "stepFilterHint": "I passaggi precedenti non vengono influenzati. Da questo passaggio in poi continuano solo i percorsi corrispondenti."
     },
     "outboundLinks": {
       "table": {

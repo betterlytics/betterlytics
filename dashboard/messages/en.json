@@ -2680,7 +2680,7 @@
       "filterTrigger": "Filter",
       "stepFilterDialogTitle": "Step {number} filters",
       "stepFilterBandLabel": "Per-step filters",
-      "stepFilterHint": "Only journeys matching this step are shown. Journeys shorter than this step are excluded."
+      "stepFilterHint": "Steps before this one are unaffected. From this step on, only matching journeys continue."
     },
     "outboundLinks": {
       "table": {

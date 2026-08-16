@@ -2680,7 +2680,7 @@
       "filterTrigger": "Filter",
       "stepFilterDialogTitle": "Filtre for trinn {number}",
       "stepFilterBandLabel": "Filtre per trinn",
-      "stepFilterHint": "Bare reiser som samsvarer med dette trinnet vises. Reiser som er kortere enn dette trinnet, utelates."
+      "stepFilterHint": "Trinn før dette påvirkes ikke. Fra dette trinnet fortsetter bare reiser som samsvarer."
     },
     "outboundLinks": {
       "table": {
