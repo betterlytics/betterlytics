@@ -43,3 +43,5 @@ export const LAYOUT = {
   maxNodeHeight: 100,
   labelMargin: 110,
 };
+
+export const CHART_VIEWBOX_WIDTH = 900;
