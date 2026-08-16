@@ -42,11 +42,13 @@ export function VerificationBanner({ email, isVerified, showDismiss = true, id }
   const handleResendVerification = async () => {
     setIsSending(true);
     try {
-      const result = await resendVerificationEmailAction({ email });
+      const result = await resendVerificationEmailAction();
       if (result.success) {
         toast.success(t('success'));
       } else {
-        toast.error(result.error);
+        // Only user-safe exceptions carry a message worth showing; anything else is a
+        // masked internal error, so fall back to the localized copy.
+        toast.error(result.error.name === 'UserException' ? result.error.message : t('failure'));
       }
     } catch (error) {
       toast.error(t('failure'));

@@ -29,13 +29,15 @@ export function VerificationRequiredModal({
   const handleResendVerification = () => {
     startTransition(async () => {
       try {
-        const result = await resendVerificationEmailAction({ email: userEmail });
+        const result = await resendVerificationEmailAction();
 
         if (result.success) {
           toast.success(t('toastSuccess'));
           setEmailSent(true);
         } else {
-          toast.error(result.error);
+          // Only user-safe exceptions carry a message worth showing; anything else is a
+          // masked internal error, so fall back to the localized copy.
+          toast.error(result.error.name === 'UserException' ? result.error.message : t('toastFailure'));
         }
       } catch (error) {
         toast.error(t('toastFailure'));
