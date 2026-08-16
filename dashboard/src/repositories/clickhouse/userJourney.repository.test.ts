@@ -133,6 +133,19 @@ describe('event-level step filters', () => {
     expect(Object.keys(query.taggedParams)).toContain('evt_filter_0');
     expect(Object.keys(query.taggedParams)).toContain('query_filter_0');
   });
+
+  it('wires multiple event filters across different slots', () => {
+    const query = build({
+      '0': [filter('device_type', ['Mobile'])],
+      '2': [filter('browser', ['Chrome'])],
+    });
+    expect(query.taggedSql).toContain('AS evt_ok_0');
+    expect(query.taggedSql).toContain('AS evt_ok_1');
+    expect(query.taggedSql).toContain('AS surv_1');
+    expect(query.taggedSql).toContain('AS surv_3');
+    expect(Object.keys(query.taggedParams)).toContain('evt_filter_0');
+    expect(Object.keys(query.taggedParams)).toContain('evt_filter_1');
+  });
 });
 
 describe('entry step filters', () => {
