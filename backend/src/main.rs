@@ -398,7 +398,7 @@ async fn health_check(
         Option<Arc<S3Service>>,
         Arc<SiteConfigCache>,
     )>,
-) -> Result<impl IntoResponse, String> {
+) -> Result<impl IntoResponse, (StatusCode, String)> {
     match db.check_connection().await {
         Ok(_) => Ok(Json(serde_json::json!({
             "status": "ok",
@@ -406,7 +406,10 @@ async fn health_check(
         }))),
         Err(e) => {
             error!("Database health check failed: {}", e);
-            Err(format!("Database connection failed: {}", e))
+            Err((
+                StatusCode::SERVICE_UNAVAILABLE,
+                format!("Database connection failed: {}", e),
+            ))
         }
     }
 }
