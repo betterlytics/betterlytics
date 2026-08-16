@@ -13,7 +13,7 @@ export const McpUserJourneysInputBaseSchema = McpDateRangeSchema.extend({
     .max(10)
     .optional()
     .default(3)
-    .describe('Maximum journey depth (number of page transitions). Defaults to 3.'),
+    .describe('Maximum journey depth (number of pages in the journey window). Defaults to 3.'),
   limit: z
     .number()
     .int()

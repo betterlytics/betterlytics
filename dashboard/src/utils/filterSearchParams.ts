@@ -5,7 +5,11 @@ import {
   sanitizeStepFilters,
   type FilterQuerySearchParams,
 } from '@/entities/analytics/filterQueryParams.entities';
-import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import {
+  type BAAnalyticsQuery,
+  USER_JOURNEY_MIN_STEPS,
+  USER_JOURNEY_MAX_STEPS,
+} from '@/entities/analytics/analyticsQuery.entities';
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';
@@ -49,7 +53,7 @@ function getDefaultFilters(): FilterQueryParams {
     compare: 'previous',
     compareAlignWeekdays: false,
     userJourney: {
-      numberOfSteps: 3,
+      numberOfSteps: 4,
       numberOfJourneys: 5,
       stepFilters: {},
     },
@@ -231,12 +235,17 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
     ...decoded,
   };
   filters.queryFilters = sanitizeQueryFilters(filters.queryFilters);
+  const clampedSteps = Math.min(
+    USER_JOURNEY_MAX_STEPS,
+    Math.max(
+      USER_JOURNEY_MIN_STEPS,
+      Math.round(filters.userJourney?.numberOfSteps ?? defaultFilters.userJourney.numberOfSteps),
+    ),
+  );
   filters.userJourney = {
     ...filters.userJourney,
-    stepFilters: sanitizeStepFilters(
-      filters.userJourney?.stepFilters,
-      filters.userJourney?.numberOfSteps ?? defaultFilters.userJourney.numberOfSteps,
-    ),
+    numberOfSteps: clampedSteps,
+    stepFilters: sanitizeStepFilters(filters.userJourney?.stepFilters, clampedSteps),
   };
 
   const enforced = enforceGranularityAndDuration(timezone, {

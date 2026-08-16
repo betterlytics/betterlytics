@@ -153,7 +153,7 @@ describe('positional url step filters', () => {
 
 describe('exit step filters', () => {
   it('builds the exit_clicks CTE, join and exact-length predicate for the last slot', () => {
-    const query = build({ '3': [filter('outbound_link_url', ['https://example.com/*'])] });
+    const query = build({ '2': [filter('outbound_link_url', ['https://example.com/*'])] });
     expect(query.taggedSql).toContain('exit_clicks AS (');
     expect(query.taggedSql).toContain(`event_type = 'outbound_link'`);
     expect(query.taggedSql).toContain('ANY INNER JOIN exit_clicks USING (session_id)');
@@ -163,7 +163,7 @@ describe('exit step filters', () => {
   });
 
   it('does not apply global query filters inside exit_clicks', () => {
-    const query = build({ '3': [filter('outbound_link_url', ['https://x.com'])] }, [
+    const query = build({ '2': [filter('outbound_link_url', ['https://x.com'])] }, [
       filter('url', ['/pricing']),
     ]);
     const exitCte = query.taggedSql.slice(

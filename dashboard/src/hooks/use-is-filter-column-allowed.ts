@@ -109,7 +109,7 @@ export function useAllowedQueryFilters(filters: QueryFilter[]): QueryFilter[] {
 export function useAllowedStepFilters(stepFilters: StepFiltersBySlot, numberOfSteps: number): StepFiltersBySlot {
   const { isDemo } = useDashboardAuth();
   return useMemo(() => {
-    const feasible = stripInfeasibleStepFilters(stepFilters, numberOfSteps);
+    const feasible = stripInfeasibleStepFilters(stepFilters, numberOfSteps - 1);
     if (!isDemo) return feasible;
     const entries = Object.entries(feasible)
       .map(

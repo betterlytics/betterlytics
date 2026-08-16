@@ -43,7 +43,7 @@ export function sanitizeStepFilters(value: unknown, numberOfSteps: number): Step
   const entries = Object.entries(value)
     .filter(([slot]) => {
       const parsed = Number(slot);
-      return Number.isInteger(parsed) && parsed >= 0 && parsed <= numberOfSteps;
+      return Number.isInteger(parsed) && parsed >= 0 && parsed < numberOfSteps;
     })
     .map(([slot, filters]) => [slot, sanitizeQueryFilters(filters)] as const)
     .filter(([, filters]) => filters.length > 0);

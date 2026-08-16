@@ -135,13 +135,15 @@ describe('UserJourneySchema stepFilters', () => {
     expect(parsed.userJourney.stepFilters['2']).toHaveLength(1);
   });
 
-  it('rejects slot keys above numberOfSteps', () => {
-    expect(() =>
-      BAAnalyticsQuerySchema.parse({
-        ...baseQuery,
-        userJourney: { ...baseQuery.userJourney, stepFilters: { '4': [filter('url')] } },
-      }),
-    ).toThrow();
+  it('rejects slot keys at or above numberOfSteps', () => {
+    for (const slot of ['3', '4']) {
+      expect(() =>
+        BAAnalyticsQuerySchema.parse({
+          ...baseQuery,
+          userJourney: { ...baseQuery.userJourney, stepFilters: { [slot]: [filter('url')] } },
+        }),
+      ).toThrow();
+    }
   });
 
   it('rejects non-integer slot keys', () => {
@@ -161,5 +163,18 @@ describe('UserJourneySchema stepFilters', () => {
         userJourney: { ...baseQuery.userJourney, stepFilters: { '0': filters } },
       }),
     ).toThrow();
+  });
+
+  it('bounds numberOfSteps to 2 through 6', () => {
+    for (const numberOfSteps of [2, 6]) {
+      expect(() =>
+        BAAnalyticsQuerySchema.parse({ ...baseQuery, userJourney: { ...baseQuery.userJourney, numberOfSteps } }),
+      ).not.toThrow();
+    }
+    for (const numberOfSteps of [1, 7]) {
+      expect(() =>
+        BAAnalyticsQuerySchema.parse({ ...baseQuery, userJourney: { ...baseQuery.userJourney, numberOfSteps } }),
+      ).toThrow();
+    }
   });
 });

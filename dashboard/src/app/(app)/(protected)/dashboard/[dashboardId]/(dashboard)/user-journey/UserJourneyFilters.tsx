@@ -3,7 +3,7 @@ import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvide
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const STEP_OPTIONS = [1, 2, 3, 4, 5];
+const STEP_OPTIONS = [2, 3, 4, 5, 6];
 const JOURNEY_OPTIONS = [5, 10, 20, 50, 100];
 
 export function UserJourneyFilters() {
