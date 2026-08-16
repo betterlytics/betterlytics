@@ -158,7 +158,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             name: 'maxSteps',
             type: 'number',
             required: false,
-            description: 'Maximum journey depth (2-10). Defaults to 3.',
+            description: 'Pages in the journey window (2-10). Defaults to 3.',
           },
           {
             name: 'limit',

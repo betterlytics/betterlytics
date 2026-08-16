@@ -26,7 +26,7 @@ export function UserJourneyStepBand() {
       role='group'
       aria-label={t('stepFilterBandLabel')}
     >
-      <div style={{ width: `${cells[0].left}%` }} />
+      <div style={{ width: `${cells.at(0)?.left ?? 0}%` }} />
       {cells.map((cell, slot) => {
         const activeFilters = filterEmptyQueryFilters(allowedStepFilters[slot] ?? []);
         const count = activeFilters.length;
@@ -53,7 +53,7 @@ export function UserJourneyStepBand() {
                         variant='ghost'
                         size='sm'
                         className={cn(
-                          'h-7 cursor-pointer gap-1.5 px-2 text-xs data-[state=open]:bg-accent/60 data-[state=open]:text-foreground',
+                          'data-[state=open]:bg-accent/60 data-[state=open]:text-foreground h-7 cursor-pointer gap-1.5 px-2 text-xs',
                           count > 0 ? 'text-foreground' : 'text-muted-foreground',
                         )}
                       >
