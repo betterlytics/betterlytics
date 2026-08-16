@@ -39,14 +39,6 @@ describe('buildJourneyQuery without step filters', () => {
     expect(query.taggedSql).not.toContain('full_path_length');
     expect(query.taggedSql).not.toContain('last_pageview_ts');
     expect(query.taggedSql).not.toContain('path[1] ');
-  });
-
-  it('emits none of the step filter constructs', () => {
-    const query = build({});
-    expect(query.taggedSql).not.toContain('HAVING');
-    expect(query.taggedSql).not.toContain('exit_clicks');
-    expect(query.taggedSql).not.toContain('full_path_length');
-    expect(query.taggedSql).not.toContain('last_pageview_ts');
     expect(query.taggedSql).not.toContain('AS surv_');
     expect(query.taggedSql).not.toContain('evt_ok_');
   });
