@@ -1,6 +1,6 @@
 'use client';
 
-import { authClient } from '@/lib/auth-client';
+import { useHydratedSession } from '@/hooks/use-hydrated-session';
 import { Button } from '@/components/ui/button';
 import { Link, usePathname } from '@/i18n/navigation';
 import Logo from '@/components/logo';
@@ -13,7 +13,7 @@ import NextLink from 'next/link';
 
 export default function PublicTopBar() {
   const t = useTranslations('public.nav');
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending } = useHydratedSession();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
