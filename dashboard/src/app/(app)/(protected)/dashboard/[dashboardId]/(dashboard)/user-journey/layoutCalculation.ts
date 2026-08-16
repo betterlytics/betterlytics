@@ -11,6 +11,7 @@ interface LayoutConfig {
   availableWidth: number;
   availableHeight: number;
   depthSpacing: number;
+  columnX: (depth: number) => number;
   heightScale: number;
   paddingTop: number;
   paddingLeft: number;
@@ -42,14 +43,24 @@ export function calculateLayout(
 }
 
 /**
+ * The steps-driven column grid shared by the chart layout and the filter band.
+ */
+export function getDepthGrid(width: number, stepsCount: number) {
+  const { padding, nodeWidth, labelMargin } = LAYOUT;
+  const availableWidth = Math.max(0, width - padding.left - padding.right - nodeWidth - labelMargin);
+  const depthSpacing = stepsCount > 1 ? availableWidth / (stepsCount - 1) : 0;
+  const columnX = (depth: number) => padding.left + depth * depthSpacing;
+  return { availableWidth, depthSpacing, columnX };
+}
+
+/**
  * Create layout configuration from graph metrics and dimensions
  */
 function createLayoutConfig(graph: SankeyGraph, width: number, height: number, stepsCount: number): LayoutConfig {
-  const { padding, nodeWidth, minNodeHeight, compressionThreshold, maxNodeHeight, labelMargin } = LAYOUT;
+  const { padding, nodeWidth, minNodeHeight, compressionThreshold, maxNodeHeight } = LAYOUT;
 
-  const availableWidth = Math.max(0, width - padding.left - padding.right - nodeWidth - labelMargin);
+  const { availableWidth, depthSpacing, columnX } = getDepthGrid(width, stepsCount);
   const availableHeight = height - padding.top - padding.bottom;
-  const depthSpacing = stepsCount > 1 ? availableWidth / (stepsCount - 1) : 0;
 
   const heightScale = maxNodeHeight / graph.maxTraffic;
 
@@ -57,6 +68,7 @@ function createLayoutConfig(graph: SankeyGraph, width: number, height: number, s
     availableWidth,
     availableHeight,
     depthSpacing,
+    columnX,
     heightScale,
     paddingTop: padding.top,
     paddingLeft: padding.left,
@@ -200,7 +212,7 @@ function calculateNodePositions(
   const nodePositionMap = new Map<string, NodePosition>();
 
   orderedGroups.forEach((nodes, depth) => {
-    const x = config.paddingLeft + depth * config.depthSpacing;
+    const x = config.columnX(depth);
 
     const heights = nodes.map((node) => compressHeight(node.totalTraffic * config.heightScale, config));
     const totalHeight = heights.reduce((sum, h) => sum + h, 0);

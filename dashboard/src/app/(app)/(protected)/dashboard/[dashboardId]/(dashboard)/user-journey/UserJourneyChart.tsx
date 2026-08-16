@@ -6,6 +6,7 @@ import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { SankeyData } from '@/entities/analytics/userJourney.entities';
 import { HighlightState, TooltipState } from './types';
 import { createSankeyGraph } from './SankeyGraph';
+import { CHART_VIEWBOX_WIDTH } from './constants';
 import { calculateLayout } from './layoutCalculation';
 import { SankeyNode, SankeyLink } from './components';
 import { TooltipComponent } from './components/SankeyTooltip';
@@ -21,7 +22,7 @@ export default function UserJourneyChart({ data, numberOfSteps }: UserJourneyCha
   // Calculate SVG dimensions based on graph structure
   const { width, height } = useMemo(() => {
     return {
-      width: 900,
+      width: CHART_VIEWBOX_WIDTH,
       height: graph.maxColumnCount * 100,
     };
   }, [graph]);
