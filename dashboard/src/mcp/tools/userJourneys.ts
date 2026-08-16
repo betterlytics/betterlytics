@@ -46,5 +46,5 @@ export async function executeUserJourneys(rawInput: unknown, siteId: string) {
     userJourney: { numberOfSteps: input.maxSteps, numberOfJourneys: input.limit, stepFilters: {} },
   };
 
-  return getUserJourneyForSankeyDiagram(siteQuery, input.maxSteps, input.limit);
+  return getUserJourneyForSankeyDiagram(siteQuery, input.limit);
 }

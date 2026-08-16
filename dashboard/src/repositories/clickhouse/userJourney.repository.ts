@@ -179,7 +179,6 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
  */
 export async function getUserJourneyTransitions(
   siteQuery: BASiteQuery,
-  maxPathLength: number,
   limit: number = 50,
 ): Promise<JourneyTransition[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
@@ -199,7 +198,7 @@ export async function getUserJourneyTransitions(
         site_id: siteId,
         start: startDateTime,
         end: endDateTime,
-        max_length: maxPathLength,
+        max_length: siteQuery.userJourney.numberOfSteps,
         limit,
       },
     })
