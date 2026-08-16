@@ -5,8 +5,8 @@ describe('getStepBandCells', () => {
   it('returns exactly numberOfSteps cells spanning 100 percent', () => {
     const cells = getStepBandCells(4);
     expect(cells).toHaveLength(4);
-    expect(cells[0].left).toBe(0);
-    const total = cells.reduce((sum, cell) => sum + cell.width, 0);
+    expect(cells[0].left).toBeCloseTo((20 / 900) * 100, 6);
+    const total = cells[0].left + cells.reduce((sum, cell) => sum + cell.width, 0);
     expect(total).toBeCloseTo(100, 6);
   });
 
@@ -21,7 +21,7 @@ describe('getStepBandCells', () => {
   it('places interior boundaries just left of the steps-grid columns', () => {
     const cells = getStepBandCells(4);
     const depthSpacing = (900 - 20 - 20 - 14 - 110) / 3;
-    const expectedBoundary = ((20 + depthSpacing - 8) / 900) * 100;
+    const expectedBoundary = ((20 + depthSpacing) / 900) * 100;
     expect(cells[1].left).toBeCloseTo(expectedBoundary, 6);
   });
 

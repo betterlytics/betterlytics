@@ -26,6 +26,7 @@ export function UserJourneyStepBand() {
       role='group'
       aria-label={t('stepFilterBandLabel')}
     >
+      <div style={{ width: `${cells[0].left}%` }} />
       {cells.map((cell, slot) => {
         const activeFilters = filterEmptyQueryFilters(allowedStepFilters[slot] ?? []);
         const count = activeFilters.length;
