@@ -58,12 +58,11 @@ export function UserJourneyStepBand() {
                         )}
                       >
                         <FilterIcon className='size-3.5' />
-                        {count > 0 ? (
+                        <span>{t('filterTrigger')}</span>
+                        {count > 0 && (
                           <Badge className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'>
                             {count}
                           </Badge>
-                        ) : (
-                          <span>{t('filterTrigger')}</span>
                         )}
                       </Button>
                     }
@@ -73,7 +72,7 @@ export function UserJourneyStepBand() {
               {count > 0 && (
                 <TooltipContent side='bottom' className='flex max-w-xs flex-col gap-1'>
                   {activeFilters.map((filter) => (
-                    <FilterDescription key={filter.id} filter={filter} />
+                    <FilterDescription key={filter.id} filter={filter} columnClassName='[&_svg]:text-current' />
                   ))}
                 </TooltipContent>
               )}
