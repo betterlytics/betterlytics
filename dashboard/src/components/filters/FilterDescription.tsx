@@ -8,10 +8,9 @@ import { cn } from '@/lib/utils';
 type FilterDescriptionProps = {
   filter: QueryFilter;
   className?: string;
-  columnClassName?: string;
 };
 
-export function FilterDescription({ filter, className, columnClassName }: FilterDescriptionProps) {
+export function FilterDescription({ filter, className }: FilterDescriptionProps) {
   const t = useTranslations('components.filters');
   const locale = useLocale();
   const strategy = getFilterStrategy(filter.column);
@@ -19,7 +18,7 @@ export function FilterDescription({ filter, className, columnClassName }: Filter
 
   return (
     <span className={cn('inline-flex min-w-0 items-center gap-1 [&_svg]:size-3', className)}>
-      <FilterColumnLabel column={filter.column} className={cn('shrink-0', columnClassName)} />
+      <FilterColumnLabel column={filter.column} className='shrink-0' />
       <span data-operator className='text-muted-foreground/80'>
         {operator}
       </span>
