@@ -6,10 +6,9 @@ import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getUserJourneyForSankeyDiagram(
   siteQuery: BASiteQuery,
-  maxSteps: number,
   limit: number = 50,
 ): Promise<SankeyData> {
-  const transitions = await getUserJourneyTransitions(siteQuery, maxSteps, limit);
+  const transitions = await getUserJourneyTransitions(siteQuery, limit);
 
   return buildSankeyFromTransitions(transitions);
 }
