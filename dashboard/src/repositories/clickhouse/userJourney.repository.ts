@@ -22,7 +22,7 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
   for (const [slotKey, filters] of Object.entries(stepFilters)) {
     const slot = Number(slotKey);
     for (const filter of filters.filter((filter) => isUsableFilter(filter) && filter.values.length > 0)) {
-      switch (classifyStepFilter(filter.column, slot, numberOfSteps)) {
+      switch (classifyStepFilter(filter.column, slot, numberOfSteps - 1)) {
         case 'event':
           eventFilters.push(filter);
           break;

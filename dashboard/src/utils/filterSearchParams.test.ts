@@ -84,6 +84,11 @@ describe('sanitizeStepFilters', () => {
   it('drops slots whose filters all fail validation', () => {
     expect(sanitizeStepFilters({ '0': [{ column: 'url' }] }, 3)).toEqual({});
   });
+
+  it('drops the slot equal to numberOfSteps (slots are zero-based)', () => {
+    expect(sanitizeStepFilters({ '3': [valid] }, 3)).toEqual({});
+    expect(sanitizeStepFilters({ '2': [valid] }, 3)).toEqual({ '2': [valid] });
+  });
 });
 
 describe('stepFilters in the userJourney search param', () => {
@@ -123,6 +128,19 @@ describe('stepFilters in the userJourney search param', () => {
     expect(decoded.userJourney.numberOfSteps).toBe(4);
     expect(decoded.userJourney.stepFilters).toEqual({});
     expect(decoded.queryFilters).toEqual(defaults.queryFilters);
+  });
+
+  it('clamps decoded numberOfSteps into the 2 to 6 range', () => {
+    const low = BAFilterSearchParams.decode(
+      { userJourney: JSON.stringify({ numberOfSteps: 1, numberOfJourneys: 5, stepFilters: {} }) },
+      'Etc/UTC',
+    );
+    expect(low.userJourney.numberOfSteps).toBe(2);
+    const high = BAFilterSearchParams.decode(
+      { userJourney: JSON.stringify({ numberOfSteps: 9, numberOfJourneys: 5, stepFilters: {} }) },
+      'Etc/UTC',
+    );
+    expect(high.userJourney.numberOfSteps).toBe(6);
   });
 });
 

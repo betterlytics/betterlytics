@@ -35,14 +35,14 @@ export function UserJourneyFilterProvider({
   initialNumberOfJourneys,
   initialStepFilters,
 }: Props) {
-  const [numberOfSteps, setNumberOfStepsState] = useState<number>(initialNumberOfSteps ?? 3);
+  const [numberOfSteps, setNumberOfStepsState] = useState<number>(initialNumberOfSteps ?? 4);
   const [numberOfJourneys, setNumberOfJourneys] = useState<number>(initialNumberOfJourneys ?? 10);
   const [stepFilters, setStepFiltersState] = useState<StepFiltersBySlot>(initialStepFilters ?? {});
 
   const setNumberOfSteps: Dispatch<SetStateAction<number>> = useCallback((next) => {
     setNumberOfStepsState((previous) => {
       const resolved = typeof next === 'function' ? next(previous) : next;
-      setStepFiltersState((filters) => pruneStepFilters(filters, resolved));
+      setStepFiltersState((filters) => pruneStepFilters(filters, resolved - 1));
       return resolved;
     });
   }, []);

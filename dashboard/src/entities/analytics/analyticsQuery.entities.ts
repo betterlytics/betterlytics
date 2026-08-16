@@ -6,16 +6,19 @@ import { COMPARE_URL_MODES } from '@/utils/compareRanges';
 
 export const BATimeZone = z.string().transform((tz) => (tz === 'Etc/Unknown' ? 'Etc/UTC' : tz));
 
+export const USER_JOURNEY_MIN_STEPS = 2;
+export const USER_JOURNEY_MAX_STEPS = 6;
+
 const UserJourneySchema = z
   .object({
-    numberOfSteps: z.number().int().min(1).max(5),
+    numberOfSteps: z.number().int().min(USER_JOURNEY_MIN_STEPS).max(USER_JOURNEY_MAX_STEPS),
     numberOfJourneys: z.number().int().min(1).max(100),
     stepFilters: z.record(z.string(), z.array(QueryFilterSchema).max(MAX_FILTER_ROWS)).default({}),
   })
   .superRefine((journey, ctx) => {
     for (const slot of Object.keys(journey.stepFilters)) {
       const parsed = Number(slot);
-      if (!Number.isInteger(parsed) || parsed < 0 || parsed > journey.numberOfSteps) {
+      if (!Number.isInteger(parsed) || parsed < 0 || parsed >= journey.numberOfSteps) {
         ctx.addIssue({ code: 'custom', message: `Invalid step filter slot: ${slot}` });
       }
     }

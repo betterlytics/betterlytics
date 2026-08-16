@@ -9,7 +9,7 @@ export async function getUserJourneyForSankeyDiagram(
   maxSteps: number = 3,
   limit: number = 50,
 ): Promise<SankeyData> {
-  const maxPathLength = Math.max(2, maxSteps + 1);
+  const maxPathLength = Math.max(2, maxSteps);
 
   const transitions = await getUserJourneyTransitions(siteQuery, maxPathLength, limit);
 
