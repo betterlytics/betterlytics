@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { domainValidation } from '@/entities/dashboard/dashboard.entities';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 const USER_AGENT = 'Better Analytics Favicon Proxy';
 const DDG_ICON_BASE = 'https://icons.duckduckgo.com/ip3';
@@ -12,6 +13,13 @@ const CONFIG = {
 };
 
 export async function GET(request: NextRequest) {
+  // The dashboard already stops requesting favicons when the flag is off; this also covers
+  // direct hits and hotlinking, so no deploy with it disabled ever reaches DuckDuckGo.
+  // Deliberately not negatively cached: re-enabling the flag takes effect without waiting out a stale 404.
+  if (!isFeatureEnabled('enableFaviconFetching')) {
+    return new NextResponse(null, { status: 404, headers: { 'Cache-Control': 'no-store' } });
+  }
+
   const domainParam = request.nextUrl.searchParams.get('domain');
   if (!domainParam) {
     return negativeResponse();

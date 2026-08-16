@@ -6,6 +6,13 @@ export const zStringBoolean = z
   .default('false')
   .transform((val) => val === 'true');
 
+/** Opt-out flags: unset means enabled, so existing deploys keep the behavior they had. */
+export const zStringBooleanDefaultTrue = z
+  .enum(['true', 'false'])
+  .optional()
+  .default('true')
+  .transform((val) => val === 'true');
+
 export const sharedEmailEnvSchema = z.object({
   IS_CLOUD: zStringBoolean,
   PUBLIC_BASE_URL: z.string().optional().default('https://betterlytics.io'),
