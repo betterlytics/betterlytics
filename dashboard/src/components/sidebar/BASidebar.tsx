@@ -42,7 +42,6 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { env } from '@/lib/env';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 
 const ICON_SIZE = 16;
@@ -237,11 +236,6 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
             </>
           )}
         </SidebarMenu>
-        {!isFeatureEnabled('isCloud') && !isDemo && (
-          <span className='text-muted-foreground/70 px-1 -mt-2 font-mono text-right text-xs group-data-[collapsible=icon]:hidden'>
-            {env.APP_VERSION}
-          </span>
-        )}
       </SidebarFooter>
     </Sidebar>
   );
