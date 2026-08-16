@@ -12,9 +12,10 @@ import { TooltipComponent } from './components/SankeyTooltip';
 
 interface UserJourneyChartProps {
   data: SankeyData;
+  numberOfSteps: number;
 }
 
-export default function UserJourneyChart({ data }: UserJourneyChartProps) {
+export default function UserJourneyChart({ data, numberOfSteps }: UserJourneyChartProps) {
   const graph = useMemo(() => createSankeyGraph(data), [data]);
 
   // Calculate SVG dimensions based on graph structure
@@ -27,8 +28,8 @@ export default function UserJourneyChart({ data }: UserJourneyChartProps) {
 
   // Calculate visual layout positions
   const { nodePositions, linkPositions } = useMemo(
-    () => calculateLayout(graph, width, height),
-    [graph, width, height],
+    () => calculateLayout(graph, width, height, numberOfSteps),
+    [graph, width, height, numberOfSteps],
   );
 
   const [lockedState, setLockedState] = useState<HighlightState | null>(null);

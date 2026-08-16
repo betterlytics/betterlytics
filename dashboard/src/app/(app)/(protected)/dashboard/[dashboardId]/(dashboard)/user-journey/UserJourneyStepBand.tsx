@@ -14,18 +14,11 @@ import { cn } from '@/lib/utils';
 import { getStepBandCells } from './bandGeometry';
 import { UserJourneyStepFilterPopover } from './UserJourneyStepFilterPopover';
 
-interface UserJourneyStepBandProps {
-  maxRenderedDepth: number;
-}
-
-export function UserJourneyStepBand({ maxRenderedDepth }: UserJourneyStepBandProps) {
+export function UserJourneyStepBand() {
   const t = useTranslations('components.userJourney');
   const { numberOfSteps, stepFilters } = useUserJourneyFilter();
   const allowedStepFilters = useAllowedStepFilters(stepFilters, numberOfSteps);
-  const cells = useMemo(
-    () => getStepBandCells(numberOfSteps, maxRenderedDepth),
-    [numberOfSteps, maxRenderedDepth],
-  );
+  const cells = useMemo(() => getStepBandCells(numberOfSteps), [numberOfSteps]);
 
   return (
     <div
@@ -36,7 +29,7 @@ export function UserJourneyStepBand({ maxRenderedDepth }: UserJourneyStepBandPro
       {cells.map((cell, slot) => {
         const activeFilters = filterEmptyQueryFilters(allowedStepFilters[slot] ?? []);
         const count = activeFilters.length;
-        const align = slot >= numberOfSteps - 1 ? 'end' : 'start';
+        const align = slot >= numberOfSteps - 2 ? 'end' : 'start';
 
         return (
           <div
@@ -49,10 +42,10 @@ export function UserJourneyStepBand({ maxRenderedDepth }: UserJourneyStepBandPro
             </span>
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className='ml-auto'>
+                <span>
                   <UserJourneyStepFilterPopover
                     slot={slot}
-                    lastSlot={numberOfSteps}
+                    lastSlot={numberOfSteps - 1}
                     align={align}
                     trigger={
                       <Button
