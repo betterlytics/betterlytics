@@ -225,4 +225,17 @@ describe('buildEventPredicate', () => {
     const sql = BAQuery.buildEventPredicate(makeFilter('browser', '=', ['*']), 1);
     expect(sql.taggedSql).toBe(`max(browser != '') = 1`);
   });
+
+  it('excludes the whole session for != via the positive-match complement', () => {
+    const sql = BAQuery.buildEventPredicate(makeFilter('device_type', '!=', ['Mobile']), 0);
+    expect(sql.taggedSql).toContain('max(');
+    expect(sql.taggedSql).toContain('device_type');
+    expect(sql.taggedSql.endsWith(') = 0')).toBe(true);
+    expect(sql.taggedParams).toEqual({ evt_filter_0: ['Mobile'] });
+  });
+
+  it('compiles a bare wildcard != * to a session-level absence check', () => {
+    const sql = BAQuery.buildEventPredicate(makeFilter('device_type', '!=', ['*']), 0);
+    expect(sql.taggedSql).toBe(`max(device_type != '') = 0`);
+  });
 });

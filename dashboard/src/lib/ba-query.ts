@@ -117,25 +117,25 @@ function buildExitPredicate(filter: QueryFilter, index: number) {
 }
 
 function buildEventPredicate(filter: QueryFilter, index: number) {
-  const parsed = TransformQueryFilterSchema.parse(filter);
-  const parsedColumn = parseFilterColumn(parsed.column);
-  const values = SQL.StringArray({ [`evt_filter_${index}`]: parsed.values });
+  const positive = TransformQueryFilterSchema.parse({ ...filter, operator: '=' });
+  const parsedColumn = parseFilterColumn(positive.column);
+  const values = SQL.StringArray({ [`evt_filter_${index}`]: positive.values });
   if (parsedColumn.kind === 'property') {
     const keySql = SQL.String({ [`evt_${parsedColumn.source}_key_${index}`]: parsedColumn.key });
     const match = buildPropertyFilterSql(parsedColumn.source, {
       keySql,
       valuesSql: values,
-      values: parsed.values,
-      operator: parsed.operator,
-      rawOperator: parsed.rawOperator,
+      values: positive.values,
+      operator: positive.operator,
+      rawOperator: positive.rawOperator,
     });
-    return safeSql`max(${match}) = 1`;
+    return filter.operator === '=' ? safeSql`max(${match}) = 1` : safeSql`max(${match}) = 0`;
   }
   const column = filterColumnSql(parsedColumn.col);
   const inner =
-    matchAnyValueFilterSql(filter.values, parsed.rawOperator, column, parsedColumn.col) ??
-    safeSql`${parsed.operator.quantifier}(pattern -> ${column} ${parsed.operator.operater} pattern, ${values})`;
-  return safeSql`max(${inner}) = 1`;
+    matchAnyValueFilterSql(filter.values, positive.rawOperator, column, parsedColumn.col) ??
+    safeSql`${positive.operator.quantifier}(pattern -> ${column} ${positive.operator.operater} pattern, ${values})`;
+  return filter.operator === '=' ? safeSql`max(${inner}) = 1` : safeSql`max(${inner}) = 0`;
 }
 
 // Utility for granularity
