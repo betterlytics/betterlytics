@@ -21,6 +21,7 @@ export function FilterColumnLabel({ column, className }: FilterColumnLabelProps)
 
   return (
     <span
+      data-filter-column
       className={cn(
         'inline-flex items-center gap-0.75 [&_svg]:shrink-0 [&_svg]:text-muted-foreground',
         className,

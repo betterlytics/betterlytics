@@ -19,9 +19,9 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
   const exitFilters: QueryFilter[] = [];
   const positionalFilters: Array<{ slot: number; filter: QueryFilter }> = [];
 
-  for (const [slotKey, filters] of Object.entries(stepFilters)) {
+  for (const [slotKey, slotFilters] of Object.entries(stepFilters)) {
     const slot = Number(slotKey);
-    for (const filter of filters.filter((filter) => isUsableFilter(filter) && filter.values.length > 0)) {
+    for (const filter of slotFilters.filter((filter) => isUsableFilter(filter) && filter.values.length > 0)) {
       switch (classifyStepFilter(filter.column, slot, numberOfSteps - 1)) {
         case 'event':
           eventFilters.push(filter);
@@ -146,7 +146,7 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
  */
 export async function getUserJourneyTransitions(
   siteQuery: BASiteQuery,
-  maxPathLength: number = 3,
+  maxPathLength: number,
   limit: number = 50,
 ): Promise<JourneyTransition[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;

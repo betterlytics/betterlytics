@@ -75,8 +75,7 @@ export function UserJourneyStepBand() {
                     <FilterDescription
                       key={filter.id}
                       filter={filter}
-                      className='[&_[data-operator]]:text-current'
-                      columnClassName='[&_svg]:text-current'
+                      className='[&_[data-filter-column]_svg]:text-current [&_[data-operator]]:text-current'
                     />
                   ))}
                 </TooltipContent>
