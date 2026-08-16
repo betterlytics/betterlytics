@@ -11,10 +11,16 @@ export function normalizeDomainForFavicon(domain?: string | null): string | null
     .toLowerCase();
 }
 
+// Placeholder labels such as the demo sidebar's "Demo Dashboard" flow through the same prop as
+// real domains; building a request for them only earns a 404 from the favicon route.
+function isDomainShaped(normalized: string): boolean {
+  return !/\s/.test(normalized) && normalized.includes('.');
+}
+
 export function getFaviconUrl(domain?: string | null): string | null {
   const normalized = normalizeDomainForFavicon(domain);
 
-  if (!normalized) {
+  if (!normalized || !isDomainShaped(normalized)) {
     return null;
   }
 
