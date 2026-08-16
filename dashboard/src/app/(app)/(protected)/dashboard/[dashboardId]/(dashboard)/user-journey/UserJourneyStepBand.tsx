@@ -53,7 +53,7 @@ export function UserJourneyStepBand() {
                         variant='ghost'
                         size='sm'
                         className={cn(
-                          'h-7 cursor-pointer gap-1.5 px-2 text-xs',
+                          'h-7 cursor-pointer gap-1.5 px-2 text-xs data-[state=open]:bg-accent/60 data-[state=open]:text-foreground',
                           count > 0 ? 'text-foreground' : 'text-muted-foreground',
                         )}
                       >
