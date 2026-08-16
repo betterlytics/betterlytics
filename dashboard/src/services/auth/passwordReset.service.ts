@@ -1,7 +1,13 @@
 'server-only';
 
 import { ForgotPasswordData, ResetPasswordData } from '@/entities/auth/passwordReset.entities';
-import { findUserByEmail, findUserById, updateUserPassword } from '@/repositories/postgres/user.repository';
+import {
+  findUserByEmail,
+  findUserById,
+  findCredentialAccount,
+  updateUserPassword,
+} from '@/repositories/postgres/user.repository';
+import { env } from '@/lib/env';
 import {
   createPasswordResetToken,
   findPasswordResetToken,
@@ -35,7 +41,7 @@ export async function initiatePasswordReset(forgotPasswordData: ForgotPasswordDa
     }
 
     // Block reset for OAuth-only accounts (no local password set)
-    if (!user.passwordHash) {
+    if (!(await findCredentialAccount(user.id))) {
       return true;
     }
 
@@ -46,7 +52,7 @@ export async function initiatePasswordReset(forgotPasswordData: ForgotPasswordDa
 
     await createPasswordResetToken(user.id, resetToken, expiryDate);
 
-    const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${resetToken}`;
+    const resetUrl = `${env.PUBLIC_BASE_URL}/reset-password?token=${resetToken}`;
     await enqueueEmail({
       type: 'reset-password',
       recipientKey: createUserRecipientKey(user.id),
@@ -82,7 +88,7 @@ export async function resetPassword(resetPasswordData: ResetPasswordData) {
     // Ensure user currently has a password (blocks OAuth-only users)
     const targetUser = await findUserById(resetToken.userId);
 
-    if (!targetUser?.passwordHash) {
+    if (!targetUser || !(await findCredentialAccount(targetUser.id))) {
       throw new Error('Password reset is not available for OAuth accounts');
     }
 
@@ -116,7 +122,7 @@ export async function sendPasswordChangedNotification(
       data: {
         to: email,
         userName: name,
-        resetPasswordUrl: `${process.env.NEXTAUTH_URL}/forgot-password`,
+        resetPasswordUrl: `${env.PUBLIC_BASE_URL}/forgot-password`,
       },
     });
   } catch (err) {

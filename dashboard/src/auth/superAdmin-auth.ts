@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type { Session } from 'next-auth';
+import type { Session } from '@/entities/auth/session.entities';
 import { env } from '@/lib/env';
 import { ForbiddenError } from '@/lib/exceptions';
 
@@ -13,7 +13,7 @@ export function assertSuperAdmin(session: Session | null): asserts session is Se
     throw new ForbiddenError();
   }
 
-  if (!env.IS_DEVELOPMENT && !session.user.totpEnabled) {
+  if (!env.IS_DEVELOPMENT && !session.user.twoFactorEnabled) {
     throw new ForbiddenError('Super admin requires 2FA to be enabled');
   }
 }

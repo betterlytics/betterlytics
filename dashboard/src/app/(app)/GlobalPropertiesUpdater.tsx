@@ -2,17 +2,17 @@
 
 import { useEffect } from 'react';
 import { useLocale } from 'next-intl';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { baSetGlobalProperties } from '@/lib/ba-event';
 
 export default function GlobalPropertiesUpdater() {
   const locale = useLocale();
-  const { status } = useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
-    if (status === 'loading') return;
-    baSetGlobalProperties({ locale, logged_in: status === 'authenticated' });
-  }, [locale, status]);
+    if (isPending) return;
+    baSetGlobalProperties({ locale, logged_in: Boolean(session) });
+  }, [locale, session, isPending]);
 
   return null;
 }
