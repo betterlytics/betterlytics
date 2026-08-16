@@ -42,6 +42,7 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { UpgradeButton } from '@/components/billing/UpgradeButton';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { useCopy } from '@/hooks/use-copy';
 import { cn } from '@/lib/utils';
 import {
   useDeleteStatusPageMutation,
@@ -105,9 +106,12 @@ export function StatusPagesClient({
 
   const [showCreateStudio, setShowCreateStudio] = useState(false);
 
-  const copyLink = (page: StatusPageListItem) => {
-    navigator.clipboard.writeText(statusPagePublicUrl(page, publicBaseUrl));
-    toast.success(t('actions.linkCopied'));
+  const { copy } = useCopy({ failedMessage: t('actions.linkCopyFailed') });
+
+  const copyLink = async (page: StatusPageListItem) => {
+    if (await copy(statusPagePublicUrl(page, publicBaseUrl))) {
+      toast.success(t('actions.linkCopied'));
+    }
   };
 
   const [deleteTarget, setDeleteTarget] = useState<StatusPageListItem | null>(null);
