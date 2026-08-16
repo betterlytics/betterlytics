@@ -22,29 +22,37 @@ pub struct S3Service {
     pub sse_enabled: bool,
 }
 
-pub fn spawn_replay_bucket_rules(config: &Config, s3_service: &Option<Arc<S3Service>>) {
+pub async fn configure_managed_bucket(
+    config: &Config,
+    s3_service: &Option<Arc<S3Service>>,
+) {
     if !config.s3_manage_bucket_rules {
         return;
     }
-    let Some(s3) = s3_service.clone() else {
+    let Some(s3) = s3_service else {
         return;
     };
     let retention = config.replay_retention_days;
-    tokio::spawn(async move {
-        // The bundled Garage starts concurrently under supervisord; retry until it answers
-        for attempt in 1..=30u32 {
-            match s3.ensure_replay_bucket_rules(retention).await {
-                Ok(()) => {
-                    info!("replay bucket CORS and lifecycle rules ensured");
-                    return;
+    for attempt in 1..=30u32 {
+        match s3.ensure_replay_bucket_rules(retention).await {
+            Ok(()) => {
+                info!("replay bucket CORS and lifecycle rules ensured");
+                return;
+            }
+            Err(e) if attempt == 30 => {
+                panic!(
+                    "Failed to apply replay bucket CORS/lifecycle rules after {} attempts: {}",
+                    attempt, e
+                );
+            }
+            Err(e) => {
+                if attempt == 1 {
+                    warn!("replay bucket rules not applied yet, retrying: {}", e);
                 }
-                Err(e) if attempt == 30 => {
-                    warn!("giving up on replay bucket CORS/lifecycle rules: {}", e);
-                }
-                Err(_) => tokio::time::sleep(std::time::Duration::from_secs(2)).await,
+                tokio::time::sleep(std::time::Duration::from_secs(2)).await;
             }
         }
-    });
+    }
 }
 
 impl S3Service {

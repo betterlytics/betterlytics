@@ -234,13 +234,10 @@ async fn main() {
             info!("S3 session storage disabled");
             None
         }
-        Err(e) => {
-            warn!("Failed to initialize S3 service: {}", e);
-            None
-        }
+        Err(e) => panic!("Failed to initialize S3 service: {}", e),
     };
 
-    storage::s3::spawn_replay_bucket_rules(&config, &s3_service);
+    storage::s3::configure_managed_bucket(&config, &s3_service).await;
 
 	let mut router = Router::new()
 		.route("/health", get(health_check))
