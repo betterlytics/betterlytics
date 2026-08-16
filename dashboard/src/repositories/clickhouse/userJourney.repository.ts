@@ -14,7 +14,7 @@ type JourneyQueryArgs = {
 };
 
 export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sample }: JourneyQueryArgs) {
-  const eventFilters: QueryFilter[] = [];
+  const eventFilters: Array<{ slot: number; filter: QueryFilter }> = [];
   const entryFilters: QueryFilter[] = [];
   const exitFilters: QueryFilter[] = [];
   const positionalFilters: Array<{ slot: number; filter: QueryFilter }> = [];
@@ -24,7 +24,7 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
     for (const filter of slotFilters.filter((filter) => isUsableFilter(filter) && filter.values.length > 0)) {
       switch (classifyStepFilter(filter.column, slot, numberOfSteps - 1)) {
         case 'event':
-          eventFilters.push(filter);
+          eventFilters.push({ slot, filter });
           break;
         case 'entry':
           entryFilters.push(filter);
@@ -41,22 +41,17 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
     }
   }
 
-  const filters = BAQuery.getFilterQuery([...queryFilters, ...eventFilters]);
+  const filters = BAQuery.getFilterQuery(queryFilters);
 
   const entryHaving =
     entryFilters.length > 0
       ? safeSql` HAVING ${SQL.AND(entryFilters.map((filter, index) => BAQuery.buildEntryPredicate(filter, index)))}`
       : safeSql``;
 
-  const positionalWhere =
-    positionalFilters.length > 0
-      ? safeSql` AND ${SQL.AND(positionalFilters.map(({ slot, filter }, index) => BAQuery.buildPositionalUrlPredicate(filter, slot, index)))}`
-      : safeSql``;
-
   const hasExit = exitFilters.length > 0;
   const exitOrderedColumns = hasExit ? safeSql`, max(timestamp) AS last_pageview_ts` : safeSql``;
   const exitSessionColumns = hasExit
-    ? safeSql`, session_id, last_pageview_ts, length(arrayFilter((x, idx) -> idx = 1 OR x.2 != sorted_tuples[idx - 1].2, sorted_tuples, arrayEnumerate(sorted_tuples))) AS full_path_length`
+    ? safeSql`, length(arrayFilter((x, idx) -> idx = 1 OR x.2 != sorted_tuples[idx - 1].2, sorted_tuples, arrayEnumerate(sorted_tuples))) AS full_path_length`
     : safeSql``;
   const exitCte = hasExit
     ? safeSql`,
@@ -71,17 +66,55 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
       GROUP BY session_id
     )`
     : safeSql``;
-  const exitJoin = hasExit ? safeSql` ANY INNER JOIN exit_clicks USING (session_id)` : safeSql``;
-  const exitWhere = hasExit
-    ? safeSql` AND full_path_length = {max_length:UInt8} AND last_matching_click > last_pageview_ts`
-    : safeSql``;
+  const exitJoin = hasExit ? safeSql` ANY LEFT JOIN exit_clicks USING (session_id)` : safeSql``;
+
+  const eventFlags = eventFilters.map(({ slot, filter }, index) => ({
+    column: slot + 1,
+    alias: `evt_ok_${index}`,
+    predicate: BAQuery.buildEventPredicate(filter, index),
+  }));
+  const eventOkColumns = eventFlags.reduce(
+    (acc, flag) => safeSql`${acc}, ${flag.predicate} AS ${SQL.Unsafe(flag.alias)}`,
+    safeSql``,
+  );
+
+  const gates = new Map<number, SQLTaggedExpression[]>();
+  const addGate = (column: number, expr: SQLTaggedExpression) => {
+    if (!Number.isInteger(column) || column < 1 || column > 32) {
+      throw new Error(`Invalid journey gate column: ${column}`);
+    }
+    gates.set(column, [...(gates.get(column) ?? []), expr]);
+  };
+  positionalFilters.forEach(({ slot, filter }, index) =>
+    addGate(slot + 1, BAQuery.buildPositionalUrlPredicate(filter, slot, index)),
+  );
+  eventFlags.forEach((flag) => addGate(flag.column, safeSql`${SQL.Unsafe(flag.alias)} = 1`));
+  if (hasExit) {
+    addGate(numberOfSteps, safeSql`full_path_length = {max_length:UInt8} AND last_matching_click > last_pageview_ts`);
+  }
+
+  const gateColumns = [...gates.keys()].sort((a, b) => a - b);
+  let survivalColumns = safeSql``;
+  let survival = safeSql`length(path)`;
+  for (const column of gateColumns) {
+    const literal = SQL.Unsafe(String(column));
+    const truncated = SQL.Unsafe(String(column - 1));
+    const alias = SQL.Unsafe(`surv_${column}`);
+    survivalColumns = safeSql`${survivalColumns},
+        if(${survival} >= ${literal} AND NOT (${SQL.AND(gates.get(column)!)}), ${truncated}, ${survival}) AS ${alias}`;
+    survival = safeSql`${alias}`;
+  }
+
+  const hasTruncation = gateColumns.length > 0;
+  const truncatedPath = hasTruncation ? safeSql`arraySlice(path, 1, ${survival}) AS path` : safeSql`path`;
+  const lengthCheck = hasTruncation ? safeSql`${survival} > 1` : safeSql`length(path) > 1`;
 
   return safeSql`
     WITH ordered_events AS (
       SELECT
         session_id,
         arraySort(x -> x.1, groupArray((timestamp, url))) AS sorted_tuples,
-        any(_sample_factor) as _sample_factor${exitOrderedColumns}
+        any(_sample_factor) as _sample_factor${exitOrderedColumns}${eventOkColumns}
       FROM analytics.events ${sample}
       WHERE
         site_id = {site_id:String}
@@ -106,13 +139,13 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
             {max_length:UInt8}
           )
         ) AS path,
-        _sample_factor${exitSessionColumns}
-      FROM ordered_events
+        _sample_factor${exitSessionColumns}${survivalColumns}
+      FROM ordered_events${exitJoin}
     ),
     filtered_paths AS (
-      SELECT path, _sample_factor
-      FROM session_paths${exitJoin}
-      WHERE length(path) > 1${positionalWhere}${exitWhere}
+      SELECT ${truncatedPath}, _sample_factor
+      FROM session_paths
+      WHERE ${lengthCheck}
     ),
     /* Group by distinct path and count occurrences, then take top N paths */
     top_paths AS (

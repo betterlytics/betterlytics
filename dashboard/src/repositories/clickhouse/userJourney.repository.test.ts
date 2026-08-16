@@ -41,6 +41,16 @@ describe('buildJourneyQuery without step filters', () => {
     expect(query.taggedSql).not.toContain('path[1] ');
   });
 
+  it('emits none of the step filter constructs', () => {
+    const query = build({});
+    expect(query.taggedSql).not.toContain('HAVING');
+    expect(query.taggedSql).not.toContain('exit_clicks');
+    expect(query.taggedSql).not.toContain('full_path_length');
+    expect(query.taggedSql).not.toContain('last_pageview_ts');
+    expect(query.taggedSql).not.toContain('AS surv_');
+    expect(query.taggedSql).not.toContain('evt_ok_');
+  });
+
   it('matches the golden production query', () => {
     expect(build({}).taggedSql).toMatchInlineSnapshot(`
       "
@@ -110,11 +120,26 @@ describe('buildJourneyQuery without step filters', () => {
 });
 
 describe('event-level step filters', () => {
-  it('lands in the ordered_events WHERE alongside global filters', () => {
+  it('becomes a session-level flag instead of a row filter', () => {
     const query = build({ '2': [filter('device_type', ['Mobile'])] });
     const orderedEvents = query.taggedSql.slice(0, query.taggedSql.indexOf('session_paths'));
-    expect(orderedEvents).toContain('device_type');
+    expect(orderedEvents).toContain('max(');
+    expect(orderedEvents).toContain('AS evt_ok_0');
+    expect(orderedEvents).not.toMatch(/WHERE[\s\S]*device_type[\s\S]*GROUP BY session_id/);
     expect(query.taggedSql).not.toContain('HAVING');
+  });
+
+  it('gates the survival depth at its column', () => {
+    const query = build({ '2': [filter('device_type', ['Mobile'])] });
+    expect(query.taggedSql).toContain('AS surv_3');
+    expect(query.taggedSql).toContain('arraySlice(path, 1, surv_3) AS path');
+    expect(query.taggedSql).toContain('WHERE surv_3 > 1');
+  });
+
+  it('keeps event params out of the global namespace', () => {
+    const query = build({ '2': [filter('device_type', ['Mobile'])] }, [filter('url', ['https://x.io/*'])]);
+    expect(Object.keys(query.taggedParams)).toContain('evt_filter_0');
+    expect(Object.keys(query.taggedParams)).toContain('query_filter_0');
   });
 });
 
@@ -132,34 +157,53 @@ describe('entry step filters', () => {
 });
 
 describe('positional url step filters', () => {
-  it('applies the predicate in filtered_paths on the sliced path', () => {
-    const query = build({ '2': [filter('url', ['/signup'])] });
-    expect(query.taggedSql).toMatch(/WHERE length\(path\) > 1 AND .*path\[3\]/);
+  it('truncates at the filtered column instead of filtering rows', () => {
+    const query = build({ '1': [filter('url', ['/signup'])] });
+    expect(query.taggedSql).toContain('if(length(path) >= 2 AND NOT (');
+    expect(query.taggedSql).toContain('path[2]');
+    expect(query.taggedSql).toContain('AS surv_2');
+    expect(query.taggedSql).toContain('WHERE surv_2 > 1');
+    expect(query.taggedSql).not.toMatch(/WHERE length\(path\) > 1 AND/);
   });
 
-  it('AND-combines multiple filters at one slot', () => {
+  it('chains multiple filtered columns in ascending order', () => {
+    const query = build({
+      '1': [filter('url', ['/a'])],
+      '2': [filter('url', ['/b'])],
+    });
+    const first = query.taggedSql.indexOf('AS surv_2');
+    const second = query.taggedSql.indexOf('AS surv_3');
+    expect(first).toBeGreaterThan(-1);
+    expect(second).toBeGreaterThan(first);
+    expect(query.taggedSql).toContain('if(surv_2 >= 3 AND NOT (');
+    expect(query.taggedSql).toContain('arraySlice(path, 1, surv_3) AS path');
+  });
+
+  it('AND-combines multiple filters at one slot inside a single gate', () => {
     const query = build({
       '1': [filter('url', ['/share/*']), filter('url', ['/share/private'], '!=')],
     });
     expect(query.taggedSql).toContain('arrayExists(pattern -> path[2] ILIKE pattern');
     expect(query.taggedSql).toContain('arrayAll(pattern -> path[2] NOT ILIKE pattern');
+    expect((query.taggedSql.match(/AS surv_2/g) ?? []).length).toBe(1);
   });
 
   it('skips filters without values', () => {
     const query = build({ '1': [filter('url', [])] });
-    expect(query.taggedSql).not.toContain('path[2]');
+    expect(query.taggedSql).not.toContain('surv_');
   });
 });
 
 describe('exit step filters', () => {
-  it('builds the exit_clicks CTE, join and exact-length predicate for the last slot', () => {
+  it('left-joins the exit CTE and gates only the last column', () => {
     const query = build({ '2': [filter('outbound_link_url', ['https://example.com/*'])] });
     expect(query.taggedSql).toContain('exit_clicks AS (');
     expect(query.taggedSql).toContain(`event_type = 'outbound_link'`);
-    expect(query.taggedSql).toContain('ANY INNER JOIN exit_clicks USING (session_id)');
-    expect(query.taggedSql).toContain('full_path_length = {max_length:UInt8}');
-    expect(query.taggedSql).toContain('last_matching_click > last_pageview_ts');
-    expect(query.taggedSql).toContain('max(timestamp) AS last_pageview_ts');
+    expect(query.taggedSql).toContain('FROM ordered_events ANY LEFT JOIN exit_clicks USING (session_id)');
+    expect(query.taggedSql).toContain('full_path_length = {max_length:UInt8} AND last_matching_click > last_pageview_ts');
+    expect(query.taggedSql).toContain('AS surv_3');
+    expect(query.taggedSql).not.toContain('ANY INNER JOIN');
+    expect(query.taggedSql).not.toMatch(/WHERE[^)]*full_path_length/);
   });
 
   it('does not apply global query filters inside exit_clicks', () => {
