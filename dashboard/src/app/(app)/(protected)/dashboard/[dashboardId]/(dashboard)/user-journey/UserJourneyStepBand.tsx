@@ -72,7 +72,12 @@ export function UserJourneyStepBand() {
               {count > 0 && (
                 <TooltipContent side='bottom' className='flex max-w-xs flex-col gap-1'>
                   {activeFilters.map((filter) => (
-                    <FilterDescription key={filter.id} filter={filter} columnClassName='[&_svg]:text-current' />
+                    <FilterDescription
+                      key={filter.id}
+                      filter={filter}
+                      className='[&_[data-operator]]:text-current'
+                      columnClassName='[&_svg]:text-current'
+                    />
                   ))}
                 </TooltipContent>
               )}
