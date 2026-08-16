@@ -14,7 +14,7 @@ import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvide
 export default function UserJourneySection() {
   const t = useTranslations('dashboard.emptyStates');
   const { input, options } = useBAQueryParams();
-  const { stepFilters } = useUserJourneyFilter();
+  const { stepFilters, numberOfSteps } = useUserJourneyFilter();
   const query = trpc.userJourney.journey.useQuery(input, options);
   const hasStepFilters = Object.keys(stepFilters).length > 0;
 
@@ -29,7 +29,6 @@ export default function UserJourneySection() {
     >
       {(journeyData) => {
         const isEmpty = journeyData?.nodes.length === 0;
-        const maxRenderedDepth = isEmpty ? 0 : Math.max(0, ...journeyData.nodes.map((node) => node.depth));
 
         const emptyState = (
           <Card className={hasStepFilters ? 'm-4' : 'mt-6'}>
@@ -49,10 +48,10 @@ export default function UserJourneySection() {
         }
 
         return (
-          <ScrollArea className='max-h-[70svh] w-full rounded-md border'>
+          <ScrollArea className='max-h-[70svh] w-full'>
             <div className='min-w-[1000px]'>
-              <UserJourneyStepBand maxRenderedDepth={maxRenderedDepth} />
-              {isEmpty ? emptyState : <UserJourneyChart data={journeyData} />}
+              <UserJourneyStepBand />
+              {isEmpty ? emptyState : <UserJourneyChart data={journeyData} numberOfSteps={numberOfSteps} />}
             </div>
             <ScrollBar orientation='horizontal' />
           </ScrollArea>

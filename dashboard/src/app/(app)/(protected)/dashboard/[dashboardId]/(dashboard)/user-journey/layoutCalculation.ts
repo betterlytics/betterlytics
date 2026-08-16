@@ -23,12 +23,17 @@ interface LayoutConfig {
 /**
  * Main layout calculation - orchestrates the layout pipeline
  */
-export function calculateLayout(graph: SankeyGraph, width: number, height: number): LayoutResult {
+export function calculateLayout(
+  graph: SankeyGraph,
+  width: number,
+  height: number,
+  stepsCount: number,
+): LayoutResult {
   if (graph.isEmpty) {
     return { nodePositions: [], linkPositions: [] };
   }
 
-  const config = createLayoutConfig(graph, width, height);
+  const config = createLayoutConfig(graph, width, height, stepsCount);
   const orderedGroups = applyBarycenterOrdering(graph, config);
   const { nodePositions, nodePositionMap } = calculateNodePositions(orderedGroups, config);
   const linkPositions = calculateLinkPositions(graph, nodePositions, nodePositionMap, config);
@@ -39,12 +44,12 @@ export function calculateLayout(graph: SankeyGraph, width: number, height: numbe
 /**
  * Create layout configuration from graph metrics and dimensions
  */
-function createLayoutConfig(graph: SankeyGraph, width: number, height: number): LayoutConfig {
+function createLayoutConfig(graph: SankeyGraph, width: number, height: number, stepsCount: number): LayoutConfig {
   const { padding, nodeWidth, minNodeHeight, compressionThreshold, maxNodeHeight, labelMargin } = LAYOUT;
 
   const availableWidth = Math.max(0, width - padding.left - padding.right - nodeWidth - labelMargin);
   const availableHeight = height - padding.top - padding.bottom;
-  const depthSpacing = graph.maxDepth > 0 ? availableWidth / graph.maxDepth : 0;
+  const depthSpacing = stepsCount > 1 ? availableWidth / (stepsCount - 1) : 0;
 
   const heightScale = maxNodeHeight / graph.maxTraffic;
 
