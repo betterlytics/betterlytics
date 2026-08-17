@@ -5,6 +5,7 @@ import { useBannerContext } from '@/contexts/BannerProvider';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { resendVerificationEmailAction } from '@/app/actions/auth/verification.action';
+import { getUserFacingErrorMessage } from '@/middlewares/serverActionHandler';
 import { toast } from 'sonner';
 
 type VerificationBannerProps = {
@@ -46,7 +47,7 @@ export function VerificationBanner({ email, isVerified, showDismiss = true, id }
       if (result.success) {
         toast.success(t('success'));
       } else {
-        toast.error(result.error.name === 'UserException' ? result.error.message : t('failure'));
+        toast.error(getUserFacingErrorMessage(result.error, t('failure')));
       }
     } catch (error) {
       toast.error(t('failure'));

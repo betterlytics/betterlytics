@@ -75,3 +75,14 @@ export function withServerAction<T, Args extends unknown[]>(handler: (...args: A
 function isUserException(error: unknown): error is UserException {
   return error instanceof UserException;
 }
+
+/**
+ * Only UserException messages are safe to show verbatim; anything else is a masked
+ * internal error, so callers get their localized fallback instead.
+ */
+export function getUserFacingErrorMessage(
+  error: Extract<ServerActionResponse, { success: false }>['error'],
+  fallback: string,
+): string {
+  return error.name === 'UserException' ? error.message : fallback;
+}
