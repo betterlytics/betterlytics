@@ -757,7 +757,7 @@
             "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
             "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
             "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
-            "tooManyAttempts": "For mange forsøk. Vent noen minutter og prøv igjen."
+            "tooManyAttempts": "For mange forsøk. Prøv igjen senere."
           },
           "twoFactor": {
             "title": "Tofaktorautentisering",
@@ -3048,7 +3048,8 @@
           "passwordPromptDescription": "Skriv inn passordet ditt for å fortsette.",
           "passwordLabel": "Passord",
           "backupCodesTitle": "Sikkerhetskoder",
-          "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted — de lar deg logge inn hvis du mister autentiseringsappen."
+          "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted — de lar deg logge inn hvis du mister autentiseringsappen.",
+          "tooManyAttempts": "For mange forsøk. Vent et øyeblikk og prøv igjen."
         }
       },
       "sessions": {
@@ -3245,7 +3246,8 @@
         "passwordsDoNotMatch": "Passordene samsvarer ikke",
         "registrationSuccessfulButSignInFailed": "Registrering vellykket, men innlogging feilet. Prøv å logge inn manuelt.",
         "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
-        "checkInput": "Vennligst sjekk inndataene dine"
+        "checkInput": "Vennligst sjekk inndataene dine",
+        "registrationSuccessfulButRateLimited": "Kontoen din ble opprettet, men innlogging er midlertidig begrenset. Prøv å logge inn igjen om litt."
       }
     },
     "website": {

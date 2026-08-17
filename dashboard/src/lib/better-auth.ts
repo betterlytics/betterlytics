@@ -15,7 +15,7 @@ import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById } from '@/repositories/postgres/user.repository';
-import { checkSignInEmailRateLimit } from '@/lib/auth-rate-limit';
+import { consumeSignInAttempt, clearSignInAttempts } from '@/lib/auth-rate-limit';
 
 // A session created this soon after the user row is their first sign-in; skip the
 // locale sync there so default settings don't overwrite the locale they signed up in.
@@ -84,14 +84,16 @@ export const auth = betterAuth({
         throw new APIError('NOT_FOUND');
       }
 
-      // better-auth's built-in rate limiting is keyed per IP only; this adds the
-      // per-account dimension so IP rotation doesn't buy unlimited attempts.
+      // Per-account complement to better-auth's per-IP limits, so IP rotation
+      // doesn't buy unlimited attempts against one account.
       if (ctx.path === '/sign-in/email') {
-        const email = typeof ctx.body?.email === 'string' ? ctx.body.email : '';
-        if (email && !checkSignInEmailRateLimit(email).allowed) {
-          throw new APIError('TOO_MANY_REQUESTS', {
-            message: 'Too many sign-in attempts. Please try again later.',
-          });
+        const attempt = consumeSignInAttempt(ctx.body?.email);
+        if (!attempt.allowed) {
+          throw new APIError(
+            'TOO_MANY_REQUESTS',
+            { message: 'Too many sign-in attempts. Please try again later.' },
+            { 'Retry-After': String(Math.ceil(attempt.retryAfterMs / 1000)) },
+          );
         }
       }
     }),
@@ -152,6 +154,7 @@ export const auth = betterAuth({
         after: async (session) => {
           try {
             const user = await findUserById(session.userId);
+            clearSignInAttempts(user?.email);
             if (!user?.createdAt) return;
             if (Date.now() - user.createdAt.getTime() < FIRST_SIGN_IN_WINDOW_MS) return;
 

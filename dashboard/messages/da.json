@@ -757,7 +757,7 @@
             "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
             "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
             "generic": "Der opstod en fejl under login. Prøv venligst igen.",
-            "tooManyAttempts": "For mange forsøg. Vent et par minutter og prøv igen."
+            "tooManyAttempts": "For mange forsøg. Prøv igen senere."
           },
           "twoFactor": {
             "title": "To-faktor-godkendelse",
@@ -3048,7 +3048,8 @@
           "passwordPromptDescription": "Indtast din adgangskode for at fortsætte.",
           "passwordLabel": "Adgangskode",
           "backupCodesTitle": "Backup-koder",
-          "backupCodesDescription": "Gem disse engangskoder et sikkert sted — de giver dig adgang, hvis du mister din authenticator."
+          "backupCodesDescription": "Gem disse engangskoder et sikkert sted — de giver dig adgang, hvis du mister din authenticator.",
+          "tooManyAttempts": "For mange forsøg. Vent et øjeblik og prøv igen."
         }
       },
       "sessions": {
@@ -3245,7 +3246,8 @@
         "passwordsDoNotMatch": "Adgangskoder matcher ikke",
         "registrationSuccessfulButSignInFailed": "Registrering lykkedes, men log ind mislykkedes. Prøv at logge ind manuelt.",
         "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
-        "checkInput": "Tjek venligst dit input"
+        "checkInput": "Tjek venligst dit input",
+        "registrationSuccessfulButRateLimited": "Din konto blev oprettet, men login er midlertidigt begrænset. Prøv at logge ind igen om lidt."
       }
     },
     "website": {

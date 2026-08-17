@@ -117,7 +117,13 @@ export default function SignupForm({ providers }: SignupFormProps) {
           });
 
           if (signInError) {
-            setError(t('form.registrationSuccessfulButSignInFailed'));
+            setError(
+              t(
+                signInError.status === 429
+                  ? 'form.registrationSuccessfulButRateLimited'
+                  : 'form.registrationSuccessfulButSignInFailed',
+              ),
+            );
             return;
           }
 

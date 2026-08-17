@@ -757,7 +757,7 @@
             "invalidOtp": "Codice di verifica non valido. Controlla le tue credenziali e riprova.",
             "invalidCredentials": "Email o password non validi. Controlla le tue credenziali e riprova.",
             "generic": "Si è verificato un errore durante l'accesso. Riprova.",
-            "tooManyAttempts": "Troppi tentativi. Attendi qualche minuto e riprova."
+            "tooManyAttempts": "Troppi tentativi. Riprova più tardi."
           },
           "twoFactor": {
             "title": "Autenticazione a due fattori",
@@ -3048,7 +3048,8 @@
           "passwordPromptDescription": "Inserisci la password del tuo account per continuare.",
           "passwordLabel": "Password",
           "backupCodesTitle": "Codici di backup",
-          "backupCodesDescription": "Conserva questi codici monouso in un luogo sicuro: ti permettono di accedere se perdi la tua app di autenticazione."
+          "backupCodesDescription": "Conserva questi codici monouso in un luogo sicuro: ti permettono di accedere se perdi la tua app di autenticazione.",
+          "tooManyAttempts": "Troppi tentativi. Attendi un momento e riprova."
         }
       },
       "sessions": {
@@ -3245,7 +3246,8 @@
         "passwordsDoNotMatch": "Le password non corrispondono",
         "registrationSuccessfulButSignInFailed": "Registrazione riuscita, ma accesso fallito. Prova ad accedere manualmente.",
         "signUpError": "Si è verificato un errore durante la registrazione. Riprova.",
-        "checkInput": "Controlla il tuo input"
+        "checkInput": "Controlla il tuo input",
+        "registrationSuccessfulButRateLimited": "Il tuo account è stato creato, ma l'accesso è temporaneamente limitato. Riprova ad accedere tra poco."
       }
     },
     "website": {

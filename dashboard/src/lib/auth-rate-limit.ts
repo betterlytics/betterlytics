@@ -1,14 +1,44 @@
-import { createSlidingWindowLimiter } from '@/lib/rate-limit';
+// Per-account sign-in throttle. Attempts are cleared on successful session creation
+// (see the session.create hook in better-auth.ts), so only sustained failures block.
+const WINDOW_MS = 10 * 60_000;
+const MAX_ATTEMPTS = 10;
+const MAX_TRACKED_KEYS = 10_000;
+const MAX_EMAIL_LENGTH = 254;
 
-// Per-email throttle for credential sign-in, complementing better-auth's built-in
-// per-IP limits (3/10s on /sign-in/* in production): an attacker rotating IPs still
-// gets at most this many attempts against a single account. Counts attempts, not
-// failures, so keep it loose enough for a legitimate user retrying a password.
-const SIGN_IN_WINDOW_MS = 10 * 60_000;
-const SIGN_IN_MAX_ATTEMPTS = 10;
+const attempts = new Map<string, number[]>();
 
-const signInEmailLimiter = createSlidingWindowLimiter(SIGN_IN_WINDOW_MS, SIGN_IN_MAX_ATTEMPTS);
+function keyFor(email: unknown): string | null {
+  if (typeof email !== 'string') return null;
+  const key = email.trim().toLowerCase();
+  return key && key.length <= MAX_EMAIL_LENGTH ? key : null;
+}
 
-export function checkSignInEmailRateLimit(email: string) {
-  return signInEmailLimiter(email.trim().toLowerCase());
+export type SignInAttemptResult = { allowed: true } | { allowed: false; retryAfterMs: number };
+
+export function consumeSignInAttempt(email: unknown): SignInAttemptResult {
+  const key = keyFor(email);
+  if (!key) return { allowed: true };
+
+  const now = Date.now();
+  const cutoff = now - WINDOW_MS;
+  const timestamps = (attempts.get(key) ?? []).filter((t) => t > cutoff);
+
+  if (timestamps.length >= MAX_ATTEMPTS) {
+    attempts.set(key, timestamps);
+    return { allowed: false, retryAfterMs: timestamps[0]! + WINDOW_MS - now };
+  }
+
+  if (!attempts.has(key) && attempts.size >= MAX_TRACKED_KEYS) {
+    attempts.delete(attempts.keys().next().value!);
+  }
+  timestamps.push(now);
+  attempts.set(key, timestamps);
+  return { allowed: true };
+}
+
+export function clearSignInAttempts(email: unknown): void {
+  const key = keyFor(email);
+  if (key) {
+    attempts.delete(key);
+  }
 }

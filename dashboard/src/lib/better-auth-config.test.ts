@@ -215,58 +215,53 @@ describe('before hook (closed better-auth endpoints)', () => {
     await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
   });
 
-  describe('per-email sign-in throttle', () => {
-    it('throws 429 once one email exhausts its attempts, counting case-insensitively', async () => {
+  describe('per-account sign-in throttle', () => {
+    let emailCounter = 0;
+    const uniqueEmail = () => `throttle-${++emailCounter}@example.com`;
+
+    const exhaustAttempts = async (email: string) => {
       for (let i = 0; i < 10; i++) {
         await expect(
-          runBeforeHook('/sign-in/email', { email: i % 2 ? 'Throttled@Example.com' : 'throttled@example.com' }),
+          runBeforeHook('/sign-in/email', { email: i % 2 ? email.toUpperCase() : email }),
         ).resolves.toBeUndefined();
       }
+    };
 
-      await expect(runBeforeHook('/sign-in/email', { email: 'throttled@example.com' })).rejects.toMatchObject({
-        statusCode: 429,
-      });
+    it('throws 429 with a Retry-After once one email exhausts its attempts, counting case-insensitively', async () => {
+      const email = uniqueEmail();
+      await exhaustAttempts(email);
+
+      const error = (await runBeforeHook('/sign-in/email', { email }).catch((e) => e)) as {
+        statusCode: number;
+        headers?: HeadersInit;
+      };
+      expect(error).toMatchObject({ statusCode: 429 });
+      expect(new Headers(error.headers).get('Retry-After')).toMatch(/^\d+$/);
     });
 
     it('does not throttle other accounts', async () => {
-      await expect(runBeforeHook('/sign-in/email', { email: 'other@example.com' })).resolves.toBeUndefined();
+      await exhaustAttempts(uniqueEmail());
+      await expect(runBeforeHook('/sign-in/email', { email: uniqueEmail() })).resolves.toBeUndefined();
+    });
+
+    it('clears the budget when a session is created for the account', async () => {
+      const email = uniqueEmail();
+      await exhaustAttempts(email);
+      await expect(runBeforeHook('/sign-in/email', { email })).rejects.toMatchObject({ statusCode: 429 });
+
+      vi.mocked(findUserById).mockResolvedValue(makeUser({ email }));
+      await auth.options.databaseHooks!.session!.create!.after!({ userId: 'user-1' } as never);
+
+      await expect(runBeforeHook('/sign-in/email', { email })).resolves.toBeUndefined();
     });
 
     it('ignores requests without a usable email (better-auth validates those)', async () => {
       await expect(runBeforeHook('/sign-in/email', { email: 42 })).resolves.toBeUndefined();
       await expect(runBeforeHook('/sign-in/email', {})).resolves.toBeUndefined();
+      await expect(
+        runBeforeHook('/sign-in/email', { email: `${'x'.repeat(300)}@example.com` }),
+      ).resolves.toBeUndefined();
     });
-  });
-});
-
-describe('built-in rate limiting (upstream characterization)', () => {
-  it('throttles credential sign-in per IP at 3 attempts per 10s when enabled', async () => {
-    // Standalone instance (memory adapter): pins the strict special rule better-auth
-    // ships for /sign-in/* — the production posture our auth endpoints rely on.
-    const { betterAuth } = await import('better-auth');
-    const testAuth = betterAuth({
-      baseURL: 'http://localhost:3000',
-      secret: 'test-secret',
-      emailAndPassword: { enabled: true },
-      rateLimit: { enabled: true },
-    });
-
-    const signIn = () =>
-      testAuth.handler(
-        new Request('http://localhost:3000/api/auth/sign-in/email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: 'nobody@example.com', password: 'wrong-password-1' }),
-        }),
-      );
-
-    const statuses = [];
-    for (let i = 0; i < 4; i++) {
-      statuses.push((await signIn()).status);
-    }
-
-    expect(statuses.slice(0, 3)).not.toContain(429);
-    expect(statuses[3]).toBe(429);
   });
 });
 

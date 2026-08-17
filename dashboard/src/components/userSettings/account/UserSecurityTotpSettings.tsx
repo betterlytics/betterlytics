@@ -73,7 +73,7 @@ function SetupTotp() {
       const { data, error } = await authClient.twoFactor.enable({ password });
       if (error || !data) {
         setPassword('');
-        toast.error(t('setupFailed'));
+        toast.error(t(error?.status === 429 ? 'tooManyAttempts' : 'setupFailed'));
         return;
       }
       // data.backupCodes stays hidden: sign-in has no backup code entry yet, so
@@ -90,7 +90,7 @@ function SetupTotp() {
       if (error) {
         setTotp('');
         totpInputRef.current?.focus();
-        toast.error(t('enableFailed'));
+        toast.error(t(error.status === 429 ? 'tooManyAttempts' : 'enableFailed'));
         return;
       }
       await refreshSession();
@@ -216,7 +216,7 @@ function DisableTotp() {
       const { error } = await authClient.twoFactor.disable({ password });
       if (error) {
         setPassword('');
-        toast.error(t('disableFailed'));
+        toast.error(t(error.status === 429 ? 'tooManyAttempts' : 'disableFailed'));
         return;
       }
       await refreshSession();

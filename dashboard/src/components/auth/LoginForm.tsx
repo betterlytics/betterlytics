@@ -84,7 +84,7 @@ export default function LoginForm({
           const { error: totpError } = await authClient.twoFactor.verifyTotp({ code: totp });
           if (totpError) {
             setTotp('');
-            setError(totpError.status === 429 ? t('errors.tooManyAttempts') : t('errors.invalidOtp'));
+            setError(t(totpError.status === 429 ? 'errors.tooManyAttempts' : 'errors.invalidOtp'));
             return;
           }
           router.push('/dashboards');
@@ -93,7 +93,7 @@ export default function LoginForm({
 
         const { data, error: signInError } = await authClient.signIn.email({ email, password });
         if (signInError) {
-          setError(signInError.status === 429 ? t('errors.tooManyAttempts') : t('errors.invalidCredentials'));
+          setError(t(signInError.status === 429 ? 'errors.tooManyAttempts' : 'errors.invalidCredentials'));
           return;
         }
         if (data && 'twoFactorRedirect' in data && data.twoFactorRedirect) {

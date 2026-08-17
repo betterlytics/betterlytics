@@ -757,7 +757,7 @@
             "invalidOtp": "Invalid verification code. Please check your credentials and try again.",
             "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
             "generic": "An error occurred during sign in. Please try again.",
-            "tooManyAttempts": "Too many attempts. Please wait a few minutes and try again."
+            "tooManyAttempts": "Too many attempts. Please try again later."
           },
           "twoFactor": {
             "title": "Two-factor authentication",
@@ -3045,7 +3045,8 @@
           "passwordPromptDescription": "Enter your account password to continue.",
           "passwordLabel": "Password",
           "backupCodesTitle": "Backup codes",
-          "backupCodesDescription": "Store these one-time codes somewhere safe — they let you sign in if you lose your authenticator."
+          "backupCodesDescription": "Store these one-time codes somewhere safe — they let you sign in if you lose your authenticator.",
+          "tooManyAttempts": "Too many attempts. Please wait a moment and try again."
         }
       },
       "sessions": {
@@ -3242,7 +3243,8 @@
         "passwordsDoNotMatch": "Passwords do not match",
         "registrationSuccessfulButSignInFailed": "Registration successful, but sign in failed. Please try signing in manually.",
         "signUpError": "An error occurred during sign up. Please try again.",
-        "checkInput": "Please check your input"
+        "checkInput": "Please check your input",
+        "registrationSuccessfulButRateLimited": "Your account was created, but sign-in is temporarily rate limited. Please try signing in again shortly."
       }
     },
     "website": {
