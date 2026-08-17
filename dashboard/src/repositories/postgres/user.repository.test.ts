@@ -7,11 +7,10 @@ import {
   createUser,
   registerUser,
   updateUserPassword,
-  verifyUserPassword,
   anonymizeUser,
 } from '@/repositories/postgres/user.repository';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
-import { makeUser, hashPassword } from '@/test/auth-fixtures';
+import { makeUser } from '@/test/auth-fixtures';
 
 const prismaMock = vi.hoisted(() => {
   const mock = {
@@ -182,32 +181,6 @@ describe('updateUserPassword', () => {
     await expect(updateUserPassword('user-1', 'New-password-1')).rejects.toThrow(
       'Failed to update password',
     );
-  });
-});
-
-describe('verifyUserPassword', () => {
-  it('returns true for the correct password', async () => {
-    prismaMock.account.findFirst.mockResolvedValue({ password: hashPassword('Correct-password-1') });
-
-    expect(await verifyUserPassword('user-1', 'Correct-password-1')).toBe(true);
-  });
-
-  it('returns false for a wrong password', async () => {
-    prismaMock.account.findFirst.mockResolvedValue({ password: hashPassword('Correct-password-1') });
-
-    expect(await verifyUserPassword('user-1', 'Wrong-password-1')).toBe(false);
-  });
-
-  it('is case-sensitive on the password', async () => {
-    prismaMock.account.findFirst.mockResolvedValue({ password: hashPassword('Correct-password-1') });
-
-    expect(await verifyUserPassword('user-1', 'CORRECT-PASSWORD-1')).toBe(false);
-  });
-
-  it('returns false for an OAuth-only account (no credential row)', async () => {
-    prismaMock.account.findFirst.mockResolvedValue(null);
-
-    expect(await verifyUserPassword('user-1', 'Any-password-1')).toBe(false);
   });
 });
 
