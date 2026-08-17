@@ -3296,6 +3296,7 @@
     "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
     "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
     "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede",
+    "verificationEmailCooldown": "{minutes, plural, one {Vent venligst # minut, før du anmoder om en ny bekræftelsesmail.} other {Vent venligst # minutter, før du anmoder om en ny bekræftelsesmail.}}",
     "statusPageSlugTaken": "Denne URL-slug er allerede i brug",
     "statusPageDomainTaken": "Dette domæne er allerede i brug på en anden statusside",
     "statusPageDomainReserved": "Dette domæne er reserveret",

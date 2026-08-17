@@ -3293,6 +3293,7 @@
     "termsOfServiceRequired": "You must accept the terms of service to continue.",
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
     "monitorAlreadyExists": "A monitor for this URL already exists",
+    "verificationEmailCooldown": "{minutes, plural, one {Please wait # minute before requesting another verification email.} other {Please wait # minutes before requesting another verification email.}}",
     "statusPageSlugTaken": "This URL slug is already in use",
     "statusPageDomainTaken": "This domain is already in use on another status page",
     "statusPageDomainReserved": "This domain is reserved",

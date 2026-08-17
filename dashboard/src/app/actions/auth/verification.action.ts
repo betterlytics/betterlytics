@@ -1,5 +1,6 @@
 'use server';
 
+import { getTranslations } from 'next-intl/server';
 import { withDashboardAuthContext, withUserAuth } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import type { User } from '@/entities/auth/session.entities';
@@ -37,7 +38,7 @@ export const resendVerificationEmailAction = withUserAuth(async (user: User): Pr
 
   if (!rateLimitCheck.allowed && rateLimitCheck.nextAllowedAt) {
     const waitTime = Math.max(1, Math.ceil((rateLimitCheck.nextAllowedAt.getTime() - Date.now()) / 60000));
-    throw new UserException(`Please wait ${waitTime} minutes before requesting another verification email.`);
+    throw new UserException((await getTranslations('validation'))('verificationEmailCooldown', { minutes: waitTime }));
   }
 
   await sendVerificationEmail({ email: user.email });

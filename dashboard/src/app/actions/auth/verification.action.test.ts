@@ -5,6 +5,12 @@ import { checkRateLimit, sendVerificationEmail } from '@/services/account/verifi
 import { resendVerificationEmailAction } from '@/app/actions/auth/verification.action';
 import { makeUser } from '@/test/auth-fixtures';
 
+vi.mock('next-intl/server', () => ({
+  getTranslations: vi.fn(
+    async () => (key: string, values?: Record<string, unknown>) =>
+      values ? `${key} ${JSON.stringify(values)}` : key,
+  ),
+}));
 vi.mock('@/lib/env', () => ({
   env: {
     DEMO_DASHBOARD_ID: undefined,
@@ -87,7 +93,7 @@ describe('resendVerificationEmailAction', () => {
 
     expect(result).toMatchObject({
       success: false,
-      error: { message: 'Please wait 3 minutes before requesting another verification email.' },
+      error: { message: 'verificationEmailCooldown {"minutes":3}' },
     });
     expect(sendVerificationEmail).not.toHaveBeenCalled();
   });
