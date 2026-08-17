@@ -2,7 +2,7 @@ import 'server-only';
 
 import prisma from '@/lib/postgres';
 import { GithubStarPromptState, Prisma } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { hashPassword, verifyPasswordHash } from '@/lib/password';
 import {
   User,
   UserSchema,
@@ -19,7 +19,8 @@ import { buildStarterSubscription } from '@/entities/billing/billing.entities';
 import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 
-const SALT_ROUNDS = 10;
+// better-auth's providerId for email+password accounts; accountId is the user id by its convention.
+const CREDENTIAL_PROVIDER_ID = 'credential';
 
 export async function findUserById(userId: string): Promise<User | null> {
   return await findUserBy({ id: userId });
@@ -27,14 +28,21 @@ export async function findUserById(userId: string): Promise<User | null> {
 
 export async function findUserOAuthProviders(userId: string): Promise<string[]> {
   const accounts = await prisma.account.findMany({
-    where: { userId },
-    select: { provider: true },
+    where: { userId, providerId: { not: CREDENTIAL_PROVIDER_ID } },
+    select: { providerId: true },
   });
-  return accounts.map((a) => a.provider);
+  return accounts.map((a) => a.providerId);
+}
+
+export async function findCredentialAccount(userId: string): Promise<{ id: string } | null> {
+  return prisma.account.findFirst({
+    where: { userId, providerId: CREDENTIAL_PROVIDER_ID, password: { not: null } },
+    select: { id: true },
+  });
 }
 
 export async function findUserByEmail(email: string): Promise<User | null> {
-  return await findUserBy({ email });
+  return await findUserBy({ email: email.toLowerCase() });
 }
 
 async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | null> {
@@ -70,7 +78,7 @@ export async function createUser(
   options?: { language?: SupportedLanguages },
 ): Promise<User> {
   try {
-    const validatedData = CreateUserSchema.parse(data);
+    const { passwordHash, ...userData } = CreateUserSchema.parse(data);
 
     const subscriptionData = buildStarterSubscription();
 
@@ -79,12 +87,25 @@ export async function createUser(
       ...(options?.language && { language: options.language }),
     };
 
-    const prismaUser = await prisma.user.create({
-      data: {
-        ...validatedData,
-        subscription: { create: subscriptionData },
-        settings: { create: settingsData },
-      },
+    const prismaUser = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          ...userData,
+          subscription: { create: subscriptionData },
+          settings: { create: settingsData },
+        },
+      });
+
+      await tx.account.create({
+        data: {
+          userId: user.id,
+          accountId: user.id,
+          providerId: CREDENTIAL_PROVIDER_ID,
+          password: passwordHash,
+        },
+      });
+
+      return user;
     });
 
     return UserSchema.parse(prismaUser);
@@ -98,7 +119,7 @@ export async function registerUser(data: RegisterUserData): Promise<User> {
   try {
     const validatedData = RegisterUserSchema.parse(data);
 
-    const passwordHash = await bcrypt.hash(validatedData.password, SALT_ROUNDS);
+    const passwordHash = await hashPassword(validatedData.password);
 
     return await createUser(
       {
@@ -131,11 +152,14 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
 
 export async function updateUserPassword(userId: string, newPassword: string): Promise<void> {
   try {
-    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    const passwordHash = await hashPassword(newPassword);
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { passwordHash },
+    await prisma.account.update({
+      where: {
+        providerId_accountId: { providerId: CREDENTIAL_PROVIDER_ID, accountId: userId },
+        userId,
+      },
+      data: { password: passwordHash },
     });
   } catch (error) {
     console.error(`Error updating password for user ${userId}:`, error);
@@ -145,20 +169,36 @@ export async function updateUserPassword(userId: string, newPassword: string): P
 
 export async function verifyUserPassword(userId: string, password: string): Promise<boolean> {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { passwordHash: true },
+    const account = await prisma.account.findFirst({
+      where: { userId, providerId: CREDENTIAL_PROVIDER_ID },
+      select: { password: true },
     });
 
-    if (!user || !user.passwordHash) {
+    if (!account?.password) {
       return false;
     }
 
-    return await bcrypt.compare(password, user.passwordHash);
+    return await verifyPasswordHash(password, account.password);
   } catch (error) {
     console.error(`Error verifying password for user ${userId}:`, error);
     throw new Error(`Failed to verify password for user ${userId}.`);
   }
+}
+
+export async function findLegacyTwoFactorUsers(): Promise<
+  Array<{ id: string; email: string | null; name: string | null; twoFactorEnabled: boolean }>
+> {
+  return prisma.user.findMany({
+    where: { totpSecret: { not: null } },
+    select: { id: true, email: true, name: true, twoFactorEnabled: true },
+  });
+}
+
+export async function clearLegacyTwoFactor(): Promise<void> {
+  await prisma.user.updateMany({
+    where: { totpSecret: { not: null } },
+    data: { twoFactorEnabled: false, totpSecret: null },
+  });
 }
 
 export async function markOnboardingCompleted(userId: string): Promise<void> {
@@ -182,15 +222,15 @@ export async function anonymizeUser(userId: string): Promise<void> {
           email: `deleted_${userId}@deleted.invalid`,
           name: null,
           image: null,
-          passwordHash: null,
-          totpEnabled: false,
+          twoFactorEnabled: false,
           totpSecret: null,
-          emailVerified: null,
+          emailVerified: false,
           deletedAt: new Date(),
         },
       }),
       prisma.account.deleteMany({ where: { userId } }),
       prisma.session.deleteMany({ where: { userId } }),
+      prisma.twoFactor.deleteMany({ where: { userId } }),
       prisma.passwordResetToken.deleteMany({ where: { userId } }),
       prisma.mcpToken.updateMany({
         where: { createdBy: userId, deletedAt: null },
@@ -223,7 +263,6 @@ export async function findUsersWithoutDashboardsInWindow(
     const users = await prisma.user.findMany({
       where: {
         deletedAt: null,
-        email: { not: null },
         createdAt: { gt: window.signedUpAfter, lt: window.signedUpBefore },
         dashboardAccess: { none: {} },
       },
@@ -232,9 +271,9 @@ export async function findUsersWithoutDashboardsInWindow(
       take: limit,
     });
 
-    return users
-      .filter((u) => u.email)
-      .map((u) => UserWithoutDashboardCandidateSchema.parse({ userId: u.id, email: u.email, name: u.name }));
+    return users.map((u) =>
+      UserWithoutDashboardCandidateSchema.parse({ userId: u.id, email: u.email, name: u.name }),
+    );
   } catch (error) {
     console.error('Error finding users without dashboards in window:', error);
     throw new Error('Failed to find users without dashboards in window');

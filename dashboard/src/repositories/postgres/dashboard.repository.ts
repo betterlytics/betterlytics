@@ -353,7 +353,7 @@ export async function findOnboardingDashboardCandidates(
         userAccess: {
           some: {
             role: 'owner',
-            user: { deletedAt: null, email: { not: null } },
+            user: { deletedAt: null },
           },
         },
       },
@@ -363,7 +363,7 @@ export async function findOnboardingDashboardCandidates(
         domain: true,
         createdAt: true,
         userAccess: {
-          where: { role: 'owner', user: { deletedAt: null, email: { not: null } } },
+          where: { role: 'owner', user: { deletedAt: null } },
           orderBy: { createdAt: 'asc' },
           take: 1,
           select: {
@@ -377,7 +377,7 @@ export async function findOnboardingDashboardCandidates(
 
     return dashboards.flatMap((d) => {
       const owner = d.userAccess[0]?.user;
-      if (!owner?.email) return [];
+      if (!owner) return [];
       return [
         OnboardingDashboardCandidateSchema.parse({
           dashboardId: d.id,

@@ -10,8 +10,8 @@ const appEnvSchema = z.object({
   ADMIN_PASSWORD: z.string().min(1),
   PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().min(1),
   PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
-  NEXTAUTH_URL: z.string().url().optional(),
-  NEXTAUTH_SECRET: z.string().min(1),
+  AUTH_URL: z.string().url(),
+  AUTH_SECRET: z.string().min(1),
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
   ENABLE_REGISTRATION: zStringBoolean,
   PUBLIC_IS_CLOUD: zStringBoolean,
@@ -27,7 +27,6 @@ const appEnvSchema = z.object({
   SMTP_PASSWORD: z.string().optional(),
   SMTP_FROM: z.string().optional(),
   ENABLE_ACCOUNT_VERIFICATION: zStringBoolean,
-  TOTP_SECRET_ENCRYPTION_KEY: z.string().length(32),
   ENABLE_MONITORING: zStringBoolean,
   ENABLE_UPTIME_MONITORING: zStringBoolean,
   ENABLE_PUBLIC_STATUS_PAGES: zStringBoolean,
@@ -103,6 +102,13 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
     });
   }
 });
+
+if (!process.env.AUTH_SECRET && process.env.NEXTAUTH_SECRET) {
+  throw new Error('NEXTAUTH_SECRET is no longer read. Rename it to AUTH_SECRET (the value can stay the same).');
+}
+if (!process.env.AUTH_URL && process.env.NEXTAUTH_URL) {
+  throw new Error('NEXTAUTH_URL is no longer read. Rename it to AUTH_URL (the value can stay the same).');
+}
 
 export const env = envSchema.parse(process.env);
 
