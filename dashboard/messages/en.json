@@ -3396,10 +3396,18 @@
       "sending": "Sending...",
       "pending": "Pending",
       "invited": "Invited",
-      "invalidEmail": "Please enter a valid email address"
+      "invalidEmail": "Please enter a valid email address",
+      "copyLink": "Copy invite link",
+      "linkCopied": "Invite link copied"
+    },
+    "linkPanel": {
+      "emailSent": "An invitation email was sent to <strong>{email}</strong>. You can also share the invite link directly:",
+      "emailNotSent": "No email was sent to <strong>{email}</strong> — share this invite link with them yourself:",
+      "dismiss": "Dismiss"
     },
     "toast": {
       "sent": "Invitation sent",
+      "created": "Invitation created",
       "sendFailed": "Failed to send invitation",
       "cancelled": "Invitation cancelled",
       "cancelFailed": "Failed to cancel invitation",

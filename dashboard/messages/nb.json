@@ -3399,10 +3399,18 @@
       "sending": "Sender...",
       "pending": "Venter",
       "invited": "Invitert",
-      "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse"
+      "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
+      "copyLink": "Kopier invitasjonslenke",
+      "linkCopied": "Invitasjonslenke kopiert"
+    },
+    "linkPanel": {
+      "emailSent": "En invitasjons-e-post ble sendt til <strong>{email}</strong>. Du kan også dele invitasjonslenken direkte:",
+      "emailNotSent": "Det ble ikke sendt noen e-post til <strong>{email}</strong> — del denne invitasjonslenken med dem selv:",
+      "dismiss": "Lukk"
     },
     "toast": {
       "sent": "Invitasjon sendt",
+      "created": "Invitasjon opprettet",
       "sendFailed": "Kunne ikke sende invitasjon",
       "cancelled": "Invitasjon kansellert",
       "cancelFailed": "Kunne ikke kansellere invitasjon",
