@@ -1,3 +1,5 @@
+import { domainValidation } from '@/entities/dashboard/dashboard.entities';
+
 export function normalizeDomainForFavicon(domain?: string | null): string | null {
   if (!domain) {
     return null;
@@ -11,16 +13,16 @@ export function normalizeDomainForFavicon(domain?: string | null): string | null
     .toLowerCase();
 }
 
-// Placeholder labels such as the demo sidebar's "Demo Dashboard" flow through the same prop as
-// real domains; building a request for them only earns a 404 from the favicon route.
-function isDomainShaped(normalized: string): boolean {
-  return !/\s/.test(normalized) && normalized.includes('.');
-}
-
 export function getFaviconUrl(domain?: string | null): string | null {
   const normalized = normalizeDomainForFavicon(domain);
 
-  if (!normalized || !isDomainShaped(normalized)) {
+  if (!normalized) {
+    return null;
+  }
+
+  // The favicon route validates with this same schema, so placeholder labels like the demo
+  // sidebar's "Demo Dashboard" would only earn a 404 — filter them before requesting.
+  if (!domainValidation.safeParse(normalized).success) {
     return null;
   }
 
