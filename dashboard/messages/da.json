@@ -756,7 +756,8 @@
           "errors": {
             "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
             "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
-            "generic": "Der opstod en fejl under login. Prøv venligst igen."
+            "generic": "Der opstod en fejl under login. Prøv venligst igen.",
+            "tooManyAttempts": "For mange forsøg. Vent et par minutter og prøv igen."
           },
           "twoFactor": {
             "title": "To-faktor-godkendelse",

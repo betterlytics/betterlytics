@@ -214,6 +214,60 @@ describe('before hook (closed better-auth endpoints)', () => {
   it('leaves the live endpoints alone', async () => {
     await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
   });
+
+  describe('per-email sign-in throttle', () => {
+    it('throws 429 once one email exhausts its attempts, counting case-insensitively', async () => {
+      for (let i = 0; i < 10; i++) {
+        await expect(
+          runBeforeHook('/sign-in/email', { email: i % 2 ? 'Throttled@Example.com' : 'throttled@example.com' }),
+        ).resolves.toBeUndefined();
+      }
+
+      await expect(runBeforeHook('/sign-in/email', { email: 'throttled@example.com' })).rejects.toMatchObject({
+        statusCode: 429,
+      });
+    });
+
+    it('does not throttle other accounts', async () => {
+      await expect(runBeforeHook('/sign-in/email', { email: 'other@example.com' })).resolves.toBeUndefined();
+    });
+
+    it('ignores requests without a usable email (better-auth validates those)', async () => {
+      await expect(runBeforeHook('/sign-in/email', { email: 42 })).resolves.toBeUndefined();
+      await expect(runBeforeHook('/sign-in/email', {})).resolves.toBeUndefined();
+    });
+  });
+});
+
+describe('built-in rate limiting (upstream characterization)', () => {
+  it('throttles credential sign-in per IP at 3 attempts per 10s when enabled', async () => {
+    // Standalone instance (memory adapter): pins the strict special rule better-auth
+    // ships for /sign-in/* — the production posture our auth endpoints rely on.
+    const { betterAuth } = await import('better-auth');
+    const testAuth = betterAuth({
+      baseURL: 'http://localhost:3000',
+      secret: 'test-secret',
+      emailAndPassword: { enabled: true },
+      rateLimit: { enabled: true },
+    });
+
+    const signIn = () =>
+      testAuth.handler(
+        new Request('http://localhost:3000/api/auth/sign-in/email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: 'nobody@example.com', password: 'wrong-password-1' }),
+        }),
+      );
+
+    const statuses = [];
+    for (let i = 0; i < 4; i++) {
+      statuses.push((await signIn()).status);
+    }
+
+    expect(statuses.slice(0, 3)).not.toContain(429);
+    expect(statuses[3]).toBe(429);
+  });
 });
 
 describe('user update hook (2FA change notifications)', () => {

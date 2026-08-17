@@ -756,7 +756,8 @@
           "errors": {
             "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
             "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
-            "generic": "Det oppstod en feil under innlogging. Prøv igjen."
+            "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
+            "tooManyAttempts": "For mange forsøk. Vent noen minutter og prøv igjen."
           },
           "twoFactor": {
             "title": "Tofaktorautentisering",

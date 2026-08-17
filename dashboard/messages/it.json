@@ -756,7 +756,8 @@
           "errors": {
             "invalidOtp": "Codice di verifica non valido. Controlla le tue credenziali e riprova.",
             "invalidCredentials": "Email o password non validi. Controlla le tue credenziali e riprova.",
-            "generic": "Si è verificato un errore durante l'accesso. Riprova."
+            "generic": "Si è verificato un errore durante l'accesso. Riprova.",
+            "tooManyAttempts": "Troppi tentativi. Attendi qualche minuto e riprova."
           },
           "twoFactor": {
             "title": "Autenticazione a due fattori",

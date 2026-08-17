@@ -756,7 +756,8 @@
           "errors": {
             "invalidOtp": "Invalid verification code. Please check your credentials and try again.",
             "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
-            "generic": "An error occurred during sign in. Please try again."
+            "generic": "An error occurred during sign in. Please try again.",
+            "tooManyAttempts": "Too many attempts. Please wait a few minutes and try again."
           },
           "twoFactor": {
             "title": "Two-factor authentication",
