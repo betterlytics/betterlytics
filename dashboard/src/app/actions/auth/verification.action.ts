@@ -34,6 +34,10 @@ export async function verifyEmailAction(data: VerifyEmailData): Promise<Verifica
 }
 
 export const resendVerificationEmailAction = withUserAuth(async (user: User): Promise<void> => {
+  if (user.emailVerified) {
+    throw new UserException((await getTranslations('validation'))('emailAlreadyVerified'));
+  }
+
   const rateLimitCheck = await checkRateLimit(user.email);
 
   if (!rateLimitCheck.allowed && rateLimitCheck.nextAllowedAt) {

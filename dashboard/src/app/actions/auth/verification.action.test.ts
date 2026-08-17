@@ -35,9 +35,9 @@ vi.mock('@/services/dashboard/verification.service', () => ({
 const SESSION_EMAIL = 'owner@example.com';
 const OTHER_EMAIL = 'victim@example.com';
 
-function signIn(email = SESSION_EMAIL) {
+function signIn(emailVerified = false) {
   vi.mocked(getCachedSession).mockResolvedValue({
-    user: makeUser({ email, emailVerified: false }),
+    user: makeUser({ email: SESSION_EMAIL, emailVerified }),
     session: { token: 'token', expiresAt: new Date(Date.now() + 60_000) },
   } as never);
 }
@@ -80,6 +80,19 @@ describe('resendVerificationEmailAction', () => {
 
     expect(checkRateLimit).toHaveBeenCalledWith(SESSION_EMAIL);
     expect(sendVerificationEmail).toHaveBeenCalledWith({ email: SESSION_EMAIL });
+  });
+
+  it('tells an already verified user instead of sending', async () => {
+    signIn(true);
+
+    const result = await resendVerificationEmailAction();
+
+    expect(result).toMatchObject({
+      success: false,
+      error: { message: 'emailAlreadyVerified' },
+    });
+    expect(checkRateLimit).not.toHaveBeenCalled();
+    expect(sendVerificationEmail).not.toHaveBeenCalled();
   });
 
   it('reports the remaining cooldown instead of sending', async () => {
