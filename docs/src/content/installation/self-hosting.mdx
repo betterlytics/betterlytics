@@ -201,20 +201,6 @@ When `GEOLOCATION_MODE=full` is set (alongside `ENABLE_GEOLOCATION=true`), both 
 </Callout>
 
 
-## Favicons
-
-Dashboards show a favicon next to each domain. By default these are fetched from [DuckDuckGo](https://duckduckgo.com/) (`icons.duckduckgo.com`). The request is made by your server rather than the browser, so the IP addresses of the people using your dashboard are never exposed to DuckDuckGo.
-
-If your instance runs without outbound internet access, or you would rather not talk to DuckDuckGo at all, disable it in your `.env` file:
-
-```bash
-PUBLIC_ENABLE_FAVICON_FETCHING=false
-```
-
-| Variable | Default | Behavior |
-|----------|---------|----------|
-| `PUBLIC_ENABLE_FAVICON_FETCHING` | `true` | Fetch domain favicons from `icons.duckduckgo.com`. When disabled, no request leaves your server and domains show a placeholder icon |
-
 ## Updating
 
 To update your self-hosted instance to the latest version:

@@ -35,7 +35,6 @@ describe('GET /api/favicons', () => {
     const response = await GET(request('example.com'));
 
     expect(response.status).toBe(404);
-    // Not negatively cached, so flipping the flag back on is not masked by a stale 404
     expect(response.headers.get('Cache-Control')).toBe('no-store');
     expect(fetchMock).not.toHaveBeenCalled();
     expect(featureEnabled).toHaveBeenCalledWith('enableFaviconFetching');

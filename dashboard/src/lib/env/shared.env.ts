@@ -6,7 +6,6 @@ export const zStringBoolean = z
   .default('false')
   .transform((val) => val === 'true');
 
-/** Opt-out flags: unset means enabled, so existing deploys keep the behavior they had. */
 export const zStringBooleanDefaultTrue = z
   .enum(['true', 'false'])
   .optional()

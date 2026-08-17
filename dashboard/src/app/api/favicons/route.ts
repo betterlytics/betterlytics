@@ -13,9 +13,7 @@ const CONFIG = {
 };
 
 export async function GET(request: NextRequest) {
-  // The dashboard already stops requesting favicons when the flag is off; this also covers
-  // direct hits and hotlinking, so no deploy with it disabled ever reaches DuckDuckGo.
-  // Deliberately not negatively cached: re-enabling the flag takes effect without waiting out a stale 404.
+  // no-store: re-enabling the flag should not be masked by a stale cached 404
   if (!isFeatureEnabled('enableFaviconFetching')) {
     return new NextResponse(null, { status: 404, headers: { 'Cache-Control': 'no-store' } });
   }

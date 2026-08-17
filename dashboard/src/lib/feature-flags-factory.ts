@@ -10,7 +10,6 @@ export function createFeatureFlags(environment: FeatureFlagEnvironment) {
     enableBilling: environment.PUBLIC_IS_CLOUD,
     isCloud: environment.PUBLIC_IS_CLOUD,
     enableBugReports: environment.PUBLIC_IS_CLOUD,
-    // Favicons are fetched from DuckDuckGo, so this is the seam where third-party egress is gated
     enableFaviconFetching: environment.PUBLIC_ENABLE_FAVICON_FETCHING,
   } as const;
 }
