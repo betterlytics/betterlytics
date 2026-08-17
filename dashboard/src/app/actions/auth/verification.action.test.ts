@@ -76,7 +76,8 @@ describe('resendVerificationEmailAction', () => {
   it('ignores a client-supplied email', async () => {
     signIn();
 
-    await Reflect.apply(resendVerificationEmailAction, undefined, [{ email: OTHER_EMAIL }]);
+    // @ts-expect-error the action must ignore a client-supplied email
+    await resendVerificationEmailAction({ email: OTHER_EMAIL });
 
     expect(checkRateLimit).toHaveBeenCalledWith(SESSION_EMAIL);
     expect(sendVerificationEmail).toHaveBeenCalledWith({ email: SESSION_EMAIL });
