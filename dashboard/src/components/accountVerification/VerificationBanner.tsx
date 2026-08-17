@@ -46,8 +46,6 @@ export function VerificationBanner({ email, isVerified, showDismiss = true, id }
       if (result.success) {
         toast.success(t('success'));
       } else {
-        // Only user-safe exceptions carry a message worth showing; anything else is a
-        // masked internal error, so fall back to the localized copy.
         toast.error(result.error.name === 'UserException' ? result.error.message : t('failure'));
       }
     } catch (error) {

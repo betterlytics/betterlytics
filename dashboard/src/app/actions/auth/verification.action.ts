@@ -32,10 +32,6 @@ export async function verifyEmailAction(data: VerifyEmailData): Promise<Verifica
   }
 }
 
-/**
- * The target address always comes from the session, never from the client. A client-chosen
- * address would turn the per-address responses into an account-enumeration oracle.
- */
 export const resendVerificationEmailAction = withUserAuth(async (user: User): Promise<void> => {
   const rateLimitCheck = await checkRateLimit(user.email);
 

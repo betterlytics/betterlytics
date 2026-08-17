@@ -35,8 +35,6 @@ export function VerificationRequiredModal({
           toast.success(t('toastSuccess'));
           setEmailSent(true);
         } else {
-          // Only user-safe exceptions carry a message worth showing; anything else is a
-          // masked internal error, so fall back to the localized copy.
           toast.error(result.error.name === 'UserException' ? result.error.message : t('toastFailure'));
         }
       } catch (error) {
