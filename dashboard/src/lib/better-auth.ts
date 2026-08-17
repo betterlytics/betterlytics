@@ -15,6 +15,7 @@ import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById } from '@/repositories/postgres/user.repository';
+import { PasswordSchema } from '@/entities/auth/password.entities';
 
 // A session created this soon after the user row is their first sign-in; skip the
 // locale sync there so default settings don't overwrite the locale they signed up in.
@@ -75,12 +76,47 @@ export const auth = betterAuth({
     before: createAuthMiddleware(async (ctx) => {
       // Account mutations run through our server actions
       if (
-        ctx.path === '/change-password' ||
         ctx.path === '/request-password-reset' ||
         ctx.path.startsWith('/reset-password') ||
         ctx.path === '/update-user'
       ) {
         throw new APIError('NOT_FOUND');
+      }
+
+      // better-auth only enforces password length; keep our stronger policy server-side.
+      if (ctx.path === '/change-password') {
+        const strength = PasswordSchema.safeParse(ctx.body?.newPassword);
+        if (!strength.success) {
+          throw new APIError('BAD_REQUEST', {
+            message: strength.error.issues[0]?.message ?? 'Password does not meet the requirements',
+            code: 'WEAK_PASSWORD',
+          });
+        }
+      }
+    }),
+    after: createAuthMiddleware(async (ctx) => {
+      if (ctx.path !== '/change-password') return;
+
+      // On success the endpoint returns { token, user }; on failure ctx.context.returned is an APIError.
+      const returned = ctx.context.returned;
+      if (!returned || returned instanceof APIError) return;
+
+      const { user } = returned as { user?: { id: string; email?: string | null; name?: string | null } };
+      if (!user?.email) return;
+
+      try {
+        await enqueueEmail({
+          type: 'password-changed',
+          recipientKey: createUserRecipientKey(user.id),
+          campaignKey: `password-changed:${new Date().toISOString()}`,
+          data: {
+            to: user.email,
+            userName: user.name ?? null,
+            resetPasswordUrl: `${env.PUBLIC_BASE_URL}/forgot-password`,
+          },
+        });
+      } catch (error) {
+        console.error('Failed to enqueue password-changed notification:', error);
       }
     }),
   },

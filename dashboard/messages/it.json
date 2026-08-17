@@ -3023,7 +3023,8 @@
         "togglePasswordVisibility": "Mostra/nascondi {field}",
         "cancel": "Annulla",
         "toast": {
-          "success": "Password aggiornata con successo"
+          "success": "Password aggiornata con successo",
+          "invalidCurrentPassword": "La password attuale non è corretta"
         },
         "totp": {
           "title": "Autenticazione a due fattori",

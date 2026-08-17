@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
+import { APIError } from 'better-auth/api';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
@@ -14,6 +15,7 @@ vi.mock('@/lib/env', () => ({
   env: {
     AUTH_URL: 'http://localhost:3000',
     AUTH_SECRET: 'test-auth-secret',
+    PUBLIC_BASE_URL: 'http://localhost:3000',
     GITHUB_ID: '',
     GITHUB_SECRET: '',
     GOOGLE_CLIENT_ID: '',
@@ -204,7 +206,7 @@ describe('before hook (closed better-auth endpoints)', () => {
   const runBeforeHook = (path: string, body: unknown = {}) =>
     (auth.options.hooks!.before as unknown as BeforeHook)({ path, body });
 
-  it.each(['/change-password', '/request-password-reset', '/reset-password/some-token', '/update-user'])(
+  it.each(['/request-password-reset', '/reset-password/some-token', '/update-user'])(
     '%s returns 404 (these mutations run through our server actions)',
     async (path) => {
       await expect(runBeforeHook(path)).rejects.toMatchObject({ statusCode: 404 });
@@ -213,6 +215,57 @@ describe('before hook (closed better-auth endpoints)', () => {
 
   it('leaves the live endpoints alone', async () => {
     await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
+    await expect(runBeforeHook('/change-password', { newPassword: 'Correct-horse-1' })).resolves.toBeUndefined();
+  });
+
+  it('rejects weak change-password payloads that bypass the client-side schema', async () => {
+    await expect(runBeforeHook('/change-password', { newPassword: 'no-uppercase-1' })).rejects.toMatchObject({
+      statusCode: 400,
+      body: { code: 'WEAK_PASSWORD' },
+    });
+  });
+});
+
+describe('after hook (password-changed notification)', () => {
+  type AfterHook = (ctx: { path: string; context: { returned?: unknown } }) => Promise<unknown>;
+  const runAfterHook = (path: string, returned?: unknown) =>
+    (auth.options.hooks!.after as unknown as AfterHook)({ path, context: { returned } });
+
+  // What /change-password returns on success in better-auth 1.6.26
+  const successResponse = { token: 'rotated-session-token', user: makeUser() };
+
+  it('enqueues a password-changed notification after a successful change', async () => {
+    await runAfterHook('/change-password', successResponse);
+
+    expect(enqueueEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'password-changed',
+        recipientKey: 'user:user-1',
+        data: {
+          to: 'user@example.com',
+          userName: 'Test User',
+          resetPasswordUrl: 'http://localhost:3000/forgot-password',
+        },
+      }),
+    );
+  });
+
+  it('does not notify when the change failed (returned is an APIError)', async () => {
+    await runAfterHook('/change-password', new APIError('BAD_REQUEST', { code: 'INVALID_PASSWORD' }));
+
+    expect(enqueueEmail).not.toHaveBeenCalled();
+  });
+
+  it('ignores other endpoints', async () => {
+    await runAfterHook('/sign-in/email', successResponse);
+
+    expect(enqueueEmail).not.toHaveBeenCalled();
+  });
+
+  it('does not fail the password change when the email enqueue throws', async () => {
+    vi.mocked(enqueueEmail).mockRejectedValue(new Error('queue down'));
+
+    await expect(runAfterHook('/change-password', successResponse)).resolves.toBeUndefined();
   });
 });
 

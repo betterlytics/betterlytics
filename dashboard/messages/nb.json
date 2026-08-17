@@ -3023,7 +3023,8 @@
         "togglePasswordVisibility": "Vis/skjul {field}",
         "cancel": "Avbryt",
         "toast": {
-          "success": "Passord oppdatert"
+          "success": "Passord oppdatert",
+          "invalidCurrentPassword": "Nåværende passord er feil"
         },
         "totp": {
           "title": "Tofaktorautentisering",

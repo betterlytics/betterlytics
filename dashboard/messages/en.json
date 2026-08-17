@@ -3020,7 +3020,8 @@
         "togglePasswordVisibility": "Toggle {field} visibility",
         "cancel": "Cancel",
         "toast": {
-          "success": "Password updated successfully"
+          "success": "Password updated successfully",
+          "invalidCurrentPassword": "Current password is incorrect"
         },
         "totp": {
           "title": "Two-Factor Authentication",

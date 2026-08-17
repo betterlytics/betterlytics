@@ -3023,7 +3023,8 @@
         "togglePasswordVisibility": "Vis/skjul {field}",
         "cancel": "Annuller",
         "toast": {
-          "success": "Adgangskode opdateret"
+          "success": "Adgangskode opdateret",
+          "invalidCurrentPassword": "Den nuværende adgangskode er forkert"
         },
         "totp": {
           "title": "To-faktor-godkendelse",
