@@ -23,6 +23,24 @@ export async function hasSessionReplay(siteId: string, sessionId: string): Promi
   return result.length > 0;
 }
 
+export async function getReplayStorageForSession(siteId: string, sessionId: string): Promise<string | null> {
+  const query = safeSql`
+    SELECT storage
+    FROM analytics.session_replays FINAL
+    WHERE site_id = {site_id:String}
+      AND toString(session_id) = {session_id:String}
+    LIMIT 1
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, session_id: sessionId },
+    })
+    .toPromise()) as { storage: string }[];
+
+  return result.length > 0 ? result[0].storage : null;
+}
+
 export async function findReplaySessionForError(
   siteId: string,
   fingerprint: string,

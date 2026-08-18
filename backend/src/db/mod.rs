@@ -14,7 +14,7 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow, SessionReplaySegmentRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
@@ -205,6 +205,13 @@ impl Database {
 
     pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
         let mut inserter = self.clickhouse.inner().inserter("analytics.session_replays")?;
+        inserter.write(&row)?;
+        inserter.end().await?;
+        Ok(())
+    }
+
+    pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
+        let mut inserter = self.clickhouse.inner().inserter("analytics.session_replay_segments")?;
         inserter.write(&row)?;
         inserter.end().await?;
         Ok(())

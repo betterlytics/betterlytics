@@ -36,6 +36,26 @@ async function main() {
       query: `GRANT dictGet ON analytics.* TO dashboard_role`,
     });
 
+    // Full fallback chain of backend/src/config.rs replay_retention_days, including its
+    // 365 default, so S3 lifecycle and ClickHouse TTL always agree on effective retention
+    const retentionDays = parseInt(
+      process.env.REPLAY_RETENTION_DAYS || process.env.DATA_RETENTION_DAYS || "365",
+      10,
+    );
+    if (Number.isFinite(retentionDays) && retentionDays > 0) {
+      await client.command({
+        query: `ALTER TABLE analytics.session_replays MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
+      });
+      await client.command({
+        query: `ALTER TABLE analytics.session_replay_segments MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
+      });
+    } else {
+      // DATA_RETENTION_DAYS=-1 means keep indefinitely; the S3 lifecycle arm skips its
+      // expiry rule for <= 0, so drop the DDL default TTL to keep the two stores agreeing
+      await client.command({ query: `ALTER TABLE analytics.session_replays REMOVE TTL` });
+      await client.command({ query: `ALTER TABLE analytics.session_replay_segments REMOVE TTL` });
+    }
+
     if (!workerUser || !workerPassword) {
       console.log(
         "Post-migration (clickhouse): WORKER_CLICKHOUSE_WRITE_USER not set, skipping worker user creation.",

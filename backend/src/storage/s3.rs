@@ -1,12 +1,10 @@
-use std::time::Duration;
 use anyhow::Result;
 use aws_config::BehaviorVersion;
 use aws_sdk_s3::{Client, config::Region};
 use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
-use aws_sdk_s3::presigning::PresigningConfig;
 use aws_sdk_s3::types::{
-    AbortIncompleteMultipartUpload, BucketLifecycleConfiguration, CorsConfiguration, CorsRule,
-    ExpirationStatus, LifecycleExpiration, LifecycleRule, LifecycleRuleFilter, ServerSideEncryption,
+    AbortIncompleteMultipartUpload, BucketLifecycleConfiguration, ExpirationStatus,
+    LifecycleExpiration, LifecycleRule, LifecycleRuleFilter, ServerSideEncryption,
 };
 use std::sync::Arc;
 use tracing::{info, warn};
@@ -14,12 +12,9 @@ use crate::config::Config;
 
 #[derive(Clone, Debug)]
 pub struct S3Service {
-    // Presigning client; signs against the public endpoint since SigV4 covers host + path
-    pub client: Client,
-    // Control-plane client; real HTTP calls must not hairpin through the public URL
-    internal_client: Client,
+    client: Client,
     pub bucket: String,
-    pub sse_enabled: bool,
+    sse_enabled: bool,
 }
 
 pub async fn configure_managed_bucket(
@@ -36,12 +31,12 @@ pub async fn configure_managed_bucket(
     for attempt in 1..=30u32 {
         match s3.ensure_replay_bucket_rules(retention).await {
             Ok(()) => {
-                info!("replay bucket CORS and lifecycle rules ensured");
+                info!("replay bucket lifecycle rules ensured");
                 return;
             }
             Err(e) if attempt == 30 => {
                 panic!(
-                    "Failed to apply replay bucket CORS/lifecycle rules after {} attempts: {}",
+                    "Failed to apply replay bucket lifecycle rules after {} attempts: {}",
                     attempt, e
                 );
             }
@@ -87,38 +82,13 @@ impl S3Service {
             s3_builder = s3_builder.force_path_style(true);
         }
 
-        let client = Client::from_conf(s3_builder.clone().build());
-        let internal_client = match cfg.s3_internal_endpoint.clone() {
-            Some(endpoint) => Client::from_conf(s3_builder.endpoint_url(endpoint).build()),
-            None => client.clone(),
-        };
+        let client = Client::from_conf(s3_builder.build());
         let sse_enabled = cfg.s3_sse_enabled;
 
-        Ok(Some(Self { client, internal_client, bucket, sse_enabled }))
+        Ok(Some(Self { client, bucket, sse_enabled }))
     }
 
     pub async fn ensure_replay_bucket_rules(&self, retention_days: i32) -> Result<()> {
-        self.internal_client
-            .put_bucket_cors()
-            .bucket(&self.bucket)
-            .cors_configuration(
-                CorsConfiguration::builder()
-                    .cors_rules(
-                        CorsRule::builder()
-                            .allowed_origins("*")
-                            .allowed_methods("GET")
-                            .allowed_methods("PUT")
-                            .allowed_methods("HEAD")
-                            // presigned PUTs send signed Content-Type/Content-Encoding headers
-                            .allowed_headers("*")
-                            .max_age_seconds(3600)
-                            .build()?,
-                    )
-                    .build()?,
-            )
-            .send()
-            .await?;
-
         let abort_rule = LifecycleRule::builder()
             .id("abort-incomplete-uploads")
             .status(ExpirationStatus::Enabled)
@@ -140,7 +110,7 @@ impl S3Service {
             );
         }
 
-        self.internal_client
+        self.client
             .put_bucket_lifecycle_configuration()
             .bucket(&self.bucket)
             .lifecycle_configuration(lifecycle.build()?)
@@ -150,36 +120,25 @@ impl S3Service {
         Ok(())
     }
 
-    pub fn build_replay_object_key(&self, site_id: &str, session_id: u64, epoch_ms: i64) -> String {
-        let suffix: String = nanoid::nanoid!(6);
-        let filename = format!("{:013}-{}.json", epoch_ms, suffix);
-        format!("site/{}/sess/{}/{}", site_id, session_id, filename)
-    }
-
-    pub async fn presign_replay_put(
+    pub async fn put_segment(
         &self,
         key: &str,
-        content_type: &str,
+        bytes: bytes::Bytes,
         content_encoding: Option<&str>,
-        content_length: u64,
-        ttl_secs: u64,
-    ) -> Result<String> {
+    ) -> Result<()> {
         let mut req = self.client
             .put_object()
             .bucket(&self.bucket)
             .key(key)
-            .content_type(content_type);
-        req = req.content_length(content_length as i64);
+            .content_type("application/json")
+            .body(bytes.into());
         if let Some(enc) = content_encoding {
             req = req.content_encoding(enc);
         }
         if self.sse_enabled {
             req = req.server_side_encryption(ServerSideEncryption::Aes256);
         }
-        let cfg = PresigningConfig::expires_in(Duration::from_secs(ttl_secs))?;
-        let presigned = req.presigned(cfg).await?;
-        Ok(presigned.uri().to_string())
+        req.send().await?;
+        Ok(())
     }
 }
-
-

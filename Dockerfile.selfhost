@@ -102,10 +102,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN npm install -g prisma@6.9.0
 
-# Garage object storage for selfhost session replay; its own image is scratch-based
-# and cannot self-configure, so the binary runs under supervisord instead
-COPY --from=dxflrs/garage:v2.3.0 /garage /usr/local/bin/garage
-
 # Copy backend
 RUN echo "Copying backend..."
 COPY --from=backend-builder /app/target/release/betterlytics /app/backend/app

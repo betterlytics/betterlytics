@@ -45,11 +45,11 @@ const appEnvSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional().default(''),
   GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
   SESSION_REPLAYS_ENABLED: zStringBoolean,
+  REPLAY_STORAGE: z.enum(['s3', 'clickhouse']).optional(),
   S3_ENABLED: zStringBoolean,
   S3_BUCKET: z.string().optional(),
   S3_REGION: z.string().optional(),
   S3_ENDPOINT: z.string().optional(),
-  S3_INTERNAL_ENDPOINT: z.string().optional(),
   S3_ACCESS_KEY_ID: z.string().optional(),
   S3_SECRET_ACCESS_KEY: z.string().optional(),
   S3_FORCE_PATH_STYLE: zStringBoolean,
@@ -94,10 +94,11 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
     });
   }
 
-  if (env.SESSION_REPLAYS_ENABLED && !env.S3_ENABLED) {
+  const resolvedReplayStorage = env.REPLAY_STORAGE ?? (env.S3_ENABLED ? 's3' : 'clickhouse');
+  if (env.SESSION_REPLAYS_ENABLED && resolvedReplayStorage === 's3' && !env.S3_ENABLED) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: 'SESSION_REPLAYS_ENABLED=true requires S3_ENABLED=true (session replay stores segments in S3)',
+      message: 'SESSION_REPLAYS_ENABLED=true with REPLAY_STORAGE=s3 requires S3_ENABLED=true',
       path: ['S3_ENABLED'],
     });
   }
@@ -112,12 +113,13 @@ if (!process.env.AUTH_URL && process.env.NEXTAUTH_URL) {
 
 export const env = envSchema.parse(process.env);
 
+export const replayStorage: 's3' | 'clickhouse' = env.REPLAY_STORAGE ?? (env.S3_ENABLED ? 's3' : 'clickhouse');
+
 export const s3Env = {
   enabled: env.S3_ENABLED,
   bucket: env.S3_BUCKET,
   region: env.S3_REGION,
   endpoint: env.S3_ENDPOINT,
-  internalEndpoint: env.S3_INTERNAL_ENDPOINT,
   accessKeyId: env.S3_ACCESS_KEY_ID,
   secretAccessKey: env.S3_SECRET_ACCESS_KEY,
   forcePathStyle: env.S3_FORCE_PATH_STYLE,
