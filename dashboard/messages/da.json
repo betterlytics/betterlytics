@@ -3024,7 +3024,8 @@
         "cancel": "Annuller",
         "toast": {
           "success": "Adgangskode opdateret",
-          "invalidCurrentPassword": "Den nuværende adgangskode er forkert"
+          "invalidCurrentPassword": "Den nuværende adgangskode er forkert",
+          "tooManyAttempts": "For mange forsøg. Vent et øjeblik og prøv igen."
         },
         "totp": {
           "title": "To-faktor-godkendelse",

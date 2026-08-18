@@ -3021,7 +3021,8 @@
         "cancel": "Cancel",
         "toast": {
           "success": "Password updated successfully",
-          "invalidCurrentPassword": "Current password is incorrect"
+          "invalidCurrentPassword": "Current password is incorrect",
+          "tooManyAttempts": "Too many attempts. Please wait a moment and try again."
         },
         "totp": {
           "title": "Two-Factor Authentication",

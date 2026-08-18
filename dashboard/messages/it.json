@@ -3024,7 +3024,8 @@
         "cancel": "Annulla",
         "toast": {
           "success": "Password aggiornata con successo",
-          "invalidCurrentPassword": "La password attuale non è corretta"
+          "invalidCurrentPassword": "La password attuale non è corretta",
+          "tooManyAttempts": "Troppi tentativi. Attendi un momento e riprova."
         },
         "totp": {
           "title": "Autenticazione a due fattori",

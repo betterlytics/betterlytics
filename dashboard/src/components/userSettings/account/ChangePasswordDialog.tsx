@@ -125,8 +125,10 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
           onOpenChange(false);
         } else if (error.code === 'INVALID_PASSWORD') {
           toast.error(t('toast.invalidCurrentPassword'));
+        } else if (error.code === 'WEAK_PASSWORD') {
+          setErrors({ newPassword: error.message ?? tDialog('toast.error') });
         } else if (error.status === 429) {
-          toast.error(t('totp.tooManyAttempts'));
+          toast.error(t('toast.tooManyAttempts'));
         } else {
           toast.error(tDialog('toast.error'));
         }
@@ -157,8 +159,7 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
     setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
-  // Only gate on the fields being filled; submitting runs the zod schema so
-  // unmet strength rules surface as field errors instead of a dead submit button.
+  // Gate only on filled fields so submit runs the schema and surfaces strength errors
   const isFormFilled = passwords.currentPassword && passwords.newPassword && passwords.confirmPassword;
 
   const showPasswordsMatch = Boolean(

@@ -16,6 +16,14 @@ import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById } from '@/repositories/postgres/user.repository';
 import { PasswordSchema } from '@/entities/auth/password.entities';
+import { sendPasswordChangedNotification } from '@/services/auth/passwordReset.service';
+
+// better-auth only enforces password length; these body fields get our full policy.
+const PASSWORD_POLICY_FIELDS: Record<string, string> = {
+  '/change-password': 'newPassword',
+  '/reset-password': 'newPassword',
+  '/sign-up/email': 'password',
+};
 
 // A session created this soon after the user row is their first sign-in; skip the
 // locale sync there so default settings don't overwrite the locale they signed up in.
@@ -83,40 +91,15 @@ export const auth = betterAuth({
         throw new APIError('NOT_FOUND');
       }
 
-      // better-auth only enforces password length; keep our stronger policy server-side.
-      if (ctx.path === '/change-password') {
-        const strength = PasswordSchema.safeParse(ctx.body?.newPassword);
+      const passwordField = PASSWORD_POLICY_FIELDS[ctx.path];
+      if (passwordField) {
+        const strength = PasswordSchema.safeParse(ctx.body?.[passwordField]);
         if (!strength.success) {
           throw new APIError('BAD_REQUEST', {
             message: strength.error.issues[0]?.message ?? 'Password does not meet the requirements',
             code: 'WEAK_PASSWORD',
           });
         }
-      }
-    }),
-    after: createAuthMiddleware(async (ctx) => {
-      if (ctx.path !== '/change-password') return;
-
-      // On success the endpoint returns { token, user }; on failure ctx.context.returned is an APIError.
-      const returned = ctx.context.returned;
-      if (!returned || returned instanceof APIError) return;
-
-      const { user } = returned as { user?: { id: string; email?: string | null; name?: string | null } };
-      if (!user?.email) return;
-
-      try {
-        await enqueueEmail({
-          type: 'password-changed',
-          recipientKey: createUserRecipientKey(user.id),
-          campaignKey: `password-changed:${new Date().toISOString()}`,
-          data: {
-            to: user.email,
-            userName: user.name ?? null,
-            resetPasswordUrl: `${env.PUBLIC_BASE_URL}/forgot-password`,
-          },
-        });
-      } catch (error) {
-        console.error('Failed to enqueue password-changed notification:', error);
       }
     }),
   },
@@ -167,6 +150,23 @@ export const auth = betterAuth({
             });
           } catch (error) {
             console.error('Failed to enqueue 2FA change notification:', error);
+          }
+        },
+      },
+    },
+    account: {
+      update: {
+        // The password hash lives on the account row; /change-password is its only
+        // path-gated mutation, so this observes the DB-confirmed write.
+        after: async (account, ctx) => {
+          if (ctx?.path !== '/change-password') return;
+          try {
+            const user = await findUserById(account.userId);
+            if (user?.email) {
+              await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
+            }
+          } catch (error) {
+            console.error('Failed to enqueue password-changed notification:', error);
           }
         },
       },
