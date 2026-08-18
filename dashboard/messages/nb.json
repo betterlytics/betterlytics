@@ -854,7 +854,8 @@
             "weakPassword": "Passordet oppfyller ikke kravene.",
             "tooManyAttempts": "For mange forsøk. Prøv igjen senere.",
             "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
-          }
+          },
+          "successMessage": "Passordet ble tilbakestilt!"
         },
         "cta": {
           "remember": "Husker du passordet ditt?",

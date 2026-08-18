@@ -854,7 +854,8 @@
             "weakPassword": "Adgangskoden opfylder ikke kravene.",
             "tooManyAttempts": "For mange forsøg. Prøv igen senere.",
             "generic": "Kunne ikke nulstille adgangskoden. Prøv venligst igen."
-          }
+          },
+          "successMessage": "Adgangskoden blev nulstillet!"
         },
         "cta": {
           "remember": "Kan du huske din adgangskode?",
