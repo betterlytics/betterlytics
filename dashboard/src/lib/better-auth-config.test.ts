@@ -7,7 +7,7 @@ import { sendVerificationEmail } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { findUserById } from '@/repositories/postgres/user.repository';
+import { findUserById, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { makeUser, hashPassword } from '@/test/auth-fixtures';
 
 vi.mock('@/lib/env', () => ({
@@ -31,6 +31,7 @@ vi.mock('@/repositories/postgres/session.repository', () => ({
 }));
 vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserById: vi.fn(),
+  findCredentialAccount: vi.fn(),
 }));
 vi.mock('@/services/account/userSettings.service', () => ({
   createDefaultUserSettings: vi.fn(),
@@ -205,26 +206,89 @@ describe('before hook (closed better-auth endpoints)', () => {
   const runBeforeHook = (path: string, body: unknown = {}) =>
     (auth.options.hooks!.before as unknown as BeforeHook)({ path, body });
 
-  it.each(['/request-password-reset', '/reset-password/some-token', '/update-user'])(
-    '%s returns 404 (these mutations run through our server actions)',
-    async (path) => {
-      await expect(runBeforeHook(path)).rejects.toMatchObject({ statusCode: 404 });
-    },
-  );
+  it.each(['/update-user'])('%s returns 404 (these mutations run through our server actions)', async (path) => {
+    await expect(runBeforeHook(path)).rejects.toMatchObject({ statusCode: 404 });
+  });
 
   it('leaves the live endpoints alone', async () => {
     await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
     await expect(runBeforeHook('/change-password', { newPassword: 'Correct-horse-1' })).resolves.toBeUndefined();
+    await expect(
+      runBeforeHook('/request-password-reset', { email: 'pass-through@example.com' }),
+    ).resolves.toBeUndefined();
+    await expect(runBeforeHook('/reset-password', { newPassword: 'Correct-horse-1' })).resolves.toBeUndefined();
   });
 
   it.each([
     ['/change-password', { newPassword: 'no-uppercase-1' }],
     ['/sign-up/email', { password: 'no-uppercase-1' }],
+    ['/reset-password', { newPassword: 'no-uppercase-1' }],
   ])('rejects weak passwords on %s when the client-side schema is bypassed', async (path, body) => {
     await expect(runBeforeHook(path, body)).rejects.toMatchObject({
       statusCode: 400,
       body: { code: 'WEAK_PASSWORD' },
     });
+  });
+});
+
+describe('password reset (built-in endpoints)', () => {
+  const RESET_USER = makeUser() as never;
+
+  it('keeps the 1-hour token expiry and revokes all sessions after a reset', () => {
+    expect(auth.options.emailAndPassword).toMatchObject({
+      resetPasswordTokenExpiresIn: 3600,
+      revokeSessionsOnPasswordReset: true,
+    });
+  });
+
+  it('sendResetPassword enqueues the reset-password email with the emailed better-auth url', async () => {
+    vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' });
+
+    await auth.options.emailAndPassword!.sendResetPassword!({
+      user: RESET_USER,
+      url: 'http://localhost:3000/api/auth/reset-password/tok-1?callbackURL=%2Freset-password',
+      token: 'tok-1',
+    });
+
+    expect(enqueueEmail).toHaveBeenCalledWith({
+      type: 'reset-password',
+      recipientKey: 'user:user-1',
+      campaignKey: 'reset-password:tok-1',
+      data: {
+        to: 'user@example.com',
+        userName: 'Test User',
+        resetUrl: 'http://localhost:3000/api/auth/reset-password/tok-1?callbackURL=%2Freset-password',
+        expirationTime: '1 hour',
+      },
+    });
+  });
+
+  it('sendResetPassword silently skips OAuth-only accounts (no credential account, no email)', async () => {
+    vi.mocked(findCredentialAccount).mockResolvedValue(null);
+
+    await auth.options.emailAndPassword!.sendResetPassword!({
+      user: RESET_USER,
+      url: 'http://localhost:3000/api/auth/reset-password/tok-2?callbackURL=%2Freset-password',
+      token: 'tok-2',
+    });
+
+    expect(enqueueEmail).not.toHaveBeenCalled();
+  });
+
+  it('onPasswordReset sends the password-changed notification after a successful reset', async () => {
+    await auth.options.emailAndPassword!.onPasswordReset!({ user: RESET_USER });
+
+    expect(enqueueEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'password-changed',
+        recipientKey: 'user:user-1',
+        data: {
+          to: 'user@example.com',
+          userName: 'Test User',
+          resetPasswordUrl: 'http://localhost:3000/forgot-password',
+        },
+      }),
+    );
   });
 });
 
@@ -254,8 +318,9 @@ describe('account update hook (password-changed notification)', () => {
     );
   });
 
-  it('ignores account updates from other endpoints (OAuth token refreshes)', async () => {
+  it('ignores account updates from other endpoints (OAuth token refreshes, /reset-password has onPasswordReset)', async () => {
     await runAccountUpdateHook('/callback/github');
+    await runAccountUpdateHook('/reset-password');
     await runAccountUpdateHook();
 
     expect(enqueueEmail).not.toHaveBeenCalled();

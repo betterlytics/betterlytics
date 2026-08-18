@@ -818,7 +818,8 @@
           "sending": "Invio...",
           "remember": "Ricordi la tua password?",
           "backToSignIn": "Torna all'accesso"
-        }
+        },
+        "errorMessageTooManyRequests": "Troppe richieste di reimpostazione. Riprova più tardi."
       },
       "resetPassword": {
         "seo": {
@@ -847,7 +848,13 @@
         },
         "form": {
           "title": "Imposta la tua nuova password",
-          "description": "Inserisci la tua nuova password sotto"
+          "description": "Inserisci la tua nuova password sotto",
+          "errors": {
+            "invalidToken": "Questo link di reimpostazione non è valido o è scaduto. Richiedine uno nuovo.",
+            "weakPassword": "La password non soddisfa i requisiti.",
+            "tooManyAttempts": "Troppi tentativi. Riprova più tardi.",
+            "generic": "Impossibile reimpostare la password. Riprova."
+          }
         },
         "cta": {
           "remember": "Ricordi la tua password?",
