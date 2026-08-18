@@ -14,7 +14,7 @@ import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { findUserById } from '@/repositories/postgres/user.repository';
+import { findUserById, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { PasswordSchema } from '@/entities/auth/password.entities';
 import { sendPasswordChangedNotification } from '@/services/auth/passwordReset.service';
 
@@ -43,6 +43,26 @@ export const auth = betterAuth({
     password: {
       hash: (password) => hashPassword(password),
       verify: ({ hash, password }) => verifyPasswordHash(password, hash),
+    },
+    resetPasswordTokenExpiresIn: 3600,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: async ({ user, url, token }) => {
+      // Skipping OAuth-only accounts: /reset-password would otherwise create a credential account.
+      if (!(await findCredentialAccount(user.id))) return;
+      await enqueueEmail({
+        type: 'reset-password',
+        recipientKey: createUserRecipientKey(user.id),
+        campaignKey: `reset-password:${token}`,
+        data: {
+          to: user.email,
+          userName: user.name ?? null,
+          resetUrl: url,
+          expirationTime: '1 hour',
+        },
+      });
+    },
+    onPasswordReset: async ({ user }) => {
+      await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
     },
   },
   socialProviders: {
@@ -83,11 +103,7 @@ export const auth = betterAuth({
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
       // Account mutations run through our server actions
-      if (
-        ctx.path === '/request-password-reset' ||
-        ctx.path.startsWith('/reset-password') ||
-        ctx.path === '/update-user'
-      ) {
+      if (ctx.path === '/update-user') {
         throw new APIError('NOT_FOUND');
       }
 

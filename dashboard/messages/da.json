@@ -818,7 +818,8 @@
           "sending": "Sender...",
           "remember": "Kan du huske din adgangskode?",
           "backToSignIn": "Tilbage til login"
-        }
+        },
+        "errorMessageTooManyRequests": "For mange anmodninger om nulstilling. Prøv igen senere."
       },
       "resetPassword": {
         "seo": {
@@ -847,7 +848,13 @@
         },
         "form": {
           "title": "Angiv din nye adgangskode",
-          "description": "Indtast din nye adgangskode nedenfor"
+          "description": "Indtast din nye adgangskode nedenfor",
+          "errors": {
+            "invalidToken": "Dette nulstillingslink er ugyldigt eller udløbet. Anmod venligst om et nyt.",
+            "weakPassword": "Adgangskoden opfylder ikke kravene.",
+            "tooManyAttempts": "For mange forsøg. Prøv igen senere.",
+            "generic": "Kunne ikke nulstille adgangskoden. Prøv venligst igen."
+          }
         },
         "cta": {
           "remember": "Kan du huske din adgangskode?",

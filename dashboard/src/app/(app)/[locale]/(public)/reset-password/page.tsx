@@ -5,7 +5,6 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import ResetPasswordForm from '@/components/auth/ResetPasswordForm';
 import Logo from '@/components/logo';
 import { Link } from '@/i18n/navigation';
-import { validateResetTokenAction } from '@/app/actions/auth/passwordReset.action';
 import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
@@ -36,6 +35,7 @@ export async function generateMetadata({
 interface ResetPasswordPageProps {
   searchParams: Promise<{
     token?: string;
+    error?: string;
   }>;
 }
 
@@ -71,7 +71,24 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
     redirect('/dashboards');
   }
 
-  const { token } = await searchParams;
+  // better-auth's emailed link pre-validates the token, landing here with ?token= or ?error=INVALID_TOKEN
+  const { token, error } = await searchParams;
+
+  if (error) {
+    return (
+      <>
+        <StructuredData config={seoConfig} />
+        <ResetPasswordLayout title={t('expired.title')} description={t('expired.description')}>
+          <div className='text-center'>
+            <p className='text-muted-foreground mb-4 text-sm'>{t('expired.info')}</p>
+            <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
+              {t('expired.requestLink')}
+            </Link>
+          </div>
+        </ResetPasswordLayout>
+      </>
+    );
+  }
 
   if (!token) {
     return (
@@ -82,24 +99,6 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
             <p className='text-muted-foreground mb-4 text-sm'>{t('invalid.note')}</p>
             <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
               {t('invalid.requestLink')}
-            </Link>
-          </div>
-        </ResetPasswordLayout>
-      </>
-    );
-  }
-
-  const isValidToken = await validateResetTokenAction(token);
-
-  if (!isValidToken) {
-    return (
-      <>
-        <StructuredData config={seoConfig} />
-        <ResetPasswordLayout title={t('expired.title')} description={t('expired.description')}>
-          <div className='text-center'>
-            <p className='text-muted-foreground mb-4 text-sm'>{t('expired.info')}</p>
-            <Link href='/forgot-password' className='text-primary hover:text-primary/80 font-medium underline'>
-              {t('expired.requestLink')}
             </Link>
           </div>
         </ResetPasswordLayout>
