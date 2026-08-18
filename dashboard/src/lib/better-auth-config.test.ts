@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
-import { APIError } from 'better-auth/api';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
@@ -218,24 +217,28 @@ describe('before hook (closed better-auth endpoints)', () => {
     await expect(runBeforeHook('/change-password', { newPassword: 'Correct-horse-1' })).resolves.toBeUndefined();
   });
 
-  it('rejects weak change-password payloads that bypass the client-side schema', async () => {
-    await expect(runBeforeHook('/change-password', { newPassword: 'no-uppercase-1' })).rejects.toMatchObject({
+  it.each([
+    ['/change-password', { newPassword: 'no-uppercase-1' }],
+    ['/sign-up/email', { password: 'no-uppercase-1' }],
+  ])('rejects weak passwords on %s when the client-side schema is bypassed', async (path, body) => {
+    await expect(runBeforeHook(path, body)).rejects.toMatchObject({
       statusCode: 400,
       body: { code: 'WEAK_PASSWORD' },
     });
   });
 });
 
-describe('after hook (password-changed notification)', () => {
-  type AfterHook = (ctx: { path: string; context: { returned?: unknown } }) => Promise<unknown>;
-  const runAfterHook = (path: string, returned?: unknown) =>
-    (auth.options.hooks!.after as unknown as AfterHook)({ path, context: { returned } });
+describe('account update hook (password-changed notification)', () => {
+  const runAccountUpdateHook = (path?: string) =>
+    auth.options.databaseHooks!.account!.update!.after!(
+      { userId: 'user-1' } as never,
+      (path ? { path } : undefined) as never,
+    );
 
-  // What /change-password returns on success in better-auth 1.6.26
-  const successResponse = { token: 'rotated-session-token', user: makeUser() };
+  it('enqueues a password-changed notification after /change-password updates the account', async () => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser());
 
-  it('enqueues a password-changed notification after a successful change', async () => {
-    await runAfterHook('/change-password', successResponse);
+    await runAccountUpdateHook('/change-password');
 
     expect(enqueueEmail).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -250,22 +253,21 @@ describe('after hook (password-changed notification)', () => {
     );
   });
 
-  it('does not notify when the change failed (returned is an APIError)', async () => {
-    await runAfterHook('/change-password', new APIError('BAD_REQUEST', { code: 'INVALID_PASSWORD' }));
+  it('ignores account updates from other endpoints (OAuth token refreshes)', async () => {
+    await runAccountUpdateHook('/callback/github');
+    await runAccountUpdateHook();
 
     expect(enqueueEmail).not.toHaveBeenCalled();
   });
 
-  it('ignores other endpoints', async () => {
-    await runAfterHook('/sign-in/email', successResponse);
-
+  it('does not fail the password change when the user is missing or the enqueue throws', async () => {
+    vi.mocked(findUserById).mockResolvedValue(null as never);
+    await expect(runAccountUpdateHook('/change-password')).resolves.toBeUndefined();
     expect(enqueueEmail).not.toHaveBeenCalled();
-  });
 
-  it('does not fail the password change when the email enqueue throws', async () => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser());
     vi.mocked(enqueueEmail).mockRejectedValue(new Error('queue down'));
-
-    await expect(runAfterHook('/change-password', successResponse)).resolves.toBeUndefined();
+    await expect(runAccountUpdateHook('/change-password')).resolves.toBeUndefined();
   });
 });
 

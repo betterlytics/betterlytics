@@ -3024,7 +3024,8 @@
         "cancel": "Avbryt",
         "toast": {
           "success": "Passord oppdatert",
-          "invalidCurrentPassword": "Nåværende passord er feil"
+          "invalidCurrentPassword": "Nåværende passord er feil",
+          "tooManyAttempts": "For mange forsøk. Vent et øyeblikk og prøv igjen."
         },
         "totp": {
           "title": "Tofaktorautentisering",
