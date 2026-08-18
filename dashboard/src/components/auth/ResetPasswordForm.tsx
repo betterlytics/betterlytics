@@ -52,11 +52,11 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           return;
         }
 
-        toast.success('Password reset successful!');
+        toast.success(t('successMessage'));
         router.push('/signin');
       });
-    } catch (error) {
-      setError('Please check your password requirements');
+    } catch {
+      setError(t('errors.weakPassword'));
     }
   };
 

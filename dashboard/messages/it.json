@@ -854,7 +854,8 @@
             "weakPassword": "La password non soddisfa i requisiti.",
             "tooManyAttempts": "Troppi tentativi. Riprova più tardi.",
             "generic": "Impossibile reimpostare la password. Riprova."
-          }
+          },
+          "successMessage": "Password reimpostata con successo!"
         },
         "cta": {
           "remember": "Ricordi la tua password?",

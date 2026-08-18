@@ -9,3 +9,6 @@ ALTER TABLE "PasswordResetToken" DROP CONSTRAINT "PasswordResetToken_userId_fkey
 
 -- DropTable
 DROP TABLE "PasswordResetToken";
+
+-- CreateIndex
+CREATE INDEX "Verification_value_idx" ON "Verification"("value");

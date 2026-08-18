@@ -181,6 +181,7 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@index([identifier])
+  @@index([value])
 }
 
 model TwoFactor {

@@ -16,7 +16,13 @@ import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { PasswordSchema } from '@/entities/auth/password.entities';
-import { sendPasswordChangedNotification } from '@/services/auth/passwordReset.service';
+import {
+  RESET_TOKEN_EXPIRY_SECONDS,
+  resetTokenStoredIdentifier,
+  sendPasswordChangedNotification,
+  sendResetPasswordEmail,
+} from '@/services/auth/passwordReset.service';
+import { RESET_TOKEN_PREFIX, deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
 
 // better-auth only enforces password length; these body fields get our full policy.
 const PASSWORD_POLICY_FIELDS: Record<string, string> = {
@@ -44,25 +50,22 @@ export const auth = betterAuth({
       hash: (password) => hashPassword(password),
       verify: ({ hash, password }) => verifyPasswordHash(password, hash),
     },
-    resetPasswordTokenExpiresIn: 3600,
+    resetPasswordTokenExpiresIn: RESET_TOKEN_EXPIRY_SECONDS,
     revokeSessionsOnPasswordReset: true,
-    sendResetPassword: async ({ user, url, token }) => {
-      // Skipping OAuth-only accounts: /reset-password would otherwise create a credential account.
-      if (!(await findCredentialAccount(user.id))) return;
-      await enqueueEmail({
-        type: 'reset-password',
-        recipientKey: createUserRecipientKey(user.id),
-        campaignKey: `reset-password:${token}`,
-        data: {
-          to: user.email,
-          userName: user.name ?? null,
-          resetUrl: url,
-          expirationTime: '1 hour',
-        },
-      });
-    },
+    sendResetPassword: ({ user, url, token }) => sendResetPasswordEmail({ ...user, name: user.name ?? null }, url, token),
     onPasswordReset: async ({ user }) => {
+      await deleteUserResetTokens(user.id);
       await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
+    },
+  },
+  verification: {
+    storeIdentifier: {
+      default: 'plain',
+      overrides: {
+        [RESET_TOKEN_PREFIX]: {
+          hash: async (identifier: string) => resetTokenStoredIdentifier(identifier.slice(RESET_TOKEN_PREFIX.length)),
+        },
+      },
     },
   },
   socialProviders: {
@@ -105,6 +108,17 @@ export const auth = betterAuth({
       // Account mutations run through our server actions
       if (ctx.path === '/update-user') {
         throw new APIError('NOT_FOUND');
+      }
+
+      // Redeeming a reset for an OAuth-only account would attach a password login to it
+      if (ctx.path === '/reset-password') {
+        const token = ctx.body?.token;
+        if (typeof token === 'string' && token) {
+          const userId = await findResetTokenUserId(resetTokenStoredIdentifier(token));
+          if (userId && !(await findCredentialAccount(userId))) {
+            throw new APIError('BAD_REQUEST', { message: 'Invalid token', code: 'INVALID_TOKEN' });
+          }
+        }
       }
 
       const passwordField = PASSWORD_POLICY_FIELDS[ctx.path];

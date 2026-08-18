@@ -9,6 +9,8 @@ import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { makeUser, hashPassword } from '@/test/auth-fixtures';
+import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
+import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -25,13 +27,17 @@ vi.mock('@/lib/postgres', () => ({
   default: {},
 }));
 vi.mock('@/repositories/postgres/session.repository', () => ({
-  deleteAllUserSessions: vi.fn(),
   deleteOtherUserSessions: vi.fn(),
   countUserSessions: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserById: vi.fn(),
   findCredentialAccount: vi.fn(),
+}));
+vi.mock('@/repositories/postgres/resetToken.repository', () => ({
+  RESET_TOKEN_PREFIX: 'reset-password:',
+  findResetTokenUserId: vi.fn(),
+  deleteUserResetTokens: vi.fn(),
 }));
 vi.mock('@/services/account/userSettings.service', () => ({
   createDefaultUserSettings: vi.fn(),
@@ -206,8 +212,8 @@ describe('before hook (closed better-auth endpoints)', () => {
   const runBeforeHook = (path: string, body: unknown = {}) =>
     (auth.options.hooks!.before as unknown as BeforeHook)({ path, body });
 
-  it.each(['/update-user'])('%s returns 404 (these mutations run through our server actions)', async (path) => {
-    await expect(runBeforeHook(path)).rejects.toMatchObject({ statusCode: 404 });
+  it('/update-user returns 404 (profile mutations run through our server actions)', async () => {
+    await expect(runBeforeHook('/update-user')).rejects.toMatchObject({ statusCode: 404 });
   });
 
   it('leaves the live endpoints alone', async () => {
@@ -217,6 +223,30 @@ describe('before hook (closed better-auth endpoints)', () => {
       runBeforeHook('/request-password-reset', { email: 'pass-through@example.com' }),
     ).resolves.toBeUndefined();
     await expect(runBeforeHook('/reset-password', { newPassword: 'Correct-horse-1' })).resolves.toBeUndefined();
+  });
+
+  describe('reset redemption guard (OAuth-only accounts)', () => {
+    const body = { token: 'raw-token', newPassword: 'Correct-horse-1' };
+
+    it('rejects redemption when the token belongs to an account without a password', async () => {
+      vi.mocked(findResetTokenUserId).mockResolvedValue('user-1');
+      vi.mocked(findCredentialAccount).mockResolvedValue(null);
+
+      await expect(runBeforeHook('/reset-password', body)).rejects.toMatchObject({
+        statusCode: 400,
+        body: { code: 'INVALID_TOKEN' },
+      });
+      expect(findResetTokenUserId).toHaveBeenCalledWith(resetTokenStoredIdentifier('raw-token'));
+    });
+
+    it('lets credential accounts and unknown tokens through to better-auth', async () => {
+      vi.mocked(findResetTokenUserId).mockResolvedValue('user-1');
+      vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' } as never);
+      await expect(runBeforeHook('/reset-password', body)).resolves.toBeUndefined();
+
+      vi.mocked(findResetTokenUserId).mockResolvedValue(null);
+      await expect(runBeforeHook('/reset-password', body)).resolves.toBeUndefined();
+    });
   });
 
   it.each([
@@ -241,7 +271,7 @@ describe('password reset (built-in endpoints)', () => {
     });
   });
 
-  it('sendResetPassword enqueues the reset-password email with the emailed better-auth url', async () => {
+  it('sendResetPassword prunes older tokens and enqueues the emailed better-auth url', async () => {
     vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' });
 
     await auth.options.emailAndPassword!.sendResetPassword!({
@@ -250,10 +280,11 @@ describe('password reset (built-in endpoints)', () => {
       token: 'tok-1',
     });
 
+    expect(deleteUserResetTokens).toHaveBeenCalledWith('user-1', resetTokenStoredIdentifier('tok-1'));
     expect(enqueueEmail).toHaveBeenCalledWith({
       type: 'reset-password',
-      recipientKey: 'user:user-1',
-      campaignKey: 'reset-password:tok-1',
+      recipientKey: expect.any(String),
+      campaignKey: resetTokenStoredIdentifier('tok-1'),
       data: {
         to: 'user@example.com',
         userName: 'Test User',
@@ -261,6 +292,20 @@ describe('password reset (built-in endpoints)', () => {
         expirationTime: '1 hour',
       },
     });
+  });
+
+  it('stores reset tokens hashed at rest but keeps the identifier prefix', async () => {
+    const overrides = (
+      auth.options.verification!.storeIdentifier as unknown as {
+        overrides: Record<string, { hash: (identifier: string) => Promise<string> }>;
+      }
+    ).overrides;
+
+    const stored = await overrides['reset-password:']!.hash('reset-password:tok-1');
+
+    expect(stored).toBe(resetTokenStoredIdentifier('tok-1'));
+    expect(stored).toMatch(/^reset-password:[0-9a-f]{64}$/);
+    expect(stored).not.toContain('tok-1');
   });
 
   it('sendResetPassword silently skips OAuth-only accounts (no credential account, no email)', async () => {
@@ -275,9 +320,10 @@ describe('password reset (built-in endpoints)', () => {
     expect(enqueueEmail).not.toHaveBeenCalled();
   });
 
-  it('onPasswordReset sends the password-changed notification after a successful reset', async () => {
+  it('onPasswordReset invalidates remaining tokens and sends the password-changed notification', async () => {
     await auth.options.emailAndPassword!.onPasswordReset!({ user: RESET_USER });
 
+    expect(deleteUserResetTokens).toHaveBeenCalledWith('user-1');
     expect(enqueueEmail).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'password-changed',

@@ -854,7 +854,8 @@
             "weakPassword": "Password does not meet the requirements.",
             "tooManyAttempts": "Too many attempts. Please try again later.",
             "generic": "Failed to reset password. Please try again."
-          }
+          },
+          "successMessage": "Password reset successful!"
         },
         "cta": {
           "remember": "Remember your password?",
