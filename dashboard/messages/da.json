@@ -2679,8 +2679,7 @@
       "stepLabel": "Trin {number}",
       "filterTrigger": "Filter",
       "stepFilterDialogTitle": "Filtre for trin {number}",
-      "stepFilterBandLabel": "Filtre pr. trin",
-      "stepFilterHint": "Trin før dette påvirkes ikke. Fra dette trin fortsætter kun rejser, der matcher."
+      "stepFilterBandLabel": "Filtre pr. trin"
     },
     "outboundLinks": {
       "table": {
