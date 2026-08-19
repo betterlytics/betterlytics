@@ -2679,8 +2679,7 @@
       "stepLabel": "Step {number}",
       "filterTrigger": "Filter",
       "stepFilterDialogTitle": "Step {number} filters",
-      "stepFilterBandLabel": "Per-step filters",
-      "stepFilterHint": "Steps before this one are unaffected. From this step on, only matching journeys continue."
+      "stepFilterBandLabel": "Per-step filters"
     },
     "outboundLinks": {
       "table": {

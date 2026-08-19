@@ -57,7 +57,6 @@ export function UserJourneyStepFilterPopover({ slot, lastSlot, align, trigger }:
 
   const body = (
     <QueryFilterColumnsVisibilityProvider exclude={excludedColumns} mode='hide'>
-      <p className='text-muted-foreground px-1 pb-1 text-xs'>{t('stepFilterHint')}</p>
       <QueryFiltersSelectorContent
         initialFilters={committed}
         filters={filters}

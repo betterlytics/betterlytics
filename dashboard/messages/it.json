@@ -2679,8 +2679,7 @@
       "stepLabel": "Passaggio {number}",
       "filterTrigger": "Filtro",
       "stepFilterDialogTitle": "Filtri del passaggio {number}",
-      "stepFilterBandLabel": "Filtri per passaggio",
-      "stepFilterHint": "I passaggi precedenti non vengono influenzati. Da questo passaggio in poi continuano solo i percorsi corrispondenti."
+      "stepFilterBandLabel": "Filtri per passaggio"
     },
     "outboundLinks": {
       "table": {
