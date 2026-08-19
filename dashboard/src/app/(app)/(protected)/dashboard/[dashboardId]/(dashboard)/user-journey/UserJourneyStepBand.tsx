@@ -5,8 +5,6 @@ import { ChevronDownIcon, FilterIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { FilterDescription } from '@/components/filters/FilterDescription';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
 import { useAllowedStepFilters } from '@/hooks/use-is-filter-column-allowed';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
@@ -28,60 +26,40 @@ export function UserJourneyStepBand() {
       aria-label={t('stepFilterBandLabel')}
     >
       {cells.map((cell, slot) => {
-        const activeFilters = filterEmptyQueryFilters(allowedStepFilters[slot] ?? []);
-        const count = activeFilters.length;
+        const count = filterEmptyQueryFilters(allowedStepFilters[slot] ?? []).length;
         const align = slot >= numberOfSteps - 2 ? 'end' : 'start';
 
         return (
           <div key={slot} style={{ width: `${cell.width}%` }} className='min-w-0 border-r last:border-r-0'>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className='block'>
-                  <UserJourneyStepFilterPopover
-                    slot={slot}
-                    lastSlot={numberOfSteps - 1}
-                    align={align}
-                    trigger={
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        className={cn(
-                          'group h-auto w-full cursor-pointer justify-between gap-1.5 rounded-none px-2 py-1.5 text-xs',
-                          slot === 0 && 'rounded-l-[calc(var(--radius-md)-1px)]',
-                          slot === numberOfSteps - 1 && 'rounded-r-[calc(var(--radius-md)-1px)]',
-                          count > 0 ? 'text-foreground' : 'text-muted-foreground',
-                        )}
-                      >
-                        <span className='flex min-w-0 items-center gap-1.5'>
-                          <Badge variant='outline' className='rounded-sm px-1.5 text-[11px] font-medium text-current'>
-                            {t('stepLabel', { number: slot + 1 })}
-                          </Badge>
-                          <FilterIcon className='size-3.5 shrink-0' />
-                          <span className='truncate'>{t('filterTrigger')}</span>
-                          {count > 0 && (
-                            <Badge className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'>
-                              {count}
-                            </Badge>
-                          )}
-                        </span>
-                        <ChevronDownIcon className='size-3.5 shrink-0 opacity-50 transition-transform group-data-[state=open]:rotate-180' />
-                      </Button>
-                    }
-                  />
-                </span>
-              </TooltipTrigger>
-              {count > 0 && (
-                <TooltipContent side='bottom' className='flex max-w-xs flex-col gap-1'>
-                  {activeFilters.map((filter) => (
-                    <FilterDescription
-                      key={filter.id}
-                      filter={filter}
-                      className='[&_[data-filter-column]_svg]:text-current [&_[data-operator]]:text-current'
-                    />
-                  ))}
-                </TooltipContent>
-              )}
-            </Tooltip>
+            <UserJourneyStepFilterPopover
+              slot={slot}
+              lastSlot={numberOfSteps - 1}
+              align={align}
+              trigger={
+                <Button
+                  variant='ghost'
+                  size='sm'
+                  className={cn(
+                    'group h-auto w-full cursor-pointer justify-between gap-1.5 rounded-none px-2 py-1.5 text-xs',
+                    slot === 0 && 'rounded-l-[calc(var(--radius-md)-1px)]',
+                    slot === numberOfSteps - 1 && 'rounded-r-[calc(var(--radius-md)-1px)]',
+                    count > 0 ? 'text-foreground' : 'text-muted-foreground',
+                  )}
+                >
+                  <span className='flex min-w-0 items-center gap-1.5'>
+                    <Badge variant='outline' className='rounded-sm px-1.5 text-[11px] font-medium text-current'>
+                      {t('stepLabel', { number: slot + 1 })}
+                    </Badge>
+                    <FilterIcon className='size-3.5 shrink-0' />
+                    <span className='truncate'>{t('filterTrigger')}</span>
+                    {count > 0 && (
+                      <Badge className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'>{count}</Badge>
+                    )}
+                  </span>
+                  <ChevronDownIcon className='size-3.5 shrink-0 opacity-50 transition-transform group-data-[state=open]:rotate-180' />
+                </Button>
+              }
+            />
           </div>
         );
       })}
