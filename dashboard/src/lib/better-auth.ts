@@ -134,39 +134,36 @@ export const auth = betterAuth({
         },
       },
       update: {
-        // Currently only twoFactorChange runs via this update hook, hence the path prefix check
         after: async (user, ctx) => {
-          if (!ctx?.path?.startsWith('/two-factor/')) return;
-          if (!user.email) return;
-
-          const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
-          const type = enabled ? ('two-factor-enabled' as const) : ('two-factor-disabled' as const);
-          try {
-            await enqueueEmail({
-              type,
-              recipientKey: createUserRecipientKey(user.id),
-              campaignKey: `${type}:${new Date().toISOString()}`,
-              data: { to: user.email, userName: user.name ?? null },
-            });
-          } catch (error) {
-            console.error('Failed to enqueue 2FA change notification:', error);
+          if (ctx?.path?.startsWith('/two-factor/') && user.email) {
+            const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
+            const type = enabled ? ('two-factor-enabled' as const) : ('two-factor-disabled' as const);
+            try {
+              await enqueueEmail({
+                type,
+                recipientKey: createUserRecipientKey(user.id),
+                campaignKey: `${type}:${new Date().toISOString()}`,
+                data: { to: user.email, userName: user.name ?? null },
+              });
+            } catch (error) {
+              console.error('Failed to enqueue 2FA change notification:', error);
+            }
           }
         },
       },
     },
     account: {
       update: {
-        // The password hash lives on the account row; /change-password is its only
-        // path-gated mutation, so this observes the DB-confirmed write.
         after: async (account, ctx) => {
-          if (ctx?.path !== '/change-password') return;
-          try {
-            const user = await findUserById(account.userId);
-            if (user?.email) {
+          if (ctx?.path === '/change-password') {
+            const user = ctx.context.session?.user;
+            if (user) {
               await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
+            } else {
+              console.error('Skipped password-changed notification: no session user', {
+                accountId: account.id,
+              });
             }
-          } catch (error) {
-            console.error('Failed to enqueue password-changed notification:', error);
           }
         },
       },
