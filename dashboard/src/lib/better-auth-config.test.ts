@@ -229,15 +229,16 @@ describe('before hook (closed better-auth endpoints)', () => {
 });
 
 describe('account update hook (password-changed notification)', () => {
-  const runAccountUpdateHook = (path?: string) =>
+  const runAccountUpdateHook = (path?: string, user: unknown = makeUser()) =>
     auth.options.databaseHooks!.account!.update!.after!(
-      { userId: 'user-1' } as never,
-      (path ? { path } : undefined) as never,
+      { id: 'account-1', userId: 'user-1' } as never,
+      {
+        path,
+        context: { session: user ? { user } : null },
+      } as never,
     );
 
   it('enqueues a password-changed notification after /change-password updates the account', async () => {
-    vi.mocked(findUserById).mockResolvedValue(makeUser());
-
     await runAccountUpdateHook('/change-password');
 
     expect(enqueueEmail).toHaveBeenCalledWith(
@@ -260,13 +261,19 @@ describe('account update hook (password-changed notification)', () => {
     expect(enqueueEmail).not.toHaveBeenCalled();
   });
 
-  it('does not fail the password change when the user is missing or the enqueue throws', async () => {
-    vi.mocked(findUserById).mockResolvedValue(null as never);
-    await expect(runAccountUpdateHook('/change-password')).resolves.toBeUndefined();
-    expect(enqueueEmail).not.toHaveBeenCalled();
+  it('logs instead of notifying when the request carries no session', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    vi.mocked(findUserById).mockResolvedValue(makeUser());
+    await expect(runAccountUpdateHook('/change-password', null)).resolves.toBeUndefined();
+
+    expect(enqueueEmail).not.toHaveBeenCalled();
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('no session user'), { accountId: 'account-1' });
+    error.mockRestore();
+  });
+
+  it('does not fail the password change when the enqueue throws', async () => {
     vi.mocked(enqueueEmail).mockRejectedValue(new Error('queue down'));
+
     await expect(runAccountUpdateHook('/change-password')).resolves.toBeUndefined();
   });
 });
