@@ -19,9 +19,7 @@ export function FilterDescription({ filter, className }: FilterDescriptionProps)
   return (
     <span className={cn('inline-flex min-w-0 items-center gap-1 [&_svg]:size-3', className)}>
       <FilterColumnLabel column={filter.column} className='shrink-0' />
-      <span data-operator className='text-muted-foreground/80'>
-        {operator}
-      </span>
+      <span className='text-muted-foreground/80'>{operator}</span>
       {filter.values.map((value, index) => (
         <FilterValueLabel key={value} column={filter.column} value={value} className='flex min-w-0 gap-1'>
           <span className='truncate'>
