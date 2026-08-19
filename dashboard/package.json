@@ -12,6 +12,7 @@
     "unit-tests": "vitest run",
     "migrate": "cd .. && pnpm prisma migrate dev --schema dashboard/prisma/schema.prisma && node scripts/provision_roles.js",
     "generate": "cd .. && pnpm prisma generate --schema dashboard/prisma/schema.prisma",
+    "icons:sync": "tsx scripts/sync-icons.ts",
     "mcp": "tsx src/mcp/index.ts",
     "email": "email dev --dir src/services/email/template"
   },
@@ -27,7 +28,6 @@
     "@dnd-kit/modifiers": "^9.0.0",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@iconify/react": "^6.0.0",
     "@modelcontextprotocol/sdk": "^1.30.0",
     "@number-flow/react": "^0.5.11",
     "@opentelemetry/api": "^1.9.1",
