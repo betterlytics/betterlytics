@@ -11,6 +11,7 @@ export const featureFlags = {
   enableBilling: env.ENABLE_BILLING,
   enableSessionReplay: env.SESSION_REPLAYS_ENABLED,
   enableBugReports: env.IS_CLOUD,
+  isCloud: env.IS_CLOUD,
   enableUptimeMonitoring: env.ENABLE_UPTIME_MONITORING,
   // Status pages publish uptime data, so they additionally require monitoring to be enabled
   enablePublicStatusPages: env.ENABLE_UPTIME_MONITORING && env.ENABLE_PUBLIC_STATUS_PAGES,
