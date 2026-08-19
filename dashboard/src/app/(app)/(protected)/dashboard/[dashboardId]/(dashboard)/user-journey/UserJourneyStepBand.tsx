@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { getStepBandGeometry } from './bandGeometry';
 import { UserJourneyStepFilterPopover } from './UserJourneyStepFilterPopover';
 
-export function UserJourneyStepBand() {
+export function UserJourneyStepBand({ failingSlot }: { failingSlot: number | null }) {
   const t = useTranslations('components.userJourney');
   const { numberOfSteps, stepFilters } = useUserJourneyFilter();
   const allowedStepFilters = useAllowedStepFilters(stepFilters, numberOfSteps);
@@ -28,6 +28,8 @@ export function UserJourneyStepBand() {
       {cells.map((cell, slot) => {
         const count = filterEmptyQueryFilters(allowedStepFilters[slot] ?? []).length;
         const align = slot >= numberOfSteps - 2 ? 'end' : 'start';
+        const isFailing = slot === failingSlot;
+        const isMoot = failingSlot !== null && slot > failingSlot;
 
         return (
           <div key={slot} style={{ width: `${cell.width}%` }} className='min-w-0 border-r last:border-r-0'>
@@ -43,7 +45,7 @@ export function UserJourneyStepBand() {
                     'group h-auto w-full cursor-pointer justify-between gap-1.5 rounded-none px-2 py-1.5 text-xs',
                     slot === 0 && 'rounded-l-[calc(var(--radius-md)-1px)]',
                     slot === numberOfSteps - 1 && 'rounded-r-[calc(var(--radius-md)-1px)]',
-                    count > 0 ? 'text-foreground' : 'text-muted-foreground',
+                    isMoot && 'text-muted-foreground',
                   )}
                 >
                   <span className='flex min-w-0 items-center gap-1.5'>
@@ -53,7 +55,12 @@ export function UserJourneyStepBand() {
                     <FilterIcon className='size-3.5 shrink-0' />
                     <span className='truncate'>{t('filterTrigger')}</span>
                     {count > 0 && (
-                      <Badge className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'>{count}</Badge>
+                      <Badge
+                        variant={isFailing ? 'destructive' : 'default'}
+                        className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'
+                      >
+                        {count}
+                      </Badge>
                     )}
                   </span>
                   <ChevronDownIcon className='size-3.5 shrink-0 opacity-50 transition-transform group-data-[state=open]:rotate-180' />
