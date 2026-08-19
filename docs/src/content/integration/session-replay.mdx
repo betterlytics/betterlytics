@@ -53,7 +53,7 @@ Add `data-replay="true"` to your analytics script to enable replays. You can als
 | `data-dynamic-urls` | string list | - | Comma‑separated SPA normalization patterns (supports `*` and `**`). |
 | `data-disable-replay-on-urls` | string list | - | Comma‑separated patterns where recording is disabled. |
 | `data-replay-on-error` | boolean | `false` | Capture a replay when an error occurs, even for sessions not selected for regular recording. Requires [Error Tracking](/integration/errors). |
-| `data-scripts-base-url` | string (URL) | Betterlytics CDN | Base to load `replay.js` when replay is enabled. |
+| `data-scripts-base-url` | string (URL) | The analytics script's own origin | Base to load `replay.js` when replay is enabled. |
 
 ### Using the npm package
 
@@ -209,7 +209,7 @@ Use `data-disable-replay-on-urls` patterns to disable recording on routes like `
 - Consent not applied: if you rely on a CMP, either call `setReplayConsent(true)` after consent resolves, or render the script with `data-consent-replay="true"` only after consent is granted.
 - Disabled by route pattern: check `data-disable-replay-on-urls`; ensure current URL doesn’t match a disabled pattern.
 - Sampling too low: raise `data-replay-sample` during testing (e.g., 100) and revert later.
-- Script loading: if self‑hosting, confirm `data-scripts-base-url` is correct and `replay.js` is reachable.
+- Script loading: `replay.js` loads from the same origin as the analytics script by default. If you proxy `analytics.js` through your own domain, either proxy `replay.js` too or set `data-scripts-base-url` explicitly to your Betterlytics origin.
 
 ## Best practices
 

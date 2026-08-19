@@ -31,8 +31,13 @@
         };
       }) ?? [];
 
-  var scriptsBaseUrl =
-    script.getAttribute("data-scripts-base-url") ?? "https://betterlytics.io";
+  var scriptsBaseUrl = script.getAttribute("data-scripts-base-url");
+  if (!scriptsBaseUrl) {
+    try {
+      scriptsBaseUrl = new URL(script.src).origin;
+    } catch (e) {}
+    scriptsBaseUrl = scriptsBaseUrl || "https://betterlytics.io";
+  }
 
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
@@ -263,7 +268,7 @@
     });
 
     var s = document.createElement("script");
-    s.src = "https://unpkg.com/web-vitals@5/dist/web-vitals.iife.js";
+    s.src = `${scriptsBaseUrl}/web-vitals.js`;
     s.async = true;
     s.onload = function () {
       if (typeof webVitals !== "undefined") {
