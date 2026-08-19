@@ -170,7 +170,7 @@ export default function UserJourneyChart({ data, numberOfSteps, failingSlot }: U
       {deadRegionLeft !== null && (
         <div
           style={{ left: `${deadRegionLeft}%` }}
-          className='border-border pointer-events-none absolute inset-y-0 right-0 z-20 flex items-center justify-center border-l border-dashed'
+          className='pointer-events-none absolute inset-y-0 right-0 z-20 flex items-center justify-center'
         >
           <div className='text-muted-foreground flex flex-col items-center gap-2 px-4 text-center text-sm'>
             <FilterXIcon className='size-5' />
