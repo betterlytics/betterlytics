@@ -11,22 +11,22 @@ import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvide
 import { useAllowedStepFilters } from '@/hooks/use-is-filter-column-allowed';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 import { cn } from '@/lib/utils';
-import { getStepBandCells } from './bandGeometry';
+import { getStepBandGeometry } from './bandGeometry';
 import { UserJourneyStepFilterPopover } from './UserJourneyStepFilterPopover';
 
 export function UserJourneyStepBand() {
   const t = useTranslations('components.userJourney');
   const { numberOfSteps, stepFilters } = useUserJourneyFilter();
   const allowedStepFilters = useAllowedStepFilters(stepFilters, numberOfSteps);
-  const cells = useMemo(() => getStepBandCells(numberOfSteps), [numberOfSteps]);
+  const { left, width, cells } = useMemo(() => getStepBandGeometry(numberOfSteps), [numberOfSteps]);
 
   return (
     <div
-      className='bg-card sticky top-0 z-20 flex w-full border-b'
+      style={{ marginLeft: `${left}%`, width: `${width}%` }}
+      className='bg-card sticky top-0 z-20 flex overflow-hidden rounded-md border'
       role='group'
       aria-label={t('stepFilterBandLabel')}
     >
-      <div style={{ width: `${cells.at(0)?.left ?? 0}%` }} />
       {cells.map((cell, slot) => {
         const activeFilters = filterEmptyQueryFilters(allowedStepFilters[slot] ?? []);
         const count = activeFilters.length;
