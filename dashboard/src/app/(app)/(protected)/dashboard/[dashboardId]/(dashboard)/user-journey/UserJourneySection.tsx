@@ -10,6 +10,10 @@ import { QuerySection } from '@/components/QuerySection';
 import { Spinner } from '@/components/ui/spinner';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
+import { useAllowedStepFilters } from '@/hooks/use-is-filter-column-allowed';
+import { filterEmptyQueryFilters } from '@/utils/queryFilters';
+import { getFailingSlot } from './deadRegion';
+import { useMemo } from 'react';
 
 export default function UserJourneySection() {
   const t = useTranslations('dashboard.emptyStates');
@@ -17,6 +21,14 @@ export default function UserJourneySection() {
   const { stepFilters, numberOfSteps } = useUserJourneyFilter();
   const query = trpc.userJourney.journey.useQuery(input, options);
   const hasStepFilters = Object.keys(stepFilters).length > 0;
+  const allowedStepFilters = useAllowedStepFilters(stepFilters, numberOfSteps);
+  const filteredSlots = useMemo(
+    () =>
+      Object.entries(allowedStepFilters)
+        .filter(([, filters]) => filterEmptyQueryFilters(filters).length > 0)
+        .map(([slot]) => Number(slot)),
+    [allowedStepFilters],
+  );
 
   return (
     <QuerySection
@@ -29,6 +41,7 @@ export default function UserJourneySection() {
     >
       {(journeyData) => {
         const isEmpty = journeyData?.nodes.length === 0;
+        const failingSlot = getFailingSlot(journeyData?.nodes ?? [], filteredSlots, numberOfSteps);
 
         const emptyState = (
           <Card className={hasStepFilters ? 'm-4' : 'mt-6'}>
@@ -50,8 +63,12 @@ export default function UserJourneySection() {
         return (
           <ScrollArea className='-mr-1 max-h-[70svh]'>
             <div className='min-w-[1000px] pr-1'>
-              <UserJourneyStepBand />
-              {isEmpty ? emptyState : <UserJourneyChart data={journeyData} numberOfSteps={numberOfSteps} />}
+              <UserJourneyStepBand failingSlot={failingSlot} />
+              {isEmpty ? (
+                emptyState
+              ) : (
+                <UserJourneyChart data={journeyData} numberOfSteps={numberOfSteps} failingSlot={failingSlot} />
+              )}
             </div>
             <ScrollBar orientation='horizontal' />
           </ScrollArea>

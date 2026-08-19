@@ -2679,7 +2679,8 @@
       "stepLabel": "Trinn {number}",
       "filterTrigger": "Filtre",
       "stepFilterDialogTitle": "Filtre for trinn {number}",
-      "stepFilterBandLabel": "Filtre per trinn"
+      "stepFilterBandLabel": "Filtre per trinn",
+      "stepFilterNoMatches": "Ingen reiser samsvarer med filtrene på trinn {number}"
     },
     "outboundLinks": {
       "table": {
