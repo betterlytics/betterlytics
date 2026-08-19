@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { getStepBandGeometry } from './bandGeometry';
 
 describe('getStepBandGeometry', () => {
-  it('spans from the first column to the chart content right edge', () => {
+  it('spans from the first column to the container right edge', () => {
     const band = getStepBandGeometry(4);
     expect(band.left).toBeCloseTo((20 / 900) * 100, 6);
-    expect(band.left + band.width).toBeCloseTo(((900 - 20) / 900) * 100, 6);
+    expect(band.left + band.width).toBeCloseTo(100, 6);
   });
 
   it('returns exactly numberOfSteps cells spanning the band', () => {
@@ -27,7 +27,7 @@ describe('getStepBandGeometry', () => {
   it('places interior boundaries on the steps-grid columns relative to the band', () => {
     const { cells } = getStepBandGeometry(4);
     const depthSpacing = (900 - 20 - 20 - 14 - 110) / 3;
-    const bandWidth = 900 - 20 - 20;
+    const bandWidth = 900 - 20;
     expect(cells[1].left).toBeCloseTo((depthSpacing / bandWidth) * 100, 6);
   });
 
