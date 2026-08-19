@@ -2677,7 +2677,7 @@
       "topJourneys": "Principali {journeys} percorsi",
       "sessions": "Sessioni",
       "stepLabel": "Passaggio {number}",
-      "filterTrigger": "Filtro",
+      "filterTrigger": "Filtri",
       "stepFilterDialogTitle": "Filtri del passaggio {number}",
       "stepFilterBandLabel": "Filtri per passaggio"
     },

@@ -2677,7 +2677,7 @@
       "topJourneys": "Top {journeys} Journeys",
       "sessions": "Sessions",
       "stepLabel": "Step {number}",
-      "filterTrigger": "Filter",
+      "filterTrigger": "Filters",
       "stepFilterDialogTitle": "Step {number} filters",
       "stepFilterBandLabel": "Per-step filters"
     },

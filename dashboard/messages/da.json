@@ -2677,7 +2677,7 @@
       "topJourneys": "Top {journeys} rejser",
       "sessions": "Sessioner",
       "stepLabel": "Trin {number}",
-      "filterTrigger": "Filter",
+      "filterTrigger": "Filtre",
       "stepFilterDialogTitle": "Filtre for trin {number}",
       "stepFilterBandLabel": "Filtre pr. trin"
     },
