@@ -1,0 +1,28 @@
+name: Main Migration Check
+
+# Backstop for stale merges: a PR's own check runs against main as it stood at
+# check time, so a migration merged to main afterwards can collide unnoticed.
+# This re-runs the check on main's actual state after every merge that touches
+# migrations, turning main red immediately instead of failing at deploy time.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "migrations/**"
+
+permissions:
+  contents: read
+
+jobs:
+  check-migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Verify migration version numbers are unique
+        run: node scripts/check-migration-versions.js
