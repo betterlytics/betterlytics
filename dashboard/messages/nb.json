@@ -2677,7 +2677,7 @@
       "topJourneys": "Topp {journeys} reiser",
       "sessions": "Sesjoner",
       "stepLabel": "Trinn {number}",
-      "filterTrigger": "Filter",
+      "filterTrigger": "Filtre",
       "stepFilterDialogTitle": "Filtre for trinn {number}",
       "stepFilterBandLabel": "Filtre per trinn"
     },

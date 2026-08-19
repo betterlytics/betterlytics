@@ -48,8 +48,8 @@ export default function UserJourneySection() {
         }
 
         return (
-          <ScrollArea className='max-h-[70svh] w-full'>
-            <div className='min-w-[1000px]'>
+          <ScrollArea className='-mr-1 max-h-[70svh]'>
+            <div className='min-w-[1000px] pr-1'>
               <UserJourneyStepBand />
               {isEmpty ? emptyState : <UserJourneyChart data={journeyData} numberOfSteps={numberOfSteps} />}
             </div>
