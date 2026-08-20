@@ -3253,7 +3253,7 @@
         "googleButton": "Google-konto",
         "gitHubButton": "GitHub-konto",
         "passwordsDoNotMatch": "Passordene samsvarer ikke",
-        "registrationSuccessfulButSignInFailed": "Registrering vellykket, men innlogging feilet. Prøv å logge inn manuelt.",
+        "emailAlreadyExists": "Det finnes allerede en bruker med den e-postadressen.",
         "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
         "checkInput": "Vennligst sjekk inndataene dine"
       }

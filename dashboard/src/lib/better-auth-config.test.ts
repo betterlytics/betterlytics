@@ -9,6 +9,7 @@ import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { makeUser, hashPassword } from '@/test/auth-fixtures';
+import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
 
@@ -134,11 +135,49 @@ describe('plugins and providers', () => {
   });
 });
 
+describe('user create before hook (sign-up field stamping)', () => {
+  type BeforeHook = (user: unknown, ctx?: unknown) => Promise<{ data: Record<string, unknown> } | undefined>;
+  const runBeforeCreateHook = (user: unknown, ctx?: unknown) =>
+    (auth.options.databaseHooks!.user!.create!.before as unknown as BeforeHook)(user, ctx);
+
+  it('stamps terms acceptance on email/password sign-ups', async () => {
+    const result = await runBeforeCreateHook(
+      { ...makeUser(), emailVerified: false },
+      { path: '/sign-up/email', body: { acceptedTerms: true } },
+    );
+
+    expect(result!.data.termsAcceptedAt).toBeInstanceOf(Date);
+    expect(result!.data.termsAcceptedVersion).toBe(CURRENT_TERMS_VERSION);
+  });
+
+  it('normalizes a blank sign-up name to null', async () => {
+    const result = await runBeforeCreateHook(
+      { ...makeUser(), name: '  ', emailVerified: false },
+      { path: '/sign-up/email', body: { acceptedTerms: true } },
+    );
+
+    expect(result!.data.name).toBeNull();
+  });
+
+  it('mirrors provider-verified emails into emailVerifiedAt (OAuth)', async () => {
+    const oauthUser = { id: 'user-1', email: 'user@example.com', name: 'Test User', emailVerified: true };
+
+    const result = await runBeforeCreateHook(oauthUser, { path: '/callback/github' });
+
+    expect(result!.data.emailVerifiedAt).toBeInstanceOf(Date);
+    expect(result!.data.termsAcceptedAt).toBeUndefined();
+  });
+
+  it('leaves unverified OAuth users untouched', async () => {
+    expect(await runBeforeCreateHook({ ...makeUser(), emailVerified: false }, { path: '/callback/github' })).toBeUndefined();
+  });
+});
+
 describe('user create hook (onboarding side effects)', () => {
   const hookUser = { ...makeUser(), emailVerified: false } as never;
 
-  function runCreateHook(user = hookUser) {
-    return auth.options.databaseHooks!.user!.create!.after!(user);
+  function runCreateHook(user = hookUser, ctx?: unknown) {
+    return auth.options.databaseHooks!.user!.create!.after!(user, ctx as never);
   }
 
   it('provisions a starter subscription and default settings for new users', async () => {
@@ -147,7 +186,23 @@ describe('user create hook (onboarding side effects)', () => {
     await runCreateHook();
 
     expect(createStarterSubscriptionForUser).toHaveBeenCalledWith('user-1');
-    expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1');
+    expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1', undefined);
+  });
+
+  it('creates settings with the language the user signed up in', async () => {
+    vi.mocked(isFeatureEnabled).mockReturnValue(false);
+
+    await runCreateHook(hookUser, { path: '/sign-up/email', body: { acceptedTerms: true, language: 'da' } });
+
+    expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1', 'da');
+  });
+
+  it('falls back to the default language when the sign-up language is unsupported', async () => {
+    vi.mocked(isFeatureEnabled).mockReturnValue(false);
+
+    await runCreateHook(hookUser, { path: '/sign-up/email', body: { acceptedTerms: true, language: 'xx' } });
+
+    expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1', undefined);
   });
 
   it('sends a verification email to new unverified users when verification is enabled', async () => {
@@ -287,12 +342,30 @@ describe('before hook (closed better-auth endpoints)', () => {
 
   it.each([
     ['/change-password', { newPassword: 'no-uppercase-1' }],
-    ['/sign-up/email', { password: 'no-uppercase-1' }],
+    ['/sign-up/email', { password: 'no-uppercase-1', acceptedTerms: true }],
     ['/reset-password', { newPassword: 'no-uppercase-1' }],
   ])('rejects weak passwords on %s when the client-side schema is bypassed', async (path, body) => {
     await expect(runBeforeHook(path, body)).rejects.toMatchObject({
       statusCode: 400,
       body: { code: 'WEAK_PASSWORD' },
+    });
+  });
+
+  describe('sign-up terms gate', () => {
+    it('rejects sign-ups that do not accept the terms of service', async () => {
+      await expect(runBeforeHook('/sign-up/email', { password: 'Correct-horse-1' })).rejects.toMatchObject({
+        statusCode: 400,
+        body: { code: 'TERMS_NOT_ACCEPTED' },
+      });
+      await expect(
+        runBeforeHook('/sign-up/email', { password: 'Correct-horse-1', acceptedTerms: false }),
+      ).rejects.toMatchObject({ body: { code: 'TERMS_NOT_ACCEPTED' } });
+    });
+
+    it('lets sign-ups through once the terms are accepted', async () => {
+      await expect(
+        runBeforeHook('/sign-up/email', { password: 'Correct-horse-1', acceptedTerms: true }),
+      ).resolves.toBeUndefined();
     });
   });
 });

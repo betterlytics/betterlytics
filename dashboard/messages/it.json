@@ -3253,7 +3253,7 @@
         "googleButton": "Google",
         "gitHubButton": "GitHub",
         "passwordsDoNotMatch": "Le password non corrispondono",
-        "registrationSuccessfulButSignInFailed": "Registrazione riuscita, ma accesso fallito. Prova ad accedere manualmente.",
+        "emailAlreadyExists": "Esiste già un utente con questa email.",
         "signUpError": "Si è verificato un errore durante la registrazione. Riprova.",
         "checkInput": "Controlla il tuo input"
       }
