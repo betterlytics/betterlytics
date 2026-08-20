@@ -203,8 +203,16 @@ impl Database {
         Ok(())
     }
 
+    fn async_insert_client(&self) -> clickhouse::Client {
+        self.clickhouse
+            .inner()
+            .clone()
+            .with_option("async_insert", "1")
+            .with_option("wait_for_async_insert", "1")
+    }
+
     pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
-        let mut inserter = self.clickhouse.inner().inserter("analytics.session_replays")?;
+        let mut inserter = self.async_insert_client().inserter("analytics.session_replays")?;
         inserter.write(&row)?;
         inserter.end().await?;
         Ok(())
@@ -221,7 +229,7 @@ impl Database {
     }
 
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
-        let mut inserter = self.clickhouse.inner().inserter("analytics.session_replay_segments")?;
+        let mut inserter = self.async_insert_client().inserter("analytics.session_replay_segments")?;
         inserter.write(&row)?;
         inserter.end().await?;
         Ok(())
