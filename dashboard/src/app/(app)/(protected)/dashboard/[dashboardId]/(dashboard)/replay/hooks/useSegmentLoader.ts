@@ -50,7 +50,7 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
 
             const manifest = await utils.sessionReplays.segments.fetch({
               dashboardId,
-              prefix: session.s3_prefix,
+              sessionId: session.session_id,
               cutoffIso: session.ended_at,
             });
 

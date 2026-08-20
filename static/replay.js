@@ -8411,40 +8411,23 @@ or you can use record.mirror to access the mirror instance during recording.`;
       );
     }
 
-    function fetchPresignedUrl(payload) {
-      var presignPayload = {
-        site_id: siteId,
-        url: window.location.href,
-        screen_resolution: window.screen.width + "x" + window.screen.height,
-        content_length: payload.bytes.byteLength,
-      };
-      if (payload && payload.lastEventTs) {
-        presignPayload.ended_at_ms = payload.lastEventTs;
+    function uploadSegment(payload) {
+      var qs =
+        "site_id=" +
+        encodeURIComponent(siteId) +
+        "&url=" +
+        encodeURIComponent(window.location.href) +
+        "&screen_resolution=" +
+        window.screen.width +
+        "x" +
+        window.screen.height;
+      if (payload.startedAtMs) {
+        qs += "&started_at_ms=" + payload.startedAtMs;
       }
-      if (payload.encoding === "gzip") {
-        presignPayload.content_encoding = "gzip";
+      if (payload.lastEventTs) {
+        qs += "&ended_at_ms=" + payload.lastEventTs;
       }
-
-      return fetch(apiBase + "/replay/presign/put", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(presignPayload),
-      })
-        .then(function (r) {
-          return r.json();
-        })
-        .then(function (resp) {
-          return { presignResp: resp, payload: payload };
-        });
-    }
-
-    function uploadToS3(data) {
-      var presignResp = data.presignResp;
-      var payload = data.payload;
-
-      if (!state.replaySession.id)
-        state.replaySession.id = presignResp.session_id;
-      if (!state.visId) state.visId = presignResp.visitor_id;
+      qs += "&event_count=" + payload.eventCount;
 
       var headers = {
         "Content-Type": "application/json",
@@ -8452,26 +8435,29 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (payload.encoding === "gzip") {
         headers["Content-Encoding"] = "gzip";
       }
-      if (presignResp && presignResp.sse) {
-        headers["x-amz-server-side-encryption"] = "AES256";
-      }
 
-      return fetch(presignResp.url, {
+      return fetch(apiBase + "/replay/segment?" + qs, {
         method: "PUT",
         headers: headers,
         body: payload.bytes,
-      }).then(function (putResp) {
-        if (!putResp || putResp.status >= 400) {
-          throw new Error();
-        }
-        return { putResp: putResp, payload: payload };
-      });
+        // keepalive lets the request finish after page unload; browsers cap keepalive bodies at ~64KB
+        keepalive: payload.bytes.byteLength <= 60000,
+      })
+        .then(function (r) {
+          if (!r || r.status >= 400) {
+            throw new Error();
+          }
+          return r.json();
+        })
+        .then(function (resp) {
+          if (!state.replaySession.id) state.replaySession.id = resp.session_id;
+          if (!state.visId) state.visId = resp.visitor_id;
+        });
     }
 
-    function handleUploadSuccess(data, flushedEventCount, endedAtMs) {
-      var uploadedBytes = data.payload.bytes.byteLength;
+    function handleUploadSuccess(endedAtMs) {
       state.consecutiveFlushErrors = 0;
-      finalizeSession(uploadedBytes, flushedEventCount, endedAtMs);
+      sendReplayError(null, endedAtMs);
     }
 
     function handleFlushError(events) {
@@ -8488,14 +8474,14 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
     }
 
-    function uploadEventChunk(events, lastEventTs) {
+    function uploadEventChunk(events, lastEventTs, startedAtMs) {
       var json = JSON.stringify(events);
-      return encodeReplayChunk(json)
-        .then(function (enc) {
-          enc.lastEventTs = lastEventTs;
-          return fetchPresignedUrl(enc);
-        })
-        .then(uploadToS3);
+      return encodeReplayChunk(json).then(function (enc) {
+        enc.lastEventTs = lastEventTs;
+        enc.startedAtMs = startedAtMs || state.firstActivity || state.startedAt;
+        enc.eventCount = events.length;
+        return uploadSegment(enc);
+      });
     }
 
     function flush() {
@@ -8511,7 +8497,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
         return Promise.resolve();
       }
 
-      var flushedEventCount = events.length;
       state.approxBytes = 0;
 
       var lastEventTs = state.lastActivity;
@@ -8521,8 +8506,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
 
       state.ongoingFlush = uploadEventChunk(events, lastEventTs)
-        .then(function (data) {
-          handleUploadSuccess(data, flushedEventCount, lastEventTs);
+        .then(function () {
+          handleUploadSuccess(lastEventTs);
         })
         .catch(function () {
           try {
@@ -8597,11 +8582,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
       state.pendingErrorExceptionsJson = null;
     }
 
-    function finalizeSession(deltaSizeBytes, deltaEventCount, endedAtMs, startedAtMs) {
+    function sendReplayError(startedAtMs, endedAtMs) {
       if (state.disabled) return;
-      if (!state.pendingErrorType && !hasReachedMinDuration()) return;
+      if (!state.pendingErrorType) return;
       if (!state.replaySession.id || !state.visId) return;
-      if (!deltaSizeBytes || !deltaEventCount) return;
 
       var body = {
         site_id: siteId,
@@ -8609,18 +8593,13 @@ or you can use record.mirror to access the mirror instance during recording.`;
         visitor_id: state.visId,
         started_at: Math.floor((startedAtMs || state.firstActivity || state.startedAt) / 1000),
         ended_at: Math.floor(endedAtMs / 1000),
-        size_bytes: deltaSizeBytes,
-        start_url: normalize(window.location.href),
-        event_count: deltaEventCount,
+        url: window.location.href,
+        error_type: state.pendingErrorType,
+        error_exceptions: state.pendingErrorExceptionsJson,
       };
+      clearPendingError();
 
-      if (state.pendingErrorType) {
-        body.error_type = state.pendingErrorType;
-        body.error_exceptions = state.pendingErrorExceptionsJson;
-        clearPendingError();
-      }
-
-      return fetch(apiBase + "/replay/finalize", {
+      return fetch(apiBase + "/replay/error", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -8635,7 +8614,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       if (events.length === 0) return Promise.resolve();
 
-      var flushedEventCount = events.length;
       var firstEventTs = state.firstActivity || state.startedAt;
       var lastEventTs = state.lastActivity;
       var first = events[0];
@@ -8646,11 +8624,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
       state.pendingErrorType = errorType;
       state.pendingErrorExceptionsJson = errorExceptionsJson;
 
-      return uploadEventChunk(events, lastEventTs)
-        .then(function (data) {
-          var uploadedBytes = data.payload.bytes.byteLength;
+      return uploadEventChunk(events, lastEventTs, firstEventTs)
+        .then(function () {
           state.errorMatrix = [[]];
-          finalizeSession(uploadedBytes, flushedEventCount, lastEventTs, firstEventTs);
+          sendReplayError(firstEventTs, lastEventTs);
         })
         .catch(function () {
           clearPendingError();

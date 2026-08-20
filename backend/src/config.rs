@@ -3,6 +3,21 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReplayStorage {
+    S3,
+    ClickHouse,
+}
+
+impl ReplayStorage {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::S3 => "s3",
+            Self::ClickHouse => "clickhouse",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GeolocationMode {
     Disabled,
     Countries,
@@ -59,9 +74,10 @@ pub struct Config {
     pub s3_bucket: Option<String>,
     pub s3_access_key_id: Option<String>,
     pub s3_secret_access_key: Option<String>,
-    pub s3_endpoint: Option<String>, // allow custom/local endpoints (e.g., MinIO, LocalStack)
+    pub s3_endpoint: Option<String>, // allow custom/local endpoints (e.g., MinIO, LocalStack); internal only, never browser-reachable
     pub s3_force_path_style: bool,   // needed for many local providers
     pub s3_sse_enabled: bool,        // enable SSE (AES256) on uploaded objects
+    pub replay_storage: ReplayStorage,
     // Site-config cache database (read-only)
     pub site_config_database_url: String,
     // Salt database (read-write) - stores the secret rotating fingerprint salts
@@ -98,7 +114,20 @@ impl Config {
             GeolocationMode::Countries
         };
 
-        Config {
+        let data_retention_days: i32 = env::var("DATA_RETENTION_DAYS")
+            .unwrap_or_else(|_| "365".to_string())
+            .parse()
+            .unwrap_or(365);
+
+        let s3_enabled = env::var("S3_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false);
+        let replay_storage = match env::var("REPLAY_STORAGE").ok().as_deref() {
+            Some("s3") => ReplayStorage::S3,
+            Some("clickhouse") => ReplayStorage::ClickHouse,
+            Some(other) => panic!("REPLAY_STORAGE must be 's3' or 'clickhouse', got '{}'", other),
+            None => if s3_enabled { ReplayStorage::S3 } else { ReplayStorage::ClickHouse },
+        };
+
+        let config = Config {
             server_port: env::var("SERVER_PORT")
                 .unwrap_or_else(|_| "3000".to_string())
                 .parse()
@@ -152,10 +181,7 @@ impl Config {
             ua_regexes_path: env::var("UA_REGEXES_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/user_agent_headers/regexes.yaml")),
-            data_retention_days: env::var("DATA_RETENTION_DAYS")
-                .unwrap_or_else(|_| "365".to_string())
-                .parse()
-                .unwrap_or(365),
+            data_retention_days,
             // Monitoring configuration
             enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")
@@ -179,7 +205,7 @@ impl Config {
                 .map(|val| val.to_lowercase() != "false")
                 .unwrap_or(true),
             // S3 configuration (optional; defaults to disabled)
-            s3_enabled: env::var("S3_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
+            s3_enabled,
             s3_region: env::var("S3_REGION").ok(),
             s3_bucket: env::var("S3_BUCKET").ok(),
             s3_access_key_id: env::var("S3_ACCESS_KEY_ID").ok(),
@@ -187,6 +213,7 @@ impl Config {
             s3_endpoint: env::var("S3_ENDPOINT").ok(),
             s3_force_path_style: env::var("S3_FORCE_PATH_STYLE").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
+            replay_storage,
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
                 .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
             salts_database_url: env::var("SALTS_DATABASE_URL")
@@ -213,7 +240,16 @@ impl Config {
             }),
             // Pushover integration
             pushover_app_token: env::var("PUSHOVER_APP_TOKEN").ok(),
-        }
+        };
+
+        assert!(
+            !config.enable_session_replay
+                || config.replay_storage == ReplayStorage::ClickHouse
+                || (config.s3_enabled && config.s3_bucket.is_some()),
+            "SESSION_REPLAYS_ENABLED=true with REPLAY_STORAGE=s3 requires S3_ENABLED=true and S3_BUCKET"
+        );
+
+        config
     }
 }
 

@@ -14,7 +14,7 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
@@ -203,8 +203,33 @@ impl Database {
         Ok(())
     }
 
+    fn async_insert_client(&self) -> clickhouse::Client {
+        self.clickhouse
+            .inner()
+            .clone()
+            .with_option("async_insert", "1")
+            .with_option("wait_for_async_insert", "1")
+    }
+
     pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
-        let mut inserter = self.clickhouse.inner().inserter("analytics.session_replays")?;
+        let mut inserter = self.async_insert_client().inserter("analytics.session_replays")?;
+        inserter.write(&row)?;
+        inserter.end().await?;
+        Ok(())
+    }
+
+    pub async fn fetch_session_replay_meta(&self, site_id: &str, session_id: u64) -> Result<Option<SessionReplayMetaRow>> {
+        let rows = self.clickhouse.inner()
+            .query("SELECT argMax(started_at, ended_at), max(ended_at), argMax(size_bytes, ended_at), argMax(start_url, ended_at), argMax(event_count, ended_at), argMax(error_fingerprints, ended_at) FROM analytics.session_replays WHERE site_id = ? AND session_id = ? GROUP BY site_id, session_id")
+            .bind(site_id)
+            .bind(session_id)
+            .fetch_all::<SessionReplayMetaRow>()
+            .await?;
+        Ok(rows.into_iter().next())
+    }
+
+    pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
+        let mut inserter = self.async_insert_client().inserter("analytics.session_replay_segments")?;
         inserter.write(&row)?;
         inserter.end().await?;
         Ok(())

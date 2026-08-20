@@ -36,6 +36,36 @@ async function main() {
       query: `GRANT dictGet ON analytics.* TO dashboard_role`,
     });
 
+    const parseDays = (value) => {
+      const days = parseInt(value ?? "", 10);
+      return Number.isFinite(days) ? days : undefined;
+    };
+    const retentionDays =
+      parseDays(process.env.REPLAY_RETENTION_DAYS) ??
+      parseDays(process.env.DATA_RETENTION_DAYS) ??
+      365;
+    const replayTables = ["session_replays", "session_replay_segments"];
+    if (retentionDays > 0) {
+      for (const table of replayTables) {
+        await client.command({
+          query: `ALTER TABLE analytics.${table} MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
+        });
+      }
+    } else {
+      for (const table of replayTables) {
+        const result = await client.query({
+          query: `SELECT create_table_query LIKE '%TTL %' AS has_ttl FROM system.tables WHERE database = 'analytics' AND name = '${table}'`,
+          format: "JSONEachRow",
+        });
+        const rows = await result.json();
+        if (rows[0]?.has_ttl) {
+          await client.command({
+            query: `ALTER TABLE analytics.${table} REMOVE TTL`,
+          });
+        }
+      }
+    }
+
     if (!workerUser || !workerPassword) {
       console.log(
         "Post-migration (clickhouse): WORKER_CLICKHOUSE_WRITE_USER not set, skipping worker user creation.",

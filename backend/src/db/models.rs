@@ -124,6 +124,31 @@ pub struct SessionReplayRow {
     pub s3_prefix: String,
     pub start_url: String,
     pub error_fingerprints: Vec<String>,
+    pub storage: String,
+}
+
+#[derive(clickhouse::Row, Deserialize, Clone)]
+pub struct SessionReplayMetaRow {
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub started_at: DateTime<Utc>,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub ended_at: DateTime<Utc>,
+    pub size_bytes: u64,
+    pub start_url: String,
+    pub event_count: u32,
+    pub error_fingerprints: Vec<String>,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
+pub struct SessionReplaySegmentRow {
+    pub site_id: String,
+    pub session_id: u64,
+    pub filename: String,
+    pub epoch_ms: i64,
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+    pub size_bytes: u64,
+    pub data: String,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]
