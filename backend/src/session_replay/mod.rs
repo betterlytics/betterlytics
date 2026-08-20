@@ -31,6 +31,14 @@ static FINALIZE_CACHE: Lazy<Cache<String, SessionReplayMetaRow>> = Lazy::new(|| 
         .build()
 });
 
+// Serializes each session's read-check-store-update sequence so concurrent requests
+// can't lose accumulated meta or slip past MAX_SESSION_BYTES on a stale read.
+static META_LOCKS: Lazy<Cache<String, Arc<tokio::sync::Mutex<()>>>> = Lazy::new(|| {
+    Cache::builder()
+        .time_to_live(Duration::from_secs(2 * 60 * 60))
+        .build()
+});
+
 fn cache_key(site_id: &str, session_id: u64) -> String {
     format!("{}:{}", site_id, session_id)
 }
@@ -154,6 +162,8 @@ pub async fn upload_segment(
 
     let start_url = p.url.as_deref().map(|u| extract_domain_and_path_from_url(u).1).unwrap_or_default();
     let key = cache_key(&p.site_id, identity.session_id);
+    let session_lock = META_LOCKS.get_with(key.clone(), || Arc::new(tokio::sync::Mutex::new(())));
+    let _guard = session_lock.lock().await;
     let mut meta = get_or_load_meta(&db, &key, &p.site_id, identity.session_id, SessionReplayMetaRow {
         started_at: started,
         ended_at: ended,
@@ -289,6 +299,8 @@ pub async fn attach_replay_error(
     let started = DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
     let ended = DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;
 
+    let session_lock = META_LOCKS.get_with(key.clone(), || Arc::new(tokio::sync::Mutex::new(())));
+    let _guard = session_lock.lock().await;
     let mut meta = get_or_load_meta(&db, &key, &req.site_id, req.session_id, SessionReplayMetaRow {
         started_at: started,
         ended_at: ended,
