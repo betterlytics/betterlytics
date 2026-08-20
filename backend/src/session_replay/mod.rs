@@ -18,24 +18,14 @@ use crate::visitor;
 use crate::analytics::{VisitorAttrs, detect_device_type_from_resolution};
 use chrono::{DateTime, Utc};
 
-use crate::db::{SharedDatabase, SessionReplayRow};
+use crate::db::{SessionReplayMetaRow, SharedDatabase, SessionReplayRow};
 use crate::processing::EventProcessor;
 use crate::metrics::MetricsCollector;
 use crate::validation::{validate_site_policies, EventValidator};
 use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
 use crate::error_fingerprint::generate_error_fingerprint;
 
-#[derive(Clone)]
-pub struct FinalizeMeta {
-    pub started_at: DateTime<Utc>,
-    pub ended_at: DateTime<Utc>,
-    pub size_bytes: u64,
-    pub start_url: String,
-    pub event_count: u32,
-    pub error_fingerprints: Vec<String>,
-}
-
-static FINALIZE_CACHE: Lazy<Cache<String, FinalizeMeta>> = Lazy::new(|| {
+static FINALIZE_CACHE: Lazy<Cache<String, SessionReplayMetaRow>> = Lazy::new(|| {
     Cache::builder()
         .time_to_live(Duration::from_secs(2 * 60 * 60))
         .build()
@@ -164,14 +154,14 @@ pub async fn upload_segment(
 
     let start_url = p.url.as_deref().map(|u| extract_domain_and_path_from_url(u).1).unwrap_or_default();
     let key = cache_key(&p.site_id, identity.session_id);
-    let mut meta = FINALIZE_CACHE.get(&key).unwrap_or(FinalizeMeta {
+    let mut meta = get_or_load_meta(&db, &key, &p.site_id, identity.session_id, SessionReplayMetaRow {
         started_at: started,
         ended_at: ended,
         size_bytes: 0,
         start_url: start_url.clone(),
         event_count: 0,
         error_fingerprints: Vec::new(),
-    });
+    }).await;
 
     if meta.size_bytes.saturating_add(body_len) > MAX_SESSION_BYTES {
         return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
@@ -192,9 +182,6 @@ pub async fn upload_segment(
         meta.start_url = start_url;
     }
 
-    // The segment is already stored, so a failed upsert must not fail the PUT: the client
-    // would re-upload a duplicate and count it toward the flush-error disable. The cache
-    // still accumulates, so the next upsert catches up.
     if let Err(e) = upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, identity.fingerprint, &meta).await {
         error!("Failed to upsert session replay: {}", e);
     }
@@ -206,13 +193,33 @@ pub async fn upload_segment(
     }))
 }
 
+async fn get_or_load_meta(
+    db: &SharedDatabase,
+    key: &str,
+    site_id: &str,
+    session_id: u64,
+    default: SessionReplayMetaRow,
+) -> SessionReplayMetaRow {
+    if let Some(meta) = FINALIZE_CACHE.get(key) {
+        return meta;
+    }
+    match db.fetch_session_replay_meta(site_id, session_id).await {
+        Ok(Some(row)) => row,
+        Ok(None) => default,
+        Err(e) => {
+            error!("Failed to load stored replay meta, seeding fresh: {}", e);
+            default
+        }
+    }
+}
+
 async fn upsert_replay_row(
     db: &SharedDatabase,
     replay_ctx: &ReplayCtx,
     site_id: &str,
     session_id: u64,
     visitor_id: u64,
-    meta: &FinalizeMeta,
+    meta: &SessionReplayMetaRow,
 ) -> anyhow::Result<()> {
     let duration = (meta.ended_at.timestamp() - meta.started_at.timestamp()).max(0) as u32;
     let row = SessionReplayRow {
@@ -282,19 +289,21 @@ pub async fn attach_replay_error(
     let started = DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
     let ended = DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;
 
-    let mut meta = FINALIZE_CACHE.get(&key).unwrap_or(FinalizeMeta {
+    let mut meta = get_or_load_meta(&db, &key, &req.site_id, req.session_id, SessionReplayMetaRow {
         started_at: started,
         ended_at: ended,
         size_bytes: 0,
         start_url: String::new(),
         event_count: 0,
         error_fingerprints: Vec::new(),
-    });
+    }).await;
 
     let fp = generate_error_fingerprint(&req.error_type, &req.error_exceptions);
     if !fp.is_empty() && !meta.error_fingerprints.contains(&fp) {
         meta.error_fingerprints.push(fp);
     }
+    meta.started_at = meta.started_at.min(started);
+    meta.ended_at = meta.ended_at.max(ended);
 
     upsert_replay_row(&db, &replay_ctx, &req.site_id, req.session_id, req.visitor_id, &meta).await.map_err(|e| {
         error!("Failed to upsert session replay: {}", e);

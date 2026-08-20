@@ -14,7 +14,7 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow, SessionReplaySegmentRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
@@ -208,6 +208,16 @@ impl Database {
         inserter.write(&row)?;
         inserter.end().await?;
         Ok(())
+    }
+
+    pub async fn fetch_session_replay_meta(&self, site_id: &str, session_id: u64) -> Result<Option<SessionReplayMetaRow>> {
+        let rows = self.clickhouse.inner()
+            .query("SELECT argMax(started_at, ended_at), max(ended_at), argMax(size_bytes, ended_at), argMax(start_url, ended_at), argMax(event_count, ended_at), argMax(error_fingerprints, ended_at) FROM analytics.session_replays WHERE site_id = ? AND session_id = ? GROUP BY site_id, session_id")
+            .bind(site_id)
+            .bind(session_id)
+            .fetch_all::<SessionReplayMetaRow>()
+            .await?;
+        Ok(rows.into_iter().next())
     }
 
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
