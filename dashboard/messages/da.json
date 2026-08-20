@@ -3252,7 +3252,7 @@
         "googleButton": "Google",
         "gitHubButton": "GitHub",
         "passwordsDoNotMatch": "Adgangskoder matcher ikke",
-        "registrationSuccessfulButSignInFailed": "Registrering lykkedes, men log ind mislykkedes. Prøv at logge ind manuelt.",
+        "emailAlreadyExists": "Der findes allerede en bruger med den e-mail.",
         "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
         "checkInput": "Tjek venligst dit input"
       }

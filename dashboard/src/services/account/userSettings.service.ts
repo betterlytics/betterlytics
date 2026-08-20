@@ -7,6 +7,7 @@ import * as UserSettingsRepository from '@/repositories/postgres/userSettings.re
 import * as UserRepository from '@/repositories/postgres/user.repository';
 import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
 import * as InvitationRepository from '@/repositories/postgres/invitation.repository';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {
   try {
@@ -25,9 +26,15 @@ export async function getUserSettings(userId: string): Promise<UserSettings> {
 
 export const getCachedUserSettings = cache(getUserSettings);
 
-export async function createDefaultUserSettings(userId: string): Promise<UserSettings> {
+export async function createDefaultUserSettings(
+  userId: string,
+  language?: SupportedLanguages,
+): Promise<UserSettings> {
   try {
-    return await UserSettingsRepository.createUserSettings(userId, DEFAULT_USER_SETTINGS);
+    return await UserSettingsRepository.createUserSettings(userId, {
+      ...DEFAULT_USER_SETTINGS,
+      ...(language && { language }),
+    });
   } catch (error) {
     console.error('Error creating default user settings:', error);
     throw new Error('Failed to create default user settings');

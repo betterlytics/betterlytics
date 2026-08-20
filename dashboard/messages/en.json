@@ -3249,7 +3249,7 @@
         "googleButton": "Google",
         "gitHubButton": "GitHub",
         "passwordsDoNotMatch": "Passwords do not match",
-        "registrationSuccessfulButSignInFailed": "Registration successful, but sign in failed. Please try signing in manually.",
+        "emailAlreadyExists": "User with that email already exists.",
         "signUpError": "An error occurred during sign up. Please try again.",
         "checkInput": "Please check your input"
       }
