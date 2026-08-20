@@ -17,7 +17,7 @@ export function FilterDescription({ filter, className }: FilterDescriptionProps)
   const operator = filter.operator === '=' ? t('is') : t('isNot');
 
   return (
-    <span className={cn('inline-flex min-w-0 items-center gap-1 [&_svg]:size-3', className)}>
+    <span className={cn('inline-flex min-w-0 items-center gap-1 font-sans [&_svg]:size-3', className)}>
       <FilterColumnLabel column={filter.column} className='shrink-0' />
       <span className='text-muted-foreground/80'>{operator}</span>
       {filter.values.map((value, index) => (
