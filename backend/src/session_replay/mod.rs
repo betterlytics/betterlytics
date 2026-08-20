@@ -44,7 +44,7 @@ fn cache_key(site_id: &str, session_id: u64) -> String {
 }
 
 pub const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
-const MAX_SESSION_BYTES: u64 = 200 * 1024 * 1024;
+const MAX_SESSION_BYTES: u64 = 50 * 1024 * 1024;
 const TIMESTAMP_WINDOW_MS: i64 = 24 * 60 * 60 * 1000;
 
 fn timestamp_in_window(epoch_ms: i64, now_ms: i64) -> bool {
@@ -177,7 +177,7 @@ pub async fn upload_segment(
         return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
     }
 
-    replay_ctx.store.store(&p.site_id, identity.session_id, &filename, body, gzip).await.map_err(|e| match e {
+    let stored_bytes = replay_ctx.store.store(&p.site_id, identity.session_id, &filename, body, gzip).await.map_err(|e| match e {
         StoreError::InvalidPayload(_) => (StatusCode::BAD_REQUEST, e.to_string()),
         StoreError::Storage(_) => {
             error!("Failed to store replay segment: {}", e);
@@ -186,7 +186,7 @@ pub async fn upload_segment(
     })?;
     meta.started_at = meta.started_at.min(started);
     meta.ended_at = meta.ended_at.max(ended);
-    meta.size_bytes = meta.size_bytes.saturating_add(body_len);
+    meta.size_bytes = meta.size_bytes.saturating_add(stored_bytes);
     meta.event_count = meta.event_count.saturating_add(p.event_count.unwrap_or_default());
     if meta.start_url.is_empty() {
         meta.start_url = start_url;

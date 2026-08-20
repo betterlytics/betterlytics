@@ -39,7 +39,7 @@ impl SegmentStore {
         filename: &str,
         bytes: Bytes,
         gzip: bool,
-    ) -> Result<(), StoreError> {
+    ) -> Result<u64, StoreError> {
         match self {
             Self::ClickHouse(db) => {
                 let data = if gzip {
@@ -55,26 +55,31 @@ impl SegmentStore {
                 let date = chrono::DateTime::from_timestamp_millis(epoch_ms)
                     .ok_or_else(|| StoreError::InvalidPayload("epoch out of range".to_string()))?
                     .date_naive();
+                let size_bytes = data.len() as u64;
                 db.insert_replay_segment(SessionReplaySegmentRow {
                     site_id: site_id.to_string(),
                     session_id,
                     filename: filename.to_string(),
                     epoch_ms,
                     date,
-                    size_bytes: data.len() as u64,
+                    size_bytes,
                     data,
                 })
                 .await
-                .map_err(StoreError::Storage)
+                .map_err(StoreError::Storage)?;
+                Ok(size_bytes)
             }
-            Self::S3(s3) => s3
-                .put_segment(
+            Self::S3(s3) => {
+                let size_bytes = bytes.len() as u64;
+                s3.put_segment(
                     &object_key(site_id, session_id, filename),
                     bytes,
                     gzip.then_some("gzip"),
                 )
                 .await
-                .map_err(StoreError::Storage),
+                .map_err(StoreError::Storage)?;
+                Ok(size_bytes)
+            }
         }
     }
 }
