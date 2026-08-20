@@ -236,7 +236,13 @@ async fn main() {
             info!("S3 session storage disabled");
             None
         }
-        Err(e) => panic!("Failed to initialize S3 service: {}", e),
+        Err(e) => {
+            if config.enable_session_replay && config.replay_storage == ReplayStorage::S3 {
+                panic!("Failed to initialize S3 service (required for replay storage): {}", e);
+            }
+            warn!("Failed to initialize S3 service: {}", e);
+            None
+        }
     };
 
     storage::s3::configure_managed_bucket(&config, &s3_service).await;

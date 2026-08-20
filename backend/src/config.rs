@@ -79,7 +79,7 @@ pub struct Config {
     pub s3_sse_enabled: bool,        // enable SSE (AES256) on uploaded objects
     pub s3_manage_bucket_rules: bool, // apply lifecycle rules to self-managed buckets at startup
     pub replay_storage: ReplayStorage,
-    pub replay_retention_days: i32, // falls back to data_retention_days
+    pub replay_retention_days: i32, // -1 keeps replays forever; falls back to data_retention_days when unset
     // Site-config cache database (read-only)
     pub site_config_database_url: String,
     // Salt database (read-write) - stores the secret rotating fingerprint salts

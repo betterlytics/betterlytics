@@ -36,24 +36,34 @@ async function main() {
       query: `GRANT dictGet ON analytics.* TO dashboard_role`,
     });
 
-    // Full fallback chain of backend/src/config.rs replay_retention_days, including its
-    // 365 default, so S3 lifecycle and ClickHouse TTL always agree on effective retention
-    const retentionDays = parseInt(
-      process.env.REPLAY_RETENTION_DAYS || process.env.DATA_RETENTION_DAYS || "365",
-      10,
-    );
-    if (Number.isFinite(retentionDays) && retentionDays > 0) {
-      await client.command({
-        query: `ALTER TABLE analytics.session_replays MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
-      });
-      await client.command({
-        query: `ALTER TABLE analytics.session_replay_segments MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
-      });
+    const parseDays = (value) => {
+      const days = parseInt(value ?? "", 10);
+      return Number.isFinite(days) ? days : undefined;
+    };
+    const retentionDays =
+      parseDays(process.env.REPLAY_RETENTION_DAYS) ??
+      parseDays(process.env.DATA_RETENTION_DAYS) ??
+      365;
+    const replayTables = ["session_replays", "session_replay_segments"];
+    if (retentionDays > 0) {
+      for (const table of replayTables) {
+        await client.command({
+          query: `ALTER TABLE analytics.${table} MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
+        });
+      }
     } else {
-      // DATA_RETENTION_DAYS=-1 means keep indefinitely; the S3 lifecycle arm skips its
-      // expiry rule for <= 0, so drop the DDL default TTL to keep the two stores agreeing
-      await client.command({ query: `ALTER TABLE analytics.session_replays REMOVE TTL` });
-      await client.command({ query: `ALTER TABLE analytics.session_replay_segments REMOVE TTL` });
+      for (const table of replayTables) {
+        const result = await client.query({
+          query: `SELECT create_table_query LIKE '%TTL %' AS has_ttl FROM system.tables WHERE database = 'analytics' AND name = '${table}'`,
+          format: "JSONEachRow",
+        });
+        const rows = await result.json();
+        if (rows[0]?.has_ttl) {
+          await client.command({
+            query: `ALTER TABLE analytics.${table} REMOVE TTL`,
+          });
+        }
+      }
     }
 
     if (!workerUser || !workerPassword) {
