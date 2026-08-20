@@ -102,6 +102,14 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
       path: ['S3_ENABLED'],
     });
   }
+
+  if (env.SESSION_REPLAYS_ENABLED && resolvedReplayStorage === 's3' && env.S3_ENABLED && !env.S3_BUCKET) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'SESSION_REPLAYS_ENABLED=true with REPLAY_STORAGE=s3 requires S3_BUCKET to be set',
+      path: ['S3_BUCKET'],
+    });
+  }
 });
 
 if (!process.env.AUTH_SECRET && process.env.NEXTAUTH_SECRET) {
