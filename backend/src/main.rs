@@ -245,7 +245,9 @@ async fn main() {
         }
     };
 
-    storage::s3::configure_managed_bucket(&config, &s3_service).await;
+    if config.enable_session_replay && config.replay_storage == ReplayStorage::S3 {
+        info!("REPLAY_RETENTION_DAYS applies to ClickHouse data only; expire S3 objects under the 'site/' prefix with a bucket lifecycle rule");
+    }
 
     // Built only when replay is enabled, so the config assert has already validated
     // the storage mode for this config.

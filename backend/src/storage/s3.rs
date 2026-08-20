@@ -2,12 +2,7 @@ use anyhow::Result;
 use aws_config::BehaviorVersion;
 use aws_sdk_s3::{Client, config::Region};
 use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
-use aws_sdk_s3::types::{
-    AbortIncompleteMultipartUpload, BucketLifecycleConfiguration, ExpirationStatus,
-    LifecycleExpiration, LifecycleRule, LifecycleRuleFilter, ServerSideEncryption,
-};
-use std::sync::Arc;
-use tracing::{info, warn};
+use aws_sdk_s3::types::ServerSideEncryption;
 use crate::config::Config;
 
 #[derive(Clone, Debug)]
@@ -15,39 +10,6 @@ pub struct S3Service {
     client: Client,
     pub bucket: String,
     sse_enabled: bool,
-}
-
-pub async fn configure_managed_bucket(
-    config: &Config,
-    s3_service: &Option<Arc<S3Service>>,
-) {
-    if !config.s3_manage_bucket_rules {
-        return;
-    }
-    let Some(s3) = s3_service else {
-        return;
-    };
-    let retention = config.replay_retention_days;
-    for attempt in 1..=30u32 {
-        match s3.ensure_replay_bucket_rules(retention).await {
-            Ok(()) => {
-                info!("replay bucket lifecycle rules ensured");
-                return;
-            }
-            Err(e) if attempt == 30 => {
-                panic!(
-                    "Failed to apply replay bucket lifecycle rules after {} attempts: {}",
-                    attempt, e
-                );
-            }
-            Err(e) => {
-                if attempt == 1 {
-                    warn!("replay bucket rules not applied yet, retrying: {}", e);
-                }
-                tokio::time::sleep(std::time::Duration::from_secs(2)).await;
-            }
-        }
-    }
 }
 
 impl S3Service {
@@ -86,38 +48,6 @@ impl S3Service {
         let sse_enabled = cfg.s3_sse_enabled;
 
         Ok(Some(Self { client, bucket, sse_enabled }))
-    }
-
-    pub async fn ensure_replay_bucket_rules(&self, retention_days: i32) -> Result<()> {
-        let abort_rule = LifecycleRule::builder()
-            .id("abort-incomplete-uploads")
-            .status(ExpirationStatus::Enabled)
-            .filter(LifecycleRuleFilter::builder().prefix("").build())
-            .abort_incomplete_multipart_upload(
-                AbortIncompleteMultipartUpload::builder().days_after_initiation(1).build(),
-            )
-            .build()?;
-
-        let mut lifecycle = BucketLifecycleConfiguration::builder().rules(abort_rule);
-        if retention_days > 0 {
-            lifecycle = lifecycle.rules(
-                LifecycleRule::builder()
-                    .id("expire-replay-segments")
-                    .status(ExpirationStatus::Enabled)
-                    .filter(LifecycleRuleFilter::builder().prefix("").build())
-                    .expiration(LifecycleExpiration::builder().days(retention_days).build())
-                    .build()?,
-            );
-        }
-
-        self.client
-            .put_bucket_lifecycle_configuration()
-            .bucket(&self.bucket)
-            .lifecycle_configuration(lifecycle.build()?)
-            .send()
-            .await?;
-
-        Ok(())
     }
 
     pub async fn put_segment(
