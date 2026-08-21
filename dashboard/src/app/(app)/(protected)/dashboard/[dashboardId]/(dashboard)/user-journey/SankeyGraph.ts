@@ -348,3 +348,24 @@ export class SankeyGraph {
 export function createSankeyGraph(data: SankeyData): SankeyGraph {
   return new SankeyGraph(data);
 }
+
+/**
+ * Remap a highlight state built against one graph onto another.
+ * Node ids are stable across datasets, but link indices are positional;
+ * returns null when any highlighted link no longer exists. Every highlighted
+ * node is an endpoint of a highlighted link, so link survival implies node survival.
+ */
+export function remapHighlightState(
+  state: HighlightState,
+  fromGraph: SankeyGraph,
+  toGraph: SankeyGraph,
+): HighlightState | null {
+  const linkIndices = new Set<number>();
+  for (const index of state.linkIndices) {
+    const link = fromGraph.links[index];
+    const remapped = link ? toGraph.getLinkIndex(link.sourceId, link.targetId) : -1;
+    if (remapped === -1) return null;
+    linkIndices.add(remapped);
+  }
+  return { nodeIds: new Set(state.nodeIds), linkIndices };
+}
