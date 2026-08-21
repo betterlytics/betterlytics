@@ -15,7 +15,7 @@ vi.mock('@/observability/clickhouse-concurrency', () => ({
 }));
 vi.mock('@/lib/clickhouse', () => ({ clickhouse: {} }));
 
-import { buildJourneyQuery, buildJourneyAttributionQuery, mapAttribution } from './userJourney.repository';
+import { buildJourneyQuery } from './userJourney.repository';
 import { safeSql } from '@/lib/safe-sql';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
 
@@ -30,11 +30,6 @@ const filter = (column: QueryFilter['column'], values: string[], operator: '=' |
 
 const build = (stepFilters: Record<string, QueryFilter[]>, queryFilters: QueryFilter[] = []) =>
   buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps: 3, sample });
-
-const buildAttribution = (stepFilters: Record<string, QueryFilter[]>, queryFilters: QueryFilter[] = []) =>
-  buildJourneyAttributionQuery({ queryFilters, stepFilters, numberOfSteps: 3, sample });
-
-const ENTRY_FILTER = filter('utm_source', ['newsletter']);
 
 describe('buildJourneyQuery without step filters', () => {
   it('emits none of the step filter constructs', () => {
@@ -217,55 +212,5 @@ describe('exit step filters', () => {
   it('drops outbound filters at non-last slots as infeasible', () => {
     const query = build({ '1': [filter('outbound_link_url', ['https://x.com'])] });
     expect(query.taggedSql).not.toContain('exit_clicks');
-  });
-});
-
-describe('buildJourneyAttributionQuery', () => {
-  it('emits cumulative survivor counts over the same gates', () => {
-    const { query, gateColumns } = buildAttribution({
-      '1': [filter('url', ['/a'])],
-      '2': [filter('device_type', ['Mobile'])],
-    })!;
-    expect(gateColumns).toEqual([2, 3]);
-    expect(query.taggedSql).toContain('] AS survivors');
-    expect(query.taggedSql).toContain('countIf(length(path) > 1)');
-    expect(query.taggedSql).toContain('countIf(length(path) > 1 AND (length(path) >= 2 AND (');
-    const second = query.taggedSql.indexOf('countIf(length(path) > 1 AND (length(path) >= 2');
-    const third = query.taggedSql.slice(second + 1).indexOf('length(path) >= 3');
-    expect(third).toBeGreaterThan(-1);
-    expect(query.taggedSql).not.toContain('top_paths');
-    expect(query.taggedSql).not.toContain('ARRAY JOIN');
-    expect(query.taggedSql).not.toContain('{limit:UInt32}');
-  });
-
-  it('turns entry filters into a column one gate instead of a HAVING', () => {
-    const { query, gateColumns } = buildAttribution({ '0': [ENTRY_FILTER] })!;
-    expect(query.taggedSql).toContain('AS entry_ok');
-    expect(query.taggedSql).not.toContain('HAVING');
-    expect(gateColumns).toEqual([1]);
-    expect(query.taggedSql).toContain('(length(path) >= 1 AND (entry_ok))');
-    const sessionPaths = query.taggedSql.slice(
-      query.taggedSql.indexOf('session_paths'),
-      query.taggedSql.indexOf('SELECT ['),
-    );
-    expect(sessionPaths).toContain('entry_ok');
-  });
-
-  it('returns null without any gateable filter', () => {
-    expect(buildAttribution({})).toBeNull();
-  });
-});
-
-describe('mapAttribution', () => {
-  it('attributes the first zero cumulative count to its slot', () => {
-    expect(mapAttribution([120, 40, 0], [2, 3])).toEqual({ totalJourneys: 120, failingSlot: 2 });
-  });
-
-  it('returns null when data is empty before any gate', () => {
-    expect(mapAttribution([0, 0, 0], [2, 3])).toEqual({ totalJourneys: 0, failingSlot: null });
-  });
-
-  it('returns null when every gate keeps survivors', () => {
-    expect(mapAttribution([120, 40, 5], [2, 3])).toEqual({ totalJourneys: 120, failingSlot: null });
   });
 });

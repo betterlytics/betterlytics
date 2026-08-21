@@ -1,32 +1,12 @@
 'server-only';
 
-import {
-  getUserJourneyTransitions,
-  getUserJourneyStepAttribution,
-} from '@/repositories/clickhouse/userJourney.repository';
+import { getUserJourneyTransitions } from '@/repositories/clickhouse/userJourney.repository';
 import { SankeyData, SankeyNode, SankeyLink, JourneyTransition } from '@/entities/analytics/userJourney.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { hasGateableStepFilters } from '@/entities/analytics/stepFilters.entities';
 
-export async function getUserJourneyForSankeyDiagram(
-  siteQuery: BASiteQuery,
-  limit: number = 50,
-): Promise<SankeyData & { failingSlot: number | null }> {
+export async function getUserJourneyForSankeyDiagram(siteQuery: BASiteQuery, limit: number = 50): Promise<SankeyData> {
   const transitions = await getUserJourneyTransitions(siteQuery, limit);
-  const sankey = buildSankeyFromTransitions(transitions);
-
-  if (
-    sankey.nodes.length > 0 ||
-    !hasGateableStepFilters(siteQuery.userJourney.stepFilters, siteQuery.userJourney.numberOfSteps)
-  ) {
-    return { ...sankey, failingSlot: null };
-  }
-
-  const { failingSlot } = await getUserJourneyStepAttribution(siteQuery).catch((error) => {
-    console.error('Failed to get user journey step attribution:', error);
-    return { totalJourneys: 0, failingSlot: null };
-  });
-  return { ...sankey, failingSlot };
+  return buildSankeyFromTransitions(transitions);
 }
 
 function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyData {

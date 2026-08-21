@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { clickhouse } from '@/lib/clickhouse';
 import { JourneyTransition, JourneyTransitionSchema } from '@/entities/analytics/userJourney.entities';
 import { safeSql, SQL, type SQLTaggedExpression } from '@/lib/safe-sql';
@@ -14,10 +13,7 @@ type JourneyQueryArgs = {
   sample: SQLTaggedExpression;
 };
 
-function buildJourneyPipeline(
-  { queryFilters, stepFilters, numberOfSteps, sample }: JourneyQueryArgs,
-  mode: 'journey' | 'attribution',
-) {
+function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample }: JourneyQueryArgs) {
   const eventFilters: Array<{ slot: number; filter: QueryFilter }> = [];
   const entryFilters: QueryFilter[] = [];
   const exitFilters: QueryFilter[] = [];
@@ -49,9 +45,7 @@ function buildJourneyPipeline(
 
   const entryPredicates = entryFilters.map((filter, index) => BAQuery.buildEntryPredicate(filter, index));
   const hasEntry = entryPredicates.length > 0;
-  const entryHaving = mode === 'journey' && hasEntry ? safeSql` HAVING ${SQL.AND(entryPredicates)}` : safeSql``;
-  const entryOkColumn =
-    mode === 'attribution' && hasEntry ? safeSql`, (${SQL.AND(entryPredicates)}) AS entry_ok` : safeSql``;
+  const entryHaving = hasEntry ? safeSql` HAVING ${SQL.AND(entryPredicates)}` : safeSql``;
 
   const hasExit = exitFilters.length > 0;
   const exitOrderedColumns = hasExit ? safeSql`, max(timestamp) AS last_pageview_ts` : safeSql``;
@@ -85,7 +79,6 @@ function buildJourneyPipeline(
 
   const eventCarry = eventFlags.reduce((acc, flag) => safeSql`${acc}, ${SQL.Unsafe(flag.alias)}`, safeSql``);
   const exitCarry = hasExit ? safeSql`, last_matching_click, last_pageview_ts` : safeSql``;
-  const entryCarry = mode === 'attribution' && hasEntry ? safeSql`, entry_ok` : safeSql``;
 
   const gates = new Map<number, SQLTaggedExpression[]>();
   const addGate = (column: number, expr: SQLTaggedExpression) => {
@@ -94,9 +87,6 @@ function buildJourneyPipeline(
     }
     gates.set(column, [...(gates.get(column) ?? []), expr]);
   };
-  if (mode === 'attribution' && hasEntry) {
-    addGate(1, safeSql`entry_ok`);
-  }
   positionalFilters.forEach(({ slot, filter }, index) =>
     addGate(slot + 1, BAQuery.buildPositionalUrlPredicate(filter, slot, index)),
   );
@@ -115,7 +105,7 @@ function buildJourneyPipeline(
       SELECT
         session_id,
         arraySort(x -> x.1, groupArray((timestamp, url))) AS sorted_tuples,
-        any(_sample_factor) as _sample_factor${exitOrderedColumns}${eventOkColumns}${entryOkColumn}
+        any(_sample_factor) as _sample_factor${exitOrderedColumns}${eventOkColumns}
       FROM analytics.events ${sample}
       WHERE
         site_id = {site_id:String}
@@ -140,15 +130,15 @@ function buildJourneyPipeline(
             {max_length:UInt8}
           )
         ) AS path,
-        _sample_factor${exitSessionColumns}${exitCarry}${eventCarry}${entryCarry}
+        _sample_factor${exitSessionColumns}${exitCarry}${eventCarry}
       FROM ordered_events${exitJoin}
     )`;
 
-  return { prefix, gateExprs, gateColumns };
+  return { prefix, gateExprs };
 }
 
 export function buildJourneyQuery(args: JourneyQueryArgs) {
-  const { prefix, gateExprs } = buildJourneyPipeline(args, 'journey');
+  const { prefix, gateExprs } = buildJourneyPipeline(args);
   const gateWhere = gateExprs.reduce((acc, gate) => safeSql`${acc} AND ${gate}`, safeSql``);
   return safeSql`${prefix},
     filtered_paths AS (
@@ -180,71 +170,6 @@ export function buildJourneyQuery(args: JourneyQueryArgs) {
     GROUP BY source, target, source_depth, target_depth
     ORDER BY value DESC
   `;
-}
-
-export function buildJourneyAttributionQuery(
-  args: JourneyQueryArgs,
-): { query: SQLTaggedExpression; gateColumns: number[] } | null {
-  const { prefix, gateExprs, gateColumns } = buildJourneyPipeline(args, 'attribution');
-  if (gateExprs.length === 0) {
-    return null;
-  }
-  let running = safeSql`length(path) > 1`;
-  let survivors = safeSql`countIf(length(path) > 1)`;
-  for (const gate of gateExprs) {
-    running = safeSql`${running} AND ${gate}`;
-    survivors = safeSql`${survivors}, countIf(${running})`;
-  }
-  const query = safeSql`${prefix}
-    SELECT [${survivors}] AS survivors
-    FROM session_paths`;
-  return { query, gateColumns };
-}
-
-export function mapAttribution(
-  survivors: number[],
-  gateColumns: number[],
-): { totalJourneys: number; failingSlot: number | null } {
-  const totalJourneys = survivors[0] ?? 0;
-  if (totalJourneys === 0) return { totalJourneys, failingSlot: null };
-  const failingIndex = survivors.findIndex((count, index) => index > 0 && count === 0);
-  if (failingIndex < 1) return { totalJourneys, failingSlot: null };
-  return { totalJourneys, failingSlot: gateColumns[failingIndex - 1]! - 1 };
-}
-
-const AttributionRowSchema = z.object({ survivors: z.array(z.coerce.number()) });
-
-export async function getUserJourneyStepAttribution(
-  siteQuery: BASiteQuery,
-): Promise<{ totalJourneys: number; failingSlot: number | null }> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
-
-  const built = buildJourneyAttributionQuery({
-    queryFilters,
-    stepFilters: siteQuery.userJourney.stepFilters,
-    numberOfSteps: siteQuery.userJourney.numberOfSteps,
-    sample,
-  });
-  if (built === null) {
-    return { totalJourneys: 0, failingSlot: null };
-  }
-  const { query, gateColumns } = built;
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start: startDateTime,
-        end: endDateTime,
-        max_length: siteQuery.userJourney.numberOfSteps,
-      },
-    })
-    .toPromise()) as unknown[];
-
-  const { survivors } = AttributionRowSchema.parse(result[0]);
-  return mapAttribution(survivors, gateColumns);
 }
 
 /**
