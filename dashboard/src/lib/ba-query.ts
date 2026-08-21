@@ -75,7 +75,7 @@ function buildFilterQuery(filter: z.infer<typeof TransformQueryFilterSchema>, fi
   }
 }
 
-function buildPositionalUrlPredicate(filter: QueryFilter, slot: number, index: number) {
+function buildPositionalUrlPredicate(filter: ScopeFilter, slot: number, index: number) {
   if (!Number.isInteger(slot) || slot < 0 || slot > 32) {
     throw new Error(`Invalid journey slot: ${slot}`);
   }
@@ -88,7 +88,7 @@ function buildPositionalUrlPredicate(filter: QueryFilter, slot: number, index: n
   );
 }
 
-function buildEntryPredicate(filter: QueryFilter, index: number) {
+function buildEntryPredicate(filter: ScopeFilter, index: number) {
   const parsed = TransformQueryFilterSchema.parse(filter);
   const parsedColumn = parseFilterColumn(parsed.column);
   if (parsedColumn.kind !== 'standard') {
@@ -102,7 +102,7 @@ function buildEntryPredicate(filter: QueryFilter, index: number) {
   );
 }
 
-function buildExitPredicate(filter: QueryFilter, index: number) {
+function buildExitPredicate(filter: ScopeFilter, index: number) {
   const parsed = TransformQueryFilterSchema.parse(filter);
   const parsedColumn = parseFilterColumn(parsed.column);
   if (parsedColumn.kind !== 'standard') {
@@ -116,7 +116,7 @@ function buildExitPredicate(filter: QueryFilter, index: number) {
   );
 }
 
-function buildEventPredicate(filter: QueryFilter, index: number) {
+function buildEventPredicate(filter: ScopeFilter, index: number) {
   const positive = TransformQueryFilterSchema.parse({ ...filter, operator: '=' });
   const parsedColumn = parseFilterColumn(positive.column);
   const values = SQL.StringArray({ [`evt_filter_${index}`]: positive.values });
