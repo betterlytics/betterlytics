@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { clickhouse } from '@/lib/clickhouse';
 import { JourneyTransition, JourneyTransitionSchema } from '@/entities/analytics/userJourney.entities';
 import { safeSql, SQL, type SQLTaggedExpression } from '@/lib/safe-sql';
@@ -207,6 +208,37 @@ export function mapAttribution(
   const failingIndex = survivors.findIndex((count, index) => index > 0 && count === 0);
   if (failingIndex < 1) return { totalJourneys, failingSlot: null };
   return { totalJourneys, failingSlot: (gateColumns[failingIndex - 1] ?? 1) - 1 };
+}
+
+const AttributionRowSchema = z.object({ survivors: z.array(z.coerce.number()) });
+
+export async function getUserJourneyStepAttribution(
+  siteQuery: BASiteQuery,
+): Promise<{ totalJourneys: number; failingSlot: number | null }> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
+
+  const { query, gateColumns } = buildJourneyAttributionQuery({
+    queryFilters,
+    stepFilters: siteQuery.userJourney.stepFilters,
+    numberOfSteps: siteQuery.userJourney.numberOfSteps,
+    sample,
+  });
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start: startDateTime,
+        end: endDateTime,
+        max_length: siteQuery.userJourney.numberOfSteps,
+      },
+    })
+    .toPromise()) as unknown[];
+
+  const { survivors } = AttributionRowSchema.parse(result[0]);
+  return mapAttribution(survivors, gateColumns);
 }
 
 /**
