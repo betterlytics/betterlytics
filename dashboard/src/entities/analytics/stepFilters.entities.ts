@@ -1,5 +1,6 @@
 import {
   FILTER_COLUMNS,
+  isUsableFilter,
   parseFilterColumn,
   type FilterColumn,
   type QueryFilter,
@@ -70,4 +71,15 @@ export function stripInfeasibleStepFilters(
 
 export function pruneStepFilters(stepFilters: StepFiltersBySlot, lastSlot: number): StepFiltersBySlot {
   return Object.fromEntries(Object.entries(stepFilters).filter(([slot]) => Number(slot) <= lastSlot));
+}
+
+export function hasGateableStepFilters(stepFilters: StepFiltersBySlot, numberOfSteps: number): boolean {
+  return Object.entries(stepFilters).some(([slotKey, filters]) =>
+    filters.some(
+      (filter) =>
+        isUsableFilter(filter) &&
+        filter.values.length > 0 &&
+        classifyStepFilter(filter.column, Number(slotKey), numberOfSteps - 1) !== 'infeasible',
+    ),
+  );
 }
