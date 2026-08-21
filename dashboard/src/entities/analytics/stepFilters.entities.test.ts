@@ -4,7 +4,6 @@ import {
   getStepExcludedColumns,
   stripInfeasibleStepFilters,
   pruneStepFilters,
-  hasGateableStepFilters,
 } from './stepFilters.entities';
 import type { QueryFilter } from './filter.entities';
 import { BAAnalyticsQuerySchema } from './analyticsQuery.entities';
@@ -108,34 +107,6 @@ describe('pruneStepFilters', () => {
   it('removes slots above the new last slot and keeps the rest', () => {
     const pruned = pruneStepFilters({ '0': [filter('url')], '4': [filter('url')] }, 3);
     expect(pruned).toEqual({ '0': [filter('url')] });
-  });
-});
-
-describe('hasGateableStepFilters', () => {
-  it('is true for a usable positional filter', () => {
-    expect(hasGateableStepFilters({ '1': [filter('url')] }, 4)).toBe(true);
-  });
-
-  it('ignores empty-value and infeasible filters', () => {
-    expect(hasGateableStepFilters({ '1': [filter('url', [])] }, 4)).toBe(false);
-    expect(hasGateableStepFilters({ '1': [filter('custom_event_name', ['x'])] }, 4)).toBe(false);
-  });
-
-  it('is false for no step filters', () => {
-    expect(hasGateableStepFilters({}, 4)).toBe(false);
-  });
-
-  it('is true for an entry filter at slot 0', () => {
-    expect(hasGateableStepFilters({ '0': [filter('referrer_source')] }, 4)).toBe(true);
-  });
-
-  it('is true for an exit filter at the last slot and false elsewhere', () => {
-    expect(hasGateableStepFilters({ '3': [filter('outbound_link_url')] }, 4)).toBe(true);
-    expect(hasGateableStepFilters({ '1': [filter('outbound_link_url')] }, 4)).toBe(false);
-  });
-
-  it('is false for a filter at a slot at or beyond numberOfSteps', () => {
-    expect(hasGateableStepFilters({ '4': [filter('url')] }, 4)).toBe(false);
   });
 });
 

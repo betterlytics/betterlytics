@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { getStepBandGeometry } from './bandGeometry';
 import { UserJourneyStepFilterPopover } from './UserJourneyStepFilterPopover';
 
-export function UserJourneyStepBand({ failingSlot }: { failingSlot: number | null }) {
+export function UserJourneyStepBand() {
   const t = useTranslations('components.userJourney');
   const { numberOfSteps, stepFilters } = useUserJourneyFilter();
   const allowedStepFilters = useAllowedStepFilters(stepFilters, numberOfSteps);
@@ -28,7 +28,6 @@ export function UserJourneyStepBand({ failingSlot }: { failingSlot: number | nul
       {cells.map((cell, slot) => {
         const count = filterEmptyQueryFilters(allowedStepFilters[slot] ?? []).length;
         const align = slot >= numberOfSteps - 2 ? 'end' : 'start';
-        const isFailing = slot === failingSlot;
 
         return (
           <div key={slot} style={{ width: `${cell.width}%` }} className='min-w-0 border-r last:border-r-0'>
@@ -53,10 +52,7 @@ export function UserJourneyStepBand({ failingSlot }: { failingSlot: number | nul
                     <FilterIcon className='size-3.5 shrink-0' />
                     <span className='truncate'>{t('filterTrigger')}</span>
                     {count > 0 && (
-                      <Badge
-                        variant={isFailing ? 'destructive' : 'default'}
-                        className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'
-                      >
+                      <Badge variant='default' className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'>
                         {count}
                       </Badge>
                     )}
