@@ -205,37 +205,3 @@ describe('buildExitPredicate', () => {
   });
 });
 
-describe('buildEventPredicate', () => {
-  it('wraps the row predicate in a session-level max with namespaced params', () => {
-    const sql = BAQuery.buildEventPredicate(makeFilter('device_type', '=', ['mobile']), 0);
-    expect(sql.taggedSql).toContain('max(');
-    expect(sql.taggedSql).toContain('device_type');
-    expect(sql.taggedSql).toContain(') = 1');
-    expect(sql.taggedParams).toEqual({ evt_filter_0: ['mobile'] });
-  });
-
-  it('handles gp property columns with namespaced key params', () => {
-    const sql = BAQuery.buildEventPredicate(makeFilter('gp.tenant', '=', ['acme']), 2);
-    expect(sql.taggedSql).toContain('max(');
-    expect(Object.keys(sql.taggedParams)).toContain('evt_filter_2');
-    expect(Object.keys(sql.taggedParams)).toContain('evt_gp_key_2');
-  });
-
-  it('compiles a bare wildcard to a session-level presence check', () => {
-    const sql = BAQuery.buildEventPredicate(makeFilter('browser', '=', ['*']), 1);
-    expect(sql.taggedSql).toBe(`max(browser != '') = 1`);
-  });
-
-  it('excludes the whole session for != via the positive-match complement', () => {
-    const sql = BAQuery.buildEventPredicate(makeFilter('device_type', '!=', ['Mobile']), 0);
-    expect(sql.taggedSql).toContain('max(');
-    expect(sql.taggedSql).toContain('device_type');
-    expect(sql.taggedSql.endsWith(') = 0')).toBe(true);
-    expect(sql.taggedParams).toEqual({ evt_filter_0: ['Mobile'] });
-  });
-
-  it('compiles a bare wildcard != * to a session-level absence check', () => {
-    const sql = BAQuery.buildEventPredicate(makeFilter('device_type', '!=', ['*']), 0);
-    expect(sql.taggedSql).toBe(`max(device_type != '') = 0`);
-  });
-});

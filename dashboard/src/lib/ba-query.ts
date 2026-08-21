@@ -116,28 +116,6 @@ function buildExitPredicate(filter: ScopeFilter, index: number) {
   );
 }
 
-function buildEventPredicate(filter: ScopeFilter, index: number) {
-  const positive = TransformQueryFilterSchema.parse({ ...filter, operator: '=' });
-  const parsedColumn = parseFilterColumn(positive.column);
-  const values = SQL.StringArray({ [`evt_filter_${index}`]: positive.values });
-  if (parsedColumn.kind === 'property') {
-    const keySql = SQL.String({ [`evt_${parsedColumn.source}_key_${index}`]: parsedColumn.key });
-    const match = buildPropertyFilterSql(parsedColumn.source, {
-      keySql,
-      valuesSql: values,
-      values: positive.values,
-      operator: positive.operator,
-      rawOperator: positive.rawOperator,
-    });
-    return filter.operator === '=' ? safeSql`max(${match}) = 1` : safeSql`max(${match}) = 0`;
-  }
-  const column = filterColumnSql(parsedColumn.col);
-  const inner =
-    matchAnyValueFilterSql(filter.values, positive.rawOperator, column, parsedColumn.col) ??
-    safeSql`${positive.operator.quantifier}(pattern -> ${column} ${positive.operator.operater} pattern, ${values})`;
-  return filter.operator === '=' ? safeSql`max(${inner}) = 1` : safeSql`max(${inner}) = 0`;
-}
-
 // Utility for granularity
 const GranularityIntervalSchema = z.enum([
   '1 MONTH',
@@ -241,5 +219,4 @@ export const BAQuery = {
   buildPositionalUrlPredicate,
   buildEntryPredicate,
   buildExitPredicate,
-  buildEventPredicate,
 };
