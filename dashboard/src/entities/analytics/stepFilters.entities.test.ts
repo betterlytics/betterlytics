@@ -34,13 +34,10 @@ describe('classifyStepFilter', () => {
     expect(classifyStepFilter('outbound_link_url', 2, 3)).toBe('infeasible');
   });
 
-  it('classifies custom_event_name, event_type and cep as infeasible everywhere', () => {
+  it('classifies session-wide columns and properties as infeasible everywhere', () => {
     expect(classifyStepFilter('custom_event_name', 1, 3)).toBe('infeasible');
     expect(classifyStepFilter('event_type', 0, 3)).toBe('infeasible');
     expect(classifyStepFilter('cep.plan', 3, 3)).toBe('infeasible');
-  });
-
-  it('classifies session-constant columns and properties as infeasible', () => {
     expect(classifyStepFilter('device_type', 2, 3)).toBe('infeasible');
     expect(classifyStepFilter('browser_version', 0, 3)).toBe('infeasible');
     expect(classifyStepFilter('domain', 3, 3)).toBe('infeasible');
@@ -82,7 +79,7 @@ describe('stripInfeasibleStepFilters', () => {
   it('drops infeasible filters and empty slots, keeps the rest', () => {
     const stripped = stripInfeasibleStepFilters(
       {
-        '0': [filter('url'), filter('custom_event_name')],
+        '0': [filter('url'), filter('custom_event_name'), filter('device_type')],
         '2': [filter('outbound_link_url')],
         '3': [filter('outbound_link_url')],
       },

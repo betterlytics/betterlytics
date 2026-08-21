@@ -1,6 +1,5 @@
 import {
   FILTER_COLUMNS,
-  isUsableFilter,
   parseFilterColumn,
   type FilterColumn,
   type QueryFilter,

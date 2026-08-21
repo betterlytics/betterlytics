@@ -113,6 +113,13 @@ describe('buildJourneyQuery without step filters', () => {
   });
 });
 
+describe('infeasible step filters', () => {
+  it('drops session-constant columns as infeasible', () => {
+    const query = build({ '2': [filter('device_type', ['Mobile'])] });
+    expect(query.taggedSql).not.toContain('device_type');
+  });
+});
+
 describe('entry step filters', () => {
   it('adds a HAVING with argMin on ordered_events for slot 0', () => {
     const query = build({ '0': [filter('utm_source', ['newsletter'])] });
