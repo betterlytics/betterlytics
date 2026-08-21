@@ -5,7 +5,7 @@ import { Lock } from 'lucide-react';
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { SankeyData } from '@/entities/analytics/userJourney.entities';
 import { HighlightState, TooltipState } from './types';
-import { createSankeyGraph } from './SankeyGraph';
+import { createSankeyGraph, remapHighlightState } from './SankeyGraph';
 import { CHART_VIEWBOX_WIDTH } from './constants';
 import { calculateLayout } from './layoutCalculation';
 import { SankeyNode, SankeyLink } from './components';
@@ -35,6 +35,14 @@ export default function UserJourneyChart({ data, numberOfSteps }: UserJourneyCha
 
   const [lockedState, setLockedState] = useState<HighlightState | null>(null);
   const [hoverState, setHoverState] = useState<HighlightState | null>(null);
+
+  const [lockedStateGraph, setLockedStateGraph] = useState(graph);
+  if (lockedStateGraph !== graph) {
+    setLockedStateGraph(graph);
+    if (lockedState) {
+      setLockedState(remapHighlightState(lockedState, lockedStateGraph, graph));
+    }
+  }
 
   const [tooltip, setTooltip] = useState<TooltipState>({
     visible: false,
