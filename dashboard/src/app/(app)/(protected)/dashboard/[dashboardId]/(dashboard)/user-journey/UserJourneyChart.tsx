@@ -1,25 +1,22 @@
 'use client';
 
 import { Card } from '@/components/ui/card';
-import { FilterXIcon, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
-import { useTranslations } from 'next-intl';
 import { SankeyData } from '@/entities/analytics/userJourney.entities';
 import { HighlightState, TooltipState } from './types';
 import { createSankeyGraph } from './SankeyGraph';
 import { CHART_VIEWBOX_WIDTH } from './constants';
-import { calculateLayout, getDepthGrid } from './layoutCalculation';
+import { calculateLayout } from './layoutCalculation';
 import { SankeyNode, SankeyLink } from './components';
 import { TooltipComponent } from './components/SankeyTooltip';
 
 interface UserJourneyChartProps {
   data: SankeyData;
   numberOfSteps: number;
-  failingSlot: number | null;
 }
 
-export default function UserJourneyChart({ data, numberOfSteps, failingSlot }: UserJourneyChartProps) {
-  const t = useTranslations('components.userJourney');
+export default function UserJourneyChart({ data, numberOfSteps }: UserJourneyChartProps) {
   const graph = useMemo(() => createSankeyGraph(data), [data]);
 
   // Calculate SVG dimensions based on graph structure
@@ -159,25 +156,8 @@ export default function UserJourneyChart({ data, numberOfSteps, failingSlot }: U
   const isHovering = hoverState !== null;
   const isHighlighting = isLocked || isHovering;
 
-  const deadRegionLeft = useMemo(() => {
-    if (failingSlot === null) return null;
-    const { columnX } = getDepthGrid(CHART_VIEWBOX_WIDTH, numberOfSteps);
-    return (columnX(failingSlot) / CHART_VIEWBOX_WIDTH) * 100;
-  }, [failingSlot, numberOfSteps]);
-
   return (
     <div className='relative z-10'>
-      {deadRegionLeft !== null && (
-        <div
-          style={{ left: `${deadRegionLeft}%` }}
-          className='pointer-events-none absolute inset-y-0 right-0 z-20 flex items-center justify-center'
-        >
-          <div className='text-muted-foreground flex flex-col items-center gap-2 px-4 text-center text-sm'>
-            <FilterXIcon className='size-5' />
-            <span>{t('stepFilterNoMatches', { number: (failingSlot ?? 0) + 1 })}</span>
-          </div>
-        </div>
-      )}
       <svg
         ref={containerRef}
         className='relative z-10'

@@ -29,7 +29,6 @@ export function UserJourneyStepBand({ failingSlot }: { failingSlot: number | nul
         const count = filterEmptyQueryFilters(allowedStepFilters[slot] ?? []).length;
         const align = slot >= numberOfSteps - 2 ? 'end' : 'start';
         const isFailing = slot === failingSlot;
-        const isMoot = failingSlot !== null && slot > failingSlot;
 
         return (
           <div key={slot} style={{ width: `${cell.width}%` }} className='min-w-0 border-r last:border-r-0'>
@@ -45,7 +44,6 @@ export function UserJourneyStepBand({ failingSlot }: { failingSlot: number | nul
                     'group h-auto w-full cursor-pointer justify-between gap-1.5 rounded-none px-2 py-1.5 text-xs',
                     slot === 0 && 'rounded-l-[calc(var(--radius-md)-1px)]',
                     slot === numberOfSteps - 1 && 'rounded-r-[calc(var(--radius-md)-1px)]',
-                    isMoot && 'text-muted-foreground',
                   )}
                 >
                   <span className='flex min-w-0 items-center gap-1.5'>
