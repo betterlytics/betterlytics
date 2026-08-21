@@ -244,6 +244,11 @@ describe('buildJourneyAttributionQuery', () => {
     expect(query.taggedSql).not.toContain('HAVING');
     expect(gateColumns).toEqual([1]);
     expect(query.taggedSql).toContain('(length(path) >= 1 AND (entry_ok))');
+    const sessionPaths = query.taggedSql.slice(
+      query.taggedSql.indexOf('session_paths'),
+      query.taggedSql.indexOf('SELECT ['),
+    );
+    expect(sessionPaths).toContain('entry_ok');
   });
 
   it('returns null without any gateable filter', () => {

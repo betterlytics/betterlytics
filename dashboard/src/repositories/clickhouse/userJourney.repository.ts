@@ -209,7 +209,7 @@ export function mapAttribution(
   if (totalJourneys === 0) return { totalJourneys, failingSlot: null };
   const failingIndex = survivors.findIndex((count, index) => index > 0 && count === 0);
   if (failingIndex < 1) return { totalJourneys, failingSlot: null };
-  return { totalJourneys, failingSlot: (gateColumns[failingIndex - 1] ?? 1) - 1 };
+  return { totalJourneys, failingSlot: gateColumns[failingIndex - 1]! - 1 };
 }
 
 const AttributionRowSchema = z.object({ survivors: z.array(z.coerce.number()) });
