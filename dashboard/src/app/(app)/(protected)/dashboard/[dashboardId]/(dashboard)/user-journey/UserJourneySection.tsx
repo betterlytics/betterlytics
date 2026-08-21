@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import UserJourneyChart from './UserJourneyChart';
 import { UserJourneyStepBand } from './UserJourneyStepBand';
@@ -10,6 +11,7 @@ import { QuerySection } from '@/components/QuerySection';
 import { Spinner } from '@/components/ui/spinner';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
+import { getStepBandGeometry } from './bandGeometry';
 
 export default function UserJourneySection() {
   const t = useTranslations('dashboard.emptyStates');
@@ -17,6 +19,7 @@ export default function UserJourneySection() {
   const { stepFilters, numberOfSteps } = useUserJourneyFilter();
   const query = trpc.userJourney.journey.useQuery(input, options);
   const hasStepFilters = Object.keys(stepFilters).length > 0;
+  const { left, width } = useMemo(() => getStepBandGeometry(numberOfSteps), [numberOfSteps]);
 
   return (
     <QuerySection
@@ -31,7 +34,7 @@ export default function UserJourneySection() {
         const isEmpty = journeyData?.nodes.length === 0;
 
         const emptyState = (
-          <Card className={hasStepFilters ? 'm-4' : 'mt-6'}>
+          <Card className={hasStepFilters ? 'my-4' : 'mt-6'}>
             <CardContent className='p-8'>
               <div className='flex h-[300px] items-center justify-center text-center'>
                 <div>
@@ -51,7 +54,11 @@ export default function UserJourneySection() {
           <ScrollArea className='-mr-1 max-h-[70svh]'>
             <div className='min-w-[1000px] pr-1'>
               <UserJourneyStepBand />
-              {isEmpty ? emptyState : <UserJourneyChart data={journeyData} numberOfSteps={numberOfSteps} />}
+              {isEmpty ? (
+                <div style={{ marginLeft: `${left}%`, width: `${width}%` }}>{emptyState}</div>
+              ) : (
+                <UserJourneyChart data={journeyData} numberOfSteps={numberOfSteps} />
+              )}
             </div>
             <ScrollBar orientation='horizontal' />
           </ScrollArea>
