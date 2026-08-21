@@ -40,11 +40,11 @@ describe('classifyStepFilter', () => {
     expect(classifyStepFilter('cep.plan', 3, 3)).toBe('infeasible');
   });
 
-  it('classifies session and page dimensions plus gp as event at every slot', () => {
-    expect(classifyStepFilter('device_type', 2, 3)).toBe('event');
-    expect(classifyStepFilter('browser_version', 0, 3)).toBe('event');
-    expect(classifyStepFilter('domain', 3, 3)).toBe('event');
-    expect(classifyStepFilter('gp.tenant', 1, 3)).toBe('event');
+  it('classifies session-constant columns and properties as infeasible', () => {
+    expect(classifyStepFilter('device_type', 2, 3)).toBe('infeasible');
+    expect(classifyStepFilter('browser_version', 0, 3)).toBe('infeasible');
+    expect(classifyStepFilter('domain', 3, 3)).toBe('infeasible');
+    expect(classifyStepFilter('gp.tenant', 1, 3)).toBe('infeasible');
   });
 
   it('classifies anything at an out-of-range slot as infeasible', () => {
@@ -55,13 +55,13 @@ describe('classifyStepFilter', () => {
 });
 
 describe('getStepExcludedColumns', () => {
-  it('always excludes custom_event_name, event_type and cep', () => {
+  it('always excludes custom_event_name, event_type, gp and cep', () => {
     for (const slot of [0, 1, 3]) {
       const excluded = getStepExcludedColumns(slot, 3);
       expect(excluded).toContain('custom_event_name');
       expect(excluded).toContain('event_type');
+      expect(excluded).toContain('gp');
       expect(excluded).toContain('cep');
-      expect(excluded).not.toContain('gp');
       expect(excluded).not.toContain('url');
     }
   });

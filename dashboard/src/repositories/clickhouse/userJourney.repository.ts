@@ -14,7 +14,6 @@ type JourneyQueryArgs = {
 };
 
 function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample }: JourneyQueryArgs) {
-  const eventFilters: Array<{ slot: number; filter: QueryFilter }> = [];
   const entryFilters: QueryFilter[] = [];
   const exitFilters: QueryFilter[] = [];
   const positionalFilters: Array<{ slot: number; filter: QueryFilter }> = [];
@@ -23,9 +22,6 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     const slot = Number(slotKey);
     for (const filter of slotFilters.filter((filter) => isUsableFilter(filter) && filter.values.length > 0)) {
       switch (classifyStepFilter(filter.column, slot, numberOfSteps - 1)) {
-        case 'event':
-          eventFilters.push({ slot, filter });
-          break;
         case 'entry':
           entryFilters.push(filter);
           break;
@@ -67,17 +63,6 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     : safeSql``;
   const exitJoin = hasExit ? safeSql` ANY LEFT JOIN exit_clicks USING (session_id)` : safeSql``;
 
-  const eventFlags = eventFilters.map(({ slot, filter }, index) => ({
-    column: slot + 1,
-    alias: `evt_ok_${index}`,
-    predicate: BAQuery.buildEventPredicate(filter, index),
-  }));
-  const eventOkColumns = eventFlags.reduce(
-    (acc, flag) => safeSql`${acc}, ${flag.predicate} AS ${SQL.Unsafe(flag.alias)}`,
-    safeSql``,
-  );
-
-  const eventCarry = eventFlags.reduce((acc, flag) => safeSql`${acc}, ${SQL.Unsafe(flag.alias)}`, safeSql``);
   const exitCarry = hasExit ? safeSql`, last_matching_click, last_pageview_ts` : safeSql``;
 
   const gates = new Map<number, SQLTaggedExpression[]>();
@@ -90,7 +75,6 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
   positionalFilters.forEach(({ slot, filter }, index) =>
     addGate(slot + 1, BAQuery.buildPositionalUrlPredicate(filter, slot, index)),
   );
-  eventFlags.forEach((flag) => addGate(flag.column, safeSql`${SQL.Unsafe(flag.alias)} = 1`));
   if (hasExit) {
     addGate(numberOfSteps, safeSql`full_path_length = {max_length:UInt8} AND last_matching_click > last_pageview_ts`);
   }
@@ -105,7 +89,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
       SELECT
         session_id,
         arraySort(x -> x.1, groupArray((timestamp, url))) AS sorted_tuples,
-        any(_sample_factor) as _sample_factor${exitOrderedColumns}${eventOkColumns}
+        any(_sample_factor) as _sample_factor${exitOrderedColumns}
       FROM analytics.events ${sample}
       WHERE
         site_id = {site_id:String}
@@ -130,7 +114,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
             {max_length:UInt8}
           )
         ) AS path,
-        _sample_factor${exitSessionColumns}${exitCarry}${eventCarry}
+        _sample_factor${exitSessionColumns}${exitCarry}
       FROM ordered_events${exitJoin}
     )`;
 

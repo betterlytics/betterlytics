@@ -8,7 +8,7 @@ import {
 } from './filter.entities';
 import { PROPERTY_SOURCE_KINDS, type PropertySourceKind } from './propertySources';
 
-export type StepFilterKind = 'positional' | 'entry' | 'exit' | 'event' | 'infeasible';
+export type StepFilterKind = 'positional' | 'entry' | 'exit' | 'infeasible';
 
 export type StepFiltersBySlot = Record<string, QueryFilter[]>;
 
@@ -26,18 +26,14 @@ export const ENTRY_FILTER_COLUMNS = [
 
 const ENTRY_COLUMN_SET = new Set<TableFilterColumn>(ENTRY_FILTER_COLUMNS);
 
-/* The journey query is locked to pageview events, so event-scoped columns can only zero it. */
-const ALWAYS_INFEASIBLE_COLUMNS = new Set<TableFilterColumn>(['custom_event_name', 'event_type']);
-
 export function classifyStepFilter(column: FilterColumn, slot: number, lastSlot: number): StepFilterKind {
   if (!Number.isInteger(slot) || slot < 0 || slot > lastSlot) return 'infeasible';
   const parsed = parseFilterColumn(column);
-  if (parsed.kind === 'property') return parsed.source === 'cep' ? 'infeasible' : 'event';
+  if (parsed.kind === 'property') return 'infeasible';
   if (parsed.col === 'url') return 'positional';
   if (ENTRY_COLUMN_SET.has(parsed.col)) return slot === 0 ? 'entry' : 'infeasible';
   if (parsed.col === 'outbound_link_url') return slot === lastSlot ? 'exit' : 'infeasible';
-  if (ALWAYS_INFEASIBLE_COLUMNS.has(parsed.col)) return 'infeasible';
-  return 'event';
+  return 'infeasible';
 }
 
 export function getStepExcludedColumns(

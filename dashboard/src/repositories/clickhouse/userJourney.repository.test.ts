@@ -113,30 +113,6 @@ describe('buildJourneyQuery without step filters', () => {
   });
 });
 
-describe('event-level step filters', () => {
-  it('stays a session flag and gates the journey in the WHERE', () => {
-    const query = build({ '2': [filter('device_type', ['Mobile'])] });
-    const orderedEvents = query.taggedSql.slice(0, query.taggedSql.indexOf('session_paths'));
-    expect(orderedEvents).toContain('max(');
-    expect(orderedEvents).toContain('AS evt_ok_0');
-    expect(orderedEvents).not.toMatch(/WHERE[\s\S]*device_type[\s\S]*GROUP BY session_id/);
-    expect(query.taggedSql).toContain('WHERE length(path) > 1 AND (length(path) >= 3 AND (evt_ok_0 = 1))');
-    expect(query.taggedSql).not.toContain('AS surv_');
-    expect(query.taggedSql).not.toContain('arraySlice(path, 1,');
-    const sessionPaths = query.taggedSql.slice(
-      query.taggedSql.indexOf('session_paths'),
-      query.taggedSql.indexOf('filtered_paths'),
-    );
-    expect(sessionPaths).toContain('evt_ok_0');
-  });
-
-  it('keeps event params out of the global namespace', () => {
-    const query = build({ '2': [filter('device_type', ['Mobile'])] }, [filter('url', ['https://x.io/*'])]);
-    expect(Object.keys(query.taggedParams)).toContain('evt_filter_0');
-    expect(Object.keys(query.taggedParams)).toContain('query_filter_0');
-  });
-});
-
 describe('entry step filters', () => {
   it('adds a HAVING with argMin on ordered_events for slot 0', () => {
     const query = build({ '0': [filter('utm_source', ['newsletter'])] });
