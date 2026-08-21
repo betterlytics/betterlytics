@@ -13,7 +13,10 @@ type JourneyQueryArgs = {
   sample: SQLTaggedExpression;
 };
 
-export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sample }: JourneyQueryArgs) {
+function buildJourneyPipeline(
+  { queryFilters, stepFilters, numberOfSteps, sample }: JourneyQueryArgs,
+  mode: 'journey' | 'attribution',
+) {
   const eventFilters: Array<{ slot: number; filter: QueryFilter }> = [];
   const entryFilters: QueryFilter[] = [];
   const exitFilters: QueryFilter[] = [];
@@ -43,10 +46,11 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
 
   const filters = BAQuery.getFilterQuery(queryFilters);
 
-  const entryHaving =
-    entryFilters.length > 0
-      ? safeSql` HAVING ${SQL.AND(entryFilters.map((filter, index) => BAQuery.buildEntryPredicate(filter, index)))}`
-      : safeSql``;
+  const entryPredicates = entryFilters.map((filter, index) => BAQuery.buildEntryPredicate(filter, index));
+  const hasEntry = entryPredicates.length > 0;
+  const entryHaving = mode === 'journey' && hasEntry ? safeSql` HAVING ${SQL.AND(entryPredicates)}` : safeSql``;
+  const entryOkColumn =
+    mode === 'attribution' && hasEntry ? safeSql`, (${SQL.AND(entryPredicates)}) AS entry_ok` : safeSql``;
 
   const hasExit = exitFilters.length > 0;
   const exitOrderedColumns = hasExit ? safeSql`, max(timestamp) AS last_pageview_ts` : safeSql``;
@@ -78,6 +82,10 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
     safeSql``,
   );
 
+  const eventCarry = eventFlags.reduce((acc, flag) => safeSql`${acc}, ${SQL.Unsafe(flag.alias)}`, safeSql``);
+  const exitCarry = hasExit ? safeSql`, last_matching_click, last_pageview_ts` : safeSql``;
+  const entryCarry = mode === 'attribution' && hasEntry ? safeSql`, entry_ok` : safeSql``;
+
   const gates = new Map<number, SQLTaggedExpression[]>();
   const addGate = (column: number, expr: SQLTaggedExpression) => {
     if (!Number.isInteger(column) || column < 1 || column > 32) {
@@ -85,6 +93,9 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
     }
     gates.set(column, [...(gates.get(column) ?? []), expr]);
   };
+  if (mode === 'attribution' && hasEntry) {
+    addGate(1, safeSql`entry_ok`);
+  }
   positionalFilters.forEach(({ slot, filter }, index) =>
     addGate(slot + 1, BAQuery.buildPositionalUrlPredicate(filter, slot, index)),
   );
@@ -94,27 +105,16 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
   }
 
   const gateColumns = [...gates.keys()].sort((a, b) => a - b);
-  let survivalColumns = safeSql``;
-  let survival = safeSql`length(path)`;
-  for (const column of gateColumns) {
-    const literal = SQL.Unsafe(String(column));
-    const truncated = SQL.Unsafe(String(column - 1));
-    const alias = SQL.Unsafe(`surv_${column}`);
-    survivalColumns = safeSql`${survivalColumns},
-        if(${survival} >= ${literal} AND NOT (${SQL.AND(gates.get(column)!)}), ${truncated}, ${survival}) AS ${alias}`;
-    survival = safeSql`${alias}`;
-  }
+  const gateExprs = gateColumns.map((column) =>
+    safeSql`(length(path) >= ${SQL.Unsafe(String(column))} AND (${SQL.AND(gates.get(column)!)}))`,
+  );
 
-  const hasTruncation = gateColumns.length > 0;
-  const truncatedPath = hasTruncation ? safeSql`arraySlice(path, 1, ${survival}) AS path` : safeSql`path`;
-  const lengthCheck = hasTruncation ? safeSql`${survival} > 1` : safeSql`length(path) > 1`;
-
-  return safeSql`
+  const prefix = safeSql`
     WITH ordered_events AS (
       SELECT
         session_id,
         arraySort(x -> x.1, groupArray((timestamp, url))) AS sorted_tuples,
-        any(_sample_factor) as _sample_factor${exitOrderedColumns}${eventOkColumns}
+        any(_sample_factor) as _sample_factor${exitOrderedColumns}${eventOkColumns}${entryOkColumn}
       FROM analytics.events ${sample}
       WHERE
         site_id = {site_id:String}
@@ -139,13 +139,21 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
             {max_length:UInt8}
           )
         ) AS path,
-        _sample_factor${exitSessionColumns}${survivalColumns}
+        _sample_factor${exitSessionColumns}${exitCarry}${eventCarry}${entryCarry}
       FROM ordered_events${exitJoin}
-    ),
+    )`;
+
+  return { prefix, gateExprs, gateColumns };
+}
+
+export function buildJourneyQuery(args: JourneyQueryArgs) {
+  const { prefix, gateExprs } = buildJourneyPipeline(args, 'journey');
+  const gateWhere = gateExprs.reduce((acc, gate) => safeSql`${acc} AND ${gate}`, safeSql``);
+  return safeSql`${prefix},
     filtered_paths AS (
-      SELECT ${truncatedPath}, _sample_factor
+      SELECT path, _sample_factor
       FROM session_paths
-      WHERE ${lengthCheck}
+      WHERE length(path) > 1${gateWhere}
     ),
     /* Group by distinct path and count occurrences, then take top N paths */
     top_paths AS (
@@ -171,6 +179,34 @@ export function buildJourneyQuery({ queryFilters, stepFilters, numberOfSteps, sa
     GROUP BY source, target, source_depth, target_depth
     ORDER BY value DESC
   `;
+}
+
+export function buildJourneyAttributionQuery(args: JourneyQueryArgs) {
+  const { prefix, gateExprs, gateColumns } = buildJourneyPipeline(args, 'attribution');
+  if (gateExprs.length === 0) {
+    throw new Error('Journey attribution requires at least one step filter gate');
+  }
+  let running = safeSql`length(path) > 1`;
+  let survivors = safeSql`countIf(length(path) > 1)`;
+  for (const gate of gateExprs) {
+    running = safeSql`${running} AND ${gate}`;
+    survivors = safeSql`${survivors}, countIf(${running})`;
+  }
+  const query = safeSql`${prefix}
+    SELECT [${survivors}] AS survivors
+    FROM session_paths`;
+  return { query, gateColumns };
+}
+
+export function mapAttribution(
+  survivors: number[],
+  gateColumns: number[],
+): { totalJourneys: number; failingSlot: number | null } {
+  const totalJourneys = survivors[0] ?? 0;
+  if (totalJourneys === 0) return { totalJourneys, failingSlot: null };
+  const failingIndex = survivors.findIndex((count, index) => index > 0 && count === 0);
+  if (failingIndex < 1) return { totalJourneys, failingSlot: null };
+  return { totalJourneys, failingSlot: (gateColumns[failingIndex - 1] ?? 1) - 1 };
 }
 
 /**
