@@ -124,6 +124,19 @@ describe('hasGateableStepFilters', () => {
   it('is false for no step filters', () => {
     expect(hasGateableStepFilters({}, 4)).toBe(false);
   });
+
+  it('is true for an entry filter at slot 0', () => {
+    expect(hasGateableStepFilters({ '0': [filter('referrer_source')] }, 4)).toBe(true);
+  });
+
+  it('is true for an exit filter at the last slot and false elsewhere', () => {
+    expect(hasGateableStepFilters({ '3': [filter('outbound_link_url')] }, 4)).toBe(true);
+    expect(hasGateableStepFilters({ '1': [filter('outbound_link_url')] }, 4)).toBe(false);
+  });
+
+  it('is false for a filter at a slot at or beyond numberOfSteps', () => {
+    expect(hasGateableStepFilters({ '4': [filter('url')] }, 4)).toBe(false);
+  });
 });
 
 const baseQuery = {
