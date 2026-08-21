@@ -22,7 +22,10 @@ export async function getUserJourneyForSankeyDiagram(
     return { ...sankey, failingSlot: null };
   }
 
-  const { failingSlot } = await getUserJourneyStepAttribution(siteQuery);
+  const { failingSlot } = await getUserJourneyStepAttribution(siteQuery).catch((error) => {
+    console.error('Failed to get user journey step attribution:', error);
+    return { totalJourneys: 0, failingSlot: null };
+  });
   return { ...sankey, failingSlot };
 }
 

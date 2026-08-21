@@ -225,7 +225,7 @@ describe('buildJourneyAttributionQuery', () => {
     const { query, gateColumns } = buildAttribution({
       '1': [filter('url', ['/a'])],
       '2': [filter('device_type', ['Mobile'])],
-    });
+    })!;
     expect(gateColumns).toEqual([2, 3]);
     expect(query.taggedSql).toContain('] AS survivors');
     expect(query.taggedSql).toContain('countIf(length(path) > 1)');
@@ -239,15 +239,15 @@ describe('buildJourneyAttributionQuery', () => {
   });
 
   it('turns entry filters into a column one gate instead of a HAVING', () => {
-    const { query, gateColumns } = buildAttribution({ '0': [ENTRY_FILTER] });
+    const { query, gateColumns } = buildAttribution({ '0': [ENTRY_FILTER] })!;
     expect(query.taggedSql).toContain('AS entry_ok');
     expect(query.taggedSql).not.toContain('HAVING');
     expect(gateColumns).toEqual([1]);
     expect(query.taggedSql).toContain('(length(path) >= 1 AND (entry_ok))');
   });
 
-  it('throws without any gateable filter', () => {
-    expect(() => buildAttribution({})).toThrow();
+  it('returns null without any gateable filter', () => {
+    expect(buildAttribution({})).toBeNull();
   });
 });
 

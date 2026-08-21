@@ -182,10 +182,12 @@ export function buildJourneyQuery(args: JourneyQueryArgs) {
   `;
 }
 
-export function buildJourneyAttributionQuery(args: JourneyQueryArgs) {
+export function buildJourneyAttributionQuery(
+  args: JourneyQueryArgs,
+): { query: SQLTaggedExpression; gateColumns: number[] } | null {
   const { prefix, gateExprs, gateColumns } = buildJourneyPipeline(args, 'attribution');
   if (gateExprs.length === 0) {
-    throw new Error('Journey attribution requires at least one step filter gate');
+    return null;
   }
   let running = safeSql`length(path) > 1`;
   let survivors = safeSql`countIf(length(path) > 1)`;
@@ -218,12 +220,16 @@ export async function getUserJourneyStepAttribution(
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
   const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
 
-  const { query, gateColumns } = buildJourneyAttributionQuery({
+  const built = buildJourneyAttributionQuery({
     queryFilters,
     stepFilters: siteQuery.userJourney.stepFilters,
     numberOfSteps: siteQuery.userJourney.numberOfSteps,
     sample,
   });
+  if (built === null) {
+    return { totalJourneys: 0, failingSlot: null };
+  }
+  const { query, gateColumns } = built;
 
   const result = (await clickhouse
     .query(query.taggedSql, {
