@@ -3017,13 +3017,16 @@
         "newPassword": "Nuova password",
         "confirmNewPassword": "Conferma nuova password",
         "passwordHelp": "La password deve essere lunga almeno 8 caratteri",
+        "weakPassword": "La password deve contenere almeno 8 caratteri e includere lettere maiuscole e minuscole",
         "passwordsMatch": "Le password coincidono",
         "changePassword": "Cambia password",
         "passwordManagedByOAuth": "Password gestita da OAuth",
         "togglePasswordVisibility": "Mostra/nascondi {field}",
         "cancel": "Annulla",
         "toast": {
-          "success": "Password aggiornata con successo"
+          "success": "Password aggiornata con successo",
+          "invalidCurrentPassword": "La password attuale non è corretta",
+          "tooManyAttempts": "Troppi tentativi. Attendi un momento e riprova."
         },
         "totp": {
           "title": "Autenticazione a due fattori",

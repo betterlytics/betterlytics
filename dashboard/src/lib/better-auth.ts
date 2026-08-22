@@ -15,6 +15,15 @@ import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById } from '@/repositories/postgres/user.repository';
+import { PasswordSchema } from '@/entities/auth/password.entities';
+import { sendPasswordChangedNotification } from '@/services/auth/passwordReset.service';
+
+// better-auth only enforces password length; these body fields get our full policy.
+const PASSWORD_POLICY_FIELDS: Record<string, string> = {
+  '/change-password': 'newPassword',
+  '/reset-password': 'newPassword',
+  '/sign-up/email': 'password',
+};
 
 // A session created this soon after the user row is their first sign-in; skip the
 // locale sync there so default settings don't overwrite the locale they signed up in.
@@ -75,12 +84,22 @@ export const auth = betterAuth({
     before: createAuthMiddleware(async (ctx) => {
       // Account mutations run through our server actions
       if (
-        ctx.path === '/change-password' ||
         ctx.path === '/request-password-reset' ||
         ctx.path.startsWith('/reset-password') ||
         ctx.path === '/update-user'
       ) {
         throw new APIError('NOT_FOUND');
+      }
+
+      const passwordField = PASSWORD_POLICY_FIELDS[ctx.path];
+      if (passwordField) {
+        const strength = PasswordSchema.safeParse(ctx.body?.[passwordField]);
+        if (!strength.success) {
+          throw new APIError('BAD_REQUEST', {
+            message: strength.error.issues[0]?.message ?? 'Password does not meet the requirements',
+            code: 'WEAK_PASSWORD',
+          });
+        }
       }
     }),
   },
@@ -115,22 +134,36 @@ export const auth = betterAuth({
         },
       },
       update: {
-        // Currently only twoFactorChange runs via this update hook, hence the path prefix check
         after: async (user, ctx) => {
-          if (!ctx?.path?.startsWith('/two-factor/')) return;
-          if (!user.email) return;
-
-          const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
-          const type = enabled ? ('two-factor-enabled' as const) : ('two-factor-disabled' as const);
-          try {
-            await enqueueEmail({
-              type,
-              recipientKey: createUserRecipientKey(user.id),
-              campaignKey: `${type}:${new Date().toISOString()}`,
-              data: { to: user.email, userName: user.name ?? null },
-            });
-          } catch (error) {
-            console.error('Failed to enqueue 2FA change notification:', error);
+          if (ctx?.path?.startsWith('/two-factor/') && user.email) {
+            const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
+            const type = enabled ? ('two-factor-enabled' as const) : ('two-factor-disabled' as const);
+            try {
+              await enqueueEmail({
+                type,
+                recipientKey: createUserRecipientKey(user.id),
+                campaignKey: `${type}:${new Date().toISOString()}`,
+                data: { to: user.email, userName: user.name ?? null },
+              });
+            } catch (error) {
+              console.error('Failed to enqueue 2FA change notification:', error);
+            }
+          }
+        },
+      },
+    },
+    account: {
+      update: {
+        after: async (account, ctx) => {
+          if (ctx?.path === '/change-password') {
+            const user = ctx.context.session?.user;
+            if (user) {
+              await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
+            } else {
+              console.error('Skipped password-changed notification: no session user', {
+                accountId: account.id,
+              });
+            }
           }
         },
       },

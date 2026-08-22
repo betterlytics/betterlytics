@@ -19,7 +19,6 @@ vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserByEmail: vi.fn(),
   createUser: vi.fn(),
   registerUser: vi.fn(),
-  verifyUserPassword: vi.fn(),
   findCredentialAccount: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
