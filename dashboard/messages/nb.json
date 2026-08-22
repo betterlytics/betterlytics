@@ -756,12 +756,17 @@
           "errors": {
             "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
             "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
-            "generic": "Det oppstod en feil under innlogging. Prøv igjen."
+            "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
+            "invalidBackupCode": "Ugyldig sikkerhetskode. Prøv igjen."
           },
           "twoFactor": {
             "title": "Tofaktorautentisering",
             "description": "Skriv inn verifiseringskoden fra autentiseringsappen din.",
-            "cancel": "Avbryt"
+            "cancel": "Avbryt",
+            "backupCodeDescription": "Skriv inn en av sikkerhetskodene dine. Hver kode kan bare brukes én gang.",
+            "useBackupCode": "Bruk en sikkerhetskode i stedet",
+            "useAuthenticator": "Bruk autentiseringsappen i stedet",
+            "verify": "Bekreft"
           }
         }
       },
@@ -3058,7 +3063,17 @@
           "passwordPromptDescription": "Skriv inn passordet ditt for å fortsette.",
           "passwordLabel": "Passord",
           "backupCodesTitle": "Sikkerhetskoder",
-          "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted — de lar deg logge inn hvis du mister autentiseringsappen."
+          "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted. De lar deg logge inn hvis du mister autentiseringsappen.",
+          "copyCodes": "Kopier",
+          "downloadCodes": "Last ned",
+          "backupCodesDone": "Jeg har lagret kodene mine",
+          "regenerateTitle": "Generer nye sikkerhetskoder",
+          "regenerateDescription": "Dette erstatter alle eksisterende sikkerhetskoder. Skriv inn passordet ditt for å fortsette.",
+          "regenerate": "Generer nye",
+          "regenerateFailed": "Kunne ikke generere nye sikkerhetskoder. Prøv igjen.",
+          "backupCodesWarning": "Hver kode virker én gang. De vises ikke igjen etter at du lukker dette.",
+          "copied": "Kopiert",
+          "backupCodesRowDescription": "Engangskoder som lar deg logge inn hvis du mister autentiseringsappen. Oppbevar dem like trygt som passordet ditt."
         }
       },
       "sessions": {

@@ -756,12 +756,17 @@
           "errors": {
             "invalidOtp": "Invalid verification code. Please check your credentials and try again.",
             "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
-            "generic": "An error occurred during sign in. Please try again."
+            "generic": "An error occurred during sign in. Please try again.",
+            "invalidBackupCode": "Invalid backup code. Please try again."
           },
           "twoFactor": {
             "title": "Two-factor authentication",
             "description": "Enter the verification code from your authenticator app.",
-            "cancel": "Cancel"
+            "cancel": "Cancel",
+            "backupCodeDescription": "Enter one of your backup codes. Each code can only be used once.",
+            "useBackupCode": "Use a backup code instead",
+            "useAuthenticator": "Use your authenticator app instead",
+            "verify": "Verify"
           }
         }
       },
@@ -3055,7 +3060,17 @@
           "passwordPromptDescription": "Enter your account password to continue.",
           "passwordLabel": "Password",
           "backupCodesTitle": "Backup codes",
-          "backupCodesDescription": "Store these one-time codes somewhere safe — they let you sign in if you lose your authenticator."
+          "backupCodesDescription": "Store these one-time codes somewhere safe. They let you sign in if you lose your authenticator.",
+          "copyCodes": "Copy",
+          "downloadCodes": "Download",
+          "backupCodesDone": "I've saved my codes",
+          "regenerateTitle": "Regenerate backup codes",
+          "regenerateDescription": "This replaces all existing backup codes. Enter your account password to continue.",
+          "regenerate": "Regenerate",
+          "regenerateFailed": "Failed to regenerate backup codes. Please try again.",
+          "backupCodesWarning": "Each code works once. They won't be shown again after you close this.",
+          "copied": "Copied",
+          "backupCodesRowDescription": "One-time codes that let you sign in if you lose your authenticator app. Keep them as safe as your password."
         }
       },
       "sessions": {

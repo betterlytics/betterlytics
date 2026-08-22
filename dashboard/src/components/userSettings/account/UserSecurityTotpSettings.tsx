@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import OtpInput from '@/components/ui/otp-input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
-import { Check, Clipboard, Loader2 } from 'lucide-react';
+import { Check, Clipboard, Download, Loader2, TriangleAlert } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -42,7 +42,62 @@ function useCopy(failedMessage: string) {
   return { copied, copy };
 }
 
-function SetupTotp() {
+function BackupCodes({ codes, onDone }: { codes: string[]; onDone: () => void }) {
+  const t = useTranslations('components.userSettings.security.totp');
+  const { copied, copy } = useCopy(t('copyFailed'));
+
+  const download = () => {
+    const url = URL.createObjectURL(new Blob([codes.join('\n') + '\n'], { type: 'text/plain' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'betterlytics-backup-codes.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <>
+      <AlertDialogHeader>
+        <AlertDialogTitle>{t('backupCodesTitle')}</AlertDialogTitle>
+        <AlertDialogDescription>{t('backupCodesDescription')}</AlertDialogDescription>
+      </AlertDialogHeader>
+      <div className='flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400'>
+        <TriangleAlert className='mt-0.5 size-4 shrink-0' />
+        <span>{t('backupCodesWarning')}</span>
+      </div>
+      <ol className='bg-muted/50 grid grid-cols-2 gap-x-6 gap-y-1.5 rounded-md border px-4 py-3 font-mono text-sm tracking-wide whitespace-nowrap'>
+        {codes.map((code, index) => (
+          <li key={code} className='flex items-baseline gap-2'>
+            <span className='text-muted-foreground w-4 shrink-0 text-right text-xs tabular-nums'>{index + 1}</span>
+            <span>{code}</span>
+          </li>
+        ))}
+      </ol>
+      <div className='flex gap-2'>
+        <Button
+          variant='outline'
+          size='sm'
+          className='flex-1 cursor-pointer'
+          onClick={() => copy(codes.join('\n'))}
+        >
+          {copied ? <Check className='size-4' /> : <Clipboard className='size-4' />}
+          {copied ? t('copied') : t('copyCodes')}
+        </Button>
+        <Button variant='outline' size='sm' className='flex-1 cursor-pointer' onClick={download}>
+          <Download className='size-4' />
+          {t('downloadCodes')}
+        </Button>
+      </div>
+      <AlertDialogFooter>
+        <Button onClick={onDone} className='w-full cursor-pointer'>
+          {t('backupCodesDone')}
+        </Button>
+      </AlertDialogFooter>
+    </>
+  );
+}
+
+function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }) {
   const t = useTranslations('components.userSettings.security.totp');
   const { refreshSession } = useSessionRefresh();
   const totpInputRef = useRef<HTMLInputElement>(null);
@@ -50,6 +105,7 @@ function SetupTotp() {
   const [totp, setTotp] = useState('');
   const [totpSecret, setTotpSecret] = useState('');
   const [totpUrl, setTotpUrl] = useState('');
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { copied: totpSecretCopied, copy: copySecret } = useCopy(t('copyFailed'));
   const [isPending, startTransition] = useTransition();
@@ -76,9 +132,8 @@ function SetupTotp() {
         toast.error(t('setupFailed'));
         return;
       }
-      // data.backupCodes stays hidden: sign-in has no backup code entry yet, so
-      // showing them would promise a recovery path that doesn't exist.
       setTotpUrl(data.totpURI);
+      setBackupCodes(data.backupCodes);
     });
   };
 
@@ -93,8 +148,9 @@ function SetupTotp() {
         toast.error(t('enableFailed'));
         return;
       }
+      // The session refetch unmounts this component, so the parent takes over the codes
+      onEnabled(backupCodes);
       await refreshSession();
-      setIsDialogOpen(false);
       toast.success(t('enabledSuccess'));
     });
   };
@@ -160,7 +216,10 @@ function SetupTotp() {
                       </TooltipTrigger>
                       <TooltipContent className='flex flex-row items-center'>
                         <code>{totpSecret}</code>
-                        <button className='ms-2 block cursor-pointer py-0.5' onClick={() => copySecret(totpSecret)}>
+                        <button
+                          className='ms-2 block cursor-pointer py-0.5'
+                          onClick={() => copySecret(totpSecret)}
+                        >
                           {totpSecretCopied ? <Check className='size-3' /> : <Clipboard className='size-3' />}
                         </button>
                       </TooltipContent>
@@ -185,6 +244,77 @@ function SetupTotp() {
                 </AlertDialogCancel>
                 <Button type='submit' disabled={isPending || totp.length !== 6} className='cursor-pointer'>
                   {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('confirm')}
+                </Button>
+              </AlertDialogFooter>
+            </form>
+          </>
+        )}
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
+function RegenerateBackupCodes() {
+  const t = useTranslations('components.userSettings.security.totp');
+  const [password, setPassword] = useState('');
+  const [codes, setCodes] = useState<string[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  const handleDialogOpenChange = (open: boolean) => {
+    setPassword('');
+    setCodes([]);
+    setIsDialogOpen(open);
+  };
+
+  const handleOnSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    startTransition(async () => {
+      const { data, error } = await authClient.twoFactor.generateBackupCodes({ password });
+      if (error || !data) {
+        setPassword('');
+        toast.error(t('regenerateFailed'));
+        return;
+      }
+      setCodes(data.backupCodes);
+    });
+  };
+
+  return (
+    <AlertDialog open={isDialogOpen} onOpenChange={handleDialogOpenChange}>
+      <AlertDialogTrigger asChild>
+        <Button variant='outline' size='sm' disabled={isPending} className='cursor-pointer'>
+          {t('regenerate')}
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent className='max-h-[90vh] w-96 overflow-y-auto'>
+        {codes.length > 0 ? (
+          <BackupCodes codes={codes} onDone={() => handleDialogOpenChange(false)} />
+        ) : (
+          <>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('regenerateTitle')}</AlertDialogTitle>
+              <AlertDialogDescription>{t('regenerateDescription')}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <form onSubmit={handleOnSubmit}>
+              <div className='mb-4 space-y-2'>
+                <Label htmlFor='totp-regenerate-password'>{t('passwordLabel')}</Label>
+                <Input
+                  id='totp-regenerate-password'
+                  type='password'
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isPending}
+                />
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
+                  {t('cancel')}
+                </AlertDialogCancel>
+                <Button type='submit' disabled={isPending || !password} className='cursor-pointer'>
+                  {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('regenerate')}
                 </Button>
               </AlertDialogFooter>
             </form>
@@ -277,6 +407,7 @@ function DisableTotp() {
 export default function UserSecurityTotpSettings({ hasPassword }: { hasPassword: boolean | null }) {
   const { data: session } = authClient.useSession();
   const t = useTranslations('components.userSettings.security.totp');
+  const [newBackupCodes, setNewBackupCodes] = useState<string[]>([]);
 
   const action = session?.user.twoFactorEnabled ? (
     <DisableTotp />
@@ -289,12 +420,28 @@ export default function UserSecurityTotpSettings({ hasPassword }: { hasPassword:
       )}
     </DisabledTooltip>
   ) : hasPassword ? (
-    <SetupTotp />
+    <SetupTotp onEnabled={setNewBackupCodes} />
   ) : (
     <Button variant='outline' size='sm' disabled className='cursor-pointer'>
       {t('enable')}
     </Button>
   );
 
-  return <SettingRow label={t('title')} description={t('description')} action={action} />;
+  return (
+    <>
+      <SettingRow label={t('title')} description={t('description')} action={action} />
+      {session?.user.twoFactorEnabled && (
+        <SettingRow
+          label={t('backupCodesTitle')}
+          description={t('backupCodesRowDescription')}
+          action={<RegenerateBackupCodes />}
+        />
+      )}
+      <AlertDialog open={newBackupCodes.length > 0}>
+        <AlertDialogContent className='max-h-[90vh] w-96 overflow-y-auto'>
+          <BackupCodes codes={newBackupCodes} onDone={() => setNewBackupCodes([])} />
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
 }

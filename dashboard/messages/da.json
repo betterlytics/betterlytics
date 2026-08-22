@@ -756,12 +756,17 @@
           "errors": {
             "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
             "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
-            "generic": "Der opstod en fejl under login. Prøv venligst igen."
+            "generic": "Der opstod en fejl under login. Prøv venligst igen.",
+            "invalidBackupCode": "Ugyldig backup-kode. Prøv igen."
           },
           "twoFactor": {
             "title": "To-faktor-godkendelse",
             "description": "Indtast bekræftelseskoden fra din app.",
-            "cancel": "Annuller"
+            "cancel": "Annuller",
+            "backupCodeDescription": "Indtast en af dine backup-koder. Hver kode kan kun bruges én gang.",
+            "useBackupCode": "Brug en backup-kode i stedet",
+            "useAuthenticator": "Brug din authenticator-app i stedet",
+            "verify": "Bekræft"
           }
         }
       },
@@ -3058,7 +3063,17 @@
           "passwordPromptDescription": "Indtast din adgangskode for at fortsætte.",
           "passwordLabel": "Adgangskode",
           "backupCodesTitle": "Backup-koder",
-          "backupCodesDescription": "Gem disse engangskoder et sikkert sted — de giver dig adgang, hvis du mister din authenticator."
+          "backupCodesDescription": "Gem disse engangskoder et sikkert sted. De giver dig adgang, hvis du mister din authenticator.",
+          "copyCodes": "Kopiér",
+          "downloadCodes": "Download",
+          "backupCodesDone": "Jeg har gemt mine koder",
+          "regenerateTitle": "Generér nye backup-koder",
+          "regenerateDescription": "Dette erstatter alle eksisterende backup-koder. Indtast din adgangskode for at fortsætte.",
+          "regenerate": "Generér nye",
+          "regenerateFailed": "Kunne ikke generere nye backup-koder. Prøv igen.",
+          "backupCodesWarning": "Hver kode virker én gang. De vises ikke igen, når du lukker dette.",
+          "copied": "Kopieret",
+          "backupCodesRowDescription": "Engangskoder, der giver dig adgang, hvis du mister din authenticator-app. Opbevar dem lige så sikkert som din adgangskode."
         }
       },
       "sessions": {

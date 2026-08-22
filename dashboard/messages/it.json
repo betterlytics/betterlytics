@@ -756,12 +756,17 @@
           "errors": {
             "invalidOtp": "Codice di verifica non valido. Controlla le tue credenziali e riprova.",
             "invalidCredentials": "Email o password non validi. Controlla le tue credenziali e riprova.",
-            "generic": "Si è verificato un errore durante l'accesso. Riprova."
+            "generic": "Si è verificato un errore durante l'accesso. Riprova.",
+            "invalidBackupCode": "Codice di backup non valido. Riprova."
           },
           "twoFactor": {
             "title": "Autenticazione a due fattori",
             "description": "Inserisci il codice di verifica dalla tua app.",
-            "cancel": "Annulla"
+            "cancel": "Annulla",
+            "backupCodeDescription": "Inserisci uno dei tuoi codici di backup. Ogni codice può essere usato una sola volta.",
+            "useBackupCode": "Usa un codice di backup",
+            "useAuthenticator": "Usa l'app di autenticazione",
+            "verify": "Verifica"
           }
         }
       },
@@ -3058,7 +3063,17 @@
           "passwordPromptDescription": "Inserisci la password del tuo account per continuare.",
           "passwordLabel": "Password",
           "backupCodesTitle": "Codici di backup",
-          "backupCodesDescription": "Conserva questi codici monouso in un luogo sicuro: ti permettono di accedere se perdi la tua app di autenticazione."
+          "backupCodesDescription": "Conserva questi codici monouso in un luogo sicuro: ti permettono di accedere se perdi la tua app di autenticazione.",
+          "copyCodes": "Copia",
+          "downloadCodes": "Scarica",
+          "backupCodesDone": "Ho salvato i miei codici",
+          "regenerateTitle": "Rigenera i codici di backup",
+          "regenerateDescription": "Questo sostituisce tutti i codici di backup esistenti. Inserisci la password del tuo account per continuare.",
+          "regenerate": "Rigenera",
+          "regenerateFailed": "Impossibile rigenerare i codici di backup. Riprova.",
+          "backupCodesWarning": "Ogni codice funziona una sola volta. Non verranno mostrati di nuovo dopo la chiusura.",
+          "copied": "Copiato",
+          "backupCodesRowDescription": "Codici monouso che ti permettono di accedere se perdi l'app di autenticazione. Conservali con la stessa cura della tua password."
         }
       },
       "sessions": {
