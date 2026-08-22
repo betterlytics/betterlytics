@@ -126,7 +126,7 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
         } else if (error.code === 'INVALID_PASSWORD') {
           toast.error(t('toast.invalidCurrentPassword'));
         } else if (error.code === 'WEAK_PASSWORD') {
-          setErrors({ newPassword: error.message ?? tDialog('toast.error') });
+          setErrors({ newPassword: t('weakPassword') });
         } else if (error.status === 429) {
           toast.error(t('toast.tooManyAttempts'));
         } else {
