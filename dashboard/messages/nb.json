@@ -3764,7 +3764,7 @@
     },
     "monitoringNotConfigured": {
       "title": "Varsler er ikke aktive på denne instansen",
-      "description": "Integrasjoner sender kun varsler fra oppetidsovervåking, og oppetidsovervåking er deaktivert (ENABLE_UPTIME_MONITORING). Integrasjoner kan fortsatt settes opp, men ingenting blir sendt før det er aktivert."
+      "description": "Integrasjoner sender kun varsler fra oppetidsovervåking, og oppetidsovervåking er deaktivert på denne instansen. Integrasjoner kan fortsatt settes opp, men ingenting blir sendt før det er aktivert."
     },
     "integrations": {
       "pushover": {

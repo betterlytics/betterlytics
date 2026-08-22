@@ -3764,7 +3764,7 @@
     },
     "monitoringNotConfigured": {
       "title": "Le notifiche non sono attive su questa istanza",
-      "description": "Le integrazioni inviano solo avvisi del monitoraggio uptime, e il monitoraggio uptime è disabilitato (ENABLE_UPTIME_MONITORING). Le integrazioni possono comunque essere configurate, ma non verrà inviato nulla finché non sarà abilitato."
+      "description": "Le integrazioni inviano solo avvisi del monitoraggio uptime, e il monitoraggio uptime è disabilitato su questa istanza. Le integrazioni possono comunque essere configurate, ma non verrà inviato nulla finché non sarà abilitato."
     },
     "integrations": {
       "pushover": {

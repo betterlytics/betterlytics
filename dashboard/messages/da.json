@@ -3764,7 +3764,7 @@
     },
     "monitoringNotConfigured": {
       "title": "Notifikationer er ikke aktive på denne instans",
-      "description": "Integrationer sender kun oppetidsovervågningsalarmer, og oppetidsovervågning er slået fra (ENABLE_UPTIME_MONITORING). Integrationer kan stadig sættes op, men intet bliver sendt, før det er aktiveret."
+      "description": "Integrationer sender kun oppetidsovervågningsalarmer, og oppetidsovervågning er slået fra på denne instans. Integrationer kan stadig sættes op, men intet bliver sendt, før det er aktiveret."
     },
     "integrations": {
       "pushover": {

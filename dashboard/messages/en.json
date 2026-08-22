@@ -3761,7 +3761,7 @@
     },
     "monitoringNotConfigured": {
       "title": "Notifications are not active on this instance",
-      "description": "Integrations only deliver uptime monitoring alerts, and uptime monitoring is disabled (ENABLE_UPTIME_MONITORING). Integrations can still be set up, but nothing will be sent until it is enabled."
+      "description": "Integrations only deliver uptime monitoring alerts, and uptime monitoring is disabled on this instance. Integrations can still be set up, but nothing will be sent until it is enabled."
     },
     "integrations": {
       "pushover": {
