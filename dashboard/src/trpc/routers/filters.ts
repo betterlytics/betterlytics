@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createRouter, analyticsProcedure } from '@/trpc/init';
-import { FilterColumnSchema } from '@/entities/analytics/filter.entities';
+import { FilterColumnSchema, MAX_FILTER_ROWS, ScopeFilterSchema } from '@/entities/analytics/filter.entities';
 import { PROPERTY_SOURCE_KINDS } from '@/entities/analytics/propertySources';
 import { getAvailablePropertyKeys, getDistinctValuesForFilterColumn } from '@/services/analytics/filters.service';
 import { capitalizeFirstLetter } from '@/utils/formatters';
@@ -13,11 +13,18 @@ export const filtersRouter = createRouter({
         column: FilterColumnSchema,
         search: z.string().trim().max(128).optional(),
         limit: z.number().int().min(1).max(5000).optional().default(200),
+        scopeFilters: ScopeFilterSchema.array().max(MAX_FILTER_ROWS).optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      const rows = await getDistinctValuesForFilterColumn(main, input.column, input.search, input.limit);
+      const rows = await getDistinctValuesForFilterColumn(
+        main,
+        input.column,
+        input.search,
+        input.limit,
+        input.scopeFilters,
+      );
       return input.column === 'device_type' ? toFormatted(rows, capitalizeFirstLetter) : rows;
     }),
   getPropertyKeys: analyticsProcedure

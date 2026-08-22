@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { applyFilterUpdates, withDependentColumns, type QueryFilter } from '@/entities/analytics/filter.entities';
+import {
+  applyFilterUpdates,
+  dependencyScopeFilters,
+  withDependentColumns,
+  type QueryFilter,
+} from '@/entities/analytics/filter.entities';
 
 function filter(column: QueryFilter['column'], value: string, id = `id-${column}`): QueryFilter {
   return { id, column, operator: '=', values: [value] };
@@ -139,5 +144,43 @@ describe('withDependentColumns', () => {
 
   it('deduplicates when a dependent is already listed', () => {
     expect(withDependentColumns(['browser', 'browser_version']).sort()).toEqual(['browser', 'browser_version']);
+  });
+});
+
+describe('dependencyScopeFilters', () => {
+  it('keeps only filters on columns related to the column', () => {
+    const siblings = [filter('browser', 'Chrome'), filter('url', '/pricing'), filter('os', 'Windows')];
+
+    expect(dependencyScopeFilters('browser_version', siblings)).toEqual([siblings[0]]);
+  });
+
+  it('scopes city by both region and country', () => {
+    const siblings = [filter('country_code', 'DK'), filter('subdivision_code', 'DK-84'), filter('browser', 'Chrome')];
+
+    expect(dependencyScopeFilters('city', siblings)).toEqual([siblings[0], siblings[1]]);
+  });
+
+  it('scopes city by country alone when no region filter exists', () => {
+    const siblings = [filter('country_code', 'DK'), filter('url', '/pricing')];
+
+    expect(dependencyScopeFilters('city', siblings)).toEqual([siblings[0]]);
+  });
+
+  it('never scopes a parent by its dependent values', () => {
+    expect(dependencyScopeFilters('country_code', [filter('city', 'Aarhus')])).toEqual([]);
+    expect(dependencyScopeFilters('subdivision_code', [filter('city', 'Aarhus')])).toEqual([]);
+    expect(dependencyScopeFilters('browser', [filter('browser_version', '120')])).toEqual([]);
+  });
+
+  it('returns nothing for columns without related filters', () => {
+    expect(dependencyScopeFilters('browser', [filter('os', 'Windows'), filter('os_version', '10')])).toEqual([]);
+    expect(dependencyScopeFilters('gp.plan', [filter('browser', 'Chrome')])).toEqual([]);
+  });
+
+  it('ignores related filters without usable values', () => {
+    const empty: QueryFilter = { id: 'empty', column: 'browser', operator: '=', values: [] };
+    const blank: QueryFilter = { id: 'blank', column: 'browser', operator: '=', values: [''] };
+
+    expect(dependencyScopeFilters('browser_version', [empty, blank])).toEqual([]);
   });
 });
