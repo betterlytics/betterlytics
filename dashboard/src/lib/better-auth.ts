@@ -186,8 +186,7 @@ export const auth = betterAuth({
             extra.termsAcceptedAt = new Date();
             extra.termsAcceptedVersion = CURRENT_TERMS_VERSION;
           }
-          if (Object.keys(extra).length === 0) return;
-          return { data: { ...user, ...extra } };
+          return { data: { ...user, ...extra, createdAt: new Date(), updatedAt: new Date() } };
         },
         after: async (user, ctx) => {
           try {
