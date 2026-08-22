@@ -818,7 +818,8 @@
           "sending": "Sender...",
           "remember": "Husker du passordet ditt?",
           "backToSignIn": "Tilbake til innlogging"
-        }
+        },
+        "errorMessageTooManyRequests": "For mange tilbakestillingsforespørsler. Prøv igjen senere."
       },
       "resetPassword": {
         "seo": {
@@ -847,7 +848,14 @@
         },
         "form": {
           "title": "Sett nytt passord",
-          "description": "Skriv inn det nye passordet ditt nedenfor"
+          "description": "Skriv inn det nye passordet ditt nedenfor",
+          "errors": {
+            "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
+            "weakPassword": "Passordet oppfyller ikke kravene.",
+            "tooManyAttempts": "For mange forsøk. Prøv igjen senere.",
+            "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
+          },
+          "successMessage": "Passordet ble tilbakestilt!"
         },
         "cta": {
           "remember": "Husker du passordet ditt?",
