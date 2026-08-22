@@ -17,7 +17,19 @@ function useCopyToClipboard(resetAfterMs = 1400) {
 
   const copy = useCallback(
     (text: string) => {
-      navigator.clipboard.writeText(text);
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text);
+      } else {
+        // The clipboard API requires a secure context; plain-HTTP selfhost deploys need the legacy path
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        textarea.remove();
+      }
       setCopied(true);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => setCopied(false), resetAfterMs);
