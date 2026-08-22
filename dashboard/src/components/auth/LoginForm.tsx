@@ -42,6 +42,8 @@ export default function LoginForm({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [totp, setTotp] = useState('');
+  const [backupCode, setBackupCode] = useState('');
+  const [useBackupCode, setUseBackupCode] = useState(false);
   const [error, setError] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -81,10 +83,13 @@ export default function LoginForm({
     startTransition(async () => {
       try {
         if (isDialogOpen) {
-          const { error: totpError } = await authClient.twoFactor.verifyTotp({ code: totp });
-          if (totpError) {
+          const { error: verifyError } = useBackupCode
+            ? await authClient.twoFactor.verifyBackupCode({ code: backupCode.trim() })
+            : await authClient.twoFactor.verifyTotp({ code: totp });
+          if (verifyError) {
             setTotp('');
-            setError(t('errors.invalidOtp'));
+            setBackupCode('');
+            setError(t(useBackupCode ? 'errors.invalidBackupCode' : 'errors.invalidOtp'));
             return;
           }
           router.push('/dashboards');
@@ -232,15 +237,36 @@ export default function LoginForm({
         )}
       </div>
 
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <AlertDialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setUseBackupCode(false);
+            setBackupCode('');
+          }
+          setIsDialogOpen(open);
+        }}
+      >
         <AlertDialogContent className='max-h-[90vh] w-80 overflow-y-auto'>
           <AlertDialogHeader>
             <AlertDialogTitle>{t('twoFactor.title')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('twoFactor.description')}</AlertDialogDescription>
+            <AlertDialogDescription>
+              {t(useBackupCode ? 'twoFactor.backupCodeDescription' : 'twoFactor.description')}
+            </AlertDialogDescription>
           </AlertDialogHeader>
           <Error />
           {isPending ? (
             <Spinner className='m-auto' />
+          ) : useBackupCode ? (
+            <Input
+              value={backupCode}
+              onChange={(e) => setBackupCode(e.target.value)}
+              placeholder='xxxxx-xxxxx'
+              autoComplete='off'
+              autoFocus
+              form='login'
+              className='text-center font-mono'
+            />
           ) : (
             <OtpInput
               value={totp}
@@ -251,8 +277,35 @@ export default function LoginForm({
               form='login'
             />
           )}
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>{t('twoFactor.cancel')}</AlertDialogCancel>
+          <Button
+            type='button'
+            variant='ghost'
+            size='sm'
+            disabled={isPending}
+            onClick={() => {
+              setError('');
+              setTotp('');
+              setBackupCode('');
+              setUseBackupCode((v) => !v);
+            }}
+            className='text-muted-foreground hover:text-foreground w-full cursor-pointer font-normal'
+          >
+            {t(useBackupCode ? 'twoFactor.useAuthenticator' : 'twoFactor.useBackupCode')}
+          </Button>
+          <AlertDialogFooter className='sm:flex-col-reverse sm:justify-normal'>
+            <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
+              {t('twoFactor.cancel')}
+            </AlertDialogCancel>
+            {useBackupCode && (
+              <Button
+                type='submit'
+                form='login'
+                disabled={isPending || !backupCode.trim()}
+                className='cursor-pointer'
+              >
+                {t('twoFactor.verify')}
+              </Button>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
