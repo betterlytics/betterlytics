@@ -1,7 +1,6 @@
-use crate::config::Config;
 use crate::geoip_updater::{GeoIpWatchRx, MmdbSource};
 use crate::ip_parser::anonymize_ip;
-use maxminddb::geoip2;
+use maxminddb::{geoip2, Reader};
 use moka::sync::Cache;
 use std::net::IpAddr;
 use std::sync::Arc;
@@ -25,9 +24,9 @@ pub struct AsnService {
 }
 
 impl AsnService {
-    pub fn new(config: Arc<Config>, watch_rx: GeoIpWatchRx) -> Self {
+    pub fn new(initial_reader: Option<Arc<Reader<Vec<u8>>>>, watch_rx: GeoIpWatchRx) -> Self {
         Self {
-            source: MmdbSource::new(Some(&config.asn_db_path), "ASN", watch_rx, READER_UPDATE_CHECK_INTERVAL),
+            source: MmdbSource::new(initial_reader, watch_rx, READER_UPDATE_CHECK_INTERVAL),
             cache: Cache::builder().max_capacity(CACHE_SIZE).time_to_idle(CACHE_TTI).build(),
         }
     }
@@ -52,11 +51,7 @@ impl AsnService {
 
         let reader = match self.source.reader() {
             Some(reader) => reader,
-            None => {
-                let result = AsnInfo::default();
-                self.cache.insert(anonymized, result.clone());
-                return result;
-            }
+            None => return AsnInfo::default(),
         };
 
         let ip: IpAddr = match anonymized.parse() {

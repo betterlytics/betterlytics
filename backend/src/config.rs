@@ -115,8 +115,8 @@ impl Config {
                 .unwrap_or_else(|_| "password".to_string()),
             // GeoIP configuration
             geolocation_mode,
-            maxmind_account_id: env::var("MAXMIND_ACCOUNT_ID").ok(),
-            maxmind_license_key: env::var("MAXMIND_LICENSE_KEY").ok(),
+            maxmind_account_id: env::var("MAXMIND_ACCOUNT_ID").ok().filter(|v| !v.is_empty()),
+            maxmind_license_key: env::var("MAXMIND_LICENSE_KEY").ok().filter(|v| !v.is_empty()),
             geoip_db_path: env::var("GEOIP_DB_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| if geolocation_mode.has_subdivisions() {
