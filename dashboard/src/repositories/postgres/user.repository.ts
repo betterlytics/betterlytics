@@ -9,13 +9,10 @@ import {
   UserSchema,
   CreateUserData,
   CreateUserSchema,
-  RegisterUserSchema,
-  RegisterUserData,
   UpdateUserData,
   UserWithoutDashboardCandidate,
   UserWithoutDashboardCandidateSchema,
 } from '@/entities/auth/user.entities';
-import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { buildStarterSubscription } from '@/entities/billing/billing.entities';
 import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -113,29 +110,6 @@ export async function createUser(
   } catch (error) {
     console.error('Error creating user:', error);
     throw new Error('Failed to create user.');
-  }
-}
-
-export async function registerUser(data: RegisterUserData): Promise<User> {
-  try {
-    const validatedData = RegisterUserSchema.parse(data);
-
-    const passwordHash = await hashPassword(validatedData.password);
-
-    return await createUser(
-      {
-        email: validatedData.email,
-        name: validatedData.name,
-        passwordHash,
-        role: validatedData.role || 'admin',
-        termsAcceptedVersion: CURRENT_TERMS_VERSION,
-        termsAcceptedAt: data.acceptedTerms ? new Date() : null,
-      },
-      { language: validatedData.language },
-    );
-  } catch (error) {
-    console.error('Error registering user:', error);
-    throw error;
   }
 }
 

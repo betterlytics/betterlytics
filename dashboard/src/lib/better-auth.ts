@@ -16,6 +16,9 @@ import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { PasswordSchema } from '@/entities/auth/password.entities';
+import { MAX_EMAIL_LENGTH } from '@/entities/auth/user.entities';
+import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import {
   RESET_TOKEN_EXPIRY_SECONDS,
   resetTokenStoredIdentifier,
@@ -35,15 +38,19 @@ const PASSWORD_POLICY_FIELDS: Record<string, string> = {
 // locale sync there so default settings don't overwrite the locale they signed up in.
 const FIRST_SIGN_IN_WINDOW_MS = 60_000;
 
+function signupLanguage(body: unknown): SupportedLanguages | undefined {
+  const language = (body as { language?: unknown } | undefined)?.language;
+  return SUPPORTED_LANGUAGES.includes(language as SupportedLanguages) ? (language as SupportedLanguages) : undefined;
+}
+
 export const auth = betterAuth({
   appName: 'Betterlytics',
   baseURL: env.AUTH_URL,
   secret: env.AUTH_SECRET,
-  database: prismaAdapter(prisma, { provider: 'postgresql' }),
+  database: prismaAdapter(prisma, { provider: 'postgresql', transaction: true }),
   emailAndPassword: {
     enabled: true,
-    // Registration goes through registerUserAction
-    disableSignUp: true,
+    disableSignUp: !isFeatureEnabled('enableRegistration'),
     minPasswordLength: 8,
     maxPasswordLength: 100,
     password: {
@@ -125,6 +132,20 @@ export const auth = betterAuth({
         }
       }
 
+      if (ctx.path === '/sign-up/email' && String(ctx.body?.email ?? '').length > MAX_EMAIL_LENGTH) {
+        throw new APIError('BAD_REQUEST', {
+          message: 'Email address is too long',
+          code: 'EMAIL_TOO_LONG',
+        });
+      }
+
+      if (ctx.path === '/sign-up/email' && ctx.body?.acceptedTerms !== true) {
+        throw new APIError('BAD_REQUEST', {
+          message: 'Terms of service must be accepted',
+          code: 'TERMS_NOT_ACCEPTED',
+        });
+      }
+
       const passwordField = PASSWORD_POLICY_FIELDS[ctx.path];
       if (passwordField) {
         const strength = PasswordSchema.safeParse(ctx.body?.[passwordField]);
@@ -140,12 +161,19 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        // Only runs for Oauth because email/password users are created through our own actions
-        before: async (user) => {
-          if (!user.emailVerified) return;
-          return { data: { ...user, emailVerifiedAt: new Date() } };
+        before: async (user, ctx) => {
+          const extra: Record<string, unknown> = {};
+          if (user.emailVerified) {
+            extra.emailVerifiedAt = new Date();
+          }
+          if (ctx?.path === '/sign-up/email') {
+            extra.name = user.name?.trim() || null;
+            extra.termsAcceptedAt = new Date();
+            extra.termsAcceptedVersion = CURRENT_TERMS_VERSION;
+          }
+          return { data: { ...user, ...extra, createdAt: new Date(), updatedAt: new Date() } };
         },
-        after: async (user) => {
+        after: async (user, ctx) => {
           try {
             await createStarterSubscriptionForUser(user.id);
           } catch (error) {
@@ -153,7 +181,8 @@ export const auth = betterAuth({
           }
 
           try {
-            await createDefaultUserSettings(user.id);
+            const language = ctx?.path === '/sign-up/email' ? signupLanguage(ctx.body) : undefined;
+            await createDefaultUserSettings(user.id, language);
           } catch (error) {
             console.error('Failed to create initial user settings for new user:', error);
           }

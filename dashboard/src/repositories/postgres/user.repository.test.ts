@@ -5,11 +5,9 @@ import {
   findUserByEmail,
   findCredentialAccount,
   createUser,
-  registerUser,
   updateUserPassword,
   anonymizeUser,
 } from '@/repositories/postgres/user.repository';
-import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { makeUser } from '@/test/auth-fixtures';
 
 const prismaMock = vi.hoisted(() => {
@@ -83,21 +81,19 @@ describe('findUserById / findUserByEmail', () => {
   });
 });
 
-describe('registerUser', () => {
-  const registration = {
+describe('createUser', () => {
+  const creation = {
     email: 'new@example.com',
     name: 'New User',
-    password: 'Valid-password-1',
-    acceptedTerms: true as const,
-    language: 'en' as const,
+    passwordHash: '$2b$10$fixture-hash',
   };
 
   beforeEach(() => {
-    prismaMock.user.create.mockResolvedValue(makeUser({ email: registration.email }));
+    prismaMock.user.create.mockResolvedValue(makeUser({ email: creation.email }));
   });
 
-  it('stores a bcrypt hash on the credential account — never the plaintext, never on the user', async () => {
-    await registerUser(registration);
+  it('stores the hash on the credential account — never on the user', async () => {
+    await createUser(creation);
 
     const userData = prismaMock.user.create.mock.calls[0][0].data;
     expect(userData.passwordHash).toBeUndefined();
@@ -105,12 +101,11 @@ describe('registerUser', () => {
 
     const accountData = prismaMock.account.create.mock.calls[0][0].data;
     expect(accountData.providerId).toBe('credential');
-    expect(accountData.password).not.toBe(registration.password);
-    expect(await bcrypt.compare(registration.password, accountData.password)).toBe(true);
+    expect(accountData.password).toBe(creation.passwordHash);
   });
 
   it('links the credential account to the created user with accountId = user id', async () => {
-    await registerUser(registration);
+    await createUser(creation);
 
     const accountData = prismaMock.account.create.mock.calls[0][0].data;
     expect(accountData.userId).toBe('user-1');
@@ -118,41 +113,20 @@ describe('registerUser', () => {
   });
 
   it('creates the user and credential account in one transaction', async () => {
-    await registerUser(registration);
+    await createUser(creation);
 
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
     expect(typeof prismaMock.$transaction.mock.calls[0][0]).toBe('function');
   });
 
-  it('records terms acceptance with the current terms version', async () => {
-    await registerUser(registration);
-
-    const createData = prismaMock.user.create.mock.calls[0][0].data;
-    expect(createData.termsAcceptedVersion).toBe(CURRENT_TERMS_VERSION);
-    expect(createData.termsAcceptedAt).toBeInstanceOf(Date);
-  });
-
-  it('defaults the role to admin', async () => {
-    await registerUser(registration);
-
-    expect(prismaMock.user.create.mock.calls[0][0].data.role).toBe('admin');
-  });
-
-  it('provisions a starter subscription and default settings alongside the user', async () => {
-    await registerUser(registration);
+  it('provisions a starter subscription and settings with the given language alongside the user', async () => {
+    await createUser(creation, { language: 'da' });
 
     const createData = prismaMock.user.create.mock.calls[0][0].data;
     expect(createData.subscription.create).toBeDefined();
-    expect(createData.settings.create).toMatchObject({ language: 'en' });
+    expect(createData.settings.create).toMatchObject({ language: 'da' });
   });
 
-  it('rejects a password that violates the policy before touching the database', async () => {
-    await expect(registerUser({ ...registration, password: 'short' })).rejects.toThrow();
-    expect(prismaMock.user.create).not.toHaveBeenCalled();
-  });
-});
-
-describe('createUser', () => {
   it('wraps validation failures in a generic error', async () => {
     await expect(createUser({ email: 'not-an-email', passwordHash: 'hash' })).rejects.toThrow(
       'Failed to create user.',
