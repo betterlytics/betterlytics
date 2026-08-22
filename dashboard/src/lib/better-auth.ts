@@ -54,7 +54,11 @@ export const auth = betterAuth({
     revokeSessionsOnPasswordReset: true,
     sendResetPassword: ({ user, url, token }) => sendResetPasswordEmail({ ...user, name: user.name ?? null }, url, token),
     onPasswordReset: async ({ user }) => {
-      await deleteUserResetTokens(user.id);
+      try {
+        await deleteUserResetTokens(user.id);
+      } catch (error) {
+        console.error('Failed to prune reset tokens after password reset:', { userId: user.id, error });
+      }
       await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
     },
   },
@@ -112,7 +116,7 @@ export const auth = betterAuth({
 
       // Redeeming a reset for an OAuth-only account would attach a password login to it
       if (ctx.path === '/reset-password') {
-        const token = ctx.body?.token;
+        const token = ctx.body?.token ?? ctx.query?.token;
         if (typeof token === 'string' && token) {
           const userId = await findResetTokenUserId(resetTokenStoredIdentifier(token));
           if (userId && !(await findCredentialAccount(userId))) {

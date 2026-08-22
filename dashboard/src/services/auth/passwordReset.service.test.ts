@@ -75,12 +75,12 @@ describe('sendResetPasswordEmail', () => {
     });
   });
 
-  it('silently skips OAuth-only accounts', async () => {
+  it('prunes all reset tokens for OAuth-only accounts without emailing', async () => {
     vi.mocked(findCredentialAccount).mockResolvedValue(null);
 
     await sendResetPasswordEmail(USER, 'https://app.test/link', 'raw-token');
 
-    expect(deleteUserResetTokens).not.toHaveBeenCalled();
+    expect(deleteUserResetTokens).toHaveBeenCalledWith('user-1');
     expect(enqueueEmail).not.toHaveBeenCalled();
   });
 });

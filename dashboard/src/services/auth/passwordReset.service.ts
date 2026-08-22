@@ -30,7 +30,10 @@ export async function sendResetPasswordEmail(
   token: string,
 ): Promise<void> {
   // OAuth-only accounts must not receive reset links; redeeming one would attach a password login
-  if (!(await findCredentialAccount(user.id))) return;
+  if (!(await findCredentialAccount(user.id))) {
+    await deleteUserResetTokens(user.id);
+    return;
+  }
 
   await deleteUserResetTokens(user.id, resetTokenStoredIdentifier(token));
 
