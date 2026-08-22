@@ -1,17 +1,13 @@
 'use server';
 
-import { withDashboardAuthContext } from '@/auth/auth-actions';
+import { getTranslations } from 'next-intl/server';
+import { withDashboardAuthContext, withUserAuth } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
+import type { User } from '@/entities/auth/session.entities';
+import { UserException } from '@/lib/exceptions';
 import { checkTrackingDataExists } from '@/services/dashboard/verification.service';
-import { checkRateLimit } from '@/services/account/verification.service';
-import {
-  SendVerificationEmailData,
-  SendVerificationEmailSchema,
-  VerifyEmailData,
-  VerifyEmailSchema,
-  VerificationResult,
-} from '@/entities/account/verification.entities';
-import { sendVerificationEmail, verifyEmail } from '@/services/account/verification.service';
+import { VerifyEmailData, VerifyEmailSchema, VerificationResult } from '@/entities/account/verification.entities';
+import { checkRateLimit, sendVerificationEmail, verifyEmail } from '@/services/account/verification.service';
 
 export const verifyTrackingInstallation = withDashboardAuthContext(async (ctx: AuthContext): Promise<boolean> => {
   const { siteId } = ctx;
@@ -37,28 +33,17 @@ export async function verifyEmailAction(data: VerifyEmailData): Promise<Verifica
   }
 }
 
-export async function resendVerificationEmailAction(formData: SendVerificationEmailData) {
-  try {
-    const validatedData = SendVerificationEmailSchema.parse(formData);
-    const { email } = validatedData;
-
-    const rateLimitCheck = await checkRateLimit(email);
-
-    if (!rateLimitCheck.allowed && rateLimitCheck.nextAllowedAt) {
-      const waitTime = Math.ceil((rateLimitCheck.nextAllowedAt.getTime() - Date.now()) / 60000);
-      return {
-        success: false,
-        error: `Please wait ${waitTime} minutes before requesting another verification email.`,
-      };
-    }
-
-    await sendVerificationEmail({ email });
-    return { success: true };
-  } catch (error) {
-    console.error('Resend verification email action error:', error);
-    return {
-      success: false,
-      error: 'Failed to resend verification email',
-    };
+export const resendVerificationEmailAction = withUserAuth(async (user: User): Promise<void> => {
+  if (user.emailVerified) {
+    throw new UserException((await getTranslations('validation'))('emailAlreadyVerified'));
   }
-}
+
+  const rateLimitCheck = await checkRateLimit(user.email);
+
+  if (!rateLimitCheck.allowed && rateLimitCheck.nextAllowedAt) {
+    const waitTime = Math.max(1, Math.ceil((rateLimitCheck.nextAllowedAt.getTime() - Date.now()) / 60000));
+    throw new UserException((await getTranslations('validation'))('verificationEmailCooldown', { minutes: waitTime }));
+  }
+
+  await sendVerificationEmail({ email: user.email });
+});

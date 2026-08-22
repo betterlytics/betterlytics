@@ -3296,6 +3296,8 @@
     "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare.",
     "urlMustBeOnDomain": "L'URL deve essere su {domain} o un sottodominio",
     "monitorAlreadyExists": "Esiste già un monitor per questo URL",
+    "emailAlreadyVerified": "La tua email è già verificata.",
+    "verificationEmailCooldown": "{minutes, plural, one {Attendi # minuto prima di richiedere un'altra email di verifica.} other {Attendi # minuti prima di richiedere un'altra email di verifica.}}",
     "statusPageSlugTaken": "Questo slug URL è già in uso",
     "statusPageDomainTaken": "Questo dominio è già in uso su un'altra pagina di stato",
     "statusPageDomainReserved": "Questo dominio è riservato",

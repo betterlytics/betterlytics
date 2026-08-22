@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { resendVerificationEmailAction } from '@/app/actions/auth/verification.action';
+import { getUserFacingErrorMessage } from '@/middlewares/serverActionHandler';
 import { toast } from 'sonner';
 import { ShieldCheck, Mail, CheckCircle } from 'lucide-react';
 import { getDisplayName } from '@/utils/userUtils';
@@ -29,13 +30,13 @@ export function VerificationRequiredModal({
   const handleResendVerification = () => {
     startTransition(async () => {
       try {
-        const result = await resendVerificationEmailAction({ email: userEmail });
+        const result = await resendVerificationEmailAction();
 
         if (result.success) {
           toast.success(t('toastSuccess'));
           setEmailSent(true);
         } else {
-          toast.error(result.error);
+          toast.error(getUserFacingErrorMessage(result.error, t('toastFailure')));
         }
       } catch (error) {
         toast.error(t('toastFailure'));
