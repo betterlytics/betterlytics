@@ -37,9 +37,15 @@ export const UpdateUserNameSchema = z.object({
   name: z.string().min(1).max(64),
 });
 
+export const MAX_EMAIL_LENGTH = 254;
+
 export const RegisterUserSchema = z.object({
   name: z.string().nullable().optional(),
-  email: z.string().email('Please enter a valid email address').max(254, 'Email address is too long').toLowerCase(),
+  email: z
+    .string()
+    .email('Please enter a valid email address')
+    .max(MAX_EMAIL_LENGTH, 'Email address is too long')
+    .toLowerCase(),
   password: PasswordSchema,
   acceptedTerms: z.literal(true, {
     errorMap: () => ({ message: 'onboarding.account.termsOfServiceRequired' }),
