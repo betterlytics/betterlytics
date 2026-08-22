@@ -16,6 +16,7 @@ import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { PasswordSchema } from '@/entities/auth/password.entities';
+import { MAX_EMAIL_LENGTH } from '@/entities/auth/user.entities';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import {
@@ -125,6 +126,13 @@ export const auth = betterAuth({
             throw new APIError('BAD_REQUEST', { message: 'Invalid token', code: 'INVALID_TOKEN' });
           }
         }
+      }
+
+      if (ctx.path === '/sign-up/email' && String(ctx.body?.email ?? '').length > MAX_EMAIL_LENGTH) {
+        throw new APIError('BAD_REQUEST', {
+          message: 'Email address is too long',
+          code: 'EMAIL_TOO_LONG',
+        });
       }
 
       if (ctx.path === '/sign-up/email' && ctx.body?.acceptedTerms !== true) {
