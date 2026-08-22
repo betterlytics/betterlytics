@@ -2065,6 +2065,12 @@
       "onSslExpiry": "Avviso scadenza SSL",
       "onSslExpiryDescription": "Invia un avviso quando il certificato SSL sta per scadere",
       "sslExpiryDisabledTooltip": "Abilita il monitoraggio SSL nelle Impostazioni avanzate",
+      "emailsNotConfigured": {
+        "badge": "Email non configurata",
+        "title": "Le email di avviso non possono essere recapitate",
+        "description": "L'invio di email non è configurato su questa istanza, quindi le email di avviso del monitoraggio uptime non verranno inviate. Queste impostazioni vengono conservate e avranno effetto una volta configurata l'email.",
+        "tooltip": "Configura l'invio di email su questa istanza per abilitare gli avvisi"
+      },
       "failureThreshold": "Soglia di errore",
       "failureThresholdDescription": "Numero di errori consecutivi prima dell'invio di un avviso",
       "failureCount": "{count, plural, one {{count} errore} other {{count} errori}}",
@@ -3755,6 +3761,10 @@
     "title": "Integrazioni",
     "section": {
       "description": "Collega servizi di terze parti per ricevere notifiche di monitoraggio dell'uptime quando il tuo sito web va offline o si ripristina."
+    },
+    "monitoringNotConfigured": {
+      "title": "Le notifiche non sono attive su questa istanza",
+      "description": "Le integrazioni inviano solo avvisi del monitoraggio uptime, e il monitoraggio uptime è disabilitato (ENABLE_UPTIME_MONITORING). Le integrazioni possono comunque essere configurate, ma non verrà inviato nulla finché non sarà abilitato."
     },
     "integrations": {
       "pushover": {

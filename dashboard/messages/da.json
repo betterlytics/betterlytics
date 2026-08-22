@@ -2065,6 +2065,12 @@
       "onSslExpiry": "Advarsel ved SSL-udløb",
       "onSslExpiryDescription": "Send en alarm, når SSL-certifikatet er ved at udløbe",
       "sslExpiryDisabledTooltip": "Aktivér SSL-overvågning i Avancerede indstillinger først",
+      "emailsNotConfigured": {
+        "badge": "E-mail ikke konfigureret",
+        "title": "Alarm-e-mails kan ikke leveres",
+        "description": "E-mail-afsendelse er ikke konfigureret på denne instans, så alarm-e-mails fra oppetidsovervågning bliver ikke sendt. Indstillingerne gemmes og træder i kraft, når e-mail er konfigureret.",
+        "tooltip": "Konfigurer e-mail-afsendelse på denne instans for at aktivere alarmer"
+      },
       "failureThreshold": "Fejlgrænse",
       "failureThresholdDescription": "Antal fejl i træk før der sendes en alarm",
       "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",
@@ -3755,6 +3761,10 @@
     "title": "Integrationer",
     "section": {
       "description": "Forbind tredjepartstjenester for at modtage uptimeovervågningsnotifikationer, når din hjemmeside går ned eller kommer op igen."
+    },
+    "monitoringNotConfigured": {
+      "title": "Notifikationer er ikke aktive på denne instans",
+      "description": "Integrationer sender kun oppetidsovervågningsalarmer, og oppetidsovervågning er slået fra (ENABLE_UPTIME_MONITORING). Integrationer kan stadig sættes op, men intet bliver sendt, før det er aktiveret."
     },
     "integrations": {
       "pushover": {

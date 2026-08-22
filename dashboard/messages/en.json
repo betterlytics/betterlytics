@@ -2065,6 +2065,12 @@
       "onSslExpiry": "Alert on SSL expiry",
       "onSslExpiryDescription": "Send an alert when the SSL certificate is about to expire",
       "sslExpiryDisabledTooltip": "Enable SSL monitoring in Advanced Settings first",
+      "emailsNotConfigured": {
+        "badge": "Email not configured",
+        "title": "Alert emails cannot be delivered",
+        "description": "Email delivery is not configured on this instance, so uptime monitoring alert emails will not be sent. These settings are kept and take effect once email is configured.",
+        "tooltip": "Configure email delivery on this instance to enable alerts"
+      },
       "failureThreshold": "Failure threshold",
       "failureThresholdDescription": "Number of consecutive failures before sending an alert",
       "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
@@ -3752,6 +3758,10 @@
     "title": "Integrations",
     "section": {
       "description": "Connect third-party services to receive uptime monitoring notifications when your website goes down or recovers."
+    },
+    "monitoringNotConfigured": {
+      "title": "Notifications are not active on this instance",
+      "description": "Integrations only deliver uptime monitoring alerts, and uptime monitoring is disabled (ENABLE_UPTIME_MONITORING). Integrations can still be set up, but nothing will be sent until it is enabled."
     },
     "integrations": {
       "pushover": {

@@ -73,7 +73,7 @@ export function LabeledSlider({
 
   return (
     <div className='space-y-4'>
-      <div className='flex items-end justify-between'>
+      <div className={cn('flex items-end justify-between', disabled && 'opacity-50')}>
         <div className='space-y-0.5'>
           <Label className='text-sm font-medium'>{label}</Label>
           {description && <p className='text-muted-foreground text-xs'>{description}</p>}
@@ -87,12 +87,7 @@ export function LabeledSlider({
           )}
         >
           {valueParts ? (
-            <NumberFlow
-              className='tabular-nums'
-              locales={locale}
-              willChange
-              {...valueParts}
-            />
+            <NumberFlow className='tabular-nums' locales={locale} willChange {...valueParts} />
           ) : (
             formatValue(value)
           )}
@@ -110,7 +105,7 @@ export function LabeledSlider({
           disabled={disabled}
           className='cursor-pointer dark:[&_[role=slider]]:bg-white'
         />
-        <div className='relative h-4 w-full'>
+        <div className={cn('relative h-4 w-full', disabled && 'opacity-50')}>
           {marks.map(({ idx, label: markLabel }) => {
             const percent = ((idx - min) / totalSteps) * 100;
             const isLocked = minAllowed !== undefined && idx < minAllowed;
