@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useBannerContext } from '@/contexts/BannerProvider';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { resendVerificationEmailAction } from '@/app/actions/auth/verification.action';
+import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
 
 type VerificationBannerProps = {
@@ -42,14 +42,15 @@ export function VerificationBanner({ email, isVerified, showDismiss = true, id }
   const handleResendVerification = async () => {
     setIsSending(true);
     try {
-      const result = await resendVerificationEmailAction({ email });
-      if (result.success) {
-        toast.success(t('success'));
+      const { error } = await authClient.sendVerificationEmail({
+        email,
+        callbackURL: '/verify-email?verified=1',
+      });
+      if (error) {
+        toast.error(t(error.status === 429 ? 'cooldown' : 'failure'));
       } else {
-        toast.error(result.error);
+        toast.success(t('success'));
       }
-    } catch (error) {
-      toast.error(t('failure'));
     } finally {
       setIsSending(false);
     }

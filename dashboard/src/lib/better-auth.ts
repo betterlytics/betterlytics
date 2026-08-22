@@ -9,7 +9,7 @@ import { env } from '@/lib/env';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
-import { sendVerificationEmail } from '@/services/account/verification.service';
+import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
@@ -68,6 +68,11 @@ export const auth = betterAuth({
       }
       await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
     },
+  },
+  emailVerification: {
+    sendVerificationEmail: ({ user, url }) => sendVerificationEmail({ ...user, name: user.name ?? null }, url),
+    sendOnSignUp: true,
+    expiresIn: VERIFICATION_LINK_EXPIRY_SECONDS,
   },
   verification: {
     storeIdentifier: {
@@ -186,17 +191,14 @@ export const auth = betterAuth({
           } catch (error) {
             console.error('Failed to create initial user settings for new user:', error);
           }
-
-          if (user.email && !user.emailVerified && isFeatureEnabled('enableAccountVerification')) {
-            try {
-              await sendVerificationEmail({ email: user.email });
-            } catch (error) {
-              console.error('Failed to send verification email for new user:', error);
-            }
-          }
         },
       },
       update: {
+        before: async (user) => {
+          if (user.emailVerified === true) {
+            return { data: { ...user, emailVerifiedAt: new Date() } };
+          }
+        },
         after: async (user, ctx) => {
           if (ctx?.path?.startsWith('/two-factor/') && user.email) {
             const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
