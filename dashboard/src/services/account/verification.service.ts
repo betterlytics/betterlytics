@@ -1,166 +1,26 @@
 'server-only';
 
-import {
-  createVerificationToken,
-  findVerificationToken,
-  deleteVerificationToken,
-  markUserEmailAsVerified,
-  findVerificationTokenByIdentifier,
-  deleteExpiredVerificationTokens,
-} from '@/repositories/postgres/verification.repository';
-import { findUserByEmail } from '@/repositories/postgres/user.repository';
+import { APIError } from 'better-auth/api';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
-import { env } from '@/lib/env';
-import {
-  SendVerificationEmailData,
-  SendVerificationEmailSchema,
-  VerifyEmailData,
-  VerifyEmailSchema,
-  VerificationResult,
-} from '@/entities/account/verification.entities';
-import { generateSecureTokenNoSalt } from '@/utils/cryptoUtils';
-import { addMinutes, isBefore, subMinutes } from 'date-fns';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 
-const VERIFICATION_TOKEN_EXPIRY_HOURS = 24;
-const VERIFICATION_URL_BASE = env.PUBLIC_BASE_URL;
-const RESEND_COOLDOWN_MINUTES = 5;
+export const VERIFICATION_LINK_EXPIRY_SECONDS = 24 * 60 * 60;
 
-export async function sendVerificationEmail(data: SendVerificationEmailData): Promise<void> {
-  if (!isFeatureEnabled('enableAccountVerification')) {
-    console.warn('Account verification is disabled, skipping email send');
-    return;
-  }
-
-  try {
-    const validatedData = SendVerificationEmailSchema.parse(data);
-    const { email } = validatedData;
-
-    await deleteExpiredVerificationTokens();
-
-    const user = await findUserByEmail(email);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    if (user.emailVerified) {
-      throw new Error('Email is already verified');
-    }
-
-    const token = generateSecureTokenNoSalt();
-    const expires = createExpiryDate();
-
-    await createVerificationToken({
-      identifier: email,
-      token,
-      expires,
+export async function sendVerificationEmail(
+  user: { id: string; email: string; name: string | null },
+  url: string,
+): Promise<void> {
+  if (!isFeatureEnabled('enableAccountVerification')) return;
+  const result = await enqueueEmail({
+    type: 'email-verification',
+    recipientKey: createUserRecipientKey(user.id),
+    campaignKey: 'email-verification',
+    data: { to: user.email, userName: user.name, verificationUrl: url },
+  });
+  if (result === 'throttled') {
+    throw new APIError('TOO_MANY_REQUESTS', {
+      message: 'A verification email was sent recently. Please wait a few minutes before trying again.',
     });
-
-    const verificationUrl = `${VERIFICATION_URL_BASE}/verify-email?token=${token}`;
-
-    await enqueueEmail({
-      type: 'email-verification',
-      recipientKey: createUserRecipientKey(user.id),
-      campaignKey: `email-verification:${token}`,
-      data: {
-        to: email,
-        userName: user.name,
-        verificationUrl,
-      },
-    });
-  } catch (error) {
-    console.error('Error sending verification email:', error);
-    throw new Error('Failed to send verification email');
-  }
-}
-
-export async function verifyEmail(data: VerifyEmailData): Promise<VerificationResult> {
-  if (!isFeatureEnabled('enableAccountVerification')) {
-    return {
-      success: false,
-      error: 'Account verification is not enabled',
-    };
-  }
-
-  try {
-    const validatedData = VerifyEmailSchema.parse(data);
-    const { token } = validatedData;
-
-    await deleteExpiredVerificationTokens();
-
-    const verificationToken = await findVerificationToken(token);
-
-    if (!verificationToken) {
-      return {
-        success: false,
-        error: 'Invalid or expired verification token',
-      };
-    }
-
-    if (verificationToken.expires < new Date()) {
-      await deleteVerificationToken(token);
-      return {
-        success: false,
-        error: 'Verification token has expired',
-      };
-    }
-
-    const user = await findUserByEmail(verificationToken.identifier);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    if (user.emailVerified) {
-      await deleteVerificationToken(token);
-      return {
-        success: false,
-        error: 'Email is already verified',
-      };
-    }
-
-    await markUserEmailAsVerified(verificationToken.identifier);
-
-    await deleteVerificationToken(token);
-
-    return {
-      success: true,
-      email: verificationToken.identifier,
-    };
-  } catch (error) {
-    console.error('Error verifying email:', error);
-    return {
-      success: false,
-      error: 'Failed to verify email',
-    };
-  }
-}
-
-function createExpiryDate(): Date {
-  const expiryDate = new Date();
-  expiryDate.setHours(expiryDate.getHours() + VERIFICATION_TOKEN_EXPIRY_HOURS);
-  return expiryDate;
-}
-
-export async function checkRateLimit(email: string): Promise<{ allowed: boolean; nextAllowedAt?: Date }> {
-  try {
-    const now = new Date();
-    const recentToken = await findVerificationTokenByIdentifier(email);
-
-    if (!recentToken) {
-      return { allowed: true };
-    }
-
-    const cooldownAgo = subMinutes(now, RESEND_COOLDOWN_MINUTES);
-
-    if (isBefore(recentToken.createdAt, cooldownAgo)) {
-      return { allowed: true };
-    }
-
-    const nextAllowedAt = addMinutes(recentToken.createdAt, RESEND_COOLDOWN_MINUTES);
-    return { allowed: false, nextAllowedAt };
-  } catch (error) {
-    console.error('Error checking rate limit:', error);
-    return { allowed: true };
   }
 }

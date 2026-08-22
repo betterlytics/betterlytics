@@ -2865,7 +2865,8 @@
         "resend": "Reinvia email di verifica",
         "sending": "Invio in corso...",
         "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
-        "toastFailure": "Invio dell'email di verifica non riuscito"
+        "toastFailure": "Invio dell'email di verifica non riuscito",
+        "cooldown": "Un'email di verifica è stata inviata di recente. Attendi qualche minuto prima di richiederne un'altra."
       }
     },
     "topbar": {
@@ -3345,6 +3346,7 @@
       "description": "Ti abbiamo inviato un'email di verifica a {email}.",
       "success": "Email di verifica inviata!",
       "failure": "Impossibile inviare l'email di verifica",
+      "cooldown": "Un'email di verifica è stata inviata di recente. Attendi qualche minuto prima di richiederne un'altra.",
       "sending": "Invio in corso...",
       "resend": "Reinvia email"
     },

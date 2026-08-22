@@ -2865,7 +2865,8 @@
         "resend": "Send bekræftelsesmail igen",
         "sending": "Sender...",
         "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
-        "toastFailure": "Kunne ikke sende bekræftelsesmail"
+        "toastFailure": "Kunne ikke sende bekræftelsesmail",
+        "cooldown": "Der er lige blevet sendt en bekræftelsesmail. Vent et par minutter, før du anmoder om en ny."
       }
     },
     "topbar": {
@@ -3345,6 +3346,7 @@
       "description": "Vi har sendt en bekræftelsesmail til {email}.",
       "success": "Bekræftelsesmail sendt!",
       "failure": "Kunne ikke sende bekræftelsesmail",
+      "cooldown": "Der er lige blevet sendt en bekræftelsesmail. Vent et par minutter, før du anmoder om en ny.",
       "sending": "Sender...",
       "resend": "Send e-mail igen"
     },

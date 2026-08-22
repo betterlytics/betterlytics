@@ -2865,7 +2865,8 @@
         "resend": "Send bekreftelses-e-post på nytt",
         "sending": "Sender...",
         "toastSuccess": "Bekreftelses-e-post sendt! Sjekk innboksen din.",
-        "toastFailure": "Kunne ikke sende bekreftelses-e-post"
+        "toastFailure": "Kunne ikke sende bekreftelses-e-post",
+        "cooldown": "En bekreftelses-e-post ble nylig sendt. Vent noen minutter før du ber om en ny."
       }
     },
     "topbar": {
@@ -3345,6 +3346,7 @@
       "description": "Vi har sendt en bekreftelses-e-post til {email}.",
       "success": "Bekreftelses-e-post sendt!",
       "failure": "Kunne ikke sende bekreftelses-e-post",
+      "cooldown": "En bekreftelses-e-post ble nylig sendt. Vent noen minutter før du ber om en ny.",
       "sending": "Sender...",
       "resend": "Send e-post på nytt"
     },
