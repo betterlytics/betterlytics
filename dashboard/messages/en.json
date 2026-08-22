@@ -3014,6 +3014,7 @@
         "newPassword": "New Password",
         "confirmNewPassword": "Confirm New Password",
         "passwordHelp": "Password must be at least 8 characters long",
+        "weakPassword": "Password must be at least 8 characters and contain both uppercase and lowercase letters",
         "passwordsMatch": "Passwords match",
         "changePassword": "Change Password",
         "passwordManagedByOAuth": "Password managed by OAuth",
