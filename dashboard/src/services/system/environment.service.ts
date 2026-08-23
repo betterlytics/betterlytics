@@ -8,7 +8,11 @@ type PublicPrefixedKey = keyof typeof env & `PUBLIC_${string}`;
  * Non-`PUBLIC_` feature flags that are safe to expose to the client.
  * They reveal feature availability only, never secrets.
  */
-const EXPOSED_FEATURE_FLAG_KEYS = ['ENABLE_EMAILS'] as const satisfies readonly (keyof typeof env)[];
+const EXPOSED_FEATURE_FLAG_KEYS = [
+  'ENABLE_EMAILS',
+  'ENABLE_UPTIME_MONITORING',
+  'ENABLE_PUBLIC_STATUS_PAGES',
+] as const satisfies readonly (keyof typeof env)[];
 
 export const PUBLIC_ENVIRONMENT_VARIABLES_KEYS: readonly (
   PublicPrefixedKey | (typeof EXPOSED_FEATURE_FLAG_KEYS)[number]

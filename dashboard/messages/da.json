@@ -3363,6 +3363,29 @@
       "title": "Ingen Core Web Vitals data endnu",
       "description": "Tjek at tracking er aktiveret.",
       "action": "Læs mere"
+    },
+    "featureNotEnabled": {
+      "action": "Selfhosting-guide",
+      "monitoring": {
+        "title": "Oppetidsovervågning er ikke aktiveret på denne instans",
+        "description": "Monitorer kan sættes op, men de tjekkes ikke, og der sendes ingen alarmer, før det er aktiveret."
+      },
+      "statusPages": {
+        "title": "Statussider er ikke aktiveret på denne instans",
+        "description": "Statussider kan sættes op, men de udgives ikke, før funktionen er aktiveret."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Statussider kræver oppetidsovervågning, som ikke er aktiveret på denne instans",
+        "description": "Statussider kan sættes op, men de udgives ikke, før oppetidsovervågning er aktiveret."
+      },
+      "sessionReplay": {
+        "title": "Sessionsafspilning er ikke aktiveret på denne instans",
+        "description": "Der optages ingen sessioner, før det er aktiveret."
+      },
+      "geography": {
+        "title": "Geolokation er ikke aktiveret på denne instans",
+        "description": "Besøgendes placering indsamles ikke, før det er aktiveret."
+      }
     }
   },
   "githubStar": {

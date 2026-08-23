@@ -3363,6 +3363,29 @@
       "title": "Ingen Core Web Vitals-data ennå",
       "description": "Sørg for at sporing er aktivert.",
       "action": "Lær mer"
+    },
+    "featureNotEnabled": {
+      "action": "Selvhosting-guide",
+      "monitoring": {
+        "title": "Oppetidsovervåking er ikke aktivert på denne instansen",
+        "description": "Monitorer kan settes opp, men de sjekkes ikke, og ingen varsler sendes før det er aktivert."
+      },
+      "statusPages": {
+        "title": "Statussider er ikke aktivert på denne instansen",
+        "description": "Statussider kan settes opp, men de publiseres ikke før funksjonen er aktivert."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Statussider krever oppetidsovervåking, som ikke er aktivert på denne instansen",
+        "description": "Statussider kan settes opp, men de publiseres ikke før oppetidsovervåking er aktivert."
+      },
+      "sessionReplay": {
+        "title": "Øktopptak er ikke aktivert på denne instansen",
+        "description": "Ingen økter tas opp før det er aktivert."
+      },
+      "geography": {
+        "title": "Geolokasjon er ikke aktivert på denne instansen",
+        "description": "Besøkendes plassering samles ikke inn før det er aktivert."
+      }
     }
   },
   "githubStar": {

@@ -37,6 +37,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { StatusPageBrandAvatar } from '@/components/statusPage/StatusPageBrandAvatar';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { UpgradeButton } from '@/components/billing/UpgradeButton';
@@ -44,10 +46,7 @@ import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { useCopy } from '@/hooks/use-copy';
 import { cn } from '@/lib/utils';
-import {
-  useDeleteStatusPageMutation,
-  useSetStatusPagePublishedMutation,
-} from './shared/useStatusPageMutations';
+import { useDeleteStatusPageMutation, useSetStatusPagePublishedMutation } from './shared/useStatusPageMutations';
 import type { StatusPageListItem } from '@/entities/analytics/statusPage/statusPage.entities';
 import { statusPagePublicUrl, statusPagePublicUrlLabel } from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { MonitorOperationalState } from '@/entities/analytics/monitoring.entities';
@@ -98,6 +97,8 @@ export function StatusPagesClient({
   domain,
 }: StatusPagesClientProps) {
   const t = useTranslations('statusPagesPage');
+  const tBanner = useTranslations('banners.featureNotEnabled.statusPages');
+  const featureEnabled = useClientFeatureFlags().isFeatureFlagEnabled('enablePublicStatusPages');
   const tStatus = useTranslations('monitoring.status');
   const router = useRouter();
   const { caps } = useCapabilities();
@@ -138,10 +139,18 @@ export function StatusPagesClient({
     ) : (
       <PermissionGate>
         {(disabled) => (
-          <Button disabled={disabled} onClick={() => setShowCreateStudio(true)} className='cursor-pointer'>
-            <Plus className='mr-1 h-4 w-4' />
-            {label}
-          </Button>
+          <DisabledTooltip disabled={!featureEnabled} message={tBanner('title')}>
+            {(featureDisabled) => (
+              <Button
+                disabled={disabled || featureDisabled}
+                onClick={() => setShowCreateStudio(true)}
+                className='cursor-pointer'
+              >
+                <Plus className='mr-1 h-4 w-4' />
+                {label}
+              </Button>
+            )}
+          </DisabledTooltip>
         )}
       </PermissionGate>
     );
@@ -199,9 +208,7 @@ export function StatusPagesClient({
           </div>
           {incidentPages.length === 1 && (
             <Button asChild variant='outline' size='sm' className='shrink-0'>
-              <Link href={resolveHref(`status-pages/${incidentPages[0].id}`)}>
-                {t('banner.viewIncidents')}
-              </Link>
+              <Link href={resolveHref(`status-pages/${incidentPages[0].id}`)}>{t('banner.viewIncidents')}</Link>
             </Button>
           )}
         </div>

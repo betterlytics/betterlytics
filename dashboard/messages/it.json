@@ -3363,6 +3363,29 @@
       "title": "Nessun dato Core Web Vitals",
       "description": "Assicurati che il tracciamento sia abilitato.",
       "action": "Scopri di più"
+    },
+    "featureNotEnabled": {
+      "action": "Guida al self-hosting",
+      "monitoring": {
+        "title": "Il monitoraggio uptime non è abilitato su questa istanza",
+        "description": "I monitor possono essere configurati, ma non vengono controllati e non viene inviato alcun avviso finché non è abilitato."
+      },
+      "statusPages": {
+        "title": "Le pagine di stato non sono abilitate su questa istanza",
+        "description": "Le pagine di stato possono essere configurate, ma non vengono pubblicate finché la funzione non è abilitata."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Le pagine di stato richiedono il monitoraggio uptime, che non è abilitato su questa istanza",
+        "description": "Le pagine di stato possono essere configurate, ma non vengono pubblicate finché il monitoraggio uptime non è abilitato."
+      },
+      "sessionReplay": {
+        "title": "Il replay delle sessioni non è abilitato su questa istanza",
+        "description": "Nessuna sessione viene registrata finché non è abilitato."
+      },
+      "geography": {
+        "title": "La geolocalizzazione non è abilitata su questa istanza",
+        "description": "La posizione dei visitatori non viene raccolta finché non è abilitata."
+      }
     }
   },
   "githubStar": {

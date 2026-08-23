@@ -10,6 +10,7 @@ export const featureFlags = {
   enableAccountVerification: env.ENABLE_ACCOUNT_VERIFICATION,
   enableBilling: env.ENABLE_BILLING,
   enableSessionReplay: env.SESSION_REPLAYS_ENABLED,
+  enableGeolocation: env.ENABLE_GEOLOCATION,
   enableBugReports: env.IS_CLOUD,
   enableUptimeMonitoring: env.ENABLE_UPTIME_MONITORING,
   // Status pages publish uptime data, so they additionally require monitoring to be enabled

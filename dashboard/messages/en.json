@@ -3360,6 +3360,29 @@
       "title": "No Core Web Vitals data yet",
       "description": "Make sure tracking is enabled.",
       "action": "Learn more"
+    },
+    "featureNotEnabled": {
+      "action": "Self-hosting guide",
+      "monitoring": {
+        "title": "Uptime monitoring is not enabled on this instance",
+        "description": "Monitors can be set up, but they are not checked and no alerts are sent until it is enabled."
+      },
+      "statusPages": {
+        "title": "Status pages are not enabled on this instance",
+        "description": "Status pages can be set up, but they are not published until the feature is enabled."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Status pages need uptime monitoring, which is not enabled on this instance",
+        "description": "Status pages can be set up, but they are not published until uptime monitoring is enabled."
+      },
+      "sessionReplay": {
+        "title": "Session replay is not enabled on this instance",
+        "description": "No sessions are recorded until it is enabled."
+      },
+      "geography": {
+        "title": "Geolocation is not enabled on this instance",
+        "description": "Visitor locations are not collected until it is enabled."
+      }
     }
   },
   "githubStar": {

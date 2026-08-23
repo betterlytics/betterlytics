@@ -23,6 +23,7 @@ import { revalidatePath } from 'next/cache';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { UserException } from '@/lib/exceptions';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
 import { monitoringValidator } from '@/lib/billing/validators';
 import z from 'zod';
@@ -37,6 +38,10 @@ export const fetchMonitorCheckAction = withDashboardAuthContext(
 
 export const createMonitorCheckAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, input: z.input<typeof MonitorCheckCreateSchema>) => {
+    if (!isFeatureEnabled('enableUptimeMonitoring')) {
+      throw new UserException('Uptime monitoring is not enabled');
+    }
+    
     const t = await getTranslations('validation');
     const payload = MonitorCheckCreateSchema.parse(input);
 
