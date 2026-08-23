@@ -330,6 +330,7 @@ describe('journey suggestion queries', () => {
     expect(query.taggedSql).toContain('click_ts > last_pageview_ts');
     expect(query.taggedSql).not.toContain('exit_clicks');
     expect(Object.keys(query.taggedParams).some((key) => key.startsWith('exit_filter_'))).toBe(false);
+    expect(query.taggedSql).toContain('session_id,');
   });
 
   it('still gates by a sibling exit filter while keeping candidates unfiltered', () => {
@@ -344,6 +345,7 @@ describe('journey suggestion queries', () => {
     expect(query.taggedSql).toContain('event_candidates');
     expect(query.taggedSql).toContain('evt_ts >= full_ts[2] AND (2 = length(full_ts) OR evt_ts < full_ts[3])');
     expect(query.taggedSql).toContain('SELECT DISTINCT evt_value AS value');
+    expect(query.taggedSql).toContain('session_id,');
   });
 
   it('omits the lower window bound at slot 0', () => {
@@ -361,10 +363,10 @@ describe('journey suggestion queries', () => {
   });
 
   it('rejects infeasible suggestion columns', () => {
-    expect(() => suggest('device_type', 1)).toThrow();
-    expect(() => suggest('referrer_source', 1)).toThrow();
-    expect(() => suggest('outbound_link_url', 0)).toThrow();
-    expect(() => suggest('url', 5)).toThrow();
+    expect(() => suggest('device_type', 1)).toThrow(/not suggestible/);
+    expect(() => suggest('referrer_source', 1)).toThrow(/not suggestible/);
+    expect(() => suggest('outbound_link_url', 0)).toThrow(/not suggestible/);
+    expect(() => suggest('url', 5)).toThrow(/Invalid suggestion slot/);
   });
 
   it('applies the search term to the value expression', () => {

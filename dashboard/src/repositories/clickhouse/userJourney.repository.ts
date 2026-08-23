@@ -23,6 +23,7 @@ type JourneyCarry = {
   entryColumn?: TableFilterColumn;
   exit?: boolean;
   fullTs?: boolean;
+  sessionId?: boolean;
 };
 
 type JourneyQueryArgs = {
@@ -183,6 +184,8 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     safeSql`(length(path) >= ${SQL.Unsafe(String(column))} AND (${SQL.AND(gates.get(column)!)}))`,
   );
 
+  const sessionIdColumn = carry.sessionId ? safeSql`session_id,\n        ` : safeSql``;
+
   const prefix = safeSql`
     WITH ordered_events AS (
       SELECT
@@ -200,7 +203,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     )${exitCte}${stepEventCte},
     session_paths AS (
       SELECT
-        /* Collapse consecutive duplicate URLs per session, keep order, then trim to max_length */
+        ${sessionIdColumn}/* Collapse consecutive duplicate URLs per session, keep order, then trim to max_length */
         arrayMap(
           x -> x.2,
           arraySlice(
@@ -284,8 +287,14 @@ export function buildJourneySuggestionQuery(args: JourneySuggestionArgs) {
     }
     carry.entryColumn = parsed.col;
   }
-  if (kind === 'exit') carry.exit = true;
-  if (kind === 'stepEvent') carry.fullTs = true;
+  if (kind === 'exit') {
+    carry.exit = true;
+    carry.sessionId = true;
+  }
+  if (kind === 'stepEvent') {
+    carry.fullTs = true;
+    carry.sessionId = true;
+  }
 
   const { prefix, gateExprs, stepEventParamNext } = buildJourneyPipeline({
     queryFilters,
