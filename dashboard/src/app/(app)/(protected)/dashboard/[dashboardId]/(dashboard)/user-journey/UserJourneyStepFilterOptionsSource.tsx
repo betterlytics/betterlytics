@@ -8,6 +8,7 @@ import {
   type FilterOptionsSource,
 } from '@/components/filters/FilterOptionsSourceProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
+import { useAllowedStepFilters } from '@/hooks/use-is-filter-column-allowed';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { isUsableFilter, type QueryFilter, type ScopeFilter } from '@/entities/analytics/filter.entities';
 import { classifyStepFilter } from '@/entities/analytics/stepFilters.entities';
@@ -42,11 +43,12 @@ const useJourneyFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery']
   const dashboardId = useDashboardId();
   const t = useTranslations('components.userJourney');
   const { stepFilters, numberOfSteps } = useUserJourneyFilter();
+  const allowedStepFilters = useAllowedStepFilters(stepFilters, numberOfSteps);
   const lastSlot = numberOfSteps - 1;
 
   const wireStepFilters = useMemo(() => {
     const entries: Array<[string, ScopeFilter[]]> = [];
-    for (const [stepSlot, slotFilters] of Object.entries(stepFilters)) {
+    for (const [stepSlot, slotFilters] of Object.entries(allowedStepFilters)) {
       if (Number(stepSlot) >= slot) continue;
       const scoping = slotFilters
         .filter((committed) => scopes(committed, Number(stepSlot), lastSlot))
@@ -54,7 +56,7 @@ const useJourneyFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery']
       if (scoping.length > 0) entries.push([stepSlot, scoping]);
     }
     return Object.fromEntries(entries);
-  }, [stepFilters, slot, lastSlot]);
+  }, [allowedStepFilters, slot, lastSlot]);
 
   const hasScopingFilters = Object.keys(wireStepFilters).length > 0;
 
