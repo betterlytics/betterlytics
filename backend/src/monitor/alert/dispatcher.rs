@@ -164,7 +164,7 @@ impl Alert {
             .collect()
     }
 
-    fn build_history_record(&self, ctx: &AlertContext) -> AlertHistoryRecord {
+    fn build_history_record(&self, ctx: &AlertContext, sent_to: Vec<String>) -> AlertHistoryRecord {
         let details = match self {
             Alert::Down { status_code, .. } => AlertDetails::Down {
                 status_code: status_code.map(|c| c as i32),
@@ -177,7 +177,7 @@ impl Alert {
                 days_left: *days_left,
             },
         };
-        AlertHistoryRecord::from_context(ctx, details)
+        AlertHistoryRecord::from_context(ctx, sent_to, details)
     }
 }
 
@@ -209,12 +209,12 @@ impl AlertDispatcher {
         fields(check_id = %ctx.check_id)
     )]
     pub async fn dispatch(&self, ctx: AlertContext<'_>, alert: Alert) -> bool {
-        let mut enqueued = 0usize;
+        let mut enqueued: Vec<String> = Vec::new();
         let mut failed = 0usize;
 
         for job in alert.build_jobs(&ctx) {
             match self.job_queue.send_email(&job, MONITOR_ALERT_RETRY).await {
-                Ok(EnqueueOutcome::Enqueued) => enqueued += 1,
+                Ok(EnqueueOutcome::Enqueued) => enqueued.push(job.recipient),
                 Ok(EnqueueOutcome::AlreadyPending) | Ok(EnqueueOutcome::Skipped) => {}
                 Ok(EnqueueOutcome::QueueMissing) => {
                     warn!(
@@ -241,8 +241,8 @@ impl AlertDispatcher {
             return false;
         }
 
-        if enqueued > 0 {
-            self.record_alert_history(alert.build_history_record(&ctx));
+        if !enqueued.is_empty() {
+            self.record_alert_history(alert.build_history_record(&ctx, enqueued));
         }
         true
     }
