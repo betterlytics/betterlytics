@@ -20,7 +20,7 @@ type QueryFilterInputRowProps<TEntity> = {
   className?: string;
   disabled?: boolean;
   disabledMessage?: ReactNode;
-  siblingFilters?: QueryFilter[];
+  siblingFilters: QueryFilter[];
   onFilterUpdate: Dispatch<QueryFilter & TEntity>;
   requestRemoval?: (id: QueryFilter['id']) => void;
 };

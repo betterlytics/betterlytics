@@ -17,7 +17,7 @@ type FilterValueSearchProps<TEntity> = {
   valueError?: boolean;
   hideClearAllButton?: boolean;
   disabled?: boolean;
-  siblingFilters?: QueryFilter[];
+  siblingFilters: QueryFilter[];
 };
 
 export function FilterValueSearch<TEntity>({
