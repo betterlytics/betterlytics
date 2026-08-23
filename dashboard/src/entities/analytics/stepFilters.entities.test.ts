@@ -5,7 +5,7 @@ import {
   stripInfeasibleStepFilters,
   pruneStepFilters,
 } from './stepFilters.entities';
-import type { QueryFilter } from './filter.entities';
+import { dependencyScopeFilters, FILTER_COLUMNS, type QueryFilter } from './filter.entities';
 import { BAAnalyticsQuerySchema } from './analyticsQuery.entities';
 
 const filter = (column: QueryFilter['column'], values: string[] = ['/x']): QueryFilter => ({
@@ -121,6 +121,23 @@ const baseQuery = {
   compare: 'off' as const,
   userJourney: { numberOfSteps: 3, numberOfJourneys: 10 },
 };
+
+describe('step suggestion scoping parity with the main filter', () => {
+  it('keeps step-legal columns free of dependency parents - declaring one requires wiring dependent scoping through the journey suggestions endpoint first (spec section 2)', () => {
+    const lastSlot = 3;
+    const slots = Array.from({ length: lastSlot + 1 }, (_, slot) => slot);
+    const stepLegalColumns: QueryFilter['column'][] = [
+      ...FILTER_COLUMNS.filter((column) =>
+        slots.some((slot) => classifyStepFilter(column, slot, lastSlot) !== 'infeasible'),
+      ),
+      'cep.probe',
+    ];
+    const candidateParents = FILTER_COLUMNS.map((column) => filter(column, ['x']));
+    for (const column of stepLegalColumns) {
+      expect(dependencyScopeFilters(column, candidateParents)).toEqual([]);
+    }
+  });
+});
 
 describe('UserJourneySchema stepFilters', () => {
   it('defaults stepFilters to an empty object when omitted', () => {
