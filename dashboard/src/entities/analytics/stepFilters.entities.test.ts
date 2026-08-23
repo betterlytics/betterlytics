@@ -34,10 +34,14 @@ describe('classifyStepFilter', () => {
     expect(classifyStepFilter('outbound_link_url', 2, 3)).toBe('infeasible');
   });
 
-  it('classifies session-wide columns and properties as infeasible everywhere', () => {
-    expect(classifyStepFilter('custom_event_name', 1, 3)).toBe('infeasible');
+  it('classifies custom events and cep as stepEvent at every slot', () => {
+    expect(classifyStepFilter('custom_event_name', 0, 3)).toBe('stepEvent');
+    expect(classifyStepFilter('custom_event_name', 3, 3)).toBe('stepEvent');
+    expect(classifyStepFilter('cep.plan', 1, 3)).toBe('stepEvent');
+  });
+
+  it('classifies session-wide columns and gp as infeasible everywhere', () => {
     expect(classifyStepFilter('event_type', 0, 3)).toBe('infeasible');
-    expect(classifyStepFilter('cep.plan', 3, 3)).toBe('infeasible');
     expect(classifyStepFilter('device_type', 2, 3)).toBe('infeasible');
     expect(classifyStepFilter('browser_version', 0, 3)).toBe('infeasible');
     expect(classifyStepFilter('domain', 3, 3)).toBe('infeasible');
@@ -52,13 +56,13 @@ describe('classifyStepFilter', () => {
 });
 
 describe('getStepExcludedColumns', () => {
-  it('always excludes custom_event_name, event_type, gp and cep', () => {
+  it('always excludes event_type and gp but never custom_event_name or cep', () => {
     for (const slot of [0, 1, 3]) {
       const excluded = getStepExcludedColumns(slot, 3);
-      expect(excluded).toContain('custom_event_name');
+      expect(excluded).not.toContain('custom_event_name');
       expect(excluded).toContain('event_type');
       expect(excluded).toContain('gp');
-      expect(excluded).toContain('cep');
+      expect(excluded).not.toContain('cep');
       expect(excluded).not.toContain('url');
     }
   });
@@ -85,7 +89,7 @@ describe('stripInfeasibleStepFilters', () => {
       },
       3,
     );
-    expect(stripped).toEqual({ '0': [filter('url')], '3': [filter('outbound_link_url')] });
+    expect(stripped).toEqual({ '0': [filter('url'), filter('custom_event_name')], '3': [filter('outbound_link_url')] });
   });
 
   it('drops whole slots beyond the last slot', () => {

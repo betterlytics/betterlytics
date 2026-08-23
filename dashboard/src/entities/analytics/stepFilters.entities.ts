@@ -7,7 +7,7 @@ import {
 } from './filter.entities';
 import { PROPERTY_SOURCE_KINDS, type PropertySourceKind } from './propertySources';
 
-export type StepFilterKind = 'positional' | 'entry' | 'exit' | 'infeasible';
+export type StepFilterKind = 'positional' | 'entry' | 'exit' | 'stepEvent' | 'infeasible';
 
 export type StepFiltersBySlot = Record<string, QueryFilter[]>;
 
@@ -28,8 +28,9 @@ const ENTRY_COLUMN_SET = new Set<TableFilterColumn>(ENTRY_FILTER_COLUMNS);
 export function classifyStepFilter(column: FilterColumn, slot: number, lastSlot: number): StepFilterKind {
   if (!Number.isInteger(slot) || slot < 0 || slot > lastSlot) return 'infeasible';
   const parsed = parseFilterColumn(column);
-  if (parsed.kind === 'property') return 'infeasible';
+  if (parsed.kind === 'property') return parsed.source === 'cep' ? 'stepEvent' : 'infeasible';
   if (parsed.col === 'url') return 'positional';
+  if (parsed.col === 'custom_event_name') return 'stepEvent';
   if (ENTRY_COLUMN_SET.has(parsed.col)) return slot === 0 ? 'entry' : 'infeasible';
   if (parsed.col === 'outbound_link_url') return slot === lastSlot ? 'exit' : 'infeasible';
   return 'infeasible';
