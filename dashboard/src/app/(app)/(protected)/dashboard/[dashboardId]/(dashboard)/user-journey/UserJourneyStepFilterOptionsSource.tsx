@@ -12,7 +12,7 @@ import { useAllowedStepFilters, usePropertySourceStatus } from '@/hooks/use-is-f
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { useQueryState } from '@/hooks/use-query-state';
-import { isUsableFilter, type QueryFilter, type ScopeFilter } from '@/entities/analytics/filter.entities';
+import { isUsableFilter, toScopeFilter, type QueryFilter, type ScopeFilter } from '@/entities/analytics/filter.entities';
 import { classifyStepFilter } from '@/entities/analytics/stepFilters.entities';
 
 const EMPTY_OPTIONS: string[] = [];
@@ -31,8 +31,6 @@ const scopes = (filter: QueryFilter, slot: number, lastSlot: number): boolean =>
   isUsableFilter(filter) &&
   filter.values.length > 0 &&
   classifyStepFilter(filter.column, slot, lastSlot) !== 'infeasible';
-
-const toScopeFilter = ({ column, operator, values }: QueryFilter): ScopeFilter => ({ column, operator, values });
 
 const useWireStepFilters = (slot: number): Record<string, ScopeFilter[]> => {
   const { stepFilters, numberOfSteps } = useUserJourneyFilter();

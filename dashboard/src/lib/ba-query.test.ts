@@ -136,6 +136,8 @@ describe('getFilterQuery empty-values semantics', () => {
     const sql = buildSql([makeFilter('url', '!=', [])]);
 
     expect(sql).toContain('arrayAll');
+  });
+});
 
 describe('buildPositionalUrlPredicate', () => {
   it('targets path at the 1-indexed slot with arrayExists ILIKE for =', () => {
