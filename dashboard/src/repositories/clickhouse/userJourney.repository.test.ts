@@ -245,4 +245,21 @@ describe('window-anchored step event filters', () => {
     expect(query.taggedSql).not.toContain('full_ts');
     expect(query.taggedSql).not.toContain('stepevt_');
   });
+
+  it('does not apply global query filters inside step_events', () => {
+    const query = build({ '1': [filter('custom_event_name', ['signup'])] }, [filter('device_type', ['Mobile'])]);
+    const cte = query.taggedSql.slice(query.taggedSql.indexOf('step_events AS ('), query.taggedSql.indexOf('session_paths'));
+    expect(cte).not.toContain('query_filter_0');
+  });
+
+  it('keeps params and aliases distinct across step-event slots', () => {
+    const query = build({
+      '0': [filter('custom_event_name', ['signup'])],
+      '1': [filter('custom_event_name', ['purchase'])],
+    });
+    expect(Object.keys(query.taggedParams)).toContain('stepevt_filter_0');
+    expect(Object.keys(query.taggedParams)).toContain('stepevt_filter_1');
+    expect(query.taggedSql).toContain('stepevt_ts_0');
+    expect(query.taggedSql).toContain('stepevt_ts_1');
+  });
 });

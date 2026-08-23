@@ -138,7 +138,7 @@ function buildStepEventRowPredicate(filter: ScopeFilter, index: number) {
   }
   const column = filterColumnSql(parsedColumn.col);
   return (
-    matchAnyValueFilterSql(positive.values, '=', column, parsedColumn.col) ??
+    matchAnyValueFilterSql(positive.values, positive.rawOperator, column, parsedColumn.col) ??
     safeSql`${positive.operator.quantifier}(pattern -> ${column} ${positive.operator.operater} pattern, ${values})`
   );
 }

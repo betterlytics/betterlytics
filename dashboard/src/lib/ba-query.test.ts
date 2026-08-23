@@ -230,5 +230,13 @@ describe('buildStepEventRowPredicate', () => {
     const sql = BAQuery.buildStepEventRowPredicate(makeFilter('custom_event_name', '=', ['*']), 0);
     expect(sql.taggedSql).toBe(`custom_event_name != ''`);
   });
+
+  it('rejects non-cep property columns', () => {
+    expect(() => BAQuery.buildStepEventRowPredicate(makeFilter('gp.tenant', '=', ['x']), 0)).toThrow();
+  });
+
+  it('rejects non-custom_event_name standard columns', () => {
+    expect(() => BAQuery.buildStepEventRowPredicate(makeFilter('url', '=', ['/x']), 0)).toThrow();
+  });
 });
 

@@ -71,7 +71,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
 
   const stepEventGroups: Array<{ alias: string; column: number; negate: boolean; predicate: SQLTaggedExpression }> = [];
   {
-    let index = 0;
+    let paramIndex = 0;
     const bySlot = new Map<number, { positives: QueryFilter[]; negatives: QueryFilter[] }>();
     for (const { slot, filter } of stepEventFilters) {
       const entry = bySlot.get(slot) ?? { positives: [], negatives: [] };
@@ -80,7 +80,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     }
     for (const [slot, { positives, negatives }] of [...bySlot.entries()].sort(([a], [b]) => a - b)) {
       if (positives.length > 0) {
-        const predicate = SQL.AND(positives.map((filter) => BAQuery.buildStepEventRowPredicate(filter, index++)));
+        const predicate = SQL.AND(positives.map((filter) => BAQuery.buildStepEventRowPredicate(filter, paramIndex++)));
         stepEventGroups.push({ alias: `stepevt_ts_${stepEventGroups.length}`, column: slot + 1, negate: false, predicate });
       }
       for (const filter of negatives) {
@@ -88,12 +88,15 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
           alias: `stepevt_ts_${stepEventGroups.length}`,
           column: slot + 1,
           negate: true,
-          predicate: BAQuery.buildStepEventRowPredicate(filter, index++),
+          predicate: BAQuery.buildStepEventRowPredicate(filter, paramIndex++),
         });
       }
     }
   }
   const hasStepEvents = stepEventGroups.length > 0;
+  const stepEventRowFilter = hasStepEvents
+    ? safeSql` AND (${SQL.OR(stepEventGroups.map((group) => group.predicate))})`
+    : safeSql``;
 
   const stepEventColumns = stepEventGroups.reduce(
     (acc, group) => safeSql`${acc}, groupArrayIf(timestamp, ${group.predicate}) AS ${SQL.Unsafe(group.alias)}`,
@@ -107,7 +110,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
       WHERE
         site_id = {site_id:String}
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-        AND event_type = 'custom'
+        AND event_type = 'custom'${stepEventRowFilter}
       GROUP BY session_id
     )`
     : safeSql``;
