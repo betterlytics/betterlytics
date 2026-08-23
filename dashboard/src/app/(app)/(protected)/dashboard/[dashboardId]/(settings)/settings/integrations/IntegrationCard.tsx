@@ -20,6 +20,7 @@ type IntegrationCardProps = {
   name: string;
   description: string;
   integration?: Integration;
+  unavailable?: boolean;
   isPending: boolean;
   onConfigure: () => void;
   onDisconnect: () => void;
@@ -31,6 +32,7 @@ export function IntegrationCard({
   name,
   description,
   integration,
+  unavailable = false,
   isPending,
   onConfigure,
   onDisconnect,
@@ -38,6 +40,24 @@ export function IntegrationCard({
 }: IntegrationCardProps) {
   const t = useTranslations('integrationsSettings');
   const isConnected = !!integration;
+
+  if (unavailable) {
+    return (
+      <div className='bg-card flex items-center gap-4 rounded-lg border border-dashed px-4 py-4'>
+        <Image src={iconSrc} alt={name} width={32} height={32} className='flex-shrink-0 opacity-50' />
+
+        <div className='min-w-0 flex-1'>
+          <div className='flex items-center gap-2'>
+            <span className='text-muted-foreground text-sm font-semibold'>{name}</span>
+            <Badge variant='secondary' className='border-border rounded-full px-2 py-0 text-[10px]'>
+              {t('status.unavailable')}
+            </Badge>
+          </div>
+          <p className='text-muted-foreground mt-0.5 text-xs'>{t('unavailable.description', { name })}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className='bg-card hover:bg-accent/30 flex items-center gap-4 rounded-lg border px-4 py-4 transition-colors'>

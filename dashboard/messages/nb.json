@@ -3832,7 +3832,8 @@
     },
     "status": {
       "connected": "Tilkoblet",
-      "disabled": "Deaktivert"
+      "disabled": "Deaktivert",
+      "unavailable": "Ikke tilgjengelig på denne instansen"
     },
     "actions": {
       "configure": "Konfigurer",
@@ -3922,6 +3923,9 @@
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
       "invalidWebhookUrl": "Ugyldig webhook URL"
+    },
+    "unavailable": {
+      "description": "{name} krever et app-token konfigurert på denne instansen før den kan kobles til."
     }
   },
   "errors": {

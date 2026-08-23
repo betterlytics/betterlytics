@@ -3829,7 +3829,8 @@
     },
     "status": {
       "connected": "Connected",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "unavailable": "Not available on this instance"
     },
     "actions": {
       "configure": "Configure",
@@ -3919,6 +3920,9 @@
       "invalidSlackWebhook": "Invalid Slack webhook URL",
       "invalidTeamsWebhook": "Invalid Teams webhook URL",
       "invalidWebhookUrl": "Invalid webhook URL"
+    },
+    "unavailable": {
+      "description": "{name} needs an app token configured on this instance before it can be connected."
     }
   },
   "errors": {

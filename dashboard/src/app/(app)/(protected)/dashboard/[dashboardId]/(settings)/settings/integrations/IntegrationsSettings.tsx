@@ -59,11 +59,6 @@ export default function IntegrationsSettings({
     [t],
   );
 
-  const availableIntegrations = useMemo(
-    () => allIntegrations.filter((def) => initialTypes.includes(def.type)),
-    [allIntegrations, initialTypes],
-  );
-
   const handleSave = (type: IntegrationType, config: IntegrationConfigInput) => {
     startTransition(async () => {
       try {
@@ -137,13 +132,14 @@ export default function IntegrationsSettings({
       )}
 
       <div className='space-y-3'>
-        {availableIntegrations.map((def) => (
+        {allIntegrations.map((def) => (
           <IntegrationCard
             key={def.type}
             iconSrc={def.iconSrc}
             name={def.name}
             description={def.description}
             integration={integrations[def.type]}
+            unavailable={!initialTypes.includes(def.type)}
             isPending={isPending}
             onConfigure={() => setConfigDialogType(def.type)}
             onDisconnect={() => setDisconnectType(def.type)}

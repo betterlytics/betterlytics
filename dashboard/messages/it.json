@@ -3832,7 +3832,8 @@
     },
     "status": {
       "connected": "Connesso",
-      "disabled": "Disabilitato"
+      "disabled": "Disabilitato",
+      "unavailable": "Non disponibile su questa istanza"
     },
     "actions": {
       "configure": "Configura",
@@ -3922,6 +3923,9 @@
       "invalidSlackWebhook": "Webhook URL Slack non valido",
       "invalidTeamsWebhook": "Webhook URL Teams non valido",
       "invalidWebhookUrl": "Webhook URL non valido"
+    },
+    "unavailable": {
+      "description": "{name} richiede un token app configurato su questa istanza prima di poter essere collegato."
     }
   },
   "errors": {
