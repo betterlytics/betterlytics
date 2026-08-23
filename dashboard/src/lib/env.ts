@@ -92,6 +92,17 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
       path: ['STATUS_PAGE_ASK_SECRET'],
     });
   }
+
+  // Emails, data retention purges and scheduled reports are all worker jobs, so disabling
+  // background jobs outside development makes those features fail silently.
+  if (!env.IS_DEVELOPMENT && !env.BACKGROUND_JOBS_ENABLED) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message:
+        'BACKGROUND_JOBS_ENABLED=false is only supported in development. Emails, data retention and scheduled reports all run as background jobs, so set BACKGROUND_JOBS_ENABLED=true.',
+      path: ['BACKGROUND_JOBS_ENABLED'],
+    });
+  }
 });
 
 if (!process.env.AUTH_SECRET && process.env.NEXTAUTH_SECRET) {
