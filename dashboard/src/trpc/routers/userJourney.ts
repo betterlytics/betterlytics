@@ -15,7 +15,7 @@ export const userJourneyRouter = createRouter({
         search: z.string().trim().max(128).optional(),
         limit: z.number().int().min(1).max(5000).optional().default(200),
         slot: z.number().int().min(0).max(USER_JOURNEY_MAX_STEPS - 1),
-        stepFilters: z.record(z.string(), ScopeFilterSchema.array().max(MAX_FILTER_ROWS)),
+        stepFilters: z.record(z.string().regex(/^\d+$/), ScopeFilterSchema.array().max(MAX_FILTER_ROWS)),
       }),
     )
     .query(async ({ ctx, input }) => {

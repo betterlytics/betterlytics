@@ -288,11 +288,19 @@ describe('journey suggestion queries', () => {
     expect(query.taggedSql).not.toContain('event_candidates');
   });
 
+  it('strips infeasible filters from the wire map server-side', () => {
+    const query = suggest('url', 1, { '0': [filter('device_type', ['Mobile'])] });
+    expect(Object.keys(query.taggedParams).some((key) => key.startsWith('pos_filter_'))).toBe(false);
+    expect(Object.keys(query.taggedParams).some((key) => key.startsWith('query_filter_'))).toBe(false);
+    expect(query.taggedSql).not.toContain('device_type');
+  });
+
   it('selects distinct positional urls with reach at the suggested column', () => {
     const query = suggest('url', 2);
     expect(query.taggedSql).toContain('SELECT DISTINCT path[3] AS value');
     expect(query.taggedSql).toContain('length(path) >= 3');
     expect(query.taggedSql).toContain('LIMIT {limit:UInt32}');
+    expect(query.taggedSql.match(/session_id,/g)).toHaveLength(1);
   });
 
   it('scopes by earlier-step gates and drops forward slots', () => {
@@ -315,6 +323,7 @@ describe('journey suggestion queries', () => {
     const query = suggest('referrer_source', 0);
     expect(query.taggedSql).toContain('argMin(referrer_source_effective, timestamp) AS entry_value');
     expect(query.taggedSql).toContain('SELECT DISTINCT entry_value AS value');
+    expect(query.taggedSql.match(/session_id,/g)).toHaveLength(1);
   });
 
   it('scopes entry suggestions by same-slot entry siblings via HAVING', () => {
@@ -330,7 +339,7 @@ describe('journey suggestion queries', () => {
     expect(query.taggedSql).toContain('click_ts > last_pageview_ts');
     expect(query.taggedSql).not.toContain('exit_clicks');
     expect(Object.keys(query.taggedParams).some((key) => key.startsWith('exit_filter_'))).toBe(false);
-    expect(query.taggedSql).toContain('session_id,');
+    expect(query.taggedSql.match(/session_id,/g)).toHaveLength(3);
   });
 
   it('still gates by a sibling exit filter while keeping candidates unfiltered', () => {
@@ -345,7 +354,7 @@ describe('journey suggestion queries', () => {
     expect(query.taggedSql).toContain('event_candidates');
     expect(query.taggedSql).toContain('evt_ts >= full_ts[2] AND (2 = length(full_ts) OR evt_ts < full_ts[3])');
     expect(query.taggedSql).toContain('SELECT DISTINCT evt_value AS value');
-    expect(query.taggedSql).toContain('session_id,');
+    expect(query.taggedSql.match(/session_id,/g)).toHaveLength(3);
   });
 
   it('omits the lower window bound at slot 0', () => {

@@ -184,7 +184,10 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     safeSql`(length(path) >= ${SQL.Unsafe(String(column))} AND (${SQL.AND(gates.get(column)!)}))`,
   );
 
-  const sessionIdColumn = carry.sessionId ? safeSql`session_id,\n        ` : safeSql``;
+  const sessionIdColumn = carry.sessionId
+    ? safeSql`session_id,
+        `
+    : safeSql``;
 
   const prefix = safeSql`
     WITH ordered_events AS (
@@ -345,7 +348,11 @@ export function buildJourneySuggestionQuery(args: JourneySuggestionArgs) {
   }
 
   const sameSlotPositives = (scoped[String(slot)] ?? []).filter(
-    (stepFilter) => stepFilter.operator === '=' && classifyStepFilter(stepFilter.column, slot, lastSlot) === 'stepEvent',
+    (stepFilter) =>
+      isUsableFilter(stepFilter) &&
+      stepFilter.values.length > 0 &&
+      stepFilter.operator === '=' &&
+      classifyStepFilter(stepFilter.column, slot, lastSlot) === 'stepEvent',
   );
   let candidateParamIndex = stepEventParamNext;
   const candidateRowFilter =
