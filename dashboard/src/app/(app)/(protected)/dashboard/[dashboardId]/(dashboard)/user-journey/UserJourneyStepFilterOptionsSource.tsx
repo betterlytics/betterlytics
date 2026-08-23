@@ -8,8 +8,10 @@ import {
   type FilterOptionsSource,
 } from '@/components/filters/FilterOptionsSourceProvider';
 import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvider';
-import { useAllowedStepFilters } from '@/hooks/use-is-filter-column-allowed';
+import { useAllowedStepFilters, usePropertySourceStatus } from '@/hooks/use-is-filter-column-allowed';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useBAQueryParams } from '@/trpc/hooks';
+import { useQueryState } from '@/hooks/use-query-state';
 import { isUsableFilter, type QueryFilter, type ScopeFilter } from '@/entities/analytics/filter.entities';
 import { classifyStepFilter } from '@/entities/analytics/stepFilters.entities';
 
@@ -32,21 +34,11 @@ const scopes = (filter: QueryFilter, slot: number, lastSlot: number): boolean =>
 
 const toScopeFilter = ({ column, operator, values }: QueryFilter): ScopeFilter => ({ column, operator, values });
 
-const useJourneyFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery'] = ({
-  query,
-  column,
-  search,
-  limit,
-  enabled,
-}) => {
-  const slot = useStepScope();
-  const dashboardId = useDashboardId();
-  const t = useTranslations('components.userJourney');
+const useWireStepFilters = (slot: number): Record<string, ScopeFilter[]> => {
   const { stepFilters, numberOfSteps } = useUserJourneyFilter();
   const allowedStepFilters = useAllowedStepFilters(stepFilters, numberOfSteps);
   const lastSlot = numberOfSteps - 1;
-
-  const wireStepFilters = useMemo(() => {
+  return useMemo(() => {
     const entries: Array<[string, ScopeFilter[]]> = [];
     for (const [stepSlot, slotFilters] of Object.entries(allowedStepFilters)) {
       if (Number(stepSlot) >= slot) continue;
@@ -57,6 +49,19 @@ const useJourneyFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery']
     }
     return Object.fromEntries(entries);
   }, [allowedStepFilters, slot, lastSlot]);
+};
+
+const useJourneyFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery'] = ({
+  query,
+  column,
+  search,
+  limit,
+  enabled,
+}) => {
+  const slot = useStepScope();
+  const dashboardId = useDashboardId();
+  const t = useTranslations('components.userJourney');
+  const wireStepFilters = useWireStepFilters(slot);
 
   const hasScopingFilters = Object.keys(wireStepFilters).length > 0;
 
@@ -76,8 +81,31 @@ const useJourneyFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery']
   return { options: data, isLoading, emptyIndicator, scopeKey };
 };
 
+const useJourneyPropertyKeysQuery: FilterOptionsSource['usePropertyKeysQuery'] = () => {
+  const slot = useStepScope();
+  const { input, options } = useBAQueryParams();
+  const getSourceStatus = usePropertySourceStatus();
+  const cepEnabled = !getSourceStatus('cep').disabled;
+  const wireStepFilters = useWireStepFilters(slot);
+
+  const cepQuery = trpc.userJourney.stepPropertyKeys.useQuery(
+    { ...input, slot, stepFilters: wireStepFilters },
+    { ...options, enabled: cepEnabled },
+  );
+  const cep = useQueryState(cepQuery, cepEnabled);
+
+  return useMemo(
+    () => ({
+      gp: undefined,
+      cep: !cepEnabled || cep.loading ? undefined : (cep.data ?? []),
+    }),
+    [cepEnabled, cep.loading, cep.data],
+  );
+};
+
 const JOURNEY_FILTER_OPTIONS_SOURCE: FilterOptionsSource = {
   useFilterOptionsQuery: useJourneyFilterOptionsQuery,
+  usePropertyKeysQuery: useJourneyPropertyKeysQuery,
 };
 
 export function UserJourneyStepFilterOptionsProvider({ slot, children }: { slot: number; children: ReactNode }) {
