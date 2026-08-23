@@ -32,6 +32,7 @@ type QueryFiltersSelectorContentProps = {
   onCancel: () => void;
   onLoadSavedFilter?: (filters: QueryFilter[]) => void;
   propertyKeys?: PropertyKeysBySource;
+  showSavedFilters?: boolean;
 };
 
 export function QueryFiltersSelectorContent({
@@ -43,6 +44,7 @@ export function QueryFiltersSelectorContent({
   onCancel,
   onLoadSavedFilter,
   propertyKeys,
+  showSavedFilters = true,
 }: QueryFiltersSelectorContentProps) {
   const t = useTranslations('components.filters');
   const getColumnStatus = useFilterColumnStatus();
@@ -127,25 +129,27 @@ export function QueryFiltersSelectorContent({
         )}
       </DisabledTooltip>
       <div className='flex w-full justify-between gap-2 md:w-auto md:justify-end md:gap-2'>
-        <PermissionGate>
-          {(disabled) => (
-            <DisabledTooltip
-              disabled={Boolean(!disabled && isSavedFiltersLimitReached)}
-              message={t('selector.savedFiltersLimitReached')}
-            >
-              {(isLimitDisabled) => (
-                <Button
-                  className='h-8 cursor-pointer'
-                  variant='ghost'
-                  onClick={() => setIsSaveDialogOpen(true)}
-                  disabled={disabled || !hasValidFilters || isLimitDisabled}
-                >
-                  <SaveIcon className='h-4 w-4' />
-                </Button>
-              )}
-            </DisabledTooltip>
-          )}
-        </PermissionGate>
+        {showSavedFilters && (
+          <PermissionGate>
+            {(disabled) => (
+              <DisabledTooltip
+                disabled={Boolean(!disabled && isSavedFiltersLimitReached)}
+                message={t('selector.savedFiltersLimitReached')}
+              >
+                {(isLimitDisabled) => (
+                  <Button
+                    className='h-8 cursor-pointer'
+                    variant='ghost'
+                    onClick={() => setIsSaveDialogOpen(true)}
+                    disabled={disabled || !hasValidFilters || isLimitDisabled}
+                  >
+                    <SaveIcon className='h-4 w-4' />
+                  </Button>
+                )}
+              </DisabledTooltip>
+            )}
+          </PermissionGate>
+        )}
         <Button
           className='h-8 w-[48%] max-w-[110px] cursor-pointer md:w-auto'
           disabled={!canApply}
@@ -202,14 +206,18 @@ export function QueryFiltersSelectorContent({
         </ScrollArea>
         <Separator />
         {ActionsRow}
-        <SavedFiltersSection
-          onLoadFilter={handleLoadSavedFilter}
-          isOpen={isSavedFiltersOpen}
-          onOpenChange={setIsSavedFiltersOpen}
-        />
+        {showSavedFilters && (
+          <SavedFiltersSection
+            onLoadFilter={handleLoadSavedFilter}
+            isOpen={isSavedFiltersOpen}
+            onOpenChange={setIsSavedFiltersOpen}
+          />
+        )}
       </div>
 
-      <SaveQueryFilterDialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen} filters={queryFilters} />
+      {showSavedFilters && (
+        <SaveQueryFilterDialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen} filters={queryFilters} />
+      )}
     </>
   );
 }

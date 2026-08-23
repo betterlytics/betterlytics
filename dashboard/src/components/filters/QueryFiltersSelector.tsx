@@ -1,77 +1,34 @@
 'use client';
 
-import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState, type AnimationEvent } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
-import { useQueryFilters } from '@/hooks/use-query-filters';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
-import { type QueryFilter, type TableFilterColumn } from '@/entities/analytics/filter.entities';
-import { generateTempId } from '@/utils/temporaryId';
+import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { baEvent } from '@/lib/ba-event';
-import { usePropertyKeys } from '@/hooks/use-property-keys';
-import { useAllowedQueryFilters, useDefaultFilterColumn } from '@/hooks/use-is-filter-column-allowed';
-import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
+import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
+import { QueryFiltersOverlay } from '@/components/filters/QueryFiltersOverlay';
 import { FilterCountBadge } from '@/components/filters/FilterCountBadge';
 
-const initOrDefault = (filters: QueryFilter[], defaultColumn: TableFilterColumn): QueryFilter[] =>
-  filters.length > 0
-    ? filters
-    : [{ id: generateTempId(), column: defaultColumn, operator: '=', values: [] }];
-
-type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'>;
-
-export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
-  const isMobile = useIsMobile();
+export default function QueryFiltersSelector() {
   const t = useTranslations('components.filters');
-  const propertyKeys = usePropertyKeys();
-  const defaultColumn = useDefaultFilterColumn();
-
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
-  const filters = useQueryFilters(initOrDefault(contextQueryFilters, defaultColumn));
   const nonEmptyFilters = useMemo(() => filterEmptyQueryFilters(contextQueryFilters), [contextQueryFilters]);
-
-  useEffect(() => {
-    filters.setQueryFilters(initOrDefault(contextQueryFilters, defaultColumn));
-  }, [contextQueryFilters, defaultColumn]);
 
   const applyFilters = useCallback(
     (filters: QueryFilter[]) => {
       baEvent('query-filter-applied');
       setQueryFilters(filters);
-      setIsPopoverOpen(false);
     },
     [setQueryFilters],
-  );
-
-  const pendingCancelReset = useRef(false);
-
-  const cancelFilters = useCallback(() => {
-    pendingCancelReset.current = true;
-    setIsPopoverOpen(false);
-  }, []);
-
-  const handleContentAnimationEnd = useCallback(
-    (e: AnimationEvent<HTMLDivElement>) => {
-      if (!pendingCancelReset.current) return;
-      if (e.currentTarget.dataset.state !== 'closed') return;
-      pendingCancelReset.current = false;
-      filters.setQueryFilters(initOrDefault(contextQueryFilters, defaultColumn));
-    },
-    [filters, contextQueryFilters, defaultColumn],
   );
 
   const handleLoadSavedFilter = useCallback(
     (filters: QueryFilter[]) => {
       baEvent('saved-query-filter-applied');
       setQueryFilters(filters);
-      setIsPopoverOpen(false);
     },
     [setQueryFilters],
   );
@@ -95,52 +52,13 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     </Button>
   );
 
-  if (isMobile) {
-    return (
-      <Dialog open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-        <DialogTrigger asChild>{trigger}</DialogTrigger>
-        <DialogContent
-          aria-describedby={undefined}
-          className='bg-popover max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto px-2 py-3'
-          onAnimationEnd={handleContentAnimationEnd}
-        >
-          <DialogHeader>
-            <DialogTitle>{t('selector.title')}</DialogTitle>
-          </DialogHeader>
-          <QueryFiltersSelectorContent
-            initialFilters={contextQueryFilters}
-            filters={filters}
-            isSavedFiltersOpen={isSavedFiltersOpen}
-            setIsSavedFiltersOpen={setIsSavedFiltersOpen}
-            onApply={applyFilters}
-            onCancel={cancelFilters}
-            onLoadSavedFilter={handleLoadSavedFilter}
-            propertyKeys={propertyKeys}
-          />
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
   return (
-    <Popover {...props} open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-      <PopoverContent
-        className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl'
-        align='start'
-        onAnimationEnd={handleContentAnimationEnd}
-      >
-        <QueryFiltersSelectorContent
-          initialFilters={contextQueryFilters}
-          filters={filters}
-          isSavedFiltersOpen={isSavedFiltersOpen}
-          setIsSavedFiltersOpen={setIsSavedFiltersOpen}
-          onApply={applyFilters}
-          onCancel={cancelFilters}
-          onLoadSavedFilter={handleLoadSavedFilter}
-          propertyKeys={propertyKeys}
-        />
-      </PopoverContent>
-    </Popover>
+    <QueryFiltersOverlay
+      committedFilters={contextQueryFilters}
+      onApply={applyFilters}
+      trigger={trigger}
+      title={t('selector.title')}
+      onLoadSavedFilter={handleLoadSavedFilter}
+    />
   );
 }
