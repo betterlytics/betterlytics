@@ -3,12 +3,13 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { UserJourneyFilters } from './UserJourneyFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { QueryFilterColumnsVisibilityProvider } from '@/contexts/QueryFilterColumnsVisibilityProvider';
+import { ENTRY_FILTER_COLUMNS } from '@/entities/analytics/stepFilters.entities';
 import { getTranslations } from 'next-intl/server';
 
 export default async function UserJourneyPage() {
   const t = await getTranslations('dashboard.sidebar');
   return (
-    <QueryFilterColumnsVisibilityProvider exclude={['outbound_link_url', 'custom_event_name', 'cep']}>
+    <QueryFilterColumnsVisibilityProvider exclude={['outbound_link_url', 'custom_event_name', 'cep', 'url', ...ENTRY_FILTER_COLUMNS]}>
       <div className='container flex flex-col space-y-3 overflow-y-auto p-2 pt-4 pb-0 sm:p-6'>
         <DashboardHeader title={t('userJourney')}>
           <DashboardFilters showComparison={false}>
