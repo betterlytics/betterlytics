@@ -205,3 +205,30 @@ describe('buildExitPredicate', () => {
   });
 });
 
+describe('buildStepEventRowPredicate', () => {
+  it('compiles an event name match with namespaced params', () => {
+    const sql = BAQuery.buildStepEventRowPredicate(makeFilter('custom_event_name', '=', ['signup']), 0);
+    expect(sql.taggedSql).toContain('custom_event_name');
+    expect(sql.taggedSql).toContain('ILIKE');
+    expect(sql.taggedParams).toEqual({ stepevt_filter_0: ['signup'] });
+  });
+
+  it('compiles the positive form even for != filters', () => {
+    const sql = BAQuery.buildStepEventRowPredicate(makeFilter('custom_event_name', '!=', ['signup']), 1);
+    expect(sql.taggedSql).not.toContain('NOT ILIKE');
+    expect(sql.taggedParams).toEqual({ stepevt_filter_1: ['signup'] });
+  });
+
+  it('compiles cep filters against the json blob with a namespaced key', () => {
+    const sql = BAQuery.buildStepEventRowPredicate(makeFilter('cep.plan', '=', ['pro']), 2);
+    expect(sql.taggedSql).toContain('JSONExtractString');
+    expect(Object.keys(sql.taggedParams)).toContain('stepevt_filter_2');
+    expect(Object.keys(sql.taggedParams)).toContain('stepevt_cep_key_2');
+  });
+
+  it('compiles a bare wildcard name to a presence check', () => {
+    const sql = BAQuery.buildStepEventRowPredicate(makeFilter('custom_event_name', '=', ['*']), 0);
+    expect(sql.taggedSql).toBe(`custom_event_name != ''`);
+  });
+});
+

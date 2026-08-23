@@ -116,6 +116,33 @@ function buildExitPredicate(filter: ScopeFilter, index: number) {
   );
 }
 
+function buildStepEventRowPredicate(filter: ScopeFilter, index: number) {
+  const positive = TransformQueryFilterSchema.parse({ ...filter, operator: '=' });
+  const parsedColumn = parseFilterColumn(positive.column);
+  const values = SQL.StringArray({ [`stepevt_filter_${index}`]: positive.values });
+  if (parsedColumn.kind === 'property') {
+    if (parsedColumn.source !== 'cep') {
+      throw new Error(`Step event predicate requires custom_event_name or cep: ${positive.column}`);
+    }
+    const keySql = SQL.String({ [`stepevt_cep_key_${index}`]: parsedColumn.key });
+    return buildPropertyFilterSql(parsedColumn.source, {
+      keySql,
+      valuesSql: values,
+      values: positive.values,
+      operator: positive.operator,
+      rawOperator: positive.rawOperator,
+    });
+  }
+  if (parsedColumn.col !== 'custom_event_name') {
+    throw new Error(`Step event predicate requires custom_event_name or cep: ${positive.column}`);
+  }
+  const column = filterColumnSql(parsedColumn.col);
+  return (
+    matchAnyValueFilterSql(positive.values, '=', column, parsedColumn.col) ??
+    safeSql`${positive.operator.quantifier}(pattern -> ${column} ${positive.operator.operater} pattern, ${values})`
+  );
+}
+
 // Utility for granularity
 const GranularityIntervalSchema = z.enum([
   '1 MONTH',
@@ -219,4 +246,5 @@ export const BAQuery = {
   buildPositionalUrlPredicate,
   buildEntryPredicate,
   buildExitPredicate,
+  buildStepEventRowPredicate,
 };
