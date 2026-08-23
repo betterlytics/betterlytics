@@ -47,6 +47,7 @@ pub struct Config {
     pub enable_monitoring: bool,
     pub enable_uptime_monitoring: bool,
     pub monitor_database_url: Option<String>,
+    pub job_queue_database_url: Option<String>,
     pub monitor_clickhouse_table: String,
     pub monitor_incidents_table: String,
     // Session replay configuration
@@ -68,10 +69,10 @@ pub struct Config {
     pub salts_database_url: String,
     // Development mode - allows localhost monitoring targets
     pub is_development: bool,
-    // Public-facing base URL (used for dashboard links in emails, etc.)
+    // Email sending configuration
+    pub enable_emails: bool,
+    // Public-facing base URL (used for dashboard links in push notifications)
     pub public_base_url: String,
-    // Email configuration (None = email disabled)
-    pub email: Option<EmailConfig>,
     // Integration config encryption key (32 bytes)
     pub integration_encryption_key: Option<[u8; 32]>,
     // Pushover integration
@@ -166,6 +167,9 @@ impl Config {
             monitor_database_url: env::var("MONITORING_DATABASE_URL")
                 .ok()
                 .filter(|url| !url.trim().is_empty()),
+            job_queue_database_url: env::var("JOB_QUEUE_DATABASE_URL")
+                .ok()
+                .filter(|url| !url.trim().is_empty()),
             monitor_clickhouse_table: env::var("CLICKHOUSE_MONITOR_TABLE")
                 .unwrap_or_else(|_| "analytics.monitor_results".to_string()),
             monitor_incidents_table: env::var("CLICKHOUSE_INCIDENT_TABLE")
@@ -194,11 +198,12 @@ impl Config {
             is_development: env::var("IS_DEVELOPMENT")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
-            // Public-facing base URL for dashboard links in emails, etc
+            enable_emails: env::var("ENABLE_EMAILS")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
+            // Public-facing base URL for dashboard links in push notifications
             public_base_url: env::var("PUBLIC_BASE_URL")
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
-            // Email configuration (None = email disabled)
-            email: EmailConfig::from_env(),
             // Integration config encryption key
             integration_encryption_key: env::var("INTEGRATION_ENCRYPTION_KEY").ok().map(|key| {
                 let bytes = key.as_bytes();
@@ -214,38 +219,5 @@ impl Config {
             // Pushover integration
             pushover_app_token: env::var("PUSHOVER_APP_TOKEN").ok(),
         }
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct EmailConfig {
-    pub api_key: String,
-    pub from_email: String,
-    pub from_name: String,
-    pub is_development: bool,
-}
-
-impl EmailConfig {
-    pub fn from_env() -> Option<Self> {
-        let email_enabled = env::var("ENABLE_EMAILS")
-            .map(|val| val.to_lowercase() == "true")
-            .unwrap_or(false);
-
-        if !email_enabled {
-            return None;
-        }
-
-        let api_key = env::var("MAILER_SEND_API_TOKEN").ok()?;
-
-        Some(Self {
-            api_key,
-            from_email: env::var("ALERT_FROM_EMAIL")
-                .unwrap_or_else(|_| "alerts@betterlytics.io".to_string()),
-            from_name: env::var("ALERT_FROM_NAME")
-                .unwrap_or_else(|_| "Betterlytics Alerts".to_string()),
-            is_development: env::var("IS_DEVELOPMENT")
-                .map(|val| val.to_lowercase() == "true")
-                .unwrap_or(false),
-        })
     }
 }
