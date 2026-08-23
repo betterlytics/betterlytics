@@ -11,6 +11,8 @@ export type EmailTransportConfig = {
   smtpUser?: string;
   smtpPassword?: string;
   smtpFrom?: string;
+  /** Per-email-type sender; `email` wins over smtpFrom, the name over the Betterlytics default. */
+  defaultSender?: { email?: string; name: string };
 };
 
 const DEFAULT_SENDER = {
@@ -20,8 +22,8 @@ const DEFAULT_SENDER = {
 
 function getSenderInfo(config: EmailTransportConfig, data: EmailData) {
   return {
-    email: data.from ?? config.smtpFrom ?? DEFAULT_SENDER.email,
-    name: data.fromName ?? DEFAULT_SENDER.name,
+    email: data.from ?? config.defaultSender?.email ?? config.smtpFrom ?? DEFAULT_SENDER.email,
+    name: data.fromName ?? config.defaultSender?.name ?? DEFAULT_SENDER.name,
   };
 }
 

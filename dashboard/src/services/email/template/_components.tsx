@@ -31,6 +31,13 @@ export async function renderEmailTemplate<P extends object>(
   return { subject, html, text };
 }
 
+const SUBJECT_TEXT_MAX_LEN = 60;
+
+/** For user-supplied text interpolated into a subject: strips control characters and bounds the length. */
+export function subjectText(value: string, maxLength = SUBJECT_TEXT_MAX_LEN): string {
+  return Array.from(value.replace(/\p{Cc}/gu, '')).slice(0, maxLength).join('');
+}
+
 /**
  * Append UTM parameters to an outbound email link so clicks are attributable
  * to the email in our analytics. mailto: links and unparseable URLs pass through.
