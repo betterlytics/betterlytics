@@ -4,6 +4,7 @@ import { useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { useQueryFilterColumnsVisibility } from '@/contexts/QueryFilterColumnsVisibilityProvider';
+import { FILTER_COLUMN_SELECT_OPTIONS } from '@/components/filters/filterColumnOptions';
 import {
   parseFilterColumn,
   type FilterColumn,
@@ -90,6 +91,15 @@ export function useFilterColumnDisabledMessage() {
 export function useIsFilterColumnAllowed() {
   const getStatus = useFilterColumnStatus();
   return useCallback((column: FilterColumn): boolean => !getStatus(column).disabled, [getStatus]);
+}
+
+/** The default column for a new primary-filter row: the first the current page allows, or 'url'. */
+export function useDefaultFilterColumn(): TableFilterColumn {
+  const getStatus = useFilterColumnStatus();
+  return useMemo(() => {
+    const firstAllowed = FILTER_COLUMN_SELECT_OPTIONS.find((option) => !getStatus(option.value).disabled);
+    return firstAllowed?.value ?? 'url';
+  }, [getStatus]);
 }
 
 /** Filters a list of query filters down to those allowed on the current page. */

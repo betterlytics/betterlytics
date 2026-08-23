@@ -10,17 +10,17 @@ import { useQueryFilters } from '@/hooks/use-query-filters';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
-import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { type QueryFilter, type TableFilterColumn } from '@/entities/analytics/filter.entities';
 import { generateTempId } from '@/utils/temporaryId';
 import { baEvent } from '@/lib/ba-event';
 import { usePropertyKeys } from '@/hooks/use-property-keys';
-import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
+import { useAllowedQueryFilters, useDefaultFilterColumn } from '@/hooks/use-is-filter-column-allowed';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
-const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
+const initOrDefault = (filters: QueryFilter[], defaultColumn: TableFilterColumn): QueryFilter[] =>
   filters.length > 0
     ? filters
-    : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }];
+    : [{ id: generateTempId(), column: defaultColumn, operator: '=', values: [] }];
 
 type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'>;
 
@@ -30,14 +30,15 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
   const propertyKeys = usePropertyKeys();
+  const defaultColumn = useDefaultFilterColumn();
 
   const { queryFilters: contextQueryFilters, setQueryFilters } = useQueryFiltersContext();
-  const filters = useQueryFilters(initOrDefault(contextQueryFilters));
+  const filters = useQueryFilters(initOrDefault(contextQueryFilters, defaultColumn));
   const nonEmptyFilters = useMemo(() => filterEmptyQueryFilters(contextQueryFilters), [contextQueryFilters]);
 
   useEffect(() => {
-    filters.setQueryFilters(initOrDefault(contextQueryFilters));
-  }, [contextQueryFilters]);
+    filters.setQueryFilters(initOrDefault(contextQueryFilters, defaultColumn));
+  }, [contextQueryFilters, defaultColumn]);
 
   const applyFilters = useCallback(
     (filters: QueryFilter[]) => {
@@ -60,9 +61,9 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
       if (!pendingCancelReset.current) return;
       if (e.currentTarget.dataset.state !== 'closed') return;
       pendingCancelReset.current = false;
-      filters.setQueryFilters(initOrDefault(contextQueryFilters));
+      filters.setQueryFilters(initOrDefault(contextQueryFilters, defaultColumn));
     },
-    [filters, contextQueryFilters],
+    [filters, contextQueryFilters, defaultColumn],
   );
 
   const handleLoadSavedFilter = useCallback(

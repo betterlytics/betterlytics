@@ -5,7 +5,11 @@ import { SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
 import { useQueryFilters } from '@/hooks/use-query-filters';
-import { useFilterColumnStatus, useFilterColumnDisabledMessage } from '@/hooks/use-is-filter-column-allowed';
+import {
+  useFilterColumnStatus,
+  useFilterColumnDisabledMessage,
+  useDefaultFilterColumn,
+} from '@/hooks/use-is-filter-column-allowed';
 import { Separator } from '@/components/ui/separator';
 import { filterEmptyQueryFilters, isQueryFiltersEqual } from '@/utils/queryFilters';
 import { useTranslations } from 'next-intl';
@@ -43,21 +47,22 @@ export function QueryFiltersSelectorContent({
   const t = useTranslations('components.filters');
   const getColumnStatus = useFilterColumnStatus();
   const getDisabledMessage = useFilterColumnDisabledMessage();
+  const defaultColumn = useDefaultFilterColumn();
   const [isSaveDialogOpen, setIsSaveDialogOpen] = useState(false);
 
-  const { queryFilters, addEmptyQueryFilter, removeQueryFilter, updateQueryFilter } = filters;
+  const { queryFilters, addQueryFilter, removeQueryFilter, updateQueryFilter } = filters;
 
   const filtersListRef = useRef<HTMLDivElement>(null);
 
   const handleAddFilter = useCallback(() => {
-    addEmptyQueryFilter();
+    addQueryFilter({ column: defaultColumn, operator: '=', values: [] });
     requestAnimationFrame(() => {
       const rows = filtersListRef.current?.children;
       const newRow = rows?.[rows.length - 1];
       const trigger = newRow?.querySelector<HTMLButtonElement>('[data-slot="dropdown-menu-trigger"]');
       trigger?.focus({ focusVisible: true } as FocusOptions);
     });
-  }, [addEmptyQueryFilter]);
+  }, [addQueryFilter, defaultColumn]);
 
   const applyFilters = useCallback(() => {
     onApply(filterEmptyQueryFilters(queryFilters));
@@ -73,12 +78,12 @@ export function QueryFiltersSelectorContent({
   const requestFilterRemoval = useCallback(
     (id: QueryFilter['id']) => {
       if (queryFilters.length <= 1) {
-        updateQueryFilter({ id, column: 'url', operator: '=', values: [] });
+        updateQueryFilter({ id, column: defaultColumn, operator: '=', values: [] });
       } else {
         removeQueryFilter(id);
       }
     },
-    [queryFilters.length, updateQueryFilter, removeQueryFilter],
+    [queryFilters.length, updateQueryFilter, removeQueryFilter, defaultColumn],
   );
 
   const isFiltersModified = useMemo(() => {
