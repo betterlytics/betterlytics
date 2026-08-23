@@ -2,7 +2,11 @@ import { z } from 'zod';
 import { analyticsProcedure, createRouter } from '@/trpc/init';
 import { FilterColumnSchema, MAX_FILTER_ROWS, ScopeFilterSchema } from '@/entities/analytics/filter.entities';
 import { USER_JOURNEY_MAX_STEPS } from '@/entities/analytics/analyticsQuery.entities';
-import { getJourneyStepFilterOptions, getUserJourneyForSankeyDiagram } from '@/services/analytics/userJourney.service';
+import {
+  getAvailableJourneyStepPropertyKeys,
+  getJourneyStepFilterOptions,
+  getUserJourneyForSankeyDiagram,
+} from '@/services/analytics/userJourney.service';
 
 export const userJourneyRouter = createRouter({
   journey: analyticsProcedure.query(async ({ ctx }) => {
@@ -20,5 +24,17 @@ export const userJourneyRouter = createRouter({
     )
     .query(async ({ ctx, input }) => {
       return getJourneyStepFilterOptions(ctx.main, input);
+    }),
+  stepPropertyKeys: analyticsProcedure
+    .input(
+      z.object({
+        search: z.string().trim().max(128).optional(),
+        limit: z.number().int().min(1).max(100).optional().default(50),
+        slot: z.number().int().min(0).max(USER_JOURNEY_MAX_STEPS - 1),
+        stepFilters: z.record(z.string().regex(/^\d+$/), ScopeFilterSchema.array().max(MAX_FILTER_ROWS)),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      return getAvailableJourneyStepPropertyKeys(ctx.main, input);
     }),
 });

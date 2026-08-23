@@ -402,6 +402,88 @@ export async function getJourneyStepFilterValues(
   return rows.map((row) => row.value);
 }
 
+export type JourneyPropertyKeysArgs = {
+  queryFilters: QueryFilter[];
+  stepFilters: Record<string, ScopeFilter[]>;
+  numberOfSteps: number;
+  sample: SQLTaggedExpression;
+  slot: number;
+  search?: string;
+};
+
+export function buildJourneyPropertyKeysQuery(args: JourneyPropertyKeysArgs) {
+  const { queryFilters, numberOfSteps, sample, slot, search } = args;
+  const lastSlot = numberOfSteps - 1;
+  if (!Number.isInteger(slot) || slot < 0 || slot > lastSlot) {
+    throw new Error(`Invalid suggestion slot: ${slot}`);
+  }
+  const scoped = stripInfeasibleStepFilters(pruneStepFilters(args.stepFilters, slot - 1), lastSlot);
+  const { prefix, gateExprs } = buildJourneyPipeline({
+    queryFilters,
+    stepFilters: scoped,
+    numberOfSteps,
+    sample,
+    carry: { fullTs: true, sessionId: true },
+  });
+  const gateWhere = gateExprs.reduce((acc, gate) => safeSql`${acc} AND ${gate}`, safeSql``);
+  const searchClause = search?.trim()
+    ? safeSql`HAVING key ILIKE ${SQL.String({ suggest_search: `%${search.trim()}%` })}`
+    : safeSql``;
+  const c = SQL.Unsafe(String(slot + 1));
+  const next = SQL.Unsafe(String(slot + 2));
+  const lower = slot === 0 ? safeSql`` : safeSql`evt_ts >= full_ts[${c}] AND `;
+  return safeSql`${prefix},
+    event_candidates AS (
+      SELECT session_id, timestamp AS evt_ts, custom_event_json
+      FROM analytics.events ${sample}
+      WHERE
+        site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND event_type = 'custom'
+        AND custom_event_json != '{}'
+    )
+    SELECT arrayJoin(JSONExtractKeys(custom_event_json)) AS key
+    FROM session_paths INNER JOIN event_candidates USING (session_id)
+    WHERE length(path) > 1 AND length(path) >= ${c} AND ${lower}(${c} = length(full_ts) OR evt_ts < full_ts[${next}])${gateWhere}
+    GROUP BY key
+    ${searchClause}
+    ORDER BY key
+    LIMIT {limit:UInt32}
+  `;
+}
+
+export async function getJourneyStepPropertyKeys(
+  siteQuery: BASiteQuery,
+  input: { slot: number; stepFilters: Record<string, ScopeFilter[]>; search?: string; limit: number },
+): Promise<string[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
+
+  const query = buildJourneyPropertyKeysQuery({
+    queryFilters,
+    stepFilters: input.stepFilters,
+    numberOfSteps: siteQuery.userJourney.numberOfSteps,
+    sample,
+    slot: input.slot,
+    search: input.search,
+  });
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start: startDateTime,
+        end: endDateTime,
+        max_length: siteQuery.userJourney.numberOfSteps,
+        limit: input.limit,
+      },
+    })
+    .toPromise()) as Array<{ key: string }>;
+
+  return rows.map((row) => row.key);
+}
+
 /**
  * Gets aggregated link transitions suitable for Sankey without client-side path expansion.
  * Each row represents a transition between consecutive steps (depth preserved).

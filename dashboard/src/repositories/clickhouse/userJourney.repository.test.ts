@@ -15,7 +15,7 @@ vi.mock('@/observability/clickhouse-concurrency', () => ({
 }));
 vi.mock('@/lib/clickhouse', () => ({ clickhouse: {} }));
 
-import { buildJourneyQuery, buildJourneySuggestionQuery } from './userJourney.repository';
+import { buildJourneyPropertyKeysQuery, buildJourneyQuery, buildJourneySuggestionQuery } from './userJourney.repository';
 import { safeSql } from '@/lib/safe-sql';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
 
@@ -387,5 +387,51 @@ describe('journey suggestion queries', () => {
     const query = suggest('url', 1, {}, { search: 'doc' });
     expect(query.taggedSql).toContain('value ILIKE {suggest_search:String}');
     expect(query.taggedParams).toHaveProperty('suggest_search', '%doc%');
+  });
+
+  const suggestKeys = (slot: number, stepFilters: Record<string, QueryFilter[]> = {}, search?: string) =>
+    buildJourneyPropertyKeysQuery({ queryFilters: [], stepFilters, numberOfSteps: 3, sample, slot, search });
+
+  describe('journey property key queries', () => {
+    it('lists keys of custom events inside the step window', () => {
+      const query = suggestKeys(1);
+      expect(query.taggedSql).toContain("custom_event_json != '{}'");
+      expect(query.taggedSql).toContain('arrayJoin(JSONExtractKeys(custom_event_json)) AS key');
+      expect(query.taggedSql).toContain('evt_ts >= full_ts[2] AND (2 = length(full_ts) OR evt_ts < full_ts[3])');
+      expect(query.taggedSql).toContain('GROUP BY key');
+      expect(query.taggedSql).toContain('ORDER BY key');
+      expect(query.taggedSql.match(/session_id,/g)).toHaveLength(3);
+    });
+
+    it('omits the lower window bound at slot 0', () => {
+      const query = suggestKeys(0);
+      expect(query.taggedSql).toContain('(1 = length(full_ts) OR evt_ts < full_ts[2])');
+      expect(query.taggedSql).not.toContain('evt_ts >= full_ts[1]');
+    });
+
+    it('gates keys by applied earlier-step filters and drops same-slot and forward entries', () => {
+      const query = suggestKeys(1, {
+        '0': [filter('url', ['/home'])],
+        '1': [filter('custom_event_name', ['signup'])],
+        '2': [filter('url', ['/pricing'])],
+      });
+      expect(Object.keys(query.taggedParams).filter((key) => key.startsWith('pos_filter_'))).toHaveLength(1);
+      expect(Object.keys(query.taggedParams).some((key) => key.startsWith('stepevt_filter_'))).toBe(false);
+    });
+
+    it('searches keys via HAVING', () => {
+      const query = suggestKeys(1, {}, 'pla');
+      expect(query.taggedSql).toContain('HAVING key ILIKE {suggest_search:String}');
+      expect(query.taggedParams).toHaveProperty('suggest_search', '%pla%');
+    });
+
+    it('rejects out-of-bounds slots for key suggestions', () => {
+      expect(() => suggestKeys(5)).toThrow(/Invalid suggestion slot/);
+    });
+
+    it('keeps the chart query untouched by key machinery', () => {
+      const query = build({});
+      expect(query.taggedSql).not.toContain('JSONExtractKeys');
+    });
   });
 });

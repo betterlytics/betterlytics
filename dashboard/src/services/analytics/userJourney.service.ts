@@ -1,7 +1,11 @@
 'server-only';
 
-import { getJourneyStepFilterValues, getUserJourneyTransitions } from '@/repositories/clickhouse/userJourney.repository';
-import { type FilterColumn, type ScopeFilter } from '@/entities/analytics/filter.entities';
+import {
+  getJourneyStepFilterValues,
+  getJourneyStepPropertyKeys,
+  getUserJourneyTransitions,
+} from '@/repositories/clickhouse/userJourney.repository';
+import { type FilterColumn, type ScopeFilter, PROPERTY_KEY_PATTERN } from '@/entities/analytics/filter.entities';
 import { SankeyData, SankeyNode, SankeyLink, JourneyTransition } from '@/entities/analytics/userJourney.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -15,6 +19,14 @@ export async function getJourneyStepFilterOptions(
   input: { column: FilterColumn; slot: number; stepFilters: Record<string, ScopeFilter[]>; search?: string; limit: number },
 ): Promise<string[]> {
   return getJourneyStepFilterValues(siteQuery, { ...input, search: input.search?.trim() });
+}
+
+export async function getAvailableJourneyStepPropertyKeys(
+  siteQuery: BASiteQuery,
+  input: { slot: number; stepFilters: Record<string, ScopeFilter[]>; search?: string; limit: number },
+): Promise<string[]> {
+  const keys = await getJourneyStepPropertyKeys(siteQuery, { ...input, search: input.search?.trim() });
+  return keys.filter((key) => PROPERTY_KEY_PATTERN.test(key));
 }
 
 function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyData {
