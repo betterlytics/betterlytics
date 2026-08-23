@@ -11,7 +11,6 @@ export type EmailTransportConfig = {
   smtpUser?: string;
   smtpPassword?: string;
   smtpFrom?: string;
-  /** Per-email-type sender; `email` wins over smtpFrom, the name over the Betterlytics default. */
   defaultSender?: { email?: string; name: string };
 };
 

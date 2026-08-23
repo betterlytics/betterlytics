@@ -38,14 +38,11 @@ const MONITOR_ALERT_SENDER = { name: 'Betterlytics Alerts', cloudEmail: 'alerts@
 export type EmailTypeDefinition = {
   template: (data: never) => EmailTemplate | Promise<EmailTemplate>;
   saasOnly: boolean;
-  /**
-   * Retry override applied when the dashboard enqueues this type; omitted for types only
-   * because producers may want to set their own policy on the job row.
-   */
+  /** Retry override */
   retry?: { retryLimit: number; retryDelay: number; retryBackoff: boolean };
   /** Runtime validation for payloads produced outside TypeScript (e.g. the Rust backend). */
   schema?: z.ZodType;
-  /** Sender override. `cloudEmail` only applies on cloud so a self-host SMTP_FROM stays authoritative. */
+  /** Sender override */
   sender?: { name: string; cloudEmail?: string };
 };
 
@@ -173,12 +170,6 @@ export type SendEmailPayload = {
   };
 }[EmailType];
 
-/**
- * Envelope every send-email job must satisfy. Types with a `schema` (those a non-TypeScript
- * producer can enqueue) have their `data` validated further; the rest rely on the compile-time
- * contract of `enqueueEmail`. Lives here rather than in `src/entities` because it is derived
- * from `EMAIL_TYPES`.
- */
 export const SendEmailEnvelopeSchema = z.object({
   type: z.enum(EMAIL_TYPE_NAMES),
   recipientKey: z.string().min(1),
@@ -215,7 +206,6 @@ export function sendEmailSingletonKey(payload: Pick<SendEmailPayload, 'campaignK
   return `${payload.campaignKey}:${payload.recipientKey}`;
 }
 
-/** Sender for the transport layer; the `cloudEmail` only applies on cloud so SMTP_FROM stays authoritative off-cloud. */
 export function senderFor(type: EmailType, isCloud: boolean): EmailTransportConfig['defaultSender'] {
   const { sender }: EmailTypeDefinition = EMAIL_TYPES[type];
   if (!sender) return undefined;
