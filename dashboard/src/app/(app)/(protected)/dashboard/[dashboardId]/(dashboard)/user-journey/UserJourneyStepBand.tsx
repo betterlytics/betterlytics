@@ -9,6 +9,7 @@ import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvide
 import { useAllowedStepFilters } from '@/hooks/use-is-filter-column-allowed';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
 import { cn } from '@/lib/utils';
+import { FilterCountBadge } from '@/components/filters/FilterCountBadge';
 import { getStepBandGeometry } from './bandGeometry';
 import { UserJourneyStepFilterPopover } from './UserJourneyStepFilterPopover';
 
@@ -51,11 +52,7 @@ export function UserJourneyStepBand() {
                     </Badge>
                     <FilterIcon className='size-3.5 shrink-0' />
                     <span className='truncate'>{t('filterTrigger')}</span>
-                    {count > 0 && (
-                      <Badge variant='default' className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'>
-                        {count}
-                      </Badge>
-                    )}
+                    <FilterCountBadge count={count} />
                   </span>
                   <ChevronDownIcon className='size-3.5 shrink-0 opacity-50 transition-transform group-data-[state=open]:rotate-180' />
                 </Button>

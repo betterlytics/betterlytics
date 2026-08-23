@@ -16,6 +16,7 @@ import { baEvent } from '@/lib/ba-event';
 import { usePropertyKeys } from '@/hooks/use-property-keys';
 import { useAllowedQueryFilters, useDefaultFilterColumn } from '@/hooks/use-is-filter-column-allowed';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
+import { FilterCountBadge } from '@/components/filters/FilterCountBadge';
 
 const initOrDefault = (filters: QueryFilter[], defaultColumn: TableFilterColumn): QueryFilter[] =>
   filters.length > 0
@@ -87,10 +88,8 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     >
       <div className='flex items-center gap-2'>
         <FilterIcon className='h-4 w-4' />
-        <span>
-          {t('selector.triggerLabel')}
-          {activeFilterCount > 0 && ` (${activeFilterCount})`}
-        </span>
+        <span>{t('selector.triggerLabel')}</span>
+        <FilterCountBadge count={activeFilterCount} />
       </div>
       <ChevronDownIcon className={'ml-2 h-4 w-4 shrink-0 opacity-50'} />
     </Button>
