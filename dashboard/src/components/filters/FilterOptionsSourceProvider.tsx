@@ -27,7 +27,7 @@ export type FilterOptionsSource = {
   useFilterOptionsQuery: (
     input: FilterOptionsQueryInput,
   ) => { options: string[]; isLoading: boolean; emptyIndicator?: ReactNode; scopeKey?: string };
-  usePropertyKeysQuery: () => PropertyKeysBySource;
+  usePropertyKeysQuery: (input: { enabled: boolean }) => PropertyKeysBySource;
 };
 
 const useDefaultFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery'] = ({

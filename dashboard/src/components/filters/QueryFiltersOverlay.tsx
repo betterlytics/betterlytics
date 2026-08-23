@@ -38,7 +38,7 @@ export function QueryFiltersOverlay({
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
-  const propertyKeys = usePropertyKeys();
+  const propertyKeys = usePropertyKeys({ enabled: isPopoverOpen });
   const defaultColumn = useDefaultFilterColumn();
 
   const filters = useQueryFilters(initOrDefault(committedFilters, defaultColumn));

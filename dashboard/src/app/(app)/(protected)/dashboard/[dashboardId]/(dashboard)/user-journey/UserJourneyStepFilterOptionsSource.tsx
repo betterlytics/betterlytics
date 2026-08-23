@@ -81,7 +81,7 @@ const useJourneyFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery']
   return { options: data, isLoading, emptyIndicator, scopeKey };
 };
 
-const useJourneyPropertyKeysQuery: FilterOptionsSource['usePropertyKeysQuery'] = () => {
+const useJourneyPropertyKeysQuery: FilterOptionsSource['usePropertyKeysQuery'] = ({ enabled }) => {
   const slot = useStepScope();
   const { input, options } = useBAQueryParams();
   const getSourceStatus = usePropertySourceStatus();
@@ -90,16 +90,16 @@ const useJourneyPropertyKeysQuery: FilterOptionsSource['usePropertyKeysQuery'] =
 
   const cepQuery = trpc.userJourney.stepPropertyKeys.useQuery(
     { ...input, slot, stepFilters: wireStepFilters },
-    { ...options, enabled: cepEnabled },
+    { ...options, enabled: cepEnabled && enabled },
   );
-  const cep = useQueryState(cepQuery, cepEnabled);
+  const cep = useQueryState(cepQuery, cepEnabled && enabled);
 
   return useMemo(
     () => ({
       gp: undefined,
-      cep: !cepEnabled || cep.loading ? undefined : (cep.data ?? []),
+      cep: !cepEnabled || !enabled || cep.loading ? undefined : (cep.data ?? []),
     }),
-    [cepEnabled, cep.loading, cep.data],
+    [cepEnabled, enabled, cep.loading, cep.data],
   );
 };
 
