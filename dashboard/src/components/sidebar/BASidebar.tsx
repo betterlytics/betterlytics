@@ -41,7 +41,6 @@ import { DashboardDropdown } from './DashboardDropdown';
 import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
-import { isFeatureEnabled } from '@/lib/feature-flags';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 
 const ICON_SIZE = 16;
@@ -105,7 +104,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       key: 'sessionReplay',
       href: '/replay',
       icon: <Video size={ICON_SIZE} />,
-      hidden: !isFeatureEnabled('enableSessionReplay') || isDemo,
+      hidden: isDemo,
       hideOnMobile: true,
     },
   ];
@@ -118,14 +117,12 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       key: 'monitoring',
       href: '/monitoring',
       icon: <Activity size={ICON_SIZE} />,
-      hidden: !isFeatureEnabled('enableUptimeMonitoring'),
     },
     {
       name: t('statusPages'),
       key: 'statusPages',
       href: '/status-pages',
       icon: <Radio size={ICON_SIZE} />,
-      hidden: !isFeatureEnabled('enablePublicStatusPages'),
     },
   ];
 
@@ -190,7 +187,6 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         <span className='dark:text-muted-foreground/90'>{item.icon}</span>
                         <span>{item.name}</span>
                       </div>
-
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

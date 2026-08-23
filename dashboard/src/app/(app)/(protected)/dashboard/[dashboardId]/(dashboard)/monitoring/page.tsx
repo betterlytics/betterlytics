@@ -2,7 +2,7 @@ import { fetchMonitorChecksAction } from '@/app/actions/analytics/monitoring.act
 import { getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
 import { getUserTimezone } from '@/lib/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { notFound } from 'next/navigation';
+import { FeatureNotEnabledBanner } from '@/components/dashboard/FeatureNotEnabledBanner';
 import { MonitoringClient } from './MonitoringClient';
 
 type MonitoringPageParams = {
@@ -10,10 +10,6 @@ type MonitoringPageParams = {
 };
 
 export default async function MonitoringPage({ params }: MonitoringPageParams) {
-  if (!isFeatureEnabled('enableUptimeMonitoring')) {
-    notFound();
-  }
-
   const { dashboardId } = await params;
   const timezone = await getUserTimezone();
   const [monitors, dashboard] = await Promise.all([
@@ -23,11 +19,8 @@ export default async function MonitoringPage({ params }: MonitoringPageParams) {
 
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
-      <MonitoringClient
-        dashboardId={dashboardId}
-        monitors={monitors}
-        domain={dashboard.domain}
-      />
+      {!isFeatureEnabled('enableUptimeMonitoring') && <FeatureNotEnabledBanner feature='monitoring' />}
+      <MonitoringClient dashboardId={dashboardId} monitors={monitors} domain={dashboard.domain} />
     </div>
   );
 }

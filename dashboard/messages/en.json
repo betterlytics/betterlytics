@@ -2065,6 +2065,12 @@
       "onSslExpiry": "Alert on SSL expiry",
       "onSslExpiryDescription": "Send an alert when the SSL certificate is about to expire",
       "sslExpiryDisabledTooltip": "Enable SSL monitoring in Advanced Settings first",
+      "emailsNotConfigured": {
+        "badge": "Email not configured",
+        "title": "Alert emails cannot be delivered",
+        "description": "Email delivery is not configured on this instance, so uptime monitoring alert emails will not be sent. These settings are kept and take effect once email is configured.",
+        "tooltip": "Configure email delivery on this instance to enable alerts"
+      },
       "failureThreshold": "Failure threshold",
       "failureThresholdDescription": "Number of consecutive failures before sending an alert",
       "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
@@ -3354,6 +3360,29 @@
       "title": "No Core Web Vitals data yet",
       "description": "Make sure tracking is enabled.",
       "action": "Learn more"
+    },
+    "featureNotEnabled": {
+      "action": "Self-hosting guide",
+      "monitoring": {
+        "title": "Uptime monitoring is not enabled on this instance",
+        "description": "Monitors can be set up, but they are not checked and no alerts are sent until it is enabled."
+      },
+      "statusPages": {
+        "title": "Status pages are not enabled on this instance",
+        "description": "Status pages can be set up, but they are not published until the feature is enabled."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Status pages need uptime monitoring, which is not enabled on this instance",
+        "description": "Status pages can be set up, but they are not published until uptime monitoring is enabled."
+      },
+      "sessionReplay": {
+        "title": "Session replay is not enabled on this instance",
+        "description": "No sessions are recorded until it is enabled."
+      },
+      "geography": {
+        "title": "Geolocation is not enabled on this instance",
+        "description": "Visitor locations are not collected until it is enabled."
+      }
     }
   },
   "githubStar": {
@@ -3753,6 +3782,10 @@
     "section": {
       "description": "Connect third-party services to receive uptime monitoring notifications when your website goes down or recovers."
     },
+    "monitoringNotConfigured": {
+      "title": "Notifications are not active on this instance",
+      "description": "Integrations only deliver uptime monitoring alerts, and uptime monitoring is disabled on this instance. Integrations can still be set up, but nothing will be sent until it is enabled."
+    },
     "integrations": {
       "pushover": {
         "name": "Pushover",
@@ -3796,7 +3829,8 @@
     },
     "status": {
       "connected": "Connected",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "unavailable": "Not available on this instance"
     },
     "actions": {
       "configure": "Configure",
@@ -3886,6 +3920,9 @@
       "invalidSlackWebhook": "Invalid Slack webhook URL",
       "invalidTeamsWebhook": "Invalid Teams webhook URL",
       "invalidWebhookUrl": "Invalid webhook URL"
+    },
+    "unavailable": {
+      "description": "{name} needs an app token configured on this instance before it can be connected."
     }
   },
   "errors": {

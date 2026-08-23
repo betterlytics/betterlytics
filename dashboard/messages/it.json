@@ -2065,6 +2065,12 @@
       "onSslExpiry": "Avviso scadenza SSL",
       "onSslExpiryDescription": "Invia un avviso quando il certificato SSL sta per scadere",
       "sslExpiryDisabledTooltip": "Abilita il monitoraggio SSL nelle Impostazioni avanzate",
+      "emailsNotConfigured": {
+        "badge": "Email non configurata",
+        "title": "Le email di avviso non possono essere recapitate",
+        "description": "L'invio di email non è configurato su questa istanza, quindi le email di avviso del monitoraggio uptime non verranno inviate. Queste impostazioni vengono conservate e avranno effetto una volta configurata l'email.",
+        "tooltip": "Configura l'invio di email su questa istanza per abilitare gli avvisi"
+      },
       "failureThreshold": "Soglia di errore",
       "failureThresholdDescription": "Numero di errori consecutivi prima dell'invio di un avviso",
       "failureCount": "{count, plural, one {{count} errore} other {{count} errori}}",
@@ -3357,6 +3363,29 @@
       "title": "Nessun dato Core Web Vitals",
       "description": "Assicurati che il tracciamento sia abilitato.",
       "action": "Scopri di più"
+    },
+    "featureNotEnabled": {
+      "action": "Guida al self-hosting",
+      "monitoring": {
+        "title": "Il monitoraggio uptime non è abilitato su questa istanza",
+        "description": "I monitor possono essere configurati, ma non vengono controllati e non viene inviato alcun avviso finché non è abilitato."
+      },
+      "statusPages": {
+        "title": "Le pagine di stato non sono abilitate su questa istanza",
+        "description": "Le pagine di stato possono essere configurate, ma non vengono pubblicate finché la funzione non è abilitata."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Le pagine di stato richiedono il monitoraggio uptime, che non è abilitato su questa istanza",
+        "description": "Le pagine di stato possono essere configurate, ma non vengono pubblicate finché il monitoraggio uptime non è abilitato."
+      },
+      "sessionReplay": {
+        "title": "Il replay delle sessioni non è abilitato su questa istanza",
+        "description": "Nessuna sessione viene registrata finché non è abilitato."
+      },
+      "geography": {
+        "title": "La geolocalizzazione non è abilitata su questa istanza",
+        "description": "La posizione dei visitatori non viene raccolta finché non è abilitata."
+      }
     }
   },
   "githubStar": {
@@ -3756,6 +3785,10 @@
     "section": {
       "description": "Collega servizi di terze parti per ricevere notifiche di monitoraggio dell'uptime quando il tuo sito web va offline o si ripristina."
     },
+    "monitoringNotConfigured": {
+      "title": "Le notifiche non sono attive su questa istanza",
+      "description": "Le integrazioni inviano solo avvisi del monitoraggio uptime, e il monitoraggio uptime è disabilitato su questa istanza. Le integrazioni possono comunque essere configurate, ma non verrà inviato nulla finché non sarà abilitato."
+    },
     "integrations": {
       "pushover": {
         "name": "Pushover",
@@ -3799,7 +3832,8 @@
     },
     "status": {
       "connected": "Connesso",
-      "disabled": "Disabilitato"
+      "disabled": "Disabilitato",
+      "unavailable": "Non disponibile su questa istanza"
     },
     "actions": {
       "configure": "Configura",
@@ -3889,6 +3923,9 @@
       "invalidSlackWebhook": "Webhook URL Slack non valido",
       "invalidTeamsWebhook": "Webhook URL Teams non valido",
       "invalidWebhookUrl": "Webhook URL non valido"
+    },
+    "unavailable": {
+      "description": "{name} richiede un token app configurato su questa istanza prima di poter essere collegato."
     }
   },
   "errors": {

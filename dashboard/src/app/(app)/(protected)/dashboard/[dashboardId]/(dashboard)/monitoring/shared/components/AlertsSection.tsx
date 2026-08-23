@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { LabeledSlider } from '@/components/inputs/LabeledSlider';
 import { SettingToggle } from '@/components/inputs/SettingToggle';
+import { WarningBanner } from '@/components/WarningBanner';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { SectionHeader } from './SectionHeader';
 import { SSL_EXPIRY_MARKS, SSL_EXPIRY_DISPLAY_MARKS, RECOMMENDED_SSL_EXPIRY_DAYS } from '../utils/sliderConstants';
 import type { MonitorFormInterface } from '../types';
@@ -30,6 +32,12 @@ export function AlertsSection({
 }: AlertsSectionProps) {
   const t = useTranslations('monitoringEditDialog.alerts');
   const { state, setField } = form;
+  const alertEmailsEnabled = useClientFeatureFlags().isFeatureFlagEnabled('enableEmails');
+  // Alerts only deliver over email; keep the stored preference but never present it as active when emails are off
+  const alertsActive = alertEmailsEnabled && state.alertsEnabled;
+  // Config-blocked: keep the options discoverable (disabled). User-disabled: collapse them.
+  const showAlertOptions = !alertEmailsEnabled || state.alertsEnabled;
+  const optionsDisabled = isPending || !alertEmailsEnabled;
 
   return (
     <Collapsible
@@ -41,7 +49,12 @@ export function AlertsSection({
       <CollapsibleTrigger className='hover:bg-muted/50 -mx-2 flex w-[calc(100%+1rem)] cursor-pointer items-center justify-between rounded-lg px-2 py-2 transition-colors'>
         <SectionHeader icon={Bell} title={t('title')} />
         <div className='flex items-center gap-2'>
-          {state.alertsEnabled && (
+          {!alertEmailsEnabled && (
+            <span className='rounded-full bg-orange-500/10 px-2 py-0.5 text-xs font-medium text-orange-600 dark:text-orange-400'>
+              {t('emailsNotConfigured.badge')}
+            </span>
+          )}
+          {alertsActive && (
             <span className='rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400'>
               {t('enabled')}
             </span>
@@ -51,7 +64,14 @@ export function AlertsSection({
       </CollapsibleTrigger>
 
       <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-x-visible overflow-y-clip'>
-        <div className='space-y-5 pt-4'>
+        <div className='space-y-5 pt-4 pb-3'>
+          {!alertEmailsEnabled && (
+            <WarningBanner
+              title={t('emailsNotConfigured.title')}
+              description={t('emailsNotConfigured.description')}
+            />
+          )}
+
           <SettingToggle
             id='alerts-enabled'
             label={
@@ -59,19 +79,20 @@ export function AlertsSection({
                 {t('enableAlerts')} <span className='text-muted-foreground font-normal'>({userEmail})</span>
               </>
             }
-            checked={state.alertsEnabled}
+            checked={alertsActive}
             onCheckedChange={setField('alertsEnabled')}
-            disabled={isPending}
+            disabled={isPending || !alertEmailsEnabled}
+            disabledTooltip={!alertEmailsEnabled ? t('emailsNotConfigured.tooltip') : undefined}
           />
 
-          {state.alertsEnabled && (
+          {showAlertOptions && (
             <div className='space-y-5 pl-1'>
               <SettingToggle
                 id='alert-on-down'
                 label={t('onDown')}
                 checked={state.alertOnDown}
                 onCheckedChange={setField('alertOnDown')}
-                disabled={isPending}
+                disabled={optionsDisabled}
               />
 
               <SettingToggle
@@ -79,7 +100,7 @@ export function AlertsSection({
                 label={t('onRecovery')}
                 checked={state.alertOnRecovery}
                 onCheckedChange={setField('alertOnRecovery')}
-                disabled={isPending}
+                disabled={optionsDisabled}
               />
 
               <SettingToggle
@@ -87,8 +108,10 @@ export function AlertsSection({
                 label={t('onSslExpiry')}
                 checked={sslMonitoringEnabled && state.alertOnSslExpiry}
                 onCheckedChange={setField('alertOnSslExpiry')}
-                disabled={isPending || !sslMonitoringEnabled}
-                disabledTooltip={!sslMonitoringEnabled ? t('sslExpiryDisabledTooltip') : undefined}
+                disabled={optionsDisabled || !sslMonitoringEnabled}
+                disabledTooltip={
+                  alertEmailsEnabled && !sslMonitoringEnabled ? t('sslExpiryDisabledTooltip') : undefined
+                }
               />
 
               {sslMonitoringEnabled && state.alertOnSslExpiry && (
@@ -107,7 +130,7 @@ export function AlertsSection({
                       suffix: ` ${t('unit', { count: state.sslExpiryAlertDays })}`,
                     }}
                     recommendedValue={SSL_EXPIRY_MARKS.indexOf(RECOMMENDED_SSL_EXPIRY_DAYS)}
-                    disabled={isPending}
+                    disabled={optionsDisabled}
                   />
                 </div>
               )}

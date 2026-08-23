@@ -2065,6 +2065,12 @@
       "onSslExpiry": "Varsel ved SSL-utløp",
       "onSslExpiryDescription": "Send varsel når SSL-sertifikatet er i ferd med å utløpe",
       "sslExpiryDisabledTooltip": "Aktiver SSL-overvåking i Avanserte innstillinger først",
+      "emailsNotConfigured": {
+        "badge": "E-post ikke konfigurert",
+        "title": "Varsel-e-poster kan ikke leveres",
+        "description": "E-postlevering er ikke konfigurert på denne instansen, så varsel-e-poster fra oppetidsovervåking blir ikke sendt. Innstillingene beholdes og trer i kraft når e-post er konfigurert.",
+        "tooltip": "Konfigurer e-postlevering på denne instansen for å aktivere varsler"
+      },
       "failureThreshold": "Feilterskel",
       "failureThresholdDescription": "Antall påfølgende feil før varsel sendes",
       "failureCount": "{count, plural, one {{count} feil} other {{count} feil}}",
@@ -3357,6 +3363,29 @@
       "title": "Ingen Core Web Vitals-data ennå",
       "description": "Sørg for at sporing er aktivert.",
       "action": "Lær mer"
+    },
+    "featureNotEnabled": {
+      "action": "Selvhosting-guide",
+      "monitoring": {
+        "title": "Oppetidsovervåking er ikke aktivert på denne instansen",
+        "description": "Monitorer kan settes opp, men de sjekkes ikke, og ingen varsler sendes før det er aktivert."
+      },
+      "statusPages": {
+        "title": "Statussider er ikke aktivert på denne instansen",
+        "description": "Statussider kan settes opp, men de publiseres ikke før funksjonen er aktivert."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Statussider krever oppetidsovervåking, som ikke er aktivert på denne instansen",
+        "description": "Statussider kan settes opp, men de publiseres ikke før oppetidsovervåking er aktivert."
+      },
+      "sessionReplay": {
+        "title": "Øktopptak er ikke aktivert på denne instansen",
+        "description": "Ingen økter tas opp før det er aktivert."
+      },
+      "geography": {
+        "title": "Geolokasjon er ikke aktivert på denne instansen",
+        "description": "Besøkendes plassering samles ikke inn før det er aktivert."
+      }
     }
   },
   "githubStar": {
@@ -3756,6 +3785,10 @@
     "section": {
       "description": "Koble til tredjepartstjenester for å motta oppetidsovervåkingsvarsler når nettsiden din går ned eller kommer tilbake."
     },
+    "monitoringNotConfigured": {
+      "title": "Varsler er ikke aktive på denne instansen",
+      "description": "Integrasjoner sender kun varsler fra oppetidsovervåking, og oppetidsovervåking er deaktivert på denne instansen. Integrasjoner kan fortsatt settes opp, men ingenting blir sendt før det er aktivert."
+    },
     "integrations": {
       "pushover": {
         "name": "Pushover",
@@ -3799,7 +3832,8 @@
     },
     "status": {
       "connected": "Tilkoblet",
-      "disabled": "Deaktivert"
+      "disabled": "Deaktivert",
+      "unavailable": "Ikke tilgjengelig på denne instansen"
     },
     "actions": {
       "configure": "Konfigurer",
@@ -3889,6 +3923,9 @@
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
       "invalidWebhookUrl": "Ugyldig webhook URL"
+    },
+    "unavailable": {
+      "description": "{name} krever et app-token konfigurert på denne instansen før den kan kobles til."
     }
   },
   "errors": {
