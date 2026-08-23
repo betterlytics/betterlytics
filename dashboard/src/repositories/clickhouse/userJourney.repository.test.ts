@@ -313,10 +313,9 @@ describe('journey suggestion queries', () => {
     expect(Object.keys(query.taggedParams).filter((key) => key.startsWith('pos_filter_'))).toHaveLength(1);
   });
 
-  it('compiles same-slot siblings as gates', () => {
+  it('drops same-slot entries from the wire map', () => {
     const query = suggest('url', 1, { '1': [filter('url', ['/docs*'])] });
-    expect(query.taggedParams).toHaveProperty('pos_filter_0');
-    expect(query.taggedSql).toContain('length(path) >= 2 AND');
+    expect(Object.keys(query.taggedParams).some((key) => key.startsWith('pos_filter_'))).toBe(false);
   });
 
   it('carries the entry value through session_paths for entry suggestions', () => {
@@ -326,10 +325,10 @@ describe('journey suggestion queries', () => {
     expect(query.taggedSql.match(/session_id,/g)).toHaveLength(1);
   });
 
-  it('scopes entry suggestions by same-slot entry siblings via HAVING', () => {
+  it('drops same-slot entry filters', () => {
     const query = suggest('referrer_source_name', 0, { '0': [filter('referrer_source', ['google.com'])] });
-    expect(query.taggedSql).toContain('HAVING');
-    expect(query.taggedParams).toHaveProperty('entry_filter_0');
+    expect(query.taggedSql).not.toContain('HAVING');
+    expect(Object.keys(query.taggedParams).some((key) => key.startsWith('entry_filter_'))).toBe(false);
   });
 
   it('lists exit candidates unfiltered by exit values', () => {
@@ -342,11 +341,11 @@ describe('journey suggestion queries', () => {
     expect(query.taggedSql.match(/session_id,/g)).toHaveLength(3);
   });
 
-  it('still gates by a sibling exit filter while keeping candidates unfiltered', () => {
+  it('drops same-slot exit filters', () => {
     const query = suggest('outbound_link_url', 2, { '2': [filter('outbound_link_url', ['https://github.com/*'])] });
-    expect(query.taggedSql).toContain('exit_clicks');
+    expect(query.taggedSql).not.toContain('exit_clicks');
     expect(query.taggedSql).toContain('exit_candidates');
-    expect(query.taggedParams).toHaveProperty('exit_filter_0');
+    expect(Object.keys(query.taggedParams).some((key) => key.startsWith('exit_filter_'))).toBe(false);
   });
 
   it('windows event-name suggestions to the step and joins candidates', () => {
@@ -363,12 +362,18 @@ describe('journey suggestion queries', () => {
     expect(query.taggedSql).not.toContain('evt_ts >= full_ts[1]');
   });
 
-  it('extracts cep values and restricts candidates by the same-slot name filter without param collisions', () => {
+  it('extracts cep values from all window events without same-slot restriction', () => {
     const query = suggest('cep.plan', 1, { '1': [filter('custom_event_name', ['signup'])] });
     expect(query.taggedSql).toContain('JSONExtractString(custom_event_json');
     expect(query.taggedParams).toHaveProperty('suggest_cep_key', 'plan');
+    expect(Object.keys(query.taggedParams).some((key) => key.startsWith('stepevt_filter_'))).toBe(false);
+  });
+
+  it('gates event suggestions by earlier-step event filters', () => {
+    const query = suggest('custom_event_name', 1, { '0': [filter('custom_event_name', ['signup'])] });
     expect(query.taggedParams).toHaveProperty('stepevt_filter_0');
-    expect(query.taggedParams).toHaveProperty('stepevt_filter_1');
+    expect(query.taggedSql).toContain('(1 = length(full_ts) OR t < full_ts[2])');
+    expect(query.taggedSql).toContain('evt_ts >= full_ts[2] AND (2 = length(full_ts) OR evt_ts < full_ts[3])');
   });
 
   it('rejects infeasible suggestion columns', () => {

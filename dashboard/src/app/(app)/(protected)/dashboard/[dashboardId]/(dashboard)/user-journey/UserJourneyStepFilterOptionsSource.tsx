@@ -32,8 +32,6 @@ const scopes = (filter: QueryFilter, slot: number, lastSlot: number): boolean =>
 const toScopeFilter = ({ column, operator, values }: QueryFilter): ScopeFilter => ({ column, operator, values });
 
 const useJourneyFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery'] = ({
-  filter,
-  siblingFilters,
   query,
   column,
   search,
@@ -55,12 +53,8 @@ const useJourneyFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery']
         .map(toScopeFilter);
       if (scoping.length > 0) entries.push([stepSlot, scoping]);
     }
-    const siblings = siblingFilters
-      .filter((sibling) => sibling.id !== filter.id && scopes(sibling, slot, lastSlot))
-      .map(toScopeFilter);
-    if (siblings.length > 0) entries.push([String(slot), siblings]);
     return Object.fromEntries(entries);
-  }, [stepFilters, siblingFilters, filter.id, slot, lastSlot]);
+  }, [stepFilters, slot, lastSlot]);
 
   const hasScopingFilters = Object.keys(wireStepFilters).length > 0;
 

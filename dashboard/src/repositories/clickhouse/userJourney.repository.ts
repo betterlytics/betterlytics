@@ -97,8 +97,8 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
   const entryCarry = carry.entryColumn ? safeSql`, entry_value` : safeSql``;
 
   const stepEventGroups: Array<{ alias: string; column: number; negate: boolean; predicate: SQLTaggedExpression }> = [];
-  let stepEventParamNext = 0;
   {
+    let paramIndex = 0;
     const bySlot = new Map<number, { positives: ScopeFilter[]; negatives: ScopeFilter[] }>();
     for (const { slot, filter } of stepEventFilters) {
       const entry = bySlot.get(slot) ?? { positives: [], negatives: [] };
@@ -108,7 +108,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     for (const [slot, { positives, negatives }] of [...bySlot.entries()].sort(([a], [b]) => a - b)) {
       if (positives.length > 0) {
         const predicate = SQL.AND(
-          positives.map((filter) => BAQuery.buildStepEventRowPredicate(filter, stepEventParamNext++)),
+          positives.map((filter) => BAQuery.buildStepEventRowPredicate(filter, paramIndex++)),
         );
         stepEventGroups.push({ alias: `stepevt_ts_${stepEventGroups.length}`, column: slot + 1, negate: false, predicate });
       }
@@ -117,7 +117,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
           alias: `stepevt_ts_${stepEventGroups.length}`,
           column: slot + 1,
           negate: true,
-          predicate: BAQuery.buildStepEventRowPredicate(filter, stepEventParamNext++),
+          predicate: BAQuery.buildStepEventRowPredicate(filter, paramIndex++),
         });
       }
     }
@@ -223,7 +223,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
       FROM ordered_events${exitJoin}${stepEventJoin}
     )`;
 
-  return { prefix, gateExprs, stepEventParamNext };
+  return { prefix, gateExprs };
 }
 
 export function buildJourneyQuery(args: JourneyQueryArgs) {
@@ -281,7 +281,7 @@ export function buildJourneySuggestionQuery(args: JourneySuggestionArgs) {
   if (kind === 'infeasible') {
     throw new Error(`Column is not suggestible at this step: ${column}`);
   }
-  const scoped = stripInfeasibleStepFilters(pruneStepFilters(args.stepFilters, slot), lastSlot);
+  const scoped = stripInfeasibleStepFilters(pruneStepFilters(args.stepFilters, slot - 1), lastSlot);
   const parsed = parseFilterColumn(column);
   const carry: JourneyCarry = {};
   if (kind === 'entry') {
@@ -299,7 +299,7 @@ export function buildJourneySuggestionQuery(args: JourneySuggestionArgs) {
     carry.sessionId = true;
   }
 
-  const { prefix, gateExprs, stepEventParamNext } = buildJourneyPipeline({
+  const { prefix, gateExprs } = buildJourneyPipeline({
     queryFilters,
     stepFilters: scoped,
     numberOfSteps,
@@ -347,18 +347,6 @@ export function buildJourneySuggestionQuery(args: JourneySuggestionArgs) {
   `;
   }
 
-  const sameSlotPositives = (scoped[String(slot)] ?? []).filter(
-    (stepFilter) =>
-      isUsableFilter(stepFilter) &&
-      stepFilter.values.length > 0 &&
-      stepFilter.operator === '=' &&
-      classifyStepFilter(stepFilter.column, slot, lastSlot) === 'stepEvent',
-  );
-  let candidateParamIndex = stepEventParamNext;
-  const candidateRowFilter =
-    sameSlotPositives.length > 0
-      ? safeSql` AND ${SQL.AND(sameSlotPositives.map((stepFilter) => BAQuery.buildStepEventRowPredicate(stepFilter, candidateParamIndex++)))}`
-      : safeSql``;
   const valueExpr =
     parsed.kind === 'property'
       ? PROPERTY_SQL.cep.sql.extractValue(SQL.String({ suggest_cep_key: parsed.key }))
@@ -372,7 +360,7 @@ export function buildJourneySuggestionQuery(args: JourneySuggestionArgs) {
       WHERE
         site_id = {site_id:String}
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
-        AND event_type = 'custom'${candidateRowFilter}
+        AND event_type = 'custom'
     )
     SELECT DISTINCT evt_value AS value
     FROM session_paths INNER JOIN event_candidates USING (session_id)
