@@ -73,8 +73,9 @@ export function isNonEmptyValue(value: string): boolean {
 }
 
 /**
- * A filter is usable in a query once it has a column, an operator, and at least
- * one non-empty value. Incomplete filters are skipped.
+ * A filter is usable in a query once it has a column, an operator, and no blank
+ * values. A filter with no values at all stays usable and compiles to
+ * match-nothing for `=` - stored funnel filters depend on this (#946).
  */
 export function isUsableFilter(filter: ScopeFilter): boolean {
   return Boolean(filter.column) && Boolean(filter.operator) && filter.values.every(Boolean);

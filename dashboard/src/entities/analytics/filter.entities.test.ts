@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   applyFilterUpdates,
   dependencyScopeFilters,
+  isUsableFilter,
   withDependentColumns,
   type QueryFilter,
 } from '@/entities/analytics/filter.entities';
@@ -9,6 +10,16 @@ import {
 function filter(column: QueryFilter['column'], value: string, id = `id-${column}`): QueryFilter {
   return { id, column, operator: '=', values: [value] };
 }
+
+describe('isUsableFilter', () => {
+  it('keeps a filter with no values usable so stored funnel filters keep compiling to match-nothing (#946)', () => {
+    expect(isUsableFilter({ column: 'url', operator: '=', values: [] })).toBe(true);
+  });
+
+  it('rejects a filter containing an empty value', () => {
+    expect(isUsableFilter({ column: 'url', operator: '=', values: [''] })).toBe(false);
+  });
+});
 
 describe('applyFilterUpdates', () => {
   it('appends updates as equals filters with generated ids', () => {

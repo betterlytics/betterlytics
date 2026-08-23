@@ -122,3 +122,19 @@ describe('getFilterQuery custom event properties', () => {
     expect(notEquals).toContain('NOT JSONHas(custom_event_json');
   });
 });
+
+describe('getFilterQuery empty-values semantics', () => {
+  it('compiles an empty = filter to match nothing - stored funnel filters rely on this, never drop them as unusable (#946)', () => {
+    const sql = buildSql([makeFilter('url', '=', [])]);
+    const [part] = BAQuery.getFilterQuery([makeFilter('url', '=', [])]);
+
+    expect(sql).toContain('arrayExists');
+    expect(part.taggedParams).toHaveProperty('query_filter_0', []);
+  });
+
+  it('compiles an empty != filter to match everything', () => {
+    const sql = buildSql([makeFilter('url', '!=', [])]);
+
+    expect(sql).toContain('arrayAll');
+  });
+});
