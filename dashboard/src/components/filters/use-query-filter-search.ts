@@ -1,16 +1,14 @@
 'use client';
 
-import { trpc } from '@/trpc/client';
 import { dependencyScopeFilters, toScopeFilter, QueryFilter } from '@/entities/analytics/filter.entities';
-import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
+import { useFilterOptionsSource } from '@/components/filters/FilterOptionsSourceProvider';
 import { subDays } from 'date-fns';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const SEARCH_LIMIT = 5000;
 const EXTENDED_RANGE_DAYS = 30;
-const EMPTY_OPTIONS: string[] = [];
 
 type SearchMetadataResult = {
   shouldUseServerSearch: boolean;
@@ -40,8 +38,6 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     return { ...baseQuery, startDate: effectiveStartDate };
   }, [options?.useExtendedRange, baseQuery]);
 
-  const dashboardId = useDashboardId();
-
   const [isDirty, setIsDirty] = useState(false);
   const [search, _setSearch] = useState('');
 
@@ -65,27 +61,21 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   );
   const scopeKey = useMemo(() => JSON.stringify(scopeFilters), [scopeFilters]);
 
-  const { data: fetchedOptions = EMPTY_OPTIONS, isLoading } = trpc.filters.getFilterOptions.useQuery(
-    {
-      dashboardId,
-      query,
-      column: filter.column,
-      search: isDirty ? debouncedSearch || undefined : undefined,
-      limit: SEARCH_LIMIT,
-      scopeFilters: scopeFilters.length > 0 ? scopeFilters : undefined,
-    },
-    {
-      staleTime: 5 * 60 * 1000,
-      gcTime: 5 * 60 * 1000,
-      enabled: shouldSearchServer && !disabled,
-    },
-  );
+  const source = useFilterOptionsSource();
+  const { options: fetchedOptions, isLoading } = source.useFilterOptionsQuery({
+    query,
+    column: filter.column,
+    search: isDirty ? debouncedSearch || undefined : undefined,
+    limit: SEARCH_LIMIT,
+    scopeFilters: scopeFilters.length > 0 ? scopeFilters : undefined,
+    enabled: shouldSearchServer && !disabled,
+  });
 
   useEffect(() => {
     setSearchMetadataResult(null);
     _setSearch('');
     setIsDirty(false);
-  }, [filter.column, scopeKey]);
+  }, [filter.column, scopeKey, source.scopeKey]);
 
   useEffect(() => {
     if (disabled) return;

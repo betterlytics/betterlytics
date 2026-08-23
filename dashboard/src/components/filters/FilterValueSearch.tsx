@@ -4,6 +4,7 @@ import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQueryFilterSearch } from './use-query-filter-search';
+import { useFilterOptionsSource } from './FilterOptionsSourceProvider';
 import { cn } from '@/lib/utils';
 import { formatString } from '@/utils/formatters';
 import { FilterValueLabel } from '@/components/filters/FilterValueLabel';
@@ -34,6 +35,7 @@ export function FilterValueSearch<TEntity>({
   const t = useTranslations('components.filters.selector');
   const locale = useLocale();
   const strategy = getFilterStrategy(filter.column);
+  const { emptyIndicator } = useFilterOptionsSource();
 
   const { search, setSearch, options, isLoading } = useQueryFilterSearch(filter, {
     useExtendedRange,
@@ -86,9 +88,11 @@ export function FilterValueSearch<TEntity>({
       badgeClassName='bg-popover'
       hideClearAllButton={hideClearAllButton}
       emptyIndicator={
-        <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
-          <span>{t('noValuesForCurrentPeriod')}</span>
-        </div>
+        emptyIndicator ?? (
+          <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
+            <span>{t('noValuesForCurrentPeriod')}</span>
+          </div>
+        )
       }
       loading={isLoading && options.length === 0}
       creatable
