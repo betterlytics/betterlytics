@@ -9,6 +9,8 @@ import { type useAnalyticsQuery } from '@/hooks/use-analytics-query';
 const EMPTY_OPTIONS: string[] = [];
 
 export type FilterOptionsQueryInput = {
+  filter: QueryFilter;
+  siblingFilters: QueryFilter[];
   query: ReturnType<typeof useAnalyticsQuery>;
   column: QueryFilter['column'];
   search?: string;
@@ -18,9 +20,10 @@ export type FilterOptionsQueryInput = {
 };
 
 export type FilterOptionsSource = {
-  useFilterOptionsQuery: (input: FilterOptionsQueryInput) => { options: string[]; isLoading: boolean };
+  useFilterOptionsQuery: (
+    input: FilterOptionsQueryInput,
+  ) => { options: string[]; isLoading: boolean; emptyIndicator?: ReactNode };
   scopeKey?: string;
-  emptyIndicator?: ReactNode;
 };
 
 const useDefaultFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery'] = ({

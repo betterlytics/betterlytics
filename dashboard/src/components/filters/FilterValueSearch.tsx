@@ -4,7 +4,6 @@ import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
 import { useTranslations, useLocale } from 'next-intl';
 import { useQueryFilterSearch } from './use-query-filter-search';
-import { useFilterOptionsSource } from './FilterOptionsSourceProvider';
 import { cn } from '@/lib/utils';
 import { formatString } from '@/utils/formatters';
 import { FilterValueLabel } from '@/components/filters/FilterValueLabel';
@@ -35,9 +34,8 @@ export function FilterValueSearch<TEntity>({
   const t = useTranslations('components.filters.selector');
   const locale = useLocale();
   const strategy = getFilterStrategy(filter.column);
-  const { emptyIndicator } = useFilterOptionsSource();
 
-  const { search, setSearch, options, isLoading } = useQueryFilterSearch(filter, {
+  const { search, setSearch, options, isLoading, emptyIndicator } = useQueryFilterSearch(filter, {
     useExtendedRange,
     disabled,
     siblingFilters,

@@ -62,7 +62,10 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   const scopeKey = useMemo(() => JSON.stringify(scopeFilters), [scopeFilters]);
 
   const source = useFilterOptionsSource();
-  const { options: fetchedOptions, isLoading } = source.useFilterOptionsQuery({
+  const { useFilterOptionsQuery } = source;
+  const { options: fetchedOptions, isLoading, emptyIndicator } = useFilterOptionsQuery({
+    filter,
+    siblingFilters: options?.siblingFilters ?? [],
     query,
     column: filter.column,
     search: isDirty ? debouncedSearch || undefined : undefined,
@@ -106,5 +109,5 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     return filteredOptions.slice(0, 10);
   }, [filteredOptions]);
 
-  return { search, setSearch, isDirty, options: slicedOptions, isLoading };
+  return { search, setSearch, isDirty, options: slicedOptions, isLoading, emptyIndicator };
 }
