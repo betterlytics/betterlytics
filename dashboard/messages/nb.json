@@ -2679,7 +2679,9 @@
       "stepLabel": "Trinn {number}",
       "filterTrigger": "Filtre",
       "stepFilterDialogTitle": "Filtre for trinn {number}",
-      "stepFilterBandLabel": "Filtre per trinn"
+      "stepFilterBandLabel": "Filtre per trinn",
+      "stepFilterNoMatchingJourneys": "Ingen reiser samsvarer med filtrene på tidligere trinn",
+      "stepFilterNoJourneysReach": "Ingen reiser når dette trinnet i denne perioden"
     },
     "outboundLinks": {
       "table": {

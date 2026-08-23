@@ -8,6 +8,7 @@ import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvide
 import { baEvent } from '@/lib/ba-event';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 import { getStepExcludedColumns } from '@/entities/analytics/stepFilters.entities';
+import { UserJourneyStepFilterOptionsProvider } from './UserJourneyStepFilterOptionsSource';
 
 const EMPTY_FILTERS: QueryFilter[] = [];
 
@@ -35,14 +36,16 @@ export function UserJourneyStepFilterPopover({ slot, lastSlot, align, trigger }:
 
   return (
     <QueryFilterColumnsVisibilityProvider exclude={excludedColumns} mode='hide'>
-      <QueryFiltersOverlay
-        committedFilters={committed}
-        onApply={apply}
-        trigger={trigger}
-        title={t('stepFilterDialogTitle', { number: slot + 1 })}
-        align={align}
-        showSavedFilters={false}
-      />
+      <UserJourneyStepFilterOptionsProvider slot={slot}>
+        <QueryFiltersOverlay
+          committedFilters={committed}
+          onApply={apply}
+          trigger={trigger}
+          title={t('stepFilterDialogTitle', { number: slot + 1 })}
+          align={align}
+          showSavedFilters={false}
+        />
+      </UserJourneyStepFilterOptionsProvider>
     </QueryFilterColumnsVisibilityProvider>
   );
 }

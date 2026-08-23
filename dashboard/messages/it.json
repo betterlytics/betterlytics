@@ -2679,7 +2679,9 @@
       "stepLabel": "Passaggio {number}",
       "filterTrigger": "Filtri",
       "stepFilterDialogTitle": "Filtri del passaggio {number}",
-      "stepFilterBandLabel": "Filtri per passaggio"
+      "stepFilterBandLabel": "Filtri per passaggio",
+      "stepFilterNoMatchingJourneys": "Nessun percorso corrisponde ai filtri dei passaggi precedenti",
+      "stepFilterNoJourneysReach": "Nessun percorso raggiunge questo passaggio in questo periodo"
     },
     "outboundLinks": {
       "table": {
