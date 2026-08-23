@@ -1,5 +1,103 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v148ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.8',
+    releasedAt: '2026-08-16',
+    title: 'Moderniseret autentificering',
+    summary:
+      'Betterlytics kører nu på et nyt system til konti og login, som bliver aktivt vedligeholdt og løbende får sikkerhedsopdateringer. Alt fungerer som før, men tofaktorgodkendelse skal sættes op igen.',
+  },
+  sections: [
+    {
+      id: 'v148-authentication',
+      title: 'Moderniseret autentificering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Vi har flyttet det system, der håndterer din konto, dine sessioner og dit login, over på et moderne og aktivt udviklet fundament, som løbende får sikkerhedsopdateringer. Login med e-mail og adgangskode, login med Google og GitHub samt tofaktorgodkendelse fungerer som hidtil, og din adgangskode, dine dashboards, dine teammedlemmer og dine data er uændrede.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Tofaktorgodkendelse skal sættes op igen. Eksisterende opsætninger kunne ikke flyttes med over til det nye system, og alle berørte har fået en e-mail.',
+            'Du slår den til igen ved at åbne Indstillinger i menuen ved dit profilbillede og gå til Kontosikkerhed. Din autentificeringsapp får en ny QR-kode, og du kan slette den gamle Betterlytics-post i appen.',
+            'Du er muligvis blevet logget ud én gang, da ændringen blev rullet ud. Det skyldtes selve skiftet og ikke et problem med din konto.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Når du slår tofaktorgodkendelse til, skal du nu bekræfte din adgangskode, før QR-koden bliver vist.',
+            'Når du slår tofaktorgodkendelse fra, bliver du nu bedt om din adgangskode i stedet for en kode fra din autentificeringsapp.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Der bruges nu færre ressourcer på at bekræfte din session, så det føles en anelse hurtigere at bevæge sig rundt i dashboardet.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v148ChangelogModalDa: ChangelogEntryData = {
+  metadata: v148ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v148-modal-authentication',
+      title: 'Moderniseret autentificering',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vi har flyttet det system, der håndterer din konto, dine sessioner og dit login, over på et moderne og aktivt udviklet fundament, som løbende får sikkerhedsopdateringer.',
+            'Tofaktorgodkendelse skal sættes op igen. Eksisterende opsætninger kunne ikke flyttes med over, og alle berørte har fået en e-mail.',
+            'Du slår den til igen ved at åbne Indstillinger i menuen ved dit profilbillede og gå til Kontosikkerhed. Din autentificeringsapp får en ny QR-kode.',
+            'Du er muligvis blevet logget ud én gang, da ændringen blev rullet ud. Det skyldtes selve skiftet og ikke et problem med din konto.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Du skal nu bekræfte din adgangskode, når du slår tofaktorgodkendelse til eller fra.'],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Dashboardet bruger nu færre ressourcer på at bekræfte din session og føles en anelse hurtigere.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v147ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.7',
@@ -92,44 +190,6 @@ const v147ChangelogEntryDa: ChangelogEntryData = {
           type: 'list',
           items: [
             'Modtagelsen af events er nu bedre sikret mod misdannede og ondsindede data, oven i generelle sikkerhedsopdateringer, der holder Betterlytics stabil og sikker.',
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-const v147ChangelogModalDa: ChangelogEntryData = {
-  metadata: {
-    ...v147ChangelogEntryDa.metadata,
-    summary:
-      'Vores officielle WordPress-plugin er ude, bot-filtreringen er blevet markant stærkere, og fakturering viser nu, hvad dit forbrug består af.',
-  },
-  sections: [
-    {
-      id: 'v147-modal-highlights',
-      title: 'Højdepunkter',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Betterlytics har nu et officielt WordPress-plugin. Har du et WordPress-site, kan du koble det til fra wp-admin med dit Site ID, helt uden kode og uden noget, der skal laves om efter en temaopdatering.',
-            'Første bølge af vores ombyggede bot-filter er live og holder flere bots, crawlere og referrer spam ude af dine rapporter. Der kommer flere bølger.',
-            'Under fakturering finder du nu et forbrugsoverblik, der viser, hvilke typer events og hvilke sites dit månedlige forbrug består af.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v147-modal-also',
-      title: 'Også med i denne udgivelse',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Forbedret stabilitet og sikkerhed i vores event-pipeline.',
-            'Rettet et redirect-loop, når man fulgte et gammelt dashboard-link.',
-            'Diverse mindre forbedringer af design og brugervenlighed på tværs af dashboardet.',
           ],
         },
       ],
@@ -325,9 +385,10 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v147ChangelogModalDa;
+export const latestChangelogModalDa = v148ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v148ChangelogEntryDa,
   v147ChangelogEntryDa,
   v146ChangelogEntryDa,
   v145ChangelogEntryDa,

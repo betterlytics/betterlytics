@@ -1,5 +1,101 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v148ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.8',
+    releasedAt: '2026-08-16',
+    title: 'Modernisert autentisering',
+    summary:
+      'Betterlytics kjører nå på et nytt system for kontoer og innlogging som vedlikeholdes aktivt og får løpende sikkerhetsoppdateringer. Alt fungerer som før, men tofaktorautentisering må settes opp på nytt.',
+  },
+  sections: [
+    {
+      id: 'v148-authentication',
+      title: 'Modernisert autentisering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Vi har flyttet systemet som håndterer kontoen din, øktene dine og innloggingen, over på et moderne og aktivt utviklet fundament som får løpende sikkerhetsoppdateringer. Innlogging med e-post og passord, innlogging med Google og GitHub samt tofaktorautentisering fungerer som før, og passordet ditt, dashbordene dine, teammedlemmene dine og dataene dine er uendret.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Tofaktorautentisering må settes opp på nytt. Eksisterende oppsett kunne ikke flyttes med over til det nye systemet, og alle berørte har fått e-post.',
+            'Du slår den på igjen ved å åpne Innstillinger i menyen ved profilbildet ditt og gå til Kontosikkerhet. Autentiseringsappen din får en ny QR-kode, og du kan slette den gamle Betterlytics-oppføringen.',
+            'Du ble kanskje logget ut én gang da endringen ble rullet ut. Det skyldtes selve overgangen, ikke et problem med kontoen din.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Når du slår på tofaktorautentisering, må du nå bekrefte passordet ditt før QR-koden vises.',
+            'Når du slår av tofaktorautentisering, blir du nå bedt om passordet ditt i stedet for en kode fra autentiseringsappen.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Det brukes nå færre ressurser på å bekrefte økten din, slik at det føles litt raskere å bevege seg rundt i dashbordet.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v148ChangelogModalNb: ChangelogEntryData = {
+  metadata: v148ChangelogEntryNb.metadata,
+  sections: [
+    {
+      id: 'v148-modal-authentication',
+      title: 'Modernisert autentisering',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vi har flyttet systemet som håndterer kontoen din, øktene dine og innloggingen, over på et moderne og aktivt utviklet fundament som får løpende sikkerhetsoppdateringer.',
+            'Tofaktorautentisering må settes opp på nytt. Eksisterende oppsett kunne ikke flyttes med over, og alle berørte har fått e-post.',
+            'Du slår den på igjen ved å åpne Innstillinger i menyen ved profilbildet ditt og gå til Kontosikkerhet. Autentiseringsappen din får en ny QR-kode.',
+            'Du ble kanskje logget ut én gang da endringen ble rullet ut. Det skyldtes selve overgangen, ikke et problem med kontoen din.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Du må nå bekrefte passordet ditt når du slår tofaktorautentisering på eller av.'],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Dashbordet bruker nå færre ressurser på å bekrefte økten din og føles litt raskere.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v147ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.7',
@@ -92,44 +188,6 @@ const v147ChangelogEntryNb: ChangelogEntryData = {
           type: 'list',
           items: [
             'Vi har sikret mottaket av hendelser bedre mot ugyldige og ondsinnede data, i tillegg til generelle sikkerhetsoppdateringer som holder Betterlytics stabil og sikker.',
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-const v147ChangelogModalNb: ChangelogEntryData = {
-  metadata: {
-    ...v147ChangelogEntryNb.metadata,
-    summary:
-      'Den offisielle WordPress-pluginen vår er ute, bot-filtreringen er blitt mye sterkere, og fakturering viser nå hva forbruket ditt består av.',
-  },
-  sections: [
-    {
-      id: 'v147-modal-highlights',
-      title: 'Høydepunkter',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Betterlytics har nå en offisiell WordPress-plugin. Har du et WordPress-nettsted, kobler du det til fra wp-admin med Site ID-en din, helt uten kode og uten noe som må gjøres på nytt etter en temaoppdatering.',
-            'Første bølge av det ombygde bot-filteret vårt er live og holder flere bots, crawlere og henvisningsspam ute av rapportene dine. Det kommer flere bølger.',
-            'Under fakturering finner du nå en forbruksoversikt som viser hvilke hendelsestyper og hvilke nettsteder det månedlige forbruket ditt består av.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v147-modal-also',
-      title: 'Også med i denne utgivelsen',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Bedre stabilitet og sikkerhet i hendelsespipelinen vår.',
-            'Rettet en redirect-løkke når man fulgte en gammel dashbord-lenke.',
-            'Mindre forbedringer i design og brukervennlighet på tvers av dashbordet.',
           ],
         },
       ],
@@ -325,9 +383,10 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v147ChangelogModalNb;
+export const latestChangelogModalNb = v148ChangelogModalNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v148ChangelogEntryNb,
   v147ChangelogEntryNb,
   v146ChangelogEntryNb,
   v145ChangelogEntryNb,
