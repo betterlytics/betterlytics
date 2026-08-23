@@ -6,6 +6,10 @@ const { Client } = require("pg");
  * Declarative provisioning for the Postgres roles the analytics backend uses.
  *
  * This manifest is the single source of truth for which role may touch which table.
+ *
+ * `grants` lists per-table privileges in the public schema. `schemaGrants` lists privileges
+ * on every table of a schema, present and future; use it for schemas whose tables are created
+ * at runtime by the application rather than by Prisma migrations (pg-boss).
  */
 const ROLES = [
   {
@@ -33,6 +37,17 @@ const ROLES = [
     // Read-write: secret fingerprint salts.
     grants: {
       AnalyticsSalt: ["SELECT", "INSERT", "DELETE"],
+    },
+  },
+  {
+    name: "jobqueue_rw",
+    passwordEnv: "POSTGRES_JOBQUEUE_RW_PASSWORD",
+    // pg-boss creates and migrates its own tables on worker start,
+    // which may be after this script runs, so the grant covers the whole schema including
+    // future tables.
+    grants: {},
+    schemaGrants: {
+      pgboss: ["SELECT", "INSERT"],
     },
   },
 ];
@@ -82,9 +97,26 @@ async function provisionRole(client, dbName, role) {
     await client.query(
       `REVOKE ALL ON ALL TABLES IN SCHEMA public FROM ${roleIdent}`
     );
-    for (const [table, privileges] of Object.entries(role.grants)) {
+    for (const [table, privileges] of Object.entries(role.grants ?? {})) {
       await client.query(
         `GRANT ${privileges.join(", ")} ON TABLE ${quoteIdent(table)} TO ${roleIdent}`
+      );
+    }
+
+    for (const [schema, privileges] of Object.entries(role.schemaGrants ?? {})) {
+      const schemaIdent = quoteIdent(schema);
+      const privs = privileges.join(", ");
+      // The application creates the schema's tables at runtime as the POSTGRES_URL user
+      // (the same user running this script), so default privileges declared here apply to
+      // every table it creates later; the ALL TABLES grant covers installs that already have
+      // them.
+      await client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaIdent}`);
+      await client.query(`GRANT USAGE ON SCHEMA ${schemaIdent} TO ${roleIdent}`);
+      await client.query(
+        `GRANT ${privs} ON ALL TABLES IN SCHEMA ${schemaIdent} TO ${roleIdent}`
+      );
+      await client.query(
+        `ALTER DEFAULT PRIVILEGES IN SCHEMA ${schemaIdent} GRANT ${privs} ON TABLES TO ${roleIdent}`
       );
     }
 
@@ -94,10 +126,15 @@ async function provisionRole(client, dbName, role) {
     throw error;
   }
 
-  const summary = Object.entries(role.grants)
-    .map(([table, privileges]) => `${table}(${privileges.join("/")})`)
-    .join(", ");
-    
+  const summary = [
+    ...Object.entries(role.grants ?? {}).map(
+      ([table, privileges]) => `${table}(${privileges.join("/")})`
+    ),
+    ...Object.entries(role.schemaGrants ?? {}).map(
+      ([schema, privileges]) => `schema ${schema}.*(${privileges.join("/")})`
+    ),
+  ].join(", ");
+
   console.log(`provision_roles: '${role.name}' -> ${summary}`);
 }
 
