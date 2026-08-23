@@ -61,9 +61,8 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   );
   const scopeKey = useMemo(() => JSON.stringify(scopeFilters), [scopeFilters]);
 
-  const source = useFilterOptionsSource();
-  const { useFilterOptionsQuery } = source;
-  const { options: fetchedOptions, isLoading, emptyIndicator } = useFilterOptionsQuery({
+  const { useFilterOptionsQuery } = useFilterOptionsSource();
+  const { options: fetchedOptions, isLoading, emptyIndicator, scopeKey: sourceScopeKey } = useFilterOptionsQuery({
     filter,
     siblingFilters: options?.siblingFilters ?? [],
     query,
@@ -78,7 +77,7 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     setSearchMetadataResult(null);
     _setSearch('');
     setIsDirty(false);
-  }, [filter.column, scopeKey, source.scopeKey]);
+  }, [filter.column, scopeKey, sourceScopeKey]);
 
   useEffect(() => {
     if (disabled) return;

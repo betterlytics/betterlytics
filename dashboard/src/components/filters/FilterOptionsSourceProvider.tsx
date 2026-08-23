@@ -22,8 +22,7 @@ export type FilterOptionsQueryInput = {
 export type FilterOptionsSource = {
   useFilterOptionsQuery: (
     input: FilterOptionsQueryInput,
-  ) => { options: string[]; isLoading: boolean; emptyIndicator?: ReactNode };
-  scopeKey?: string;
+  ) => { options: string[]; isLoading: boolean; emptyIndicator?: ReactNode; scopeKey?: string };
 };
 
 const useDefaultFilterOptionsQuery: FilterOptionsSource['useFilterOptionsQuery'] = ({
