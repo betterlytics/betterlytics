@@ -49,10 +49,10 @@ export function getStepExcludedColumns(
   return [...excludedColumns, ...excludedSources];
 }
 
-export function stripInfeasibleStepFilters(
-  stepFilters: StepFiltersBySlot,
+export function stripInfeasibleStepFilters<T extends { column: FilterColumn }>(
+  stepFilters: Record<string, T[]>,
   lastSlot: number,
-): StepFiltersBySlot {
+): Record<string, T[]> {
   const entries = Object.entries(stepFilters)
     .map(
       ([slot, filters]) =>
@@ -65,6 +65,6 @@ export function stripInfeasibleStepFilters(
   return Object.fromEntries(entries);
 }
 
-export function pruneStepFilters(stepFilters: StepFiltersBySlot, lastSlot: number): StepFiltersBySlot {
+export function pruneStepFilters<T>(stepFilters: Record<string, T[]>, lastSlot: number): Record<string, T[]> {
   return Object.fromEntries(Object.entries(stepFilters).filter(([slot]) => Number(slot) <= lastSlot));
 }

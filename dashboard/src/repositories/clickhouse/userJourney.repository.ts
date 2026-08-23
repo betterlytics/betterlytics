@@ -3,21 +3,41 @@ import { JourneyTransition, JourneyTransitionSchema } from '@/entities/analytics
 import { safeSql, SQL, type SQLTaggedExpression } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
-import { isUsableFilter, type QueryFilter } from '@/entities/analytics/filter.entities';
-import { classifyStepFilter, type StepFiltersBySlot } from '@/entities/analytics/stepFilters.entities';
+import {
+  isUsableFilter,
+  parseFilterColumn,
+  type FilterColumn,
+  type QueryFilter,
+  type ScopeFilter,
+  type TableFilterColumn,
+} from '@/entities/analytics/filter.entities';
+import {
+  classifyStepFilter,
+  pruneStepFilters,
+  stripInfeasibleStepFilters,
+} from '@/entities/analytics/stepFilters.entities';
+import { filterColumnSql } from '@/lib/filter-sql';
+import { PROPERTY_SQL } from '@/lib/property-source-sql';
+
+type JourneyCarry = {
+  entryColumn?: TableFilterColumn;
+  exit?: boolean;
+  fullTs?: boolean;
+};
 
 type JourneyQueryArgs = {
   queryFilters: QueryFilter[];
-  stepFilters: StepFiltersBySlot;
+  stepFilters: Record<string, ScopeFilter[]>;
   numberOfSteps: number;
   sample: SQLTaggedExpression;
+  carry?: JourneyCarry;
 };
 
-function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample }: JourneyQueryArgs) {
-  const entryFilters: QueryFilter[] = [];
-  const exitFilters: QueryFilter[] = [];
-  const positionalFilters: Array<{ slot: number; filter: QueryFilter }> = [];
-  const stepEventFilters: Array<{ slot: number; filter: QueryFilter }> = [];
+function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample, carry = {} }: JourneyQueryArgs) {
+  const entryFilters: ScopeFilter[] = [];
+  const exitFilters: ScopeFilter[] = [];
+  const positionalFilters: Array<{ slot: number; filter: ScopeFilter }> = [];
+  const stepEventFilters: Array<{ slot: number; filter: ScopeFilter }> = [];
 
   for (const [slotKey, slotFilters] of Object.entries(stepFilters)) {
     const slot = Number(slotKey);
@@ -48,8 +68,9 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
   const entryHaving = hasEntry ? safeSql` HAVING ${SQL.AND(entryPredicates)}` : safeSql``;
 
   const hasExit = exitFilters.length > 0;
-  const exitOrderedColumns = hasExit ? safeSql`, max(timestamp) AS last_pageview_ts` : safeSql``;
-  const exitSessionColumns = hasExit
+  const wantExitColumns = hasExit || carry.exit === true;
+  const exitOrderedColumns = wantExitColumns ? safeSql`, max(timestamp) AS last_pageview_ts` : safeSql``;
+  const exitSessionColumns = wantExitColumns
     ? safeSql`, length(arrayFilter((x, idx) -> idx = 1 OR x.2 != sorted_tuples[idx - 1].2, sorted_tuples, arrayEnumerate(sorted_tuples))) AS full_path_length`
     : safeSql``;
   const exitCte = hasExit
@@ -67,12 +88,17 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     : safeSql``;
   const exitJoin = hasExit ? safeSql` ANY LEFT JOIN exit_clicks USING (session_id)` : safeSql``;
 
-  const exitCarry = hasExit ? safeSql`, last_matching_click, last_pageview_ts` : safeSql``;
+  const exitCarry = safeSql`${hasExit ? safeSql`, last_matching_click` : safeSql``}${wantExitColumns ? safeSql`, last_pageview_ts` : safeSql``}`;
+
+  const entrySuggestColumn = carry.entryColumn
+    ? safeSql`, argMin(${filterColumnSql(carry.entryColumn)}, timestamp) AS entry_value`
+    : safeSql``;
+  const entryCarry = carry.entryColumn ? safeSql`, entry_value` : safeSql``;
 
   const stepEventGroups: Array<{ alias: string; column: number; negate: boolean; predicate: SQLTaggedExpression }> = [];
+  let stepEventParamNext = 0;
   {
-    let paramIndex = 0;
-    const bySlot = new Map<number, { positives: QueryFilter[]; negatives: QueryFilter[] }>();
+    const bySlot = new Map<number, { positives: ScopeFilter[]; negatives: ScopeFilter[] }>();
     for (const { slot, filter } of stepEventFilters) {
       const entry = bySlot.get(slot) ?? { positives: [], negatives: [] };
       (filter.operator === '!=' ? entry.negatives : entry.positives).push(filter);
@@ -80,7 +106,9 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     }
     for (const [slot, { positives, negatives }] of [...bySlot.entries()].sort(([a], [b]) => a - b)) {
       if (positives.length > 0) {
-        const predicate = SQL.AND(positives.map((filter) => BAQuery.buildStepEventRowPredicate(filter, paramIndex++)));
+        const predicate = SQL.AND(
+          positives.map((filter) => BAQuery.buildStepEventRowPredicate(filter, stepEventParamNext++)),
+        );
         stepEventGroups.push({ alias: `stepevt_ts_${stepEventGroups.length}`, column: slot + 1, negate: false, predicate });
       }
       for (const filter of negatives) {
@@ -88,7 +116,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
           alias: `stepevt_ts_${stepEventGroups.length}`,
           column: slot + 1,
           negate: true,
-          predicate: BAQuery.buildStepEventRowPredicate(filter, paramIndex++),
+          predicate: BAQuery.buildStepEventRowPredicate(filter, stepEventParamNext++),
         });
       }
     }
@@ -115,7 +143,8 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
     )`
     : safeSql``;
   const stepEventJoin = hasStepEvents ? safeSql` ANY LEFT JOIN step_events USING (session_id)` : safeSql``;
-  const fullTsColumn = hasStepEvents
+  const wantFullTs = hasStepEvents || carry.fullTs === true;
+  const fullTsColumn = wantFullTs
     ? safeSql`,
         arrayMap(
           x -> x.1,
@@ -159,7 +188,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
       SELECT
         session_id,
         arraySort(x -> x.1, groupArray((timestamp, url))) AS sorted_tuples,
-        any(_sample_factor) as _sample_factor${exitOrderedColumns}
+        any(_sample_factor) as _sample_factor${exitOrderedColumns}${entrySuggestColumn}
       FROM analytics.events ${sample}
       WHERE
         site_id = {site_id:String}
@@ -184,11 +213,11 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
             {max_length:UInt8}
           )
         ) AS path${fullTsColumn},
-        _sample_factor${exitSessionColumns}${exitCarry}${stepEventCarry}
+        _sample_factor${exitSessionColumns}${exitCarry}${stepEventCarry}${entryCarry}
       FROM ordered_events${exitJoin}${stepEventJoin}
     )`;
 
-  return { prefix, gateExprs };
+  return { prefix, gateExprs, stepEventParamNext };
 }
 
 export function buildJourneyQuery(args: JourneyQueryArgs) {
@@ -224,6 +253,149 @@ export function buildJourneyQuery(args: JourneyQueryArgs) {
     GROUP BY source, target, source_depth, target_depth
     ORDER BY value DESC
   `;
+}
+
+export type JourneySuggestionArgs = {
+  queryFilters: QueryFilter[];
+  stepFilters: Record<string, ScopeFilter[]>;
+  numberOfSteps: number;
+  sample: SQLTaggedExpression;
+  column: FilterColumn;
+  slot: number;
+  search?: string;
+};
+
+export function buildJourneySuggestionQuery(args: JourneySuggestionArgs) {
+  const { queryFilters, numberOfSteps, sample, column, slot, search } = args;
+  const lastSlot = numberOfSteps - 1;
+  if (!Number.isInteger(slot) || slot < 0 || slot > lastSlot) {
+    throw new Error(`Invalid suggestion slot: ${slot}`);
+  }
+  const kind = classifyStepFilter(column, slot, lastSlot);
+  if (kind === 'infeasible') {
+    throw new Error(`Column is not suggestible at this step: ${column}`);
+  }
+  const scoped = stripInfeasibleStepFilters(pruneStepFilters(args.stepFilters, slot), lastSlot);
+  const parsed = parseFilterColumn(column);
+  const carry: JourneyCarry = {};
+  if (kind === 'entry') {
+    if (parsed.kind !== 'standard') {
+      throw new Error(`Entry suggestions require a standard column: ${column}`);
+    }
+    carry.entryColumn = parsed.col;
+  }
+  if (kind === 'exit') carry.exit = true;
+  if (kind === 'stepEvent') carry.fullTs = true;
+
+  const { prefix, gateExprs, stepEventParamNext } = buildJourneyPipeline({
+    queryFilters,
+    stepFilters: scoped,
+    numberOfSteps,
+    sample,
+    carry,
+  });
+  const gateWhere = gateExprs.reduce((acc, gate) => safeSql`${acc} AND ${gate}`, safeSql``);
+  const searchClause = search?.trim()
+    ? safeSql` AND value ILIKE ${SQL.String({ suggest_search: `%${search.trim()}%` })}`
+    : safeSql``;
+  const c = SQL.Unsafe(String(slot + 1));
+
+  if (kind === 'positional') {
+    return safeSql`${prefix}
+    SELECT DISTINCT path[${c}] AS value
+    FROM session_paths
+    WHERE length(path) > 1 AND length(path) >= ${c}${gateWhere} AND value != ''${searchClause}
+    LIMIT {limit:UInt32}
+  `;
+  }
+
+  if (kind === 'entry') {
+    return safeSql`${prefix}
+    SELECT DISTINCT entry_value AS value
+    FROM session_paths
+    WHERE length(path) > 1${gateWhere} AND value != ''${searchClause}
+    LIMIT {limit:UInt32}
+  `;
+  }
+
+  if (kind === 'exit') {
+    return safeSql`${prefix},
+    exit_candidates AS (
+      SELECT session_id, timestamp AS click_ts, ${filterColumnSql('outbound_link_url')} AS exit_value
+      FROM analytics.events ${sample}
+      WHERE
+        site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND event_type = 'outbound_link'
+    )
+    SELECT DISTINCT exit_value AS value
+    FROM session_paths INNER JOIN exit_candidates USING (session_id)
+    WHERE length(path) > 1 AND full_path_length = {max_length:UInt8} AND click_ts > last_pageview_ts${gateWhere} AND value != ''${searchClause}
+    LIMIT {limit:UInt32}
+  `;
+  }
+
+  const sameSlotPositives = (scoped[String(slot)] ?? []).filter(
+    (stepFilter) => stepFilter.operator === '=' && classifyStepFilter(stepFilter.column, slot, lastSlot) === 'stepEvent',
+  );
+  let candidateParamIndex = stepEventParamNext;
+  const candidateRowFilter =
+    sameSlotPositives.length > 0
+      ? safeSql` AND ${SQL.AND(sameSlotPositives.map((stepFilter) => BAQuery.buildStepEventRowPredicate(stepFilter, candidateParamIndex++)))}`
+      : safeSql``;
+  const valueExpr =
+    parsed.kind === 'property'
+      ? PROPERTY_SQL.cep.sql.extractValue(SQL.String({ suggest_cep_key: parsed.key }))
+      : filterColumnSql('custom_event_name');
+  const next = SQL.Unsafe(String(slot + 2));
+  const lower = slot === 0 ? safeSql`` : safeSql`evt_ts >= full_ts[${c}] AND `;
+  return safeSql`${prefix},
+    event_candidates AS (
+      SELECT session_id, timestamp AS evt_ts, ${valueExpr} AS evt_value
+      FROM analytics.events ${sample}
+      WHERE
+        site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND event_type = 'custom'${candidateRowFilter}
+    )
+    SELECT DISTINCT evt_value AS value
+    FROM session_paths INNER JOIN event_candidates USING (session_id)
+    WHERE length(path) > 1 AND length(path) >= ${c} AND ${lower}(${c} = length(full_ts) OR evt_ts < full_ts[${next}])${gateWhere} AND value != ''${searchClause}
+    LIMIT {limit:UInt32}
+  `;
+}
+
+export async function getJourneyStepFilterValues(
+  siteQuery: BASiteQuery,
+  input: { column: FilterColumn; slot: number; stepFilters: Record<string, ScopeFilter[]>; search?: string; limit: number },
+): Promise<string[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const { sample } = await BAQuery.getSampling(siteId, startDateTime, endDateTime);
+
+  const query = buildJourneySuggestionQuery({
+    queryFilters,
+    stepFilters: input.stepFilters,
+    numberOfSteps: siteQuery.userJourney.numberOfSteps,
+    sample,
+    column: input.column,
+    slot: input.slot,
+    search: input.search,
+  });
+
+  const rows = (await clickhouse
+    .query(query.taggedSql, {
+      params: {
+        ...query.taggedParams,
+        site_id: siteId,
+        start: startDateTime,
+        end: endDateTime,
+        max_length: siteQuery.userJourney.numberOfSteps,
+        limit: input.limit,
+      },
+    })
+    .toPromise()) as Array<{ value: string }>;
+
+  return rows.map((row) => row.value);
 }
 
 /**
