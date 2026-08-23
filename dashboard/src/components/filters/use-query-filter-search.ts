@@ -1,7 +1,7 @@
 'use client';
 
 import { trpc } from '@/trpc/client';
-import { dependencyScopeFilters, QueryFilter } from '@/entities/analytics/filter.entities';
+import { dependencyScopeFilters, toScopeFilter, QueryFilter } from '@/entities/analytics/filter.entities';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAnalyticsQuery } from '@/hooks/use-analytics-query';
@@ -60,10 +60,7 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   }, [searchMetadataResult]);
 
   const scopeFilters = useMemo(
-    () =>
-      dependencyScopeFilters(filter.column, options?.siblingFilters ?? []).map(
-        ({ column, operator, values }) => ({ column, operator, values }),
-      ),
+    () => dependencyScopeFilters(filter.column, options?.siblingFilters ?? []).map(toScopeFilter),
     [filter.column, options?.siblingFilters],
   );
   const scopeKey = useMemo(() => JSON.stringify(scopeFilters), [scopeFilters]);
@@ -87,6 +84,8 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   useEffect(() => {
     setSearchMetadataResult(null);
     setServerOptions([]);
+    _setSearch('');
+    setIsDirty(false);
   }, [filter.column, scopeKey]);
 
   useEffect(() => {

@@ -64,6 +64,10 @@ export const ScopeFilterSchema = QueryFilterSchema.omit({ id: true });
 
 export type ScopeFilter = z.infer<typeof ScopeFilterSchema>;
 
+export function toScopeFilter({ column, operator, values }: ScopeFilter): ScopeFilter {
+  return { column, operator, values };
+}
+
 export function createEmptyQueryFilter(): QueryFilter {
   return { id: generateTempId(), column: 'url', operator: '=', values: [] };
 }
