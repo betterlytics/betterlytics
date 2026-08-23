@@ -1,12 +1,20 @@
 'server-only';
 
-import { getUserJourneyTransitions } from '@/repositories/clickhouse/userJourney.repository';
+import { getJourneyStepFilterValues, getUserJourneyTransitions } from '@/repositories/clickhouse/userJourney.repository';
+import { type FilterColumn, type ScopeFilter } from '@/entities/analytics/filter.entities';
 import { SankeyData, SankeyNode, SankeyLink, JourneyTransition } from '@/entities/analytics/userJourney.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getUserJourneyForSankeyDiagram(siteQuery: BASiteQuery, limit: number = 50): Promise<SankeyData> {
   const transitions = await getUserJourneyTransitions(siteQuery, limit);
   return buildSankeyFromTransitions(transitions);
+}
+
+export async function getJourneyStepFilterOptions(
+  siteQuery: BASiteQuery,
+  input: { column: FilterColumn; slot: number; stepFilters: Record<string, ScopeFilter[]>; search?: string; limit: number },
+): Promise<string[]> {
+  return getJourneyStepFilterValues(siteQuery, { ...input, search: input.search?.trim() });
 }
 
 function buildSankeyFromTransitions(transitions: JourneyTransition[]): SankeyData {
