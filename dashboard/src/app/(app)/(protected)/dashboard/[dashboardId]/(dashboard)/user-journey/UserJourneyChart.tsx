@@ -165,10 +165,10 @@ export default function UserJourneyChart({ data, numberOfSteps }: UserJourneyCha
   const isHighlighting = isLocked || isHovering;
 
   return (
-    <div className='relative z-10'>
+    <div className='relative'>
       <svg
         ref={containerRef}
-        className='relative z-10'
+        className='relative'
         viewBox={`0 0 ${width} ${1.25 * height}`}
         onMouseLeave={handleMouseLeave}
         onMouseMove={handleMouseMove}
