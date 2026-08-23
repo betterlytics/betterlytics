@@ -116,7 +116,7 @@ export function FilterColumnDropdown<TEntity>({
               );
             })}
           </BADropdownMenuGroup>
-          <BADropdownMenuSeparator />
+          {propertySources.length > 0 && <BADropdownMenuSeparator />}
           {propertySources.map(({ source, labelKey, status, disabledMessage }) =>
             status.disabled ? (
               <BADropdownMenuItem key={source} disabled>
