@@ -43,6 +43,7 @@ describe('buildJourneyQuery without step filters', () => {
     expect(query.taggedSql).not.toContain('evt_ok_');
     expect(query.taggedSql).not.toContain('entry_ok');
     expect(query.taggedSql).not.toContain('survivors');
+    expect(query.taggedSql).not.toContain('full_ts');
   });
 
   it('matches the golden production query', () => {
@@ -195,5 +196,53 @@ describe('exit step filters', () => {
   it('drops outbound filters at non-last slots as infeasible', () => {
     const query = build({ '1': [filter('outbound_link_url', ['https://x.com'])] });
     expect(query.taggedSql).not.toContain('exit_clicks');
+  });
+});
+
+describe('window-anchored step event filters', () => {
+  it('collects matching event timestamps in a step_events CTE and gates the window', () => {
+    const query = build({ '1': [filter('custom_event_name', ['signup'])] });
+    expect(query.taggedSql).toContain('step_events AS (');
+    expect(query.taggedSql).toContain(`event_type = 'custom'`);
+    expect(query.taggedSql).toContain('groupArrayIf(timestamp');
+    expect(query.taggedSql).toContain('AS full_ts');
+    expect(query.taggedSql).toContain('ANY LEFT JOIN step_events USING (session_id)');
+    expect(query.taggedSql).toContain(
+      '(length(path) >= 2 AND (arrayExists(t -> t >= full_ts[2] AND (2 = length(full_ts) OR t < full_ts[3]), stepevt_ts_0)))',
+    );
+    expect(Object.keys(query.taggedParams)).toContain('stepevt_filter_0');
+  });
+
+  it('omits the lower bound for slot 0 windows', () => {
+    const query = build({ '0': [filter('custom_event_name', ['signup'])] });
+    expect(query.taggedSql).toContain('arrayExists(t -> (1 = length(full_ts) OR t < full_ts[2]), stepevt_ts_0)');
+    expect(query.taggedSql).not.toContain('t >= full_ts[1]');
+  });
+
+  it('negates window existence for != while keeping the reach conjunct', () => {
+    const query = build({ '1': [filter('custom_event_name', ['signup'], '!=')] });
+    expect(query.taggedSql).toContain('(length(path) >= 2 AND (NOT arrayExists(');
+  });
+
+  it('combines same-slot = filters into one same-event predicate group', () => {
+    const query = build({ '1': [filter('custom_event_name', ['signup']), filter('cep.plan', ['pro'])] });
+    const groupArrayIfCount = (query.taggedSql.match(/groupArrayIf\(timestamp/g) ?? []).length;
+    expect(groupArrayIfCount).toBe(1);
+    expect(query.taggedSql).toContain('JSONExtractString');
+  });
+
+  it('gives each != filter its own absence array', () => {
+    const query = build({
+      '1': [filter('custom_event_name', ['signup']), filter('custom_event_name', ['cancel'], '!=')],
+    });
+    const groupArrayIfCount = (query.taggedSql.match(/groupArrayIf\(timestamp/g) ?? []).length;
+    expect(groupArrayIfCount).toBe(2);
+  });
+
+  it('emits none of the step event constructs without step event filters', () => {
+    const query = build({ '1': [filter('url', ['/a'])] });
+    expect(query.taggedSql).not.toContain('step_events');
+    expect(query.taggedSql).not.toContain('full_ts');
+    expect(query.taggedSql).not.toContain('stepevt_');
   });
 });

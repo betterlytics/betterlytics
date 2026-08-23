@@ -17,6 +17,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
   const entryFilters: QueryFilter[] = [];
   const exitFilters: QueryFilter[] = [];
   const positionalFilters: Array<{ slot: number; filter: QueryFilter }> = [];
+  const stepEventFilters: Array<{ slot: number; filter: QueryFilter }> = [];
 
   for (const [slotKey, slotFilters] of Object.entries(stepFilters)) {
     const slot = Number(slotKey);
@@ -30,6 +31,9 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
           break;
         case 'positional':
           positionalFilters.push({ slot, filter });
+          break;
+        case 'stepEvent':
+          stepEventFilters.push({ slot, filter });
           break;
         case 'infeasible':
           break;
@@ -65,6 +69,62 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
 
   const exitCarry = hasExit ? safeSql`, last_matching_click, last_pageview_ts` : safeSql``;
 
+  const stepEventGroups: Array<{ alias: string; column: number; negate: boolean; predicate: SQLTaggedExpression }> = [];
+  {
+    let index = 0;
+    const bySlot = new Map<number, { positives: QueryFilter[]; negatives: QueryFilter[] }>();
+    for (const { slot, filter } of stepEventFilters) {
+      const entry = bySlot.get(slot) ?? { positives: [], negatives: [] };
+      (filter.operator === '!=' ? entry.negatives : entry.positives).push(filter);
+      bySlot.set(slot, entry);
+    }
+    for (const [slot, { positives, negatives }] of [...bySlot.entries()].sort(([a], [b]) => a - b)) {
+      if (positives.length > 0) {
+        const predicate = SQL.AND(positives.map((filter) => BAQuery.buildStepEventRowPredicate(filter, index++)));
+        stepEventGroups.push({ alias: `stepevt_ts_${stepEventGroups.length}`, column: slot + 1, negate: false, predicate });
+      }
+      for (const filter of negatives) {
+        stepEventGroups.push({
+          alias: `stepevt_ts_${stepEventGroups.length}`,
+          column: slot + 1,
+          negate: true,
+          predicate: BAQuery.buildStepEventRowPredicate(filter, index++),
+        });
+      }
+    }
+  }
+  const hasStepEvents = stepEventGroups.length > 0;
+
+  const stepEventColumns = stepEventGroups.reduce(
+    (acc, group) => safeSql`${acc}, groupArrayIf(timestamp, ${group.predicate}) AS ${SQL.Unsafe(group.alias)}`,
+    safeSql``,
+  );
+  const stepEventCte = hasStepEvents
+    ? safeSql`,
+    step_events AS (
+      SELECT session_id${stepEventColumns}
+      FROM analytics.events ${sample}
+      WHERE
+        site_id = {site_id:String}
+        AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
+        AND event_type = 'custom'
+      GROUP BY session_id
+    )`
+    : safeSql``;
+  const stepEventJoin = hasStepEvents ? safeSql` ANY LEFT JOIN step_events USING (session_id)` : safeSql``;
+  const fullTsColumn = hasStepEvents
+    ? safeSql`,
+        arrayMap(
+          x -> x.1,
+          arrayFilter(
+            (x, idx) -> idx = 1 OR x.2 != sorted_tuples[idx - 1].2,
+            sorted_tuples,
+            arrayEnumerate(sorted_tuples)
+          )
+        ) AS full_ts`
+    : safeSql``;
+  const stepEventCarry = stepEventGroups.reduce((acc, group) => safeSql`${acc}, ${SQL.Unsafe(group.alias)}`, safeSql``);
+
   const gates = new Map<number, SQLTaggedExpression[]>();
   const addGate = (column: number, expr: SQLTaggedExpression) => {
     if (!Number.isInteger(column) || column < 1 || column > 32) {
@@ -77,6 +137,13 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
   );
   if (hasExit) {
     addGate(numberOfSteps, safeSql`full_path_length = {max_length:UInt8} AND last_matching_click > last_pageview_ts`);
+  }
+  for (const group of stepEventGroups) {
+    const c = SQL.Unsafe(String(group.column));
+    const next = SQL.Unsafe(String(group.column + 1));
+    const lower = group.column === 1 ? safeSql`` : safeSql`t >= full_ts[${c}] AND `;
+    const membership = safeSql`arrayExists(t -> ${lower}(${c} = length(full_ts) OR t < full_ts[${next}]), ${SQL.Unsafe(group.alias)})`;
+    addGate(group.column, group.negate ? safeSql`NOT ${membership}` : membership);
   }
 
   const gateColumns = [...gates.keys()].sort((a, b) => a - b);
@@ -98,7 +165,7 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
         AND event_type = 'pageview'
         AND ${SQL.AND(filters)}
       GROUP BY session_id${entryHaving}
-    )${exitCte},
+    )${exitCte}${stepEventCte},
     session_paths AS (
       SELECT
         /* Collapse consecutive duplicate URLs per session, keep order, then trim to max_length */
@@ -113,9 +180,9 @@ function buildJourneyPipeline({ queryFilters, stepFilters, numberOfSteps, sample
             1,
             {max_length:UInt8}
           )
-        ) AS path,
-        _sample_factor${exitSessionColumns}${exitCarry}
-      FROM ordered_events${exitJoin}
+        ) AS path${fullTsColumn},
+        _sample_factor${exitSessionColumns}${exitCarry}${stepEventCarry}
+      FROM ordered_events${exitJoin}${stepEventJoin}
     )`;
 
   return { prefix, gateExprs };
