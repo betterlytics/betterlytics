@@ -27,6 +27,7 @@ use crate::error_fingerprint::generate_error_fingerprint;
 
 static FINALIZE_CACHE: Lazy<Cache<String, SessionReplayMetaRow>> = Lazy::new(|| {
     Cache::builder()
+        .max_capacity(500_000)
         .time_to_live(Duration::from_secs(2 * 60 * 60))
         .build()
 });
@@ -35,6 +36,7 @@ static FINALIZE_CACHE: Lazy<Cache<String, SessionReplayMetaRow>> = Lazy::new(|| 
 // can't lose accumulated meta or slip past MAX_SESSION_BYTES on a stale read.
 static META_LOCKS: Lazy<Cache<String, Arc<tokio::sync::Mutex<()>>>> = Lazy::new(|| {
     Cache::builder()
+        .max_capacity(1_000_000)
         .time_to_idle(Duration::from_secs(2 * 60 * 60))
         .build()
 });
