@@ -44,6 +44,12 @@ async function main() {
     const replayTables = ["session_replays", "session_replay_segments"];
     if (retentionDays > 0) {
       for (const table of replayTables) {
+        const result = await client.query({
+          query: `SELECT create_table_query LIKE '%TTL date + toIntervalDay(${retentionDays})%' AS has_ttl FROM system.tables WHERE database = 'analytics' AND name = '${table}'`,
+          format: "JSONEachRow",
+        });
+        const rows = await result.json();
+        if (rows[0]?.has_ttl) continue;
         await client.command({
           query: `ALTER TABLE analytics.${table} MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
         });
