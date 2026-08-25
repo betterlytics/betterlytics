@@ -192,9 +192,10 @@ pub async fn upload_segment(
         meta.start_url = start_url;
     }
 
-    if let Err(e) = upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, identity.fingerprint, &meta).await {
+    upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, identity.fingerprint, &meta).await.map_err(|e| {
         error!("Failed to upsert session replay: {}", e);
-    }
+        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+    })?;
     FINALIZE_CACHE.insert(key, meta);
 
     Ok(Json(UploadSegmentResponse {
