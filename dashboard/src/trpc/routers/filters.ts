@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { createRouter, analyticsProcedure } from '@/trpc/init';
-import { FilterColumnSchema, MAX_FILTER_ROWS, ScopeFilterSchema } from '@/entities/analytics/filter.entities';
+import { FilterColumnSchema, ScopeFilterSchema } from '@/entities/analytics/filter.entities';
 import { PROPERTY_SOURCE_KINDS } from '@/entities/analytics/propertySources';
 import { getAvailablePropertyKeys, getDistinctValuesForFilterColumn } from '@/services/analytics/filters.service';
 import { capitalizeFirstLetter } from '@/utils/formatters';
@@ -13,7 +13,7 @@ export const filtersRouter = createRouter({
         column: FilterColumnSchema,
         search: z.string().trim().max(128).optional(),
         limit: z.number().int().min(1).max(5000).optional().default(200),
-        scopeFilters: ScopeFilterSchema.array().max(MAX_FILTER_ROWS).optional(),
+        scopeFilters: ScopeFilterSchema.array().optional(),
       }),
     )
     .query(async ({ ctx, input }) => {
