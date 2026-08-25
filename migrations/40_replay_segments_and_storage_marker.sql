@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS analytics.session_replay_segments (
-    site_id String,
+    site_id LowCardinality(String),
     session_id UInt64,
     filename String,
     epoch_ms Int64,
