@@ -212,24 +212,36 @@ impl Database {
     }
 
     pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
-        let mut inserter = self.async_insert_client().inserter("analytics.session_replays")?;
+        let mut inserter = self.async_insert_client()
+            .inserter("analytics.session_replays")?
+            .with_timeouts(
+                Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
+                Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
+            );
         inserter.write(&row)?;
         inserter.end().await?;
         Ok(())
     }
 
     pub async fn fetch_session_replay_meta(&self, site_id: &str, session_id: u64) -> Result<Option<SessionReplayMetaRow>> {
-        let rows = self.clickhouse.inner()
+        let fetch = self.clickhouse.inner()
             .query("SELECT argMax(started_at, ended_at), max(ended_at), argMax(size_bytes, ended_at), argMax(start_url, ended_at), argMax(event_count, ended_at), argMax(error_fingerprints, ended_at), argMax(visitor_id, ended_at) FROM analytics.session_replays WHERE site_id = ? AND session_id = ? GROUP BY site_id, session_id")
             .bind(site_id)
             .bind(session_id)
-            .fetch_all::<SessionReplayMetaRow>()
-            .await?;
+            .fetch_all::<SessionReplayMetaRow>();
+        let rows = tokio::time::timeout(Duration::from_secs(INSERTER_TIMEOUT_SECS), fetch)
+            .await
+            .map_err(|_| anyhow::anyhow!("replay meta fetch timed out"))??;
         Ok(rows.into_iter().next())
     }
 
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
-        let mut inserter = self.async_insert_client().inserter("analytics.session_replay_segments")?;
+        let mut inserter = self.async_insert_client()
+            .inserter("analytics.session_replay_segments")?
+            .with_timeouts(
+                Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
+                Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
+            );
         inserter.write(&row)?;
         inserter.end().await?;
         Ok(())

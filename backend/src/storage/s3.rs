@@ -5,6 +5,8 @@ use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
 use aws_sdk_s3::types::ServerSideEncryption;
 use crate::config::Config;
 
+const PUT_TIMEOUT_SECS: u64 = 10;
+
 #[derive(Clone, Debug)]
 pub struct S3Service {
     client: Client,
@@ -68,7 +70,9 @@ impl S3Service {
         if self.sse_enabled {
             req = req.server_side_encryption(ServerSideEncryption::Aes256);
         }
-        req.send().await?;
+        tokio::time::timeout(std::time::Duration::from_secs(PUT_TIMEOUT_SECS), req.send())
+            .await
+            .map_err(|_| anyhow::anyhow!("S3 put_segment timed out"))??;
         Ok(())
     }
 }
