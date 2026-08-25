@@ -83,7 +83,6 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
 
   useEffect(() => {
     setSearchMetadataResult(null);
-    setServerOptions([]);
     _setSearch('');
     setIsDirty(false);
   }, [filter.column, scopeKey]);
