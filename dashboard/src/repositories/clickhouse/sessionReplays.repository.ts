@@ -10,7 +10,7 @@ export async function hasSessionReplay(siteId: string, sessionId: string): Promi
     SELECT 1
     FROM analytics.session_replays FINAL
     WHERE site_id = {site_id:String}
-      AND toString(session_id) = {session_id:String}
+      AND session_id = {session_id:UInt64}
     LIMIT 1
   `;
 
@@ -28,7 +28,7 @@ export async function getReplayStorageForSession(siteId: string, sessionId: stri
     SELECT storage
     FROM analytics.session_replays FINAL
     WHERE site_id = {site_id:String}
-      AND toString(session_id) = {session_id:String}
+      AND session_id = {session_id:UInt64}
     LIMIT 1
   `;
 
