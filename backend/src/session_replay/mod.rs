@@ -171,7 +171,7 @@ pub async fn upload_segment(
         start_url: start_url.clone(),
         event_count: 0,
         error_fingerprints: Vec::new(),
-    }).await;
+    }).await?;
 
     if meta.size_bytes.saturating_add(body_len) > MAX_SESSION_BYTES {
         return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
@@ -209,16 +209,16 @@ async fn get_or_load_meta(
     site_id: &str,
     session_id: u64,
     default: SessionReplayMetaRow,
-) -> SessionReplayMetaRow {
+) -> Result<SessionReplayMetaRow, (StatusCode, String)> {
     if let Some(meta) = FINALIZE_CACHE.get(key) {
-        return meta;
+        return Ok(meta);
     }
     match db.fetch_session_replay_meta(site_id, session_id).await {
-        Ok(Some(row)) => row,
-        Ok(None) => default,
+        Ok(Some(row)) => Ok(row),
+        Ok(None) => Ok(default),
         Err(e) => {
-            error!("Failed to load stored replay meta, seeding fresh: {}", e);
-            default
+            error!("Failed to load stored replay meta: {}", e);
+            Err((StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string()))
         }
     }
 }
@@ -308,7 +308,7 @@ pub async fn attach_replay_error(
         start_url: String::new(),
         event_count: 0,
         error_fingerprints: Vec::new(),
-    }).await;
+    }).await?;
 
     let fp = generate_error_fingerprint(&req.error_type, &req.error_exceptions);
     if !fp.is_empty() && !meta.error_fingerprints.contains(&fp) {
