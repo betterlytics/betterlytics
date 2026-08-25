@@ -2,10 +2,13 @@ use anyhow::Result;
 use aws_config::BehaviorVersion;
 use aws_sdk_s3::{Client, config::Region};
 use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
+use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::types::ServerSideEncryption;
+use tracing::{info, warn};
 use crate::config::Config;
 
 const PUT_TIMEOUT_SECS: u64 = 10;
+const HEAD_BUCKET_TIMEOUT_SECS: u64 = 10;
 
 #[derive(Clone, Debug)]
 pub struct S3Service {
@@ -49,6 +52,8 @@ impl S3Service {
         let client = Client::from_conf(s3_builder.build());
         let sse_enabled = cfg.s3_sse_enabled;
 
+        head_bucket_check(&client, &bucket).await?;
+
         Ok(Some(Self { client, bucket, sse_enabled }))
     }
 
@@ -74,5 +79,29 @@ impl S3Service {
             .await
             .map_err(|_| anyhow::anyhow!("S3 put_segment timed out"))??;
         Ok(())
+    }
+}
+
+
+async fn head_bucket_check(client: &Client, bucket: &str) -> Result<()> {
+    let head = client.head_bucket().bucket(bucket).send();
+    match tokio::time::timeout(std::time::Duration::from_secs(HEAD_BUCKET_TIMEOUT_SECS), head).await {
+        Ok(Ok(_)) => {
+            info!("S3 bucket '{}' reachable", bucket);
+            Ok(())
+        }
+        Ok(Err(e)) => {
+            let status = match &e {
+                SdkError::ServiceError(se) => Some(se.raw().status().as_u16()),
+                _ => None,
+            };
+            if status == Some(403) {
+                warn!("S3 HeadBucket on '{}' denied ({}); assuming bucket exists", bucket, e);
+                Ok(())
+            } else {
+                Err(anyhow::anyhow!("S3 bucket '{}' not accessible: {}", bucket, e))
+            }
+        }
+        Err(_) => Err(anyhow::anyhow!("S3 HeadBucket on '{}' timed out", bucket)),
     }
 }
