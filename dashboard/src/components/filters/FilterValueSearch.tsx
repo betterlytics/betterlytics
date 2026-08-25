@@ -32,11 +32,10 @@ export function FilterValueSearch<TEntity>({
   siblingFilters,
 }: FilterValueSearchProps<TEntity>) {
   const t = useTranslations('components.filters.selector');
-  const tMisc = useTranslations('misc');
   const locale = useLocale();
   const strategy = getFilterStrategy(filter.column);
 
-  const { search, setSearch, options } = useQueryFilterSearch(filter, {
+  const { search, setSearch, options, isLoading } = useQueryFilterSearch(filter, {
     useExtendedRange,
     disabled,
     siblingFilters,
@@ -91,11 +90,7 @@ export function FilterValueSearch<TEntity>({
           <span>{t('noValuesForCurrentPeriod')}</span>
         </div>
       }
-      loadingIndicator={
-        <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
-          <span>{tMisc('loading')}</span>
-        </div>
-      }
+      loading={isLoading && options.length === 0}
       creatable
     />
   );
