@@ -12,6 +12,7 @@ const MAX_DECOMPRESSED_BYTES: u64 = 32 * 1024 * 1024;
 #[derive(Debug)]
 pub enum StoreError {
     InvalidPayload(String),
+    BudgetExceeded,
     Storage(anyhow::Error),
 }
 
@@ -19,6 +20,7 @@ impl std::fmt::Display for StoreError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::InvalidPayload(msg) => write!(f, "invalid payload: {}", msg),
+            Self::BudgetExceeded => write!(f, "session replay size limit exceeded"),
             Self::Storage(e) => write!(f, "storage failure: {}", e),
         }
     }
@@ -39,11 +41,18 @@ impl SegmentStore {
         filename: &str,
         bytes: Bytes,
         gzip: bool,
+        budget: u64,
     ) -> Result<u64, StoreError> {
         match self {
             Self::ClickHouse(db) => {
                 let data = if gzip {
-                    gunzip_capped(&bytes, MAX_DECOMPRESSED_BYTES)?
+                    gunzip_capped(&bytes, MAX_DECOMPRESSED_BYTES.min(budget)).map_err(|e| match e {
+                        GunzipError::Invalid(msg) => StoreError::InvalidPayload(msg.to_string()),
+                        GunzipError::TooLarge if budget < MAX_DECOMPRESSED_BYTES => StoreError::BudgetExceeded,
+                        GunzipError::TooLarge => {
+                            StoreError::InvalidPayload("decompressed payload too large".to_string())
+                        }
+                    })?
                 } else {
                     String::from_utf8(bytes.to_vec())
                         .map_err(|_| StoreError::InvalidPayload("not valid UTF-8".to_string()))?
@@ -96,16 +105,22 @@ fn parse_epoch_ms(filename: &str) -> Result<i64, StoreError> {
         .ok_or_else(|| StoreError::InvalidPayload("malformed filename".to_string()))
 }
 
-fn gunzip_capped(bytes: &[u8], cap: u64) -> Result<String, StoreError> {
+#[derive(Debug)]
+enum GunzipError {
+    Invalid(&'static str),
+    TooLarge,
+}
+
+fn gunzip_capped(bytes: &[u8], cap: u64) -> Result<String, GunzipError> {
     let mut out = Vec::new();
     GzDecoder::new(bytes)
         .take(cap + 1)
         .read_to_end(&mut out)
-        .map_err(|_| StoreError::InvalidPayload("invalid gzip".to_string()))?;
+        .map_err(|_| GunzipError::Invalid("invalid gzip"))?;
     if out.len() as u64 > cap {
-        return Err(StoreError::InvalidPayload("decompressed payload too large".to_string()));
+        return Err(GunzipError::TooLarge);
     }
-    String::from_utf8(out).map_err(|_| StoreError::InvalidPayload("not valid UTF-8".to_string()))
+    String::from_utf8(out).map_err(|_| GunzipError::Invalid("not valid UTF-8"))
 }
 
 #[cfg(test)]
@@ -132,7 +147,7 @@ mod tests {
         let compressed = gzip(&big);
         assert!(matches!(
             gunzip_capped(&compressed, 512),
-            Err(StoreError::InvalidPayload(_))
+            Err(GunzipError::TooLarge)
         ));
     }
 
@@ -140,7 +155,7 @@ mod tests {
     fn non_gzip_bytes_error() {
         assert!(matches!(
             gunzip_capped(b"definitely not gzip", MAX_DECOMPRESSED_BYTES),
-            Err(StoreError::InvalidPayload(_))
+            Err(GunzipError::Invalid(_))
         ));
     }
 }
