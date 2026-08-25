@@ -40,10 +40,7 @@ async function main() {
       const days = parseInt(value ?? "", 10);
       return Number.isFinite(days) ? days : undefined;
     };
-    const retentionDays =
-      parseDays(process.env.REPLAY_RETENTION_DAYS) ??
-      parseDays(process.env.DATA_RETENTION_DAYS) ??
-      365;
+    const retentionDays = parseDays(process.env.REPLAY_RETENTION_DAYS) ?? 60;
     const replayTables = ["session_replays", "session_replay_segments"];
     if (retentionDays > 0) {
       for (const table of replayTables) {
