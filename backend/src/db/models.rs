@@ -137,6 +137,7 @@ pub struct SessionReplayMetaRow {
     pub start_url: String,
     pub event_count: u32,
     pub error_fingerprints: Vec<String>,
+    pub visitor_id: u64,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]

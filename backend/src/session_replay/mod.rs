@@ -45,6 +45,7 @@ fn cache_key(site_id: &str, session_id: u64) -> String {
 
 pub const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
 const MAX_SESSION_BYTES: u64 = 50 * 1024 * 1024;
+const MAX_ERROR_FINGERPRINTS: usize = 16;
 const TIMESTAMP_WINDOW_MS: i64 = 24 * 60 * 60 * 1000;
 
 fn timestamp_in_window(epoch_ms: i64, now_ms: i64) -> bool {
@@ -164,14 +165,16 @@ pub async fn upload_segment(
     let key = cache_key(&p.site_id, identity.session_id);
     let session_lock = META_LOCKS.get_with(key.clone(), || Arc::new(tokio::sync::Mutex::new(())));
     let _guard = session_lock.lock().await;
-    let mut meta = get_or_load_meta(&db, &key, &p.site_id, identity.session_id, SessionReplayMetaRow {
-        started_at: started,
-        ended_at: ended,
-        size_bytes: 0,
-        start_url: start_url.clone(),
-        event_count: 0,
-        error_fingerprints: Vec::new(),
-    }).await?;
+    let mut meta = get_or_load_meta(&db, &key, &p.site_id, identity.session_id).await?
+        .unwrap_or_else(|| SessionReplayMetaRow {
+            started_at: started,
+            ended_at: ended,
+            size_bytes: 0,
+            start_url: start_url.clone(),
+            event_count: 0,
+            error_fingerprints: Vec::new(),
+            visitor_id: identity.fingerprint,
+        });
 
     if meta.size_bytes.saturating_add(body_len) > MAX_SESSION_BYTES {
         return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
@@ -194,7 +197,7 @@ pub async fn upload_segment(
         meta.start_url = start_url;
     }
 
-    upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, identity.fingerprint, &meta).await.map_err(|e| {
+    upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, &meta).await.map_err(|e| {
         error!("Failed to upsert session replay: {}", e);
         (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
     })?;
@@ -211,19 +214,14 @@ async fn get_or_load_meta(
     key: &str,
     site_id: &str,
     session_id: u64,
-    default: SessionReplayMetaRow,
-) -> Result<SessionReplayMetaRow, (StatusCode, String)> {
+) -> Result<Option<SessionReplayMetaRow>, (StatusCode, String)> {
     if let Some(meta) = FINALIZE_CACHE.get(key) {
-        return Ok(meta);
+        return Ok(Some(meta));
     }
-    match db.fetch_session_replay_meta(site_id, session_id).await {
-        Ok(Some(row)) => Ok(row),
-        Ok(None) => Ok(default),
-        Err(e) => {
-            error!("Failed to load stored replay meta: {}", e);
-            Err((StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string()))
-        }
-    }
+    db.fetch_session_replay_meta(site_id, session_id).await.map_err(|e| {
+        error!("Failed to load stored replay meta: {}", e);
+        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+    })
 }
 
 async fn upsert_replay_row(
@@ -231,14 +229,13 @@ async fn upsert_replay_row(
     replay_ctx: &ReplayCtx,
     site_id: &str,
     session_id: u64,
-    visitor_id: u64,
     meta: &SessionReplayMetaRow,
 ) -> anyhow::Result<()> {
     let duration = (meta.ended_at.timestamp() - meta.started_at.timestamp()).max(0) as u32;
     let row = SessionReplayRow {
         site_id: site_id.to_string(),
         session_id,
-        visitor_id,
+        visitor_id: meta.visitor_id,
         started_at: meta.started_at,
         ended_at: meta.ended_at,
         duration,
@@ -258,8 +255,6 @@ pub struct ReplayErrorRequest {
     pub site_id: String,
     #[serde(with = "u64_as_string")]
     pub session_id: u64,
-    #[serde(with = "u64_as_string")]
-    pub visitor_id: u64,
     // cache-miss fallback only (e.g. backend restarted since the last segment upload)
     pub started_at: i64,
     pub ended_at: i64,
@@ -304,23 +299,20 @@ pub async fn attach_replay_error(
 
     let session_lock = META_LOCKS.get_with(key.clone(), || Arc::new(tokio::sync::Mutex::new(())));
     let _guard = session_lock.lock().await;
-    let mut meta = get_or_load_meta(&db, &key, &req.site_id, req.session_id, SessionReplayMetaRow {
-        started_at: started,
-        ended_at: ended,
-        size_bytes: 0,
-        start_url: String::new(),
-        event_count: 0,
-        error_fingerprints: Vec::new(),
-    }).await?;
+    let mut meta = get_or_load_meta(&db, &key, &req.site_id, req.session_id).await?
+        .ok_or((StatusCode::NOT_FOUND, "unknown session".to_string()))?;
 
     let fp = generate_error_fingerprint(&req.error_type, &req.error_exceptions);
-    if !fp.is_empty() && !meta.error_fingerprints.contains(&fp) {
+    if !fp.is_empty()
+        && !meta.error_fingerprints.contains(&fp)
+        && meta.error_fingerprints.len() < MAX_ERROR_FINGERPRINTS
+    {
         meta.error_fingerprints.push(fp);
     }
     meta.started_at = meta.started_at.min(started);
     meta.ended_at = meta.ended_at.max(ended);
 
-    upsert_replay_row(&db, &replay_ctx, &req.site_id, req.session_id, req.visitor_id, &meta).await.map_err(|e| {
+    upsert_replay_row(&db, &replay_ctx, &req.site_id, req.session_id, &meta).await.map_err(|e| {
         error!("Failed to upsert session replay: {}", e);
         (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
     })?;
