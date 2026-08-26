@@ -42,31 +42,27 @@ async function main() {
     };
     const retentionDays = parseDays(process.env.REPLAY_RETENTION_DAYS) ?? 60;
     const replayTables = ["session_replays", "session_replay_segments"];
-    if (retentionDays > 0) {
-      for (const table of replayTables) {
-        const result = await client.query({
-          query: `SELECT create_table_query LIKE '%TTL date + toIntervalDay(${retentionDays})%' AS has_ttl FROM system.tables WHERE database = 'analytics' AND name = '${table}'`,
-          format: "JSONEachRow",
-        });
-        const rows = await result.json();
-        if (rows[0]?.has_ttl) continue;
-        await client.command({
-          query: `ALTER TABLE analytics.${table} MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
-        });
-      }
-    } else {
-      for (const table of replayTables) {
-        const result = await client.query({
-          query: `SELECT create_table_query LIKE '%TTL %' AS has_ttl FROM system.tables WHERE database = 'analytics' AND name = '${table}'`,
-          format: "JSONEachRow",
-        });
-        const rows = await result.json();
-        if (rows[0]?.has_ttl) {
-          await client.command({
-            query: `ALTER TABLE analytics.${table} REMOVE TTL`,
-          });
-        }
-      }
+    const retentionMarker = `replay_retention_days=${retentionDays > 0 ? retentionDays : -1}`;
+    for (const table of replayTables) {
+      const result = await client.query({
+        query: `SELECT comment FROM system.tables WHERE database = 'analytics' AND name = '${table}'`,
+        format: "JSONEachRow",
+      });
+      const rows = await result.json();
+      if (rows[0]?.comment === retentionMarker) continue;
+
+      await client.command({
+        query:
+          retentionDays > 0
+            ? `ALTER TABLE analytics.${table} MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`
+            : `ALTER TABLE analytics.${table} REMOVE TTL`,
+      });
+      await client.command({
+        query: `ALTER TABLE analytics.${table} MODIFY COMMENT '${retentionMarker}'`,
+      });
+      console.log(
+        `Post-migration (clickhouse): set analytics.${table} replay retention to ${retentionDays > 0 ? `${retentionDays} days` : "indefinite"}.`,
+      );
     }
 
     if (!workerUser || !workerPassword) {

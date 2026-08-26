@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS analytics.session_replay_segments (
 ) ENGINE = MergeTree
 PARTITION BY toYYYYMM(date)
 ORDER BY (site_id, session_id, epoch_ms)
-TTL date + INTERVAL 60 DAY DELETE;
+TTL date + INTERVAL 2 MONTH DELETE;
 
 ALTER TABLE analytics.session_replays
     ADD COLUMN IF NOT EXISTS storage LowCardinality(String) DEFAULT 's3';
