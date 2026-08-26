@@ -12,7 +12,6 @@ const MAX_DECOMPRESSED_BYTES: u64 = 32 * 1024 * 1024;
 #[derive(Debug)]
 pub enum StoreError {
     InvalidPayload(String),
-    BudgetExceeded,
     Storage(anyhow::Error),
 }
 
@@ -20,7 +19,6 @@ impl std::fmt::Display for StoreError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::InvalidPayload(msg) => write!(f, "invalid payload: {}", msg),
-            Self::BudgetExceeded => write!(f, "session replay size limit exceeded"),
             Self::Storage(e) => write!(f, "storage failure: {}", e),
         }
     }
@@ -41,14 +39,12 @@ impl SegmentStore {
         filename: &str,
         bytes: Bytes,
         gzip: bool,
-        budget: u64,
-    ) -> Result<u64, StoreError> {
+    ) -> Result<(), StoreError> {
         match self {
             Self::ClickHouse(db) => {
                 let data = if gzip {
-                    gunzip_capped(&bytes, MAX_DECOMPRESSED_BYTES.min(budget)).map_err(|e| match e {
+                    gunzip_capped(&bytes, MAX_DECOMPRESSED_BYTES).map_err(|e| match e {
                         GunzipError::Invalid(msg) => StoreError::InvalidPayload(msg.to_string()),
-                        GunzipError::TooLarge if budget < MAX_DECOMPRESSED_BYTES => StoreError::BudgetExceeded,
                         GunzipError::TooLarge => {
                             StoreError::InvalidPayload("decompressed payload too large".to_string())
                         }
@@ -64,22 +60,20 @@ impl SegmentStore {
                 let date = chrono::DateTime::from_timestamp_millis(epoch_ms)
                     .ok_or_else(|| StoreError::InvalidPayload("epoch out of range".to_string()))?
                     .date_naive();
-                let size_bytes = data.len() as u64;
                 db.insert_replay_segment(SessionReplaySegmentRow {
                     site_id: site_id.to_string(),
                     session_id,
                     filename: filename.to_string(),
                     epoch_ms,
                     date,
-                    size_bytes,
+                    size_bytes: data.len() as u64,
                     data,
                 })
                 .await
                 .map_err(StoreError::Storage)?;
-                Ok(size_bytes)
+                Ok(())
             }
             Self::S3(s3) => {
-                let size_bytes = bytes.len() as u64;
                 s3.put_segment(
                     &object_key(site_id, session_id, filename),
                     bytes,
@@ -87,7 +81,7 @@ impl SegmentStore {
                 )
                 .await
                 .map_err(StoreError::Storage)?;
-                Ok(size_bytes)
+                Ok(())
             }
         }
     }

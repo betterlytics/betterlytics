@@ -182,10 +182,8 @@ pub async fn upload_segment(
         return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
     }
 
-    let budget = MAX_SESSION_BYTES.saturating_sub(meta.size_bytes);
-    let stored_bytes = replay_ctx.store.store(&p.site_id, identity.session_id, &filename, body, gzip, budget).await.map_err(|e| match e {
+    replay_ctx.store.store(&p.site_id, identity.session_id, &filename, body, gzip).await.map_err(|e| match e {
         StoreError::InvalidPayload(_) => (StatusCode::BAD_REQUEST, e.to_string()),
-        StoreError::BudgetExceeded => (StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()),
         StoreError::Storage(_) => {
             error!("Failed to store replay segment: {}", e);
             (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
@@ -193,7 +191,7 @@ pub async fn upload_segment(
     })?;
     meta.started_at = meta.started_at.min(started);
     meta.ended_at = meta.ended_at.max(ended);
-    meta.size_bytes = meta.size_bytes.saturating_add(stored_bytes);
+    meta.size_bytes = meta.size_bytes.saturating_add(body_len);
     meta.event_count = meta.event_count.saturating_add(p.event_count.unwrap_or_default());
     if meta.start_url.is_empty() {
         meta.start_url = start_url;
