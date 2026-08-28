@@ -5,7 +5,7 @@ use tracing::{info, warn};
 
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
-use crate::jobqueue::{EmailGate, JobQueue};
+use crate::jobqueue::JobQueue;
 use crate::metrics::MetricsCollector;
 use crate::monitor::incident::IncidentStore;
 use crate::notifications::NotificationEngine;
@@ -146,10 +146,7 @@ async fn run_monitoring_init_loop(
             };
 
         // A Postgres outage after boot surfaces per enqueue and the alert is retried on the next probe.
-        let job_queue = Arc::new(JobQueue::new(
-            Arc::clone(&job_queue_pool),
-            EmailGate::from_config(&config),
-        ));
+        let job_queue = Arc::new(JobQueue::new(Arc::clone(&job_queue_pool)));
 
         let incident_orchestrator = Arc::new(
             IncidentOrchestrator::new(

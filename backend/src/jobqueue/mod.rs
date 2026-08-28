@@ -1,5 +1,6 @@
 //! Producer-side access to the dashboard worker's pg-boss job queues.
 
+use std::fmt::Debug;
 use std::sync::Arc;
 
 use serde::Serialize;
@@ -39,7 +40,15 @@ SELECT
   (SELECT id::text FROM inserted) AS id
 "#;
 
-const SEND_EMAIL_QUEUE: &str = "send-email";
+/// A payload for one of the worker's queues; its serialized form is what the worker's handler
+/// receives and validates.
+pub trait QueueJob: Serialize + Debug {
+    /// Must match a `JOB_DEFINITIONS` entry in the dashboard.
+    const QUEUE: &'static str;
+
+    /// pg-boss singleton key: while a job with this key is pending, enqueuing another is a no-op.
+    fn singleton_key(&self) -> String;
+}
 
 /// Per-job retry override; pg-boss stores these on the job row, so they take precedence over
 /// the queue's defaults.
@@ -69,7 +78,9 @@ pub struct SendEmailJob {
     pub data: serde_json::Value,
 }
 
-impl SendEmailJob {
+impl QueueJob for SendEmailJob {
+    const QUEUE: &'static str = "send-email";
+
     fn singleton_key(&self) -> String {
         format!("{}:{}", self.campaign_key, self.recipient_key)
     }
@@ -83,75 +94,30 @@ pub enum EnqueueOutcome {
     AlreadyPending,
     /// The worker has never created the queue (or its tables) in this database.
     QueueMissing,
-    /// Not enqueued by design (see `EmailGate`); the caller should treat the work as handled.
-    Skipped,
-}
-
-/// Nothing is enqueued when emails are disabled, 
-/// and in development only `@betterlytics.io` recipients are allowed.
-#[derive(Debug, Clone, Copy)]
-pub struct EmailGate {
-    pub enabled: bool,
-    pub is_development: bool,
-}
-
-impl EmailGate {
-    pub fn from_config(config: &crate::config::Config) -> Self {
-        Self {
-            enabled: config.enable_emails,
-            is_development: config.is_development,
-        }
-    }
-
-    fn skip_reason(&self, recipient: &str) -> Option<&'static str> {
-        if !self.enabled {
-            return Some("ENABLE_EMAILS=false");
-        }
-        if self.is_development && !is_betterlytics_recipient(recipient) {
-            return Some("development mode only allows @betterlytics.io recipients");
-        }
-        None
-    }
-}
-
-fn is_betterlytics_recipient(email: &str) -> bool {
-    email
-        .trim()
-        .rsplit_once('@')
-        .is_some_and(|(_, domain)| domain.eq_ignore_ascii_case("betterlytics.io"))
 }
 
 pub struct JobQueue {
     pool: Arc<PostgresPool>,
-    email_gate: EmailGate,
 }
 
 impl JobQueue {
-    pub fn new(pool: Arc<PostgresPool>, email_gate: EmailGate) -> Self {
-        Self { pool, email_gate }
+    pub fn new(pool: Arc<PostgresPool>) -> Self {
+        Self { pool }
     }
 
-    pub async fn send_email(
+    pub async fn enqueue<J: QueueJob + Sync>(
         &self,
-        job: &SendEmailJob,
+        job: &J,
         retry: RetryPolicy,
     ) -> Result<EnqueueOutcome, PostgresError> {
         let singleton_key = job.singleton_key();
-        if let Some(reason) = self.email_gate.skip_reason(&job.recipient) {
-            info!(
-                queue = SEND_EMAIL_QUEUE,
-                singleton_key, reason, "email not enqueued"
-            );
-            return Ok(EnqueueOutcome::Skipped);
-        }
-
         let conn = self.pool.connection().await?;
 
         let row = match conn
             .query_one(
                 ENQUEUE_SQL,
                 &[
-                    &SEND_EMAIL_QUEUE,
+                    &J::QUEUE,
                     &Json(job),
                     &singleton_key,
                     &retry.limit,
@@ -176,7 +142,7 @@ impl JobQueue {
             return Ok(EnqueueOutcome::AlreadyPending);
         };
 
-        info!(queue = SEND_EMAIL_QUEUE, singleton_key, job_id = %id, "job enqueued");
+        info!(queue = J::QUEUE, singleton_key, job_id = %id, "job enqueued");
         Ok(EnqueueOutcome::Enqueued)
     }
 }
@@ -194,29 +160,6 @@ mod tests {
     }
 
     #[test]
-    fn gate_skips_disabled_and_non_betterlytics_dev_recipients() {
-        let off = EmailGate {
-            enabled: false,
-            is_development: false,
-        };
-        assert!(off.skip_reason("dev@betterlytics.io").is_some());
-
-        let dev = EmailGate {
-            enabled: true,
-            is_development: true,
-        };
-        assert!(dev.skip_reason("Dev@Betterlytics.io").is_none());
-        assert!(dev.skip_reason("owner@example.com").is_some());
-        assert!(dev.skip_reason("spoof@betterlytics.io.evil.com").is_some());
-
-        let prod = EmailGate {
-            enabled: true,
-            is_development: false,
-        };
-        assert!(prod.skip_reason("owner@example.com").is_none());
-    }
-
-    #[test]
     fn job_serializes_to_worker_envelope() {
         let job = SendEmailJob {
             recipient: "owner@example.com".to_string(),
@@ -231,6 +174,7 @@ mod tests {
         assert_eq!(value["campaignKey"], "monitor-down:incident");
         assert_eq!(value["data"]["to"], "owner@example.com");
         assert!(value.get("recipient").is_none());
+        assert_eq!(SendEmailJob::QUEUE, "send-email");
         assert_eq!(job.singleton_key(), "monitor-down:incident:email:abc");
     }
 }

@@ -201,8 +201,8 @@ impl AlertDispatcher {
     }
 
     /// Enqueues one email per recipient. Returns `false` only when the alert must be retried on
-    /// the next probe (queue missing or insert failed); already-pending and gated recipients
-    /// count as handled.
+    /// the next probe (queue missing or insert failed); already-pending recipients count as
+    /// handled. Whether the worker then sends, skips or dedups the job is not visible here.
     #[tracing::instrument(
         level = "debug",
         skip(self, ctx, alert),
@@ -213,9 +213,9 @@ impl AlertDispatcher {
         let mut failed = 0usize;
 
         for job in alert.build_jobs(&ctx) {
-            match self.job_queue.send_email(&job, MONITOR_ALERT_RETRY).await {
+            match self.job_queue.enqueue(&job, MONITOR_ALERT_RETRY).await {
                 Ok(EnqueueOutcome::Enqueued) => enqueued.push(job.recipient),
-                Ok(EnqueueOutcome::AlreadyPending) | Ok(EnqueueOutcome::Skipped) => {}
+                Ok(EnqueueOutcome::AlreadyPending) => {}
                 Ok(EnqueueOutcome::QueueMissing) => {
                     warn!(
                         check_id = %ctx.check_id,

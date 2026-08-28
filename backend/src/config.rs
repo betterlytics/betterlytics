@@ -69,8 +69,6 @@ pub struct Config {
     pub salts_database_url: String,
     // Development mode - allows localhost monitoring targets
     pub is_development: bool,
-    // Email sending configuration
-    pub enable_emails: bool,
     // Public-facing base URL (used for dashboard links in push notifications)
     pub public_base_url: String,
     // Integration config encryption key (32 bytes)
@@ -196,9 +194,6 @@ impl Config {
             salts_database_url: env::var("SALTS_DATABASE_URL")
                 .expect("SALTS_DATABASE_URL must be set to a valid read-write Postgres URL for the fingerprint salts table"),
             is_development: env::var("IS_DEVELOPMENT")
-                .map(|val| val.to_lowercase() == "true")
-                .unwrap_or(false),
-            enable_emails: env::var("ENABLE_EMAILS")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
             // Public-facing base URL for dashboard links in push notifications

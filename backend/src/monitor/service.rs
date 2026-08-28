@@ -242,7 +242,7 @@ impl IncidentOrchestrator {
                 monitor = %monitor_name,
                 recipients = recipients.len(),
                 incident_id = %incident_id,
-                "Down alert sent"
+                "Down alert enqueued"
             );
         }
     }
@@ -344,7 +344,7 @@ impl IncidentOrchestrator {
                 recipients = recipients.len(),
                 downtime = ?downtime_duration,
                 incident_id = %incident_id,
-                "Recovery alert sent"
+                "Recovery alert enqueued"
             );
         }
     }
@@ -455,7 +455,7 @@ impl IncidentOrchestrator {
                 monitor = %monitor_name,
                 days_left = days_left,
                 recipients = recipients.len(),
-                "SSL alert sent"
+                "SSL alert enqueued"
             );
         }
     }

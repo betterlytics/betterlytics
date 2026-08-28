@@ -63,9 +63,15 @@ describe('validateSendEmailPayload', () => {
 
   it('rejects unknown types and malformed envelopes without throwing', () => {
     // Unknown types are reported as 'unknown' so the metric label stays bounded.
-    expect(validateSendEmailPayload(envelope('not-a-type', { to: 'a@b.c' }))).toMatchObject({ ok: false, type: 'unknown' });
+    expect(validateSendEmailPayload(envelope('not-a-type', { to: 'a@b.c' }))).toMatchObject({
+      ok: false,
+      type: 'unknown',
+    });
     expect(validateSendEmailPayload(null)).toMatchObject({ ok: false, type: 'unknown' });
-    expect(validateSendEmailPayload({ type: 'reset-password' })).toMatchObject({ ok: false, type: 'reset-password' });
+    expect(validateSendEmailPayload({ type: 'reset-password' })).toMatchObject({
+      ok: false,
+      type: 'reset-password',
+    });
   });
 
   it('only validates the envelope for types without a schema', () => {
@@ -82,7 +88,10 @@ describe('validateSendEmailPayload', () => {
 
 describe('senderFor', () => {
   it('applies the alert sender on cloud and keeps SMTP_FROM authoritative off-cloud', () => {
-    expect(senderFor('monitor-down', true)).toEqual({ name: 'Betterlytics Alerts', email: 'alerts@betterlytics.io' });
+    expect(senderFor('monitor-down', true)).toEqual({
+      name: 'Betterlytics Alerts',
+      email: 'alerts@betterlytics.io',
+    });
     expect(senderFor('monitor-down', false)).toEqual({ name: 'Betterlytics Alerts', email: undefined });
   });
 
@@ -100,7 +109,7 @@ describe('recipient key', () => {
 });
 
 describe('monitor alert templates', () => {
-  it('renders subjects matching the previous backend emails, with sanitized names', async () => {
+  it('renders subjects with sanitized monitor names and the key details in the body', async () => {
     const down = await renderEmail({
       type: 'monitor-down',
       recipientKey: 'k',

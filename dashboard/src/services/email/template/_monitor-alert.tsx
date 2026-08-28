@@ -1,7 +1,8 @@
-import { Link, Text } from '@react-email/components';
+import { Text } from '@react-email/components';
 import type { ReactNode } from 'react';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import { ContentSection, EmailButton, EmailLayout, H1, InfoBox, withEmailUtm } from './_components';
+import { toDateTimeString } from '@/utils/dateFormatters';
+import { ContentSection, EmailButton, EmailLayout, H1, InfoBox, PrimaryLink, withEmailUtm } from './_components';
 
 type AlertVariant = 'error' | 'success' | 'warning';
 
@@ -63,7 +64,7 @@ export function MonitorAlertShell({
 }
 
 export function formatUtc(iso: string): string {
-  return `${new Date(iso).toISOString().slice(0, 19).replace('T', ' ')} UTC`;
+  return `${toDateTimeString(iso)} UTC`;
 }
 
 function plural(n: number, unit: string): string {
@@ -99,9 +100,7 @@ export function DetailRow({ label, children }: { label: string; children: ReactN
 export function MonitorUrlRow({ url }: { url: string }) {
   return (
     <DetailRow label='URL'>
-      <Link href={url} className='text-blue-600'>
-        {url}
-      </Link>
+      <PrimaryLink href={url}>{url}</PrimaryLink>
     </DetailRow>
   );
 }
