@@ -11,7 +11,7 @@ export const clickhouseSegmentReader: ReplaySegmentReader = {
       FROM analytics.session_replay_segments
       WHERE site_id = {site_id:String}
         AND session_id = {session_id:UInt64}
-      ORDER BY epoch_ms
+      ORDER BY epoch_ms, filename
     `;
 
     const result = (await clickhouse
