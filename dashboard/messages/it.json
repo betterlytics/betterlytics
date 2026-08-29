@@ -2765,7 +2765,7 @@
           "title": "Nessuna sessione replay disponibile",
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
         },
-        "sessionErrorsTooltip": "Questa sessione ha catturato {count}+ errori lato client"
+        "sessionErrorsTooltip": "{count, plural, one {Questa sessione ha catturato {count} errore lato client} other {Questa sessione ha catturato {count} errori lato client}}"
       },
       "playerTopbar": {
         "startLabel": "Inizio:",

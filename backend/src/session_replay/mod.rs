@@ -3,7 +3,7 @@ pub mod store;
 use std::time::Duration;
 use std::sync::Arc;
 
-use axum::{extract::{Query, State}, http::StatusCode, Json};
+use axum::{extract::{Query, State}, http::StatusCode};
 use bytes::Bytes;
 use tracing::{error, warn};
 use moka::sync::Cache;
@@ -23,9 +23,8 @@ use crate::processing::EventProcessor;
 use crate::metrics::MetricsCollector;
 use crate::validation::{validate_site_policies, EventValidator};
 use crate::url_utils::{extract_domain_and_path_from_url, extract_root_domain};
-use crate::error_fingerprint::generate_error_fingerprint;
 
-static FINALIZE_CACHE: Lazy<Cache<String, SessionReplayMetaRow>> = Lazy::new(|| {
+static META_CACHE: Lazy<Cache<String, SessionReplayMetaRow>> = Lazy::new(|| {
     Cache::builder()
         .max_capacity(500_000)
         .time_to_live(Duration::from_secs(2 * 60 * 60))
@@ -47,11 +46,16 @@ fn cache_key(site_id: &str, session_id: u64) -> String {
 
 pub const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
 const MAX_SESSION_BYTES: u64 = 50 * 1024 * 1024;
-const MAX_ERROR_FINGERPRINTS: usize = 16;
-const TIMESTAMP_WINDOW_MS: i64 = 24 * 60 * 60 * 1000;
+const MAX_SEGMENT_SPAN_MS: i64 = 24 * 60 * 60 * 1000;
 
-fn timestamp_in_window(epoch_ms: i64, now_ms: i64) -> bool {
-    epoch_ms.saturating_sub(now_ms).saturating_abs() <= TIMESTAMP_WINDOW_MS
+// Only the recording's span is taken from the client; the row's bounds are kept on the
+// server clock so the client's clock offset never matters.
+fn segment_span_ms(started_at_ms: Option<i64>, ended_at_ms: Option<i64>) -> Option<i64> {
+    let span = match (started_at_ms, ended_at_ms) {
+        (Some(started), Some(ended)) => ended.saturating_sub(started),
+        _ => 0,
+    };
+    (0..=MAX_SEGMENT_SPAN_MS).contains(&span).then_some(span)
 }
 
 pub struct ReplayCtx {
@@ -74,32 +78,12 @@ pub struct UploadSegmentParams {
     pub encoding: Option<String>,
 }
 
-#[derive(serde::Serialize)]
-pub struct UploadSegmentResponse {
-    #[serde(with = "u64_as_string")]
-    pub session_id: u64,
-    #[serde(with = "u64_as_string")]
-    pub visitor_id: u64,
-}
-
-mod u64_as_string {
-    use serde::{Deserialize, Deserializer, Serializer};
-
-    pub fn serialize<S: Serializer>(v: &u64, s: S) -> Result<S::Ok, S::Error> {
-        s.collect_str(v)
-    }
-
-    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<u64, D::Error> {
-        String::deserialize(d)?.parse().map_err(serde::de::Error::custom)
-    }
-}
-
 pub async fn upload_segment(
     State((db, processor, _, _, replay_ctx, site_cfg_cache)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<ReplayCtx>>, Arc<SiteConfigCache>)>,
     client: ClientRequest,
     Query(p): Query<UploadSegmentParams>,
     body: Bytes,
-) -> Result<Json<UploadSegmentResponse>, (StatusCode, String)> {
+) -> Result<StatusCode, (StatusCode, String)> {
     let replay_ctx = replay_ctx.ok_or((StatusCode::SERVICE_UNAVAILABLE, "session replay not configured".to_string()))?;
 
     if processor.check_replay_request(
@@ -145,19 +129,15 @@ pub async fn upload_segment(
 
     let gzip = p.encoding.as_deref() == Some("gzip");
     let now_ms = Utc::now().timestamp_millis();
-    let epoch_ms = p.ended_at_ms.unwrap_or(now_ms);
-    if !timestamp_in_window(epoch_ms, now_ms)
-        || !p.started_at_ms.map_or(true, |s| timestamp_in_window(s, now_ms))
-    {
-        warn!(site_id = %p.site_id, "rejected replay segment with out-of-window timestamp");
-        return Err((StatusCode::BAD_REQUEST, "invalid timestamp".to_string()));
-    }
-    let filename = build_segment_filename(epoch_ms);
+    let span_ms = segment_span_ms(p.started_at_ms, p.ended_at_ms).ok_or_else(|| {
+        warn!(site_id = %p.site_id, "rejected replay segment with invalid time span");
+        (StatusCode::BAD_REQUEST, "invalid timestamp".to_string())
+    })?;
 
-    let started = DateTime::from_timestamp_millis(p.started_at_ms.unwrap_or(epoch_ms))
-        .ok_or((StatusCode::BAD_REQUEST, "invalid started_at_ms".to_string()))?;
-    let ended = DateTime::from_timestamp_millis(epoch_ms)
-        .ok_or((StatusCode::BAD_REQUEST, "invalid ended_at_ms".to_string()))?;
+    let filename = build_segment_filename(now_ms);
+    let internal = || (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string());
+    let ended = DateTime::from_timestamp_millis(now_ms).ok_or_else(internal)?;
+    let started = DateTime::from_timestamp_millis(now_ms - span_ms).ok_or_else(internal)?;
     let body_len = body.len() as u64;
 
     let start_url = p.url.as_deref().map(|u| extract_domain_and_path_from_url(u).1).unwrap_or_default();
@@ -171,7 +151,6 @@ pub async fn upload_segment(
             size_bytes: 0,
             start_url: start_url.clone(),
             event_count: 0,
-            error_fingerprints: Vec::new(),
             visitor_id: identity.fingerprint,
         });
 
@@ -198,12 +177,9 @@ pub async fn upload_segment(
         error!("Failed to upsert session replay: {}", e);
         (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
     })?;
-    FINALIZE_CACHE.insert(key, meta);
+    META_CACHE.insert(key, meta);
 
-    Ok(Json(UploadSegmentResponse {
-        session_id: identity.session_id,
-        visitor_id: identity.fingerprint,
-    }))
+    Ok(StatusCode::NO_CONTENT)
 }
 
 async fn get_or_load_meta(
@@ -212,7 +188,7 @@ async fn get_or_load_meta(
     site_id: &str,
     session_id: u64,
 ) -> Result<Option<SessionReplayMetaRow>, (StatusCode, String)> {
-    if let Some(meta) = FINALIZE_CACHE.get(key) {
+    if let Some(meta) = META_CACHE.get(key) {
         return Ok(Some(meta));
     }
     db.fetch_session_replay_meta(site_id, session_id).await.map_err(|e| {
@@ -241,101 +217,39 @@ async fn upsert_replay_row(
         event_count: meta.event_count,
         s3_prefix: format!("site/{}/sess/{}/", site_id, session_id),
         start_url: meta.start_url.clone(),
-        error_fingerprints: meta.error_fingerprints.clone(),
         storage: replay_ctx.mode.as_str().to_string(),
     };
     db.upsert_session_replay(row).await
-}
-
-#[derive(serde::Deserialize)]
-pub struct ReplayErrorRequest {
-    pub site_id: String,
-    #[serde(with = "u64_as_string")]
-    pub session_id: u64,
-    // cache-miss fallback only (e.g. backend restarted since the last segment upload)
-    pub started_at: i64,
-    pub ended_at: i64,
-    pub url: Option<String>,
-    pub error_type: String,
-    pub error_exceptions: String,
-}
-
-pub async fn attach_replay_error(
-    State((db, processor, _, _, replay_ctx, site_cfg_cache)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<ReplayCtx>>, Arc<SiteConfigCache>)>,
-    client: ClientRequest,
-    Json(req): Json<ReplayErrorRequest>,
-) -> Result<StatusCode, (StatusCode, String)> {
-    let replay_ctx = replay_ctx.ok_or((StatusCode::SERVICE_UNAVAILABLE, "session replay not configured".to_string()))?;
-    if processor.check_replay_request(
-        &req.site_id,
-        &client.ip,
-        &client.user_agent,
-        &client.sec_ch_ua,
-        req.url.as_deref().unwrap_or_default(),
-        "",
-        client.prefetch,
-    ) {
-        return Err((StatusCode::FORBIDDEN, "rejected".to_string()));
-    }
-
-    validate_site_policies(&site_cfg_cache, &req.site_id, req.url.as_deref().unwrap_or_default(), &client.ip)
-        .await
-        .map_err(|e| (StatusCode::FORBIDDEN, e.to_string()))?;
-
-    let now_ms = Utc::now().timestamp_millis();
-    if !timestamp_in_window(req.started_at.saturating_mul(1000), now_ms)
-        || !timestamp_in_window(req.ended_at.saturating_mul(1000), now_ms)
-    {
-        warn!(site_id = %req.site_id, "rejected replay error with out-of-window timestamp");
-        return Err((StatusCode::BAD_REQUEST, "invalid timestamp".to_string()));
-    }
-
-    let key = cache_key(&req.site_id, req.session_id);
-    let started = DateTime::from_timestamp(req.started_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid started_at".to_string()))?;
-    let ended = DateTime::from_timestamp(req.ended_at, 0).ok_or((StatusCode::BAD_REQUEST, "invalid ended_at".to_string()))?;
-
-    let session_lock = META_LOCKS.get_with(key.clone(), || Arc::new(tokio::sync::Mutex::new(())));
-    let _guard = session_lock.lock().await;
-    let mut meta = get_or_load_meta(&db, &key, &req.site_id, req.session_id).await?
-        .ok_or((StatusCode::NOT_FOUND, "unknown session".to_string()))?;
-
-    let fp = generate_error_fingerprint(&req.error_type, &req.error_exceptions);
-    if !fp.is_empty()
-        && !meta.error_fingerprints.contains(&fp)
-        && meta.error_fingerprints.len() < MAX_ERROR_FINGERPRINTS
-    {
-        meta.error_fingerprints.push(fp);
-    }
-    meta.started_at = meta.started_at.min(started);
-    meta.ended_at = meta.ended_at.max(ended);
-
-    upsert_replay_row(&db, &replay_ctx, &req.site_id, req.session_id, &meta).await.map_err(|e| {
-        error!("Failed to upsert session replay: {}", e);
-        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
-    })?;
-    FINALIZE_CACHE.insert(key, meta);
-    Ok(StatusCode::OK)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    const NOW_MS: i64 = 1_755_600_000_000;
+    const T: i64 = 1_755_600_000_000;
+    const THREE_DAYS_MS: i64 = 3 * 24 * 60 * 60 * 1000;
 
     #[test]
-    fn accepts_timestamps_within_window() {
-        assert!(timestamp_in_window(NOW_MS, NOW_MS));
-        assert!(timestamp_in_window(NOW_MS - TIMESTAMP_WINDOW_MS, NOW_MS));
-        assert!(timestamp_in_window(NOW_MS + TIMESTAMP_WINDOW_MS, NOW_MS));
+    fn span_ignores_the_client_clock_offset() {
+        assert_eq!(segment_span_ms(Some(T), Some(T + 60_000)), Some(60_000));
+        assert_eq!(segment_span_ms(Some(T + THREE_DAYS_MS), Some(T + THREE_DAYS_MS + 60_000)), Some(60_000));
+        assert_eq!(segment_span_ms(Some(T - THREE_DAYS_MS), Some(T - THREE_DAYS_MS + 60_000)), Some(60_000));
     }
 
     #[test]
-    fn rejects_timestamps_outside_window() {
-        assert!(!timestamp_in_window(NOW_MS - TIMESTAMP_WINDOW_MS - 1, NOW_MS));
-        assert!(!timestamp_in_window(NOW_MS + TIMESTAMP_WINDOW_MS + 1, NOW_MS));
-        assert!(!timestamp_in_window(0, NOW_MS));
-        assert!(!timestamp_in_window(i64::MIN, NOW_MS));
-        assert!(!timestamp_in_window(i64::MAX, NOW_MS));
+    fn missing_bounds_mean_a_zero_span() {
+        assert_eq!(segment_span_ms(None, None), Some(0));
+        assert_eq!(segment_span_ms(Some(T), None), Some(0));
+        assert_eq!(segment_span_ms(None, Some(T)), Some(0));
+        assert_eq!(segment_span_ms(Some(T), Some(T)), Some(0));
+    }
+
+    #[test]
+    fn rejects_negative_or_oversized_spans() {
+        assert_eq!(segment_span_ms(Some(T + 1), Some(T)), None);
+        assert_eq!(segment_span_ms(Some(T), Some(T + MAX_SEGMENT_SPAN_MS)), Some(MAX_SEGMENT_SPAN_MS));
+        assert_eq!(segment_span_ms(Some(T), Some(T + MAX_SEGMENT_SPAN_MS + 1)), None);
+        assert_eq!(segment_span_ms(Some(i64::MIN), Some(i64::MAX)), None);
+        assert_eq!(segment_span_ms(Some(i64::MAX), Some(i64::MIN)), None);
     }
 }

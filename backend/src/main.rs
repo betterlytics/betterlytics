@@ -272,10 +272,6 @@ async fn main() {
     if config.enable_session_replay {
         router = router
             .route(
-                "/replay/error",
-                post(session_replay::attach_replay_error),
-            )
-            .route(
                 "/replay/segment",
                 post(session_replay::upload_segment)
                     // Overrides the app-wide 64 KB DefaultBodyLimit; segments are up to 5 MB compressed

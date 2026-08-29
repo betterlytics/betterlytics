@@ -2765,7 +2765,7 @@
           "title": "Ingen sessionsafspilninger tilgængelige",
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne session opfangede {count}+ klientsidefejl"
+        "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl"
       },
       "playerTopbar": {
         "startLabel": "Start:",

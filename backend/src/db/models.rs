@@ -123,7 +123,6 @@ pub struct SessionReplayRow {
     pub event_count: u32,
     pub s3_prefix: String,
     pub start_url: String,
-    pub error_fingerprints: Vec<String>,
     pub storage: String,
 }
 
@@ -136,7 +135,6 @@ pub struct SessionReplayMetaRow {
     pub size_bytes: u64,
     pub start_url: String,
     pub event_count: u32,
-    pub error_fingerprints: Vec<String>,
     pub visitor_id: u64,
 }
 

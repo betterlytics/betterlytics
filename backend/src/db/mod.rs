@@ -226,8 +226,8 @@ impl Database {
     pub async fn fetch_session_replay_meta(&self, site_id: &str, session_id: u64) -> Result<Option<SessionReplayMetaRow>> {
         let fetch = self.clickhouse.inner()
             .query(
-                "WITH (ended_at, size_bytes, event_count, length(error_fingerprints)) AS v
-                SELECT argMax(started_at, v), max(ended_at), argMax(size_bytes, v), argMax(start_url, v), argMax(event_count, v), argMax(error_fingerprints, v), argMax(visitor_id, v)
+                "WITH (ended_at, size_bytes, event_count) AS v
+                SELECT argMax(started_at, v), max(ended_at), argMax(size_bytes, v), argMax(start_url, v), argMax(event_count, v), argMax(visitor_id, v)
                 FROM analytics.session_replays WHERE site_id = ? AND session_id = ? GROUP BY site_id, session_id",
             )
             .bind(site_id)

@@ -2765,7 +2765,7 @@
           "title": "No session replays available",
           "description": "Try expanding your time range or adjusting filters."
         },
-        "sessionErrorsTooltip": "This session captured {count}+ client-side errors"
+        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
