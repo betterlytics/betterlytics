@@ -3,8 +3,8 @@ import 'server-only';
 import {
   isUsableFilter,
   parseFilterColumn,
-  QueryFilter,
-  QueryFilterSchema,
+  ScopeFilter,
+  ScopeFilterSchema,
 } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
@@ -28,7 +28,7 @@ const INTERNAL_FILTER_OPERATORS = {
   },
 } as const;
 
-const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
+const TransformQueryFilterSchema = ScopeFilterSchema.transform((filter) => ({
   ...filter,
   rawOperator: filter.operator,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
@@ -38,7 +38,7 @@ const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
 /**
  * Build query filters using `safeSql`
  */
-function getFilterQuery(queryFilters: QueryFilter[]) {
+function getFilterQuery(queryFilters: ScopeFilter[]) {
   const nonEmptyFilters = queryFilters.filter(isUsableFilter);
 
   const filters = TransformQueryFilterSchema.array().parse(nonEmptyFilters);
