@@ -40,22 +40,9 @@ impl SegmentStore {
         bytes: Bytes,
         gzip: bool,
     ) -> Result<(), StoreError> {
+        let data = decode_segment(&bytes, gzip)?;
         match self {
             Self::ClickHouse(db) => {
-                let data = if gzip {
-                    gunzip_capped(&bytes, MAX_DECOMPRESSED_BYTES).map_err(|e| match e {
-                        GunzipError::Invalid(msg) => StoreError::InvalidPayload(msg.to_string()),
-                        GunzipError::TooLarge => {
-                            StoreError::InvalidPayload("decompressed payload too large".to_string())
-                        }
-                    })?
-                } else {
-                    String::from_utf8(bytes.to_vec())
-                        .map_err(|_| StoreError::InvalidPayload("not valid UTF-8".to_string()))?
-                };
-                if !data.trim_start().starts_with('[') {
-                    return Err(StoreError::InvalidPayload("not an rrweb events array".to_string()));
-                }
                 let epoch_ms = parse_epoch_ms(filename)?;
                 let date = chrono::DateTime::from_timestamp_millis(epoch_ms)
                     .ok_or_else(|| StoreError::InvalidPayload("epoch out of range".to_string()))?
@@ -85,6 +72,24 @@ impl SegmentStore {
             }
         }
     }
+}
+
+fn decode_segment(bytes: &[u8], gzip: bool) -> Result<String, StoreError> {
+    let data = if gzip {
+        gunzip_capped(bytes, MAX_DECOMPRESSED_BYTES).map_err(|e| match e {
+            GunzipError::Invalid(msg) => StoreError::InvalidPayload(msg.to_string()),
+            GunzipError::TooLarge => {
+                StoreError::InvalidPayload("decompressed payload too large".to_string())
+            }
+        })?
+    } else {
+        String::from_utf8(bytes.to_vec())
+            .map_err(|_| StoreError::InvalidPayload("not valid UTF-8".to_string()))?
+    };
+    if !data.trim_start().starts_with('[') {
+        return Err(StoreError::InvalidPayload("not an rrweb events array".to_string()));
+    }
+    Ok(data)
 }
 
 fn object_key(site_id: &str, session_id: u64, filename: &str) -> String {
@@ -150,6 +155,25 @@ mod tests {
         assert!(matches!(
             gunzip_capped(b"definitely not gzip", MAX_DECOMPRESSED_BYTES),
             Err(GunzipError::Invalid(_))
+        ));
+    }
+
+    #[test]
+    fn decode_segment_rejects_non_array() {
+        let compressed = gzip(br#"{"type":4}"#);
+        assert!(matches!(
+            decode_segment(&compressed, true),
+            Err(StoreError::InvalidPayload(_))
+        ));
+    }
+
+    #[test]
+    fn decode_segment_rejects_oversized_gzip() {
+        let big = vec![b'['; (MAX_DECOMPRESSED_BYTES + 1) as usize];
+        let compressed = gzip(&big);
+        assert!(matches!(
+            decode_segment(&compressed, true),
+            Err(StoreError::InvalidPayload(msg)) if msg == "decompressed payload too large"
         ));
     }
 }

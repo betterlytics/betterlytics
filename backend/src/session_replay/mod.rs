@@ -48,6 +48,7 @@ pub const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
 const MAX_SESSION_BYTES: u64 = 50 * 1024 * 1024;
 const MAX_SEGMENT_SPAN_MS: i64 = 24 * 60 * 60 * 1000;
 const STARTED_AT_TOLERANCE_SECS: i64 = 5;
+const MAX_START_URL_CHARS: usize = 2048;
 
 // Only the recording's span is taken from the client; the row's bounds are kept on the
 // server clock so the client's clock offset never matters.
@@ -146,7 +147,14 @@ pub async fn upload_segment(
     let started = clamp_started_at(started, identity.session_created_at);
     let body_len = body.len() as u64;
 
-    let start_url = p.url.as_deref().map(|u| extract_domain_and_path_from_url(u).1).unwrap_or_default();
+    let start_url: String = p
+        .url
+        .as_deref()
+        .map(|u| extract_domain_and_path_from_url(u).1)
+        .unwrap_or_default()
+        .chars()
+        .take(MAX_START_URL_CHARS)
+        .collect();
     let key = cache_key(&p.site_id, identity.session_id);
     let session_lock = META_LOCKS.get_with(key.clone(), || Arc::new(tokio::sync::Mutex::new(())));
     let _guard = session_lock.lock().await;
