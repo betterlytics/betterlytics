@@ -84,10 +84,12 @@ RUN pnpm install --frozen-lockfile --filter .
 
 FROM node:24-slim AS static-builder
 
+ARG BL_VERSION=dev
+
 RUN echo "Minifying static files..."
 WORKDIR /app
 COPY static/analytics.js static/replay.js ./
-RUN npx --yes esbuild analytics.js --minify --outfile=analytics.min.js
+RUN npx --yes esbuild analytics.js --minify --define:__BL_VERSION__=\"${BL_VERSION}\" --outfile=analytics.min.js
 RUN npx --yes esbuild replay.js --minify --outfile=replay.min.js
 
 ####

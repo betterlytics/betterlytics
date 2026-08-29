@@ -37,6 +37,8 @@ jobs:
           context: .
           file: ./Dockerfile.selfhost
           push: true
+          build-args: |
+            BL_VERSION=${{ github.event.release.tag_name }}
           tags: ${{ steps.selfhost_meta.outputs.tags }}
           labels: ${{ steps.selfhost_meta.outputs.labels }}
           cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/betterlytics-selfhost:buildcache
