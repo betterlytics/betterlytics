@@ -96,7 +96,7 @@ export async function getSessionReplays(
       LIMIT {limit:UInt32} OFFSET {offset:UInt32}
     )
     SELECT
-      r.site_id,
+      r.site_id AS site_id,
       toString(r.session_id) as session_id,
       toString(r.visitor_id) as visitor_id,
       r.started_at,
