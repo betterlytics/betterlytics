@@ -29,25 +29,33 @@ RUN cargo build --release --locked
 
 FROM node:24-slim AS dashboard-builder
 
+# Forces BuildKit to run this stage after the backend build so the two heaviest stages never share peak memory
+COPY --from=backend-builder /app/target/release/betterlytics /dev/null
+
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 RUN echo "Building dashboard..."
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.34.5 --activate
 
 RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN pnpm install -g prisma@6.9.0
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY dashboard/package.json ./dashboard/
+COPY backend/package.json ./backend/
+COPY docs/package.json ./docs/
+RUN pnpm install --frozen-lockfile --filter dashboard
 
-COPY dashboard/package*.json ./
-RUN pnpm fetch --prod
+COPY dashboard/.env.build ./.env
+COPY dashboard/prisma ./dashboard/prisma
 
-COPY dashboard/.env.build /.env
-COPY dashboard/prisma ./prisma
+WORKDIR /app/dashboard
 
-RUN pnpm prisma generate
+RUN pnpm exec prisma generate
 
 COPY dashboard/ .
 
@@ -61,13 +69,15 @@ FROM node:24-slim AS initializer-builder
 RUN echo "Building initializer..."
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@10.9.0 --activate
+RUN corepack enable && corepack prepare pnpm@10.34.5 --activate
 
 WORKDIR /app
 
-COPY initializer/package.json .
-
-RUN pnpm install
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY dashboard/package.json ./dashboard/
+COPY backend/package.json ./backend/
+COPY docs/package.json ./docs/
+RUN pnpm install --frozen-lockfile --filter .
 
 ####
 # Minify static files
@@ -100,7 +110,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get update && apt-get install -y nginx \
     && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g prisma@6.9.0
+RUN npm install -g prisma@6.19.3
 
 # Copy backend
 RUN echo "Copying backend..."
@@ -109,9 +119,10 @@ COPY --from=backend-builder /app/assets /app/backend/assets
 
 # Copy dashboard
 RUN echo "Copying dashboard..."
-COPY --from=dashboard-builder /app/public /app/dashboard/public
-COPY --from=dashboard-builder /app/.next/standalone /app/dashboard/
-COPY --from=dashboard-builder /app/.next/static /app/dashboard/.next/static
+COPY --from=dashboard-builder /app/dashboard/public /app/dashboard/public
+COPY --from=dashboard-builder /app/dashboard/.next/standalone /app/
+COPY --from=dashboard-builder /app/dashboard/.next/standalone/worker.js /app/dashboard/worker.js
+COPY --from=dashboard-builder /app/dashboard/.next/static /app/dashboard/.next/static
 
 # Copy initializer dependencies
 RUN echo "Copying initializer dependencies..."
