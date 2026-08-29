@@ -3,7 +3,7 @@ pub mod store;
 use std::time::Duration;
 use std::sync::Arc;
 
-use axum::{extract::{Query, State}, http::{HeaderMap, StatusCode, header::CONTENT_ENCODING}, Json};
+use axum::{extract::{Query, State}, http::StatusCode, Json};
 use bytes::Bytes;
 use tracing::{error, warn};
 use moka::sync::Cache;
@@ -71,6 +71,7 @@ pub struct UploadSegmentParams {
     pub started_at_ms: Option<i64>,
     pub ended_at_ms: Option<i64>,
     pub event_count: Option<u32>,
+    pub encoding: Option<String>,
 }
 
 #[derive(serde::Serialize)]
@@ -97,7 +98,6 @@ pub async fn upload_segment(
     State((db, processor, _, _, replay_ctx, site_cfg_cache)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<ReplayCtx>>, Arc<SiteConfigCache>)>,
     client: ClientRequest,
     Query(p): Query<UploadSegmentParams>,
-    headers: HeaderMap,
     body: Bytes,
 ) -> Result<Json<UploadSegmentResponse>, (StatusCode, String)> {
     let replay_ctx = replay_ctx.ok_or((StatusCode::SERVICE_UNAVAILABLE, "session replay not configured".to_string()))?;
@@ -143,10 +143,7 @@ pub async fn upload_segment(
         return Err((StatusCode::BAD_REQUEST, "invalid content length".to_string()));
     }
 
-    let gzip = headers
-        .get(CONTENT_ENCODING)
-        .and_then(|v| v.to_str().ok())
-        == Some("gzip");
+    let gzip = p.encoding.as_deref() == Some("gzip");
     let now_ms = Utc::now().timestamp_millis();
     let epoch_ms = p.ended_at_ms.unwrap_or(now_ms);
     if !timestamp_in_window(epoch_ms, now_ms)

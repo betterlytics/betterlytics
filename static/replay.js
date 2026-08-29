@@ -8398,8 +8398,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
     };
 
     var config = {
-      maxChunkMs: 15000,
-      maxUncompressedBytes: 1 * 1024 * 1024,
+      maxChunkMs: 5000,
+      maxUncompressedBytes: 256 * 1024,
       maxConsecutiveFlushErrors: 3,
     };
 
@@ -8428,17 +8428,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
         qs += "&ended_at_ms=" + payload.lastEventTs;
       }
       qs += "&event_count=" + payload.eventCount;
-
-      var headers = {
-        "Content-Type": "application/json",
-      };
       if (payload.encoding === "gzip") {
-        headers["Content-Encoding"] = "gzip";
+        qs += "&encoding=gzip";
       }
 
       return fetch(apiBase + "/replay/segment?" + qs, {
-        method: "PUT",
-        headers: headers,
+        method: "POST",
         body: payload.bytes,
         // keepalive lets the request finish after page unload; browsers cap keepalive bodies at ~64KB
         keepalive: payload.bytes.byteLength <= 60000,
@@ -8484,10 +8479,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
       });
     }
 
-    function flush() {
+    function flush(force) {
       if (state.disabled) return Promise.resolve();
       if (state.buffer.length === 0) return Promise.resolve();
-      if (state.ongoingFlush) return state.ongoingFlush;
+      if (state.ongoingFlush && !force) return state.ongoingFlush;
 
       var events = state.buffer;
       state.buffer = [];
@@ -8505,7 +8500,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         lastEventTs = last.timestamp;
       }
 
-      state.ongoingFlush = uploadEventChunk(events, lastEventTs)
+      var upload = uploadEventChunk(events, lastEventTs)
         .then(function () {
           handleUploadSuccess(lastEventTs);
         })
@@ -8515,9 +8510,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
           } catch (_) {}
         })
         .finally(function () {
-          state.ongoingFlush = null;
+          if (state.ongoingFlush === upload) state.ongoingFlush = null;
         });
-      return state.ongoingFlush;
+      state.ongoingFlush = upload;
+      return upload;
     }
 
     function flushAll() {
@@ -8850,7 +8846,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function setupEventListeners() {
       document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "hidden") {
-          flush();
+          flush(true);
         }
       });
       window.addEventListener("beforeunload", function () {

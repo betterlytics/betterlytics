@@ -3,7 +3,7 @@ use axum::{
     extract::{DefaultBodyLimit, State},
     http::StatusCode,
     response::IntoResponse,
-    routing::{get, post, put},
+    routing::{get, post},
 };
 use std::sync::Arc;
 use std::net::SocketAddr;
@@ -277,7 +277,7 @@ async fn main() {
             )
             .route(
                 "/replay/segment",
-                put(session_replay::upload_segment)
+                post(session_replay::upload_segment)
                     // Overrides the app-wide 64 KB DefaultBodyLimit; segments are up to 5 MB compressed
                     .layer(DefaultBodyLimit::max((MAX_CONTENT_LENGTH_BYTES + 1024) as usize)),
             );
