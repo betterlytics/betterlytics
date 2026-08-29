@@ -8381,7 +8381,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
       buffer: [],
       approxBytes: 0,
       startedAt: Date.now(),
-      firstActivity: null,
       lastActivity: Date.now(),
       flushTimer: null,
       ongoingFlush: null,
@@ -8458,7 +8457,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       var json = JSON.stringify(events);
       return encodeReplayChunk(json).then(function (enc) {
         enc.lastEventTs = lastEventTs;
-        enc.startedAtMs = startedAtMs || state.firstActivity || state.startedAt;
+        enc.startedAtMs = startedAtMs || state.startedAt;
         enc.eventCount = events.length;
         return uploadSegment(enc);
       });
@@ -8484,8 +8483,13 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (last && typeof last.timestamp === "number") {
         lastEventTs = last.timestamp;
       }
+      var firstEventTs = lastEventTs;
+      var first = events[0];
+      if (first && typeof first.timestamp === "number") {
+        firstEventTs = first.timestamp;
+      }
 
-      var upload = uploadEventChunk(events, lastEventTs)
+      var upload = uploadEventChunk(events, lastEventTs, firstEventTs)
         .then(function () {
           state.consecutiveFlushErrors = 0;
         })
@@ -8565,7 +8569,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       if (events.length === 0) return Promise.resolve();
 
-      var firstEventTs = state.firstActivity || state.startedAt;
+      var firstEventTs = state.startedAt;
       var lastEventTs = state.lastActivity;
       var first = events[0];
       if (first && typeof first.timestamp === "number") {
@@ -8650,10 +8654,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
         return;
       }
 
-      state.firstActivity = Math.min(
-        state.firstActivity ?? e.timestamp,
-        e.timestamp
-      );
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);
 
       if (isSampledRecording) {
@@ -8679,6 +8679,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
 
       state.initialized = true;
+      state.startedAt = Date.now();
+      state.lastActivity = Date.now();
 
       var isCoarsePointer = false;
       try {

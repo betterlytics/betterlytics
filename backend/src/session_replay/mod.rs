@@ -47,6 +47,7 @@ fn cache_key(site_id: &str, session_id: u64) -> String {
 pub const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
 const MAX_SESSION_BYTES: u64 = 50 * 1024 * 1024;
 const MAX_SEGMENT_SPAN_MS: i64 = 24 * 60 * 60 * 1000;
+const STARTED_AT_TOLERANCE_SECS: i64 = 5;
 
 // Only the recording's span is taken from the client; the row's bounds are kept on the
 // server clock so the client's clock offset never matters.
@@ -56,6 +57,10 @@ fn segment_span_ms(started_at_ms: Option<i64>, ended_at_ms: Option<i64>) -> Opti
         _ => 0,
     };
     (0..=MAX_SEGMENT_SPAN_MS).contains(&span).then_some(span)
+}
+
+fn clamp_started_at(started: DateTime<Utc>, session_created_at: DateTime<Utc>) -> DateTime<Utc> {
+    started.max(session_created_at - chrono::Duration::seconds(STARTED_AT_TOLERANCE_SECS))
 }
 
 pub struct ReplayCtx {
@@ -138,6 +143,7 @@ pub async fn upload_segment(
     let internal = || (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string());
     let ended = DateTime::from_timestamp_millis(now_ms).ok_or_else(internal)?;
     let started = DateTime::from_timestamp_millis(now_ms - span_ms).ok_or_else(internal)?;
+    let started = clamp_started_at(started, identity.session_created_at);
     let body_len = body.len() as u64;
 
     let start_url = p.url.as_deref().map(|u| extract_domain_and_path_from_url(u).1).unwrap_or_default();
@@ -251,5 +257,20 @@ mod tests {
         assert_eq!(segment_span_ms(Some(T), Some(T + MAX_SEGMENT_SPAN_MS + 1)), None);
         assert_eq!(segment_span_ms(Some(i64::MIN), Some(i64::MAX)), None);
         assert_eq!(segment_span_ms(Some(i64::MAX), Some(i64::MIN)), None);
+    }
+
+    #[test]
+    fn started_at_before_session_creation_is_clamped() {
+        let created = DateTime::from_timestamp_millis(T).unwrap();
+        let started = created - chrono::Duration::minutes(10);
+        assert_eq!(clamp_started_at(started, created), created - chrono::Duration::seconds(5));
+    }
+
+    #[test]
+    fn started_at_within_tolerance_is_kept() {
+        let created = DateTime::from_timestamp_millis(T).unwrap();
+        let started = created - chrono::Duration::seconds(3);
+        assert_eq!(clamp_started_at(started, created), started);
+        assert_eq!(clamp_started_at(created, created), created);
     }
 }
