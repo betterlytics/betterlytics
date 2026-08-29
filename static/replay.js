@@ -8434,14 +8434,17 @@ or you can use record.mirror to access the mirror instance during recording.`;
         keepalive: payload.bytes.byteLength <= 60000,
       }).then(function (r) {
         if (!r || r.status >= 400) {
-          throw new Error();
+          var err = new Error();
+          err.status = r ? r.status : 0;
+          throw err;
         }
       });
     }
 
-    function handleFlushError(events) {
+    function handleFlushError(events, err) {
+      var terminal = err && err.status >= 400 && err.status < 500;
       state.consecutiveFlushErrors += 1;
-      if (state.consecutiveFlushErrors >= config.maxConsecutiveFlushErrors) {
+      if (terminal || state.consecutiveFlushErrors >= config.maxConsecutiveFlushErrors) {
         state.disabled = true;
         state.buffer = [];
         state.approxBytes = 0;
@@ -8493,9 +8496,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
         .then(function () {
           state.consecutiveFlushErrors = 0;
         })
-        .catch(function () {
+        .catch(function (err) {
           try {
-            handleFlushError(events);
+            handleFlushError(events, err);
           } catch (_) {}
         })
         .finally(function () {
