@@ -66,7 +66,7 @@ impl SegmentStore {
                     filename: filename.to_string(),
                     epoch_ms,
                     date,
-                    size_bytes: data.len() as u64,
+                    size_bytes: bytes.len() as u64,
                     data,
                 })
                 .await
