@@ -104,6 +104,8 @@ Then point your reverse proxy to that port.
         ssl_certificate     /etc/letsencrypt/live/analytics.example.com/fullchain.pem;
         ssl_certificate_key /etc/letsencrypt/live/analytics.example.com/privkey.pem;
 
+        client_max_body_size 6m;
+
         location / {
             proxy_pass http://127.0.0.1:5566;
             proxy_set_header Host $host;
