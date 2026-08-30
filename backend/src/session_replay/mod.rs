@@ -142,6 +142,8 @@ pub async fn upload_segment(
     }
 
     let gzip = p.encoding.as_deref() == Some("gzip");
+    let body_len = body.len() as u64;
+    let payload = replay_ctx.store.prepare(body, gzip).await.map_err(store_error)?;
     let now_ms = Utc::now().timestamp_millis();
     let span_ms = segment_span_ms(p.started_at_ms, p.ended_at_ms).ok_or_else(|| {
         warn!(site_id = %p.site_id, "rejected replay segment with invalid time span");
@@ -155,7 +157,6 @@ pub async fn upload_segment(
     let started = clamp_started_at(started, identity.session_created_at);
     let ended = ended.max(started);
     let filename = build_segment_filename(ended.timestamp_millis());
-    let body_len = body.len() as u64;
 
     let start_url: String = p
         .url
@@ -182,13 +183,7 @@ pub async fn upload_segment(
         return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
     }
 
-    replay_ctx.store.store(&p.site_id, identity.session_id, &filename, body, gzip).await.map_err(|e| match e {
-        StoreError::InvalidPayload(_) => (StatusCode::BAD_REQUEST, e.to_string()),
-        StoreError::Storage(_) => {
-            error!("Failed to store replay segment: {}", e);
-            (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
-        }
-    })?;
+    replay_ctx.store.store(&p.site_id, identity.session_id, &filename, payload).await.map_err(store_error)?;
     meta.started_at = meta.started_at.min(started);
     meta.ended_at = meta.ended_at.max(ended);
     meta.size_bytes = meta.size_bytes.saturating_add(body_len);
@@ -203,6 +198,16 @@ pub async fn upload_segment(
     }
 
     Ok(StatusCode::NO_CONTENT)
+}
+
+fn store_error(e: StoreError) -> (StatusCode, String) {
+    match e {
+        StoreError::InvalidPayload(_) => (StatusCode::BAD_REQUEST, e.to_string()),
+        StoreError::Storage(_) => {
+            error!("Failed to store replay segment: {}", e);
+            (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+        }
+    }
 }
 
 async fn get_or_load_meta(

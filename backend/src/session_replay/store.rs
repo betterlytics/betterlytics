@@ -8,6 +8,7 @@ use crate::db::{SessionReplaySegmentRow, SharedDatabase};
 use crate::storage::s3::S3Service;
 
 const MAX_DECOMPRESSED_BYTES: u64 = 32 * 1024 * 1024;
+const PEEK_BYTES: u64 = 256;
 
 #[derive(Debug)]
 pub enum StoreError {
@@ -31,18 +32,38 @@ pub enum SegmentStore {
     S3(Arc<S3Service>),
 }
 
+pub struct SegmentPayload {
+    bytes: Bytes,
+    gzip: bool,
+    data: Option<String>,
+}
+
 impl SegmentStore {
+    pub async fn prepare(&self, bytes: Bytes, gzip: bool) -> Result<SegmentPayload, StoreError> {
+        let full = matches!(self, Self::ClickHouse(_));
+        let decode_bytes = bytes.clone();
+        let data = tokio::task::spawn_blocking(move || {
+            if full {
+                decode_segment(&decode_bytes, gzip).map(Some)
+            } else {
+                check_segment_prefix(&decode_bytes, gzip).map(|_| None)
+            }
+        })
+        .await
+        .map_err(|e| StoreError::Storage(anyhow::anyhow!("decode task failed: {}", e)))??;
+        Ok(SegmentPayload { bytes, gzip, data })
+    }
+
     pub async fn store(
         &self,
         site_id: &str,
         session_id: u64,
         filename: &str,
-        bytes: Bytes,
-        gzip: bool,
+        payload: SegmentPayload,
     ) -> Result<(), StoreError> {
-        let data = decode_segment(&bytes, gzip)?;
         match self {
             Self::ClickHouse(db) => {
+                let data = payload.data.expect("payload prepared for clickhouse");
                 let epoch_ms = parse_epoch_ms(filename)?;
                 let date = chrono::DateTime::from_timestamp_millis(epoch_ms)
                     .ok_or_else(|| StoreError::InvalidPayload("epoch out of range".to_string()))?
@@ -53,7 +74,7 @@ impl SegmentStore {
                     filename: filename.to_string(),
                     epoch_ms,
                     date,
-                    size_bytes: bytes.len() as u64,
+                    size_bytes: payload.bytes.len() as u64,
                     data,
                 })
                 .await
@@ -63,8 +84,8 @@ impl SegmentStore {
             Self::S3(s3) => {
                 s3.put_segment(
                     &object_key(site_id, session_id, filename),
-                    bytes,
-                    gzip.then_some("gzip"),
+                    payload.bytes,
+                    payload.gzip.then_some("gzip"),
                 )
                 .await
                 .map_err(StoreError::Storage)?;
@@ -92,6 +113,18 @@ fn decode_segment(bytes: &[u8], gzip: bool) -> Result<String, StoreError> {
     Ok(data)
 }
 
+fn check_segment_prefix(bytes: &[u8], gzip: bool) -> Result<(), StoreError> {
+    let prefix = if gzip {
+        read_gzip(bytes, PEEK_BYTES).map_err(|_| StoreError::InvalidPayload("invalid gzip".to_string()))?
+    } else {
+        bytes[..bytes.len().min(PEEK_BYTES as usize)].to_vec()
+    };
+    if !String::from_utf8_lossy(&prefix).trim_start().starts_with('[') {
+        return Err(StoreError::InvalidPayload("not an rrweb events array".to_string()));
+    }
+    Ok(())
+}
+
 fn object_key(site_id: &str, session_id: u64, filename: &str) -> String {
     format!("site/{}/sess/{}/{}", site_id, session_id, filename)
 }
@@ -110,12 +143,14 @@ enum GunzipError {
     TooLarge,
 }
 
-fn gunzip_capped(bytes: &[u8], cap: u64) -> Result<String, GunzipError> {
+fn read_gzip(bytes: &[u8], limit: u64) -> std::io::Result<Vec<u8>> {
     let mut out = Vec::new();
-    GzDecoder::new(bytes)
-        .take(cap + 1)
-        .read_to_end(&mut out)
-        .map_err(|_| GunzipError::Invalid("invalid gzip"))?;
+    GzDecoder::new(bytes).take(limit).read_to_end(&mut out)?;
+    Ok(out)
+}
+
+fn gunzip_capped(bytes: &[u8], cap: u64) -> Result<String, GunzipError> {
+    let out = read_gzip(bytes, cap + 1).map_err(|_| GunzipError::Invalid("invalid gzip"))?;
     if out.len() as u64 > cap {
         return Err(GunzipError::TooLarge);
     }
@@ -165,6 +200,31 @@ mod tests {
             decode_segment(&compressed, true),
             Err(StoreError::InvalidPayload(_))
         ));
+    }
+
+    #[test]
+    fn prefix_check_accepts_oversized_array_gzip() {
+        let big = vec![b'['; (MAX_DECOMPRESSED_BYTES + 1) as usize];
+        let compressed = gzip(&big);
+        assert!(check_segment_prefix(&compressed, true).is_ok());
+    }
+
+    #[test]
+    fn prefix_check_rejects_non_array_gzip() {
+        let compressed = gzip(br#"{"type":4}"#);
+        assert!(matches!(
+            check_segment_prefix(&compressed, true),
+            Err(StoreError::InvalidPayload(_))
+        ));
+    }
+
+    #[test]
+    fn prefix_check_rejects_non_array_raw() {
+        assert!(matches!(
+            check_segment_prefix(br#"  {"type":4}"#, false),
+            Err(StoreError::InvalidPayload(_))
+        ));
+        assert!(check_segment_prefix(b"  [1]", false).is_ok());
     }
 
     #[test]
