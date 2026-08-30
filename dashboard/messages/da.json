@@ -4075,6 +4075,7 @@
       "viewPage": "Vis side",
       "more": "Flere handlinger",
       "linkCopied": "Link kopieret til udklipsholderen",
+      "linkCopyFailed": "Kunne ikke kopiere linket",
       "openPublicPage": "Åbn offentlig side",
       "editPage": "Rediger side",
       "manageIncidents": "Administrer hændelser",

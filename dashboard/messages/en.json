@@ -4072,6 +4072,7 @@
       "viewPage": "View page",
       "more": "More actions",
       "linkCopied": "Link copied to clipboard",
+      "linkCopyFailed": "Failed to copy link",
       "openPublicPage": "Open public page",
       "editPage": "Edit page",
       "manageIncidents": "Manage incidents",

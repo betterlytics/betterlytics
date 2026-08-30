@@ -19,28 +19,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { Check, Clipboard, Loader2 } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import { useCopy } from '@/hooks/use-copy';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useEffect, useRef, useState, useTransition } from 'react';
 import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
-
-function useCopy(failedMessage: string) {
-  const [copied, setCopied] = useState(false);
-
-  const copy = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error(failedMessage);
-    }
-  };
-
-  return { copied, copy };
-}
 
 function SetupTotp() {
   const t = useTranslations('components.userSettings.security.totp');
@@ -51,7 +36,7 @@ function SetupTotp() {
   const [totpSecret, setTotpSecret] = useState('');
   const [totpUrl, setTotpUrl] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { copied: totpSecretCopied, copy: copySecret } = useCopy(t('copyFailed'));
+  const { copied: totpSecretCopied, copy: copySecret } = useCopy({ failedMessage: t('copyFailed') });
   const [isPending, startTransition] = useTransition();
 
   const handleDialogOpenChange = (open: boolean) => {
