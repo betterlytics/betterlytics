@@ -8677,7 +8677,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function startRecording() {
-      if (!window.rrweb || state.initialized) {
+      if (!window.rrweb || state.initialized || state.disabled) {
         return;
       }
 
