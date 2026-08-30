@@ -1,38 +1,43 @@
-'use client';
-
-import React from 'react';
 import { Monitor } from 'lucide-react';
-import { Icon } from '@iconify/react';
-import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
-import { osIconNamesThemed, osLabels, type OSType } from '@/constants/operatingSystemIcons';
+import { resolveOSIcon } from '@/constants/operatingSystemIcons';
+import { StaticIcon } from './StaticIcon';
 
 interface OSIconProps {
   name: string;
   className?: string;
 }
 
-export const OSIcon = React.memo<OSIconProps>(({ name, className = 'h-3.5 w-3.5' }) => {
-  const { resolvedTheme } = useTheme();
+export function OSIcon({ name, className = 'h-3.5 w-3.5' }: OSIconProps) {
+  const def = resolveOSIcon(name);
 
-  const iconName = React.useMemo(() => {
-    const normalizedName = name.toLowerCase().replace(/\s+/g, '') as OSType;
-    const iconVariants = osIconNamesThemed[normalizedName];
+  if (!def) return <Monitor className={cn('shrink-0', className)} />;
 
-    if (!iconVariants) return null;
-
-    return resolvedTheme === 'dark' ? iconVariants.dark : iconVariants.light;
-  }, [name, resolvedTheme]);
-
-  if (!iconName) {
-    return <Monitor className={cn('shrink-0', className)} />;
+  if (!def.iconDark) {
+    return (
+      <StaticIcon
+        src={`/os-icons/${def.icon.file}`}
+        label={def.label}
+        mono={def.icon.mono}
+        className={className}
+      />
+    );
   }
 
   return (
-    <span className={cn('inline-flex shrink-0 items-center justify-center align-[-0.125em]', className)}>
-      <Icon icon={iconName} className='h-full w-full' />
-    </span>
+    <>
+      <StaticIcon
+        src={`/os-icons/${def.icon.file}`}
+        label={def.label}
+        mono={def.icon.mono}
+        className={cn(className, 'dark:hidden')}
+      />
+      <StaticIcon
+        src={`/os-icons/${def.iconDark.file}`}
+        label={def.label}
+        mono={def.iconDark.mono}
+        className={cn(className, 'hidden dark:inline-block')}
+      />
+    </>
   );
-});
-
-OSIcon.displayName = 'OSIcon';
+}
