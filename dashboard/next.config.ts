@@ -33,6 +33,7 @@ const nextConfig: NextConfig = {
   productionBrowserSourceMaps: false,
   experimental: {
     webpackMemoryOptimizations: true,
+    serverSourceMaps: true,
   },
 };
 
