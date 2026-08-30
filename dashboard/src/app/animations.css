@@ -242,4 +242,33 @@
       animation: none;
     }
   }
+
+  @keyframes filter-pill-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  @keyframes filter-pill-flash {
+    0% {
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 50%, transparent);
+    }
+    100% {
+      box-shadow: 0 0 0 1px transparent;
+    }
+  }
+
+  /* Entrance decelerates on the house curve; the flash is an exit, so it accelerates away. */
+  .animate-filter-pill-added {
+    animation:
+      filter-pill-in 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+      filter-pill-flash 0.8s ease-in;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-filter-pill-added {
+      animation: none;
+    }
+  }
 }

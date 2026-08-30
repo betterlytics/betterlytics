@@ -4,15 +4,21 @@ import { useCallback } from 'react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import {
   applyFilterUpdates,
+  areQueryFiltersEquivalent,
+  diffQueryFilters,
   MAX_FILTER_ROWS,
+  undoQueryFilterDiff,
   withDependentColumns,
   type FilterColumn,
   type FilterOperator,
   type FilterUpdate,
+  type QueryFilter,
 } from '@/entities/analytics/filter.entities';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
+import { showFiltersUpdatedToast } from '@/components/filters/filtersUpdatedToast';
+import { generateTempId } from '@/utils/temporaryId';
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
 
@@ -35,6 +41,19 @@ export function useFilterClick(defaults?: Options) {
     [tFilters],
   );
 
+  const notifyFiltersUpdated = useCallback(
+    (prev: QueryFilter[], next: QueryFilter[]) => {
+      const { added, removed } = diffQueryFilters(prev, next);
+      if (added.length === 0 && removed.length === 0) return;
+      showFiltersUpdatedToast({
+        added,
+        removed,
+        onUndo: () => setQueryFilters((fs) => undoQueryFilterDiff(fs, { added, removed })),
+      });
+    },
+    [setQueryFilters],
+  );
+
   const applyFilter = useCallback(
     (column: FilterColumn, value: string, opts?: Options) => {
       const status = getColumnStatus(column);
@@ -55,32 +74,42 @@ export function useFilterClick(defaults?: Options) {
         );
         if (existing) {
           removeQueryFilter(existing.id);
+          notifyFiltersUpdated(queryFilters, queryFilters.filter((f) => f.id !== existing.id));
           return;
         }
         if (atCap) {
           notifyCapReached();
           return;
         }
-        addQueryFilter({ column, operator, values: [value] });
+        const filter = { id: generateTempId(), column, operator, values: [value] };
+        addQueryFilter(filter);
+        notifyFiltersUpdated(queryFilters, [...queryFilters, filter]);
         return;
       }
 
       if (behavior === 'replace-same-column') {
         const replaced = withDependentColumns([column]);
         const next = applyFilterUpdates(queryFilters, [{ column, value, operator }], replaced);
+        if (areQueryFiltersEquivalent(queryFilters, next)) return;
         if (next.length > MAX_FILTER_ROWS) {
           notifyCapReached();
           return;
         }
-        setQueryFilters((fs) => applyFilterUpdates(fs, [{ column, value, operator }], replaced));
+        setQueryFilters(next);
+        notifyFiltersUpdated(queryFilters, next);
         return;
       }
 
+      if (queryFilters.some((f) => f.column === column && f.operator === operator && f.values[0] === value)) {
+        return;
+      }
       if (atCap) {
         notifyCapReached();
         return;
       }
-      addQueryFilter({ column, operator, values: [value] });
+      const filter = { id: generateTempId(), column, operator, values: [value] };
+      addQueryFilter(filter);
+      notifyFiltersUpdated(queryFilters, [...queryFilters, filter]);
     },
     [
       addQueryFilter,
@@ -93,6 +122,7 @@ export function useFilterClick(defaults?: Options) {
       t,
       tFilters,
       notifyCapReached,
+      notifyFiltersUpdated,
     ],
   );
 
@@ -110,13 +140,15 @@ export function useFilterClick(defaults?: Options) {
       const applied = updates.map((update) => ({ ...update, operator: update.operator ?? defaultOperator }));
       const replaced = withDependentColumns(updates.map((update) => update.column));
       const next = applyFilterUpdates(queryFilters, applied, replaced);
+      if (areQueryFiltersEquivalent(queryFilters, next)) return;
       if (next.length > MAX_FILTER_ROWS) {
         notifyCapReached();
         return;
       }
-      setQueryFilters((fs) => applyFilterUpdates(fs, applied, replaced));
+      setQueryFilters(next);
+      notifyFiltersUpdated(queryFilters, next);
     },
-    [getColumnStatus, queryFilters, setQueryFilters, defaultOperator, t, tFilters, notifyCapReached],
+    [getColumnStatus, queryFilters, setQueryFilters, defaultOperator, t, tFilters, notifyCapReached, notifyFiltersUpdated],
   );
 
   const makeFilterClick = useCallback(

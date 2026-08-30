@@ -3,7 +3,6 @@ import Script from 'next/script';
 import './globals.css';
 import { env } from '@/lib/env';
 import BaseProviders from '@/app/BaseProviders';
-import { Toaster } from '@/components/ui/sonner';
 import { StructuredData } from '@/components/StructuredData';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
@@ -55,7 +54,6 @@ export default async function RootLayout({
       <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />
         <BaseProviders>{children}</BaseProviders>
-        <Toaster />
       </body>
     </html>
   );
