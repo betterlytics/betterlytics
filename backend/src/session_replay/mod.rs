@@ -197,11 +197,10 @@ pub async fn upload_segment(
         meta.start_url = start_url;
     }
 
-    upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, &meta).await.map_err(|e| {
-        error!("Failed to upsert session replay: {}", e);
-        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
-    })?;
-    META_CACHE.insert(key, meta);
+    META_CACHE.insert(key, meta.clone());
+    if let Err(e) = upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, &meta).await {
+        error!(site_id = %p.site_id, session_id = identity.session_id, "Failed to upsert session replay, segment stored and meta will catch up on the next segment: {}", e);
+    }
 
     Ok(StatusCode::NO_CONTENT)
 }
