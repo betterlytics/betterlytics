@@ -111,19 +111,24 @@ pub async fn upload_segment(
 ) -> Result<StatusCode, (StatusCode, String)> {
     let replay_ctx = replay_ctx.ok_or((StatusCode::SERVICE_UNAVAILABLE, "session replay not configured".to_string()))?;
 
+    let url = p.url.as_deref().unwrap_or_default();
+    if url.is_empty() {
+        return Err((StatusCode::BAD_REQUEST, "missing url".to_string()));
+    }
+
     if processor.check_replay_request(
         &p.site_id,
         &client.ip,
         &client.user_agent,
         &client.sec_ch_ua,
-        p.url.as_deref().unwrap_or_default(),
+        url,
         p.screen_resolution.as_deref().unwrap_or_default(),
         client.prefetch,
     ) {
         return Err((StatusCode::FORBIDDEN, "rejected".to_string()));
     }
 
-    validate_site_policies(&site_cfg_cache, &p.site_id, p.url.as_deref().unwrap_or_default(), &client.ip)
+    validate_site_policies(&site_cfg_cache, &p.site_id, url, &client.ip)
         .await
         .map_err(|e| (StatusCode::FORBIDDEN, e.to_string()))?;
 
