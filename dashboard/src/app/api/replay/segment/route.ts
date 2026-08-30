@@ -4,7 +4,7 @@ import { getCachedSession, getCachedAuthorizedContext, resolveDemoDashboardConte
 import { getReplaySegment } from '@/services/analytics/sessionReplays.service';
 import type { AuthContext } from '@/entities/auth/authContext.entities';
 
-const SEGMENT_FILENAME_PATTERN = /^\d{13}-[\w-]{6}\.json$/;
+const SEGMENT_FILENAME_PATTERN = /^\d{13}-[\w-]{1,40}\.json$/;
 
 // Auth mirrors resolveDashboardAuth in trpc/init.ts, demo branch included: the demo
 // dashboard's segments are intentionally reachable without a session, like every demo query.

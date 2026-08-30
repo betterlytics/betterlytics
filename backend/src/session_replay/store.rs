@@ -39,6 +39,19 @@ pub struct SegmentPayload {
 }
 
 impl SegmentStore {
+    pub async fn exists(&self, site_id: &str, session_id: u64, filename: &str) -> Result<bool, StoreError> {
+        match self {
+            Self::ClickHouse(db) => db
+                .replay_segment_exists(site_id, session_id, filename)
+                .await
+                .map_err(StoreError::Storage),
+            Self::S3(s3) => s3
+                .segment_exists(&object_key(site_id, session_id, filename))
+                .await
+                .map_err(StoreError::Storage),
+        }
+    }
+
     pub async fn prepare(&self, bytes: Bytes, gzip: bool) -> Result<SegmentPayload, StoreError> {
         let full = matches!(self, Self::ClickHouse(_));
         let decode_bytes = bytes.clone();

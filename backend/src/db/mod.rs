@@ -239,6 +239,19 @@ impl Database {
         Ok(rows.into_iter().next())
     }
 
+    pub async fn replay_segment_exists(&self, site_id: &str, session_id: u64, filename: &str) -> Result<bool> {
+        let fetch = self.clickhouse.inner()
+            .query("SELECT count() FROM analytics.session_replay_segments WHERE site_id = ? AND session_id = ? AND filename = ?")
+            .bind(site_id)
+            .bind(session_id)
+            .bind(filename)
+            .fetch_one::<u64>();
+        let n = tokio::time::timeout(Duration::from_secs(INSERTER_TIMEOUT_SECS), fetch)
+            .await
+            .map_err(|_| anyhow::anyhow!("replay segment exists check timed out"))??;
+        Ok(n > 0)
+    }
+
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
         let mut inserter = self.async_insert_client()
             .inserter("analytics.session_replay_segments")?

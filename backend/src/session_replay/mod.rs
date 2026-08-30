@@ -50,6 +50,7 @@ const MAX_SEGMENT_SPAN_MS: i64 = 24 * 60 * 60 * 1000;
 const STARTED_AT_TOLERANCE_SECS: i64 = 5;
 const MAX_CLOCK_SKEW_MS: i64 = 5 * 60 * 1000;
 const MAX_START_URL_CHARS: usize = 2048;
+const MAX_CHUNK_ID_CHARS: usize = 32;
 
 // Client bounds are used when within MAX_CLOCK_SKEW_MS of the server clock, otherwise
 // only the span is kept and re-anchored to server time.
@@ -77,8 +78,17 @@ pub struct ReplayCtx {
     pub store: SegmentStore,
 }
 
-pub fn build_segment_filename(epoch_ms: i64) -> String {
-    format!("{:013}-{}.json", epoch_ms, nanoid::nanoid!(6))
+fn valid_chunk_id(id: &str) -> bool {
+    !id.is_empty()
+        && id.len() <= MAX_CHUNK_ID_CHARS
+        && id.bytes().all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_')
+}
+
+pub fn build_segment_filename(epoch_ms: i64, chunk_id: Option<&str>) -> String {
+    match chunk_id {
+        Some(id) => format!("{:013}-{}.json", epoch_ms, id),
+        None => format!("{:013}-{}.json", epoch_ms, nanoid::nanoid!(6)),
+    }
 }
 
 #[derive(serde::Deserialize)]
@@ -90,6 +100,7 @@ pub struct UploadSegmentParams {
     pub ended_at_ms: Option<i64>,
     pub event_count: Option<u32>,
     pub encoding: Option<String>,
+    pub chunk_id: Option<String>,
 }
 
 pub async fn upload_segment(
@@ -140,6 +151,9 @@ pub async fn upload_segment(
     if body.is_empty() || body.len() as u64 > MAX_CONTENT_LENGTH_BYTES {
         return Err((StatusCode::BAD_REQUEST, "invalid content length".to_string()));
     }
+    if p.chunk_id.as_deref().is_some_and(|id| !valid_chunk_id(id)) {
+        return Err((StatusCode::BAD_REQUEST, "invalid chunk_id".to_string()));
+    }
 
     let gzip = p.encoding.as_deref() == Some("gzip");
     let body_len = body.len() as u64;
@@ -156,7 +170,7 @@ pub async fn upload_segment(
     let started = DateTime::from_timestamp_millis(ended_ms - span_ms).ok_or_else(internal)?;
     let started = clamp_started_at(started, identity.session_created_at);
     let ended = ended.max(started);
-    let filename = build_segment_filename(ended.timestamp_millis());
+    let filename = build_segment_filename(ended.timestamp_millis(), p.chunk_id.as_deref());
 
     let start_url: String = p
         .url
@@ -169,6 +183,11 @@ pub async fn upload_segment(
     let key = cache_key(&p.site_id, identity.session_id);
     let session_lock = META_LOCKS.get_with(key.clone(), || Arc::new(tokio::sync::Mutex::new(())));
     let _guard = session_lock.lock().await;
+    if p.chunk_id.is_some()
+        && replay_ctx.store.exists(&p.site_id, identity.session_id, &filename).await.map_err(store_error)?
+    {
+        return Ok(StatusCode::NO_CONTENT);
+    }
     let mut meta = get_or_load_meta(&db, &key, &p.site_id, identity.session_id).await?
         .unwrap_or_else(|| SessionReplayMetaRow {
             started_at: started,
@@ -289,6 +308,22 @@ mod tests {
         assert_eq!(segment_end_ms(T, Some(T - MAX_CLOCK_SKEW_MS - 1)), T);
         assert_eq!(segment_end_ms(T, Some(T + MAX_CLOCK_SKEW_MS + 1)), T);
         assert_eq!(segment_end_ms(T, None), T);
+    }
+
+    #[test]
+    fn chunk_id_validation() {
+        assert!(valid_chunk_id("abc123-7"));
+        assert!(valid_chunk_id("a_b"));
+        assert!(!valid_chunk_id(""));
+        assert!(!valid_chunk_id(&"a".repeat(MAX_CHUNK_ID_CHARS + 1)));
+        assert!(!valid_chunk_id("a/b"));
+        assert!(!valid_chunk_id("a.b"));
+    }
+
+    #[test]
+    fn filename_uses_chunk_id_when_present() {
+        assert_eq!(build_segment_filename(T, Some("abc123-7")), format!("{:013}-abc123-7.json", T));
+        assert!(build_segment_filename(T, None).starts_with(&format!("{:013}-", T)));
     }
 
     #[test]

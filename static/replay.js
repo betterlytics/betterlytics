@@ -8373,6 +8373,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
   (function initSessionReplay() {
     if (!apiBase) return;
 
+    var pageNonce = Math.random().toString(36).slice(2, 8);
     var state = {
       initialized: false,
       recordingStop: null,
@@ -8386,6 +8387,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       ongoingFlush: null,
       stopping: false,
       consecutiveFlushErrors: 0,
+      chunkSeq: 0,
+      retryChunk: null,
       errorMatrix: [[]],
       errorCheckoutTimer: null,
       errorLastFlushAt: 0,
@@ -8423,6 +8426,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         qs += "&ended_at_ms=" + payload.lastEventTs;
       }
       qs += "&event_count=" + payload.eventCount;
+      qs += "&chunk_id=" + encodeURIComponent(payload.chunkId);
       if (payload.encoding === "gzip") {
         qs += "&encoding=gzip";
       }
@@ -8441,67 +8445,74 @@ or you can use record.mirror to access the mirror instance during recording.`;
       });
     }
 
-    function handleFlushError(events, err) {
+    function handleFlushError(chunk, err) {
       var terminal = err && err.status >= 400 && err.status < 500;
       state.consecutiveFlushErrors += 1;
       if (terminal || state.consecutiveFlushErrors >= config.maxConsecutiveFlushErrors) {
         state.disabled = true;
         state.buffer = [];
         state.approxBytes = 0;
+        state.retryChunk = null;
         try {
           stopRecording();
         } catch (_) {}
       } else {
-        state.buffer = events.concat(state.buffer).sort(function (a, b) {
-          return (a.timestamp || 0) - (b.timestamp || 0);
-        });
+        state.retryChunk = chunk;
       }
     }
 
-    function uploadEventChunk(events, lastEventTs, startedAtMs) {
-      var json = JSON.stringify(events);
-      return encodeReplayChunk(json).then(function (enc) {
+    function buildChunk(events, lastEventTs, startedAtMs) {
+      var chunkId = pageNonce + "-" + state.chunkSeq++;
+      return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
         enc.lastEventTs = lastEventTs;
         enc.startedAtMs = startedAtMs || state.startedAt;
         enc.eventCount = events.length;
-        return uploadSegment(enc);
+        enc.chunkId = chunkId;
+        return enc;
       });
     }
 
     function flush(force) {
       if (state.disabled) return Promise.resolve();
-      if (state.buffer.length === 0) return Promise.resolve();
       if (state.ongoingFlush && !force) return state.ongoingFlush;
 
-      var events = state.buffer;
-      state.buffer = [];
+      var pending;
+      if (state.retryChunk) {
+        pending = Promise.resolve(state.retryChunk);
+      } else {
+        if (state.buffer.length === 0) return Promise.resolve();
+        if (!hasReachedMinDuration()) return Promise.resolve();
 
-      if (!hasReachedMinDuration()) {
-        state.buffer = events.concat(state.buffer);
-        return Promise.resolve();
+        var events = state.buffer;
+        state.buffer = [];
+        state.approxBytes = 0;
+
+        var lastEventTs = state.lastActivity;
+        var last = events[events.length - 1];
+        if (last && typeof last.timestamp === "number") {
+          lastEventTs = last.timestamp;
+        }
+        var firstEventTs = lastEventTs;
+        var first = events[0];
+        if (first && typeof first.timestamp === "number") {
+          firstEventTs = first.timestamp;
+        }
+        pending = buildChunk(events, lastEventTs, firstEventTs);
       }
 
-      state.approxBytes = 0;
-
-      var lastEventTs = state.lastActivity;
-      var last = events[events.length - 1];
-      if (last && typeof last.timestamp === "number") {
-        lastEventTs = last.timestamp;
-      }
-      var firstEventTs = lastEventTs;
-      var first = events[0];
-      if (first && typeof first.timestamp === "number") {
-        firstEventTs = first.timestamp;
-      }
-
-      var upload = uploadEventChunk(events, lastEventTs, firstEventTs)
-        .then(function () {
-          state.consecutiveFlushErrors = 0;
-        })
-        .catch(function (err) {
-          try {
-            handleFlushError(events, err);
-          } catch (_) {}
+      var upload = pending
+        .then(function (chunk) {
+          return uploadSegment(chunk).then(
+            function () {
+              state.consecutiveFlushErrors = 0;
+              if (state.retryChunk === chunk) state.retryChunk = null;
+            },
+            function (err) {
+              try {
+                handleFlushError(chunk, err);
+              } catch (_) {}
+            }
+          );
         })
         .finally(function () {
           if (state.ongoingFlush === upload) state.ongoingFlush = null;
@@ -8514,7 +8525,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return flush().then(function () {
         if (state.disabled) return;
         if (!hasReachedMinDuration()) return;
-        if (state.buffer.length === 0) return;
+        if (state.buffer.length === 0 && !state.retryChunk) return;
         return new Promise(function (r) {
           try {
             setTimeout(r, 0);
@@ -8581,7 +8592,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
         firstEventTs = first.timestamp;
       }
 
-      return uploadEventChunk(events, lastEventTs, firstEventTs)
+      return buildChunk(events, lastEventTs, firstEventTs)
+        .then(uploadSegment)
         .then(function () {
           state.errorMatrix = [[]];
         })

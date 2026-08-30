@@ -57,6 +57,15 @@ impl S3Service {
         Ok(Some(Self { client, bucket, sse_enabled }))
     }
 
+    pub async fn segment_exists(&self, key: &str) -> Result<bool> {
+        let head = self.client.head_object().bucket(&self.bucket).key(key).send();
+        match tokio::time::timeout(std::time::Duration::from_secs(PUT_TIMEOUT_SECS), head).await? {
+            Ok(_) => Ok(true),
+            Err(SdkError::ServiceError(e)) if e.err().is_not_found() => Ok(false),
+            Err(e) => Err(e.into()),
+        }
+    }
+
     pub async fn put_segment(
         &self,
         key: &str,
