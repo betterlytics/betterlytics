@@ -3,8 +3,8 @@ import {
   applyFilterUpdates,
   areQueryFiltersEquivalent,
   diffQueryFilters,
+  undoQueryFilterDiff,
   withDependentColumns,
-  withStableIds,
   type QueryFilter,
 } from '@/entities/analytics/filter.entities';
 
@@ -180,27 +180,66 @@ describe('applyFilterUpdates identity stability', () => {
   });
 });
 
-describe('withStableIds', () => {
-  it('adopts the reference instance for semantically identical filters', () => {
-    const snapshotRegion = filter('subdivision_code', 'US-VA', 'old-region');
-    const currentRegion = filter('subdivision_code', 'US-VA', 'current-region');
-    const snapshotCity = filter('city', 'Ashburn', 'old-city');
+describe('undoQueryFilterDiff', () => {
+  it('removes the added filter and restores the removed instance', () => {
+    const firefox = filter('browser', 'Firefox');
+    const chrome = filter('browser', 'Chrome');
 
-    const restored = withStableIds([snapshotRegion, snapshotCity], [currentRegion]);
+    const undone = undoQueryFilterDiff([chrome], { added: [chrome], removed: [firefox] });
 
-    expect(restored[0]).toBe(currentRegion);
-    expect(restored[1]).toBe(snapshotCity);
+    expect(undone).toHaveLength(1);
+    expect(undone[0]).toBe(firefox);
   });
 
-  it('consumes each reference instance at most once', () => {
-    const a = filter('url', '/blog', 'a');
-    const b = filter('url', '/blog', 'b');
-    const ref = filter('url', '/blog', 'ref');
+  it('keeps filters added through other paths while the toast was open', () => {
+    const chrome = filter('browser', 'Chrome');
+    const dk = filter('country_code', 'DK');
 
-    const restored = withStableIds([a, b], [ref]);
+    const undone = undoQueryFilterDiff([chrome, dk], { added: [chrome], removed: [] });
 
-    expect(restored[0]).toBe(ref);
-    expect(restored[1]).toBe(b);
+    expect(undone).toEqual([dk]);
+  });
+
+  it('does not resurrect a filter the user removed through another path', () => {
+    const chrome = filter('browser', 'Chrome');
+
+    const undone = undoQueryFilterDiff([chrome], { added: [chrome], removed: [] });
+
+    expect(undone).toEqual([]);
+  });
+
+  it('matches the added filter by content, not id', () => {
+    const undone = undoQueryFilterDiff([filter('browser', 'Chrome', 'current')], {
+      added: [filter('browser', 'Chrome', 'announced')],
+      removed: [],
+    });
+
+    expect(undone).toEqual([]);
+  });
+
+  it('leaves an added filter alone once the user has edited it', () => {
+    const edited = filter('browser', 'Firefox');
+
+    const undone = undoQueryFilterDiff([edited], { added: [filter('browser', 'Chrome')], removed: [] });
+
+    expect(undone).toEqual([edited]);
+  });
+
+  it('does not duplicate a removed filter the user already restored', () => {
+    const manual = filter('country_code', 'DK', 'manual');
+
+    const undone = undoQueryFilterDiff([manual], { added: [], removed: [filter('country_code', 'DK')] });
+
+    expect(undone).toEqual([manual]);
+  });
+
+  it('removes each added filter at most once', () => {
+    const a = filter('url', '/a', 'a1');
+    const b = filter('url', '/a', 'a2');
+
+    const undone = undoQueryFilterDiff([a, b], { added: [filter('url', '/a', 'a3')], removed: [] });
+
+    expect(undone).toHaveLength(1);
   });
 });
 

@@ -7,8 +7,8 @@ import {
   areQueryFiltersEquivalent,
   diffQueryFilters,
   MAX_FILTER_ROWS,
+  undoQueryFilterDiff,
   withDependentColumns,
-  withStableIds,
   type FilterColumn,
   type FilterOperator,
   type FilterUpdate,
@@ -48,7 +48,7 @@ export function useFilterClick(defaults?: Options) {
       showFiltersUpdatedToast({
         added,
         removed,
-        onUndo: () => setQueryFilters((fs) => withStableIds(prev, fs)),
+        onUndo: () => setQueryFilters((fs) => undoQueryFilterDiff(fs, { added, removed })),
       });
     },
     [setQueryFilters],

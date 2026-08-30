@@ -140,18 +140,25 @@ export function areQueryFiltersEquivalent(a: QueryFilter[], b: QueryFilter[]): b
 }
 
 /**
- * Rebuilds `target` reusing the instances from `reference` that are
- * semantically identical, so an undo restore only remounts the pills whose
- * content actually changed.
+ * Undoes a diff from `diffQueryFilters` against the current filters: drops the
+ * `added` filters that are still present and restores the `removed` ones that
+ * are still absent. Changes made through other paths since the diff was taken
+ * are untouched, which is why undo uses this instead of a state snapshot.
  */
-export function withStableIds(target: QueryFilter[], reference: QueryFilter[]): QueryFilter[] {
+export function undoQueryFilterDiff(
+  current: QueryFilter[],
+  { added, removed }: { added: QueryFilter[]; removed: QueryFilter[] },
+): QueryFilter[] {
   const consumed = new Set<QueryFilter>();
-  return target.map((filter) => {
-    const match = reference.find((f) => !consumed.has(f) && filterSignature(f) === filterSignature(filter));
-    if (!match) return filter;
-    consumed.add(match);
-    return match;
+  const withoutAdded = current.filter((filter) => {
+    const match = added.find((f) => !consumed.has(f) && filterSignature(f) === filterSignature(filter));
+    if (match) consumed.add(match);
+    return !match;
   });
+  const restored = removed.filter(
+    (filter) => !withoutAdded.some((f) => filterSignature(f) === filterSignature(filter)),
+  );
+  return [...withoutAdded, ...restored];
 }
 
 export function diffQueryFilters(
