@@ -13,6 +13,9 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# Caps parallel LLVM instances so this stage fits the image build's memory budget
+ENV CARGO_PROFILE_RELEASE_CODEGEN_UNITS=4
+
 COPY backend/Cargo.toml backend/Cargo.lock ./
 
 RUN mkdir src && echo "fn main() {}" > src/main.rs
