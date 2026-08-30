@@ -7,9 +7,11 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { FilterDescription } from '@/components/filters/FilterDescription';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { generateTempId } from '@/utils/temporaryId';
 
-const FILTER_TOAST_ID = 'filters-updated';
 const FILTER_TOAST_DURATION_MS = 10000;
+
+let currentToastId: string | undefined;
 
 type FilterChanges = {
   added: QueryFilter[];
@@ -17,10 +19,17 @@ type FilterChanges = {
 };
 
 export function showFiltersUpdatedToast(props: FilterChanges & { onUndo: () => void }) {
-  toast(<FiltersUpdatedToast added={props.added} removed={props.removed} onUndo={props.onUndo} />, {
-    id: FILTER_TOAST_ID,
+  if (currentToastId !== undefined) toast.dismiss(currentToastId);
+  const id = generateTempId();
+  currentToastId = id;
+  const onUndo = () => {
+    props.onUndo();
+    toast.dismiss(id);
+  };
+  toast(<FiltersUpdatedToast added={props.added} removed={props.removed} onUndo={onUndo} />, {
+    id,
     duration: FILTER_TOAST_DURATION_MS,
-    // Sonner's content wrapper shrink-wraps; stretch it so the rows can use the toast's full width.
+    // use the toast's full width.
     classNames: { content: 'w-full min-w-0', title: 'w-full min-w-0' },
   });
 }
@@ -30,7 +39,7 @@ export function showFiltersUpdatedToast(props: FilterChanges & { onUndo: () => v
 export function useDismissFilterToastOnUnmount() {
   useEffect(() => {
     return () => {
-      toast.dismiss(FILTER_TOAST_ID);
+      if (currentToastId !== undefined) toast.dismiss(currentToastId);
     };
   }, []);
 }
@@ -46,29 +55,21 @@ function FiltersUpdatedToast({ added, removed, onUndo }: FilterChanges & { onUnd
     <div className='flex w-full min-w-0 flex-col gap-1.5'>
       <div className='flex w-full items-center justify-between gap-3'>
         <span className='text-sm font-medium'>{t('toastFiltersUpdated')}</span>
-        <Button
-          variant='secondary'
-          size='sm'
-          className='h-6 shrink-0 cursor-pointer px-2 text-xs'
-          onClick={() => {
-            onUndo();
-            toast.dismiss(FILTER_TOAST_ID);
-          }}
-        >
+        <Button variant='outline' size='sm' className='h-6 shrink-0 cursor-pointer px-2 text-xs' onClick={onUndo}>
           {t('selector.toastUndo')}
         </Button>
       </div>
       <div className='flex min-w-0 flex-col gap-0.5'>
         {added.map((filter) => (
           <span key={filter.id} className='flex min-w-0 items-center gap-1'>
-            <PlusIcon aria-hidden className='size-3 shrink-0 text-green-600 dark:text-green-400' />
+            <PlusIcon aria-hidden className='size-3 shrink-0' />
             <span className='sr-only'>{t('toastFilterAdded')}</span>
             <FilterDescription filter={filter} className='max-w-full' />
           </span>
         ))}
         {visibleRemoved.map((filter) => (
           <span key={filter.id} className='flex min-w-0 items-center gap-1'>
-            <MinusIcon aria-hidden className='text-destructive size-3 shrink-0' />
+            <MinusIcon aria-hidden className='size-3 shrink-0' />
             <span className='sr-only'>{t('toastFilterRemoved')}</span>
             <FilterDescription filter={filter} className='max-w-full' />
           </span>
