@@ -735,7 +735,6 @@
         "title": "Logg inn på kontoen din",
         "subtitle": "Få tilgang til analysedashboardet ditt",
         "errors": {
-          "CredentialsSignin": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
           "OAuthAccountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn med e-post og passord i stedet.",
           "default": "Det oppstod en feil under innlogging. Prøv igjen."
         },
@@ -3039,14 +3038,19 @@
           "enabled": "Aktivert",
           "disable": "Deaktiver",
           "disableTitle": "Deaktiver 2FA",
-          "disableDescription": "Skriv inn bekreftelseskoden fra autentiseringsappen din for å deaktivere tofaktorautentisering.",
+          "disableDescription": "Skriv inn passordet ditt for å deaktivere tofaktorautentisering.",
           "disabledSuccess": "Tofaktorautentisering deaktivert",
           "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen.",
           "setupFailed": "Kunne ikke konfigurere tofaktorautentisering. Prøv igjen.",
           "copyFailed": "Kunne ikke kopiere",
           "enabledSuccess": "Tofaktorautentisering aktivert",
           "enableFailed": "Kunne ikke aktivere tofaktorautentisering. Prøv igjen.",
-          "managedByOAuth": "Tofaktorautentisering håndteres av innloggingsleverandøren din"
+          "managedByOAuth": "Tofaktorautentisering håndteres av innloggingsleverandøren din",
+          "passwordPromptTitle": "Bekreft passordet ditt",
+          "passwordPromptDescription": "Skriv inn passordet ditt for å fortsette.",
+          "passwordLabel": "Passord",
+          "backupCodesTitle": "Sikkerhetskoder",
+          "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted — de lar deg logge inn hvis du mister autentiseringsappen."
         }
       },
       "sessions": {
@@ -4074,6 +4078,7 @@
       "viewPage": "Vis side",
       "more": "Flere handlinger",
       "linkCopied": "Lenke kopiert til utklippstavlen",
+      "linkCopyFailed": "Kunne ikke kopiere lenken",
       "openPublicPage": "Åpne offentlig side",
       "editPage": "Rediger side",
       "manageIncidents": "Administrer hendelser",

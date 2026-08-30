@@ -7,7 +7,8 @@ import { StructuredData } from '@/components/StructuredData';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
-import { getCurrentSessionTokenFromCookies } from '@/services/session.service';
+import { headers } from 'next/headers';
+import { getSessionCookie } from 'better-auth/cookies';
 
 const robotoSans = Inter({
   variable: '--font-roboto-sans',
@@ -28,7 +29,7 @@ export default async function RootLayout({
   const [locale, seoConfig, sessionToken] = await Promise.all([
     getLocale(),
     buildSEOConfig(SEO_CONFIGS.root),
-    env.ENABLE_APP_TRACKING ? getCurrentSessionTokenFromCookies() : undefined,
+    env.ENABLE_APP_TRACKING ? headers().then(getSessionCookie) : undefined,
   ]);
 
   return (

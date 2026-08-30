@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { useTranslations } from 'next-intl';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ type CreateMonitorFormProps = {
 
 export function CreateMonitorForm({ create, domain, onCancel }: CreateMonitorFormProps) {
   const t = useTranslations('monitoringPage.form');
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
 
   const {
     form,

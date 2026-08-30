@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import type { SupportedLanguages } from '@/constants/i18n';
 import type { ReactNode } from 'react';
+import { env } from '@/lib/env';
+import { redirect } from 'next/navigation';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
@@ -97,6 +99,10 @@ function FAQItem({ question, answer }: FAQItemProps) {
 }
 
 export default async function ContactPage() {
+  if (!env.IS_CLOUD) {
+    redirect('/');
+  }
+
   const t = await getTranslations('public.contact');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.contact);
 

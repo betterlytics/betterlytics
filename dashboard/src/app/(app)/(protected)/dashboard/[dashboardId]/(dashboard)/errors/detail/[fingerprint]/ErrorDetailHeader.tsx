@@ -12,6 +12,7 @@ import { STATUS_CONFIG } from '../../errors.constants';
 import { ErrorStatusActions } from '../../ErrorStatusActions';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { useCopy } from '@/hooks/use-copy';
 import { useTranslations } from 'next-intl';
 
 type ErrorDetailHeaderProps = {
@@ -24,14 +25,9 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
   const tStatus = useTranslations('errors.status');
   const [status, setStatus] = useState<ErrorGroupStatusValue>(errorGroup.status);
   const [isPending, startTransition] = useTransition();
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopy();
   const { resolveHref } = useDashboardNavigation();
 
-  function copyShareUrl() {
-    navigator.clipboard.writeText(window.location.href);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
   const cfg = STATUS_CONFIG[status];
 
   function updateStatus(newStatus: ErrorGroupStatusValue) {
@@ -74,7 +70,7 @@ export function ErrorDetailHeader({ dashboardId, errorGroup }: ErrorDetailHeader
                 />
               )}
             </PermissionGate>
-            <Button variant='outline' size='sm' className='cursor-pointer' onClick={copyShareUrl}>
+            <Button variant='outline' size='sm' className='cursor-pointer' onClick={() => copy(window.location.href)}>
               {copied ? (
                 <Check className='mr-1.5 h-4 w-4 text-emerald-600' />
               ) : (

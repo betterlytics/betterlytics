@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from '@/components/ui/badge';
 import { Clipboard, Check } from 'lucide-react';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { useCopy } from '@/hooks/use-copy';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useTrackingVerificationWithId } from '@/hooks/use-tracking-verification';
 import { useBARouter } from '@/hooks/use-ba-router';
@@ -35,7 +36,7 @@ export default function Integration() {
   const messages = useMessages();
   const integrationTranslations = (messages as Record<string, unknown>).integration as IntegrationTranslations;
 
-  const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
+  const { copied, copy } = useCopy();
   const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
   const { PUBLIC_ANALYTICS_BASE_URL, PUBLIC_TRACKING_SERVER_ENDPOINT } = usePublicEnvironmentVariablesContext();
   const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
@@ -53,14 +54,6 @@ export default function Integration() {
       return () => clearInterval(interval);
     }
   }, [isVerified, verifySilently]);
-
-  const handleCopy = useCallback(async (text: string, identifier: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedIdentifier(identifier);
-      setTimeout(() => setCopiedIdentifier(null), 2000);
-    } catch {}
-  }, []);
 
   const handleFinishOnboarding = useCallback(async () => {
     baEvent('onboarding-integration', {
@@ -173,10 +166,10 @@ export default function Integration() {
           <Button
             variant='ghost'
             size='sm'
-            onClick={() => handleCopy(dashboard.siteId, 'siteId')}
+            onClick={() => copy(dashboard.siteId)}
             className='h-8 cursor-pointer px-2'
           >
-            {copiedIdentifier === 'siteId' ? <Check className='h-4 w-4' /> : <Clipboard className='h-4 w-4' />}
+            {copied ? <Check className='h-4 w-4' /> : <Clipboard className='h-4 w-4' />}
           </Button>
         </div>
       </CardContent>

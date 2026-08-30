@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { Check, Loader2, X } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { useLocale, useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -21,7 +21,7 @@ const PROVIDER_LABELS: Record<string, string> = {
 };
 
 export default function UserProfileSettings() {
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const { refreshSession } = useSessionRefresh();
   const locale = useLocale();
   const t = useTranslations('components.userSettings.profile');

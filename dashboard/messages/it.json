@@ -735,7 +735,6 @@
         "title": "Accedi al tuo account",
         "subtitle": "Accedi alla tua dashboard analitiche",
         "errors": {
-          "CredentialsSignin": "Email o password non validi. Controlla le tue credenziali e riprova.",
           "OAuthAccountNotLinked": "Esiste già un account con questa email. Accedi con la tua email e password.",
           "default": "Si è verificato un errore durante l'accesso. Riprova."
         },
@@ -3039,14 +3038,19 @@
           "enabled": "Abilitato",
           "disable": "Disabilita",
           "disableTitle": "Disabilita 2FA",
-          "disableDescription": "Inserisci il codice di verifica dalla tua app di autenticazione per disabilitare l'autenticazione a due fattori.",
+          "disableDescription": "Inserisci la password del tuo account per disattivare l'autenticazione a due fattori.",
           "disabledSuccess": "Autenticazione a due fattori disabilitata con successo",
           "disableFailed": "Impossibile disabilitare l'autenticazione a due fattori. Riprova.",
           "setupFailed": "Impossibile configurare l'autenticazione a due fattori. Riprova.",
           "copyFailed": "Impossibile copiare",
           "enabledSuccess": "Autenticazione a due fattori abilitata con successo",
           "enableFailed": "Impossibile abilitare l'autenticazione a due fattori. Riprova.",
-          "managedByOAuth": "L'autenticazione a due fattori è gestita dal tuo provider di accesso"
+          "managedByOAuth": "L'autenticazione a due fattori è gestita dal tuo provider di accesso",
+          "passwordPromptTitle": "Conferma la tua password",
+          "passwordPromptDescription": "Inserisci la password del tuo account per continuare.",
+          "passwordLabel": "Password",
+          "backupCodesTitle": "Codici di backup",
+          "backupCodesDescription": "Conserva questi codici monouso in un luogo sicuro: ti permettono di accedere se perdi la tua app di autenticazione."
         }
       },
       "sessions": {
@@ -4074,6 +4078,7 @@
       "viewPage": "Vedi pagina",
       "more": "Altre azioni",
       "linkCopied": "Link copiato negli appunti",
+      "linkCopyFailed": "Copia del link non riuscita",
       "openPublicPage": "Apri pagina pubblica",
       "editPage": "Modifica pagina",
       "manageIncidents": "Gestisci incidenti",

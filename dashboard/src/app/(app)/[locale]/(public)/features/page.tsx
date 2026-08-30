@@ -6,6 +6,8 @@ import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { FeaturesHero } from './components/FeaturesHero';
 import { FeatureCategories } from './components/FeatureCategories';
 import { CtaStrip } from '@/components/public/ctaStrip';
+import { env } from '@/lib/env';
+import { redirect } from 'next/navigation';
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -14,6 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function FeaturesPage() {
+  if (!env.IS_CLOUD) {
+    redirect('/');
+  }
+
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.features);
 
   return (
