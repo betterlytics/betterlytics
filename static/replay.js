@@ -8452,7 +8452,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
           stopRecording();
         } catch (_) {}
       } else {
-        state.buffer = events.concat(state.buffer);
+        state.buffer = events.concat(state.buffer).sort(function (a, b) {
+          return (a.timestamp || 0) - (b.timestamp || 0);
+        });
       }
     }
 
