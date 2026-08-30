@@ -21,6 +21,6 @@ export const sessionReplaysRouter = createRouter({
     }),
 
   segments: dashboardProcedure
-    .input(z.object({ sessionId: z.string().regex(/^\d+$/), cutoffIso: z.date().optional() }))
-    .query(async ({ ctx, input }) => getReplaySegmentManifest(ctx.authContext, input.sessionId, input.cutoffIso)),
+    .input(z.object({ sessionId: z.string().regex(/^\d+$/) }))
+    .query(async ({ ctx, input }) => getReplaySegmentManifest(ctx.authContext, input.sessionId)),
 });

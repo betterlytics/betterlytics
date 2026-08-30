@@ -148,13 +148,13 @@ pub async fn upload_segment(
         (StatusCode::BAD_REQUEST, "invalid timestamp".to_string())
     })?;
 
-    let filename = build_segment_filename(now_ms);
     let internal = || (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string());
     let ended_ms = segment_end_ms(now_ms, p.ended_at_ms);
     let ended = DateTime::from_timestamp_millis(ended_ms).ok_or_else(internal)?;
     let started = DateTime::from_timestamp_millis(ended_ms - span_ms).ok_or_else(internal)?;
     let started = clamp_started_at(started, identity.session_created_at);
     let ended = ended.max(started);
+    let filename = build_segment_filename(ended.timestamp_millis());
     let body_len = body.len() as u64;
 
     let start_url: String = p
