@@ -92,7 +92,7 @@ export async function getSessionReplays(
       FROM analytics.session_replays FINAL
       WHERE site_id = {site_id:String}
         AND started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      ORDER BY started_at DESC
+      ORDER BY started_at DESC, session_id DESC
       LIMIT {limit:UInt32} OFFSET {offset:UInt32}
     )
     SELECT
@@ -137,6 +137,7 @@ export async function getSessionReplays(
         AND session_id IN (SELECT session_id FROM page)
       GROUP BY site_id, session_id
     ) AS err USING (site_id, session_id)
+    ORDER BY r.started_at DESC, r.session_id DESC
   `;
 
   const result = await clickhouse
