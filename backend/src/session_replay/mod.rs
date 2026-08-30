@@ -64,7 +64,7 @@ fn segment_span_ms(started_at_ms: Option<i64>, ended_at_ms: Option<i64>) -> Opti
 
 fn segment_end_ms(now_ms: i64, client_ended_at_ms: Option<i64>) -> i64 {
     match client_ended_at_ms {
-        Some(t) if (now_ms - t).abs() <= MAX_CLOCK_SKEW_MS => t,
+        Some(t) if now_ms.abs_diff(t) <= MAX_CLOCK_SKEW_MS as u64 => t,
         _ => now_ms,
     }
 }
@@ -308,6 +308,8 @@ mod tests {
         assert_eq!(segment_end_ms(T, Some(T - MAX_CLOCK_SKEW_MS - 1)), T);
         assert_eq!(segment_end_ms(T, Some(T + MAX_CLOCK_SKEW_MS + 1)), T);
         assert_eq!(segment_end_ms(T, None), T);
+        assert_eq!(segment_end_ms(T, Some(i64::MIN)), T);
+        assert_eq!(segment_end_ms(T, Some(i64::MAX)), T);
     }
 
     #[test]
