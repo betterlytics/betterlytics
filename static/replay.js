@@ -8388,7 +8388,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       stopping: false,
       consecutiveFlushErrors: 0,
       chunkSeq: 0,
-      retryChunk: null,
+      retryQueue: [],
       errorMatrix: [[]],
       errorCheckoutTimer: null,
       errorLastFlushAt: 0,
@@ -8452,12 +8452,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
         state.disabled = true;
         state.buffer = [];
         state.approxBytes = 0;
-        state.retryChunk = null;
+        state.retryQueue = [];
         try {
           stopRecording();
         } catch (_) {}
-      } else {
-        state.retryChunk = chunk;
+      } else if (state.retryQueue.indexOf(chunk) === -1) {
+        state.retryQueue.push(chunk);
       }
     }
 
@@ -8477,8 +8477,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (state.ongoingFlush && !force) return state.ongoingFlush;
 
       var pending;
-      if (state.retryChunk) {
-        pending = Promise.resolve(state.retryChunk);
+      if (state.retryQueue.length > 0) {
+        pending = Promise.resolve(state.retryQueue[0]);
       } else {
         if (state.buffer.length === 0) return Promise.resolve();
         if (!hasReachedMinDuration()) return Promise.resolve();
@@ -8505,7 +8505,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
           return uploadSegment(chunk).then(
             function () {
               state.consecutiveFlushErrors = 0;
-              if (state.retryChunk === chunk) state.retryChunk = null;
+              var idx = state.retryQueue.indexOf(chunk);
+              if (idx !== -1) state.retryQueue.splice(idx, 1);
             },
             function (err) {
               try {
@@ -8525,7 +8526,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return flush().then(function () {
         if (state.disabled) return;
         if (!hasReachedMinDuration()) return;
-        if (state.buffer.length === 0 && !state.retryChunk) return;
+        if (state.buffer.length === 0 && state.retryQueue.length === 0) return;
         return new Promise(function (r) {
           try {
             setTimeout(r, 0);

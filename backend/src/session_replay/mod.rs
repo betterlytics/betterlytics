@@ -56,10 +56,10 @@ const MAX_CHUNK_ID_CHARS: usize = 32;
 // only the span is kept and re-anchored to server time.
 fn segment_span_ms(started_at_ms: Option<i64>, ended_at_ms: Option<i64>) -> Option<i64> {
     let span = match (started_at_ms, ended_at_ms) {
-        (Some(started), Some(ended)) => ended.saturating_sub(started),
+        (Some(started), Some(ended)) => ended.saturating_sub(started).max(0),
         _ => 0,
     };
-    (0..=MAX_SEGMENT_SPAN_MS).contains(&span).then_some(span)
+    (span <= MAX_SEGMENT_SPAN_MS).then_some(span)
 }
 
 fn segment_end_ms(now_ms: i64, client_ended_at_ms: Option<i64>) -> i64 {
@@ -193,21 +193,29 @@ pub async fn upload_segment(
     {
         return Ok(StatusCode::NO_CONTENT);
     }
-    let mut meta = get_or_load_meta(&db, &key, &p.site_id, identity.session_id).await?
-        .unwrap_or_else(|| SessionReplayMetaRow {
-            started_at: started,
-            ended_at: ended,
-            size_bytes: 0,
-            start_url: start_url.clone(),
-            event_count: 0,
-            visitor_id: identity.fingerprint,
-        });
-
-    if meta.size_bytes.saturating_add(body_len) > MAX_SESSION_BYTES {
-        return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
+    let loaded_meta = get_or_load_meta(&db, &key, &p.site_id, identity.session_id).await;
+    if let Err(e) = &loaded_meta {
+        error!(site_id = %p.site_id, session_id = identity.session_id, "Failed to load replay meta, storing segment and meta will catch up on the next segment: {}", e);
+    }
+    if let Ok(Some(meta)) = &loaded_meta {
+        if meta.size_bytes.saturating_add(body_len) > MAX_SESSION_BYTES {
+            return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
+        }
     }
 
     replay_ctx.store.store(&p.site_id, identity.session_id, &filename, payload).await.map_err(store_error)?;
+
+    let Ok(loaded) = loaded_meta else {
+        return Ok(StatusCode::NO_CONTENT);
+    };
+    let mut meta = loaded.unwrap_or_else(|| SessionReplayMetaRow {
+        started_at: started,
+        ended_at: ended,
+        size_bytes: 0,
+        start_url: start_url.clone(),
+        event_count: 0,
+        visitor_id: identity.fingerprint,
+    });
     meta.started_at = meta.started_at.min(started);
     meta.ended_at = meta.ended_at.max(ended);
     meta.size_bytes = meta.size_bytes.saturating_add(body_len);
@@ -239,14 +247,11 @@ async fn get_or_load_meta(
     key: &str,
     site_id: &str,
     session_id: u64,
-) -> Result<Option<SessionReplayMetaRow>, (StatusCode, String)> {
+) -> anyhow::Result<Option<SessionReplayMetaRow>> {
     if let Some(meta) = META_CACHE.get(key) {
         return Ok(Some(meta));
     }
-    db.fetch_session_replay_meta(site_id, session_id).await.map_err(|e| {
-        error!("Failed to load stored replay meta: {}", e);
-        (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
-    })
+    db.fetch_session_replay_meta(site_id, session_id).await
 }
 
 async fn upsert_replay_row(
@@ -297,12 +302,12 @@ mod tests {
     }
 
     #[test]
-    fn rejects_negative_or_oversized_spans() {
-        assert_eq!(segment_span_ms(Some(T + 1), Some(T)), None);
+    fn clamps_negative_and_rejects_oversized_spans() {
+        assert_eq!(segment_span_ms(Some(T + 1), Some(T)), Some(0));
         assert_eq!(segment_span_ms(Some(T), Some(T + MAX_SEGMENT_SPAN_MS)), Some(MAX_SEGMENT_SPAN_MS));
         assert_eq!(segment_span_ms(Some(T), Some(T + MAX_SEGMENT_SPAN_MS + 1)), None);
         assert_eq!(segment_span_ms(Some(i64::MIN), Some(i64::MAX)), None);
-        assert_eq!(segment_span_ms(Some(i64::MAX), Some(i64::MIN)), None);
+        assert_eq!(segment_span_ms(Some(i64::MAX), Some(i64::MIN)), Some(0));
     }
 
     #[test]
