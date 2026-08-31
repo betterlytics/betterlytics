@@ -1,24 +1,8 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { env } from '@/lib/env';
-import { getCachedSession, getCachedAuthorizedContext, resolveDemoDashboardContext } from '@/auth/api-auth';
+import { resolveDashboardAuthResult } from '@/auth/api-auth';
 import { getReplaySegment } from '@/services/analytics/sessionReplays.service';
-import type { AuthContext } from '@/entities/auth/authContext.entities';
 
 const SEGMENT_FILENAME_PATTERN = /^\d{13}-[\w-]{1,40}\.json$/;
-
-// Auth mirrors resolveDashboardAuth in trpc/init.ts, demo branch included: the demo
-// dashboard's segments are intentionally reachable without a session, like every demo query.
-async function resolveAuthContext(dashboardId: string): Promise<AuthContext | null> {
-  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
-    return resolveDemoDashboardContext(dashboardId);
-  }
-
-  const session = await getCachedSession();
-  if (!session?.user) {
-    return null;
-  }
-  return getCachedAuthorizedContext(session.user.id, dashboardId);
-}
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
@@ -30,12 +14,12 @@ export async function GET(request: NextRequest) {
     return new NextResponse(null, { status: 400 });
   }
 
-  const authContext = await resolveAuthContext(dashboardId);
-  if (!authContext) {
-    return new NextResponse(null, { status: 401 });
+  const result = await resolveDashboardAuthResult(dashboardId);
+  if (result.error) {
+    return new NextResponse(null, { status: result.error === 'unauthenticated' ? 401 : 403 });
   }
 
-  const segment = await getReplaySegment(authContext, sessionId, file);
+  const segment = await getReplaySegment(result.context, sessionId, file);
   if (!segment) {
     return new NextResponse(null, { status: 404 });
   }

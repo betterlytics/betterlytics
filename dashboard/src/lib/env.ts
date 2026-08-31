@@ -79,6 +79,9 @@ const appEnvSchema = z.object({
     ),
 });
 
+const resolveReplayStorage = (e: { REPLAY_STORAGE?: 's3' | 'clickhouse'; S3_ENABLED: boolean }) =>
+  e.REPLAY_STORAGE ?? (e.S3_ENABLED ? 's3' : 'clickhouse');
+
 const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx) => {
   // Validate Caddy ask secret for on-demand-TLS ask endpoint if status page is enabled
   if (
@@ -94,7 +97,7 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
     });
   }
 
-  const resolvedReplayStorage = env.REPLAY_STORAGE ?? (env.S3_ENABLED ? 's3' : 'clickhouse');
+  const resolvedReplayStorage = resolveReplayStorage(env);
   if (env.SESSION_REPLAYS_ENABLED && resolvedReplayStorage === 's3' && !env.S3_ENABLED) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
@@ -121,7 +124,7 @@ if (!process.env.AUTH_URL && process.env.NEXTAUTH_URL) {
 
 export const env = envSchema.parse(process.env);
 
-export const replayStorage: 's3' | 'clickhouse' = env.REPLAY_STORAGE ?? (env.S3_ENABLED ? 's3' : 'clickhouse');
+export const replayStorage: 's3' | 'clickhouse' = resolveReplayStorage(env);
 
 export const s3Env = {
   enabled: env.S3_ENABLED,

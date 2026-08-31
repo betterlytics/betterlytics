@@ -11,6 +11,7 @@ import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard.entiti
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import type { Session } from '@/entities/auth/session.entities';
 import { stableStringify } from '@/utils/stableStringify';
+import { env } from '@/lib/env';
 
 type InferredUser = (typeof auth.$Infer.Session)['user'];
 
@@ -51,6 +52,27 @@ export async function resolveDemoDashboardContext(dashboardId: string): Promise<
     if (authorizedCtx) return authorizedCtx;
   }
   return await createDemoContext(dashboardId);
+}
+
+export type DashboardAuthResult =
+  | { context: AuthContext; error?: never }
+  | { context?: never; error: 'unauthenticated' | 'forbidden' };
+
+export async function resolveDashboardAuthResult(dashboardId: string): Promise<DashboardAuthResult> {
+  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
+    return { context: await resolveDemoDashboardContext(dashboardId) };
+  }
+
+  const session = await getCachedSession();
+  if (!session?.user) {
+    return { error: 'unauthenticated' };
+  }
+
+  const context = await getCachedAuthorizedContext(session.user.id, dashboardId);
+  if (!context) {
+    return { error: 'forbidden' };
+  }
+  return { context };
 }
 
 type AnyFn = (...args: unknown[]) => unknown;
