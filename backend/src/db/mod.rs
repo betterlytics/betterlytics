@@ -211,16 +211,23 @@ impl Database {
             .with_option("wait_for_async_insert", "1")
     }
 
-    pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
+    async fn insert_one<R>(&self, table: &str, row: &R) -> Result<()>
+    where
+        R: clickhouse::Row + serde::Serialize,
+    {
         let mut inserter = self.async_insert_client()
-            .inserter("analytics.session_replays")?
+            .inserter(table)?
             .with_timeouts(
                 Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
                 Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
             );
-        inserter.write(&row)?;
+        inserter.write(row)?;
         inserter.end().await?;
         Ok(())
+    }
+
+    pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
+        self.insert_one("analytics.session_replays", &row).await
     }
 
     pub async fn fetch_session_replay_meta(&self, site_id: &str, session_id: u64) -> Result<Option<SessionReplayMetaRow>> {
@@ -253,15 +260,7 @@ impl Database {
     }
 
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
-        let mut inserter = self.async_insert_client()
-            .inserter("analytics.session_replay_segments")?
-            .with_timeouts(
-                Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
-                Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
-            );
-        inserter.write(&row)?;
-        inserter.end().await?;
-        Ok(())
+        self.insert_one("analytics.session_replay_segments", &row).await
     }
 }
 
