@@ -169,8 +169,8 @@ pub async fn upload_segment(
     }
 
     let gzip = p.encoding.as_deref() == Some("gzip");
-    let body_len = body.len() as u64;
     let payload = replay_ctx.store.prepare(body, gzip).await.map_err(store_error)?;
+    let stored_len = payload.stored_size();
     let now_ms = Utc::now().timestamp_millis();
     let span_ms = segment_span_ms(p.started_at_ms, p.ended_at_ms).ok_or_else(|| {
         warn!(site_id = %p.site_id, "rejected replay segment with invalid time span");
@@ -201,21 +201,18 @@ pub async fn upload_segment(
     {
         return Ok(StatusCode::NO_CONTENT);
     }
-    let loaded_meta = get_or_load_meta(&db, &key, &p.site_id, identity.session_id).await;
-    if let Err(e) = &loaded_meta {
-        error!(site_id = %p.site_id, session_id = identity.session_id, "Failed to load replay meta, storing segment and meta will catch up on the next segment: {}", e);
-    }
-    if let Ok(Some(meta)) = &loaded_meta {
-        if meta.size_bytes.saturating_add(body_len) > MAX_SESSION_BYTES {
+    let loaded = get_or_load_meta(&db, &key, &p.site_id, identity.session_id).await.map_err(|e| {
+        error!(site_id = %p.site_id, session_id = identity.session_id, "Failed to load replay meta, rejecting segment for client retry: {}", e);
+        (StatusCode::SERVICE_UNAVAILABLE, "temporarily unavailable".to_string())
+    })?;
+    if let Some(meta) = &loaded {
+        if meta.size_bytes.saturating_add(stored_len) > MAX_SESSION_BYTES {
             return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
         }
     }
 
     replay_ctx.store.store(&p.site_id, identity.session_id, &filename, payload).await.map_err(store_error)?;
 
-    let Ok(loaded) = loaded_meta else {
-        return Ok(StatusCode::NO_CONTENT);
-    };
     let mut meta = loaded.unwrap_or_else(|| SessionReplayMetaRow {
         started_at: started,
         ended_at: ended,
@@ -226,7 +223,7 @@ pub async fn upload_segment(
     });
     meta.started_at = meta.started_at.min(started);
     meta.ended_at = meta.ended_at.max(ended);
-    meta.size_bytes = meta.size_bytes.saturating_add(body_len);
+    meta.size_bytes = meta.size_bytes.saturating_add(stored_len);
     meta.event_count = meta.event_count.saturating_add(p.event_count.unwrap_or_default());
     if meta.start_url.is_empty() {
         meta.start_url = start_url;

@@ -7,7 +7,7 @@ use flate2::read::GzDecoder;
 use crate::db::{SessionReplaySegmentRow, SharedDatabase};
 use crate::storage::s3::S3Service;
 
-const MAX_DECOMPRESSED_BYTES: u64 = 32 * 1024 * 1024;
+const MAX_DECOMPRESSED_BYTES: u64 = 4 * 1024 * 1024;
 const PEEK_BYTES: u64 = 256;
 
 #[derive(Debug)]
@@ -36,6 +36,15 @@ pub struct SegmentPayload {
     bytes: Bytes,
     gzip: bool,
     data: Option<String>,
+}
+
+impl SegmentPayload {
+    pub fn stored_size(&self) -> u64 {
+        match &self.data {
+            Some(data) => data.len() as u64,
+            None => self.bytes.len() as u64,
+        }
+    }
 }
 
 impl SegmentStore {
@@ -87,7 +96,7 @@ impl SegmentStore {
                     filename: filename.to_string(),
                     epoch_ms,
                     date,
-                    size_bytes: payload.bytes.len() as u64,
+                    size_bytes: data.len() as u64,
                     data,
                 })
                 .await
@@ -179,6 +188,15 @@ mod tests {
         let mut encoder = flate2::write::GzEncoder::new(Vec::new(), flate2::Compression::default());
         encoder.write_all(data).unwrap();
         encoder.finish().unwrap()
+    }
+
+    #[test]
+    fn stored_size_reflects_backing_store() {
+        let wire = Bytes::from_static(b"compressed");
+        let ch = SegmentPayload { bytes: wire.clone(), gzip: true, data: Some("x".repeat(100)) };
+        assert_eq!(ch.stored_size(), 100);
+        let s3 = SegmentPayload { bytes: wire.clone(), gzip: true, data: None };
+        assert_eq!(s3.stored_size(), wire.len() as u64);
     }
 
     #[test]
