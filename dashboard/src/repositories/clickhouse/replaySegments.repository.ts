@@ -7,11 +7,12 @@ import type { ReplaySegmentReader } from '../replaySegments.repository';
 export const clickhouseSegmentReader: ReplaySegmentReader = {
   async list(siteId, sessionId) {
     const query = safeSql`
-      SELECT filename, size_bytes
+      SELECT filename, max(size_bytes) AS size_bytes
       FROM analytics.session_replay_segments
       WHERE site_id = {site_id:String}
         AND session_id = {session_id:UInt64}
-      ORDER BY epoch_ms, filename
+      GROUP BY filename
+      ORDER BY min(epoch_ms), filename
     `;
 
     const result = (await clickhouse

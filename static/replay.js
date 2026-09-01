@@ -8462,7 +8462,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function buildChunk(events, lastEventTs, startedAtMs) {
-      var chunkId = pageNonce + "-" + state.chunkSeq++;
+      var seq = state.chunkSeq++;
+      var chunkId = pageNonce + "-" + (seq < 10000 ? ("000" + seq).slice(-4) : seq);
       return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
         enc.lastEventTs = lastEventTs;
         enc.startedAtMs = startedAtMs || state.startedAt;
@@ -8470,6 +8471,21 @@ or you can use record.mirror to access the mirror instance during recording.`;
         enc.chunkId = chunkId;
         return enc;
       });
+    }
+
+    function sendChunk(chunk) {
+      return uploadSegment(chunk).then(
+        function () {
+          state.consecutiveFlushErrors = 0;
+          var idx = state.retryQueue.indexOf(chunk);
+          if (idx !== -1) state.retryQueue.splice(idx, 1);
+        },
+        function (err) {
+          try {
+            handleFlushError(chunk, err);
+          } catch (_) {}
+        }
+      );
     }
 
     function flush(force) {
@@ -8501,20 +8517,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
 
       var upload = pending
-        .then(function (chunk) {
-          return uploadSegment(chunk).then(
-            function () {
-              state.consecutiveFlushErrors = 0;
-              var idx = state.retryQueue.indexOf(chunk);
-              if (idx !== -1) state.retryQueue.splice(idx, 1);
-            },
-            function (err) {
-              try {
-                handleFlushError(chunk, err);
-              } catch (_) {}
-            }
-          );
-        })
+        .then(sendChunk)
         .finally(function () {
           if (state.ongoingFlush === upload) state.ongoingFlush = null;
         });
@@ -8580,25 +8583,28 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function flushErrorMatrix() {
-      var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
+      if (state.disabled) return Promise.resolve();
       state.errorFlushPending = false;
       state.errorLastFlushAt = Date.now();
 
-      if (events.length === 0) return Promise.resolve();
+      var pending;
+      if (state.retryQueue.length > 0) {
+        pending = Promise.resolve(state.retryQueue[0]);
+      } else {
+        var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
+        if (events.length === 0) return Promise.resolve();
 
-      var firstEventTs = state.startedAt;
-      var lastEventTs = state.lastActivity;
-      var first = events[0];
-      if (first && typeof first.timestamp === "number") {
-        firstEventTs = first.timestamp;
+        var firstEventTs = state.startedAt;
+        var lastEventTs = state.lastActivity;
+        var first = events[0];
+        if (first && typeof first.timestamp === "number") {
+          firstEventTs = first.timestamp;
+        }
+        state.errorMatrix = [[]];
+        pending = buildChunk(events, lastEventTs, firstEventTs);
       }
 
-      return buildChunk(events, lastEventTs, firstEventTs)
-        .then(uploadSegment)
-        .then(function () {
-          state.errorMatrix = [[]];
-        })
-        .catch(function () {});
+      return pending.then(sendChunk).catch(function () {});
     }
 
     function notifyError(errorType, errorExceptionsJson) {
