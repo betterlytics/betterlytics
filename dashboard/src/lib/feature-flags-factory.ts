@@ -11,5 +11,6 @@ export function createFeatureFlags(environment: FeatureFlagEnvironment) {
     isCloud: environment.PUBLIC_IS_CLOUD,
     enableBugReports: environment.PUBLIC_IS_CLOUD,
     enableFaviconFetching: environment.PUBLIC_ENABLE_FAVICON_FETCHING,
+    enableChangelog: environment.PUBLIC_IS_CLOUD,
   } as const;
 }

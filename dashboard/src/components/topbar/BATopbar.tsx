@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { authClient } from '@/lib/auth-client';
+import { useHydratedSession } from '@/hooks/use-hydrated-session';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -38,7 +39,7 @@ import { cn } from '@/lib/utils';
 import { Link as LocaleLink } from '@/i18n/navigation';
 
 export default function BATopbar() {
-  const { data: session, isPending } = authClient.useSession();
+  const { data: session, isPending } = useHydratedSession();
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [showBugReportDialog, setShowBugReportDialog] = useState(false);
   const { start: startLoader } = useTopLoader();
@@ -49,6 +50,7 @@ export default function BATopbar() {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
   const isBillingEnabled = isFeatureFlagEnabled('enableBilling');
+  const isChangelogEnabled = isFeatureFlagEnabled('enableChangelog');
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -106,7 +108,7 @@ export default function BATopbar() {
                 </div>
               ) : (
                 <>
-                  <ChangelogModal />
+                  {isChangelogEnabled && <ChangelogModal />}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button

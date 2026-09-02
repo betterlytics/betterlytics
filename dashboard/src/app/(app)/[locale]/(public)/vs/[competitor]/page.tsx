@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Link } from '@/i18n/navigation';
 import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
@@ -26,6 +26,7 @@ import Logo from '@/components/logo';
 import { CtaStrip } from '@/components/public/ctaStrip';
 import { getCompetitorData, getCompetitorSlugs, SUPPORTED_LOCALES, type ComparisonLocaleContent } from './config';
 import { generateSEO } from '@/lib/seo';
+import { env } from '@/lib/env';
 
 export async function generateStaticParams() {
   const competitors = getCompetitorSlugs();
@@ -208,6 +209,10 @@ function TimelineItem({
 }
 
 export default async function ComparisonPage({ params }: PageProps) {
+  if (!env.IS_CLOUD) {
+    redirect('/');
+  }
+
   const { competitor, locale } = await params;
   const data = getCompetitorData(competitor, locale);
   const t = await getTranslations('public.comparison');
