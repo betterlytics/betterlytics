@@ -2,7 +2,7 @@ import 'server-only';
 
 import prisma from '@/lib/postgres';
 import { GithubStarPromptState, Prisma } from '@prisma/client';
-import { hashPassword, verifyPasswordHash } from '@/lib/password';
+import { hashPassword } from '@/lib/password';
 import {
   User,
   UserSchema,
@@ -164,24 +164,6 @@ export async function updateUserPassword(userId: string, newPassword: string): P
   } catch (error) {
     console.error(`Error updating password for user ${userId}:`, error);
     throw new Error(`Failed to update password for user ${userId}.`);
-  }
-}
-
-export async function verifyUserPassword(userId: string, password: string): Promise<boolean> {
-  try {
-    const account = await prisma.account.findFirst({
-      where: { userId, providerId: CREDENTIAL_PROVIDER_ID },
-      select: { password: true },
-    });
-
-    if (!account?.password) {
-      return false;
-    }
-
-    return await verifyPasswordHash(password, account.password);
-  } catch (error) {
-    console.error(`Error verifying password for user ${userId}:`, error);
-    throw new Error(`Failed to verify password for user ${userId}.`);
   }
 }
 

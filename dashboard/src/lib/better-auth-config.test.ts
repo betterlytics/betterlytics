@@ -14,6 +14,7 @@ vi.mock('@/lib/env', () => ({
   env: {
     AUTH_URL: 'http://localhost:3000',
     AUTH_SECRET: 'test-auth-secret',
+    PUBLIC_BASE_URL: 'http://localhost:3000',
     GITHUB_ID: '',
     GITHUB_SECRET: '',
     GOOGLE_CLIENT_ID: '',
@@ -204,7 +205,7 @@ describe('before hook (closed better-auth endpoints)', () => {
   const runBeforeHook = (path: string, body: unknown = {}) =>
     (auth.options.hooks!.before as unknown as BeforeHook)({ path, body });
 
-  it.each(['/change-password', '/request-password-reset', '/reset-password/some-token', '/update-user'])(
+  it.each(['/request-password-reset', '/reset-password/some-token', '/update-user'])(
     '%s returns 404 (these mutations run through our server actions)',
     async (path) => {
       await expect(runBeforeHook(path)).rejects.toMatchObject({ statusCode: 404 });
@@ -213,6 +214,79 @@ describe('before hook (closed better-auth endpoints)', () => {
 
   it('leaves the live endpoints alone', async () => {
     await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
+  });
+
+  it.each([{}, { revokeOtherSessions: false }])(
+    'forces revokeOtherSessions on /change-password even when the client sends %o',
+    async (flags) => {
+      await expect(
+        runBeforeHook('/change-password', { currentPassword: 'old', newPassword: 'Correct-horse-1', ...flags }),
+      ).resolves.toEqual({
+        context: {
+          body: { currentPassword: 'old', newPassword: 'Correct-horse-1', revokeOtherSessions: true },
+        },
+      });
+    },
+  );
+
+  it.each([
+    ['/change-password', { newPassword: 'no-uppercase-1' }],
+    ['/sign-up/email', { password: 'no-uppercase-1' }],
+  ])('rejects weak passwords on %s when the client-side schema is bypassed', async (path, body) => {
+    await expect(runBeforeHook(path, body)).rejects.toMatchObject({
+      statusCode: 400,
+      body: { code: 'WEAK_PASSWORD' },
+    });
+  });
+});
+
+describe('account update hook (password-changed notification)', () => {
+  const runAccountUpdateHook = (path?: string, user: unknown = makeUser()) =>
+    auth.options.databaseHooks!.account!.update!.after!(
+      { id: 'account-1', userId: 'user-1' } as never,
+      {
+        path,
+        context: { session: user ? { user } : null },
+      } as never,
+    );
+
+  it('enqueues a password-changed notification after /change-password updates the account', async () => {
+    await runAccountUpdateHook('/change-password');
+
+    expect(enqueueEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'password-changed',
+        recipientKey: 'user:user-1',
+        data: {
+          to: 'user@example.com',
+          userName: 'Test User',
+          resetPasswordUrl: 'http://localhost:3000/forgot-password',
+        },
+      }),
+    );
+  });
+
+  it('ignores account updates from other endpoints (OAuth token refreshes)', async () => {
+    await runAccountUpdateHook('/callback/github');
+    await runAccountUpdateHook();
+
+    expect(enqueueEmail).not.toHaveBeenCalled();
+  });
+
+  it('logs instead of notifying when the request carries no session', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(runAccountUpdateHook('/change-password', null)).resolves.toBeUndefined();
+
+    expect(enqueueEmail).not.toHaveBeenCalled();
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('no session user'), { accountId: 'account-1' });
+    error.mockRestore();
+  });
+
+  it('does not fail the password change when the enqueue throws', async () => {
+    vi.mocked(enqueueEmail).mockRejectedValue(new Error('queue down'));
+
+    await expect(runAccountUpdateHook('/change-password')).resolves.toBeUndefined();
   });
 });
 

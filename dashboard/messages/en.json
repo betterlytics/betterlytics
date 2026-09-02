@@ -3014,13 +3014,16 @@
         "newPassword": "New Password",
         "confirmNewPassword": "Confirm New Password",
         "passwordHelp": "Password must be at least 8 characters long",
+        "weakPassword": "Password must be at least 8 characters and contain both uppercase and lowercase letters",
+        "invalidCurrentPassword": "Current password is incorrect",
         "passwordsMatch": "Passwords match",
         "changePassword": "Change Password",
         "passwordManagedByOAuth": "Password managed by OAuth",
         "togglePasswordVisibility": "Toggle {field} visibility",
         "cancel": "Cancel",
         "toast": {
-          "success": "Password updated successfully"
+          "success": "Password updated successfully",
+          "tooManyAttempts": "Too many attempts. Please wait a moment and try again."
         },
         "totp": {
           "title": "Two-Factor Authentication",
