@@ -214,8 +214,20 @@ describe('before hook (closed better-auth endpoints)', () => {
 
   it('leaves the live endpoints alone', async () => {
     await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
-    await expect(runBeforeHook('/change-password', { newPassword: 'Correct-horse-1' })).resolves.toBeUndefined();
   });
+
+  it.each([{}, { revokeOtherSessions: false }])(
+    'forces revokeOtherSessions on /change-password even when the client sends %o',
+    async (flags) => {
+      await expect(
+        runBeforeHook('/change-password', { currentPassword: 'old', newPassword: 'Correct-horse-1', ...flags }),
+      ).resolves.toEqual({
+        context: {
+          body: { currentPassword: 'old', newPassword: 'Correct-horse-1', revokeOtherSessions: true },
+        },
+      });
+    },
+  );
 
   it.each([
     ['/change-password', { newPassword: 'no-uppercase-1' }],

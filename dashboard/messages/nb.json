@@ -3018,6 +3018,7 @@
         "confirmNewPassword": "Bekreft nytt passord",
         "passwordHelp": "Passordet må være minst 8 tegn",
         "weakPassword": "Passordet må være minst 8 tegn og inneholde både store og små bokstaver",
+        "invalidCurrentPassword": "Nåværende passord er feil",
         "passwordsMatch": "Passordene samsvarer",
         "changePassword": "Bytt passord",
         "passwordManagedByOAuth": "Passord håndteres av OAuth",
@@ -3025,7 +3026,6 @@
         "cancel": "Avbryt",
         "toast": {
           "success": "Passord oppdatert",
-          "invalidCurrentPassword": "Nåværende passord er feil",
           "tooManyAttempts": "For mange forsøk. Vent et øyeblikk og prøv igjen."
         },
         "totp": {

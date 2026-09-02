@@ -114,17 +114,17 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
     try {
       const validated = ChangePasswordSchema.parse(passwords);
       startTransition(async () => {
+        // Other sessions are always revoked server-side (see the /change-password before hook)
         const { error } = await authClient.changePassword({
           currentPassword: validated.currentPassword,
           newPassword: validated.newPassword,
-          revokeOtherSessions: true,
         });
         if (!error) {
           toast.success(t('toast.success'));
           resetForm();
           onOpenChange(false);
         } else if (error.code === 'INVALID_PASSWORD') {
-          toast.error(t('toast.invalidCurrentPassword'));
+          setErrors({ currentPassword: t('invalidCurrentPassword') });
         } else if (error.code === 'WEAK_PASSWORD') {
           setErrors({ newPassword: t('weakPassword') });
         } else if (error.status === 429) {
