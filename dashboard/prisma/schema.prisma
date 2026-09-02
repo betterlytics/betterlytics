@@ -300,7 +300,10 @@ model Funnel {
 model FunnelStep {
   id String @id @default(cuid())
 
-  name String
+  name     String
+  // Funnels are order-dependent, so the step order is stored explicitly rather than
+  // inferred from row order, which Postgres does not guarantee.
+  position Int    @default(0)
 
   filters FunnelStepFilter[]
 
