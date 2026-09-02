@@ -9,6 +9,7 @@ use tracing::{error, warn};
 use moka::sync::Cache;
 use once_cell::sync::Lazy;
 
+use crate::bot_detection;
 use crate::client_request::ClientRequest;
 use crate::config::ReplayStorage;
 use crate::site_config::SiteConfigCache;
@@ -112,7 +113,7 @@ pub struct UploadSegmentParams {
 }
 
 pub async fn upload_segment(
-    State((db, processor, _, _, replay_ctx, site_cfg_cache)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<ReplayCtx>>, Arc<SiteConfigCache>)>,
+    State((db, processor, metrics, _, replay_ctx, site_cfg_cache)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<ReplayCtx>>, Arc<SiteConfigCache>)>,
     client: ClientRequest,
     Query(p): Query<UploadSegmentParams>,
     body: Bytes,
@@ -139,6 +140,15 @@ pub async fn upload_segment(
     validate_site_policies(&site_cfg_cache, &p.site_id, url, &client.ip)
         .await
         .map_err(|e| (StatusCode::FORBIDDEN, e.to_string()))?;
+
+    if bot_detection::velocity::check_replay(&p.site_id, &client.ip) {
+        if let Some(m) = &metrics {
+            m.increment_events_rejected("replay_velocity");
+        }
+        warn!(site_id = %p.site_id, "rejected replay segment: velocity limit exceeded");
+        return Err((StatusCode::TOO_MANY_REQUESTS, "rate limited".to_string()));
+    }
+    bot_detection::velocity::record_replay(&p.site_id, &client.ip);
 
     let parsed = ua_parser::parse_user_agent(&client.user_agent);
 

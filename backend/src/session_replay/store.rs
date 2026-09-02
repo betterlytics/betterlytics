@@ -3,12 +3,19 @@ use std::sync::Arc;
 
 use bytes::Bytes;
 use flate2::read::GzDecoder;
+use once_cell::sync::Lazy;
+use tokio::sync::Semaphore;
 
 use crate::db::{SessionReplaySegmentRow, SharedDatabase};
 use crate::storage::s3::S3Service;
 
 const MAX_DECOMPRESSED_BYTES: u64 = 4 * 1024 * 1024;
 const PEEK_BYTES: u64 = 256;
+
+// Caps CPU spent inflating payloads: a flood of tiny gzip bombs (each up to
+// MAX_DECOMPRESSED_BYTES) queues here instead of fanning out across the blocking pool.
+const MAX_CONCURRENT_DECODES: usize = 8;
+static DECODE_PERMITS: Lazy<Semaphore> = Lazy::new(|| Semaphore::new(MAX_CONCURRENT_DECODES));
 
 #[derive(Debug)]
 pub enum StoreError {
@@ -62,6 +69,10 @@ impl SegmentStore {
     }
 
     pub async fn prepare(&self, bytes: Bytes, gzip: bool) -> Result<SegmentPayload, StoreError> {
+        let _permit = DECODE_PERMITS
+            .acquire()
+            .await
+            .map_err(|_| StoreError::Storage(anyhow::anyhow!("decode semaphore closed")))?;
         let full = matches!(self, Self::ClickHouse(_));
         let decode_bytes = bytes.clone();
         let data = tokio::task::spawn_blocking(move || {
