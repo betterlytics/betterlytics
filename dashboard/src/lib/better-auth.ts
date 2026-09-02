@@ -102,7 +102,6 @@ export const auth = betterAuth({
         }
       }
 
-      // A password change always signs out other devices, regardless of what the client sent
       if (ctx.path === '/change-password') {
         return { context: { body: { ...ctx.body, revokeOtherSessions: true } } };
       }
