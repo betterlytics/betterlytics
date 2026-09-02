@@ -160,18 +160,6 @@ model User {
   deletedAt DateTime?
 }
 
-model VerificationToken {
-  id         String   @id @default(cuid())
-  identifier String
-  token      String   @unique
-  expires    DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([identifier, token])
-}
-
-// better-auth's internal storage (OAuth state/PKCE), not our VerificationToken above.
 model Verification {
   id         String   @id @default(cuid())
   identifier String

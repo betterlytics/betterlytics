@@ -9,7 +9,7 @@ import { env } from '@/lib/env';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
-import { sendVerificationEmail } from '@/services/account/verification.service';
+import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
@@ -33,6 +33,9 @@ const PASSWORD_POLICY_FIELDS: Record<string, string> = {
   '/reset-password': 'newPassword',
   '/sign-up/email': 'password',
 };
+
+// better-auth's /verify-email redirects here with ?verified=1 on success, &error=<code> on failure
+const VERIFY_EMAIL_CALLBACK_URL = '/verify-email?verified=1';
 
 // A session created this soon after the user row is their first sign-in; skip the
 // locale sync there so default settings don't overwrite the locale they signed up in.
@@ -68,6 +71,16 @@ export const auth = betterAuth({
       }
       await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
     },
+  },
+  emailVerification: {
+    sendVerificationEmail: ({ user, url }) => {
+      // OAuth sign-ups inherit the OAuth callbackURL (e.g. /dashboards), which would swallow the result
+      const link = new URL(url);
+      link.searchParams.set('callbackURL', VERIFY_EMAIL_CALLBACK_URL);
+      return sendVerificationEmail({ ...user, name: user.name ?? null }, link.toString());
+    },
+    sendOnSignUp: true,
+    expiresIn: VERIFICATION_LINK_EXPIRY_SECONDS,
   },
   verification: {
     storeIdentifier: {
@@ -206,17 +219,14 @@ export const auth = betterAuth({
           } catch (error) {
             console.error('Failed to create initial user settings for new user:', error);
           }
-
-          if (user.email && !user.emailVerified && isFeatureEnabled('enableAccountVerification')) {
-            try {
-              await sendVerificationEmail({ email: user.email });
-            } catch (error) {
-              console.error('Failed to send verification email for new user:', error);
-            }
-          }
         },
       },
       update: {
+        before: async (user) => {
+          if (user.emailVerified === true) {
+            return { data: { ...user, emailVerifiedAt: new Date() } };
+          }
+        },
         after: async (user, ctx) => {
           if (ctx?.path?.startsWith('/two-factor/') && user.email) {
             const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);

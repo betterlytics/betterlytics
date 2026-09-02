@@ -50,6 +50,7 @@ vi.mock('@/services/billing/subscription.service', () => ({
 }));
 vi.mock('@/services/account/verification.service', () => ({
   sendVerificationEmail: vi.fn(),
+  VERIFICATION_LINK_EXPIRY_SECONDS: 86400,
 }));
 vi.mock('@/services/email/email.service', () => ({
   enqueueEmail: vi.fn(),
@@ -229,28 +230,53 @@ describe('user create hook (onboarding side effects)', () => {
     expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1', undefined);
   });
 
-  it('sends a verification email to new unverified users when verification is enabled', async () => {
-    vi.mocked(isFeatureEnabled).mockReturnValue(true);
-
-    await runCreateHook();
-
-    expect(sendVerificationEmail).toHaveBeenCalledWith({ email: 'user@example.com' });
-  });
-
-  it('skips the verification email when the provider already verified the address', async () => {
-    vi.mocked(isFeatureEnabled).mockReturnValue(true);
-
-    await runCreateHook({ ...makeUser(), emailVerified: true } as never);
-
-    expect(sendVerificationEmail).not.toHaveBeenCalled();
-  });
-
   it('swallows side-effect failures (user creation must not fail)', async () => {
     vi.mocked(isFeatureEnabled).mockReturnValue(false);
     vi.mocked(createStarterSubscriptionForUser).mockRejectedValue(new Error('db down'));
 
     await expect(runCreateHook()).resolves.toBeUndefined();
     expect(createDefaultUserSettings).toHaveBeenCalled();
+  });
+});
+
+describe('email verification (better-auth module)', () => {
+  it('sends on sign-up with a 24h link expiry and no auto sign-in', () => {
+    expect(auth.options.emailVerification!.sendOnSignUp).toBe(true);
+    expect(auth.options.emailVerification!.expiresIn).toBe(86400);
+    expect('autoSignInAfterVerification' in auth.options.emailVerification!).toBe(false);
+  });
+
+  it.each([
+    ['sign-up', 'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2F'],
+    ['OAuth', 'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2Fdashboards'],
+  ])('always points the %s link back at our verify-email page', async (_, url) => {
+    await auth.options.emailVerification!.sendVerificationEmail!({
+      user: { id: 'user-1', email: 'user@example.com', name: 'Test User' },
+      url,
+      token: 'jwt',
+    } as never);
+
+    expect(sendVerificationEmail).toHaveBeenCalledWith(
+      { id: 'user-1', email: 'user@example.com', name: 'Test User' },
+      'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2Fverify-email%3Fverified%3D1',
+    );
+  });
+});
+
+describe('user update before hook (emailVerifiedAt sync)', () => {
+  type BeforeHook = (user: unknown) => Promise<{ data: Record<string, unknown> } | undefined>;
+  const runBeforeUpdateHook = (user: unknown) =>
+    (auth.options.databaseHooks!.user!.update!.before as unknown as BeforeHook)(user);
+
+  it('stamps emailVerifiedAt when a write flips emailVerified', async () => {
+    const result = await runBeforeUpdateHook({ emailVerified: true });
+
+    expect(result!.data.emailVerified).toBe(true);
+    expect(result!.data.emailVerifiedAt).toBeInstanceOf(Date);
+  });
+
+  it('leaves unrelated updates untouched', async () => {
+    expect(await runBeforeUpdateHook({ name: 'New Name' })).toBeUndefined();
   });
 });
 
