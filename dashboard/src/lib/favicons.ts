@@ -1,3 +1,5 @@
+import { domainValidation } from '@/entities/dashboard/dashboard.entities';
+
 export function normalizeDomainForFavicon(domain?: string | null): string | null {
   if (!domain) {
     return null;
@@ -22,6 +24,10 @@ export function getFaviconUrl(
   const normalized = normalizeDomainForFavicon(domain);
 
   if (!normalized) {
+    return null;
+  }
+
+  if (!domainValidation.safeParse(normalized).success) {
     return null;
   }
 
