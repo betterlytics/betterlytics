@@ -14,7 +14,7 @@ import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { findUserById, findCredentialAccount } from '@/repositories/postgres/user.repository';
+import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { PasswordSchema } from '@/entities/auth/password.entities';
 import {
   RESET_TOKEN_EXPIRY_SECONDS,
@@ -114,7 +114,18 @@ export const auth = betterAuth({
         throw new APIError('NOT_FOUND');
       }
 
-      // Redeeming a reset for an OAuth-only account would attach a password login to it
+      // OAuth-only accounts get no reset token; the response must match the unknown-email case
+      if (ctx.path === '/request-password-reset' && typeof ctx.body?.email === 'string') {
+        const user = await findUserByEmail(ctx.body.email);
+        if (user && !(await findCredentialAccount(user.id))) {
+          return ctx.json({
+            status: true,
+            message: 'If this email exists in our system, check your email for the reset link',
+          });
+        }
+      }
+
+      // Defence in depth: redeeming a reset for an OAuth-only account would attach a password login to it
       if (ctx.path === '/reset-password') {
         const token = ctx.body?.token ?? ctx.query?.token;
         if (typeof token === 'string' && token) {

@@ -3,7 +3,6 @@ import 'server-only';
 import prisma from '@/lib/postgres';
 import { GithubStarPromptState, Prisma } from '@prisma/client';
 import { hashPassword } from '@/lib/password';
-import { RESET_TOKEN_PREFIX } from '@/repositories/postgres/resetToken.repository';
 import {
   User,
   UserSchema,
@@ -214,7 +213,7 @@ export async function anonymizeUser(userId: string): Promise<void> {
       prisma.account.deleteMany({ where: { userId } }),
       prisma.session.deleteMany({ where: { userId } }),
       prisma.twoFactor.deleteMany({ where: { userId } }),
-      prisma.verification.deleteMany({ where: { identifier: { startsWith: RESET_TOKEN_PREFIX }, value: userId } }),
+      prisma.verification.deleteMany({ where: { value: userId } }),
       prisma.mcpToken.updateMany({
         where: { createdBy: userId, deletedAt: null },
         data: { deletedAt: new Date() },

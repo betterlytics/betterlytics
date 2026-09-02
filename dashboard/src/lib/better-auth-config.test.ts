@@ -7,7 +7,7 @@ import { sendVerificationEmail } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { findUserById, findCredentialAccount } from '@/repositories/postgres/user.repository';
+import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { makeUser, hashPassword } from '@/test/auth-fixtures';
 import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
@@ -32,6 +32,7 @@ vi.mock('@/repositories/postgres/session.repository', () => ({
 }));
 vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserById: vi.fn(),
+  findUserByEmail: vi.fn(),
   findCredentialAccount: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/resetToken.repository', () => ({
@@ -208,20 +209,43 @@ describe('session create hook (locale sync)', () => {
 });
 
 describe('before hook (closed better-auth endpoints)', () => {
-  type BeforeHook = (ctx: { path: string; body?: unknown }) => Promise<unknown>;
+  type BeforeHook = (ctx: { path: string; body?: unknown; json: (data: unknown) => unknown }) => Promise<unknown>;
   const runBeforeHook = (path: string, body: unknown = {}) =>
-    (auth.options.hooks!.before as unknown as BeforeHook)({ path, body });
+    (auth.options.hooks!.before as unknown as BeforeHook)({ path, body, json: (data) => data });
 
   it('/update-user returns 404 (profile mutations run through our server actions)', async () => {
     await expect(runBeforeHook('/update-user')).rejects.toMatchObject({ statusCode: 404 });
   });
 
   it('leaves the live endpoints alone', async () => {
+    vi.mocked(findUserByEmail).mockResolvedValue(makeUser());
+    vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' });
+
     await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
-    await expect(
-      runBeforeHook('/request-password-reset', { email: 'pass-through@example.com' }),
-    ).resolves.toBeUndefined();
+    await expect(runBeforeHook('/request-password-reset', { email: 'user@example.com' })).resolves.toBeUndefined();
     await expect(runBeforeHook('/reset-password', { newPassword: 'Correct-horse-1' })).resolves.toBeUndefined();
+  });
+
+  describe('reset request guard (OAuth-only accounts)', () => {
+    const body = { email: 'user@example.com' };
+
+    it('short-circuits with the unknown-email response so no token is minted', async () => {
+      vi.mocked(findUserByEmail).mockResolvedValue(makeUser());
+      vi.mocked(findCredentialAccount).mockResolvedValue(null);
+
+      await expect(runBeforeHook('/request-password-reset', body)).resolves.toEqual({
+        status: true,
+        message: 'If this email exists in our system, check your email for the reset link',
+      });
+      expect(findUserByEmail).toHaveBeenCalledWith('user@example.com');
+    });
+
+    it('lets unknown emails through to better-auth (which fakes the same response)', async () => {
+      vi.mocked(findUserByEmail).mockResolvedValue(null);
+
+      await expect(runBeforeHook('/request-password-reset', body)).resolves.toBeUndefined();
+      expect(findCredentialAccount).not.toHaveBeenCalled();
+    });
   });
 
   it.each([{}, { revokeOtherSessions: false }])(
@@ -284,8 +308,6 @@ describe('password reset (built-in endpoints)', () => {
   });
 
   it('sendResetPassword prunes older tokens and enqueues the emailed better-auth url', async () => {
-    vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' });
-
     await auth.options.emailAndPassword!.sendResetPassword!({
       user: RESET_USER,
       url: 'http://localhost:3000/api/auth/reset-password/tok-1?callbackURL=%2Freset-password',
@@ -318,18 +340,6 @@ describe('password reset (built-in endpoints)', () => {
     expect(stored).toBe(resetTokenStoredIdentifier('tok-1'));
     expect(stored).toMatch(/^reset-password:[0-9a-f]{64}$/);
     expect(stored).not.toContain('tok-1');
-  });
-
-  it('sendResetPassword silently skips OAuth-only accounts (no credential account, no email)', async () => {
-    vi.mocked(findCredentialAccount).mockResolvedValue(null);
-
-    await auth.options.emailAndPassword!.sendResetPassword!({
-      user: RESET_USER,
-      url: 'http://localhost:3000/api/auth/reset-password/tok-2?callbackURL=%2Freset-password',
-      token: 'tok-2',
-    });
-
-    expect(enqueueEmail).not.toHaveBeenCalled();
   });
 
   it('onPasswordReset invalidates remaining tokens and sends the password-changed notification', async () => {

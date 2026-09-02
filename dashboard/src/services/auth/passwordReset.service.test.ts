@@ -6,7 +6,6 @@ import {
   sendResetPasswordEmail,
 } from '@/services/auth/passwordReset.service';
 import { enqueueEmail } from '@/services/email/email.service';
-import { findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
 
 vi.mock('@/lib/env', () => ({
@@ -16,9 +15,6 @@ vi.mock('@/lib/env', () => ({
 }));
 vi.mock('@/services/email/email.service', () => ({
   enqueueEmail: vi.fn(),
-}));
-vi.mock('@/repositories/postgres/user.repository', () => ({
-  findCredentialAccount: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/resetToken.repository', () => ({
   RESET_TOKEN_PREFIX: 'reset-password:',
@@ -56,8 +52,7 @@ describe('isResetTokenValid', () => {
 describe('sendResetPasswordEmail', () => {
   const USER = { id: 'user-1', email: 'user@example.com', name: 'Test' };
 
-  it('prunes older tokens and enqueues the reset email for credential accounts', async () => {
-    vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' } as never);
+  it('prunes older tokens and enqueues the reset email', async () => {
 
     await sendResetPasswordEmail(USER, 'https://app.test/link', 'raw-token');
 
@@ -73,15 +68,6 @@ describe('sendResetPasswordEmail', () => {
         expirationTime: '1 hour',
       },
     });
-  });
-
-  it('prunes all reset tokens for OAuth-only accounts without emailing', async () => {
-    vi.mocked(findCredentialAccount).mockResolvedValue(null);
-
-    await sendResetPasswordEmail(USER, 'https://app.test/link', 'raw-token');
-
-    expect(deleteUserResetTokens).toHaveBeenCalledWith('user-1');
-    expect(enqueueEmail).not.toHaveBeenCalled();
   });
 });
 

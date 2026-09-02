@@ -4,7 +4,6 @@ import { createHash } from 'crypto';
 import { env } from '@/lib/env';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
-import { findCredentialAccount } from '@/repositories/postgres/user.repository';
 import {
   RESET_TOKEN_PREFIX,
   deleteUserResetTokens,
@@ -29,12 +28,6 @@ export async function sendResetPasswordEmail(
   url: string,
   token: string,
 ): Promise<void> {
-  // OAuth-only accounts must not receive reset links; redeeming one would attach a password login
-  if (!(await findCredentialAccount(user.id))) {
-    await deleteUserResetTokens(user.id);
-    return;
-  }
-
   await deleteUserResetTokens(user.id, resetTokenStoredIdentifier(token));
 
   await enqueueEmail({
