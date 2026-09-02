@@ -168,8 +168,14 @@ describe('user create before hook (sign-up field stamping)', () => {
     expect(result!.data.termsAcceptedAt).toBeUndefined();
   });
 
-  it('leaves unverified OAuth users untouched', async () => {
-    expect(await runBeforeCreateHook({ ...makeUser(), emailVerified: false }, { path: '/callback/github' })).toBeUndefined();
+  it('stamps neither emailVerifiedAt nor terms on unverified OAuth users', async () => {
+    const oauthUser = { id: 'user-1', email: 'user@example.com', name: 'Test User', emailVerified: false };
+
+    const result = await runBeforeCreateHook(oauthUser, { path: '/callback/github' });
+
+    expect(result!.data.emailVerifiedAt).toBeUndefined();
+    expect(result!.data.termsAcceptedAt).toBeUndefined();
+    expect(result!.data.createdAt).toBeInstanceOf(Date);
   });
 });
 
@@ -179,6 +185,24 @@ describe('user create hook (onboarding side effects)', () => {
   function runCreateHook(user = hookUser, ctx?: unknown) {
     return auth.options.databaseHooks!.user!.create!.after!(user, ctx as never);
   }
+
+  beforeEach(() => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser());
+  });
+
+  it('does nothing when the user row was rolled back with the sign-up transaction', async () => {
+    vi.mocked(findUserById).mockResolvedValue(null);
+    vi.mocked(isFeatureEnabled).mockReturnValue(true);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await runCreateHook();
+
+    expect(createStarterSubscriptionForUser).not.toHaveBeenCalled();
+    expect(createDefaultUserSettings).not.toHaveBeenCalled();
+    expect(sendVerificationEmail).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('rolled back'), { userId: 'user-1' });
+    warn.mockRestore();
+  });
 
   it('provisions a starter subscription and default settings for new users', async () => {
     vi.mocked(isFeatureEnabled).mockReturnValue(false);

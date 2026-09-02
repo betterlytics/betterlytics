@@ -189,6 +189,11 @@ export const auth = betterAuth({
           return { data: { ...user, ...extra, createdAt: new Date(), updatedAt: new Date() } };
         },
         after: async (user, ctx) => {
+          if (!(await findUserById(user.id))) {
+            console.warn('Skipped onboarding side effects: user row was rolled back', { userId: user.id });
+            return;
+          }
+
           try {
             await createStarterSubscriptionForUser(user.id);
           } catch (error) {
