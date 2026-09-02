@@ -9,6 +9,8 @@ overrides:
   postcss@<8.5.10: '>=8.5.10'
   nextra>zod: 4.3.2
   nextra-theme-docs>zod: 4.3.2
+  # speech-rule-engine (via nextra > mathjax) pins 0.9.10 exactly
+  '@xmldom/xmldom@<0.9.12': '>=0.9.12'
 
 auditConfig:
   ignoreGhsas:

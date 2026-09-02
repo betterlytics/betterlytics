@@ -10,6 +10,7 @@ overrides:
   postcss@<8.5.10: '>=8.5.10'
   nextra>zod: 4.3.2
   nextra-theme-docs>zod: 4.3.2
+  '@xmldom/xmldom@<0.9.12': '>=0.9.12'
 
 importers:
 
@@ -3526,8 +3527,8 @@ packages:
   '@vitest/utils@4.1.10':
     resolution: {integrity: sha512-fy9am/HWxbaGt/Sawrp90vt6Y6jQwf1RX77cz3uwoJwJVMli/e1IEwRPnMNJ7vKfPTwo0diXifkpPvwH9v7nGA==}
 
-  '@xmldom/xmldom@0.9.10':
-    resolution: {integrity: sha512-A9gOqLdi6cV4ibazAjcQufGj0B1y/vDqYrcuP6d/6x8P27gRS8643Dj9o1dEKtB6O7fwxb2FgBmJS2mX7gpvdw==}
+  '@xmldom/xmldom@0.9.12':
+    resolution: {integrity: sha512-5AXjrcMClTryPe9LgZrygpB1lj7s0S9E0+W+AHaVKAVyHanafK86iPSvG5xHVSp/jC+VH1UXu0TAEmY279xH7A==}
     engines: {node: '>=14.6'}
 
   '@xstate/fsm@1.6.5':
@@ -10020,7 +10021,7 @@ snapshots:
       convert-source-map: 2.0.0
       tinyrainbow: 3.1.0
 
-  '@xmldom/xmldom@0.9.10': {}
+  '@xmldom/xmldom@0.9.12': {}
 
   '@xstate/fsm@1.6.5': {}
 
@@ -13967,7 +13968,7 @@ snapshots:
 
   speech-rule-engine@4.1.4:
     dependencies:
-      '@xmldom/xmldom': 0.9.10
+      '@xmldom/xmldom': 0.9.12
       commander: 13.1.0
       wicked-good-xpath: 1.3.0
 
