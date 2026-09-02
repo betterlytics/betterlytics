@@ -49,26 +49,16 @@ pub const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
 const MAX_SESSION_BYTES: u64 = 50 * 1024 * 1024;
 const MAX_SEGMENT_SPAN_MS: i64 = 24 * 60 * 60 * 1000;
 const STARTED_AT_TOLERANCE_SECS: i64 = 5;
-const MAX_CLOCK_SKEW_MS: i64 = 5 * 60 * 1000;
 const MAX_FILENAME_EPOCH_MS: i64 = 9_999_999_999_999;
 const MAX_START_URL_CHARS: usize = 2048;
 const MAX_CHUNK_ID_CHARS: usize = 32;
 
-// Client bounds are used when within MAX_CLOCK_SKEW_MS of the server clock, otherwise
-// only the span is kept and re-anchored to server time.
 fn segment_span_ms(started_at_ms: Option<i64>, ended_at_ms: Option<i64>) -> Option<i64> {
     let span = match (started_at_ms, ended_at_ms) {
         (Some(started), Some(ended)) => ended.saturating_sub(started).max(0),
         _ => 0,
     };
     (span <= MAX_SEGMENT_SPAN_MS).then_some(span)
-}
-
-fn segment_end_ms(now_ms: i64, client_ended_at_ms: Option<i64>) -> i64 {
-    match client_ended_at_ms {
-        Some(t) if now_ms.abs_diff(t) <= MAX_CLOCK_SKEW_MS as u64 => t,
-        _ => now_ms,
-    }
 }
 
 fn segment_filename_epoch_ms(now_ms: i64, client_ended_at_ms: Option<i64>) -> i64 {
@@ -188,9 +178,8 @@ pub async fn upload_segment(
     })?;
 
     let internal = || (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string());
-    let ended_ms = segment_end_ms(now_ms, p.ended_at_ms);
-    let ended = DateTime::from_timestamp_millis(ended_ms).ok_or_else(internal)?;
-    let started = DateTime::from_timestamp_millis(ended_ms - span_ms).ok_or_else(internal)?;
+    let ended = DateTime::from_timestamp_millis(now_ms).ok_or_else(internal)?;
+    let started = DateTime::from_timestamp_millis(now_ms - span_ms).ok_or_else(internal)?;
     let started = clamp_started_at(started, identity.session_created_at);
     let ended = ended.max(started);
     let filename = build_segment_filename(segment_filename_epoch_ms(now_ms, p.ended_at_ms), p.chunk_id.as_deref());
@@ -323,18 +312,6 @@ mod tests {
         assert_eq!(segment_span_ms(Some(T), Some(T + MAX_SEGMENT_SPAN_MS + 1)), None);
         assert_eq!(segment_span_ms(Some(i64::MIN), Some(i64::MAX)), None);
         assert_eq!(segment_span_ms(Some(i64::MAX), Some(i64::MIN)), Some(0));
-    }
-
-    #[test]
-    fn client_end_is_used_within_skew_window() {
-        assert_eq!(segment_end_ms(T, Some(T - 14_000)), T - 14_000);
-        assert_eq!(segment_end_ms(T, Some(T - MAX_CLOCK_SKEW_MS)), T - MAX_CLOCK_SKEW_MS);
-        assert_eq!(segment_end_ms(T, Some(T + MAX_CLOCK_SKEW_MS)), T + MAX_CLOCK_SKEW_MS);
-        assert_eq!(segment_end_ms(T, Some(T - MAX_CLOCK_SKEW_MS - 1)), T);
-        assert_eq!(segment_end_ms(T, Some(T + MAX_CLOCK_SKEW_MS + 1)), T);
-        assert_eq!(segment_end_ms(T, None), T);
-        assert_eq!(segment_end_ms(T, Some(i64::MIN)), T);
-        assert_eq!(segment_end_ms(T, Some(i64::MAX)), T);
     }
 
     #[test]
