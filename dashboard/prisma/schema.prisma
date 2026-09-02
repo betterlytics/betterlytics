@@ -151,7 +151,6 @@ model User {
   dashboardAccess UserDashboard[]
   settings UserSettings?
   subscription Subscription?
-  passwordResetTokens PasswordResetToken[]
   bugReports BugReport[]
   annotations Annotation[]
   sentInvitations DashboardInvitation[]
@@ -182,6 +181,7 @@ model Verification {
   updatedAt  DateTime @updatedAt
 
   @@index([identifier])
+  @@index([value])
 }
 
 model TwoFactor {
@@ -677,18 +677,6 @@ model Annotation {
   @@index([dashboardId, chartId])
   @@index([dashboardId, date])
   @@index([createdById])
-}
-
-model PasswordResetToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-  expires   DateTime
-  createdAt DateTime @default(now())
-
-  @@index([token])
-  @@index([userId])
 }
 
 model DashboardInvitation {

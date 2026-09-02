@@ -33,7 +33,7 @@ const prismaMock = vi.hoisted(() => {
     twoFactor: {
       deleteMany: vi.fn(),
     },
-    passwordResetToken: {
+    verification: {
       deleteMany: vi.fn(),
     },
     mcpToken: {
@@ -227,7 +227,7 @@ describe('anonymizeUser', () => {
     expect(prismaMock.account.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.twoFactor.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
-    expect(prismaMock.passwordResetToken.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+    expect(prismaMock.verification.deleteMany).toHaveBeenCalledWith({ where: { value: 'user-1' } });
     expect(prismaMock.mcpToken.updateMany).toHaveBeenCalledWith({
       where: { createdBy: 'user-1', deletedAt: null },
       data: { deletedAt: expect.any(Date) },

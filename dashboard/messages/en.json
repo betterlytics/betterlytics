@@ -818,7 +818,8 @@
           "sending": "Sending...",
           "remember": "Remember your password?",
           "backToSignIn": "Back to Sign In"
-        }
+        },
+        "errorMessageTooManyRequests": "Too many reset requests. Please try again later."
       },
       "resetPassword": {
         "seo": {
@@ -847,7 +848,14 @@
         },
         "form": {
           "title": "Set your new password",
-          "description": "Enter your new password below"
+          "description": "Enter your new password below",
+          "errors": {
+            "invalidToken": "This reset link is invalid or has expired. Please request a new one.",
+            "weakPassword": "Password does not meet the requirements.",
+            "tooManyAttempts": "Too many attempts. Please try again later.",
+            "generic": "Failed to reset password. Please try again."
+          },
+          "successMessage": "Password reset successful!"
         },
         "cta": {
           "remember": "Remember your password?",
