@@ -1,6 +1,6 @@
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { z } from 'zod';
-import { sharedEmailEnvSchema, zStringBoolean } from '@/lib/env/shared.env';
+import { sharedEmailEnvSchema, zStringBoolean, zStringBooleanDefaultTrue } from '@/lib/env/shared.env';
 
 const appEnvSchema = z.object({
   CLICKHOUSE_URL: z.string().url(),
@@ -15,6 +15,7 @@ const appEnvSchema = z.object({
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
   ENABLE_REGISTRATION: zStringBoolean,
   PUBLIC_IS_CLOUD: zStringBoolean,
+  PUBLIC_ENABLE_FAVICON_FETCHING: zStringBooleanDefaultTrue,
   ENABLE_BILLING: zStringBoolean,
   PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional().default(''),
   STRIPE_SECRET_KEY: z.string().optional().default(''),

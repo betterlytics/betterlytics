@@ -19,25 +19,29 @@ describe('normalizeDomainForFavicon', () => {
 
 describe('getFaviconUrl', () => {
   it('builds a proxy url for real domains', () => {
-    expect(getFaviconUrl('example.com')).toBe('/api/favicons?domain=example.com');
-    expect(getFaviconUrl('https://www.Example.com/dashboard')).toBe('/api/favicons?domain=example.com');
-    expect(getFaviconUrl('blog.example.co.uk')).toBe('/api/favicons?domain=blog.example.co.uk');
+    expect(getFaviconUrl('example.com', true)).toBe('/api/favicons?domain=example.com');
+    expect(getFaviconUrl('https://www.Example.com/dashboard', true)).toBe('/api/favicons?domain=example.com');
+    expect(getFaviconUrl('blog.example.co.uk', true)).toBe('/api/favicons?domain=blog.example.co.uk');
+  });
+
+  it('returns null when favicon fetching is disabled', () => {
+    expect(getFaviconUrl('example.com', false)).toBeNull();
   });
 
   it('returns null for empty input', () => {
-    expect(getFaviconUrl(undefined)).toBeNull();
-    expect(getFaviconUrl(null)).toBeNull();
-    expect(getFaviconUrl('   ')).toBeNull();
-    expect(getFaviconUrl('https://www.')).toBeNull();
+    expect(getFaviconUrl(undefined, true)).toBeNull();
+    expect(getFaviconUrl(null, true)).toBeNull();
+    expect(getFaviconUrl('   ', true)).toBeNull();
+    expect(getFaviconUrl('https://www.', true)).toBeNull();
   });
 
   it('returns null for placeholder labels containing whitespace', () => {
-    expect(getFaviconUrl('Demo Dashboard')).toBeNull();
-    expect(getFaviconUrl('my site.com')).toBeNull();
+    expect(getFaviconUrl('Demo Dashboard', true)).toBeNull();
+    expect(getFaviconUrl('my site.com', true)).toBeNull();
   });
 
   it('returns null when there is no dot after normalization', () => {
-    expect(getFaviconUrl('localhost')).toBeNull();
-    expect(getFaviconUrl('Demo')).toBeNull();
+    expect(getFaviconUrl('localhost', true)).toBeNull();
+    expect(getFaviconUrl('Demo', true)).toBeNull();
   });
 });

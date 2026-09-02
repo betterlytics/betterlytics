@@ -13,7 +13,14 @@ export function normalizeDomainForFavicon(domain?: string | null): string | null
     .toLowerCase();
 }
 
-export function getFaviconUrl(domain?: string | null): string | null {
+export function getFaviconUrl(
+  domain: string | null | undefined,
+  isFaviconFetchingEnabled: boolean,
+): string | null {
+  if (!isFaviconFetchingEnabled) {
+    return null;
+  }
+
   const normalized = normalizeDomainForFavicon(domain);
 
   if (!normalized) {
