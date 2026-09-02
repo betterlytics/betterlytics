@@ -110,7 +110,6 @@ export default function SignupForm({ providers }: SignupFormProps) {
             name: validatedData.name ?? '',
             acceptedTerms: validatedData.acceptedTerms,
             language: validatedData.language,
-            callbackURL: '/verify-email?verified=1',
           };
           const { error: signUpError } = await authClient.signUp.email(signUpBody);
 

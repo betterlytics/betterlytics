@@ -28,10 +28,7 @@ export function VerificationRequiredModal({
 
   const handleResendVerification = () => {
     startTransition(async () => {
-      const { error } = await authClient.sendVerificationEmail({
-        email: userEmail,
-        callbackURL: '/verify-email?verified=1',
-      });
+      const { error } = await authClient.sendVerificationEmail({ email: userEmail });
 
       if (error) {
         toast.error(t(error.status === 429 ? 'cooldown' : 'toastFailure'));

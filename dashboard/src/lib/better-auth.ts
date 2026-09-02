@@ -34,6 +34,9 @@ const PASSWORD_POLICY_FIELDS: Record<string, string> = {
   '/sign-up/email': 'password',
 };
 
+// better-auth's /verify-email redirects here with ?verified=1 on success, &error=<code> on failure
+const VERIFY_EMAIL_CALLBACK_URL = '/verify-email?verified=1';
+
 // A session created this soon after the user row is their first sign-in; skip the
 // locale sync there so default settings don't overwrite the locale they signed up in.
 const FIRST_SIGN_IN_WINDOW_MS = 60_000;
@@ -70,7 +73,12 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
-    sendVerificationEmail: ({ user, url }) => sendVerificationEmail({ ...user, name: user.name ?? null }, url),
+    sendVerificationEmail: ({ user, url }) => {
+      // OAuth sign-ups inherit the OAuth callbackURL (e.g. /dashboards), which would swallow the result
+      const link = new URL(url);
+      link.searchParams.set('callbackURL', VERIFY_EMAIL_CALLBACK_URL);
+      return sendVerificationEmail({ ...user, name: user.name ?? null }, link.toString());
+    },
     sendOnSignUp: true,
     expiresIn: VERIFICATION_LINK_EXPIRY_SECONDS,
   },

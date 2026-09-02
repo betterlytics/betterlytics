@@ -42,10 +42,7 @@ export function VerificationBanner({ email, isVerified, showDismiss = true, id }
   const handleResendVerification = async () => {
     setIsSending(true);
     try {
-      const { error } = await authClient.sendVerificationEmail({
-        email,
-        callbackURL: '/verify-email?verified=1',
-      });
+      const { error } = await authClient.sendVerificationEmail({ email });
       if (error) {
         toast.error(t(error.status === 429 ? 'cooldown' : 'failure'));
       } else {

@@ -246,16 +246,19 @@ describe('email verification (better-auth module)', () => {
     expect('autoSignInAfterVerification' in auth.options.emailVerification!).toBe(false);
   });
 
-  it('delegates the send callback to the verification service', async () => {
+  it.each([
+    ['sign-up', 'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2F'],
+    ['OAuth', 'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2Fdashboards'],
+  ])('always points the %s link back at our verify-email page', async (_, url) => {
     await auth.options.emailVerification!.sendVerificationEmail!({
       user: { id: 'user-1', email: 'user@example.com', name: 'Test User' },
-      url: 'https://app.test/api/auth/verify-email?token=jwt',
+      url,
       token: 'jwt',
     } as never);
 
     expect(sendVerificationEmail).toHaveBeenCalledWith(
       { id: 'user-1', email: 'user@example.com', name: 'Test User' },
-      'https://app.test/api/auth/verify-email?token=jwt',
+      'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2Fverify-email%3Fverified%3D1',
     );
   });
 });
