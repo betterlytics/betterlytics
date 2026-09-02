@@ -1,4 +1,5 @@
 import { env } from './env';
+import { clientFeatureFlags } from './client-feature-flags';
 
 /**
  * Feature flags for controlling application behavior in different environments
@@ -14,6 +15,7 @@ export const featureFlags = {
   enableUptimeMonitoring: env.ENABLE_UPTIME_MONITORING,
   // Status pages publish uptime data, so they additionally require monitoring to be enabled
   enablePublicStatusPages: env.ENABLE_UPTIME_MONITORING && env.ENABLE_PUBLIC_STATUS_PAGES,
+  enableFaviconFetching: clientFeatureFlags.enableFaviconFetching,
 } as const;
 
 export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {
