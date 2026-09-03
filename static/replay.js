@@ -8558,7 +8558,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           stopRecording();
           return;
         }
-        if (state.buffer.length > 0) {
+        if (state.buffer.length > 0 || state.retryQueue.length > 0) {
           flush();
         }
       }, Math.max(3000, config.maxChunkMs));
