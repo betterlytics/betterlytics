@@ -45,18 +45,20 @@ async function main() {
     const retentionMarker = `replay_retention_days=${retentionDays > 0 ? retentionDays : -1}`;
     for (const table of replayTables) {
       const result = await client.query({
-        query: `SELECT comment FROM system.tables WHERE database = 'analytics' AND name = '${table}'`,
+        query: `SELECT comment, engine_full FROM system.tables WHERE database = 'analytics' AND name = '${table}'`,
         format: "JSONEachRow",
       });
       const rows = await result.json();
       if (rows[0]?.comment === retentionMarker) continue;
 
-      await client.command({
-        query:
-          retentionDays > 0
-            ? `ALTER TABLE analytics.${table} MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`
-            : `ALTER TABLE analytics.${table} REMOVE TTL`,
-      });
+      const hasTtl = /\bTTL\b/.test(rows[0]?.engine_full ?? "");
+      if (retentionDays > 0) {
+        await client.command({
+          query: `ALTER TABLE analytics.${table} MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
+        });
+      } else if (hasTtl) {
+        await client.command({ query: `ALTER TABLE analytics.${table} REMOVE TTL` });
+      }
       await client.command({
         query: `ALTER TABLE analytics.${table} MODIFY COMMENT '${retentionMarker}'`,
       });
