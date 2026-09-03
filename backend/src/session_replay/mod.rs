@@ -114,6 +114,9 @@ pub async fn upload_segment(
     if url.is_empty() {
         return Err((StatusCode::BAD_REQUEST, "missing url".to_string()));
     }
+    if url.len() > MAX_START_URL_CHARS {
+        return Err((StatusCode::BAD_REQUEST, "url too long".to_string()));
+    }
 
     if processor.check_replay_request(
         &p.site_id,

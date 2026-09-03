@@ -8410,11 +8410,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function uploadSegment(payload) {
+      var pageUrl = new URL(normalize(window.location.href));
       var qs =
         "site_id=" +
         encodeURIComponent(siteId) +
         "&url=" +
-        encodeURIComponent(window.location.href) +
+        encodeURIComponent(pageUrl.origin + pageUrl.pathname) +
         "&screen_resolution=" +
         window.screen.width +
         "x" +
