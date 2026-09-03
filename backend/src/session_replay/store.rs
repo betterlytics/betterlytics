@@ -2,6 +2,7 @@ use std::io::Read;
 use std::sync::Arc;
 
 use bytes::Bytes;
+use chrono::NaiveDate;
 use flate2::read::GzDecoder;
 use once_cell::sync::Lazy;
 use tokio::sync::Semaphore;
@@ -92,15 +93,13 @@ impl SegmentStore {
         site_id: &str,
         session_id: u64,
         filename: &str,
+        epoch_ms: i64,
+        date: NaiveDate,
         payload: SegmentPayload,
     ) -> Result<(), StoreError> {
         match self {
             Self::ClickHouse(db) => {
                 let data = payload.data.expect("payload prepared for clickhouse");
-                let epoch_ms = parse_epoch_ms(filename)?;
-                let date = chrono::DateTime::from_timestamp_millis(epoch_ms)
-                    .ok_or_else(|| StoreError::InvalidPayload("epoch out of range".to_string()))?
-                    .date_naive();
                 db.insert_replay_segment(SessionReplaySegmentRow {
                     site_id: site_id.to_string(),
                     session_id,
@@ -160,14 +159,6 @@ fn check_segment_prefix(bytes: &[u8], gzip: bool) -> Result<(), StoreError> {
 
 fn object_key(site_id: &str, session_id: u64, filename: &str) -> String {
     format!("site/{}/sess/{}/{}", site_id, session_id, filename)
-}
-
-fn parse_epoch_ms(filename: &str) -> Result<i64, StoreError> {
-    filename
-        .split('-')
-        .next()
-        .and_then(|prefix| prefix.parse().ok())
-        .ok_or_else(|| StoreError::InvalidPayload("malformed filename".to_string()))
 }
 
 #[derive(Debug)]

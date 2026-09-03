@@ -17,7 +17,7 @@ use store::{SegmentStore, StoreError};
 use crate::ua_parser;
 use crate::visitor;
 use crate::analytics::{VisitorAttrs, detect_device_type_from_resolution};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDate, Utc};
 
 use crate::db::{SessionReplayMetaRow, SharedDatabase, SessionReplayRow};
 use crate::processing::EventProcessor;
@@ -182,7 +182,9 @@ pub async fn upload_segment(
     let started = DateTime::from_timestamp_millis(now_ms - span_ms).ok_or_else(internal)?;
     let started = clamp_started_at(started, identity.session_created_at);
     let ended = ended.max(started);
-    let filename = build_segment_filename(segment_filename_epoch_ms(now_ms, p.ended_at_ms), p.chunk_id.as_deref());
+    let filename_epoch_ms = segment_filename_epoch_ms(now_ms, p.ended_at_ms);
+    let filename = build_segment_filename(filename_epoch_ms, p.chunk_id.as_deref());
+    let segment_date = identity.session_created_at.date_naive();
 
     let start_url: String = p
         .url
@@ -210,7 +212,11 @@ pub async fn upload_segment(
         }
     }
 
-    replay_ctx.store.store(&p.site_id, identity.session_id, &filename, payload).await.map_err(store_error)?;
+    replay_ctx
+        .store
+        .store(&p.site_id, identity.session_id, &filename, filename_epoch_ms, segment_date, payload)
+        .await
+        .map_err(store_error)?;
 
     let mut meta = loaded.unwrap_or_else(|| SessionReplayMetaRow {
         started_at: started,
@@ -229,7 +235,7 @@ pub async fn upload_segment(
     }
 
     META_CACHE.insert(key, meta.clone());
-    if let Err(e) = upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, &meta).await {
+    if let Err(e) = upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, segment_date, &meta).await {
         error!(site_id = %p.site_id, session_id = identity.session_id, "Failed to upsert session replay, segment stored and meta will catch up on the next segment: {}", e);
     }
 
@@ -263,6 +269,7 @@ async fn upsert_replay_row(
     replay_ctx: &ReplayCtx,
     site_id: &str,
     session_id: u64,
+    date: NaiveDate,
     meta: &SessionReplayMetaRow,
 ) -> anyhow::Result<()> {
     let duration = (meta.ended_at.timestamp() - meta.started_at.timestamp()).max(0) as u32;
@@ -273,7 +280,7 @@ async fn upsert_replay_row(
         started_at: meta.started_at,
         ended_at: meta.ended_at,
         duration,
-        date: meta.started_at.date_naive(),
+        date,
         size_bytes: meta.size_bytes,
         event_count: meta.event_count,
         s3_prefix: format!("site/{}/sess/{}/", site_id, session_id),
