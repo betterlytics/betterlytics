@@ -1,6 +1,7 @@
 use anyhow::Result;
 use aws_config::BehaviorVersion;
 use aws_sdk_s3::{Client, config::Region};
+use aws_sdk_s3::config::http::HttpResponse;
 use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
 use aws_sdk_s3::error::SdkError;
 use aws_sdk_s3::types::ServerSideEncryption;
@@ -62,6 +63,11 @@ impl S3Service {
         match tokio::time::timeout(std::time::Duration::from_secs(PUT_TIMEOUT_SECS), head).await? {
             Ok(_) => Ok(true),
             Err(SdkError::ServiceError(e)) if e.err().is_not_found() => Ok(false),
+            // Without s3:ListBucket, AWS answers HeadObject on a missing key with 403 instead of 404.
+            Err(e) if service_status(&e) == Some(403) => {
+                warn!("S3 HeadObject on '{}' denied ({}); treating as absent, grant s3:ListBucket on the bucket to restore segment dedup", key, e);
+                Ok(false)
+            }
             Err(e) => Err(e.into()),
         }
     }
@@ -100,11 +106,7 @@ async fn head_bucket_check(client: &Client, bucket: &str) -> Result<()> {
             Ok(())
         }
         Ok(Err(e)) => {
-            let status = match &e {
-                SdkError::ServiceError(se) => Some(se.raw().status().as_u16()),
-                _ => None,
-            };
-            if status == Some(403) {
+            if service_status(&e) == Some(403) {
                 warn!("S3 HeadBucket on '{}' denied ({}); assuming bucket exists", bucket, e);
                 Ok(())
             } else {
@@ -112,5 +114,12 @@ async fn head_bucket_check(client: &Client, bucket: &str) -> Result<()> {
             }
         }
         Err(_) => Err(anyhow::anyhow!("S3 HeadBucket on '{}' timed out", bucket)),
+    }
+}
+
+fn service_status<E>(e: &SdkError<E, HttpResponse>) -> Option<u16> {
+    match e {
+        SdkError::ServiceError(se) => Some(se.raw().status().as_u16()),
+        _ => None,
     }
 }
