@@ -66,15 +66,9 @@ Metrics are reported on visibility change or pagehide to capture stable final va
 Single‑page applications (SPAs): Today we only collect CWV on the initial page load. Client‑side route changes (soft navigations) usually don’t re‑trigger LCP/FCP in a meaningful way, so we exclude them to avoid misleading values. We’re working on an experimental SPA CWV collection and will update these docs when it’s available.
 </Callout>
 
-## First-party loading and CSP
+## First-party loading
 
-The `web-vitals` library loads first-party from the same origin the analytics script itself was loaded from - no request leaves for any third-party host. If you set `data-scripts-base-url`, that base is used instead.
-
-If your site sets a Content-Security-Policy, `script-src` only needs to allow your Betterlytics origin (for the hosted service, `https://betterlytics.io`).
-
-<Callout type="info">
-If you proxy `analytics.js` through your own domain, the browser will request `web-vitals.js` (and `replay.js` for Session Replay) from that same domain. Either proxy those files too, or set `data-scripts-base-url` explicitly to your Betterlytics origin.
-</Callout>
+The `web-vitals` library loads first-party from the same origin the analytics script itself was loaded from - no request leaves for any third-party host. If your site sets a Content-Security-Policy, `script-src` only needs to allow your Betterlytics origin (for the hosted service, `https://betterlytics.io`).
 
 ---
 
