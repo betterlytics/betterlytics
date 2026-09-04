@@ -1,7 +1,7 @@
 {
   "neCommit": "ca96624a56bd078437bca8184e78163e5039ad19",
-  "generatedAt": "2026-09-04T20:39:34.641Z",
-  "totalBytes": 5124139,
+  "generatedAt": "2026-09-04T20:44:34.220Z",
+  "totalBytes": 5122685,
   "skippedSourceFeatures": [
     {
       "name": "Dhekelia",
@@ -1707,12 +1707,12 @@
     },
     {
       "code": "JP",
-      "bytes": 46594,
+      "bytes": 46244,
       "features": 47,
       "parts": 142,
       "simplifyPct": 12,
       "inflationBefore": 1.58,
-      "inflationAfter": 1.16,
+      "inflationAfter": 1.3,
       "antimeridianShifted": false,
       "insets": [
         "Okinawa"
@@ -2377,15 +2377,17 @@
     },
     {
       "code": "NL",
-      "bytes": 16290,
+      "bytes": 16121,
       "features": 15,
       "parts": 25,
       "simplifyPct": 35,
       "inflationBefore": 20.72,
-      "inflationAfter": 1.11,
+      "inflationAfter": 1.07,
       "antimeridianShifted": false,
       "insets": [
-        "Caribisch Nederland"
+        "Bonaire",
+        "Saba",
+        "Sint Eustatius"
       ],
       "cropped": [],
       "warnings": []
@@ -2624,18 +2626,20 @@
     },
     {
       "code": "PT",
-      "bytes": 20981,
+      "bytes": 20263,
       "features": 20,
-      "parts": 35,
+      "parts": 33,
       "simplifyPct": 20,
       "inflationBefore": 4.1,
-      "inflationAfter": 1.11,
+      "inflationAfter": 1.2,
       "antimeridianShifted": false,
       "insets": [
         "Açores",
         "Madeira"
       ],
-      "cropped": [],
+      "cropped": [
+        "PT-30 (2 parts)"
+      ],
       "warnings": []
     },
     {
@@ -2809,18 +2813,20 @@
     },
     {
       "code": "SH",
-      "bytes": 1317,
+      "bytes": 1100,
       "features": 3,
-      "parts": 4,
+      "parts": 3,
       "simplifyPct": 35,
       "inflationBefore": 190.13,
-      "inflationAfter": 1.18,
+      "inflationAfter": 1.19,
       "antimeridianShifted": false,
       "insets": [
         "Ascension",
         "Tristan da Cunha"
       ],
-      "cropped": [],
+      "cropped": [
+        "SH-TA (1 parts)"
+      ],
       "warnings": []
     },
     {
