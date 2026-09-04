@@ -18,7 +18,11 @@
     "performance": "k6 run -e TARGET_URL=http://localhost:3001/event -e VUS=100 -e DURATION=30s k6-perf-test.js",
     "unit-tests": "pnpm --filter dashboard unit-tests",
     "check-translations": "node scripts/check-translations.js",
-    "check-migration-versions": "node scripts/check-migration-versions.js"
+    "check-migration-versions": "node scripts/check-migration-versions.js",
+    "regions-analyze": "node scripts/region-geojson/analyze.mjs",
+    "regions-build": "node scripts/region-geojson/build.mjs && node scripts/region-geojson/validate.mjs",
+    "regions-validate": "node scripts/region-geojson/validate.mjs",
+    "regions-review": "node scripts/region-geojson/review.mjs"
   },
   "packageManager": "pnpm@10.34.5",
   "dependencies": {
@@ -26,5 +30,8 @@
     "clickhouse-migrations": "^1.0.4",
     "dotenv": "^16.5.0",
     "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "mapshaper": "0.6.109"
   }
 }

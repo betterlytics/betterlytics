@@ -12,6 +12,21 @@ export function cachePath(name) {
   return path.join(CACHE_DIR, name);
 }
 
+export function groupByCountry(geojson) {
+  const byCountry = new Map();
+  const skipped = [];
+  for (const feature of geojson.features) {
+    const { iso_a2, iso_3166_2, name } = feature.properties;
+    if (!iso_a2 || iso_a2 === '-1' || iso_a2 === '-99') {
+      skipped.push({ name, iso_a2, iso_3166_2 });
+      continue;
+    }
+    if (!byCountry.has(iso_a2)) byCountry.set(iso_a2, []);
+    byCountry.get(iso_a2).push(feature);
+  }
+  return { byCountry, skipped };
+}
+
 export async function loadSourceGeojson() {
   const file = cachePath(NE_FILE);
   if (!fs.existsSync(file)) {

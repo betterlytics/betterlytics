@@ -1,0 +1,180 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import { loadSourceGeojson, groupByCountry, cachePath, NE_COMMIT } from './lib/source.mjs';
+import { extractParts, mergeBboxes, bboxDiagonalKm } from './lib/geometry.mjs';
+import { normalizeAntimeridian, clusterParts } from './lib/clusters.mjs';
+import { composeCountry } from './lib/compose.mjs';
+import { loadCldrEnNames } from './lib/cldr.mjs';
+import { applyIdFixes } from './lib/remap.mjs';
+import {
+  countryConfig,
+  countryReassign,
+  idOverrides,
+  INFLATION_THRESHOLD,
+  LINK_KM,
+  SIMPLIFY_PERCENTAGES,
+  FILE_BUDGET_BYTES,
+  TOTAL_BUDGET_BYTES,
+} from './config.mjs';
+
+const mapshaper = createRequire(import.meta.url)('mapshaper');
+
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const OUTPUT_DIR = path.join(ROOT, 'dashboard', 'public', 'data', 'regions');
+const MANIFEST_PATH = path.join(ROOT, 'scripts', 'region-geojson', 'manifest.json');
+
+function assembleGeojson(parts) {
+  const byId = new Map();
+  for (const part of parts) {
+    const props = part.feature.properties;
+    const id = props.iso_3166_2 || `??-${props.name}`;
+    if (!byId.has(id)) byId.set(id, { id, name: props.name, polygons: [] });
+    byId.get(id).polygons.push(part.rings);
+  }
+  return {
+    type: 'FeatureCollection',
+    features: [...byId.values()].map(({ id, name, polygons }) => ({
+      type: 'Feature',
+      id,
+      properties: { isoId: id, name },
+      geometry:
+        polygons.length === 1
+          ? { type: 'Polygon', coordinates: polygons[0] }
+          : { type: 'MultiPolygon', coordinates: polygons },
+    })),
+  };
+}
+
+async function simplify(geojson, budgetBytes) {
+  let best = null;
+  for (const pct of SIMPLIFY_PERCENTAGES) {
+    const out = await mapshaper.applyCommands(
+      `-i in.json -simplify visvalingam weighted keep-shapes percentage=${pct}% -clean -o out.json format=geojson precision=0.0001`,
+      { 'in.json': JSON.stringify(geojson) },
+    );
+    const buf = out['out.json'];
+    best = { pct, buf };
+    if (buf.length <= budgetBytes) break;
+  }
+  return best;
+}
+
+function finalizeOutput(simplifiedBuffer, frames) {
+  const parsed = JSON.parse(simplifiedBuffer.toString('utf-8'));
+  for (const feature of parsed.features) {
+    feature.id = feature.properties.isoId;
+    feature.properties = { name: feature.properties.name };
+  }
+  if (frames.length > 0) parsed.insets = frames;
+  return JSON.stringify(parsed);
+}
+
+async function buildCountry(countryCode, features, rawDir) {
+  const parts = features.flatMap(extractParts);
+  if (parts.length === 0) return null;
+
+  const shifted = normalizeAntimeridian(parts);
+  const clusters = clusterParts(parts, LINK_KM);
+  const fullBbox = mergeBboxes(parts.map((p) => p.bbox));
+  const mainlandDiag = Math.max(1, bboxDiagonalKm(clusters[0].bbox));
+  const inflationBefore = +(bboxDiagonalKm(fullBbox) / mainlandDiag).toFixed(2);
+  const flagged = inflationBefore > INFLATION_THRESHOLD || shifted;
+  const config = countryConfig[countryCode];
+
+  if (flagged && !config) {
+    throw new Error(`${countryCode} is flagged (x${inflationBefore}) but has no entry in config.mjs`);
+  }
+
+  fs.writeFileSync(path.join(rawDir, `${countryCode}.geo.json`), JSON.stringify(assembleGeojson(parts)));
+
+  const composed = composeCountry(parts, clusters, config);
+  const finalParts = [...composed.keptParts, ...composed.insetParts];
+  const finalBbox = mergeBboxes([
+    ...finalParts.map((p) => p.bbox),
+    ...composed.frames.map((f) => ({ minLon: f.bbox[0], minLat: f.bbox[1], maxLon: f.bbox[2], maxLat: f.bbox[3] })),
+  ]);
+  const anchorBbox = mergeBboxes(composed.keptParts.map((p) => p.bbox));
+  const inflationAfter = +(bboxDiagonalKm(finalBbox) / Math.max(1, bboxDiagonalKm(anchorBbox))).toFixed(2);
+
+  const assembled = assembleGeojson(finalParts);
+  const { pct, buf } = await simplify(assembled, FILE_BUDGET_BYTES);
+  const output = finalizeOutput(buf, composed.frames);
+  fs.writeFileSync(path.join(OUTPUT_DIR, `${countryCode}.geo.json`), output);
+
+  return {
+    code: countryCode,
+    bytes: Buffer.byteLength(output),
+    features: assembled.features.length,
+    parts: finalParts.length,
+    simplifyPct: pct,
+    inflationBefore,
+    inflationAfter,
+    antimeridianShifted: shifted,
+    insets: composed.frames.map((f) => f.label),
+    cropped: composed.cropped.map((c) => `${c.id} (${c.partCount} parts)`),
+    warnings: composed.warnings,
+  };
+}
+
+async function main() {
+  const geojson = await loadSourceGeojson();
+  const { byCountry, skipped } = groupByCountry(geojson);
+  const cldrNames = loadCldrEnNames();
+  if (!cldrNames) console.log('cldr-subdivisions-full not found in dashboard; skipping id remapping');
+  const idFixes = applyIdFixes(byCountry, cldrNames, { idOverrides, countryReassign });
+  console.log(
+    `Id fixes: ${idFixes.reassigned.length} reassigned, ${idFixes.overridden.length} overridden, ` +
+      `${idFixes.remapped.length} remapped via CLDR names, ${idFixes.unmatched.length} unmatched`,
+  );
+  const rawDir = cachePath('raw');
+  fs.mkdirSync(rawDir, { recursive: true });
+  fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
+  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+
+  const entries = [];
+  const codes = [...byCountry.keys()].sort();
+  for (const code of codes) {
+    const entry = await buildCountry(code, byCountry.get(code), rawDir);
+    if (!entry) continue;
+    entries.push(entry);
+    const marks = [
+      entry.insets.length ? `insets: ${entry.insets.join(', ')}` : '',
+      entry.cropped.length ? `cropped: ${entry.cropped.join(', ')}` : '',
+      ...entry.warnings.map((w) => `WARN ${w}`),
+    ]
+      .filter(Boolean)
+      .join('; ');
+    console.log(
+      `${code}  ${String(Math.round(entry.bytes / 1024)).padStart(5)} KB @ ${entry.simplifyPct}%  ${marks}`,
+    );
+  }
+
+  const totalBytes = entries.reduce((sum, e) => sum + e.bytes, 0);
+  const overBudget = entries.filter((e) => e.bytes > FILE_BUDGET_BYTES);
+  console.log(`\nTotal: ${(totalBytes / 1024 / 1024).toFixed(2)} MB across ${entries.length} files`);
+  if (overBudget.length > 0) {
+    console.log(`Over per-file budget even at ${SIMPLIFY_PERCENTAGES.at(-1)}%:`);
+    for (const e of overBudget) console.log(`  ${e.code}: ${Math.round(e.bytes / 1024)} KB`);
+  }
+  if (totalBytes > TOTAL_BUDGET_BYTES) {
+    console.log(`TOTAL BUDGET EXCEEDED (${(TOTAL_BUDGET_BYTES / 1024 / 1024).toFixed(1)} MB)`);
+  }
+
+  const manifest = {
+    neCommit: NE_COMMIT,
+    generatedAt: new Date().toISOString(),
+    totalBytes,
+    skippedSourceFeatures: skipped,
+    idFixes,
+    countries: entries,
+  };
+  fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
+  console.log(`Manifest: scripts/region-geojson/manifest.json`);
+}
+
+main().catch((err) => {
+  console.error('Build failed:', err.message);
+  process.exit(1);
+});

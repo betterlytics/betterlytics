@@ -1,6 +1,5 @@
 import { bboxGapKm, mergeBboxes, shiftPart } from './geometry.mjs';
 
-const LINK_KM = 100;
 
 export function normalizeAntimeridian(parts) {
   if (parts.length === 0) return false;
@@ -19,7 +18,7 @@ export function normalizeAntimeridian(parts) {
   return shifted;
 }
 
-export function clusterParts(parts) {
+export function clusterParts(parts, linkKm = 100) {
   const parent = parts.map((_, i) => i);
   const find = (i) => (parent[i] === i ? i : (parent[i] = find(parent[i])));
   const union = (a, b) => {
@@ -28,7 +27,7 @@ export function clusterParts(parts) {
 
   for (let i = 0; i < parts.length; i++) {
     for (let j = i + 1; j < parts.length; j++) {
-      if (bboxGapKm(parts[i].bbox, parts[j].bbox) < LINK_KM) union(i, j);
+      if (bboxGapKm(parts[i].bbox, parts[j].bbox) < linkKm) union(i, j);
     }
   }
 
