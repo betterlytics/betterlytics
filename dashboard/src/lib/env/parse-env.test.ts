@@ -20,7 +20,7 @@ describe('parseEnv', () => {
 
   it('names every failing variable in the error message', () => {
     expect(() => parseEnv('test', schema, { PUBLIC_BASE_URL: 'not-a-url' })).toThrowError(
-      /AUTH_SECRET: Required.*PUBLIC_BASE_URL: Invalid url/s,
+      /AUTH_SECRET: Required[\s\S]*PUBLIC_BASE_URL: Invalid url/,
     );
   });
 
