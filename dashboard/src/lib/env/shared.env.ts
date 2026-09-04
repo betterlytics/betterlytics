@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { parseEnv } from './parse-env';
 
 export const zStringBoolean = z
   .enum(['true', 'false'])
@@ -17,7 +18,7 @@ export const sharedEmailEnvSchema = z.object({
   PUBLIC_BASE_URL: z.string().optional().default('https://betterlytics.io'),
 });
 
-const parsedSharedEmailEnv = sharedEmailEnvSchema.parse(process.env);
+const parsedSharedEmailEnv = parseEnv('shared', sharedEmailEnvSchema);
 
 export const sharedEmailEnv = {
   isCloud: parsedSharedEmailEnv.IS_CLOUD,
