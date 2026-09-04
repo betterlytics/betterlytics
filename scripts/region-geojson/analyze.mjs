@@ -1,31 +1,15 @@
 import fs from 'node:fs';
-import { loadSourceGeojson, cachePath, NE_COMMIT } from './lib/source.mjs';
+import { loadSourceGeojson, groupByCountry, cachePath, NE_COMMIT } from './lib/source.mjs';
 import { extractParts, mergeBboxes, bboxDiagonalKm } from './lib/geometry.mjs';
 import { normalizeAntimeridian, clusterParts, clusterGapKm } from './lib/clusters.mjs';
-
-const INFLATION_THRESHOLD = 1.15;
-
-function groupByCountry(geojson) {
-  const byCountry = new Map();
-  const skipped = [];
-  for (const feature of geojson.features) {
-    const { iso_a2, iso_3166_2, name } = feature.properties;
-    if (!iso_a2 || iso_a2 === '-1' || iso_a2 === '-99') {
-      skipped.push({ name, iso_a2, iso_3166_2 });
-      continue;
-    }
-    if (!byCountry.has(iso_a2)) byCountry.set(iso_a2, []);
-    byCountry.get(iso_a2).push(feature);
-  }
-  return { byCountry, skipped };
-}
+import { INFLATION_THRESHOLD, LINK_KM } from './config.mjs';
 
 function analyzeCountry(countryCode, features) {
   const parts = features.flatMap(extractParts);
   if (parts.length === 0) return null;
 
   const shifted = normalizeAntimeridian(parts);
-  const clusters = clusterParts(parts);
+  const clusters = clusterParts(parts, LINK_KM);
   const mainland = clusters[0];
   const fullBbox = mergeBboxes(parts.map((p) => p.bbox));
   const inflation = bboxDiagonalKm(fullBbox) / Math.max(1, bboxDiagonalKm(mainland.bbox));
