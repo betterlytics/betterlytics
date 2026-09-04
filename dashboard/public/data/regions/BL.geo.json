@@ -1,1 +1,1 @@
-{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[-62.8389,17.882],[-62.7917,17.9155],[-62.8574,17.925],[-62.8389,17.882]]]},"properties":{"name":"Saint Barthélemy"},"id":"BL-X00~"}]}
+{"type":"FeatureCollection","features":[{"type":"Feature","id":"BL-X00~","properties":{"name":"Saint Barthélemy"},"geometry":{"type":"Polygon","coordinates":[[[-62.8389,17.882],[-62.8101,17.8923],[-62.7917,17.9155],[-62.8574,17.925],[-62.8389,17.882]]]}}]}
