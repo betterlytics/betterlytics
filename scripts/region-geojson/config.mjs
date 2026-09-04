@@ -1,7 +1,12 @@
 export const INFLATION_THRESHOLD = 1.15;
 export const LINK_KM = 100;
 
-export const SIMPLIFY_PERCENTAGES = [12, 7, 4, 2];
+/** Vertex-retention ladders by raw country size: small countries keep more detail per vertex. */
+export const SIMPLIFY_TIERS = [
+  { maxBytes: 80 * 1024, percentages: [35, 20, 12, 7] },
+  { maxBytes: 250 * 1024, percentages: [20, 12, 7, 4] },
+  { maxBytes: Infinity, percentages: [12, 7, 4, 2] },
+];
 export const FILE_BUDGET_BYTES = 260 * 1024;
 export const TOTAL_BUDGET_BYTES = 6 * 1024 * 1024;
 
@@ -13,6 +18,8 @@ export const TOTAL_BUDGET_BYTES = 6 * 1024 * 1024;
  * - insets: detached parts of the listed features are scaled into framed boxes
  *   stacked along a side of the mainland, following each country's national
  *   map convention (d3-composite-projections layouts where one exists).
+ *   wholeFeature: true boxes every part of the feature, including parts that
+ *   cluster with the mainland (Okinawa chains to Kyushu in <100km hops).
  * - crop: detached parts of the listed features are dropped from the map.
  *   Only for uninhabited specks or conventional omissions; the region list
  *   under the map stays complete regardless.
@@ -59,7 +66,7 @@ export const countryConfig = {
     insets: [{ features: ['DK-84'], label: 'Bornholm', side: 'right' }],
   },
   JP: {
-    insets: [{ features: ['JP-47'], label: 'Okinawa', side: 'left' }],
+    insets: [{ features: ['JP-47'], label: 'Okinawa', side: 'left', wholeFeature: true }],
     crop: [{ features: ['JP-13'], note: 'Ogasawara and outer Izu islands, conventionally omitted' }],
   },
   EC: {

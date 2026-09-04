@@ -14,7 +14,7 @@ import {
   idOverrides,
   INFLATION_THRESHOLD,
   LINK_KM,
-  SIMPLIFY_PERCENTAGES,
+  SIMPLIFY_TIERS,
   FILE_BUDGET_BYTES,
   TOTAL_BUDGET_BYTES,
 } from './config.mjs';
@@ -25,13 +25,11 @@ const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..')
 const OUTPUT_DIR = path.join(ROOT, 'dashboard', 'public', 'data', 'regions');
 const MANIFEST_PATH = path.join(ROOT, 'scripts', 'region-geojson', 'manifest.json');
 
-function assembleGeojson(parts) {
+function groupPolygonsById(entries) {
   const byId = new Map();
-  for (const part of parts) {
-    const props = part.feature.properties;
-    const id = props.iso_3166_2 || `??-${props.name}`;
-    if (!byId.has(id)) byId.set(id, { id, name: props.name, polygons: [] });
-    byId.get(id).polygons.push(part.rings);
+  for (const { id, name, polygon } of entries) {
+    if (!byId.has(id)) byId.set(id, { id, name, polygons: [] });
+    byId.get(id).polygons.push(polygon);
   }
   return {
     type: 'FeatureCollection',
@@ -47,12 +45,40 @@ function assembleGeojson(parts) {
   };
 }
 
+function assembleGeojson(parts) {
+  return groupPolygonsById(
+    parts.map((part) => ({
+      id: part.feature.properties.iso_3166_2 || `??-${part.feature.properties.name}`,
+      name: part.feature.properties.name,
+      polygon: part.rings,
+    })),
+  );
+}
+
+/** One feature per polygon part, so mapshaper's keep-shapes protects every island, not one ring per region. */
+function explodeForSimplify(geojson) {
+  return {
+    type: 'FeatureCollection',
+    features: geojson.features.flatMap((feature) => {
+      const polygons =
+        feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+      return polygons.map((rings) => ({
+        type: 'Feature',
+        properties: feature.properties,
+        geometry: { type: 'Polygon', coordinates: rings },
+      }));
+    }),
+  };
+}
+
 async function simplify(geojson, budgetBytes) {
+  const exploded = JSON.stringify(explodeForSimplify(geojson));
+  const { percentages } = SIMPLIFY_TIERS.find((tier) => exploded.length < tier.maxBytes);
   let best = null;
-  for (const pct of SIMPLIFY_PERCENTAGES) {
+  for (const pct of percentages) {
     const out = await mapshaper.applyCommands(
       `-i in.json -simplify visvalingam weighted keep-shapes percentage=${pct}% -clean -o out.json format=geojson precision=0.0001`,
-      { 'in.json': JSON.stringify(geojson) },
+      { 'in.json': exploded },
     );
     const buf = out['out.json'];
     best = { pct, buf };
@@ -63,12 +89,24 @@ async function simplify(geojson, budgetBytes) {
 
 function finalizeOutput(simplifiedBuffer, frames) {
   const parsed = JSON.parse(simplifiedBuffer.toString('utf-8'));
-  for (const feature of parsed.features) {
-    feature.id = feature.properties.isoId;
+  const regrouped = groupPolygonsById(
+    parsed.features
+      .filter((f) => f.geometry && f.geometry.coordinates.length > 0)
+      .flatMap((feature) => {
+        const polygons =
+          feature.geometry.type === 'Polygon' ? [feature.geometry.coordinates] : feature.geometry.coordinates;
+        return polygons.map((polygon) => ({
+          id: feature.properties.isoId,
+          name: feature.properties.name,
+          polygon,
+        }));
+      }),
+  );
+  for (const feature of regrouped.features) {
     feature.properties = { name: feature.properties.name };
   }
-  if (frames.length > 0) parsed.insets = frames;
-  return JSON.stringify(parsed);
+  if (frames.length > 0) regrouped.insets = frames;
+  return JSON.stringify(regrouped);
 }
 
 async function buildCountry(countryCode, features, rawDir) {
@@ -155,7 +193,7 @@ async function main() {
   const overBudget = entries.filter((e) => e.bytes > FILE_BUDGET_BYTES);
   console.log(`\nTotal: ${(totalBytes / 1024 / 1024).toFixed(2)} MB across ${entries.length} files`);
   if (overBudget.length > 0) {
-    console.log(`Over per-file budget even at ${SIMPLIFY_PERCENTAGES.at(-1)}%:`);
+    console.log('Over per-file budget even at the smallest ladder step:');
     for (const e of overBudget) console.log(`  ${e.code}: ${Math.round(e.bytes / 1024)} KB`);
   }
   if (totalBytes > TOTAL_BUDGET_BYTES) {

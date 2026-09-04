@@ -10,15 +10,17 @@ export function composeCountry(parts, clusters, config) {
   const mainlandParts = new Set(clusters[0].parts);
   const claimed = new Set();
 
-  const detachedOf = (featureIds) =>
+  const selectParts = (featureIds, wholeFeature) =>
     parts.filter(
       (p) =>
-        !mainlandParts.has(p) && !claimed.has(p) && featureIds.includes(p.feature.properties.iso_3166_2),
+        (wholeFeature || !mainlandParts.has(p)) &&
+        !claimed.has(p) &&
+        featureIds.includes(p.feature.properties.iso_3166_2),
     );
 
   const insetGroups = [];
   for (const rule of config?.insets ?? []) {
-    let selected = detachedOf(rule.features);
+    let selected = selectParts(rule.features, rule.wholeFeature);
     if (selected.length === 0) {
       warnings.push(`inset rule matched nothing: ${rule.features.join(',')}`);
       continue;
@@ -35,7 +37,7 @@ export function composeCountry(parts, clusters, config) {
 
   const cropped = [];
   for (const rule of config?.crop ?? []) {
-    const selected = detachedOf(rule.features);
+    const selected = selectParts(rule.features, false);
     if (selected.length === 0) {
       warnings.push(`crop rule matched nothing: ${rule.features.join(',')}`);
       continue;
