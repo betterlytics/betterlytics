@@ -818,7 +818,8 @@
           "sending": "Sender...",
           "remember": "Husker du passordet ditt?",
           "backToSignIn": "Tilbake til innlogging"
-        }
+        },
+        "errorMessageTooManyRequests": "For mange tilbakestillingsforespørsler. Prøv igjen senere."
       },
       "resetPassword": {
         "seo": {
@@ -847,7 +848,14 @@
         },
         "form": {
           "title": "Sett nytt passord",
-          "description": "Skriv inn det nye passordet ditt nedenfor"
+          "description": "Skriv inn det nye passordet ditt nedenfor",
+          "errors": {
+            "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
+            "weakPassword": "Passordet oppfyller ikke kravene.",
+            "tooManyAttempts": "For mange forsøk. Prøv igjen senere.",
+            "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
+          },
+          "successMessage": "Passordet ble tilbakestilt!"
         },
         "cta": {
           "remember": "Husker du passordet ditt?",
@@ -2857,7 +2865,8 @@
         "resend": "Send bekreftelses-e-post på nytt",
         "sending": "Sender...",
         "toastSuccess": "Bekreftelses-e-post sendt! Sjekk innboksen din.",
-        "toastFailure": "Kunne ikke sende bekreftelses-e-post"
+        "toastFailure": "Kunne ikke sende bekreftelses-e-post",
+        "cooldown": "En bekreftelses-e-post ble nylig sendt. Vent noen minutter før du ber om en ny."
       }
     },
     "topbar": {
@@ -3017,13 +3026,16 @@
         "newPassword": "Nytt passord",
         "confirmNewPassword": "Bekreft nytt passord",
         "passwordHelp": "Passordet må være minst 8 tegn",
+        "weakPassword": "Passordet må være minst 8 tegn og inneholde både store og små bokstaver",
+        "invalidCurrentPassword": "Nåværende passord er feil",
         "passwordsMatch": "Passordene samsvarer",
         "changePassword": "Bytt passord",
         "passwordManagedByOAuth": "Passord håndteres av OAuth",
         "togglePasswordVisibility": "Vis/skjul {field}",
         "cancel": "Avbryt",
         "toast": {
-          "success": "Passord oppdatert"
+          "success": "Passord oppdatert",
+          "tooManyAttempts": "For mange forsøk. Vent et øyeblikk og prøv igjen."
         },
         "totp": {
           "title": "Tofaktorautentisering",
@@ -3242,7 +3254,7 @@
         "googleButton": "Google-konto",
         "gitHubButton": "GitHub-konto",
         "passwordsDoNotMatch": "Passordene samsvarer ikke",
-        "registrationSuccessfulButSignInFailed": "Registrering vellykket, men innlogging feilet. Prøv å logge inn manuelt.",
+        "emailAlreadyExists": "Det finnes allerede en bruker med den e-postadressen.",
         "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
         "checkInput": "Vennligst sjekk inndataene dine"
       }
@@ -3335,6 +3347,7 @@
       "description": "Vi har sendt en bekreftelses-e-post til {email}.",
       "success": "Bekreftelses-e-post sendt!",
       "failure": "Kunne ikke sende bekreftelses-e-post",
+      "cooldown": "En bekreftelses-e-post ble nylig sendt. Vent noen minutter før du ber om en ny.",
       "sending": "Sender...",
       "resend": "Send e-post på nytt"
     },

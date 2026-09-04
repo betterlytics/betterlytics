@@ -1,12 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  registerNewUser,
-  getAuthorizedDashboardContextOrNull,
-  assertPublicDashboardAccess,
-} from '@/services/auth/auth.service';
-import { findUserByEmail, registerUser } from '@/repositories/postgres/user.repository';
+import { getAuthorizedDashboardContextOrNull, assertPublicDashboardAccess } from '@/services/auth/auth.service';
 import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard.repository';
-import { makeUser } from '@/test/auth-fixtures';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -14,13 +8,6 @@ vi.mock('@/lib/env', () => ({
     ADMIN_PASSWORD: 'admin-Password-1',
     DEMO_DASHBOARD_ID: 'demo-dashboard-id',
   },
-}));
-vi.mock('@/repositories/postgres/user.repository', () => ({
-  findUserByEmail: vi.fn(),
-  createUser: vi.fn(),
-  registerUser: vi.fn(),
-  verifyUserPassword: vi.fn(),
-  findCredentialAccount: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
   findUserDashboardWithDashboardOrNull: vi.fn(),
@@ -31,36 +18,6 @@ vi.mock('@/services/email/email.service', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-});
-
-describe('registerNewUser', () => {
-  const registration = {
-    email: 'new@example.com',
-    name: 'New User',
-    password: 'Valid-password-1',
-    acceptedTerms: true as const,
-    language: 'en' as const,
-  };
-
-  it('throws a UserException when the email is already taken', async () => {
-    vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ email: registration.email }));
-
-    await expect(registerNewUser(registration)).rejects.toMatchObject({
-      name: 'UserException',
-      message: 'User with that email already exists.',
-    });
-    expect(registerUser).not.toHaveBeenCalled();
-  });
-
-  it('registers and returns the new user when the email is free', async () => {
-    vi.mocked(findUserByEmail).mockResolvedValue(null);
-    vi.mocked(registerUser).mockResolvedValue(makeUser({ email: registration.email }));
-
-    const result = await registerNewUser(registration);
-
-    expect(registerUser).toHaveBeenCalledWith(registration);
-    expect(result.email).toBe(registration.email);
-  });
 });
 
 describe('getAuthorizedDashboardContextOrNull', () => {

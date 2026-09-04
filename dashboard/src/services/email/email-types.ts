@@ -33,6 +33,7 @@ export const EMAIL_TYPES = {
     template: createEmailVerificationTemplate,
     saasOnly: true,
     retry: URGENT_RETRY,
+    throttleSeconds: 300,
   },
   'dashboard-invitation': {
     template: createDashboardInvitationEmailTemplate,

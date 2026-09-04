@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { ZodError } from 'zod';
 import { useTranslations } from 'next-intl';
 import { ChangePasswordData, ChangePasswordSchema } from '@/entities/auth/password.entities';
-import { changePasswordAction } from '@/app/actions/account/userSettings.action';
+import { authClient } from '@/lib/auth-client';
 import {
   Dialog,
   DialogContent,
@@ -114,16 +114,22 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
     try {
       const validated = ChangePasswordSchema.parse(passwords);
       startTransition(async () => {
-        const result = await changePasswordAction({
+        const { error } = await authClient.changePassword({
           currentPassword: validated.currentPassword,
           newPassword: validated.newPassword,
         });
-        if (result.success) {
+        if (!error) {
           toast.success(t('toast.success'));
           resetForm();
           onOpenChange(false);
+        } else if (error.code === 'INVALID_PASSWORD') {
+          setErrors({ currentPassword: t('invalidCurrentPassword') });
+        } else if (error.code === 'WEAK_PASSWORD') {
+          setErrors({ newPassword: t('weakPassword') });
+        } else if (error.status === 429) {
+          toast.error(t('toast.tooManyAttempts'));
         } else {
-          toast.error(result.error.message);
+          toast.error(tDialog('toast.error'));
         }
       });
     } catch (error) {
@@ -152,12 +158,8 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
     setShowPasswords((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
-  const isFormFilled =
-    passwords.currentPassword &&
-    passwords.newPassword &&
-    passwords.newPassword.length >= 8 &&
-    passwords.confirmPassword &&
-    passwords.confirmPassword === passwords.newPassword;
+  // Gate only on filled fields so submit runs the schema and surfaces strength errors
+  const isFormFilled = passwords.currentPassword && passwords.newPassword && passwords.confirmPassword;
 
   const showPasswordsMatch = Boolean(
     passwords.confirmPassword && passwords.newPassword === passwords.confirmPassword && !errors.confirmPassword,
