@@ -55,18 +55,22 @@ export const countryConfig = {
   },
   PT: {
     insets: [
-      { features: ['PT-20'], label: 'Açores', side: 'left' },
-      { features: ['PT-30'], label: 'Madeira', side: 'left' },
+      { features: ['PT-20'], label: 'Açores', side: 'left', scaleFrac: 0.42 },
+      { features: ['PT-30'], label: 'Madeira', side: 'left', maxGapKm: 200 },
     ],
   },
   NL: {
-    insets: [{ features: ['NL-BQ1', 'NL-BQ2', 'NL-BQ3'], label: 'Caribisch Nederland', side: 'left' }],
+    insets: [
+      { features: ['NL-BQ1'], label: 'Bonaire', side: 'left', scaleFrac: 0.14 },
+      { features: ['NL-BQ2'], label: 'Saba', side: 'left', scaleFrac: 0.14 },
+      { features: ['NL-BQ3'], label: 'Sint Eustatius', side: 'left', scaleFrac: 0.14 },
+    ],
   },
   DK: {
     insets: [{ features: ['DK-84'], label: 'Bornholm', side: 'right' }],
   },
   JP: {
-    insets: [{ features: ['JP-47'], label: 'Okinawa', side: 'left', wholeFeature: true }],
+    insets: [{ features: ['JP-47'], label: 'Okinawa', side: 'left', wholeFeature: true, scaleFrac: 0.45 }],
     crop: [{ features: ['JP-13'], note: 'Ogasawara and outer Izu islands, conventionally omitted' }],
   },
   EC: {
@@ -85,7 +89,7 @@ export const countryConfig = {
   SH: {
     insets: [
       { features: ['SH-AC'], label: 'Ascension', side: 'left' },
-      { features: ['SH-TA'], label: 'Tristan da Cunha', side: 'left' },
+      { features: ['SH-TA'], label: 'Tristan da Cunha', side: 'left', maxGapKm: 250 },
     ],
   },
   NO: {
