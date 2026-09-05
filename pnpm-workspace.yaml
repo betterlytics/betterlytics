@@ -4,11 +4,13 @@ packages:
   - docs
 
 overrides:
-  qs@<6.15.2: '>=6.15.2'
+  qs@<6.16.0: '>=6.16.0'
   '@react-email/ui>next': '>=16.2.11 <17'
   postcss@<8.5.10: '>=8.5.10'
   nextra>zod: 4.3.2
   nextra-theme-docs>zod: 4.3.2
+  # speech-rule-engine (via nextra > mathjax) pins 0.9.10 exactly
+  '@xmldom/xmldom@<0.9.12': '>=0.9.12'
 
 auditConfig:
   ignoreGhsas:
@@ -21,6 +23,12 @@ auditConfig:
     # configured, so the optimizer only touches local/validated images.
     # Unfixable until next widens its sharp range.
     - GHSA-f88m-g3jw-g9cj
-    # brace-expansion 1.x/2.x OOM DoS: dev-only (eslint's minimatch); the only
-    # patched line is 5.x, which those parents cannot use.
-    - GHSA-mh99-v99m-4gvg
+    # deepmerge-ts <8 stack exhaustion on recursive object graphs: pinned
+    # exactly by @prisma/config (Prisma CLI), which only merges our own
+    # prisma.config.ts, so no untrusted input. Fixed by the Prisma 7 upgrade.
+    - GHSA-ggr8-5vv4-36mx
+    # image-size ICNS/JXL/HEIF infinite-loop DoS: no patched release exists.
+    # Mitigated at our only call site (lib/statusPageImage.ts) by disabling
+    # every parser except png/jpg/webp, so those handlers never run.
+    - GHSA-w3rx-r6r6-pgpr
+    - GHSA-5p2g-fcmc-qvqq
