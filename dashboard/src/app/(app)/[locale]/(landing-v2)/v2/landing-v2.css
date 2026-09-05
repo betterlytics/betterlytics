@@ -1294,15 +1294,15 @@
   .is-in .ac {
     opacity: 1;
   }
-  /* a square host taller than the slot: the globe's top sits near the top edge
-     and its lower half is cropped away, so it reads as a horizon */
+  /* a square host taller than the slot, centred: the globe fills the height
+     and is cropped top and bottom, so the eye sits level with its equator */
   .ac__globe {
     position: absolute;
-    top: 7%;
+    top: 50%;
     left: 50%;
-    height: 138%;
+    height: 150%;
     aspect-ratio: 1;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
   }
   /* the arrival label is pinned to its marker through the anchor cobe exposes,
      and fades as the marker turns away from the viewer */
