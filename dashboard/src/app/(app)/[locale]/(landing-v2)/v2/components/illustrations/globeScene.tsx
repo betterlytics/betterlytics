@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import createGlobe, { type Marker } from 'cobe';
 import { cn } from '@/lib/utils';
+import { useInView } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/useInView';
 import { useReducedMotion } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/useReducedMotion';
 import type { IllustrationProps } from './types';
 
@@ -65,8 +66,10 @@ function isFacing(id: string) {
  * picked from the cities currently facing the viewer. The canvas is created
  * here rather than by React because cobe re-parents it into its own wrapper.
  */
-export function GlobeScene({ live }: IllustrationProps) {
+export function GlobeScene(_: IllustrationProps) {
   const hostRef = useRef<HTMLDivElement>(null);
+  // The globe turns whenever any of it is on screen, not only while its card is the active one.
+  const visible = useInView(hostRef, { threshold: 0, rootMargin: '0px', once: false });
   const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
   const phiRef = useRef(START_PHI);
   const reduce = useReducedMotion();
@@ -109,10 +112,10 @@ export function GlobeScene({ live }: IllustrationProps) {
     };
   }, []);
 
-  // Rotation runs only while the card is active; the last frame stays when it isn't.
+  // Rotation pauses off screen; the last frame stays.
   useEffect(() => {
     const globe = globeRef.current;
-    if (!globe || !live || reduce) return;
+    if (!globe || !visible || reduce) return;
     let raf = 0;
     let n = 0;
     const frame = () => {
@@ -123,11 +126,11 @@ export function GlobeScene({ live }: IllustrationProps) {
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [live, reduce]);
+  }, [visible, reduce]);
 
   // Call out a new arrival every few seconds, choosing one that faces the viewer.
   useEffect(() => {
-    if (!live || reduce) return;
+    if (!visible || reduce) return;
     const next = () => {
       setActive((current) => {
         const start = ARRIVALS.findIndex((a) => a.id === current.id);
@@ -140,7 +143,7 @@ export function GlobeScene({ live }: IllustrationProps) {
     };
     const id = setInterval(next, DWELL_MS);
     return () => clearInterval(id);
-  }, [live, reduce]);
+  }, [visible, reduce]);
 
   useEffect(() => {
     activeRef.current = active.id;
