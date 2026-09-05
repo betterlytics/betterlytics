@@ -11,6 +11,23 @@ use tracing::info;
 
 use crate::postgres::{PostgresError, PostgresPool};
 
+/// The pg-boss schema version (`pgboss.schema` in its package.json) `ENQUEUE_SQL` was written
+/// against. Re-verify the SQL against the new `pg-boss/dist/plans.js` before bumping.
+pub const PGBOSS_SCHEMA_VERSION: i32 = 37;
+
+/// The version recorded in `pgboss.version`, or `None` when the migrations have not run.
+pub async fn schema_version(pool: &PostgresPool) -> Result<Option<i32>, PostgresError> {
+    let conn = pool.connection().await?;
+    match conn
+        .query_opt("SELECT version FROM pgboss.version", &[])
+        .await
+    {
+        Ok(row) => Ok(row.map(|r| r.get("version"))),
+        Err(e) if e.code() == Some(&SqlState::UNDEFINED_TABLE) => Ok(None),
+        Err(e) => Err(e.into()),
+    }
+}
+
 /// Mirrors pg-boss's own insert (`pg-boss/dist/plans.js` insertJobs) for the pinned version:
 /// queue defaults come from `pgboss.queue`, and `policy` must be copied onto the row for the
 /// exclusive-policy singleton index to apply. Always returns one row: `queue_exists`, and `id`

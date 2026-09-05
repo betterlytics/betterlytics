@@ -5,7 +5,7 @@ use tracing::{info, warn};
 
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
-use crate::jobqueue::JobQueue;
+use crate::jobqueue::{self, JobQueue, PGBOSS_SCHEMA_VERSION};
 use crate::metrics::MetricsCollector;
 use crate::monitor::incident::IncidentStore;
 use crate::notifications::NotificationEngine;
@@ -53,6 +53,15 @@ pub async fn spawn_monitoring(
     );
     monitor_ok.expect("Cannot reach Postgres via MONITORING_DATABASE_URL; check the URL, credentials, and that Postgres is up");
     job_queue_ok.expect("Cannot reach Postgres via JOB_QUEUE_DATABASE_URL; check the URL, credentials, and that Postgres is up");
+
+    let schema_version = jobqueue::schema_version(&job_queue_pool)
+        .await
+        .expect("Failed to read the pg-boss schema version via JOB_QUEUE_DATABASE_URL")
+        .expect("pg-boss schema is not migrated; run the initializer (scripts/migrate_pgboss.js) before starting the backend");
+    assert_eq!(
+        schema_version, PGBOSS_SCHEMA_VERSION,
+        "pg-boss schema version in the database does not match PGBOSS_SCHEMA_VERSION; re-verify backend/src/jobqueue/mod.rs against the installed pg-boss"
+    );
 
     tokio::spawn(async move {
         run_monitoring_init_loop(
