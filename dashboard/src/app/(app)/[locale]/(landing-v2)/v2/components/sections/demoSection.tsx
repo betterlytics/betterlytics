@@ -1,4 +1,5 @@
 import { getLocale } from 'next-intl/server';
+import { getPathname } from '@/i18n/navigation';
 import { env } from '@/lib/env';
 import { Section } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/frame';
 import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
@@ -8,7 +9,7 @@ import { DemoFrame } from './demoFrame';
 /** The embeddable dashboard; falls back to the draft's placeholder when no demo dashboard is configured. */
 export async function DemoSection() {
   const locale = await getLocale();
-  const src = env.DEMO_DASHBOARD_ID ? `/${locale}/share/${env.DEMO_DASHBOARD_ID}` : null;
+  const src = env.DEMO_DASHBOARD_ID ? getPathname({ href: `/share/${env.DEMO_DASHBOARD_ID}`, locale }) : null;
 
   return (
     <Section id={IDS.demo} className='sec--demo'>
