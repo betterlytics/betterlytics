@@ -1294,10 +1294,54 @@
   .is-in .ac {
     opacity: 1;
   }
-  .ac__gl {
+  /* a square host taller than the slot: the globe's top sits near the top edge
+     and its lower half is cropped away, so it reads as a horizon */
+  .ac__globe {
+    position: absolute;
+    top: 7%;
+    left: 50%;
+    height: 138%;
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+  }
+  /* the arrival label is pinned to its marker through the anchor cobe exposes,
+     and fades as the marker turns away from the viewer */
+  .ac__lbl {
+    display: none;
+    position: absolute;
+    padding: 8px 13px;
+    border-radius: 7px;
+    background: #241f2e;
+    border: 1px solid rgba(139, 151, 255, 0.42);
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 15px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s var(--ease);
+  }
+  .ac__lbl.is-on {
+    opacity: 1;
+  }
+  .ac__lbl b {
     display: block;
-    width: 100%;
-    height: 100%;
+    font-weight: 400;
+    color: var(--text);
+  }
+  .ac__lbl span {
+    display: block;
+    font-size: 11.5px;
+    color: var(--accent-soft);
+  }
+  @supports (position-anchor: --a) {
+    .ac__lbl {
+      display: block;
+      position-anchor: var(--lbl-anchor);
+      left: anchor(right);
+      bottom: anchor(top);
+      translate: 14px -10px;
+    }
   }
 
   /* uptime: two monitors and the alert they raise, joined by connectors */
