@@ -6,10 +6,20 @@ import { sendEmailJobDefinition } from '@/worker/jobs/definitions';
 import { hasBeenSent, recordSent } from '@/repositories/postgres/sentEmail.repository';
 import { dispatchEmail } from '@/services/email/transport';
 import { emailSendsTotal } from '@/worker/metrics';
-import { renderEmail, type SendEmailPayload } from '@/services/email/email-types';
+import { renderEmail, senderFor, validateSendEmailPayload } from '@/services/email/email-types';
 import { emailSkipReason } from '@/services/email/email-guards';
 
-async function handleSendEmail(payload: SendEmailPayload): Promise<void> {
+async function handleSendEmail(raw: unknown): Promise<void> {
+  // A payload that fails the contract will fail identically on every retry, so it is
+  // dropped here (counted, logged) instead of being thrown back to pg-boss.
+  const validated = validateSendEmailPayload(raw);
+  if (!validated.ok) {
+    console.error(`[email-worker] dropping send: invalid payload for '${validated.type}': ${validated.error}`);
+    emailSendsTotal.inc({ type: validated.type, status: 'invalid_payload' });
+    return;
+  }
+  const payload = validated.payload;
+
   const skip = emailSkipReason(payload.type, payload.data, {
     enableEmails: workerEnv.ENABLE_EMAILS,
     isCloud: workerEnv.IS_CLOUD,
@@ -29,6 +39,7 @@ async function handleSendEmail(payload: SendEmailPayload): Promise<void> {
   try {
     const template = await renderEmail(payload);
     const providerMessageId = await dispatchEmail(template, payload.data, {
+      defaultSender: senderFor(payload.type, workerEnv.IS_CLOUD),
       mailerSendApiToken: workerEnv.MAILER_SEND_API_TOKEN,
       smtpHost: workerEnv.SMTP_HOST,
       smtpPort: workerEnv.SMTP_PORT,
@@ -44,7 +55,7 @@ async function handleSendEmail(payload: SendEmailPayload): Promise<void> {
   }
 }
 
-export const sendEmailJob: Job<SendEmailPayload> = {
+export const sendEmailJob: Job<unknown> = {
   ...sendEmailJobDefinition,
   runOnStart: false,
   handler: handleSendEmail,

@@ -5,10 +5,9 @@ use chrono::Duration;
 use tracing::{debug, info, warn};
 
 use super::alert::{
-    Alert, AlertContext, AlertDispatcher, AlertDispatcherConfig, AlertHistoryWriter,
-    NotificationTracker,
+    Alert, AlertContext, AlertDispatcher, AlertHistoryWriter, NotificationTracker,
 };
-use crate::config::EmailConfig;
+use crate::jobqueue::JobQueue;
 use crate::monitor::incident::{
     IncidentEvaluator, IncidentEvaluatorConfig, IncidentEvent, IncidentStore,
     MonitorIncidentRow,
@@ -45,7 +44,10 @@ impl IncidentContext {
     pub fn monitor_name(&self) -> String {
         self.check
             .name
-            .clone()
+            .as_deref()
+            .map(str::trim)
+            .filter(|name| !name.is_empty())
+            .map(str::to_string)
             .unwrap_or_else(|| self.check.url.to_string())
     }
 }
@@ -53,7 +55,6 @@ impl IncidentContext {
 #[derive(Clone, Debug)]
 pub struct IncidentOrchestratorConfig {
     pub evaluator_config: IncidentEvaluatorConfig,
-    pub email_config: Option<EmailConfig>,
     pub public_base_url: String,
 }
 
@@ -61,7 +62,6 @@ impl IncidentOrchestratorConfig {
     pub fn from_config(config: &crate::config::Config) -> Self {
         Self {
             evaluator_config: IncidentEvaluatorConfig::default(),
-            email_config: config.email.clone(),
             public_base_url: config.public_base_url.clone(),
         }
     }
@@ -79,25 +79,15 @@ pub struct IncidentOrchestrator {
 impl IncidentOrchestrator {
     pub async fn new(
         config: IncidentOrchestratorConfig,
+        job_queue: Arc<JobQueue>,
         history_writer: Option<Arc<AlertHistoryWriter>>,
         incident_store: Option<Arc<IncidentStore>>,
         notification_engine: Option<Arc<NotificationEngine>>,
     ) -> Self {
-        let public_base_url = config.public_base_url.clone();
+        let public_base_url = config.public_base_url;
 
-        let dispatcher = AlertDispatcher::new(
-            AlertDispatcherConfig {
-                email_config: config.email_config,
-                public_base_url: config.public_base_url,
-            },
-            history_writer,
-        );
-
-        if !dispatcher.has_email_service() {
-            warn!("Email service not configured - incidents will be logged without alerts");
-        } else {
-            info!("Incident orchestrator initialized with email delivery");
-        }
+        let dispatcher = AlertDispatcher::new(job_queue, history_writer);
+        info!("Incident orchestrator initialized with email delivery via the worker job queue");
 
         let evaluator = IncidentEvaluator::new(config.evaluator_config);
         let notification_tracker = NotificationTracker::new();
@@ -194,6 +184,7 @@ impl IncidentOrchestrator {
 
     async fn send_down_alert(&self, ctx: &IncidentContext, incident_id: uuid::Uuid) {
         let alert_config = &ctx.check.alert;
+        let monitor_name = ctx.monitor_name();
 
         if !alert_config.enabled || !alert_config.on_down {
             return;
@@ -210,8 +201,8 @@ impl IncidentOrchestrator {
                 event_key: format!("monitor_down:{incident_id}"),
                 strategy: DeliveryStrategy::Once,
                 notification: Notification {
-                    title: format!("{} is down", ctx.monitor_name()),
-                    message: format!("{} ({}) is not responding", ctx.monitor_name(), ctx.check.url),
+                    title: format!("{} is down", monitor_name),
+                    message: format!("{} ({}) is not responding", monitor_name, ctx.check.url),
                     url: Some(self.monitor_url(ctx)),
                     url_title: Some("View Monitor".to_string()),
                     color: NotificationColor::Danger,
@@ -232,11 +223,12 @@ impl IncidentOrchestrator {
                     check_id: &ctx.check.id,
                     site_id: &ctx.check.site_id,
                     dashboard_id: &ctx.check.dashboard_id,
-                    monitor_name: &ctx.monitor_name(),
+                    monitor_name: &monitor_name,
                     url: ctx.check.url.as_str(),
                     recipients,
                 },
                 Alert::Down {
+                    incident_id,
                     reason_code: ctx.reason_code,
                     status_code: ctx.status_code,
                 },
@@ -247,10 +239,10 @@ impl IncidentOrchestrator {
             self.notification_tracker.mark_notified_down(&ctx.check.id, incident_id);
             info!(
                 check_id = %ctx.check.id,
-                monitor = %ctx.monitor_name(),
+                monitor = %monitor_name,
                 recipients = recipients.len(),
                 incident_id = %incident_id,
-                "Down alert sent"
+                "Down alert enqueued"
             );
         }
     }
@@ -291,6 +283,7 @@ impl IncidentOrchestrator {
         downtime_duration: Option<Duration>,
     ) {
         let alert_config = &ctx.check.alert;
+        let monitor_name = ctx.monitor_name();
 
         if !alert_config.enabled || !alert_config.on_recovery {
             return;
@@ -307,10 +300,10 @@ impl IncidentOrchestrator {
                 event_key: format!("monitor_recovery:{incident_id}"),
                 strategy: DeliveryStrategy::Once,
                 notification: Notification {
-                    title: format!("{} is back up", ctx.monitor_name()),
+                    title: format!("{} is back up", monitor_name),
                     message: format!(
                         "{} ({}) has recovered{}",
-                        ctx.monitor_name(),
+                        monitor_name,
                         ctx.check.url,
                         downtime_msg,
                     ),
@@ -334,11 +327,14 @@ impl IncidentOrchestrator {
                     check_id: &ctx.check.id,
                     site_id: &ctx.check.site_id,
                     dashboard_id: &ctx.check.dashboard_id,
-                    monitor_name: &ctx.monitor_name(),
+                    monitor_name: &monitor_name,
                     url: ctx.check.url.as_str(),
                     recipients,
                 },
-                Alert::Recovery { downtime_duration },
+                Alert::Recovery {
+                    incident_id,
+                    downtime_duration,
+                },
             )
             .await;
 
@@ -346,11 +342,11 @@ impl IncidentOrchestrator {
             self.notification_tracker.mark_notified_recovery(&ctx.check.id, incident_id);
             info!(
                 check_id = %ctx.check.id,
-                monitor = %ctx.monitor_name(),
+                monitor = %monitor_name,
                 recipients = recipients.len(),
                 downtime = ?downtime_duration,
                 incident_id = %incident_id,
-                "Recovery alert sent"
+                "Recovery alert enqueued"
             );
         }
     }
@@ -362,6 +358,7 @@ impl IncidentOrchestrator {
     )]
     async fn send_ssl_alert(&self, ctx: &IncidentContext, days_left: i32) {
         let alert_config = &ctx.check.alert;
+        let monitor_name = ctx.monitor_name();
 
         if !alert_config.enabled || !alert_config.on_ssl_expiry {
             debug!("SSL alerts disabled for monitor");
@@ -386,19 +383,19 @@ impl IncidentOrchestrator {
 
         let (ssl_title, ssl_message) = if expired {
             (
-                format!("SSL certificate expired for {}", ctx.monitor_name()),
+                format!("SSL certificate expired for {}", monitor_name),
                 format!(
                     "The SSL certificate for {} ({}) has expired",
-                    ctx.monitor_name(),
+                    monitor_name,
                     ctx.check.url,
                 ),
             )
         } else {
             (
-                format!("SSL certificate expiring for {}", ctx.monitor_name()),
+                format!("SSL certificate expiring for {}", monitor_name),
                 format!(
                     "The SSL certificate for {} ({}) expires in {} days",
-                    ctx.monitor_name(),
+                    monitor_name,
                     ctx.check.url,
                     days_left,
                 ),
@@ -434,7 +431,7 @@ impl IncidentOrchestrator {
                     check_id: &ctx.check.id,
                     site_id: &ctx.check.site_id,
                     dashboard_id: &ctx.check.dashboard_id,
-                    monitor_name: &ctx.monitor_name(),
+                    monitor_name: &monitor_name,
                     url: ctx.check.url.as_str(),
                     recipients,
                 },
@@ -457,10 +454,10 @@ impl IncidentOrchestrator {
 
             info!(
                 check_id = %ctx.check.id,
-                monitor = %ctx.monitor_name(),
+                monitor = %monitor_name,
                 days_left = days_left,
                 recipients = recipients.len(),
-                "SSL alert sent"
+                "SSL alert enqueued"
             );
         }
     }

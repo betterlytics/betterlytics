@@ -20,11 +20,11 @@ mod clickhouse;
 mod client_request;
 mod config;
 mod db;
-mod email;
 mod error_fingerprint;
 mod geoip;
 mod geoip_updater;
 mod metrics;
+mod jobqueue;
 mod monitor;
 mod notifications;
 mod outbound_link;
@@ -226,7 +226,8 @@ async fn main() {
             Arc::clone(&clickhouse),
             metrics_collector.clone(),
             Some(notification_engine),
-        );
+        )
+        .await;
     } else {
         info!("uptime monitoring disabled by configuration");
     }
