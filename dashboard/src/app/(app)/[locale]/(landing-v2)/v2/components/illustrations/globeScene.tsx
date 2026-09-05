@@ -38,7 +38,7 @@ const GLOW: [number, number, number] = [0.16, 0.15, 0.15];
 
 const ROTATION_PER_FRAME = 0.0022;
 const START_PHI = 4.6; // Europe facing the viewer at first paint
-const TILT = 0.08; // near level, a touch from above, so the northern arrivals stay in frame
+const TILT = 0.45; // ~25° above the equator, looking down onto the northern hemisphere
 const MARKER = 0.022;
 const MARKER_ACTIVE = 0.05;
 const DWELL_MS = 3600;

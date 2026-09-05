@@ -1294,15 +1294,16 @@
   .is-in .ac {
     opacity: 1;
   }
-  /* a square host taller than the slot, centred: the globe fills the height
-     and is cropped top and bottom, so the eye sits level with its equator */
+  /* cobe draws the sphere at 80% of its canvas, so the host runs past the
+     slot on every side: the sphere's top sits just inside the frame and its
+     bottom is cropped, seen from a camera above the equator */
   .ac__globe {
     position: absolute;
-    top: 50%;
+    top: -10%;
     left: 50%;
-    height: 150%;
+    height: 140%;
     aspect-ratio: 1;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
   }
   /* the arrival label is pinned to its marker through the anchor cobe exposes,
      and fades as the marker turns away from the viewer */
