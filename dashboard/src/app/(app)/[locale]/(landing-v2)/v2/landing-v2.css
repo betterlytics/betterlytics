@@ -772,17 +772,35 @@
     color: var(--mid);
     margin-bottom: 14px;
   }
+  /* The dashboard lays out at 1/scale of the card and is drawn scaled down, so
+     more of it fits without changing the card. Pointer events map through the
+     transform, so it stays interactive. */
   .demo__frame {
+    --demo-scale: 0.75;
     position: absolute;
     inset: 44px 0 0;
     background: var(--canvas);
+    overflow: hidden;
   }
   .demo__frame iframe {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    top: 0;
+    left: 0;
+    width: calc(100% / var(--demo-scale));
+    height: calc(100% / var(--demo-scale));
+    transform: scale(var(--demo-scale));
+    transform-origin: 0 0;
     border: 0;
+  }
+  @media (max-width: 1200px) {
+    .demo__frame {
+      --demo-scale: 0.85;
+    }
+  }
+  @media (max-width: 760px) {
+    .demo__frame {
+      --demo-scale: 1;
+    }
   }
   .demo__load {
     position: absolute;
