@@ -4,6 +4,29 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+/** Returns whether the text actually made it to the clipboard. */
+async function writeToClipboard(text: string): Promise<boolean> {
+  if (navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // The clipboard API requires a secure context; plain-HTTP selfhost deploys need the legacy path
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const succeeded = document.execCommand('copy');
+  textarea.remove();
+  return succeeded;
+}
+
 function useCopyToClipboard(resetAfterMs = 1400) {
   const [copied, setCopied] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -16,20 +39,10 @@ function useCopyToClipboard(resetAfterMs = 1400) {
   );
 
   const copy = useCallback(
-    (text: string) => {
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(text);
-      } else {
-        // The clipboard API requires a secure context; plain-HTTP selfhost deploys need the legacy path
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        textarea.remove();
-      }
+    async (text: string) => {
+      const succeeded = await writeToClipboard(text);
+      if (!succeeded) return;
+
       setCopied(true);
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
       timeoutRef.current = setTimeout(() => setCopied(false), resetAfterMs);
@@ -53,7 +66,7 @@ export function CopyButton({ text, ariaLabel, copiedLabel, className, iconClassN
   const { copied, copy } = useCopyToClipboard();
 
   return (
-    <button type='button' onClick={() => copy(text)} aria-label={ariaLabel} className={className}>
+    <button type='button' onClick={() => void copy(text)} aria-label={ariaLabel} className={className}>
       <span className='relative inline-flex' aria-hidden>
         <Copy
           className={cn(
