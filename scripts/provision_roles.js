@@ -42,9 +42,8 @@ const ROLES = [
   {
     name: "jobqueue_rw",
     passwordEnv: "POSTGRES_JOBQUEUE_RW_PASSWORD",
-    // pg-boss creates and migrates its own tables on worker start,
-    // which may be after this script runs, so the grant covers the whole schema including
-    // future tables.
+    // pg-boss migrations (scripts/migrate_pgboss.js) and queue creation on worker start add
+    // tables over time, so the grant covers the whole schema including future tables.
     grants: {},
     schemaGrants: {
       pgboss: ["SELECT", "INSERT"],
@@ -106,11 +105,8 @@ async function provisionRole(client, dbName, role) {
     for (const [schema, privileges] of Object.entries(role.schemaGrants ?? {})) {
       const schemaIdent = quoteIdent(schema);
       const privs = privileges.join(", ");
-      // The application creates the schema's tables at runtime as the POSTGRES_URL user
-      // (the same user running this script), so default privileges declared here apply to
-      // every table it creates later; the ALL TABLES grant covers installs that already have
-      // them.
-      await client.query(`CREATE SCHEMA IF NOT EXISTS ${schemaIdent}`);
+      // Tables added later are created as the POSTGRES_URL user (the same user running this
+      // script), so the default privileges declared here apply to them too.
       await client.query(`GRANT USAGE ON SCHEMA ${schemaIdent} TO ${roleIdent}`);
       await client.query(
         `GRANT ${privs} ON ALL TABLES IN SCHEMA ${schemaIdent} TO ${roleIdent}`

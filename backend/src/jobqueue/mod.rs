@@ -109,7 +109,7 @@ pub enum EnqueueOutcome {
     /// A job with the same singleton key is still pending (pg-boss exclusive policy), so the
     /// work is already accounted for.
     AlreadyPending,
-    /// The worker has never created the queue (or its tables) in this database.
+    /// The worker has not created the queue yet (it does so on start).
     QueueMissing,
 }
 
@@ -130,7 +130,7 @@ impl JobQueue {
         let singleton_key = job.singleton_key();
         let conn = self.pool.connection().await?;
 
-        let row = match conn
+        let row = conn
             .query_one(
                 ENQUEUE_SQL,
                 &[
@@ -142,15 +142,7 @@ impl JobQueue {
                     &retry.backoff,
                 ],
             )
-            .await
-        {
-            Ok(row) => row,
-            // The pgboss schema is provisioned before the worker's first start; its tables are not.
-            Err(e) if e.code() == Some(&SqlState::UNDEFINED_TABLE) => {
-                return Ok(EnqueueOutcome::QueueMissing);
-            }
-            Err(e) => return Err(e.into()),
-        };
+            .await?;
 
         if !row.get::<_, bool>("queue_exists") {
             return Ok(EnqueueOutcome::QueueMissing);
