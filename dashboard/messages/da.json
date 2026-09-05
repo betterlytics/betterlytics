@@ -3433,10 +3433,18 @@
       "sending": "Sender...",
       "pending": "Afventer",
       "invited": "Inviteret",
-      "invalidEmail": "Indtast venligst en gyldig e-mailadresse"
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
+      "copyLink": "Kopiér invitationslink",
+      "linkCopied": "Invitationslink kopieret"
+    },
+    "linkPanel": {
+      "emailSent": "En invitations-e-mail er sendt til <strong>{email}</strong>. Du kan også dele invitationslinket direkte:",
+      "emailNotSent": "Der blev ikke sendt en e-mail til <strong>{email}</strong> — del selv dette invitationslink med dem:",
+      "dismiss": "Luk"
     },
     "toast": {
       "sent": "Invitation sendt",
+      "created": "Invitation oprettet",
       "sendFailed": "Kunne ikke sende invitation",
       "cancelled": "Invitation annulleret",
       "cancelFailed": "Kunne ikke annullere invitation",

@@ -3433,10 +3433,18 @@
       "sending": "Invio in corso...",
       "pending": "In sospeso",
       "invited": "Invitato",
-      "invalidEmail": "Inserisci un indirizzo email valido"
+      "invalidEmail": "Inserisci un indirizzo email valido",
+      "copyLink": "Copia link di invito",
+      "linkCopied": "Link di invito copiato"
+    },
+    "linkPanel": {
+      "emailSent": "Un'email di invito è stata inviata a <strong>{email}</strong>. Puoi anche condividere direttamente il link di invito:",
+      "emailNotSent": "Nessuna email è stata inviata a <strong>{email}</strong> — condividi tu stesso questo link di invito:",
+      "dismiss": "Chiudi"
     },
     "toast": {
       "sent": "Invito inviato",
+      "created": "Invito creato",
       "sendFailed": "Impossibile inviare l'invito",
       "cancelled": "Invito annullato",
       "cancelFailed": "Impossibile annullare l'invito",
