@@ -269,9 +269,11 @@ impl IncidentOrchestrator {
             }
         };
 
-        self.persist_incident_snapshot(ctx).await;
-
+        // Alert first: the resolved incident gets no later snapshot, so persisting after the
+        // alert is the only chance for notified_resolve_at to reach the incident row.
         self.send_recovery_alert(ctx, incident_id, downtime_duration).await;
+
+        self.persist_incident_snapshot(ctx).await;
     }
 
     async fn send_recovery_alert(

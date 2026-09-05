@@ -24,10 +24,4 @@ export const ChangePasswordSchema = z.object({
 });
 
 
-export const ChangePasswordRequestSchema = z.object({
-  currentPassword: z.string().min(1),
-  newPassword: PasswordSchema,
-});
-
 export type ChangePasswordData = z.infer<typeof ChangePasswordSchema>;
-export type ChangePasswordRequest = z.infer<typeof ChangePasswordRequestSchema>;

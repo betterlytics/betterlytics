@@ -818,7 +818,8 @@
           "sending": "Sending...",
           "remember": "Remember your password?",
           "backToSignIn": "Back to Sign In"
-        }
+        },
+        "errorMessageTooManyRequests": "Too many reset requests. Please try again later."
       },
       "resetPassword": {
         "seo": {
@@ -847,7 +848,14 @@
         },
         "form": {
           "title": "Set your new password",
-          "description": "Enter your new password below"
+          "description": "Enter your new password below",
+          "errors": {
+            "invalidToken": "This reset link is invalid or has expired. Please request a new one.",
+            "weakPassword": "Password does not meet the requirements.",
+            "tooManyAttempts": "Too many attempts. Please try again later.",
+            "generic": "Failed to reset password. Please try again."
+          },
+          "successMessage": "Password reset successful!"
         },
         "cta": {
           "remember": "Remember your password?",
@@ -2854,7 +2862,8 @@
         "resend": "Resend verification email",
         "sending": "Sending...",
         "toastSuccess": "Verification email sent! Please check your inbox.",
-        "toastFailure": "Failed to send verification email"
+        "toastFailure": "Failed to send verification email",
+        "cooldown": "A verification email was sent recently. Please wait a few minutes before requesting another."
       }
     },
     "topbar": {
@@ -3014,13 +3023,16 @@
         "newPassword": "New Password",
         "confirmNewPassword": "Confirm New Password",
         "passwordHelp": "Password must be at least 8 characters long",
+        "weakPassword": "Password must be at least 8 characters and contain both uppercase and lowercase letters",
+        "invalidCurrentPassword": "Current password is incorrect",
         "passwordsMatch": "Passwords match",
         "changePassword": "Change Password",
         "passwordManagedByOAuth": "Password managed by OAuth",
         "togglePasswordVisibility": "Toggle {field} visibility",
         "cancel": "Cancel",
         "toast": {
-          "success": "Password updated successfully"
+          "success": "Password updated successfully",
+          "tooManyAttempts": "Too many attempts. Please wait a moment and try again."
         },
         "totp": {
           "title": "Two-Factor Authentication",
@@ -3239,7 +3251,7 @@
         "googleButton": "Google",
         "gitHubButton": "GitHub",
         "passwordsDoNotMatch": "Passwords do not match",
-        "registrationSuccessfulButSignInFailed": "Registration successful, but sign in failed. Please try signing in manually.",
+        "emailAlreadyExists": "User with that email already exists.",
         "signUpError": "An error occurred during sign up. Please try again.",
         "checkInput": "Please check your input"
       }
@@ -3332,6 +3344,7 @@
       "description": "We've sent a verification email to {email}.",
       "success": "Verification email sent!",
       "failure": "Failed to send verification email",
+      "cooldown": "A verification email was sent recently. Please wait a few minutes before requesting another.",
       "sending": "Sending...",
       "resend": "Resend email"
     },
@@ -3417,10 +3430,18 @@
       "sending": "Sending...",
       "pending": "Pending",
       "invited": "Invited",
-      "invalidEmail": "Please enter a valid email address"
+      "invalidEmail": "Please enter a valid email address",
+      "copyLink": "Copy invite link",
+      "linkCopied": "Invite link copied"
+    },
+    "linkPanel": {
+      "emailSent": "An invitation email was sent to <strong>{email}</strong>. You can also share the invite link directly:",
+      "emailNotSent": "No email was sent to <strong>{email}</strong> — share this invite link with them yourself:",
+      "dismiss": "Dismiss"
     },
     "toast": {
       "sent": "Invitation sent",
+      "created": "Invitation created",
       "sendFailed": "Failed to send invitation",
       "cancelled": "Invitation cancelled",
       "cancelFailed": "Failed to cancel invitation",

@@ -10,6 +10,29 @@ type UseCopyOptions = {
   resetAfterMs?: number;
 };
 
+/** Returns whether the text actually made it to the clipboard. */
+async function writeToClipboard(text: string): Promise<boolean> {
+  if (navigator.clipboard) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  // The clipboard API requires a secure context; plain-HTTP selfhost deploys need the legacy path
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  const succeeded = document.execCommand('copy');
+  textarea.remove();
+  return succeeded;
+}
+
 /**
  * Copies text to the clipboard, exposing a transient `copied` flag and a `copy` that resolves to
  * whether the write succeeded — so call sites can gate their own follow-up (a success toast, say).
@@ -29,9 +52,8 @@ export function useCopy(options: UseCopyOptions = {}) {
 
   const copy = useCallback(
     async (text: string) => {
-      try {
-        await navigator.clipboard.writeText(text);
-      } catch {
+      const succeeded = await writeToClipboard(text);
+      if (!succeeded) {
         if (failedMessage) toast.error(failedMessage);
         return false;
       }

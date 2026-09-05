@@ -124,3 +124,7 @@ COPY dashboard/prisma/ /app/initializer/prisma/
 
 # Copy minified analytics script for nginx
 COPY --from=static-builder /app/analytics.min.js /usr/share/nginx/html/analytics.js
+
+# Bake the release version for the dashboard
+ARG APP_VERSION=dev
+ENV APP_VERSION=$APP_VERSION

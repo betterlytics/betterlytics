@@ -40,6 +40,8 @@ export type EmailTypeDefinition = {
   saasOnly: boolean;
   /** Retry override */
   retry?: { retryLimit: number; retryDelay: number; retryBackoff: boolean };
+  /** Drop re-sends of the same singleton key within this window (pg-boss singletonSeconds). */
+  throttleSeconds?: number;
   /** Runtime validation for payloads produced outside TypeScript (e.g. the Rust backend). */
   schema?: z.ZodType;
   /** Sender override */
@@ -56,6 +58,7 @@ export const EMAIL_TYPES = {
     template: createEmailVerificationTemplate,
     saasOnly: true,
     retry: URGENT_RETRY,
+    throttleSeconds: 300,
   },
   'dashboard-invitation': {
     template: createDashboardInvitationEmailTemplate,

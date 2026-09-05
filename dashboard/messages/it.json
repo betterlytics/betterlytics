@@ -818,7 +818,8 @@
           "sending": "Invio...",
           "remember": "Ricordi la tua password?",
           "backToSignIn": "Torna all'accesso"
-        }
+        },
+        "errorMessageTooManyRequests": "Troppe richieste di reimpostazione. Riprova più tardi."
       },
       "resetPassword": {
         "seo": {
@@ -847,7 +848,14 @@
         },
         "form": {
           "title": "Imposta la tua nuova password",
-          "description": "Inserisci la tua nuova password sotto"
+          "description": "Inserisci la tua nuova password sotto",
+          "errors": {
+            "invalidToken": "Questo link di reimpostazione non è valido o è scaduto. Richiedine uno nuovo.",
+            "weakPassword": "La password non soddisfa i requisiti.",
+            "tooManyAttempts": "Troppi tentativi. Riprova più tardi.",
+            "generic": "Impossibile reimpostare la password. Riprova."
+          },
+          "successMessage": "Password reimpostata con successo!"
         },
         "cta": {
           "remember": "Ricordi la tua password?",
@@ -2857,7 +2865,8 @@
         "resend": "Reinvia email di verifica",
         "sending": "Invio in corso...",
         "toastSuccess": "Email di verifica inviata! Controlla la tua casella di posta.",
-        "toastFailure": "Invio dell'email di verifica non riuscito"
+        "toastFailure": "Invio dell'email di verifica non riuscito",
+        "cooldown": "Un'email di verifica è stata inviata di recente. Attendi qualche minuto prima di richiederne un'altra."
       }
     },
     "topbar": {
@@ -3017,13 +3026,16 @@
         "newPassword": "Nuova password",
         "confirmNewPassword": "Conferma nuova password",
         "passwordHelp": "La password deve essere lunga almeno 8 caratteri",
+        "weakPassword": "La password deve contenere almeno 8 caratteri e includere lettere maiuscole e minuscole",
+        "invalidCurrentPassword": "La password attuale non è corretta",
         "passwordsMatch": "Le password coincidono",
         "changePassword": "Cambia password",
         "passwordManagedByOAuth": "Password gestita da OAuth",
         "togglePasswordVisibility": "Mostra/nascondi {field}",
         "cancel": "Annulla",
         "toast": {
-          "success": "Password aggiornata con successo"
+          "success": "Password aggiornata con successo",
+          "tooManyAttempts": "Troppi tentativi. Attendi un momento e riprova."
         },
         "totp": {
           "title": "Autenticazione a due fattori",
@@ -3242,7 +3254,7 @@
         "googleButton": "Google",
         "gitHubButton": "GitHub",
         "passwordsDoNotMatch": "Le password non corrispondono",
-        "registrationSuccessfulButSignInFailed": "Registrazione riuscita, ma accesso fallito. Prova ad accedere manualmente.",
+        "emailAlreadyExists": "Esiste già un utente con questa email.",
         "signUpError": "Si è verificato un errore durante la registrazione. Riprova.",
         "checkInput": "Controlla il tuo input"
       }
@@ -3335,6 +3347,7 @@
       "description": "Ti abbiamo inviato un'email di verifica a {email}.",
       "success": "Email di verifica inviata!",
       "failure": "Impossibile inviare l'email di verifica",
+      "cooldown": "Un'email di verifica è stata inviata di recente. Attendi qualche minuto prima di richiederne un'altra.",
       "sending": "Invio in corso...",
       "resend": "Reinvia email"
     },
@@ -3420,10 +3433,18 @@
       "sending": "Invio in corso...",
       "pending": "In sospeso",
       "invited": "Invitato",
-      "invalidEmail": "Inserisci un indirizzo email valido"
+      "invalidEmail": "Inserisci un indirizzo email valido",
+      "copyLink": "Copia link di invito",
+      "linkCopied": "Link di invito copiato"
+    },
+    "linkPanel": {
+      "emailSent": "Un'email di invito è stata inviata a <strong>{email}</strong>. Puoi anche condividere direttamente il link di invito:",
+      "emailNotSent": "Nessuna email è stata inviata a <strong>{email}</strong> — condividi tu stesso questo link di invito:",
+      "dismiss": "Chiudi"
     },
     "toast": {
       "sent": "Invito inviato",
+      "created": "Invito creato",
       "sendFailed": "Impossibile inviare l'invito",
       "cancelled": "Invito annullato",
       "cancelFailed": "Impossibile annullare l'invito",

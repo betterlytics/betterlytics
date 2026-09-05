@@ -2,19 +2,16 @@ import 'server-only';
 
 import prisma from '@/lib/postgres';
 import { GithubStarPromptState, Prisma } from '@prisma/client';
-import { hashPassword, verifyPasswordHash } from '@/lib/password';
+import { hashPassword } from '@/lib/password';
 import {
   User,
   UserSchema,
   CreateUserData,
   CreateUserSchema,
-  RegisterUserSchema,
-  RegisterUserData,
   UpdateUserData,
   UserWithoutDashboardCandidate,
   UserWithoutDashboardCandidateSchema,
 } from '@/entities/auth/user.entities';
-import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { buildStarterSubscription } from '@/entities/billing/billing.entities';
 import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -115,29 +112,6 @@ export async function createUser(
   }
 }
 
-export async function registerUser(data: RegisterUserData): Promise<User> {
-  try {
-    const validatedData = RegisterUserSchema.parse(data);
-
-    const passwordHash = await hashPassword(validatedData.password);
-
-    return await createUser(
-      {
-        email: validatedData.email,
-        name: validatedData.name,
-        passwordHash,
-        role: validatedData.role || 'admin',
-        termsAcceptedVersion: CURRENT_TERMS_VERSION,
-        termsAcceptedAt: data.acceptedTerms ? new Date() : null,
-      },
-      { language: validatedData.language },
-    );
-  } catch (error) {
-    console.error('Error registering user:', error);
-    throw error;
-  }
-}
-
 export async function updateUser(userId: string, data: UpdateUserData): Promise<void> {
   try {
     await prisma.user.update({
@@ -164,24 +138,6 @@ export async function updateUserPassword(userId: string, newPassword: string): P
   } catch (error) {
     console.error(`Error updating password for user ${userId}:`, error);
     throw new Error(`Failed to update password for user ${userId}.`);
-  }
-}
-
-export async function verifyUserPassword(userId: string, password: string): Promise<boolean> {
-  try {
-    const account = await prisma.account.findFirst({
-      where: { userId, providerId: CREDENTIAL_PROVIDER_ID },
-      select: { password: true },
-    });
-
-    if (!account?.password) {
-      return false;
-    }
-
-    return await verifyPasswordHash(password, account.password);
-  } catch (error) {
-    console.error(`Error verifying password for user ${userId}:`, error);
-    throw new Error(`Failed to verify password for user ${userId}.`);
   }
 }
 
@@ -231,7 +187,7 @@ export async function anonymizeUser(userId: string): Promise<void> {
       prisma.account.deleteMany({ where: { userId } }),
       prisma.session.deleteMany({ where: { userId } }),
       prisma.twoFactor.deleteMany({ where: { userId } }),
-      prisma.passwordResetToken.deleteMany({ where: { userId } }),
+      prisma.verification.deleteMany({ where: { value: userId } }),
       prisma.mcpToken.updateMany({
         where: { createdBy: userId, deletedAt: null },
         data: { deletedAt: new Date() },

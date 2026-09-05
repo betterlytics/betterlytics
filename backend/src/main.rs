@@ -100,17 +100,24 @@ async fn main() {
 
     let (updater, geoip_watch_rx) =
         GeoIpUpdater::new(config.clone()).expect("Failed to create GeoIP updater");
-    let updater = Arc::new(updater);
-
-    let geoip_service = GeoIpService::new(config.clone(), geoip_watch_rx);
-
-    let _updater_handle = tokio::spawn(Arc::clone(&updater).run());
+    let geoip_reader = updater
+        .bootstrap()
+        .await
+        .map_err(|e| format!("{e:#}"))
+        .expect("Geolocation is enabled but no GeoIP database could be obtained");
+    let geoip_service = GeoIpService::new(config.clone(), geoip_reader, geoip_watch_rx);
+    let _updater_handle = tokio::spawn(Arc::new(updater).run());
 
     let asn_service = if config.enable_asn_lookup {
         let (asn_updater, asn_watch_rx) =
             GeoIpUpdater::new_asn(config.clone()).expect("Failed to create ASN updater");
+        let asn_reader = asn_updater
+            .bootstrap()
+            .await
+            .map_err(|e| format!("{e:#}"))
+            .expect("ASN lookup is enabled but no ASN database could be obtained");
         tokio::spawn(Arc::new(asn_updater).run());
-        Some(asn::AsnService::new(config.clone(), asn_watch_rx))
+        Some(asn::AsnService::new(asn_reader, asn_watch_rx))
     } else {
         info!("ASN lookup disabled (set ENABLE_ASN_LOOKUP=true to enable)");
         None

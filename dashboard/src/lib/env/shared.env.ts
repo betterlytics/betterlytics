@@ -6,9 +6,15 @@ export const zStringBoolean = z
   .default('false')
   .transform((val) => val === 'true');
 
+export const zStringBooleanDefaultTrue = z
+  .enum(['true', 'false'])
+  .optional()
+  .default('true')
+  .transform((val) => val === 'true');
+
 export const sharedEmailEnvSchema = z.object({
   IS_CLOUD: zStringBoolean,
-  PUBLIC_BASE_URL: z.string().optional().default('https://betterlytics.io'),
+  PUBLIC_BASE_URL: z.string().url(),
 });
 
 const parsedSharedEmailEnv = sharedEmailEnvSchema.parse(process.env);
