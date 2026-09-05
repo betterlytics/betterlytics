@@ -1,5 +1,6 @@
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { z } from 'zod';
+import { parseEnv } from '@/lib/env/parse-env';
 import { sharedEmailEnvSchema, zStringBoolean, zStringBooleanDefaultTrue } from '@/lib/env/shared.env';
 
 const appEnvSchema = z.object({
@@ -102,7 +103,7 @@ if (!process.env.AUTH_URL && process.env.NEXTAUTH_URL) {
   throw new Error('NEXTAUTH_URL is no longer read. Rename it to AUTH_URL (the value can stay the same).');
 }
 
-export const env = envSchema.parse(process.env);
+export const env = parseEnv('app', envSchema);
 
 export const s3Env = {
   enabled: env.S3_ENABLED,

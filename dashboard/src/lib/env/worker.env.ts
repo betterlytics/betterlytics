@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { parseEnv } from './parse-env';
 import { sharedEmailEnvSchema, zStringBoolean } from './shared.env';
 
 const workerOnlyEnvSchema = z.object({
@@ -32,4 +33,4 @@ const workerEnvSchema = sharedEmailEnvSchema.merge(workerOnlyEnvSchema).superRef
   }
 });
 
-export const workerEnv = workerEnvSchema.parse(process.env);
+export const workerEnv = parseEnv('worker', workerEnvSchema);
