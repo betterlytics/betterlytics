@@ -1,0 +1,89 @@
+---
+title: "WordPress Plugin Setup"
+description: "Install the Betterlytics WordPress plugin, connect it to your dashboard with your Site ID, and confirm data is arriving."
+---
+
+import { Callout } from "nextra/components";
+
+# Setup
+
+Four steps, and no code at any point.
+
+<Callout type="info">
+**Requirements:** WordPress 6.3 or higher and an administrator account that can install plugins.
+</Callout>
+
+## Step 1: Get your Site ID
+
+The Site ID is what links your WordPress site to a dashboard in Betterlytics.
+
+If you don't have an account yet, [create one](https://betterlytics.io/register) and add a dashboard for your domain. The [Cloud Quick Start](/installation/cloud-hosting) covers that in more detail. The Site ID is shown during onboarding, right after you create the dashboard.
+
+To find it again later, open your dashboard, click **Integration Setup** in the sidebar, and copy the value under **Your Site ID**.
+
+## Step 2: Install the plugin
+
+1. In wp-admin, go to **Plugins → Add New**
+2. Search for **Betterlytics**
+3. Click **Install Now**, then **Activate**
+
+The plugin is also listed on [WordPress.org](https://wordpress.org/plugins/betterlytics/), where you can download it as a `.zip` and upload it under **Plugins → Add New → Upload Plugin** if your site can't install from the directory.
+
+The plugin then lives at **Settings → Betterlytics** in the wp-admin sidebar.
+
+<div style={{ textAlign: "center" }}>
+  ![The Betterlytics entry under Settings in the wp-admin sidebar](/images/wordpress/find-betterlytics-settings.webp)
+</div>
+
+## Step 3: Connect your site
+
+Open **Settings → Betterlytics**. The **Home** tab walks you through the remaining steps the first time you visit it.
+
+<div style={{ textAlign: "center" }}>
+  ![The plugin's setup wizard on the Home tab](/images/wordpress/onboarding-wizard.webp)
+</div>
+
+On the **Settings** tab:
+
+1. Paste your Site ID into **Site ID**
+2. Tick **Enable Tracking**, which is off until you turn it on
+3. Click **Save Settings**
+
+<div style={{ textAlign: "center" }}>
+  ![The Site ID field and Enable Tracking toggle on the Settings tab](/images/wordpress/onboarding-settings.webp)
+</div>
+
+Your site is now connected. The tracking script is added to the `<head>` of every page, where it loads asynchronously, and data is recorded from the next visit onward.
+
+## Step 4: Confirm data is arriving
+
+Visit your own site once, then open your Betterlytics dashboard. The visit should appear within a minute or two. The **Resources** section on the plugin's Home tab links straight there.
+
+Optionally, the **Settings** tab can also track outbound link clicks, Core Web Vitals, and clicks on specific elements. The [Events guide](/wordpress/events) covers each one.
+
+## Troubleshooting
+
+**No data in your dashboard**
+
+- Confirm **Enable Tracking** is ticked and that you saved the settings
+- Check the Site ID for typos or a stray space. It is case-sensitive, and a wrong ID sends data nowhere
+- Load your site in a private window and view the page source. You should see an `analytics.js` script tag in the `<head>`
+- If you use a caching or optimization plugin, clear its cache so visitors get pages containing the script. Plugins that combine or defer scripts need `analytics.js` excluded, covered under [page caching and CDNs](/troubleshooting#page-caching-or-cdn-serving-stale-html)
+
+**Can't find Settings → Betterlytics**
+
+Check that the plugin is active under **Plugins → Installed Plugins**. The settings page is only visible to administrators.
+
+More causes, including CSP headers and ad blockers, are covered in the [Troubleshooting guide](/troubleshooting).
+
+## Next Steps
+
+- **[Settings](/wordpress/settings)** - Every setting, its default, and its WP-CLI key
+- **[Events](/wordpress/events)** - Outbound links, Core Web Vitals, and click events
+- **[Configuration](/wordpress/configuration)** - Manage settings from WP-CLI or a deployment pipeline
+- **[Dashboard Features](/dashboard)** - What your analytics can tell you, well beyond pageviews
+
+## Need Help?
+
+- **[Discord Community](https://discord.gg/vwqSvPn6sP)** - Real-time help from users and our team
+- **[Contact Support](mailto:support@betterlytics.io)** - We're always happy to help

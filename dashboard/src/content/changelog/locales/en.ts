@@ -1,5 +1,202 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v148ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.8',
+    releasedAt: '2026-08-16',
+    title: 'Modernized Authentication',
+    summary:
+      'Betterlytics now runs on a new, actively maintained system for accounts and signing in, with ongoing security updates. Everything works as before, though two-factor authentication needs to be set up again.',
+  },
+  sections: [
+    {
+      id: 'v148-authentication',
+      title: 'Modernized Authentication',
+      blocks: [
+        {
+          type: 'text',
+          body: 'We have moved the system that handles your account, your sessions, and signing in onto a modern, actively developed foundation that receives ongoing security updates. Email and password sign-in, Google and GitHub sign-in, and two-factor authentication all continue to work, and your password, dashboards, team members, and data are unchanged.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Two-factor authentication needs to be set up again. Existing setups could not be carried over to the new system, and everyone affected has been emailed.',
+            'To re-enable it, open Settings from your avatar menu and go to Account security. Your authenticator app will get a new QR code, and you can delete the old Betterlytics entry.',
+            'You may have been signed out once as the change rolled out. That was the switch itself, not a problem with your account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Enabling two-factor authentication now confirms your account password before showing the QR code.',
+            'Disabling two-factor authentication now asks for your account password instead of a code from your authenticator app.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Signed-in pages now do less work verifying your session, making the dashboard feel slightly quicker to move around.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v148ChangelogModalEn: ChangelogEntryData = {
+  metadata: v148ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v148-modal-authentication',
+      title: 'Modernized Authentication',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'We have moved the system that handles your account, your sessions, and signing in onto a modern, actively developed foundation that receives ongoing security updates.',
+            'Two-factor authentication needs to be set up again. Existing setups could not be carried over, and everyone affected has been emailed.',
+            'To re-enable it, open Settings from your avatar menu and go to Account security. Your authenticator app will get a new QR code.',
+            'You may have been signed out once as the change rolled out. That was the switch itself, not a problem with your account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Enabling and disabling two-factor authentication now confirm your account password.'],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Signed-in pages now do less work verifying your session, making the dashboard feel slightly quicker.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v147ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.7',
+    releasedAt: '2026-08-09',
+    title: 'The Betterlytics WordPress Plugin',
+    summary:
+      'Our official WordPress plugin is now available: connect your site from wp-admin, without touching a single line of code. This release also brings a usage breakdown to billing settings and the first wave of a much stronger bot filter.',
+  },
+  sections: [
+    {
+      id: 'v147-wordpress',
+      title: 'WordPress Plugin',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Betterlytics now has an official WordPress plugin, available in the WordPress.org plugin directory. Install it from wp-admin, paste in your Site ID, enable tracking, and your analytics start filling in. There is no snippet to add to your theme, and nothing to re-apply after a theme update.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Page views, visitors, sessions, referrers, campaigns, devices, and geography, from the moment you turn tracking on.',
+            'Outbound link clicks, Core Web Vitals, and click tracking on any button or link, each behind a single toggle.',
+            'A setup guide right inside wp-admin that walks you through connecting your site.',
+            'Every setting is also manageable from WP-CLI, for sites deployed from a pipeline.',
+          ],
+        },
+        {
+          type: 'text',
+          body: 'A few capabilities are configured on the tracking script itself and are not exposed by the plugin yet, including session replay, error tracking, dynamic URL grouping, and global properties. For now, those still require installing the tracking script manually. Our documentation has a dedicated WordPress section covering setup, every setting, and what the plugin does and does not track.',
+        },
+      ],
+    },
+    {
+      id: 'v147-bot-filtering',
+      title: 'Stronger Bot Filtering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Automated traffic is one of the biggest sources of misleading analytics, so we have rebuilt how Betterlytics recognizes it. The first wave of new detection rules is now live and filters out more bots, crawlers, and referrer spam before they ever reach your reports.',
+        },
+        {
+          type: 'text',
+          body: 'Alongside it, a much larger set of rules runs in observation mode: they flag suspected bot traffic without affecting your numbers, so we can measure each rule against real traffic before it starts filtering. Expect further waves as rules prove themselves, each one making your data a little cleaner.',
+        },
+      ],
+    },
+    {
+      id: 'v147-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Billing settings now include a usage breakdown, showing exactly which event types make up your monthly quota, and how much each of your sites contributes.',
+            'The breakdown also makes clear which events are free: time on page and scroll depth are tracked as separate events but never count toward your quota.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Our event pipeline is now more resilient during deployments and infrastructure disruptions, so your data keeps arriving reliably.',
+            'Various small design and usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Following an old dashboard link no longer ends in a redirect loop. It now takes you to your list of dashboards.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Hardened event ingestion against malformed and malicious data, alongside general security updates to keep Betterlytics stable and secure.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v146ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.6',
@@ -186,9 +383,11 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v146ChangelogEntryEn;
+export const latestChangelogModalEn = v148ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v148ChangelogEntryEn,
+  v147ChangelogEntryEn,
   v146ChangelogEntryEn,
   v145ChangelogEntryEn,
   v144ChangelogEntryEn,

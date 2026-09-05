@@ -10,7 +10,7 @@ import { PrefixInput } from '@/components/inputs/PrefixInput';
 import { useTranslations, useLocale } from 'next-intl';
 import { useOnboarding } from '../OnboardingProvider';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { baEvent } from '@/lib/ba-event';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
@@ -26,13 +26,12 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const [agree, setAgree] = useState(false);
-  const { data: session } = useSession();
+  const { data: session, refetch } = authClient.useSession();
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
 
   const effectiveShowTos = isFeatureFlagEnabled('isCloud') && !session?.user?.termsAcceptedAt;
 
   const { setDashboard } = useOnboarding();
-  const { update } = useSession();
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
@@ -66,7 +65,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
         }
 
         try {
-          await update();
+          await refetch();
         } catch {}
 
         setDashboard(result.data);

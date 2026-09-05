@@ -1,18 +1,16 @@
 use maxminddb::{geoip2, Reader};
 use std::net::IpAddr;
-use std::sync::{Arc, Mutex, RwLock};
-use std::sync::atomic::{AtomicU64, Ordering};
-use tracing::{info, warn, error, debug};
+use std::sync::Arc;
+use tracing::{info, warn, debug};
 use crate::config::{Config, GeolocationMode};
 use crate::ip_parser::anonymize_ip;
-use crate::geoip_updater::GeoIpWatchRx;
-use anyhow::Result;
+use crate::geoip_updater::{GeoIpWatchRx, MmdbSource};
 use moka::sync::Cache;
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::Duration;
 
 const CACHE_TTI: Duration = Duration::from_secs(1200);
 const CACHE_SIZE: u64 = 100000; // Cache up to 100k IP addresses
-const READER_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(1200); // Check for reader updates every 20 minutes
+const READER_UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(1200);
 
 #[derive(Clone, Debug, Default)]
 pub struct GeoLocation {
@@ -23,105 +21,20 @@ pub struct GeoLocation {
 
 #[derive(Clone)]
 pub struct GeoIpService {
-    geoip_watch_rx: Arc<Mutex<GeoIpWatchRx>>,
-    current_reader: Arc<RwLock<Option<Arc<Reader<Vec<u8>>>>>>,
+    source: MmdbSource,
     cache: Cache<String, GeoLocation>,
-    last_reader_check: Arc<AtomicU64>,
     geolocation_mode: GeolocationMode,
 }
 
 impl GeoIpService {
-    pub fn new(config: Arc<Config>, geoip_watch_rx: GeoIpWatchRx) -> Result<Self> {
-        let mut initial_reader = None;
-        if config.geolocation_mode.is_enabled() {
-            let db_path = &config.geoip_db_path;
-            if db_path.exists() {
-                info!("Loading initial GeoIP database from: {:?}", db_path);
-                match Reader::open_readfile(db_path) {
-                    Ok(reader) => {
-                        info!("Initial GeoIP database loaded successfully.");
-                        initial_reader = Some(Arc::new(reader));
-                    }
-                    Err(e) => {
-                        error!("Failed to load initial GeoIP database from {:?}: {}. Geolocation may be delayed until first update.", db_path, e);
-                    }
-                }
-            } else {
-                warn!("Initial GeoIP database file not found at {:?}. Geolocation will be disabled until first update.", db_path);
-            }
-        } else {
+    pub fn new(config: Arc<Config>, initial_reader: Option<Arc<Reader<Vec<u8>>>>, geoip_watch_rx: GeoIpWatchRx) -> Self {
+        if !config.geolocation_mode.is_enabled() {
             info!("Geolocation is disabled via config.");
         }
-
-        let rx_mutex = Arc::new(Mutex::new(geoip_watch_rx));
-
-        let current_reader_state = rx_mutex.lock().unwrap().borrow().clone();
-
-        let reader_to_use = current_reader_state.or(initial_reader);
-
-        // LRU cache with session-aligned TTI
-        let cache = Cache::builder()
-            .max_capacity(CACHE_SIZE)
-            .time_to_idle(CACHE_TTI)
-            .build();
-
-        let now_secs = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
-
-        Ok(Self {
-            geoip_watch_rx: rx_mutex,
-            current_reader: Arc::new(RwLock::new(reader_to_use)),
-            cache,
-            last_reader_check: Arc::new(AtomicU64::new(now_secs)),
+        Self {
+            source: MmdbSource::new(initial_reader, geoip_watch_rx, READER_UPDATE_CHECK_INTERVAL),
+            cache: Cache::builder().max_capacity(CACHE_SIZE).time_to_idle(CACHE_TTI).build(),
             geolocation_mode: config.geolocation_mode,
-        })
-    }
-
-    fn update_reader_if_changed(&self) {
-        let now_secs = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap_or_default()
-            .as_secs();
-
-        let last_check_secs = self.last_reader_check.load(Ordering::Relaxed);
-
-        if now_secs.saturating_sub(last_check_secs) < READER_UPDATE_CHECK_INTERVAL.as_secs() {
-            return;
-        }
-
-        // Try to atomically update the timestamp to claim the right to check
-        // If another thread beats us to it, we can just return
-        if self.last_reader_check
-            .compare_exchange_weak(last_check_secs, now_secs, Ordering::Relaxed, Ordering::Relaxed)
-            .is_err()
-        {
-            return;
-        }
-
-        // We successfully claimed the right to check for update
-        let mut rx_guard = match self.geoip_watch_rx.try_lock() {
-            Ok(guard) => guard,
-            Err(_) => {
-                self.last_reader_check.store(last_check_secs, Ordering::Relaxed);
-                return;
-            }
-        };
-
-        if rx_guard.has_changed().unwrap_or(false) {
-            let latest_reader_option = rx_guard.borrow_and_update().clone();
-            debug!("GeoIpService detected database update via watch channel.");
-
-            // Drop the rx_guard before acquiring the write lock to avoid holding multiple locks
-            drop(rx_guard);
-
-            let mut current_reader_guard = self.current_reader.write().unwrap();
-            *current_reader_guard = latest_reader_option;
-            drop(current_reader_guard);
-
-            self.cache.invalidate_all();
-            info!("GeoIP cache cleared due to database update");
         }
     }
 
@@ -143,16 +56,14 @@ impl GeoIpService {
 
         debug!("GeoIP cache miss");
 
-        self.update_reader_if_changed();
+        if self.source.refresh_if_due() {
+            self.cache.invalidate_all();
+            info!("GeoIP cache cleared due to database update");
+        }
 
-        let reader_arc_option = self.current_reader.read().unwrap().clone();
-        let reader = match reader_arc_option {
+        let reader = match self.source.reader() {
             Some(r) => r,
-            None => {
-                let result = GeoLocation::default();
-                self.cache.insert(anonymized, result.clone());
-                return result;
-            }
+            None => return GeoLocation::default(),
         };
 
         let ip: IpAddr = match anonymized.parse() {
@@ -218,5 +129,38 @@ impl GeoIpService {
         self.cache.insert(anonymized, result.clone());
 
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::geoip_updater::tests::minimal_mmdb;
+    use tokio::sync::watch;
+
+    fn service(initial: Option<Arc<Reader<Vec<u8>>>>) -> (GeoIpService, watch::Sender<Option<Arc<Reader<Vec<u8>>>>>) {
+        let (tx, rx) = watch::channel(None);
+        let service = GeoIpService {
+            source: MmdbSource::new(initial, rx, READER_UPDATE_CHECK_INTERVAL),
+            cache: Cache::builder().max_capacity(CACHE_SIZE).build(),
+            geolocation_mode: GeolocationMode::Countries,
+        };
+        (service, tx)
+    }
+
+    #[test]
+    fn lookup_without_database_is_not_cached_and_recovers_after_update() {
+        let (service, tx) = service(None);
+
+        assert!(service.lookup("8.8.8.8").country_code.is_none());
+        service.cache.run_pending_tasks();
+        assert_eq!(service.cache.entry_count(), 0);
+
+        tx.send(Some(Arc::new(Reader::from_source(minimal_mmdb()).unwrap()))).unwrap();
+
+        service.lookup("8.8.8.8");
+        service.cache.run_pending_tasks();
+        assert_eq!(service.cache.entry_count(), 1);
+        assert!(service.source.reader().is_some());
     }
 }

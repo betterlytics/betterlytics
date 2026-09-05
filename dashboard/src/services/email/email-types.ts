@@ -8,6 +8,7 @@ import { createDataRetentionClampEmailTemplate } from '@/services/email/template
 import { createPasswordChangedEmailTemplate } from '@/services/email/template/password-changed-mail';
 import { createTwoFactorEnabledEmailTemplate } from '@/services/email/template/two-factor-enabled-mail';
 import { createTwoFactorDisabledEmailTemplate } from '@/services/email/template/two-factor-disabled-mail';
+import { createTwoFactorResetRequiredEmailTemplate } from '@/services/email/template/two-factor-reset-required-mail';
 import { createCreateSiteNudgeEmailTemplate } from '@/services/email/template/create-site-nudge-mail';
 import { createSetupHelpEmailTemplate } from '@/services/email/template/setup-help-mail';
 import { createFirstVisitorDetectedEmailTemplate } from '@/services/email/template/first-visitor-detected-mail';
@@ -32,6 +33,7 @@ export const EMAIL_TYPES = {
     template: createEmailVerificationTemplate,
     saasOnly: true,
     retry: URGENT_RETRY,
+    throttleSeconds: 300,
   },
   'dashboard-invitation': {
     template: createDashboardInvitationEmailTemplate,
@@ -90,6 +92,11 @@ export const EMAIL_TYPES = {
   },
   'two-factor-disabled': {
     template: createTwoFactorDisabledEmailTemplate,
+    saasOnly: false,
+    retry: URGENT_RETRY,
+  },
+  'two-factor-reset-required': {
+    template: createTwoFactorResetRequiredEmailTemplate,
     saasOnly: false,
     retry: URGENT_RETRY,
   },

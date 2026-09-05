@@ -5,13 +5,13 @@ import {
   dateOrderRefinement,
 } from '@/mcp/entities/mcp.entities';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
 import {
   getTopGlobalPropertyKeys,
   getTopGlobalPropertyValuesForKeys,
 } from '@/repositories/clickhouse/globalProperties.repository';
 import { FilterColumnSchema } from '@/entities/analytics/filter.entities';
 import { PROPERTY_SOURCES } from '@/entities/analytics/propertySources';
-import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 const GP_PREFIX = PROPERTY_SOURCES.gp.prefix;
 
@@ -35,19 +35,9 @@ export const McpListGlobalPropertiesInputSchema = McpListGlobalPropertiesInputBa
 
 export async function executeListGlobalProperties(rawInput: unknown, siteId: string) {
   const input = McpListGlobalPropertiesInputSchema.parse(rawInput);
-  const { startDateTime, endDateTime, start, end } = resolveTimeRange(input);
+  const timeRange = resolveTimeRange(input);
 
-  const siteQuery: BASiteQuery = {
-    siteId,
-    startDate: start,
-    endDate: end,
-    startDateTime,
-    endDateTime,
-    granularity: 'day',
-    queryFilters: [],
-    timezone: input.timezone ?? 'UTC',
-    userJourney: { numberOfSteps: 1, numberOfJourneys: 1 },
-  };
+  const siteQuery = buildSiteQuery({ siteId, timeRange, timezone: input.timezone });
 
   if (input.key) {
     const bareKey = input.key.startsWith(GP_PREFIX) ? input.key.slice(GP_PREFIX.length) : input.key;

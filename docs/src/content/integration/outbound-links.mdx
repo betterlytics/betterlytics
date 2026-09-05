@@ -64,8 +64,8 @@ betterlytics.init('your-site-id', {
 
 When enabled, clicks on `<a>` elements that navigate to a different hostname are captured as `outbound_link` events.
 
-- `domain` mode: only the external origin (e.g., `https://youtube.com`)
-- `full` mode: origin + path (e.g., `https://youtube.com/watch?v=dQw4w9WgXcQ`)
+- `domain` mode: only the external origin (e.g., `https://example.com`)
+- `full` mode: origin + path (e.g., `https://example.com/blog/some-article`)
 
 <Callout type="warning">
 Privacy note: Consider using `domain` mode to avoid sending full paths that may contain sensitive information.

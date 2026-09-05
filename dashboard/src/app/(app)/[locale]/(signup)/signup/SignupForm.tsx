@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { isUserInvitedDashboardMemberAction, registerUserAction } from '@/app/actions/index.actions';
+import { isUserInvitedDashboardMemberAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
-import { signIn } from 'next-auth/react';
-import type { getEnabledOAuthProviders } from '@/lib/auth';
+import { authClient } from '@/lib/auth-client';
+import type { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { CheckCircleIcon } from 'lucide-react';
@@ -104,21 +104,21 @@ export default function SignupForm({ providers }: SignupFormProps) {
         });
 
         startTransition(async () => {
-          const result = await registerUserAction(validatedData);
-
-          if (!result.success) {
-            setError(result.error.message);
-            return;
-          }
-
-          const signInResult = await signIn('credentials', {
+          const signUpBody = {
             email: validatedData.email,
             password: validatedData.password,
-            redirect: false,
-          });
+            name: validatedData.name ?? '',
+            acceptedTerms: validatedData.acceptedTerms,
+            language: validatedData.language,
+          };
+          const { error: signUpError } = await authClient.signUp.email(signUpBody);
 
-          if (signInResult?.error) {
-            setError(t('form.registrationSuccessfulButSignInFailed'));
+          if (signUpError) {
+            setError(
+              signUpError.code?.startsWith('USER_ALREADY_EXISTS')
+                ? t('form.emailAlreadyExists')
+                : t('form.signUpError'),
+            );
             return;
           }
 
@@ -156,13 +156,14 @@ export default function SignupForm({ providers }: SignupFormProps) {
 
       transition(async () => {
         try {
-          const result = await signIn(provider, {
-            redirect: false,
-            callbackUrl: '/dashboards',
+          const { error: socialError } = await authClient.signIn.social({
+            provider,
+            callbackURL: '/dashboards',
+            newUserCallbackURL: '/onboarding?newUser=true',
+            errorCallbackURL: '/signin',
           });
-
-          if (result?.url) {
-            window.location.href = result.url;
+          if (socialError) {
+            setError(t('form.signUpError'));
           }
         } catch {
           setError(t('form.signUpError'));

@@ -735,7 +735,6 @@
         "title": "Log ind på din konto",
         "subtitle": "Få adgang til dit analyse-dashboard",
         "errors": {
-          "CredentialsSignin": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
           "OAuthAccountNotLinked": "Der findes allerede en konto med denne e-mail. Log venligst ind med din e-mail og adgangskode i stedet.",
           "default": "Der opstod en fejl under login. Prøv venligst igen."
         },
@@ -819,7 +818,8 @@
           "sending": "Sender...",
           "remember": "Kan du huske din adgangskode?",
           "backToSignIn": "Tilbage til login"
-        }
+        },
+        "errorMessageTooManyRequests": "For mange anmodninger om nulstilling. Prøv igen senere."
       },
       "resetPassword": {
         "seo": {
@@ -848,7 +848,14 @@
         },
         "form": {
           "title": "Angiv din nye adgangskode",
-          "description": "Indtast din nye adgangskode nedenfor"
+          "description": "Indtast din nye adgangskode nedenfor",
+          "errors": {
+            "invalidToken": "Dette nulstillingslink er ugyldigt eller udløbet. Anmod venligst om et nyt.",
+            "weakPassword": "Adgangskoden opfylder ikke kravene.",
+            "tooManyAttempts": "For mange forsøg. Prøv igen senere.",
+            "generic": "Kunne ikke nulstille adgangskoden. Prøv venligst igen."
+          },
+          "successMessage": "Adgangskoden blev nulstillet!"
         },
         "cta": {
           "remember": "Kan du huske din adgangskode?",
@@ -2858,7 +2865,8 @@
         "resend": "Send bekræftelsesmail igen",
         "sending": "Sender...",
         "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
-        "toastFailure": "Kunne ikke sende bekræftelsesmail"
+        "toastFailure": "Kunne ikke sende bekræftelsesmail",
+        "cooldown": "Der er lige blevet sendt en bekræftelsesmail. Vent et par minutter, før du anmoder om en ny."
       }
     },
     "topbar": {
@@ -2956,8 +2964,25 @@
         "usage": {
           "title": "Forbrug",
           "eventsLabel": "Events",
-          "eventsUsed": "{current} / {limit} ({percentage})",
-          "resetsInDays": "Nulstilles om {days} dage"
+          "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "resetsInDays": "Nulstilles om {days} dage",
+          "breakdown": {
+            "byType": "Efter type",
+            "bySite": "Efter side",
+            "showAllSites": "{count, plural, one {Vis # side mere} other {Vis # flere sider}}",
+            "showFewerSites": "Vis færre sider",
+            "otherSites": "{count, plural, one {Andre (# side)} other {Andre (# sider)}}",
+            "nonBillableNote": "Tid på siden og scrolldybde måles som separate events, men tæller ikke med i din kvote.",
+            "loadError": "Kunne ikke indlæse dit forbrugsoverblik.",
+            "empty": "Ingen betalbare events registreret i denne periode endnu.",
+            "eventTypes": {
+              "pageview": "Sidevisninger",
+              "custom": "Brugerdefinerede events",
+              "cwv": "Core Web Vitals",
+              "outbound_link": "Udgående links",
+              "client_error": "Fejl"
+            }
+          }
         },
         "payment": {
           "title": "Betaling og fakturaer",
@@ -3001,13 +3026,16 @@
         "newPassword": "Ny adgangskode",
         "confirmNewPassword": "Bekræft ny adgangskode",
         "passwordHelp": "Adgangskoden skal være mindst 8 tegn",
+        "weakPassword": "Adgangskoden skal være mindst 8 tegn og indeholde både store og små bogstaver",
+        "invalidCurrentPassword": "Den nuværende adgangskode er forkert",
         "passwordsMatch": "Adgangskoderne matcher",
         "changePassword": "Skift adgangskode",
         "passwordManagedByOAuth": "Adgangskode håndteres af OAuth",
         "togglePasswordVisibility": "Vis/skjul {field}",
         "cancel": "Annuller",
         "toast": {
-          "success": "Adgangskode opdateret"
+          "success": "Adgangskode opdateret",
+          "tooManyAttempts": "For mange forsøg. Vent et øjeblik og prøv igen."
         },
         "totp": {
           "title": "To-faktor-godkendelse",
@@ -3019,14 +3047,19 @@
           "enabled": "Aktiveret",
           "disable": "Deaktivér",
           "disableTitle": "Deaktivér 2FA",
-          "disableDescription": "Indtast bekræftelseskoden fra din autentificeringsapp for at deaktivere to-faktor-godkendelse.",
+          "disableDescription": "Indtast din adgangskode for at deaktivere totrinsbekræftelse.",
           "disabledSuccess": "To-faktor-godkendelse deaktiveret",
           "disableFailed": "Kunne ikke deaktivere to-faktor-godkendelse. Prøv igen.",
           "setupFailed": "Kunne ikke konfigurere to-faktor-godkendelse. Prøv igen.",
           "copyFailed": "Kunne ikke kopiere",
           "enabledSuccess": "To-faktor-godkendelse aktiveret",
           "enableFailed": "Kunne ikke aktivere to-faktor-godkendelse. Prøv igen.",
-          "managedByOAuth": "To-faktor-godkendelse håndteres af din login-udbyder"
+          "managedByOAuth": "To-faktor-godkendelse håndteres af din login-udbyder",
+          "passwordPromptTitle": "Bekræft din adgangskode",
+          "passwordPromptDescription": "Indtast din adgangskode for at fortsætte.",
+          "passwordLabel": "Adgangskode",
+          "backupCodesTitle": "Backup-koder",
+          "backupCodesDescription": "Gem disse engangskoder et sikkert sted — de giver dig adgang, hvis du mister din authenticator."
         }
       },
       "sessions": {
@@ -3221,7 +3254,7 @@
         "googleButton": "Google",
         "gitHubButton": "GitHub",
         "passwordsDoNotMatch": "Adgangskoder matcher ikke",
-        "registrationSuccessfulButSignInFailed": "Registrering lykkedes, men log ind mislykkedes. Prøv at logge ind manuelt.",
+        "emailAlreadyExists": "Der findes allerede en bruger med den e-mail.",
         "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
         "checkInput": "Tjek venligst dit input"
       }
@@ -3314,6 +3347,7 @@
       "description": "Vi har sendt en bekræftelsesmail til {email}.",
       "success": "Bekræftelsesmail sendt!",
       "failure": "Kunne ikke sende bekræftelsesmail",
+      "cooldown": "Der er lige blevet sendt en bekræftelsesmail. Vent et par minutter, før du anmoder om en ny.",
       "sending": "Sender...",
       "resend": "Send e-mail igen"
     },
@@ -4062,6 +4096,7 @@
       "viewPage": "Vis side",
       "more": "Flere handlinger",
       "linkCopied": "Link kopieret til udklipsholderen",
+      "linkCopyFailed": "Kunne ikke kopiere linket",
       "openPublicPage": "Åbn offentlig side",
       "editPage": "Rediger side",
       "manageIncidents": "Administrer hændelser",

@@ -52,7 +52,7 @@ pub fn parse_ip(headers: &HeaderMap) -> Result<IpAddr, ()> {
     Err(())
 }
 
-fn parse_ip_str(s: &str) -> Option<IpAddr> {
+pub fn parse_ip_str(s: &str) -> Option<IpAddr> {
     if s.starts_with('[') {
         let end = s.find(']')?;
         IpAddr::from_str(&s[1..end]).ok()

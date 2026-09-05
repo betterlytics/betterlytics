@@ -1,0 +1,64 @@
+---
+title: "WordPress Plugin Configuration"
+description: "Configure the Betterlytics WordPress plugin programmatically with JSON and WP-CLI."
+---
+
+import { Callout } from "nextra/components";
+
+# Configuration
+
+The plugin stores all of its settings in a single WordPress option, `betterlytics_options`, which makes it straightforward to set from WP-CLI or a deployment pipeline instead of clicking through wp-admin.
+
+Every key corresponds to one control on the plugin's Settings tab. [Settings](/wordpress/settings) lists them all with their defaults.
+
+## JSON Configuration
+
+Create a `betterlytics-config.json` file:
+
+```json
+{
+  "site_id": "your-site-id",
+  "enabled": true,
+  "track_web_vitals": false,
+  "track_outbound": { "mode": "domain" },
+  "track_custom_html_attribute": { "enabled": false }
+}
+```
+
+Apply it via WP-CLI:
+
+```bash
+wp option update betterlytics_options --format=json < betterlytics-config.json
+```
+
+<Callout type="warning">
+This replaces the entire option rather than merging into it. Any key your file omits reverts to its default, so keep the file complete. It is the full description of the plugin's state, not a patch.
+</Callout>
+
+That is also what makes it useful: applying the file forces a known configuration regardless of what was set before, including keys left behind by an older version of the plugin.
+
+## WP-CLI Examples
+
+```bash
+# Apply full configuration from file
+wp option update betterlytics_options --format=json < betterlytics-config.json
+
+# View current configuration
+wp option get betterlytics_options --format=json
+
+# Update a single value (get, modify with jq, set back)
+wp option get betterlytics_options --format=json | \
+  jq '.site_id = "new-site-id"' | \
+  wp option update betterlytics_options --format=json
+
+# Reset to plugin defaults
+wp option delete betterlytics_options
+```
+
+## Multisite
+
+The plugin stores its options per site rather than per network, so each site in a multisite network is configured separately and needs its own Site ID. Target one site with `--url=`:
+
+```bash
+wp option update betterlytics_options --format=json --url=https://example.com/blog < betterlytics-config.json
+```

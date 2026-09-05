@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { GithubStarPromptState } from '@prisma/client';
 import { setGithubStarPromptState } from '@/repositories/postgres/user.repository';
 import { findAllUserDashboards } from '@/repositories/postgres/dashboard.repository';

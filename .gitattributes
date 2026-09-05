@@ -1,0 +1,5 @@
+backend/src/bot_detection/hosting_asns.txt        linguist-generated=true text eol=lf
+backend/src/bot_detection/referrer_spam.txt       linguist-generated=true text eol=lf
+backend/src/bot_detection/bot_patterns_shadow.txt linguist-generated=true text eol=lf
+backend/src/bot_detection/bot_patterns.txt        text eol=lf
+backend/src/bot_detection/bot_patterns_local.txt  text eol=lf

@@ -1,5 +1,200 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v148ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.8',
+    releasedAt: '2026-08-16',
+    title: 'Modernisert autentisering',
+    summary:
+      'Betterlytics kjører nå på et nytt system for kontoer og innlogging som vedlikeholdes aktivt og får løpende sikkerhetsoppdateringer. Alt fungerer som før, men tofaktorautentisering må settes opp på nytt.',
+  },
+  sections: [
+    {
+      id: 'v148-authentication',
+      title: 'Modernisert autentisering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Vi har flyttet systemet som håndterer kontoen din, øktene dine og innloggingen, over på et moderne og aktivt utviklet fundament som får løpende sikkerhetsoppdateringer. Innlogging med e-post og passord, innlogging med Google og GitHub samt tofaktorautentisering fungerer som før, og passordet ditt, dashbordene dine, teammedlemmene dine og dataene dine er uendret.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Tofaktorautentisering må settes opp på nytt. Eksisterende oppsett kunne ikke flyttes med over til det nye systemet, og alle berørte har fått e-post.',
+            'Du slår den på igjen ved å åpne Innstillinger i menyen ved profilbildet ditt og gå til Kontosikkerhet. Autentiseringsappen din får en ny QR-kode, og du kan slette den gamle Betterlytics-oppføringen.',
+            'Du ble kanskje logget ut én gang da endringen ble rullet ut. Det skyldtes selve overgangen, ikke et problem med kontoen din.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Når du slår på tofaktorautentisering, må du nå bekrefte passordet ditt før QR-koden vises.',
+            'Når du slår av tofaktorautentisering, blir du nå bedt om passordet ditt i stedet for en kode fra autentiseringsappen.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Det brukes nå færre ressurser på å bekrefte økten din, slik at det føles litt raskere å bevege seg rundt i dashbordet.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v148ChangelogModalNb: ChangelogEntryData = {
+  metadata: v148ChangelogEntryNb.metadata,
+  sections: [
+    {
+      id: 'v148-modal-authentication',
+      title: 'Modernisert autentisering',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vi har flyttet systemet som håndterer kontoen din, øktene dine og innloggingen, over på et moderne og aktivt utviklet fundament som får løpende sikkerhetsoppdateringer.',
+            'Tofaktorautentisering må settes opp på nytt. Eksisterende oppsett kunne ikke flyttes med over, og alle berørte har fått e-post.',
+            'Du slår den på igjen ved å åpne Innstillinger i menyen ved profilbildet ditt og gå til Kontosikkerhet. Autentiseringsappen din får en ny QR-kode.',
+            'Du ble kanskje logget ut én gang da endringen ble rullet ut. Det skyldtes selve overgangen, ikke et problem med kontoen din.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Du må nå bekrefte passordet ditt når du slår tofaktorautentisering på eller av.'],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Dashbordet bruker nå færre ressurser på å bekrefte økten din og føles litt raskere.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v147ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.7',
+    releasedAt: '2026-08-09',
+    title: 'Betterlytics-plugin for WordPress',
+    summary:
+      'Den offisielle WordPress-pluginen vår er nå ute: koble nettstedet ditt til rett fra wp-admin, uten å skrive en eneste linje kode. Denne utgivelsen gir deg også en forbruksoversikt under fakturering og første bølge av et mye sterkere bot-filter.',
+  },
+  sections: [
+    {
+      id: 'v147-wordpress',
+      title: 'WordPress-plugin',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Betterlytics har nå en offisiell WordPress-plugin, tilgjengelig i plugin-katalogen på WordPress.org. Installer den fra wp-admin, lim inn Site ID-en din, slå på sporing, og dataene begynner å komme inn. Du trenger ikke lime inn noe skript i temaet, og ingenting må gjøres på nytt etter en temaoppdatering.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Sidevisninger, besøkende, sesjoner, henvisninger, kampanjer, enheter og geografi, fra det øyeblikket du slår på sporing.',
+            'Registrering av klikk på utgående lenker, Core Web Vitals og klikksporing på knapper og lenker, som alle slås på med ett enkelt valg.',
+            'En veiviser inne i wp-admin som tar deg gjennom oppsettet.',
+            'Alle innstillinger kan også styres fra WP-CLI, for nettsteder som rulles ut fra en pipeline.',
+          ],
+        },
+        {
+          type: 'text',
+          body: 'Noen funksjoner settes opp direkte på sporingsskriptet og er ennå ikke en del av pluginen: session replay, feilsporing, dynamisk URL-gruppering og globale egenskaper. Foreløpig krever de at du legger inn sporingsskriptet manuelt. Dokumentasjonen vår har en egen WordPress-del som dekker oppsett, alle innstillinger og hva pluginen måler, og hva den ikke måler.',
+        },
+      ],
+    },
+    {
+      id: 'v147-bot-filtering',
+      title: 'Sterkere bot-filtrering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Automatisert trafikk er en av de største kildene til misvisende analyser, så vi har bygget om botgjenkjenningen vår fra grunnen av. Første bølge med nye regler er nå live og filtrerer bort flere bots, crawlere og henvisningsspam før de i det hele tatt når rapportene dine.',
+        },
+        {
+          type: 'text',
+          body: 'Parallelt kjører et mye større sett med regler i observasjonsmodus: de flagger mistenkelig bot-trafikk uten å påvirke tallene dine, slik at vi kan måle hver enkelt regel mot ekte trafikk før den begynner å filtrere. Det kommer flere bølger etter hvert som reglene viser seg å holde mål, og dataene dine blir litt renere for hver gang.',
+        },
+      ],
+    },
+    {
+      id: 'v147-new-features',
+      title: 'Nye funksjoner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Under fakturering finner du nå en forbruksoversikt som viser hvilke hendelsestyper det månedlige forbruket ditt består av, og hvor mye hvert av nettstedene dine bidrar med.',
+            'Oversikten gjør det også tydelig hva som er gratis: tid på siden og rulledybde måles som separate hendelser, men teller ikke med i kvoten din.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Hendelsespipelinen vår tåler nå utrullinger og driftsforstyrrelser bedre, slik at dataene dine fortsetter å komme inn som de skal.',
+            'Mindre forbedringer i design og brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'En gammel dashbord-lenke ender ikke lenger i en redirect-løkke. Du blir nå sendt videre til listen over dashbordene dine.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vi har sikret mottaket av hendelser bedre mot ugyldige og ondsinnede data, i tillegg til generelle sikkerhetsoppdateringer som holder Betterlytics stabil og sikker.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v146ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.6',
@@ -188,9 +383,11 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v146ChangelogEntryNb;
+export const latestChangelogModalNb = v148ChangelogModalNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v148ChangelogEntryNb,
+  v147ChangelogEntryNb,
   v146ChangelogEntryNb,
   v145ChangelogEntryNb,
   v144ChangelogEntryNb,

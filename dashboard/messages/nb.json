@@ -735,7 +735,6 @@
         "title": "Logg inn på kontoen din",
         "subtitle": "Få tilgang til analysedashboardet ditt",
         "errors": {
-          "CredentialsSignin": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
           "OAuthAccountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn med e-post og passord i stedet.",
           "default": "Det oppstod en feil under innlogging. Prøv igjen."
         },
@@ -819,7 +818,8 @@
           "sending": "Sender...",
           "remember": "Husker du passordet ditt?",
           "backToSignIn": "Tilbake til innlogging"
-        }
+        },
+        "errorMessageTooManyRequests": "For mange tilbakestillingsforespørsler. Prøv igjen senere."
       },
       "resetPassword": {
         "seo": {
@@ -848,7 +848,14 @@
         },
         "form": {
           "title": "Sett nytt passord",
-          "description": "Skriv inn det nye passordet ditt nedenfor"
+          "description": "Skriv inn det nye passordet ditt nedenfor",
+          "errors": {
+            "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
+            "weakPassword": "Passordet oppfyller ikke kravene.",
+            "tooManyAttempts": "For mange forsøk. Prøv igjen senere.",
+            "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
+          },
+          "successMessage": "Passordet ble tilbakestilt!"
         },
         "cta": {
           "remember": "Husker du passordet ditt?",
@@ -2858,7 +2865,8 @@
         "resend": "Send bekreftelses-e-post på nytt",
         "sending": "Sender...",
         "toastSuccess": "Bekreftelses-e-post sendt! Sjekk innboksen din.",
-        "toastFailure": "Kunne ikke sende bekreftelses-e-post"
+        "toastFailure": "Kunne ikke sende bekreftelses-e-post",
+        "cooldown": "En bekreftelses-e-post ble nylig sendt. Vent noen minutter før du ber om en ny."
       }
     },
     "topbar": {
@@ -2956,8 +2964,25 @@
         "usage": {
           "title": "Forbruk",
           "eventsLabel": "Hendelser",
-          "eventsUsed": "{current} / {limit} ({percentage})",
-          "resetsInDays": "Tilbakestilles om {days} dager"
+          "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "resetsInDays": "Tilbakestilles om {days} dager",
+          "breakdown": {
+            "byType": "Etter type",
+            "bySite": "Etter nettsted",
+            "showAllSites": "{count, plural, one {Vis # nettsted til} other {Vis # flere nettsteder}}",
+            "showFewerSites": "Vis færre nettsteder",
+            "otherSites": "{count, plural, one {Andre (# nettsted)} other {Andre (# nettsteder)}}",
+            "nonBillableNote": "Tid på siden og rulledybde måles som separate hendelser, men teller ikke med i kvoten din.",
+            "loadError": "Kunne ikke laste forbruksoversikten.",
+            "empty": "Ingen fakturerbare hendelser registrert i denne perioden ennå.",
+            "eventTypes": {
+              "pageview": "Sidevisninger",
+              "custom": "Egendefinerte hendelser",
+              "cwv": "Core Web Vitals",
+              "outbound_link": "Utgående lenker",
+              "client_error": "Feil"
+            }
+          }
         },
         "payment": {
           "title": "Betaling og fakturaer",
@@ -3001,13 +3026,16 @@
         "newPassword": "Nytt passord",
         "confirmNewPassword": "Bekreft nytt passord",
         "passwordHelp": "Passordet må være minst 8 tegn",
+        "weakPassword": "Passordet må være minst 8 tegn og inneholde både store og små bokstaver",
+        "invalidCurrentPassword": "Nåværende passord er feil",
         "passwordsMatch": "Passordene samsvarer",
         "changePassword": "Bytt passord",
         "passwordManagedByOAuth": "Passord håndteres av OAuth",
         "togglePasswordVisibility": "Vis/skjul {field}",
         "cancel": "Avbryt",
         "toast": {
-          "success": "Passord oppdatert"
+          "success": "Passord oppdatert",
+          "tooManyAttempts": "For mange forsøk. Vent et øyeblikk og prøv igjen."
         },
         "totp": {
           "title": "Tofaktorautentisering",
@@ -3019,14 +3047,19 @@
           "enabled": "Aktivert",
           "disable": "Deaktiver",
           "disableTitle": "Deaktiver 2FA",
-          "disableDescription": "Skriv inn bekreftelseskoden fra autentiseringsappen din for å deaktivere tofaktorautentisering.",
+          "disableDescription": "Skriv inn passordet ditt for å deaktivere tofaktorautentisering.",
           "disabledSuccess": "Tofaktorautentisering deaktivert",
           "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen.",
           "setupFailed": "Kunne ikke konfigurere tofaktorautentisering. Prøv igjen.",
           "copyFailed": "Kunne ikke kopiere",
           "enabledSuccess": "Tofaktorautentisering aktivert",
           "enableFailed": "Kunne ikke aktivere tofaktorautentisering. Prøv igjen.",
-          "managedByOAuth": "Tofaktorautentisering håndteres av innloggingsleverandøren din"
+          "managedByOAuth": "Tofaktorautentisering håndteres av innloggingsleverandøren din",
+          "passwordPromptTitle": "Bekreft passordet ditt",
+          "passwordPromptDescription": "Skriv inn passordet ditt for å fortsette.",
+          "passwordLabel": "Passord",
+          "backupCodesTitle": "Sikkerhetskoder",
+          "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted — de lar deg logge inn hvis du mister autentiseringsappen."
         }
       },
       "sessions": {
@@ -3221,7 +3254,7 @@
         "googleButton": "Google-konto",
         "gitHubButton": "GitHub-konto",
         "passwordsDoNotMatch": "Passordene samsvarer ikke",
-        "registrationSuccessfulButSignInFailed": "Registrering vellykket, men innlogging feilet. Prøv å logge inn manuelt.",
+        "emailAlreadyExists": "Det finnes allerede en bruker med den e-postadressen.",
         "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
         "checkInput": "Vennligst sjekk inndataene dine"
       }
@@ -3314,6 +3347,7 @@
       "description": "Vi har sendt en bekreftelses-e-post til {email}.",
       "success": "Bekreftelses-e-post sendt!",
       "failure": "Kunne ikke sende bekreftelses-e-post",
+      "cooldown": "En bekreftelses-e-post ble nylig sendt. Vent noen minutter før du ber om en ny.",
       "sending": "Sender...",
       "resend": "Send e-post på nytt"
     },
@@ -4062,6 +4096,7 @@
       "viewPage": "Vis side",
       "more": "Flere handlinger",
       "linkCopied": "Lenke kopiert til utklippstavlen",
+      "linkCopyFailed": "Kunne ikke kopiere lenken",
       "openPublicPage": "Åpne offentlig side",
       "editPage": "Rediger side",
       "manageIncidents": "Administrer hendelser",

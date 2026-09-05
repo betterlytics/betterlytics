@@ -1,5 +1,204 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v148ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.8',
+    releasedAt: '2026-08-16',
+    title: 'Autenticazione rinnovata',
+    summary:
+      "Betterlytics si basa ora su un nuovo sistema per gli account e l'accesso, mantenuto attivamente e con aggiornamenti di sicurezza costanti. Tutto funziona come prima, ma l'autenticazione a due fattori va configurata di nuovo.",
+  },
+  sections: [
+    {
+      id: 'v148-authentication',
+      title: 'Autenticazione rinnovata',
+      blocks: [
+        {
+          type: 'text',
+          body: "Abbiamo spostato il sistema che gestisce il tuo account, le tue sessioni e l'accesso su una base moderna e sviluppata attivamente, che riceve aggiornamenti di sicurezza costanti. L'accesso con email e password, quello con Google e GitHub e l'autenticazione a due fattori continuano a funzionare, e la tua password, le tue dashboard, i membri del tuo team e i tuoi dati restano invariati.",
+        },
+        {
+          type: 'list',
+          items: [
+            "L'autenticazione a due fattori va configurata di nuovo: non è stato possibile trasferire le configurazioni esistenti al nuovo sistema. Abbiamo avvisato via email tutti gli utenti coinvolti.",
+            'Per riattivarla, apri Impostazioni dal menu del tuo profilo e vai a Sicurezza account. La tua app di autenticazione riceverà un nuovo QR code e potrai eliminare la vecchia voce Betterlytics.',
+            'Al momento del rilascio la tua sessione potrebbe essere stata chiusa una volta. È dipeso dal passaggio in sé, non da un problema del tuo account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Per attivare l'autenticazione a due fattori è ora necessario confermare la password del tuo account prima che venga mostrato il QR code.",
+            'Per disattivarla è ora necessaria la password del tuo account, invece di un codice dalla tua app di autenticazione.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Verificare la tua sessione richiede ora meno lavoro a ogni pagina e la dashboard risulta un po' più scattante da esplorare.",
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v148ChangelogModalIt: ChangelogEntryData = {
+  metadata: v148ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v148-modal-authentication',
+      title: 'Autenticazione rinnovata',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Abbiamo spostato il sistema che gestisce il tuo account, le tue sessioni e l'accesso su una base moderna e sviluppata attivamente, che riceve aggiornamenti di sicurezza costanti.",
+            "L'autenticazione a due fattori va configurata di nuovo: non è stato possibile trasferire le configurazioni esistenti. Abbiamo avvisato via email tutti gli utenti coinvolti.",
+            'Per riattivarla, apri Impostazioni dal menu del tuo profilo e vai a Sicurezza account. La tua app di autenticazione riceverà un nuovo QR code.',
+            'Al momento del rilascio la tua sessione potrebbe essere stata chiusa una volta. È dipeso dal passaggio in sé, non da un problema del tuo account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Per attivare o disattivare l'autenticazione a due fattori è ora necessaria la password del tuo account.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Verificare la tua sessione richiede ora meno lavoro a ogni pagina e la dashboard risulta un po' più scattante.",
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v147ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.7',
+    releasedAt: '2026-08-09',
+    title: 'Il plugin WordPress di Betterlytics',
+    summary:
+      "Il nostro plugin ufficiale per WordPress è disponibile: collega il tuo sito da wp-admin, senza scrivere una riga di codice. Questa versione porta anche il dettaglio dell'utilizzo nelle impostazioni di fatturazione e la prima ondata di un filtro anti-bot molto più efficace.",
+  },
+  sections: [
+    {
+      id: 'v147-wordpress',
+      title: 'Plugin WordPress',
+      blocks: [
+        {
+          type: 'text',
+          body: "Betterlytics ha ora un plugin ufficiale per WordPress, disponibile nella directory dei plugin di WordPress.org. Installalo da wp-admin, incolla il tuo Site ID, attiva il tracciamento e i dati inizieranno ad arrivare. Non c'è nessuno snippet da aggiungere al tema, e non devi rimettere mano a nulla dopo un aggiornamento.",
+        },
+        {
+          type: 'list',
+          items: [
+            'Visualizzazioni di pagina, visitatori, sessioni, referrer, campagne, dispositivi e geografia, dal momento in cui attivi il tracciamento.',
+            'Clic sui link in uscita, Core Web Vitals e tracciamento dei clic su qualsiasi pulsante o link, ciascuno attivabile con una singola opzione.',
+            "Una procedura guidata all'interno di wp-admin che ti accompagna nel collegare il sito.",
+            'Tutte le impostazioni sono gestibili anche da WP-CLI, per i siti distribuiti tramite una pipeline.',
+          ],
+        },
+        {
+          type: 'text',
+          body: "Alcune funzionalità si configurano direttamente sullo script di tracciamento e non sono ancora disponibili nel plugin: session replay, tracciamento degli errori, raggruppamento dinamico degli URL e proprietà globali. Per ora richiedono l'installazione manuale dello script. La nostra documentazione ha una sezione dedicata a WordPress con la procedura di installazione, tutte le impostazioni e ciò che il plugin misura, e ciò che non misura.",
+        },
+      ],
+    },
+    {
+      id: 'v147-bot-filtering',
+      title: 'Filtro anti-bot più efficace',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Il traffico automatizzato è una delle principali cause di analisi fuorvianti, così abbiamo ricostruito il modo in cui Betterlytics lo riconosce. La prima ondata di nuove regole è attiva e filtra più bot, crawler e referrer spam prima ancora che arrivino nei tuoi report.',
+        },
+        {
+          type: 'text',
+          body: "In parallelo, un insieme molto più ampio di regole lavora in modalità osservazione: segnala il traffico sospetto senza incidere sui tuoi numeri, così possiamo valutare ogni regola sul traffico reale prima che inizi a filtrare. Seguiranno altre ondate man mano che le regole si dimostrano affidabili, e i tuoi dati saranno ogni volta un po' più puliti.",
+        },
+      ],
+    },
+    {
+      id: 'v147-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Le impostazioni di fatturazione includono ora il dettaglio dell'utilizzo, che mostra quali tipi di evento compongono la tua quota mensile e quanto contribuisce ciascuno dei tuoi siti.",
+            'Il dettaglio chiarisce anche cosa è gratuito: il tempo sulla pagina e la profondità di scorrimento sono tracciati come eventi separati, ma non incidono sulla tua quota.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'La nostra pipeline degli eventi è ora più robusta durante i rilasci e le interruzioni di servizio, così i tuoi dati continuano ad arrivare in modo affidabile.',
+            'Vari piccoli miglioramenti di design e usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Un vecchio link alla dashboard non finisce più in un ciclo di reindirizzamenti: ora ti porta all'elenco delle tue dashboard.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Abbiamo rafforzato la ricezione degli eventi contro dati malformati e malevoli, insieme ad aggiornamenti generali di sicurezza per mantenere Betterlytics stabile e sicuro.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v146ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.6',
@@ -190,9 +389,11 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v146ChangelogEntryIt;
+export const latestChangelogModalIt = v148ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v148ChangelogEntryIt,
+  v147ChangelogEntryIt,
   v146ChangelogEntryIt,
   v145ChangelogEntryIt,
   v144ChangelogEntryIt,

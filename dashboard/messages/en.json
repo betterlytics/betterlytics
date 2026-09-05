@@ -735,7 +735,6 @@
         "title": "Sign in to your account",
         "subtitle": "Access your analytics dashboard",
         "errors": {
-          "CredentialsSignin": "Invalid email or password. Please check your credentials and try again.",
           "OAuthAccountNotLinked": "An account with this email already exists. Please sign in with your email and password instead.",
           "default": "An error occurred during sign in. Please try again."
         },
@@ -819,7 +818,8 @@
           "sending": "Sending...",
           "remember": "Remember your password?",
           "backToSignIn": "Back to Sign In"
-        }
+        },
+        "errorMessageTooManyRequests": "Too many reset requests. Please try again later."
       },
       "resetPassword": {
         "seo": {
@@ -848,7 +848,14 @@
         },
         "form": {
           "title": "Set your new password",
-          "description": "Enter your new password below"
+          "description": "Enter your new password below",
+          "errors": {
+            "invalidToken": "This reset link is invalid or has expired. Please request a new one.",
+            "weakPassword": "Password does not meet the requirements.",
+            "tooManyAttempts": "Too many attempts. Please try again later.",
+            "generic": "Failed to reset password. Please try again."
+          },
+          "successMessage": "Password reset successful!"
         },
         "cta": {
           "remember": "Remember your password?",
@@ -2855,7 +2862,8 @@
         "resend": "Resend verification email",
         "sending": "Sending...",
         "toastSuccess": "Verification email sent! Please check your inbox.",
-        "toastFailure": "Failed to send verification email"
+        "toastFailure": "Failed to send verification email",
+        "cooldown": "A verification email was sent recently. Please wait a few minutes before requesting another."
       }
     },
     "topbar": {
@@ -2953,8 +2961,25 @@
         "usage": {
           "title": "Usage",
           "eventsLabel": "Events",
-          "eventsUsed": "{current} / {limit} ({percentage})",
-          "resetsInDays": "Resets in {days} days"
+          "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "resetsInDays": "Resets in {days} days",
+          "breakdown": {
+            "byType": "By type",
+            "bySite": "By site",
+            "showAllSites": "{count, plural, one {Show # more site} other {Show # more sites}}",
+            "showFewerSites": "Show fewer sites",
+            "otherSites": "{count, plural, one {Other (# site)} other {Other (# sites)}}",
+            "nonBillableNote": "Time on page and scroll depth are tracked as separate events, but don't count toward your quota.",
+            "loadError": "Could not load your usage breakdown.",
+            "empty": "No billable events recorded yet this period.",
+            "eventTypes": {
+              "pageview": "Page views",
+              "custom": "Custom events",
+              "cwv": "Core Web Vitals",
+              "outbound_link": "Outbound links",
+              "client_error": "Errors"
+            }
+          }
         },
         "payment": {
           "title": "Payment & Invoices",
@@ -2998,13 +3023,16 @@
         "newPassword": "New Password",
         "confirmNewPassword": "Confirm New Password",
         "passwordHelp": "Password must be at least 8 characters long",
+        "weakPassword": "Password must be at least 8 characters and contain both uppercase and lowercase letters",
+        "invalidCurrentPassword": "Current password is incorrect",
         "passwordsMatch": "Passwords match",
         "changePassword": "Change Password",
         "passwordManagedByOAuth": "Password managed by OAuth",
         "togglePasswordVisibility": "Toggle {field} visibility",
         "cancel": "Cancel",
         "toast": {
-          "success": "Password updated successfully"
+          "success": "Password updated successfully",
+          "tooManyAttempts": "Too many attempts. Please wait a moment and try again."
         },
         "totp": {
           "title": "Two-Factor Authentication",
@@ -3016,14 +3044,19 @@
           "enabled": "Enabled",
           "disable": "Disable",
           "disableTitle": "Disable 2FA",
-          "disableDescription": "Enter the verification code from your authenticator app to disable two-factor authentication.",
+          "disableDescription": "Enter your account password to disable two-factor authentication.",
           "disabledSuccess": "Two-factor authentication disabled successfully",
           "disableFailed": "Failed to disable two-factor authentication. Please try again.",
           "setupFailed": "Failed to setup two-factor authentication. Please try again.",
           "copyFailed": "Failed to copy",
           "enabledSuccess": "Two-factor authentication enabled successfully",
           "enableFailed": "Failed to enable two-factor authentication. Please try again.",
-          "managedByOAuth": "Two-factor authentication is managed by your sign-in provider"
+          "managedByOAuth": "Two-factor authentication is managed by your sign-in provider",
+          "passwordPromptTitle": "Confirm your password",
+          "passwordPromptDescription": "Enter your account password to continue.",
+          "passwordLabel": "Password",
+          "backupCodesTitle": "Backup codes",
+          "backupCodesDescription": "Store these one-time codes somewhere safe — they let you sign in if you lose your authenticator."
         }
       },
       "sessions": {
@@ -3218,7 +3251,7 @@
         "googleButton": "Google",
         "gitHubButton": "GitHub",
         "passwordsDoNotMatch": "Passwords do not match",
-        "registrationSuccessfulButSignInFailed": "Registration successful, but sign in failed. Please try signing in manually.",
+        "emailAlreadyExists": "User with that email already exists.",
         "signUpError": "An error occurred during sign up. Please try again.",
         "checkInput": "Please check your input"
       }
@@ -3311,6 +3344,7 @@
       "description": "We've sent a verification email to {email}.",
       "success": "Verification email sent!",
       "failure": "Failed to send verification email",
+      "cooldown": "A verification email was sent recently. Please wait a few minutes before requesting another.",
       "sending": "Sending...",
       "resend": "Resend email"
     },
@@ -4059,6 +4093,7 @@
       "viewPage": "View page",
       "more": "More actions",
       "linkCopied": "Link copied to clipboard",
+      "linkCopyFailed": "Failed to copy link",
       "openPublicPage": "Open public page",
       "editPage": "Edit page",
       "manageIncidents": "Manage incidents",
