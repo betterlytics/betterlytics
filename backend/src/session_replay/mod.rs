@@ -73,6 +73,10 @@ fn replay_duration_seconds(meta: &SessionReplayMetaRow) -> u32 {
     ((meta.client_ended_at_ms - meta.client_started_at_ms) / 1000).clamp(0, i64::from(u32::MAX)) as u32
 }
 
+fn estimated_started_at(received_at: DateTime<Utc>, chunk_client_end_ms: i64, session_client_start_ms: i64) -> DateTime<Utc> {
+    received_at - chrono::Duration::milliseconds(chunk_client_end_ms - session_client_start_ms)
+}
+
 fn merge_chunk_errors(meta: &mut SessionReplayMetaRow, errors: envelope::ChunkErrors) {
     meta.error_fingerprints.extend(errors.fingerprints);
     meta.error_fingerprints.sort_unstable();
@@ -236,8 +240,9 @@ pub async fn upload_segment(
         .await
         .map_err(store_error)?;
 
+    let started_at = estimated_started_at(received_at, client_bounds.1, client_started_at_ms);
     let mut meta = loaded.unwrap_or_else(|| SessionReplayMetaRow {
-        started_at: received_at,
+        started_at,
         ended_at: received_at,
         size_bytes: 0,
         start_url: start_url.clone(),
@@ -248,6 +253,7 @@ pub async fn upload_segment(
         error_fingerprints: Vec::new(),
         recorded_error_count: 0,
     });
+    meta.started_at = meta.started_at.min(started_at);
     meta.ended_at = meta.ended_at.max(received_at);
     meta.client_started_at_ms = client_started_at_ms;
     meta.client_ended_at_ms = client_ended_at_ms;
@@ -437,6 +443,25 @@ mod tests {
             let start = T + offset;
             let meta = merge_all(&[(start, start + 30_000), (start + 30_000, start + 60_000)]);
             assert_eq!(replay_duration_seconds(&meta), 60);
+        }
+    }
+
+    #[test]
+    fn started_at_estimate_cancels_the_client_clock_offset_and_upload_latency() {
+        let true_start = DateTime::from_timestamp_millis(T).unwrap();
+        let ms = chrono::Duration::milliseconds;
+        for offset in [0, THREE_DAYS_MS, -THREE_DAYS_MS] {
+            let client_start = T + offset;
+            // First chunk covers 15s of recording and arrives 300ms after its last event.
+            let first = estimated_started_at(true_start + ms(15_300), client_start + 15_000, client_start);
+            assert_eq!(first, true_start + ms(300));
+            // A later chunk with a faster upload gives a tighter estimate.
+            let second = estimated_started_at(true_start + ms(60_050), client_start + 60_000, client_start);
+            assert_eq!(second, true_start + ms(50));
+            // A retry of the first chunk arrives much later and estimates later, so min() ignores it.
+            let retry = estimated_started_at(true_start + ms(120_000), client_start + 15_000, client_start);
+            assert!(retry > first);
+            assert_eq!(first.min(second).min(retry), second);
         }
     }
 
