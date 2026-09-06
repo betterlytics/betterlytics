@@ -23,6 +23,36 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+
+// Backup codes are `xxxxx-xxxxx` over [A-Za-z0-9]; the hyphen brings the total to 11.
+const BACKUP_CODE_LENGTH = 11;
+
+/**
+ * Normalises whatever the user typed or pasted into `xxxxx-xxxxx`, dropping characters that cannot
+ * appear in a code and re-inserting the separator. Case is preserved deliberately: codes are mixed
+ * case and compared exactly, so re-casing here would reject valid codes.
+ */
+function formatBackupCode(value: string) {
+  const chars = value.replace(/[^A-Za-z0-9]/g, '').slice(0, 10);
+  return chars.length > 5 ? `${chars.slice(0, 5)}-${chars.slice(5)}` : chars;
+}
+
+function FormError({ message, className }: { message: string; className?: string }) {
+  if (!message) return null;
+
+  return (
+    <div
+      className={cn(
+        'bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3',
+        className,
+      )}
+      role='alert'
+    >
+      <span className='block sm:inline'>{message}</span>
+    </div>
+  );
+}
 
 type LoginFormProps = {
   registrationDisabledMessage?: string | null;
@@ -39,6 +69,8 @@ export default function LoginForm({
   const isMobile = useIsMobile();
   const t = useTranslations('public.auth.signin.form');
   const totpInputRef = useRef<HTMLInputElement>(null);
+  const backupCodeInputRef = useRef<HTMLInputElement>(null);
+  const autoSubmittedCodeRef = useRef('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [totp, setTotp] = useState('');
@@ -63,18 +95,21 @@ export default function LoginForm({
     totpInputRef.current?.focus();
   }, [totpInputRef, isPending]);
 
-  const Error = () => {
-    return (
-      error && (
-        <div
-          className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
-          role='alert'
-        >
-          <span className='block sm:inline'>{error}</span>
-        </div>
-      )
-    );
-  };
+  // Keep a rejected code on screen but selected, so retrying overwrites it instead of forcing a retype.
+  useEffect(() => {
+    if (isPending || !useBackupCode || !error) return;
+
+    backupCodeInputRef.current?.select();
+  }, [isPending, useBackupCode, error]);
+
+  // AutoSubmit once a full code is entered
+  useEffect(() => {
+    if (isPending || !useBackupCode || backupCode.length < BACKUP_CODE_LENGTH) return;
+    if (autoSubmittedCodeRef.current === backupCode) return;
+
+    autoSubmittedCodeRef.current = backupCode;
+    backupCodeInputRef.current?.form?.requestSubmit();
+  }, [isPending, useBackupCode, backupCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,11 +119,10 @@ export default function LoginForm({
       try {
         if (isDialogOpen) {
           const { error: verifyError } = useBackupCode
-            ? await authClient.twoFactor.verifyBackupCode({ code: backupCode.trim() })
+            ? await authClient.twoFactor.verifyBackupCode({ code: backupCode })
             : await authClient.twoFactor.verifyTotp({ code: totp });
           if (verifyError) {
             setTotp('');
-            setBackupCode('');
             setError(t(useBackupCode ? 'errors.invalidBackupCode' : 'errors.invalidOtp'));
             return;
           }
@@ -141,7 +175,7 @@ export default function LoginForm({
 
   return (
     <form id='login' className='space-y-6' onSubmit={handleSubmit}>
-      {!isDialogOpen && <Error />}
+      {!isDialogOpen && <FormError message={error} />}
       <div className='space-y-4'>
         <div className='space-y-2'>
           <Label htmlFor='email'>{t('emailLabel')}</Label>
@@ -243,6 +277,7 @@ export default function LoginForm({
           if (!open) {
             setUseBackupCode(false);
             setBackupCode('');
+            autoSubmittedCodeRef.current = '';
           }
           setIsDialogOpen(open);
         }}
@@ -254,15 +289,20 @@ export default function LoginForm({
               {t(useBackupCode ? 'twoFactor.backupCodeDescription' : 'twoFactor.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <Error />
+          <FormError message={error} className='text-sm' />
           {isPending ? (
             <Spinner className='m-auto' />
           ) : useBackupCode ? (
             <Input
+              ref={backupCodeInputRef}
               value={backupCode}
-              onChange={(e) => setBackupCode(e.target.value)}
+              onChange={(e) => setBackupCode(formatBackupCode(e.target.value))}
               placeholder='xxxxx-xxxxx'
               autoComplete='off'
+              autoCapitalize='none'
+              autoCorrect='off'
+              spellCheck={false}
+              maxLength={BACKUP_CODE_LENGTH}
               autoFocus
               form='login'
               className='text-center font-mono'
@@ -286,6 +326,7 @@ export default function LoginForm({
               setError('');
               setTotp('');
               setBackupCode('');
+              autoSubmittedCodeRef.current = '';
               setUseBackupCode((v) => !v);
             }}
             className='text-muted-foreground hover:text-foreground w-full cursor-pointer font-normal'
@@ -300,7 +341,7 @@ export default function LoginForm({
               <Button
                 type='submit'
                 form='login'
-                disabled={isPending || !backupCode.trim()}
+                disabled={isPending || backupCode.length < BACKUP_CODE_LENGTH}
                 className='cursor-pointer'
               >
                 {t('twoFactor.verify')}
