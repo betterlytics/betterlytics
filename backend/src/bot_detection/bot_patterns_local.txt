@@ -19,10 +19,6 @@ googleproducer
 mediapartners-google
 # Site24x7 monitoring (the bare "24x7" pattern is shadow-only)
 site24x7
-# Crawlers promoted from four weeks of production bot_events shadow data (2026-08-09
-# to 2026-09-06): every session showed zero trusted input events, zero outbound
-# clicks and the self-identifying UA. Upstream only catches them via the demoted
-# generic words (spider, radar, google, \.com\b).
 baiduspider
 bytespider
 sogou web spider
