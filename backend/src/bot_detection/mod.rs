@@ -389,6 +389,16 @@ mod tests {
         "FeedFetcher-Google; (+http://www.google.com/feedfetcher.html)",
         "Site24x7",
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Chrome-Lighthouse",
+        // Local promotions backed by bot_events shadow data (see bot_patterns_local.txt)
+        "Mozilla/5.0 (compatible; Baiduspider-render/2.0; +http://www.baidu.com/search/spider.html)",
+        "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)",
+        "Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko; compatible; Yeti/1.1; +https://naver.me/spd) Chrome/149.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 iubenda-radar/3.30.0",
+        "Mozilla/5.0 (compatible; Dataprovider.com)",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.173 Safari/537.36 PlayStore-Google",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko; Google-BusinessLinkVerification) Chrome/151.0.7922.173 Safari/537.36",
+        "Google",
     ];
 
     // Real browser UAs, including in-app webviews, Electron shells, and niche
@@ -435,11 +445,8 @@ mod tests {
         "Go-http-client/2.0",
         "okhttp/4.12.0",
         "Scrapy/2.11.0 (+https://scrapy.org)",
-        // Named crawlers whose only upstream coverage is a demoted generic token
-        // (spider, node\b); shadow until bot_events evidence promotes a signature
-        "Mozilla/5.0 (compatible; Bytespider; spider-feedback@bytedance.com)",
-        "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)",
-        "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)",
+        // Named crawler whose only upstream coverage is a demoted generic token
+        // (node\b); shadow until bot_events evidence promotes a signature
         "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)",
     ];
 
