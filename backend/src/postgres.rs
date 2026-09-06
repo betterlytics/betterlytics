@@ -57,4 +57,10 @@ impl PostgresPool {
     ) -> Result<PooledConnection<'_, PostgresConnectionManager<NoTls>>, PostgresError> {
         Ok(self.pool.get().await?)
     }
+
+    /// The pool connects lazily; checking out one connection (bb8 validates it on checkout)
+    /// is how callers verify at startup that the URL, credentials, and server are usable.
+    pub async fn check_connection(&self) -> Result<(), PostgresError> {
+        self.connection().await.map(drop)
+    }
 }

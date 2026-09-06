@@ -7,13 +7,17 @@ import { sendVerificationEmail } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { findUserById } from '@/repositories/postgres/user.repository';
+import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { makeUser, hashPassword } from '@/test/auth-fixtures';
+import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
+import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
 
 vi.mock('@/lib/env', () => ({
   env: {
     AUTH_URL: 'http://localhost:3000',
     AUTH_SECRET: 'test-auth-secret',
+    PUBLIC_BASE_URL: 'http://localhost:3000',
     GITHUB_ID: '',
     GITHUB_SECRET: '',
     GOOGLE_CLIENT_ID: '',
@@ -24,12 +28,18 @@ vi.mock('@/lib/postgres', () => ({
   default: {},
 }));
 vi.mock('@/repositories/postgres/session.repository', () => ({
-  deleteAllUserSessions: vi.fn(),
   deleteOtherUserSessions: vi.fn(),
   countUserSessions: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserById: vi.fn(),
+  findUserByEmail: vi.fn(),
+  findCredentialAccount: vi.fn(),
+}));
+vi.mock('@/repositories/postgres/resetToken.repository', () => ({
+  RESET_TOKEN_PREFIX: 'reset-password:',
+  findResetTokenUserId: vi.fn(),
+  deleteUserResetTokens: vi.fn(),
 }));
 vi.mock('@/services/account/userSettings.service', () => ({
   createDefaultUserSettings: vi.fn(),
@@ -40,6 +50,7 @@ vi.mock('@/services/billing/subscription.service', () => ({
 }));
 vi.mock('@/services/account/verification.service', () => ({
   sendVerificationEmail: vi.fn(),
+  VERIFICATION_LINK_EXPIRY_SECONDS: 86400,
 }));
 vi.mock('@/services/email/email.service', () => ({
   enqueueEmail: vi.fn(),
@@ -125,12 +136,74 @@ describe('plugins and providers', () => {
   });
 });
 
+describe('user create before hook (sign-up field stamping)', () => {
+  type BeforeHook = (user: unknown, ctx?: unknown) => Promise<{ data: Record<string, unknown> } | undefined>;
+  const runBeforeCreateHook = (user: unknown, ctx?: unknown) =>
+    (auth.options.databaseHooks!.user!.create!.before as unknown as BeforeHook)(user, ctx);
+
+  it('stamps terms acceptance on email/password sign-ups', async () => {
+    const result = await runBeforeCreateHook(
+      { ...makeUser(), emailVerified: false },
+      { path: '/sign-up/email', body: { acceptedTerms: true } },
+    );
+
+    expect(result!.data.termsAcceptedAt).toBeInstanceOf(Date);
+    expect(result!.data.termsAcceptedVersion).toBe(CURRENT_TERMS_VERSION);
+  });
+
+  it('normalizes a blank sign-up name to null', async () => {
+    const result = await runBeforeCreateHook(
+      { ...makeUser(), name: '  ', emailVerified: false },
+      { path: '/sign-up/email', body: { acceptedTerms: true } },
+    );
+
+    expect(result!.data.name).toBeNull();
+  });
+
+  it('mirrors provider-verified emails into emailVerifiedAt (OAuth)', async () => {
+    const oauthUser = { id: 'user-1', email: 'user@example.com', name: 'Test User', emailVerified: true };
+
+    const result = await runBeforeCreateHook(oauthUser, { path: '/callback/github' });
+
+    expect(result!.data.emailVerifiedAt).toBeInstanceOf(Date);
+    expect(result!.data.termsAcceptedAt).toBeUndefined();
+  });
+
+  it('stamps neither emailVerifiedAt nor terms on unverified OAuth users', async () => {
+    const oauthUser = { id: 'user-1', email: 'user@example.com', name: 'Test User', emailVerified: false };
+
+    const result = await runBeforeCreateHook(oauthUser, { path: '/callback/github' });
+
+    expect(result!.data.emailVerifiedAt).toBeUndefined();
+    expect(result!.data.termsAcceptedAt).toBeUndefined();
+    expect(result!.data.createdAt).toBeInstanceOf(Date);
+  });
+});
+
 describe('user create hook (onboarding side effects)', () => {
   const hookUser = { ...makeUser(), emailVerified: false } as never;
 
-  function runCreateHook(user = hookUser) {
-    return auth.options.databaseHooks!.user!.create!.after!(user);
+  function runCreateHook(user = hookUser, ctx?: unknown) {
+    return auth.options.databaseHooks!.user!.create!.after!(user, ctx as never);
   }
+
+  beforeEach(() => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser());
+  });
+
+  it('does nothing when the user row was rolled back with the sign-up transaction', async () => {
+    vi.mocked(findUserById).mockResolvedValue(null);
+    vi.mocked(isFeatureEnabled).mockReturnValue(true);
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await runCreateHook();
+
+    expect(createStarterSubscriptionForUser).not.toHaveBeenCalled();
+    expect(createDefaultUserSettings).not.toHaveBeenCalled();
+    expect(sendVerificationEmail).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('rolled back'), { userId: 'user-1' });
+    warn.mockRestore();
+  });
 
   it('provisions a starter subscription and default settings for new users', async () => {
     vi.mocked(isFeatureEnabled).mockReturnValue(false);
@@ -138,23 +211,23 @@ describe('user create hook (onboarding side effects)', () => {
     await runCreateHook();
 
     expect(createStarterSubscriptionForUser).toHaveBeenCalledWith('user-1');
-    expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1');
+    expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1', undefined);
   });
 
-  it('sends a verification email to new unverified users when verification is enabled', async () => {
-    vi.mocked(isFeatureEnabled).mockReturnValue(true);
+  it('creates settings with the language the user signed up in', async () => {
+    vi.mocked(isFeatureEnabled).mockReturnValue(false);
 
-    await runCreateHook();
+    await runCreateHook(hookUser, { path: '/sign-up/email', body: { acceptedTerms: true, language: 'da' } });
 
-    expect(sendVerificationEmail).toHaveBeenCalledWith({ email: 'user@example.com' });
+    expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1', 'da');
   });
 
-  it('skips the verification email when the provider already verified the address', async () => {
-    vi.mocked(isFeatureEnabled).mockReturnValue(true);
+  it('falls back to the default language when the sign-up language is unsupported', async () => {
+    vi.mocked(isFeatureEnabled).mockReturnValue(false);
 
-    await runCreateHook({ ...makeUser(), emailVerified: true } as never);
+    await runCreateHook(hookUser, { path: '/sign-up/email', body: { acceptedTerms: true, language: 'xx' } });
 
-    expect(sendVerificationEmail).not.toHaveBeenCalled();
+    expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1', undefined);
   });
 
   it('swallows side-effect failures (user creation must not fail)', async () => {
@@ -163,6 +236,47 @@ describe('user create hook (onboarding side effects)', () => {
 
     await expect(runCreateHook()).resolves.toBeUndefined();
     expect(createDefaultUserSettings).toHaveBeenCalled();
+  });
+});
+
+describe('email verification (better-auth module)', () => {
+  it('sends on sign-up with a 24h link expiry and no auto sign-in', () => {
+    expect(auth.options.emailVerification!.sendOnSignUp).toBe(true);
+    expect(auth.options.emailVerification!.expiresIn).toBe(86400);
+    expect('autoSignInAfterVerification' in auth.options.emailVerification!).toBe(false);
+  });
+
+  it.each([
+    ['sign-up', 'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2F'],
+    ['OAuth', 'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2Fdashboards'],
+  ])('always points the %s link back at our verify-email page', async (_, url) => {
+    await auth.options.emailVerification!.sendVerificationEmail!({
+      user: { id: 'user-1', email: 'user@example.com', name: 'Test User' },
+      url,
+      token: 'jwt',
+    } as never);
+
+    expect(sendVerificationEmail).toHaveBeenCalledWith(
+      { id: 'user-1', email: 'user@example.com', name: 'Test User' },
+      'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2Fverify-email%3Fverified%3D1',
+    );
+  });
+});
+
+describe('user update before hook (emailVerifiedAt sync)', () => {
+  type BeforeHook = (user: unknown) => Promise<{ data: Record<string, unknown> } | undefined>;
+  const runBeforeUpdateHook = (user: unknown) =>
+    (auth.options.databaseHooks!.user!.update!.before as unknown as BeforeHook)(user);
+
+  it('stamps emailVerifiedAt when a write flips emailVerified', async () => {
+    const result = await runBeforeUpdateHook({ emailVerified: true });
+
+    expect(result!.data.emailVerified).toBe(true);
+    expect(result!.data.emailVerifiedAt).toBeInstanceOf(Date);
+  });
+
+  it('leaves unrelated updates untouched', async () => {
+    expect(await runBeforeUpdateHook({ name: 'New Name' })).toBeUndefined();
   });
 });
 
@@ -200,19 +314,223 @@ describe('session create hook (locale sync)', () => {
 });
 
 describe('before hook (closed better-auth endpoints)', () => {
-  type BeforeHook = (ctx: { path: string; body?: unknown }) => Promise<unknown>;
+  type BeforeHook = (ctx: { path: string; body?: unknown; json: (data: unknown) => unknown }) => Promise<unknown>;
   const runBeforeHook = (path: string, body: unknown = {}) =>
-    (auth.options.hooks!.before as unknown as BeforeHook)({ path, body });
+    (auth.options.hooks!.before as unknown as BeforeHook)({ path, body, json: (data) => data });
 
-  it.each(['/change-password', '/request-password-reset', '/reset-password/some-token', '/update-user'])(
-    '%s returns 404 (these mutations run through our server actions)',
-    async (path) => {
-      await expect(runBeforeHook(path)).rejects.toMatchObject({ statusCode: 404 });
+  it('/update-user returns 404 (profile mutations run through our server actions)', async () => {
+    await expect(runBeforeHook('/update-user')).rejects.toMatchObject({ statusCode: 404 });
+  });
+
+  it('leaves the live endpoints alone', async () => {
+    vi.mocked(findUserByEmail).mockResolvedValue(makeUser());
+    vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' });
+
+    await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
+    await expect(runBeforeHook('/request-password-reset', { email: 'user@example.com' })).resolves.toBeUndefined();
+    await expect(runBeforeHook('/reset-password', { newPassword: 'Correct-horse-1' })).resolves.toBeUndefined();
+  });
+
+  describe('reset request guard (OAuth-only accounts)', () => {
+    const body = { email: 'user@example.com' };
+
+    it('short-circuits with the unknown-email response so no token is minted', async () => {
+      vi.mocked(findUserByEmail).mockResolvedValue(makeUser());
+      vi.mocked(findCredentialAccount).mockResolvedValue(null);
+
+      await expect(runBeforeHook('/request-password-reset', body)).resolves.toEqual({
+        status: true,
+        message: 'If this email exists in our system, check your email for the reset link',
+      });
+      expect(findUserByEmail).toHaveBeenCalledWith('user@example.com');
+    });
+
+    it('lets unknown emails through to better-auth (which fakes the same response)', async () => {
+      vi.mocked(findUserByEmail).mockResolvedValue(null);
+
+      await expect(runBeforeHook('/request-password-reset', body)).resolves.toBeUndefined();
+      expect(findCredentialAccount).not.toHaveBeenCalled();
+    });
+  });
+
+  it.each([{}, { revokeOtherSessions: false }])(
+    'forces revokeOtherSessions on /change-password even when the client sends %o',
+    async (flags) => {
+      await expect(
+        runBeforeHook('/change-password', { currentPassword: 'old', newPassword: 'Correct-horse-1', ...flags }),
+      ).resolves.toEqual({
+        context: {
+          body: { currentPassword: 'old', newPassword: 'Correct-horse-1', revokeOtherSessions: true },
+        },
+      });
     },
   );
 
-  it('leaves the live endpoints alone', async () => {
-    await expect(runBeforeHook('/sign-in/email', { email: 'user@example.com' })).resolves.toBeUndefined();
+  describe('reset redemption guard (OAuth-only accounts)', () => {
+    const body = { token: 'raw-token', newPassword: 'Correct-horse-1' };
+
+    it('rejects redemption when the token belongs to an account without a password', async () => {
+      vi.mocked(findResetTokenUserId).mockResolvedValue('user-1');
+      vi.mocked(findCredentialAccount).mockResolvedValue(null);
+
+      await expect(runBeforeHook('/reset-password', body)).rejects.toMatchObject({
+        statusCode: 400,
+        body: { code: 'INVALID_TOKEN' },
+      });
+      expect(findResetTokenUserId).toHaveBeenCalledWith(resetTokenStoredIdentifier('raw-token'));
+    });
+
+    it('lets credential accounts and unknown tokens through to better-auth', async () => {
+      vi.mocked(findResetTokenUserId).mockResolvedValue('user-1');
+      vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' } as never);
+      await expect(runBeforeHook('/reset-password', body)).resolves.toBeUndefined();
+
+      vi.mocked(findResetTokenUserId).mockResolvedValue(null);
+      await expect(runBeforeHook('/reset-password', body)).resolves.toBeUndefined();
+    });
+  });
+
+  it.each([
+    ['/change-password', { newPassword: 'no-uppercase-1' }],
+    ['/sign-up/email', { password: 'no-uppercase-1', acceptedTerms: true }],
+    ['/reset-password', { newPassword: 'no-uppercase-1' }],
+  ])('rejects weak passwords on %s when the client-side schema is bypassed', async (path, body) => {
+    await expect(runBeforeHook(path, body)).rejects.toMatchObject({
+      statusCode: 400,
+      body: { code: 'WEAK_PASSWORD' },
+    });
+  });
+
+  describe('sign-up terms gate', () => {
+    it('rejects sign-ups that do not accept the terms of service', async () => {
+      await expect(runBeforeHook('/sign-up/email', { password: 'Correct-horse-1' })).rejects.toMatchObject({
+        statusCode: 400,
+        body: { code: 'TERMS_NOT_ACCEPTED' },
+      });
+      await expect(
+        runBeforeHook('/sign-up/email', { password: 'Correct-horse-1', acceptedTerms: false }),
+      ).rejects.toMatchObject({ body: { code: 'TERMS_NOT_ACCEPTED' } });
+    });
+
+    it('lets sign-ups through once the terms are accepted', async () => {
+      await expect(
+        runBeforeHook('/sign-up/email', { password: 'Correct-horse-1', acceptedTerms: true }),
+      ).resolves.toBeUndefined();
+    });
+  });
+});
+
+describe('password reset (built-in endpoints)', () => {
+  const RESET_USER = makeUser() as never;
+
+  it('keeps the 1-hour token expiry and revokes all sessions after a reset', () => {
+    expect(auth.options.emailAndPassword).toMatchObject({
+      resetPasswordTokenExpiresIn: 3600,
+      revokeSessionsOnPasswordReset: true,
+    });
+  });
+
+  it('sendResetPassword prunes older tokens and enqueues the emailed better-auth url', async () => {
+    await auth.options.emailAndPassword!.sendResetPassword!({
+      user: RESET_USER,
+      url: 'http://localhost:3000/api/auth/reset-password/tok-1?callbackURL=%2Freset-password',
+      token: 'tok-1',
+    });
+
+    expect(deleteUserResetTokens).toHaveBeenCalledWith('user-1', resetTokenStoredIdentifier('tok-1'));
+    expect(enqueueEmail).toHaveBeenCalledWith({
+      type: 'reset-password',
+      recipientKey: expect.any(String),
+      campaignKey: resetTokenStoredIdentifier('tok-1'),
+      data: {
+        to: 'user@example.com',
+        userName: 'Test User',
+        resetUrl: 'http://localhost:3000/api/auth/reset-password/tok-1?callbackURL=%2Freset-password',
+        expirationTime: '1 hour',
+      },
+    });
+  });
+
+  it('stores reset tokens hashed at rest but keeps the identifier prefix', async () => {
+    const overrides = (
+      auth.options.verification!.storeIdentifier as unknown as {
+        overrides: Record<string, { hash: (identifier: string) => Promise<string> }>;
+      }
+    ).overrides;
+
+    const stored = await overrides['reset-password:']!.hash('reset-password:tok-1');
+
+    expect(stored).toBe(resetTokenStoredIdentifier('tok-1'));
+    expect(stored).toMatch(/^reset-password:[0-9a-f]{64}$/);
+    expect(stored).not.toContain('tok-1');
+  });
+
+  it('onPasswordReset invalidates remaining tokens and sends the password-changed notification', async () => {
+    await auth.options.emailAndPassword!.onPasswordReset!({ user: RESET_USER });
+
+    expect(deleteUserResetTokens).toHaveBeenCalledWith('user-1');
+    expect(enqueueEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'password-changed',
+        recipientKey: 'user:user-1',
+        data: {
+          to: 'user@example.com',
+          userName: 'Test User',
+          resetPasswordUrl: 'http://localhost:3000/forgot-password',
+        },
+      }),
+    );
+  });
+});
+
+describe('account update hook (password-changed notification)', () => {
+  const runAccountUpdateHook = (path?: string, user: unknown = makeUser()) =>
+    auth.options.databaseHooks!.account!.update!.after!(
+      { id: 'account-1', userId: 'user-1' } as never,
+      {
+        path,
+        context: { session: user ? { user } : null },
+      } as never,
+    );
+
+  it('enqueues a password-changed notification after /change-password updates the account', async () => {
+    await runAccountUpdateHook('/change-password');
+
+    expect(enqueueEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'password-changed',
+        recipientKey: 'user:user-1',
+        data: {
+          to: 'user@example.com',
+          userName: 'Test User',
+          resetPasswordUrl: 'http://localhost:3000/forgot-password',
+        },
+      }),
+    );
+  });
+
+  it('ignores account updates from other endpoints (OAuth token refreshes, /reset-password has onPasswordReset)', async () => {
+    await runAccountUpdateHook('/callback/github');
+    await runAccountUpdateHook('/reset-password');
+    await runAccountUpdateHook();
+
+    expect(enqueueEmail).not.toHaveBeenCalled();
+  });
+
+  it('logs instead of notifying when the request carries no session', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(runAccountUpdateHook('/change-password', null)).resolves.toBeUndefined();
+
+    expect(enqueueEmail).not.toHaveBeenCalled();
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('no session user'), { accountId: 'account-1' });
+    error.mockRestore();
+  });
+
+  it('does not fail the password change when the enqueue throws', async () => {
+    vi.mocked(enqueueEmail).mockRejectedValue(new Error('queue down'));
+
+    await expect(runAccountUpdateHook('/change-password')).resolves.toBeUndefined();
   });
 });
 

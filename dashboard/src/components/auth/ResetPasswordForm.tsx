@@ -3,11 +3,12 @@
 import { useState, useTransition } from 'react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { toast } from 'sonner';
-import { resetPasswordAction } from '@/app/actions/auth/passwordReset.action';
+import { authClient } from '@/lib/auth-client';
 import { ResetPasswordSchema } from '@/entities/auth/passwordReset.entities';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useTranslations } from 'next-intl';
 
 interface ResetPasswordFormProps {
   token: string;
@@ -19,6 +20,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const router = useBARouter();
+  const t = useTranslations('public.auth.resetPassword.form');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,17 +34,29 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       });
 
       startTransition(async () => {
-        const result = await resetPasswordAction(validatedData);
+        const { error: resetError } = await authClient.resetPassword({
+          newPassword: validatedData.newPassword,
+          token: validatedData.token,
+        });
 
-        if (result) {
-          toast.success('Password reset successful!');
-          router.push('/signin');
-        } else {
-          setError('Failed to reset password');
+        if (resetError) {
+          if (resetError.status === 429) {
+            setError(t('errors.tooManyAttempts'));
+          } else if (resetError.code === 'INVALID_TOKEN') {
+            setError(t('errors.invalidToken'));
+          } else if (resetError.code === 'WEAK_PASSWORD') {
+            setError(t('errors.weakPassword'));
+          } else {
+            setError(t('errors.generic'));
+          }
+          return;
         }
+
+        toast.success(t('successMessage'));
+        router.push('/signin');
       });
-    } catch (error) {
-      setError('Please check your password requirements');
+    } catch {
+      setError(t('errors.weakPassword'));
     }
   };
 

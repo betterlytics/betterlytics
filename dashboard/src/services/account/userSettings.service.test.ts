@@ -1,13 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { changeUserPassword, deleteUser, getUserSettings } from '@/services/account/userSettings.service';
+import { deleteUser, getUserSettings } from '@/services/account/userSettings.service';
 import * as UserRepository from '@/repositories/postgres/user.repository';
 import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
-import * as SessionRepository from '@/repositories/postgres/session.repository';
 import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
 import * as InvitationRepository from '@/repositories/postgres/invitation.repository';
-import { enqueueEmail } from '@/services/email/email.service';
 import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
-import { makeUser } from '@/test/auth-fixtures';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -15,11 +12,7 @@ vi.mock('@/lib/env', () => ({
   },
 }));
 vi.mock('@/repositories/postgres/user.repository', () => ({
-  findUserById: vi.fn(),
-  findUserByEmail: vi.fn(),
   updateUser: vi.fn(),
-  updateUserPassword: vi.fn(),
-  verifyUserPassword: vi.fn(),
   anonymizeUser: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/userSettings.repository', () => ({
@@ -27,118 +20,15 @@ vi.mock('@/repositories/postgres/userSettings.repository', () => ({
   createUserSettings: vi.fn(),
   updateUserSettings: vi.fn(),
 }));
-vi.mock('@/repositories/postgres/session.repository', () => ({
-  deleteAllUserSessions: vi.fn(),
-  deleteOtherUserSessions: vi.fn(),
-  countUserSessions: vi.fn(),
-}));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
   deleteOwnedDashboards: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/invitation.repository', () => ({
   cancelPendingInvitationsForDashboards: vi.fn(),
 }));
-vi.mock('@/repositories/postgres/passwordReset.repository', () => ({
-  createPasswordResetToken: vi.fn(),
-  findPasswordResetToken: vi.fn(),
-  deletePasswordResetToken: vi.fn(),
-  deleteUserPasswordResetTokens: vi.fn(),
-}));
-vi.mock('@/services/email/email.service', () => ({
-  enqueueEmail: vi.fn(),
-}));
-
-const SESSION_TOKEN = 'current-session-token';
 
 beforeEach(() => {
   vi.clearAllMocks();
-});
-
-describe('changeUserPassword', () => {
-  it('rejects when there is no active session token', async () => {
-    await expect(changeUserPassword('user-1', 'Old-password-1', 'New-password-1', undefined)).rejects.toMatchObject({
-      name: 'UserException',
-      message: 'No active session token found',
-    });
-    expect(UserRepository.verifyUserPassword).not.toHaveBeenCalled();
-    expect(UserRepository.updateUserPassword).not.toHaveBeenCalled();
-  });
-
-  it('rejects when the current password is wrong, without updating anything', async () => {
-    vi.mocked(UserRepository.verifyUserPassword).mockResolvedValue(false);
-
-    await expect(
-      changeUserPassword('user-1', 'Wrong-password-1', 'New-password-1', SESSION_TOKEN),
-    ).rejects.toMatchObject({
-      name: 'UserException',
-      message: 'Current password is incorrect',
-    });
-    expect(UserRepository.updateUserPassword).not.toHaveBeenCalled();
-    expect(SessionRepository.deleteOtherUserSessions).not.toHaveBeenCalled();
-  });
-
-  it('rejects OAuth-only accounts (no local password): password management belongs to the provider', async () => {
-    // verifyUserPassword returns false when there is no password hash.
-    vi.mocked(UserRepository.verifyUserPassword).mockResolvedValue(false);
-
-    await expect(
-      changeUserPassword('oauth-user', 'Anything-at-all-1', 'New-password-1', SESSION_TOKEN),
-    ).rejects.toMatchObject({ name: 'UserException', message: 'Current password is incorrect' });
-    expect(UserRepository.updateUserPassword).not.toHaveBeenCalled();
-  });
-
-  it('updates the password and revokes every session except the current one', async () => {
-    const user = makeUser();
-    vi.mocked(UserRepository.verifyUserPassword).mockResolvedValue(true);
-    vi.mocked(UserRepository.findUserById).mockResolvedValue(user);
-    vi.mocked(SessionRepository.deleteOtherUserSessions).mockResolvedValue(2);
-
-    await changeUserPassword(user.id, 'Old-password-1', 'New-password-1', SESSION_TOKEN);
-
-    expect(UserRepository.verifyUserPassword).toHaveBeenCalledWith(user.id, 'Old-password-1');
-    expect(UserRepository.updateUserPassword).toHaveBeenCalledWith(user.id, 'New-password-1');
-    expect(SessionRepository.deleteOtherUserSessions).toHaveBeenCalledWith(user.id, SESSION_TOKEN);
-    expect(SessionRepository.deleteAllUserSessions).not.toHaveBeenCalled();
-  });
-
-  it('sends a password-changed notification email on success', async () => {
-    const user = makeUser();
-    vi.mocked(UserRepository.verifyUserPassword).mockResolvedValue(true);
-    vi.mocked(UserRepository.findUserById).mockResolvedValue(user);
-
-    await changeUserPassword(user.id, 'Old-password-1', 'New-password-1', SESSION_TOKEN);
-
-    expect(enqueueEmail).toHaveBeenCalledWith(
-      expect.objectContaining({
-        type: 'password-changed',
-        data: expect.objectContaining({ to: user.email }),
-      }),
-    );
-  });
-
-  it('still succeeds when the notification email fails to enqueue', async () => {
-    const user = makeUser();
-    vi.mocked(UserRepository.verifyUserPassword).mockResolvedValue(true);
-    vi.mocked(UserRepository.findUserById).mockResolvedValue(user);
-    vi.mocked(enqueueEmail).mockRejectedValue(new Error('mailer down'));
-
-    await expect(
-      changeUserPassword(user.id, 'Old-password-1', 'New-password-1', SESSION_TOKEN),
-    ).resolves.toBeUndefined();
-  });
-
-  it('wraps repository failures in a user-safe error', async () => {
-    vi.mocked(UserRepository.verifyUserPassword).mockResolvedValue(true);
-    vi.mocked(UserRepository.updateUserPassword).mockRejectedValue(new Error('db down'));
-
-    await expect(
-      changeUserPassword('user-1', 'Old-password-1', 'New-password-1', SESSION_TOKEN),
-    ).rejects.toMatchObject({
-      name: 'UserException',
-      message: 'Failed to change password',
-    });
-    expect(SessionRepository.deleteOtherUserSessions).not.toHaveBeenCalled();
-  });
 });
 
 describe('deleteUser', () => {
