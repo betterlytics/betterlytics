@@ -124,6 +124,9 @@ pub struct SessionReplayRow {
     pub s3_prefix: String,
     pub start_url: String,
     pub storage: String,
+    pub client_started_at_ms: i64,
+    pub client_ended_at_ms: i64,
+    pub client_bounds_complete: u8,
 }
 
 #[derive(clickhouse::Row, Deserialize, Clone)]
@@ -136,6 +139,10 @@ pub struct SessionReplayMetaRow {
     pub start_url: String,
     pub event_count: u32,
     pub visitor_id: u64,
+    pub duration: u32,
+    pub client_started_at_ms: i64,
+    pub client_ended_at_ms: i64,
+    pub client_bounds_complete: u8,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]

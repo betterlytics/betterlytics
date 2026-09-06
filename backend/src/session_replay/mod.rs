@@ -48,7 +48,6 @@ fn cache_key(site_id: &str, session_id: u64) -> String {
 pub const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
 const MAX_SESSION_BYTES: u64 = 50 * 1024 * 1024;
 const MAX_SEGMENT_SPAN_MS: i64 = 24 * 60 * 60 * 1000;
-const STARTED_AT_TOLERANCE_SECS: i64 = 5;
 const MAX_FILENAME_EPOCH_MS: i64 = 9_999_999_999_999;
 const MAX_START_URL_CHARS: usize = 2048;
 const MAX_CHUNK_ID_CHARS: usize = 32;
@@ -68,8 +67,33 @@ fn segment_filename_epoch_ms(now_ms: i64, client_ended_at_ms: Option<i64>) -> i6
     }
 }
 
-fn clamp_started_at(started: DateTime<Utc>, session_created_at: DateTime<Utc>) -> DateTime<Utc> {
-    started.max(session_created_at - chrono::Duration::seconds(STARTED_AT_TOLERANCE_SECS))
+fn client_bounds_ms(started_at_ms: Option<i64>, ended_at_ms: Option<i64>) -> Option<(i64, i64)> {
+    started_at_ms.zip(ended_at_ms).filter(|(start, end)| end >= start)
+}
+
+fn merge_replay_timing(
+    meta: &mut SessionReplayMetaRow,
+    incoming: Option<(i64, i64)>,
+    received_at: DateTime<Utc>,
+) {
+    meta.ended_at = meta.ended_at.max(received_at);
+    if meta.client_bounds_complete == 1 {
+        if let Some((start, end)) = incoming {
+            meta.client_started_at_ms = meta.client_started_at_ms.min(start);
+            meta.client_ended_at_ms = meta.client_ended_at_ms.max(end);
+        } else {
+            meta.client_bounds_complete = 0;
+        }
+    }
+    meta.duration = replay_duration_seconds(meta);
+}
+
+fn replay_duration_seconds(meta: &SessionReplayMetaRow) -> u32 {
+    if meta.client_bounds_complete != 1 {
+        return meta.duration;
+    }
+    let elapsed_ms = i128::from(meta.client_ended_at_ms) - i128::from(meta.client_started_at_ms);
+    (elapsed_ms / 1000).clamp(0, i128::from(u32::MAX)) as u32
 }
 
 pub struct ReplayCtx {
@@ -175,16 +199,14 @@ pub async fn upload_segment(
     let payload = replay_ctx.store.prepare(body, gzip).await.map_err(store_error)?;
     let stored_len = payload.stored_size();
     let now_ms = Utc::now().timestamp_millis();
-    let span_ms = segment_span_ms(p.started_at_ms, p.ended_at_ms).ok_or_else(|| {
+    segment_span_ms(p.started_at_ms, p.ended_at_ms).ok_or_else(|| {
         warn!(site_id = %p.site_id, "rejected replay segment with invalid time span");
         (StatusCode::BAD_REQUEST, "invalid timestamp".to_string())
     })?;
 
     let internal = || (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string());
-    let ended = DateTime::from_timestamp_millis(now_ms).ok_or_else(internal)?;
-    let started = DateTime::from_timestamp_millis(now_ms - span_ms).ok_or_else(internal)?;
-    let started = clamp_started_at(started, identity.session_created_at);
-    let ended = ended.max(started);
+    let received_at = DateTime::from_timestamp_millis(now_ms).ok_or_else(internal)?;
+    let client_bounds = client_bounds_ms(p.started_at_ms, p.ended_at_ms);
     let filename_epoch_ms = segment_filename_epoch_ms(now_ms, p.ended_at_ms);
     let filename = build_segment_filename(filename_epoch_ms, p.chunk_id.as_deref());
     let segment_date = identity.session_created_at.date_naive();
@@ -222,15 +244,18 @@ pub async fn upload_segment(
         .map_err(store_error)?;
 
     let mut meta = loaded.unwrap_or_else(|| SessionReplayMetaRow {
-        started_at: started,
-        ended_at: ended,
+        started_at: received_at,
+        ended_at: received_at,
         size_bytes: 0,
         start_url: start_url.clone(),
         event_count: 0,
         visitor_id: identity.fingerprint,
+        duration: 0,
+        client_started_at_ms: client_bounds.map_or(0, |(start, _)| start),
+        client_ended_at_ms: client_bounds.map_or(0, |(_, end)| end),
+        client_bounds_complete: u8::from(client_bounds.is_some()),
     });
-    meta.started_at = meta.started_at.min(started);
-    meta.ended_at = meta.ended_at.max(ended);
+    merge_replay_timing(&mut meta, client_bounds, received_at);
     meta.size_bytes = meta.size_bytes.saturating_add(stored_len);
     meta.event_count = meta.event_count.saturating_add(p.event_count.unwrap_or_default());
     if meta.start_url.is_empty() {
@@ -275,20 +300,22 @@ async fn upsert_replay_row(
     date: NaiveDate,
     meta: &SessionReplayMetaRow,
 ) -> anyhow::Result<()> {
-    let duration = (meta.ended_at.timestamp() - meta.started_at.timestamp()).max(0) as u32;
     let row = SessionReplayRow {
         site_id: site_id.to_string(),
         session_id,
         visitor_id: meta.visitor_id,
         started_at: meta.started_at,
         ended_at: meta.ended_at,
-        duration,
+        duration: meta.duration,
         date,
         size_bytes: meta.size_bytes,
         event_count: meta.event_count,
         s3_prefix: format!("site/{}/sess/{}/", site_id, session_id),
         start_url: meta.start_url.clone(),
         storage: replay_ctx.mode.as_str().to_string(),
+        client_started_at_ms: meta.client_started_at_ms,
+        client_ended_at_ms: meta.client_ended_at_ms,
+        client_bounds_complete: meta.client_bounds_complete,
     };
     db.upsert_session_replay(row).await
 }
@@ -351,18 +378,177 @@ mod tests {
         assert!(build_segment_filename(T, None).starts_with(&format!("{:013}-", T)));
     }
 
-    #[test]
-    fn started_at_before_session_creation_is_clamped() {
-        let created = DateTime::from_timestamp_millis(T).unwrap();
-        let started = created - chrono::Duration::minutes(10);
-        assert_eq!(clamp_started_at(started, created), created - chrono::Duration::seconds(5));
+    fn replay_meta(received_at_ms: i64, bounds: Option<(i64, i64)>) -> SessionReplayMetaRow {
+        let received_at = DateTime::from_timestamp_millis(received_at_ms).unwrap();
+        SessionReplayMetaRow {
+            started_at: received_at,
+            ended_at: received_at,
+            size_bytes: 0,
+            start_url: String::new(),
+            event_count: 0,
+            visitor_id: 1,
+            duration: 0,
+            client_started_at_ms: bounds.map_or(0, |(start, _)| start),
+            client_ended_at_ms: bounds.map_or(0, |(_, end)| end),
+            client_bounds_complete: u8::from(bounds.is_some()),
+        }
     }
 
     #[test]
-    fn started_at_within_tolerance_is_kept() {
-        let created = DateTime::from_timestamp_millis(T).unwrap();
-        let started = created - chrono::Duration::seconds(3);
-        assert_eq!(clamp_started_at(started, created), started);
-        assert_eq!(clamp_started_at(created, created), created);
+    fn upload_delays_and_client_offsets_do_not_change_duration() {
+        for arrivals in [[30_000, 60_000], [30_000, 120_000], [60_000, 65_000]] {
+            for offset in [0, THREE_DAYS_MS, -THREE_DAYS_MS] {
+                let start = T + offset;
+                let mut meta = replay_meta(T + arrivals[0], Some((start, start + 30_000)));
+                for (index, arrival) in arrivals.into_iter().enumerate() {
+                    let chunk_start = start + index as i64 * 30_000;
+                    merge_replay_timing(
+                        &mut meta,
+                        Some((chunk_start, chunk_start + 30_000)),
+                        DateTime::from_timestamp_millis(T + arrival).unwrap(),
+                    );
+                }
+                assert_eq!(meta.duration, 60);
+                assert_eq!(meta.started_at.timestamp_millis(), T + arrivals[0]);
+                assert_eq!(meta.ended_at.timestamp_millis(), T + arrivals[1]);
+            }
+        }
+    }
+
+    #[test]
+    fn client_duration_and_server_receipt_bounds_are_independent() {
+        let received_at = DateTime::from_timestamp_millis(T + 40_000).unwrap();
+        let mut meta = replay_meta(received_at.timestamp_millis(), Some((T, T + 30_000)));
+        merge_replay_timing(&mut meta, Some((T, T + 30_000)), received_at);
+        assert_eq!(meta.duration, 30);
+
+        merge_replay_timing(&mut meta, Some((T + 30_000, T + 90_000)), received_at);
+        assert_eq!(meta.duration, 90);
+        assert_eq!(meta.started_at, received_at);
+        assert_eq!(meta.ended_at, received_at);
+
+        let later = received_at + chrono::Duration::minutes(10);
+        merge_replay_timing(&mut meta, Some((T + 30_000, T + 90_000)), later);
+        assert_eq!(meta.duration, 90);
+        assert_eq!(meta.started_at, received_at);
+        assert_eq!(meta.ended_at, later);
+    }
+
+    #[test]
+    fn overlapping_and_out_of_order_chunks_preserve_the_client_range() {
+        let mut meta = replay_meta(T + 60_000, Some((T + 30_000, T + 60_000)));
+        for (start, end, arrival) in [
+            (30_000, 60_000, 60_000),
+            (0, 45_000, 90_000),
+            (0, 45_000, 90_000),
+            (10_000, 20_000, 50_000),
+            (60_000, 90_000, 100_000),
+        ] {
+            merge_replay_timing(
+                &mut meta,
+                Some((T + start, T + end)),
+                DateTime::from_timestamp_millis(T + arrival).unwrap(),
+            );
+        }
+        assert_eq!(meta.duration, 90);
+        assert_eq!(meta.client_started_at_ms, T);
+        assert_eq!(meta.client_ended_at_ms, T + 90_000);
+        assert_eq!(meta.started_at.timestamp_millis(), T + 60_000);
+        assert_eq!(meta.ended_at.timestamp_millis(), T + 100_000);
+    }
+
+    #[test]
+    fn restored_metadata_preserves_recording_history_and_first_receipt() {
+        let mut meta: SessionReplayMetaRow = serde_json::from_value(serde_json::json!({
+            "started_at": (T + 40_000) / 1000,
+            "ended_at": (T + 40_000) / 1000,
+            "size_bytes": 100,
+            "start_url": "/",
+            "event_count": 2,
+            "visitor_id": 1,
+            "duration": 30,
+            "client_started_at_ms": T,
+            "client_ended_at_ms": T + 30_000,
+            "client_bounds_complete": 1,
+        })).unwrap();
+        assert_eq!(meta.duration, 30);
+        merge_replay_timing(
+            &mut meta,
+            Some((T + 30_000, T + 60_000)),
+            DateTime::from_timestamp_millis(T + 120_000).unwrap(),
+        );
+        assert_eq!(meta.duration, 60);
+        assert_eq!(meta.client_started_at_ms, T);
+        assert_eq!(meta.client_ended_at_ms, T + 60_000);
+        assert_eq!(meta.started_at.timestamp_millis(), T + 40_000);
+        assert_eq!(meta.ended_at.timestamp_millis(), T + 120_000);
+    }
+
+    #[test]
+    fn legacy_metadata_keeps_its_stored_duration() {
+        let mut meta = replay_meta(T, None);
+        meta.duration = 75;
+        merge_replay_timing(
+            &mut meta,
+            Some((T, T + 120_000)),
+            DateTime::from_timestamp_millis(T + 180_000).unwrap(),
+        );
+        assert_eq!(meta.duration, 75);
+        assert_eq!(meta.client_bounds_complete, 0);
+        assert_eq!(meta.started_at.timestamp_millis(), T);
+    }
+
+    #[test]
+    fn missing_or_reversed_bounds_permanently_preserve_the_last_known_duration() {
+        for (start, end) in [(None, None), (Some(T), None), (None, Some(T)), (Some(T + 1), Some(T))] {
+            let incoming = client_bounds_ms(start, end);
+            assert_eq!(incoming, None);
+            let received_at = DateTime::from_timestamp_millis(T + 40_000).unwrap();
+            let mut meta = replay_meta(received_at.timestamp_millis(), Some((T, T + 30_000)));
+            merge_replay_timing(&mut meta, Some((T, T + 30_000)), received_at);
+            merge_replay_timing(&mut meta, incoming, received_at + chrono::Duration::minutes(1));
+            assert_eq!(meta.duration, 30);
+            assert_eq!(meta.client_bounds_complete, 0);
+            merge_replay_timing(
+                &mut meta,
+                Some((T + 30_000, T + 120_000)),
+                received_at + chrono::Duration::minutes(2),
+            );
+            assert_eq!(meta.duration, 30);
+            assert_eq!(meta.client_bounds_complete, 0);
+        }
+    }
+
+    #[test]
+    fn new_replay_without_client_bounds_never_uses_server_elapsed_time() {
+        let mut meta = replay_meta(T, None);
+        merge_replay_timing(
+            &mut meta,
+            None,
+            DateTime::from_timestamp_millis(T + 600_000).unwrap(),
+        );
+        assert_eq!(meta.duration, 0);
+        assert_eq!(meta.ended_at.timestamp_millis(), T + 600_000);
+    }
+
+    #[test]
+    fn client_duration_handles_epoch_zero_subseconds_and_extreme_ranges() {
+        for (start, end, duration) in [(0, 0, 0), (1001, 1999, 0), (-500, 500, 1)] {
+            let bounds = client_bounds_ms(Some(start), Some(end));
+            assert_eq!(bounds, Some((start, end)));
+            let mut meta = replay_meta(T, bounds);
+            merge_replay_timing(&mut meta, bounds, DateTime::from_timestamp_millis(T).unwrap());
+            assert_eq!(meta.duration, duration);
+        }
+        let first = Some((i64::MIN, i64::MIN + 1000));
+        let mut meta = replay_meta(T, first);
+        merge_replay_timing(&mut meta, first, DateTime::from_timestamp_millis(T).unwrap());
+        assert_eq!(meta.duration, 1);
+        merge_replay_timing(
+            &mut meta,
+            Some((i64::MAX - 1000, i64::MAX)),
+            DateTime::from_timestamp_millis(T + 1000).unwrap(),
+        );
+        assert_eq!(meta.duration, u32::MAX);
     }
 }
