@@ -9,5 +9,5 @@ export function parseEnv<T extends z.ZodType>(label: string, schema: T, source: 
   const issues = result.error.issues
     .map((issue) => `${issue.path.join('.') || '(env)'}: ${issue.message}`)
     .join('; ');
-  throw new Error(`Invalid environment variables (${label}): ${issues}. Compare your .env against .env.example.`);
+  throw new Error(`Invalid environment variables (${label}): ${issues}. Check the environment passed to the dashboard.`);
 }
