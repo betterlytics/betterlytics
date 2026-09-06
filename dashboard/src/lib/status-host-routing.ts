@@ -43,9 +43,24 @@ export function isOwnHost(domain: string, own: OwnHosts): boolean {
 
 const STATUS_IMAGE_PATH = /^\/status\/[^/]+\/image\/[^/]+$/;
 
-export type StatusHostRoute = { kind: 'pass' } | { kind: 'rewrite'; pathname: string } | { kind: 'notFound' };
+export type StatusHostClassification = 'status' | 'unknown' | 'unavailable';
 
-export function decideStatusHostRoute(domain: string, pathname: string): StatusHostRoute {
+export type StatusHostRoute =
+  | { kind: 'pass' }
+  | { kind: 'rewrite'; pathname: string }
+  | { kind: 'notFound' }
+  | { kind: 'unavailable' };
+
+export function decideStatusHostRoute(
+  classification: StatusHostClassification,
+  domain: string,
+  pathname: string,
+  isCloud: boolean,
+): StatusHostRoute {
+  if (classification === 'unavailable') return { kind: 'unavailable' };
+  // On cloud every non-own host that reaches us holds a cert on our IP, so no row means a removed
+  // domain or the feature off; neither may see the app. Off cloud the app has hostnames we cannot know.
+  if (classification === 'unknown') return isCloud ? { kind: 'notFound' } : { kind: 'pass' };
   if (pathname === '/') return { kind: 'rewrite', pathname: `/status/domain/${domain}` };
   if (STATUS_IMAGE_PATH.test(pathname)) return { kind: 'pass' };
   // Legacy: the production proxy still rewrites `/` to this path itself. Remove once it no longer does.

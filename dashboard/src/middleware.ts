@@ -20,20 +20,19 @@ export async function middleware(request: NextRequest) {
   const host = normalizeHostname(request.headers.get('host') ?? '');
 
   if (host && !isOwnHost(host, OWN_HOSTS)) {
-    const classification = await classifyStatusHost(host);
-    if (classification === 'unavailable') {
+    const route = decideStatusHostRoute(await classifyStatusHost(host), host, pathname, sharedEmailEnv.isCloud);
+    if (route.kind === 'unavailable') {
       return new NextResponse(null, { status: 503, headers: { 'Retry-After': '10' } });
     }
-    if (classification === 'status') {
-      const route = decideStatusHostRoute(host, pathname);
-      if (route.kind === 'notFound') return new NextResponse(null, { status: 404 });
-      if (route.kind === 'rewrite') {
-        const url = request.nextUrl.clone();
-        url.pathname = route.pathname;
-        return NextResponse.rewrite(url);
-      }
+    if (route.kind === 'notFound') return new NextResponse(null, { status: 404 });
+    if (route.kind === 'rewrite') {
+      const url = request.nextUrl.clone();
+      url.pathname = route.pathname;
+      return NextResponse.rewrite(url);
     }
   }
+
+  if (pathname.startsWith('/_next/')) return NextResponse.next();
 
   // Status paths carry a hostname as sent by the client. Canonicalize (lowercase, strip trailing
   // dots) before routing so case variants of the same host share one ISR cache entry. Safe to
@@ -61,6 +60,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   runtime: 'nodejs',
-  // Only Next's own assets skip the host check; every other path, dotted or not, is classified first.
-  matcher: ['/((?!_next/).*)'],
+  // Only Next's static assets skip the host check; every other path, dotted or not, is classified first.
+  matcher: ['/((?!_next/static/).*)'],
 };

@@ -4,8 +4,9 @@ import { createSlidingWindowLimiter } from '@/lib/rate-limit';
 import { ExpiringSet } from '@/lib/expiring-set';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findStatusPageByCustomDomain } from '@/repositories/postgres/statusPage.repository';
+import type { StatusHostClassification } from '@/lib/status-host-routing';
 
-export type StatusHostClassification = 'status' | 'unknown' | 'unavailable';
+export type { StatusHostClassification };
 
 // Per-process caches in the same spirit as app/api/status-page/ask/askGuard.ts: reset on restart,
 // deliberately cheap. They keep host classification off Postgres for all but cold hosts.

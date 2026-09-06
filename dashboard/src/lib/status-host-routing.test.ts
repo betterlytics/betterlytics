@@ -68,15 +68,17 @@ describe('isOwnHost', () => {
 
 describe('decideStatusHostRoute', () => {
   const domain = 'status.acme.com';
+  const status = (pathname: string) => decideStatusHostRoute('status', domain, pathname, true);
+  const paths = ['/', '/dashboard', '/status/domain/status.acme.com', '/_next/image'];
 
   it('rewrites the root to the domain page', () => {
-    expect(decideStatusHostRoute(domain, '/')).toEqual({ kind: 'rewrite', pathname: '/status/domain/status.acme.com' });
+    expect(status('/')).toEqual({ kind: 'rewrite', pathname: '/status/domain/status.acme.com' });
   });
 
   it('passes status images and the legacy rewrite path', () => {
-    expect(decideStatusHostRoute(domain, '/status/x/image/logo')).toEqual({ kind: 'pass' });
-    expect(decideStatusHostRoute(domain, '/status/domain/status.acme.com')).toEqual({ kind: 'pass' });
-    expect(decideStatusHostRoute(domain, '/status/domain/Status.Acme.com')).toEqual({ kind: 'pass' });
+    expect(status('/status/x/image/logo')).toEqual({ kind: 'pass' });
+    expect(status('/status/domain/status.acme.com')).toEqual({ kind: 'pass' });
+    expect(status('/status/domain/Status.Acme.com')).toEqual({ kind: 'pass' });
   });
 
   it('404s everything else', () => {
@@ -87,8 +89,23 @@ describe('decideStatusHostRoute', () => {
       '/status/other',
       '/status/domain/other.com',
       '/favicon.ico',
+      '/_next/image',
     ]) {
-      expect(decideStatusHostRoute(domain, pathname), pathname).toEqual({ kind: 'notFound' });
+      expect(status(pathname), pathname).toEqual({ kind: 'notFound' });
+    }
+  });
+
+  it('reports unavailable regardless of path or deployment', () => {
+    for (const pathname of paths) {
+      expect(decideStatusHostRoute('unavailable', domain, pathname, true), pathname).toEqual({ kind: 'unavailable' });
+      expect(decideStatusHostRoute('unavailable', domain, pathname, false), pathname).toEqual({ kind: 'unavailable' });
+    }
+  });
+
+  it('404s an unknown host on cloud and passes it through off cloud', () => {
+    for (const pathname of paths) {
+      expect(decideStatusHostRoute('unknown', domain, pathname, true), pathname).toEqual({ kind: 'notFound' });
+      expect(decideStatusHostRoute('unknown', domain, pathname, false), pathname).toEqual({ kind: 'pass' });
     }
   });
 });
