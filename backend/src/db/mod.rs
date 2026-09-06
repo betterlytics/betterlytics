@@ -235,7 +235,7 @@ impl Database {
             .query(
                 "WITH (ended_at, size_bytes, event_count) AS v
                 SELECT argMax(started_at, v), max(ended_at), argMax(size_bytes, v), argMax(start_url, v), argMax(event_count, v), argMax(visitor_id, v),
-                argMax(duration, v), argMax(client_started_at_ms, v), argMax(client_ended_at_ms, v), argMax(client_bounds_complete, v)
+                argMax(client_started_at_ms, v), argMax(client_ended_at_ms, v)
                 FROM analytics.session_replays WHERE site_id = ? AND session_id = ? GROUP BY site_id, session_id",
             )
             .bind(site_id)
