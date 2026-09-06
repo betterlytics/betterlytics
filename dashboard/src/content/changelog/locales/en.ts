@@ -1,5 +1,103 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v148ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.8',
+    releasedAt: '2026-08-16',
+    title: 'Modernized Authentication',
+    summary:
+      'Betterlytics now runs on a new, actively maintained system for accounts and signing in, with ongoing security updates. Everything works as before, though two-factor authentication needs to be set up again.',
+  },
+  sections: [
+    {
+      id: 'v148-authentication',
+      title: 'Modernized Authentication',
+      blocks: [
+        {
+          type: 'text',
+          body: 'We have moved the system that handles your account, your sessions, and signing in onto a modern, actively developed foundation that receives ongoing security updates. Email and password sign-in, Google and GitHub sign-in, and two-factor authentication all continue to work, and your password, dashboards, team members, and data are unchanged.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Two-factor authentication needs to be set up again. Existing setups could not be carried over to the new system, and everyone affected has been emailed.',
+            'To re-enable it, open Settings from your avatar menu and go to Account security. Your authenticator app will get a new QR code, and you can delete the old Betterlytics entry.',
+            'You may have been signed out once as the change rolled out. That was the switch itself, not a problem with your account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Enabling two-factor authentication now confirms your account password before showing the QR code.',
+            'Disabling two-factor authentication now asks for your account password instead of a code from your authenticator app.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Signed-in pages now do less work verifying your session, making the dashboard feel slightly quicker to move around.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v148ChangelogModalEn: ChangelogEntryData = {
+  metadata: v148ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v148-modal-authentication',
+      title: 'Modernized Authentication',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'We have moved the system that handles your account, your sessions, and signing in onto a modern, actively developed foundation that receives ongoing security updates.',
+            'Two-factor authentication needs to be set up again. Existing setups could not be carried over, and everyone affected has been emailed.',
+            'To re-enable it, open Settings from your avatar menu and go to Account security. Your authenticator app will get a new QR code.',
+            'You may have been signed out once as the change rolled out. That was the switch itself, not a problem with your account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Enabling and disabling two-factor authentication now confirm your account password.'],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Signed-in pages now do less work verifying your session, making the dashboard feel slightly quicker.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v147ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.7',
@@ -92,44 +190,6 @@ const v147ChangelogEntryEn: ChangelogEntryData = {
           type: 'list',
           items: [
             'Hardened event ingestion against malformed and malicious data, alongside general security updates to keep Betterlytics stable and secure.',
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-const v147ChangelogModalEn: ChangelogEntryData = {
-  metadata: {
-    ...v147ChangelogEntryEn.metadata,
-    summary:
-      'Our official WordPress plugin is out, bot filtering got a lot stronger, and billing settings now show what your event usage is made of.',
-  },
-  sections: [
-    {
-      id: 'v147-modal-highlights',
-      title: 'Highlights',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Betterlytics now has an official WordPress plugin. If you run a WordPress site, you can connect it from wp-admin with your Site ID, with no code and nothing to re-apply after a theme update.',
-            'The first wave of a rebuilt bot filter is live, keeping more bots, crawlers, and referrer spam out of your reports. More waves are on the way.',
-            'Billing settings now include a usage breakdown, showing which event types and which sites make up your monthly quota.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v147-modal-also',
-      title: 'Also in this release',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Reliability and security hardening across our event pipeline.',
-            'Fixed a redirect loop when following an old dashboard link.',
-            'Various small design and usability improvements across the dashboard.',
           ],
         },
       ],
@@ -323,9 +383,10 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v147ChangelogModalEn;
+export const latestChangelogModalEn = v148ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v148ChangelogEntryEn,
   v147ChangelogEntryEn,
   v146ChangelogEntryEn,
   v145ChangelogEntryEn,

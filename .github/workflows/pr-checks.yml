@@ -17,6 +17,7 @@ jobs:
       docs: ${{ steps.changes.outputs.docs }}
       tracking-script: ${{ steps.changes.outputs.tracking-script }}
       translations: ${{ steps.changes.outputs.translations }}
+      migrations: ${{ steps.changes.outputs.migrations }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -35,6 +36,8 @@ jobs:
               - 'static/analytics.js'
             translations:
               - 'dashboard/messages/*.json'
+            migrations:
+              - 'migrations/**'
 
   check-dashboard:
     needs: detect-changes
@@ -118,6 +121,9 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm --filter dashboard generate
 
       - name: Run unit tests
         run: pnpm run unit-tests
@@ -227,3 +233,17 @@ jobs:
 
       - name: Verify translation keys against en.json
         run: node scripts/check-translations.js
+
+  check-migrations:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.migrations == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Verify migration version numbers are unique
+        run: node scripts/check-migration-versions.js

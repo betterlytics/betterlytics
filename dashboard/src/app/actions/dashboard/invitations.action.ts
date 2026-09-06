@@ -14,7 +14,7 @@ import {
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext, withUserAuth } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 
 export const getPendingInvitationsAction = withDashboardAuthContext(
   async (ctx: AuthContext): Promise<InvitationWithInviter[]> => {
@@ -23,9 +23,10 @@ export const getPendingInvitationsAction = withDashboardAuthContext(
 );
 
 export const inviteMemberAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, email: string, role: DashboardRole): Promise<void> => {
-    await inviteUserToDashboard(ctx.dashboardId, email, role, ctx.userId);
+  async (ctx: AuthContext, email: string, role: DashboardRole): Promise<InvitationWithInviter> => {
+    const invitation = await inviteUserToDashboard(ctx.dashboardId, email, role, ctx.userId);
     revalidatePath(`/dashboard/${ctx.dashboardId}/settings/members`);
+    return invitation;
   },
   { permission: 'canInviteMembers' },
 );

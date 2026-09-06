@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import Prism from 'prismjs';
 import 'prismjs/themes/prism-tomorrow.css'; // This provides dark-themed background for code blocks
 import 'prismjs/components/prism-javascript';
@@ -8,6 +8,7 @@ import 'prismjs/components/prism-markup';
 import 'prismjs/components/prism-bash';
 import { Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useCopy } from '@/hooks/use-copy';
 
 interface CodeBlockProps {
   code: string;
@@ -16,7 +17,7 @@ interface CodeBlockProps {
 
 export function CodeBlock({ code, language }: CodeBlockProps) {
   const codeRef = useRef<HTMLPreElement>(null);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopy();
 
   useEffect(() => {
     if (codeRef.current) {
@@ -24,19 +25,13 @@ export function CodeBlock({ code, language }: CodeBlockProps) {
     }
   }, [code, language]);
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <div className='relative min-w-0 overflow-hidden'>
       <Button
         variant='ghost'
         size='icon'
         className='text-muted-foreground hover:text-foreground absolute top-2 right-2 h-8 w-8'
-        onClick={handleCopy}
+        onClick={() => copy(code)}
         aria-label='Copy code'
       >
         {copied ? <Check className='h-4 w-4' /> : <Copy className='h-4 w-4' />}

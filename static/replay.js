@@ -1,3 +1,36 @@
+/*!
+ * The bundle below is rrweb v2.0.0-alpha.11 (dist/rrweb.min.js), reformatted but
+ * otherwise unmodified: https://github.com/rrweb-io/rrweb
+ * Betterlytics' own recorder wrapper follows it at the end of this file.
+ *
+ * MIT License
+ *
+ * Copyright (c) 2018 Contributors (https://github.com/rrweb-io/rrweb/graphs/contributors) and SmartX Inc.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ * The rrweb bundle inlines rrweb-snapshot and rrdom (same project, same terms),
+ * plus @xstate/fsm (MIT, (c) 2015 David Khourshid), base64-arraybuffer
+ * (MIT, (c) 2012 Niklas von Hertzen) and mitt (MIT, (c) 2021 Jason Miller), all
+ * under the MIT terms above, and tslib (0BSD, (c) Microsoft Corporation) whose
+ * notice is retained inline further down.
+ */
 var rrweb = (function (re) {
   "use strict";
   var N;

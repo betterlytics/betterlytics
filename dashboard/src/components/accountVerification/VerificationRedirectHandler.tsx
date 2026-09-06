@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { useTranslations } from 'next-intl';
 import Logo from '@/components/logo';
 import { Loader2, AlertCircle } from 'lucide-react';
@@ -73,7 +73,7 @@ function AnimatedBorderCard({ children }: { children: React.ReactNode }) {
 export function VerificationRedirectHandler({ hasSession }: VerificationRedirectHandlerProps) {
   const { refreshSession } = useSessionRefresh();
   const router = useBARouter();
-  const { status } = useSession();
+  const { isPending } = authClient.useSession();
   const t = useTranslations('public.auth.verifyEmail');
   const [redirectState, setRedirectState] = useState<'celebrating' | 'redirecting' | 'error'>('celebrating');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -82,7 +82,7 @@ export function VerificationRedirectHandler({ hasSession }: VerificationRedirect
   const targetLabel = hasSession ? t('buttons.returnToDashboard') : t('buttons.backToSignIn');
 
   useEffect(() => {
-    if (status === 'loading') return;
+    if (isPending) return;
 
     let celebrationTimeout: NodeJS.Timeout;
     let safetyTimeout: NodeJS.Timeout;
@@ -119,7 +119,7 @@ export function VerificationRedirectHandler({ hasSession }: VerificationRedirect
       if (celebrationTimeout) clearTimeout(celebrationTimeout);
       if (safetyTimeout) clearTimeout(safetyTimeout);
     };
-  }, [hasSession, refreshSession, router, status, targetUrl]);
+  }, [hasSession, refreshSession, router, isPending, targetUrl]);
 
   return (
     <div className='bg-background flex min-h-[60vh] items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>

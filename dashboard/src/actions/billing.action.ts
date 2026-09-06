@@ -23,7 +23,7 @@ import {
   buildSelfHostedBillingData,
 } from '@/entities/billing/billing.entities';
 import { SelectedPlanSchema, type SelectedPlan } from '@/types/pricing';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { UserException } from '@/lib/exceptions';
 import { AuthContext } from '@/entities/auth/authContext.entities';

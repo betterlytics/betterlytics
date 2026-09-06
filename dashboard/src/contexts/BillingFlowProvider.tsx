@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useBillingData } from '@/hooks/useBillingData';
@@ -33,10 +33,10 @@ export function useBillingFlow(): BillingFlowContextValue {
 
 export function BillingFlowProvider({ children }: { children: ReactNode }) {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
-  const { status } = useSession();
+  const { data: sessionData } = authClient.useSession();
   const billingEnabled = isFeatureFlagEnabled('enableBilling');
 
-  if (!billingEnabled || status !== 'authenticated') {
+  if (!billingEnabled || !sessionData) {
     return <BillingFlowContext.Provider value={NOOP_VALUE}>{children}</BillingFlowContext.Provider>;
   }
 
@@ -45,7 +45,7 @@ export function BillingFlowProvider({ children }: { children: ReactNode }) {
 
 function BillingFlowProviderInner({ children }: { children: ReactNode }) {
   const t = useTranslations('components.billing.interactive');
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const { billingData } = useBillingData();
 
   const [pickerOpen, setPickerOpen] = useState(false);

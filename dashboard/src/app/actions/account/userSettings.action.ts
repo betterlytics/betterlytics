@@ -2,17 +2,12 @@
 
 import { UpdateUserNameData, UpdateUserNameSchema } from '@/entities/auth/user.entities';
 import { UserSettings, UserSettingsUpdateSchema } from '@/entities/account/userSettings.entities';
-import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/auth/password.entities';
-import { withUserAuth } from '@/auth/auth-actions';
+import { withUserAuth, getCachedSession } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/account/userSettings.service';
 import * as UserRepository from '@/repositories/postgres/user.repository';
-import {
-  countUserSessions,
-  getCurrentSessionTokenFromCookies,
-  invalidateOtherUserSessions,
-} from '@/services/session.service';
+import { countUserSessions, invalidateOtherUserSessions } from '@/services/session.service';
 import { UserException } from '@/lib/exceptions';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { setLocaleCookie } from '@/constants/cookies';
 import { Theme, AvatarMode } from '@prisma/client';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -71,25 +66,15 @@ export const getUserOAuthProvidersAction = withUserAuth(async (user: User): Prom
   return UserRepository.findUserOAuthProviders(user.id);
 });
 
+export const getPasswordStatusAction = withUserAuth(async (user: User): Promise<boolean> => {
+  return Boolean(await UserRepository.findCredentialAccount(user.id));
+});
+
 export const signOutOtherSessionsAction = withUserAuth(async (user: User): Promise<{ revoked: number }> => {
-  const currentSessionToken = await getCurrentSessionTokenFromCookies();
+  const currentSessionToken = (await getCachedSession())?.session.token;
   if (!currentSessionToken) {
     throw new UserException('No active session token found');
   }
   const revoked = await invalidateOtherUserSessions(user.id, currentSessionToken);
   return { revoked };
 });
-
-export const changePasswordAction = withUserAuth(
-  async (user: User, data: ChangePasswordRequest): Promise<void> => {
-    const validatedData = ChangePasswordRequestSchema.parse(data);
-    const currentSessionToken = await getCurrentSessionTokenFromCookies();
-
-    return await UserSettingsService.changeUserPassword(
-      user.id,
-      validatedData.currentPassword,
-      validatedData.newPassword,
-      currentSessionToken,
-    );
-  },
-);

@@ -30,6 +30,51 @@ limitations under the License.
 
 ---
 
+## rrweb
+
+**Files**: `static/replay.js` (the bundled rrweb build at the top of the file, below the banner comment; Betterlytics' own recorder wrapper follows it)  
+**Source**: [rrweb-io/rrweb](https://github.com/rrweb-io/rrweb)  
+**Version**: 2.0.0-alpha.11 (`dist/rrweb.min.js`, reformatted but otherwise unmodified)  
+**License**: MIT License  
+**Copyright**: Copyright (c) 2018 Contributors (https://github.com/rrweb-io/rrweb/graphs/contributors) and SmartX Inc.  
+**Description**: Session recording and replay library. The bundled build is embedded in the session replay script served to instrumented sites, and provides the DOM serialization, mutation recording and playback used by session replay.
+
+The rrweb bundle inlines `rrweb-snapshot` and `rrdom` (same project, same terms), plus the following, all under the same MIT terms:
+
+- `@xstate/fsm` - Copyright (c) 2015 David Khourshid
+- `base64-arraybuffer` - Copyright (c) 2012 Niklas von Hertzen
+- `mitt` - Copyright (c) 2021 Jason Miller
+
+It also inlines `tslib` (0BSD, Copyright (c) Microsoft Corporation), whose notice is retained inline in `static/replay.js`.
+
+### MIT License
+
+```
+MIT License
+
+Copyright (c) 2018 Contributors (https://github.com/rrweb-io/rrweb/graphs/contributors) and SmartX Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
 ## Snowplow Referer Parser (based on Piwik)
 
 **Files**: `backend/assets/referers/referers-latest.json`  

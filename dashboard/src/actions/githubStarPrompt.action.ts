@@ -1,7 +1,7 @@
 'use server';
 
 import { GithubStarPromptState } from '@prisma/client';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { withUserAuth } from '@/auth/auth-actions';
 import {
   isEligibleForGithubStarPrompt,

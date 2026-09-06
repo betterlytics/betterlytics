@@ -1,5 +1,105 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v148ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.8',
+    releasedAt: '2026-08-16',
+    title: 'Autenticazione rinnovata',
+    summary:
+      "Betterlytics si basa ora su un nuovo sistema per gli account e l'accesso, mantenuto attivamente e con aggiornamenti di sicurezza costanti. Tutto funziona come prima, ma l'autenticazione a due fattori va configurata di nuovo.",
+  },
+  sections: [
+    {
+      id: 'v148-authentication',
+      title: 'Autenticazione rinnovata',
+      blocks: [
+        {
+          type: 'text',
+          body: "Abbiamo spostato il sistema che gestisce il tuo account, le tue sessioni e l'accesso su una base moderna e sviluppata attivamente, che riceve aggiornamenti di sicurezza costanti. L'accesso con email e password, quello con Google e GitHub e l'autenticazione a due fattori continuano a funzionare, e la tua password, le tue dashboard, i membri del tuo team e i tuoi dati restano invariati.",
+        },
+        {
+          type: 'list',
+          items: [
+            "L'autenticazione a due fattori va configurata di nuovo: non è stato possibile trasferire le configurazioni esistenti al nuovo sistema. Abbiamo avvisato via email tutti gli utenti coinvolti.",
+            'Per riattivarla, apri Impostazioni dal menu del tuo profilo e vai a Sicurezza account. La tua app di autenticazione riceverà un nuovo QR code e potrai eliminare la vecchia voce Betterlytics.',
+            'Al momento del rilascio la tua sessione potrebbe essere stata chiusa una volta. È dipeso dal passaggio in sé, non da un problema del tuo account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Per attivare l'autenticazione a due fattori è ora necessario confermare la password del tuo account prima che venga mostrato il QR code.",
+            'Per disattivarla è ora necessaria la password del tuo account, invece di un codice dalla tua app di autenticazione.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Verificare la tua sessione richiede ora meno lavoro a ogni pagina e la dashboard risulta un po' più scattante da esplorare.",
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v148ChangelogModalIt: ChangelogEntryData = {
+  metadata: v148ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v148-modal-authentication',
+      title: 'Autenticazione rinnovata',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Abbiamo spostato il sistema che gestisce il tuo account, le tue sessioni e l'accesso su una base moderna e sviluppata attivamente, che riceve aggiornamenti di sicurezza costanti.",
+            "L'autenticazione a due fattori va configurata di nuovo: non è stato possibile trasferire le configurazioni esistenti. Abbiamo avvisato via email tutti gli utenti coinvolti.",
+            'Per riattivarla, apri Impostazioni dal menu del tuo profilo e vai a Sicurezza account. La tua app di autenticazione riceverà un nuovo QR code.',
+            'Al momento del rilascio la tua sessione potrebbe essere stata chiusa una volta. È dipeso dal passaggio in sé, non da un problema del tuo account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Per attivare o disattivare l'autenticazione a due fattori è ora necessaria la password del tuo account.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Verificare la tua sessione richiede ora meno lavoro a ogni pagina e la dashboard risulta un po' più scattante.",
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v147ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.7',
@@ -92,44 +192,6 @@ const v147ChangelogEntryIt: ChangelogEntryData = {
           type: 'list',
           items: [
             'Abbiamo rafforzato la ricezione degli eventi contro dati malformati e malevoli, insieme ad aggiornamenti generali di sicurezza per mantenere Betterlytics stabile e sicuro.',
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-const v147ChangelogModalIt: ChangelogEntryData = {
-  metadata: {
-    ...v147ChangelogEntryIt.metadata,
-    summary:
-      'Il nostro plugin ufficiale per WordPress è disponibile, il filtro anti-bot è molto più efficace e le impostazioni di fatturazione mostrano ora da cosa è composto il tuo utilizzo.',
-  },
-  sections: [
-    {
-      id: 'v147-modal-highlights',
-      title: 'In evidenza',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Betterlytics ha ora un plugin ufficiale per WordPress. Se hai un sito WordPress, puoi collegarlo da wp-admin con il tuo Site ID, senza codice e senza rimettere mano a nulla dopo un aggiornamento del tema.',
-            'La prima ondata del nostro filtro anti-bot ricostruito è attiva e tiene più bot, crawler e referrer spam fuori dai tuoi report. Seguiranno altre ondate.',
-            "Le impostazioni di fatturazione includono ora il dettaglio dell'utilizzo, con i tipi di evento e i siti che compongono la tua quota mensile.",
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v147-modal-also',
-      title: 'Anche in questa versione',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Maggiore affidabilità e sicurezza nella pipeline degli eventi.',
-            'Corretto un ciclo di reindirizzamenti quando si segue un vecchio link alla dashboard.',
-            'Vari piccoli miglioramenti di design e usabilità in tutta la dashboard.',
           ],
         },
       ],
@@ -327,9 +389,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v147ChangelogModalIt;
+export const latestChangelogModalIt = v148ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v148ChangelogEntryIt,
   v147ChangelogEntryIt,
   v146ChangelogEntryIt,
   v145ChangelogEntryIt,

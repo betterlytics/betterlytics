@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { useTranslations } from 'next-intl';
 import { acceptTermsAction } from '@/app/actions/account/legal.action';
-import { signOut } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useRouter } from 'next/navigation';
 import { baEvent } from '@/lib/ba-event';
@@ -41,8 +41,9 @@ export function TermsRequiredModal({ isOpen }: TermsRequiredModalProps) {
   };
 
   const handleLogout = () => {
-    void signOut({ callbackUrl: '/signin' }).then(() => {
+    void authClient.signOut().then(() => {
       baEvent('terms-required-modal-logout');
+      window.location.href = '/signin';
     });
   };
 

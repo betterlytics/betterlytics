@@ -16,7 +16,6 @@ export async function findActiveSubscriptionsWithOwnedSites(): Promise<Subscript
   const subs = await prisma.subscription.findMany({
     where: {
       status: { in: ['active', 'past_due'] },
-      user: { email: { not: null } },
     },
     select: {
       userId: true,
@@ -166,7 +165,7 @@ export async function findSubscriptionsEndingSoon(endingBefore: Date): Promise<S
         status: 'active',
         pricePerMonth: { gt: 0 },
         currentPeriodEnd: { lte: endingBefore, gte: new Date() },
-        user: { email: { not: null }, deletedAt: null },
+        user: { deletedAt: null },
       },
       select: {
         userId: true,
@@ -176,18 +175,15 @@ export async function findSubscriptionsEndingSoon(endingBefore: Date): Promise<S
       },
     });
 
-    return subs.flatMap((s) => {
-      if (!s.user.email) return [];
-      return [
-        SubscriptionEndingSoonCandidateSchema.parse({
-          userId: s.userId,
-          userEmail: s.user.email,
-          userName: s.user.name,
-          tier: s.tier,
-          currentPeriodEnd: s.currentPeriodEnd,
-        }),
-      ];
-    });
+    return subs.map((s) =>
+      SubscriptionEndingSoonCandidateSchema.parse({
+        userId: s.userId,
+        userEmail: s.user.email,
+        userName: s.user.name,
+        tier: s.tier,
+        currentPeriodEnd: s.currentPeriodEnd,
+      }),
+    );
   } catch (error) {
     console.error('Failed to find subscriptions ending soon:', error);
     throw new Error('Failed to find subscriptions ending soon');

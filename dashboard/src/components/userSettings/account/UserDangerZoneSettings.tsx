@@ -1,7 +1,7 @@
 'use client';
 
 import { useTransition, useState } from 'react';
-import { signOut, useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { Trash2 } from 'lucide-react';
 import { deleteUserAccountAction } from '@/app/actions/account/userSettings.action';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import SettingRow from '../shared/SettingRow';
 import { useTranslations } from 'next-intl';
 
 export default function UserDangerZoneSettings() {
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const [isPending, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const t = useTranslations('components.userSettings.danger');
@@ -27,7 +27,8 @@ export default function UserDangerZoneSettings() {
       const result = await deleteUserAccountAction();
       if (result.success) {
         toast.success(t('toast.success'));
-        await signOut({ callbackUrl: '/' });
+        await authClient.signOut();
+        window.location.href = '/';
       } else {
         toast.error(result.error.message || t('toast.error'));
       }

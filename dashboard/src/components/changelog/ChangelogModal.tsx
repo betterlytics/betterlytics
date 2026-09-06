@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { getCurrentChangelogModalDisplayForLocale, type ChangelogEntry } from '@/content/changelog';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -38,7 +38,7 @@ type ChangelogModalWithDisplayProps = {
 function ChangelogModalWithDisplay({ currentChangelogModalDisplay }: ChangelogModalWithDisplayProps) {
   const t = useTranslations('components.changelog');
   const locale = useLocale();
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const { Content, ...metadata } = currentChangelogModalDisplay;
   const sessionSeenVersion = session?.user?.changelogVersionSeen ?? 'v0';
 

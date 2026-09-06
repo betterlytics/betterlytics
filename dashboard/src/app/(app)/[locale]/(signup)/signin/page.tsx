@@ -10,7 +10,7 @@ import { getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
-import { getEnabledOAuthProviders } from '@/lib/auth';
+import { getEnabledOAuthProviders } from '@/lib/better-auth';
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -60,16 +60,8 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     redirect('/dashboards');
   }
 
-  const getErrorMessage = (error: string) => {
-    switch (error) {
-      case 'CredentialsSignin':
-        return t('errors.CredentialsSignin');
-      case 'OAuthAccountNotLinked':
-        return t('errors.OAuthAccountNotLinked');
-      default:
-        return t('errors.default');
-    }
-  };
+  const getErrorMessage = (error: string) =>
+    error === 'account_not_linked' ? t('errors.OAuthAccountNotLinked') : t('errors.default');
 
   return (
     <>

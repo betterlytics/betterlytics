@@ -1,8 +1,7 @@
 import 'server-only';
 
-import { User } from 'next-auth';
+import type { User, Session } from '@/entities/auth/session.entities';
 import { redirect } from 'next/navigation';
-import { Session } from 'next-auth';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import { withServerAction } from '@/middlewares/serverActionHandler';
 import { env } from '@/lib/env';
