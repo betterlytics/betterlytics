@@ -46,6 +46,10 @@ betterlytics.clearGlobalProperties();
 betterlytics.getGlobalProperties(); // {}
 ```
 
+## Setting Properties Before the Script Loads
+
+If you load `analytics.js` with `async`, add the [pre-load snippet](/integration/custom-events#handling-async-script-loading-recommended) before the script tag. `setGlobalProperties()` calls made before the script has loaded are then queued and applied in order, before the initial pageview, so the first event already carries them. Properties set this way merge on top of `data-global-properties`.
+
 ## Accepted Values
 
 Values must be **strings**, **numbers**, or **booleans**.
