@@ -2,18 +2,25 @@ import { z } from 'zod';
 import { DashboardRole } from '@prisma/client';
 import { SiteConfigSchema } from './siteConfig.entities';
 
+/**
+ * Reduces whatever a user pastes (a full URL, a domain with a path or port,
+ * a www-prefixed host, mixed casing) to the bare hostname we store.
+ */
+export function normalizeDomainInput(input: string): string {
+  return input
+    .trim()
+    .replace(/^https?:\/\//i, '')
+    .replace(/^www\./i, '')
+    .split(/[/?#:]/)[0]
+    .replace(/\.$/, '')
+    .toLowerCase();
+}
+
 // Domain validation schema (example.com)
 export const domainValidation = z
   .string()
   .min(1, 'Domain is required')
-  .transform((domain) => {
-    // Clean the domain: remove protocol and www
-    return domain
-      .trim()
-      .replace(/^https?:\/\//, '')
-      .replace(/^http?:\/\//, '')
-      .replace(/^www\./, '');
-  })
+  .transform(normalizeDomainInput)
   .refine((domain) => domain.includes('.'), { message: 'Domain must include an extension (e.g., example.com)' })
   .refine(
     (domain) => {

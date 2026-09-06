@@ -1,16 +1,11 @@
-import { domainValidation } from '@/entities/dashboard/dashboard.entities';
+import { domainValidation, normalizeDomainInput } from '@/entities/dashboard/dashboard.entities';
 
 export function normalizeDomainForFavicon(domain?: string | null): string | null {
   if (!domain) {
     return null;
   }
 
-  return domain
-    .trim()
-    .replace(/^https?:\/\//, '')
-    .replace(/^www\./, '')
-    .split('/')[0]
-    .toLowerCase();
+  return normalizeDomainInput(domain);
 }
 
 export function getFaviconUrl(

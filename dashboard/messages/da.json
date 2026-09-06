@@ -2162,7 +2162,8 @@
           "domain": "example.com"
         },
         "helper": {
-          "domain": "Indtast dit domæne uden https:// eller www."
+          "domain": "Indsæt din hjemmesides URL eller domæne, f.eks. eksempel.dk",
+          "willBeCreatedAs": "Oprettes som <strong>{domain}</strong>"
         },
         "buttons": {
           "cancel": "Annuller",
@@ -3264,7 +3265,8 @@
       "description": "Fortæl os om det website, du vil spore",
       "domainLabel": "Domæne",
       "domainPlaceholder": "eksempel.dk",
-      "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
+      "domainHelp": "Indsæt din hjemmesides URL eller domæne (f.eks. eksempel.dk)",
+      "domainWillBeCreatedAs": "Oprettes som <strong>{domain}</strong>",
       "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
       "createDashboardButton": "Opret dashboard",
       "creatingDashboard": "Opretter dashboard...",
