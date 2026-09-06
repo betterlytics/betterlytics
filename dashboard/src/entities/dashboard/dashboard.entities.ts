@@ -1,20 +1,7 @@
 import { z } from 'zod';
 import { DashboardRole } from '@prisma/client';
 import { SiteConfigSchema } from './siteConfig.entities';
-
-/**
- * Reduces whatever a user pastes (a full URL, a domain with a path or port,
- * a www-prefixed host, mixed casing) to the bare hostname we store.
- */
-export function normalizeDomainInput(input: string): string {
-  return input
-    .trim()
-    .replace(/^https?:\/\//i, '')
-    .replace(/^www\./i, '')
-    .split(/[/?#:]/)[0]
-    .replace(/\.$/, '')
-    .toLowerCase();
-}
+import { normalizeDomainInput } from '@/utils/domainValidation';
 
 // Domain validation schema (example.com)
 export const domainValidation = z

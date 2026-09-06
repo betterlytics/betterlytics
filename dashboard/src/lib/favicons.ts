@@ -1,4 +1,5 @@
-import { domainValidation, normalizeDomainInput } from '@/entities/dashboard/dashboard.entities';
+import { domainValidation } from '@/entities/dashboard/dashboard.entities';
+import { normalizeDomainInput } from '@/utils/domainValidation';
 
 export function normalizeDomainForFavicon(domain?: string | null): string | null {
   if (!domain) {
