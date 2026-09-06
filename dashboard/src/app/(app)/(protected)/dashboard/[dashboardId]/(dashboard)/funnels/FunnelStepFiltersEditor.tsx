@@ -102,6 +102,7 @@ function FunnelStepFiltersEditorComponent({
                 onFilterUpdate={handleUpdate}
                 requestRemoval={handleRemove}
                 propertyKeys={propertyKeys}
+                siblingFilters={filters}
                 valueError={Boolean(showEmptyValueErrors) && !filter.values.some(isNonEmptyValue)}
                 hideClearAllButton
                 useExtendedRange
