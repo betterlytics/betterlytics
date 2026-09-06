@@ -14,4 +14,5 @@ TTL date + INTERVAL 2 MONTH DELETE;
 ALTER TABLE analytics.session_replays
     ADD COLUMN IF NOT EXISTS storage LowCardinality(String) DEFAULT 's3',
     ADD COLUMN IF NOT EXISTS client_started_at_ms Int64 DEFAULT 0,
-    ADD COLUMN IF NOT EXISTS client_ended_at_ms Int64 DEFAULT 0;
+    ADD COLUMN IF NOT EXISTS client_ended_at_ms Int64 DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS recorded_error_count UInt32 DEFAULT 0;

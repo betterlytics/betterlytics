@@ -8401,6 +8401,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
       maxConsecutiveFlushErrors: 3,
     };
 
+    var errorSourcesByEvent = new WeakMap();
+    var MAX_ERROR_METADATA_BYTES = 256 * 1024;
+    var MAX_ERROR_SOURCES = 128;
+    var MAX_ERROR_SOURCE_BYTES = 16 * 1024;
+
     function hasReachedMinDuration() {
       if (!minReplayDurationSec) return true;
       return (
@@ -8430,6 +8435,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
       qs += "&chunk_id=" + encodeURIComponent(payload.chunkId);
       if (payload.encoding === "gzip") {
         qs += "&encoding=gzip";
+      }
+      if (payload.format) {
+        qs += "&format=" + payload.format;
       }
 
       return fetch(apiBase + "/replay/segment?" + qs, {
@@ -8462,10 +8470,43 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
     }
 
+    function collectChunkErrors(events) {
+      var encoder = new TextEncoder();
+      var entries = [];
+      var bySource = new Map();
+      var budget = 2;
+      events.forEach(function (event) {
+        var raw = errorSourcesByEvent.get(event);
+        if (typeof raw !== "string" || encoder.encode(raw).byteLength > MAX_ERROR_SOURCE_BYTES) return;
+        var prior = bySource.get(raw);
+        if (prior) {
+          prior.count = Math.min(4294967295, prior.count + 1);
+          return;
+        }
+        var entry = { error_exceptions: raw, count: 1 };
+        var cost = encoder.encode(JSON.stringify(entry)).byteLength + 1 + 9;
+        if (entries.length >= MAX_ERROR_SOURCES || budget + cost > MAX_ERROR_METADATA_BYTES) return;
+        entries.push(entry);
+        bySource.set(raw, entry);
+        budget += cost;
+      });
+      return entries;
+    }
+
     function buildChunk(events, lastEventTs, startedAtMs) {
       var seq = state.chunkSeq++;
       var chunkId = pageNonce + "-" + (seq < 10000 ? ("000" + seq).slice(-4) : seq);
+      var errors = collectChunkErrors(events);
       return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
+        if (errors.length) {
+          var metadata = new TextEncoder().encode(JSON.stringify(errors));
+          var body = new Uint8Array(4 + metadata.byteLength + enc.bytes.byteLength);
+          new DataView(body.buffer).setUint32(0, metadata.byteLength, false);
+          body.set(metadata, 4);
+          body.set(enc.bytes, 4 + metadata.byteLength);
+          enc.bytes = body;
+          enc.format = "errors_v1";
+        }
         enc.lastEventTs = lastEventTs;
         enc.startedAtMs = startedAtMs || state.startedAt;
         enc.eventCount = events.length;
@@ -8616,6 +8657,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           window.rrweb.record.addCustomEvent("client_error", {
             type: errorType,
             message: (parsed && parsed[0] && parsed[0].value) || "",
+            __betterlyticsErrorExceptions: errorExceptionsJson,
           });
         }
       } catch (_) {}
@@ -8677,6 +8719,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
         (e.type == 5 && e.data.tag === "Blacklist") === false
       ) {
         return;
+      }
+
+      if (e.type === 5 && e.data.tag === "client_error" && e.data.payload) {
+        var raw = e.data.payload.__betterlyticsErrorExceptions;
+        if (typeof raw === "string") errorSourcesByEvent.set(e, raw);
+        delete e.data.payload.__betterlyticsErrorExceptions;
       }
 
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);

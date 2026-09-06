@@ -54,7 +54,7 @@ use metrics::MetricsCollector;
 use postgres::PostgresPool;
 use config::ReplayStorage;
 use processing::EventProcessor;
-use session_replay::{MAX_CONTENT_LENGTH_BYTES, ReplayCtx, store::SegmentStore};
+use session_replay::{MAX_UPLOAD_BODY_BYTES, ReplayCtx, store::SegmentStore};
 use site_config::{RefreshConfig, SiteConfigCache, SiteConfigDataSource, SiteConfigRepository};
 use storage::s3::S3Service;
 use validation::{EventValidator, ValidationConfig};
@@ -274,8 +274,8 @@ async fn main() {
             .route(
                 "/replay/segment",
                 post(session_replay::upload_segment)
-                    // Overrides the app-wide 64 KB DefaultBodyLimit; segments are up to 5 MB compressed
-                    .layer(DefaultBodyLimit::max((MAX_CONTENT_LENGTH_BYTES + 1024) as usize)),
+                    // Overrides the app-wide 64 KB DefaultBodyLimit; segments are up to 5 MB compressed plus error metadata
+                    .layer(DefaultBodyLimit::max(MAX_UPLOAD_BODY_BYTES as usize)),
             );
     } else {
         info!("Session replay endpoints disabled by configuration");

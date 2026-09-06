@@ -1,3 +1,4 @@
+mod envelope;
 pub mod store;
 
 use std::time::Duration;
@@ -46,6 +47,7 @@ fn cache_key(site_id: &str, session_id: u64) -> String {
 }
 
 pub const MAX_CONTENT_LENGTH_BYTES: u64 = 5 * 1024 * 1024;
+pub const MAX_UPLOAD_BODY_BYTES: u64 = MAX_CONTENT_LENGTH_BYTES + envelope::MAX_METADATA_BYTES as u64 + 4;
 const MAX_SESSION_BYTES: u64 = 50 * 1024 * 1024;
 const MAX_SEGMENT_SPAN_MS: i64 = 24 * 60 * 60 * 1000;
 const MAX_FILENAME_EPOCH_MS: i64 = 9_999_999_999_999;
@@ -69,6 +71,13 @@ fn merged_client_bounds(meta: Option<&SessionReplayMetaRow>, (start, end): (i64,
 
 fn replay_duration_seconds(meta: &SessionReplayMetaRow) -> u32 {
     ((meta.client_ended_at_ms - meta.client_started_at_ms) / 1000).clamp(0, i64::from(u32::MAX)) as u32
+}
+
+fn merge_chunk_errors(meta: &mut SessionReplayMetaRow, errors: envelope::ChunkErrors) {
+    meta.error_fingerprints.extend(errors.fingerprints);
+    meta.error_fingerprints.sort_unstable();
+    meta.error_fingerprints.dedup();
+    meta.recorded_error_count = meta.recorded_error_count.saturating_add(errors.count);
 }
 
 pub struct ReplayCtx {
@@ -99,6 +108,7 @@ pub struct UploadSegmentParams {
     pub event_count: Option<u32>,
     pub encoding: Option<String>,
     pub chunk_id: Option<String>,
+    pub format: Option<String>,
 }
 
 pub async fn upload_segment(
@@ -163,15 +173,19 @@ pub async fn upload_segment(
         visitor::identify(&p.site_id, &attrs, Utc::now())
     };
 
-    if body.is_empty() || body.len() as u64 > MAX_CONTENT_LENGTH_BYTES {
+    if body.is_empty() || body.len() as u64 > MAX_UPLOAD_BODY_BYTES {
         return Err((StatusCode::BAD_REQUEST, "invalid content length".to_string()));
+    }
+    let (replay_bytes, error_metadata) = envelope::split_body(body, p.format.as_deref()).map_err(store_error)?;
+    if replay_bytes.is_empty() || replay_bytes.len() as u64 > MAX_CONTENT_LENGTH_BYTES {
+        return Err((StatusCode::BAD_REQUEST, "invalid replay length".to_string()));
     }
     if p.chunk_id.as_deref().is_some_and(|id| !valid_chunk_id(id)) {
         return Err((StatusCode::BAD_REQUEST, "invalid chunk_id".to_string()));
     }
 
     let gzip = p.encoding.as_deref() == Some("gzip");
-    let payload = replay_ctx.store.prepare(body, gzip).await.map_err(store_error)?;
+    let payload = replay_ctx.store.prepare(replay_bytes, gzip).await.map_err(store_error)?;
     let stored_len = payload.stored_size();
     let invalid_timestamp = || {
         warn!(site_id = %p.site_id, "rejected replay segment with invalid time span");
@@ -215,6 +229,7 @@ pub async fn upload_segment(
         return Err(invalid_timestamp());
     }
 
+    let chunk_errors = envelope::fingerprint_metadata(&error_metadata, p.event_count);
     replay_ctx
         .store
         .store(&p.site_id, identity.session_id, &filename, filename_epoch_ms, segment_date, payload)
@@ -230,12 +245,15 @@ pub async fn upload_segment(
         visitor_id: identity.fingerprint,
         client_started_at_ms,
         client_ended_at_ms,
+        error_fingerprints: Vec::new(),
+        recorded_error_count: 0,
     });
     meta.ended_at = meta.ended_at.max(received_at);
     meta.client_started_at_ms = client_started_at_ms;
     meta.client_ended_at_ms = client_ended_at_ms;
     meta.size_bytes = meta.size_bytes.saturating_add(stored_len);
     meta.event_count = meta.event_count.saturating_add(p.event_count.unwrap_or_default());
+    merge_chunk_errors(&mut meta, chunk_errors);
     if meta.start_url.is_empty() {
         meta.start_url = start_url;
     }
@@ -293,6 +311,8 @@ async fn upsert_replay_row(
         storage: replay_ctx.mode.as_str().to_string(),
         client_started_at_ms: meta.client_started_at_ms,
         client_ended_at_ms: meta.client_ended_at_ms,
+        error_fingerprints: meta.error_fingerprints.clone(),
+        recorded_error_count: meta.recorded_error_count,
     };
     db.upsert_session_replay(row).await
 }
@@ -355,7 +375,38 @@ mod tests {
             visitor_id: 1,
             client_started_at_ms: bounds.0,
             client_ended_at_ms: bounds.1,
+            error_fingerprints: Vec::new(),
+            recorded_error_count: 0,
         }
+    }
+
+    fn chunk_errors(fingerprints: &[&str], count: u32) -> envelope::ChunkErrors {
+        envelope::ChunkErrors {
+            fingerprints: fingerprints.iter().map(|f| f.to_string()).collect(),
+            count,
+        }
+    }
+
+    #[test]
+    fn chunk_errors_union_fingerprints_and_accumulate_counts() {
+        let mut meta = replay_meta((T, T));
+        merge_chunk_errors(&mut meta, chunk_errors(&["b", "a"], 2));
+        merge_chunk_errors(&mut meta, chunk_errors(&["c", "a"], 3));
+        assert_eq!(meta.error_fingerprints, vec!["a", "b", "c"]);
+        assert_eq!(meta.recorded_error_count, 5);
+        meta.recorded_error_count = u32::MAX - 1;
+        merge_chunk_errors(&mut meta, chunk_errors(&[], 5));
+        assert_eq!(meta.recorded_error_count, u32::MAX);
+    }
+
+    #[test]
+    fn raw_chunks_preserve_loaded_fingerprints_and_counts() {
+        let mut meta = replay_meta((T, T));
+        meta.error_fingerprints = vec!["a".to_string()];
+        meta.recorded_error_count = 4;
+        merge_chunk_errors(&mut meta, envelope::ChunkErrors::default());
+        assert_eq!(meta.error_fingerprints, vec!["a"]);
+        assert_eq!(meta.recorded_error_count, 4);
     }
 
     fn merge_all(chunks: &[(i64, i64)]) -> SessionReplayMetaRow {

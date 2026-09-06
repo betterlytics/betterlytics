@@ -126,6 +126,8 @@ pub struct SessionReplayRow {
     pub storage: String,
     pub client_started_at_ms: i64,
     pub client_ended_at_ms: i64,
+    pub error_fingerprints: Vec<String>,
+    pub recorded_error_count: u32,
 }
 
 #[derive(clickhouse::Row, Deserialize, Clone)]
@@ -140,6 +142,8 @@ pub struct SessionReplayMetaRow {
     pub visitor_id: u64,
     pub client_started_at_ms: i64,
     pub client_ended_at_ms: i64,
+    pub error_fingerprints: Vec<String>,
+    pub recorded_error_count: u32,
 }
 
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
