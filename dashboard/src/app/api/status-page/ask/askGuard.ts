@@ -1,7 +1,9 @@
 import 'server-only';
 
 import { createSlidingWindowLimiter } from '@/lib/rate-limit';
-import { getTlsAuthorization, normalizeHostname } from '@/services/analytics/statusPageDomain.service';
+import { ExpiringSet } from '@/lib/expiring-set';
+import { normalizeHostname } from '@/lib/status-host-routing';
+import { getTlsAuthorization } from '@/services/analytics/statusPageDomain.service';
 
 // Hardening for the Caddy on-demand-TLS `ask` endpoint. Caddy calls it during the TLS
 // handshake for every new SNI, so anyone enumerating hostnames turns into a flood of DB
@@ -23,17 +25,7 @@ const GLOBAL_MAX_LOOKUPS = 600;
 const checkGlobalLookupLimit = createSlidingWindowLimiter(GLOBAL_WINDOW_MS, GLOBAL_MAX_LOOKUPS);
 const GLOBAL_KEY = 'global';
 
-// normalized hostname -> epoch ms after which the cached "unauthorized" result expires.
-// Expiry is lazy (checked on access) and the size cap evicts oldest-inserted — no sweep needed.
-const negativeCache = new Map<string, number>();
-
-function rememberUnauthorized(domain: string, now: number): void {
-  if (negativeCache.size >= NEGATIVE_CACHE_MAX_ENTRIES) {
-    const oldest = negativeCache.keys().next().value;
-    if (oldest !== undefined) negativeCache.delete(oldest);
-  }
-  negativeCache.set(domain, now + NEGATIVE_CACHE_TTL_MS);
-}
+const negativeCache = new ExpiringSet(NEGATIVE_CACHE_TTL_MS, NEGATIVE_CACHE_MAX_ENTRIES);
 
 /**
  * Resolve the HTTP status Caddy's `ask` endpoint should return for a hostname:
@@ -45,19 +37,13 @@ export async function resolveAskStatus(rawDomain: string): Promise<number> {
   const domain = normalizeHostname(rawDomain);
   if (!domain) return 400;
 
-  const now = Date.now();
-
-  const cachedUntil = negativeCache.get(domain);
-  if (cachedUntil !== undefined) {
-    if (cachedUntil > now) return 404;
-    negativeCache.delete(domain);
-  }
+  if (negativeCache.has(domain)) return 404;
 
   if (!checkGlobalLookupLimit(GLOBAL_KEY).allowed) return 429;
 
   const authorization = await getTlsAuthorization(domain);
   // Only the DB-backed miss is worth caching; `forbidden` (own namespace) is already DB-free.
-  if (authorization === 'unauthorized') rememberUnauthorized(domain, now);
+  if (authorization === 'unauthorized') negativeCache.add(domain);
 
   return authorization === 'authorized' ? 200 : authorization === 'forbidden' ? 403 : 404;
 }

@@ -8,6 +8,8 @@ import { getTranslations } from 'next-intl/server';
 import { LeaveDashboardSection } from './LeaveDashboardSection';
 import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
 import SettingsSection from '@/components/settings/SettingsSection';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 
 interface MembersPageProps {
   params: Promise<{
@@ -42,6 +44,8 @@ export default async function MembersPage({ params }: MembersPageProps) {
             dashboardId={dashboardId}
             pendingInvitations={pendingInvitations}
             memberCount={members.length}
+            inviteBaseUrl={sharedEmailEnv.publicBaseUrl}
+            emailsEnabled={isFeatureEnabled('enableEmails')}
           />
         </SettingsSection>
 

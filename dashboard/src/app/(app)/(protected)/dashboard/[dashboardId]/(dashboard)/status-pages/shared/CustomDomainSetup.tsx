@@ -4,10 +4,8 @@ import { useTranslations } from 'next-intl';
 import { Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CopyButton } from '@/components/CopyButton';
-
-export function statusPageCnameTarget(slug: string, publicHost: string): string {
-  return `${slug}.status.${publicHost}`;
-}
+import { statusPageCnameTarget } from '@/entities/analytics/statusPage/statusPage.helpers';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 type CustomDomainSetupProps = {
   customDomain: string;
@@ -18,11 +16,12 @@ type CustomDomainSetupProps = {
 
 export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: CustomDomainSetupProps) {
   const t = useTranslations('statusPagesPage.editor');
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
 
   const domain = customDomain.trim();
   if (!domain || !isValid || !slug.trim()) return null;
 
-  const target = statusPageCnameTarget(slug, publicHost);
+  const target = statusPageCnameTarget(slug, publicHost, isFeatureFlagEnabled('isCloud'));
   // Many providers (Namecheap, Cloudflare, GoDaddy…) auto-append the domain, so the Name field wants
   // just the subdomain label.
   const hostLabel = domain.split('.')[0];

@@ -43,6 +43,10 @@ export const osIconNamesThemed = {
 
 export type OSType = keyof typeof osIconNamesThemed;
 
+export function resolveOSIcon(name: string) {
+  return osIconNamesThemed[name.toLowerCase().replace(/\s+/g, '') as OSType] ?? null;
+}
+
 export const osLabels = {
   windows: 'Windows',
   windows11: 'Windows 11',
