@@ -242,10 +242,7 @@ async fn main() {
             info!("S3 session storage disabled");
             None
         }
-        Err(e) => {
-            warn!("Failed to initialize S3 service: {}", e);
-            None
-        }
+        Err(e) => panic!("Failed to initialize S3 service: {}", e),
     };
 
 	let mut router = Router::new()
