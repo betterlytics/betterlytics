@@ -149,7 +149,8 @@ const CLIENT_HINTS_MIN_CHROMIUM_MAJOR: u32 = 89;
 /// A desktop Chromium UA below this major that sends no client hints is rejected:
 /// four weeks of production shadow data (~8k sessions, 96 sites) showed no trusted
 /// input event in that band, while real hint-less users only appeared on 130+.
-/// Real desktop Chrome that old is <1% of hint-sending sessions.
+/// Real desktop Chrome that old still exists (~4% of desktop sessions) but sends
+/// the header, so it is unaffected; the rule only fires when the header is missing too.
 const CLIENT_HINTS_ENFORCE_BELOW_MAJOR: u32 = 130;
 /// Desktop Chromium auto-updates; majors older than this are suspect. Starts very
 /// generous (~3 years behind); tighten from shadow data.
