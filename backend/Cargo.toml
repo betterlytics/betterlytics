@@ -46,8 +46,8 @@ tar = "0.4.44"
 httpdate = "1.0.3"
 bytes = "1.10.1"
 x509-parser = "0.16.0"
-tokio-rustls = { version = "0.26.4", default-features = true }
-rustls = { version = "0.23.32", features = ["ring", "tls12"] }
+tokio-rustls = { version = "0.26.4", default-features = false, features = ["ring", "tls12", "logging"] }
+rustls = { version = "0.23.32", default-features = false, features = ["ring", "tls12", "std", "logging"] }
 rustls-native-certs = "0.7"
 
 # Regex
@@ -74,8 +74,9 @@ prometheus = "0.14.0"
 sysinfo = "0.35.2"
 
 # AWS S3 (for session replay storage)
-aws-config = { version = "1.1.7", features = ["behavior-version-latest"] }
-aws-sdk-s3 = "1.106.0"
+aws-config = { version = "1.1.7", default-features = false, features = ["behavior-version-latest", "rt-tokio"] }
+aws-sdk-s3 = { version = "1.106.0", default-features = false, features = ["rt-tokio", "http-1x"] }
+aws-smithy-http-client = { version = "1", features = ["rustls-ring"] }
 futures = "0.3"
 ipnet = "2.9"
 tokio-postgres = { version = "0.7", features = ["with-chrono-0_4", "with-serde_json-1"] }

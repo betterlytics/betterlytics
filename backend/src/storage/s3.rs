@@ -1,6 +1,7 @@
 use std::time::Duration;
 use anyhow::Result;
 use aws_config::BehaviorVersion;
+use aws_smithy_http_client::{tls, Builder as HttpClientBuilder};
 use aws_sdk_s3::{Client, config::Region};
 use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
 use aws_sdk_s3::presigning::PresigningConfig;
@@ -23,8 +24,14 @@ impl S3Service {
         let region = cfg.s3_region.clone().unwrap_or_else(|| "eu-central-1".to_string());
         let bucket = cfg.s3_bucket.clone().ok_or_else(|| anyhow::anyhow!("S3_BUCKET not set"))?;
 
-        // Base loader
-        let loader = aws_config::defaults(BehaviorVersion::latest()).region(Region::new(region.clone()));
+        // Ring-backed HTTPS client, so the SDK never pulls in aws-lc.
+        let http_client = HttpClientBuilder::new()
+            .tls_provider(tls::Provider::Rustls(tls::rustls_provider::CryptoMode::Ring))
+            .build_https();
+
+        let loader = aws_config::defaults(BehaviorVersion::latest())
+            .region(Region::new(region.clone()))
+            .http_client(http_client.clone());
 
         // Credentials override if provided (useful for local S3 like MinIO)
         let mut creds_opt = None;
@@ -34,7 +41,8 @@ impl S3Service {
 
         let base_config = loader.load().await;
         let mut s3_builder = S3ConfigBuilder::from(&base_config)
-            .region(Region::new(region));
+            .region(Region::new(region))
+            .http_client(http_client);
 
         if let Some(creds) = creds_opt { s3_builder = s3_builder.credentials_provider(creds); }
 
