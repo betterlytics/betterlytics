@@ -1,5 +1,151 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v149ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.9',
+    releasedAt: '2026-09-06',
+    title: 'Filtro anti-bot più efficace e aggiornamenti di sicurezza',
+    summary:
+      "La seconda ondata delle nostre regole anti-bot è ora attiva e rimuove crawler e traffico proveniente da scraper che prima venivano contati come visitatori. Questa versione porta anche importanti aggiornamenti di sicurezza all'autenticazione, insieme ad alcuni miglioramenti di usabilità e correzioni su filtri, funnel e inviti al team.",
+  },
+  sections: [
+    {
+      id: 'v149-bot-filtering',
+      title: 'Filtro anti-bot più efficace',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Nella versione precedente avevamo messo in modalità osservazione un ampio insieme di nuove regole per il rilevamento dei bot, segnalando il traffico sospetto senza toccare i tuoi numeri. Dopo quattro settimane di verifica sul traffico reale, le regole che hanno dimostrato di intercettare solo bot sono ora attive.',
+        },
+        {
+          type: 'text',
+          body: 'Questa ondata rimuove un gruppo di crawler identificati per nome, insieme a flotte di scraper che passano per proxy residenziali e che molti siti vedevano come visite inspiegabili da Vietnam, Brasile e Singapore. Sono state promosse solo le regole che, su migliaia di sessioni, non hanno rilevato alcuna interazione reale da parte dei visitatori, mentre le altre restano in osservazione per le ondate future.',
+        },
+      ],
+    },
+    {
+      id: 'v149-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Quando applichi un filtro facendo clic su un valore nei tuoi dati, ora compare un avviso che indica esattamente cosa è cambiato e ti permette di annullarlo.',
+            "Gli inviti al team includono ora un link condivisibile, così puoi invitare le persone su qualsiasi canale senza dipendere dall'email.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le icone di browser, sistema operativo e dispositivo compaiono ora nel menu a tendina dei filtri, nei filtri applicati e nelle etichette dei passaggi del funnel.',
+            'Vari piccoli miglioramenti di design e usabilità nei filtri e in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Quando si modificava un funnel, i passaggi potevano cambiare ordine al salvataggio, alterando senza alcun avviso sia i passaggi mostrati sia i numeri di conversione. L'ordine dei passaggi viene ora mantenuto.",
+            'Gli utenti che hanno effettuato l\'accesso non vedono più per un istante i pulsanti "Accedi" e "Inizia" durante il caricamento di una pagina.',
+            "La barra di caricamento in cima alla pagina non resta più attiva all'infinito dopo aver aperto un link esterno in una nuova scheda o aver fatto clic su un link email o su un numero di telefono.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "Importanti aggiornamenti di sicurezza all'autenticazione e alla gestione degli account, per mantenere il tuo account e i tuoi dati al sicuro.",
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v149ChangelogModalIt: ChangelogEntryData = {
+  metadata: v149ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v149-modal-bot-filtering',
+      title: 'Filtro anti-bot più efficace',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'La seconda ondata di regole anti-bot è ora attiva e rimuove crawler identificati per nome e flotte di scraper dietro proxy residenziali che prima venivano contati come visitatori, incluso il traffico inspiegabile che molti siti vedevano da Vietnam, Brasile e Singapore.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Quando applichi un filtro facendo clic sui tuoi dati, ora vedi cosa è cambiato e puoi annullarlo.',
+            'Gli inviti al team includono ora un link condivisibile.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Le icone di browser, sistema operativo e dispositivo compaiono ora in tutta la barra dei filtri e nelle etichette dei passaggi del funnel.',
+            'Vari piccoli miglioramenti di design e usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "I passaggi del funnel mantengono l'ordine quando il funnel viene modificato.",
+            'Gli utenti che hanno effettuato l\'accesso non vedono più per un istante i pulsanti "Accedi" e "Inizia" nella barra in alto durante il caricamento.',
+            "La barra di caricamento non resta più attiva all'infinito dopo aver aperto un link esterno in una nuova scheda.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: ["Importanti aggiornamenti di sicurezza all'autenticazione e alla gestione degli account."],
+        },
+      ],
+    },
+  ],
+};
+
 const v148ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.8',
@@ -48,51 +194,6 @@ const v148ChangelogEntryIt: ChangelogEntryData = {
           type: 'list',
           items: [
             "Verificare la tua sessione richiede ora meno lavoro a ogni pagina e la dashboard risulta un po' più scattante da esplorare.",
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-const v148ChangelogModalIt: ChangelogEntryData = {
-  metadata: v148ChangelogEntryIt.metadata,
-  sections: [
-    {
-      id: 'v148-modal-authentication',
-      title: 'Autenticazione rinnovata',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            "Abbiamo spostato il sistema che gestisce il tuo account, le tue sessioni e l'accesso su una base moderna e sviluppata attivamente, che riceve aggiornamenti di sicurezza costanti.",
-            "L'autenticazione a due fattori va configurata di nuovo: non è stato possibile trasferire le configurazioni esistenti. Abbiamo avvisato via email tutti gli utenti coinvolti.",
-            'Per riattivarla, apri Impostazioni dal menu del tuo profilo e vai a Sicurezza account. La tua app di autenticazione riceverà un nuovo QR code.',
-            'Al momento del rilascio la tua sessione potrebbe essere stata chiusa una volta. È dipeso dal passaggio in sé, non da un problema del tuo account.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v148-modal-security',
-      title: 'Sicurezza',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            "Per attivare o disattivare l'autenticazione a due fattori è ora necessaria la password del tuo account.",
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v148-modal-improvements',
-      title: 'Miglioramenti',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            "Verificare la tua sessione richiede ora meno lavoro a ogni pagina e la dashboard risulta un po' più scattante.",
           ],
         },
       ],
@@ -389,9 +490,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v148ChangelogModalIt;
+export const latestChangelogModalIt = v149ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v149ChangelogEntryIt,
   v148ChangelogEntryIt,
   v147ChangelogEntryIt,
   v146ChangelogEntryIt,
