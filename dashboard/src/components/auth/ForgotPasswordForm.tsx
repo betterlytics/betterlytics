@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import { forgotPasswordAction } from '@/app/actions/auth/passwordReset.action';
+import { authClient } from '@/lib/auth-client';
 import { ForgotPasswordSchema } from '@/entities/auth/passwordReset.entities';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,14 +25,17 @@ export default function ForgotPasswordForm() {
       const validatedData = ForgotPasswordSchema.parse({ email });
 
       startTransition(async () => {
-        const result = await forgotPasswordAction(validatedData);
+        const { error: resetError } = await authClient.requestPasswordReset({
+          email: validatedData.email,
+          redirectTo: '/reset-password',
+        });
 
-        if (result) {
+        if (resetError) {
+          setError(t(resetError.status === 429 ? 'errorMessageTooManyRequests' : 'errorMessage'));
+        } else {
           setSuccess(t('successMessage'));
           setEmail('');
           toast.success(t('successMessage'));
-        } else {
-          setError(t('errorMessage'));
         }
       });
     } catch (error) {

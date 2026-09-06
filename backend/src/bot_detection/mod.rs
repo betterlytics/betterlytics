@@ -100,6 +100,7 @@ pub const REASON_HOSTING_NETWORK: &str = "hosting-network";
 pub const REASON_PREFETCH: &str = "prefetch";
 pub const REASON_VELOCITY: &str = "velocity";
 pub const REASON_MISSING_CLIENT_HINTS: &str = "missing-client-hints";
+pub const REASON_STALE_CHROMIUM_NO_HINTS: &str = "stale-chromium-no-hints";
 pub const REASON_CLIENT_HINTS_MISMATCH: &str = "client-hints-mismatch";
 pub const REASON_STALE_BROWSER: &str = "stale-browser";
 
@@ -107,6 +108,7 @@ pub const REASON_STALE_BROWSER: &str = "stale-browser";
 const ENFORCING_REASONS: &[&str] = &[
     REASON_UA_BLOCKLIST,
     REASON_CLIENT_AUTOMATION,
+    REASON_STALE_CHROMIUM_NO_HINTS,
 ];
 
 pub struct Detection {
@@ -144,6 +146,12 @@ const UA_MAX_LENGTH: usize = 500;
 
 /// Chromium sends low-entropy client hints on every request since major 89
 const CLIENT_HINTS_MIN_CHROMIUM_MAJOR: u32 = 89;
+/// A desktop Chromium UA below this major that sends no client hints is rejected:
+/// four weeks of production shadow data (~8k sessions, 96 sites) showed no trusted
+/// input event in that band, while real hint-less users only appeared on 130+.
+/// Real desktop Chrome that old still exists (~4% of desktop sessions) but sends
+/// the header, so it is unaffected; the rule only fires when the header is missing too.
+const CLIENT_HINTS_ENFORCE_BELOW_MAJOR: u32 = 130;
 /// Desktop Chromium auto-updates; majors older than this are suspect. Starts very
 /// generous (~3 years behind); tighten from shadow data.
 const STALE_DESKTOP_CHROMIUM_MAJOR: u32 = 110;
@@ -218,7 +226,11 @@ fn collect_reasons(input: &DetectionInput) -> Vec<&'static str> {
     if let Some(major) = chromium_major(user_agent) {
         if major >= CLIENT_HINTS_MIN_CHROMIUM_MAJOR {
             if input.sec_ch_ua.is_empty() {
-                reasons.push(REASON_MISSING_CLIENT_HINTS);
+                if major < CLIENT_HINTS_ENFORCE_BELOW_MAJOR && is_desktop_ua(user_agent) {
+                    reasons.push(REASON_STALE_CHROMIUM_NO_HINTS);
+                } else {
+                    reasons.push(REASON_MISSING_CLIENT_HINTS);
+                }
             } else if !input.sec_ch_ua.contains(&format!("v=\"{}\"", major)) {
                 reasons.push(REASON_CLIENT_HINTS_MISMATCH);
             }
@@ -389,6 +401,16 @@ mod tests {
         "FeedFetcher-Google; (+http://www.google.com/feedfetcher.html)",
         "Site24x7",
         "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Chrome-Lighthouse",
+        // Local promotions backed by bot_events shadow data (see bot_patterns_local.txt)
+        "Mozilla/5.0 (compatible; Baiduspider-render/2.0; +http://www.baidu.com/search/spider.html)",
+        "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)",
+        "Sogou web spider/4.0(+http://www.sogou.com/docs/help/webmasters.htm#07)",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko; compatible; Yeti/1.1; +https://naver.me/spd) Chrome/149.0.0.0 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 iubenda-radar/3.30.0",
+        "Mozilla/5.0 (compatible; Dataprovider.com)",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.7922.173 Safari/537.36 PlayStore-Google",
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko; Google-BusinessLinkVerification) Chrome/151.0.7922.173 Safari/537.36",
+        "Google",
     ];
 
     // Real browser UAs, including in-app webviews, Electron shells, and niche
@@ -435,11 +457,8 @@ mod tests {
         "Go-http-client/2.0",
         "okhttp/4.12.0",
         "Scrapy/2.11.0 (+https://scrapy.org)",
-        // Named crawlers whose only upstream coverage is a demoted generic token
-        // (spider, node\b); shadow until bot_events evidence promotes a signature
-        "Mozilla/5.0 (compatible; Bytespider; spider-feedback@bytedance.com)",
-        "Mozilla/5.0 (Linux; Android 5.0) AppleWebKit/537.36 (KHTML, like Gecko) Mobile Safari/537.36 (compatible; Bytespider; spider-feedback@bytedance.com)",
-        "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)",
+        // Named crawler whose only upstream coverage is a demoted generic token
+        // (node\b); shadow until bot_events evidence promotes a signature
         "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)",
     ];
 
@@ -626,8 +645,40 @@ mod tests {
     }
 
     #[test]
-    fn chromium_without_client_hints_is_shadow_flagged() {
+    fn current_chromium_without_client_hints_is_shadow_flagged() {
+        // Desktop Chrome 131: real hint-less users exist on 130+, so shadow only
         let detection = detect(&DetectionInput { sec_ch_ua: "", ..human_input() });
+        assert_eq!(detection.shadow, vec![REASON_MISSING_CLIENT_HINTS]);
+        assert!(!detection.should_reject());
+    }
+
+    #[test]
+    fn stale_desktop_chromium_without_client_hints_rejects() {
+        let ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36";
+        let detection = detect(&DetectionInput {
+            user_agent: ua,
+            header_user_agent: ua,
+            screen_resolution: "1280x1200",
+            sec_ch_ua: "",
+            ..Default::default()
+        });
+        assert_eq!(detection.enforcing, vec![REASON_STALE_CHROMIUM_NO_HINTS]);
+        assert!(detection.should_reject());
+        assert_eq!(detection.tagged_reasons(), vec!["stale-chromium-no-hints"]);
+
+        // The same major with consistent hints is a plain (if unusual) browser
+        assert!(detect_ua(ua).is_empty());
+
+        // Mobile Chromium without hints stays shadow: webviews and vendor browsers
+        // (Samsung Internet, HeyTap, WeChat) legitimately omit them
+        let mobile = "Mozilla/5.0 (Linux; Android 13; SM-A145R) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/21.0 Chrome/110.0.5481.154 Mobile Safari/537.36";
+        let detection = detect(&DetectionInput {
+            user_agent: mobile,
+            header_user_agent: mobile,
+            screen_resolution: "412x915",
+            sec_ch_ua: "",
+            ..Default::default()
+        });
         assert_eq!(detection.shadow, vec![REASON_MISSING_CLIENT_HINTS]);
         assert!(!detection.should_reject());
     }

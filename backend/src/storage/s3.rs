@@ -1,8 +1,8 @@
 use std::time::Duration;
 use anyhow::Result;
-use aws_config::BehaviorVersion;
+use aws_smithy_http_client::{tls, Builder as HttpClientBuilder};
 use aws_sdk_s3::{Client, config::Region};
-use aws_sdk_s3::config::{Credentials, Builder as S3ConfigBuilder};
+use aws_sdk_s3::config::{BehaviorVersion, Credentials};
 use aws_sdk_s3::presigning::PresigningConfig;
 use aws_sdk_s3::types::ServerSideEncryption;
 use crate::config::Config;
@@ -21,22 +21,20 @@ impl S3Service {
         }
 
         let region = cfg.s3_region.clone().unwrap_or_else(|| "eu-central-1".to_string());
-        let bucket = cfg.s3_bucket.clone().ok_or_else(|| anyhow::anyhow!("S3_BUCKET not set"))?;
+        let bucket = required(cfg.s3_bucket.clone(), "S3_BUCKET")?;
+        let access_key = required(cfg.s3_access_key_id.clone(), "S3_ACCESS_KEY_ID")?;
+        let secret_key = required(cfg.s3_secret_access_key.clone(), "S3_SECRET_ACCESS_KEY")?;
 
-        // Base loader
-        let loader = aws_config::defaults(BehaviorVersion::latest()).region(Region::new(region.clone()));
+        // Ring-backed HTTPS client, so the SDK never pulls in aws-lc.
+        let http_client = HttpClientBuilder::new()
+            .tls_provider(tls::Provider::Rustls(tls::rustls_provider::CryptoMode::Ring))
+            .build_https();
 
-        // Credentials override if provided (useful for local S3 like MinIO)
-        let mut creds_opt = None;
-        if let (Some(ak), Some(sk)) = (cfg.s3_access_key_id.clone(), cfg.s3_secret_access_key.clone()) {
-            creds_opt = Some(Credentials::new(ak, sk, None, None, "static"));
-        }
-
-        let base_config = loader.load().await;
-        let mut s3_builder = S3ConfigBuilder::from(&base_config)
-            .region(Region::new(region));
-
-        if let Some(creds) = creds_opt { s3_builder = s3_builder.credentials_provider(creds); }
+        let mut s3_builder = aws_sdk_s3::Config::builder()
+            .behavior_version(BehaviorVersion::latest())
+            .region(Region::new(region))
+            .credentials_provider(Credentials::new(access_key, secret_key, None, None, "static"))
+            .http_client(http_client);
 
         if let Some(endpoint) = cfg.s3_endpoint.clone() {
             s3_builder = s3_builder.endpoint_url(endpoint);
@@ -85,4 +83,9 @@ impl S3Service {
     }
 }
 
-
+fn required(value: Option<String>, name: &str) -> Result<String> {
+    match value {
+        Some(v) if !v.trim().is_empty() => Ok(v),
+        _ => Err(anyhow::anyhow!("{} must be set when S3_ENABLED=true", name)),
+    }
+}

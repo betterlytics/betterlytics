@@ -5,8 +5,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Info, Clipboard, Check, RefreshCw, Circle } from 'lucide-react';
-import { toast } from 'sonner';
 import { Badge } from '@/components/ui/badge';
+import { useCopy } from '@/hooks/use-copy';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
 import { fetchSiteId } from '@/app/actions/index.actions';
@@ -33,7 +33,6 @@ interface IntegrationStatus {
 }
 
 export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) {
-  const [copiedIdentifier, setCopiedIdentifier] = useState<string | null>(null);
   const [selectedFramework, setSelectedFramework] = useState<FrameworkId>('html');
   const [integrationStatus, setIntegrationStatus] = useState<IntegrationStatus>({
     accountCreated: true,
@@ -41,6 +40,7 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
     dataReceiving: false,
   });
   const t = useTranslations('components.integration');
+  const { copied, copy } = useCopy({ failedMessage: t('failedToCopy') });
   const messages = useMessages();
   const integrationTranslations = (messages as Record<string, unknown>).integration as IntegrationTranslations;
 
@@ -65,16 +65,6 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
 
   const handleVerifyInstallation = async () => {
     await verify();
-  };
-
-  const handleCopy = async (text: string, identifier: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedIdentifier(identifier);
-      setTimeout(() => setCopiedIdentifier(null), 2000);
-    } catch {
-      toast.error(t('failedToCopy'));
-    }
   };
 
   const frameworkCode = siteId
@@ -135,9 +125,9 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
                       variant='ghost'
                       size='sm'
                       className='text-muted-foreground hover:text-foreground h-8 cursor-pointer gap-1.5 text-xs'
-                      onClick={() => handleCopy(siteId, 'siteId')}
+                      onClick={() => copy(siteId)}
                     >
-                      {copiedIdentifier === 'siteId' ? (
+                      {copied ? (
                         <>
                           <Check className='h-3.5 w-3.5' />
                           {t('copied')}

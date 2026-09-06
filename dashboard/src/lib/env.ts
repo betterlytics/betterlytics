@@ -1,6 +1,7 @@
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { z } from 'zod';
-import { sharedEmailEnvSchema, zStringBoolean } from '@/lib/env/shared.env';
+import { parseEnv } from '@/lib/env/parse-env';
+import { sharedEmailEnvSchema, zStringBoolean, zStringBooleanDefaultTrue } from '@/lib/env/shared.env';
 
 const appEnvSchema = z.object({
   CLICKHOUSE_URL: z.string().url(),
@@ -15,6 +16,8 @@ const appEnvSchema = z.object({
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
   ENABLE_REGISTRATION: zStringBoolean,
   PUBLIC_IS_CLOUD: zStringBoolean,
+  PUBLIC_ENABLE_FAVICON_FETCHING: zStringBooleanDefaultTrue,
+  APP_VERSION: z.string().optional().default('dev'),
   ENABLE_BILLING: zStringBoolean,
   PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional().default(''),
   STRIPE_SECRET_KEY: z.string().optional().default(''),
@@ -101,7 +104,7 @@ if (!process.env.AUTH_URL && process.env.NEXTAUTH_URL) {
   throw new Error('NEXTAUTH_URL is no longer read. Rename it to AUTH_URL (the value can stay the same).');
 }
 
-export const env = envSchema.parse(process.env);
+export const env = parseEnv('app', envSchema);
 
 export const s3Env = {
   enabled: env.S3_ENABLED,

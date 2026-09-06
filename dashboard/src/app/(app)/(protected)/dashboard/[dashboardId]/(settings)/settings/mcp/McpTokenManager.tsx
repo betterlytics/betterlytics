@@ -17,6 +17,7 @@ import {
   McpTokenListItem,
 } from '@/entities/dashboard/mcpToken.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { useCopy } from '@/hooks/use-copy';
 
 interface McpTokenManagerProps {
   dashboardId: string;
@@ -30,7 +31,7 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
   const [lifetime, setLifetime] = useState<McpTokenLifetime>(DEFAULT_MCP_TOKEN_LIFETIME);
   const [isPending, startTransition] = useTransition();
   const [newlyCreatedToken, setNewlyCreatedToken] = useState<{ id: string; plainToken: string } | null>(null);
-  const [copied, setCopied] = useState(false);
+  const { copied, copy } = useCopy();
   const [deleteTokenId, setDeleteTokenId] = useState<string | null>(null);
 
   const handleCreate = () => {
@@ -63,12 +64,6 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
     });
   };
 
-  const handleCopy = async (value: string) => {
-    await navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   const formatDate = (date: Date) =>
     formatLocalDateTime(date, locale, { year: 'numeric', month: 'short', day: 'numeric' }) ?? '';
 
@@ -87,7 +82,7 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
               variant='ghost'
               size='icon'
               className='size-8 shrink-0 cursor-pointer'
-              onClick={() => handleCopy(newlyCreatedToken.plainToken)}
+              onClick={() => copy(newlyCreatedToken.plainToken)}
             >
               {copied ? <Check className='size-4' /> : <Copy className='size-4' />}
             </Button>
