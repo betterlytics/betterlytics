@@ -38,6 +38,9 @@ If you're loading the analytics script asynchronously, and not using our npm pac
     window.betterlytics || {
       event: function () {
         (window.betterlytics.q = window.betterlytics.q || []).push(arguments);
+      },
+      setGlobalProperties: function () {
+        (window.betterlytics.gq = window.betterlytics.gq || []).push(arguments);
       }
     };
 </script>
@@ -48,7 +51,7 @@ If you're loading the analytics script asynchronously, and not using our npm pac
 ></script>
 ```
 
-This ensures `betterlytics.event()` calls work immediately, even before the main script finishes loading.
+This ensures `betterlytics.event()` and `betterlytics.setGlobalProperties()` calls work immediately, even before the main script finishes loading. Queued global properties are applied before events.
 
 ### Simple Event Tracking
 

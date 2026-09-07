@@ -154,13 +154,16 @@ For frameworks that ship with their own analytics-friendly conventions (Next.js 
 
 If page views work but [custom events](/integration/custom-events) don't, the usual cause is that `betterlytics.event(...)` ran **before** the async script finished loading.
 
-If you load `analytics.js` with `async`, add this snippet **before** the analytics script tag so calls made during page load are queued and flushed once the script is ready:
+If you load `analytics.js` with `async`, add this snippet **before** the analytics script tag so `event()` and `setGlobalProperties()` calls made during page load are queued and flushed once the script is ready:
 
 ```html
 <script>
   window.betterlytics = window.betterlytics || {
     event: function () {
       (window.betterlytics.q = window.betterlytics.q || []).push(arguments);
+    },
+    setGlobalProperties: function () {
+      (window.betterlytics.gq = window.betterlytics.gq || []).push(arguments);
     }
   };
 </script>

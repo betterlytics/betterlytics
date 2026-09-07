@@ -152,6 +152,8 @@
   }
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
+  var queuedGlobalProperties =
+    (window.betterlytics && window.betterlytics.gq) || [];
 
   var replayConsentCallbacks = [];
 
@@ -201,6 +203,13 @@
 
   if (initialGlobalProperties !== null) {
     window.betterlytics.setGlobalProperties(initialGlobalProperties);
+  }
+
+  for (var i = 0; i < queuedGlobalProperties.length; i++) {
+    window.betterlytics.setGlobalProperties.apply(
+      this,
+      queuedGlobalProperties[i],
+    );
   }
 
   for (var i = 0; i < queuedEvents.length; i++) {
