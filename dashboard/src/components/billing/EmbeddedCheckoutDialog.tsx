@@ -34,19 +34,23 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
 
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
   const [hasError, setHasError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const stripePromise = useMemo<Promise<Stripe | null> | null>(() => {
-    if (!PUBLIC_STRIPE_PUBLISHABLE_KEY) return null;
-    return getStripeClient(PUBLIC_STRIPE_PUBLISHABLE_KEY);
-  }, [PUBLIC_STRIPE_PUBLISHABLE_KEY]);
-
+  // Stripe.js is only loaded once the user has committed to checkout. Kicking it off here
+  // lets the script download race the checkout-session round-trip instead of adding to it,
+  // and keeps the third-party script off every other page.
   useEffect(() => {
     if (!open || !plan || clientSecret) {
       return;
     }
+    if (!PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+      setHasError(true);
+      return;
+    }
     let canceled = false;
+    setStripePromise(getStripeClient(PUBLIC_STRIPE_PUBLISHABLE_KEY));
     (async () => {
       const result = await createStripeCheckoutSession(plan);
       if (canceled) return;
@@ -61,12 +65,13 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
     return () => {
       canceled = true;
     };
-  }, [open, plan, clientSecret, t]);
+  }, [open, plan, clientSecret, PUBLIC_STRIPE_PUBLISHABLE_KEY, t]);
 
   useEffect(() => {
     if (!open) {
       setClientSecret(null);
       setSessionId(null);
+      setStripePromise(null);
       setHasError(false);
       setShowSuccess(false);
     }
@@ -125,9 +130,9 @@ export function EmbeddedCheckoutDialog({ open, onOpenChange, plan }: EmbeddedChe
               label={t('successTitle')}
               description={plan ? t('successDescription', { tier: plan.tier }) : undefined}
             />
-          ) : hasError || !stripePromise ? (
+          ) : hasError ? (
             <div className='text-muted-foreground p-8 text-center text-sm'>{t('loadError')}</div>
-          ) : checkoutOptions ? (
+          ) : stripePromise && checkoutOptions ? (
             <EmbeddedCheckoutProvider stripe={stripePromise} options={checkoutOptions}>
               <EmbeddedCheckout />
             </EmbeddedCheckoutProvider>

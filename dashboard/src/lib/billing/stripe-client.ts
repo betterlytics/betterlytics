@@ -1,6 +1,9 @@
 'use client';
 
-import { loadStripe, type Stripe } from '@stripe/stripe-js';
+// The default entry injects the js.stripe.com script tag as an import side effect;
+// the /pure entry only loads it when loadStripe is actually called.
+import { loadStripe } from '@stripe/stripe-js/pure';
+import type { Stripe } from '@stripe/stripe-js';
 
 let stripePromise: Promise<Stripe | null> | null = null;
 
