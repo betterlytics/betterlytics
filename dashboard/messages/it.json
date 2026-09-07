@@ -2162,7 +2162,8 @@
           "domain": "example.com"
         },
         "helper": {
-          "domain": "Inserisci il dominio senza https:// o www."
+          "domain": "Incolla l’URL o il dominio del tuo sito, es. esempio.com",
+          "willBeCreatedAs": "Verrà creato come <strong>{domain}</strong>"
         },
         "buttons": {
           "cancel": "Annulla",
@@ -3267,7 +3268,8 @@
       "description": "Raccontaci del sito web che vuoi monitorare",
       "domainLabel": "Dominio",
       "domainPlaceholder": "esempio.com",
-      "domainHelp": "Inserisci il tuo dominio senza https:// o www. (es. esempio.com)",
+      "domainHelp": "Incolla l’URL o il dominio del tuo sito (es. esempio.com)",
+      "domainWillBeCreatedAs": "Verrà creato come <strong>{domain}</strong>",
       "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
       "createDashboardButton": "Crea dashboard",
       "creatingDashboard": "Creazione dashboard...",

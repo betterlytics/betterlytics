@@ -2162,7 +2162,8 @@
           "domain": "example.com"
         },
         "helper": {
-          "domain": "Enter your domain without https:// or www."
+          "domain": "Paste your website URL or domain, e.g. example.com",
+          "willBeCreatedAs": "Will be created as <strong>{domain}</strong>"
         },
         "buttons": {
           "cancel": "Cancel",
@@ -3264,7 +3265,8 @@
       "description": "Tell us about the website you want to track",
       "domainLabel": "Domain",
       "domainPlaceholder": "example.com",
-      "domainHelp": "Enter your domain without https:// or www. (e.g., example.com)",
+      "domainHelp": "Paste your website URL or domain (e.g., example.com)",
+      "domainWillBeCreatedAs": "Will be created as <strong>{domain}</strong>",
       "termsAgreeLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
       "createDashboardButton": "Create Dashboard",
       "creatingDashboard": "Creating Dashboard...",
