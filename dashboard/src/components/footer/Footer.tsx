@@ -4,13 +4,16 @@ import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialI
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
 import { FooterLanguageSelector } from './FooterLanguageSelector';
+import { CloudOnly } from '@/components/CloudOnly';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export async function Footer() {
   const t = await getTranslations('public.footer');
+  const columns = isFeatureEnabled('isCloud') ? 'md:grid-cols-5' : 'md:grid-cols-3';
   return (
     <footer className='border-border/40 border-t py-12'>
       <div className='container mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='grid gap-8 md:grid-cols-5'>
+        <div className={`grid gap-8 ${columns}`}>
           <div>
             <div className='mb-4'>
               <Link href='/' className='flex items-center space-x-2'>
@@ -20,41 +23,43 @@ export async function Footer() {
             <p className='text-muted-foreground mb-6 text-sm'>{t('blurb')}</p>
             <FooterLanguageSelector />
           </div>
-          <div>
-            <h3 className='mb-4 font-semibold'>{t('company')}</h3>
-            <ul className='text-muted-foreground space-y-2 text-sm'>
-              <li>
-                <Link href='/about' className='hover:text-foreground transition-colors'>
-                  {t('about')}
-                </Link>
-              </li>
-              <li>
-                <Link href='/contact' className='hover:text-foreground transition-colors'>
-                  {t('contact')}
-                </Link>
-              </li>
-              <li>
-                <Link href='/privacy' className='hover:text-foreground transition-colors'>
-                  {t('privacyPolicy')}
-                </Link>
-              </li>
-              <li>
-                <Link href='/terms' className='hover:text-foreground transition-colors'>
-                  {t('termsOfService')}
-                </Link>
-              </li>
-              <li>
-                <Link href='/dpa' className='hover:text-foreground transition-colors'>
-                  {t('dpa')}
-                </Link>
-              </li>
-              <li>
-                <Link href='/subprocessors' className='hover:text-foreground transition-colors'>
-                  {t('subprocessors')}
-                </Link>
-              </li>
-            </ul>
-          </div>
+          <CloudOnly>
+            <div>
+              <h3 className='mb-4 font-semibold'>{t('company')}</h3>
+              <ul className='text-muted-foreground space-y-2 text-sm'>
+                <li>
+                  <Link href='/about' className='hover:text-foreground transition-colors'>
+                    {t('about')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/contact' className='hover:text-foreground transition-colors'>
+                    {t('contact')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/privacy' className='hover:text-foreground transition-colors'>
+                    {t('privacyPolicy')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/terms' className='hover:text-foreground transition-colors'>
+                    {t('termsOfService')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/dpa' className='hover:text-foreground transition-colors'>
+                    {t('dpa')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/subprocessors' className='hover:text-foreground transition-colors'>
+                    {t('subprocessors')}
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </CloudOnly>
           <div>
             <h3 className='mb-4 font-semibold'>{t('resources')}</h3>
             <ul className='text-muted-foreground space-y-2 text-sm'>
@@ -67,67 +72,71 @@ export async function Footer() {
                   {t('documentation')}
                 </ExternalLink>
               </li>
-              <li>
-                <Link href='/changelog' className='hover:text-foreground transition-colors'>
-                  {t('changelog')}
-                </Link>
-              </li>
-              <li>
-                <Link href='/features' className='hover:text-foreground transition-colors'>
-                  {t('features')}
-                </Link>
-              </li>
-              <li>
-                <Link href='/pricing' className='hover:text-foreground transition-colors'>
-                  {t('pricing')}
-                </Link>
-              </li>
-              <li>
-                <ExternalLink
-                  href='https://status.betterlytics.io'
-                  title={t('status')}
-                  className='hover:text-foreground transition-colors'
-                >
-                  {t('status')}
-                </ExternalLink>
-              </li>
+              <CloudOnly>
+                <li>
+                  <Link href='/changelog' className='hover:text-foreground transition-colors'>
+                    {t('changelog')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/features' className='hover:text-foreground transition-colors'>
+                    {t('features')}
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/pricing' className='hover:text-foreground transition-colors'>
+                    {t('pricing')}
+                  </Link>
+                </li>
+                <li>
+                  <ExternalLink
+                    href='https://status.betterlytics.io'
+                    title={t('status')}
+                    className='hover:text-foreground transition-colors'
+                  >
+                    {t('status')}
+                  </ExternalLink>
+                </li>
+              </CloudOnly>
             </ul>
           </div>
-          <div>
-            <h3 className='mb-4 font-semibold'>{t('compare')}</h3>
-            <ul className='text-muted-foreground space-y-2 text-sm'>
-              <li>
-                <Link href='/vs/google-analytics' className='hover:text-foreground transition-colors'>
-                  vs Google Analytics
-                </Link>
-              </li>
-              <li>
-                <Link href='/vs/matomo' className='hover:text-foreground transition-colors'>
-                  vs Matomo
-                </Link>
-              </li>
-              <li>
-                <Link href='/vs/plausible' className='hover:text-foreground transition-colors'>
-                  vs Plausible
-                </Link>
-              </li>
-              <li>
-                <Link href='/vs/posthog' className='hover:text-foreground transition-colors'>
-                  vs PostHog
-                </Link>
-              </li>
-              <li>
-                <Link href='/vs/fathom-analytics' className='hover:text-foreground transition-colors'>
-                  vs Fathom Analytics
-                </Link>
-              </li>
-              <li>
-                <Link href='/vs/umami' className='hover:text-foreground transition-colors'>
-                  vs Umami
-                </Link>
-              </li>
-            </ul>
-          </div>
+          <CloudOnly>
+            <div>
+              <h3 className='mb-4 font-semibold'>{t('compare')}</h3>
+              <ul className='text-muted-foreground space-y-2 text-sm'>
+                <li>
+                  <Link href='/vs/google-analytics' className='hover:text-foreground transition-colors'>
+                    vs Google Analytics
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/vs/matomo' className='hover:text-foreground transition-colors'>
+                    vs Matomo
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/vs/plausible' className='hover:text-foreground transition-colors'>
+                    vs Plausible
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/vs/posthog' className='hover:text-foreground transition-colors'>
+                    vs PostHog
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/vs/fathom-analytics' className='hover:text-foreground transition-colors'>
+                    vs Fathom Analytics
+                  </Link>
+                </li>
+                <li>
+                  <Link href='/vs/umami' className='hover:text-foreground transition-colors'>
+                    vs Umami
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </CloudOnly>
           <div>
             <h3 className='mb-4 font-semibold'>{t('connect')}</h3>
             <ul className='text-muted-foreground space-y-2 text-sm'>
