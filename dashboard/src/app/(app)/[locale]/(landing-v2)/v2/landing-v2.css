@@ -1288,39 +1288,105 @@
     width: 100%;
     height: 100%;
     position: relative;
+    isolation: isolate;
+    /* drag to turn the globe; vertical touch scrolling is left to the page */
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
     opacity: 0;
     transition: opacity 0.6s var(--ease);
+  }
+  /* own backdrop for the globe canvas to blend against, whatever the ancestors do.
+     It runs well past the wrapper because the globe itself does, out into the
+     card padding; the card art clips whatever is not needed. */
+  .ac::before {
+    content: "";
+    position: absolute;
+    inset: -50%;
+    background: var(--canvas);
+    z-index: -1;
+  }
+  .ac.is-grab {
+    cursor: grabbing;
   }
   .is-in .ac {
     opacity: 1;
   }
   /* cobe draws the sphere at 80% of its canvas, so the host runs past the
      slot on every side: the sphere's top sits just inside the frame and its
-     bottom is cropped, seen from a camera above the equator */
-  .ac__globe {
+     bottom is cropped, seen from a camera above the equator.
+     The graticule canvas shares that box so its lines land on the same sphere. */
+  .ac__far,
+  .ac__marks,
+  .ac__globe,
+  .ac__grid {
     position: absolute;
     top: -10%;
     left: 50%;
     height: 140%;
     aspect-ratio: 1;
+    /* the scene sets the transform inline each frame (this translation, then the roll), so
+       each canvas gets its own compositor layer and the change never touches layout */
+    will-change: transform;
     transform: translateX(-50%);
   }
-  /* the arrival label is pinned to its marker through the anchor cobe exposes,
-     and fades as the marker turns away from the viewer */
+  /* the far hemisphere: a second render seen from behind and mirrored, faded right down.
+     Blended the same way, so only its dots survive and they read as seen through the sphere */
+  .ac__far {
+    opacity: 0.28;
+    mix-blend-mode: lighten;
+    /* thin at the rim, thick in the middle: the far side fades out toward the centre of the disc.
+       closest-side makes 100% the host's half-width, so the sphere's edge sits at 80% */
+    -webkit-mask-image: radial-gradient(circle closest-side, rgba(0, 0, 0, 0.1) 18%, #000 76%);
+    mask-image: radial-gradient(circle closest-side, rgba(0, 0, 0, 0.1) 18%, #000 76%);
+  }
+  .ac__globe {
+    /* cobe paints the sphere body at a tenth of the land colour, so a blue land
+       leaves a navy disc. That body is darker than the canvas on every channel,
+       so lightening lets the canvas win while the brighter dots show through. */
+    mix-blend-mode: lighten;
+  }
+  /* visitor marks sit above the globe, in the arrival accent */
+  .ac__marks {
+    --globe-mark: var(--accent-soft);
+    pointer-events: none;
+  }
+  /* the graticule sits under the globe: lighter than the sphere body, so it
+     shows through the blend, and dimmer than the dots, so they sit on top of it */
+  .ac__grid {
+    --globe-grid: var(--rule-22);
+    pointer-events: none;
+  }
+  /* the arrival label is placed beside its marker from the same projection that
+     draws the graticule, and fades as the marker turns away from the viewer */
   .ac__lbl {
-    display: none;
     position: absolute;
-    padding: 8px 13px;
-    border-radius: 7px;
-    background: #241f2e;
-    border: 1px solid rgba(139, 151, 255, 0.42);
+    /* positioned by transform from the scene, so moving it never triggers layout */
+    left: 0;
+    top: 0;
+    will-change: transform;
+    padding: 12px 18px;
+    /* the canvas colour at two thirds, so land dots read through it instead of a black hole */
+    background: rgba(21, 20, 20, 0.66);
+    border: 1px solid var(--volt-lift);
     font-family: var(--mono);
-    font-size: 12px;
-    line-height: 15px;
+    font-size: 14px;
+    line-height: 19px;
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.35s var(--ease);
+  }
+  /* the panel corner squares, in the label's own blue, and kept on small screens */
+  .ac__lbl .cnr {
+    display: block;
+  }
+  .ac__lbl .cnr::before,
+  .ac__lbl .cnr::after,
+  .ac__lbl .cnr > i::before,
+  .ac__lbl .cnr > i::after {
+    border-color: var(--volt-lift);
+    background: var(--canvas);
   }
   .ac__lbl.is-on {
     opacity: 1;
@@ -1332,17 +1398,8 @@
   }
   .ac__lbl span {
     display: block;
-    font-size: 11.5px;
+    font-size: 13px;
     color: var(--accent-soft);
-  }
-  @supports (position-anchor: --a) {
-    .ac__lbl {
-      display: block;
-      position-anchor: var(--lbl-anchor);
-      left: anchor(right);
-      bottom: anchor(top);
-      translate: 14px -10px;
-    }
   }
 
   /* uptime: two monitors and the alert they raise, joined by connectors */
