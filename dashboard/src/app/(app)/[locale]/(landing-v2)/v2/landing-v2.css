@@ -965,6 +965,16 @@
     position: sticky;
     top: 0;
     padding: 0 0 0 30px;
+    /* the sticky box is bounded by its margin box, so these keep the copy clear
+       of the top rule before the rail pins and of the bottom rule after it releases */
+    margin: 48px 0;
+  }
+  .jr__count {
+    margin: 0 0 14px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--mid);
   }
   .jr__title {
     font-size: clamp(27px, 2.7vw, 36px);
@@ -972,14 +982,6 @@
     letter-spacing: -1px;
     font-weight: 500;
     margin-bottom: 16px;
-  }
-  .jr__stem {
-    display: block;
-    color: var(--mid);
-  }
-  .jr__word {
-    display: block;
-    color: var(--text);
   }
   .jr__note {
     font-size: 15px;
@@ -997,20 +999,40 @@
     text-transform: uppercase;
     color: var(--accent-soft);
   }
-  .jr__word,
-  .jr__note,
-  .jr__repl {
-    transition:
-      opacity 0.24s var(--ease),
-      transform 0.24s var(--ease),
-      filter 0.24s var(--ease);
+  /* the rail copy animates through ui/liftSwap and ui/rollingDigits */
+  .jr__count .rd {
+    color: var(--text);
   }
-  .jr__rail.is-swap .jr__word,
-  .jr__rail.is-swap .jr__note,
-  .jr__rail.is-swap .jr__repl {
-    opacity: 0;
-    transform: translateY(-9px);
-    filter: blur(4px);
+  .jr__title .ls--line.is-dim {
+    color: var(--mid);
+  }
+
+  /* ══ Lift slot (ui/liftSwap) ══
+     The leaving item is popped out of flow by motion, so the slot is positioned
+     for it to sit in. Lines of a headline are block slots. */
+  .ls {
+    position: relative;
+  }
+  .ls--line,
+  .ls__item {
+    display: block;
+  }
+
+  /* ══ Rolling digits (ui/rollingDigits) ══
+     Each character is a clipped slot one line tall; digits slide through it. */
+  .rd {
+    display: inline-flex;
+    vertical-align: bottom;
+  }
+  .rd__slot {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    height: 1.3em;
+    height: 1lh;
+  }
+  .rd__digit {
+    display: block;
   }
   .jr__stack {
     min-width: 0;
@@ -1042,6 +1064,7 @@
       position: static;
       top: auto !important;
       padding: 28px 0 0;
+      margin: 0;
     }
     .jr__note {
       min-height: 0;
@@ -1300,7 +1323,7 @@
      It runs well past the wrapper because the globe itself does, out into the
      card padding; the card art clips whatever is not needed. */
   .ac::before {
-    content: "";
+    content: '';
     position: absolute;
     inset: -50%;
     background: var(--canvas);
@@ -3252,18 +3275,6 @@
     .u {
       background-size: 100% 3px;
       transition: none;
-    }
-    .jr__word,
-    .jr__note,
-    .jr__repl {
-      transition: none;
-    }
-    .jr__rail.is-swap .jr__word,
-    .jr__rail.is-swap .jr__note,
-    .jr__rail.is-swap .jr__repl {
-      opacity: 1;
-      transform: none;
-      filter: none;
     }
     .sr {
       opacity: 1;
