@@ -44,6 +44,7 @@ export const COPY = {
   journey: {
     title: 'Everything your users *experienced*.',
     lede: 'One script replaces your analytics, your product metrics, your error tracker, your uptime monitor and your status page.',
+    replaces: 'replaces',
   },
   mcp: {
     title: 'Point your *own* agent at it.',

@@ -991,13 +991,34 @@
     min-height: 44px;
     max-width: 30ch;
   }
+  /* a dim label and a chip per tool, one line, fixed height */
   .jr__repl {
-    margin: 14px 0 0;
+    margin: 16px 0 0;
     font-family: var(--mono);
     font-size: 11px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+  .jr__repl .ls__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+  }
+  .jr__repl-label {
+    margin-right: 2px;
+    color: var(--mid);
+  }
+  .jr__chip {
+    display: inline-flex;
+    align-items: center;
+    height: 22px;
+    padding: 0 8px;
+    border: 1px solid rgba(139, 151, 255, 0.35);
+    border-radius: 3px;
     color: var(--accent-soft);
+    background: rgba(74, 92, 255, 0.08);
+    white-space: nowrap;
   }
   /* the rail copy animates through ui/liftSwap and ui/rollingDigits */
   .jr__count .rd {

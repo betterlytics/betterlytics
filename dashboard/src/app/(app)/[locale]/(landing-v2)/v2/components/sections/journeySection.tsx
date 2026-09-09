@@ -152,7 +152,12 @@ export function JourneySection() {
             direction={direction}
             delay={(lines.length + 2) * LIFT_STEP_S}
           >
-            {step.replaces}
+            <span className='jr__repl-label'>{COPY.journey.replaces}</span>
+            {step.replaces.map((tool) => (
+              <span key={tool} className='jr__chip'>
+                {tool}
+              </span>
+            ))}
           </LiftSwap>
         </aside>
         <div className='jr__stack'>
