@@ -10,7 +10,7 @@ export const CountryCodeFormat = {
 export type CountryCodeFormat = (typeof CountryCodeFormat)[keyof typeof CountryCodeFormat];
 
 function maxVisitorsOf(data: GeoFeatureVisitor[]): number {
-  return Math.max(1, ...data.filter((d) => d.code !== 'Localhost').map((d) => d.visitors));
+  return Math.max(1, ...data.filter((d) => d.code && d.code !== 'Localhost').map((d) => d.visitors));
 }
 
 export function dataToWorldMap(
@@ -29,6 +29,16 @@ export function dataToWorldMap(
   return {
     visitorData,
     compareData: compareData.map((v) => ({ code: transform(v.country_code), visitors: v.visitors })),
+    maxVisitors: maxVisitorsOf(visitorData),
+  };
+}
+
+export function subdivisionsToGeoMap(data: GeoVisitor[], compareData: GeoVisitor[]): GeoMapResponse {
+  const toFeature = (v: GeoVisitor): GeoFeatureVisitor => ({ code: v.subdivision_code ?? '', visitors: v.visitors });
+  const visitorData = data.map(toFeature);
+  return {
+    visitorData,
+    compareData: compareData.map(toFeature),
     maxVisitors: maxVisitorsOf(visitorData),
   };
 }

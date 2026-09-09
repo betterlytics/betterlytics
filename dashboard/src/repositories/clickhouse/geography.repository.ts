@@ -129,6 +129,71 @@ export async function getVisitorsBySubdivision(
   );
 }
 
+export async function getVisitorsBySubdivisionForCountry(
+  siteQuery: BASiteQuery,
+  countryCode: string,
+): Promise<GeoVisitor[]> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+
+  if (!BAHourlyQuery.canUseGeoHourlyMV(siteQuery)) {
+    const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+      ['subdivision_code', 'country_code', 'visitor_id'],
+      queryFilters,
+      siteId,
+      startDateTime,
+      endDateTime,
+    );
+
+    const query = safeSql`
+      SELECT subdivision_code AS code, country_code, uniq(visitor_id) as visitors
+      FROM ${sessionSubQuery}
+      WHERE country_code = ${SQL.String({ countryCode })}
+      GROUP BY code, country_code
+      ORDER BY visitors DESC
+    `;
+
+    const result = (await clickhouse
+      .query(query.taggedSql, {
+        params: { ...query.taggedParams },
+      })
+      .toPromise()) as any[];
+
+    return result.map((row) =>
+      GeoVisitorSchema.parse({
+        country_code: row.country_code,
+        subdivision_code: row.code,
+        visitors: Number(row.visitors),
+      }),
+    );
+  }
+
+  const filters = BAHourlyQuery.getGeoHourlyFilters(queryFilters);
+  const query = safeSql`
+    SELECT subdivision_code AS code, country_code, uniqMerge(visitors) as visitors
+    FROM analytics.geo_hourly
+    WHERE site_id = ${SQL.String({ siteId })}
+      AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
+      AND country_code = ${SQL.String({ countryCode })}
+      AND ${SQL.AND(filters)}
+    GROUP BY code, country_code
+    ORDER BY visitors DESC
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams },
+    })
+    .toPromise()) as any[];
+
+  return result.map((row) =>
+    GeoVisitorSchema.parse({
+      country_code: row.country_code,
+      subdivision_code: row.code,
+      visitors: Number(row.visitors),
+    }),
+  );
+}
+
 export async function getVisitorsByCity(siteQuery: BASiteQuery, limit: number = 1000): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
 

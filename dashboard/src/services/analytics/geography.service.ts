@@ -3,6 +3,7 @@
 import {
   getVisitorsByCountry,
   getVisitorsBySubdivision,
+  getVisitorsBySubdivisionForCountry,
   getVisitorsByCity,
   getCompareVisitorsByCountry,
   getCompareVisitorsBySubdivision,
@@ -24,6 +25,13 @@ export async function fetchVisitorsByGeoLevel(
     case 'city':
       return getVisitorsByCity(siteQuery, limit);
   }
+}
+
+export async function fetchSubdivisionVisitorsForCountry(
+  siteQuery: BASiteQuery,
+  countryCode: string,
+): Promise<GeoVisitor[]> {
+  return getVisitorsBySubdivisionForCountry(siteQuery, countryCode);
 }
 
 export async function fetchCompareVisitorsByGeoLevel(

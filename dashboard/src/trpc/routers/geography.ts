@@ -1,9 +1,13 @@
 import { z } from 'zod';
 import { createRouter, analyticsProcedure } from '@/trpc/init';
 import { GeoLevelSchema, type GeoVisitor, type GeoLevel } from '@/entities/analytics/geography.entities';
-import { fetchVisitorsByGeoLevel, fetchCompareVisitorsByGeoLevel } from '@/services/analytics/geography.service';
+import {
+  fetchVisitorsByGeoLevel,
+  fetchCompareVisitorsByGeoLevel,
+  fetchSubdivisionVisitorsForCountry,
+} from '@/services/analytics/geography.service';
 import { getEnabledGeoLevels } from '@/lib/geoLevels';
-import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
+import { CountryCodeFormat, dataToWorldMap, subdivisionsToGeoMap } from '@/presenters/toWorldMap';
 import { toDataTable } from '@/presenters/toDataTable';
 
 const GEO_VISITS_LIMIT = 10;
@@ -57,4 +61,20 @@ export const geographyRouter = createRouter({
 
     return dataToWorldMap(geoVisitors, compareGeoVisitors ?? [], CountryCodeFormat.Original);
   }),
+
+  subdivisionMap: analyticsProcedure
+    .input(z.object({ countryCode: z.string().regex(/^[A-Z]{2}$/) }))
+    .query(async ({ ctx, input }) => {
+      if (!getEnabledGeoLevels().includes('subdivision_code')) {
+        return { visitorData: [], compareData: [], maxVisitors: 0 };
+      }
+
+      const { main, compare } = ctx;
+      const [subdivisions, compareSubdivisions] = await Promise.all([
+        fetchSubdivisionVisitorsForCountry(main, input.countryCode),
+        compare ? fetchSubdivisionVisitorsForCountry(compare, input.countryCode) : Promise.resolve([]),
+      ]);
+
+      return subdivisionsToGeoMap(subdivisions, compareSubdivisions);
+    }),
 });
