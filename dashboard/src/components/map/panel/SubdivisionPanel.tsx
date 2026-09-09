@@ -13,6 +13,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useRef } from 'react';
 import SubdivisionMapSection from './SubdivisionMapSection';
 import { useSubdivisionPanel } from './use-subdivision-panel';
+import { useLgViewport } from './use-lg-viewport';
 
 export default function SubdivisionPanel() {
   const { countryCode, close } = useSubdivisionPanel();
@@ -20,8 +21,9 @@ export default function SubdivisionPanel() {
   if (countryCode) lastCountryRef.current = countryCode;
   const displayCountry = countryCode ?? lastCountryRef.current;
   const locale = useLocale();
+  const isLgViewport = useLgViewport();
 
-  if (!displayCountry) return null;
+  if (!displayCountry || !isLgViewport) return null;
 
   const countryName = getCountryName(displayCountry, locale);
 

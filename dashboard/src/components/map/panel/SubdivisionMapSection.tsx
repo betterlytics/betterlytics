@@ -27,9 +27,17 @@ export default function SubdivisionMapSection({ countryCode }: { countryCode: st
   );
 
   return (
-    <QuerySection query={query} fallback={<GeographyLoading />} className='flex-1 overflow-y-auto px-4 pb-4'>
+    <QuerySection
+      query={query}
+      fallback={
+        <div className='h-full px-4 pb-4'>
+          <GeographyLoading />
+        </div>
+      }
+      className='min-h-0 flex-1'
+    >
       {(mapData) => (
-        <div className='space-y-4'>
+        <div className='h-full space-y-4 overflow-y-auto px-4 pb-4'>
           {showMap ? (
             <div className='h-[280px] w-full'>
               {geoJsonQuery.data ? (

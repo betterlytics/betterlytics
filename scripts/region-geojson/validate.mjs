@@ -63,7 +63,7 @@ function validateFile(code, entry, cldrNames) {
   }
 
   if (frames.length > 0) {
-    validateViewBbox(code, geojson, frames, bbox);
+    validateViewBbox(code, geojson, frames, bbox, entry.anchorCenterLon);
   } else if (geojson.viewBbox) {
     errors.push(`${code}: viewBbox present without insets`);
   }
@@ -108,7 +108,7 @@ function validateFramePlacement(code, geojson, frames) {
 }
 
 /** viewBbox's lon range must span the geometry and every frame, so fit-bounds never crops either. */
-function validateViewBbox(code, geojson, frames, bbox) {
+function validateViewBbox(code, geojson, frames, bbox, anchorCenterLon) {
   const vb = geojson.viewBbox;
   if (!Array.isArray(vb) || vb.length !== 4 || !vb.every(Number.isFinite)) {
     errors.push(`${code}: viewBbox missing or malformed`);
@@ -122,6 +122,14 @@ function validateViewBbox(code, geojson, frames, bbox) {
     if (minLon > frame.bbox[0] || maxLon < frame.bbox[2]) {
       errors.push(`${code}: viewBbox does not contain frame ${frame.label} lon range`);
     }
+  }
+  if (!Number.isFinite(anchorCenterLon)) {
+    errors.push(`${code}: manifest missing anchorCenterLon for inset country`);
+    return;
+  }
+  const viewCenter = (minLon + maxLon) / 2;
+  if (Math.abs(viewCenter - anchorCenterLon) >= 0.001) {
+    errors.push(`${code}: viewBbox is not centered on the mainland anchor (${viewCenter.toFixed(5)} vs ${anchorCenterLon})`);
   }
 }
 
