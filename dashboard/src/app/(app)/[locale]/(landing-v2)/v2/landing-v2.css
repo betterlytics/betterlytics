@@ -34,6 +34,7 @@
   --wall: 72px; /* hatched margin column */
   --inset: calc(var(--pad) + var(--wall));
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --hero-overlap: 180px; /* how far the demo frame rides up into the hero card */
 
   /* hatch covers ~14% of the surface, so it carries less alpha than a dot field would */
   --wall-ink-dense: rgba(235, 232, 230, 0.04);
@@ -162,8 +163,10 @@
     pointer-events: none;
     border-top: 1px solid var(--rule);
   }
+  /* the top rule runs under the lifted demo frame, so it reads as broken by it */
   .band::before {
     top: 0;
+    z-index: 1;
   }
   .band::after {
     bottom: 0;
@@ -609,9 +612,11 @@
     align-items: center;
     justify-content: center;
   }
+  /* the demo frame rides up into the card by --hero-overlap; the copy stays
+     centred in the part of the card that remains visible above it */
   .card--hero {
     height: 760px;
-    padding-bottom: 106px;
+    padding-bottom: var(--hero-overlap);
   }
   /* halftone screen, 8px pitch, faded toward the top corners */
   .card::before {
@@ -622,8 +627,28 @@
     pointer-events: none;
     background-image: radial-gradient(circle at 1px 1px, rgba(242, 245, 255, 0.16) 0.9px, transparent 0);
     background-size: 8px 8px;
-    -webkit-mask-image: radial-gradient(105% 105% at 50% 95%, #000 0, #000 50%, transparent 100%);
-    mask-image: radial-gradient(105% 105% at 50% 95%, #000 0, #000 50%, transparent 100%);
+    /* two masks, intersected: the radial fades the screen toward the top corners,
+       the linear fades it out before the left and right edges */
+    -webkit-mask-image:
+      radial-gradient(105% 105% at 50% 95%, #000 0, #000 50%, transparent 100%),
+      linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%);
+    mask-image:
+      radial-gradient(105% 105% at 50% 95%, #000 0, #000 50%, transparent 100%),
+      linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+  /* polished edge: one soft white inner shadow, offset down and a touch right,
+     so the top and left edges catch the light and fade in over a few px. No hard
+     hairline. Sits over the screen and the bloom. */
+  .card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: inset 1px 6px 6px 0 rgba(255, 255, 255, 0.22);
   }
   .bloom {
     position: absolute;
@@ -704,7 +729,7 @@
   @media (max-width: 900px) {
     .card--hero {
       height: auto;
-      padding: 72px 0 120px;
+      padding: 72px 0 calc(var(--hero-overlap) + 48px);
     }
     .bloom {
       opacity: 0.85;
@@ -721,14 +746,29 @@
   /* ══ DEMO ══
      Equal breathing room on all four sides: the card floats inside the walls
      rather than sitting flush against them like the panels do. */
+  /* lifted into the hero card so the product breaks the frame; above the hero in z.
+     The pull-up sits on the frame, not the section: a margin on the section would
+     collapse through to the band and drag the wall and its top rule up with it. */
   .sec--demo {
-    padding: 8px calc(var(--inset) + 8px);
+    z-index: 2;
+    display: flow-root; /* contains the frame's negative margin */
+    padding: 0 calc(var(--inset) + 8px) 8px;
+  }
+  .sec--demo .demo {
+    margin-top: calc(-1 * var(--hero-overlap));
   }
   .demo {
     position: relative;
-    border-radius: 20px;
+    border-radius: 12px;
     border: 1px solid var(--rule-22);
-    background: linear-gradient(180deg, rgba(235, 232, 230, 0.045), rgba(235, 232, 230, 0.015));
+    /* the shadow halos the frame where it lies over the hero and ends within a
+       couple of px below it, so it never dims the logo panel's top rule */
+    box-shadow:
+      inset 1px 6px 6px 0 rgba(255, 255, 255, 0.045),
+      0 -1px 0 rgba(255, 255, 255, 0.06),
+      0 -6px 36px -10px rgba(0, 0, 0, 0.55);
+    /* opaque: the frame now sits over the hero card, so nothing may show through */
+    background: linear-gradient(180deg, rgba(235, 232, 230, 0.045), rgba(235, 232, 230, 0.015)) var(--canvas);
     aspect-ratio: 16 / 9;
     display: grid;
     place-items: center;

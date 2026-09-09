@@ -8,7 +8,8 @@ export function HeroSection() {
   return (
     <section className='hero'>
       <div className='card card--hero'>
-        <div className='bloom' style={{ top: 726, width: 1080, height: 470 }} aria-hidden />
+        {/* sits on the demo frame's top edge, so it reads as light from behind the frame */}
+        <div className='bloom' style={{ top: 650, width: 1180, height: 420 }} aria-hidden />
         <div className='card__body'>
           <div className='pill'>
             <i />
