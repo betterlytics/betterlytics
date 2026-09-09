@@ -400,9 +400,9 @@
   }
 
   /* ══ NAV ══
-     Opaque and sticky. Two independent things happen on scroll: the middle
-     items retire immediately, and the grid connection (rule) lands only once
-     the nav is past the hero, because the wall doesn't exist behind the hero. */
+     Opaque and sticky; every item stays put while scrolling. The rule under
+     the bar lands only once the nav is past the hero, because the wall does
+     not exist behind the hero. */
   .nav {
     position: sticky;
     top: 0;
@@ -411,14 +411,27 @@
     display: flex;
     align-items: center;
     padding: 0 24px;
+  }
+  /* the page is capped at 1480px but the band's rule is full-bleed, so the
+     opaque backing must be full-bleed too or the rule shows past the nav's
+     box on wide screens after it has scrolled underneath */
+  .nav::before {
+    content: '';
+    position: absolute;
+    inset: 0 50%;
+    width: 100vw;
+    transform: translateX(-50%);
     background: var(--canvas);
+    z-index: -1;
   }
   @media (max-width: 640px) {
     .nav {
       padding: 0 var(--pad);
     }
   }
-  /* rule grows outward from the anchors */
+  /* the band's top rule hands over to this one: `is-grid` flips at the pixel
+     where the two coincide, so the rule must switch without animation, or the
+     band's rule and a half-drawn nav rule show together while scrolling */
   .nav::after {
     content: '';
     position: absolute;
@@ -428,28 +441,11 @@
     height: 0;
     border-top: 1px solid var(--rule);
     pointer-events: none;
-    transform: translateX(-50%) scaleX(0);
-    transform-origin: 50% 50%;
-    transition: transform 0.26s var(--ease) 0.12s;
+    transform: translateX(-50%);
+    visibility: hidden;
   }
   .nav.is-grid::after {
-    transform: translateX(-50%) scaleX(1);
-  }
-  .nav__links,
-  .nav .sign,
-  .nav__gh,
-  .brand b {
-    transition:
-      opacity 0.26s var(--ease),
-      transform 0.26s var(--ease);
-  }
-  .nav.is-min .nav__links,
-  .nav.is-min .sign,
-  .nav.is-min .nav__gh,
-  .nav.is-min .brand b {
-    opacity: 0;
-    transform: translateY(-4px);
-    pointer-events: none;
+    visibility: visible;
   }
   @media (max-width: 640px) {
     .nav::after {
@@ -468,25 +464,33 @@
     color: var(--text);
     flex: none;
   }
+  /* title case, so the wide caps tracking goes and the mark reads as a word */
   .brand b {
-    font-size: 15.5px;
-    font-weight: 500;
-    letter-spacing: 1.1px;
+    font-size: 19px;
+    font-weight: 600;
+    letter-spacing: -0.4px;
   }
   .nav__links,
   .nav__end {
     position: relative;
   }
+  /* items sit in the full text tone at medium weight, the way a light-theme
+     header sets its links in near-black; hover dips rather than lifts */
   .nav__links {
     display: flex;
     gap: 28px;
     margin-left: 48px;
     font-size: 15.5px;
+    font-weight: 500;
     letter-spacing: -0.2px;
-    color: var(--mid);
+    color: var(--text);
+  }
+  .nav__links a,
+  .nav__end a {
+    transition: opacity 0.18s var(--ease);
   }
   .nav__links a:hover {
-    color: var(--text);
+    opacity: 0.8;
   }
   .nav__end {
     margin-left: auto;
@@ -494,11 +498,12 @@
     align-items: center;
     gap: 20px;
     font-size: 15.5px;
+    font-weight: 500;
     letter-spacing: -0.2px;
-    color: var(--mid);
-  }
-  .nav__end a:hover {
     color: var(--text);
+  }
+  .nav__end a:not(.btn):hover {
+    opacity: 0.8;
   }
   .nav__end .btn {
     color: var(--on-volt);
@@ -511,13 +516,10 @@
     width: 32px;
     height: 32px;
     border-radius: 7px;
-    color: var(--mid);
-    transition:
-      color 0.2s var(--ease),
-      background-color 0.2s var(--ease);
+    color: var(--text);
+    transition: background-color 0.2s var(--ease);
   }
   .nav__gh:hover {
-    color: var(--text);
     background: rgba(235, 232, 230, 0.06);
   }
   .nav__gh svg {
@@ -581,13 +583,6 @@
     }
     .nav__menu {
       display: flex;
-    }
-    /* the bar keeps its actions on a phone; only the desktop link row retires */
-    .nav.is-min .nav__gh,
-    .nav.is-min .sign {
-      opacity: 1;
-      transform: none;
-      pointer-events: auto;
     }
   }
   @media (max-width: 640px) {

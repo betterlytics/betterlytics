@@ -50,14 +50,14 @@ function AccountLinks({ className }: { className?: string }) {
 }
 
 /**
- * Sticky, opaque bar. Two independent things happen on scroll: the middle
- * items retire as soon as you move, and the rule under the bar lands only
- * once the nav is past the hero, because the wall doesn't exist behind the
- * hero. Below the desktop breakpoint the links move into a sheet.
+ * Sticky, opaque bar; every item stays put while scrolling. The rule under
+ * the bar lands only once the nav is past the hero, because the wall doesn't
+ * exist behind the hero. Below the desktop breakpoint the links move into a
+ * sheet.
  */
 export function Nav() {
   const ref = useRef<HTMLElement>(null);
-  const { min, grid } = useNavScrollState(ref, IDS.band);
+  const { grid } = useNavScrollState(ref, IDS.band);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -68,10 +68,10 @@ export function Nav() {
   }, [open]);
 
   return (
-    <header ref={ref} className={cn('nav', min && 'is-min', grid && 'is-grid', open && 'is-open')}>
+    <header ref={ref} className={cn('nav', grid && 'is-grid', open && 'is-open')}>
       <Link className='brand' href='/' aria-label={copy.home}>
         <BrandMark />
-        <b>BETTERLYTICS</b>
+        <b>Betterlytics</b>
       </Link>
       <nav className='nav__links' aria-label='Primary'>
         <NavLinks />

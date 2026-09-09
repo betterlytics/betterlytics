@@ -14,7 +14,7 @@ export function LandingFooter() {
         <div className='foot__brand'>
           <Link className='brand' href='/' aria-label={COPY.nav.home}>
             <BrandMark />
-            <b>BETTERLYTICS</b>
+            <b>Betterlytics</b>
           </Link>
           <p className='foot__tag'>{copy.tagline}</p>
         </div>
