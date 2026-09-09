@@ -3161,7 +3161,7 @@
   /* ══ FOOTER ══ */
   .foot {
     position: relative;
-    padding: 136px calc(var(--inset) + 12px) 64px;
+    padding: 136px calc(var(--inset) + 12px) 20px;
   }
   .foot__top {
     display: flex;
@@ -3223,8 +3223,8 @@
     gap: 24px;
     justify-content: space-between;
     align-items: center;
-    margin-top: 84px;
-    padding-top: 32px;
+    margin-top: 56px;
+    padding-top: 20px;
     font-size: 13px;
     color: var(--mid);
   }
