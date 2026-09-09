@@ -3257,16 +3257,26 @@
     }
   }
 
-  /* headline emphasis: draws in on scroll */
+  /* headline emphasis: an ink stroke drawn under the word on scroll (ui/reveal) */
   .u {
-    background-image: linear-gradient(var(--volt-lift), var(--volt-lift));
-    background-repeat: no-repeat;
-    background-position: 0 88%;
-    background-size: 0 3px;
-    transition: background-size 0.85s var(--ease) 0.12s;
+    position: relative;
+    white-space: nowrap;
   }
-  .u.in {
-    background-size: 100% 3px;
+  .u__ink {
+    position: absolute;
+    left: -0.02em;
+    bottom: -0.02em;
+    /* an explicit width: a replaced element ignores left+right and keeps its viewBox size */
+    width: calc(100% + 0.04em);
+    height: 0.16em;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .u__ink path {
+    fill: none;
+    stroke: var(--volt-lift);
+    stroke-width: 3px;
+    stroke-linecap: round;
   }
 
   /* ══ reveal ══ */
@@ -3292,10 +3302,6 @@
     .rv {
       opacity: 1;
       transform: none;
-    }
-    .u {
-      background-size: 100% 3px;
-      transition: none;
     }
     .sr {
       opacity: 1;
