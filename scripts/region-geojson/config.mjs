@@ -55,7 +55,7 @@ export const countryConfig = {
     ],
   },
   ES: {
-    insets: [{ features: ['ES-TF', 'ES-GC'], label: 'Canarias', side: 'bottom', align: 'end' }],
+    insets: [{ features: ['ES-TF', 'ES-GC'], label: 'Canarias', side: 'bottom', align: 'start' }],
   },
   PT: {
     insets: [
@@ -74,7 +74,7 @@ export const countryConfig = {
     insets: [{ features: ['DK-84'], label: 'Bornholm', inside: 'top-right' }],
   },
   JP: {
-    insets: [{ features: ['JP-47'], label: 'Okinawa', side: 'left', wholeFeature: true, scaleFrac: 0.45 }],
+    insets: [{ features: ['JP-47'], label: 'Okinawa', inside: 'top-left', wholeFeature: true, scaleFrac: 0.45 }],
     crop: [{ features: ['JP-13'], note: 'Ogasawara and outer Izu islands, conventionally omitted' }],
   },
   EC: {
