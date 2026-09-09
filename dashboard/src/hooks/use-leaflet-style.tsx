@@ -109,6 +109,13 @@ export function useMapStyle({ maxValue: maxVisitors }: UseMapStyleProps): MapSty
           .leaflet-popup {
             z-index: 11;
           }
+          .map-inset-label {
+            width: max-content;
+            transform: translate(-50%, 4px);
+            color: var(--muted-foreground);
+            font-size: 10px;
+            pointer-events: none;
+          }
         `}
       </style>
     );
