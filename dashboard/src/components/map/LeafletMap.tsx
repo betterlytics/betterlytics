@@ -7,7 +7,7 @@ import MapInstanceBridge from '@/components/map/MapInstanceBridge';
 import MapResizeSync from '@/components/map/MapResizeSync';
 import { MapScopeProvider, useMapScope } from '@/components/map/MapProvider';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
-import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
+import type { GeoMapResponse } from '@/entities/analytics/geography.entities';
 import { useMapStyle } from '@/hooks/use-leaflet-style';
 import type { LatLngBoundsExpression, Map as LeafletMapInstance } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -16,7 +16,7 @@ import GeographyLoading from '@/components/loading/GeographyLoading';
 import { useTheme } from 'next-themes';
 import { useDebounce } from '@/hooks/useDebounce';
 
-type LeafletMapProps = WorldMapResponse & {
+type LeafletMapProps = GeoMapResponse & {
   initialZoom?: number;
   size?: 'sm' | 'lg';
   children?: ReactNode;
@@ -76,7 +76,7 @@ export default function LeafletMap({
 
   const worldBounds = useMemo(() => {
     if (!mapComponents?.L) return null;
-    const hasAntarctica = visitorData.some((d) => d.country_code === 'AQ' && d.visitors);
+    const hasAntarctica = visitorData.some((d) => d.code === 'AQ' && d.visitors);
     return mapComponents.L.latLngBounds(
       mapComponents.L.latLng(hasAntarctica ? -100 : -60, -220),
       mapComponents.L.latLng(100, 220),
