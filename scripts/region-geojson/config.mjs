@@ -20,6 +20,9 @@ export const TOTAL_BUDGET_BYTES = 6 * 1024 * 1024;
  *   map convention (d3-composite-projections layouts where one exists).
  *   wholeFeature: true boxes every part of the feature, including parts that
  *   cluster with the mainland (Okinawa chains to Kyushu in <100km hops).
+ *   inside: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' places the
+ *   frame within the anchor bbox corner instead of outside it - frames must land
+ *   on empty sea; the frame-collision validator enforces it.
  * - crop: detached parts of the listed features are dropped from the map.
  *   Only for uninhabited specks or conventional omissions; the region list
  *   under the map stays complete regardless.
@@ -36,13 +39,13 @@ export const idOverrides = { 'US-PR': 'PR-X00~', 'NL-SX': 'SX-X00~' };
 
 export const countryConfig = {
   FR: {
-    // Atlantic DROMs west of the mainland, Indian-Ocean DROMs east - keeps France centered
+    // INSEE convention: single DROM column left; mainland centering comes from viewBbox
     insets: [
-      { features: ['FR-971'], label: 'Guadeloupe', side: 'left', scaleFrac: 0.18 },
-      { features: ['FR-972'], label: 'Martinique', side: 'left', scaleFrac: 0.18 },
-      { features: ['FR-973'], label: 'Guyane', side: 'left', scaleFrac: 0.18 },
-      { features: ['FR-974'], label: 'La Réunion', side: 'right', scaleFrac: 0.18 },
-      { features: ['FR-976'], label: 'Mayotte', side: 'right', scaleFrac: 0.18 },
+      { features: ['FR-971'], label: 'Guadeloupe', side: 'left', scaleFrac: 0.16 },
+      { features: ['FR-972'], label: 'Martinique', side: 'left', scaleFrac: 0.16 },
+      { features: ['FR-973'], label: 'Guyane', side: 'left', scaleFrac: 0.16 },
+      { features: ['FR-974'], label: 'La Réunion', side: 'left', scaleFrac: 0.16 },
+      { features: ['FR-976'], label: 'Mayotte', side: 'left', scaleFrac: 0.16 },
     ],
   },
   US: {
@@ -68,7 +71,7 @@ export const countryConfig = {
     ],
   },
   DK: {
-    insets: [{ features: ['DK-84'], label: 'Bornholm', side: 'right' }],
+    insets: [{ features: ['DK-84'], label: 'Bornholm', inside: 'top-right' }],
   },
   JP: {
     insets: [{ features: ['JP-47'], label: 'Okinawa', side: 'left', wholeFeature: true, scaleFrac: 0.45 }],

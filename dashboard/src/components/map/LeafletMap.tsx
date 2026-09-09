@@ -117,6 +117,10 @@ export default function LeafletMap({
 
   const contentBounds = useMemo(() => {
     if (!fitBounds || !mapComponents?.L || !geoJson) return null;
+    const vb = geoJson.viewBbox;
+    if (vb) {
+      return mapComponents.L.latLngBounds([vb[1], vb[0]], [vb[3], vb[2]]);
+    }
     const bounds = mapComponents.L.geoJSON(geoJson).getBounds();
     for (const frame of geoJson.insets ?? []) {
       bounds.extend([frame.bbox[1], frame.bbox[0]]);

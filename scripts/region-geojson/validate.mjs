@@ -9,6 +9,8 @@ const REGIONS_DIR = path.join(ROOT, 'dashboard', 'public', 'data', 'regions');
 const MANIFEST_PATH = path.join(ROOT, 'scripts', 'region-geojson', 'manifest.json');
 const WORLD_MAP_PATH = path.join(ROOT, 'dashboard', 'public', 'data', 'countries.geo.json');
 const MAX_TREATED_INFLATION = 1.8;
+/** Half the pipeline's mapshaper simplify precision (0.0001deg) - absorbs its output-grid rounding, nothing else. */
+const LON_CONTAINMENT_EPSILON = 0.00005;
 
 const errors = [];
 const warnings = [];
@@ -60,6 +62,12 @@ function validateFile(code, entry, cldrNames) {
     errors.push(`${code}: longitude span covers the whole world`);
   }
 
+  if (frames.length > 0) {
+    validateViewBbox(code, geojson, frames, bbox);
+  } else if (geojson.viewBbox) {
+    errors.push(`${code}: viewBbox present without insets`);
+  }
+
   return { unresolvedNames };
 }
 
@@ -95,6 +103,24 @@ function validateFramePlacement(code, geojson, frames) {
           errors.push(`${code}: frame ${frames[i].label} collides with in-place geometry of ${feature.id}`);
         }
       }
+    }
+  }
+}
+
+/** viewBbox's lon range must span the geometry and every frame, so fit-bounds never crops either. */
+function validateViewBbox(code, geojson, frames, bbox) {
+  const vb = geojson.viewBbox;
+  if (!Array.isArray(vb) || vb.length !== 4 || !vb.every(Number.isFinite)) {
+    errors.push(`${code}: viewBbox missing or malformed`);
+    return;
+  }
+  const [minLon, , maxLon] = vb;
+  if (minLon > bbox.minLon + LON_CONTAINMENT_EPSILON || maxLon < bbox.maxLon - LON_CONTAINMENT_EPSILON) {
+    errors.push(`${code}: viewBbox does not contain geometry lon range`);
+  }
+  for (const frame of frames) {
+    if (minLon > frame.bbox[0] || maxLon < frame.bbox[2]) {
+      errors.push(`${code}: viewBbox does not contain frame ${frame.label} lon range`);
     }
   }
 }
