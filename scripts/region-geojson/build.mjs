@@ -88,7 +88,19 @@ async function simplify(geojson, budgetBytes) {
   return best;
 }
 
-function finalizeOutput(simplifiedBuffer, frames) {
+/** Balance inset extension so the mainland sits horizontally centered in the fitted view. */
+function symmetrizeLon(finalBbox, anchorBbox) {
+  const center = (anchorBbox.minLon + anchorBbox.maxLon) / 2;
+  const half = Math.max(center - finalBbox.minLon, finalBbox.maxLon - center);
+  return [
+    +(center - half).toFixed(5),
+    +finalBbox.minLat.toFixed(5),
+    +(center + half).toFixed(5),
+    +finalBbox.maxLat.toFixed(5),
+  ];
+}
+
+function finalizeOutput(simplifiedBuffer, frames, viewBbox) {
   const parsed = JSON.parse(simplifiedBuffer.toString('utf-8'));
   const regrouped = groupPolygonsById(
     parsed.features
@@ -107,6 +119,7 @@ function finalizeOutput(simplifiedBuffer, frames) {
     feature.properties = { name: feature.properties.name };
   }
   if (frames.length > 0) regrouped.insets = frames;
+  if (viewBbox) regrouped.viewBbox = viewBbox;
   regrouped.generator = 'Betterlytics region geojson pipeline (https://betterlytics.io)';
   regrouped.license =
     'AGPL-3.0 (c) Betterlytics - composed and curated form; base data Natural Earth (public domain)';
@@ -147,10 +160,11 @@ async function buildCountry(countryCode, features, rawDir) {
   ]);
   const anchorBbox = mergeBboxes(composed.keptParts.map((p) => p.bbox));
   const inflationAfter = +(bboxDiagonalKm(finalBbox) / Math.max(1, bboxDiagonalKm(anchorBbox))).toFixed(2);
+  const viewBbox = composed.frames.length > 0 ? symmetrizeLon(finalBbox, anchorBbox) : null;
 
   const assembled = assembleGeojson(finalParts);
   const { pct, buf } = await simplify(assembled, FILE_BUDGET_BYTES);
-  const output = finalizeOutput(buf, composed.frames);
+  const output = finalizeOutput(buf, composed.frames, viewBbox);
   fs.writeFileSync(path.join(OUTPUT_DIR, `${countryCode}.geo.json`), output);
 
   return {
@@ -163,6 +177,7 @@ async function buildCountry(countryCode, features, rawDir) {
     inflationAfter,
     antimeridianShifted: shifted,
     insets: composed.frames.map((f) => f.label),
+    viewBbox,
     cropped: composed.cropped.map((c) => `${c.id} (${c.partCount} parts)`),
     warnings: composed.warnings,
   };

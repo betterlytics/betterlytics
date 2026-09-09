@@ -65,7 +65,9 @@ async function show(code) {
       if (frame.label) rect.bindTooltip(frame.label, { permanent: false });
       bounds = bounds.extend(rect.getBounds());
     }
-    map.fitBounds(bounds.pad(0.03));
+    const vb = geojson.viewBbox;
+    const fitBounds = vb ? L.latLngBounds([[vb[1], vb[0]], [vb[3], vb[2]]]) : bounds;
+    map.fitBounds(fitBounds.pad(0.03));
   }
 }
 
