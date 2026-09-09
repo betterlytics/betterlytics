@@ -3229,6 +3229,35 @@
     width: 100%;
     padding: 13px;
   }
+
+  /* ══ rolling label (ui/rollLabel) ══
+     Two rows of characters stacked in a window one line tall. Hovering the button
+     slides both rows up a line; each character carries a small delay that grows
+     from right to left, so the end of the word lifts first and the rest is dragged after. */
+  .roll {
+    display: inline-grid;
+    overflow: hidden;
+    line-height: 1.25;
+  }
+  .roll__row {
+    grid-area: 1 / 1;
+    display: flex;
+  }
+  .roll__row > span {
+    display: block;
+    white-space: pre;
+    transition: transform 0.32s cubic-bezier(0.76, 0, 0.24, 1);
+    transition-delay: calc(var(--i) * 9ms);
+  }
+  .roll__row + .roll__row > span {
+    transform: translateY(100%);
+  }
+  .btn:hover .roll__row > span {
+    transform: translateY(-100%);
+  }
+  .btn:hover .roll__row + .roll__row > span {
+    transform: translateY(0);
+  }
   @media (max-width: 900px) {
     .plans {
       flex-direction: column;
@@ -3406,6 +3435,9 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .roll__row > span {
+      transition: none;
+    }
     *,
     *::before,
     *::after {

@@ -11,6 +11,7 @@ import { EVENT_RANGES, isContactSalesRange } from '@/lib/billing/plans';
 import { EVENT_DISPLAY_CAP, formatEventCount } from '@/utils/pricing';
 import { cn } from '@/lib/utils';
 import { Panel } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/frame';
+import { RollLabel } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/rollLabel';
 import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
 
 const copy = COPY.pricing;
@@ -118,7 +119,7 @@ function Plan({ name, tagline, price, period, badge, features, cta, pick, volume
         ))}
       </ul>
       <Link className={cn('btn', pick ? 'btn--volt' : 'btn--line')} href={cta.href}>
-        {cta.label}
+        <RollLabel text={cta.label} />
       </Link>
     </div>
   );
