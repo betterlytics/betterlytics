@@ -7,7 +7,6 @@ import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { TimeRangeContextProps } from '@/contexts/TimeRangeContextProvider';
 import { cn } from '@/lib/utils';
-import { getCountryName } from '@/utils/countryCodes';
 import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
 import { formatNumber } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
@@ -20,6 +19,8 @@ export type MapPopupContentProps = {
   size?: 'sm' | 'lg';
   t: ReturnType<typeof useTranslations<'components'>>;
   timeRangeCtx: TimeRangeContextProps;
+  displayName?: string;
+  displayCountryCode?: string;
   onMouseEnter?: () => void;
 };
 
@@ -30,6 +31,8 @@ function MapPopupContentComponent({
   size = 'sm',
   t,
   timeRangeCtx,
+  displayName,
+  displayCountryCode,
   onMouseEnter,
 }: MapPopupContentProps) {
   if (!geoVisitor) return null;
@@ -75,14 +78,18 @@ function MapPopupContentComponent({
         className,
       )}
     >
-      <CountryDisplay
-        className={cn(
-          'text-sm font-bold',
-          geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start',
-        )}
-        countryCode={geoVisitor.code as FlagIconProps['countryCode']}
-        countryName={getCountryName(geoVisitor.code, locale)}
-      />
+      {displayCountryCode ? (
+        <CountryDisplay
+          className={cn(
+            'text-sm font-bold',
+            geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start',
+          )}
+          countryCode={displayCountryCode as FlagIconProps['countryCode']}
+          countryName={displayName ?? ''}
+        />
+      ) : (
+        <span className='text-sm font-bold'>{displayName}</span>
+      )}
       {geoVisitor.compareVisitors !== undefined && <div className='border-border my-2 border-t' />}
 
       <div className='flex items-center gap-1'>

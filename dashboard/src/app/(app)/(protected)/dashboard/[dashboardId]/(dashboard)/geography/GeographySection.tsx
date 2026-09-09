@@ -1,6 +1,7 @@
 'use client';
 
 import LeafletMap from '@/components/map/LeafletMap';
+import { hideAntarcticaWhenEmpty } from '@/components/map/types';
 import { useTranslations } from 'next-intl';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
@@ -17,7 +18,7 @@ export default function GeographySection() {
       {(mapData) => (
         <>
           <div className='h-full w-full'>
-            <LeafletMap {...mapData} showZoomControls={true} size='lg' />
+            <LeafletMap {...mapData} showZoomControls={true} size='lg' shouldHideFeature={hideAntarcticaWhenEmpty} />
           </div>
 
           {mapData.visitorData.length === 0 && (
