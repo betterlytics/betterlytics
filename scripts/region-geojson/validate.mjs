@@ -41,6 +41,13 @@ function validateFile(code, entry, cldrNames) {
     if (cldrNames && !isPseudo && !cldrNames[cldrKey(id)]) unresolvedNames.push(id);
   }
 
+  if (geojson.generator !== 'Betterlytics region geojson pipeline (https://betterlytics.io)') {
+    errors.push(`${code}: missing or wrong generator attribution member`);
+  }
+  if (!String(geojson.license || '').startsWith('AGPL-3.0')) {
+    errors.push(`${code}: missing license member`);
+  }
+
   const frames = geojson.insets ?? [];
   for (const frame of frames) {
     const [minLon, minLat, maxLon, maxLat] = frame.bbox;
