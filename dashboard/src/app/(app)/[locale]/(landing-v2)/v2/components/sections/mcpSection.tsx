@@ -1,6 +1,7 @@
 import { AgentTranscript } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/agentTranscript';
 import { Panel, Section, SectionHead } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/frame';
 import { PathIcon } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/pathIcon';
+import { SpotlightList } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/spotlightList';
 import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
 import { MCP_CLIENTS } from '@/app/(app)/[locale]/(landing-v2)/v2/content/mcpClients';
 import { IDS } from '@/app/(app)/[locale]/(landing-v2)/v2/lib/ids';
@@ -18,7 +19,7 @@ export function McpSection() {
             <p>{copy.body}</p>
             <span className='mono mcp__lab'>{copy.worksWith}</span>
             {/* tiles rather than a checked list: the row reads as a compatibility wall, not a to-do list */}
-            <ul className='mcp__works'>
+            <SpotlightList className='mcp__works'>
               {MCP_CLIENTS.map((client) => (
                 <li key={client.name}>
                   <span>
@@ -27,7 +28,7 @@ export function McpSection() {
                   {client.name}
                 </li>
               ))}
-            </ul>
+            </SpotlightList>
             <p className='mcp__any'>{copy.any}</p>
             <div className='mcp__cta'>
               <a className='btn btn--line btn--sm' href={LINKS.mcpDocs}>

@@ -2422,25 +2422,47 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 9px;
   }
+  /* tiles: lit from the top at rest; on hover a soft light follows the pointer
+     (ui/spotlightList writes --mx/--my) and the border lifts */
   .mcp__works li {
+    position: relative;
+    overflow: hidden;
     display: flex;
     align-items: center;
     gap: 11px;
     padding: 9px 12px;
     border: 1px solid var(--rule-10);
     border-radius: 8px;
-    background: rgba(235, 232, 230, 0.022);
+    background: linear-gradient(180deg, rgba(235, 232, 230, 0.045), rgba(235, 232, 230, 0.014));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     font-size: 13.5px;
     letter-spacing: -0.15px;
     color: var(--text);
     white-space: nowrap;
-    transition:
-      border-color 0.22s var(--ease),
-      background-color 0.22s var(--ease);
+    transition: border-color 0.22s var(--ease);
+  }
+  .mcp__works li::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      150px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(139, 151, 255, 0.2),
+      rgba(139, 151, 255, 0.05) 45%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s var(--ease);
   }
   .mcp__works li:hover {
-    border-color: var(--rule-22);
-    background: rgba(235, 232, 230, 0.045);
+    border-color: rgba(139, 151, 255, 0.35);
+  }
+  .mcp__works li:hover::before {
+    opacity: 1;
+  }
+  .mcp__works li > * {
+    position: relative;
   }
   .mcp__works li > span {
     width: 26px;
@@ -2690,6 +2712,8 @@
   .fw:hover .fw__row {
     animation-play-state: paused;
   }
+  /* same material as the MCP tiles: lit from the top, hairline lifts on hover.
+     No pointer light here; the rows move, and a light chasing a moving chip reads as lag. */
   .fwi {
     display: inline-flex;
     align-items: center;
@@ -2697,8 +2721,13 @@
     padding: 9px 18px 9px 9px;
     border: 1px solid var(--rule-10);
     border-radius: 8px;
-    background: rgba(235, 232, 230, 0.022);
+    background: linear-gradient(180deg, rgba(235, 232, 230, 0.045), rgba(235, 232, 230, 0.014));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     white-space: nowrap;
+    transition: border-color 0.22s var(--ease);
+  }
+  .fwi:hover {
+    border-color: var(--rule-22);
   }
   .fwi b {
     width: 28px;
@@ -2833,6 +2862,8 @@
   .tsts:hover .tst__row {
     animation-play-state: paused;
   }
+  /* the tile material again, but the gradient is gentler on a card this tall so
+     it reads as a surface, not a glossy button */
   .tst {
     flex: none;
     width: 392px;
@@ -2840,10 +2871,15 @@
     padding: 26px;
     border: 1px solid var(--rule-10);
     border-radius: 10px;
-    background: rgba(235, 232, 230, 0.022);
+    background: linear-gradient(180deg, rgba(235, 232, 230, 0.036), rgba(235, 232, 230, 0.016));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     display: flex;
     flex-direction: column;
     gap: 22px;
+    transition: border-color 0.22s var(--ease);
+  }
+  .tst:hover {
+    border-color: var(--rule-22);
   }
   .tst blockquote {
     margin: 0;
