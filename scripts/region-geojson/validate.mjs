@@ -153,6 +153,22 @@ function geojsonBbox(geojson) {
   return bbox;
 }
 
+function validateRegionConstant(manifestCodes) {
+  const constantPath = path.join(ROOT, 'dashboard', 'src', 'constants', 'regionCountries.ts');
+  if (!fs.existsSync(constantPath)) {
+    errors.push('dashboard/src/constants/regionCountries.ts missing; rerun the build');
+    return;
+  }
+  const src = fs.readFileSync(constantPath, 'utf-8');
+  const constantCodes = new Set([...src.matchAll(/'([A-Z]{2})'/g)].map((m) => m[1]));
+  for (const code of manifestCodes) {
+    if (!constantCodes.has(code)) errors.push(`regionCountries.ts is missing ${code}; rerun the build`);
+  }
+  for (const code of constantCodes) {
+    if (!manifestCodes.includes(code)) errors.push(`regionCountries.ts lists ${code} with no region file; rerun the build`);
+  }
+}
+
 function main() {
   const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8'));
   const cldrNames = loadCldrEnNames();
@@ -176,6 +192,8 @@ function main() {
     const { unresolvedNames } = validateFile(entry.code, entry, cldrNames);
     allUnresolved.push(...unresolvedNames.map((id) => `${entry.code}: ${id}`));
   }
+
+  validateRegionConstant(manifest.countries.map((e) => e.code));
 
   if (manifest.totalBytes > TOTAL_BUDGET_BYTES) {
     errors.push(`total ${(manifest.totalBytes / 1024 / 1024).toFixed(2)} MB exceeds budget`);
