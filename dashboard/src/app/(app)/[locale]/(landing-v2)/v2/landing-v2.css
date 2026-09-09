@@ -837,7 +837,7 @@
     padding: 30px 18px;
     font-size: 14.5px;
     line-height: 1.5;
-    color: var(--mid);
+    color: var(--text); /* the claim, not a caption to the logos */
     border-right: 1px solid var(--rule-08);
   }
   .logos__label > span {
