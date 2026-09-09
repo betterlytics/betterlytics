@@ -3,6 +3,7 @@
 import LeafletMap from '@/components/map/LeafletMap';
 import { MapProvider } from '@/components/map/MapProvider';
 import GeographyToolbar from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/geography/GeographyToolbar';
+import { hideAntarcticaWhenEmpty } from '@/components/map/types';
 import { useTranslations } from 'next-intl';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
@@ -21,7 +22,7 @@ export default function GeographySection() {
         {(mapData) => (
           <>
             <div className='h-full w-full'>
-              <LeafletMap {...mapData} size='lg' />
+              <LeafletMap {...mapData} size='lg' shouldHideFeature={hideAntarcticaWhenEmpty} />
             </div>
 
             {mapData.visitorData.length === 0 && (

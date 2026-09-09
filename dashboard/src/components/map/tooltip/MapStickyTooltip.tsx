@@ -6,12 +6,14 @@ import MapTooltipContent from './MapTooltipContent';
 import MapTooltipTip from './MapTooltipTip';
 import { cn } from '@/lib/utils';
 import { useLocale, useTranslations } from 'next-intl';
+import type { FeatureDisplayResolver } from '@/components/map/types';
 
-export type MapStickyTooltip = {
+export type MapStickyTooltipProps = {
   size?: 'sm' | 'lg';
+  resolveDisplay: FeatureDisplayResolver;
 };
 
-export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
+export default function MapStickyTooltip({ size = 'sm', resolveDisplay }: MapStickyTooltipProps) {
   const { hoveredFeature, clickedFeature: selectedFeature } = useMapSelectionState();
   const map = useMap();
   const tooltipId = useId();
@@ -58,6 +60,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
   }
 
   const initialTransform = `translate3d(${currentPosition.x}px, ${currentPosition.y - 2}px, 0) translate(-50%, -100%)`;
+  const display = resolveDisplay(hoveredFeature.geoVisitor.code);
 
   return createPortal(
     <section
@@ -68,7 +71,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
       style={{ transform: initialTransform }}
       className={cn(
         'map-sticky-tooltip leaflet-popup-content-wrapper',
-        'pointer-events-none fixed top-0 left-0 z-[11] flex flex-col will-change-transform',
+        'pointer-events-none fixed top-0 left-0 z-[51] flex flex-col will-change-transform',
       )}
     >
       <div className='leaflet-popup-content'>
@@ -77,6 +80,8 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltip) {
           size={size}
           locale={locale}
           label={t('visitors')}
+          displayName={display.name}
+          displayCountryCode={display.countryCode}
           className={'p-3'}
         />
       </div>
