@@ -36,12 +36,13 @@ export const idOverrides = { 'US-PR': 'PR-X00~', 'NL-SX': 'SX-X00~' };
 
 export const countryConfig = {
   FR: {
+    // Atlantic DROMs west of the mainland, Indian-Ocean DROMs east - keeps France centered
     insets: [
-      { features: ['FR-971'], label: 'Guadeloupe', side: 'left', scaleFrac: 0.16 },
-      { features: ['FR-972'], label: 'Martinique', side: 'left', scaleFrac: 0.16 },
-      { features: ['FR-973'], label: 'Guyane', side: 'left', scaleFrac: 0.16 },
-      { features: ['FR-974'], label: 'La Réunion', side: 'left', scaleFrac: 0.16 },
-      { features: ['FR-976'], label: 'Mayotte', side: 'left', scaleFrac: 0.16 },
+      { features: ['FR-971'], label: 'Guadeloupe', side: 'left', scaleFrac: 0.18 },
+      { features: ['FR-972'], label: 'Martinique', side: 'left', scaleFrac: 0.18 },
+      { features: ['FR-973'], label: 'Guyane', side: 'left', scaleFrac: 0.18 },
+      { features: ['FR-974'], label: 'La Réunion', side: 'right', scaleFrac: 0.18 },
+      { features: ['FR-976'], label: 'Mayotte', side: 'right', scaleFrac: 0.18 },
     ],
   },
   US: {

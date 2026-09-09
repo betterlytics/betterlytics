@@ -106,6 +106,9 @@ function finalizeOutput(simplifiedBuffer, frames) {
     feature.properties = { name: feature.properties.name };
   }
   if (frames.length > 0) regrouped.insets = frames;
+  regrouped.generator = 'Betterlytics region geojson pipeline (https://betterlytics.io)';
+  regrouped.license =
+    'AGPL-3.0 (c) Betterlytics - composed and curated form; base data Natural Earth (public domain)';
   return JSON.stringify(regrouped);
 }
 
