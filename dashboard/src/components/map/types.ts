@@ -15,6 +15,9 @@ export type InsetFrame = {
   scale: number;
 };
 
-export type RegionGeoJson = GeoJSON.FeatureCollection & { insets?: InsetFrame[] };
+export type RegionGeoJson = GeoJSON.FeatureCollection & {
+  insets?: InsetFrame[];
+  viewBbox?: [number, number, number, number];
+};
 
 export const hideAntarcticaWhenEmpty = (featureId: string) => featureId === 'AQ';

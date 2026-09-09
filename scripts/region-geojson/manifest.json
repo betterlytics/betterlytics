@@ -1,7 +1,7 @@
 {
   "neCommit": "ca96624a56bd078437bca8184e78163e5039ad19",
-  "generatedAt": "2026-09-09T18:37:04.631Z",
-  "totalBytes": 5166494,
+  "generatedAt": "2026-09-09T19:29:25.005Z",
+  "totalBytes": 5167382,
   "skippedSourceFeatures": [
     {
       "name": "Dhekelia",
@@ -302,6 +302,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -315,6 +316,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -328,6 +330,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -341,6 +344,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -354,6 +358,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -367,6 +372,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -380,6 +386,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -393,6 +400,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -406,6 +414,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -419,6 +428,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -432,6 +442,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -445,6 +456,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -458,6 +470,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [
         "AU-X03~ (1 parts)",
         "AU-NSW (1 parts)",
@@ -475,6 +488,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -488,6 +502,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -501,6 +516,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -514,6 +530,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -527,6 +544,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -540,6 +558,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -553,6 +572,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -566,6 +586,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -579,6 +600,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -592,6 +614,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -605,6 +628,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -618,6 +642,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -631,6 +656,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -644,6 +670,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -657,6 +684,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -670,6 +698,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -683,6 +712,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -696,6 +726,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -709,6 +740,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -722,6 +754,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -735,6 +768,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -748,6 +782,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -761,6 +796,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -774,6 +810,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -787,6 +824,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -800,6 +838,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -813,6 +852,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -826,6 +866,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -839,6 +880,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -852,6 +894,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [
         "CL-VS (6 parts)"
       ],
@@ -867,6 +910,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -880,6 +924,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -893,6 +938,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -906,6 +952,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [
         "CR-P (1 parts)"
       ],
@@ -921,6 +968,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -934,6 +982,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -947,6 +996,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -960,6 +1010,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -973,6 +1024,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -986,6 +1038,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -999,20 +1052,27 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "DK",
-      "bytes": 16623,
+      "bytes": 16666,
       "features": 5,
       "parts": 19,
       "simplifyPct": 35,
       "inflationBefore": 1.24,
-      "inflationAfter": 1.12,
+      "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [
         "Bornholm"
+      ],
+      "viewBbox": [
+        8.094,
+        54.56859,
+        12.67457,
+        57.75117
       ],
       "cropped": [],
       "warnings": []
@@ -1027,6 +1087,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1040,6 +1101,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1053,12 +1115,13 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "EC",
-      "bytes": 29036,
+      "bytes": 29085,
       "features": 24,
       "parts": 39,
       "simplifyPct": 20,
@@ -1067,6 +1130,12 @@
       "antimeridianShifted": false,
       "insets": [
         "Galápagos"
+      ],
+      "viewBbox": [
+        -82.7555,
+        -5.01137,
+        -73.48477,
+        1.43431
       ],
       "cropped": [],
       "warnings": []
@@ -1081,6 +1150,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1094,6 +1164,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1107,6 +1178,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1120,12 +1192,13 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "ES",
-      "bytes": 43530,
+      "bytes": 43578,
       "features": 52,
       "parts": 74,
       "simplifyPct": 12,
@@ -1134,6 +1207,12 @@
       "antimeridianShifted": false,
       "insets": [
         "Canarias"
+      ],
+      "viewBbox": [
+        -9.29199,
+        33.30263,
+        4.33709,
+        43.79344
       ],
       "cropped": [],
       "warnings": []
@@ -1148,6 +1227,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1161,6 +1241,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1174,6 +1255,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1187,6 +1269,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1200,6 +1283,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1213,17 +1297,18 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "FR",
-      "bytes": 68405,
+      "bytes": 68805,
       "features": 101,
       "parts": 119,
       "simplifyPct": 12,
       "inflationBefore": 9.6,
-      "inflationAfter": 1.24,
+      "inflationAfter": 1.26,
       "antimeridianShifted": false,
       "insets": [
         "Guadeloupe",
@@ -1231,6 +1316,12 @@
         "Guyane",
         "La Réunion",
         "Mayotte"
+      ],
+      "viewBbox": [
+        -7.98347,
+        38.53631,
+        12.41025,
+        51.08754
       ],
       "cropped": [],
       "warnings": []
@@ -1245,6 +1336,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1258,6 +1350,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1271,6 +1364,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1284,6 +1378,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1297,6 +1392,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1310,6 +1406,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1323,6 +1420,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1336,6 +1434,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1349,6 +1448,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1362,12 +1462,13 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GQ",
-      "bytes": 5321,
+      "bytes": 5367,
       "features": 7,
       "parts": 7,
       "simplifyPct": 35,
@@ -1376,6 +1477,12 @@
       "antimeridianShifted": false,
       "insets": [
         "Annobón"
+      ],
+      "viewBbox": [
+        7.76335,
+        0.92485,
+        11.99504,
+        3.77241
       ],
       "cropped": [],
       "warnings": []
@@ -1390,6 +1497,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1403,6 +1511,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1416,6 +1525,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1429,6 +1539,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1442,6 +1553,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1455,6 +1567,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1468,6 +1581,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1481,6 +1595,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1494,6 +1609,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1507,6 +1623,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1520,6 +1637,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1533,6 +1651,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1546,6 +1665,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1559,6 +1679,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1572,6 +1693,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1585,6 +1707,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1598,6 +1721,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1611,6 +1735,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1624,6 +1749,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1637,6 +1763,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1650,6 +1777,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1663,6 +1791,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1676,6 +1805,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1689,6 +1819,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1702,12 +1833,13 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "JP",
-      "bytes": 46428,
+      "bytes": 46479,
       "features": 47,
       "parts": 142,
       "simplifyPct": 12,
@@ -1716,6 +1848,12 @@
       "antimeridianShifted": false,
       "insets": [
         "Okinawa"
+      ],
+      "viewBbox": [
+        117.86902,
+        29.44335,
+        156.55638,
+        45.52041
       ],
       "cropped": [
         "JP-13 (15 parts)"
@@ -1732,6 +1870,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1745,6 +1884,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1758,6 +1898,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1771,6 +1912,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1784,6 +1926,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1797,6 +1940,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1810,6 +1954,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1823,6 +1968,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1836,6 +1982,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1849,6 +1996,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1862,6 +2010,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1875,6 +2024,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1888,6 +2038,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1901,6 +2052,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1914,6 +2066,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1927,6 +2080,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1940,6 +2094,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1953,6 +2108,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1966,6 +2122,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1979,6 +2136,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -1992,6 +2150,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2005,6 +2164,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2018,6 +2178,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2031,6 +2192,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2044,6 +2206,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2057,6 +2220,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2070,6 +2234,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2083,6 +2248,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2096,6 +2262,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2109,6 +2276,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2122,6 +2290,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2135,6 +2304,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2148,6 +2318,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2161,6 +2332,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2174,6 +2346,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2187,6 +2360,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2200,6 +2374,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2213,12 +2388,13 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MU",
-      "bytes": 5552,
+      "bytes": 5603,
       "features": 15,
       "parts": 16,
       "simplifyPct": 35,
@@ -2228,6 +2404,12 @@
       "insets": [
         "Rodrigues",
         "Agaléga"
+      ],
+      "viewBbox": [
+        57.12269,
+        -20.51735,
+        57.97653,
+        -19.97942
       ],
       "cropped": [],
       "warnings": []
@@ -2242,6 +2424,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2255,6 +2438,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2268,6 +2452,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2281,6 +2466,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2294,6 +2480,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2307,6 +2494,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2320,6 +2508,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2333,6 +2522,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2346,6 +2536,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2359,6 +2550,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2372,12 +2564,13 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NL",
-      "bytes": 16305,
+      "bytes": 16352,
       "features": 15,
       "parts": 25,
       "simplifyPct": 35,
@@ -2388,6 +2581,12 @@
         "Bonaire",
         "Saba",
         "Sint Eustatius"
+      ],
+      "viewBbox": [
+        2.74176,
+        50.74755,
+        7.80616,
+        53.55809
       ],
       "cropped": [],
       "warnings": []
@@ -2402,6 +2601,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [
         "NO-18 (1 parts)",
         "NO-21 (22 parts)",
@@ -2419,6 +2619,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2432,6 +2633,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2445,6 +2647,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2458,6 +2661,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
+      "viewBbox": null,
       "cropped": [
         "NZ-X06~ (2 parts)",
         "NZ-X05~ (1 parts)",
@@ -2478,6 +2682,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2491,6 +2696,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2504,6 +2710,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2517,6 +2724,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2530,6 +2738,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2543,6 +2752,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2556,6 +2766,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2569,6 +2780,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2582,6 +2794,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2595,6 +2808,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2608,6 +2822,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2621,12 +2836,13 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PT",
-      "bytes": 20447,
+      "bytes": 20497,
       "features": 20,
       "parts": 33,
       "simplifyPct": 20,
@@ -2636,6 +2852,12 @@
       "insets": [
         "Açores",
         "Madeira"
+      ],
+      "viewBbox": [
+        -12.18036,
+        36.96589,
+        -3.52305,
+        42.15363
       ],
       "cropped": [
         "PT-30 (2 parts)"
@@ -2652,6 +2874,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2665,6 +2888,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2678,6 +2902,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2691,6 +2916,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2704,6 +2930,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2717,6 +2944,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2730,6 +2958,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2743,6 +2972,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2756,6 +2986,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2769,6 +3000,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2782,6 +3014,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2795,6 +3028,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2808,12 +3042,13 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SH",
-      "bytes": 1284,
+      "bytes": 1335,
       "features": 3,
       "parts": 3,
       "simplifyPct": 35,
@@ -2823,6 +3058,12 @@
       "insets": [
         "Ascension",
         "Tristan da Cunha"
+      ],
+      "viewBbox": [
+        -5.83327,
+        -16.01572,
+        -5.60665,
+        -15.90211
       ],
       "cropped": [
         "SH-TA (1 parts)"
@@ -2839,6 +3080,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2852,6 +3094,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2865,6 +3108,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2878,6 +3122,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2891,6 +3136,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2904,6 +3150,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2917,6 +3164,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2930,6 +3178,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2943,6 +3192,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2956,6 +3206,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2969,6 +3220,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2982,6 +3234,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -2995,6 +3248,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3008,6 +3262,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3021,6 +3276,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3034,6 +3290,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3047,6 +3304,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3060,6 +3318,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3073,6 +3332,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3086,6 +3346,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3099,6 +3360,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3112,6 +3374,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3125,6 +3388,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3138,6 +3402,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3151,6 +3416,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3164,6 +3430,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3177,6 +3444,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3190,6 +3458,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3203,6 +3472,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3216,6 +3486,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3229,6 +3500,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3242,12 +3514,13 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "US",
-      "bytes": 175698,
+      "bytes": 175750,
       "features": 51,
       "parts": 396,
       "simplifyPct": 12,
@@ -3257,6 +3530,12 @@
       "insets": [
         "Alaska",
         "Hawaii"
+      ],
+      "viewBbox": [
+        -124.73461,
+        12.46174,
+        -66.97732,
+        49.36949
       ],
       "cropped": [
         "US-HI (8 parts)"
@@ -3273,6 +3552,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3286,6 +3566,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3299,6 +3580,7 @@
       "inflationAfter": 0.17,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3312,6 +3594,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3325,6 +3608,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3338,6 +3622,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3351,6 +3636,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3364,6 +3650,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3377,6 +3664,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3390,6 +3678,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3403,6 +3692,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3416,6 +3706,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3429,6 +3720,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3442,6 +3734,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [
         "ZA-WC (2 parts)"
       ],
@@ -3457,6 +3750,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     },
@@ -3470,6 +3764,7 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
+      "viewBbox": null,
       "cropped": [],
       "warnings": []
     }

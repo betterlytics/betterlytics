@@ -83,7 +83,20 @@ function placeInsets(insetGroups, anchor) {
     const frameH = contentH + 2 * pad;
 
     let frameMinX, frameMinY;
-    if (side === 'left' || side === 'right') {
+    if (group.rule.inside) {
+      const [vert, horiz] = group.rule.inside.split('-');
+      frameMinX = horiz === 'right' ? anchor.maxLon - margin - frameW : anchor.minLon + margin;
+      const key = `inside:${group.rule.inside}`;
+      if (vert === 'top') {
+        cursors[key] ??= anchor.maxLat - margin;
+        frameMinY = cursors[key] - frameH;
+        cursors[key] = frameMinY - gap;
+      } else {
+        cursors[key] ??= anchor.minLat + margin;
+        frameMinY = cursors[key];
+        cursors[key] = frameMinY + frameH + gap;
+      }
+    } else if (side === 'left' || side === 'right') {
       frameMinX = side === 'left' ? anchor.minLon - margin - frameW : anchor.maxLon + margin;
       const key = `${side}:${align}`;
       cursors[key] ??= align === 'start' ? anchor.maxLat : anchor.minLat;
