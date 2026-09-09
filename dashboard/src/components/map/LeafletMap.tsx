@@ -156,10 +156,7 @@ export default function LeafletMap({
         zoomDelta={0.1}
         zoomSnap={0.1}
         attributionControl={false}
-        dragging={interactionConfig?.dragging}
-        scrollWheelZoom={interactionConfig?.scrollWheelZoom}
-        doubleClickZoom={interactionConfig?.doubleClickZoom}
-        touchZoom={interactionConfig?.touchZoom}
+        {...interactionConfig}
       >
         <MapSelectionContextProvider style={style}>
           <MapBackgroundLayer Polygon={Polygon} />
