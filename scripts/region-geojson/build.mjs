@@ -160,7 +160,9 @@ async function buildCountry(countryCode, features, rawDir) {
   ]);
   const anchorBbox = mergeBboxes(composed.keptParts.map((p) => p.bbox));
   const inflationAfter = +(bboxDiagonalKm(finalBbox) / Math.max(1, bboxDiagonalKm(anchorBbox))).toFixed(2);
-  const viewBbox = composed.frames.length > 0 ? symmetrizeLon(finalBbox, anchorBbox) : null;
+  const hasFrames = composed.frames.length > 0;
+  const viewBbox = hasFrames ? symmetrizeLon(finalBbox, anchorBbox) : null;
+  const anchorCenterLon = hasFrames ? +((anchorBbox.minLon + anchorBbox.maxLon) / 2).toFixed(5) : null;
 
   const assembled = assembleGeojson(finalParts);
   const { pct, buf } = await simplify(assembled, FILE_BUDGET_BYTES);
@@ -178,6 +180,7 @@ async function buildCountry(countryCode, features, rawDir) {
     antimeridianShifted: shifted,
     insets: composed.frames.map((f) => f.label),
     viewBbox,
+    anchorCenterLon,
     cropped: composed.cropped.map((c) => `${c.id} (${c.partCount} parts)`),
     warnings: composed.warnings,
   };
