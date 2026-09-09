@@ -2995,7 +2995,7 @@
     align-items: center;
     gap: 14px;
     margin: 0 auto 44px;
-    width: min(100%, 520px);
+    width: min(100%, 640px);
   }
   .range__val {
     display: flex;
@@ -3009,7 +3009,7 @@
     font-weight: 500;
     font-variant-numeric: tabular-nums;
   }
-  .range__val span {
+  .range__val > span {
     font-size: 14px;
     color: var(--mid);
     letter-spacing: -0.2px;
@@ -3019,68 +3019,88 @@
     display: flex;
     align-items: center;
     width: 100%;
-    height: 20px;
+    height: 28px;
     touch-action: none;
     user-select: none;
     cursor: pointer;
   }
+  /* a groove rather than a line: a touch thicker, shaded at the top, blue fill with a lit top edge */
   .range__track {
     position: relative;
     flex: 1;
-    height: 3px;
-    border-radius: 2px;
-    background: rgba(235, 232, 230, 0.14);
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(235, 232, 230, 0.1);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.45);
     overflow: hidden;
   }
   .range__fill {
     position: absolute;
     height: 100%;
-    background: var(--volt-lift);
+    border-radius: 3px;
+    background: linear-gradient(180deg, var(--volt-lift), var(--volt));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
+  /* the thumb is the page's blue, lit from the top like the buttons and cards, with a
+     thin canvas gap so it never merges into the fill; hover and focus add a halo */
   .range__thumb {
     display: block;
-    width: 16px;
-    height: 16px;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    background: var(--on-volt);
-    border: 3px solid var(--volt-lift);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
-    transition: transform 0.15s var(--ease);
-  }
-  .range__thumb:hover {
-    transform: scale(1.1);
-  }
-  .range__ticks {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.06em;
-    color: var(--mid);
-    opacity: 0.7;
-  }
-  .tabs {
-    display: inline-flex;
-    padding: 4px;
-    gap: 4px;
-    border: 1px solid rgba(235, 232, 230, 0.14);
-    border-radius: 999px;
-    margin-top: 10px;
-  }
-  .tabs button {
-    padding: 9px 18px;
-    border-radius: 999px;
-    font-size: 14px;
-    letter-spacing: -0.2px;
-    color: var(--mid);
+    background: linear-gradient(180deg, var(--volt-lift), var(--volt));
+    border: 2px solid var(--canvas);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.14),
+      0 3px 10px rgba(0, 0, 0, 0.5);
+    cursor: grab;
     transition:
-      background-color 0.22s var(--ease),
-      color 0.22s var(--ease);
+      transform 0.15s var(--ease),
+      box-shadow 0.2s var(--ease);
   }
-  .tabs button[aria-pressed='true'] {
-    background: var(--volt);
-    color: var(--on-volt);
+  .range__thumb:hover,
+  .range__thumb:focus-visible {
+    transform: scale(1.06);
+    outline: none;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.2),
+      0 0 0 6px rgba(74, 92, 255, 0.22),
+      0 3px 10px rgba(0, 0, 0, 0.5);
+  }
+  .range__thumb:active {
+    cursor: grabbing;
+    transform: scale(1);
+  }
+  /* a caption under every stop, each a shortcut to it; the current one is bright.
+     Positions are inset by the thumb radius so captions sit under thumb centres. */
+  .range__stops {
+    position: relative;
+    width: 100%;
+    height: 18px;
+    margin-top: -2px;
+  }
+  .range__stops button {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    padding: 2px 4px;
+    border: 0;
+    background: none;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--mid);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.2s var(--ease);
+  }
+  .range__stops button:hover,
+  .range__stops button.is-on {
+    color: var(--text);
+  }
+  .range__stops button.is-on {
     font-weight: 500;
   }
   .plans {
@@ -3116,23 +3136,29 @@
     letter-spacing: -0.35px;
     color: var(--text);
   }
+  /* not a floating pill: a solid tab hanging from the column's blue top rule, part of
+     the structure, like the title block on a drawing */
   .plan__badge {
-    margin-left: auto;
-    padding: 5px 11px;
-    border-radius: 999px;
+    position: absolute;
+    top: 2px; /* flush under the rule */
+    right: 36px;
+    padding: 4px 9px 5px;
+    border-radius: 0 0 5px 5px;
     white-space: nowrap;
-    background: rgba(26, 43, 209, 0.22);
-    border: 1px solid rgba(139, 151, 255, 0.36);
+    background: var(--volt-lift);
     font-family: var(--mono);
-    font-size: 10.5px;
-    letter-spacing: 0.1em;
+    font-size: 10px;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--accent-soft);
+    color: var(--on-volt);
   }
+  /* a fixed line whether the price is a figure or a word, so the block never jumps
+     when Free becomes a number and the three cards stay level */
   .plan__pr {
     display: flex;
     align-items: baseline;
     gap: 6px;
+    height: 44px;
     margin-bottom: 10px;
   }
   .plan__pr b {
@@ -3142,20 +3168,36 @@
     font-weight: 500;
     font-variant-numeric: tabular-nums;
   }
+  /* NumberFlow pads its box for the animation mask; cancel that so it lays out like text */
+  .plan__pr number-flow-react,
+  .range__val number-flow-react {
+    --number-flow-mask-height: 0.25em;
+    margin: calc(-1 * var(--number-flow-mask-height)) 0;
+    line-height: inherit;
+  }
   .plan__pr em {
     font-style: normal;
     font-size: 15px;
     letter-spacing: -0.2px;
     color: var(--mid);
   }
+  /* the volume the price is for; the three plans answer the slider in the same place */
+  .plan__vol {
+    display: block;
+    margin: -4px 0 12px;
+    font-size: 13px;
+    letter-spacing: -0.1px;
+    color: var(--accent-soft);
+  }
   .plan__sub {
+    min-height: 44px; /* two lines: keeps the dividers level when one tagline wraps */
     font-size: 15px;
     line-height: 22px;
     color: var(--mid);
   }
   .plan ul {
     list-style: none;
-    margin: 22px 0 26px;
+    margin: 12px 0 26px;
     padding: 22px 0 0;
     border-top: 1px solid var(--rule-08);
   }

@@ -2,7 +2,7 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import { formatNumber } from '@/utils/formatters';
 
 // Largest displayed event tier; anything above (the contact-sales range) is shown as "N+".
-const EVENT_DISPLAY_CAP = 10_000_000;
+export const EVENT_DISPLAY_CAP = 10_000_000;
 
 /** Format event count for pricing UI */
 export function formatEventCount(value: number, locale?: SupportedLanguages): string {

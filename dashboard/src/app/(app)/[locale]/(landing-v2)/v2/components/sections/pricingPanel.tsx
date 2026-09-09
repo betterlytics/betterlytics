@@ -1,19 +1,64 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { useLocale } from 'next-intl';
+import NumberFlow from '@number-flow/react';
 import { Link } from '@/i18n/navigation';
-import type { Currency, Tier } from '@/entities/billing/billing.entities';
+import type { Tier } from '@/entities/billing/billing.entities';
 import { usePlanFeatures, type PlanFeatureLabel } from '@/components/pricing/usePlanFeatures';
 import { EVENT_RANGES, isContactSalesRange } from '@/lib/billing/plans';
-import { formatEventCount, formatPrice } from '@/utils/pricing';
+import { EVENT_DISPLAY_CAP, formatEventCount } from '@/utils/pricing';
 import { cn } from '@/lib/utils';
 import { Panel } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/frame';
 import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
 
 const copy = COPY.pricing;
-const CURRENCIES: readonly Currency[] = ['USD', 'EUR'];
+/** The landing page quotes in dollars, as marketing pages conventionally do; billing offers EUR too. */
+const CURRENCY = 'USD';
+/** The page's copy is English, so its figures are too: 1M and 10M+, not the browser locale's 1 mio. */
+const NUMBER_LOCALE = 'en';
+/** Every plan price is whole dollars, so the cents go: '$39', not '$39.00'. */
+const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
+const COMPACT = { notation: 'compact' } as const;
+
+/** An event volume in compact notation, with a plus past the display cap. */
+function Volume({ value, locale }: { value: number; locale: string }) {
+  return (
+    <NumberFlow
+      value={Math.min(value, EVENT_DISPLAY_CAP)}
+      locales={locale}
+      format={COMPACT}
+      suffix={value > EVENT_DISPLAY_CAP ? '+' : undefined}
+      willChange
+    />
+  );
+}
+
+/** Text with the volume figure inside it; the figure animates, the words around it stay. */
+function WithVolume({
+  text,
+  figure,
+  value,
+  locale,
+}: {
+  text: string;
+  figure: string;
+  value: number;
+  locale: string;
+}) {
+  const parts = text.split(figure);
+  return (
+    <span>
+      {parts.map((part, i) => (
+        <Fragment key={i}>
+          {i > 0 && <Volume value={value} locale={locale} />}
+          {part}
+        </Fragment>
+      ))}
+    </span>
+  );
+}
 
 function Check() {
   return (
@@ -33,15 +78,19 @@ type PlanProps = {
   tier: Tier;
   name: string;
   tagline: string;
-  price: string;
+  /** Cents, or a word such as 'Custom' when the price is not a number. */
+  price: number | string;
   period?: string;
   badge?: string;
   features: PlanFeatureLabel[];
   cta: { label: string; href: '/signup' | '/contact' };
   pick?: boolean;
+  /** The selected volume and its formatted figure, so the feature line that quotes it can animate it. */
+  volume: { value: number; figure: string };
+  locale: string;
 };
 
-function Plan({ name, tagline, price, period, badge, features, cta, pick }: PlanProps) {
+function Plan({ name, tagline, price, period, badge, features, cta, pick, volume, locale }: PlanProps) {
   return (
     <div className={cn('plan', pick && 'plan--pick')}>
       <div className='plan__hd'>
@@ -49,15 +98,22 @@ function Plan({ name, tagline, price, period, badge, features, cta, pick }: Plan
         {badge ? <span className='plan__badge'>{badge}</span> : null}
       </div>
       <div className='plan__pr'>
-        <b>{price}</b>
+        <b>
+          {typeof price === 'number' ? (
+            <NumberFlow value={price / 100} locales={locale} format={PRICE_FORMAT} willChange />
+          ) : (
+            price
+          )}
+        </b>
         {period ? <em>{period}</em> : null}
       </div>
       <p className='plan__sub'>{tagline}</p>
       <ul>
-        {features.map((f) => (
-          <li key={f.label} className={cn(f.kind === 'header' && 'is-head')}>
+        {/* keyed by position, not label: the volume line's text changes with the slider and must keep its element to animate */}
+        {features.map((f, i) => (
+          <li key={i} className={cn(f.kind === 'header' && 'is-head')}>
             <Check />
-            {f.label}
+            <WithVolume text={f.label} figure={volume.figure} value={volume.value} locale={locale} />
           </li>
         ))}
       </ul>
@@ -75,28 +131,30 @@ function Plan({ name, tagline, price, period, badge, features, cta, pick }: Plan
  * definition so this can't drift from the pricing page.
  */
 export function PricingPanel() {
-  const locale = useLocale();
+  const locale = NUMBER_LOCALE;
+  const appLocale = useLocale();
   const [rangeIndex, setRangeIndex] = useState(0);
-  const [currency, setCurrency] = useState<Currency>('USD');
 
   const range = EVENT_RANGES[rangeIndex];
   const lastIndex = EVENT_RANGES.length - 1;
   const contactSales = isContactSalesRange(range);
   const featuresFor = usePlanFeatures(range);
 
-  const cents = (tier: 'growth' | 'professional') =>
-    currency === 'EUR' ? range[tier].price.eur_cents : range[tier].price.usd_cents;
-  const price = (c: number) =>
-    contactSales ? copy.custom : c === 0 ? copy.free : formatPrice(c, currency, locale);
+  const cents = (tier: 'growth' | 'professional') => range[tier].price.usd_cents;
+  const price = (c: number) => (contactSales ? copy.custom : c === 0 ? copy.free : c);
   const period = (c: number) => (contactSales || c === 0 ? undefined : copy.perMonth);
   const sales = { label: copy.enterprise.cta, href: '/contact' } as const;
   const growthCents = cents('growth');
+  // the figure as the shared feature hook spells it, so the volume line can be split around it
+  const volume = { value: range.value, figure: formatEventCount(range.value, appLocale) };
 
   return (
     <>
       <div className='range'>
         <div className='range__val'>
-          <b>{formatEventCount(range.value, locale)}</b>
+          <b>
+            <Volume value={range.value} locale={locale} />
+          </b>
           <span>{copy.monthlyEvents}</span>
         </div>
         <Slider.Root
@@ -113,14 +171,17 @@ export function PricingPanel() {
           </Slider.Track>
           <Slider.Thumb className='range__thumb' />
         </Slider.Root>
-        <div className='range__ticks' aria-hidden>
-          <span>{formatEventCount(EVENT_RANGES[0].value, locale)}</span>
-          <span>{formatEventCount(EVENT_RANGES[lastIndex].value, locale)}</span>
-        </div>
-        <div className='tabs' role='group' aria-label={copy.currencyLabel}>
-          {CURRENCIES.map((c) => (
-            <button key={c} type='button' aria-pressed={currency === c} onClick={() => setCurrency(c)}>
-              {c}
+        {/* a caption under every stop, each a shortcut to it; the current one is bright */}
+        <div className='range__stops'>
+          {EVENT_RANGES.map((r, i) => (
+            <button
+              key={r.value}
+              type='button'
+              className={cn(i === rangeIndex && 'is-on')}
+              style={{ left: `calc(11px + (100% - 22px) * ${i / lastIndex})` }}
+              onClick={() => setRangeIndex(i)}
+            >
+              {formatEventCount(r.value, locale)}
             </button>
           ))}
         </div>
@@ -130,6 +191,8 @@ export function PricingPanel() {
         <div className='plans'>
           <Plan
             tier='growth'
+            volume={volume}
+            locale={locale}
             name={copy.growth.name}
             tagline={copy.growth.tagline}
             price={price(growthCents)}
@@ -143,6 +206,8 @@ export function PricingPanel() {
           />
           <Plan
             tier='professional'
+            volume={volume}
+            locale={locale}
             pick
             name={copy.professional.name}
             badge={copy.professional.badge}
@@ -154,6 +219,8 @@ export function PricingPanel() {
           />
           <Plan
             tier='enterprise'
+            volume={volume}
+            locale={locale}
             name={copy.enterprise.name}
             tagline={copy.enterprise.tagline}
             price={copy.custom}

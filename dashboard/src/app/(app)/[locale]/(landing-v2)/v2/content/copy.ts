@@ -99,7 +99,6 @@ export const COPY = {
     lede: 'Invite the whole company. Bots, prefetches and blocked requests are filtered before they ever reach your bill.',
     monthlyEvents: 'Monthly events',
     rangeLabel: 'Monthly event volume',
-    currencyLabel: 'Currency',
     perMonth: '/month',
     free: 'Free',
     custom: 'Custom',
