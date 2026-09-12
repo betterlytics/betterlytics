@@ -9,6 +9,10 @@ export interface QueryCursorLike {
   toPromise: () => Promise<unknown[]>;
 }
 
+export interface QueryStreamRow {
+  text: string;
+}
+
 export interface AdapterCommandOptions {
   params?: Record<string, unknown>;
 }
@@ -16,6 +20,7 @@ export interface AdapterCommandOptions {
 export interface ClickHouseAdapterClient {
   query: (sql: string, reqParams?: AdapterQueryOptions) => QueryCursorLike;
   command: (sql: string, reqParams?: AdapterCommandOptions) => Promise<void>;
+  queryStream: (sql: string, reqParams: AdapterQueryOptions) => Promise<AsyncIterable<QueryStreamRow[]>>;
 }
 
 interface AdapterConfig {
@@ -61,6 +66,14 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
         query: sql,
         query_params: reqParams?.params ?? {},
       });
+    },
+    async queryStream(sql: string, reqParams: AdapterQueryOptions): Promise<AsyncIterable<QueryStreamRow[]>> {
+      const resultSet = await client.query({
+        query: sql,
+        query_params: reqParams.params ?? {},
+        format: reqParams.format ?? 'JSONEachRow',
+      });
+      return resultSet.stream();
     },
   };
 }

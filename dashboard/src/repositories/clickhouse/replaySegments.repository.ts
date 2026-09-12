@@ -42,4 +42,37 @@ export const clickhouseSegmentReader: ReplaySegmentReader = {
 
     return result.length > 0 ? { body: result[0].data } : null;
   },
+
+  async stream(siteId, sessionId) {
+    const query = safeSql`
+      SELECT data
+      FROM analytics.session_replay_segments
+      WHERE site_id = {site_id:String}
+        AND session_id = {session_id:UInt64}
+      ORDER BY epoch_ms, filename
+    `;
+
+    // TabSeparatedRaw emits each row's data verbatim; data is JSON text, which never holds
+    // a raw newline or tab, so every row is already one NDJSON line.
+    const batches = await clickhouse.queryStream(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, session_id: sessionId },
+      format: 'TabSeparatedRaw',
+    });
+    const iterator = batches[Symbol.asyncIterator]();
+    const encoder = new TextEncoder();
+
+    return new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        const { value, done } = await iterator.next();
+        if (done) {
+          controller.close();
+          return;
+        }
+        controller.enqueue(encoder.encode(value.map((row) => row.text + '\n').join('')));
+      },
+      cancel() {
+        void iterator.return?.(undefined);
+      },
+    });
+  },
 };

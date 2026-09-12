@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useSessionManager } from '../hooks/useSessionManager';
 import { usePlayerState } from '../hooks/usePlayerState';
-import { useSegmentLoader } from '../hooks/useSegmentLoader';
 import { ReplayPlayerContainer } from './ReplayPlayerContainer';
 import { ReplaySessionPanel } from './ReplaySessionPanel';
 import { ReplayTimelinePanel } from './ReplayTimelinePanel';
@@ -14,33 +13,22 @@ type SessionReplayContainerProps = {
 
 export function SessionReplayContainer({ dashboardId }: SessionReplayContainerProps) {
   const sessionManager = useSessionManager();
-  const segmentLoader = useSegmentLoader(dashboardId);
   const playerState = usePlayerState(dashboardId);
 
   useEffect(() => {
-    const loadSelectedSession = async () => {
-      if (!sessionManager.selectedSession) return;
+    if (!sessionManager.selectedSession) return;
 
-      playerState.reset();
-
-      try {
-        const sessionWithSegments = await segmentLoader.loadSession(sessionManager.selectedSession);
-        if (sessionWithSegments) {
-          await playerState.loadSession(sessionWithSegments);
-        }
-      } catch (error) {
-        console.error('Failed to load session:', error);
-      }
-    };
-
-    loadSelectedSession();
+    playerState.reset();
+    playerState.loadSession(sessionManager.selectedSession).catch((error) => {
+      console.error('Failed to load session:', error);
+    });
   }, [sessionManager.selectedSession?.session_id]);
 
   const handleSelectSession = (session: NonNullable<typeof sessionManager.selectedSession>) => {
     sessionManager.selectSession(session);
   };
 
-  const combinedError = sessionManager.error || segmentLoader.error || playerState.error;
+  const combinedError = sessionManager.error || playerState.error;
 
   return (
     <div className='grid h-[calc(100svh-150px)] w-full gap-3 lg:grid-cols-[260px_minmax(0,1fr)_280px]'>

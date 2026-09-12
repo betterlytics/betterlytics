@@ -1,89 +1,52 @@
 'use client';
 
-import { useCallback, useRef, useState, useTransition } from 'react';
-import { trpc } from '@/trpc/client';
-import type { ReplaySegmentManifestEntry, SessionReplay } from '@/entities/analytics/sessionReplays.entities';
+import { useCallback, useRef } from 'react';
 import type { eventWithTime } from '@rrweb/types';
 
-export type SessionWithSegments = SessionReplay & {
-  manifest: ReplaySegmentManifestEntry[];
-};
-
 export type UseSegmentLoaderReturn = {
-  isLoading: boolean;
-  error: string | null;
-  loadSession: (session: SessionReplay) => Promise<SessionWithSegments | null>;
-  loadSegment: (segment: ReplaySegmentManifestEntry, signal: AbortSignal) => Promise<eventWithTime[]>;
+  openSegmentStream: (sessionId: string) => AsyncGenerator<eventWithTime[]>;
   abortLoading: () => void;
 };
 
 export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
-  const [isLoading, startLoadingTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const inFlightController = useRef<AbortController | null>(null);
-  const utils = trpc.useUtils();
 
   const abortLoading = useCallback(() => {
     inFlightController.current?.abort();
     inFlightController.current = null;
   }, []);
 
-  const loadSegment = useCallback(async (segment: ReplaySegmentManifestEntry, signal: AbortSignal) => {
-    const response = await fetch(segment.url, { signal });
-    if (!response.ok) {
-      throw new Error(`Failed to fetch segment ${segment.key}`);
-    }
-    const data = (await response.json()) as eventWithTime[];
-    return data;
-  }, []);
+  const openSegmentStream = useCallback(
+    async function* (sessionId: string): AsyncGenerator<eventWithTime[]> {
+      abortLoading();
+      const controller = new AbortController();
+      inFlightController.current = controller;
 
-  const loadSession = useCallback(
-    (session: SessionReplay): Promise<SessionWithSegments | null> => {
-      return new Promise((resolve) => {
-        startLoadingTransition(async () => {
-          setError(null);
-          abortLoading();
-
-          try {
-            const controller = new AbortController();
-            inFlightController.current = controller;
-
-            const manifest = await utils.sessionReplays.segments.fetch({
-              dashboardId,
-              sessionId: session.session_id,
-            });
-
-            if (controller.signal.aborted) {
-              resolve(null);
-              return;
-            }
-
-            if (manifest.length === 0) {
-              setError('No segments found for this session');
-              resolve(null);
-              return;
-            }
-
-            const enrichedSession: SessionWithSegments = { ...session, manifest };
-            resolve(enrichedSession);
-          } catch (error) {
-            if (!(error instanceof DOMException && error.name === 'AbortError')) {
-              console.error(error);
-              setError(error instanceof Error ? error.message : 'Failed to load session');
-            }
-            resolve(null);
-          }
-        });
+      const response = await fetch(`/api/replay/segments?${new URLSearchParams({ dashboardId, sessionId })}`, {
+        signal: controller.signal,
       });
+      if (!response.ok || !response.body) {
+        throw new Error(response.status === 404 ? 'No segments found for this session' : 'Failed to fetch segments');
+      }
+
+      const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+      let buffered = '';
+      for (;;) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffered += value;
+        let newline = buffered.indexOf('\n');
+        while (newline !== -1) {
+          const line = buffered.slice(0, newline);
+          buffered = buffered.slice(newline + 1);
+          if (line) yield JSON.parse(line) as eventWithTime[];
+          newline = buffered.indexOf('\n');
+        }
+      }
+      if (buffered.trim()) yield JSON.parse(buffered) as eventWithTime[];
     },
     [dashboardId, abortLoading],
   );
 
-  return {
-    isLoading,
-    error,
-    loadSession,
-    loadSegment,
-    abortLoading,
-  };
+  return { openSegmentStream, abortLoading };
 }
