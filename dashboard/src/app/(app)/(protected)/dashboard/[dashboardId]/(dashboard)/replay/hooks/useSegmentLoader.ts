@@ -42,17 +42,11 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
           while (newline !== -1) {
             const line = buffered.slice(0, newline);
             buffered = buffered.slice(newline + 1);
-            if (line) {
-              const events = parseLine(line);
-              if (events) yield events;
-            }
+            if (line) yield JSON.parse(line) as eventWithTime[];
             newline = buffered.indexOf('\n');
           }
         }
-        if (buffered.trim()) {
-          const events = parseLine(buffered);
-          if (events) yield events;
-        }
+        if (buffered.trim()) yield JSON.parse(buffered) as eventWithTime[];
       } finally {
         // A consumer break must not leave the download running.
         reader.cancel().catch(() => {});
@@ -62,15 +56,4 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
   );
 
   return { openSegmentStream, abortLoading };
-}
-
-// One lost segment instead of a dead session; replay.js never produces such a line,
-// so this only fires on hand-crafted uploads.
-function parseLine(line: string): eventWithTime[] | null {
-  try {
-    return JSON.parse(line) as eventWithTime[];
-  } catch (error) {
-    console.error('Skipping malformed replay segment', error);
-    return null;
-  }
 }
