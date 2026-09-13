@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { getSessionReplays } from '@/repositories/clickhouse/index.repository';
-import { getReplayStorageForSession } from '@/repositories/clickhouse/sessionReplays.repository';
+import { getReplaySessionMeta } from '@/repositories/clickhouse/sessionReplays.repository';
 import { readerFor, type ReplaySegmentReader } from '@/repositories/replaySegments.repository';
 import { replayStorage } from '@/lib/env';
 import type { AuthContext } from '@/entities/auth/authContext.entities';
@@ -13,23 +13,33 @@ export async function getSessionReplaysForSite(siteQuery: BASiteQuery, limit: nu
   return getSessionReplays(siteQuery, limit, offset);
 }
 
+export type ReplaySegmentStream = { stream: ReadableStream<Uint8Array>; endedAt: Date };
+
 export async function openReplaySegmentStream(
   authContext: AuthContext,
   sessionId: string,
-): Promise<ReadableStream<Uint8Array> | null> {
+): Promise<ReplaySegmentStream | null> {
   const { siteId } = authContext;
-  const reader = readerFor(await resolveReplayStorage(siteId, sessionId));
+  const meta = await getReplaySessionMeta(siteId, sessionId);
+  // A missing or unrecognized marker falls back to the deployment's active mode; in a
+  // ClickHouse-only deploy the S3 reader is unreachable that way (its client throws).
+  const storage = meta?.storage === 's3' || meta?.storage === 'clickhouse' ? meta.storage : replayStorage;
+  const reader = readerFor(storage);
   const segments = await reader.list(siteId, sessionId);
   if (segments.length === 0) return null;
-  if (reader.stream) return reader.stream(siteId, sessionId);
-  return toNdjsonStream(
-    streamSegments(
-      reader,
-      siteId,
-      sessionId,
-      segments.map((segment) => segment.filename),
-    ),
-  );
+  // A segment row without a session row is a race at ingest; treat it as still recording.
+  const endedAt = meta?.endedAt ?? new Date();
+  const stream = reader.stream
+    ? await reader.stream(siteId, sessionId)
+    : toNdjsonStream(
+        streamSegments(
+          reader,
+          siteId,
+          sessionId,
+          segments.map((segment) => segment.filename),
+        ),
+      );
+  return { stream, endedAt };
 }
 
 function toNdjsonStream(lines: AsyncGenerator<string>): ReadableStream<Uint8Array> {
@@ -80,11 +90,4 @@ async function segmentToText(
   const stream =
     segment.contentEncoding === 'gzip' ? segment.body.pipeThrough(new DecompressionStream('gzip')) : segment.body;
   return new Response(stream).text();
-}
-
-// A missing or unrecognized marker falls back to the deployment's active mode; in a
-// ClickHouse-only deploy the S3 reader is unreachable that way (its client throws).
-async function resolveReplayStorage(siteId: string, sessionId: string): Promise<'s3' | 'clickhouse'> {
-  const marker = await getReplayStorageForSession(siteId, sessionId);
-  return marker === 's3' || marker === 'clickhouse' ? marker : replayStorage;
 }

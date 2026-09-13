@@ -32,12 +32,16 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
   const eventsRef = useRef<eventWithTime[]>([]);
   const [isSkippingInactive, setSkippingInactive] = useState(true);
   const inactivitiesRef = useRef<InactivityPeriod[]>([]);
+  const loadIdRef = useRef(0);
 
   const segmentLoader = useSegmentLoader(dashboardId);
   const timeline = useReplayTimeline();
 
   const loadSession = useCallback(
     async (session: SessionReplay): Promise<void> => {
+      // Two loads of the same session_id (StrictMode double effect, remount) must not let the
+      // aborted first call clear the flags of the live second one.
+      const loadId = ++loadIdRef.current;
       currentSessionIdRef.current = session.session_id;
       segmentLoader.abortLoading();
       playerRef.current?.reset();
@@ -73,7 +77,7 @@ export function usePlayerState(dashboardId: string): UsePlayerStateReturn {
           setError(error instanceof Error ? error.message : 'Failed to load session');
         }
       } finally {
-        if (currentSessionIdRef.current === session.session_id) {
+        if (loadIdRef.current === loadId) {
           setIsLoadingSegments(false);
           setIsPrefetching(false);
         }

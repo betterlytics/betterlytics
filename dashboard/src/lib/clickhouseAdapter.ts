@@ -20,6 +20,8 @@ export interface AdapterCommandOptions {
 export interface ClickHouseAdapterClient {
   query: (sql: string, reqParams?: AdapterQueryOptions) => QueryCursorLike;
   command: (sql: string, reqParams?: AdapterCommandOptions) => Promise<void>;
+  // Object-mode batches of rows, raw text without the trailing newline. The two
+  // observability Proxies only intercept 'query', so this is uninstrumented and unlimited.
   queryStream: (sql: string, reqParams: AdapterQueryOptions) => Promise<AsyncIterable<QueryStreamRow[]>>;
 }
 

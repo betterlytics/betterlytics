@@ -22,6 +22,7 @@ export function SessionReplayContainer({ dashboardId }: SessionReplayContainerPr
     playerState.loadSession(sessionManager.selectedSession).catch((error) => {
       console.error('Failed to load session:', error);
     });
+    return () => playerState.reset();
   }, [sessionManager.selectedSession?.session_id]);
 
   const handleSelectSession = (session: NonNullable<typeof sessionManager.selectedSession>) => {

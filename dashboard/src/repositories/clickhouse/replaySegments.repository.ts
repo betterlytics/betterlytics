@@ -50,6 +50,7 @@ export const clickhouseSegmentReader: ReplaySegmentReader = {
       WHERE site_id = {site_id:String}
         AND session_id = {session_id:UInt64}
       ORDER BY epoch_ms, filename
+      LIMIT 1 BY filename
     `;
 
     // TabSeparatedRaw emits each row's data verbatim; data is JSON text, which never holds
