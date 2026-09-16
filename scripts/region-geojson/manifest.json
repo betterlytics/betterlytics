@@ -1,7 +1,7 @@
 {
   "neCommit": "ca96624a56bd078437bca8184e78163e5039ad19",
-  "generatedAt": "2026-09-09T20:38:18.904Z",
-  "totalBytes": 5167436,
+  "generatedAt": "2026-09-10T09:11:18.958Z",
+  "totalBytes": 5178766,
   "skippedSourceFeatures": [
     {
       "name": "Dhekelia",
@@ -294,7 +294,7 @@
   "countries": [
     {
       "code": "AD",
-      "bytes": 2450,
+      "bytes": 2497,
       "features": 7,
       "parts": 7,
       "simplifyPct": 35,
@@ -302,14 +302,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        1.40646,
+        42.42868,
+        1.76509,
+        42.64936
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AE",
-      "bytes": 12790,
+      "bytes": 12839,
       "features": 9,
       "parts": 30,
       "simplifyPct": 35,
@@ -317,14 +322,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        51.56935,
+        22.62095,
+        56.38364,
+        26.07479
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AF",
-      "bytes": 44713,
+      "bytes": 44761,
       "features": 32,
       "parts": 34,
       "simplifyPct": 20,
@@ -332,14 +342,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        60.48678,
+        29.3866,
+        74.89231,
+        38.47367
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AG",
-      "bytes": 2838,
+      "bytes": 2889,
       "features": 8,
       "parts": 8,
       "simplifyPct": 35,
@@ -347,14 +362,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -62.34826,
+        16.93197,
+        -61.66759,
+        17.72769
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AI",
-      "bytes": 4380,
+      "bytes": 4431,
       "features": 15,
       "parts": 19,
       "simplifyPct": 35,
@@ -362,14 +382,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -63.42882,
+        18.16909,
+        -62.92568,
+        18.60126
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AL",
-      "bytes": 16838,
+      "bytes": 16887,
       "features": 12,
       "parts": 12,
       "simplifyPct": 35,
@@ -377,14 +402,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        19.27203,
+        39.63701,
+        21.03668,
+        42.65481
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AM",
-      "bytes": 11471,
+      "bytes": 11519,
       "features": 11,
       "parts": 12,
       "simplifyPct": 35,
@@ -392,14 +422,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        43.43629,
+        38.8637,
+        46.60261,
+        41.29045
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AO",
-      "bytes": 29522,
+      "bytes": 29570,
       "features": 18,
       "parts": 19,
       "simplifyPct": 20,
@@ -407,14 +442,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        11.66939,
+        -18.0314,
+        24.06171,
+        -4.3912
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AQ",
-      "bytes": 66309,
+      "bytes": 66345,
       "features": 2,
       "parts": 179,
       "simplifyPct": 12,
@@ -422,14 +462,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -180,
+        -90,
+        180,
+        -60.51621
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AR",
-      "bytes": 31702,
+      "bytes": 31755,
       "features": 24,
       "parts": 30,
       "simplifyPct": 12,
@@ -437,14 +482,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -73.57274,
+        -55.05202,
+        -53.66155,
+        -21.78694
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AS",
-      "bytes": 1695,
+      "bytes": 1750,
       "features": 5,
       "parts": 6,
       "simplifyPct": 35,
@@ -452,14 +502,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -171.08654,
+        -14.53289,
+        -168.16047,
+        -11.05137
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AT",
-      "bytes": 17555,
+      "bytes": 17603,
       "features": 9,
       "parts": 10,
       "simplifyPct": 35,
@@ -467,14 +522,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        9.52116,
+        46.37864,
+        17.14834,
+        49.00977
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AU",
-      "bytes": 47613,
+      "bytes": 47665,
       "features": 9,
       "parts": 99,
       "simplifyPct": 12,
@@ -482,7 +542,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        112.91944,
+        -43.64129,
+        153.63063,
+        -9.24017
+      ],
       "anchorCenterLon": null,
       "cropped": [
         "AU-X03~ (1 parts)",
@@ -493,7 +558,7 @@
     },
     {
       "code": "AW",
-      "bytes": 545,
+      "bytes": 596,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -501,14 +566,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -70.06241,
+        12.41767,
+        -69.87682,
+        12.63215
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AX",
-      "bytes": 4073,
+      "bytes": 4122,
       "features": 11,
       "parts": 17,
       "simplifyPct": 35,
@@ -516,14 +586,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        19.51319,
+        59.90449,
+        21.09669,
+        60.48078
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "AZ",
-      "bytes": 32462,
+      "bytes": 32511,
       "features": 75,
       "parts": 84,
       "simplifyPct": 20,
@@ -531,14 +606,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        44.77456,
+        38.39265,
+        50.62574,
+        41.89044
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BA",
-      "bytes": 16322,
+      "bytes": 16371,
       "features": 10,
       "parts": 20,
       "simplifyPct": 35,
@@ -546,14 +626,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        15.71607,
+        42.55921,
+        19.61888,
+        45.28452
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BB",
-      "bytes": 4439,
+      "bytes": 4489,
       "features": 11,
       "parts": 11,
       "simplifyPct": 35,
@@ -561,14 +646,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -59.6542,
+        13.05117,
+        -59.42691,
+        13.34455
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BD",
-      "bytes": 22401,
+      "bytes": 22450,
       "features": 7,
       "parts": 28,
       "simplifyPct": 35,
@@ -576,14 +666,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        88.02179,
+        20.73871,
+        92.64285,
+        26.62354
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BE",
-      "bytes": 13028,
+      "bytes": 13074,
       "features": 11,
       "parts": 13,
       "simplifyPct": 35,
@@ -591,14 +686,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        2.5218,
+        49.49522,
+        6.37453,
+        51.49624
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BF",
-      "bytes": 29790,
+      "bytes": 29837,
       "features": 45,
       "parts": 45,
       "simplifyPct": 20,
@@ -606,14 +706,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -5.52258,
+        9.39188,
+        2.39017,
+        15.07991
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BG",
-      "bytes": 28093,
+      "bytes": 28141,
       "features": 28,
       "parts": 28,
       "simplifyPct": 35,
@@ -621,14 +726,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        22.34502,
+        41.2381,
+        28.60353,
+        44.22843
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BH",
-      "bytes": 2457,
+      "bytes": 2506,
       "features": 5,
       "parts": 10,
       "simplifyPct": 35,
@@ -636,14 +746,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        50.38053,
+        25.57989,
+        50.81988,
+        26.28744
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BI",
-      "bytes": 10669,
+      "bytes": 10718,
       "features": 17,
       "parts": 17,
       "simplifyPct": 35,
@@ -651,14 +766,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        28.98689,
+        -4.46334,
+        30.83396,
+        -2.30306
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BJ",
-      "bytes": 9950,
+      "bytes": 9996,
       "features": 12,
       "parts": 12,
       "simplifyPct": 35,
@@ -666,14 +786,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        0.75988,
+        6.21389,
+        3.83742,
+        12.39924
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BL",
-      "bytes": 441,
+      "bytes": 492,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -681,14 +806,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -62.86734,
+        17.88199,
+        -62.79166,
+        17.92914
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BM",
-      "bytes": 3682,
+      "bytes": 3733,
       "features": 11,
       "parts": 16,
       "simplifyPct": 35,
@@ -696,14 +826,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -64.88599,
+        32.24808,
+        -64.64763,
+        32.38866
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BN",
-      "bytes": 2099,
+      "bytes": 2147,
       "features": 4,
       "parts": 4,
       "simplifyPct": 35,
@@ -711,14 +846,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        113.99879,
+        4.01668,
+        115.36074,
+        5.0572
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BO",
-      "bytes": 18511,
+      "bytes": 18563,
       "features": 9,
       "parts": 9,
       "simplifyPct": 20,
@@ -726,14 +866,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -69.66649,
+        -22.89726,
+        -57.46566,
+        -9.67982
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BR",
-      "bytes": 87824,
+      "bytes": 87875,
       "features": 27,
       "parts": 69,
       "simplifyPct": 12,
@@ -741,14 +886,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -74.01847,
+        -33.74228,
+        -28.87707,
+        5.26722
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BS",
-      "bytes": 17454,
+      "bytes": 17504,
       "features": 30,
       "parts": 52,
       "simplifyPct": 35,
@@ -756,14 +906,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -79.59435,
+        20.9124,
+        -72.74617,
+        26.92841
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BT",
-      "bytes": 19293,
+      "bytes": 19341,
       "features": 20,
       "parts": 20,
       "simplifyPct": 35,
@@ -771,14 +926,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        88.73007,
+        26.69615,
+        92.08878,
+        28.3584
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BW",
-      "bytes": 13338,
+      "bytes": 13389,
       "features": 15,
       "parts": 15,
       "simplifyPct": 35,
@@ -786,14 +946,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        19.97835,
+        -26.89179,
+        29.35007,
+        -17.78181
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BY",
-      "bytes": 19631,
+      "bytes": 19680,
       "features": 7,
       "parts": 7,
       "simplifyPct": 20,
@@ -801,14 +966,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        23.16565,
+        51.23517,
+        32.71953,
+        56.15681
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "BZ",
-      "bytes": 7866,
+      "bytes": 7917,
       "features": 6,
       "parts": 15,
       "simplifyPct": 35,
@@ -816,14 +986,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -89.23651,
+        15.87965,
+        -87.78307,
+        18.49076
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CA",
-      "bytes": 208958,
+      "bytes": 209010,
       "features": 13,
       "parts": 434,
       "simplifyPct": 12,
@@ -831,14 +1006,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -141.00556,
+        41.66909,
+        -52.61661,
+        83.11652
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CD",
-      "bytes": 32832,
+      "bytes": 32881,
       "features": 11,
       "parts": 12,
       "simplifyPct": 20,
@@ -846,14 +1026,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        12.21054,
+        -13.45835,
+        31.28045,
+        5.37528
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CF",
-      "bytes": 26230,
+      "bytes": 26277,
       "features": 17,
       "parts": 17,
       "simplifyPct": 20,
@@ -861,14 +1046,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        14.38727,
+        2.23645,
+        27.4413,
+        11.00083
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CG",
-      "bytes": 16845,
+      "bytes": 16893,
       "features": 12,
       "parts": 12,
       "simplifyPct": 20,
@@ -876,14 +1066,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        11.11402,
+        -5.01963,
+        18.64241,
+        3.70828
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CH",
-      "bytes": 22070,
+      "bytes": 22118,
       "features": 26,
       "parts": 39,
       "simplifyPct": 20,
@@ -891,14 +1086,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        5.95481,
+        45.82072,
+        10.46663,
+        47.80117
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CI",
-      "bytes": 24946,
+      "bytes": 24994,
       "features": 19,
       "parts": 21,
       "simplifyPct": 20,
@@ -906,14 +1106,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -8.61872,
+        4.34406,
+        -2.50633,
+        10.72648
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CK",
-      "bytes": 3115,
+      "bytes": 3168,
       "features": 11,
       "parts": 13,
       "simplifyPct": 35,
@@ -921,14 +1126,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -165.82453,
+        -21.9389,
+        -157.31282,
+        -8.94671
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CL",
-      "bytes": 58714,
+      "bytes": 58766,
       "features": 16,
       "parts": 172,
       "simplifyPct": 12,
@@ -936,7 +1146,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -75.71142,
+        -55.9185,
+        -66.42081,
+        -17.50659
+      ],
       "anchorCenterLon": null,
       "cropped": [
         "CL-VS (6 parts)"
@@ -945,7 +1160,7 @@
     },
     {
       "code": "CM",
-      "bytes": 23426,
+      "bytes": 23473,
       "features": 10,
       "parts": 11,
       "simplifyPct": 35,
@@ -953,14 +1168,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        8.50506,
+        1.65455,
+        16.20772,
+        13.08114
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CN",
-      "bytes": 131539,
+      "bytes": 131589,
       "features": 32,
       "parts": 99,
       "simplifyPct": 12,
@@ -968,14 +1188,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        73.60226,
+        15.77538,
+        134.77258,
+        53.56944
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CO",
-      "bytes": 36936,
+      "bytes": 36986,
       "features": 33,
       "parts": 44,
       "simplifyPct": 12,
@@ -983,14 +1208,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -81.7237,
+        -4.23648,
+        -66.87506,
+        13.57836
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CR",
-      "bytes": 16702,
+      "bytes": 16752,
       "features": 7,
       "parts": 10,
       "simplifyPct": 35,
@@ -998,7 +1228,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -85.94644,
+        8.03475,
+        -82.56284,
+        11.20994
+      ],
       "anchorCenterLon": null,
       "cropped": [
         "CR-P (1 parts)"
@@ -1007,7 +1242,7 @@
     },
     {
       "code": "CU",
-      "bytes": 25815,
+      "bytes": 25866,
       "features": 16,
       "parts": 55,
       "simplifyPct": 20,
@@ -1015,14 +1250,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -84.94961,
+        19.82783,
+        -74.13288,
+        23.26557
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CV",
-      "bytes": 8199,
+      "bytes": 8249,
       "features": 22,
       "parts": 24,
       "simplifyPct": 35,
@@ -1030,14 +1270,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -25.36042,
+        14.80394,
+        -22.66658,
+        17.1966
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CW",
-      "bytes": 659,
+      "bytes": 710,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -1045,14 +1290,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -69.17174,
+        12.04133,
+        -68.73973,
+        12.39151
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CY",
-      "bytes": 5895,
+      "bytes": 5943,
       "features": 5,
       "parts": 8,
       "simplifyPct": 35,
@@ -1060,14 +1310,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        32.27174,
+        34.62502,
+        34.09913,
+        35.1994
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "CZ",
-      "bytes": 17231,
+      "bytes": 17280,
       "features": 14,
       "parts": 14,
       "simplifyPct": 20,
@@ -1075,14 +1330,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        12.07614,
+        48.55792,
+        18.83743,
+        51.04001
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "DE",
-      "bytes": 32288,
+      "bytes": 32336,
       "features": 16,
       "parts": 38,
       "simplifyPct": 12,
@@ -1090,14 +1350,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        5.85249,
+        47.27112,
+        15.02206,
+        55.06533
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "DJ",
-      "bytes": 3248,
+      "bytes": 3297,
       "features": 6,
       "parts": 6,
       "simplifyPct": 35,
@@ -1105,7 +1370,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        41.74911,
+        10.92982,
+        43.41871,
+        12.70791
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -1134,7 +1404,7 @@
     },
     {
       "code": "DM",
-      "bytes": 4208,
+      "bytes": 4259,
       "features": 10,
       "parts": 10,
       "simplifyPct": 35,
@@ -1142,14 +1412,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -61.48892,
+        15.20181,
+        -61.24926,
+        15.63386
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "DO",
-      "bytes": 19527,
+      "bytes": 19577,
       "features": 32,
       "parts": 34,
       "simplifyPct": 35,
@@ -1157,14 +1432,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -72.00984,
+        17.54556,
+        -68.3286,
+        19.93769
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "DZ",
-      "bytes": 35940,
+      "bytes": 35989,
       "features": 48,
       "parts": 48,
       "simplifyPct": 20,
@@ -1172,7 +1452,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -8.68239,
+        18.97556,
+        11.96886,
+        37.09394
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -1201,7 +1486,7 @@
     },
     {
       "code": "EE",
-      "bytes": 19612,
+      "bytes": 19661,
       "features": 15,
       "parts": 20,
       "simplifyPct": 35,
@@ -1209,14 +1494,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        21.83237,
+        57.51582,
+        28.18648,
+        59.67088
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "EG",
-      "bytes": 24399,
+      "bytes": 24448,
       "features": 27,
       "parts": 37,
       "simplifyPct": 20,
@@ -1224,14 +1514,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        24.68834,
+        21.99437,
+        36.89918,
+        31.65648
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "EH",
-      "bytes": 2234,
+      "bytes": 2284,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -1239,14 +1534,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -17.10464,
+        20.76691,
+        -8.68081,
+        27.66146
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "ER",
-      "bytes": 10084,
+      "bytes": 10133,
       "features": 6,
       "parts": 8,
       "simplifyPct": 35,
@@ -1254,7 +1554,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        36.42365,
+        12.36002,
+        43.12387,
+        18.00483
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -1283,7 +1588,7 @@
     },
     {
       "code": "ET",
-      "bytes": 19532,
+      "bytes": 19579,
       "features": 11,
       "parts": 14,
       "simplifyPct": 20,
@@ -1291,14 +1596,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        32.9898,
+        3.40333,
+        47.97917,
+        14.87953
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "FI",
-      "bytes": 34749,
+      "bytes": 34798,
       "features": 18,
       "parts": 59,
       "simplifyPct": 20,
@@ -1306,14 +1616,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        20.62317,
+        59.81123,
+        31.56952,
+        70.07531
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "FJ",
-      "bytes": 14421,
+      "bytes": 14474,
       "features": 5,
       "parts": 45,
       "simplifyPct": 35,
@@ -1321,14 +1636,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        174.58888,
+        -21.71111,
+        181.78386,
+        -12.47527
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "FK",
-      "bytes": 10110,
+      "bytes": 10163,
       "features": 1,
       "parts": 15,
       "simplifyPct": 35,
@@ -1336,14 +1656,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -61.31819,
+        -52.40652,
+        -57.73428,
+        -51.02777
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "FM",
-      "bytes": 3523,
+      "bytes": 3572,
       "features": 4,
       "parts": 21,
       "simplifyPct": 35,
@@ -1351,14 +1676,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        138.06381,
+        0.91816,
+        163.04656,
+        9.77558
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "FO",
-      "bytes": 3657,
+      "bytes": 3706,
       "features": 1,
       "parts": 11,
       "simplifyPct": 35,
@@ -1366,7 +1696,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -7.64415,
+        61.39411,
+        -6.27579,
+        62.39891
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -1399,7 +1734,7 @@
     },
     {
       "code": "GA",
-      "bytes": 18929,
+      "bytes": 18976,
       "features": 9,
       "parts": 10,
       "simplifyPct": 35,
@@ -1407,14 +1742,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        8.69557,
+        -3.93686,
+        14.49899,
+        2.32249
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GB",
-      "bytes": 97656,
+      "bytes": 97705,
       "features": 232,
       "parts": 281,
       "simplifyPct": 12,
@@ -1422,14 +1762,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -13.69131,
+        49.90961,
+        1.77117,
+        60.84789
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GD",
-      "bytes": 2240,
+      "bytes": 2291,
       "features": 7,
       "parts": 7,
       "simplifyPct": 35,
@@ -1437,14 +1782,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -61.79052,
+        12.00283,
+        -61.42162,
+        12.52973
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GE",
-      "bytes": 11167,
+      "bytes": 11215,
       "features": 12,
       "parts": 12,
       "simplifyPct": 35,
@@ -1452,14 +1802,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        39.98598,
+        41.04411,
+        46.6948,
+        43.57584
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GG",
-      "bytes": 762,
+      "bytes": 811,
       "features": 1,
       "parts": 3,
       "simplifyPct": 35,
@@ -1467,14 +1822,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -2.67345,
+        49.41157,
+        -2.17032,
+        49.73139
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GH",
-      "bytes": 17012,
+      "bytes": 17059,
       "features": 10,
       "parts": 10,
       "simplifyPct": 20,
@@ -1482,14 +1842,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -3.26251,
+        4.73713,
+        1.18797,
+        11.16294
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GI",
-      "bytes": 431,
+      "bytes": 479,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -1497,14 +1862,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -5.35839,
+        36.1105,
+        -5.33877,
+        36.14112
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GL",
-      "bytes": 59509,
+      "bytes": 59559,
       "features": 5,
       "parts": 135,
       "simplifyPct": 12,
@@ -1512,14 +1882,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -73.05724,
+        59.79263,
+        -11.37682,
+        83.6341
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GM",
-      "bytes": 4660,
+      "bytes": 4710,
       "features": 6,
       "parts": 6,
       "simplifyPct": 35,
@@ -1527,14 +1902,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -16.8297,
+        13.06501,
+        -13.81871,
+        13.81998
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GN",
-      "bytes": 23474,
+      "bytes": 23523,
       "features": 34,
       "parts": 34,
       "simplifyPct": 20,
@@ -1542,7 +1922,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -15.08113,
+        7.19021,
+        -7.66245,
+        12.67339
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -1571,7 +1956,7 @@
     },
     {
       "code": "GR",
-      "bytes": 32347,
+      "bytes": 32396,
       "features": 14,
       "parts": 85,
       "simplifyPct": 20,
@@ -1579,14 +1964,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        19.62647,
+        34.81501,
+        28.23976,
+        41.75048
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GS",
-      "bytes": 5498,
+      "bytes": 5551,
       "features": 1,
       "parts": 17,
       "simplifyPct": 35,
@@ -1594,14 +1984,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -42.11901,
+        -59.47275,
+        -26.23933,
+        -53.45713
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GT",
-      "bytes": 17504,
+      "bytes": 17554,
       "features": 22,
       "parts": 22,
       "simplifyPct": 20,
@@ -1609,14 +2004,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -92.24626,
+        13.7314,
+        -88.22094,
+        17.81602
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GU",
-      "bytes": 694,
+      "bytes": 744,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -1624,14 +2024,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        144.6242,
+        13.24103,
+        144.95216,
+        13.65412
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GW",
-      "bytes": 16487,
+      "bytes": 16538,
       "features": 9,
       "parts": 21,
       "simplifyPct": 35,
@@ -1639,14 +2044,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -16.72844,
+        10.92764,
+        -13.66071,
+        12.67943
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "GY",
-      "bytes": 17560,
+      "bytes": 17609,
       "features": 10,
       "parts": 12,
       "simplifyPct": 35,
@@ -1654,14 +2064,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -61.39671,
+        1.18582,
+        -56.48182,
+        8.55801
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "HK",
-      "bytes": 7721,
+      "bytes": 7771,
       "features": 18,
       "parts": 21,
       "simplifyPct": 35,
@@ -1669,14 +2084,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        113.83733,
+        22.17707,
+        114.4013,
+        22.56395
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "HM",
-      "bytes": 740,
+      "bytes": 790,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -1684,14 +2104,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        73.23601,
+        -53.19256,
+        73.81218,
+        -52.9616
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "HN",
-      "bytes": 18087,
+      "bytes": 18138,
       "features": 18,
       "parts": 23,
       "simplifyPct": 20,
@@ -1699,14 +2124,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -89.36379,
+        12.97978,
+        -83.13044,
+        17.41865
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "HR",
-      "bytes": 24808,
+      "bytes": 24857,
       "features": 20,
       "parts": 45,
       "simplifyPct": 20,
@@ -1714,14 +2144,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        13.50147,
+        42.41633,
+        19.40784,
+        46.54698
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "HT",
-      "bytes": 10093,
+      "bytes": 10144,
       "features": 10,
       "parts": 14,
       "simplifyPct": 35,
@@ -1729,14 +2164,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -74.48917,
+        18.02595,
+        -71.63911,
+        20.08979
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "HU",
-      "bytes": 30675,
+      "bytes": 30723,
       "features": 43,
       "parts": 44,
       "simplifyPct": 35,
@@ -1744,14 +2184,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        16.09404,
+        45.74134,
+        22.8776,
+        48.56923
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "ID",
-      "bytes": 77419,
+      "bytes": 77468,
       "features": 33,
       "parts": 285,
       "simplifyPct": 12,
@@ -1759,14 +2204,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        95.01271,
+        -10.92262,
+        140.97763,
+        5.9101
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "IE",
-      "bytes": 33350,
+      "bytes": 33399,
       "features": 26,
       "parts": 40,
       "simplifyPct": 20,
@@ -1774,14 +2224,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -10.47818,
+        51.4457,
+        -5.99352,
+        55.38638
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "IL",
-      "bytes": 7821,
+      "bytes": 7870,
       "features": 6,
       "parts": 6,
       "simplifyPct": 35,
@@ -1789,14 +2244,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        34.24835,
+        29.48969,
+        35.88807,
+        33.40672
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "IM",
-      "bytes": 957,
+      "bytes": 1005,
       "features": 1,
       "parts": 2,
       "simplifyPct": 35,
@@ -1804,14 +2264,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -4.8306,
+        54.04043,
+        -4.31192,
+        54.41901
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "IN",
-      "bytes": 79296,
+      "bytes": 79343,
       "features": 36,
       "parts": 74,
       "simplifyPct": 12,
@@ -1819,14 +2284,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        68.1434,
+        6.74555,
+        97.36225,
+        35.49541
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "IO",
-      "bytes": 1615,
+      "bytes": 1662,
       "features": 1,
       "parts": 10,
       "simplifyPct": 35,
@@ -1834,14 +2304,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        71.261,
+        -7.43222,
+        72.49464,
+        -5.22698
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "IQ",
-      "bytes": 20199,
+      "bytes": 20247,
       "features": 18,
       "parts": 18,
       "simplifyPct": 20,
@@ -1849,14 +2324,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        38.77451,
+        29.06314,
+        48.55926,
+        37.3755
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "IR",
-      "bytes": 32495,
+      "bytes": 32544,
       "features": 30,
       "parts": 42,
       "simplifyPct": 20,
@@ -1864,14 +2344,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        44.01486,
+        25.05941,
+        63.31963,
+        39.77153
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "IS",
-      "bytes": 18051,
+      "bytes": 18102,
       "features": 9,
       "parts": 13,
       "simplifyPct": 20,
@@ -1879,14 +2364,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -24.53991,
+        63.39672,
+        -13.50292,
+        66.56415
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "IT",
-      "bytes": 65606,
+      "bytes": 65654,
       "features": 110,
       "parts": 143,
       "simplifyPct": 12,
@@ -1894,14 +2384,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        6.60273,
+        35.48924,
+        18.51743,
+        47.08521
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "JE",
-      "bytes": 653,
+      "bytes": 702,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -1909,14 +2404,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -2.24201,
+        49.17133,
+        -2.00829,
+        49.26703
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "JM",
-      "bytes": 8155,
+      "bytes": 8206,
       "features": 14,
       "parts": 14,
       "simplifyPct": 35,
@@ -1924,14 +2424,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -78.37466,
+        17.70319,
+        -76.18798,
+        18.52509
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "JO",
-      "bytes": 9073,
+      "bytes": 9120,
       "features": 12,
       "parts": 12,
       "simplifyPct": 35,
@@ -1939,7 +2444,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        34.94938,
+        29.18995,
+        39.292,
+        33.37168
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -1970,7 +2480,7 @@
     },
     {
       "code": "KE",
-      "bytes": 15968,
+      "bytes": 16015,
       "features": 8,
       "parts": 9,
       "simplifyPct": 20,
@@ -1978,14 +2488,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        33.89047,
+        -4.6775,
+        41.88502,
+        5.03038
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KG",
-      "bytes": 21592,
+      "bytes": 21639,
       "features": 8,
       "parts": 8,
       "simplifyPct": 35,
@@ -1993,14 +2508,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        69.2263,
+        39.18924,
+        80.25756,
+        43.2617
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KH",
-      "bytes": 22747,
+      "bytes": 22798,
       "features": 24,
       "parts": 29,
       "simplifyPct": 20,
@@ -2008,14 +2528,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        102.31342,
+        10.41577,
+        107.61052,
+        14.70458
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KI",
-      "bytes": 7012,
+      "bytes": 7065,
       "features": 2,
       "parts": 35,
       "simplifyPct": 35,
@@ -2023,14 +2548,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -190.47785,
+        -11.46111,
+        -151.78096,
+        4.72309
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KM",
-      "bytes": 1483,
+      "bytes": 1533,
       "features": 3,
       "parts": 3,
       "simplifyPct": 35,
@@ -2038,14 +2568,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        43.21323,
+        -12.3803,
+        44.52906,
+        -11.36126
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KN",
-      "bytes": 3870,
+      "bytes": 3921,
       "features": 14,
       "parts": 14,
       "simplifyPct": 35,
@@ -2053,14 +2588,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -62.86107,
+        17.10053,
+        -62.53677,
+        17.41584
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KP",
-      "bytes": 19812,
+      "bytes": 19862,
       "features": 11,
       "parts": 20,
       "simplifyPct": 20,
@@ -2068,14 +2608,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        124.21132,
+        37.6756,
+        130.69996,
+        43.01027
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KR",
-      "bytes": 25485,
+      "bytes": 25536,
       "features": 17,
       "parts": 67,
       "simplifyPct": 20,
@@ -2083,14 +2628,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        124.61362,
+        33.19758,
+        130.92067,
+        38.62434
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KW",
-      "bytes": 3288,
+      "bytes": 3337,
       "features": 6,
       "parts": 9,
       "simplifyPct": 35,
@@ -2098,14 +2648,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        46.53244,
+        28.53351,
+        48.43278,
+        30.09822
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KY",
-      "bytes": 980,
+      "bytes": 1031,
       "features": 1,
       "parts": 3,
       "simplifyPct": 35,
@@ -2113,14 +2668,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -81.41654,
+        19.26386,
+        -79.72664,
+        19.75763
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "KZ",
-      "bytes": 30796,
+      "bytes": 30844,
       "features": 16,
       "parts": 21,
       "simplifyPct": 20,
@@ -2128,14 +2688,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        46.47828,
+        40.58466,
+        87.3238,
+        55.43455
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LA",
-      "bytes": 18194,
+      "bytes": 18245,
       "features": 16,
       "parts": 17,
       "simplifyPct": 20,
@@ -2143,14 +2708,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        100.09707,
+        13.91546,
+        107.66436,
+        22.49604
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LB",
-      "bytes": 6986,
+      "bytes": 7034,
       "features": 6,
       "parts": 6,
       "simplifyPct": 35,
@@ -2158,14 +2728,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        35.09962,
+        33.05558,
+        36.6041,
+        34.68755
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LC",
-      "bytes": 3417,
+      "bytes": 3468,
       "features": 11,
       "parts": 11,
       "simplifyPct": 35,
@@ -2173,14 +2748,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -61.07852,
+        13.71467,
+        -60.88296,
+        14.11188
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LI",
-      "bytes": 3857,
+      "bytes": 3902,
       "features": 11,
       "parts": 18,
       "simplifyPct": 35,
@@ -2188,14 +2768,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        9.47589,
+        47.0524,
+        9.61572,
+        47.2628
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LK",
-      "bytes": 24277,
+      "bytes": 24324,
       "features": 25,
       "parts": 31,
       "simplifyPct": 35,
@@ -2203,14 +2788,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        79.65577,
+        5.92373,
+        81.89031,
+        9.82958
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LR",
-      "bytes": 21173,
+      "bytes": 21220,
       "features": 15,
       "parts": 15,
       "simplifyPct": 35,
@@ -2218,14 +2808,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -11.47619,
+        4.34724,
+        -7.38412,
+        8.5654
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LS",
-      "bytes": 13301,
+      "bytes": 13351,
       "features": 10,
       "parts": 11,
       "simplifyPct": 35,
@@ -2233,14 +2828,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        27.00215,
+        -30.6588,
+        29.43591,
+        -28.57076
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LT",
-      "bytes": 20656,
+      "bytes": 20704,
       "features": 10,
       "parts": 11,
       "simplifyPct": 35,
@@ -2248,14 +2848,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        20.92457,
+        53.88684,
+        26.80072,
+        56.4426
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LU",
-      "bytes": 2714,
+      "bytes": 2761,
       "features": 3,
       "parts": 3,
       "simplifyPct": 35,
@@ -2263,14 +2868,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        5.71493,
+        49.44132,
+        6.50258,
+        50.17498
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LV",
-      "bytes": 47559,
+      "bytes": 47607,
       "features": 114,
       "parts": 122,
       "simplifyPct": 20,
@@ -2278,14 +2888,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        20.9686,
+        55.66699,
+        28.21728,
+        58.07514
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "LY",
-      "bytes": 17374,
+      "bytes": 17422,
       "features": 22,
       "parts": 22,
       "simplifyPct": 35,
@@ -2293,14 +2908,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        9.28654,
+        19.49612,
+        25.15626,
+        33.18122
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MA",
-      "bytes": 20779,
+      "bytes": 20827,
       "features": 16,
       "parts": 16,
       "simplifyPct": 35,
@@ -2308,14 +2928,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -17.01374,
+        21.41997,
+        -1.032,
+        35.92652
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MC",
-      "bytes": 437,
+      "bytes": 484,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -2323,14 +2948,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        7.36575,
+        43.71797,
+        7.43745,
+        43.76351
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MD",
-      "bytes": 25107,
+      "bytes": 25156,
       "features": 38,
       "parts": 42,
       "simplifyPct": 35,
@@ -2338,14 +2968,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        26.61789,
+        45.46177,
+        30.13158,
+        48.48603
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "ME",
-      "bytes": 10659,
+      "bytes": 10708,
       "features": 21,
       "parts": 22,
       "simplifyPct": 35,
@@ -2353,14 +2988,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        18.43353,
+        41.85236,
+        20.35517,
+        43.54789
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MF",
-      "bytes": 510,
+      "bytes": 561,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -2368,14 +3008,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -63.14684,
+        18.03339,
+        -63.01073,
+        18.12214
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MG",
-      "bytes": 27972,
+      "bytes": 28023,
       "features": 6,
       "parts": 24,
       "simplifyPct": 20,
@@ -2383,14 +3028,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        43.22291,
+        -25.59857,
+        50.50392,
+        -11.94362
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MH",
-      "bytes": 3074,
+      "bytes": 3121,
       "features": 2,
       "parts": 22,
       "simplifyPct": 35,
@@ -2398,14 +3048,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        165.28224,
+        4.5738,
+        172.0298,
+        14.6105
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MK",
-      "bytes": 41006,
+      "bytes": 41055,
       "features": 84,
       "parts": 84,
       "simplifyPct": 20,
@@ -2413,14 +3068,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        20.44416,
+        40.84939,
+        23.00958,
+        42.37033
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "ML",
-      "bytes": 20596,
+      "bytes": 20645,
       "features": 9,
       "parts": 9,
       "simplifyPct": 35,
@@ -2428,14 +3088,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -12.26413,
+        10.14005,
+        4.23564,
+        24.99507
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MM",
-      "bytes": 41090,
+      "bytes": 41139,
       "features": 14,
       "parts": 53,
       "simplifyPct": 20,
@@ -2443,14 +3108,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        92.17497,
+        9.79072,
+        101.17386,
+        28.53847
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MN",
-      "bytes": 25690,
+      "bytes": 25740,
       "features": 22,
       "parts": 22,
       "simplifyPct": 20,
@@ -2458,14 +3128,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        87.73571,
+        41.58615,
+        119.90703,
+        52.12958
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MO",
-      "bytes": 1008,
+      "bytes": 1059,
       "features": 1,
       "parts": 2,
       "simplifyPct": 35,
@@ -2473,14 +3148,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        113.51987,
+        22.10537,
+        113.58749,
+        22.22077
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MP",
-      "bytes": 2492,
+      "bytes": 2543,
       "features": 4,
       "parts": 12,
       "simplifyPct": 35,
@@ -2488,14 +3168,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        144.90211,
+        14.11066,
+        145.86891,
+        20.55541
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MR",
-      "bytes": 16494,
+      "bytes": 16543,
       "features": 13,
       "parts": 17,
       "simplifyPct": 35,
@@ -2503,14 +3188,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -17.08118,
+        14.7344,
+        -4.82161,
+        27.28542
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MS",
-      "bytes": 981,
+      "bytes": 1032,
       "features": 3,
       "parts": 3,
       "simplifyPct": 35,
@@ -2518,14 +3208,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -62.23013,
+        16.67536,
+        -62.14053,
+        16.81932
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MT",
-      "bytes": 19977,
+      "bytes": 20025,
       "features": 68,
       "parts": 68,
       "simplifyPct": 35,
@@ -2533,7 +3228,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        14.1836,
+        35.80121,
+        14.56715,
+        36.07559
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -2563,7 +3263,7 @@
     },
     {
       "code": "MV",
-      "bytes": 17585,
+      "bytes": 17633,
       "features": 20,
       "parts": 176,
       "simplifyPct": 35,
@@ -2571,14 +3271,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        72.68483,
+        -0.68857,
+        73.75318,
+        7.10724
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MW",
-      "bytes": 25772,
+      "bytes": 25821,
       "features": 27,
       "parts": 29,
       "simplifyPct": 35,
@@ -2586,14 +3291,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        32.66331,
+        -17.13534,
+        35.9043,
+        -9.38124
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MX",
-      "bytes": 63498,
+      "bytes": 63549,
       "features": 33,
       "parts": 87,
       "simplifyPct": 12,
@@ -2601,14 +3311,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -118.3688,
+        14.54628,
+        -86.70059,
+        32.71284
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MY",
-      "bytes": 22792,
+      "bytes": 22840,
       "features": 16,
       "parts": 30,
       "simplifyPct": 20,
@@ -2616,14 +3331,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        99.64523,
+        0.85137,
+        119.27809,
+        7.35578
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "MZ",
-      "bytes": 23246,
+      "bytes": 23297,
       "features": 10,
       "parts": 14,
       "simplifyPct": 20,
@@ -2631,14 +3351,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        30.21384,
+        -26.86027,
+        40.84799,
+        -10.46901
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NA",
-      "bytes": 17295,
+      "bytes": 17346,
       "features": 13,
       "parts": 13,
       "simplifyPct": 20,
@@ -2646,14 +3371,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        11.71762,
+        -28.95937,
+        25.25978,
+        -16.95106
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NC",
-      "bytes": 8676,
+      "bytes": 8729,
       "features": 3,
       "parts": 11,
       "simplifyPct": 35,
@@ -2661,14 +3391,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        163.61573,
+        -22.67067,
+        168.14422,
+        -19.62371
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NE",
-      "bytes": 13700,
+      "bytes": 13748,
       "features": 8,
       "parts": 8,
       "simplifyPct": 35,
@@ -2676,14 +3411,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        0.15294,
+        11.69577,
+        15.97032,
+        23.51735
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NF",
-      "bytes": 565,
+      "bytes": 618,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -2691,14 +3431,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        167.91212,
+        -29.08001,
+        167.99635,
+        -28.99749
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NG",
-      "bytes": 31305,
+      "bytes": 31352,
       "features": 37,
       "parts": 39,
       "simplifyPct": 20,
@@ -2706,14 +3451,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        2.67108,
+        4.27216,
+        14.66994,
+        13.88029
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NI",
-      "bytes": 22688,
+      "bytes": 22738,
       "features": 17,
       "parts": 20,
       "simplifyPct": 35,
@@ -2721,7 +3471,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -87.68582,
+        10.71348,
+        -82.7257,
+        15.03097
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -2752,7 +3507,7 @@
     },
     {
       "code": "NO",
-      "bytes": 44953,
+      "bytes": 44999,
       "features": 19,
       "parts": 119,
       "simplifyPct": 12,
@@ -2760,7 +3515,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        4.64381,
+        57.99315,
+        31.077,
+        71.16527
+      ],
       "anchorCenterLon": null,
       "cropped": [
         "NO-18 (1 parts)",
@@ -2771,7 +3531,7 @@
     },
     {
       "code": "NP",
-      "bytes": 22576,
+      "bytes": 22624,
       "features": 14,
       "parts": 14,
       "simplifyPct": 35,
@@ -2779,14 +3539,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        80.03029,
+        26.34377,
+        88.16907,
+        30.4169
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NR",
-      "bytes": 3268,
+      "bytes": 3319,
       "features": 14,
       "parts": 14,
       "simplifyPct": 35,
@@ -2794,14 +3559,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        166.90699,
+        -0.55185,
+        166.95826,
+        -0.49041
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NU",
-      "bytes": 629,
+      "bytes": 684,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -2809,14 +3579,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -169.95043,
+        -19.14276,
+        -169.78291,
+        -18.96404
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "NZ",
-      "bytes": 30449,
+      "bytes": 30501,
       "features": 17,
       "parts": 30,
       "simplifyPct": 20,
@@ -2824,7 +3599,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        166.46648,
+        -47.2776,
+        178.56617,
+        -34.14425
+      ],
       "anchorCenterLon": null,
       "cropped": [
         "NZ-X06~ (2 parts)",
@@ -2838,7 +3618,7 @@
     },
     {
       "code": "OM",
-      "bytes": 10283,
+      "bytes": 10331,
       "features": 11,
       "parts": 15,
       "simplifyPct": 35,
@@ -2846,14 +3626,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        51.97861,
+        16.6424,
+        59.84457,
+        26.38597
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PA",
-      "bytes": 17236,
+      "bytes": 17285,
       "features": 12,
       "parts": 28,
       "simplifyPct": 20,
@@ -2861,14 +3646,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -83.05325,
+        7.20571,
+        -77.16327,
+        9.62929
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PE",
-      "bytes": 41145,
+      "bytes": 41197,
       "features": 25,
       "parts": 30,
       "simplifyPct": 20,
@@ -2876,14 +3666,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -81.33756,
+        -18.33775,
+        -68.68425,
+        -0.02909
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PF",
-      "bytes": 14358,
+      "bytes": 14412,
       "features": 5,
       "parts": 88,
       "simplifyPct": 35,
@@ -2891,14 +3686,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -154.53698,
+        -27.64121,
+        -134.94298,
+        -7.95013
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PG",
-      "bytes": 32041,
+      "bytes": 32093,
       "features": 20,
       "parts": 73,
       "simplifyPct": 20,
@@ -2906,14 +3706,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        140.84921,
+        -11.63633,
+        155.96754,
+        -1.34637
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PH",
-      "bytes": 54665,
+      "bytes": 54715,
       "features": 83,
       "parts": 200,
       "simplifyPct": 12,
@@ -2921,14 +3726,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        116.95493,
+        4.65571,
+        126.61769,
+        21.12238
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PK",
-      "bytes": 23475,
+      "bytes": 23524,
       "features": 8,
       "parts": 9,
       "simplifyPct": 20,
@@ -2936,14 +3746,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        60.84438,
+        23.69452,
+        77.04897,
+        37.05448
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PL",
-      "bytes": 27036,
+      "bytes": 27085,
       "features": 16,
       "parts": 16,
       "simplifyPct": 35,
@@ -2951,14 +3766,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        14.12392,
+        48.99401,
+        24.14316,
+        54.83832
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PM",
-      "bytes": 1048,
+      "bytes": 1098,
       "features": 2,
       "parts": 2,
       "simplifyPct": 35,
@@ -2966,14 +3786,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -56.3966,
+        46.75275,
+        -56.14476,
+        47.14126
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PN",
-      "bytes": 869,
+      "bytes": 924,
       "features": 1,
       "parts": 4,
       "simplifyPct": 35,
@@ -2981,14 +3806,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -130.75308,
+        -25.07708,
+        -124.77807,
+        -23.92441
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PR",
-      "bytes": 2446,
+      "bytes": 2497,
       "features": 1,
       "parts": 4,
       "simplifyPct": 35,
@@ -2996,14 +3826,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -67.93782,
+        17.92292,
+        -65.24462,
+        18.52277
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PS",
-      "bytes": 1973,
+      "bytes": 2022,
       "features": 2,
       "parts": 2,
       "simplifyPct": 35,
@@ -3011,7 +3846,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        34.20027,
+        31.21145,
+        35.57254,
+        32.54264
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -3043,7 +3883,7 @@
     },
     {
       "code": "PW",
-      "bytes": 4430,
+      "bytes": 4479,
       "features": 16,
       "parts": 18,
       "simplifyPct": 35,
@@ -3051,14 +3891,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        131.13111,
+        2.94904,
+        134.72734,
+        8.09662
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "PY",
-      "bytes": 20926,
+      "bytes": 20979,
       "features": 18,
       "parts": 18,
       "simplifyPct": 20,
@@ -3066,14 +3911,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -62.65036,
+        -27.58684,
+        -54.24529,
+        -19.28673
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "QA",
-      "bytes": 4007,
+      "bytes": 4055,
       "features": 7,
       "parts": 8,
       "simplifyPct": 35,
@@ -3081,14 +3931,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        50.75099,
+        24.55987,
+        51.61655,
+        26.1601
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "RO",
-      "bytes": 36625,
+      "bytes": 36674,
       "features": 42,
       "parts": 42,
       "simplifyPct": 20,
@@ -3096,14 +3951,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        20.24283,
+        43.65005,
+        29.69956,
+        48.27483
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "RS",
-      "bytes": 30895,
+      "bytes": 30944,
       "features": 25,
       "parts": 25,
       "simplifyPct": 12,
@@ -3111,14 +3971,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        18.84498,
+        42.23495,
+        22.98457,
+        46.17388
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "RU",
-      "bytes": 193474,
+      "bytes": 193524,
       "features": 84,
       "parts": 307,
       "simplifyPct": 7,
@@ -3126,14 +3991,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        19.60955,
+        41.19268,
+        191.00538,
+        81.85871
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "RW",
-      "bytes": 6291,
+      "bytes": 6340,
       "features": 5,
       "parts": 5,
       "simplifyPct": 35,
@@ -3141,14 +4011,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        28.85724,
+        -2.82686,
+        30.88781,
+        -1.05869
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SA",
-      "bytes": 24777,
+      "bytes": 24826,
       "features": 13,
       "parts": 23,
       "simplifyPct": 20,
@@ -3156,14 +4031,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        34.57276,
+        16.37096,
+        55.63757,
+        32.12135
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SB",
-      "bytes": 17543,
+      "bytes": 17595,
       "features": 9,
       "parts": 49,
       "simplifyPct": 35,
@@ -3171,14 +4051,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        155.50799,
+        -12.29062,
+        168.82586,
+        -6.59987
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SC",
-      "bytes": 9418,
+      "bytes": 9467,
       "features": 26,
       "parts": 48,
       "simplifyPct": 35,
@@ -3186,14 +4071,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        46.20737,
+        -9.75555,
+        56.28745,
+        -3.79111
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SD",
-      "bytes": 22085,
+      "bytes": 22133,
       "features": 16,
       "parts": 18,
       "simplifyPct": 35,
@@ -3201,14 +4091,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        21.80945,
+        8.68164,
+        38.60385,
+        22.22696
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SE",
-      "bytes": 37961,
+      "bytes": 38010,
       "features": 21,
       "parts": 60,
       "simplifyPct": 20,
@@ -3216,14 +4111,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        11.10816,
+        55.34268,
+        24.16341,
+        69.03636
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SG",
-      "bytes": 2099,
+      "bytes": 2148,
       "features": 5,
       "parts": 5,
       "simplifyPct": 35,
@@ -3231,7 +4131,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        103.64039,
+        1.26431,
+        104.00343,
+        1.44863
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -3263,7 +4168,7 @@
     },
     {
       "code": "SI",
-      "bytes": 63722,
+      "bytes": 63770,
       "features": 192,
       "parts": 193,
       "simplifyPct": 20,
@@ -3271,14 +4176,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        13.36526,
+        45.42364,
+        16.5153,
+        46.86396
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SK",
-      "bytes": 20930,
+      "bytes": 20979,
       "features": 8,
       "parts": 8,
       "simplifyPct": 35,
@@ -3286,14 +4196,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        16.84448,
+        47.75001,
+        22.53964,
+        49.60178
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SL",
-      "bytes": 9487,
+      "bytes": 9535,
       "features": 4,
       "parts": 5,
       "simplifyPct": 35,
@@ -3301,14 +4216,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -13.3011,
+        6.91942,
+        -10.28224,
+        9.99601
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SM",
-      "bytes": 2787,
+      "bytes": 2836,
       "features": 9,
       "parts": 9,
       "simplifyPct": 35,
@@ -3316,14 +4236,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        12.38563,
+        43.89206,
+        12.49239,
+        43.98257
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SN",
-      "bytes": 24550,
+      "bytes": 24601,
       "features": 14,
       "parts": 16,
       "simplifyPct": 35,
@@ -3331,14 +4256,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -17.53604,
+        12.30561,
+        -11.37778,
+        16.69139
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SO",
-      "bytes": 8235,
+      "bytes": 8283,
       "features": 13,
       "parts": 13,
       "simplifyPct": 35,
@@ -3346,14 +4276,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        40.96538,
+        -1.6963,
+        51.41704,
+        11.98912
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SR",
-      "bytes": 11632,
+      "bytes": 11681,
       "features": 10,
       "parts": 10,
       "simplifyPct": 35,
@@ -3361,14 +4296,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -58.06769,
+        1.83351,
+        -53.98636,
+        6.01157
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SS",
-      "bytes": 16306,
+      "bytes": 16353,
       "features": 10,
       "parts": 10,
       "simplifyPct": 35,
@@ -3376,14 +4316,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        24.12156,
+        3.4902,
+        35.92083,
+        12.21616
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "ST",
-      "bytes": 1020,
+      "bytes": 1065,
       "features": 2,
       "parts": 2,
       "simplifyPct": 35,
@@ -3391,14 +4336,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        6.46168,
+        0.02412,
+        7.46274,
+        1.69977
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SV",
-      "bytes": 16507,
+      "bytes": 16558,
       "features": 14,
       "parts": 16,
       "simplifyPct": 35,
@@ -3406,14 +4356,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -90.11478,
+        13.15864,
+        -87.69319,
+        14.44537
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SX",
-      "bytes": 436,
+      "bytes": 487,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -3421,14 +4376,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -63.11889,
+        18.01911,
+        -63.01757,
+        18.06212
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SY",
-      "bytes": 23351,
+      "bytes": 23399,
       "features": 15,
       "parts": 15,
       "simplifyPct": 35,
@@ -3436,14 +4396,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        35.7234,
+        32.31304,
+        42.37719,
+        37.32491
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "SZ",
-      "bytes": 4534,
+      "bytes": 4582,
       "features": 4,
       "parts": 4,
       "simplifyPct": 35,
@@ -3451,14 +4416,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        30.78291,
+        -27.31626,
+        32.1174,
+        -25.736
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TC",
-      "bytes": 2919,
+      "bytes": 2969,
       "features": 6,
       "parts": 12,
       "simplifyPct": 35,
@@ -3466,14 +4436,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -72.48131,
+        21.29011,
+        -71.1289,
+        21.95922
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TD",
-      "bytes": 21885,
+      "bytes": 21933,
       "features": 22,
       "parts": 22,
       "simplifyPct": 20,
@@ -3481,14 +4456,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        13.44918,
+        7.45557,
+        23.98441,
+        23.44472
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TF",
-      "bytes": 5541,
+      "bytes": 5592,
       "features": 4,
       "parts": 20,
       "simplifyPct": 35,
@@ -3496,14 +4476,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        39.69394,
+        -49.72161,
+        77.58522,
+        -11.55063
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TG",
-      "bytes": 6671,
+      "bytes": 6718,
       "features": 5,
       "parts": 5,
       "simplifyPct": 35,
@@ -3511,14 +4496,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -0.16611,
+        6.10049,
+        1.78235,
+        11.13498
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TH",
-      "bytes": 71085,
+      "bytes": 71131,
       "features": 77,
       "parts": 96,
       "simplifyPct": 12,
@@ -3526,14 +4516,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        97.3514,
+        5.62989,
+        105.651,
+        20.44501
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TJ",
-      "bytes": 14973,
+      "bytes": 15022,
       "features": 5,
       "parts": 7,
       "simplifyPct": 35,
@@ -3541,14 +4536,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        67.34269,
+        36.67864,
+        75.16412,
+        41.03998
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TK",
-      "bytes": 549,
+      "bytes": 602,
       "features": 1,
       "parts": 2,
       "simplifyPct": 35,
@@ -3556,14 +4556,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -172.50255,
+        -9.36175,
+        -171.18566,
+        -8.54323
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TL",
-      "bytes": 7284,
+      "bytes": 7335,
       "features": 13,
       "parts": 14,
       "simplifyPct": 35,
@@ -3571,14 +4576,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        124.03004,
+        -9.50123,
+        127.31324,
+        -8.13502
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TM",
-      "bytes": 16522,
+      "bytes": 16571,
       "features": 5,
       "parts": 7,
       "simplifyPct": 35,
@@ -3586,14 +4596,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        52.43767,
+        35.14065,
+        66.64578,
+        42.79119
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TN",
-      "bytes": 24358,
+      "bytes": 24405,
       "features": 23,
       "parts": 26,
       "simplifyPct": 35,
@@ -3601,14 +4616,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        7.47983,
+        30.22891,
+        11.56413,
+        37.3452
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TO",
-      "bytes": 2847,
+      "bytes": 2900,
       "features": 5,
       "parts": 11,
       "simplifyPct": 35,
@@ -3616,14 +4636,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -176.21931,
+        -22.3388,
+        -173.71524,
+        -15.5595
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TR",
-      "bytes": 57393,
+      "bytes": 57442,
       "features": 81,
       "parts": 87,
       "simplifyPct": 20,
@@ -3631,14 +4656,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        25.66326,
+        35.81978,
+        44.80699,
+        42.09878
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TT",
-      "bytes": 6792,
+      "bytes": 6842,
       "features": 16,
       "parts": 16,
       "simplifyPct": 35,
@@ -3646,14 +4676,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -61.9287,
+        10.04206,
+        -60.52208,
+        11.35106
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TV",
-      "bytes": 1330,
+      "bytes": 1380,
       "features": 1,
       "parts": 9,
       "simplifyPct": 35,
@@ -3661,14 +4696,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        176.12526,
+        -9.42067,
+        179.90675,
+        -5.6775
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TW",
-      "bytes": 16895,
+      "bytes": 16946,
       "features": 21,
       "parts": 26,
       "simplifyPct": 35,
@@ -3676,14 +4716,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        118.27955,
+        21.90461,
+        122.00538,
+        25.28742
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "TZ",
-      "bytes": 28184,
+      "bytes": 28234,
       "features": 30,
       "parts": 34,
       "simplifyPct": 20,
@@ -3691,14 +4736,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        29.32103,
+        -11.73127,
+        40.44939,
+        -0.98583
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "UA",
-      "bytes": 44714,
+      "bytes": 44763,
       "features": 27,
       "parts": 32,
       "simplifyPct": 12,
@@ -3706,14 +4756,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        22.13284,
+        44.38105,
+        40.15954,
+        52.36895
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "UG",
-      "bytes": 40339,
+      "bytes": 40387,
       "features": 111,
       "parts": 112,
       "simplifyPct": 20,
@@ -3721,14 +4776,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        29.54846,
+        -1.47521,
+        35.00647,
+        4.21969
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "UM",
-      "bytes": 2521,
+      "bytes": 2573,
       "features": 8,
       "parts": 12,
       "simplifyPct": 35,
@@ -3736,7 +4796,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": true,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -193.38061,
+        -0.38877,
+        -75.00263,
+        28.21532
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
@@ -3768,7 +4833,7 @@
     },
     {
       "code": "UY",
-      "bytes": 19371,
+      "bytes": 19423,
       "features": 19,
       "parts": 19,
       "simplifyPct": 20,
@@ -3776,14 +4841,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -58.43936,
+        -34.9734,
+        -53.11084,
+        -30.09687
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "UZ",
-      "bytes": 15914,
+      "bytes": 15963,
       "features": 14,
       "parts": 17,
       "simplifyPct": 20,
@@ -3791,14 +4861,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        55.97584,
+        37.18515,
+        73.14864,
+        45.55872
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "VA",
-      "bytes": 424,
+      "bytes": 473,
       "features": 1,
       "parts": 1,
       "simplifyPct": 35,
@@ -3806,14 +4881,19 @@
       "inflationAfter": 0.17,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        12.45271,
+        41.90275,
+        12.45403,
+        41.90391
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "VC",
-      "bytes": 2367,
+      "bytes": 2418,
       "features": 6,
       "parts": 9,
       "simplifyPct": 35,
@@ -3821,14 +4901,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -61.45983,
+        12.58515,
+        -61.12393,
+        13.38076
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "VE",
-      "bytes": 43461,
+      "bytes": 43510,
       "features": 26,
       "parts": 52,
       "simplifyPct": 20,
@@ -3836,14 +4921,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -73.39115,
+        0.64931,
+        -59.8156,
+        15.70295
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "VG",
-      "bytes": 1232,
+      "bytes": 1281,
       "features": 1,
       "parts": 6,
       "simplifyPct": 35,
@@ -3851,14 +4941,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -64.774,
+        18.33466,
+        -64.27074,
+        18.74624
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "VI",
-      "bytes": 1123,
+      "bytes": 1172,
       "features": 3,
       "parts": 3,
       "simplifyPct": 35,
@@ -3866,14 +4961,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -65.04149,
+        17.68277,
+        -64.5594,
+        18.3866
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "VN",
-      "bytes": 52847,
+      "bytes": 52897,
       "features": 63,
       "parts": 89,
       "simplifyPct": 20,
@@ -3881,14 +4981,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        102.11866,
+        8.56558,
+        109.47242,
+        23.36628
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "VU",
-      "bytes": 8843,
+      "bytes": 8896,
       "features": 6,
       "parts": 27,
       "simplifyPct": 35,
@@ -3896,14 +5001,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        166.52052,
+        -20.25311,
+        169.89894,
+        -13.06487
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "WF",
-      "bytes": 1189,
+      "bytes": 1243,
       "features": 3,
       "parts": 4,
       "simplifyPct": 35,
@@ -3911,14 +5021,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -178.18574,
+        -14.37892,
+        -176.1256,
+        -13.20892
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "WS",
-      "bytes": 4632,
+      "bytes": 4687,
       "features": 11,
       "parts": 17,
       "simplifyPct": 35,
@@ -3926,14 +5041,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        -172.78258,
+        -14.05283,
+        -171.43769,
+        -13.46282
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "XK",
-      "bytes": 13390,
+      "bytes": 13439,
       "features": 30,
       "parts": 30,
       "simplifyPct": 35,
@@ -3941,14 +5061,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        20.02475,
+        41.84401,
+        21.77276,
+        43.26307
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "YE",
-      "bytes": 24770,
+      "bytes": 24819,
       "features": 21,
       "parts": 29,
       "simplifyPct": 35,
@@ -3956,14 +5081,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        42.54575,
+        12.11144,
+        54.54029,
+        18.99564
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "ZA",
-      "bytes": 25727,
+      "bytes": 25778,
       "features": 9,
       "parts": 9,
       "simplifyPct": 20,
@@ -3971,7 +5101,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        16.46998,
+        -34.82195,
+        32.89308,
+        -22.12645
+      ],
       "anchorCenterLon": null,
       "cropped": [
         "ZA-WC (2 parts)"
@@ -3980,7 +5115,7 @@
     },
     {
       "code": "ZM",
-      "bytes": 23771,
+      "bytes": 23820,
       "features": 10,
       "parts": 10,
       "simplifyPct": 20,
@@ -3988,14 +5123,19 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        21.97988,
+        -18.06923,
+        33.6742,
+        -8.19412
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []
     },
     {
       "code": "ZW",
-      "bytes": 21357,
+      "bytes": 21408,
       "features": 10,
       "parts": 10,
       "simplifyPct": 20,
@@ -4003,7 +5143,12 @@
       "inflationAfter": 1,
       "antimeridianShifted": false,
       "insets": [],
-      "viewBbox": null,
+      "viewBbox": [
+        25.21937,
+        -22.39734,
+        33.04277,
+        -15.61481
+      ],
       "anchorCenterLon": null,
       "cropped": [],
       "warnings": []

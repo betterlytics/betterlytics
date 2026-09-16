@@ -7,6 +7,8 @@ export const SIMPLIFY_TIERS = [
   { maxBytes: 250 * 1024, percentages: [20, 12, 7, 4] },
   { maxBytes: Infinity, percentages: [12, 7, 4, 2] },
 ];
+/** Output coordinate grid for mapshaper; the validator's containment tolerance derives from it. */
+export const SIMPLIFY_PRECISION_DEG = 0.0001;
 export const FILE_BUDGET_BYTES = 260 * 1024;
 export const TOTAL_BUDGET_BYTES = 6 * 1024 * 1024;
 
