@@ -15,6 +15,7 @@ import {
   INFLATION_THRESHOLD,
   LINK_KM,
   SIMPLIFY_TIERS,
+  SIMPLIFY_PRECISION_DEG,
   FILE_BUDGET_BYTES,
   TOTAL_BUDGET_BYTES,
 } from './config.mjs';
@@ -78,7 +79,7 @@ async function simplify(geojson, budgetBytes) {
   let best = null;
   for (const pct of percentages) {
     const out = await mapshaper.applyCommands(
-      `-i in.json -simplify visvalingam weighted keep-shapes percentage=${pct}% -clean -o out.json format=geojson precision=0.0001`,
+      `-i in.json -simplify visvalingam weighted keep-shapes percentage=${pct}% -clean -o out.json format=geojson precision=${SIMPLIFY_PRECISION_DEG}`,
       { 'in.json': exploded },
     );
     const buf = out['out.json'];
@@ -92,12 +93,11 @@ async function simplify(geojson, budgetBytes) {
 function symmetrizeLon(finalBbox, anchorBbox) {
   const center = (anchorBbox.minLon + anchorBbox.maxLon) / 2;
   const half = Math.max(center - finalBbox.minLon, finalBbox.maxLon - center);
-  return [
-    +(center - half).toFixed(5),
-    +finalBbox.minLat.toFixed(5),
-    +(center + half).toFixed(5),
-    +finalBbox.maxLat.toFixed(5),
-  ];
+  return { ...finalBbox, minLon: center - half, maxLon: center + half };
+}
+
+function toViewBbox({ minLon, minLat, maxLon, maxLat }) {
+  return [minLon, minLat, maxLon, maxLat].map((v) => +v.toFixed(5));
 }
 
 function finalizeOutput(simplifiedBuffer, frames, viewBbox) {
@@ -119,7 +119,7 @@ function finalizeOutput(simplifiedBuffer, frames, viewBbox) {
     feature.properties = { name: feature.properties.name };
   }
   if (frames.length > 0) regrouped.insets = frames;
-  if (viewBbox) regrouped.viewBbox = viewBbox;
+  regrouped.viewBbox = viewBbox;
   regrouped.generator = 'Betterlytics region geojson pipeline (https://betterlytics.io)';
   regrouped.license =
     'AGPL-3.0 (c) Betterlytics - composed and curated form; base data Natural Earth (public domain)';
@@ -161,7 +161,7 @@ async function buildCountry(countryCode, features, rawDir) {
   const anchorBbox = mergeBboxes(composed.keptParts.map((p) => p.bbox));
   const inflationAfter = +(bboxDiagonalKm(finalBbox) / Math.max(1, bboxDiagonalKm(anchorBbox))).toFixed(2);
   const hasFrames = composed.frames.length > 0;
-  const viewBbox = hasFrames ? symmetrizeLon(finalBbox, anchorBbox) : null;
+  const viewBbox = toViewBbox(hasFrames ? symmetrizeLon(finalBbox, anchorBbox) : finalBbox);
   const anchorCenterLon = hasFrames ? +((anchorBbox.minLon + anchorBbox.maxLon) / 2).toFixed(5) : null;
 
   const assembled = assembleGeojson(finalParts);

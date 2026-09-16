@@ -107,26 +107,18 @@ export default function LeafletMap({
   }, [geoJsonUrl, geoJsonData]);
 
   const worldBounds = useMemo(() => {
-    if (!mapComponents?.L) return null;
+    if (fitBounds || !mapComponents?.L) return null;
     const hasAntarctica = visitorData.some((d) => d.code === 'AQ' && d.visitors);
     return mapComponents.L.latLngBounds(
       mapComponents.L.latLng(hasAntarctica ? -100 : -60, -220),
       mapComponents.L.latLng(100, 220),
     );
-  }, [mapComponents, visitorData]);
+  }, [fitBounds, mapComponents, visitorData]);
 
   const contentBounds = useMemo(() => {
-    if (!fitBounds || !mapComponents?.L || !geoJson) return null;
-    const vb = geoJson.viewBbox;
-    if (vb) {
-      return mapComponents.L.latLngBounds([vb[1], vb[0]], [vb[3], vb[2]]);
-    }
-    const bounds = mapComponents.L.geoJSON(geoJson).getBounds();
-    for (const frame of geoJson.insets ?? []) {
-      bounds.extend([frame.bbox[1], frame.bbox[0]]);
-      bounds.extend([frame.bbox[3], frame.bbox[2]]);
-    }
-    return bounds;
+    if (!fitBounds || !mapComponents?.L || !geoJson?.viewBbox) return null;
+    const [minLon, minLat, maxLon, maxLat] = geoJson.viewBbox;
+    return mapComponents.L.latLngBounds([minLat, minLon], [maxLat, maxLon]);
   }, [fitBounds, mapComponents, geoJson]);
 
   if (isPending || !mapComponents || !geoJson || !style) {
