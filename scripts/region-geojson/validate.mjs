@@ -1,7 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { countryConfig, INFLATION_THRESHOLD, FILE_BUDGET_BYTES, TOTAL_BUDGET_BYTES } from './config.mjs';
+import {
+  countryConfig,
+  INFLATION_THRESHOLD,
+  FILE_BUDGET_BYTES,
+  TOTAL_BUDGET_BYTES,
+  SIMPLIFY_PRECISION_DEG,
+} from './config.mjs';
 import { loadCldrEnNames, cldrKey } from './lib/cldr.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -9,8 +15,8 @@ const REGIONS_DIR = path.join(ROOT, 'dashboard', 'public', 'data', 'regions');
 const MANIFEST_PATH = path.join(ROOT, 'scripts', 'region-geojson', 'manifest.json');
 const WORLD_MAP_PATH = path.join(ROOT, 'dashboard', 'public', 'data', 'countries.geo.json');
 const MAX_TREATED_INFLATION = 1.8;
-/** Half the pipeline's mapshaper simplify precision (0.0001deg) - absorbs its output-grid rounding, nothing else. */
-const LON_CONTAINMENT_EPSILON = 0.00005;
+/** Half the output grid step absorbs mapshaper's coordinate rounding, nothing else. */
+const CONTAINMENT_EPSILON = SIMPLIFY_PRECISION_DEG / 2;
 
 const errors = [];
 const warnings = [];
@@ -62,11 +68,7 @@ function validateFile(code, entry, cldrNames) {
     errors.push(`${code}: longitude span covers the whole world`);
   }
 
-  if (frames.length > 0) {
-    validateViewBbox(code, geojson, frames, bbox, entry.anchorCenterLon);
-  } else if (geojson.viewBbox) {
-    errors.push(`${code}: viewBbox present without insets`);
-  }
+  validateViewBbox(code, geojson, frames, bbox, entry.anchorCenterLon);
 
   return { unresolvedNames };
 }
@@ -77,6 +79,15 @@ function bboxesIntersect(a, b) {
 
 function frameToBbox(frame) {
   return { minLon: frame.bbox[0], minLat: frame.bbox[1], maxLon: frame.bbox[2], maxLat: frame.bbox[3] };
+}
+
+function bboxContains(outer, inner, eps) {
+  return (
+    outer.minLon <= inner.minLon + eps &&
+    outer.maxLon >= inner.maxLon - eps &&
+    outer.minLat <= inner.minLat + eps &&
+    outer.maxLat >= inner.maxLat - eps
+  );
 }
 
 /** Inset frames must sit clear of the in-place geometry and of each other. */
@@ -107,27 +118,28 @@ function validateFramePlacement(code, geojson, frames) {
   }
 }
 
-/** viewBbox's lon range must span the geometry and every frame, so fit-bounds never crops either. */
+/** viewBbox must span the geometry and every frame so fit-bounds never crops; inset countries also center on the mainland. */
 function validateViewBbox(code, geojson, frames, bbox, anchorCenterLon) {
   const vb = geojson.viewBbox;
   if (!Array.isArray(vb) || vb.length !== 4 || !vb.every(Number.isFinite)) {
     errors.push(`${code}: viewBbox missing or malformed`);
     return;
   }
-  const [minLon, , maxLon] = vb;
-  if (minLon > bbox.minLon + LON_CONTAINMENT_EPSILON || maxLon < bbox.maxLon - LON_CONTAINMENT_EPSILON) {
-    errors.push(`${code}: viewBbox does not contain geometry lon range`);
+  const view = { minLon: vb[0], minLat: vb[1], maxLon: vb[2], maxLat: vb[3] };
+  if (!bboxContains(view, bbox, CONTAINMENT_EPSILON)) {
+    errors.push(`${code}: viewBbox does not contain the geometry bbox`);
   }
   for (const frame of frames) {
-    if (minLon > frame.bbox[0] || maxLon < frame.bbox[2]) {
-      errors.push(`${code}: viewBbox does not contain frame ${frame.label} lon range`);
+    if (!bboxContains(view, frameToBbox(frame), 0)) {
+      errors.push(`${code}: viewBbox does not contain frame ${frame.label}`);
     }
   }
+  if (frames.length === 0) return;
   if (!Number.isFinite(anchorCenterLon)) {
     errors.push(`${code}: manifest missing anchorCenterLon for inset country`);
     return;
   }
-  const viewCenter = (minLon + maxLon) / 2;
+  const viewCenter = (view.minLon + view.maxLon) / 2;
   if (Math.abs(viewCenter - anchorCenterLon) >= 0.001) {
     errors.push(`${code}: viewBbox is not centered on the mainland anchor (${viewCenter.toFixed(5)} vs ${anchorCenterLon})`);
   }

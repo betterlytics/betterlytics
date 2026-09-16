@@ -15,6 +15,7 @@ export type InsetFrame = {
   scale: number;
 };
 
+/** Region files always carry viewBbox (fit-bounds target, minLon/minLat/maxLon/maxLat); the world file has neither member */
 export type RegionGeoJson = GeoJSON.FeatureCollection & {
   insets?: InsetFrame[];
   viewBbox?: [number, number, number, number];
