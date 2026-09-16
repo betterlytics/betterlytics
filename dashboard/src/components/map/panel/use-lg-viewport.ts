@@ -7,11 +7,9 @@ export function useLgViewport() {
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(min-width: ${LG_BREAKPOINT}px)`);
-    const onChange = () => {
-      setIsLgViewport(window.innerWidth >= LG_BREAKPOINT);
-    };
+    const onChange = (e: MediaQueryListEvent) => setIsLgViewport(e.matches);
     mql.addEventListener('change', onChange);
-    setIsLgViewport(window.innerWidth >= LG_BREAKPOINT);
+    setIsLgViewport(mql.matches);
     return () => mql.removeEventListener('change', onChange);
   }, []);
 

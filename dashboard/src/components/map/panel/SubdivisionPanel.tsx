@@ -32,7 +32,7 @@ export default function SubdivisionPanel() {
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
         onOpenAutoFocus={(e) => e.preventDefault()}
-        className='data-[state=closed]:slide-out-to-right-8 data-[state=open]:slide-in-from-right-8 top-auto right-4 bottom-4 left-auto z-20 hidden max-h-[70vh] w-[400px] max-w-[calc(100vw-2rem)] translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden p-0 lg:flex'
+        className='data-[state=closed]:slide-out-to-right-8 data-[state=open]:slide-in-from-right-8 top-auto right-4 bottom-4 left-auto z-20 flex max-h-[70vh] w-[400px] max-w-[calc(100vw-2rem)] translate-x-0 translate-y-0 flex-col gap-0 overflow-hidden p-0'
       >
         <div className='flex flex-col gap-1 border-b p-4'>
           <DialogTitle>

@@ -1,5 +1,4 @@
-import { FlagIconProps } from '@/components/icons';
-import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { MapFeatureTitle } from '@/components/map/tooltip/MapFeatureTitle';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
@@ -46,22 +45,19 @@ function MapTooltipContent({
         className,
       )}
     >
-      {displayCountryCode ? (
-        <CountryDisplay
-          className='text-sm font-bold'
-          countryCode={displayCountryCode as FlagIconProps['countryCode']}
-          countryName={displayName ?? ''}
-        />
-      ) : (
-        <span className='text-sm font-bold'>{displayName}</span>
-      )}
+      <MapFeatureTitle displayName={displayName} displayCountryCode={displayCountryCode} />
       <div className='flex flex-col justify-start text-sm whitespace-nowrap'>
         <div className='flex gap-2 text-sm whitespace-nowrap'>
           <span className='text-muted-foreground'>{label}:</span>
           <div className='text-foreground flex flex-row gap-1'>
             <span>{formatNumber(geoVisitor.visitors, locale)}</span>
             {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined && (
-              <TrendPercentage percentage={percentageChange} withParenthesis={true} withIcon={true} locale={locale} />
+              <TrendPercentage
+                percentage={percentageChange}
+                withParenthesis={true}
+                withIcon={true}
+                locale={locale}
+              />
             )}
           </div>
         </div>
