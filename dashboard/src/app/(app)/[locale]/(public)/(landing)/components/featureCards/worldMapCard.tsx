@@ -1,6 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import LeafletMapNoSSR from './LeafletMapNoSSR';
-import { hideAntarcticaWhenEmpty } from '@/components/map/types';
 import { FlagIcon, FlagIconProps } from '@/components/icons';
 import { MOCK_WORLD_GEOVISITORS, MOCK_COMPARE_GEOVISITORS } from '@/constants/geographyData';
 import type { GeoFeatureVisitor } from '@/entities/analytics/geography.entities';
@@ -41,7 +40,6 @@ export default async function WorldMapCard() {
             showZoomControls={false}
             showLegend={false}
             initialZoom={1}
-            shouldHideFeature={hideAntarcticaWhenEmpty}
           />
         </div>
 
