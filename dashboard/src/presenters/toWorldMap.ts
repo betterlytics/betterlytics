@@ -13,6 +13,20 @@ function maxVisitorsOf(data: GeoFeatureVisitor[]): number {
   return Math.max(1, ...data.filter((d) => d.code && d.code !== 'Localhost').map((d) => d.visitors));
 }
 
+function toGeoMap(
+  data: GeoVisitor[],
+  compareData: GeoVisitor[],
+  codeOf: (v: GeoVisitor) => string,
+): GeoMapResponse {
+  const toFeature = (v: GeoVisitor): GeoFeatureVisitor => ({ code: codeOf(v), visitors: v.visitors });
+  const visitorData = data.map(toFeature);
+  return {
+    visitorData,
+    compareData: compareData.map(toFeature),
+    maxVisitors: maxVisitorsOf(visitorData),
+  };
+}
+
 export function dataToWorldMap(
   data: GeoVisitor[],
   compareData: GeoVisitor[],
@@ -25,20 +39,9 @@ export function dataToWorldMap(
         ? (code: string) => alpha3ToAlpha2Code(code) ?? code
         : (code: string) => alpha2ToAlpha3Code(code) ?? code;
 
-  const visitorData = data.map((v) => ({ code: transform(v.country_code), visitors: v.visitors }));
-  return {
-    visitorData,
-    compareData: compareData.map((v) => ({ code: transform(v.country_code), visitors: v.visitors })),
-    maxVisitors: maxVisitorsOf(visitorData),
-  };
+  return toGeoMap(data, compareData, (v) => transform(v.country_code));
 }
 
 export function subdivisionsToGeoMap(data: GeoVisitor[], compareData: GeoVisitor[]): GeoMapResponse {
-  const toFeature = (v: GeoVisitor): GeoFeatureVisitor => ({ code: v.subdivision_code ?? '', visitors: v.visitors });
-  const visitorData = data.map(toFeature);
-  return {
-    visitorData,
-    compareData: compareData.map(toFeature),
-    maxVisitors: maxVisitorsOf(visitorData),
-  };
+  return toGeoMap(data, compareData, (v) => v.subdivision_code ?? '');
 }

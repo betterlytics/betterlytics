@@ -1,7 +1,6 @@
 'use client';
 
-import { FlagIconProps } from '@/components/icons';
-import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { MapFeatureTitle } from '@/components/map/tooltip/MapFeatureTitle';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
@@ -78,18 +77,11 @@ function MapPopupContentComponent({
         className,
       )}
     >
-      {displayCountryCode ? (
-        <CountryDisplay
-          className={cn(
-            'text-sm font-bold',
-            geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start',
-          )}
-          countryCode={displayCountryCode as FlagIconProps['countryCode']}
-          countryName={displayName ?? ''}
-        />
-      ) : (
-        <span className='text-sm font-bold'>{displayName}</span>
-      )}
+      <MapFeatureTitle
+        displayName={displayName}
+        displayCountryCode={displayCountryCode}
+        className={geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start'}
+      />
       {geoVisitor.compareVisitors !== undefined && <div className='border-border my-2 border-t' />}
 
       <div className='flex items-center gap-1'>
