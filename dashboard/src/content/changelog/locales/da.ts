@@ -1,5 +1,151 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v149ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.9',
+    releasedAt: '2026-09-06',
+    title: 'Stærkere bot-filtrering & sikkerhedsopdateringer',
+    summary:
+      'Anden bølge af vores bot-filtreringsregler er nu live og fjerner crawlere og scraper-trafik, der tidligere talte med som besøgende. Denne udgivelse indeholder også større sikkerhedsopdateringer til autentificering samt en håndfuld forbedringer af brugervenligheden og rettelser på tværs af filtre, funnels og teaminvitationer.',
+  },
+  sections: [
+    {
+      id: 'v149-bot-filtering',
+      title: 'Stærkere bot-filtrering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'I vores forrige udgivelse satte vi et stort sæt nye botgenkendelsesregler i observationstilstand, hvor de markerede formodet bot-trafik uden at påvirke dine tal. Efter fire ugers måling på rigtig trafik håndhæves nu de regler, der viste sig kun at fange bots.',
+        },
+        {
+          type: 'text',
+          body: 'Denne bølge fjerner en gruppe navngivne crawlere samt scraper-netværk, der kører gennem proxyer på private hjemmeforbindelser, og som på mange sites viste sig som uforklarlige besøg fra Vietnam, Brasilien og Singapore. Kun regler, der ikke viste nogen reel interaktion fra besøgende på tværs af tusindvis af sessioner, er blevet aktiveret, og de resterende regler fortsætter i observationstilstand frem mod kommende bølger.',
+        },
+      ],
+    },
+    {
+      id: 'v149-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Når du klikker i dine data for at anvende et filter, vises nu en besked om, præcis hvad der blev ændret, og du kan fortryde det.',
+            'Teaminvitationer kommer nu med et link, der kan deles, så du kan invitere folk via den kanal, du foretrækker, i stedet for at være afhængig af e-mail.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Ikoner for browser, styresystem og enhed vises nu i filter-dropdownen, på aktive filter-chips og i funnel-trin.',
+            'Diverse mindre forbedringer af design og brugervenlighed på tværs af filtre og dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Redigering af en funnel kunne bytte om på trinnene, når den blev gemt, hvilket i det skjulte ændrede både de viste trin og konverteringstallene. Rækkefølgen bevares nu.',
+            'Brugere, der er logget ind, ser ikke længere kortvarigt knapperne Log ind og Kom i gang, mens en side indlæses.',
+            'Indlæsningslinjen øverst på siden bliver ikke længere ved med at køre, efter at du har åbnet et eksternt link i en ny fane eller klikket på et e-mail- eller telefonlink.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Større sikkerhedsopdateringer til autentificering og kontohåndtering, så din konto og dine data forbliver sikre.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v149ChangelogModalDa: ChangelogEntryData = {
+  metadata: v149ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v149-modal-bot-filtering',
+      title: 'Stærkere bot-filtrering',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Anden bølge af bot-filtreringsregler håndhæves nu og fjerner navngivne crawlere og scraper-netværk bag proxyer på private hjemmeforbindelser, der tidligere talte med som besøgende, herunder den uforklarlige trafik, som mange sites så fra Vietnam, Brasilien og Singapore.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Når du anvender et filter ved at klikke i dine data, kan du nu se, hvad der blev ændret, og fortryde det.',
+            'Teaminvitationer kommer nu med et link, du kan dele.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Ikoner for browser, styresystem og enhed vises nu i hele filterlinjen og i funnel-trin.',
+            'Diverse mindre forbedringer af design og brugervenlighed på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Funnel-trin beholder deres rækkefølge, når en funnel redigeres.',
+            'Brugere, der er logget ind, ser ikke længere kortvarigt knapperne til ikke-indloggede brugere i topbaren, mens en side indlæses.',
+            'Indlæsningslinjen bliver ikke længere ved med at køre, efter at du har åbnet et eksternt link i en ny fane.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Større sikkerhedsopdateringer til autentificering og kontohåndtering.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v148ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.8',
@@ -48,49 +194,6 @@ const v148ChangelogEntryDa: ChangelogEntryData = {
           type: 'list',
           items: [
             'Der bruges nu færre ressourcer på at bekræfte din session, så det føles en anelse hurtigere at bevæge sig rundt i dashboardet.',
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-const v148ChangelogModalDa: ChangelogEntryData = {
-  metadata: v148ChangelogEntryDa.metadata,
-  sections: [
-    {
-      id: 'v148-modal-authentication',
-      title: 'Moderniseret autentificering',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Vi har flyttet det system, der håndterer din konto, dine sessioner og dit login, over på et moderne og aktivt udviklet fundament, som løbende får sikkerhedsopdateringer.',
-            'Tofaktorgodkendelse skal sættes op igen. Eksisterende opsætninger kunne ikke flyttes med over, og alle berørte har fået en e-mail.',
-            'Du slår den til igen ved at åbne Indstillinger i menuen ved dit profilbillede og gå til Kontosikkerhed. Din autentificeringsapp får en ny QR-kode.',
-            'Du er muligvis blevet logget ud én gang, da ændringen blev rullet ud. Det skyldtes selve skiftet og ikke et problem med din konto.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v148-modal-security',
-      title: 'Sikkerhed',
-      blocks: [
-        {
-          type: 'list',
-          items: ['Du skal nu bekræfte din adgangskode, når du slår tofaktorgodkendelse til eller fra.'],
-        },
-      ],
-    },
-    {
-      id: 'v148-modal-improvements',
-      title: 'Forbedringer',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Dashboardet bruger nu færre ressourcer på at bekræfte din session og føles en anelse hurtigere.',
           ],
         },
       ],
@@ -385,9 +488,10 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v148ChangelogModalDa;
+export const latestChangelogModalDa = v149ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v149ChangelogEntryDa,
   v148ChangelogEntryDa,
   v147ChangelogEntryDa,
   v146ChangelogEntryDa,

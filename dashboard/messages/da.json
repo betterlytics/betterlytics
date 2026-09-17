@@ -2529,6 +2529,9 @@
         "maxFiltersReachedToast": "Du kan anvende op til {max} filtre. Fjern ét for at tilføje et nyt."
       },
       "filterBy": "Filtrer efter {label}",
+      "toastFiltersUpdated": "Filtre opdateret",
+      "toastFilterAdded": "Tilføjet",
+      "toastFilterRemoved": "Fjernet",
       "removeFilter": "Fjern filter",
       "notAvailableOnPage": "Ikke tilgængelig på denne side"
     },
@@ -2773,7 +2776,7 @@
           "title": "Ingen sessionsafspilninger tilgængelige",
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne session opfangede {count}+ klientsidefejl"
+        "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3433,10 +3436,18 @@
       "sending": "Sender...",
       "pending": "Afventer",
       "invited": "Inviteret",
-      "invalidEmail": "Indtast venligst en gyldig e-mailadresse"
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
+      "copyLink": "Kopiér invitationslink",
+      "linkCopied": "Invitationslink kopieret"
+    },
+    "linkPanel": {
+      "emailSent": "En invitations-e-mail er sendt til <strong>{email}</strong>. Du kan også dele invitationslinket direkte:",
+      "emailNotSent": "Der blev ikke sendt en e-mail til <strong>{email}</strong> — del selv dette invitationslink med dem:",
+      "dismiss": "Luk"
     },
     "toast": {
       "sent": "Invitation sendt",
+      "created": "Invitation oprettet",
       "sendFailed": "Kunne ikke sende invitation",
       "cancelled": "Invitation annulleret",
       "cancelFailed": "Kunne ikke annullere invitation",

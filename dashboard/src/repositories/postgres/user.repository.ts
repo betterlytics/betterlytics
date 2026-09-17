@@ -2,7 +2,6 @@ import 'server-only';
 
 import prisma from '@/lib/postgres';
 import { GithubStarPromptState, Prisma } from '@prisma/client';
-import { hashPassword } from '@/lib/password';
 import {
   User,
   UserSchema,
@@ -121,23 +120,6 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
   } catch (error) {
     console.error(`Error updating user ${userId}:`, error);
     throw new Error(`Failed to update user ${userId}.`);
-  }
-}
-
-export async function updateUserPassword(userId: string, newPassword: string): Promise<void> {
-  try {
-    const passwordHash = await hashPassword(newPassword);
-
-    await prisma.account.update({
-      where: {
-        providerId_accountId: { providerId: CREDENTIAL_PROVIDER_ID, accountId: userId },
-        userId,
-      },
-      data: { password: passwordHash },
-    });
-  } catch (error) {
-    console.error(`Error updating password for user ${userId}:`, error);
-    throw new Error(`Failed to update password for user ${userId}.`);
   }
 }
 

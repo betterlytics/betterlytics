@@ -5,6 +5,7 @@ import { ChevronDownIcon, FilterIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useQueryFilters } from '@/hooks/use-query-filters';
 import { filterEmptyQueryFilters } from '@/utils/queryFilters';
@@ -86,10 +87,10 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     >
       <div className='flex items-center gap-2'>
         <FilterIcon className='h-4 w-4' />
-        <span>
-          {t('selector.triggerLabel')}
-          {activeFilterCount > 0 && ` (${activeFilterCount})`}
-        </span>
+        <span>{t('selector.triggerLabel')}</span>
+        {activeFilterCount > 0 && (
+          <Badge className='h-4.5 min-w-4.5 rounded-full px-1 text-[11px] tabular-nums'>{activeFilterCount}</Badge>
+        )}
       </div>
       <ChevronDownIcon className={'ml-2 h-4 w-4 shrink-0 opacity-50'} />
     </Button>

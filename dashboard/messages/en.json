@@ -2529,6 +2529,9 @@
         "maxFiltersReachedToast": "You can apply up to {max} filters. Remove one to add another."
       },
       "filterBy": "Filter by {label}",
+      "toastFiltersUpdated": "Filters updated",
+      "toastFilterAdded": "Added",
+      "toastFilterRemoved": "Removed",
       "removeFilter": "Remove filter",
       "notAvailableOnPage": "Not available on this page"
     },
@@ -2773,7 +2776,7 @@
           "title": "No session replays available",
           "description": "Try expanding your time range or adjusting filters."
         },
-        "sessionErrorsTooltip": "This session captured {count}+ client-side errors"
+        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3430,10 +3433,18 @@
       "sending": "Sending...",
       "pending": "Pending",
       "invited": "Invited",
-      "invalidEmail": "Please enter a valid email address"
+      "invalidEmail": "Please enter a valid email address",
+      "copyLink": "Copy invite link",
+      "linkCopied": "Invite link copied"
+    },
+    "linkPanel": {
+      "emailSent": "An invitation email was sent to <strong>{email}</strong>. You can also share the invite link directly:",
+      "emailNotSent": "No email was sent to <strong>{email}</strong> — share this invite link with them yourself:",
+      "dismiss": "Dismiss"
     },
     "toast": {
       "sent": "Invitation sent",
+      "created": "Invitation created",
       "sendFailed": "Failed to send invitation",
       "cancelled": "Invitation cancelled",
       "cancelFailed": "Failed to cancel invitation",

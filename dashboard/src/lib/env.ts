@@ -1,5 +1,6 @@
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { z } from 'zod';
+import { parseEnv } from '@/lib/env/parse-env';
 import { sharedEmailEnvSchema, zStringBoolean, zStringBooleanDefaultTrue } from '@/lib/env/shared.env';
 
 const appEnvSchema = z.object({
@@ -16,6 +17,7 @@ const appEnvSchema = z.object({
   ENABLE_REGISTRATION: zStringBoolean,
   PUBLIC_IS_CLOUD: zStringBoolean,
   PUBLIC_ENABLE_FAVICON_FETCHING: zStringBooleanDefaultTrue,
+  APP_VERSION: z.string().optional().default('dev'),
   ENABLE_BILLING: zStringBoolean,
   PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional().default(''),
   STRIPE_SECRET_KEY: z.string().optional().default(''),
@@ -46,6 +48,7 @@ const appEnvSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional().default(''),
   GOOGLE_CLIENT_SECRET: z.string().optional().default(''),
   SESSION_REPLAYS_ENABLED: zStringBoolean,
+  REPLAY_STORAGE: z.enum(['s3', 'clickhouse']).optional(),
   S3_ENABLED: zStringBoolean,
   S3_BUCKET: z.string().optional(),
   S3_REGION: z.string().optional(),
@@ -79,6 +82,9 @@ const appEnvSchema = z.object({
     ),
 });
 
+const resolveReplayStorage = (e: { REPLAY_STORAGE?: 's3' | 'clickhouse'; S3_ENABLED: boolean }) =>
+  e.REPLAY_STORAGE ?? (e.S3_ENABLED ? 's3' : 'clickhouse');
+
 const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx) => {
   // Validate Caddy ask secret for on-demand-TLS ask endpoint if status page is enabled
   if (
@@ -93,6 +99,23 @@ const envSchema = sharedEmailEnvSchema.merge(appEnvSchema).superRefine((env, ctx
       path: ['STATUS_PAGE_ASK_SECRET'],
     });
   }
+
+  const resolvedReplayStorage = resolveReplayStorage(env);
+  if (env.SESSION_REPLAYS_ENABLED && resolvedReplayStorage === 's3' && !env.S3_ENABLED) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'SESSION_REPLAYS_ENABLED=true with REPLAY_STORAGE=s3 requires S3_ENABLED=true',
+      path: ['S3_ENABLED'],
+    });
+  }
+
+  if (env.SESSION_REPLAYS_ENABLED && resolvedReplayStorage === 's3' && env.S3_ENABLED && !env.S3_BUCKET) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'SESSION_REPLAYS_ENABLED=true with REPLAY_STORAGE=s3 requires S3_BUCKET to be set',
+      path: ['S3_BUCKET'],
+    });
+  }
 });
 
 if (!process.env.AUTH_SECRET && process.env.NEXTAUTH_SECRET) {
@@ -102,7 +125,9 @@ if (!process.env.AUTH_URL && process.env.NEXTAUTH_URL) {
   throw new Error('NEXTAUTH_URL is no longer read. Rename it to AUTH_URL (the value can stay the same).');
 }
 
-export const env = envSchema.parse(process.env);
+export const env = parseEnv('app', envSchema);
+
+export const replayStorage: 's3' | 'clickhouse' = resolveReplayStorage(env);
 
 export const s3Env = {
   enabled: env.S3_ENABLED,

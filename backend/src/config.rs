@@ -3,6 +3,21 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ReplayStorage {
+    S3,
+    ClickHouse,
+}
+
+impl ReplayStorage {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Self::S3 => "s3",
+            Self::ClickHouse => "clickhouse",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GeolocationMode {
     Disabled,
     Countries,
@@ -47,6 +62,7 @@ pub struct Config {
     pub enable_monitoring: bool,
     pub enable_uptime_monitoring: bool,
     pub monitor_database_url: Option<String>,
+    pub job_queue_database_url: Option<String>,
     pub monitor_clickhouse_table: String,
     pub monitor_incidents_table: String,
     // Session replay configuration
@@ -59,19 +75,18 @@ pub struct Config {
     pub s3_bucket: Option<String>,
     pub s3_access_key_id: Option<String>,
     pub s3_secret_access_key: Option<String>,
-    pub s3_endpoint: Option<String>, // allow custom/local endpoints (e.g., MinIO, LocalStack)
+    pub s3_endpoint: Option<String>, // allow custom/local endpoints (e.g., MinIO, LocalStack); internal only, never browser-reachable
     pub s3_force_path_style: bool,   // needed for many local providers
     pub s3_sse_enabled: bool,        // enable SSE (AES256) on uploaded objects
+    pub replay_storage: ReplayStorage,
     // Site-config cache database (read-only)
     pub site_config_database_url: String,
     // Salt database (read-write) - stores the secret rotating fingerprint salts
     pub salts_database_url: String,
     // Development mode - allows localhost monitoring targets
     pub is_development: bool,
-    // Public-facing base URL (used for dashboard links in emails, etc.)
+    // Public-facing base URL (used for dashboard links in push notifications)
     pub public_base_url: String,
-    // Email configuration (None = email disabled)
-    pub email: Option<EmailConfig>,
     // Integration config encryption key (32 bytes)
     pub integration_encryption_key: Option<[u8; 32]>,
     // Pushover integration
@@ -98,7 +113,20 @@ impl Config {
             GeolocationMode::Countries
         };
 
-        Config {
+        let data_retention_days: i32 = env::var("DATA_RETENTION_DAYS")
+            .unwrap_or_else(|_| "365".to_string())
+            .parse()
+            .unwrap_or(365);
+
+        let s3_enabled = env::var("S3_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false);
+        let replay_storage = match env::var("REPLAY_STORAGE").ok().as_deref() {
+            Some("s3") => ReplayStorage::S3,
+            Some("clickhouse") => ReplayStorage::ClickHouse,
+            Some(other) => panic!("REPLAY_STORAGE must be 's3' or 'clickhouse', got '{}'", other),
+            None => if s3_enabled { ReplayStorage::S3 } else { ReplayStorage::ClickHouse },
+        };
+
+        let config = Config {
             server_port: env::var("SERVER_PORT")
                 .unwrap_or_else(|_| "3000".to_string())
                 .parse()
@@ -115,8 +143,8 @@ impl Config {
                 .unwrap_or_else(|_| "password".to_string()),
             // GeoIP configuration
             geolocation_mode,
-            maxmind_account_id: env::var("MAXMIND_ACCOUNT_ID").ok(),
-            maxmind_license_key: env::var("MAXMIND_LICENSE_KEY").ok(),
+            maxmind_account_id: env::var("MAXMIND_ACCOUNT_ID").ok().filter(|v| !v.is_empty()),
+            maxmind_license_key: env::var("MAXMIND_LICENSE_KEY").ok().filter(|v| !v.is_empty()),
             geoip_db_path: env::var("GEOIP_DB_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| if geolocation_mode.has_subdivisions() {
@@ -152,10 +180,7 @@ impl Config {
             ua_regexes_path: env::var("UA_REGEXES_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/user_agent_headers/regexes.yaml")),
-            data_retention_days: env::var("DATA_RETENTION_DAYS")
-                .unwrap_or_else(|_| "365".to_string())
-                .parse()
-                .unwrap_or(365),
+            data_retention_days,
             // Monitoring configuration
             enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")
@@ -164,6 +189,9 @@ impl Config {
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
             monitor_database_url: env::var("MONITORING_DATABASE_URL")
+                .ok()
+                .filter(|url| !url.trim().is_empty()),
+            job_queue_database_url: env::var("JOB_QUEUE_DATABASE_URL")
                 .ok()
                 .filter(|url| !url.trim().is_empty()),
             monitor_clickhouse_table: env::var("CLICKHOUSE_MONITOR_TABLE")
@@ -179,7 +207,7 @@ impl Config {
                 .map(|val| val.to_lowercase() != "false")
                 .unwrap_or(true),
             // S3 configuration (optional; defaults to disabled)
-            s3_enabled: env::var("S3_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
+            s3_enabled,
             s3_region: env::var("S3_REGION").ok(),
             s3_bucket: env::var("S3_BUCKET").ok(),
             s3_access_key_id: env::var("S3_ACCESS_KEY_ID").ok(),
@@ -187,6 +215,7 @@ impl Config {
             s3_endpoint: env::var("S3_ENDPOINT").ok(),
             s3_force_path_style: env::var("S3_FORCE_PATH_STYLE").map(|v| v.to_lowercase() == "true").unwrap_or(false),
             s3_sse_enabled: env::var("S3_SSE_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false),
+            replay_storage,
             site_config_database_url: env::var("SITE_CONFIG_DATABASE_URL")
                 .expect("SITE_CONFIG_DATABASE_URL must be set to a valid Postgres URL for the site-config cache database"),
             salts_database_url: env::var("SALTS_DATABASE_URL")
@@ -194,11 +223,9 @@ impl Config {
             is_development: env::var("IS_DEVELOPMENT")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
-            // Public-facing base URL for dashboard links in emails, etc
+            // Public-facing base URL for dashboard links in push notifications
             public_base_url: env::var("PUBLIC_BASE_URL")
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
-            // Email configuration (None = email disabled)
-            email: EmailConfig::from_env(),
             // Integration config encryption key
             integration_encryption_key: env::var("INTEGRATION_ENCRYPTION_KEY").ok().map(|key| {
                 let bytes = key.as_bytes();
@@ -213,39 +240,15 @@ impl Config {
             }),
             // Pushover integration
             pushover_app_token: env::var("PUSHOVER_APP_TOKEN").ok(),
-        }
-    }
-}
+        };
 
-#[derive(Clone, Debug)]
-pub struct EmailConfig {
-    pub api_key: String,
-    pub from_email: String,
-    pub from_name: String,
-    pub is_development: bool,
-}
+        assert!(
+            !config.enable_session_replay
+                || config.replay_storage == ReplayStorage::ClickHouse
+                || (config.s3_enabled && config.s3_bucket.is_some()),
+            "SESSION_REPLAYS_ENABLED=true with REPLAY_STORAGE=s3 requires S3_ENABLED=true and S3_BUCKET"
+        );
 
-impl EmailConfig {
-    pub fn from_env() -> Option<Self> {
-        let email_enabled = env::var("ENABLE_EMAILS")
-            .map(|val| val.to_lowercase() == "true")
-            .unwrap_or(false);
-
-        if !email_enabled {
-            return None;
-        }
-
-        let api_key = env::var("MAILER_SEND_API_TOKEN").ok()?;
-
-        Some(Self {
-            api_key,
-            from_email: env::var("ALERT_FROM_EMAIL")
-                .unwrap_or_else(|_| "alerts@betterlytics.io".to_string()),
-            from_name: env::var("ALERT_FROM_NAME")
-                .unwrap_or_else(|_| "Betterlytics Alerts".to_string()),
-            is_development: env::var("IS_DEVELOPMENT")
-                .map(|val| val.to_lowercase() == "true")
-                .unwrap_or(false),
-        })
+        config
     }
 }

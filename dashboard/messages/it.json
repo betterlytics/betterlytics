@@ -2529,6 +2529,9 @@
         "maxFiltersReachedToast": "Puoi applicare fino a {max} filtri. Rimuovine uno per aggiungerne un altro."
       },
       "filterBy": "Filtra per {label}",
+      "toastFiltersUpdated": "Filtri aggiornati",
+      "toastFilterAdded": "Aggiunto",
+      "toastFilterRemoved": "Rimosso",
       "removeFilter": "Rimuovi filtro",
       "notAvailableOnPage": "Non disponibile in questa pagina"
     },
@@ -2773,7 +2776,7 @@
           "title": "Nessuna sessione replay disponibile",
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
         },
-        "sessionErrorsTooltip": "Questa sessione ha catturato {count}+ errori lato client"
+        "sessionErrorsTooltip": "{count, plural, one {Questa sessione ha catturato {count} errore lato client} other {Questa sessione ha catturato {count} errori lato client}}"
       },
       "playerTopbar": {
         "startLabel": "Inizio:",
@@ -3433,10 +3436,18 @@
       "sending": "Invio in corso...",
       "pending": "In sospeso",
       "invited": "Invitato",
-      "invalidEmail": "Inserisci un indirizzo email valido"
+      "invalidEmail": "Inserisci un indirizzo email valido",
+      "copyLink": "Copia link di invito",
+      "linkCopied": "Link di invito copiato"
+    },
+    "linkPanel": {
+      "emailSent": "Un'email di invito è stata inviata a <strong>{email}</strong>. Puoi anche condividere direttamente il link di invito:",
+      "emailNotSent": "Nessuna email è stata inviata a <strong>{email}</strong> — condividi tu stesso questo link di invito:",
+      "dismiss": "Chiudi"
     },
     "toast": {
       "sent": "Invito inviato",
+      "created": "Invito creato",
       "sendFailed": "Impossibile inviare l'invito",
       "cancelled": "Invito annullato",
       "cancelFailed": "Impossibile annullare l'invito",
