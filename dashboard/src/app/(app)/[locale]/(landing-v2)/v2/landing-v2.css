@@ -1084,14 +1084,14 @@
     -webkit-backdrop-filter: blur(0);
     backdrop-filter: blur(0);
   }
-  /* Lower third, not dead centre: the middle of the frame is the chart, which
-     is the thing worth looking at, and text centred on a dimmed screenshot is
-     the video-overlay composition this page is trying not to be. Down here it
-     reads as a caption on the product. */
+  /* Centred, and deliberately so: it is the only thing explaining the veil, and
+     the middle is where the eye lands first. Anywhere between the centre and an
+     edge reads as slightly off rather than placed — and a single line is not the
+     icon/heading/button stack that makes a centred overlay look like a modal. */
   .demo__say {
     position: absolute;
     left: 50%;
-    top: 70%;
+    top: 50%;
     transform: translate(-50%, -50%);
     width: max-content;
     max-width: 80%;
