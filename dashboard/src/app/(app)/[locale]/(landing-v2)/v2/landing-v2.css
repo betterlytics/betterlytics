@@ -967,6 +967,153 @@
     }
   }
 
+  /* stub address bar, centred in the title bar. Named like a browser's, and
+     the path is the word doing the work, so it takes the brighter tone. */
+  .demo__url {
+    position: absolute;
+    top: 9px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    margin: 0;
+    max-width: 40%;
+    padding: 4px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--rule-10);
+    background: rgba(235, 232, 230, 0.03);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--mid);
+  }
+  .demo__url span {
+    color: var(--text);
+    opacity: 0.86;
+  }
+  @media (max-width: 760px) {
+    .demo__url {
+      max-width: 60%;
+    }
+  }
+  /* the title-bar tag: the dots on the left say "a window", this says "and it
+     is running". Same mono microcap as the placeholder label. */
+  .demo__tag {
+    position: absolute;
+    top: 0;
+    right: 18px;
+    z-index: 2;
+    height: 44px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--mid);
+  }
+  .demo__tag i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--live);
+    flex: none;
+    animation: lp2-blink 2.6s ease-in-out infinite;
+  }
+  @media (max-width: 560px) {
+    /* the bar is too narrow to carry both; the scrim still says it */
+    .demo__tag {
+      display: none;
+    }
+  }
+
+  /* ── the scrim: the frame takes the pointer once it is clicked ──
+     Veils the dashboard rather than hiding it — the product has to stay legible
+     through it — and lifts most of the way on hover, so the frame answers
+     before it is even clicked. Only mounted once the iframe has loaded, so it
+     never sits over the loading label. */
+  .demo__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    padding: 0 24px;
+    border: 0;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text);
+    background: radial-gradient(70% 70% at 50% 46%, rgba(21, 20, 20, 0.44), rgba(21, 20, 20, 0.78));
+    -webkit-backdrop-filter: blur(1.5px);
+    backdrop-filter: blur(1.5px);
+    animation: lp2-demo-scrim 0.45s var(--ease) both;
+    transition:
+      background 0.3s var(--ease),
+      -webkit-backdrop-filter 0.3s var(--ease),
+      backdrop-filter 0.3s var(--ease);
+  }
+  .demo__scrim:hover,
+  .demo__scrim:focus-visible {
+    background: radial-gradient(70% 70% at 50% 46%, rgba(21, 20, 20, 0.28), rgba(21, 20, 20, 0.6));
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+  /* both lines sit over whatever the dashboard happens to be showing, and on
+     hover that is a near-white chart; the halo is what keeps them readable */
+  .demo__scrim b {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.72;
+    text-shadow: 0 1px 12px rgba(21, 20, 20, 0.95);
+  }
+  .demo__scrim > span:last-child {
+    max-width: 34ch;
+    font-size: 17px;
+    line-height: 1.45;
+    text-wrap: balance;
+    text-shadow: 0 1px 14px rgba(21, 20, 20, 0.95);
+  }
+  /* The click, not the pointer. An arrow glyph here competed with the reader's
+     own cursor, and a pointing hand would be worse still — the scrim sets
+     `cursor: pointer`, so the OS is already drawing one on this exact spot.
+     A target and its rings say "a click lands here" without impersonating
+     anything the OS draws. */
+  .demo__tap {
+    position: relative;
+    width: 9px;
+    height: 9px;
+    margin-bottom: 20px;
+    border-radius: 50%;
+    background: var(--volt-lift);
+    box-shadow: 0 0 0 4px rgba(74, 92, 255, 0.16);
+    transition: transform 0.3s var(--ease);
+  }
+  .demo__scrim:hover .demo__tap {
+    transform: scale(1.15);
+  }
+  .demo__tap i {
+    position: absolute;
+    inset: -9px;
+    border-radius: 50%;
+    border: 1.5px solid var(--volt-lift);
+    animation: lp2-demo-rip 2.2s ease-out infinite;
+  }
+  /* the second ring trails the first, so the target reads as pulsing rather than blinking */
+  .demo__tap i:last-child {
+    animation-delay: 1.1s;
+  }
+
   /* ══ CUSTOMERS ══ static, monochrome. The marquees are the only scrolling rows. */
   .sec--tight {
     padding-top: 0;
@@ -3564,6 +3711,12 @@
       opacity: 1;
       transform: none;
     }
+    /* the rings rest concentric on the dot, which still reads as a target */
+    .demo__tap i {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
     .sr__cur,
     .sr__rip,
     .sr__tag,
@@ -3804,5 +3957,28 @@
   }
   100% {
     width: 94%;
+  }
+}
+@keyframes lp2-demo-scrim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes lp2-demo-rip {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  12% {
+    opacity: 0.8;
+    transform: scale(0.45);
+  }
+  45%,
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
   }
 }

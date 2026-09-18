@@ -37,6 +37,14 @@ export const COPY = {
     placeholder: 'Interactive demo',
     loading: 'Loading the live dashboard',
     frameTitle: 'Betterlytics live demo',
+    /* the frame's title bar: a stub address bar, and a tag opposite the window dots */
+    urlHost: 'betterlytics.io',
+    urlPath: '/demo',
+    tag: 'Live data',
+    /* the scrim over the frame, until the reader clicks into it */
+    activateLabel: 'Interactive demo',
+    activateBody: 'Click in to explore real traffic, funnels and errors.',
+    activateAria: 'Explore the interactive demo dashboard',
   },
   customers: {
     label: 'Trusted by *privacy-first* teams',

@@ -19,6 +19,22 @@ export async function DemoSection() {
           <i />
           <i />
         </div>
+        {/* The dots alone read as a screenshot. The stub address bar names the
+            thing as a demo and the tag says its numbers are moving; both are
+            chrome, so they are hidden from assistive tech — the frame's title
+            and the scrim carry the same meaning in text. */}
+        {src && (
+          <>
+            <p className='demo__url' aria-hidden>
+              {COPY.demo.urlHost}
+              <span>{COPY.demo.urlPath}</span>
+            </p>
+            <p className='demo__tag' aria-hidden>
+              <i />
+              {COPY.demo.tag}
+            </p>
+          </>
+        )}
         {src ? (
           <DemoFrame src={src} />
         ) : (
