@@ -41,9 +41,10 @@ export const COPY = {
     urlHost: 'betterlytics.io',
     urlPath: '/demo',
     tag: 'Live data',
-    /* the scrim over the frame, until the reader clicks into it */
-    activateLabel: 'Interactive demo',
-    activateBody: 'Click in to explore real traffic, funnels and errors.',
+    /* The scrim's only line. It names the mechanic, which nothing else says —
+       the chrome above already carries "demo", so repeating that here would be
+       the frame talking to itself. */
+    activateLine: 'Click anywhere to explore',
     activateAria: 'Explore the interactive demo dashboard',
   },
   customers: {

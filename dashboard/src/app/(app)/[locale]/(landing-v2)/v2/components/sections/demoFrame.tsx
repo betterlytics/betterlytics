@@ -13,6 +13,10 @@ import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
  * an iframe this size swallows scroll, so without it anyone moving down the
  * page gets caught inside the dashboard. The pointer leaving the frame re-arms
  * it, so a second pass down the page scrolls just as cleanly as the first.
+ *
+ * It carries one line and nothing else. Anything placed at its centre — a
+ * glyph, a pill — reads as the target, and the target is the whole frame; the
+ * line says so, and the frame's own edge answers the pointer to show it.
  */
 export function DemoFrame({ src }: { src: string }) {
   const [loaded, setLoaded] = useState(false);
@@ -42,12 +46,9 @@ export function DemoFrame({ src }: { src: string }) {
             frame.current?.focus();
           }}
         >
-          <span className='demo__tap' aria-hidden>
-            <i />
-            <i />
+          <span className='demo__say' aria-hidden>
+            {COPY.demo.activateLine}
           </span>
-          <b aria-hidden>{COPY.demo.activateLabel}</b>
-          <span aria-hidden>{COPY.demo.activateBody}</span>
         </button>
       )}
     </div>
