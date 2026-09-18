@@ -36,7 +36,8 @@ export function FeatureNotEnabledBanner({ feature }: FeatureNotEnabledBannerProp
           {t('action')}
         </Button>
       ),
-      dismissible: true,
+      // Configuration state, not a notice: dismissing it would leave the page looking fully functional
+      dismissible: false,
     });
   }, [feature, t, addBanner]);
 
