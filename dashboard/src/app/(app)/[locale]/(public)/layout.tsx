@@ -1,5 +1,4 @@
 import { Footer } from '@/components/footer/Footer';
-import { MinimalFooter } from '@/components/footer/MinimalFooter';
 import PublicTopBar from '@/components/topbar/PublicTopBar';
 import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import ThemeToggleFab from '@/components/ThemeToggleFab';
@@ -12,7 +11,7 @@ export default async function LocaleLayout({ children }: { children: React.React
     <div className='flex min-h-screen flex-col justify-between'>
       <PublicTopBar isCloud={isCloud} />
       <div className='flex flex-1 flex-col'>{children}</div>
-      {isCloud ? <Footer /> : <MinimalFooter />}
+      <Footer />
       <ThemeToggleFab />
     </div>
   );
