@@ -54,7 +54,13 @@ const appEnvSchema = z.object({
   S3_FORCE_PATH_STYLE: zStringBoolean,
   S3_SSE_ENABLED: zStringBoolean,
   OTEL_SERVICE_NAME: z.string().optional(),
-  BACKGROUND_JOBS_ENABLED: zStringBoolean,
+  // Must match worker.env.ts: unset means the embedded worker runs, so a self-host
+  // deploy gets emails, reports and retention purges without opting in.
+  BACKGROUND_JOBS_ENABLED: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('true')
+    .transform((v) => v === 'true'),
   IS_DEVELOPMENT: zStringBoolean,
   ENABLE_GEOLOCATION: zStringBoolean,
   GEOLOCATION_MODE: z.enum(['country', 'full']).optional().default('country'),
