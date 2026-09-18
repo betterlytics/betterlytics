@@ -11,6 +11,7 @@ import type { IllustrationProps } from '@/app/(app)/[locale]/(landing-v2)/v2/com
 import { Uptime } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/uptime';
 import { Vitals } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/vitals';
 import { Corners, Section, SectionHead } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/frame';
+import { InkFrame } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/inkFrame';
 import { LIFT_STEP_S, LiftLines, LiftSwap } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/liftSwap';
 import { RollingDigits } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/rollingDigits';
 import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
@@ -129,7 +130,7 @@ export function JourneySection() {
   return (
     <Section id={IDS.journey}>
       <SectionHead title={COPY.journey.title} lede={COPY.journey.lede} />
-      <div className='jr'>
+      <InkFrame className='jr'>
         <Corners />
         <aside ref={railRef} className='jr__rail'>
           <p className='jr__count'>
@@ -184,7 +185,7 @@ export function JourneySection() {
             );
           })}
         </div>
-      </div>
+      </InkFrame>
     </Section>
   );
 }

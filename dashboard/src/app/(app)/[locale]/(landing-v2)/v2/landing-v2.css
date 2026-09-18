@@ -171,7 +171,23 @@
   .band::after {
     bottom: 0;
   }
-
+  /* the bottom divider is the pen closing the frame: once WallInk has inked the
+     wall to the band's end it marks the band, and the rule sweeps left to right.
+     `is-inking` is only set by the script, so no-JS and reduced motion keep the
+     rule drawn. */
+  .band.is-inking::after {
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.7s cubic-bezier(0.3, 0.02, 0.15, 1);
+  }
+  .band.is-inking.is-closed::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+  /* The wall is inked downward as the reader scrolls: `--ink` on each wall is
+     how far it has been drawn (set by WallInk, only ever grows) and the mask
+     feathers the last 160px into a pen tip, which is what reads as drawing.
+     The default leaves the wall
+     fully drawn for no-JS and reduced motion. */
   /* the wall: hatched margin columns. The outer border is the page rule. */
   .wall {
     position: absolute;
@@ -184,6 +200,9 @@
     border-right: 1px solid var(--rule);
     background-image: repeating-linear-gradient(315deg, var(--wall-ink-dense) 0 1px, transparent 0 50%);
     background-size: 10px 10px;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(var(--ink) - 160px), transparent var(--ink));
+    mask-image: linear-gradient(to bottom, #000 calc(var(--ink) - 160px), transparent var(--ink));
+    --ink: 200000px;
   }
   .wall--l {
     left: var(--pad);
@@ -376,6 +395,99 @@
   .cnr > i::after {
     right: -5px;
     bottom: -5px;
+  }
+
+  /* ── ink: the frame is drawn as the reader arrives ──
+     `.ink` (Panel, the journey frame) latches `.is-drawn` on entry. The top
+     rule is drawn left to right, the bottom rule follows, the corner squares
+     pop where the pen lands, and the block's inner rules ink in last. The
+     panel's own borders stay in layout but are painted transparent; the
+     drawn rules are pseudo-elements under the content, so the volt stat cell
+     still sits over the edge it overlaps. */
+  .ink {
+    --pen: cubic-bezier(0.3, 0.02, 0.15, 1);
+  }
+  .panel {
+    border-top-color: transparent;
+    border-bottom-color: transparent;
+  }
+  .panel::before,
+  .panel::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--rule);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .panel::before {
+    top: -1px;
+  }
+  .panel::after {
+    bottom: -1px;
+  }
+  .ink::before,
+  .ink::after {
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.7s var(--pen);
+  }
+  .ink.is-drawn::before {
+    transform: scaleX(1);
+  }
+  .ink.is-drawn::after {
+    transform: scaleX(1);
+    transition-delay: 0.22s;
+  }
+  /* corners pop in the order the pen reaches them: top-left, bottom-left, top-right, bottom-right */
+  .ink > .cnr::before,
+  .ink > .cnr::after,
+  .ink > .cnr > i::before,
+  .ink > .cnr > i::after {
+    transform: scale(0);
+    transition: transform 0.3s var(--pen);
+  }
+  .ink.is-drawn > .cnr::before {
+    transform: none;
+  }
+  .ink.is-drawn > .cnr > i::before {
+    transform: none;
+    transition-delay: 0.22s;
+  }
+  .ink.is-drawn > .cnr::after {
+    transform: none;
+    transition-delay: 0.6s;
+  }
+  .ink.is-drawn > .cnr > i::after {
+    transform: none;
+    transition-delay: 0.82s;
+  }
+  /* inner rules take the rule tokens, so blanking the tokens blanks every
+     line inside the block; they ink in once the edges have landed */
+  .ink:not(.is-drawn) {
+    --rule: transparent;
+    --rule-08: transparent;
+    --rule-10: transparent;
+    --rule-125: transparent;
+    --rule-22: transparent;
+    --rule-30: transparent;
+  }
+  .ink
+    :is(
+      .lg,
+      .logos__label,
+      .cell,
+      .mcp__side,
+      .mcp__works,
+      .mcp__works li,
+      .plan,
+      .plan ul,
+      .jr__card,
+      .jr__band
+    ) {
+    transition: border-color 0.5s ease 0.55s;
   }
   @media (max-width: 640px) {
     .panel {

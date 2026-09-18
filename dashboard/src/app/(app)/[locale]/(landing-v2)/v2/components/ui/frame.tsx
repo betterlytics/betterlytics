@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Emphasis } from './emphasis';
+import { InkFrame } from './inkFrame';
 import { Underline } from './reveal';
 
 /* The page's layout primitives. Sections sit between the wall columns; their
@@ -46,9 +47,9 @@ export function Panel({
   flush?: boolean;
 }) {
   return (
-    <div className={cn('panel', flush && 'panel--flush', className)}>
+    <InkFrame className={cn('panel', flush && 'panel--flush', className)}>
       <Corners />
       {children}
-    </div>
+    </InkFrame>
   );
 }

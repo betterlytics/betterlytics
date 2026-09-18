@@ -11,6 +11,7 @@ import { NetworkSection } from './components/sections/networkSection';
 import { PricingSection } from './components/sections/pricingSection';
 import { TestimonialsSection } from './components/sections/testimonialsSection';
 import { BrandMarkDefs } from './components/ui/brandMark';
+import { WallInk } from './components/ui/inkFrame';
 import { COPY } from './content/copy';
 import { IDS } from './lib/ids';
 
@@ -36,6 +37,7 @@ export function LandingV2() {
           <div className='band' id={IDS.band}>
             <div className='wall wall--l' aria-hidden />
             <div className='wall wall--r' aria-hidden />
+            <WallInk />
             <DemoSection />
             <CustomersSection />
             <JourneySection />
