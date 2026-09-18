@@ -19,7 +19,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { SupportedLanguages } from '@/constants/i18n';
 import { baEvent } from '@/lib/ba-event';
 import { useBARouter } from '@/hooks/use-ba-router';
-import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
 import Logo from '@/components/logo';
 
@@ -44,9 +43,17 @@ type SignupFormProps = {
   invitedEmail?: string;
   inviteToken?: string;
   redirectTo?: string;
+  /** Cloud only; self-host is not bound by our terms */
+  requireTerms: boolean;
 };
 
-export default function SignupForm({ providers, invitedEmail, inviteToken, redirectTo }: SignupFormProps) {
+export default function SignupForm({
+  providers,
+  invitedEmail,
+  inviteToken,
+  redirectTo,
+  requireTerms,
+}: SignupFormProps) {
   const t = useTranslations('onboarding.account');
   const tValidation = useTranslations('validation');
   const tAuth = useTranslations('public.auth.register');
@@ -56,7 +63,6 @@ export default function SignupForm({ providers, invitedEmail, inviteToken, redir
   const [isGooglePending, startGoogleTransition] = useTransition();
   const [isGithubPending, startGithubTransition] = useTransition();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const requireTerms = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
   const router = useBARouter();
 

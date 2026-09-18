@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findInvitationByToken } from '@/repositories/postgres/invitation.repository';
 import { isOpenInvitation } from '@/entities/dashboard/invitation.entities';
 import { getTranslations } from 'next-intl/server';
@@ -91,6 +92,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
         invitedEmail={openInvitation?.email}
         inviteToken={openInvitation ? invite : undefined}
         redirectTo={acceptPath}
+        requireTerms={isFeatureEnabled('isCloud')}
       />
     </>
   );
