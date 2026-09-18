@@ -28,7 +28,6 @@ type LoginFormProps = {
   registrationDisabledMessage?: string | null;
   forgotPasswordEnabled?: boolean;
   providers: ReturnType<typeof getEnabledOAuthProviders>;
-  /** Same-origin path to land on after sign-in; defaults to the dashboards list */
   redirectTo?: string;
 };
 

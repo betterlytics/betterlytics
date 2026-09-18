@@ -63,7 +63,6 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     redirect(redirectTo);
   }
 
-  // Empty closed instance: nobody can sign in yet, so the first visitor goes straight to creating the account
   if (!registrationEnabled && (await isFirstUser())) {
     redirect('/signup');
   }

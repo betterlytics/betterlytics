@@ -40,11 +40,8 @@ const itemVariants = {
 
 type SignupFormProps = {
   providers: ReturnType<typeof getEnabledOAuthProviders>;
-  /** Locks the email field to the invited address */
   invitedEmail?: string;
-  /** Sent with the sign-up so the server can honour the invitation when registration is closed */
   inviteToken?: string;
-  /** Where to land after the account exists, e.g. back on the invitation being accepted */
   redirectTo?: string;
 };
 

@@ -25,7 +25,6 @@ describe('toSafeRelativePath', () => {
   });
 
   it('normalizes encoded slashes so the result cannot become protocol-relative', () => {
-    // A path like /%2F%2Fevil resolves to a pathname, never to a host
     expect(toSafeRelativePath('/%2F%2Fevil.example', '/dashboards')).toBe('/%2F%2Fevil.example');
   });
 });

@@ -168,8 +168,7 @@ export const auth = betterAuth({
         });
       }
 
-      // Same policy as the user-create hook, applied here first so a closed instance answers
-      // identically for known and unknown addresses instead of leaking USER_ALREADY_EXISTS.
+      // Before better-auth's email lookup, so a closed instance can't leak USER_ALREADY_EXISTS
       if (ctx.path === '/sign-up/email') {
         const allowed = await getSignupAllowance({
           email: String(ctx.body?.email ?? ''),
@@ -210,8 +209,7 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user, ctx) => {
-          // Registration policy lives here rather than in better-auth's static disableSignUp so
-          // invited addresses and the first account on an empty instance can still sign up (any provider).
+          // Replaces the static disableSignUp so invites and the first account can still sign up
           const invite = (ctx?.body as { invite?: unknown } | undefined)?.invite;
           const allowed = await getSignupAllowance({
             email: user.email,

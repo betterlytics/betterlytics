@@ -110,7 +110,6 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
 
   const isExpired = new Date() > invitation.expiresAt || invitation.status === 'expired';
 
-  // Nothing to do for an expired invite whoever you are, so say so before asking anyone to sign in
   if (isExpired) {
     return (
       <InviteStatusCard
@@ -125,8 +124,7 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
     );
   }
 
-  // Not signed in: keep the invite on the way through auth, and send a brand-new address to
-  // sign-up (which the invitation unlocks even when registration is closed) rather than sign-in.
+  // New address goes to sign-up (the invitation unlocks it); existing ones to sign-in
   if (!session?.user?.email) {
     const returnTo = `/accept-invite/${token}`;
     if (isOpenInvitation(invitation) && !(await findUserByEmail(invitation.email))) {

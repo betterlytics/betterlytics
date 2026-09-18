@@ -1,10 +1,6 @@
 const PLACEHOLDER_ORIGIN = 'http://placeholder.invalid';
 
-/**
- * Accepts only same-origin absolute paths so a callback parameter can never send the
- * browser off-site. Resolved against a placeholder origin: anything that escapes it
- * (scheme, `//host`, backslash or control-character tricks) falls back.
- */
+// Same-origin paths only; anything that escapes the placeholder origin is an open redirect
 export function toSafeRelativePath(value: string | null | undefined, fallback: string): string {
   if (!value || !value.startsWith('/') || /[\s\\]/.test(value)) {
     return fallback;

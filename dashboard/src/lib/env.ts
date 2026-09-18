@@ -7,7 +7,6 @@ const appEnvSchema = z.object({
   CLICKHOUSE_URL: z.string().url(),
   CLICKHOUSE_DASHBOARD_USER: z.string().min(1),
   CLICKHOUSE_DASHBOARD_PASSWORD: z.string().min(1),
-  // Optional boot-time seed for scripted deploys; with neither set, the first sign-up is open instead
   ADMIN_EMAIL: z.string().optional().default(''),
   ADMIN_PASSWORD: z.string().optional().default(''),
   PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().min(1),
