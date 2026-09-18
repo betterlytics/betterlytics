@@ -3261,7 +3261,7 @@
         "signUpError": "Si è verificato un errore durante la registrazione. Riprova.",
         "checkInput": "Controlla il tuo input",
         "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi un invito al proprietario di una dashboard.",
-        "invitedEmailHint": "Questo invito è per {email}."
+        "invitedToHint": "Sei stato invitato a unirti a {domain}"
       }
     },
     "website": {

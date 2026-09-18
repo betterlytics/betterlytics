@@ -90,6 +90,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
       <SignupForm
         providers={providers}
         invitedEmail={openInvitation?.email}
+        invitedDomain={openInvitation?.dashboard?.domain}
         inviteToken={openInvitation ? invite : undefined}
         redirectTo={acceptPath}
         requireTerms={isFeatureEnabled('isCloud')}

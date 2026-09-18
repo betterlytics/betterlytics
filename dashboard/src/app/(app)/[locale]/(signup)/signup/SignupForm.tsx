@@ -41,6 +41,7 @@ const itemVariants = {
 type SignupFormProps = {
   providers: ReturnType<typeof getEnabledOAuthProviders>;
   invitedEmail?: string;
+  invitedDomain?: string;
   inviteToken?: string;
   redirectTo?: string;
   /** Cloud only; self-host is not bound by our terms */
@@ -50,6 +51,7 @@ type SignupFormProps = {
 export default function SignupForm({
   providers,
   invitedEmail,
+  invitedDomain,
   inviteToken,
   redirectTo,
   requireTerms,
@@ -244,6 +246,11 @@ export default function SignupForm({
           </div>
           <div className='bg-card col-span-2 space-y-3 rounded-lg border p-3 py-4 pb-5 shadow-sm sm:p-6 md:col-span-1'>
             <h2 className='text-center text-2xl font-semibold'>{t('form.title')}</h2>
+            {invitedDomain && (
+              <p className='text-muted-foreground text-center text-sm'>
+                {t('form.invitedToHint', { domain: invitedDomain })}
+              </p>
+            )}
             {error && (
               <div
                 className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
@@ -310,11 +317,6 @@ export default function SignupForm({
                   defaultValue={invitedEmail}
                 />
                 {invitedEmail && <input type='hidden' name='email' value={invitedEmail} />}
-                {invitedEmail && (
-                  <p className='text-muted-foreground text-xs'>
-                    {t('form.invitedEmailHint', { email: invitedEmail })}
-                  </p>
-                )}
               </div>
 
               <div className='space-y-2'>

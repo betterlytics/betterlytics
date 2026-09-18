@@ -3261,7 +3261,7 @@
         "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
         "checkInput": "Tjek venligst dit input",
         "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
-        "invitedEmailHint": "Denne invitation er til {email}."
+        "invitedToHint": "Du er inviteret til at deltage i {domain}"
       }
     },
     "website": {
