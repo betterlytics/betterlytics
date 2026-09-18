@@ -19,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { SupportedLanguages } from '@/constants/i18n';
 import { baEvent } from '@/lib/ba-event';
 import { useBARouter } from '@/hooks/use-ba-router';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
 import Logo from '@/components/logo';
 
@@ -55,6 +56,7 @@ export default function SignupForm({ providers, invitedEmail, inviteToken, redir
   const [isGooglePending, startGoogleTransition] = useTransition();
   const [isGithubPending, startGithubTransition] = useTransition();
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const requireTerms = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
   const router = useBARouter();
 
@@ -94,7 +96,7 @@ export default function SignupForm({ providers, invitedEmail, inviteToken, redir
       }
 
       try {
-        if (!acceptedTerms) {
+        if (requireTerms && !acceptedTerms) {
           setError(tValidation('termsOfServiceRequired'));
           return;
         }
@@ -102,7 +104,7 @@ export default function SignupForm({ providers, invitedEmail, inviteToken, redir
           email,
           password,
           name: name?.trim() || undefined,
-          acceptedTerms,
+          acceptedTerms: requireTerms ? acceptedTerms : undefined,
           language: locale as SupportedLanguages,
         });
 
@@ -159,6 +161,7 @@ export default function SignupForm({ providers, invitedEmail, inviteToken, redir
     },
     [
       acceptedTerms,
+      requireTerms,
       t,
       tValidation,
       locale,
@@ -334,39 +337,41 @@ export default function SignupForm({ providers, invitedEmail, inviteToken, redir
                 />
               </div>
 
-              <div className='mt-6 mb-1 flex items-start gap-2'>
-                <Checkbox
-                  id='agree-terms-register'
-                  checked={acceptedTerms}
-                  onCheckedChange={(v) => {
-                    const accepted = v === true;
-                    setAcceptedTerms(accepted);
-                    if (accepted) setError('');
-                  }}
-                  aria-required={true}
-                />
-                <Label
-                  htmlFor='agree-terms-register'
-                  className='text-muted-foreground text-xs leading-snug font-normal'
-                >
-                  <span>
-                    {t.rich('form.termsAgreeLabel', {
-                      termsLink: (chunks) => (
-                        <Link href='/terms' target='__blank' rel='noopener noreferrer' className='underline'>
-                          {chunks}
-                        </Link>
-                      ),
-                      privacyLink: (chunks) => (
-                        <Link href='/privacy' target='__blank' rel='noopener noreferrer' className='underline'>
-                          {chunks}
-                        </Link>
-                      ),
-                    })}
-                  </span>
-                </Label>
-              </div>
+              {requireTerms && (
+                <div className='mt-6 mb-1 flex items-start gap-2'>
+                  <Checkbox
+                    id='agree-terms-register'
+                    checked={acceptedTerms}
+                    onCheckedChange={(v) => {
+                      const accepted = v === true;
+                      setAcceptedTerms(accepted);
+                      if (accepted) setError('');
+                    }}
+                    aria-required={true}
+                  />
+                  <Label
+                    htmlFor='agree-terms-register'
+                    className='text-muted-foreground text-xs leading-snug font-normal'
+                  >
+                    <span>
+                      {t.rich('form.termsAgreeLabel', {
+                        termsLink: (chunks) => (
+                          <Link href='/terms' target='__blank' rel='noopener noreferrer' className='underline'>
+                            {chunks}
+                          </Link>
+                        ),
+                        privacyLink: (chunks) => (
+                          <Link href='/privacy' target='__blank' rel='noopener noreferrer' className='underline'>
+                            {chunks}
+                          </Link>
+                        ),
+                      })}
+                    </span>
+                  </Label>
+                </div>
+              )}
 
-              {acceptedTerms ? (
+              {!requireTerms || acceptedTerms ? (
                 <Button
                   type='submit'
                   disabled={isPending}

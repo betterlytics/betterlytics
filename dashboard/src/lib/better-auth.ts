@@ -182,7 +182,7 @@ export const auth = betterAuth({
         }
       }
 
-      if (ctx.path === '/sign-up/email' && ctx.body?.acceptedTerms !== true) {
+      if (env.IS_CLOUD && ctx.path === '/sign-up/email' && ctx.body?.acceptedTerms !== true) {
         throw new APIError('BAD_REQUEST', {
           message: 'Terms of service must be accepted',
           code: 'TERMS_NOT_ACCEPTED',
@@ -229,6 +229,8 @@ export const auth = betterAuth({
           }
           if (ctx?.path === '/sign-up/email') {
             extra.name = user.name?.trim() || null;
+          }
+          if ((ctx?.body as { acceptedTerms?: unknown } | undefined)?.acceptedTerms === true) {
             extra.termsAcceptedAt = new Date();
             extra.termsAcceptedVersion = CURRENT_TERMS_VERSION;
           }

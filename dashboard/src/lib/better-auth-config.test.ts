@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
+import { env } from '@/lib/env';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail } from '@/services/account/verification.service';
@@ -19,6 +20,7 @@ vi.mock('@/lib/env', () => ({
     AUTH_URL: 'http://localhost:3000',
     AUTH_SECRET: 'test-auth-secret',
     PUBLIC_BASE_URL: 'http://localhost:3000',
+    IS_CLOUD: true,
     GITHUB_ID: '',
     GITHUB_SECRET: '',
     GOOGLE_CLIENT_ID: '',
@@ -200,6 +202,16 @@ describe('user create before hook (sign-up field stamping)', () => {
 
     expect(result!.data.termsAcceptedAt).toBeInstanceOf(Date);
     expect(result!.data.termsAcceptedVersion).toBe(CURRENT_TERMS_VERSION);
+  });
+
+  it('leaves terms unstamped when the sign-up did not accept them (self-host)', async () => {
+    const result = await runBeforeCreateHook(
+      { ...makeUser(), emailVerified: false, termsAcceptedAt: null, termsAcceptedVersion: null },
+      { path: '/sign-up/email', body: {} },
+    );
+
+    expect(result!.data.termsAcceptedAt).toBeNull();
+    expect(result!.data.termsAcceptedVersion).toBeNull();
   });
 
   it('normalizes a blank sign-up name to null', async () => {
@@ -479,6 +491,18 @@ describe('before hook (closed better-auth endpoints)', () => {
       await expect(
         runBeforeHook('/sign-up/email', { password: 'Correct-horse-1', acceptedTerms: false }),
       ).rejects.toMatchObject({ body: { code: 'TERMS_NOT_ACCEPTED' } });
+    });
+
+    it('does not require terms on self-host', async () => {
+      const mutableEnv = env as { IS_CLOUD: boolean };
+      mutableEnv.IS_CLOUD = false;
+      try {
+        await expect(
+          runBeforeHook('/sign-up/email', { email: 'a@example.com', password: 'Correct-horse-1' }),
+        ).resolves.toBeUndefined();
+      } finally {
+        mutableEnv.IS_CLOUD = true;
+      }
     });
 
     it('lets sign-ups through once the terms are accepted', async () => {
