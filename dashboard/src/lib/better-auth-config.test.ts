@@ -12,6 +12,7 @@ import { makeUser, hashPassword } from '@/test/auth-fixtures';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
+import { getSignupAllowance } from '@/services/auth/signupGate.service';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -40,6 +41,9 @@ vi.mock('@/repositories/postgres/resetToken.repository', () => ({
   RESET_TOKEN_PREFIX: 'reset-password:',
   findResetTokenUserId: vi.fn(),
   deleteUserResetTokens: vi.fn(),
+}));
+vi.mock('@/services/auth/signupGate.service', () => ({
+  getSignupAllowance: vi.fn(),
 }));
 vi.mock('@/services/account/userSettings.service', () => ({
   createDefaultUserSettings: vi.fn(),
@@ -140,6 +144,53 @@ describe('user create before hook (sign-up field stamping)', () => {
   type BeforeHook = (user: unknown, ctx?: unknown) => Promise<{ data: Record<string, unknown> } | undefined>;
   const runBeforeCreateHook = (user: unknown, ctx?: unknown) =>
     (auth.options.databaseHooks!.user!.create!.before as unknown as BeforeHook)(user, ctx);
+
+  beforeEach(() => {
+    vi.mocked(getSignupAllowance).mockResolvedValue('registration_enabled');
+  });
+
+  describe('registration gate', () => {
+    const signup = { ...makeUser(), email: 'new@example.com', emailVerified: false };
+
+    it('refuses the row with SIGNUP_DISABLED when nothing permits this sign-up', async () => {
+      vi.mocked(getSignupAllowance).mockResolvedValue(null);
+
+      await expect(runBeforeCreateHook(signup, { path: '/sign-up/email', body: {} })).rejects.toMatchObject({
+        statusCode: 403,
+        body: { code: 'SIGNUP_DISABLED' },
+      });
+      expect(getSignupAllowance).toHaveBeenCalledWith({
+        email: 'new@example.com',
+        inviteToken: undefined,
+        emailVerified: false,
+      });
+    });
+
+    it('applies to OAuth sign-ups as well, since the static disableSignUp flags are gone', async () => {
+      vi.mocked(getSignupAllowance).mockResolvedValue(null);
+
+      await expect(
+        runBeforeCreateHook({ ...signup, emailVerified: true }, { path: '/callback/github' }),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      expect(getSignupAllowance).toHaveBeenCalledWith(expect.objectContaining({ emailVerified: true }));
+      expect('disableSignUp' in (auth.options.emailAndPassword ?? {})).toBe(false);
+    });
+
+    it.each(['invited', 'first_user'] as const)(
+      'lets a %s sign-up through with registration closed',
+      async (why) => {
+        vi.mocked(getSignupAllowance).mockResolvedValue(why);
+
+        const result = await runBeforeCreateHook(signup, {
+          path: '/sign-up/email',
+          body: { acceptedTerms: true, invite: 'tok-1' },
+        });
+
+        expect(result!.data.email).toBe('new@example.com');
+        expect(getSignupAllowance).toHaveBeenCalledWith(expect.objectContaining({ inviteToken: 'tok-1' }));
+      },
+    );
+  });
 
   it('stamps terms acceptance on email/password sign-ups', async () => {
     const result = await runBeforeCreateHook(
@@ -317,6 +368,24 @@ describe('before hook (closed better-auth endpoints)', () => {
   type BeforeHook = (ctx: { path: string; body?: unknown; json: (data: unknown) => unknown }) => Promise<unknown>;
   const runBeforeHook = (path: string, body: unknown = {}) =>
     (auth.options.hooks!.before as unknown as BeforeHook)({ path, body, json: (data) => data });
+
+  beforeEach(() => {
+    vi.mocked(getSignupAllowance).mockResolvedValue('registration_enabled');
+  });
+
+  it('refuses a closed sign-up before better-auth looks the email up', async () => {
+    vi.mocked(getSignupAllowance).mockResolvedValue(null);
+
+    await expect(
+      runBeforeHook('/sign-up/email', {
+        email: 'stranger@example.com',
+        password: 'Correct-horse-1',
+        acceptedTerms: true,
+      }),
+    ).rejects.toMatchObject({ statusCode: 403, body: { code: 'SIGNUP_DISABLED' } });
+    expect(getSignupAllowance).toHaveBeenCalledWith({ email: 'stranger@example.com', inviteToken: undefined });
+    expect(findUserByEmail).not.toHaveBeenCalled();
+  });
 
   it('/update-user returns 404 (profile mutations run through our server actions)', async () => {
     await expect(runBeforeHook('/update-user')).rejects.toMatchObject({ statusCode: 404 });
