@@ -2162,7 +2162,8 @@
           "domain": "eksempel.no"
         },
         "helper": {
-          "domain": "Skriv inn domenet ditt uten https:// eller www."
+          "domain": "Lim inn nettstedets URL eller domene, f.eks. eksempel.no",
+          "willBeCreatedAs": "Opprettes som <strong>{domain}</strong>"
         },
         "buttons": {
           "cancel": "Avbryt",
@@ -3267,7 +3268,8 @@
       "description": "Fortell oss om nettstedet du vil spore",
       "domainLabel": "Domene",
       "domainPlaceholder": "eksempel.no",
-      "domainHelp": "Skriv inn domenet ditt uten https:// eller www. (f.eks. example.com)",
+      "domainHelp": "Lim inn nettstedets URL eller domene (f.eks. eksempel.no)",
+      "domainWillBeCreatedAs": "Opprettes som <strong>{domain}</strong>",
       "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
       "createDashboardButton": "Opprett dashboard",
       "creatingDashboard": "Oppretter dashboard...",

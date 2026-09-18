@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useTransition, useCallback, Dispatch } from 'react';
+import { useState, useTransition, useCallback, useMemo, Dispatch } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { completeOnboardingAndCreateDashboardAction } from '@/app/actions/account/onboarding.action';
 import { domainValidation } from '@/entities/dashboard/dashboard.entities';
+import { normalizeDomainInput } from '@/utils/domainValidation';
 import { toast } from 'sonner';
 import { PrefixInput } from '@/components/inputs/PrefixInput';
 import { useTranslations, useLocale } from 'next-intl';
@@ -23,6 +24,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
   const t = useTranslations('onboarding.website');
   const tValidation = useTranslations('validation');
   const locale = useLocale();
+  const [domain, setDomain] = useState('');
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
   const [agree, setAgree] = useState(false);
@@ -33,6 +35,11 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
 
   const { setDashboard } = useOnboarding();
 
+  const normalizedDomain = useMemo(() => {
+    const normalized = normalizeDomainInput(domain);
+    return normalized !== domain.trim() && domainValidation.safeParse(domain).success ? normalized : null;
+  }, [domain]);
+
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
@@ -42,9 +49,6 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
         setError(tValidation('termsOfServiceRequired'));
         return;
       }
-
-      const formData = new FormData(e.currentTarget);
-      const domain = formData.get('domain') as string;
 
       const domainResult = domainValidation.safeParse(domain);
       if (!domainResult.success) {
@@ -74,7 +78,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
         onNext();
       });
     },
-    [agree, effectiveShowTos, t, tValidation, setDashboard, onNext],
+    [domain, agree, effectiveShowTos, locale, refetch, t, tValidation, setDashboard, onNext],
   );
 
   return (
@@ -93,11 +97,20 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
               name='domain'
               type='text'
               required
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
               placeholder={t('domainPlaceholder')}
               disabled={isPending}
               prefix='https://'
             />
-            <p className='text-muted-foreground text-xs'>{t('domainHelp')}</p>
+            <p className='text-muted-foreground text-xs'>
+              {normalizedDomain
+                ? t.rich('domainWillBeCreatedAs', {
+                    domain: normalizedDomain,
+                    strong: (chunks) => <span className='text-foreground font-medium'>{chunks}</span>,
+                  })
+                : t('domainHelp')}
+            </p>
           </div>
           {effectiveShowTos && (
             <div className='flex items-start gap-2'>
