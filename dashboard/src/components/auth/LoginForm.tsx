@@ -28,12 +28,15 @@ type LoginFormProps = {
   registrationDisabledMessage?: string | null;
   forgotPasswordEnabled?: boolean;
   providers: ReturnType<typeof getEnabledOAuthProviders>;
+  /** Same-origin path to land on after sign-in; defaults to the dashboards list */
+  redirectTo?: string;
 };
 
 export default function LoginForm({
   registrationDisabledMessage,
   forgotPasswordEnabled,
   providers,
+  redirectTo = '/dashboards',
 }: LoginFormProps) {
   const router = useBARouter();
   const isMobile = useIsMobile();
@@ -87,7 +90,7 @@ export default function LoginForm({
             setError(t('errors.invalidOtp'));
             return;
           }
-          router.push('/dashboards');
+          router.push(redirectTo);
           return;
         }
 
@@ -100,7 +103,7 @@ export default function LoginForm({
           setIsDialogOpen(true);
           return;
         }
-        router.push('/dashboards');
+        router.push(redirectTo);
       } catch {
         setError(t('errors.generic'));
       }
@@ -119,7 +122,7 @@ export default function LoginForm({
           // keeps failures off better-auth's unbranded /api/auth/error page.
           const { error: socialError } = await authClient.signIn.social({
             provider: oauthProvider,
-            callbackURL: '/dashboards',
+            callbackURL: redirectTo,
             newUserCallbackURL: '/onboarding?newUser=true',
             errorCallbackURL: '/signin',
           });
@@ -131,7 +134,7 @@ export default function LoginForm({
         }
       });
     },
-    [t],
+    [t, redirectTo],
   );
 
   return (

@@ -2,7 +2,9 @@ import { redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { isFeatureEnabled } from '@/lib/feature-flags';
+import { getSignupAllowance } from '@/services/auth/signupGate.service';
+import { findInvitationByToken } from '@/repositories/postgres/invitation.repository';
+import { isOpenInvitation } from '@/entities/dashboard/invitation.entities';
 import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
@@ -35,16 +37,27 @@ export async function generateMetadata({
   });
 }
 
-export default async function SignupPage() {
+type SignupPageProps = {
+  searchParams: Promise<{ invite?: string }>;
+};
+
+export default async function SignupPage({ searchParams }: SignupPageProps) {
   const session = await getAuthSession();
   const t = await getTranslations('public.auth.register');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.signup);
+  const { invite } = await searchParams;
+
+  const invitation = invite ? await findInvitationByToken(invite) : null;
+  const openInvitation = invitation && isOpenInvitation(invitation) ? invitation : null;
+  const acceptPath = openInvitation ? `/accept-invite/${invite}` : undefined;
 
   if (session) {
-    redirect('/dashboards');
+    redirect(acceptPath ?? '/dashboards');
   }
 
-  if (!isFeatureEnabled('enableRegistration')) {
+  if (
+    !(await getSignupAllowance({ email: openInvitation?.email, inviteToken: openInvitation ? invite : undefined }))
+  ) {
     return (
       <>
         <StructuredData config={seoConfig} />
@@ -73,7 +86,12 @@ export default async function SignupPage() {
   return (
     <>
       <StructuredData config={seoConfig} />
-      <SignupForm providers={providers} />
+      <SignupForm
+        providers={providers}
+        invitedEmail={openInvitation?.email}
+        inviteToken={openInvitation ? invite : undefined}
+        redirectTo={acceptPath}
+      />
     </>
   );
 }

@@ -40,9 +40,15 @@ const itemVariants = {
 
 type SignupFormProps = {
   providers: ReturnType<typeof getEnabledOAuthProviders>;
+  /** Locks the email field to the invited address */
+  invitedEmail?: string;
+  /** Sent with the sign-up so the server can honour the invitation when registration is closed */
+  inviteToken?: string;
+  /** Where to land after the account exists, e.g. back on the invitation being accepted */
+  redirectTo?: string;
 };
 
-export default function SignupForm({ providers }: SignupFormProps) {
+export default function SignupForm({ providers, invitedEmail, inviteToken, redirectTo }: SignupFormProps) {
   const t = useTranslations('onboarding.account');
   const tValidation = useTranslations('validation');
   const tAuth = useTranslations('public.auth.register');
@@ -110,6 +116,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
             name: validatedData.name ?? '',
             acceptedTerms: validatedData.acceptedTerms,
             language: validatedData.language,
+            ...(inviteToken && { invite: inviteToken }),
           };
           const { error: signUpError } = await authClient.signUp.email(signUpBody);
 
@@ -117,12 +124,19 @@ export default function SignupForm({ providers }: SignupFormProps) {
             setError(
               signUpError.code?.startsWith('USER_ALREADY_EXISTS')
                 ? t('form.emailAlreadyExists')
-                : t('form.signUpError'),
+                : signUpError.code === 'SIGNUP_DISABLED'
+                  ? t('form.registrationDisabled')
+                  : t('form.signUpError'),
             );
             return;
           }
 
           baEvent('onboarding-account-created');
+
+          if (redirectTo) {
+            router.push(redirectTo);
+            return;
+          }
 
           const { hadInvitations } = await handlePotentialInvitationsOnAccountCreation();
 
@@ -146,7 +160,17 @@ export default function SignupForm({ providers }: SignupFormProps) {
         }
       }
     },
-    [acceptedTerms, t, tValidation, locale, router, startTransition, handlePotentialInvitationsOnAccountCreation],
+    [
+      acceptedTerms,
+      t,
+      tValidation,
+      locale,
+      router,
+      redirectTo,
+      inviteToken,
+      startTransition,
+      handlePotentialInvitationsOnAccountCreation,
+    ],
   );
 
   const handleOAuthRegistration = useCallback(
@@ -158,9 +182,9 @@ export default function SignupForm({ providers }: SignupFormProps) {
         try {
           const { error: socialError } = await authClient.signIn.social({
             provider,
-            callbackURL: '/dashboards',
-            newUserCallbackURL: '/onboarding?newUser=true',
-            errorCallbackURL: '/signin',
+            callbackURL: redirectTo ?? '/dashboards',
+            newUserCallbackURL: redirectTo ?? '/onboarding?newUser=true',
+            errorCallbackURL: redirectTo ? `/signin?callbackUrl=${encodeURIComponent(redirectTo)}` : '/signin',
           });
           if (socialError) {
             setError(t('form.signUpError'));
@@ -170,7 +194,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
         }
       });
     },
-    [t, startGithubTransition, startGoogleTransition],
+    [t, redirectTo, startGithubTransition, startGoogleTransition],
   );
 
   return (
@@ -277,7 +301,14 @@ export default function SignupForm({ providers }: SignupFormProps) {
                   placeholder={t('form.emailPlaceholder')}
                   className='h-10 rounded-md text-sm'
                   disabled={isPending}
+                  defaultValue={invitedEmail}
+                  readOnly={!!invitedEmail}
                 />
+                {invitedEmail && (
+                  <p className='text-muted-foreground text-xs'>
+                    {t('form.invitedEmailHint', { email: invitedEmail })}
+                  </p>
+                )}
               </div>
 
               <div className='space-y-2'>

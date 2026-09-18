@@ -3256,7 +3256,9 @@
         "passwordsDoNotMatch": "Passwords do not match",
         "emailAlreadyExists": "User with that email already exists.",
         "signUpError": "An error occurred during sign up. Please try again.",
-        "checkInput": "Please check your input"
+        "checkInput": "Please check your input",
+        "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner for an invitation.",
+        "invitedEmailHint": "This invitation is for {email}."
       }
     },
     "website": {

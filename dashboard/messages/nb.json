@@ -3259,7 +3259,9 @@
         "passwordsDoNotMatch": "Passordene samsvarer ikke",
         "emailAlreadyExists": "Det finnes allerede en bruker med den e-postadressen.",
         "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
-        "checkInput": "Vennligst sjekk inndataene dine"
+        "checkInput": "Vennligst sjekk inndataene dine",
+        "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
+        "invitedEmailHint": "Denne invitasjonen er til {email}."
       }
     },
     "website": {

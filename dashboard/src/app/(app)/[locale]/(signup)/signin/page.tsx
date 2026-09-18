@@ -11,6 +11,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
 import { getEnabledOAuthProviders } from '@/lib/better-auth';
+import { isFirstUser } from '@/services/auth/signupGate.service';
+import { toSafeRelativePath } from '@/lib/auth/safe-redirect';
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -48,7 +50,8 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await getAuthSession();
   const registrationEnabled = isFeatureEnabled('enableRegistration');
   const emailsEnabled = isFeatureEnabled('enableEmails');
-  const { error, registration } = await searchParams;
+  const { error, registration, callbackUrl } = await searchParams;
+  const redirectTo = toSafeRelativePath(callbackUrl, '/dashboards');
   const t = await getTranslations('public.auth.signin');
   const tOnboarding = await getTranslations('onboarding');
 
@@ -57,7 +60,12 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const providers = getEnabledOAuthProviders();
 
   if (session) {
-    redirect('/dashboards');
+    redirect(redirectTo);
+  }
+
+  // Empty closed instance: nobody can sign in yet, so the first visitor goes straight to creating the account
+  if (!registrationEnabled && (await isFirstUser())) {
+    redirect('/signup');
   }
 
   const getErrorMessage = (error: string) =>
@@ -88,6 +96,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                 registrationDisabledMessage={registrationDisabledMessage}
                 forgotPasswordEnabled={emailsEnabled}
                 providers={providers}
+                redirectTo={redirectTo}
               />
             </CardContent>
           </Card>

@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
 import { acceptInvitationAction } from '@/app/actions/dashboard/invitations.action';
 import { findInvitationByToken } from '@/repositories/postgres/invitation.repository';
+import { findUserByEmail } from '@/repositories/postgres/user.repository';
+import { isOpenInvitation } from '@/entities/dashboard/invitation.entities';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -106,14 +108,10 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
     );
   }
 
-  if (!session?.user?.email) {
-    redirect(`/${locale}/signin`);
-  }
+  const isExpired = new Date() > invitation.expiresAt || invitation.status === 'expired';
 
-  const isExpired = new Date() > invitation.expiresAt;
-  const isEmailMismatch = invitation.email.toLowerCase() !== session.user.email.toLowerCase();
-
-  if (isExpired || invitation.status === 'expired') {
+  // Nothing to do for an expired invite whoever you are, so say so before asking anyone to sign in
+  if (isExpired) {
     return (
       <InviteStatusCard
         icon={Clock}
@@ -126,6 +124,18 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
       />
     );
   }
+
+  // Not signed in: keep the invite on the way through auth, and send a brand-new address to
+  // sign-up (which the invitation unlocks even when registration is closed) rather than sign-in.
+  if (!session?.user?.email) {
+    const returnTo = `/accept-invite/${token}`;
+    if (isOpenInvitation(invitation) && !(await findUserByEmail(invitation.email))) {
+      redirect(`/${locale}/signup?invite=${encodeURIComponent(token)}`);
+    }
+    redirect(`/${locale}/signin?callbackUrl=${encodeURIComponent(returnTo)}`);
+  }
+
+  const isEmailMismatch = invitation.email.toLowerCase() !== session.user.email.toLowerCase();
 
   if (isEmailMismatch) {
     return (

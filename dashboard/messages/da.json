@@ -3259,7 +3259,9 @@
         "passwordsDoNotMatch": "Adgangskoder matcher ikke",
         "emailAlreadyExists": "Der findes allerede en bruger med den e-mail.",
         "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
-        "checkInput": "Tjek venligst dit input"
+        "checkInput": "Tjek venligst dit input",
+        "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
+        "invitedEmailHint": "Denne invitation er til {email}."
       }
     },
     "website": {
