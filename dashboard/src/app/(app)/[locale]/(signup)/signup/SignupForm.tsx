@@ -11,7 +11,7 @@ import { authClient } from '@/lib/auth-client';
 import type { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
-import { CheckCircleIcon } from 'lucide-react';
+import { CheckCircleIcon, LockIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from '@/i18n/navigation';
 import { useTranslations, useLocale } from 'next-intl';
@@ -290,17 +290,26 @@ export default function SignupForm({ providers, invitedEmail, inviteToken, redir
             <form className='space-y-4' onSubmit={handleEmailRegistration}>
               <div className='space-y-2'>
                 <Label htmlFor='email'>{t('form.emailLabel')}</Label>
-                <Input
-                  id='email'
-                  name='email'
-                  type='email'
-                  required
-                  placeholder={t('form.emailPlaceholder')}
-                  className='h-10 rounded-md text-sm'
-                  disabled={isPending}
-                  defaultValue={invitedEmail}
-                  readOnly={!!invitedEmail}
-                />
+                <div className='relative'>
+                  <Input
+                    id='email'
+                    name='email'
+                    type='email'
+                    required
+                    placeholder={t('form.emailPlaceholder')}
+                    className={`h-10 rounded-md text-sm ${invitedEmail ? 'bg-muted text-muted-foreground cursor-not-allowed pr-9 opacity-70' : ''}`}
+                    disabled={isPending}
+                    defaultValue={invitedEmail}
+                    readOnly={!!invitedEmail}
+                    aria-readonly={!!invitedEmail}
+                  />
+                  {invitedEmail && (
+                    <LockIcon
+                      className='text-muted-foreground pointer-events-none absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2'
+                      aria-hidden
+                    />
+                  )}
+                </div>
                 {invitedEmail && (
                   <p className='text-muted-foreground text-xs'>
                     {t('form.invitedEmailHint', { email: invitedEmail })}
