@@ -1017,37 +1017,6 @@
       max-width: 60%;
     }
   }
-  /* the title-bar tag: the dots on the left say "a window", this says "and it
-     is running". Same mono microcap as the placeholder label. */
-  .demo__tag {
-    position: absolute;
-    top: 0;
-    right: 18px;
-    z-index: 2;
-    height: 44px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    font-family: var(--mono);
-    font-size: 10.5px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--mid);
-  }
-  .demo__tag i {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--live);
-    flex: none;
-  }
-  @media (max-width: 560px) {
-    /* the bar is too narrow to carry both; the scrim still says it */
-    .demo__tag {
-      display: none;
-    }
-  }
 
   /* ── the scrim: the frame takes the pointer once it is clicked ──
      Veils the dashboard rather than hiding it — the product has to stay legible

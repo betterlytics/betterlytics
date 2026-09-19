@@ -37,10 +37,9 @@ export const COPY = {
     placeholder: 'Interactive demo',
     loading: 'Loading the live dashboard',
     frameTitle: 'Betterlytics live demo',
-    /* the frame's title bar: a stub address bar, and a tag opposite the window dots */
+    /* the frame's title bar: a stub address bar beside the window dots */
     urlHost: 'betterlytics.io',
     urlPath: '/demo',
-    tag: 'Live data',
     /* The scrim's only line. It names the mechanic, which nothing else says —
        the chrome above already carries "demo", so repeating that here would be
        the frame talking to itself. */
