@@ -39,11 +39,10 @@ describe('getSignupAllowance', () => {
     vi.mocked(findPendingInvitationsByEmail).mockResolvedValue([]);
   });
 
-  it('allows everyone when registration is enabled, without touching the database', async () => {
+  it('allows everyone when registration is enabled, without looking up invitations', async () => {
     vi.mocked(isFeatureEnabled).mockReturnValue(true);
 
     await expect(getSignupAllowance({ email: 'anyone@example.com' })).resolves.toBe('registration_enabled');
-    expect(countUsers).not.toHaveBeenCalled();
     expect(findInvitationByToken).not.toHaveBeenCalled();
   });
 
@@ -52,6 +51,13 @@ describe('getSignupAllowance', () => {
 
     await expect(getSignupAllowance({ email: 'first@example.com' })).resolves.toBe('first_user');
     await expect(getSignupAllowance()).resolves.toBe('first_user');
+  });
+
+  it('reports the first account as first_user even when registration is open, so it becomes the admin', async () => {
+    vi.mocked(isFeatureEnabled).mockReturnValue(true);
+    vi.mocked(countUsers).mockResolvedValue(0);
+
+    await expect(getSignupAllowance({ email: 'first@example.com' })).resolves.toBe('first_user');
   });
 
   it('rejects an uninvited address once the instance has users', async () => {

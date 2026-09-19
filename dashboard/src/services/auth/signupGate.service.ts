@@ -40,8 +40,8 @@ async function isInvited({ email, inviteToken, emailVerified }: SignupCandidate)
 }
 
 export async function getSignupAllowance(candidate: SignupCandidate = {}): Promise<SignupAllowance | null> {
-  if (isFeatureEnabled('enableRegistration')) return 'registration_enabled';
   if (await isFirstUser()) return 'first_user';
+  if (isFeatureEnabled('enableRegistration')) return 'registration_enabled';
   if (await isInvited(candidate)) return 'invited';
   return null;
 }
