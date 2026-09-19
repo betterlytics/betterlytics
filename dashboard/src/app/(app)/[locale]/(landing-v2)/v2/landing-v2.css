@@ -1159,9 +1159,12 @@
   .logos__label > span {
     white-space: nowrap;
   }
+  /* between the pale text accent and the underline blue: the claim should carry, and
+     the underline blue reads too dark as a word on canvas */
   .logos__label em {
     font-style: normal;
-    color: var(--accent-soft);
+    color: #6b7aff;
+    font-weight: 500;
     white-space: nowrap;
   }
   .logos .lg {
