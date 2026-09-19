@@ -192,6 +192,25 @@ describe('user create before hook (sign-up field stamping)', () => {
         expect(getSignupAllowance).toHaveBeenCalledWith(expect.objectContaining({ inviteToken: 'tok-1' }));
       },
     );
+
+    it('makes the first account the instance admin', async () => {
+      vi.mocked(getSignupAllowance).mockResolvedValue('first_user');
+
+      const result = await runBeforeCreateHook({ ...signup, role: null }, { path: '/sign-up/email', body: {} });
+
+      expect(result!.data.role).toBe('admin');
+    });
+
+    it.each(['invited', 'registration_enabled'] as const)(
+      'leaves the role unset for a %s sign-up',
+      async (why) => {
+        vi.mocked(getSignupAllowance).mockResolvedValue(why);
+
+        const result = await runBeforeCreateHook({ ...signup, role: null }, { path: '/sign-up/email', body: {} });
+
+        expect(result!.data.role).toBeNull();
+      },
+    );
   });
 
   it('stamps terms acceptance on email/password sign-ups', async () => {

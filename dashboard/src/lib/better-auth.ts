@@ -224,6 +224,9 @@ export const auth = betterAuth({
           }
 
           const extra: Record<string, unknown> = {};
+          if (allowed === 'first_user') {
+            extra.role = 'admin';
+          }
           if (user.emailVerified) {
             extra.emailVerifiedAt = new Date();
           }
