@@ -373,28 +373,28 @@
   .cnr > i::after {
     content: '';
     position: absolute;
-    width: 9px;
-    height: 9px;
+    width: 11px;
+    height: 11px;
     border: 1px solid var(--rule-30);
     border-radius: 1.5px;
     background: #1a1918;
     z-index: 3;
   }
   .cnr::before {
-    left: -5px;
-    top: -5px;
+    left: -6px;
+    top: -6px;
   }
   .cnr::after {
-    right: -5px;
-    top: -5px;
+    right: -6px;
+    top: -6px;
   }
   .cnr > i::before {
-    left: -5px;
-    bottom: -5px;
+    left: -6px;
+    bottom: -6px;
   }
   .cnr > i::after {
-    right: -5px;
-    bottom: -5px;
+    right: -6px;
+    bottom: -6px;
   }
 
   /* ── ink: the frame is drawn as the reader arrives ──
