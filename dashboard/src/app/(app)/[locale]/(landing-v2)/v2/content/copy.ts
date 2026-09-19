@@ -61,7 +61,7 @@ export const COPY = {
     lead: 'Ask questions, not queries.',
     body: 'Your agent reads the schema, picks its tools and joins across all of it.',
     worksWith: 'Works with',
-    any: 'ChatGPT, Zed, Codex — and any client that speaks the protocol over HTTP.',
+    any: 'ChatGPT, Zed, JetBrains — and any client that speaks the protocol over HTTP.',
     cta: 'Set up MCP',
   },
   frameworks: {

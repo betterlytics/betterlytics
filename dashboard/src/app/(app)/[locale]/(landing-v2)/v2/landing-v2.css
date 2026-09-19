@@ -2831,10 +2831,6 @@
   .mcp__works li {
     position: relative;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    gap: 11px;
-    padding: 9px 12px;
     border: 1px solid var(--rule-10);
     border-radius: 8px;
     background: linear-gradient(180deg, rgba(235, 232, 230, 0.045), rgba(235, 232, 230, 0.014));
@@ -2865,10 +2861,25 @@
   .mcp__works li:hover::before {
     opacity: 1;
   }
-  .mcp__works li > * {
+  /* the anchor fills the tile so the whole tile is the link */
+  .mcp__works li > a {
     position: relative;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 12px;
+    color: inherit;
+    text-decoration: none;
+    border-radius: inherit;
+    outline: none;
   }
-  .mcp__works li > span {
+  .mcp__works li > a:focus-visible {
+    box-shadow: inset 0 0 0 1.5px rgba(139, 151, 255, 0.7);
+  }
+  .mcp__works li:has(a:focus-visible) {
+    border-color: rgba(139, 151, 255, 0.35);
+  }
+  .mcp__works li > a > span {
     width: 26px;
     height: 26px;
     border-radius: 6px;

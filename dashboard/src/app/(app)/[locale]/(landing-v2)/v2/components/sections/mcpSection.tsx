@@ -23,10 +23,12 @@ export function McpSection() {
             <SpotlightList className='mcp__works'>
               {MCP_CLIENTS.map((client) => (
                 <li key={client.name}>
-                  <span>
-                    <PathIcon icon={client.icon} className='mcpi' />
-                  </span>
-                  {client.name}
+                  <a href={client.href}>
+                    <span>
+                      <PathIcon icon={client.icon} className='mcpi' />
+                    </span>
+                    {client.name}
+                  </a>
                 </li>
               ))}
             </SpotlightList>
