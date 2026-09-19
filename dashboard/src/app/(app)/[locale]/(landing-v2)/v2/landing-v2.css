@@ -1628,12 +1628,43 @@
   .is-live .sr__rip {
     animation-play-state: running;
   }
+  /* the ripple is centred on the arrow tip, which sits at the box's top-left corner, so the
+     scale runs from that corner too */
+  .sr__rip {
+    transform-origin: 1px 1px;
+  }
   .sr__rip::after {
     content: '';
     position: absolute;
-    inset: -11px;
+    left: -14px;
+    top: -14px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     border: 2px solid #4a5cff;
+  }
+  /* the click popup, hung below-right of the tip, shown for the single click */
+  .sr__click {
+    position: absolute;
+    left: 14px;
+    top: 20px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(21, 20, 20, 0.92);
+    border: 1px solid rgba(235, 232, 230, 0.12);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+    opacity: 0;
+    animation: lp2-sr-click 11s linear infinite;
+    animation-play-state: paused;
+  }
+  .is-live .sr__click {
+    animation-play-state: running;
   }
   .sr__tag {
     position: absolute;
@@ -3891,6 +3922,7 @@
     .sr__cur,
     .sr__rip,
     .sr__tag,
+    .sr__click,
     .sr__tr i {
       animation: none;
     }
@@ -4141,5 +4173,22 @@
 @keyframes lp2-ink-in {
   from {
     border-color: transparent;
+  }
+}
+@keyframes lp2-sr-click {
+  0%,
+  18% {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
+  }
+  21%,
+  30% {
+    opacity: 1;
+    transform: none;
+  }
+  34%,
+  100% {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.96);
   }
 }

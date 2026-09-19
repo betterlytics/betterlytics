@@ -30,7 +30,8 @@ export function Replay() {
         </div>
         <span className='sr__rip' />
         <span className='sr__cur'>
-          <CursorGlyph dark />
+          <CursorGlyph outline />
+          <span className='sr__click'>Cursor click captured</span>
         </span>
         <span className='sr__tag'>Rage click · 3×</span>
       </div>
