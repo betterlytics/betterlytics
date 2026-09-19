@@ -3472,13 +3472,16 @@
       "goToSignIn": "Go to Sign In",
       "expiredTitle": "Invitation Expired",
       "expiredDescription": "This invitation is no longer valid.",
-      "expiredHint": "Please ask the dashboard owner to send you a new invitation.",
+      "expiredHint": "Ask {inviter} to send you a new invitation.",
       "emailMismatchTitle": "Wrong Account",
       "emailMismatchDescription": "This invitation was sent to {invitedEmail}, but you are signed in as {currentEmail}.",
       "emailMismatchHint": "Sign out and sign in with the correct account to accept this invitation.",
       "errorTitle": "Could Not Accept Invitation",
-      "errorDescription": "Something went wrong while accepting the invitation. It may have already been accepted or cancelled.",
-      "goToDashboards": "Go to Dashboards"
+      "errorDescription": "Something went wrong while adding you to the dashboard.",
+      "goToDashboards": "Go to Dashboards",
+      "errorHint": "Try again in a moment. If it keeps failing, ask {inviter} to send you a new invitation.",
+      "tryAgain": "Try again",
+      "dashboardOwner": "the dashboard owner"
     }
   },
   "integration": {

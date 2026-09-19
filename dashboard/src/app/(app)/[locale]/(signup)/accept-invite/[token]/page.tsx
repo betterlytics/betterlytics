@@ -1,9 +1,10 @@
 import { redirect } from 'next/navigation';
 import { getAuthSession } from '@/auth/auth-actions';
-import { acceptInvitationAction } from '@/app/actions/dashboard/invitations.action';
+import { acceptInvitation } from '@/services/dashboard/invitation.service';
 import { findInvitationByToken } from '@/repositories/postgres/invitation.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
-import { isOpenInvitation } from '@/entities/dashboard/invitation.entities';
+import { isOpenInvitation, type InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
+import { UserException } from '@/lib/exceptions';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -36,6 +37,8 @@ interface InviteStatusCardProps {
   actionLabel: string;
   actionHref: string;
   actionVariant?: 'default' | 'outline';
+  secondaryActionLabel?: string;
+  secondaryActionHref?: string;
 }
 
 function InviteStatusCard({
@@ -47,6 +50,8 @@ function InviteStatusCard({
   actionLabel,
   actionHref,
   actionVariant = 'outline',
+  secondaryActionLabel,
+  secondaryActionHref,
 }: InviteStatusCardProps) {
   const iconStyles = {
     destructive: 'text-destructive',
@@ -69,11 +74,18 @@ function InviteStatusCard({
             <CardDescription className='text-sm leading-relaxed'>{description}</CardDescription>
           </div>
 
-          <div className='flex items-center justify-between gap-4 pt-2'>
+          <div className={`flex gap-4 pt-2 ${secondaryActionLabel ? 'flex-col' : 'items-center justify-between'}`}>
             {hint && <p className='text-muted-foreground/80 text-sm leading-relaxed'>{hint}</p>}
-            <Button asChild variant={actionVariant} className='ml-auto shrink-0'>
-              <Link href={actionHref}>{actionLabel}</Link>
-            </Button>
+            <div className='ml-auto flex shrink-0 gap-2'>
+              {secondaryActionLabel && secondaryActionHref && (
+                <Button asChild variant='outline'>
+                  <Link href={secondaryActionHref}>{secondaryActionLabel}</Link>
+                </Button>
+              )}
+              <Button asChild variant={actionVariant}>
+                <Link href={actionHref}>{actionLabel}</Link>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -93,35 +105,46 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
   const session = await getAuthSession();
   const t = await getTranslations('invitations.acceptPage');
 
+  // Name only: the inviter's email never reaches the link holder (the invite email doesn't show it either)
+  const inviterLabel = (invitation: InvitationWithInviter) => invitation.invitedBy.name || t('dashboardOwner');
+
+  // Cards for the states that need no session: missing/cancelled/declined and expired
+  const statusCardFor = (invitation: InvitationWithInviter | null) => {
+    if (!invitation || invitation.status === 'cancelled' || invitation.status === 'declined') {
+      return (
+        <InviteStatusCard
+          icon={AlertCircle}
+          iconVariant='destructive'
+          title={t('notFoundTitle')}
+          description={t('notFoundDescription')}
+          actionLabel={session ? t('goToDashboards') : t('goToSignIn')}
+          actionHref={session ? '/dashboards' : `/${locale}/signin`}
+          actionVariant='default'
+        />
+      );
+    }
+
+    if (invitation.status === 'expired' || new Date() > invitation.expiresAt) {
+      return (
+        <InviteStatusCard
+          icon={Clock}
+          iconVariant='warning'
+          title={t('expiredTitle')}
+          description={t('expiredDescription')}
+          hint={t('expiredHint', { inviter: inviterLabel(invitation) })}
+          actionLabel={t('goToDashboards')}
+          actionHref={'/dashboards'}
+        />
+      );
+    }
+
+    return null;
+  };
+
   const invitation = await findInvitationByToken(token);
-  if (!invitation || invitation.status === 'cancelled' || invitation.status === 'declined') {
-    return (
-      <InviteStatusCard
-        icon={AlertCircle}
-        iconVariant='destructive'
-        title={t('notFoundTitle')}
-        description={t('notFoundDescription')}
-        actionLabel={t('goToSignIn')}
-        actionHref={`/${locale}/signin`}
-        actionVariant='default'
-      />
-    );
-  }
-
-  const isExpired = new Date() > invitation.expiresAt || invitation.status === 'expired';
-
-  if (isExpired) {
-    return (
-      <InviteStatusCard
-        icon={Clock}
-        iconVariant='warning'
-        title={t('expiredTitle')}
-        description={t('expiredDescription')}
-        hint={t('expiredHint')}
-        actionLabel={t('goToDashboards')}
-        actionHref={'/dashboards'}
-      />
-    );
+  const statusCard = statusCardFor(invitation);
+  if (statusCard || !invitation) {
+    return statusCard;
   }
 
   // New address goes to sign-up (the invitation unlocks it); existing ones to sign-in
@@ -156,17 +179,34 @@ export default async function AcceptInvitePage({ params }: AcceptInvitePageProps
     redirect(`/dashboard/${invitation.dashboardId}?invited=1`);
   }
 
-  const result = await acceptInvitationAction(token);
+  // The service, not the action: the action's revalidatePath throws when run during render
+  try {
+    await acceptInvitation(token, session.user.id, session.user.email);
+  } catch (error) {
+    console.error('Failed to accept invitation from link:', { invitationId: invitation.id, error });
 
-  if (!result.success) {
+    // The invitation may have changed since we read it (accepted elsewhere, cancelled, expired)
+    const current = await findInvitationByToken(token);
+    if (current?.status === 'accepted') {
+      redirect(`/dashboard/${invitation.dashboardId}?invited=1`);
+    }
+    const currentStatusCard = statusCardFor(current);
+    if (currentStatusCard) {
+      return currentStatusCard;
+    }
+
     return (
       <InviteStatusCard
         icon={AlertCircle}
         iconVariant='destructive'
         title={t('errorTitle')}
-        description={t('errorDescription')}
-        actionLabel={t('goToDashboards')}
-        actionHref={'/dashboards'}
+        description={error instanceof UserException ? error.message : t('errorDescription')}
+        hint={t('errorHint', { inviter: inviterLabel(invitation) })}
+        actionLabel={t('tryAgain')}
+        actionHref={`/${locale}/accept-invite/${token}`}
+        actionVariant='default'
+        secondaryActionLabel={t('goToDashboards')}
+        secondaryActionHref={'/dashboards'}
       />
     );
   }

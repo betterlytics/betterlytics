@@ -3475,13 +3475,16 @@
       "goToSignIn": "Vai al login",
       "expiredTitle": "Invito scaduto",
       "expiredDescription": "Questo invito non è più valido.",
-      "expiredHint": "Chiedi al proprietario della dashboard di inviarti un nuovo invito.",
+      "expiredHint": "Chiedi a {inviter} di inviarti un nuovo invito.",
       "emailMismatchTitle": "Account errato",
       "emailMismatchDescription": "Questo invito è stato inviato a {invitedEmail}, ma hai effettuato l'accesso come {currentEmail}.",
       "emailMismatchHint": "Esci e accedi con l'account corretto per accettare questo invito.",
       "errorTitle": "Impossibile accettare l'invito",
-      "errorDescription": "Si è verificato un errore durante l'accettazione dell'invito. Potrebbe essere già stato accettato o annullato.",
-      "goToDashboards": "Vai alle dashboard"
+      "errorDescription": "Si è verificato un errore durante l'aggiunta alla dashboard.",
+      "goToDashboards": "Vai alle dashboard",
+      "errorHint": "Riprova tra qualche istante. Se il problema persiste, chiedi a {inviter} di inviarti un nuovo invito.",
+      "tryAgain": "Riprova",
+      "dashboardOwner": "il proprietario della dashboard"
     }
   },
   "integration": {

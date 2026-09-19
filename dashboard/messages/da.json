@@ -3475,13 +3475,16 @@
       "goToSignIn": "Gå til login",
       "expiredTitle": "Invitation udløbet",
       "expiredDescription": "Denne invitation er ikke længere gyldig.",
-      "expiredHint": "Bed dashboard-ejeren om at sende dig en ny invitation.",
+      "expiredHint": "Bed {inviter} om at sende dig en ny invitation.",
       "emailMismatchTitle": "Forkert konto",
       "emailMismatchDescription": "Denne invitation blev sendt til {invitedEmail}, men du er logget ind som {currentEmail}.",
       "emailMismatchHint": "Log ud og log ind med den korrekte konto for at acceptere denne invitation.",
       "errorTitle": "Kunne ikke acceptere invitation",
-      "errorDescription": "Noget gik galt under accept af invitationen. Den er muligvis allerede accepteret eller annulleret.",
-      "goToDashboards": "Gå til dashboards"
+      "errorDescription": "Noget gik galt, da du skulle tilføjes til dashboardet.",
+      "goToDashboards": "Gå til dashboards",
+      "errorHint": "Prøv igen om lidt. Hvis det bliver ved med at fejle, så bed {inviter} om at sende dig en ny invitation.",
+      "tryAgain": "Prøv igen",
+      "dashboardOwner": "dashboard-ejeren"
     }
   },
   "integration": {
