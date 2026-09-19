@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Emphasis } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/emphasis';
 import { Panel, Section, SectionHead } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/frame';
@@ -22,7 +23,11 @@ function Card({ t }: { t: Testimonial }) {
       </blockquote>
       <figcaption>
         <span className='tst__av' aria-hidden>
-          {initials(t.name)}
+          {t.avatar ? (
+            <Image src={`/images/testimonials/${t.avatar}`} alt='' width={38} height={38} unoptimized />
+          ) : (
+            initials(t.name)
+          )}
         </span>
         <span className='tst__who'>
           <b>{t.name}</b>
