@@ -5,11 +5,9 @@ import { UpdateUserData } from '@/entities/auth/user.entities';
 import { UserSettings, UserSettingsUpdate, DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
 import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
 import * as UserRepository from '@/repositories/postgres/user.repository';
-import { invalidateOtherUserSessions } from '@/services/session.service';
 import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
 import * as InvitationRepository from '@/repositories/postgres/invitation.repository';
-import { sendPasswordChangedNotification } from '@/services/auth/passwordReset.service';
-import { UserException } from '@/lib/exceptions';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {
   try {
@@ -28,9 +26,15 @@ export async function getUserSettings(userId: string): Promise<UserSettings> {
 
 export const getCachedUserSettings = cache(getUserSettings);
 
-export async function createDefaultUserSettings(userId: string): Promise<UserSettings> {
+export async function createDefaultUserSettings(
+  userId: string,
+  language?: SupportedLanguages,
+): Promise<UserSettings> {
   try {
-    return await UserSettingsRepository.createUserSettings(userId, DEFAULT_USER_SETTINGS);
+    return await UserSettingsRepository.createUserSettings(userId, {
+      ...DEFAULT_USER_SETTINGS,
+      ...(language && { language }),
+    });
   } catch (error) {
     console.error('Error creating default user settings:', error);
     throw new Error('Failed to create default user settings');
@@ -70,41 +74,5 @@ export async function deleteUser(userId: string): Promise<void> {
   } catch (error) {
     console.error(`Error deleting user ${userId}:`, error);
     throw new Error('Failed to delete user account and associated data');
-  }
-}
-
-export async function changeUserPassword(
-  userId: string,
-  oldPassword: string,
-  newPassword: string,
-  currentSessionToken?: string,
-): Promise<void> {
-  try {
-    if (!currentSessionToken) {
-      throw new UserException('No active session token found');
-    }
-
-    const isOldPasswordValid = await UserRepository.verifyUserPassword(userId, oldPassword);
-
-    if (!isOldPasswordValid) {
-      throw new UserException('Current password is incorrect');
-    }
-
-    await UserRepository.updateUserPassword(userId, newPassword);
-    await invalidateOtherUserSessions(userId, currentSessionToken);
-
-    const user = await UserRepository.findUserById(userId);
-    if (user?.email) {
-      await sendPasswordChangedNotification(userId, user.email, user.name);
-    }
-
-    console.log(`Successfully updated password for user ${userId}`);
-  } catch (error) {
-    if (error instanceof UserException) {
-      throw error;
-    }
-
-    console.error(`Error changing password for user ${userId}:`, error);
-    throw new UserException('Failed to change password');
   }
 }

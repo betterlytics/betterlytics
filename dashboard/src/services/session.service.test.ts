@@ -3,7 +3,6 @@ import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/
 
 // Keeps the real session repository (and its Prisma client) out of the import graph.
 vi.mock('@/repositories/postgres/session.repository', () => ({
-  deleteAllUserSessions: vi.fn(),
   deleteOtherUserSessions: vi.fn(),
   countUserSessions: vi.fn(),
 }));

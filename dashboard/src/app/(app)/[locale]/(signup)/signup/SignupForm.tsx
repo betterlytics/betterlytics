@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { isUserInvitedDashboardMemberAction, registerUserAction } from '@/app/actions/index.actions';
+import { isUserInvitedDashboardMemberAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { authClient } from '@/lib/auth-client';
 import type { getEnabledOAuthProviders } from '@/lib/better-auth';
@@ -104,20 +104,21 @@ export default function SignupForm({ providers }: SignupFormProps) {
         });
 
         startTransition(async () => {
-          const result = await registerUserAction(validatedData);
-
-          if (!result.success) {
-            setError(result.error.message);
-            return;
-          }
-
-          const { error: signInError } = await authClient.signIn.email({
+          const signUpBody = {
             email: validatedData.email,
             password: validatedData.password,
-          });
+            name: validatedData.name ?? '',
+            acceptedTerms: validatedData.acceptedTerms,
+            language: validatedData.language,
+          };
+          const { error: signUpError } = await authClient.signUp.email(signUpBody);
 
-          if (signInError) {
-            setError(t('form.registrationSuccessfulButSignInFailed'));
+          if (signUpError) {
+            setError(
+              signUpError.code?.startsWith('USER_ALREADY_EXISTS')
+                ? t('form.emailAlreadyExists')
+                : t('form.signUpError'),
+            );
             return;
           }
 

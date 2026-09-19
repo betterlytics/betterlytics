@@ -15,15 +15,3 @@ export const ResetPasswordSchema = z
     message: 'Passwords do not match',
     path: ['confirmPassword'],
   });
-
-export const PasswordResetTokenSchema = z.object({
-  id: z.string(),
-  token: z.string(),
-  userId: z.string(),
-  expires: z.date(),
-  createdAt: z.date(),
-});
-
-export type ForgotPasswordData = z.infer<typeof ForgotPasswordSchema>;
-export type ResetPasswordData = z.infer<typeof ResetPasswordSchema>;
-export type PasswordResetToken = z.infer<typeof PasswordResetTokenSchema>;

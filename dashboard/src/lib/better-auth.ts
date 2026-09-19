@@ -9,31 +9,87 @@ import { env } from '@/lib/env';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
-import { sendVerificationEmail } from '@/services/account/verification.service';
+import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { findUserById } from '@/repositories/postgres/user.repository';
+import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
+import { PasswordSchema } from '@/entities/auth/password.entities';
+import { MAX_EMAIL_LENGTH } from '@/entities/auth/user.entities';
+import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
+import {
+  RESET_TOKEN_EXPIRY_SECONDS,
+  resetTokenStoredIdentifier,
+  sendPasswordChangedNotification,
+  sendResetPasswordEmail,
+} from '@/services/auth/passwordReset.service';
+import { RESET_TOKEN_PREFIX, deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
+
+// better-auth only enforces password length; these body fields get our full policy.
+const PASSWORD_POLICY_FIELDS: Record<string, string> = {
+  '/change-password': 'newPassword',
+  '/reset-password': 'newPassword',
+  '/sign-up/email': 'password',
+};
+
+// better-auth's /verify-email redirects here with ?verified=1 on success, &error=<code> on failure
+const VERIFY_EMAIL_CALLBACK_URL = '/verify-email?verified=1';
 
 // A session created this soon after the user row is their first sign-in; skip the
 // locale sync there so default settings don't overwrite the locale they signed up in.
 const FIRST_SIGN_IN_WINDOW_MS = 60_000;
 
+function signupLanguage(body: unknown): SupportedLanguages | undefined {
+  const language = (body as { language?: unknown } | undefined)?.language;
+  return SUPPORTED_LANGUAGES.includes(language as SupportedLanguages) ? (language as SupportedLanguages) : undefined;
+}
+
 export const auth = betterAuth({
   appName: 'Betterlytics',
   baseURL: env.AUTH_URL,
   secret: env.AUTH_SECRET,
-  database: prismaAdapter(prisma, { provider: 'postgresql' }),
+  database: prismaAdapter(prisma, { provider: 'postgresql', transaction: true }),
   emailAndPassword: {
     enabled: true,
-    // Registration goes through registerUserAction
-    disableSignUp: true,
+    disableSignUp: !isFeatureEnabled('enableRegistration'),
     minPasswordLength: 8,
     maxPasswordLength: 100,
     password: {
       hash: (password) => hashPassword(password),
       verify: ({ hash, password }) => verifyPasswordHash(password, hash),
+    },
+    resetPasswordTokenExpiresIn: RESET_TOKEN_EXPIRY_SECONDS,
+    revokeSessionsOnPasswordReset: true,
+    sendResetPassword: ({ user, url, token }) => sendResetPasswordEmail({ ...user, name: user.name ?? null }, url, token),
+    onPasswordReset: async ({ user }) => {
+      try {
+        await deleteUserResetTokens(user.id);
+      } catch (error) {
+        console.error('Failed to prune reset tokens after password reset:', { userId: user.id, error });
+      }
+      await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
+    },
+  },
+  emailVerification: {
+    sendVerificationEmail: ({ user, url }) => {
+      // OAuth sign-ups inherit the OAuth callbackURL (e.g. /dashboards), which would swallow the result
+      const link = new URL(url);
+      link.searchParams.set('callbackURL', VERIFY_EMAIL_CALLBACK_URL);
+      return sendVerificationEmail({ ...user, name: user.name ?? null }, link.toString());
+    },
+    sendOnSignUp: true,
+    expiresIn: VERIFICATION_LINK_EXPIRY_SECONDS,
+  },
+  verification: {
+    storeIdentifier: {
+      default: 'plain',
+      overrides: {
+        [RESET_TOKEN_PREFIX]: {
+          hash: async (identifier: string) => resetTokenStoredIdentifier(identifier.slice(RESET_TOKEN_PREFIX.length)),
+        },
+      },
     },
   },
   socialProviders: {
@@ -74,25 +130,83 @@ export const auth = betterAuth({
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
       // Account mutations run through our server actions
-      if (
-        ctx.path === '/change-password' ||
-        ctx.path === '/request-password-reset' ||
-        ctx.path.startsWith('/reset-password') ||
-        ctx.path === '/update-user'
-      ) {
+      if (ctx.path === '/update-user') {
         throw new APIError('NOT_FOUND');
+      }
+
+      // OAuth-only accounts get no reset token; the response must match the unknown-email case
+      if (ctx.path === '/request-password-reset' && typeof ctx.body?.email === 'string') {
+        const user = await findUserByEmail(ctx.body.email);
+        if (user && !(await findCredentialAccount(user.id))) {
+          return ctx.json({
+            status: true,
+            message: 'If this email exists in our system, check your email for the reset link',
+          });
+        }
+      }
+
+      // Defence in depth: redeeming a reset for an OAuth-only account would attach a password login to it
+      if (ctx.path === '/reset-password') {
+        const token = ctx.body?.token ?? ctx.query?.token;
+        if (typeof token === 'string' && token) {
+          const userId = await findResetTokenUserId(resetTokenStoredIdentifier(token));
+          if (userId && !(await findCredentialAccount(userId))) {
+            throw new APIError('BAD_REQUEST', { message: 'Invalid token', code: 'INVALID_TOKEN' });
+          }
+        }
+      }
+
+      if (ctx.path === '/sign-up/email' && String(ctx.body?.email ?? '').length > MAX_EMAIL_LENGTH) {
+        throw new APIError('BAD_REQUEST', {
+          message: 'Email address is too long',
+          code: 'EMAIL_TOO_LONG',
+        });
+      }
+
+      if (ctx.path === '/sign-up/email' && ctx.body?.acceptedTerms !== true) {
+        throw new APIError('BAD_REQUEST', {
+          message: 'Terms of service must be accepted',
+          code: 'TERMS_NOT_ACCEPTED',
+        });
+      }
+
+      const passwordField = PASSWORD_POLICY_FIELDS[ctx.path];
+      if (passwordField) {
+        const strength = PasswordSchema.safeParse(ctx.body?.[passwordField]);
+        if (!strength.success) {
+          throw new APIError('BAD_REQUEST', {
+            message: strength.error.issues[0]?.message ?? 'Password does not meet the requirements',
+            code: 'WEAK_PASSWORD',
+          });
+        }
+      }
+
+      if (ctx.path === '/change-password') {
+        return { context: { body: { ...ctx.body, revokeOtherSessions: true } } };
       }
     }),
   },
   databaseHooks: {
     user: {
       create: {
-        // Only runs for Oauth because email/password users are created through our own actions
-        before: async (user) => {
-          if (!user.emailVerified) return;
-          return { data: { ...user, emailVerifiedAt: new Date() } };
+        before: async (user, ctx) => {
+          const extra: Record<string, unknown> = {};
+          if (user.emailVerified) {
+            extra.emailVerifiedAt = new Date();
+          }
+          if (ctx?.path === '/sign-up/email') {
+            extra.name = user.name?.trim() || null;
+            extra.termsAcceptedAt = new Date();
+            extra.termsAcceptedVersion = CURRENT_TERMS_VERSION;
+          }
+          return { data: { ...user, ...extra, createdAt: new Date(), updatedAt: new Date() } };
         },
-        after: async (user) => {
+        after: async (user, ctx) => {
+          if (!(await findUserById(user.id))) {
+            console.warn('Skipped onboarding side effects: user row was rolled back', { userId: user.id });
+            return;
+          }
+
           try {
             await createStarterSubscriptionForUser(user.id);
           } catch (error) {
@@ -100,37 +214,49 @@ export const auth = betterAuth({
           }
 
           try {
-            await createDefaultUserSettings(user.id);
+            const language = ctx?.path === '/sign-up/email' ? signupLanguage(ctx.body) : undefined;
+            await createDefaultUserSettings(user.id, language);
           } catch (error) {
             console.error('Failed to create initial user settings for new user:', error);
-          }
-
-          if (user.email && !user.emailVerified && isFeatureEnabled('enableAccountVerification')) {
-            try {
-              await sendVerificationEmail({ email: user.email });
-            } catch (error) {
-              console.error('Failed to send verification email for new user:', error);
-            }
           }
         },
       },
       update: {
-        // Currently only twoFactorChange runs via this update hook, hence the path prefix check
+        before: async (user) => {
+          if (user.emailVerified === true) {
+            return { data: { ...user, emailVerifiedAt: new Date() } };
+          }
+        },
         after: async (user, ctx) => {
-          if (!ctx?.path?.startsWith('/two-factor/')) return;
-          if (!user.email) return;
-
-          const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
-          const type = enabled ? ('two-factor-enabled' as const) : ('two-factor-disabled' as const);
-          try {
-            await enqueueEmail({
-              type,
-              recipientKey: createUserRecipientKey(user.id),
-              campaignKey: `${type}:${new Date().toISOString()}`,
-              data: { to: user.email, userName: user.name ?? null },
-            });
-          } catch (error) {
-            console.error('Failed to enqueue 2FA change notification:', error);
+          if (ctx?.path?.startsWith('/two-factor/') && user.email) {
+            const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
+            const type = enabled ? ('two-factor-enabled' as const) : ('two-factor-disabled' as const);
+            try {
+              await enqueueEmail({
+                type,
+                recipientKey: createUserRecipientKey(user.id),
+                campaignKey: `${type}:${new Date().toISOString()}`,
+                data: { to: user.email, userName: user.name ?? null },
+              });
+            } catch (error) {
+              console.error('Failed to enqueue 2FA change notification:', error);
+            }
+          }
+        },
+      },
+    },
+    account: {
+      update: {
+        after: async (account, ctx) => {
+          if (ctx?.path === '/change-password') {
+            const user = ctx.context.session?.user;
+            if (user) {
+              await sendPasswordChangedNotification(user.id, user.email, user.name ?? null);
+            } else {
+              console.error('Skipped password-changed notification: no session user', {
+                accountId: account.id,
+              });
+            }
           }
         },
       },

@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { McpDateRangeSchema, McpFiltersSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
 import { getUserJourneyForSankeyDiagram } from '@/services/analytics/userJourney.service';
-import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export const McpUserJourneysInputBaseSchema = McpDateRangeSchema.extend({
   filters: McpFiltersSchema,
@@ -30,21 +30,17 @@ export const McpUserJourneysInputSchema = McpUserJourneysInputBaseSchema
 
 export async function executeUserJourneys(rawInput: unknown, siteId: string) {
   const input = McpUserJourneysInputSchema.parse(rawInput);
-  const { startDateTime, endDateTime, start, end } = resolveTimeRange(input);
+  const timeRange = resolveTimeRange(input);
 
   const filters = (input.filters ?? []).map((f, i) => ({ ...f, id: `mcp_filter_${i}` }));
 
-  const siteQuery: BASiteQuery = {
+  const siteQuery = buildSiteQuery({
     siteId,
-    startDate: start,
-    endDate: end,
-    startDateTime,
-    endDateTime,
-    granularity: 'day',
-    queryFilters: filters,
+    timeRange,
     timezone: input.timezone,
+    queryFilters: filters,
     userJourney: { numberOfSteps: input.maxSteps, numberOfJourneys: input.limit },
-  };
+  });
 
   return getUserJourneyForSankeyDiagram(siteQuery, input.maxSteps, input.limit);
 }

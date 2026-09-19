@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { getUserOAuthProvidersAction, updateUserNameAction } from '@/app/actions/account/userSettings.action';
 import { UpdateUserNameSchema } from '@/entities/auth/user.entities';
 
@@ -23,6 +24,8 @@ const PROVIDER_LABELS: Record<string, string> = {
 export default function UserProfileSettings() {
   const { data: session } = authClient.useSession();
   const { refreshSession } = useSessionRefresh();
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
+  const showVerificationStatus = isFeatureFlagEnabled('isCloud');
   const locale = useLocale();
   const t = useTranslations('components.userSettings.profile');
   const tDialog = useTranslations('components.userSettings.dialog');
@@ -118,17 +121,18 @@ export default function UserProfileSettings() {
               </Badge>
             )}
           </div>
-          {emailVerified ? (
-            <div className='flex items-center gap-1 text-xs text-green-600'>
-              <Check className='h-3 w-3' />
-              <span>{t('verified')}</span>
-            </div>
-          ) : (
-            <div className='flex items-center gap-1 text-xs text-red-600'>
-              <X className='h-3 w-3' />
-              <span>{t('unverified')}</span>
-            </div>
-          )}
+          {showVerificationStatus &&
+            (emailVerified ? (
+              <div className='flex items-center gap-1 text-xs text-green-600'>
+                <Check className='h-3 w-3' />
+                <span>{t('verified')}</span>
+              </div>
+            ) : (
+              <div className='flex items-center gap-1 text-xs text-red-600'>
+                <X className='h-3 w-3' />
+                <span>{t('unverified')}</span>
+              </div>
+            ))}
         </div>
         <Input id='email' type='email' value={email} disabled readOnly />
         {memberSince && <p className='text-muted-foreground text-xs'>{t('memberSince', { date: memberSince })}</p>}

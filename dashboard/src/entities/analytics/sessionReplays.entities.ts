@@ -17,7 +17,7 @@ export const SessionReplaySchema = z.object({
   browser: z.string().optional().default(''),
   os: z.string().optional().default(''),
   country_code: z.string().optional().nullable(),
-  error_fingerprints: z.array(z.string()).optional().default([]),
+  error_count: z.number().optional().default(0),
 });
 
 export const SessionReplayArraySchema = SessionReplaySchema.array();
