@@ -41,6 +41,15 @@ export async function findUserByEmail(email: string): Promise<User | null> {
   return await findUserBy({ email: email.toLowerCase() });
 }
 
+export async function countUsers(): Promise<number> {
+  try {
+    return await prisma.user.count();
+  } catch (error) {
+    console.error('Error counting users:', error);
+    throw new Error('Failed to count users.');
+  }
+}
+
 async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | null> {
   try {
     const prismaUser = await prisma.user.findUnique({ where });

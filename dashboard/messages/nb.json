@@ -3259,7 +3259,9 @@
         "passwordsDoNotMatch": "Passordene samsvarer ikke",
         "emailAlreadyExists": "Det finnes allerede en bruker med den e-postadressen.",
         "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
-        "checkInput": "Vennligst sjekk inndataene dine"
+        "checkInput": "Vennligst sjekk inndataene dine",
+        "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
+        "invitedToHint": "Du er invitert til å bli med i {domain}"
       }
     },
     "website": {
@@ -3473,13 +3475,16 @@
       "goToSignIn": "Gå til innlogging",
       "expiredTitle": "Invitasjon utløpt",
       "expiredDescription": "Denne invitasjonen er ikke lenger gyldig.",
-      "expiredHint": "Be dashboard-eieren om å sende deg en ny invitasjon.",
+      "expiredHint": "Be {inviter} om å sende deg en ny invitasjon.",
       "emailMismatchTitle": "Feil konto",
       "emailMismatchDescription": "Denne invitasjonen ble sendt til {invitedEmail}, men du er logget inn som {currentEmail}.",
       "emailMismatchHint": "Logg ut og inn med riktig konto for å godta invitasjonen.",
       "errorTitle": "Kunne ikke godta invitasjon",
-      "errorDescription": "Noe gikk galt under godkjenning av invitasjonen. Den kan allerede være godtatt eller kansellert.",
-      "goToDashboards": "Gå til dashboards"
+      "errorDescription": "Noe gikk galt da du skulle legges til i dashboardet.",
+      "goToDashboards": "Gå til dashboards",
+      "errorHint": "Prøv igjen om litt. Hvis det fortsetter å feile, be {inviter} om å sende deg en ny invitasjon.",
+      "tryAgain": "Prøv igjen",
+      "dashboardOwner": "dashboard-eieren"
     }
   },
   "integration": {
