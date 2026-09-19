@@ -62,15 +62,15 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
     return (
       <>
         <StructuredData config={seoConfig} />
-        <div className='bg-background flex items-center justify-center px-4 py-12 pt-20 sm:px-6 lg:px-8'>
+        <div className='bg-background flex flex-1 items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
           <div className='w-full max-w-md space-y-8'>
             <div className='text-center'>
-              <div className='mb-6 flex justify-center'>
-                <Logo variant='full' width={200} height={60} priority />
+              <div className='mb-10 flex justify-center'>
+                <Logo variant='simple' showText textSize='lg' priority />
               </div>
-              <h2 className='text-foreground mt-6 text-2xl font-semibold'>{t('disabled.title')}</h2>
-              <p className='text-muted-foreground mt-2 text-sm'>{t('disabled.description')}</p>
-              <div className='mt-4'>
+              <h2 className='text-foreground text-2xl font-semibold'>{t('disabled.title')}</h2>
+              <p className='text-muted-foreground mt-3 text-sm'>{t('disabled.description')}</p>
+              <div className='mt-6'>
                 <Link href='/signin' className='text-primary hover:text-primary/80 text-sm font-medium underline'>
                   {t('disabled.backToSignIn')}
                 </Link>
