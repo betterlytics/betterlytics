@@ -1257,12 +1257,20 @@
   }
 
   /* ── flip tile ── the whole cell turns over as one card on its horizontal
-     centre line: old team on the front, new team on the back. The working cell
-     lifts to the surface tone for the turn, the faces share that tone with a
-     hairline edge so the card reads against its slot, and the faces shade
-     toward black as they turn — this palette is dark enough that a canvas veil
-     would not register. The board only exists (and only takes these rules) when
-     the pool outnumbers the slots. */
+     centre line: old team on the front, new team on the back. The slot behind
+     the card lights for the turn, so the light leaks out around the card as it
+     goes edge-on and glows for a beat under the landed mark; the faces keep the
+     surface tone with a hairline edge, and shade toward black as they turn —
+     this palette is dark enough that a canvas veil would not register. The
+     board only exists (and only takes these rules) when the pool outnumbers
+     the slots. */
+  .logos--board {
+    /* the slot's light. Volt: the page's one accent, already used for live and
+       active states and in the claim beside the tiles. For a colourless tile,
+       rgba(235, 232, 230, 0.08) is the lit-neutral alternative; pure white is
+       too loud, it would be the brightest thing on the page. */
+    --flip-slot: rgba(74, 92, 255, 0.16);
+  }
   .logos--board .lg {
     position: relative;
     perspective: 640px;
@@ -1273,7 +1281,7 @@
   /* above its neighbours: the near half of a turning card projects a few px past the cell */
   .logos--board .lg.is-flipping {
     z-index: 1;
-    background-color: var(--surface);
+    background-color: var(--flip-slot);
     transition-duration: 0.22s, 0.12s;
   }
   /* the in-flow mark keeps the cell's size while the card covers it; hidden so
@@ -1301,7 +1309,7 @@
     align-items: center;
     justify-content: center;
     background: var(--surface);
-    box-shadow: inset 0 0 0 1px var(--rule-125);
+    box-shadow: inset 0 0 0 1px var(--rule-22);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
   }
