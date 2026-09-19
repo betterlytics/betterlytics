@@ -725,15 +725,17 @@
     height: 760px;
     padding-bottom: var(--hero-overlap);
   }
-  /* halftone screen, 8px pitch, faded toward the top corners */
+  /* the same 45° hatch the walls and the bands between cards wear, so the whole
+     page is one material; on saturated blue it needs more alpha than on the
+     canvas. Faded toward the top corners so the lamp is what reveals it. */
   .card::before {
     content: '';
     position: absolute;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background-image: radial-gradient(circle at 1px 1px, rgba(242, 245, 255, 0.16) 0.9px, transparent 0);
-    background-size: 8px 8px;
+    background-image: repeating-linear-gradient(315deg, rgba(242, 245, 255, 0.11) 0 1px, transparent 0 50%);
+    background-size: 10px 10px;
     /* two masks, intersected: the radial fades the screen toward the top corners,
        the linear fades it out before the left and right edges */
     -webkit-mask-image:
