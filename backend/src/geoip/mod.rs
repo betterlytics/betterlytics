@@ -3,7 +3,6 @@ use std::net::IpAddr;
 use std::sync::Arc;
 use tracing::{info, warn, debug};
 use crate::config::{Config, GeolocationMode};
-use crate::ip_parser::anonymize_ip;
 use crate::geoip_updater::{GeoIpWatchRx, MmdbSource};
 use moka::sync::Cache;
 use std::time::Duration;
@@ -47,9 +46,7 @@ impl GeoIpService {
             };
         }
 
-        let anonymized = anonymize_ip(ip_address).unwrap_or_else(|| ip_address.to_string());
-
-        if let Some(cached_result) = self.cache.get(&anonymized) {
+        if let Some(cached_result) = self.cache.get(ip_address) {
             debug!("GeoIP cache hit");
             return cached_result;
         }
@@ -66,7 +63,7 @@ impl GeoIpService {
             None => return GeoLocation::default(),
         };
 
-        let ip: IpAddr = match anonymized.parse() {
+        let ip: IpAddr = match ip_address.parse() {
             Ok(ip) => ip,
             Err(e) => {
                 warn!("Failed to parse IP address: {}", e);
@@ -126,7 +123,7 @@ impl GeoIpService {
             }
         };
 
-        self.cache.insert(anonymized, result.clone());
+        self.cache.insert(ip_address.to_string(), result.clone());
 
         result
     }
