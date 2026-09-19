@@ -17,6 +17,12 @@ import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
  * It carries one line and nothing else. Anything placed at its centre — a
  * glyph, a pill — reads as the target, and the target is the whole frame; the
  * line says so, and the frame's own edge answers the pointer to show it.
+ *
+ * Activating marks it rather than unmounting it. Unmounting dropped the veil in
+ * a single frame while the edge was still easing, and two exits on two clocks
+ * read as the frame coming apart in stages. Marked, the veil and the edge share
+ * one transition and leave together — which is itself the click landing, so
+ * nothing else has to signal it.
  */
 export function DemoFrame({ src }: { src: string }) {
   const [loaded, setLoaded] = useState(false);
@@ -36,11 +42,12 @@ export function DemoFrame({ src }: { src: string }) {
         referrerPolicy='no-referrer'
         onLoad={() => setLoaded(true)}
       />
-      {loaded && !active && (
+      {loaded && (
         <button
           type='button'
-          className='demo__scrim'
+          className={cn('demo__scrim', active && 'is-gone')}
           aria-label={COPY.demo.activateAria}
+          disabled={active}
           onClick={() => {
             setActive(true);
             frame.current?.focus();

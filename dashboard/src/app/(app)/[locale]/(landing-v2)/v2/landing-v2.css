@@ -968,27 +968,22 @@
   }
 
   /* The edge is the affordance. While the scrim is up, hovering anywhere in the
-     frame lifts its border toward volt and hangs a soft halo off it, so the
-     target reads as the whole rectangle rather than a spot in the middle of it.
-     `:has` scopes this to the armed state — once the frame is live the edge
-     goes quiet and stays out of the dashboard's way. */
+     frame lifts its border toward volt, so the target reads as the whole
+     rectangle rather than a spot in the middle of it. `:has` scopes this to the
+     armed state — once the frame is live the edge goes quiet and stays out of
+     the dashboard's way.
+
+     It shares the scrim's 0.28s exactly. Clicking marks the scrim `is-gone`,
+     which fades the veil and drops this selector in the same frame, so the veil
+     and the edge leave together on one clock. Earlier versions gave the edge its
+     own longer animation and the two exits read as the frame coming apart in
+     stages; the pair leaving as one is what makes the click land, so there is
+     nothing else to animate. */
   .demo {
-    transition:
-      border-color 0.28s var(--ease),
-      box-shadow 0.28s var(--ease);
+    transition: border-color 0.28s var(--ease);
   }
-  .demo:has(.demo__scrim):hover {
+  .demo:has(.demo__scrim:not(.is-gone)):hover {
     border-color: rgba(74, 92, 255, 0.55);
-    box-shadow:
-      inset 1px 6px 6px 0 rgba(255, 255, 255, 0.045),
-      0 -1px 0 rgba(255, 255, 255, 0.06),
-      0 -6px 36px -10px rgba(0, 0, 0, 0.55),
-      0 0 28px -6px rgba(74, 92, 255, 0.4);
-  }
-  /* the click has to land somewhere visible, or dismissing the scrim reads as
-     the page glitching; the edge holds the tint for a beat and lets it go */
-  .demo:has(.demo__frame.is-active) {
-    animation: lp2-demo-land 0.9s var(--ease) 1;
   }
 
   /* stub address bar, centred in the title bar. Named like a browser's, and
@@ -1068,12 +1063,16 @@
     display: block;
     border: 0;
     cursor: pointer;
+    opacity: 1;
     color: var(--text);
     background: radial-gradient(70% 70% at 50% 46%, rgba(21, 20, 20, 0.44), rgba(21, 20, 20, 0.78));
     -webkit-backdrop-filter: blur(1.5px);
     backdrop-filter: blur(1.5px);
-    animation: lp2-demo-scrim 0.45s var(--ease) both;
+    /* no fill-mode: the entrance must not hold its end state, or it would
+       outrank the declarative opacity that `is-gone` relies on */
+    animation: lp2-demo-scrim 0.45s var(--ease);
     transition:
+      opacity 0.28s var(--ease),
       background 0.3s var(--ease),
       -webkit-backdrop-filter 0.3s var(--ease),
       backdrop-filter 0.3s var(--ease);
@@ -1084,22 +1083,57 @@
     -webkit-backdrop-filter: blur(0);
     backdrop-filter: blur(0);
   }
-  /* Centred, and deliberately so: it is the only thing explaining the veil, and
-     the middle is where the eye lands first. Anywhere between the centre and an
-     edge reads as slightly off rather than placed — and a single line is not the
-     icon/heading/button stack that makes a centred overlay look like a modal. */
+  /* armed → live. Kept in the tree rather than unmounted so the veil has an
+     exit to share with the edge; disabled so it leaves the tab order with it. */
+  .demo__scrim.is-gone {
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* A frosted chip, cut to the same pattern as the address bar above it: pill,
+     hairline rule, translucent fill, mono microcap. Two chips from one family
+     rather than one chip and a foreign object in the middle of the frame.
+
+     Glass over glass is normally muddy, but the scrim drops its own blur to 0
+     on hover — so at the moment legibility matters this is the only blurred
+     layer, over a crisp dashboard, which is the condition frosted glass is
+     actually for. The plate does the contrast work, so the text carries only a
+     light shadow now instead of the stacked one it needed bare.
+
+     Centred on the CARD, not on the scrim: the scrim starts below the 44px
+     title bar, so a flat 50% lands half a bar low against the frame the eye
+     actually sees. */
   .demo__say {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: calc(50% - 22px);
     transform: translate(-50%, -50%);
     width: max-content;
     max-width: 80%;
-    font-size: 17px;
-    line-height: 1.45;
+    padding: 11px 22px;
+    border-radius: 999px;
+    border: 1px solid rgba(235, 232, 230, 0.16);
+    background: rgba(235, 232, 230, 0.07);
+    -webkit-backdrop-filter: blur(12px) saturate(1.15);
+    backdrop-filter: blur(12px) saturate(1.15);
+    box-shadow: 0 10px 28px -14px rgba(0, 0, 0, 0.7);
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
     text-align: center;
     text-wrap: balance;
-    text-shadow: 0 1px 14px rgba(21, 20, 20, 0.95);
+    text-shadow: 0 1px 2px rgba(21, 20, 20, 0.6);
+    transition:
+      background-color 0.3s var(--ease),
+      border-color 0.3s var(--ease);
+  }
+  /* the chip firms up as the veil behind it thins, so it holds its edge against
+     whatever the dashboard is showing once the blur is gone */
+  .demo__scrim:hover .demo__say,
+  .demo__scrim:focus-visible .demo__say {
+    border-color: rgba(235, 232, 230, 0.24);
+    background: rgba(235, 232, 230, 0.1);
   }
 
   /* ══ CUSTOMERS ══ static, monochrome. The marquees are the only scrolling rows. */
@@ -3947,14 +3981,5 @@
   }
   to {
     opacity: 1;
-  }
-}
-@keyframes lp2-demo-land {
-  0%,
-  35% {
-    border-color: rgba(74, 92, 255, 0.75);
-  }
-  100% {
-    border-color: var(--rule-22);
   }
 }
