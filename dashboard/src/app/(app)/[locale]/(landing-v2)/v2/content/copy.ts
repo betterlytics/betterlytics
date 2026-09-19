@@ -28,7 +28,7 @@ export const COPY = {
   },
   hero: {
     pill: 'Live · 2.4M events recorded today',
-    title: 'Every visit, every error, every outage.',
+    title: 'Every visit, every error, every outage',
     lede: 'One script, 4.9 kB. No cookies, no sampling, and nothing left to reconcile between dashboards.',
     ctaPrimary: 'Start measuring',
     ctaDemo: 'See a live dashboard',
@@ -50,24 +50,26 @@ export const COPY = {
     label: 'Trusted by *privacy-first* teams',
   },
   journey: {
-    title: 'Everything your users *experienced*.',
+    title: 'Everything your users *experienced*',
     lede: 'One script replaces your analytics, your product metrics, your error tracker, your uptime monitor and your status page.',
     replaces: 'replaces',
   },
   mcp: {
-    title: 'Point your *own* agent at it.',
+    title: 'Point your *own* agent at it',
     lede: 'Betterlytics ships an MCP server. Connect Claude, Cursor or any MCP client and ask one question that spans traffic, funnels, errors and uptime at once.',
-    body: 'No dashboard to learn, no query language. Your agent reads the schema, picks its tools and joins across all of it.',
+    /* the lead is a small heading on its own line, the column's only primary-tone text */
+    lead: 'Ask questions, not queries.',
+    body: 'Your agent reads the schema, picks its tools and joins across all of it.',
     worksWith: 'Works with',
     any: 'ChatGPT, Zed, Codex — and any client that speaks the protocol over HTTP.',
     cta: 'Set up MCP',
   },
   frameworks: {
-    title: 'Your framework, *unmodified*.',
+    title: 'Your framework, *unmodified*',
     lede: 'One script tag, or a package if you prefer. No tag manager, no adapter, and nothing to change about how you already build.',
   },
   network: {
-    title: 'One script. Nothing else to add.',
+    title: 'One script, nothing else to add',
     lede: 'No tag manager, no consent gate, no second SDK to reconcile. Here is exactly what it costs your site.',
     /* Script size is the gzipped static/analytics.js; the other two figures come from the draft. */
     stats: [
@@ -100,10 +102,10 @@ export const COPY = {
     },
   },
   quotes: {
-    title: 'Teams that stopped guessing.',
+    title: 'Teams that stopped guessing',
   },
   pricing: {
-    title: 'You pay for events, not for seats.',
+    title: 'You pay for events, not for seats',
     lede: 'Invite the whole company. Bots, prefetches and blocked requests are filtered before they ever reach your bill.',
     monthlyEvents: 'Monthly events',
     rangeLabel: 'Monthly event volume',
@@ -129,7 +131,7 @@ export const COPY = {
     },
   },
   cta: {
-    title: 'Add one script and watch it land.',
+    title: 'Add one script and watch it land',
     lede: 'The free tier is the same script, the same dashboard and the same unsampled data the paid plans get. Nothing is held back for the demo.',
     primary: 'Start measuring',
     secondary: 'View docs',

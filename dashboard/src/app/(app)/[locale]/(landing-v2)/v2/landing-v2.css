@@ -2774,6 +2774,17 @@
     color: var(--mid);
     margin: 0 0 24px;
   }
+  /* the lead: the column's one primary-tone line, a small heading on its own
+     line above the body, so the paragraph is not a lede without a headline
+     beside a bright transcript */
+  .mcp__lead {
+    margin: 0 0 8px;
+    font-size: 17px;
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+    color: var(--text);
+  }
   .mcp__cta {
     margin-top: auto;
     padding-top: 26px;
