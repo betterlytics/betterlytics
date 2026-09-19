@@ -1208,14 +1208,20 @@
   .lg {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    white-space: nowrap;
+    justify-content: center;
     color: var(--text);
     opacity: 0.78;
     transition: opacity 0.22s var(--ease);
   }
   .lg:hover {
     opacity: 1;
+  }
+  /* the mark itself: icon + wordmark. One per still cell, three per flipping one. */
+  .mk {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
   }
   .lgico {
     width: 22px;
@@ -1228,26 +1234,85 @@
     letter-spacing: -0.3px;
   }
   /* real logo walls are typographically inconsistent; that's what sells them */
-  .lg--caps b {
+  .mk--caps b {
     font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }
-  .lg--light b {
+  .mk--light b {
     font-size: 17.5px;
     font-weight: 400;
     letter-spacing: -0.4px;
   }
-  .lg--tight b {
+  .mk--tight b {
     font-size: 16px;
     font-weight: 600;
     letter-spacing: -0.7px;
   }
-  .lg--wide b {
+  .mk--wide b {
     font-size: 15px;
     font-weight: 500;
     letter-spacing: 0.05em;
+  }
+
+  /* ── flip tile ── the whole cell turns over as one card on its horizontal
+     centre line: old team on the front, new team on the back. The working cell
+     lifts to the surface tone for the turn, the faces share that tone with a
+     hairline edge so the card reads against its slot, and the faces shade
+     toward black as they turn — this palette is dark enough that a canvas veil
+     would not register. The board only exists (and only takes these rules) when
+     the pool outnumbers the slots. */
+  .logos--board .lg {
+    position: relative;
+    perspective: 640px;
+    transition:
+      opacity 0.22s var(--ease),
+      background-color 0.32s var(--ease);
+  }
+  /* above its neighbours: the near half of a turning card projects a few px past the cell */
+  .logos--board .lg.is-flipping {
+    z-index: 1;
+    background-color: var(--surface);
+    transition-duration: 0.22s, 0.12s;
+  }
+  /* the in-flow mark keeps the cell's size while the card covers it; hidden so
+     it does not show through the card edge-on. A flex box, not a plain span: a
+     span would put the mark on a text baseline and the line box's descender
+     space would make the cell a few px taller than its neighbours, so the row
+     and everything below it would jump for the length of the flip. */
+  .flap__size {
+    display: flex;
+    visibility: hidden;
+  }
+  .flap__tile,
+  .flap__face,
+  .flap__shade {
+    position: absolute;
+    inset: 0;
+  }
+  .flap__tile {
+    transform-origin: 50% 50%;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .flap__face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--rule-125);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  /* pre-turned, so it reads upright once the card has come over */
+  .flap__face--back {
+    transform: rotateX(180deg);
+  }
+  /* shading: a black veil per face whose opacity motion drives from the angle */
+  .flap__shade {
+    background: #000;
+    pointer-events: none;
   }
 
   /* ══ JOURNEY ══ sticky rail + scrolling card stack */
