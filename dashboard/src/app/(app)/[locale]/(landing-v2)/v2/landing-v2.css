@@ -757,6 +757,10 @@
     border-radius: inherit;
     box-shadow: inset 1px 6px 6px 0 rgba(255, 255, 255, 0.22);
   }
+  /* lamp light, not a white spot: a warm cream core that stays near-opaque well
+     past the frame's top edge, then hands off through the card's own lifted blue.
+     Amber at half alpha over ultramarine turns to mauve, so the warm band is kept
+     bright and short and the long tail is blue, never a peach wash. */
   .bloom {
     position: absolute;
     left: 50%;
@@ -766,9 +770,12 @@
     border-radius: 50%;
     background: radial-gradient(
       closest-side,
-      rgba(255, 250, 240, 0.95) 0%,
-      rgba(255, 230, 199, 0.45) 34%,
-      rgba(255, 217, 179, 0) 100%
+      rgba(255, 246, 224, 1) 0%,
+      rgba(255, 240, 210, 0.92) 18%,
+      rgba(255, 226, 190, 0.72) 34%,
+      rgba(176, 184, 255, 0.55) 50%,
+      rgba(74, 92, 255, 0.38) 70%,
+      rgba(74, 92, 255, 0) 100%
     );
   }
   .card__body {
@@ -3630,6 +3637,21 @@
   }
   .card--cta {
     height: 528px;
+  }
+  /* the CTA card has no frame to hide the lamp behind, so its bloom is centred
+     just below the bottom edge: the brightest band sits on the edge and the
+     light climbs and thins from there, a cone rather than a full disc. The
+     cream core is shorter than the hero's so the peak never turns to a spot. */
+  .card--cta .bloom {
+    background: radial-gradient(
+      closest-side,
+      rgba(255, 244, 218, 1) 0%,
+      rgba(255, 238, 204, 0.9) 14%,
+      rgba(255, 226, 190, 0.6) 26%,
+      rgba(120, 136, 255, 0.55) 42%,
+      rgba(74, 92, 255, 0.34) 66%,
+      rgba(74, 92, 255, 0) 100%
+    );
   }
   .card--cta .card__body h2 {
     color: var(--on-volt);

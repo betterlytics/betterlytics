@@ -8,7 +8,7 @@ export function CtaSection() {
   return (
     <section className='ctasec'>
       <div className='card card--cta'>
-        <div className='bloom' style={{ top: 504, width: 980, height: 410 }} aria-hidden />
+        <div className='bloom' style={{ top: 548, width: 1600, height: 520 }} aria-hidden />
         <div className='card__body'>
           <h2 className='d2'>{copy.title}</h2>
           <p className='lede'>{copy.lede}</p>
