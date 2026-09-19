@@ -3196,6 +3196,36 @@
   .statpanel .cell--volt {
     border-left-color: transparent;
   }
+  /* the EU ring, drawn faint in the on-volt colour and clipped by the cell */
+  .statpanel .cell--volt {
+    position: relative;
+    overflow: hidden;
+  }
+  .statpanel .cell--volt > :not(.seal) {
+    position: relative;
+    z-index: 1;
+  }
+  .seal {
+    position: absolute;
+    color: var(--on-volt);
+    opacity: 0.14;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .statpanel .cell--volt .stat {
+    position: relative;
+  }
+  /* centred on the "0": the digit is ~24px wide and 40px tall at the stat size */
+  .seal--ring {
+    z-index: -1; /* under the digit, above the cell background (the stat is its own stacking context) */
+    left: 12px;
+    top: 20px;
+    transform: translate(-50%, -50%);
+  }
+  .seal--lock {
+    right: -48px;
+    bottom: -56px;
+  }
   .statpanel .stat {
     display: flex;
     align-items: baseline;

@@ -1,3 +1,4 @@
+import { EuSeal, type SealVariant } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/euSeal';
 import { CountUp } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/countUp';
 import { Panel, Section, SectionHead } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/frame';
 import { Reveal } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/reveal';
@@ -5,6 +6,9 @@ import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
 import { IDS } from '@/app/(app)/[locale]/(landing-v2)/v2/lib/ids';
 
 const copy = COPY.network;
+
+/** Which watermark the volt cell shows; flip to compare. */
+const SEAL: SealVariant = 'lock';
 
 /** Four numbers; the last one, in brand colour, is the thesis. */
 export function NetworkSection() {
@@ -24,8 +28,10 @@ export function NetworkSection() {
             </Reveal>
           ))}
           <Reveal className='cell cell--volt' index={copy.stats.length}>
+            {SEAL === 'lock' ? <EuSeal variant='lock' /> : null}
             <span className='mono'>{copy.thesis.label}</span>
             <div className='stat'>
+              {SEAL === 'ring' ? <EuSeal variant='ring' /> : null}
               <b>{copy.thesis.value}</b>
             </div>
             <p>{copy.thesis.body}</p>
