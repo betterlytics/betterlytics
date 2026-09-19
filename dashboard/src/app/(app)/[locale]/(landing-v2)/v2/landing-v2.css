@@ -481,13 +481,17 @@
       .cell,
       .mcp__side,
       .mcp__works,
-      .mcp__works li,
       .plan,
       .plan ul,
       .jr__card,
       .jr__band
     ) {
     transition: border-color 0.5s ease 0.55s;
+  }
+  /* the tiles ink in on the same beat, but as a one-shot animation rather than
+     a transition, so their own hover timing is untouched afterwards */
+  .ink.is-drawn .mcp__works li {
+    animation: lp2-ink-in 0.5s ease 0.55s backwards;
   }
   @media (max-width: 640px) {
     .panel {
@@ -4132,5 +4136,10 @@
   }
   to {
     opacity: 1;
+  }
+}
+@keyframes lp2-ink-in {
+  from {
+    border-color: transparent;
   }
 }
