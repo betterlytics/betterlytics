@@ -47,7 +47,7 @@ export const COPY = {
     activateAria: 'Explore the interactive demo dashboard',
   },
   customers: {
-    label: 'Trusted by *privacy-first* teams',
+    label: 'Trusted by *fast-growing* startups',
   },
   journey: {
     title: 'Everything your users *experienced*',
