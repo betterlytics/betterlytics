@@ -35,19 +35,34 @@ export function Replay() {
         </span>
         <span className='sr__tag'>Rage click · 3×</span>
       </div>
+      {/* the play footer: label and status, the scrub track with its knob and markers, then the controls row */}
       <div className='sr__bar'>
-        <b>Session replay</b>
-        <u>
-          <s />
-          Playing
-        </u>
+        <div className='sr__row'>
+          <b>Session playback</b>
+          <u>
+            <s />
+            Playing
+          </u>
+        </div>
         <span className='sr__tr'>
-          <i />
+          <em style={{ left: '8%' }} />
           <em style={{ left: '31%' }} />
-          <em style={{ left: '58%', background: 'var(--down)', opacity: 0.9 }} />
+          <em className='sr__tr--rage' style={{ left: '58%' }} />
           <em style={{ left: '79%' }} />
+          <i />
         </span>
-        <time>12:44</time>
+        <div className='sr__row sr__ctl'>
+          <svg viewBox='0 0 12 12' aria-hidden>
+            <rect x='2' y='1.5' width='3' height='9' rx='0.8' />
+            <rect x='7' y='1.5' width='3' height='9' rx='0.8' />
+          </svg>
+          <time>03:21</time>
+          <span>/</span>
+          <time>12:44</time>
+          <svg className='sr__max' viewBox='0 0 12 12' aria-hidden>
+            <path d='M7 1.5h3.5V5M5 10.5H1.5V7M10.5 1.5 7 5M1.5 10.5 5 7' />
+          </svg>
+        </div>
       </div>
     </div>
   );

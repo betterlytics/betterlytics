@@ -1685,12 +1685,19 @@
   .is-live .sr__tag {
     animation-play-state: running;
   }
+  /* the play footer, laid out like the current landing card: label row, track, controls row */
   .sr__bar {
     display: flex;
-    align-items: center;
-    gap: 13px;
-    padding: 12px 14px;
+    flex-direction: column;
+    gap: 10px;
+    padding: 11px 14px 12px;
     border-top: 1px solid rgba(235, 232, 230, 0.07);
+  }
+  .sr__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
   }
   .sr__bar b {
     font-family: var(--mono);
@@ -1700,38 +1707,46 @@
     color: var(--mid);
     font-weight: 400;
   }
+  /* the status pill as on the current landing card: a neutral chip with a pulsing green dot */
   .sr__bar u {
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 3px 9px;
+    gap: 5px;
+    padding: 2px 8px;
     border-radius: 999px;
-    background: rgba(74, 222, 155, 0.12);
-    color: var(--live);
-    font-family: var(--mono);
-    font-size: 9.5px;
-    letter-spacing: 0.08em;
+    border: 1px solid rgba(235, 232, 230, 0.16);
+    background: rgba(235, 232, 230, 0.06);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
   }
   .sr__bar u s {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: var(--live);
+    box-shadow: 0 0 0 2px rgba(74, 222, 155, 0.35);
     text-decoration: none;
+    animation: lp2-blink 2s ease-in-out infinite;
   }
   .sr__tr {
-    flex: 1;
     position: relative;
-    height: 3px;
-    border-radius: 2px;
+    display: block;
+    height: 6px;
+    border-radius: 3px;
     background: rgba(235, 232, 230, 0.1);
   }
   .sr__tr i {
     position: absolute;
     inset: 0 auto 0 0;
-    border-radius: 2px;
-    background: var(--volt-lift);
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--volt-lift), #8b97ff);
+    box-shadow: 0 2px 8px rgba(74, 92, 255, 0.35);
     width: 6%;
     animation: lp2-sr-scrub 11s linear infinite;
     animation-play-state: paused;
@@ -1739,20 +1754,62 @@
   .is-live .sr__tr i {
     animation-play-state: running;
   }
+  /* the play head rides the end of the fill */
+  .sr__tr i::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    background: #e6e2df;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  }
   .sr__tr em {
     position: absolute;
-    top: -2.5px;
+    z-index: 1; /* above the fill that sweeps under them */
+    top: 50%;
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: var(--mid);
-    opacity: 0.5;
+    transform: translate(-50%, -50%);
+    background: rgba(235, 232, 230, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.8);
   }
-  .sr__bar time {
+  .sr__tr--rage {
+    background: var(--down);
+    border-color: rgba(255, 255, 255, 0.6);
+  }
+  .sr__ctl {
+    justify-content: flex-start;
+    gap: 8px;
+    color: var(--mid);
     font-family: var(--mono);
     font-size: 10.5px;
-    color: var(--mid);
     font-variant-numeric: tabular-nums;
+  }
+  .sr__ctl svg {
+    width: 11px;
+    height: 11px;
+    fill: var(--text);
+    stroke: none;
+  }
+  .sr__ctl time {
+    color: var(--text);
+  }
+  .sr__ctl > span {
+    opacity: 0.5;
+  }
+  .sr__ctl .sr__max {
+    margin-left: auto;
+    fill: none;
+    stroke: var(--text);
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   /* acquisition: the globe alone on the canvas. It's an object, not a widget. */
