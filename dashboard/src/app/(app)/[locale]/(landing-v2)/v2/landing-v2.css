@@ -1257,24 +1257,28 @@
   }
 
   /* ── flip tile ── the whole cell turns over as one card on its horizontal
-     centre line: old team on the front, new team on the back. The working cell
-     lifts to the surface tone for the turn, the faces share that tone with a
-     hairline edge so the card reads against its slot, and the faces shade
-     toward black as they turn — this palette is dark enough that a canvas veil
-     would not register. The board only exists (and only takes these rules) when
-     the pool outnumbers the slots. */
+     centre line: old team on the front, new team on the back. A slot in the
+     surface tone sits behind the card, so the card has something to turn
+     against; the faces share that tone with a hairline edge, and shade toward
+     black as they turn — this palette is dark enough that a canvas veil would
+     not register. The slot's opacity follows the card's angle, like the shades:
+     it is only there while the card is off-plane, and is gone by the time the
+     card lands, so the landed mark sits on plain canvas with no afterglow. The
+     board only exists (and only takes these rules) when the pool outnumbers
+     the slots. */
   .logos--board .lg {
     position: relative;
     perspective: 640px;
-    transition:
-      opacity 0.22s var(--ease),
-      background-color 0.32s var(--ease);
   }
   /* above its neighbours: the near half of a turning card projects a few px past the cell */
   .logos--board .lg.is-flipping {
     z-index: 1;
-    background-color: var(--surface);
-    transition-duration: 0.22s, 0.12s;
+  }
+  .flap__slot {
+    position: absolute;
+    inset: 0;
+    background: var(--surface);
+    pointer-events: none;
   }
   /* the in-flow mark keeps the cell's size while the card covers it; hidden so
      it does not show through the card edge-on. A flex box, not a plain span: a
@@ -1287,6 +1291,7 @@
   }
   .flap__tile,
   .flap__face,
+  .flap__lift,
   .flap__shade {
     position: absolute;
     inset: 0;
@@ -1300,14 +1305,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--surface);
-    box-shadow: inset 0 0 0 1px var(--rule-125);
+    background: var(--canvas); /* a resting cell, so landing and unmount are one and the same */
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+  }
+  /* positioned, so it paints in tree order between the veils: over the lift,
+     under the shade. Unpositioned it would paint under both. */
+  .flap__face > .mk {
+    position: relative;
   }
   /* pre-turned, so it reads upright once the card has come over */
   .flap__face--back {
     transform: rotateX(180deg);
+  }
+  /* the card's own tone and edge, a veil whose opacity motion drives from the
+     angle: up over the first degrees of the turn, gone over the last, so the
+     card is only a card while it is off-plane */
+  .flap__lift {
+    background: var(--surface);
+    box-shadow: inset 0 0 0 1px var(--rule-125);
+    pointer-events: none;
   }
   /* shading: a black veil per face whose opacity motion drives from the angle */
   .flap__shade {

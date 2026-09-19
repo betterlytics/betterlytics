@@ -33,13 +33,20 @@ const EASES: Array<[number, number, number, number]> = [
   [0.6, 0, 0.8, 0.6],
 ];
 /**
- * Light on the card, as a function of its angle rather than of time, so the
- * settle un-shades and re-shades on its own: the front face darkens as it turns
- * edge-on, the back face comes over in shadow and clears as it lands.
+ * Light as a function of the card's angle rather than of time, so the settle
+ * un-shades and re-shades on its own: the front face darkens as it turns
+ * edge-on, the back face comes over in shadow and clears as it lands. The
+ * card's own tone and edge, and the slot behind it, exist only while the card
+ * is off-plane: up over the first degrees of the turn, gone over the last, so
+ * at landing the card already looks like a resting cell and its unmount is
+ * invisible. No afterglow, no pop.
  */
 const SHADE = {
   front: { angle: [0, -60, -90], opacity: [0, 0.3, 0.75] },
   back: { angle: [-90, -120, -180], opacity: [0.75, 0.3, 0] },
+  liftFront: { angle: [0, -30], opacity: [0, 1] },
+  liftBack: { angle: [-150, -180], opacity: [1, 0] },
+  slot: { angle: [0, -30, -150, -180], opacity: [0, 1, 1, 0] },
 };
 
 export type Logo = { name: string; style?: LogoStyle; icon: PathIconData };
@@ -53,9 +60,17 @@ function Mark({ logo }: { logo: Logo }) {
   );
 }
 
-function Shade({ angle, of }: { angle: MotionValue<number>; of: { angle: number[]; opacity: number[] } }) {
+function Veil({
+  angle,
+  of,
+  className = 'flap__shade',
+}: {
+  angle: MotionValue<number>;
+  of: { angle: number[]; opacity: number[] };
+  className?: string;
+}) {
   const opacity = useTransform(angle, of.angle, of.opacity);
-  return <motion.span className='flap__shade' style={{ opacity }} />;
+  return <motion.span className={className} style={{ opacity }} />;
 }
 
 /**
@@ -88,14 +103,17 @@ function Flap({ from, to, onDone }: { from: Logo; to: Logo; onDone: () => void }
       <span className='flap__size'>
         <Mark logo={to} />
       </span>
+      <Veil angle={angle} of={SHADE.slot} className='flap__slot' />
       <motion.span className='flap__tile' aria-hidden style={{ rotateX: angle }}>
         <span className='flap__face flap__face--front'>
+          <Veil angle={angle} of={SHADE.liftFront} className='flap__lift' />
           <Mark logo={from} />
-          <Shade angle={angle} of={SHADE.front} />
+          <Veil angle={angle} of={SHADE.front} />
         </span>
         <span className='flap__face flap__face--back'>
+          <Veil angle={angle} of={SHADE.liftBack} className='flap__lift' />
           <Mark logo={to} />
-          <Shade angle={angle} of={SHADE.back} />
+          <Veil angle={angle} of={SHADE.back} />
         </span>
       </motion.span>
     </>
