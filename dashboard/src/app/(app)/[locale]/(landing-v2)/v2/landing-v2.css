@@ -1078,7 +1078,7 @@
     transform: translate(-50%, -50%);
     width: max-content;
     max-width: 80%;
-    padding: 11px 22px;
+    padding: 7px 15px;
     border-radius: 999px;
     border: 1px solid rgba(235, 232, 230, 0.16);
     background: rgba(235, 232, 230, 0.07);
@@ -1086,9 +1086,9 @@
     backdrop-filter: blur(12px) saturate(1.15);
     box-shadow: 0 10px 28px -14px rgba(0, 0, 0, 0.7);
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 10.5px;
     font-weight: 500;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     text-align: center;
     text-wrap: balance;
