@@ -756,12 +756,17 @@
           "errors": {
             "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
             "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
-            "generic": "Der opstod en fejl under login. Prøv venligst igen."
+            "generic": "Der opstod en fejl under login. Prøv venligst igen.",
+            "invalidBackupCode": "Ugyldig backup-kode. Prøv igen."
           },
           "twoFactor": {
             "title": "To-faktor-godkendelse",
             "description": "Indtast bekræftelseskoden fra din app.",
-            "cancel": "Annuller"
+            "cancel": "Annuller",
+            "backupCodeDescription": "Indtast en af dine backup-koder. Hver kode kan kun bruges én gang.",
+            "useBackupCode": "Brug en backup-kode i stedet",
+            "useAuthenticator": "Brug din authenticator-app i stedet",
+            "verify": "Bekræft"
           }
         }
       },
@@ -2073,6 +2078,12 @@
       "onSslExpiry": "Advarsel ved SSL-udløb",
       "onSslExpiryDescription": "Send en alarm, når SSL-certifikatet er ved at udløbe",
       "sslExpiryDisabledTooltip": "Aktivér SSL-overvågning i Avancerede indstillinger først",
+      "emailsNotConfigured": {
+        "badge": "E-mail ikke konfigureret",
+        "title": "Alarm-e-mails kan ikke leveres",
+        "description": "E-mail-afsendelse er ikke konfigureret på denne instans, så alarm-e-mails fra oppetidsovervågning bliver ikke sendt. Indstillingerne gemmes og træder i kraft, når e-mail er konfigureret.",
+        "tooltip": "Konfigurer e-mail-afsendelse på denne instans for at aktivere alarmer"
+      },
       "failureThreshold": "Fejlgrænse",
       "failureThresholdDescription": "Antal fejl i træk før der sendes en alarm",
       "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",
@@ -2162,7 +2173,8 @@
           "domain": "example.com"
         },
         "helper": {
-          "domain": "Indtast dit domæne uden https:// eller www."
+          "domain": "Indsæt din hjemmesides URL eller domæne, f.eks. eksempel.dk",
+          "willBeCreatedAs": "Oprettes som <strong>{domain}</strong>"
         },
         "buttons": {
           "cancel": "Annuller",
@@ -3062,7 +3074,17 @@
           "passwordPromptDescription": "Indtast din adgangskode for at fortsætte.",
           "passwordLabel": "Adgangskode",
           "backupCodesTitle": "Backup-koder",
-          "backupCodesDescription": "Gem disse engangskoder et sikkert sted — de giver dig adgang, hvis du mister din authenticator."
+          "backupCodesDescription": "Gem disse engangskoder et sikkert sted. De giver dig adgang, hvis du mister din authenticator.",
+          "copyCodes": "Kopiér",
+          "downloadCodes": "Download",
+          "backupCodesDone": "Jeg har gemt mine koder",
+          "regenerateTitle": "Generér nye backup-koder",
+          "regenerateDescription": "Dette erstatter alle eksisterende backup-koder. Indtast din adgangskode for at fortsætte.",
+          "regenerate": "Generér nye",
+          "regenerateFailed": "Kunne ikke generere nye backup-koder. Prøv igen.",
+          "backupCodesWarning": "Hver kode virker én gang. De vises ikke igen, når du lukker dette.",
+          "copied": "Kopieret",
+          "backupCodesRowDescription": "Engangskoder, der giver dig adgang, hvis du mister din authenticator-app. Opbevar dem lige så sikkert som din adgangskode."
         }
       },
       "sessions": {
@@ -3259,7 +3281,9 @@
         "passwordsDoNotMatch": "Adgangskoder matcher ikke",
         "emailAlreadyExists": "Der findes allerede en bruger med den e-mail.",
         "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
-        "checkInput": "Tjek venligst dit input"
+        "checkInput": "Tjek venligst dit input",
+        "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
+        "invitedToHint": "Du er inviteret til at deltage i {domain}"
       }
     },
     "website": {
@@ -3267,7 +3291,8 @@
       "description": "Fortæl os om det website, du vil spore",
       "domainLabel": "Domæne",
       "domainPlaceholder": "eksempel.dk",
-      "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
+      "domainHelp": "Indsæt din hjemmesides URL eller domæne (f.eks. eksempel.dk)",
+      "domainWillBeCreatedAs": "Oprettes som <strong>{domain}</strong>",
       "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
       "createDashboardButton": "Opret dashboard",
       "creatingDashboard": "Opretter dashboard...",
@@ -3373,6 +3398,29 @@
       "title": "Ingen Core Web Vitals data endnu",
       "description": "Tjek at tracking er aktiveret.",
       "action": "Læs mere"
+    },
+    "featureNotEnabled": {
+      "action": "Selfhosting-guide",
+      "monitoring": {
+        "title": "Oppetidsovervågning er ikke aktiveret på denne instans",
+        "description": "Monitorer kan sættes op, men de tjekkes ikke, og der sendes ingen alarmer, før det er aktiveret."
+      },
+      "statusPages": {
+        "title": "Statussider er ikke aktiveret på denne instans",
+        "description": "Statussider kan sættes op, men de udgives ikke, før funktionen er aktiveret."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Statussider kræver oppetidsovervågning, som ikke er aktiveret på denne instans",
+        "description": "Statussider kan sættes op, men de udgives ikke, før oppetidsovervågning er aktiveret."
+      },
+      "sessionReplay": {
+        "title": "Sessionsafspilning er ikke aktiveret på denne instans",
+        "description": "Der optages ingen sessioner, før det er aktiveret."
+      },
+      "geography": {
+        "title": "Geolokation er ikke aktiveret på denne instans",
+        "description": "Besøgendes placering indsamles ikke, før det er aktiveret."
+      }
     }
   },
   "githubStar": {
@@ -3473,13 +3521,16 @@
       "goToSignIn": "Gå til login",
       "expiredTitle": "Invitation udløbet",
       "expiredDescription": "Denne invitation er ikke længere gyldig.",
-      "expiredHint": "Bed dashboard-ejeren om at sende dig en ny invitation.",
+      "expiredHint": "Bed {inviter} om at sende dig en ny invitation.",
       "emailMismatchTitle": "Forkert konto",
       "emailMismatchDescription": "Denne invitation blev sendt til {invitedEmail}, men du er logget ind som {currentEmail}.",
       "emailMismatchHint": "Log ud og log ind med den korrekte konto for at acceptere denne invitation.",
       "errorTitle": "Kunne ikke acceptere invitation",
-      "errorDescription": "Noget gik galt under accept af invitationen. Den er muligvis allerede accepteret eller annulleret.",
-      "goToDashboards": "Gå til dashboards"
+      "errorDescription": "Noget gik galt, da du skulle tilføjes til dashboardet.",
+      "goToDashboards": "Gå til dashboards",
+      "errorHint": "Prøv igen om lidt. Hvis det bliver ved med at fejle, så bed {inviter} om at sende dig en ny invitation.",
+      "tryAgain": "Prøv igen",
+      "dashboardOwner": "dashboard-ejeren"
     }
   },
   "integration": {
@@ -3780,6 +3831,10 @@
     "section": {
       "description": "Forbind tredjepartstjenester for at modtage uptimeovervågningsnotifikationer, når din hjemmeside går ned eller kommer op igen."
     },
+    "monitoringNotConfigured": {
+      "title": "Notifikationer er ikke aktive på denne instans",
+      "description": "Integrationer sender kun oppetidsovervågningsalarmer, og oppetidsovervågning er slået fra på denne instans. Integrationer kan stadig sættes op, men intet bliver sendt, før det er aktiveret."
+    },
     "integrations": {
       "pushover": {
         "name": "Pushover",
@@ -3823,7 +3878,8 @@
     },
     "status": {
       "connected": "Forbundet",
-      "disabled": "Deaktiveret"
+      "disabled": "Deaktiveret",
+      "unavailable": "Ikke tilgængelig på denne instans"
     },
     "actions": {
       "configure": "Konfigurer",
@@ -3913,6 +3969,9 @@
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
       "invalidWebhookUrl": "Ugyldig webhook URL"
+    },
+    "unavailable": {
+      "description": "{name} kræver et app-token konfigureret på denne instans, før den kan tilsluttes."
     }
   },
   "errors": {

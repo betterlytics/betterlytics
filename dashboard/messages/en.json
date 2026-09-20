@@ -756,12 +756,17 @@
           "errors": {
             "invalidOtp": "Invalid verification code. Please check your credentials and try again.",
             "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
-            "generic": "An error occurred during sign in. Please try again."
+            "generic": "An error occurred during sign in. Please try again.",
+            "invalidBackupCode": "Invalid backup code. Please try again."
           },
           "twoFactor": {
             "title": "Two-factor authentication",
             "description": "Enter the verification code from your authenticator app.",
-            "cancel": "Cancel"
+            "cancel": "Cancel",
+            "backupCodeDescription": "Enter one of your backup codes. Each code can only be used once.",
+            "useBackupCode": "Use a backup code instead",
+            "useAuthenticator": "Use your authenticator app instead",
+            "verify": "Verify"
           }
         }
       },
@@ -2073,6 +2078,12 @@
       "onSslExpiry": "Alert on SSL expiry",
       "onSslExpiryDescription": "Send an alert when the SSL certificate is about to expire",
       "sslExpiryDisabledTooltip": "Enable SSL monitoring in Advanced Settings first",
+      "emailsNotConfigured": {
+        "badge": "Email not configured",
+        "title": "Alert emails cannot be delivered",
+        "description": "Email delivery is not configured on this instance, so uptime monitoring alert emails will not be sent. These settings are kept and take effect once email is configured.",
+        "tooltip": "Configure email delivery on this instance to enable alerts"
+      },
       "failureThreshold": "Failure threshold",
       "failureThresholdDescription": "Number of consecutive failures before sending an alert",
       "failureCount": "{count, plural, one {{count} failure} other {{count} failures}}",
@@ -2162,7 +2173,8 @@
           "domain": "example.com"
         },
         "helper": {
-          "domain": "Enter your domain without https:// or www."
+          "domain": "Paste your website URL or domain, e.g. example.com",
+          "willBeCreatedAs": "Will be created as <strong>{domain}</strong>"
         },
         "buttons": {
           "cancel": "Cancel",
@@ -3059,7 +3071,17 @@
           "passwordPromptDescription": "Enter your account password to continue.",
           "passwordLabel": "Password",
           "backupCodesTitle": "Backup codes",
-          "backupCodesDescription": "Store these one-time codes somewhere safe — they let you sign in if you lose your authenticator."
+          "backupCodesDescription": "Store these one-time codes somewhere safe. They let you sign in if you lose your authenticator.",
+          "copyCodes": "Copy",
+          "downloadCodes": "Download",
+          "backupCodesDone": "I've saved my codes",
+          "regenerateTitle": "Regenerate backup codes",
+          "regenerateDescription": "This replaces all existing backup codes. Enter your account password to continue.",
+          "regenerate": "Regenerate",
+          "regenerateFailed": "Failed to regenerate backup codes. Please try again.",
+          "backupCodesWarning": "Each code works once. They won't be shown again after you close this.",
+          "copied": "Copied",
+          "backupCodesRowDescription": "One-time codes that let you sign in if you lose your authenticator app. Keep them as safe as your password."
         }
       },
       "sessions": {
@@ -3256,7 +3278,9 @@
         "passwordsDoNotMatch": "Passwords do not match",
         "emailAlreadyExists": "User with that email already exists.",
         "signUpError": "An error occurred during sign up. Please try again.",
-        "checkInput": "Please check your input"
+        "checkInput": "Please check your input",
+        "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner for an invitation.",
+        "invitedToHint": "You've been invited to join {domain}"
       }
     },
     "website": {
@@ -3264,7 +3288,8 @@
       "description": "Tell us about the website you want to track",
       "domainLabel": "Domain",
       "domainPlaceholder": "example.com",
-      "domainHelp": "Enter your domain without https:// or www. (e.g., example.com)",
+      "domainHelp": "Paste your website URL or domain (e.g., example.com)",
+      "domainWillBeCreatedAs": "Will be created as <strong>{domain}</strong>",
       "termsAgreeLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
       "createDashboardButton": "Create Dashboard",
       "creatingDashboard": "Creating Dashboard...",
@@ -3370,6 +3395,29 @@
       "title": "No Core Web Vitals data yet",
       "description": "Make sure tracking is enabled.",
       "action": "Learn more"
+    },
+    "featureNotEnabled": {
+      "action": "Self-hosting guide",
+      "monitoring": {
+        "title": "Uptime monitoring is not enabled on this instance",
+        "description": "Monitors can be set up, but they are not checked and no alerts are sent until it is enabled."
+      },
+      "statusPages": {
+        "title": "Status pages are not enabled on this instance",
+        "description": "Status pages can be set up, but they are not published until the feature is enabled."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Status pages need uptime monitoring, which is not enabled on this instance",
+        "description": "Status pages can be set up, but they are not published until uptime monitoring is enabled."
+      },
+      "sessionReplay": {
+        "title": "Session replay is not enabled on this instance",
+        "description": "No sessions are recorded until it is enabled."
+      },
+      "geography": {
+        "title": "Geolocation is not enabled on this instance",
+        "description": "Visitor locations are not collected until it is enabled."
+      }
     }
   },
   "githubStar": {
@@ -3470,13 +3518,16 @@
       "goToSignIn": "Go to Sign In",
       "expiredTitle": "Invitation Expired",
       "expiredDescription": "This invitation is no longer valid.",
-      "expiredHint": "Please ask the dashboard owner to send you a new invitation.",
+      "expiredHint": "Ask {inviter} to send you a new invitation.",
       "emailMismatchTitle": "Wrong Account",
       "emailMismatchDescription": "This invitation was sent to {invitedEmail}, but you are signed in as {currentEmail}.",
       "emailMismatchHint": "Sign out and sign in with the correct account to accept this invitation.",
       "errorTitle": "Could Not Accept Invitation",
-      "errorDescription": "Something went wrong while accepting the invitation. It may have already been accepted or cancelled.",
-      "goToDashboards": "Go to Dashboards"
+      "errorDescription": "Something went wrong while adding you to the dashboard.",
+      "goToDashboards": "Go to Dashboards",
+      "errorHint": "Try again in a moment. If it keeps failing, ask {inviter} to send you a new invitation.",
+      "tryAgain": "Try again",
+      "dashboardOwner": "the dashboard owner"
     }
   },
   "integration": {
@@ -3777,6 +3828,10 @@
     "section": {
       "description": "Connect third-party services to receive uptime monitoring notifications when your website goes down or recovers."
     },
+    "monitoringNotConfigured": {
+      "title": "Notifications are not active on this instance",
+      "description": "Integrations only deliver uptime monitoring alerts, and uptime monitoring is disabled on this instance. Integrations can still be set up, but nothing will be sent until it is enabled."
+    },
     "integrations": {
       "pushover": {
         "name": "Pushover",
@@ -3820,7 +3875,8 @@
     },
     "status": {
       "connected": "Connected",
-      "disabled": "Disabled"
+      "disabled": "Disabled",
+      "unavailable": "Not available on this instance"
     },
     "actions": {
       "configure": "Configure",
@@ -3910,6 +3966,9 @@
       "invalidSlackWebhook": "Invalid Slack webhook URL",
       "invalidTeamsWebhook": "Invalid Teams webhook URL",
       "invalidWebhookUrl": "Invalid webhook URL"
+    },
+    "unavailable": {
+      "description": "{name} needs an app token configured on this instance before it can be connected."
     }
   },
   "errors": {

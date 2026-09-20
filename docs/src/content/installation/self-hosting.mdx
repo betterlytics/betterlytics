@@ -18,6 +18,8 @@ Betterlytics Cloud always runs the latest version, and new features launch there
 
 A few features also depend on additional infrastructure and are not yet supported when self-hosting. For example, Session Replay requires S3-compatible object storage.
 
+Core Web Vitals works out of the box: enable it with `data-web-vitals="true"` on your tracking script and all scripts are served by your instance itself - no third-party requests. See the [Web Vitals integration guide](/integration/web-vitals).
+
 <Callout type="info">
 Before relying on a specific feature, check the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted) for its current self-hosted status. Getting the newest features is as simple as [updating your instance](#updating) when a new image is released.
 </Callout>
