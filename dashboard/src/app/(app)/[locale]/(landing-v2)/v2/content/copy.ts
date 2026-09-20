@@ -30,8 +30,7 @@ export const COPY = {
     pill: 'Live · 2.4M events recorded today',
     title: 'Every visit, every error, every outage',
     lede: 'One script, 4.9 kB. No cookies, no sampling, and nothing left to reconcile between dashboards.',
-    ctaPrimary: 'Start measuring',
-    ctaDemo: 'See a live dashboard',
+    ctaPrimary: 'Start measuring for free',
   },
   demo: {
     placeholder: 'Interactive demo',
@@ -134,7 +133,7 @@ export const COPY = {
   cta: {
     title: 'Add one script and watch it land',
     lede: 'The free tier is the same script, dashboard and unsampled data as every paid plan. No credit card required.',
-    primary: 'Start measuring',
+    primary: 'Start measuring for free',
     secondary: 'View docs',
   },
   footer: {

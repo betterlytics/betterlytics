@@ -1,6 +1,5 @@
 import { Link } from '@/i18n/navigation';
 import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
-import { IDS } from '@/app/(app)/[locale]/(landing-v2)/v2/lib/ids';
 
 const copy = COPY.hero;
 
@@ -21,9 +20,6 @@ export function HeroSection() {
             <Link className='btn btn--paper btn--lg' href='/signup'>
               {copy.ctaPrimary}
             </Link>
-            <a className='btn btn--onvolt btn--lg' href={`#${IDS.demo}`}>
-              {copy.ctaDemo}
-            </a>
           </div>
         </div>
       </div>
