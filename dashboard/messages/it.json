@@ -150,7 +150,7 @@
           },
           "freePlan": {
             "question": "Cosa include il piano gratuito?",
-            "answer": "Il piano auto-ospitato gratuito include fino a 10.000 eventi tracciati, accesso completo alla dashboard e supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo."
+            "answer": "Il piano Cloud gratuito include fino a 10.000 eventi tracciati, accesso completo alla dashboard e supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo. L'auto-hosting è gratuito senza limite di eventi."
           },
           "cloud": {
             "question": "Come funziona l'hosting cloud?",
@@ -1038,7 +1038,7 @@
             "features": {
               "f1": "Distribuzione Docker",
               "f2": "Controllo completo",
-              "f3": "Conforme GDPR"
+              "f3": "Tutte le funzionalità incluse"
             }
           }
         },
