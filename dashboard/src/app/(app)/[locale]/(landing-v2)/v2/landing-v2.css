@@ -3553,7 +3553,7 @@
     user-select: none;
     cursor: pointer;
   }
-  /* a groove rather than a line: a touch thicker, shaded at the top, blue fill with a lit top edge */
+  /* a flat track: the value is carried by the filled segment, not by the thumb */
   .range__track {
     position: relative;
     flex: 1;
@@ -3570,8 +3570,8 @@
     background: linear-gradient(180deg, var(--volt-lift), var(--volt));
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
-  /* the thumb is the page's blue, lit from the top like the buttons and cards, with a
-     thin canvas gap so it never merges into the fill; hover and focus add a halo */
+  /* a single flat disc with one border so it lifts off the fill; the halo only
+     appears for keyboard focus and while dragging */
   .range__thumb {
     display: block;
     width: 22px;
@@ -3588,19 +3588,18 @@
       transform 0.15s var(--ease),
       box-shadow 0.2s var(--ease);
   }
-  .range__thumb:hover,
-  .range__thumb:focus-visible {
-    transform: scale(1.06);
+  .range__thumb:hover {
+    transform: scale(1.12);
     outline: none;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.35),
-      0 0 0 1px rgba(255, 255, 255, 0.2),
-      0 0 0 6px rgba(74, 92, 255, 0.22),
-      0 3px 10px rgba(0, 0, 0, 0.5);
+  }
+  .range__thumb:focus-visible,
+  .range__thumb:active {
+    outline: none;
+    box-shadow: 0 0 0 5px rgba(74, 92, 255, 0.28);
   }
   .range__thumb:active {
     cursor: grabbing;
-    transform: scale(1);
+    transform: scale(1.12);
   }
   /* a caption under every stop, each a shortcut to it; the current one is bright.
      Positions are inset by the thumb radius so captions sit under thumb centres. */

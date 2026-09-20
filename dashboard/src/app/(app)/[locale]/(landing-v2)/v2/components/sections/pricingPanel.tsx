@@ -179,7 +179,7 @@ export function PricingPanel() {
               key={r.value}
               type='button'
               className={cn(i === rangeIndex && 'is-on')}
-              style={{ left: `calc(11px + (100% - 22px) * ${i / lastIndex})` }}
+              style={{ left: `calc(9px + (100% - 18px) * ${i / lastIndex})` }}
               onClick={() => setRangeIndex(i)}
             >
               {formatEventCount(r.value, locale)}
