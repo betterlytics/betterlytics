@@ -1,6 +1,6 @@
 ---
 title: "Self-Hosting"
-description: "Deploy Betterlytics on your own server using Docker. Privacy-first, lightweight analytics with full data ownership."
+description: "Deploy Betterlytics on your own server using Docker. Privacy-first analytics with session replay, uptime monitoring, and status pages, all on infrastructure you own."
 ---
 
 import { Callout, Tabs } from "nextra/components";
@@ -16,9 +16,7 @@ All self-hosting files and configuration live in the [betterlytics-selfhost](htt
 
 Betterlytics Cloud always runs the latest version, and new features launch there first. The self-hosted image is updated periodically from our stable releases, so it can temporarily lag behind what you see on Cloud or elsewhere in these docs.
 
-A few features also depend on additional infrastructure and are not yet supported when self-hosting. For example, Session Replay requires S3-compatible object storage.
-
-Core Web Vitals works out of the box: enable it with `data-web-vitals="true"` on your tracking script and all scripts are served by your instance itself - no third-party requests. See the [Web Vitals integration guide](/integration/web-vitals).
+The self-hosted image includes web analytics, Core Web Vitals, error tracking, session replay, uptime monitoring, and public status pages. Features that need configuration on your side each have a section on this page.
 
 <Callout type="info">
 Before relying on a specific feature, check the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted) for its current self-hosted status. Getting the newest features is as simple as [updating your instance](#updating) when a new image is released.
@@ -27,8 +25,8 @@ Before relying on a specific feature, check the [cloud vs self-hosted comparison
 ## Requirements
 
 - **Docker** and **Docker Compose** installed on your server
-- A **domain name** pointed to your server
-- Ports **80** and **443** open (standalone mode) or a reverse proxy configured
+- A **domain name** pointed to your server (not needed to try it locally)
+- Ports **80** and **443** reachable from the internet (standalone mode), or a reverse proxy you already run
 
 ## Quick Start
 
@@ -48,38 +46,72 @@ chmod +x setup.sh
 ./setup.sh
 ```
 
+It asks for a deployment mode, your domain, and the admin account:
+
+- **Standalone**: the container provisions HTTPS certificates itself. Pick this when nothing else listens on ports 80 and 443.
+- **Basic**: plain HTTP on a port of your choice, for use behind your own reverse proxy.
+- **Try locally**: plain HTTP on `localhost`, for evaluating Betterlytics on your own machine.
+
 <Callout type="info">
-Prefer to configure manually? Copy `.env.example` to `.env` and fill in the values yourself.
+Prefer to configure manually? Copy `.env.example` to `.env` and fill in the values yourself. The [configuration reference](#configuration-reference) below lists every option.
 </Callout>
 
 ### 3. Start the Containers
 
 ```bash
-docker compose up -d
+docker compose up -d --wait
 ```
 
-Your Betterlytics instance will be available at your configured domain within a minute or two. Once it's running, log in and follow the in-app integration guide to [add the tracking script to your website](/installation/cloud-hosting#step-3-install-your-tracking-script).
+The first start runs database migrations before the app comes up, so give it a minute or two. `--wait` returns once the instance passes its health check. Then open your domain in a browser and log in with the admin credentials you chose.
+
+The same command applies whenever you change `.env`: Compose recreates the container with the new values.
+
+### 4. Install the Tracking Script
+
+Once logged in, follow the in-app integration guide to add the tracking script to your website. The snippet it generates already points at your instance. It looks like this:
+
+```html
+<script
+  async
+  src="https://analytics.example.com/analytics.js"
+  data-site-id="your-site-id"
+  data-server-url="https://analytics.example.com/event"
+></script>
+```
+
+<Callout type="warning">
+The snippets elsewhere in these docs load `analytics.js` from `betterlytics.io` and, without `data-server-url`, send events to Betterlytics Cloud. When copying one, replace the script origin with your domain and add `data-server-url` pointing at your instance's `/event` endpoint.
+</Callout>
 
 ## Deployment Modes
 
-### Standalone (Default)
+### Standalone
 
-The default mode provisions TLS certificates automatically via Let's Encrypt. Set `HTTP_SCHEME=https` (the default) and ensure ports 80 and 443 are accessible from the internet for ACME challenges and HTTPS traffic.
+With `HTTP_SCHEME=https`, the built-in Caddy server obtains a certificate from Let's Encrypt and renews it automatically. Ports 80 and 443 must both be reachable from the internet: certificates are validated with the HTTP-01 challenge on port 80, and HTTPS traffic arrives on 443.
 
-When using `setup.sh`, this is handled automatically. The script generates a `docker-compose.override.yml` that exposes the correct ports.
-
-If you're doing a manual setup, create the `docker-compose.override.yml` and add the following:
+`setup.sh` configures this for you. If you are setting up manually, set the following in `.env`:
 
 ```bash
+HTTP_SCHEME=https
+BIND_ADDRESS=0.0.0.0
+HTTP_PORT=80
+HTTPS_PORT=443
+```
+
+and create a `docker-compose.override.yml` that exposes port 443:
+
+```yaml
 services:
   betterlytics-selfhost:
     ports:
       - "${BIND_ADDRESS}:${HTTPS_PORT}:443"
 ```
 
+`HTTP_PORT` must be `80`, otherwise the HTTP-01 challenge never reaches the container, and the container refuses to start when `HTTP_SCHEME=https` and `HTTP_PORT` is anything else. `SSL_EMAIL` and `ACME_CA` are optional; see [Domain and HTTPS](#domain-and-https). Certificates are stored in the `betterlytics_selfhost_caddy_data` volume and survive restarts and updates.
+
 ### Behind a Reverse Proxy
 
-If you already have a reverse proxy (Caddy, Nginx, Traefik, etc.), set `HTTP_SCHEME=http` and bind to localhost on a custom port so you don't expose port 80 directly:
+If you already have a reverse proxy (Caddy, Nginx, Traefik, etc.), set `HTTP_SCHEME=http` and bind to a custom port so the instance itself never terminates TLS:
 
 ```bash
 HTTP_SCHEME=http
@@ -87,7 +119,9 @@ BIND_ADDRESS=127.0.0.1
 HTTP_PORT=5566
 ```
 
-Then point your reverse proxy to that port.
+`setup.sh` in Basic mode binds to `0.0.0.0` so a proxy on another machine can reach the instance. When the proxy runs on the same machine, set `BIND_ADDRESS=127.0.0.1` so port 5566 is not exposed publicly.
+
+Your proxy must terminate TLS, pass the `Host` header through unchanged, and set `X-Forwarded-Proto` and `X-Forwarded-For`. Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, list it in `TRUSTED_PROXIES`, otherwise every visitor is recorded with the proxy's IP. To check, compare `request.remote_ip` and `request.client_ip` in `docker compose logs betterlytics-selfhost`.
 
 <Tabs items={['Caddy', 'Nginx', 'Traefik']}>
   <Tabs.Tab>
@@ -112,8 +146,8 @@ Then point your reverse proxy to that port.
             proxy_pass http://127.0.0.1:5566;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $remote_addr;
-            proxy_set_header X-Forwarded-Proto https;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
     ```
@@ -139,7 +173,7 @@ Then point your reverse proxy to that port.
               - url: "http://127.0.0.1:5566"
     ```
 
-    If you use Docker labels instead of file-based configuration, add these to the Betterlytics service in your `docker-compose.override.yml`:
+    If you use Docker labels instead of file-based configuration, add these to the Betterlytics service in your `docker-compose.override.yml`. Traefik talks to the container directly, so the port is the container's port 80, not `HTTP_PORT`:
 
     ```yaml
     labels:
@@ -147,10 +181,14 @@ Then point your reverse proxy to that port.
       - "traefik.http.routers.betterlytics.rule=Host(`analytics.example.com`)"
       - "traefik.http.routers.betterlytics.entrypoints=websecure"
       - "traefik.http.routers.betterlytics.tls.certresolver=letsencrypt"
-      - "traefik.http.services.betterlytics.loadbalancer.server.port=5566"
+      - "traefik.http.services.betterlytics.loadbalancer.server.port=80"
     ```
   </Tabs.Tab>
 </Tabs>
+
+### Try Locally
+
+The third `setup.sh` mode runs the instance on `http://localhost:5566` with no domain and no TLS. It sets `FORCE_HTTP_SCHEME=http` so the app builds plain `http://` links. Use it to evaluate Betterlytics on your own machine, not for a real deployment.
 
 ## Geolocation
 
@@ -179,21 +217,20 @@ MAXMIND_ACCOUNT_ID=your_account_id
 MAXMIND_LICENSE_KEY=your_license_key
 ```
 
-Your Account ID is displayed at the top of the MaxMind account portal.
-
-| Variable | Default | Behavior |
-|----------|---------|----------|
-| `ENABLE_GEOLOCATION` | `false` | Master switch for geolocation. When disabled, no geo data is collected |
-| `GEOLOCATION_MODE` | `country` | `country`: country-level data only (~9 MB). `full` adds subdivision + city drill-down (~61 MB) |
+Your Account ID is displayed at the top of the MaxMind account portal. `GEOLOCATION_MODE=country` (the default) resolves countries only from a ~9 MB database; `full` adds subdivision and city drill-down from a ~61 MB database. See the [Geolocation reference](#geolocation-1) for all options.
 
 ### 4. Restart
 
 ```bash
-docker compose down && docker compose up -d
+docker compose up -d --wait
 ```
 
 <Callout type="info">
-When geolocation is enabled, the GeoLite2 database is downloaded automatically and refreshed periodically. No manual updates are required. The initial download may take a moment on first run.
+When geolocation is enabled, the GeoLite2 database is downloaded on first start and refreshed periodically. It is kept in the `betterlytics_selfhost_geoip` volume, so it survives restarts and updates. No manual updates are required.
+</Callout>
+
+<Callout type="warning">
+The instance refuses to start when `ENABLE_GEOLOCATION=true` and no database can be read or downloaded, for example because the MaxMind credentials are wrong or the server has no outbound internet access. Check `docker compose logs` for the message `Geolocation is enabled but no GeoIP database could be obtained`, then fix the credentials or set `ENABLE_GEOLOCATION=false`.
 </Callout>
 
 ### City & Subdivision Data
@@ -204,15 +241,187 @@ When `GEOLOCATION_MODE=full` is set (alongside `ENABLE_GEOLOCATION=true`), both 
 **Forward-only data:** Enabling subdivisions mode only populates city and subdivision data for **new events** going forward. Existing events recorded before enabling this mode will only have country-level data. There is no way to backfill since IP addresses are never stored.
 </Callout>
 
+Switching geolocation off later stops collecting location data for new events. Geography already collected stays visible in the dashboard.
+
+## Session Replay
+
+Session Replay is enabled by default and stores recordings in ClickHouse alongside your analytics data, so there is nothing extra to run. Nothing is recorded until you turn on replay in the tracking script for a website. See the [Session Replay integration guide](/integration/session-replay) for the script attributes, sampling, and masking options.
+
+Recordings are kept for 60 days by default. Change `REPLAY_RETENTION_DAYS` to keep them longer, or set it to `-1` to keep them indefinitely; this is independent of analytics retention. Set `SESSION_REPLAYS_ENABLED=false` to remove the feature from the instance. Apply either change with `docker compose up -d --wait`.
+
+### Storing Recordings in Your Own S3
+
+Recordings can go to S3-compatible object storage instead of ClickHouse. Add the following to your `.env`:
+
+```bash
+S3_ENABLED=true
+S3_BUCKET=betterlytics-replays
+S3_REGION=eu-central-1
+S3_ENDPOINT=https://s3.example.com
+S3_ACCESS_KEY_ID=your_access_key
+S3_SECRET_ACCESS_KEY=your_secret_key
+# Required for most non-AWS providers (MinIO, Garage, etc.)
+S3_FORCE_PATH_STYLE=true
+```
+
+The endpoint only needs to be reachable from the containers, never from visitors' browsers. `REPLAY_STORAGE` can force the backend (`clickhouse` or `s3`); when unset it resolves to `s3` if `S3_ENABLED=true`, otherwise `clickhouse`.
+
+<Callout type="warning">
+`REPLAY_RETENTION_DAYS` only applies to recordings stored in ClickHouse. With S3, expire the `site/` prefix with a lifecycle rule on your bucket.
+</Callout>
+
+## Uptime Monitoring and Status Pages
+
+Uptime monitoring, SSL certificate monitoring, and public status pages are included and always on. Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box. Email alerts need [email sending configured](#email), and Pushover alerts need `PUSHOVER_APP_TOKEN` set to your own Pushover application token.
+
+A published status page is served by your instance at:
+
+```
+https://analytics.example.com/status/{your-slug}
+```
+
+Everything described in the [Public Status Pages guide](/dashboard/status-pages) applies. Removing the Betterlytics branding and serving a page on your own domain are available on every self-hosted instance.
+
+## Custom Status Page Domains
+
+A status page can be served from its own domain, for example `status.acme.com`, instead of `/status/{your-slug}` on your instance. Enter the domain in the status page's **Settings** tab and publish the page; then set up DNS and TLS for the deployment mode you run.
+
+**Standalone (`HTTP_SCHEME=https`):** add a CNAME record pointing the domain at your instance's `DOMAIN`. The certificate is issued automatically the first time the domain is visited after the page is published. No `.env` change and no restart are needed. Certificates are only issued for domains that a published status page claims.
+
+| Type  | Name (host) | Value (target)          |
+|-------|-------------|-------------------------|
+| CNAME | `status`    | `analytics.example.com` |
+
+**Behind a reverse proxy (`HTTP_SCHEME=http`):** your proxy terminates TLS for the extra hostname and forwards it to the same port with the `Host` header unchanged. Betterlytics picks the status page from `Host`. Every custom domain needs its own entry in the proxy, next to the one for your instance:
+
+<Tabs items={['Caddy', 'Nginx']}>
+  <Tabs.Tab>
+    ```
+    analytics.example.com {
+        reverse_proxy 127.0.0.1:5566
+    }
+
+    # Custom status page domains, all forwarded with Host unchanged
+    status.acme.com, status.other.com {
+        reverse_proxy 127.0.0.1:5566
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```nginx
+    server {
+        listen 443 ssl;
+        server_name status.acme.com;
+
+        ssl_certificate     /etc/letsencrypt/live/status.acme.com/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/status.acme.com/privkey.pem;
+
+        location / {
+            proxy_pass http://127.0.0.1:5566;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+See the [Custom Status Page Domain guide](/integration/custom-status-page-domain) for the in-app steps and DNS troubleshooting.
+
+## Web Vitals
+
+Add `data-web-vitals="true"` to your tracking script. `analytics.js`, `replay.js`, and `web-vitals.js` are all served by your instance, so no request leaves for a third-party host and a Content-Security-Policy only needs to allow your own origin in `script-src`. See the [Web Vitals integration guide](/integration/web-vitals).
+
+## Configuration Reference
+
+All options are read from `.env` in the repository root. Database passwords, auth secrets, and internal tokens are derived from `SECRET_BASE`, so that is the only secret you need to set. After editing `.env`, run `docker compose up -d --wait`.
+
+### Domain and HTTPS
+
+| Variable | Default | Behavior |
+|----------|---------|----------|
+| `DOMAIN` | | Domain where the instance is reachable, without protocol |
+| `HTTP_SCHEME` | `http` | `https` enables built-in Let's Encrypt certificates (standalone mode) |
+| `SSL_EMAIL` | unset | Optional email registered with your Let's Encrypt account, used for expiry notices |
+| `ACME_CA` | Let's Encrypt production | Optional ACME directory URL. Use `https://acme-staging-v02.api.letsencrypt.org/directory` while testing to avoid rate limits |
+| `FORCE_HTTP_SCHEME` | unset | Set to `http` to build plain `http://` links, used by the Try locally mode |
+
+### Network
+
+| Variable | Default | Behavior |
+|----------|---------|----------|
+| `BIND_ADDRESS` | `127.0.0.1` | Interface the exposed ports listen on. `0.0.0.0` for standalone mode or a proxy on another machine |
+| `HTTP_PORT` | `5566` | Host port mapped to the container's port 80. Must be `80` in standalone mode |
+| `HTTPS_PORT` | `443` | Host port mapped to the container's port 443, standalone mode only |
+| `TRUSTED_PROXIES` | | Extra proxy IPs or CIDRs whose forwarded headers are trusted, for proxies on public addresses |
+
+### Secrets
+
+| Variable | Default | Behavior |
+|----------|---------|----------|
+| `SECRET_BASE` | | Random string all passwords and keys derive from. `setup.sh` generates one |
+
+### Email
+
+| Variable | Default | Behavior |
+|----------|---------|----------|
+| `ENABLE_EMAILS` | `false` | Enables outgoing email for reports and alerts |
+| `MAILER_SEND_API_TOKEN` | | MailerSend API token. When set, no SMTP configuration is needed |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | | SMTP server for other providers |
+| `SMTP_FROM` | | Sender address for outgoing mail |
+
+### Geolocation
+
+| Variable | Default | Behavior |
+|----------|---------|----------|
+| `ENABLE_GEOLOCATION` | `false` | Master switch. When disabled, no geo data is collected |
+| `MAXMIND_ACCOUNT_ID` | | MaxMind account ID |
+| `MAXMIND_LICENSE_KEY` | | MaxMind license key |
+| `GEOLOCATION_MODE` | `country` | `country`: country-level data only (~9 MB). `full` adds subdivision + city drill-down (~61 MB) |
+
+### Session Replay
+
+| Variable | Default | Behavior |
+|----------|---------|----------|
+| `SESSION_REPLAYS_ENABLED` | `true` | Set to `false` to disable the feature |
+| `REPLAY_RETENTION_DAYS` | `60` | Days to keep recordings, `-1` for indefinitely. ClickHouse storage only |
+| `REPLAY_STORAGE` | derived | `clickhouse` or `s3`. Resolves to `s3` when `S3_ENABLED=true` |
+| `S3_ENABLED`, `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_FORCE_PATH_STYLE` | | Your own S3-compatible storage, see [Storing Recordings in Your Own S3](#storing-recordings-in-your-own-s3) |
+
+### Other
+
+| Variable | Default | Behavior |
+|----------|---------|----------|
+| `BACKGROUND_JOBS_ENABLED` | `true` | Email reports and data-retention cleanup |
+| `PUSHOVER_APP_TOKEN` | | Pushover application token for uptime alerts via Pushover |
 
 ## Updating
 
-To update your self-hosted instance to the latest version:
+Each release bumps the image version pinned in `docker-compose.yml`, so updating the `betterlytics-selfhost` repository is what upgrades your instance:
 
 ```bash
-docker compose pull
-docker compose up -d
+git pull
+docker compose up -d --wait
 ```
+
+Compose pulls the new image on its own. Read the release notes first for version-specific steps such as backups or disk space.
+
+<Callout type="info">
+Major updates may run one-time database migrations on first boot. Do not interrupt the container while they run.
+</Callout>
+
+<details>
+<summary>Upgrading from v1.3.5 or earlier</summary>
+
+Releases after v1.3.5 run one-time ClickHouse migrations that rewrite the events table. Before upgrading:
+
+- Ensure free disk space of at least 2 to 3 times the size of your ClickHouse data volume. The events table is rewritten twice, and the space is reclaimed at the end.
+- Expect a long first boot on large installations.
+- Back up the `betterlytics_selfhost_clickhouse_data` and `betterlytics_selfhost_postgres_data` volumes first.
+
+</details>
 
 You can follow new releases on [GitHub](https://github.com/betterlytics/betterlytics/releases).
 
@@ -223,16 +432,28 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - Verify Docker and Docker Compose are installed and running
 - Check that required ports (80/443 in standalone mode) are not in use
 - Review container logs: `docker compose logs`
+- `HTTP_SCHEME=https requires HTTP_PORT=80`: set `HTTP_PORT=80` and `HTTPS_PORT=443` in `.env`, or switch to `HTTP_SCHEME=http` behind your own proxy
+- `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again
+- `Geolocation is enabled but no GeoIP database could be obtained`: check `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`, or set `ENABLE_GEOLOCATION=false`
 
 ### HTTPS certificate not provisioning
 
 - Ensure your domain's DNS A record points to your server
-- Ports 80 and 443 must be accessible from the internet
+- Ports 80 and 443 must both be reachable from the internet, and `HTTP_PORT` must be `80`. Certificates are validated over port 80
 - Check the container logs for ACME errors: `docker compose logs`
+- Testing repeatedly? Set `ACME_CA` to the Let's Encrypt staging directory to avoid rate limits
+
+### Custom status page domain shows a certificate error
+
+- Confirm the status page is **published**. Certificates are only issued for domains a published page claims
+- Confirm the CNAME record points at your instance's `DOMAIN`
+- `docker compose logs betterlytics-selfhost | grep permission` shows the hostname and why the certificate was refused: `404` not published or unknown, `403` reserved name, `429` lookup ceiling
+- Automatic certificates for custom domains require standalone mode. Behind your own proxy, the proxy must hold the certificate for the domain
 
 ### No analytics data appearing
 
-- Verify the tracking script is installed on your website with the correct domain and site ID
+- Verify the tracking script is installed on your website with the correct site ID
+- Check that `data-server-url` points at your instance, not at `betterlytics.io`
 - Check that the `/event` endpoint is reachable from the browser
 - Review backend logs: `docker compose logs`
 
@@ -244,4 +465,3 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 ---
 
 _Enjoying Betterlytics? Consider giving us a star on [GitHub](https://github.com/betterlytics/betterlytics) - it helps others discover the project!_
-
