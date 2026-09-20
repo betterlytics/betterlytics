@@ -16,7 +16,7 @@ All self-hosting files and configuration live in the [betterlytics-selfhost](htt
 
 Betterlytics Cloud always runs the latest version, and new features launch there first. The self-hosted image is updated periodically from our stable releases, so it can temporarily lag behind what you see on Cloud or elsewhere in these docs.
 
-The self-hosted image includes web analytics, Core Web Vitals, error tracking, session replay, uptime monitoring, and public status pages. Features that need configuration on your side each have a section on this page.
+Everything on Cloud ships in the image: web analytics, Core Web Vitals, error tracking, session replay, uptime monitoring, and public status pages. A few things need a decision from you, such as the deployment mode, replay storage, and geolocation; each has a section below.
 
 <Callout type="info">
 Before relying on a specific feature, check the [cloud vs self-hosted comparison](/installation#cloud-vs-self-hosted) for its current self-hosted status. Getting the newest features is as simple as [updating your instance](#updating) when a new image is released.
@@ -25,7 +25,7 @@ Before relying on a specific feature, check the [cloud vs self-hosted comparison
 ## Requirements
 
 - **Docker** and **Docker Compose** installed on your server
-- A **domain name** pointed to your server (not needed to try it locally)
+- A **hostname** the instance is reached at, pointed at your server or your reverse proxy (not needed to try it locally)
 - Ports **80** and **443** reachable from the internet (standalone mode), or a reverse proxy you already run
 
 ## Quick Start
@@ -119,7 +119,7 @@ BIND_ADDRESS=127.0.0.1
 HTTP_PORT=5566
 ```
 
-`setup.sh` in Basic mode binds to `0.0.0.0` so a proxy on another machine can reach the instance. When the proxy runs on the same machine, set `BIND_ADDRESS=127.0.0.1` so port 5566 is not exposed publicly.
+`setup.sh` in Basic mode binds to `127.0.0.1`, so the port is only reachable from the same machine. When the proxy runs elsewhere, set `BIND_ADDRESS` to the interface it connects through, or `0.0.0.0` for all interfaces, and firewall the port accordingly.
 
 Your proxy must terminate TLS, pass the `Host` header through unchanged, and set `X-Forwarded-Proto` and `X-Forwarded-For`. Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, list it in `TRUSTED_PROXIES`, otherwise every visitor is recorded with the proxy's IP. To check, compare `request.remote_ip` and `request.client_ip` in `docker compose logs betterlytics-selfhost`.
 
@@ -189,6 +189,12 @@ Your proxy must terminate TLS, pass the `Host` header through unchanged, and set
 ### Try Locally
 
 The third `setup.sh` mode runs the instance on `http://localhost:5566` with no domain and no TLS. It sets `FORCE_HTTP_SCHEME=http` so the app builds plain `http://` links. Use it to evaluate Betterlytics on your own machine, not for a real deployment.
+
+## Tracking Scripts
+
+Your instance serves every script the tracker needs: `analytics.js`, plus `replay.js` and `web-vitals.js` when those features are enabled on a site. The optional scripts are loaded from the same origin as `analytics.js`, so no request leaves for a third-party host and a Content-Security-Policy only needs to allow your instance's origin in `script-src`.
+
+If you serve `analytics.js` from somewhere else, for example a CDN in front of your instance, set `data-scripts-base-url` on the script tag to the origin the optional scripts should be loaded from.
 
 ## Geolocation
 
@@ -272,7 +278,7 @@ The endpoint only needs to be reachable from the containers, never from visitors
 
 ## Uptime Monitoring and Status Pages
 
-Uptime monitoring, SSL certificate monitoring, and public status pages are included and always on. Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box. Email alerts need [email sending configured](#email), and Pushover alerts need `PUSHOVER_APP_TOKEN` set to your own Pushover application token.
+Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box. Email alerts need [email sending configured](#email), and Pushover alerts need `PUSHOVER_APP_TOKEN` set to your own Pushover application token.
 
 A published status page is served by your instance at:
 
@@ -296,7 +302,7 @@ A status page can be served from its own domain, for example `status.acme.com`, 
 
 <Tabs items={['Caddy', 'Nginx']}>
   <Tabs.Tab>
-    ```
+    ```md
     analytics.example.com {
         reverse_proxy 127.0.0.1:5566
     }
@@ -332,7 +338,7 @@ See the [Custom Status Page Domain guide](/integration/custom-status-page-domain
 
 ## Web Vitals
 
-Add `data-web-vitals="true"` to your tracking script. `analytics.js`, `replay.js`, and `web-vitals.js` are all served by your instance, so no request leaves for a third-party host and a Content-Security-Policy only needs to allow your own origin in `script-src`. See the [Web Vitals integration guide](/integration/web-vitals).
+Add `data-web-vitals="true"` to your tracking script; `web-vitals.js` is loaded from your instance like the other [tracking scripts](#tracking-scripts). See the [Web Vitals integration guide](/integration/web-vitals).
 
 ## Configuration Reference
 
