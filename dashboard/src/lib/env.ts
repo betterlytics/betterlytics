@@ -7,8 +7,6 @@ const appEnvSchema = z.object({
   CLICKHOUSE_URL: z.string().url(),
   CLICKHOUSE_DASHBOARD_USER: z.string().min(1),
   CLICKHOUSE_DASHBOARD_PASSWORD: z.string().min(1),
-  ADMIN_EMAIL: z.string().min(1),
-  ADMIN_PASSWORD: z.string().min(1),
   PUBLIC_TRACKING_SERVER_ENDPOINT: z.string().min(1),
   PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
   AUTH_URL: z.string().url(),
@@ -58,7 +56,13 @@ const appEnvSchema = z.object({
   S3_FORCE_PATH_STYLE: zStringBoolean,
   S3_SSE_ENABLED: zStringBoolean,
   OTEL_SERVICE_NAME: z.string().optional(),
-  BACKGROUND_JOBS_ENABLED: zStringBoolean,
+  // Must match worker.env.ts: unset means the embedded worker runs, so a self-host
+  // deploy gets emails, reports and retention purges without opting in.
+  BACKGROUND_JOBS_ENABLED: z
+    .enum(['true', 'false'])
+    .optional()
+    .default('true')
+    .transform((v) => v === 'true'),
   IS_DEVELOPMENT: zStringBoolean,
   ENABLE_GEOLOCATION: zStringBoolean,
   GEOLOCATION_MODE: z.enum(['country', 'full']).optional().default('country'),

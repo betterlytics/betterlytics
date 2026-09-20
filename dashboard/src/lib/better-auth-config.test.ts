@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
+import { env } from '@/lib/env';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail } from '@/services/account/verification.service';
@@ -12,12 +13,14 @@ import { makeUser, hashPassword } from '@/test/auth-fixtures';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
+import { getSignupAllowance } from '@/services/auth/signupGate.service';
 
 vi.mock('@/lib/env', () => ({
   env: {
     AUTH_URL: 'http://localhost:3000',
     AUTH_SECRET: 'test-auth-secret',
     PUBLIC_BASE_URL: 'http://localhost:3000',
+    IS_CLOUD: true,
     GITHUB_ID: '',
     GITHUB_SECRET: '',
     GOOGLE_CLIENT_ID: '',
@@ -40,6 +43,9 @@ vi.mock('@/repositories/postgres/resetToken.repository', () => ({
   RESET_TOKEN_PREFIX: 'reset-password:',
   findResetTokenUserId: vi.fn(),
   deleteUserResetTokens: vi.fn(),
+}));
+vi.mock('@/services/auth/signupGate.service', () => ({
+  getSignupAllowance: vi.fn(),
 }));
 vi.mock('@/services/account/userSettings.service', () => ({
   createDefaultUserSettings: vi.fn(),
@@ -141,6 +147,72 @@ describe('user create before hook (sign-up field stamping)', () => {
   const runBeforeCreateHook = (user: unknown, ctx?: unknown) =>
     (auth.options.databaseHooks!.user!.create!.before as unknown as BeforeHook)(user, ctx);
 
+  beforeEach(() => {
+    vi.mocked(getSignupAllowance).mockResolvedValue('registration_enabled');
+  });
+
+  describe('registration gate', () => {
+    const signup = { ...makeUser(), email: 'new@example.com', emailVerified: false };
+
+    it('refuses the row with SIGNUP_DISABLED when nothing permits this sign-up', async () => {
+      vi.mocked(getSignupAllowance).mockResolvedValue(null);
+
+      await expect(runBeforeCreateHook(signup, { path: '/sign-up/email', body: {} })).rejects.toMatchObject({
+        statusCode: 403,
+        body: { code: 'SIGNUP_DISABLED' },
+      });
+      expect(getSignupAllowance).toHaveBeenCalledWith({
+        email: 'new@example.com',
+        inviteToken: undefined,
+        emailVerified: false,
+      });
+    });
+
+    it('applies to OAuth sign-ups as well, since the static disableSignUp flags are gone', async () => {
+      vi.mocked(getSignupAllowance).mockResolvedValue(null);
+
+      await expect(
+        runBeforeCreateHook({ ...signup, emailVerified: true }, { path: '/callback/github' }),
+      ).rejects.toMatchObject({ statusCode: 403 });
+      expect(getSignupAllowance).toHaveBeenCalledWith(expect.objectContaining({ emailVerified: true }));
+      expect('disableSignUp' in (auth.options.emailAndPassword ?? {})).toBe(false);
+    });
+
+    it.each(['invited', 'first_user'] as const)(
+      'lets a %s sign-up through with registration closed',
+      async (why) => {
+        vi.mocked(getSignupAllowance).mockResolvedValue(why);
+
+        const result = await runBeforeCreateHook(signup, {
+          path: '/sign-up/email',
+          body: { acceptedTerms: true, invite: 'tok-1' },
+        });
+
+        expect(result!.data.email).toBe('new@example.com');
+        expect(getSignupAllowance).toHaveBeenCalledWith(expect.objectContaining({ inviteToken: 'tok-1' }));
+      },
+    );
+
+    it('makes the first account the instance admin', async () => {
+      vi.mocked(getSignupAllowance).mockResolvedValue('first_user');
+
+      const result = await runBeforeCreateHook({ ...signup, role: null }, { path: '/sign-up/email', body: {} });
+
+      expect(result!.data.role).toBe('admin');
+    });
+
+    it.each(['invited', 'registration_enabled'] as const)(
+      'leaves the role unset for a %s sign-up',
+      async (why) => {
+        vi.mocked(getSignupAllowance).mockResolvedValue(why);
+
+        const result = await runBeforeCreateHook({ ...signup, role: null }, { path: '/sign-up/email', body: {} });
+
+        expect(result!.data.role).toBeNull();
+      },
+    );
+  });
+
   it('stamps terms acceptance on email/password sign-ups', async () => {
     const result = await runBeforeCreateHook(
       { ...makeUser(), emailVerified: false },
@@ -149,6 +221,16 @@ describe('user create before hook (sign-up field stamping)', () => {
 
     expect(result!.data.termsAcceptedAt).toBeInstanceOf(Date);
     expect(result!.data.termsAcceptedVersion).toBe(CURRENT_TERMS_VERSION);
+  });
+
+  it('leaves terms unstamped when the sign-up did not accept them (self-host)', async () => {
+    const result = await runBeforeCreateHook(
+      { ...makeUser(), emailVerified: false, termsAcceptedAt: null, termsAcceptedVersion: null },
+      { path: '/sign-up/email', body: {} },
+    );
+
+    expect(result!.data.termsAcceptedAt).toBeNull();
+    expect(result!.data.termsAcceptedVersion).toBeNull();
   });
 
   it('normalizes a blank sign-up name to null', async () => {
@@ -318,6 +400,24 @@ describe('before hook (closed better-auth endpoints)', () => {
   const runBeforeHook = (path: string, body: unknown = {}) =>
     (auth.options.hooks!.before as unknown as BeforeHook)({ path, body, json: (data) => data });
 
+  beforeEach(() => {
+    vi.mocked(getSignupAllowance).mockResolvedValue('registration_enabled');
+  });
+
+  it('refuses a closed sign-up before better-auth looks the email up', async () => {
+    vi.mocked(getSignupAllowance).mockResolvedValue(null);
+
+    await expect(
+      runBeforeHook('/sign-up/email', {
+        email: 'stranger@example.com',
+        password: 'Correct-horse-1',
+        acceptedTerms: true,
+      }),
+    ).rejects.toMatchObject({ statusCode: 403, body: { code: 'SIGNUP_DISABLED' } });
+    expect(getSignupAllowance).toHaveBeenCalledWith({ email: 'stranger@example.com', inviteToken: undefined });
+    expect(findUserByEmail).not.toHaveBeenCalled();
+  });
+
   it('/update-user returns 404 (profile mutations run through our server actions)', async () => {
     await expect(runBeforeHook('/update-user')).rejects.toMatchObject({ statusCode: 404 });
   });
@@ -410,6 +510,18 @@ describe('before hook (closed better-auth endpoints)', () => {
       await expect(
         runBeforeHook('/sign-up/email', { password: 'Correct-horse-1', acceptedTerms: false }),
       ).rejects.toMatchObject({ body: { code: 'TERMS_NOT_ACCEPTED' } });
+    });
+
+    it('does not require terms on self-host', async () => {
+      const mutableEnv = env as { IS_CLOUD: boolean };
+      mutableEnv.IS_CLOUD = false;
+      try {
+        await expect(
+          runBeforeHook('/sign-up/email', { email: 'a@example.com', password: 'Correct-horse-1' }),
+        ).resolves.toBeUndefined();
+      } finally {
+        mutableEnv.IS_CLOUD = true;
+      }
     });
 
     it('lets sign-ups through once the terms are accepted', async () => {
