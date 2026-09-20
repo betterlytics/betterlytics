@@ -42,7 +42,7 @@ function Card({ t }: { t: Testimonial }) {
 export function TestimonialsSection() {
   return (
     <Section id={IDS.quotes}>
-      <SectionHead title={COPY.quotes.title} />
+      <SectionHead title={COPY.quotes.title} lede={COPY.quotes.lede} />
       <Panel flush>
         <div className='tsts'>
           {TESTIMONIAL_ROWS.map((row, r) => (

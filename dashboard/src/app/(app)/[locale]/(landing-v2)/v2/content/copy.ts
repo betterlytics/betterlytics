@@ -51,26 +51,26 @@ export const COPY = {
   },
   journey: {
     title: 'Everything your users *experienced*',
-    lede: 'One script replaces your analytics, your product metrics, your error tracker, your uptime monitor and your status page.',
+    lede: 'From the first visit to the outage, in one dashboard.',
     replaces: 'replaces',
   },
   mcp: {
     title: 'Point your *own* agent at it',
-    lede: 'Betterlytics ships an MCP server. Connect Claude, Cursor or any MCP client and ask one question that spans traffic, funnels, errors and uptime at once.',
+    lede: 'An MCP server is built in. Ask in plain language, get answers across all of it.',
     /* the lead is a small heading on its own line, the column's only primary-tone text */
     lead: 'Ask questions, not queries.',
-    body: 'Your agent reads the schema, picks its tools and joins across all of it.',
+    body: 'Your agent reads the schema and joins across traffic, funnels, errors and uptime.',
     worksWith: 'Works with',
     any: 'ChatGPT, Zed, JetBrains — and any client that speaks the protocol over HTTP.',
     cta: 'Set up MCP',
   },
   frameworks: {
     title: 'Your framework, *unmodified*',
-    lede: 'One script tag, or a package if you prefer. No tag manager, no adapter, and nothing to change about how you already build.',
+    lede: 'One script tag, or a package if you prefer. Nothing else changes.',
   },
   network: {
     title: 'One script, nothing else to add',
-    lede: 'No tag manager, no consent gate, no second SDK to reconcile. Here is exactly what it costs your site.',
+    lede: 'Here is exactly what it costs your site.',
     /* Script size is the gzipped static/analytics.js; the other two figures come from the draft. */
     stats: [
       {
@@ -103,10 +103,11 @@ export const COPY = {
   },
   quotes: {
     title: 'Teams that stopped guessing',
+    lede: 'In their own words, what changed after the switch.',
   },
   pricing: {
-    title: 'You pay for events, not for seats',
-    lede: 'Invite the whole company. Bots, prefetches and blocked requests are filtered before they ever reach your bill.',
+    title: 'One price, scaled by your traffic',
+    lede: 'Events are the only meter. Bots we catch are dropped before they count.',
     monthlyEvents: 'Monthly events',
     rangeLabel: 'Monthly event volume',
     perMonth: '/month',
@@ -132,7 +133,7 @@ export const COPY = {
   },
   cta: {
     title: 'Add one script and watch it land',
-    lede: 'The free tier is the same script, the same dashboard and the same unsampled data the paid plans get. Nothing is held back for the demo.',
+    lede: 'The free tier is the same script, dashboard and unsampled data as every paid plan. No credit card required.',
     primary: 'Start measuring',
     secondary: 'View docs',
   },
