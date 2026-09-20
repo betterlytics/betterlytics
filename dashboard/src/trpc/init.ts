@@ -1,16 +1,10 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import superjson from 'superjson';
-import { env } from '@/lib/env';
 import type { AuthContext } from '@/entities/auth/authContext.entities';
 import { BAAnalyticsQuerySchema } from '@/entities/analytics/analyticsQuery.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import {
-  getCachedSession,
-  getCachedAuthorizedContext,
-  resolveDemoDashboardContext,
-  executeWithDemoCache,
-} from '@/auth/api-auth';
+import { getCachedSession, resolveDashboardAuthResult, executeWithDemoCache } from '@/auth/api-auth';
 
 export async function createTRPCContext() {
   const session = await getCachedSession();
@@ -39,26 +33,20 @@ const authedProcedure = t.procedure.use(async ({ ctx, next }) => {
   return next({ ctx: { ...ctx, session: ctx.session } });
 });
 
-async function resolveDashboardAuth(session: TRPCContext['session'], dashboardId: string): Promise<AuthContext> {
-  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
-    return await resolveDemoDashboardContext(dashboardId);
+async function resolveDashboardAuth(dashboardId: string): Promise<AuthContext> {
+  const result = await resolveDashboardAuthResult(dashboardId);
+  if (result.error) {
+    throw result.error === 'unauthenticated'
+      ? new TRPCError({ code: 'UNAUTHORIZED' })
+      : new TRPCError({ code: 'FORBIDDEN', message: 'Not a member of this dashboard' });
   }
-
-  if (!session?.user) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
-  }
-
-  const authorizedCtx = await getCachedAuthorizedContext(session.user.id, dashboardId);
-  if (!authorizedCtx) {
-    throw new TRPCError({ code: 'FORBIDDEN', message: 'Not a member of this dashboard' });
-  }
-  return authorizedCtx;
+  return result.context;
 }
 
 export const dashboardProcedure = t.procedure
   .input(z.object({ dashboardId: z.string() }))
   .use(async ({ ctx, input, next }) => {
-    const authContext = await resolveDashboardAuth(ctx.session, input.dashboardId);
+    const authContext = await resolveDashboardAuth(input.dashboardId);
     return next({ ctx: { ...ctx, authContext } });
   })
   .use(async ({ ctx, input, next, path, getRawInput }) => {

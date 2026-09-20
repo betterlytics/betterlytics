@@ -8373,6 +8373,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
   (function initSessionReplay() {
     if (!apiBase) return;
 
+    var pageNonce = Math.random().toString(36).slice(2, 8);
     var state = {
       initialized: false,
       recordingStop: null,
@@ -8381,27 +8382,29 @@ or you can use record.mirror to access the mirror instance during recording.`;
       buffer: [],
       approxBytes: 0,
       startedAt: Date.now(),
-      firstActivity: null,
       lastActivity: Date.now(),
       flushTimer: null,
       ongoingFlush: null,
       stopping: false,
-      visId: null,
-      replaySession: { id: null },
       consecutiveFlushErrors: 0,
+      chunkSeq: 0,
+      retryQueue: [],
       errorMatrix: [[]],
       errorCheckoutTimer: null,
       errorLastFlushAt: 0,
       errorFlushPending: false,
-      pendingErrorType: null,
-      pendingErrorExceptionsJson: null,
     };
 
     var config = {
-      maxChunkMs: 15000,
-      maxUncompressedBytes: 1 * 1024 * 1024,
+      maxChunkMs: 5000,
+      maxUncompressedBytes: 256 * 1024,
       maxConsecutiveFlushErrors: 3,
     };
+
+    var errorSourcesByEvent = new WeakMap();
+    var MAX_ERROR_METADATA_BYTES = 256 * 1024;
+    var MAX_ERROR_SOURCES = 128;
+    var MAX_ERROR_SOURCE_BYTES = 16 * 1024;
 
     function hasReachedMinDuration() {
       if (!minReplayDurationSec) return true;
@@ -8411,135 +8414,164 @@ or you can use record.mirror to access the mirror instance during recording.`;
       );
     }
 
-    function fetchPresignedUrl(payload) {
-      var presignPayload = {
-        site_id: siteId,
-        url: window.location.href,
-        screen_resolution: window.screen.width + "x" + window.screen.height,
-        content_length: payload.bytes.byteLength,
-      };
-      if (payload && payload.lastEventTs) {
-        presignPayload.ended_at_ms = payload.lastEventTs;
+    function uploadSegment(payload) {
+      var pageUrl = new URL(normalize(window.location.href));
+      var qs =
+        "site_id=" +
+        encodeURIComponent(siteId) +
+        "&url=" +
+        encodeURIComponent(pageUrl.origin + pageUrl.pathname) +
+        "&screen_resolution=" +
+        window.screen.width +
+        "x" +
+        window.screen.height;
+      if (payload.startedAtMs) {
+        qs += "&started_at_ms=" + payload.startedAtMs;
       }
+      if (payload.lastEventTs) {
+        qs += "&ended_at_ms=" + payload.lastEventTs;
+      }
+      qs += "&event_count=" + payload.eventCount;
+      qs += "&chunk_id=" + encodeURIComponent(payload.chunkId);
       if (payload.encoding === "gzip") {
-        presignPayload.content_encoding = "gzip";
+        qs += "&encoding=gzip";
+      }
+      if (payload.format) {
+        qs += "&format=" + payload.format;
       }
 
-      return fetch(apiBase + "/replay/presign/put", {
+      return fetch(apiBase + "/replay/segment?" + qs, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(presignPayload),
-      })
-        .then(function (r) {
-          return r.json();
-        })
-        .then(function (resp) {
-          return { presignResp: resp, payload: payload };
-        });
-    }
-
-    function uploadToS3(data) {
-      var presignResp = data.presignResp;
-      var payload = data.payload;
-
-      if (!state.replaySession.id)
-        state.replaySession.id = presignResp.session_id;
-      if (!state.visId) state.visId = presignResp.visitor_id;
-
-      var headers = {
-        "Content-Type": "application/json",
-      };
-      if (payload.encoding === "gzip") {
-        headers["Content-Encoding"] = "gzip";
-      }
-      if (presignResp && presignResp.sse) {
-        headers["x-amz-server-side-encryption"] = "AES256";
-      }
-
-      return fetch(presignResp.url, {
-        method: "PUT",
-        headers: headers,
         body: payload.bytes,
-      }).then(function (putResp) {
-        if (!putResp || putResp.status >= 400) {
-          throw new Error();
+        // keepalive lets the request finish after page unload; browsers cap keepalive bodies at ~64KB
+        keepalive: payload.bytes.byteLength <= 60000,
+      }).then(function (r) {
+        if (!r || r.status >= 400) {
+          var err = new Error();
+          err.status = r ? r.status : 0;
+          throw err;
         }
-        return { putResp: putResp, payload: payload };
       });
     }
 
-    function handleUploadSuccess(data, flushedEventCount, endedAtMs) {
-      var uploadedBytes = data.payload.bytes.byteLength;
-      state.consecutiveFlushErrors = 0;
-      finalizeSession(uploadedBytes, flushedEventCount, endedAtMs);
-    }
-
-    function handleFlushError(events) {
+    function handleFlushError(chunk, err) {
+      var terminal = err && err.status >= 400 && err.status < 500;
       state.consecutiveFlushErrors += 1;
-      if (state.consecutiveFlushErrors >= config.maxConsecutiveFlushErrors) {
+      if (terminal || state.consecutiveFlushErrors >= config.maxConsecutiveFlushErrors) {
         state.disabled = true;
         state.buffer = [];
         state.approxBytes = 0;
+        state.retryQueue = [];
         try {
-          stopRecording(false);
+          stopRecording();
         } catch (_) {}
-      } else {
-        state.buffer = events.concat(state.buffer);
+      } else if (state.retryQueue.indexOf(chunk) === -1) {
+        state.retryQueue.push(chunk);
       }
     }
 
-    function uploadEventChunk(events, lastEventTs) {
-      var json = JSON.stringify(events);
-      return encodeReplayChunk(json)
-        .then(function (enc) {
-          enc.lastEventTs = lastEventTs;
-          return fetchPresignedUrl(enc);
-        })
-        .then(uploadToS3);
+    function collectChunkErrors(events) {
+      var encoder = new TextEncoder();
+      var entries = [];
+      var bySource = new Map();
+      var budget = 2;
+      events.forEach(function (event) {
+        var raw = errorSourcesByEvent.get(event);
+        if (typeof raw !== "string" || encoder.encode(raw).byteLength > MAX_ERROR_SOURCE_BYTES) return;
+        var prior = bySource.get(raw);
+        if (prior) {
+          prior.count = Math.min(4294967295, prior.count + 1);
+          return;
+        }
+        var entry = { error_exceptions: raw, count: 1 };
+        var cost = encoder.encode(JSON.stringify(entry)).byteLength + 1 + 9;
+        if (entries.length >= MAX_ERROR_SOURCES || budget + cost > MAX_ERROR_METADATA_BYTES) return;
+        entries.push(entry);
+        bySource.set(raw, entry);
+        budget += cost;
+      });
+      return entries;
     }
 
-    function flush() {
-      if (state.disabled) return Promise.resolve();
-      if (state.buffer.length === 0) return Promise.resolve();
-      if (state.ongoingFlush) return state.ongoingFlush;
+    function buildChunk(events, lastEventTs, startedAtMs) {
+      var seq = state.chunkSeq++;
+      var chunkId = pageNonce + "-" + (seq < 10000 ? ("000" + seq).slice(-4) : seq);
+      var errors = collectChunkErrors(events);
+      return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
+        if (errors.length) {
+          var metadata = new TextEncoder().encode(JSON.stringify(errors));
+          var body = new Uint8Array(4 + metadata.byteLength + enc.bytes.byteLength);
+          new DataView(body.buffer).setUint32(0, metadata.byteLength, false);
+          body.set(metadata, 4);
+          body.set(enc.bytes, 4 + metadata.byteLength);
+          enc.bytes = body;
+          enc.format = "errors_v1";
+        }
+        enc.lastEventTs = lastEventTs;
+        enc.startedAtMs = startedAtMs || state.startedAt;
+        enc.eventCount = events.length;
+        enc.chunkId = chunkId;
+        return enc;
+      });
+    }
 
-      var events = state.buffer;
-      state.buffer = [];
-
-      if (!hasReachedMinDuration()) {
-        state.buffer = events.concat(state.buffer);
-        return Promise.resolve();
-      }
-
-      var flushedEventCount = events.length;
-      state.approxBytes = 0;
-
-      var lastEventTs = state.lastActivity;
-      var last = events[events.length - 1];
-      if (last && typeof last.timestamp === "number") {
-        lastEventTs = last.timestamp;
-      }
-
-      state.ongoingFlush = uploadEventChunk(events, lastEventTs)
-        .then(function (data) {
-          handleUploadSuccess(data, flushedEventCount, lastEventTs);
-        })
-        .catch(function () {
+    function sendChunk(chunk) {
+      return uploadSegment(chunk).then(
+        function () {
+          state.consecutiveFlushErrors = 0;
+          var idx = state.retryQueue.indexOf(chunk);
+          if (idx !== -1) state.retryQueue.splice(idx, 1);
+        },
+        function (err) {
           try {
-            handleFlushError(events);
+            handleFlushError(chunk, err);
           } catch (_) {}
-        })
+        }
+      );
+    }
+
+    function flush(force) {
+      if (state.disabled) return Promise.resolve();
+      if (state.ongoingFlush && !force) return state.ongoingFlush;
+
+      var pending;
+      if (state.retryQueue.length > 0) {
+        pending = Promise.resolve(state.retryQueue[0]);
+      } else {
+        if (state.buffer.length === 0) return Promise.resolve();
+        if (!hasReachedMinDuration()) return Promise.resolve();
+
+        var events = state.buffer;
+        state.buffer = [];
+        state.approxBytes = 0;
+
+        var lastEventTs = state.lastActivity;
+        var last = events[events.length - 1];
+        if (last && typeof last.timestamp === "number") {
+          lastEventTs = last.timestamp;
+        }
+        var firstEventTs = lastEventTs;
+        var first = events[0];
+        if (first && typeof first.timestamp === "number") {
+          firstEventTs = first.timestamp;
+        }
+        pending = buildChunk(events, lastEventTs, firstEventTs);
+      }
+
+      var upload = pending
+        .then(sendChunk)
         .finally(function () {
-          state.ongoingFlush = null;
+          if (state.ongoingFlush === upload) state.ongoingFlush = null;
         });
-      return state.ongoingFlush;
+      state.ongoingFlush = upload;
+      return upload;
     }
 
     function flushAll() {
       return flush().then(function () {
         if (state.disabled) return;
         if (!hasReachedMinDuration()) return;
-        if (state.buffer.length === 0) return;
+        if (state.buffer.length === 0 && state.retryQueue.length === 0) return;
         return new Promise(function (r) {
           try {
             setTimeout(r, 0);
@@ -8561,14 +8593,14 @@ or you can use record.mirror to access the mirror instance during recording.`;
       stopFlushTimer();
       state.flushTimer = setInterval(function () {
         if (Date.now() - state.lastActivity > idleCutoffMs) {
-          stopRecording(true);
+          stopRecording();
           return;
         }
         if (Date.now() - state.startedAt > maxDurationMs) {
-          stopRecording(true);
+          stopRecording();
           return;
         }
-        if (state.buffer.length > 0) {
+        if (state.buffer.length > 0 || state.retryQueue.length > 0) {
           flush();
         }
       }, Math.max(3000, config.maxChunkMs));
@@ -8592,69 +8624,29 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
     }
 
-    function clearPendingError() {
-      state.pendingErrorType = null;
-      state.pendingErrorExceptionsJson = null;
-    }
-
-    function finalizeSession(deltaSizeBytes, deltaEventCount, endedAtMs, startedAtMs) {
-      if (state.disabled) return;
-      if (!state.pendingErrorType && !hasReachedMinDuration()) return;
-      if (!state.replaySession.id || !state.visId) return;
-      if (!deltaSizeBytes || !deltaEventCount) return;
-
-      var body = {
-        site_id: siteId,
-        session_id: state.replaySession.id,
-        visitor_id: state.visId,
-        started_at: Math.floor((startedAtMs || state.firstActivity || state.startedAt) / 1000),
-        ended_at: Math.floor(endedAtMs / 1000),
-        size_bytes: deltaSizeBytes,
-        start_url: normalize(window.location.href),
-        event_count: deltaEventCount,
-      };
-
-      if (state.pendingErrorType) {
-        body.error_type = state.pendingErrorType;
-        body.error_exceptions = state.pendingErrorExceptionsJson;
-        clearPendingError();
-      }
-
-      return fetch(apiBase + "/replay/finalize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-        keepalive: true,
-      }).catch(function () {});
-    }
-
-    function flushErrorMatrix(errorType, errorExceptionsJson) {
-      var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
+    function flushErrorMatrix() {
+      if (state.disabled) return Promise.resolve();
       state.errorFlushPending = false;
       state.errorLastFlushAt = Date.now();
 
-      if (events.length === 0) return Promise.resolve();
+      var pending;
+      if (state.retryQueue.length > 0) {
+        pending = Promise.resolve(state.retryQueue[0]);
+      } else {
+        var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
+        if (events.length === 0) return Promise.resolve();
 
-      var flushedEventCount = events.length;
-      var firstEventTs = state.firstActivity || state.startedAt;
-      var lastEventTs = state.lastActivity;
-      var first = events[0];
-      if (first && typeof first.timestamp === "number") {
-        firstEventTs = first.timestamp;
+        var firstEventTs = state.startedAt;
+        var lastEventTs = state.lastActivity;
+        var first = events[0];
+        if (first && typeof first.timestamp === "number") {
+          firstEventTs = first.timestamp;
+        }
+        state.errorMatrix = [[]];
+        pending = buildChunk(events, lastEventTs, firstEventTs);
       }
 
-      state.pendingErrorType = errorType;
-      state.pendingErrorExceptionsJson = errorExceptionsJson;
-
-      return uploadEventChunk(events, lastEventTs)
-        .then(function (data) {
-          var uploadedBytes = data.payload.bytes.byteLength;
-          state.errorMatrix = [[]];
-          finalizeSession(uploadedBytes, flushedEventCount, lastEventTs, firstEventTs);
-        })
-        .catch(function () {
-          clearPendingError();
-        });
+      return pending.then(sendChunk).catch(function () {});
     }
 
     function notifyError(errorType, errorExceptionsJson) {
@@ -8665,6 +8657,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           window.rrweb.record.addCustomEvent("client_error", {
             type: errorType,
             message: (parsed && parsed[0] && parsed[0].value) || "",
+            __betterlyticsErrorExceptions: errorExceptionsJson,
           });
         }
       } catch (_) {}
@@ -8682,11 +8675,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
         if (timer) { clearTimeout(timer); timer = null; }
         window.removeEventListener("beforeunload", doFlush);
         if (isSampledRecording) {
-          state.pendingErrorType = errorType;
-          state.pendingErrorExceptionsJson = errorExceptionsJson;
           flush();
         } else if (enableReplayOnError) {
-          flushErrorMatrix(errorType, errorExceptionsJson);
+          flushErrorMatrix();
         }
       }
 
@@ -8694,7 +8685,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       timer = setTimeout(doFlush, 3000);
     }
 
-    function stopRecording(finalize) {
+    function stopRecording() {
       if (state.stopping) return;
       state.stopping = true;
       try {
@@ -8730,10 +8721,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
         return;
       }
 
-      state.firstActivity = Math.min(
-        state.firstActivity ?? e.timestamp,
-        e.timestamp
-      );
+      if (e.type === 5 && e.data.tag === "client_error" && e.data.payload) {
+        var raw = e.data.payload.__betterlyticsErrorExceptions;
+        if (typeof raw === "string") errorSourcesByEvent.set(e, raw);
+        delete e.data.payload.__betterlyticsErrorExceptions;
+      }
+
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);
 
       if (isSampledRecording) {
@@ -8754,11 +8747,13 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function startRecording() {
-      if (!window.rrweb || state.initialized) {
+      if (!window.rrweb || state.initialized || state.disabled) {
         return;
       }
 
       state.initialized = true;
+      state.startedAt = Date.now();
+      state.lastActivity = Date.now();
 
       var isCoarsePointer = false;
       try {
@@ -8866,21 +8861,21 @@ or you can use record.mirror to access the mirror instance during recording.`;
         }
       } else {
         emitReplayBlacklist();
-        stopRecording(true);
+        stopRecording();
       }
     }
 
     function setupEventListeners() {
       document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "hidden") {
-          flush();
+          flush(true);
         }
       });
       window.addEventListener("beforeunload", function () {
-        stopRecording(true);
+        stopRecording();
       });
       window.addEventListener("pagehide", function () {
-        stopRecording(true);
+        stopRecording();
       });
 
       if (window.history.pushState) {
@@ -8901,7 +8896,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     window.__betterlytics_replay__ = {
-      stop: function () { stopRecording(true); },
+      stop: function () { stopRecording(); },
       notifyError: notifyError,
     };
 
@@ -8911,7 +8906,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       startRecordingDeferred();
     } else {
       emitReplayBlacklist();
-      stopRecording(true);
+      stopRecording();
     }
   })();
 })();

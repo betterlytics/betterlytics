@@ -4,7 +4,6 @@ import type { User, Session } from '@/entities/auth/session.entities';
 import { redirect } from 'next/navigation';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import { withServerAction } from '@/middlewares/serverActionHandler';
-import { env } from '@/lib/env';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
 import { UserException } from '@/lib/exceptions';
 import { Permission, hasPermission } from '@/lib/permissions';
@@ -12,7 +11,7 @@ import { DashboardRole } from '@prisma/client';
 import {
   getCachedSession,
   getCachedAuthorizedContext,
-  resolveDemoDashboardContext,
+  resolveDashboardAuthResult,
   executeWithDemoCache,
   getFnSignature,
 } from '@/auth/api-auth';
@@ -76,10 +75,11 @@ async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
 }
 
 async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
-  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
-    return await resolveDemoDashboardContext(dashboardId);
+  const result = await resolveDashboardAuthResult(dashboardId);
+  if (result.error) {
+    redirect(result.error === 'unauthenticated' ? '/signin' : '/dashboards');
   }
-  return await requireDashboardAuth(dashboardId);
+  return result.context;
 }
 
 export function withDashboardAuthContext<Args extends Array<unknown> = unknown[], Ret = unknown>(

@@ -5,7 +5,7 @@ import { Monitor } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import { useTheme } from 'next-themes';
 import { cn } from '@/lib/utils';
-import { osIconNamesThemed, osLabels, type OSType } from '@/constants/operatingSystemIcons';
+import { resolveOSIcon } from '@/constants/operatingSystemIcons';
 
 interface OSIconProps {
   name: string;
@@ -16,8 +16,7 @@ export const OSIcon = React.memo<OSIconProps>(({ name, className = 'h-3.5 w-3.5'
   const { resolvedTheme } = useTheme();
 
   const iconName = React.useMemo(() => {
-    const normalizedName = name.toLowerCase().replace(/\s+/g, '') as OSType;
-    const iconVariants = osIconNamesThemed[normalizedName];
+    const iconVariants = resolveOSIcon(name);
 
     if (!iconVariants) return null;
 

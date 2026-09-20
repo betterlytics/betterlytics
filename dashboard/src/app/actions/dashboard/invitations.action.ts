@@ -23,9 +23,10 @@ export const getPendingInvitationsAction = withDashboardAuthContext(
 );
 
 export const inviteMemberAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, email: string, role: DashboardRole): Promise<void> => {
-    await inviteUserToDashboard(ctx.dashboardId, email, role, ctx.userId);
+  async (ctx: AuthContext, email: string, role: DashboardRole): Promise<InvitationWithInviter> => {
+    const invitation = await inviteUserToDashboard(ctx.dashboardId, email, role, ctx.userId);
     revalidatePath(`/dashboard/${ctx.dashboardId}/settings/members`);
+    return invitation;
   },
   { permission: 'canInviteMembers' },
 );

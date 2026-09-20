@@ -9,7 +9,7 @@ type ResolveTimeRangeInput = {
   timezone?: string;
 };
 
-type ResolvedTimeRange = {
+export type ResolvedTimeRange = {
   startDateTime: string;
   endDateTime: string;
   start: Date;

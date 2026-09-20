@@ -1,4 +1,4 @@
-import { imageSize } from 'image-size';
+import { disableTypes, imageSize, types } from 'image-size';
 import {
   STATUS_PAGE_IMAGE_MIME,
   STATUS_PAGE_LIMITS,
@@ -11,6 +11,11 @@ const FORMAT_TO_MIME: Record<string, string> = {
   jpg: 'image/jpeg',
   webp: 'image/webp',
 };
+
+// Skip image-size's parsers for every format we don't accept anyway. Besides being explicit,
+// this sidesteps the unpatched infinite-loop DoS in its ICNS/JXL/HEIF parsers (GHSA-w3rx-r6r6-pgpr,
+// GHSA-5p2g-fcmc-qvqq) on attacker-supplied bytes.
+disableTypes(types.filter((type) => !(type in FORMAT_TO_MIME)));
 
 export type InspectedStatusPageImage =
   | { ok: true; mimeType: string; data: Uint8Array }
