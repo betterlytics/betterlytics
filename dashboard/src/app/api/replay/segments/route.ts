@@ -30,6 +30,9 @@ export async function GET(request: NextRequest) {
   if (result.error) {
     return new NextResponse(null, { status: result.error === 'unauthenticated' ? 401 : 403 });
   }
+  if (result.context.isDemo) {
+    return new NextResponse(null, { status: 403 });
+  }
 
   // Acquire before the ClickHouse/S3 work starts; release only via the pipeline callback.
   const release = acquireStreamSlot(result.context.userId);
