@@ -85,9 +85,11 @@ The snippets elsewhere in these docs load `analytics.js` from `betterlytics.io` 
 
 ## Deployment Modes
 
+The instance can be the public endpoint and manage its own certificate, or sit behind a proxy you already run. `setup.sh` asks which; `HTTP_SCHEME` is the switch when configuring by hand.
+
 ### Standalone
 
-With `HTTP_SCHEME=https`, the built-in Caddy server obtains a certificate from Let's Encrypt and renews it automatically. Ports 80 and 443 must both be reachable from the internet: certificates are validated with the HTTP-01 challenge on port 80, and HTTPS traffic arrives on 443.
+In standalone mode the container is what the internet reaches. The built-in Caddy server obtains a certificate from Let's Encrypt and renews it automatically, which is why ports 80 and 443 must both be open: certificates are validated with the HTTP-01 challenge on port 80, and HTTPS traffic arrives on 443.
 
 `setup.sh` configures this for you. If you are setting up manually, set the following in `.env`:
 
@@ -196,6 +198,8 @@ Your instance serves every script the tracker needs: `analytics.js`, plus `repla
 
 If you serve `analytics.js` from somewhere else, for example a CDN in front of your instance, set `data-scripts-base-url` on the script tag to the origin the optional scripts should be loaded from.
 
+Core Web Vitals need no instance-side setup: add `data-web-vitals="true"` to the tracking script, see the [Web Vitals integration guide](/integration/web-vitals).
+
 ## Geolocation
 
 Betterlytics can resolve visitor IP addresses to countries and cities using [MaxMind's](https://www.maxmind.com/) GeoLite2 database. This is optional but required for the geography section of your dashboard to work.
@@ -223,7 +227,7 @@ MAXMIND_ACCOUNT_ID=your_account_id
 MAXMIND_LICENSE_KEY=your_license_key
 ```
 
-Your Account ID is displayed at the top of the MaxMind account portal. `GEOLOCATION_MODE=country` (the default) resolves countries only from a ~9 MB database; `full` adds subdivision and city drill-down from a ~61 MB database. See the [Geolocation reference](#geolocation-1) for all options.
+Your Account ID is displayed at the top of the MaxMind account portal. `GEOLOCATION_MODE` picks the level of detail, see [City & Subdivision Data](#city--subdivision-data) below and the [Geolocation reference](#geolocation-1) for all options.
 
 ### 4. Restart
 
@@ -241,7 +245,7 @@ The instance refuses to start when `ENABLE_GEOLOCATION=true` and no database can
 
 ### City & Subdivision Data
 
-When `GEOLOCATION_MODE=full` is set (alongside `ENABLE_GEOLOCATION=true`), both subdivision (state/province/region) and city data are extracted from the MaxMind GeoLite2-City database. This is the same database used for country lookups, just a larger version (~61 MB vs ~9 MB).
+Geolocation has two levels of detail. The default resolves visitors to a country from a ~9 MB database; full mode adds subdivision (state/province/region) and city from the ~61 MB GeoLite2-City database. Set `GEOLOCATION_MODE=full` alongside `ENABLE_GEOLOCATION=true` to get the latter.
 
 <Callout type="warning">
 **Forward-only data:** Enabling subdivisions mode only populates city and subdivision data for **new events** going forward. Existing events recorded before enabling this mode will only have country-level data. There is no way to backfill since IP addresses are never stored.
@@ -278,7 +282,7 @@ The endpoint only needs to be reachable from the containers, never from visitors
 
 ## Uptime Monitoring and Status Pages
 
-Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box. Email alerts need [email sending configured](#email), and Pushover alerts need `PUSHOVER_APP_TOKEN` set to your own Pushover application token.
+Uptime monitoring and status pages run inside the instance with no extra services. What differs from Cloud is how alerts are delivered and where the page is served. Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box. Email alerts need [email sending configured](#email), and Pushover alerts need `PUSHOVER_APP_TOKEN` set to your own Pushover application token.
 
 A published status page is served by your instance at:
 
@@ -335,10 +339,6 @@ A status page can be served from its own domain, for example `status.acme.com`, 
 </Tabs>
 
 See the [Custom Status Page Domain guide](/integration/custom-status-page-domain) for the in-app steps and DNS troubleshooting.
-
-## Web Vitals
-
-Add `data-web-vitals="true"` to your tracking script; `web-vitals.js` is loaded from your instance like the other [tracking scripts](#tracking-scripts). See the [Web Vitals integration guide](/integration/web-vitals).
 
 ## Configuration Reference
 
