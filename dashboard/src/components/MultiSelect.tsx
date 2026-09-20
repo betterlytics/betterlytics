@@ -9,6 +9,7 @@ import { Command as CommandPrimitive, useCommandState } from 'cmdk';
 import { PlusIcon, XIcon } from 'lucide-react';
 
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 
 export interface Option {
@@ -34,8 +35,11 @@ interface MultiSelectProps {
   options?: Option[];
   placeholder?: string;
 
-  /** Loading component. */
+  /** Loading component; defaults to a skeleton list. */
   loadingIndicator?: React.ReactNode;
+
+  /** Externally controlled loading state, shown alongside the internal async-search one. */
+  loading?: boolean;
 
   /** Empty component. */
   emptyIndicator?: React.ReactNode;
@@ -187,6 +191,14 @@ const CommandEmpty = ({ className, ...props }: React.ComponentProps<typeof Comma
 
 CommandEmpty.displayName = 'CommandEmpty';
 
+const MultiSelectLoadingSkeleton = () => (
+  <div className='px-1 py-0.5'>
+    {Array.from({ length: 3 }).map((_, i) => (
+      <Skeleton key={i} className='my-1 h-7 w-full rounded-sm' />
+    ))}
+  </div>
+);
+
 export const MultiSelect = ({
   value,
   onChange,
@@ -197,6 +209,7 @@ export const MultiSelect = ({
   onSearch,
   onSearchSync,
   loadingIndicator,
+  loading = false,
   emptyIndicator,
   maxSelected = Number.MAX_SAFE_INTEGER,
   onMaxSelected,
@@ -626,8 +639,8 @@ export const MultiSelect = ({
               onWheel={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
             >
-              {isLoading ? (
-                <>{loadingIndicator}</>
+              {loading || isLoading ? (
+                <>{loadingIndicator ?? <MultiSelectLoadingSkeleton />}</>
               ) : (
                 <>
                   {EmptyItem()}

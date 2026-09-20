@@ -47,7 +47,7 @@ export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
     return SQL.Unsafe(column);
   });
 
-  const filters = BAQuery.getFilterQuery((input.filters ?? []).map((f, i) => ({ ...f, id: `mcp_filter_${i}` })));
+  const filters = BAQuery.getFilterQuery(input.filters ?? []);
 
   const orderByKey = input.orderBy ?? input.metrics[0];
   const orderByColumn = SQL.Unsafe(orderByKey);
