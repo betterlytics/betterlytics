@@ -150,7 +150,7 @@
           },
           "freePlan": {
             "question": "Hvad er inkluderet i den gratis plan?",
-            "answer": "Den gratis self-hosted plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger."
+            "answer": "Den gratis Cloud-plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger. Self-hosting er gratis uden grænse for events."
           },
           "cloud": {
             "question": "Hvordan fungerer cloud-hosting?",
@@ -1038,7 +1038,7 @@
             "features": {
               "f1": "Docker-udrulning",
               "f2": "Fuld kontrol",
-              "f3": "GDPR-kompatibel"
+              "f3": "Alle funktioner inkluderet"
             }
           }
         },
