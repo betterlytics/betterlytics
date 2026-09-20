@@ -17,6 +17,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/comp
 import { Plus, Lock } from 'lucide-react';
 import { createDashboardAction, getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard.action';
 import { domainValidation } from '@/entities/dashboard/dashboard.entities';
+import { normalizeDomainInput } from '@/utils/domainValidation';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useTranslations } from 'next-intl';
 
@@ -39,6 +40,11 @@ export function CreateDashboardDialog({ dashboardStatsPromise, trigger }: Create
     if (!domain.trim()) return false;
     return domainValidation.safeParse(domain).success;
   }, [domain]);
+
+  const normalizedDomain = useMemo(() => {
+    const normalized = normalizeDomainInput(domain);
+    return normalized !== domain.trim() && isFormValid ? normalized : null;
+  }, [domain, isFormValid]);
 
   const handleDomainChange = (value: string) => {
     setDomain(value);
@@ -141,6 +147,13 @@ export function CreateDashboardDialog({ dashboardStatsPromise, trigger }: Create
             />
             {validationError ? (
               <p className='text-destructive text-xs'>{validationError}</p>
+            ) : normalizedDomain ? (
+              <p className='text-muted-foreground text-xs'>
+                {t.rich('helper.willBeCreatedAs', {
+                  domain: normalizedDomain,
+                  strong: (chunks) => <span className='text-foreground font-medium'>{chunks}</span>,
+                })}
+              </p>
             ) : (
               <p className='text-muted-foreground text-xs'>{t('helper.domain')}</p>
             )}
