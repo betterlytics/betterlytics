@@ -11,6 +11,7 @@ export const featureFlags = {
   enableAccountVerification: env.ENABLE_ACCOUNT_VERIFICATION && env.IS_CLOUD,
   enableBilling: env.ENABLE_BILLING,
   enableSessionReplay: env.SESSION_REPLAYS_ENABLED,
+  enableGeolocation: env.ENABLE_GEOLOCATION,
   enableBugReports: env.IS_CLOUD,
   isCloud: env.IS_CLOUD,
   enableUptimeMonitoring: env.ENABLE_UPTIME_MONITORING,
