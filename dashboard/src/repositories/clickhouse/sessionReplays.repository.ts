@@ -2,6 +2,7 @@
 
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql } from '@/lib/safe-sql';
+import { parseClickHouseDate } from '@/utils/dateHelpers';
 import { SessionReplay, SessionReplayArraySchema } from '@/entities/analytics/sessionReplays.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -23,9 +24,12 @@ export async function hasSessionReplay(siteId: string, sessionId: string): Promi
   return result.length > 0;
 }
 
-export async function getReplayStorageForSession(siteId: string, sessionId: string): Promise<string | null> {
+export async function getReplaySessionMeta(
+  siteId: string,
+  sessionId: string,
+): Promise<{ storage: string; endedAt: Date } | null> {
   const query = safeSql`
-    SELECT storage
+    SELECT storage, ended_at
     FROM analytics.session_replays FINAL
     WHERE site_id = {site_id:String}
       AND session_id = {session_id:UInt64}
@@ -36,9 +40,11 @@ export async function getReplayStorageForSession(siteId: string, sessionId: stri
     .query(query.taggedSql, {
       params: { ...query.taggedParams, site_id: siteId, session_id: sessionId },
     })
-    .toPromise()) as { storage: string }[];
+    .toPromise()) as { storage: string; ended_at: string }[];
 
-  return result.length > 0 ? result[0].storage : null;
+  return result.length > 0
+    ? { storage: result[0].storage, endedAt: parseClickHouseDate(result[0].ended_at) }
+    : null;
 }
 
 export async function findReplaySessionForError(siteId: string, fingerprint: string): Promise<string | null> {
