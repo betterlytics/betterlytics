@@ -3,6 +3,11 @@ import { constants, createGzip } from 'node:zlib';
 import { type NextRequest, NextResponse } from 'next/server';
 import { resolveDashboardAuthResult } from '@/auth/api-auth';
 import { createConcurrencyCap } from '@/lib/concurrency-cap';
+import {
+  replayStreamDurationSeconds,
+  replayStreamsOpen,
+  replayStreamsRefusedTotal,
+} from '@/lib/replay-stream.metrics';
 import { throughNodeTransform } from '@/lib/web-stream-pipeline';
 import { openReplaySegmentStream, type ReplaySegmentStream } from '@/services/analytics/sessionReplays.service';
 
@@ -35,10 +40,21 @@ export async function GET(request: NextRequest) {
   }
 
   // Acquire before the ClickHouse/S3 work starts; release only via the pipeline callback.
-  const release = acquireStreamSlot(result.context.userId);
-  if (!release) {
+  const slot = acquireStreamSlot(result.context.userId);
+  if ('refused' in slot) {
+    replayStreamsRefusedTotal.inc({ reason: slot.refused === 'key' ? 'user' : 'process' });
     return new NextResponse(null, { status: 429, headers: { 'Retry-After': String(STREAM_RETRY_AFTER_SECONDS) } });
   }
+  replayStreamsOpen.inc();
+  const endTimer = replayStreamDurationSeconds.startTimer();
+  let released = false;
+  const release = () => {
+    if (released) return;
+    released = true;
+    slot.release();
+    replayStreamsOpen.dec();
+    endTimer();
+  };
 
   let opened: ReplaySegmentStream | null;
   try {
