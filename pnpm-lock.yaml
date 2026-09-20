@@ -39,8 +39,8 @@ importers:
         specifier: ^3.1095.0
         version: 3.1096.0
       '@betterlytics/tracker':
-        specifier: ^0.2.2
-        version: 0.2.2
+        specifier: ^0.2.3
+        version: 0.2.3
       '@clickhouse/client':
         specifier: ^1.15.0
         version: 1.23.1
@@ -689,8 +689,8 @@ packages:
   '@better-fetch/fetch@1.3.1':
     resolution: {integrity: sha512-ABkD1WhyfPZprKRQI3bhATjeiFuNWC9PXhfGWqL+sg/gKrM977oFrYkdb4msM3hgUGonr7KlOsOFT5TU2rht9g==}
 
-  '@betterlytics/tracker@0.2.2':
-    resolution: {integrity: sha512-oL9jL91opS4rMeTAzqRDCiL/7zPD4ZcXpzHNvxaQ83basmSYc551tOkPwcyAVTVC15enCw8ahnWsmBQInKpVgw==}
+  '@betterlytics/tracker@0.2.3':
+    resolution: {integrity: sha512-hD7ziTT8pEi6VwTDPzzG6Xt7NhPCrERviBOupooQ4de7L3wArH53o9HQn9wASPHKNFgL95prNPwswCYRJqVo9Q==}
     engines: {node: '>=14.0.0'}
 
   '@braintree/sanitize-url@7.1.2':
@@ -7531,7 +7531,7 @@ snapshots:
 
   '@better-fetch/fetch@1.3.1': {}
 
-  '@betterlytics/tracker@0.2.2': {}
+  '@betterlytics/tracker@0.2.3': {}
 
   '@braintree/sanitize-url@7.1.2': {}
 
