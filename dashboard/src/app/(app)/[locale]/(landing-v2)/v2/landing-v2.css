@@ -266,7 +266,7 @@
   }
   .lede {
     font-size: 19.2px;
-    line-height: 26px;
+    line-height: 24px;
     letter-spacing: -0.48px;
     text-wrap: balance;
   }
@@ -340,10 +340,20 @@
     border-color: var(--text);
   }
 
-  /* ── section shell ── */
+  /* ── section shell ──
+     Rhythm follows cloudflare.com: ~112px of air above a headline (previous
+     section's bottom padding + this top padding), 80px between the lede and
+     the content it introduces, and both collapse at tablet widths. Measured
+     against their sections without the hover copy-link button, whose padding
+     otherwise inflates the headline box by 12px each way. */
   .sec {
     position: relative;
-    padding: 34px var(--inset) 72px;
+    padding: 34px var(--inset) 78px;
+  }
+  @media (max-width: 900px) {
+    .sec {
+      padding-bottom: 48px;
+    }
   }
   .sec__in {
     position: relative;
@@ -506,9 +516,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 28px;
+    gap: 16px; /* cloudflare.com's headline→lede margin */
     text-align: center;
-    margin-bottom: 44px;
+    margin-bottom: 80px;
+  }
+  @media (max-width: 900px) {
+    .head {
+      margin-bottom: 48px;
+    }
   }
   .head .lede {
     color: var(--mid);
@@ -1135,7 +1150,12 @@
   /* ══ CUSTOMERS ══ static, monochrome. The marquees are the only scrolling rows. */
   .sec--tight {
     padding-top: 0;
-    padding-bottom: 56px;
+    padding-bottom: 78px; /* same air above the next headline as every other section */
+  }
+  @media (max-width: 900px) {
+    .sec--tight {
+      padding-bottom: 48px;
+    }
   }
   .logos {
     display: grid;
