@@ -52,6 +52,10 @@ export const DashboardMemberSchema = z.object({
 
 export type InvitationStatus = z.infer<typeof InvitationStatusEnum>;
 export type DashboardInvitation = z.infer<typeof DashboardInvitationSchema>;
+
+export function isOpenInvitation(invitation: Pick<DashboardInvitation, 'status' | 'expiresAt'>): boolean {
+  return invitation.status === 'pending' && new Date() <= invitation.expiresAt;
+}
 export type CreateInvitationData = z.infer<typeof CreateInvitationSchema>;
 export type InvitationWithInviter = z.infer<typeof InvitationWithInviterSchema>;
 export type DashboardMember = z.infer<typeof DashboardMemberSchema>;
