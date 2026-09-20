@@ -20,8 +20,11 @@ describe('toSafeRelativePath', () => {
     ['empty', ''],
     ['null', null],
     ['undefined', undefined],
+    ['repeated query key (array)', ['/dashboards', '/other']],
+    ['number', 42],
+    ['object', { toString: () => '/dashboards' }],
   ])('falls back for %s', (_label, value) => {
-    expect(toSafeRelativePath(value as string | null | undefined, '/dashboards')).toBe('/dashboards');
+    expect(toSafeRelativePath(value, '/dashboards')).toBe('/dashboards');
   });
 
   it('normalizes encoded slashes so the result cannot become protocol-relative', () => {

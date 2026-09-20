@@ -17,7 +17,7 @@ import { toSafeRelativePath } from '@/lib/auth/safe-redirect';
 interface SignInPageProps {
   searchParams: Promise<{
     error?: string;
-    callbackUrl?: string;
+    callbackUrl?: string | string[];
     verified?: string;
     registration?: string;
   }>;
