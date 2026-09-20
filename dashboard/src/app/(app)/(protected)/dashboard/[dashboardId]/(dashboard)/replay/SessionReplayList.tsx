@@ -128,15 +128,17 @@ export function SessionReplayList({
                 icon={deviceName && <DeviceIcon type={deviceName} />}
               />
 
-              {session.error_fingerprints && session.error_fingerprints.length > 0 && (
+              {session.error_count > 0 && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className='ml-auto inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-500'>
                       <Bug className='h-3 w-3' aria-hidden='true' />
-                      <span>{session.error_fingerprints.length}+</span>
+                      <span>{session.error_count}</span>
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side='bottom'>{t('sessionErrorsTooltip', { count: session.error_fingerprints.length })}</TooltipContent>
+                  <TooltipContent side='bottom'>
+                    {t('sessionErrorsTooltip', { count: session.error_count })}
+                  </TooltipContent>
                 </Tooltip>
               )}
             </div>

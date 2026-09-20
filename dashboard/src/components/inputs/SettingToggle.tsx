@@ -3,6 +3,7 @@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 import type { ReactNode } from 'react';
 
 type SettingToggleProps = {
@@ -32,7 +33,7 @@ export function SettingToggle({
     <>
       <div className='space-y-1'>
         <div className='flex items-center justify-between gap-4'>
-          <Label htmlFor={id} className='text-sm font-medium'>
+          <Label htmlFor={id} className={cn('text-sm font-medium', disabled && 'opacity-50')}>
             {label}
           </Label>
           {disabled && disabledTooltip ? (
@@ -48,7 +49,9 @@ export function SettingToggle({
             toggle
           )}
         </div>
-        {description && <p className='text-muted-foreground text-xs'>{description}</p>}
+        {description && (
+          <p className={cn('text-muted-foreground text-xs', disabled && 'opacity-50')}>{description}</p>
+        )}
       </div>
       {children}
     </>

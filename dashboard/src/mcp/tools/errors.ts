@@ -6,6 +6,7 @@ import {
   dateOrderRefinement,
 } from '@/mcp/entities/mcp.entities';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
+import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
 import {
   getErrorGroupForSite,
   getErrorGroupsForSite,
@@ -13,7 +14,6 @@ import {
   getErrorOccurrenceForSite,
   getSessionTrailForSite,
 } from '@/services/analytics/errors.service';
-import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import type { ErrorGroupRow } from '@/entities/analytics/errors.entities';
 
 export const McpListErrorsInputBaseSchema = McpDateRangeSchema.extend({
@@ -73,20 +73,15 @@ export async function executeListErrors(rawInput: unknown, siteId: string, dashb
     return lookupByFingerprint(siteId, dashboardId, input.fingerprint);
   }
 
-  const { startDateTime, endDateTime, start, end } = resolveTimeRange(input);
+  const timeRange = resolveTimeRange(input);
   const filters = (input.filters ?? []).map((f, i) => ({ ...f, id: `mcp_filter_${i}` }));
 
-  const siteQuery: BASiteQuery = {
+  const siteQuery = buildSiteQuery({
     siteId,
-    startDate: start,
-    endDate: end,
-    startDateTime,
-    endDateTime,
-    granularity: 'day',
-    queryFilters: filters,
+    timeRange,
     timezone: input.timezone,
-    userJourney: { numberOfSteps: 3, numberOfJourneys: 50 },
-  };
+    queryFilters: filters,
+  });
 
   let groups = await getErrorGroupsForSite(siteQuery, dashboardId);
 

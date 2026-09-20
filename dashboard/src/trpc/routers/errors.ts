@@ -52,13 +52,13 @@ export const errorsRouter = createRouter({
     }),
 
   checkSessionReplay: dashboardProcedure
-    .input(z.object({ sessionId: z.string() }))
+    .input(z.object({ sessionId: z.string().regex(/^\d+$/) }))
     .query(async ({ ctx, input }) => {
       return hasSessionReplayForSite(ctx.authContext.siteId, input.sessionId);
     }),
 
   sessionTrail: dashboardProcedure
-    .input(z.object({ sessionId: z.string() }))
+    .input(z.object({ sessionId: z.string().regex(/^\d+$/) }))
     .query(async ({ ctx, input }) => {
       return getSessionTrailForSite(ctx.authContext.siteId, input.sessionId);
     }),

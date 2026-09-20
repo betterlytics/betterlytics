@@ -13,7 +13,8 @@ export function InvitationJoinedToast() {
   useEffect(() => {
     if (searchParams.get('invited') === '1' && !hasShownToast.current) {
       hasShownToast.current = true;
-      toast.success(t('joinedSuccess'));
+      // Deferred: on a full page load (e.g. after OAuth) the Toaster subscribes after this effect
+      setTimeout(() => toast.success(t('joinedSuccess')), 0);
 
       const url = new URL(window.location.href);
       url.searchParams.delete('invited');

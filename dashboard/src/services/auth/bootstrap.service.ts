@@ -1,30 +1,9 @@
 'server-only';
 
 import { env } from '@/lib/env';
-import { hashPassword } from '@/lib/password';
-import {
-  findUserByEmail,
-  createUser,
-  findLegacyTwoFactorUsers,
-  clearLegacyTwoFactor,
-} from '@/repositories/postgres/user.repository';
+import { findLegacyTwoFactorUsers, clearLegacyTwoFactor } from '@/repositories/postgres/user.repository';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
-
-export async function ensureAdminAccount(): Promise<void> {
-  if (!env.ADMIN_EMAIL || !env.ADMIN_PASSWORD) return;
-
-  const existing = await findUserByEmail(env.ADMIN_EMAIL);
-  if (existing) return;
-
-  await createUser({
-    email: env.ADMIN_EMAIL,
-    name: 'Admin',
-    passwordHash: await hashPassword(env.ADMIN_PASSWORD),
-    role: 'admin',
-  });
-  console.info(`[bootstrap] Created admin account for ${env.ADMIN_EMAIL}`);
-}
 
 /**
  * One-time cutover cleanup: the twoFactor plugin cannot verify legacy TOTP

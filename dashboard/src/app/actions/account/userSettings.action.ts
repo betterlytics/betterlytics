@@ -2,7 +2,6 @@
 
 import { UpdateUserNameData, UpdateUserNameSchema } from '@/entities/auth/user.entities';
 import { UserSettings, UserSettingsUpdateSchema } from '@/entities/account/userSettings.entities';
-import { ChangePasswordRequest, ChangePasswordRequestSchema } from '@/entities/auth/password.entities';
 import { withUserAuth, getCachedSession } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/account/userSettings.service';
 import * as UserRepository from '@/repositories/postgres/user.repository';
@@ -79,17 +78,3 @@ export const signOutOtherSessionsAction = withUserAuth(async (user: User): Promi
   const revoked = await invalidateOtherUserSessions(user.id, currentSessionToken);
   return { revoked };
 });
-
-export const changePasswordAction = withUserAuth(
-  async (user: User, data: ChangePasswordRequest): Promise<void> => {
-    const validatedData = ChangePasswordRequestSchema.parse(data);
-    const currentSessionToken = (await getCachedSession())?.session.token;
-
-    return await UserSettingsService.changeUserPassword(
-      user.id,
-      validatedData.currentPassword,
-      validatedData.newPassword,
-      currentSessionToken,
-    );
-  },
-);

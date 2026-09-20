@@ -756,12 +756,17 @@
           "errors": {
             "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
             "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
-            "generic": "Der opstod en fejl under login. Prøv venligst igen."
+            "generic": "Der opstod en fejl under login. Prøv venligst igen.",
+            "invalidBackupCode": "Ugyldig backup-kode. Prøv igen."
           },
           "twoFactor": {
             "title": "To-faktor-godkendelse",
             "description": "Indtast bekræftelseskoden fra din app.",
-            "cancel": "Annuller"
+            "cancel": "Annuller",
+            "backupCodeDescription": "Indtast en af dine backup-koder. Hver kode kan kun bruges én gang.",
+            "useBackupCode": "Brug en backup-kode i stedet",
+            "useAuthenticator": "Brug din authenticator-app i stedet",
+            "verify": "Bekræft"
           }
         }
       },
@@ -818,7 +823,8 @@
           "sending": "Sender...",
           "remember": "Kan du huske din adgangskode?",
           "backToSignIn": "Tilbage til login"
-        }
+        },
+        "errorMessageTooManyRequests": "For mange anmodninger om nulstilling. Prøv igen senere."
       },
       "resetPassword": {
         "seo": {
@@ -847,7 +853,14 @@
         },
         "form": {
           "title": "Angiv din nye adgangskode",
-          "description": "Indtast din nye adgangskode nedenfor"
+          "description": "Indtast din nye adgangskode nedenfor",
+          "errors": {
+            "invalidToken": "Dette nulstillingslink er ugyldigt eller udløbet. Anmod venligst om et nyt.",
+            "weakPassword": "Adgangskoden opfylder ikke kravene.",
+            "tooManyAttempts": "For mange forsøg. Prøv igen senere.",
+            "generic": "Kunne ikke nulstille adgangskoden. Prøv venligst igen."
+          },
+          "successMessage": "Adgangskoden blev nulstillet!"
         },
         "cta": {
           "remember": "Kan du huske din adgangskode?",
@@ -2065,6 +2078,12 @@
       "onSslExpiry": "Advarsel ved SSL-udløb",
       "onSslExpiryDescription": "Send en alarm, når SSL-certifikatet er ved at udløbe",
       "sslExpiryDisabledTooltip": "Aktivér SSL-overvågning i Avancerede indstillinger først",
+      "emailsNotConfigured": {
+        "badge": "E-mail ikke konfigureret",
+        "title": "Alarm-e-mails kan ikke leveres",
+        "description": "E-mail-afsendelse er ikke konfigureret på denne instans, så alarm-e-mails fra oppetidsovervågning bliver ikke sendt. Indstillingerne gemmes og træder i kraft, når e-mail er konfigureret.",
+        "tooltip": "Konfigurer e-mail-afsendelse på denne instans for at aktivere alarmer"
+      },
       "failureThreshold": "Fejlgrænse",
       "failureThresholdDescription": "Antal fejl i træk før der sendes en alarm",
       "failureCount": "{count, plural, one {{count} fejl} other {{count} fejl}}",
@@ -2154,7 +2173,8 @@
           "domain": "example.com"
         },
         "helper": {
-          "domain": "Indtast dit domæne uden https:// eller www."
+          "domain": "Indsæt din hjemmesides URL eller domæne, f.eks. eksempel.dk",
+          "willBeCreatedAs": "Oprettes som <strong>{domain}</strong>"
         },
         "buttons": {
           "cancel": "Annuller",
@@ -2521,6 +2541,9 @@
         "maxFiltersReachedToast": "Du kan anvende op til {max} filtre. Fjern ét for at tilføje et nyt."
       },
       "filterBy": "Filtrer efter {label}",
+      "toastFiltersUpdated": "Filtre opdateret",
+      "toastFilterAdded": "Tilføjet",
+      "toastFilterRemoved": "Fjernet",
       "removeFilter": "Fjern filter",
       "notAvailableOnPage": "Ikke tilgængelig på denne side"
     },
@@ -2765,7 +2788,7 @@
           "title": "Ingen sessionsafspilninger tilgængelige",
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne session opfangede {count}+ klientsidefejl"
+        "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -2857,7 +2880,8 @@
         "resend": "Send bekræftelsesmail igen",
         "sending": "Sender...",
         "toastSuccess": "Bekræftelsesmail sendt! Tjek din indbakke.",
-        "toastFailure": "Kunne ikke sende bekræftelsesmail"
+        "toastFailure": "Kunne ikke sende bekræftelsesmail",
+        "cooldown": "Der er lige blevet sendt en bekræftelsesmail. Vent et par minutter, før du anmoder om en ny."
       }
     },
     "topbar": {
@@ -3017,13 +3041,16 @@
         "newPassword": "Ny adgangskode",
         "confirmNewPassword": "Bekræft ny adgangskode",
         "passwordHelp": "Adgangskoden skal være mindst 8 tegn",
+        "weakPassword": "Adgangskoden skal være mindst 8 tegn og indeholde både store og små bogstaver",
+        "invalidCurrentPassword": "Den nuværende adgangskode er forkert",
         "passwordsMatch": "Adgangskoderne matcher",
         "changePassword": "Skift adgangskode",
         "passwordManagedByOAuth": "Adgangskode håndteres af OAuth",
         "togglePasswordVisibility": "Vis/skjul {field}",
         "cancel": "Annuller",
         "toast": {
-          "success": "Adgangskode opdateret"
+          "success": "Adgangskode opdateret",
+          "tooManyAttempts": "For mange forsøg. Vent et øjeblik og prøv igen."
         },
         "totp": {
           "title": "To-faktor-godkendelse",
@@ -3047,7 +3074,17 @@
           "passwordPromptDescription": "Indtast din adgangskode for at fortsætte.",
           "passwordLabel": "Adgangskode",
           "backupCodesTitle": "Backup-koder",
-          "backupCodesDescription": "Gem disse engangskoder et sikkert sted — de giver dig adgang, hvis du mister din authenticator."
+          "backupCodesDescription": "Gem disse engangskoder et sikkert sted. De giver dig adgang, hvis du mister din authenticator.",
+          "copyCodes": "Kopiér",
+          "downloadCodes": "Download",
+          "backupCodesDone": "Jeg har gemt mine koder",
+          "regenerateTitle": "Generér nye backup-koder",
+          "regenerateDescription": "Dette erstatter alle eksisterende backup-koder. Indtast din adgangskode for at fortsætte.",
+          "regenerate": "Generér nye",
+          "regenerateFailed": "Kunne ikke generere nye backup-koder. Prøv igen.",
+          "backupCodesWarning": "Hver kode virker én gang. De vises ikke igen, når du lukker dette.",
+          "copied": "Kopieret",
+          "backupCodesRowDescription": "Engangskoder, der giver dig adgang, hvis du mister din authenticator-app. Opbevar dem lige så sikkert som din adgangskode."
         }
       },
       "sessions": {
@@ -3242,9 +3279,11 @@
         "googleButton": "Google",
         "gitHubButton": "GitHub",
         "passwordsDoNotMatch": "Adgangskoder matcher ikke",
-        "registrationSuccessfulButSignInFailed": "Registrering lykkedes, men log ind mislykkedes. Prøv at logge ind manuelt.",
+        "emailAlreadyExists": "Der findes allerede en bruger med den e-mail.",
         "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
-        "checkInput": "Tjek venligst dit input"
+        "checkInput": "Tjek venligst dit input",
+        "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
+        "invitedToHint": "Du er inviteret til at deltage i {domain}"
       }
     },
     "website": {
@@ -3252,7 +3291,8 @@
       "description": "Fortæl os om det website, du vil spore",
       "domainLabel": "Domæne",
       "domainPlaceholder": "eksempel.dk",
-      "domainHelp": "Indtast dit domæne uden https:// eller www. (f.eks. eksempel.dk)",
+      "domainHelp": "Indsæt din hjemmesides URL eller domæne (f.eks. eksempel.dk)",
+      "domainWillBeCreatedAs": "Oprettes som <strong>{domain}</strong>",
       "termsAgreeLabel": "Jeg har læst og accepterer <termsLink>Servicevilkårene</termsLink> og <privacyLink>Privatlivspolitikken</privacyLink>.",
       "createDashboardButton": "Opret dashboard",
       "creatingDashboard": "Opretter dashboard...",
@@ -3335,6 +3375,7 @@
       "description": "Vi har sendt en bekræftelsesmail til {email}.",
       "success": "Bekræftelsesmail sendt!",
       "failure": "Kunne ikke sende bekræftelsesmail",
+      "cooldown": "Der er lige blevet sendt en bekræftelsesmail. Vent et par minutter, før du anmoder om en ny.",
       "sending": "Sender...",
       "resend": "Send e-mail igen"
     },
@@ -3357,6 +3398,29 @@
       "title": "Ingen Core Web Vitals data endnu",
       "description": "Tjek at tracking er aktiveret.",
       "action": "Læs mere"
+    },
+    "featureNotEnabled": {
+      "action": "Selfhosting-guide",
+      "monitoring": {
+        "title": "Oppetidsovervågning er ikke aktiveret på denne instans",
+        "description": "Monitorer kan sættes op, men de tjekkes ikke, og der sendes ingen alarmer, før det er aktiveret."
+      },
+      "statusPages": {
+        "title": "Statussider er ikke aktiveret på denne instans",
+        "description": "Statussider kan sættes op, men de udgives ikke, før funktionen er aktiveret."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Statussider kræver oppetidsovervågning, som ikke er aktiveret på denne instans",
+        "description": "Statussider kan sættes op, men de udgives ikke, før oppetidsovervågning er aktiveret."
+      },
+      "sessionReplay": {
+        "title": "Sessionsafspilning er ikke aktiveret på denne instans",
+        "description": "Der optages ingen sessioner, før det er aktiveret."
+      },
+      "geography": {
+        "title": "Geolokation er ikke aktiveret på denne instans",
+        "description": "Besøgendes placering indsamles ikke, før det er aktiveret."
+      }
     }
   },
   "githubStar": {
@@ -3420,10 +3484,18 @@
       "sending": "Sender...",
       "pending": "Afventer",
       "invited": "Inviteret",
-      "invalidEmail": "Indtast venligst en gyldig e-mailadresse"
+      "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
+      "copyLink": "Kopiér invitationslink",
+      "linkCopied": "Invitationslink kopieret"
+    },
+    "linkPanel": {
+      "emailSent": "En invitations-e-mail er sendt til <strong>{email}</strong>. Du kan også dele invitationslinket direkte:",
+      "emailNotSent": "Der blev ikke sendt en e-mail til <strong>{email}</strong> — del selv dette invitationslink med dem:",
+      "dismiss": "Luk"
     },
     "toast": {
       "sent": "Invitation sendt",
+      "created": "Invitation oprettet",
       "sendFailed": "Kunne ikke sende invitation",
       "cancelled": "Invitation annulleret",
       "cancelFailed": "Kunne ikke annullere invitation",
@@ -3449,13 +3521,16 @@
       "goToSignIn": "Gå til login",
       "expiredTitle": "Invitation udløbet",
       "expiredDescription": "Denne invitation er ikke længere gyldig.",
-      "expiredHint": "Bed dashboard-ejeren om at sende dig en ny invitation.",
+      "expiredHint": "Bed {inviter} om at sende dig en ny invitation.",
       "emailMismatchTitle": "Forkert konto",
       "emailMismatchDescription": "Denne invitation blev sendt til {invitedEmail}, men du er logget ind som {currentEmail}.",
       "emailMismatchHint": "Log ud og log ind med den korrekte konto for at acceptere denne invitation.",
       "errorTitle": "Kunne ikke acceptere invitation",
-      "errorDescription": "Noget gik galt under accept af invitationen. Den er muligvis allerede accepteret eller annulleret.",
-      "goToDashboards": "Gå til dashboards"
+      "errorDescription": "Noget gik galt, da du skulle tilføjes til dashboardet.",
+      "goToDashboards": "Gå til dashboards",
+      "errorHint": "Prøv igen om lidt. Hvis det bliver ved med at fejle, så bed {inviter} om at sende dig en ny invitation.",
+      "tryAgain": "Prøv igen",
+      "dashboardOwner": "dashboard-ejeren"
     }
   },
   "integration": {
@@ -3756,6 +3831,10 @@
     "section": {
       "description": "Forbind tredjepartstjenester for at modtage uptimeovervågningsnotifikationer, når din hjemmeside går ned eller kommer op igen."
     },
+    "monitoringNotConfigured": {
+      "title": "Notifikationer er ikke aktive på denne instans",
+      "description": "Integrationer sender kun oppetidsovervågningsalarmer, og oppetidsovervågning er slået fra på denne instans. Integrationer kan stadig sættes op, men intet bliver sendt, før det er aktiveret."
+    },
     "integrations": {
       "pushover": {
         "name": "Pushover",
@@ -3799,7 +3878,8 @@
     },
     "status": {
       "connected": "Forbundet",
-      "disabled": "Deaktiveret"
+      "disabled": "Deaktiveret",
+      "unavailable": "Ikke tilgængelig på denne instans"
     },
     "actions": {
       "configure": "Konfigurer",
@@ -3889,6 +3969,9 @@
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
       "invalidWebhookUrl": "Ugyldig webhook URL"
+    },
+    "unavailable": {
+      "description": "{name} kræver et app-token konfigureret på denne instans, før den kan tilsluttes."
     }
   },
   "errors": {
@@ -4075,6 +4158,7 @@
       "viewPage": "Vis side",
       "more": "Flere handlinger",
       "linkCopied": "Link kopieret til udklipsholderen",
+      "linkCopyFailed": "Kunne ikke kopiere linket",
       "openPublicPage": "Åbn offentlig side",
       "editPage": "Rediger side",
       "manageIncidents": "Administrer hændelser",

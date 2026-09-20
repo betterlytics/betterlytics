@@ -63,7 +63,7 @@ export function TimingSection({ form, isPending, open, onOpenChange, defaultOpen
       </CollapsibleTrigger>
 
       <CollapsibleContent className='data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-x-visible overflow-y-clip'>
-        <div className='space-y-6 pt-4'>
+        <div className='space-y-6 pt-4 pb-3'>
           <LabeledSlider
             label={tTiming('interval.label')}
             description={tTiming('interval.description', {

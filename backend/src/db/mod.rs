@@ -14,7 +14,7 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
@@ -203,11 +203,66 @@ impl Database {
         Ok(())
     }
 
-    pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
-        let mut inserter = self.clickhouse.inner().inserter("analytics.session_replays")?;
-        inserter.write(&row)?;
+    fn async_insert_client(&self) -> clickhouse::Client {
+        self.clickhouse
+            .inner()
+            .clone()
+            .with_option("async_insert", "1")
+            .with_option("wait_for_async_insert", "1")
+    }
+
+    async fn insert_one<R>(&self, table: &str, row: &R) -> Result<()>
+    where
+        R: clickhouse::Row + serde::Serialize,
+    {
+        let mut inserter = self.async_insert_client()
+            .inserter(table)?
+            .with_timeouts(
+                Some(Duration::from_secs(INSERTER_TIMEOUT_SECS)),
+                Some(Duration::from_secs(INSERTER_END_TIMEOUT_SECS)),
+            );
+        inserter.write(row)?;
         inserter.end().await?;
         Ok(())
+    }
+
+    pub async fn upsert_session_replay(&self, row: SessionReplayRow) -> Result<()> {
+        self.insert_one("analytics.session_replays", &row).await
+    }
+
+    pub async fn fetch_session_replay_meta(&self, site_id: &str, session_id: u64) -> Result<Option<SessionReplayMetaRow>> {
+        let fetch = self.clickhouse.inner()
+            .query(
+                "WITH (ended_at, size_bytes, event_count) AS v
+                SELECT argMax(started_at, v), max(ended_at), argMax(size_bytes, v), argMax(start_url, v), argMax(event_count, v), argMax(visitor_id, v),
+                argMax(client_started_at_ms, v), argMax(client_ended_at_ms, v),
+                argMax(error_fingerprints, v), argMax(recorded_error_count, v)
+                FROM analytics.session_replays WHERE site_id = ? AND session_id = ? GROUP BY site_id, session_id",
+            )
+            .bind(site_id)
+            .bind(session_id)
+            .fetch_all::<SessionReplayMetaRow>();
+        let rows = tokio::time::timeout(Duration::from_secs(INSERTER_TIMEOUT_SECS), fetch)
+            .await
+            .map_err(|_| anyhow::anyhow!("replay meta fetch timed out"))??;
+        Ok(rows.into_iter().next())
+    }
+
+    pub async fn replay_segment_exists(&self, site_id: &str, session_id: u64, filename: &str) -> Result<bool> {
+        let fetch = self.clickhouse.inner()
+            .query("SELECT count() FROM analytics.session_replay_segments WHERE site_id = ? AND session_id = ? AND filename = ?")
+            .bind(site_id)
+            .bind(session_id)
+            .bind(filename)
+            .fetch_one::<u64>();
+        let n = tokio::time::timeout(Duration::from_secs(INSERTER_TIMEOUT_SECS), fetch)
+            .await
+            .map_err(|_| anyhow::anyhow!("replay segment exists check timed out"))??;
+        Ok(n > 0)
+    }
+
+    pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
+        self.insert_one("analytics.session_replay_segments", &row).await
     }
 }
 
