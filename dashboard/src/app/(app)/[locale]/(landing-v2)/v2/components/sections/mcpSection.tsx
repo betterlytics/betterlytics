@@ -18,7 +18,7 @@ export function McpSection() {
           <div className='mcp__side'>
             <h3 className='mcp__lead'>{copy.lead}</h3>
             <p>{copy.body}</p>
-            <span className='mono mcp__lab'>{copy.worksWith}</span>
+            <span className='label mcp__lab'>{copy.worksWith}</span>
             {/* tiles rather than a checked list: the row reads as a compatibility wall, not a to-do list */}
             <SpotlightList className='mcp__works'>
               {MCP_CLIENTS.map((client) => (

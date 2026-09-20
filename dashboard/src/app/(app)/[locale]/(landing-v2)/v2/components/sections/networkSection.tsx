@@ -19,21 +19,21 @@ export function NetworkSection() {
         <div className='statpanel'>
           {copy.stats.map((stat, i) => (
             <Reveal key={stat.label} className='cell' index={i}>
-              <span className='mono'>{stat.label}</span>
               <div className='stat'>
                 <CountUp value={stat.value} decimals={stat.decimals} />
                 <em>{stat.unit}</em>
               </div>
+              <span className='label'>{stat.label}</span>
               <p>{stat.body}</p>
             </Reveal>
           ))}
           <Reveal className='cell cell--volt' index={copy.stats.length}>
             {SEAL === 'lock' ? <EuSeal variant='lock' /> : null}
-            <span className='mono'>{copy.thesis.label}</span>
             <div className='stat'>
               {SEAL === 'ring' ? <EuSeal variant='ring' /> : null}
               <b>{copy.thesis.value}</b>
             </div>
+            <span className='label'>{copy.thesis.label}</span>
             <p>{copy.thesis.body}</p>
           </Reveal>
         </div>

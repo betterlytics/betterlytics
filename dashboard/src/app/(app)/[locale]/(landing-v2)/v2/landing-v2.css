@@ -240,14 +240,14 @@
   }
 
   /* ── type ── */
-  .mono {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
+  /* a label for the reader (stat captions, "Works with"): plain sentence case in
+     the mid tone. Mono caps stays reserved for text that imitates an interface. */
+  .label {
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.2px;
     font-weight: 400;
     color: var(--mid);
-    font-variant-numeric: tabular-nums;
   }
   .num {
     font-variant-numeric: tabular-nums;
@@ -851,9 +851,8 @@
   }
   .pill span {
     font-family: var(--mono);
-    font-size: 11.5px;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0;
     color: var(--on-volt);
     opacity: 0.92;
     font-weight: 500;
@@ -1412,9 +1411,8 @@
   .jr__repl {
     margin: 16px 0 0;
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0;
   }
   .jr__repl .ls__item {
     display: flex;
@@ -3304,7 +3302,7 @@
     padding-top: 39px;
     padding-bottom: 39px;
   }
-  .statpanel .cell--volt .mono {
+  .statpanel .cell--volt .label {
     color: var(--on-volt);
     opacity: 0.75;
   }
@@ -3557,36 +3555,30 @@
   .range__track {
     position: relative;
     flex: 1;
-    height: 6px;
-    border-radius: 3px;
-    background: rgba(235, 232, 230, 0.1);
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.45);
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(235, 232, 230, 0.14);
     overflow: hidden;
   }
   .range__fill {
     position: absolute;
     height: 100%;
-    border-radius: 3px;
-    background: linear-gradient(180deg, var(--volt-lift), var(--volt));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    border-radius: 2px;
+    background: var(--volt-lift);
   }
   /* a single flat disc with one border so it lifts off the fill; the halo only
      appears for keyboard focus and while dragging */
   .range__thumb {
     display: block;
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    background: linear-gradient(180deg, var(--volt-lift), var(--volt));
+    background: var(--volt-lift);
     border: 2px solid var(--canvas);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.35),
-      0 0 0 1px rgba(255, 255, 255, 0.14),
-      0 3px 10px rgba(0, 0, 0, 0.5);
     cursor: grab;
     transition:
-      transform 0.15s var(--ease),
-      box-shadow 0.2s var(--ease);
+      transform 120ms ease-out,
+      box-shadow 120ms ease-out;
   }
   .range__thumb:hover {
     transform: scale(1.12);
@@ -3674,10 +3666,9 @@
     border-radius: 0 0 5px 5px;
     white-space: nowrap;
     background: var(--volt-lift);
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 11.5px;
+    letter-spacing: -0.1px;
+    font-weight: 500;
     color: var(--on-volt);
   }
   /* a fixed line whether the price is a figure or a word, so the block never jumps
@@ -3868,10 +3859,8 @@
     flex: 1;
   }
   .foot__col h4 {
-    font-family: var(--mono);
-    font-size: 10.5px;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
+    font-size: 13px;
+    letter-spacing: -0.1px;
     font-weight: 500;
     color: var(--mid);
     margin-bottom: 16px;
