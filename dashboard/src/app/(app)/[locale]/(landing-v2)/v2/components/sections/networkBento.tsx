@@ -19,7 +19,6 @@ export function NetworkBento() {
     <Panel flush>
       <div className='bento'>
         <div className='bento__label'>
-          <span className='chip'>{copy.pill}</span>
           <h2 className='bento__title'>
             <Emphasis text={copy.title} wrap={(span) => <em>{span}</em>} />
           </h2>
