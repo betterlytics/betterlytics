@@ -1,5 +1,4 @@
 import { EuSeal } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/euSeal';
-import { CaptureArt, LagArt, ScriptArt } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/statArt';
 import { FrameworkStrip } from '@/app/(app)/[locale]/(landing-v2)/v2/components/sections/frameworkStrip';
 import { CountUp } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/countUp';
 import { Emphasis } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/emphasis';
@@ -9,12 +8,11 @@ import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
 import { LINKS } from '@/app/(app)/[locale]/(landing-v2)/v2/lib/links';
 
 const copy = COPY.network;
-const ART = [ScriptArt, LagArt, CaptureArt];
 
 /**
  * cloudflare.com's use-case bento: a label cell carries the headline and the
- * framework marks, the other cells are cards with a picture over a caption.
- * No centred head, so the section is one panel tall.
+ * framework marks, the other cells carry one number each with its name and a
+ * line of body. No pictures: the numbers are the pictures.
  */
 export function NetworkBento() {
   return (
@@ -31,36 +29,23 @@ export function NetworkBento() {
             {copy.cta}
           </a>
         </div>
-        {copy.stats.map((stat, i) => {
-          const Art = ART[i];
-          return (
-            <Reveal key={stat.label} className='bento__cell' index={i}>
-              <div className='bento__art'>
-                <Art />
-              </div>
-              <div className='bento__text'>
-                <div className='stat'>
-                  <CountUp value={stat.value} decimals={stat.decimals} />
-                  <em>{stat.unit}</em>
-                </div>
-                <span className='label'>{stat.label}</span>
-                <p>{stat.body}</p>
-              </div>
-            </Reveal>
-          );
-        })}
-        <Reveal className='bento__cell bento__cell--volt' index={copy.stats.length}>
-          <div className='bento__art'>
-            {/* the same seal the other layouts watermark, here as the picture itself */}
-            <EuSeal variant='lock' />
-          </div>
-          <div className='bento__text'>
+        {copy.stats.map((stat, i) => (
+          <Reveal key={stat.label} className='bento__cell' index={i}>
             <div className='stat'>
-              <b>{copy.thesis.value}</b>
+              <CountUp value={stat.value} decimals={stat.decimals} />
+              <em>{stat.unit}</em>
             </div>
-            <span className='label'>{copy.thesis.label}</span>
-            <p>{copy.thesis.body}</p>
+            <span className='label'>{stat.label}</span>
+            <p>{stat.body}</p>
+          </Reveal>
+        ))}
+        <Reveal className='bento__cell bento__cell--volt' index={copy.stats.length}>
+          <EuSeal variant='lock' />
+          <div className='stat'>
+            <b>{copy.thesis.value}</b>
           </div>
+          <span className='label'>{copy.thesis.label}</span>
+          <p>{copy.thesis.body}</p>
         </Reveal>
       </div>
     </Panel>

@@ -3691,99 +3691,37 @@
   .bento__cell:nth-child(5) {
     border-bottom: 0;
   }
-  /* the picture sits on hatched paper, like cloudflare.com's card illustrations */
-  .bento__art {
-    height: 132px;
-    display: grid;
-    place-items: center;
-    border-bottom: 1px solid var(--rule-08);
-    background-image: repeating-linear-gradient(315deg, var(--wall-ink-dense) 0 1px, transparent 0 50%);
-    background-size: 10px 10px;
-    color: var(--text);
-  }
-  .bento__text {
-    padding: 22px 26px 26px;
-    display: flex;
-    flex-direction: column;
+  .bento__cell {
+    padding: 34px 30px 36px;
     gap: 10px;
   }
-  .bento__text .label {
+  .bento__cell .label {
     margin-top: -4px;
   }
-  .bento__text p {
-    margin: 0;
-    font-size: 14.5px;
-    line-height: 22px;
+  .bento__cell p {
+    margin: 4px 0 0;
+    font-size: 15px;
+    line-height: 23px;
     color: var(--mid);
   }
+  /* the thesis card: volt, with the seal watermarked off its corner as on the board */
   .bento__cell--volt {
+    position: relative;
+    overflow: hidden;
     background: var(--volt);
     color: var(--on-volt);
   }
-  .bento__cell--volt .bento__art {
-    border-bottom-color: rgba(242, 245, 255, 0.18);
-    background-image: repeating-linear-gradient(315deg, rgba(242, 245, 255, 0.09) 0 1px, transparent 0 50%);
-    color: var(--on-volt);
+  .bento__cell--volt > :not(.seal) {
+    position: relative;
+    z-index: 1;
   }
-  .bento__cell--volt .label {
-    color: var(--on-volt);
-  }
-  .bento__cell--volt .bento__text p {
-    color: var(--on-volt);
-    opacity: 0.82;
-  }
+  .bento__cell--volt .label,
   .bento__cell--volt .stat b {
     color: var(--on-volt);
   }
-  /* the seal is the card's picture here, so it sits in flow at full strength */
-  .bento__art .seal {
-    position: static;
-    width: 104px;
-    height: auto;
-    opacity: 0.92;
-  }
-  .bento > .fws {
-    grid-column: 1 / -1;
-  }
-  /* the pictures */
-  .sart {
-    color: inherit;
+  .bento__cell--volt p {
+    color: var(--on-volt);
     opacity: 0.85;
-  }
-  svg.sart {
-    width: 280px;
-    height: 90px;
-  }
-  .sart--chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border: 1px solid var(--rule-22);
-    border-radius: 6px;
-    background: var(--canvas);
-    font-family: var(--mono);
-    font-size: 12px;
-    opacity: 1;
-  }
-  .sart--chip code {
-    white-space: nowrap;
-    color: var(--text);
-    opacity: 0.9;
-  }
-  .sart--chip .tag {
-    color: var(--mid);
-  }
-  .sart--chip .str {
-    color: var(--accent-soft);
-  }
-  .sart--chip b {
-    font-weight: 500;
-    font-size: 11px;
-    color: var(--accent-soft);
-    padding: 2px 6px;
-    border-radius: 3px;
-    background: rgba(139, 151, 255, 0.12);
   }
 
   /* ══ ONE SCRIPT · SNIPPET ══ the install snippet on hatched paper beside a stack of stat rows */
@@ -3861,8 +3799,7 @@
     min-height: 260px;
   }
   /* the global code rule would swap the face; the frame sets it */
-  .cf__code code,
-  .sart--chip code {
+  .cf__code code {
     font: inherit;
   }
   .cf__code .str {
