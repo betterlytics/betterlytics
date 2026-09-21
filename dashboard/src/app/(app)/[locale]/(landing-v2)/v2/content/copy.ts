@@ -100,10 +100,6 @@ export const COPY = {
       body: 'No cookies, no fingerprinting, no consent banner. GDPR and PECR compliant by default, on EU-only infrastructure.',
     },
   },
-  quotes: {
-    title: 'Teams that stopped guessing',
-    lede: 'In their own words, what changed after the switch.',
-  },
   pricing: {
     title: 'One price, scaled by your traffic',
     lede: 'Events are the only meter. Bots we catch are dropped before they count.',

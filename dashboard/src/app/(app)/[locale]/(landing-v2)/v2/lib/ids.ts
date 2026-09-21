@@ -9,8 +9,6 @@ export const IDS = {
   customers: 'customers',
   journey: 'journey',
   mcp: 'mcp',
-  frameworks: 'frameworks',
   network: 'network',
-  quotes: 'quotes',
   pricing: 'pricing',
 } as const;

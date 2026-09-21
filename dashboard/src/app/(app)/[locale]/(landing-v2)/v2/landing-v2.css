@@ -488,6 +488,16 @@
     :is(
       .lg,
       .logos__label,
+      .fq,
+      .fwb,
+      .fwb__label,
+      .fwb__cell,
+      .fws,
+      .bento__label,
+      .bento__cell,
+      .bento__art,
+      .snip__code,
+      .snip__row,
       .cell,
       .mcp__side,
       .mcp__works,
@@ -3215,32 +3225,39 @@
     }
   }
 
-  /* ══ FRAMEWORKS ══ marquee */
-  .fw {
-    overflow: hidden;
-    position: relative;
-    padding: 26px 0;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  /* ══ FRAMEWORKS ══ a still, ruled board under the stat tiles, in the customer
+     wall's grammar: the claim in the left cell, one framework per cell. Child 1
+     is the label, so the nth-child arithmetic for the last column is offset by one. */
+  .fwb {
+    display: grid;
+    grid-template-columns: 1.6fr repeat(6, 1fr);
+    border-top: 1px solid var(--rule-125);
   }
-  .fw__row {
+  .fwb__label {
+    grid-row: 1 / span 3;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    padding: 28px 22px;
+    border-right: 1px solid var(--rule-08);
+  }
+  .fwb__label p {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .fwb__label p + p {
+    margin-top: 4px;
+    color: var(--mid);
+  }
+  .fwb__label em {
+    font-style: normal;
+    color: #6b7aff;
+    font-weight: 500;
+  }
+  .fwb__cell {
     display: flex;
-    gap: 12px;
-    width: max-content;
-    animation: lp2-slide 52s linear infinite;
-  }
-  .fw__row + .fw__row {
-    margin-top: 12px;
-    animation-duration: 68s;
-    animation-direction: reverse;
-  }
-  .fw:hover .fw__row {
-    animation-play-state: paused;
-  }
-  /* same material as the MCP tiles: lit from the top, hairline lifts on hover.
-     No pointer light here; the rows move, and a light chasing a moving chip reads as lag. */
-  .fwi {
-    display: inline-flex;
     align-items: center;
     gap: 11px;
     padding: 9px 18px 9px 9px;
@@ -3251,27 +3268,64 @@
     white-space: nowrap;
     transition: border-color 0.22s var(--ease);
   }
-  .fwi:hover {
-    border-color: var(--rule-22);
+  .fwb__cell:hover {
+    opacity: 1;
   }
-  .fwi b {
-    width: 28px;
-    height: 28px;
-    flex: none;
-    display: grid;
-    place-items: center;
-    border-radius: 6px;
-    background: rgba(235, 232, 230, 0.05);
+  .fwb__cell:nth-child(6n + 1) {
+    border-right: 0;
   }
-  .fwico {
-    width: 17px;
-    height: 17px;
+  .fwb__cell:nth-last-child(-n + 6) {
+    border-bottom: 0;
   }
-  .fwi span {
+  .fwb__cell span {
     font-size: 14.5px;
     letter-spacing: -0.2px;
-    color: var(--text);
-    opacity: 0.88;
+  }
+  .fwico {
+    width: 18px;
+    height: 18px;
+    flex: none;
+  }
+  @media (max-width: 1000px) {
+    .fwb {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .fwb__label {
+      grid-row: auto;
+      grid-column: 1 / -1;
+      border-right: 0;
+      border-bottom: 1px solid var(--rule-08);
+      padding: 24px;
+    }
+    .fwb__cell:nth-child(6n + 1) {
+      border-right: 1px solid var(--rule-08);
+    }
+    .fwb__cell:nth-child(3n + 1) {
+      border-right: 0;
+    }
+    .fwb__cell:nth-last-child(-n + 6) {
+      border-bottom: 1px solid var(--rule-08);
+    }
+    .fwb__cell:nth-last-child(-n + 3) {
+      border-bottom: 0;
+    }
+  }
+  @media (max-width: 640px) {
+    .fwb {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .fwb__cell:nth-child(3n + 1) {
+      border-right: 1px solid var(--rule-08);
+    }
+    .fwb__cell:nth-child(2n + 1) {
+      border-right: 0;
+    }
+    .fwb__cell:nth-last-child(-n + 3) {
+      border-bottom: 1px solid var(--rule-08);
+    }
+    .fwb__cell:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
   }
 
   /* ══ NETWORK ══ stat panel */
@@ -3395,33 +3449,23 @@
     }
   }
 
-  /* ══ TESTIMONIALS ══ cards, deliberately unlike the framework tiles */
-  .tsts {
-    overflow: hidden;
-    position: relative;
-    padding: 26px 0;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  }
-  .tst__row {
+  /* ══ FEATURED QUOTE ══ one quote in display type under the logo wall. All
+     quotes share one grid cell, so the block is as tall as the longest and the
+     page never shifts when the quote turns over. */
+  .fq {
+    border-top: 1px solid var(--rule-08);
+    padding: 52px 30px 40px;
     display: flex;
-    gap: 16px;
-    width: max-content;
-    animation: lp2-slide 40s linear infinite;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
   }
-  .tst__row + .tst__row {
-    margin-top: 16px;
-    animation-duration: 50s;
-    animation-direction: reverse;
+  .fq__stage {
+    display: grid;
+    width: min(100%, 860px);
   }
-  .tsts:hover .tst__row {
-    animation-play-state: paused;
-  }
-  /* the tile material again, but the gradient is gentler on a card this tall so
-     it reads as a surface, not a glossy button */
-  .tst {
-    flex: none;
-    width: 392px;
+  .fq__item {
+    grid-area: 1 / 1;
     margin: 0;
     padding: 26px;
     border: 1px solid var(--rule-10);
@@ -3433,54 +3477,40 @@
     gap: 22px;
     transition: border-color 0.22s var(--ease);
   }
-  .tst:hover {
-    border-color: var(--rule-22);
+  .fq__item.is-on {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
   }
-  .tst blockquote {
+  .fq blockquote {
     margin: 0;
-    font-size: 15.5px;
-    line-height: 1.62;
-    color: var(--text);
-    opacity: 0.9;
-    letter-spacing: -0.1px;
   }
-  .tst blockquote b {
-    font-weight: 400;
-    color: var(--accent-soft);
-  }
-  .tst--volt {
-    background: var(--volt);
-    border-color: transparent;
-  }
-  .tst--volt blockquote {
-    color: var(--on-volt);
-    opacity: 0.95;
-  }
-  .tst--volt blockquote b {
-    color: var(--on-volt);
+  .fq blockquote p {
+    margin: 0;
+    font-size: 26px;
+    line-height: 34px;
+    letter-spacing: -0.6px;
     font-weight: 500;
   }
-  .tst--volt .tst__who b {
-    color: var(--on-volt);
+  .fq blockquote p::before {
+    content: '\201C';
   }
-  .tst--volt .tst__who span {
-    color: var(--on-volt);
-    opacity: 0.72;
+  .fq blockquote p::after {
+    content: '\201D';
   }
-  .tst--volt .tst__av {
-    background: rgba(242, 245, 255, 0.16);
-    border-color: rgba(242, 245, 255, 0.28);
-    color: var(--on-volt);
+  .fq blockquote b {
+    font-weight: 500;
+    color: var(--accent-soft);
   }
-  .tst figcaption {
+  .fq figcaption {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-top: auto;
   }
-  .tst__av {
-    width: 38px;
-    height: 38px;
+  .fq__av {
+    width: 44px;
+    height: 44px;
     flex: none;
     border-radius: 50%;
     display: grid;
@@ -3493,25 +3523,342 @@
     color: var(--mid);
     overflow: hidden;
   }
-  .tst__av img {
+  .fq__av img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
-  .tst__who b {
+  .fq__who b {
     display: block;
     font-size: 14px;
     font-weight: 500;
     letter-spacing: -0.1px;
   }
-  .tst__who span {
+  .fq__who span {
+    font-size: 13px;
+    color: var(--mid);
+  }
+  .fq__dots {
+    display: flex;
+    gap: 8px;
+  }
+  .fq__dots button {
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(235, 232, 230, 0.18);
+    cursor: pointer;
+    transition: background 0.22s var(--ease);
+  }
+  .fq__dots button:hover {
+    background: var(--mid);
+  }
+  .fq__dots button.is-on {
+    background: var(--accent-soft);
+  }
+  @media (max-width: 640px) {
+    .fq {
+      padding: 36px 20px 28px;
+    }
+    .fq blockquote p {
+      font-size: 21px;
+      line-height: 28px;
+      letter-spacing: -0.4px;
+    }
+  }
+
+  /* ══ VARIANT TOGGLE ══ preview-only, bottom right */
+  .vt {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(21, 20, 20, 0.92);
+    border: 1px solid var(--rule-22);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(8px);
+    font-family: var(--mono);
+    font-size: 11.5px;
+  }
+  .vt__lab {
+    padding: 0 8px 0 10px;
+    color: var(--mid);
+  }
+  .vt button {
+    border: 0;
+    background: transparent;
+    color: var(--mid);
+    padding: 6px 11px;
+    border-radius: 999px;
+    cursor: pointer;
+    font: inherit;
+    transition:
+      background 0.2s var(--ease),
+      color 0.2s var(--ease);
+  }
+  .vt button:hover {
+    color: var(--text);
+  }
+  .vt button.is-on {
+    background: var(--volt-lift);
+    color: var(--on-volt);
+  }
+
+  /* ══ CHIP ══ the small mono product pill cloudflare.com sets above a label cell's headline */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    border: 1px solid rgba(139, 151, 255, 0.4);
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--accent-soft);
+  }
+
+  /* ══ ONE SCRIPT · BENTO ══ a label cell spanning two rows, four picture-over-caption cards, the framework strip across the foot */
+  .bento {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1fr;
+  }
+  .bento__label {
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 36px 34px;
+    border-right: 1px solid var(--rule-08);
+  }
+  .bento__title {
+    margin: 6px 0 0;
+    font-size: 34px;
+    line-height: 38px;
+    letter-spacing: -0.9px;
+    font-weight: 500;
+  }
+  .bento__title em {
+    font-style: normal;
+    color: var(--accent-soft);
+  }
+  .bento__label p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--mid);
+    max-width: 30ch;
+  }
+  .bento__label .btn {
+    margin-top: auto;
+  }
+  .bento__cell {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--rule-08);
+    border-bottom: 1px solid var(--rule-08);
+  }
+  /* children: label, then cards 2–5 across two rows; 3 and 5 close the right edge, 4 and 5 sit on the strip */
+  .bento__cell:nth-child(3),
+  .bento__cell:nth-child(5) {
+    border-right: 0;
+  }
+  .bento__cell:nth-child(4),
+  .bento__cell:nth-child(5) {
+    border-bottom: 0;
+  }
+  /* the picture sits on hatched paper, like cloudflare.com's card illustrations */
+  .bento__art {
+    height: 132px;
+    display: grid;
+    place-items: center;
+    border-bottom: 1px solid var(--rule-08);
+    background-image: repeating-linear-gradient(315deg, var(--wall-ink-dense) 0 1px, transparent 0 50%);
+    background-size: 10px 10px;
+    color: var(--text);
+  }
+  .bento__text {
+    padding: 22px 26px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .bento__text .label {
+    margin-top: -4px;
+  }
+  .bento__text p {
+    margin: 0;
+    font-size: 14.5px;
+    line-height: 22px;
+    color: var(--mid);
+  }
+  .bento__cell--volt {
+    background: var(--volt);
+    color: var(--on-volt);
+  }
+  .bento__cell--volt .bento__art {
+    border-bottom-color: rgba(242, 245, 255, 0.18);
+    background-image: repeating-linear-gradient(315deg, rgba(242, 245, 255, 0.09) 0 1px, transparent 0 50%);
+    color: var(--on-volt);
+  }
+  .bento__cell--volt .label,
+  .bento__cell--volt .bento__text p {
+    color: var(--on-volt);
+    opacity: 0.82;
+  }
+  .bento__cell--volt .stat b {
+    color: var(--on-volt);
+  }
+  .bento > .fws {
+    grid-column: 1 / -1;
+  }
+  /* the pictures */
+  .sart {
+    color: inherit;
+    opacity: 0.85;
+  }
+  svg.sart {
+    width: 280px;
+    height: 90px;
+  }
+  .sart--chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--rule-22);
+    border-radius: 6px;
+    background: var(--canvas);
+    font-family: var(--mono);
+    font-size: 12px;
+    opacity: 1;
+  }
+  .sart--chip code {
+    white-space: nowrap;
+    color: var(--text);
+    opacity: 0.9;
+  }
+  .sart--chip .tag {
+    color: var(--mid);
+  }
+  .sart--chip .str {
+    color: var(--accent-soft);
+  }
+  .sart--chip b {
+    font-weight: 500;
+    font-size: 11px;
+    color: var(--accent-soft);
+    padding: 2px 6px;
+    border-radius: 3px;
+    background: rgba(139, 151, 255, 0.12);
+  }
+
+  /* ══ ONE SCRIPT · SNIPPET ══ the install snippet on hatched paper beside a stack of stat rows */
+  .snip {
+    display: grid;
+    grid-template-columns: 1.55fr 1fr;
+  }
+  .snip__code {
+    display: flex;
+    padding: 18px;
+    border-right: 1px solid var(--rule-08);
+    background-image: repeating-linear-gradient(315deg, var(--wall-ink-dense) 0 1px, transparent 0 50%);
+    background-size: 10px 10px;
+  }
+  /* the code frame shares the MCP transcript's chrome */
+  .cf {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid rgba(235, 232, 230, 0.09);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #08080a;
+  }
+  .cf__tabs {
+    display: flex;
+    gap: 2px;
+    padding: 8px 10px 0;
+    border-bottom: 1px solid rgba(235, 232, 230, 0.07);
+    background: rgba(235, 232, 230, 0.03);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .cf__tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 12px 10px;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    margin-bottom: -1px;
+    background: transparent;
+    color: var(--mid);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      color 0.2s var(--ease),
+      border-color 0.2s var(--ease);
+  }
+  .cf__tabs button img {
+    width: 13px;
+    height: 13px;
+    opacity: 0.8;
+  }
+  .cf__tabs button:hover {
+    color: var(--text);
+  }
+  .cf__tabs button.is-on {
+    color: var(--text);
+    border-bottom-color: var(--accent-soft);
+  }
+  .cf__code {
+    flex: 1;
+    margin: 0;
+    padding: 20px 22px 24px;
+    font-family: var(--mono);
     font-size: 12.5px;
     color: var(--mid);
   }
   @media (max-width: 640px) {
-    .tst {
-      width: 300px;
+    .bento {
+      grid-template-columns: 1fr;
+    }
+    .bento__cell {
+      border-right: 0;
+    }
+    .bento__cell:nth-child(4) {
+      border-bottom: 1px solid var(--rule-08);
+    }
+    .bento__label {
+      padding: 28px 22px;
+    }
+    .bento__title {
+      font-size: 28px;
+      line-height: 32px;
+    }
+    .snip__rows {
+      grid-template-columns: 1fr;
+    }
+    .snip__row {
+      border-bottom: 1px solid var(--rule-08);
+    }
+    .snip__row:nth-child(odd) {
+      border-right: 0;
+    }
+    .snip__row:last-child {
+      border-bottom: 0;
     }
   }
 
@@ -4043,10 +4390,6 @@
     .ev__row.new {
       animation: none;
     }
-    .fw__row,
-    .tst__row {
-      animation: none;
-    }
   }
 }
 
@@ -4058,14 +4401,6 @@
   }
   50% {
     opacity: 0.35;
-  }
-}
-@keyframes lp2-slide {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
   }
 }
 @keyframes lp2-ag-pulse {

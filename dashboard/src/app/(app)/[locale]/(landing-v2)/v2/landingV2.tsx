@@ -3,13 +3,11 @@ import { Nav } from './components/nav/nav';
 import { CtaSection } from './components/sections/ctaSection';
 import { CustomersSection } from './components/sections/customersSection';
 import { DemoSection } from './components/sections/demoSection';
-import { FrameworksSection } from './components/sections/frameworksSection';
 import { HeroSection } from './components/sections/heroSection';
 import { JourneySection } from './components/sections/journeySection';
 import { McpSection } from './components/sections/mcpSection';
 import { NetworkSection } from './components/sections/networkSection';
 import { PricingSection } from './components/sections/pricingSection';
-import { TestimonialsSection } from './components/sections/testimonialsSection';
 import { BrandMarkDefs } from './components/ui/brandMark';
 import { WallInk } from './components/ui/inkFrame';
 import { COPY } from './content/copy';
@@ -42,9 +40,7 @@ export function LandingV2() {
             <CustomersSection />
             <JourneySection />
             <McpSection />
-            <FrameworksSection />
             <NetworkSection />
-            <TestimonialsSection />
             <PricingSection />
           </div>
           <CtaSection />
