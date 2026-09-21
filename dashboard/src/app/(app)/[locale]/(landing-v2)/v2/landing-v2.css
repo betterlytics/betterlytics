@@ -249,6 +249,12 @@
     font-weight: 400;
     color: var(--mid);
   }
+  /* under a number the label is its name, so it takes full ink and the body stays mid */
+  .stat + .label,
+  .snip__row .label {
+    color: var(--text);
+    font-weight: 500;
+  }
   .num {
     font-variant-numeric: tabular-nums;
   }
@@ -3367,7 +3373,6 @@
   }
   .statpanel .cell--volt .label {
     color: var(--on-volt);
-    opacity: 0.75;
   }
   .statpanel .cell--volt .stat b {
     color: var(--on-volt);
@@ -3720,7 +3725,9 @@
     background-image: repeating-linear-gradient(315deg, rgba(242, 245, 255, 0.09) 0 1px, transparent 0 50%);
     color: var(--on-volt);
   }
-  .bento__cell--volt .label,
+  .bento__cell--volt .label {
+    color: var(--on-volt);
+  }
   .bento__cell--volt .bento__text p {
     color: var(--on-volt);
     opacity: 0.82;
@@ -3909,7 +3916,9 @@
     width: 190px;
     height: auto;
   }
-  .snip__row--volt .label,
+  .snip__row--volt .label {
+    color: var(--on-volt);
+  }
   .snip__row--volt p {
     color: var(--on-volt);
     opacity: 0.82;
