@@ -1,3 +1,4 @@
+import { EuSeal } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/euSeal';
 import { FrameworkStrip } from '@/app/(app)/[locale]/(landing-v2)/v2/components/sections/frameworkStrip';
 import { SnippetPanel } from '@/app/(app)/[locale]/(landing-v2)/v2/components/sections/snippetPanel';
 import { CountUp } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/countUp';
@@ -35,6 +36,8 @@ export function NetworkSnippet() {
               </Reveal>
             ))}
             <Reveal className='snip__row snip__row--volt' index={copy.stats.length}>
+              {/* the seal, watermarked off the row's corner: a certificate, not a selected tab */}
+              <EuSeal variant='lock' />
               <div className='stat'>
                 <b>{copy.thesis.value}</b>
               </div>

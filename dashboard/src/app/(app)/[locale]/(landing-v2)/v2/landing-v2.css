@@ -3243,12 +3243,20 @@
   }
   .fwb__label p {
     margin: 0;
-    font-size: 14.5px;
-    line-height: 1.5;
+    font-size: 17px;
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
     color: var(--text);
   }
   .fwb__label p + p {
     margin-top: 4px;
+    font-size: 13.5px;
+    line-height: 20px;
+    font-weight: 400;
+    letter-spacing: 0;
+    white-space: normal;
     color: var(--mid);
   }
   .fwb__label em {
@@ -3720,6 +3728,13 @@
   .bento__cell--volt .stat b {
     color: var(--on-volt);
   }
+  /* the seal is the card's picture here, so it sits in flow at full strength */
+  .bento__art .seal {
+    position: static;
+    width: 104px;
+    height: auto;
+    opacity: 0.92;
+  }
   .bento > .fws {
     grid-column: 1 / -1;
   }
@@ -3879,8 +3894,20 @@
     color: var(--mid);
   }
   .snip__row--volt {
+    position: relative;
+    overflow: hidden;
     background: var(--volt);
     color: var(--on-volt);
+  }
+  .snip__row--volt > :not(.seal) {
+    position: relative;
+    z-index: 1;
+  }
+  .snip__row--volt .seal--lock {
+    right: -34px;
+    bottom: -88px;
+    width: 190px;
+    height: auto;
   }
   .snip__row--volt .label,
   .snip__row--volt p {
@@ -3902,22 +3929,33 @@
     padding: 22px 30px;
     border-top: 1px solid var(--rule-08);
   }
+  /* the claim on one line, set like the MCP side's "Ask questions, not queries." */
   .fws__lab {
     margin: 0;
     flex: none;
     display: flex;
     flex-direction: column;
-    font-size: 14.5px;
-    line-height: 1.45;
+    gap: 2px;
+    font-size: 17px;
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
     color: var(--text);
+  }
+  .fws__lab b {
+    font-weight: inherit;
   }
   .fws__lab em {
     font-style: normal;
     color: #6b7aff;
-    font-weight: 500;
   }
   .fws__lab span {
-    font-size: 13px;
+    font-size: 13.5px;
+    line-height: 20px;
+    font-weight: 400;
+    letter-spacing: 0;
+    white-space: normal;
     color: var(--mid);
   }
   .fws__row {
@@ -3927,7 +3965,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 6px 20px;
+    gap: 6px 14px;
   }
   /* at rest the marks are monochrome, like the customer wall; colour comes back under the pointer */
   .fws__row li {

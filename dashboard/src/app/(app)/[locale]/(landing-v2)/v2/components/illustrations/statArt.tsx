@@ -56,23 +56,3 @@ export function CaptureArt() {
     </svg>
   );
 }
-
-/** The twelve stars, and nothing inside them. */
-export function CookieArt() {
-  const pts = (cx: number, cy: number, r: number) =>
-    Array.from({ length: 10 }, (_, i) => {
-      const a = -Math.PI / 2 + (i * Math.PI) / 5;
-      const rr = i % 2 === 0 ? r : r * 0.42;
-      return `${(cx + Math.cos(a) * rr).toFixed(2)},${(cy + Math.sin(a) * rr).toFixed(2)}`;
-    }).join(' ');
-  return (
-    <svg className='sart' viewBox='0 0 260 84' width='260' height='84' aria-hidden>
-      <g fill='currentColor'>
-        {Array.from({ length: 12 }, (_, i) => {
-          const a = -Math.PI / 2 + (i * 2 * Math.PI) / 12;
-          return <polygon key={i} points={pts(130 + Math.cos(a) * 32, 42 + Math.sin(a) * 32, 4)} />;
-        })}
-      </g>
-    </svg>
-  );
-}

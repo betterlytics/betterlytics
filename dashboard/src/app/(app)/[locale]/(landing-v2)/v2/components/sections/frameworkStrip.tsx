@@ -13,7 +13,9 @@ export function FrameworkStrip({ className }: { className?: string }) {
   return (
     <div className={cn('fws', className)}>
       <p className='fws__lab'>
-        <Emphasis text={COPY.frameworks.title} wrap={(span) => <em>{span}</em>} />
+        <b>
+          <Emphasis text={COPY.frameworks.title} wrap={(span) => <em>{span}</em>} />
+        </b>
         <span>{COPY.frameworks.lede}</span>
       </p>
       <ul className='fws__row'>

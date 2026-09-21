@@ -1,4 +1,5 @@
-import { CaptureArt, CookieArt, LagArt, ScriptArt } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/statArt';
+import { EuSeal } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/euSeal';
+import { CaptureArt, LagArt, ScriptArt } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/statArt';
 import { FrameworkStrip } from '@/app/(app)/[locale]/(landing-v2)/v2/components/sections/frameworkStrip';
 import { CountUp } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/countUp';
 import { Emphasis } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/emphasis';
@@ -50,7 +51,8 @@ export function NetworkBento() {
         })}
         <Reveal className='bento__cell bento__cell--volt' index={copy.stats.length}>
           <div className='bento__art'>
-            <CookieArt />
+            {/* the same seal the other layouts watermark, here as the picture itself */}
+            <EuSeal variant='lock' />
           </div>
           <div className='bento__text'>
             <div className='stat'>
