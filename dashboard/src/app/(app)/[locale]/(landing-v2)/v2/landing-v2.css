@@ -3855,10 +3855,15 @@
     font-family: var(--mono);
     font-size: 12.5px;
     line-height: 1.75;
-    color: rgba(235, 232, 230, 0.86);
+    color: rgba(235, 232, 230, 0.72);
     white-space: pre;
     overflow-x: auto;
     min-height: 260px;
+  }
+  /* the global code rule would swap the face; the frame sets it */
+  .cf__code code,
+  .sart--chip code {
+    font: inherit;
   }
   .cf__code .str {
     color: var(--accent-soft);
@@ -3866,7 +3871,8 @@
   .cf__code .tag {
     color: var(--text);
   }
-  .cf__code .kw {
+  .cf__code .kw,
+  .cf__code .attr {
     color: var(--mid);
   }
   .cf__code .var {

@@ -6,9 +6,11 @@ import { cn } from '@/lib/utils';
 import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
 import { SNIPPETS } from '@/app/(app)/[locale]/(landing-v2)/v2/content/snippets';
 
-/* strings, tags, keywords and comments get a tone each; everything else is plain */
+/* The page's palette, not an editor theme: strings take the accent, tag names
+   full ink, and attribute names, keywords and template variables recede, so the
+   URL and the site id are what the eye lands on. */
 const TOKEN =
-  /("[^"]*"|'[^']*')|(<\/?[a-zA-Z][\w:.-]*|\/?>)|(\b(?:import|export|default|from|function|return|async|true)\b)|(%[\w.]+%)/g;
+  /("[^"]*"|'[^']*')|(<\/?[a-zA-Z][\w:.-]*|\/?>)|(\b(?:import|export|default|from|function|return|async|true)\b)|(%[\w.]+%)|([\w:@-]+(?==)|\b[\w-]+(?=:\s))/g;
 
 function Highlight({ code }: { code: string }) {
   const out = [];
@@ -17,7 +19,7 @@ function Highlight({ code }: { code: string }) {
   TOKEN.lastIndex = 0;
   while ((m = TOKEN.exec(code))) {
     if (m.index > last) out.push(<Fragment key={last}>{code.slice(last, m.index)}</Fragment>);
-    const cls = m[1] ? 'str' : m[2] ? 'tag' : m[3] ? 'kw' : 'var';
+    const cls = m[1] ? 'str' : m[2] ? 'tag' : m[3] ? 'kw' : m[4] ? 'var' : 'attr';
     out.push(
       <span key={m.index} className={cls}>
         {m[0]}
