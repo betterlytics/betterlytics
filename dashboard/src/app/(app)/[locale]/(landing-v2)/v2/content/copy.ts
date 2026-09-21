@@ -70,6 +70,9 @@ export const COPY = {
   network: {
     title: 'One script, nothing else to add',
     lede: 'Here is exactly what it costs your site.',
+    /* bento variant: the chip above the headline and the label cell's button */
+    pill: 'analytics.js · 4.9 kB gzipped',
+    cta: 'Read the install guide',
     /* Script size is the gzipped static/analytics.js; the other two figures come from the draft. */
     stats: [
       {

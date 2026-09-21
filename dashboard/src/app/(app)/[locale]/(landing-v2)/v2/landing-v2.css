@@ -3259,14 +3259,15 @@
   .fwb__cell {
     display: flex;
     align-items: center;
-    gap: 11px;
-    padding: 9px 18px 9px 9px;
-    border: 1px solid var(--rule-10);
-    border-radius: 8px;
-    background: linear-gradient(180deg, rgba(235, 232, 230, 0.045), rgba(235, 232, 230, 0.014));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    justify-content: center;
+    gap: 10px;
+    padding: 21px 12px;
+    border-right: 1px solid var(--rule-08);
+    border-bottom: 1px solid var(--rule-08);
+    color: var(--text);
+    opacity: 0.8;
     white-space: nowrap;
-    transition: border-color 0.22s var(--ease);
+    transition: opacity 0.22s var(--ease);
   }
   .fwb__cell:hover {
     opacity: 1;
@@ -3401,19 +3402,19 @@
     right: -48px;
     bottom: -56px;
   }
-  .statpanel .stat {
+  .stat {
     display: flex;
     align-items: baseline;
     gap: 5px;
   }
-  .statpanel .stat b {
+  .stat b {
     font-size: 40px;
     line-height: 40px;
     letter-spacing: -1.4px;
     font-weight: 500;
     font-variant-numeric: tabular-nums;
   }
-  .statpanel .stat em {
+  .stat em {
     font-style: normal;
     font-size: 19px;
     letter-spacing: -0.3px;
@@ -3467,15 +3468,16 @@
   .fq__item {
     grid-area: 1 / 1;
     margin: 0;
-    padding: 26px;
-    border: 1px solid var(--rule-10);
-    border-radius: 10px;
-    background: linear-gradient(180deg, rgba(235, 232, 230, 0.036), rgba(235, 232, 230, 0.016));
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     display: flex;
     flex-direction: column;
-    gap: 22px;
-    transition: border-color 0.22s var(--ease);
+    align-items: center;
+    gap: 26px;
+    text-align: center;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.5s var(--ease),
+      visibility 0s linear 0.5s;
   }
   .fq__item.is-on {
     opacity: 1;
@@ -3491,6 +3493,8 @@
     line-height: 34px;
     letter-spacing: -0.6px;
     font-weight: 500;
+    color: var(--text);
+    text-wrap: balance;
   }
   .fq blockquote p::before {
     content: '\201C';
@@ -3506,7 +3510,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: auto;
+    text-align: left;
   }
   .fq__av {
     width: 44px;
@@ -3518,8 +3522,7 @@
     background: rgba(235, 232, 230, 0.07);
     border: 1px solid var(--rule-08);
     font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.04em;
+    font-size: 12px;
     color: var(--mid);
     overflow: hidden;
   }
@@ -3531,7 +3534,7 @@
   }
   .fq__who b {
     display: block;
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 500;
     letter-spacing: -0.1px;
   }
@@ -3829,7 +3832,205 @@
     padding: 20px 22px 24px;
     font-family: var(--mono);
     font-size: 12.5px;
+    line-height: 1.75;
+    color: rgba(235, 232, 230, 0.86);
+    white-space: pre;
+    overflow-x: auto;
+    min-height: 260px;
+  }
+  .cf__code .str {
+    color: var(--accent-soft);
+  }
+  .cf__code .tag {
+    color: var(--text);
+  }
+  .cf__code .kw {
     color: var(--mid);
+  }
+  .cf__code .var {
+    color: var(--mid);
+    font-style: italic;
+  }
+  .snip__rows {
+    display: flex;
+    flex-direction: column;
+  }
+  .snip__row {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 108px 1fr;
+    gap: 18px;
+    align-items: start;
+    padding: 18px 26px;
+    border-bottom: 1px solid var(--rule-08);
+  }
+  .snip__row:last-child {
+    border-bottom: 0;
+  }
+  .snip__row .stat b {
+    font-size: 30px;
+    line-height: 32px;
+    letter-spacing: -1px;
+  }
+  .snip__row p {
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--mid);
+  }
+  .snip__row--volt {
+    background: var(--volt);
+    color: var(--on-volt);
+  }
+  .snip__row--volt .label,
+  .snip__row--volt p {
+    color: var(--on-volt);
+    opacity: 0.82;
+  }
+  .snip__row--volt .stat b {
+    color: var(--on-volt);
+  }
+  .snip > .fws {
+    grid-column: 1 / -1;
+  }
+
+  /* ══ FRAMEWORK STRIP ══ the claim, then one quiet mark per framework */
+  .fws {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 22px 30px;
+    border-top: 1px solid var(--rule-08);
+  }
+  .fws__lab {
+    margin: 0;
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    font-size: 14.5px;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .fws__lab em {
+    font-style: normal;
+    color: #6b7aff;
+    font-weight: 500;
+  }
+  .fws__lab span {
+    font-size: 13px;
+    color: var(--mid);
+  }
+  .fws__row {
+    list-style: none;
+    margin: 0 0 0 auto;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px 20px;
+  }
+  /* at rest the marks are monochrome, like the customer wall; colour comes back under the pointer */
+  .fws__row li {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    opacity: 0.75;
+    transition: opacity 0.2s var(--ease);
+  }
+  .fws__row li:hover {
+    opacity: 1;
+  }
+  .fws__row img {
+    width: 20px;
+    height: 20px;
+    filter: grayscale(1) brightness(1.4);
+    transition: filter 0.2s var(--ease);
+  }
+  .fws__row li:hover img {
+    filter: none;
+  }
+  /* marks drawn in black would vanish on canvas */
+  .fws__row li[data-dark] img {
+    filter: invert(1) grayscale(1);
+  }
+  .fws__row li[data-dark]:hover img {
+    filter: invert(1);
+  }
+  /* stacked inside the bento's label cell: caption over a left-aligned wrap of marks */
+  .fws--stack {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 0;
+    border-top: 0;
+    margin-top: 6px;
+  }
+  .fws--stack .fws__row {
+    margin-left: 0;
+    justify-content: flex-start;
+    gap: 4px 10px;
+    max-width: 340px;
+  }
+  /* the frame's foot: what the tag fetched, as the browser's network panel would list it */
+  .cf__foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 16px;
+    border-top: 1px solid rgba(235, 232, 230, 0.07);
+    background: rgba(235, 232, 230, 0.02);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    color: var(--mid);
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .cf__foot b {
+    font-weight: 400;
+    color: var(--text);
+  }
+  .cf__foot .ok {
+    color: var(--accent-soft);
+  }
+  @media (max-width: 1000px) {
+    .bento {
+      grid-template-columns: 1fr 1fr;
+    }
+    .bento__label {
+      grid-row: auto;
+      grid-column: 1 / -1;
+      border-right: 0;
+      border-bottom: 1px solid var(--rule-08);
+    }
+    .snip {
+      grid-template-columns: 1fr;
+    }
+    .snip__code {
+      border-right: 0;
+      border-bottom: 1px solid var(--rule-08);
+    }
+    .snip__rows {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    .snip__row:nth-child(odd) {
+      border-right: 1px solid var(--rule-08);
+    }
+    .snip__row:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+    .fws {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .fws__row {
+      margin-left: 0;
+      justify-content: flex-start;
+    }
   }
   @media (max-width: 640px) {
     .bento {

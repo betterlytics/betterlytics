@@ -10,6 +10,7 @@ import { NetworkSection } from './components/sections/networkSection';
 import { PricingSection } from './components/sections/pricingSection';
 import { BrandMarkDefs } from './components/ui/brandMark';
 import { WallInk } from './components/ui/inkFrame';
+import { VariantProvider, VariantToggle } from './components/ui/variants';
 import { COPY } from './content/copy';
 import { IDS } from './lib/ids';
 
@@ -21,7 +22,7 @@ import { IDS } from './lib/ids';
  */
 export function LandingV2() {
   return (
-    <>
+    <VariantProvider>
       <BrandMarkDefs />
       <a className='skip' href={`#${IDS.main}`}>
         {COPY.nav.skip}
@@ -47,6 +48,7 @@ export function LandingV2() {
         </main>
         <LandingFooter />
       </div>
-    </>
+      <VariantToggle />
+    </VariantProvider>
   );
 }
