@@ -3628,26 +3628,26 @@
     justify-content: flex-end;
     gap: 6px 14px;
   }
-  /* at rest the marks are monochrome, like the customer wall; colour comes back under the pointer */
+  /* one flat tone at rest, like the customer wall; the brand colour (or full ink,
+     for brands too dark to read here) under the pointer */
   .fws__row li {
     display: grid;
     place-items: center;
-    width: 28px;
-    height: 28px;
-    opacity: 0.75;
-    transition: opacity 0.2s var(--ease);
+    width: 30px;
+    height: 30px;
+    color: var(--text);
+    opacity: 0.55;
+    transition:
+      opacity 0.2s var(--ease),
+      color 0.2s var(--ease);
   }
   .fws__row li:hover {
     opacity: 1;
+    color: var(--hover, var(--text));
   }
-  .fws__row img {
-    width: 20px;
-    height: 20px;
-    filter: grayscale(1) brightness(1.4);
-    transition: filter 0.2s var(--ease);
-  }
-  .fws__row li:hover img {
-    filter: none;
+  .fws__row svg {
+    width: 22px;
+    height: 22px;
   }
   /* the frame's foot: what the tag fetched, as the browser's network panel would list it */
   .cf__foot {
