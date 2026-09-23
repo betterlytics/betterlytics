@@ -8,6 +8,7 @@ import { JourneySection } from './components/sections/journeySection';
 import { McpSection } from './components/sections/mcpSection';
 import { NetworkSection } from './components/sections/networkSection';
 import { PricingSection } from './components/sections/pricingSection';
+import { TestimonialsSection } from './components/sections/testimonialsSection';
 import { BrandMarkDefs } from './components/ui/brandMark';
 import { WallInk } from './components/ui/inkFrame';
 import { VariantProvider, VariantToggle } from './components/ui/variants';
@@ -41,6 +42,7 @@ export function LandingV2() {
             <CustomersSection />
             <JourneySection />
             <McpSection />
+            <TestimonialsSection />
             <NetworkSection />
             <PricingSection />
           </div>

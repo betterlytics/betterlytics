@@ -494,10 +494,6 @@
     :is(
       .lg,
       .logos__label,
-      .fq,
-      .fwb,
-      .fwb__label,
-      .fwb__cell,
       .fws,
       .bento__label,
       .bento__cell,
@@ -3463,44 +3459,43 @@
     }
   }
 
-  /* ══ FEATURED QUOTE ══ one quote in display type under the logo wall. All
-     quotes share one grid cell, so the block is as tall as the longest and the
-     page never shifts when the quote turns over. */
-  .fq {
-    border-top: 1px solid var(--rule-08);
-    padding: 52px 30px 40px;
+  /* ══ TESTIMONIALS ══ cards, deliberately unlike the framework tiles */
+  .tsts {
+    overflow: hidden;
+    position: relative;
+    padding: 26px 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  .tst__row {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 28px;
+    gap: 16px;
+    width: max-content;
+    animation: lp2-slide 40s linear infinite;
   }
-  .fq__stage {
-    display: grid;
-    width: min(100%, 860px);
+  .tst__row + .tst__row {
+    margin-top: 16px;
+    animation-duration: 50s;
+    animation-direction: reverse;
   }
-  .fq__item {
-    grid-area: 1 / 1;
+  .tsts:hover .tst__row {
+    animation-play-state: paused;
+  }
+  /* the tile material again, but the gradient is gentler on a card this tall so
+     it reads as a surface, not a glossy button */
+  .tst {
+    flex: none;
+    width: 392px;
     margin: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 26px;
-    text-align: center;
-    opacity: 0;
-    visibility: hidden;
-    transition:
-      opacity 0.5s var(--ease),
-      visibility 0s linear 0.5s;
+    gap: 22px;
+    transition: border-color 0.22s var(--ease);
   }
-  .fq__item.is-on {
-    opacity: 1;
-    visibility: visible;
-    transition-delay: 0s;
+  .tst:hover {
+    border-color: var(--rule-22);
   }
-  .fq blockquote {
-    margin: 0;
-  }
-  .fq blockquote p {
+  .tst blockquote {
     margin: 0;
     font-size: 26px;
     line-height: 34px;
@@ -3509,25 +3504,44 @@
     color: var(--text);
     text-wrap: balance;
   }
-  .fq blockquote p::before {
-    content: '\201C';
+  .tst blockquote b {
+    font-weight: 400;
+    color: var(--accent-soft);
   }
-  .fq blockquote p::after {
-    content: '\201D';
+  .tst--volt {
+    background: var(--volt);
+    border-color: transparent;
   }
-  .fq blockquote b {
+  .tst--volt blockquote {
+    color: var(--on-volt);
+    opacity: 0.95;
+  }
+  .tst--volt blockquote b {
+    color: var(--on-volt);
     font-weight: 500;
     color: var(--accent-soft);
   }
-  .fq figcaption {
+  .tst--volt .tst__who b {
+    color: var(--on-volt);
+  }
+  .tst--volt .tst__who span {
+    color: var(--on-volt);
+    opacity: 0.72;
+  }
+  .tst--volt .tst__av {
+    background: rgba(242, 245, 255, 0.16);
+    border-color: rgba(242, 245, 255, 0.28);
+    color: var(--on-volt);
+  }
+  .tst figcaption {
     display: flex;
     align-items: center;
     gap: 12px;
     text-align: left;
   }
-  .fq__av {
-    width: 44px;
-    height: 44px;
+  .tst__av {
+    width: 38px;
+    height: 38px;
     flex: none;
     border-radius: 50%;
     display: grid;
@@ -3539,176 +3553,26 @@
     color: var(--mid);
     overflow: hidden;
   }
-  .fq__av img {
+  .tst__av img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
   }
-  .fq__who b {
+  .tst__who b {
     display: block;
     font-size: 14.5px;
     font-weight: 500;
     letter-spacing: -0.1px;
   }
-  .fq__who span {
-    font-size: 13px;
+  .tst__who span {
+    font-size: 12.5px;
     color: var(--mid);
-  }
-  .fq__dots {
-    display: flex;
-    gap: 8px;
-  }
-  .fq__dots button {
-    width: 6px;
-    height: 6px;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: rgba(235, 232, 230, 0.18);
-    cursor: pointer;
-    transition: background 0.22s var(--ease);
-  }
-  .fq__dots button:hover {
-    background: var(--mid);
-  }
-  .fq__dots button.is-on {
-    background: var(--accent-soft);
   }
   @media (max-width: 640px) {
-    .fq {
-      padding: 36px 20px 28px;
+    .tst {
+      width: 300px;
     }
-    .fq blockquote p {
-      font-size: 21px;
-      line-height: 28px;
-      letter-spacing: -0.4px;
-    }
-  }
-
-  /* ══ VARIANT TOGGLE ══ preview-only, bottom right */
-  .vt {
-    position: fixed;
-    right: 18px;
-    bottom: 18px;
-    z-index: 60;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px;
-    border-radius: 999px;
-    background: rgba(21, 20, 20, 0.92);
-    border: 1px solid var(--rule-22);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
-    backdrop-filter: blur(8px);
-    font-family: var(--mono);
-    font-size: 11.5px;
-  }
-  .vt__lab {
-    padding: 0 8px 0 10px;
-    color: var(--mid);
-  }
-  .vt button {
-    border: 0;
-    background: transparent;
-    color: var(--mid);
-    padding: 6px 11px;
-    border-radius: 999px;
-    cursor: pointer;
-    font: inherit;
-    transition:
-      background 0.2s var(--ease),
-      color 0.2s var(--ease);
-  }
-  .vt button:hover {
-    color: var(--text);
-  }
-  .vt button.is-on {
-    background: var(--volt-lift);
-    color: var(--on-volt);
-  }
-
-  /* ══ ONE SCRIPT · BENTO ══ a label cell spanning two rows, four picture-over-caption cards, the framework strip across the foot */
-  .bento {
-    display: grid;
-    grid-template-columns: 1.15fr 1fr 1fr;
-  }
-  .bento__label {
-    grid-row: 1 / span 2;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 18px;
-    padding: 36px 34px;
-    border-right: 1px solid var(--rule-08);
-  }
-  .bento__title {
-    margin: 0;
-    font-size: 34px;
-    line-height: 38px;
-    letter-spacing: -0.9px;
-    font-weight: 500;
-  }
-  .bento__title em {
-    font-style: normal;
-    color: var(--accent-soft);
-  }
-  .bento__label p {
-    margin: 0;
-    font-size: 16px;
-    line-height: 24px;
-    color: var(--mid);
-    max-width: 30ch;
-  }
-  .bento__label .btn {
-    margin-top: auto;
-  }
-  .bento__cell {
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--rule-08);
-    border-bottom: 1px solid var(--rule-08);
-  }
-  /* children: label, then cards 2–5 across two rows; 3 and 5 close the right edge, 4 and 5 sit on the strip */
-  .bento__cell:nth-child(3),
-  .bento__cell:nth-child(5) {
-    border-right: 0;
-  }
-  .bento__cell:nth-child(4),
-  .bento__cell:nth-child(5) {
-    border-bottom: 0;
-  }
-  .bento__cell {
-    padding: 34px 30px 36px;
-    gap: 10px;
-  }
-  .bento__cell .label {
-    margin-top: -4px;
-  }
-  .bento__cell p {
-    margin: 4px 0 0;
-    font-size: 15px;
-    line-height: 23px;
-    color: var(--mid);
-  }
-  /* the thesis card: volt, with the seal watermarked off its corner as on the board */
-  .bento__cell--volt {
-    position: relative;
-    overflow: hidden;
-    background: var(--volt);
-    color: var(--on-volt);
-  }
-  .bento__cell--volt > :not(.seal) {
-    position: relative;
-    z-index: 1;
-  }
-  .bento__cell--volt .label,
-  .bento__cell--volt .stat b {
-    color: var(--on-volt);
-  }
-  .bento__cell--volt p {
-    color: var(--on-volt);
-    opacity: 0.85;
   }
 
   /* ══ ONE SCRIPT · SNIPPET ══ the install snippet on hatched paper beside a stack of stat rows */
@@ -4379,10 +4243,21 @@
   .card--cta .card__body .lede {
     color: var(--on-volt);
     opacity: 0.84;
+    .tst__row {
+      animation: none;
+    }
   }
   @media (max-width: 900px) {
     .card--cta {
       height: auto;
+@keyframes lp2-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
       padding: 64px 0 100px;
     }
   }

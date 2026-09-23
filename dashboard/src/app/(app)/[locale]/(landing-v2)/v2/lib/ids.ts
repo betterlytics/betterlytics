@@ -10,5 +10,6 @@ export const IDS = {
   journey: 'journey',
   mcp: 'mcp',
   network: 'network',
+  quotes: 'quotes',
   pricing: 'pricing',
 } as const;
