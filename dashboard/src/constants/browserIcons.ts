@@ -1,109 +1,116 @@
-type BrowserBase = {
+export type IconAsset = {
+  file: string;
+  source?: string;
+  mono?: true;
+};
+
+type BrowserDef = IconAsset & {
   label: string;
   match: RegExp[];
 };
 
-type BrowserWithIcon = BrowserBase & {
-  icon: string;
-  localFile?: never;
-};
-
-type BrowserWithLocalFile = BrowserBase & {
-  localFile: string;
-  icon?: never;
-};
-
-type BrowserDef = BrowserWithIcon | BrowserWithLocalFile;
-
 export const BROWSERS: Record<string, BrowserDef> = {
   chrome: {
     label: 'Google Chrome',
-    icon: 'logos:chrome',
+    file: 'chrome.svg',
+    source: 'logos/chrome',
     match: [/chromium|crios|crmo|webview|cwv/, /\bchrome\b/],
   },
   firefox: {
     label: 'Mozilla Firefox',
-    icon: 'logos:firefox',
+    file: 'firefox.svg',
+    source: 'logos/firefox',
     match: [/firefox|fxios/],
   },
   safari: {
     label: 'Safari',
-    icon: 'logos:safari',
+    file: 'safari.svg',
+    source: 'logos/safari',
     match: [/mobile\s+safari|\bsafari\b/],
   },
   edge: {
     label: 'Microsoft Edge',
-    icon: 'logos:microsoft-edge',
+    file: 'edge.svg',
+    source: 'logos/microsoft-edge',
     match: [/edge|edgios|edga|\bedg\b/],
   },
   opera: {
     label: 'Opera',
-    icon: 'logos:opera',
+    file: 'opera.svg',
+    source: 'logos/opera',
     match: [/opera|\bopr\b/],
   },
   brave: {
     label: 'Brave',
-    icon: 'logos:brave',
+    file: 'brave.svg',
+    source: 'logos/brave',
     match: [/brave/],
   },
   vivaldi: {
     label: 'Vivaldi',
-    icon: 'logos:vivaldi',
+    file: 'vivaldi.svg',
+    source: 'logos/vivaldi',
     match: [/vivaldi/],
   },
   arc: {
     label: 'Arc',
-    icon: 'simple-icons:arc',
+    file: 'arc.svg',
+    source: 'logos/arc',
     match: [/\barc\b/],
   },
   duckduckgo: {
     label: 'DuckDuckGo',
-    icon: 'logos:duckduckgo',
+    file: 'duckduckgo.svg',
+    source: 'logos/duckduckgo',
     match: [/duckduckgo/],
   },
   electron: {
     label: 'Electron',
-    icon: 'logos:electron',
+    file: 'electron.svg',
+    source: 'logos/electron',
     match: [/electron/],
   },
   samsunginternet: {
     label: 'Samsung Internet',
-    localFile: 'samsunginternet.svg',
+    file: 'samsunginternet.svg',
     match: [/samsung\s*internet/],
   },
   yandexbrowser: {
     label: 'Yandex Browser',
-    localFile: 'yandexbrowser.svg',
+    file: 'yandexbrowser.svg',
     match: [/yandex/],
   },
   ucbrowser: {
     label: 'UC Browser',
-    localFile: 'ucbrowser.svg',
+    file: 'ucbrowser.svg',
     match: [/uc[-_\s]?browser|uc[-_\s]?crawl|^uc\b/],
   },
   ecosia: {
     label: 'Ecosia',
-    localFile: 'ecosia.svg',
+    file: 'ecosia.svg',
     match: [/ecosia/],
   },
   google: {
     label: 'Google',
-    localFile: 'google.svg',
+    file: 'google.svg',
+    source: 'logos/google-icon',
     match: [/google\s+search/, /google/],
   },
   twitter: {
     label: 'Twitter',
-    localFile: 'twitter.svg',
+    file: 'twitter.svg',
+    source: 'logos/twitter',
     match: [/twitter/],
   },
   facebook: {
     label: 'Facebook',
-    localFile: 'facebook.svg',
+    file: 'facebook.svg',
+    source: 'logos/facebook',
     match: [/\bfbios\b/, /facebook/],
   },
   appleMail: {
     label: 'Apple Mail',
-    localFile: 'apple-mail.svg',
+    file: 'apple-mail.svg',
     match: [/apple\s+mail/],
   },
 } as const;
