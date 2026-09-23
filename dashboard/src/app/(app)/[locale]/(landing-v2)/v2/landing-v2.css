@@ -3673,6 +3673,15 @@
   .cf__foot .ok {
     color: var(--text);
   }
+  /* scrambling text (ui/scramble): the real text for screen readers, the scramble for the eye */
+  .scr__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
   @media (max-width: 1000px) {
     .snip {
       grid-template-columns: 1fr;

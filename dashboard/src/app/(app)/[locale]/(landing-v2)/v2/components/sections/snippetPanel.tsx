@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { Fragment, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { SCRAMBLE_STEP, Scramble } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/scramble';
 import { SNIPPETS } from '@/app/(app)/[locale]/(landing-v2)/v2/content/snippets';
 
 /* The page's palette, not an editor theme: strings take the accent, tag names
@@ -48,6 +49,41 @@ function Lines({ code }: { code: string }) {
   );
 }
 
+type FootPart = { text: string; strong?: boolean; className?: string };
+
+const FETCHED: FootPart[] = [
+  { text: 'GET' },
+  { text: '/analytics.js', strong: true },
+  { text: '200', className: 'ok' },
+  { text: 'async' },
+  { text: 'after paint' },
+];
+const BUNDLED: FootPart[] = [
+  { text: 'bundled' },
+  { text: '@betterlytics/tracker', strong: true },
+  { text: 'no extra request' },
+];
+/** the 14px gap between parts, in 11px mono characters */
+const GAP_CHARS = 2;
+
+/**
+ * The foot's parts spell in as one line: each starts where the sweep reaches
+ * its first character, so the scramble runs left to right across the gaps.
+ */
+function FootParts({ parts }: { parts: FootPart[] }) {
+  let at = 0;
+  return (
+    <>
+      {parts.map((part, i) => {
+        const delay = at * SCRAMBLE_STEP;
+        at += part.text.length + GAP_CHARS;
+        const scramble = <Scramble className={part.className} text={part.text} delay={delay} />;
+        return part.strong ? <b key={i}>{scramble}</b> : <Fragment key={i}>{scramble}</Fragment>;
+      })}
+    </>
+  );
+}
+
 /** A neutral box for the package tab: not npm's mark, since pnpm, yarn and bun are all welcome. */
 function BoxIcon() {
   return (
@@ -85,7 +121,8 @@ export function SnippetPanel() {
             {s.name}
           </button>
         ))}
-        {current.file ? <span className='cf__file'>{current.file}</span> : null}
+        {/* scrambles from the old file name into the new one on a tab change */}
+        {current.file ? <Scramble className='cf__file' text={current.file} /> : null}
       </div>
       {/* every snippet shares one grid cell, so the frame is always as tall as the
           longest and nothing below it moves when the tab changes */}
@@ -98,21 +135,7 @@ export function SnippetPanel() {
       </pre>
       {/* what the tag fetches, as the browser's network panel would list it; the package ships inside the bundle instead */}
       <div className='cf__foot' aria-hidden>
-        {current.bundled ? (
-          <>
-            <span>bundled</span>
-            <b>@betterlytics/tracker</b>
-            <span>no extra request</span>
-          </>
-        ) : (
-          <>
-            <span>GET</span>
-            <b>/analytics.js</b>
-            <span className='ok'>200</span>
-            <span>async</span>
-            <span>after paint</span>
-          </>
-        )}
+        <FootParts parts={current.bundled ? BUNDLED : FETCHED} />
       </div>
     </div>
   );
