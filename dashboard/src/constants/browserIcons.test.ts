@@ -38,4 +38,22 @@ describe('resolveBrowser', () => {
       expect(svg.includes('currentColor')).toBe(Boolean(def.mono));
     }
   });
+
+  it('resolves instagram to its hand-maintained file', () => {
+    const def = resolveBrowser('Instagram');
+    expect(def?.file).toBe('instagram.svg');
+    expect(def?.source).toBeUndefined();
+  });
+
+  it('resolves QQ Browser Mobile to its own entry, not the plain QQ Browser rule', () => {
+    expect(resolveBrowser('QQ Browser Mobile')?.label).toBe('QQ Browser Mobile');
+    expect(resolveBrowser('QQ Browser')?.label).toBe('QQ Browser');
+    expect(resolveBrowser('QQ Browser Mini')?.label).toBe('QQ Browser');
+  });
+
+  it('resolves the hand-maintained newcomers to their files', () => {
+    expect(resolveBrowser('Whale')?.file).toBe('whale.svg');
+    expect(resolveBrowser('Midori')?.file).toBe('midori.svg');
+    expect(resolveBrowser('Aloha Browser')?.file).toBe('aloha.svg');
+  });
 });

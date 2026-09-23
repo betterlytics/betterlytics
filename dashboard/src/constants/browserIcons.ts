@@ -113,6 +113,36 @@ export const BROWSERS: Record<string, BrowserDef> = {
     file: 'apple-mail.svg',
     match: [/apple\s+mail/],
   },
+  instagram: {
+    label: 'Instagram',
+    file: 'instagram.svg',
+    match: [/instagram/],
+  },
+  qqbrowsermobile: {
+    label: 'QQ Browser Mobile',
+    file: 'qq.svg',
+    match: [/qq\s*browser\s*mobile/],
+  },
+  qqbrowser: {
+    label: 'QQ Browser',
+    file: 'qq.svg',
+    match: [/qq\s*browser/],
+  },
+  whale: {
+    label: 'Whale',
+    file: 'whale.svg',
+    match: [/\bwhale\b/],
+  },
+  midori: {
+    label: 'Midori',
+    file: 'midori.svg',
+    match: [/midori/],
+  },
+  aloha: {
+    label: 'Aloha Browser',
+    file: 'aloha.svg',
+    match: [/aloha/],
+  },
 } as const;
 
 export function resolveBrowser(input: string) {
