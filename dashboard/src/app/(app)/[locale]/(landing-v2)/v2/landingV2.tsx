@@ -41,8 +41,8 @@ export function LandingV2() {
             <CustomersSection />
             <JourneySection />
             <McpSection />
-            <TestimonialsSection />
             <NetworkSection />
+            <TestimonialsSection />
             <PricingSection />
           </div>
           <CtaSection />

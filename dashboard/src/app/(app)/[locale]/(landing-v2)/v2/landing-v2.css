@@ -258,6 +258,9 @@
   .num {
     font-variant-numeric: tabular-nums;
   }
+  .num__dot {
+    font-variant-numeric: normal;
+  }
   .d1 {
     font-size: 56px;
     line-height: 55px;
@@ -3279,6 +3282,11 @@
     flex: none;
     width: 392px;
     margin: 0;
+    padding: 26px;
+    border: 1px solid var(--rule-10);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(235, 232, 230, 0.036), rgba(235, 232, 230, 0.016));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     display: flex;
     flex-direction: column;
     gap: 22px;
@@ -3289,12 +3297,11 @@
   }
   .tst blockquote {
     margin: 0;
-    font-size: 26px;
-    line-height: 34px;
-    letter-spacing: -0.6px;
-    font-weight: 500;
+    font-size: 15.5px;
+    line-height: 1.62;
     color: var(--text);
-    text-wrap: balance;
+    opacity: 0.9;
+    letter-spacing: -0.1px;
   }
   .tst blockquote b {
     font-weight: 400;
@@ -3311,7 +3318,6 @@
   .tst--volt blockquote b {
     color: var(--on-volt);
     font-weight: 500;
-    color: var(--accent-soft);
   }
   .tst--volt .tst__who b {
     color: var(--on-volt);
@@ -3329,7 +3335,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    text-align: left;
+    margin-top: auto;
   }
   .tst__av {
     width: 38px;
@@ -3341,7 +3347,8 @@
     background: rgba(235, 232, 230, 0.07);
     border: 1px solid var(--rule-08);
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
     color: var(--mid);
     overflow: hidden;
   }
@@ -3353,7 +3360,7 @@
   }
   .tst__who b {
     display: block;
-    font-size: 14.5px;
+    font-size: 14px;
     font-weight: 500;
     letter-spacing: -0.1px;
   }
@@ -3405,7 +3412,8 @@
     gap: 7px;
     padding: 8px 12px 10px;
     border: 0;
-    border-bottom: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-radius: 6px 6px 0 0;
     margin-bottom: -1px;
     background: transparent;
     color: var(--mid);
@@ -3415,6 +3423,7 @@
     white-space: nowrap;
     transition:
       color 0.2s var(--ease),
+      background 0.2s var(--ease),
       border-color 0.2s var(--ease);
   }
   .cf__tabs button img {
@@ -3425,9 +3434,25 @@
   .cf__tabs button:hover {
     color: var(--text);
   }
+  /* the active tab lifts: a surface behind it and the accent underline */
   .cf__tabs button.is-on {
     color: var(--text);
+    background: rgba(235, 232, 230, 0.06);
     border-bottom-color: var(--accent-soft);
+  }
+  .cf__tabs button.is-on img {
+    opacity: 1;
+  }
+  /* the active file, right-aligned in the bar like an editor breadcrumb */
+  .cf__file {
+    margin-left: auto;
+    align-self: center;
+    padding: 0 6px 2px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--mid);
+    opacity: 0.8;
+    white-space: nowrap;
   }
   .cf__code {
     flex: 1;
@@ -3440,6 +3465,15 @@
     white-space: pre;
     overflow-x: auto;
     min-height: 260px;
+    display: grid;
+    align-content: start;
+  }
+  .cf__pane {
+    grid-area: 1 / 1;
+    visibility: hidden;
+  }
+  .cf__pane.is-on {
+    visibility: visible;
   }
   /* the global code rule would swap the face; the frame sets it */
   .cf__code code {
@@ -3474,6 +3508,10 @@
     opacity: 1;
     border-left-color: var(--accent-soft);
     background: rgba(139, 151, 255, 0.07);
+  }
+  /* the accent belongs to the install alone: strings in the surrounding file stay plain */
+  .cf__code .ln:not(.is-add) .str {
+    color: inherit;
   }
   .cf__code .ln.is-add .tag {
     color: #fff;
@@ -3525,8 +3563,8 @@
     z-index: 1;
   }
   .snip__row--volt .seal--lock {
-    right: -34px;
-    bottom: -88px;
+    right: -50px;
+    bottom: -72px;
     width: 190px;
     height: auto;
   }
@@ -3988,21 +4026,10 @@
   .card--cta .card__body .lede {
     color: var(--on-volt);
     opacity: 0.84;
-    .tst__row {
-      animation: none;
-    }
   }
   @media (max-width: 900px) {
     .card--cta {
       height: auto;
-@keyframes lp2-slide {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
       padding: 64px 0 100px;
     }
   }
@@ -4216,10 +4243,21 @@
     .ev__row.new {
       animation: none;
     }
+    .tst__row {
+      animation: none;
+    }
   }
 }
 
 /* keyframes are global, hence the prefix */
+@keyframes lp2-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
 @keyframes lp2-blink {
   0%,
   100% {

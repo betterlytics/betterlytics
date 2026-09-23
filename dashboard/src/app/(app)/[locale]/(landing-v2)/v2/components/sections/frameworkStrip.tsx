@@ -20,7 +20,7 @@ export function FrameworkStrip({ className }: { className?: string }) {
       </p>
       <ul className='fws__row'>
         {FRAMEWORK_ROWS.flat().map((framework) => (
-          <li key={framework.name} title={framework.name} data-dark={framework.dark ? '' : undefined}>
+          <li key={framework.name} title={framework.name}>
             <Image
               src={`/framework-logos/${framework.logo}-icon.svg`}
               alt={framework.name}

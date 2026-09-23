@@ -1,11 +1,12 @@
 /**
  * The install snippet as it looks in each framework: the same script tag, or
- * the package where a framework prefers one. Each opens with a comment naming
- * the file it goes in. Lines that begin with `+` are the ones the reader adds;
- * the frame lights those and dims the rest. `logo` names a file in
- * public/framework-logos. YOUR_SITE_ID is a deliberate placeholder.
+ * the package where a framework prefers one. `file` is the path the tab bar
+ * shows; the package tab spans two places, so it names the second in a comment.
+ * Lines that begin with `+` are the ones the reader adds; the frame lights
+ * those and dims the rest. `logo` names a file in public/framework-logos.
+ * YOUR_SITE_ID is a deliberate placeholder.
  */
-export type Snippet = { id: string; name: string; logo?: string; bundled?: boolean; code: string };
+export type Snippet = { id: string; name: string; file?: string; logo?: string; bundled?: boolean; code: string };
 
 const SRC = 'https://betterlytics.io/analytics.js';
 
@@ -13,13 +14,11 @@ export const SNIPPETS: readonly Snippet[] = [
   {
     id: 'html',
     name: 'HTML',
+    file: 'index.html',
     logo: 'html',
-    code: `<!-- index.html -->
-<!doctype html>
+    code: `<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title>Acme</title>
 +    <script async
 +      src="${SRC}"
 +      data-site-id="YOUR_SITE_ID">
@@ -33,9 +32,9 @@ export const SNIPPETS: readonly Snippet[] = [
   {
     id: 'nextjs',
     name: 'Next.js',
-    logo: 'nextjs',
-    code: `// app/layout.tsx
-+import Script from 'next/script'
+    file: 'app/layout.tsx',
+    logo: 'nextjs-glyph',
+    code: `+import Script from 'next/script'
 
 export default function RootLayout({ children }) {
   return (
@@ -54,9 +53,9 @@ export default function RootLayout({ children }) {
   {
     id: 'nuxt',
     name: 'Nuxt',
+    file: 'nuxt.config.ts',
     logo: 'nuxtjs',
-    code: `// nuxt.config.ts
-export default defineNuxtConfig({
+    code: `export default defineNuxtConfig({
   app: {
     head: {
 +      script: [{
@@ -71,9 +70,9 @@ export default defineNuxtConfig({
   {
     id: 'svelte',
     name: 'SvelteKit',
+    file: 'src/app.html',
     logo: 'svelte',
-    code: `<!-- src/app.html -->
-<head>
+    code: `<head>
   %sveltekit.head%
 +  <script async
 +    src="${SRC}"
@@ -84,9 +83,9 @@ export default defineNuxtConfig({
   {
     id: 'astro',
     name: 'Astro',
+    file: 'src/layouts/Layout.astro',
     logo: 'astro',
-    code: `<!-- src/layouts/Layout.astro -->
-<head>
+    code: `<head>
 +  <script is:inline async
 +    src="${SRC}"
 +    data-site-id="YOUR_SITE_ID">
@@ -97,8 +96,7 @@ export default defineNuxtConfig({
     id: 'package',
     name: 'Package',
     bundled: true,
-    code: `# terminal
-+npm install @betterlytics/tracker
+    code: `+npm install @betterlytics/tracker
 # or: pnpm add · yarn add · bun add
 
 // src/analytics.ts

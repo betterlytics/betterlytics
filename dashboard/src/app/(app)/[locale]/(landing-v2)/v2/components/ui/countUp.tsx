@@ -29,9 +29,20 @@ export function CountUp({ value, decimals = 0 }: { value: number; decimals?: num
     return () => cancelAnimationFrame(raf);
   }, [inView, reduce, value]);
 
+  const [whole, fraction] = shown
+    .toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    .split('.');
+  /* tabular digits keep the count from jittering, but the face gives the point a
+     full figure width too, so the point is set proportionally on its own */
   return (
     <b ref={ref} className='num'>
-      {shown.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
+      {whole}
+      {fraction === undefined ? null : (
+        <>
+          <span className='num__dot'>.</span>
+          {fraction}
+        </>
+      )}
     </b>
   );
 }

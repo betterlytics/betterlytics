@@ -3,7 +3,6 @@
 import Image from 'next/image';
 import { Fragment, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { COPY } from '@/app/(app)/[locale]/(landing-v2)/v2/content/copy';
 import { SNIPPETS } from '@/app/(app)/[locale]/(landing-v2)/v2/content/snippets';
 
 /* The page's palette, not an editor theme: strings take the accent, tag names
@@ -66,7 +65,6 @@ function BoxIcon() {
 export function SnippetPanel() {
   const [active, setActive] = useState(SNIPPETS[0].id);
   const current = SNIPPETS.find((s) => s.id === active) ?? SNIPPETS[0];
-  const size = `${COPY.network.stats[0].value} ${COPY.network.stats[0].unit} gzipped`;
   return (
     <div className='cf'>
       <div className='cf__tabs' role='tablist'>
@@ -87,11 +85,16 @@ export function SnippetPanel() {
             {s.name}
           </button>
         ))}
+        {current.file ? <span className='cf__file'>{current.file}</span> : null}
       </div>
+      {/* every snippet shares one grid cell, so the frame is always as tall as the
+          longest and nothing below it moves when the tab changes */}
       <pre className='cf__code'>
-        <code>
-          <Lines code={current.code} />
-        </code>
+        {SNIPPETS.map((s) => (
+          <code key={s.id} className={cn('cf__pane', s.id === active && 'is-on')} aria-hidden={s.id !== active}>
+            <Lines code={s.code} />
+          </code>
+        ))}
       </pre>
       {/* what the tag fetches, as the browser's network panel would list it; the package ships inside the bundle instead */}
       <div className='cf__foot' aria-hidden>
@@ -99,15 +102,14 @@ export function SnippetPanel() {
           <>
             <span>bundled</span>
             <b>@betterlytics/tracker</b>
-            <span>{size}</span>
-            <span>no request</span>
+            <span>no extra request</span>
           </>
         ) : (
           <>
             <span>GET</span>
             <b>/analytics.js</b>
             <span className='ok'>200</span>
-            <span>{size}</span>
+            <span>async</span>
             <span>after paint</span>
           </>
         )}
