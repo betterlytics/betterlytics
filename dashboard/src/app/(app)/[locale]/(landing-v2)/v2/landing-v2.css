@@ -3669,8 +3669,9 @@
     font-weight: 400;
     color: var(--text);
   }
+  /* plain, as a network panel shows a success: the blue stays the install's alone */
   .cf__foot .ok {
-    color: var(--accent-soft);
+    color: var(--text);
   }
   @media (max-width: 1000px) {
     .snip {
