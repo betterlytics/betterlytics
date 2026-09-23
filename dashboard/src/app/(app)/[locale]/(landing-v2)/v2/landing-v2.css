@@ -495,12 +495,8 @@
       .lg,
       .logos__label,
       .fws,
-      .bento__label,
-      .bento__cell,
-      .bento__art,
       .snip__code,
       .snip__row,
-      .cell,
       .mcp__side,
       .mcp__works,
       .plan,
@@ -3227,189 +3223,14 @@
     }
   }
 
-  /* ══ FRAMEWORKS ══ a still, ruled board under the stat tiles, in the customer
-     wall's grammar: the claim in the left cell, one framework per cell. Child 1
-     is the label, so the nth-child arithmetic for the last column is offset by one. */
-  .fwb {
-    display: grid;
-    grid-template-columns: 1.6fr repeat(6, 1fr);
-    border-top: 1px solid var(--rule-125);
-  }
-  .fwb__label {
-    grid-row: 1 / span 3;
-    display: grid;
-    place-content: center;
-    text-align: center;
-    padding: 28px 22px;
-    border-right: 1px solid var(--rule-08);
-  }
-  .fwb__label p {
-    margin: 0;
-    font-size: 17px;
-    line-height: 24px;
-    font-weight: 500;
-    letter-spacing: -0.2px;
-    white-space: nowrap;
-    color: var(--text);
-  }
-  .fwb__label p + p {
-    margin-top: 4px;
-    font-size: 13.5px;
-    line-height: 20px;
-    font-weight: 400;
-    letter-spacing: 0;
-    white-space: normal;
-    color: var(--mid);
-  }
-  .fwb__label em {
-    font-style: normal;
-    color: #6b7aff;
-    font-weight: 500;
-  }
-  .fwb__cell {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 21px 12px;
-    border-right: 1px solid var(--rule-08);
-    border-bottom: 1px solid var(--rule-08);
-    color: var(--text);
-    opacity: 0.8;
-    white-space: nowrap;
-    transition: opacity 0.22s var(--ease);
-  }
-  .fwb__cell:hover {
-    opacity: 1;
-  }
-  .fwb__cell:nth-child(6n + 1) {
-    border-right: 0;
-  }
-  .fwb__cell:nth-last-child(-n + 6) {
-    border-bottom: 0;
-  }
-  .fwb__cell span {
-    font-size: 14.5px;
-    letter-spacing: -0.2px;
-  }
-  .fwico {
-    width: 18px;
-    height: 18px;
-    flex: none;
-  }
-  @media (max-width: 1000px) {
-    .fwb {
-      grid-template-columns: repeat(3, 1fr);
-    }
-    .fwb__label {
-      grid-row: auto;
-      grid-column: 1 / -1;
-      border-right: 0;
-      border-bottom: 1px solid var(--rule-08);
-      padding: 24px;
-    }
-    .fwb__cell:nth-child(6n + 1) {
-      border-right: 1px solid var(--rule-08);
-    }
-    .fwb__cell:nth-child(3n + 1) {
-      border-right: 0;
-    }
-    .fwb__cell:nth-last-child(-n + 6) {
-      border-bottom: 1px solid var(--rule-08);
-    }
-    .fwb__cell:nth-last-child(-n + 3) {
-      border-bottom: 0;
-    }
-  }
-  @media (max-width: 640px) {
-    .fwb {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    .fwb__cell:nth-child(3n + 1) {
-      border-right: 1px solid var(--rule-08);
-    }
-    .fwb__cell:nth-child(2n + 1) {
-      border-right: 0;
-    }
-    .fwb__cell:nth-last-child(-n + 3) {
-      border-bottom: 1px solid var(--rule-08);
-    }
-    .fwb__cell:nth-last-child(-n + 2) {
-      border-bottom: 0;
-    }
-  }
-
-  /* ══ NETWORK ══ stat panel */
-  .statpanel {
-    display: flex;
-  }
-  .statpanel .cell {
-    flex: 1;
-    min-width: 0;
-    padding: 38px 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 13px;
-  }
-  .statpanel .cell:first-child {
-    padding-left: 30px;
-  }
-  .statpanel .cell:last-child {
-    padding-right: 30px;
-  }
-  .statpanel .cell + .cell {
-    border-left: 1px solid var(--rule-125);
-  }
-  /* the page's only ultramarine between hero and CTA: marks which number is the thesis */
-  .cell--volt {
-    background: var(--volt);
-    margin: -1px 0;
-    padding-top: 39px;
-    padding-bottom: 39px;
-  }
-  .statpanel .cell--volt .label {
-    color: var(--on-volt);
-  }
-  .statpanel .cell--volt .stat b {
-    color: var(--on-volt);
-  }
-  .statpanel .cell--volt p {
-    color: var(--on-volt);
-    opacity: 0.88;
-  }
-  .cell--volt + .cell,
-  .statpanel .cell--volt {
-    border-left-color: transparent;
-  }
-  /* the EU ring, drawn faint in the on-volt colour and clipped by the cell */
-  .statpanel .cell--volt {
-    position: relative;
-    overflow: hidden;
-  }
-  .statpanel .cell--volt > :not(.seal) {
-    position: relative;
-    z-index: 1;
-  }
+  /* ══ ONE SCRIPT ══ the numbers and the EU seal shared by the snippet layout */
+  /* the EU ring, drawn faint in the on-volt colour and clipped by its cell */
   .seal {
     position: absolute;
     color: var(--on-volt);
     opacity: 0.14;
     pointer-events: none;
     z-index: 0;
-  }
-  .statpanel .cell--volt .stat {
-    position: relative;
-  }
-  /* centred on the "0": the digit is ~24px wide and 40px tall at the stat size */
-  .seal--ring {
-    z-index: -1; /* under the digit, above the cell background (the stat is its own stacking context) */
-    left: 12px;
-    top: 20px;
-    transform: translate(-50%, -50%);
-  }
-  .seal--lock {
-    right: -48px;
-    bottom: -56px;
   }
   .stat {
     display: flex;
@@ -3428,35 +3249,6 @@
     font-size: 19px;
     letter-spacing: -0.3px;
     color: var(--mid);
-  }
-  .statpanel p {
-    font-size: 15.5px;
-    line-height: 23px;
-    color: var(--mid);
-    margin: 0;
-  }
-  @media (max-width: 1000px) {
-    .statpanel {
-      flex-wrap: wrap;
-    }
-    .statpanel .cell {
-      flex: 1 1 50%;
-    }
-    .statpanel .cell:nth-child(3) {
-      border-left: 0;
-    }
-  }
-  @media (max-width: 640px) {
-    .statpanel {
-      flex-direction: column;
-    }
-    .statpanel .cell {
-      padding: 28px 20px;
-    }
-    .statpanel .cell + .cell {
-      border-left: 0;
-      border-top: 1px solid var(--rule-125);
-    }
   }
 
   /* ══ TESTIMONIALS ══ cards, deliberately unlike the framework tiles */
@@ -3819,28 +3611,6 @@
   .fws__row li:hover img {
     filter: none;
   }
-  /* marks drawn in black would vanish on canvas */
-  .fws__row li[data-dark] img {
-    filter: invert(1) grayscale(1);
-  }
-  .fws__row li[data-dark]:hover img {
-    filter: invert(1);
-  }
-  /* stacked inside the bento's label cell: caption over a left-aligned wrap of marks */
-  .fws--stack {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 0;
-    border-top: 0;
-    margin-top: 6px;
-  }
-  .fws--stack .fws__row {
-    margin-left: 0;
-    justify-content: flex-start;
-    gap: 4px 10px;
-    max-width: 340px;
-  }
   /* the frame's foot: what the tag fetched, as the browser's network panel would list it */
   .cf__foot {
     margin-top: auto;
@@ -3865,15 +3635,6 @@
     color: var(--accent-soft);
   }
   @media (max-width: 1000px) {
-    .bento {
-      grid-template-columns: 1fr 1fr;
-    }
-    .bento__label {
-      grid-row: auto;
-      grid-column: 1 / -1;
-      border-right: 0;
-      border-bottom: 1px solid var(--rule-08);
-    }
     .snip {
       grid-template-columns: 1fr;
     }
@@ -3902,22 +3663,6 @@
     }
   }
   @media (max-width: 640px) {
-    .bento {
-      grid-template-columns: 1fr;
-    }
-    .bento__cell {
-      border-right: 0;
-    }
-    .bento__cell:nth-child(4) {
-      border-bottom: 1px solid var(--rule-08);
-    }
-    .bento__label {
-      padding: 28px 22px;
-    }
-    .bento__title {
-      font-size: 28px;
-      line-height: 32px;
-    }
     .snip__rows {
       grid-template-columns: 1fr;
     }

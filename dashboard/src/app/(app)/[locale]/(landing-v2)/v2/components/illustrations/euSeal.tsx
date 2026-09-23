@@ -1,11 +1,8 @@
 /**
- * The EU ring of twelve stars, drawn as a faint watermark on the volt cell.
- * Two placements to choose between:
- *  - 'ring': the ring sits behind the big "0" so the stat itself is the seal's centre.
- *  - 'lock': a larger ring with a closed lock inside, bleeding off the cell's bottom-right corner.
- * Monoline, no fill, in the on-volt colour at watermark opacity.
+ * The EU ring of twelve stars with a checkmark inside, drawn as a faint
+ * watermark bleeding off the volt cell's bottom-right corner. Monoline, no
+ * fill, in the on-volt colour at watermark opacity.
  */
-export type SealVariant = 'ring' | 'lock';
 
 const STAR_POINTS = 12;
 
@@ -31,17 +28,7 @@ function Stars({ cx, cy, radius, size }: { cx: number; cy: number; radius: numbe
   );
 }
 
-export function EuSeal({ variant }: { variant: SealVariant }) {
-  if (variant === 'ring') {
-    // 80px box centred on the "0" glyph; stars at r=32 leave the digit clear
-    return (
-      <svg className='seal seal--ring' viewBox='0 0 80 80' width='80' height='80' aria-hidden>
-        <g fill='currentColor' stroke='none'>
-          <Stars cx={40} cy={40} radius={32} size={4} />
-        </g>
-      </svg>
-    );
-  }
+export function EuSeal() {
   // 200px box, bottom-right, clipped by the cell
   return (
     <svg className='seal seal--lock' viewBox='0 0 200 206' width='200' height='206' aria-hidden>
