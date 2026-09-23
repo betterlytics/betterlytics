@@ -97,7 +97,7 @@ export const COPY = {
     thesis: {
       label: 'Cookies set',
       value: '0',
-      body: 'No cookies, no fingerprinting, no consent banner. GDPR and PECR compliant by default, on EU-only infrastructure.',
+      body: 'No cookies, no fingerprinting, no consent banner. GDPR, ePrivacy and PECR compliant by default, on EU-only infrastructure.',
     },
   },
   quotes: {
@@ -137,7 +137,7 @@ export const COPY = {
     secondary: 'View docs',
   },
   footer: {
-    tagline: 'Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.',
+    tagline: 'Privacy-first web analytics for the modern web. GDPR, CCPA and PECR compliant, cookieless, and open source.',
     columns: {
       company: 'Company',
       resources: 'Resources',
