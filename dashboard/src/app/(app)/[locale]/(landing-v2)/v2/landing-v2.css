@@ -36,8 +36,10 @@
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --hero-overlap: 180px; /* how far the demo frame rides up into the hero card */
 
-  /* hatch covers ~14% of the surface, so it carries less alpha than a dot field would */
-  --wall-ink-dense: rgba(235, 232, 230, 0.04);
+  /* hatch covers ~14% of the surface, so it carries less alpha than a dot field
+     would; tuned to lift the wall about as much as cloudflare.com's margin dots
+     (~0.7 levels on average), so it reads as texture rather than stripes */
+  --wall-ink-dense: rgba(235, 232, 230, 0.02);
 
   position: relative;
   overflow-x: clip;
@@ -1500,7 +1502,8 @@
     height: 46px;
     border-left: 1px solid var(--rule-10);
     border-right: 1px solid var(--rule-10);
-    background: repeating-linear-gradient(315deg, rgba(235, 232, 230, 0.066) 0 1px, transparent 1px 9px);
+    background-image: repeating-linear-gradient(315deg, var(--wall-ink-dense) 0 1px, transparent 0 50%);
+    background-size: 10px 10px;
   }
   @media (max-width: 1080px) {
     .jr {
