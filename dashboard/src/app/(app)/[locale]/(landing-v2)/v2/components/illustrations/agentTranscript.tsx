@@ -206,7 +206,8 @@ export function AgentTranscript() {
   }, [inView, reduce]);
 
   return (
-    <div className='ag'>
+    <div className={cn('ag', inView && !reduce && 'is-live')}>
+      <div className='ag__pulse' aria-hidden />
       <div className='ag__bar'>
         <i />
         <i />

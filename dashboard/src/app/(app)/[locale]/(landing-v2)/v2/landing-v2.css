@@ -3036,7 +3036,8 @@
   }
   /* flare in the terminal's corner: a soft falloff and a dot field masked to the same shape */
   .ag::before,
-  .ag::after {
+  .ag::after,
+  .ag__pulse {
     content: '';
     position: absolute;
     right: -270px;
@@ -3062,6 +3063,39 @@
     background-size: 11px 11px;
     -webkit-mask-image: radial-gradient(closest-side, #000 10%, transparent 66%);
     mask-image: radial-gradient(closest-side, #000 10%, transparent 66%);
+  }
+  /* the flare's shimmer: a faintly brighter copy of the same dot grid seen
+     through a wide, soft ring that drifts slowly out from the flare's centre and
+     back, so the field reads as live without drawing the eye. The second mask is
+     the field's own falloff, so the shimmer never lights dots that aren't there.
+     A mask ring rather than a node per dot keeps it one painted layer. */
+  .ag__pulse {
+    z-index: 1;
+    background-image: radial-gradient(circle at 1.2px 1.2px, rgba(220, 226, 255, 0.62) 1.2px, transparent 0);
+    background-size: 11px 11px;
+    --ag-wave: 40px;
+    -webkit-mask-image:
+      radial-gradient(
+        circle,
+        transparent calc(var(--ag-wave) - 80px),
+        #000 var(--ag-wave),
+        transparent calc(var(--ag-wave) + 80px)
+      ),
+      radial-gradient(closest-side, #000 10%, transparent 66%);
+    mask-image:
+      radial-gradient(
+        circle,
+        transparent calc(var(--ag-wave) - 80px),
+        #000 var(--ag-wave),
+        transparent calc(var(--ag-wave) + 80px)
+      ),
+      radial-gradient(closest-side, #000 10%, transparent 66%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+    animation: lp2-ag-wave 5s ease-in-out infinite alternate paused;
+  }
+  .ag.is-live .ag__pulse {
+    animation-play-state: running;
   }
   .ag__bar,
   .ag__body {
@@ -4467,5 +4501,20 @@
   100% {
     opacity: 0;
     transform: translateY(-4px) scale(0.96);
+  }
+}
+/* the MCP flare's shimmer radius; registered so it interpolates in keyframes */
+@property --ag-wave {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 40px;
+}
+/* runs alternate, so the shimmer drifts out across the field and back */
+@keyframes lp2-ag-wave {
+  from {
+    --ag-wave: 40px;
+  }
+  to {
+    --ag-wave: 220px;
   }
 }
