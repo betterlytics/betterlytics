@@ -4,6 +4,7 @@ import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { useInView } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/useInView';
 import { useReducedMotion } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/useReducedMotion';
+import { FlareShimmer } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/flareShimmer';
 
 /* The transcript is mock terminal output, kept literal on purpose. The question
    deliberately needs traffic AND errors, which is impossible unless both live
@@ -206,8 +207,8 @@ export function AgentTranscript() {
   }, [inView, reduce]);
 
   return (
-    <div className={cn('ag', inView && !reduce && 'is-live')}>
-      <div className='ag__pulse' aria-hidden />
+    <div className='ag'>
+      <FlareShimmer live={inView && !reduce} />
       <div className='ag__bar'>
         <i />
         <i />
