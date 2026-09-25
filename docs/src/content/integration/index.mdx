@@ -3,7 +3,7 @@ title: "Integration Overview"
 description: "Everything the Betterlytics tracking script can do: pageviews out of the box, plus opt-in custom events, error tracking, session replay, Web Vitals, and outbound link tracking."
 ---
 
-import { Callout, Tabs } from "nextra/components";
+import { Callout } from "nextra/components";
 
 # Integration Overview
 
@@ -31,8 +31,6 @@ Self-hosting? Everything on this page works on a self-hosted instance. New capab
 
 A script tag with outbound links, Web Vitals, error tracking, and dynamic URL normalization enabled looks like this:
 
-<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
-<Tabs.Tab>
 ```html
 <script
   async
@@ -44,22 +42,6 @@ A script tag with outbound links, Web Vitals, error tracking, and dynamic URL no
   data-dynamic-urls="/product/**,/user/*/settings"
 ></script>
 ```
-</Tabs.Tab>
-<Tabs.Tab>
-```html
-<script
-  async
-  src="https://analytics.example.com/analytics.js"
-  data-site-id="your-site-id"
-  data-server-url="https://analytics.example.com/event"
-  data-outbound-links="full"
-  data-web-vitals="true"
-  data-track-errors="true"
-  data-dynamic-urls="/product/**,/user/*/settings"
-></script>
-```
-</Tabs.Tab>
-</Tabs>
 
 Session Replay is not included in this example because it involves consent handling, sampling, and masking decisions that deserve more than a copy-paste. The [Session Replay guide](/integration/session-replay) walks through them.
 

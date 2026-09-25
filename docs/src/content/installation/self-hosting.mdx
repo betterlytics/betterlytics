@@ -80,7 +80,7 @@ Once logged in, follow the in-app integration guide to add the tracking script t
 ```
 
 <Callout type="warning">
-A snippet that loads `analytics.js` from `betterlytics.io` sends events to Betterlytics Cloud. When copying snippets from elsewhere in these docs, pick their **Self-hosted** tab and replace `analytics.example.com` with your domain in both `src` and `data-server-url`.
+The snippets elsewhere in these docs load `analytics.js` from `betterlytics.io` and, without `data-server-url`, send events to Betterlytics Cloud. When copying one, replace the script origin with your domain and add `data-server-url` pointing at your instance's `/event` endpoint.
 </Callout>
 
 ## Deployment Modes
