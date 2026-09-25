@@ -3,6 +3,8 @@ title: "Error Tracking"
 description: "Enable client-side JavaScript error tracking with Betterlytics. Catch errors automatically, link them to session replays, and debug issues faster."
 ---
 
+import { Tabs } from "nextra/components";
+
 # Error Tracking
 
 Betterlytics captures client-side errors from your site and sends them to your dashboard. Identical errors are automatically grouped so you can track unique issues over time.
@@ -13,6 +15,8 @@ Betterlytics captures client-side errors from your site and sends them to your d
 
 Add `data-track-errors="true"` to your analytics script to start capturing errors and `data-track-console-errors="true"` to also capture `console.error()` calls:
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <script
   async
@@ -23,6 +27,21 @@ Add `data-track-errors="true"` to your analytics script to start capturing error
 >
 </script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script
+  async
+  src="https://analytics.example.com/analytics.js"
+  data-site-id="your-siteid"
+  data-server-url="https://analytics.example.com/event"
+  data-track-errors="true"
+  data-track-console-errors="true"
+>
+</script>
+```
+</Tabs.Tab>
+</Tabs>
 
 ### Configuration reference
 
@@ -73,6 +92,8 @@ If a session is already being recorded, errors are linked to it automatically wi
 
 For sessions that are not being recorded, you can enable `data-replay-on-error` to capture a replay anyway. Betterlytics records in the background and only uploads when an error occurs, giving you around **1-2 minutes of context** before the error. Sessions without errors are never uploaded.
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <script
   async
@@ -85,6 +106,23 @@ For sessions that are not being recorded, you can enable `data-replay-on-error` 
 >
 </script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script
+  async
+  src="https://analytics.example.com/analytics.js"
+  data-site-id="your-siteid"
+  data-server-url="https://analytics.example.com/event"
+  data-track-errors="true"
+  data-replay="true"
+  data-consent-replay="true"
+  data-replay-on-error="true"
+>
+</script>
+```
+</Tabs.Tab>
+</Tabs>
 
 Or with the npm package:
 

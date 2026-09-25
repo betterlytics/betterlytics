@@ -3,6 +3,8 @@ title: "Global Properties"
 description: "Attach persistent key-value metadata to all analytics events. Filter your dashboard by plan, environment, app version, and more."
 ---
 
+import { Tabs } from "nextra/components";
+
 # Global Properties
 
 Attach key-value metadata to every analytics event sent from a page. Unlike [custom event properties](/integration/custom-events), which are per-event, global properties persist across all events for the lifetime of the page.
@@ -11,6 +13,8 @@ Attach key-value metadata to every analytics event sent from a page. Unlike [cus
 
 If you have properties available at page load, set them directly on the script tag via `data-global-properties`. These are applied before the initial pageview, so the first event already carries them:
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <script
   src="https://betterlytics.io/analytics.js"
@@ -18,6 +22,18 @@ If you have properties available at page load, set them directly on the script t
   data-global-properties='{"plan":"premium","app_version":"2.1.0"}'
 ></script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script
+  src="https://analytics.example.com/analytics.js"
+  data-site-id="your-site-id"
+  data-server-url="https://analytics.example.com/event"
+  data-global-properties='{"plan":"premium","app_version":"2.1.0"}'
+></script>
+```
+</Tabs.Tab>
+</Tabs>
 
 The attribute value must be a valid JSON object. Invalid JSON is logged to the console and ignored.
 

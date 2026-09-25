@@ -33,12 +33,25 @@ The most common cause of missing data is that the snippet never made it into the
 
 **Check the rendered HTML, not your source file.** Open your live site, hit `Ctrl/Cmd + U`, and search the page source for `analytics.js`. You should see something like:
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <script async
     src="https://betterlytics.io/analytics.js"
     data-site-id="your-site-id">
 </script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script async
+    src="https://analytics.example.com/analytics.js"
+    data-site-id="your-site-id"
+    data-server-url="https://analytics.example.com/event">
+</script>
+```
+</Tabs.Tab>
+</Tabs>
 
 If you don't see it:
 
@@ -117,6 +130,8 @@ If you added the snippet but the live HTML still doesn't contain it:
 
 Cloudflare's **Rocket Loader** rewrites `<script>` tags and can interfere with how the snippet detects itself. If you use Cloudflare and `analytics.js` either doesn't run or runs without a Site ID, add the `data-cfasync="false"` attribute to opt the script out of Rocket Loader:
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <script async
     src="https://betterlytics.io/analytics.js"
@@ -124,6 +139,18 @@ Cloudflare's **Rocket Loader** rewrites `<script>` tags and can interfere with h
     data-cfasync="false">
 </script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script async
+    src="https://analytics.example.com/analytics.js"
+    data-site-id="your-site-id"
+    data-server-url="https://analytics.example.com/event"
+    data-cfasync="false">
+</script>
+```
+</Tabs.Tab>
+</Tabs>
 
 ### The script is in the page but doesn't run
 
@@ -156,6 +183,8 @@ If page views work but [custom events](/integration/custom-events) don't, the us
 
 If you load `analytics.js` with `async`, add this snippet **before** the analytics script tag so calls made during page load are queued and flushed once the script is ready:
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <script>
   window.betterlytics = window.betterlytics || {
@@ -170,6 +199,25 @@ If you load `analytics.js` with `async`, add this snippet **before** the analyti
   data-site-id="your-site-id"
 ></script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script>
+  window.betterlytics = window.betterlytics || {
+    event: function () {
+      (window.betterlytics.q = window.betterlytics.q || []).push(arguments);
+    }
+  };
+</script>
+<script
+  async
+  src="https://analytics.example.com/analytics.js"
+  data-site-id="your-site-id"
+  data-server-url="https://analytics.example.com/event"
+></script>
+```
+</Tabs.Tab>
+</Tabs>
 
 If you use the npm package this is handled for you. Just make sure `betterlytics.init('your-site-id')` runs once on the client before any `betterlytics.event()` call.
 

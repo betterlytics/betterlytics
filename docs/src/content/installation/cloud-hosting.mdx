@@ -31,6 +31,8 @@ Once your dashboard is created, **click the "Integration" button** in your dashb
 
 The integration guide will walk you through adding our lightweight tracking script to your website's `<head>` section. The script will look like this:
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <script
   async
@@ -38,6 +40,18 @@ The integration guide will walk you through adding our lightweight tracking scri
   data-site-id="your-unique-site-id"
 ></script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script
+  async
+  src="https://analytics.example.com/analytics.js"
+  data-site-id="your-unique-site-id"
+  data-server-url="https://analytics.example.com/event"
+></script>
+```
+</Tabs.Tab>
+</Tabs>
 
 This works great for plain HTML sites or if you want a no-code/low-code option.
 

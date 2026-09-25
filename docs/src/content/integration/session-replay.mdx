@@ -3,7 +3,7 @@ title: "Session Replay"
 description: "Enable and configure session replays with Betterlytics. Learn script attributes, options, privacy controls, and best practices."
 ---
 
-import { Callout } from "nextra/components";
+import { Callout, Tabs } from "nextra/components";
 
 # Session Replay Integration
 
@@ -19,22 +19,45 @@ Session Replay is disabled by default. Set `data-replay="true"` to activate it. 
 
 Add `data-replay="true"` to your analytics script to enable replays. You can also control sampling and limits with additional attributes. See the configuration reference below for all available flags.
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <script
   async
   src="https://betterlytics.io/analytics.js"
   data-site-id="your-siteid"
   data-replay="true"
-  data-replay-sample="20"           
+  data-replay-sample="20"
   data-consent-replay="true"
-  data-replay-min-duration="5"      
-  data-replay-idle-cutoff="600"     
-  data-replay-max-duration="1200"   
-  data-dynamic-urls="/product/**,/user/*/settings" 
+  data-replay-min-duration="5"
+  data-replay-idle-cutoff="600"
+  data-replay-max-duration="1200"
+  data-dynamic-urls="/product/**,/user/*/settings"
   data-disable-replay-on-urls="/admin/**,/billing/**"
 >
 </script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script
+  async
+  src="https://analytics.example.com/analytics.js"
+  data-site-id="your-siteid"
+  data-server-url="https://analytics.example.com/event"
+  data-replay="true"
+  data-replay-sample="20"
+  data-consent-replay="true"
+  data-replay-min-duration="5"
+  data-replay-idle-cutoff="600"
+  data-replay-max-duration="1200"
+  data-dynamic-urls="/product/**,/user/*/settings"
+  data-disable-replay-on-urls="/admin/**,/billing/**"
+>
+</script>
+```
+</Tabs.Tab>
+</Tabs>
 
 ### Configuration reference
 
@@ -117,6 +140,8 @@ This deterministic masking ensures personal or sensitive data (names, messages, 
 
 Depending on your region and policies, you may need user consent before enabling session replay. Betterlytics provides a lightweight consent API, or you can signal consent via a script attribute:
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <!-- Your analytics script with replay enabled -->
 <script
@@ -132,6 +157,26 @@ Depending on your region and policies, you may need user consent before enabling
   window.betterlytics?.setReplayConsent(true);
 </script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<!-- Your analytics script with replay enabled -->
+<script
+  async
+  src="https://analytics.example.com/analytics.js"
+  data-site-id="your-siteid"
+  data-server-url="https://analytics.example.com/event"
+  data-replay="true"
+></script>
+
+<script>
+  // Example: call after your consent manager resolves
+  // Set to true when the user grants consent; false to revoke.
+  window.betterlytics?.setReplayConsent(true);
+</script>
+```
+</Tabs.Tab>
+</Tabs>
 
 Notes:
 

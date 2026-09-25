@@ -3,7 +3,7 @@ title: "Outbound Links"
 description: "Enable outbound link tracking. Choose domain or full URL mode, configure via script or npm, and analyze in your dashboard."
 ---
 
-import { Callout } from "nextra/components";
+import { Callout, Tabs } from "nextra/components";
 
 # Outbound Links Integration
 
@@ -23,6 +23,8 @@ Set the `data-outbound-links` attribute on your analytics script. Supported valu
 - `domain` – only the external origin (default)
 - `full` – origin + path
 
+<Tabs items={['Cloud', 'Self-hosted']} storageKey="hosting">
+<Tabs.Tab>
 ```html
 <script
   async
@@ -31,6 +33,19 @@ Set the `data-outbound-links` attribute on your analytics script. Supported valu
   data-outbound-links="domain"
 ></script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script
+  async
+  src="https://analytics.example.com/analytics.js"
+  data-site-id="your-siteid"
+  data-server-url="https://analytics.example.com/event"
+  data-outbound-links="domain"
+></script>
+```
+</Tabs.Tab>
+</Tabs>
 
 ### Using the npm package
 

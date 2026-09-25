@@ -13,6 +13,12 @@
   var serverUrl = script.getAttribute("data-server-url");
   if (!serverUrl) {
     serverUrl = "https://betterlytics.io/event";
+    // Set by esbuild --define in the self-host image, whose origin serves both this script and /event
+    if (typeof __BL_SELFHOST__ === "boolean" && __BL_SELFHOST__) {
+      try {
+        serverUrl = `${new URL(script.src).origin}/event`;
+      } catch (e) {}
+    }
     script.setAttribute("data-server-url", serverUrl);
   }
 
