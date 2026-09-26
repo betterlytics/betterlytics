@@ -2959,8 +2959,7 @@
           "languageDescription": "Vælg sproget for dashboardet",
           "timezone": "Tidszone",
           "timezoneDescription": "Bruges til datoer og grafer på tværs af dine dashboards",
-          "timezoneAuto": "Registrer automatisk ({zone})",
-          "timezoneAutoUnavailable": "Registrer automatisk (ikke tilgængelig)",
+          "timezoneAuto": "Registrer automatisk",
           "timezoneUndetected": "Din browser oplyser ingen tidszone, så data vises i UTC. Vælg din tidszone for at rette det.",
           "timezoneSearch": "Søg i tidszoner...",
           "timezoneEmpty": "Ingen tidszone fundet."

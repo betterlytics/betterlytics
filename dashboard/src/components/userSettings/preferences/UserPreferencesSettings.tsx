@@ -128,7 +128,6 @@ export default function UserPreferencesSettings() {
             <TimezoneSelect
               id='timezone'
               value={settings.timezone}
-              detected={browserTimeZone}
               onUpdate={(timezone) => timezoneMutation.mutate({ timezone })}
             />
           }

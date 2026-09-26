@@ -22,17 +22,16 @@ const UTC_LABEL = 'UTC';
 
 type TimezoneSelectProps = {
   value: string | null;
-  detected: string | null;
   onUpdate: (timezone: string | null) => void;
   id?: string;
 };
 
-export function TimezoneSelect({ value, detected, onUpdate, id }: TimezoneSelectProps) {
+export function TimezoneSelect({ value, onUpdate, id }: TimezoneSelectProps) {
   const t = useTranslations('components.userSettings.preferences.localization');
   const [open, setOpen] = useState(false);
   // Intl's list has no UTC entry; moment's fallback list has both spellings, which the pinned item replaces
   const zones = useMemo(() => getSupportedTimezones().filter((zone) => zone !== 'UTC' && zone !== UTC_VALUE), []);
-  const autoLabel = detected ? t('timezoneAuto', { zone: detected }) : t('timezoneAutoUnavailable');
+  const autoLabel = t('timezoneAuto');
   const triggerLabel = value === UTC_VALUE ? UTC_LABEL : (value ?? autoLabel);
 
   const select = (timezone: string | null) => {

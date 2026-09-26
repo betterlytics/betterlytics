@@ -2956,8 +2956,7 @@
           "languageDescription": "Choose your dashboard language",
           "timezone": "Timezone",
           "timezoneDescription": "Used for dates and charts across your dashboards",
-          "timezoneAuto": "Auto-detect ({zone})",
-          "timezoneAutoUnavailable": "Auto-detect (unavailable)",
+          "timezoneAuto": "Auto-detect",
           "timezoneUndetected": "Your browser doesn't report a timezone, so data is shown in UTC. Pick your timezone to fix this.",
           "timezoneSearch": "Search timezones...",
           "timezoneEmpty": "No timezone found."

@@ -2959,8 +2959,7 @@
           "languageDescription": "Scegli la lingua della dashboard",
           "timezone": "Fuso orario",
           "timezoneDescription": "Usato per date e grafici in tutte le tue dashboard",
-          "timezoneAuto": "Rilevamento automatico ({zone})",
-          "timezoneAutoUnavailable": "Rilevamento automatico (non disponibile)",
+          "timezoneAuto": "Rilevamento automatico",
           "timezoneUndetected": "Il tuo browser non indica un fuso orario, quindi i dati sono mostrati in UTC. Scegli il tuo fuso orario per risolvere.",
           "timezoneSearch": "Cerca fusi orari...",
           "timezoneEmpty": "Nessun fuso orario trovato."

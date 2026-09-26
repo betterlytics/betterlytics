@@ -2959,8 +2959,7 @@
           "languageDescription": "Velg språk for dashbordet",
           "timezone": "Tidssone",
           "timezoneDescription": "Brukes for datoer og grafer i alle dashbordene dine",
-          "timezoneAuto": "Oppdag automatisk ({zone})",
-          "timezoneAutoUnavailable": "Oppdag automatisk (ikke tilgjengelig)",
+          "timezoneAuto": "Oppdag automatisk",
           "timezoneUndetected": "Nettleseren din oppgir ingen tidssone, så data vises i UTC. Velg tidssonen din for å rette dette.",
           "timezoneSearch": "Søk etter tidssoner...",
           "timezoneEmpty": "Fant ingen tidssone."
