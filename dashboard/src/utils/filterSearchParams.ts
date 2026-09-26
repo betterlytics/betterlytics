@@ -94,8 +94,6 @@ function filterVariable(key: string, value: unknown) {
 }
 
 // Encode filter values
-// Dates must be encoded in the zone decodeValue reads them in; browser getters here moved
-// endDate one day per URL sync whenever the zones differed
 function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unknown, timezone: string): string {
   switch (key) {
     case 'startDate':

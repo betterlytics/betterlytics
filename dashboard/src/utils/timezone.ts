@@ -16,7 +16,7 @@ export function isValidTimezone(tz: unknown): tz is string {
 
 export function detectBrowserTimezone(): string | null {
   try {
-    // Some browsers with broken ICU report undefined or 'Etc/Unknown' here (#238)
+    // Some browsers with broken ICU report undefined or 'Etc/Unknown' here
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     return isValidTimezone(tz) ? tz : null;
   } catch {
@@ -41,7 +41,7 @@ export function createDateTimeFormat(
   try {
     return new Intl.DateTimeFormat(locale, { ...options, timeZone: timeZone ?? options.timeZone });
   } catch {
-    // Broken ICU (#238) can reject the zone; browser-zone output beats a crash
+    // Broken ICU can reject the zone; browser-zone output beats a crash
     return new Intl.DateTimeFormat(locale, { ...options, timeZone: undefined });
   }
 }
