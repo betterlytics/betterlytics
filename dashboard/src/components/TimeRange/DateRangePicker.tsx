@@ -109,6 +109,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
               from: wallRange?.from && startOfDay(wallRange.from),
               to: wallRange?.to && startOfDay(wallRange.to),
             }}
+            today={todayWall}
             startMonth={new Date(2019, 0)}
             endMonth={addMonths(todayWall, 1)}
             onSelect={handleDateSelect}

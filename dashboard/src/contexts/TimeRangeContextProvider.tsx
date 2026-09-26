@@ -61,25 +61,25 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
   const [rangeTimeZone, setRangeTimeZone] = React.useState(timeZone);
   if (rangeTimeZone !== timeZone) {
     setRangeTimeZone(timeZone);
-    if (interval === 'custom') {
-      setStartDate(keepWallClock(startDate, rangeTimeZone, timeZone));
-      setEndDate(keepWallClock(endDate, rangeTimeZone, timeZone));
-    } else {
-      const { main } = getResolvedRanges(
-        interval,
-        compareMode,
-        timeZone,
-        startDate,
-        endDate,
-        granularity,
-        undefined,
-        undefined,
-        offset,
-        compareAlignWeekdays,
-      );
-      setStartDate(main.start);
-      setEndDate(main.end);
-    }
+    const [nextStart, nextEnd] =
+      interval === 'custom'
+        ? [keepWallClock(startDate, rangeTimeZone, timeZone), keepWallClock(endDate, rangeTimeZone, timeZone)]
+        : [startDate, endDate];
+    const resolved = getResolvedRanges(
+      interval,
+      compareMode,
+      timeZone,
+      nextStart,
+      nextEnd,
+      granularity,
+      undefined,
+      undefined,
+      offset,
+      compareAlignWeekdays,
+    );
+    setStartDate(resolved.main.start);
+    setEndDate(resolved.main.end);
+    setGranularity(resolved.granularity);
     if (compareMode === 'custom' && compareStartDate && compareEndDate) {
       setCompareStartDate(keepWallClock(compareStartDate, rangeTimeZone, timeZone));
       setCompareEndDate(keepWallClock(compareEndDate, rangeTimeZone, timeZone));

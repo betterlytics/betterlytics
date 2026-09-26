@@ -123,6 +123,7 @@ export function DateTimePicker({
             selected={value}
             onSelect={handleDaySelect}
             defaultMonth={value}
+            today={timeZone ? toWallClock(new Date(), timeZone) : undefined}
             autoFocus
             locale={dateFnsLocale}
             className='[&_button]:cursor-pointer'
