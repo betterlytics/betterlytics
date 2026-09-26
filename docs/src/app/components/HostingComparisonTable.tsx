@@ -26,7 +26,7 @@ const INFO_ROWS: FeatureRow[] = [
   {
     name: "Data retention",
     cloud: "1-5+ years by plan",
-    selfHosted: "Unlimited",
+    selfHosted: "Configurable",
   },
 ];
 
@@ -57,11 +57,13 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
     name: "Observability",
     features: [
       { name: "Core Web Vitals", cloud: true, selfHosted: true },
-      { name: "Error tracking", cloud: true, selfHosted: false },
-      { name: "Session replays", cloud: true, selfHosted: false },
-      { name: "Uptime monitoring", cloud: true, selfHosted: "Configurable" },
-      { name: "SSL certificate monitoring", cloud: true, selfHosted: "Configurable" },
-      { name: "Alert integrations (Slack, Discord, Teams, webhooks)", cloud: true, selfHosted: "Configurable" },
+      { name: "Error tracking", cloud: true, selfHosted: true },
+      { name: "Session replays", cloud: true, selfHosted: true },
+      { name: "Uptime monitoring", cloud: true, selfHosted: true },
+      { name: "SSL certificate monitoring", cloud: true, selfHosted: true },
+      { name: "Public status pages", cloud: true, selfHosted: true },
+      { name: "Custom status page domains", cloud: true, selfHosted: true },
+      { name: "Alert integrations (Slack, Discord, Teams, webhooks)", cloud: true, selfHosted: true },
       { name: "Email reports", cloud: true, selfHosted: "Configurable" },
     ],
   },

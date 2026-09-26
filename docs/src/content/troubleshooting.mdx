@@ -33,12 +33,25 @@ The most common cause of missing data is that the snippet never made it into the
 
 **Check the rendered HTML, not your source file.** Open your live site, hit `Ctrl/Cmd + U`, and search the page source for `analytics.js`. You should see something like:
 
+<Tabs items={['Cloud', 'Self-hosted']}>
+<Tabs.Tab>
 ```html
 <script async
     src="https://betterlytics.io/analytics.js"
     data-site-id="your-site-id">
 </script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script async
+    src="https://analytics.example.com/analytics.js"
+    data-site-id="your-site-id"
+    data-server-url="https://analytics.example.com/event">
+</script>
+```
+</Tabs.Tab>
+</Tabs>
 
 If you don't see it:
 

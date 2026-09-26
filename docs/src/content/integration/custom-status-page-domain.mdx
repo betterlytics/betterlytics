@@ -10,7 +10,7 @@ import { Callout } from "nextra/components";
 By default, your status page lives at `betterlytics.io/status/{your-slug}`. With a custom domain, you can serve the exact same page from your own domain instead, typically something like `status.example.com`. SSL certificates are issued and renewed automatically; all you need is one DNS record.
 
 <Callout type="info">
-Custom domains are available on **Professional** and **Enterprise** plans.
+Custom domains are available on **Professional** and **Enterprise** plans on Betterlytics Cloud. Self-hosted instances have no plan gate; see [Self-Hosted Instances](#self-hosted-instances) below.
 </Callout>
 
 ## Requirements
@@ -56,7 +56,7 @@ Once live, your status page is served from your domain with a valid HTTPS certif
 - Verify the CNAME record exists and points to `{your-slug}.status.betterlytics.io`. You can check with `nslookup status.example.com` or an online DNS lookup tool
 - If the lookup finds nothing, check the record's name/host field in your DNS provider. Entering the full domain where your provider expects only the subdomain part creates a record for the wrong name (e.g. `status.example.com.example.com`)
 - Confirm the status page is **published**. Certificates are not issued for drafts or unpublished pages
-- Confirm your plan includes custom domains (Professional or Enterprise)
+- Confirm your plan includes custom domains (Professional or Enterprise, Cloud only)
 - If you only just created the record, give DNS propagation more time
 
 ### I'm using Cloudflare and get a redirect loop or SSL error
@@ -69,7 +69,17 @@ No, custom domains must be a subdomain, since the setup relies on a CNAME record
 
 ### What happens to the original URL?
 
-The page remains reachable at `betterlytics.io/status/{your-slug}` as well. With a custom domain configured, the custom domain is treated as the page's canonical address.
+The page remains reachable at `betterlytics.io/status/{your-slug}` as well, or at `https://<your-domain>/status/{your-slug}` on a self-hosted instance. With a custom domain configured, the custom domain is treated as the page's canonical address.
+
+## Self-Hosted Instances
+
+The in-app steps are the same: enter the domain in the status page's **Settings** tab and publish the page. The CNAME target is your instance's own hostname rather than `{your-slug}.status.betterlytics.io`; the editor shows the exact record.
+
+| Type  | Name (host) | Value (target)          |
+|-------|-------------|-------------------------|
+| CNAME | `status`    | `analytics.example.com` |
+
+In standalone mode the instance issues the certificate on the first visit after DNS resolves. Behind your own reverse proxy, the proxy terminates TLS for the hostname and forwards it with the `Host` header unchanged. Both setups are covered in [Custom Status Page Domains](/installation/self-hosting#custom-status-page-domains) in the Self-Hosting Guide.
 
 ---
 
