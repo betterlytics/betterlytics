@@ -2652,7 +2652,8 @@
     }
   }
 
-  /* traffic: three focused cards, fanned. Pages AND countries AND devices is the claim. */
+  /* traffic: three cards, fanned, each a different kind of view — what they open (bars),
+     how far they read (a page), when they come (a heatmap). They overlap at the edges only. */
   .tf {
     position: absolute;
     inset: 0;
@@ -2674,35 +2675,45 @@
   .is-in .tf__c {
     opacity: 1;
   }
+  /* a cascade: each card lies over the one before it, and each leaves an empty margin
+     where the next one lands, so the stack hides no data */
   .tf__c--a {
-    left: 10%;
-    top: 13%;
-    width: 49%;
-    transform: translate(-16px, 10px) rotate(-1.1deg);
+    left: 4%;
+    top: 8%;
+    width: 54%;
+    transform: translate(-16px, 10px) rotate(-1deg);
     z-index: 1;
   }
+  .tf__c--a .tf__hd,
+  .tf__c--a .tf__b {
+    padding-right: 54px;
+  }
   .tf__c--b {
-    left: 41%;
-    top: 36%;
-    width: 49%;
-    transform: translate(16px, 10px) rotate(0.8deg);
+    left: 52%;
+    top: 13%;
+    width: 38%;
+    transform: translate(16px, 10px) rotate(1.2deg);
     z-index: 2;
   }
+  .tf__c--b .tf__hd,
+  .tf__c--b .tf__b {
+    padding-left: 54px;
+  }
   .tf__c--c {
-    left: 15%;
-    top: 65%;
-    width: 52%;
-    transform: translate(-10px, 14px) rotate(-0.5deg);
+    left: 14%;
+    top: 55%;
+    width: 44%;
+    transform: translate(-10px, 14px) rotate(-0.6deg);
     z-index: 3;
   }
   .is-in .tf__c--a {
-    transform: rotate(-1.1deg);
+    transform: rotate(-1deg);
   }
   .is-in .tf__c--b {
-    transform: rotate(0.8deg);
+    transform: rotate(1.2deg);
   }
   .is-in .tf__c--c {
-    transform: rotate(-0.5deg);
+    transform: rotate(-0.6deg);
   }
   .tf__hd {
     display: flex;
@@ -2726,92 +2737,232 @@
     opacity: 0.65;
   }
   .tf__b {
-    padding: 9px 16px 13px;
+    padding: 11px 14px 13px;
   }
+
+  /* top pages, drawn as the dashboard draws them: the bar fills the row behind its label */
   .tf__r {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 6px 12px;
-    padding: 7px 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 4px;
+    background: rgba(235, 232, 230, 0.035);
+    overflow: hidden;
+    font-family: var(--mono);
+    font-size: 11.5px;
+  }
+  .tf__r + .tf__r {
+    margin-top: 5px;
+  }
+  .tf__r u {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 4px;
+    background: rgba(74, 92, 255, 0.32);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    transition: transform 0.6s var(--ease) var(--d);
+  }
+  .is-in .tf__r u {
+    transform: none;
+  }
+  .tf__r b,
+  .tf__r em {
+    position: relative;
+    white-space: nowrap;
   }
   .tf__r b {
-    font-family: var(--mono);
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--text);
-    opacity: 0.88;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-weight: 400;
+    color: var(--text);
   }
   .tf__r em {
     font-style: normal;
-    font-family: var(--mono);
-    font-size: 12px;
     color: var(--mid);
     font-variant-numeric: tabular-nums;
   }
-  .tf__r i {
-    grid-column: 1 / -1;
-    height: 5px;
-    border-radius: 3px;
-    font-style: normal;
-    background: rgba(235, 232, 230, 0.1);
+
+  /* scroll depth: one page, its quarters tinted by how many readers reached them */
+  .tf__path {
+    margin: 0 0 10px;
     overflow: hidden;
-  }
-  .tf__r i u {
-    display: block;
-    height: 100%;
-    border-radius: 3px;
-    background: var(--volt-lift);
-    opacity: 0.85;
-    transform-origin: 0 50%;
-    transform: scaleX(0);
-    transition: transform 0.55s var(--ease) var(--d);
-  }
-  .is-in .tf__r i u {
-    transform: scaleX(1);
-  }
-  .tf__split {
-    display: flex;
-    gap: 3px;
-    padding: 4px 0 12px;
-  }
-  .tf__split i {
-    height: 26px;
-    border-radius: 3px;
-    transform-origin: 0 50%;
-    transform: scaleX(0);
-    transition: transform 0.55s var(--ease) var(--d);
-  }
-  .is-in .tf__split i {
-    transform: scaleX(1);
-  }
-  .tf__lg {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px 18px;
-  }
-  .tf__lg span {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--mid);
   }
-  .tf__lg em {
+  .tf__page {
+    position: relative;
+    height: 212px;
+    margin-right: 42px;
+    border-radius: 6px;
+    background: #211f1e;
+    border: 1px solid rgba(235, 232, 230, 0.1);
+  }
+  .tf__chrome {
+    display: flex;
+    gap: 4px;
+    height: 14px;
+    align-items: center;
+    padding: 0 7px;
+    border-bottom: 1px solid rgba(235, 232, 230, 0.07);
+  }
+  .tf__chrome i {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(235, 232, 230, 0.18);
+  }
+  /* faint text lines, so it reads as a page rather than a bar */
+  .tf__read,
+  .tf__marks {
+    position: absolute;
+    inset: 14px 0 0;
+  }
+  .tf__read {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 0 0 6px 6px;
+    background: repeating-linear-gradient(transparent 0 8px, rgba(235, 232, 230, 0.05) 8px 10px) 10px 6px /
+      calc(100% - 20px) calc(100% - 12px) no-repeat;
+  }
+  .tf__read span {
+    flex: 1;
+    background: rgba(74, 92, 255, calc(0.03 + var(--reach) * 0.5));
+    transform-origin: 50% 0;
+    transform: scaleY(0);
+    transition: transform 0.45s cubic-bezier(0.3, 0.02, 0.15, 1) var(--d);
+  }
+  .tf__read span + span {
+    border-top: 1px dashed rgba(139, 151, 255, 0.45);
+  }
+  .is-in .tf__read span {
+    transform: none;
+  }
+  .tf__marks {
+    left: calc(100% + 8px);
+    right: auto;
+    width: 36px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .tf__marks li {
+    position: absolute;
+    left: 0;
+    transform: translateY(-50%);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+  .tf__marks li:first-child {
+    transform: none;
+    color: var(--mid);
+  }
+  .tf__avg {
+    margin: 11px 0 0;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--mid);
+  }
+  .tf__avg em {
+    margin-left: 4px;
     font-style: normal;
     color: var(--text);
-    opacity: 0.85;
-  }
-  .tf__lg s {
-    width: 8px;
-    height: 8px;
-    border-radius: 2px;
-    text-decoration: none;
   }
 
+  /* weekly traffic: visitors by weekday and hour, brightest in office hours */
+  .tf__heat {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr);
+    gap: 6px 8px;
+  }
+  .tf__days {
+    display: grid;
+    grid-template-rows: repeat(7, 1fr);
+    gap: 2px;
+    font-family: var(--mono);
+    font-size: 8.5px;
+    line-height: 1;
+    color: var(--mid);
+    opacity: 0.7;
+  }
+  .tf__days span {
+    display: flex;
+    align-items: center;
+  }
+  .tf__grid {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 2px;
+  }
+  .tf__grid i {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    background: rgba(74, 92, 255, calc(0.06 + var(--v) * 0.86));
+    opacity: 0;
+    transition: opacity 0.4s var(--ease) var(--d);
+  }
+  .is-in .tf__grid i {
+    opacity: 1;
+  }
+  .tf__hours {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--mid);
+    opacity: 0.6;
+  }
+  /* too narrow for three: pages and the page they read, side by side; the heatmap needs width */
+  @media (max-width: 760px) {
+    .tf__c--a {
+      left: 3%;
+      top: 9%;
+      width: 60%;
+    }
+    .tf__c--b {
+      left: 59%;
+      top: 4%;
+      width: 38%;
+    }
+    .tf__c--c {
+      display: none;
+    }
+    .tf__b,
+    .tf__c--a .tf__b,
+    .tf__c--b .tf__b {
+      padding: 9px 10px 11px;
+    }
+    .tf__c--a .tf__hd,
+    .tf__c--b .tf__hd {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .tf__r {
+      padding: 0 8px;
+      font-size: 10.5px;
+    }
+    .tf__hd span {
+      display: none;
+    }
+    .tf__page {
+      height: 150px;
+      margin-right: 34px;
+    }
+    .tf__marks li {
+      font-size: 9.5px;
+    }
+  }
   /* the live event log: one panel that runs off the bottom of the card and fades into it */
   .ev {
     position: absolute;
@@ -4350,9 +4501,13 @@
       opacity: 1;
       transition: none;
     }
-    .tf__r i u,
-    .tf__split i {
-      transform: scaleX(1);
+    .tf__r u,
+    .tf__read span {
+      transform: none;
+      transition: none;
+    }
+    .tf__grid i {
+      opacity: 1;
       transition: none;
     }
     .ev__p {
