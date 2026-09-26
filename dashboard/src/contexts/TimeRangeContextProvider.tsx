@@ -4,6 +4,8 @@ import { TimeRangeValue } from '@/utils/timeRanges';
 import { CompareMode } from '@/utils/compareRanges';
 import { getResolvedRanges, type TimeRangeResult } from '@/lib/ba-timerange';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { useResolvedTimezone } from '@/hooks/use-resolved-timezone';
+import { keepWallClock } from '@/utils/timezone';
 
 export type TimeRangeContextProps = {
   startDate: Date;
@@ -52,7 +54,22 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
     initialFilters.compareAlignWeekdays ?? false,
   );
 
-  const timeZone = React.useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
+  const { timeZone } = useResolvedTimezone();
+
+  // Custom ranges keep their calendar days when the zone changes. Adjusted during render,
+  // so no effect sees the old instants in the new zone
+  const [rangeTimeZone, setRangeTimeZone] = React.useState(timeZone);
+  if (rangeTimeZone !== timeZone) {
+    setRangeTimeZone(timeZone);
+    if (interval === 'custom') {
+      setStartDate(keepWallClock(startDate, rangeTimeZone, timeZone));
+      setEndDate(keepWallClock(endDate, rangeTimeZone, timeZone));
+    }
+    if (compareMode === 'custom' && compareStartDate && compareEndDate) {
+      setCompareStartDate(keepWallClock(compareStartDate, rangeTimeZone, timeZone));
+      setCompareEndDate(keepWallClock(compareEndDate, rangeTimeZone, timeZone));
+    }
+  }
 
   const resolvedRanges = useMemo(
     () =>

@@ -136,6 +136,6 @@ export const fetchMonitorUptimeAction = withDashboardAuthContext(
   async (ctx: AuthContext, monitorId: string, timezone: string, days?: number) => {
     const totalDays = typeof days === 'number' ? days : 180;
     const rows = await fetchMonitorDailyUptime(monitorId, ctx.dashboardId, ctx.siteId, timezone, totalDays);
-    return toMonitorUptimePresentation(rows, totalDays);
+    return toMonitorUptimePresentation(rows, timezone, totalDays);
   },
 );

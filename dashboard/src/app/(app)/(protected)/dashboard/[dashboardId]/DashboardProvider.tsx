@@ -15,6 +15,7 @@ import { type DashboardSettings } from '@/entities/dashboard/dashboardSettings.e
 import { useSavedFilters } from '@/hooks/use-saved-filters';
 import { CapabilitiesProvider } from '@/contexts/CapabilitiesProvider';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { useResolvedTimezone } from '@/hooks/use-resolved-timezone';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
@@ -25,7 +26,8 @@ export function DashboardProvider({ children, initialSettings }: DashboardProvid
   const dashboardId = useDashboardId();
   const searchParams = useSearchParams();
   useDismissFilterToastOnUnmount();
-  const initialFilters = useMemo(() => BAFilterSearchParams.parseFromSearchParams(searchParams), []);
+  const { timeZone } = useResolvedTimezone();
+  const initialFilters = useMemo(() => BAFilterSearchParams.parseFromSearchParams(searchParams, timeZone), []);
 
   const { data: settings } = useQuery({
     queryKey: ['dashboard-settings', dashboardId],

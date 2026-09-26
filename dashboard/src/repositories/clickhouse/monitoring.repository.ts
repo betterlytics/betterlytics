@@ -346,7 +346,8 @@ export async function getMonitorDailyUptime(
     .filter((b) => b.upRatio != null)
     .map((b) =>
       MonitorDailyUptimeSchema.parse({
-        date: b.bucket,
+        // The bucket carries the zone's midnight as wall clock, so its date part is the zone calendar day
+        date: b.bucket.slice(0, 10),
         upRatio: b.upRatio,
         totalSeconds: b.totalSeconds,
       }),

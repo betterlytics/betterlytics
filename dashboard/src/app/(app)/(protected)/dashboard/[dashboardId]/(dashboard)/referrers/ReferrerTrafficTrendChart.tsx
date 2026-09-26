@@ -11,13 +11,13 @@ import {
   Legend,
 } from 'recharts';
 import { getReferrerColor } from '@/utils/referrerColors';
-import { format } from 'date-fns';
 import ReferrerLegend from './ReferrerLegend';
 import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { useLocale } from 'next-intl';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useChartDateFormatters } from '@/hooks/use-chart-date-formatters';
 import { formatNumber } from '@/utils/formatters';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 
@@ -36,6 +36,7 @@ export default function ReferrerTrafficTrendChart({
 }: ReferrerTrafficTrendChartProps) {
   const locale = useLocale();
   const isMobile = useIsMobile();
+  const { axisFormatter } = useChartDateFormatters('day');
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <DataEmptyComponent />
@@ -55,7 +56,7 @@ export default function ReferrerTrafficTrendChart({
             tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
             tickMargin={6}
             minTickGap={100}
-            tickFormatter={(value) => format(new Date(value), 'MMM dd')}
+            tickFormatter={(value) => axisFormatter(new Date(value))}
           />
           <YAxis
             tickLine={false}

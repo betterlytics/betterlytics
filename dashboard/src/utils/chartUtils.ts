@@ -3,6 +3,7 @@ import { GranularityRangeValues, getMinuteStep } from './granularityRanges';
 import { utcDay, utcHour, utcMinute, utcWeek, utcMonth } from 'd3-time';
 import { formatNumber, formatPercentage } from './formatters';
 import { formatWeekRange } from './dateFormatters';
+import { createDateTimeFormat } from './timezone';
 import type { SupportedLanguages } from '@/constants/i18n';
 
 export interface TrendInfo {
@@ -61,78 +62,62 @@ export function defaultDateLabelFormatter(
   date: string | number,
   granularity?: GranularityRangeValues,
   locale?: SupportedLanguages,
+  timeZone?: string,
 ) {
   const d = typeof date === 'string' ? new Date(date) : new Date(date);
 
   if (granularity === 'month') {
-    return new Intl.DateTimeFormat(locale, {
-      month: 'long',
-      year: 'numeric',
-    }).format(d);
+    return createDateTimeFormat(locale, { month: 'long', year: 'numeric' }, timeZone).format(d);
   }
 
   // Week granularity: show "Jan 6 – 12, 2026"
   if (granularity === 'week') {
-    return formatWeekRange(d, locale, true);
+    return formatWeekRange(d, locale, true, timeZone);
   }
 
   // Day granularity
   if (granularity === undefined || granularity === 'day') {
-    return new Intl.DateTimeFormat(locale, {
-      weekday: 'short',
-      month: 'short',
-      day: '2-digit',
-    }).format(d);
+    return createDateTimeFormat(locale, { weekday: 'short', month: 'short', day: '2-digit' }, timeZone).format(d);
   }
 
   // Hour/minute granularities
-  return new Intl.DateTimeFormat(locale, {
-    weekday: 'short',
-    month: 'short',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  }).format(d);
+  return createDateTimeFormat(
+    locale,
+    { weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false },
+    timeZone,
+  ).format(d);
 }
 
-export function granularityDateFormatter(granularity?: GranularityRangeValues, locale?: SupportedLanguages) {
+export function granularityDateFormatter(
+  granularity?: GranularityRangeValues,
+  locale?: SupportedLanguages,
+  timeZone?: string,
+) {
   // Month granularity
   if (granularity === 'month') {
-    return (date: Date) =>
-      new Intl.DateTimeFormat(locale, {
-        month: 'short',
-        year: 'numeric',
-      }).format(date);
+    const formatter = createDateTimeFormat(locale, { month: 'short', year: 'numeric' }, timeZone);
+    return (date: Date) => formatter.format(date);
   }
 
   // Week granularity
   if (granularity === 'week') {
-    return (date: Date) => formatWeekRange(date, locale);
+    return (date: Date) => formatWeekRange(date, locale, false, timeZone);
   }
 
   // Day granularity
   if (granularity === undefined || granularity === 'day') {
-    return (date: Date) =>
-      new Intl.DateTimeFormat(locale, {
-        month: 'short',
-        day: '2-digit',
-      }).format(date);
+    const formatter = createDateTimeFormat(locale, { month: 'short', day: '2-digit' }, timeZone);
+    return (date: Date) => formatter.format(date);
   }
 
   // Hour/minute granularities
-  return (date: Date) => {
-    const datePart = new Intl.DateTimeFormat(locale, {
-      month: 'short',
-      day: '2-digit',
-    }).format(date);
-    const timePart = new Intl.DateTimeFormat(locale, {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-    }).format(date);
-    return `${datePart} - ${timePart}`;
-  };
+  const dateFormatter = createDateTimeFormat(locale, { month: 'short', day: '2-digit' }, timeZone);
+  const timeFormatter = createDateTimeFormat(
+    locale,
+    { hour: '2-digit', minute: '2-digit', hour12: false },
+    timeZone,
+  );
+  return (date: Date) => `${dateFormatter.format(date)} - ${timeFormatter.format(date)}`;
 }
 
 export type TimeInterval = {

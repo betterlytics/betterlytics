@@ -2953,7 +2953,14 @@
         "localization": {
           "title": "Localization",
           "language": "Language",
-          "languageDescription": "Choose your dashboard language"
+          "languageDescription": "Choose your dashboard language",
+          "timezone": "Timezone",
+          "timezoneDescription": "Used for dates and charts across your dashboards",
+          "timezoneAuto": "Auto-detect ({zone})",
+          "timezoneAutoUnavailable": "Auto-detect (unavailable)",
+          "timezoneUndetected": "Your browser doesn't report a timezone, so data is shown in UTC. Pick your timezone to fix this.",
+          "timezoneSearch": "Search timezones...",
+          "timezoneEmpty": "No timezone found."
         },
         "notifications": {
           "title": "Notifications",
@@ -3380,6 +3387,11 @@
       "title": "Integration not detected",
       "description": "Your dashboard is ready, but we haven't received any data from your website yet. Complete the integration setup to start tracking visitors.",
       "setup": "Integration Setup"
+    },
+    "timezoneFallback": {
+      "title": "Timezone not detected",
+      "description": "Your browser doesn't report a timezone, so data is shown in UTC.",
+      "action": "Set timezone"
     },
     "usageAlert": {
       "title": "Approaching event limit",

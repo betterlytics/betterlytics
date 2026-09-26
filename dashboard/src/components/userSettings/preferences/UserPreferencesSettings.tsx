@@ -15,6 +15,8 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import { LanguageSelect } from '@/components/language/LanguageSelect';
 import ExternalLink from '@/components/ExternalLink';
 import UserThemeSelector from './UserThemeSelector';
+import { TimezoneSelect } from './TimezoneSelect';
+import { useResolvedTimezone } from '@/hooks/use-resolved-timezone';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { useUserSettings } from '@/contexts/UserSettingsProvider';
 import { useUserSettingsMutation } from '@/hooks/use-user-settings-mutation';
@@ -23,6 +25,7 @@ import {
   updateUserLanguageAction,
   updateUserMarketingEmailsAction,
   updateUserThemeAction,
+  updateUserTimezoneAction,
 } from '@/app/actions/account/userSettings.action';
 
 export default function UserPreferencesSettings() {
@@ -41,6 +44,8 @@ export default function UserPreferencesSettings() {
     action: updateUserLanguageAction,
     onSuccess: () => router.refresh(),
   });
+  const timezoneMutation = useUserSettingsMutation({ action: updateUserTimezoneAction });
+  const { browserTimeZone } = useResolvedTimezone();
   const avatarMutation = useUserSettingsMutation({ action: updateUserAvatarAction });
   const marketingEmailsMutation = useUserSettingsMutation({ action: updateUserMarketingEmailsAction });
 
@@ -113,6 +118,25 @@ export default function UserPreferencesSettings() {
               value={settings.language as SupportedLanguages}
               onUpdate={(language) => languageMutation.mutate({ language })}
             />
+          }
+        />
+
+        <SettingRow
+          label={<Label htmlFor='timezone'>{t('localization.timezone')}</Label>}
+          description={t('localization.timezoneDescription')}
+          action={
+            <TimezoneSelect
+              id='timezone'
+              value={settings.timezone}
+              detected={browserTimeZone}
+              onUpdate={(timezone) => timezoneMutation.mutate({ timezone })}
+            />
+          }
+          footer={
+            settings.timezone === null &&
+            browserTimeZone === null && (
+              <p className='text-xs text-amber-600 dark:text-amber-500'>{t('localization.timezoneUndetected')}</p>
+            )
           }
         />
       </UserSettingsSection>

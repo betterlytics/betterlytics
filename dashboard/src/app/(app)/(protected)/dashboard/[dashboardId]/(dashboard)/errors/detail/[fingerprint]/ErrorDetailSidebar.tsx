@@ -9,6 +9,7 @@ import { ErrorVolumeChart } from './ErrorVolumeChart';
 import { ReplayCard } from './ReplayCard';
 import type { ErrorGroupRow, ErrorGroupSidebarData } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { getUserTimezone } from '@/lib/cookies';
 
 function StatRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
@@ -32,6 +33,7 @@ export async function ErrorDetailSidebar({
   replaySessionId,
 }: ErrorDetailSidebarProps) {
   const t = await getTranslations('errors.detail.sidebar');
+  const timeZone = await getUserTimezone();
   const { browsers, deviceTypes, dailyVolume } = sidebarData;
 
   const browserItems = browsers.map((row) => ({
@@ -57,6 +59,7 @@ export async function ErrorDetailSidebar({
                 value={formatLocalDateTime(errorGroup.first_seen, undefined, {
                   dateStyle: 'medium',
                   timeStyle: 'short',
+                  timeZone,
                 })}
               />
               <StatRow
@@ -64,6 +67,7 @@ export async function ErrorDetailSidebar({
                 value={formatLocalDateTime(errorGroup.last_seen, undefined, {
                   dateStyle: 'medium',
                   timeStyle: 'short',
+                  timeZone,
                 })}
               />
               <StatRow label={t('occurrences')} value={errorGroup.count.toLocaleString()} />

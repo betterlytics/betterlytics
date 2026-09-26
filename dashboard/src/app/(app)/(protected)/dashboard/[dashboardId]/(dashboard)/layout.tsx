@@ -8,6 +8,7 @@ import UsageExceededBanner from '@/components/billing/UsageExceededBanner';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { IntegrationBanner } from '../IntegrationBanner';
+import { TimezoneFallbackBanner } from '../TimezoneFallbackBanner';
 import { TermsRequiredModal } from '@/components/account/TermsRequiredModal';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { getUserBillingData } from '@/actions/billing.action';
@@ -57,6 +58,7 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
           <Suspense>
             <IntegrationBanner />
           </Suspense>
+          <TimezoneFallbackBanner />
           {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
           <RealtimeQuerySync />
           {children}

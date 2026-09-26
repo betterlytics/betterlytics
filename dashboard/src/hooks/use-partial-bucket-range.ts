@@ -1,3 +1,4 @@
+import { useLocale } from 'next-intl';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { getPartialBucketRange } from '@/utils/dateFormatters';
 
@@ -9,7 +10,8 @@ export function usePartialBucketRange(
   bucketDate: number | string | Date | undefined,
   comparisonDate: number | string | Date | undefined,
 ) {
-  const { resolvedMainRange, resolvedCompareRange, granularity } = useTimeRangeContext();
+  const { resolvedMainRange, resolvedCompareRange, granularity, timeZone } = useTimeRangeContext();
+  const locale = useLocale();
 
   if (granularity !== 'week' && granularity !== 'month') {
     return { partialRange: undefined, comparePartialRange: undefined };
@@ -20,10 +22,19 @@ export function usePartialBucketRange(
     resolvedMainRange.start,
     resolvedMainRange.end,
     granularity,
+    locale,
+    timeZone,
   );
 
   const comparePartialRange = resolvedCompareRange
-    ? getPartialBucketRange(comparisonDate, resolvedCompareRange.start, resolvedCompareRange.end, granularity)
+    ? getPartialBucketRange(
+        comparisonDate,
+        resolvedCompareRange.start,
+        resolvedCompareRange.end,
+        granularity,
+        locale,
+        timeZone,
+      )
     : undefined;
 
   return { partialRange, comparePartialRange };

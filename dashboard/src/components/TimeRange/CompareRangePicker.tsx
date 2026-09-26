@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
 import { isDerivedCompareMode } from '@/utils/compareRanges';
+import { formatLocalDateTime, LOCALE_STRING_OPTIONS } from '@/utils/dateFormatters';
 import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
@@ -31,17 +32,19 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
     if (isDerivedCompareMode(ctx.compareMode)) {
       return ctx.compareMode === 'previous' ? t('previousPeriod') : t('previousYear');
     }
-    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-    return `${resolvedCompareDates.start.toLocaleDateString(locale, opts)} - ${resolvedCompareDates.end.toLocaleDateString(
+    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', timeZone: ctx.timeZone };
+    return `${formatLocalDateTime(resolvedCompareDates.start, locale, opts)} - ${formatLocalDateTime(
+      resolvedCompareDates.end,
       locale,
       opts,
     )}`;
   };
 
+  const titleOptions = { ...LOCALE_STRING_OPTIONS, timeZone: ctx.timeZone };
   const titleText =
     ctx.compareMode === 'off' || !resolvedCompareDates
       ? t('disabled')
-      : `${resolvedCompareDates.start.toLocaleString(locale)} - ${resolvedCompareDates.end.toLocaleString(locale)}`;
+      : `${formatLocalDateTime(resolvedCompareDates.start, locale, titleOptions)} - ${formatLocalDateTime(resolvedCompareDates.end, locale, titleOptions)}`;
 
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>

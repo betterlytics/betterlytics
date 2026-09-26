@@ -32,6 +32,13 @@ export const updateUserLanguageAction = withUserAuth(
   },
 );
 
+export const updateUserTimezoneAction = withUserAuth(
+  async (user: User, input: { timezone: string | null }): Promise<UserSettings> => {
+    const payload = UserSettingsUpdateSchema.required().pick({ timezone: true }).parse(input);
+    return UserSettingsService.updateUserSettings(user.id, payload);
+  },
+);
+
 export const updateUserAvatarAction = withUserAuth(
   async (user: User, input: { avatar: AvatarMode }): Promise<UserSettings> => {
     const payload = UserSettingsUpdateSchema.required().pick({ avatar: true }).parse(input);

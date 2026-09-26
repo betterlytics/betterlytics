@@ -5,6 +5,8 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip } from
 import type { TooltipProps } from 'recharts';
 import type { CampaignSparklinePoint } from '@/entities/analytics/campaign.entities';
 import { useTranslations } from 'next-intl';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 export type CampaignSparklineProps = {
   data?: CampaignSparklinePoint[];
@@ -12,6 +14,7 @@ export type CampaignSparklineProps = {
 
 const CampaignSparkline = memo(({ data }: CampaignSparklineProps) => {
   const t = useTranslations('components.campaign.campaignRow');
+  const { timeZone } = useTimeRangeContext();
   const gradientId = useId();
   const hasData = data && data.length > 0;
 
@@ -39,7 +42,7 @@ const CampaignSparkline = memo(({ data }: CampaignSparklineProps) => {
               return (
                 <div className='bg-popover text-popover-foreground border-border rounded-md border px-3 py-1.5 text-[11px] shadow-lg'>
                   <div className='text-muted-foreground mb-0.5'>
-                    {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    {formatLocalDateTime(date, undefined, { month: 'short', day: 'numeric', timeZone })}
                   </div>
                   <div className='text-foreground text-xs font-semibold'>
                     {t('visitors', { count: point.visitors })}

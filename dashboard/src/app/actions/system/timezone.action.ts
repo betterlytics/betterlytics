@@ -1,9 +1,11 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import { normalizeTimezone } from '@/utils/timezone';
 
 export async function setTimezoneCookieAction(tz: string) {
-  if (typeof tz !== 'string' || !tz) {
+  const timezone = normalizeTimezone(tz);
+  if (!timezone) {
     return { changed: false };
   }
 
@@ -12,11 +14,11 @@ export async function setTimezoneCookieAction(tz: string) {
   const name = 'bl_tz';
   const current = cookieStore.get(name)?.value;
 
-  if (current === tz) {
+  if (current === timezone) {
     return { changed: false };
   }
 
-  cookieStore.set(name, tz, {
+  cookieStore.set(name, timezone, {
     path: '/',
     maxAge: 60 * 60 * 24 * 365,
     sameSite: 'lax',

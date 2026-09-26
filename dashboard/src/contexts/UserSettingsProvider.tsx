@@ -48,6 +48,11 @@ export function useUserSettings(): UserSettings {
   return ctx.settings;
 }
 
+// Anonymous share viewers render without the provider
+export function useOptionalUserSettings(): UserSettings | null {
+  return useContext(UserSettingsContext)?.settings ?? null;
+}
+
 export function useUserSettingsActions() {
   const ctx = useContext(UserSettingsContext);
   if (!ctx) throw new Error('useUserSettingsActions must be used within UserSettingsProvider');

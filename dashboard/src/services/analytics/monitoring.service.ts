@@ -1,5 +1,6 @@
 'server-only';
 
+import moment from 'moment-timezone';
 import { toDateTimeString } from '@/utils/dateFormatters';
 
 import {
@@ -222,12 +223,11 @@ export async function fetchMonitorDailyUptime(
     throw new Error('Monitor not found');
   }
 
-  // Compute date range aligned to day boundaries
-  const now = new Date();
-  const rangeEndDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
-  const rangeStartDate = new Date(rangeEndDate.getTime() - days * 24 * 60 * 60 * 1000);
-  const rangeStart = toDateTimeString(rangeStartDate);
-  const rangeEnd = toDateTimeString(rangeEndDate);
+  // Day boundaries in the zone the buckets use, so the last bucket is the zone's today
+  const rangeEndDate = moment.tz(timezone).startOf('day').add(1, 'day');
+  const rangeStartDate = rangeEndDate.clone().subtract(days, 'days');
+  const rangeStart = toDateTimeString(rangeStartDate.toDate());
+  const rangeEnd = toDateTimeString(rangeEndDate.toDate());
 
   return getMonitorDailyUptime(monitorId, siteId, monitor.createdAt, timezone, rangeStart, rangeEnd, days);
 }

@@ -187,7 +187,7 @@ export const MonitorTlsResultSchema = z.object({
 });
 
 export const MonitorDailyUptimeSchema = z.object({
-  date: z.string(), // ISO date string at start of day UTC
+  date: z.string(), // Calendar day in the requested zone, YYYY-MM-DD
   upRatio: z.number().min(0).max(1).nullable(),
   totalSeconds: z.number().nullable(),
 });

@@ -17,6 +17,7 @@ vi.mock('@/observability/clickhouse-concurrency', () => ({
 }));
 
 import { BAQuery } from './ba-query';
+import { safeSql } from './safe-sql';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
 
 function makeFilter(
@@ -120,5 +121,20 @@ describe('getFilterQuery custom event properties', () => {
 
     expect(equals).toContain('JSONHas(custom_event_json');
     expect(notEquals).toContain('NOT JSONHas(custom_event_json');
+  });
+});
+
+describe('getTimestampRange timeWrapper', () => {
+  it('reads week and month Date buckets in the query zone', () => {
+    const { timeWrapper } = BAQuery.getTimestampRange(
+      'week',
+      'Asia/Tokyo',
+      '2026-09-01 00:00:00',
+      '2026-09-30 23:59:59',
+    );
+    const { taggedSql, taggedParams } = timeWrapper(safeSql`SELECT today() AS date`);
+
+    expect(taggedSql).toMatch(/toTimezone\(toDateTime64\(date, 0, \{timezone[^}]*:String\}\), 'UTC'\)/);
+    expect(Object.values(taggedParams)).toContain('Asia/Tokyo');
   });
 });
