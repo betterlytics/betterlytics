@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { BR, CA, DE, DK, FR, GB, IN, JP, NL, SE, US } from 'country-flag-icons/react/3x2';
 import {
   Clock,
@@ -62,6 +62,8 @@ const SEED: ReadonlyArray<readonly [kind: number, agoS: number]> = [
 ];
 
 const MAX_ROWS = 10;
+/** Arrivals kept back while the log is paused; they slide in together on release. */
+const HELD_MAX = 3;
 /** Gaps between arrivals: slow enough that each insert gets a moment, with the odd pair landing close together. */
 const GAP_MS = [3500, 6000] as const;
 const PAIR_MS = 1100;
@@ -172,6 +174,30 @@ export function Events({ live }: IllustrationProps) {
   const serial = useRef(0);
   const seededAt = useRef(0);
 
+  // Hovering the panel pauses the log so a row can be read, as the real log holds new
+  // events back while you're scrolled down. Arrivals keep coming and are held until release.
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  const held = useRef<Row[]>([]);
+  const rowsRef = useRef<Row[]>([]);
+  useEffect(() => {
+    rowsRef.current = rows;
+  }, [rows]);
+
+  const hold = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    pausedRef.current = true;
+    setPaused(true);
+  };
+  const release = () => {
+    if (!pausedRef.current) return;
+    pausedRef.current = false;
+    setPaused(false);
+    const waiting = held.current;
+    held.current = [];
+    if (waiting.length) setRows((prev) => [...waiting, ...prev].slice(0, MAX_ROWS));
+  };
+
   // Seeded on the client, so the relative times are measured from the reader's clock.
   useEffect(() => {
     const t = Date.now();
@@ -197,12 +223,12 @@ export function Events({ live }: IllustrationProps) {
 
     const arrive = () => {
       const n = serial.current++;
-      setRows((prev) => {
-        const recent = new Set(prev.slice(0, FRESH_ROWS).map((row) => row.kind.name));
-        const fresh = KINDS.filter((kind) => !recent.has(kind.name));
-        const kind = fresh[n % fresh.length];
-        return [rowOf(kind, n, Date.now(), n + SEED.length), ...prev].slice(0, MAX_ROWS);
-      });
+      const newest = [...held.current, ...rowsRef.current].slice(0, FRESH_ROWS);
+      const recent = new Set(newest.map((row) => row.kind.name));
+      const fresh = KINDS.filter((kind) => !recent.has(kind.name));
+      const row = rowOf(fresh[n % fresh.length], n, Date.now(), n + SEED.length);
+      if (pausedRef.current) held.current = [row, ...held.current].slice(0, HELD_MAX);
+      else setRows((prev) => [row, ...prev].slice(0, MAX_ROWS));
       setTotal((t) => t + 1);
     };
     const next = () => {
@@ -222,12 +248,12 @@ export function Events({ live }: IllustrationProps) {
 
   return (
     <div className='ev'>
-      <div className='ev__p'>
+      <div className='ev__p' onPointerEnter={hold} onPointerLeave={release}>
         <div className='ev__hd'>
           <b>Custom events</b>
-          <span className='ev__live'>
+          <span className={cn('ev__live', paused && 'is-paused')}>
             <i />
-            Live
+            {paused ? 'Paused' : 'Live'}
           </span>
           <span className='ev__total'>
             <RollingDigits value={total.toLocaleString('en-US')} />

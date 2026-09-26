@@ -3050,6 +3050,17 @@
     box-shadow: 0 0 0 3px rgba(74, 222, 155, 0.14);
     animation: lp2-blink 2.4s ease-in-out infinite;
   }
+  /* paused while the pointer is over the log: the dot becomes two bars */
+  .ev__live.is-paused i {
+    width: 6px;
+    height: 7px;
+    border-radius: 0;
+    background: none;
+    border: solid var(--mid);
+    border-width: 0 2px;
+    box-shadow: none;
+    animation: none;
+  }
   .ev__total {
     margin-left: auto;
     display: inline-flex;
@@ -3098,6 +3109,34 @@
   /* the arriving row rides above its neighbours while its shadow settles */
   .ev__row.is-top {
     z-index: 1;
+  }
+  /* hovering a row tints it and shows its visitor in full colour. The tint is a layer under
+     the content because motion writes the row's own background inline while it settles. */
+  @media (hover: hover) {
+    .ev__row {
+      isolation: isolate;
+    }
+    .ev__row::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: rgba(235, 232, 230, 0.035);
+      opacity: 0;
+      transition: opacity 0.2s var(--ease);
+    }
+    .ev__row:hover::before {
+      opacity: 1;
+    }
+    .ev__who {
+      transition:
+        filter 0.25s var(--ease),
+        opacity 0.25s var(--ease);
+    }
+    .ev__row:hover .ev__who {
+      filter: none;
+      opacity: 1;
+    }
   }
   .ev__row b {
     overflow: hidden;
