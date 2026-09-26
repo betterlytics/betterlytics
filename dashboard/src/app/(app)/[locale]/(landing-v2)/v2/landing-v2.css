@@ -846,30 +846,6 @@
       max-width: 640px;
     }
   }
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 7px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(242, 245, 255, 0.38);
-  }
-  .pill i {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: #8fffc8;
-    flex: none;
-    animation: lp2-blink 2.6s ease-in-out infinite;
-  }
-  .pill span {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0;
-    color: var(--on-volt);
-    opacity: 0.92;
-    font-weight: 500;
-  }
   .card__body h1 {
     color: var(--on-volt);
     max-width: 16ch;

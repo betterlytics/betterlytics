@@ -27,7 +27,6 @@ export const COPY = {
     goToDashboard: 'Go to dashboard',
   },
   hero: {
-    pill: 'Live · 2.4M events recorded today',
     title: 'Every visit, every error, every outage',
     lede: 'One script, 4.9 kB. No cookies, no sampling, and nothing left to reconcile between dashboards.',
     ctaPrimary: 'Start measuring for free',
