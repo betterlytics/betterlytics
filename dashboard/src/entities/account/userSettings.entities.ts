@@ -3,10 +3,10 @@ import { Theme, AvatarMode } from '@prisma/client';
 
 import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import { env } from '@/lib/env';
-import { isValidTimezone } from '@/utils/timezone';
+import { normalizeTimezone } from '@/utils/timezone';
 
 // null means auto-detect from the browser
-const TimezoneSettingSchema = z.string().refine(isValidTimezone).nullable();
+const TimezoneSettingSchema = z.string().transform(normalizeTimezone).pipe(z.string()).nullable();
 
 export const UserSettingsSchema = z
   .object({

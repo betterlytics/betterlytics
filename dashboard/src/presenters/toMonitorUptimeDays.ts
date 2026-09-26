@@ -39,8 +39,8 @@ export type PresentedMonitorUptime = {
 
 export function toMonitorUptimePresentation(
   rows: MonitorDailyUptime[],
-  totalDays = 180,
   timezone: string,
+  totalDays = 180,
   windows: number[] = [7, 30, 90, totalDays],
 ): PresentedMonitorUptime {
   const days = toMonitorUptimeDays(rows);
@@ -58,9 +58,8 @@ function buildUptimeGrid(
   const today = moment.tz(timezone).startOf('day');
   const map = new Map<string, number | null>();
 
-  // ClickHouse prints the zone's day bucket as its wall clock, so the date part is the zone calendar day
   days.forEach((d) => {
-    map.set(d.date.slice(0, 10), d.upRatio ?? null);
+    map.set(d.date, d.upRatio ?? null);
   });
 
   const cells: PresentedMonitorUptimeCell[] = [];

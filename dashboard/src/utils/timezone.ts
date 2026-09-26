@@ -4,21 +4,16 @@ export const FALLBACK_TIMEZONE = 'Etc/UTC';
 
 export type TimezoneSource = 'setting' | 'browser' | 'fallback';
 
-export function isValidTimezone(tz: unknown): tz is string {
-  if (typeof tz !== 'string' || tz === '' || tz === 'Etc/Unknown') return false;
-  try {
-    new Intl.DateTimeFormat(undefined, { timeZone: tz });
-    return true;
-  } catch {
-    return false;
-  }
+// The zone's correctly cased name, or null when unknown. Checked against moment's zone data, not Intl:
+// the server's ICU can lag behind tzdata, and Intl accepts letter cases ClickHouse rejects
+export function normalizeTimezone(tz: unknown): string | null {
+  return (typeof tz === 'string' && moment.tz.zone(tz)?.name) || null;
 }
 
 export function detectBrowserTimezone(): string | null {
   try {
     // Some browsers with broken ICU report undefined or 'Etc/Unknown' here
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return isValidTimezone(tz) ? tz : null;
+    return normalizeTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
   } catch {
     return null;
   }
@@ -28,7 +23,8 @@ export function resolveTimezone(
   setting: string | null | undefined,
   browser: string | null,
 ): { timeZone: string; source: TimezoneSource } {
-  if (isValidTimezone(setting)) return { timeZone: setting, source: 'setting' };
+  const settingZone = normalizeTimezone(setting);
+  if (settingZone) return { timeZone: settingZone, source: 'setting' };
   if (browser) return { timeZone: browser, source: 'browser' };
   return { timeZone: FALLBACK_TIMEZONE, source: 'fallback' };
 }
@@ -61,6 +57,11 @@ export function fromWallClock(wallClock: Date, timeZone: string): Date {
   return moment
     .tz([w.getFullYear(), w.getMonth(), w.getDate(), w.getHours(), w.getMinutes(), w.getSeconds()], timeZone)
     .toDate();
+}
+
+// The instant showing the same wall clock in another zone
+export function keepWallClock(instant: Date, from: string, to: string): Date {
+  return moment.tz(instant, from).tz(to, true).toDate();
 }
 
 export function formatDayKey(instant: Date, timeZone: string): string {

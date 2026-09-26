@@ -48,7 +48,7 @@ export function useUserSettings(): UserSettings {
   return ctx.settings;
 }
 
-// Share pages render without the provider, even for signed-in viewers
+// Anonymous share viewers render without the provider
 export function useOptionalUserSettings(): UserSettings | null {
   return useContext(UserSettingsContext)?.settings ?? null;
 }

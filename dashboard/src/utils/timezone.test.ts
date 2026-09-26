@@ -4,19 +4,26 @@ import {
   createDateTimeFormat,
   formatDayKey,
   fromWallClock,
-  isValidTimezone,
+  keepWallClock,
+  normalizeTimezone,
   resolveTimezone,
   toWallClock,
 } from './timezone';
 import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
 
-describe('isValidTimezone', () => {
-  it.each(['Europe/Berlin', 'Etc/UTC', 'America/Edmonton'])('accepts %s', (tz) => {
-    expect(isValidTimezone(tz)).toBe(true);
+describe('normalizeTimezone', () => {
+  it.each([
+    ['Europe/Berlin', 'Europe/Berlin'],
+    ['Etc/UTC', 'Etc/UTC'],
+    ['America/Coyhaique', 'America/Coyhaique'],
+    ['europe/berlin', 'Europe/Berlin'],
+    ['UTC', 'UTC'],
+  ])('%s → %s', (tz, expected) => {
+    expect(normalizeTimezone(tz)).toBe(expected);
   });
 
   it.each([undefined, null, '', 'Etc/Unknown', 'Foo/Bar'])('rejects %s', (tz) => {
-    expect(isValidTimezone(tz)).toBe(false);
+    expect(normalizeTimezone(tz)).toBeNull();
   });
 });
 
@@ -37,6 +44,10 @@ describe('resolveTimezone', () => {
     expect(resolveTimezone(undefined, null)).toEqual({ timeZone: 'Etc/UTC', source: 'fallback' });
   });
 
+  it('corrects the letter case of the setting', () => {
+    expect(resolveTimezone('asia/tokyo', 'Europe/Berlin')).toEqual({ timeZone: 'Asia/Tokyo', source: 'setting' });
+  });
+
   it('ignores an invalid setting', () => {
     expect(resolveTimezone('Foo/Bar', 'Europe/Berlin')).toEqual({ timeZone: 'Europe/Berlin', source: 'browser' });
     expect(resolveTimezone('Etc/Unknown', null)).toEqual({ timeZone: 'Etc/UTC', source: 'fallback' });
@@ -51,6 +62,7 @@ describe('BATimeZone', () => {
     ['Etc/Unknown', 'Etc/UTC'],
     ['Foo/Bar', 'Etc/UTC'],
     ['Europe/Berlin', 'Europe/Berlin'],
+    ['europe/berlin', 'Europe/Berlin'],
   ])('%s → %s', (input, expected) => {
     expect(BATimeZone.parse(input)).toBe(expected);
   });
@@ -77,6 +89,17 @@ describe('createDateTimeFormat', () => {
 
   it('falls back instead of throwing on a zone Intl rejects', () => {
     expect(() => createDateTimeFormat('en', { hour: '2-digit' }, 'Foo/Bar').format(new Date())).not.toThrow();
+  });
+});
+
+describe('keepWallClock', () => {
+  it.each([
+    ['2026-09-20T00:00:00Z', 'Etc/UTC', 'America/Los_Angeles', '2026-09-20'],
+    ['2026-09-22T23:59:59Z', 'Etc/UTC', 'America/Los_Angeles', '2026-09-22'],
+    ['2026-09-19T22:00:00Z', 'Europe/Berlin', 'Asia/Tokyo', '2026-09-20'],
+    ['2026-09-22T21:59:59Z', 'Europe/Berlin', 'Asia/Tokyo', '2026-09-22'],
+  ])('keeps the calendar day of %s from %s to %s', (iso, from, to, day) => {
+    expect(formatDayKey(keepWallClock(new Date(iso), from, to), to)).toBe(day);
   });
 });
 

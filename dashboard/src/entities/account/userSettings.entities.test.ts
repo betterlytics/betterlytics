@@ -29,6 +29,10 @@ describe('UserSettingsSchema timezone', () => {
   it('reads a stored zone this server rejects as Auto-detect', () => {
     expect(UserSettingsSchema.parse({ ...storedRow, timezone: 'Foo/Bar' }).timezone).toBeNull();
   });
+
+  it('reads a stored zone with its correct letter case', () => {
+    expect(UserSettingsSchema.parse({ ...storedRow, timezone: 'europe/berlin' }).timezone).toBe('Europe/Berlin');
+  });
 });
 
 describe('UserSettingsUpdateSchema timezone', () => {
@@ -39,5 +43,9 @@ describe('UserSettingsUpdateSchema timezone', () => {
   it('accepts a valid zone and Auto-detect', () => {
     expect(UserSettingsUpdateSchema.parse({ timezone: 'Europe/Berlin' }).timezone).toBe('Europe/Berlin');
     expect(UserSettingsUpdateSchema.parse({ timezone: null }).timezone).toBeNull();
+  });
+
+  it('saves a zone with its correct letter case', () => {
+    expect(UserSettingsUpdateSchema.parse({ timezone: 'asia/tokyo' }).timezone).toBe('Asia/Tokyo');
   });
 });
