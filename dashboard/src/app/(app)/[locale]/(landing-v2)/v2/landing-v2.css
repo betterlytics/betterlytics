@@ -1566,140 +1566,260 @@
     position: relative;
     height: 236px;
     background: #efece8;
+    color: #22201e;
     overflow: hidden;
   }
-  .sr__wire {
+  /* every loop in the card runs off one clock: paused until the card is live, so the
+     page, the cursor and the scrub stay in step with each other and with the bar's text */
+  .sr *,
+  .sr *::after {
+    animation-duration: var(--loop);
+    animation-iteration-count: infinite;
+  }
+  .fig:not(.is-live) .sr *,
+  .fig:not(.is-live) .sr *::after {
+    animation-play-state: paused;
+  }
+  /* the recorded page: the visitor's pricing page in its own warm monochrome */
+  .sr__page {
     position: absolute;
     inset: 0;
-    padding: 16px 20px;
-  }
-  .sr__wire span {
-    display: block;
-    background: #dbd5ce;
-    border-radius: 3px;
+    padding: 12px 20px;
+    font-family: var(--sans);
   }
   .sr__nav {
-    height: 9px;
-    width: 34%;
-    margin-bottom: 18px;
-  }
-  .sr__h1 {
-    height: 15px;
-    width: 56%;
-    margin-bottom: 8px;
-  }
-  .sr__h2 {
-    height: 9px;
-    width: 44%;
-    margin-bottom: 20px;
-  }
-  .sr__cards {
     display: flex;
-    gap: 12px;
-    margin-bottom: 16px;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+    font-size: 9px;
+    color: #7b736e;
   }
-  .sr__cards span {
-    flex: 1;
-    height: 68px;
-    border-radius: 6px;
+  .sr__nav b {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: auto;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #22201e;
   }
-  .sr__cards span:nth-child(2) {
-    background: #c7ccf0;
+  .sr__nav b i {
+    width: 9px;
+    height: 9px;
+    border-radius: 2.5px;
+    background: #22201e;
+  }
+  .sr__nav em {
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #d6cfc8;
+    font-style: normal;
+    color: #22201e;
+  }
+  .sr__page h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .sr__page p {
+    margin: 0 0 13px;
+    font-size: 9.5px;
+    color: #7b736e;
+    text-align: center;
+  }
+  .sr__plans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .sr__plan {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 11px;
+    border-radius: 7px;
+    background: #f7f5f2;
+    border: 1px solid #e2dbd4;
+  }
+  .sr__plan--pop {
+    border-color: #22201e;
+    box-shadow: 0 6px 14px rgba(34, 32, 30, 0.08);
+  }
+  .sr__plan b {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 9.5px;
+    font-weight: 600;
+  }
+  .sr__plan b u {
+    padding: 1px 5px;
+    border-radius: 999px;
+    background: #22201e;
+    color: #f7f5f2;
+    font-size: 7.5px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .sr__plan strong {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .sr__plan small {
+    margin-left: 1px;
+    font-size: 8.5px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: #7b736e;
+  }
+  .sr__plan > i {
+    height: 4px;
+    border-radius: 2px;
+    background: #e2dbd4;
+  }
+  .sr__plan > i + i {
+    width: 68%;
+  }
+  .sr__btn {
+    display: grid;
+    place-items: center;
+    height: 21px;
+    margin-top: 4px;
+    border-radius: 5px;
+    border: 1px solid #d6cfc8;
+    font-size: 8.5px;
+    font-weight: 600;
   }
   .sr__cta {
-    height: 26px;
-    width: 120px;
-    border-radius: 6px;
-    background: #4a5cff !important;
+    position: relative;
+    display: block;
   }
-  .sr__cur {
+  /* the button that doesn't work: pressed on each click, busy after the first, then idle again */
+  .sr__btn--pro {
+    background: #22201e;
+    border-color: #22201e;
+    color: #f7f5f2;
+    animation-name: lp2-sr-press;
+    animation-timing-function: linear;
+  }
+  .sr__btn--pro > span,
+  .sr__btn--pro > s {
+    grid-area: 1 / 1;
+  }
+  .sr__btn--pro > span {
+    animation-name: lp2-sr-idle;
+    animation-timing-function: linear;
+  }
+  .sr__btn--pro > s {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(247, 245, 242, 0.25);
+    border-top-color: #f7f5f2;
+    opacity: 0;
+    animation-name: lp2-sr-busy;
+    animation-timing-function: linear;
+  }
+  /* the player's flag on the element the visitor fought with, drawn like the globe's label */
+  .sr__hit {
+    position: absolute;
+    inset: -5px;
+    border: 1px solid var(--down);
+    border-radius: 3px;
+    opacity: 0;
+    animation-name: lp2-sr-hit;
+    animation-timing-function: var(--ease);
+  }
+  .sr__hit .cnr {
+    display: block;
+  }
+  .sr__hit .cnr::before,
+  .sr__hit .cnr::after,
+  .sr__hit .cnr > i::before,
+  .sr__hit .cnr > i::after {
+    width: 6px;
+    height: 6px;
+    border-color: var(--down);
+    border-radius: 1px;
+    background: #f7f5f2;
+  }
+  .sr__hit .cnr::before,
+  .sr__hit .cnr > i::before {
+    left: -3.5px;
+  }
+  .sr__hit .cnr::after,
+  .sr__hit .cnr > i::after {
+    right: -3.5px;
+  }
+  .sr__hit .cnr::before,
+  .sr__hit .cnr::after {
+    top: -3.5px;
+  }
+  .sr__hit .cnr > i::before,
+  .sr__hit .cnr > i::after {
+    bottom: -3.5px;
+  }
+  .sr__hit em {
+    position: absolute;
+    left: -1px;
+    top: calc(100% + 6px);
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: var(--down);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    font-style: normal;
+    line-height: 1.2;
+    white-space: nowrap;
+    box-shadow: 0 6px 14px rgba(34, 32, 30, 0.18);
+  }
+  /* the visitor's pointer and its clicks; the ripples ride the same path so they land under the tip */
+  .sr__cur,
+  .sr__rip {
     position: absolute;
     width: 17px;
     height: 17px;
-    z-index: 3;
-    animation: lp2-sr-path 11s cubic-bezier(0.4, 0.04, 0.25, 1) infinite;
-    animation-play-state: paused;
+    pointer-events: none;
+    animation-name: lp2-sr-path;
+    animation-timing-function: cubic-bezier(0.4, 0.04, 0.25, 1);
   }
-  .is-live .sr__cur {
-    animation-play-state: running;
+  .sr__cur {
+    z-index: 3;
   }
   .sr__cur svg {
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
   }
   .sr__rip {
-    position: absolute;
-    width: 17px;
-    height: 17px;
     z-index: 2;
-    pointer-events: none;
-    animation:
-      lp2-sr-path 11s cubic-bezier(0.4, 0.04, 0.25, 1) infinite,
-      lp2-sr-rip 11s linear infinite;
-    animation-play-state: paused;
-  }
-  .is-live .sr__rip {
-    animation-play-state: running;
-  }
-  /* the ripple is centred on the arrow tip, which sits at the box's top-left corner, so the
-     scale runs from that corner too */
-  .sr__rip {
-    transform-origin: 1px 1px;
   }
   .sr__rip::after {
     content: '';
     position: absolute;
-    left: -14px;
-    top: -14px;
-    width: 30px;
-    height: 30px;
+    left: -13px;
+    top: -13px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    border: 2px solid #4a5cff;
-  }
-  /* the click popup, hung below-right of the tip, shown for the single click */
-  .sr__click {
-    position: absolute;
-    left: 14px;
-    top: 20px;
-    padding: 4px 8px;
-    border-radius: 6px;
-    background: rgba(21, 20, 20, 0.92);
-    border: 1px solid rgba(235, 232, 230, 0.12);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 10px;
-    font-weight: 600;
-    line-height: 1;
-    white-space: nowrap;
+    border: 2px solid var(--volt-lift);
     opacity: 0;
-    animation: lp2-sr-click 11s linear infinite;
-    animation-play-state: paused;
+    animation-name: lp2-sr-click;
+    animation-timing-function: linear;
   }
-  .is-live .sr__click {
-    animation-play-state: running;
+  .sr__rip--rage::after {
+    border-color: var(--down);
+    animation-name: lp2-sr-rage;
   }
-  .sr__tag {
-    position: absolute;
-    left: 52%;
-    top: 70%;
-    z-index: 4;
-    padding: 4px 9px;
-    border-radius: 5px;
-    background: var(--down);
-    color: #fff;
-    font-family: var(--mono);
-    font-size: 10px;
-    white-space: nowrap;
-    opacity: 0;
-    animation: lp2-sr-tag 11s linear infinite;
-    animation-play-state: paused;
-  }
-  .is-live .sr__tag {
-    animation-play-state: running;
-  }
-  /* the play footer, laid out like the current landing card: label row, track, controls row */
+  /* the play footer: the event being played, the track, then the controls row */
   .sr__bar {
     display: flex;
     flex-direction: column;
@@ -1707,46 +1827,40 @@
     padding: 11px 14px 12px;
     border-top: 1px solid rgba(235, 232, 230, 0.07);
   }
+  .sr__ev {
+    height: 14px;
+    margin: 0;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    line-height: 14px;
+    color: var(--mid);
+    white-space: nowrap;
+  }
+  .sr__ev i {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 8px;
+    border-radius: 50%;
+    vertical-align: 1px;
+    background: var(--accent-soft);
+  }
+  .sr__ev b {
+    margin-right: 8px;
+    font-weight: 400;
+    color: var(--text);
+  }
+  .sr__ev i.is-bad {
+    background: var(--down);
+  }
+  .sr__ev i.is-bad + b {
+    color: var(--down);
+  }
   .sr__row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-  }
-  .sr__bar b {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.13em;
-    text-transform: uppercase;
-    color: var(--mid);
-    font-weight: 400;
-  }
-  /* the status pill as on the current landing card: a neutral chip with a pulsing green dot */
-  .sr__bar u {
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 2px 8px;
-    border-radius: 999px;
-    border: 1px solid rgba(235, 232, 230, 0.16);
-    background: rgba(235, 232, 230, 0.06);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0;
-    text-transform: none;
-  }
-  .sr__bar u s {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--live);
-    box-shadow: 0 0 0 2px rgba(74, 222, 155, 0.35);
-    text-decoration: none;
-    animation: lp2-blink 2s ease-in-out infinite;
   }
   .sr__tr {
     position: relative;
@@ -1761,12 +1875,9 @@
     border-radius: 3px;
     background: linear-gradient(90deg, var(--volt-lift), #8b97ff);
     box-shadow: 0 2px 8px rgba(74, 92, 255, 0.35);
-    width: 6%;
-    animation: lp2-sr-scrub 11s linear infinite;
-    animation-play-state: paused;
-  }
-  .is-live .sr__tr i {
-    animation-play-state: running;
+    width: 0;
+    animation-name: lp2-sr-scrub;
+    animation-timing-function: linear;
   }
   /* the play head rides the end of the fill */
   .sr__tr i::after {
@@ -1793,7 +1904,7 @@
     background: rgba(235, 232, 230, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.8);
   }
-  .sr__tr--rage {
+  .sr__tr em.is-bad {
     background: var(--down);
     border-color: rgba(255, 255, 255, 0.6);
   }
@@ -1817,8 +1928,15 @@
   .sr__ctl > span {
     opacity: 0.5;
   }
-  .sr__ctl .sr__max {
+  .sr__speed {
     margin-left: auto;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(235, 232, 230, 0.16);
+    font-weight: 400;
+    color: var(--text);
+  }
+  .sr__ctl .sr__max {
     fill: none;
     stroke: var(--text);
     stroke-width: 1.3;
@@ -4185,18 +4303,17 @@
       opacity: 1;
       transform: none;
     }
-    .sr__cur,
-    .sr__rip,
-    .sr__tag,
-    .sr__click,
-    .sr__tr i {
+    .sr * {
       animation: none;
     }
     .sr__cur {
-      left: 44%;
-      top: 76%;
+      left: 51%;
+      top: 80%;
     }
-    .sr__tag {
+    .sr__tr i {
+      width: 50%;
+    }
+    .sr__hit {
       opacity: 1;
     }
     .mo__c,
@@ -4309,122 +4426,184 @@
     transform: scale(1.5);
   }
 }
+/* replay: one loop, in phase with BEATS in illustrations/replay. Enter, read the
+   Starter price, click Choose Pro (36%), spin until the error (43%), rage-click four
+   times (50-59%), give up and leave through the top (84%). */
 @keyframes lp2-sr-path {
-  0%,
+  0% {
+    left: 80%;
+    top: 16%;
+    opacity: 0;
+  }
   4% {
-    left: 24%;
-    top: 22%;
+    left: 80%;
+    top: 16%;
+    opacity: 1;
   }
-  16%,
-  20% {
-    left: 63%;
-    top: 30%;
-  }
-  34%,
-  38% {
-    left: 31%;
+  18%,
+  24% {
+    left: 21%;
     top: 58%;
   }
+  34%,
+  36% {
+    left: 51%;
+    top: 80%;
+  }
+  42% {
+    left: 52%;
+    top: 79%;
+  }
+  48%,
   50% {
-    left: 44%;
-    top: 76%;
+    left: 51%;
+    top: 80%;
   }
-  54% {
-    left: 46%;
-    top: 74%;
+  53% {
+    left: 52.5%;
+    top: 79%;
   }
-  58% {
-    left: 43%;
-    top: 77%;
+  56% {
+    left: 50%;
+    top: 81%;
   }
-  62% {
-    left: 46%;
-    top: 75%;
+  59%,
+  70% {
+    left: 51.5%;
+    top: 80%;
   }
-  66%,
-  72% {
-    left: 44%;
-    top: 76%;
+  84% {
+    left: 86%;
+    top: 4%;
+    opacity: 1;
   }
-  86%,
-  92% {
-    left: 72%;
-    top: 44%;
+  88% {
+    left: 88%;
+    top: -12%;
+    opacity: 0;
   }
   100% {
-    left: 24%;
-    top: 22%;
+    left: 80%;
+    top: 16%;
+    opacity: 0;
   }
 }
-@keyframes lp2-sr-rip {
+@keyframes lp2-sr-click {
   0%,
-  17% {
+  35.9% {
     opacity: 0;
     transform: scale(0.3);
   }
-  19% {
-    opacity: 0.85;
-    transform: scale(0.4);
+  36% {
+    opacity: 0.9;
+    transform: scale(0.35);
   }
-  24% {
+  41%,
+  100% {
     opacity: 0;
     transform: scale(1.4);
   }
-  49% {
+}
+@keyframes lp2-sr-rage {
+  0%,
+  49.9% {
     opacity: 0;
     transform: scale(0.3);
   }
-  51% {
-    opacity: 0.85;
-    transform: scale(0.4);
+  50%,
+  53%,
+  56%,
+  59% {
+    opacity: 0.9;
+    transform: scale(0.35);
   }
-  56% {
+  52.9%,
+  55.9%,
+  58.9% {
     opacity: 0;
     transform: scale(1.3);
   }
-  57% {
-    opacity: 0.8;
-    transform: scale(0.4);
-  }
-  61% {
-    opacity: 0;
-    transform: scale(1.3);
-  }
-  62% {
-    opacity: 0.8;
-    transform: scale(0.4);
-  }
-  66% {
-    opacity: 0;
-    transform: scale(1.3);
-  }
+  63%,
   100% {
     opacity: 0;
-    transform: scale(0.3);
+    transform: scale(1.4);
   }
 }
-@keyframes lp2-sr-tag {
+@keyframes lp2-sr-press {
   0%,
-  55% {
-    opacity: 0;
-    transform: translateY(4px);
-  }
+  35.9%,
+  37%,
+  49.9%,
+  51%,
+  52.9%,
+  54%,
+  55.9%,
+  57%,
+  58.9%,
   60%,
-  72% {
+  100% {
+    transform: none;
+  }
+  36%,
+  50%,
+  53%,
+  56%,
+  59% {
+    transform: scale(0.95);
+  }
+}
+@keyframes lp2-sr-idle {
+  0%,
+  36%,
+  43%,
+  100% {
+    opacity: 1;
+  }
+  36.8%,
+  42.2% {
+    opacity: 0;
+  }
+}
+@keyframes lp2-sr-busy {
+  0%,
+  36%,
+  43%,
+  100% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  36.8% {
+    opacity: 1;
+    transform: rotate(90deg);
+  }
+  42.2% {
+    opacity: 1;
+    transform: rotate(1600deg);
+  }
+}
+@keyframes lp2-sr-hit {
+  0%,
+  51% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+  54%,
+  82% {
     opacity: 1;
     transform: none;
   }
-  78%,
+  86%,
   100% {
     opacity: 0;
+    transform: none;
   }
 }
 @keyframes lp2-sr-scrub {
-  0% {
-    width: 6%;
+  from {
+    width: 0;
   }
-  100% {
-    width: 94%;
+  to {
+    width: 100%;
   }
 }
 @keyframes lp2-demo-scrim {
@@ -4438,22 +4617,5 @@
 @keyframes lp2-ink-in {
   from {
     border-color: transparent;
-  }
-}
-@keyframes lp2-sr-click {
-  0%,
-  18% {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.96);
-  }
-  21%,
-  30% {
-    opacity: 1;
-    transform: none;
-  }
-  34%,
-  100% {
-    opacity: 0;
-    transform: translateY(-4px) scale(0.96);
   }
 }
