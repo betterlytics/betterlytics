@@ -3,6 +3,10 @@ import { Theme, AvatarMode } from '@prisma/client';
 
 import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import { env } from '@/lib/env';
+import { isValidTimezone } from '@/utils/timezone';
+
+// null means auto-detect from the browser
+const TimezoneSettingSchema = z.string().refine(isValidTimezone).nullable();
 
 export const UserSettingsSchema = z
   .object({
@@ -11,6 +15,7 @@ export const UserSettingsSchema = z
 
     theme: z.nativeEnum(Theme),
     language: z.enum(SUPPORTED_LANGUAGES),
+    timezone: TimezoneSettingSchema,
     avatar: z.nativeEnum(AvatarMode),
 
     emailNotifications: z.boolean(),
@@ -27,6 +32,7 @@ export const UserSettingsCreateSchema = z
     theme: z.nativeEnum(Theme),
     avatar: z.nativeEnum(AvatarMode),
     language: z.enum(SUPPORTED_LANGUAGES).default('en'),
+    timezone: TimezoneSettingSchema.default(null),
     emailNotifications: z.boolean(),
     marketingEmails: z.boolean(),
   })
@@ -36,6 +42,7 @@ export const UserSettingsUpdateSchema = UserSettingsSchema
   .pick({
     theme: true,
     language: true,
+    timezone: true,
     avatar: true,
     emailNotifications: true,
     marketingEmails: true,
@@ -46,6 +53,7 @@ export const UserSettingsUpdateSchema = UserSettingsSchema
 export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'createdAt' | 'updatedAt'> = {
   theme: Theme.system,
   language: env.NEXT_PUBLIC_DEFAULT_LANGUAGE,
+  timezone: null,
   avatar: AvatarMode.default,
   emailNotifications: true,
   marketingEmails: false,

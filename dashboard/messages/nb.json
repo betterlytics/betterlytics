@@ -2956,7 +2956,14 @@
         "localization": {
           "title": "Lokalisering",
           "language": "Språk",
-          "languageDescription": "Velg språk for dashbordet"
+          "languageDescription": "Velg språk for dashbordet",
+          "timezone": "Tidssone",
+          "timezoneDescription": "Brukes for datoer og grafer i alle dashbordene dine",
+          "timezoneAuto": "Oppdag automatisk ({zone})",
+          "timezoneAutoUnavailable": "Oppdag automatisk (ikke tilgjengelig)",
+          "timezoneUndetected": "Nettleseren din oppgir ingen tidssone, så data vises i UTC. Velg tidssonen din for å rette dette.",
+          "timezoneSearch": "Søk etter tidssoner...",
+          "timezoneEmpty": "Fant ingen tidssone."
         },
         "notifications": {
           "title": "Varsler",
@@ -3383,6 +3390,11 @@
       "title": "Integrasjon ikke oppdaget",
       "description": "Dashboardet ditt er klart, men vi har ikke mottatt data fra nettstedet ditt ennå. Fullfør integrasjonsoppsettet for å begynne å spore besøkende.",
       "setup": "Integrasjonsoppsett"
+    },
+    "timezoneFallback": {
+      "title": "Tidssone ikke oppdaget",
+      "description": "Nettleseren din oppgir ingen tidssone, så data vises i UTC.",
+      "action": "Velg tidssone"
     },
     "usageAlert": {
       "title": "Nærmer seg hendelsesgrense",

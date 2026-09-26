@@ -259,7 +259,7 @@ function decode(params: FilterQuerySearchParams, timezone: string): BAAnalyticsQ
   };
 }
 
-function parseFromSearchParams(searchParams: ReadonlyURLSearchParams): BAAnalyticsQuery {
+function parseFromSearchParams(searchParams: ReadonlyURLSearchParams, timezone: string): BAAnalyticsQuery {
   const params: Partial<Record<string, string>> = {};
   for (const key of URL_SEARCH_PARAMS) {
     const value = searchParams.get(key);
@@ -267,7 +267,7 @@ function parseFromSearchParams(searchParams: ReadonlyURLSearchParams): BAAnalyti
       params[key] = value;
     }
   }
-  return decode(params, Intl.DateTimeFormat().resolvedOptions().timeZone);
+  return decode(params, timezone);
 }
 
 export const BAFilterSearchParams = {

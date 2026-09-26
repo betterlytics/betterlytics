@@ -48,6 +48,11 @@ export function useUserSettings(): UserSettings {
   return ctx.settings;
 }
 
+// Share pages render without the provider, even for signed-in viewers
+export function useOptionalUserSettings(): UserSettings | null {
+  return useContext(UserSettingsContext)?.settings ?? null;
+}
+
 export function useUserSettingsActions() {
   const ctx = useContext(UserSettingsContext);
   if (!ctx) throw new Error('useUserSettingsActions must be used within UserSettingsProvider');

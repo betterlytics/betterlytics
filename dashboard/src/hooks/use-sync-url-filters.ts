@@ -28,6 +28,7 @@ export function useSyncURLFilters() {
     setCompareMode,
     compareAlignWeekdays,
     setCompareAlignWeekdays,
+    timeZone,
   } = useTimeRangeContext();
   const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
 
@@ -42,7 +43,7 @@ export function useSyncURLFilters() {
 
       const encoded = Object.fromEntries(encodedFilterEntries);
 
-      const filters = BAFilterSearchParams.decode(encoded, Intl.DateTimeFormat().resolvedOptions().timeZone);
+      const filters = BAFilterSearchParams.decode(encoded, timeZone);
 
       if (filters.startDate && filters.endDate) {
         setPeriod(filters.startDate, filters.endDate);

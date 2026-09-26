@@ -2956,7 +2956,14 @@
         "localization": {
           "title": "Lokalisering",
           "language": "Sprog",
-          "languageDescription": "Vælg sproget for dashboardet"
+          "languageDescription": "Vælg sproget for dashboardet",
+          "timezone": "Tidszone",
+          "timezoneDescription": "Bruges til datoer og grafer på tværs af dine dashboards",
+          "timezoneAuto": "Registrer automatisk ({zone})",
+          "timezoneAutoUnavailable": "Registrer automatisk (ikke tilgængelig)",
+          "timezoneUndetected": "Din browser oplyser ingen tidszone, så data vises i UTC. Vælg din tidszone for at rette det.",
+          "timezoneSearch": "Søg i tidszoner...",
+          "timezoneEmpty": "Ingen tidszone fundet."
         },
         "notifications": {
           "title": "Notifikationer",
@@ -3393,6 +3400,11 @@
       "title": "Integration ikke detected",
       "description": "Dit dashboard er klar, men vi har endnu ikke modtaget data fra dit website. Gennemfør integrationsopsætningen for at begynde at spore besøgende.",
       "setup": "Integrationsopsætning"
+    },
+    "timezoneFallback": {
+      "title": "Tidszone ikke registreret",
+      "description": "Din browser oplyser ingen tidszone, så data vises i UTC.",
+      "action": "Vælg tidszone"
     },
     "webVitalsNoData": {
       "title": "Ingen Core Web Vitals data endnu",

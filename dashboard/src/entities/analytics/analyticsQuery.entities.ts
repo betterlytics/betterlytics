@@ -3,8 +3,13 @@ import { MAX_FILTER_ROWS, QueryFilterSchema } from '@/entities/analytics/filter.
 import { GRANULARITY_RANGE_VALUES } from '@/utils/granularityRanges';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { COMPARE_URL_MODES } from '@/utils/compareRanges';
+import { FALLBACK_TIMEZONE, isValidTimezone } from '@/utils/timezone';
 
-export const BATimeZone = z.string().transform((tz) => (tz === 'Etc/Unknown' ? 'Etc/UTC' : tz));
+// Browsers with broken ICU and cached old bundles send undefined, 'Etc/Unknown' or junk
+export const BATimeZone = z
+  .string()
+  .nullish()
+  .transform((tz) => (isValidTimezone(tz) ? tz : FALLBACK_TIMEZONE));
 
 const UserJourneySchema = z.object({
   numberOfSteps: z.number().int().min(1).max(5),

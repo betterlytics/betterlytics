@@ -1,9 +1,10 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import { isValidTimezone } from '@/utils/timezone';
 
 export async function setTimezoneCookieAction(tz: string) {
-  if (typeof tz !== 'string' || !tz) {
+  if (!isValidTimezone(tz)) {
     return { changed: false };
   }
 

@@ -2956,7 +2956,14 @@
         "localization": {
           "title": "Localizzazione",
           "language": "Lingua",
-          "languageDescription": "Scegli la lingua della dashboard"
+          "languageDescription": "Scegli la lingua della dashboard",
+          "timezone": "Fuso orario",
+          "timezoneDescription": "Usato per date e grafici in tutte le tue dashboard",
+          "timezoneAuto": "Rilevamento automatico ({zone})",
+          "timezoneAutoUnavailable": "Rilevamento automatico (non disponibile)",
+          "timezoneUndetected": "Il tuo browser non indica un fuso orario, quindi i dati sono mostrati in UTC. Scegli il tuo fuso orario per risolvere.",
+          "timezoneSearch": "Cerca fusi orari...",
+          "timezoneEmpty": "Nessun fuso orario trovato."
         },
         "notifications": {
           "title": "Notifiche",
@@ -3383,6 +3390,11 @@
       "title": "Integrazione non rilevata",
       "description": "La tua dashboard è pronta, ma non stiamo ancora ricevendo dati dal tuo sito web. Completa la configurazione dell'integrazione per iniziare a tracciare i visitatori.",
       "setup": "Configura integrazione"
+    },
+    "timezoneFallback": {
+      "title": "Fuso orario non rilevato",
+      "description": "Il tuo browser non indica un fuso orario, quindi i dati sono mostrati in UTC.",
+      "action": "Imposta fuso orario"
     },
     "usageAlert": {
       "title": "Limite di eventi in avvicinamento",

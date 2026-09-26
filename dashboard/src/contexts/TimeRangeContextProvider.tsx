@@ -4,6 +4,7 @@ import { TimeRangeValue } from '@/utils/timeRanges';
 import { CompareMode } from '@/utils/compareRanges';
 import { getResolvedRanges, type TimeRangeResult } from '@/lib/ba-timerange';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { useResolvedTimezone } from '@/hooks/use-resolved-timezone';
 
 export type TimeRangeContextProps = {
   startDate: Date;
@@ -52,7 +53,7 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
     initialFilters.compareAlignWeekdays ?? false,
   );
 
-  const timeZone = React.useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
+  const { timeZone } = useResolvedTimezone();
 
   const resolvedRanges = useMemo(
     () =>
