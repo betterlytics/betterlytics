@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2 } from 'lucide-react';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useOverlayReset } from '@/hooks/use-overlay-reset';
 import { Label } from '@/components/ui/label';
 import {
@@ -86,6 +87,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
   ({ onAddAnnotation, onUpdateAnnotation, onDeleteAnnotation }, ref) => {
     const t = useTranslations('components.annotations.dialogs');
     const locale = useLocale();
+    const { timeZone } = useTimeRangeContext();
     const colorPalette = Object.keys(ANNOTATION_COLOR_MAP) as AnnotationColorToken[];
     const defaultColorToken = DEFAULT_ANNOTATION_COLOR_TOKEN;
     const emptyForm: AnnotationFormState = {
@@ -224,6 +226,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                   value={createForm.date ?? new Date()}
                   onChange={(d) => setCreateForm((prev) => ({ ...prev, date: d }))}
                   locale={locale}
+                  timeZone={timeZone}
                   dateLabel={t('dateTimeLabel')}
                   className='w-full'
                 />
@@ -297,6 +300,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                   value={editForm.date ?? new Date(selectedAnnotation?.date ?? Date.now())}
                   onChange={(d) => setEditForm((prev) => ({ ...prev, date: d }))}
                   locale={locale}
+                  timeZone={timeZone}
                   dateLabel={t('dateTimeLabel')}
                   className='w-full'
                 />

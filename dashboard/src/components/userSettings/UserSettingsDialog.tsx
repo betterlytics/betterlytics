@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils';
 interface UserSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialTab?: string;
 }
 
 interface TabConfig {
@@ -55,7 +56,7 @@ const MOBILE_TAB_CLASSES = cn(
   'flex flex-none flex-shrink-0 cursor-pointer items-center gap-2 rounded-none px-3 py-3 text-sm font-medium shadow-none transition-colors data-[state=active]:shadow-none',
 );
 
-export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsDialogProps) {
+export default function UserSettingsDialog({ open, onOpenChange, initialTab }: UserSettingsDialogProps) {
   const tDialog = useTranslations('components.userSettings.dialog');
 
   return (
@@ -66,7 +67,7 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
           <DialogDescription>{tDialog('description')}</DialogDescription>
         </DialogHeader>
 
-        <UserSettingsDialogContent closeDialog={() => onOpenChange(false)} />
+        <UserSettingsDialogContent closeDialog={() => onOpenChange(false)} initialTab={initialTab} />
       </DialogContent>
     </Dialog>
   );
@@ -74,9 +75,10 @@ export default function UserSettingsDialog({ open, onOpenChange }: UserSettingsD
 
 interface UserSettingsDialogContentProps {
   closeDialog: () => void;
+  initialTab?: string;
 }
 
-function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentProps) {
+function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDialogContentProps) {
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const tTabs = useTranslations('components.userSettings.tabs');
   const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
@@ -107,7 +109,7 @@ function UserSettingsDialogContent({ closeDialog }: UserSettingsDialogContentPro
   );
 
   const availableTabs = tabs.filter((tab) => !tab.disabled);
-  const [activeTabId, setActiveTabId] = useState<string>(availableTabs[0].id);
+  const [activeTabId, setActiveTabId] = useState<string>(initialTab ?? availableTabs[0].id);
   const activeTab = availableTabs.find((tab) => tab.id === activeTabId) ?? availableTabs[0];
 
   return (

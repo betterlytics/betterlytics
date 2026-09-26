@@ -9,6 +9,7 @@ import { TimeRangeContextProps } from '@/contexts/TimeRangeContextProvider';
 import { cn } from '@/lib/utils';
 import { getCountryName } from '@/utils/countryCodes';
 import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
+import { formatLocalDateTime, LOCALE_STRING_OPTIONS } from '@/utils/dateFormatters';
 import { formatNumber } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
 import React from 'react';
@@ -36,6 +37,7 @@ function MapPopupContentComponent({
 
   const resolvedMain = timeRangeCtx.resolvedMainRange;
   const resolvedCompare = timeRangeCtx.resolvedCompareRange;
+  const rangeTooltipOptions = { ...LOCALE_STRING_OPTIONS, timeZone: timeRangeCtx.timeZone };
 
   const percentageChange =
     geoVisitor.compareVisitors !== undefined
@@ -107,16 +109,17 @@ function MapPopupContentComponent({
                     startDate: resolvedMain.start,
                     endDate: resolvedMain.end,
                     locale,
+                    timeZone: timeRangeCtx.timeZone,
                   })
             }
-            tooltip={`${resolvedMain.start.toLocaleString(locale)} - ${resolvedMain.end.toLocaleString(locale)}`}
+            tooltip={`${formatLocalDateTime(resolvedMain.start, locale, rangeTooltipOptions)} - ${formatLocalDateTime(resolvedMain.end, locale, rangeTooltipOptions)}`}
             value={formatNumber(geoVisitor.visitors, locale)}
           />
           {resolvedCompare && (
             <Row
               color='bg-chart-comparison'
               label={t('timeRange.previousPeriod')}
-              tooltip={`${resolvedCompare.start.toLocaleString(locale)} - ${resolvedCompare.end.toLocaleString(locale)}`}
+              tooltip={`${formatLocalDateTime(resolvedCompare.start, locale, rangeTooltipOptions)} - ${formatLocalDateTime(resolvedCompare.end, locale, rangeTooltipOptions)}`}
               value={formatNumber(geoVisitor.compareVisitors ?? 0, locale)}
               muted
             />

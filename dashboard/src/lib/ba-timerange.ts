@@ -402,7 +402,10 @@ export function getResolvedRanges(
   const needsRecompute =
     mainEnd.getTime() !== initial.mainRange.end.toDate().getTime() || nextGranularity !== granularity;
 
-  const { mainRange, compareRange } = needsRecompute ? resolve(nextGranularity, mainStart, mainEnd) : initial;
+  // mainEnd is exclusive, so pass its last second or the custom end ceils into the next day
+  const { mainRange, compareRange } = needsRecompute
+    ? resolve(nextGranularity, mainStart, new Date(mainEnd.getTime() - 1000))
+    : initial;
 
   return {
     main: { start: mainRange.start.toDate(), end: mainRange.end.clone().subtract(1, 'second').toDate() },
