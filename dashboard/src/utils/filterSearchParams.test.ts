@@ -108,11 +108,33 @@ describe('BAFilterSearchParams round trip', () => {
       { id: 'f2', column: 'browser', operator: '!=', values: ['Chrome'] },
     ];
     const encoded = Object.fromEntries(
-      BAFilterSearchParams.encode({ ...BAFilterSearchParams.getDefaultFilters(), queryFilters }),
+      BAFilterSearchParams.encode({ ...BAFilterSearchParams.getDefaultFilters(), queryFilters }, TZ),
     );
 
     const result = decodeParams(encoded);
 
     expect(result.queryFilters.map((filter) => filter.id)).toEqual(['f1', 'f2']);
+  });
+
+  it.each(['America/New_York', 'Asia/Tokyo'])('keeps a custom range stable across URL syncs in %s', (tz) => {
+    let params: Record<string, string> = { interval: 'custom', startDate: '2026-09-20', endDate: '2026-09-22' };
+
+    for (let sync = 0; sync < 2; sync++) {
+      const decoded = BAFilterSearchParams.decode(params, tz);
+      const encoded = BAFilterSearchParams.encode(
+        {
+          ...BAFilterSearchParams.getDefaultFilters(),
+          interval: decoded.interval,
+          granularity: decoded.granularity,
+          startDate: decoded.startDate,
+          endDate: decoded.endDate,
+        },
+        tz,
+      );
+      params = Object.fromEntries(encoded);
+    }
+
+    expect(params.startDate).toBe('2026-09-20');
+    expect(params.endDate).toBe('2026-09-22');
   });
 });

@@ -5,6 +5,8 @@ import { Area, AreaChart, Tooltip } from 'recharts';
 import type { TimeSeriesPoint } from '@/presenters/toTimeSeries';
 import { formatNumber } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 type ErrorSparklineProps = {
   data: TimeSeriesPoint[];
@@ -14,10 +16,10 @@ type ErrorSparklineProps = {
 
 function SparklineTooltipContent({ active, payload }: { active?: boolean; payload?: { payload: TimeSeriesPoint }[] }) {
   const t = useTranslations('errors.detail.volumeChart');
+  const { timeZone } = useTimeRangeContext();
   if (!active || !payload?.length) return null;
   const point = payload[0].payload;
-  const date = new Date(point.date);
-  const label = date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  const label = formatLocalDateTime(new Date(point.date), undefined, { month: 'short', day: 'numeric', timeZone });
 
   return (
     <div className='bg-popover text-popover-foreground rounded border px-2 py-1 text-xs shadow-sm'>

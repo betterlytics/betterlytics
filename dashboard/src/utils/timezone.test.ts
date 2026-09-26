@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { FALLBACK_TIMEZONE, isValidTimezone, resolveTimezone } from './timezone';
+import {
+  FALLBACK_TIMEZONE,
+  createDateTimeFormat,
+  formatDayKey,
+  fromWallClock,
+  isValidTimezone,
+  resolveTimezone,
+  toWallClock,
+} from './timezone';
 import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
 
 describe('isValidTimezone', () => {
@@ -45,5 +53,37 @@ describe('BATimeZone', () => {
     ['Europe/Berlin', 'Europe/Berlin'],
   ])('%s → %s', (input, expected) => {
     expect(BATimeZone.parse(input)).toBe(expected);
+  });
+});
+
+describe('wall clock', () => {
+  const instant = new Date('2026-09-22T05:30:00Z');
+
+  it.each(['Asia/Tokyo', 'America/New_York'])('round trips through %s', (tz) => {
+    expect(fromWallClock(toWallClock(instant, tz), tz)).toEqual(instant);
+  });
+
+  it('carries the zone wall clock in local fields', () => {
+    const wall = toWallClock(instant, 'Asia/Tokyo');
+    expect([wall.getDate(), wall.getHours(), wall.getMinutes()]).toEqual([22, 14, 30]);
+  });
+});
+
+describe('createDateTimeFormat', () => {
+  it('formats in the given zone', () => {
+    const formatter = createDateTimeFormat('en', { hour: '2-digit', hourCycle: 'h23' }, 'Asia/Tokyo');
+    expect(formatter.format(new Date('2026-09-22T05:00:00Z'))).toBe('14');
+  });
+
+  it('falls back instead of throwing on a zone Intl rejects', () => {
+    expect(() => createDateTimeFormat('en', { hour: '2-digit' }, 'Foo/Bar').format(new Date())).not.toThrow();
+  });
+});
+
+describe('formatDayKey', () => {
+  it('uses the zone calendar day', () => {
+    const instant = new Date('2026-09-21T16:00:00Z');
+    expect(formatDayKey(instant, 'Asia/Tokyo')).toBe('2026-09-22');
+    expect(formatDayKey(instant, 'America/New_York')).toBe('2026-09-21');
   });
 });

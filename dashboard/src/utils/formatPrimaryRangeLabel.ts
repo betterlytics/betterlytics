@@ -1,5 +1,6 @@
 import { TimeRangeValue } from '@/utils/timeRanges';
 import { SupportedLanguages } from '@/constants/i18n';
+import { createDateTimeFormat, zonedMoment } from '@/utils/timezone';
 
 interface FormatPrimaryRangeLabelParams {
   interval: TimeRangeValue;
@@ -7,6 +8,7 @@ interface FormatPrimaryRangeLabelParams {
   startDate: Date;
   endDate: Date;
   locale: SupportedLanguages;
+  timeZone?: string;
 }
 
 export function formatPrimaryRangeLabel({
@@ -15,56 +17,51 @@ export function formatPrimaryRangeLabel({
   startDate,
   endDate,
   locale,
+  timeZone,
 }: FormatPrimaryRangeLabelParams): string {
-  const dateOpts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-  const dateTimeOpts: Intl.DateTimeFormatOptions = {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  };
-  const timeOpts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
+  const dateFormatter = createDateTimeFormat(locale, { month: 'short', day: 'numeric' }, timeZone);
+  const dateTimeFormatter = createDateTimeFormat(
+    locale,
+    {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    },
+    timeZone,
+  );
+  const timeFormatter = createDateTimeFormat(
+    locale,
+    { hour: '2-digit', minute: '2-digit', hour12: false },
+    timeZone,
+  );
 
-  const isSameDay =
-    startDate.getFullYear() === endDate.getFullYear() &&
-    startDate.getMonth() === endDate.getMonth() &&
-    startDate.getDate() === endDate.getDate();
+  const start = zonedMoment(startDate, timeZone);
+  const end = zonedMoment(endDate, timeZone);
 
-  const isStartMidnight = startDate.getHours() === 0 && startDate.getMinutes() === 0;
-  const isEndEndOfDay = endDate.getHours() === 23 && endDate.getMinutes() >= 59; // tolerate seconds/millis
+  const isSameDay = start.isSame(end, 'day');
+
+  const isStartMidnight = start.hour() === 0 && start.minute() === 0;
+  const isEndEndOfDay = end.hour() === 23 && end.minute() >= 59; // tolerate seconds/millis
   const isFullDayRange = isStartMidnight && isEndEndOfDay;
 
   if (isFullDayRange) {
-    if (isSameDay) return startDate.toLocaleDateString(locale, dateOpts);
-    return `${startDate.toLocaleDateString(locale, dateOpts)} - ${endDate.toLocaleDateString(locale, dateOpts)}`;
+    if (isSameDay) return dateFormatter.format(startDate);
+    return `${dateFormatter.format(startDate)} - ${dateFormatter.format(endDate)}`;
   }
 
   // Adjust displayed end time forward to the next minute if the end contains seconds/millis
-  const displayEnd = (() => {
-    if (endDate.getSeconds() > 0 || endDate.getMilliseconds() > 0) {
-      const d = new Date(endDate);
-      d.setSeconds(0, 0);
-      d.setMinutes(d.getMinutes() + 1);
-      return d;
-    }
-    return endDate;
-  })();
+  const displayEnd =
+    end.second() > 0 || end.millisecond() > 0 ? end.clone().startOf('minute').add(1, 'minute') : end;
 
-  const isSameDayForDisplay =
-    startDate.getFullYear() === displayEnd.getFullYear() &&
-    startDate.getMonth() === displayEnd.getMonth() &&
-    startDate.getDate() === displayEnd.getDate();
+  const isSameDayForDisplay = start.isSame(displayEnd, 'day');
 
   if (isSameDayForDisplay) {
-    return `${startDate.toLocaleDateString(locale, dateOpts)} ${startDate.toLocaleTimeString(
-      locale,
-      timeOpts,
-    )} - ${displayEnd.toLocaleTimeString(locale, timeOpts)}`;
+    return `${dateFormatter.format(startDate)} ${timeFormatter.format(startDate)} - ${timeFormatter.format(
+      displayEnd.toDate(),
+    )}`;
   }
 
-  return `${startDate.toLocaleString(locale, dateTimeOpts)} - ${displayEnd.toLocaleString(
-    locale,
-    dateTimeOpts,
-  )}`;
+  return `${dateTimeFormatter.format(startDate)} - ${dateTimeFormatter.format(displayEnd.toDate())}`;
 }

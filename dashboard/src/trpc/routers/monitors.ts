@@ -52,6 +52,6 @@ export const monitorsRouter = createRouter({
     .input(z.object({ monitorId: z.string(), timezone: z.string(), days: z.number().optional().default(180) }))
     .query(async ({ ctx, input }) => {
       const rows = await fetchMonitorDailyUptime(input.monitorId, ctx.authContext.dashboardId, ctx.authContext.siteId, input.timezone, input.days);
-      return toMonitorUptimePresentation(rows, input.days);
+      return toMonitorUptimePresentation(rows, input.days, input.timezone);
     }),
 });

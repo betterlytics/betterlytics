@@ -14,7 +14,7 @@ export function normalizeUptimeBuckets(data: RawMonitorMetrics['uptimeBuckets'],
     d.setHours(end.getHours() - i);
     const key = d.getTime();
     const fallback = null;
-    buckets.push({ bucket: formatBucket(d), upRatio: bucketMap.get(key) ?? fallback, totalSeconds: 60 * 60 });
+    buckets.push({ bucket: d.toISOString(), upRatio: bucketMap.get(key) ?? fallback, totalSeconds: 60 * 60 });
   }
 
   return buckets;
@@ -24,14 +24,6 @@ function floorToHour(date: Date) {
   const d = new Date(date);
   d.setMinutes(0, 0, 0);
   return d;
-}
-
-function formatBucket(date: Date) {
-  const y = date.getFullYear();
-  const m = `${date.getMonth() + 1}`.padStart(2, '0');
-  const d = `${date.getDate()}`.padStart(2, '0');
-  const h = `${date.getHours()}`.padStart(2, '0');
-  return `${y}-${m}-${d} ${h}:00:00`;
 }
 
 function parseClickHouseDateSafe(value: string) {

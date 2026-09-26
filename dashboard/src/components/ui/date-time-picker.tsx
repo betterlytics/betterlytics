@@ -6,6 +6,7 @@ import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { resolveDateFnsLocale, type SupportedLanguages } from '@/constants/i18n';
 import { useDisplayHour12 } from '@/hooks/use-display-hour12';
+import { fromWallClock, toWallClock } from '@/utils/timezone';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -19,6 +20,8 @@ type DateTimePickerProps = {
   dateLabel?: string;
   timeLabel?: string;
   className?: string;
+  // Pick in this zone's wall clock instead of the browser's
+  timeZone?: string;
 };
 
 function pad(value: number) {
@@ -30,15 +33,21 @@ const TWELVE_HOURS = Array.from({ length: 12 }, (_, i) => i + 1);
 const MINUTES = Array.from({ length: 60 }, (_, i) => i);
 
 export function DateTimePicker({
-  value,
-  onChange,
+  value: valueProp,
+  onChange: onChangeProp,
   disabled,
   locale,
   dateLabel,
   timeLabel,
   className,
+  timeZone,
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false);
+  const value = React.useMemo(
+    () => (timeZone ? toWallClock(valueProp, timeZone) : valueProp),
+    [valueProp, timeZone],
+  );
+  const onChange = (next: Date) => onChangeProp(timeZone ? fromWallClock(next, timeZone) : next);
   const hour12 = useDisplayHour12();
   const dateFnsLocale = React.useMemo(
     () => (locale ? resolveDateFnsLocale(locale as SupportedLanguages) : undefined),

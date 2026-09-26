@@ -16,6 +16,7 @@ import { GranularitySection } from '@/components/TimeRange/GranularitySection';
 import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { getAllowedGranularities, getVisibleGranularities } from '@/utils/granularityRanges';
 import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
+import { formatLocalDateTime, LOCALE_STRING_OPTIONS } from '@/utils/dateFormatters';
 import { LiveIndicator } from '@/components/live-indicator';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
@@ -42,12 +43,14 @@ export function PrimaryRangePicker({ className = '' }: { className?: string }) {
         startDate: ctx.startDate,
         endDate: ctx.endDate,
         locale,
+        timeZone: ctx.timeZone,
       });
     },
-    [ctx.interval, ctx.offset, ctx.startDate, ctx.endDate, t, locale],
+    [ctx.interval, ctx.offset, ctx.startDate, ctx.endDate, ctx.timeZone, t, locale],
   );
 
-  const titleText = `${ctx.startDate.toLocaleString(locale)} - ${ctx.endDate.toLocaleString(locale)}`;
+  const titleOptions = { ...LOCALE_STRING_OPTIONS, timeZone: ctx.timeZone };
+  const titleText = `${formatLocalDateTime(ctx.startDate, locale, titleOptions)} - ${formatLocalDateTime(ctx.endDate, locale, titleOptions)}`;
 
   const content = (
     <div className='space-y-6 p-0 sm:p-0'>

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { addMonths, startOfDay } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -11,6 +11,8 @@ import { useToggle } from '@/hooks/use-toggle';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useTranslations } from 'next-intl';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { fromWallClock, toWallClock } from '@/utils/timezone';
 import { PermissionGate } from '../tooltip/PermissionGate';
 
 interface DateRangePickerProps {
@@ -27,24 +29,45 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
   const t = useTranslations('components.timeRange');
   const { isDemo } = useDashboardAuth();
 
+  const { timeZone } = useTimeRangeContext();
+
   const { isOn: selectStartDate, toggle: toggleDateSelect, setOff: setSelectEndDate } = useToggle(true);
+
+  // The calendar works in browser-local days, so it gets the zone's wall clock and hands back zone instants
+  const wallRange = useMemo<DateRange | undefined>(
+    () =>
+      range && {
+        from: range.from && toWallClock(range.from, timeZone),
+        to: range.to && toWallClock(range.to, timeZone),
+      },
+    [range, timeZone],
+  );
+  const todayWall = toWallClock(new Date(), timeZone);
 
   const handleDateSelect = useCallback(
     (selectedRange: DateRange | undefined) => {
+      const emit = (next: DateRange | undefined) =>
+        onDateRangeSelect(
+          next && {
+            from: next.from && fromWallClock(next.from, timeZone),
+            to: next.to && fromWallClock(next.to, timeZone),
+          },
+        );
+
       if (!selectedRange) {
-        onDateRangeSelect(undefined);
+        emit(undefined);
         return;
       }
 
-      const selected = getClickedDate(selectedRange, range);
+      const selected = getClickedDate(selectedRange, wallRange);
 
       if (!selected) {
-        return onDateRangeSelect(selectedRange);
+        return emit(selectedRange);
       }
 
-      const { newRange, setSelectEnd, shouldToggle } = computeSelectionRange(selected, range, selectStartDate);
+      const { newRange, setSelectEnd, shouldToggle } = computeSelectionRange(selected, wallRange, selectStartDate);
 
-      onDateRangeSelect(newRange);
+      emit(newRange);
 
       if (setSelectEnd) {
         setSelectEndDate();
@@ -55,7 +78,7 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
         toggleDateSelect();
       }
     },
-    [range, onDateRangeSelect, selectStartDate, setSelectEndDate],
+    [wallRange, timeZone, onDateRangeSelect, selectStartDate, setSelectEndDate],
   );
 
   return (
@@ -83,15 +106,15 @@ export function DateRangePicker({ range, onDateRangeSelect, showSameLengthHint =
           <Calendar
             mode='range'
             selected={{
-              from: range?.from && startOfDay(range.from),
-              to: range?.to && startOfDay(range.to),
+              from: wallRange?.from && startOfDay(wallRange.from),
+              to: wallRange?.to && startOfDay(wallRange.to),
             }}
             startMonth={new Date(2019, 0)}
-            endMonth={addMonths(new Date(), 1)}
+            endMonth={addMonths(todayWall, 1)}
             onSelect={handleDateSelect}
             captionLayout='dropdown'
             className='[&_button]:cursor-pointer [&_select]:cursor-pointer'
-            disabled={(date) => date > new Date()}
+            disabled={(date) => date > todayWall}
             classNames={{
               dropdowns:
                 'w-full flex flex-row-reverse items-center text-sm font-medium justify-center h-(--cell-size) gap-1.5 rdp-dropdowns',

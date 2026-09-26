@@ -99,25 +99,28 @@ export function useSyncURLFilters() {
         return;
       }
 
-      const rawEncoded = BAFilterSearchParams.encode({
-        queryFilters,
-        startDate,
-        endDate,
-        granularity,
-        interval,
-        offset,
-        compare: compareMode,
-        compareAlignWeekdays,
-        userJourney: {
-          numberOfSteps,
-          numberOfJourneys,
+      const rawEncoded = BAFilterSearchParams.encode(
+        {
+          queryFilters,
+          startDate,
+          endDate,
+          granularity,
+          interval,
+          offset,
+          compare: compareMode,
+          compareAlignWeekdays,
+          userJourney: {
+            numberOfSteps,
+            numberOfJourneys,
+          },
+          // Only include compare dates for custom mode when both are present
+          compareStartDate:
+            compareMode === 'custom' && compareStartDate && compareEndDate ? compareStartDate : undefined,
+          compareEndDate:
+            compareMode === 'custom' && compareStartDate && compareEndDate ? compareEndDate : undefined,
         },
-        // Only include compare dates for custom mode when both are present
-        compareStartDate:
-          compareMode === 'custom' && compareStartDate && compareEndDate ? compareStartDate : undefined,
-        compareEndDate:
-          compareMode === 'custom' && compareStartDate && compareEndDate ? compareEndDate : undefined,
-      });
+        timeZone,
+      );
 
       const showMainDates = interval === 'custom';
       const showCompareDates = compareMode === 'custom';
@@ -156,6 +159,7 @@ export function useSyncURLFilters() {
     compareAlignWeekdays,
     numberOfSteps,
     numberOfJourneys,
+    timeZone,
   ]);
 }
 

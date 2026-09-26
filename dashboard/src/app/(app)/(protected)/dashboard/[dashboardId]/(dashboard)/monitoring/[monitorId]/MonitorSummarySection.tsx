@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar, SummaryCard } from '../components';
 import { useLocale, useTranslations } from 'next-intl';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { AlertCircle, ArrowRight, LockOpen, RefreshCcw, Shield } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatIntervalLabel, formatSslTimeRemaining, isHttpUrl } from '../utils';
@@ -305,6 +306,7 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
   const t = useTranslations('monitoringDetailPage.summary.ssl');
   const tSsl = useTranslations('monitoring.ssl');
   const locale = useLocale();
+  const { timeZone } = useTimeRangeContext();
 
   if (isHttpSite) {
     return (
@@ -329,7 +331,7 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
   const daysLeft = computeDaysUntil(tls?.tlsNotAfter);
   const isExpired = isExpiredReason(tls?.reasonCode, daysLeft);
   const presentation = presentSslStatus({ status: tls?.status, daysLeft, reasonCode: tls?.reasonCode });
-  const expiresLabel = expiry ? formatLocalDateTime(expiry, locale, { dateStyle: 'medium' }) : null;
+  const expiresLabel = expiry ? formatLocalDateTime(expiry, locale, { dateStyle: 'medium', timeZone }) : null;
   const badgeLabel = tSsl(presentation.labelKey);
 
   const sslTimeRemaining = formatSslTimeRemaining(tls?.tlsNotAfter);

@@ -8,6 +8,7 @@ import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entit
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';
+import { formatDayKey } from '@/utils/timezone';
 import type { ReadonlyURLSearchParams } from 'next/navigation';
 
 export const TIME_RANGE_SEARCH_PARAMS = [
@@ -92,22 +93,16 @@ function filterVariable(key: string, value: unknown) {
   return true;
 }
 
-// Util for encoding date
-function formatLocalDate(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // months are 0-based so add 1
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
 // Encode filter values
-function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unknown): string {
+// Dates must be encoded in the zone decodeValue reads them in; browser getters here moved
+// endDate one day per URL sync whenever the zones differed
+function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unknown, timezone: string): string {
   switch (key) {
     case 'startDate':
     case 'endDate':
     case 'compareStartDate':
     case 'compareEndDate':
-      return formatLocalDate(value as Date);
+      return formatDayKey(value as Date, timezone);
     case 'queryFilters':
     case 'userJourney':
       return stableStringify(value);
@@ -126,10 +121,10 @@ function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unkno
   throw new Error(`Unknown filter key "${key}"`);
 }
 
-function encode(params: FilterQueryParams) {
+function encode(params: FilterQueryParams, timezone: string) {
   return URL_SEARCH_PARAMS.filter((key) => filterVariable(key, params[key])).map((key) => [
     key,
-    encodeValue(key, params[key]),
+    encodeValue(key, params[key], timezone),
   ]);
 }
 
