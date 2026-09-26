@@ -28,6 +28,7 @@ import {
 } from '@/entities/analytics/monitoring.entities';
 import { parseClickHouseDate, toIsoUtc } from '@/utils/dateHelpers';
 import { groupByKey } from '@/utils/collections';
+import { formatDayKey } from '@/utils/timezone';
 
 type UptimeBucketRow = { date: string; uptime_seconds: number | null; total_seconds: number };
 type IncidentSegmentRow = {
@@ -135,7 +136,7 @@ export async function getMonitorUptimeBuckets(
       GROUP BY mp_bucket_start
     )
     SELECT
-      bucket_start AS date,
+      toTimeZone(bucket_start, 'UTC') AS date,
       IF(
         mp.has_data = 0,
         NULL,
@@ -346,8 +347,7 @@ export async function getMonitorDailyUptime(
     .filter((b) => b.upRatio != null)
     .map((b) =>
       MonitorDailyUptimeSchema.parse({
-        // The bucket carries the zone's midnight as wall clock, so its date part is the zone calendar day
-        date: b.bucket.slice(0, 10),
+        date: formatDayKey(new Date(b.bucket), timezone),
         upRatio: b.upRatio,
         totalSeconds: b.totalSeconds,
       }),

@@ -56,14 +56,29 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
 
   const { timeZone } = useResolvedTimezone();
 
-  // Custom ranges keep their calendar days when the zone changes. Adjusted during render,
-  // so no effect sees the old instants in the new zone
+  // Custom ranges keep their calendar days when the zone changes and presets are re-resolved in it.
+  // Adjusted during render, so no effect sees the old instants in the new zone
   const [rangeTimeZone, setRangeTimeZone] = React.useState(timeZone);
   if (rangeTimeZone !== timeZone) {
     setRangeTimeZone(timeZone);
     if (interval === 'custom') {
       setStartDate(keepWallClock(startDate, rangeTimeZone, timeZone));
       setEndDate(keepWallClock(endDate, rangeTimeZone, timeZone));
+    } else {
+      const { main } = getResolvedRanges(
+        interval,
+        compareMode,
+        timeZone,
+        startDate,
+        endDate,
+        granularity,
+        undefined,
+        undefined,
+        offset,
+        compareAlignWeekdays,
+      );
+      setStartDate(main.start);
+      setEndDate(main.end);
     }
     if (compareMode === 'custom' && compareStartDate && compareEndDate) {
       setCompareStartDate(keepWallClock(compareStartDate, rangeTimeZone, timeZone));

@@ -58,34 +58,34 @@ export function formatDifference(
 /*
  * Formats the date based on the granularity
  */
-export function defaultDateLabelFormatter(
-  date: string | number,
+export function dateLabelFormatter(
   granularity?: GranularityRangeValues,
   locale?: SupportedLanguages,
   timeZone?: string,
-) {
-  const d = typeof date === 'string' ? new Date(date) : new Date(date);
-
+): (date: string | number) => string {
   if (granularity === 'month') {
-    return createDateTimeFormat(locale, { month: 'long', year: 'numeric' }, timeZone).format(d);
+    const formatter = createDateTimeFormat(locale, { month: 'long', year: 'numeric' }, timeZone);
+    return (date) => formatter.format(new Date(date));
   }
 
   // Week granularity: show "Jan 6 – 12, 2026"
   if (granularity === 'week') {
-    return formatWeekRange(d, locale, true, timeZone);
+    return (date) => formatWeekRange(new Date(date), locale, true, timeZone);
   }
 
   // Day granularity
   if (granularity === undefined || granularity === 'day') {
-    return createDateTimeFormat(locale, { weekday: 'short', month: 'short', day: '2-digit' }, timeZone).format(d);
+    const formatter = createDateTimeFormat(locale, { weekday: 'short', month: 'short', day: '2-digit' }, timeZone);
+    return (date) => formatter.format(new Date(date));
   }
 
   // Hour/minute granularities
-  return createDateTimeFormat(
+  const formatter = createDateTimeFormat(
     locale,
     { weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false },
     timeZone,
-  ).format(d);
+  );
+  return (date) => formatter.format(new Date(date));
 }
 
 export function granularityDateFormatter(
