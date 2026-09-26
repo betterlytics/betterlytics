@@ -2715,6 +2715,30 @@
   .is-in .tf__c--c {
     transform: rotate(-0.6deg);
   }
+  /* on hover the stack fans out a little, each card away from the middle. It rides on
+     translate/rotate rather than transform, so it answers at once while the entrance
+     keeps its stagger */
+  @media (hover: hover) {
+    .tf__c {
+      transition:
+        opacity 0.45s var(--ease) var(--d),
+        transform 0.55s var(--ease) var(--d),
+        translate 0.6s var(--ease),
+        rotate 0.6s var(--ease);
+    }
+    .tf:hover .tf__c--a {
+      translate: -10px -6px;
+      rotate: -0.6deg;
+    }
+    .tf:hover .tf__c--b {
+      translate: 12px -6px;
+      rotate: 0.8deg;
+    }
+    .tf:hover .tf__c--c {
+      translate: -4px 10px;
+      rotate: -0.5deg;
+    }
+  }
   .tf__hd {
     display: flex;
     align-items: baseline;
