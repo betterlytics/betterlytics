@@ -4038,7 +4038,7 @@
   /* ══ FOOTER ══ */
   .foot {
     position: relative;
-    padding: 136px calc(var(--inset) + 12px) 20px;
+    padding: 80px calc(var(--inset) + 12px) 20px;
   }
   .foot__top {
     display: flex;
