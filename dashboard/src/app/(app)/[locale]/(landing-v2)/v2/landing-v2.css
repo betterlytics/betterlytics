@@ -312,7 +312,8 @@
     transition:
       transform 0.18s var(--ease),
       background-color 0.18s var(--ease),
-      border-color 0.18s var(--ease);
+      border-color 0.18s var(--ease),
+      box-shadow 0.18s var(--ease);
   }
   .btn:hover {
     transform: translateY(-1px);
@@ -335,6 +336,11 @@
   .btn--paper {
     background: var(--on-volt);
     color: #191615;
+  }
+  /* on the blue cards: the paper brightens to white and a pale halo rings it */
+  .btn--paper:hover {
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(242, 245, 255, 0.18);
   }
   .btn--onvolt {
     border-color: rgba(242, 245, 255, 0.4);
