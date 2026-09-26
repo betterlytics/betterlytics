@@ -15,7 +15,8 @@ export const UserSettingsSchema = z
 
     theme: z.nativeEnum(Theme),
     language: z.enum(SUPPORTED_LANGUAGES),
-    timezone: TimezoneSettingSchema,
+    // A stored zone this server rejects reads as Auto-detect instead of failing the page
+    timezone: TimezoneSettingSchema.catch(null),
     avatar: z.nativeEnum(AvatarMode),
 
     emailNotifications: z.boolean(),
@@ -42,11 +43,11 @@ export const UserSettingsUpdateSchema = UserSettingsSchema
   .pick({
     theme: true,
     language: true,
-    timezone: true,
     avatar: true,
     emailNotifications: true,
     marketingEmails: true,
   })
+  .extend({ timezone: TimezoneSettingSchema })
   .partial();
 
 // Default user settings matching database defaults
