@@ -14,11 +14,11 @@ import { getDeviceColor } from '@/constants/deviceTypes';
 import { DeviceIcon } from '@/components/icons';
 import { capitalizeFirstLetter, formatNumber } from '@/utils/formatters';
 import { StackedAreaChartTooltip } from '@/components/charts/StackedAreaChartTooltip';
-import { format } from 'date-fns';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { useLocale } from 'next-intl';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useChartDateFormatters } from '@/hooks/use-chart-date-formatters';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
 
 interface DeviceUsageTrendChartProps {
@@ -53,6 +53,7 @@ export default function DeviceUsageTrendChart({
 }: DeviceUsageTrendChartProps) {
   const locale = useLocale();
   const isMobile = useIsMobile();
+  const { axisFormatter } = useChartDateFormatters('day');
 
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return <DataEmptyComponent />;
@@ -75,7 +76,7 @@ export default function DeviceUsageTrendChart({
               tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
               tickMargin={6}
               minTickGap={100}
-              tickFormatter={(value) => format(new Date(value), 'MMM dd')}
+              tickFormatter={(value) => axisFormatter(new Date(value))}
             />
             <YAxis
               tickLine={false}
