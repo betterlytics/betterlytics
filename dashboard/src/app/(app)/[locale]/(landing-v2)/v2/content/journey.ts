@@ -6,7 +6,10 @@
  */
 export type JourneyStep = {
   id: 'find' | 'see' | 'do' | 'follow' | 'wait' | 'errors' | 'reach';
-  /** Lines split on `\n`. The first line is set in the dim tone, the rest in the bright one. */
+  /**
+   * Lines split on `\n`. The first line is set in the dim tone, the rest in the bright one,
+   * so the first line should be the part that repeats across steps and the rest what's new.
+   */
   title: string;
   note: string;
 };
@@ -34,12 +37,12 @@ export const JOURNEY_STEPS: readonly JourneyStep[] = [
   },
   {
     id: 'wait',
-    title: 'How long\nyour users wait',
+    title: 'When your users\nwait too long',
     note: 'LCP, INP and CLS measured on real visits rather than a lab run.',
   },
   {
     id: 'errors',
-    title: 'What breaks\nfor your users',
+    title: 'When your users\nhit an error',
     note: 'JavaScript errors with the stack trace, the page, and who they hit.',
   },
   {
