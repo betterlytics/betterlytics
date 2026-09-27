@@ -2040,110 +2040,162 @@
     color: var(--accent-soft);
   }
 
-  /* uptime: two monitors and the alert they raise, joined by connectors */
+  /* uptime: the monitors list with an outage playing through it, and the
+     notices it sends stacking over the panel corner. Strips slide as checks land. */
   .mo {
     position: absolute;
     inset: 0;
+    display: grid;
+    place-items: center;
   }
-  .mo__wire {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-  }
-  .mo__wire path {
-    fill: none;
-    stroke: var(--volt-lift);
-    stroke-width: 1.6;
-    opacity: 0.55;
-    stroke-dasharray: var(--len);
-    stroke-dashoffset: var(--len);
-    transition: stroke-dashoffset 0.5s var(--ease) var(--d);
-  }
-  .is-in .mo__wire path {
-    stroke-dashoffset: 0;
-  }
-  .mo__wire circle,
-  .mo__wire polygon {
-    fill: var(--volt-lift);
+  .mo__p {
+    width: 78%;
+    margin-top: -7%;
+    border-radius: 10px;
+    background: #191817;
+    overflow: hidden;
+    border: 1px solid rgba(235, 232, 230, 0.09);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 14px 30px rgba(0, 0, 0, 0.5);
     opacity: 0;
-    transition: opacity 0.3s var(--ease) var(--d);
-  }
-  .is-in .mo__wire circle,
-  .is-in .mo__wire polygon {
-    opacity: 1;
-  }
-  .mo__c {
-    position: absolute;
-    padding: 16px 18px;
-    border-radius: 11px;
-    background: #1b1a19;
-    border: 1px solid rgba(235, 232, 230, 0.1);
-    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
-    opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(12px);
     transition:
-      opacity 0.45s var(--ease) var(--d),
-      transform 0.5s var(--ease) var(--d);
+      opacity 0.45s var(--ease),
+      transform 0.5s var(--ease);
   }
-  .is-in .mo__c {
+  .is-in .mo__p {
     opacity: 1;
     transform: none;
-  }
-  .mo__c--a {
-    left: 10%;
-    top: 11%;
-    width: 43%;
-  }
-  .mo__c--b {
-    left: 26%;
-    top: 41%;
-    width: 43%;
   }
   .mo__hd {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 13px;
-  }
-  .mo__hd i {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--live);
-    flex: none;
-    box-shadow: 0 0 0 4px rgba(74, 222, 155, 0.14);
-  }
-  .mo__hd i.warn {
-    background: var(--down);
-    box-shadow: 0 0 0 4px rgba(226, 88, 107, 0.16);
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(235, 232, 230, 0.08);
+    background: rgba(235, 232, 230, 0.02);
   }
   .mo__hd b {
-    font-family: var(--mono);
     font-size: 13px;
-    font-weight: 400;
+    font-weight: 500;
     color: var(--text);
+    letter-spacing: -0.15px;
   }
   .mo__hd em {
     margin-left: auto;
     font-style: normal;
     font-family: var(--mono);
-    font-size: 13px;
+    font-size: 10.5px;
+    color: var(--mid);
+  }
+  .mo__hd em span {
+    transition: color 0.25s;
+  }
+  .mo__hd em span.dn {
+    color: var(--down);
+  }
+  .mo__row {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 44% 48px;
+    align-items: center;
+    gap: 0 14px;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(235, 232, 230, 0.055);
+    transition:
+      background-color 0.3s,
+      box-shadow 0.3s;
+  }
+  .mo__row:last-child {
+    border-bottom: 0;
+  }
+  .mo__row.dn {
+    background: rgba(226, 88, 107, 0.05);
+    box-shadow: inset 2px 0 0 var(--down);
+  }
+  .mo__dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 0 3px rgba(74, 222, 155, 0.12);
+    transition:
+      background-color 0.25s,
+      box-shadow 0.25s;
+  }
+  .mo__row.dn .mo__dot {
+    background: var(--down);
+    box-shadow: 0 0 0 3px rgba(226, 88, 107, 0.16);
+  }
+  .mo__dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid var(--down);
+    opacity: 0;
+  }
+  .is-live .mo__row.dn .mo__dot::after {
+    animation: lp2-mo-ping 1.3s var(--ease) infinite;
+  }
+  .mo__nm {
+    min-width: 0;
+  }
+  .mo__nm b {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 400;
     color: var(--text);
+    letter-spacing: -0.15px;
+    margin-bottom: 3px;
+  }
+  /* --mid at the opacity the error list's meta line uses, as a colour so the flags stay bright */
+  .mo__nm span {
+    display: block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: rgba(174, 165, 161, 0.72);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mo__nm u,
+  .mo__nm s {
+    text-decoration: none;
+  }
+  .mo__nm u {
+    color: var(--down);
+  }
+  .mo__nm s {
+    color: var(--warn);
+  }
+  .mo__row > em {
+    font-style: normal;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    text-align: right;
     font-variant-numeric: tabular-nums;
   }
+  /* the track is one cell wider than the strip and rests one cell to the left;
+     each check restarts a slide from where the cells were before they shifted */
   .mo__s {
+    height: 22px;
+    margin-right: -3px;
+    overflow: hidden;
+  }
+  .mo__tr {
     display: flex;
-    gap: 3px;
-    height: 32px;
-    align-items: flex-end;
+    height: 100%;
+    width: calc(100% * (var(--n) + 1) / var(--n));
+    transform: translateX(calc(-100% / (var(--n) + 1)));
+    animation: 0.6s var(--ease);
   }
   .mo__s i {
-    flex: 1;
-    height: 100%;
+    flex: 1 1 0;
+    margin-right: 3px;
     border-radius: 2px;
-    background: var(--volt-lift);
+    background: var(--live);
     opacity: 0;
     transform-origin: 50% 100%;
     transform: scaleY(0.12);
@@ -2156,85 +2208,156 @@
     background: var(--down);
   }
   .is-in .mo__s i {
-    transform: scaleY(1);
-    opacity: 0.6;
+    transform: none;
+    opacity: 0.42;
   }
   .is-in .mo__s i.dn {
-    opacity: 1;
+    opacity: 0.95;
+  }
+  /* notices stack from the bottom edge: the newest in front, the one before it
+     stepping back and peeking out above it, its text faded. A notice pushed
+     further back fades out on its way. */
+  .mo__st {
+    position: absolute;
+    right: 5%;
+    bottom: 8%;
+    width: 50%;
   }
   .mo__al {
+    --tint: 226, 88, 107;
+    --tone: var(--down);
     position: absolute;
-    left: 41%;
-    top: 70%;
-    width: 47%;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 15px 18px;
-    border-radius: 11px;
-    background: #241a1d;
-    border: 1px solid rgba(226, 88, 107, 0.34);
-    box-shadow: 0 20px 52px rgba(0, 0, 0, 0.62);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: calc(3 - var(--depth));
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    column-gap: 13px;
+    padding: 14px 16px 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(30, 28, 28, 0.9);
+    backdrop-filter: blur(14px) saturate(1.3);
+    border: 1px solid rgba(235, 232, 230, 0.12);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 2px 8px rgba(0, 0, 0, 0.3),
+      0 24px 60px rgba(0, 0, 0, 0.62);
+    transform-origin: 50% 0;
     opacity: 0;
-    transform: translateY(14px) scale(0.97);
+    transform: translateY(26px) scale(0.98);
     transition:
-      opacity 0.42s var(--ease) 1.3s,
-      transform 0.42s var(--ease) 1.3s;
+      opacity 0.4s var(--ease),
+      transform 0.6s var(--ease);
   }
-  .is-in .mo__al {
+  .mo__al--ssl {
+    --tint: 228, 169, 60;
+    --tone: var(--warn);
+  }
+  .mo__al--up {
+    --tint: 74, 222, 155;
+    --tone: var(--live);
+  }
+  .is-in .mo__al.on {
     opacity: 1;
-    transform: none;
+    transform: translateY(calc(var(--depth) * -14px)) scale(calc(1 - var(--depth) * 0.05));
   }
-  .mo__bell {
+  .mo__al.gone {
+    transform: translateY(calc(var(--depth) * -14px + 14px)) scale(calc(1 - var(--depth) * 0.05));
+  }
+  /* a wash from the icon corner in the notice's colour; it still shows on the edge that peeks out */
+  .mo__al::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(90% 130% at 0% 0%, rgba(var(--tint), 0.15), transparent 62%);
+  }
+  .mo__al > * {
     position: relative;
+    transition: opacity 0.3s var(--ease);
+  }
+  .mo__al.back > * {
+    opacity: 0;
+  }
+  .mo__ic {
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
     width: 34px;
     height: 34px;
     border-radius: 9px;
-    flex: none;
-    display: grid;
-    place-items: center;
-    background: rgba(226, 88, 107, 0.16);
+    background: rgba(var(--tint), 0.15);
+    color: var(--tone);
   }
-  .mo__bell svg {
+  .mo__ic svg {
     width: 17px;
     height: 17px;
-    color: var(--down);
   }
-  .mo__bell u {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    min-width: 16px;
-    height: 16px;
-    border-radius: 999px;
-    background: var(--down);
-    color: #fff;
-    font-family: var(--mono);
-    font-size: 9.5px;
-    text-decoration: none;
-    display: grid;
-    place-items: center;
-  }
-  .mo__al b {
+  .mo__tx b {
     display: block;
-    font-size: 14px;
+    font-size: 13.5px;
     font-weight: 500;
     color: var(--text);
     letter-spacing: -0.2px;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
-  .mo__al span {
+  .mo__tx span {
+    display: block;
     font-family: var(--mono);
-    font-size: 11px;
+    font-size: 10.5px;
     color: var(--mid);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .mo__al time {
-    margin-left: auto;
     font-family: var(--mono);
     font-size: 10.5px;
     color: var(--mid);
     opacity: 0.7;
-    white-space: nowrap;
+  }
+  .mo__to {
+    grid-column: 2 / 4;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 9px;
+    border-top: 1px solid rgba(235, 232, 230, 0.07);
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--mid);
+  }
+  .mo__to u {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(235, 232, 230, 0.06);
+    border: 1px solid rgba(235, 232, 230, 0.08);
+    color: var(--text);
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 0.3s var(--ease),
+      transform 0.4s var(--ease);
+  }
+  .mo__to u:first-of-type {
+    margin-left: 4px;
+  }
+  .mo__to img,
+  .mo__to svg {
+    width: 12px;
+    height: 12px;
+  }
+  /* the channels light up one after another once the notice is in */
+  .is-in .mo__al.on .mo__to u {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.3s + var(--i) * 0.12s);
   }
 
   /* errors: the product being used. Every row carries the file, the browser
@@ -2605,21 +2728,42 @@
     .fig {
       padding: 16px;
     }
-    .mo__c--a {
-      left: 4%;
-      width: 58%;
+    /* the monitors list keeps two rows on a phone, each strip under its name,
+       so the notice fits below without covering the monitor it is about */
+    .mo {
+      place-items: start center;
+      padding-top: 14px;
     }
-    .mo__c--b {
-      left: 22%;
-      width: 58%;
+    .mo__p {
+      width: 94%;
+      margin-top: 0;
     }
-    .mo__al {
-      left: 6%;
-      width: 88%;
-      top: 66%;
-    }
-    .mo__wire {
+    .mo__hd,
+    .mo__row:nth-child(2),
+    .mo__row:nth-child(5),
+    .mo__nm span {
       display: none;
+    }
+    .mo__row {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 9px 12px;
+      padding: 11px 14px 12px;
+    }
+    .mo__row:nth-child(4) {
+      border-bottom: 0;
+    }
+    .mo__nm b {
+      margin-bottom: 0;
+    }
+    .mo__s {
+      grid-column: 2 / 4;
+      grid-row: 2;
+      height: 18px;
+    }
+    .mo__st {
+      right: 6%;
+      bottom: 14px;
+      width: 88%;
     }
   }
 
@@ -4580,16 +4724,22 @@
     .sr__who > span:last-child {
       opacity: 1;
     }
-    .mo__c,
+    .mo__p {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
     .mo__al,
-    .mo__s i,
-    .mo__wire path,
-    .mo__wire circle,
-    .mo__wire polygon {
-      opacity: 1 !important;
-      transform: none !important;
-      stroke-dashoffset: 0 !important;
-      transition: none !important;
+    .mo__al > *,
+    .mo__to u {
+      transition: none;
+    }
+    .mo__s i {
+      transform: none;
+      transition: none;
+    }
+    .mo__dot::after {
+      animation: none;
     }
     .erx__p {
       opacity: 1;
@@ -4672,6 +4822,27 @@
   30% {
     filter: none;
     opacity: 1;
+  }
+}
+/* two identical slides for the uptime strips; alternating the name restarts it */
+@keyframes lp2-mo-tick-a {
+  from {
+    transform: translateX(0);
+  }
+}
+@keyframes lp2-mo-tick-b {
+  from {
+    transform: translateX(0);
+  }
+}
+@keyframes lp2-mo-ping {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3.2);
   }
 }
 @keyframes lp2-erx-tap {
