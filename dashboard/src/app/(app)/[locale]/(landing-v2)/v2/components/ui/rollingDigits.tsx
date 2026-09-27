@@ -14,6 +14,17 @@ import { useReducedMotion } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/use
 const ROLL_S = 0.45;
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
+/*
+ * Functions of the direction, handed down through AnimatePresence's `custom`,
+ * so a leaving digit goes the way of the change that removed it rather than
+ * the way it was going when last rendered.
+ */
+const ROLL = {
+  enter: (direction: 1 | -1) => ({ y: `${100 * direction}%` }),
+  settle: { y: '0%', transition: { duration: ROLL_S, ease: EASE } },
+  leave: (direction: 1 | -1) => ({ y: `${-100 * direction}%`, transition: { duration: ROLL_S, ease: EASE } }),
+};
+
 export function RollingDigits({
   value,
   direction = 1,
@@ -30,13 +41,15 @@ export function RollingDigits({
     <span className={cn('rd', className)} aria-label={value}>
       {Array.from(value).map((char, i) => (
         <span key={i} className='rd__slot' aria-hidden>
-          <AnimatePresence mode='popLayout' initial={false}>
+          <AnimatePresence mode='popLayout' initial={false} custom={direction}>
             <motion.span
               key={char}
               className='rd__digit'
-              initial={{ y: `${100 * direction}%` }}
-              animate={{ y: '0%', transition: { duration: ROLL_S, ease: EASE } }}
-              exit={{ y: `${-100 * direction}%`, transition: { duration: ROLL_S, ease: EASE } }}
+              custom={direction}
+              variants={ROLL}
+              initial='enter'
+              animate='settle'
+              exit='leave'
             >
               {char}
             </motion.span>
