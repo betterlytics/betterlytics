@@ -3148,7 +3148,8 @@
           "y1": "1 year",
           "y2": "2 years",
           "y3": "3 years",
-          "y5": "5 years"
+          "y5": "5 years",
+          "forever": "Keep forever"
         },
         "retentionConfirm": {
           "title": "Change retention period?",
