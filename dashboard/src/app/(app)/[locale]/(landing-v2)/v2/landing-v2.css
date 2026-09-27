@@ -2049,17 +2049,24 @@
     display: grid;
     align-items: center;
   }
-  /* the stack sits left and the notices hang off its lower right, so the two
+  /* the stack sits left and the notices come out of its lower right, so the two
      read as one diagonal. The bottom margin is the notices' overhang, which
      centres the pair rather than the stack alone. */
   .mo__grp {
     position: relative;
     width: 63%;
-    margin: 0 0 88px 9%;
+    margin: 0 0 16px 9%;
   }
+  /* the stack's ends fade into the canvas, so it reads as a window onto a
+     longer list rather than a box. The padding, cancelled by the margin, keeps
+     the cards' shadows inside the mask. */
   .mo__list {
     display: grid;
     gap: 8px;
+    padding: 24px;
+    margin: -24px;
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 24%, #000 76%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 24%, #000 76%, transparent);
   }
   /* the cards rise in one after another. Shadows run shallow for the cards,
      deeper for the failing one and deepest for the notices, so the layers
@@ -2232,15 +2239,16 @@
   .is-in .mo__s i.dn {
     opacity: 0.95;
   }
-  /* notices hang just over the stack's bottom edge: the newest in front, the one
-     before it stepping back and peeking out above it, its text faded. A notice
-     pushed further back fades out on its way. Their left edge lines up with where
-     the strips start: a strip ends 79px in from its card's right edge (border,
+  /* notices sit over the stack's faded lower end, catching the last clear card
+     by 12px (a card and a gap are 67px): the newest in front, the one before it
+     stepping back and peeking out above it, its text faded. A notice pushed
+     further back fades out on its way. Their left edge lines up with where the
+     strips start: a strip ends 79px in from its card's right edge (border,
      padding, uptime column, gap) and spans 38% of a content box 34px narrower
      than the card, which puts its start at 62% - 66px. */
   .mo__st {
     position: absolute;
-    top: calc(100% - 12px);
+    top: calc(100% - 79px);
     left: calc(62% - 66px);
     width: 80%;
   }
@@ -2759,8 +2767,12 @@
       width: 94%;
       margin: 0 auto;
     }
-    .mo__row:nth-child(1),
-    .mo__row:nth-child(4),
+    .mo__list {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .mo__row:nth-child(-n + 2),
+    .mo__row:nth-child(n + 5),
     .mo__nm span,
     .mo__ms {
       display: none;

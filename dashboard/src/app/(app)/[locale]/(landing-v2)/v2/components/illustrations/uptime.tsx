@@ -10,14 +10,19 @@ import type { IllustrationProps } from './types';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
-/** `uptime` is in hundredths of a percent, so each failed check can take one off exactly. */
+/**
+ * `uptime` is in hundredths of a percent, so each failed check can take one off
+ * exactly. The first and last monitors sit in the stack's faded ends.
+ */
 const MONITORS = [
+  { name: 'Status page', host: 'status.example.com', ms: '64 ms', uptime: 10000 },
   { name: 'Marketing site', host: 'example.com', ms: '96 ms', uptime: 9997 },
   { name: 'API', host: 'api.example.com', ms: '142 ms', uptime: 9998 },
   { name: 'Checkout', host: 'checkout.example.com', ms: '208 ms', uptime: 9995 },
   { name: 'Docs', host: 'docs.example.com', ms: '88 ms', uptime: 10000 },
+  { name: 'Blog', host: 'blog.example.com', ms: '121 ms', uptime: 9999 },
 ];
-const DOCS = 3;
+const DOCS = 4;
 
 /** Checks each strip shows. The track holds one more, off to the left, for the slide. */
 const CELLS = 30;
@@ -38,7 +43,7 @@ const FAIL_FROM = 2;
 const DOWN_AT = FAIL_FROM + 2;
 const UP_AT = 7;
 const CLEAR_AT = 14;
-const OUTAGES = [2, 1, 0];
+const OUTAGES = [3, 2, 1];
 /** The frame shown under reduced motion: the down alert in front of the SSL notice. */
 const POSTER = DOWN_AT + 1;
 
@@ -224,7 +229,7 @@ export function Uptime({ live }: IllustrationProps) {
               <div
                 key={mon.name}
                 className={cn('mo__row', down && 'dn')}
-                style={vars({ '--d': `${0.06 + row * 0.08}s` })}
+                style={vars({ '--d': `${0.06 + row * 0.06}s` })}
               >
                 <i className='mo__dot' />
                 <span className='mo__nm'>
