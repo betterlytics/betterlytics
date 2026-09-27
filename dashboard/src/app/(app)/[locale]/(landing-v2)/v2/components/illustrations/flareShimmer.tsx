@@ -13,6 +13,7 @@ const FPS = 30;
 const PEAK = 0.5; // the most the crest adds to a dot's alpha
 const WIDTH = 48; // the crest's half-width in px (a gaussian's sigma)
 const SPEED = 46; // px/s
+const FAINT = 0.06; // a crest adding less alpha than this reads as no wave at all
 const REST = [0, 300]; // ms between waves, picked at random in this range
 const TURN = (70 / 180) * Math.PI; // each wave's heading differs from the last by at least this
 
@@ -84,19 +85,21 @@ export function FlareShimmer({ live }: { live: boolean }) {
       heading += TURN + Math.random() * (Math.PI * 2 - 2 * TURN);
       const ux = Math.cos(heading);
       const uy = Math.sin(heading);
-      let min = Infinity;
-      let max = -Infinity;
+      // run the crest only while it visibly lights some dot: each dot shows it out to
+      // where its gaussian drops under FAINT, so the wave starts and ends softly but
+      // spends no time dark on the way in or out; the dim fringe never shows it at all
+      let from = Infinity;
+      let to = -Infinity;
       for (const d of dots) {
-        if (d.reach < 0.15) continue; // the faint fringe barely shows a crest; don't wait on it
+        const lift = (d.reach * PEAK) / FAINT;
+        if (lift <= 1) continue;
+        const span = Math.sqrt(Math.log(lift)) * WIDTH;
         const p = d.x * ux + d.y * uy;
-        min = Math.min(min, p);
-        max = Math.max(max, p);
+        from = Math.min(from, p - span);
+        to = Math.max(to, p + span);
       }
       // nothing on show (the terminal is too narrow for the flare): idle, check again later
-      if (min > max) return { ux, uy, from: 0, to: 0, start, duration: 1000 };
-      // start and end with the crest fully off the field, so it enters and leaves softly
-      const from = min - WIDTH * 2;
-      const to = max + WIDTH * 2;
+      if (from > to) return { ux, uy, from: 0, to: 0, start, duration: 1000 };
       return { ux, uy, from, to, start, duration: ((to - from) / SPEED) * 1000 };
     };
 
