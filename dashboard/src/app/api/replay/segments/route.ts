@@ -2,6 +2,7 @@ import { PassThrough } from 'node:stream';
 import { constants, createGzip } from 'node:zlib';
 import { type NextRequest, NextResponse } from 'next/server';
 import { resolveDashboardAuthResult } from '@/auth/api-auth';
+import { MAX_REPLAY_STREAMS_PER_PROCESS } from '@/lib/clickhouse';
 import { createConcurrencyCap } from '@/lib/concurrency-cap';
 import {
   replayStreamDurationSeconds,
@@ -12,15 +13,18 @@ import { throughNodeTransform } from '@/lib/web-stream-pipeline';
 import { openReplaySegmentStream, type ReplaySegmentStream } from '@/services/analytics/sessionReplays.service';
 
 const MAX_STREAMS_PER_USER = 3;
-const MAX_STREAMS_PER_PROCESS = 24;
-const STREAM_RETRY_AFTER_SECONDS = 5;
-const acquireStreamSlot = createConcurrencyCap(MAX_STREAMS_PER_USER, MAX_STREAMS_PER_PROCESS);
+// A per-user refusal is almost always a just-aborted stream whose slot frees within ms
+const RETRY_AFTER_SECONDS = { key: 1, total: 5 } as const;
+// A frozen tab keeps its socket open but reads nothing; without this its slot is never freed
+const STREAM_IDLE_TIMEOUT_MS = 30_000;
+const acquireStreamSlot = createConcurrencyCap(MAX_STREAMS_PER_USER, MAX_REPLAY_STREAMS_PER_PROCESS);
 
 // No completion flag exists, only ended_at; a session idle for an hour has ended and its
-// bytes never change again, so the browser may keep it for good. Younger sessions revalidate
-// after a minute: this endpoint is playback, not a realtime feed.
+// bytes never change again, so the browser may skip revalidation. Only for a day though: a
+// longer copy would outlive retention, deletion and revoked access on the viewer's device.
+// Younger sessions revalidate after a minute: this endpoint is playback, not a realtime feed.
 const SETTLED_AFTER_MS = 60 * 60_000;
-const SETTLED_CACHE = 'private, max-age=31536000, immutable';
+const SETTLED_CACHE = 'private, max-age=86400, immutable';
 const LIVE_CACHE = 'private, max-age=60';
 
 export async function GET(request: NextRequest) {
@@ -43,28 +47,31 @@ export async function GET(request: NextRequest) {
   const slot = acquireStreamSlot(result.context.userId);
   if ('refused' in slot) {
     replayStreamsRefusedTotal.inc({ reason: slot.refused === 'key' ? 'user' : 'process' });
-    return new NextResponse(null, { status: 429, headers: { 'Retry-After': String(STREAM_RETRY_AFTER_SECONDS) } });
+    return new NextResponse(null, {
+      status: 429,
+      headers: { 'Retry-After': String(RETRY_AFTER_SECONDS[slot.refused]) },
+    });
   }
   replayStreamsOpen.inc();
   const endTimer = replayStreamDurationSeconds.startTimer();
   let released = false;
-  const release = () => {
+  const release = (outcome: 'ok' | 'aborted' | 'error' | 'not_found') => {
     if (released) return;
     released = true;
     slot.release();
     replayStreamsOpen.dec();
-    endTimer();
+    endTimer({ outcome });
   };
 
   let opened: ReplaySegmentStream | null;
   try {
     opened = await openReplaySegmentStream(result.context, sessionId);
   } catch (error) {
-    release();
+    release('error');
     throw error;
   }
   if (!opened) {
-    release();
+    release('not_found');
     return new NextResponse(null, { status: 404 });
   }
 
@@ -73,7 +80,14 @@ export async function GET(request: NextRequest) {
   const body = throughNodeTransform(
     opened.stream,
     gzip ? createGzip({ flush: constants.Z_SYNC_FLUSH }) : new PassThrough(),
-    () => release(),
+    (error) => {
+      if (!error) return release('ok');
+      // The browser cancelled: the user switched session or closed the tab
+      if (error.name === 'AbortError') return release('aborted');
+      console.error('[replay] stream failed mid-download:', error);
+      release('error');
+    },
+    STREAM_IDLE_TIMEOUT_MS,
   );
   const settled = Date.now() - opened.endedAt.getTime() > SETTLED_AFTER_MS;
 

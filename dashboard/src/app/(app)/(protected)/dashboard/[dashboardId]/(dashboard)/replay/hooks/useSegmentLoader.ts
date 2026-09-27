@@ -22,9 +22,12 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
       const controller = new AbortController();
       inFlightController.current = controller;
 
-      const response = await fetch(`/api/replay/segments?${new URLSearchParams({ dashboardId, sessionId })}`, {
-        signal: controller.signal,
-      });
+      const url = `/api/replay/segments?${new URLSearchParams({ dashboardId, sessionId })}`;
+      let response = await fetch(url, { signal: controller.signal });
+      if (response.status === 429) {
+        await abortableDelay((Number(response.headers.get('Retry-After')) || 1) * 1000, controller.signal);
+        response = await fetch(url, { signal: controller.signal });
+      }
       if (!response.ok || !response.body) {
         throw new Error(
           response.status === 404 ? 'No segments found for this session' : 'Failed to fetch segments',
@@ -56,4 +59,18 @@ export function useSegmentLoader(dashboardId: string): UseSegmentLoaderReturn {
   );
 
   return { openSegmentStream, abortLoading };
+}
+
+function abortableDelay(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(resolve, ms);
+    signal.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        reject(signal.reason);
+      },
+      { once: true },
+    );
+  });
 }

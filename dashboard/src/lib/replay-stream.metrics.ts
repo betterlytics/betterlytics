@@ -14,5 +14,6 @@ export const replayStreamsRefusedTotal = new Counter({
 export const replayStreamDurationSeconds = new Histogram({
   name: 'replay_stream_duration_seconds',
   help: 'Lifetime of a replay segment stream from slot acquire to release',
+  labelNames: ['outcome'] as const,
   buckets: [0.5, 1, 2.5, 5, 10, 30, 60, 120, 300, 600],
 });
