@@ -757,14 +757,14 @@
             "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
             "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
             "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
-            "invalidBackupCode": "Ugyldig sikkerhetskode. Prøv igjen."
+            "invalidBackupCode": "Ugyldig reservekode. Prøv igjen."
           },
           "twoFactor": {
             "title": "Tofaktorautentisering",
             "description": "Skriv inn verifiseringskoden fra autentiseringsappen din.",
             "cancel": "Avbryt",
-            "backupCodeDescription": "Skriv inn en av sikkerhetskodene dine. Hver kode kan bare brukes én gang.",
-            "useBackupCode": "Bruk en sikkerhetskode i stedet",
+            "backupCodeDescription": "Skriv inn en av reservekodene dine. Hver kode kan bare brukes én gang.",
+            "useBackupCode": "Bruk en reservekode i stedet",
             "useAuthenticator": "Bruk autentiseringsappen i stedet",
             "verify": "Bekreft"
           }
@@ -1227,7 +1227,7 @@
         },
         "errorTracking": {
           "title": "Feilsporing",
-          "description": "Fang automatisk opp klientside-feil og grupper dem med stack traces og session replay-lenker, slik at du raskt kan gjenskape og fikse feil."
+          "description": "Fang automatisk opp klientsidefeil og grupper dem med stack traces og lenker til sesjonsavspillinger, slik at du raskt kan gjenskape og fikse feil."
         },
         "userJourneys": {
           "title": "Brukerreiser",
@@ -1443,7 +1443,7 @@
       "retention5PlusYears": "5+ år datalagring",
       "fullDashboard": "Komplett web-analytics dashboard",
       "funnelsJourneys": "Funnels og brukerreiser",
-      "sessionReplay": "Session replay",
+      "sessionReplay": "Sesjonsavspilling",
       "errorTracking": "Feilsporing",
       "uptime1": "1 oppetidsmonitor og offentlig statusside",
       "uptime50": "50 oppetidsmonitorer med 1-minutts sjekker",
@@ -1520,7 +1520,7 @@
         "name": "Alle dashboardfunksjoner"
       },
       "sessionReplay": {
-        "name": "Sesjonsopptak"
+        "name": "Sesjonsavspilling"
       },
       "funnels": {
         "name": "Trakter og konverteringer"
@@ -1605,7 +1605,7 @@
       "subtitle": "Hver plan kommer med hele analysepakken vår",
       "items": {
         "realtimeAnalytics": "Sanntidsanalyse",
-        "sessionReplay": "Sesjonsopptak",
+        "sessionReplay": "Sesjonsavspilling",
         "geographicInsights": "Geografisk innsikt",
         "trafficSources": "Trafikkilder",
         "utmCampaigns": "UTM-kampanjesporing",
@@ -3079,15 +3079,15 @@
           "passwordPromptTitle": "Bekreft passordet ditt",
           "passwordPromptDescription": "Skriv inn passordet ditt for å fortsette.",
           "passwordLabel": "Passord",
-          "backupCodesTitle": "Sikkerhetskoder",
+          "backupCodesTitle": "Reservekoder",
           "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted. De lar deg logge inn hvis du mister autentiseringsappen.",
           "copyCodes": "Kopier",
           "downloadCodes": "Last ned",
           "backupCodesDone": "Jeg har lagret kodene mine",
-          "regenerateTitle": "Generer nye sikkerhetskoder",
-          "regenerateDescription": "Dette erstatter alle eksisterende sikkerhetskoder. Skriv inn passordet ditt for å fortsette.",
+          "regenerateTitle": "Generer nye reservekoder",
+          "regenerateDescription": "Dette erstatter alle eksisterende reservekoder. Skriv inn passordet ditt for å fortsette.",
           "regenerate": "Generer nye",
-          "regenerateFailed": "Kunne ikke generere nye sikkerhetskoder. Prøv igjen.",
+          "regenerateFailed": "Kunne ikke generere nye reservekoder. Prøv igjen.",
           "backupCodesWarning": "Hver kode virker én gang. De vises ikke igjen etter at du lukker dette.",
           "copied": "Kopiert",
           "backupCodesRowDescription": "Engangskoder som lar deg logge inn hvis du mister autentiseringsappen. Oppbevar dem like trygt som passordet ditt."
@@ -3425,8 +3425,8 @@
         "description": "Statussider kan settes opp, men de publiseres ikke før oppetidsovervåking er aktivert."
       },
       "sessionReplay": {
-        "title": "Øktopptak er ikke aktivert på denne instansen",
-        "description": "Ingen økter tas opp før det er aktivert."
+        "title": "Sesjonsavspilling er ikke aktivert på denne instansen",
+        "description": "Ingen sesjoner tas opp før funksjonen er aktivert."
       },
       "geography": {
         "title": "Geolokasjon er ikke aktivert på denne instansen",
@@ -4050,10 +4050,10 @@
         "occurrenceHistory": "Historikk",
         "browsers": "Nettlesere",
         "deviceType": "Enhetstype",
-        "watchReplay": "Se siste øktopptak",
+        "watchReplay": "Se siste sesjonsavspilling",
         "watchReplayDescription": "Se hva brukeren gjorde før feilen",
-        "noReplay": "Ingen session replay for denne feilen",
-        "noReplayDescription": "Replay viser hva brukere gjorde før en feil oppstod.",
+        "noReplay": "Ingen sesjonsavspilling for denne feilen",
+        "noReplayDescription": "Sesjonsavspilling viser hva brukere gjorde før en feil oppstod.",
         "learnMore": "Lær mer"
       },
       "navigator": {
@@ -4074,7 +4074,7 @@
       "sessionTrail": {
         "title": "Øktforløp",
         "eventCount": "{count, plural, one {# hendelse} other {# hendelser}} i denne økten",
-        "watchReplay": "Se replay"
+        "watchReplay": "Se sesjonsavspilling"
       },
       "occurrence": {
         "browser": "Nettleser",
