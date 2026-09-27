@@ -19,6 +19,7 @@ describe('StaticIcon', () => {
     expect(html).toContain('role="img"');
     expect(html).toContain('aria-label="Windows"');
     expect(html).toContain('mask-image:url(/os-icons/windows.svg)');
+    expect(html).toContain('mask-size:100% 100%');
     expect(html).toContain('bg-current');
     expect(html).not.toContain('<img');
   });

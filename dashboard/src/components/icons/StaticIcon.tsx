@@ -16,13 +16,11 @@ export function StaticIcon({ src, label, mono, className }: StaticIconProps) {
         className={cn('inline-block shrink-0 bg-current align-[-0.125em]', className)}
         style={{
           maskImage: `url(${src})`,
-          maskSize: 'contain',
+          maskSize: '100% 100%',
           maskRepeat: 'no-repeat',
-          maskPosition: 'center',
           WebkitMaskImage: `url(${src})`,
-          WebkitMaskSize: 'contain',
+          WebkitMaskSize: '100% 100%',
           WebkitMaskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center',
         }}
       />
     );

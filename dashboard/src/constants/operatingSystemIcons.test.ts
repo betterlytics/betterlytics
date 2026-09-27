@@ -42,4 +42,15 @@ describe('resolveOSIcon', () => {
       }
     }
   });
+
+  it('gives every CSS-drawn icon a viewBox so a 100% tile keeps its aspect ratio', () => {
+    const cssDrawn = Object.values<OSDef>(OS_ICONS).flatMap((def) =>
+      def.iconDark ? [def.icon, def.iconDark] : def.icon.mono ? [def.icon] : [],
+    );
+    for (const { file } of cssDrawn) {
+      const root = readFileSync(path.join('public', 'os-icons', file), 'utf8').match(/<svg[^>]*>/)?.[0];
+      expect(root, file).toMatch(/viewBox="/);
+      expect(root, file).not.toMatch(/preserveAspectRatio="none"/);
+    }
+  });
 });

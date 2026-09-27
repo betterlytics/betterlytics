@@ -36,6 +36,8 @@ describe('OSIcon', () => {
     expect(icon.tag).toContain(`--icon-dark:url(/os-icons/${dark})`);
 
     expect(icon.classes).toContain('bg-(image:--icon-light)');
+    expect(icon.classes).toContain('bg-size-[100%_100%]');
+    expect(icon.classes).toContain('dark:mask-size-[100%_100%]');
     expect(icon.classes).toContain('dark:bg-none');
     expect(icon.classes).toContain('dark:mask-(--icon-dark)');
     expect(icon.classes).not.toContain('hidden');

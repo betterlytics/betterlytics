@@ -38,4 +38,12 @@ describe('resolveBrowser', () => {
       expect(svg.includes('currentColor')).toBe(Boolean(def.mono));
     }
   });
+
+  it('gives every CSS-masked entry a viewBox so a 100% mask tile keeps its aspect ratio', () => {
+    for (const def of Object.values(BROWSERS).filter((d) => d.mono)) {
+      const root = readFileSync(path.join('public', 'browser-icons', def.file), 'utf8').match(/<svg[^>]*>/)?.[0];
+      expect(root, def.file).toMatch(/viewBox="/);
+      expect(root, def.file).not.toMatch(/preserveAspectRatio="none"/);
+    }
+  });
 });
