@@ -3,17 +3,19 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { RollingDigits } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/rollingDigits';
 import { useReducedMotion } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/useReducedMotion';
 import { vars } from '@/app/(app)/[locale]/(landing-v2)/v2/lib/cssVars';
 import type { IllustrationProps } from './types';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
+/** `uptime` is in hundredths of a percent, so each failed check can take one off exactly. */
 const MONITORS = [
-  { name: 'Marketing site', host: 'example.com', ms: '96 ms', uptime: '99.97%' },
-  { name: 'API', host: 'api.example.com', ms: '142 ms', uptime: '99.98%' },
-  { name: 'Checkout', host: 'checkout.example.com', ms: '208 ms', uptime: '99.95%' },
-  { name: 'Docs', host: 'docs.example.com', ms: '88 ms', uptime: '100%' },
+  { name: 'Marketing site', host: 'example.com', ms: '96 ms', uptime: 9997 },
+  { name: 'API', host: 'api.example.com', ms: '142 ms', uptime: 9998 },
+  { name: 'Checkout', host: 'checkout.example.com', ms: '208 ms', uptime: 9995 },
+  { name: 'Docs', host: 'docs.example.com', ms: '88 ms', uptime: 10000 },
 ];
 const DOCS = 3;
 
@@ -46,6 +48,18 @@ const fails = (row: number, t: number) => {
   const m = mod(t, LOOP);
   return outageAt(t) === row && m >= FAIL_FROM && m < UP_AT;
 };
+
+/**
+ * Uptime as the strip shows it: one hundredth of a percent off for each failed
+ * check still in view. It drops as a red bar comes in on the right and climbs
+ * back as that bar slides out on the left, so the number reads the bars.
+ */
+function uptimeAt(row: number, t: number) {
+  let failed = 0;
+  for (let k = t - CELLS + 1; k <= t; k++) if (fails(row, k)) failed++;
+  return MONITORS[row].uptime - failed;
+}
+const formatUptime = (value: number) => (value === 10000 ? '100%' : `${(value / 100).toFixed(2)}%`);
 
 type NoticeKind = 'ssl' | 'down' | 'up';
 const NOTICES: { kind: NoticeKind; at: number }[] = [
@@ -193,26 +207,39 @@ export function Uptime({ live }: IllustrationProps) {
   return (
     <div className='mo'>
       <div className='mo__p'>
+        {/* all being well needs no words; only an outage adds to the count */}
         <div className='mo__hd'>
           <b>Monitors</b>
           <em>
-            4 monitors · <span className={cn(anyDown && 'dn')}>{anyDown ? '1 down' : 'all up'}</span>
+            4 monitors
+            {anyDown && <span> · 1 down</span>}
           </em>
         </div>
         {MONITORS.map((mon, row) => {
           const down = fails(row, t);
+          const uptime = uptimeAt(row, t);
           return (
             <div key={mon.name} className={cn('mo__row', down && 'dn')}>
               <i className='mo__dot' />
               <span className='mo__nm'>
-                <b>{mon.name}</b>
-                <span>
-                  {mon.host} ·{' '}
-                  {down ? <u>not responding</u> : row === DOCS ? <s>SSL expires in 9 days</s> : mon.ms}
-                </span>
+                <b>
+                  {mon.name}
+                  {row === DOCS && (
+                    <s>
+                      <svg viewBox='0 0 16 16' aria-hidden>
+                        <path d='M8 1.6 3 3.5v3.7c0 3 2.1 5.6 5 6.9 2.9-1.3 5-3.9 5-6.9V3.5L8 1.6Z' fill='currentColor' />
+                      </svg>
+                      SSL 9 days
+                    </s>
+                  )}
+                </b>
+                <span>{mon.host}</span>
               </span>
+              <span className={cn('mo__ms', down && 'dn')}>{down ? 'timeout' : mon.ms}</span>
               <Strip row={row} t={t} ticked={ticked} delay={`${0.1 + row * 0.06}s`} />
-              <em>{mon.uptime}</em>
+              <em>
+                <RollingDigits value={formatUptime(uptime)} direction={uptime < uptimeAt(row, t - 1) ? -1 : 1} />
+              </em>
             </div>
           );
         })}
