@@ -1,5 +1,101 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v150ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.0',
+    releasedAt: '2026-09-27',
+    title: '2FA Backup Codes & Faster, More Reliable Session Replay',
+    summary:
+      'Two-factor authentication now comes with backup codes, and session replay is lighter on your website, more reliable, and quicker to load. You can also now choose the timezone your dashboards are shown in.',
+  },
+  sections: [
+    {
+      id: 'v150-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Two-factor authentication now comes with one-time backup codes, so you can still sign in if you lose your authenticator app.',
+            'Choose the timezone your dashboards are shown in under Settings > Preferences. Auto-detect remains the default.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay has been optimized and now has a smaller impact on your website.',
+            'Session replay is much more reliable at capturing the last few seconds before a visitor leaves the page.',
+            'Session replays now load faster in the dashboard, and playback starts sooner.',
+            'Minor usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where the dashboard would not load in the rare case that a browser did not report a timezone.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v150ChangelogModalEn: ChangelogEntryData = {
+  metadata: v150ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v150-modal-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Two-factor authentication now comes with one-time backup codes.',
+            'Choose the timezone your dashboards are shown in under Settings > Preferences.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay has a smaller impact on your website.',
+            'Session replay reliably captures the last few seconds before a visitor leaves.',
+            'Session replays load and start playing faster.',
+            'Minor usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: ['The dashboard no longer fails to load when a browser does not report a timezone.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v149ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.9',
@@ -486,9 +582,10 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v149ChangelogModalEn;
+export const latestChangelogModalEn = v150ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v150ChangelogEntryEn,
   v149ChangelogEntryEn,
   v148ChangelogEntryEn,
   v147ChangelogEntryEn,
