@@ -771,10 +771,11 @@
     align-items: center;
     justify-content: center;
   }
-  /* the demo frame rides up into the card by --hero-overlap; the copy stays
-     centred in the part of the card that remains visible above it */
+  /* the demo frame rides up into the card by --hero-overlap; the copy sits a
+     little below centre in the part of the card that remains visible above it */
   .card--hero {
     height: 760px;
+    padding-top: 64px;
     padding-bottom: var(--hero-overlap);
   }
   /* the same 45° hatch the walls and the bands between cards wear, so the whole
