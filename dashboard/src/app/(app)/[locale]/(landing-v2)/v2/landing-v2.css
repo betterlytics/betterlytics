@@ -4414,7 +4414,7 @@
   /* ══ FOOTER ══ */
   .foot {
     position: relative;
-    padding: 80px calc(var(--inset) + 12px) 20px;
+    padding: 112px calc(var(--inset) + 12px) 32px;
   }
   .foot__top {
     display: flex;
@@ -4475,7 +4475,7 @@
     justify-content: space-between;
     align-items: center;
     margin-top: 56px;
-    padding-top: 20px;
+    padding-top: 32px;
     font-size: 13px;
     color: var(--mid);
   }
