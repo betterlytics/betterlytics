@@ -67,6 +67,30 @@ describe('throughNodeTransform', () => {
     await vi.waitFor(() => expect(onCancel).toHaveBeenCalledTimes(1));
   });
 
+  it('reports a client disconnect mid-download as an AbortError, the way Next aborts a response', async () => {
+    const onDone = vi.fn();
+    const onCancel = vi.fn();
+    const disconnect = new AbortController();
+    const out = throughNodeTransform(endlessSource(vi.fn(), onCancel), new PassThrough(), onDone, NO_IDLE);
+    let writes = 0;
+    const stalledClient = new WritableStream<Uint8Array>({
+      write() {
+        writes++;
+        if (writes <= 2) return;
+        return new Promise((resolve) =>
+          disconnect.signal.addEventListener('abort', () => resolve(), { once: true }),
+        );
+      },
+    });
+    const piped = out.pipeTo(stalledClient, { signal: disconnect.signal }).catch(() => {});
+    await vi.waitFor(() => expect(writes).toBeGreaterThan(2));
+    disconnect.abort(Object.assign(new Error('client disconnected'), { name: 'ResponseAborted' }));
+    await piped;
+    await vi.waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
+    expect(onDone.mock.calls[0][0]).toMatchObject({ name: 'AbortError' });
+    await vi.waitFor(() => expect(onCancel).toHaveBeenCalledTimes(1));
+  });
+
   it('stops pulling from the source while the consumer is not reading', async () => {
     const onPull = vi.fn();
     const out = throughNodeTransform(endlessSource(onPull), new PassThrough(), vi.fn(), NO_IDLE);

@@ -1,5 +1,5 @@
 import { Readable, Transform, pipeline } from 'node:stream';
-import type { ReadableStream as NodeReadableStream } from 'node:stream/web';
+import { ReadableStream as NodeReadableStream } from 'node:stream/web';
 
 // pipeline (not .pipe) so a source error errors the returned stream and a consumer
 // cancel destroys the source; onDone fires exactly once on end, error, cancel, or idle timeout.
@@ -33,6 +33,7 @@ export function throughNodeTransform(
       onDone(error);
     },
   );
-  // Node 20's default counts chunks up to 16384, so a stalled consumer buffered the whole source
-  return Readable.toWeb(out, { strategy: { highWaterMark: 1 } }) as unknown as ReadableStream<Uint8Array>;
+  // Not Readable.toWeb: Node 20's default buffers the whole source, and with an explicit
+  // strategy it throws ERR_INVALID_STATE when Next aborts a response mid-download
+  return NodeReadableStream.from<Uint8Array>(out) as unknown as ReadableStream<Uint8Array>;
 }
