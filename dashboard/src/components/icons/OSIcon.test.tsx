@@ -25,24 +25,21 @@ describe('OSIcon', () => {
     ['macOS', 'apple.svg', 'apple-dark.svg'],
     ['iOS', 'apple.svg', 'apple-dark.svg'],
     ['Linux', 'linux.svg', 'linux-dark.svg'],
-  ])(
-    'renders %s as a light img hidden in dark mode and a dark mono span hidden in light mode',
-    (name, light, dark) => {
-      const [lightTag, darkTag, ...rest] = renderTags(name);
-      expect(rest).toHaveLength(0);
+  ])('renders %s as one element whose only dark-mode image is the mono variant', (name, light, dark) => {
+    const tags = renderTags(name);
+    expect(tags).toHaveLength(1);
+    const [icon] = tags;
 
-      expect(lightTag.element).toBe('img');
-      expect(lightTag.tag).toContain(`src="/os-icons/${light}"`);
-      expect(lightTag.classes).toContain('dark:hidden');
-      expect(lightTag.classes).not.toContain('hidden');
+    expect(icon.element).toBe('span');
+    expect(icon.tag).toContain(`aria-label="${name}"`);
+    expect(icon.tag).toContain(`--icon-light:url(/os-icons/${light})`);
+    expect(icon.tag).toContain(`--icon-dark:url(/os-icons/${dark})`);
 
-      expect(darkTag.element).toBe('span');
-      expect(darkTag.tag).toContain(`mask-image:url(/os-icons/${dark})`);
-      expect(darkTag.classes).toContain('hidden');
-      expect(darkTag.classes).toContain('dark:inline-block');
-      expect(darkTag.classes).not.toContain('inline-block');
-    },
-  );
+    expect(icon.classes).toContain('bg-(image:--icon-light)');
+    expect(icon.classes).toContain('dark:bg-none');
+    expect(icon.classes).toContain('dark:mask-(--icon-dark)');
+    expect(icon.classes).not.toContain('hidden');
+  });
 
   it('falls back to the Monitor glyph for unknown operating systems', () => {
     const tags = renderTags('TempleOS');

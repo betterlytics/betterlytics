@@ -25,19 +25,20 @@ export function OSIcon({ name, className = 'h-3.5 w-3.5' }: OSIconProps) {
   }
 
   return (
-    <>
-      <StaticIcon
-        src={`/os-icons/${def.icon.file}`}
-        label={def.label}
-        mono={def.icon.mono}
-        className={cn(className, 'dark:hidden')}
-      />
-      <StaticIcon
-        src={`/os-icons/${def.iconDark.file}`}
-        label={def.label}
-        mono={def.iconDark.mono}
-        className={cn(className, 'hidden dark:inline-block')}
-      />
-    </>
+    <span
+      role='img'
+      aria-label={def.label}
+      className={cn(
+        'inline-block shrink-0 bg-(image:--icon-light) bg-contain bg-center bg-no-repeat align-[-0.125em]',
+        'dark:bg-current dark:bg-none dark:mask-(--icon-dark) dark:mask-contain dark:mask-center dark:mask-no-repeat',
+        className,
+      )}
+      style={
+        {
+          '--icon-light': `url(/os-icons/${def.icon.file})`,
+          '--icon-dark': `url(/os-icons/${def.iconDark.file})`,
+        } as React.CSSProperties
+      }
+    />
   );
 }
