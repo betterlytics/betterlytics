@@ -8396,7 +8396,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     };
 
     var config = {
-      maxChunkMs: 5000,
+      maxChunkMs: 20000,
       maxUncompressedBytes: 256 * 1024,
       maxConsecutiveFlushErrors: 3,
     };
