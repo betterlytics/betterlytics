@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import type { IllustrationProps } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/types';
 import { CursorGlyph } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/cursorGlyph';
-import { Corners } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/frame';
 import { LiftSwap } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/liftSwap';
 import { useReducedMotion } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/useReducedMotion';
 import { vars } from '@/app/(app)/[locale]/(landing-v2)/v2/lib/cssVars';
@@ -13,8 +12,8 @@ import { vars } from '@/app/(app)/[locale]/(landing-v2)/v2/lib/cssVars';
 
 /** One pass of the recording. Every keyframe in the stylesheet runs on this loop. */
 const LOOP_MS = 11000;
-/** The recorded session's length, played across one loop (so roughly 4×). */
-const SESSION_S = 44;
+/** The recorded session's length, played across one loop (so 2×). */
+const SESSION_S = 22;
 
 /**
  * What the player narrates, keyed to where in the loop it happens. `at` is
@@ -46,8 +45,8 @@ function clock(seconds: number) {
 /**
  * A session being replayed: a visitor's pricing page, where Choose Pro spins,
  * fails, and gets rage-clicked before they leave. The page is in the site's
- * own warm monochrome so everything the player draws on top (cursor ripples,
- * the flagged button) reads as the player's.
+ * own warm monochrome so everything the player draws on top (the visitor's
+ * named cursor, the click ripples) reads as the player's.
  *
  * The page motion is CSS on one shared loop, paused unless the card is live.
  * The player bar follows that loop by reading the scrub animation's own clock
@@ -87,6 +86,12 @@ export function Replay({ live }: IllustrationProps) {
         <i />
         <i />
         <span>https://example.com/pricing</span>
+        {/* the browser's menu */}
+        <svg className='sr__kebab' viewBox='0 0 4 14' aria-hidden>
+          <circle cx='2' cy='2' r='1.3' />
+          <circle cx='2' cy='7' r='1.3' />
+          <circle cx='2' cy='12' r='1.3' />
+        </svg>
       </div>
       <div className='sr__vp' aria-hidden>
         <div className='sr__page'>
@@ -124,11 +129,6 @@ export function Replay({ live }: IllustrationProps) {
                   <span>Choose Pro</span>
                   <s />
                 </span>
-                {/* the player flags the element the visitor fought with */}
-                <span className='sr__hit'>
-                  <Corners />
-                  <em>Rage click · 4×</em>
-                </span>
               </span>
             </div>
             <div className='sr__plan'>
@@ -144,8 +144,13 @@ export function Replay({ live }: IllustrationProps) {
         </div>
         <span className='sr__rip' />
         <span className='sr__rip sr__rip--rage' />
+        {/* the visitor, drawn as a named multiplayer cursor; the name gives way to the rage click */}
         <span className='sr__cur'>
-          <CursorGlyph dark />
+          <CursorGlyph solid />
+          <span className='sr__who'>
+            <span>Visitor · Copenhagen</span>
+            <span>Rage click · 4×</span>
+          </span>
         </span>
       </div>
       {/* the play footer: the event being played, the scrub track with its markers, then the controls row */}
@@ -161,16 +166,18 @@ export function Replay({ live }: IllustrationProps) {
           ))}
           <i ref={fillRef} />
         </span>
+        {/* the recording's controls; the viewBoxes are cropped to the glyphs so the icons meet
+            the track's ends instead of sitting inset from them */}
         <div className='sr__row sr__ctl'>
-          <svg viewBox='0 0 12 12' aria-hidden>
+          <svg className='sr__pause' viewBox='2 1.5 8 9' aria-hidden>
             <rect x='2' y='1.5' width='3' height='9' rx='0.8' />
             <rect x='7' y='1.5' width='3' height='9' rx='0.8' />
           </svg>
           <time ref={timeRef}>{clock(reduce ? BEATS[STILL_BEAT].at * SESSION_S : 0)}</time>
           <span>/</span>
           <time>{clock(SESSION_S)}</time>
-          <b className='sr__speed'>4×</b>
-          <svg className='sr__max' viewBox='0 0 12 12' aria-hidden>
+          <b className='sr__speed'>2×</b>
+          <svg className='sr__max' viewBox='0.85 0.85 10.3 10.3' aria-hidden>
             <path d='M7 1.5h3.5V5M5 10.5H1.5V7M10.5 1.5 7 5M1.5 10.5 5 7' />
           </svg>
         </div>
