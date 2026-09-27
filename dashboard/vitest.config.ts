@@ -15,7 +15,7 @@ export default defineConfig({
     environment: 'node',
     // Email templates parse the shared env at import time.
     env: { PUBLIC_BASE_URL: 'http://localhost:3000' },
-    include: ['**/*.test.ts'],
+    include: ['**/*.test.{ts,tsx}'],
     exclude: ['node_modules']
   },
 })
