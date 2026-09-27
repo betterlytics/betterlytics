@@ -2507,7 +2507,8 @@
     animation: lp2-erx-tap 0.5s var(--ease);
   }
 
-  /* web vitals: gauges matching the product. Zone ring outside, value arc inside. */
+  /* web vitals: the dashboard's own gauges (components/gauge), as the old landing card draws
+     them. The component sizes and draws the arcs; this only lays them out and sets the labels. */
   .gg {
     position: absolute;
     inset: 0;
@@ -2516,69 +2517,62 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 14px;
+    /* the threshold colours from the app's dark theme, pinned here because the landing is
+       dark-only and does not sit under .dark */
+    --cwv-threshold-good: rgb(88, 207, 146);
+    --cwv-threshold-fair: oklch(80% 0.18 80);
+    --cwv-threshold-poor: rgb(212, 89, 81);
+    --cwv-threshold-good-label: rgb(100, 220, 160);
+    --cwv-threshold-fair-label: oklch(85% 0.16 80);
+    --cwv-threshold-poor-label: rgb(230, 105, 95);
   }
   .gg__row {
     display: flex;
     justify-content: center;
-    gap: 26px;
+    gap: 30px;
   }
+  /* the unfilled track inside each gauge is drawn in currentColor */
   .gg__u {
-    width: 172px;
-    text-align: center;
+    flex: none;
+    color: var(--text);
   }
-  .gg__u svg {
-    width: 100%;
-    display: block;
+  .gg__c {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 20%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  .gg__u .trk {
-    stroke: rgba(235, 232, 230, 0.09);
-  }
-  .gg__u .zg {
-    stroke: var(--live);
-  }
-  .gg__u .zw {
-    stroke: var(--warn);
-  }
-  .gg__u .zp {
-    stroke: var(--down);
-  }
-  .gg__u .zg,
-  .gg__u .zw,
-  .gg__u .zp {
-    opacity: 0.55;
-  }
-  .gg__u .val {
-    stroke-linecap: round;
-    stroke-dasharray: var(--len);
-    stroke-dashoffset: var(--len);
-    transition: stroke-dashoffset 0.85s cubic-bezier(0.3, 0.02, 0.15, 1) var(--d);
-  }
-  .is-in .gg__u .val {
-    stroke-dashoffset: 0;
-  }
+  /* the metric's name: firm grey, second to the coloured value; a little tracking, not eyebrow-wide */
   .gg__k {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    fill: var(--mid);
+    margin-bottom: -2px;
+    font-family: var(--sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--mid);
   }
   .gg__v {
-    font-size: 21px;
-    font-weight: 500;
-    letter-spacing: -0.5px;
+    display: inline-flex;
+    align-items: baseline;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    --number-flow-char-height: 1em;
   }
-  .gg__v tspan {
-    font-size: 0.62em;
-    letter-spacing: 0;
-  }
+  /* a key, not content: secondary grey in the sans, legible without competing with the values */
   .gg__lg {
     display: flex;
     justify-content: center;
     gap: 24px;
     margin-top: 14px;
-    font-family: var(--mono);
-    font-size: 10.5px;
+    font-family: var(--sans);
+    font-size: 11.5px;
     color: var(--mid);
   }
   .gg__lg span {
@@ -2593,11 +2587,10 @@
     flex: none;
   }
   @media (max-width: 760px) {
-    .gg__u {
-      width: 120px;
-    }
+    /* the gauges are drawn at a fixed size; on a phone the rows are scaled down whole */
     .gg__row {
-      gap: 12px;
+      zoom: 0.68;
+      gap: 16px;
     }
     /* the fanned cards and the error list lose their secondary columns on a phone */
     .tf__hd span,
@@ -4587,10 +4580,6 @@
     }
     .erx__d {
       max-height: 210px;
-    }
-    .gg__u .val {
-      stroke-dashoffset: 0;
-      transition: none;
     }
     .tf__c {
       opacity: 1;

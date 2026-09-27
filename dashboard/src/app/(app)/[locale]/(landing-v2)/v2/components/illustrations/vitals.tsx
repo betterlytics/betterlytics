@@ -1,129 +1,138 @@
-import { vars } from '@/app/(app)/[locale]/(landing-v2)/v2/lib/cssVars';
+'use client';
 
-/* Gauges matching the product: zone ring outside, value arc inside, both drawn
-   from the thresholds Google publishes. Arc geometry is transcribed from the
-   draft, where it was generated from those thresholds. */
+import { memo, useEffect, useState } from 'react';
+import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
+import { useLocale } from 'next-intl';
+import { Gauge } from '@/components/gauge';
+import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
+import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
+import {
+  getCoreWebVitalGaugeProps,
+  getCoreWebVitalIntlFormat,
+  getCoreWebVitalLabelColor,
+} from '@/utils/coreWebVitals';
+import type { IllustrationProps } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/types';
+import { useReducedMotion } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/useReducedMotion';
 
-type Gauge = {
-  key: string;
-  value: string;
-  unit?: string;
-  tone: 'live' | 'warn';
-  goodEnd: string;
-  valueArc: string;
-  len: number;
-  delay: string;
-};
+/*
+ * The dashboard's own gauges, as the old landing card draws them: threshold
+ * segments outside, the value arc inside, the number rolling as it changes.
+ * Each gauge steps through the shared mock values on its own interval, so
+ * they never move in step.
+ */
 
-const TRACK = 'M48.52,117.48 A53,53 0 1 1 123.48,117.48';
-const ZONE_START = 'M39.33,126.67 A66,66 0 0 1 ';
-const POOR = 'M151.19,69.68 A66,66 0 0 1 132.67,126.67';
+const SIZE = 150;
+const STROKE = 7.7;
+const ARC_GAP = 3;
 
-const GAUGES: Gauge[] = [
-  {
-    key: 'FCP',
-    value: '1.1',
-    unit: 's',
-    tone: 'live',
-    goodEnd: '79.79,14.29',
-    valueArc: '42.16,50.21',
-    len: 73.3,
-    delay: '0.10s',
-  },
-  {
-    key: 'TTFB',
-    value: '210',
-    unit: 'ms',
-    tone: 'live',
-    goodEnd: '44.46,28.71',
-    valueArc: '36.13,97.95',
-    len: 23.3,
-    delay: '0.21s',
-  },
-  {
-    key: 'LCP',
-    value: '1.8',
-    unit: 's',
-    tone: 'live',
-    goodEnd: '86.00,14.00',
-    valueArc: '53.52,38.12',
-    len: 89.9,
-    delay: '0.32s',
-  },
-  {
-    key: 'INP',
-    value: '142',
-    unit: 'ms',
-    tone: 'live',
-    goodEnd: '36.49,36.35',
-    valueArc: '35.14,65.09',
-    len: 56.7,
-    delay: '0.43s',
-  },
-  {
-    key: 'CLS',
-    value: '0.14',
-    tone: 'warn',
-    goodEnd: '36.49,36.35',
-    valueArc: '73.14,28.58',
-    len: 111.9,
-    delay: '0.54s',
-  },
+const ROWS: ReadonlyArray<ReadonlyArray<{ key: CoreWebVitalName; intervalMs: number; startIndex: number }>> = [
+  [
+    { key: 'FCP', intervalMs: 6400, startIndex: 1 },
+    { key: 'TTFB', intervalMs: 9300, startIndex: 3 },
+  ],
+  [
+    { key: 'LCP', intervalMs: 5300, startIndex: 0 },
+    { key: 'INP', intervalMs: 7200, startIndex: 2 },
+    { key: 'CLS', intervalMs: 8300, startIndex: 4 },
+  ],
 ];
 
-function GaugeUnit({ g }: { g: Gauge }) {
-  const color = g.tone === 'live' ? 'var(--live)' : 'var(--warn)';
+const MetricGauge = memo(function MetricGauge({
+  metric,
+  value,
+  drawn,
+  locale,
+}: {
+  metric: CoreWebVitalName;
+  value: number;
+  drawn: boolean;
+  locale: string;
+}) {
+  const { segments, progress } = getCoreWebVitalGaugeProps(metric, value);
+  const format = getCoreWebVitalIntlFormat(metric, value);
   return (
-    <div className='gg__u'>
-      <svg viewBox='0 0 172 132' aria-hidden>
-        <path className='trk' d={TRACK} fill='none' strokeWidth='11' strokeLinecap='round' />
-        <path className='zg' d={ZONE_START + g.goodEnd} fill='none' strokeWidth='4' />
-        <path className='zw' d={`M${g.goodEnd} A66,66 0 0 1 151.19,69.68`} fill='none' strokeWidth='4' />
-        <path className='zp' d={POOR} fill='none' strokeWidth='4' />
-        <path
-          className='val'
-          d={`M48.52,117.48 A53,53 0 0 1 ${g.valueArc}`}
-          fill='none'
-          stroke={color}
-          strokeWidth='11'
-          style={vars({ '--len': g.len, '--d': g.delay })}
-        />
-        <text className='gg__k' x='86' y='66' textAnchor='middle'>
-          {g.key}
-        </text>
-        <text className='gg__v' x='86' y='92' textAnchor='middle' fill={color}>
-          {g.value}
-          {g.unit ? <tspan>{g.unit}</tspan> : null}
-        </text>
-      </svg>
-    </div>
+    <Gauge
+      role='group'
+      aria-label={`${metric} metric`}
+      className='gg__u'
+      segments={segments}
+      progress={drawn ? progress : 0}
+      size={SIZE}
+      strokeWidth={STROKE}
+      arcGap={ARC_GAP}
+    >
+      <div className='gg__c'>
+        <span className='gg__k'>{metric}</span>
+        <span className='gg__v' style={{ color: getCoreWebVitalLabelColor(metric, value) }}>
+          <NumberFlow value={format.value} format={format.format} locales={locale} willChange />
+          {format.suffix && <span key={format.suffix}>{format.suffix}</span>}
+        </span>
+      </div>
+    </Gauge>
   );
+});
+
+/** One gauge stepping through its metric's mock values while the card is live. */
+function CyclingGauge({
+  metric,
+  intervalMs,
+  startIndex,
+  entered,
+  live,
+  locale,
+}: {
+  metric: CoreWebVitalName;
+  intervalMs: number;
+  startIndex: number;
+  entered: boolean;
+  live: boolean;
+  locale: string;
+}) {
+  const reduce = useReducedMotion();
+  const values = MOCK_CORE_WEB_VITAL_VALUES[metric];
+  const [index, setIndex] = useState(startIndex % values.length);
+
+  useEffect(() => {
+    if (!live || reduce) return;
+    const id = setInterval(() => setIndex((i) => (i + 1) % values.length), intervalMs);
+    return () => clearInterval(id);
+  }, [live, reduce, intervalMs, values.length]);
+
+  return <MetricGauge metric={metric} value={values[index]} drawn={entered} locale={locale} />;
 }
 
-export function Vitals() {
+export function Vitals({ entered, live }: IllustrationProps) {
+  const locale = useLocale();
   return (
     <div className='gg'>
-      <div className='gg__row'>
-        {GAUGES.slice(0, 2).map((g) => (
-          <GaugeUnit key={g.key} g={g} />
+      <NumberFlowGroup>
+        {ROWS.map((row, r) => (
+          <div key={r} className='gg__row'>
+            {row.map((g) => (
+              <CyclingGauge
+                key={g.key}
+                metric={g.key}
+                intervalMs={g.intervalMs}
+                startIndex={g.startIndex}
+                entered={entered}
+                live={live}
+                locale={locale}
+              />
+            ))}
+          </div>
         ))}
-      </div>
-      <div className='gg__row'>
-        {GAUGES.slice(2).map((g) => (
-          <GaugeUnit key={g.key} g={g} />
-        ))}
-      </div>
+      </NumberFlowGroup>
       <div className='gg__lg'>
         <span>
-          <i style={{ background: 'var(--live)' }} />
+          <i style={{ background: 'var(--cwv-threshold-good)' }} />
           Good
         </span>
         <span>
-          <i style={{ background: 'var(--warn)' }} />
+          <i style={{ background: 'var(--cwv-threshold-fair)' }} />
           Needs work
         </span>
         <span>
-          <i style={{ background: 'var(--down)' }} />
+          <i style={{ background: 'var(--cwv-threshold-poor)' }} />
           Poor
         </span>
       </div>
