@@ -50,8 +50,8 @@ function nearestToViewportCentre(cards: (HTMLElement | null)[]) {
 /**
  * Sticky rail + scrolling card stack. The rail carries all the copy and moves
  * as one block when the active card changes: the counter rolls, then the
- * headline lines, note and replacement line each blur-lift a beat after the
- * one above, in the direction the reader is scrolling.
+ * headline lines and the note each blur-lift a beat after the one above, in
+ * the direction the reader is scrolling.
  *
  * Two things are tracked per card. `entered` latches the moment a card first
  * scrolls into view and is never cleared, so an illustration that has played
@@ -145,20 +145,6 @@ export function JourneySection() {
             delay={(lines.length + 1) * LIFT_STEP_S}
           >
             {step.note}
-          </LiftSwap>
-          <LiftSwap
-            as='p'
-            className='jr__repl'
-            id={step.id}
-            direction={direction}
-            delay={(lines.length + 2) * LIFT_STEP_S}
-          >
-            <span className='jr__repl-label'>{COPY.journey.replaces}</span>
-            {step.replaces.map((tool) => (
-              <span key={tool} className='jr__chip'>
-                {tool}
-              </span>
-            ))}
           </LiftSwap>
         </aside>
         <div className='jr__stack'>

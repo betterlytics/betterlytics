@@ -50,7 +50,6 @@ export const COPY = {
   journey: {
     title: 'Everything your users *experienced*',
     lede: 'From the first visit to the outage, in one dashboard.',
-    replaces: 'Replaces',
   },
   mcp: {
     title: 'Point your *own* agent at it',
