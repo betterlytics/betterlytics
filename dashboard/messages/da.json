@@ -3151,7 +3151,8 @@
           "y1": "1 år",
           "y2": "2 år",
           "y3": "3 år",
-          "y5": "5 år"
+          "y5": "5 år",
+          "forever": "Behold for altid"
         },
         "retentionConfirm": {
           "title": "Ændre opbevaringsperiode?",
