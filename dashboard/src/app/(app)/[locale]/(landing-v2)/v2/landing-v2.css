@@ -2040,76 +2040,67 @@
     color: var(--accent-soft);
   }
 
-  /* uptime: the monitors list with an outage playing through it, and the
-     notices it sends stacking over the panel corner. Strips slide as checks land. */
+  /* uptime: each monitor its own card, stacked, with an outage playing through
+     them and the notices it sends stacking over the bottom corner. Strips slide
+     as checks land. */
   .mo {
     position: absolute;
     inset: 0;
     display: grid;
-    place-items: center;
-  }
-  .mo__p {
-    width: 78%;
-    margin-top: -7%;
-    border-radius: 10px;
-    background: #191817;
-    overflow: hidden;
-    border: 1px solid rgba(235, 232, 230, 0.09);
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.05) inset,
-      0 14px 30px rgba(0, 0, 0, 0.5);
-    opacity: 0;
-    transform: translateY(12px);
-    transition:
-      opacity 0.45s var(--ease),
-      transform 0.5s var(--ease);
-  }
-  .is-in .mo__p {
-    opacity: 1;
-    transform: none;
-  }
-  .mo__hd {
-    display: flex;
     align-items: center;
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(235, 232, 230, 0.08);
-    background: rgba(235, 232, 230, 0.02);
   }
-  .mo__hd b {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
-    letter-spacing: -0.15px;
+  /* the stack sits left and the notices hang off its lower right, so the two
+     read as one diagonal. The bottom margin is the notices' overhang, which
+     centres the pair rather than the stack alone. */
+  .mo__grp {
+    position: relative;
+    width: 63%;
+    margin: 0 0 88px 9%;
   }
-  .mo__hd em {
-    margin-left: auto;
-    font-style: normal;
-    font-family: var(--mono);
-    font-size: 10.5px;
-    color: var(--mid);
+  .mo__list {
+    display: grid;
+    gap: 8px;
   }
-  /* the outage count appears rather than changing colour, so it reads as news */
-  .mo__hd em span {
-    color: var(--down);
-    animation: lp2-mo-fade 0.35s var(--ease);
-  }
+  /* the cards rise in one after another. Shadows run shallow for the cards,
+     deeper for the failing one and deepest for the notices, so the layers
+     read in that order. Both shadow lists carry the stripe so it can fade in;
+     the failing card's lift is on `scale`, apart from the draw-in's delayed
+     `transform`. */
   .mo__row {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) 50px 38% 48px;
     align-items: center;
     gap: 0 14px;
     padding: 12px 16px;
-    border-bottom: 1px solid rgba(235, 232, 230, 0.055);
+    border-radius: 10px;
+    background: #1b1a19;
+    border: 1px solid rgba(235, 232, 230, 0.09);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      inset 2px 0 0 rgba(226, 88, 107, 0),
+      0 6px 16px rgba(0, 0, 0, 0.32);
+    opacity: 0;
+    transform: translateY(12px);
     transition:
+      opacity 0.45s var(--ease) var(--d),
+      transform 0.5s var(--ease) var(--d),
+      scale 0.5s var(--ease),
       background-color 0.3s,
+      border-color 0.3s,
       box-shadow 0.3s;
   }
-  .mo__row:last-child {
-    border-bottom: 0;
+  .is-in .mo__row {
+    opacity: 1;
+    transform: none;
   }
   .mo__row.dn {
-    background: rgba(226, 88, 107, 0.05);
-    box-shadow: inset 2px 0 0 var(--down);
+    scale: 1.015;
+    background: #221a1b;
+    border-color: rgba(226, 88, 107, 0.26);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      inset 2px 0 0 var(--down),
+      0 12px 28px rgba(0, 0, 0, 0.46);
   }
   .mo__dot {
     position: relative;
@@ -2238,14 +2229,17 @@
   .is-in .mo__s i.dn {
     opacity: 0.95;
   }
-  /* notices stack from the bottom edge: the newest in front, the one before it
-     stepping back and peeking out above it, its text faded. A notice pushed
-     further back fades out on its way. */
+  /* notices hang just over the stack's bottom edge: the newest in front, the one
+     before it stepping back and peeking out above it, its text faded. A notice
+     pushed further back fades out on its way. Their left edge lines up with where
+     the strips start: a strip ends 79px in from its card's right edge (border,
+     padding, uptime column, gap) and spans 38% of a content box 34px narrower
+     than the card, which puts its start at 62% - 66px. */
   .mo__st {
     position: absolute;
-    right: 5%;
-    bottom: 8%;
-    width: 50%;
+    top: calc(100% - 12px);
+    left: calc(62% - 66px);
+    width: 80%;
   }
   .mo__al {
     --tint: 226, 88, 107;
@@ -2253,7 +2247,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
+    top: 0;
     z-index: calc(3 - var(--depth));
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
@@ -2752,19 +2746,18 @@
     .fig {
       padding: 16px;
     }
-    /* the monitors list keeps two rows on a phone, each strip under its name,
+    /* the monitors keep two cards on a phone, each strip under its name,
        so the notice fits below without covering the monitor it is about */
     .mo {
       place-items: start center;
       padding-top: 14px;
     }
-    .mo__p {
+    .mo__grp {
       width: 94%;
-      margin-top: 0;
+      margin: 0 auto;
     }
-    .mo__hd,
-    .mo__row:nth-child(2),
-    .mo__row:nth-child(5),
+    .mo__row:nth-child(1),
+    .mo__row:nth-child(4),
     .mo__nm span,
     .mo__ms {
       display: none;
@@ -2773,9 +2766,6 @@
       grid-template-columns: auto minmax(0, 1fr) auto;
       gap: 9px 12px;
       padding: 11px 14px 12px;
-    }
-    .mo__row:nth-child(4) {
-      border-bottom: 0;
     }
     .mo__nm b {
       margin-bottom: 0;
@@ -2786,9 +2776,8 @@
       height: 18px;
     }
     .mo__st {
-      right: 6%;
-      bottom: 14px;
-      width: 88%;
+      left: 3%;
+      width: 94%;
     }
   }
 
@@ -4749,7 +4738,7 @@
     .sr__who > span:last-child {
       opacity: 1;
     }
-    .mo__p {
+    .mo__row {
       opacity: 1;
       transform: none;
       transition: none;
@@ -4763,8 +4752,7 @@
       transform: none;
       transition: none;
     }
-    .mo__dot::after,
-    .mo__hd em span {
+    .mo__dot::after {
       animation: none;
     }
     .erx__p {
@@ -4848,11 +4836,6 @@
   30% {
     filter: none;
     opacity: 1;
-  }
-}
-@keyframes lp2-mo-fade {
-  from {
-    opacity: 0;
   }
 }
 /* two identical slides for the uptime strips; alternating the name restarts it */

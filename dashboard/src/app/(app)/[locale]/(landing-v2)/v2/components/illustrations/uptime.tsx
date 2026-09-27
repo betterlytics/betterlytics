@@ -104,11 +104,14 @@ function useChecks(run: boolean) {
  * one step left in the DOM while the track slides back from where it was.
  * Alternating the animation name restarts the slide on every check.
  */
-function Strip({ row, t, ticked, delay }: { row: number; t: number; ticked: boolean; delay: string }) {
+function Strip({ row, t, ticked }: { row: number; t: number; ticked: boolean }) {
   const first = t - CELLS;
   return (
-    <span className='mo__s' style={vars({ '--d': delay, '--n': CELLS })}>
-      <span className='mo__tr' style={ticked ? { animationName: t % 2 ? 'lp2-mo-tick-a' : 'lp2-mo-tick-b' } : undefined}>
+    <span className='mo__s' style={vars({ '--n': CELLS })}>
+      <span
+        className='mo__tr'
+        style={ticked ? { animationName: t % 2 ? 'lp2-mo-tick-a' : 'lp2-mo-tick-b' } : undefined}
+      >
         {Array.from({ length: CELLS + 1 }, (_, i) => (
           <i key={first + i} className={cn(fails(row, first + i) && 'dn')} style={vars({ '--i': i })} />
         ))}
@@ -143,7 +146,13 @@ const ICONS: Record<NoticeKind, ReactNode> = {
   ),
   up: (
     <svg viewBox='0 0 20 20' fill='none' aria-hidden>
-      <path d='m5.5 10.4 3 3 6-6.6' stroke='currentColor' strokeWidth='1.7' strokeLinecap='round' strokeLinejoin='round' />
+      <path
+        d='m5.5 10.4 3 3 6-6.6'
+        stroke='currentColor'
+        strokeWidth='1.7'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
     </svg>
   ),
 };
@@ -193,62 +202,63 @@ function Notice({ kind, t }: { kind: NoticeKind; t: number }) {
 }
 
 /**
- * A monitors list with an outage playing through it and the notices it sends
- * stacking up over the panel's corner, newest in front. All the strips move
- * on one beat while the card is live.
+ * Monitors as a stack of cards with an outage playing through them, the
+ * failing one coming forward, and the notices it sends stacking up over the
+ * bottom corner, newest in front. All the strips move on one beat while the
+ * card is live.
  */
 export function Uptime({ live }: IllustrationProps) {
   const reduce = useReducedMotion();
   const played = useChecks(live && !reduce);
   const t = reduce ? POSTER : played;
   const ticked = !reduce && played > 0;
-  const anyDown = MONITORS.some((_, row) => fails(row, t));
 
   return (
     <div className='mo'>
-      <div className='mo__p'>
-        {/* all being well needs no words; only an outage adds to the count */}
-        <div className='mo__hd'>
-          <b>Monitors</b>
-          <em>
-            4 monitors
-            {anyDown && <span> · 1 down</span>}
-          </em>
+      <div className='mo__grp'>
+        <div className='mo__list'>
+          {MONITORS.map((mon, row) => {
+            const down = fails(row, t);
+            const uptime = uptimeAt(row, t);
+            return (
+              <div
+                key={mon.name}
+                className={cn('mo__row', down && 'dn')}
+                style={vars({ '--d': `${0.06 + row * 0.08}s` })}
+              >
+                <i className='mo__dot' />
+                <span className='mo__nm'>
+                  <b>
+                    {mon.name}
+                    {row === DOCS && (
+                      <s>
+                        <svg viewBox='0 0 16 16' aria-hidden>
+                          <path
+                            d='M8 1.6 3 3.5v3.7c0 3 2.1 5.6 5 6.9 2.9-1.3 5-3.9 5-6.9V3.5L8 1.6Z'
+                            fill='currentColor'
+                          />
+                        </svg>
+                        SSL 9 days
+                      </s>
+                    )}
+                  </b>
+                  <span>{mon.host}</span>
+                </span>
+                <span className={cn('mo__ms', down && 'dn')}>{down ? 'timeout' : mon.ms}</span>
+                <Strip row={row} t={t} ticked={ticked} />
+                <em>
+                  <RollingDigits value={formatUptime(uptime)} direction={uptime < uptimeAt(row, t - 1) ? -1 : 1} />
+                </em>
+              </div>
+            );
+          })}
         </div>
-        {MONITORS.map((mon, row) => {
-          const down = fails(row, t);
-          const uptime = uptimeAt(row, t);
-          return (
-            <div key={mon.name} className={cn('mo__row', down && 'dn')}>
-              <i className='mo__dot' />
-              <span className='mo__nm'>
-                <b>
-                  {mon.name}
-                  {row === DOCS && (
-                    <s>
-                      <svg viewBox='0 0 16 16' aria-hidden>
-                        <path d='M8 1.6 3 3.5v3.7c0 3 2.1 5.6 5 6.9 2.9-1.3 5-3.9 5-6.9V3.5L8 1.6Z' fill='currentColor' />
-                      </svg>
-                      SSL 9 days
-                    </s>
-                  )}
-                </b>
-                <span>{mon.host}</span>
-              </span>
-              <span className={cn('mo__ms', down && 'dn')}>{down ? 'timeout' : mon.ms}</span>
-              <Strip row={row} t={t} ticked={ticked} delay={`${0.1 + row * 0.06}s`} />
-              <em>
-                <RollingDigits value={formatUptime(uptime)} direction={uptime < uptimeAt(row, t - 1) ? -1 : 1} />
-              </em>
-            </div>
-          );
-        })}
-      </div>
 
-      <div className='mo__st'>
-        {NOTICES.map((n) => (
-          <Notice key={n.kind} kind={n.kind} t={t} />
-        ))}
+        <div className='mo__st'>
+          {NOTICES.map((n) => (
+            <Notice key={n.kind} kind={n.kind} t={t} />
+          ))}
+        </div>
       </div>
     </div>
   );
