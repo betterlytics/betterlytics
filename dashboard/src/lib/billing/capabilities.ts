@@ -102,5 +102,5 @@ export function getMaxRetentionDaysForTier(tier: TierName): number {
 }
 
 export const MIN_DATA_RETENTION_DAYS = 180;
-// "Keep forever". Self-hosted only (dashboardSettings.service.ts); the purge job skips <= 0.
+
 export const UNLIMITED_DATA_RETENTION_DAYS = -1;
