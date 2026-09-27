@@ -3916,6 +3916,25 @@
     width: 190px;
     height: auto;
   }
+  /* on hover the ring turns one star (30deg, a twelfth of the ring) about the checkmark while
+     each star counter-turns to stay upright, so it comes to rest looking exactly as it
+     started and leaving turns it back just as quietly. Stars slide in and out under the
+     cell's clip */
+  @media (hover: hover) {
+    .seal__ring,
+    .seal__star {
+      transition: rotate 1.2s var(--ease);
+    }
+    .seal__ring {
+      transform-origin: 100px 106px;
+    }
+    .snip__row--volt:hover .seal__ring {
+      rotate: 30deg;
+    }
+    .snip__row--volt:hover .seal__star {
+      rotate: -30deg;
+    }
+  }
   .snip__row--volt .label {
     color: var(--on-volt);
   }
