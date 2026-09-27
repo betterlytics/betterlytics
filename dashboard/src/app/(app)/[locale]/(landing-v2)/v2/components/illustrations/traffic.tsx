@@ -1,13 +1,48 @@
+'use client';
+
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { LIFT_STEP_S, LiftSwap } from '@/app/(app)/[locale]/(landing-v2)/v2/components/ui/liftSwap';
 import { vars } from '@/app/(app)/[locale]/(landing-v2)/v2/lib/cssVars';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
-const PAGES = [
-  { path: '/pricing', views: '8,412', share: 100 },
-  { path: '/blog/cookieless-analytics', views: '6,203', share: 74 },
-  { path: '/', views: '5,118', share: 61 },
-  { path: '/docs/installation', views: '3,940', share: 47 },
-  { path: '/changelog', views: '2,106', share: 25 },
+/**
+ * The dashboard's pages table and its three tabs: every page by views, the pages
+ * visits start on, and the ones they end on. The same pages rank differently in
+ * each, which is the point of having all three.
+ */
+const TABS = [
+  {
+    label: 'All',
+    pages: [
+      { path: '/pricing', count: '8,412', share: 100 },
+      { path: '/blog/cookieless-analytics', count: '6,203', share: 74 },
+      { path: '/', count: '5,118', share: 61 },
+      { path: '/docs/installation', count: '3,940', share: 47 },
+      { path: '/changelog', count: '2,106', share: 25 },
+    ],
+  },
+  {
+    label: 'Entry',
+    pages: [
+      { path: '/', count: '4,870', share: 100 },
+      { path: '/blog/cookieless-analytics', count: '4,312', share: 89 },
+      { path: '/blog/ga4-alternatives', count: '2,245', share: 46 },
+      { path: '/pricing', count: '1,904', share: 39 },
+      { path: '/docs/installation', count: '702', share: 14 },
+    ],
+  },
+  {
+    label: 'Exit',
+    pages: [
+      { path: '/pricing', count: '3,318', share: 100 },
+      { path: '/docs/installation', count: '2,474', share: 75 },
+      { path: '/blog/cookieless-analytics', count: '1,652', share: 50 },
+      { path: '/signup/welcome', count: '1,127', share: 34 },
+      { path: '/changelog', count: '811', share: 24 },
+    ],
+  },
 ];
 
 /** Share of readers still on the page at each quarter of its length. */
@@ -34,19 +69,52 @@ function intensity(day: number, hour: number) {
 
 /** Three cards, fanned, each a different kind of view: what they open, how far they read, when they come. */
 export function Traffic() {
+  // `from` is the tab left last, null until the first switch
+  const [{ tab, from }, setView] = useState<{ tab: number; from: number | null }>({ tab: 0, from: null });
+  const direction = from === null || tab > from ? 1 : -1;
+  // the bars draw in slowly on entrance; after a switch they answer at once
+  const switched = from !== null;
+
+  const pick = (next: number) => {
+    if (next !== tab) setView({ tab: next, from: tab });
+  };
+
   return (
     <div className='tf'>
       <div className='tf__c tf__c--a' style={vars({ '--d': '.05s' })}>
         <div className='tf__hd'>
           <b>Top pages</b>
-          <span>views · 24h</span>
+          <div className='tf__tabs' role='tablist' aria-label='Pages' style={vars({ '--i': tab })}>
+            {TABS.map((t, i) => (
+              <button
+                key={t.label}
+                type='button'
+                role='tab'
+                aria-selected={i === tab}
+                className={cn(i === tab && 'is-on')}
+                onClick={() => pick(i)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className='tf__b'>
-          {PAGES.map((page, i) => (
-            <div key={page.path} className='tf__r'>
-              <u style={vars({ '--d': `${0.25 + i * 0.07}s` }, { width: `${page.share}%` })} />
-              <b>{page.path}</b>
-              <em>{page.views}</em>
+        {/* five fixed rows: the bars resize in place while labels and counts lift through their slots */}
+        <div className='tf__b' role='tabpanel'>
+          {TABS[tab].pages.map((page, i) => (
+            <div key={i} className='tf__r'>
+              <u
+                style={vars({
+                  '--share': page.share / 100,
+                  '--d': switched ? `${i * LIFT_STEP_S}s` : `${0.25 + i * 0.07}s`,
+                })}
+              />
+              <LiftSwap as='b' id={page.path} direction={direction} delay={i * LIFT_STEP_S}>
+                {page.path}
+              </LiftSwap>
+              <LiftSwap as='em' id={page.count} direction={direction} delay={i * LIFT_STEP_S}>
+                {page.count}
+              </LiftSwap>
             </div>
           ))}
         </div>

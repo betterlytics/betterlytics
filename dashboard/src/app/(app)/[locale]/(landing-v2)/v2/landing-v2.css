@@ -2740,6 +2740,51 @@
   .tf__b {
     padding: 11px 14px 13px;
   }
+  /* all / entry / exit, the dashboard's pages tabs: a pill slides under the chosen one */
+  .tf__tabs {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: -3px 0 -3px auto;
+    padding: 2px;
+    border-radius: 6px;
+    background: rgba(235, 232, 230, 0.04);
+    border: 1px solid rgba(235, 232, 230, 0.07);
+  }
+  .tf__tabs::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: calc((100% - 4px) / 3);
+    border-radius: 4px;
+    background: rgba(74, 92, 255, 0.26);
+    box-shadow: 0 0 0 1px rgba(139, 151, 255, 0.28) inset;
+    transform: translateX(calc(var(--i) * 100%));
+    transition: transform 0.4s var(--ease);
+  }
+  .tf__tabs button {
+    position: relative;
+    height: 19px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .tf__tabs button:hover,
+  .tf__tabs button.is-on {
+    color: var(--text);
+  }
+  .tf__tabs button:focus-visible {
+    outline: 1px solid var(--accent-soft);
+    outline-offset: -1px;
+  }
 
   /* top pages, drawn as the dashboard draws them: the bar fills the row behind its label */
   .tf__r {
@@ -2761,7 +2806,7 @@
   }
   .tf__r u {
     position: absolute;
-    inset: 0 auto 0 0;
+    inset: 0;
     border-radius: 4px;
     background: rgba(74, 92, 255, 0.32);
     transform-origin: 0 50%;
@@ -2769,7 +2814,7 @@
     transition: transform 0.6s var(--ease) var(--d);
   }
   .is-in .tf__r u {
-    transform: none;
+    transform: scaleX(var(--share));
   }
   .tf__r b,
   .tf__r em {
@@ -2777,10 +2822,14 @@
     white-space: nowrap;
   }
   .tf__r b {
+    min-width: 0;
     overflow: hidden;
-    text-overflow: ellipsis;
     font-weight: 400;
     color: var(--text);
+  }
+  .tf__r b .ls__item {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .tf__r em {
     font-style: normal;
@@ -4550,6 +4599,12 @@
     .tf__r u,
     .tf__read span {
       transform: none;
+      transition: none;
+    }
+    .tf__r u {
+      transform: scaleX(var(--share));
+    }
+    .tf__tabs::before {
       transition: none;
     }
     .tf__grid i {
