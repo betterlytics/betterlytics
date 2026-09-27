@@ -2193,11 +2193,14 @@
     font-variant-numeric: tabular-nums;
   }
   /* the track is one cell wider than the strip and rests one cell to the left;
-     each check restarts a slide from where the cells were before they shifted */
+     each check restarts a slide from where the cells were before they shifted.
+     The older end fades out, so history recedes and the latest checks stay crisp. */
   .mo__s {
     height: 22px;
     margin-right: -3px;
     overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 35%);
+    mask-image: linear-gradient(to right, transparent, #000 35%);
   }
   .mo__tr {
     display: flex;
