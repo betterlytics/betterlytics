@@ -16,10 +16,8 @@ import { capitalizeFirstLetter } from '@/utils/formatters';
 import { InfoBadge } from './components/InfoBadge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { LiveIndicator } from '@/components/live-indicator';
-import { useNow } from '@/hooks/use-now';
-import { isPossiblyActive } from './utils/possibly-active';
-
-const POSSIBLY_ACTIVE_RECHECK_MS = 30_000;
+import { useNow } from './hooks/use-now';
+import { isPossiblyActive, POSSIBLY_ACTIVE_RECHECK_MS } from './utils/possibly-active';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
