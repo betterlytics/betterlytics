@@ -107,10 +107,10 @@ function getPackageManagerTabs(): CodeTab[] {
   ];
 }
 
-function getSimpleInitCode(siteId: string): string {
+function getSimpleInitCode(initCall: string): string {
   return `import betterlytics from "@betterlytics/tracker"
 
-betterlytics.init("${siteId}")`;
+${initCall}`;
 }
 
 export function getFrameworkCode(
@@ -120,6 +120,14 @@ export function getFrameworkCode(
 ): FrameworkCode {
   const { siteId, analyticsUrl, serverUrl, isCloud } = config;
   const serverUrlAttr = !isCloud && serverUrl ? `\n    data-server-url="${serverUrl}/event"` : '';
+
+  const initCall = (indent = '', q = '"') => {
+    if (isCloud) return `betterlytics.init(${q}${siteId}${q})`;
+    const options = [`scriptUrl: ${q}${analyticsUrl}/analytics.js${q}`];
+    if (serverUrl) options.push(`serverUrl: ${q}${serverUrl}/event${q}`);
+    const lines = options.map((option) => `${indent}  ${option},`).join('\n');
+    return `betterlytics.init(${q}${siteId}${q}, {\n${lines}\n${indent}})`;
+  };
 
   const trackingScript = `<script async
     src="${analyticsUrl}/analytics.js"
@@ -169,7 +177,7 @@ export function getFrameworkCode(
               {
                 title: nextjsT.variants.next153.step2.title,
                 description: nextjsT.variants.next153.step2.description,
-                code: getSimpleInitCode(siteId),
+                code: getSimpleInitCode(initCall()),
                 language: 'javascript',
               },
             ],
@@ -193,7 +201,7 @@ import betterlytics from "@betterlytics/tracker"
 
 export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    betterlytics.init("${siteId}")
+    ${initCall('    ')}
   }, [])
 
   return <>{children}</>
@@ -238,7 +246,7 @@ import betterlytics from "@betterlytics/tracker"
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    betterlytics.init("${siteId}")
+    ${initCall('    ')}
   }, [])
 
   return <Component {...pageProps} />
@@ -262,7 +270,7 @@ export default function App({ Component, pageProps }: AppProps) {
           {
             title: t.frameworks.react.step2.title,
             description: t.frameworks.react.step2.description,
-            code: getSimpleInitCode(siteId),
+            code: getSimpleInitCode(initCall()),
             language: 'javascript',
           },
         ],
@@ -283,7 +291,7 @@ export default function App({ Component, pageProps }: AppProps) {
 import App from './App.vue'
 import betterlytics from "@betterlytics/tracker"
 
-betterlytics.init("${siteId}")
+${initCall()}
 
 createApp(App).mount('#app')`,
             language: 'javascript',
@@ -305,7 +313,7 @@ createApp(App).mount('#app')`,
             code: `import betterlytics from "@betterlytics/tracker"
 
 export default defineNuxtPlugin(() => {
-  betterlytics.init("${siteId}")
+  ${initCall('  ')}
 })`,
             language: 'javascript',
           },
@@ -328,7 +336,7 @@ export default defineNuxtPlugin(() => {
   import betterlytics from '@betterlytics/tracker'
 
   onMount(() => {
-    betterlytics.init('${siteId}')
+    ${initCall('    ', "'")}
   })
 </script>
 
@@ -357,7 +365,7 @@ export default defineNuxtPlugin(() => {
     <slot />
     <script>
       import betterlytics from '@betterlytics/tracker'
-      betterlytics.init('${siteId}')
+      ${initCall('      ', "'")}
     </script>
   </body>
 </html>`,
@@ -382,7 +390,7 @@ import betterlytics from "@betterlytics/tracker"
 
 export default function App() {
   useEffect(() => {
-    betterlytics.init("${siteId}")
+    ${initCall('    ')}
   }, [])
 
   return (
@@ -411,7 +419,7 @@ export default function App() {
             code: `import betterlytics from "@betterlytics/tracker"
 
 export const onClientEntry = () => {
-  betterlytics.init("${siteId}")
+  ${initCall('  ')}
 }`,
             language: 'javascript',
           },
@@ -433,7 +441,7 @@ export const onClientEntry = () => {
 import { AppComponent } from './app/app.component'
 import betterlytics from "@betterlytics/tracker"
 
-betterlytics.init("${siteId}")
+${initCall()}
 
 bootstrapApplication(AppComponent)`,
             language: 'javascript',
@@ -456,7 +464,7 @@ bootstrapApplication(AppComponent)`,
 import App from './App'
 import betterlytics from "@betterlytics/tracker"
 
-betterlytics.init("${siteId}")
+${initCall()}
 
 render(() => <App />, document.getElementById('root')!)`,
             language: 'javascript',
