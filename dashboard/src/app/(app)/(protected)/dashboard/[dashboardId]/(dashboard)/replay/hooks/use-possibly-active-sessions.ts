@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { keepPreviousData } from '@tanstack/react-query';
 import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { SESSION_REPLAY_ACTIVITY_MAX_IDS, type SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import {
   isPossiblyActive,
@@ -13,6 +14,7 @@ import { useNow } from './use-now';
 
 export function usePossiblyActiveSessions(sessions: SessionReplay[]): Set<string> {
   const dashboardId = useDashboardId();
+  const { interval } = useTimeRangeContext();
   const now = useNow(POSSIBLY_ACTIVE_RECHECK_MS);
   const [polledEndedAt, setPolledEndedAt] = useState<Map<string, Date>>(() => new Map());
 
@@ -33,8 +35,11 @@ export function usePossiblyActiveSessions(sessions: SessionReplay[]): Set<string
   const activity = trpc.sessionReplays.activity.useQuery(
     { dashboardId, sessionIds: pollIds },
     {
-      enabled: pollIds.length > 0,
+      // Realtime mode already refetches the list, which carries fresh ended_at values.
+      enabled: pollIds.length > 0 && interval !== 'realtime',
       refetchInterval: POSSIBLY_ACTIVE_RECHECK_MS,
+      // The clock keeps ticking in a hidden tab, so polling must too or live rows expire.
+      refetchIntervalInBackground: true,
       placeholderData: keepPreviousData,
     },
   );

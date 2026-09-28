@@ -26,10 +26,7 @@ export type SessionReplay = z.infer<typeof SessionReplaySchema>;
 
 export const SESSION_REPLAY_ACTIVITY_MAX_IDS = 100;
 
-export const SessionReplayActivitySchema = z.object({
-  session_id: z.string(),
-  ended_at: z.string().transform((val) => parseClickHouseDate(val)),
-});
+export const SessionReplayActivitySchema = SessionReplaySchema.pick({ session_id: true, ended_at: true });
 
 export const SessionReplayActivityArraySchema = SessionReplayActivitySchema.array();
 
