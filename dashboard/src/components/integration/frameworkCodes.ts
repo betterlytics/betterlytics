@@ -119,18 +119,20 @@ export function getFrameworkCode(
   t: IntegrationTranslations,
 ): FrameworkCode {
   const { siteId, analyticsUrl, serverUrl, isCloud } = config;
-  const serverUrlAttr = !isCloud && serverUrl ? `\n    data-server-url="${serverUrl}/event"` : '';
+  const scriptUrl = `${analyticsUrl}/analytics.js`;
+  const eventUrl = !isCloud && serverUrl ? `${serverUrl}/event` : undefined;
+  const serverUrlAttr = eventUrl ? `\n    data-server-url="${eventUrl}"` : '';
 
   const initCall = (indent = '', q = '"') => {
     if (isCloud) return `betterlytics.init(${q}${siteId}${q})`;
-    const options = [`scriptUrl: ${q}${analyticsUrl}/analytics.js${q}`];
-    if (serverUrl) options.push(`serverUrl: ${q}${serverUrl}/event${q}`);
+    const options = [`scriptUrl: ${q}${scriptUrl}${q}`];
+    if (eventUrl) options.push(`serverUrl: ${q}${eventUrl}${q}`);
     const lines = options.map((option) => `${indent}  ${option},`).join('\n');
     return `betterlytics.init(${q}${siteId}${q}, {\n${lines}\n${indent}})`;
   };
 
   const trackingScript = `<script async
-    src="${analyticsUrl}/analytics.js"
+    src="${scriptUrl}"
     data-site-id="${siteId}"${serverUrlAttr}>
 </script>`;
 
