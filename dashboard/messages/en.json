@@ -2788,7 +2788,8 @@
           "title": "No session replays available",
           "description": "Try expanding your time range or adjusting filters."
         },
-        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}"
+        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}",
+        "possiblyActiveTooltip": "May still be recording, replay may be incomplete"
       },
       "playerTopbar": {
         "startLabel": "Start:",
