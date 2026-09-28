@@ -16,8 +16,7 @@ import { capitalizeFirstLetter } from '@/utils/formatters';
 import { InfoBadge } from './components/InfoBadge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { LiveIndicator } from '@/components/live-indicator';
-import { useNow } from './hooks/use-now';
-import { isPossiblyActive, POSSIBLY_ACTIVE_RECHECK_MS } from './utils/possibly-active';
+import { usePossiblyActiveSessions } from './hooks/use-possibly-active-sessions';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
@@ -42,7 +41,7 @@ export function SessionReplayList({
   const [minDurationFilter, setMinDurationFilter] = useState('');
   const t = useTranslations('components.sessionReplay.sessionList');
   const tMisc = useTranslations('misc');
-  const now = useNow(POSSIBLY_ACTIVE_RECHECK_MS);
+  const possiblyActiveIds = usePossiblyActiveSessions(sessions);
 
   const normalizedMinDuration = Math.max(0, Number.parseInt(minDurationFilter || '0', 10) || 0);
 
@@ -76,7 +75,7 @@ export function SessionReplayList({
     const browserName = session.browser ? capitalizeFirstLetter(session.browser) : null;
     const osName = session.os ? capitalizeFirstLetter(session.os) : null;
     const deviceName = session.device_type ? capitalizeFirstLetter(session.device_type) : null;
-    const possiblyActive = isPossiblyActive(session.ended_at, now);
+    const possiblyActive = possiblyActiveIds.has(session.session_id);
 
     return {
       id: session.session_id,

@@ -1,7 +1,10 @@
 import 'server-only';
 
 import { getSessionReplays } from '@/repositories/clickhouse/index.repository';
-import { getReplaySessionMeta } from '@/repositories/clickhouse/sessionReplays.repository';
+import {
+  getReplaySessionMeta,
+  getSessionReplayActivity,
+} from '@/repositories/clickhouse/sessionReplays.repository';
 import { readerFor, type ReplaySegmentReader } from '@/repositories/replaySegments.repository';
 import { replayStorage } from '@/lib/env';
 import type { AuthContext } from '@/entities/auth/authContext.entities';
@@ -11,6 +14,10 @@ const STREAM_PREFETCH_AHEAD = 4;
 
 export async function getSessionReplaysForSite(siteQuery: BASiteQuery, limit: number, offset: number) {
   return getSessionReplays(siteQuery, limit, offset);
+}
+
+export async function getSessionReplayActivityForSite(siteId: string, sessionIds: string[]) {
+  return getSessionReplayActivity(siteId, sessionIds);
 }
 
 export type ReplaySegmentStream = { stream: ReadableStream<Uint8Array>; endedAt: Date };

@@ -1,8 +1,12 @@
 import { z } from 'zod';
 import { createRouter, dashboardProcedure } from '@/trpc/init';
 import { BAAnalyticsQuerySchema } from '@/entities/analytics/analyticsQuery.entities';
+import { SESSION_REPLAY_ACTIVITY_MAX_IDS } from '@/entities/analytics/sessionReplays.entities';
 import { toSiteQuery } from '@/lib/toSiteQuery';
-import { getSessionReplaysForSite } from '@/services/analytics/sessionReplays.service';
+import {
+  getSessionReplayActivityForSite,
+  getSessionReplaysForSite,
+} from '@/services/analytics/sessionReplays.service';
 
 const queryInput = z.object({ query: BAAnalyticsQuerySchema });
 
@@ -18,5 +22,12 @@ export const sessionReplaysRouter = createRouter({
     .query(async ({ ctx, input }) => {
       const { main } = toSiteQuery(ctx.authContext.siteId, input.query);
       return getSessionReplaysForSite(main, input.limit, input.cursor ?? 0);
+    }),
+  activity: dashboardProcedure
+    .input(z.object({
+      sessionIds: z.array(z.string().regex(/^\d+$/)).min(1).max(SESSION_REPLAY_ACTIVITY_MAX_IDS),
+    }))
+    .query(async ({ ctx, input }) => {
+      return getSessionReplayActivityForSite(ctx.authContext.siteId, input.sessionIds);
     }),
 });
