@@ -62,13 +62,13 @@ Prefer to configure manually? Copy `.env.example` to `.env` and fill in the valu
 docker compose up -d --wait
 ```
 
-The first start runs database migrations before the app comes up, so give it a minute or two. `--wait` returns once the instance passes its health check. Then open your domain in a browser and create your account.
+The first start runs database migrations before the app comes up, so give it a minute or two. `--wait` returns once the instance passes its health check. The same command applies whenever you change `.env`: Compose recreates the container with the new values.
+
+Then open your domain in a browser and create your account.
 
 <Callout type="warning">
 The first account created on a new instance becomes its admin.
 </Callout>
-
-The same command applies whenever you change `.env`: Compose recreates the container with the new values.
 
 ### 4. Install the Tracking Script
 
