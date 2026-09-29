@@ -17,7 +17,7 @@ import {
   UserPlus,
   type LucideIcon,
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
 import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
@@ -265,14 +265,14 @@ export function Events({ live }: IllustrationProps) {
             const arriving = row.id >= 0 && !reduce;
             const Icon = row.kind.icon;
             return (
-              <motion.li
+              <m.li
                 key={row.id}
                 className='ev__slot'
                 initial={arriving ? { height: 0 } : false}
                 animate={{ height: 'auto' }}
                 transition={{ duration: GAP_S, ease: EASE }}
               >
-                <motion.div
+                <m.div
                   className={cn('ev__row', row.id >= 0 && 'is-new', i === 0 && 'is-top')}
                   initial={arriving ? LIFTED : false}
                   animate={SETTLED}
@@ -286,8 +286,8 @@ export function Events({ live }: IllustrationProps) {
                   </span>
                   <Who visitor={row.visitor} />
                   <time>{now ? ago(now - row.at) : ''}</time>
-                </motion.div>
-              </motion.li>
+                </m.div>
+              </m.li>
             );
           })}
         </ol>

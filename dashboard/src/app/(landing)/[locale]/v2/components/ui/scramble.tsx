@@ -26,7 +26,7 @@ const roll = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
  */
 export function Scramble({ text, delay = 0, className }: { text: string; delay?: number; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { threshold: 1 });
+  const inView = useInView(ref);
   const reduce = useReducedMotion();
   const [out, setOut] = useState(text);
   /* what has settled on screen; starts empty so the first play spells in from nothing */

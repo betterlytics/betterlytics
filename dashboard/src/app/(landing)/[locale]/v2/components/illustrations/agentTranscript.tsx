@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { BrandMark } from '@/landing/components/ui/brandMark';
 import { useInView } from '@/landing/hooks/useInView';
 import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
 import { FlareShimmer } from './flareShimmer';
@@ -158,7 +159,7 @@ function renderLine(line: Line, showCursor: boolean) {
  */
 export function AgentTranscript() {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { threshold: 0.2, once: false });
+  const inView = useInView(ref, 'onScreen');
   const reduce = useReducedMotion();
   const [lines, setLines] = useState<Line[]>([]);
   const [spinSince, setSpinSince] = useState<number | null>(null);
@@ -263,9 +264,7 @@ export function AgentTranscript() {
         <i />
         <b>claude — ~/acme-site</b>
         <span>
-          <svg aria-hidden>
-            <use href='#lp2-logo' />
-          </svg>
+          <BrandMark />
           betterlytics mcp
         </span>
       </div>

@@ -1,27 +1,25 @@
 import { Link } from '@/i18n/navigation';
+import { buttonStyles } from '@/landing/components/ui/button';
+import { Heading, Lede } from '@/landing/components/ui/text';
+import { VoltCard } from '@/landing/components/ui/voltCard';
 import { COPY } from '@/landing/content/copy';
 
 const copy = COPY.hero;
 
 export function HeroSection() {
   return (
-    <section className='hero'>
-      <div className='card card--hero'>
-        <div className='card__wave' aria-hidden>
-          <i />
+    <section className='relative z-1 px-[calc(var(--pad)+12px)] pt-3 max-sm:px-(--pad)' aria-labelledby='hero-title'>
+      <VoltCard variant='hero'>
+        <Heading as='h1' size='display-1' id='hero-title' className='mx-auto max-w-[1140px] text-on-volt max-2xl:max-w-[640px]'>
+          {copy.title}
+        </Heading>
+        <Lede className='mx-auto -mt-2 max-w-[600px] text-on-volt opacity-86'>{copy.lede}</Lede>
+        <div className='mt-1.5 flex flex-wrap justify-center gap-2.5'>
+          <Link className={buttonStyles({ variant: 'paper', size: 'lg' })} href='/signup'>
+            {copy.ctaPrimary}
+          </Link>
         </div>
-        {/* sits on the demo frame's top edge, so it reads as light from behind the frame */}
-        <div className='bloom' style={{ top: 628, width: 1220, height: 470 }} aria-hidden />
-        <div className='card__body'>
-          <h1 className='d1'>{copy.title}</h1>
-          <p className='lede'>{copy.lede}</p>
-          <div className='card__cta'>
-            <Link className='btn btn--paper btn--lg' href='/signup'>
-              {copy.ctaPrimary}
-            </Link>
-          </div>
-        </div>
-      </div>
+      </VoltCard>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Emphasis } from '@/landing/components/ui/emphasis';
-import { Panel, Section, SectionHead } from '@/landing/components/ui/frame';
+import { Panel, Section } from '@/landing/components/ui/frame';
 import { COPY } from '@/landing/content/copy';
 import { TESTIMONIAL_ROWS, type Testimonial } from '@/landing/content/testimonials';
 import { IDS } from '@/landing/lib/ids';
@@ -41,8 +41,7 @@ function Card({ t }: { t: Testimonial }) {
 /** Cards, deliberately unlike the framework tiles: slower and larger, so the two rows never read as the same device. */
 export function TestimonialsSection() {
   return (
-    <Section id={IDS.quotes}>
-      <SectionHead title={COPY.quotes.title} lede={COPY.quotes.lede} />
+    <Section id={IDS.quotes} title={COPY.quotes.title} lede={COPY.quotes.lede}>
       <Panel flush>
         <div className='tsts'>
           {TESTIMONIAL_ROWS.map((row, r) => (

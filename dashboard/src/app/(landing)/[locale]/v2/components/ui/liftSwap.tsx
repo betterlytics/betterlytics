@@ -1,7 +1,7 @@
 'use client';
 
 import type { ElementType, ReactNode } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
 
@@ -38,7 +38,7 @@ export function LiftSwap({ id, direction = 1, delay = 0, as: Tag = 'div', classN
   return (
     <Tag className={cn('ls', className)}>
       <AnimatePresence mode='popLayout' initial={false}>
-        <motion.span
+        <m.span
           key={id}
           className='ls__item'
           initial={{ opacity: 0, y: LIFT * direction, filter: BLUR }}
@@ -51,7 +51,7 @@ export function LiftSwap({ id, direction = 1, delay = 0, as: Tag = 'div', classN
           }}
         >
           {children}
-        </motion.span>
+        </m.span>
       </AnimatePresence>
     </Tag>
   );

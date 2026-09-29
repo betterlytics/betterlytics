@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
 
@@ -42,7 +42,7 @@ export function RollingDigits({
       {Array.from(value).map((char, i) => (
         <span key={i} className='rd__slot' aria-hidden>
           <AnimatePresence mode='popLayout' initial={false} custom={direction}>
-            <motion.span
+            <m.span
               key={char}
               className='rd__digit'
               custom={direction}
@@ -52,7 +52,7 @@ export function RollingDigits({
               exit='leave'
             >
               {char}
-            </motion.span>
+            </m.span>
           </AnimatePresence>
         </span>
       ))}

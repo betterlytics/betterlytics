@@ -1,29 +1,25 @@
-import { useEffect, useState, type RefObject } from 'react';
+import { useInView as useMotionInView, type UseInViewOptions } from 'motion/react';
+import type { RefObject } from 'react';
 
-type Options = { threshold?: number; rootMargin?: string; once?: boolean };
+/**
+ * When the page's scroll-driven effects fire, as named presets rather than a
+ * threshold per component. Every trigger line sits where any element on the page
+ * can reach it, even the last one on a tall screen.
+ */
+const PRESETS = {
+  /** Entrances: once, as the element's top edge clears the bottom of the viewport. */
+  enter: { once: true, amount: 0.15, margin: '0px 0px -6% 0px' },
+  /** Frames and rules drawn on arrival: once, a fifth of the way up the viewport, so the pen moves while the reader is there. */
+  draw: { once: true, amount: 0, margin: '0px 0px -22% 0px' },
+  /** Headline ink: once half the line is a third of the way up, while it is being read rather than before it arrives. */
+  read: { once: true, amount: 0.5, margin: '0px 0px -34% 0px' },
+  /** Looping work: true only while some of the element is on screen, false again once it leaves. */
+  onScreen: { once: false, amount: 'some' },
+} satisfies Record<string, UseInViewOptions>;
 
-/** Whether the element is on screen. With `once` it latches on first entry. */
-export function useInView<T extends Element>(
-  ref: RefObject<T | null>,
-  { threshold = 0.15, rootMargin = '0px 0px -6% 0px', once = true }: Options = {},
-) {
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          if (once) io.unobserve(el);
-        } else if (!once) {
-          setInView(false);
-        }
-      },
-      { threshold, rootMargin },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [ref, threshold, rootMargin, once]);
-  return inView;
+export type InViewPreset = keyof typeof PRESETS;
+
+/** Whether the element has entered (or, for `onScreen`, is on) the screen, per the preset's trigger. */
+export function useInView(ref: RefObject<Element | null>, preset: InViewPreset = 'enter') {
+  return useMotionInView(ref, PRESETS[preset]);
 }

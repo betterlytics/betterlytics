@@ -12,7 +12,7 @@ export async function DemoSection() {
   const src = env.DEMO_DASHBOARD_ID ? getPathname({ href: `/share/${env.DEMO_DASHBOARD_ID}`, locale }) : null;
 
   return (
-    <Section id={IDS.demo} className='sec--demo'>
+    <Section id={IDS.demo} className='sec--demo z-2 flow-root px-[calc(var(--inset)+8px)] pt-0 pb-2 max-lg:pb-2'>
       <div className='demo'>
         <div className='demo__dots' aria-hidden>
           <i />

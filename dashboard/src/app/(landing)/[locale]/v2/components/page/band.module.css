@@ -1,0 +1,68 @@
+@reference '../../landing.css';
+
+@layer components {
+  .band {
+    position: relative;
+    margin-block: 12px;
+  }
+  /* full-bleed dividers escape the container out to the viewport edges */
+  .band::before,
+  .band::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-top: 1px solid var(--color-rule);
+  }
+  /* the top rule runs under the lifted demo frame, so it reads as broken by it */
+  .band::before {
+    top: 0;
+    z-index: 1;
+  }
+  .band::after {
+    bottom: 0;
+  }
+  /* The bottom rule is the pen closing the frame: once the wall is inked to the band's
+     end the rule sweeps left to right. Only the script sets data-inking, so without JS
+     and under reduced motion the rule stays drawn. */
+  .band[data-inking]::after {
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.7s var(--ease-pen);
+  }
+  .band[data-inking][data-closed]::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  /* The hatched margin columns. Their outer border is the page rule. `--ink` is how far
+     down the wall has been drawn (in px, only ever growing) and the mask feathers the
+     last FEATHER px into a pen tip, which is what reads as drawing. The default leaves
+     the wall fully drawn for no-JS and reduced motion. */
+  .wall {
+    --ink: 200000px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--wall);
+    pointer-events: none;
+    z-index: 0;
+    border-inline: 1px solid var(--color-rule);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(var(--ink) - 160px), transparent var(--ink));
+    mask-image: linear-gradient(to bottom, #000 calc(var(--ink) - 160px), transparent var(--ink));
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .left {
+    left: var(--pad);
+    border-left-color: transparent;
+  }
+  .right {
+    right: var(--pad);
+    border-right-color: transparent;
+  }
+}

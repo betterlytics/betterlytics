@@ -272,7 +272,7 @@ export function GlobeScene(_: IllustrationProps) {
   const dragRef = useRef<{ x: number; yaw: number; t: number; v: number } | null>(null);
   const [dragging, setDragging] = useState(false);
   // The globe turns whenever any of it is on screen, not only while its card is the active one.
-  const visible = useInView(hostRef, { threshold: 0, rootMargin: '0px', once: false });
+  const visible = useInView(hostRef, 'onScreen');
   const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
   const reduce = useReducedMotion();
   const [active, setActive] = useState<Arrival>(ARRIVALS[0]);

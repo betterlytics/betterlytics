@@ -10,7 +10,7 @@ import { Traffic } from '@/landing/components/illustrations/traffic';
 import type { IllustrationProps } from '@/landing/components/illustrations/types';
 import { Uptime } from '@/landing/components/illustrations/uptime';
 import { Vitals } from '@/landing/components/illustrations/vitals';
-import { Corners, Section, SectionHead } from '@/landing/components/ui/frame';
+import { Corners, Section } from '@/landing/components/ui/frame';
 import { InkFrame } from '@/landing/components/ui/inkFrame';
 import { LIFT_STEP_S, LiftLines, LiftSwap } from '@/landing/components/ui/liftSwap';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
@@ -128,8 +128,7 @@ export function JourneySection() {
   const lines = step.title.split('\n');
 
   return (
-    <Section id={IDS.journey}>
-      <SectionHead title={COPY.journey.title} lede={COPY.journey.lede} />
+    <Section id={IDS.journey} title={COPY.journey.title} lede={COPY.journey.lede}>
       <InkFrame className='jr'>
         <Corners />
         <aside ref={railRef} className='jr__rail'>

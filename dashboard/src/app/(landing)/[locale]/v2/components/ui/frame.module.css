@@ -1,0 +1,69 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* A bounded box whose rules land on the wall lines. The rules are pseudo-elements
+     so InkFrame can draw them in; the transparent borders keep their pixel in layout. */
+  .panel {
+    position: relative;
+    border-block: 1px solid transparent;
+  }
+  .panel::before,
+  .panel::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    height: 1px;
+    background: var(--color-rule);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .panel::before {
+    top: -1px;
+  }
+  .panel::after {
+    bottom: -1px;
+  }
+
+  /* One element paints all four corner squares of its positioned parent. Callers
+     can recolour them through --corner-edge and --corner-fill. */
+  .corners,
+  .corners > i {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .corners::before,
+  .corners::after,
+  .corners > i::before,
+  .corners > i::after {
+    content: '';
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    border: 1px solid var(--corner-edge, var(--color-rule-30));
+    border-radius: 1.5px;
+    background: var(--corner-fill, #1a1918);
+    z-index: 3;
+  }
+  .corners::before {
+    left: -6px;
+    top: -6px;
+  }
+  .corners::after {
+    right: -6px;
+    top: -6px;
+  }
+  .corners > i::before {
+    left: -6px;
+    bottom: -6px;
+  }
+  .corners > i::after {
+    right: -6px;
+    bottom: -6px;
+  }
+  .corners:not([data-persistent]) {
+    @variant max-sm {
+      display: none;
+    }
+  }
+}

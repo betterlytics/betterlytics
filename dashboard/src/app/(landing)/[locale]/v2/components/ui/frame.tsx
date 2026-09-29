@@ -1,53 +1,65 @@
 import type { ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/landing/lib/cn';
 import { Emphasis } from './emphasis';
+import styles from './frame.module.css';
 import { InkFrame } from './inkFrame';
 import { Underline } from './reveal';
+import { Heading, Lede } from './text';
 
 /* The page's layout primitives. Sections sit between the wall columns; their
-   headings live in open canvas and their content in a bounded panel whose
-   rules land on the wall lines. */
+   headings live in open canvas and their content in a bounded panel whose rules
+   land on the wall lines. */
 
-export function Section({ id, children, className }: { id?: string; children: ReactNode; className?: string }) {
+type SectionProps = {
+  id: string;
+  /** The section's display line, centred above its content. `*word*` inks an underline under that word. */
+  title?: string;
+  lede?: string;
+  className?: string;
+  children: ReactNode;
+};
+
+export function Section({ id, title, lede, className, children }: SectionProps) {
+  const titleId = `${id}-title`;
   return (
-    <section className={cn('sec', className)} id={id}>
-      <div className='sec__in'>{children}</div>
+    <section
+      id={id}
+      aria-labelledby={title ? titleId : undefined}
+      className={cn('relative px-(--inset) pt-[34px] pb-[78px] max-lg:pb-12', className)}
+    >
+      <div className='relative z-1'>
+        {title ? (
+          <div className='mb-20 flex flex-col items-center gap-4 text-center max-lg:mb-12'>
+            <Heading as='h2' size='display-2' id={titleId}>
+              <Emphasis text={title} wrap={(span) => <Underline>{span}</Underline>} />
+            </Heading>
+            {lede ? <Lede className='max-w-[62ch] text-muted'>{lede}</Lede> : null}
+          </div>
+        ) : null}
+        {children}
+      </div>
     </section>
   );
 }
 
-/** Centred display line plus lede. `*word*` in the title draws the underline. */
-export function SectionHead({ title, lede }: { title: string; lede?: string }) {
+/** The four corner squares of the positioned parent; `persistent` keeps them on phones too. */
+export function Corners({ persistent = false, className }: { persistent?: boolean; className?: string }) {
   return (
-    <div className='head'>
-      <h2 className='d2'>
-        <Emphasis text={title} wrap={(span) => <Underline>{span}</Underline>} />
-      </h2>
-      {lede ? <p className='lede'>{lede}</p> : null}
-    </div>
-  );
-}
-
-/** One element paints all four corner squares of its positioned parent. */
-export function Corners() {
-  return (
-    <i className='cnr' aria-hidden>
+    <i
+      className={cn(styles.corners, className)}
+      data-corners=''
+      data-persistent={persistent || undefined}
+      aria-hidden
+    >
       <i />
     </i>
   );
 }
 
-export function Panel({
-  children,
-  className,
-  flush = false,
-}: {
-  children: ReactNode;
-  className?: string;
-  flush?: boolean;
-}) {
+/** A bounded box whose rules land on the wall lines, drawn in as the reader arrives. */
+export function Panel({ children, className, flush = false }: { children: ReactNode; className?: string; flush?: boolean }) {
   return (
-    <InkFrame className={cn('panel', flush && 'panel--flush', className)}>
+    <InkFrame className={cn(styles.panel, !flush && 'px-[30px] max-sm:px-0', className)}>
       <Corners />
       {children}
     </InkFrame>

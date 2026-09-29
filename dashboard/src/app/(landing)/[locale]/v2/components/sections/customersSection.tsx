@@ -8,7 +8,7 @@ import { IDS } from '@/landing/lib/ids';
 /** Monochrome logo wall. Still unless there are more teams than slots, in which case one cell at a time flips. */
 export function CustomersSection() {
   return (
-    <Section id={IDS.customers} className='sec--tight'>
+    <Section id={IDS.customers} className='pt-0'>
       <Panel flush>
         <LogoBoard
           pool={CUSTOMERS}

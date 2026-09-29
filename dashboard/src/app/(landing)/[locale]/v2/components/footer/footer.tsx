@@ -1,103 +1,136 @@
+import type { ReactNode } from 'react';
+import { getCompetitorData } from '@/app/(app)/[locale]/(public)/vs/[competitor]/config';
 import { Link } from '@/i18n/navigation';
 import { BlueskyIcon, DiscordIcon, GitHubIcon } from '@/components/icons/SocialIcons';
-import { BrandMark } from '@/landing/components/ui/brandMark';
+import { BrandLink } from '@/landing/components/ui/brandMark';
 import { COPY } from '@/landing/content/copy';
 import { LINKS } from '@/landing/lib/links';
 
 const copy = COPY.footer;
 
-/** Same destinations as the shared site footer, in the landing page's own frame. */
+/** Only competitors that still have a comparison page, so the column never links to a 404. */
+const COMPARISONS = copy.compare.filter(({ slug }) => getCompetitorData(slug) !== undefined);
+
+const LINK = 'inline-flex items-center gap-[9px] text-body-sm tracking-ui text-fg opacity-82 hover:opacity-100';
+const SOCIAL_ICON = 'size-[15px] flex-none';
+
+function Column({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+  return (
+    <div className='flex-1 max-2xl:basis-[40%]'>
+      <h2 id={id} className='mb-4 text-caption font-medium tracking-[-0.1px] text-muted'>
+        {title}
+      </h2>
+      <ul aria-labelledby={id} className='*:mb-[15px]'>
+        {children}
+      </ul>
+    </div>
+  );
+}
+
+/** The same destinations as the site's shared footer, in the landing page's frame. */
 export function LandingFooter() {
   return (
-    <footer className='foot'>
-      <div className='foot__top'>
-        <div className='foot__brand'>
-          <Link className='brand' href='/' aria-label={COPY.nav.home}>
-            <BrandMark />
-            <b>Betterlytics</b>
-          </Link>
-          <p className='foot__tag'>{copy.tagline}</p>
+    <footer className='relative px-[calc(var(--inset)+12px)] pt-28 pb-8'>
+      <div className='flex min-h-[300px] gap-6 max-2xl:flex-wrap'>
+        <div className='w-[420px] flex-none max-2xl:w-full'>
+          <BrandLink />
+          <p className='my-5 max-w-[34ch] text-body leading-[23px] text-muted'>{copy.tagline}</p>
         </div>
-        <div className='foot__col'>
-          <h4>{copy.columns.company}</h4>
-          <ul>
+        <nav aria-label={copy.nav} className='flex flex-1 gap-6 max-2xl:basis-full max-2xl:flex-wrap'>
+          <Column id='footer-company' title={copy.columns.company}>
             <li>
-              <Link href='/about'>{copy.company.about}</Link>
+              <Link className={LINK} href='/about'>
+                {copy.company.about}
+              </Link>
             </li>
             <li>
-              <Link href='/contact'>{copy.company.contact}</Link>
+              <Link className={LINK} href='/contact'>
+                {copy.company.contact}
+              </Link>
             </li>
             <li>
-              <Link href='/privacy'>{copy.company.privacy}</Link>
+              <Link className={LINK} href='/privacy'>
+                {copy.company.privacy}
+              </Link>
             </li>
             <li>
-              <Link href='/terms'>{copy.company.terms}</Link>
+              <Link className={LINK} href='/terms'>
+                {copy.company.terms}
+              </Link>
             </li>
             <li>
-              <Link href='/dpa'>{copy.company.dpa}</Link>
+              <Link className={LINK} href='/dpa'>
+                {copy.company.dpa}
+              </Link>
             </li>
             <li>
-              <Link href='/subprocessors'>{copy.company.subprocessors}</Link>
+              <Link className={LINK} href='/subprocessors'>
+                {copy.company.subprocessors}
+              </Link>
             </li>
-          </ul>
-        </div>
-        <div className='foot__col'>
-          <h4>{copy.columns.resources}</h4>
-          <ul>
+          </Column>
+          <Column id='footer-resources' title={copy.columns.resources}>
             <li>
-              <a href={LINKS.docs}>{copy.resources.docs}</a>
-            </li>
-            <li>
-              <Link href='/changelog'>{copy.resources.changelog}</Link>
+              <a className={LINK} href={LINKS.docs}>
+                {copy.resources.docs}
+              </a>
             </li>
             <li>
-              <Link href='/features'>{copy.resources.features}</Link>
+              <Link className={LINK} href='/changelog'>
+                {copy.resources.changelog}
+              </Link>
             </li>
             <li>
-              <Link href='/pricing'>{copy.resources.pricing}</Link>
+              <Link className={LINK} href='/features'>
+                {copy.resources.features}
+              </Link>
             </li>
             <li>
-              <a href={LINKS.status}>{copy.resources.status}</a>
+              <Link className={LINK} href='/pricing'>
+                {copy.resources.pricing}
+              </Link>
             </li>
-          </ul>
-        </div>
-        <div className='foot__col'>
-          <h4>{copy.columns.compare}</h4>
-          <ul>
-            {copy.compare.map((c) => (
-              <li key={c.slug}>
-                <Link href={`/vs/${c.slug}`}>vs {c.name}</Link>
+            <li>
+              <a className={LINK} href={LINKS.status}>
+                {copy.resources.status}
+              </a>
+            </li>
+          </Column>
+          <Column id='footer-compare' title={copy.columns.compare}>
+            {COMPARISONS.map(({ slug, name }) => (
+              <li key={slug}>
+                <Link className={LINK} href={`/vs/${slug}`}>
+                  {copy.compareLink(name)}
+                </Link>
               </li>
             ))}
-          </ul>
-        </div>
-        <div className='foot__col'>
-          <h4>{copy.columns.connect}</h4>
-          <ul>
+          </Column>
+          <Column id='footer-connect' title={copy.columns.connect}>
             <li>
-              <a href={LINKS.github} target='_blank' rel='noopener noreferrer'>
-                <GitHubIcon className='soc__i' />
+              <a className={LINK} href={LINKS.github} target='_blank' rel='noopener noreferrer'>
+                <GitHubIcon className={SOCIAL_ICON} />
                 {copy.connect.github}
               </a>
             </li>
             <li>
-              <a href={LINKS.bluesky} target='_blank' rel='noopener noreferrer'>
-                <BlueskyIcon className='soc__i' />
+              <a className={LINK} href={LINKS.bluesky} target='_blank' rel='noopener noreferrer'>
+                <BlueskyIcon className={SOCIAL_ICON} />
                 {copy.connect.bluesky}
               </a>
             </li>
             <li>
-              <a href={LINKS.discord} target='_blank' rel='noopener noreferrer'>
-                <DiscordIcon className='soc__i' />
+              <a className={LINK} href={LINKS.discord} target='_blank' rel='noopener noreferrer'>
+                <DiscordIcon className={SOCIAL_ICON} />
                 {copy.connect.discord}
               </a>
             </li>
-          </ul>
-        </div>
+          </Column>
+        </nav>
       </div>
-      <div className='foot__bot'>
+      {/* the rule escapes the footer's padding and runs the full viewport */}
+      <div className='relative mt-14 flex flex-wrap items-center justify-between gap-6 pt-8 text-caption text-muted before:bleed-rule before:top-0 before:bg-rule-10'>
         <span>{copy.copyright(new Date().getFullYear())}</span>
-        <nav aria-label={copy.legal}>
+        <nav aria-label={copy.legal} className='flex flex-wrap gap-6'>
           <Link href='/privacy'>{copy.privacy}</Link>
           <Link href='/terms'>{copy.terms}</Link>
           <Link href='/subprocessors'>{copy.subprocessors}</Link>

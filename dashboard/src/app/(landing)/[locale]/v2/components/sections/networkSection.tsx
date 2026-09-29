@@ -2,7 +2,7 @@ import { EuSeal } from '@/landing/components/illustrations/euSeal';
 import { FrameworkStrip } from './frameworkStrip';
 import { SnippetPanel } from './snippetPanel';
 import { CountUp } from '@/landing/components/ui/countUp';
-import { Panel, Section, SectionHead } from '@/landing/components/ui/frame';
+import { Panel, Section } from '@/landing/components/ui/frame';
 import { Reveal } from '@/landing/components/ui/reveal';
 import { COPY } from '@/landing/content/copy';
 import { IDS } from '@/landing/lib/ids';
@@ -17,8 +17,7 @@ const copy = COPY.network;
  */
 export function NetworkSection() {
   return (
-    <Section id={IDS.network}>
-      <SectionHead title={copy.title} lede={copy.lede} />
+    <Section id={IDS.network} title={copy.title} lede={copy.lede}>
       <Panel flush>
         <div className='snip'>
           <div className='snip__code'>

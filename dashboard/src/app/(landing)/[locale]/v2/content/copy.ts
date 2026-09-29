@@ -157,6 +157,7 @@ export const COPY = {
       pricing: 'Pricing',
       status: 'Status',
     },
+    /* each slug is a /vs page; one without a page is left out rather than linked */
     compare: [
       { slug: 'google-analytics', name: 'Google Analytics' },
       { slug: 'matomo', name: 'Matomo' },
@@ -165,7 +166,9 @@ export const COPY = {
       { slug: 'fathom-analytics', name: 'Fathom Analytics' },
       { slug: 'umami', name: 'Umami' },
     ],
+    compareLink: (name: string) => `vs ${name}`,
     connect: { github: 'GitHub', bluesky: 'Bluesky', discord: 'Discord' },
+    nav: 'Footer',
     copyright: (year: number) => `© ${year} Betterlytics. Open source under AGPL-3.0 license.`,
     legal: 'Legal',
     privacy: 'Privacy',

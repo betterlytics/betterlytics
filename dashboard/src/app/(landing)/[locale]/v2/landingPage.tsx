@@ -1,42 +1,50 @@
-import { LandingFooter } from './components/footer/footer';
-import { Nav } from './components/nav/nav';
-import { CtaSection } from './components/sections/ctaSection';
-import { CustomersSection } from './components/sections/customersSection';
-import { DemoSection } from './components/sections/demoSection';
-import { HeroSection } from './components/sections/heroSection';
-import { JourneySection } from './components/sections/journeySection';
-import { McpSection } from './components/sections/mcpSection';
-import { NetworkSection } from './components/sections/networkSection';
-import { PricingSection } from './components/sections/pricingSection';
-import { TestimonialsSection } from './components/sections/testimonialsSection';
-import { BrandMarkDefs } from './components/ui/brandMark';
-import { WallInk } from './components/ui/inkFrame';
-import { COPY } from './content/copy';
-import { IDS } from './lib/ids';
+import { LandingFooter } from '@/landing/components/footer/footer';
+import { Nav } from '@/landing/components/nav/nav';
+import { Band } from '@/landing/components/page/band';
+import { CtaSection } from '@/landing/components/sections/ctaSection';
+import { CustomersSection } from '@/landing/components/sections/customersSection';
+import { DemoSection } from '@/landing/components/sections/demoSection';
+import { HeroSection } from '@/landing/components/sections/heroSection';
+import { JourneySection } from '@/landing/components/sections/journeySection';
+import { McpSection } from '@/landing/components/sections/mcpSection';
+import { NetworkSection } from '@/landing/components/sections/networkSection';
+import { PricingSection } from '@/landing/components/sections/pricingSection';
+import { TestimonialsSection } from '@/landing/components/sections/testimonialsSection';
+import { BrandMarkDefs } from '@/landing/components/ui/brandMark';
+import { COPY } from '@/landing/content/copy';
+import { cn } from '@/landing/lib/cn';
+import { IDS } from '@/landing/lib/ids';
 
 /**
- * The page frame: a sticky nav, the hero bleeding past the wall, then one
- * band whose hatched wall columns run from the demo through pricing, closed
- * by the CTA card and the footer. The nav reads the band's top edge to know
- * when to join the grid.
+ * The page frame: a sticky nav, the hero bleeding past the wall, then one band whose
+ * hatched wall columns run from the demo through pricing, closed by the CTA card and
+ * the footer. The wall's outer edge is a full-height rule down the whole document,
+ * through the sticky nav and on through the footer.
  */
 export function LandingPage() {
   return (
     <>
       <BrandMarkDefs />
-      <a className='skip' href={`#${IDS.main}`}>
+      <a
+        className='absolute -top-20 left-4 z-200 bg-fg px-4 py-2.5 text-label text-canvas transition-[top] duration-200 ease-out-expo focus:top-4'
+        href={`#${IDS.main}`}
+      >
         {COPY.nav.skip}
       </a>
-      <div className='page'>
+      <div
+        className={cn(
+          'relative mx-auto max-w-[1480px]',
+          'before:pointer-events-none before:absolute before:inset-y-0 before:left-(--pad) before:z-30 before:w-px before:bg-rule max-sm:before:hidden',
+          'after:pointer-events-none after:absolute after:inset-y-0 after:right-(--pad) after:z-30 after:w-px after:bg-rule max-sm:after:hidden',
+        )}
+      >
         <Nav />
-        <main id={IDS.main}>
-          <div className='tophead'>
+        <main id={IDS.main} className='relative'>
+          {/* the full-bleed rule under the nav closes the top of the page the way the footer closes the bottom */}
+          <div className='relative before:bleed-rule before:top-0 before:z-2 before:bg-rule'>
             <HeroSection />
           </div>
-          <div className='band' id={IDS.band}>
-            <div className='wall wall--l' aria-hidden />
-            <div className='wall wall--r' aria-hidden />
-            <WallInk />
+          <Band>
             <DemoSection />
             <CustomersSection />
             <JourneySection />
@@ -44,7 +52,7 @@ export function LandingPage() {
             <NetworkSection />
             <TestimonialsSection />
             <PricingSection />
-          </div>
+          </Band>
           <CtaSection />
         </main>
         <LandingFooter />

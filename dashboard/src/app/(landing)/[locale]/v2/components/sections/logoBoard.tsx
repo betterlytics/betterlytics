@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { animate, motion, useMotionValue, useTransform, type MotionValue } from 'motion/react';
+import { animate, m, useMotionValue, useTransform, type MotionValue } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { PathIcon } from '@/landing/components/ui/pathIcon';
 import { useInView } from '@/landing/hooks/useInView';
@@ -70,7 +70,7 @@ function Veil({
   className?: string;
 }) {
   const opacity = useTransform(angle, of.angle, of.opacity);
-  return <motion.span className={className} style={{ opacity }} />;
+  return <m.span className={className} style={{ opacity }} />;
 }
 
 /**
@@ -104,7 +104,7 @@ function Flap({ from, to, onDone }: { from: Logo; to: Logo; onDone: () => void }
         <Mark logo={to} />
       </span>
       <Veil angle={angle} of={SHADE.slot} className='flap__slot' />
-      <motion.span className='flap__tile' aria-hidden style={{ rotateX: angle }}>
+      <m.span className='flap__tile' aria-hidden style={{ rotateX: angle }}>
         <span className='flap__face flap__face--front'>
           <Veil angle={angle} of={SHADE.liftFront} className='flap__lift' />
           <Mark logo={from} />
@@ -115,7 +115,7 @@ function Flap({ from, to, onDone }: { from: Logo; to: Logo; onDone: () => void }
           <Mark logo={to} />
           <Veil angle={angle} of={SHADE.back} />
         </span>
-      </motion.span>
+      </m.span>
     </>
   );
 }
@@ -126,7 +126,7 @@ const pick = <T,>(xs: T[]) => xs[Math.floor(Math.random() * xs.length)];
 
 export function LogoBoard({ pool, label }: { pool: ReadonlyArray<Logo>; label: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { threshold: 0.4, rootMargin: '0px', once: false });
+  const inView = useInView(ref, 'onScreen');
   const reduce = useReducedMotion();
   const [hover, setHover] = useState(false);
   const [shown, setShown] = useState(() => range(Math.min(SLOTS, pool.length)));

@@ -1,5 +1,5 @@
 import { AgentTranscript } from '@/landing/components/illustrations/agentTranscript';
-import { Panel, Section, SectionHead } from '@/landing/components/ui/frame';
+import { Panel, Section } from '@/landing/components/ui/frame';
 import { PathIcon } from '@/landing/components/ui/pathIcon';
 import { SpotlightList } from '@/landing/components/ui/spotlightList';
 import { COPY } from '@/landing/content/copy';
@@ -11,8 +11,7 @@ const copy = COPY.mcp;
 
 export function McpSection() {
   return (
-    <Section id={IDS.mcp}>
-      <SectionHead title={copy.title} lede={copy.lede} />
+    <Section id={IDS.mcp} title={copy.title} lede={copy.lede}>
       <Panel flush>
         <div className='mcp__grid'>
           <div className='mcp__side'>

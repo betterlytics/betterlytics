@@ -1,0 +1,59 @@
+@layer components {
+  /* Until the frame is drawn every rule token inside it is blank, so the rules within
+     the block wait for the pen too; they ink in (transition-ink) once the edges land. */
+  .frame:not([data-drawn]) {
+    --color-rule: transparent;
+    --color-rule-08: transparent;
+    --color-rule-10: transparent;
+    --color-rule-125: transparent;
+    --color-rule-22: transparent;
+    --color-rule-30: transparent;
+    /* the legacy stylesheet's names, until it is gone */
+    --rule: transparent;
+    --rule-08: transparent;
+    --rule-10: transparent;
+    --rule-125: transparent;
+    --rule-22: transparent;
+    --rule-30: transparent;
+  }
+
+  /* The frame's own edges are its ::before (top) and ::after (bottom), which the frame
+     type positions: the top rule draws left to right, the bottom one follows. */
+  .frame::before,
+  .frame::after {
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.7s var(--ease-pen);
+  }
+  .frame[data-drawn]::before {
+    transform: scaleX(1);
+  }
+  .frame[data-drawn]::after {
+    transform: scaleX(1);
+    transition-delay: 0.22s;
+  }
+
+  /* corner squares pop in the order the pen reaches them: top-left, bottom-left, top-right, bottom-right */
+  .frame > [data-corners]::before,
+  .frame > [data-corners]::after,
+  .frame > [data-corners] > i::before,
+  .frame > [data-corners] > i::after {
+    transform: scale(0);
+    transition: transform 0.3s var(--ease-pen);
+  }
+  .frame[data-drawn] > [data-corners]::before {
+    transform: none;
+  }
+  .frame[data-drawn] > [data-corners] > i::before {
+    transform: none;
+    transition-delay: 0.22s;
+  }
+  .frame[data-drawn] > [data-corners]::after {
+    transform: none;
+    transition-delay: 0.6s;
+  }
+  .frame[data-drawn] > [data-corners] > i::after {
+    transform: none;
+    transition-delay: 0.82s;
+  }
+}
