@@ -4159,9 +4159,14 @@
     white-space: normal;
     color: var(--mid);
   }
+  .fws__glyphs {
+    position: relative;
+    min-width: 0;
+    margin-left: auto;
+  }
   .fws__row {
     list-style: none;
-    margin: 0 0 0 auto;
+    margin: 0;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
@@ -4188,6 +4193,40 @@
   .fws__row svg {
     width: 22px;
     height: 22px;
+  }
+  /* the glint: a full-tone copy of the row over the real one, masked to nothing
+     but a "/" band that crosses it now and then; never takes the pointer */
+  .fws__shine {
+    display: none;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mask-image: linear-gradient(115deg, transparent 42%, rgba(0, 0, 0, 0.6) 50%, transparent 58%);
+    mask-size: 300% 100%;
+    mask-repeat: no-repeat;
+    mask-position: 100% 0;
+  }
+  .fws__shine li {
+    opacity: 1;
+    transition: none;
+  }
+  /* entrance, once (ui/inView): the marks rise in left to right, each passing
+     through its colour on the way to the flat tone, a wave read once. No
+     fill-forwards, so the resting and hover styles take over after. The glint
+     starts once the last mark has settled. */
+  @media (prefers-reduced-motion: no-preference) {
+    .fws__glyphs:not(.in) li {
+      opacity: 0;
+    }
+    .fws__glyphs.in .fws__row:not(.fws__shine) li {
+      animation: lp2-fws-in 1.1s var(--ease) backwards;
+      animation-delay: calc(var(--i, 0) * 45ms);
+    }
+    /* a slow drift more than a sweep: 16s across, then a 10s rest */
+    .fws__glyphs.in .fws__shine {
+      display: flex;
+      animation: lp2-fws-shine 26s linear 2.4s infinite;
+    }
   }
   /* the frame's foot: what the tag fetched, as the browser's network panel would list it */
   .cf__foot {
@@ -4245,8 +4284,10 @@
       align-items: flex-start;
       gap: 16px;
     }
-    .fws__row {
+    .fws__glyphs {
       margin-left: 0;
+    }
+    .fws__row {
       justify-content: flex-start;
     }
   }
@@ -4810,6 +4851,33 @@
 }
 
 /* keyframes are global, hence the prefix */
+/* framework strip entrance: rise in, pass through the brand colour, settle to the flat tone */
+@keyframes lp2-fws-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+    color: var(--text);
+  }
+  40% {
+    opacity: 1;
+    transform: none;
+    color: var(--hover, var(--text));
+  }
+  100% {
+    opacity: 0.55;
+    color: var(--text);
+  }
+}
+/* framework strip glint: one slow left-to-right pass of the "/" band, then a rest */
+@keyframes lp2-fws-shine {
+  0% {
+    mask-position: 100% 0;
+  }
+  62%,
+  100% {
+    mask-position: 0% 0;
+  }
+}
 @keyframes lp2-slide {
   from {
     transform: translateX(0);
