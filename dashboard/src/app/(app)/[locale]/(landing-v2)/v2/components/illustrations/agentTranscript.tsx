@@ -6,9 +6,11 @@ import { useInView } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/useInView'
 import { useReducedMotion } from '@/app/(app)/[locale]/(landing-v2)/v2/hooks/useReducedMotion';
 import { FlareShimmer } from '@/app/(app)/[locale]/(landing-v2)/v2/components/illustrations/flareShimmer';
 
-/* The transcript is mock terminal output, kept literal on purpose. The question
-   deliberately needs traffic AND errors, which is impossible unless both live
-   in the same tool. */
+/* The transcript is mock terminal output, kept literal on purpose. Each question
+   deliberately needs two parts of the product at once (traffic and errors,
+   uptime and sales, acquisition and signups), which is impossible unless they
+   live in the same tool. Tool names and inputs are the MCP server's real ones
+   (src/mcp/tools/describe.ts). */
 type Step =
   | { k: 'u'; text: string }
   | { k: 'spin'; ms: number }
@@ -17,22 +19,66 @@ type Step =
   | { k: 'res'; text: string }
   | { k: 'a'; text: string };
 
-const SCRIPT: Step[] = [
-  { k: 'u', text: 'which pages lost traffic after the August redesign?' },
-  { k: 'spin', ms: 900 },
-  { k: 'say', text: "I'll compare pageviews month over month, then look for errors on anything that dropped." },
-  {
-    k: 'tool',
-    name: 'betterlytics – query',
-    arg: '(metric: "pageviews", dimension: "url_path", period: "Jul vs Aug")',
-  },
-  { k: 'res', text: '41 paths · 6 down more than 20%' },
-  { k: 'tool', name: 'betterlytics – list_errors', arg: '(url_path: [6 paths], since: "2026-08-01")' },
-  { k: 'res', text: '1 group · TypeError · first seen 12 Aug · 1,206 sessions' },
-  {
-    k: 'a',
-    text: '/pricing is down 34%. A TypeError in the plan selector shipped the same day — 1,206 sessions hit it.',
-  },
+/** Played in order and looped; the first is the one most visitors see. */
+const SCRIPTS: Step[][] = [
+  [
+    { k: 'u', text: 'which pages lost traffic after the August redesign?' },
+    { k: 'spin', ms: 900 },
+    {
+      k: 'say',
+      text: "I'll compare daily pageviews across July and August, then look for errors on anything that dropped.",
+    },
+    {
+      k: 'tool',
+      name: 'betterlytics – query',
+      arg: '(metrics: ["pageviews"], dimensions: ["url"], timeRange: "custom", startDate: "2026-07-01", endDate: "2026-08-31", granularity: "day")',
+    },
+    { k: 'res', text: '41 paths · 6 down more than 20%' },
+    { k: 'tool', name: 'betterlytics – list_errors', arg: '(filters: [url in (6 paths)], timeRange: "90d")' },
+    { k: 'res', text: '1 group · TypeError · first seen 12 Aug · 1,206 sessions' },
+    {
+      k: 'a',
+      text: '/pricing is down 34%. A TypeError in the plan selector shipped the same day — 1,206 sessions hit it.',
+    },
+  ],
+  [
+    { k: 'u', text: "did last night's checkout outage cost us sales?" },
+    { k: 'spin', ms: 900 },
+    { k: 'say', text: "I'll find the incident, then line purchases up against it hour by hour." },
+    { k: 'tool', name: 'betterlytics – list_monitor_incidents', arg: '(monitorId: "checkout", timeRange: "24h")' },
+    { k: 'res', text: '1 incident · down 23:12–23:31 · resolved' },
+    {
+      k: 'tool',
+      name: 'betterlytics – query',
+      arg: '(metrics: ["custom_events"], filters: [custom_event_name = "purchase"], granularity: "hour", timeRange: "7d")',
+    },
+    { k: 'res', text: '23:00 → 6 purchases · same hour, previous 6 nights: 38 on average' },
+    {
+      k: 'a',
+      text: 'Yes. Checkout was down for 19 minutes, and that hour took 6 purchases against a usual 38 — about 32 sales lost.',
+    },
+  ],
+  [
+    { k: 'u', text: 'which traffic source brings visitors who actually sign up?' },
+    { k: 'spin', ms: 900 },
+    { k: 'say', text: "I'll pull visitors by source, then signups by source, and compare the rates." },
+    {
+      k: 'tool',
+      name: 'betterlytics – query',
+      arg: '(metrics: ["visitors"], dimensions: ["referrer_source_name"], timeRange: "28d")',
+    },
+    { k: 'res', text: 'Google 18.2k · ChatGPT 2.1k · Hacker News 1.4k' },
+    {
+      k: 'tool',
+      name: 'betterlytics – query',
+      arg: '(metrics: ["custom_events"], dimensions: ["referrer_source_name"], filters: [custom_event_name = "signup"], timeRange: "28d")',
+    },
+    { k: 'res', text: 'Google 164 · ChatGPT 71 · Hacker News 9' },
+    {
+      k: 'a',
+      text: 'ChatGPT sends a ninth of the visitors Google does, but 3.4% of them sign up against 0.9% — nearly four times the rate.',
+    },
+  ],
 ];
 
 type Line = { id: number; step: Step; typed: string; done: boolean };
@@ -124,12 +170,14 @@ export function AgentTranscript() {
       setSpinSince(null);
       setOut(false);
       setLines(
-        SCRIPT.filter((s) => s.k !== 'spin').map((step, id) => ({
-          id,
-          step,
-          typed: 'text' in step ? step.text : '',
-          done: true,
-        })),
+        SCRIPTS[0]
+          .filter((s) => s.k !== 'spin')
+          .map((step, id) => ({
+            id,
+            step,
+            typed: 'text' in step ? step.text : '',
+            done: true,
+          })),
       );
       setFinished(true);
       return;
@@ -154,11 +202,11 @@ export function AgentTranscript() {
       }
     };
     const play = async () => {
-      while (run) {
+      for (let s = 0; run; s = (s + 1) % SCRIPTS.length) {
         setLines([]);
         setSpinSince(null);
         setFinished(false);
-        for (const step of SCRIPT) {
+        for (const step of SCRIPTS[s]) {
           if (!run) return;
           switch (step.k) {
             case 'u': {
