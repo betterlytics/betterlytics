@@ -2701,109 +2701,117 @@
     transition-delay: calc(0.3s + var(--i) * 0.12s);
   }
 
-  /* errors: the product being used. Every row carries the file, the browser
-     share, when it was last seen and how often it fires. */
+  /* errors: three error groups stacked on a diagonal, the one firing now in
+     front and carrying everything it knows. The two behind show only their
+     headers, each stepped up and left just far enough to clear its header's
+     text (the next card covers the header's bottom padding), so the cascade runs
+     top left to bottom right, as the uptime stack and its notices do. */
   .erx {
     position: absolute;
     inset: 0;
     display: grid;
     place-items: center;
   }
-  .erx__p {
-    width: 78%;
-    border-radius: 10px;
-    background: #191817;
-    overflow: hidden;
-    border: 1px solid rgba(235, 232, 230, 0.09);
+  /* the front card sits in flow; the margins make room for the two stepped out
+     behind it, so it is the stack as a whole that gets centred */
+  .erx__stk {
+    --dx: 28px;
+    --dy: 54px;
+    position: relative;
+    width: 56%;
+    margin: calc(var(--dy) * 2) 0 0 calc(var(--dx) * 2);
+  }
+  /* the MCP tiles' and monitor cards' material, flat. The cards land back to
+     front. */
+  .erx__card {
+    border-radius: 12px;
+    background-color: var(--canvas);
+    background-image: linear-gradient(180deg, rgba(235, 232, 230, 0.045), rgba(235, 232, 230, 0.014));
+    border: 1px solid var(--rule-10);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.05) inset,
-      0 14px 30px rgba(0, 0, 0, 0.5);
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 14px 34px rgba(0, 0, 0, 0.45);
     opacity: 0;
     transform: translateY(12px);
     transition:
-      opacity 0.45s var(--ease),
-      transform 0.5s var(--ease);
+      opacity 0.45s var(--ease) var(--d),
+      transform 0.5s var(--ease) var(--d);
   }
-  .is-in .erx__p {
+  .is-in .erx__card {
     opacity: 1;
     transform: none;
   }
+  .erx__card--front {
+    position: relative;
+    z-index: 3;
+  }
+  /* whole cards, the front one's size, though only their headers and left edges show */
+  .erx__card--back {
+    position: absolute;
+    left: calc(var(--k) * var(--dx) * -1);
+    top: calc(var(--k) * var(--dy) * -1);
+    z-index: calc(3 - var(--k));
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .is-in .erx__card--back {
+    opacity: calc(1.35 - var(--k) * 0.35);
+  }
+  /* hovering any of the cards spreads the stack a little along its diagonal.
+     It keys on the stack, not the frame (so empty space around it does nothing)
+     and not each card (the stack's own box stays put while the cards inside it
+     move, so a card sliding out from under the pointer can't flicker the hover
+     off). It rides on translate rather than transform, so it answers at once
+     while the entrance keeps its stagger. */
+  @media (hover: hover) {
+    .erx__card {
+      transition:
+        opacity 0.45s var(--ease) var(--d),
+        transform 0.5s var(--ease) var(--d),
+        translate 0.6s var(--ease);
+    }
+    .erx__stk:hover .erx__card--back {
+      translate: calc(var(--k) * -7px) calc(var(--k) * -7px);
+    }
+    .erx__stk:hover .erx__card--front {
+      translate: 5px 5px;
+    }
+  }
   .erx__hd {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(235, 232, 230, 0.08);
-    background: rgba(235, 232, 230, 0.02);
-  }
-  .erx__hd b {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text);
-    letter-spacing: -0.15px;
-    margin-right: 4px;
-  }
-  .erx__hd u {
-    text-decoration: none;
-    padding: 3px 9px;
-    border-radius: 5px;
-    border: 1px solid rgba(235, 232, 230, 0.12);
-    font-family: var(--mono);
-    font-size: 10.5px;
-    color: var(--mid);
-  }
-  .erx__hd u.sel {
-    border-color: rgba(139, 151, 255, 0.34);
-    color: var(--accent-soft);
-    background: rgba(74, 92, 255, 0.1);
-  }
-  .erx__hd em {
-    margin-left: auto;
-    font-style: normal;
-    font-family: var(--mono);
-    font-size: 10.5px;
-    color: var(--mid);
-  }
-  .erx__row {
     display: grid;
-    grid-template-columns: auto 1fr auto auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: 0 14px;
-    padding: 13px 16px;
-    border-bottom: 1px solid rgba(235, 232, 230, 0.055);
-    transition: background-color 0.25s;
+    gap: 0 13px;
+    padding: 15px 18px 14px;
   }
-  .erx__row.hot {
-    background: rgba(235, 232, 230, 0.04);
+  .erx__ic {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: rgba(226, 88, 107, 0.15);
+    color: var(--down);
   }
-  .erx__row > i {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--down);
-    align-self: start;
-    margin-top: 6px;
+  .erx__ic svg {
+    width: 17px;
+    height: 17px;
   }
-  .erx__row > i.ok {
-    background: var(--live);
-    opacity: 0.6;
+  .erx__tx {
+    min-width: 0;
   }
-  .erx__l1 {
-    display: flex;
-    align-items: baseline;
-    gap: 9px;
-    margin-bottom: 4px;
-  }
-  .erx__l1 b {
+  /* the error type in the mono, as the product sets it */
+  .erx__tx b {
+    display: block;
+    margin-bottom: 3px;
     font-family: var(--mono);
     font-size: 12px;
     font-weight: 400;
     color: var(--down);
   }
-  .erx__l1 b.ok {
-    color: var(--mid);
-  }
-  .erx__l1 span {
+  .erx__tx span {
+    display: block;
     font-size: 13.5px;
     color: var(--text);
     letter-spacing: -0.15px;
@@ -2811,164 +2819,254 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .erx__l2 {
-    font-family: var(--mono);
-    font-size: 10.5px;
-    color: var(--mid);
-    opacity: 0.72;
-  }
-  .erx__sp {
-    display: flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 22px;
-  }
-  .erx__sp s {
-    width: 3px;
-    border-radius: 1px;
-    background: var(--down);
-    opacity: 0.5;
-    text-decoration: none;
-  }
-  .erx__sp s.hi {
-    opacity: 0.95;
-  }
+  /* the count, and under it when it last fired; on the front card, who the
+     latest occurrence hit, swapping as each comes in */
   .erx__n {
+    display: grid;
+    justify-items: end;
+    gap: 3px;
+    white-space: nowrap;
+  }
+  .erx__n > span:first-child {
     font-family: var(--mono);
-    font-size: 12px;
+    font-size: 15px;
     color: var(--text);
-    min-width: 44px;
-    text-align: right;
     font-variant-numeric: tabular-nums;
   }
-  .erx__n.dim {
-    color: var(--mid);
-  }
-  .erx__d {
-    max-height: 0;
-    overflow: hidden;
-    background: rgba(0, 0, 0, 0.3);
-    transition: max-height 0.45s var(--ease);
-  }
-  .erx__d.open {
-    max-height: 210px;
-  }
-  .erx__tabs {
-    display: flex;
-    gap: 18px;
-    padding: 11px 16px 0;
-  }
-  .erx__tabs u {
-    text-decoration: none;
-    padding-bottom: 9px;
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--mid);
-    border-bottom: 2px solid transparent;
-    transition:
-      color 0.2s,
-      border-color 0.2s;
-  }
-  .erx__tabs u.on {
-    color: var(--text);
-    border-bottom-color: var(--volt-lift);
-  }
-  .erx__pane {
-    display: none;
-    padding: 12px 16px 15px;
-    font-family: var(--mono);
+  .erx__n small {
+    font-family: var(--sans);
     font-size: 11.5px;
-    line-height: 1.9;
     color: var(--mid);
   }
-  .erx__pane.on {
-    display: block;
+  .erx__n > span:first-child small {
+    margin-left: 5px;
   }
-  .erx__pane i {
-    font-style: normal;
+  /* behind the front card red gives way to grey, and to green once resolved */
+  .erx__card--back .erx__ic {
+    background: rgba(235, 232, 230, 0.07);
+    color: var(--mid);
+  }
+  .erx__card--back .erx__tx b {
+    color: var(--mid);
+  }
+  .erx__card.ok .erx__ic {
+    background: rgba(74, 222, 155, 0.14);
+    color: var(--live);
+  }
+  .erx__card.ok .erx__n > span:first-child {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    color: var(--live);
+  }
+  /* the session trail as the product draws it (SessionTrail): each step a time,
+     an icon on a line in the product's colours, and a label. The last step is
+     the throw, in the trail's current-row red, and it opens a box as the header
+     bar of the stack trace (StacktraceView), the frames hanging under it. The
+     two steps and the box land top down once the card is in. */
+  .erx__tl {
+    padding: 10px 14px 14px;
+    border-top: 1px solid rgba(235, 232, 230, 0.07);
+  }
+  .erx__tl > * {
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 0.4s var(--ease),
+      transform 0.5s var(--ease);
+  }
+  .is-in .erx__tl > * {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.3s + var(--i) * 0.12s);
+  }
+  .erx__step {
+    display: grid;
+    grid-template-columns: 58px 18px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
     color: var(--text);
-    opacity: 0.85;
   }
-  .erx__pane b {
+  .erx__step s {
+    text-decoration: none;
+    font-size: 11px;
     font-weight: 400;
-    color: var(--down);
+    color: var(--mid);
+    font-variant-numeric: tabular-nums;
   }
-  /* breadcrumbs hang off a spine */
-  .erx__bc {
+  .erx__step i {
     position: relative;
-    padding-left: 16px;
+    display: grid;
+    place-items: center;
+    height: 18px;
   }
-  .erx__bc::before {
+  .erx__step svg {
+    width: 14px;
+    height: 14px;
+  }
+  .erx__step span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* the line from each step's icon down to the next one's: a row's bottom
+     padding, then the next's top padding. Centred on the icon's own axis (half
+     its width back), and the last one runs on past the box's border into the
+     red row, so it meets the triangle's tip rather than stopping at the edge. */
+  .erx__step--pv i::after,
+  .erx__step--ev i::after {
     content: '';
     position: absolute;
-    left: 3px;
-    top: 9px;
-    bottom: 9px;
+    top: 100%;
+    left: calc(50% - 0.5px);
     width: 1px;
+    height: 11px;
     background: rgba(235, 232, 230, 0.14);
   }
-  .erx__bl {
+  .erx__step--ev i::after {
+    height: 14px;
+  }
+  .erx__step--pv svg {
+    color: #38bdf8;
+  }
+  .erx__step--ev svg {
+    color: #a78bfa;
+  }
+  /* the pointer and the triangle sit optically left of the line on their own
+     boxes' centres; a pixel's nudge puts them on it */
+  .erx__step--ev svg,
+  .erx__step--er svg {
+    translate: 1px 0;
+  }
+  .erx__box {
+    border: 1px solid rgba(235, 232, 230, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  /* inside the box the columns keep their line, one border's width in */
+  .erx__step--er {
+    padding-left: 9px;
+    background: rgba(226, 88, 107, 0.1);
+    box-shadow: inset 2px 0 0 var(--down);
+    border-bottom: 1px solid rgba(226, 88, 107, 0.18);
+    color: rgba(248, 113, 113, 0.75);
+    font-weight: 400;
+  }
+  .erx__step--er svg,
+  .erx__step--er b {
+    color: #f87171;
+  }
+  .erx__step--er b {
+    font-weight: 600;
+  }
+  /* on the front card, under the count: who it hit, as browser, OS and flag */
+  .erx__who {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 15px;
+    color: var(--text);
+  }
+  .erx__who img,
+  .erx__who svg {
+    display: block;
+    width: 13px;
+    height: 13px;
+    color: inherit;
+  }
+  /* the Apple mark's height includes its leaf and it is narrower than tall, so
+     at the same box its body reads smaller than Safari's round logo; a larger
+     box (without growing the row) and a hair's lift, as the leaf also sits its
+     body low, even them out */
+  .erx__who svg:not(:last-child) {
+    width: 15px;
+    height: 15px;
+    margin: -1px 0;
+    translate: 0 -0.5px;
+  }
+  /* the flag at 9px tall (3:2), so it weighs the same as the logos beside it */
+  .erx__who svg:last-child {
+    width: 13.5px;
+    height: 9px;
+    border-radius: 1.5px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  }
+  /* the frames as the product lists them: the line, then `at fn (file:col)`,
+     starting under the icons, and an "in app" badge on frames from the app. The
+     frame that threw is the bright one; its caller steps back, and the library
+     frame sits on a darker row, greyed and unbadged. Code, so in the mono. */
+  .erx__tr {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+  .erx__tr li {
     display: grid;
-    grid-template-columns: 62px 74px 1fr;
-    gap: 14px;
-    position: relative;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px 6px 9px;
+    color: var(--mid);
   }
-  .erx__bl::before {
-    content: '';
-    position: absolute;
-    left: -16px;
-    top: 8px;
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #191817;
-    border: 1.5px solid rgba(235, 232, 230, 0.28);
+  .erx__tr li + li {
+    border-top: 1px solid rgba(235, 232, 230, 0.05);
   }
-  .erx__bl.er::before {
-    border-color: var(--down);
-    background: var(--down);
-  }
-  .erx__bl s {
+  .erx__tr s {
     text-decoration: none;
-    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.6;
   }
-  .erx__bl u {
-    text-decoration: none;
-    color: var(--accent-soft);
+  .erx__tr span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .erx__bl.er u {
-    color: var(--down);
+  .erx__tr b {
+    font-weight: 500;
+    color: var(--mid);
   }
-  .erx__cur {
-    position: absolute;
-    width: 19px;
-    height: 19px;
-    pointer-events: none;
-    z-index: 5;
-    opacity: 0;
-    transition:
-      opacity 0.3s,
-      left 0.6s cubic-bezier(0.34, 0.02, 0.16, 1),
-      top 0.6s cubic-bezier(0.34, 0.02, 0.16, 1);
+  .erx__tr li:first-child b {
+    color: var(--text);
   }
-  .erx__cur svg {
-    width: 100%;
-    height: 100%;
-    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.75));
+  .erx__tr i {
+    padding: 1px 7px;
+    border-radius: 5px;
+    background: rgba(235, 232, 230, 0.06);
+    border: 1px solid rgba(235, 232, 230, 0.1);
+    font-family: var(--sans);
+    font-size: 10px;
+    font-style: normal;
+    line-height: 1.5;
+    color: var(--mid);
   }
-  .erx__cur.on {
-    opacity: 1;
+  .erx__tr li.lib {
+    background: rgba(0, 0, 0, 0.18);
   }
-  .erx__cur u {
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    border: 1.5px solid var(--accent-soft);
-    opacity: 0;
-    transform: scale(0.4);
+  .erx__tr li.lib span,
+  .erx__tr li.lib b {
+    opacity: 0.6;
   }
-  .erx__cur u.tap {
-    animation: lp2-erx-tap 0.5s var(--ease);
+  /* only the back cards' headers need reading; their trails are whole but held
+     well back, so the slivers along the diagonal read as texture, not text, and
+     their throws are marked in grey, keeping red for the front card */
+  .erx__card--back .erx__tl {
+    opacity: 0.3;
+  }
+  .erx__card--back .erx__step--er {
+    background: rgba(235, 232, 230, 0.05);
+    box-shadow: inset 2px 0 0 var(--mid);
+    border-bottom-color: rgba(235, 232, 230, 0.08);
+    color: var(--mid);
+  }
+  .erx__card--back .erx__step--er svg,
+  .erx__card--back .erx__step--er b {
+    color: var(--mid);
   }
 
   /* web vitals: the dashboard's own gauges (components/gauge), as the old landing card draws
@@ -3057,14 +3155,13 @@
       zoom: 0.68;
       gap: 16px;
     }
-    /* the fanned cards and the error list lose their secondary columns on a phone */
-    .tf__hd span,
-    .erx__hd em,
-    .erx__sp {
+    /* the fanned cards lose their secondary columns on a phone */
+    .tf__hd span {
       display: none;
     }
-    .erx__p {
-      width: 94%;
+    .erx__stk {
+      --dx: 12px;
+      width: calc(94% - 24px);
     }
     .fig {
       padding: 16px;
@@ -5128,15 +5225,14 @@
     .mo__dot::after {
       animation: none;
     }
-    .erx__p {
-      opacity: 1;
+    .erx__card,
+    .erx__tl > * {
       transform: none;
+      transition: none;
     }
-    .erx__cur {
-      display: none;
-    }
-    .erx__d {
-      max-height: 210px;
+    .erx__card--front,
+    .erx__tl > * {
+      opacity: 1;
     }
     .tf__c {
       opacity: 1;
@@ -5305,16 +5401,6 @@
   to {
     opacity: 0;
     transform: scale(3.2);
-  }
-}
-@keyframes lp2-erx-tap {
-  0% {
-    opacity: 0.9;
-    transform: scale(0.4);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.5);
   }
 }
 @keyframes lp2-demo-scrim {
