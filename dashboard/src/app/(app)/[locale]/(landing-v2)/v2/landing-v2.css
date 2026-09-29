@@ -2135,43 +2135,216 @@
     position: absolute;
     inset: 0;
     display: grid;
-    align-items: center;
+    align-items: start;
   }
-  /* the stack sits left and the notices come out of its lower right, so the two
-     read as one diagonal. The bottom margin is the notices' overhang, which
-     centres the pair rather than the stack alone. */
+  /* the stack sits left and the notices hang off its lower right, so the two
+     read as one diagonal. It starts low enough that the status page's hero,
+     top right, clears the first card. */
   .mo__grp {
     position: relative;
-    width: 63%;
-    margin: 0 0 16px 9%;
+    width: 54%;
+    margin: 15% 0 0 11%;
   }
-  /* the stack's ends fade into the canvas, so it reads as a window onto a
-     longer list rather than a box. The padding, cancelled by the margin, keeps
-     the cards' shadows inside the mask. */
+  /* the public status page, behind the stack at the top right, laid out as the
+     real one (app/status/[slug]): a brand band in the default accent, and over it
+     one card whose top is the status-coloured hero, then the monitor rows. It is
+     dark like the page, since it is ours rather than the customer's site, and
+     stays muted so it sits behind the stack; its rows run under the stack and
+     fade out downwards. */
+  .mo__sp {
+    position: absolute;
+    top: 3%;
+    right: 11%;
+    width: 42%;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #191817;
+    border: 1px solid rgba(235, 232, 230, 0.09);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
+    mask-image: linear-gradient(to bottom, #000 62%, transparent);
+    opacity: 0;
+    transition: opacity 0.6s var(--ease);
+  }
+  /* quiet while all is well, so the monitors lead; full strength with the
+     outage, so it lights up in the same beat as the alert */
+  .is-in .mo__sp {
+    opacity: 0.72;
+  }
+  .is-in .mo__sp.dn {
+    opacity: 1;
+  }
+  .mo__sp-ch {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    border-bottom: 1px solid rgba(235, 232, 230, 0.07);
+  }
+  .mo__sp-ch i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(235, 232, 230, 0.15);
+  }
+  .mo__sp-ch span {
+    margin-left: 6px;
+    flex: 1;
+    padding: 3px 9px;
+    border-radius: 5px;
+    background: rgba(235, 232, 230, 0.05);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--mid);
+  }
+  .mo__sp-vp {
+    position: relative;
+    height: 240px;
+    padding: 0 16px;
+    background: linear-gradient(#1c2033 0 62px, #121111 62px);
+    color: var(--text);
+  }
+  .mo__sp-brand {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+    color: var(--text);
+  }
+  /* Acme's logo, the same rounded square as on the replay card's site, so the
+     two cards read as one company */
+  .mo__sp-brand i {
+    width: 11px;
+    height: 11px;
+    border-radius: 3px;
+    background: currentColor;
+  }
+  .mo__sp-card {
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--rule-125);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  }
+  /* the status colour stays, as a tint rather than a solid band, so the hero
+     still reads at a glance without outshining the monitors in front */
+  .mo__sp-hero {
+    --tone: 74, 222, 155;
+    display: grid;
+    justify-items: center;
+    padding: 12px 10px 11px;
+    background: rgba(var(--tone), 0.1);
+    border-bottom: 1px solid rgba(var(--tone), 0.18);
+    text-align: center;
+    transition:
+      background-color 0.3s,
+      border-color 0.3s;
+  }
+  .mo__sp-hero.dn {
+    --tone: 240, 128, 60;
+  }
+  .mo__sp-ic {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(var(--tone), 0.16);
+    color: rgb(var(--tone));
+    box-shadow: 0 0 0 4px rgba(var(--tone), 0.07);
+    transition:
+      color 0.3s,
+      background-color 0.3s,
+      box-shadow 0.3s;
+  }
+  .mo__sp-ic svg {
+    width: 13px;
+    height: 13px;
+  }
+  .mo__sp-hero strong {
+    margin-top: 7px;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .mo__sp-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 7px 6px;
+    padding: 9px 11px;
+    border-top: 1px solid var(--rule-08);
+    font-size: 10.5px;
+  }
+  .mo__sp-row > i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 1.5px solid var(--live);
+    transition: border-color 0.3s;
+  }
+  .mo__sp-row.dn > i {
+    border-color: var(--down);
+  }
+  .mo__sp-row b {
+    font-weight: 600;
+  }
+  .mo__sp-row em {
+    padding: 1px 7px;
+    border-radius: 999px;
+    border: 1px solid rgba(74, 222, 155, 0.28);
+    background: rgba(74, 222, 155, 0.08);
+    color: var(--live);
+    font-style: normal;
+    font-size: 9px;
+    font-weight: 600;
+  }
+  .mo__sp-row.dn em {
+    border-color: rgba(226, 88, 107, 0.32);
+    background: rgba(226, 88, 107, 0.1);
+    color: var(--down);
+  }
+  .mo__sp-row span {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 2px;
+    height: 14px;
+  }
+  /* dimmer than the monitors' strips, so the page stays the back layer */
+  .mo__sp-row span i {
+    flex: 1;
+    border-radius: 1px;
+    background: rgba(74, 222, 155, 0.5);
+  }
+  .mo__sp-row span i.dn {
+    background: var(--down);
+  }
   .mo__list {
     display: grid;
     gap: 8px;
-    padding: 24px;
-    margin: -24px;
-    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 24%, #000 76%, transparent);
-    mask-image: linear-gradient(to bottom, transparent, #000 24%, #000 76%, transparent);
   }
   /* the cards rise in one after another. Shadows run shallow for the cards,
      deeper for the failing one and deepest for the notices, so the layers
      read in that order. Both shadow lists carry the stripe so it can fade in;
      the failing card's lift is on `scale`, apart from the draw-in's delayed
-     `transform`. */
+     `transform`. The surface is the MCP tiles' and testimonials' material, lit
+     from the top, laid over a solid canvas base because the cards overlap the
+     status page; the failing card only swaps the base, so its tint transitions. */
   .mo__row {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) 50px 38% 48px;
+    grid-template-columns: auto minmax(0, 1fr) 50px 34% 48px;
     align-items: center;
     gap: 0 14px;
     padding: 12px 16px;
     border-radius: 10px;
-    background: #1b1a19;
-    border: 1px solid rgba(235, 232, 230, 0.09);
+    background-color: var(--canvas);
+    background-image: linear-gradient(180deg, rgba(235, 232, 230, 0.045), rgba(235, 232, 230, 0.014));
+    border: 1px solid var(--rule-10);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
       inset 2px 0 0 rgba(226, 88, 107, 0),
       0 6px 16px rgba(0, 0, 0, 0.32);
     opacity: 0;
@@ -2190,10 +2363,10 @@
   }
   .mo__row.dn {
     scale: 1.015;
-    background: #221a1b;
+    background-color: #1c1415;
     border-color: rgba(226, 88, 107, 0.26);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.05) inset,
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
       inset 2px 0 0 var(--down),
       0 12px 28px rgba(0, 0, 0, 0.46);
   }
@@ -2226,9 +2399,10 @@
   .mo__nm {
     min-width: 0;
   }
+  /* baseline, not centre: the flag's smaller mono text then sits on the name's line */
   .mo__nm b {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 8px;
     font-size: 13.5px;
     font-weight: 400;
@@ -2237,22 +2411,24 @@
     white-space: nowrap;
     margin-bottom: 3px;
   }
-  /* the one monitor with something to say about its certificate; the others stay quiet */
+  /* the one monitor with something to say about its certificate; the others stay
+     quiet. Plain amber text, no box, so it stands out by colour alone and the
+     line keeps the height of the other cards' name lines. */
   .mo__nm s {
     display: inline-flex;
-    align-items: center;
+    align-items: baseline;
     gap: 4px;
-    padding: 1px 6px 1px 5px;
-    border-radius: 4px;
-    border: 1px solid rgba(228, 169, 60, 0.3);
-    background: rgba(228, 169, 60, 0.08);
-    font-family: var(--mono);
-    font-size: 10px;
+    font-family: var(--sans);
+    font-size: 11px;
+    line-height: 1;
     letter-spacing: 0;
     color: var(--warn);
     text-decoration: none;
   }
+  /* centred on its own text, and kept out of baseline alignment so the flag's
+     baseline comes from the text, not the icon's bottom edge */
   .mo__nm s svg {
+    align-self: center;
     width: 10px;
     height: 10px;
   }
@@ -2327,18 +2503,17 @@
   .is-in .mo__s i.dn {
     opacity: 0.95;
   }
-  /* notices sit over the stack's faded lower end, catching the last clear card
-     by 12px (a card and a gap are 67px): the newest in front, the one before it
-     stepping back and peeking out above it, its text faded. A notice pushed
-     further back fades out on its way. Their left edge lines up with where the
-     strips start: a strip ends 79px in from its card's right edge (border,
-     padding, uptime column, gap) and spans 38% of a content box 34px narrower
-     than the card, which puts its start at 62% - 66px. */
+  /* notices hang just over the stack's bottom edge: the newest in front, the one
+     before it stepping back and peeking out above it, its text faded. A notice
+     pushed further back fades out on its way. Their left edge lines up with where
+     the strips start: a strip ends 79px in from its card's right edge (border,
+     padding, uptime column, gap) and spans 34% of a content box 34px narrower
+     than the card, which puts its start at 66% - 67px. */
   .mo__st {
     position: absolute;
-    top: calc(100% - 79px);
-    left: calc(62% - 66px);
-    width: 80%;
+    top: calc(100% - 24px);
+    left: calc(66% - 67px);
+    width: 92%;
   }
   .mo__al {
     --tint: 226, 88, 107;
@@ -2364,9 +2539,12 @@
     transform-origin: 50% 0;
     opacity: 0;
     transform: translateY(26px) scale(0.98);
+    /* blur-lift, like the rail's LiftSwap: notices sharpen as they rise and blur as they go */
+    filter: blur(6px);
     transition:
       opacity 0.4s var(--ease),
-      transform 0.6s var(--ease);
+      transform 0.6s var(--ease),
+      filter 0.5s var(--ease);
   }
   .mo__al--ssl {
     --tint: 228, 169, 60;
@@ -2379,6 +2557,7 @@
   .is-in .mo__al.on {
     opacity: 1;
     transform: translateY(calc(var(--depth) * -14px)) scale(calc(1 - var(--depth) * 0.05));
+    filter: blur(0);
   }
   .mo__al.gone {
     transform: translateY(calc(var(--depth) * -14px + 14px)) scale(calc(1 - var(--depth) * 0.05));
@@ -2398,6 +2577,35 @@
   .mo__al.back > * {
     opacity: 0;
   }
+  /* a notice not yet sent or already cleared sits unseen in place; it ignores the
+     pointer, so hovering the empty spot neither spreads nor holds anything */
+  .mo__al:not(.on) {
+    pointer-events: none;
+  }
+  /* hovering the notices spreads them, as hovering the other stacks does: the one
+     behind lifts clear enough to show its icon and title and reads again, and the
+     front one settles a touch lower. With a single notice there is nothing to
+     spread. The story's beat pauses meanwhile (uptime.tsx), so the stack can't
+     change under the pointer. The hover rides on translate, apart from the
+     stacking transform. */
+  @media (hover: hover) {
+    .mo__al {
+      transition:
+        opacity 0.4s var(--ease),
+        transform 0.6s var(--ease),
+        filter 0.5s var(--ease),
+        translate 0.6s var(--ease);
+    }
+    .mo__st:hover .mo__al.on.back {
+      translate: 0 -46px;
+    }
+    .mo__st:hover .mo__al.on.back > * {
+      opacity: 1;
+    }
+    .mo__st:has(.mo__al.on.back):hover .mo__al.on:not(.back) {
+      translate: 0 4px;
+    }
+  }
   .mo__ic {
     grid-row: 1 / 3;
     display: grid;
@@ -2412,6 +2620,22 @@
     width: 17px;
     height: 17px;
   }
+  /* the icon's one beat as its notice lands: the bell rings, the check draws
+     itself, the shield pulses. Keyed on `.on`, so it plays on each arrival and
+     not again when the notice steps back. */
+  .is-in .mo__al--down.on .mo__ic svg {
+    transform-origin: 50% 15%;
+    animation: lp2-mo-ring 0.7s ease-in-out 0.35s;
+  }
+  .mo__al--up .mo__ic path {
+    stroke-dasharray: 1;
+  }
+  .is-in .mo__al--up.on .mo__ic path {
+    animation: lp2-mo-draw 0.5s var(--ease) 0.3s both;
+  }
+  .is-in .mo__al--ssl.on .mo__ic svg {
+    animation: lp2-mo-pulse 0.6s var(--ease) 0.35s;
+  }
   .mo__tx b {
     display: block;
     font-size: 13.5px;
@@ -2422,8 +2646,8 @@
   }
   .mo__tx span {
     display: block;
-    font-family: var(--mono);
-    font-size: 10.5px;
+    font-family: var(--sans);
+    font-size: 12px;
     color: var(--mid);
     white-space: nowrap;
     overflow: hidden;
@@ -2443,8 +2667,8 @@
     margin-top: 10px;
     padding-top: 9px;
     border-top: 1px solid rgba(235, 232, 230, 0.07);
-    font-family: var(--mono);
-    font-size: 10.5px;
+    font-family: var(--sans);
+    font-size: 11.5px;
     color: var(--mid);
   }
   .mo__to u {
@@ -2855,12 +3079,9 @@
       width: 94%;
       margin: 0 auto;
     }
-    .mo__list {
-      -webkit-mask-image: none;
-      mask-image: none;
-    }
-    .mo__row:nth-child(-n + 2),
-    .mo__row:nth-child(n + 5),
+    .mo__sp,
+    .mo__row:nth-child(1),
+    .mo__row:nth-child(4),
     .mo__nm span,
     .mo__ms {
       display: none;
@@ -4887,10 +5108,18 @@
       transform: none;
       transition: none;
     }
+    .mo__sp,
     .mo__al,
     .mo__al > *,
     .mo__to u {
       transition: none;
+    }
+    .mo__al {
+      filter: none;
+    }
+    .mo__ic svg,
+    .mo__ic path {
+      animation: none;
     }
     .mo__s i {
       transform: none;
@@ -5028,6 +5257,44 @@
 @keyframes lp2-mo-tick-b {
   from {
     transform: translateX(0);
+  }
+}
+@keyframes lp2-mo-ring {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  15% {
+    rotate: 14deg;
+  }
+  30% {
+    rotate: -12deg;
+  }
+  45% {
+    rotate: 8deg;
+  }
+  60% {
+    rotate: -5deg;
+  }
+  75% {
+    rotate: 2deg;
+  }
+}
+@keyframes lp2-mo-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes lp2-mo-pulse {
+  0%,
+  100% {
+    scale: 1;
+  }
+  40% {
+    scale: 1.18;
   }
 }
 @keyframes lp2-mo-ping {

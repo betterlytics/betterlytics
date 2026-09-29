@@ -10,19 +10,14 @@ import type { IllustrationProps } from './types';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
-/**
- * `uptime` is in hundredths of a percent, so each failed check can take one off
- * exactly. The first and last monitors sit in the stack's faded ends.
- */
+/** `uptime` is in hundredths of a percent, so each failed check can take one off exactly. */
 const MONITORS = [
-  { name: 'Status page', host: 'status.example.com', ms: '64 ms', uptime: 10000 },
-  { name: 'Marketing site', host: 'example.com', ms: '96 ms', uptime: 9997 },
-  { name: 'API', host: 'api.example.com', ms: '142 ms', uptime: 9998 },
-  { name: 'Checkout', host: 'checkout.example.com', ms: '208 ms', uptime: 9995 },
-  { name: 'Docs', host: 'docs.example.com', ms: '88 ms', uptime: 10000 },
-  { name: 'Blog', host: 'blog.example.com', ms: '121 ms', uptime: 9999 },
+  { name: 'Marketing site', host: 'acme.com', ms: '96 ms', uptime: 9997 },
+  { name: 'API', host: 'api.acme.com', ms: '142 ms', uptime: 9998 },
+  { name: 'Checkout', host: 'checkout.acme.com', ms: '208 ms', uptime: 9995 },
+  { name: 'Docs', host: 'docs.acme.com', ms: '88 ms', uptime: 10000 },
 ];
-const DOCS = 4;
+const DOCS = 3;
 
 /** Checks each strip shows. The track holds one more, off to the left, for the slide. */
 const CELLS = 30;
@@ -34,8 +29,10 @@ const FIRST_BEAT_MS = 700;
  * first. Then a monitor fails, and the down alert goes out on the third
  * failed check in a row (the product's default threshold). The recovery
  * notice follows the first check that passes. The stack holds for a while,
- * clears, and the loop starts again with the next monitor in OUTAGES, so no
- * strip ever carries two outages at once.
+ * clears, and the loop starts again with the other monitor in OUTAGES, so no
+ * strip ever carries two outages at once. Only the two monitors the public
+ * status page shows above its fade take turns, so its rows always agree with
+ * its hero.
  */
 const LOOP = 16;
 const SSL_AT = 1;
@@ -43,7 +40,7 @@ const FAIL_FROM = 2;
 const DOWN_AT = FAIL_FROM + 2;
 const UP_AT = 7;
 const CLEAR_AT = 14;
-const OUTAGES = [3, 2, 1];
+const OUTAGES = [2, 1];
 /** The frame shown under reduced motion: the down alert in front of the SSL notice. */
 const POSTER = DOWN_AT + 1;
 
@@ -153,6 +150,7 @@ const ICONS: Record<NoticeKind, ReactNode> = {
     <svg viewBox='0 0 20 20' fill='none' aria-hidden>
       <path
         d='m5.5 10.4 3 3 6-6.6'
+        pathLength={1}
         stroke='currentColor'
         strokeWidth='1.7'
         strokeLinecap='round'
@@ -206,6 +204,85 @@ function Notice({ kind, t }: { kind: NoticeKind; t: number }) {
   );
 }
 
+/** The monitors the public page lists, by row, under the names customers see. */
+const PUBLIC = [
+  { row: 1, name: 'API' },
+  { row: 2, name: 'Checkout' },
+  { row: 0, name: 'Website' },
+];
+const DAYS = 36;
+
+/**
+ * The public status page, behind the stack: what customers see while the
+ * team gets the alert. It sits back while all is well and comes up to full
+ * strength with the outage, as its hero and the failing monitor's row switch
+ * to an outage in step with the card.
+ */
+function StatusPage({ t }: { t: number }) {
+  const out = PUBLIC.find((p) => fails(p.row, t));
+  return (
+    <div className={cn('mo__sp', out && 'dn')} aria-hidden>
+      <div className='mo__sp-ch'>
+        <i />
+        <i />
+        <i />
+        <span>status.acme.com</span>
+      </div>
+      {/* laid out as the real page (app/status/[slug]): a brand band in the default
+          accent, and over it one card whose top is the status-coloured hero */}
+      <div className='mo__sp-vp'>
+        <b className='mo__sp-brand'>
+          <i />
+          Acme
+        </b>
+        <div className='mo__sp-card'>
+          <div className={cn('mo__sp-hero', out && 'dn')}>
+            <span className='mo__sp-ic'>
+              {out ? (
+                <svg viewBox='0 0 24 24' fill='none' aria-hidden>
+                  <path
+                    d='M10.3 3.9 2.4 17.6A2 2 0 0 0 4.1 20.6h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z'
+                    stroke='currentColor'
+                    strokeWidth='3'
+                    strokeLinejoin='round'
+                  />
+                  <path d='M12 9.5v4M12 16.8h.01' stroke='currentColor' strokeWidth='3' strokeLinecap='round' />
+                </svg>
+              ) : (
+                <svg viewBox='0 0 24 24' fill='none' aria-hidden>
+                  <path
+                    d='m5 12.5 4.5 4.5L19 7.5'
+                    stroke='currentColor'
+                    strokeWidth='3.4'
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                  />
+                </svg>
+              )}
+            </span>
+            <strong>{out ? 'Some systems are down' : 'All systems operational'}</strong>
+          </div>
+          {PUBLIC.map((p) => {
+            const down = p === out;
+            return (
+              <div key={p.name} className={cn('mo__sp-row', down && 'dn')}>
+                <i />
+                <b>{p.name}</b>
+                <em>{down ? 'Down' : 'Operational'}</em>
+                <span>
+                  {Array.from({ length: DAYS }, (_, i) => (
+                    <i key={i} className={cn(down && i === DAYS - 1 && 'dn')} />
+                  ))}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * Monitors as a stack of cards with an outage playing through them, the
  * failing one coming forward, and the notices it sends stacking up over the
@@ -214,12 +291,16 @@ function Notice({ kind, t }: { kind: NoticeKind; t: number }) {
  */
 export function Uptime({ live }: IllustrationProps) {
   const reduce = useReducedMotion();
-  const played = useChecks(live && !reduce);
+  /* the story holds while a mouse is on the notices, so the stack they spread
+     into can't change under the pointer; it picks up again on leaving */
+  const [held, setHeld] = useState(false);
+  const played = useChecks(live && !reduce && !held);
   const t = reduce ? POSTER : played;
   const ticked = !reduce && played > 0;
 
   return (
     <div className='mo'>
+      <StatusPage t={t} />
       <div className='mo__grp'>
         <div className='mo__list'>
           {MONITORS.map((mon, row) => {
@@ -229,7 +310,7 @@ export function Uptime({ live }: IllustrationProps) {
               <div
                 key={mon.name}
                 className={cn('mo__row', down && 'dn')}
-                style={vars({ '--d': `${0.06 + row * 0.06}s` })}
+                style={vars({ '--d': `${0.06 + row * 0.08}s` })}
               >
                 <i className='mo__dot' />
                 <span className='mo__nm'>
@@ -259,7 +340,11 @@ export function Uptime({ live }: IllustrationProps) {
           })}
         </div>
 
-        <div className='mo__st'>
+        <div
+          className='mo__st'
+          onPointerEnter={(e) => e.pointerType === 'mouse' && setHeld(true)}
+          onPointerLeave={() => setHeld(false)}
+        >
           {NOTICES.map((n) => (
             <Notice key={n.kind} kind={n.kind} t={t} />
           ))}
