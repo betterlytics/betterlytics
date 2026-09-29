@@ -51,15 +51,24 @@ function clock(seconds: number) {
  * The page motion is CSS on one shared loop, paused unless the card is live.
  * The player bar follows that loop by reading the scrub animation's own clock
  * each frame, so the time and the narrated event never drift from the page.
+ *
+ * The pause button is real: it holds that same loop where it is, page, cursor,
+ * scrub and all, and plays it on from there. Leaving the card resets it, so the
+ * replay is playing again when the card comes back.
  */
 export function Replay({ live }: IllustrationProps) {
   const reduce = useReducedMotion();
   const fillRef = useRef<HTMLElement>(null);
   const timeRef = useRef<HTMLTimeElement>(null);
   const [beat, setBeat] = useState(0);
+  const [paused, setPaused] = useState(false);
 
   useEffect(() => {
-    if (!live || reduce) return;
+    if (!live) setPaused(false);
+  }, [live]);
+
+  useEffect(() => {
+    if (!live || reduce || paused) return;
     const fill = fillRef.current;
     const time = timeRef.current;
     if (!fill || !time) return;
@@ -74,18 +83,18 @@ export function Replay({ live }: IllustrationProps) {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [live, reduce]);
+  }, [live, reduce, paused]);
 
   const shown = reduce ? STILL_BEAT : beat;
   const event = BEATS[shown];
 
   return (
-    <div className='sr' style={vars({ '--loop': `${LOOP_MS}ms` })}>
+    <div className={cn('sr', paused && 'is-paused')} style={vars({ '--loop': `${LOOP_MS}ms` })}>
       <div className='sr__ch'>
         <i />
         <i />
         <i />
-        <span>https://example.com/pricing</span>
+        <span>https://acme.com/pricing</span>
         {/* the browser's menu */}
         <svg className='sr__kebab' viewBox='0 0 4 14' aria-hidden>
           <circle cx='2' cy='2' r='1.3' />
@@ -98,7 +107,7 @@ export function Replay({ live }: IllustrationProps) {
           <div className='sr__nav'>
             <b>
               <i />
-              example
+              acme
             </b>
             <span>Product</span>
             <span>Pricing</span>
@@ -169,10 +178,25 @@ export function Replay({ live }: IllustrationProps) {
         {/* the recording's controls; the viewBoxes are cropped to the glyphs so the icons meet
             the track's ends instead of sitting inset from them */}
         <div className='sr__row sr__ctl'>
-          <svg className='sr__pause' viewBox='2 1.5 8 9' aria-hidden>
-            <rect x='2' y='1.5' width='3' height='9' rx='0.8' />
-            <rect x='7' y='1.5' width='3' height='9' rx='0.8' />
-          </svg>
+          {/* the one working control; the others are the player's, drawn */}
+          <button
+            type='button'
+            className='sr__pp'
+            onClick={() => setPaused((p) => !p)}
+            disabled={reduce}
+            aria-label={paused ? 'Play replay' : 'Pause replay'}
+          >
+            <svg viewBox='2 1.5 8 9' aria-hidden>
+              {paused ? (
+                <path d='M3 2.2v7.6a.7.7 0 0 0 1.07.6l5.5-3.8a.7.7 0 0 0 0-1.2L4.07 1.6A.7.7 0 0 0 3 2.2Z' />
+              ) : (
+                <>
+                  <rect x='2' y='1.5' width='3' height='9' rx='0.8' />
+                  <rect x='7' y='1.5' width='3' height='9' rx='0.8' />
+                </>
+              )}
+            </svg>
+          </button>
           <time ref={timeRef}>{clock(reduce ? BEATS[STILL_BEAT].at * SESSION_S : 0)}</time>
           <span>/</span>
           <time>{clock(SESSION_S)}</time>

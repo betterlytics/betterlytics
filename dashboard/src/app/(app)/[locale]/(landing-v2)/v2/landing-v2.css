@@ -1587,7 +1587,6 @@
     padding: 4px 10px;
     border-radius: 5px;
     background: rgba(235, 232, 230, 0.05);
-    font-family: var(--mono);
     font-size: 10.5px;
     color: var(--mid);
   }
@@ -1613,7 +1612,9 @@
     animation-iteration-count: infinite;
   }
   .fig:not(.is-live) .sr *,
-  .fig:not(.is-live) .sr *::after {
+  .fig:not(.is-live) .sr *::after,
+  .sr.is-paused *,
+  .sr.is-paused *::after {
     animation-play-state: paused;
   }
   /* the recorded page: the visitor's pricing page in its own warm monochrome */
@@ -1845,7 +1846,6 @@
   .sr__ev {
     height: 14px;
     margin: 0;
-    font-family: var(--mono);
     font-size: 10.5px;
     line-height: 14px;
     color: var(--mid);
@@ -1943,10 +1943,42 @@
     fill: var(--text);
     stroke: none;
   }
-  .sr__ctl .sr__pause {
+  /* the pause/play button: the glyph's own box, with the baseline drop moved onto
+     it, and a hit area grown well past the 9px glyph so it is easy to catch */
+  .sr__pp {
+    position: relative;
+    display: block;
+    flex: none;
     width: 9px;
     height: 10px;
-    margin-right: 2px;
+    margin: 0 2px -1.35px 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .sr__pp::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  .sr__ctl .sr__pp svg {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    transition: opacity 0.2s;
+  }
+  .sr__pp:hover svg {
+    opacity: 0.75;
+  }
+  .sr__pp:focus-visible {
+    outline: 1px solid var(--accent-soft);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+  .sr__pp:disabled {
+    cursor: default;
   }
   .sr__ctl time {
     color: var(--text);
@@ -5074,13 +5106,15 @@
     left: 51.1%;
     top: 76%;
   }
+  /* they leave up and to the right, but no further right than the tag hung off the tip
+     still fits inside the viewport */
   84% {
-    left: 86%;
+    left: 72%;
     top: 4%;
     opacity: 1;
   }
   88% {
-    left: 88%;
+    left: 74%;
     top: -12%;
     opacity: 0;
   }
