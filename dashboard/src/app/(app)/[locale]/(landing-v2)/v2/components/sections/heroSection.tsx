@@ -7,7 +7,7 @@ export function HeroSection() {
   return (
     <section className='hero'>
       <div className='card card--hero'>
-        <div className='hero__wave' aria-hidden>
+        <div className='card__wave' aria-hidden>
           <i />
         </div>
         {/* sits on the demo frame's top edge, so it reads as light from behind the frame */}
