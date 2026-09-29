@@ -1,0 +1,133 @@
+/*
+ * The landing page's own Tailwind entry, compiled apart from the app's globals.css:
+ * its theme holds only the landing's design tokens and it scans only this folder,
+ * so nothing leaks between the landing and the app. The page is dark-only by design.
+ *
+ * Layers, lowest first: theme, base, legacy (the pre-Tailwind stylesheet, shrinking
+ * as components move over), components (component CSS modules wrap their rules in
+ * it), utilities.
+ */
+@layer theme, base, legacy, components, utilities;
+
+@import 'tailwindcss' source(none);
+@import './legacy.css' layer(legacy);
+
+@source './';
+/* shared app components the page renders, for the utilities they use */
+@source '../../../../components/gauge';
+
+/* `static` emits every token, so CSS modules can read them as plain custom properties. */
+@theme static {
+  --color-*: initial;
+  --color-canvas: #151414;
+  --color-surface: #1c1a1a;
+  --color-fg: #ebe8e6;
+  --color-muted: #aea5a1;
+  --color-volt: #1a2bd1;
+  --color-volt-hover: #2233e4;
+  --color-volt-lift: #4a5cff;
+  --color-volt-soft: #8b97ff;
+  --color-on-volt: #f2f5ff;
+  --color-down: #e2586b;
+  --color-warn: #e4a93c;
+  --color-live: #4ade9b;
+  --color-white: #fff;
+  --color-black: #000;
+  /* Hairlines in the text colour. Solid edges draw more ink than dashed ones at the
+     same alpha, so each is eased back from the nominal percentage in its name. An
+     undrawn InkFrame blanks these, which is what hides the rules inside it. */
+  --color-rule: rgb(235 232 230 / 0.086);
+  --color-rule-08: rgb(235 232 230 / 0.06);
+  --color-rule-10: rgb(235 232 230 / 0.075);
+  --color-rule-125: rgb(235 232 230 / 0.094);
+  --color-rule-22: rgb(235 232 230 / 0.168);
+  --color-rule-30: rgb(235 232 230 / 0.228);
+
+  --font-*: initial;
+  --font-sans: var(--font-landing-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-landing-mono), ui-monospace, Menlo, monospace;
+
+  /* The design is desktop-first, so components mostly use the max-* variants. */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 40rem; /* 640px */
+  --breakpoint-md: 47.5rem; /* 760px */
+  --breakpoint-lg: 56.25rem; /* 900px */
+  --breakpoint-xl: 62.5rem; /* 1000px */
+  --breakpoint-2xl: 67.5rem; /* 1080px */
+  --breakpoint-3xl: 75rem; /* 1200px */
+
+  /* Page type. Display sizes and the lede step down below lg (see the base layer). */
+  --text-*: initial;
+  --text-display-1: 3.5rem;
+  --text-display-1--line-height: 3.4375rem;
+  --text-display-1--letter-spacing: -0.0875rem;
+  --text-display-2: 3rem;
+  --text-display-2--line-height: 3rem;
+  --text-display-2--letter-spacing: -0.075rem;
+  --text-lede: 1.2rem;
+  --text-lede--line-height: 1.5rem;
+  --text-lede--letter-spacing: -0.03rem;
+  --text-title: 1.0625rem; /* 17px */
+  --text-body: 0.96875rem; /* 15.5px */
+  --text-body-sm: 0.9375rem; /* 15px */
+  --text-label: 0.875rem; /* 14px */
+  --text-label--line-height: 1.25rem;
+  --text-label--letter-spacing: -0.0125rem;
+  --text-caption: 0.8125rem; /* 13px */
+  --text-code: 0.78125rem; /* 12.5px */
+  --text-micro: 0.6875rem; /* 11px */
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  /* quick off the mark, easing out as it lifts: the ink frame and wall drawing in */
+  --ease-pen: cubic-bezier(0.3, 0.02, 0.15, 1);
+}
+
+@layer base {
+  /* The page frame, in px: the gutter outside the wall, the hatched wall column, and
+     how far the demo frame rides up into the hero card. */
+  :root {
+    --pad: 0px;
+    --wall: 72px;
+    --inset: calc(var(--pad) + var(--wall));
+    --hero-overlap: 180px;
+  }
+  @media (width < 95rem) {
+    :root {
+      --pad: 24px;
+    }
+  }
+  @media (width < 75rem) {
+    :root {
+      --wall: 52px;
+    }
+  }
+  @media (width < 56.25rem) {
+    :root {
+      --pad: 20px;
+      --wall: 32px;
+      --text-display-1: 2.5rem;
+      --text-display-1--line-height: 2.5rem;
+      --text-display-1--letter-spacing: -0.0625rem;
+      --text-display-2: 2.125rem;
+      --text-display-2--line-height: 2.25rem;
+      --text-display-2--letter-spacing: -0.05625rem;
+      --text-lede: 1.0625rem;
+    }
+  }
+  @media (width < 40rem) {
+    :root {
+      --pad: 16px;
+      --wall: 0px;
+    }
+  }
+
+  html {
+    background-color: var(--color-canvas);
+    color-scheme: dark;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}

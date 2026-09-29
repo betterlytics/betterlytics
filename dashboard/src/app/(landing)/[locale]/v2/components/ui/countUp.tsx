@@ -1,0 +1,48 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import { useInView } from '@/landing/hooks/useInView';
+import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
+
+/** Counts from 0 to `value` once scrolled into view; sits still under reduced motion. */
+export function CountUp({ value, decimals = 0 }: { value: number; decimals?: number }) {
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref);
+  const reduce = useReducedMotion();
+  const [shown, setShown] = useState(0);
+
+  useEffect(() => {
+    if (!inView) return;
+    if (reduce) {
+      setShown(value);
+      return;
+    }
+    let raf = 0;
+    let t0: number | null = null;
+    const step = (ts: number) => {
+      if (t0 === null) t0 = ts;
+      const p = Math.min((ts - t0) / 1150, 1);
+      setShown(value * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, reduce, value]);
+
+  const [whole, fraction] = shown
+    .toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    .split('.');
+  /* tabular digits keep the count from jittering, but the face gives the point a
+     full figure width too, so the point is set proportionally on its own */
+  return (
+    <b ref={ref} className='num'>
+      {whole}
+      {fraction === undefined ? null : (
+        <>
+          <span className='num__dot'>.</span>
+          {fraction}
+        </>
+      )}
+    </b>
+  );
+}

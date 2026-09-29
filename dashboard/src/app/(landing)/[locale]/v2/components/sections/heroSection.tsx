@@ -1,0 +1,27 @@
+import { Link } from '@/i18n/navigation';
+import { COPY } from '@/landing/content/copy';
+
+const copy = COPY.hero;
+
+export function HeroSection() {
+  return (
+    <section className='hero'>
+      <div className='card card--hero'>
+        <div className='card__wave' aria-hidden>
+          <i />
+        </div>
+        {/* sits on the demo frame's top edge, so it reads as light from behind the frame */}
+        <div className='bloom' style={{ top: 628, width: 1220, height: 470 }} aria-hidden />
+        <div className='card__body'>
+          <h1 className='d1'>{copy.title}</h1>
+          <p className='lede'>{copy.lede}</p>
+          <div className='card__cta'>
+            <Link className='btn btn--paper btn--lg' href='/signup'>
+              {copy.ctaPrimary}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

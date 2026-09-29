@@ -1,0 +1,41 @@
+import { getLocale } from 'next-intl/server';
+import { getPathname } from '@/i18n/navigation';
+import { env } from '@/lib/env';
+import { Section } from '@/landing/components/ui/frame';
+import { COPY } from '@/landing/content/copy';
+import { IDS } from '@/landing/lib/ids';
+import { DemoFrame } from './demoFrame';
+
+/** The embeddable dashboard; falls back to the draft's placeholder when no demo dashboard is configured. */
+export async function DemoSection() {
+  const locale = await getLocale();
+  const src = env.DEMO_DASHBOARD_ID ? getPathname({ href: `/share/${env.DEMO_DASHBOARD_ID}`, locale }) : null;
+
+  return (
+    <Section id={IDS.demo} className='sec--demo'>
+      <div className='demo'>
+        <div className='demo__dots' aria-hidden>
+          <i />
+          <i />
+          <i />
+        </div>
+        {/* The dots alone read as a screenshot. The stub address bar names the
+            thing as a demo; it is chrome, so it is hidden from assistive tech —
+            the frame's title and the scrim carry the same meaning in text. */}
+        {src && (
+          <p className='demo__url' aria-hidden>
+            {COPY.demo.urlHost}
+            <span>{COPY.demo.urlPath}</span>
+          </p>
+        )}
+        {src ? (
+          <DemoFrame src={src} />
+        ) : (
+          <div className='demo__mid'>
+            <b>{COPY.demo.placeholder}</b>
+          </div>
+        )}
+      </div>
+    </Section>
+  );
+}

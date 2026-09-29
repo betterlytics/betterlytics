@@ -4,6 +4,7 @@ import path from 'path'
 export default defineConfig({
   resolve: {
     alias: {
+      '@/landing': path.resolve(__dirname, 'src/app/(landing)/[locale]/v2'),
       '@': path.resolve(__dirname, 'src'),
       'server-only': path.resolve(__dirname, 'src/test/server-only-stub.ts'),
     },
