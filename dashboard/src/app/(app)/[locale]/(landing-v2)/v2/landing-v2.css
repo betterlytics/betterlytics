@@ -781,14 +781,13 @@
   /* the same 45° hatch the walls and the bands between cards wear, so the whole
      page is one material; on saturated blue it needs more alpha than on the
      canvas. Faded toward the top corners so the lamp is what reveals it. */
-  .card::before {
+  .card::before,
+  .hero__wave {
     content: '';
     position: absolute;
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background-image: repeating-linear-gradient(315deg, rgba(242, 245, 255, 0.11) 0 1px, transparent 0 50%);
-    background-size: 10px 10px;
     /* two masks, intersected: the radial fades the screen toward the top corners,
        the linear fades it out before the left and right edges */
     -webkit-mask-image:
@@ -799,6 +798,63 @@
       linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%);
     -webkit-mask-composite: source-in;
     mask-composite: intersect;
+  }
+  .card::before {
+    background-image: repeating-linear-gradient(315deg, rgba(242, 245, 255, 0.11) 0 1px, transparent 0 50%);
+    background-size: 10px 10px;
+  }
+  /* a slow wave of light along the hatch, the MCP flare's shimmer at hero scale:
+     a band of brighter hatch drifts bottom-left to top-right, running along the
+     "/" lines so they seem to carry it. The band is turned to the lines (local x
+     runs up the "/"), so sliding it on x keeps its lines on the screen's; they
+     sit every 10/√2 px, 1px thick, phased to the card's own tiles. Moved by
+     transform alone, so it stays on the compositor. Masked like the screen. */
+  .hero__wave {
+    display: none;
+  }
+  .hero__wave i {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1000px;
+    height: 2400px;
+    transform-origin: 0 0;
+    rotate: -45deg;
+    background:
+      repeating-linear-gradient(to bottom, transparent 0 6.0711px, rgba(242, 245, 255, 0.17) 0 7.0711px),
+      linear-gradient(rgba(242, 245, 255, 0.037), rgba(242, 245, 255, 0.037));
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.08) 18%,
+      rgba(0, 0, 0, 0.4) 33%,
+      rgba(0, 0, 0, 0.85) 44%,
+      #000 50%,
+      rgba(0, 0, 0, 0.85) 56%,
+      rgba(0, 0, 0, 0.4) 67%,
+      rgba(0, 0, 0, 0.08) 82%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(0, 0, 0, 0.08) 18%,
+      rgba(0, 0, 0, 0.4) 33%,
+      rgba(0, 0, 0, 0.85) 44%,
+      #000 50%,
+      rgba(0, 0, 0, 0.85) 56%,
+      rgba(0, 0, 0, 0.4) 67%,
+      rgba(0, 0, 0, 0.08) 82%,
+      transparent 100%
+    );
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__wave {
+      display: block;
+    }
+    .hero__wave i {
+      animation: lp2-hero-wave 27s linear 0.8s infinite backwards;
+    }
   }
   /* polished edge: one soft white inner shadow, offset down and a touch right,
      so the top and left edges catch the light and fade in over a few px. No hard
@@ -4876,6 +4932,16 @@
   62%,
   100% {
     mask-position: 0% 0;
+  }
+}
+/* hero wave: one slow pass along the hatch, from off the card's lower left to
+   past its upper right on the widest screens; narrower cards rest longer */
+@keyframes lp2-hero-wave {
+  from {
+    transform: translateX(-1600px);
+  }
+  to {
+    transform: translateX(1900px);
   }
 }
 @keyframes lp2-slide {
