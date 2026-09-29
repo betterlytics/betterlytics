@@ -79,7 +79,7 @@ The in-app steps are the same: enter the domain in the status page's **Settings*
 |-------|-------------|-------------------------|
 | CNAME | `status`    | `analytics.example.com` |
 
-In standalone mode the instance issues the certificate on the first visit after DNS resolves. Behind your own reverse proxy, the proxy terminates TLS for the hostname and forwards it with the `Host` header unchanged, either on the same machine or from another one over a private network. Without any proxy, registrar forwarding to `/status/{your-slug}` also works. All of these setups are covered in [Custom Status Page Domains](/installation/self-hosting#custom-status-page-domains) in the Self-Hosting Guide.
+In standalone mode the instance issues the certificate on the first visit after DNS resolves. Behind your own reverse proxy, the proxy terminates TLS for the hostname and forwards it with the `Host` header unchanged. If that proxy runs on another machine, point the DNS record at that machine instead of the target above. Without any proxy, leave the **Custom domain** field empty and forward the domain at your registrar to `https://analytics.example.com/status/{your-slug}`. All of these setups are covered in [Custom Status Page Domains](/installation/self-hosting#custom-status-page-domains) in the Self-Hosting Guide.
 
 ---
 

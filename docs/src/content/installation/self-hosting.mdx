@@ -342,38 +342,14 @@ A status page can be served from its own domain, for example `status.acme.com`, 
   </Tabs.Tab>
 </Tabs>
 
-**Proxy on another machine:** the proxy that terminates TLS for the status domain can run elsewhere, for example on an edge server that already fronts your other services. Run the instance [behind a reverse proxy](#behind-a-reverse-proxy) with `BIND_ADDRESS` set to the interface that server connects through, and forward to the instance's port over your private network with the `Host` header unchanged. If the proxy connects from a public address, list it in `TRUSTED_PROXIES`. Do not forward to the instance's public `https://` address: most proxies then send your analytics hostname as `Host`, and the dashboard loads instead of the status page. The page is still served by the instance, so it goes down whenever the analytics host does.
+**Proxy on another machine:** the proxy that terminates TLS for the status domain can run elsewhere, for example on an edge server that already fronts your other services. Run the instance [behind a reverse proxy](#behind-a-reverse-proxy) as above, and:
 
-<Tabs items={['Caddy', 'Nginx']}>
-  <Tabs.Tab>
-    ```md
-    # 10.0.0.5 is the analytics host's private address
-    status.acme.com {
-        reverse_proxy 10.0.0.5:5566
-    }
-    ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-    ```nginx
-    server {
-        listen 443 ssl;
-        server_name status.acme.com;
+- Point the status domain's DNS at the edge server, not at the CNAME target the editor shows.
+- On the edge server, use the status domain entry above with `127.0.0.1` replaced by the analytics host's private address, for example `reverse_proxy 10.0.0.5:5566`, and keep the `Host` header unchanged.
+- Make the instance's port reachable at that address. `BIND_ADDRESS` takes a single address, so if a proxy on the analytics host still reaches the instance at `127.0.0.1`, point it at the private address too, or set `BIND_ADDRESS=0.0.0.0` and firewall the port.
+- Proxies connecting from `10.0.0.0/8`, `172.16.0.0/12` or `192.168.0.0/16` are trusted automatically. List any other address the edge server connects from, including VPN ranges such as Tailscale's `100.64.0.0/10`, in `TRUSTED_PROXIES`.
 
-        ssl_certificate     /etc/letsencrypt/live/status.acme.com/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/status.acme.com/privkey.pem;
-
-        location / {
-            # 10.0.0.5 is the analytics host's private address
-            proxy_pass http://10.0.0.5:5566;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-    }
-    ```
-  </Tabs.Tab>
-</Tabs>
+Do not forward to the instance's public `https://` address: most proxies then send your analytics hostname as `Host`, and the dashboard loads instead of the status page. The page is still served by the instance, so it goes down whenever the analytics host does.
 
 **No proxy (registrar forwarding):** most registrars and DNS providers can forward a domain without you running anything. Forward `status.acme.com` to `https://analytics.example.com/status/{your-slug}` with a plain redirect, not "masked" or "frame" forwarding, since the instance does not allow its pages to be embedded on other sites. Visitors land on your instance's URL, and that URL stays the page's canonical address. Leave the **Custom domain** field in the page's Settings empty in this setup: when it is set, the page names the custom domain as canonical, and here that domain only redirects.
 
