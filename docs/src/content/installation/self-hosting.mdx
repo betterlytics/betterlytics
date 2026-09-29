@@ -24,7 +24,7 @@ Before relying on a specific feature, check the [cloud vs self-hosted comparison
 
 ## Requirements
 
-- **Docker Engine 25** or newer with **Docker Compose v2.24** or newer. The health check uses `start_interval`, which older versions reject or ignore, and `base/.env.base` relies on Compose resolving `${VAR}` references in env files. Check with `docker version` and `docker compose version`
+- **Docker Engine 25** or newer with **Docker Compose v2.24** or newer. Check with `docker version` and `docker compose version`
 - A **hostname** the instance is reached at, pointed at your server or your reverse proxy (not needed to try it locally)
 - Ports **80** and **443** reachable from the internet (standalone mode), or a reverse proxy you already run
 
@@ -62,12 +62,14 @@ Prefer to configure manually? Copy `.env.example` to `.env` and fill in the valu
 docker compose up -d --wait
 ```
 
-The first start runs database migrations before the app comes up, so give it a minute or two. `--wait` returns once the instance passes its health check. The same command applies whenever you change environment variables: Compose recreates the container with the new values.
+The first start runs database migrations before the app comes up, so give it a minute or two.
 
-Then open your domain in a browser and create your account right away.
+`--wait` returns once the instance passes its health check. The same command applies whenever you change environment variables: Compose recreates the container with the new values.
 
-<Callout type="warning">
-The first account created on a new instance becomes its admin. The instance is reachable by anyone as soon as it starts, and once an HTTPS certificate is issued for your domain, the domain appears in public certificate transparency logs that scanners watch for new hosts. Create your account as soon as `docker compose up -d --wait` returns.
+Then open your domain in a browser and create your account.
+
+<Callout type="info">
+The first account created on a new instance becomes its admin. The instance is reachable as soon as it starts, so create your account right after `docker compose up -d --wait` returns.
 </Callout>
 
 ### 4. Install the Tracking Script
@@ -342,16 +344,9 @@ A status page can be served from its own domain, for example `status.acme.com`, 
   </Tabs.Tab>
 </Tabs>
 
-**Proxy on another machine:** the proxy that terminates TLS for the status domain can run elsewhere, for example on an edge server that already fronts your other services. Run the instance [behind a reverse proxy](#behind-a-reverse-proxy) as above, and:
+**Proxy on another machine:** replace `127.0.0.1` with the instance's private address and point the domain's DNS at that proxy.
 
-- Point the status domain's DNS at the edge server, not at the CNAME target the editor shows.
-- On the edge server, use the status domain entry above with `127.0.0.1` replaced by the analytics host's private address, for example `reverse_proxy 10.0.0.5:5566`, and keep the `Host` header unchanged.
-- Make the instance's port reachable at that address. `BIND_ADDRESS` takes a single address, so if a proxy on the analytics host still reaches the instance at `127.0.0.1`, point it at the private address too, or set `BIND_ADDRESS=0.0.0.0` and firewall the port.
-- Proxies connecting from `10.0.0.0/8`, `172.16.0.0/12` or `192.168.0.0/16` are trusted automatically. List any other address the edge server connects from, including VPN ranges such as Tailscale's `100.64.0.0/10`, in `TRUSTED_PROXIES`.
-
-Do not forward to the instance's public `https://` address: most proxies then send your analytics hostname as `Host`, and the dashboard loads instead of the status page. The page is still served by the instance, so it goes down whenever the analytics host does.
-
-**No proxy (registrar forwarding):** most registrars and DNS providers can forward a domain without you running anything. Forward `status.acme.com` to `https://analytics.example.com/status/{your-slug}` with a plain redirect, not "masked" or "frame" forwarding, since the instance does not allow its pages to be embedded on other sites. Visitors land on your instance's URL, and that URL stays the page's canonical address. Leave the **Custom domain** field in the page's Settings empty in this setup: when it is set, the page names the custom domain as canonical, and here that domain only redirects.
+**No proxy (registrar forwarding):** forward `status.acme.com` to `https://analytics.example.com/status/{your-slug}` with a plain redirect (not "masked" forwarding) from a forwarder that supports HTTPS. Leave the **Custom domain** field empty, so the page keeps its instance URL as its canonical address.
 
 See the [Custom Status Page Domain guide](/integration/custom-status-page-domain) for the in-app steps and DNS troubleshooting.
 
