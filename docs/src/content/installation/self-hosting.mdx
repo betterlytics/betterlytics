@@ -24,7 +24,7 @@ Before relying on a specific feature, check the [cloud vs self-hosted comparison
 
 ## Requirements
 
-- **Docker** and **Docker Compose** installed on your server
+- **Docker Engine 25** or newer with **Docker Compose v2.24** or newer. Check with `docker version` and `docker compose version`
 - A **hostname** the instance is reached at, pointed at your server or your reverse proxy (not needed to try it locally)
 - Ports **80** and **443** reachable from the internet (standalone mode), or a reverse proxy you already run
 
@@ -62,12 +62,14 @@ Prefer to configure manually? Copy `.env.example` to `.env` and fill in the valu
 docker compose up -d --wait
 ```
 
-The first start runs database migrations before the app comes up, so give it a minute or two. `--wait` returns once the instance passes its health check. The same command applies whenever you change environment variables: Compose recreates the container with the new values.
+The first start runs database migrations before the app comes up, so give it a minute or two.
+
+`--wait` returns once the instance passes its health check. The same command applies whenever you change environment variables: Compose recreates the container with the new values.
 
 Then open your domain in a browser and create your account.
 
-<Callout type="warning">
-The first account created on a new instance becomes its admin.
+<Callout type="info">
+The first account created on a new instance becomes its admin. The instance is reachable as soon as it starts, so create your account right after `docker compose up -d --wait` returns.
 </Callout>
 
 ### 4. Install the Tracking Script
@@ -341,6 +343,10 @@ A status page can be served from its own domain, for example `status.acme.com`, 
     ```
   </Tabs.Tab>
 </Tabs>
+
+**Proxy on another machine:** replace `127.0.0.1` with the instance's private address and point the domain's DNS at that proxy.
+
+**No proxy (registrar forwarding):** forward `status.acme.com` to `https://analytics.example.com/status/{your-slug}` with a plain redirect (not "masked" forwarding) from a forwarder that supports HTTPS. Leave the **Custom domain** field empty, so the page keeps its instance URL as its canonical address.
 
 See the [Custom Status Page Domain guide](/integration/custom-status-page-domain) for the in-app steps and DNS troubleshooting.
 
