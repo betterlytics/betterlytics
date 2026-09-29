@@ -1,31 +1,28 @@
 import { NextIntlClientProvider } from 'next-intl';
+import { AppDocument } from '@/app/AppDocument';
+import { BASE_METADATA } from '@/app/baseMetadata';
 import Providers from '@/app/Providers';
 import ThemeColorUpdater from '@/app/ThemeColorUpdater';
-import GlobalPropertiesUpdater from './GlobalPropertiesUpdater';
+import GlobalPropertiesUpdater from '@/components/tracking/GlobalPropertiesUpdater';
 import { env } from '@/lib/env';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
+  ...BASE_METADATA,
   title: 'Betterlytics',
-  icons: {
-    icon: [
-      { url: '/icon0.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico', type: 'image/x-icon' },
-    ],
-    apple: [{ url: '/apple-icon.png', sizes: '180x180' }],
-  },
-  metadataBase: new URL('https://betterlytics.io'),
-  manifest: '/manifest.json',
 };
 
+/** Root layout for the app: the dashboard, the public pages and the auth flows. */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <NextIntlClientProvider>
-      <ThemeColorUpdater />
-      <Providers>
-        {env.ENABLE_APP_TRACKING && <GlobalPropertiesUpdater />}
-        {children}
-      </Providers>
-    </NextIntlClientProvider>
+    <AppDocument>
+      <NextIntlClientProvider>
+        <ThemeColorUpdater />
+        <Providers>
+          {env.ENABLE_APP_TRACKING && <GlobalPropertiesUpdater />}
+          {children}
+        </Providers>
+      </NextIntlClientProvider>
+    </AppDocument>
   );
 }
