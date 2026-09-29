@@ -1547,8 +1547,8 @@
     padding: 22px 30px;
   }
 
-  /* session replay: a browser being replayed. Light viewport against the dark
-     product chrome is what makes it read as someone else's site. */
+  /* session replay: our player with the recording set into it. The light recording
+     against the dark player is what makes it read as someone else's site. */
   .sr {
     width: 70%;
     border-radius: 11px;
@@ -1568,39 +1568,32 @@
     opacity: 1;
     transform: none;
   }
-  .sr__ch {
+  .sr__hd {
     display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 10px 13px;
-    border-bottom: 1px solid rgba(235, 232, 230, 0.07);
+    align-items: baseline;
+    padding: 12px 14px 11px;
   }
-  .sr__ch i {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(235, 232, 230, 0.15);
+  .sr__hd b {
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    color: var(--text);
   }
-  .sr__ch span {
-    margin-left: 7px;
-    flex: 1;
-    padding: 4px 10px;
-    border-radius: 5px;
-    background: rgba(235, 232, 230, 0.05);
-    font-size: 10.5px;
+  .sr__hd span {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 10px;
     color: var(--mid);
   }
-  .sr__kebab {
-    flex: none;
-    width: 4px;
-    height: 12px;
-    margin: 0 2px 0 6px;
-    fill: rgba(235, 232, 230, 0.32);
-  }
+  /* the recording, inset in the player as replay tools show it, a shade off white so it
+     doesn't outshine the cards around it */
   .sr__vp {
     position: relative;
     height: 266px;
-    background: #efece8;
+    margin: 0 10px;
+    border-radius: 7px;
+    background: #e7e3de;
+    box-shadow: 0 0 0 1px rgba(235, 232, 230, 0.08);
     color: #22201e;
     overflow: hidden;
   }
@@ -1783,8 +1776,9 @@
     height: 100%;
     filter: drop-shadow(0 2px 4px rgba(20, 24, 80, 0.28));
   }
-  /* the visitor's name, hung below-right of the tip like a multiplayer cursor. During the
-     rage clicks it turns red and says so; the two labels share one cell and cross-fade. */
+  /* the cursor's tag, hung below-right of the tip like a multiplayer cursor and shown only at
+     the clicks: blue when the first is captured, red for the rage clicks. The two labels
+     share one cell and hand over while it's hidden. */
   .sr__who {
     position: absolute;
     left: 13px;
@@ -1840,8 +1834,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    padding: 11px 14px 12px;
-    border-top: 1px solid rgba(235, 232, 230, 0.07);
+    padding: 13px 14px 12px;
   }
   .sr__ev {
     height: 14px;
@@ -1877,51 +1870,54 @@
     justify-content: space-between;
     gap: 10px;
   }
+  /* the scrub track as a hairline, its events as ticks across it */
   .sr__tr {
     position: relative;
     display: block;
-    height: 6px;
-    border-radius: 3px;
-    background: rgba(235, 232, 230, 0.1);
+    height: 2px;
+    border-radius: 1px;
+    background: rgba(235, 232, 230, 0.12);
   }
   .sr__tr i {
     position: absolute;
     inset: 0 auto 0 0;
-    border-radius: 3px;
-    background: linear-gradient(90deg, var(--volt-lift), #8b97ff);
-    box-shadow: 0 2px 8px rgba(74, 92, 255, 0.35);
+    border-radius: 1px;
+    background: var(--volt-lift);
     width: 0;
     animation-name: lp2-sr-scrub;
     animation-timing-function: linear;
   }
-  /* the play head rides the end of the fill */
+  /* the play head rides the end of the fill, over the ticks it passes */
   .sr__tr i::after {
     content: '';
     position: absolute;
-    right: -6px;
+    z-index: 2;
+    right: -4px;
     top: 50%;
-    width: 12px;
-    height: 12px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     transform: translateY(-50%);
-    background: #e6e2df;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+    background: var(--text);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
   }
   .sr__tr em {
     position: absolute;
     z-index: 1; /* above the fill that sweeps under them */
     top: 50%;
-    width: 8px;
+    width: 2px;
     height: 8px;
-    border-radius: 50%;
+    border-radius: 1px;
     transform: translate(-50%, -50%);
-    background: rgba(235, 232, 230, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    background: rgba(235, 232, 230, 0.5);
   }
   .sr__tr em.is-bad {
     background: var(--down);
-    border-color: rgba(255, 255, 255, 0.6);
+  }
+  /* the error's marker flares once as the head reaches it */
+  .sr__tr em.is-flare {
+    animation-name: lp2-sr-flare;
+    animation-timing-function: ease-out;
   }
   /* aligned on the text baseline: centring by box leaves the digits off the icons' middle,
      since the mono line box sits lower under the digits than above them */
@@ -5190,7 +5186,7 @@
       top: 76%;
     }
     .sr__tr i {
-      width: 50%;
+      width: 59%;
     }
     .sr__who {
       background: var(--down);
@@ -5446,28 +5442,28 @@
     top: 75%;
   }
   /* rage clicks land in one spot, as the detector defines them: the hand barely drifts */
-  48%,
-  50% {
+  57%,
+  59% {
     left: 51%;
     top: 76%;
   }
-  54.5% {
+  63.5% {
     left: 51.3%;
     top: 75.8%;
   }
-  59%,
-  70% {
+  68%,
+  74% {
     left: 51.1%;
     top: 76%;
   }
   /* they leave up and to the right, but no further right than the tag hung off the tip
      still fits inside the viewport */
-  84% {
+  86% {
     left: 72%;
     top: 4%;
     opacity: 1;
   }
-  88% {
+  90% {
     left: 74%;
     top: -12%;
     opacity: 0;
@@ -5497,30 +5493,30 @@
 /* each rage ring spreads a little wider than the one before */
 @keyframes lp2-sr-rage {
   0%,
-  49.9% {
+  58.9% {
     opacity: 0;
     transform: scale(0.3);
   }
-  50%,
-  53%,
-  56%,
-  59% {
+  59%,
+  62%,
+  65%,
+  68% {
     opacity: 0.9;
     transform: scale(0.35);
   }
-  52.9% {
+  61.9% {
     opacity: 0;
     transform: scale(1.15);
   }
-  55.9% {
+  64.9% {
     opacity: 0;
     transform: scale(1.35);
   }
-  58.9% {
+  67.9% {
     opacity: 0;
     transform: scale(1.55);
   }
-  62%,
+  71%,
   100% {
     opacity: 0;
     transform: scale(1.8);
@@ -5531,22 +5527,22 @@
   0%,
   35.9%,
   37%,
-  49.9%,
-  51%,
-  52.9%,
-  54%,
-  55.9%,
-  57%,
   58.9%,
   60%,
+  61.9%,
+  63%,
+  64.9%,
+  66%,
+  67.9%,
+  69%,
   100% {
     transform: none;
   }
   36%,
-  50%,
-  53%,
-  56%,
-  59% {
+  59%,
+  62%,
+  65%,
+  68% {
     transform: scale(0.95);
   }
 }
@@ -5579,62 +5575,93 @@
     transform: rotate(1600deg);
   }
 }
-/* the name pill turns red on the first rage click and shakes its head once, three swings in
-   about a third of a second, then holds until they give up */
+/* the pill only speaks up at the clicks: a blue "click captured" on the first, then hidden
+   through the error, then red on the first rage click, shaking its head once (three swings
+   in about a third of a second) and holding until they give up. It turns red while hidden. */
 @keyframes lp2-sr-who {
   0%,
-  49.5%,
-  84%,
-  100% {
+  35.8% {
+    opacity: 0;
     background: var(--volt-lift);
     transform: translateX(0);
   }
-  50.5% {
+  36.6%,
+  44% {
+    opacity: 1;
+    background: var(--volt-lift);
+  }
+  45% {
+    opacity: 0;
+    background: var(--volt-lift);
+  }
+  50%,
+  58.9% {
+    opacity: 0;
     background: var(--down);
     transform: translateX(0);
   }
-  51.1% {
+  59.5% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  60.1% {
     transform: translateX(-3px);
   }
-  51.7% {
+  60.7% {
     transform: translateX(3px);
   }
-  52.3% {
+  61.3% {
     transform: translateX(-2px);
   }
-  52.9% {
+  61.9% {
     transform: translateX(1px);
   }
-  53.5%,
-  82% {
+  62.5%,
+  84% {
+    opacity: 1;
     background: var(--down);
     transform: translateX(0);
   }
+  85%,
+  100% {
+    opacity: 0;
+    background: var(--down);
+  }
 }
-/* the two labels hand over in turn, never both half-visible: the name leaves, then the rage
-   arrives, and the reverse once they give up */
+/* the two labels hand over while the pill is hidden between the clicks */
 @keyframes lp2-sr-who-name {
   0%,
-  49.4%,
-  83.4%,
-  100% {
+  49.9% {
     opacity: 1;
   }
-  49.9%,
-  82.9% {
+  50%,
+  100% {
     opacity: 0;
   }
 }
 @keyframes lp2-sr-who-rage {
   0%,
-  49.9%,
-  82.9%,
-  100% {
+  49.9% {
     opacity: 0;
   }
-  50.4%,
-  82.4% {
+  50%,
+  100% {
     opacity: 1;
+  }
+}
+/* runs offset to the error's own time, so 0% is the head arriving at it */
+@keyframes lp2-sr-flare {
+  0%,
+  9%,
+  100% {
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 0 rgba(226, 88, 107, 0);
+  }
+  1.5% {
+    transform: translate(-50%, -50%) scale(1.5, 1.75);
+    box-shadow:
+      0 0 0 3px rgba(226, 88, 107, 0.22),
+      0 0 12px rgba(226, 88, 107, 0.75);
   }
 }
 @keyframes lp2-sr-scrub {

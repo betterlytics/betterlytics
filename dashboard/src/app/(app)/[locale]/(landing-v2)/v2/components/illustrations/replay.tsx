@@ -19,14 +19,16 @@ const SESSION_S = 22;
  * What the player narrates, keyed to where in the loop it happens. `at` is
  * also where the event's marker sits on the scrub track, so the play head
  * reaches each marker as its line swaps in. The error is the same one the
- * errors card lists next, so the two cards tell one story.
+ * errors card lists next, so the two cards tell one story. It gets a second
+ * to itself before the rage clicks, and its marker flares as the head passes:
+ * the visitor never sees it, so the player is where it shows.
  */
 const BEATS = [
   { at: 0, kind: 'Page view', detail: '/pricing' },
   { at: 0.36, kind: 'Click', detail: 'Choose Pro' },
-  { at: 0.43, kind: 'TypeError', detail: "reading 'plan'", bad: true },
-  { at: 0.5, kind: 'Rage click', detail: '4× on Choose Pro', bad: true },
-  { at: 0.84, kind: 'Page exit', detail: '/pricing' },
+  { at: 0.43, kind: 'TypeError', detail: "reading 'plan'", bad: true, flare: true },
+  { at: 0.59, kind: 'Rage click', detail: '4× on Choose Pro', bad: true },
+  { at: 0.86, kind: 'Page exit', detail: '/pricing' },
 ] as const;
 /** The frame shown when motion is reduced: the rage click, mid-session. */
 const STILL_BEAT = 3;
@@ -46,7 +48,7 @@ function clock(seconds: number) {
  * A session being replayed: a visitor's pricing page, where Choose Pro spins,
  * fails, and gets rage-clicked before they leave. The page is in the site's
  * own warm monochrome so everything the player draws on top (the visitor's
- * named cursor, the click ripples) reads as the player's.
+ * cursor and its tag, the click ripples) reads as the player's.
  *
  * The page motion is CSS on one shared loop, paused unless the card is live.
  * The player bar follows that loop by reading the scrub animation's own clock
@@ -90,17 +92,10 @@ export function Replay({ live }: IllustrationProps) {
 
   return (
     <div className={cn('sr', paused && 'is-paused')} style={vars({ '--loop': `${LOOP_MS}ms` })}>
-      <div className='sr__ch'>
-        <i />
-        <i />
-        <i />
-        <span>https://acme.com/pricing</span>
-        {/* the browser's menu */}
-        <svg className='sr__kebab' viewBox='0 0 4 14' aria-hidden>
-          <circle cx='2' cy='2' r='1.3' />
-          <circle cx='2' cy='7' r='1.3' />
-          <circle cx='2' cy='12' r='1.3' />
-        </svg>
+      {/* the player's own header, as the other cards have, not a browser's chrome */}
+      <div className='sr__hd'>
+        <b>Session replay</b>
+        <span>acme.com/pricing</span>
       </div>
       <div className='sr__vp' aria-hidden>
         <div className='sr__page'>
@@ -153,12 +148,12 @@ export function Replay({ live }: IllustrationProps) {
         </div>
         <span className='sr__rip' />
         <span className='sr__rip sr__rip--rage' />
-        {/* the visitor, drawn as a named multiplayer cursor; the name gives way to the rage click */}
+        {/* the visitor's cursor; its tag only shows at the clicks, first captured, then raged */}
         <span className='sr__cur'>
           <CursorGlyph solid />
           <span className='sr__who'>
-            <span>Visitor · Copenhagen</span>
-            <span>Rage click · 4×</span>
+            <span>Click captured</span>
+            <span>4× rage clicks</span>
           </span>
         </span>
       </div>
@@ -170,8 +165,13 @@ export function Replay({ live }: IllustrationProps) {
           {event.detail}
         </LiftSwap>
         <span className='sr__tr' aria-hidden>
+          {/* a flaring marker runs the loop offset by its own time, so its flare starts as the head arrives */}
           {BEATS.slice(1).map((b) => (
-            <em key={b.kind} className={cn('bad' in b && 'is-bad')} style={{ left: `${b.at * 100}%` }} />
+            <em
+              key={b.kind}
+              className={cn('bad' in b && 'is-bad', 'flare' in b && 'is-flare')}
+              style={{ left: `${b.at * 100}%`, animationDelay: 'flare' in b ? `${b.at * LOOP_MS}ms` : undefined }}
+            />
           ))}
           <i ref={fillRef} />
         </span>
