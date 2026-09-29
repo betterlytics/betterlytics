@@ -3339,10 +3339,7 @@
     height: 19px;
     padding: 0 8px;
     border-radius: 4px;
-    font-family: var(--mono);
-    font-size: 9.5px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: 11px;
     color: var(--mid);
     cursor: pointer;
     transition: color 0.2s;
@@ -3668,7 +3665,8 @@
     font-variant-numeric: tabular-nums;
   }
   .ev__total small {
-    font-size: 10.5px;
+    font-family: var(--sans);
+    font-size: 11px;
     color: var(--mid);
   }
   .ev__log {
