@@ -3,8 +3,11 @@ import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
-import { COPY } from './content/copy';
-import { LandingPage } from './landingPage';
+import { COPY } from '@/landing/content/copy';
+import { LandingPage } from '@/landing/landingPage';
+
+/** Re-rendered daily in the background, so the cached page never runs far behind (the footer's year, the plans). */
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: COPY.seo.title,
