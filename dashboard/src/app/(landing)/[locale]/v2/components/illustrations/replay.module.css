@@ -1,0 +1,766 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* Our player with the recording set into it. The light recording against the dark
+     player is what makes it read as someone else's site. */
+  .player {
+    width: 70%;
+    border-radius: 11px;
+    overflow: hidden;
+    background: #191817;
+    border: 1px solid --alpha(var(--color-fg) / 9%);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.05) inset,
+      0 16px 34px rgb(0 0 0 / 0.52);
+    transition:
+      opacity 0.45s var(--ease-out-expo),
+      transform 0.5s var(--ease-out-expo);
+    @variant motion-safe {
+      &:not([data-in]) {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+    }
+  }
+  /* Every loop in the card runs off one clock, paused until the card is live, so the page,
+     the cursor and the scrub stay in step with each other and with the bar's text. */
+  .player *,
+  .player *::after {
+    @variant motion-safe {
+      animation-duration: var(--loop);
+      animation-iteration-count: infinite;
+    }
+  }
+  .player:not([data-live]) *,
+  .player:not([data-live]) *::after,
+  .player[data-paused] *,
+  .player[data-paused] *::after {
+    animation-play-state: paused;
+  }
+
+  .header {
+    display: flex;
+    align-items: baseline;
+    padding: 12px 14px 11px;
+  }
+  .header b {
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    color: var(--color-fg);
+  }
+  .header span {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-muted);
+  }
+  /* the recording, inset in the player as replay tools show it, a shade off white so it
+     doesn't outshine the cards around it */
+  .viewport {
+    position: relative;
+    height: 266px;
+    margin: 0 10px;
+    border-radius: 7px;
+    background: #e7e3de;
+    box-shadow: 0 0 0 1px --alpha(var(--color-fg) / 8%);
+    color: #22201e;
+    overflow: hidden;
+  }
+
+  /* the recorded page: the visitor's pricing page in its own warm monochrome */
+  .page {
+    position: absolute;
+    inset: 0;
+    padding: 16px 20px;
+    font-family: var(--font-sans);
+  }
+  .siteNav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    font-size: 9px;
+    color: #7b736e;
+  }
+  .siteNav b {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: auto;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #22201e;
+  }
+  .siteNav b i {
+    width: 9px;
+    height: 9px;
+    border-radius: 2.5px;
+    background: #22201e;
+  }
+  .siteNav em {
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #d6cfc8;
+    font-style: normal;
+    color: #22201e;
+  }
+  .title {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .tagline {
+    margin: 0 0 16px;
+    font-size: 9.5px;
+    color: #7b736e;
+    text-align: center;
+  }
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .plan {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 11px;
+    border-radius: 7px;
+    background: #f7f5f2;
+    border: 1px solid #e2dbd4;
+  }
+  .popular {
+    border-color: #22201e;
+    box-shadow: 0 6px 14px rgb(34 32 30 / 0.08);
+  }
+  .plan b {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 9.5px;
+    font-weight: 600;
+  }
+  .plan b u {
+    padding: 1px 5px;
+    border-radius: 999px;
+    background: #22201e;
+    color: #f7f5f2;
+    font-size: 7.5px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .plan strong {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .plan small {
+    margin-left: 1px;
+    font-size: 8.5px;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: #7b736e;
+  }
+  .plan > i {
+    height: 4px;
+    border-radius: 2px;
+    background: #e2dbd4;
+  }
+  .plan > i + i {
+    width: 68%;
+  }
+  .button {
+    display: grid;
+    place-items: center;
+    height: 21px;
+    margin-top: 4px;
+    border-radius: 5px;
+    border: 1px solid #d6cfc8;
+    font-size: 8.5px;
+    font-weight: 600;
+  }
+  .cta {
+    position: relative;
+    display: block;
+  }
+  /* the button that doesn't work: pressed on each click, busy after the first, then idle again */
+  .pro {
+    background: #22201e;
+    border-color: #22201e;
+    color: #f7f5f2;
+    @variant motion-safe {
+      animation-name: press;
+      animation-timing-function: linear;
+    }
+  }
+  .pro > span,
+  .pro > s {
+    grid-area: 1 / 1;
+  }
+  .pro > span {
+    @variant motion-safe {
+      animation-name: idle;
+      animation-timing-function: linear;
+    }
+  }
+  .pro > s {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid rgb(247 245 242 / 0.25);
+    border-top-color: #f7f5f2;
+    opacity: 0;
+    @variant motion-safe {
+      animation-name: busy;
+      animation-timing-function: linear;
+    }
+  }
+
+  /* the visitor's pointer and its clicks; the ripples ride the same path so they land under the tip */
+  .cursor,
+  .ripple {
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    pointer-events: none;
+    @variant motion-safe {
+      animation-name: path;
+      animation-timing-function: cubic-bezier(0.4, 0.04, 0.25, 1);
+    }
+  }
+  .cursor {
+    z-index: 3;
+    /* the still: on Choose Pro, at the rage click */
+    @variant motion-reduce {
+      left: 51%;
+      top: 76%;
+    }
+  }
+  .cursor svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 4px rgb(20 24 80 / 0.28));
+  }
+  /* The cursor's tag, hung below-right of the tip like a multiplayer cursor and shown only
+     at the clicks: blue when the first is captured, red for the rage clicks. The two labels
+     share one cell and hand over while it's hidden. */
+  .tag {
+    position: absolute;
+    left: 13px;
+    top: 17px;
+    display: grid;
+    justify-items: center;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: var(--color-volt-lift);
+    box-shadow: 0 4px 12px rgb(20 24 80 / 0.22);
+    color: var(--color-white);
+    font-family: var(--font-sans);
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+    @variant motion-safe {
+      animation-name: tag;
+      animation-timing-function: linear;
+    }
+    @variant motion-reduce {
+      background: var(--color-down);
+    }
+  }
+  .tag > span {
+    grid-area: 1 / 1;
+    @variant motion-safe {
+      animation-timing-function: linear;
+    }
+  }
+  .tag > span:first-child {
+    @variant motion-safe {
+      animation-name: tag-name;
+    }
+    @variant motion-reduce {
+      opacity: 0;
+    }
+  }
+  .tag > span:last-child {
+    opacity: 0;
+    @variant motion-safe {
+      animation-name: tag-rage;
+    }
+    @variant motion-reduce {
+      opacity: 1;
+    }
+  }
+  .ripple {
+    z-index: 2;
+  }
+  .ripple::after {
+    content: '';
+    position: absolute;
+    left: -13px;
+    top: -13px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--color-volt-lift);
+    opacity: 0;
+    @variant motion-safe {
+      animation-name: click;
+      animation-timing-function: linear;
+    }
+  }
+  .rage::after {
+    border-color: var(--color-down);
+    @variant motion-safe {
+      animation-name: rage;
+    }
+  }
+
+  /* the play footer: the event being played, the track, then the controls row */
+  .bar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 13px 14px 12px;
+  }
+  .event {
+    height: 14px;
+    margin: 0;
+    font-size: 10.5px;
+    line-height: 14px;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+  .event i {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 8px;
+    border-radius: 50%;
+    vertical-align: 1px;
+    background: var(--color-volt-soft);
+  }
+  .event b {
+    margin-right: 8px;
+    font-weight: 400;
+    color: var(--color-fg);
+  }
+  .event i[data-bad] {
+    background: var(--color-down);
+  }
+  .event i[data-bad] + b {
+    color: var(--color-down);
+  }
+  /* the scrub track as a hairline, its events as ticks across it */
+  .track {
+    position: relative;
+    display: block;
+    height: 2px;
+    border-radius: 1px;
+    background: --alpha(var(--color-fg) / 12%);
+  }
+  .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 1px;
+    background: var(--color-volt-lift);
+    width: 0;
+    @variant motion-safe {
+      animation-name: scrub;
+      animation-timing-function: linear;
+    }
+    /* the still's head sits on the rage click */
+    @variant motion-reduce {
+      width: 59%;
+    }
+  }
+  /* the play head rides the end of the fill, over the ticks it passes */
+  .fill::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    right: -4px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    background: var(--color-fg);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
+  }
+  .tick {
+    position: absolute;
+    z-index: 1; /* above the fill that sweeps under them */
+    left: calc(var(--at) * 100%);
+    top: 50%;
+    width: 2px;
+    height: 8px;
+    border-radius: 1px;
+    transform: translate(-50%, -50%);
+    background: --alpha(var(--color-fg) / 50%);
+  }
+  .tick[data-bad] {
+    background: var(--color-down);
+  }
+  /* The error's marker flares once as the head reaches it: its loop runs offset by its own
+     time, so the flare starts as the head arrives. */
+  .tick[data-flare] {
+    @variant motion-safe {
+      animation-name: flare;
+      animation-timing-function: ease-out;
+      animation-delay: calc(var(--at) * var(--loop));
+    }
+  }
+  /* Aligned on the text baseline: centring by box leaves the digits off the icons' middle,
+     since the mono line box sits lower under the digits than above them. */
+  .controls {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  /* An icon's baseline is its bottom edge; dropping a 10px icon 1.35px below the baseline puts
+     its middle at half the digits' height (Plex Mono caps are 0.698em, so ~7.3px). */
+  .controls svg {
+    display: block;
+    flex: none;
+    margin-bottom: -1.35px;
+    fill: var(--color-fg);
+    stroke: none;
+  }
+  /* The pause/play button: the glyph's own box, with the baseline drop moved onto it, and a
+     hit area grown well past the 9px glyph so it is easy to catch. */
+  .toggle {
+    position: relative;
+    display: block;
+    flex: none;
+    width: 9px;
+    height: 10px;
+    margin: 0 2px -1.35px 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-fg);
+    cursor: pointer;
+  }
+  .toggle::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  .controls .toggle svg {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    transition: opacity 0.2s;
+  }
+  .toggle:hover svg {
+    opacity: 0.75;
+  }
+  .toggle:focus-visible {
+    outline: 1px solid var(--color-volt-soft);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+  .toggle:disabled {
+    cursor: default;
+  }
+  .clock {
+    color: var(--color-fg);
+  }
+  .divider {
+    opacity: 0.5;
+  }
+  /* the speed as a soft toggle, not an outlined box */
+  .speed {
+    margin-left: auto;
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: --alpha(var(--color-fg) / 8%);
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 13px;
+    color: var(--color-fg);
+  }
+  .controls .expand {
+    width: 10px;
+    height: 10px;
+    margin-left: 4px;
+    fill: none;
+    stroke: var(--color-fg);
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+/* One loop, in phase with BEATS in replay.tsx. Enter, read the Starter price, click Choose
+   Pro (36%), spin until the error (43%), rage-click four times (50-59%), give up and leave
+   through the top (84%). */
+@keyframes path {
+  0% {
+    left: 80%;
+    top: 16%;
+    opacity: 0;
+  }
+  4% {
+    left: 80%;
+    top: 16%;
+    opacity: 1;
+  }
+  18%,
+  24% {
+    left: 21%;
+    top: 56%;
+  }
+  34%,
+  36% {
+    left: 51%;
+    top: 76%;
+  }
+  42% {
+    left: 52%;
+    top: 75%;
+  }
+  /* rage clicks land in one spot, as the detector defines them: the hand barely drifts */
+  57%,
+  59% {
+    left: 51%;
+    top: 76%;
+  }
+  63.5% {
+    left: 51.3%;
+    top: 75.8%;
+  }
+  68%,
+  74% {
+    left: 51.1%;
+    top: 76%;
+  }
+  /* they leave up and to the right, but no further right than the tag hung off the tip
+     still fits inside the viewport */
+  86% {
+    left: 72%;
+    top: 4%;
+    opacity: 1;
+  }
+  90% {
+    left: 74%;
+    top: -12%;
+    opacity: 0;
+  }
+  100% {
+    left: 80%;
+    top: 16%;
+    opacity: 0;
+  }
+}
+@keyframes click {
+  0%,
+  35.9% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  36% {
+    opacity: 0.9;
+    transform: scale(0.35);
+  }
+  41%,
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+/* each rage ring spreads a little wider than the one before */
+@keyframes rage {
+  0%,
+  58.9% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  59%,
+  62%,
+  65%,
+  68% {
+    opacity: 0.9;
+    transform: scale(0.35);
+  }
+  61.9% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+  64.9% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+  67.9% {
+    opacity: 0;
+    transform: scale(1.55);
+  }
+  71%,
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+/* the button only does what a dead button does: it goes down on each click and comes back up */
+@keyframes press {
+  0%,
+  35.9%,
+  37%,
+  58.9%,
+  60%,
+  61.9%,
+  63%,
+  64.9%,
+  66%,
+  67.9%,
+  69%,
+  100% {
+    transform: none;
+  }
+  36%,
+  59%,
+  62%,
+  65%,
+  68% {
+    transform: scale(0.95);
+  }
+}
+@keyframes idle {
+  0%,
+  36%,
+  43%,
+  100% {
+    opacity: 1;
+  }
+  36.8%,
+  42.2% {
+    opacity: 0;
+  }
+}
+@keyframes busy {
+  0%,
+  36%,
+  43%,
+  100% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  36.8% {
+    opacity: 1;
+    transform: rotate(90deg);
+  }
+  42.2% {
+    opacity: 1;
+    transform: rotate(1600deg);
+  }
+}
+/* The tag only speaks up at the clicks: a blue "click captured" on the first, then hidden
+   through the error, then red on the first rage click, shaking its head once (three swings
+   in about a third of a second) and holding until they give up. It turns red while hidden. */
+@keyframes tag {
+  0%,
+  35.8% {
+    opacity: 0;
+    background: var(--color-volt-lift);
+    transform: translateX(0);
+  }
+  36.6%,
+  44% {
+    opacity: 1;
+    background: var(--color-volt-lift);
+  }
+  45% {
+    opacity: 0;
+    background: var(--color-volt-lift);
+  }
+  50%,
+  58.9% {
+    opacity: 0;
+    background: var(--color-down);
+    transform: translateX(0);
+  }
+  59.5% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  60.1% {
+    transform: translateX(-3px);
+  }
+  60.7% {
+    transform: translateX(3px);
+  }
+  61.3% {
+    transform: translateX(-2px);
+  }
+  61.9% {
+    transform: translateX(1px);
+  }
+  62.5%,
+  84% {
+    opacity: 1;
+    background: var(--color-down);
+    transform: translateX(0);
+  }
+  85%,
+  100% {
+    opacity: 0;
+    background: var(--color-down);
+  }
+}
+/* the two labels hand over while the tag is hidden between the clicks */
+@keyframes tag-name {
+  0%,
+  49.9% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes tag-rage {
+  0%,
+  49.9% {
+    opacity: 0;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
+}
+/* runs offset to the error's own time, so 0% is the head arriving at it */
+@keyframes flare {
+  0%,
+  9%,
+  100% {
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 0 rgba(226, 88, 107, 0);
+  }
+  1.5% {
+    transform: translate(-50%, -50%) scale(1.5, 1.75);
+    box-shadow:
+      0 0 0 3px rgba(226, 88, 107, 0.22),
+      0 0 12px rgba(226, 88, 107, 0.75);
+  }
+}
+@keyframes scrub {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}

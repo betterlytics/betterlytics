@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type PointerEvent } from 'react';
-import createGlobe from 'cobe';
-import { cn } from '@/lib/utils';
-import { useInView } from '@/landing/hooks/useInView';
-import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
+import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from 'react';
+import createGlobe, { type COBEOptions, type Globe } from 'cobe';
+import { useReducedMotion } from 'motion/react';
 import { Corners } from '@/landing/components/ui/frame';
-import type { IllustrationProps } from './types';
+import { useInView } from '@/landing/hooks/useInView';
+import { cn } from '@/landing/lib/cn';
+import styles from './globe.module.css';
 
 /* Illustration copy is mock data, kept literal on purpose. */
 const ARRIVALS = [
@@ -32,7 +32,7 @@ const ARRIVALS = [
 
 type Arrival = (typeof ARRIVALS)[number];
 
-/* Palette, as 0–1 RGB. Land is --volt-lift at 80%: cobe paints the sphere body at a tenth
+/* Palette, as 0–1 RGB. Land is volt-lift at 80%: cobe paints the sphere body at a tenth
    of this colour, and at 80% that body stays under the page canvas on every channel so
    the lighten blend in CSS can hide it. */
 const LAND: [number, number, number] = [0.23, 0.29, 0.8];
@@ -59,7 +59,8 @@ const MARK_FADE = 0.35; // cosine to the viewer below which a mark starts fading
 const DWELL_MS = 3600;
 const WELL_FACING = 0.45; // cosine to the viewer; a callout is only picked this far in from the limb
 const FACING_CHECK_EVERY = 6; // frames
-const MAX_DPR = 2;
+const LAND_SETTLE_MS = 1000; // how long a still globe keeps repainting after creation, for its land texture to land
+const MAX_DPR = 2; // phones included: at 1.5 the dots visibly soften on 2x screens
 const FAR_DPR = 1; // the far side is faint, so it is rendered at 1x whatever the screen
 const LABEL_DX = 14; // label offset from its marker, CSS px
 const LABEL_DY = 10;
@@ -70,6 +71,21 @@ const MINOR_ALPHA = 0.3; // parallels and every other meridian are much fainter,
 const FAR_GRID_ALPHA = 0.1; // the far hemisphere's lines, seen through the sphere
 const GRID_RES = 2; // degrees between samples along each line
 const SPHERE = 0.8; // cobe draws the sphere at 80% of the canvas half-height
+
+/* The look both renders share; each adds its size, pixel ratio and orientation. */
+const LOOK = {
+  dark: 1,
+  diffuse: 2.2, // dots fall off toward the limb instead of staying flat across the disc
+  // finer, denser dots; fewer would not be cheaper on small screens, since cobe tests a fixed
+  // four lattice points per pixel whatever the count
+  mapSamples: 36000,
+  mapBrightness: 1.4, // full volt-lift at the centre of the disc, dimming from there
+  mapBaseBrightness: 0.02,
+  baseColor: LAND,
+  glowColor: GLOW,
+  markers: [], // visitors are drawn on the marks canvas instead
+  markerColor: LAND, // required by the types, unused with no markers
+} satisfies Partial<COBEOptions>;
 
 type Vec3 = [number, number, number];
 type Mat3 = [number, number, number, number, number, number, number, number, number]; // row-major
@@ -105,19 +121,18 @@ function poseAt(yaw: number): Pose {
   return { theta: Math.asin(m[7]), phi: Math.atan2(-m[6], m[8]), roll: -Math.atan2(-m[1], m[4]) };
 }
 
-function sampleLine(point: (deg: number) => Vec3, from: number, to: number): Vec3[] {
-  const out: Vec3[] = [];
-  for (let deg = from; deg <= to; deg += GRID_RES) out.push(point(deg));
-  return out;
+/* Every GRID_RES degrees from `from` to `to`, both ends included. */
+function degrees(from: number, to: number) {
+  return Array.from({ length: (to - from) / GRID_RES + 1 }, (_, i) => from + i * GRID_RES);
 }
 
 /* Parallels and meridians as unit vectors. Only the rotation changes per frame. */
 const PARALLELS: Vec3[][] = Array.from({ length: Math.floor(90 / GRID_STEP) * 2 - 1 }, (_, i) => {
   const lat = (i + 1) * GRID_STEP - 90;
-  return sampleLine((lng) => toVector(lat, lng), 0, 360);
+  return degrees(0, 360).map((lng) => toVector(lat, lng));
 });
 const MERIDIANS: Vec3[][] = Array.from({ length: 360 / GRID_STEP }, (_, i) =>
-  sampleLine((lat) => toVector(lat, i * GRID_STEP), -90, 90),
+  degrees(-90, 90).map((lat) => toVector(lat, i * GRID_STEP)),
 );
 const MAJOR_MERIDIANS = MERIDIANS.filter((_, i) => i % 2 === 0);
 const MINOR_LINES = [...PARALLELS, ...MERIDIANS.filter((_, i) => i % 2 === 1)];
@@ -223,8 +238,8 @@ function facingDepth(a: Arrival, pose: Pose) {
   return project(toVector(a.lat, a.lng), pose).depth;
 }
 
-/* The host's box inside .ac, in CSS px, read once per resize: its offsets ignore
-   transforms, which makes it the frame to place the label in. */
+/* The globe layer's box inside the scene, in CSS px, read once per resize: its offsets
+   ignore transforms, which makes it the frame to place the label in. */
 type HostBox = { left: number; top: number; size: number };
 
 /* Pins the label beside its marker, rolling the projected point around the host's
@@ -251,13 +266,60 @@ const clamp = (v: number, lim: number) => Math.max(-lim, Math.min(lim, v));
    through the middle, then fades out along a soft tail rather than stopping dead. */
 const flingSpeed = (p: number) => Math.pow(1 - p * p, 2.5);
 
+/** Whether the browser hands out WebGL at all: it can be missing, switched off or blocked. */
+function supportsWebGL() {
+  const probe = document.createElement('canvas');
+  const gl = probe.getContext('webgl2') ?? probe.getContext('webgl');
+  gl?.getExtension('WEBGL_lose_context')?.loseContext();
+  return gl !== null;
+}
+
+/* A canvas filling its layer, for cobe to draw into. Created here rather than by React
+   because cobe re-parents it into a wrapper of its own. */
+function mountCanvas(layer: HTMLElement) {
+  const canvas = document.createElement('canvas');
+  canvas.style.cssText = 'width:100%;height:100%;display:block';
+  layer.appendChild(canvas);
+  return canvas;
+}
+
+type Globes = { near: Globe; far: Globe };
+
+function createGlobes(nearLayer: HTMLElement, farLayer: HTMLElement, dpr: number): Globes {
+  const size = { width: nearLayer.clientWidth, height: nearLayer.clientHeight };
+  const rest = poseAt(START_YAW);
+  const farRest = poseAt(START_YAW + Math.PI);
+  // cobe appends a <style> to <head> for marker anchors and rewrites its text every frame,
+  // which forces a document-wide style recalculation each time. Nothing here uses it, so
+  // it is detached right after creation: cobe keeps writing to it, harmlessly.
+  const stylesBefore = new Set(document.head.querySelectorAll('style'));
+  const near = createGlobe(mountCanvas(nearLayer), {
+    ...LOOK,
+    ...size,
+    devicePixelRatio: dpr,
+    phi: rest.phi,
+    theta: rest.theta,
+  });
+  // The far hemisphere is the same globe seen from behind, so a second, cheaper render
+  // turned half a circle round and mirrored by CSS shows it faintly through the sphere.
+  const far = createGlobe(mountCanvas(farLayer), {
+    ...LOOK,
+    ...size,
+    devicePixelRatio: FAR_DPR,
+    phi: farRest.phi,
+    theta: farRest.theta,
+  });
+  for (const s of document.head.querySelectorAll('style')) if (!stylesBefore.has(s)) s.remove();
+  return { near, far };
+}
+
 /**
- * The spinning globe: a WebGL sphere of land dots with arrival markers under a
- * graticule. One arrival at a time is called out with a label beside its marker,
- * always picked from the cities currently facing the viewer. The WebGL canvas is
- * created here rather than by React because cobe re-parents it into its own wrapper.
+ * The spinning globe: a WebGL sphere of land dots over a graticule, with visitors'
+ * arrivals marked on top. One arrival at a time is called out with a label beside
+ * its marker, always picked from the cities currently facing the viewer. Without
+ * WebGL it falls back to the graticule alone, still, rather than breaking the page.
  */
-export function GlobeScene(_: IllustrationProps) {
+export function GlobeScene() {
   const hostRef = useRef<HTMLDivElement>(null);
   const farRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLCanvasElement>(null);
@@ -273,106 +335,88 @@ export function GlobeScene(_: IllustrationProps) {
   const [dragging, setDragging] = useState(false);
   // The globe turns whenever any of it is on screen, not only while its card is the active one.
   const visible = useInView(hostRef, 'onScreen');
-  const globeRef = useRef<ReturnType<typeof createGlobe> | null>(null);
+  const globesRef = useRef<Globes | null>(null);
+  const [flat, setFlat] = useState(false);
   const reduce = useReducedMotion();
   const [active, setActive] = useState<Arrival>(ARRIVALS[0]);
   const activeRef = useRef(active.id);
   const [facing, setFacing] = useState(true);
 
-  useEffect(() => {
+  // Built and drawn before the first paint, so the scene never shows a frame with an empty
+  // globe and the label parked in its corner. The label's layer is then first rastered where
+  // it sits, which keeps its text sharp; rastered in the corner and then moved, it came out
+  // soft on some loads.
+  useLayoutEffect(() => {
     const host = hostRef.current;
     const grid = gridRef.current;
     const farHost = farRef.current;
     const marks = marksRef.current;
     if (!host || !grid || !farHost || !marks) return;
-    const canvas = document.createElement('canvas');
-    canvas.style.cssText = 'width:100%;height:100%;display:block';
-    host.appendChild(canvas);
-    const farCanvas = document.createElement('canvas');
-    farCanvas.style.cssText = canvas.style.cssText;
-    farHost.appendChild(farCanvas);
 
     const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
-    const size = () => ({ width: host.clientWidth, height: host.clientHeight });
-    const rest = poseAt(START_YAW);
-    // cobe appends a <style> to <head> for marker anchors and rewrites its text every frame,
-    // which forces a document-wide style recalculation each time. Nothing here uses it, so
-    // it is detached right after creation: cobe keeps writing to it, harmlessly.
-    const stylesBefore = new Set(document.head.querySelectorAll('style'));
-    const globe = createGlobe(canvas, {
-      ...size(),
-      devicePixelRatio: dpr,
-      phi: rest.phi,
-      theta: rest.theta,
-      dark: 1,
-      diffuse: 2.2, // dots fall off toward the limb instead of staying flat across the disc
-      mapSamples: 36000, // finer, denser dots
-      mapBrightness: 1.4, // full --volt-lift at the centre of the disc, dimming from there
-      mapBaseBrightness: 0.02,
-      baseColor: LAND,
-      glowColor: GLOW,
-      markers: [], // visitors are drawn on the marks canvas instead
-      markerColor: LAND, // required by the types, unused with no markers
-    });
-    // The far hemisphere is the same globe seen from behind, so a second, cheaper render
-    // turned half a circle round and mirrored by CSS shows it faintly through the sphere.
-    const farRest = poseAt(START_YAW + Math.PI);
-    const far = createGlobe(farCanvas, {
-      ...size(),
-      devicePixelRatio: FAR_DPR,
-      phi: farRest.phi,
-      theta: farRest.theta,
-      dark: 1,
-      diffuse: 2.2,
-      mapSamples: 36000,
-      mapBrightness: 1.4,
-      mapBaseBrightness: 0.02,
-      baseColor: LAND,
-      glowColor: GLOW,
-      markers: [], // visitors are drawn on the marks canvas instead
-      markerColor: LAND, // required by the types, unused with no markers
-    });
-    globeRef.current = globe;
-    for (const s of document.head.querySelectorAll('style')) if (!stylesBefore.has(s)) s.remove();
+    const globes = supportsWebGL() ? createGlobes(host, farHost, dpr) : null;
+    globesRef.current = globes;
+    if (!globes) setFlat(true);
 
-    // The graticule canvas shares the host's box; its stroke comes from the page's rule tokens.
-    const stroke = getComputedStyle(grid).getPropertyValue('--globe-grid').trim() || 'rgba(235, 232, 230, 0.17)';
-    const markColour = getComputedStyle(marks).getPropertyValue('--globe-mark').trim() || '#8b97ff';
+    // The graticule is stroked in the page's rule-22 hairline and the marks in the arrival
+    // accent, both read from the root: inside the journey frame the rule tokens stay blank
+    // until its pen lands, and a colour read there before then would leave the lines unseen
+    // for good, since the canvas keeps what it was stroked with.
+    const tokens = getComputedStyle(document.documentElement);
+    const stroke = tokens.getPropertyValue('--color-rule-22').trim();
+    const markColour = tokens.getPropertyValue('--color-volt-soft').trim();
     let box: HostBox = { left: 0, top: 0, size: 1 };
     renderRef.current = () => {
       const pose = poseAt(yawRef.current);
-      globe.update({ phi: pose.phi, theta: pose.theta });
+      const roll = `translateX(-50%) rotate(${pose.roll}rad)`;
       drawGraticule(grid, pose, stroke, dpr);
-      const transform = `translateX(-50%) rotate(${pose.roll}rad)`;
-      host.style.transform = transform;
-      grid.style.transform = transform;
-      marks.style.transform = transform;
+      grid.style.transform = roll;
+      if (!globes) return false;
+      globes.near.update({ phi: pose.phi, theta: pose.theta });
+      host.style.transform = roll;
+      marks.style.transform = roll;
       drawMarks(marks, pose, activeRef.current, dpr, markColour, performance.now());
       const farPose = poseAt(yawRef.current + Math.PI);
-      far.update({ phi: farPose.phi, theta: farPose.theta });
+      globes.far.update({ phi: farPose.phi, theta: farPose.theta });
       farHost.style.transform = `translateX(-50%) scaleX(-1) rotate(${farPose.roll}rad)`;
       const label = labelRef.current;
       return label ? placeLabel(box, label, byId(activeRef.current), pose) : true;
     };
     const fit = () => {
-      const s = size();
-      globe.update(s);
-      far.update(s);
-      grid.width = s.width * dpr;
-      grid.height = s.height * dpr;
-      marks.width = s.width * dpr;
-      marks.height = s.height * dpr;
+      const size = { width: host.clientWidth, height: host.clientHeight };
+      globes?.near.update(size);
+      globes?.far.update(size);
+      grid.width = size.width * dpr;
+      grid.height = size.height * dpr;
+      marks.width = size.width * dpr;
+      marks.height = size.height * dpr;
       box = { left: host.offsetLeft - host.offsetWidth / 2, top: host.offsetTop, size: host.offsetWidth };
       renderRef.current();
     };
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(host);
+    // cobe paints only when updated, and its land texture decodes a moment after the globe is
+    // created. The loop picks it up on its next frame; a globe that is not turning (reduced
+    // motion) repaints for a moment instead, or it would keep its landless first paint.
+    let settle = 0;
+    if (globes) {
+      const until = performance.now() + LAND_SETTLE_MS;
+      const repaint = (now: number) => {
+        if (!loopRef.current) {
+          globes.near.update({});
+          globes.far.update({});
+        }
+        if (now < until) settle = requestAnimationFrame(repaint);
+      };
+      settle = requestAnimationFrame(repaint);
+    }
     return () => {
+      cancelAnimationFrame(settle);
       ro.disconnect();
-      globe.destroy();
-      far.destroy();
-      globeRef.current = null;
+      globes?.near.destroy();
+      globes?.far.destroy();
+      globesRef.current = null;
       host.replaceChildren();
       farHost.replaceChildren();
     };
@@ -381,7 +425,7 @@ export function GlobeScene(_: IllustrationProps) {
   // The loop pauses off screen and under reduced motion; the last frame stays. While the
   // pointer holds the globe the yaw is the pointer's; otherwise it coasts and eases to idle.
   useEffect(() => {
-    if (!globeRef.current || !visible || reduce) return;
+    if (!globesRef.current || !visible || reduce) return;
     let raf = 0;
     let n = 0;
     let last = 0;
@@ -413,7 +457,7 @@ export function GlobeScene(_: IllustrationProps) {
   // the disc, or failing that whichever is nearest the centre, so the callout never lands
   // on a city about to slip round the limb.
   useEffect(() => {
-    if (!visible || reduce) return;
+    if (!globesRef.current || !visible || reduce) return;
     const next = () => {
       const pose = poseAt(yawRef.current);
       setActive((current) => {
@@ -444,6 +488,7 @@ export function GlobeScene(_: IllustrationProps) {
   // Dragging: the pointer owns the yaw and its speed is measured, so a release flings.
   // Nothing is drawn here while the loop runs; it picks the new yaw up on the next frame.
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
+    if (!globesRef.current) return;
     dragRef.current = { x: e.clientX, yaw: yawRef.current, t: e.timeStamp, v: 0 };
     e.currentTarget.setPointerCapture(e.pointerId);
     setDragging(true);
@@ -470,20 +515,34 @@ export function GlobeScene(_: IllustrationProps) {
 
   return (
     <div
-      className={cn('ac', dragging && 'is-grab')}
+      className={styles.scene}
+      data-grabbing={dragging || undefined}
+      data-flat={flat || undefined}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerEnd}
       onPointerCancel={onPointerEnd}
+      aria-hidden
     >
-      <div ref={farRef} className='ac__far' aria-hidden />
-      <canvas ref={gridRef} className='ac__grid' aria-hidden />
-      <div ref={hostRef} className='ac__globe' />
-      <canvas ref={marksRef} className='ac__marks' aria-hidden />
-      <div ref={labelRef} className={cn('ac__lbl', facing && 'is-on')} aria-hidden>
-        <Corners />
-        <b>{active.city}</b>
-        <span>{active.via}</span>
+      <div ref={farRef} className={cn(styles.layer, styles.far)} />
+      <canvas ref={gridRef} className={cn(styles.layer, styles.grid)} />
+      <div ref={hostRef} className={cn(styles.layer, styles.globe)} />
+      <canvas ref={marksRef} className={cn(styles.layer, styles.marks)} />
+      {/* Placed beside its marker from the same projection that draws the graticule, and
+          faded as the marker turns away from the viewer. Its fill is the canvas at two thirds,
+          so land dots read through it instead of a black hole. */}
+      <div
+        ref={labelRef}
+        className='pointer-events-none absolute top-0 left-0 border border-volt-lift bg-canvas/66 px-[18px] py-3 font-mono text-label leading-[19px] whitespace-nowrap opacity-0 transition-opacity duration-350 ease-out-expo will-change-transform data-on:opacity-100'
+        data-on={facing || undefined}
+      >
+        {/* the corner squares in the label's own blue, kept on phones too */}
+        <Corners
+          persistent
+          className='[--corner-edge:var(--color-volt-lift)] [--corner-fill:var(--color-canvas)]'
+        />
+        <b className='block font-normal text-fg'>{active.city}</b>
+        <span className='block text-caption text-volt-soft'>{active.via}</span>
       </div>
     </div>
   );

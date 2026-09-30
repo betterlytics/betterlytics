@@ -7,7 +7,18 @@ import type { IllustrationProps } from './types';
    card is about to be seen, so the scene loads on first entry. */
 const GlobeScene = dynamic(() => import('./globeScene').then((m) => m.GlobeScene), { ssr: false });
 
-export function Globe(props: IllustrationProps) {
-  if (!props.entered) return <div className='ac' />;
-  return <GlobeScene {...props} />;
+/**
+ * The picture in words for screen readers, which the scene is hidden from; kept
+ * beside the art so the two change together.
+ */
+const DESCRIPTION =
+  'A turning globe marking where visitors arrive from, each city called out with the source that sent them, such as Copenhagen via ChatGPT.';
+
+export function Globe({ entered }: IllustrationProps) {
+  return (
+    <>
+      <p className='sr-only'>{DESCRIPTION}</p>
+      {entered && <GlobeScene />}
+    </>
+  );
 }

@@ -1,0 +1,68 @@
+@layer components {
+  /* The globe alone on the canvas: an object, not a widget. Dragging turns it; vertical
+     touch scrolling is left to the page. */
+  .scene {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .scene[data-grabbing] {
+    cursor: grabbing;
+  }
+  /* without WebGL only the graticule is drawn, and it stays still */
+  .scene[data-flat] {
+    cursor: auto;
+  }
+  /* Its own backdrop for the globe to blend against, whatever the ancestors do. It runs
+     well past the box because the globe does, out into the card padding; the card clips
+     whatever is not needed. */
+  .scene::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    z-index: -1;
+    background: var(--color-canvas);
+  }
+
+  /* cobe draws the sphere at 80% of its canvas, so each layer runs past the box on every
+     side: the sphere's top sits just inside the card and its bottom is cropped, seen from a
+     camera above the equator. The graticule and the marks share that box, so they land on
+     the same sphere. The scene sets every layer's transform each frame (this translation,
+     then the roll), so each gets its own compositor layer and the change never touches layout. */
+  .layer {
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    height: 140%;
+    aspect-ratio: 1;
+    will-change: transform;
+    transform: translateX(-50%);
+  }
+  /* The far hemisphere: a second render seen from behind and mirrored, faded right down.
+     Blended like the globe, so only its dots survive and they read as seen through the
+     sphere. The mask thins it toward the middle of the disc; closest-side makes 100% the
+     layer's half-width, so the sphere's edge sits at 80%. */
+  .far {
+    opacity: 0.28;
+    mix-blend-mode: lighten;
+    -webkit-mask-image: radial-gradient(circle closest-side, rgb(0 0 0 / 0.1) 18%, #000 76%);
+    mask-image: radial-gradient(circle closest-side, rgb(0 0 0 / 0.1) 18%, #000 76%);
+  }
+  /* cobe paints the sphere body at a tenth of the land colour, so a blue land leaves a navy
+     disc. That body is darker than the canvas on every channel, so lightening lets the
+     canvas win while the brighter dots show through. */
+  .globe {
+    mix-blend-mode: lighten;
+  }
+  /* The graticule sits under the globe: lighter than the sphere body, so it shows through
+     the blend, and dimmer than the dots, so they sit on top of it. The visitor marks sit
+     above the globe. */
+  .grid,
+  .marks {
+    pointer-events: none;
+  }
+}

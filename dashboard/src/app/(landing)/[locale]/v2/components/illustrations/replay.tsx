@@ -1,16 +1,24 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { cn } from '@/lib/utils';
-import type { IllustrationProps } from './types';
+import { useReducedMotion } from 'motion/react';
 import { CursorGlyph } from '@/landing/components/ui/cursorGlyph';
 import { LiftSwap } from '@/landing/components/ui/liftSwap';
-import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
+import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
+import type { IllustrationProps } from './types';
+import styles from './replay.module.css';
 
-/* Illustration copy is mock product UI, kept literal on purpose. */
+/**
+ * The picture in words for screen readers, which the player's art is hidden from;
+ * kept beside the art so the two change together.
+ */
+const DESCRIPTION =
+  'A replay of a visitor on a pricing page: they click Choose Pro, a TypeError is thrown, they rage-click the button four times, then leave.';
 
-/** One pass of the recording. Every keyframe in the stylesheet runs on this loop. */
+/* The player's copy is mock product UI, kept literal on purpose. */
+
+/** One pass of the recording. Every keyframe in replay.module.css runs on this loop. */
 const LOOP_MS = 11000;
 /** The recorded session's length, played across one loop (so 2×). */
 const SESSION_S = 22;
@@ -44,6 +52,60 @@ function clock(seconds: number) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
+/** The visitor's page as it was recorded. */
+function PricingPage() {
+  return (
+    <div className={styles.page}>
+      <div className={styles.siteNav}>
+        <b>
+          <i />
+          acme
+        </b>
+        <span>Product</span>
+        <span>Pricing</span>
+        <span>Docs</span>
+        <em>Sign in</em>
+      </div>
+      <p className={styles.title}>Simple, honest pricing</p>
+      <p className={styles.tagline}>Start free. Upgrade when you grow.</p>
+      <div className={styles.plans}>
+        <div className={styles.plan}>
+          <b>Starter</b>
+          <strong>$0</strong>
+          <i />
+          <i />
+          <span className={styles.button}>Get started</span>
+        </div>
+        <div className={cn(styles.plan, styles.popular)}>
+          <b>
+            Pro <u>Popular</u>
+          </b>
+          <strong>
+            $19<small>/mo</small>
+          </strong>
+          <i />
+          <i />
+          <span className={styles.cta}>
+            <span className={cn(styles.button, styles.pro)}>
+              <span>Choose Pro</span>
+              <s />
+            </span>
+          </span>
+        </div>
+        <div className={styles.plan}>
+          <b>Team</b>
+          <strong>
+            $49<small>/mo</small>
+          </strong>
+          <i />
+          <i />
+          <span className={styles.button}>Contact sales</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /**
  * A session being replayed: a visitor's pricing page, where Choose Pro spins,
  * fails, and gets rage-clicked before they leave. The page is in the site's
@@ -58,12 +120,17 @@ function clock(seconds: number) {
  * scrub and all, and plays it on from there. Leaving the card resets it, so the
  * replay is playing again when the card comes back.
  */
-export function Replay({ live }: IllustrationProps) {
+export function Replay({ entered, live }: IllustrationProps) {
   const reduce = useReducedMotion();
   const fillRef = useRef<HTMLElement>(null);
-  const timeRef = useRef<HTMLTimeElement>(null);
+  const timeRef = useRef<HTMLSpanElement>(null);
   const [beat, setBeat] = useState(0);
   const [paused, setPaused] = useState(false);
+  // Readers who prefer reduced motion get a still of the rage click (its frame is set in the
+  // stylesheet). Held in state, so the server's markup and the first client render agree.
+  const [still, setStill] = useState(false);
+
+  useEffect(() => setStill(reduce === true), [reduce]);
 
   useEffect(() => {
     if (!live) setPaused(false);
@@ -75,115 +142,83 @@ export function Replay({ live }: IllustrationProps) {
     const time = timeRef.current;
     if (!fill || !time) return;
     let raf = 0;
+    let narrated = -1;
     const tick = () => {
       const ms = Number(fill.getAnimations()[0]?.currentTime ?? 0);
       const phase = (ms % LOOP_MS) / LOOP_MS;
       const text = clock(phase * SESSION_S);
       if (time.textContent !== text) time.textContent = text;
-      setBeat(beatAt(phase));
+      const next = beatAt(phase);
+      if (next !== narrated) {
+        narrated = next;
+        setBeat(next);
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [live, reduce, paused]);
 
-  const shown = reduce ? STILL_BEAT : beat;
+  const shown = still ? STILL_BEAT : beat;
   const event = BEATS[shown];
 
   return (
-    <div className={cn('sr', paused && 'is-paused')} style={vars({ '--loop': `${LOOP_MS}ms` })}>
+    <div
+      className={styles.player}
+      data-in={entered || undefined}
+      data-live={live || undefined}
+      data-paused={paused || undefined}
+      style={vars({ '--loop': `${LOOP_MS}ms` })}
+    >
+      <p className='sr-only'>{DESCRIPTION}</p>
       {/* the player's own header, as the other cards have, not a browser's chrome */}
-      <div className='sr__hd'>
+      <div className={styles.header} aria-hidden>
         <b>Session replay</b>
         <span>acme.com/pricing</span>
       </div>
-      <div className='sr__vp' aria-hidden>
-        <div className='sr__page'>
-          <div className='sr__nav'>
-            <b>
-              <i />
-              acme
-            </b>
-            <span>Product</span>
-            <span>Pricing</span>
-            <span>Docs</span>
-            <em>Sign in</em>
-          </div>
-          <h4>Simple, honest pricing</h4>
-          <p>Start free. Upgrade when you grow.</p>
-          <div className='sr__plans'>
-            <div className='sr__plan'>
-              <b>Starter</b>
-              <strong>$0</strong>
-              <i />
-              <i />
-              <span className='sr__btn'>Get started</span>
-            </div>
-            <div className='sr__plan sr__plan--pop'>
-              <b>
-                Pro <u>Popular</u>
-              </b>
-              <strong>
-                $19<small>/mo</small>
-              </strong>
-              <i />
-              <i />
-              <span className='sr__cta'>
-                <span className='sr__btn sr__btn--pro'>
-                  <span>Choose Pro</span>
-                  <s />
-                </span>
-              </span>
-            </div>
-            <div className='sr__plan'>
-              <b>Team</b>
-              <strong>
-                $49<small>/mo</small>
-              </strong>
-              <i />
-              <i />
-              <span className='sr__btn'>Contact sales</span>
-            </div>
-          </div>
-        </div>
-        <span className='sr__rip' />
-        <span className='sr__rip sr__rip--rage' />
+      <div className={styles.viewport} aria-hidden>
+        <PricingPage />
+        <span className={styles.ripple} />
+        <span className={cn(styles.ripple, styles.rage)} />
         {/* the visitor's cursor; its tag only shows at the clicks, first captured, then raged */}
-        <span className='sr__cur'>
+        <span className={styles.cursor}>
           <CursorGlyph solid />
-          <span className='sr__who'>
+          <span className={styles.tag}>
             <span>Click captured</span>
             <span>4× rage clicks</span>
           </span>
         </span>
       </div>
       {/* the play footer: the event being played, the scrub track with its markers, then the controls row */}
-      <div className='sr__bar'>
-        <LiftSwap as='p' className='sr__ev' id={String(shown)}>
-          <i className={cn('bad' in event && 'is-bad')} />
-          <b>{event.kind}</b>
-          {event.detail}
-        </LiftSwap>
-        <span className='sr__tr' aria-hidden>
-          {/* a flaring marker runs the loop offset by its own time, so its flare starts as the head arrives */}
+      <div className={styles.bar}>
+        <p className={styles.event} aria-hidden>
+          <LiftSwap as='span' className='block' id={String(shown)}>
+            <i data-bad={'bad' in event || undefined} />
+            <b>{event.kind}</b>
+            {event.detail}
+          </LiftSwap>
+        </p>
+        <span className={styles.track} aria-hidden>
           {BEATS.slice(1).map((b) => (
-            <em
+            <i
               key={b.kind}
-              className={cn('bad' in b && 'is-bad', 'flare' in b && 'is-flare')}
-              style={{ left: `${b.at * 100}%`, animationDelay: 'flare' in b ? `${b.at * LOOP_MS}ms` : undefined }}
+              className={styles.tick}
+              data-bad={'bad' in b || undefined}
+              data-flare={'flare' in b || undefined}
+              style={vars({ '--at': b.at })}
             />
           ))}
-          <i ref={fillRef} />
+          <i ref={fillRef} className={styles.fill} />
         </span>
         {/* the recording's controls; the viewBoxes are cropped to the glyphs so the icons meet
             the track's ends instead of sitting inset from them */}
-        <div className='sr__row sr__ctl'>
+        <div className={styles.controls}>
           {/* the one working control; the others are the player's, drawn */}
           <button
             type='button'
-            className='sr__pp'
+            className={styles.toggle}
             onClick={() => setPaused((p) => !p)}
-            disabled={reduce}
+            disabled={still}
             aria-label={paused ? 'Play replay' : 'Pause replay'}
           >
             <svg viewBox='2 1.5 8 9' aria-hidden>
@@ -197,11 +232,19 @@ export function Replay({ live }: IllustrationProps) {
               )}
             </svg>
           </button>
-          <time ref={timeRef}>{clock(reduce ? BEATS[STILL_BEAT].at * SESSION_S : 0)}</time>
-          <span>/</span>
-          <time>{clock(SESSION_S)}</time>
-          <b className='sr__speed'>2×</b>
-          <svg className='sr__max' viewBox='0.85 0.85 10.3 10.3' aria-hidden>
+          <span ref={timeRef} className={styles.clock} aria-hidden>
+            {clock(still ? BEATS[STILL_BEAT].at * SESSION_S : 0)}
+          </span>
+          <span className={styles.divider} aria-hidden>
+            /
+          </span>
+          <span className={styles.clock} aria-hidden>
+            {clock(SESSION_S)}
+          </span>
+          <b className={styles.speed} aria-hidden>
+            2×
+          </b>
+          <svg className={styles.expand} viewBox='0.85 0.85 10.3 10.3' aria-hidden>
             <path d='M7 1.5h3.5V5M5 10.5H1.5V7M10.5 1.5 7 5M1.5 10.5 5 7' />
           </svg>
         </div>
