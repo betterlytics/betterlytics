@@ -1,0 +1,416 @@
+@reference '../../landing.css';
+
+@layer components {
+  .traffic {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* each card fades in and turns to its resting angle, on its own delay (--d) */
+  .card {
+    position: absolute;
+    border-radius: 11px;
+    background: #1b1a19;
+    overflow: hidden;
+    border: 1px solid --alpha(var(--color-fg) / 10%);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.05) inset,
+      0 18px 40px rgb(0 0 0 / 0.58);
+    opacity: 0;
+    transition:
+      opacity 0.45s var(--ease-out-expo) var(--d),
+      transform 0.55s var(--ease-out-expo) var(--d);
+  }
+  .traffic[data-in] .card {
+    opacity: 1;
+  }
+
+  /* A cascade: each card lies over the one before it, and each leaves an empty margin
+     where the next one lands, so the stack hides no data. Too narrow for three, the
+     pages and the page they read sit side by side; the heatmap needs width. */
+  .pages {
+    --d: 0.05s;
+    left: 4%;
+    top: 8%;
+    width: 54%;
+    transform: translate(-16px, 10px) rotate(-1deg);
+    z-index: 1;
+    @variant max-md {
+      left: 3%;
+      top: 9%;
+      width: 60%;
+    }
+  }
+  .depth {
+    --d: 0.2s;
+    left: 52%;
+    top: 13%;
+    width: 38%;
+    transform: translate(16px, 10px) rotate(1.2deg);
+    z-index: 2;
+    @variant max-md {
+      left: 59%;
+      top: 4%;
+      width: 38%;
+    }
+  }
+  .week {
+    --d: 0.36s;
+    left: 14%;
+    top: 55%;
+    width: 44%;
+    transform: translate(-10px, 14px) rotate(-0.6deg);
+    z-index: 3;
+    @variant max-md {
+      display: none;
+    }
+  }
+  .traffic[data-in] .pages {
+    transform: rotate(-1deg);
+  }
+  .traffic[data-in] .depth {
+    transform: rotate(1.2deg);
+  }
+  .traffic[data-in] .week {
+    transform: rotate(-0.6deg);
+  }
+
+  /* Hovering any of the cards fans the stack out a little, each card away from the
+     middle; empty space around them does nothing. It rides on translate and rotate
+     rather than transform, so it answers at once while the entrance keeps its stagger. */
+  @media (hover: hover) {
+    .card {
+      transition:
+        opacity 0.45s var(--ease-out-expo) var(--d),
+        transform 0.55s var(--ease-out-expo) var(--d),
+        translate 0.6s var(--ease-out-expo),
+        rotate 0.6s var(--ease-out-expo);
+    }
+    .traffic:has(.card:hover) .pages {
+      translate: -10px -6px;
+      rotate: -0.6deg;
+    }
+    .traffic:has(.card:hover) .depth {
+      translate: 12px -6px;
+      rotate: 0.8deg;
+    }
+    .traffic:has(.card:hover) .week {
+      translate: -4px 10px;
+      rotate: -0.5deg;
+    }
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    padding: 12px 16px 10px;
+    border-bottom: 1px solid --alpha(var(--color-fg) / 7%);
+  }
+  .title {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-fg);
+    letter-spacing: -0.1px;
+  }
+  .caption {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    opacity: 0.65;
+    @variant max-md {
+      display: none;
+    }
+  }
+  .body {
+    padding: 11px 14px 13px;
+    @variant max-md {
+      padding: 9px 10px 11px;
+    }
+  }
+  /* the margins the next card lands in */
+  .pages .head,
+  .pages .body {
+    padding-right: 54px;
+  }
+  .depth .head,
+  .depth .body {
+    padding-left: 54px;
+  }
+  .pages .head,
+  .depth .head {
+    @variant max-md {
+      padding-inline: 16px;
+    }
+  }
+  .pages .body,
+  .depth .body {
+    @variant max-md {
+      padding: 9px 10px 11px;
+    }
+  }
+
+  /* all / entry / exit, the dashboard's pages tabs: a pill slides under the chosen one (--i) */
+  .tabs {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: -3px 0 -3px auto;
+    padding: 2px;
+    border-radius: 6px;
+    background: --alpha(var(--color-fg) / 4%);
+    border: 1px solid --alpha(var(--color-fg) / 7%);
+  }
+  .tabs::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: calc((100% - 4px) / 3);
+    border-radius: 4px;
+    background: --alpha(var(--color-volt-lift) / 26%);
+    box-shadow: 0 0 0 1px --alpha(var(--color-volt-soft) / 28%) inset;
+    transform: translateX(calc(var(--i) * 100%));
+    transition: transform 0.4s var(--ease-out-expo);
+  }
+  .tab {
+    position: relative;
+    height: 19px;
+    padding: 0 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+  .tab:hover,
+  .tab[aria-selected='true'] {
+    color: var(--color-fg);
+  }
+  .tab:focus-visible {
+    outline: 1px solid var(--color-volt-soft);
+    outline-offset: -1px;
+  }
+
+  /* top pages, drawn as the dashboard draws them: the bar fills the row behind its label */
+  .row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 4px;
+    background: --alpha(var(--color-fg) / 3.5%);
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    @variant max-md {
+      padding: 0 8px;
+      font-size: 10.5px;
+    }
+  }
+  .row + .row {
+    margin-top: 5px;
+  }
+  .bar {
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    background: --alpha(var(--color-volt-lift) / 32%);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    transition: transform 0.6s var(--ease-out-expo) var(--d);
+  }
+  .traffic[data-in] .bar {
+    transform: scaleX(var(--share));
+  }
+  /* the label and the count are lift slots (ui/liftSwap), positioned, so they paint over the bar */
+  .path,
+  .count {
+    white-space: nowrap;
+  }
+  .path {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--color-fg);
+  }
+  .path > * {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .count {
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* scroll depth: one page, its quarters tinted by how many readers reached them */
+  .url {
+    margin: 0 0 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--color-muted);
+  }
+  .page {
+    position: relative;
+    height: 212px;
+    margin-right: 42px;
+    border-radius: 6px;
+    background: #211f1e;
+    border: 1px solid --alpha(var(--color-fg) / 10%);
+    @variant max-md {
+      height: 150px;
+      margin-right: 34px;
+    }
+  }
+  .chrome {
+    display: flex;
+    gap: 4px;
+    height: 14px;
+    align-items: center;
+    padding: 0 7px;
+    border-bottom: 1px solid --alpha(var(--color-fg) / 7%);
+  }
+  .chrome i {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: --alpha(var(--color-fg) / 18%);
+  }
+  .read,
+  .marks {
+    position: absolute;
+    inset: 14px 0 0;
+  }
+  /* faint text lines under the tint, so it reads as a page rather than a bar */
+  .read {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 0 0 6px 6px;
+    background: repeating-linear-gradient(transparent 0 8px, --alpha(var(--color-fg) / 5%) 8px 10px) 10px 6px /
+      calc(100% - 20px) calc(100% - 12px) no-repeat;
+  }
+  /* a quarter of the page, as deep a tint as the share of readers who reached it (--reach), filled in top-down as if read */
+  .read span {
+    flex: 1;
+    background: --alpha(var(--color-volt-lift) / calc(3% + var(--reach) * 50%));
+    transform-origin: 50% 0;
+    transform: scaleY(0);
+    transition: transform 0.45s var(--ease-pen) var(--d);
+  }
+  .read span + span {
+    border-top: 1px dashed --alpha(var(--color-volt-soft) / 45%);
+  }
+  .traffic[data-in] .read span {
+    transform: none;
+  }
+  .marks {
+    left: calc(100% + 8px);
+    right: auto;
+    width: 36px;
+  }
+  .marks li {
+    position: absolute;
+    top: calc(var(--quarter) * 25%);
+    left: 0;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--color-fg);
+    font-variant-numeric: tabular-nums;
+    @variant max-md {
+      font-size: 9.5px;
+    }
+  }
+  .marks li:first-child {
+    transform: none;
+    color: var(--color-muted);
+  }
+  .avg {
+    margin: 11px 0 0;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--color-muted);
+  }
+  .avg span {
+    margin-left: 4px;
+    color: var(--color-fg);
+  }
+
+  /* weekly traffic: visitors by weekday and hour, brightest in office hours */
+  .heatmap {
+    display: grid;
+    grid-template-columns: 12px minmax(0, 1fr);
+    gap: 6px 8px;
+  }
+  .days {
+    display: grid;
+    grid-template-rows: repeat(7, 1fr);
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 8.5px;
+    line-height: 1;
+    color: var(--color-muted);
+    opacity: 0.7;
+  }
+  .days span {
+    display: flex;
+    align-items: center;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 2px;
+  }
+  /* an hour, as bright as its share of the week's visitors (--v) */
+  .grid i {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    background: --alpha(var(--color-volt-lift) / calc(6% + var(--v) * 86%));
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out-expo) var(--d);
+  }
+  .traffic[data-in] .grid i {
+    opacity: 1;
+  }
+  .hours {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--color-muted);
+    opacity: 0.6;
+  }
+
+  /* reduced motion: everything at rest, and the cards shown even before they have entered */
+  @media (prefers-reduced-motion: reduce) {
+    .card {
+      opacity: 1;
+      transition: none;
+    }
+    .bar,
+    .read span {
+      transform: none;
+      transition: none;
+    }
+    .bar {
+      transform: scaleX(var(--share));
+    }
+    .tabs::before {
+      transition: none;
+    }
+    .grid i {
+      opacity: 1;
+      transition: none;
+    }
+  }
+}

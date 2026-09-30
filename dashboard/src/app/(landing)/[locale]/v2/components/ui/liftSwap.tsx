@@ -1,9 +1,8 @@
 'use client';
 
 import type { ElementType, ReactNode } from 'react';
-import { AnimatePresence, m } from 'motion/react';
-import { cn } from '@/lib/utils';
-import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
+import { cn } from '@/landing/lib/cn';
 
 /**
  * A slot whose content blurs and lifts out when `id` changes while the new
@@ -12,7 +11,8 @@ import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
  * `delay` staggers several slots into one coordinated move. The leaving content
  * is popped out of flow, so the slot is positioned for it to sit in.
  *
- * Under reduced motion the content just swaps.
+ * For readers who prefer reduced motion the content is swapped in place: the
+ * item keeps one key, so nothing enters or leaves.
  */
 
 export const LIFT_STEP_S = 0.04; // the stagger between one slot and the next
@@ -22,7 +22,39 @@ const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const LIFT = 10; // px
 const BLUR = 'blur(5px)';
 
-export type LiftProps = {
+type Swap = { direction: 1 | -1; delay: number };
+
+/*
+ * Functions of the swap, handed down through AnimatePresence's `custom`, so the
+ * leaving content goes the way of the change that removed it rather than the
+ * way it was going when last rendered.
+ */
+const SWAP = {
+  enter: ({ direction }: Swap) => ({ opacity: 0, y: LIFT * direction, filter: BLUR }),
+  settle: ({ delay }: Swap) => ({
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    // at rest the filter goes: even a zero blur renders text through a filter surface, which softens it
+    transitionEnd: { filter: 'none' },
+    transition: { duration: IN_S, ease: EASE, delay },
+  }),
+  leave: ({ direction, delay }: Swap) => ({
+    opacity: 0,
+    y: -LIFT * direction,
+    filter: BLUR,
+    transition: { duration: OUT_S, ease: EASE, delay },
+  }),
+};
+
+export function LiftSwap({
+  id,
+  direction = 1,
+  delay = 0,
+  as: Tag = 'div',
+  className,
+  children,
+}: {
   /** Identity of the content; a change plays the swap. */
   id: string;
   direction?: 1 | -1;
@@ -30,61 +62,24 @@ export type LiftProps = {
   as?: ElementType;
   className?: string;
   children: ReactNode;
-};
-
-export function LiftSwap({ id, direction = 1, delay = 0, as: Tag = 'div', className, children }: LiftProps) {
-  const reduce = useReducedMotion();
-  if (reduce) return <Tag className={cn('ls', className)}>{children}</Tag>;
+}) {
+  const inPlace = useReducedMotion() === true;
+  const swap: Swap = { direction, delay };
   return (
-    <Tag className={cn('ls', className)}>
-      <AnimatePresence mode='popLayout' initial={false}>
+    <Tag className={cn('relative', className)}>
+      <AnimatePresence mode='popLayout' initial={false} custom={swap}>
         <m.span
-          key={id}
-          className='ls__item'
-          initial={{ opacity: 0, y: LIFT * direction, filter: BLUR }}
-          animate={{ opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: IN_S, ease: EASE, delay } }}
-          exit={{
-            opacity: 0,
-            y: -LIFT * direction,
-            filter: BLUR,
-            transition: { duration: OUT_S, ease: EASE, delay },
-          }}
+          key={inPlace ? 'in-place' : id}
+          className='block'
+          custom={swap}
+          variants={SWAP}
+          initial='enter'
+          animate='settle'
+          exit='leave'
         >
           {children}
         </m.span>
       </AnimatePresence>
-    </Tag>
-  );
-}
-
-/** A multi-line headline, each line its own slot, staggered top to bottom. The first line is `is-dim`. */
-export function LiftLines({
-  lines,
-  direction,
-  delay = 0,
-  as: Tag = 'h3',
-  className,
-}: {
-  lines: string[];
-  direction?: 1 | -1;
-  delay?: number;
-  as?: ElementType;
-  className?: string;
-}) {
-  return (
-    <Tag className={className}>
-      {lines.map((line, i) => (
-        <LiftSwap
-          key={i}
-          id={line}
-          as='span'
-          className={cn('ls--line', i === 0 && 'is-dim')}
-          direction={direction}
-          delay={delay + i * LIFT_STEP_S}
-        >
-          {line}
-        </LiftSwap>
-      ))}
     </Tag>
   );
 }

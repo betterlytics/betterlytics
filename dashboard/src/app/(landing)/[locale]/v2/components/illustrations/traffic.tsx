@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { cn } from '@/lib/utils';
+import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { LIFT_STEP_S, LiftSwap } from '@/landing/components/ui/liftSwap';
+import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
+import type { IllustrationProps } from './types';
+import styles from './traffic.module.css';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
@@ -45,6 +47,22 @@ const TABS = [
   },
 ];
 
+/** The tab an arrow, Home or End key moves to, wrapping at the ends as the tabs pattern does. */
+function tabAfterKey(key: string, tab: number) {
+  switch (key) {
+    case 'ArrowRight':
+      return (tab + 1) % TABS.length;
+    case 'ArrowLeft':
+      return (tab - 1 + TABS.length) % TABS.length;
+    case 'Home':
+      return 0;
+    case 'End':
+      return TABS.length - 1;
+    default:
+      return null;
+  }
+}
+
 /** Share of readers still on the page at each quarter of its length. */
 const DEPTH = [100, 72, 48, 21];
 const AVG_DEPTH = 58;
@@ -68,30 +86,55 @@ function intensity(day: number, hour: number) {
 }
 
 /** Three cards, fanned, each a different kind of view: what they open, how far they read, when they come. */
-export function Traffic() {
+export function Traffic({ entered }: IllustrationProps) {
   // `from` is the tab left last, null until the first switch
   const [{ tab, from }, setView] = useState<{ tab: number; from: number | null }>({ tab: 0, from: null });
   const direction = from === null || tab > from ? 1 : -1;
   // the bars draw in slowly on entrance; after a switch they answer at once
   const switched = from !== null;
 
+  const id = useId();
+  const tabId = (i: number) => `${id}-tab-${i}`;
+  const panelId = `${id}-panel`;
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
   const pick = (next: number) => {
     if (next !== tab) setView({ tab: next, from: tab });
   };
+  // only the chosen tab is in the tab order; the arrow keys move between them
+  const onTabKey = (e: KeyboardEvent) => {
+    const next = tabAfterKey(e.key, tab);
+    if (next === null) return;
+    e.preventDefault();
+    pick(next);
+    tabRefs.current[next]?.focus();
+  };
 
   return (
-    <div className='tf'>
-      <div className='tf__c tf__c--a' style={vars({ '--d': '.05s' })}>
-        <div className='tf__hd'>
-          <b>Top pages</b>
-          <div className='tf__tabs' role='tablist' aria-label='Pages' style={vars({ '--i': tab })}>
+    <div className={styles.traffic} data-in={entered || undefined}>
+      <div className={cn(styles.card, styles.pages)}>
+        <div className={styles.head}>
+          <p className={styles.title}>Top pages</p>
+          <div
+            className={styles.tabs}
+            role='tablist'
+            aria-label='Pages'
+            style={vars({ '--i': tab })}
+            onKeyDown={onTabKey}
+          >
             {TABS.map((t, i) => (
               <button
                 key={t.label}
+                ref={(el) => {
+                  tabRefs.current[i] = el;
+                }}
                 type='button'
                 role='tab'
+                id={tabId(i)}
                 aria-selected={i === tab}
-                className={cn(i === tab && 'is-on')}
+                aria-controls={panelId}
+                tabIndex={i === tab ? 0 : -1}
+                className={styles.tab}
                 onClick={() => pick(i)}
               >
                 {t.label}
@@ -100,19 +143,32 @@ export function Traffic() {
           </div>
         </div>
         {/* five fixed rows: the bars resize in place while labels and counts lift through their slots */}
-        <div className='tf__b' role='tabpanel'>
+        <div className={styles.body} id={panelId} role='tabpanel' aria-labelledby={tabId(tab)}>
           {TABS[tab].pages.map((page, i) => (
-            <div key={i} className='tf__r'>
-              <u
+            <div key={i} className={styles.row}>
+              <span
+                className={styles.bar}
                 style={vars({
                   '--share': page.share / 100,
                   '--d': switched ? `${i * LIFT_STEP_S}s` : `${0.25 + i * 0.07}s`,
                 })}
               />
-              <LiftSwap as='b' id={page.path} direction={direction} delay={i * LIFT_STEP_S}>
+              <LiftSwap
+                as='span'
+                className={styles.path}
+                id={page.path}
+                direction={direction}
+                delay={i * LIFT_STEP_S}
+              >
                 {page.path}
               </LiftSwap>
-              <LiftSwap as='em' id={page.count} direction={direction} delay={i * LIFT_STEP_S}>
+              <LiftSwap
+                as='span'
+                className={styles.count}
+                id={page.count}
+                direction={direction}
+                delay={i * LIFT_STEP_S}
+              >
                 {page.count}
               </LiftSwap>
             </div>
@@ -120,50 +176,54 @@ export function Traffic() {
         </div>
       </div>
 
-      <div className='tf__c tf__c--b' style={vars({ '--d': '.2s' })}>
-        <div className='tf__hd'>
-          <b>Scroll depth</b>
+      <div className={cn(styles.card, styles.depth)}>
+        <div className={styles.head}>
+          <p className={styles.title}>Scroll depth</p>
         </div>
-        <div className='tf__b tf__depth'>
-          <p className='tf__path'>/blog/cookieless-analytics</p>
-          <div className='tf__page'>
-            <div className='tf__chrome' aria-hidden>
+        <div className={styles.body}>
+          <p className={styles.url}>/blog/cookieless-analytics</p>
+          <div className={styles.page}>
+            <div className={styles.chrome} aria-hidden>
               <i />
               <i />
               <i />
             </div>
             {/* how many readers each quarter of the page kept, filled in top-down as if read */}
-            <div className='tf__read' aria-hidden>
+            <div className={styles.read} aria-hidden>
               {DEPTH.map((reach, i) => (
                 <span key={i} style={vars({ '--reach': reach / 100, '--d': `${0.5 + i * 0.16}s` })} />
               ))}
             </div>
-            <ol className='tf__marks'>
+            <ol className={styles.marks} aria-label='Readers still on the page at each quarter'>
               {DEPTH.map((reach, i) => (
-                <li key={i} style={{ top: `${i * 25}%` }}>
+                <li key={i} style={vars({ '--quarter': i })}>
                   {reach}%
                 </li>
               ))}
             </ol>
           </div>
-          <p className='tf__avg'>
-            Avg. depth <em>{AVG_DEPTH}%</em>
+          <p className={styles.avg}>
+            Avg. depth <span>{AVG_DEPTH}%</span>
           </p>
         </div>
       </div>
 
-      <div className='tf__c tf__c--c' style={vars({ '--d': '.36s' })}>
-        <div className='tf__hd'>
-          <b>Weekly traffic</b>
-          <span>visitors by hour</span>
+      <div className={cn(styles.card, styles.week)}>
+        <div className={styles.head}>
+          <p className={styles.title}>Weekly traffic</p>
+          <span className={styles.caption}>visitors by hour</span>
         </div>
-        <div className='tf__b tf__heat'>
-          <div className='tf__days' aria-hidden>
+        <div
+          className={cn(styles.body, styles.heatmap)}
+          role='img'
+          aria-label='Visitors by weekday and hour: busiest in weekday office hours, with a smaller evening peak and quieter weekends.'
+        >
+          <div className={styles.days} aria-hidden>
             {DAYS.map((day, i) => (
               <span key={i}>{day}</span>
             ))}
           </div>
-          <div className='tf__grid' aria-hidden>
+          <div className={styles.grid} aria-hidden>
             {DAYS.map((_, day) =>
               Array.from({ length: HOURS }, (_, hour) => (
                 <i
@@ -176,7 +236,7 @@ export function Traffic() {
               )),
             )}
           </div>
-          <div className='tf__hours' aria-hidden>
+          <div className={styles.hours} aria-hidden>
             <span>00</span>
             <span>06</span>
             <span>12</span>

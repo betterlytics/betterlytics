@@ -1,6 +1,7 @@
 /**
- * The seven steps of the journey section: the rail copy for each, keyed to the
- * illustration that plays alongside it (see sections/journeySection). Titles
+ * The seven steps of the journey section: the copy for each, keyed to the
+ * illustration that plays alongside it (see sections/journeySection). The rail
+ * shows the active step's; screen readers get every step's with its card. Titles
  * are free-standing sentences; the rail morphs the whole headline, so nothing
  * has to share a stem. Copy is hard-coded while the wording is revised.
  */

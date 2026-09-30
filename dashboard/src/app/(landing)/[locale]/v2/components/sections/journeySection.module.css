@@ -1,0 +1,32 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* The sticky rail beside the card stack; one column once the rail no longer fits beside the cards. */
+  .frame {
+    position: relative;
+    display: grid;
+    grid-template-columns: 318px 1fr;
+    gap: 30px;
+    align-items: start;
+    @variant max-2xl {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+  /* the frame's top and bottom rules, which InkFrame draws in */
+  .frame::before,
+  .frame::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    height: 1px;
+    background: var(--color-rule-10);
+    pointer-events: none;
+  }
+  .frame::before {
+    top: 0;
+  }
+  .frame::after {
+    bottom: 0;
+  }
+}

@@ -17,11 +17,11 @@ import {
   UserPlus,
   type LucideIcon,
 } from 'lucide-react';
-import { m } from 'motion/react';
-import { cn } from '@/lib/utils';
+import { m, useReducedMotion } from 'motion/react';
+import Image from 'next/image';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
-import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
 import type { IllustrationProps } from './types';
+import styles from './events.module.css';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
@@ -36,7 +36,12 @@ type Kind = { name: string; icon: LucideIcon; key: string; values: readonly stri
 const KINDS: readonly Kind[] = [
   { name: 'signup', icon: UserPlus, key: 'plan', values: ['free', 'pro', 'team'] },
   { name: 'purchase', icon: CreditCard, key: 'amount', values: ['$49', '$19', '$99'] },
-  { name: 'button_click', icon: MousePointerClick, key: 'label', values: ['Start trial', 'Book a demo', 'Get started'] },
+  {
+    name: 'button_click',
+    icon: MousePointerClick,
+    key: 'label',
+    values: ['Start trial', 'Book a demo', 'Get started'],
+  },
   { name: 'newsletter_signup', icon: Mail, key: 'source', values: ['footer', 'blog', 'popup'] },
   { name: 'file_download', icon: Download, key: 'file', values: ['pricing.pdf', 'report.csv', 'guide.pdf'] },
   { name: 'video_play', icon: Play, key: 'video', values: ['onboarding', 'product tour'] },
@@ -139,16 +144,16 @@ function Who({ visitor }: { visitor: Visitor }) {
   const Flag = FLAGS[visitor.country];
   const Device = visitor.device === 'mobile' ? Smartphone : Monitor;
   return (
-    <span className='ev__who' aria-hidden>
-      <Flag className='ev__flag' />
-      <img
-        className='ev__browser'
+    <span className={styles.who}>
+      <Flag className={styles.flag} />
+      <Image
+        className={styles.browser}
         src={`/browser-icons/${visitor.browser}.svg`}
         alt=''
         width={14}
         height={14}
       />
-      <Device className='ev__device' strokeWidth={1.75} />
+      <Device className={styles.device} strokeWidth={1.75} />
     </span>
   );
 }
@@ -165,8 +170,12 @@ function ago(ms: number) {
  * sent with and the visitor who sent them. Each arrival opens a gap at the
  * top and settles into it; times age in place. The panel runs off the
  * bottom of the card on purpose, a window onto a longer log.
+ *
+ * Screen readers get one description rather than a log that keeps changing.
+ * Arrivals and the clock run only while the card is live, and not at all for
+ * readers who prefer reduced motion.
  */
-export function Events({ live }: IllustrationProps) {
+export function Events({ entered, live }: IllustrationProps) {
   const reduce = useReducedMotion();
   const [rows, setRows] = useState<Row[]>([]);
   const [now, setNow] = useState(0);
@@ -238,6 +247,7 @@ export function Events({ live }: IllustrationProps) {
     };
     later(next, 1200);
 
+    // the times read in whole seconds, so the clock ticks once a second rather than every frame
     const clock = setInterval(() => setNow(Date.now()), 1000);
     return () => {
       cancelled = true;
@@ -247,45 +257,55 @@ export function Events({ live }: IllustrationProps) {
   }, [live, reduce]);
 
   return (
-    <div className='ev'>
-      <div className='ev__p' onPointerEnter={hold} onPointerLeave={release}>
-        <div className='ev__hd'>
-          <b>Custom events</b>
-          <span className={cn('ev__live', paused && 'is-paused')}>
-            <i />
+    <div
+      className={styles.events}
+      data-in={entered || undefined}
+      data-live={live || undefined}
+      role='img'
+      aria-label="A live log of custom events such as signups and purchases, each with the property it was sent with and the visitor's country, browser and device."
+    >
+      <div className={styles.panel} aria-hidden onPointerEnter={hold} onPointerLeave={release}>
+        <div className={styles.head}>
+          <p className={styles.title}>Custom events</p>
+          <span className={styles.status} data-paused={paused || undefined}>
+            <i className={styles.dot} />
             {paused ? 'Paused' : 'Live'}
           </span>
-          <span className='ev__total'>
+          <span className={styles.total}>
             <RollingDigits value={total.toLocaleString('en-US')} />
             <small>today</small>
           </span>
         </div>
-        <ol className='ev__log'>
+        <ol>
           {rows.map((row, i) => {
-            const arriving = row.id >= 0 && !reduce;
+            // the history the log opens on is simply there; only later arrivals play the insert
+            const arriving = row.id >= 0;
             const Icon = row.kind.icon;
             return (
               <m.li
                 key={row.id}
-                className='ev__slot'
                 initial={arriving ? { height: 0 } : false}
                 animate={{ height: 'auto' }}
                 transition={{ duration: GAP_S, ease: EASE }}
               >
                 <m.div
-                  className={cn('ev__row', row.id >= 0 && 'is-new', i === 0 && 'is-top')}
+                  className={styles.row}
+                  data-new={arriving || undefined}
+                  data-top={i === 0 || undefined}
                   initial={arriving ? LIFTED : false}
                   animate={SETTLED}
                   transition={{ duration: SETTLE_S, ease: EASE, delay: SETTLE_DELAY_S }}
                 >
-                  <Icon className='ev__icon' strokeWidth={1.75} aria-hidden />
-                  <b>{row.kind.name}</b>
-                  <span className='ev__prop'>
-                    <i>{row.kind.key}:</i>
+                  <Icon className={styles.icon} strokeWidth={1.75} />
+                  <span className={styles.name}>{row.kind.name}</span>
+                  <span className={styles.prop}>
+                    <span className={styles.key}>{row.kind.key}:</span>
                     {row.value}
                   </span>
                   <Who visitor={row.visitor} />
-                  <time>{now ? ago(now - row.at) : ''}</time>
+                  <time className={styles.ago} dateTime={new Date(row.at).toISOString()}>
+                    {now ? ago(now - row.at) : ''}
+                  </time>
                 </m.div>
               </m.li>
             );

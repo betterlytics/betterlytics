@@ -1,14 +1,16 @@
 'use client';
 
-import { AnimatePresence, m } from 'motion/react';
-import { cn } from '@/lib/utils';
-import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
+import { AnimatePresence, m, useReducedMotion } from 'motion/react';
+import { cn } from '@/landing/lib/cn';
 
 /**
  * Digits that roll like an odometer. Only a digit that changes moves: the old
  * one slides out of a clipped slot while the new one slides in behind it, up
- * when counting forward and down when counting back. Under reduced motion the
- * digits just change.
+ * when counting forward and down when counting back. Screen readers get the
+ * value once, as text, rather than the slots.
+ *
+ * For readers who prefer reduced motion the digits change in place: each keeps
+ * one key, so nothing rolls.
  */
 
 const ROLL_S = 0.45;
@@ -35,16 +37,17 @@ export function RollingDigits({
   direction?: 1 | -1;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
-  if (reduce) return <span className={className}>{value}</span>;
+  const inPlace = useReducedMotion() === true;
   return (
-    <span className={cn('rd', className)} aria-label={value}>
+    <span className={cn('inline-flex align-bottom', className)}>
+      <span className='sr-only'>{value}</span>
       {Array.from(value).map((char, i) => (
-        <span key={i} className='rd__slot' aria-hidden>
+        // a clipped slot one line tall
+        <span key={i} className='relative inline-block h-lh overflow-hidden' aria-hidden>
           <AnimatePresence mode='popLayout' initial={false} custom={direction}>
             <m.span
-              key={char}
-              className='rd__digit'
+              key={inPlace ? 'in-place' : char}
+              className='block'
               custom={direction}
               variants={ROLL}
               initial='enter'
