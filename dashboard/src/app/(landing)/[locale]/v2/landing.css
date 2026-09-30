@@ -12,9 +12,9 @@
 @import 'tailwindcss' source(none);
 @import './legacy.css' layer(legacy);
 
-@source './';
+@source './**/*.{ts,tsx}';
 /* shared app components the page renders, for the utilities they use */
-@source '../../../../components/gauge';
+@source '../../../../components/gauge/**/*.tsx';
 
 /* `static` emits every token, so CSS modules can read them as plain custom properties. */
 @theme static {
@@ -84,6 +84,10 @@
 
   /* the slight tightening the interface text (nav, buttons, labels, links) is set with */
   --tracking-ui: -0.0125rem;
+
+  /* No stock animations: their keyframes (spin, ping, pulse, bounce) would stand in for
+     a component module's keyframes of the same name. Animations live in the modules. */
+  --animate-*: initial;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   /* quick off the mark, easing out as it lifts: the ink frame and wall drawing in */
