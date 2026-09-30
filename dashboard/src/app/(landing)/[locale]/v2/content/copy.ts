@@ -142,7 +142,8 @@ export const COPY = {
     secondary: 'View docs',
   },
   footer: {
-    tagline: 'Privacy-first web analytics for the modern web. GDPR, CCPA and PECR compliant, cookieless, and open source.',
+    tagline:
+      'Privacy-first web analytics for the modern web. GDPR, CCPA and PECR compliant, cookieless, and open source.',
     columns: {
       company: 'Company',
       resources: 'Resources',
