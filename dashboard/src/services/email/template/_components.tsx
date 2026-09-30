@@ -169,7 +169,7 @@ export function SupportLine() {
   );
 }
 
-export type ButtonVariant ='primary' | 'success' | 'danger' | 'warning';
+export type ButtonVariant = 'primary' | 'success' | 'danger' | 'warning';
 
 const buttonVariantClass: Record<ButtonVariant, string> = {
   primary: 'bg-blue-600 text-white',
