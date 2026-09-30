@@ -7,6 +7,9 @@
 export type IllustrationProps = {
   /** The card has scrolled into view at least once. Draw-in effects run from here and never rewind. */
   entered: boolean;
-  /** The card is the active one. Looping animations run only while this is true. */
+  /**
+   * The card is the active one and the card stack is on screen, so a jump away (a link,
+   * find in page) stops it too. Looping animations run only while this is true.
+   */
   live: boolean;
 };

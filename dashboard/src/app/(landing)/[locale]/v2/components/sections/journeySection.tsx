@@ -15,6 +15,7 @@ import { LIFT_STEP_S, LiftSwap } from '@/landing/components/ui/liftSwap';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
 import { COPY } from '@/landing/content/copy';
 import { JOURNEY_STEPS, type JourneyStep } from '@/landing/content/journey';
+import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import styles from './journeySection.module.css';
@@ -37,12 +38,11 @@ const NOTE = 'max-w-[30ch] text-body-sm leading-[22px] text-muted';
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** Index of the card whose centre is nearest the viewport centre, or -1 if none is on screen. */
-function nearestToViewportCentre(cards: (HTMLElement | null)[]) {
+function nearestToViewportCentre(cards: NodeListOf<HTMLElement>) {
   const centre = window.innerHeight / 2;
   let best = -1;
   let bestDistance = Infinity;
   cards.forEach((card, i) => {
-    if (!card) return;
     const r = card.getBoundingClientRect();
     if (r.bottom < 0 || r.top > window.innerHeight) return;
     const d = Math.abs((r.top + r.bottom) / 2 - centre);
@@ -140,60 +140,71 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
 }
 
 /**
+ * One step's card: its copy for screen readers and its illustration. `entered`
+ * latches the first time the card scrolls into view and is never cleared, so an
+ * illustration that has played stays drawn.
+ */
+function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
+  const ref = useRef<HTMLElement>(null);
+  const entered = useInView(ref);
+  const Illustration = ILLUSTRATIONS[step.id];
+  const titleId = `${IDS.journey}-${step.id}`;
+  return (
+    <article ref={ref} aria-labelledby={titleId} className='border border-rule-10 transition-ink'>
+      {/* the rail shows only the active step, so screen readers get each step's copy here, in order */}
+      <h3 id={titleId} className='sr-only'>
+        {step.title.split('\n').join(' ')}
+      </h3>
+      <p className='sr-only'>{step.note}</p>
+      <div className='relative aspect-video overflow-hidden max-md:aspect-4/3'>
+        <div className='absolute inset-0 flex items-center justify-center px-7.5 py-5.5 max-md:p-4'>
+          <Illustration entered={entered} live={live} />
+        </div>
+      </div>
+    </article>
+  );
+}
+
+/**
  * Sticky rail + scrolling card stack. The rail carries the copy of whichever card
  * is nearest the middle of the viewport; each card shows only its illustration.
  *
- * Two things are tracked per card. `entered` latches the moment a card first
- * scrolls into view and is never cleared, so an illustration that has played
- * stays drawn. `live` follows the active card and only gates looping motion.
+ * `live` goes to the active card while the stack is on screen and gates only
+ * looping motion. A jump away (a link, find in page) leaves the last card active
+ * but not live, so nothing loops out of sight.
  */
 export function JourneySection() {
-  const cardRefs = useRef<(HTMLElement | null)[]>([]);
+  const stackRef = useRef<HTMLDivElement>(null);
+  const onScreen = useInView(stackRef, 'onScreen');
   // `direction` is which way the reader went, so the rail copy leaves and arrives the same way
   const [{ active, direction }, setStep] = useState<{ active: number; direction: 1 | -1 }>({
     active: 0,
     direction: 1,
   });
-  const [entered, setEntered] = useState<boolean[]>(() => JOURNEY_STEPS.map(() => false));
 
   useEffect(() => {
-    let ticking = false;
+    let raf = 0;
     const pick = () => {
-      const best = nearestToViewportCentre(cardRefs.current);
+      const cards = stackRef.current?.querySelectorAll<HTMLElement>(':scope > article');
+      const best = cards ? nearestToViewportCentre(cards) : -1;
       if (best < 0) return;
       setStep((step) => (step.active === best ? step : { active: best, direction: best > step.active ? 1 : -1 }));
     };
     const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
         pick();
-        ticking = false;
       });
     };
     pick();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', pick, { passive: true });
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', pick);
     };
-  }, []);
-
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          const i = Number((entry.target as HTMLElement).dataset.index);
-          setEntered((prev) => (prev[i] ? prev : prev.map((v, j) => (j === i ? true : v))));
-          io.unobserve(entry.target);
-        });
-      },
-      { rootMargin: '0px 0px -6% 0px', threshold: 0.12 },
-    );
-    cardRefs.current.forEach((card) => card && io.observe(card));
-    return () => io.disconnect();
   }, []);
 
   return (
@@ -201,37 +212,14 @@ export function JourneySection() {
       <InkFrame className={styles.frame}>
         <Corners />
         <Rail active={active} direction={direction} />
-        <div className='min-w-0'>
-          {JOURNEY_STEPS.map((step, i) => {
-            const Illustration = ILLUSTRATIONS[step.id];
-            const live = active === i;
-            const titleId = `${IDS.journey}-${step.id}`;
-            return (
-              <Fragment key={step.id}>
-                {/* the hatched band between cards, in the wall's material */}
-                {i > 0 && <div className='h-11.5 border-x border-rule-10 bg-hatch transition-ink' aria-hidden />}
-                <article
-                  ref={(el) => {
-                    cardRefs.current[i] = el;
-                  }}
-                  data-index={i}
-                  aria-labelledby={titleId}
-                  className='border border-rule-10 transition-ink'
-                >
-                  {/* the rail shows only the active step, so screen readers get each step's copy here, in order */}
-                  <h3 id={titleId} className='sr-only'>
-                    {step.title.split('\n').join(' ')}
-                  </h3>
-                  <p className='sr-only'>{step.note}</p>
-                  <div className='relative aspect-video overflow-hidden max-md:aspect-4/3'>
-                    <div className='absolute inset-0 flex items-center justify-center px-7.5 py-5.5 max-md:p-4'>
-                      <Illustration entered={entered[i]} live={live} />
-                    </div>
-                  </div>
-                </article>
-              </Fragment>
-            );
-          })}
+        <div ref={stackRef} className='min-w-0'>
+          {JOURNEY_STEPS.map((step, i) => (
+            <Fragment key={step.id}>
+              {/* the hatched band between cards, in the wall's material */}
+              {i > 0 && <div className='h-11.5 border-x border-rule-10 bg-hatch transition-ink' aria-hidden />}
+              <JourneyCard step={step} live={onScreen && active === i} />
+            </Fragment>
+          ))}
         </div>
       </InkFrame>
     </Section>
