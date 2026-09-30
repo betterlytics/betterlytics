@@ -42,7 +42,8 @@ export const COPY = {
        the chrome above already carries "demo", so repeating that here would be
        the frame talking to itself. */
     activateLine: 'Click anywhere to explore',
-    activateAria: 'Explore the interactive demo dashboard',
+    /* starts with the visible line, so voice control users can say what they see */
+    activateAria: 'Click anywhere to explore the interactive demo dashboard',
   },
   customers: {
     label: 'Trusted by *fast-growing* startups',

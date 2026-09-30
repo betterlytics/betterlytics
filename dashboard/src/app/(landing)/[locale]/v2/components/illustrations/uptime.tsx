@@ -268,7 +268,7 @@ const DAYS = 36;
 function StatusPage({ t }: { t: number }) {
   const out = PUBLIC.find((p) => fails(p.row, t));
   return (
-    <div className={styles.status} data-down={out ? true : undefined}>
+    <div className={styles.status} data-down={out ? true : undefined} aria-hidden>
       <div className={styles.chrome}>
         <i />
         <i />
@@ -350,10 +350,11 @@ export function Uptime({ entered, live }: IllustrationProps) {
       data-in={entered || undefined}
       data-live={live || undefined}
     >
+      {/* the label speaks for the art: role='img' alone doesn't hide the text inside from every screen reader */}
       <StatusPage t={t} />
       {/* the stack sits left and the notices hang off its lower right, so the two read
           as one diagonal; it starts low enough that the status page's hero clears it */}
-      <div className='relative mt-[15%] ml-[11%] w-[54%] max-md:mx-auto max-md:mt-0 max-md:w-[94%]'>
+      <div className='relative mt-[15%] ml-[11%] w-[54%] max-md:mx-auto max-md:mt-0 max-md:w-[94%]' aria-hidden>
         <div className='grid gap-2'>
           {MONITORS.map((monitor, row) => (
             <Monitor key={monitor.name} row={row} t={t} ticked={ticked} />
