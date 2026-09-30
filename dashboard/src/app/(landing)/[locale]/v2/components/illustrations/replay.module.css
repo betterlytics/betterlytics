@@ -15,7 +15,7 @@
     transition:
       opacity 0.45s var(--ease-out-expo),
       transform 0.5s var(--ease-out-expo);
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       &:not([data-in]) {
         opacity: 0;
         transform: translateY(12px);
@@ -26,7 +26,7 @@
      the cursor and the scrub stay in step with each other and with the bar's text. */
   .player *,
   .player *::after {
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-duration: var(--loop);
       animation-iteration-count: infinite;
     }
@@ -194,7 +194,7 @@
     background: #22201e;
     border-color: #22201e;
     color: #f7f5f2;
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: press;
       animation-timing-function: linear;
     }
@@ -204,7 +204,7 @@
     grid-area: 1 / 1;
   }
   .pro > span {
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: idle;
       animation-timing-function: linear;
     }
@@ -216,7 +216,7 @@
     border: 1.5px solid rgb(247 245 242 / 0.25);
     border-top-color: #f7f5f2;
     opacity: 0;
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: busy;
       animation-timing-function: linear;
     }
@@ -229,7 +229,7 @@
     width: 17px;
     height: 17px;
     pointer-events: none;
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: path;
       animation-timing-function: cubic-bezier(0.4, 0.04, 0.25, 1);
     }
@@ -237,7 +237,7 @@
   .cursor {
     z-index: 3;
     /* the still: on Choose Pro, at the rage click */
-    @variant motion-reduce {
+    @media (prefers-reduced-motion: reduce) {
       left: 51%;
       top: 76%;
     }
@@ -267,34 +267,34 @@
     font-weight: 600;
     line-height: 1.25;
     white-space: nowrap;
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: tag;
       animation-timing-function: linear;
     }
-    @variant motion-reduce {
+    @media (prefers-reduced-motion: reduce) {
       background: var(--color-down);
     }
   }
   .tag > span {
     grid-area: 1 / 1;
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-timing-function: linear;
     }
   }
   .tag > span:first-child {
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: tag-name;
     }
-    @variant motion-reduce {
+    @media (prefers-reduced-motion: reduce) {
       opacity: 0;
     }
   }
   .tag > span:last-child {
     opacity: 0;
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: tag-rage;
     }
-    @variant motion-reduce {
+    @media (prefers-reduced-motion: reduce) {
       opacity: 1;
     }
   }
@@ -311,14 +311,14 @@
     border-radius: 50%;
     border: 2px solid var(--color-volt-lift);
     opacity: 0;
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: click;
       animation-timing-function: linear;
     }
   }
   .rage::after {
     border-color: var(--color-down);
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: rage;
     }
   }
@@ -372,12 +372,12 @@
     border-radius: 1px;
     background: var(--color-volt-lift);
     width: 0;
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: scrub;
       animation-timing-function: linear;
     }
     /* the still's head sits on the rage click */
-    @variant motion-reduce {
+    @media (prefers-reduced-motion: reduce) {
       width: 59%;
     }
   }
@@ -412,7 +412,7 @@
   /* The error's marker flares once as the head reaches it: its loop runs offset by its own
      time, so the flare starts as the head arrives. */
   .tick[data-flare] {
-    @variant motion-safe {
+    @media (prefers-reduced-motion: no-preference) {
       animation-name: flare;
       animation-timing-function: ease-out;
       animation-delay: calc(var(--at) * var(--loop));

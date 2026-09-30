@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type ReactNode } from 'react';
+import { useReducedMotion } from 'motion/react';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import styles from './band.module.css';
@@ -26,11 +27,12 @@ export function Band({ children }: { children: ReactNode }) {
   const bandRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     const band = bandRef.current;
     const walls = [leftRef.current, rightRef.current].filter((wall) => wall !== null);
-    if (!band || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!band || reducedMotion) return;
 
     band.dataset.inking = '';
     let top = 0;
@@ -69,7 +71,7 @@ export function Band({ children }: { children: ReactNode }) {
       delete band.dataset.inking;
       delete band.dataset.closed;
     };
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <div ref={bandRef} id={IDS.band} className={styles.band}>
