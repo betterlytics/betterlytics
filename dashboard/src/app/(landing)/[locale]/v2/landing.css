@@ -3,14 +3,12 @@
  * its theme holds only the landing's design tokens and it scans only this folder,
  * so nothing leaks between the landing and the app. The page is dark-only by design.
  *
- * Layers, lowest first: theme, base, legacy (the pre-Tailwind stylesheet, shrinking
- * as components move over), components (component CSS modules wrap their rules in
- * it), utilities.
+ * Layers, lowest first: theme, base, components (component CSS modules wrap their
+ * rules in it, so utilities passed through className win), utilities.
  */
-@layer theme, base, legacy, components, utilities;
+@layer theme, base, components, utilities;
 
 @import 'tailwindcss' source(none);
-@import './legacy.css' layer(legacy);
 
 @source './**/*.{ts,tsx}';
 /* shared app components the page renders, for the utilities they use */
@@ -140,6 +138,14 @@
   @media (prefers-reduced-motion: no-preference) {
     html {
       scroll-behavior: smooth;
+  body {
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
     }
   }
 

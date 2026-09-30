@@ -23,7 +23,10 @@ import { IDS } from '@/landing/lib/ids';
  */
 export function LandingPage() {
   return (
-    <>
+    // full-bleed rules are 100vw wide (which includes a classic scrollbar) and escape the
+    // capped frame; clipped here rather than on body, whose overflow would pass to the
+    // viewport, which touch browsers still let the reader pan
+    <div className='overflow-x-clip'>
       <BrandMarkDefs />
       <a
         className='absolute -top-20 left-4 z-200 bg-fg px-4 py-2.5 text-label text-canvas transition-[top] duration-200 ease-out-expo focus:top-4'
@@ -57,6 +60,6 @@ export function LandingPage() {
         </main>
         <LandingFooter />
       </div>
-    </>
+    </div>
   );
 }

@@ -72,7 +72,7 @@ export default async function LandingLayout({
         <NextIntlClientProvider messages={{ pricingCards: messages.pricingCards }}>
           <LandingProviders>
             {env.ENABLE_APP_TRACKING && <GlobalPropertiesUpdater />}
-            <div className='lp2'>{children}</div>
+            {children}
           </LandingProviders>
         </NextIntlClientProvider>
       </body>

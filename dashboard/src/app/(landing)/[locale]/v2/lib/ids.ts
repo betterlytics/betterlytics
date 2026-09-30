@@ -4,7 +4,7 @@
  */
 export const IDS = {
   main: 'main',
-  band: 'lp2-band',
+  band: 'band',
   demo: 'demo',
   customers: 'customers',
   journey: 'journey',

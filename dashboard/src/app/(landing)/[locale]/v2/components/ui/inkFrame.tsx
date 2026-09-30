@@ -23,12 +23,7 @@ export function InkFrame({
   const ref = useRef<HTMLElement>(null);
   const drawn = useInView(ref, 'draw');
   return (
-    // `ink` and `is-drawn` keep legacy.css's rules for unconverted blocks working; they go with it
-    <Tag
-      ref={ref}
-      className={cn(styles.frame, 'ink', drawn && 'is-drawn', className)}
-      data-drawn={drawn || undefined}
-    >
+    <Tag ref={ref} className={cn(styles.frame, className)} data-drawn={drawn || undefined}>
       {children}
     </Tag>
   );

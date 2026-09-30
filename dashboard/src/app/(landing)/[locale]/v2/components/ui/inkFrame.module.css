@@ -8,13 +8,6 @@
     --color-rule-125: transparent;
     --color-rule-22: transparent;
     --color-rule-30: transparent;
-    /* the legacy stylesheet's names, until it is gone */
-    --rule: transparent;
-    --rule-08: transparent;
-    --rule-10: transparent;
-    --rule-125: transparent;
-    --rule-22: transparent;
-    --rule-30: transparent;
   }
 
   /* The frame's own edges are its ::before (top) and ::after (bottom), which the frame

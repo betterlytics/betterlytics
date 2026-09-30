@@ -224,15 +224,7 @@ export function JourneySection() {
                   </h3>
                   <p className='sr-only'>{step.note}</p>
                   <div className='relative aspect-video overflow-hidden max-md:aspect-4/3'>
-                    <div
-                      className={cn(
-                        // TEMP: the illustrations not yet converted still read these legacy classes
-                        'fig',
-                        entered[i] && 'is-in',
-                        live && 'is-live',
-                        'absolute inset-0 flex items-center justify-center px-7.5 py-5.5 max-md:p-4',
-                      )}
-                    >
+                    <div className='absolute inset-0 flex items-center justify-center px-7.5 py-5.5 max-md:p-4'>
                       <Illustration entered={entered[i]} live={live} />
                     </div>
                   </div>
