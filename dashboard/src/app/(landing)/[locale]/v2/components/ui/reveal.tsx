@@ -5,6 +5,7 @@ import { m, useReducedMotion } from 'motion/react';
 import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
+import { EASE_INK } from '@/landing/lib/easing';
 import styles from './reveal.module.css';
 
 /** Lifts into place when scrolled into view. Siblings stagger by `index`. */
@@ -30,9 +31,6 @@ export function Reveal({
     </div>
   );
 }
-
-/** Quick off the mark, easing out as the pen lifts. */
-const PEN: [number, number, number, number] = [0.5, 0, 0.2, 1];
 
 /**
  * Headline emphasis: an ink stroke drawn under the word once the reader is looking
@@ -62,7 +60,10 @@ export function Underline({ children }: { children: ReactNode }) {
           transition={
             reduce
               ? { duration: 0 }
-              : { pathLength: { duration: 0.75, ease: PEN, delay: 0.1 }, opacity: { duration: 0.01, delay: 0.1 } }
+              : {
+                  pathLength: { duration: 0.75, ease: EASE_INK, delay: 0.1 },
+                  opacity: { duration: 0.01, delay: 0.1 },
+                }
           }
         />
       </svg>

@@ -3,22 +3,11 @@
 import type { ElementType, ReactNode } from 'react';
 import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { cn } from '@/landing/lib/cn';
-
-/**
- * A slot whose content blurs and lifts out when `id` changes while the new
- * content blurs in from the other side. `direction` says which way: 1 when the
- * reader moves forward (new content rises from below), -1 when they go back.
- * `delay` staggers several slots into one coordinated move. The leaving content
- * is popped out of flow, so the slot is positioned for it to sit in.
- *
- * For readers who prefer reduced motion the content is swapped in place: the
- * item keeps one key, so nothing enters or leaves.
- */
+import { EASE_OUT_EXPO } from '@/landing/lib/easing';
 
 export const LIFT_STEP_S = 0.04; // the stagger between one slot and the next
 const IN_S = 0.5;
 const OUT_S = 0.26;
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const LIFT = 10; // px
 const BLUR = 'blur(5px)';
 
@@ -37,16 +26,26 @@ const SWAP = {
     filter: 'blur(0px)',
     // at rest the filter goes: even a zero blur renders text through a filter surface, which softens it
     transitionEnd: { filter: 'none' },
-    transition: { duration: IN_S, ease: EASE, delay },
+    transition: { duration: IN_S, ease: EASE_OUT_EXPO, delay },
   }),
   leave: ({ direction, delay }: Swap) => ({
     opacity: 0,
     y: -LIFT * direction,
     filter: BLUR,
-    transition: { duration: OUT_S, ease: EASE, delay },
+    transition: { duration: OUT_S, ease: EASE_OUT_EXPO, delay },
   }),
 };
 
+/**
+ * A slot whose content blurs and lifts out when `id` changes while the new
+ * content blurs in from the other side. `direction` says which way: 1 when the
+ * reader moves forward (new content rises from below), -1 when they go back.
+ * `delay` staggers several slots into one coordinated move. The leaving content
+ * is popped out of flow, so the slot is positioned for it to sit in.
+ *
+ * For readers who prefer reduced motion the content is swapped in place: the
+ * item keeps one key, so nothing enters or leaves.
+ */
 export function LiftSwap({
   id,
   direction = 1,
