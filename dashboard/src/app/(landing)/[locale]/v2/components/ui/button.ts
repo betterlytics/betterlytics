@@ -27,7 +27,7 @@ const buttonVariants = cva(
   },
 );
 
-export type ButtonStyleProps = VariantProps<typeof buttonVariants>;
+type ButtonStyleProps = VariantProps<typeof buttonVariants>;
 
 /**
  * The page's pill buttons, as classes for whatever element carries them: an i18n

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type ElementType, type ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import styles from './inkFrame.module.css';
@@ -11,20 +11,12 @@ import styles from './inkFrame.module.css';
  * the rules inside inking in last. Latches on first entry and never rewinds. The
  * frame type (Panel, the journey frame) supplies the edges as ::before and ::after.
  */
-export function InkFrame({
-  as: Tag = 'div',
-  className,
-  children,
-}: {
-  as?: ElementType;
-  className?: string;
-  children: ReactNode;
-}) {
-  const ref = useRef<HTMLElement>(null);
+export function InkFrame({ className, children }: { className?: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
   const drawn = useInView(ref, 'draw');
   return (
-    <Tag ref={ref} className={cn(styles.frame, className)} data-drawn={drawn || undefined}>
+    <div ref={ref} className={cn(styles.frame, className)} data-drawn={drawn || undefined}>
       {children}
-    </Tag>
+    </div>
   );
 }

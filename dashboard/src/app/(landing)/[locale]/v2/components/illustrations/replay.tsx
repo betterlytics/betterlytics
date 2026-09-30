@@ -177,7 +177,7 @@ export function Replay({ entered, live }: IllustrationProps) {
         <span className={cn(styles.ripple, styles.rage)} />
         {/* the visitor's cursor; its tag only shows at the clicks, first captured, then raged */}
         <span className={styles.cursor}>
-          <CursorGlyph solid />
+          <CursorGlyph />
           <span className={styles.tag}>
             <span>Click captured</span>
             <span>4× rage clicks</span>

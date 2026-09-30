@@ -6,7 +6,7 @@
  * those and dims the rest. `logo` names a file in public/framework-logos.
  * YOUR_SITE_ID is a deliberate placeholder.
  */
-export type Snippet = { id: string; name: string; file?: string; logo?: string; bundled?: boolean; code: string };
+type Snippet = { id: string; name: string; file?: string; logo?: string; bundled?: boolean; code: string };
 
 const SRC = 'https://betterlytics.io/analytics.js';
 

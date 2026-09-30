@@ -19,7 +19,7 @@ const PRESETS = {
   onScreen: { once: false, amount: 'some' },
 } satisfies Record<string, UseInViewOptions>;
 
-export type InViewPreset = keyof typeof PRESETS;
+type InViewPreset = keyof typeof PRESETS;
 
 /** Whether the element has entered (or, for `onScreen`, is on) the screen, per the preset's trigger. */
 export function useInView(ref: RefObject<Element | null>, preset: InViewPreset = 'enter') {
