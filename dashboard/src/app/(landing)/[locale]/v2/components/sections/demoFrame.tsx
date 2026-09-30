@@ -40,7 +40,8 @@ function whenPageSettles(start: () => void) {
  * window dots above it otherwise read as a screenshot. And it keeps the wheel:
  * an iframe this size swallows scroll, so without it anyone moving down the
  * page gets caught inside the dashboard. The pointer leaving the frame re-arms
- * it, so a second pass down the page scrolls just as cleanly as the first.
+ * it, as does the frame leaving the screen (a touch has no pointer to leave), so
+ * a second pass down the page scrolls just as cleanly as the first.
  * Keyboard readers meet it the same way: while it is armed the dashboard is out
  * of the tab order, so tabbing down the page steps over it rather than through
  * every control inside it.
@@ -67,10 +68,14 @@ export function DemoFrame({ src }: { src: string }) {
   const areaRef = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const near = useInView(areaRef, 'near');
+  const onScreen = useInView(areaRef, 'onScreen');
   // the scrim is up: the page keeps the wheel, and the tab order steps over the dashboard
   const armed = loaded && !active;
 
   useEffect(() => (near ? whenPageSettles(() => setRequested(true)) : undefined), [near]);
+  useEffect(() => {
+    if (!onScreen) setActive(false);
+  }, [onScreen]);
 
   return (
     <div
