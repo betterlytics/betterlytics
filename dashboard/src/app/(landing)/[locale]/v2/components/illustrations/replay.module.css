@@ -195,7 +195,7 @@
     border-color: #22201e;
     color: #f7f5f2;
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: press;
+      animation-name: pro-press;
       animation-timing-function: linear;
     }
   }
@@ -205,7 +205,7 @@
   }
   .pro > span {
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: idle;
+      animation-name: pro-label;
       animation-timing-function: linear;
     }
   }
@@ -217,7 +217,7 @@
     border-top-color: #f7f5f2;
     opacity: 0;
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: busy;
+      animation-name: pro-spinner;
       animation-timing-function: linear;
     }
   }
@@ -230,7 +230,7 @@
     height: 17px;
     pointer-events: none;
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: path;
+      animation-name: cursor-path;
       animation-timing-function: cubic-bezier(0.4, 0.04, 0.25, 1);
     }
   }
@@ -268,7 +268,7 @@
     line-height: 1.25;
     white-space: nowrap;
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: tag;
+      animation-name: cursor-tag;
       animation-timing-function: linear;
     }
     @media (prefers-reduced-motion: reduce) {
@@ -283,7 +283,7 @@
   }
   .tag > span:first-child {
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: tag-name;
+      animation-name: tag-captured;
     }
     @media (prefers-reduced-motion: reduce) {
       opacity: 0;
@@ -292,7 +292,7 @@
   .tag > span:last-child {
     opacity: 0;
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: tag-rage;
+      animation-name: tag-raged;
     }
     @media (prefers-reduced-motion: reduce) {
       opacity: 1;
@@ -312,14 +312,14 @@
     border: 2px solid var(--color-volt-lift);
     opacity: 0;
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: click;
+      animation-name: click-ring;
       animation-timing-function: linear;
     }
   }
   .rage::after {
     border-color: var(--color-down);
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: rage;
+      animation-name: rage-rings;
     }
   }
 
@@ -373,7 +373,7 @@
     background: var(--color-volt-lift);
     width: 0;
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: scrub;
+      animation-name: scrub-fill;
       animation-timing-function: linear;
     }
     /* the still's head sits on the rage click */
@@ -413,7 +413,7 @@
      time, so the flare starts as the head arrives. */
   .tick[data-flare] {
     @media (prefers-reduced-motion: no-preference) {
-      animation-name: flare;
+      animation-name: error-flare;
       animation-timing-function: ease-out;
       animation-delay: calc(var(--at) * var(--loop));
     }
@@ -508,7 +508,7 @@
 /* One loop, in phase with BEATS in replay.tsx. Enter, read the Starter price, click Choose
    Pro (36%), spin until the error (43%), rage-click four times (50-59%), give up and leave
    through the top (84%). */
-@keyframes path {
+@keyframes cursor-path {
   0% {
     left: 80%;
     top: 16%;
@@ -566,7 +566,7 @@
     opacity: 0;
   }
 }
-@keyframes click {
+@keyframes click-ring {
   0%,
   35.9% {
     opacity: 0;
@@ -583,7 +583,7 @@
   }
 }
 /* each rage ring spreads a little wider than the one before */
-@keyframes rage {
+@keyframes rage-rings {
   0%,
   58.9% {
     opacity: 0;
@@ -615,7 +615,7 @@
   }
 }
 /* the button only does what a dead button does: it goes down on each click and comes back up */
-@keyframes press {
+@keyframes pro-press {
   0%,
   35.9%,
   37%,
@@ -638,7 +638,7 @@
     transform: scale(0.95);
   }
 }
-@keyframes idle {
+@keyframes pro-label {
   0%,
   36%,
   43%,
@@ -650,7 +650,7 @@
     opacity: 0;
   }
 }
-@keyframes busy {
+@keyframes pro-spinner {
   0%,
   36%,
   43%,
@@ -670,7 +670,7 @@
 /* The tag only speaks up at the clicks: a blue "click captured" on the first, then hidden
    through the error, then red on the first rage click, shaking its head once (three swings
    in about a third of a second) and holding until they give up. It turns red while hidden. */
-@keyframes tag {
+@keyframes cursor-tag {
   0%,
   35.8% {
     opacity: 0;
@@ -721,7 +721,7 @@
   }
 }
 /* the two labels hand over while the tag is hidden between the clicks */
-@keyframes tag-name {
+@keyframes tag-captured {
   0%,
   49.9% {
     opacity: 1;
@@ -731,7 +731,7 @@
     opacity: 0;
   }
 }
-@keyframes tag-rage {
+@keyframes tag-raged {
   0%,
   49.9% {
     opacity: 0;
@@ -742,7 +742,7 @@
   }
 }
 /* runs offset to the error's own time, so 0% is the head arriving at it */
-@keyframes flare {
+@keyframes error-flare {
   0%,
   9%,
   100% {
@@ -756,7 +756,7 @@
       0 0 12px rgba(226, 88, 107, 0.75);
   }
 }
-@keyframes scrub {
+@keyframes scrub-fill {
   from {
     width: 0;
   }

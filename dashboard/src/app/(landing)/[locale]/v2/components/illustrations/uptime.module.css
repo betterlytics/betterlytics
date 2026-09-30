@@ -359,10 +359,10 @@
     animation: 0.6s var(--ease-out-expo);
   }
   .track[data-tick='a'] {
-    animation-name: tick-a;
+    animation-name: strip-slide-a;
   }
   .track[data-tick='b'] {
-    animation-name: tick-b;
+    animation-name: strip-slide-b;
   }
   .strip i {
     flex: 1 1 0;
@@ -618,12 +618,12 @@
 }
 
 /* two identical slides for the strips; alternating between them restarts the slide */
-@keyframes tick-a {
+@keyframes strip-slide-a {
   from {
     transform: translateX(0);
   }
 }
-@keyframes tick-b {
+@keyframes strip-slide-b {
   from {
     transform: translateX(0);
   }

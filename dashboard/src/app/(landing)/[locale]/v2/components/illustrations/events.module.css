@@ -71,7 +71,7 @@
     box-shadow: 0 0 0 3px --alpha(var(--color-live) / 14%);
   }
   .events[data-live] .dot {
-    animation: blink 2.4s ease-in-out infinite;
+    animation: live-dot-blink 2.4s ease-in-out infinite;
   }
   /* paused while the pointer is over the log: the dot becomes two bars */
   .status[data-paused] .dot {
@@ -201,7 +201,7 @@
   }
   /* an arrival shows its visitor in full colour, then settles to muted */
   .row[data-new] .who {
-    animation: settle 2.6s var(--ease-out-expo);
+    animation: visitor-settle 2.6s var(--ease-out-expo);
   }
   .flag {
     display: block;
@@ -237,7 +237,7 @@
   }
 }
 
-@keyframes blink {
+@keyframes live-dot-blink {
   0%,
   100% {
     opacity: 1;
@@ -247,7 +247,7 @@
   }
 }
 
-@keyframes settle {
+@keyframes visitor-settle {
   0%,
   30% {
     filter: none;
