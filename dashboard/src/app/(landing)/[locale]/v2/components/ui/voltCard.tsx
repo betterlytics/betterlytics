@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { InView } from '@/landing/components/ui/inView';
 import { cn } from '@/landing/lib/cn';
 import styles from './voltCard.module.css';
 
@@ -11,11 +12,11 @@ const VARIANTS = {
 /**
  * The blue card behind the hero and the closing call to action: the page's hatch in
  * the card's own tint, a slow wave of light along it, and a lamp glowing up from
- * below. Children are centred in a column.
+ * below. Children are centred in a column. The wave rests while the card is off screen.
  */
 export function VoltCard({ variant, children }: { variant: keyof typeof VARIANTS; children: ReactNode }) {
   return (
-    <div
+    <InView
       className={cn(
         styles.card,
         'relative flex flex-col items-center justify-center overflow-hidden rounded-2xl bg-volt',
@@ -27,6 +28,6 @@ export function VoltCard({ variant, children }: { variant: keyof typeof VARIANTS
       </div>
       <div className={cn(styles.bloom, styles[variant])} aria-hidden />
       <div className='relative z-2 flex w-full flex-col items-center gap-[34px] px-6 text-center'>{children}</div>
-    </div>
+    </InView>
   );
 }

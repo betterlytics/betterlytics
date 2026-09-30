@@ -80,6 +80,12 @@
       animation: wave 27s linear 0.8s infinite backwards;
     }
   }
+  /* resting where it is while the card is off screen (see ui/inView) */
+  @media (scripting: enabled) {
+    .card:not([data-live]) .wave i {
+      animation-play-state: paused;
+    }
+  }
 
   /* A polished edge: one soft white inner shadow, offset down and a touch right, so the
      top and left edges catch the light. Sits over the hatch and the bloom. */
