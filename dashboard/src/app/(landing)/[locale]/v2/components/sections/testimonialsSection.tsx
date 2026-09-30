@@ -1,12 +1,12 @@
 import Image from 'next/image';
 import { Emphasis } from '@/landing/components/ui/emphasis';
 import { Panel, Section } from '@/landing/components/ui/frame';
+import { InView } from '@/landing/components/ui/inView';
 import { COPY } from '@/landing/content/copy';
 import { TESTIMONIAL_ROWS, type Testimonial } from '@/landing/content/testimonials';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import styles from './testimonialsSection.module.css';
-import { TestimonialsMarquee } from './testimonialsMarquee';
 
 /** A card's two tones: the canvas surface, or the brand colour a row's standout quote is set in. */
 const TONES = {
@@ -77,23 +77,29 @@ function Card({ testimonial, repeat = false }: { testimonial: Testimonial; repea
   );
 }
 
-/** Cards, deliberately unlike the framework tiles: slower and larger, so the two rows never read as the same device. */
+/**
+ * Cards, deliberately unlike the framework tiles: slower and larger, so the two rows
+ * never read as the same device. The rows drift only while on screen, and hold still
+ * under the pointer or while the marquee has focus, so a keyboard can stop them too.
+ */
 export function TestimonialsSection() {
   return (
     <Section id={IDS.quotes} title={COPY.quotes.title} lede={COPY.quotes.lede}>
       <Panel flush>
-        <TestimonialsMarquee>
-          {TESTIMONIAL_ROWS.map((row, r) => (
-            <div key={r} className={styles.row}>
-              {row.map((testimonial) => (
-                <Card key={testimonial.name} testimonial={testimonial} />
-              ))}
-              {row.map((testimonial) => (
-                <Card key={`${testimonial.name} (repeat)`} testimonial={testimonial} repeat />
-              ))}
-            </div>
-          ))}
-        </TestimonialsMarquee>
+        <InView className={styles.marquee} tabIndex={0} role='region' aria-label={COPY.quotes.marquee}>
+          <div className={styles.window}>
+            {TESTIMONIAL_ROWS.map((row, r) => (
+              <div key={r} className={styles.row}>
+                {row.map((testimonial) => (
+                  <Card key={testimonial.name} testimonial={testimonial} />
+                ))}
+                {row.map((testimonial) => (
+                  <Card key={`${testimonial.name} (repeat)`} testimonial={testimonial} repeat />
+                ))}
+              </div>
+            ))}
+          </div>
+        </InView>
       </Panel>
     </Section>
   );

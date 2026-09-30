@@ -112,6 +112,7 @@ export const COPY = {
   quotes: {
     title: 'Teams that stopped guessing',
     lede: 'In their own words, what changed after the switch.',
+    marquee: 'Testimonials',
   },
   pricing: {
     title: 'One price, scaled by your traffic',

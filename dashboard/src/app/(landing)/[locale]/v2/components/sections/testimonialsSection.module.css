@@ -1,8 +1,12 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* Two rows of cards drifting past in opposite directions, fading out at both ends. */
-  .marquee {
+  /* Two rows of cards drifting past in opposite directions, fading out at both ends. The
+     fade lives on an inner window so it does not fade the focus ring with it. */
+  .marquee:focus-visible {
+    outline-offset: -2px;
+  }
+  .window {
     position: relative;
     overflow: hidden;
     padding-block: 26px;
@@ -24,9 +28,11 @@
     animation-duration: 50s;
     animation-direction: reverse;
   }
-  /* Held under the pointer. Plain :hover rather than the hover variant, so that on a
-     touch screen a tap holds it too. */
-  .marquee:hover .row {
+  /* Held under the pointer, and while focused, so there is a way to stop it without
+     one. Plain :hover rather than the hover variant, so that on a touch screen a tap
+     holds it too. */
+  .marquee:hover .row,
+  .marquee:focus .row {
     animation-play-state: paused;
   }
   /* and at rest off screen, once a script is there to say when it is on */
