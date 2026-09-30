@@ -10,10 +10,10 @@ import styles from './frameworkStrip.module.css';
 
 const copy = COPY.frameworks;
 
-const GLYPHS = FRAMEWORKS.flatMap((framework) => {
-  const glyph = FRAMEWORK_GLYPHS[framework.logo];
-  return glyph ? [{ ...framework, ...glyph }] : [];
-});
+const GLYPHS: ReadonlyArray<{ name: string; path: string; hover?: string }> = FRAMEWORKS.map((framework) => ({
+  name: framework.name,
+  ...FRAMEWORK_GLYPHS[framework.logo],
+}));
 
 /**
  * The frameworks as a quiet "works with" row: the claim on the left, one

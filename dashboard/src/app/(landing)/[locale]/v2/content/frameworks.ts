@@ -1,8 +1,10 @@
+import type { FRAMEWORK_GLYPHS } from '@/landing/content/frameworkGlyphs';
+
 /**
  * The frameworks the "works with" strip names, in order. `logo` keys the
  * framework's monochrome glyph in content/frameworkGlyphs.
  */
-export type Framework = { name: string; logo: string };
+type Framework = { name: string; logo: keyof typeof FRAMEWORK_GLYPHS };
 
 export const FRAMEWORKS: readonly Framework[] = [
   { name: 'React', logo: 'react' },
