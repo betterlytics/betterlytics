@@ -150,7 +150,6 @@ export function SnippetPanel() {
                   alt=''
                   width={13}
                   height={13}
-                  unoptimized
                 />
               ) : (
                 <BoxIcon />
