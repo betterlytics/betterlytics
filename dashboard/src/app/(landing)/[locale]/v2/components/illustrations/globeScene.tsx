@@ -139,26 +139,30 @@ const MINOR_LINES = [...PARALLELS, ...MERIDIANS.filter((_, i) => i % 2 === 1)];
 
 /* The orthographic projection cobe uses for its marker anchors: spin by phi, tilt
    by theta, then x and y are fractions of the canvas. depth points at the viewer.
-   The roll is applied by CSS to the whole canvas, so it is not part of this. */
-function project([x, y, z]: Vec3, { phi, theta }: Pose) {
+   The roll is applied by CSS to the whole canvas, so it is not part of this. Built
+   once per pose, so the trig runs once a frame rather than once per point. */
+function projector({ phi, theta }: Pose) {
   const cp = Math.cos(phi);
   const sp = Math.sin(phi);
   const ct = Math.cos(theta);
   const st = Math.sin(theta);
-  const sx = cp * x + sp * z;
-  const sy = sp * st * x + ct * y - cp * st * z;
-  const depth = -sp * ct * x + st * y + cp * ct * z;
-  return { x: (sx * SPHERE + 1) / 2, y: (1 - sy * SPHERE) / 2, front: depth >= 0, depth };
+  return ([x, y, z]: Vec3) => {
+    const sx = cp * x + sp * z;
+    const sy = sp * st * x + ct * y - cp * st * z;
+    const depth = -sp * ct * x + st * y + cp * ct * z;
+    return { x: (sx * SPHERE + 1) / 2, y: (1 - sy * SPHERE) / 2, front: depth >= 0, depth };
+  };
 }
+type Project = ReturnType<typeof projector>;
 
 /* Strokes the parts of the lines on one hemisphere: the near side by default, the far side if asked. */
-function traceLines(ctx: CanvasRenderingContext2D, lines: Vec3[][], pose: Pose, far = false) {
+function traceLines(ctx: CanvasRenderingContext2D, lines: Vec3[][], project: Project, far = false) {
   const { width, height } = ctx.canvas;
   ctx.beginPath();
   for (const line of lines) {
     let pen = false;
     for (const v of line) {
-      const p = project(v, pose);
+      const p = project(v);
       if (p.front === far) {
         pen = false;
         continue;
@@ -172,19 +176,19 @@ function traceLines(ctx: CanvasRenderingContext2D, lines: Vec3[][], pose: Pose, 
 }
 
 /* Redraws the graticule for one pose: the far hemisphere faintly first, then the near one. */
-function drawGraticule(canvas: HTMLCanvasElement, pose: Pose, stroke: string, lineWidth: number) {
+function drawGraticule(canvas: HTMLCanvasElement, project: Project, stroke: string, lineWidth: number) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.strokeStyle = stroke;
   ctx.lineWidth = lineWidth;
   ctx.globalAlpha = FAR_GRID_ALPHA;
-  traceLines(ctx, MERIDIANS, pose, true);
-  traceLines(ctx, PARALLELS, pose, true);
+  traceLines(ctx, MERIDIANS, project, true);
+  traceLines(ctx, PARALLELS, project, true);
   ctx.globalAlpha = MAJOR_ALPHA;
-  traceLines(ctx, MAJOR_MERIDIANS, pose);
+  traceLines(ctx, MAJOR_MERIDIANS, project);
   ctx.globalAlpha = MINOR_ALPHA;
-  traceLines(ctx, MINOR_LINES, pose);
+  traceLines(ctx, MINOR_LINES, project);
 }
 
 /* Draws the visitor marks for one pose on the canvas above the globe. cobe's own markers
@@ -192,7 +196,7 @@ function drawGraticule(canvas: HTMLCanvasElement, pose: Pose, stroke: string, li
    maintaining anchor elements for them. */
 function drawMarks(
   canvas: HTMLCanvasElement,
-  pose: Pose,
+  project: Project,
   activeId: string,
   dpr: number,
   colour: string,
@@ -206,7 +210,7 @@ function drawMarks(
   ctx.fillStyle = colour;
   ctx.lineWidth = dpr;
   for (const a of ARRIVALS) {
-    const p = project(toVector(a.lat, a.lng), pose);
+    const p = project(toVector(a.lat, a.lng));
     if (!p.front) continue;
     const x = p.x * width;
     const y = p.y * height;
@@ -234,8 +238,8 @@ function drawMarks(
 const byId = (id: string) => ARRIVALS.find((a) => a.id === id) ?? ARRIVALS[0];
 
 /* Cosine between a location and the viewer: 1 at the disc centre, 0 on the limb. */
-function facingDepth(a: Arrival, pose: Pose) {
-  return project(toVector(a.lat, a.lng), pose).depth;
+function facingDepth(a: Arrival, project: Project) {
+  return project(toVector(a.lat, a.lng)).depth;
 }
 
 /* The globe layer's box inside the scene, in CSS px, read once per resize: its offsets
@@ -244,12 +248,12 @@ type HostBox = { left: number; top: number; size: number };
 
 /* Pins the label beside its marker, rolling the projected point around the host's
    centre the way CSS rolls the canvases. Returns whether the marker faces the viewer. */
-function placeLabel(box: HostBox, label: HTMLElement, a: Arrival, pose: Pose) {
-  const p = project(toVector(a.lat, a.lng), pose);
+function placeLabel(box: HostBox, label: HTMLElement, a: Arrival, project: Project, roll: number) {
+  const p = project(toVector(a.lat, a.lng));
   const dx = p.x - 0.5;
   const dy = p.y - 0.5;
-  const cr = Math.cos(pose.roll);
-  const sr = Math.sin(pose.roll);
+  const cr = Math.cos(roll);
+  const sr = Math.sin(roll);
   const x = box.left + (0.5 + dx * cr - dy * sr) * box.size + LABEL_DX;
   const y = box.top + (0.5 + dx * sr + dy * cr) * box.size;
   // Above and to the right of the marker, unless that would run off the top of the card.
@@ -333,7 +337,7 @@ export function GlobeScene() {
   const flingRef = useRef<{ v0: number; start: number } | null>(null);
   const dragRef = useRef<{ x: number; yaw: number; t: number; v: number } | null>(null);
   const [dragging, setDragging] = useState(false);
-  // The globe turns whenever any of it is on screen, not only while its card is the active one.
+  // Its own check, not `live`: the globe turns whenever any of it shows, active card or not, and only then.
   const visible = useInView(hostRef, 'onScreen');
   const globesRef = useRef<Globes | null>(null);
   const [flat, setFlat] = useState(false);
@@ -368,19 +372,20 @@ export function GlobeScene() {
     let box: HostBox = { left: 0, top: 0, size: 1 };
     renderRef.current = () => {
       const pose = poseAt(yawRef.current);
+      const project = projector(pose);
       const roll = `translateX(-50%) rotate(${pose.roll}rad)`;
-      drawGraticule(grid, pose, stroke, dpr);
+      drawGraticule(grid, project, stroke, dpr);
       grid.style.transform = roll;
       if (!globes) return false;
       globes.near.update({ phi: pose.phi, theta: pose.theta });
       host.style.transform = roll;
       marks.style.transform = roll;
-      drawMarks(marks, pose, activeRef.current, dpr, markColour, performance.now());
+      drawMarks(marks, project, activeRef.current, dpr, markColour, performance.now());
       const farPose = poseAt(yawRef.current + Math.PI);
       globes.far.update({ phi: farPose.phi, theta: farPose.theta });
       farHost.style.transform = `translateX(-50%) scaleX(-1) rotate(${farPose.roll}rad)`;
       const label = labelRef.current;
-      return label ? placeLabel(box, label, byId(activeRef.current), pose) : true;
+      return label ? placeLabel(box, label, byId(activeRef.current), project, pose.roll) : true;
     };
     const fit = () => {
       const size = { width: host.clientWidth, height: host.clientHeight };
@@ -459,14 +464,14 @@ export function GlobeScene() {
   useEffect(() => {
     if (!globesRef.current || !visible || reduce) return;
     const next = () => {
-      const pose = poseAt(yawRef.current);
+      const project = projector(poseAt(yawRef.current));
       setActive((current) => {
         const start = ARRIVALS.findIndex((a) => a.id === current.id);
         let best: Arrival = current;
         let bestDepth = -1;
         for (let step = 1; step <= ARRIVALS.length; step++) {
           const candidate = ARRIVALS[(start + step) % ARRIVALS.length];
-          const depth = facingDepth(candidate, pose);
+          const depth = facingDepth(candidate, project);
           if (depth >= WELL_FACING) return candidate;
           if (depth > bestDepth) {
             best = candidate;
