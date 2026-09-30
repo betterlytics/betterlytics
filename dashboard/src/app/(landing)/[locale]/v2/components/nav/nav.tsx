@@ -7,6 +7,7 @@ import { Link } from '@/i18n/navigation';
 import { GitHubIcon } from '@/components/icons/SocialIcons';
 import { BrandLink } from '@/landing/components/ui/brandMark';
 import { buttonStyles } from '@/landing/components/ui/button';
+import { TrackedLink } from '@/landing/components/ui/trackedLink';
 import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
@@ -34,10 +35,13 @@ function NavLinks({ className, onNavigate }: { className?: string; onNavigate?: 
   );
 }
 
-/** Sign in and sign up, or the way back to the dashboard once the session says the reader has an account. */
+/**
+ * Sign in and sign up, or the way back to the dashboard once the session says the
+ * reader has an account. Most readers have none, so the signed-out links are what
+ * the static page ships and what shows while the session loads: nothing moves for them.
+ */
 function AccountLinks() {
-  const { data: session, status } = useSession();
-  if (status === 'loading') return <span className='h-4 w-16 rounded-sm bg-rule-10' aria-hidden />;
+  const { data: session } = useSession();
   if (session) {
     return (
       <NextLink className={buttonStyles({ variant: 'volt', size: 'sm' })} href='/dashboards'>
@@ -50,9 +54,14 @@ function AccountLinks() {
       <Link className={cn(QUIET_LINK, 'max-sm:hidden')} href='/signin'>
         {copy.signIn}
       </Link>
-      <Link className={buttonStyles({ variant: 'volt', size: 'sm' })} href='/signup'>
+      <TrackedLink
+        className={buttonStyles({ variant: 'volt', size: 'sm' })}
+        href='/signup'
+        placement='nav'
+        destination='signup'
+      >
         {copy.cta}
-      </Link>
+      </TrackedLink>
     </>
   );
 }
@@ -86,7 +95,7 @@ export function Nav() {
         'before:absolute before:inset-y-0 before:left-1/2 before:-z-1 before:w-screen before:-translate-x-1/2 before:bg-canvas',
         // the band's top rule hands over to this one at the pixel where they coincide, so
         // it switches without animation: a half-drawn rule would show beside the band's
-        'after:bleed-rule after:bottom-0 after:bg-rule after:invisible data-grid:after:visible max-sm:after:hidden',
+        'after:bleed-rule after:invisible after:bottom-0 after:bg-rule data-grid:after:visible max-sm:after:hidden',
       )}
     >
       <BrandLink className='justify-self-start' />
