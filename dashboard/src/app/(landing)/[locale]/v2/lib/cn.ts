@@ -12,6 +12,9 @@ const merge = extendTailwindMerge({
       color: [
         'canvas',
         'surface',
+        'panel',
+        'panel-raised',
+        'terminal',
         'fg',
         'muted',
         'volt',

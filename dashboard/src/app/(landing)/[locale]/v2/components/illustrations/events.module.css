@@ -19,7 +19,7 @@
     width: 100%;
     max-width: 660px;
     border-radius: 12px;
-    background: #191817;
+    background: var(--color-panel);
     border: 1px solid --alpha(var(--color-fg) / 9%);
     box-shadow:
       0 1px 0 rgb(255 255 255 / 0.05) inset,

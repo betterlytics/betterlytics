@@ -117,7 +117,7 @@ export function SnippetPanel() {
   const panelId = (index: number) => `${id}-panel-${index}`;
 
   return (
-    <div className='flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-fg/9 bg-[#08080a]'>
+    <div className='flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-fg/9 bg-terminal'>
       <div className='flex [scrollbar-width:none] gap-0.5 overflow-x-auto border-b border-fg/7 bg-fg/3 px-2.5 pt-2'>
         <div
           role='tablist'

@@ -19,6 +19,12 @@
   --color-*: initial;
   --color-canvas: #151414;
   --color-surface: #1c1a1a;
+  /* the mock product windows in the journey cards (event log, replay player, status page) */
+  --color-panel: #191817;
+  /* the traffic card's fanned dashboard cards, a shade lighter as they overlap each other */
+  --color-panel-raised: #1b1a19;
+  /* the near-black glass behind code: the MCP terminal and the install snippet's frame */
+  --color-terminal: #08080a;
   --color-fg: #ebe8e6;
   --color-muted: #aea5a1;
   --color-volt: #1a2bd1;

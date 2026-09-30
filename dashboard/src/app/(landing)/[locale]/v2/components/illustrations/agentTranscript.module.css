@@ -11,7 +11,7 @@
     border: 1px solid --alpha(var(--color-fg) / 9%);
     border-left-width: 0;
     border-radius: 8px;
-    background: #08080a;
+    background: var(--color-terminal);
   }
 
   /* A flare in the lower right corner: a soft falloff (::before) and a dot field masked

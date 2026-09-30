@@ -10,7 +10,7 @@
   .card {
     position: absolute;
     border-radius: 11px;
-    background: #1b1a19;
+    background: var(--color-panel-raised);
     overflow: hidden;
     border: 1px solid --alpha(var(--color-fg) / 10%);
     box-shadow:

@@ -11,7 +11,7 @@
     width: 42%;
     border-radius: 10px;
     overflow: hidden;
-    background: #191817;
+    background: var(--color-panel);
     border: 1px solid --alpha(var(--color-fg) / 9%);
     box-shadow: 0 10px 24px rgb(0 0 0 / 0.35);
     -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
