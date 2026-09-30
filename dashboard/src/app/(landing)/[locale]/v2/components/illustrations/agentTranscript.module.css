@@ -16,8 +16,8 @@
 
   /* A flare in the lower right corner: a soft falloff (::before) and a dot field masked
      to the same shape (::after). The shimmer canvas shares their box and lights the
-     dots in waves; FlareShimmer's constants mirror this field (the box, the dots'
-     pitch and radius, the mask's stops), so change the two together. */
+     dots in waves; the field's box, the dots' pitch and radius and the mask's stops
+     come from FlareShimmer (FLARE_FIELD, set on the terminal), so the two stay in step. */
   .terminal::before,
   .terminal::after {
     content: '';
@@ -28,8 +28,8 @@
     position: absolute;
     right: -270px;
     bottom: -368px;
-    width: 620px;
-    height: 620px;
+    width: var(--flare-box);
+    height: var(--flare-box);
     pointer-events: none;
   }
   .terminal::before {
@@ -48,10 +48,14 @@
     z-index: 1;
   }
   .terminal::after {
-    background-image: radial-gradient(circle at 1.2px 1.2px, rgb(196 205 255 / 0.42) 1.2px, transparent 0);
-    background-size: 11px 11px;
-    -webkit-mask-image: radial-gradient(closest-side, #000 10%, transparent 66%);
-    mask-image: radial-gradient(closest-side, #000 10%, transparent 66%);
+    background-image: radial-gradient(
+      circle at var(--flare-dot) var(--flare-dot),
+      rgb(196 205 255 / 0.42) var(--flare-dot),
+      transparent 0
+    );
+    background-size: var(--flare-pitch) var(--flare-pitch);
+    -webkit-mask-image: radial-gradient(closest-side, #000 var(--flare-full), transparent var(--flare-fade));
+    mask-image: radial-gradient(closest-side, #000 var(--flare-full), transparent var(--flare-fade));
   }
 
   .bar,

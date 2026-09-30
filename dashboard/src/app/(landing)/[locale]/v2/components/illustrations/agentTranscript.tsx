@@ -7,7 +7,7 @@ import { COPY } from '@/landing/content/copy';
 import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import styles from './agentTranscript.module.css';
-import { FlareShimmer } from './flareShimmer';
+import { FLARE_FIELD, FlareShimmer } from './flareShimmer';
 
 /* The transcript is mock terminal output, kept literal on purpose. Each question
    deliberately needs two parts of the product at once (traffic and errors,
@@ -280,6 +280,7 @@ export function AgentTranscript({ className }: { className?: string }) {
     <div
       ref={ref}
       className={cn(styles.terminal, className)}
+      style={FLARE_FIELD}
       data-live={live || undefined}
       role='img'
       aria-label={COPY.illustrations.transcript}

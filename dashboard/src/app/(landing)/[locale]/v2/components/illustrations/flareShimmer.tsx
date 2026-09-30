@@ -1,14 +1,30 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { vars } from '@/landing/lib/cssVars';
 
-/* kept in step with the dot field, `.terminal::after` in agentTranscript.module.css:
-   the canvas sits in the same box, so its grid lands exactly on those dots */
+/* The dot field the shimmer lights, drawn in CSS as `.terminal::after` in
+   agentTranscript.module.css from FLARE_FIELD below, so the canvas, which sits in the
+   same box, lands exactly on those dots. */
 const BOX = 620;
 const PITCH = 11;
 const DOT = 1.2; // radius, and the dot's offset into its tile
-const FULL = 0.1 * (BOX / 2); // the field's mask: full strength out to 10% of the radius…
-const FADE = 0.66 * (BOX / 2); // …fading to nothing at 66%
+const FULL_PCT = 10; // the field's mask: full strength out to 10% of the radius…
+const FADE_PCT = 66; // …fading to nothing at 66%
+const FULL = (FULL_PCT / 100) * (BOX / 2);
+const FADE = (FADE_PCT / 100) * (BOX / 2);
+
+/** The dot field's geometry as custom properties, for the stylesheet that draws its static dots. */
+export const FLARE_FIELD = vars({
+  '--flare-box': `${BOX}px`,
+  '--flare-pitch': `${PITCH}px`,
+  '--flare-dot': `${DOT}px`,
+  '--flare-full': `${FULL_PCT}%`,
+  '--flare-fade': `${FADE_PCT}%`,
+});
+
+const MAX_DPR = 2;
+const FIRST_WAVE_MS = 600; // the first wave waits a moment after the shimmer starts
 const FPS = 30;
 const PEAK = 0.5; // the most the crest adds to a dot's alpha
 const WIDTH = 48; // the crest's half-width in px (a gaussian's sigma)
@@ -31,7 +47,8 @@ function falloff(d: number) {
  * shows, the field rests a moment, and the next comes from a fresh random
  * heading, so it never reads as a loop or leans one way. Draws only while
  * `live`; the static field underneath is the whole picture without JS or under
- * reduced motion. `className` places the canvas over the field.
+ * reduced motion. `className` places the canvas over the field, and the frame
+ * that draws the field carries FLARE_FIELD.
  */
 export function FlareShimmer({ className, live }: { className?: string; live: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -46,7 +63,7 @@ export function FlareShimmer({ className, live }: { className?: string; live: bo
       return;
     }
 
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
     canvas.width = BOX * dpr;
     canvas.height = BOX * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -103,7 +120,7 @@ export function FlareShimmer({ className, live }: { className?: string; live: bo
       return { ux, uy, from, to, start, duration: ((to - from) / SPEED) * 1000 };
     };
 
-    let wave = nextWave(performance.now() + 600);
+    let wave = nextWave(performance.now() + FIRST_WAVE_MS);
     let raf = 0;
     let last = 0;
     let lit = false;
