@@ -14,6 +14,7 @@ export const COPY = {
     skip: 'Skip to content',
     home: 'Betterlytics — home',
     menu: 'Menu',
+    label: 'Primary',
     links: [
       { label: 'Demo', anchor: 'demo' },
       { label: 'Features', anchor: 'journey' },

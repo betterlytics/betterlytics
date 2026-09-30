@@ -16,6 +16,8 @@ import { useNavScrollState } from './useNavScrollState';
 
 const copy = COPY.nav;
 const SHEET_ID = 'landing-nav-sheet';
+/** Where the links leave the sheet for the bar (the theme's xl breakpoint). */
+const WIDE = '(width >= 62.5rem)';
 
 /** Links hover by dipping rather than lifting. */
 const QUIET_LINK = 'transition-opacity duration-180 ease-out-expo hover:opacity-80';
@@ -74,14 +76,28 @@ function AccountLinks() {
  */
 export function Nav() {
   const ref = useRef<HTMLElement>(null);
+  const menuRef = useRef<HTMLButtonElement>(null);
+  const sheetRef = useRef<HTMLElement>(null);
   const { grid } = useNavScrollState(ref, IDS.band);
   const [open, setOpen] = useState(false);
 
+  // An open sheet closes on Escape, handing focus back to the button if it was inside
+  // the sheet, and closes by itself once the window widens past the bar's breakpoint.
   useEffect(() => {
     if (!open) return;
-    const close = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
-    window.addEventListener('keydown', close);
-    return () => window.removeEventListener('keydown', close);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (sheetRef.current?.contains(document.activeElement)) menuRef.current?.focus();
+      setOpen(false);
+    };
+    const wide = window.matchMedia(WIDE);
+    const onWide = () => wide.matches && setOpen(false);
+    window.addEventListener('keydown', onKey);
+    wide.addEventListener('change', onWide);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      wide.removeEventListener('change', onWide);
+    };
   }, [open]);
 
   return (
@@ -101,7 +117,7 @@ export function Nav() {
       <BrandLink className='justify-self-start' />
       <nav
         className='relative col-start-2 flex gap-7 text-body font-medium tracking-ui text-fg max-xl:hidden'
-        aria-label='Primary'
+        aria-label={copy.label}
       >
         <NavLinks className={QUIET_LINK} />
       </nav>
@@ -118,6 +134,7 @@ export function Nav() {
         </a>
         <AccountLinks />
         <button
+          ref={menuRef}
           type='button'
           className='hidden size-9 flex-col items-center justify-center gap-[5px] rounded-[7px] text-fg max-xl:flex'
           aria-label={copy.menu}
@@ -140,9 +157,10 @@ export function Nav() {
         </button>
       </div>
       <nav
+        ref={sheetRef}
         id={SHEET_ID}
         className='absolute inset-x-0 top-full flex flex-col border-b border-rule bg-canvas px-(--pad) pt-2 pb-[18px] text-title tracking-ui'
-        aria-label='Primary'
+        aria-label={copy.label}
         hidden={!open}
       >
         <NavLinks className='border-t border-rule-08 py-3 text-fg' onNavigate={() => setOpen(false)} />
