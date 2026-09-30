@@ -1,0 +1,41 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* The numbers beside the snippet: a stack whose rows share its height, two by two once
+     the snippet takes the full width, one column on phones. */
+  .stats {
+    display: flex;
+    flex-direction: column;
+    @variant max-xl {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+    @variant max-sm {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .row {
+    flex: 1;
+    padding: 18px 26px;
+    border-bottom: 1px solid var(--color-rule-08);
+  }
+  .row:last-child {
+    border-bottom: 0;
+  }
+  .row:nth-child(odd) {
+    @variant max-xl {
+      border-right: 1px solid var(--color-rule-08);
+    }
+    @variant max-sm {
+      border-right: 0;
+    }
+  }
+  /* the bottom pair closes on the panel's edge; this carries down to phones, where it
+     leaves the third row without a rule above the lit one */
+  .row:nth-last-child(-n + 2) {
+    @variant max-xl {
+      border-bottom: 0;
+    }
+  }
+}

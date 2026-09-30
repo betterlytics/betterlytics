@@ -71,6 +71,8 @@ export const COPY = {
   network: {
     title: 'One script, nothing else to add',
     lede: 'Here is exactly what it costs your site.',
+    /* names the snippet's framework tabs for screen readers */
+    snippetLabel: 'Install snippet',
     /* Script size is the gzipped static/analytics.js; the other two figures come from the draft. */
     stats: [
       {

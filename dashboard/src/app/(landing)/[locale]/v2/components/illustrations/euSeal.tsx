@@ -1,11 +1,7 @@
-/**
- * The EU ring of twelve stars with a checkmark inside, drawn as a faint
- * watermark bleeding off the volt cell's bottom-right corner. Monoline, no
- * fill, in the on-volt colour at watermark opacity. On hover the ring turns
- * one star over the still checkmark (see .seal__ring in landing-v2.css).
- */
-
 const STAR_POINTS = 12;
+
+/** Turns with the ring under the pointer; every part eases the same way. */
+const TURN = 'transition-[rotate] duration-1200 ease-out-expo';
 
 function Star({ cx, cy, r }: { cx: number; cy: number; r: number }) {
   // five-point star from an outer and inner radius, drawn about its own origin so
@@ -18,7 +14,7 @@ function Star({ cx, cy, r }: { cx: number; cy: number; r: number }) {
   }
   return (
     <g transform={`translate(${cx.toFixed(2)} ${cy.toFixed(2)})`}>
-      <polygon className='seal__star' points={pts.join(' ')} />
+      <polygon className={`${TURN} group-hover:-rotate-30`} points={pts.join(' ')} />
     </g>
   );
 }
@@ -34,17 +30,36 @@ function Stars({ cx, cy, radius, size }: { cx: number; cy: number; radius: numbe
   );
 }
 
+/**
+ * The EU ring of twelve stars with a checkmark inside, a faint watermark bleeding off
+ * the bottom-right corner of the cell that holds it (the cell clips it): monoline, no
+ * fill, in the on-volt colour at watermark opacity. When the cell (a `group`) is
+ * hovered, the ring turns one star, a twelfth of a turn, about the still checkmark
+ * while each star counter-turns to stay upright, so it comes to rest looking exactly
+ * as it started, and leaving turns it back just as quietly. The stars slide in and
+ * out under the cell's clip.
+ */
 export function EuSeal() {
-  // 200px box, bottom-right, clipped by the cell
   return (
-    <svg className='seal seal--lock' viewBox='0 0 200 206' width='200' height='206' aria-hidden>
-      <g className='seal__ring' fill='currentColor' stroke='none'>
+    <svg
+      className='pointer-events-none absolute -right-[50px] -bottom-[72px] z-0 h-auto w-[190px] text-on-volt opacity-14'
+      viewBox='0 0 200 206'
+      width='200'
+      height='206'
+      aria-hidden
+    >
+      <g className={`${TURN} origin-[100px_106px] group-hover:rotate-30`} fill='currentColor'>
         <Stars cx={100} cy={106} radius={84} size={8} />
       </g>
-      <g fill='none' stroke='currentColor' strokeWidth='7' strokeLinecap='round' strokeLinejoin='round'>
-        {/* checkmark, visually centred: the long stroke's weight sits right of centre so the shape starts a little left */}
-        <path d='M70 106l20 20 40-44' />
-      </g>
+      {/* checkmark, visually centred: the long stroke's weight sits right of centre so the shape starts a little left */}
+      <path
+        d='M70 106l20 20 40-44'
+        fill='none'
+        stroke='currentColor'
+        strokeWidth='7'
+        strokeLinecap='round'
+        strokeLinejoin='round'
+      />
     </svg>
   );
 }

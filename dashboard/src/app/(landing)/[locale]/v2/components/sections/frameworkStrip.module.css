@@ -1,0 +1,110 @@
+@reference '../../landing.css';
+
+@layer components {
+  .glyphs {
+    position: relative;
+    min-width: 0;
+    margin-left: auto;
+    @variant max-xl {
+      margin-left: 0;
+    }
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px 14px;
+    @variant max-xl {
+      justify-content: flex-start;
+    }
+  }
+
+  /* One flat tone at rest, like the customer wall; the brand colour (or full ink, for
+     brands too dark to read here) under the pointer. */
+  .glyph {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    color: var(--color-fg);
+    opacity: 0.55;
+    transition:
+      opacity 0.2s var(--ease-out-expo),
+      color 0.2s var(--ease-out-expo);
+    @variant hover {
+      opacity: 1;
+      color: var(--hover, var(--color-fg));
+    }
+  }
+
+  /* The glint: a full-tone copy of the row over the real one, masked to nothing but a
+     "/" band that crosses it now and then; never takes the pointer. */
+  .shine {
+    display: none;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mask-image: linear-gradient(115deg, transparent 42%, rgb(0 0 0 / 0.6) 50%, transparent 58%);
+    mask-size: 300% 100%;
+    mask-repeat: no-repeat;
+    mask-position: 100% 0;
+  }
+  .shine .glyph {
+    opacity: 1;
+    transition: none;
+  }
+
+  /* The entrance, once: the marks rise in left to right, each passing through its colour
+     on the way to the flat tone, a wave read once. No fill-forwards, so the resting and
+     hover styles take over after. The marks are hidden only where a script will bring
+     them in. The glint starts once the last mark has settled, and rests while the strip
+     is off screen. */
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .glyphs:not([data-in]) .glyph {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .glyphs[data-in] .row:not(.shine) .glyph {
+      animation: rise 1.1s var(--ease-out-expo) backwards;
+      animation-delay: calc(var(--i, 0) * 45ms);
+    }
+    /* a slow drift more than a sweep: 16s across, then a 10s rest */
+    .glyphs[data-in] .shine {
+      display: flex;
+      animation: sweep 26s linear 2.4s infinite;
+    }
+    .glyphs:not([data-live]) .shine {
+      animation-play-state: paused;
+    }
+  }
+}
+
+/* rise in, pass through the brand colour, settle to the flat tone */
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+    color: var(--color-fg);
+  }
+  40% {
+    opacity: 1;
+    transform: none;
+    color: var(--hover, var(--color-fg));
+  }
+  100% {
+    opacity: 0.55;
+    color: var(--color-fg);
+  }
+}
+
+/* one slow left-to-right pass of the "/" band, then a rest */
+@keyframes sweep {
+  0% {
+    mask-position: 100% 0;
+  }
+  62%,
+  100% {
+    mask-position: 0% 0;
+  }
+}

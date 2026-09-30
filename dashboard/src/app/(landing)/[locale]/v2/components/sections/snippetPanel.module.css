@@ -1,0 +1,48 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* One row per line, run out to the frame's edges. The lines the reader adds are lit
+     and banded with an accent bar in the gutter, diff-style; the rest of the file dims,
+     so the frame says "this is all you add" without a caption. */
+  .line {
+    display: block;
+    margin-inline: -22px;
+    padding: 0 22px 0 20px;
+    border-left: 2px solid transparent;
+    opacity: 0.5;
+  }
+  .line[data-added] {
+    opacity: 1;
+    border-left-color: var(--color-volt-soft);
+    background-color: --alpha(var(--color-volt-soft) / 7%);
+  }
+
+  /* The page's palette, not an editor theme: strings take the accent, tag names full
+     ink, and comments, attribute names, keywords and template variables recede, so the
+     URL and the site id are what the eye lands on. */
+  .string {
+    color: var(--color-volt-soft);
+  }
+  /* the accent belongs to the install alone: strings in the surrounding file stay plain */
+  .line:not([data-added]) .string {
+    color: inherit;
+  }
+  .tag {
+    color: var(--color-fg);
+  }
+  .line[data-added] .tag {
+    color: var(--color-white);
+  }
+  .keyword,
+  .attribute {
+    color: var(--color-muted);
+  }
+  .comment {
+    color: var(--color-muted);
+    opacity: 0.7;
+  }
+  .variable {
+    color: var(--color-muted);
+    font-style: italic;
+  }
+}

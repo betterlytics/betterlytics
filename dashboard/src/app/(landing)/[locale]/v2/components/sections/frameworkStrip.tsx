@@ -1,12 +1,16 @@
-import type { CSSProperties } from 'react';
-import { cn } from '@/lib/utils';
 import { Emphasis } from '@/landing/components/ui/emphasis';
 import { InView } from '@/landing/components/ui/inView';
+import { TEXT_STYLES } from '@/landing/components/ui/text';
 import { COPY } from '@/landing/content/copy';
 import { FRAMEWORK_GLYPHS } from '@/landing/content/frameworkGlyphs';
-import { FRAMEWORK_ROWS } from '@/landing/content/frameworks';
+import { FRAMEWORKS } from '@/landing/content/frameworks';
+import { cn } from '@/landing/lib/cn';
+import { vars } from '@/landing/lib/cssVars';
+import styles from './frameworkStrip.module.css';
 
-const FRAMEWORKS = FRAMEWORK_ROWS.flat().flatMap((framework) => {
+const copy = COPY.frameworks;
+
+const GLYPHS = FRAMEWORKS.flatMap((framework) => {
   const glyph = FRAMEWORK_GLYPHS[framework.logo];
   return glyph ? [{ ...framework, ...glyph }] : [];
 });
@@ -23,32 +27,42 @@ const FRAMEWORKS = FRAMEWORK_ROWS.flat().flatMap((framework) => {
  */
 export function FrameworkStrip({ className }: { className?: string }) {
   return (
-    <div className={cn('fws', className)}>
-      <p className='fws__lab'>
-        <b>
-          <Emphasis text={COPY.frameworks.title} wrap={(span) => <em>{span}</em>} />
-        </b>
-        <span>{COPY.frameworks.lede}</span>
+    <div
+      className={cn(
+        'flex items-center gap-7 border-t border-rule-08 px-[30px] py-[22px] transition-ink',
+        'max-xl:flex-col max-xl:items-start max-xl:gap-4',
+        className,
+      )}
+    >
+      {/* the claim on one line, set like the MCP side's lead */}
+      <p className={cn(TEXT_STYLES.title, 'flex flex-none flex-col gap-0.5 whitespace-nowrap text-fg')}>
+        <span>
+          <Emphasis text={copy.title} wrap={(span) => <em className='text-[#6b7aff] not-italic'>{span}</em>} />
+        </span>
+        <span className='text-[13.5px] leading-5 font-normal tracking-normal whitespace-normal text-muted'>
+          {copy.lede}
+        </span>
       </p>
-      <InView className='fws__glyphs'>
-        <ul className='fws__row'>
-          {FRAMEWORKS.map((framework, i) => (
+      <InView className={styles.glyphs}>
+        <ul className={styles.row}>
+          {GLYPHS.map((glyph, i) => (
             <li
-              key={framework.name}
-              title={framework.name}
-              style={{ '--i': i, '--hover': framework.hover } as CSSProperties}
+              key={glyph.name}
+              className={styles.glyph}
+              title={glyph.name}
+              style={vars(glyph.hover ? { '--i': i, '--hover': glyph.hover } : { '--i': i })}
             >
-              <svg viewBox='0 0 24 24' width='22' height='22' role='img' aria-label={framework.name}>
-                <path d={framework.path} fill='currentColor' />
+              <svg viewBox='0 0 24 24' width='22' height='22' role='img' aria-label={glyph.name}>
+                <path d={glyph.path} fill='currentColor' />
               </svg>
             </li>
           ))}
         </ul>
-        <ul className='fws__row fws__shine' aria-hidden>
-          {FRAMEWORKS.map((framework) => (
-            <li key={framework.name}>
+        <ul className={cn(styles.row, styles.shine)} aria-hidden>
+          {GLYPHS.map((glyph) => (
+            <li key={glyph.name} className={styles.glyph}>
               <svg viewBox='0 0 24 24' width='22' height='22'>
-                <path d={framework.path} fill='currentColor' />
+                <path d={glyph.path} fill='currentColor' />
               </svg>
             </li>
           ))}
