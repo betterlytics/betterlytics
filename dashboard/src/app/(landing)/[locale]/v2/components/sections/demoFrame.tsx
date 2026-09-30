@@ -1,17 +1,35 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useInView } from '@/landing/hooks/useInView';
 import { COPY } from '@/landing/content/copy';
 import { track } from '@/landing/lib/analytics';
 import styles from './demoFrame.module.css';
 
 const copy = COPY.demo;
 
-/** Whether the frame has loaded its page, rather than still holding the initial blank document. */
-function hasLoaded(iframe: HTMLIFrameElement) {
-  // the dashboard is served from this origin and sandboxed with allow-same-origin, so its document is readable
-  const doc = iframe.contentDocument;
-  return doc !== null && doc.URL !== 'about:blank' && doc.readyState === 'complete';
+/** Runs `start` once the page has loaded and the browser is idle; returns a cancel. */
+function whenPageSettles(start: () => void) {
+  let cancel = () => {};
+  const schedule = () => {
+    // Safari has no requestIdleCallback
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(start, { timeout: 2000 });
+      cancel = () => window.cancelIdleCallback(id);
+    } else {
+      const id = window.setTimeout(start, 200);
+      cancel = () => window.clearTimeout(id);
+    }
+  };
+  if (document.readyState === 'complete') {
+    schedule();
+    return () => cancel();
+  }
+  window.addEventListener('load', schedule, { once: true });
+  return () => {
+    window.removeEventListener('load', schedule);
+    cancel();
+  };
 }
 
 /**
@@ -36,22 +54,27 @@ function hasLoaded(iframe: HTMLIFrameElement) {
  * read as the frame coming apart in stages. Marked, the veil and the edge share
  * one transition and leave together — which is itself the click landing, so
  * nothing else has to signal it.
+ *
+ * The dashboard is an app of its own served from this origin, so it runs on this
+ * page's main thread. It is only created once the landing has loaded and gone idle,
+ * and the window is within half a screen, so it never competes with the page's own
+ * start-up.
  */
 export function DemoFrame({ src }: { src: string }) {
+  const [requested, setRequested] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [active, setActive] = useState(false);
+  const areaRef = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
+  const near = useInView(areaRef, 'near');
   // the scrim is up: the page keeps the wheel, and the tab order steps over the dashboard
   const armed = loaded && !active;
 
-  // A load that finished before hydration never reaches onLoad (a cached dashboard, a
-  // slow bundle), and the scrim would then never arm, so catch up once on mount.
-  useEffect(() => {
-    if (frame.current && hasLoaded(frame.current)) setLoaded(true);
-  }, []);
+  useEffect(() => (near ? whenPageSettles(() => setRequested(true)) : undefined), [near]);
 
   return (
     <div
+      ref={areaRef}
       className='absolute inset-x-0 top-11 bottom-0 overflow-hidden bg-canvas [--demo-scale:0.75] max-3xl:[--demo-scale:0.85] max-md:[--demo-scale:1]'
       data-armed={armed || undefined}
       onPointerLeave={() => setActive(false)}
@@ -64,18 +87,19 @@ export function DemoFrame({ src }: { src: string }) {
       {/* The dashboard lays out at 1/scale of the window and is drawn scaled down, so more of
           it fits without changing the window. Pointer events map through the scale, so it
           stays interactive. */}
-      <iframe
-        ref={frame}
-        className='absolute top-0 left-0 size-[calc(100%/var(--demo-scale))] origin-top-left scale-(--demo-scale)'
-        src={src}
-        title={copy.frameTitle}
-        loading='lazy'
-        allowFullScreen
-        sandbox='allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox'
-        referrerPolicy='no-referrer'
-        tabIndex={armed ? -1 : undefined}
-        onLoad={() => setLoaded(true)}
-      />
+      {requested && (
+        <iframe
+          ref={frame}
+          className='absolute top-0 left-0 size-[calc(100%/var(--demo-scale))] origin-top-left scale-(--demo-scale)'
+          src={src}
+          title={copy.frameTitle}
+          allowFullScreen
+          sandbox='allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox'
+          referrerPolicy='no-referrer'
+          tabIndex={armed ? -1 : undefined}
+          onLoad={() => setLoaded(true)}
+        />
+      )}
       {loaded && (
         <button
           type='button'

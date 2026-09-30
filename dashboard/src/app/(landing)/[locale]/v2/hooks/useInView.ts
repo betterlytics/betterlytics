@@ -13,6 +13,8 @@ const PRESETS = {
   draw: { once: true, amount: 0, margin: '0px 0px -22% 0px' },
   /** Headline ink: once half the line is a third of the way up, while it is being read rather than before it arrives. */
   read: { once: true, amount: 0.5, margin: '0px 0px -34% 0px' },
+  /** Deferred loading: once, when the element comes within half a screen of the viewport. */
+  near: { once: true, amount: 0, margin: '0px 0px 50% 0px' },
   /** Looping work: true only while some of the element is on screen, false again once it leaves. */
   onScreen: { once: false, amount: 'some' },
 } satisfies Record<string, UseInViewOptions>;
