@@ -31,16 +31,19 @@ import from it with the `@/landing/*` alias.
 
 ## Building blocks
 
-| | |
-|---|---|
-| `components/ui/text.tsx` | `Heading` (outline level and look chosen apart), `Lede`, `Label`, `TEXT_STYLES` |
-| `components/ui/button.ts` | `buttonStyles()` for links and buttons |
-| `components/ui/frame.tsx` | `Section` (with its title and lede), `Panel`, `Corners` |
-| `components/ui/inkFrame.tsx` | frames whose rules draw in as the reader arrives; undrawn, they blank the rule tokens inside, so inner rules wait for the pen |
-| `components/ui/voltCard.tsx` | the blue card behind the hero and the closing call to action |
-| `components/ui/trackedLink.tsx` | calls to action that report a `landing-cta` event (`lib/analytics.ts`) |
-| `components/page/band.tsx` | the middle band and its hatched walls, inked as the reader scrolls |
-| `hooks/useInView.ts` | scroll triggers as named presets: `enter`, `draw`, `read`, `onScreen` |
+| File                            | What it gives you                                                                                                             |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `components/ui/text.tsx`        | `Heading` (outline level and look chosen apart), `Lede`, `Label`, `TEXT_STYLES`                                               |
+| `components/ui/button.ts`       | `buttonStyles()` for links and buttons                                                                                        |
+| `components/ui/frame.tsx`       | `Section` (with its title and lede), `Panel`, `Corners`                                                                       |
+| `components/ui/inkFrame.tsx`    | frames whose rules draw in as the reader arrives; undrawn, they blank the rule tokens inside, so inner rules wait for the pen |
+| `components/ui/voltCard.tsx`    | the blue card behind the hero and the closing call to action                                                                  |
+| `components/ui/trackedLink.tsx` | calls to action that report a `landing-cta` event (`lib/analytics.ts`)                                                        |
+| `components/ui/inView.tsx`      | a `div` that sets `data-in` and `data-live` for its CSS, so a server component's loop can rest off screen                     |
+| `components/page/band.tsx`      | the middle band and its hatched walls, inked as the reader scrolls                                                            |
+| `hooks/useInView.ts`            | scroll triggers as named presets: `enter`, `draw`, `read`, `near`, `onScreen`                                                 |
+| `lib/rovingTabs.ts`             | the keyboard half of the tabs pattern (arrows, Home, End)                                                                     |
+| `lib/easing.ts`                 | the curves motion transitions use, matching the theme's easing tokens                                                         |
 
 ## Motion and runtime
 
@@ -51,4 +54,9 @@ import from it with the `@/landing/*` alias.
 - Loops (canvas, timers, infinite CSS) run only while their card is live or on screen, and per-frame work
   writes to the DOM through refs or motion values rather than React state.
 - The journey illustrations share a contract (`components/illustrations/types.ts`): `entered` latches on
-  first sight, `live` follows the active card. Each one is `aria-hidden` art with a short text alternative.
+  first sight, and `live` holds for the active card only while the stack is on screen.
+- Each illustration is one image to assistive tech: `role='img'` with its description from
+  `COPY.illustrations`, and the art inside `aria-hidden` (Chrome still exposes an image's children).
+  Replay and Traffic are the exceptions, since they hold real controls.
+- The copy is English under every locale for now (`COPY_LOCALE`), so the page's `lang` and number formats
+  follow it rather than the URL.
