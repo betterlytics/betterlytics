@@ -19,6 +19,8 @@ import {
 import { m, useReducedMotion } from 'motion/react';
 import Image from 'next/image';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
+import { COPY, COPY_LOCALE } from '@/landing/content/copy';
+import { EASE_OUT_EXPO } from '@/landing/lib/easing';
 import type { IllustrationProps } from './types';
 import styles from './events.module.css';
 import { FLAGS, type FlagCode } from './flags';
@@ -69,11 +71,12 @@ const SEED: ReadonlyArray<readonly [kind: number, agoS: number]> = [
 const MAX_ROWS = 10;
 /** Arrivals kept back while the log is paused; they slide in together on release. */
 const HELD_MAX = 3;
+/** The first arrival comes soon after the card goes live, so the log is seen to be live. */
+const FIRST_ARRIVAL_MS = 1200;
 /** Gaps between arrivals: slow enough that each insert gets a moment, with the odd pair landing close together. */
 const GAP_MS = [3500, 6000] as const;
 const PAIR_MS = 1100;
 const PAIR_ODDS = 0.15;
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 /*
  * The insert: the list opens a gap one row tall, then the row settles into it
@@ -243,7 +246,7 @@ export function Events({ entered, live }: IllustrationProps) {
       if (Math.random() < PAIR_ODDS) later(arrive, PAIR_MS);
       later(next, GAP_MS[0] + Math.random() * (GAP_MS[1] - GAP_MS[0]));
     };
-    later(next, 1200);
+    later(next, FIRST_ARRIVAL_MS);
 
     // the times read in whole seconds, so the clock ticks once a second rather than every frame
     const clock = setInterval(() => setNow(Date.now()), 1000);
@@ -260,7 +263,7 @@ export function Events({ entered, live }: IllustrationProps) {
       data-in={entered || undefined}
       data-live={live || undefined}
       role='img'
-      aria-label="A live log of custom events such as signups and purchases, each with the property it was sent with and the visitor's country, browser and device."
+      aria-label={COPY.illustrations.events}
     >
       <div className={styles.panel} aria-hidden onPointerEnter={hold} onPointerLeave={release}>
         <div className={styles.head}>
@@ -270,7 +273,7 @@ export function Events({ entered, live }: IllustrationProps) {
             {paused ? 'Paused' : 'Live'}
           </span>
           <span className={styles.total}>
-            <RollingDigits value={total.toLocaleString('en-US')} />
+            <RollingDigits value={total.toLocaleString(COPY_LOCALE)} />
             <small>today</small>
           </span>
         </div>
@@ -284,7 +287,7 @@ export function Events({ entered, live }: IllustrationProps) {
                 key={row.id}
                 initial={arriving ? { height: 0 } : false}
                 animate={{ height: 'auto' }}
-                transition={{ duration: GAP_S, ease: EASE }}
+                transition={{ duration: GAP_S, ease: EASE_OUT_EXPO }}
               >
                 <m.div
                   className={styles.row}
@@ -292,7 +295,7 @@ export function Events({ entered, live }: IllustrationProps) {
                   data-top={i === 0 || undefined}
                   initial={arriving ? LIFTED : false}
                   animate={SETTLED}
-                  transition={{ duration: SETTLE_S, ease: EASE, delay: SETTLE_DELAY_S }}
+                  transition={{ duration: SETTLE_S, ease: EASE_OUT_EXPO, delay: SETTLE_DELAY_S }}
                 >
                   <Icon className={styles.icon} strokeWidth={1.75} />
                   <span className={styles.name}>{row.kind.name}</span>
