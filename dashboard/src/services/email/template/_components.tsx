@@ -159,7 +159,17 @@ export function EmailSignature({ campaign }: { campaign: string }) {
   );
 }
 
-export type ButtonVariant = 'primary' | 'success' | 'danger' | 'warning';
+export function SupportLine() {
+  if (!sharedEmailEnv.isCloud) return null;
+  return (
+    <P className='text-sm text-slate-500'>
+      Questions? Reply to this email or write to{' '}
+      <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>.
+    </P>
+  );
+}
+
+export type ButtonVariant ='primary' | 'success' | 'danger' | 'warning';
 
 const buttonVariantClass: Record<ButtonVariant, string> = {
   primary: 'bg-blue-600 text-white',

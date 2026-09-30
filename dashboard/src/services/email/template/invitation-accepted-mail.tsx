@@ -6,8 +6,8 @@ import {
   Greeting,
   H1,
   P,
-  PrimaryLink,
   renderEmailTemplate,
+  SupportLine,
   withEmailUtm,
 } from './_components';
 
@@ -51,10 +51,7 @@ export function InvitationAcceptedEmail({
 
       <EmailButton href={withEmailUtm(dashboardUrl, CAMPAIGN, 'primary_cta')}>View members</EmailButton>
 
-      <P className='text-sm text-slate-500'>
-        Questions? Reply to this email or write to{' '}
-        <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>.
-      </P>
+      <SupportLine />
     </EmailLayout>
   );
 }

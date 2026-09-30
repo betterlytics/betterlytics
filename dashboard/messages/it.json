@@ -785,6 +785,11 @@
             "Analisi Conforme al GDPR"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Crea il tuo account | Betterlytics",
+          "description": "Crea il tuo account su questa istanza di Betterlytics.",
+          "keywords": ["Crea account", "Registrati"]
+        },
         "title": "Crea il tuo account",
         "subtitle": "Inizia a tracciare le tue analitiche oggi",
         "cta": {
@@ -793,7 +798,6 @@
         },
         "disabled": {
           "title": "Registrazione disabilitata",
-          "description": "La registrazione è attualmente disabilitata su questa istanza.",
           "backToSignIn": "Torna all'accesso"
         }
       },
@@ -3259,6 +3263,13 @@
         "feature3": {
           "title": "Privacy‑first e open source",
           "description": "Senza cookie, conforme al GDPR e ospitato nell'UE. Trasparente e sicuro."
+        },
+        "feature2SelfHosted": {
+          "title": "I tuoi dati, il tuo server",
+          "description": "Funziona sulla tua infrastruttura, sotto il tuo controllo."
+        },
+        "feature3SelfHosted": {
+          "description": "Senza cookie e conforme al GDPR. Trasparente e sicuro."
         }
       },
       "form": {
@@ -3283,7 +3294,8 @@
         "signUpError": "Si è verificato un errore durante la registrazione. Riprova.",
         "checkInput": "Controlla il tuo input",
         "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi un invito al proprietario di una dashboard.",
-        "invitedToHint": "Sei stato invitato a unirti a {domain}"
+        "invitedToHint": "Sei stato invitato a unirti a {domain}",
+        "firstUserHint": "Questo è il primo account su questa istanza. Diventerà l'amministratore dell'istanza."
       }
     },
     "website": {
@@ -3858,6 +3870,7 @@
       }
     },
     "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
+    "moreIntegrationsSelfHosted": "Hai bisogno di un'integrazione diversa? <link>Richiedila su GitHub</link>.",
     "history": {
       "title": "Registro notifiche",
       "button": "Registro notifiche",

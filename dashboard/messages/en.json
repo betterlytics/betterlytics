@@ -785,6 +785,11 @@
             "GDPR Compliant Analytics"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Create your account | Betterlytics",
+          "description": "Create your account on this Betterlytics instance.",
+          "keywords": ["Create Account", "Sign Up"]
+        },
         "title": "Create your account",
         "subtitle": "Get started for free — set up your analytics in minutes",
         "cta": {
@@ -793,7 +798,6 @@
         },
         "disabled": {
           "title": "Registration Disabled",
-          "description": "Registration is currently disabled on this instance.",
           "backToSignIn": "Back to Sign In"
         }
       },
@@ -3256,6 +3260,13 @@
         "feature3": {
           "title": "Privacy-first & open source",
           "description": "Cookieless, GDPR-compliant, and EU-hosted. Transparent and secure."
+        },
+        "feature2SelfHosted": {
+          "title": "Your data, your server",
+          "description": "Runs on your own infrastructure, under your control."
+        },
+        "feature3SelfHosted": {
+          "description": "Cookieless and GDPR-compliant. Transparent and secure."
         }
       },
       "form": {
@@ -3280,7 +3291,8 @@
         "signUpError": "An error occurred during sign up. Please try again.",
         "checkInput": "Please check your input",
         "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner for an invitation.",
-        "invitedToHint": "You've been invited to join {domain}"
+        "invitedToHint": "You've been invited to join {domain}",
+        "firstUserHint": "This is the first account on this instance. It becomes the instance admin."
       }
     },
     "website": {
@@ -3855,6 +3867,7 @@
       }
     },
     "moreIntegrations": "Need a different integration? Contact us and we'll consider adding it.",
+    "moreIntegrationsSelfHosted": "Need a different integration? <link>Request it on GitHub</link>.",
     "history": {
       "title": "Notification Log",
       "button": "Notification Log",

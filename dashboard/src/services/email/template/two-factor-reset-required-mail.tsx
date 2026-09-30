@@ -1,3 +1,4 @@
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 import type { EmailData } from '@/services/email/types';
 import {
   EmailButton,
@@ -5,8 +6,8 @@ import {
   Greeting,
   H1,
   P,
-  PrimaryLink,
   renderEmailTemplate,
+  SupportLine,
   withEmailUtm,
 } from './_components';
 
@@ -27,15 +28,24 @@ export function TwoFactorResetRequiredEmail({ userName, signInUrl }: TwoFactorRe
 
       <Greeting userName={userName} />
 
-      <P>
-        We&apos;ve upgraded the authentication system behind Betterlytics. Unfortunately, the new system verifies
-        authenticator codes differently, and your two-factor authentication (2FA) enrollment could not be carried
-        over, so we had to turn 2FA off on your account.
-      </P>
+      {sharedEmailEnv.isCloud ? (
+        <P>
+          We&apos;ve upgraded the authentication system behind Betterlytics. Unfortunately, the new system verifies
+          authenticator codes differently, and your two-factor authentication (2FA) enrollment could not be carried
+          over, so we had to turn 2FA off on your account.
+        </P>
+      ) : (
+        <P>
+          This Betterlytics instance was upgraded to a new authentication system. Unfortunately, the new system
+          verifies authenticator codes differently, and your two-factor authentication (2FA) enrollment could not
+          be carried over, so 2FA was turned off on your account.
+        </P>
+      )}
 
       <P>
-        This change was made by us as part of the upgrade. It is not a sign of suspicious activity, and nothing
-        else about your account has changed. Your password still works as usual.
+        This change was made {sharedEmailEnv.isCloud ? 'by us ' : 'automatically '}as part of the upgrade. It is
+        not a sign of suspicious activity, and nothing else about your account has changed. Your password still
+        works as usual.
       </P>
 
       <P>
@@ -46,10 +56,7 @@ export function TwoFactorResetRequiredEmail({ userName, signInUrl }: TwoFactorRe
 
       <EmailButton href={withEmailUtm(signInUrl, CAMPAIGN, 'primary_cta')}>Sign in and re-enable 2FA</EmailButton>
 
-      <P className='text-sm text-slate-500'>
-        Questions? Reply to this email or write to{' '}
-        <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>.
-      </P>
+      <SupportLine />
     </EmailLayout>
   );
 }
