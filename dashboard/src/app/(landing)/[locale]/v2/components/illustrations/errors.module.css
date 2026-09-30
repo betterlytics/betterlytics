@@ -1,0 +1,302 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* Three error groups stacked on a diagonal, the one firing now in front and carrying
+     everything it knows. The two behind show only their headers, each stepped up and left
+     just far enough to clear its header's text (the next card covers the header's bottom
+     padding), so the cascade runs top left to bottom right, as the uptime stack and its
+     notices do. */
+  .root {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  /* The front card sits in flow; the margins make room for the two stepped out behind
+     it, so it is the stack as a whole that gets centred. */
+  .stack {
+    --dx: 28px;
+    --dy: 54px;
+    position: relative;
+    width: 56%;
+    margin: calc(var(--dy) * 2) 0 0 calc(var(--dx) * 2);
+    @variant max-md {
+      --dx: 12px;
+      width: calc(94% - 24px);
+    }
+  }
+
+  /* The MCP tiles' and monitor cards' material, flat. The cards land back to front, a
+     tenth of a second apart. */
+  .card {
+    --delay: calc(0.25s - var(--depth) * 0.1s);
+    border-radius: 12px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    border: 1px solid var(--color-rule-10);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 14px 34px rgb(0 0 0 / 0.45);
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 0.45s var(--ease-out-expo) var(--delay),
+      transform 0.5s var(--ease-out-expo) var(--delay);
+  }
+  .root[data-in] .card {
+    opacity: 1;
+    transform: none;
+  }
+  .front {
+    position: relative;
+    z-index: 3;
+  }
+  /* whole cards, the front one's size, though only their headers and left edges show */
+  .back {
+    position: absolute;
+    left: calc(var(--depth) * var(--dx) * -1);
+    top: calc(var(--depth) * var(--dy) * -1);
+    z-index: calc(3 - var(--depth));
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .root[data-in] .back {
+    opacity: calc(1.35 - var(--depth) * 0.35);
+  }
+
+  /* Hovering any of the cards spreads the stack a little along its diagonal. It keys on
+     the stack, not the frame (so empty space around it does nothing) and not each card
+     (the stack's own box stays put while the cards inside it move, so a card sliding out
+     from under the pointer can't flicker the hover off). It rides on translate rather
+     than transform, so it answers at once while the entrance keeps its stagger. */
+  @media (hover: hover) {
+    .card {
+      transition:
+        opacity 0.45s var(--ease-out-expo) var(--delay),
+        transform 0.5s var(--ease-out-expo) var(--delay),
+        translate 0.6s var(--ease-out-expo);
+    }
+    .stack:hover .back {
+      translate: calc(var(--depth) * -7px) calc(var(--depth) * -7px);
+    }
+    .stack:hover .front {
+      translate: 5px 5px;
+    }
+  }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: --alpha(var(--color-down) / 15%);
+    color: var(--color-down);
+  }
+  .icon svg {
+    width: 17px;
+    height: 17px;
+  }
+  /* the error type in the mono, as the product sets it */
+  .type {
+    display: block;
+    margin-bottom: 3px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-down);
+  }
+  /* the count, and under it when it last fired; on the front card, who the latest
+     occurrence hit */
+  .side {
+    display: grid;
+    justify-items: end;
+    gap: 3px;
+    white-space: nowrap;
+  }
+  .side > :first-child {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--color-fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .side small {
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .side > :first-child small {
+    margin-left: 5px;
+  }
+  /* behind the front card red gives way to grey, and to green once resolved */
+  .back .icon {
+    background: --alpha(var(--color-fg) / 7%);
+    color: var(--color-muted);
+  }
+  .back .type {
+    color: var(--color-muted);
+  }
+  .card[data-resolved] .icon {
+    background: --alpha(var(--color-live) / 14%);
+    color: var(--color-live);
+  }
+  .card[data-resolved] .side > :first-child {
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    color: var(--color-live);
+  }
+
+  /* The session trail as the product draws it (SessionTrail): each step a time, an icon
+     on a line in the product's colours, and a label. The last step is the throw, in the
+     trail's current-row red, and it opens a box as the header bar of the stack trace
+     (StacktraceView), the frames hanging under it. The two steps and the box land top
+     down once the card is in. */
+  .trail {
+    padding: 10px 14px 14px;
+    border-top: 1px solid --alpha(var(--color-fg) / 7%);
+  }
+  .trail > * {
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      transform 0.5s var(--ease-out-expo);
+  }
+  .root[data-in] .trail > * {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.3s + var(--stagger) * 0.12s);
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 58px 18px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    color: var(--color-fg);
+  }
+  .glyph {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 18px;
+  }
+  .glyph svg {
+    width: 14px;
+    height: 14px;
+  }
+  /* The line from each step's icon down to the next one's: a row's bottom padding, then
+     the next's top padding. Centred on the icon's own axis (half its width back), and the
+     last one runs on past the box's border into the red row, so it meets the triangle's
+     tip rather than stopping at the edge. */
+  .page .glyph::after,
+  .event .glyph::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: calc(50% - 0.5px);
+    width: 1px;
+    height: 11px;
+    background: --alpha(var(--color-fg) / 14%);
+  }
+  .event .glyph::after {
+    height: 14px;
+  }
+  .page svg {
+    color: #38bdf8;
+  }
+  .event svg {
+    color: #a78bfa;
+  }
+  /* the pointer and the triangle sit optically left of the line on their own boxes'
+     centres; a pixel's nudge puts them on it */
+  .event svg,
+  .thrown svg {
+    translate: 1px 0;
+  }
+  /* inside the box the columns keep their line, one border's width in */
+  .thrown {
+    padding-left: 9px;
+    background: --alpha(var(--color-down) / 10%);
+    box-shadow: inset 2px 0 0 var(--color-down);
+    border-bottom: 1px solid --alpha(var(--color-down) / 18%);
+    color: rgb(248 113 113 / 0.75);
+    font-weight: 400;
+  }
+  .thrown svg,
+  .thrown b {
+    color: #f87171;
+  }
+  .thrown b {
+    font-weight: 600;
+  }
+
+  /* The frames as the product lists them: the line, then `at fn (file:col)`, starting
+     under the icons, and an "in app" badge on frames from the app. The frame that threw
+     is the bright one; its caller steps back, and the library frame sits on a darker row,
+     greyed and unbadged. */
+  .frame {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px 6px 9px;
+    color: var(--color-muted);
+  }
+  .frame + .frame {
+    border-top: 1px solid --alpha(var(--color-fg) / 5%);
+  }
+  .frame[data-lib] {
+    background: rgb(0 0 0 / 0.18);
+  }
+  .call {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fn {
+    font-weight: 500;
+  }
+  .frame:first-child .fn {
+    color: var(--color-fg);
+  }
+  .frame[data-lib] :is(.call, .fn) {
+    opacity: 0.6;
+  }
+
+  /* Only the back cards' headers need reading; their trails are whole but held well
+     back, so the slivers along the diagonal read as texture, not text, and their throws
+     are marked in grey, keeping red for the front card. */
+  .back .trail {
+    opacity: 0.3;
+  }
+  .back .thrown {
+    background: --alpha(var(--color-fg) / 5%);
+    box-shadow: inset 2px 0 0 var(--color-muted);
+    border-bottom-color: --alpha(var(--color-fg) / 8%);
+    color: var(--color-muted);
+  }
+  .back .thrown svg,
+  .back .thrown b {
+    color: var(--color-muted);
+  }
+
+  /* Reduced motion: the front card and the trail rows are simply there; the cards
+     behind still wait for the entrance, then appear without moving. */
+  @media (prefers-reduced-motion: reduce) {
+    .card,
+    .trail > * {
+      transform: none;
+      transition: none;
+    }
+    .front,
+    .trail > * {
+      opacity: 1;
+    }
+  }
+}

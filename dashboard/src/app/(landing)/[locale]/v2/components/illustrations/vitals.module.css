@@ -1,0 +1,32 @@
+@layer components {
+  /* The threshold colours from the app's dark theme, pinned here because the landing is
+     dark-only and does not sit under .dark. The gauges' arcs and the key take the plain
+     ones; the values take the lighter label shades. */
+  .root {
+    --cwv-threshold-good: rgb(88, 207, 146);
+    --cwv-threshold-fair: oklch(80% 0.18 80);
+    --cwv-threshold-poor: rgb(212, 89, 81);
+    --cwv-threshold-good-label: rgb(100, 220, 160);
+    --cwv-threshold-fair-label: oklch(85% 0.16 80);
+    --cwv-threshold-poor-label: rgb(230, 105, 95);
+  }
+
+  .value {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    --number-flow-char-height: 1em;
+  }
+  .value[data-level='good'] {
+    color: var(--cwv-threshold-good-label);
+  }
+  .value[data-level='fair'] {
+    color: var(--cwv-threshold-fair-label);
+  }
+  .value[data-level='poor'] {
+    color: var(--cwv-threshold-poor-label);
+  }
+}

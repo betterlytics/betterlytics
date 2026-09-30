@@ -2,17 +2,15 @@
 
 import { memo, useEffect, useState } from 'react';
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
+import { useReducedMotion } from 'motion/react';
 import { useLocale } from 'next-intl';
 import { Gauge } from '@/components/gauge';
 import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
-import {
-  getCoreWebVitalGaugeProps,
-  getCoreWebVitalIntlFormat,
-  getCoreWebVitalLabelColor,
-} from '@/utils/coreWebVitals';
+import { getCoreWebVitalGaugeProps, getCoreWebVitalIntlFormat, getCoreWebVitalLevel } from '@/utils/coreWebVitals';
+import { cn } from '@/landing/lib/cn';
 import type { IllustrationProps } from './types';
-import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
+import styles from './vitals.module.css';
 
 /*
  * The dashboard's own gauges, as the old landing card draws them: threshold
@@ -20,6 +18,13 @@ import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
  * Each gauge steps through the shared mock values on its own interval, so
  * they never move in step.
  */
+
+/**
+ * The values are mock, not anyone's data, so the gauges are art: one image to assistive
+ * tech, labelled with what it shows. The art inside is hidden as well, since Chrome still
+ * exposes the children of an image.
+ */
+const DESCRIPTION = 'Gauges for FCP, TTFB, LCP, INP and CLS, each graded good, needs work or poor.';
 
 const SIZE = 150;
 const STROKE = 7.7;
@@ -37,6 +42,12 @@ const ROWS: ReadonlyArray<ReadonlyArray<{ key: CoreWebVitalName; intervalMs: num
   ],
 ];
 
+const LEGEND = [
+  { label: 'Good', swatch: 'bg-(--cwv-threshold-good)' },
+  { label: 'Needs work', swatch: 'bg-(--cwv-threshold-fair)' },
+  { label: 'Poor', swatch: 'bg-(--cwv-threshold-poor)' },
+] as const;
+
 const MetricGauge = memo(function MetricGauge({
   metric,
   value,
@@ -51,19 +62,19 @@ const MetricGauge = memo(function MetricGauge({
   const { segments, progress } = getCoreWebVitalGaugeProps(metric, value);
   const format = getCoreWebVitalIntlFormat(metric, value);
   return (
+    // the unfilled track inside the gauge is drawn in currentColor
     <Gauge
-      role='group'
-      aria-label={`${metric} metric`}
-      className='gg__u'
+      className='flex-none text-fg'
       segments={segments}
       progress={drawn ? progress : 0}
       size={SIZE}
       strokeWidth={STROKE}
       arcGap={ARC_GAP}
     >
-      <div className='gg__c'>
-        <span className='gg__k'>{metric}</span>
-        <span className='gg__v' style={{ color: getCoreWebVitalLabelColor(metric, value) }}>
+      <div className='absolute inset-x-0 bottom-[20%] flex flex-col items-center'>
+        {/* the metric's name: firm grey, second to the coloured value; a little tracking, not eyebrow-wide */}
+        <span className='-mb-0.5 text-[10.5px] font-semibold tracking-[0.12em] text-muted'>{metric}</span>
+        <span className={styles.value} data-level={getCoreWebVitalLevel(metric, value)}>
           <NumberFlow value={format.value} format={format.format} locales={locale} willChange />
           {format.suffix && <span key={format.suffix}>{format.suffix}</span>}
         </span>
@@ -104,10 +115,20 @@ function CyclingGauge({
 export function Vitals({ entered, live }: IllustrationProps) {
   const locale = useLocale();
   return (
-    <div className='gg'>
+    <div
+      className={cn(
+        styles.root,
+        'absolute inset-0 flex flex-col items-center justify-center gap-3.5 px-[30px] py-6',
+      )}
+      data-in={entered || undefined}
+      data-live={live || undefined}
+      role='img'
+      aria-label={DESCRIPTION}
+    >
       <NumberFlowGroup>
         {ROWS.map((row, r) => (
-          <div key={r} className='gg__row'>
+          // the gauges are drawn at a fixed size; on a phone the rows are scaled down whole
+          <div key={r} className='flex justify-center gap-[30px] max-md:[zoom:0.68] max-md:gap-4' aria-hidden>
             {row.map((g) => (
               <CyclingGauge
                 key={g.key}
@@ -122,19 +143,14 @@ export function Vitals({ entered, live }: IllustrationProps) {
           </div>
         ))}
       </NumberFlowGroup>
-      <div className='gg__lg'>
-        <span>
-          <i style={{ background: 'var(--cwv-threshold-good)' }} />
-          Good
-        </span>
-        <span>
-          <i style={{ background: 'var(--cwv-threshold-fair)' }} />
-          Needs work
-        </span>
-        <span>
-          <i style={{ background: 'var(--cwv-threshold-poor)' }} />
-          Poor
-        </span>
+      {/* a key, not content: secondary grey, legible without competing with the values */}
+      <div className='mt-3.5 flex justify-center gap-7 text-code text-muted' aria-hidden>
+        {LEGEND.map(({ label, swatch }) => (
+          <span key={label} className='inline-flex items-center gap-[7px]'>
+            <span className={cn('size-2 flex-none rounded-full', swatch)} />
+            {label}
+          </span>
+        ))}
       </div>
     </div>
   );

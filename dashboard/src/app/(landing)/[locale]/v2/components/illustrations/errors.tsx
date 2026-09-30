@@ -1,13 +1,20 @@
-'use client';
-
 import type { CSSProperties, ReactNode } from 'react';
-import { AlertTriangle, Eye, MousePointerClick } from 'lucide-react';
+import { AlertTriangle, Eye, MousePointerClick, type LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { DK } from 'country-flag-icons/react/3x2';
-import { cn } from '@/lib/utils';
+import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
+import styles from './errors.module.css';
+import type { IllustrationProps } from './types';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
+
+/**
+ * The mock is one image to assistive tech, labelled with what it shows. The art inside
+ * is hidden as well, since Chrome still exposes the children of an image.
+ */
+const DESCRIPTION =
+  'A TypeError firing now, with the page and click that led to it, its stack trace and who it hit; behind it, a quieter error and a resolved one.';
 
 /**
  * A call in the stack, as the product lists it (StacktraceView): the line, then
@@ -75,15 +82,19 @@ const FIRING: Group = {
  * the one the product draws on dark.
  */
 const WHO = (
-  <span className='erx__who'>
+  <span className='inline-flex h-[15px] items-center gap-1.5 text-fg'>
     <Image src='/browser-icons/safari.svg' alt='Safari' width={13} height={13} />
-    <svg viewBox='0 0 24 24' role='img' aria-label='macOS'>
+    {/* The Apple mark's height includes its leaf and it is narrower than tall, so at the
+        same box its body reads smaller than Safari's round logo; a larger box (without
+        growing the row) and a hair's lift, as the leaf also sits its body low, even them out. */}
+    <svg className='-my-px size-[15px] -translate-y-[0.5px]' viewBox='0 0 24 24' role='img' aria-label='macOS'>
       <path
         d='M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701'
         fill='currentColor'
       />
     </svg>
-    <DK title='Denmark' />
+    {/* the flag at 9px tall (3:2), so it weighs the same as the logos beside it */}
+    <DK className='h-[9px] w-[13.5px] rounded-[1.5px] ring-1 ring-white/8' title='Denmark' />
   </span>
 );
 
@@ -112,6 +123,31 @@ const CHECK_ICON = (
   </svg>
 );
 
+/** A row of the session trail: when, the step's icon on the trail's line, and what happened. */
+function TrailStep({
+  kind,
+  at,
+  icon: Icon,
+  style,
+  children,
+}: {
+  kind: 'page' | 'event' | 'thrown';
+  at: string;
+  icon: LucideIcon;
+  style?: CSSProperties;
+  children: ReactNode;
+}) {
+  return (
+    <div className={cn(styles.step, styles[kind])} style={style}>
+      <time className='text-micro font-normal text-muted tabular-nums'>{at}</time>
+      <span className={styles.glyph}>
+        <Icon aria-hidden />
+      </span>
+      <span className='truncate'>{children}</span>
+    </div>
+  );
+}
+
 /**
  * One error group as the product shows it: what it is and how often or whether
  * it still fires, then its session trail running down, as the product draws it
@@ -121,63 +157,58 @@ const CHECK_ICON = (
  */
 function Card({
   group,
-  icon,
+  depth,
+  resolved = false,
   side,
-  className,
-  style,
 }: {
   group: Group;
-  icon: ReactNode;
+  /** 0 is the front card; each step back sits further up and to the left. */
+  depth: number;
+  /** Fixed in a release: its icon and status turn green. */
+  resolved?: boolean;
+  /** The header's right-hand column: the count over when it last fired or who it hit, or the release that resolved it. */
   side: ReactNode;
-  className?: string;
-  style?: CSSProperties;
 }) {
   const [page, event] = group.trail;
   return (
-    <div className={cn('erx__card', className)} style={style}>
-      <div className='erx__hd'>
-        <span className='erx__ic'>{icon}</span>
-        <span className='erx__tx'>
-          <b>{group.type}</b>
-          <span>{group.message}</span>
+    <div
+      className={cn(styles.card, depth === 0 ? styles.front : styles.back)}
+      data-resolved={resolved || undefined}
+      style={vars({ '--depth': depth })}
+    >
+      <div className='grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-[13px] px-[18px] pt-[15px] pb-3.5'>
+        <span className={styles.icon}>{resolved ? CHECK_ICON : WARN_ICON}</span>
+        <span className='min-w-0'>
+          <b className={styles.type}>{group.type}</b>
+          <span className='block truncate text-[13.5px] tracking-[-0.15px] text-fg'>{group.message}</span>
         </span>
-        <span className='erx__n'>{side}</span>
+        <span className={styles.side}>{side}</span>
       </div>
 
-      <div className='erx__tl'>
-        <div className='erx__step erx__step--pv' style={vars({ '--i': 0 })}>
-          <s>{page.at}</s>
-          <i>
-            <Eye aria-hidden />
-          </i>
-          <span>{page.label}</span>
-        </div>
-        <div className='erx__step erx__step--ev' style={vars({ '--i': 1 })}>
-          <s>{event.at}</s>
-          <i>
-            <MousePointerClick aria-hidden />
-          </i>
-          <span>{event.label}</span>
-        </div>
+      <div className={styles.trail}>
+        <TrailStep kind='page' at={page.at} icon={Eye} style={vars({ '--stagger': 0 })}>
+          {page.label}
+        </TrailStep>
+        <TrailStep kind='event' at={event.at} icon={MousePointerClick} style={vars({ '--stagger': 1 })}>
+          {event.label}
+        </TrailStep>
 
-        <div className='erx__box' style={vars({ '--i': 2 })}>
-          <div className='erx__step erx__step--er'>
-            <s>{group.thrownAt}</s>
-            <i>
-              <AlertTriangle aria-hidden />
-            </i>
-            <span>
-              <b>{group.type}</b> {group.message}
-            </span>
-          </div>
-          <ol className='erx__tr'>
-            {group.frames.map((f) => (
-              <li key={f.fn} className={cn(f.lib && 'lib')}>
-                <s>{f.line}</s>
-                <span>
-                  at <b>{f.fn}</b> ({f.file}:{f.col})
+        <div className='overflow-hidden rounded-lg border border-fg/8' style={vars({ '--stagger': 2 })}>
+          <TrailStep kind='thrown' at={group.thrownAt} icon={AlertTriangle}>
+            <b>{group.type}</b> {group.message}
+          </TrailStep>
+          <ol className='font-mono text-[11.5px] leading-normal'>
+            {group.frames.map((frame) => (
+              <li key={frame.fn} className={styles.frame} data-lib={frame.lib || undefined}>
+                <span className='tabular-nums opacity-60'>{frame.line}</span>
+                <span className={styles.call}>
+                  at <b className={styles.fn}>{frame.fn}</b> ({frame.file}:{frame.col})
                 </span>
-                {!f.lib && <i>in app</i>}
+                {!frame.lib && (
+                  <span className='rounded-[5px] border border-fg/10 bg-fg/6 px-[7px] py-px font-sans text-[10px]'>
+                    in app
+                  </span>
+                )}
               </li>
             ))}
           </ol>
@@ -190,17 +221,23 @@ function Card({
 /**
  * Three error groups stacked on a diagonal, the one firing now in front: a
  * quieter one and a resolved one behind it, whole cards though mostly covered.
- * Still once it has landed; the only motion is the entrance.
+ * Still once it has landed; the only motion is the entrance, and the stack
+ * spreading a little under the pointer.
  */
-export function Errors() {
+export function Errors({ entered, live }: IllustrationProps) {
   return (
-    <div className='erx'>
-      <div className='erx__stk'>
+    <div
+      className={styles.root}
+      data-in={entered || undefined}
+      data-live={live || undefined}
+      role='img'
+      aria-label={DESCRIPTION}
+    >
+      <div className={styles.stack} aria-hidden>
         <Card
           group={RESOLVED}
-          icon={CHECK_ICON}
-          className='erx__card--back ok'
-          style={vars({ '--k': 2, '--d': '.05s' })}
+          depth={2}
+          resolved
           side={
             <>
               <span>Resolved</span>
@@ -210,9 +247,7 @@ export function Errors() {
         />
         <Card
           group={QUIETER}
-          icon={WARN_ICON}
-          className='erx__card--back'
-          style={vars({ '--k': 1, '--d': '.15s' })}
+          depth={1}
           side={
             <>
               <span>
@@ -224,9 +259,7 @@ export function Errors() {
         />
         <Card
           group={FIRING}
-          icon={WARN_ICON}
-          className='erx__card--front'
-          style={vars({ '--k': 0, '--d': '.25s' })}
+          depth={0}
           side={
             <>
               <span>
