@@ -4,6 +4,10 @@
  *
  * `*word*` marks the emphasised span in a title or quote (see ui/emphasis).
  */
+
+/** The language the copy is written in, whatever the URL's locale: the page's `lang` and its number formats follow it. */
+export const COPY_LOCALE = 'en';
+
 export const COPY = {
   seo: {
     title: 'Betterlytics — Analytics you can actually read',

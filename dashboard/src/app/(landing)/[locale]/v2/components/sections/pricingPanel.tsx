@@ -12,7 +12,7 @@ import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
 import { RollLabel } from '@/landing/components/ui/rollLabel';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
-import { COPY } from '@/landing/content/copy';
+import { COPY, COPY_LOCALE } from '@/landing/content/copy';
 import { track } from '@/landing/lib/analytics';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
@@ -20,8 +20,6 @@ import { vars } from '@/landing/lib/cssVars';
 const copy = COPY.pricing;
 /** The landing page quotes in dollars, as marketing pages conventionally do; billing offers EUR too. */
 const CURRENCY = 'USD';
-/** The page's copy is English, so its figures are too: 1M and 10M+, not the browser locale's 1 mio. */
-const NUMBER_LOCALE = 'en';
 /** Every plan price is whole dollars, so the cents go: '$39', not '$39.00'. */
 const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
 const COMPACT = { notation: 'compact' } as const;
@@ -37,7 +35,7 @@ function Volume({ value, className }: { value: number; className?: string }) {
     <NumberFlow
       className={className}
       value={Math.min(value, EVENT_DISPLAY_CAP)}
-      locales={NUMBER_LOCALE}
+      locales={COPY_LOCALE}
       format={COMPACT}
       suffix={value > EVENT_DISPLAY_CAP ? '+' : undefined}
       willChange
@@ -93,6 +91,8 @@ type PlanProps = {
 };
 
 function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, volume }: PlanProps) {
+  // the feature labels come translated from the shared plan definitions; the copy around them does not yet
+  const featuresLang = useLocale();
   return (
     <div
       className={cn(
@@ -120,7 +120,7 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
             <NumberFlow
               className={FLUSH}
               value={price / 100}
-              locales={NUMBER_LOCALE}
+              locales={COPY_LOCALE}
               format={PRICE_FORMAT}
               willChange
             />
@@ -132,7 +132,7 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
       </div>
       {/* two lines tall, so the rules below stay level when one tagline wraps */}
       <p className='min-h-11 text-body-sm leading-[22px] text-muted'>{tagline}</p>
-      <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
+      <ul lang={featuresLang} className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
         {/* keyed by position, not label: the volume line's text changes with the slider and must keep its element to animate */}
         {features.map((f, i) => (
           <li
@@ -220,7 +220,7 @@ export function PricingPanel() {
             className='block size-4.5 cursor-grab rounded-full border-2 border-canvas bg-volt-lift transition-[scale,box-shadow] duration-120 ease-[ease-out] hover:scale-112 focus-visible:ring-5 focus-visible:ring-volt-lift/28 focus-visible:outline-hidden active:scale-112 active:cursor-grabbing active:ring-5 active:ring-volt-lift/28'
             aria-label={copy.rangeLabel}
             // announce the volume, not the stop's position on the slider
-            aria-valuetext={copy.rangeValueText(formatEventCount(range.value, NUMBER_LOCALE))}
+            aria-valuetext={copy.rangeValueText(formatEventCount(range.value, COPY_LOCALE))}
           />
         </Slider.Root>
         {/* A caption under every stop, each a shortcut to it; the current one is bright.
@@ -235,7 +235,7 @@ export function PricingPanel() {
               aria-pressed={i === rangeIndex}
               onClick={() => pickStop(i)}
             >
-              {formatEventCount(r.value, NUMBER_LOCALE)}
+              {formatEventCount(r.value, COPY_LOCALE)}
             </button>
           ))}
         </div>
