@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { animate, m, useMotionValue, useTransform, type MotionValue } from 'motion/react';
-import { cn } from '@/lib/utils';
+import { animate, m, useMotionValue, useReducedMotion, useTransform, type MotionValue } from 'motion/react';
 import { PathIcon } from '@/landing/components/ui/pathIcon';
 import { useInView } from '@/landing/hooks/useInView';
-import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
+import { cn } from '@/landing/lib/cn';
 import type { LogoStyle, PathIconData } from '@/landing/lib/icons';
+import styles from './logoBoard.module.css';
 
 /**
  * The customer wall as a board of flip tiles. Eight slots show the first eight
@@ -20,7 +20,7 @@ import type { LogoStyle, PathIconData } from '@/landing/lib/icons';
  * Static when the pool fits the board or under reduced motion.
  */
 
-export const SLOTS = 8;
+const SLOTS = 8;
 const FIRST_GAP_MS = 2400;
 const GAP_MS: [number, number] = [3600, 6400];
 const FLIP_S = 0.6;
@@ -49,13 +49,23 @@ const SHADE = {
   slot: { angle: [0, -30, -150, -180], opacity: [0, 1, 1, 0] },
 };
 
-export type Logo = { name: string; style?: LogoStyle; icon: PathIconData };
+/** Real logo walls are typographically inconsistent, and that is what sells them. */
+const WORDMARK = {
+  plain: 'text-[16.5px] font-semibold tracking-[-0.3px]',
+  caps: 'text-caption font-semibold tracking-[0.14em] uppercase',
+  light: 'text-[17.5px] font-normal tracking-[-0.4px]',
+  tight: 'text-[16px] font-semibold tracking-[-0.7px]',
+  wide: 'text-body-sm font-medium tracking-[0.05em]',
+} satisfies Record<LogoStyle | 'plain', string>;
 
-function Mark({ logo }: { logo: Logo }) {
+type Logo = { name: string; style?: LogoStyle; icon: PathIconData };
+
+/** A team's mark: icon and wordmark. One per still cell, three per flipping one. */
+function Mark({ logo, className }: { logo: Logo; className?: string }) {
   return (
-    <span className={cn('mk', logo.style && `mk--${logo.style}`)}>
-      <PathIcon icon={logo.icon} className='lgico' />
-      <b>{logo.name}</b>
+    <span className={cn('inline-flex items-center gap-2.5 whitespace-nowrap', className)}>
+      <PathIcon icon={logo.icon} className='size-[22px] flex-none' />
+      <b className={cn('truncate', WORDMARK[logo.style ?? 'plain'])}>{logo.name}</b>
     </span>
   );
 }
@@ -63,11 +73,11 @@ function Mark({ logo }: { logo: Logo }) {
 function Veil({
   angle,
   of,
-  className = 'flap__shade',
+  className,
 }: {
   angle: MotionValue<number>;
   of: { angle: number[]; opacity: number[] };
-  className?: string;
+  className: string;
 }) {
   const opacity = useTransform(angle, of.angle, of.opacity);
   return <m.span className={className} style={{ opacity }} />;
@@ -100,20 +110,22 @@ function Flap({ from, to, onDone }: { from: Logo; to: Logo; onDone: () => void }
 
   return (
     <>
-      <span className='flap__size'>
+      <span className={styles.size}>
         <Mark logo={to} />
       </span>
-      <Veil angle={angle} of={SHADE.slot} className='flap__slot' />
-      <m.span className='flap__tile' aria-hidden style={{ rotateX: angle }}>
-        <span className='flap__face flap__face--front'>
-          <Veil angle={angle} of={SHADE.liftFront} className='flap__lift' />
-          <Mark logo={from} />
-          <Veil angle={angle} of={SHADE.front} />
+      <Veil angle={angle} of={SHADE.slot} className={styles.slot} />
+      <m.span className={styles.tile} aria-hidden style={{ rotateX: angle }}>
+        <span className={styles.face}>
+          <Veil angle={angle} of={SHADE.liftFront} className={styles.lift} />
+          {/* positioned, so it paints in tree order between the veils: over the lift, under
+              the shade (unpositioned, it would paint under both) */}
+          <Mark logo={from} className='relative' />
+          <Veil angle={angle} of={SHADE.front} className={styles.shade} />
         </span>
-        <span className='flap__face flap__face--back'>
-          <Veil angle={angle} of={SHADE.liftBack} className='flap__lift' />
-          <Mark logo={to} />
-          <Veil angle={angle} of={SHADE.back} />
+        <span className={cn(styles.face, styles.back)}>
+          <Veil angle={angle} of={SHADE.liftBack} className={styles.lift} />
+          <Mark logo={to} className='relative' />
+          <Veil angle={angle} of={SHADE.back} className={styles.shade} />
         </span>
       </m.span>
     </>
@@ -158,13 +170,28 @@ export function LogoBoard({ pool, label }: { pool: ReadonlyArray<Logo>; label: R
   return (
     <div
       ref={ref}
-      className={cn('logos', cycles && 'logos--board')}
+      className={styles.board}
       onPointerEnter={() => setHover(true)}
       onPointerLeave={() => setHover(false)}
     >
-      <div className='logos__label'>{label}</div>
+      <p
+        className={cn(
+          styles.label,
+          'grid place-items-center px-[18px] py-[30px] text-center text-[14.5px] leading-normal transition-ink max-xl:p-6',
+        )}
+      >
+        {/* one grid item, so the claim sets as a single unbroken line */}
+        <span className='whitespace-nowrap'>{label}</span>
+      </p>
       {shown.map((idx, slot) => (
-        <span key={slot} className={cn('lg', flip?.slot === slot && 'is-flipping')}>
+        <span
+          key={slot}
+          className={cn(
+            styles.cell,
+            'flex items-center justify-center px-3.5 py-[30px] opacity-78 transition-ink hover:opacity-100',
+          )}
+          data-flipping={flip?.slot === slot || undefined}
+        >
           {flip?.slot === slot ? (
             <Flap from={pool[idx]} to={pool[flip.to]} onDone={done} />
           ) : (

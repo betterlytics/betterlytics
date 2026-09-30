@@ -1,0 +1,110 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* The claim spans both rows on the left and the eight marks sit beside it in two rows of
+     four; below xl the claim heads a board of two columns. */
+  .board {
+    display: grid;
+    grid-template-columns: 1.9fr repeat(4, 1fr);
+    @variant max-xl {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  .label {
+    grid-row: 1 / span 2;
+    border-right: 1px solid var(--color-rule-08);
+    @variant max-xl {
+      grid-row: auto;
+      grid-column: 1 / -1;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+  }
+
+  /* Rules between the cells, none along the board's outer edge. The label is the board's
+     first child, so the cells are children 2 to 9. */
+  .cell {
+    border-right: 1px solid var(--color-rule-08);
+    border-bottom: 1px solid var(--color-rule-08);
+  }
+  .cell:nth-child(5),
+  .cell:nth-child(9) {
+    border-right: 0;
+  }
+  .cell:nth-child(n + 6) {
+    border-bottom: 0;
+  }
+  /* In two columns the board keeps the look it shipped with: the vertical rule runs down
+     the right column's outer edge rather than between the columns, and no rule separates
+     the last two rows. */
+  .cell:nth-child(odd) {
+    @variant max-xl {
+      border-right: 1px solid var(--color-rule-08);
+    }
+  }
+  .cell:nth-child(even) {
+    @variant max-xl {
+      border-right: 0;
+    }
+  }
+
+  /* The flip tile. The whole cell turns over as one card on its horizontal centre line.
+     A slot in the surface tone sits behind the card, so it has something to turn against;
+     the faces are resting cells in the canvas tone that take on the card's tone and edge
+     (the lift) while off-plane, and shade toward black as they turn, since this palette is
+     dark enough that a canvas veil would not register. The slot, lift and shades take
+     their opacity from the card's angle (see SHADE), so the landed mark sits on plain
+     canvas with no afterglow. */
+  .cell[data-flipping] {
+    position: relative;
+    perspective: 640px;
+    /* above its neighbours: the near half of a turning card projects a few px past the cell */
+    z-index: 1;
+  }
+  .slot,
+  .tile,
+  .face,
+  .lift,
+  .shade {
+    position: absolute;
+    inset: 0;
+  }
+  .slot {
+    background: var(--color-surface);
+    pointer-events: none;
+  }
+  /* The incoming mark in flow keeps the cell's size while the card covers it; hidden, so
+     it does not show through the card edge-on. A flex box, not a plain span: on a text
+     baseline, the line box's descender space would make the cell a few px taller than its
+     neighbours, and the row would jump for the length of the flip. */
+  .size {
+    display: flex;
+    visibility: hidden;
+  }
+  .tile {
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* a resting cell, so landing and unmounting are one and the same */
+    background: var(--color-canvas);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  /* pre-turned, so it reads upright once the card has come over */
+  .back {
+    transform: rotateX(180deg);
+  }
+  .lift {
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-rule-125);
+    pointer-events: none;
+  }
+  .shade {
+    background: var(--color-black);
+    pointer-events: none;
+  }
+}
