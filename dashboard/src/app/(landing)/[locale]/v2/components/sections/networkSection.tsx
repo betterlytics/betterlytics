@@ -57,10 +57,10 @@ export function NetworkSection() {
   return (
     <Section id={IDS.network} title={copy.title} lede={copy.lede}>
       <Panel flush>
-        {/* stacked, a bare 1fr column (not minmax(0, 1fr)) never narrows past the snippet
-            frame's tab bar, which on phones is wider than the screen */}
-        <div className='grid grid-cols-[1.55fr_1fr] max-xl:grid-cols-[1fr]'>
-          <div className='flex border-r border-rule-08 bg-hatch p-4.5 transition-ink max-xl:border-r-0 max-xl:border-b'>
+        {/* stacked, the column may narrow past the snippet's tab bar (which then scrolls),
+            or on phones the section would be wider than the screen */}
+        <div className='grid grid-cols-[1.55fr_1fr] max-xl:grid-cols-1'>
+          <div className='flex min-w-0 border-r border-rule-08 bg-hatch p-4.5 transition-ink max-xl:border-r-0 max-xl:border-b'>
             <SnippetPanel />
           </div>
           <div className={styles.stats}>
@@ -79,7 +79,8 @@ export function NetworkSection() {
                 />
               </div>
             ))}
-            <div className={cn(styles.row, 'group relative overflow-hidden bg-volt text-on-volt')}>
+            {/* clip, not hidden: a scroll container could shrink below its text in the stack */}
+            <div className={cn(styles.row, 'group relative overflow-clip bg-volt text-on-volt')}>
               {/* the seal, watermarked off the row's corner: a certificate, not a selected tab */}
               <EuSeal />
               <Stat

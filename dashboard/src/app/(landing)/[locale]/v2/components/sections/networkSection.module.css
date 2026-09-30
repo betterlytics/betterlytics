@@ -31,11 +31,15 @@
       border-right: 0;
     }
   }
-  /* the bottom pair closes on the panel's edge; this carries down to phones, where it
-     leaves the third row without a rule above the lit one */
+  /* the bottom pair closes on the panel's edge; on phones only the last row does */
   .row:nth-last-child(-n + 2) {
     @variant max-xl {
       border-bottom: 0;
+    }
+  }
+  .row:nth-last-child(2) {
+    @variant max-sm {
+      border-bottom: 1px solid var(--color-rule-08);
     }
   }
 }

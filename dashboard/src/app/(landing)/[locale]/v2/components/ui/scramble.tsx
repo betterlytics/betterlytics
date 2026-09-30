@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { useInView } from '@/landing/hooks/useInView';
+import { cn } from '@/landing/lib/cn';
 
 const GLYPHS = 'abcdefghijklmnopqrstuvwxyz0123456789/._-';
 const BLANK = String.fromCharCode(0xa0); // no-break space
@@ -83,7 +84,8 @@ export function Scramble({ text, delay = 0, className }: { text: string; delay?:
   }, [text, inView, reduce, delay]);
 
   return (
-    <span ref={ref} className={className}>
+    // relative, so the screen-reader copy is positioned inside the text rather than off the page
+    <span ref={ref} className={cn('relative', className)}>
       <span className='sr-only'>{text}</span>
       <span ref={shownRef} aria-hidden>
         {text}
