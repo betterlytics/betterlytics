@@ -1,0 +1,68 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* Two rows of cards drifting past in opposite directions, fading out at both ends. */
+  .marquee {
+    position: relative;
+    overflow: hidden;
+    padding-block: 26px;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  }
+  /* A row holds its cards twice and slides by half its width, so it loops back to where
+     it started. The second row runs slower and the other way. */
+  .row {
+    display: flex;
+    gap: 16px;
+    width: max-content;
+    animation: slide 40s linear infinite;
+  }
+  .row + .row {
+    margin-top: 16px;
+    animation-duration: 50s;
+    animation-direction: reverse;
+  }
+  /* Held under the pointer. Plain :hover rather than the hover variant, so that on a
+     touch screen a tap holds it too. */
+  .marquee:hover .row {
+    animation-play-state: paused;
+  }
+  /* and at rest off screen, once a script is there to say when it is on */
+  @media (scripting: enabled) {
+    .marquee:not([data-live]) .row {
+      animation-play-state: paused;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .row {
+      animation: none;
+    }
+  }
+
+  /* The MCP tiles' material again, but the gradient is gentler on a card this tall so it
+     reads as a surface, not a glossy button. */
+  .card {
+    border: 1px solid var(--color-rule-10);
+    border-radius: 10px;
+    background: linear-gradient(180deg, --alpha(var(--color-fg) / 3.6%), --alpha(var(--color-fg) / 1.6%));
+    box-shadow: inset 0 1px 0 --alpha(var(--color-white) / 4%);
+    transition: border-color 0.22s var(--ease-out-expo);
+  }
+  .card:hover {
+    border-color: var(--color-rule-22);
+  }
+  /* the brand-colour card; the hover still lifts its edge */
+  .volt {
+    background: var(--color-volt);
+    border-color: transparent;
+  }
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}

@@ -1,10 +1,12 @@
 'use client';
 
-import { Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
-import { cn } from '@/lib/utils';
+import { Fragment, useEffect, useRef, useState } from 'react';
+import { useReducedMotion } from 'motion/react';
 import { BrandMark } from '@/landing/components/ui/brandMark';
+import { COPY } from '@/landing/content/copy';
 import { useInView } from '@/landing/hooks/useInView';
-import { useReducedMotion } from '@/landing/hooks/useReducedMotion';
+import { cn } from '@/landing/lib/cn';
+import styles from './agentTranscript.module.css';
 import { FlareShimmer } from './flareShimmer';
 
 /* The transcript is mock terminal output, kept literal on purpose. Each question
@@ -13,269 +15,294 @@ import { FlareShimmer } from './flareShimmer';
    live in the same tool. Tool names and inputs are the MCP server's real ones
    (src/mcp/tools/describe.ts). */
 type Step =
-  | { k: 'u'; text: string }
-  | { k: 'spin'; ms: number }
-  | { k: 'say'; text: string }
-  | { k: 'tool'; name: string; arg: string }
-  | { k: 'res'; text: string }
-  | { k: 'a'; text: string };
+  | { kind: 'question'; text: string }
+  | { kind: 'working'; ms: number }
+  | { kind: 'say'; text: string }
+  | { kind: 'tool'; name: string; args: string }
+  | { kind: 'result'; text: string }
+  | { kind: 'answer'; text: string };
 
-/** Played in order and looped; the first is the one most visitors see. */
+/** Played in order and looped. The first is the one most visitors see, and the one standing at rest. */
 const SCRIPTS: Step[][] = [
   [
-    { k: 'u', text: 'which pages lost traffic after the August redesign?' },
-    { k: 'spin', ms: 900 },
+    { kind: 'question', text: 'which pages lost traffic after the August redesign?' },
+    { kind: 'working', ms: 900 },
     {
-      k: 'say',
+      kind: 'say',
       text: "I'll compare daily pageviews across July and August, then look for errors on anything that dropped.",
     },
     {
-      k: 'tool',
+      kind: 'tool',
       name: 'betterlytics – query',
-      arg: '(metrics: ["pageviews"], dimensions: ["url"], timeRange: "custom", startDate: "2026-07-01", endDate: "2026-08-31", granularity: "day")',
+      args: '(metrics: ["pageviews"], dimensions: ["url"], timeRange: "custom", startDate: "2026-07-01", endDate: "2026-08-31", granularity: "day")',
     },
-    { k: 'res', text: '41 paths · 6 down more than 20%' },
-    { k: 'tool', name: 'betterlytics – list_errors', arg: '(filters: [url in (6 paths)], timeRange: "90d")' },
-    { k: 'res', text: '1 group · TypeError · first seen 12 Aug · 1,206 sessions' },
+    { kind: 'result', text: '41 paths · 6 down more than 20%' },
+    { kind: 'tool', name: 'betterlytics – list_errors', args: '(filters: [url in (6 paths)], timeRange: "90d")' },
+    { kind: 'result', text: '1 group · TypeError · first seen 12 Aug · 1,206 sessions' },
     {
-      k: 'a',
+      kind: 'answer',
       text: '/pricing is down 34%. A TypeError in the plan selector shipped the same day — 1,206 sessions hit it.',
     },
   ],
   [
-    { k: 'u', text: "did last night's checkout outage cost us sales?" },
-    { k: 'spin', ms: 900 },
-    { k: 'say', text: "I'll find the incident, then line purchases up against it hour by hour." },
-    { k: 'tool', name: 'betterlytics – list_monitor_incidents', arg: '(monitorId: "checkout", timeRange: "24h")' },
-    { k: 'res', text: '1 incident · down 23:12–23:31 · resolved' },
+    { kind: 'question', text: "did last night's checkout outage cost us sales?" },
+    { kind: 'working', ms: 900 },
+    { kind: 'say', text: "I'll find the incident, then line purchases up against it hour by hour." },
     {
-      k: 'tool',
-      name: 'betterlytics – query',
-      arg: '(metrics: ["custom_events"], filters: [custom_event_name = "purchase"], granularity: "hour", timeRange: "7d")',
+      kind: 'tool',
+      name: 'betterlytics – list_monitor_incidents',
+      args: '(monitorId: "checkout", timeRange: "24h")',
     },
-    { k: 'res', text: '23:00 → 6 purchases · same hour, previous 6 nights: 38 on average' },
+    { kind: 'result', text: '1 incident · down 23:12–23:31 · resolved' },
     {
-      k: 'a',
+      kind: 'tool',
+      name: 'betterlytics – query',
+      args: '(metrics: ["custom_events"], filters: [custom_event_name = "purchase"], granularity: "hour", timeRange: "7d")',
+    },
+    { kind: 'result', text: '23:00 → 6 purchases · same hour, previous 6 nights: 38 on average' },
+    {
+      kind: 'answer',
       text: 'Yes. Checkout was down for 19 minutes, and that hour took 6 purchases against a usual 38 — about 32 sales lost.',
     },
   ],
   [
-    { k: 'u', text: 'which traffic source brings visitors who actually sign up?' },
-    { k: 'spin', ms: 900 },
-    { k: 'say', text: "I'll pull visitors by source, then signups by source, and compare the rates." },
+    { kind: 'question', text: 'which traffic source brings visitors who actually sign up?' },
+    { kind: 'working', ms: 900 },
+    { kind: 'say', text: "I'll pull visitors by source, then signups by source, and compare the rates." },
     {
-      k: 'tool',
+      kind: 'tool',
       name: 'betterlytics – query',
-      arg: '(metrics: ["visitors"], dimensions: ["referrer_source_name"], timeRange: "28d")',
+      args: '(metrics: ["visitors"], dimensions: ["referrer_source_name"], timeRange: "28d")',
     },
-    { k: 'res', text: 'Google 18.2k · ChatGPT 2.1k · Hacker News 1.4k' },
+    { kind: 'result', text: 'Google 18.2k · ChatGPT 2.1k · Hacker News 1.4k' },
     {
-      k: 'tool',
+      kind: 'tool',
       name: 'betterlytics – query',
-      arg: '(metrics: ["custom_events"], dimensions: ["referrer_source_name"], filters: [custom_event_name = "signup"], timeRange: "28d")',
+      args: '(metrics: ["custom_events"], dimensions: ["referrer_source_name"], filters: [custom_event_name = "signup"], timeRange: "28d")',
     },
-    { k: 'res', text: 'Google 164 · ChatGPT 71 · Hacker News 9' },
+    { kind: 'result', text: 'Google 164 · ChatGPT 71 · Hacker News 9' },
     {
-      k: 'a',
+      kind: 'answer',
       text: 'ChatGPT sends a ninth of the visitors Google does, but 3.4% of them sign up against 0.9% — nearly four times the rate.',
     },
   ],
 ];
 
-type Line = { id: number; step: Step; typed: string; done: boolean };
+/** The terminal's pace, in ms. */
+const PACE = {
+  /** per character typed: the question at a typist's speed, the answer streamed faster */
+  question: 26,
+  answer: 17,
+  /** the beat after the question before the agent starts working */
+  afterQuestion: 380,
+  /** how long each printed line stands before the next */
+  say: 700,
+  tool: 620,
+  result: 560,
+  /** the finished answer stays up this long, then the transcript fades before the next question */
+  read: 5200,
+  fade: 420,
+} as const;
 
-/** Mounts hidden and lifts in on the next frame, so the CSS transition runs. */
-function LineIn({ className, children }: { className: string; children: ReactNode }) {
-  const [on, setOn] = useState(false);
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => setOn(true));
-    return () => cancelAnimationFrame(raf);
-  }, []);
-  return <div className={cn(className, on && 'in')}>{children}</div>;
+/** A line of a script and when it is on screen, in ms from the script's start. */
+type Cue = { step: Step; from: number; to: number };
+
+/** A script laid out in time, in ms from its start. */
+type Timeline = {
+  cues: Cue[];
+  /** the answer has typed out and the cursor settles after it */
+  done: number;
+  /** the transcript fades out */
+  out: number;
+  /** the next question starts */
+  end: number;
+};
+
+function toTimeline(script: Step[]): Timeline {
+  const cues: Cue[] = [];
+  let working: Cue | undefined;
+  let t = 0;
+  for (const step of script) {
+    const cue: Cue = { step, from: t, to: Infinity };
+    switch (step.kind) {
+      case 'question':
+        // each character, a beat after the last, then the pause before the agent starts
+        t += (step.text.length + 1) * PACE.question + PACE.afterQuestion;
+        break;
+      case 'working':
+        working = cue;
+        t += step.ms;
+        break;
+      case 'say':
+      case 'tool':
+      case 'result':
+        t += PACE[step.kind];
+        break;
+      case 'answer':
+        // the working indicator gives way to the answer
+        if (working) working.to = t;
+        t += (step.text.length + 1) * PACE.answer;
+        break;
+    }
+    cues.push(cue);
+  }
+  return { cues, done: t, out: t + PACE.read, end: t + PACE.read + PACE.fade };
 }
 
-function Spinner({ since }: { since: number }) {
-  const [s, setS] = useState(0);
-  useEffect(() => {
-    const tick = () => setS(Math.round((Date.now() - since) / 1000));
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, [since]);
-  return (
-    <LineIn className='ag__spin'>
-      <i>▪</i>Working…{' '}
-      <em>
-        ({s}s · ↓ {(0.4 + s * 0.32).toFixed(1)}k tokens · esc to interrupt)
-      </em>
-    </LineIn>
-  );
-}
+const TIMELINES = SCRIPTS.map(toTimeline);
 
-function renderLine(line: Line, showCursor: boolean) {
-  const { step } = line;
-  switch (step.k) {
-    case 'u':
-      return (
-        <LineIn className='ag__u'>
-          <i>&gt;</i>
-          <span>{line.typed}</span>
-        </LineIn>
-      );
-    case 'say':
-      return (
-        <LineIn className='ag__say'>
-          <i>●</i>
-          {step.text}
-        </LineIn>
-      );
-    case 'tool':
-      return (
-        <LineIn className='ag__tool'>
-          <i>●</i>
-          <b>{step.name}</b> <span>(MCP)</span>
-          {step.arg}
-        </LineIn>
-      );
-    case 'res':
-      return <LineIn className='ag__res'>└─ {step.text}</LineIn>;
-    case 'a':
-      return (
-        <LineIn className='ag__a'>
-          {line.typed}
-          {showCursor && line.done ? <span className='ag__cur' /> : null}
-        </LineIn>
-      );
+/** The working indicator's readout after `seconds`, in the shape Claude Code prints it. */
+const readout = (seconds: number) =>
+  `(${seconds}s · ↓ ${(0.4 + seconds * 0.32).toFixed(1)}k tokens · esc to interrupt)`;
+
+/** What a line's live part reads `elapsed` ms after it printed: the text typed so far, or the working readout. */
+function liveText(step: Step, elapsed: number) {
+  switch (step.kind) {
+    case 'question':
+    case 'answer':
+      return step.text.slice(0, Math.floor(elapsed / PACE[step.kind]));
+    case 'working':
+      return readout(Math.floor(elapsed / 1000));
     default:
       return null;
   }
 }
 
 /**
- * An agent transcript in the shape an MCP client actually prints one: a
- * prompt, a working indicator, tool calls with their arguments and returned
- * rows, then the answer. Plays only on screen, loops, and renders its final
- * state instantly under reduced motion.
+ * Sets the transcript's lines to how they stand `t` ms into their script: which have
+ * printed, and how far the live parts have got. Writes to the DOM only what changed.
  */
-export function AgentTranscript() {
+function stage(body: HTMLElement, { cues, done, out }: Timeline, t: number) {
+  body.toggleAttribute('data-out', t >= out);
+  body.toggleAttribute('data-done', t >= done);
+  cues.forEach(({ step, from, to }, i) => {
+    const line = body.children[i];
+    const shown = t >= from && t < to;
+    line.toggleAttribute('data-shown', shown);
+    const text = shown ? liveText(step, t - from) : null;
+    const target = text === null ? null : line.querySelector('[data-text]');
+    if (target && target.textContent !== text) target.textContent = text;
+  });
+}
+
+/**
+ * One step as the terminal prints it, finished. `data-text` marks its live part, which
+ * `stage` rewrites while it plays; React renders a script's lines once and never
+ * updates them, so the two never write the same text.
+ */
+function Line({ step }: { step: Step }) {
+  switch (step.kind) {
+    case 'question':
+      return (
+        <div className={cn(styles.line, styles.question)}>
+          <span className={styles.prompt}>&gt;</span>
+          <span data-text>{step.text}</span>
+        </div>
+      );
+    case 'working':
+      return (
+        <div className={cn(styles.line, styles.working)}>
+          <span className={styles.spinner}>▪</span>
+          Working…{' '}
+          <span className={styles.readout} data-text>
+            {readout(0)}
+          </span>
+        </div>
+      );
+    case 'say':
+      return (
+        <div className={cn(styles.line, styles.say)}>
+          <span className={styles.bullet}>●</span>
+          {step.text}
+        </div>
+      );
+    case 'tool':
+      return (
+        <div className={cn(styles.line, styles.tool)}>
+          <span className={styles.bullet}>●</span>
+          <span className={styles.toolName}>{step.name}</span> (MCP)
+          {step.args}
+        </div>
+      );
+    case 'result':
+      return <div className={cn(styles.line, styles.result)}>└─ {step.text}</div>;
+    case 'answer':
+      return (
+        <div className={cn(styles.line, styles.answer)}>
+          <span data-text>{step.text}</span>
+        </div>
+      );
+  }
+}
+
+/**
+ * An agent transcript in the shape an MCP client actually prints one: a prompt, a
+ * working indicator, tool calls with their arguments and returned rows, then the
+ * answer. The markup is the first script's finished transcript, the whole picture
+ * without JavaScript or under reduced motion. Otherwise it plays while on screen,
+ * holds where it is while scrolled away, and loops through the scripts; each frame
+ * writes the lines' state to the DOM, and React renders only to change scripts.
+ * Screen readers get a summary instead of a moving transcript.
+ */
+export function AgentTranscript({ className }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, 'onScreen');
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const onScreen = useInView(ref, 'onScreen');
   const reduce = useReducedMotion();
-  const [lines, setLines] = useState<Line[]>([]);
-  const [spinSince, setSpinSince] = useState<number | null>(null);
-  const [out, setOut] = useState(false);
-  const [finished, setFinished] = useState(false);
+  const live = onScreen && !reduce;
+  const [script, setScript] = useState(0);
+  /** how far into the current script it has played; survives pauses */
+  const elapsed = useRef(0);
 
   useEffect(() => {
-    if (reduce) {
-      setSpinSince(null);
-      setOut(false);
-      setLines(
-        SCRIPTS[0]
-          .filter((s) => s.k !== 'spin')
-          .map((step, id) => ({
-            id,
-            step,
-            typed: 'text' in step ? step.text : '',
-            done: true,
-          })),
-      );
-      setFinished(true);
-      return;
-    }
-    if (!inView) return;
-
-    let run = true;
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    const wait = (ms: number) => new Promise<void>((resolve) => timers.push(setTimeout(resolve, ms)));
-    let nextId = 0;
-    const push = (step: Step) => {
-      const id = nextId++;
-      setLines((prev) => [...prev, { id, step, typed: '', done: false }]);
-      return id;
-    };
-    const type = async (id: number, text: string, speed: number) => {
-      for (let i = 0; i <= text.length; i++) {
-        if (!run) return;
-        const typed = text.slice(0, i);
-        setLines((prev) => prev.map((l) => (l.id === id ? { ...l, typed, done: i === text.length } : l)));
-        await wait(speed);
+    const body = bodyRef.current;
+    if (!live || !body) return;
+    const timeline = TIMELINES[script];
+    let raf = 0;
+    let last: number | undefined;
+    const frame = (now: number) => {
+      // a hidden tab gets no frames; counting at most a second of any gap resumes it where it left off
+      elapsed.current += last === undefined ? 0 : Math.min(now - last, 1000);
+      last = now;
+      if (elapsed.current >= timeline.end) {
+        elapsed.current = 0;
+        setScript((s) => (s + 1) % SCRIPTS.length);
+        return;
       }
+      stage(body, timeline, elapsed.current);
+      raf = requestAnimationFrame(frame);
     };
-    const play = async () => {
-      for (let s = 0; run; s = (s + 1) % SCRIPTS.length) {
-        setLines([]);
-        setSpinSince(null);
-        setFinished(false);
-        for (const step of SCRIPTS[s]) {
-          if (!run) return;
-          switch (step.k) {
-            case 'u': {
-              const id = push(step);
-              await type(id, step.text, 26);
-              await wait(380);
-              break;
-            }
-            case 'spin':
-              setSpinSince(Date.now());
-              await wait(step.ms);
-              break;
-            case 'say':
-              push(step);
-              await wait(700);
-              break;
-            case 'tool':
-              push(step);
-              await wait(620);
-              break;
-            case 'res':
-              push(step);
-              await wait(560);
-              break;
-            case 'a': {
-              setSpinSince(null);
-              const id = push(step);
-              await type(id, step.text, 17);
-              setFinished(true);
-              break;
-            }
-          }
-        }
-        await wait(5200);
-        if (!run) return;
-        setOut(true);
-        await wait(420);
-        setOut(false);
-      }
-    };
-    play();
-    return () => {
-      run = false;
-      timers.forEach(clearTimeout);
-    };
-  }, [inView, reduce]);
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+  }, [live, script]);
 
   return (
-    <div className='ag'>
-      <FlareShimmer live={inView && !reduce} />
-      <div className='ag__bar'>
-        <i />
-        <i />
-        <i />
-        <b>claude — ~/acme-site</b>
-        <span>
-          <BrandMark />
+    <div
+      ref={ref}
+      className={cn(styles.terminal, className)}
+      data-live={live || undefined}
+      role='img'
+      aria-label={COPY.mcp.transcript}
+    >
+      <FlareShimmer className={styles.shimmer} live={live} />
+      {/* the label speaks for the art: role='img' alone doesn't hide the text inside from every screen reader */}
+      <div className={styles.bar} aria-hidden>
+        <span className={styles.light} />
+        <span className={styles.light} />
+        <span className={styles.light} />
+        <span className={styles.session}>claude — ~/acme-site</span>
+        <span className={styles.server}>
+          <BrandMark className={styles.mark} />
           betterlytics mcp
         </span>
       </div>
-      <div ref={ref} className={cn('ag__body', out && 'is-out')}>
-        {lines.map((line) => (
-          <Fragment key={line.id}>
-            {renderLine(line, finished && !reduce)}
-            {/* the working indicator sits under the prompt; the model's lines land beneath it */}
-            {line.step.k === 'u' && spinSince !== null ? <Spinner since={spinSince} /> : null}
-          </Fragment>
-        ))}
+      <div ref={bodyRef} className={styles.body} aria-hidden>
+        {/* a new script is a fresh set of lines, so none keeps the last one's state */}
+        <Fragment key={script}>
+          {SCRIPTS[script].map((step, i) => (
+            <Line key={i} step={step} />
+          ))}
+        </Fragment>
       </div>
     </div>
   );

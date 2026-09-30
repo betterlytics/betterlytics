@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 
-/* kept in step with `.ag::after` in landing-v2.css: the canvas sits in the same
-   box as the static dot field, so its grid lands exactly on those dots */
+/* kept in step with the dot field, `.terminal::after` in agentTranscript.module.css:
+   the canvas sits in the same box, so its grid lands exactly on those dots */
 const BOX = 620;
 const PITCH = 11;
 const DOT = 1.2; // radius, and the dot's offset into its tile
@@ -31,9 +31,9 @@ function falloff(d: number) {
  * shows, the field rests a moment, and the next comes from a fresh random
  * heading, so it never reads as a loop or leans one way. Draws only while
  * `live`; the static field underneath is the whole picture without JS or under
- * reduced motion.
+ * reduced motion. `className` places the canvas over the field.
  */
-export function FlareShimmer({ live }: { live: boolean }) {
+export function FlareShimmer({ className, live }: { className?: string; live: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -141,5 +141,5 @@ export function FlareShimmer({ live }: { live: boolean }) {
     };
   }, [live]);
 
-  return <canvas ref={ref} className='ag__pulse' aria-hidden />;
+  return <canvas ref={ref} className={className} aria-hidden />;
 }

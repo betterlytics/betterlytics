@@ -1,0 +1,51 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* The client tiles, lit from the top at rest. Under the pointer a soft light follows it
+     (SpotlightList writes --mx/--my) and the edge lifts; keyboard focus lifts it too. */
+  .tile {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 8px;
+    background: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    box-shadow: inset 0 1px 0 --alpha(var(--color-white) / 4%);
+    font-size: 13.5px;
+    letter-spacing: -0.15px;
+    white-space: nowrap;
+    transition: border-color 0.22s var(--ease-out-expo);
+  }
+  .tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      150px circle at var(--mx, 50%) var(--my, 50%),
+      --alpha(var(--color-volt-soft) / 20%),
+      --alpha(var(--color-volt-soft) / 5%) 45%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out-expo);
+  }
+  .tile:hover,
+  .tile:has(:focus-visible) {
+    border-color: --alpha(var(--color-volt-soft) / 35%);
+  }
+  .tile:hover::before {
+    opacity: 1;
+  }
+
+  /* The tiles ink in on the panel's beat, but as a one-shot animation rather than a
+     transition, so their own hover timing is untouched afterwards. */
+  [data-drawn] .tile {
+    animation: ink-in 0.5s ease 0.55s backwards;
+  }
+}
+
+@keyframes ink-in {
+  from {
+    border-color: transparent;
+  }
+}

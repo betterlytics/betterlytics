@@ -1,0 +1,241 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* A terminal on near-black glass. It has no left edge, a leftover from when it sat
+     flush against the side column's rule; kept as it renders. */
+  .terminal {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid --alpha(var(--color-fg) / 9%);
+    border-left-width: 0;
+    border-radius: 8px;
+    background: #08080a;
+  }
+
+  /* A flare in the lower right corner: a soft falloff (::before) and a dot field masked
+     to the same shape (::after). The shimmer canvas shares their box and lights the
+     dots in waves; FlareShimmer's constants mirror this field (the box, the dots'
+     pitch and radius, the mask's stops), so change the two together. */
+  .terminal::before,
+  .terminal::after {
+    content: '';
+  }
+  .terminal::before,
+  .terminal::after,
+  .shimmer {
+    position: absolute;
+    right: -270px;
+    bottom: -368px;
+    width: 620px;
+    height: 620px;
+    pointer-events: none;
+  }
+  .terminal::before {
+    z-index: 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      --alpha(var(--color-volt-lift) / 34%),
+      --alpha(var(--color-volt-lift) / 11%) 48%,
+      transparent
+    );
+    filter: blur(7px);
+  }
+  .terminal::after,
+  .shimmer {
+    z-index: 1;
+  }
+  .terminal::after {
+    background-image: radial-gradient(circle at 1.2px 1.2px, rgb(196 205 255 / 0.42) 1.2px, transparent 0);
+    background-size: 11px 11px;
+    -webkit-mask-image: radial-gradient(closest-side, #000 10%, transparent 66%);
+    mask-image: radial-gradient(closest-side, #000 10%, transparent 66%);
+  }
+
+  .bar,
+  .body {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* the title bar: the window's lights, the session and the server it is connected to */
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 10px 14px;
+    border-bottom: 1px solid --alpha(var(--color-fg) / 7%);
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  .light {
+    flex: none;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: --alpha(var(--color-fg) / 16%);
+  }
+  .light:nth-child(2) {
+    background: --alpha(var(--color-fg) / 13%);
+  }
+  .light:nth-child(3) {
+    background: --alpha(var(--color-fg) / 10%);
+  }
+  .session,
+  .server {
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
+    color: var(--color-muted);
+  }
+  .session {
+    margin-left: 8px;
+    font-size: 11.5px;
+  }
+  .server {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-left: auto;
+    font-size: 11px;
+    opacity: 0.8;
+  }
+  .mark {
+    flex: none;
+    width: 13px;
+    height: 13px;
+    color: var(--color-fg);
+    opacity: 0.8;
+  }
+
+  .body {
+    flex: 1;
+    min-height: 330px;
+    padding: 16px 18px 18px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    transition: opacity 0.4s var(--ease-out-expo);
+  }
+  /* between questions the transcript fades before the next one prints */
+  .body[data-out] {
+    opacity: 0;
+  }
+
+  /* Each line lifts in as it prints. With a script to play the transcript and motion
+     welcome, a line waits for its cue; without either, the first question stands
+     answered. */
+  .line {
+    transition:
+      opacity 0.24s var(--ease-out-expo),
+      transform 0.24s var(--ease-out-expo);
+  }
+  @starting-style {
+    .line {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .line:not([data-shown]) {
+      display: none;
+    }
+  }
+
+  .question,
+  .say,
+  .result,
+  .working {
+    margin-bottom: 12px;
+  }
+  .prompt {
+    margin-right: 9px;
+    color: var(--color-volt-soft);
+  }
+  /* the agent's lines hang their text clear of the bullet */
+  .say,
+  .tool {
+    padding-left: 20px;
+    text-indent: -20px;
+  }
+  .bullet {
+    margin-right: 9px;
+    font-size: 9px;
+    vertical-align: middle;
+    opacity: 0.55;
+  }
+  .tool,
+  .result,
+  .working {
+    color: var(--color-muted);
+  }
+  .tool .bullet,
+  .toolName {
+    color: var(--color-volt-soft);
+  }
+  .tool .bullet {
+    opacity: 1;
+  }
+  .result {
+    padding-left: 20px;
+  }
+
+  /* the working indicator shows only while the agent works */
+  .working:not([data-shown]) {
+    display: none;
+  }
+  .spinner {
+    display: inline-block;
+    margin-right: 9px;
+    color: var(--color-volt-soft);
+    animation: spinner-pulse 1s ease-in-out infinite;
+  }
+  .readout {
+    opacity: 0.62;
+  }
+
+  .answer {
+    margin-top: 4px;
+    padding-left: 14px;
+    border-left: 2px solid var(--color-volt-lift);
+  }
+  /* once the answer is in, a block cursor blinks after it */
+  .body[data-done] .answer::after {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 14px;
+    vertical-align: -2px;
+    background: var(--color-volt-soft);
+    animation: cursor-blink 1.1s step-end infinite;
+  }
+
+  /* off screen the loops rest with the script */
+  .terminal:not([data-live]) .spinner,
+  .terminal:not([data-live]) .answer::after {
+    animation-play-state: paused;
+  }
+}
+
+@keyframes spinner-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes cursor-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}

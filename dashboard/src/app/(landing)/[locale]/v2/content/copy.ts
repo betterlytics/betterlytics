@@ -60,6 +60,9 @@ export const COPY = {
     worksWith: 'Works with',
     any: 'ChatGPT, Zed, JetBrains — and any client that speaks the protocol over HTTP.',
     cta: 'Set up MCP',
+    /* the transcript's text alternative: its first script, which is what it shows at rest */
+    transcript:
+      'A terminal session: asked which pages lost traffic after the August redesign, an agent queries pageviews and errors through the Betterlytics MCP server and finds /pricing down 34%, hit by a TypeError shipped the same day.',
   },
   frameworks: {
     title: 'Your framework, *unmodified*',
