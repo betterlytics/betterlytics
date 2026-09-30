@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
-import { BR, CA, DE, DK, FR, GB, IN, JP, NL, SE, US } from 'country-flag-icons/react/3x2';
 import {
   Clock,
   CreditCard,
@@ -22,6 +21,7 @@ import Image from 'next/image';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
 import type { IllustrationProps } from './types';
 import styles from './events.module.css';
+import { FLAGS, type FlagCode } from './flags';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
@@ -99,9 +99,7 @@ const SETTLED = {
 };
 
 type Browser = 'chrome' | 'safari' | 'firefox' | 'edge';
-type Visitor = { country: keyof typeof FLAGS; browser: Browser; device: 'desktop' | 'mobile' };
-
-const FLAGS = { US, DE, DK, GB, IN, FR, NL, SE, BR, JP, CA };
+type Visitor = { country: FlagCode; browser: Browser; device: 'desktop' | 'mobile' };
 
 /** Who fired each event: mostly desktop Chrome and Safari, some mobile, spread across a handful of countries. */
 const VISITORS: readonly Visitor[] = [

@@ -1,11 +1,11 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { AlertTriangle, Eye, MousePointerClick, type LucideIcon } from 'lucide-react';
 import Image from 'next/image';
-import { DK } from 'country-flag-icons/react/3x2';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './errors.module.css';
 import type { IllustrationProps } from './types';
+import { FLAGS } from './flags';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
@@ -94,7 +94,7 @@ const WHO = (
       />
     </svg>
     {/* the flag at 9px tall (3:2), so it weighs the same as the logos beside it */}
-    <DK className='h-[9px] w-[13.5px] rounded-[1.5px] ring-1 ring-white/8' title='Denmark' />
+    <FLAGS.DK className='h-[9px] w-[13.5px] rounded-[1.5px] ring-1 ring-white/8' title='Denmark' />
   </span>
 );
 
