@@ -112,6 +112,7 @@ export const COPY = {
     lede: 'Events are the only meter. Bots we catch are dropped before they count.',
     monthlyEvents: 'Monthly events',
     rangeLabel: 'Monthly event volume',
+    rangeValueText: (events: string) => `${events} events`,
     perMonth: '/month',
     free: 'Free',
     custom: 'Custom',
