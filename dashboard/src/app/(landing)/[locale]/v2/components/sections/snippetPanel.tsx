@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useId, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { SCRAMBLE_STEP, Scramble } from '@/landing/components/ui/scramble';
 import { COPY } from '@/landing/content/copy';
 import { SNIPPETS } from '@/landing/content/snippets';
 import { cn } from '@/landing/lib/cn';
+import { rovingTabKeys } from '@/landing/lib/rovingTabs';
 import styles from './snippetPanel.module.css';
 
 /* One capture group per token kind, in the order of TOKEN_KINDS. Comments are whole
@@ -103,22 +104,6 @@ function BoxIcon() {
   );
 }
 
-/** Where a key moves along `count` tabs from `index`: the arrows step and wrap round, Home and End jump to the ends. */
-function tabAfterKey(key: string, index: number, count: number) {
-  switch (key) {
-    case 'ArrowRight':
-      return (index + 1) % count;
-    case 'ArrowLeft':
-      return (index - 1 + count) % count;
-    case 'Home':
-      return 0;
-    case 'End':
-      return count - 1;
-    default:
-      return undefined;
-  }
-}
-
 /**
  * The install snippet in a code frame with one tab per framework. The frame
  * matches the MCP transcript's chrome, so the two read as one family. Every panel
@@ -131,18 +116,15 @@ export function SnippetPanel() {
   const tabId = (index: number) => `${id}-tab-${index}`;
   const panelId = (index: number) => `${id}-panel-${index}`;
 
-  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const next = tabAfterKey(event.key, active, SNIPPETS.length);
-    if (next === undefined) return;
-    event.preventDefault();
-    setActive(next);
-    event.currentTarget.querySelectorAll<HTMLElement>('[role="tab"]')[next]?.focus();
-  };
-
   return (
     <div className='flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-fg/9 bg-[#08080a]'>
       <div className='flex [scrollbar-width:none] gap-0.5 overflow-x-auto border-b border-fg/7 bg-fg/3 px-2.5 pt-2'>
-        <div role='tablist' aria-label={COPY.network.snippetLabel} className='flex gap-0.5' onKeyDown={onKeyDown}>
+        <div
+          role='tablist'
+          aria-label={COPY.network.snippetLabel}
+          className='flex gap-0.5'
+          onKeyDown={rovingTabKeys(active, SNIPPETS.length, setActive)}
+        >
           {SNIPPETS.map((snippet, i) => (
             <button
               key={snippet.id}

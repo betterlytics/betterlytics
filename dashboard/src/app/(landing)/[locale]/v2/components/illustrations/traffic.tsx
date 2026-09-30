@@ -1,10 +1,11 @@
 'use client';
 
-import { useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useId, useState } from 'react';
 import { LIFT_STEP_S, LiftSwap } from '@/landing/components/ui/liftSwap';
 import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
+import { rovingTabKeys } from '@/landing/lib/rovingTabs';
 import type { IllustrationProps } from './types';
 import styles from './traffic.module.css';
 
@@ -48,22 +49,6 @@ const TABS = [
   },
 ];
 
-/** The tab an arrow, Home or End key moves to, wrapping at the ends as the tabs pattern does. */
-function tabAfterKey(key: string, tab: number) {
-  switch (key) {
-    case 'ArrowRight':
-      return (tab + 1) % TABS.length;
-    case 'ArrowLeft':
-      return (tab - 1 + TABS.length) % TABS.length;
-    case 'Home':
-      return 0;
-    case 'End':
-      return TABS.length - 1;
-    default:
-      return null;
-  }
-}
-
 /** Share of readers still on the page at each quarter of its length. */
 const DEPTH = [100, 72, 48, 21];
 const AVG_DEPTH = 58;
@@ -97,18 +82,9 @@ export function Traffic({ entered }: IllustrationProps) {
   const id = useId();
   const tabId = (i: number) => `${id}-tab-${i}`;
   const panelId = `${id}-panel`;
-  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const pick = (next: number) => {
     if (next !== tab) setView({ tab: next, from: tab });
-  };
-  // only the chosen tab is in the tab order; the arrow keys move between them
-  const onTabKey = (e: KeyboardEvent) => {
-    const next = tabAfterKey(e.key, tab);
-    if (next === null) return;
-    e.preventDefault();
-    pick(next);
-    tabRefs.current[next]?.focus();
   };
 
   return (
@@ -121,14 +97,11 @@ export function Traffic({ entered }: IllustrationProps) {
             role='tablist'
             aria-label='Pages'
             style={vars({ '--i': tab })}
-            onKeyDown={onTabKey}
+            onKeyDown={rovingTabKeys(tab, TABS.length, pick)}
           >
             {TABS.map((t, i) => (
               <button
                 key={t.label}
-                ref={(el) => {
-                  tabRefs.current[i] = el;
-                }}
                 type='button'
                 role='tab'
                 id={tabId(i)}
