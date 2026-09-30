@@ -137,6 +137,8 @@
   html {
     background-color: var(--color-canvas);
     color-scheme: dark;
+    /* anchor targets land below the sticky nav, not under it */
+    scroll-padding-top: 4.5rem;
   }
   body {
     color: var(--color-fg);
