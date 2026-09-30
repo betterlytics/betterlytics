@@ -45,7 +45,7 @@ function Card({ testimonial, repeat = false }: { testimonial: Testimonial; repea
       aria-hidden={repeat || undefined}
     >
       <blockquote className={cn('text-body leading-[1.62] tracking-[-0.1px]', tone.quote)}>
-        <Emphasis text={quote} wrap={(span) => <b className={tone.emphasis}>{span}</b>} />
+        <Emphasis text={quote} as='b' className={tone.emphasis} />
       </blockquote>
       <figcaption className='mt-auto flex items-center gap-3'>
         <span

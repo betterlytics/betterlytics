@@ -31,7 +31,7 @@ export function Section({ id, title, lede, className, children }: SectionProps) 
         {title ? (
           <div className='mb-20 flex flex-col items-center gap-4 text-center max-lg:mb-12'>
             <Heading as='h2' size='display-2' id={titleId}>
-              <Emphasis text={title} wrap={(span) => <Underline>{span}</Underline>} />
+              <Emphasis text={title} as={Underline} />
             </Heading>
             {lede ? <Lede className='max-w-[62ch] text-muted'>{lede}</Lede> : null}
           </div>

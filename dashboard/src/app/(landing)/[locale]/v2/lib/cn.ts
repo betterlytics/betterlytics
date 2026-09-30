@@ -18,6 +18,7 @@ const merge = extendTailwindMerge({
         'volt-hover',
         'volt-lift',
         'volt-soft',
+        'volt-text',
         'on-volt',
         'on-paper',
         'down',

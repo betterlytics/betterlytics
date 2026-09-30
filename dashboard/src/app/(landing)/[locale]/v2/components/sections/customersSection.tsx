@@ -13,12 +13,7 @@ export function CustomersSection() {
         <LogoBoard
           pool={CUSTOMERS}
           label={
-            <Emphasis
-              text={COPY.customers.label}
-              // between the pale accent and the underline blue: the claim should carry, and the
-              // underline blue reads too dark as a word on canvas
-              wrap={(span) => <em className='font-medium text-[#6b7aff] not-italic'>{span}</em>}
-            />
+            <Emphasis text={COPY.customers.label} as='em' className='font-medium text-volt-text not-italic' />
           }
         />
       </Panel>

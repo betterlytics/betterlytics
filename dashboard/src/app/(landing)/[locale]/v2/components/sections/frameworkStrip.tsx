@@ -37,7 +37,7 @@ export function FrameworkStrip({ className }: { className?: string }) {
       {/* the claim on one line, set like the MCP side's lead */}
       <p className={cn(TEXT_STYLES.title, 'flex flex-none flex-col gap-0.5 whitespace-nowrap text-fg')}>
         <span>
-          <Emphasis text={copy.title} wrap={(span) => <em className='text-[#6b7aff] not-italic'>{span}</em>} />
+          <Emphasis text={copy.title} as='em' className='text-volt-text not-italic' />
         </span>
         <span className='text-[13.5px] leading-5 font-normal tracking-normal whitespace-normal text-muted'>
           {copy.lede}

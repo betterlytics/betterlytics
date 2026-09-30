@@ -25,6 +25,9 @@
   --color-volt-hover: #2233e4;
   --color-volt-lift: #4a5cff;
   --color-volt-soft: #8b97ff;
+  /* between the pale accent and the underline blue: a claim word on the canvas carries,
+     where the underline blue reads too dark as text */
+  --color-volt-text: #6b7aff;
   --color-on-volt: #f2f5ff;
   --color-on-paper: #191615;
   --color-down: #e2586b;
@@ -135,9 +138,6 @@
     background-color: var(--color-canvas);
     color-scheme: dark;
   }
-  @media (prefers-reduced-motion: no-preference) {
-    html {
-      scroll-behavior: smooth;
   body {
     color: var(--color-fg);
     font-family: var(--font-sans);
@@ -146,6 +146,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
     }
   }
 
