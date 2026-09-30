@@ -5,7 +5,7 @@ import { useLocale } from 'next-intl';
 import { useSession } from 'next-auth/react';
 import { baSetGlobalProperties } from '@/lib/ba-event';
 
-export default function GlobalPropertiesUpdater() {
+export function GlobalPropertiesUpdater() {
   const locale = useLocale();
   const { status } = useSession();
 

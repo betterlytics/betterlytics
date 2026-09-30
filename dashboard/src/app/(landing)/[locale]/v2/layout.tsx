@@ -6,7 +6,7 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { BASE_METADATA } from '@/app/baseMetadata';
 import { StructuredData } from '@/components/StructuredData';
 import { AppTrackingScript } from '@/components/tracking/AppTrackingScript';
-import GlobalPropertiesUpdater from '@/components/tracking/GlobalPropertiesUpdater';
+import { GlobalPropertiesUpdater } from '@/components/tracking/GlobalPropertiesUpdater';
 import { routing } from '@/i18n/routing';
 import { env } from '@/lib/env';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';

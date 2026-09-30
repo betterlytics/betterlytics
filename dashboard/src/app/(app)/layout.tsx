@@ -3,7 +3,7 @@ import { AppDocument } from '@/app/AppDocument';
 import { BASE_METADATA } from '@/app/baseMetadata';
 import Providers from '@/app/Providers';
 import ThemeColorUpdater from '@/app/ThemeColorUpdater';
-import GlobalPropertiesUpdater from '@/components/tracking/GlobalPropertiesUpdater';
+import { GlobalPropertiesUpdater } from '@/components/tracking/GlobalPropertiesUpdater';
 import { env } from '@/lib/env';
 import type { Metadata } from 'next';
 
