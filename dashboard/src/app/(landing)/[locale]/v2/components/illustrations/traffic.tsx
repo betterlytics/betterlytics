@@ -2,6 +2,7 @@
 
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { LIFT_STEP_S, LiftSwap } from '@/landing/components/ui/liftSwap';
+import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
@@ -213,11 +214,7 @@ export function Traffic({ entered }: IllustrationProps) {
           <p className={styles.title}>Weekly traffic</p>
           <span className={styles.caption}>visitors by hour</span>
         </div>
-        <div
-          className={cn(styles.body, styles.heatmap)}
-          role='img'
-          aria-label='Visitors by weekday and hour: busiest in weekday office hours, with a smaller evening peak and quieter weekends.'
-        >
+        <div className={cn(styles.body, styles.heatmap)} role='img' aria-label={COPY.illustrations.traffic}>
           <div className={styles.days} aria-hidden>
             {DAYS.map((day, i) => (
               <span key={i}>{day}</span>

@@ -66,7 +66,25 @@ export const COPY = {
     worksWith: 'Works with',
     any: 'ChatGPT, Zed, JetBrains — and any client that speaks the protocol over HTTP.',
     cta: 'Set up MCP',
-    /* the transcript's text alternative: its first script, which is what it shows at rest */
+  },
+  /* What each illustration shows, in words, for readers who can't see it: the art itself is
+     hidden from assistive tech. Change one with its illustration. */
+  illustrations: {
+    globe:
+      'A turning globe marking where visitors arrive from, each city called out with the source that sent them, such as Copenhagen via ChatGPT.',
+    /* the traffic card's tables are real text; only its weekly heatmap needs words */
+    traffic:
+      'Visitors by weekday and hour: busiest in weekday office hours, with a smaller evening peak and quieter weekends.',
+    events:
+      "A live log of custom events such as signups and purchases, each with the property it was sent with and the visitor's country, browser and device.",
+    replay:
+      'A replay of a visitor on a pricing page: they click Choose Pro, a TypeError is thrown, they rage-click the button four times, then leave.',
+    vitals: 'Gauges for FCP, TTFB, LCP, INP and CLS, each graded good, needs work or poor.',
+    errors:
+      'A TypeError firing now, with the page and click that led to it, its stack trace and who it hit; behind it, a quieter error and a resolved one.',
+    uptime:
+      'Four uptime monitors with their recent checks. When one stops responding, the alert goes out to Slack, Discord and email, and the public status page reports the outage.',
+    /* the MCP terminal's first script, which is what it shows at rest */
     transcript:
       'A terminal session: asked which pages lost traffic after the August redesign, an agent queries pageviews and errors through the Betterlytics MCP server and finds /pricing down 34%, hit by a TypeError shipped the same day.',
   },

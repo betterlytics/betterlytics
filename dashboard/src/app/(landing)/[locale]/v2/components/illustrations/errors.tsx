@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { AlertTriangle, Eye, MousePointerClick, type LucideIcon } from 'lucide-react';
 import Image from 'next/image';
+import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './errors.module.css';
@@ -8,13 +9,6 @@ import type { IllustrationProps } from './types';
 import { FLAGS } from './flags';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
-
-/**
- * The mock is one image to assistive tech, labelled with what it shows. The art inside
- * is hidden as well, since Chrome still exposes the children of an image.
- */
-const DESCRIPTION =
-  'A TypeError firing now, with the page and click that led to it, its stack trace and who it hit; behind it, a quieter error and a resolved one.';
 
 /**
  * A call in the stack, as the product lists it (StacktraceView): the line, then
@@ -222,17 +216,12 @@ function Card({
  * Three error groups stacked on a diagonal, the one firing now in front: a
  * quieter one and a resolved one behind it, whole cards though mostly covered.
  * Still once it has landed; the only motion is the entrance, and the stack
- * spreading a little under the pointer.
+ * spreading a little under the pointer. One image to assistive tech, labelled
+ * with what it shows, with the art inside hidden.
  */
-export function Errors({ entered, live }: IllustrationProps) {
+export function Errors({ entered }: IllustrationProps) {
   return (
-    <div
-      className={styles.root}
-      data-in={entered || undefined}
-      data-live={live || undefined}
-      role='img'
-      aria-label={DESCRIPTION}
-    >
+    <div className={styles.root} data-in={entered || undefined} role='img' aria-label={COPY.illustrations.errors}>
       <div className={styles.stack} aria-hidden>
         <Card
           group={RESOLVED}

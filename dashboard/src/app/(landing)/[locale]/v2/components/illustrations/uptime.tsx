@@ -1,20 +1,16 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useReducedMotion } from 'motion/react';
 import Image from 'next/image';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
-import { useInView } from '@/landing/hooks/useInView';
+import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './uptime.module.css';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
-
-/** What the art shows, for readers who can't see it. */
-const DESCRIPTION =
-  'Four uptime monitors with their recent checks. When one stops responding, the alert goes out to Slack, Discord and email, and the public status page reports the outage.';
 
 /** `uptime` is in hundredths of a percent, so each failed check can take one off exactly. */
 const MONITORS = [
@@ -331,26 +327,23 @@ function StatusPage({ t }: { t: number }) {
  * Monitors as a stack of cards with an outage playing through them, the
  * failing one coming forward, and the notices it sends stacking up over the
  * bottom corner, newest in front. All the strips move on one beat while the
- * card is live and on screen.
+ * card is live. One image to assistive tech, labelled with what it shows, with
+ * the art inside hidden.
  */
 export function Uptime({ entered, live }: IllustrationProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const onScreen = useInView(ref, 'onScreen');
   /* the story holds while a mouse is on the notices, so the stack they spread
      into can't change under the pointer; it picks up again on leaving */
   const [held, setHeld] = useState(false);
-  const { t, ticked } = useChecks(live && onScreen && !held);
+  const { t, ticked } = useChecks(live && !held);
 
   return (
     <div
-      ref={ref}
       role='img'
-      aria-label={DESCRIPTION}
+      aria-label={COPY.illustrations.uptime}
       className={cn(styles.uptime, 'absolute inset-0 grid items-start max-md:justify-items-center max-md:pt-3.5')}
       data-in={entered || undefined}
       data-live={live || undefined}
     >
-      {/* the label speaks for the art: role='img' alone doesn't hide the text inside from every screen reader */}
       <StatusPage t={t} />
       {/* the stack sits left and the notices hang off its lower right, so the two read
           as one diagonal; it starts low enough that the status page's hero clears it */}

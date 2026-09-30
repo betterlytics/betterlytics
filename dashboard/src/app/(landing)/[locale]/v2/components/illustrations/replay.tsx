@@ -4,17 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { CursorGlyph } from '@/landing/components/ui/cursorGlyph';
 import { LiftSwap } from '@/landing/components/ui/liftSwap';
+import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './replay.module.css';
-
-/**
- * The picture in words for screen readers, which the player's art is hidden from;
- * kept beside the art so the two change together.
- */
-const DESCRIPTION =
-  'A replay of a visitor on a pricing page: they click Choose Pro, a TypeError is thrown, they rage-click the button four times, then leave.';
 
 /* The player's copy is mock product UI, kept literal on purpose. */
 
@@ -170,7 +164,8 @@ export function Replay({ entered, live }: IllustrationProps) {
       data-paused={paused || undefined}
       style={vars({ '--loop': `${LOOP_MS}ms` })}
     >
-      <p className='sr-only'>{DESCRIPTION}</p>
+      {/* described here with the art hidden, rather than one labelled image, so the pause button stays reachable */}
+      <p className='sr-only'>{COPY.illustrations.replay}</p>
       {/* the player's own header, as the other cards have, not a browser's chrome */}
       <div className={styles.header} aria-hidden>
         <b>Session replay</b>

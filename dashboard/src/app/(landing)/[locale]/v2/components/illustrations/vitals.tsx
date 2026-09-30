@@ -3,11 +3,11 @@
 import { memo, useEffect, useState } from 'react';
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
 import { useReducedMotion } from 'motion/react';
-import { useLocale } from 'next-intl';
 import { Gauge } from '@/components/gauge';
 import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { getCoreWebVitalGaugeProps, getCoreWebVitalIntlFormat, getCoreWebVitalLevel } from '@/utils/coreWebVitals';
+import { COPY, COPY_LOCALE } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import type { IllustrationProps } from './types';
 import styles from './vitals.module.css';
@@ -18,13 +18,6 @@ import styles from './vitals.module.css';
  * Each gauge steps through the shared mock values on its own interval, so
  * they never move in step.
  */
-
-/**
- * The values are mock, not anyone's data, so the gauges are art: one image to assistive
- * tech, labelled with what it shows. The art inside is hidden as well, since Chrome still
- * exposes the children of an image.
- */
-const DESCRIPTION = 'Gauges for FCP, TTFB, LCP, INP and CLS, each graded good, needs work or poor.';
 
 const SIZE = 150;
 const STROKE = 7.7;
@@ -52,12 +45,10 @@ const MetricGauge = memo(function MetricGauge({
   metric,
   value,
   drawn,
-  locale,
 }: {
   metric: CoreWebVitalName;
   value: number;
   drawn: boolean;
-  locale: string;
 }) {
   const { segments, progress } = getCoreWebVitalGaugeProps(metric, value);
   const format = getCoreWebVitalIntlFormat(metric, value);
@@ -75,7 +66,7 @@ const MetricGauge = memo(function MetricGauge({
         {/* the metric's name: firm grey, second to the coloured value; a little tracking, not eyebrow-wide */}
         <span className='-mb-0.5 text-[10.5px] font-semibold tracking-[0.12em] text-muted'>{metric}</span>
         <span className={styles.value} data-level={getCoreWebVitalLevel(metric, value)}>
-          <NumberFlow value={format.value} format={format.format} locales={locale} willChange />
+          <NumberFlow value={format.value} format={format.format} locales={COPY_LOCALE} willChange />
           {format.suffix && <span key={format.suffix}>{format.suffix}</span>}
         </span>
       </div>
@@ -90,14 +81,12 @@ function CyclingGauge({
   startIndex,
   entered,
   live,
-  locale,
 }: {
   metric: CoreWebVitalName;
   intervalMs: number;
   startIndex: number;
   entered: boolean;
   live: boolean;
-  locale: string;
 }) {
   const reduce = useReducedMotion();
   const values = MOCK_CORE_WEB_VITAL_VALUES[metric];
@@ -109,21 +98,22 @@ function CyclingGauge({
     return () => clearInterval(id);
   }, [live, reduce, intervalMs, values.length]);
 
-  return <MetricGauge metric={metric} value={values[index]} drawn={entered} locale={locale} />;
+  return <MetricGauge metric={metric} value={values[index]} drawn={entered} />;
 }
 
+/**
+ * The gauges are mock values, not anyone's data, so they are art: one image to
+ * assistive tech, labelled with what it shows, with the art inside hidden.
+ */
 export function Vitals({ entered, live }: IllustrationProps) {
-  const locale = useLocale();
   return (
     <div
       className={cn(
         styles.root,
         'absolute inset-0 flex flex-col items-center justify-center gap-3.5 px-[30px] py-6',
       )}
-      data-in={entered || undefined}
-      data-live={live || undefined}
       role='img'
-      aria-label={DESCRIPTION}
+      aria-label={COPY.illustrations.vitals}
     >
       <NumberFlowGroup>
         {ROWS.map((row, r) => (
@@ -137,7 +127,6 @@ export function Vitals({ entered, live }: IllustrationProps) {
                 startIndex={g.startIndex}
                 entered={entered}
                 live={live}
-                locale={locale}
               />
             ))}
           </div>

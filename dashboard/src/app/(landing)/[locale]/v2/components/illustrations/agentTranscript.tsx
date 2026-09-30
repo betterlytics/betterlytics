@@ -282,7 +282,7 @@ export function AgentTranscript({ className }: { className?: string }) {
       className={cn(styles.terminal, className)}
       data-live={live || undefined}
       role='img'
-      aria-label={COPY.mcp.transcript}
+      aria-label={COPY.illustrations.transcript}
     >
       <FlareShimmer className={styles.shimmer} live={live} />
       {/* the label speaks for the art: role='img' alone doesn't hide the text inside from every screen reader */}
