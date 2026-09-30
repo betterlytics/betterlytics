@@ -13,31 +13,28 @@ export function useNavScrollState(navRef: RefObject<HTMLElement | null>, gridSta
     const gridStart = document.getElementById(gridStartId);
     if (!nav || !gridStart) return;
     let trigger = 0;
-    let ticking = false;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      setGrid(window.scrollY >= trigger);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
     const measure = () => {
       trigger = gridStart.getBoundingClientRect().top + window.scrollY - nav.offsetHeight;
-    };
-    const update = () => setGrid(window.scrollY >= trigger);
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        update();
-        ticking = false;
-      });
-    };
-    const onResize = () => {
-      measure();
       update();
     };
-    onResize();
+    // anything above the band (fonts landing, the hero reflowing) moves its top, and
+    // the band itself resizes with the window
+    const resized = new ResizeObserver(measure);
+    resized.observe(document.documentElement);
+    resized.observe(nav);
     window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onResize, { passive: true });
-    window.addEventListener('load', onResize);
     return () => {
+      resized.disconnect();
       window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', onResize);
-      window.removeEventListener('load', onResize);
+      cancelAnimationFrame(frame);
     };
   }, [navRef, gridStartId]);
 
