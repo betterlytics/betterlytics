@@ -1,7 +1,17 @@
 {
-  "plugins": ["prettier-plugin-tailwindcss"],
+  "plugins": [
+    "prettier-plugin-tailwindcss"
+  ],
   "singleQuote": true,
   "jsxSingleQuote": true,
   "tabWidth": 2,
-  "printWidth": 115
+  "printWidth": 115,
+  "overrides": [
+    {
+      "files": "src/app/*landing*/**/*.{ts,tsx}",
+      "options": {
+        "tailwindStylesheet": "./src/app/(landing)/[locale]/v2/landing.css"
+      }
+    }
+  ]
 }

@@ -8,7 +8,15 @@ import { vars } from '@/landing/lib/cssVars';
 import styles from './reveal.module.css';
 
 /** Lifts into place when scrolled into view. Siblings stagger by `index`. */
-export function Reveal({ children, className, index = 0 }: { children: ReactNode; className?: string; index?: number }) {
+export function Reveal({
+  children,
+  className,
+  index = 0,
+}: {
+  children: ReactNode;
+  className?: string;
+  index?: number;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref);
   return (

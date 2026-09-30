@@ -57,7 +57,15 @@ export function Corners({ persistent = false, className }: { persistent?: boolea
 }
 
 /** A bounded box whose rules land on the wall lines, drawn in as the reader arrives. */
-export function Panel({ children, className, flush = false }: { children: ReactNode; className?: string; flush?: boolean }) {
+export function Panel({
+  children,
+  className,
+  flush = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  flush?: boolean;
+}) {
   return (
     <InkFrame className={cn(styles.panel, !flush && 'px-[30px] max-sm:px-0', className)}>
       <Corners />
