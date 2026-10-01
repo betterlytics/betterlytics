@@ -585,16 +585,16 @@ Releases after v1.3.5 run one-time ClickHouse migrations that rewrite the events
 - Back up the `betterlytics_selfhost_clickhouse_data` and `betterlytics_selfhost_postgres_data` volumes first.
 - If `ENABLE_EMAILS=true`, set `SMTP_FROM` to an address on a domain your email provider has verified. Earlier versions sent as `info@betterlytics.io` when it was unset, which providers reject; the instance now refuses to start without it.
 - In standalone mode, keep port 80 reachable from the internet. Caddy requests new certificates on first boot and validates them over port 80.
-- If you edited the nginx templates in `base/proxy`, `git pull` stops on them because they are replaced by Caddy configuration. Save a copy, discard them with `git checkout -- base/proxy`, pull again, then reapply your changes to the Caddy files in `base/proxy` or move them to [your own reverse proxy](#behind-a-reverse-proxy).
+- If `git pull` reports local changes in `base/proxy` or `base/.env.base`, save a copy, discard them with `git checkout -- base/proxy base/.env.base`, and pull again. The nginx templates are replaced by Caddy configuration, so reapply proxy changes to the Caddy files in `base/proxy` or move them to [your own reverse proxy](#behind-a-reverse-proxy). A changed `DATA_RETENTION_DAYS` has no replacement in `.env.base`; retention is now set per dashboard, see below.
 
 After the first boot:
 
-- **Two-factor authentication is reset.** Existing authenticator enrollments cannot be carried over, so 2FA is turned off for every account that had it. Users sign in with their password and turn it on again under **User Settings > Account**. Affected users are notified by email only when [email sending](#email) is configured.
-- **Retention is set per dashboard.** `DATA_RETENTION_DAYS` no longer has any effect. Each dashboard's retention is set under **Settings > Data**, where self-hosted instances also offer **Keep forever**. A dashboard keeps 1 year of data unless it was changed there.
+- **Two-factor authentication is reset.** Existing authenticator enrollments cannot be carried over, so 2FA is turned off for every account that had it. Users sign in with their password and turn it on again under **User Settings > Account**. Affected users are notified by email only when [email sending](#email) is configured and background jobs are enabled.
+- **Retention is set per dashboard.** `DATA_RETENTION_DAYS` no longer has any effect. A dashboard's owner or admin sets its retention under **Settings > Data**, where self-hosted instances also offer **Keep forever**. A period picked there on v1.3.5 had no effect then but applies now, with anything under 6 months raised to 6 months. Dashboards where nothing was picked keep 1 year.
 - **The old certificate volumes are left behind.** Certificates now live in the `betterlytics_selfhost_caddy_data` volume. Once HTTPS works, find the old volumes with `docker volume ls`, their names end in `letsencrypt_certs` and `certbot_www`, and remove them with `docker volume rm`.
 
 <Callout type="warning">
-A cleanup job deletes data older than each dashboard's retention every Saturday at 02:00 UTC. If you kept data longer than a year with `DATA_RETENTION_DAYS`, set those dashboards to **Keep forever** or a longer period before then, or their older data is deleted. With `BACKGROUND_JOBS_ENABLED=false`, nothing is deleted.
+A cleanup job deletes data older than each dashboard's retention every Saturday at 02:00 UTC. Before then, check every dashboard under **Settings > Data** and choose **Keep forever** or a longer period wherever you want to keep more, for example if you kept data longer than a year with `DATA_RETENTION_DAYS`. To hold the cleanup until every dashboard owner has checked, set `BACKGROUND_JOBS_ENABLED=false`; this also pauses outgoing email.
 </Callout>
 
 </details>
