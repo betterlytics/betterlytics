@@ -133,7 +133,10 @@ function TrailStep({
 }) {
   return (
     <div className={cn(styles.step, styles[kind])} style={style}>
-      <time className='text-micro font-normal text-muted tabular-nums'>{at}</time>
+      <time className='text-micro font-normal text-muted tabular-nums'>
+        {at.slice(0, 5)}
+        <span className='max-sm:hidden'>{at.slice(5)}</span>
+      </time>
       <span className={styles.glyph}>
         <Icon aria-hidden />
       </span>
@@ -154,6 +157,7 @@ function Card({
   depth,
   resolved = false,
   side,
+  className,
 }: {
   group: Group;
   /** 0 is the front card; each step back sits further up and to the left. */
@@ -162,11 +166,12 @@ function Card({
   resolved?: boolean;
   /** The header's right-hand column: the count over when it last fired or who it hit, or the release that resolved it. */
   side: ReactNode;
+  className?: string;
 }) {
   const [page, event] = group.trail;
   return (
     <div
-      className={cn(styles.card, depth === 0 ? styles.front : styles.back)}
+      className={cn(styles.card, depth === 0 ? styles.front : styles.back, className)}
       data-resolved={resolved || undefined}
       style={vars({ '--depth': depth })}
     >
@@ -214,8 +219,8 @@ function Card({
 
 /**
  * Three error groups stacked on a diagonal, the one firing now in front: a
- * quieter one and a resolved one behind it, whole cards though mostly covered.
- * Still once it has landed; the only motion is the entrance, and the stack
+ * quieter one and a resolved one behind it, whole cards though mostly covered;
+ * a phone leaves the quieter one out. Still once it has landed; the only motion is the entrance, and the stack
  * spreading a little under the pointer. One image to assistive tech, labelled
  * with what it shows, with the art inside hidden.
  */
@@ -237,6 +242,7 @@ export function Errors({ entered }: IllustrationProps) {
         <Card
           group={QUIETER}
           depth={1}
+          className={styles.quieter}
           side={
             <>
               <span>

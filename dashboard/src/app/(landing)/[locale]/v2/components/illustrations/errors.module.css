@@ -18,12 +18,19 @@
   .stack {
     --dx: 28px;
     --dy: 54px;
+    /* how many cards step out behind the front one */
+    --behind: 2;
     position: relative;
     width: 56%;
-    margin: calc(var(--dy) * 2) 0 0 calc(var(--dx) * 2);
+    margin: calc(var(--dy) * var(--behind)) 0 0 calc(var(--dx) * var(--behind));
     @variant max-md {
       --dx: 12px;
-      width: calc(94% - 24px);
+      width: calc(94% - var(--dx) * var(--behind));
+    }
+    /* a phone leaves the quieter card out, and keeps the stack clear of the frame's edges */
+    @variant max-sm {
+      --behind: 1;
+      width: calc(86% - var(--dx));
     }
   }
 
@@ -52,18 +59,30 @@
     position: relative;
     z-index: 3;
   }
-  /* whole cards, the front one's size, though only their headers and left edges show */
+  /* Whole cards, the front one's size, though only their headers and left edges show.
+     `--step` is how far back a card sits: its depth, less any card left out in front of it. */
   .back {
+    --step: var(--depth);
     position: absolute;
-    left: calc(var(--depth) * var(--dx) * -1);
-    top: calc(var(--depth) * var(--dy) * -1);
-    z-index: calc(3 - var(--depth));
+    left: calc(var(--step) * var(--dx) * -1);
+    top: calc(var(--step) * var(--dy) * -1);
+    z-index: calc(3 - var(--step));
     width: 100%;
     height: 100%;
     overflow: hidden;
   }
   .root[data-in] .back {
-    opacity: calc(1.35 - var(--depth) * 0.35);
+    opacity: calc(1.35 - var(--step) * 0.35);
+  }
+  .quieter {
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .back[data-resolved] {
+    @variant max-sm {
+      --step: 1;
+    }
   }
 
   /* Hovering any of the cards spreads the stack a little along its diagonal. It keys on
@@ -79,7 +98,7 @@
         translate 0.6s var(--ease-out-expo);
     }
     .stack:hover .back {
-      translate: calc(var(--depth) * -7px) calc(var(--depth) * -7px);
+      translate: calc(var(--step) * -7px) calc(var(--step) * -7px);
     }
     .stack:hover .front {
       translate: 5px 5px;
@@ -154,7 +173,13 @@
      (StacktraceView), the frames hanging under it. The two steps and the box land top
      down once the card is in. */
   .trail {
+    /* the times' column, which the frames' line numbers share so their calls start under
+       the icons; a phone gives the times to the minute, and the labels the room saved */
+    --when: 58px;
     padding: 10px 14px 14px;
+    @variant max-sm {
+      --when: 34px;
+    }
     border-top: 1px solid --alpha(var(--color-fg) / 7%);
   }
   .trail > * {
@@ -171,7 +196,7 @@
   }
   .step {
     display: grid;
-    grid-template-columns: 58px 18px minmax(0, 1fr);
+    grid-template-columns: var(--when) 18px minmax(0, 1fr);
     align-items: center;
     gap: 10px;
     padding: 5px 10px;
@@ -210,6 +235,12 @@
   .page svg {
     color: #38bdf8;
   }
+  /* a phone's trail starts at the custom event, which still leads into the throw */
+  .page {
+    @variant max-sm {
+      display: none;
+    }
+  }
   .event svg {
     color: #a78bfa;
   }
@@ -242,7 +273,7 @@
      greyed and unbadged. */
   .frame {
     display: grid;
-    grid-template-columns: 58px minmax(0, 1fr) auto;
+    grid-template-columns: var(--when) minmax(0, 1fr) auto;
     align-items: center;
     gap: 10px;
     padding: 6px 10px 6px 9px;
