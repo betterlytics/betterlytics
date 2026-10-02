@@ -8213,13 +8213,16 @@ or you can use record.mirror to access the mirror instance during recording.`;
   if (window.__betterlytics_replay_initialized__) {
     return;
   }
+  var handoff = window.__betterlytics_replay_config__;
+  if (!handoff || !handoff.siteId || !handoff.serverUrl || !handoff.script) {
+    return;
+  }
   window.__betterlytics_replay_initialized__ = true;
 
-  var script = document.querySelector('script[src*="analytics.js"]');
+  var script = handoff.script;
 
-  var siteId = script.getAttribute("data-site-id");
-  var serverUrl =
-    script.getAttribute("data-server-url") ?? "https://betterlytics.io/event";
+  var siteId = handoff.siteId;
+  var serverUrl = handoff.serverUrl;
   var urlPatterns =
     script
       .getAttribute("data-dynamic-urls")

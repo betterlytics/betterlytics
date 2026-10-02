@@ -548,6 +548,13 @@
   }
 
   if ((enableReplay || enableReplayOnError) && !automation) {
+    // replay.js reads this instead of searching the DOM, where another "analytics.js" (Segment, GA) can come first
+    window.__betterlytics_replay_config__ = {
+      siteId: siteId,
+      serverUrl: serverUrl,
+      script: script,
+    };
+
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
     var THIRTY_MIN_MS = 30 * 60 * 1000;
