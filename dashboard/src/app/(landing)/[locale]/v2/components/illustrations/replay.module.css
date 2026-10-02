@@ -5,6 +5,9 @@
      player is what makes it read as someone else's site. */
   .player {
     width: 70%;
+    @variant max-sm {
+      width: 92%;
+    }
     border-radius: 11px;
     overflow: hidden;
     background: var(--color-panel);
@@ -58,8 +61,17 @@
   /* the recording, inset in the player as replay tools show it, a shade off white so it
      doesn't outshine the cards around it */
   .viewport {
+    /* where the Starter card and Choose Pro sit in it, for the cursor's path */
+    --starter-y: 56%;
+    --pro-y: 76%;
     position: relative;
     height: 266px;
+    /* on a phone, the plans and room under them for the cursor's tag */
+    @variant max-sm {
+      --starter-y: 43.5%;
+      --pro-y: 65%;
+      height: 126px;
+    }
     margin: 0 10px;
     border-radius: 7px;
     background: #e7e3de;
@@ -68,12 +80,18 @@
     overflow: hidden;
   }
 
-  /* the recorded page: the visitor's pricing page in its own warm monochrome */
+  /* The recorded page: the visitor's pricing page in its own warm monochrome. On a phone
+     it is cropped to the plans and shown smaller, as a replay tool fits a wider screen
+     into its frame, so all three fit side by side. */
   .page {
     position: absolute;
     inset: 0;
     padding: 16px 20px;
     font-family: var(--font-sans);
+    @variant max-sm {
+      padding: 12px 14px;
+      zoom: 0.8;
+    }
   }
   .siteNav {
     display: flex;
@@ -119,6 +137,13 @@
     font-size: 9.5px;
     color: #7b736e;
     text-align: center;
+  }
+  .siteNav,
+  .title,
+  .tagline {
+    @variant max-sm {
+      display: none;
+    }
   }
   .plans {
     display: grid;
@@ -239,7 +264,7 @@
     /* the still: on Choose Pro, at the rage click */
     @media (prefers-reduced-motion: reduce) {
       left: 51%;
-      top: 76%;
+      top: var(--pro-y);
     }
   }
   .cursor svg {
@@ -522,31 +547,31 @@
   18%,
   24% {
     left: 21%;
-    top: 56%;
+    top: var(--starter-y);
   }
   34%,
   36% {
     left: 51%;
-    top: 76%;
+    top: var(--pro-y);
   }
   42% {
     left: 52%;
-    top: 75%;
+    top: calc(var(--pro-y) - 1%);
   }
   /* rage clicks land in one spot, as the detector defines them: the hand barely drifts */
   57%,
   59% {
     left: 51%;
-    top: 76%;
+    top: var(--pro-y);
   }
   63.5% {
     left: 51.3%;
-    top: 75.8%;
+    top: calc(var(--pro-y) - 0.2%);
   }
   68%,
   74% {
     left: 51.1%;
-    top: 76%;
+    top: var(--pro-y);
   }
   /* they leave up and to the right, but no further right than the tag hung off the tip
      still fits inside the viewport */
