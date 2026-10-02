@@ -109,6 +109,16 @@
     pointer-events: none;
     transform: translate(-50%, -50%);
     border-radius: 50%;
+    /* the lamp below a card's bottom edge (see .cta) */
+    --lamp-below: radial-gradient(
+      closest-side,
+      rgb(255 244 218 / 1) 0%,
+      rgb(255 238 204 / 0.9) 14%,
+      rgb(255 226 190 / 0.6) 26%,
+      rgb(120 136 255 / 0.55) 42%,
+      rgb(74 92 255 / 0.34) 66%,
+      rgb(74 92 255 / 0) 100%
+    );
     @variant max-lg {
       opacity: 0.85;
     }
@@ -127,6 +137,13 @@
       rgb(74 92 255 / 0.38) 70%,
       rgb(74 92 255 / 0) 100%
     );
+    /* phones show no demo frame, so there the hero takes the closing card's lamp */
+    @variant max-sm {
+      top: calc(100% + 20px);
+      width: 1600px;
+      height: 520px;
+      background: var(--lamp-below);
+    }
   }
   /* No frame to hide the lamp behind, so the bloom is centred just below the card's
      bottom edge: the brightest band sits on the edge and the light climbs and thins,
@@ -135,15 +152,7 @@
     top: 548px;
     width: 1600px;
     height: 520px;
-    background: radial-gradient(
-      closest-side,
-      rgb(255 244 218 / 1) 0%,
-      rgb(255 238 204 / 0.9) 14%,
-      rgb(255 226 190 / 0.6) 26%,
-      rgb(120 136 255 / 0.55) 42%,
-      rgb(74 92 255 / 0.34) 66%,
-      rgb(74 92 255 / 0) 100%
-    );
+    background: var(--lamp-below);
   }
 }
 

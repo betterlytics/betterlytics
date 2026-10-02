@@ -18,10 +18,14 @@
     pointer-events: none;
     border-top: 1px solid var(--color-rule);
   }
-  /* the top rule runs under the lifted demo frame, so it reads as broken by it */
+  /* the top rule runs under the lifted demo frame, so it reads as broken by it; phones
+     show no frame, and there the hero card closes the top */
   .band::before {
     top: 0;
     z-index: 1;
+    @variant max-sm {
+      display: none;
+    }
   }
   .band::after {
     bottom: 0;

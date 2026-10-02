@@ -43,8 +43,9 @@ export function LandingPage() {
       >
         <Nav />
         <main id={IDS.main} className='relative'>
-          {/* the full-bleed rule under the nav closes the top of the page the way the footer closes the bottom */}
-          <div className='relative before:bleed-rule before:top-0 before:z-2 before:bg-rule'>
+          {/* the full-bleed rule under the nav closes the top of the page the way the footer closes
+              the bottom; on phones the hero card, almost edge to edge, does that instead */}
+          <div className='relative before:bleed-rule before:top-0 before:z-2 before:bg-rule max-sm:before:hidden'>
             <HeroSection />
           </div>
           <Band>

@@ -9,7 +9,8 @@ import { LogoBoard } from './logoBoard';
 export function CustomersSection() {
   return (
     <Section id={IDS.customers} className='pt-0'>
-      <Panel flush>
+      {/* no top rule on phones: the hero card just above closes it */}
+      <Panel flush className='max-sm:before:hidden'>
         <LogoBoard
           pool={CUSTOMERS}
           label={

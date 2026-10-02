@@ -4,8 +4,10 @@ import { cn } from '@/landing/lib/cn';
 import styles from './voltCard.module.css';
 
 const VARIANTS = {
-  /** The demo frame rides up into it by --hero-overlap; the copy sits in the part left above the frame. */
-  hero: 'h-[760px] pt-16 pb-(--hero-overlap) max-lg:h-auto max-lg:pt-18 max-lg:pb-[calc(var(--hero-overlap)+48px)]',
+  /** The demo frame rides up into it by --hero-overlap; the copy sits in the part left above the frame.
+      Phones have no frame, so there it ends on the closing card's lamp, filling most of the first
+      screen with the next section peeking below. */
+  hero: 'h-[760px] pt-16 pb-(--hero-overlap) max-lg:h-auto max-lg:pt-18 max-lg:pb-[calc(var(--hero-overlap)+48px)] max-sm:min-h-[calc((100svh-9rem)*0.97)] max-sm:pt-14 max-sm:pb-12',
   cta: 'h-[528px] max-lg:h-auto max-lg:pt-16 max-lg:pb-[100px]',
 } as const;
 

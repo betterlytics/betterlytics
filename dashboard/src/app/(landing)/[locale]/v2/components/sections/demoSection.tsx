@@ -16,7 +16,12 @@ export async function DemoSection() {
   const src = env.DEMO_DASHBOARD_ID ? getPathname({ href: `/share/${env.DEMO_DASHBOARD_ID}`, locale }) : null;
 
   return (
-    <Section id={IDS.demo} className='z-2 flow-root px-[calc(var(--inset)+8px)] pt-0 pb-2 max-lg:pb-2'>
+    // Not on phones: at that size the dashboard is too cramped to explore and costly to
+    // load. The nav's Demo link opens the full-page demo there, as at every width.
+    <Section
+      id={IDS.demo}
+      className='z-2 flow-root px-[calc(var(--inset)+8px)] pt-0 pb-2 max-lg:pb-2 max-sm:hidden'
+    >
       {/* The window floats 8px inside the walls rather than sitting flush against them like
           the panels do, and is lifted into the hero card so the product breaks its frame
           (the section sits above the hero in z). The pull-up is on the window, not the
