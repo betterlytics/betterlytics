@@ -11,18 +11,23 @@ const copy = COPY.footer;
 /** Only competitors that still have a comparison page, so the column never links to a 404. */
 const COMPARISONS = copy.compare.filter(({ slug }) => getCompetitorData(slug) !== undefined);
 
-const LINK = 'inline-flex items-center gap-[9px] text-body-sm tracking-ui text-fg opacity-82 hover:opacity-100';
+/**
+ * Full strength, well above the muted headings; they hover by dipping, like the nav's
+ * quiet links. Each link is its whole row, 32px tall (24px on phones), so the rows sit
+ * flush rather than spaced by margins. A half step larger on phones, where the list is
+ * what the footer is.
+ */
+const LINK =
+  'flex w-fit items-center gap-[9px] py-2 text-body-sm leading-4 tracking-ui text-fg transition-opacity duration-180 ease-out-expo hover:opacity-80 max-sm:py-1 max-sm:text-body';
 const SOCIAL_ICON = 'size-[15px] flex-none';
 
 function Column({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <div className='flex-1 max-2xl:basis-[40%]'>
-      <h2 id={id} className='mb-4 text-caption font-medium tracking-[-0.1px] text-muted'>
+      <h2 id={id} className='mb-2 text-caption font-medium tracking-[-0.1px] text-muted max-sm:mb-1'>
         {title}
       </h2>
-      <ul aria-labelledby={id} className='*:mb-[15px]'>
-        {children}
-      </ul>
+      <ul aria-labelledby={id}>{children}</ul>
     </div>
   );
 }
@@ -30,13 +35,16 @@ function Column({ id, title, children }: { id: string; title: string; children: 
 /** The same destinations as the site's shared footer, in the landing page's frame. */
 export function LandingFooter() {
   return (
-    <footer className='relative px-[calc(var(--inset)+12px)] pt-28 pb-8'>
+    <footer className='relative px-[calc(var(--inset)+12px)] pt-28 pb-8 max-sm:px-(--inset)'>
       <div className='flex min-h-[300px] gap-6 max-2xl:flex-wrap'>
         <div className='w-[420px] flex-none max-2xl:w-full'>
           <BrandLink />
           <p className='my-5 max-w-[34ch] text-body leading-[23px] text-muted'>{copy.tagline}</p>
         </div>
-        <nav aria-label={copy.nav} className='flex flex-1 gap-6 max-2xl:basis-full max-2xl:flex-wrap'>
+        <nav
+          aria-label={copy.nav}
+          className='flex flex-1 gap-6 max-2xl:basis-full max-2xl:flex-wrap max-sm:gap-y-13'
+        >
           <Column id='footer-company' title={copy.columns.company}>
             <li>
               <Link className={LINK} href='/about'>
