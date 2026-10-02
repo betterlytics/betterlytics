@@ -64,12 +64,13 @@ const MAX_DPR = 2; // phones included: at 1.5 the dots visibly soften on 2x scre
 const FAR_DPR = 1; // the far side is faint, so it is rendered at 1x whatever the screen
 const LABEL_DX = 14; // label offset from its marker, CSS px
 const LABEL_DY = 10;
-const LABEL_FLIP_PX = 80; // labels this close to the top of the card drop below their marker instead
-const GRID_STEP = 15; // degrees between graticule lines
-const MAJOR_ALPHA = 0.64; // the 30° meridians, eased back from the raw rule token
-const MINOR_ALPHA = 0.3; // parallels and every other meridian are much fainter, so the 30° meridians read as the frame
-const FAR_GRID_ALPHA = 0.1; // the far hemisphere's lines, seen through the sphere
-const GRID_RES = 2; // degrees between samples along each line
+const LABEL_FLIP_PX = 80; // closer than this to the top, the label drops below its marker
+const GRID_STEP = 15; // degrees
+const MAJOR_ALPHA = 0.64; // 30° meridians
+const MINOR_ALPHA = 0.3;
+const PARALLEL_ALPHA = 0.25;
+const FAR_GRID_ALPHA = 0.1;
+const GRID_RES = 2; // degrees between samples
 const SPHERE = 0.8; // cobe draws the sphere at 80% of the canvas half-height
 
 /* The look both renders share; each adds its size, pixel ratio and orientation. */
@@ -135,7 +136,7 @@ const MERIDIANS: Vec3[][] = Array.from({ length: 360 / GRID_STEP }, (_, i) =>
   degrees(-90, 90).map((lat) => toVector(lat, i * GRID_STEP)),
 );
 const MAJOR_MERIDIANS = MERIDIANS.filter((_, i) => i % 2 === 0);
-const MINOR_LINES = [...PARALLELS, ...MERIDIANS.filter((_, i) => i % 2 === 1)];
+const MINOR_MERIDIANS = MERIDIANS.filter((_, i) => i % 2 === 1);
 
 /* The orthographic projection cobe uses for its marker anchors: spin by phi, tilt
    by theta, then x and y are fractions of the canvas. depth points at the viewer.
@@ -188,7 +189,9 @@ function drawGraticule(canvas: HTMLCanvasElement, project: Project, stroke: stri
   ctx.globalAlpha = MAJOR_ALPHA;
   traceLines(ctx, MAJOR_MERIDIANS, project);
   ctx.globalAlpha = MINOR_ALPHA;
-  traceLines(ctx, MINOR_LINES, project);
+  traceLines(ctx, MINOR_MERIDIANS, project);
+  ctx.globalAlpha = PARALLEL_ALPHA;
+  traceLines(ctx, PARALLELS, project);
 }
 
 /* Draws the visitor marks for one pose on the canvas above the globe. cobe's own markers
