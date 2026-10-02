@@ -103,6 +103,10 @@
     margin-left: auto;
     font-size: 11px;
     opacity: 0.8;
+    /* on a phone the bar holds the session alone; with both it wraps */
+    @variant max-sm {
+      display: none;
+    }
   }
   .mark {
     flex: none;
@@ -112,6 +116,28 @@
     opacity: 0.8;
   }
 
+  /* the live transcript and, on phones, the unseen finished scripts, all in one cell */
+  .screen {
+    display: grid;
+    flex: 1;
+  }
+  .screen > * {
+    grid-area: 1 / 1;
+  }
+  .reserve {
+    display: none;
+    visibility: hidden;
+    @variant max-sm {
+      display: block;
+    }
+  }
+  /* every line of a finished script, the working indicator excepted, as it ends */
+  .reserve .line:not([data-shown]) {
+    display: block;
+  }
+  .reserve .working:not([data-shown]) {
+    display: none;
+  }
   .body {
     flex: 1;
     min-height: 330px;
@@ -178,6 +204,18 @@
   .tool .bullet,
   .toolName {
     color: var(--color-volt-soft);
+  }
+  /* a call's parameters, elided on phones, where they would wrap to five lines */
+  .args {
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .argsElided {
+    display: none;
+    @variant max-sm {
+      display: inline;
+    }
   }
   .tool .bullet {
     opacity: 1;

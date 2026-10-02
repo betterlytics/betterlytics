@@ -221,7 +221,8 @@ function Line({ step }: { step: Step }) {
         <div className={cn(styles.line, styles.tool)}>
           <span className={styles.bullet}>●</span>
           <span className={styles.toolName}>{step.name}</span> (MCP)
-          {step.args}
+          <span className={styles.args}>{step.args}</span>
+          <span className={styles.argsElided}>(…)</span>
         </div>
       );
     case 'result':
@@ -297,13 +298,25 @@ export function AgentTranscript({ className }: { className?: string }) {
           betterlytics mcp
         </span>
       </div>
-      <div ref={bodyRef} className={styles.body} aria-hidden>
-        {/* a new script is a fresh set of lines, so none keeps the last one's state */}
-        <Fragment key={script}>
-          {SCRIPTS[script].map((step, i) => (
-            <Line key={i} step={step} />
-          ))}
-        </Fragment>
+      <div className={styles.screen}>
+        {/* Every script finished, unseen, in the same cell as the live one: on phones,
+            where the lines wrap most, the screen keeps the height of the tallest, so a
+            transcript printing never moves what follows it. */}
+        {SCRIPTS.map((steps, s) => (
+          <div key={s} className={cn(styles.body, styles.reserve)} aria-hidden>
+            {steps.map((step, i) => (
+              <Line key={i} step={step} />
+            ))}
+          </div>
+        ))}
+        <div ref={bodyRef} className={styles.body} aria-hidden>
+          {/* a new script is a fresh set of lines, so none keeps the last one's state */}
+          <Fragment key={script}>
+            {SCRIPTS[script].map((step, i) => (
+              <Line key={i} step={step} />
+            ))}
+          </Fragment>
+        </div>
       </div>
     </div>
   );
