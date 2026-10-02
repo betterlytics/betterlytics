@@ -158,8 +158,9 @@ export function Nav() {
         if (open && e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) setOpen(false);
       }}
       className={cn(
-        'sticky top-0 z-20 grid h-18 grid-cols-[1fr_auto_1fr] items-center px-6 max-xl:flex max-sm:h-14 max-sm:px-(--pad)',
-        // stowed: slid up out of view, unless something in it has focus
+        'sticky top-0 z-20 grid h-18 grid-cols-[1fr_auto_1fr] items-center max-xl:flex max-sm:h-14 max-sm:px-(--pad)',
+        // centres the 24px brand mark in the wall column
+        'px-[calc(var(--pad)+(var(--wall)-24px)/2)]',
         'transition-[translate] duration-300 ease-out-expo max-md:data-stowed:not-focus-within:-translate-y-full',
         // the page is capped in width but the band's rule is full-bleed, so the opaque
         // backing is full-bleed too, or the rule would show past the bar once under it
