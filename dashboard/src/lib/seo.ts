@@ -252,11 +252,6 @@ export async function generateStructuredData(config: SEOConfig) {
 }
 
 export const SEO_CONFIGS = {
-  landing: {
-    namespace: 'public.landing.seo',
-    path: '/',
-    structuredDataType: 'website',
-  },
   about: {
     namespace: 'public.about.seo',
     path: '/about',
