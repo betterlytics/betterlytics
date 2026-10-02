@@ -757,7 +757,8 @@
             "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
             "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
             "generic": "Der opstod en fejl under login. Prøv venligst igen.",
-            "invalidBackupCode": "Ugyldig backup-kode. Prøv igen."
+            "invalidBackupCode": "Ugyldig backup-kode. Prøv igen.",
+            "twoFactorExpired": "Dit loginforsøg er udløbet. Log venligst ind igen."
           },
           "twoFactor": {
             "title": "To-faktor-godkendelse",
@@ -903,6 +904,10 @@
           "title": "Verificerer din e-mail...",
           "description": "Vent venligst mens vi bekræfter din e-mailadresse."
         }
+      },
+      "errors": {
+        "originMismatch": "Denne side er åbnet på {origin}, som ikke passer med den adresse, denne Betterlytics-instans er konfigureret til, så anmodningen blev blokeret. Åbn Betterlytics på den konfigurerede adresse. Hvis du driver instansen, så sørg for, at den konfigurerede URL (protokol, vært og port) svarer til adressen i din browser.",
+        "rateLimited": "For mange forsøg. Vent et øjeblik, og prøv igen."
       }
     },
     "demo": {

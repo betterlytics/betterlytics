@@ -757,7 +757,8 @@
             "invalidOtp": "Invalid verification code. Please check your credentials and try again.",
             "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
             "generic": "An error occurred during sign in. Please try again.",
-            "invalidBackupCode": "Invalid backup code. Please try again."
+            "invalidBackupCode": "Invalid backup code. Please try again.",
+            "twoFactorExpired": "Your sign-in attempt expired. Please sign in again."
           },
           "twoFactor": {
             "title": "Two-factor authentication",
@@ -903,6 +904,10 @@
           "title": "Verifying your email...",
           "description": "Please wait while we confirm your email address."
         }
+      },
+      "errors": {
+        "originMismatch": "This page is open at {origin}, which doesn't match the address this Betterlytics instance is configured for, so the request was blocked. Open Betterlytics at its configured address. If you run this instance, make sure its configured URL (scheme, host and port) matches the address in your browser.",
+        "rateLimited": "Too many attempts. Please wait a moment and try again."
       }
     },
     "demo": {

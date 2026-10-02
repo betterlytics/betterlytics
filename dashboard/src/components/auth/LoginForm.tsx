@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Spinner } from '@/components/ui/spinner';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import ExternalLink from '@/components/ExternalLink';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { useTranslations } from 'next-intl';
@@ -70,6 +71,7 @@ export default function LoginForm({
   const router = useBARouter();
   const isMobile = useIsMobile();
   const t = useTranslations('public.auth.signin.form');
+  const authErrorMessage = useAuthErrorMessage();
   const totpInputRef = useRef<HTMLInputElement>(null);
   const backupCodeInputRef = useRef<HTMLInputElement>(null);
   const autoSubmittedCodeRef = useRef('');
@@ -113,6 +115,13 @@ export default function LoginForm({
     backupCodeInputRef.current?.form?.requestSubmit();
   }, [isPending, useBackupCode, backupCode]);
 
+  const resetTwoFactorDialog = () => {
+    setUseBackupCode(false);
+    setBackupCode('');
+    autoSubmittedCodeRef.current = '';
+    setIsDialogOpen(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -125,7 +134,23 @@ export default function LoginForm({
             : await authClient.twoFactor.verifyTotp({ code: totp });
           if (verifyError) {
             setTotp('');
-            setError(t(useBackupCode ? 'errors.invalidBackupCode' : 'errors.invalidOtp'));
+            // The 2FA challenge is gone, so only a fresh email + password sign-in can recover.
+            if (
+              verifyError.code === 'INVALID_TWO_FACTOR_COOKIE' ||
+              verifyError.code === 'TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE'
+            ) {
+              resetTwoFactorDialog();
+              setError(t('errors.twoFactorExpired'));
+              return;
+            }
+            setError(
+              authErrorMessage(verifyError) ??
+                (verifyError.code === 'INVALID_CODE'
+                  ? t('errors.invalidOtp')
+                  : verifyError.code === 'INVALID_BACKUP_CODE'
+                    ? t('errors.invalidBackupCode')
+                    : t('errors.generic')),
+            );
             return;
           }
           router.push(redirectTo);
@@ -134,7 +159,12 @@ export default function LoginForm({
 
         const { data, error: signInError } = await authClient.signIn.email({ email, password });
         if (signInError) {
-          setError(t('errors.invalidCredentials'));
+          setError(
+            authErrorMessage(signInError) ??
+              (signInError.code === 'INVALID_EMAIL_OR_PASSWORD' || signInError.code === 'INVALID_EMAIL'
+                ? t('errors.invalidCredentials')
+                : t('errors.generic')),
+          );
           return;
         }
         if (data && 'twoFactorRedirect' in data && data.twoFactorRedirect) {
@@ -165,14 +195,14 @@ export default function LoginForm({
             errorCallbackURL: '/signin',
           });
           if (socialError) {
-            setError(t('errors.generic'));
+            setError(authErrorMessage(socialError) ?? t('errors.generic'));
           }
         } catch {
           setError(t('errors.generic'));
         }
       });
     },
-    [t, redirectTo],
+    [t, redirectTo, authErrorMessage],
   );
 
   return (
