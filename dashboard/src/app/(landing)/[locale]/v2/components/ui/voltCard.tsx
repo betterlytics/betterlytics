@@ -9,6 +9,12 @@ const VARIANTS = {
   cta: 'h-[528px] max-lg:h-auto max-lg:pt-16 max-lg:pb-[100px] max-sm:rounded-none max-sm:pt-30 max-sm:pb-42',
 } as const;
 
+/** the hero title runs to several lines on a phone, so its copy goes left-aligned there */
+const CONTENT = {
+  hero: 'max-sm:items-start max-sm:text-left',
+  cta: '',
+} as const;
+
 export function VoltCardActions({ className, children }: { className?: string; children: ReactNode }) {
   return (
     <div className={cn('mt-1.5 flex flex-wrap justify-center gap-2.5 max-sm:w-full max-sm:flex-col', className)}>
@@ -30,7 +36,14 @@ export function VoltCard({ variant, children }: { variant: keyof typeof VARIANTS
         <i />
       </div>
       <div className={cn(styles.bloom, styles[variant])} aria-hidden />
-      <div className='relative z-2 flex w-full flex-col items-center gap-[34px] px-6 text-center'>{children}</div>
+      <div
+        className={cn(
+          'relative z-2 flex w-full flex-col items-center gap-[34px] px-6 text-center',
+          CONTENT[variant],
+        )}
+      >
+        {children}
+      </div>
     </InView>
   );
 }

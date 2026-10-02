@@ -17,11 +17,11 @@ export function HeroSection() {
           as='h1'
           size='display-1'
           id='hero-title'
-          className='mx-auto max-w-[1140px] text-balance text-on-volt max-2xl:max-w-[640px]'
+          className='mx-auto max-w-[1140px] text-balance text-on-volt max-2xl:max-w-[640px] max-sm:mx-0 max-sm:text-pretty'
         >
           {copy.title}
         </Heading>
-        <Lede className='mx-auto -mt-2 max-w-[600px] text-on-volt opacity-86 max-sm:mt-0 max-sm:opacity-100'>
+        <Lede className='mx-auto -mt-2 max-w-[600px] text-on-volt opacity-86 max-sm:mx-0 max-sm:mt-0 max-sm:text-pretty max-sm:opacity-100'>
           {copy.lede}
         </Lede>
         <VoltCardActions className='max-sm:mt-3'>

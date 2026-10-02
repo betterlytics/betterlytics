@@ -119,6 +119,9 @@
     :root {
       --pad: 16px;
       --wall: 0px;
+      --text-display-1: 2.5rem;
+      --text-display-1--line-height: 2.5rem;
+      --text-display-1--letter-spacing: -0.0625rem;
       --text-lede: 1.3rem;
       --text-lede--line-height: 1.5625rem;
       /* the phone nav is shorter (see nav) */
