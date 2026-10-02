@@ -83,8 +83,11 @@ pub struct Config {
     pub site_config_database_url: String,
     // Salt database (read-write) - stores the secret rotating fingerprint salts
     pub salts_database_url: String,
-    // Development mode - allows localhost monitoring targets
+    // Development mode - honors client-supplied event timestamps
     pub is_development: bool,
+    pub is_cloud: bool,
+    // Effective value: false whenever is_cloud
+    pub allow_private_targets: bool,
     // Public-facing base URL (used for dashboard links in push notifications)
     pub public_base_url: String,
     // Integration config encryption key (32 bytes)
@@ -125,6 +128,11 @@ impl Config {
             Some(other) => panic!("REPLAY_STORAGE must be 's3' or 'clickhouse', got '{}'", other),
             None => if s3_enabled { ReplayStorage::S3 } else { ReplayStorage::ClickHouse },
         };
+
+        let is_cloud = env::var("IS_CLOUD").map(|v| v.to_lowercase() == "true").unwrap_or(false);
+        // Fail closed: self-host gets `true` from the selfhost compose, Cloud can never opt in
+        let allow_private_targets = !is_cloud
+            && env::var("ALLOW_PRIVATE_TARGETS").map(|v| v.to_lowercase() == "true").unwrap_or(false);
 
         let config = Config {
             server_port: env::var("SERVER_PORT")
@@ -223,6 +231,8 @@ impl Config {
             is_development: env::var("IS_DEVELOPMENT")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
+            is_cloud,
+            allow_private_targets,
             // Public-facing base URL for dashboard links in push notifications
             public_base_url: env::var("PUBLIC_BASE_URL")
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),
