@@ -80,75 +80,40 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
   }, [active]);
 
   return (
-    // Sticky with `top` at the centred offset: in flow at the column top, pinned once it
-    // reaches the middle of the viewport, released at the column end. The sticky box is
-    // bounded by its margin box, so the margins keep the copy clear of the frame's rules.
-    <div
-      ref={ref}
-      className='sticky top-0 my-12 pl-7.5 max-2xl:static max-2xl:my-0 max-2xl:pt-7 max-2xl:pl-0 max-sm:hidden'
-      aria-hidden
-    >
+    // Sticky range is bounded by the margin box, so my-12 keeps the copy clear of the frame's rules.
+    <div ref={ref} className='sticky top-0 my-12 pl-7.5 max-2xl:hidden' aria-hidden>
       <p className='mb-3.5 font-mono text-micro tracking-[0.1em] text-muted'>
         <RollingDigits className='text-fg' value={pad(active + 1)} direction={direction} /> /{' '}
         {pad(JOURNEY_STEPS.length)}
       </p>
-      {/* Stacked in one cell: below 2xl the rail sits in flow above the cards, so every
-          step's copy is laid out there invisibly and the rail keeps the tallest one's
-          height, rather than moving the cards each time the step changes. */}
-      <div className='grid'>
-        {JOURNEY_STEPS.map(({ id, title, note }) => (
-          <div key={id} className='invisible col-start-1 row-start-1 hidden max-2xl:block'>
-            <p className={TITLE}>
-              {title.split('\n').map((line, i) => (
-                <span key={i} className='block'>
-                  {line}
-                </span>
-              ))}
-            </p>
-            <p className={NOTE}>{note}</p>
-          </div>
-        ))}
-        <div className='col-start-1 row-start-1'>
-          {/* the first line is the part the steps share, so it sits back in the muted tone */}
-          <p className={TITLE}>
-            {lines.map((line, i) => (
-              <LiftSwap
-                key={i}
-                id={line}
-                as='span'
-                className={cn('block', i === 0 && 'text-muted')}
-                direction={direction}
-                delay={(i + 1) * LIFT_STEP_S}
-              >
-                {line}
-              </LiftSwap>
-            ))}
-          </p>
+      <p className={TITLE}>
+        {lines.map((line, i) => (
           <LiftSwap
-            as='p'
-            className={cn(NOTE, 'min-h-11 max-2xl:min-h-0')}
-            id={step.id}
+            key={i}
+            id={line}
+            as='span'
+            className={cn('block', i === 0 && 'text-muted')}
             direction={direction}
-            delay={(lines.length + 1) * LIFT_STEP_S}
+            delay={(i + 1) * LIFT_STEP_S}
           >
-            {step.note}
+            {line}
           </LiftSwap>
-        </div>
-      </div>
+        ))}
+      </p>
+      <LiftSwap
+        as='p'
+        className={cn(NOTE, 'min-h-11')}
+        id={step.id}
+        direction={direction}
+        delay={(lines.length + 1) * LIFT_STEP_S}
+      >
+        {step.note}
+      </LiftSwap>
     </div>
   );
 }
 
-/**
- * One step's card: its copy and its illustration. `entered` latches the first time
- * the card scrolls into view and is never cleared, so an illustration that has played
- * stays drawn.
- *
- * The copy is the caption. Wide screens show it in the rail, which follows only the
- * active step, so there it is here for screen readers alone, in order, and takes no
- * room. On phones the rail is hidden and the copy is the card's visible caption, set
- * in a hatched band above it, the band that separates the cards wider.
- */
+/** `entered` latches so a played illustration stays drawn. From 2xl the copy is sr-only; the rail shows it. */
 function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const entered = useInView(ref);
@@ -156,9 +121,8 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   const titleId = `${IDS.journey}-${step.id}`;
   return (
     <article ref={ref} aria-labelledby={titleId}>
-      <div className='border-x border-rule-10 bg-hatch px-5 py-6 transition-ink sm:contents'>
-        <h3 id={titleId} className={cn(TITLE, 'sm:sr-only')}>
-          {/* the first line is the part the steps share, so it sits back in the muted tone */}
+      <div className='border-x border-rule-10 bg-hatch px-5 py-6 transition-ink 2xl:contents'>
+        <h3 id={titleId} className={cn(TITLE, '2xl:sr-only')}>
           {step.title.split('\n').map((line, i) => (
             <Fragment key={i}>
               {i > 0 && ' '}
@@ -166,7 +130,7 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
             </Fragment>
           ))}
         </h3>
-        <p className={cn(NOTE, 'sm:sr-only')}>{step.note}</p>
+        <p className={cn(NOTE, '2xl:sr-only')}>{step.note}</p>
       </div>
       <div className='border border-rule-10 transition-ink'>
         {/* taller as the screen narrows, since the illustrations keep their size; on a phone a
@@ -236,10 +200,9 @@ export function JourneySection() {
           <Corners persistent className='sm:hidden' />
           {JOURNEY_STEPS.map((step, i) => (
             <Fragment key={step.id}>
-              {/* the hatched band between cards, in the wall's material; on phones each card's caption takes its place */}
               {i > 0 && (
                 <div
-                  className='h-11.5 border-x border-rule-10 bg-hatch transition-ink max-sm:hidden'
+                  className='h-11.5 border-x border-rule-10 bg-hatch transition-ink max-2xl:hidden'
                   aria-hidden
                 />
               )}
