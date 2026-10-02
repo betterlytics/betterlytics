@@ -1,8 +1,8 @@
 import { baEvent } from '@/lib/ba-event';
 
-export type CtaPlacement = 'nav' | 'menu' | 'hero' | 'mcp' | 'pricing' | 'cta';
+export type CtaPlacement = 'nav' | 'menu' | 'hero' | 'demo' | 'mcp' | 'pricing' | 'cta';
 
-export type CtaDestination = 'signup' | 'contact' | 'docs' | 'mcp-docs';
+export type CtaDestination = 'signup' | 'contact' | 'docs' | 'mcp-docs' | 'demo';
 
 export const track = {
   cta: (placement: CtaPlacement, destination: CtaDestination, plan?: string) =>

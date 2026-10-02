@@ -1,7 +1,9 @@
+import { ArrowUpRight } from 'lucide-react';
 import { getLocale } from 'next-intl/server';
 import { getPathname } from '@/i18n/navigation';
 import { env } from '@/lib/env';
 import { Section } from '@/landing/components/ui/frame';
+import { TrackedLink } from '@/landing/components/ui/trackedLink';
 import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
@@ -32,14 +34,19 @@ export async function DemoSection() {
         </div>
         {src ? (
           <>
-            {/* decorative: the frame title and scrim label say the same in text */}
-            <p
-              className='absolute top-[9px] left-1/2 z-2 max-w-[40%] -translate-x-1/2 truncate rounded-full border border-rule-10 bg-fg/3 px-[18px] py-1 font-mono text-[11.5px] leading-[18px] text-muted max-md:max-w-[60%]'
-              aria-hidden
+            <TrackedLink
+              className='absolute top-[9px] left-1/2 z-2 max-w-[40%] -translate-x-1/2 truncate rounded-full border border-rule-10 bg-fg/3 px-[18px] py-1 font-mono text-[11.5px] leading-[18px] text-muted transition-colors duration-180 ease-out-expo hover:border-rule-22 hover:text-fg max-md:max-w-[60%]'
+              href='/demo'
+              target='_blank'
+              rel='noopener'
+              placement='demo'
+              destination='demo'
             >
               {copy.urlHost}
               <span className='text-fg opacity-86'>{copy.urlPath}</span>
-            </p>
+              <ArrowUpRight className='ml-1.5 inline size-3 align-[-1px]' aria-hidden />
+              <span className='sr-only'> {copy.newTab}</span>
+            </TrackedLink>
             <DemoFrame src={src} />
           </>
         ) : (

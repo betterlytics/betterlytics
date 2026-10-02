@@ -41,6 +41,7 @@ export const COPY = {
     frameTitle: 'Betterlytics live demo',
     urlHost: 'betterlytics.io',
     urlPath: '/demo',
+    newTab: '(opens in a new tab)',
     activateLine: 'Click anywhere to explore',
     /* must start with activateLine, so voice-control users can say what they see */
     activateAria: 'Click anywhere to explore the interactive demo dashboard',
