@@ -118,7 +118,13 @@ export function SnippetPanel() {
 
   return (
     <div className='flex min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-fg/9 bg-terminal'>
-      <div className='flex [scrollbar-width:none] gap-0.5 overflow-x-auto border-b border-fg/7 bg-fg/3 px-2.5 pt-2'>
+      {/* overflow-y-hidden: the tabs' -mb-px would otherwise make it scroll vertically */}
+      <div
+        className={cn(
+          styles.tabs,
+          'flex [scrollbar-width:none] gap-0.5 overflow-x-auto overflow-y-hidden border-b border-fg/7 bg-fg/3 px-2.5 pt-2',
+        )}
+      >
         <div
           role='tablist'
           aria-label={COPY.network.snippetLabel}

@@ -45,4 +45,35 @@
     color: var(--color-muted);
     font-style: italic;
   }
+
+  /* phones: fade the overflowing tab bar's right edge, keeping its 1px border row solid */
+  .tabs {
+    @variant max-sm {
+      mask:
+        linear-gradient(to right, #000 calc(100% - var(--fade)), transparent),
+        linear-gradient(#000 0 0) bottom / 100% 1px no-repeat;
+    }
+  }
+  /* clear the fade over the last 32px of scroll so the end isn't left faded */
+  @supports (animation-timeline: scroll()) {
+    .tabs {
+      @variant max-sm {
+        animation: tabs-fade linear both;
+        animation-timeline: scroll(self inline);
+        animation-range: calc(100% - 32px) 100%;
+      }
+    }
+  }
+}
+
+@property --fade {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 32px;
+}
+
+@keyframes tabs-fade {
+  to {
+    --fade: 0px;
+  }
 }
