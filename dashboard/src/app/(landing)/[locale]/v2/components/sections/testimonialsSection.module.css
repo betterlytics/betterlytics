@@ -7,17 +7,24 @@
     outline-offset: -2px;
   }
   .window {
+    --gap: 16px;
     position: relative;
     overflow: hidden;
     padding-block: 26px;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
     mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    /* on phones a window two and a half cards tall, fading out at the top and bottom */
+    @variant max-sm {
+      height: 560px;
+      padding-block: 0;
+      -webkit-mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+      mask-image: linear-gradient(180deg, transparent, #000 12%, #000 88%, transparent);
+    }
   }
   /* A row holds its cards twice and slides by one copy (half its width plus half a gap,
      since the gaps number one fewer than the cards), so it loops back seamlessly to where
      it started. The second row runs slower and the other way. */
   .row {
-    --gap: 16px;
     display: flex;
     gap: var(--gap);
     width: max-content;
@@ -28,22 +35,52 @@
     animation-duration: 50s;
     animation-direction: reverse;
   }
+  /* On phones one column instead: the rows unwrap into the track (display: contents) and
+     every repeat goes to its end, so it holds each card once and then once more, and
+     rising by one copy (half its height plus half a gap) loops seamlessly, as a row does.
+     Slow enough to read a card as it passes, about 20px a second. */
+  .track {
+    @variant max-sm {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      animation: column-rise 95s linear infinite;
+    }
+  }
+  .row {
+    @variant max-sm {
+      display: contents;
+    }
+  }
+  .repeat {
+    @variant max-sm {
+      order: 1;
+    }
+  }
   /* Held under the pointer, and while focused, so there is a way to stop it without
      one. Plain :hover rather than the hover variant, so that on a touch screen a tap
      holds it too. */
-  .marquee:hover .row,
-  .marquee:focus .row {
+  .marquee:hover :is(.row, .track),
+  .marquee:focus :is(.row, .track) {
     animation-play-state: paused;
   }
   /* and at rest off screen, once a script is there to say when it is on */
   @media (scripting: enabled) {
-    .marquee:not([data-live]) .row {
+    .marquee:not([data-live]) :is(.row, .track) {
       animation-play-state: paused;
     }
   }
+  /* still under reduced motion; on phones the column rests at its first cards, faded only below */
   @media (prefers-reduced-motion: reduce) {
-    .row {
+    .row,
+    .track {
       animation: none;
+    }
+    .window {
+      @variant max-sm {
+        -webkit-mask-image: linear-gradient(180deg, #000 85%, transparent);
+        mask-image: linear-gradient(180deg, #000 85%, transparent);
+      }
     }
   }
 
@@ -63,6 +100,15 @@
   .volt {
     background: var(--color-volt);
     border-color: transparent;
+  }
+}
+
+@keyframes column-rise {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-50% - var(--gap) / 2));
   }
 }
 

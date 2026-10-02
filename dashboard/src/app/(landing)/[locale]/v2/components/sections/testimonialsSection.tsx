@@ -41,7 +41,12 @@ function Card({ testimonial, repeat = false }: { testimonial: Testimonial; repea
   const tone = TONES[volt ? 'volt' : 'surface'];
   return (
     <figure
-      className={cn(styles.card, tone.card, 'flex w-98 flex-none flex-col gap-5.5 p-6.5 max-sm:w-75')}
+      className={cn(
+        styles.card,
+        tone.card,
+        repeat && styles.repeat,
+        'flex w-98 flex-none flex-col gap-5.5 p-6.5 max-sm:w-full',
+      )}
       aria-hidden={repeat || undefined}
     >
       <blockquote className={cn('text-body leading-[1.62] tracking-[-0.1px]', tone.quote)}>
@@ -81,6 +86,8 @@ function Card({ testimonial, repeat = false }: { testimonial: Testimonial; repea
  * Cards, deliberately unlike the framework tiles: slower and larger, so the two rows
  * never read as the same device. The rows drift only while on screen, and hold still
  * under the pointer or while the marquee has focus, so a keyboard can stop them too.
+ * On phones the cards run in one column that drifts upward instead, a few at a time,
+ * so the reader never has to swipe to see there are more.
  */
 export function TestimonialsSection() {
   return (
@@ -88,16 +95,18 @@ export function TestimonialsSection() {
       <Panel flush>
         <InView className={styles.marquee} tabIndex={0} role='region' aria-label={COPY.quotes.marquee}>
           <div className={styles.window}>
-            {TESTIMONIAL_ROWS.map((row, r) => (
-              <div key={r} className={styles.row}>
-                {row.map((testimonial) => (
-                  <Card key={testimonial.name} testimonial={testimonial} />
-                ))}
-                {row.map((testimonial) => (
-                  <Card key={`${testimonial.name} (repeat)`} testimonial={testimonial} repeat />
-                ))}
-              </div>
-            ))}
+            <div className={styles.track}>
+              {TESTIMONIAL_ROWS.map((row, r) => (
+                <div key={r} className={styles.row}>
+                  {row.map((testimonial) => (
+                    <Card key={testimonial.name} testimonial={testimonial} />
+                  ))}
+                  {row.map((testimonial) => (
+                    <Card key={`${testimonial.name} (repeat)`} testimonial={testimonial} repeat />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </InView>
       </Panel>
