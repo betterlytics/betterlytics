@@ -1,9 +1,6 @@
 /**
- * Monochrome glyphs for the framework strip, keyed by the framework's `logo`.
- * Paths from Simple Icons (CC0), drawn in a 24×24 box. `hover` is the brand
- * colour the glyph takes under the pointer; brands whose colour is too dark to
- * read on the canvas have none and brighten to full ink instead.
- * Generated from simple-icons; regenerate rather than edit by hand.
+ * Generated from Simple Icons (CC0), 24×24 box; regenerate rather than hand-edit.
+ * `hover` is the brand colour; brands too dark for the canvas omit it.
  */
 export const FRAMEWORK_GLYPHS = {
   react: {

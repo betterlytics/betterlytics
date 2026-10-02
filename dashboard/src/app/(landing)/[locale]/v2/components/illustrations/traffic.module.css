@@ -6,7 +6,6 @@
     inset: 0;
   }
 
-  /* each card fades in and turns to its resting angle, on its own delay (--d) */
   .card {
     position: absolute;
     border-radius: 11px;
@@ -25,9 +24,6 @@
     opacity: 1;
   }
 
-  /* A cascade: each card lies over the one before it, and each leaves an empty margin
-     where the next one lands, so the stack hides no data. Too narrow for three, the
-     pages and the page they read sit side by side; the heatmap needs width. */
   .pages {
     --d: 0.05s;
     left: 4%;
@@ -40,8 +36,7 @@
       top: 9%;
       width: 60%;
     }
-    /* On a phone's square card the pair is centred: 271px tall, the page card's top 17px
-       below the depth card's. */
+    /* centres the 271px-tall pair; .pages sits 17px below .depth */
     @variant max-sm {
       top: calc(50% - 118px);
     }
@@ -83,9 +78,7 @@
     transform: rotate(-0.6deg);
   }
 
-  /* Hovering any of the cards fans the stack out a little, each card away from the
-     middle; empty space around them does nothing. It rides on translate and rotate
-     rather than transform, so it answers at once while the entrance keeps its stagger. */
+  /* translate and rotate, not transform, so the hover skips the entrance delay */
   @media (hover: hover) {
     .card {
       transition:
@@ -138,7 +131,7 @@
       padding: 9px 10px 11px;
     }
   }
-  /* the margins the next card lands in */
+  /* empty margins under the overlapping card, so the stack hides no data */
   .pages .head,
   .pages .body {
     padding-right: 54px;
@@ -160,7 +153,6 @@
     }
   }
 
-  /* all / entry / exit, the dashboard's pages tabs: a pill slides under the chosen one (--i) */
   .tabs {
     position: relative;
     display: grid;
@@ -203,7 +195,6 @@
     outline-offset: -1px;
   }
 
-  /* top pages, drawn as the dashboard draws them: the bar fills the row behind its label */
   .row {
     position: relative;
     display: flex;
@@ -237,7 +228,7 @@
   .traffic[data-in] .bar {
     transform: scaleX(var(--share));
   }
-  /* the label and the count are lift slots (ui/liftSwap), positioned, so they paint over the bar */
+  /* LiftSwap slots are positioned, so they paint over .bar */
   .path,
   .count {
     white-space: nowrap;
@@ -256,7 +247,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* scroll depth: one page, its quarters tinted by how many readers reached them */
   .url {
     margin: 0 0 10px;
     overflow: hidden;
@@ -301,7 +291,6 @@
     position: absolute;
     inset: 14px 0 0;
   }
-  /* faint text lines under the tint, so it reads as a page rather than a bar */
   .read {
     display: flex;
     flex-direction: column;
@@ -310,7 +299,6 @@
     background: repeating-linear-gradient(transparent 0 8px, --alpha(var(--color-fg) / 5%) 8px 10px) 10px 6px /
       calc(100% - 20px) calc(100% - 12px) no-repeat;
   }
-  /* a quarter of the page, as deep a tint as the share of readers who reached it (--reach), filled in top-down as if read */
   .read span {
     flex: 1;
     background: --alpha(var(--color-volt-lift) / calc(3% + var(--reach) * 50%));
@@ -357,7 +345,6 @@
     color: var(--color-fg);
   }
 
-  /* weekly traffic: visitors by weekday and hour, brightest in office hours */
   .heatmap {
     display: grid;
     grid-template-columns: 12px minmax(0, 1fr);
@@ -382,7 +369,6 @@
     grid-template-columns: repeat(24, 1fr);
     gap: 2px;
   }
-  /* an hour, as bright as its share of the week's visitors (--v) */
   .grid i {
     aspect-ratio: 1;
     border-radius: 2px;
@@ -403,7 +389,6 @@
     opacity: 0.6;
   }
 
-  /* reduced motion: everything at rest, and the cards shown even before they have entered */
   @media (prefers-reduced-motion: reduce) {
     .card {
       opacity: 1;

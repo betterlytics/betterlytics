@@ -16,14 +16,12 @@ import { useNavScrollState } from './useNavScrollState';
 
 const copy = COPY.nav;
 const SHEET_ID = 'landing-nav-sheet';
-/** Where the links leave the sheet for the bar (the theme's xl breakpoint). */
+/** Must match the theme's xl breakpoint. */
 const WIDE = '(width >= 62.5rem)';
 
-/** Links hover by dipping rather than lifting. */
 const QUIET_LINK = 'transition-opacity duration-180 ease-out-expo hover:opacity-80';
-/** One bar of the menu button: whole pixels throughout (2px bars, 4px gaps, a 14px stack centred in 36px), so every bar lands on a pixel row and none blurs. */
+/** Whole pixels (2px bars, 4px gaps, a 14px stack in 36px) so no bar blurs. */
 const MENU_BAR = 'h-0.5 w-[18px] bg-current transition-transform duration-220 ease-out-expo';
-/** A row in the sheet; on phones, where the sheet has the screen, a larger row without rules. */
 const SHEET_LINK = 'border-t border-rule-08 py-3 text-fg max-sm:border-t-0 max-sm:py-0 max-sm:leading-11';
 
 function NavLinks({ className, onNavigate }: { className?: string; onNavigate?: () => void }) {
@@ -41,12 +39,7 @@ function NavLinks({ className, onNavigate }: { className?: string; onNavigate?: 
   );
 }
 
-/**
- * Sign in and sign up, or the way back to the dashboard once the session says the
- * reader has an account. Most readers have none, so the signed-out links are what
- * the static page ships and what shows while the session loads: nothing moves for them.
- * `buttonClassName` goes to the button.
- */
+/** Signed-out links show while the session loads, so most readers see no shift. */
 function AccountLinks({ buttonClassName }: { buttonClassName?: string }) {
   const { data: session } = useSession();
   if (session) {
@@ -76,11 +69,6 @@ function AccountLinks({ buttonClassName }: { buttonClassName?: string }) {
   );
 }
 
-/**
- * The account actions under the sheet's links, on phones only: there the bar has no
- * room for Sign in, and the open menu takes the bar's button into the sheet too. Full
- * width, the call to action last; signed in, the way back to the dashboard alone.
- */
 function SheetActions({ onNavigate }: { onNavigate: () => void }) {
   const { data: session } = useSession();
   return (
@@ -113,12 +101,6 @@ function SheetActions({ onNavigate }: { onNavigate: () => void }) {
   );
 }
 
-/**
- * Sticky and opaque; every item stays put while scrolling. The links sit on the
- * page's centre line whatever the width of the brand and the account side (equal
- * outer tracks). The rule under the bar lands only once the nav is past the hero,
- * where the wall begins. Below xl the links move into a sheet.
- */
 export function Nav() {
   const ref = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLButtonElement>(null);
@@ -126,8 +108,6 @@ export function Nav() {
   const { grid, scrolledDown } = useNavScrollState(ref, IDS.band);
   const [open, setOpen] = useState(false);
 
-  // An open sheet closes on Escape, handing focus back to the button if it was inside
-  // the sheet, and closes by itself once the window widens past the bar's breakpoint.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -149,11 +129,9 @@ export function Nav() {
     <header
       ref={ref}
       data-grid={grid || undefined}
-      // on phones the open menu covers the page, which holds still under it (see landing.css)
+      // landing.css locks page scroll on this
       data-open={open || undefined}
-      // on phones the bar steps aside while the reader scrolls down, never with the menu open
       data-stowed={(scrolledDown && !open) || undefined}
-      // the sheet closes once focus moves on past it, rather than into the page it covers
       onBlur={(e) => {
         if (open && e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) setOpen(false);
       }}
@@ -162,11 +140,9 @@ export function Nav() {
         // centres the 24px brand mark in the wall column
         'px-[calc(var(--pad)+(var(--wall)-24px)/2)]',
         'transition-[translate] duration-300 ease-out-expo max-md:data-stowed:not-focus-within:-translate-y-full',
-        // the page is capped in width but the band's rule is full-bleed, so the opaque
-        // backing is full-bleed too, or the rule would show past the bar once under it
+        // full-bleed backing, or the band's full-bleed rule shows past the bar
         'before:absolute before:inset-y-0 before:left-1/2 before:-z-1 before:w-screen before:-translate-x-1/2 before:bg-canvas',
-        // the band's top rule hands over to this one at the pixel where they coincide, so
-        // it switches without animation: a half-drawn rule would show beside the band's
+        // not animated: it takes over from the band's rule at the same pixel
         'after:bleed-rule after:invisible after:bottom-0 after:bg-rule data-grid:after:visible max-sm:after:hidden',
       )}
     >
@@ -178,8 +154,6 @@ export function Nav() {
         <NavLinks className={QUIET_LINK} />
       </nav>
       <div className='relative col-start-3 flex items-center gap-5 justify-self-end text-body font-medium tracking-ui text-fg max-xl:ml-auto'>
-        {/* GitHub sits with the links, not the call to action: a destination, not an action.
-            Off the bar on phones, which keep only the call to action and the menu. */}
         <a
           className='inline-flex size-8 items-center justify-center rounded-[7px] text-fg transition-[opacity,background-color] duration-180 ease-out-expo hover:bg-fg/6 hover:opacity-80 max-sm:hidden'
           href={LINKS.github}
@@ -189,7 +163,7 @@ export function Nav() {
         >
           <GitHubIcon className='size-[17px]' />
         </a>
-        {/* on phones the open menu has its own, so the bar keeps only the brand and the menu button */}
+        {/* SheetActions replaces it on phones while open */}
         <AccountLinks buttonClassName={cn(open && 'max-sm:hidden')} />
         <button
           ref={menuRef}
@@ -200,8 +174,7 @@ export function Nav() {
           aria-controls={SHEET_ID}
           onClick={() => setOpen((o) => !o)}
         >
-          {/* three bars; open, the outer two meet in the middle (a bar and a gap away) and
-              cross into an X while the middle one fades */}
+          {/* translate-y-1.5 = one bar + one gap, so the outer bars meet in the middle */}
           <i className={cn(MENU_BAR, open && 'translate-y-1.5 rotate-45')} />
           <i className={cn(MENU_BAR, 'transition-opacity', open && 'opacity-0')} />
           <i className={cn(MENU_BAR, open && '-translate-y-1.5 -rotate-45')} />
@@ -212,14 +185,12 @@ export function Nav() {
         id={SHEET_ID}
         className={cn(
           'absolute inset-x-0 top-full flex flex-col border-b border-rule bg-canvas px-(--pad) pt-2 pb-[18px] text-title tracking-ui',
-          // on phones it takes the whole screen under the bar, scrolling by itself on one too short for it
           'max-sm:fixed max-sm:top-14 max-sm:bottom-0 max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:border-b-0 max-sm:py-6 max-sm:text-[1.375rem]',
         )}
         aria-label={copy.label}
         hidden={!open}
       >
         <NavLinks className={SHEET_LINK} onNavigate={() => setOpen(false)} />
-        {/* the bar's GitHub button, as a row on phones, where the bar has no room for it */}
         <a
           className={cn(SHEET_LINK, 'flex items-center gap-3 sm:hidden')}
           href={LINKS.github}

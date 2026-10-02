@@ -1,12 +1,7 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* The scrim: the frame takes the pointer only once it is clicked. It veils the dashboard
-     rather than hiding it (the product has to stay legible through it) and lifts most of
-     the way on hover, so the frame answers before it is even clicked. Only mounted once the
-     frame has loaded, so it never sits over the loading label. Nothing is centred on it:
-     the hit area is the whole frame, and a glyph or a pill in the middle would claim
-     otherwise. */
+  /* Translucent so the dashboard stays legible. Keep its centre empty: the whole frame is the target. */
   .scrim {
     position: absolute;
     inset: 0;
@@ -18,8 +13,7 @@
     );
     -webkit-backdrop-filter: blur(1.5px);
     backdrop-filter: blur(1.5px);
-    /* no fill mode: the entrance must not hold its end state, or it would outrank the
-       opacity the disabled state relies on */
+    /* no fill mode: a held end state would override the :disabled opacity */
     animation: enter 0.45s var(--ease-out-expo);
     transition:
       opacity 0.28s var(--ease-out-expo),
@@ -37,20 +31,13 @@
     -webkit-backdrop-filter: blur(0);
     backdrop-filter: blur(0);
   }
-  /* Armed → live. Kept in the tree rather than unmounted so the veil has an exit to share
-     with the window's edge; disabled, so it leaves the tab order with it. */
+  /* disabled rather than unmounted, so it fades out with the window edge and leaves the tab order */
   .scrim:disabled {
     opacity: 0;
     pointer-events: none;
   }
 
-  /* The line, on a frosted chip cut to the address bar's pattern (pill, hairline rule,
-     translucent fill, mono microcap), so the two read as one family. Glass over glass is
-     normally muddy, but the scrim drops its own blur on hover, so when legibility matters
-     this is the only blurred layer, over a crisp dashboard. The plate does the contrast
-     work, so the text needs only a light shadow. Centred on the window, not the scrim: the
-     scrim starts below the 44px title bar, so a flat 50% would land half a bar low against
-     the frame the eye sees. */
+  /* -22px (half the 44px title bar) centres it on the window, not the scrim */
   .line {
     position: absolute;
     left: 50%;
@@ -77,8 +64,6 @@
       background-color 0.3s var(--ease-out-expo),
       border-color 0.3s var(--ease-out-expo);
   }
-  /* the chip firms up as the veil behind it thins, so it holds its edge against whatever
-     the dashboard shows once the blur is gone */
   .scrim:hover .line,
   .scrim:focus-visible .line {
     border-color: --alpha(var(--color-fg) / 24%);

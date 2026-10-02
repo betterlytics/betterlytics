@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 
-/** Metadata every root layout carries: icons, manifest and the base URL for resolved links. */
 export const BASE_METADATA: Metadata = {
   icons: {
     icon: [

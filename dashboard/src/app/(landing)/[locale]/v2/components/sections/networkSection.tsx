@@ -15,11 +15,7 @@ const copy = COPY.network;
 
 const FIGURE = 'text-[30px] leading-8 font-medium tracking-[-1px] tabular-nums';
 
-/**
- * A stat's figure, then its name and what it means. It lifts in inside its row,
- * which carries the rules, so they can ink in with the frame meanwhile (the two
- * transitions can't share an element). `lit` sets it on the volt.
- */
+/** Reveals inside its row, which carries the rules: the lift and ink transitions can't share an element. */
 function Stat({
   index,
   figure,
@@ -37,7 +33,6 @@ function Stat({
     <Reveal index={index} className={cn('grid grid-cols-[108px_1fr] items-start gap-4.5', lit && 'relative z-1')}>
       <div className='flex items-baseline gap-[5px]'>{figure}</div>
       <div>
-        {/* under a number the label is its name, so it takes full ink and the body stays muted */}
         <Label className={cn('font-medium', lit ? 'text-on-volt' : 'text-fg')}>{label}</Label>
         <p className={cn('mt-1 text-label leading-[21px]', lit ? 'text-on-volt opacity-82' : 'text-muted')}>
           {body}
@@ -47,19 +42,11 @@ function Stat({
   );
 }
 
-/**
- * The "one script" section, after cloudflare.com's code-example split: the
- * install snippet on hatched paper with a tab per framework, beside a stack of
- * rows holding the four numbers, the cookies row lit as the thesis. The
- * frameworks the script drops into run along the foot.
- */
 export function NetworkSection() {
   return (
     <Section id={IDS.network} title={copy.title} lede={copy.lede}>
       <Panel flush>
-        {/* stacked, the column may narrow past the snippet's tab bar (which then scrolls),
-            or on phones the section would be wider than the screen. Full width on phones,
-            so the rows' rules meet the panel's at the screen's edges. */}
+        {/* min-w-0 lets the snippet column narrow past its tab bar (which scrolls); phones bleed to the screen edge */}
         <div className='grid grid-cols-[1.55fr_1fr] max-xl:grid-cols-1 max-sm:-mx-(--pad)'>
           <div className='flex min-w-0 border-r border-rule-08 bg-hatch p-4.5 transition-ink max-xl:border-r-0 max-xl:border-b max-sm:px-1'>
             <SnippetPanel />
@@ -80,9 +67,8 @@ export function NetworkSection() {
                 />
               </div>
             ))}
-            {/* clip, not hidden: a scroll container could shrink below its text in the stack */}
+            {/* clip, not hidden: a scroll container could shrink below its text */}
             <div className={cn(styles.row, 'group relative overflow-clip bg-volt text-on-volt')}>
-              {/* the seal, watermarked off the row's corner: a certificate, not a selected tab */}
               <EuSeal />
               <Stat
                 lit

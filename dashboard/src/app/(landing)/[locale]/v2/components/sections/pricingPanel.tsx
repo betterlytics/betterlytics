@@ -20,18 +20,16 @@ import { vars } from '@/landing/lib/cssVars';
 import styles from './pricingPanel.module.css';
 
 const copy = COPY.pricing;
-/** The landing page quotes in dollars, as marketing pages conventionally do; billing offers EUR too. */
+/** USD only here, though billing also offers EUR. */
 const CURRENCY = 'USD';
-/** Every plan price is whole dollars, so the cents go: '$39', not '$39.00'. */
+/** Plan prices are whole dollars, so drop the cents. */
 const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
 const COMPACT = { notation: 'compact' } as const;
-/** NumberFlow pads its box for the roll's mask; pulling the margins in by as much lets a big figure lay out like text. */
+/** Cancels NumberFlow's mask padding so a figure lays out like text. */
 const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
 
-/** The selected volume, and its figure as the shared feature labels spell it. */
 type SelectedVolume = { value: number; figure: string };
 
-/** An event volume in compact notation, with a plus past the display cap. */
 function Volume({ value, className }: { value: number; className?: string }) {
   return (
     <NumberFlow
@@ -45,7 +43,6 @@ function Volume({ value, className }: { value: number; className?: string }) {
   );
 }
 
-/** Text with the volume figure inside it; the figure animates, the words around it stay. */
 function WithVolume({ text, volume }: { text: string; volume: SelectedVolume }) {
   return (
     <span>
@@ -73,14 +70,13 @@ function Check() {
   );
 }
 
-/** A plan's call to action; the page it leads to is also what its click reports. */
 type PlanCta = { label: string; destination: 'signup' | 'contact' };
 
 type PlanProps = {
   tier: Tier;
   name: string;
   tagline: string;
-  /** Cents, or a word such as 'Custom' when the price is not a number. */
+  /** Cents, or a label such as 'Custom'. */
   price: number | string;
   period?: string;
   badge?: string;
@@ -88,37 +84,31 @@ type PlanProps = {
   cta: PlanCta;
   /** The recommended tier. */
   pick?: boolean;
-  /** So the feature line that quotes the volume can animate it. */
   volume: SelectedVolume;
 };
 
 function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, volume }: PlanProps) {
-  // the feature labels come translated from the shared plan definitions; the copy around them does not yet
+  // features are translated but the surrounding copy isn't yet, so the list gets its own lang
   const featuresLang = useLocale();
   return (
     <div
       className={cn(
         'relative flex flex-1 flex-col border-rule-10 p-9 transition-ink not-first:border-l first:pl-0',
         'max-lg:px-0 max-lg:py-7 max-lg:not-first:border-t max-lg:not-first:border-l-0 max-sm:px-(--pad) max-sm:first:pl-(--pad)',
-        // the recommended tier reads heavier through a tint and a blue top rule, not a scale transform
         pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-lg:px-4 max-sm:px-(--pad)',
       )}
     >
       <div className='mb-1 flex items-center gap-3'>
         <h3 className='text-[20px] font-medium tracking-[-0.35px] text-fg'>{name}</h3>
         {badge ? (
-          // not a floating pill: a solid tab hanging flush under the column's blue top rule,
-          // part of the structure, like the title block on a drawing
           <span className='absolute top-0.5 right-9 rounded-b-[5px] bg-volt-lift px-[9px] pt-1 pb-[5px] text-[11.5px] font-medium tracking-[-0.1px] whitespace-nowrap text-on-volt'>
             {badge}
           </span>
         ) : null}
       </div>
-      {/* under the name it describes, two lines tall so the prices below stay level across
-          the columns when one tagline wraps; stacked, there is nothing to keep level */}
+      {/* two lines tall so prices stay level across columns when a tagline wraps */}
       <p className='mb-4 min-h-11 text-body-sm leading-[22px] text-muted max-lg:min-h-0'>{tagline}</p>
-      {/* a fixed line whether the price is a figure or a word, so the block never jumps
-          when Free becomes a number and the three plans stay level */}
+      {/* fixed height so swapping a figure for a word doesn't shift the plans */}
       <div className='mb-2.5 flex h-11 items-baseline gap-1.5'>
         <b className='text-[42px] leading-11 font-medium tracking-[-1.5px] tabular-nums'>
           {typeof price === 'number' ? (
@@ -136,7 +126,7 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
         {period ? <span className='text-body-sm tracking-ui text-muted'>{period}</span> : null}
       </div>
       <ul lang={featuresLang} className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
-        {/* keyed by position, not label: the volume line's text changes with the slider and must keep its element to animate */}
+        {/* index key: the volume line's text changes but it must keep its element to animate */}
         {features.map((f, i) => (
           <li
             key={i}
@@ -163,17 +153,11 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
   );
 }
 
-/**
- * Real plan data in the draft's panel. The event-volume slider stands where the
- * draft had a monthly/annual toggle: there is no annual billing, and volume is
- * the thing the price actually moves on. Features come from the shared plan
- * definition so this can't drift from the pricing page.
- */
 export function PricingPanel() {
   const appLocale = useLocale();
   const [rangeIndex, setRangeIndex] = useState(0);
   const sliderRef = useRef<HTMLSpanElement>(null);
-  // once it is well in view, the thumb nudges once on phones (see the module)
+  // drives the phone thumb nudge in the module
   const sliderSeen = useInView(sliderRef, 'read');
 
   const range = EVENT_RANGES[rangeIndex];
@@ -186,11 +170,9 @@ export function PricingPanel() {
   const period = (c: number) => (contactSales || c === 0 ? undefined : copy.perMonth);
   const sales: PlanCta = { label: copy.enterprise.cta, destination: 'contact' };
   const growthCents = cents('growth');
-  // the figure as the shared feature hook spells it, so the volume line can be split around it
+  // spelled as the shared feature labels spell it (app locale), so WithVolume can split on it
   const volume = { value: range.value, figure: formatEventCount(range.value, appLocale) };
 
-  // A caption jumps straight to its stop, so picking one settles the slider as a commit
-  // would; picking the current one changes nothing and reports nothing.
   const pickStop = (index: number) => {
     if (index === rangeIndex) return;
     setRangeIndex(index);
@@ -215,19 +197,15 @@ export function PricingPanel() {
           data-seen={sliderSeen || undefined}
           value={[rangeIndex]}
           onValueChange={([v]) => setRangeIndex(v)}
-          // once the drag or key press settles on a new stop, not for every stop passed
           onValueCommit={([v]) => track.pricingVolume(EVENT_RANGES[v].value)}
           min={0}
           max={lastIndex}
           step={1}
         >
-          {/* a flat track: the value is carried by the filled segment, not by the thumb */}
           <Slider.Track className='relative h-1 flex-1 overflow-hidden rounded-xs bg-fg/14'>
             <Slider.Range className='absolute h-full rounded-xs bg-volt-lift' />
           </Slider.Track>
-          {/* a single flat disc with one border so it lifts off the fill; the halo only
-              appears for keyboard focus and while dragging */}
-          {/* larger on phones, where a finger has to find it, with a 44px touch area around it (the inset counts from inside its 2px border) */}
+          {/* 44px touch area on phones: 20px inside the 2px border plus 12px each side */}
           <Slider.Thumb
             className={cn(
               styles.thumb,
@@ -235,14 +213,10 @@ export function PricingPanel() {
               'max-sm:size-6 max-sm:before:absolute max-sm:before:-inset-3',
             )}
             aria-label={copy.rangeLabel}
-            // announce the volume, not the stop's position on the slider
             aria-valuetext={copy.rangeValueText(formatEventCount(range.value, COPY_LOCALE))}
           />
         </Slider.Root>
-        {/* A caption under every stop, each a shortcut to it; the current one is bright.
-            Inset by the thumb's radius, so each caption sits under the thumb's centre. On
-            phones only every other one and the last, so they don't run together; the
-            figure above still shows the current one. */}
+        {/* inset by the 9px thumb radius so captions sit under the thumb's centre */}
         <div className='relative -mt-0.5 h-4.5 w-full' role='group' aria-label={copy.monthlyEvents}>
           {EVENT_RANGES.map((r, i) => (
             <button
@@ -263,7 +237,7 @@ export function PricingPanel() {
       </div>
 
       <Panel>
-        {/* full width on phones, so the rules between the plans meet the panel's at the edges */}
+        {/* full-bleed on phones so the rules between plans reach the panel edges */}
         <div className='flex max-lg:flex-col max-sm:-mx-(--pad)'>
           <Plan
             tier='growth'

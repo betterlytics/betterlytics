@@ -2,9 +2,8 @@ import { clsx, type ClassValue } from 'clsx';
 import { extendTailwindMerge } from 'tailwind-merge';
 
 /**
- * tailwind-merge taught the landing theme (landing.css). Without it, token names it
- * doesn't know are all read as colours, so `text-display-1 text-muted` would lose
- * the font size. Use this `cn`, not `@/lib/utils`, anywhere in the landing.
+ * Must list landing.css's tokens, or tailwind-merge reads unknown ones as colours
+ * (`text-display-1 text-muted` loses the size). Use this `cn`, not `@/lib/utils`, in the landing.
  */
 const merge = extendTailwindMerge({
   extend: {

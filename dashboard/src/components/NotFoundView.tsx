@@ -2,7 +2,6 @@ import Image from 'next/image';
 import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 
-/** The 404 page's content, for the app's localized not-found and the top-level one for unmatched URLs. */
 export async function NotFoundView() {
   const t = await getTranslations('public.notFound');
 

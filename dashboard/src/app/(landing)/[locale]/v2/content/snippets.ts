@@ -1,11 +1,4 @@
-/**
- * The install snippet as it looks in each framework: the same script tag, or
- * the package where a framework prefers one. `file` is the path the tab bar
- * shows; the package tab spans two places, so it names the second in a comment.
- * Lines that begin with `+` are the ones the reader adds; the frame lights
- * those and dims the rest. `logo` names a file in public/framework-logos.
- * YOUR_SITE_ID is a deliberate placeholder.
- */
+/** A leading `+` marks a line the reader adds (lit; the rest dims). `logo` is a file in public/framework-logos. */
 type Snippet = { id: string; name: string; file?: string; logo?: string; bundled?: boolean; code: string };
 
 const SRC = 'https://betterlytics.io/analytics.js';

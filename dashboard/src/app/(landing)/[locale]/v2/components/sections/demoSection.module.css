@@ -1,10 +1,7 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* A browser window around the live dashboard, with a title bar (::before) for the dots
-     and the address bar. Opaque, since it sits over the hero card. The shadow halos the
-     window where it lies over the hero and ends within a couple of px below it, so it
-     never dims the logo panel's top rule. */
+  /* Opaque: it overlaps the hero card. The shadow is cast upward so it spares the logo panel's top rule. */
   .window {
     position: relative;
     display: grid;
@@ -19,6 +16,7 @@
       inset 1px 6px 6px 0 rgb(255 255 255 / 0.045),
       0 -1px 0 rgb(255 255 255 / 0.06),
       0 -6px 36px -10px rgb(0 0 0 / 0.55);
+    /* 0.28s matches the scrim fade in demoFrame.module.css, so edge and veil leave together */
     transition: border-color 0.28s var(--ease-out-expo);
     @variant max-md {
       aspect-ratio: 4 / 3;
@@ -34,17 +32,10 @@
     background: --alpha(var(--color-fg) / 2%);
   }
 
-  /* The edge is the affordance. While the frame inside is armed (its scrim up), hovering
-     anywhere in the window lifts the edge toward volt, so the target reads as the whole
-     rectangle rather than a spot in the middle of it; once the frame is live the edge goes
-     quiet and stays out of the dashboard's way. It shares the scrim's 0.28s, and the frame
-     disarms in the same render that fades the scrim, so the veil and the edge leave together
-     on one clock: that is what makes the click land. */
   .window:has([data-armed]):hover {
     border-color: --alpha(var(--color-volt-lift) / 55%);
   }
-  /* The scrim's own focus ring would be clipped by the frame it fills, so while the armed
-     frame holds keyboard focus the window wears the ring: frame-sized, like the target. */
+  /* the scrim's own focus ring would be clipped, so the window draws it */
   .window:has([data-armed] :focus-visible) {
     outline: 2px solid var(--color-volt-lift);
     outline-offset: 3px;

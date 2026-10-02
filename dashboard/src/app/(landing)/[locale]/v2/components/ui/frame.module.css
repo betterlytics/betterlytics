@@ -1,8 +1,7 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* A bounded box whose rules land on the wall lines. The rules are pseudo-elements
-     so InkFrame can draw them in; the transparent borders keep their pixel in layout. */
+  /* rules are pseudo-elements so InkFrame can draw them in; transparent borders hold their space */
   .panel {
     position: relative;
     border-block: 1px solid transparent;
@@ -23,8 +22,6 @@
   .panel::after {
     bottom: -1px;
   }
-  /* On phones there are no walls to close a panel's sides: its rules run on to the
-     screen's edges, or a framed panel draws its own sides (see Panel). */
   .panel:not(.framed)::before,
   .panel:not(.framed)::after {
     @variant max-sm {
@@ -37,8 +34,6 @@
     }
   }
 
-  /* One element paints all four corner squares of its positioned parent. Callers
-     can recolour them through --corner-edge and --corner-fill. */
   .corners,
   .corners > i {
     position: absolute;

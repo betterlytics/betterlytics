@@ -1,9 +1,6 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* The public status page, behind the stack at the top right. It is dark like the page,
-     since it is ours rather than the customer's site, and stays muted so it sits behind
-     the stack; its rows run under the stack and fade out downwards. */
   .status {
     position: absolute;
     top: 3%;
@@ -22,8 +19,6 @@
       display: none;
     }
   }
-  /* quiet while all is well, so the monitors lead; full strength with the outage, so it
-     lights up in the same beat as the alert */
   .uptime[data-in] .status {
     opacity: 0.72;
   }
@@ -70,8 +65,7 @@
     letter-spacing: -0.2px;
     color: var(--color-fg);
   }
-  /* Acme's logo, the same rounded square as on the replay card's site, so the two cards
-     read as one company */
+  /* matches the Acme logo in replay.module.css */
   .brand i {
     width: 11px;
     height: 11px;
@@ -85,8 +79,6 @@
     border: 1px solid var(--color-rule-125);
     box-shadow: 0 6px 16px rgb(0 0 0 / 0.35);
   }
-  /* the status colour stays, as a tint rather than a solid band, so the hero still reads
-     at a glance without outshining the monitors in front */
   .hero {
     --tone: var(--color-live);
     display: grid;
@@ -168,7 +160,6 @@
     gap: 2px;
     height: 14px;
   }
-  /* dimmer than the monitors' strips, so the page stays the back layer */
   .history i {
     flex: 1;
     border-radius: 1px;
@@ -179,13 +170,8 @@
     background: var(--color-down);
   }
 
-  /* The monitors rise in one after another. Shadows run shallow for the cards, deeper for
-     the failing one and deepest for the notices, so the layers read in that order. Both
-     shadow lists carry the stripe so it can fade in; the failing card's lift is on
-     `scale`, apart from the draw-in's delayed `transform`. The surface is the MCP tiles'
-     and testimonials' material, lit from the top, laid over a solid canvas base because
-     the cards overlap the status page; the failing card only swaps the base, so its tint
-     transitions. */
+  /* Both shadow lists carry the stripe so it can fade in; the lift uses `scale`, apart from the
+     draw-in's delayed `transform`. Solid base because the cards overlap the status page. */
   .monitor {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) 50px 34% 48px;
@@ -209,16 +195,14 @@
       background-color 0.3s,
       border-color 0.3s,
       box-shadow 0.3s;
-    /* on a phone each strip runs under its name */
     @variant max-md {
       grid-template-columns: auto minmax(0, 1fr) auto;
       gap: 9px 12px;
       padding: 11px 14px 12px;
     }
   }
-  /* A narrow card keeps the two middle monitors, the ones that take turns failing, so the
-     notice fits below without covering the monitor it is about. A phone's card is square,
-     with room for Docs under them, the monitor the certificate notice is about, as wider. */
+  /* narrow cards keep the two that take turns failing (OUTAGES), leaving room for the notice;
+     phones also keep Docs, the SSL notice's monitor */
   .monitor:nth-child(1),
   .monitor:nth-child(4) {
     @variant max-md {
@@ -269,7 +253,7 @@
   .name {
     min-width: 0;
   }
-  /* baseline, not centre: the flag's smaller text then sits on the name's line */
+  /* baseline, so the flag's smaller text sits on the name's line */
   .name b {
     display: flex;
     align-items: baseline;
@@ -284,9 +268,6 @@
       margin-bottom: 0;
     }
   }
-  /* the one monitor with something to say about its certificate; the others stay quiet.
-     Plain amber text, no box, so it stands out by colour alone and the line keeps the
-     height of the other cards' name lines */
   .flag {
     display: inline-flex;
     align-items: baseline;
@@ -297,8 +278,7 @@
     letter-spacing: 0;
     color: var(--color-warn);
   }
-  /* centred on its own text, and kept out of baseline alignment so the flag's baseline
-     comes from the text, not the icon's bottom edge */
+  /* out of baseline alignment so the flag's baseline comes from its text */
   .flag svg {
     align-self: center;
     width: 10px;
@@ -317,8 +297,6 @@
       display: none;
     }
   }
-  /* the latest check's response time, leading into the strip so the uptime after it
-     reads the bars */
   .latency {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -342,9 +320,7 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* The track is one cell wider than the strip and rests one cell to the left; each
-     check restarts a slide from where the cells were before they shifted. The older end
-     fades out, so history recedes and the latest checks stay crisp. */
+  /* the track is one cell wider and rests one cell left; each check slides it from where the cells were */
   .strip {
     height: 22px;
     margin-right: -3px;
@@ -394,12 +370,8 @@
     opacity: 0.95;
   }
 
-  /* Notices hang just over the stack's bottom edge: the newest in front, the one before it
-     stepping back and peeking out above it, its text faded. A notice pushed further back
-     fades out on its way. Their left edge lines up with where the strips start: a strip
-     ends 79px in from its card's right edge (border, padding, uptime column, gap) and
-     spans 34% of a content box 34px narrower than the card, which puts its start at
-     66% - 67px. */
+  /* left aligns with the strips: they end 79px in (border, padding, uptime column, gap) and
+     span 34% of a content box 34px narrower than the card, so they start at 66% - 67px */
   .notices {
     position: absolute;
     top: calc(100% - 24px);
@@ -433,7 +405,6 @@
     transform-origin: 50% 0;
     opacity: 0;
     transform: translateY(26px) scale(0.98);
-    /* blur-lift, like the rail's LiftSwap: notices sharpen as they rise and blur as they go */
     filter: blur(6px);
     transition:
       opacity 0.4s var(--ease-out-expo),
@@ -454,8 +425,6 @@
   .notice[data-state='gone'] {
     transform: translateY(calc(var(--depth) * -14px + 14px)) scale(calc(1 - var(--depth) * 0.05));
   }
-  /* a wash from the icon corner in the notice's colour; it still shows on the edge that
-     peeks out */
   .notice::before {
     content: '';
     position: absolute;
@@ -470,16 +439,11 @@
   .notice[data-back] > * {
     opacity: 0;
   }
-  /* a notice not yet sent or already cleared sits unseen in place; it ignores the
-     pointer, so hovering the empty spot neither spreads nor holds anything */
+  /* hidden notices sit in place, so their empty spot mustn't trigger the hover spread or hold */
   .notice:not([data-state='on']) {
     pointer-events: none;
   }
-  /* Hovering the notices spreads them, as hovering the other stacks does: the one behind
-     lifts clear enough to show its icon and title and reads again, and the front one
-     settles a touch lower. With a single notice there is nothing to spread. The story
-     holds meanwhile, so the stack can't change under the pointer. The hover rides on
-     `translate`, apart from the stacking transform. */
+  /* the spread uses `translate`, apart from the stacking transform; JS holds the story meanwhile */
   @media (hover: hover) {
     .notice {
       transition:
@@ -565,7 +529,6 @@
       opacity 0.3s var(--ease-out-expo),
       transform 0.4s var(--ease-out-expo);
   }
-  /* a little more room after "Sent to" than between the channels */
   .channel:first-child {
     margin-left: 4px;
   }
@@ -574,7 +537,6 @@
     width: 12px;
     height: 12px;
   }
-  /* the channels light up one after another once the notice is in */
   .uptime[data-in] .notice[data-state='on'] .channel {
     opacity: 1;
     transform: none;
@@ -585,9 +547,7 @@
     .uptime[data-live] .monitor[data-down] .dot::after {
       animation: dot-ping 1.3s var(--ease-out-expo) infinite;
     }
-    /* the icon's one beat as its notice lands: the bell rings, the check draws itself,
-       the shield pulses. Keyed on the notice being on, so it plays on each arrival and
-       not again when the notice steps back. */
+    /* keyed on data-state='on' so it plays on each arrival, not when the notice steps back */
     .uptime[data-in] .notice[data-kind='down'][data-state='on'] .noticeIcon svg {
       transform-origin: 50% 15%;
       animation: bell-ring 0.7s ease-in-out 0.35s;
@@ -600,7 +560,6 @@
     }
   }
 
-  /* reduced motion: the cards, notices and strips land at once and hold still */
   @media (prefers-reduced-motion: reduce) {
     .monitor {
       opacity: 1;
@@ -623,7 +582,7 @@
   }
 }
 
-/* two identical slides for the strips; alternating between them restarts the slide */
+/* identical on purpose: alternating between them restarts the slide */
 @keyframes strip-slide-a {
   from {
     transform: translateX(0);

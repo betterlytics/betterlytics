@@ -8,19 +8,13 @@ import { LINKS } from '@/landing/lib/links';
 
 const copy = COPY.footer;
 
-/** Only competitors that still have a comparison page, so the column never links to a 404. */
+/** Skip competitors without a comparison page, so no link 404s. */
 const COMPARISONS = copy.compare.filter(({ slug }) => getCompetitorData(slug) !== undefined);
 
-/**
- * Full strength, well above the muted headings; they hover by dipping, like the nav's
- * quiet links. Each link is its whole row, 32px tall (24px on phones), so the rows sit
- * flush rather than spaced by margins. A half step larger on phones, where the list is
- * what the footer is.
- */
 const LINK =
   'flex w-fit items-center gap-[9px] py-2 text-body-sm leading-4 tracking-ui text-fg transition-opacity duration-180 ease-out-expo hover:opacity-80 max-sm:py-1 max-sm:text-body';
 const SOCIAL_ICON = 'size-[15px] flex-none';
-/** A link within the fine print, told from its sentence by an underline, not only by colour. */
+/** Underlined so it isn't told from its sentence by colour alone. */
 const FINE_LINK =
   'underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current';
 
@@ -35,7 +29,7 @@ function Column({ id, title, children }: { id: string; title: string; children: 
   );
 }
 
-/** The same destinations as the site's shared footer, in the landing page's frame. */
+/** Same destinations as the site's shared footer. */
 export function LandingFooter() {
   return (
     <footer className='relative px-[calc(var(--inset)+12px)] pt-28 pb-8 max-sm:px-(--inset)'>
@@ -138,9 +132,7 @@ export function LandingFooter() {
           </Column>
         </nav>
       </div>
-      {/* the rule escapes the footer's padding and runs the full viewport */}
       <div className='relative mt-14 flex flex-wrap items-center justify-between gap-6 pt-8 text-caption text-muted before:bleed-rule before:top-0 before:bg-rule-10'>
-        {/* the legal pages are in the Company column above, so the row holds only what isn't */}
         <span>
           {copy.copyright(new Date().getFullYear())} {copy.license.lead}{' '}
           <a className={FINE_LINK} href={LINKS.license}>

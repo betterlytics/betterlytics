@@ -6,23 +6,12 @@ import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import styles from './band.module.css';
 
-/* the pen runs this far down the viewport, so the wall is inked just before the
-   reader gets there and never trails what they read */
+/* pen position as a viewport fraction, so the wall is inked before the reader arrives */
 const LEAD = 0.92;
-/* the mask feathers this many px of the wall into the pen tip (the wall's mask in
-   band.module.css); the pen overshoots the band by it so the last stretch is fully inked */
+/* must match the mask feather in band.module.css; the pen overshoots by it to ink the end fully */
 const FEATHER = 160;
 
-/**
- * The page's middle band, from the demo down through pricing, with the hatched wall
- * columns running down both sides. The walls are inked downward as the reader
- * scrolls: `--ink` on each wall is how far it has been drawn. The pen is pinned to the
- * scroll position and written straight from the scroll event, so it moves in the
- * same frame as the page (any easing made it trail the scroll). Only ever grows, so
- * scrolling back up never erases anything. Once the ink reaches the band's end the
- * closing rule sweeps across. The nav reads the band's top edge (by id) to know when
- * to join the grid.
- */
+/** The middle band, whose hatched walls ink downward as the reader scrolls. */
 export function Band({ children }: { children: ReactNode }) {
   const bandRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -56,11 +45,11 @@ export function Band({ children }: { children: ReactNode }) {
       update();
     };
 
-    // The band moves whenever anything above it changes height (fonts landing, the
-    // hero reflowing), so re-measure on any change to the page's size, not just once.
+    // fonts or hero reflow above the band move it, so watch the whole document
     const resizes = new ResizeObserver(remeasure);
     resizes.observe(document.documentElement);
     resizes.observe(band);
+    // written straight from the scroll event: any easing made the pen trail the page
     window.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', remeasure, { passive: true });
     return () => {

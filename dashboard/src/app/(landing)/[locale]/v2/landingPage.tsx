@@ -15,17 +15,10 @@ import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 
-/**
- * The page frame: a sticky nav, the hero bleeding past the wall, then one band whose
- * hatched wall columns run from the demo through pricing, closed by the CTA card and
- * the footer. The wall's outer edge is a full-height rule down the whole document,
- * through the sticky nav and on through the footer.
- */
 export function LandingPage() {
   return (
-    // full-bleed rules are 100vw wide (which includes a classic scrollbar) and escape the
-    // capped frame; clipped here rather than on body, whose overflow would pass to the
-    // viewport, which touch browsers still let the reader pan
+    // clips the 100vw bleed rules (100vw includes a classic scrollbar); not on body, whose
+    // overflow passes to the viewport, which touch browsers still let the reader pan
     <div className='overflow-x-clip'>
       <BrandMarkDefs />
       <a
@@ -43,8 +36,6 @@ export function LandingPage() {
       >
         <Nav />
         <main id={IDS.main} className='relative'>
-          {/* the full-bleed rule under the nav closes the top of the page the way the footer closes
-              the bottom; on phones the hero card, almost edge to edge, does that instead */}
           <div className='relative before:bleed-rule before:top-0 before:z-2 before:bg-rule max-sm:before:hidden'>
             <HeroSection />
           </div>

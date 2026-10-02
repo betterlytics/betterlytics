@@ -2,12 +2,7 @@
 
 import type { ComponentPropsWithoutRef, MouseEvent } from 'react';
 
-/**
- * A list whose items carry a pointer-following light. On every move the
- * pointer's position inside the hovered item is written to `--mx` / `--my`,
- * and the item's stylesheet paints a radial gradient there. One handler on the
- * list serves every item; nothing re-renders.
- */
+/** Writes the pointer's position within the hovered item to `--mx`/`--my` for its CSS. */
 export function SpotlightList(props: Omit<ComponentPropsWithoutRef<'ul'>, 'onMouseMove'>) {
   const track = (e: MouseEvent<HTMLUListElement>) => {
     const item = (e.target as Element).closest('li');

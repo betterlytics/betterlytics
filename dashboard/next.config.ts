@@ -15,7 +15,7 @@ if (result.error) {
 const nextConfig: NextConfig = {
   output: 'standalone',
   experimental: {
-    // the 404 for unmatched URLs, since the app and the landing page have separate root layouts
+    // app and landing have separate root layouts, so unmatched URLs need a global 404
     globalNotFound: true,
   },
   async redirects() {

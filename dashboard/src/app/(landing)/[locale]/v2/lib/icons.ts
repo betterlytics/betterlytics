@@ -1,11 +1,8 @@
-/* Single-path brand marks transcribed from the design draft, so nothing is fetched at runtime. */
-
 export type PathIconData = { viewBox: string; d: string; evenOdd?: boolean };
 
-/** Real logo walls are typographically inconsistent; the style picks a wordmark treatment. */
 export type LogoStyle = 'caps' | 'light' | 'tight' | 'wide';
 
-/* `as const`, so the names stay literal and content/mcpClients can key its docs anchors by them */
+/* `as const` keeps the names literal for content/mcpClients' docs anchors */
 export const MCP_CLIENT_ICONS = [
   {
     name: 'Claude',
@@ -118,7 +115,6 @@ export const CUSTOMER_ICONS: ReadonlyArray<{ name: string; style?: LogoStyle; ic
   },
 ];
 
-/** Extra marks so the customer board has more teams than slots; the board only cycles when it does. */
 export const CUSTOMER_ICONS_MORE: ReadonlyArray<{ name: string; style?: LogoStyle; icon: PathIconData }> = [
   {
     name: 'Vercel',

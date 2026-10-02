@@ -8,7 +8,6 @@ import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import styles from './testimonialsSection.module.css';
 
-/** A card's two tones: the canvas surface, or the brand colour a row's standout quote is set in. */
 const TONES = {
   surface: {
     card: '',
@@ -35,7 +34,6 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-/** `repeat` marks the second pass that closes the marquee's loop, which screen readers skip. */
 function Card({ testimonial, repeat = false }: { testimonial: Testimonial; repeat?: boolean }) {
   const { quote, name, role, avatar, volt } = testimonial;
   const tone = TONES[volt ? 'volt' : 'surface'];
@@ -82,13 +80,6 @@ function Card({ testimonial, repeat = false }: { testimonial: Testimonial; repea
   );
 }
 
-/**
- * Cards, deliberately unlike the framework tiles: slower and larger, so the two rows
- * never read as the same device. The rows drift only while on screen, and hold still
- * under the pointer or while the marquee has focus, so a keyboard can stop them too.
- * On phones the cards run in one column that drifts upward instead, a few at a time,
- * so the reader never has to swipe to see there are more.
- */
 export function TestimonialsSection() {
   return (
     <Section id={IDS.quotes} title={COPY.quotes.title} lede={COPY.quotes.lede}>

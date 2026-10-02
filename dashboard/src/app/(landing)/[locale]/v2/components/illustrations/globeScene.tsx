@@ -8,7 +8,7 @@ import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import styles from './globe.module.css';
 
-/* Illustration copy is mock data, kept literal on purpose. */
+/* Mock data, kept literal on purpose. */
 const ARRIVALS = [
   { id: 'cph', city: 'Copenhagen, DK', via: 'via ChatGPT', lat: 55.7, lng: 12.6 },
   { id: 'nyc', city: 'New York, US', via: 'via Google', lat: 40.7, lng: -74.0 },
@@ -32,38 +32,33 @@ const ARRIVALS = [
 
 type Arrival = (typeof ARRIVALS)[number];
 
-/* Palette, as 0–1 RGB. Land is volt-lift at 80%: cobe paints the sphere body at a tenth
-   of this colour, and at 80% that body stays under the page canvas on every channel so
-   the lighten blend in CSS can hide it. */
+/* 80% volt-lift (0–1 RGB): keeps cobe's body (a tenth of it) darker than the canvas, for the lighten blend */
 const LAND: [number, number, number] = [0.23, 0.29, 0.8];
-const GLOW: [number, number, number] = [0, 0, 0]; // black never survives the lighten blend, so no halo and no rim
+const GLOW: [number, number, number] = [0, 0, 0]; // black vanishes under the lighten blend: no halo or rim
 
-/* Motion. The globe turns about the screen's vertical axis, not about its own
-   tilted poles, so the pole swings a little as it goes round, like a desk globe
-   on a turntable. A drag sets the speed by hand and it eases back to idle. */
-const IDLE_RAD_PER_MS = 0.000048; // one turn in roughly two minutes
-const DRAG_RAD_PER_PX = 1 / 200; // pointer drag sensitivity
-const FLING_MAX_RAD_PER_MS = 0.012; // the fastest a release may leave the globe spinning
-const FLING_MS = 1700; // how long a fling takes to settle back to idle
-const START_YAW = 4.6; // Europe facing the viewer at first paint
-const TILT = -0.1; // camera a touch below the equator, so the north pole sits just behind the top limb
-const ROLL = 0.26; // radians clockwise: the axis leans right, so the meridians converge off the top-right edge
-/* Visitor marks, in CSS px: a filled dot inside a thin ring, and a sonar pulse on the active one. */
+const IDLE_RAD_PER_MS = 0.000048; // ~one turn per two minutes
+const DRAG_RAD_PER_PX = 1 / 200;
+const FLING_MAX_RAD_PER_MS = 0.012;
+const FLING_MS = 1700;
+const START_YAW = 4.6; // Europe facing the viewer
+const TILT = -0.1; // camera just below the equator
+const ROLL = 0.26; // rad clockwise: the axis leans right
+/* Mark sizes in CSS px. */
 const MARK_DOT = 2.2;
 const MARK_RING = 6;
 const MARK_ACTIVE_DOT = 3;
 const MARK_ACTIVE_RING = 8;
 const PULSE_MS = 1800;
-const PULSE_GROW = 14; // how far the pulse ring travels before it fades out
-const MARK_FADE = 0.35; // cosine to the viewer below which a mark starts fading toward the limb
+const PULSE_GROW = 14;
+const MARK_FADE = 0.35; // facing cosine below which marks fade toward the limb
 const DWELL_MS = 3600;
 const WELL_FACING = 0.45; // min facing cosine for a callout
 const CALLOUT_INSET = 32; // px; more than a marker moves in one dwell
 const FACING_CHECK_EVERY = 6; // frames
-const LAND_SETTLE_MS = 1000; // how long a still globe keeps repainting after creation, for its land texture to land
-const MAX_DPR = 2; // phones included: at 1.5 the dots visibly soften on 2x screens
-const FAR_DPR = 1; // the far side is faint, so it is rendered at 1x whatever the screen
-const LABEL_DX = 14; // label offset from its marker, CSS px
+const LAND_SETTLE_MS = 1000;
+const MAX_DPR = 2; // phones too: at 1.5 the dots visibly soften on 2x screens
+const FAR_DPR = 1; // the far side is faint enough for 1x
+const LABEL_DX = 14;
 const LABEL_DY = 10;
 const LABEL_FLIP_PX = 80; // closer than this to the top, the label drops below its marker
 const GRID_STEP = 15; // degrees
@@ -74,26 +69,23 @@ const FAR_GRID_ALPHA = 0.1;
 const GRID_RES = 2; // degrees between samples
 const SPHERE = 0.8; // cobe draws the sphere at 80% of the canvas half-height
 
-/* The look both renders share; each adds its size, pixel ratio and orientation. */
 const LOOK = {
   dark: 1,
-  diffuse: 2.2, // dots fall off toward the limb instead of staying flat across the disc
-  // finer, denser dots; fewer would not be cheaper on small screens, since cobe tests a fixed
-  // four lattice points per pixel whatever the count
+  diffuse: 2.2,
+  // fewer isn't cheaper: cobe tests four lattice points per pixel regardless
   mapSamples: 36000,
-  mapBrightness: 1.4, // full volt-lift at the centre of the disc, dimming from there
+  mapBrightness: 1.4,
   mapBaseBrightness: 0.02,
   baseColor: LAND,
   glowColor: GLOW,
-  markers: [], // visitors are drawn on the marks canvas instead
-  markerColor: LAND, // required by the types, unused with no markers
+  markers: [], // drawn on the marks canvas instead
+  markerColor: LAND, // required by the types; unused
 } satisfies Partial<COBEOptions>;
 
 type Vec3 = [number, number, number];
 type Mat3 = [number, number, number, number, number, number, number, number, number]; // row-major
 
-/* cobe's own mapping from a location to a point on its unit sphere, mirrored so
-   the graticule lands on the same sphere as the land dots and markers. */
+/* Mirrors cobe's lat/lng mapping so the graticule lands on its sphere. */
 function toVector(lat: number, lng: number): Vec3 {
   const la = (lat * Math.PI) / 180;
   const lo = (lng * Math.PI) / 180 - Math.PI;
@@ -112,10 +104,8 @@ function mul(a: Mat3, b: Mat3): Mat3 {
   return m;
 }
 
-/* cobe orients its sphere as Rx(theta)·Ry(phi), and the page rolls the canvas by
-   Rz(-roll) on top. That triple can express any orientation, so the globe's true
-   orientation, a yaw about the screen's vertical axis applied to the resting pose,
-   is decomposed back into the three each frame. */
+/* The globe yaws about the screen's vertical, not its poles; each frame that pose is decomposed into
+   cobe's Rx(theta)·Ry(phi) plus a CSS roll Rz(-roll). */
 type Pose = { phi: number; theta: number; roll: number };
 const REST: Mat3 = mul(rotZ(-ROLL), mul(rotX(TILT), rotY(START_YAW)));
 function poseAt(yaw: number): Pose {
@@ -123,12 +113,10 @@ function poseAt(yaw: number): Pose {
   return { theta: Math.asin(m[7]), phi: Math.atan2(-m[6], m[8]), roll: -Math.atan2(-m[1], m[4]) };
 }
 
-/* Every GRID_RES degrees from `from` to `to`, both ends included. */
 function degrees(from: number, to: number) {
   return Array.from({ length: (to - from) / GRID_RES + 1 }, (_, i) => from + i * GRID_RES);
 }
 
-/* Parallels and meridians as unit vectors. Only the rotation changes per frame. */
 const PARALLELS: Vec3[][] = Array.from({ length: Math.floor(90 / GRID_STEP) * 2 - 1 }, (_, i) => {
   const lat = (i + 1) * GRID_STEP - 90;
   return degrees(0, 360).map((lng) => toVector(lat, lng));
@@ -139,10 +127,7 @@ const MERIDIANS: Vec3[][] = Array.from({ length: 360 / GRID_STEP }, (_, i) =>
 const MAJOR_MERIDIANS = MERIDIANS.filter((_, i) => i % 2 === 0);
 const MINOR_MERIDIANS = MERIDIANS.filter((_, i) => i % 2 === 1);
 
-/* The orthographic projection cobe uses for its marker anchors: spin by phi, tilt
-   by theta, then x and y are fractions of the canvas. depth points at the viewer.
-   The roll is applied by CSS to the whole canvas, so it is not part of this. Built
-   once per pose, so the trig runs once a frame rather than once per point. */
+/* cobe's marker-anchor projection; x and y are canvas fractions. The roll is CSS's, so it is left out. */
 function projector({ phi, theta }: Pose) {
   const cp = Math.cos(phi);
   const sp = Math.sin(phi);
@@ -157,7 +142,6 @@ function projector({ phi, theta }: Pose) {
 }
 type Project = ReturnType<typeof projector>;
 
-/* Strokes the parts of the lines on one hemisphere: the near side by default, the far side if asked. */
 function traceLines(ctx: CanvasRenderingContext2D, lines: Vec3[][], project: Project, far = false) {
   const { width, height } = ctx.canvas;
   ctx.beginPath();
@@ -177,7 +161,6 @@ function traceLines(ctx: CanvasRenderingContext2D, lines: Vec3[][], project: Pro
   ctx.stroke();
 }
 
-/* Redraws the graticule for one pose: the far hemisphere faintly first, then the near one. */
 function drawGraticule(canvas: HTMLCanvasElement, project: Project, stroke: string, lineWidth: number) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
@@ -195,9 +178,7 @@ function drawGraticule(canvas: HTMLCanvasElement, project: Project, stroke: stri
   traceLines(ctx, PARALLELS, project);
 }
 
-/* Draws the visitor marks for one pose on the canvas above the globe. cobe's own markers
-   are not used: drawing them here allows the ring and the pulse, and keeps cobe from
-   maintaining anchor elements for them. */
+/* Not cobe's markers: these allow the ring and pulse, and spare cobe's anchor elements. */
 function drawMarks(
   canvas: HTMLCanvasElement,
   project: Project,
@@ -279,11 +260,8 @@ function placeLabel(box: HostBox, label: HTMLElement, a: Arrival, project: Proje
 }
 
 const clamp = (v: number, lim: number) => Math.max(-lim, Math.min(lim, v));
-/* Fling speed over its normalised time: holds near full speed at first, drops quickly
-   through the middle, then fades out along a soft tail rather than stopping dead. */
 const flingSpeed = (p: number) => Math.pow(1 - p * p, 2.5);
 
-/** Whether the browser hands out WebGL at all: it can be missing, switched off or blocked. */
 function supportsWebGL() {
   const probe = document.createElement('canvas');
   const gl = probe.getContext('webgl2') ?? probe.getContext('webgl');
@@ -291,8 +269,7 @@ function supportsWebGL() {
   return gl !== null;
 }
 
-/* A canvas filling its layer, for cobe to draw into. Created here rather than by React
-   because cobe re-parents it into a wrapper of its own. */
+/* Created outside React because cobe re-parents it into its own wrapper. */
 function mountCanvas(layer: HTMLElement) {
   const canvas = document.createElement('canvas');
   canvas.style.cssText = 'width:100%;height:100%;display:block';
@@ -306,9 +283,7 @@ function createGlobes(nearLayer: HTMLElement, farLayer: HTMLElement, dpr: number
   const size = { width: nearLayer.clientWidth, height: nearLayer.clientHeight };
   const rest = poseAt(START_YAW);
   const farRest = poseAt(START_YAW + Math.PI);
-  // cobe appends a <style> to <head> for marker anchors and rewrites its text every frame,
-  // which forces a document-wide style recalculation each time. Nothing here uses it, so
-  // it is detached right after creation: cobe keeps writing to it, harmlessly.
+  // cobe adds a <head> <style> it rewrites every frame (a document-wide style recalc); unused, so detach it
   const stylesBefore = new Set(document.head.querySelectorAll('style'));
   const near = createGlobe(mountCanvas(nearLayer), {
     ...LOOK,
@@ -317,8 +292,7 @@ function createGlobes(nearLayer: HTMLElement, farLayer: HTMLElement, dpr: number
     phi: rest.phi,
     theta: rest.theta,
   });
-  // The far hemisphere is the same globe seen from behind, so a second, cheaper render
-  // turned half a circle round and mirrored by CSS shows it faintly through the sphere.
+  // the far hemisphere: turned 180° here and mirrored by CSS
   const far = createGlobe(mountCanvas(farLayer), {
     ...LOOK,
     ...size,
@@ -330,12 +304,7 @@ function createGlobes(nearLayer: HTMLElement, farLayer: HTMLElement, dpr: number
   return { near, far };
 }
 
-/**
- * The spinning globe: a WebGL sphere of land dots over a graticule, with visitors'
- * arrivals marked on top. One arrival at a time is called out with a label beside
- * its marker, always picked from the cities currently facing the viewer. Without
- * WebGL it falls back to the graticule alone, still, rather than breaking the page.
- */
+/** Without WebGL it falls back to a still graticule. */
 export function GlobeScene() {
   const sceneRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -343,7 +312,7 @@ export function GlobeScene() {
   const gridRef = useRef<HTMLCanvasElement>(null);
   const marksRef = useRef<HTMLCanvasElement>(null);
   const labelRef = useRef<HTMLDivElement>(null);
-  // Redraws globe, graticule and label for the current yaw; returns whether the active marker faces the viewer.
+  // returns whether the active marker faces the viewer
   const renderRef = useRef<() => boolean>(() => true);
   const boxRef = useRef<HostBox>({ left: 0, top: 0, size: 1, width: 1, height: 1 });
   const loopRef = useRef(false); // the rAF loop is running and renders each frame
@@ -352,7 +321,7 @@ export function GlobeScene() {
   const flingRef = useRef<{ v0: number; start: number } | null>(null);
   const dragRef = useRef<{ x: number; yaw: number; t: number; v: number } | null>(null);
   const [dragging, setDragging] = useState(false);
-  // Its own check, not `live`: the globe turns whenever any of it shows, active card or not, and only then.
+  // not `live`: it turns whenever any of it is on screen, active card or not
   const visible = useInView(hostRef, 'onScreen');
   const globesRef = useRef<Globes | null>(null);
   const [flat, setFlat] = useState(false);
@@ -361,10 +330,7 @@ export function GlobeScene() {
   const activeRef = useRef(active.id);
   const [facing, setFacing] = useState(true);
 
-  // Built and drawn before the first paint, so the scene never shows a frame with an empty
-  // globe and the label parked in its corner. The label's layer is then first rastered where
-  // it sits, which keeps its text sharp; rastered in the corner and then moved, it came out
-  // soft on some loads.
+  // before first paint: no empty frame, and the label is first rastered in place (moved later, its text went soft)
   useLayoutEffect(() => {
     const scene = sceneRef.current;
     const host = hostRef.current;
@@ -378,10 +344,7 @@ export function GlobeScene() {
     globesRef.current = globes;
     if (!globes) setFlat(true);
 
-    // The graticule is stroked in the page's rule-22 hairline and the marks in the arrival
-    // accent, both read from the root: inside the journey frame the rule tokens stay blank
-    // until its pen lands, and a colour read there before then would leave the lines unseen
-    // for good, since the canvas keeps what it was stroked with.
+    // from the root: the journey frame blanks rule tokens until its pen lands, and a canvas keeps its stroke
     const tokens = getComputedStyle(document.documentElement);
     const stroke = tokens.getPropertyValue('--color-rule-22').trim();
     const markColour = tokens.getPropertyValue('--color-volt-soft').trim();
@@ -420,6 +383,7 @@ export function GlobeScene() {
       renderRef.current();
     };
     fit();
+    // the scene too: a phone's card can change width without resizing the host
     const ro = new ResizeObserver(fit);
     ro.observe(host);
     ro.observe(scene);
@@ -447,8 +411,6 @@ export function GlobeScene() {
     };
   }, []);
 
-  // The loop pauses off screen and under reduced motion; the last frame stays. While the
-  // pointer holds the globe the yaw is the pointer's; otherwise it coasts and eases to idle.
   useEffect(() => {
     if (!globesRef.current || !visible || reduce) return;
     let raf = 0;
@@ -478,9 +440,6 @@ export function GlobeScene() {
     };
   }, [visible, reduce]);
 
-  // Call out a new arrival every few seconds: the next in the list that sits well inside
-  // the disc, or failing that whichever is nearest the centre, so the callout never lands
-  // on a city about to slip round the limb.
   useEffect(() => {
     if (!globesRef.current || !visible || reduce) return;
     const next = () => {
@@ -515,8 +474,6 @@ export function GlobeScene() {
     setFacing(renderRef.current());
   }, [active]);
 
-  // Dragging: the pointer owns the yaw and its speed is measured, so a release flings.
-  // Nothing is drawn here while the loop runs; it picks the new yaw up on the next frame.
   const onPointerDown = (e: PointerEvent<HTMLDivElement>) => {
     if (!globesRef.current) return;
     dragRef.current = { x: e.clientX, yaw: yawRef.current, t: e.timeStamp, v: 0 };
@@ -559,15 +516,11 @@ export function GlobeScene() {
       <canvas ref={gridRef} className={cn(styles.layer, styles.grid)} />
       <div ref={hostRef} className={cn(styles.layer, styles.globe)} />
       <canvas ref={marksRef} className={cn(styles.layer, styles.marks)} />
-      {/* Placed beside its marker from the same projection that draws the graticule, and
-          faded as the marker turns away from the viewer. Its fill is the canvas at two thirds,
-          so land dots read through it instead of a black hole. */}
       <div
         ref={labelRef}
         className='pointer-events-none absolute top-0 left-0 border border-volt-lift bg-canvas/66 px-[18px] py-3 font-mono text-label leading-[19px] whitespace-nowrap opacity-0 transition-opacity duration-350 ease-out-expo will-change-transform data-on:opacity-100'
         data-on={facing || undefined}
       >
-        {/* the corner squares in the label's own blue, kept on phones too */}
         <Corners
           persistent
           className='[--corner-edge:var(--color-volt-lift)] [--corner-fill:var(--color-canvas)]'

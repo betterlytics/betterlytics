@@ -27,14 +27,8 @@ import { FLAGS, type FlagCode } from './flags';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
-/** An event, the icon it's listed with, and the one property it's sent with, whose value varies between visitors. */
 type Kind = { name: string; icon: LucideIcon; key: string; values: readonly string[] };
 
-/**
- * Events anyone can read at a glance, each with the one property that makes
- * it worth segmenting. The log cycles through each property's values, so the
- * same event arriving twice still reads as two visitors.
- */
 const KINDS: readonly Kind[] = [
   { name: 'signup', icon: UserPlus, key: 'plan', values: ['free', 'pro', 'team'] },
   { name: 'purchase', icon: CreditCard, key: 'amount', values: ['$49', '$19', '$99'] },
@@ -53,10 +47,9 @@ const KINDS: readonly Kind[] = [
   { name: 'form_submit', icon: FileText, key: 'form', values: ['contact', 'feedback', 'waitlist'] },
 ];
 
-/** Kinds already this near the top are skipped when picking the next arrival, so the log never stutters. */
+/** Kinds within this many top rows are skipped for the next arrival. */
 const FRESH_ROWS = 5;
 
-/** The history the log opens on: which kind, how many seconds ago. */
 const SEED: ReadonlyArray<readonly [kind: number, agoS: number]> = [
   [2, 4],
   [4, 11],
@@ -69,20 +62,12 @@ const SEED: ReadonlyArray<readonly [kind: number, agoS: number]> = [
 ];
 
 const MAX_ROWS = 10;
-/** Arrivals kept back while the log is paused; they slide in together on release. */
 const HELD_MAX = 3;
-/** The first arrival comes soon after the card goes live, so the log is seen to be live. */
 const FIRST_ARRIVAL_MS = 1200;
-/** Gaps between arrivals: slow enough that each insert gets a moment, with the odd pair landing close together. */
 const GAP_MS = [3500, 6000] as const;
 const PAIR_MS = 1100;
 const PAIR_ODDS = 0.15;
 
-/*
- * The insert: the list opens a gap one row tall, then the row settles into it
- * from slightly above, a touch larger and lighter, with a shadow, like a card
- * being set down.
- */
 const GAP_S = 0.45;
 const SETTLE_S = 0.7;
 const SETTLE_DELAY_S = 0.18;
@@ -104,7 +89,6 @@ const SETTLED = {
 type Browser = 'chrome' | 'safari' | 'firefox' | 'edge';
 type Visitor = { country: FlagCode; browser: Browser; device: 'desktop' | 'mobile' };
 
-/** Who fired each event: mostly desktop Chrome and Safari, some mobile, spread across a handful of countries. */
 const VISITORS: readonly Visitor[] = [
   { country: 'US', browser: 'chrome', device: 'desktop' },
   { country: 'DE', browser: 'firefox', device: 'desktop' },
@@ -129,7 +113,6 @@ type Row = {
   visitor: Visitor;
 };
 
-/** The `n`th sighting of a kind, with its property value and its visitor picked for that sighting. */
 function rowOf(kind: Kind, id: number, at: number, n: number): Row {
   return {
     id,
@@ -140,7 +123,6 @@ function rowOf(kind: Kind, id: number, at: number, n: number): Row {
   };
 }
 
-/** The visitor behind a row: country flag, browser, device. Muted at rest; an arrival shows them in colour first. */
 function Who({ visitor }: { visitor: Visitor }) {
   const Flag = FLAGS[visitor.country];
   const Device = visitor.device === 'mobile' ? Smartphone : Monitor;
@@ -166,16 +148,6 @@ function ago(ms: number) {
   return `${Math.floor(s / 60)}m`;
 }
 
-/**
- * The live event log: custom events arriving with the property they were
- * sent with and the visitor who sent them. Each arrival opens a gap at the
- * top and settles into it; times age in place. The panel runs off the
- * bottom of the card on purpose, a window onto a longer log.
- *
- * Screen readers get one description rather than a log that keeps changing.
- * Arrivals and the clock run only while the card is live, and not at all for
- * readers who prefer reduced motion.
- */
 export function Events({ entered, live }: IllustrationProps) {
   const reduce = useReducedMotion();
   const [rows, setRows] = useState<Row[]>([]);
@@ -184,8 +156,7 @@ export function Events({ entered, live }: IllustrationProps) {
   const serial = useRef(0);
   const seededAt = useRef(0);
 
-  // Hovering the panel pauses the log so a row can be read, as the real log holds new
-  // events back while you're scrolled down. Arrivals keep coming and are held until release.
+  // hovering pauses the log so a row can be read; arrivals are held until release
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
   const held = useRef<Row[]>([]);
@@ -208,7 +179,7 @@ export function Events({ entered, live }: IllustrationProps) {
     if (waiting.length) setRows((prev) => [...waiting, ...prev].slice(0, MAX_ROWS));
   };
 
-  // Seeded on the client, so the relative times are measured from the reader's clock.
+  // seeded on the client so the times use the reader's clock
   useEffect(() => {
     const t = Date.now();
     seededAt.current = t;
@@ -222,8 +193,7 @@ export function Events({ entered, live }: IllustrationProps) {
     const timers: ReturnType<typeof setTimeout>[] = [];
     const later = (fn: () => void, ms: number) => timers.push(setTimeout(() => !cancelled && fn(), ms));
 
-    // The history was stamped at load, and the clock only runs while the card is live: the
-    // first time it goes live, move the history up to now so it reads "4s", not "40s".
+    // the seed was stamped at load; on first going live, shift it to now so it reads "4s", not "40s"
     if (seededAt.current) {
       const shift = Date.now() - seededAt.current;
       seededAt.current = 0;
@@ -248,7 +218,6 @@ export function Events({ entered, live }: IllustrationProps) {
     };
     later(next, FIRST_ARRIVAL_MS);
 
-    // the times read in whole seconds, so the clock ticks once a second rather than every frame
     const clock = setInterval(() => setNow(Date.now()), 1000);
     return () => {
       cancelled = true;
@@ -279,7 +248,7 @@ export function Events({ entered, live }: IllustrationProps) {
         </div>
         <ol>
           {rows.map((row, i) => {
-            // the history the log opens on is simply there; only later arrivals play the insert
+            // seed rows have negative ids and skip the insert animation
             const arriving = row.id >= 0;
             const Icon = row.kind.icon;
             return (

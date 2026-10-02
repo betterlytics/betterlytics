@@ -1,6 +1,5 @@
 import type { Dispatch, KeyboardEvent } from 'react';
 
-/** Where `key` moves along `count` tabs from `index`: arrows step and wrap round, Home and End go to the ends. */
 export function nextTabIndex(key: string, index: number, count: number) {
   switch (key) {
     case 'ArrowRight':
@@ -16,11 +15,7 @@ export function nextTabIndex(key: string, index: number, count: number) {
   }
 }
 
-/**
- * The keyboard half of the tabs pattern, for the element with `role='tablist'`: only
- * the selected tab is in the tab order (`tabIndex` 0, the rest -1), and the keys above
- * select the tab they move to and focus it.
- */
+/** onKeyDown for the `role='tablist'` element; give the selected tab `tabIndex` 0, the rest -1. */
 export function rovingTabKeys(index: number, count: number, select: Dispatch<number>) {
   return (event: KeyboardEvent<HTMLElement>) => {
     const next = nextTabIndex(event.key, index, count);

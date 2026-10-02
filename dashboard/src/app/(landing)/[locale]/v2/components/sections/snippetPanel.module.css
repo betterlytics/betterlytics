@@ -1,9 +1,7 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* One row per line, run out to the frame's edges. The lines the reader adds are lit
-     and banded with an accent bar in the gutter, diff-style; the rest of the file dims,
-     so the frame says "this is all you add" without a caption. */
+  /* bleeds over the pre's 22px padding; 20px + the 2px bar keeps the text aligned */
   .line {
     display: block;
     margin-inline: -22px;
@@ -17,13 +15,9 @@
     background-color: --alpha(var(--color-volt-soft) / 7%);
   }
 
-  /* The page's palette, not an editor theme: strings take the accent, tag names full
-     ink, and comments, attribute names, keywords and template variables recede, so the
-     URL and the site id are what the eye lands on. */
   .string {
     color: var(--color-volt-soft);
   }
-  /* the accent belongs to the install alone: strings in the surrounding file stay plain */
   .line:not([data-added]) .string {
     color: inherit;
   }

@@ -10,21 +10,14 @@ import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './replay.module.css';
 
-/* The player's copy is mock product UI, kept literal on purpose. */
+/* Mock product copy, kept literal on purpose. */
 
-/** One pass of the recording. Every keyframe in replay.module.css runs on this loop. */
+/** Every keyframe loop in replay.module.css runs on this. */
 const LOOP_MS = 11000;
-/** The recorded session's length, played across one loop (so 2×). */
+/** Played across one loop, hence the 2× label. */
 const SESSION_S = 22;
 
-/**
- * What the player narrates, keyed to where in the loop it happens. `at` is
- * also where the event's marker sits on the scrub track, so the play head
- * reaches each marker as its line swaps in. The error is the same one the
- * errors card lists next, so the two cards tell one story. It gets a second
- * to itself before the rage clicks, and its marker flares as the head passes:
- * the visitor never sees it, so the player is where it shows.
- */
+/** `at` is both the loop phase and the marker's track position; keyframes in replay.module.css follow it. */
 const BEATS = [
   { at: 0, kind: 'Page view', detail: '/pricing' },
   { at: 0.36, kind: 'Click', detail: 'Choose Pro' },
@@ -32,7 +25,7 @@ const BEATS = [
   { at: 0.59, kind: 'Rage click', detail: '4× on Choose Pro', bad: true },
   { at: 0.86, kind: 'Page exit', detail: '/pricing' },
 ] as const;
-/** The frame shown when motion is reduced: the rage click, mid-session. */
+/** Reduced-motion still; its frame is set in replay.module.css. */
 const STILL_BEAT = 3;
 
 function beatAt(phase: number) {
@@ -46,7 +39,6 @@ function clock(seconds: number) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-/** The visitor's page as it was recorded. */
 function PricingPage() {
   return (
     <div className={styles.page}>
@@ -100,28 +92,14 @@ function PricingPage() {
   );
 }
 
-/**
- * A session being replayed: a visitor's pricing page, where Choose Pro spins,
- * fails, and gets rage-clicked before they leave. The page is in the site's
- * own warm monochrome so everything the player draws on top (the visitor's
- * cursor and its tag, the click ripples) reads as the player's.
- *
- * The page motion is CSS on one shared loop, paused unless the card is live.
- * The player bar follows that loop by reading the scrub animation's own clock
- * each frame, so the time and the narrated event never drift from the page.
- *
- * The pause button is real: it holds that same loop where it is, page, cursor,
- * scrub and all, and plays it on from there. Leaving the card resets it, so the
- * replay is playing again when the card comes back.
- */
+/** The bar reads the scrub animation's own clock each frame, so it never drifts from the CSS loop. */
 export function Replay({ entered, live }: IllustrationProps) {
   const reduce = useReducedMotion();
   const fillRef = useRef<HTMLElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
   const [beat, setBeat] = useState(0);
   const [paused, setPaused] = useState(false);
-  // Readers who prefer reduced motion get a still of the rage click (its frame is set in the
-  // stylesheet). Held in state, so the server's markup and the first client render agree.
+  // state, so the server markup and first client render agree
   const [still, setStill] = useState(false);
 
   useEffect(() => setStill(reduce === true), [reduce]);
@@ -164,9 +142,8 @@ export function Replay({ entered, live }: IllustrationProps) {
       data-paused={paused || undefined}
       style={vars({ '--loop': `${LOOP_MS}ms` })}
     >
-      {/* described here with the art hidden, rather than one labelled image, so the pause button stays reachable */}
+      {/* not role='img', so the pause button stays reachable */}
       <p className='sr-only'>{COPY.illustrations.replay}</p>
-      {/* the player's own header, as the other cards have, not a browser's chrome */}
       <div className={styles.header} aria-hidden>
         <b>Session replay</b>
         <span>acme.com/pricing</span>
@@ -175,7 +152,6 @@ export function Replay({ entered, live }: IllustrationProps) {
         <PricingPage />
         <span className={styles.ripple} />
         <span className={cn(styles.ripple, styles.rage)} />
-        {/* the visitor's cursor; its tag only shows at the clicks, first captured, then raged */}
         <span className={styles.cursor}>
           <CursorGlyph />
           <span className={styles.tag}>
@@ -184,7 +160,6 @@ export function Replay({ entered, live }: IllustrationProps) {
           </span>
         </span>
       </div>
-      {/* the play footer: the event being played, the scrub track with its markers, then the controls row */}
       <div className={styles.bar}>
         <p className={styles.event} aria-hidden>
           <LiftSwap as='span' className='block' id={String(shown)}>
@@ -205,10 +180,8 @@ export function Replay({ entered, live }: IllustrationProps) {
           ))}
           <i ref={fillRef} className={styles.fill} />
         </span>
-        {/* the recording's controls; the viewBoxes are cropped to the glyphs so the icons meet
-            the track's ends instead of sitting inset from them */}
+        {/* viewBoxes are cropped to the glyphs so the icons meet the track's ends */}
         <div className={styles.controls}>
-          {/* the one working control; the others are the player's, drawn */}
           <button
             type='button'
             className={styles.toggle}

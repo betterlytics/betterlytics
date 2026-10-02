@@ -1,8 +1,3 @@
-/**
- * The pointer drawn inside the illustrations: a rounded, notched arrow filled blue
- * with a white edge, the multiplayer-cursor look, which stays visible on light and
- * dark alike.
- */
 export function CursorGlyph() {
   return (
     // the viewBox is offset to where the path was drawn

@@ -1,10 +1,6 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* The same 45° hatch the walls and the bands between cards wear, so the whole page is
-     one material; on saturated blue it needs more alpha than on the canvas. Two masks,
-     intersected: the radial fades it toward the top corners so the lamp is what reveals
-     it, the linear fades it out before the left and right edges. */
   .card::before,
   .wave {
     content: '';
@@ -26,11 +22,8 @@
     background-size: 10px 10px;
   }
 
-  /* A slow wave of light along the hatch: a band of brighter hatch drifting bottom-left
-     to top-right along the "/" lines, so they seem to carry it. The band is turned to
-     the lines (local x runs up the "/"), so sliding it on x keeps its lines on the
-     screen's; they sit every 10/√2 px, 1px thick, phased to the card's own tiles. Moved
-     by transform alone, so it stays on the compositor. */
+  /* turned onto the hatch, so lines every 10/√2 px (7.0711) land on the 10px tiles; moved by
+     transform only, to stay on the compositor */
   .wave {
     display: none;
   }
@@ -74,22 +67,17 @@
     .wave {
       display: block;
     }
-    /* one slow pass from off the card's lower left to past its upper right on the widest
-       screens; narrower cards rest longer between passes */
     .wave i {
       animation: wave 27s linear 0.8s infinite backwards;
     }
   }
-  /* resting where it is while the card is off screen (see ui/inView) */
+  /* data-live is set by InView; without JS the wave never pauses */
   @media (scripting: enabled) {
     .card:not([data-live]) .wave i {
       animation-play-state: paused;
     }
   }
 
-  /* A polished edge: one soft white inner shadow, offset down and a touch right, so the
-     top and left edges catch the light. Sits over the hatch and the bloom. Not on phones,
-     where the card sits nearly edge to edge and the highlight reads as a seam. */
   .card::after {
     content: '';
     position: absolute;
@@ -103,9 +91,7 @@
     }
   }
 
-  /* Lamp light, not a white spot: a warm cream core that stays near-opaque, then hands
-     off through the card's own lifted blue. Amber at half alpha over ultramarine turns
-     mauve, so the warm band is kept bright and short and the long tail is blue. */
+  /* keep the warm stops short and opaque: amber at half alpha over this blue turns mauve */
   .bloom {
     position: absolute;
     left: 50%;
@@ -113,7 +99,6 @@
     pointer-events: none;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    /* the lamp below a card's bottom edge (see .cta) */
     --lamp-below: radial-gradient(
       closest-side,
       rgb(255 244 218 / 1) 0%,
@@ -127,7 +112,7 @@
       opacity: 0.85;
     }
   }
-  /* on the demo frame's top edge, so it reads as light from behind the frame */
+  /* centred on the demo frame's top edge */
   .bloom.hero {
     top: 628px;
     width: 1220px;
@@ -141,7 +126,7 @@
       rgb(74 92 255 / 0.38) 70%,
       rgb(74 92 255 / 0) 100%
     );
-    /* phones show no demo frame, so there the hero takes the closing card's lamp */
+    /* phones have no demo frame */
     @variant max-sm {
       top: calc(100% + 20px);
       width: 1600px;
@@ -149,9 +134,7 @@
       background: var(--lamp-below);
     }
   }
-  /* No frame to hide the lamp behind, so the bloom is centred just below the card's
-     bottom edge: the brightest band sits on the edge and the light climbs and thins,
-     a cone rather than a full disc. A shorter cream core, so the peak never spots. */
+  /* 20px below the card's bottom edge; tracks its 528px height in voltCard.tsx */
   .bloom.cta {
     top: 548px;
     width: 1600px;

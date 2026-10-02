@@ -1,8 +1,7 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* The client tiles, lit from the top at rest. Under the pointer a soft light follows it
-     (SpotlightList writes --mx/--my) and the edge lifts; keyboard focus lifts it too. */
+  /* --mx/--my are written by SpotlightList */
   .tile {
     position: relative;
     overflow: hidden;
@@ -37,8 +36,7 @@
     opacity: 1;
   }
 
-  /* The tiles ink in on the panel's beat, but as a one-shot animation rather than a
-     transition, so their own hover timing is untouched afterwards. */
+  /* an animation, not a transition, so the hover timing is untouched after */
   [data-drawn] .tile {
     animation: ink-in 0.5s ease 0.55s backwards;
   }

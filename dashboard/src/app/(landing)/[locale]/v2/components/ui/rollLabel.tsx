@@ -1,14 +1,7 @@
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 
-/**
- * A button label that rolls on hover: two copies stacked in a window one line
- * tall, and hovering the button (which carries `group`) slides the stack up a
- * line so the visible copy leaves through the top as its twin arrives from below.
- * Each character has its own small delay, growing from right to left, so the end
- * of the word lifts first and the rest follows as if dragged. Readers get the
- * text once, whole: split into characters it would be read letter by letter.
- */
+/** Rolls on hover of the parent `group`; the sr-only copy stops readers spelling it letter by letter. */
 export function RollLabel({ text }: { text: string }) {
   const chars = Array.from(text);
   const row = (offset: string) => (

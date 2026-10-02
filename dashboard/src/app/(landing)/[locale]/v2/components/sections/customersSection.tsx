@@ -5,11 +5,10 @@ import { CUSTOMERS } from '@/landing/content/customers';
 import { IDS } from '@/landing/lib/ids';
 import { LogoBoard } from './logoBoard';
 
-/** Monochrome logo wall. Still unless there are more teams than slots, in which case one cell at a time flips. */
 export function CustomersSection() {
   return (
     <Section id={IDS.customers} className='pt-0'>
-      {/* no top rule on phones: the hero card just above closes it */}
+      {/* no top rule on phones: the hero card above closes it */}
       <Panel flush className='max-sm:before:hidden'>
         <LogoBoard
           pool={CUSTOMERS}

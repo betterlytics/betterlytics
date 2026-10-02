@@ -15,16 +15,7 @@ const GLYPHS: ReadonlyArray<{ name: string; path: string; hover?: string }> = FR
   ...FRAMEWORK_GLYPHS[framework.logo],
 }));
 
-/**
- * The frameworks as a quiet "works with" row: the claim on the left, one
- * monochrome glyph per framework. Glyphs rather than the logo files, so every
- * mark sits at the same tone like the customer wall; each takes its brand
- * colour under the pointer. The compatibility strip cloudflare.com uses under
- * its developer sections, rather than a board. On first sight the marks come
- * in left to right, each passing through its colour before it settles; after
- * that a faint glint drifts across them, a full-tone copy of the row laid on
- * top and masked down to a slow-travelling "/" band.
- */
+/** Monochrome glyphs rather than logo files, so every mark sits at one tone. */
 export function FrameworkStrip({ className }: { className?: string }) {
   return (
     <div
@@ -34,7 +25,6 @@ export function FrameworkStrip({ className }: { className?: string }) {
         className,
       )}
     >
-      {/* the claim on one line, set like the MCP side's lead */}
       <p className={cn(TEXT_STYLES.title, 'flex flex-none flex-col gap-0.5 whitespace-nowrap text-fg')}>
         <span>
           <Emphasis text={copy.title} as='em' className='text-volt-text not-italic' />

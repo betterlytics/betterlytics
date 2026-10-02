@@ -6,16 +6,11 @@ import { InkFrame } from './inkFrame';
 import { Underline } from './reveal';
 import { Heading, Lede } from './text';
 
-/* The page's layout primitives. Sections sit between the wall columns; their
-   headings live in open canvas and their content in a bounded panel whose rules
-   land on the wall lines. */
-
 type SectionProps = {
   id: string;
-  /** The section's display line, centred above its content. `*word*` inks an underline under that word. */
+  /** `*word*` underlines that word. */
   title?: string;
   lede?: string;
-  /** On phones the title's lines are balanced; off for a title whose natural break reads better. */
   balanced?: boolean;
   className?: string;
   children: ReactNode;
@@ -27,7 +22,6 @@ export function Section({ id, title, lede, balanced = true, className, children 
     <section
       id={id}
       aria-labelledby={title ? titleId : undefined}
-      // on phones a little more room above a headline, so each section starts clearly apart
       className={cn('relative px-(--inset) pt-[34px] pb-[78px] max-lg:pb-12', title && 'max-sm:pt-12', className)}
     >
       <div className='relative z-1'>
@@ -45,7 +39,7 @@ export function Section({ id, title, lede, balanced = true, className, children 
   );
 }
 
-/** The four corner squares of the positioned parent; `persistent` keeps them on phones too. */
+/** Corner squares of the positioned parent; `persistent` keeps them on phones. */
 export function Corners({ persistent = false, className }: { persistent?: boolean; className?: string }) {
   return (
     <i
@@ -59,12 +53,7 @@ export function Corners({ persistent = false, className }: { persistent?: boolea
   );
 }
 
-/**
- * A bounded box whose rules land on the wall lines, drawn in as the reader arrives.
- * Phones have no walls, so there a panel either runs its rules on to the screen's
- * edges (the default, for the big blocks: tables, rows, strips) or, `framed`, draws
- * its own sides and keeps its corners (for card-like content).
- */
+/** Phones have no walls: by default its rules run to the screen edges; `framed` draws its own sides, for cards. */
 export function Panel({
   children,
   className,

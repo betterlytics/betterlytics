@@ -11,11 +11,6 @@ import styles from './traffic.module.css';
 
 /* Illustration copy is mock product UI, kept literal on purpose. */
 
-/**
- * The dashboard's pages table and its three tabs: every page by views, the pages
- * visits start on, and the ones they end on. The same pages rank differently in
- * each, which is the point of having all three.
- */
 const TABS = [
   {
     label: 'All',
@@ -49,18 +44,14 @@ const TABS = [
   },
 ];
 
-/** Share of readers still on the page at each quarter of its length. */
+/** % of readers reaching each quarter of the page. */
 const DEPTH = [100, 72, 48, 21];
 const AVG_DEPTH = 58;
 
 const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 const HOURS = 24;
 
-/**
- * Visitors by weekday and hour, 0 to 1: office hours on weekdays, a smaller
- * evening bump, quiet nights and slower weekends. A fixed shape rather than
- * random, so it renders the same on the server and the client.
- */
+/** 0 to 1; deterministic rather than random so server and client render the same. */
 function intensity(day: number, hour: number) {
   const weekend = day >= 5;
   const office = Math.exp(-((hour - 11) ** 2) / 14);
@@ -71,12 +62,10 @@ function intensity(day: number, hour: number) {
   return Math.min(1, Math.max(0.03, base + wobble - (day === 4 && hour > 14 ? 0.18 : 0)));
 }
 
-/** Three cards, fanned, each a different kind of view: what they open, how far they read, when they come. */
 export function Traffic({ entered }: IllustrationProps) {
-  // `from` is the tab left last, null until the first switch
+  // `from`: the previous tab, null until the first switch
   const [{ tab, from }, setView] = useState<{ tab: number; from: number | null }>({ tab: 0, from: null });
   const direction = from === null || tab > from ? 1 : -1;
-  // the bars draw in slowly on entrance; after a switch they answer at once
   const switched = from !== null;
 
   const id = useId();
@@ -116,7 +105,7 @@ export function Traffic({ entered }: IllustrationProps) {
             ))}
           </div>
         </div>
-        {/* five fixed rows: the bars resize in place while labels and counts lift through their slots */}
+        {/* index keys keep the rows in place; the bars resize and LiftSwap swaps the text */}
         <div className={styles.body} id={panelId} role='tabpanel' aria-labelledby={tabId(tab)}>
           {TABS[tab].pages.map((page, i) => (
             <div key={i} className={styles.row}>
@@ -162,7 +151,6 @@ export function Traffic({ entered }: IllustrationProps) {
               <i />
               <i />
             </div>
-            {/* how many readers each quarter of the page kept, filled in top-down as if read */}
             <div className={styles.read} aria-hidden>
               {DEPTH.map((reach, i) => (
                 <span key={i} style={vars({ '--reach': reach / 100, '--d': `${0.5 + i * 0.16}s` })} />

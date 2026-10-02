@@ -24,7 +24,7 @@ export type BaseGaugeProps = {
 
 export type GaugeProps = BaseGaugeProps & React.HTMLAttributes<HTMLDivElement>;
 
-/** The box a gauge is drawn in: the arc's top half, its stroke, and the part of the arc below the centre. */
+/** Height: the arc's top half, its stroke, and the arc's dip below the centre. */
 export function getGaugeBox({
   size,
   strokeWidth,

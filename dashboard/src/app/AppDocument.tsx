@@ -21,11 +21,7 @@ const robotoMono = Inter_Tight({
   subsets: ['latin'],
 });
 
-/**
- * The html document shared by the app's root layouts (the app and the public
- * status pages). The landing page has its own root layout and document, so it
- * can be served statically; this one reads the locale and session per request.
- */
+/** Shared by the app and status root layouts; per-request, unlike the landing's static document. */
 export async function AppDocument({ children }: { children: React.ReactNode }) {
   const [locale, seoConfig, sessionToken] = await Promise.all([
     getLocale(),

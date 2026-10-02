@@ -8,7 +8,7 @@ import { vars } from '@/landing/lib/cssVars';
 import { EASE_INK } from '@/landing/lib/easing';
 import styles from './reveal.module.css';
 
-/** Lifts into place when scrolled into view. Siblings stagger by `index`. */
+/** Lifts in when scrolled into view; `index` staggers siblings. */
 export function Reveal({
   children,
   className,
@@ -32,12 +32,7 @@ export function Reveal({
   );
 }
 
-/**
- * Headline emphasis: an ink stroke drawn under the word once the reader is looking
- * at it (the `read` trigger, well up the viewport, so the pen moves while the line
- * is being read). The stroke stays invisible until then, so no cap of the undrawn
- * dash shows. Reduced motion draws it at once.
- */
+/** Ink underline; hidden until drawn, as an undrawn path still shows its round cap. */
 export function Underline({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, 'read');

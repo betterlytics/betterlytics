@@ -33,20 +33,12 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
 };
 
-/**
- * No locale is rendered at build time, since builds run against placeholder env.
- * Each locale renders on its first request, with the real env, and is then
- * served from the cache like a static page.
- */
+/** None at build time (placeholder env); each locale renders on first request, then serves from cache. */
 export function generateStaticParams() {
   return [];
 }
 
-/**
- * The landing page's own root layout. It reads nothing from the request (the
- * locale comes from the URL, the session is fetched by the client), which is what
- * lets the page be rendered once and cached.
- */
+/** Must read nothing from the request (the client fetches the session) so the page can be cached. */
 export default async function LandingLayout({
   children,
   params,
@@ -63,14 +55,13 @@ export default async function LandingLayout({
   const [messages, seoConfig] = await Promise.all([getMessages(), buildSEOConfig(SEO_CONFIGS.root)]);
 
   return (
-    // the copy is English under every locale until it moves into the message catalogue
     <html lang={COPY_LOCALE} className={`${sans.variable} ${mono.variable}`}>
       <head>
         <AppTrackingScript globalProperties={{ surface: 'app', locale }} />
         <StructuredData config={seoConfig} />
       </head>
       <body>
-        {/* only the pricing panel's plan features are translated so far */}
+        {/* only the plan features are translated so far */}
         <NextIntlClientProvider messages={{ pricingCards: messages.pricingCards }}>
           <LandingProviders>
             {env.ENABLE_APP_TRACKING && <GlobalPropertiesUpdater />}

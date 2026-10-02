@@ -13,18 +13,12 @@ import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './vitals.module.css';
 
-/*
- * The dashboard's own gauges, as the old landing card draws them: threshold
- * segments outside, the value arc inside, the number rolling as it changes.
- * Each gauge steps through the shared mock values on its own interval, so
- * they never move in step.
- */
-
 const SIZE = 150;
 const STROKE = 7.7;
 const ARC_GAP = 3;
 const BOX = getGaugeBox({ size: SIZE, strokeWidth: STROKE });
 
+/** Distinct intervals so the gauges never change in step. */
 const ROWS: ReadonlyArray<ReadonlyArray<{ key: CoreWebVitalName; intervalMs: number; startIndex: number }>> = [
   [
     { key: 'FCP', intervalMs: 6400, startIndex: 1 },
@@ -56,7 +50,7 @@ const MetricGauge = memo(function MetricGauge({
   const format = getCoreWebVitalIntlFormat(metric, value);
   return (
     <div className={styles.slot}>
-      {/* the unfilled track inside the gauge is drawn in currentColor */}
+      {/* sets the track colour, drawn in currentColor */}
       <Gauge
         className='text-fg'
         segments={segments}
@@ -66,7 +60,6 @@ const MetricGauge = memo(function MetricGauge({
         arcGap={ARC_GAP}
       >
         <div className='absolute inset-x-0 bottom-[20%] flex flex-col items-center'>
-          {/* the metric's name: firm grey, second to the coloured value; a little tracking, not eyebrow-wide */}
           <span className='-mb-0.5 text-[10.5px] font-semibold tracking-[0.12em] text-muted'>{metric}</span>
           <span className={styles.value} data-level={getCoreWebVitalLevel(metric, value)}>
             <NumberFlow value={format.value} format={format.format} locales={COPY_LOCALE} willChange />
@@ -78,7 +71,6 @@ const MetricGauge = memo(function MetricGauge({
   );
 });
 
-/** One gauge stepping through its metric's mock values while the card is live. */
 function CyclingGauge({
   metric,
   intervalMs,
@@ -105,10 +97,6 @@ function CyclingGauge({
   return <MetricGauge metric={metric} value={values[index]} drawn={entered} />;
 }
 
-/**
- * The gauges are mock values, not anyone's data, so they are art: one image to
- * assistive tech, labelled with what it shows, with the art inside hidden.
- */
 export function Vitals({ entered, live }: IllustrationProps) {
   return (
     <div
@@ -136,7 +124,6 @@ export function Vitals({ entered, live }: IllustrationProps) {
           </div>
         ))}
       </NumberFlowGroup>
-      {/* a key, not content: secondary grey, legible without competing with the values */}
       <div className='mt-3.5 flex justify-center gap-7 text-code text-muted' aria-hidden>
         {LEGEND.map(({ label, swatch }) => (
           <span key={label} className='inline-flex items-center gap-[7px]'>

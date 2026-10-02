@@ -9,10 +9,6 @@ export const metadata: Metadata = {
   title: 'Betterlytics',
 };
 
-/**
- * The 404 for URLs no root layout matches: the app and the landing page each have
- * their own root layout, so there is none above them to render a not-found in.
- */
 export default function GlobalNotFound() {
   return (
     <AppDocument>

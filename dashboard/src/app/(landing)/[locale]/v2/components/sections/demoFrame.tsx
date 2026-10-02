@@ -8,7 +8,6 @@ import styles from './demoFrame.module.css';
 
 const copy = COPY.demo;
 
-/** Runs `start` once the page has loaded and the browser is idle; returns a cancel. */
 function whenPageSettles(start: () => void) {
   let cancel = () => {};
   const schedule = () => {
@@ -32,35 +31,7 @@ function whenPageSettles(start: () => void) {
   };
 }
 
-/**
- * The embedded dashboard, click to activate.
- *
- * The scrim earns its place twice. It is the only thing on the page that tells
- * the reader the product in front of them is live and theirs to poke at — the
- * window dots above it otherwise read as a screenshot. And it keeps the wheel:
- * an iframe this size swallows scroll, so without it anyone moving down the
- * page gets caught inside the dashboard. The pointer leaving the frame re-arms
- * it, as does the frame leaving the screen (a touch has no pointer to leave), so
- * a second pass down the page scrolls just as cleanly as the first.
- * Keyboard readers meet it the same way: while it is armed the dashboard is out
- * of the tab order, so tabbing down the page steps over it rather than through
- * every control inside it.
- *
- * It carries one line and nothing else. Anything placed at its centre — a
- * glyph, a pill — reads as the target, and the target is the whole frame; the
- * line says so, and the frame's own edge answers the pointer to show it.
- *
- * Activating marks it rather than unmounting it. Unmounting dropped the veil in
- * a single frame while the edge was still easing, and two exits on two clocks
- * read as the frame coming apart in stages. Marked, the veil and the edge share
- * one transition and leave together — which is itself the click landing, so
- * nothing else has to signal it.
- *
- * The dashboard is an app of its own served from this origin, so it runs on this
- * page's main thread. It is only created once the landing has loaded and gone idle,
- * and the window is within half a screen, so it never competes with the page's own
- * start-up.
- */
+/** Click-to-activate dashboard embed; the scrim stops the iframe swallowing page scroll. */
 export function DemoFrame({ src }: { src: string }) {
   const [requested, setRequested] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -69,10 +40,11 @@ export function DemoFrame({ src }: { src: string }) {
   const frame = useRef<HTMLIFrameElement>(null);
   const near = useInView(areaRef, 'near');
   const onScreen = useInView(areaRef, 'onScreen');
-  // the scrim is up: the page keeps the wheel, and the tab order steps over the dashboard
   const armed = loaded && !active;
 
+  // same-origin, so it shares this page's main thread: load only once near and idle
   useEffect(() => (near ? whenPageSettles(() => setRequested(true)) : undefined), [near]);
+  // re-arm off screen too, since touch has no pointer to leave
   useEffect(() => {
     if (!onScreen) setActive(false);
   }, [onScreen]);
@@ -89,9 +61,7 @@ export function DemoFrame({ src }: { src: string }) {
           {copy.loading}
         </p>
       )}
-      {/* The dashboard lays out at 1/scale of the window and is drawn scaled down, so more of
-          it fits without changing the window. Pointer events map through the scale, so it
-          stays interactive. */}
+      {/* laid out at 1/scale, then scaled down, so more of the dashboard fits */}
       {requested && (
         <iframe
           ref={frame}

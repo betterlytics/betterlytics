@@ -1,12 +1,10 @@
 /**
- * All page copy, deliberately hard-coded while the wording is still being
- * revised. Once it settles this moves into the message catalogue.
- *
- * `*word*` marks the emphasised span in a title or quote, and `\n` in a title where it
- * breaks on phones, when balancing would break it worse (see ui/emphasis).
+ * Hard-coded until the wording settles, then moves to the message catalogue.
+ * `*word*` marks the emphasised span. `\n` forces a title's phone line break
+ * where balancing would break it worse (see ui/emphasis).
  */
 
-/** The language the copy is written in, whatever the URL's locale: the page's `lang` and its number formats follow it. */
+/** The copy's language under every URL locale; the page's `lang` and number formats follow it. */
 export const COPY_LOCALE = 'en';
 
 export const COPY = {
@@ -20,7 +18,6 @@ export const COPY = {
     home: 'Betterlytics — home',
     menu: 'Menu',
     label: 'Primary',
-    /* pages, not this page's sections: the bar is the site's navigation, on every page it shows on */
     links: [
       { label: 'Demo', href: '/demo' },
       { label: 'Features', href: '/features' },
@@ -28,7 +25,6 @@ export const COPY = {
     ],
     docs: 'Docs',
     github: 'GitHub',
-    /* the bar's GitHub button, which shows only the mark */
     githubLabel: 'Betterlytics on GitHub',
     signIn: 'Sign in',
     cta: 'Start measuring',
@@ -43,14 +39,10 @@ export const COPY = {
     placeholder: 'Interactive demo',
     loading: 'Loading the live dashboard',
     frameTitle: 'Betterlytics live demo',
-    /* the frame's title bar: a stub address bar beside the window dots */
     urlHost: 'betterlytics.io',
     urlPath: '/demo',
-    /* The scrim's only line. It names the mechanic, which nothing else says —
-       the chrome above already carries "demo", so repeating that here would be
-       the frame talking to itself. */
     activateLine: 'Click anywhere to explore',
-    /* starts with the visible line, so voice control users can say what they see */
+    /* must start with activateLine, so voice-control users can say what they see */
     activateAria: 'Click anywhere to explore the interactive demo dashboard',
   },
   customers: {
@@ -61,22 +53,20 @@ export const COPY = {
     lede: 'From the first visit to the outage, in one dashboard.',
   },
   mcp: {
-    /* on phones the line ends on the emphasised word; "Point your own" fits even at 360px */
+    /* "Point your own" fits down to 360px */
     title: 'Point your *own*\nagent at it',
     lede: 'An MCP server is built in. Ask in plain language, get answers across all of it.',
-    /* the lead is a small heading on its own line, the column's only primary-tone text */
     lead: 'Ask questions, not queries.',
     body: 'Your agent reads the schema and joins across traffic, funnels, errors and uptime.',
     worksWith: 'Works with',
     any: 'ChatGPT, Zed, JetBrains — and any client that speaks the protocol over HTTP.',
     cta: 'Set up MCP',
   },
-  /* What each illustration shows, in words, for readers who can't see it: the art itself is
-     hidden from assistive tech. Change one with its illustration. */
+  /* text alternatives for the aria-hidden illustrations; update with the art */
   illustrations: {
     globe:
       'A turning globe marking where visitors arrive from, each city called out with the source that sent them, such as Copenhagen via ChatGPT.',
-    /* the traffic card's tables are real text; only its weekly heatmap needs words */
+    /* only the heatmap: the card's tables are real text */
     traffic:
       'Visitors by weekday and hour: busiest in weekday office hours, with a smaller evening peak and quieter weekends.',
     events:
@@ -88,7 +78,7 @@ export const COPY = {
       'A TypeError firing now, with the page and click that led to it, its stack trace and who it hit; behind it, a quieter error and a resolved one.',
     uptime:
       'Four uptime monitors with their recent checks. When one stops responding, the alert goes out to Slack, Discord and email, and the public status page reports the outage.',
-    /* the MCP terminal's first script, which is what it shows at rest */
+    /* the MCP terminal's first script, shown at rest */
     transcript:
       'A terminal session: asked which pages lost traffic after the August redesign, an agent queries pageviews and errors through the Betterlytics MCP server and finds /pricing down 34%, hit by a TypeError shipped the same day.',
   },
@@ -99,9 +89,8 @@ export const COPY = {
   network: {
     title: 'One script, nothing else to add',
     lede: 'Here is exactly what it costs your site.',
-    /* names the snippet's framework tabs for screen readers */
     snippetLabel: 'Install snippet',
-    /* Script size is the gzipped static/analytics.js; the other two figures come from the draft. */
+    /* script size is the gzipped static/analytics.js; the other figures come from the draft */
     stats: [
       {
         label: 'Script size',
@@ -193,7 +182,7 @@ export const COPY = {
       pricing: 'Pricing',
       status: 'Status',
     },
-    /* each slug is a /vs page; one without a page is left out rather than linked */
+    /* slugs without a /vs page are dropped */
     compare: [
       { slug: 'google-analytics', name: 'Google Analytics' },
       { slug: 'matomo', name: 'Matomo' },
@@ -206,7 +195,6 @@ export const COPY = {
     connect: { github: 'GitHub', bluesky: 'Bluesky', discord: 'Discord' },
     nav: 'Footer',
     copyright: (year: number) => `© ${year} Betterlytics.`,
-    /* the licence's name links to its text */
     license: { lead: 'Open source under', name: 'AGPL-3.0', tail: 'license.' },
     reportVulnerability: 'Report a vulnerability',
   },

@@ -10,9 +10,9 @@ import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './uptime.module.css';
 
-/* Illustration copy is mock product UI, kept literal on purpose. */
+/* Mock product copy, kept literal on purpose. */
 
-/** `uptime` is in hundredths of a percent, so each failed check can take one off exactly. */
+/** `uptime` is in hundredths of a percent, so each failed check takes off exactly one. */
 const MONITORS = [
   { name: 'Marketing site', host: 'acme.com', ms: '96 ms', uptime: 9997 },
   { name: 'API', host: 'api.acme.com', ms: '142 ms', uptime: 9998 },
@@ -21,29 +21,20 @@ const MONITORS = [
 ];
 const DOCS = 3;
 
-/** Checks each strip shows. The track holds one more, off to the left, for the slide. */
 const CELLS = 30;
 const BEAT_MS = 1500;
 const FIRST_BEAT_MS = 700;
 
-/*
- * One loop of the story, counted in checks. The SSL notice for Docs comes in
- * first. Then a monitor fails, and the down alert goes out on the third
- * failed check in a row (the product's default threshold). The recovery
- * notice follows the first check that passes. The stack holds for a while,
- * clears, and the loop starts again with the other monitor in OUTAGES, so no
- * strip ever carries two outages at once. Only the two monitors the public
- * status page shows above its fade take turns, so its rows always agree with
- * its hero.
- */
+/* Story loop, in checks. */
 const LOOP = 16;
 const SSL_AT = 1;
 const FAIL_FROM = 2;
-const DOWN_AT = FAIL_FROM + 2;
+const DOWN_AT = FAIL_FROM + 2; // the third failed check in a row, the product's default threshold
 const UP_AT = 7;
 const CLEAR_AT = 14;
+// alternates so no strip shows two outages; must be rows the status page shows above its fade
 const OUTAGES = [2, 1];
-/** The frame shown under reduced motion: the down alert in front of the SSL notice. */
+/** Reduced-motion frame: the down alert over the SSL notice. */
 const POSTER = DOWN_AT + 1;
 
 const mod = (n: number, m: number) => ((n % m) + m) % m;
@@ -53,11 +44,7 @@ const fails = (row: number, t: number) => {
   return outageAt(t) === row && m >= FAIL_FROM && m < UP_AT;
 };
 
-/**
- * Uptime as the strip shows it: one hundredth of a percent off for each failed
- * check still in view. It drops as a red bar comes in on the right and climbs
- * back as that bar slides out on the left, so the number reads the bars.
- */
+/** Counts only failed checks still in the strip, so the number tracks the bars. */
 function uptimeAt(row: number, t: number) {
   let failed = 0;
   for (let k = t - CELLS + 1; k <= t; k++) if (fails(row, k)) failed++;
@@ -73,10 +60,9 @@ const NOTICES: { kind: NoticeKind; at: number }[] = [
   { kind: 'up', at: UP_AT },
 ];
 
-/** Notices in the stack at once; a third pushes the oldest out. */
 const MAX_SHOWN = 2;
 
-/** Where a notice sits at check `t`: not yet sent, in the stack (0 is the front), or cleared. */
+/** Depth 0 is the front of the stack. */
 function placeNotice(at: number, t: number): { state: NoticeState; depth: number } {
   const m = mod(t, LOOP);
   const depth = NOTICES.filter((n) => n.at > at && n.at <= Math.min(m, CLEAR_AT)).length;
@@ -85,12 +71,7 @@ function placeNotice(at: number, t: number): { state: NoticeState; depth: number
   return { state: 'on', depth };
 }
 
-/**
- * The story's clock, counted in checks. It ticks while `run` holds, the first
- * check coming quickly so the story starts as the card settles. Under reduced
- * motion it stands on the poster frame instead, set once mounted since the
- * server can't know the reader's preference.
- */
+/** Under reduced motion it holds POSTER, set after mount since the server can't know the preference. */
 function useChecks(run: boolean) {
   const reduce = useReducedMotion();
   const [t, setT] = useState(0);
@@ -109,17 +90,11 @@ function useChecks(run: boolean) {
     beat(FIRST_BEAT_MS);
     return () => clearTimeout(id);
   }, [run, reduce]);
-  /* whether a check has landed yet, which is what slides the strips */
   const ticked = !reduce && t > 0;
   return { t, ticked };
 }
 
-/**
- * The latest checks, newest on the right. Cells are keyed by check number and
- * the track is one cell wider than the strip, so each check shifts the cells
- * one step left in the DOM while the track slides back from where it was.
- * Alternating between two identical slides restarts it on every check.
- */
+/** Cells are keyed by check number; alternating `data-tick` restarts the CSS slide on every check. */
 function Strip({ row, t, ticked }: { row: number; t: number; ticked: boolean }) {
   const first = t - CELLS;
   return (
@@ -133,7 +108,6 @@ function Strip({ row, t, ticked }: { row: number; t: number; ticked: boolean }) 
   );
 }
 
-/** One monitor's card: its state, the latest response time, the strip of checks and the uptime they add up to. */
 function Monitor({ row, t, ticked }: { row: number; t: number; ticked: boolean }) {
   const { name, host, ms } = MONITORS[row];
   const down = fails(row, t);
@@ -247,7 +221,7 @@ function Notice({ kind, at, t }: { kind: NoticeKind; at: number; t: number }) {
   );
 }
 
-/** The monitors the public page lists, by row, under the names customers see. */
+/** `row` indexes MONITORS; `name` is the public one. */
 const PUBLIC = [
   { row: 1, name: 'API' },
   { row: 2, name: 'Checkout' },
@@ -255,12 +229,6 @@ const PUBLIC = [
 ];
 const DAYS = 36;
 
-/**
- * The public status page, behind the stack: what customers see while the
- * team gets the alert. It sits back while all is well and comes up to full
- * strength with the outage, as its hero and the failing monitor's row switch
- * to an outage in step with the card.
- */
 function StatusPage({ t }: { t: number }) {
   const out = PUBLIC.find((p) => fails(p.row, t));
   return (
@@ -271,8 +239,7 @@ function StatusPage({ t }: { t: number }) {
         <i />
         <span>status.acme.com</span>
       </div>
-      {/* laid out as the real page (app/status/[slug]): a brand band in the default
-          accent, and over it one card whose top is the status-coloured hero */}
+      {/* mirrors the real status page (app/status/[slug]) */}
       <div className={styles.viewport}>
         <b className={styles.brand}>
           <i />
@@ -323,16 +290,8 @@ function StatusPage({ t }: { t: number }) {
   );
 }
 
-/**
- * Monitors as a stack of cards with an outage playing through them, the
- * failing one coming forward, and the notices it sends stacking up over the
- * bottom corner, newest in front. All the strips move on one beat while the
- * card is live. One image to assistive tech, labelled with what it shows, with
- * the art inside hidden.
- */
 export function Uptime({ entered, live }: IllustrationProps) {
-  /* the story holds while a mouse is on the notices, so the stack they spread
-     into can't change under the pointer; it picks up again on leaving */
+  // held while a mouse is on the notices, so the spread stack can't change under the pointer
   const [held, setHeld] = useState(false);
   const { t, ticked } = useChecks(live && !held);
 
@@ -345,8 +304,6 @@ export function Uptime({ entered, live }: IllustrationProps) {
       data-live={live || undefined}
     >
       <StatusPage t={t} />
-      {/* the stack sits left and the notices hang off its lower right, so the two read
-          as one diagonal; it starts low enough that the status page's hero clears it */}
       <div className='relative mt-[15%] ml-[11%] w-[54%] max-md:mx-auto max-md:mt-0 max-md:w-[94%]' aria-hidden>
         <div className='grid gap-2'>
           {MONITORS.map((monitor, row) => (

@@ -1,7 +1,6 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* The sticky rail beside the card stack; one column once the rail no longer fits beside the cards. */
   .frame {
     position: relative;
     display: grid;
@@ -13,7 +12,7 @@
       gap: 24px;
     }
   }
-  /* the frame's top and bottom rules, which InkFrame draws in */
+  /* top and bottom rules; InkFrame draws them in */
   .frame::before,
   .frame::after {
     content: '';

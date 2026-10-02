@@ -9,8 +9,7 @@ import { cn } from '@/landing/lib/cn';
 import { rovingTabKeys } from '@/landing/lib/rovingTabs';
 import styles from './snippetPanel.module.css';
 
-/* One capture group per token kind, in the order of TOKEN_KINDS. Comments are whole
-   lines, so a URL's "//" is never mistaken for one. */
+/* Capture groups follow TOKEN_KINDS order. Comments are whole lines so a URL's "//" isn't one. */
 const TOKEN =
   /(<!--[\s\S]*?-->|^\s*(?:\/\/|#).*$)|("[^"]*"|'[^']*')|(<\/?[a-zA-Z][\w:.-]*|\/?>)|(\b(?:import|export|default|from|function|return|async|true)\b)|(%[\w.]+%)|([\w:@-]+(?==)|\b[\w-]+(?=:\s))/gm;
 const TOKEN_KINDS = [styles.comment, styles.string, styles.tag, styles.keyword, styles.variable, styles.attribute];
@@ -32,7 +31,7 @@ function Highlight({ code }: { code: string }) {
   return <>{out}</>;
 }
 
-/** One line per row. A leading `+` marks a line the reader adds; it is lit, the rest dim. */
+/** A leading `+` marks an added line. */
 function Lines({ code }: { code: string }) {
   return (
     <>
@@ -49,10 +48,8 @@ function Lines({ code }: { code: string }) {
   );
 }
 
-/** A part of the foot line; `ink` sets it in full ink, the rest stay muted. */
 type FootPart = { text: string; ink?: boolean };
 
-/* The status is plain, as a network panel shows a success: the blue stays the install's alone. */
 const FETCHED: readonly FootPart[] = [
   { text: 'GET' },
   { text: '/analytics.js', ink: true },
@@ -68,10 +65,7 @@ const BUNDLED: readonly FootPart[] = [
 /** the 14px gap between parts, in 11px mono characters */
 const GAP_CHARS = 2;
 
-/**
- * The foot's parts spell in as one line: each starts where the sweep reaches
- * its first character, so the scramble runs left to right across the gaps.
- */
+/** Delays each part by its character offset so the scramble sweeps left to right as one line. */
 function FootParts({ parts }: { parts: readonly FootPart[] }) {
   let at = 0;
   return (
@@ -85,7 +79,7 @@ function FootParts({ parts }: { parts: readonly FootPart[] }) {
   );
 }
 
-/** A neutral box for the package tab: not npm's mark, since pnpm, yarn and bun are all welcome. */
+/** Not npm's mark, since pnpm, yarn and bun work too. */
 function BoxIcon() {
   return (
     <svg
@@ -104,11 +98,7 @@ function BoxIcon() {
   );
 }
 
-/**
- * The install snippet in a code frame with one tab per framework. The frame
- * matches the MCP transcript's chrome, so the two read as one family. Every panel
- * is already rendered, so a tab shows its snippet as soon as it takes focus.
- */
+/** Frame chrome matches AgentTranscript's. */
 export function SnippetPanel() {
   const id = useId();
   const [active, setActive] = useState(0);
@@ -144,7 +134,6 @@ export function SnippetPanel() {
                 'group -mb-px inline-flex items-center gap-[7px] rounded-t-md border-b-2 border-transparent px-3 pt-2 pb-2.5',
                 'font-mono text-[11.5px] whitespace-nowrap text-muted hover:text-fg',
                 'transition-[color,background-color,border-color] duration-200 ease-out-expo',
-                // the active tab lifts: a surface behind it and the accent underline
                 'aria-selected:border-volt-soft aria-selected:bg-fg/6 aria-selected:text-fg',
               )}
               onClick={() => setActive(i)}
@@ -164,8 +153,6 @@ export function SnippetPanel() {
             </button>
           ))}
         </div>
-        {/* the active file, right-aligned in the bar like an editor breadcrumb; it
-            scrambles from the old name into the new one on a tab change */}
         {current.file ? (
           <Scramble
             className='ml-auto self-center pr-1.5 pb-0.5 pl-4 font-mono text-micro whitespace-nowrap text-muted opacity-80'
@@ -173,8 +160,7 @@ export function SnippetPanel() {
           />
         ) : null}
       </div>
-      {/* every snippet shares one grid cell, so the frame is always as tall as the
-          longest and nothing below it moves when the tab changes */}
+      {/* all snippets share one grid cell so the frame keeps the tallest's height across tabs */}
       <pre className='grid min-h-[260px] flex-1 content-start overflow-x-auto px-[22px] pt-5 pb-6 font-mono text-code leading-[1.75] whitespace-pre text-fg/72'>
         {SNIPPETS.map((snippet, i) => (
           <code
@@ -189,7 +175,6 @@ export function SnippetPanel() {
           </code>
         ))}
       </pre>
-      {/* what the tag fetches, as the browser's network panel would list it; the package ships inside the bundle instead */}
       <div
         className='mt-auto flex items-center gap-3.5 overflow-hidden border-t border-fg/7 bg-fg/2 px-4 py-[9px] font-mono text-micro tracking-[0.02em] whitespace-nowrap text-muted'
         aria-hidden

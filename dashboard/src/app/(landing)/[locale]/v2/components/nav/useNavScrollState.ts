@@ -1,14 +1,9 @@
 import { useEffect, useState, type RefObject } from 'react';
 
-/** How far the page must move in one direction before the bar follows it, so a jitter doesn't flick it. */
+/** Min scroll (px) before `scrolledDown` flips, so jitter doesn't flick the bar. */
 const TOLERANCE = 8;
 
-/**
- * `grid` once the nav has scrolled past the top of the element with
- * `gridStartId`, measured from the DOM so it stays right if the hero's height
- * changes. That is where the wall begins and the rule under the bar lands.
- * `scrolledDown` while the reader's last move was down, past the bar's own height.
- */
+/** `grid`: the nav is past `gridStartId`'s top. `scrolledDown`: the last move was down, below the bar. */
 export function useNavScrollState(navRef: RefObject<HTMLElement | null>, gridStartId: string) {
   const [grid, setGrid] = useState(false);
   const [scrolledDown, setScrolledDown] = useState(false);
@@ -35,8 +30,7 @@ export function useNavScrollState(navRef: RefObject<HTMLElement | null>, gridSta
       trigger = gridStart.getBoundingClientRect().top + window.scrollY - nav.offsetHeight;
       update();
     };
-    // anything above the band (fonts landing, the hero reflowing) moves its top, and
-    // the band itself resizes with the window
+    // fonts or hero reflow above the band move its top, so watch the whole document
     const resized = new ResizeObserver(measure);
     resized.observe(document.documentElement);
     resized.observe(nav);

@@ -1,11 +1,9 @@
 const STAR_POINTS = 12;
 
-/** Turns with the ring under the pointer; every part eases the same way. */
 const TURN = 'transition-[rotate] duration-1200 ease-out-expo';
 
 function Star({ cx, cy, r }: { cx: number; cy: number; r: number }) {
-  // five-point star from an outer and inner radius, drawn about its own origin so
-  // it can counter-rotate in place and stay upright while the ring turns
+  // drawn about its own origin so it can counter-rotate in place and stay upright
   const pts: string[] = [];
   for (let i = 0; i < 10; i++) {
     const a = -Math.PI / 2 + (i * Math.PI) / 5;
@@ -30,15 +28,7 @@ function Stars({ cx, cy, radius, size }: { cx: number; cy: number; radius: numbe
   );
 }
 
-/**
- * The EU ring of twelve stars with a checkmark inside, a faint watermark bleeding off
- * the bottom-right corner of the cell that holds it (the cell clips it): monoline, no
- * fill, in the on-volt colour at watermark opacity. When the cell (a `group`) is
- * hovered, the ring turns one star, a twelfth of a turn, about the still checkmark
- * while each star counter-turns to stay upright, so it comes to rest looking exactly
- * as it started, and leaving turns it back just as quietly. The stars slide in and
- * out under the cell's clip.
- */
+/** EU star ring watermark; on `group` hover it turns one star (30°), so it rests looking unchanged. */
 export function EuSeal() {
   return (
     <svg
@@ -51,7 +41,7 @@ export function EuSeal() {
       <g className={`${TURN} origin-[100px_106px] group-hover:rotate-30`} fill='currentColor'>
         <Stars cx={100} cy={106} radius={84} size={8} />
       </g>
-      {/* checkmark, visually centred: the long stroke's weight sits right of centre so the shape starts a little left */}
+      {/* starts left of centre so the check looks optically centred */}
       <path
         d='M70 106l20 20 40-44'
         fill='none'

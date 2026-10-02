@@ -21,8 +21,6 @@ export function HeroSection() {
         >
           {copy.title}
         </Heading>
-        {/* on phones the title, lede and button stand further apart, the room taken from
-            under the button, so the card keeps its height */}
         <Lede className='mx-auto -mt-2 max-w-[600px] text-on-volt opacity-86 max-sm:mt-0 max-sm:opacity-100'>
           {copy.lede}
         </Lede>

@@ -1,29 +1,22 @@
 /*
- * The landing page's own Tailwind entry, compiled apart from the app's globals.css:
- * its theme holds only the landing's design tokens and it scans only this folder,
- * so nothing leaks between the landing and the app. The page is dark-only by design.
- *
- * Layers, lowest first: theme, base, components (component CSS modules wrap their
- * rules in it, so utilities passed through className win), utilities.
+ * Separate from the app's globals.css (own tokens, scans only this folder) so nothing leaks either way.
+ * CSS modules wrap their rules in @layer components so className utilities win.
  */
 @layer theme, base, components, utilities;
 
 @import 'tailwindcss' source(none);
 
 @source './**/*.{ts,tsx}';
-/* shared app components the page renders, for the utilities they use */
+/* shared app components the page renders */
 @source '../../../../components/gauge/**/*.tsx';
 
-/* `static` emits every token, so CSS modules can read them as plain custom properties. */
+/* `static` emits every token, so CSS modules and scripts can read them */
 @theme static {
   --color-*: initial;
   --color-canvas: #151414;
   --color-surface: #1c1a1a;
-  /* the mock product windows in the journey cards (event log, replay player, status page) */
   --color-panel: #191817;
-  /* the traffic card's fanned dashboard cards, a shade lighter as they overlap each other */
   --color-panel-raised: #1b1a19;
-  /* the near-black glass behind code: the MCP terminal and the install snippet's frame */
   --color-terminal: #08080a;
   --color-fg: #ebe8e6;
   --color-muted: #aea5a1;
@@ -31,8 +24,7 @@
   --color-volt-hover: #2233e4;
   --color-volt-lift: #4a5cff;
   --color-volt-soft: #8b97ff;
-  /* between the pale accent and the underline blue: a claim word on the canvas carries,
-     where the underline blue reads too dark as text */
+  /* volt reads too dark as text on the canvas */
   --color-volt-text: #6b7aff;
   --color-on-volt: #f2f5ff;
   --color-on-paper: #191615;
@@ -41,25 +33,22 @@
   --color-live: #4ade9b;
   --color-white: #fff;
   --color-black: #000;
-  /* Hairlines in the text colour. Solid edges draw more ink than dashed ones at the
-     same alpha, so each is eased back from the nominal percentage in its name. An
-     undrawn InkFrame blanks these, which is what hides the rules inside it. */
+  /* Alphas sit below the % in each name: solid lines read heavier than dashed ones.
+     An undrawn InkFrame blanks these to hide the rules inside it. */
   --color-rule: rgb(235 232 230 / 0.086);
   --color-rule-08: rgb(235 232 230 / 0.06);
   --color-rule-10: rgb(235 232 230 / 0.075);
   --color-rule-125: rgb(235 232 230 / 0.094);
   --color-rule-22: rgb(235 232 230 / 0.168);
   --color-rule-30: rgb(235 232 230 / 0.228);
-  /* The hatch covers ~14% of a surface, so it carries less alpha than a dot field would:
-     tuned to lift a surface about as much as cloudflare.com's margin dots, so it reads
-     as texture rather than stripes. */
+  /* the hatch covers ~14% of a surface; any stronger reads as stripes, not texture */
   --color-hatch-ink: rgb(235 232 230 / 0.02);
 
   --font-*: initial;
   --font-sans: var(--font-landing-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-landing-mono), ui-monospace, Menlo, monospace;
 
-  /* The design is desktop-first, so components mostly use the max-* variants. */
+  /* desktop-first: components mostly use max-* variants */
   --breakpoint-*: initial;
   --breakpoint-sm: 40rem; /* 640px */
   --breakpoint-md: 47.5rem; /* 760px */
@@ -68,9 +57,7 @@
   --breakpoint-2xl: 67.5rem; /* 1080px */
   --breakpoint-3xl: 75rem; /* 1200px */
 
-  /* Page type. The display sizes and the lede carry their leading and tracking; the
-     display sizes step down below lg and the lede grows on phones (see the base layer).
-     The rest are sizes only, and inherit the body's leading unless a component sets its own. */
+  /* display and lede sizes change per breakpoint in the base layer */
   --text-*: initial;
   --text-display-1: 3.5rem;
   --text-display-1--line-height: 3.4375rem;
@@ -89,21 +76,17 @@
   --text-code: 0.78125rem; /* 12.5px */
   --text-micro: 0.6875rem; /* 11px */
 
-  /* the slight tightening the interface text (nav, buttons, labels, links) is set with */
   --tracking-ui: -0.0125rem;
 
-  /* No stock animations: their keyframes (spin, ping, pulse, bounce) would stand in for
-     a component module's keyframes of the same name. Animations live in the modules. */
+  /* stock keyframes (spin, ping, pulse, bounce) would override same-named module keyframes */
   --animate-*: initial;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  /* quick off the mark, easing out as it lifts: the ink frame and wall drawing in */
   --ease-pen: cubic-bezier(0.3, 0.02, 0.15, 1);
 }
 
 @layer base {
-  /* The page frame, in px: the gutter outside the wall, the hatched wall column, and
-     how far the demo frame rides up into the hero card. */
+  /* --pad: gutter outside the wall; --wall: the hatched wall column */
   :root {
     --pad: 0px;
     --wall: 72px;
@@ -136,10 +119,9 @@
     :root {
       --pad: 16px;
       --wall: 0px;
-      /* on a phone the lede is the reading text under each headline, so it grows */
       --text-lede: 1.3rem;
       --text-lede--line-height: 1.5625rem;
-      /* the bar is shorter on phones (see nav) */
+      /* the phone nav is shorter (see nav) */
       scroll-padding-top: 3.5rem;
     }
   }
@@ -147,11 +129,11 @@
   html {
     background-color: var(--color-canvas);
     color-scheme: dark;
-    /* anchor targets land below the sticky nav, not under it */
+    /* clears the sticky nav */
     scroll-padding-top: 4.5rem;
   }
   @media (width < 40rem) {
-    /* on phones the open menu covers the page (see nav), so the page under it holds still */
+    /* scroll lock under the open phone menu (see nav) */
     html:has(header[data-open]) {
       overflow: hidden;
     }
@@ -185,8 +167,7 @@
     outline-offset: 3px;
   }
 
-  /* Reduced motion: every animation and transition finishes at once. Components that
-     would otherwise be caught mid-loop set their resting state in their own module. */
+  /* components this would catch mid-loop set their resting state in their own module */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -197,14 +178,13 @@
   }
 }
 
-/* Rules inside an InkFrame ink in once its edges have landed (see ui/inkFrame). */
+/* the delay waits for the InkFrame's edges to land (see ui/inkFrame) */
 @utility transition-ink {
   transition: border-color 0.5s ease 0.55s;
 }
 
-/* A hairline across the whole viewport, escaping any container: for a ::before or
-   ::after of a positioned element, with its colour and edge set alongside, e.g.
-   `after:bleed-rule after:bottom-0 after:bg-rule`. */
+/* Full-viewport hairline on a positioned element's ::before/::after; set edge and colour
+   alongside, e.g. `after:bleed-rule after:bottom-0 after:bg-rule`. */
 @utility bleed-rule {
   position: absolute;
   left: 50%;
@@ -214,8 +194,6 @@
   pointer-events: none;
 }
 
-/* The page's material: a 45° hairline hatch every 10px, worn by the walls, the bands
-   between the journey cards and the snippet's paper. */
 @utility bg-hatch {
   background-image: repeating-linear-gradient(315deg, var(--color-hatch-ink) 0 1px, transparent 0 50%);
   background-size: 10px 10px;

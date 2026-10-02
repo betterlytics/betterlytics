@@ -1,8 +1,6 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* Our player with the recording set into it. The light recording against the dark
-     player is what makes it read as someone else's site. */
   .player {
     width: 70%;
     @variant max-sm {
@@ -25,8 +23,7 @@
       }
     }
   }
-  /* Every loop in the card runs off one clock, paused until the card is live, so the page,
-     the cursor and the scrub stay in step with each other and with the bar's text. */
+  /* one clock for every loop, so they stay in step with each other and the JS-read scrub */
   .player *,
   .player *::after {
     @media (prefers-reduced-motion: no-preference) {
@@ -58,15 +55,12 @@
     font-size: 10px;
     color: var(--color-muted);
   }
-  /* the recording, inset in the player as replay tools show it, a shade off white so it
-     doesn't outshine the cards around it */
   .viewport {
-    /* where the Starter card and Choose Pro sit in it, for the cursor's path */
+    /* Starter card and Choose Pro positions, for cursor-path */
     --starter-y: 56%;
     --pro-y: 76%;
     position: relative;
     height: 266px;
-    /* on a phone, the plans and room under them for the cursor's tag */
     @variant max-sm {
       --starter-y: 43.5%;
       --pro-y: 65%;
@@ -80,9 +74,7 @@
     overflow: hidden;
   }
 
-  /* The recorded page: the visitor's pricing page in its own warm monochrome. On a phone
-     it is cropped to the plans and shown smaller, as a replay tool fits a wider screen
-     into its frame, so all three fit side by side. */
+  /* zoomed out on phones so all three plans fit */
   .page {
     position: absolute;
     inset: 0;
@@ -214,7 +206,6 @@
     position: relative;
     display: block;
   }
-  /* the button that doesn't work: pressed on each click, busy after the first, then idle again */
   .pro {
     background: #22201e;
     border-color: #22201e;
@@ -247,7 +238,7 @@
     }
   }
 
-  /* the visitor's pointer and its clicks; the ripples ride the same path so they land under the tip */
+  /* ripples ride the cursor's path so they land under the tip */
   .cursor,
   .ripple {
     position: absolute;
@@ -261,7 +252,7 @@
   }
   .cursor {
     z-index: 3;
-    /* the still: on Choose Pro, at the rage click */
+    /* reduced-motion still (STILL_BEAT): on Choose Pro */
     @media (prefers-reduced-motion: reduce) {
       left: 51%;
       top: var(--pro-y);
@@ -273,9 +264,6 @@
     height: 100%;
     filter: drop-shadow(0 2px 4px rgb(20 24 80 / 0.28));
   }
-  /* The cursor's tag, hung below-right of the tip like a multiplayer cursor and shown only
-     at the clicks: blue when the first is captured, red for the rage clicks. The two labels
-     share one cell and hand over while it's hidden. */
   .tag {
     position: absolute;
     left: 13px;
@@ -348,7 +336,6 @@
     }
   }
 
-  /* the play footer: the event being played, the track, then the controls row */
   .bar {
     display: flex;
     flex-direction: column;
@@ -383,7 +370,6 @@
   .event i[data-bad] + b {
     color: var(--color-down);
   }
-  /* the scrub track as a hairline, its events as ticks across it */
   .track {
     position: relative;
     display: block;
@@ -401,12 +387,11 @@
       animation-name: scrub-fill;
       animation-timing-function: linear;
     }
-    /* the still's head sits on the rage click */
+    /* still: the head on the rage click (BEATS[STILL_BEAT].at) */
     @media (prefers-reduced-motion: reduce) {
       width: 59%;
     }
   }
-  /* the play head rides the end of the fill, over the ticks it passes */
   .fill::after {
     content: '';
     position: absolute;
@@ -422,7 +407,7 @@
   }
   .tick {
     position: absolute;
-    z-index: 1; /* above the fill that sweeps under them */
+    z-index: 1; /* above the fill */
     left: calc(var(--at) * 100%);
     top: 50%;
     width: 2px;
@@ -434,8 +419,7 @@
   .tick[data-bad] {
     background: var(--color-down);
   }
-  /* The error's marker flares once as the head reaches it: its loop runs offset by its own
-     time, so the flare starts as the head arrives. */
+  /* delayed by its own position so the flare starts as the head arrives */
   .tick[data-flare] {
     @media (prefers-reduced-motion: no-preference) {
       animation-name: error-flare;
@@ -443,8 +427,7 @@
       animation-delay: calc(var(--at) * var(--loop));
     }
   }
-  /* Aligned on the text baseline: centring by box leaves the digits off the icons' middle,
-     since the mono line box sits lower under the digits than above them. */
+  /* baseline, not centre: the mono line box sits lower under the digits than above */
   .controls {
     display: flex;
     align-items: baseline;
@@ -454,8 +437,7 @@
     font-size: 10.5px;
     font-variant-numeric: tabular-nums;
   }
-  /* An icon's baseline is its bottom edge; dropping a 10px icon 1.35px below the baseline puts
-     its middle at half the digits' height (Plex Mono caps are 0.698em, so ~7.3px). */
+  /* puts a 10px icon's middle at half the digits' height (Plex Mono caps 0.698em ≈ 7.3px) */
   .controls svg {
     display: block;
     flex: none;
@@ -463,8 +445,7 @@
     fill: var(--color-fg);
     stroke: none;
   }
-  /* The pause/play button: the glyph's own box, with the baseline drop moved onto it, and a
-     hit area grown well past the 9px glyph so it is easy to catch. */
+  /* carries the icons' baseline drop itself; ::before enlarges the hit area */
   .toggle {
     position: relative;
     display: block;
@@ -506,7 +487,6 @@
   .divider {
     opacity: 0.5;
   }
-  /* the speed as a soft toggle, not an outlined box */
   .speed {
     margin-left: auto;
     padding: 2px 7px;
@@ -530,9 +510,7 @@
   }
 }
 
-/* One loop, in phase with BEATS in replay.tsx. Enter, read the Starter price, click Choose
-   Pro (36%), spin until the error (43%), rage-click four times (50-59%), give up and leave
-   through the top (84%). */
+/* Keyframe times here are in phase with BEATS in replay.tsx. */
 @keyframes cursor-path {
   0% {
     left: 80%;
@@ -558,7 +536,7 @@
     left: 52%;
     top: calc(var(--pro-y) - 1%);
   }
-  /* rage clicks land in one spot, as the detector defines them: the hand barely drifts */
+  /* rage clicks land in one spot, as the detector defines them */
   57%,
   59% {
     left: 51%;
@@ -573,8 +551,7 @@
     left: 51.1%;
     top: var(--pro-y);
   }
-  /* they leave up and to the right, but no further right than the tag hung off the tip
-     still fits inside the viewport */
+  /* no further right, or the tag leaves the viewport */
   86% {
     left: 72%;
     top: 4%;
@@ -607,7 +584,6 @@
     transform: scale(1.4);
   }
 }
-/* each rage ring spreads a little wider than the one before */
 @keyframes rage-rings {
   0%,
   58.9% {
@@ -639,7 +615,6 @@
     transform: scale(1.8);
   }
 }
-/* the button only does what a dead button does: it goes down on each click and comes back up */
 @keyframes pro-press {
   0%,
   35.9%,
@@ -692,9 +667,6 @@
     transform: rotate(1600deg);
   }
 }
-/* The tag only speaks up at the clicks: a blue "click captured" on the first, then hidden
-   through the error, then red on the first rage click, shaking its head once (three swings
-   in about a third of a second) and holding until they give up. It turns red while hidden. */
 @keyframes cursor-tag {
   0%,
   35.8% {
@@ -745,7 +717,7 @@
     background: var(--color-down);
   }
 }
-/* the two labels hand over while the tag is hidden between the clicks */
+/* the labels swap while the tag is hidden (cursor-tag 45–59%) */
 @keyframes tag-captured {
   0%,
   49.9% {
@@ -766,7 +738,6 @@
     opacity: 1;
   }
 }
-/* runs offset to the error's own time, so 0% is the head arriving at it */
 @keyframes error-flare {
   0%,
   9%,

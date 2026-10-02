@@ -1,8 +1,6 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* The numbers beside the snippet: a stack whose rows share its height, two by two once
-     the snippet takes the full width, one column on phones. */
   .stats {
     display: flex;
     flex-direction: column;
@@ -19,8 +17,7 @@
     flex: 1;
     padding: 18px 26px;
     border-bottom: 1px solid var(--color-rule-08);
-    /* on phones the rows run edge to edge, so their text keeps the page's gutter, on the
-       line the section's title and the framework strip share */
+    /* rows bleed to the screen edge on phones, so keep the page gutter */
     @variant max-sm {
       padding-inline: var(--pad);
     }
@@ -36,7 +33,7 @@
       border-right: 0;
     }
   }
-  /* the bottom pair closes on the panel's edge; on phones only the last row does */
+  /* no bottom rule on the last pair; on phones, the last row only */
   .row:nth-last-child(-n + 2) {
     @variant max-xl {
       border-bottom: 0;

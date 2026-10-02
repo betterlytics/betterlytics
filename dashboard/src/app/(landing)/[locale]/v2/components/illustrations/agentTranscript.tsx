@@ -9,11 +9,7 @@ import { cn } from '@/landing/lib/cn';
 import styles from './agentTranscript.module.css';
 import { FLARE_FIELD, FlareShimmer } from './flareShimmer';
 
-/* The transcript is mock terminal output, kept literal on purpose. Each question
-   deliberately needs two parts of the product at once (traffic and errors,
-   uptime and sales, acquisition and signups), which is impossible unless they
-   live in the same tool. Tool names and inputs are the MCP server's real ones
-   (src/mcp/tools/describe.ts). */
+/* Mock terminal output, kept literal on purpose. Tool names and args match src/mcp/tools/describe.ts. */
 type Step =
   | { kind: 'question'; text: string }
   | { kind: 'working'; ms: number }
@@ -22,7 +18,7 @@ type Step =
   | { kind: 'result'; text: string }
   | { kind: 'answer'; text: string };
 
-/** Played in order and looped. The first is the one most visitors see, and the one standing at rest. */
+/** The first is also the static state (no JS or reduced motion). */
 const SCRIPTS: Step[][] = [
   [
     { kind: 'question', text: 'which pages lost traffic after the August redesign?' },
@@ -88,33 +84,25 @@ const SCRIPTS: Step[][] = [
   ],
 ];
 
-/** The terminal's pace, in ms. */
+/** In ms; question and answer are per character. */
 const PACE = {
-  /** per character typed: the question at a typist's speed, the answer streamed faster */
   question: 26,
   answer: 17,
-  /** the beat after the question before the agent starts working */
   afterQuestion: 380,
-  /** how long each printed line stands before the next */
   say: 700,
   tool: 620,
   result: 560,
-  /** the finished answer stays up this long, then the transcript fades before the next question */
   read: 5200,
   fade: 420,
 } as const;
 
-/** A line of a script and when it is on screen, in ms from the script's start. */
+/** Times in ms from the script's start. */
 type Cue = { step: Step; from: number; to: number };
 
-/** A script laid out in time, in ms from its start. */
 type Timeline = {
   cues: Cue[];
-  /** the answer has typed out and the cursor settles after it */
   done: number;
-  /** the transcript fades out */
   out: number;
-  /** the next question starts */
   end: number;
 };
 
@@ -126,7 +114,6 @@ function toTimeline(script: Step[]): Timeline {
     const cue: Cue = { step, from: t, to: Infinity };
     switch (step.kind) {
       case 'question':
-        // each character, a beat after the last, then the pause before the agent starts
         t += (step.text.length + 1) * PACE.question + PACE.afterQuestion;
         break;
       case 'working':
@@ -139,7 +126,6 @@ function toTimeline(script: Step[]): Timeline {
         t += PACE[step.kind];
         break;
       case 'answer':
-        // the working indicator gives way to the answer
         if (working) working.to = t;
         t += (step.text.length + 1) * PACE.answer;
         break;
@@ -151,11 +137,9 @@ function toTimeline(script: Step[]): Timeline {
 
 const TIMELINES = SCRIPTS.map(toTimeline);
 
-/** The working indicator's readout after `seconds`, in the shape Claude Code prints it. */
 const readout = (seconds: number) =>
   `(${seconds}s · ↓ ${(0.4 + seconds * 0.32).toFixed(1)}k tokens · esc to interrupt)`;
 
-/** What a line's live part reads `elapsed` ms after it printed: the text typed so far, or the working readout. */
 function liveText(step: Step, elapsed: number) {
   switch (step.kind) {
     case 'question':
@@ -168,10 +152,7 @@ function liveText(step: Step, elapsed: number) {
   }
 }
 
-/**
- * Sets the transcript's lines to how they stand `t` ms into their script: which have
- * printed, and how far the live parts have got. Writes to the DOM only what changed.
- */
+/** Writes the state `t` ms into the script straight to the DOM, touching only what changed. */
 function stage(body: HTMLElement, { cues, done, out }: Timeline, t: number) {
   body.toggleAttribute('data-out', t >= out);
   body.toggleAttribute('data-done', t >= done);
@@ -185,11 +166,7 @@ function stage(body: HTMLElement, { cues, done, out }: Timeline, t: number) {
   });
 }
 
-/**
- * One step as the terminal prints it, finished. `data-text` marks its live part, which
- * `stage` rewrites while it plays; React renders a script's lines once and never
- * updates them, so the two never write the same text.
- */
+/** `stage` rewrites the `data-text` part; React never updates these lines, so the two don't collide. */
 function Line({ step }: { step: Step }) {
   switch (step.kind) {
     case 'question':
@@ -236,15 +213,7 @@ function Line({ step }: { step: Step }) {
   }
 }
 
-/**
- * An agent transcript in the shape an MCP client actually prints one: a prompt, a
- * working indicator, tool calls with their arguments and returned rows, then the
- * answer. The markup is the first script's finished transcript, the whole picture
- * without JavaScript or under reduced motion. Otherwise it plays while on screen,
- * holds where it is while scrolled away, and loops through the scripts; each frame
- * writes the lines' state to the DOM, and React renders only to change scripts.
- * Screen readers get a summary instead of a moving transcript.
- */
+/** Plays while on screen; each frame writes to the DOM, and React re-renders only to switch scripts. */
 export function AgentTranscript({ className }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -252,7 +221,7 @@ export function AgentTranscript({ className }: { className?: string }) {
   const reduce = useReducedMotion();
   const live = onScreen && !reduce;
   const [script, setScript] = useState(0);
-  /** how far into the current script it has played; survives pauses */
+  /** ms into the current script, kept across pauses */
   const elapsed = useRef(0);
 
   useEffect(() => {
@@ -262,7 +231,7 @@ export function AgentTranscript({ className }: { className?: string }) {
     let raf = 0;
     let last: number | undefined;
     const frame = (now: number) => {
-      // a hidden tab gets no frames; counting at most a second of any gap resumes it where it left off
+      // cap gaps at 1s so a hidden tab resumes where it left off
       elapsed.current += last === undefined ? 0 : Math.min(now - last, 1000);
       last = now;
       if (elapsed.current >= timeline.end) {
@@ -287,7 +256,7 @@ export function AgentTranscript({ className }: { className?: string }) {
       aria-label={COPY.illustrations.transcript}
     >
       <FlareShimmer className={styles.shimmer} live={live} />
-      {/* the label speaks for the art: role='img' alone doesn't hide the text inside from every screen reader */}
+      {/* role='img' alone doesn't hide inner text from every screen reader */}
       <div className={styles.bar} aria-hidden>
         <span className={styles.light} />
         <span className={styles.light} />
@@ -299,9 +268,7 @@ export function AgentTranscript({ className }: { className?: string }) {
         </span>
       </div>
       <div className={styles.screen}>
-        {/* Every script finished, unseen, in the same cell as the live one: on phones,
-            where the lines wrap most, the screen keeps the height of the tallest, so a
-            transcript printing never moves what follows it. */}
+        {/* hidden finished copies hold the tallest script's height on phones, so printing never shifts the page */}
         {SCRIPTS.map((steps, s) => (
           <div key={s} className={cn(styles.body, styles.reserve)} aria-hidden>
             {steps.map((step, i) => (
@@ -310,7 +277,7 @@ export function AgentTranscript({ className }: { className?: string }) {
           </div>
         ))}
         <div ref={bodyRef} className={styles.body} aria-hidden>
-          {/* a new script is a fresh set of lines, so none keeps the last one's state */}
+          {/* keyed so no line keeps the last script's DOM state */}
           <Fragment key={script}>
             {SCRIPTS[script].map((step, i) => (
               <Line key={i} step={step} />

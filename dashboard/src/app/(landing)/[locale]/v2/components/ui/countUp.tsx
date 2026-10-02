@@ -6,14 +6,11 @@ import { COPY_LOCALE } from '@/landing/content/copy';
 import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 
-/** ms from 0 to the figure */
 const DURATION = 1150;
 
-/** Figures as the page's copy sets them. */
 const formatter = (decimals: number) =>
   new Intl.NumberFormat(COPY_LOCALE, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 
-/** A formatted figure in its parts: the whole number, the decimal point (if any) and the fraction. */
 function split(format: Intl.NumberFormat, n: number) {
   let whole = '';
   let point = '';
@@ -26,13 +23,7 @@ function split(format: Intl.NumberFormat, n: number) {
   return { whole, point, fraction };
 }
 
-/**
- * A figure that counts up from 0 once scrolled into view, easing out as it lands.
- * The markup holds the figure itself, so it reads without JavaScript and under
- * reduced motion; the count resets it to 0 until it plays. Each frame is written
- * straight to the DOM, so nothing re-renders while it counts, and screen readers
- * get only the settled figure.
- */
+/** Counts up once in view; frames write to the DOM directly, so nothing re-renders. */
 export function CountUp({
   value,
   decimals = 0,
@@ -84,8 +75,7 @@ export function CountUp({
         <span ref={wholeRef}>{whole}</span>
         {point && (
           <>
-            {/* tabular digits keep the count from jittering, but the face gives the point a
-                full figure width too, so the point is set proportionally on its own */}
+            {/* tabular-nums gives the point a full figure width in this face */}
             <span className='normal-nums'>{point}</span>
             <span ref={fractionRef}>{fraction}</span>
           </>

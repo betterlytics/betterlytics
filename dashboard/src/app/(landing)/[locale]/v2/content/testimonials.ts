@@ -1,7 +1,7 @@
 /**
- * Placeholder quotes carried over from the draft; not real customers. Replace before launch.
- * `*…*` marks the clause the quote turns on. `volt` puts the card in brand colour.
- * `avatar` names a file in public/images/testimonials; without one the card shows initials.
+ * Placeholders, not real customers: replace before launch.
+ * `*…*` marks the emphasised clause; `volt` makes a brand-colour card; `avatar` is a file in
+ * public/images/testimonials (initials without one).
  */
 export type Testimonial = { quote: string; name: string; role: string; avatar?: string; volt?: boolean };
 

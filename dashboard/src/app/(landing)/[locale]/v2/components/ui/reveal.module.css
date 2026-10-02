@@ -5,8 +5,6 @@
       transform 0.62s var(--ease-out-expo);
     transition-delay: calc(var(--stagger, 0) * 55ms);
   }
-  /* Hidden only where a script will reveal it and motion is welcome, so the content
-     is there without JavaScript and for readers who prefer less motion. */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     .reveal:not([data-in]) {
       opacity: 0;

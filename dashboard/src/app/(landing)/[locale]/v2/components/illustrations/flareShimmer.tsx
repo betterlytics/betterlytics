@@ -3,18 +3,15 @@
 import { useEffect, useRef } from 'react';
 import { vars } from '@/landing/lib/cssVars';
 
-/* The dot field the shimmer lights, drawn in CSS as `.terminal::after` in
-   agentTranscript.module.css from FLARE_FIELD below, so the canvas, which sits in the
-   same box, lands exactly on those dots. */
+/* Feeds `.terminal::after` in agentTranscript.module.css via FLARE_FIELD, so the canvas lands on its dots. */
 const BOX = 620;
 const PITCH = 11;
-const DOT = 1.2; // radius, and the dot's offset into its tile
-const FULL_PCT = 10; // the field's mask: full strength out to 10% of the radius…
-const FADE_PCT = 66; // …fading to nothing at 66%
+const DOT = 1.2; // radius, and offset into its tile
+const FULL_PCT = 10; // mask: full strength to this % of the radius, gone by FADE_PCT
+const FADE_PCT = 66;
 const FULL = (FULL_PCT / 100) * (BOX / 2);
 const FADE = (FADE_PCT / 100) * (BOX / 2);
 
-/** The dot field's geometry as custom properties, for the stylesheet that draws its static dots. */
 export const FLARE_FIELD = vars({
   '--flare-box': `${BOX}px`,
   '--flare-pitch': `${PITCH}px`,
@@ -24,32 +21,24 @@ export const FLARE_FIELD = vars({
 });
 
 const MAX_DPR = 2;
-const FIRST_WAVE_MS = 600; // the first wave waits a moment after the shimmer starts
+const FIRST_WAVE_MS = 600;
 const FPS = 30;
-const PEAK = 0.5; // the most the crest adds to a dot's alpha
-const WIDTH = 48; // the crest's half-width in px (a gaussian's sigma)
+const PEAK = 0.5; // max alpha a crest adds
+const WIDTH = 48; // crest half-width, px
 const SPEED = 46; // px/s
-const FAINT = 0.06; // a crest adding less alpha than this reads as no wave at all
-const REST = [0, 300]; // ms between waves, picked at random in this range
-const TURN = (70 / 180) * Math.PI; // each wave's heading differs from the last by at least this
+const FAINT = 0.06; // alpha below which a crest doesn't show
+const REST = [0, 300]; // ms between waves, random in range
+const TURN = (70 / 180) * Math.PI; // min heading change between waves
 
 type Dot = { x: number; y: number; reach: number };
 type Wave = { ux: number; uy: number; from: number; to: number; start: number; duration: number };
 
-/** The field's own falloff, so a wave never lights a dot the mask hides. */
+/** Mirrors the CSS mask, so a wave never lights a hidden dot. */
 function falloff(d: number) {
   return d <= FULL ? 1 : Math.max(0, 1 - (d - FULL) / (FADE - FULL));
 }
 
-/**
- * Sends one soft wave of light at a time across the MCP flare's dots, on top of
- * the static CSS field. Each crest crosses the part of the field the terminal
- * shows, the field rests a moment, and the next comes from a fresh random
- * heading, so it never reads as a loop or leans one way. Draws only while
- * `live`; the static field underneath is the whole picture without JS or under
- * reduced motion. `className` places the canvas over the field, and the frame
- * that draws the field carries FLARE_FIELD.
- */
+/** Light waves over the MCP flare's CSS dot field (whose frame carries FLARE_FIELD); draws only while `live`. */
 export function FlareShimmer({ className, live }: { className?: string; live: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -69,8 +58,7 @@ export function FlareShimmer({ className, live }: { className?: string; live: bo
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = 'rgb(220, 226, 255)';
 
-    // the dots the terminal actually shows (most of the box is clipped by it),
-    // relative to the flare's centre; a wave only has to cross these
+    // only the dots the frame doesn't clip, relative to the flare's centre
     let dots: Dot[] = [];
     const measure = () => {
       const c = canvas.getBoundingClientRect();
@@ -102,9 +90,7 @@ export function FlareShimmer({ className, live }: { className?: string; live: bo
       heading += TURN + Math.random() * (Math.PI * 2 - 2 * TURN);
       const ux = Math.cos(heading);
       const uy = Math.sin(heading);
-      // run the crest only while it visibly lights some dot: each dot shows it out to
-      // where its gaussian drops under FAINT, so the wave starts and ends softly but
-      // spends no time dark on the way in or out; the dim fringe never shows it at all
+      // span only where the crest visibly lights some dot (its gaussian above FAINT)
       let from = Infinity;
       let to = -Infinity;
       for (const d of dots) {
@@ -115,7 +101,7 @@ export function FlareShimmer({ className, live }: { className?: string; live: bo
         from = Math.min(from, p - span);
         to = Math.max(to, p + span);
       }
-      // nothing on show (the terminal is too narrow for the flare): idle, check again later
+      // no visible dots (terminal too narrow): idle and retry
       if (from > to) return { ux, uy, from: 0, to: 0, start, duration: 1000 };
       return { ux, uy, from, to, start, duration: ((to - from) / SPEED) * 1000 };
     };

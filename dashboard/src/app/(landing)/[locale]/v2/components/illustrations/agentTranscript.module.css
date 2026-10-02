@@ -1,23 +1,18 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* A terminal on near-black glass. It has no left edge, a leftover from when it sat
-     flush against the side column's rule; kept as it renders. */
   .terminal {
     position: relative;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     border: 1px solid --alpha(var(--color-fg) / 9%);
-    border-left-width: 0;
+    border-left-width: 0; /* no left edge on purpose */
     border-radius: 8px;
     background: var(--color-terminal);
   }
 
-  /* A flare in the lower right corner: a soft falloff (::before) and a dot field masked
-     to the same shape (::after). The shimmer canvas shares their box and lights the
-     dots in waves; the field's box, the dots' pitch and radius and the mask's stops
-     come from FlareShimmer (FLARE_FIELD, set on the terminal), so the two stay in step. */
+  /* --flare-* come from FLARE_FIELD (flareShimmer) so the dots line up with the shimmer canvas */
   .terminal::before,
   .terminal::after {
     content: '';
@@ -64,7 +59,6 @@
     z-index: 2;
   }
 
-  /* the title bar: the window's lights, the session and the server it is connected to */
   .bar {
     display: flex;
     align-items: center;
@@ -103,7 +97,7 @@
     margin-left: auto;
     font-size: 11px;
     opacity: 0.8;
-    /* on a phone the bar holds the session alone; with both it wraps */
+    /* with the session it would wrap on phones */
     @variant max-sm {
       display: none;
     }
@@ -116,7 +110,6 @@
     opacity: 0.8;
   }
 
-  /* the live transcript and, on phones, the unseen finished scripts, all in one cell */
   .screen {
     display: grid;
     flex: 1;
@@ -131,7 +124,7 @@
       display: block;
     }
   }
-  /* every line of a finished script, the working indicator excepted, as it ends */
+  /* reserves show the finished state: every line but the working indicator */
   .reserve .line:not([data-shown]) {
     display: block;
   }
@@ -149,14 +142,10 @@
     overflow-wrap: anywhere;
     transition: opacity 0.4s var(--ease-out-expo);
   }
-  /* between questions the transcript fades before the next one prints */
   .body[data-out] {
     opacity: 0;
   }
 
-  /* Each line lifts in as it prints. With a script to play the transcript and motion
-     welcome, a line waits for its cue; without either, the first question stands
-     answered. */
   .line {
     transition:
       opacity 0.24s var(--ease-out-expo),
@@ -168,6 +157,7 @@
       transform: translateY(4px);
     }
   }
+  /* without JS or with reduced motion, the first script stands finished */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     .line:not([data-shown]) {
       display: none;
@@ -184,7 +174,6 @@
     margin-right: 9px;
     color: var(--color-volt-soft);
   }
-  /* the agent's lines hang their text clear of the bullet */
   .say,
   .tool {
     padding-left: 20px;
@@ -205,7 +194,7 @@
   .toolName {
     color: var(--color-volt-soft);
   }
-  /* a call's parameters, elided on phones, where they would wrap to five lines */
+  /* elided on phones, where they would wrap to five lines */
   .args {
     @variant max-sm {
       display: none;
@@ -224,7 +213,6 @@
     padding-left: 20px;
   }
 
-  /* the working indicator shows only while the agent works */
   .working:not([data-shown]) {
     display: none;
   }
@@ -243,7 +231,6 @@
     padding-left: 14px;
     border-left: 2px solid var(--color-volt-lift);
   }
-  /* once the answer is in, a block cursor blinks after it */
   .body[data-done] .answer::after {
     content: '';
     display: inline-block;
@@ -254,7 +241,6 @@
     animation: cursor-blink 1.1s step-end infinite;
   }
 
-  /* off screen the loops rest with the script */
   .terminal:not([data-live]) .spinner,
   .terminal:not([data-live]) .answer::after {
     animation-play-state: paused;

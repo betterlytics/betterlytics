@@ -12,7 +12,6 @@ export const metadata: Metadata = {
   title: 'Betterlytics',
 };
 
-/** Root layout for the app: the dashboard, the public pages and the auth flows. */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AppDocument>

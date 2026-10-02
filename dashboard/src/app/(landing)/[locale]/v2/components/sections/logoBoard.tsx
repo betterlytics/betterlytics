@@ -8,23 +8,11 @@ import { cn } from '@/landing/lib/cn';
 import type { LogoStyle, PathIconData } from '@/landing/lib/icons';
 import styles from './logoBoard.module.css';
 
-/**
- * The customer wall as a board of flip tiles. Eight slots show the first eight
- * teams; when the pool is larger, one slot at a time turns over to a team that
- * is not on the board. The whole cell is the tile: it rotates on its horizontal
- * centre line, old team on the front, new team on the back, and settles with a
- * small bounce.
- *
- * Quiet by design: one cell at a time, long gaps, never the cell that just
- * flipped, never a team already showing. Paused while off screen or hovered.
- * Static when the pool fits the board or under reduced motion.
- */
-
 const SLOTS = 8;
 const FIRST_GAP_MS = 2400;
 const GAP_MS: [number, number] = [3600, 6400];
 const FLIP_S = 0.6;
-/** Slow release, fast turn, then a short settle. */
+/** Slow release, fast turn, short settle. */
 const ROTATE = [0, -180, -174, -180];
 const TIMES = [0, 0.7, 0.85, 1];
 const EASES: Array<[number, number, number, number]> = [
@@ -32,15 +20,7 @@ const EASES: Array<[number, number, number, number]> = [
   [0.2, 0.8, 0.4, 1],
   [0.6, 0, 0.8, 0.6],
 ];
-/**
- * Light as a function of the card's angle rather than of time, so the settle
- * un-shades and re-shades on its own: the front face darkens as it turns
- * edge-on, the back face comes over in shadow and clears as it lands. The
- * card's own tone and edge, and the slot behind it, exist only while the card
- * is off-plane: up over the first degrees of the turn, gone over the last, so
- * at landing the card already looks like a resting cell and its unmount is
- * invisible. No afterglow, no pop.
- */
+/** Keyed to angle, not time, so the settle re-shades itself and the card lands as a plain resting cell. */
 const SHADE = {
   front: { angle: [0, -60, -90], opacity: [0, 0.3, 0.75] },
   back: { angle: [-90, -120, -180], opacity: [0.75, 0.3, 0] },
@@ -49,7 +29,6 @@ const SHADE = {
   slot: { angle: [0, -30, -150, -180], opacity: [0, 1, 1, 0] },
 };
 
-/** Real logo walls are typographically inconsistent, and that is what sells them. */
 const WORDMARK = {
   plain: 'text-[16.5px] font-semibold tracking-[-0.3px]',
   caps: 'text-caption font-semibold tracking-[0.14em] uppercase',
@@ -60,7 +39,6 @@ const WORDMARK = {
 
 type Logo = { name: string; style?: LogoStyle; icon: PathIconData };
 
-/** A team's mark: icon and wordmark. One per still cell, three per flipping one. */
 function Mark({ logo, className }: { logo: Logo; className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-2.5 whitespace-nowrap', className)}>
@@ -83,17 +61,9 @@ function Veil({
   return <m.span className={className} style={{ opacity }} />;
 }
 
-/**
- * Rendered inside the cell while it turns. The new mark sits in flow, hidden,
- * so the cell keeps its size; the card covers it, old mark on the front and
- * new mark on the back. Rotating the card -180° brings the back over.
- *
- * One motion value drives the card and, through it, the shades, so they can
- * never drift apart. `onDone` is read through a ref: the board re-renders on
- * hover, and the flip must not restart when it does.
- */
 function Flap({ from, to, onDone }: { from: Logo; to: Logo; onDone: () => void }) {
   const angle = useMotionValue(0);
+  // via a ref so a board re-render (hover) doesn't restart the flip
   const done = useRef(onDone);
   useEffect(() => {
     done.current = onDone;
@@ -117,8 +87,7 @@ function Flap({ from, to, onDone }: { from: Logo; to: Logo; onDone: () => void }
       <m.span className={styles.tile} aria-hidden style={{ rotateX: angle }}>
         <span className={styles.face}>
           <Veil angle={angle} of={SHADE.liftFront} className={styles.lift} />
-          {/* positioned, so it paints in tree order between the veils: over the lift, under
-              the shade (unpositioned, it would paint under both) */}
+          {/* positioned so it paints between the lift and the shade */}
           <Mark logo={from} className='relative' />
           <Veil angle={angle} of={SHADE.front} className={styles.shade} />
         </span>
@@ -180,7 +149,7 @@ export function LogoBoard({ pool, label }: { pool: ReadonlyArray<Logo>; label: R
           'grid place-items-center px-[18px] py-[30px] text-center text-[14.5px] leading-normal transition-ink max-xl:p-6 max-sm:py-8',
         )}
       >
-        {/* one grid item, so the claim sets as a single unbroken line */}
+        {/* one grid item, so the label stays on one line */}
         <span className='whitespace-nowrap'>{label}</span>
       </p>
       {shown.map((idx, slot) => (

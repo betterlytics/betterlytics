@@ -7,7 +7,6 @@ import { formatEventCount } from '@/utils/pricing';
 
 export type PlanFeatureLabel = { kind: 'header' | 'feature'; label: string };
 
-/** Resolves a tier's feature list to display strings for the selected event range. */
 export function usePlanFeatures(eventRange: EventRange) {
   const t = useTranslations('pricingCards');
   const locale = useLocale();

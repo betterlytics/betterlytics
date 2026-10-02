@@ -7,30 +7,18 @@ import { cn } from '@/landing/lib/cn';
 
 const GLYPHS = 'abcdefghijklmnopqrstuvwxyz0123456789/._-';
 const BLANK = String.fromCharCode(0xa0); // no-break space
-/** ms between one character starting to scramble and the next */
 export const SCRAMBLE_STEP = 26;
-/** ms each character scrambles before it settles */
 const HOLD = 200;
-/** ms between rerolls of the scrambling characters */
 const REROLL = 55;
 
 const roll = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
 
-/**
- * Monospace text that spells itself out: characters start scrambling left to
- * right and each settles after a short hold, so a scrambling tail runs ahead of
- * the settled text. It plays when the text first scrolls into view and again,
- * from the old text, whenever `text` changes. Unstarted positions hold a
- * no-break space, so the line keeps its width while it fills. Frames are written
- * straight to the DOM, so nothing re-renders while it plays. Screen readers get
- * the real text; reduced motion shows it at once.
- */
+/** Scrambles text in on first view and on each change; frames write to the DOM, so nothing re-renders. */
 export function Scramble({ text, delay = 0, className }: { text: string; delay?: number; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const shownRef = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref);
   const reduce = useReducedMotion();
-  /* what has settled on screen; starts empty so the first play spells in from nothing */
   const settled = useRef('');
 
   useEffect(() => {
@@ -52,7 +40,7 @@ export function Scramble({ text, delay = 0, className }: { text: string; delay?:
     }
     const n = Math.max(from.length, text.length);
     const glyphs = Array.from({ length: n }, roll);
-    // React has already written the new text; the old one holds until the sweep reaches it
+    // React already rendered the new text; show the old until the sweep reaches it
     shown.textContent = from.padEnd(n, BLANK);
     let start = 0;
     let rerolled = 0;
@@ -84,7 +72,7 @@ export function Scramble({ text, delay = 0, className }: { text: string; delay?:
   }, [text, inView, reduce, delay]);
 
   return (
-    // relative, so the screen-reader copy is positioned inside the text rather than off the page
+    // relative, so the absolute sr-only copy stays inside the text, not off the page
     <span ref={ref} className={cn('relative', className)}>
       <span className='sr-only'>{text}</span>
       <span ref={shownRef} aria-hidden>

@@ -20,7 +20,6 @@ import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import styles from './journeySection.module.css';
 
-/** Which illustration plays alongside each step. Swap an entry to replace a renderer. */
 const ILLUSTRATIONS: Record<JourneyStep['id'], ComponentType<IllustrationProps>> = {
   find: Globe,
   see: Traffic,
@@ -31,13 +30,12 @@ const ILLUSTRATIONS: Record<JourneyStep['id'], ComponentType<IllustrationProps>>
   reach: Uptime,
 };
 
-/** The rail's headline and the note under it. */
 const TITLE = 'mb-4 text-[length:clamp(27px,2.7vw,36px)] leading-[1.1] font-medium tracking-[-1px]';
 const NOTE = 'max-w-[30ch] text-body-sm leading-[22px] text-muted';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-/** Index of the card whose centre is nearest the viewport centre, or -1 if none is on screen. */
+/** -1 when no card is on screen. */
 function nearestToViewportCentre(cards: NodeListOf<HTMLElement>) {
   const centre = window.innerHeight / 2;
   let best = -1;
@@ -54,19 +52,13 @@ function nearestToViewportCentre(cards: NodeListOf<HTMLElement>) {
   return best;
 }
 
-/**
- * The active step's copy, moving as one block when the step changes: the counter
- * rolls, then the headline lines and the note each blur-lift a beat after the one
- * above, in the direction the reader is scrolling. The cards carry the same copy
- * for screen readers, so this visual duplicate is hidden from them.
- */
+/** Visual duplicate of the active card's copy; aria-hidden since the cards carry it for screen readers. */
 function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
   const ref = useRef<HTMLDivElement>(null);
   const step = JOURNEY_STEPS[active];
   const lines = step.title.split('\n');
 
-  // Pin point: the sticky offset that lands the rail on the viewport's vertical
-  // centre. Re-measured when the copy changes, since it changes the rail's height.
+  // Sticky top that centres the rail; re-measured per step since the copy changes its height.
   useEffect(() => {
     const rail = ref.current;
     if (!rail) return;
@@ -133,8 +125,7 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
         <p className={cn(NOTE, '2xl:sr-only')}>{step.note}</p>
       </div>
       <div className='border border-rule-10 transition-ink'>
-        {/* taller as the screen narrows, since the illustrations keep their size; on a phone a
-            fixed height, square at 390px, so they fit however narrow the phone */}
+        {/* illustrations keep their size, so taller as it narrows; phones get a fixed height (square at 390px) */}
         <div className='relative aspect-video overflow-hidden max-md:aspect-4/3 max-sm:aspect-auto max-sm:h-89'>
           <div className='absolute inset-0 flex items-center justify-center px-7.5 py-5.5 max-md:p-4'>
             <Illustration entered={entered} live={live} />
@@ -145,18 +136,10 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   );
 }
 
-/**
- * Sticky rail + scrolling card stack. The rail carries the copy of whichever card
- * is nearest the middle of the viewport; each card shows only its illustration.
- *
- * `live` goes to the active card while the stack is on screen and gates only
- * looping motion. A jump away (a link, find in page) leaves the last card active
- * but not live, so nothing loops out of sight.
- */
+/** `live` gates looping motion and needs the stack on screen, so a jump away leaves nothing looping. */
 export function JourneySection() {
   const stackRef = useRef<HTMLDivElement>(null);
   const onScreen = useInView(stackRef, 'onScreen');
-  // `direction` is which way the reader went, so the rail copy leaves and arrives the same way
   const [{ active, direction }, setStep] = useState<{ active: number; direction: 1 | -1 }>({
     active: 0,
     direction: 1,
@@ -188,15 +171,13 @@ export function JourneySection() {
   }, []);
 
   return (
-    // not balanced: the plain break, 'Everything your users / experienced', gives the
-    // underlined word a line of its own on most phones
+    // unbalanced: the plain break gives the underlined word its own line on most phones
     <Section id={IDS.journey} title={COPY.journey.title} lede={COPY.journey.lede} balanced={false}>
       <InkFrame className={styles.frame}>
         <Corners />
         <Rail active={active} direction={direction} />
         <div ref={stackRef} className='relative min-w-0'>
-          {/* on phones, where the frame's own corners are hidden, the card stack carries
-              them: on its top edge above the first card and its bottom edge under the last */}
+          {/* phones hide the frame's corners, so the stack carries them */}
           <Corners persistent className='sm:hidden' />
           {JOURNEY_STEPS.map((step, i) => (
             <Fragment key={step.id}>

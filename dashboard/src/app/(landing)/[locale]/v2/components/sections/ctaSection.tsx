@@ -19,8 +19,7 @@ export function CtaSection() {
       aria-labelledby='cta-title'
     >
       <VoltCard variant='cta'>
-        {/* on phones the closing title is set at the hero's scale: 40px is the largest at
-            which it still breaks into two lines on a 360px screen */}
+        {/* 40px on phones: the largest size that still fits two lines at 360px */}
         <Heading
           as='h2'
           size='display-2'

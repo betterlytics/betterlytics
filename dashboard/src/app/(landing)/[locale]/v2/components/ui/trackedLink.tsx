@@ -6,7 +6,6 @@ import { track, type CtaDestination, type CtaPlacement } from '@/landing/lib/ana
 
 type Cta = { placement: CtaPlacement; destination: CtaDestination; plan?: string };
 
-/** A call-to-action link within the app that reports where it was and where it led (`landing-cta`). */
 export function TrackedLink({
   placement,
   destination,
@@ -25,10 +24,7 @@ export function TrackedLink({
   );
 }
 
-/**
- * The same for a page outside the app, such as the docs: a plain anchor, since those
- * pages share the origin but not the router and must load as a full navigation.
- */
+/** For pages outside the Next router (e.g. docs), which need a full navigation. */
 export function TrackedAnchor({ placement, destination, plan, onClick, ...props }: ComponentProps<'a'> & Cta) {
   return (
     <a

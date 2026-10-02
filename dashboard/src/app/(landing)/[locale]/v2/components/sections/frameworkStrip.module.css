@@ -8,7 +8,6 @@
     @variant max-xl {
       margin-left: 0;
     }
-    /* across the strip on phones, so the two rows of nine spread evenly */
     @variant max-sm {
       align-self: stretch;
     }
@@ -21,7 +20,7 @@
     @variant max-xl {
       justify-content: flex-start;
     }
-    /* on phones, two even rows of nine rather than eight, eight and two */
+    /* two even rows of nine on phones, not 8/8/2 */
     @variant max-sm {
       display: grid;
       grid-template-columns: repeat(9, 1fr);
@@ -30,8 +29,6 @@
     }
   }
 
-  /* One flat tone at rest, like the customer wall; the brand colour (or full ink, for
-     brands too dark to read here) under the pointer. */
   .glyph {
     display: grid;
     place-items: center;
@@ -48,8 +45,7 @@
     }
   }
 
-  /* The glint: a full-tone copy of the row over the real one, masked to nothing but a
-     "/" band that crosses it now and then; never takes the pointer. */
+  /* Glint: a full-tone copy of the row, masked to a travelling "/" band. */
   .shine {
     display: none;
     position: absolute;
@@ -65,22 +61,19 @@
     transition: none;
   }
 
-  /* The entrance, once: the marks rise in left to right, each passing through its colour
-     on the way to the flat tone, a wave read once. No fill-forwards, so the resting and
-     hover styles take over after. The marks are hidden only where a script will bring
-     them in. The glint starts once the last mark has settled, and rests while the strip
-     is off screen. */
+  /* hide only where a script will bring them in */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     .glyphs:not([data-in]) .glyph {
       opacity: 0;
     }
   }
   @media (prefers-reduced-motion: no-preference) {
+    /* `backwards`, not `both`, so the rest and hover styles take over after */
     .glyphs[data-in] .row:not(.shine) .glyph {
       animation: rise 1.1s var(--ease-out-expo) backwards;
       animation-delay: calc(var(--i, 0) * 45ms);
     }
-    /* a slow drift more than a sweep: 16s across, then a 10s rest */
+    /* 16s across (sweep's 62%), then a 10s rest */
     .glyphs[data-in] .shine {
       display: flex;
       animation: sweep 26s linear 2.4s infinite;
@@ -94,7 +87,6 @@
   }
 }
 
-/* rise in, pass through the brand colour, settle to the flat tone */
 @keyframes rise {
   0% {
     opacity: 0;
@@ -112,7 +104,6 @@
   }
 }
 
-/* one slow left-to-right pass of the "/" band, then a rest */
 @keyframes sweep {
   0% {
     mask-position: 100% 0;

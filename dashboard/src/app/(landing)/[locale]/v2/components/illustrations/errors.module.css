@@ -1,17 +1,11 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* Three error groups stacked on a diagonal, the one firing now in front and carrying
-     everything it knows. The two behind show only their headers, each stepped up and left
-     just far enough to clear its header's text (the next card covers the header's bottom
-     padding), so the cascade runs top left to bottom right, as the uptime stack and its
-     notices do. */
-  /* The front card sits in flow; the margins make room for the two stepped out behind
-     it, so it is the stack as a whole that gets centred. */
+  /* the margins make room for the back cards so the whole stack centres */
   .stack {
     --dx: 28px;
+    /* just clears a back card's header text; the next card covers its bottom padding */
     --dy: 54px;
-    /* how many cards step out behind the front one */
     --behind: 2;
     position: relative;
     width: 56%;
@@ -20,15 +14,13 @@
       --dx: 12px;
       width: calc(94% - var(--dx) * var(--behind));
     }
-    /* a phone leaves the quieter card out, and keeps the stack clear of the frame's edges */
+    /* .quieter is hidden on phones */
     @variant max-sm {
       --behind: 1;
       width: calc(86% - var(--dx));
     }
   }
 
-  /* The MCP tiles' and monitor cards' material, flat. The cards land back to front, a
-     tenth of a second apart. */
   .card {
     --delay: calc(0.25s - var(--depth) * 0.1s);
     border-radius: 12px;
@@ -52,8 +44,7 @@
     position: relative;
     z-index: 3;
   }
-  /* Whole cards, the front one's size, though only their headers and left edges show.
-     `--step` is how far back a card sits: its depth, less any card left out in front of it. */
+  /* --step: depth, less any card hidden in front of it */
   .back {
     --step: var(--depth);
     position: absolute;
@@ -78,11 +69,7 @@
     }
   }
 
-  /* Hovering any of the cards spreads the stack a little along its diagonal. It keys on
-     the stack, not the frame (so empty space around it does nothing) and not each card
-     (the stack's own box stays put while the cards inside it move, so a card sliding out
-     from under the pointer can't flicker the hover off). It rides on translate rather
-     than transform, so it answers at once while the entrance keeps its stagger. */
+  /* keyed on .stack, whose box stays put, so sliding cards can't flicker it; translate skips transform's delay */
   @media (hover: hover) {
     .card {
       transition:
@@ -111,7 +98,6 @@
     width: 17px;
     height: 17px;
   }
-  /* the error type in the mono, as the product sets it */
   .type {
     display: block;
     margin-bottom: 3px;
@@ -120,8 +106,6 @@
     font-weight: 400;
     color: var(--color-down);
   }
-  /* the count, and under it when it last fired; on the front card, who the latest
-     occurrence hit */
   .side {
     display: grid;
     justify-items: end;
@@ -142,7 +126,6 @@
   .side > :first-child small {
     margin-left: 5px;
   }
-  /* behind the front card red gives way to grey, and to green once resolved */
   .back .icon {
     background: --alpha(var(--color-fg) / 7%);
     color: var(--color-muted);
@@ -160,14 +143,8 @@
     color: var(--color-live);
   }
 
-  /* The session trail as the product draws it (SessionTrail): each step a time, an icon
-     on a line in the product's colours, and a label. The last step is the throw, in the
-     trail's current-row red, and it opens a box as the header bar of the stack trace
-     (StacktraceView), the frames hanging under it. The two steps and the box land top
-     down once the card is in. */
   .trail {
-    /* the times' column, which the frames' line numbers share so their calls start under
-       the icons; a phone gives the times to the minute, and the labels the room saved */
+    /* time column, shared with the frames' line numbers; phones show HH:MM */
     --when: 58px;
     padding: 10px 14px 14px;
     @variant max-sm {
@@ -208,10 +185,7 @@
     width: 14px;
     height: 14px;
   }
-  /* The line from each step's icon down to the next one's: a row's bottom padding, then
-     the next's top padding. Centred on the icon's own axis (half its width back), and the
-     last one runs on past the box's border into the red row, so it meets the triangle's
-     tip rather than stopping at the edge. */
+  /* connector to the next icon across the rows' padding; .event's runs past the box border to the triangle's tip */
   .page .glyph::after,
   .event .glyph::after {
     content: '';
@@ -228,7 +202,6 @@
   .page svg {
     color: #38bdf8;
   }
-  /* a phone's trail starts at the custom event, which still leads into the throw */
   .page {
     @variant max-sm {
       display: none;
@@ -237,13 +210,12 @@
   .event svg {
     color: #a78bfa;
   }
-  /* the pointer and the triangle sit optically left of the line on their own boxes'
-     centres; a pixel's nudge puts them on it */
+  /* these icons sit optically left of the connector line */
   .event svg,
   .thrown svg {
     translate: 1px 0;
   }
-  /* inside the box the columns keep their line, one border's width in */
+  /* 10px less the box's border, so the columns line up with the rows above */
   .thrown {
     padding-left: 9px;
     background: --alpha(var(--color-down) / 10%);
@@ -260,10 +232,6 @@
     font-weight: 600;
   }
 
-  /* The frames as the product lists them: the line, then `at fn (file:col)`, starting
-     under the icons, and an "in app" badge on frames from the app. The frame that threw
-     is the bright one; its caller steps back, and the library frame sits on a darker row,
-     greyed and unbadged. */
   .frame {
     display: grid;
     grid-template-columns: var(--when) minmax(0, 1fr) auto;
@@ -293,9 +261,6 @@
     opacity: 0.6;
   }
 
-  /* Only the back cards' headers need reading; their trails are whole but held well
-     back, so the slivers along the diagonal read as texture, not text, and their throws
-     are marked in grey, keeping red for the front card. */
   .back .trail {
     opacity: 0.3;
   }
@@ -310,8 +275,7 @@
     color: var(--color-muted);
   }
 
-  /* Reduced motion: the front card and the trail rows are simply there; the cards
-     behind still wait for the entrance, then appear without moving. */
+  /* the back cards still wait for the entrance, just without moving */
   @media (prefers-reduced-motion: reduce) {
     .card,
     .trail > * {

@@ -1,9 +1,7 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* The threshold colours from the app's dark theme, pinned here because the landing is
-     dark-only and does not sit under .dark. The gauges' arcs and the key take the plain
-     ones; the values take the lighter label shades. */
+  /* copied from the app's .dark theme, which the landing doesn't sit under */
   .root {
     --cwv-threshold-good: rgb(88, 207, 146);
     --cwv-threshold-fair: oklch(80% 0.18 80);
@@ -13,9 +11,7 @@
     --cwv-threshold-poor-label: rgb(230, 105, 95);
   }
 
-  /* The gauges are drawn at one fixed size. Narrower, each is shown smaller as a picture,
-     scaled into a slot of its scaled size, so its number shrinks with its arcs in every
-     browser (zoom, used before, left the numbers full size on some phones). */
+  /* scale into a slot of the scaled size; zoom left the numbers full size on some phones */
   .slot {
     --shrink: 0.68;
     flex: none;

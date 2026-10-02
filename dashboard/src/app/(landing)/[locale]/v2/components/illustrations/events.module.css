@@ -1,7 +1,6 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* one panel that runs off the bottom of the card and fades into it */
   .events {
     position: absolute;
     inset: 0;
@@ -62,7 +61,7 @@
     text-transform: uppercase;
     color: var(--color-muted);
   }
-  /* the dot has no text, so its bottom sits on the baseline: centred on the capitals */
+  /* textless, so its bottom sits on the baseline, centred on the capitals */
   .dot {
     width: 6px;
     height: 6px;
@@ -73,7 +72,6 @@
   .events[data-live] .dot {
     animation: live-dot-blink 2.4s ease-in-out infinite;
   }
-  /* paused while the pointer is over the log: the dot becomes two bars */
   .status[data-paused] .dot {
     width: 6px;
     height: 7px;
@@ -117,7 +115,6 @@
       padding: 10px 14px;
     }
   }
-  /* what kind of event it is, bare and muted; the newest row's in full ink */
   .icon {
     width: 14px;
     height: 14px;
@@ -131,12 +128,11 @@
     color: var(--color-fg);
     opacity: 1;
   }
-  /* the arriving row rides above its neighbours while its shadow settles */
+  /* so the arriving row's settling shadow isn't covered */
   .row[data-top] {
     z-index: 1;
   }
-  /* Hovering a row tints it and shows its visitor in full colour. The tint is a layer under
-     the content because motion writes the row's own background inline while it settles. */
+  /* hover tint is a layer because motion writes the row's background inline */
   @media (hover: hover) {
     .row {
       isolation: isolate;
@@ -170,7 +166,6 @@
     font-weight: 500;
     color: var(--color-fg);
   }
-  /* the property sent with the event, as a faint key: value chip */
   .prop {
     justify-self: start;
     max-width: 100%;
@@ -190,7 +185,6 @@
       display: none;
     }
   }
-  /* who fired it: flag, browser, device. Muted at rest so the flags don't turn the log into confetti */
   .who {
     display: inline-flex;
     align-items: center;
@@ -199,7 +193,6 @@
     filter: saturate(0.3);
     opacity: 0.7;
   }
-  /* an arrival shows its visitor in full colour, then settles to muted */
   .row[data-new] .who {
     animation: visitor-settle 2.6s var(--ease-out-expo);
   }
@@ -228,7 +221,6 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* reduced motion: the panel is shown even before the card has entered */
   @media (prefers-reduced-motion: reduce) {
     .panel {
       opacity: 1;

@@ -1,10 +1,6 @@
 import type { SVGProps } from 'react';
 
-/*
- * The flags the illustrations show, from country-flag-icons (MIT, © 2020 catamphetamine).
- * Kept here rather than imported: the app imports the package's whole flag set, so any
- * import of it pulls every flag (~50 kB gzipped) into the landing's bundle for these few.
- */
+/* From country-flag-icons (MIT, © 2020 catamphetamine), inlined: importing it pulls every flag (~50 kB gz). */
 
 type FlagProps = SVGProps<SVGSVGElement> & { title?: string };
 

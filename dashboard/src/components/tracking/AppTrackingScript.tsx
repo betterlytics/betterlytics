@@ -1,7 +1,7 @@
 import Script from 'next/script';
 import { env } from '@/lib/env';
 
-/** Paths whose ids the tracker folds into one URL, so each dashboard or share link isn't its own page. */
+/** Collapsed to one URL each, so every dashboard or share id isn't its own page. */
 const DYNAMIC_URLS = [
   '/dashboard/*/errors/detail/*',
   '/dashboard/*/funnels/*',
@@ -26,11 +26,10 @@ const DYNAMIC_URLS = [
 type GlobalProperties = {
   surface: 'app';
   locale: string;
-  /** Omitted where the page must not read the session; `GlobalPropertiesUpdater` sets it after load. */
+  /** Omit where the page must not read the session; `GlobalPropertiesUpdater` sets it after load. */
   logged_in?: boolean;
 };
 
-/** Betterlytics tracking its own pages. Renders nothing unless app tracking is enabled. */
 export function AppTrackingScript({ globalProperties }: { globalProperties: GlobalProperties }) {
   if (!env.ENABLE_APP_TRACKING) return null;
   return (

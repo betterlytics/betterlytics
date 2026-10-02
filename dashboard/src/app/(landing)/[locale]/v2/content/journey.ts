@@ -1,16 +1,6 @@
-/**
- * The seven steps of the journey section: the copy for each, keyed to the
- * illustration that plays alongside it (see sections/journeySection). The rail
- * shows the active step's; screen readers get every step's with its card. Titles
- * are free-standing sentences; the rail morphs the whole headline, so nothing
- * has to share a stem. Copy is hard-coded while the wording is revised.
- */
 export type JourneyStep = {
   id: 'find' | 'see' | 'do' | 'follow' | 'wait' | 'errors' | 'reach';
-  /**
-   * Lines split on `\n`. The first line is set in the dim tone, the rest in the bright one,
-   * so the first line should be the part that repeats across steps and the rest what's new.
-   */
+  /** Split on `\n`: the first line (the part repeated across steps) is dim, the rest bright. */
   title: string;
   note: string;
 };

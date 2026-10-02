@@ -1,12 +1,6 @@
 import type { Tier } from '@/entities/billing/billing.entities';
 
-/**
- * What each plan lists, in display order, as keys under the `pricingCards.features`
- * messages. Every pricing surface renders from this so the plans can't drift apart.
- *
- * `events` is the tier's event allowance (needs the selected range to format);
- * `header` introduces the set inherited from the tier below.
- */
+/** Keys under `pricingCards.features` messages, in display order; `events` formats with the selected range. */
 export type PlanFeatureItem =
   | { kind: 'events' }
   | { kind: 'header'; key: 'everythingInStarter' | 'everythingInProfessional' }

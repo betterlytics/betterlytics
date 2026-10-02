@@ -1,4 +1,3 @@
-/** Every external destination the landing page links to, in one place. */
 export const LINKS = {
   docs: 'https://betterlytics.io/docs',
   mcpDocs: 'https://betterlytics.io/docs/dashboard/mcp',

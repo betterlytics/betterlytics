@@ -1,6 +1,5 @@
 @layer components {
-  /* Until the frame is drawn every rule token inside it is blank, so the rules within
-     the block wait for the pen too; they ink in (transition-ink) once the edges land. */
+  /* blank every rule token until drawn, so the rules inside wait for the pen too */
   .frame:not([data-drawn]) {
     --color-rule: transparent;
     --color-rule-08: transparent;
@@ -10,8 +9,6 @@
     --color-rule-30: transparent;
   }
 
-  /* The frame's own edges are its ::before (top) and ::after (bottom), which the frame
-     type positions: the top rule draws left to right, the bottom one follows. */
   .frame::before,
   .frame::after {
     transform: scaleX(0);
@@ -26,7 +23,7 @@
     transition-delay: 0.22s;
   }
 
-  /* corner squares pop in the order the pen reaches them: top-left, bottom-left, top-right, bottom-right */
+  /* order: top-left, bottom-left, top-right, bottom-right */
   .frame > [data-corners]::before,
   .frame > [data-corners]::after,
   .frame > [data-corners] > i::before,
