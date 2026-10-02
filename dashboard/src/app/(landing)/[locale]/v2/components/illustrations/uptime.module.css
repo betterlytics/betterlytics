@@ -1,6 +1,23 @@
 @reference '../../landing.css';
 
 @layer components {
+  /* the card's own width decides the layout: beside the rail it is as narrow as a tablet's */
+  .uptime {
+    container-type: inline-size;
+  }
+  /* The monitors start 15% of the width down while the card has room for them and for the notices
+     hanging below the list (about 105px, 24 of it over the last card). On a shorter card the gap
+     gives way first, so the notices stay inside the frame. */
+  .stage {
+    display: grid;
+    grid-template-rows: minmax(0, 15cqw) auto 96px;
+    align-items: start;
+    height: 100%;
+    @variant max-md {
+      grid-template-rows: 14px auto;
+      justify-items: center;
+    }
+  }
   .status {
     position: absolute;
     top: 3%;
@@ -212,6 +229,13 @@
   .monitor:nth-child(4) {
     @variant max-sm {
       display: grid;
+    }
+  }
+  /* a 16:9 card under 800px wide (beside the rail, or a small tablet) is too short for four rows,
+     so it drops Marketing site, which never fails */
+  .monitor:nth-child(1) {
+    @container (width < 800px) {
+      display: none;
     }
   }
   .uptime[data-in] .monitor {

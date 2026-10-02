@@ -299,25 +299,27 @@ export function Uptime({ entered, live }: IllustrationProps) {
     <div
       role='img'
       aria-label={COPY.illustrations.uptime}
-      className={cn(styles.uptime, 'absolute inset-0 grid items-start max-md:justify-items-center max-md:pt-3.5')}
+      className={cn(styles.uptime, 'absolute inset-0')}
       data-in={entered || undefined}
       data-live={live || undefined}
     >
       <StatusPage t={t} />
-      <div className='relative mt-[15%] ml-[11%] w-[54%] max-md:mx-auto max-md:mt-0 max-md:w-[94%]' aria-hidden>
-        <div className='grid gap-2'>
-          {MONITORS.map((monitor, row) => (
-            <Monitor key={monitor.name} row={row} t={t} ticked={ticked} />
-          ))}
-        </div>
-        <div
-          className={styles.notices}
-          onPointerEnter={(e) => e.pointerType === 'mouse' && setHeld(true)}
-          onPointerLeave={() => setHeld(false)}
-        >
-          {NOTICES.map(({ kind, at }) => (
-            <Notice key={kind} kind={kind} at={at} t={t} />
-          ))}
+      <div className={styles.stage}>
+        <div className='relative row-start-2 ml-[11%] w-[54%] max-md:mx-auto max-md:w-[94%]' aria-hidden>
+          <div className='grid gap-2'>
+            {MONITORS.map((monitor, row) => (
+              <Monitor key={monitor.name} row={row} t={t} ticked={ticked} />
+            ))}
+          </div>
+          <div
+            className={styles.notices}
+            onPointerEnter={(e) => e.pointerType === 'mouse' && setHeld(true)}
+            onPointerLeave={() => setHeld(false)}
+          >
+            {NOTICES.map(({ kind, at }) => (
+              <Notice key={kind} kind={kind} at={at} t={t} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
