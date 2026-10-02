@@ -26,9 +26,9 @@ function NavLinks({ className, onNavigate }: { className?: string; onNavigate?: 
   return (
     <>
       {copy.links.map((link) => (
-        <a key={link.anchor} className={className} href={`#${IDS[link.anchor]}`} onClick={onNavigate}>
+        <Link key={link.href} className={className} href={link.href} onClick={onNavigate}>
           {link.label}
-        </a>
+        </Link>
       ))}
       <a className={className} href={LINKS.docs}>
         {copy.docs}

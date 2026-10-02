@@ -19,11 +19,11 @@ export const COPY = {
     home: 'Betterlytics — home',
     menu: 'Menu',
     label: 'Primary',
+    /* pages, not this page's sections: the bar is the site's navigation, on every page it shows on */
     links: [
-      { label: 'Demo', anchor: 'demo' },
-      { label: 'Features', anchor: 'journey' },
-      { label: 'AI', anchor: 'mcp' },
-      { label: 'Pricing', anchor: 'pricing' },
+      { label: 'Demo', href: '/demo' },
+      { label: 'Features', href: '/features' },
+      { label: 'Pricing', href: '/pricing' },
     ],
     docs: 'Docs',
     github: 'Betterlytics on GitHub',
