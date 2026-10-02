@@ -1,0 +1,24 @@
+@reference '../../landing.css';
+
+@layer components {
+  .ghost {
+    opacity: 0.16;
+  }
+  /* the app's AnimatedDashboardLogo timing, column by column */
+  .column {
+    @media (prefers-reduced-motion: no-preference) {
+      animation: fill-up 1.8s cubic-bezier(0.4, 0, 0.2, 1) calc(var(--i) * 0.12s) infinite backwards;
+    }
+  }
+}
+
+@keyframes fill-up {
+  0%,
+  100% {
+    translate: 0 100%;
+  }
+  35%,
+  65% {
+    translate: 0 0;
+  }
+}

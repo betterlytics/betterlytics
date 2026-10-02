@@ -1,6 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight } from 'lucide-react';
+import { LoadingMark } from '@/landing/components/ui/brandMark';
+import { TrackedLink } from '@/landing/components/ui/trackedLink';
 import { useInView } from '@/landing/hooks/useInView';
 import { COPY } from '@/landing/content/copy';
 import { track } from '@/landing/lib/analytics';
@@ -9,6 +12,8 @@ import styles from './demoFrame.module.css';
 const copy = COPY.demo;
 /** Cap on waiting for the page's load event, which a hung request elsewhere can stall. */
 const LOAD_WAIT_MS = 3000;
+/** After this, the loader gives way to a link to the full demo. */
+const STALL_MS = 15000;
 
 function whenPageSettles(start: () => void) {
   let cancel = () => {};
@@ -45,6 +50,7 @@ export function DemoFrame({ src }: { src: string }) {
   const [requested, setRequested] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [active, setActive] = useState(false);
+  const [stalled, setStalled] = useState(false);
   const areaRef = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
   const near = useInView(areaRef, 'near');
@@ -53,6 +59,11 @@ export function DemoFrame({ src }: { src: string }) {
 
   // same-origin, so it shares this page's main thread: load only once near and idle
   useEffect(() => (near ? whenPageSettles(() => setRequested(true)) : undefined), [near]);
+  useEffect(() => {
+    if (!requested || loaded) return;
+    const id = window.setTimeout(() => setStalled(true), STALL_MS);
+    return () => window.clearTimeout(id);
+  }, [requested, loaded]);
   // re-arm off screen too, since touch has no pointer to leave
   useEffect(() => {
     if (!onScreen) setActive(false);
@@ -66,9 +77,27 @@ export function DemoFrame({ src }: { src: string }) {
       onPointerLeave={() => setActive(false)}
     >
       {!loaded && (
-        <p className='absolute inset-0 grid place-items-center font-mono text-micro tracking-[0.16em] text-muted uppercase'>
-          {copy.loading}
-        </p>
+        <div className='absolute inset-0 grid place-items-center'>
+          {stalled ? (
+            <TrackedLink
+              className='text-label text-muted underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current'
+              href='/demo'
+              target='_blank'
+              rel='noopener'
+              placement='demo'
+              destination='demo'
+            >
+              {copy.stalled}
+              <ArrowUpRight className='ml-1 inline size-3.5 align-[-2px]' aria-hidden />
+              <span className='sr-only'> {copy.newTab}</span>
+            </TrackedLink>
+          ) : (
+            <>
+              <LoadingMark className='size-12 text-muted' />
+              <p className='sr-only'>{copy.loading}</p>
+            </>
+          )}
+        </div>
       )}
       {/* laid out at 1/scale, then scaled down, so more of the dashboard fits */}
       {requested && (

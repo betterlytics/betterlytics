@@ -2,8 +2,17 @@ import { Link } from '@/i18n/navigation';
 import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { BRAND_MARK_PATHS } from '@/landing/lib/brandPaths';
+import { vars } from '@/landing/lib/cssVars';
+import styles from './brandMark.module.css';
 
 const SYMBOL_ID = 'landing-brand-mark';
+const FILL_MASK_ID = 'landing-brand-mark-fill';
+/** The mark's three columns, [x, width] in its viewBox. */
+const COLUMNS = [
+  [0, 375],
+  [375, 375],
+  [750, 322],
+] as const;
 
 /** Render once per page; every <BrandMark /> references it. */
 export function BrandMarkDefs() {
@@ -22,6 +31,29 @@ export function BrandMark({ className }: { className?: string }) {
   return (
     <svg className={className} aria-hidden>
       <use href={`#${SYMBOL_ID}`} />
+    </svg>
+  );
+}
+
+/** The mark filling up column by column, as the app's loading logo does. One per page: its mask id is fixed. */
+export function LoadingMark({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox='0 0 1072 1069' aria-hidden>
+      <mask id={FILL_MASK_ID}>
+        {COLUMNS.map(([x, width], i) => (
+          <rect
+            key={x}
+            className={styles.column}
+            x={x}
+            width={width}
+            height={1069}
+            fill='white'
+            style={vars({ '--i': i })}
+          />
+        ))}
+      </mask>
+      <use href={`#${SYMBOL_ID}`} className={styles.ghost} />
+      <use href={`#${SYMBOL_ID}`} mask={`url(#${FILL_MASK_ID})`} />
     </svg>
   );
 }
