@@ -277,6 +277,10 @@
       height: 150px;
       margin-right: 34px;
     }
+    /* marks column: 8px gap + 23px wide + 1px spare */
+    @variant max-sm {
+      margin-right: 32px;
+    }
   }
   .chrome {
     display: flex;
