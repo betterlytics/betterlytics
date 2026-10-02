@@ -86,7 +86,6 @@ pub struct Config {
     // Development mode - honors client-supplied event timestamps
     pub is_development: bool,
     pub is_cloud: bool,
-    // Effective value: false whenever is_cloud
     pub allow_private_targets: bool,
     // Public-facing base URL (used for dashboard links in push notifications)
     pub public_base_url: String,
@@ -130,7 +129,7 @@ impl Config {
         };
 
         let is_cloud = env::var("IS_CLOUD").map(|v| v.to_lowercase() == "true").unwrap_or(false);
-        // Fail closed: self-host gets `true` from the selfhost compose, Cloud can never opt in
+        // Self-host gets `true` from the selfhost compose
         let allow_private_targets = !is_cloud
             && env::var("ALLOW_PRIVATE_TARGETS").map(|v| v.to_lowercase() == "true").unwrap_or(false);
 

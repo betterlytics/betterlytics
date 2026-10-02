@@ -8,13 +8,11 @@ use crate::monitor::ReasonCode;
 
 static ALLOW_PRIVATE_TARGETS: OnceLock<bool> = OnceLock::new();
 
-/// Loopback, private and CGNAT targets on any port are allowed when set (self-host opt-in)
 pub fn init_target_policy(allow_private: bool) {
     let _ = ALLOW_PRIVATE_TARGETS.set(allow_private);
 }
 
 pub fn allow_private_targets() -> bool {
-    // Uninitialised means Cloud-strict
     *ALLOW_PRIVATE_TARGETS.get().unwrap_or(&false)
 }
 
@@ -63,7 +61,6 @@ const AWS_IMDS_V6: Ipv6Addr = Ipv6Addr::new(0xfd00, 0x0ec2, 0, 0, 0, 0, 0, 0x025
 const ALIBABA_METADATA: Ipv4Addr = Ipv4Addr::new(100, 100, 100, 200);
 
 fn classify_ip(ip: IpAddr) -> IpClass {
-    // ::ffff:a.b.c.d is classified as a.b.c.d
     match ip.to_canonical() {
         IpAddr::V4(v4) => classify_v4(v4),
         IpAddr::V6(v6) => classify_v6(v6),
@@ -73,11 +70,11 @@ fn classify_ip(ip: IpAddr) -> IpClass {
 fn classify_v4(v4: Ipv4Addr) -> IpClass {
     let [a, b, _, _] = v4.octets();
     // Link-local holds the AWS/GCP/Azure metadata endpoint; Alibaba's sits inside CGNAT, which the allowance opens.
-    // 0.0.0.0 connects to localhost on Linux; a >= 224 covers multicast, reserved and broadcast.
+    // 0.0.0.0 connects to localhost on Linux.
     if v4.is_link_local() || v4 == ALIBABA_METADATA || a == 0 || a >= 224 || v4.is_documentation() {
         IpClass::AlwaysBlocked
     } else if v4.is_loopback() || v4.is_private() || (a == 100 && (b & 0xc0) == 64) {
-        // Last clause is 100.64/10 CGNAT (Tailscale); Ipv4Addr::is_shared is unstable
+        // 100.64/10 CGNAT (Tailscale); Ipv4Addr::is_shared is unstable
         IpClass::Private
     } else {
         IpClass::Public
@@ -208,7 +205,6 @@ async fn resolve_allowed(host: &str, allow_private: bool) -> std::io::Result<Vec
     Ok(addrs)
 }
 
-/// Generic-webhook rule: https always, http only with the allowance, no port rule.
 /// Hostnames are checked by GuardedResolver at connect time; IP literals bypass resolvers, so check them here.
 pub fn validate_webhook_url(url: &Url, allow_private: bool) -> Result<(), GuardError> {
     match url.scheme() {
@@ -237,7 +233,6 @@ pub fn webhook_redirect_policy() -> reqwest::redirect::Policy {
         if attempt.previous().len() > MAX_REDIRECTS {
             attempt.error("too many redirects")
         } else if validate_webhook_url(attempt.url(), allow_private_targets()).is_err() {
-            // e.g. https://public -> http://169.254.169.254
             attempt.error("redirect target not allowed")
         } else {
             attempt.follow()

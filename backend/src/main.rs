@@ -214,7 +214,6 @@ async fn main() {
             .await
             .expect("Failed to init SiteConfigCache");
 
-    // Before the notification engine and monitoring: both read the policy at send/probe time
     monitor::guard::init_target_policy(config.allow_private_targets);
     info!(
         is_cloud = config.is_cloud,
