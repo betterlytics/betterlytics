@@ -226,7 +226,12 @@ function Card({
  */
 export function Errors({ entered }: IllustrationProps) {
   return (
-    <div className={styles.root} data-in={entered || undefined} role='img' aria-label={COPY.illustrations.errors}>
+    <div
+      className={cn(styles.root, 'absolute inset-0 grid place-items-center')}
+      data-in={entered || undefined}
+      role='img'
+      aria-label={COPY.illustrations.errors}
+    >
       <div className={styles.stack} aria-hidden>
         <Card
           group={RESOLVED}

@@ -6,13 +6,6 @@
      just far enough to clear its header's text (the next card covers the header's bottom
      padding), so the cascade runs top left to bottom right, as the uptime stack and its
      notices do. */
-  .root {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    place-items: center;
-  }
-
   /* The front card sits in flow; the margins make room for the two stepped out behind
      it, so it is the stack as a whole that gets centred. */
   .stack {
