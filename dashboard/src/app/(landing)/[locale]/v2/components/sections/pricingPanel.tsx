@@ -102,7 +102,7 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
         pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-lg:px-4 max-sm:px-(--pad)',
       )}
     >
-      <div className='mb-3 flex items-center gap-3'>
+      <div className='mb-1 flex items-center gap-3'>
         <h3 className='text-[20px] font-medium tracking-[-0.35px] text-fg'>{name}</h3>
         {badge ? (
           // not a floating pill: a solid tab hanging flush under the column's blue top rule,
@@ -112,6 +112,9 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
           </span>
         ) : null}
       </div>
+      {/* under the name it describes, two lines tall so the prices below stay level across
+          the columns when one tagline wraps; stacked, there is nothing to keep level */}
+      <p className='mb-4 min-h-11 text-body-sm leading-[22px] text-muted max-lg:min-h-0'>{tagline}</p>
       {/* a fixed line whether the price is a figure or a word, so the block never jumps
           when Free becomes a number and the three plans stay level */}
       <div className='mb-2.5 flex h-11 items-baseline gap-1.5'>
@@ -130,8 +133,6 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
         </b>
         {period ? <span className='text-body-sm tracking-ui text-muted'>{period}</span> : null}
       </div>
-      {/* two lines tall, so the rules below stay level when one tagline wraps */}
-      <p className='min-h-11 text-body-sm leading-[22px] text-muted'>{tagline}</p>
       <ul lang={featuresLang} className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
         {/* keyed by position, not label: the volume line's text changes with the slider and must keep its element to animate */}
         {features.map((f, i) => (
