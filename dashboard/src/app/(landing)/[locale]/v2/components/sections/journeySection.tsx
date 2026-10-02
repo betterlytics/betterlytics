@@ -118,7 +118,7 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   const titleId = `${IDS.journey}-${step.id}`;
   return (
     <article ref={ref} aria-labelledby={titleId}>
-      <div className='border-x border-rule-10 bg-hatch px-5 py-6 transition-ink 2xl:contents'>
+      <div className='border-x border-rule-10 bg-hatch px-5 py-6 transition-ink max-sm:pt-9 2xl:contents'>
         <h3 id={titleId} className={cn(TITLE, '2xl:sr-only')}>
           {step.title.split('\n').map((line, i) => (
             <Fragment key={i}>
