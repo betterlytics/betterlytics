@@ -25,6 +25,7 @@ Before relying on a specific feature, check the [cloud vs self-hosted comparison
 ## Requirements
 
 - **Docker Engine 25** or newer with **Docker Compose v2.24** or newer. Check with `docker version` and `docker compose version`
+- An **x86_64 (amd64)** server. The image is not published for ARM (arm64), so ARM hosts fail with "no matching manifest"
 - A **hostname** the instance is reached at, pointed at your server or your reverse proxy (not needed to try it locally)
 - Ports **80** and **443** reachable from the internet (standalone mode), or a reverse proxy you already run
 
@@ -516,7 +517,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 
 | Variable | Default | Behavior |
 |----------|---------|----------|
-| `SECRET_BASE` | | Random string all passwords and keys derive from. `setup.sh` generates one |
+| `SECRET_BASE` | | Single secret all passwords and auth keys derive from. Use at least 32 random characters, for example the output of `openssl rand -hex 32`; `setup.sh` generates one. The instance logs a warning at startup when it is empty, `CHANGEME`, or shorter than 32 characters. Keep it once the instance has started: the databases were created with passwords derived from it |
 
 ### Email
 
@@ -535,6 +536,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 | `MAXMIND_ACCOUNT_ID` | | MaxMind account ID |
 | `MAXMIND_LICENSE_KEY` | | MaxMind license key |
 | `GEOLOCATION_MODE` | `country` | `country`: country-level data only (~9 MB). `full` adds subdivision + city drill-down (~61 MB) |
+| `ENABLE_ASN_LOOKUP` | `false` | Looks up each visitor's network (ASN) to improve bot detection. Downloads MaxMind's GeoLite2-ASN database with `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`; the instance refuses to start when that download fails |
 
 ### Session Replay
 
@@ -544,14 +546,17 @@ All options are read from `.env` in the repository root. Database passwords, aut
 | `REPLAY_RETENTION_DAYS` | `60` | Days to keep recordings, `-1` for indefinitely. ClickHouse storage only |
 | `REPLAY_STORAGE` | derived | `clickhouse` or `s3`. Resolves to `s3` when `S3_ENABLED=true` |
 | `S3_ENABLED`, `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_FORCE_PATH_STYLE` | | Your own S3-compatible storage, see [Storing Recordings in Your Own S3](#storing-recordings-in-your-own-s3) |
+| `S3_SSE_ENABLED` | `false` | Set to `true` to request server-side encryption (SSE-S3, AES256) for recordings uploaded to your bucket |
 
 ### Other
 
 | Variable | Default | Behavior |
 |----------|---------|----------|
-| `BACKGROUND_JOBS_ENABLED` | `true` | Email reports and data-retention cleanup |
+| `BACKGROUND_JOBS_ENABLED` | `true` | Runs the background worker, which sends all outgoing email and runs the data-retention cleanup. `false` stops both |
 | `PUSHOVER_APP_TOKEN` | | Pushover application token for uptime alerts via Pushover |
 | `ALLOW_PRIVATE_TARGETS` | `true` | Uptime monitors and webhooks may reach private, LAN and loopback addresses on any port, and webhooks may use `http://`. Link-local addresses stay blocked. `false` limits them to public addresses as on Cloud, see [Monitoring Internal Services](#monitoring-internal-services) |
+| `PUBLIC_ENABLE_FAVICON_FETCHING` | `true` | Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead |
+| `LOG_LEVEL` | `info` | Backend log level: `error`, `warn`, `info`, `debug` or `trace` |
 
 ## Updating
 
