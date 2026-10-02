@@ -15,22 +15,25 @@ type SectionProps = {
   /** The section's display line, centred above its content. `*word*` inks an underline under that word. */
   title?: string;
   lede?: string;
+  /** On phones the title's lines are balanced; off for a title whose natural break reads better. */
+  balanced?: boolean;
   className?: string;
   children: ReactNode;
 };
 
-export function Section({ id, title, lede, className, children }: SectionProps) {
+export function Section({ id, title, lede, balanced = true, className, children }: SectionProps) {
   const titleId = `${id}-title`;
   return (
     <section
       id={id}
       aria-labelledby={title ? titleId : undefined}
-      className={cn('relative px-(--inset) pt-[34px] pb-[78px] max-lg:pb-12', className)}
+      // on phones a little more room above a headline, so each section starts clearly apart
+      className={cn('relative px-(--inset) pt-[34px] pb-[78px] max-lg:pb-12', title && 'max-sm:pt-12', className)}
     >
       <div className='relative z-1'>
         {title ? (
           <div className='mb-20 flex flex-col items-center gap-4 text-center max-lg:mb-12'>
-            <Heading as='h2' size='display-2' id={titleId}>
+            <Heading as='h2' size='display-2' id={titleId} className={balanced ? undefined : 'max-sm:text-wrap'}>
               <Emphasis text={title} as={Underline} />
             </Heading>
             {lede ? <Lede className='max-w-[62ch] text-muted'>{lede}</Lede> : null}

@@ -208,7 +208,9 @@ export function JourneySection() {
   }, []);
 
   return (
-    <Section id={IDS.journey} title={COPY.journey.title} lede={COPY.journey.lede}>
+    // not balanced: the plain break, 'Everything your users / experienced', gives the
+    // underlined word a line of its own on most phones
+    <Section id={IDS.journey} title={COPY.journey.title} lede={COPY.journey.lede} balanced={false}>
       <InkFrame className={styles.frame}>
         <Corners />
         <Rail active={active} direction={direction} />

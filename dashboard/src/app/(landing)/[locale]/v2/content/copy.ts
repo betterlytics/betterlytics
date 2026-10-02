@@ -2,7 +2,8 @@
  * All page copy, deliberately hard-coded while the wording is still being
  * revised. Once it settles this moves into the message catalogue.
  *
- * `*word*` marks the emphasised span in a title or quote (see ui/emphasis).
+ * `*word*` marks the emphasised span in a title or quote, and `\n` in a title where it
+ * breaks on phones, when balancing would break it worse (see ui/emphasis).
  */
 
 /** The language the copy is written in, whatever the URL's locale: the page's `lang` and its number formats follow it. */
@@ -60,7 +61,8 @@ export const COPY = {
     lede: 'From the first visit to the outage, in one dashboard.',
   },
   mcp: {
-    title: 'Point your *own* agent at it',
+    /* on phones the line ends on the emphasised word; "Point your own" fits even at 360px */
+    title: 'Point your *own*\nagent at it',
     lede: 'An MCP server is built in. Ask in plain language, get answers across all of it.',
     /* the lead is a small heading on its own line, the column's only primary-tone text */
     lead: 'Ask questions, not queries.',

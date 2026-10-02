@@ -4,7 +4,8 @@ import { cn } from '@/landing/lib/cn';
 /** The page's text styles, for elements that take a look without being one of the components below. */
 export const TEXT_STYLES = {
   'display-1': 'text-display-1 font-medium',
-  'display-2': 'text-display-2 font-medium',
+  /** balanced on phones, where a headline wraps and would otherwise leave a word alone on its last line */
+  'display-2': 'text-display-2 font-medium max-sm:text-balance',
   /** card and panel titles */
   title: 'text-title leading-6 font-medium tracking-ui',
   lede: 'text-lede text-balance',
