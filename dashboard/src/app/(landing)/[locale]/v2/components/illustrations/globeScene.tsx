@@ -57,7 +57,8 @@ const PULSE_MS = 1800;
 const PULSE_GROW = 14; // how far the pulse ring travels before it fades out
 const MARK_FADE = 0.35; // cosine to the viewer below which a mark starts fading toward the limb
 const DWELL_MS = 3600;
-const WELL_FACING = 0.45; // cosine to the viewer; a callout is only picked this far in from the limb
+const WELL_FACING = 0.45; // min facing cosine for a callout
+const CALLOUT_INSET = 32; // px; more than a marker moves in one dwell
 const FACING_CHECK_EVERY = 6; // frames
 const LAND_SETTLE_MS = 1000; // how long a still globe keeps repainting after creation, for its land texture to land
 const MAX_DPR = 2; // phones included: at 1.5 the dots visibly soften on 2x screens
@@ -240,32 +241,41 @@ function drawMarks(
 
 const byId = (id: string) => ARRIVALS.find((a) => a.id === id) ?? ARRIVALS[0];
 
-/* Cosine between a location and the viewer: 1 at the disc centre, 0 on the limb. */
-function facingDepth(a: Arrival, project: Project) {
-  return project(toVector(a.lat, a.lng)).depth;
-}
+/* Host layer's box and the scene's size in CSS px, read per resize (offsets ignore transforms). */
+type HostBox = { left: number; top: number; size: number; width: number; height: number };
 
-/* The globe layer's box inside the scene, in CSS px, read once per resize: its offsets
-   ignore transforms, which makes it the frame to place the label in. */
-type HostBox = { left: number; top: number; size: number };
-
-/* Pins the label beside its marker, rolling the projected point around the host's
-   centre the way CSS rolls the canvases. Returns whether the marker faces the viewer. */
-function placeLabel(box: HostBox, label: HTMLElement, a: Arrival, project: Project, roll: number) {
+/* Rolled as CSS rolls the canvases; `depth` is the facing cosine (1 at the centre, 0 on the limb). */
+function markerAt(box: HostBox, a: Arrival, project: Project, roll: number) {
   const p = project(toVector(a.lat, a.lng));
   const dx = p.x - 0.5;
   const dy = p.y - 0.5;
   const cr = Math.cos(roll);
   const sr = Math.sin(roll);
-  const x = box.left + (0.5 + dx * cr - dy * sr) * box.size + LABEL_DX;
-  const y = box.top + (0.5 + dx * sr + dy * cr) * box.size;
-  // Above and to the right of the marker, unless that would run off the top of the card.
-  // A transform rather than left/top, so moving the label never triggers layout.
+  return {
+    x: box.left + (0.5 + dx * cr - dy * sr) * box.size,
+    y: box.top + (0.5 + dx * sr + dy * cr) * box.size,
+    depth: p.depth,
+    front: p.front,
+  };
+}
+
+function inScene(box: HostBox, m: { x: number; y: number }, inset = 0) {
+  return m.x >= inset && m.x <= box.width - inset && m.y >= inset && m.y <= box.height - inset;
+}
+
+/* Places the label beside its marker; returns whether it should show (marker facing and in the scene). */
+function placeLabel(box: HostBox, label: HTMLElement, a: Arrival, project: Project, roll: number) {
+  const m = markerAt(box, a, project, roll);
+  const w = label.offsetWidth;
+  let x = m.x + LABEL_DX;
+  if (x + w > box.width) x = m.x - LABEL_DX - w;
+  x = Math.max(0, Math.min(x, box.width - w));
+  // a transform, not left/top, so moving it never triggers layout
   label.style.transform =
-    y < LABEL_FLIP_PX
-      ? `translate(${x}px, ${y + LABEL_DY}px)`
-      : `translate(${x}px, ${y - LABEL_DY}px) translateY(-100%)`;
-  return p.front;
+    m.y < LABEL_FLIP_PX
+      ? `translate(${x}px, ${m.y + LABEL_DY}px)`
+      : `translate(${x}px, ${m.y - LABEL_DY}px) translateY(-100%)`;
+  return m.front && inScene(box, m);
 }
 
 const clamp = (v: number, lim: number) => Math.max(-lim, Math.min(lim, v));
@@ -327,6 +337,7 @@ function createGlobes(nearLayer: HTMLElement, farLayer: HTMLElement, dpr: number
  * WebGL it falls back to the graticule alone, still, rather than breaking the page.
  */
 export function GlobeScene() {
+  const sceneRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const farRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLCanvasElement>(null);
@@ -334,7 +345,8 @@ export function GlobeScene() {
   const labelRef = useRef<HTMLDivElement>(null);
   // Redraws globe, graticule and label for the current yaw; returns whether the active marker faces the viewer.
   const renderRef = useRef<() => boolean>(() => true);
-  const loopRef = useRef(false); // whether the animation loop is running and will render for us
+  const boxRef = useRef<HostBox>({ left: 0, top: 0, size: 1, width: 1, height: 1 });
+  const loopRef = useRef(false); // the rAF loop is running and renders each frame
   const yawRef = useRef(START_YAW);
   const velRef = useRef(IDLE_RAD_PER_MS);
   const flingRef = useRef<{ v0: number; start: number } | null>(null);
@@ -354,11 +366,12 @@ export function GlobeScene() {
   // it sits, which keeps its text sharp; rastered in the corner and then moved, it came out
   // soft on some loads.
   useLayoutEffect(() => {
+    const scene = sceneRef.current;
     const host = hostRef.current;
     const grid = gridRef.current;
     const farHost = farRef.current;
     const marks = marksRef.current;
-    if (!host || !grid || !farHost || !marks) return;
+    if (!scene || !host || !grid || !farHost || !marks) return;
 
     const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
     const globes = supportsWebGL() ? createGlobes(host, farHost, dpr) : null;
@@ -372,7 +385,6 @@ export function GlobeScene() {
     const tokens = getComputedStyle(document.documentElement);
     const stroke = tokens.getPropertyValue('--color-rule-22').trim();
     const markColour = tokens.getPropertyValue('--color-volt-soft').trim();
-    let box: HostBox = { left: 0, top: 0, size: 1 };
     renderRef.current = () => {
       const pose = poseAt(yawRef.current);
       const project = projector(pose);
@@ -388,7 +400,7 @@ export function GlobeScene() {
       globes.far.update({ phi: farPose.phi, theta: farPose.theta });
       farHost.style.transform = `translateX(-50%) scaleX(-1) rotate(${farPose.roll}rad)`;
       const label = labelRef.current;
-      return label ? placeLabel(box, label, byId(activeRef.current), project, pose.roll) : true;
+      return label ? placeLabel(boxRef.current, label, byId(activeRef.current), project, pose.roll) : true;
     };
     const fit = () => {
       const size = { width: host.clientWidth, height: host.clientHeight };
@@ -398,15 +410,20 @@ export function GlobeScene() {
       grid.height = size.height * dpr;
       marks.width = size.width * dpr;
       marks.height = size.height * dpr;
-      box = { left: host.offsetLeft - host.offsetWidth / 2, top: host.offsetTop, size: host.offsetWidth };
+      boxRef.current = {
+        left: host.offsetLeft - host.offsetWidth / 2,
+        top: host.offsetTop,
+        size: host.offsetWidth,
+        width: scene.clientWidth,
+        height: scene.clientHeight,
+      };
       renderRef.current();
     };
     fit();
     const ro = new ResizeObserver(fit);
     ro.observe(host);
-    // cobe paints only when updated, and its land texture decodes a moment after the globe is
-    // created. The loop picks it up on its next frame; a globe that is not turning (reduced
-    // motion) repaints for a moment instead, or it would keep its landless first paint.
+    ro.observe(scene);
+    // cobe paints only on update and its land texture decodes late; without the loop, repaint briefly
     let settle = 0;
     if (globes) {
       const until = performance.now() + LAND_SETTLE_MS;
@@ -467,18 +484,23 @@ export function GlobeScene() {
   useEffect(() => {
     if (!globesRef.current || !visible || reduce) return;
     const next = () => {
-      const project = projector(poseAt(yawRef.current));
+      const pose = poseAt(yawRef.current);
+      const project = projector(pose);
+      const box = boxRef.current;
       setActive((current) => {
         const start = ARRIVALS.findIndex((a) => a.id === current.id);
         let best: Arrival = current;
-        let bestDepth = -1;
+        let bestScore = -Infinity;
         for (let step = 1; step <= ARRIVALS.length; step++) {
           const candidate = ARRIVALS[(start + step) % ARRIVALS.length];
-          const depth = facingDepth(candidate, project);
-          if (depth >= WELL_FACING) return candidate;
-          if (depth > bestDepth) {
+          const m = markerAt(box, candidate, project, pose.roll);
+          const clear = inScene(box, m, CALLOUT_INSET);
+          if (clear && m.depth >= WELL_FACING) return candidate;
+          // fallback: clear of the edges first, then most central
+          const score = m.depth + (clear ? 2 : 0);
+          if (score > bestScore) {
             best = candidate;
-            bestDepth = depth;
+            bestScore = score;
           }
         }
         return best;
@@ -523,6 +545,7 @@ export function GlobeScene() {
 
   return (
     <div
+      ref={sceneRef}
       className={styles.scene}
       data-grabbing={dragging || undefined}
       data-flat={flat || undefined}
