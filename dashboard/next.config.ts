@@ -2,6 +2,7 @@ import type { NextConfig } from 'next';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import createNextIntlPlugin from 'next-intl/plugin';
+import { SUPPORTED_LANGUAGES } from './src/constants/i18n';
 
 // Load environment variables from the root directory
 const rootDir = path.resolve(process.cwd(), '..');
@@ -25,6 +26,20 @@ const nextConfig: NextConfig = {
       { source: '/:locale/login', destination: '/:locale/signin', permanent: true },
       { source: '/:locale/register', destination: '/:locale/signup', permanent: true },
     ];
+  },
+  async rewrites() {
+    return {
+      beforeFiles: [],
+      // Single segments the middleware skips (/wp-login.php, /.env, /dashboardx) would hit the static
+      // landing as its locale and cache a 404 each; send them to the app's per-request catch-all.
+      afterFiles: [
+        {
+          source: `/:segment((?!(?:${SUPPORTED_LANGUAGES.join('|')})$)[^/]+)`,
+          destination: `/${process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE ?? 'en'}/:segment`,
+        },
+      ],
+      fallback: [],
+    };
   },
   async headers() {
     return [
