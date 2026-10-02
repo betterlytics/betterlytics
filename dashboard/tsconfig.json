@@ -20,7 +20,7 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/landing/*": ["./src/app/(landing)/[locale]/v2/*"],
+      "@/landing/*": ["./src/app/(landing)/[locale]/*"],
       "@/*": ["./src/*"]
     }
   },

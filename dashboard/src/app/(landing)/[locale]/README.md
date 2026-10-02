@@ -1,7 +1,7 @@
 # Landing page
 
-The marketing landing page, served at `/v2` until it replaces `/`. Everything it needs lives in this folder;
-import from it with the `@/landing/*` alias.
+The marketing landing page, served at `/` (and `/da`, `/it`, …) on cloud. Self-hosted installs redirect `/` to
+the dashboards. Everything it needs lives in this folder; import from it with the `@/landing/*` alias.
 
 ## How it is served
 

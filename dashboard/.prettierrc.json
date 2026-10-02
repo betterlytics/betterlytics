@@ -8,7 +8,7 @@
     {
       "files": "src/app/*landing*/**/*.{ts,tsx}",
       "options": {
-        "tailwindStylesheet": "./src/app/(landing)/[locale]/v2/landing.css"
+        "tailwindStylesheet": "./src/app/(landing)/[locale]/landing.css"
       }
     }
   ]
