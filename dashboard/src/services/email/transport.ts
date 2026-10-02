@@ -2,28 +2,35 @@
 
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
 import nodemailer from 'nodemailer';
+import type { SenderAddress } from '@/lib/env/email-sender';
 import type { EmailData, EmailTemplate } from '@/services/email/types';
 
 export type EmailTransportConfig = {
+  isCloud: boolean;
   mailerSendApiToken?: string;
   smtpHost?: string;
   smtpPort?: number;
   smtpUser?: string;
   smtpPassword?: string;
-  smtpFrom?: string;
+  configuredSender?: SenderAddress;
   defaultSender?: { email?: string; name: string };
 };
 
-const DEFAULT_SENDER = {
-  email: 'info@betterlytics.io',
-  name: 'Betterlytics',
-};
+const CLOUD_FALLBACK_SENDER_EMAIL = 'info@betterlytics.io';
+const DEFAULT_SENDER_NAME = 'Betterlytics';
 
-function getSenderInfo(config: EmailTransportConfig, data: EmailData) {
-  return {
-    email: data.from ?? config.defaultSender?.email ?? config.smtpFrom ?? DEFAULT_SENDER.email,
-    name: data.fromName ?? config.defaultSender?.name ?? DEFAULT_SENDER.name,
-  };
+export function resolveSender(config: EmailTransportConfig, data: EmailData): { email: string; name: string } {
+  const email =
+    data.from ??
+    config.defaultSender?.email ??
+    config.configuredSender?.email ??
+    (config.isCloud ? CLOUD_FALLBACK_SENDER_EMAIL : undefined);
+  if (!email) {
+    // Unreachable after the worker env boot check; never send as a betterlytics.io address off-cloud
+    throw new Error('No sender address configured: set SMTP_FROM (used for MailerSend and SMTP)');
+  }
+  const name = data.fromName ?? config.defaultSender?.name ?? config.configuredSender?.name ?? DEFAULT_SENDER_NAME;
+  return { email, name };
 }
 
 async function sendViaMailerSend(
@@ -32,7 +39,7 @@ async function sendViaMailerSend(
   config: EmailTransportConfig,
 ): Promise<string | null> {
   const mailerSend = new MailerSend({ apiKey: config.mailerSendApiToken ?? '' });
-  const sender = getSenderInfo(config, data);
+  const sender = resolveSender(config, data);
   const emailParams = new EmailParams()
     .setFrom(new Sender(sender.email, sender.name))
     .setTo([new Recipient(data.to, data.toName)])
@@ -53,10 +60,7 @@ async function sendViaSmtp(
   data: EmailData,
   config: EmailTransportConfig,
 ): Promise<string | null> {
-  if (!config.smtpFrom && !data.from) {
-    console.warn('SMTP_FROM is not set. Emails may be rejected by the SMTP server.');
-  }
-
+  const sender = resolveSender(config, data);
   const transporter = nodemailer.createTransport({
     host: config.smtpHost,
     port: config.smtpPort ?? 587,
@@ -65,9 +69,8 @@ async function sendViaSmtp(
       config.smtpUser && config.smtpPassword ? { user: config.smtpUser, pass: config.smtpPassword } : undefined,
   });
 
-  const sender = getSenderInfo(config, data);
   const info = await transporter.sendMail({
-    from: `${sender.name} <${sender.email}>`,
+    from: { name: sender.name, address: sender.email },
     to: data.toName ? `${data.toName} <${data.to}>` : data.to,
     subject: template.subject,
     html: template.html,

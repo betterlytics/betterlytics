@@ -2,11 +2,12 @@ import { Hr, Link, Section, Text } from '@react-email/components';
 import { format } from 'date-fns';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 import type { EmailData } from '@/services/email/types';
 import { ReportData } from '@/services/reports/report-data.service';
 import { formatDuration } from '@/utils/dateFormatters';
 import { formatString } from '@/utils/formatters';
-import { EmailLayout, H1, H2, P, renderEmailTemplate } from './_components';
+import { EmailFooter, EmailLayout, H1, H2, P, renderEmailTemplate } from './_components';
 
 export interface EmailReportData extends EmailData {
   reportData: ReportData;
@@ -43,6 +44,30 @@ function ReportSignature() {
         .
       </Text>
     </Section>
+  );
+}
+
+function ReportRecipientFooter({
+  to,
+  domain,
+  periodType,
+}: {
+  to: string;
+  domain: string;
+  periodType: ReportData['periodType'];
+}) {
+  const instanceHost = new URL(sharedEmailEnv.publicBaseUrl).host;
+  return (
+    <EmailFooter
+      campaign='weekly_report'
+      reason={
+        <>
+          You&apos;re receiving this {periodType} report because an owner or admin of the {domain} dashboard on{' '}
+          {instanceHost} added {to} as a recipient. To stop receiving it, ask them to remove your address under
+          Settings &rarr; Email Reports.
+        </>
+      }
+    />
   );
 }
 
@@ -123,7 +148,11 @@ export function WeeklyReportEmail(rawData: EmailReportData) {
       preview={`${periodLabel} report for ${reportData.domain} — ${dateRange}`}
       campaign='weekly_report'
       signature={<ReportSignature />}
-      footer={null}
+      footer={
+        sharedEmailEnv.isCloud ? null : (
+          <ReportRecipientFooter to={data.to} domain={reportData.domain} periodType={reportData.periodType} />
+        )
+      }
     >
       <H1>{periodLabel} Analytics Report</H1>
 
