@@ -73,16 +73,6 @@
     }
   }
 
-  /* Scroll animation for marquee effects */
-  @keyframes scroll {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
-  }
-
   /* Shake animation utility class (alternative implementation) */
   @keyframes shakeUtility {
     0%,
