@@ -3,12 +3,13 @@
 import { memo, useEffect, useState } from 'react';
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
 import { useReducedMotion } from 'motion/react';
-import { Gauge } from '@/components/gauge';
+import { Gauge, getGaugeBox } from '@/components/gauge';
 import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { getCoreWebVitalGaugeProps, getCoreWebVitalIntlFormat, getCoreWebVitalLevel } from '@/utils/coreWebVitals';
 import { COPY, COPY_LOCALE } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
+import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './vitals.module.css';
 
@@ -22,6 +23,7 @@ import styles from './vitals.module.css';
 const SIZE = 150;
 const STROKE = 7.7;
 const ARC_GAP = 3;
+const BOX = getGaugeBox({ size: SIZE, strokeWidth: STROKE });
 
 const ROWS: ReadonlyArray<ReadonlyArray<{ key: CoreWebVitalName; intervalMs: number; startIndex: number }>> = [
   [
@@ -53,24 +55,26 @@ const MetricGauge = memo(function MetricGauge({
   const { segments, progress } = getCoreWebVitalGaugeProps(metric, value);
   const format = getCoreWebVitalIntlFormat(metric, value);
   return (
-    // the unfilled track inside the gauge is drawn in currentColor
-    <Gauge
-      className='flex-none text-fg'
-      segments={segments}
-      progress={drawn ? progress : 0}
-      size={SIZE}
-      strokeWidth={STROKE}
-      arcGap={ARC_GAP}
-    >
-      <div className='absolute inset-x-0 bottom-[20%] flex flex-col items-center'>
-        {/* the metric's name: firm grey, second to the coloured value; a little tracking, not eyebrow-wide */}
-        <span className='-mb-0.5 text-[10.5px] font-semibold tracking-[0.12em] text-muted'>{metric}</span>
-        <span className={styles.value} data-level={getCoreWebVitalLevel(metric, value)}>
-          <NumberFlow value={format.value} format={format.format} locales={COPY_LOCALE} willChange />
-          {format.suffix && <span key={format.suffix}>{format.suffix}</span>}
-        </span>
-      </div>
-    </Gauge>
+    <div className={styles.slot}>
+      {/* the unfilled track inside the gauge is drawn in currentColor */}
+      <Gauge
+        className='text-fg'
+        segments={segments}
+        progress={drawn ? progress : 0}
+        size={SIZE}
+        strokeWidth={STROKE}
+        arcGap={ARC_GAP}
+      >
+        <div className='absolute inset-x-0 bottom-[20%] flex flex-col items-center'>
+          {/* the metric's name: firm grey, second to the coloured value; a little tracking, not eyebrow-wide */}
+          <span className='-mb-0.5 text-[10.5px] font-semibold tracking-[0.12em] text-muted'>{metric}</span>
+          <span className={styles.value} data-level={getCoreWebVitalLevel(metric, value)}>
+            <NumberFlow value={format.value} format={format.format} locales={COPY_LOCALE} willChange />
+            {format.suffix && <span key={format.suffix}>{format.suffix}</span>}
+          </span>
+        </div>
+      </Gauge>
+    </div>
   );
 });
 
@@ -112,13 +116,13 @@ export function Vitals({ entered, live }: IllustrationProps) {
         styles.root,
         'absolute inset-0 flex flex-col items-center justify-center gap-3.5 px-[30px] py-6',
       )}
+      style={vars({ '--box-w': `${BOX.width}px`, '--box-h': `${BOX.height}px` })}
       role='img'
       aria-label={COPY.illustrations.vitals}
     >
       <NumberFlowGroup>
         {ROWS.map((row, r) => (
-          // the gauges are drawn at a fixed size; on a phone the rows are scaled down whole
-          <div key={r} className='flex justify-center gap-[30px] max-md:[zoom:0.68] max-md:gap-4' aria-hidden>
+          <div key={r} className='flex justify-center gap-[30px] max-md:gap-[11px]' aria-hidden>
             {row.map((g) => (
               <CyclingGauge
                 key={g.key}
