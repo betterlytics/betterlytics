@@ -1,9 +1,6 @@
 import { useMemo } from 'react';
 import { arcPath } from '@/lib/math-utils';
-import {
-  getProgressColor,
-  type BaseGaugeProps,
-} from './gauge-utils';
+import { getGaugeBox, getProgressColor, type BaseGaugeProps } from './gauge-utils';
 
 type UseGaugeOptions = Required<BaseGaugeProps>;
 
@@ -44,9 +41,7 @@ export function useGauge({
     [center, innerRadius, totalAngle, startOffset],
   );
 
-  const extraHeight = Math.sin((startOffset * Math.PI) / 180) * radius;
-  const viewBoxHeight = size / 2 + strokeWidth + extraHeight;
-  const svgWidth = size * widthRatio;
+  const { width: svgWidth, height: viewBoxHeight } = getGaugeBox({ size, strokeWidth, totalAngle, widthRatio });
 
   const pathLength = (totalAngle / 360) * 2 * Math.PI * innerRadius;
   const dashOffset = pathLength * (1 - Math.min(progress, 100) / 100);

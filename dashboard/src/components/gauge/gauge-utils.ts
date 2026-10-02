@@ -24,6 +24,24 @@ export type BaseGaugeProps = {
 
 export type GaugeProps = BaseGaugeProps & React.HTMLAttributes<HTMLDivElement>;
 
+/** The box a gauge is drawn in: the arc's top half, its stroke, and the part of the arc below the centre. */
+export function getGaugeBox({
+  size,
+  strokeWidth,
+  totalAngle = DEFAULT_TOTAL_ANGLE,
+  widthRatio = 1,
+}: {
+  size: number;
+  strokeWidth: number;
+  totalAngle?: number;
+  widthRatio?: number;
+}) {
+  const radius = size / 2 - strokeWidth;
+  const startOffset = (totalAngle - 180) / 2;
+  const extraHeight = Math.sin((startOffset * Math.PI) / 180) * radius;
+  return { width: size * widthRatio, height: size / 2 + strokeWidth + extraHeight };
+}
+
 export function getProgressColor(segments: GaugeSegment[], progress: number): string {
   let accumulated = 0;
   for (const seg of segments) {
