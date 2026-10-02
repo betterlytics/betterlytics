@@ -131,6 +131,10 @@ HTTP_PORT=5566
 
 Your proxy must terminate TLS, pass the `Host` header through unchanged, and set `X-Forwarded-Proto` and `X-Forwarded-For`. Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, list it in `TRUSTED_PROXIES`, otherwise every visitor is recorded with the proxy's IP. To check, compare `request.remote_ip` and `request.client_ip` in `docker compose logs betterlytics-selfhost`.
 
+<Callout type="info">
+Your proxy must serve Betterlytics over HTTPS at `DOMAIN`. Logins only work from `https://<DOMAIN>`. If the proxy listens on a non-standard port, include it: `DOMAIN=analytics.example.com:8443`.
+</Callout>
+
 <Tabs items={['Caddy', 'Nginx', 'Traefik']}>
   <Tabs.Tab>
     ```
@@ -193,6 +197,24 @@ Your proxy must terminate TLS, pass the `Host` header through unchanged, and set
     ```
   </Tabs.Tab>
 </Tabs>
+
+### Plain HTTP or IP Access
+
+Betterlytics accepts logins only from the exact URL it is configured for, `https://<DOMAIN>` by default. Your proxy must serve it over HTTPS at `DOMAIN`, including the port if it is not 443. `setup.sh` Basic mode therefore needs a hostname and does not accept an IP address. Point a DNS record at your proxy, or add the hostname to the hosts file of each machine that opens the instance. To evaluate Betterlytics on a single machine, use [Try Locally](#try-locally).
+
+If browsers reach the instance over plain HTTP (an IP address or an internal hostname on a trusted network), edit `.env` by hand. Start from the `.env` that `setup.sh` wrote in Basic mode, or from a copy of `.env.example` with `SECRET_BASE` set; both use `HTTP_SCHEME=http`. Then set:
+
+```bash
+DOMAIN=192.168.1.10:5566
+FORCE_HTTP_SCHEME=http
+BIND_ADDRESS=0.0.0.0
+```
+
+`DOMAIN` must include the port browsers use unless it is 80. That port is `HTTP_PORT`, `5566` by default. Then run `docker compose up -d --wait`. If the URL doesn't match, the sign-in page says the address doesn't match the configured one, and `docker compose logs betterlytics-selfhost` shows `[Better Auth]: Invalid origin: <origin>`.
+
+<Callout type="warning">
+Over plain HTTP, passwords and sessions cross the network unencrypted. Only do this on a network you trust, and firewall the port: `BIND_ADDRESS=0.0.0.0` listens on every interface.
+</Callout>
 
 ### Try Locally
 
@@ -358,11 +380,11 @@ All options are read from `.env` in the repository root. Database passwords, aut
 
 | Variable | Default | Behavior |
 |----------|---------|----------|
-| `DOMAIN` | | Domain where the instance is reachable, without protocol |
+| `DOMAIN` | | Domain where the instance is reachable, without protocol. Include the port if browsers use a non-standard one, for example `analytics.example.com:8443`. Only behind your own proxy: standalone mode needs the bare hostname. See [Behind a Reverse Proxy](#behind-a-reverse-proxy) |
 | `HTTP_SCHEME` | `http` | `https` enables built-in Let's Encrypt certificates (standalone mode) |
 | `SSL_EMAIL` | unset | Optional email registered with your Let's Encrypt account, used for expiry notices |
 | `ACME_CA` | Let's Encrypt production | Optional ACME directory URL. Use `https://acme-staging-v02.api.letsencrypt.org/directory` while testing to avoid rate limits |
-| `FORCE_HTTP_SCHEME` | unset | Set to `http` to build plain `http://` links, used by the Try locally mode |
+| `FORCE_HTTP_SCHEME` | unset | Set to `http` only when browsers reach the instance over plain HTTP, as in [Try Locally](#try-locally) and [Plain HTTP or IP Access](#plain-http-or-ip-access). Sets the scheme of the public URL used for logins, links, and the tracking snippet, which is `https` otherwise |
 
 ### Network
 
@@ -460,6 +482,15 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - Ports 80 and 443 must both be reachable from the internet, and `HTTP_PORT` must be `80`. Certificates are validated over port 80
 - Check the container logs for ACME errors: `docker compose logs`
 - Testing repeatedly? Set `ACME_CA` to the Let's Encrypt staging directory to avoid rate limits
+
+### Can't sign in
+
+- **"This page is open at …, which doesn't match the address…":** open the instance at `https://<DOMAIN>` (or `http://` with `FORCE_HTTP_SCHEME=http`), or fix `DOMAIN`/`FORCE_HTTP_SCHEME` in `.env` and run `docker compose up -d --wait`.
+- The logs confirm it: `docker compose logs betterlytics-selfhost | grep "Invalid origin"`.
+- `setup.sh` Basic mode no longer accepts an IP address; see [Plain HTTP or IP Access](#plain-http-or-ip-access).
+- **"Too many attempts":** wait about 10 seconds. Sign-in allows 3 attempts per 10 seconds per IP.
+- Sign-in, invite links, and tracking snippets all use `DOMAIN`, so other addresses, such as the server's IP or a second hostname pointing at it, don't work. In standalone mode the browser shows a certificate or connection error for them instead of the sign-in page.
+- Behind your own proxy, check that it passes the `Host` header unchanged and sets `X-Forwarded-Proto`.
 
 ### Custom status page domain shows a certificate error
 
