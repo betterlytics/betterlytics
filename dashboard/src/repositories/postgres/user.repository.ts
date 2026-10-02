@@ -50,6 +50,16 @@ export async function countUsers(): Promise<number> {
   }
 }
 
+export async function countActiveAdmins(): Promise<number> {
+  try {
+    // anonymizeUser keeps role, so deleted admins must be excluded explicitly
+    return await prisma.user.count({ where: { role: 'admin', deletedAt: null } });
+  } catch (error) {
+    console.error('Error counting active admins:', error);
+    throw new Error('Failed to count active admins.');
+  }
+}
+
 async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | null> {
   try {
     const prismaUser = await prisma.user.findUnique({ where });

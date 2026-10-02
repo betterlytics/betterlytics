@@ -5,6 +5,7 @@ import {
   findCredentialAccount,
   createUser,
   anonymizeUser,
+  countActiveAdmins,
 } from '@/repositories/postgres/user.repository';
 import { makeUser } from '@/test/auth-fixtures';
 
@@ -15,6 +16,7 @@ const prismaMock = vi.hoisted(() => {
       findMany: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      count: vi.fn(),
     },
     account: {
       findFirst: vi.fn(),
@@ -187,5 +189,20 @@ describe('anonymizeUser', () => {
     prismaMock.$transaction.mockRejectedValue(new Error('db down'));
 
     await expect(anonymizeUser('user-1')).rejects.toThrow('Failed to anonymize user user-1.');
+  });
+});
+
+describe('countActiveAdmins', () => {
+  it('counts admins that have not been deleted', async () => {
+    prismaMock.user.count.mockResolvedValue(1);
+
+    expect(await countActiveAdmins()).toBe(1);
+    expect(prismaMock.user.count).toHaveBeenCalledWith({ where: { role: 'admin', deletedAt: null } });
+  });
+
+  it('wraps database failures', async () => {
+    prismaMock.user.count.mockRejectedValue(new Error('db down'));
+
+    await expect(countActiveAdmins()).rejects.toThrow(/Failed to count active admins/);
   });
 });

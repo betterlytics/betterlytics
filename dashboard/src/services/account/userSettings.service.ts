@@ -1,8 +1,16 @@
 'server-only';
 
 import { cache } from 'react';
+import { getTranslations } from 'next-intl/server';
 import { UpdateUserData } from '@/entities/auth/user.entities';
-import { UserSettings, UserSettingsUpdate, DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
+import {
+  AccountDeletionBlocker,
+  UserSettings,
+  UserSettingsUpdate,
+  DEFAULT_USER_SETTINGS,
+} from '@/entities/account/userSettings.entities';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { UserException } from '@/lib/exceptions';
 import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
 import * as UserRepository from '@/repositories/postgres/user.repository';
 import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
@@ -61,7 +69,21 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
   }
 }
 
+// Gitea pattern: never leave a self-host instance without an admin; signup does not reopen
+export async function getAccountDeletionBlocker(userId: string): Promise<AccountDeletionBlocker | null> {
+  if (isFeatureEnabled('isCloud')) return null;
+  const user = await UserRepository.findUserById(userId);
+  if (!user || user.deletedAt || user.role !== 'admin') return null;
+  return (await UserRepository.countActiveAdmins()) <= 1 ? 'last_admin' : null;
+}
+
 export async function deleteUser(userId: string): Promise<void> {
+  // Outside the try below: its catch rewraps into a plain Error and would mask this message
+  if ((await getAccountDeletionBlocker(userId)) === 'last_admin') {
+    const t = await getTranslations('validation.account');
+    throw new UserException(t('lastAdminCannotBeDeleted'));
+  }
+
   try {
     const deletedDashboardIds = await DashboardRepository.deleteOwnedDashboards(userId);
 

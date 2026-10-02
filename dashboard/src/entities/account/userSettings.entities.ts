@@ -54,3 +54,5 @@ export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'create
 export type UserSettingsUpdate = z.infer<typeof UserSettingsUpdateSchema>;
 export type UserSettings = z.infer<typeof UserSettingsSchema>;
 export type UserSettingsCreate = z.infer<typeof UserSettingsCreateSchema>;
+
+export type AccountDeletionBlocker = 'last_admin';

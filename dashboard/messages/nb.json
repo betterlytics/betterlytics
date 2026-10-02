@@ -3105,6 +3105,7 @@
       "danger": {
         "sectionTitle": "Faresone",
         "details": "Slett kontoen din og alle tilknyttede data permanent.",
+        "lastAdmin": "Du kan ikke slette denne kontoen fordi den er den eneste administratoren på denne instansen. Hvis den slettes, står instansen uten administrator.",
         "delete": "Slett konto",
         "dialog": {
           "title": "Slett konto permanent",
@@ -3358,6 +3359,9 @@
       "statusPageLimit": "Du har nådd grensen for statussider. Oppgrader til Pro for å opprette flere statussider.",
       "statusPageCustomDomain": "Eget domene krever en profesjonell plan",
       "statusPageBranding": "Å fjerne Betterlytics-merking krever en profesjonell plan"
+    },
+    "account": {
+      "lastAdminCannotBeDeleted": "Den eneste administratorkontoen på denne instansen kan ikke slettes."
     },
     "invitations": {
       "userAlreadyHasAccess": "Brukeren har allerede tilgang til dette dashboardet",

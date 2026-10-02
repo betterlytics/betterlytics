@@ -3105,6 +3105,7 @@
       "danger": {
         "sectionTitle": "Zona pericolosa",
         "details": "Elimina definitivamente il tuo account e tutti i dati associati.",
+        "lastAdmin": "Non puoi eliminare questo account perché è l'unico amministratore di questa istanza. Eliminarlo lascerebbe l'istanza senza amministratore.",
         "delete": "Elimina account",
         "dialog": {
           "title": "Elimina account definitivamente",
@@ -3358,6 +3359,9 @@
       "statusPageLimit": "Hai raggiunto il limite di pagine di stato. Esegui l'upgrade a Pro per crearne altre.",
       "statusPageCustomDomain": "I domini personalizzati richiedono un piano Professional",
       "statusPageBranding": "La rimozione del branding Betterlytics richiede un piano Professional"
+    },
+    "account": {
+      "lastAdminCannotBeDeleted": "L'unico account amministratore di questa istanza non può essere eliminato."
     },
     "invitations": {
       "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",

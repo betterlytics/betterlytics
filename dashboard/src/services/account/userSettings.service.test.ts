@@ -1,19 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { deleteUser, getUserSettings } from '@/services/account/userSettings.service';
+import { deleteUser, getAccountDeletionBlocker, getUserSettings } from '@/services/account/userSettings.service';
 import * as UserRepository from '@/repositories/postgres/user.repository';
 import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
 import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
 import * as InvitationRepository from '@/repositories/postgres/invitation.repository';
 import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { UserException } from '@/lib/exceptions';
+import { makeUser } from '@/test/auth-fixtures';
 
 vi.mock('@/lib/env', () => ({
   env: {
     NEXT_PUBLIC_DEFAULT_LANGUAGE: 'en',
   },
 }));
+vi.mock('@/lib/feature-flags', () => ({ isFeatureEnabled: vi.fn() }));
+vi.mock('next-intl/server', () => ({ getTranslations: vi.fn(async () => (key: string) => key) }));
 vi.mock('@/repositories/postgres/user.repository', () => ({
   updateUser: vi.fn(),
   anonymizeUser: vi.fn(),
+  findUserById: vi.fn(),
+  countActiveAdmins: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/userSettings.repository', () => ({
   findSettingsByUserId: vi.fn(),
@@ -29,6 +36,87 @@ vi.mock('@/repositories/postgres/invitation.repository', () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.mocked(isFeatureEnabled).mockReturnValue(false);
+  vi.mocked(UserRepository.findUserById).mockResolvedValue(makeUser({ role: null }));
+  vi.mocked(UserRepository.countActiveAdmins).mockResolvedValue(1);
+});
+
+describe('deleteUser last-admin guard', () => {
+  beforeEach(() => {
+    vi.mocked(DashboardRepository.deleteOwnedDashboards).mockResolvedValue([]);
+  });
+
+  it('refuses to delete the last active admin off-cloud', async () => {
+    vi.mocked(UserRepository.findUserById).mockResolvedValue(makeUser({ role: 'admin' }));
+
+    const result = deleteUser('user-1');
+
+    await expect(result).rejects.toBeInstanceOf(UserException);
+    await expect(result).rejects.toThrow('lastAdminCannotBeDeleted');
+    expect(DashboardRepository.deleteOwnedDashboards).not.toHaveBeenCalled();
+    expect(UserRepository.anonymizeUser).not.toHaveBeenCalled();
+  });
+
+  it('deletes an admin off-cloud when another active admin exists', async () => {
+    vi.mocked(UserRepository.findUserById).mockResolvedValue(makeUser({ role: 'admin' }));
+    vi.mocked(UserRepository.countActiveAdmins).mockResolvedValue(2);
+
+    await deleteUser('user-1');
+
+    expect(UserRepository.anonymizeUser).toHaveBeenCalledWith('user-1');
+  });
+
+  it('deletes a non-admin off-cloud without counting admins', async () => {
+    await deleteUser('user-1');
+
+    expect(UserRepository.countActiveAdmins).not.toHaveBeenCalled();
+    expect(UserRepository.anonymizeUser).toHaveBeenCalledWith('user-1');
+  });
+
+  it('deletes the last admin on Cloud without looking up the user', async () => {
+    vi.mocked(isFeatureEnabled).mockReturnValue(true);
+    vi.mocked(UserRepository.findUserById).mockResolvedValue(makeUser({ role: 'admin' }));
+
+    await deleteUser('user-1');
+
+    expect(UserRepository.findUserById).not.toHaveBeenCalled();
+    expect(UserRepository.countActiveAdmins).not.toHaveBeenCalled();
+    expect(UserRepository.anonymizeUser).toHaveBeenCalledWith('user-1');
+  });
+});
+
+describe('getAccountDeletionBlocker', () => {
+  it('blocks the last active admin off-cloud', async () => {
+    vi.mocked(UserRepository.findUserById).mockResolvedValue(makeUser({ role: 'admin' }));
+
+    expect(await getAccountDeletionBlocker('user-1')).toBe('last_admin');
+  });
+
+  it('does not block an admin when another active admin exists', async () => {
+    vi.mocked(UserRepository.findUserById).mockResolvedValue(makeUser({ role: 'admin' }));
+    vi.mocked(UserRepository.countActiveAdmins).mockResolvedValue(2);
+
+    expect(await getAccountDeletionBlocker('user-1')).toBeNull();
+  });
+
+  it('does not block a non-admin', async () => {
+    expect(await getAccountDeletionBlocker('user-1')).toBeNull();
+    expect(UserRepository.countActiveAdmins).not.toHaveBeenCalled();
+  });
+
+  it('does not block an already deleted admin', async () => {
+    vi.mocked(UserRepository.findUserById).mockResolvedValue(makeUser({ role: 'admin', deletedAt: new Date() }));
+
+    expect(await getAccountDeletionBlocker('user-1')).toBeNull();
+  });
+
+  it('never blocks on Cloud', async () => {
+    vi.mocked(isFeatureEnabled).mockReturnValue(true);
+    vi.mocked(UserRepository.findUserById).mockResolvedValue(makeUser({ role: 'admin' }));
+
+    expect(await getAccountDeletionBlocker('user-1')).toBeNull();
+    expect(UserRepository.findUserById).not.toHaveBeenCalled();
+  });
 });
 
 describe('deleteUser', () => {

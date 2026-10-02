@@ -1,9 +1,13 @@
 'use client';
 
 import { useTransition, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { authClient } from '@/lib/auth-client';
 import { Trash2 } from 'lucide-react';
-import { deleteUserAccountAction } from '@/app/actions/account/userSettings.action';
+import {
+  deleteUserAccountAction,
+  getAccountDeletionBlockerAction,
+} from '@/app/actions/account/userSettings.action';
 import { Button } from '@/components/ui/button';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { toast } from 'sonner';
@@ -16,6 +20,18 @@ export default function UserDangerZoneSettings() {
   const [isPending, startTransition] = useTransition();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const t = useTranslations('components.userSettings.danger');
+
+  const { data: deletionBlocker, isLoading: isBlockerLoading } = useQuery({
+    queryKey: ['accountDeletionBlocker'],
+    queryFn: async () => {
+      const result = await getAccountDeletionBlockerAction();
+      if (!result.success) {
+        throw new Error(result.error.message);
+      }
+      return result.data;
+    },
+  });
+  const isBlocked = deletionBlocker === 'last_admin';
 
   const handleDeleteAccount = async () => {
     if (!session?.user?.id) {
@@ -39,12 +55,12 @@ export default function UserDangerZoneSettings() {
     <UserSettingsSection title={t('sectionTitle')}>
       <SettingRow
         label={t('delete')}
-        description={t('details')}
+        description={isBlocked ? t('lastAdmin') : t('details')}
         action={
           <Button
             variant='destructive'
             size='sm'
-            disabled={isPending}
+            disabled={isPending || isBlockerLoading || isBlocked}
             onClick={() => setIsDialogOpen(true)}
             className='cursor-pointer'
           >
