@@ -43,9 +43,11 @@ The number of monitors you can create depends on your plan:
 
 | Plan          | Monitor Limit |
 |---------------|---------------|
-| Growth        | 5 monitors    |
+| Growth        | 1 monitor     |
 | Professional  | 50 monitors   |
 | Enterprise    | Unlimited     |
+
+On a [self-hosted instance](/installation/self-hosting) there are no plans and no monitor limit, and every monitor can use 1-minute check intervals and the advanced configurations below.
 
 
 ## Configuration Options
@@ -62,7 +64,7 @@ How often we check your site. Available options range from **1 minute** to **24 
 - **Longer intervals**: Suitable for non-critical or low-priority endpoints
 
 <Callout type="info">
-Check intervals under 5 minutes are available on Professional and Enterprise plans.
+Check intervals under 5 minutes are available on Professional and Enterprise plans on Betterlytics Cloud, and on every self-hosted instance.
 </Callout>
 
 #### Request Timeout
@@ -138,7 +140,7 @@ SSL monitoring is only available for HTTPS URLs. For HTTP URLs, this setting has
 
 ### Advanced Configurations
 
-These options are available on Professional and Enterprise plans.
+These options are available on Professional and Enterprise plans on Betterlytics Cloud, and on every self-hosted instance.
 
 #### HTTP Method
 

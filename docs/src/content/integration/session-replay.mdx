@@ -157,7 +157,7 @@ Session Replay operates with privacy‑first defaults:
 
 - Replays are not video recordings; they are structured DOM event timelines reconstructed client‑side.
 - Sensitive text and input values never leave the browser in readable form; masked values are persisted.
-- Recordings are encrypted in transit and at rest.
+- On Betterlytics Cloud, recordings are encrypted in transit and at rest. On a self-hosted instance, they are encrypted in transit when the instance is served over HTTPS, and encryption at rest depends on your server's disks or your S3 bucket.
 - Retention: 60 days on Betterlytics Cloud. Self-hosted instances set their own retention with [`REPLAY_RETENTION_DAYS`](/installation/self-hosting#session-replay). After expiration, sessions are permanently deleted and cannot be recovered.
 
 ## Availability

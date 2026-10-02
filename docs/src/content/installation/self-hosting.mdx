@@ -28,6 +28,8 @@ Before relying on a specific feature, check the [cloud vs self-hosted comparison
 - A **hostname** the instance is reached at, pointed at your server or your reverse proxy (not needed to try it locally)
 - Ports **80** and **443** reachable from the internet (standalone mode), or a reverse proxy you already run
 
+Compose v2.24 is the first release that applies the healthcheck `start_interval` setting the stack uses to come up quickly with `docker compose up -d --wait`, and Compose only accepts that setting on Docker Engine 25 or newer; older Compose versions reject or ignore it.
+
 ## Quick Start
 
 ### 1. Clone the Repository
@@ -69,7 +71,7 @@ The first start runs database migrations before the app comes up, so give it a m
 Then open your domain in a browser and create your account.
 
 <Callout type="info">
-The first account created on a new instance becomes its admin. The instance is reachable as soon as it starts, so create your account right after `docker compose up -d --wait` returns.
+The first account created on a new instance becomes its admin. The instance is reachable as soon as it starts, so create your account right after `docker compose up -d --wait` returns. Everyone else joins by invitation, see [Users and Email](#users-and-email).
 </Callout>
 
 ### 4. Install the Tracking Script
@@ -372,6 +374,62 @@ A status page can be served from its own domain, for example `status.acme.com`, 
 
 See the [Custom Status Page Domain guide](/integration/custom-status-page-domain) for the in-app steps and DNS troubleshooting.
 
+## Users and Email
+
+### Adding Users
+
+The first account is created on the sign-up page of a new instance. After that, sign-up is closed and new people join by invitation only.
+
+To invite someone, open a dashboard, go to **Settings > Members**, enter their email address, pick a role, and click **Invite**. Owners and admins of the dashboard can invite. With [email set up](#setting-up-email), the invitation arrives by email. Without it, nothing is sent: click **Copy invite link** next to the invitation and pass the link on yourself. The invited person opens the link and creates their account with the email address you invited. Invite links expire after 7 days.
+
+An invitation gives access to one dashboard. To give someone access to several, invite them from each one.
+
+Accounts on a self-hosted instance are never asked to verify their email address.
+
+### What Needs Email
+
+Email is off by default. Everything else works without it, but these features need it:
+
+- **Password reset:** the **Forgot your password?** link on the sign-in page only appears when email is set up
+- **Invitation emails:** invite links work without email, see above
+- **[Email reports](/dashboard/email-reports)**
+- **Email alerts for [uptime monitors](/dashboard/monitoring):** Slack, Discord, Teams, Pushover, and webhook alerts work without email
+- **Security notices** about password changes and two-factor authentication
+
+Emails are sent by the instance's background jobs, which are on by default. With `BACKGROUND_JOBS_ENABLED=false`, no email is sent at all.
+
+### Lost Passwords and Two-Factor Authentication
+
+Without email, a forgotten password cannot be reset. To recover an account, [set up email](#setting-up-email), apply it with `docker compose up -d --wait`, and use **Forgot your password?** on the sign-in page.
+
+Someone who loses their authenticator app signs in with one of the backup codes shown when they turned on two-factor authentication. Each code works once, and new ones can be generated under **User Settings > Account**. This works without email.
+
+### Setting Up Email
+
+Set `ENABLE_EMAILS=true`, a sender address in `SMTP_FROM`, and one provider in `.env`:
+
+<Tabs items={['SMTP', 'MailerSend']}>
+  <Tabs.Tab>
+    ```bash
+    ENABLE_EMAILS=true
+    SMTP_FROM=analytics@example.com
+    SMTP_HOST=smtp.example.com
+    SMTP_PORT=587
+    SMTP_USER=your_smtp_username
+    SMTP_PASSWORD=your_smtp_password
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    ENABLE_EMAILS=true
+    SMTP_FROM=analytics@example.com
+    MAILER_SEND_API_TOKEN=your_api_token
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+`SMTP_FROM` is required with either provider, MailerSend included, and the instance does not start without it. Use an address on a domain your email provider has verified, optionally with a display name: `SMTP_FROM="Acme Analytics <analytics@example.com>"`. Apply the change with `docker compose up -d --wait`. The [Email reference](#email) lists every option.
+
 ## Configuration Reference
 
 All options are read from `.env` in the repository root. Database passwords, auth secrets, and internal tokens are derived from `SECRET_BASE`, so that is the only secret you need to set. After editing `.env`, run `docker compose up -d --wait`.
@@ -382,7 +440,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 |----------|---------|----------|
 | `DOMAIN` | | Domain where the instance is reachable, without protocol. Include the port if browsers use a non-standard one, for example `analytics.example.com:8443`. Only behind your own proxy: standalone mode needs the bare hostname. See [Behind a Reverse Proxy](#behind-a-reverse-proxy) |
 | `HTTP_SCHEME` | `http` | `https` enables built-in Let's Encrypt certificates (standalone mode) |
-| `SSL_EMAIL` | unset | Optional email registered with your Let's Encrypt account, used for expiry notices |
+| `SSL_EMAIL` | unset | Optional contact address registered with your Let's Encrypt account |
 | `ACME_CA` | Let's Encrypt production | Optional ACME directory URL. Use `https://acme-staging-v02.api.letsencrypt.org/directory` while testing to avoid rate limits |
 | `FORCE_HTTP_SCHEME` | unset | Set to `http` only when browsers reach the instance over plain HTTP, as in [Try Locally](#try-locally) and [Plain HTTP or IP Access](#plain-http-or-ip-access). Sets the scheme of the public URL used for logins, links, and the tracking snippet, which is `https` otherwise |
 
