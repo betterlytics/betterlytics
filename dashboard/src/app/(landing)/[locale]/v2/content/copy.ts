@@ -203,11 +203,9 @@ export const COPY = {
     compareLink: (name: string) => `vs ${name}`,
     connect: { github: 'GitHub', bluesky: 'Bluesky', discord: 'Discord' },
     nav: 'Footer',
-    copyright: (year: number) => `© ${year} Betterlytics. Open source under AGPL-3.0 license.`,
-    legal: 'Legal',
-    privacy: 'Privacy',
-    terms: 'Terms',
-    subprocessors: 'Subprocessors',
+    copyright: (year: number) => `© ${year} Betterlytics.`,
+    /* the licence's name links to its text */
+    license: { lead: 'Open source under', name: 'AGPL-3.0', tail: 'license.' },
     reportVulnerability: 'Report a vulnerability',
   },
 } as const;

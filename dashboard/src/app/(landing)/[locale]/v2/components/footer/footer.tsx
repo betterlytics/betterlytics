@@ -20,6 +20,9 @@ const COMPARISONS = copy.compare.filter(({ slug }) => getCompetitorData(slug) !=
 const LINK =
   'flex w-fit items-center gap-[9px] py-2 text-body-sm leading-4 tracking-ui text-fg transition-opacity duration-180 ease-out-expo hover:opacity-80 max-sm:py-1 max-sm:text-body';
 const SOCIAL_ICON = 'size-[15px] flex-none';
+/** A link within the fine print, told from its sentence by an underline, not only by colour. */
+const FINE_LINK =
+  'underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current';
 
 function Column({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
@@ -137,13 +140,17 @@ export function LandingFooter() {
       </div>
       {/* the rule escapes the footer's padding and runs the full viewport */}
       <div className='relative mt-14 flex flex-wrap items-center justify-between gap-6 pt-8 text-caption text-muted before:bleed-rule before:top-0 before:bg-rule-10'>
-        <span>{copy.copyright(new Date().getFullYear())}</span>
-        <nav aria-label={copy.legal} className='flex flex-wrap gap-6'>
-          <Link href='/privacy'>{copy.privacy}</Link>
-          <Link href='/terms'>{copy.terms}</Link>
-          <Link href='/subprocessors'>{copy.subprocessors}</Link>
-          <a href={LINKS.securityPolicy}>{copy.reportVulnerability}</a>
-        </nav>
+        {/* the legal pages are in the Company column above, so the row holds only what isn't */}
+        <span>
+          {copy.copyright(new Date().getFullYear())} {copy.license.lead}{' '}
+          <a className={FINE_LINK} href={LINKS.license}>
+            {copy.license.name}
+          </a>{' '}
+          {copy.license.tail}
+        </span>
+        <a className='transition-colors duration-180 ease-out-expo hover:text-fg' href={LINKS.securityPolicy}>
+          {copy.reportVulnerability}
+        </a>
       </div>
     </footer>
   );
