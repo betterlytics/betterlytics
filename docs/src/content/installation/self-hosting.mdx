@@ -383,10 +383,10 @@ All options are read from `.env` in the repository root. Database passwords, aut
 
 | Variable | Default | Behavior |
 |----------|---------|----------|
-| `ENABLE_EMAILS` | `false` | Enables outgoing email for reports and alerts |
-| `MAILER_SEND_API_TOKEN` | | MailerSend API token. When set, no SMTP configuration is needed |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | | SMTP server for other providers |
-| `SMTP_FROM` | | Sender address for outgoing mail |
+| `ENABLE_EMAILS` | `false` | Enables outgoing email: password resets, invitations, reports, alerts, and security notices. Needs `SMTP_FROM` and one provider below |
+| `SMTP_FROM` | | Sender for all outgoing mail, MailerSend and SMTP alike. Required when `ENABLE_EMAILS=true`; the instance does not start without it. Use an address on a domain your email provider has verified, optionally with a display name: `"Acme Analytics <analytics@example.com>"` |
+| `MAILER_SEND_API_TOKEN` | | MailerSend API token. When set, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` are not needed, but `SMTP_FROM` still is. If both are set, MailerSend is used |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | | SMTP server for other providers. `SMTP_PORT` defaults to `587` |
 
 ### Geolocation
 
@@ -436,6 +436,7 @@ Releases after v1.3.5 run one-time ClickHouse migrations that rewrite the events
 - Ensure free disk space of at least 2 to 3 times the size of your ClickHouse data volume. The events table is rewritten twice, and the space is reclaimed at the end.
 - Expect a long first boot on large installations.
 - Back up the `betterlytics_selfhost_clickhouse_data` and `betterlytics_selfhost_postgres_data` volumes first.
+- If `ENABLE_EMAILS=true`, set `SMTP_FROM` to an address on a domain your email provider has verified. Earlier versions sent as `info@betterlytics.io` when it was unset, which providers reject; the instance now refuses to start without it.
 
 </details>
 
@@ -451,6 +452,7 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - `HTTP_SCHEME=https requires HTTP_PORT=80`: set `HTTP_PORT=80` and `HTTPS_PORT=443` in `.env`, or switch to `HTTP_SCHEME=http` behind your own proxy
 - `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again
 - `Geolocation is enabled but no GeoIP database could be obtained`: check `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`, or set `ENABLE_GEOLOCATION=false`
+- `ENABLE_EMAILS=true requires SMTP_FROM on self-hosted instances`: set `SMTP_FROM` in `.env` to your sender address (MailerSend needs it too), or set `ENABLE_EMAILS=false`, then `docker compose up -d --wait` again
 
 ### HTTPS certificate not provisioning
 
