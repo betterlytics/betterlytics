@@ -8,22 +8,25 @@ import {
   WindsurfLogo,
 } from "./ClientLogos";
 
-export const MCP_SERVER_URL = "https://betterlytics.io/api/mcp";
+export const CLOUD_MCP_SERVER_URL = "https://betterlytics.io/api/mcp";
+const MCP_PATH = "/api/mcp";
 export const SERVER_NAME = "betterlytics";
 export const TOKEN_PLACEHOLDER = "btl_your_token_here";
 
 export type SnippetLang = "json" | "bash" | "toml";
 
+export type SnippetInput = { token: string; serverUrl: string };
+
 export type Variant = {
   label: string;
   note?: ReactNode;
   lang: SnippetLang;
-  code: (token: string) => string;
+  code: (input: SnippetInput) => string;
 };
 
 export type InstallLink = {
   label: string;
-  href: (token: string) => string;
+  href: (input: SnippetInput) => string;
   hintWithoutToken: string;
 };
 
@@ -31,7 +34,7 @@ export type Client = {
   id: string;
   name: string;
   Logo: (props: { className?: string }) => ReactNode;
-  intro?: ReactNode;
+  intro?: (serverUrl: string) => ReactNode;
   install?: InstallLink;
   snippetLead: ReactNode;
   variants: Variant[];
@@ -44,24 +47,36 @@ function toBase64(value: string): string {
     : Buffer.from(value, "utf8").toString("base64");
 }
 
-const remoteConfig = (token: string) => ({
-  url: MCP_SERVER_URL,
+// Accepts an instance origin or the full endpoint, with or without scheme or trailing slash.
+export function resolveServerUrl(input: string): string {
+  const trimmed = input.trim().replace(/\/+$/, "");
+  if (!trimmed) return CLOUD_MCP_SERVER_URL;
+  const withScheme = /^https?:\/\//i.test(trimmed)
+    ? trimmed
+    : `https://${trimmed}`;
+  return withScheme.endsWith(MCP_PATH)
+    ? withScheme
+    : `${withScheme}${MCP_PATH}`;
+}
+
+const remoteConfig = ({ token, serverUrl }: SnippetInput) => ({
+  url: serverUrl,
   headers: { Authorization: `Bearer ${token}` },
 });
 
-function cursorInstallLink(token: string): string {
-  const config = toBase64(JSON.stringify(remoteConfig(token)))
+function cursorInstallLink(input: SnippetInput): string {
+  const config = toBase64(JSON.stringify(remoteConfig(input)))
     .replace(/\+/g, "%2B")
     .replace(/\//g, "%2F");
   return `cursor://anysphere.cursor-deeplink/mcp/install?name=${SERVER_NAME}&config=${config}`;
 }
 
-function vsCodeInstallLink(token: string): string {
+function vsCodeInstallLink({ token, serverUrl }: SnippetInput): string {
   const hasToken = token !== TOKEN_PLACEHOLDER;
 
   const config = {
     type: "http",
-    url: MCP_SERVER_URL,
+    url: serverUrl,
     headers: {
       Authorization: `Bearer ${hasToken ? token : "${input:btl-token}"}`,
     },
@@ -94,7 +109,7 @@ export const CLIENTS: Client[] = [
     id: "claude-desktop",
     name: "Claude Desktop",
     Logo: ClaudeLogo,
-    intro: (
+    intro: (serverUrl) => (
       <>
         <p>
           Claude Desktop&apos;s <strong>Connectors</strong> UI can now pass a
@@ -107,7 +122,7 @@ export const CLIENTS: Client[] = [
             Request headers
           </a>{" "}
           field: add a custom connector pointing at{" "}
-          <code>https://betterlytics.io/api/mcp</code> with an{" "}
+          <code>{serverUrl}</code> with an{" "}
           <code>Authorization</code> header set to{" "}
           <code>Bearer &lt;your token&gt;</code>. That feature is still in beta
           and rolling out gradually, so if you don&apos;t see it, use the{" "}
@@ -137,13 +152,13 @@ export const CLIENTS: Client[] = [
       {
         label: "macOS / Linux",
         lang: "json",
-        code: (token) =>
+        code: ({ token, serverUrl }) =>
           mcpServersJson(token, {
             command: "npx",
             args: [
               "-y",
               "mcp-remote",
-              MCP_SERVER_URL,
+              serverUrl,
               "--header",
               `Authorization:Bearer ${token}`,
             ],
@@ -161,7 +176,7 @@ export const CLIENTS: Client[] = [
           </>
         ),
         lang: "json",
-        code: (token) =>
+        code: ({ token, serverUrl }) =>
           mcpServersJson(token, {
             command: "cmd",
             args: [
@@ -169,7 +184,7 @@ export const CLIENTS: Client[] = [
               "npx",
               "-y",
               "mcp-remote",
-              MCP_SERVER_URL,
+              serverUrl,
               "--header",
               `Authorization:Bearer ${token}`,
             ],
@@ -197,8 +212,8 @@ export const CLIENTS: Client[] = [
       {
         label: "Terminal",
         lang: "bash",
-        code: (token) =>
-          `claude mcp add --transport http ${SERVER_NAME} ${MCP_SERVER_URL} \\\n  --header "Authorization: Bearer ${token}"`,
+        code: ({ token, serverUrl }) =>
+          `claude mcp add --transport http ${SERVER_NAME} ${serverUrl} \\\n  --header "Authorization: Bearer ${token}"`,
       },
     ],
   },
@@ -221,7 +236,7 @@ export const CLIENTS: Client[] = [
       {
         label: "mcp.json",
         lang: "json",
-        code: (token) => mcpServersJson(token, remoteConfig(token)),
+        code: (input) => mcpServersJson(input.token, remoteConfig(input)),
       },
     ],
   },
@@ -244,11 +259,11 @@ export const CLIENTS: Client[] = [
       {
         label: "mcp.json",
         lang: "json",
-        code: (token) =>
+        code: (input) =>
           JSON.stringify(
             {
               servers: {
-                [SERVER_NAME]: { type: "http", ...remoteConfig(token) },
+                [SERVER_NAME]: { type: "http", ...remoteConfig(input) },
               },
             },
             null,
@@ -278,9 +293,9 @@ export const CLIENTS: Client[] = [
       {
         label: "mcp_config.json",
         lang: "json",
-        code: (token) =>
+        code: ({ token, serverUrl }) =>
           mcpServersJson(token, {
-            serverUrl: MCP_SERVER_URL,
+            serverUrl,
             headers: { Authorization: `Bearer ${token}` },
           }),
       },
@@ -308,9 +323,9 @@ export const CLIENTS: Client[] = [
       {
         label: "mcp_config.json",
         lang: "json",
-        code: (token) =>
+        code: ({ token, serverUrl }) =>
           mcpServersJson(token, {
-            serverUrl: MCP_SERVER_URL,
+            serverUrl,
             headers: { Authorization: `Bearer ${token}` },
           }),
       },
@@ -329,8 +344,8 @@ export const CLIENTS: Client[] = [
       {
         label: "config.toml",
         lang: "toml",
-        code: (token) =>
-          `[mcp_servers.${SERVER_NAME}]\nurl = "${MCP_SERVER_URL}"\nhttp_headers = { "Authorization" = "Bearer ${token}" }`,
+        code: ({ token, serverUrl }) =>
+          `[mcp_servers.${SERVER_NAME}]\nurl = "${serverUrl}"\nhttp_headers = { "Authorization" = "Bearer ${token}" }`,
       },
     ],
     outro: (
