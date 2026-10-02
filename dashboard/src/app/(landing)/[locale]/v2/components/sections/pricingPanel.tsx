@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import { useLocale } from 'next-intl';
 import NumberFlow from '@number-flow/react';
@@ -13,9 +13,11 @@ import { Panel } from '@/landing/components/ui/frame';
 import { RollLabel } from '@/landing/components/ui/rollLabel';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
 import { COPY, COPY_LOCALE } from '@/landing/content/copy';
+import { useInView } from '@/landing/hooks/useInView';
 import { track } from '@/landing/lib/analytics';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
+import styles from './pricingPanel.module.css';
 
 const copy = COPY.pricing;
 /** The landing page quotes in dollars, as marketing pages conventionally do; billing offers EUR too. */
@@ -170,6 +172,9 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
 export function PricingPanel() {
   const appLocale = useLocale();
   const [rangeIndex, setRangeIndex] = useState(0);
+  const sliderRef = useRef<HTMLSpanElement>(null);
+  // once it is well in view, the thumb nudges once on phones (see the module)
+  const sliderSeen = useInView(sliderRef, 'read');
 
   const range = EVENT_RANGES[rangeIndex];
   const lastIndex = EVENT_RANGES.length - 1;
@@ -202,7 +207,12 @@ export function PricingPanel() {
           <span className='text-label tracking-ui text-muted'>{copy.monthlyEvents}</span>
         </div>
         <Slider.Root
-          className='relative flex h-7 w-full cursor-pointer touch-none items-center select-none'
+          ref={sliderRef}
+          className={cn(
+            styles.slider,
+            'relative flex h-7 w-full cursor-pointer touch-none items-center select-none',
+          )}
+          data-seen={sliderSeen || undefined}
           value={[rangeIndex]}
           onValueChange={([v]) => setRangeIndex(v)}
           // once the drag or key press settles on a new stop, not for every stop passed
@@ -217,21 +227,31 @@ export function PricingPanel() {
           </Slider.Track>
           {/* a single flat disc with one border so it lifts off the fill; the halo only
               appears for keyboard focus and while dragging */}
+          {/* larger on phones, where a finger has to find it, with a 44px touch area around it (the inset counts from inside its 2px border) */}
           <Slider.Thumb
-            className='block size-4.5 cursor-grab rounded-full border-2 border-canvas bg-volt-lift transition-[scale,box-shadow] duration-120 ease-[ease-out] hover:scale-112 focus-visible:ring-5 focus-visible:ring-volt-lift/28 focus-visible:outline-hidden active:scale-112 active:cursor-grabbing active:ring-5 active:ring-volt-lift/28'
+            className={cn(
+              styles.thumb,
+              'relative block size-4.5 cursor-grab rounded-full border-2 border-canvas bg-volt-lift transition-[scale,box-shadow] duration-120 ease-[ease-out] hover:scale-112 focus-visible:ring-5 focus-visible:ring-volt-lift/28 focus-visible:outline-hidden active:scale-112 active:cursor-grabbing active:ring-5 active:ring-volt-lift/28',
+              'max-sm:size-6 max-sm:before:absolute max-sm:before:-inset-3',
+            )}
             aria-label={copy.rangeLabel}
             // announce the volume, not the stop's position on the slider
             aria-valuetext={copy.rangeValueText(formatEventCount(range.value, COPY_LOCALE))}
           />
         </Slider.Root>
         {/* A caption under every stop, each a shortcut to it; the current one is bright.
-            Inset by the thumb's radius, so each caption sits under the thumb's centre. */}
+            Inset by the thumb's radius, so each caption sits under the thumb's centre. On
+            phones only every other one and the last, so they don't run together; the
+            figure above still shows the current one. */}
         <div className='relative -mt-0.5 h-4.5 w-full' role='group' aria-label={copy.monthlyEvents}>
           {EVENT_RANGES.map((r, i) => (
             <button
               key={r.value}
               type='button'
-              className='absolute top-0 left-[calc(9px+(100%-18px)*var(--stop))] -translate-x-1/2 px-1 py-0.5 font-mono text-micro tracking-[0.04em] whitespace-nowrap text-muted transition-[color] duration-200 ease-out-expo hover:text-fg aria-pressed:font-medium aria-pressed:text-fg'
+              className={cn(
+                'absolute top-0 left-[calc(9px+(100%-18px)*var(--stop))] -translate-x-1/2 px-1 py-0.5 font-mono text-micro tracking-[0.04em] whitespace-nowrap text-muted transition-[color] duration-200 ease-out-expo hover:text-fg aria-pressed:font-medium aria-pressed:text-fg',
+                i % 2 === 1 && i !== lastIndex && 'max-sm:hidden',
+              )}
               style={vars({ '--stop': i / lastIndex })}
               aria-pressed={i === rangeIndex}
               onClick={() => pickStop(i)}

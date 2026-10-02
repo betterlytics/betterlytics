@@ -1,0 +1,21 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* On phones, once the slider is in view, its thumb nudges right and back a single time,
+     so it reads as something to drag. Under reduced motion it stays put (base layer). */
+  .slider[data-seen] .thumb {
+    @variant max-sm {
+      animation: thumb-nudge 1s ease-in-out 0.4s;
+    }
+  }
+}
+
+@keyframes thumb-nudge {
+  0%,
+  100% {
+    translate: 0;
+  }
+  40% {
+    translate: 14px 0;
+  }
+}
