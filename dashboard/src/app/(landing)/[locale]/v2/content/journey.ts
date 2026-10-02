@@ -9,32 +9,32 @@ export const JOURNEY_STEPS: readonly JourneyStep[] = [
   {
     id: 'find',
     title: 'Where your users\ncome from',
-    note: 'Organic search, referrals, campaigns and social — including the growing share arriving from ChatGPT and Perplexity.',
+    note: 'Search, referrals, campaigns and social, including ChatGPT and Perplexity.',
   },
   {
     id: 'see',
     title: 'What your users\nlook at',
-    note: 'Pages, countries, devices and languages — live, and never sampled.',
+    note: 'Every page they open, with the country, device and language behind each visit. Live and unsampled.',
   },
   {
     id: 'do',
     title: 'What your users\nactually do',
-    note: 'Custom events, conversion funnels and goals you can segment by anything.',
+    note: 'Custom events like signups and purchases, plus funnels that show where people drop off.',
   },
   {
     id: 'follow',
-    title: 'What your users\nstruggled with',
+    title: 'What your users\nstruggle with',
     note: 'Session replay: every click, scroll and rage click, as they saw it.',
   },
   {
     id: 'wait',
     title: 'When your users\nwait too long',
-    note: 'LCP, INP and CLS measured on real visits rather than a lab run.',
+    note: "Core Web Vitals (LCP, INP and CLS) measured in your visitors' real browsers.",
   },
   {
     id: 'errors',
     title: 'When your users\nhit an error',
-    note: 'JavaScript errors with the stack trace, the page, and who they hit.',
+    note: 'JavaScript errors with the stack trace, the page, and a replay of the session that hit it.',
   },
   {
     id: 'reach',

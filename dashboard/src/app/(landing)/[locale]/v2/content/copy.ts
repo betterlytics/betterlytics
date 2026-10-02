@@ -27,13 +27,13 @@ export const COPY = {
     github: 'GitHub',
     githubLabel: 'Betterlytics on GitHub',
     signIn: 'Sign in',
-    cta: 'Start measuring',
+    cta: 'Get started',
     goToDashboard: 'Go to dashboard',
   },
   hero: {
-    title: 'Every visit, every error, every outage',
-    lede: 'One script, 4.9 kB. No cookies, no sampling, and nothing left to reconcile between dashboards.',
-    ctaPrimary: 'Start measuring for free',
+    title: "You shouldn't need five tools to understand one website",
+    lede: 'Cookieless analytics, session replay, Core Web Vitals, errors and uptime. One dashboard, one bill.',
+    ctaPrimary: 'Get started free',
   },
   demo: {
     placeholder: 'Interactive demo',
@@ -52,7 +52,7 @@ export const COPY = {
   },
   journey: {
     title: 'Everything your users *experienced*',
-    lede: 'From the first visit to the outage, in one dashboard.',
+    lede: 'From their first visit to your next outage.',
   },
   mcp: {
     /* "Point your own" fits down to 360px */
@@ -129,7 +129,7 @@ export const COPY = {
   },
   pricing: {
     title: 'One price, scaled by your traffic',
-    lede: 'Events are the only meter. Bots we catch are dropped before they count.',
+    lede: "Bots we catch don't count, and a traffic spike never costs extra.",
     monthlyEvents: 'Monthly events',
     rangeLabel: 'Monthly event volume',
     rangeValueText: (events: string) => `${events} events`,
@@ -139,13 +139,13 @@ export const COPY = {
     growth: {
       name: 'Growth',
       tagline: 'For side projects and small sites.',
-      ctaFree: 'Start free',
-      cta: 'Start measuring',
+      ctaFree: 'Get started free',
+      cta: 'Get started',
     },
     professional: {
       name: 'Professional',
       tagline: 'For teams running several products.',
-      cta: 'Start measuring',
+      cta: 'Get started',
       badge: 'Most popular',
     },
     enterprise: {
@@ -155,9 +155,9 @@ export const COPY = {
     },
   },
   cta: {
-    title: 'Add one script and watch it land',
+    title: 'Add one script and watch your first visitor arrive',
     lede: 'The free tier is the same script, dashboard and unsampled data as every paid plan. No credit card required.',
-    primary: 'Start measuring for free',
+    primary: 'Get started free',
     secondary: 'View docs',
   },
   footer: {
