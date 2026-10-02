@@ -223,7 +223,7 @@ export function PricingPanel() {
               key={r.value}
               type='button'
               className={cn(
-                'absolute top-0 left-[calc(9px+(100%-18px)*var(--stop))] -translate-x-1/2 px-1 py-0.5 font-mono text-micro tracking-[0.04em] whitespace-nowrap text-muted transition-[color] duration-200 ease-out-expo hover:text-fg aria-pressed:font-medium aria-pressed:text-fg',
+                'absolute top-0 left-[calc(9px+(100%-18px)*var(--stop))] -translate-x-1/2 px-1 py-0.5 text-micro whitespace-nowrap tabular-nums text-muted transition-[color] duration-200 ease-out-expo hover:text-fg aria-pressed:font-medium aria-pressed:text-fg',
                 i % 2 === 1 && i !== lastIndex && 'max-sm:hidden',
               )}
               style={vars({ '--stop': i / lastIndex })}
