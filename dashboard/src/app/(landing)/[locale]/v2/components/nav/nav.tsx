@@ -123,7 +123,7 @@ export function Nav() {
   const ref = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLButtonElement>(null);
   const sheetRef = useRef<HTMLElement>(null);
-  const { grid } = useNavScrollState(ref, IDS.band);
+  const { grid, scrolledDown } = useNavScrollState(ref, IDS.band);
   const [open, setOpen] = useState(false);
 
   // An open sheet closes on Escape, handing focus back to the button if it was inside
@@ -151,12 +151,16 @@ export function Nav() {
       data-grid={grid || undefined}
       // on phones the open menu covers the page, which holds still under it (see landing.css)
       data-open={open || undefined}
+      // on phones the bar steps aside while the reader scrolls down, never with the menu open
+      data-stowed={(scrolledDown && !open) || undefined}
       // the sheet closes once focus moves on past it, rather than into the page it covers
       onBlur={(e) => {
         if (open && e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) setOpen(false);
       }}
       className={cn(
         'sticky top-0 z-20 grid h-18 grid-cols-[1fr_auto_1fr] items-center px-6 max-xl:flex max-sm:h-14 max-sm:px-(--pad)',
+        // stowed: slid up out of view, unless something in it has focus
+        'transition-[translate] duration-300 ease-out-expo max-md:data-stowed:not-focus-within:-translate-y-full',
         // the page is capped in width but the band's rule is full-bleed, so the opaque
         // backing is full-bleed too, or the rule would show past the bar once under it
         'before:absolute before:inset-y-0 before:left-1/2 before:-z-1 before:w-screen before:-translate-x-1/2 before:bg-canvas',
