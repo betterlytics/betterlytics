@@ -732,6 +732,11 @@
             "GDPR Compliant Analytics"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Sign in | Betterlytics",
+          "description": "Sign in to this Betterlytics instance.",
+          "keywords": ["Sign In", "Login"]
+        },
         "title": "Sign in to your account",
         "subtitle": "Access your analytics dashboard",
         "errors": {
@@ -864,7 +869,17 @@
             "tooManyAttempts": "Too many attempts. Please try again later.",
             "generic": "Failed to reset password. Please try again."
           },
-          "successMessage": "Password reset successful!"
+          "successMessage": "Password reset successful!",
+          "newPasswordLabel": "New Password",
+          "newPasswordPlaceholder": "Enter your new password",
+          "confirmPasswordLabel": "Confirm New Password",
+          "confirmPasswordPlaceholder": "Confirm your new password",
+          "requirementsTitle": "Password requirements:",
+          "requirementMinLength": "At least 8 characters long",
+          "requirementLowercase": "At least one lowercase letter",
+          "requirementUppercase": "At least one uppercase letter",
+          "submit": "Reset Password",
+          "submitting": "Resetting Password..."
         },
         "cta": {
           "remember": "Remember your password?",
@@ -920,6 +935,11 @@
           "Web Analytics Demo",
           "Privacy-First Analytics"
         ]
+      },
+      "seoSelfHosted": {
+        "title": "{domain} | Betterlytics",
+        "description": "Web analytics for {domain}.",
+        "keywords": ["Web Analytics", "Analytics Dashboard"]
       }
     },
     "comparison": {
@@ -1365,7 +1385,8 @@
       "pricing": "Pricing",
       "goToDashboard": "Go to Dashboard",
       "getStarted": "Get Started",
-      "login": "Log in"
+      "login": "Log in",
+      "toggleMenu": "Toggle menu"
     },
     "footer": {
       "blurb": "Privacy-first web analytics for the modern web. GDPR compliant, cookieless, and open source.",
@@ -1387,7 +1408,8 @@
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
-      "copyright": "© {year} Betterlytics. Open source under AGPL-3.0 license."
+      "copyright": "© {year} Betterlytics. Open source under AGPL-3.0 license.",
+      "changeLanguage": "Change language"
     },
     "structuredData": {
       "organization": {
@@ -3243,10 +3265,27 @@
       "badgeNew": "New",
       "tooltipWhatsNew": "View what's new",
       "openButtonAria": "View what's new in version {version}"
+    },
+    "themeToggle": {
+      "light": "Switch to light mode",
+      "dark": "Switch to dark mode"
+    },
+    "errorPage": {
+      "title": "Something went wrong",
+      "description": "We encountered an unexpected error while loading your dashboard.",
+      "refresh": "Refresh Page",
+      "goToDashboards": "Go to Dashboards",
+      "goBack": "Go Back",
+      "persists": "If this problem persists, please <link>contact support</link>.",
+      "errorId": "Error ID: {id}",
+      "time": "Time: {time}"
     }
   },
   "onboarding": {
-    "registrationDisabled": "Registration is currently disabled on this instance.",
+    "progress": {
+      "website": "Website",
+      "integration": "Integration"
+    },
     "account": {
       "features": {
         "feature1": {
@@ -3327,7 +3366,8 @@
         "reactDescription": "Add to your main App component",
         "npmDescription": "Install the npm package",
         "npmInstallFirst": "First, install the package:",
-        "npmThenInitialize": "Then initialize it in your code:"
+        "npmThenInitialize": "Then initialize it in your code:",
+        "viewDocs": "View docs"
       },
       "buttons": {
         "skipForNow": "Skip for Now",
@@ -4242,6 +4282,8 @@
       "customDomainInvalid": "Enter a subdomain, e.g. status.example.com.",
       "customDomainSetup": {
         "intro": "Add this DNS record at your domain provider to point <strong>{domain}</strong> at Betterlytics.",
+        "introSelfHosted": "Add this DNS record at your domain provider to point <strong>{domain}</strong> at this instance.",
+        "proxyHintSelfHosted": "In Standalone mode the HTTPS certificate is issued automatically. Behind your own reverse proxy, add this domain to the proxy as well. <link>Read the setup guide</link>",
         "recordType": "Type",
         "recordName": "Name",
         "recordValue": "Value",
@@ -4254,6 +4296,7 @@
         "title": "Search engine visibility",
         "public": "Public",
         "publicHint": "Anyone with the link can view. Indexed by search engines.",
+        "publicHintSelfHosted": "Anyone with the link can view. Search engines only index it if this instance allows crawling.",
         "unlisted": "Unlisted",
         "unlistedHint": "Anyone with the link can view, but hidden from search engines."
       },

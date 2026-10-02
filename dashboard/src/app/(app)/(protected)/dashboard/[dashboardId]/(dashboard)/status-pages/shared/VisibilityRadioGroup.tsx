@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { type StatusPageVisibility } from '@/entities/analytics/statusPage/statusPage.entities';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 const VISIBILITY_OPTIONS: StatusPageVisibility[] = ['public', 'unlisted'];
 
@@ -14,6 +15,7 @@ type VisibilityRadioGroupProps = {
 
 export function VisibilityRadioGroup({ value, onChange, className }: VisibilityRadioGroupProps) {
   const t = useTranslations('statusPagesPage.editor');
+  const isCloud = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
   return (
     <div
@@ -46,7 +48,9 @@ export function VisibilityRadioGroup({ value, onChange, className }: VisibilityR
             <span className='min-w-0'>
               <span className='block text-sm font-semibold'>{t(`visibility.${option}`)}</span>
               <span className='text-muted-foreground mt-0.5 block text-xs leading-relaxed'>
-                {t(`visibility.${option}Hint`)}
+                {option === 'public' && !isCloud
+                  ? t('visibility.publicHintSelfHosted')
+                  : t(`visibility.${option}Hint`)}
               </span>
             </span>
           </button>
