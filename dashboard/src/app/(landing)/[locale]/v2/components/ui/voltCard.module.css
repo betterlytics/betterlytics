@@ -88,7 +88,8 @@
   }
 
   /* A polished edge: one soft white inner shadow, offset down and a touch right, so the
-     top and left edges catch the light. Sits over the hatch and the bloom. */
+     top and left edges catch the light. Sits over the hatch and the bloom. Not on phones,
+     where the card sits nearly edge to edge and the highlight reads as a seam. */
   .card::after {
     content: '';
     position: absolute;
@@ -97,6 +98,9 @@
     pointer-events: none;
     border-radius: inherit;
     box-shadow: inset 1px 6px 6px 0 rgb(255 255 255 / 0.22);
+    @variant max-sm {
+      display: none;
+    }
   }
 
   /* Lamp light, not a white spot: a warm cream core that stays near-opaque, then hands
@@ -153,6 +157,9 @@
     width: 1600px;
     height: 520px;
     background: var(--lamp-below);
+    @variant max-sm {
+      top: calc(100% + 20px);
+    }
   }
 }
 

@@ -21,7 +21,8 @@ const buttonVariants = cva(
       },
       size: {
         sm: 'px-4 py-[9px] text-label',
-        lg: 'px-6 py-[13px] text-body-sm',
+        /** the blue cards' calls to action; taller on phones, where they run full width */
+        lg: 'px-6 py-[13px] text-body-sm max-sm:py-5 max-sm:text-body',
       },
     },
   },
