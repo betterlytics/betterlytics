@@ -38,17 +38,26 @@
   .cell:nth-child(n + 6) {
     border-bottom: 0;
   }
-  /* In two columns the board keeps the look it shipped with: the vertical rule runs down
-     the right column's outer edge rather than between the columns, and no rule separates
-     the last two rows. */
-  .cell:nth-child(odd) {
+  /* In two columns: a rule between the columns and between every row, none along the
+     outer edge. The left column is the even children. */
+  .cell:nth-child(even) {
     @variant max-xl {
       border-right: 1px solid var(--color-rule-08);
     }
   }
-  .cell:nth-child(even) {
+  .cell:nth-child(odd) {
     @variant max-xl {
       border-right: 0;
+    }
+  }
+  .cell:nth-child(n + 6) {
+    @variant max-xl {
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+  }
+  .cell:nth-last-child(-n + 2) {
+    @variant max-xl {
+      border-bottom: 0;
     }
   }
 
