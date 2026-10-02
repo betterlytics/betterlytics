@@ -3952,9 +3952,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://esempio.com/webhook",
       "webhookHint": "Inserisci un URL HTTPS accessibile pubblicamente. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
+      "webhookHintPrivate": "Inserisci un URL HTTP o HTTPS. Questa istanza può raggiungere indirizzi di rete privati. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
       "errors": {
         "webhookUrlRequired": "Il webhook URL è obbligatorio",
-        "webhookUrlInvalid": "Deve essere un URL HTTPS valido"
+        "webhookUrlInvalid": "Deve essere un URL HTTPS valido",
+        "webhookUrlInvalidHttp": "Deve essere un URL HTTP o HTTPS valido"
       },
       "cancel": "Annulla",
       "save": "Salva"

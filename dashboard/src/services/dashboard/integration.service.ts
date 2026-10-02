@@ -10,6 +10,8 @@ import {
 import * as IntegrationRepository from '@/repositories/postgres/integration.repository';
 import { symmetricEncrypt, symmetricDecrypt } from '@/lib/crypto';
 import { env } from '@/lib/env';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { isWebhookUrlAllowed } from '@/lib/outbound-target';
 
 const ENCRYPTION_KEY = env.INTEGRATION_ENCRYPTION_KEY;
 
@@ -206,7 +208,7 @@ export async function validateTeamsWebhookUrl(webhookUrl: string): Promise<boole
 }
 
 export async function validateWebhookUrl(webhookUrl: string): Promise<boolean> {
-  return /^https:\/\//.test(webhookUrl);
+  return isWebhookUrlAllowed(webhookUrl, isFeatureEnabled('allowPrivateTargets'));
 }
 
 export async function validatePushoverUserKey(userKey: string): Promise<boolean> {
@@ -310,6 +312,8 @@ const setupConfirmationSenders: Partial<Record<IntegrationType, SetupConfirmatio
     if (!('webhookUrl' in config)) return;
     await fetch(config.webhookUrl, {
       method: 'POST',
+      // Only the validated host; never follow into an unvalidated one
+      redirect: 'manual',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         title: 'Betterlytics Connected',
