@@ -148,7 +148,11 @@ export function LandingFooter() {
           </a>{' '}
           {copy.license.tail}
         </span>
-        <a className='transition-colors duration-180 ease-out-expo hover:text-fg' href={LINKS.securityPolicy}>
+        {/* first on phones so the copyright stays the page's last line */}
+        <a
+          className='transition-colors duration-180 ease-out-expo hover:text-fg max-sm:order-first'
+          href={LINKS.securityPolicy}
+        >
           {copy.reportVulnerability}
         </a>
       </div>
