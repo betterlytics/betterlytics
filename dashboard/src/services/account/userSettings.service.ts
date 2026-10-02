@@ -69,7 +69,7 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
   }
 }
 
-// Gitea pattern: never leave a self-host instance without an admin; signup does not reopen
+// Never leave a self-host instance without an admin; signup does not reopen
 export async function getAccountDeletionBlocker(userId: string): Promise<AccountDeletionBlocker | null> {
   if (isFeatureEnabled('isCloud')) return null;
   const user = await UserRepository.findUserById(userId);
