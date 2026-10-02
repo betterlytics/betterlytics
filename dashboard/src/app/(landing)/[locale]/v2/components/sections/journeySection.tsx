@@ -35,21 +35,26 @@ const NOTE = 'max-w-[30ch] text-body-sm leading-[22px] text-muted';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-/** -1 when no card is on screen. */
-function nearestToViewportCentre(cards: NodeListOf<HTMLElement>) {
+/** The viewport's middle 10%: taller than the 46px gap between cards, so a jump never lands with none in it. */
+const CENTRE_BAND = '-45% 0px -45% 0px';
+
+type Step = { active: number; direction: 1 | -1 };
+
+const stepTo =
+  (active: number) =>
+  (step: Step): Step =>
+    step.active === active ? step : { active, direction: active > step.active ? 1 : -1 };
+
+const cardsIn = (stack: HTMLElement | null) =>
+  Array.from(stack?.querySelectorAll<HTMLElement>(':scope > article') ?? []);
+
+function nearestToViewportCentre(cards: HTMLElement[]) {
   const centre = window.innerHeight / 2;
-  let best = -1;
-  let bestDistance = Infinity;
-  cards.forEach((card, i) => {
+  const distance = (card: HTMLElement) => {
     const r = card.getBoundingClientRect();
-    if (r.bottom < 0 || r.top > window.innerHeight) return;
-    const d = Math.abs((r.top + r.bottom) / 2 - centre);
-    if (d < bestDistance) {
-      bestDistance = d;
-      best = i;
-    }
-  });
-  return best;
+    return Math.abs((r.top + r.bottom) / 2 - centre);
+  };
+  return cards.reduce((best, card) => (distance(card) < distance(best) ? card : best));
 }
 
 /** Visual duplicate of the active card's copy; aria-hidden since the cards carry it for screen readers. */
@@ -140,34 +145,35 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
 export function JourneySection() {
   const stackRef = useRef<HTMLDivElement>(null);
   const onScreen = useInView(stackRef, 'onScreen');
-  const [{ active, direction }, setStep] = useState<{ active: number; direction: 1 | -1 }>({
-    active: 0,
-    direction: 1,
-  });
+  const [{ active, direction }, setStep] = useState<Step>({ active: 0, direction: 1 });
+
+  // arriving from either end, start on the card in view rather than where the reader left
+  useEffect(() => {
+    if (!onScreen) return;
+    const cards = cardsIn(stackRef.current);
+    if (cards.length) setStep(stepTo(cards.indexOf(nearestToViewportCentre(cards))));
+  }, [onScreen]);
 
   useEffect(() => {
-    let raf = 0;
-    const pick = () => {
-      const cards = stackRef.current?.querySelectorAll<HTMLElement>(':scope > article');
-      const best = cards ? nearestToViewportCentre(cards) : -1;
-      if (best < 0) return;
-      setStep((step) => (step.active === best ? step : { active: best, direction: best > step.active ? 1 : -1 }));
-    };
-    const onScroll = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        pick();
-      });
-    };
-    pick();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', pick, { passive: true });
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('scroll', onScroll);
-      window.removeEventListener('resize', pick);
-    };
+    const cards = cardsIn(stackRef.current);
+    const inBand = new Set<HTMLElement>();
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const card = entry.target as HTMLElement;
+          if (entry.isIntersecting) inBand.add(card);
+          else inBand.delete(card);
+        }
+        if (!inBand.size) return;
+        const held = [...inBand].map((card) => cards.indexOf(card));
+        const best = cards.indexOf(nearestToViewportCentre([...inBand]));
+        // the active card holds until it leaves the band, so two cards in it can't flick the rail
+        setStep((step) => (held.includes(step.active) ? step : stepTo(best)(step)));
+      },
+      { rootMargin: CENTRE_BAND },
+    );
+    cards.forEach((card) => observer.observe(card));
+    return () => observer.disconnect();
   }, []);
 
   return (
