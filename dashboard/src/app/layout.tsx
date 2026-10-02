@@ -7,6 +7,7 @@ import { StructuredData } from '@/components/StructuredData';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { headers } from 'next/headers';
 import { getSessionCookie } from 'better-auth/cookies';
 
@@ -26,9 +27,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isCloud = isFeatureEnabled('isCloud');
   const [locale, seoConfig, sessionToken] = await Promise.all([
     getLocale(),
-    buildSEOConfig(SEO_CONFIGS.root),
+    isCloud ? buildSEOConfig(SEO_CONFIGS.root) : null,
     env.ENABLE_APP_TRACKING ? headers().then(getSessionCookie) : undefined,
   ]);
 
@@ -49,7 +51,7 @@ export default async function RootLayout({
             data-global-properties={JSON.stringify({ surface: 'app', logged_in: Boolean(sessionToken), locale })}
           />
         )}
-        <StructuredData config={seoConfig} />
+        {seoConfig && <StructuredData config={seoConfig} />}
       </head>
       <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />

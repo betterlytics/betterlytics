@@ -189,7 +189,7 @@ export default function Integration() {
             target='_blank'
             rel='noopener noreferrer'
           >
-            View docs
+            {t('instructions.viewDocs')}
           </ExternalLink>
         </CardTitle>
         <CardDescription className='text-sm'>{t('instructions.selectFramework')}</CardDescription>

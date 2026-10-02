@@ -9,7 +9,7 @@ export default async function LocaleLayout({ children }: { children: React.React
 
   return (
     <div className='flex min-h-screen flex-col justify-between'>
-      <PublicTopBar isCloud={isCloud} />
+      <PublicTopBar isCloud={isCloud} registrationEnabled={isFeatureEnabled('enableRegistration')} />
       <div className='flex flex-1 flex-col'>{children}</div>
       <Footer />
       <ThemeToggleFab />
