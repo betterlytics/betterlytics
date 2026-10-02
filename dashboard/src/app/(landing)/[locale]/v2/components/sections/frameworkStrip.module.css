@@ -8,6 +8,10 @@
     @variant max-xl {
       margin-left: 0;
     }
+    /* across the strip on phones, so the two rows of nine spread evenly */
+    @variant max-sm {
+      align-self: stretch;
+    }
   }
   .row {
     display: flex;
@@ -16,6 +20,13 @@
     gap: 6px 14px;
     @variant max-xl {
       justify-content: flex-start;
+    }
+    /* on phones, two even rows of nine rather than eight, eight and two */
+    @variant max-sm {
+      display: grid;
+      grid-template-columns: repeat(9, 1fr);
+      justify-items: center;
+      column-gap: 0;
     }
   }
 
@@ -73,6 +84,9 @@
     .glyphs[data-in] .shine {
       display: flex;
       animation: sweep 26s linear 2.4s infinite;
+      @variant max-sm {
+        display: grid;
+      }
     }
     .glyphs:not([data-live]) .shine {
       animation-play-state: paused;
