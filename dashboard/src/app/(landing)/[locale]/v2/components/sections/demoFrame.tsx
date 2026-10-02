@@ -7,6 +7,8 @@ import { track } from '@/landing/lib/analytics';
 import styles from './demoFrame.module.css';
 
 const copy = COPY.demo;
+/** Cap on waiting for the page's load event, which a hung request elsewhere can stall. */
+const LOAD_WAIT_MS = 3000;
 
 function whenPageSettles(start: () => void) {
   let cancel = () => {};
@@ -24,9 +26,16 @@ function whenPageSettles(start: () => void) {
     schedule();
     return () => cancel();
   }
-  window.addEventListener('load', schedule, { once: true });
+  const onLoad = () => {
+    window.clearTimeout(fallback);
+    window.removeEventListener('load', onLoad);
+    schedule();
+  };
+  const fallback = window.setTimeout(onLoad, LOAD_WAIT_MS);
+  window.addEventListener('load', onLoad);
   return () => {
-    window.removeEventListener('load', schedule);
+    window.clearTimeout(fallback);
+    window.removeEventListener('load', onLoad);
     cancel();
   };
 }
