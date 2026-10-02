@@ -3,14 +3,19 @@ import { Heading, Lede } from '@/landing/components/ui/text';
 import { TrackedAnchor, TrackedLink } from '@/landing/components/ui/trackedLink';
 import { VoltCard, VoltCardActions } from '@/landing/components/ui/voltCard';
 import { COPY } from '@/landing/content/copy';
+import { cn } from '@/landing/lib/cn';
 import { LINKS } from '@/landing/lib/links';
 
 const copy = COPY.cta;
 
 export function CtaSection() {
   return (
+    // phone hatch band mirrors the one in pricingSection
     <section
-      className='relative px-[calc(var(--pad)+12px)] pb-3 after:bleed-rule after:bottom-0 after:z-2 after:bg-rule max-sm:px-0'
+      className={cn(
+        'relative px-[calc(var(--pad)+12px)] pb-3 after:bleed-rule after:bottom-0 after:z-2 after:bg-rule max-sm:px-0',
+        'max-sm:pb-[61px] max-sm:before:absolute max-sm:before:inset-x-0 max-sm:before:bottom-0 max-sm:before:h-[49px] max-sm:before:border-t max-sm:before:border-rule max-sm:before:bg-hatch',
+      )}
       aria-labelledby='cta-title'
     >
       <VoltCard variant='cta'>
