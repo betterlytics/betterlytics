@@ -36,6 +36,10 @@ Uptime monitoring continuously checks whether your website or API endpoints are 
 Monitors can only target URLs within your dashboard’s registered domain. For example, if your dashboard is for `example.com`, you can monitor `https://example.com/api/health`, `https://api.example.com`, or any subdomain.
 </Callout>
 
+<Callout type="info">
+Self-hosted instances can also monitor private network addresses (LAN, loopback, Tailscale) on any port. See [Monitoring Internal Services](/installation/self-hosting#monitoring-internal-services). On Betterlytics Cloud, monitors only reach public addresses on ports 80 and 443.
+</Callout>
+
 ### Monitor Limits
 
 The number of monitors you can create depends on your plan:
