@@ -17,9 +17,9 @@ const WORKS_WITH_ID = 'mcp-works-with';
 export function McpSection() {
   return (
     <Section id={IDS.mcp} title={copy.title} lede={copy.lede}>
-      <Panel flush>
-        <div className='grid grid-cols-[1fr_1.15fr] max-lg:grid-cols-1'>
-          <div className='flex flex-col border-r border-rule-10 px-7.5 py-8 transition-ink max-lg:border-r-0 max-lg:border-b'>
+      <Panel flush framed>
+        <div className='grid grid-cols-[1fr_1.15fr] grid-rows-[1fr_auto] max-lg:grid-cols-1 max-lg:grid-rows-none'>
+          <div className='flex flex-col border-r border-rule-10 px-7.5 pt-8 transition-ink max-lg:border-r-0 max-lg:border-b max-lg:pb-8 max-sm:px-6'>
             {/* a small heading over the body, so that beside the bright transcript
                 the paragraph does not read as a lede without a headline */}
             <Heading as='h3' size='title' className='mb-2'>
@@ -50,18 +50,21 @@ export function McpSection() {
               ))}
             </SpotlightList>
             <p className='mt-7 text-caption leading-[19px] text-muted'>{copy.any}</p>
-            <div className='mt-auto pt-6.5 max-lg:mt-6.5'>
-              <TrackedAnchor
-                className={buttonStyles({ variant: 'line', size: 'sm' })}
-                href={LINKS.mcpDocs}
-                placement='mcp'
-                destination='mcp-docs'
-              >
-                {copy.cta}
-              </TrackedAnchor>
-            </div>
           </div>
-          <AgentTranscript className='m-4.5 max-lg:mt-0' />
+          <AgentTranscript className='row-span-2 m-4.5 max-lg:row-span-1 max-lg:mt-0 max-sm:m-0 max-sm:rounded-none max-sm:border-0' />
+          {/* the copy column's foot: under the copy beside the transcript, and after the
+              transcript once stacked, so the clients and the transcript stay together. Not
+              on phones, where the client tiles above already link to the same set-up docs. */}
+          <div className='border-r border-rule-10 px-7.5 pt-6.5 pb-8 transition-ink max-lg:border-r-0 max-lg:pt-3.5 max-sm:hidden'>
+            <TrackedAnchor
+              className={buttonStyles({ variant: 'line', size: 'sm' })}
+              href={LINKS.mcpDocs}
+              placement='mcp'
+              destination='mcp-docs'
+            >
+              {copy.cta}
+            </TrackedAnchor>
+          </div>
         </div>
       </Panel>
     </Section>
