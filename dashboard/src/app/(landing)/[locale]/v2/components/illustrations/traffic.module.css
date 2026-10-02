@@ -40,6 +40,11 @@
       top: 9%;
       width: 60%;
     }
+    /* On a phone's square card the pair is centred: 271px tall, the page card's top 17px
+       below the depth card's. */
+    @variant max-sm {
+      top: calc(50% - 118px);
+    }
   }
   .depth {
     --d: 0.2s;
@@ -52,6 +57,9 @@
       left: 59%;
       top: 4%;
       width: 38%;
+    }
+    @variant max-sm {
+      top: calc(50% - 135px);
     }
   }
   .week {

@@ -216,12 +216,18 @@
       padding: 11px 14px 12px;
     }
   }
-  /* a phone keeps the two middle cards, the ones that take turns failing, so the notice
-     fits below without covering the monitor it is about */
+  /* A narrow card keeps the two middle monitors, the ones that take turns failing, so the
+     notice fits below without covering the monitor it is about. A phone's card is square,
+     with room for Docs under them, the monitor the certificate notice is about, as wider. */
   .monitor:nth-child(1),
   .monitor:nth-child(4) {
     @variant max-md {
       display: none;
+    }
+  }
+  .monitor:nth-child(4) {
+    @variant max-sm {
+      display: grid;
     }
   }
   .uptime[data-in] .monitor {
