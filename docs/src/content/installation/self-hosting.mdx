@@ -88,7 +88,7 @@ Once logged in, follow the in-app integration guide to add the tracking script t
 ```
 
 <Callout type="warning">
-The snippets elsewhere in these docs load `analytics.js` from `betterlytics.io` and, without `data-server-url`, send events to Betterlytics Cloud. When copying one, replace the script origin with your domain and add `data-server-url` pointing at your instance's `/event` endpoint.
+The snippets elsewhere in these docs are written for Betterlytics Cloud: they load `analytics.js` from `betterlytics.io` and send events there. When copying one, change the script origin and add `data-server-url`, or the npm package's `scriptUrl` and `serverUrl` options, as shown in [Tracking Scripts](#tracking-scripts).
 </Callout>
 
 ## Deployment Modes
@@ -224,11 +224,50 @@ The third `setup.sh` mode runs the instance on `http://localhost:5566` with no d
 
 ## Tracking Scripts
 
-Your instance serves every script the tracker needs: `analytics.js`, plus `replay.js` and `web-vitals.js` when those features are enabled on a site. The optional scripts are loaded from the same origin as `analytics.js`, so no request leaves for a third-party host and a Content-Security-Policy only needs to allow your instance's origin in `script-src`.
+Your instance serves every script the tracker needs: `analytics.js`, plus `replay.js` and `web-vitals.js` when those features are enabled on a site. The in-app integration guide fills in your instance's address. The snippets elsewhere in these docs are written for Betterlytics Cloud, so when you copy one, change two things:
 
-If you serve `analytics.js` from somewhere else, for example a CDN in front of your instance, set `data-scripts-base-url` on the script tag to the origin the optional scripts should be loaded from.
+- Load `analytics.js` from your instance instead of `betterlytics.io`
+- Send events to your instance's `/event` endpoint. Without this, the tracker sends them to Betterlytics Cloud
+
+<Tabs items={['Script tag', 'npm package']}>
+  <Tabs.Tab>
+    ```html
+    <script
+      async
+      src="https://analytics.example.com/analytics.js"
+      data-site-id="your-site-id"
+      data-server-url="https://analytics.example.com/event"
+    ></script>
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```js
+    import betterlytics from "@betterlytics/tracker";
+
+    betterlytics.init("your-site-id", {
+      scriptUrl: "https://analytics.example.com/analytics.js",
+      serverUrl: "https://analytics.example.com/event",
+    });
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+Every other attribute and option in the [integration guides](/integration) works unchanged next to these. The [WordPress plugin](/wordpress/configuration#self-hosted-instances) has its own settings for the same two addresses.
+
+The optional scripts are loaded from the same origin as `analytics.js`, so no request leaves for a third-party host. If you serve `analytics.js` from somewhere else, for example a CDN in front of your instance, set `data-scripts-base-url` on the script tag to the origin the optional scripts should be loaded from.
 
 Core Web Vitals need no instance-side setup: add `data-web-vitals="true"` to the tracking script, see the [Web Vitals integration guide](/integration/web-vitals).
+
+### Content Security Policy
+
+If your website sends a `Content-Security-Policy` header, allow your instance's origin for loading the scripts and for sending data:
+
+```text
+script-src 'self' https://analytics.example.com;
+connect-src 'self' https://analytics.example.com;
+```
+
+`script-src` covers `analytics.js` and the optional scripts. `connect-src` covers everything the tracker sends: pageviews, events, Web Vitals, errors, and session replay recordings. If you set `data-scripts-base-url`, add that origin to `script-src` too.
 
 ## Geolocation
 

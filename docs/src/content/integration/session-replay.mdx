@@ -36,6 +36,10 @@ Add `data-replay="true"` to your analytics script to enable replays. You can als
 </script>
 ```
 
+<Callout type="info">
+Self-hosting? Load `analytics.js` from your instance and send events to it, with the script tag and the npm package alike. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
+</Callout>
+
 ### Configuration reference
 
 | Attribute | Type | Default | Description |
@@ -49,7 +53,7 @@ Add `data-replay="true"` to your analytics script to enable replays. You can als
 | `data-dynamic-urls` | string list | - | Comma‑separated SPA normalization patterns (supports `*` and `**`). |
 | `data-disable-replay-on-urls` | string list | - | Comma‑separated patterns where recording is disabled. |
 | `data-replay-on-error` | boolean | `false` | Capture a replay when an error occurs, even for sessions not selected for regular recording. Requires [Error Tracking](/integration/errors). |
-| `data-scripts-base-url` | string (URL) | Betterlytics CDN | Base to load `replay.js` when replay is enabled. |
+| `data-scripts-base-url` | string (URL) | Origin of `analytics.js` | Base to load `replay.js` when replay is enabled. |
 
 ### Using the npm package
 
