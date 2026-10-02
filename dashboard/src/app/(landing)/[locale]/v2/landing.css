@@ -137,6 +137,8 @@
     :root {
       --pad: 16px;
       --wall: 0px;
+      /* the bar is shorter on phones (see nav) */
+      scroll-padding-top: 3.5rem;
     }
   }
 
@@ -145,6 +147,12 @@
     color-scheme: dark;
     /* anchor targets land below the sticky nav, not under it */
     scroll-padding-top: 4.5rem;
+  }
+  @media (width < 40rem) {
+    /* on phones the open menu covers the page (see nav), so the page under it holds still */
+    html:has(header[data-open]) {
+      overflow: hidden;
+    }
   }
   body {
     color: var(--color-fg);

@@ -1,7 +1,7 @@
 import { baEvent } from '@/lib/ba-event';
 
 /** Where on the page a call to action sits. */
-export type CtaPlacement = 'nav' | 'hero' | 'mcp' | 'pricing' | 'cta';
+export type CtaPlacement = 'nav' | 'menu' | 'hero' | 'mcp' | 'pricing' | 'cta';
 
 /** What a call to action leads to. */
 export type CtaDestination = 'signup' | 'contact' | 'docs' | 'mcp-docs';

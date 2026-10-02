@@ -26,7 +26,9 @@ export const COPY = {
       { label: 'Pricing', href: '/pricing' },
     ],
     docs: 'Docs',
-    github: 'Betterlytics on GitHub',
+    github: 'GitHub',
+    /* the bar's GitHub button, which shows only the mark */
+    githubLabel: 'Betterlytics on GitHub',
     signIn: 'Sign in',
     cta: 'Start measuring',
     goToDashboard: 'Go to dashboard',

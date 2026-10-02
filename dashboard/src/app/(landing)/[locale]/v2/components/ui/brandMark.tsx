@@ -27,11 +27,14 @@ export function BrandMark({ className }: { className?: string }) {
 }
 
 /** The mark and the wordmark, linking home. */
-export function BrandLink({ className }: { className?: string }) {
+export function BrandLink({ className, compact = false }: { className?: string; compact?: boolean }) {
   return (
     <Link className={cn('relative flex items-center gap-2.5', className)} href='/' aria-label={COPY.nav.home}>
       <BrandMark className='size-6 flex-none text-fg' />
-      <span className='text-[19px] font-semibold tracking-[-0.4px]'>Betterlytics</span>
+      {/* compact: the mark alone on phones, where the bar has no room for the name */}
+      <span className={cn('text-[19px] font-semibold tracking-[-0.4px]', compact && 'max-sm:hidden')}>
+        Betterlytics
+      </span>
     </Link>
   );
 }
