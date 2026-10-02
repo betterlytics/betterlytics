@@ -85,7 +85,7 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
     // bounded by its margin box, so the margins keep the copy clear of the frame's rules.
     <div
       ref={ref}
-      className='sticky top-0 my-12 pl-7.5 max-2xl:static max-2xl:my-0 max-2xl:pt-7 max-2xl:pl-0'
+      className='sticky top-0 my-12 pl-7.5 max-2xl:static max-2xl:my-0 max-2xl:pt-7 max-2xl:pl-0 max-sm:hidden'
       aria-hidden
     >
       <p className='mb-3.5 font-mono text-micro tracking-[0.1em] text-muted'>
@@ -140,9 +140,14 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
 }
 
 /**
- * One step's card: its copy for screen readers and its illustration. `entered`
- * latches the first time the card scrolls into view and is never cleared, so an
- * illustration that has played stays drawn.
+ * One step's card: its copy and its illustration. `entered` latches the first time
+ * the card scrolls into view and is never cleared, so an illustration that has played
+ * stays drawn.
+ *
+ * The copy is the caption. Wide screens show it in the rail, which follows only the
+ * active step, so there it is here for screen readers alone, in order, and takes no
+ * room. On phones the rail is hidden and the copy is the card's visible caption, set
+ * in a hatched band above it, the band that separates the cards wider.
  */
 function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   const ref = useRef<HTMLElement>(null);
@@ -150,15 +155,26 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   const Illustration = ILLUSTRATIONS[step.id];
   const titleId = `${IDS.journey}-${step.id}`;
   return (
-    <article ref={ref} aria-labelledby={titleId} className='border border-rule-10 transition-ink'>
-      {/* the rail shows only the active step, so screen readers get each step's copy here, in order */}
-      <h3 id={titleId} className='sr-only'>
-        {step.title.split('\n').join(' ')}
-      </h3>
-      <p className='sr-only'>{step.note}</p>
-      <div className='relative aspect-video overflow-hidden max-md:aspect-4/3'>
-        <div className='absolute inset-0 flex items-center justify-center px-7.5 py-5.5 max-md:p-4'>
-          <Illustration entered={entered} live={live} />
+    <article ref={ref} aria-labelledby={titleId}>
+      <div className='border-x border-rule-10 bg-hatch px-5 py-6 transition-ink sm:contents'>
+        <h3 id={titleId} className={cn(TITLE, 'sm:sr-only')}>
+          {/* the first line is the part the steps share, so it sits back in the muted tone */}
+          {step.title.split('\n').map((line, i) => (
+            <Fragment key={i}>
+              {i > 0 && ' '}
+              <span className={cn('block', i === 0 && 'text-muted')}>{line}</span>
+            </Fragment>
+          ))}
+        </h3>
+        <p className={cn(NOTE, 'sm:sr-only')}>{step.note}</p>
+      </div>
+      <div className='border border-rule-10 transition-ink'>
+        {/* taller as the screen narrows, since the illustrations keep their size; on a phone a
+            fixed height, square at 390px, so they fit however narrow the phone */}
+        <div className='relative aspect-video overflow-hidden max-md:aspect-4/3 max-sm:aspect-auto max-sm:h-89'>
+          <div className='absolute inset-0 flex items-center justify-center px-7.5 py-5.5 max-md:p-4'>
+            <Illustration entered={entered} live={live} />
+          </div>
         </div>
       </div>
     </article>
@@ -214,11 +230,19 @@ export function JourneySection() {
       <InkFrame className={styles.frame}>
         <Corners />
         <Rail active={active} direction={direction} />
-        <div ref={stackRef} className='min-w-0'>
+        <div ref={stackRef} className='relative min-w-0'>
+          {/* on phones, where the frame's own corners are hidden, the card stack carries
+              them: on its top edge above the first card and its bottom edge under the last */}
+          <Corners persistent className='sm:hidden' />
           {JOURNEY_STEPS.map((step, i) => (
             <Fragment key={step.id}>
-              {/* the hatched band between cards, in the wall's material */}
-              {i > 0 && <div className='h-11.5 border-x border-rule-10 bg-hatch transition-ink' aria-hidden />}
+              {/* the hatched band between cards, in the wall's material; on phones each card's caption takes its place */}
+              {i > 0 && (
+                <div
+                  className='h-11.5 border-x border-rule-10 bg-hatch transition-ink max-sm:hidden'
+                  aria-hidden
+                />
+              )}
               <JourneyCard step={step} live={onScreen && active === i} />
             </Fragment>
           ))}
