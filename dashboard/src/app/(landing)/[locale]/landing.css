@@ -8,7 +8,7 @@
 
 @source './**/*.{ts,tsx}';
 /* shared app components the page renders */
-@source '../../../../components/gauge/**/*.tsx';
+@source '../../../components/gauge/**/*.tsx';
 
 /* `static` emits every token, so CSS modules and scripts can read them */
 @theme static {
