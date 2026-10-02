@@ -177,7 +177,7 @@ export function LogoBoard({ pool, label }: { pool: ReadonlyArray<Logo>; label: R
       <p
         className={cn(
           styles.label,
-          'grid place-items-center px-[18px] py-[30px] text-center text-[14.5px] leading-normal transition-ink max-xl:p-6',
+          'grid place-items-center px-[18px] py-[30px] text-center text-[14.5px] leading-normal transition-ink max-xl:p-6 max-sm:py-8',
         )}
       >
         {/* one grid item, so the claim sets as a single unbroken line */}

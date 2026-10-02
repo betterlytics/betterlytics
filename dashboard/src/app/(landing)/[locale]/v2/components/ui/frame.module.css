@@ -23,6 +23,19 @@
   .panel::after {
     bottom: -1px;
   }
+  /* On phones there are no walls to close a panel's sides: its rules run on to the
+     screen's edges, or a framed panel draws its own sides (see Panel). */
+  .panel:not(.framed)::before,
+  .panel:not(.framed)::after {
+    @variant max-sm {
+      inset-inline: calc(-1 * var(--pad));
+    }
+  }
+  .framed {
+    @variant max-sm {
+      border-inline: 1px solid var(--color-rule);
+    }
+  }
 
   /* One element paints all four corner squares of its positioned parent. Callers
      can recolour them through --corner-edge and --corner-fill. */

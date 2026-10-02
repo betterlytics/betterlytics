@@ -9,6 +9,10 @@
     @variant max-xl {
       grid-template-columns: repeat(2, 1fr);
     }
+    /* full width on phones, so its rules meet the panel's at the screen's edges */
+    @variant max-sm {
+      margin-inline: calc(-1 * var(--pad));
+    }
   }
   .label {
     grid-row: 1 / span 2;

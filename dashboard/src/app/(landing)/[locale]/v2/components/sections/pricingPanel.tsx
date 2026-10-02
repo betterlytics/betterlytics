@@ -97,9 +97,9 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
     <div
       className={cn(
         'relative flex flex-1 flex-col border-rule-10 p-9 transition-ink not-first:border-l first:pl-0',
-        'max-lg:px-0 max-lg:py-7 max-lg:not-first:border-t max-lg:not-first:border-l-0',
+        'max-lg:px-0 max-lg:py-7 max-lg:not-first:border-t max-lg:not-first:border-l-0 max-sm:px-(--pad) max-sm:first:pl-(--pad)',
         // the recommended tier reads heavier through a tint and a blue top rule, not a scale transform
-        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-lg:px-4',
+        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-lg:px-4 max-sm:px-(--pad)',
       )}
     >
       <div className='mb-3 flex items-center gap-3'>
@@ -242,7 +242,8 @@ export function PricingPanel() {
       </div>
 
       <Panel>
-        <div className='flex max-lg:flex-col'>
+        {/* full width on phones, so the rules between the plans meet the panel's at the edges */}
+        <div className='flex max-lg:flex-col max-sm:-mx-(--pad)'>
           <Plan
             tier='growth'
             volume={volume}

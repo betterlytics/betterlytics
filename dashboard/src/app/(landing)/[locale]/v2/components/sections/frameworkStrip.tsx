@@ -29,7 +29,7 @@ export function FrameworkStrip({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'flex items-center gap-7 border-t border-rule-08 px-[30px] py-[22px] transition-ink',
+        'flex items-center gap-7 border-t border-rule-08 px-[30px] py-[22px] transition-ink max-sm:px-(--pad)',
         'max-xl:flex-col max-xl:items-start max-xl:gap-4',
         className,
       )}

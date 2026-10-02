@@ -58,9 +58,10 @@ export function NetworkSection() {
     <Section id={IDS.network} title={copy.title} lede={copy.lede}>
       <Panel flush>
         {/* stacked, the column may narrow past the snippet's tab bar (which then scrolls),
-            or on phones the section would be wider than the screen */}
-        <div className='grid grid-cols-[1.55fr_1fr] max-xl:grid-cols-1'>
-          <div className='flex min-w-0 border-r border-rule-08 bg-hatch p-4.5 transition-ink max-xl:border-r-0 max-xl:border-b'>
+            or on phones the section would be wider than the screen. Full width on phones,
+            so the rows' rules meet the panel's at the screen's edges. */}
+        <div className='grid grid-cols-[1.55fr_1fr] max-xl:grid-cols-1 max-sm:-mx-(--pad)'>
+          <div className='flex min-w-0 border-r border-rule-08 bg-hatch p-4.5 transition-ink max-xl:border-r-0 max-xl:border-b max-sm:px-1'>
             <SnippetPanel />
           </div>
           <div className={styles.stats}>

@@ -35,7 +35,7 @@ import from it with the `@/landing/*` alias.
 | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `components/ui/text.tsx`        | `Heading` (outline level and look chosen apart), `Lede`, `Label`, `TEXT_STYLES`                                               |
 | `components/ui/button.ts`       | `buttonStyles()` for links and buttons                                                                                        |
-| `components/ui/frame.tsx`       | `Section` (with its title and lede), `Panel`, `Corners`                                                                       |
+| `components/ui/frame.tsx`       | `Section` (with its title and lede), `Panel` (on phones full width, or `framed` for card-like content), `Corners`             |
 | `components/ui/inkFrame.tsx`    | frames whose rules draw in as the reader arrives; undrawn, they blank the rule tokens inside, so inner rules wait for the pen |
 | `components/ui/voltCard.tsx`    | the blue card behind the hero and the closing call to action                                                                  |
 | `components/ui/trackedLink.tsx` | calls to action that report a `landing-cta` event (`lib/analytics.ts`)                                                        |

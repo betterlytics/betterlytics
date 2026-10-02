@@ -56,19 +56,26 @@ export function Corners({ persistent = false, className }: { persistent?: boolea
   );
 }
 
-/** A bounded box whose rules land on the wall lines, drawn in as the reader arrives. */
+/**
+ * A bounded box whose rules land on the wall lines, drawn in as the reader arrives.
+ * Phones have no walls, so there a panel either runs its rules on to the screen's
+ * edges (the default, for the big blocks: tables, rows, strips) or, `framed`, draws
+ * its own sides and keeps its corners (for card-like content).
+ */
 export function Panel({
   children,
   className,
   flush = false,
+  framed = false,
 }: {
   children: ReactNode;
   className?: string;
   flush?: boolean;
+  framed?: boolean;
 }) {
   return (
-    <InkFrame className={cn(styles.panel, !flush && 'px-[30px] max-sm:px-0', className)}>
-      <Corners />
+    <InkFrame className={cn(styles.panel, framed && styles.framed, !flush && 'px-[30px] max-sm:px-0', className)}>
+      <Corners persistent={framed} />
       {children}
     </InkFrame>
   );
