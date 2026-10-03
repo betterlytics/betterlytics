@@ -6,7 +6,7 @@ export const plausible: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Plausible: Flere funksjoner, samme personvern',
     description:
-      'Sammenlign Betterlytics med Plausible. Samme personvernfokuserte tilnærming, pluss session replay, brukerreiser og overvåking. Gratisnivå tilgjengelig, fra $6/måned.',
+      'Sammenlign Betterlytics med Plausible. Samme personvernfokuserte tilnærming, pluss session replay, brukerreiser og overvåking. Gratisnivå tilgjengelig, fra $7/måned.',
   },
   hero: {
     title: 'Ser du etter et alternativ til Plausible?',
@@ -116,7 +116,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Prisoversikt',
-      content: `Plausible starter på $9/måned for 10 000 sidevisninger. Ingen gratisnivå i hostet versjon, selv om selvhosting er gratis hvis du håndterer infrastrukturen selv.\n\nBetterlytics starter på $6/måned med et gratisnivå for mindre nettsteder. Du får session replay, overvåking og brukerreiser inkludert. Flere funksjoner, lavere startpris.`,
+      content: `Plausible starter på $9/måned for 10 000 sidevisninger. Ingen gratisnivå i hostet versjon, selv om selvhosting er gratis hvis du håndterer infrastrukturen selv.\n\nBetterlytics starter på $7/måned med et gratisnivå for mindre nettsteder. Du får session replay, overvåking og brukerreiser inkludert. Flere funksjoner, lavere startpris.`,
       icon: 'dollar',
     },
     {

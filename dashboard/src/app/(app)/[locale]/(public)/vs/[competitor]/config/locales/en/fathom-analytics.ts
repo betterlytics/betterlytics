@@ -6,7 +6,7 @@ export const fathom: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Fathom Analytics: More Features, Lower Price',
     description:
-      'Compare Betterlytics to Fathom Analytics. Same privacy-first approach with session replay, funnels, and journey tracking. Free tier available, starts at $6/month.',
+      'Compare Betterlytics to Fathom Analytics. Same privacy-first approach with session replay, funnels, and journey tracking. Free tier available, starts at $7/month.',
   },
   hero: {
     title: 'Looking for a Fathom Analytics Alternative?',
@@ -27,7 +27,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Lower Starting Price',
-      betterlytics: 'Starts at $6/month with a free tier for smaller sites.',
+      betterlytics: 'Starts at $7/month with a free tier for smaller sites.',
       competitor: 'Starts at $15/month. No free tier.',
     },
   ],
@@ -87,7 +87,7 @@ export const fathom: ComparisonLocaleContent = {
         name: 'Pricing & Support',
         features: [
           { name: 'Free tier available', betterlytics: true, competitor: false },
-          { name: 'Starting price', betterlytics: 'From $6/month', competitor: 'From $15/month' },
+          { name: 'Starting price', betterlytics: 'From $7/month', competitor: 'From $15/month' },
           { name: 'Transparent pricing', betterlytics: true, competitor: true },
           { name: 'Email support', betterlytics: true, competitor: true },
         ],
@@ -113,7 +113,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Price vs Value',
-      content: `Fathom starts at $15/month for 100,000 pageviews. No free tier, with payment required to get started.\n\nBetterlytics starts at $6/month, nearly 60% less, with a free tier for smaller sites. You get more features (session replay, funnels, journeys) at a lower price. Both have transparent pricing.`,
+      content: `Fathom starts at $15/month for 100,000 pageviews. No free tier, with payment required to get started.\n\nBetterlytics starts at $7/month, less than half the price, with a free tier for smaller sites. You get more features (session replay, funnels, journeys) at a lower price. Both have transparent pricing.`,
       icon: 'dollar',
     },
     {

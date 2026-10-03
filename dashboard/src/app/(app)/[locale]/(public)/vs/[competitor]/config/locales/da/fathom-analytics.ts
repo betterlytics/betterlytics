@@ -27,7 +27,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Lavere startpris',
-      betterlytics: 'Starter fra $6/måned med en gratis plan til mindre websites.',
+      betterlytics: 'Starter fra $7/måned med en gratis plan til mindre websites.',
       competitor: 'Starter fra $15/måned. Ingen gratis plan.',
     },
   ],
@@ -86,7 +86,7 @@ export const fathom: ComparisonLocaleContent = {
         name: 'Pris & Support',
         features: [
           { name: 'Gratis plan tilgængeligt', betterlytics: true, competitor: false },
-          { name: 'Startpris', betterlytics: 'Fra $6/måned', competitor: 'Fra $15/måned' },
+          { name: 'Startpris', betterlytics: 'Fra $7/måned', competitor: 'Fra $15/måned' },
           { name: 'Transparent prissætning', betterlytics: true, competitor: true },
           { name: 'Email-support', betterlytics: true, competitor: true },
         ],
@@ -112,7 +112,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Pris vs. værdi',
-      content: `Fathom starter fra $15/måned for 100.000 pageviews. Intet gratis plan, og betaling kræves for at komme i gang.\n\nBetterlytics starter fra $6/måned – næsten 60% billigere – med en gratis plan til mindre websites. Du får flere funktioner (session replay, funnels og journeys) til en lavere pris. Begge har transparent prissætning.`,
+      content: `Fathom starter fra $15/måned for 100.000 pageviews. Intet gratis plan, og betaling kræves for at komme i gang.\n\nBetterlytics starter fra $7/måned – under halv pris – med en gratis plan til mindre websites. Du får flere funktioner (session replay, funnels og journeys) til en lavere pris. Begge har transparent prissætning.`,
       icon: 'dollar',
     },
     {

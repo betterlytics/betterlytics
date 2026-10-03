@@ -4,9 +4,9 @@ export const googleAnalytics: ComparisonLocaleContent = {
   name: 'Google Analytics',
   logo: '/tools/google_analytics-logo.svg',
   seo: {
-    title: 'Betterlytics vs Google Analytics: Personvernfokusert alternativ',
+    title: 'Betterlytics vs Google Analytics: åpen kildekode-alternativ',
     description:
-      'Sammenlign Betterlytics med Google Analytics. Få lettvektsanalyse som er GDPR-klar, uten cookie-bannere, med raskere sidelasting og fullt dataeierskap. Gratisnivå tilgjengelig.',
+      'Sammenlign Betterlytics med Google Analytics 4. Uten informasjonskapsler, åpen kildekode og driftet i EU, med sesjonsopptak, feilsporing og oppetid inkludert.',
   },
   hero: {
     title: 'Ser du etter et alternativ til Google Analytics?',
@@ -123,7 +123,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Ingen skjulte kostnader',
-      content: `Google Analytics er "gratis", men den skjulte kostnaden er at du gir Google dataene dine. Enterprise-funksjoner? Pris for GA360 starter vanligvis på titusenvis per år.\n\nBetterlytics er transparent. Starter på $6/måned med et gratisnivå. Session replay, overvåking, alle funksjoner inkludert. Ingen overraskende regninger, ingen kompromisser med data.`,
+      content: `Google Analytics er "gratis", men den skjulte kostnaden er at du gir Google dataene dine. Enterprise-funksjoner? Pris for GA360 starter vanligvis på titusenvis per år.\n\nBetterlytics er transparent. Starter på $7/måned med et gratisnivå. Session replay, overvåking, alle funksjoner inkludert. Ingen overraskende regninger, ingen kompromisser med data.`,
       icon: 'dollar',
     },
     {

@@ -4,9 +4,9 @@ export const posthog: ComparisonLocaleContent = {
   name: 'PostHog',
   logo: '/tools/posthog-logo.svg',
   seo: {
-    title: 'Betterlytics vs PostHog: Alternativa leggera e focalizzata',
+    title: 'Betterlytics vs PostHog: alternativa più semplice, nell’UE',
     description:
-      'Confronta Betterlytics con PostHog. Analytics web focalizzate con uno script leggerissimo, privacy di default e prezzi prevedibili. Niente complessità, solo chiarezza.',
+      'Confronta Betterlytics con PostHog. Analisi web, replay sessioni, errori e uptime in uno strumento più semplice, ospitato nell’UE e con prezzi prevedibili.',
   },
   hero: {
     title: 'Cerchi un’alternativa a PostHog?',
@@ -28,7 +28,7 @@ export const posthog: ComparisonLocaleContent = {
     {
       title: 'Prezzi semplici e prevedibili',
       betterlytics:
-        'Piano gratuito per sempre per siti piccoli. Piani a pagamento da $6/mese con le funzionalità principali incluse.',
+        'Piano gratuito per sempre per siti piccoli. Piani a pagamento da $7/mese con le funzionalità principali incluse.',
       competitor:
         'Piano gratuito generoso, ma la fatturazione basata sull’utilizzo su più prodotti diventa complessa con la crescita.',
     },
@@ -130,7 +130,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Sai sempre quanto spendi',
-      content: `PostHog fattura separatamente eventi, session replay, feature flag, sondaggi e altro. Il piano gratuito è generoso, ma i costi possono crescere rapidamente con l’aumento dell’utilizzo, rendendo la spesa mensile meno prevedibile.\n\nNoi manteniamo tutto semplice: prezzo fisso da $6/mese con limiti chiari sugli eventi. Session replay, monitoring e analytics principali inclusi. Nessun foglio di calcolo per capire quanto devi pagare.`,
+      content: `PostHog fattura separatamente eventi, session replay, feature flag, sondaggi e altro. Il piano gratuito è generoso, ma i costi possono crescere rapidamente con l’aumento dell’utilizzo, rendendo la spesa mensile meno prevedibile.\n\nNoi manteniamo tutto semplice: prezzo fisso da $7/mese con limiti chiari sugli eventi. Session replay, monitoring e analytics principali inclusi. Nessun foglio di calcolo per capire quanto devi pagare.`,
       icon: 'dollar',
     },
     {

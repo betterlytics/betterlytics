@@ -4,9 +4,9 @@ export const posthog: ComparisonLocaleContent = {
   name: 'PostHog',
   logo: '/tools/posthog-logo.svg',
   seo: {
-    title: 'Betterlytics vs PostHog: Fokusert og lettvekts alternativ',
+    title: 'Betterlytics vs PostHog: et enklere alternativ driftet i EU',
     description:
-      'Sammenlign Betterlytics med PostHog. Få fokusert webanalyse med et svært lite skript, personvern som standard og forutsigbar prising. Ingen kompleksitet, bare klarhet.',
+      'Sammenlign Betterlytics med PostHog. Nettanalyse, sesjonsopptak, feil og oppetid i ett enklere verktøy, driftet i EU og med forutsigbar prising.',
   },
   hero: {
     title: 'Ser du etter et alternativ til PostHog?',
@@ -27,7 +27,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Enkel og forutsigbar prising',
-      betterlytics: 'Gratis for alltid for små nettsteder. Betalte planer fra $6/måned med kjernefunksjoner inkludert.',
+      betterlytics: 'Gratis for alltid for små nettsteder. Betalte planer fra $7/måned med kjernefunksjoner inkludert.',
       competitor:
         'Generøst gratisnivå, men bruksbasert fakturering på tvers av flere produkter blir komplisert når du skalerer.',
     },
@@ -121,7 +121,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Vit hva du betaler for',
-      content: `PostHog fakturerer separat for hendelser, øktopptak, feature flags, undersøkelser og mer. Gratisnivået er generøst, men kostnadene kan øke raskt når du skalerer. Det gjør månedlige kostnader vanskeligere å forutsi når bruken vokser.\n\nVi holder det enkelt: fast prising fra $6/måned med tydelige hendelsesgrenser. Session replay, overvåking og kjerneanalyse inkludert. Ingen regneark nødvendig for å finne ut hva du skylder.`,
+      content: `PostHog fakturerer separat for hendelser, øktopptak, feature flags, undersøkelser og mer. Gratisnivået er generøst, men kostnadene kan øke raskt når du skalerer. Det gjør månedlige kostnader vanskeligere å forutsi når bruken vokser.\n\nVi holder det enkelt: fast prising fra $7/måned med tydelige hendelsesgrenser. Session replay, overvåking og kjerneanalyse inkludert. Ingen regneark nødvendig for å finne ut hva du skylder.`,
       icon: 'dollar',
     },
     {

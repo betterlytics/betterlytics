@@ -6,7 +6,7 @@ export const matomo: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Matomo: Modern, Lightweight Alternative',
     description:
-      'Compare Betterlytics to Matomo Cloud. Get modern analytics without complexity, plugins, or server management. Session replay and monitoring included. Starts at $6/month.',
+      'Compare Betterlytics to Matomo Cloud. Get modern analytics without complexity, plugins, or server management. Session replay and monitoring included. Starts at $7/month.',
   },
   hero: {
     title: 'Looking for a Matomo Alternative?',
@@ -27,7 +27,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Simple Pricing',
-      betterlytics: 'Free tier available. Paid plans from $6/month, everything included.',
+      betterlytics: 'Free tier available. Paid plans from $7/month, everything included.',
       competitor:
         'Self-hosted has infrastructure and maintenance costs. Cloud plans start higher with paid add-ons.',
     },
@@ -112,7 +112,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Real Cost of "Free"',
-      content: `Matomo's self-hosted version is free to download, but you're paying for servers, maintenance time, and premium plugins like session recording. Matomo Cloud starts at $19/month and scales with pageviews.\n\nBetterlytics has a free tier for small sites. Paid plans start at $6/month with everything included: session replay, monitoring, no add-on fees. What you see is what you pay.`,
+      content: `Matomo's self-hosted version is free to download, but you're paying for servers, maintenance time, and premium plugins like session recording. Matomo Cloud starts at $19/month and scales with pageviews.\n\nBetterlytics has a free tier for small sites. Paid plans start at $7/month with everything included: session replay, monitoring, no add-on fees. What you see is what you pay.`,
       icon: 'dollar',
     },
     {

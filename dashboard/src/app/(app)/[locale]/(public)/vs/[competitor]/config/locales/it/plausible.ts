@@ -6,7 +6,7 @@ export const plausible: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Plausible: Più funzionalità, stessa privacy',
     description:
-      'Confronta Betterlytics con Plausible. Stesso approccio privacy-first, con session replay, percorsi utente e monitoraggio inclusi. Piano gratuito disponibile, da $6/mese.',
+      'Confronta Betterlytics con Plausible. Stesso approccio privacy-first, con session replay, percorsi utente e monitoraggio inclusi. Piano gratuito disponibile, da $7/mese.',
   },
   hero: {
     title: 'Cerchi un’alternativa a Plausible?',
@@ -116,7 +116,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Confronto dei prezzi',
-      content: `Plausible parte da $9/mese per 10.000 pageview. Nessun piano gratuito sulla versione hosted, anche se il self-hosting è gratuito se gestisci l’infrastruttura.\n\nBetterlytics parte da $6/mese con un piano gratuito per siti più piccoli. Session replay, monitoring e percorsi utente inclusi. Più funzionalità, prezzo di partenza più basso.`,
+      content: `Plausible parte da $9/mese per 10.000 pageview. Nessun piano gratuito sulla versione hosted, anche se il self-hosting è gratuito se gestisci l’infrastruttura.\n\nBetterlytics parte da $7/mese con un piano gratuito per siti più piccoli. Session replay, monitoring e percorsi utente inclusi. Più funzionalità, prezzo di partenza più basso.`,
       icon: 'dollar',
     },
     {

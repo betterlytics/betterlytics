@@ -4,9 +4,9 @@ export const googleAnalytics: ComparisonLocaleContent = {
   name: 'Google Analytics',
   logo: '/tools/google_analytics-logo.svg',
   seo: {
-    title: 'Betterlytics vs Google Analytics: Privacy-First Alternative',
+    title: 'Betterlytics vs Google Analytics: open-source alternative',
     description:
-      'Compare Betterlytics to Google Analytics. Get lightweight, GDPR-ready analytics with no cookie banners, faster page loads, and full data ownership. Free tier available.',
+      'Compare Betterlytics with Google Analytics 4. Cookieless, open source and hosted in the EU, with session replay, error tracking and uptime included.',
   },
   hero: {
     title: 'Looking for a Google Analytics Alternative?',
@@ -124,7 +124,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'No Hidden Costs',
-      content: `Google Analytics is "free" but the hidden cost is giving Google your data. Enterprise features? GA360 pricing typically starts in the tens of thousands per year.\n\nBetterlytics is transparent. Starts at $6/month with a free tier. Session replay, monitoring, all features included. No surprise bills, no data trade-offs.`,
+      content: `Google Analytics is "free" but the hidden cost is giving Google your data. Enterprise features? GA360 pricing typically starts in the tens of thousands per year.\n\nBetterlytics is transparent. Starts at $7/month with a free tier. Session replay, monitoring, all features included. No surprise bills, no data trade-offs.`,
       icon: 'dollar',
     },
     {

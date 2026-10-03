@@ -4,9 +4,9 @@ export const posthog: ComparisonLocaleContent = {
   name: 'PostHog',
   logo: '/tools/posthog-logo.svg',
   seo: {
-    title: 'Betterlytics vs PostHog: Focused, Lightweight Alternative',
+    title: 'Betterlytics vs PostHog: a simpler, EU-hosted alternative',
     description:
-      'Compare Betterlytics to PostHog. Get focused web analytics with a tiny script, privacy by default, and predictable pricing. No complexity, just clarity.',
+      'Compare Betterlytics with PostHog. Web analytics, session replay, errors and uptime in one simpler tool, hosted in the EU, with predictable pricing.',
   },
   hero: {
     title: 'Looking for a PostHog Alternative?',
@@ -27,7 +27,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Simple, Predictable Pricing',
-      betterlytics: 'Free forever for small sites. Paid plans from $6/month with core features included.',
+      betterlytics: 'Free forever for small sites. Paid plans from $7/month with core features included.',
       competitor:
         'Generous free tier, but usage-based billing across multiple products gets complex as you scale.',
     },
@@ -122,7 +122,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Know What You Pay',
-      content: `PostHog bills separately for events, session recordings, feature flags, surveys, and more. Their free tier is generous, but costs can spike as you scale. This can make monthly costs harder to predict as usage grows.\n\nWe keep it simple: flat pricing from $6/month with clear event limits. Session replay, monitoring, and core analytics included. No spreadsheet required to figure out what you owe.`,
+      content: `PostHog bills separately for events, session recordings, feature flags, surveys, and more. Their free tier is generous, but costs can spike as you scale. This can make monthly costs harder to predict as usage grows.\n\nWe keep it simple: flat pricing from $7/month with clear event limits. Session replay, monitoring, and core analytics included. No spreadsheet required to figure out what you owe.`,
       icon: 'dollar',
     },
     {

@@ -6,7 +6,7 @@ export const fathom: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Fathom Analytics: Flere funksjoner, lavere pris',
     description:
-      'Sammenlign Betterlytics med Fathom Analytics. Samme personvernfokuserte tilnærming med session replay, trakter og sporing av brukerreiser. Gratisnivå tilgjengelig, fra $6/måned.',
+      'Sammenlign Betterlytics med Fathom Analytics. Samme personvernfokuserte tilnærming med session replay, trakter og sporing av brukerreiser. Gratisnivå tilgjengelig, fra $7/måned.',
   },
   hero: {
     title: 'Ser du etter et alternativ til Fathom Analytics?',
@@ -27,7 +27,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Lavere startpris',
-      betterlytics: 'Starter på $6/måned med et gratisnivå for mindre nettsteder.',
+      betterlytics: 'Starter på $7/måned med et gratisnivå for mindre nettsteder.',
       competitor: 'Starter på $15/måned. Ingen gratisnivå.',
     },
   ],
@@ -86,7 +86,7 @@ export const fathom: ComparisonLocaleContent = {
         name: 'Prising og støtte',
         features: [
           { name: 'Gratisnivå tilgjengelig', betterlytics: true, competitor: false },
-          { name: 'Startpris', betterlytics: 'Fra $6/måned', competitor: 'Fra $15/måned' },
+          { name: 'Startpris', betterlytics: 'Fra $7/måned', competitor: 'Fra $15/måned' },
           { name: 'Transparent prising', betterlytics: true, competitor: true },
           { name: 'E-poststøtte', betterlytics: true, competitor: true },
         ],
@@ -112,7 +112,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Pris vs verdi',
-      content: `Fathom starter på $15/måned for 100 000 sidevisninger. Ingen gratisnivå, og betaling kreves for å komme i gang.\n\nBetterlytics starter på $6/måned, nesten 60 % mindre, med et gratisnivå for mindre nettsteder. Du får flere funksjoner (session replay, trakter, brukerreiser) til lavere pris. Begge har transparent prising.`,
+      content: `Fathom starter på $15/måned for 100 000 sidevisninger. Ingen gratisnivå, og betaling kreves for å komme i gang.\n\nBetterlytics starter på $7/måned, under halv pris, med et gratisnivå for mindre nettsteder. Du får flere funksjoner (session replay, trakter, brukerreiser) til lavere pris. Begge har transparent prising.`,
       icon: 'dollar',
     },
     {
