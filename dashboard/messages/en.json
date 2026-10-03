@@ -3,19 +3,7 @@
     "root": {
       "seo": {
         "title": "Betterlytics | Privacy-First Web Analytics",
-        "description": "Betterlytics is a privacy-first, open-source alternative to Google Analytics. Get GDPR-compliant, cookieless insights without invasive tracking, while respecting user privacy.",
-        "keywords": [
-          "Google Analytics Alternative",
-          "Privacy-First Analytics",
-          "Cookieless Web Analytics",
-          "GDPR Compliant Analytics",
-          "Open Source Analytics Platform",
-          "Privacy-Friendly Analytics",
-          "Website Traffic Analysis",
-          "Visitor Analytics",
-          "Web Analytics Tool",
-          "Betterlytics"
-        ]
+        "description": "Betterlytics is a privacy-first, open-source alternative to Google Analytics. Get GDPR-compliant, cookieless insights without invasive tracking, while respecting user privacy."
       }
     },
     "notFound": {
@@ -26,17 +14,7 @@
     "about": {
       "seo": {
         "title": "About Betterlytics | Privacy-First Web Analytics",
-        "description": "Learn how Betterlytics builds open-source, cookieless analytics that protect user privacy, stay fully GDPR-compliant, and empower transparent web insights.",
-        "keywords": [
-          "About Betterlytics",
-          "Privacy-First Analytics",
-          "Open Source Web Analytics",
-          "Cookieless Analytics",
-          "GDPR Compliant Analytics",
-          "Privacy Analytics Platform",
-          "Analytics Without Cookies",
-          "Open Source Analytics Tool"
-        ]
+        "description": "Learn how Betterlytics builds open-source, cookieless analytics that protect user privacy, stay fully GDPR-compliant, and empower transparent web insights."
       },
       "aboutUs": "About Betterlytics",
       "intro": "We're building the future of web analytics: privacy-first, open source, and designed for the modern web. No more choosing between powerful insights and respecting your visitors' privacy.",
@@ -97,17 +75,7 @@
     "contact": {
       "seo": {
         "title": "Contact Betterlytics | Privacy-First Analytics",
-        "description": "Get in touch with the Betterlytics team for support, feedback, or partnership inquiries about our open-source, privacy-first web analytics platform.",
-        "keywords": [
-          "Contact Betterlytics",
-          "Betterlytics Support",
-          "Web Analytics Help",
-          "Privacy-First Analytics Support",
-          "GDPR Analytics Contact",
-          "Cookieless Analytics Support",
-          "Customer Support Betterlytics",
-          "Contact Page"
-        ]
+        "description": "Get in touch with the Betterlytics team for support, feedback, or partnership inquiries about our open-source, privacy-first web analytics platform."
       },
       "title": "Contact Us",
       "intro": "Questions about Betterlytics? Need support with your analytics setup? Our team is ready to assist you.",
@@ -191,14 +159,7 @@
     "changelog": {
       "seo": {
         "title": "Changelog | Betterlytics Release Notes & Product Updates",
-        "description": "Read every Betterlytics release note in one place. Follow product updates, reliability fixes, and roadmap highlights for our privacy-first analytics platform.",
-        "keywords": [
-          "Betterlytics changelog",
-          "Product updates",
-          "Release notes",
-          "Analytics roadmap",
-          "Privacy-first analytics updates"
-        ]
+        "description": "Read every Betterlytics release note in one place. Follow product updates, reliability fixes, and roadmap highlights for our privacy-first analytics platform."
       },
       "hero": {
         "eyebrow": "Release history",
@@ -214,17 +175,7 @@
     "privacy": {
       "seo": {
         "title": "Privacy Policy | GDPR & Cookieless Analytics",
-        "description": "Betterlytics Privacy Policy — GDPR-compliant and cookieless by design. Learn how we protect your data and ensure privacy through anonymous analytics.",
-        "keywords": [
-          "Betterlytics Privacy Policy",
-          "GDPR Compliance",
-          "Data Privacy",
-          "Data Protection",
-          "Cookieless Analytics",
-          "Anonymous Analytics",
-          "User Privacy",
-          "Privacy-Focused Analytics"
-        ]
+        "description": "Betterlytics Privacy Policy — GDPR-compliant and cookieless by design. Learn how we protect your data and ensure privacy through anonymous analytics."
       },
       "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
       "title": "Betterlytics Privacy Policy",
@@ -355,17 +306,7 @@
     "terms": {
       "seo": {
         "title": "Terms of Service | Privacy-First Analytics",
-        "description": "Read Betterlytics' Terms of Service — learn about your rights, responsibilities, and usage policies for our privacy-first web analytics platform.",
-        "keywords": [
-          "Betterlytics Terms of Service",
-          "Terms and Conditions",
-          "Analytics Service Agreement",
-          "Web Analytics Terms",
-          "Privacy Analytics Terms",
-          "Usage Terms",
-          "Legal Agreement Betterlytics",
-          "Privacy-First Analytics"
-        ]
+        "description": "Read Betterlytics' Terms of Service — learn about your rights, responsibilities, and usage policies for our privacy-first web analytics platform."
       },
       "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
       "title": "Betterlytics Terms of Service",
@@ -514,18 +455,7 @@
     "dpa": {
       "seo": {
         "title": "Data Processing Agreement (DPA) | GDPR & Privacy Analytics",
-        "description": "Betterlytics Data Processing Agreement (DPA) — built for full GDPR compliance, privacy-first analytics, and secure, anonymous data processing.",
-        "keywords": [
-          "Betterlytics Data Processing Agreement",
-          "DPA",
-          "GDPR Compliance",
-          "GDPR DPA",
-          "Data Privacy",
-          "Data Protection Agreement",
-          "Privacy-First Analytics",
-          "Anonymous Analytics",
-          "Web Analytics GDPR"
-        ]
+        "description": "Betterlytics Data Processing Agreement (DPA) — built for full GDPR compliance, privacy-first analytics, and secure, anonymous data processing."
       },
       "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
       "title": "Data Processing Agreement (DPA)",
@@ -645,16 +575,7 @@
     "subprocessors": {
       "seo": {
         "title": "Subprocessors | GDPR Compliance & Data Processing",
-        "description": "View the complete list of Betterlytics subprocessors. Understand how we ensure GDPR compliance through carefully selected EU-based service providers.",
-        "keywords": [
-          "Betterlytics Subprocessors",
-          "Data Processors",
-          "GDPR Compliance",
-          "Third-Party Services",
-          "Data Processing",
-          "EU Data Hosting",
-          "Privacy Compliance"
-        ]
+        "description": "View the complete list of Betterlytics subprocessors. Understand how we ensure GDPR compliance through carefully selected EU-based service providers."
       },
       "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
       "title": "Subprocessors",
@@ -720,17 +641,7 @@
       "signin": {
         "seo": {
           "title": "Sign In | Betterlytics Privacy-First Analytics",
-          "description": "Sign in to your Betterlytics dashboard — secure, cookieless, and privacy-first web analytics for GDPR-compliant insights.",
-          "keywords": [
-            "Sign In",
-            "Login",
-            "Betterlytics Account",
-            "User Dashboard",
-            "Privacy-First Analytics",
-            "Cookieless Analytics",
-            "Google Analytics Alternative",
-            "GDPR Compliant Analytics"
-          ]
+          "description": "Sign in to your Betterlytics dashboard — secure, cookieless, and privacy-first web analytics for GDPR-compliant insights."
         },
         "title": "Sign in to your account",
         "subtitle": "Access your analytics dashboard",
@@ -769,17 +680,7 @@
       "register": {
         "seo": {
           "title": "Create Your Betterlytics Account — Get Started Free",
-          "description": "Create a free Betterlytics account for privacy-first, cookieless web analytics. Start measuring your website and app traffic securely and GDPR-compliantly.",
-          "keywords": [
-            "Create Betterlytics Account",
-            "Register",
-            "Sign Up",
-            "Free Web Analytics",
-            "Privacy-First Analytics",
-            "Cookieless Analytics",
-            "Google Analytics Alternative",
-            "GDPR Compliant Analytics"
-          ]
+          "description": "Create a free Betterlytics account for privacy-first, cookieless web analytics. Start measuring your website and app traffic securely and GDPR-compliantly."
         },
         "title": "Create your account",
         "subtitle": "Get started for free — set up your analytics in minutes",
@@ -796,15 +697,7 @@
       "forgotPassword": {
         "seo": {
           "title": "Forgot your password? | Betterlytics",
-          "description": "“Reset your Betterlytics password securely. Enter your email to receive a protected reset link and regain account access.",
-          "keywords": [
-            "Forgot Password",
-            "Password Reset",
-            "Account Recovery",
-            "Reset Betterlytics Password",
-            "Betterlytics Account",
-            "Secure Login"
-          ]
+          "description": "“Reset your Betterlytics password securely. Enter your email to receive a protected reset link and regain account access."
         },
         "title": "Reset your password",
         "subtitle": "Enter your email and we'll send you a password reset link",
@@ -824,15 +717,7 @@
       "resetPassword": {
         "seo": {
           "title": "Reset your password | Betterlytics",
-          "description": "Set a new password for your Betterlytics account securely using your protected reset link and regain full access.",
-          "keywords": [
-            "Reset Password",
-            "Password Reset",
-            "Account Recovery",
-            "Betterlytics Account",
-            "Secure Password Reset",
-            "Login Help"
-          ]
+          "description": "Set a new password for your Betterlytics account securely using your protected reset link and regain full access."
         },
         "invalid": {
           "title": "Invalid Reset Link",
@@ -896,14 +781,7 @@
     "demo": {
       "seo": {
         "title": "Betterlytics | Demo Dashboard",
-        "description": "Explore Betterlytics' capabilities in this interactive demo dashboard.",
-        "keywords": [
-          "Betterlytics Demo",
-          "Analytics Demo",
-          "Product Tour",
-          "Web Analytics Demo",
-          "Privacy-First Analytics"
-        ]
+        "description": "Explore Betterlytics' capabilities in this interactive demo dashboard."
       }
     },
     "comparison": {
@@ -928,20 +806,7 @@
     "features": {
       "seo": {
         "title": "Features of Betterlytics | Privacy-First, Cookie-Less Analytics",
-        "description": "Discover all Betterlytics features: real-time dashboards, conversion funnels, Core Web Vitals, and more. Privacy-first, GDPR-compliant analytics without cookies or consent banners.",
-        "keywords": [
-          "Analytics Features",
-          "Privacy-First Analytics",
-          "Cookieless Analytics",
-          "GDPR Compliant Analytics",
-          "Real-time Dashboard",
-          "Conversion Funnels",
-          "Session Replay",
-          "Custom Events",
-          "Uptime Monitoring",
-          "Public Status Pages",
-          "Web Analytics Features"
-        ]
+        "description": "Discover all Betterlytics features: real-time dashboards, conversion funnels, Core Web Vitals, and more. Privacy-first, GDPR-compliant analytics without cookies or consent banners."
       },
       "hero": {
         "title": "Every Feature You Need for <br></br><highlight>Better Analytics</highlight>",
@@ -1188,16 +1053,7 @@
     "pricing": {
       "seo": {
         "title": "Pricing | Betterlytics Privacy-First Analytics",
-        "description": "Simple, transparent pricing for Betterlytics. Start free, scale as you grow. Privacy-first, GDPR compliant web analytics for every business size.",
-        "keywords": [
-          "Analytics Pricing",
-          "Web Analytics Plans",
-          "Privacy Analytics Pricing",
-          "GDPR Analytics Cost",
-          "Betterlytics Plans",
-          "Affordable Analytics",
-          "Free Analytics Plan"
-        ]
+        "description": "Simple, transparent pricing for Betterlytics. Start free, scale as you grow. Privacy-first, GDPR compliant web analytics for every business size."
       },
       "titleEmphasis": "Simple, transparent",
       "titleRest": "pricing",

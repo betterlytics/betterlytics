@@ -7,15 +7,6 @@ export const plausible: ComparisonLocaleContent = {
     title: 'Betterlytics vs Plausible: Flere funktioner, samme privatliv',
     description:
       'Sammenlign Betterlytics med Plausible. Samme privatlivsvenlige tilgang plus session replay, brugerrejser og overvågning. Gratis plan tilgængelig, ingen bindinger.',
-    keywords: [
-      'Plausible alternativ',
-      'Plausible Analytics alternativ',
-      'privatlivsvenlig analytics',
-      'session replay',
-      'brugerrejse tracking',
-      'letvægts analytics',
-      'GDPR-kompatibel analytics',
-    ],
   },
   hero: {
     title: 'Leder du efter et alternativ til Plausible?',

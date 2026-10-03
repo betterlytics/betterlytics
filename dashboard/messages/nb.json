@@ -3,19 +3,7 @@
     "root": {
       "seo": {
         "title": "Betterlytics | Personvern-først nettanalyse",
-        "description": "Betterlytics er et personvern-først, åpen kildekode-alternativ til Google Analytics. Få GDPR-kompatibel, informasjonskapselfri innsikt uten påtrengende sporing, samtidig som du respekterer brukernes personvern.",
-        "keywords": [
-          "Alternativ til Google Analytics",
-          "Personvern-først analyse",
-          "Informasjonskapselfri nettanalyse",
-          "GDPR-kompatibel analyse",
-          "Analyseplattform med åpen kildekode",
-          "Personvernvennlig analyse",
-          "Analyse av nettstedstrafikk",
-          "Besøksanalyse",
-          "Nettanalyseverktøy",
-          "Betterlytics analyse"
-        ]
+        "description": "Betterlytics er et personvern-først, åpen kildekode-alternativ til Google Analytics. Få GDPR-kompatibel, informasjonskapselfri innsikt uten påtrengende sporing, samtidig som du respekterer brukernes personvern."
       }
     },
     "notFound": {
@@ -26,17 +14,7 @@
     "about": {
       "seo": {
         "title": "Om Betterlytics | Personvern-først nettanalyse",
-        "description": "Lær hvordan Betterlytics bygger åpen kildekode, informasjonskapselfri analyse som beskytter brukernes personvern, er fullt GDPR-kompatibel og gir transparent innsikt på nett.",
-        "keywords": [
-          "Om Betterlytics",
-          "Personvern-først analyse",
-          "Nettanalyse med åpen kildekode",
-          "Informasjonskapselfri analyse",
-          "GDPR-kompatibel analyse",
-          "Analyseplattform for personvern",
-          "Analyse uten informasjonskapsler",
-          "Analyseverktøy med åpen kildekode"
-        ]
+        "description": "Lær hvordan Betterlytics bygger åpen kildekode, informasjonskapselfri analyse som beskytter brukernes personvern, er fullt GDPR-kompatibel og gir transparent innsikt på nett."
       },
       "aboutUs": "Om Betterlytics",
       "intro": "Vi bygger fremtiden for nettanalyse: personvern-først, åpen kildekode og laget for det moderne nettet. Du trenger ikke lenger velge mellom kraftig innsikt og respekt for de besøkendes personvern.",
@@ -97,17 +75,7 @@
     "contact": {
       "seo": {
         "title": "Kontakt Betterlytics | Personvern-først analyse",
-        "description": "Ta kontakt med Betterlytics-teamet for support, tilbakemeldinger eller partnerskap rundt vår åpne, personvern-først nettanalyseplattform.",
-        "keywords": [
-          "Kontakt Betterlytics",
-          "Betterlytics support",
-          "Hjelp med nettanalyse",
-          "Support for personvern-først analyse",
-          "Kontakt for GDPR-analyse",
-          "Support for informasjonskapselfri analyse",
-          "Kundesupport Betterlytics",
-          "Kontaktside"
-        ]
+        "description": "Ta kontakt med Betterlytics-teamet for support, tilbakemeldinger eller partnerskap rundt vår åpne, personvern-først nettanalyseplattform."
       },
       "title": "Kontakt oss",
       "intro": "Spørsmål om Betterlytics? Trenger du hjelp med analyseoppsettet ditt? Teamet vårt står klart til å hjelpe.",
@@ -191,14 +159,7 @@
     "changelog": {
       "seo": {
         "title": "Endringslogg | Betterlytics utgivelsesnotater og produktoppdateringer",
-        "description": "Les alle Betterlytics-utgivelsesnotater på ett sted. Følg produktoppdateringer, stabilitetsforbedringer og høydepunkter fra veikartet for vår personvern-først analyseplattform.",
-        "keywords": [
-          "Betterlytics endringslogg",
-          "Produktoppdateringer",
-          "Utgivelsesnotater",
-          "Analyseveikart",
-          "Oppdateringer for personvern-først analyse"
-        ]
+        "description": "Les alle Betterlytics-utgivelsesnotater på ett sted. Følg produktoppdateringer, stabilitetsforbedringer og høydepunkter fra veikartet for vår personvern-først analyseplattform."
       },
       "hero": {
         "eyebrow": "Utgivelseshistorikk",
@@ -214,17 +175,7 @@
     "privacy": {
       "seo": {
         "title": "Personvernerklæring | GDPR og informasjonskapselfri analyse",
-        "description": "Betterlytics personvernerklæring — GDPR-kompatibel og informasjonskapselfri av design. Lær hvordan vi beskytter dataene dine og sikrer personvern gjennom anonym analyse.",
-        "keywords": [
-          "Betterlytics personvernerklæring",
-          "GDPR-overholdelse",
-          "Datapersonvern",
-          "Databeskyttelse",
-          "Informasjonskapselfri analyse",
-          "Anonym analyse",
-          "Brukerpersonvern",
-          "Personvernfokusert analyse"
-        ]
+        "description": "Betterlytics personvernerklæring — GDPR-kompatibel og informasjonskapselfri av design. Lær hvordan vi beskytter dataene dine og sikrer personvern gjennom anonym analyse."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
       "title": "Betterlytics personvernerklæring",
@@ -355,17 +306,7 @@
     "terms": {
       "seo": {
         "title": "Tjenestevilkår | Personvern-først analyse",
-        "description": "Les Betterlytics sine tjenestevilkår — lær om rettighetene dine, ansvaret ditt og bruksvilkår for vår personvern-først nettanalyseplattform.",
-        "keywords": [
-          "Betterlytics tjenestevilkår",
-          "Vilkår og betingelser",
-          "Tjenesteavtale for analyse",
-          "Vilkår for nettanalyse",
-          "Vilkår for personvernanalyse",
-          "Bruksvilkår",
-          "Juridisk avtale Betterlytics",
-          "Personvern-først analyse"
-        ]
+        "description": "Les Betterlytics sine tjenestevilkår — lær om rettighetene dine, ansvaret ditt og bruksvilkår for vår personvern-først nettanalyseplattform."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
       "title": "Betterlytics tjenestevilkår",
@@ -514,18 +455,7 @@
     "dpa": {
       "seo": {
         "title": "Databehandleravtale (DPA) | GDPR og personvernanalyse",
-        "description": "Betterlytics databehandleravtale (DPA) — bygget for full GDPR-overholdelse, personvern-først analyse og sikker, anonym databehandling.",
-        "keywords": [
-          "Betterlytics databehandleravtale",
-          "Databehandleravtale (DPA)",
-          "GDPR-overholdelse",
-          "GDPR databehandleravtale",
-          "Datapersonvern",
-          "Databehandleravtale",
-          "Personvern-først analyse",
-          "Anonym analyse",
-          "Nettanalyse GDPR"
-        ]
+        "description": "Betterlytics databehandleravtale (DPA) — bygget for full GDPR-overholdelse, personvern-først analyse og sikker, anonym databehandling."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
       "title": "Databehandleravtale (DPA)",
@@ -645,16 +575,7 @@
     "subprocessors": {
       "seo": {
         "title": "Underdatabehandlere | GDPR-overholdelse og databehandling",
-        "description": "Se komplett liste over Betterlytics underdatabehandlere. Forstå hvordan vi sikrer GDPR-overholdelse gjennom nøye utvalgte EU-baserte tjenesteleverandører.",
-        "keywords": [
-          "Betterlytics underdatabehandlere",
-          "Databehandlere",
-          "GDPR-overholdelse",
-          "Tredjepartstjenester",
-          "Databehandling",
-          "EU-datahosting",
-          "Personvernoverholdelse"
-        ]
+        "description": "Se komplett liste over Betterlytics underdatabehandlere. Forstå hvordan vi sikrer GDPR-overholdelse gjennom nøye utvalgte EU-baserte tjenesteleverandører."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
       "title": "Underdatabehandlere",
@@ -720,17 +641,7 @@
       "signin": {
         "seo": {
           "title": "Logg inn | Betterlytics personvern-først analyse",
-          "description": "Logg inn på Betterlytics-dashboardet ditt — sikker, informasjonskapselfri og personvern-først nettanalyse for GDPR-kompatibel innsikt.",
-          "keywords": [
-            "Logg inn",
-            "Innlogging",
-            "Betterlytics konto",
-            "Brukerdashboard",
-            "Personvern-først analyse",
-            "Informasjonskapselfri analyse",
-            "Alternativ til Google Analytics",
-            "GDPR-kompatibel analyse"
-          ]
+          "description": "Logg inn på Betterlytics-dashboardet ditt — sikker, informasjonskapselfri og personvern-først nettanalyse for GDPR-kompatibel innsikt."
         },
         "title": "Logg inn på kontoen din",
         "subtitle": "Få tilgang til analysedashboardet ditt",
@@ -769,17 +680,7 @@
       "register": {
         "seo": {
           "title": "Opprett Betterlytics-kontoen din — kom i gang gratis",
-          "description": "Opprett en gratis Betterlytics-konto for personvern-først, informasjonskapselfri nettanalyse. Begynn å måle trafikk på nettsted og app sikkert og GDPR-kompatibelt.",
-          "keywords": [
-            "Opprett Betterlytics-konto",
-            "Registrer",
-            "Meld deg på",
-            "Gratis nettanalyse",
-            "Personvern-først analyse",
-            "Informasjonskapselfri analyse",
-            "Alternativ til Google Analytics",
-            "GDPR-kompatibel analyse"
-          ]
+          "description": "Opprett en gratis Betterlytics-konto for personvern-først, informasjonskapselfri nettanalyse. Begynn å måle trafikk på nettsted og app sikkert og GDPR-kompatibelt."
         },
         "title": "Opprett kontoen din",
         "subtitle": "Kom i gang gratis — sett opp analyse på få minutter",
@@ -796,15 +697,7 @@
       "forgotPassword": {
         "seo": {
           "title": "Glemt passordet ditt? | Betterlytics",
-          "description": "Tilbakestill Betterlytics-passordet ditt sikkert. Skriv inn e-postadressen din for å motta en beskyttet tilbakestillingslenke og få tilgang til kontoen igjen.",
-          "keywords": [
-            "Glemt passord",
-            "Tilbakestilling av passord",
-            "Gjenoppretting av konto",
-            "Tilbakestill Betterlytics-passord",
-            "Betterlytics-konto",
-            "Sikker innlogging"
-          ]
+          "description": "Tilbakestill Betterlytics-passordet ditt sikkert. Skriv inn e-postadressen din for å motta en beskyttet tilbakestillingslenke og få tilgang til kontoen igjen."
         },
         "title": "Tilbakestill passordet ditt",
         "subtitle": "Skriv inn e-posten din, så sender vi en lenke for tilbakestilling",
@@ -824,15 +717,7 @@
       "resetPassword": {
         "seo": {
           "title": "Tilbakestill passordet ditt | Betterlytics",
-          "description": "Sett et nytt passord for Betterlytics-kontoen din sikkert ved hjelp av den beskyttede tilbakestillingslenken og få full tilgang igjen.",
-          "keywords": [
-            "Tilbakestill passord",
-            "Passordtilbakestilling",
-            "Gjenoppretting av konto",
-            "Betterlytics-konto",
-            "Sikker passordtilbakestilling",
-            "Innloggingshjelp"
-          ]
+          "description": "Sett et nytt passord for Betterlytics-kontoen din sikkert ved hjelp av den beskyttede tilbakestillingslenken og få full tilgang igjen."
         },
         "invalid": {
           "title": "Ugyldig tilbakestillingslenke",
@@ -896,14 +781,7 @@
     "demo": {
       "seo": {
         "title": "Betterlytics | Demo-dashboard",
-        "description": "Utforsk Betterlytics sine muligheter i dette interaktive demo-dashboardet.",
-        "keywords": [
-          "Betterlytics demo",
-          "Analysedemo",
-          "Produktomvisning",
-          "Nettanalysedemo",
-          "Personvern-først analyse"
-        ]
+        "description": "Utforsk Betterlytics sine muligheter i dette interaktive demo-dashboardet."
       }
     },
     "comparison": {
@@ -928,20 +806,7 @@
     "features": {
       "seo": {
         "title": "Funksjoner i Betterlytics | Personvern-først, informasjonskapselfri analyse",
-        "description": "Oppdag alle funksjonene i Betterlytics: sanntidsdashboard, konverteringstrakter, Core Web Vitals og mer. Personvern-først, GDPR-kompatibel analyse uten informasjonskapsler eller samtykkebannere.",
-        "keywords": [
-          "Analysefunksjoner",
-          "Personvern-først analyse",
-          "Informasjonskapselfri analyse",
-          "GDPR-kompatibel analyse",
-          "Sanntidsdashboard",
-          "Konverteringstrakter",
-          "Sesjonsavspilling",
-          "Egendefinerte hendelser",
-          "Oppetidsovervåking",
-          "Offentlige statussider",
-          "Funksjoner for nettanalyse"
-        ]
+        "description": "Oppdag alle funksjonene i Betterlytics: sanntidsdashboard, konverteringstrakter, Core Web Vitals og mer. Personvern-først, GDPR-kompatibel analyse uten informasjonskapsler eller samtykkebannere."
       },
       "hero": {
         "title": "Alle funksjonene du trenger for <br></br><highlight>bedre analyse</highlight>",
@@ -1188,16 +1053,7 @@
     "pricing": {
       "seo": {
         "title": "Priser | Betterlytics personvern-først analyse",
-        "description": "Enkle og transparente priser for Betterlytics. Start gratis, skaler når du vokser. Personvern-først, GDPR-kompatibel nettanalyse for alle virksomhetsstørrelser.",
-        "keywords": [
-          "Analysepriser",
-          "Planer for nettanalyse",
-          "Priser for personvernanalyse",
-          "Kostnad for GDPR-analyse",
-          "Betterlytics-planer",
-          "Rimelig analyse",
-          "Gratis analyseplan"
-        ]
+        "description": "Enkle og transparente priser for Betterlytics. Start gratis, skaler når du vokser. Personvern-først, GDPR-kompatibel nettanalyse for alle virksomhetsstørrelser."
       },
       "titleEmphasis": "Enkle, transparente",
       "titleRest": "priser",

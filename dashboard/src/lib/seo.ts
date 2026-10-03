@@ -8,7 +8,6 @@ import { env } from './env';
 export interface SEOConfig {
   title: string;
   description: string;
-  keywords: string[];
   path: string;
   imageAlt?: string;
   structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
@@ -17,7 +16,7 @@ export interface SEOConfig {
 const DEFAULT_IMAGE = '/og_image.jpg';
 
 export function generateSEO(
-  { title, description, keywords, path, imageAlt }: SEOConfig,
+  { title, description, path, imageAlt }: SEOConfig,
   options?: { locale?: string; robots?: Metadata['robots'] },
 ): Metadata {
   const defaultLocale = routing.defaultLocale;
@@ -38,7 +37,6 @@ export function generateSEO(
   return {
     title: title,
     description,
-    keywords,
     authors: [{ name: 'Betterlytics Team' }],
     creator: 'Betterlytics',
     publisher: 'Betterlytics',
@@ -99,12 +97,11 @@ export async function buildSEOConfig(
   const config: SEOConfig = {
     title: t('title'),
     description: t('description'),
-    keywords: t.raw('keywords') as string[],
     path: configEntry.path,
     structuredDataType: configEntry.structuredDataType,
   };
 
-  if (!config.title || !config.description || !config.keywords?.length) {
+  if (!config.title || !config.description) {
     throw new Error(`Missing SEO translation for namespace "${configEntry.namespace}"`);
   }
 

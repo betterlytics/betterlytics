@@ -7,15 +7,6 @@ export const matomo: ComparisonLocaleContent = {
     title: 'Betterlytics vs Matomo: Moderne og letvægts alternativ',
     description:
       'Sammenlign Betterlytics med Matomo Cloud. Moderne webanalyse uden kompleksitet, plugins eller serveradministration. Session replay og overvågning inkluderet. Gratis plan uden bindinger.',
-    keywords: [
-      'Matomo alternativ',
-      'Matomo Cloud alternativ',
-      'Piwik alternativ',
-      'privatlivsvenlig analytics',
-      'simpel webanalyse',
-      'letvægts analytics',
-      'session replay',
-    ],
   },
 
   hero: {

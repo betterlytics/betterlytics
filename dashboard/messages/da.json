@@ -3,19 +3,7 @@
     "root": {
       "seo": {
         "title": "Betterlytics | Privatlivsvenlig Webanalyse",
-        "description": "Betterlytics er et privatlivsvenligt open-source alternativ til Google Analytics. Få GDPR-kompatible, cookieless indsigter uden invasiv tracking, samtidig med at brugerens privatliv respekteres.",
-        "keywords": [
-          "Google Analytics Alternativ",
-          "Privatlivsvenlig Analyse",
-          "Cookieless Webanalyse",
-          "GDPR-Kompatibel Analyse",
-          "Open Source Analyseplatform",
-          "Privatlivsfokus Analyse",
-          "Webtrafik Analyse",
-          "Besøgsanalyse",
-          "Webanalyseværktøj",
-          "Betterlytics"
-        ]
+        "description": "Betterlytics er et privatlivsvenligt open-source alternativ til Google Analytics. Få GDPR-kompatible, cookieless indsigter uden invasiv tracking, samtidig med at brugerens privatliv respekteres."
       }
     },
     "notFound": {
@@ -26,17 +14,7 @@
     "about": {
       "seo": {
         "title": "Om Betterlytics | Open Source, Privatlivsfokuseret Webanalyse",
-        "description": "Lær historien bag Betterlytics - vi bygger open-source, cookieless webanalyse, der beskytter brugernes privatliv og overholder GDPR.",
-        "keywords": [
-          "Om Betterlytics",
-          "Privatlivsfokuseret Analyse",
-          "Open Source Webanalyse",
-          "Cookieless Analyse",
-          "GDPR-kompatibel Analyse",
-          "Privatlivsanalyse Platform",
-          "Analyse Uden Cookies",
-          "Open Source Analyseværktøj"
-        ]
+        "description": "Lær historien bag Betterlytics - vi bygger open-source, cookieless webanalyse, der beskytter brugernes privatliv og overholder GDPR."
       },
       "aboutUs": "Om Betterlytics",
       "intro": "Vi bygger fremtidens webanalyse: privacy-first, open source og designet til det moderne web. Ikke mere at vælge mellem stærke indsigter og at respektere dine besøgendes privatliv.",
@@ -97,17 +75,7 @@
     "contact": {
       "seo": {
         "title": "Kontakt Betterlytics | Privatlivsfokuseret Analyse",
-        "description": "Kontakt Betterlytics-teamet for support, feedback eller partnerskaber vedrørende vores open-source, privatlivsfokuserede webanalyseplatform.",
-        "keywords": [
-          "Kontakt Betterlytics",
-          "Betterlytics Support",
-          "Webanalyse Hjælp",
-          "Privatlivsfokuseret Analyse Support",
-          "GDPR Analyse Kontakt",
-          "Cookieless Analyse Support",
-          "Kundesupport Betterlytics",
-          "Kontakt Side"
-        ]
+        "description": "Kontakt Betterlytics-teamet for support, feedback eller partnerskaber vedrørende vores open-source, privatlivsfokuserede webanalyseplatform."
       },
       "title": "Kontakt os",
       "intro": "Spørgsmål om Betterlytics? Har du brug for hjælp til din analyseopsætning? Vores team er klar til at hjælpe.",
@@ -191,14 +159,7 @@
     "changelog": {
       "seo": {
         "title": "Changelog | Betterlytics Udgivelsesnoter & Produktopdateringer",
-        "description": "Læs alle Betterlytics udgivelsesnoter ét sted. Følg produktopdateringer, stabilitetsrettelser og roadmap-højdepunkter for vores privacy-fokuserede analyseplatform.",
-        "keywords": [
-          "Betterlytics changelog",
-          "Produktopdateringer",
-          "Udgivelsesnoter",
-          "Analyse roadmap",
-          "Privacy-fokuserede analyseopdateringer"
-        ]
+        "description": "Læs alle Betterlytics udgivelsesnoter ét sted. Følg produktopdateringer, stabilitetsrettelser og roadmap-højdepunkter for vores privacy-fokuserede analyseplatform."
       },
       "hero": {
         "eyebrow": "Udgivelseshistorik",
@@ -214,17 +175,7 @@
     "privacy": {
       "seo": {
         "title": "Privatlivspolitik | GDPR & Cookieless Analyse",
-        "description": "Betterlytics Privatlivspolitik — GDPR-kompatibel og cookieless fra starten. Læs hvordan vi beskytter dine data og sikrer anonym analyse.",
-        "keywords": [
-          "Betterlytics Privatlivspolitik",
-          "GDPR Overholdelse",
-          "Dataprivatliv",
-          "Databeskyttelse",
-          "Cookieless Analyse",
-          "Anonym Analyse",
-          "Brugerprivatliv",
-          "Privatlivsfokuseret Analyse"
-        ]
+        "description": "Betterlytics Privatlivspolitik — GDPR-kompatibel og cookieless fra starten. Læs hvordan vi beskytter dine data og sikrer anonym analyse."
       },
       "translationDisclaimer": "Dette dokument er tilgængeligt på flere sprog for bekvemmelighed. I tilfælde af uoverensstemmelser er den engelske version gældende.",
       "title": "Betterlytics Privatlivspolitik",
@@ -355,17 +306,7 @@
     "terms": {
       "seo": {
         "title": "Servicevilkår | Privatlivsfokuseret Analyse",
-        "description": "Læs Betterlytics' servicevilkår — dine rettigheder, ansvar og brugsbetingelser for vores privatlivsfokuserede webanalyseplatform.",
-        "keywords": [
-          "Betterlytics Servicevilkår",
-          "Vilkår og Betingelser",
-          "Analyse Serviceaftale",
-          "Webanalyse Vilkår",
-          "Privatlivs Analyse Vilkår",
-          "Brugsbetingelser",
-          "Juridisk Aftale Betterlytics",
-          "Privatlivsfokuseret Analyse"
-        ]
+        "description": "Læs Betterlytics' servicevilkår — dine rettigheder, ansvar og brugsbetingelser for vores privatlivsfokuserede webanalyseplatform."
       },
       "translationDisclaimer": "Dette dokument er tilgængeligt på flere sprog for bekvemmelighed. I tilfælde af uoverensstemmelser er den engelske version gældende.",
       "title": "Betterlytics Servicevilkår",
@@ -514,18 +455,7 @@
     "dpa": {
       "seo": {
         "title": "Databehandleraftale (DPA) | GDPR & Privatlivsanalyse",
-        "description": "Betterlytics Databehandleraftale (DPA) — udviklet til fuld GDPR-overholdelse, privatlivsfokuseret analyse og sikker, anonym databehandling.",
-        "keywords": [
-          "Betterlytics Databehandleraftale",
-          "DPA",
-          "GDPR Overholdelse",
-          "GDPR DPA",
-          "Dataprivatliv",
-          "Databeskyttelsesaftale",
-          "Privatlivsfokuseret Analyse",
-          "Anonym Analyse",
-          "Webanalyse GDPR"
-        ]
+        "description": "Betterlytics Databehandleraftale (DPA) — udviklet til fuld GDPR-overholdelse, privatlivsfokuseret analyse og sikker, anonym databehandling."
       },
       "translationDisclaimer": "Dette dokument er tilgængeligt på flere sprog for bekvemmelighed. I tilfælde af uoverensstemmelser er den engelske version gældende.",
       "title": "Databehandleraftale (DPA)",
@@ -645,16 +575,7 @@
     "subprocessors": {
       "seo": {
         "title": "Underdatabehandlere | GDPR-overholdelse og databehandling",
-        "description": "Se den komplette liste over Betterlytics underdatabehandlere. Forstå hvordan vi sikrer GDPR-overholdelse gennem nøje udvalgte EU-baserede tjenesteudbydere.",
-        "keywords": [
-          "Betterlytics Underdatabehandlere",
-          "Databehandlere",
-          "GDPR-overholdelse",
-          "Tredjepartstjenester",
-          "Databehandling",
-          "EU Datahosting",
-          "Privatlivsoverholdelse"
-        ]
+        "description": "Se den komplette liste over Betterlytics underdatabehandlere. Forstå hvordan vi sikrer GDPR-overholdelse gennem nøje udvalgte EU-baserede tjenesteudbydere."
       },
       "translationDisclaimer": "Dette dokument er tilgængeligt på flere sprog for bekvemmelighed. I tilfælde af uoverensstemmelser er den engelske version gældende.",
       "title": "Underdatabehandlere",
@@ -720,17 +641,7 @@
       "signin": {
         "seo": {
           "title": "Log ind | Betterlytics Privatlivsfokuseret Analyse",
-          "description": "Log ind på dit Betterlytics-dashboard — sikker, cookieless og GDPR-kompatibel webanalyse med fokus på privatliv.",
-          "keywords": [
-            "Log ind",
-            "Login",
-            "Betterlytics Konto",
-            "Bruger Dashboard",
-            "Privatlivsfokuseret Analyse",
-            "Cookieless Analyse",
-            "Google Analytics Alternativ",
-            "GDPR-kompatibel Analyse"
-          ]
+          "description": "Log ind på dit Betterlytics-dashboard — sikker, cookieless og GDPR-kompatibel webanalyse med fokus på privatliv."
         },
         "title": "Log ind på din konto",
         "subtitle": "Få adgang til dit analyse-dashboard",
@@ -769,17 +680,7 @@
       "register": {
         "seo": {
           "title": "Opret din Betterlytics-konto — Kom i gang gratis",
-          "description": "Opret en gratis Betterlytics-konto til privatlivsfokuseret, cookieless webanalyse. Mål web- og apptrafik sikkert og GDPR-kompatibelt.",
-          "keywords": [
-            "Opret Betterlytics Konto",
-            "Registrer",
-            "Tilmeld Dig",
-            "Gratis Webanalyse",
-            "Privatlivsfokuseret Analyse",
-            "Cookieless Analyse",
-            "Google Analytics Alternativ",
-            "GDPR-kompatibel Analyse"
-          ]
+          "description": "Opret en gratis Betterlytics-konto til privatlivsfokuseret, cookieless webanalyse. Mål web- og apptrafik sikkert og GDPR-kompatibelt."
         },
         "title": "Opret din konto",
         "subtitle": "Begynd at spore din analyse i dag",
@@ -796,15 +697,7 @@
       "forgotPassword": {
         "seo": {
           "title": "Nulstil adgangskode | Betterlytics",
-          "description": "Nulstil din Betterlytics-adgangskode sikkert. Indtast din e-mail for at modtage et beskyttet link til nulstilling og gendan adgang til kontoen.",
-          "keywords": [
-            "Glemt Adgangskode",
-            "Adgangskode Nulstilling",
-            "Konto Gendannelse",
-            "Nulstil Betterlytics Adgangskode",
-            "Betterlytics Konto",
-            "Sikker Login"
-          ]
+          "description": "Nulstil din Betterlytics-adgangskode sikkert. Indtast din e-mail for at modtage et beskyttet link til nulstilling og gendan adgang til kontoen."
         },
         "title": "Nulstil din adgangskode",
         "subtitle": "Indtast din e-mail, så sender vi dig et link til at nulstille adgangskoden",
@@ -824,15 +717,7 @@
       "resetPassword": {
         "seo": {
           "title": "Nulstil adgangskode | Betterlytics Konto",
-          "description": "Indstil en ny adgangskode til din Betterlytics-konto sikkert ved hjælp af dit beskyttede nulstillingslink.",
-          "keywords": [
-            "Nulstil Adgangskode",
-            "Adgangskode Nulstilling",
-            "Konto Gendannelse",
-            "Betterlytics Konto",
-            "Sikker Nulstilling",
-            "Login Hjælp"
-          ]
+          "description": "Indstil en ny adgangskode til din Betterlytics-konto sikkert ved hjælp af dit beskyttede nulstillingslink."
         },
         "invalid": {
           "title": "Ugyldigt nulstillingslink",
@@ -896,14 +781,7 @@
     "demo": {
       "seo": {
         "title": "Betterlytics | Demo Dashboard",
-        "description": "Udforsk Betterlytics' funktioner i denne interaktive demo-dashboard.",
-        "keywords": [
-          "Betterlytics Demo",
-          "Demo Funktioner",
-          "Produkt Rundvisning",
-          "Web Demo",
-          "Privacy-Første Funktioner"
-        ]
+        "description": "Udforsk Betterlytics' funktioner i denne interaktive demo-dashboard."
       }
     },
     "comparison": {
@@ -928,20 +806,7 @@
     "features": {
       "seo": {
         "title": "Funktioner i Betterlytics | Privatlivsvenlig, Cookiefri Analyse",
-        "description": "Udforsk alle Betterlytics-funktioner: realtids-dashboards, konverteringsfunnels, Core Web Vitals og meget mere. Privatlivsvenlig, GDPR-kompatibel analyse uden cookies eller samtykkebannere.",
-        "keywords": [
-          "Analysefunktioner",
-          "Privatlivsvenlig Analyse",
-          "Cookieless Analyse",
-          "GDPR-kompatibel Analyse",
-          "Realtids Dashboard",
-          "Konverteringsfunnels",
-          "Session Replay",
-          "Brugerdefinerede Events",
-          "Oppetidsovervågning",
-          "Offentlige Statussider",
-          "Webanalysefunktioner"
-        ]
+        "description": "Udforsk alle Betterlytics-funktioner: realtids-dashboards, konverteringsfunnels, Core Web Vitals og meget mere. Privatlivsvenlig, GDPR-kompatibel analyse uden cookies eller samtykkebannere."
       },
       "hero": {
         "title": "Alle funktioner du har brug for til <br></br><highlight>bedre analyse</highlight>",
@@ -1188,16 +1053,7 @@
     "pricing": {
       "seo": {
         "title": "Priser | Betterlytics Privatlivsfokuseret Analyse",
-        "description": "Simple, gennemsigtige priser for Betterlytics. Start gratis, skalér når du vokser. Privatlivsvenlig, GDPR-kompatibel webanalyse for enhver virksomhedsstørrelse.",
-        "keywords": [
-          "Analyse Priser",
-          "Web Analyse Planer",
-          "Privacy Analytics Priser",
-          "GDPR Analytics Pris",
-          "Betterlytics Planer",
-          "Billig Analytics",
-          "Gratis Analytics Plan"
-        ]
+        "description": "Simple, gennemsigtige priser for Betterlytics. Start gratis, skalér når du vokser. Privatlivsvenlig, GDPR-kompatibel webanalyse for enhver virksomhedsstørrelse."
       },
       "titleEmphasis": "Simple, gennemsigtige",
       "titleRest": "priser",

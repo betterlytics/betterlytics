@@ -7,15 +7,6 @@ export const googleAnalytics: ComparisonLocaleContent = {
     title: 'Betterlytics vs Google Analytics: Alternativa orientata alla privacy',
     description:
       'Confronta Betterlytics con Google Analytics. Analytics leggere e conformi al GDPR, senza banner cookie, con pagine più veloci e pieno controllo dei dati. Piano gratuito disponibile.',
-    keywords: [
-      'alternativa Google Analytics',
-      'alternativa GA4',
-      'analytics privacy-first',
-      'analytics conformi GDPR',
-      'analytics senza cookie',
-      'analytics web leggere',
-      'sostituto Google Analytics',
-    ],
   },
   hero: {
     title: 'Cerchi un’alternativa a Google Analytics?',

@@ -7,15 +7,6 @@ export const fathom: ComparisonLocaleContent = {
     title: 'Betterlytics vs Fathom Analytics: Flere funksjoner, lavere pris',
     description:
       'Sammenlign Betterlytics med Fathom Analytics. Samme personvernfokuserte tilnærming med session replay, trakter og sporing av brukerreiser. Gratisnivå tilgjengelig, fra $6/måned.',
-    keywords: [
-      'Fathom Analytics alternativ',
-      'Fathom alternativ',
-      'personvernfokusert analyse',
-      'session replay',
-      'traktanalyse',
-      'rimelig analyse',
-      'GDPR-kompatibel analyse',
-    ],
   },
   hero: {
     title: 'Ser du etter et alternativ til Fathom Analytics?',

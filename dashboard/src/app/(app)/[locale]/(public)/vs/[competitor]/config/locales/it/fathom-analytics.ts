@@ -7,15 +7,6 @@ export const fathom: ComparisonLocaleContent = {
     title: 'Betterlytics vs Fathom Analytics: Più funzionalità a un prezzo inferiore',
     description:
       'Confronta Betterlytics con Fathom Analytics. Stesso approccio privacy-first con session replay, funnel e percorsi utente inclusi. Piano gratuito disponibile, da $6/mese.',
-    keywords: [
-      'alternativa Fathom Analytics',
-      'alternativa Fathom',
-      'analytics privacy-first',
-      'session replay',
-      'analisi funnel',
-      'analytics convenienti',
-      'analytics conformi GDPR',
-    ],
   },
   hero: {
     title: 'Cerchi un’alternativa a Fathom Analytics?',

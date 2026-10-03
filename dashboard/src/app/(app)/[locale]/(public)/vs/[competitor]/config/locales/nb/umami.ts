@@ -7,15 +7,6 @@ export const umami: ComparisonLocaleContent = {
     title: 'Betterlytics vs Umami: Session Replay og overvåking inkludert',
     description:
       'Sammenlign Betterlytics med Umami. Samme lettvekts, personvernfokuserte analyse med innebygd session replay, brukerreiser og oppetidsovervåking. Gratisnivå tilgjengelig.',
-    keywords: [
-      'Umami alternativ',
-      'Umami Analytics alternativ',
-      'personvernfokusert analyse',
-      'session replay',
-      'oppetidsovervåking',
-      'lettvekts analyse',
-      'open source analyse',
-    ],
   },
   hero: {
     title: 'Ser du etter et alternativ til Umami?',

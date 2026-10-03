@@ -7,15 +7,6 @@ export const plausible: ComparisonLocaleContent = {
     title: 'Betterlytics vs Plausible: Flere funksjoner, samme personvern',
     description:
       'Sammenlign Betterlytics med Plausible. Samme personvernfokuserte tilnærming, pluss session replay, brukerreiser og overvåking. Gratisnivå tilgjengelig, fra $6/måned.',
-    keywords: [
-      'Plausible alternativ',
-      'Plausible Analytics alternativ',
-      'personvernfokusert analyse',
-      'session replay',
-      'sporing av brukerreiser',
-      'lettvekts analyse',
-      'GDPR-kompatibel analyse',
-    ],
   },
   hero: {
     title: 'Ser du etter et alternativ til Plausible?',

@@ -7,15 +7,6 @@ export const plausible: ComparisonLocaleContent = {
     title: 'Betterlytics vs Plausible: More Features, Same Privacy',
     description:
       'Compare Betterlytics to Plausible. Same privacy-first approach, plus session replay, user journeys, and monitoring. Free tier available, starting at $6/month.',
-    keywords: [
-      'Plausible alternative',
-      'Plausible Analytics alternative',
-      'privacy-first analytics',
-      'session replay',
-      'user journey tracking',
-      'lightweight analytics',
-      'GDPR compliant analytics',
-    ],
   },
   hero: {
     title: 'Looking for a Plausible Alternative?',

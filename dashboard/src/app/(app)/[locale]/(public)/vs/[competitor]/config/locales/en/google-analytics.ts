@@ -7,15 +7,6 @@ export const googleAnalytics: ComparisonLocaleContent = {
     title: 'Betterlytics vs Google Analytics: Privacy-First Alternative',
     description:
       'Compare Betterlytics to Google Analytics. Get lightweight, GDPR-ready analytics with no cookie banners, faster page loads, and full data ownership. Free tier available.',
-    keywords: [
-      'Google Analytics alternative',
-      'GA4 alternative',
-      'privacy-first analytics',
-      'GDPR compliant analytics',
-      'cookieless analytics',
-      'lightweight web analytics',
-      'Google Analytics replacement',
-    ],
   },
   hero: {
     title: 'Looking for a Google Analytics Alternative?',

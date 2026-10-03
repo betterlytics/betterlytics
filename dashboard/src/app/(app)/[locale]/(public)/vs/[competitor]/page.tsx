@@ -54,7 +54,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     {
       title: data.seo.title,
       description: data.seo.description,
-      keywords: data.seo.keywords,
       path: `/vs/${competitor}`,
       structuredDataType: 'webpage',
     },

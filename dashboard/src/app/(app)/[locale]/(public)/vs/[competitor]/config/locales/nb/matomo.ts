@@ -7,15 +7,6 @@ export const matomo: ComparisonLocaleContent = {
     title: 'Betterlytics vs Matomo: Moderne og lettvekts alternativ',
     description:
       'Sammenlign Betterlytics med Matomo Cloud. Få moderne analyse uten kompleksitet, plugins eller serveradministrasjon. Session replay og overvåking inkludert. Fra $6/måned.',
-    keywords: [
-      'Matomo alternativ',
-      'Matomo Cloud alternativ',
-      'Piwik alternativ',
-      'personvernfokusert analyse',
-      'enkel webanalyse',
-      'lettvekts analyse',
-      'session replay',
-    ],
   },
   hero: {
     title: 'Ser du etter et alternativ til Matomo?',

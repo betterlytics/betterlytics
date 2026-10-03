@@ -7,15 +7,6 @@ export const posthog: ComparisonLocaleContent = {
     title: 'Betterlytics vs PostHog: Fokusert og lettvekts alternativ',
     description:
       'Sammenlign Betterlytics med PostHog. Få fokusert webanalyse med et svært lite skript, personvern som standard og forutsigbar prising. Ingen kompleksitet, bare klarhet.',
-    keywords: [
-      'PostHog alternativ',
-      'lettvekts analyse',
-      'personvernfokusert analyse',
-      'enkel webanalyse',
-      'cookieless analyse',
-      'erstatning for PostHog',
-      'analyse med forutsigbar prising',
-    ],
   },
   hero: {
     title: 'Ser du etter et alternativ til PostHog?',

@@ -7,15 +7,6 @@ export const fathom: ComparisonLocaleContent = {
     title: 'Betterlytics vs Fathom Analytics: Flere funktioner til lavere pris',
     description:
       'Sammenlign Betterlytics med Fathom Analytics. Samme privatlivsvenlige tilgang med session replay, funnels, brugerrejser og uptime-monitoring inkluderet. Gratis plan tilgængelig.',
-    keywords: [
-      'Fathom Analytics alternativ',
-      'Fathom alternativ',
-      'privatlivsvenlig analytics',
-      'session replay',
-      'funnel-analyse',
-      'billig webanalyse',
-      'GDPR-kompatibel analytics',
-    ],
   },
   hero: {
     title: 'Leder du efter et alternativ til Fathom Analytics?',

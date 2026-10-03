@@ -7,15 +7,6 @@ export const posthog: ComparisonLocaleContent = {
     title: 'Betterlytics vs PostHog: Alternativa leggera e focalizzata',
     description:
       'Confronta Betterlytics con PostHog. Analytics web focalizzate con uno script leggerissimo, privacy di default e prezzi prevedibili. Niente complessità, solo chiarezza.',
-    keywords: [
-      'alternativa PostHog',
-      'analytics leggere',
-      'analytics privacy-first',
-      'analytics web semplici',
-      'analytics senza cookie',
-      'sostituto PostHog',
-      'prezzi prevedibili analytics',
-    ],
   },
   hero: {
     title: 'Cerchi un’alternativa a PostHog?',

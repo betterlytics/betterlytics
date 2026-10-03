@@ -7,15 +7,6 @@ export const googleAnalytics: ComparisonLocaleContent = {
     title: 'Betterlytics vs Google Analytics: Privatlivsvenligt alternativ',
     description:
       'Sammenlign Betterlytics med Google Analytics. Letvægts, GDPR-klar webanalyse uden cookiebannere, hurtigere sideindlæsning og fuldt ejerskab over dine data. Gratis plan tilgængelig.',
-    keywords: [
-      'Google Analytics alternativ',
-      'GA4 alternativ',
-      'privatlivsvenlig analytics',
-      'GDPR-kompatibel analytics',
-      'cookieless analytics',
-      'letvægts webanalyse',
-      'Google Analytics erstatning',
-    ],
   },
   hero: {
     title: 'Leder du efter et alternativ til Google Analytics?',

@@ -9,7 +9,6 @@ export interface ComparisonLocaleContent {
   seo?: {
     title: string;
     description: string;
-    keywords: string[];
   };
   hero: {
     title: string;
