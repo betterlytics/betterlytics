@@ -1,4 +1,3 @@
-/** Awaiting Christoffer's written approval of this exact wording, his name, photo and Edora's logo before launch. */
 export const QUOTE = {
   /* the quote and role are `landing.quote` in the messages */
   name: 'Christoffer Romild',
