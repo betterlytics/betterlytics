@@ -5,6 +5,7 @@ import { env } from '@/lib/env';
 import { Section } from '@/landing/components/ui/frame';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
 import { COPY } from '@/landing/content/copy';
+import { CUSTOMERS } from '@/landing/content/customers';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import { DemoFrame } from './demoFrame';
@@ -20,7 +21,11 @@ export async function DemoSection() {
     // hidden on phones (too cramped, costly to load); the nav's Demo link covers them
     <Section
       id={IDS.demo}
-      className='z-2 flow-root px-[calc(var(--inset)+8px)] pt-0 pb-2 max-lg:pb-2 max-sm:hidden'
+      className={cn(
+        'z-2 flow-root px-[calc(var(--inset)+8px)] pt-0 max-sm:hidden',
+        // the customers row, when shown, hangs right under the window
+        CUSTOMERS.length > 0 && 'pb-2 max-lg:pb-2',
+      )}
     >
       {/* pull up the window, not the section: a section margin would drag the wall's top rule up */}
       <div className={cn(styles.window, '-mt-(--hero-overlap)')}>
