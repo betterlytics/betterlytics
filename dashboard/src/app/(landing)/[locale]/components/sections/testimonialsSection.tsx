@@ -5,7 +5,7 @@ import { QUOTE } from '@/landing/content/testimonials';
 import { IDS } from '@/landing/lib/ids';
 
 export function TestimonialsSection() {
-  const { text, name, role, company, logo } = QUOTE;
+  const { text, name, role, photo, company, logo } = QUOTE;
   return (
     <Section id={IDS.quotes}>
       <Panel>
@@ -14,7 +14,15 @@ export function TestimonialsSection() {
             “<Emphasis text={text} as='b' className='font-medium text-volt-soft' />”
           </blockquote>
           <figcaption className='flex items-center gap-5'>
-            <span className='text-left'>
+            <Image
+              src={photo}
+              alt=''
+              width={56}
+              height={56}
+              unoptimized
+              className='size-14 flex-none rounded-full border border-rule-22 object-cover'
+            />
+            <span className='-ml-1.5 text-left'>
               <b className='block text-label font-medium'>{name}</b>
               <span className='text-code text-muted'>{role}</span>
             </span>
