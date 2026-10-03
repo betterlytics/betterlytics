@@ -9,9 +9,12 @@ export const COPY_LOCALE = 'en';
 
 export const COPY = {
   seo: {
-    title: 'Betterlytics — Analytics you can actually read',
+    title: 'Betterlytics: Web analytics, session replay, errors & uptime',
     description:
-      'Privacy-first web analytics. Every pageview, event and funnel on the record — cookieless and never sampled.',
+      'See your website traffic, session replays, errors, Core Web Vitals and uptime in one dashboard. Open source and cookieless, with a free plan.',
+    /* link previews in chats and social posts; the hero's own words */
+    socialTitle: "You shouldn't need five tools to understand one website",
+    socialDescription: 'Cookieless analytics, session replay, Core Web Vitals, errors and uptime. One dashboard, one bill.',
   },
   nav: {
     skip: 'Skip to content',

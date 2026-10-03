@@ -9,6 +9,9 @@ export interface SEOConfig {
   title: string;
   description: string;
   path: string;
+  /** Link-preview copy (Open Graph, X); falls back to the title and description. */
+  socialTitle?: string;
+  socialDescription?: string;
   imageAlt?: string;
   structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
 }
@@ -16,7 +19,7 @@ export interface SEOConfig {
 const DEFAULT_IMAGE = '/og_image.jpg';
 
 export function generateSEO(
-  { title, description, path, imageAlt }: SEOConfig,
+  { title, description, path, socialTitle = title, socialDescription = description, imageAlt }: SEOConfig,
   options?: { locale?: string; robots?: Metadata['robots'] },
 ): Metadata {
   const defaultLocale = routing.defaultLocale;
@@ -56,22 +59,22 @@ export function generateSEO(
         LANGUAGE_METADATA[currentLocale as SupportedLanguages]?.ogLocale ??
         LANGUAGE_METADATA[defaultLocale].ogLocale,
       url: fullUrl,
-      title: title,
-      description,
+      title: socialTitle,
+      description: socialDescription,
       siteName: 'Betterlytics',
       images: [
         {
           url: DEFAULT_IMAGE,
           width: 1200,
           height: 630,
-          alt: imageAlt || title,
+          alt: imageAlt || socialTitle,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: title,
-      description,
+      title: socialTitle,
+      description: socialDescription,
       images: [DEFAULT_IMAGE],
       creator: '@betterlytics',
     },
