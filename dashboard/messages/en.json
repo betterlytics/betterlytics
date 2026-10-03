@@ -907,6 +907,7 @@
       },
       "errors": {
         "originMismatch": "This page is open at {origin}, which doesn't match the address this Betterlytics instance is configured for, so the request was blocked. Open Betterlytics at its configured address. If you run this instance, make sure its configured URL (scheme, host and port) matches the address in your browser.",
+        "accountLocked": "Too many incorrect codes. Two-factor sign-in is locked for 15 minutes.",
         "rateLimited": "Too many attempts. Please wait a moment and try again."
       }
     },

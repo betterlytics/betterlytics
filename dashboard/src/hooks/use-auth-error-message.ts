@@ -15,6 +15,8 @@ export function useAuthErrorMessage() {
       switch (classifyAuthError(error)) {
         case 'originMismatch':
           return t('originMismatch', { origin: window.location.origin });
+        case 'accountLocked':
+          return t('accountLocked');
         case 'rateLimited':
           return t('rateLimited');
         case 'other':

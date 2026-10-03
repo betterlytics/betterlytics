@@ -907,6 +907,7 @@
       },
       "errors": {
         "originMismatch": "Questa pagina è aperta su {origin}, che non corrisponde all'indirizzo per cui è configurata questa istanza di Betterlytics, quindi la richiesta è stata bloccata. Apri Betterlytics al suo indirizzo configurato. Se gestisci questa istanza, assicurati che l'URL configurato (schema, host e porta) corrisponda all'indirizzo nel tuo browser.",
+        "accountLocked": "Troppi codici errati. L'accesso con autenticazione a due fattori è bloccato per 15 minuti.",
         "rateLimited": "Troppi tentativi. Attendi un momento e riprova."
       }
     },

@@ -12,9 +12,13 @@ describe('classifyAuthError', () => {
     expect(classifyAuthError({ status: 403, code: 'SIGNUP_DISABLED' })).toBe('other');
   });
 
-  it('treats any 429 as rate limited, with or without a code', () => {
+  it('treats a 429 ACCOUNT_TEMPORARILY_LOCKED as the two-factor lockout', () => {
+    expect(classifyAuthError({ status: 429, code: 'ACCOUNT_TEMPORARILY_LOCKED' })).toBe('accountLocked');
+  });
+
+  it('treats any other 429 as rate limited', () => {
     expect(classifyAuthError({ status: 429 })).toBe('rateLimited');
-    expect(classifyAuthError({ status: 429, code: 'ACCOUNT_TEMPORARILY_LOCKED' })).toBe('rateLimited');
+    expect(classifyAuthError({ status: 429, code: 'TOO_MANY_REQUESTS' })).toBe('rateLimited');
   });
 
   it('leaves credential and server errors to the form', () => {

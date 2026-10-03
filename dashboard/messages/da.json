@@ -907,6 +907,7 @@
       },
       "errors": {
         "originMismatch": "Denne side er åbnet på {origin}, som ikke passer med den adresse, denne Betterlytics-instans er konfigureret til, så anmodningen blev blokeret. Åbn Betterlytics på den konfigurerede adresse. Hvis du driver instansen, så sørg for, at den konfigurerede URL (protokol, vært og port) svarer til adressen i din browser.",
+        "accountLocked": "For mange forkerte koder. Login med totrinsbekræftelse er låst i 15 minutter.",
         "rateLimited": "For mange forsøg. Vent et øjeblik, og prøv igen."
       }
     },
