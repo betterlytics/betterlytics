@@ -14,7 +14,8 @@ export const COPY = {
       'See your website traffic, session replays, errors, Core Web Vitals and uptime in one dashboard. Open source and cookieless, with a free plan.',
     /* link previews in chats and social posts; the hero's own words */
     socialTitle: "You shouldn't need five tools to understand one website",
-    socialDescription: 'Cookieless analytics, session replay, Core Web Vitals, errors and uptime. One dashboard, one bill.',
+    socialDescription:
+      'Cookieless analytics, session replay, Core Web Vitals, errors and uptime. One dashboard, one bill.',
   },
   nav: {
     skip: 'Skip to content',
@@ -165,7 +166,7 @@ export const COPY = {
   },
   footer: {
     tagline:
-      'Privacy-first web analytics for the modern web. GDPR, CCPA and PECR compliant, cookieless, and open source.',
+      'Web analytics, session replay, errors and uptime in one open-source tool. Cookieless and hosted in the EU.',
     columns: {
       company: 'Company',
       resources: 'Resources',
