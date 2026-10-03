@@ -217,7 +217,8 @@ export function PricingPanel() {
               type='button'
               className={cn(
                 'absolute top-0 left-[calc(9px+(100%-18px)*var(--stop))] -translate-x-1/2 px-1 py-0.5 text-micro whitespace-nowrap text-muted tabular-nums transition-[color] duration-200 ease-out-expo hover:text-fg aria-pressed:font-medium aria-pressed:text-fg',
-                i % 2 === 1 && i !== lastIndex && 'max-sm:hidden',
+                // phones show every other stop and the last; its neighbour would collide in long locales ("10 mio.+")
+                (i % 2 === 1 || i === lastIndex - 1) && i !== lastIndex && 'max-sm:hidden',
               )}
               style={vars({ '--stop': i / lastIndex })}
               aria-pressed={i === rangeIndex}

@@ -101,6 +101,7 @@
   .row {
     position: relative;
     display: grid;
+    /* the last column fits a translated "1 min" */
     grid-template-columns: 14px minmax(0, 12em) minmax(0, 1fr) auto 3em;
     align-items: center;
     gap: 14px;
@@ -110,7 +111,7 @@
     font-size: 11px;
     white-space: nowrap;
     @variant max-md {
-      grid-template-columns: 14px minmax(0, 1fr) minmax(0, auto) auto 2.6em;
+      grid-template-columns: 14px minmax(0, 1fr) minmax(0, auto) auto 3em;
       gap: 10px;
       padding: 10px 14px;
     }

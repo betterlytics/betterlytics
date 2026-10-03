@@ -24,7 +24,7 @@ const LINK =
 const SOCIAL_ICON = 'size-[15px] flex-none';
 /** Underlined so it isn't told from its sentence by colour alone. */
 const FINE_LINK =
-  'underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current';
+  'whitespace-nowrap underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current';
 
 function Column({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
@@ -114,7 +114,8 @@ export function LandingFooter() {
             {COMPARISONS.map(({ slug, name }) => (
               <li key={slug}>
                 <Link className={LINK} href={`/vs/${slug}`}>
-                  {t('compareLink', { name })}
+                  {/* a no-break space after "vs", so a narrow column never strands it on its own line */}
+                  {t('compareLink', { name }).replace(/^(\S+) /, '$1\u00a0')}
                 </Link>
               </li>
             ))}
