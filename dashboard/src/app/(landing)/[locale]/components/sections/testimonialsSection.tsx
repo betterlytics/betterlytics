@@ -14,7 +14,7 @@ export function TestimonialsSection() {
           className='h-12 border-b border-rule bg-hatch transition-ink max-sm:-mx-(--pad) max-sm:h-10'
           aria-hidden
         />
-        <figure className='mx-auto flex max-w-[54rem] flex-col items-center gap-10 px-[30px] py-24 text-center max-sm:items-start max-sm:gap-8 max-sm:px-0 max-sm:py-14 max-sm:text-left'>
+        <figure className='mx-auto flex max-w-[54rem] flex-col items-center gap-10 px-[30px] py-32 text-center max-sm:items-start max-sm:gap-8 max-sm:px-0 max-sm:py-16 max-sm:text-left'>
           <blockquote className='text-[2rem] leading-[1.28] font-medium tracking-[-0.03em] text-balance max-lg:text-[1.625rem] max-sm:text-[1.3125rem]'>
             “<Emphasis text={text} as='b' className='font-medium text-volt-soft' />”
           </blockquote>
