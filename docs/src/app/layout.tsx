@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: "%s - Betterlytics Docs",
   },
   description:
-    "Betterlytics documentation — guides, tutorials, and references for the privacy-first, cookieless analytics platform.",
+    "Guides and reference for Betterlytics: web analytics, session replay, error tracking, Core Web Vitals and uptime monitoring.",
   metadataBase: new URL("https://betterlytics.io"),
   openGraph: {
     type: "website",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     siteName: "Betterlytics",
     title: "Betterlytics Docs",
     description:
-      "Betterlytics documentation — guides, tutorials, and references for the privacy-first, cookieless analytics platform.",
+      "Guides and reference for Betterlytics: web analytics, session replay, error tracking, Core Web Vitals and uptime monitoring.",
     images: [
       {
         url: getAssetPath("/og_image.jpg"),
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Betterlytics Docs",
     description:
-      "Betterlytics documentation — guides, tutorials, and references for the privacy-first, cookieless analytics platform.",
+      "Guides and reference for Betterlytics: web analytics, session replay, error tracking, Core Web Vitals and uptime monitoring.",
     images: [getAssetPath("/og_image.jpg")],
     creator: "@betterlytics",
   },
