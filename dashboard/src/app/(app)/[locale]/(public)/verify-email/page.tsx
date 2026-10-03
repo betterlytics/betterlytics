@@ -6,6 +6,7 @@ import { XCircle, AlertCircle } from 'lucide-react';
 import { VerificationRedirectHandler } from '@/components/accountVerification/VerificationRedirectHandler';
 import { getTranslations } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export async function generateMetadata() {
   return {
@@ -72,7 +73,7 @@ async function VerificationFailed({ variant }: { variant: 'expired' | 'generic' 
                 </Button>
               </Link>
             )}
-            <p className='text-muted-foreground mt-4 text-xs'>{t('helpLine')}</p>
+            {isFeatureEnabled('isCloud') && <p className='text-muted-foreground mt-4 text-xs'>{t('helpLine')}</p>}
           </div>
         </div>
       </div>

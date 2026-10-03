@@ -785,6 +785,11 @@
             "GDPR-kompatibel Analyse"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Opret din konto | Betterlytics",
+          "description": "Opret din konto på denne Betterlytics-instans.",
+          "keywords": ["Opret konto", "Tilmeld"]
+        },
         "title": "Opret din konto",
         "subtitle": "Begynd at spore din analyse i dag",
         "cta": {
@@ -793,7 +798,6 @@
         },
         "disabled": {
           "title": "Registrering deaktiveret",
-          "description": "Registrering er i øjeblikket deaktiveret på denne instans.",
           "backToSignIn": "Tilbage til login"
         }
       },
@@ -3265,6 +3269,13 @@
         "feature3": {
           "title": "Privatliv først & open source",
           "description": "Cookieless, GDPR‑kompatibel og EU‑hostet. Gennemsigtigt og sikkert."
+        },
+        "feature2SelfHosted": {
+          "title": "Dine data, din server",
+          "description": "Kører på din egen infrastruktur, under din kontrol."
+        },
+        "feature3SelfHosted": {
+          "description": "Cookieless og GDPR‑kompatibel. Gennemsigtigt og sikkert."
         }
       },
       "form": {
@@ -3289,7 +3300,8 @@
         "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
         "checkInput": "Tjek venligst dit input",
         "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
-        "invitedToHint": "Du er inviteret til at deltage i {domain}"
+        "invitedToHint": "Du er inviteret til at deltage i {domain}",
+        "firstUserHint": "Dette er den første konto på denne instans. Den bliver administrator for instansen."
       }
     },
     "website": {
@@ -3869,6 +3881,7 @@
       }
     },
     "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så overvejer vi at tilføje den.",
+    "moreIntegrationsSelfHosted": "Har du brug for en anden integration? <link>Foreslå den på GitHub</link>.",
     "history": {
       "title": "Notifikationslog",
       "button": "Notifikationslog",
