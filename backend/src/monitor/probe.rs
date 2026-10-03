@@ -15,7 +15,7 @@ use tracing::{debug, warn};
 use url::Url;
 use x509_parser::prelude::FromDer;
 
-use crate::monitor::guard::{GuardError, MAX_REDIRECTS, BODY_STREAM_LIMIT, get_port, validate_target};
+use crate::monitor::guard::{GuardError, GuardedResolver, MAX_REDIRECTS, BODY_STREAM_LIMIT, get_port, validate_target};
 use crate::monitor::models::{HttpMethod, MonitorStatus, StatusCodeValue, is_status_code_accepted};
 use crate::monitor::sanitize::apply_custom_headers;
 use crate::monitor::{MonitorCheck, ProbeOutcome, ReasonCode};
@@ -73,6 +73,8 @@ impl MonitorProbe {
             .min_tls_version(Version::TLS_1_2)
             // We handle redirects manually to validate each hop and DNS result
             .redirect(Policy::none())
+            // validate_target resolves first, but reqwest resolves again on its own; filtering that answer closes the rebinding window
+            .dns_resolver(Arc::new(GuardedResolver))
             .build()?;
 
         Ok(Self { client })

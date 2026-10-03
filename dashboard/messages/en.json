@@ -3960,9 +3960,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://example.com/webhook",
       "webhookHint": "Enter a publicly accessible HTTPS URL. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
+      "webhookHintPrivate": "Enter an HTTP or HTTPS URL. This instance can reach private network addresses. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
       "errors": {
         "webhookUrlRequired": "Webhook URL is required",
-        "webhookUrlInvalid": "Must be a valid HTTPS URL"
+        "webhookUrlInvalid": "Must be a valid HTTPS URL",
+        "webhookUrlInvalidHttp": "Must be a valid HTTP or HTTPS URL"
       },
       "cancel": "Cancel",
       "save": "Save"
