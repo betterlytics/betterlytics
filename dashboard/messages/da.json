@@ -1063,6 +1063,278 @@
       "exploreFeaturesLink": "Udforsk alle funktioner i detaljer"
     }
   },
+  "landing": {
+    "seo": {
+      "description": "Se trafik, session replays, fejl, Core Web Vitals og oppetid for dit website samlet i ét dashboard. Open source, cookiefrit og med en gratis plan."
+    },
+    "nav": {
+      "skip": "Spring til indhold",
+      "home": "Betterlytics – forside",
+      "menu": "Menu",
+      "label": "Hovedmenu",
+      "demo": "Demo",
+      "features": "Funktioner",
+      "pricing": "Priser",
+      "docs": "Docs",
+      "githubLabel": "Betterlytics på GitHub",
+      "signIn": "Log ind",
+      "cta": "Kom i gang",
+      "goToDashboard": "Gå til dashboard"
+    },
+    "hero": {
+      "title": "Det burde ikke kræve fem værktøjer at forstå ét website",
+      "lede": "Cookiefri webanalyse, session replay, Core Web Vitals, fejl og oppetid. Ét dashboard, én regning.",
+      "cta": "Kom i gang gratis"
+    },
+    "demo": {
+      "placeholder": "Interaktiv demo",
+      "loading": "Indlæser live-dashboardet",
+      "frameTitle": "Live-demo af Betterlytics",
+      "newTab": "(åbner i en ny fane)",
+      "stalled": "Åbn live-demoen",
+      "activateLine": "Klik hvor som helst for at kigge rundt",
+      "activateAria": "Klik hvor som helst for at kigge rundt i det interaktive demo-dashboard"
+    },
+    "customers": {
+      "label": "Bruges af teams hos"
+    },
+    "journey": {
+      "title": "Alt hvad dine brugere *oplever*",
+      "lede": "Fra deres første besøg til dit næste nedbrud.",
+      "steps": {
+        "find": {
+          "title": "Hvor brugerne\nkommer fra",
+          "note": "Søgning, henvisninger, kampagner og sociale medier, inklusive ChatGPT og Perplexity."
+        },
+        "see": {
+          "title": "Hvad brugerne\nkigger på",
+          "note": "Hver side de åbner, med land, enhed og sprog for hvert besøg. Live og uden sampling."
+        },
+        "do": {
+          "title": "Hvad brugerne\nfaktisk gør",
+          "note": "Custom events som tilmeldinger og køb, plus funnels der viser hvor folk falder fra."
+        },
+        "follow": {
+          "title": "Hvad brugerne\nhar svært ved",
+          "note": "Session replay: alle klik, scrolls og rage clicks, set med brugerens øjne."
+        },
+        "wait": {
+          "title": "Når brugerne\nventer for længe",
+          "note": "Core Web Vitals (LCP, INP og CLS), målt i de browsere dine besøgende rent faktisk bruger."
+        },
+        "errors": {
+          "title": "Når brugerne\nstøder på en fejl",
+          "note": "JavaScript-fejl med stack trace, siden hvor fejlen opstod, og en afspilning af sessionen."
+        },
+        "reach": {
+          "title": "Når brugerne\nikke kan nå dig",
+          "note": "Oppetidsovervågning, hændelser, udløb af SSL-certifikater og en offentlig statusside."
+        }
+      }
+    },
+    "mcp": {
+      "title": "Sæt din *egen*\nagent på sagen",
+      "lede": "Der er indbygget en MCP-server. Spørg på almindeligt dansk og få svar på tværs af det hele.",
+      "lead": "Stil spørgsmål, ikke queries.",
+      "body": "Din agent læser skemaet og kobler trafik, funnels, fejl og oppetid sammen.",
+      "worksWith": "Virker med",
+      "any": "ChatGPT, Zed, JetBrains og enhver anden klient der taler protokollen over HTTP.",
+      "cta": "Sæt MCP op"
+    },
+    "frameworks": {
+      "title": "Dit framework, *uændret*",
+      "lede": "Ét script-tag, eller en pakke hvis du hellere vil. Intet andet ændrer sig."
+    },
+    "network": {
+      "title": "Ét script, og mere skal der ikke til",
+      "lede": "Her er præcis hvad det koster dit website.",
+      "snippetLabel": "Installations-snippet",
+      "packageTab": "Pakke",
+      "stats": {
+        "size": {
+          "label": "Scriptstørrelse",
+          "body": "Hele trackeren, gzippet. Den indlæses først når siden er vist, bruger én request og blokerer aldrig renderingen."
+        },
+        "lag": {
+          "label": "Forsinkelse",
+          "body": "Fra en besøgende klikker, til tallet rykker sig på dit dashboard. Rigtig realtid."
+        },
+        "capture": {
+          "label": "Dækning",
+          "body": "Andelen af ægte besøg der bliver registreret. First-party, så adblockere aldrig sluger dine data i det stille."
+        }
+      },
+      "thesis": {
+        "label": "Antal cookies",
+        "body": "Ingen cookies, ingen fingerprinting, intet cookiebanner. Overholder GDPR, ePrivacy og PECR som standard og kører kun på infrastruktur i EU."
+      }
+    },
+    "quote": {
+      "text": "Google Analytics var kompliceret at sætte op og svært at få til at spille. Vi kører Betterlytics på vores egne servere, så data bliver hos os, og *hele teamet kan rent faktisk bruge dashboardet*.",
+      "role": "Senior Engineer"
+    },
+    "pricing": {
+      "title": "Én pris der følger din trafik",
+      "lede": "De bots vi fanger, tæller ikke med, og en trafikspids koster aldrig ekstra.",
+      "monthlyEvents": "Månedlige events",
+      "rangeLabel": "Antal events pr. måned",
+      "rangeValueText": "{events} events",
+      "perMonth": "/måned",
+      "free": "Gratis",
+      "custom": "Efter aftale",
+      "growth": {
+        "name": "Growth",
+        "tagline": "Til sideprojekter og små websites.",
+        "ctaFree": "Kom i gang gratis",
+        "cta": "Kom i gang"
+      },
+      "professional": {
+        "name": "Professional",
+        "tagline": "Til teams med flere produkter.",
+        "cta": "Kom i gang",
+        "badge": "Mest populær"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "Til regulerede workloads og faste volumenaftaler.",
+        "cta": "Kontakt salg"
+      }
+    },
+    "cta": {
+      "title": "Tilføj ét script og se din første besøgende dukke op",
+      "lede": "Den gratis plan har samme script, dashboard og data uden sampling som alle betalte planer. Intet kreditkort nødvendigt.",
+      "primary": "Kom i gang gratis",
+      "secondary": "Se dokumentationen"
+    },
+    "footer": {
+      "tagline": "Webanalyse, session replay, fejl og oppetid i ét open source-værktøj. Cookiefrit og hostet i EU.",
+      "nav": "Sidefod",
+      "columns": {
+        "company": "Virksomhed",
+        "resources": "Ressourcer",
+        "compare": "Sammenlign",
+        "connect": "Find os"
+      },
+      "company": {
+        "about": "Om os",
+        "contact": "Kontakt",
+        "privacy": "Privatlivspolitik",
+        "terms": "Servicevilkår",
+        "dpa": "Databehandleraftale",
+        "subprocessors": "Underdatabehandlere"
+      },
+      "resources": {
+        "docs": "Dokumentation",
+        "changelog": "Changelog",
+        "features": "Funktioner",
+        "pricing": "Priser",
+        "status": "Status"
+      },
+      "compareLink": "vs. {name}",
+      "copyright": "© {year} Betterlytics.",
+      "license": "Open source under <link>AGPL-3.0</link>-licensen.",
+      "reportVulnerability": "Rapportér en sårbarhed"
+    },
+    "illustrations": {
+      "globe": {
+        "alt": "En globus der drejer rundt og viser hvor de besøgende kommer fra. Ved hver by står den kilde der sendte dem, fx København via ChatGPT.",
+        "via": "via {source}",
+        "direct": "Direkte",
+        "newsletter": "Nyhedsbrev"
+      },
+      "traffic": {
+        "alt": "Besøgende fordelt på ugedag og time: mest travlt i hverdagenes kontortid, med en mindre top om aftenen og roligere weekender.",
+        "topPages": "Topsider",
+        "tabs": "Sider",
+        "all": "Alle",
+        "entry": "Indgang",
+        "exit": "Udgang",
+        "scrollDepth": "Scroll-dybde",
+        "depthMarks": "Læsere der stadig er på siden ved hver fjerdedel",
+        "avgDepth": "Gns. dybde",
+        "weekly": "Ugentlig trafik",
+        "byHour": "besøgende pr. time"
+      },
+      "events": {
+        "alt": "En live-log over custom events som tilmeldinger og køb. Hvert event vises med den egenskab det blev sendt med, og med den besøgendes land, browser og enhed.",
+        "title": "Custom events",
+        "live": "Live",
+        "paused": "På pause",
+        "today": "i dag",
+        "now": "nu",
+        "seconds": "{count} s",
+        "minutes": "{count} min"
+      },
+      "replay": {
+        "alt": "Session replay fra en prisside: En besøgende klikker på Choose Pro, og en TypeError bliver kastet. Efter fire rage clicks på knappen forlader den besøgende siden.",
+        "title": "Session replay",
+        "pageView": "Sidevisning",
+        "click": "Klik",
+        "rageClick": "Rage click",
+        "pageExit": "Forlod siden",
+        "rageDetail": "{count}× på {target}",
+        "clickCaptured": "Klik registreret",
+        "rageClicks": "{count}× rage clicks",
+        "play": "Afspil replay",
+        "pause": "Sæt replay på pause"
+      },
+      "vitals": {
+        "alt": "Målere for FCP, TTFB, LCP, INP og CLS. Hver har en vurdering: god, skal forbedres eller dårlig.",
+        "good": "God",
+        "needsWork": "Skal forbedres",
+        "poor": "Dårlig"
+      },
+      "errors": {
+        "alt": "En TypeError der opstår lige nu, med siden og klikket der førte til den, dens stack trace og hvem den ramte. Bag den ligger en mindre hyppig fejl og en der er løst.",
+        "resolved": "Løst",
+        "inVersion": "i {version}",
+        "events": "gange",
+        "hoursAgo": "for {count} timer siden",
+        "inApp": "i app"
+      },
+      "uptime": {
+        "alt": "Oppetidsovervågning af fire tjenester med deres seneste tjek. Når én holder op med at svare, går der en advarsel ud til Slack, Discord og e-mail, og den offentlige statusside melder om nedbruddet.",
+        "sslDays": "SSL {days} dage",
+        "timeout": "timeout",
+        "sslTitle": "Certifikatet for {name} udløber snart",
+        "sslDetail": "{host} · SSL udløber om {days} dage",
+        "downTitle": "{name} er nede",
+        "downDetail": "{host} svarer ikke",
+        "upTitle": "{name} er oppe igen",
+        "upDetail": "Nede i 2 min 30 s · hændelse løst",
+        "now": "nu",
+        "sentTo": "Sendt til",
+        "allUp": "Alle systemer kører normalt",
+        "someDown": "Nogle systemer er nede",
+        "down": "Nede",
+        "operational": "I drift"
+      },
+      "transcript": {
+        "alt": "En terminalsession: En agent bliver spurgt hvilke sider der mistede trafik efter redesignet i august. Den henter sidevisninger og fejl via Betterlytics’ MCP-server og finder ud af at /pricing er faldet 34 %, ramt af en TypeError der gik i produktion samme dag.",
+        "redesign": {
+          "question": "hvilke sider mistede trafik efter redesignet i august?",
+          "say": "Jeg sammenligner de daglige sidevisninger for juli og august og kigger så efter fejl på de sider der er faldet.",
+          "pages": "41 stier · 6 faldet over 20 %",
+          "errors": "1 gruppe · TypeError · først set 12. aug. · 1.206 sessioner",
+          "answer": "/pricing er faldet 34 %. En TypeError i planvælgeren gik i produktion samme dag, og 1.206 sessioner er stødt på den."
+        },
+        "outage": {
+          "question": "kostede checkout-nedbruddet i nat os salg?",
+          "say": "Jeg finder hændelsen og holder så købene op imod den, time for time.",
+          "incident": "1 hændelse · nede 23.12–23.31 · løst",
+          "purchases": "23.00 → 6 køb · samme time de foregående 6 nætter: 38 i snit",
+          "answer": "Ja. Checkout var nede i 19 minutter, og i den time kom der 6 køb mod normalt 38. Altså omkring 32 tabte salg."
+        },
+        "sources": {
+          "question": "hvilken trafikkilde giver besøgende der faktisk tilmelder sig?",
+          "say": "Jeg henter besøgende pr. kilde, så tilmeldinger pr. kilde, og sammenligner konverteringsraterne.",
+          "visitors": "Google 18,2k · ChatGPT 2,1k · Hacker News 1,4k",
+          "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
+          "answer": "ChatGPT sender en niendedel så mange besøgende som Google, men 3,4 % af dem tilmelder sig mod 0,9 %. Det er næsten fire gange så højt."
+        }
+      }
+    }
+  },
   "pricingSlider": {
     "monthlyEvents": "Månedlige events",
     "suggested": "Anbefalet",

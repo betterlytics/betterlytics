@@ -1063,6 +1063,278 @@
       "exploreFeaturesLink": "Esplora tutte le funzionalità in dettaglio"
     }
   },
+  "landing": {
+    "seo": {
+      "description": "Traffico, session replay, errori, Core Web Vitals e uptime del tuo sito in un’unica dashboard. Open source, senza cookie e con un piano gratuito."
+    },
+    "nav": {
+      "skip": "Vai al contenuto",
+      "home": "Home page di Betterlytics",
+      "menu": "Menu",
+      "label": "Menu principale",
+      "demo": "Demo",
+      "features": "Funzionalità",
+      "pricing": "Prezzi",
+      "docs": "Documentazione",
+      "githubLabel": "Betterlytics su GitHub",
+      "signIn": "Accedi",
+      "cta": "Inizia",
+      "goToDashboard": "Vai alla dashboard"
+    },
+    "hero": {
+      "title": "Non dovrebbero servirti cinque strumenti per capire un solo sito",
+      "lede": "Web analytics senza cookie, session replay, Core Web Vitals, errori e uptime. Un’unica dashboard, un’unica fattura.",
+      "cta": "Inizia gratis"
+    },
+    "demo": {
+      "placeholder": "Demo interattiva",
+      "loading": "Caricamento della dashboard live",
+      "frameTitle": "Demo live di Betterlytics",
+      "newTab": "(si apre in una nuova scheda)",
+      "stalled": "Apri la demo live",
+      "activateLine": "Clicca ovunque per esplorare",
+      "activateAria": "Clicca ovunque per esplorare la demo interattiva della dashboard"
+    },
+    "customers": {
+      "label": "Lo usano i team di"
+    },
+    "journey": {
+      "title": "Tutto ciò che i tuoi utenti hanno *vissuto*",
+      "lede": "Dalla loro prima visita al tuo prossimo disservizio.",
+      "steps": {
+        "find": {
+          "title": "Come gli utenti\nti trovano",
+          "note": "Motori di ricerca, referral, campagne e social, compresi ChatGPT e Perplexity."
+        },
+        "see": {
+          "title": "Cosa gli utenti\nguardano",
+          "note": "Ogni pagina che aprono, con il paese, il dispositivo e la lingua di ciascuna visita. In tempo reale e senza campionamento."
+        },
+        "do": {
+          "title": "Cosa gli utenti\nfanno davvero",
+          "note": "Eventi personalizzati, come registrazioni e acquisti, e funnel che mostrano dove le persone abbandonano."
+        },
+        "follow": {
+          "title": "Dove gli utenti\nfanno fatica",
+          "note": "Session replay: ogni clic, ogni scroll e ogni rage click, esattamente come l’hanno visto loro."
+        },
+        "wait": {
+          "title": "Quando gli utenti\naspettano troppo",
+          "note": "Core Web Vitals (LCP, INP e CLS) misurati nei browser reali dei tuoi visitatori."
+        },
+        "errors": {
+          "title": "Quando gli utenti\nincontrano errori",
+          "note": "Errori JavaScript con lo stack trace, la pagina e il replay della sessione in cui si sono verificati."
+        },
+        "reach": {
+          "title": "Quando gli utenti\nti trovano offline",
+          "note": "Monitor di uptime, incidenti, scadenza dei certificati SSL e una pagina di stato pubblica."
+        }
+      }
+    },
+    "mcp": {
+      "title": "Collega il *tuo*\nagente",
+      "lede": "Il server MCP è già integrato. Fai domande in linguaggio naturale e ottieni risposte su tutti i tuoi dati.",
+      "lead": "Fai domande, non query.",
+      "body": "Il tuo agente legge lo schema e incrocia traffico, funnel, errori e uptime.",
+      "worksWith": "Funziona con",
+      "any": "ChatGPT, Zed, JetBrains e qualsiasi client che supporti il protocollo via HTTP.",
+      "cta": "Configura MCP"
+    },
+    "frameworks": {
+      "title": "Il tuo framework, *così com’è*",
+      "lede": "Un tag script, oppure un pacchetto se preferisci. Il resto non cambia."
+    },
+    "network": {
+      "title": "Un solo script, nient’altro da aggiungere",
+      "lede": "Ecco esattamente quanto pesa sul tuo sito.",
+      "snippetLabel": "Snippet di installazione",
+      "packageTab": "Pacchetto",
+      "stats": {
+        "size": {
+          "label": "Peso dello script",
+          "body": "L’intero tracker, compresso con gzip. Si carica dopo il paint con una sola richiesta e non blocca mai il rendering."
+        },
+        "lag": {
+          "label": "Latenza dei dati",
+          "body": "Dal clic di un visitatore al numero che si aggiorna nella tua dashboard. Tempo reale, quello vero."
+        },
+        "capture": {
+          "label": "Tasso di rilevamento",
+          "body": "La quota di visite reali effettivamente registrate. Il tracking è first-party, quindi gli ad blocker non ti fanno sparire i dati di nascosto."
+        }
+      },
+      "thesis": {
+        "label": "Cookie installati",
+        "body": "Niente cookie, niente fingerprinting, niente banner per il consenso. Conforme di serie a GDPR, ePrivacy e PECR, su un’infrastruttura interamente nell’UE."
+      }
+    },
+    "quote": {
+      "text": "Google Analytics era complicato da mettere in piedi e difficile da configurare nel modo giusto. Betterlytics gira sui nostri server, quindi i dati restano in casa, e abbiamo una dashboard che *tutto il team riesce davvero a usare*.",
+      "role": "Senior Engineer"
+    },
+    "pricing": {
+      "title": "Un solo prezzo, calibrato sul tuo traffico",
+      "lede": "I bot che intercettiamo non vengono conteggiati e un picco di traffico non ti costa mai di più.",
+      "monthlyEvents": "Eventi mensili",
+      "rangeLabel": "Volume mensile di eventi",
+      "rangeValueText": "{events} eventi",
+      "perMonth": "/mese",
+      "free": "Gratuito",
+      "custom": "Personalizzato",
+      "growth": {
+        "name": "Growth",
+        "tagline": "Per progetti personali e piccoli siti.",
+        "ctaFree": "Inizia gratis",
+        "cta": "Inizia"
+      },
+      "professional": {
+        "name": "Professional",
+        "tagline": "Per team che gestiscono più prodotti.",
+        "cta": "Inizia",
+        "badge": "Il più scelto"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "Per settori regolamentati e volumi concordati.",
+        "cta": "Contattaci"
+      }
+    },
+    "cta": {
+      "title": "Aggiungi uno script e guarda arrivare il tuo primo visitatore",
+      "lede": "Il piano gratuito ha lo stesso script, la stessa dashboard e gli stessi dati non campionati di tutti i piani a pagamento. Non serve la carta di credito.",
+      "primary": "Inizia gratis",
+      "secondary": "Leggi la documentazione"
+    },
+    "footer": {
+      "tagline": "Web analytics, session replay, errori e uptime in un unico strumento open source. Senza cookie e ospitato nell’UE.",
+      "nav": "Piè di pagina",
+      "columns": {
+        "company": "Azienda",
+        "resources": "Risorse",
+        "compare": "Confronta",
+        "connect": "Seguici"
+      },
+      "company": {
+        "about": "Chi siamo",
+        "contact": "Contatti",
+        "privacy": "Informativa privacy",
+        "terms": "Termini di servizio",
+        "dpa": "Accordo sul trattamento dati",
+        "subprocessors": "Sub-responsabili"
+      },
+      "resources": {
+        "docs": "Documentazione",
+        "changelog": "Changelog",
+        "features": "Funzionalità",
+        "pricing": "Prezzi",
+        "status": "Stato dei servizi"
+      },
+      "compareLink": "vs {name}",
+      "copyright": "© {year} Betterlytics.",
+      "license": "Open source con licenza <link>AGPL-3.0</link>.",
+      "reportVulnerability": "Segnala una vulnerabilità"
+    },
+    "illustrations": {
+      "globe": {
+        "alt": "Un globo che ruota e segna da dove arrivano i visitatori: ogni città è indicata insieme alla fonte che li ha portati, ad esempio Copenaghen via ChatGPT.",
+        "via": "via {source}",
+        "direct": "accesso diretto",
+        "newsletter": "newsletter"
+      },
+      "traffic": {
+        "alt": "Visitatori per giorno della settimana e ora: il picco è nei giorni feriali in orario d’ufficio, con un secondo picco più contenuto la sera e weekend più tranquilli.",
+        "topPages": "Più visitate",
+        "tabs": "Pagine",
+        "all": "Tutte",
+        "entry": "Entrata",
+        "exit": "Uscita",
+        "scrollDepth": "Profondità di scorrimento",
+        "depthMarks": "Lettori che arrivano a ogni quarto della pagina",
+        "avgDepth": "Media",
+        "weekly": "Traffico settimanale",
+        "byHour": "visitatori per ora"
+      },
+      "events": {
+        "alt": "Un log in tempo reale di eventi personalizzati come registrazioni e acquisti, ciascuno con la proprietà con cui è stato inviato e con paese, browser e dispositivo del visitatore.",
+        "title": "Eventi personalizzati",
+        "live": "Live",
+        "paused": "In pausa",
+        "today": "oggi",
+        "now": "ora",
+        "seconds": "{count} s",
+        "minutes": "{count} min"
+      },
+      "replay": {
+        "alt": "Il replay di un visitatore su una pagina dei prezzi: clicca su Choose Pro, scatta un TypeError, clicca nervosamente il pulsante altre quattro volte e poi se ne va.",
+        "title": "Replay sessioni",
+        "pageView": "Visualizzazione pagina",
+        "click": "Clic",
+        "rageClick": "Rage click",
+        "pageExit": "Uscita",
+        "rageDetail": "{count}× su {target}",
+        "clickCaptured": "Clic registrato",
+        "rageClicks": "{count}× rage click",
+        "play": "Riproduci il replay",
+        "pause": "Metti in pausa il replay"
+      },
+      "vitals": {
+        "alt": "Indicatori per FCP, TTFB, LCP, INP e CLS, ciascuno valutato come buono, da migliorare o scarso.",
+        "good": "Buono",
+        "needsWork": "Da migliorare",
+        "poor": "Scarso"
+      },
+      "errors": {
+        "alt": "Un TypeError appena scattato, con la pagina e il clic che l’hanno causato, il suo stack trace e gli utenti colpiti; dietro, un errore meno frequente e uno già risolto.",
+        "resolved": "Risolto",
+        "inVersion": "in {version}",
+        "events": "eventi",
+        "hoursAgo": "{count} h fa",
+        "inApp": "nell’app"
+      },
+      "uptime": {
+        "alt": "Quattro monitor di uptime con i controlli più recenti. Quando uno smette di rispondere, l’avviso viene inviato su Slack, Discord e via email, e la pagina di stato pubblica segnala il disservizio.",
+        "sslDays": "SSL {days} giorni",
+        "timeout": "timeout",
+        "sslTitle": "Certificato di {name} in scadenza",
+        "sslDetail": "{host} · SSL valido ancora per {days} giorni",
+        "downTitle": "{name} è offline",
+        "downDetail": "{host} non risponde",
+        "upTitle": "{name} è di nuovo online",
+        "upDetail": "Offline per 2 min 30 s · risolto",
+        "now": "ora",
+        "sentTo": "Inviato a",
+        "allUp": "Tutti i sistemi sono operativi",
+        "someDown": "Alcuni sistemi sono fuori servizio",
+        "down": "Fuori servizio",
+        "operational": "Operativo"
+      },
+      "transcript": {
+        "alt": "Una sessione nel terminale: alla domanda su quali pagine abbiano perso traffico dopo il restyling di agosto, un agente consulta visualizzazioni ed errori tramite il server MCP di Betterlytics e scopre che /pricing ha perso il 34% ed è stata colpita da un TypeError finito in produzione lo stesso giorno.",
+        "redesign": {
+          "question": "quali pagine hanno perso traffico dopo il restyling di agosto?",
+          "say": "Confronto le visualizzazioni giornaliere di luglio e agosto, poi cerco errori nelle pagine in calo.",
+          "pages": "41 pagine · 6 in calo di oltre il 20%",
+          "errors": "1 gruppo · TypeError · prima occorrenza 12 ago · 1.206 sessioni",
+          "answer": "/pricing ha perso il 34%. Lo stesso giorno è finito in produzione un TypeError nel selettore dei piani, che ha colpito 1.206 sessioni."
+        },
+        "outage": {
+          "question": "il down del checkout di ieri sera ci ha fatto perdere vendite?",
+          "say": "Trovo l’incidente, poi lo metto a confronto con gli acquisti, ora per ora.",
+          "incident": "1 incidente · offline 23:12–23:31 · risolto",
+          "purchases": "23:00 → 6 acquisti · stessa ora, 6 sere precedenti: 38 in media",
+          "answer": "Sì. Il checkout è rimasto offline per 19 minuti e in quell’ora ci sono stati 6 acquisti contro i soliti 38: circa 32 vendite perse."
+        },
+        "sources": {
+          "question": "quale fonte di traffico porta visitatori che si registrano davvero?",
+          "say": "Estraggo i visitatori per fonte, poi le registrazioni per fonte, e confronto i tassi.",
+          "visitors": "Google 18,2k · ChatGPT 2,1k · Hacker News 1,4k",
+          "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
+          "answer": "ChatGPT porta un nono dei visitatori di Google, ma il 3,4% di loro si registra contro lo 0,9%: un tasso quasi quattro volte più alto."
+        }
+      }
+    }
+  },
   "pricingSlider": {
     "monthlyEvents": "Eventi mensili",
     "suggested": "Consigliato",

@@ -1063,6 +1063,278 @@
       "exploreFeaturesLink": "Utforsk alle funksjoner i detalj"
     }
   },
+  "landing": {
+    "seo": {
+      "description": "Se trafikk, sesjonsopptak, feil, Core Web Vitals og oppetid for nettstedet ditt i ett dashboard. Åpen kildekode, uten cookies og med en gratisplan."
+    },
+    "nav": {
+      "skip": "Hopp til innholdet",
+      "home": "Betterlytics – forside",
+      "menu": "Meny",
+      "label": "Hovedmeny",
+      "demo": "Demo",
+      "features": "Funksjoner",
+      "pricing": "Priser",
+      "docs": "Dokumentasjon",
+      "githubLabel": "Betterlytics på GitHub",
+      "signIn": "Logg inn",
+      "cta": "Kom i gang",
+      "goToDashboard": "Gå til dashboardet"
+    },
+    "hero": {
+      "title": "Du skal ikke trenge fem verktøy for å forstå ett nettsted",
+      "lede": "Cookiefri nettanalyse, sesjonsopptak, Core Web Vitals, feil og oppetid. Ett dashboard, én faktura.",
+      "cta": "Kom i gang gratis"
+    },
+    "demo": {
+      "placeholder": "Interaktiv demo",
+      "loading": "Laster inn live-dashboardet",
+      "frameTitle": "Live-demo av Betterlytics",
+      "newTab": "(åpnes i en ny fane)",
+      "stalled": "Åpne live-demoen",
+      "activateLine": "Klikk hvor som helst for å utforske",
+      "activateAria": "Klikk hvor som helst for å utforske det interaktive dashboardet i demoen"
+    },
+    "customers": {
+      "label": "Brukes av team hos"
+    },
+    "journey": {
+      "title": "Alt brukerne dine *opplevde*",
+      "lede": "Fra første besøk til neste driftsavbrudd.",
+      "steps": {
+        "find": {
+          "title": "Hvor brukerne\nkommer fra",
+          "note": "Søk, henvisninger, kampanjer og sosiale medier, inkludert ChatGPT og Perplexity."
+        },
+        "see": {
+          "title": "Hva brukerne\nser på",
+          "note": "Hver side de åpner, med land, enhet og språk for hvert besøk. I sanntid og uten sampling."
+        },
+        "do": {
+          "title": "Hva brukerne\nfaktisk gjør",
+          "note": "Egendefinerte hendelser som registreringer og kjøp, og trakter som viser hvor folk faller fra."
+        },
+        "follow": {
+          "title": "Hva brukerne\nsliter med",
+          "note": "Sesjonsopptak: alle klikk, all scrolling og alle raseriklikk, akkurat slik de så det."
+        },
+        "wait": {
+          "title": "Når brukerne\nventer for lenge",
+          "note": "Core Web Vitals (LCP, INP og CLS), målt i de besøkendes egne nettlesere."
+        },
+        "errors": {
+          "title": "Når brukerne\nstøter på en feil",
+          "note": "JavaScript-feil med stack trace, siden der feilen oppsto, og et opptak av sesjonen der det skjedde."
+        },
+        "reach": {
+          "title": "Når brukerne\nikke kommer inn",
+          "note": "Oppetidsovervåking, driftshendelser, SSL-utløp og en offentlig statusside."
+        }
+      }
+    },
+    "mcp": {
+      "title": "Slipp din *egen*\nagent løs på dataene",
+      "lede": "Betterlytics har en innebygd MCP-server. Spør på vanlig norsk og få svar på tvers av alt sammen.",
+      "lead": "Still spørsmål, ikke spørringer.",
+      "body": "Agenten din leser skjemaet og kobler sammen trafikk, trakter, feil og oppetid.",
+      "worksWith": "Fungerer med",
+      "any": "ChatGPT, Zed, JetBrains – og alle klienter som snakker protokollen over HTTP.",
+      "cta": "Sett opp MCP"
+    },
+    "frameworks": {
+      "title": "Rammeverket ditt, *urørt*",
+      "lede": "Én script-tag – eller en pakke, hvis du heller vil det. Ellers endres ingenting."
+    },
+    "network": {
+      "title": "Ett skript, ingenting annet å legge til",
+      "lede": "Dette er nøyaktig hva det koster nettstedet ditt.",
+      "snippetLabel": "Installasjonskode",
+      "packageTab": "Pakke",
+      "stats": {
+        "size": {
+          "label": "Skriptstørrelse",
+          "body": "Hele sporingsskriptet, gzippet. Lastes inn etter at siden er tegnet opp, med én forespørsel, og blokkerer aldri renderingen."
+        },
+        "lag": {
+          "label": "Forsinkelse",
+          "body": "Tiden fra en besøkende klikker til tallet endrer seg i dashboardet ditt. Ekte sanntid."
+        },
+        "capture": {
+          "label": "Dekningsgrad",
+          "body": "Andelen ekte besøk som blir registrert. Førstepartssporing, så annonseblokkere aldri spiser opp dataene dine i det stille."
+        }
+      },
+      "thesis": {
+        "label": "Cookies satt",
+        "body": "Ingen cookies, ingen fingerprinting, ingen samtykkebanner. Oppfyller kravene i GDPR, ePrivacy og PECR som standard, og all infrastruktur står i EU."
+      }
+    },
+    "quote": {
+      "text": "Google Analytics var komplisert å sette opp og vanskelig å få helt riktig. Betterlytics kjører på våre egne servere, så dataene blir hos oss, og dashboardet er noe *hele teamet faktisk kan bruke*.",
+      "role": "Senior Engineer"
+    },
+    "pricing": {
+      "title": "Én pris som følger trafikken din",
+      "lede": "Bottrafikk vi fanger opp, teller ikke med, og en trafikktopp koster aldri ekstra.",
+      "monthlyEvents": "Hendelser per måned",
+      "rangeLabel": "Antall hendelser per måned",
+      "rangeValueText": "{events} hendelser",
+      "perMonth": "/mnd",
+      "free": "Gratis",
+      "custom": "Etter avtale",
+      "growth": {
+        "name": "Growth",
+        "tagline": "For sideprosjekter og små nettsteder.",
+        "ctaFree": "Kom i gang gratis",
+        "cta": "Kom i gang"
+      },
+      "professional": {
+        "name": "Professional",
+        "tagline": "For team med flere produkter i drift.",
+        "cta": "Kom i gang",
+        "badge": "Mest populær"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "For regulerte virksomheter og volumavtaler.",
+        "cta": "Kontakt salg"
+      }
+    },
+    "cta": {
+      "title": "Legg inn ett skript og se den første besøkende tikke inn",
+      "lede": "På gratisplanen får du samme skript, samme dashboard og samme data uten sampling som på alle betalte planer. Du trenger ikke kredittkort.",
+      "primary": "Kom i gang gratis",
+      "secondary": "Les dokumentasjonen"
+    },
+    "footer": {
+      "tagline": "Nettanalyse, sesjonsopptak, feil og oppetid i ett verktøy med åpen kildekode. Uten cookies og driftet i EU.",
+      "nav": "Bunnmeny",
+      "columns": {
+        "company": "Selskapet",
+        "resources": "Ressurser",
+        "compare": "Sammenlign",
+        "connect": "Følg oss"
+      },
+      "company": {
+        "about": "Om oss",
+        "contact": "Kontakt",
+        "privacy": "Personvernerklæring",
+        "terms": "Tjenestevilkår",
+        "dpa": "Databehandleravtale",
+        "subprocessors": "Underdatabehandlere"
+      },
+      "resources": {
+        "docs": "Dokumentasjon",
+        "changelog": "Endringslogg",
+        "features": "Funksjoner",
+        "pricing": "Priser",
+        "status": "Driftsstatus"
+      },
+      "compareLink": "vs. {name}",
+      "copyright": "© {year} Betterlytics.",
+      "license": "Åpen kildekode, lisensiert under <link>AGPL-3.0</link>.",
+      "reportVulnerability": "Rapporter en sårbarhet"
+    },
+    "illustrations": {
+      "globe": {
+        "alt": "En roterende globus som markerer hvor de besøkende kommer fra. Hver by vises med kilden som sendte dem, for eksempel København via ChatGPT.",
+        "via": "via {source}",
+        "direct": "Direkte",
+        "newsletter": "Nyhetsbrev"
+      },
+      "traffic": {
+        "alt": "Besøkende per ukedag og time: mest trafikk i arbeidstiden på hverdager, en mindre topp om kvelden og roligere helger.",
+        "topPages": "Populære sider",
+        "tabs": "Sider",
+        "all": "Alle",
+        "entry": "Inngang",
+        "exit": "Utgang",
+        "scrollDepth": "Scroll-dybde",
+        "depthMarks": "Lesere som fortsatt er på siden ved hver fjerdedel",
+        "avgDepth": "Snittdybde",
+        "weekly": "Ukentlig trafikk",
+        "byHour": "besøkende per time"
+      },
+      "events": {
+        "alt": "En sanntidslogg over egendefinerte hendelser, som registreringer og kjøp. Hver hendelse vises med egenskapen den ble sendt med, og den besøkendes land, nettleser og enhet.",
+        "title": "Hendelser",
+        "live": "Live",
+        "paused": "Pauset",
+        "today": "i dag",
+        "now": "nå",
+        "seconds": "{count} s",
+        "minutes": "{count} min"
+      },
+      "replay": {
+        "alt": "Opptak fra en prisside: En besøkende klikker på «Choose Pro», det kastes en TypeError, knappen får fire raseriklikk, og så forlater den besøkende siden.",
+        "title": "Sesjonsopptak",
+        "pageView": "Sidevisning",
+        "click": "Klikk",
+        "rageClick": "Raseriklikk",
+        "pageExit": "Forlot siden",
+        "rageDetail": "{count}× på {target}",
+        "clickCaptured": "Klikk registrert",
+        "rageClicks": "{count}× raseriklikk",
+        "play": "Spill av opptaket",
+        "pause": "Sett opptaket på pause"
+      },
+      "vitals": {
+        "alt": "Målere for FCP, TTFB, LCP, INP og CLS. Hver måling er merket «God», «Må forbedres» eller «Dårlig».",
+        "good": "God",
+        "needsWork": "Må forbedres",
+        "poor": "Dårlig"
+      },
+      "errors": {
+        "alt": "En TypeError som oppstår akkurat nå, med siden og klikket som førte til den, stack trace og hvem den rammet. Bak den ligger en sjeldnere feil og en som er løst.",
+        "resolved": "Løst",
+        "inVersion": "i {version}",
+        "events": "ganger",
+        "hoursAgo": "{count} t siden",
+        "inApp": "i app"
+      },
+      "uptime": {
+        "alt": "Fire oppetidsmonitorer med de siste sjekkene. Når én slutter å svare, går varselet ut på Slack, Discord og e-post, og den offentlige statussiden melder om driftsavbruddet.",
+        "sslDays": "SSL {days} dager",
+        "timeout": "timeout",
+        "sslTitle": "Sertifikatet for {name} utløper snart",
+        "sslDetail": "{host} · SSL gyldig i {days} dager til",
+        "downTitle": "{name} er nede",
+        "downDetail": "{host} svarer ikke",
+        "upTitle": "{name} er oppe igjen",
+        "upDetail": "Nede i 2 min 30 s · hendelsen er løst",
+        "now": "nå",
+        "sentTo": "Sendt til",
+        "allUp": "Alle systemer i drift",
+        "someDown": "Noen systemer er nede",
+        "down": "Nede",
+        "operational": "I drift"
+      },
+      "transcript": {
+        "alt": "En terminaløkt: En agent får spørsmål om hvilke sider som mistet trafikk etter redesignet i august. Den henter sidevisninger og feil via MCP-serveren i Betterlytics og finner ut at /pricing har falt 34 %, rammet av en TypeError som ble rullet ut samme dag.",
+        "redesign": {
+          "question": "hvilke sider har mistet trafikk etter redesignet i august?",
+          "say": "Jeg sammenligner daglige sidevisninger i juli og august, og ser så etter feil på sidene som falt.",
+          "pages": "41 stier · 6 ned over 20 %",
+          "errors": "1 gruppe · TypeError · først sett 12. aug. · 1 206 sesjoner",
+          "answer": "/pricing har falt 34 %. En TypeError i planvelgeren ble rullet ut samme dag – 1 206 sesjoner har støtt på den."
+        },
+        "outage": {
+          "question": "mistet vi salg da kassen var nede i går kveld?",
+          "say": "Jeg finner driftsavbruddet og holder kjøpene opp mot det, time for time.",
+          "incident": "1 driftshendelse · nede 23:12–23:31 · løst",
+          "purchases": "23:00 → 6 kjøp · samme time de 6 foregående kveldene: 38 i snitt",
+          "answer": "Ja. Kassen var nede i 19 minutter, og den timen kom det inn 6 kjøp, mot 38 en vanlig kveld – rundt 32 tapte salg."
+        },
+        "sources": {
+          "question": "hvilken trafikkilde gir besøkende som faktisk registrerer seg?",
+          "say": "Jeg henter besøkende per kilde, så registreringer per kilde, og sammenligner andelene.",
+          "visitors": "Google 18,2k · ChatGPT 2,1k · Hacker News 1,4k",
+          "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
+          "answer": "ChatGPT sender en niendedel så mange besøkende som Google, men 3,4 % av dem registrerer seg, mot 0,9 % – nesten fire ganger så høy andel."
+        }
+      }
+    }
+  },
   "pricingSlider": {
     "monthlyEvents": "Månedlige hendelser",
     "suggested": "Anbefalt",
