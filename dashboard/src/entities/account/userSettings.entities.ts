@@ -55,4 +55,14 @@ export type UserSettingsUpdate = z.infer<typeof UserSettingsUpdateSchema>;
 export type UserSettings = z.infer<typeof UserSettingsSchema>;
 export type UserSettingsCreate = z.infer<typeof UserSettingsCreateSchema>;
 
-export type AccountDeletionBlocker = 'last_admin';
+export type AccountDeletionBlocker = 'last_admin' | 'last_user';
+
+// Never leave a self-host instance without an admin or without any user; signup does not reopen
+export function resolveAccountDeletionBlocker(
+  target: { role: string | null; deletedAt?: Date | null },
+  counts: { activeAdmins: number; activeUsers: number },
+): AccountDeletionBlocker | null {
+  if (target.deletedAt) return null;
+  if (target.role === 'admin' && counts.activeAdmins <= 1) return 'last_admin';
+  return counts.activeUsers <= 1 ? 'last_user' : null;
+}

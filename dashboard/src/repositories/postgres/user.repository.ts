@@ -12,7 +12,11 @@ import {
   UserWithoutDashboardCandidateSchema,
 } from '@/entities/auth/user.entities';
 import { buildStarterSubscription } from '@/entities/billing/billing.entities';
-import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
+import {
+  AccountDeletionBlocker,
+  DEFAULT_USER_SETTINGS,
+  resolveAccountDeletionBlocker,
+} from '@/entities/account/userSettings.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 
 // better-auth's providerId for email+password accounts; accountId is the user id by its convention.
@@ -52,11 +56,20 @@ export async function countUsers(): Promise<number> {
 
 export async function countActiveAdmins(): Promise<number> {
   try {
-    // anonymizeUser keeps role, so deleted admins must be excluded explicitly
+    // Rows anonymized before role was cleared still carry admin, so filter on deletedAt too
     return await prisma.user.count({ where: { role: 'admin', deletedAt: null } });
   } catch (error) {
     console.error('Error counting active admins:', error);
     throw new Error('Failed to count active admins.');
+  }
+}
+
+export async function countActiveUsers(): Promise<number> {
+  try {
+    return await prisma.user.count({ where: { deletedAt: null } });
+  } catch (error) {
+    console.error('Error counting active users:', error);
+    throw new Error('Failed to count active users.');
   }
 }
 
@@ -170,34 +183,66 @@ export async function markOnboardingCompleted(userId: string): Promise<void> {
   }
 }
 
+// Arbitrary app-wide key; serializes guarded deletions so two concurrent requests cannot both pass the check
+const ACCOUNT_DELETION_LOCK_KEY = 271_000_001;
+
 export async function anonymizeUser(userId: string): Promise<void> {
   try {
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          email: `deleted_${userId}@deleted.invalid`,
-          name: null,
-          image: null,
-          twoFactorEnabled: false,
-          totpSecret: null,
-          emailVerified: false,
-          deletedAt: new Date(),
-        },
-      }),
-      prisma.account.deleteMany({ where: { userId } }),
-      prisma.session.deleteMany({ where: { userId } }),
-      prisma.twoFactor.deleteMany({ where: { userId } }),
-      prisma.verification.deleteMany({ where: { value: userId } }),
-      prisma.mcpToken.updateMany({
-        where: { createdBy: userId, deletedAt: null },
-        data: { deletedAt: new Date() },
-      }),
-    ]);
+    await prisma.$transaction((tx) => anonymizeUserWith(tx, userId));
   } catch (error) {
     console.error(`Error anonymizing user ${userId}:`, error);
     throw new Error(`Failed to anonymize user ${userId}.`);
   }
+}
+
+/**
+ * Re-checks the deletion blocker under an advisory lock and anonymizes only when nothing blocks.
+ * Returns the blocker when refused, null when the user was anonymized.
+ */
+export async function anonymizeUserUnlessBlocked(userId: string): Promise<AccountDeletionBlocker | null> {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(${ACCOUNT_DELETION_LOCK_KEY}::bigint)`;
+
+      const target = await tx.user.findUnique({ where: { id: userId }, select: { role: true, deletedAt: true } });
+      if (target) {
+        const activeAdmins = await tx.user.count({ where: { role: 'admin', deletedAt: null } });
+        const activeUsers = await tx.user.count({ where: { deletedAt: null } });
+        const blocker = resolveAccountDeletionBlocker(target, { activeAdmins, activeUsers });
+        if (blocker) return blocker;
+      }
+
+      await anonymizeUserWith(tx, userId);
+      return null;
+    });
+  } catch (error) {
+    console.error(`Error anonymizing user ${userId}:`, error);
+    throw new Error(`Failed to anonymize user ${userId}.`);
+  }
+}
+
+async function anonymizeUserWith(tx: Prisma.TransactionClient, userId: string): Promise<void> {
+  await tx.user.update({
+    where: { id: userId },
+    data: {
+      email: `deleted_${userId}@deleted.invalid`,
+      name: null,
+      image: null,
+      role: null,
+      twoFactorEnabled: false,
+      totpSecret: null,
+      emailVerified: false,
+      deletedAt: new Date(),
+    },
+  });
+  await tx.account.deleteMany({ where: { userId } });
+  await tx.session.deleteMany({ where: { userId } });
+  await tx.twoFactor.deleteMany({ where: { userId } });
+  await tx.verification.deleteMany({ where: { value: userId } });
+  await tx.mcpToken.updateMany({
+    where: { createdBy: userId, deletedAt: null },
+    data: { deletedAt: new Date() },
+  });
 }
 
 export async function acceptTermsForUser(userId: string, version: number): Promise<void> {

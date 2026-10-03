@@ -14,6 +14,12 @@ import { toast } from 'sonner';
 import UserSettingsSection from '../shared/UserSettingsSection';
 import SettingRow from '../shared/SettingRow';
 import { useTranslations } from 'next-intl';
+import type { AccountDeletionBlocker } from '@/entities/account/userSettings.entities';
+
+const BLOCKER_MESSAGE_KEYS = {
+  last_admin: 'lastAdmin',
+  last_user: 'lastUser',
+} as const satisfies Record<AccountDeletionBlocker, string>;
 
 export default function UserDangerZoneSettings() {
   const { data: session } = authClient.useSession();
@@ -31,7 +37,7 @@ export default function UserDangerZoneSettings() {
       return result.data;
     },
   });
-  const isBlocked = deletionBlocker === 'last_admin';
+  const isBlocked = Boolean(deletionBlocker);
 
   const handleDeleteAccount = async () => {
     if (!session?.user?.id) {
@@ -55,7 +61,7 @@ export default function UserDangerZoneSettings() {
     <UserSettingsSection title={t('sectionTitle')}>
       <SettingRow
         label={t('delete')}
-        description={isBlocked ? t('lastAdmin') : t('details')}
+        description={deletionBlocker ? t(BLOCKER_MESSAGE_KEYS[deletionBlocker]) : t('details')}
         action={
           <Button
             variant='destructive'

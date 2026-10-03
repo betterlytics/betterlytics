@@ -6,6 +6,8 @@ import {
   createUser,
   anonymizeUser,
   countActiveAdmins,
+  countActiveUsers,
+  anonymizeUserUnlessBlocked,
 } from '@/repositories/postgres/user.repository';
 import { makeUser } from '@/test/auth-fixtures';
 
@@ -38,6 +40,7 @@ const prismaMock = vi.hoisted(() => {
       updateMany: vi.fn(),
     },
     $transaction: vi.fn(),
+    $executeRaw: vi.fn(),
   };
   return mock;
 });
@@ -152,7 +155,8 @@ describe('anonymizeUser', () => {
     await anonymizeUser('user-1');
 
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
-    expect(prismaMock.$transaction.mock.calls[0][0]).toHaveLength(6);
+    expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
+    expect(prismaMock.mcpToken.updateMany).toHaveBeenCalledTimes(1);
   });
 
   it('scrubs identity and credentials and marks the user deleted', async () => {
@@ -164,6 +168,7 @@ describe('anonymizeUser', () => {
         email: 'deleted_user-1@deleted.invalid',
         name: null,
         image: null,
+        role: null,
         twoFactorEnabled: false,
         totpSecret: null,
         emailVerified: false,
@@ -204,5 +209,65 @@ describe('countActiveAdmins', () => {
     prismaMock.user.count.mockRejectedValue(new Error('db down'));
 
     await expect(countActiveAdmins()).rejects.toThrow(/Failed to count active admins/);
+  });
+});
+
+describe('countActiveUsers', () => {
+  it('counts users that have not been deleted', async () => {
+    prismaMock.user.count.mockResolvedValue(3);
+
+    expect(await countActiveUsers()).toBe(3);
+    expect(prismaMock.user.count).toHaveBeenCalledWith({ where: { deletedAt: null } });
+  });
+});
+
+describe('anonymizeUserUnlessBlocked', () => {
+  function mockCounts(activeAdmins: number, activeUsers: number) {
+    prismaMock.user.count.mockImplementation(async ({ where }: { where: { role?: string } }) =>
+      where.role === 'admin' ? activeAdmins : activeUsers,
+    );
+  }
+
+  it('takes the advisory lock before reading the counts', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ role: 'admin', deletedAt: null });
+    mockCounts(2, 2);
+
+    await anonymizeUserUnlessBlocked('user-1');
+
+    expect(prismaMock.$executeRaw.mock.invocationCallOrder[0]).toBeLessThan(
+      prismaMock.user.count.mock.invocationCallOrder[0],
+    );
+    expect(prismaMock.$executeRaw.mock.calls[0][0].join('')).toContain('pg_advisory_xact_lock');
+  });
+
+  it('anonymizes when another active admin remains', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ role: 'admin', deletedAt: null });
+    mockCounts(2, 2);
+
+    expect(await anonymizeUserUnlessBlocked('user-1')).toBeNull();
+    expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
+  });
+
+  it('refuses the last active admin without writing', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ role: 'admin', deletedAt: null });
+    mockCounts(1, 2);
+
+    expect(await anonymizeUserUnlessBlocked('user-1')).toBe('last_admin');
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
+    expect(prismaMock.account.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('refuses the last active user without writing', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: null });
+    mockCounts(0, 1);
+
+    expect(await anonymizeUserUnlessBlocked('user-1')).toBe('last_user');
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
+  });
+
+  it('wraps transaction failures', async () => {
+    prismaMock.$transaction.mockRejectedValue(new Error('db down'));
+
+    await expect(anonymizeUserUnlessBlocked('user-1')).rejects.toThrow('Failed to anonymize user user-1.');
   });
 });
