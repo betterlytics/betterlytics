@@ -197,6 +197,7 @@ model UserSettings {
   // Theme preferences
   theme Theme @default(system) // "light", "dark", "system"
   language String @default("en") // ISO language codes
+  timezone String? // IANA zone; null = auto-detect from browser
   avatar AvatarMode @default(default) // "default", "gravatar"
 
   // Email preferences

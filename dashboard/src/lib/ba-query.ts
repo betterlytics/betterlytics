@@ -142,9 +142,10 @@ function getTimestampRange(
   const fill = safeSql`WITH FILL FROM ${intervalFrom} TO ${intervalTo} STEP ${interval}`;
 
   // Wrapper for converting final date from user timezone to UTC
-  // Note: toStartOfInterval with week/month returns Date type, not DateTime, hence the cast
+  // Note: toStartOfInterval with week/month returns Date type, not DateTime, hence the cast.
+  // The zone makes a Date read as zone midnight; DateTime buckets keep their instant.
   const timeWrapper = (sql: ReturnType<typeof safeSql>) => {
-    return safeSql`SELECT toTimezone(toDateTime64(date, 0), 'UTC') as date, q.* EXCEPT (date) FROM (${sql}) q`;
+    return safeSql`SELECT toTimezone(toDateTime64(date, 0, ${SQL.String({ timezone })}), 'UTC') as date, q.* EXCEPT (date) FROM (${sql}) q`;
   };
 
   // Granularity function

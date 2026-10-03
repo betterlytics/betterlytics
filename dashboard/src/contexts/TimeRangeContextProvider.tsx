@@ -4,6 +4,8 @@ import { TimeRangeValue } from '@/utils/timeRanges';
 import { CompareMode } from '@/utils/compareRanges';
 import { getResolvedRanges, type TimeRangeResult } from '@/lib/ba-timerange';
 import { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { useResolvedTimezone } from '@/hooks/use-resolved-timezone';
+import { keepWallClock } from '@/utils/timezone';
 
 export type TimeRangeContextProps = {
   startDate: Date;
@@ -36,23 +38,65 @@ type TimeRangeContextProviderProps = {
   initialFilters: BAAnalyticsQuery;
 };
 
+// Stored dates keep the zone they were set in
+type ZonedPeriod = { start: Date; end: Date; timeZone: string };
+type ZonedComparePeriod = { start?: Date; end?: Date; timeZone: string };
+
 export function TimeRangeContextProvider({ children, initialFilters }: TimeRangeContextProviderProps) {
-  const [startDate, setStartDate] = React.useState<Date>(initialFilters.startDate);
-  const [endDate, setEndDate] = React.useState<Date>(initialFilters.endDate);
+  const { timeZone } = useResolvedTimezone();
+
+  const [period, setPeriodState] = React.useState<ZonedPeriod>({
+    start: initialFilters.startDate,
+    end: initialFilters.endDate,
+    timeZone,
+  });
 
   const [granularity, setGranularity] = React.useState<GranularityRangeValues>(initialFilters.granularity);
   const [interval, setRangeInterval] = React.useState<TimeRangeValue>(initialFilters.interval);
   const [offset, setOffset] = React.useState<number>(initialFilters.offset ?? 0);
   const [compareMode, setCompareMode] = React.useState<CompareMode>(initialFilters.compare);
-  const [compareStartDate, setCompareStartDate] = React.useState<Date | undefined>(
-    initialFilters.compareStartDate,
-  );
-  const [compareEndDate, setCompareEndDate] = React.useState<Date | undefined>(initialFilters.compareEndDate);
+  const [comparePeriod, setComparePeriod] = React.useState<ZonedComparePeriod>({
+    start: initialFilters.compareStartDate,
+    end: initialFilters.compareEndDate,
+    timeZone,
+  });
   const [compareAlignWeekdays, setCompareAlignWeekdays] = React.useState<boolean>(
     initialFilters.compareAlignWeekdays ?? false,
   );
 
-  const timeZone = React.useMemo(() => Intl.DateTimeFormat().resolvedOptions().timeZone, []);
+  // A zone change converts the stored dates here instead of writing state, since React can drop state set
+  // during render: custom ranges keep their calendar days and presets are re-resolved in the new zone
+  const { startDate, endDate } = useMemo(() => {
+    if (period.timeZone === timeZone) return { startDate: period.start, endDate: period.end };
+    if (interval === 'custom') {
+      return {
+        startDate: keepWallClock(period.start, period.timeZone, timeZone),
+        endDate: keepWallClock(period.end, period.timeZone, timeZone),
+      };
+    }
+    const { main } = getResolvedRanges(
+      interval,
+      compareMode,
+      timeZone,
+      period.start,
+      period.end,
+      granularity,
+      undefined,
+      undefined,
+      offset,
+      compareAlignWeekdays,
+    );
+    return { startDate: main.start, endDate: main.end };
+  }, [period, timeZone, interval, compareMode, granularity, offset, compareAlignWeekdays]);
+
+  const { compareStartDate, compareEndDate } = useMemo(() => {
+    const { start, end, timeZone: zone } = comparePeriod;
+    if (!start || !end || zone === timeZone) return { compareStartDate: start, compareEndDate: end };
+    return {
+      compareStartDate: keepWallClock(start, zone, timeZone),
+      compareEndDate: keepWallClock(end, zone, timeZone),
+    };
+  }, [comparePeriod, timeZone]);
 
   const resolvedRanges = useMemo(
     () =>
@@ -113,16 +157,26 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
     return () => clearInterval(id);
   }, [interval, compareMode, timeZone, granularity, offset, compareAlignWeekdays]);
 
-  const setPeriod = useCallback((newStartDate: Date, newEndDate: Date) => {
-    setStartDate((date) => (date.getTime() === newStartDate.getTime() ? date : newStartDate));
-    setEndDate((date) => (date.getTime() === newEndDate.getTime() ? date : newEndDate));
-  }, []);
+  // Callers compute dates in the zone of the render they come from, which is the zone recorded here
+  const setPeriod = useCallback(
+    (newStartDate: Date, newEndDate: Date) => {
+      setPeriodState((prev) => {
+        if (prev.timeZone !== timeZone) return { start: newStartDate, end: newEndDate, timeZone };
+        const start = prev.start.getTime() === newStartDate.getTime() ? prev.start : newStartDate;
+        const end = prev.end.getTime() === newEndDate.getTime() ? prev.end : newEndDate;
+        return start === prev.start && end === prev.end ? prev : { start, end, timeZone };
+      });
+    },
+    [timeZone],
+  );
 
-  const handleSetCompareDateRange = useCallback((csDate?: Date, ceDate?: Date) => {
-    if (!csDate || !ceDate) return;
-    setCompareStartDate(csDate);
-    setCompareEndDate(ceDate);
-  }, []);
+  const handleSetCompareDateRange = useCallback(
+    (csDate?: Date, ceDate?: Date) => {
+      if (!csDate || !ceDate) return;
+      setComparePeriod({ start: csDate, end: ceDate, timeZone });
+    },
+    [timeZone],
+  );
 
   return (
     <TimeRangeContext.Provider
@@ -130,7 +184,8 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
         startDate,
         endDate,
         setPeriod,
-        granularity,
+        // The granularity the ranges resolved to, which differs from the picked one after a fallback
+        granularity: resolvedRanges.granularity,
         setGranularity,
         interval,
         setRangeInterval,

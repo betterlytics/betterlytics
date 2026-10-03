@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { formatUptime } from '@/utils/formatters';
-import { defaultDateLabelFormatter } from '@/utils/chartUtils';
+import { useChartDateFormatters } from '@/hooks/use-chart-date-formatters';
 import { MONITOR_TONE, presentUptimeTone } from '../styles';
 import { MonitoringTooltip } from '../[monitorId]/MonitoringTooltip';
 import { type MonitorUptimeBucket } from '@/entities/analytics/monitoring.entities';
@@ -16,6 +16,7 @@ type PillBarProps = {
 export function PillBar({ data, variant = 'default' }: PillBarProps) {
   const locale = useLocale();
   const t = useTranslations('monitoring.labels');
+  const { labelFormatter } = useChartDateFormatters('hour');
 
   const normalized = data ?? [];
   if (normalized.length === 0) return null;
@@ -41,7 +42,7 @@ export function PillBar({ data, variant = 'default' }: PillBarProps) {
     >
       {normalized.map((point) => {
         const upRatio = point.upRatio ?? null;
-        const bucketLabel = defaultDateLabelFormatter(point.bucket, 'hour', locale);
+        const bucketLabel = labelFormatter(point.bucket);
         const label = getLabel(upRatio);
         const toneClass = getToneClass(upRatio);
 

@@ -150,7 +150,7 @@
           },
           "freePlan": {
             "question": "Hvad er inkluderet i den gratis plan?",
-            "answer": "Den gratis self-hosted plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger."
+            "answer": "Den gratis Cloud-plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger. Self-hosting er gratis uden grænse for events."
           },
           "cloud": {
             "question": "Hvordan fungerer cloud-hosting?",
@@ -1038,7 +1038,7 @@
             "features": {
               "f1": "Docker-udrulning",
               "f2": "Fuld kontrol",
-              "f3": "GDPR-kompatibel"
+              "f3": "Alle funktioner inkluderet"
             }
           }
         },
@@ -2956,7 +2956,13 @@
         "localization": {
           "title": "Lokalisering",
           "language": "Sprog",
-          "languageDescription": "Vælg sproget for dashboardet"
+          "languageDescription": "Vælg sproget for dashboardet",
+          "timezone": "Tidszone",
+          "timezoneDescription": "Bruges til datoer og grafer på tværs af dine dashboards",
+          "timezoneAuto": "Registrer automatisk",
+          "timezoneUndetected": "Din browser oplyser ingen tidszone, så data vises i UTC. Vælg din tidszone for at rette det.",
+          "timezoneSearch": "Søg i tidszoner...",
+          "timezoneEmpty": "Ingen tidszone fundet."
         },
         "notifications": {
           "title": "Notifikationer",
@@ -3393,6 +3399,11 @@
       "title": "Integration ikke detected",
       "description": "Dit dashboard er klar, men vi har endnu ikke modtaget data fra dit website. Gennemfør integrationsopsætningen for at begynde at spore besøgende.",
       "setup": "Integrationsopsætning"
+    },
+    "timezoneFallback": {
+      "title": "Tidszone ikke registreret",
+      "description": "Din browser oplyser ingen tidszone, så data vises i UTC.",
+      "action": "Vælg tidszone"
     },
     "webVitalsNoData": {
       "title": "Ingen Core Web Vitals data endnu",

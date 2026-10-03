@@ -150,7 +150,7 @@
           },
           "freePlan": {
             "question": "What's included in the free plan?",
-            "answer": "The free self-hosted plan includes up to 10,000 tracked events, full dashboard access and community support. Perfect for getting started! No credit card required, no strings attached."
+            "answer": "The free Cloud plan includes up to 10,000 tracked events, full dashboard access and community support. Perfect for getting started! No credit card required, no strings attached. Self-hosting is free with no event limit."
           },
           "cloud": {
             "question": "How does the cloud hosting work?",
@@ -1038,7 +1038,7 @@
             "features": {
               "f1": "Docker deployment",
               "f2": "Complete control",
-              "f3": "GDPR compliant"
+              "f3": "All features included"
             }
           }
         },
@@ -2953,7 +2953,13 @@
         "localization": {
           "title": "Localization",
           "language": "Language",
-          "languageDescription": "Choose your dashboard language"
+          "languageDescription": "Choose your dashboard language",
+          "timezone": "Timezone",
+          "timezoneDescription": "Used for dates and charts across your dashboards",
+          "timezoneAuto": "Auto-detect",
+          "timezoneUndetected": "Your browser doesn't report a timezone, so data is shown in UTC. Pick your timezone to fix this.",
+          "timezoneSearch": "Search timezones...",
+          "timezoneEmpty": "No timezone found."
         },
         "notifications": {
           "title": "Notifications",
@@ -3380,6 +3386,11 @@
       "title": "Integration not detected",
       "description": "Your dashboard is ready, but we haven't received any data from your website yet. Complete the integration setup to start tracking visitors.",
       "setup": "Integration Setup"
+    },
+    "timezoneFallback": {
+      "title": "Timezone not detected",
+      "description": "Your browser doesn't report a timezone, so data is shown in UTC.",
+      "action": "Set timezone"
     },
     "usageAlert": {
       "title": "Approaching event limit",
