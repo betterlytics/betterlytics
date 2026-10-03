@@ -1,7 +1,7 @@
 /** Awaiting Christoffer's written approval of this exact wording, his name, photo and Edora's logo before launch. */
 export const QUOTE = {
   /* `*…*` marks the emphasised clause */
-  text: 'Google Analytics was complex to set up and hard to get right. With Betterlytics *we run it on our own servers*, keep the control we need and get an intuitive dashboard that does a lot more.',
+  text: 'Google Analytics was complex to set up and hard to get right. Betterlytics runs on our own servers, so the data stays with us, and the dashboard is one *the whole team can actually use*.',
   name: 'Christoffer Romild',
   role: 'Senior Engineer',
   photo: '/images/testimonials/christoffer-romild.jpg',
