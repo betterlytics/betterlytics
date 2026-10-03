@@ -12,14 +12,19 @@ export interface SEOConfig {
   /** Link-preview copy (Open Graph, X); falls back to the title and description. */
   socialTitle?: string;
   socialDescription?: string;
-  imageAlt?: string;
   structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
 }
 
-const DEFAULT_IMAGE = '/og_image.jpg';
+/** The image repeats the landing hero's headline; redo it when that changes. */
+const DEFAULT_IMAGE = {
+  url: '/og-image.jpg',
+  width: 1200,
+  height: 630,
+  alt: "“You shouldn't need five tools to understand one website” above the Betterlytics dashboard",
+};
 
 export function generateSEO(
-  { title, description, path, socialTitle = title, socialDescription = description, imageAlt }: SEOConfig,
+  { title, description, path, socialTitle = title, socialDescription = description }: SEOConfig,
   options?: { locale?: string; robots?: Metadata['robots'] },
 ): Metadata {
   const defaultLocale = routing.defaultLocale;
@@ -62,14 +67,7 @@ export function generateSEO(
       title: socialTitle,
       description: socialDescription,
       siteName: 'Betterlytics',
-      images: [
-        {
-          url: DEFAULT_IMAGE,
-          width: 1200,
-          height: 630,
-          alt: imageAlt || socialTitle,
-        },
-      ],
+      images: [DEFAULT_IMAGE],
     },
     twitter: {
       card: 'summary_large_image',
