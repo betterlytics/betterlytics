@@ -7,9 +7,10 @@ import { IDS } from '@/landing/lib/ids';
 export function TestimonialsSection() {
   const { text, name, role, photo, company, logo } = QUOTE;
   return (
-    <Section id={IDS.quotes}>
-      <Panel>
-        <figure className='mx-auto flex max-w-[54rem] flex-col items-center gap-10 py-16 text-center max-sm:items-start max-sm:gap-8 max-sm:py-10 max-sm:text-left'>
+    <Section id={IDS.quotes} className='pt-0'>
+      {/* shares the network panel's bottom rule and corners, so it draws no top edge of its own */}
+      <Panel className='before:hidden [&>[data-corners]]:before:hidden [&>[data-corners]]:after:hidden'>
+        <figure className='mx-auto flex max-w-[54rem] flex-col items-center gap-10 py-24 text-center max-sm:items-start max-sm:gap-8 max-sm:py-14 max-sm:text-left'>
           <blockquote className='text-[2rem] leading-[1.28] font-medium tracking-[-0.03em] text-balance max-lg:text-[1.625rem] max-sm:text-[1.3125rem]'>
             “<Emphasis text={text} as='b' className='font-medium text-volt-soft' />”
           </blockquote>

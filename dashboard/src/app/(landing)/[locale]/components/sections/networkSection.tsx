@@ -44,7 +44,8 @@ function Stat({
 
 export function NetworkSection() {
   return (
-    <Section id={IDS.network} title={copy.title} lede={copy.lede}>
+    // no bottom padding: the quote panel (testimonialsSection) hangs off this panel's bottom rule
+    <Section id={IDS.network} title={copy.title} lede={copy.lede} className='pb-0 max-lg:pb-0'>
       <Panel flush>
         {/* min-w-0 lets the snippet column narrow past its tab bar (which scrolls); phones bleed to the screen edge */}
         <div className='grid grid-cols-[1.55fr_1fr] max-xl:grid-cols-1 max-sm:-mx-(--pad)'>
