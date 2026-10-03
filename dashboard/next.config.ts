@@ -15,6 +15,8 @@ if (result.error) {
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  // Next streams metadata into <body> for Googlebot by default, but Google only reads canonical and hreflang in <head>
+  htmlLimitedBots: /.*/,
   experimental: {
     // app and landing have separate root layouts, so unmatched URLs need a global 404
     globalNotFound: true,
