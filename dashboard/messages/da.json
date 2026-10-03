@@ -3824,7 +3824,11 @@
       },
       "expires": "Udløber {date}",
       "expired": "Udløbet {date}",
-      "neverExpires": "Udløber aldrig"
+      "neverExpires": "Udløber aldrig",
+      "endpointLabel": "Server-URL",
+      "endpointHint": "Peg din MCP-klient mod denne URL, og send din token som bearer-token. <link>Opsætningsguides til hver klient</link>",
+      "copyEndpoint": "Kopier server-URL",
+      "endpointCopied": "Server-URL kopieret"
     },
     "toast": {
       "created": "Token oprettet",
