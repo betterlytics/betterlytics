@@ -74,8 +74,8 @@
     },
     "contact": {
       "seo": {
-        "title": "Contact Betterlytics | Privacy-First Analytics",
-        "description": "Get in touch with the Betterlytics team for support, feedback, or partnership inquiries about our open-source, privacy-first web analytics platform."
+        "title": "Contact | Betterlytics",
+        "description": "Get in touch with the Betterlytics team for support, feedback or partnership questions."
       },
       "title": "Contact Us",
       "intro": "Questions about Betterlytics? Need support with your analytics setup? Our team is ready to assist you.",
@@ -159,7 +159,7 @@
     "changelog": {
       "seo": {
         "title": "Changelog | Betterlytics Release Notes & Product Updates",
-        "description": "Read every Betterlytics release note in one place. Follow product updates, reliability fixes, and roadmap highlights for our privacy-first analytics platform."
+        "description": "Read every Betterlytics release note in one place. Follow new features, reliability fixes and roadmap highlights as they ship."
       },
       "hero": {
         "eyebrow": "Release history",
@@ -174,7 +174,7 @@
     },
     "privacy": {
       "seo": {
-        "title": "Privacy Policy | GDPR & Cookieless Analytics",
+        "title": "Privacy Policy | Betterlytics",
         "description": "Betterlytics Privacy Policy — GDPR-compliant and cookieless by design. Learn how we protect your data and ensure privacy through anonymous analytics."
       },
       "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
@@ -305,8 +305,8 @@
     },
     "terms": {
       "seo": {
-        "title": "Terms of Service | Privacy-First Analytics",
-        "description": "Read Betterlytics' Terms of Service — learn about your rights, responsibilities, and usage policies for our privacy-first web analytics platform."
+        "title": "Terms of Service | Betterlytics",
+        "description": "Read the Betterlytics Terms of Service: your rights, responsibilities and the rules for using the cloud service."
       },
       "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
       "title": "Betterlytics Terms of Service",
@@ -454,7 +454,7 @@
     },
     "dpa": {
       "seo": {
-        "title": "Data Processing Agreement (DPA) | GDPR & Privacy Analytics",
+        "title": "Data Processing Agreement (DPA) | Betterlytics",
         "description": "Betterlytics Data Processing Agreement (DPA) — built for full GDPR compliance, privacy-first analytics, and secure, anonymous data processing."
       },
       "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
@@ -574,7 +574,7 @@
     },
     "subprocessors": {
       "seo": {
-        "title": "Subprocessors | GDPR Compliance & Data Processing",
+        "title": "Subprocessors | Betterlytics",
         "description": "View the complete list of Betterlytics subprocessors. Understand how we ensure GDPR compliance through carefully selected EU-based service providers."
       },
       "translationDisclaimer": "This document is provided in multiple languages for convenience. In case of discrepancies, the English version shall prevail.",
@@ -640,8 +640,8 @@
     "auth": {
       "signin": {
         "seo": {
-          "title": "Sign In | Betterlytics Privacy-First Analytics",
-          "description": "Sign in to your Betterlytics dashboard — secure, cookieless, and privacy-first web analytics for GDPR-compliant insights."
+          "title": "Sign in | Betterlytics",
+          "description": "Sign in to Betterlytics to see your website traffic, session replays, errors and uptime in one dashboard."
         },
         "title": "Sign in to your account",
         "subtitle": "Access your analytics dashboard",
@@ -679,8 +679,8 @@
       },
       "register": {
         "seo": {
-          "title": "Create Your Betterlytics Account — Get Started Free",
-          "description": "Create a free Betterlytics account for privacy-first, cookieless web analytics. Start measuring your website and app traffic securely and GDPR-compliantly."
+          "title": "Create your free Betterlytics account",
+          "description": "Create a free Betterlytics account for web analytics, session replay, error tracking and uptime monitoring. No credit card needed."
         },
         "title": "Create your account",
         "subtitle": "Get started for free — set up your analytics in minutes",
@@ -697,7 +697,7 @@
       "forgotPassword": {
         "seo": {
           "title": "Forgot your password? | Betterlytics",
-          "description": "“Reset your Betterlytics password securely. Enter your email to receive a protected reset link and regain account access."
+          "description": "Reset your Betterlytics password securely. Enter your email to receive a protected reset link and regain account access."
         },
         "title": "Reset your password",
         "subtitle": "Enter your email and we'll send you a password reset link",
@@ -805,8 +805,8 @@
     },
     "features": {
       "seo": {
-        "title": "Features of Betterlytics | Privacy-First, Cookie-Less Analytics",
-        "description": "Discover all Betterlytics features: real-time dashboards, conversion funnels, Core Web Vitals, and more. Privacy-first, GDPR-compliant analytics without cookies or consent banners."
+        "title": "Betterlytics features: analytics, replay, errors, uptime",
+        "description": "Web analytics, session replay, error tracking, Core Web Vitals, uptime monitoring, status pages and an MCP server for AI agents, all in Betterlytics."
       },
       "hero": {
         "title": "Every Feature You Need for <br></br><highlight>Better Analytics</highlight>",
@@ -1052,8 +1052,8 @@
     },
     "pricing": {
       "seo": {
-        "title": "Pricing | Betterlytics Privacy-First Analytics",
-        "description": "Simple, transparent pricing for Betterlytics. Start free, scale as you grow. Privacy-first, GDPR compliant web analytics for every business size."
+        "title": "Betterlytics pricing: start free, pay by monthly events",
+        "description": "Every plan includes web analytics, session replay, error tracking and uptime monitoring. Start free and pay by monthly events, or self-host at no cost."
       },
       "titleEmphasis": "Simple, transparent",
       "titleRest": "pricing",

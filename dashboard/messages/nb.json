@@ -74,8 +74,8 @@
     },
     "contact": {
       "seo": {
-        "title": "Kontakt Betterlytics | Personvern-først analyse",
-        "description": "Ta kontakt med Betterlytics-teamet for support, tilbakemeldinger eller partnerskap rundt vår åpne, personvern-først nettanalyseplattform."
+        "title": "Kontakt | Betterlytics",
+        "description": "Ta kontakt med Betterlytics-teamet for support, tilbakemeldinger eller spørsmål om samarbeid."
       },
       "title": "Kontakt oss",
       "intro": "Spørsmål om Betterlytics? Trenger du hjelp med analyseoppsettet ditt? Teamet vårt står klart til å hjelpe.",
@@ -159,7 +159,7 @@
     "changelog": {
       "seo": {
         "title": "Endringslogg | Betterlytics utgivelsesnotater og produktoppdateringer",
-        "description": "Les alle Betterlytics-utgivelsesnotater på ett sted. Følg produktoppdateringer, stabilitetsforbedringer og høydepunkter fra veikartet for vår personvern-først analyseplattform."
+        "description": "Les alle Betterlytics-utgivelsesnotater på ett sted. Følg nye funksjoner, stabilitetsforbedringer og høydepunkter fra veikartet etter hvert som de lanseres."
       },
       "hero": {
         "eyebrow": "Utgivelseshistorikk",
@@ -174,7 +174,7 @@
     },
     "privacy": {
       "seo": {
-        "title": "Personvernerklæring | GDPR og informasjonskapselfri analyse",
+        "title": "Personvernerklæring | Betterlytics",
         "description": "Betterlytics personvernerklæring — GDPR-kompatibel og informasjonskapselfri av design. Lær hvordan vi beskytter dataene dine og sikrer personvern gjennom anonym analyse."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
@@ -305,8 +305,8 @@
     },
     "terms": {
       "seo": {
-        "title": "Tjenestevilkår | Personvern-først analyse",
-        "description": "Les Betterlytics sine tjenestevilkår — lær om rettighetene dine, ansvaret ditt og bruksvilkår for vår personvern-først nettanalyseplattform."
+        "title": "Tjenestevilkår | Betterlytics",
+        "description": "Les tjenestevilkårene til Betterlytics: rettighetene dine, ansvaret ditt og reglene for bruk av skytjenesten."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
       "title": "Betterlytics tjenestevilkår",
@@ -454,7 +454,7 @@
     },
     "dpa": {
       "seo": {
-        "title": "Databehandleravtale (DPA) | GDPR og personvernanalyse",
+        "title": "Databehandleravtale (DPA) | Betterlytics",
         "description": "Betterlytics databehandleravtale (DPA) — bygget for full GDPR-overholdelse, personvern-først analyse og sikker, anonym databehandling."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
@@ -574,7 +574,7 @@
     },
     "subprocessors": {
       "seo": {
-        "title": "Underdatabehandlere | GDPR-overholdelse og databehandling",
+        "title": "Underdatabehandlere | Betterlytics",
         "description": "Se komplett liste over Betterlytics underdatabehandlere. Forstå hvordan vi sikrer GDPR-overholdelse gjennom nøye utvalgte EU-baserte tjenesteleverandører."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
@@ -640,8 +640,8 @@
     "auth": {
       "signin": {
         "seo": {
-          "title": "Logg inn | Betterlytics personvern-først analyse",
-          "description": "Logg inn på Betterlytics-dashboardet ditt — sikker, informasjonskapselfri og personvern-først nettanalyse for GDPR-kompatibel innsikt."
+          "title": "Logg inn | Betterlytics",
+          "description": "Logg inn på Betterlytics for å se trafikk, sesjonsopptak, feil og oppetid for nettstedet ditt i ett dashboard."
         },
         "title": "Logg inn på kontoen din",
         "subtitle": "Få tilgang til analysedashboardet ditt",
@@ -679,8 +679,8 @@
       },
       "register": {
         "seo": {
-          "title": "Opprett Betterlytics-kontoen din — kom i gang gratis",
-          "description": "Opprett en gratis Betterlytics-konto for personvern-først, informasjonskapselfri nettanalyse. Begynn å måle trafikk på nettsted og app sikkert og GDPR-kompatibelt."
+          "title": "Opprett din gratis Betterlytics-konto",
+          "description": "Opprett en gratis Betterlytics-konto for nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Ingen kredittkort nødvendig."
         },
         "title": "Opprett kontoen din",
         "subtitle": "Kom i gang gratis — sett opp analyse på få minutter",
@@ -805,8 +805,8 @@
     },
     "features": {
       "seo": {
-        "title": "Funksjoner i Betterlytics | Personvern-først, informasjonskapselfri analyse",
-        "description": "Oppdag alle funksjonene i Betterlytics: sanntidsdashboard, konverteringstrakter, Core Web Vitals og mer. Personvern-først, GDPR-kompatibel analyse uten informasjonskapsler eller samtykkebannere."
+        "title": "Betterlytics-funksjoner: analyse, opptak, feil, oppetid",
+        "description": "Nettanalyse, sesjonsopptak, feilsporing, Core Web Vitals, oppetidsovervåking, statussider og en MCP-server for AI-agenter, alt i Betterlytics."
       },
       "hero": {
         "title": "Alle funksjonene du trenger for <br></br><highlight>bedre analyse</highlight>",
@@ -1052,8 +1052,8 @@
     },
     "pricing": {
       "seo": {
-        "title": "Priser | Betterlytics personvern-først analyse",
-        "description": "Enkle og transparente priser for Betterlytics. Start gratis, skaler når du vokser. Personvern-først, GDPR-kompatibel nettanalyse for alle virksomhetsstørrelser."
+        "title": "Betterlytics-priser: start gratis, betal etter hendelser",
+        "description": "Alle planer inkluderer nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Start gratis, betal etter hendelser per måned eller driv det selv gratis."
       },
       "titleEmphasis": "Enkle, transparente",
       "titleRest": "priser",

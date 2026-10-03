@@ -74,8 +74,8 @@
     },
     "contact": {
       "seo": {
-        "title": "Kontakt Betterlytics | Privatlivsfokuseret Analyse",
-        "description": "Kontakt Betterlytics-teamet for support, feedback eller partnerskaber vedrørende vores open-source, privatlivsfokuserede webanalyseplatform."
+        "title": "Kontakt | Betterlytics",
+        "description": "Kontakt Betterlytics-teamet for support, feedback eller spørgsmål om samarbejde."
       },
       "title": "Kontakt os",
       "intro": "Spørgsmål om Betterlytics? Har du brug for hjælp til din analyseopsætning? Vores team er klar til at hjælpe.",
@@ -159,7 +159,7 @@
     "changelog": {
       "seo": {
         "title": "Changelog | Betterlytics Udgivelsesnoter & Produktopdateringer",
-        "description": "Læs alle Betterlytics udgivelsesnoter ét sted. Følg produktopdateringer, stabilitetsrettelser og roadmap-højdepunkter for vores privacy-fokuserede analyseplatform."
+        "description": "Læs alle Betterlytics-udgivelsesnoter ét sted. Følg nye funktioner, stabilitetsrettelser og roadmap-højdepunkter, efterhånden som de udkommer."
       },
       "hero": {
         "eyebrow": "Udgivelseshistorik",
@@ -174,7 +174,7 @@
     },
     "privacy": {
       "seo": {
-        "title": "Privatlivspolitik | GDPR & Cookieless Analyse",
+        "title": "Privatlivspolitik | Betterlytics",
         "description": "Betterlytics Privatlivspolitik — GDPR-kompatibel og cookieless fra starten. Læs hvordan vi beskytter dine data og sikrer anonym analyse."
       },
       "translationDisclaimer": "Dette dokument er tilgængeligt på flere sprog for bekvemmelighed. I tilfælde af uoverensstemmelser er den engelske version gældende.",
@@ -305,8 +305,8 @@
     },
     "terms": {
       "seo": {
-        "title": "Servicevilkår | Privatlivsfokuseret Analyse",
-        "description": "Læs Betterlytics' servicevilkår — dine rettigheder, ansvar og brugsbetingelser for vores privatlivsfokuserede webanalyseplatform."
+        "title": "Servicevilkår | Betterlytics",
+        "description": "Læs Betterlytics' servicevilkår: dine rettigheder, dit ansvar og reglerne for brug af cloudtjenesten."
       },
       "translationDisclaimer": "Dette dokument er tilgængeligt på flere sprog for bekvemmelighed. I tilfælde af uoverensstemmelser er den engelske version gældende.",
       "title": "Betterlytics Servicevilkår",
@@ -454,7 +454,7 @@
     },
     "dpa": {
       "seo": {
-        "title": "Databehandleraftale (DPA) | GDPR & Privatlivsanalyse",
+        "title": "Databehandleraftale (DPA) | Betterlytics",
         "description": "Betterlytics Databehandleraftale (DPA) — udviklet til fuld GDPR-overholdelse, privatlivsfokuseret analyse og sikker, anonym databehandling."
       },
       "translationDisclaimer": "Dette dokument er tilgængeligt på flere sprog for bekvemmelighed. I tilfælde af uoverensstemmelser er den engelske version gældende.",
@@ -574,7 +574,7 @@
     },
     "subprocessors": {
       "seo": {
-        "title": "Underdatabehandlere | GDPR-overholdelse og databehandling",
+        "title": "Underdatabehandlere | Betterlytics",
         "description": "Se den komplette liste over Betterlytics underdatabehandlere. Forstå hvordan vi sikrer GDPR-overholdelse gennem nøje udvalgte EU-baserede tjenesteudbydere."
       },
       "translationDisclaimer": "Dette dokument er tilgængeligt på flere sprog for bekvemmelighed. I tilfælde af uoverensstemmelser er den engelske version gældende.",
@@ -640,8 +640,8 @@
     "auth": {
       "signin": {
         "seo": {
-          "title": "Log ind | Betterlytics Privatlivsfokuseret Analyse",
-          "description": "Log ind på dit Betterlytics-dashboard — sikker, cookieless og GDPR-kompatibel webanalyse med fokus på privatliv."
+          "title": "Log ind | Betterlytics",
+          "description": "Log ind på Betterlytics for at se din trafik, sessionsafspilninger, fejl og oppetid i ét dashboard."
         },
         "title": "Log ind på din konto",
         "subtitle": "Få adgang til dit analyse-dashboard",
@@ -679,8 +679,8 @@
       },
       "register": {
         "seo": {
-          "title": "Opret din Betterlytics-konto — Kom i gang gratis",
-          "description": "Opret en gratis Betterlytics-konto til privatlivsfokuseret, cookieless webanalyse. Mål web- og apptrafik sikkert og GDPR-kompatibelt."
+          "title": "Opret din gratis Betterlytics-konto",
+          "description": "Opret en gratis Betterlytics-konto til webanalyse, sessionsafspilning, fejlsporing og oppetidsovervågning. Intet kreditkort nødvendigt."
         },
         "title": "Opret din konto",
         "subtitle": "Begynd at spore din analyse i dag",
@@ -805,8 +805,8 @@
     },
     "features": {
       "seo": {
-        "title": "Funktioner i Betterlytics | Privatlivsvenlig, Cookiefri Analyse",
-        "description": "Udforsk alle Betterlytics-funktioner: realtids-dashboards, konverteringsfunnels, Core Web Vitals og meget mere. Privatlivsvenlig, GDPR-kompatibel analyse uden cookies eller samtykkebannere."
+        "title": "Betterlytics-funktioner: analyse, replay, fejl, oppetid",
+        "description": "Webanalyse, sessionsafspilning, fejlsporing, Core Web Vitals, oppetidsovervågning, statussider og en MCP-server til AI-agenter, alt sammen i Betterlytics."
       },
       "hero": {
         "title": "Alle funktioner du har brug for til <br></br><highlight>bedre analyse</highlight>",
@@ -1052,8 +1052,8 @@
     },
     "pricing": {
       "seo": {
-        "title": "Priser | Betterlytics Privatlivsfokuseret Analyse",
-        "description": "Simple, gennemsigtige priser for Betterlytics. Start gratis, skalér når du vokser. Privatlivsvenlig, GDPR-kompatibel webanalyse for enhver virksomhedsstørrelse."
+        "title": "Betterlytics-priser: start gratis, betal efter events",
+        "description": "Alle planer inkluderer webanalyse, sessionsafspilning, fejlsporing og oppetidsovervågning. Start gratis og betal efter events pr. måned, eller selvhost gratis."
       },
       "titleEmphasis": "Simple, gennemsigtige",
       "titleRest": "priser",

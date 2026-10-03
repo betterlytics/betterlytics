@@ -74,8 +74,8 @@
     },
     "contact": {
       "seo": {
-        "title": "Contatta Betterlytics | Analisi Web Privacy-First",
-        "description": "Contatta il team Betterlytics per supporto, feedback o collaborazioni sulla nostra piattaforma di analisi web open-source e senza cookie."
+        "title": "Contatti | Betterlytics",
+        "description": "Contatta il team Betterlytics per supporto, feedback o proposte di collaborazione."
       },
       "title": "Contattaci",
       "intro": "Domande su Betterlytics? Hai bisogno di supporto per la configurazione delle analitiche? Il nostro team è pronto ad assisterti.",
@@ -159,7 +159,7 @@
     "changelog": {
       "seo": {
         "title": "Changelog | Note di Rilascio & Aggiornamenti di Betterlytics",
-        "description": "Leggi tutte le note di rilascio di Betterlytics in un unico posto. Segui aggiornamenti di prodotto, correzioni di affidabilità e punti salienti della roadmap della nostra piattaforma di analytics privacy-first."
+        "description": "Leggi tutte le note di rilascio di Betterlytics in un unico posto. Segui nuove funzionalità, correzioni di affidabilità e novità della roadmap."
       },
       "hero": {
         "eyebrow": "Storico delle versioni",
@@ -174,7 +174,7 @@
     },
     "privacy": {
       "seo": {
-        "title": "Informativa sulla Privacy | GDPR e Analisi Senza Cookie",
+        "title": "Informativa sulla privacy | Betterlytics",
         "description": "Informativa sulla privacy di Betterlytics — conforme al GDPR e senza cookie. Scopri come proteggiamo i tuoi dati con analisi anonime."
       },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
@@ -305,8 +305,8 @@
     },
     "terms": {
       "seo": {
-        "title": "Termini di Servizio | Analisi Web Privacy-First",
-        "description": "Leggi i Termini di Servizio di Betterlytics — scopri diritti, responsabilità e condizioni d’uso della nostra piattaforma di analisi web orientata alla privacy."
+        "title": "Termini di servizio | Betterlytics",
+        "description": "Leggi i Termini di servizio di Betterlytics: diritti, responsabilità e regole per l’uso del servizio cloud."
       },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Termini di Servizio di Betterlytics",
@@ -454,7 +454,7 @@
     },
     "dpa": {
       "seo": {
-        "title": "Accordo sul Trattamento dei Dati (DPA) | GDPR e Analisi Privacy-First",
+        "title": "Accordo sul trattamento dei dati (DPA) | Betterlytics",
         "description": "Accordo sul Trattamento dei Dati di Betterlytics (DPA) — conforme al GDPR, con analisi orientata alla privacy e trattamento sicuro dei dati anonimi."
       },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
@@ -574,7 +574,7 @@
     },
     "subprocessors": {
       "seo": {
-        "title": "Sottoprocessori | Conformità GDPR e trattamento dati",
+        "title": "Sottoprocessori | Betterlytics",
         "description": "Visualizza l'elenco completo dei Sottoprocessori di Betterlytics. Scopri come garantiamo la conformità al GDPR attraverso fornitori di servizi UE attentamente selezionati."
       },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
@@ -640,8 +640,8 @@
     "auth": {
       "signin": {
         "seo": {
-          "title": "Accedi | Analisi Web Privacy-First Betterlytics",
-          "description": "Accedi al tuo dashboard Betterlytics — analisi web sicura, senza cookie e conforme al GDPR, con focus sulla privacy."
+          "title": "Accedi | Betterlytics",
+          "description": "Accedi a Betterlytics per vedere traffico, replay delle sessioni, errori e uptime del tuo sito in un’unica dashboard."
         },
         "title": "Accedi al tuo account",
         "subtitle": "Accedi alla tua dashboard analitiche",
@@ -679,8 +679,8 @@
       },
       "register": {
         "seo": {
-          "title": "Crea il tuo account Betterlytics — Inizia gratis",
-          "description": "Crea un account Betterlytics gratuito per analisi web senza cookie e orientate alla privacy. Monitora siti e app in modo sicuro e conforme al GDPR."
+          "title": "Crea il tuo account Betterlytics gratuito",
+          "description": "Crea un account Betterlytics gratuito per analisi web, replay delle sessioni, tracciamento errori e monitoraggio uptime. Nessuna carta di credito."
         },
         "title": "Crea il tuo account",
         "subtitle": "Inizia a tracciare le tue analitiche oggi",
@@ -805,8 +805,8 @@
     },
     "features": {
       "seo": {
-        "title": "Funzionalità di Betterlytics | Analytics Privacy-First, Senza Cookie",
-        "description": "Scopri tutte le funzionalità di Betterlytics: dashboard in tempo reale, funnel di conversione, Core Web Vitals e molto altro. Analytics privacy-first, conformi GDPR senza cookie o banner di consenso."
+        "title": "Funzionalità Betterlytics: analisi, replay, errori, uptime",
+        "description": "Analisi web, replay sessioni, tracciamento errori, Core Web Vitals, monitoraggio uptime, pagine di stato e server MCP per agenti AI, tutto in Betterlytics."
       },
       "hero": {
         "title": "Tutte le funzionalità di cui hai bisogno per <br></br><highlight>analytics migliori</highlight>",
@@ -1052,8 +1052,8 @@
     },
     "pricing": {
       "seo": {
-        "title": "Prezzi | Betterlytics Analytics Privacy-First",
-        "description": "Prezzi semplici e trasparenti per Betterlytics. Inizia gratis, scala quando cresci. Analytics privacy-first, conformi al GDPR per ogni dimensione aziendale."
+        "title": "Prezzi Betterlytics: inizia gratis, paga per eventi",
+        "description": "Ogni piano include analisi web, replay sessioni, tracciamento errori e monitoraggio uptime. Inizia gratis, paga per eventi mensili o fai self-hosting gratis."
       },
       "titleEmphasis": "Prezzi semplici e",
       "titleRest": "trasparenti",
