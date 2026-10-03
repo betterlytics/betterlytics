@@ -22,6 +22,19 @@ const eslintConfig = [
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       'no-unused-vars': 'warn',
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: '@stripe/stripe-js',
+              message:
+                "Import loadStripe from '@stripe/stripe-js/pure'. The main entry injects js.stripe.com on import, also on self-hosted instances.",
+              allowTypeImports: true,
+            },
+          ],
+        },
+      ],
     },
   },
 ];
