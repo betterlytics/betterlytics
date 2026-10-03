@@ -7,9 +7,8 @@ import {
   VsCodeLogo,
   WindsurfLogo,
 } from "./ClientLogos";
+import { needsAllowHttp } from "./serverUrl";
 
-export const CLOUD_MCP_SERVER_URL = "https://betterlytics.io/api/mcp";
-const MCP_PATH = "/api/mcp";
 export const SERVER_NAME = "betterlytics";
 export const TOKEN_PLACEHOLDER = "btl_your_token_here";
 
@@ -47,17 +46,13 @@ function toBase64(value: string): string {
     : Buffer.from(value, "utf8").toString("base64");
 }
 
-// Accepts an instance origin or the full endpoint, with or without scheme or trailing slash.
-export function resolveServerUrl(input: string): string {
-  const trimmed = input.trim().replace(/\/+$/, "");
-  if (!trimmed) return CLOUD_MCP_SERVER_URL;
-  const withScheme = /^https?:\/\//i.test(trimmed)
-    ? trimmed
-    : `https://${trimmed}`;
-  return withScheme.endsWith(MCP_PATH)
-    ? withScheme
-    : `${withScheme}${MCP_PATH}`;
-}
+const mcpRemoteArgs = ({ token, serverUrl }: SnippetInput) => [
+  "mcp-remote",
+  serverUrl,
+  "--header",
+  `Authorization:Bearer ${token}`,
+  ...(needsAllowHttp(serverUrl) ? ["--allow-http"] : []),
+];
 
 const remoteConfig = ({ token, serverUrl }: SnippetInput) => ({
   url: serverUrl,
@@ -152,16 +147,10 @@ export const CLIENTS: Client[] = [
       {
         label: "macOS / Linux",
         lang: "json",
-        code: ({ token, serverUrl }) =>
-          mcpServersJson(token, {
+        code: (input) =>
+          mcpServersJson(input.token, {
             command: "npx",
-            args: [
-              "-y",
-              "mcp-remote",
-              serverUrl,
-              "--header",
-              `Authorization:Bearer ${token}`,
-            ],
+            args: ["-y", ...mcpRemoteArgs(input)],
           }),
       },
       {
@@ -176,18 +165,10 @@ export const CLIENTS: Client[] = [
           </>
         ),
         lang: "json",
-        code: ({ token, serverUrl }) =>
-          mcpServersJson(token, {
+        code: (input) =>
+          mcpServersJson(input.token, {
             command: "cmd",
-            args: [
-              "/c",
-              "npx",
-              "-y",
-              "mcp-remote",
-              serverUrl,
-              "--header",
-              `Authorization:Bearer ${token}`,
-            ],
+            args: ["/c", "npx", "-y", ...mcpRemoteArgs(input)],
           }),
       },
     ],

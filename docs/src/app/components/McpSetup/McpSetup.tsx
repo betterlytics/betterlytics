@@ -5,12 +5,11 @@ import { cn } from "../../../lib/utils";
 import { CodeBlock } from "./CodeBlock";
 import {
   CLIENTS,
-  CLOUD_MCP_SERVER_URL,
   DEFAULT_CLIENT_ID,
   TOKEN_PLACEHOLDER,
   isClientId,
-  resolveServerUrl,
 } from "./clients";
+import { CLOUD_MCP_SERVER_URL, resolveServerUrl } from "./serverUrl";
 
 const PROSE = cn(
   "text-[color:var(--foreground)]",
