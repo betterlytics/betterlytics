@@ -6,6 +6,7 @@ import { IDS } from '@/landing/lib/ids';
 import { LogoBoard } from './logoBoard';
 
 export function CustomersSection() {
+  if (CUSTOMERS.length === 0) return null;
   return (
     <Section id={IDS.customers} className='pt-0'>
       {/* no top rule on phones: the hero card above closes it */}

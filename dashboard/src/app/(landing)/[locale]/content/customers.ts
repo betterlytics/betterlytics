@@ -1,4 +1,4 @@
-import { CUSTOMER_ICONS, CUSTOMER_ICONS_MORE } from '@/landing/lib/icons';
+import type { LogoStyle, PathIconData } from '@/landing/lib/icons';
 
-/** Placeholders, not real customers: replace before launch. The first eight fill the board; the rest flip in. */
-export const CUSTOMERS = [...CUSTOMER_ICONS, ...CUSTOMER_ICONS_MORE];
+/** Only customers who have approved it in writing. The section stays hidden while this is empty. */
+export const CUSTOMERS: ReadonlyArray<{ name: string; style?: LogoStyle; icon: PathIconData }> = [];
