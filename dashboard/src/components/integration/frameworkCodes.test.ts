@@ -27,8 +27,8 @@ const ALL_FRAMEWORKS = Object.keys({
 
 const baseConfig = {
   siteId: 'site-123',
-  analyticsUrl: 'https://analytics.example.com',
-  serverUrl: 'https://analytics.example.com',
+  analyticsUrl: 'https://scripts.example.com',
+  serverUrl: 'https://events.example.com',
 };
 
 function initSnippets(isCloud: boolean): string[] {
@@ -47,8 +47,8 @@ describe('getFrameworkCode npm snippets', () => {
 
   it('points scriptUrl and serverUrl at the instance off-cloud', () => {
     for (const snippet of initSnippets(false)) {
-      expect(snippet).toMatch(/scriptUrl: (["'])https:\/\/analytics\.example\.com\/analytics\.js\1/);
-      expect(snippet).toMatch(/serverUrl: (["'])https:\/\/analytics\.example\.com\/event\1/);
+      expect(snippet).toMatch(/scriptUrl: (["'])https:\/\/scripts\.example\.com\/analytics\.js\1/);
+      expect(snippet).toMatch(/serverUrl: (["'])https:\/\/events\.example\.com\/event\1/);
     }
   });
 
@@ -65,14 +65,14 @@ describe('getFrameworkCode npm snippets', () => {
     expect(react.code).toBe(`import betterlytics from "@betterlytics/tracker"
 
 betterlytics.init("site-123", {
-  scriptUrl: "https://analytics.example.com/analytics.js",
-  serverUrl: "https://analytics.example.com/event",
+  scriptUrl: "https://scripts.example.com/analytics.js",
+  serverUrl: "https://events.example.com/event",
 })`);
 
     const [, svelte] = getFrameworkCode('svelte', { ...baseConfig, isCloud: false }, translations).steps!;
     expect(svelte.code).toContain(`    betterlytics.init('site-123', {
-      scriptUrl: 'https://analytics.example.com/analytics.js',
-      serverUrl: 'https://analytics.example.com/event',
+      scriptUrl: 'https://scripts.example.com/analytics.js',
+      serverUrl: 'https://events.example.com/event',
     })`);
   });
 });
