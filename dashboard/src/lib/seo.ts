@@ -138,10 +138,15 @@ export async function generateStructuredData(config: SEOConfig) {
         '@type': 'Organization',
         name: 'Betterlytics',
         url: BASE_URL,
-        logo: `${BASE_URL}/betterlytics-logo-full-light.png`,
+        logo: `${BASE_URL}/betterlytics-logo-full-dark.png`,
         description: orgDescription,
         foundingDate: '2024',
-        sameAs: ['https://github.com/betterlytics/betterlytics'],
+        sameAs: [
+          'https://github.com/betterlytics/betterlytics',
+          'https://x.com/betterlytics',
+          'https://bsky.app/profile/betterlytics.bsky.social',
+          'https://www.linkedin.com/company/betterlytics',
+        ],
         contactPoint: [
           {
             '@type': 'ContactPoint',
@@ -163,11 +168,14 @@ export async function generateStructuredData(config: SEOConfig) {
         areaServed: 'Worldwide',
         knowsAbout: [
           'Web Analytics',
-          'Privacy-First Analytics',
-          'GDPR Compliance',
-          'Cookieless Tracking',
+          'Session Replay',
+          'Error Tracking',
+          'Core Web Vitals',
           'Uptime Monitoring',
           'Status Pages',
+          'Model Context Protocol',
+          'Cookieless Tracking',
+          'GDPR Compliance',
           'Open Source Software',
         ],
       };
@@ -183,7 +191,7 @@ export async function generateStructuredData(config: SEOConfig) {
         publisher: {
           '@type': 'Organization',
           name: 'Betterlytics',
-          logo: `${BASE_URL}/betterlytics-logo-full-light.png`,
+          logo: `${BASE_URL}/betterlytics-logo-full-dark.png`,
         },
       };
 
@@ -331,5 +339,10 @@ export const SEO_CONFIGS = {
     namespace: 'public.root.seo',
     path: '/',
     structuredDataType: 'website',
+  },
+  organization: {
+    namespace: 'public.root.seo',
+    path: '/',
+    structuredDataType: 'organization',
   },
 } as const;

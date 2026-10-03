@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
+import { StructuredData } from '@/components/StructuredData';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
@@ -25,5 +26,10 @@ export default async function HomePage({ params }: Props) {
     // no session check here, or the page turns dynamic; signed-out visitors go on to /signin from requireAuth
     redirect('/dashboards');
   }
-  return <LandingPage />;
+  return (
+    <>
+      <StructuredData config={await buildSEOConfig(SEO_CONFIGS.organization)} />
+      <LandingPage />
+    </>
+  );
 }

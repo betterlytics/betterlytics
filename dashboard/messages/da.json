@@ -2,8 +2,8 @@
   "public": {
     "root": {
       "seo": {
-        "title": "Betterlytics | Privatlivsvenlig Webanalyse",
-        "description": "Betterlytics er et privatlivsvenligt open-source alternativ til Google Analytics. Få GDPR-kompatible, cookieless indsigter uden invasiv tracking, samtidig med at brugerens privatliv respekteres."
+        "title": "Betterlytics: Webanalyse, sessionsafspilning, fejl og oppetid",
+        "description": "Betterlytics samler webanalyse, sessionsafspilning, fejlsporing, Core Web Vitals og oppetidsovervågning i ét open source-værktøj. Cookiefrit og hostet i EU."
       }
     },
     "notFound": {
@@ -1042,7 +1042,7 @@
     },
     "structuredData": {
       "organization": {
-        "description": "Betterlytics er en privatlivsvenlig, cookieless og GDPR-kompatibel open-source webanalyseplatform, der respekterer brugerens privatliv og leverer handlingsorienterede indsigter.",
+        "description": "Betterlytics samler webanalyse, sessionsafspilning, fejlsporing, Core Web Vitals og oppetidsovervågning i ét open source-værktøj. Cookiefrit og hostet i EU.",
         "contactTypeCustomerService": "Kundeservice",
         "contactTypeTechnicalSupport": "Teknisk support"
       },

@@ -2,8 +2,8 @@
   "public": {
     "root": {
       "seo": {
-        "title": "Betterlytics | Personvern-først nettanalyse",
-        "description": "Betterlytics er et personvern-først, åpen kildekode-alternativ til Google Analytics. Få GDPR-kompatibel, informasjonskapselfri innsikt uten påtrengende sporing, samtidig som du respekterer brukernes personvern."
+        "title": "Betterlytics: Nettanalyse, sesjonsopptak, feil og oppetid",
+        "description": "Betterlytics samler nettanalyse, sesjonsopptak, feilsporing, Core Web Vitals og oppetidsovervåking i ett verktøy med åpen kildekode. Uten informasjonskapsler og driftet i EU."
       }
     },
     "notFound": {
@@ -1042,7 +1042,7 @@
     },
     "structuredData": {
       "organization": {
-        "description": "Betterlytics er en personvern-først, informasjonskapselfri, GDPR-kompatibel og åpen nettanalyseplattform som respekterer brukernes personvern samtidig som den gir handlingsbar innsikt.",
+        "description": "Betterlytics samler nettanalyse, sesjonsopptak, feilsporing, Core Web Vitals og oppetidsovervåking i ett verktøy med åpen kildekode. Uten informasjonskapsler og driftet i EU.",
         "contactTypeCustomerService": "Kundeservice",
         "contactTypeTechnicalSupport": "Teknisk support"
       },

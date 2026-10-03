@@ -2,8 +2,8 @@
   "public": {
     "root": {
       "seo": {
-        "title": "Betterlytics | Privacy-First Web Analytics",
-        "description": "Betterlytics is a privacy-first, open-source alternative to Google Analytics. Get GDPR-compliant, cookieless insights without invasive tracking, while respecting user privacy."
+        "title": "Betterlytics: Web analytics, session replay, errors & uptime",
+        "description": "Betterlytics combines web analytics, session replay, error tracking, Core Web Vitals and uptime monitoring in one open-source tool. Cookieless and hosted in the EU."
       }
     },
     "notFound": {
@@ -1042,7 +1042,7 @@
     },
     "structuredData": {
       "organization": {
-        "description": "Betterlytics is a privacy-first, cookieless, GDPR-compliant, open-source web analytics platform that respects user privacy while delivering actionable insights.",
+        "description": "Betterlytics combines web analytics, session replay, error tracking, Core Web Vitals and uptime monitoring in one open-source tool. Cookieless and hosted in the EU.",
         "contactTypeCustomerService": "Customer Service",
         "contactTypeTechnicalSupport": "Technical Support"
       },
