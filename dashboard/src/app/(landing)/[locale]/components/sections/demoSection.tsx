@@ -1,20 +1,20 @@
 import { ArrowUpRight } from 'lucide-react';
-import { getLocale } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { getPathname } from '@/i18n/navigation';
 import { env } from '@/lib/env';
 import { Section } from '@/landing/components/ui/frame';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
-import { COPY } from '@/landing/content/copy';
 import { CUSTOMERS } from '@/landing/content/customers';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import { DemoFrame } from './demoFrame';
 import styles from './demoSection.module.css';
 
-const copy = COPY.demo;
+const URL_HOST = 'betterlytics.io';
+const URL_PATH = '/demo';
 
 export async function DemoSection() {
-  const locale = await getLocale();
+  const [locale, t] = await Promise.all([getLocale(), getTranslations('landing.demo')]);
   const src = env.DEMO_DASHBOARD_ID ? getPathname({ href: `/share/${env.DEMO_DASHBOARD_ID}`, locale }) : null;
 
   return (
@@ -47,16 +47,16 @@ export async function DemoSection() {
               placement='demo'
               destination='demo'
             >
-              {copy.urlHost}
-              <span className='text-fg opacity-86'>{copy.urlPath}</span>
+              {URL_HOST}
+              <span className='text-fg opacity-86'>{URL_PATH}</span>
               <ArrowUpRight className='ml-1.5 inline size-3 align-[-1px]' aria-hidden />
-              <span className='sr-only'> {copy.newTab}</span>
+              <span className='sr-only'> {t('newTab')}</span>
             </TrackedLink>
             <DemoFrame src={src} />
           </>
         ) : (
           <p className='z-1 mb-3.5 px-6 text-center font-mono text-micro font-bold tracking-[0.16em] text-muted uppercase'>
-            {copy.placeholder}
+            {t('placeholder')}
           </p>
         )}
       </div>

@@ -3,14 +3,14 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useReducedMotion } from 'motion/react';
 import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
-import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './uptime.module.css';
 
-/* Mock product copy, kept literal on purpose. */
+/* Acme's monitors and hosts are mock data, kept literal on purpose; the product's own labels are translated. */
 
 /** `uptime` is in hundredths of a percent, so each failed check takes off exactly one. */
 const MONITORS = [
@@ -20,6 +20,7 @@ const MONITORS = [
   { name: 'Docs', host: 'docs.acme.com', ms: '88 ms', uptime: 10000 },
 ];
 const DOCS = 3;
+const SSL_DAYS = 9;
 
 const CELLS = 30;
 const BEAT_MS = 1500;
@@ -50,7 +51,12 @@ function uptimeAt(row: number, t: number) {
   for (let k = t - CELLS + 1; k <= t; k++) if (fails(row, k)) failed++;
   return MONITORS[row].uptime - failed;
 }
-const formatUptime = (value: number) => (value === 10000 ? '100%' : `${(value / 100).toFixed(2)}%`);
+const formatUptime = (value: number, locale: string) =>
+  new Intl.NumberFormat(locale, {
+    style: 'percent',
+    minimumFractionDigits: value === 10000 ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(value / 10000);
 
 type NoticeKind = 'ssl' | 'down' | 'up';
 type NoticeState = 'pending' | 'on' | 'gone';
@@ -109,6 +115,8 @@ function Strip({ row, t, ticked }: { row: number; t: number; ticked: boolean }) 
 }
 
 function Monitor({ row, t, ticked }: { row: number; t: number; ticked: boolean }) {
+  const text = useTranslations('landing.illustrations.uptime');
+  const locale = useLocale();
   const { name, host, ms } = MONITORS[row];
   const down = fails(row, t);
   const uptime = uptimeAt(row, t);
@@ -123,16 +131,16 @@ function Monitor({ row, t, ticked }: { row: number; t: number; ticked: boolean }
               <svg viewBox='0 0 16 16'>
                 <path d='M8 1.6 3 3.5v3.7c0 3 2.1 5.6 5 6.9 2.9-1.3 5-3.9 5-6.9V3.5L8 1.6Z' fill='currentColor' />
               </svg>
-              SSL 9 days
+              {text('sslDays', { days: SSL_DAYS })}
             </span>
           )}
         </b>
         <span className={styles.host}>{host}</span>
       </span>
-      <span className={styles.latency}>{down ? 'timeout' : ms}</span>
+      <span className={styles.latency}>{down ? text('timeout') : ms}</span>
       <Strip row={row} t={t} ticked={ticked} />
       <span className={styles.percent}>
-        <RollingDigits value={formatUptime(uptime)} direction={uptime < uptimeAt(row, t - 1) ? -1 : 1} />
+        <RollingDigits value={formatUptime(uptime, locale)} direction={uptime < uptimeAt(row, t - 1) ? -1 : 1} />
       </span>
     </div>
   );
@@ -182,12 +190,16 @@ const CHANNELS = [
 ];
 
 function Notice({ kind, at, t }: { kind: NoticeKind; at: number; t: number }) {
+  const text = useTranslations('landing.illustrations.uptime');
   const { state, depth } = placeNotice(at, t);
   const monitor = MONITORS[outageAt(t)];
   const [title, detail] = {
-    ssl: ['Docs certificate expires soon', `${MONITORS[DOCS].host} · SSL valid for 9 more days`],
-    down: [`${monitor.name} is down`, `${monitor.host} is not responding`],
-    up: [`${monitor.name} is back up`, 'Down for 2m 30s · incident resolved'],
+    ssl: [
+      text('sslTitle', { name: MONITORS[DOCS].name }),
+      text('sslDetail', { host: MONITORS[DOCS].host, days: SSL_DAYS }),
+    ],
+    down: [text('downTitle', { name: monitor.name }), text('downDetail', { host: monitor.host })],
+    up: [text('upTitle', { name: monitor.name }), text('upDetail')],
   }[kind];
   return (
     <div
@@ -202,9 +214,9 @@ function Notice({ kind, at, t }: { kind: NoticeKind; at: number; t: number }) {
         <b>{title}</b>
         <span>{detail}</span>
       </span>
-      <time>now</time>
+      <time>{text('now')}</time>
       <span className={styles.channels}>
-        Sent to
+        {text('sentTo')}
         {CHANNELS.map((channel, i) => (
           <span key={channel.name} className={styles.channel} style={vars({ '--i': i })}>
             <Image src={channel.src} alt='' width={12} height={12} />
@@ -230,6 +242,7 @@ const PUBLIC = [
 const DAYS = 36;
 
 function StatusPage({ t }: { t: number }) {
+  const text = useTranslations('landing.illustrations.uptime');
   const out = PUBLIC.find((p) => fails(p.row, t));
   return (
     <div className={styles.status} data-down={out ? true : undefined} aria-hidden>
@@ -270,13 +283,13 @@ function StatusPage({ t }: { t: number }) {
                 </svg>
               )}
             </span>
-            <strong>{out ? 'Some systems are down' : 'All systems operational'}</strong>
+            <strong>{out ? text('someDown') : text('allUp')}</strong>
           </div>
           {PUBLIC.map((p) => (
             <div key={p.name} className={styles.statusRow} data-down={p === out || undefined}>
               <i />
               <b>{p.name}</b>
-              <span className={styles.badge}>{p === out ? 'Down' : 'Operational'}</span>
+              <span className={styles.badge}>{p === out ? text('down') : text('operational')}</span>
               <span className={styles.history}>
                 {Array.from({ length: DAYS }, (_, i) => (
                   <i key={i} />
@@ -291,6 +304,7 @@ function StatusPage({ t }: { t: number }) {
 }
 
 export function Uptime({ entered, live }: IllustrationProps) {
+  const text = useTranslations('landing.illustrations.uptime');
   // held while a mouse is on the notices, so the spread stack can't change under the pointer
   const [held, setHeld] = useState(false);
   const { t, ticked } = useChecks(live && !held);
@@ -298,7 +312,7 @@ export function Uptime({ entered, live }: IllustrationProps) {
   return (
     <div
       role='img'
-      aria-label={COPY.illustrations.uptime}
+      aria-label={text('alt')}
       className={cn(styles.uptime, 'absolute inset-0')}
       data-in={entered || undefined}
       data-live={live || undefined}

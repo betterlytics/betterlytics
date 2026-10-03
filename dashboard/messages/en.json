@@ -1063,6 +1063,278 @@
       "exploreFeaturesLink": "Explore all features in detail"
     }
   },
+  "landing": {
+    "seo": {
+      "description": "See your website traffic, session replays, errors, Core Web Vitals and uptime in one dashboard. Open source and cookieless, with a free plan."
+    },
+    "nav": {
+      "skip": "Skip to content",
+      "home": "Betterlytics — home",
+      "menu": "Menu",
+      "label": "Primary",
+      "demo": "Demo",
+      "features": "Features",
+      "pricing": "Pricing",
+      "docs": "Docs",
+      "githubLabel": "Betterlytics on GitHub",
+      "signIn": "Sign in",
+      "cta": "Get started",
+      "goToDashboard": "Go to dashboard"
+    },
+    "hero": {
+      "title": "You shouldn't need five tools to understand one website",
+      "lede": "Cookieless analytics, session replay, Core Web Vitals, errors and uptime. One dashboard, one bill.",
+      "cta": "Get started free"
+    },
+    "demo": {
+      "placeholder": "Interactive demo",
+      "loading": "Loading the live dashboard",
+      "frameTitle": "Betterlytics live demo",
+      "newTab": "(opens in a new tab)",
+      "stalled": "Open the live demo",
+      "activateLine": "Click anywhere to explore",
+      "activateAria": "Click anywhere to explore the interactive demo dashboard"
+    },
+    "customers": {
+      "label": "Used by teams at"
+    },
+    "journey": {
+      "title": "Everything your users *experienced*",
+      "lede": "From their first visit to your next outage.",
+      "steps": {
+        "find": {
+          "title": "Where your users\ncome from",
+          "note": "Search, referrals, campaigns and social, including ChatGPT and Perplexity."
+        },
+        "see": {
+          "title": "What your users\nlook at",
+          "note": "Every page they open, with the country, device and language behind each visit. Live and unsampled."
+        },
+        "do": {
+          "title": "What your users\nactually do",
+          "note": "Custom events like signups and purchases, plus funnels that show where people drop off."
+        },
+        "follow": {
+          "title": "What your users\nstruggle with",
+          "note": "Session replay: every click, scroll and rage click, as they saw it."
+        },
+        "wait": {
+          "title": "When your users\nwait too long",
+          "note": "Core Web Vitals (LCP, INP and CLS) measured in your visitors' real browsers."
+        },
+        "errors": {
+          "title": "When your users\nhit an error",
+          "note": "JavaScript errors with the stack trace, the page, and a replay of the session that hit it."
+        },
+        "reach": {
+          "title": "When your users\ncan't reach you",
+          "note": "Uptime monitors, incidents, SSL expiry and a public status page."
+        }
+      }
+    },
+    "mcp": {
+      "title": "Point your *own*\nagent at it",
+      "lede": "An MCP server is built in. Ask in plain language, get answers across all of it.",
+      "lead": "Ask questions, not queries.",
+      "body": "Your agent reads the schema and joins across traffic, funnels, errors and uptime.",
+      "worksWith": "Works with",
+      "any": "ChatGPT, Zed, JetBrains — and any client that speaks the protocol over HTTP.",
+      "cta": "Set up MCP"
+    },
+    "frameworks": {
+      "title": "Your framework, *unmodified*",
+      "lede": "One script tag, or a package if you prefer. Nothing else changes."
+    },
+    "network": {
+      "title": "One script, nothing else to add",
+      "lede": "Here is exactly what it costs your site.",
+      "snippetLabel": "Install snippet",
+      "packageTab": "Package",
+      "stats": {
+        "size": {
+          "label": "Script size",
+          "body": "The entire tracker, gzipped. Loads after paint, one request, never blocks a render."
+        },
+        "lag": {
+          "label": "Ingest lag",
+          "body": "From a visitor's click to the number moving on your dashboard. Real time, actually."
+        },
+        "capture": {
+          "label": "Capture rate",
+          "body": "Of real visits recorded. First-party, so ad blockers never quietly eat your data."
+        }
+      },
+      "thesis": {
+        "label": "Cookies set",
+        "body": "No cookies, no fingerprinting, no consent banner. GDPR, ePrivacy and PECR compliant by default, on EU-only infrastructure."
+      }
+    },
+    "quote": {
+      "text": "Google Analytics was complex to set up and hard to get right. Betterlytics runs on our own servers, so the data stays with us, and the dashboard is one *the whole team can actually use*.",
+      "role": "Senior Engineer"
+    },
+    "pricing": {
+      "title": "One price, scaled by your traffic",
+      "lede": "Bots we catch don't count, and a traffic spike never costs extra.",
+      "monthlyEvents": "Monthly events",
+      "rangeLabel": "Monthly event volume",
+      "rangeValueText": "{events} events",
+      "perMonth": "/month",
+      "free": "Free",
+      "custom": "Custom",
+      "growth": {
+        "name": "Growth",
+        "tagline": "For side projects and small sites.",
+        "ctaFree": "Get started free",
+        "cta": "Get started"
+      },
+      "professional": {
+        "name": "Professional",
+        "tagline": "For teams running several products.",
+        "cta": "Get started",
+        "badge": "Most popular"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "For regulated workloads and committed volume.",
+        "cta": "Talk to sales"
+      }
+    },
+    "cta": {
+      "title": "Add one script and watch your first visitor arrive",
+      "lede": "The free tier is the same script, dashboard and unsampled data as every paid plan. No credit card required.",
+      "primary": "Get started free",
+      "secondary": "View docs"
+    },
+    "footer": {
+      "tagline": "Web analytics, session replay, errors and uptime in one open-source tool. Cookieless and hosted in the EU.",
+      "nav": "Footer",
+      "columns": {
+        "company": "Company",
+        "resources": "Resources",
+        "compare": "Compare",
+        "connect": "Connect"
+      },
+      "company": {
+        "about": "About",
+        "contact": "Contact",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "dpa": "Data Processing Agreement",
+        "subprocessors": "Subprocessors"
+      },
+      "resources": {
+        "docs": "Documentation",
+        "changelog": "Changelog",
+        "features": "Features",
+        "pricing": "Pricing",
+        "status": "Status"
+      },
+      "compareLink": "vs {name}",
+      "copyright": "© {year} Betterlytics.",
+      "license": "Open source under <link>AGPL-3.0</link> license.",
+      "reportVulnerability": "Report a vulnerability"
+    },
+    "illustrations": {
+      "globe": {
+        "alt": "A turning globe marking where visitors arrive from, each city called out with the source that sent them, such as Copenhagen via ChatGPT.",
+        "via": "via {source}",
+        "direct": "Direct",
+        "newsletter": "Newsletter"
+      },
+      "traffic": {
+        "alt": "Visitors by weekday and hour: busiest in weekday office hours, with a smaller evening peak and quieter weekends.",
+        "topPages": "Top pages",
+        "tabs": "Pages",
+        "all": "All",
+        "entry": "Entry",
+        "exit": "Exit",
+        "scrollDepth": "Scroll depth",
+        "depthMarks": "Readers still on the page at each quarter",
+        "avgDepth": "Avg. depth",
+        "weekly": "Weekly traffic",
+        "byHour": "visitors by hour"
+      },
+      "events": {
+        "alt": "A live log of custom events such as signups and purchases, each with the property it was sent with and the visitor's country, browser and device.",
+        "title": "Custom events",
+        "live": "Live",
+        "paused": "Paused",
+        "today": "today",
+        "now": "now",
+        "seconds": "{count}s",
+        "minutes": "{count}m"
+      },
+      "replay": {
+        "alt": "A replay of a visitor on a pricing page: they click Choose Pro, a TypeError is thrown, they rage-click the button four times, then leave.",
+        "title": "Session replay",
+        "pageView": "Page view",
+        "click": "Click",
+        "rageClick": "Rage click",
+        "pageExit": "Page exit",
+        "rageDetail": "{count}× on {target}",
+        "clickCaptured": "Click captured",
+        "rageClicks": "{count}× rage clicks",
+        "play": "Play replay",
+        "pause": "Pause replay"
+      },
+      "vitals": {
+        "alt": "Gauges for FCP, TTFB, LCP, INP and CLS, each graded good, needs work or poor.",
+        "good": "Good",
+        "needsWork": "Needs work",
+        "poor": "Poor"
+      },
+      "errors": {
+        "alt": "A TypeError firing now, with the page and click that led to it, its stack trace and who it hit; behind it, a quieter error and a resolved one.",
+        "resolved": "Resolved",
+        "inVersion": "in {version}",
+        "events": "events",
+        "hoursAgo": "{count}h ago",
+        "inApp": "in app"
+      },
+      "uptime": {
+        "alt": "Four uptime monitors with their recent checks. When one stops responding, the alert goes out to Slack, Discord and email, and the public status page reports the outage.",
+        "sslDays": "SSL {days} days",
+        "timeout": "timeout",
+        "sslTitle": "{name} certificate expires soon",
+        "sslDetail": "{host} · SSL valid for {days} more days",
+        "downTitle": "{name} is down",
+        "downDetail": "{host} is not responding",
+        "upTitle": "{name} is back up",
+        "upDetail": "Down for 2m 30s · incident resolved",
+        "now": "now",
+        "sentTo": "Sent to",
+        "allUp": "All systems operational",
+        "someDown": "Some systems are down",
+        "down": "Down",
+        "operational": "Operational"
+      },
+      "transcript": {
+        "alt": "A terminal session: asked which pages lost traffic after the August redesign, an agent queries pageviews and errors through the Betterlytics MCP server and finds /pricing down 34%, hit by a TypeError shipped the same day.",
+        "redesign": {
+          "question": "which pages lost traffic after the August redesign?",
+          "say": "I'll compare daily pageviews across July and August, then look for errors on anything that dropped.",
+          "pages": "41 paths · 6 down more than 20%",
+          "errors": "1 group · TypeError · first seen 12 Aug · 1,206 sessions",
+          "answer": "/pricing is down 34%. A TypeError in the plan selector shipped the same day — 1,206 sessions hit it."
+        },
+        "outage": {
+          "question": "did last night's checkout outage cost us sales?",
+          "say": "I'll find the incident, then line purchases up against it hour by hour.",
+          "incident": "1 incident · down 23:12–23:31 · resolved",
+          "purchases": "23:00 → 6 purchases · same hour, previous 6 nights: 38 on average",
+          "answer": "Yes. Checkout was down for 19 minutes, and that hour took 6 purchases against a usual 38 — about 32 sales lost."
+        },
+        "sources": {
+          "question": "which traffic source brings visitors who actually sign up?",
+          "say": "I'll pull visitors by source, then signups by source, and compare the rates.",
+          "visitors": "Google 18.2k · ChatGPT 2.1k · Hacker News 1.4k",
+          "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
+          "answer": "ChatGPT sends a ninth of the visitors Google does, but 3.4% of them sign up against 0.9% — nearly four times the rate."
+        }
+      }
+    }
+  },
   "pricingSlider": {
     "monthlyEvents": "Monthly Events",
     "suggested": "Suggested",

@@ -1,15 +1,15 @@
 'use client';
 
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { BrandMark } from '@/landing/components/ui/brandMark';
-import { COPY } from '@/landing/content/copy';
 import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import styles from './agentTranscript.module.css';
 import { FLARE_FIELD, FlareShimmer } from './flareShimmer';
 
-/* Mock terminal output, kept literal on purpose. Tool names and args match src/mcp/tools/describe.ts. */
+/* The conversation is translated; the terminal chrome and tool calls are literal, matching src/mcp/tools/describe.ts. */
 type Step =
   | { kind: 'question'; text: string }
   | { kind: 'working'; ms: number }
@@ -18,69 +18,59 @@ type Step =
   | { kind: 'result'; text: string }
   | { kind: 'answer'; text: string };
 
+type Translate = ReturnType<typeof useTranslations<'landing.illustrations.transcript'>>;
+
 /** The first is also the static state (no JS or reduced motion). */
-const SCRIPTS: Step[][] = [
+const buildScripts = (t: Translate): Step[][] => [
   [
-    { kind: 'question', text: 'which pages lost traffic after the August redesign?' },
+    { kind: 'question', text: t('redesign.question') },
     { kind: 'working', ms: 900 },
-    {
-      kind: 'say',
-      text: "I'll compare daily pageviews across July and August, then look for errors on anything that dropped.",
-    },
+    { kind: 'say', text: t('redesign.say') },
     {
       kind: 'tool',
       name: 'betterlytics – query',
       args: '(metrics: ["pageviews"], dimensions: ["url"], timeRange: "custom", startDate: "2026-07-01", endDate: "2026-08-31", granularity: "day")',
     },
-    { kind: 'result', text: '41 paths · 6 down more than 20%' },
+    { kind: 'result', text: t('redesign.pages') },
     { kind: 'tool', name: 'betterlytics – list_errors', args: '(filters: [url in (6 paths)], timeRange: "90d")' },
-    { kind: 'result', text: '1 group · TypeError · first seen 12 Aug · 1,206 sessions' },
-    {
-      kind: 'answer',
-      text: '/pricing is down 34%. A TypeError in the plan selector shipped the same day — 1,206 sessions hit it.',
-    },
+    { kind: 'result', text: t('redesign.errors') },
+    { kind: 'answer', text: t('redesign.answer') },
   ],
   [
-    { kind: 'question', text: "did last night's checkout outage cost us sales?" },
+    { kind: 'question', text: t('outage.question') },
     { kind: 'working', ms: 900 },
-    { kind: 'say', text: "I'll find the incident, then line purchases up against it hour by hour." },
+    { kind: 'say', text: t('outage.say') },
     {
       kind: 'tool',
       name: 'betterlytics – list_monitor_incidents',
       args: '(monitorId: "checkout", timeRange: "24h")',
     },
-    { kind: 'result', text: '1 incident · down 23:12–23:31 · resolved' },
+    { kind: 'result', text: t('outage.incident') },
     {
       kind: 'tool',
       name: 'betterlytics – query',
       args: '(metrics: ["custom_events"], filters: [custom_event_name = "purchase"], granularity: "hour", timeRange: "7d")',
     },
-    { kind: 'result', text: '23:00 → 6 purchases · same hour, previous 6 nights: 38 on average' },
-    {
-      kind: 'answer',
-      text: 'Yes. Checkout was down for 19 minutes, and that hour took 6 purchases against a usual 38 — about 32 sales lost.',
-    },
+    { kind: 'result', text: t('outage.purchases') },
+    { kind: 'answer', text: t('outage.answer') },
   ],
   [
-    { kind: 'question', text: 'which traffic source brings visitors who actually sign up?' },
+    { kind: 'question', text: t('sources.question') },
     { kind: 'working', ms: 900 },
-    { kind: 'say', text: "I'll pull visitors by source, then signups by source, and compare the rates." },
+    { kind: 'say', text: t('sources.say') },
     {
       kind: 'tool',
       name: 'betterlytics – query',
       args: '(metrics: ["visitors"], dimensions: ["referrer_source_name"], timeRange: "28d")',
     },
-    { kind: 'result', text: 'Google 18.2k · ChatGPT 2.1k · Hacker News 1.4k' },
+    { kind: 'result', text: t('sources.visitors') },
     {
       kind: 'tool',
       name: 'betterlytics – query',
       args: '(metrics: ["custom_events"], dimensions: ["referrer_source_name"], filters: [custom_event_name = "signup"], timeRange: "28d")',
     },
-    { kind: 'result', text: 'Google 164 · ChatGPT 71 · Hacker News 9' },
-    {
-      kind: 'answer',
-      text: 'ChatGPT sends a ninth of the visitors Google does, but 3.4% of them sign up against 0.9% — nearly four times the rate.',
-    },
+    { kind: 'result', text: t('sources.signups') },
+    { kind: 'answer', text: t('sources.answer') },
   ],
 ];
 
@@ -134,8 +124,6 @@ function toTimeline(script: Step[]): Timeline {
   }
   return { cues, done: t, out: t + PACE.read, end: t + PACE.read + PACE.fade };
 }
-
-const TIMELINES = SCRIPTS.map(toTimeline);
 
 const readout = (seconds: number) =>
   `(${seconds}s · ↓ ${(0.4 + seconds * 0.32).toFixed(1)}k tokens · esc to interrupt)`;
@@ -220,6 +208,9 @@ export function AgentTranscript({ className }: { className?: string }) {
   const onScreen = useInView(ref, 'onScreen');
   const reduce = useReducedMotion();
   const live = onScreen && !reduce;
+  const t = useTranslations('landing.illustrations.transcript');
+  const scripts = useMemo(() => buildScripts(t), [t]);
+  const timelines = useMemo(() => scripts.map(toTimeline), [scripts]);
   const [script, setScript] = useState(0);
   /** ms into the current script, kept across pauses */
   const elapsed = useRef(0);
@@ -227,7 +218,7 @@ export function AgentTranscript({ className }: { className?: string }) {
   useEffect(() => {
     const body = bodyRef.current;
     if (!live || !body) return;
-    const timeline = TIMELINES[script];
+    const timeline = timelines[script];
     let raf = 0;
     let last: number | undefined;
     const frame = (now: number) => {
@@ -236,7 +227,7 @@ export function AgentTranscript({ className }: { className?: string }) {
       last = now;
       if (elapsed.current >= timeline.end) {
         elapsed.current = 0;
-        setScript((s) => (s + 1) % SCRIPTS.length);
+        setScript((s) => (s + 1) % timelines.length);
         return;
       }
       stage(body, timeline, elapsed.current);
@@ -244,7 +235,7 @@ export function AgentTranscript({ className }: { className?: string }) {
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [live, script]);
+  }, [live, script, timelines]);
 
   return (
     <div
@@ -253,7 +244,7 @@ export function AgentTranscript({ className }: { className?: string }) {
       style={FLARE_FIELD}
       data-live={live || undefined}
       role='img'
-      aria-label={COPY.illustrations.transcript}
+      aria-label={t('alt')}
     >
       <FlareShimmer className={styles.shimmer} live={live} />
       {/* role='img' alone doesn't hide inner text from every screen reader */}
@@ -269,7 +260,7 @@ export function AgentTranscript({ className }: { className?: string }) {
       </div>
       <div className={styles.screen}>
         {/* hidden finished copies hold the tallest script's height on phones, so printing never shifts the page */}
-        {SCRIPTS.map((steps, s) => (
+        {scripts.map((steps, s) => (
           <div key={s} className={cn(styles.body, styles.reserve)} aria-hidden>
             {steps.map((step, i) => (
               <Line key={i} step={step} />
@@ -279,7 +270,7 @@ export function AgentTranscript({ className }: { className?: string }) {
         <div ref={bodyRef} className={styles.body} aria-hidden>
           {/* keyed so no line keeps the last script's DOM state */}
           <Fragment key={script}>
-            {SCRIPTS[script].map((step, i) => (
+            {scripts[script].map((step, i) => (
               <Line key={i} step={step} />
             ))}
           </Fragment>

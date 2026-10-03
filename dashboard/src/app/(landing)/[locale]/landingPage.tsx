@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { LandingFooter } from '@/landing/components/footer/footer';
 import { Nav } from '@/landing/components/nav/nav';
 import { Band } from '@/landing/components/page/band';
@@ -11,11 +12,11 @@ import { NetworkSection } from '@/landing/components/sections/networkSection';
 import { PricingSection } from '@/landing/components/sections/pricingSection';
 import { TestimonialsSection } from '@/landing/components/sections/testimonialsSection';
 import { BrandMarkDefs } from '@/landing/components/ui/brandMark';
-import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 
 export function LandingPage() {
+  const t = useTranslations('landing.nav');
   return (
     // clips the 100vw bleed rules (100vw includes a classic scrollbar); not on body, whose
     // overflow passes to the viewport, which touch browsers still let the reader pan
@@ -25,7 +26,7 @@ export function LandingPage() {
         className='absolute -top-20 left-4 z-200 bg-fg px-4 py-2.5 text-label text-canvas transition-[top] duration-200 ease-out-expo focus:top-4'
         href={`#${IDS.main}`}
       >
-        {COPY.nav.skip}
+        {t('skip')}
       </a>
       <div
         className={cn(

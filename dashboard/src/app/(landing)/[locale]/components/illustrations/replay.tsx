@@ -2,15 +2,15 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { CursorGlyph } from '@/landing/components/ui/cursorGlyph';
 import { LiftSwap } from '@/landing/components/ui/liftSwap';
-import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './replay.module.css';
 
-/* Mock product copy, kept literal on purpose. */
+/* Acme's page and the event details are mock data, kept literal on purpose; the product's own labels are translated. */
 
 /** Every keyframe loop in replay.module.css runs on this. */
 const LOOP_MS = 11000;
@@ -19,14 +19,15 @@ const SESSION_S = 22;
 
 /** `at` is both the loop phase and the marker's track position; keyframes in replay.module.css follow it. */
 const BEATS = [
-  { at: 0, kind: 'Page view', detail: '/pricing' },
-  { at: 0.36, kind: 'Click', detail: 'Choose Pro' },
+  { at: 0, kind: 'pageView', detail: '/pricing' },
+  { at: 0.36, kind: 'click', detail: 'Choose Pro' },
   { at: 0.43, kind: 'TypeError', detail: "reading 'plan'", bad: true, flare: true },
-  { at: 0.59, kind: 'Rage click', detail: '4× on Choose Pro', bad: true },
-  { at: 0.86, kind: 'Page exit', detail: '/pricing' },
+  { at: 0.59, kind: 'rageClick', detail: 'Choose Pro', bad: true },
+  { at: 0.86, kind: 'pageExit', detail: '/pricing' },
 ] as const;
 /** Reduced-motion still; its frame is set in replay.module.css. */
 const STILL_BEAT = 3;
+const RAGE_CLICKS = 4;
 
 function beatAt(phase: number) {
   let i = 0;
@@ -94,6 +95,7 @@ function PricingPage() {
 
 /** The bar reads the scrub animation's own clock each frame, so it never drifts from the CSS loop. */
 export function Replay({ entered, live }: IllustrationProps) {
+  const t = useTranslations('landing.illustrations.replay');
   const reduce = useReducedMotion();
   const fillRef = useRef<HTMLElement>(null);
   const timeRef = useRef<HTMLSpanElement>(null);
@@ -143,9 +145,9 @@ export function Replay({ entered, live }: IllustrationProps) {
       style={vars({ '--loop': `${LOOP_MS}ms` })}
     >
       {/* not role='img', so the pause button stays reachable */}
-      <p className='sr-only'>{COPY.illustrations.replay}</p>
+      <p className='sr-only'>{t('alt')}</p>
       <div className={styles.header} aria-hidden>
-        <b>Session replay</b>
+        <b>{t('title')}</b>
         <span>acme.com/pricing</span>
       </div>
       <div className={styles.viewport} aria-hidden>
@@ -155,8 +157,8 @@ export function Replay({ entered, live }: IllustrationProps) {
         <span className={styles.cursor}>
           <CursorGlyph />
           <span className={styles.tag}>
-            <span>Click captured</span>
-            <span>4× rage clicks</span>
+            <span>{t('clickCaptured')}</span>
+            <span>{t('rageClicks', { count: RAGE_CLICKS })}</span>
           </span>
         </span>
       </div>
@@ -164,8 +166,10 @@ export function Replay({ entered, live }: IllustrationProps) {
         <p className={styles.event} aria-hidden>
           <LiftSwap as='span' className='block' id={String(shown)}>
             <i data-bad={'bad' in event || undefined} />
-            <b>{event.kind}</b>
-            {event.detail}
+            <b>{event.kind === 'TypeError' ? event.kind : t(event.kind)}</b>
+            {event.kind === 'rageClick'
+              ? t('rageDetail', { count: RAGE_CLICKS, target: event.detail })
+              : event.detail}
           </LiftSwap>
         </p>
         <span className={styles.track} aria-hidden>
@@ -187,7 +191,7 @@ export function Replay({ entered, live }: IllustrationProps) {
             className={styles.toggle}
             onClick={() => setPaused((p) => !p)}
             disabled={still}
-            aria-label={paused ? 'Play replay' : 'Pause replay'}
+            aria-label={paused ? t('play') : t('pause')}
           >
             <svg viewBox='2 1.5 8 9' aria-hidden>
               {paused ? (

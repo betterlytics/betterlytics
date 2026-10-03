@@ -1,14 +1,13 @@
+import { useTranslations } from 'next-intl';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Heading, Lede } from '@/landing/components/ui/text';
 import { TrackedAnchor, TrackedLink } from '@/landing/components/ui/trackedLink';
 import { VoltCard, VoltCardActions } from '@/landing/components/ui/voltCard';
-import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { LINKS } from '@/landing/lib/links';
 
-const copy = COPY.cta;
-
 export function CtaSection() {
+  const t = useTranslations('landing.cta');
   return (
     // phone hatch band mirrors the one in pricingSection
     <section
@@ -26,10 +25,10 @@ export function CtaSection() {
           id='cta-title'
           className='max-w-[20ch] text-on-volt max-sm:text-[2.5rem] max-sm:leading-10 max-sm:font-semibold max-sm:tracking-[-0.0625rem]'
         >
-          {copy.title}
+          {t('title')}
         </Heading>
         <Lede className='mx-auto -mt-2 max-w-[600px] text-on-volt opacity-84 max-sm:mt-1 max-sm:opacity-100'>
-          {copy.lede}
+          {t('lede')}
         </Lede>
         <VoltCardActions>
           <TrackedLink
@@ -38,7 +37,7 @@ export function CtaSection() {
             placement='cta'
             destination='signup'
           >
-            {copy.primary}
+            {t('primary')}
           </TrackedLink>
           <TrackedAnchor
             className={buttonStyles({ variant: 'onVolt', size: 'lg' })}
@@ -46,7 +45,7 @@ export function CtaSection() {
             placement='cta'
             destination='docs'
           >
-            {copy.secondary}
+            {t('secondary')}
           </TrackedAnchor>
         </VoltCardActions>
       </VoltCard>

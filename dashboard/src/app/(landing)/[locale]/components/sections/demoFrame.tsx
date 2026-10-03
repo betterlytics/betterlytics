@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { LoadingMark } from '@/landing/components/ui/brandMark';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
 import { useInView } from '@/landing/hooks/useInView';
-import { COPY } from '@/landing/content/copy';
 import { track } from '@/landing/lib/analytics';
 import styles from './demoFrame.module.css';
 
-const copy = COPY.demo;
 /** Cap on waiting for the page's load event, which a hung request elsewhere can stall. */
 const LOAD_WAIT_MS = 3000;
 /** After this, the loader gives way to a link to the full demo. */
@@ -47,6 +46,7 @@ function whenPageSettles(start: () => void) {
 
 /** Click-to-activate dashboard embed; the scrim stops the iframe swallowing page scroll. */
 export function DemoFrame({ src }: { src: string }) {
+  const t = useTranslations('landing.demo');
   const [requested, setRequested] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [active, setActive] = useState(false);
@@ -87,14 +87,14 @@ export function DemoFrame({ src }: { src: string }) {
               placement='demo'
               destination='demo'
             >
-              {copy.stalled}
+              {t('stalled')}
               <ArrowUpRight className='ml-1 inline size-3.5 align-[-2px]' aria-hidden />
-              <span className='sr-only'> {copy.newTab}</span>
+              <span className='sr-only'> {t('newTab')}</span>
             </TrackedLink>
           ) : (
             <>
               <LoadingMark className='size-12 text-muted' />
-              <p className='sr-only'>{copy.loading}</p>
+              <p className='sr-only'>{t('loading')}</p>
             </>
           )}
         </div>
@@ -105,7 +105,7 @@ export function DemoFrame({ src }: { src: string }) {
           ref={frame}
           className='absolute top-0 left-0 size-[calc(100%/var(--demo-scale))] origin-top-left scale-(--demo-scale)'
           src={src}
-          title={copy.frameTitle}
+          title={t('frameTitle')}
           allowFullScreen
           sandbox='allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox'
           referrerPolicy='no-referrer'
@@ -117,7 +117,7 @@ export function DemoFrame({ src }: { src: string }) {
         <button
           type='button'
           className={styles.scrim}
-          aria-label={copy.activateAria}
+          aria-label={t('activateAria')}
           disabled={active}
           onClick={() => {
             setActive(true);
@@ -126,7 +126,7 @@ export function DemoFrame({ src }: { src: string }) {
           }}
         >
           <span className={styles.line} aria-hidden>
-            {copy.activateLine}
+            {t('activateLine')}
           </span>
         </button>
       )}

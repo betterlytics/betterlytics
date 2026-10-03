@@ -1,5 +1,8 @@
-/** A leading `+` marks a line the reader adds (lit; the rest dims). `logo` is a file in public/framework-logos. */
-type Snippet = { id: string; name: string; file?: string; logo?: string; bundled?: boolean; code: string };
+/**
+ * A leading `+` marks a line the reader adds (lit; the rest dims). `logo` is a file in public/framework-logos.
+ * Without `name`, the tab reads the translated `landing.network.packageTab`.
+ */
+type Snippet = { id: string; name?: string; file?: string; logo?: string; bundled?: boolean; code: string };
 
 const SRC = 'https://betterlytics.io/analytics.js';
 
@@ -87,7 +90,6 @@ export default function RootLayout({ children }) {
   },
   {
     id: 'package',
-    name: 'Package',
     bundled: true,
     code: `+npm install @betterlytics/tracker
 # or: pnpm add · yarn add · bun add

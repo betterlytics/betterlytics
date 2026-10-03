@@ -3,31 +3,32 @@
 import { useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from 'react';
 import createGlobe, { type COBEOptions, type Globe } from 'cobe';
 import { useReducedMotion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { Corners } from '@/landing/components/ui/frame';
 import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import styles from './globe.module.css';
 
-/* Mock data, kept literal on purpose. */
+/* Mock data, kept literal on purpose, but for the generic sources (`direct`, `newsletter`), which are translated. */
 const ARRIVALS = [
-  { id: 'cph', city: 'Copenhagen, DK', via: 'via ChatGPT', lat: 55.7, lng: 12.6 },
-  { id: 'nyc', city: 'New York, US', via: 'via Google', lat: 40.7, lng: -74.0 },
-  { id: 'blr', city: 'Bengaluru, IN', via: 'via Reddit', lat: 13.0, lng: 77.6 },
-  { id: 'lon', city: 'London, GB', via: 'via Google', lat: 51.5, lng: -0.1 },
-  { id: 'tyo', city: 'Tokyo, JP', via: 'via Perplexity', lat: 35.7, lng: 139.7 },
-  { id: 'sao', city: 'São Paulo, BR', via: 'via Direct', lat: -23.5, lng: -46.6 },
-  { id: 'syd', city: 'Sydney, AU', via: 'via LinkedIn', lat: -33.9, lng: 151.2 },
-  { id: 'ber', city: 'Berlin, DE', via: 'via Google', lat: 52.5, lng: 13.4 },
-  { id: 'yto', city: 'Toronto, CA', via: 'via Newsletter', lat: 43.7, lng: -79.4 },
-  { id: 'ams', city: 'Amsterdam, NL', via: 'via Hacker News', lat: 52.4, lng: 4.9 },
-  { id: 'sin', city: 'Singapore', via: 'via Direct', lat: 1.35, lng: 103.8 },
-  { id: 'sfo', city: 'San Francisco, US', via: 'via Claude', lat: 37.8, lng: -122.4 },
-  { id: 'par', city: 'Paris, FR', via: 'via Google', lat: 48.9, lng: 2.35 },
-  { id: 'los', city: 'Lagos, NG', via: 'via X', lat: 6.5, lng: 3.4 },
-  { id: 'mex', city: 'Mexico City, MX', via: 'via Google', lat: 19.4, lng: -99.1 },
-  { id: 'waw', city: 'Warsaw, PL', via: 'via GitHub', lat: 52.2, lng: 21.0 },
-  { id: 'sel', city: 'Seoul, KR', via: 'via Naver', lat: 37.6, lng: 127.0 },
-  { id: 'cpt', city: 'Cape Town, ZA', via: 'via Direct', lat: -33.9, lng: 18.4 },
+  { id: 'cph', city: 'Copenhagen, DK', source: 'ChatGPT', lat: 55.7, lng: 12.6 },
+  { id: 'nyc', city: 'New York, US', source: 'Google', lat: 40.7, lng: -74.0 },
+  { id: 'blr', city: 'Bengaluru, IN', source: 'Reddit', lat: 13.0, lng: 77.6 },
+  { id: 'lon', city: 'London, GB', source: 'Google', lat: 51.5, lng: -0.1 },
+  { id: 'tyo', city: 'Tokyo, JP', source: 'Perplexity', lat: 35.7, lng: 139.7 },
+  { id: 'sao', city: 'São Paulo, BR', source: 'direct', lat: -23.5, lng: -46.6 },
+  { id: 'syd', city: 'Sydney, AU', source: 'LinkedIn', lat: -33.9, lng: 151.2 },
+  { id: 'ber', city: 'Berlin, DE', source: 'Google', lat: 52.5, lng: 13.4 },
+  { id: 'yto', city: 'Toronto, CA', source: 'newsletter', lat: 43.7, lng: -79.4 },
+  { id: 'ams', city: 'Amsterdam, NL', source: 'Hacker News', lat: 52.4, lng: 4.9 },
+  { id: 'sin', city: 'Singapore', source: 'direct', lat: 1.35, lng: 103.8 },
+  { id: 'sfo', city: 'San Francisco, US', source: 'Claude', lat: 37.8, lng: -122.4 },
+  { id: 'par', city: 'Paris, FR', source: 'Google', lat: 48.9, lng: 2.35 },
+  { id: 'los', city: 'Lagos, NG', source: 'X', lat: 6.5, lng: 3.4 },
+  { id: 'mex', city: 'Mexico City, MX', source: 'Google', lat: 19.4, lng: -99.1 },
+  { id: 'waw', city: 'Warsaw, PL', source: 'GitHub', lat: 52.2, lng: 21.0 },
+  { id: 'sel', city: 'Seoul, KR', source: 'Naver', lat: 37.6, lng: 127.0 },
+  { id: 'cpt', city: 'Cape Town, ZA', source: 'direct', lat: -33.9, lng: 18.4 },
 ] as const;
 
 type Arrival = (typeof ARRIVALS)[number];
@@ -306,6 +307,7 @@ function createGlobes(nearLayer: HTMLElement, farLayer: HTMLElement, dpr: number
 
 /** Without WebGL it falls back to a still graticule. */
 export function GlobeScene() {
+  const t = useTranslations('landing.illustrations.globe');
   const sceneRef = useRef<HTMLDivElement>(null);
   const hostRef = useRef<HTMLDivElement>(null);
   const farRef = useRef<HTMLDivElement>(null);
@@ -526,7 +528,12 @@ export function GlobeScene() {
           className='[--corner-edge:var(--color-volt-lift)] [--corner-fill:var(--color-canvas)]'
         />
         <b className='block font-normal text-fg'>{active.city}</b>
-        <span className='block text-caption text-volt-soft'>{active.via}</span>
+        <span className='block text-caption text-volt-soft'>
+          {t('via', {
+            source:
+              active.source === 'direct' || active.source === 'newsletter' ? t(active.source) : active.source,
+          })}
+        </span>
       </div>
     </div>
   );

@@ -3,11 +3,11 @@
 import { memo, useEffect, useState } from 'react';
 import NumberFlow, { NumberFlowGroup } from '@number-flow/react';
 import { useReducedMotion } from 'motion/react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Gauge, getGaugeBox } from '@/components/gauge';
 import { MOCK_CORE_WEB_VITAL_VALUES } from '@/constants/coreWebVitals';
 import type { CoreWebVitalName } from '@/entities/analytics/webVitals.entities';
 import { getCoreWebVitalGaugeProps, getCoreWebVitalIntlFormat, getCoreWebVitalLevel } from '@/utils/coreWebVitals';
-import { COPY, COPY_LOCALE } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
@@ -32,9 +32,9 @@ const ROWS: ReadonlyArray<ReadonlyArray<{ key: CoreWebVitalName; intervalMs: num
 ];
 
 const LEGEND = [
-  { label: 'Good', swatch: 'bg-(--cwv-threshold-good)' },
-  { label: 'Needs work', swatch: 'bg-(--cwv-threshold-fair)' },
-  { label: 'Poor', swatch: 'bg-(--cwv-threshold-poor)' },
+  { key: 'good', swatch: 'bg-(--cwv-threshold-good)' },
+  { key: 'needsWork', swatch: 'bg-(--cwv-threshold-fair)' },
+  { key: 'poor', swatch: 'bg-(--cwv-threshold-poor)' },
 ] as const;
 
 const MetricGauge = memo(function MetricGauge({
@@ -47,6 +47,7 @@ const MetricGauge = memo(function MetricGauge({
   drawn: boolean;
 }) {
   const { segments, progress } = getCoreWebVitalGaugeProps(metric, value);
+  const locale = useLocale();
   const format = getCoreWebVitalIntlFormat(metric, value);
   return (
     <div className={styles.slot}>
@@ -62,7 +63,7 @@ const MetricGauge = memo(function MetricGauge({
         <div className='absolute inset-x-0 bottom-[20%] flex flex-col items-center'>
           <span className='-mb-0.5 text-[10.5px] font-semibold tracking-[0.12em] text-muted'>{metric}</span>
           <span className={styles.value} data-level={getCoreWebVitalLevel(metric, value)}>
-            <NumberFlow value={format.value} format={format.format} locales={COPY_LOCALE} willChange />
+            <NumberFlow value={format.value} format={format.format} locales={locale} willChange />
             {format.suffix && <span key={format.suffix}>{format.suffix}</span>}
           </span>
         </div>
@@ -98,6 +99,7 @@ function CyclingGauge({
 }
 
 export function Vitals({ entered, live }: IllustrationProps) {
+  const t = useTranslations('landing.illustrations.vitals');
   return (
     <div
       className={cn(
@@ -106,7 +108,7 @@ export function Vitals({ entered, live }: IllustrationProps) {
       )}
       style={vars({ '--box-w': `${BOX.width}px`, '--box-h': `${BOX.height}px` })}
       role='img'
-      aria-label={COPY.illustrations.vitals}
+      aria-label={t('alt')}
     >
       <NumberFlowGroup>
         {ROWS.map((row, r) => (
@@ -125,10 +127,10 @@ export function Vitals({ entered, live }: IllustrationProps) {
         ))}
       </NumberFlowGroup>
       <div className='mt-3.5 flex justify-center gap-7 text-code text-muted' aria-hidden>
-        {LEGEND.map(({ label, swatch }) => (
-          <span key={label} className='inline-flex items-center gap-[7px]'>
+        {LEGEND.map(({ key, swatch }) => (
+          <span key={key} className='inline-flex items-center gap-[7px]'>
             <span className={cn('size-2 flex-none rounded-full', swatch)} />
-            {label}
+            {t(key)}
           </span>
         ))}
       </div>

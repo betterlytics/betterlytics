@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { Emphasis } from '@/landing/components/ui/emphasis';
 import { Panel, Section } from '@/landing/components/ui/frame';
 import { Reveal } from '@/landing/components/ui/reveal';
@@ -6,7 +7,8 @@ import { QUOTE } from '@/landing/content/testimonials';
 import { IDS } from '@/landing/lib/ids';
 
 export function TestimonialsSection() {
-  const { text, name, role, photo, company, logo } = QUOTE;
+  const t = useTranslations('landing.quote');
+  const { name, photo, company, logo } = QUOTE;
   return (
     <Section id={IDS.quotes} className='pt-0'>
       {/* shares the network panel's bottom rule and corners, so it draws no top edge of its own */}
@@ -18,7 +20,7 @@ export function TestimonialsSection() {
         <figure className='mx-auto flex max-w-[54rem] flex-col items-center gap-10 px-[30px] py-38 text-center max-sm:items-start max-sm:gap-8 max-sm:px-0 max-sm:py-16 max-sm:text-left'>
           <Reveal>
             <blockquote className='text-[2rem] leading-[1.28] font-medium tracking-[-0.03em] text-balance max-lg:text-[1.625rem] max-sm:text-[1.3125rem]'>
-              “<Emphasis text={text} as='b' className='font-medium text-volt-soft' />”
+              “<Emphasis text={t('text')} as='b' className='font-medium text-volt-soft' />”
             </blockquote>
           </Reveal>
           <figcaption>
@@ -33,7 +35,7 @@ export function TestimonialsSection() {
               />
               <span className='-ml-1.5 text-left'>
                 <b className='block text-label font-medium'>{name}</b>
-                <span className='text-code text-muted'>{role}</span>
+                <span className='text-code text-muted'>{t('role')}</span>
               </span>
               <span className='h-9 w-px bg-rule-22' aria-hidden />
               <Image

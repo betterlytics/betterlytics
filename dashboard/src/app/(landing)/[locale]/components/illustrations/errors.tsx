@@ -1,14 +1,14 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { AlertTriangle, Eye, MousePointerClick, type LucideIcon } from 'lucide-react';
 import Image from 'next/image';
-import { COPY } from '@/landing/content/copy';
+import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './errors.module.css';
 import type { IllustrationProps } from './types';
 import { FLAGS } from './flags';
 
-/* Illustration copy is mock product UI, kept literal on purpose. */
+/* Errors, pages and events are mock data, kept literal on purpose; the product's own labels are translated. */
 
 type Frame = { line: number; fn: string; file: string; col: number; lib?: boolean };
 type Step = { at: string; label: string };
@@ -65,20 +65,26 @@ const FIRING: Group = {
 };
 
 /** The Apple mark is Simple Icons', as the product draws it on dark. */
-const WHO = (
-  <span className='inline-flex h-[15px] items-center gap-1.5 text-fg'>
-    <Image src='/browser-icons/safari.svg' alt='Safari' width={13} height={13} />
-    {/* larger box and a half-pixel lift so the Apple mark optically matches Safari's round logo */}
-    <svg className='-my-px size-[15px] -translate-y-[0.5px]' viewBox='0 0 24 24' role='img' aria-label='macOS'>
-      <path
-        d='M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701'
-        fill='currentColor'
+function Who() {
+  const locale = useLocale();
+  return (
+    <span className='inline-flex h-[15px] items-center gap-1.5 text-fg'>
+      <Image src='/browser-icons/safari.svg' alt='Safari' width={13} height={13} />
+      {/* larger box and a half-pixel lift so the Apple mark optically matches Safari's round logo */}
+      <svg className='-my-px size-[15px] -translate-y-[0.5px]' viewBox='0 0 24 24' role='img' aria-label='macOS'>
+        <path
+          d='M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701'
+          fill='currentColor'
+        />
+      </svg>
+      {/* 3:2 at 9px tall, to weigh the same as the logos */}
+      <FLAGS.DK
+        className='h-[9px] w-[13.5px] rounded-[1.5px] ring-1 ring-white/8'
+        title={new Intl.DisplayNames([locale], { type: 'region' }).of('DK')}
       />
-    </svg>
-    {/* 3:2 at 9px tall, to weigh the same as the logos */}
-    <FLAGS.DK className='h-[9px] w-[13.5px] rounded-[1.5px] ring-1 ring-white/8' title='Denmark' />
-  </span>
-);
+    </span>
+  );
+}
 
 const WARN_ICON = (
   <svg viewBox='0 0 20 20' fill='none' aria-hidden>
@@ -147,6 +153,7 @@ function Card({
   side: ReactNode;
   className?: string;
 }) {
+  const t = useTranslations('landing.illustrations.errors');
   const [page, event] = group.trail;
   return (
     <div
@@ -184,7 +191,7 @@ function Card({
                 </span>
                 {!frame.lib && (
                   <span className='rounded-[5px] border border-fg/10 bg-fg/6 px-[7px] py-px font-sans text-[10px]'>
-                    in app
+                    {t('inApp')}
                   </span>
                 )}
               </li>
@@ -197,12 +204,15 @@ function Card({
 }
 
 export function Errors({ entered }: IllustrationProps) {
+  const t = useTranslations('landing.illustrations.errors');
+  const locale = useLocale();
+  const count = new Intl.NumberFormat(locale);
   return (
     <div
       className={cn(styles.root, 'absolute inset-0 grid place-items-center')}
       data-in={entered || undefined}
       role='img'
-      aria-label={COPY.illustrations.errors}
+      aria-label={t('alt')}
     >
       <div className={styles.stack} aria-hidden>
         <Card
@@ -211,8 +221,8 @@ export function Errors({ entered }: IllustrationProps) {
           resolved
           side={
             <>
-              <span>Resolved</span>
-              <small>in v2.14.0</small>
+              <span>{t('resolved')}</span>
+              <small>{t('inVersion', { version: 'v2.14.0' })}</small>
             </>
           }
         />
@@ -223,9 +233,10 @@ export function Errors({ entered }: IllustrationProps) {
           side={
             <>
               <span>
-                84<small>events</small>
+                {count.format(84)}
+                <small>{t('events')}</small>
               </span>
-              <small>3h ago</small>
+              <small>{t('hoursAgo', { count: 3 })}</small>
             </>
           }
         />
@@ -235,9 +246,10 @@ export function Errors({ entered }: IllustrationProps) {
           side={
             <>
               <span>
-                1,206<small>events</small>
+                {count.format(1206)}
+                <small>{t('events')}</small>
               </span>
-              {WHO}
+              <Who />
             </>
           }
         />

@@ -1,15 +1,23 @@
 import type { ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { getCompetitorData } from '@/app/(app)/[locale]/(public)/vs/[competitor]/config';
 import { Link } from '@/i18n/navigation';
 import { BlueskyIcon, DiscordIcon, GitHubIcon } from '@/components/icons/SocialIcons';
 import { BrandLink } from '@/landing/components/ui/brandMark';
-import { COPY } from '@/landing/content/copy';
 import { LINKS } from '@/landing/lib/links';
 
-const copy = COPY.footer;
+/* slugs without a /vs page are dropped */
+const COMPARE = [
+  { slug: 'google-analytics', name: 'Google Analytics' },
+  { slug: 'matomo', name: 'Matomo' },
+  { slug: 'plausible', name: 'Plausible' },
+  { slug: 'posthog', name: 'PostHog' },
+  { slug: 'fathom-analytics', name: 'Fathom Analytics' },
+  { slug: 'umami', name: 'Umami' },
+];
 
 /** Skip competitors without a comparison page, so no link 404s. */
-const COMPARISONS = copy.compare.filter(({ slug }) => getCompetitorData(slug) !== undefined);
+const COMPARISONS = COMPARE.filter(({ slug }) => getCompetitorData(slug) !== undefined);
 
 const LINK =
   'flex w-fit items-center gap-[9px] py-2 text-body-sm leading-4 tracking-ui text-fg transition-opacity duration-180 ease-out-expo hover:opacity-80 max-sm:py-1 max-sm:text-body';
@@ -31,102 +39,103 @@ function Column({ id, title, children }: { id: string; title: string; children: 
 
 /** Same destinations as the site's shared footer. */
 export function LandingFooter() {
+  const t = useTranslations('landing.footer');
   return (
     <footer className='relative px-[calc(var(--inset)+12px)] pt-28 pb-8 max-sm:px-(--inset)'>
       <div className='flex min-h-[300px] gap-6 max-2xl:flex-wrap'>
         <div className='w-[420px] flex-none max-2xl:w-full'>
           <BrandLink />
-          <p className='my-5 max-w-[34ch] text-body leading-[23px] text-muted'>{copy.tagline}</p>
+          <p className='my-5 max-w-[34ch] text-body leading-[23px] text-muted'>{t('tagline')}</p>
         </div>
         <nav
-          aria-label={copy.nav}
+          aria-label={t('nav')}
           className='flex flex-1 gap-6 max-2xl:basis-full max-2xl:flex-wrap max-sm:gap-y-13'
         >
-          <Column id='footer-company' title={copy.columns.company}>
+          <Column id='footer-company' title={t('columns.company')}>
             <li>
               <Link className={LINK} href='/about'>
-                {copy.company.about}
+                {t('company.about')}
               </Link>
             </li>
             <li>
               <Link className={LINK} href='/contact'>
-                {copy.company.contact}
+                {t('company.contact')}
               </Link>
             </li>
             <li>
               <Link className={LINK} href='/privacy'>
-                {copy.company.privacy}
+                {t('company.privacy')}
               </Link>
             </li>
             <li>
               <Link className={LINK} href='/terms'>
-                {copy.company.terms}
+                {t('company.terms')}
               </Link>
             </li>
             <li>
               <Link className={LINK} href='/dpa'>
-                {copy.company.dpa}
+                {t('company.dpa')}
               </Link>
             </li>
             <li>
               <Link className={LINK} href='/subprocessors'>
-                {copy.company.subprocessors}
+                {t('company.subprocessors')}
               </Link>
             </li>
           </Column>
-          <Column id='footer-resources' title={copy.columns.resources}>
+          <Column id='footer-resources' title={t('columns.resources')}>
             <li>
               <a className={LINK} href={LINKS.docs}>
-                {copy.resources.docs}
+                {t('resources.docs')}
               </a>
             </li>
             <li>
               <Link className={LINK} href='/changelog'>
-                {copy.resources.changelog}
+                {t('resources.changelog')}
               </Link>
             </li>
             <li>
               <Link className={LINK} href='/features'>
-                {copy.resources.features}
+                {t('resources.features')}
               </Link>
             </li>
             <li>
               <Link className={LINK} href='/pricing'>
-                {copy.resources.pricing}
+                {t('resources.pricing')}
               </Link>
             </li>
             <li>
               <a className={LINK} href={LINKS.status}>
-                {copy.resources.status}
+                {t('resources.status')}
               </a>
             </li>
           </Column>
-          <Column id='footer-compare' title={copy.columns.compare}>
+          <Column id='footer-compare' title={t('columns.compare')}>
             {COMPARISONS.map(({ slug, name }) => (
               <li key={slug}>
                 <Link className={LINK} href={`/vs/${slug}`}>
-                  {copy.compareLink(name)}
+                  {t('compareLink', { name })}
                 </Link>
               </li>
             ))}
           </Column>
-          <Column id='footer-connect' title={copy.columns.connect}>
+          <Column id='footer-connect' title={t('columns.connect')}>
             <li>
               <a className={LINK} href={LINKS.github} target='_blank' rel='noopener noreferrer'>
                 <GitHubIcon className={SOCIAL_ICON} />
-                {copy.connect.github}
+                GitHub
               </a>
             </li>
             <li>
               <a className={LINK} href={LINKS.bluesky} target='_blank' rel='noopener noreferrer'>
                 <BlueskyIcon className={SOCIAL_ICON} />
-                {copy.connect.bluesky}
+                Bluesky
               </a>
             </li>
             <li>
               <a className={LINK} href={LINKS.discord} target='_blank' rel='noopener noreferrer'>
                 <DiscordIcon className={SOCIAL_ICON} />
-                {copy.connect.discord}
+                Discord
               </a>
             </li>
           </Column>
@@ -134,18 +143,22 @@ export function LandingFooter() {
       </div>
       <div className='relative mt-14 flex flex-wrap items-center justify-between gap-6 pt-8 text-caption text-muted before:bleed-rule before:top-0 before:bg-rule-10'>
         <span>
-          {copy.copyright(new Date().getFullYear())} {copy.license.lead}{' '}
-          <a className={FINE_LINK} href={LINKS.license}>
-            {copy.license.name}
-          </a>{' '}
-          {copy.license.tail}
+          {/* a string year, or ICU groups it as 2,026 */}
+          {t('copyright', { year: String(new Date().getFullYear()) })}{' '}
+          {t.rich('license', {
+            link: (name) => (
+              <a className={FINE_LINK} href={LINKS.license}>
+                {name}
+              </a>
+            ),
+          })}
         </span>
         {/* first on phones so the copyright stays the page's last line */}
         <a
           className='transition-colors duration-180 ease-out-expo hover:text-fg max-sm:order-first'
           href={LINKS.securityPolicy}
         >
-          {copy.reportVulnerability}
+          {t('reportVulnerability')}
         </a>
       </div>
     </footer>

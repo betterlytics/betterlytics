@@ -8,7 +8,6 @@ import { StructuredData } from '@/components/StructuredData';
 import { AppTrackingScript } from '@/components/tracking/AppTrackingScript';
 import { GlobalPropertiesUpdater } from '@/components/tracking/GlobalPropertiesUpdater';
 import { routing } from '@/i18n/routing';
-import { COPY_LOCALE } from '@/landing/content/copy';
 import { env } from '@/lib/env';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import { LandingProviders } from './providers';
@@ -53,16 +52,22 @@ export default async function LandingLayout({
   setRequestLocale(locale);
 
   const [messages, seoConfig] = await Promise.all([getMessages(), buildSEOConfig(SEO_CONFIGS.root)]);
+  const { nav, demo, journey, network, pricing, illustrations } = messages.landing;
 
   return (
-    <html lang={COPY_LOCALE} className={`${sans.variable} ${mono.variable}`}>
+    <html lang={locale} className={`${sans.variable} ${mono.variable}`}>
       <head>
         <AppTrackingScript globalProperties={{ surface: 'app', locale }} />
         <StructuredData config={seoConfig} />
       </head>
       <body>
-        {/* only the plan features are translated so far */}
-        <NextIntlClientProvider messages={{ pricingCards: messages.pricingCards }}>
+        {/* only what client components read; server components' copy stays out of the payload */}
+        <NextIntlClientProvider
+          messages={{
+            pricingCards: messages.pricingCards,
+            landing: { nav, demo, journey, network, pricing, illustrations },
+          }}
+        >
           <LandingProviders>
             {env.ENABLE_APP_TRACKING && <GlobalPropertiesUpdater />}
             {children}

@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import { useId, useState, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { SCRAMBLE_STEP, Scramble } from '@/landing/components/ui/scramble';
-import { COPY } from '@/landing/content/copy';
 import { SNIPPETS } from '@/landing/content/snippets';
 import { cn } from '@/landing/lib/cn';
 import { rovingTabKeys } from '@/landing/lib/rovingTabs';
@@ -100,6 +100,7 @@ function BoxIcon() {
 
 /** Frame chrome matches AgentTranscript's. */
 export function SnippetPanel() {
+  const t = useTranslations('landing.network');
   const id = useId();
   const [active, setActive] = useState(0);
   const current = SNIPPETS[active];
@@ -117,7 +118,7 @@ export function SnippetPanel() {
       >
         <div
           role='tablist'
-          aria-label={COPY.network.snippetLabel}
+          aria-label={t('snippetLabel')}
           className='flex gap-0.5'
           onKeyDown={rovingTabKeys(active, SNIPPETS.length, setActive)}
         >
@@ -149,7 +150,7 @@ export function SnippetPanel() {
               ) : (
                 <BoxIcon />
               )}
-              {snippet.name}
+              {snippet.name ?? t('packageTab')}
             </button>
           ))}
         </div>

@@ -1,3 +1,4 @@
+import { useTranslations } from 'next-intl';
 import { AgentTranscript } from '@/landing/components/illustrations/agentTranscript';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel, Section } from '@/landing/components/ui/frame';
@@ -5,27 +6,26 @@ import { PathIcon } from '@/landing/components/ui/pathIcon';
 import { SpotlightList } from '@/landing/components/ui/spotlightList';
 import { Heading, Label } from '@/landing/components/ui/text';
 import { TrackedAnchor } from '@/landing/components/ui/trackedLink';
-import { COPY } from '@/landing/content/copy';
 import { MCP_CLIENTS } from '@/landing/content/mcpClients';
 import { IDS } from '@/landing/lib/ids';
 import { LINKS } from '@/landing/lib/links';
 import styles from './mcpSection.module.css';
 
-const copy = COPY.mcp;
 const WORKS_WITH_ID = 'mcp-works-with';
 
 export function McpSection() {
+  const t = useTranslations('landing.mcp');
   return (
-    <Section id={IDS.mcp} title={copy.title} lede={copy.lede}>
+    <Section id={IDS.mcp} title={t('title')} lede={t('lede')}>
       <Panel flush framed>
         <div className='grid grid-cols-[1fr_1.15fr] grid-rows-[1fr_auto] max-lg:grid-cols-1 max-lg:grid-rows-none'>
           <div className='flex flex-col border-r border-rule-10 px-7.5 pt-8 transition-ink max-lg:border-r-0 max-lg:border-b max-lg:pb-8 max-sm:px-6'>
             <Heading as='h3' size='title' className='mb-2'>
-              {copy.lead}
+              {t('lead')}
             </Heading>
-            <p className='mb-6 text-body leading-[23px] text-muted'>{copy.body}</p>
+            <p className='mb-6 text-body leading-[23px] text-muted'>{t('body')}</p>
             <Label id={WORKS_WITH_ID} className='mb-4 block'>
-              {copy.worksWith}
+              {t('worksWith')}
             </Label>
             <SpotlightList
               aria-labelledby={WORKS_WITH_ID}
@@ -45,7 +45,7 @@ export function McpSection() {
                 </li>
               ))}
             </SpotlightList>
-            <p className='mt-7 text-caption leading-[19px] text-muted'>{copy.any}</p>
+            <p className='mt-7 text-caption leading-[19px] text-muted'>{t('any')}</p>
           </div>
           <AgentTranscript className='row-span-2 m-4.5 max-lg:row-span-1 max-lg:mt-0 max-sm:m-0 max-sm:rounded-none max-sm:border-0' />
           {/* hidden on phones: the client tiles already link to the same docs */}
@@ -56,7 +56,7 @@ export function McpSection() {
               placement='mcp'
               destination='mcp-docs'
             >
-              {copy.cta}
+              {t('cta')}
             </TrackedAnchor>
           </div>
         </div>

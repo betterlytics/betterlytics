@@ -1,11 +1,12 @@
+import { useTranslations } from 'next-intl';
 import { Emphasis } from '@/landing/components/ui/emphasis';
 import { Panel, Section } from '@/landing/components/ui/frame';
-import { COPY } from '@/landing/content/copy';
 import { CUSTOMERS } from '@/landing/content/customers';
 import { IDS } from '@/landing/lib/ids';
 import { LogoBoard } from './logoBoard';
 
 export function CustomersSection() {
+  const t = useTranslations('landing.customers');
   if (CUSTOMERS.length === 0) return null;
   return (
     <Section id={IDS.customers} className='pt-0'>
@@ -13,9 +14,7 @@ export function CustomersSection() {
       <Panel flush className='max-sm:before:hidden'>
         <LogoBoard
           pool={CUSTOMERS}
-          label={
-            <Emphasis text={COPY.customers.label} as='em' className='font-medium text-volt-text not-italic' />
-          }
+          label={<Emphasis text={t('label')} as='em' className='font-medium text-volt-text not-italic' />}
         />
       </Panel>
     </Section>

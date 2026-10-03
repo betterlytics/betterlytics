@@ -1,6 +1,7 @@
 'use client';
 
 import { Fragment, useEffect, useRef, useState, type ComponentType } from 'react';
+import { useTranslations } from 'next-intl';
 import { Errors } from '@/landing/components/illustrations/errors';
 import { Events } from '@/landing/components/illustrations/events';
 import { Globe } from '@/landing/components/illustrations/globe';
@@ -13,14 +14,13 @@ import { Corners, Section } from '@/landing/components/ui/frame';
 import { InkFrame } from '@/landing/components/ui/inkFrame';
 import { LIFT_STEP_S, LiftSwap } from '@/landing/components/ui/liftSwap';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
-import { COPY } from '@/landing/content/copy';
 import { JOURNEY_STEPS, type JourneyStep } from '@/landing/content/journey';
 import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import styles from './journeySection.module.css';
 
-const ILLUSTRATIONS: Record<JourneyStep['id'], ComponentType<IllustrationProps>> = {
+const ILLUSTRATIONS: Record<JourneyStep, ComponentType<IllustrationProps>> = {
   find: Globe,
   see: Traffic,
   do: Events,
@@ -60,8 +60,9 @@ function nearestToViewportCentre(cards: HTMLElement[]) {
 /** Visual duplicate of the active card's copy; aria-hidden since the cards carry it for screen readers. */
 function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const t = useTranslations('landing.journey.steps');
   const step = JOURNEY_STEPS[active];
-  const lines = step.title.split('\n');
+  const lines = t(`${step}.title`).split('\n');
 
   // Sticky top that centres the rail; re-measured per step since the copy changes its height.
   useEffect(() => {
@@ -100,11 +101,11 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
       <LiftSwap
         as='p'
         className={cn(NOTE, 'min-h-11')}
-        id={step.id}
+        id={step}
         direction={direction}
         delay={(lines.length + 1) * LIFT_STEP_S}
       >
-        {step.note}
+        {t(`${step}.note`)}
       </LiftSwap>
     </div>
   );
@@ -114,20 +115,23 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
 function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const entered = useInView(ref);
-  const Illustration = ILLUSTRATIONS[step.id];
-  const titleId = `${IDS.journey}-${step.id}`;
+  const t = useTranslations('landing.journey.steps');
+  const Illustration = ILLUSTRATIONS[step];
+  const titleId = `${IDS.journey}-${step}`;
   return (
     <article ref={ref} aria-labelledby={titleId}>
       <div className='border-x border-rule-10 bg-hatch px-5 py-6 transition-ink max-sm:pt-9 2xl:contents'>
         <h3 id={titleId} className={cn(TITLE, '2xl:sr-only')}>
-          {step.title.split('\n').map((line, i) => (
-            <Fragment key={i}>
-              {i > 0 && ' '}
-              <span className={cn('block', i === 0 && 'text-muted')}>{line}</span>
-            </Fragment>
-          ))}
+          {t(`${step}.title`)
+            .split('\n')
+            .map((line, i) => (
+              <Fragment key={i}>
+                {i > 0 && ' '}
+                <span className={cn('block', i === 0 && 'text-muted')}>{line}</span>
+              </Fragment>
+            ))}
         </h3>
-        <p className={cn(NOTE, '2xl:sr-only')}>{step.note}</p>
+        <p className={cn(NOTE, '2xl:sr-only')}>{t(`${step}.note`)}</p>
       </div>
       <div className='border border-rule-10 transition-ink'>
         {/* illustrations keep their size, so taller as it narrows; phones get a fixed height (square at 390px) */}
@@ -143,6 +147,7 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
 
 /** `live` gates looping motion and needs the stack on screen, so a jump away leaves nothing looping. */
 export function JourneySection() {
+  const t = useTranslations('landing.journey');
   const stackRef = useRef<HTMLDivElement>(null);
   const onScreen = useInView(stackRef, 'onScreen');
   const [{ active, direction }, setStep] = useState<Step>({ active: 0, direction: 1 });
@@ -178,7 +183,7 @@ export function JourneySection() {
 
   return (
     // unbalanced: the plain break gives the underlined word its own line on most phones
-    <Section id={IDS.journey} title={COPY.journey.title} lede={COPY.journey.lede} balanced={false}>
+    <Section id={IDS.journey} title={t('title')} lede={t('lede')} balanced={false}>
       <InkFrame className={styles.frame}>
         <Corners />
         <Rail active={active} direction={direction} />
@@ -186,7 +191,7 @@ export function JourneySection() {
           {/* phones hide the frame's corners, so the stack carries them */}
           <Corners persistent className='sm:hidden' />
           {JOURNEY_STEPS.map((step, i) => (
-            <Fragment key={step.id}>
+            <Fragment key={step}>
               {i > 0 && (
                 <div
                   className='h-11.5 border-x border-rule-10 bg-hatch transition-ink max-2xl:hidden'

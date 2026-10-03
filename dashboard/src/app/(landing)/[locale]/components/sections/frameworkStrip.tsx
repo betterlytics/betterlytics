@@ -1,14 +1,12 @@
+import { useTranslations } from 'next-intl';
 import { Emphasis } from '@/landing/components/ui/emphasis';
 import { InView } from '@/landing/components/ui/inView';
 import { TEXT_STYLES } from '@/landing/components/ui/text';
-import { COPY } from '@/landing/content/copy';
 import { FRAMEWORK_GLYPHS } from '@/landing/content/frameworkGlyphs';
 import { FRAMEWORKS } from '@/landing/content/frameworks';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './frameworkStrip.module.css';
-
-const copy = COPY.frameworks;
 
 const GLYPHS: ReadonlyArray<{ name: string; path: string; hover?: string }> = FRAMEWORKS.map((framework) => ({
   name: framework.name,
@@ -17,6 +15,7 @@ const GLYPHS: ReadonlyArray<{ name: string; path: string; hover?: string }> = FR
 
 /** Monochrome glyphs rather than logo files, so every mark sits at one tone. */
 export function FrameworkStrip({ className }: { className?: string }) {
+  const t = useTranslations('landing.frameworks');
   return (
     <div
       className={cn(
@@ -27,10 +26,10 @@ export function FrameworkStrip({ className }: { className?: string }) {
     >
       <p className={cn(TEXT_STYLES.title, 'flex flex-none flex-col gap-0.5 whitespace-nowrap text-fg')}>
         <span>
-          <Emphasis text={copy.title} as='em' className='text-volt-text not-italic' />
+          <Emphasis text={t('title')} as='em' className='text-volt-text not-italic' />
         </span>
         <span className='text-[13.5px] leading-5 font-normal tracking-normal whitespace-normal text-muted'>
-          {copy.lede}
+          {t('lede')}
         </span>
       </p>
       <InView className={styles.glyphs}>

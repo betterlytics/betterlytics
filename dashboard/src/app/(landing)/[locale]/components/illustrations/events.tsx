@@ -18,14 +18,14 @@ import {
 } from 'lucide-react';
 import { m, useReducedMotion } from 'motion/react';
 import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
-import { COPY, COPY_LOCALE } from '@/landing/content/copy';
 import { EASE_OUT_EXPO } from '@/landing/lib/easing';
 import type { IllustrationProps } from './types';
 import styles from './events.module.css';
 import { FLAGS, type FlagCode } from './flags';
 
-/* Illustration copy is mock product UI, kept literal on purpose. */
+/* Mock data, kept literal on purpose; the product's own labels are translated. */
 
 type Kind = { name: string; icon: LucideIcon; key: string; values: readonly string[] };
 
@@ -141,14 +141,15 @@ function Who({ visitor }: { visitor: Visitor }) {
   );
 }
 
-function ago(ms: number) {
-  const s = Math.floor(ms / 1000);
-  if (s < 2) return 'now';
-  if (s < 60) return `${s}s`;
-  return `${Math.floor(s / 60)}m`;
-}
-
 export function Events({ entered, live }: IllustrationProps) {
+  const t = useTranslations('landing.illustrations.events');
+  const locale = useLocale();
+  const ago = (ms: number) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 2) return t('now');
+    if (s < 60) return t('seconds', { count: s });
+    return t('minutes', { count: Math.floor(s / 60) });
+  };
   const reduce = useReducedMotion();
   const [rows, setRows] = useState<Row[]>([]);
   const [now, setNow] = useState(0);
@@ -232,18 +233,18 @@ export function Events({ entered, live }: IllustrationProps) {
       data-in={entered || undefined}
       data-live={live || undefined}
       role='img'
-      aria-label={COPY.illustrations.events}
+      aria-label={t('alt')}
     >
       <div className={styles.panel} aria-hidden onPointerEnter={hold} onPointerLeave={release}>
         <div className={styles.head}>
-          <p className={styles.title}>Custom events</p>
+          <p className={styles.title}>{t('title')}</p>
           <span className={styles.status} data-paused={paused || undefined}>
             <i className={styles.dot} />
-            {paused ? 'Paused' : 'Live'}
+            {paused ? t('paused') : t('live')}
           </span>
           <span className={styles.total}>
-            <RollingDigits value={total.toLocaleString(COPY_LOCALE)} />
-            <small>today</small>
+            <RollingDigits value={total.toLocaleString(locale)} />
+            <small>{t('today')}</small>
           </span>
         </div>
         <ol>

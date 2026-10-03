@@ -1,11 +1,10 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
-import { COPY } from '@/landing/content/copy';
 import { LandingPage } from '@/landing/landingPage';
 
 type Props = { params: Promise<{ locale: SupportedLanguages }> };
@@ -16,7 +15,17 @@ export const revalidate = 86400;
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   setRequestLocale(locale);
-  return generateSEO({ ...(await buildSEOConfig(SEO_CONFIGS.root)), ...COPY.seo }, { locale });
+  const t = await getTranslations('landing');
+  return generateSEO(
+    {
+      ...(await buildSEOConfig(SEO_CONFIGS.root)),
+      description: t('seo.description'),
+      // link previews in chats and social posts use the hero's own words
+      socialTitle: t('hero.title'),
+      socialDescription: t('hero.lede'),
+    },
+    { locale },
+  );
 }
 
 export default async function HomePage({ params }: Props) {

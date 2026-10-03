@@ -1,5 +1,5 @@
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { COPY } from '@/landing/content/copy';
 import { cn } from '@/landing/lib/cn';
 import { BRAND_MARK_PATHS } from '@/landing/lib/brandPaths';
 import { vars } from '@/landing/lib/cssVars';
@@ -59,8 +59,9 @@ export function LoadingMark({ className }: { className?: string }) {
 }
 
 export function BrandLink({ className, compact = false }: { className?: string; compact?: boolean }) {
+  const t = useTranslations('landing.nav');
   return (
-    <Link className={cn('relative flex items-center gap-2.5', className)} href='/' aria-label={COPY.nav.home}>
+    <Link className={cn('relative flex items-center gap-2.5', className)} href='/' aria-label={t('home')}>
       <BrandMark className='size-6 flex-none text-fg' />
       <span className={cn('text-[19px] font-semibold tracking-[-0.4px]', compact && 'max-sm:hidden')}>
         Betterlytics

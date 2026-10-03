@@ -11,8 +11,12 @@ the dashboards. Everything it needs lives in this folder; import from it with th
 - **Static, rendered on first request.** `generateStaticParams` returns no locales because builds run
   against placeholder environment variables. Each locale renders once, on its first request with the real
   environment, and is then served from the cache like a static page.
-- Only the translations it uses reach the browser (`pricingCards`). The copy itself lives in `content/`
-  while the wording settles.
+- **Copy is in the messages**, under `landing` in `dashboard/messages/<locale>.json`; `content/` holds only data
+  (names, links, figures). `*word*` in a message marks emphasis and `\n` a phone line break (see
+  `ui/emphasis`). Mock data in the illustrations (Acme's pages, event names, stack traces, tool calls) stays literal; the
+  product's own labels around it are translated. Numbers and dates format in the URL's locale.
+- Only the messages client components read reach the browser: `pricingCards` and the `landing` namespaces
+  picked in `layout.tsx`. Add a namespace there when a client component starts reading it.
 
 ## Styling
 
@@ -55,8 +59,6 @@ the dashboards. Everything it needs lives in this folder; import from it with th
   writes to the DOM through refs or motion values rather than React state.
 - The journey illustrations share a contract (`components/illustrations/types.ts`): `entered` latches on
   first sight, and `live` holds for the active card only while the stack is on screen.
-- Each illustration is one image to assistive tech: `role='img'` with its description from
-  `COPY.illustrations`, and the art inside `aria-hidden` (Chrome still exposes an image's children).
+- Each illustration is one image to assistive tech: `role='img'` labelled by its `alt` message, and the
+  art inside `aria-hidden` (Chrome still exposes an image's children).
   Replay and Traffic are the exceptions, since they hold real controls.
-- The copy is English under every locale for now (`COPY_LOCALE`), so the page's `lang` and number formats
-  follow it rather than the URL.

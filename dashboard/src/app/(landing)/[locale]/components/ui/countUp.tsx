@@ -2,14 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from 'motion/react';
-import { COPY_LOCALE } from '@/landing/content/copy';
+import { useLocale } from 'next-intl';
 import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 
 const DURATION = 1150;
 
-const formatter = (decimals: number) =>
-  new Intl.NumberFormat(COPY_LOCALE, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+const formatter = (locale: string, decimals: number) =>
+  new Intl.NumberFormat(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 
 function split(format: Intl.NumberFormat, n: number) {
   let whole = '';
@@ -38,9 +38,10 @@ export function CountUp({
   const fractionRef = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref);
   const reduce = useReducedMotion();
+  const locale = useLocale();
 
   useEffect(() => {
-    const format = formatter(decimals);
+    const format = formatter(locale, decimals);
     const show = (n: number) => {
       const { whole, fraction } = split(format, n);
       if (wholeRef.current) wholeRef.current.textContent = whole;
@@ -64,9 +65,9 @@ export function CountUp({
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
-  }, [inView, reduce, value, decimals]);
+  }, [inView, reduce, value, decimals, locale]);
 
-  const format = formatter(decimals);
+  const format = formatter(locale, decimals);
   const { whole, point, fraction } = split(format, value);
   return (
     <b ref={ref} className={cn('tabular-nums', className)}>
