@@ -3,6 +3,8 @@ title: "Error Tracking"
 description: "Enable client-side JavaScript error tracking with Betterlytics. Catch errors automatically, link them to session replays, and debug issues faster."
 ---
 
+import { Callout } from "nextra/components";
+
 # Error Tracking
 
 Betterlytics captures client-side errors from your site and sends them to your dashboard. Identical errors are automatically grouped so you can track unique issues over time.
@@ -23,6 +25,10 @@ Add `data-track-errors="true"` to your analytics script to start capturing error
 >
 </script>
 ```
+
+<Callout type="info">
+Self-hosting? Load `analytics.js` from your instance and send events to it, with the script tag and the npm package alike. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
+</Callout>
 
 ### Configuration reference
 

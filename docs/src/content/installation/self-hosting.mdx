@@ -25,8 +25,11 @@ Before relying on a specific feature, check the [cloud vs self-hosted comparison
 ## Requirements
 
 - **Docker Engine 25** or newer with **Docker Compose v2.24** or newer. Check with `docker version` and `docker compose version`
+- An **x86_64 (amd64)** server. The image is not published for ARM (arm64), so ARM hosts fail with "no matching manifest"
 - A **hostname** the instance is reached at, pointed at your server or your reverse proxy (not needed to try it locally)
 - Ports **80** and **443** reachable from the internet (standalone mode), or a reverse proxy you already run
+
+Compose v2.24 is the first release that applies the healthcheck `start_interval` setting the stack uses to come up quickly with `docker compose up -d --wait`, and Compose only accepts that setting on Docker Engine 25 or newer; older Compose versions reject or ignore it.
 
 ## Quick Start
 
@@ -69,7 +72,7 @@ The first start runs database migrations before the app comes up, so give it a m
 Then open your domain in a browser and create your account.
 
 <Callout type="info">
-The first account created on a new instance becomes its admin. The instance is reachable as soon as it starts, so create your account right after `docker compose up -d --wait` returns.
+The first account created on a new instance becomes its admin. The instance is reachable as soon as it starts, so create your account right after `docker compose up -d --wait` returns. Everyone else joins by invitation, see [Users and Email](#users-and-email).
 </Callout>
 
 ### 4. Install the Tracking Script
@@ -86,7 +89,7 @@ Once logged in, follow the in-app integration guide to add the tracking script t
 ```
 
 <Callout type="warning">
-The snippets elsewhere in these docs load `analytics.js` from `betterlytics.io` and, without `data-server-url`, send events to Betterlytics Cloud. When copying one, replace the script origin with your domain and add `data-server-url` pointing at your instance's `/event` endpoint.
+The snippets elsewhere in these docs are written for Betterlytics Cloud: they load `analytics.js` from `betterlytics.io` and send events there. When copying one, change the script origin and add `data-server-url`, or the npm package's `scriptUrl` and `serverUrl` options, as shown in [Tracking Scripts](#tracking-scripts).
 </Callout>
 
 ## Deployment Modes
@@ -130,6 +133,10 @@ HTTP_PORT=5566
 `setup.sh` in Basic mode binds to `127.0.0.1`, so the port is only reachable from the same machine. When the proxy runs elsewhere, set `BIND_ADDRESS` to the interface it connects through, or `0.0.0.0` for all interfaces, and firewall the port accordingly.
 
 Your proxy must terminate TLS, pass the `Host` header through unchanged, and set `X-Forwarded-Proto` and `X-Forwarded-For`. Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, list it in `TRUSTED_PROXIES`, otherwise every visitor is recorded with the proxy's IP. To check, compare `request.remote_ip` and `request.client_ip` in `docker compose logs betterlytics-selfhost`.
+
+<Callout type="info">
+Your proxy must serve Betterlytics over HTTPS at `DOMAIN`. Logins only work from `https://<DOMAIN>`. If the proxy listens on a non-standard port, include it: `DOMAIN=analytics.example.com:8443`.
+</Callout>
 
 <Tabs items={['Caddy', 'Nginx', 'Traefik']}>
   <Tabs.Tab>
@@ -194,17 +201,74 @@ Your proxy must terminate TLS, pass the `Host` header through unchanged, and set
   </Tabs.Tab>
 </Tabs>
 
+### Plain HTTP or IP Access
+
+Betterlytics accepts logins only from the exact URL it is configured for, `https://<DOMAIN>` by default. Your proxy must serve it over HTTPS at `DOMAIN`, including the port if it is not 443. `setup.sh` Basic mode therefore needs a hostname and does not accept an IP address. Point a DNS record at your proxy, or add the hostname to the hosts file of each machine that opens the instance. To evaluate Betterlytics on a single machine, use [Try Locally](#try-locally).
+
+If browsers reach the instance over plain HTTP (an IP address or an internal hostname on a trusted network), edit `.env` by hand. Start from the `.env` that `setup.sh` wrote in Basic mode, or from a copy of `.env.example` with `SECRET_BASE` set; both use `HTTP_SCHEME=http`. Then set:
+
+```bash
+DOMAIN=192.168.1.10:5566
+FORCE_HTTP_SCHEME=http
+BIND_ADDRESS=0.0.0.0
+```
+
+`DOMAIN` must include the port browsers use unless it is 80. That port is `HTTP_PORT`, `5566` by default. Then run `docker compose up -d --wait`. If the URL doesn't match, the sign-in page says the address doesn't match the configured one, and `docker compose logs betterlytics-selfhost` shows `[Better Auth]: Invalid origin: <origin>`.
+
+<Callout type="warning">
+Over plain HTTP, passwords and sessions cross the network unencrypted. Only do this on a network you trust, and firewall the port: `BIND_ADDRESS=0.0.0.0` listens on every interface.
+</Callout>
+
 ### Try Locally
 
 The third `setup.sh` mode runs the instance on `http://localhost:5566` with no domain and no TLS. It sets `FORCE_HTTP_SCHEME=http` so the app builds plain `http://` links. Use it to evaluate Betterlytics on your own machine, not for a real deployment.
 
 ## Tracking Scripts
 
-Your instance serves every script the tracker needs: `analytics.js`, plus `replay.js` and `web-vitals.js` when those features are enabled on a site. The optional scripts are loaded from the same origin as `analytics.js`, so no request leaves for a third-party host and a Content-Security-Policy only needs to allow your instance's origin in `script-src`.
+Your instance serves every script the tracker needs: `analytics.js`, plus `replay.js` and `web-vitals.js` when those features are enabled on a site. The in-app integration guide fills in your instance's address. The snippets elsewhere in these docs are written for Betterlytics Cloud, so when you copy one, change two things:
 
-If you serve `analytics.js` from somewhere else, for example a CDN in front of your instance, set `data-scripts-base-url` on the script tag to the origin the optional scripts should be loaded from.
+- Load `analytics.js` from your instance instead of `betterlytics.io`
+- Send events to your instance's `/event` endpoint. Without this, the tracker sends them to Betterlytics Cloud
+
+<Tabs items={['Script tag', 'npm package']}>
+  <Tabs.Tab>
+    ```html
+    <script
+      async
+      src="https://analytics.example.com/analytics.js"
+      data-site-id="your-site-id"
+      data-server-url="https://analytics.example.com/event"
+    ></script>
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```js
+    import betterlytics from "@betterlytics/tracker";
+
+    betterlytics.init("your-site-id", {
+      scriptUrl: "https://analytics.example.com/analytics.js",
+      serverUrl: "https://analytics.example.com/event",
+    });
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+Every other attribute and option in the [integration guides](/integration) works unchanged next to these. The [WordPress plugin](/wordpress/configuration#self-hosted-instances) has its own settings for the same two addresses.
+
+The optional scripts are loaded from the same origin as `analytics.js`, so no request leaves for a third-party host. If you serve `analytics.js` from somewhere else, for example a CDN in front of your instance, set `data-scripts-base-url` on the script tag to the origin the optional scripts should be loaded from.
 
 Core Web Vitals need no instance-side setup: add `data-web-vitals="true"` to the tracking script, see the [Web Vitals integration guide](/integration/web-vitals).
+
+### Content Security Policy
+
+If your website sends a `Content-Security-Policy` header, allow your instance's origin for loading the scripts and for sending data:
+
+```text
+script-src 'self' https://analytics.example.com;
+connect-src 'self' https://analytics.example.com;
+```
+
+`script-src` covers `analytics.js` and the optional scripts. `connect-src` covers everything the tracker sends: pageviews, events, Web Vitals, errors, and session replay recordings. If you set `data-scripts-base-url`, add that origin to `script-src` too.
 
 ## Geolocation
 
@@ -288,7 +352,7 @@ The endpoint only needs to be reachable from the containers, never from visitors
 
 ## Uptime Monitoring and Status Pages
 
-Uptime monitoring and status pages run inside the instance with no extra services. What differs from Cloud is how alerts are delivered and where the page is served. Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box. Email alerts need [email sending configured](#email), and Pushover alerts need `PUSHOVER_APP_TOKEN` set to your own Pushover application token.
+Uptime monitoring and status pages run inside the instance with no extra services. What differs from Cloud is how alerts are delivered and where the page is served. Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box, and can reach services on your private network, see [Monitoring Internal Services](#monitoring-internal-services). Email alerts need [email sending configured](#email), and Pushover alerts need `PUSHOVER_APP_TOKEN` set to your own Pushover application token.
 
 A published status page is served by your instance at:
 
@@ -297,6 +361,26 @@ https://analytics.example.com/status/{your-slug}
 ```
 
 Everything described in the [Public Status Pages guide](/dashboard/status-pages) applies. Removing the Betterlytics branding and serving a page on your own domain are available on every self-hosted instance.
+
+## Monitoring Internal Services
+
+Uptime monitors and the generic webhook integration can reach services on your private network out of the box. A self-hosted instance allows loopback, private (RFC 1918 and IPv6 unique local) and CGNAT (`100.64.0.0/10`, used by Tailscale) addresses on any port, and generic webhooks may use plain `http://` URLs. This lets you monitor services like `http://grafana.home.lan:3000` and send alerts to n8n, ntfy or Home Assistant on your LAN.
+
+Link-local addresses (`169.254.0.0/16` and `fe80::/10`) are always blocked. They include the cloud metadata endpoint `169.254.169.254`, which exposes credentials on most cloud servers.
+
+To turn this off, for example on an instance shared with people you do not fully trust, add the following to your `.env` and apply it with `docker compose up -d --wait`:
+
+```bash
+ALLOW_PRIVATE_TARGETS=false
+```
+
+With `ALLOW_PRIVATE_TARGETS=false`, monitors behave like on Betterlytics Cloud: they only reach public addresses on ports 80 and 443, and webhooks need a public `https://` URL. If you run the Betterlytics image without the official `docker-compose.yml`, the setting defaults to `false`; set `ALLOW_PRIVATE_TARGETS=true` yourself to allow private targets.
+
+<Callout type="info">
+Betterlytics runs inside a Docker container, so `localhost` and `127.0.0.1` refer to the container itself, not your server. To monitor a service on the same server, use the server's LAN IP address or `host.docker.internal`.
+</Callout>
+
+Monitors can only target URLs on their dashboard's domain or its subdomains. To monitor internal hosts, create a dashboard for your internal domain (for example `home.lan`, which covers `grafana.home.lan`) or for the host's IP address.
 
 ## Custom Status Page Domains
 
@@ -350,6 +434,62 @@ A status page can be served from its own domain, for example `status.acme.com`, 
 
 See the [Custom Status Page Domain guide](/integration/custom-status-page-domain) for the in-app steps and DNS troubleshooting.
 
+## Users and Email
+
+### Adding Users
+
+The first account is created on the sign-up page of a new instance. After that, sign-up is closed and new people join by invitation only.
+
+To invite someone, open a dashboard, go to **Settings > Members**, enter their email address, pick a role, and click **Invite**. Owners and admins of the dashboard can invite. With [email set up](#setting-up-email), the invitation arrives by email. Without it, nothing is sent: click **Copy invite link** next to the invitation and pass the link on yourself. The invited person opens the link and creates their account with the email address you invited. Invite links expire after 7 days.
+
+An invitation gives access to one dashboard. To give someone access to several, invite them from each one.
+
+Accounts on a self-hosted instance are never asked to verify their email address.
+
+### What Needs Email
+
+Email is off by default. Everything else works without it, but these features need it:
+
+- **Password reset:** the **Forgot your password?** link on the sign-in page only appears when email is set up
+- **Invitation emails:** invite links work without email, see above
+- **[Email reports](/dashboard/email-reports)**
+- **Email alerts for [uptime monitors](/dashboard/monitoring):** Slack, Discord, Teams, Pushover, and webhook alerts work without email
+- **Security notices** about password changes and two-factor authentication
+
+Emails are sent by the instance's background jobs, which are on by default. With `BACKGROUND_JOBS_ENABLED=false`, no email is sent at all.
+
+### Lost Passwords and Two-Factor Authentication
+
+Without email, a forgotten password cannot be reset. To recover an account, [set up email](#setting-up-email), apply it with `docker compose up -d --wait`, and use **Forgot your password?** on the sign-in page.
+
+Someone who loses their authenticator app signs in with one of the backup codes shown when they turned on two-factor authentication. Each code works once, and new ones can be generated under **User Settings > Account**. This works without email.
+
+### Setting Up Email
+
+Set `ENABLE_EMAILS=true`, a sender address in `SMTP_FROM`, and one provider in `.env`:
+
+<Tabs items={['SMTP', 'MailerSend']}>
+  <Tabs.Tab>
+    ```bash
+    ENABLE_EMAILS=true
+    SMTP_FROM=analytics@example.com
+    SMTP_HOST=smtp.example.com
+    SMTP_PORT=587
+    SMTP_USER=your_smtp_username
+    SMTP_PASSWORD=your_smtp_password
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```bash
+    ENABLE_EMAILS=true
+    SMTP_FROM=analytics@example.com
+    MAILER_SEND_API_TOKEN=your_api_token
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+`SMTP_FROM` is required with either provider, MailerSend included, and the instance does not start without it. Use an address on a domain your email provider has verified, optionally with a display name: `SMTP_FROM="Acme Analytics <analytics@example.com>"`. Apply the change with `docker compose up -d --wait`. The [Email reference](#email) lists every option.
+
 ## Configuration Reference
 
 All options are read from `.env` in the repository root. Database passwords, auth secrets, and internal tokens are derived from `SECRET_BASE`, so that is the only secret you need to set. After editing `.env`, run `docker compose up -d --wait`.
@@ -358,11 +498,11 @@ All options are read from `.env` in the repository root. Database passwords, aut
 
 | Variable | Default | Behavior |
 |----------|---------|----------|
-| `DOMAIN` | | Domain where the instance is reachable, without protocol |
+| `DOMAIN` | | Domain where the instance is reachable, without protocol. Include the port if browsers use a non-standard one, for example `analytics.example.com:8443`. Only behind your own proxy: standalone mode needs the bare hostname. See [Behind a Reverse Proxy](#behind-a-reverse-proxy) |
 | `HTTP_SCHEME` | `http` | `https` enables built-in Let's Encrypt certificates (standalone mode) |
-| `SSL_EMAIL` | unset | Optional email registered with your Let's Encrypt account, used for expiry notices |
+| `SSL_EMAIL` | unset | Optional contact address registered with your Let's Encrypt account |
 | `ACME_CA` | Let's Encrypt production | Optional ACME directory URL. Use `https://acme-staging-v02.api.letsencrypt.org/directory` while testing to avoid rate limits |
-| `FORCE_HTTP_SCHEME` | unset | Set to `http` to build plain `http://` links, used by the Try locally mode |
+| `FORCE_HTTP_SCHEME` | unset | Set to `http` only when browsers reach the instance over plain HTTP, as in [Try Locally](#try-locally) and [Plain HTTP or IP Access](#plain-http-or-ip-access). Sets the scheme of the public URL used for logins, links, and the tracking snippet, which is `https` otherwise |
 
 ### Network
 
@@ -377,16 +517,16 @@ All options are read from `.env` in the repository root. Database passwords, aut
 
 | Variable | Default | Behavior |
 |----------|---------|----------|
-| `SECRET_BASE` | | Random string all passwords and keys derive from. `setup.sh` generates one |
+| `SECRET_BASE` | | Single secret all passwords and auth keys derive from. Use at least 32 random characters, for example the output of `openssl rand -hex 32`; `setup.sh` generates one. The instance logs a warning at startup when it is empty, `CHANGEME`, or shorter than 32 characters. Keep it once the instance has started: the databases were created with passwords derived from it |
 
 ### Email
 
 | Variable | Default | Behavior |
 |----------|---------|----------|
-| `ENABLE_EMAILS` | `false` | Enables outgoing email for reports and alerts |
-| `MAILER_SEND_API_TOKEN` | | MailerSend API token. When set, no SMTP configuration is needed |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | | SMTP server for other providers |
-| `SMTP_FROM` | | Sender address for outgoing mail |
+| `ENABLE_EMAILS` | `false` | Enables outgoing email: password resets, invitations, reports, alerts, and security notices. Needs `SMTP_FROM` and one provider below |
+| `SMTP_FROM` | | Sender for all outgoing mail, MailerSend and SMTP alike. Required when `ENABLE_EMAILS=true`; the instance does not start without it. Use an address on a domain your email provider has verified, optionally with a display name: `"Acme Analytics <analytics@example.com>"` |
+| `MAILER_SEND_API_TOKEN` | | MailerSend API token. When set, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` are not needed, but `SMTP_FROM` still is. If both are set, MailerSend is used |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | | SMTP server for other providers. `SMTP_PORT` defaults to `587` |
 
 ### Geolocation
 
@@ -396,6 +536,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 | `MAXMIND_ACCOUNT_ID` | | MaxMind account ID |
 | `MAXMIND_LICENSE_KEY` | | MaxMind license key |
 | `GEOLOCATION_MODE` | `country` | `country`: country-level data only (~9 MB). `full` adds subdivision + city drill-down (~61 MB) |
+| `ENABLE_ASN_LOOKUP` | `false` | Looks up each visitor's network (ASN) to improve bot detection. Downloads MaxMind's GeoLite2-ASN database with `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`; the instance refuses to start when that download fails |
 
 ### Session Replay
 
@@ -405,13 +546,17 @@ All options are read from `.env` in the repository root. Database passwords, aut
 | `REPLAY_RETENTION_DAYS` | `60` | Days to keep recordings, `-1` for indefinitely. ClickHouse storage only |
 | `REPLAY_STORAGE` | derived | `clickhouse` or `s3`. Resolves to `s3` when `S3_ENABLED=true` |
 | `S3_ENABLED`, `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_FORCE_PATH_STYLE` | | Your own S3-compatible storage, see [Storing Recordings in Your Own S3](#storing-recordings-in-your-own-s3) |
+| `S3_SSE_ENABLED` | `false` | Set to `true` to request server-side encryption (SSE-S3, AES256) for recordings uploaded to your bucket |
 
 ### Other
 
 | Variable | Default | Behavior |
 |----------|---------|----------|
-| `BACKGROUND_JOBS_ENABLED` | `true` | Email reports and data-retention cleanup |
+| `BACKGROUND_JOBS_ENABLED` | `true` | Runs the background worker, which sends all outgoing email and runs the data-retention cleanup. `false` stops both |
 | `PUSHOVER_APP_TOKEN` | | Pushover application token for uptime alerts via Pushover |
+| `ALLOW_PRIVATE_TARGETS` | `true` | Uptime monitors and webhooks may reach private, LAN and loopback addresses on any port, and webhooks may use `http://`. Link-local addresses stay blocked. `false` limits them to public addresses as on Cloud, see [Monitoring Internal Services](#monitoring-internal-services) |
+| `PUBLIC_ENABLE_FAVICON_FETCHING` | `true` | Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead |
+| `LOG_LEVEL` | `info` | Backend log level: `error`, `warn`, `info`, `debug` or `trace` |
 
 ## Updating
 
@@ -436,6 +581,7 @@ Releases after v1.3.5 run one-time ClickHouse migrations that rewrite the events
 - Ensure free disk space of at least 2 to 3 times the size of your ClickHouse data volume. The events table is rewritten twice, and the space is reclaimed at the end.
 - Expect a long first boot on large installations.
 - Back up the `betterlytics_selfhost_clickhouse_data` and `betterlytics_selfhost_postgres_data` volumes first.
+- If `ENABLE_EMAILS=true`, set `SMTP_FROM` to an address on a domain your email provider has verified. Earlier versions sent as `info@betterlytics.io` when it was unset, which providers reject; the instance now refuses to start without it.
 
 </details>
 
@@ -451,6 +597,7 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - `HTTP_SCHEME=https requires HTTP_PORT=80`: set `HTTP_PORT=80` and `HTTPS_PORT=443` in `.env`, or switch to `HTTP_SCHEME=http` behind your own proxy
 - `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again
 - `Geolocation is enabled but no GeoIP database could be obtained`: check `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`, or set `ENABLE_GEOLOCATION=false`
+- `ENABLE_EMAILS=true requires SMTP_FROM on self-hosted instances`: set `SMTP_FROM` in `.env` to your sender address (MailerSend needs it too), or set `ENABLE_EMAILS=false`, then `docker compose up -d --wait` again
 
 ### HTTPS certificate not provisioning
 
@@ -458,6 +605,15 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - Ports 80 and 443 must both be reachable from the internet, and `HTTP_PORT` must be `80`. Certificates are validated over port 80
 - Check the container logs for ACME errors: `docker compose logs`
 - Testing repeatedly? Set `ACME_CA` to the Let's Encrypt staging directory to avoid rate limits
+
+### Can't sign in
+
+- **"This page is open at …, which doesn't match the address…":** open the instance at `https://<DOMAIN>` (or `http://` with `FORCE_HTTP_SCHEME=http`), or fix `DOMAIN`/`FORCE_HTTP_SCHEME` in `.env` and run `docker compose up -d --wait`.
+- The logs confirm it: `docker compose logs betterlytics-selfhost | grep "Invalid origin"`.
+- `setup.sh` Basic mode no longer accepts an IP address; see [Plain HTTP or IP Access](#plain-http-or-ip-access).
+- **"Too many attempts":** wait about 10 seconds. Sign-in allows 3 attempts per 10 seconds per IP.
+- Sign-in, invite links, and tracking snippets all use `DOMAIN`, so other addresses, such as the server's IP or a second hostname pointing at it, don't work. In standalone mode the browser shows a certificate or connection error for them instead of the sign-in page.
+- Behind your own proxy, check that it passes the `Host` header unchanged and sets `X-Forwarded-Proto`.
 
 ### Custom status page domain shows a certificate error
 

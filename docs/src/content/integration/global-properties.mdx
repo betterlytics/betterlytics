@@ -3,6 +3,8 @@ title: "Global Properties"
 description: "Attach persistent key-value metadata to all analytics events. Filter your dashboard by plan, environment, app version, and more."
 ---
 
+import { Callout } from "nextra/components";
+
 # Global Properties
 
 Attach key-value metadata to every analytics event sent from a page. Unlike [custom event properties](/integration/custom-events), which are per-event, global properties persist across all events for the lifetime of the page.
@@ -18,6 +20,10 @@ If you have properties available at page load, set them directly on the script t
   data-global-properties='{"plan":"premium","app_version":"2.1.0"}'
 ></script>
 ```
+
+<Callout type="info">
+Self-hosting? Load `analytics.js` from your instance and send events to it, with the script tag and the npm package alike. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
+</Callout>
 
 The attribute value must be a valid JSON object. Invalid JSON is logged to the console and ignored.
 

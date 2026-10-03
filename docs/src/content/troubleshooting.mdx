@@ -109,12 +109,22 @@ The share of real visitors affected by this is small, but never zero for any ana
 
 If your site sets a `Content-Security-Policy` header, the browser will silently refuse to load or call out to any host not on the allowlist. Open the **Console tab** and look for CSP violations, which show up as red error messages mentioning `script-src` or `connect-src`.
 
-For the hosted service, you need to allow:
+Allow the origin your tracking script loads from and sends data to:
 
+<Tabs items={['Cloud', 'Self-hosted']}>
+<Tabs.Tab>
 ```text
 script-src 'self' https://betterlytics.io;
 connect-src 'self' https://betterlytics.io;
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```text
+script-src 'self' https://analytics.example.com;
+connect-src 'self' https://analytics.example.com;
+```
+</Tabs.Tab>
+</Tabs>
 
 If you also use [Session Replay](/integration/session-replay) or [Web Vitals](/integration/web-vitals), the replay/web-vitals scripts load from the same origin, so the same allowlist covers them.
 

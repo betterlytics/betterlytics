@@ -36,6 +36,10 @@ Add `data-replay="true"` to your analytics script to enable replays. You can als
 </script>
 ```
 
+<Callout type="info">
+Self-hosting? Load `analytics.js` from your instance and send events to it, with the script tag and the npm package alike. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
+</Callout>
+
 ### Configuration reference
 
 | Attribute | Type | Default | Description |
@@ -49,7 +53,7 @@ Add `data-replay="true"` to your analytics script to enable replays. You can als
 | `data-dynamic-urls` | string list | - | Comma‑separated SPA normalization patterns (supports `*` and `**`). |
 | `data-disable-replay-on-urls` | string list | - | Comma‑separated patterns where recording is disabled. |
 | `data-replay-on-error` | boolean | `false` | Capture a replay when an error occurs, even for sessions not selected for regular recording. Requires [Error Tracking](/integration/errors). |
-| `data-scripts-base-url` | string (URL) | Betterlytics CDN | Base to load `replay.js` when replay is enabled. |
+| `data-scripts-base-url` | string (URL) | Origin of `analytics.js` | Base to load `replay.js` when replay is enabled. |
 
 ### Using the npm package
 
@@ -157,7 +161,7 @@ Session Replay operates with privacy‑first defaults:
 
 - Replays are not video recordings; they are structured DOM event timelines reconstructed client‑side.
 - Sensitive text and input values never leave the browser in readable form; masked values are persisted.
-- Recordings are encrypted in transit and at rest.
+- On Betterlytics Cloud, recordings are encrypted in transit and at rest. On a self-hosted instance, they are encrypted in transit when the instance is served over HTTPS, and encryption at rest depends on your server's disks or your S3 bucket.
 - Retention: 60 days on Betterlytics Cloud. Self-hosted instances set their own retention with [`REPLAY_RETENTION_DAYS`](/installation/self-hosting#session-replay). After expiration, sessions are permanently deleted and cannot be recovered.
 
 ## Availability
