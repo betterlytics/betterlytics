@@ -6,6 +6,6 @@ export const QUOTE = {
   role: 'Senior Engineer',
   photo: '/images/testimonials/christoffer-romild.jpg',
   company: 'Edora',
-  /* Edora's own secondary logo for dark backgrounds, unaltered */
-  logo: { src: '/images/customers/edora.svg', width: 450, height: 157 },
+  /* Edora's own logo for dark backgrounds, unaltered */
+  logo: { src: '/images/customers/edora.svg', width: 450, height: 151 },
 };
