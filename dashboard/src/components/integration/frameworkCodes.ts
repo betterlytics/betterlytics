@@ -113,6 +113,13 @@ function getSimpleInitCode(initCall: string): string {
 ${initCall}`;
 }
 
+function code(strings: TemplateStringsArray, ...values: string[]): string {
+  return strings.reduce((out, str, i) => {
+    const indent = out.slice(out.lastIndexOf('\n') + 1).match(/^[ \t]*/)![0];
+    return out + values[i - 1].replaceAll('\n', `\n${indent}`) + str;
+  });
+}
+
 export function getFrameworkCode(
   frameworkId: FrameworkId,
   config: FrameworkCodeConfig,
@@ -123,13 +130,15 @@ export function getFrameworkCode(
   const eventUrl = !isCloud && serverUrl ? `${serverUrl}/event` : undefined;
   const serverUrlAttr = eventUrl ? `\n    data-server-url="${eventUrl}"` : '';
 
-  const initCall = (indent = '', q = '"') => {
+  const initCall = (q: string) => {
     if (isCloud) return `betterlytics.init(${q}${siteId}${q})`;
     const options = [`scriptUrl: ${q}${scriptUrl}${q}`];
     if (eventUrl) options.push(`serverUrl: ${q}${eventUrl}${q}`);
-    const lines = options.map((option) => `${indent}  ${option},`).join('\n');
-    return `betterlytics.init(${q}${siteId}${q}, {\n${lines}\n${indent}})`;
+    const lines = options.map((option) => `  ${option},`).join('\n');
+    return `betterlytics.init(${q}${siteId}${q}, {\n${lines}\n})`;
   };
+  const init = initCall('"');
+  const initSingleQuoted = initCall("'");
 
   const trackingScript = `<script async
     src="${scriptUrl}"
@@ -179,7 +188,7 @@ export function getFrameworkCode(
               {
                 title: nextjsT.variants.next153.step2.title,
                 description: nextjsT.variants.next153.step2.description,
-                code: getSimpleInitCode(initCall()),
+                code: getSimpleInitCode(init),
                 language: 'javascript',
               },
             ],
@@ -196,14 +205,14 @@ export function getFrameworkCode(
               {
                 title: nextjsT.variants.approuter.step2.title,
                 description: nextjsT.variants.approuter.step2.description,
-                code: `'use client'
+                code: code`'use client'
 
 import { useEffect } from 'react'
 import betterlytics from "@betterlytics/tracker"
 
 export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
-    ${initCall('    ')}
+    ${init}
   }, [])
 
   return <>{children}</>
@@ -242,13 +251,13 @@ export default function RootLayout({ children }) {
               {
                 title: nextjsT.variants.pagesrouter.step2.title,
                 description: nextjsT.variants.pagesrouter.step2.description,
-                code: `import { useEffect } from 'react'
+                code: code`import { useEffect } from 'react'
 import type { AppProps } from 'next/app'
 import betterlytics from "@betterlytics/tracker"
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
-    ${initCall('    ')}
+    ${init}
   }, [])
 
   return <Component {...pageProps} />
@@ -272,7 +281,7 @@ export default function App({ Component, pageProps }: AppProps) {
           {
             title: t.frameworks.react.step2.title,
             description: t.frameworks.react.step2.description,
-            code: getSimpleInitCode(initCall()),
+            code: getSimpleInitCode(init),
             language: 'javascript',
           },
         ],
@@ -289,11 +298,11 @@ export default function App({ Component, pageProps }: AppProps) {
           {
             title: t.frameworks.vue.step2.title,
             description: t.frameworks.vue.step2.description,
-            code: `import { createApp } from 'vue'
+            code: code`import { createApp } from 'vue'
 import App from './App.vue'
 import betterlytics from "@betterlytics/tracker"
 
-${initCall()}
+${init}
 
 createApp(App).mount('#app')`,
             language: 'javascript',
@@ -312,10 +321,10 @@ createApp(App).mount('#app')`,
           {
             title: t.frameworks.nuxt.step2.title,
             description: t.frameworks.nuxt.step2.description,
-            code: `import betterlytics from "@betterlytics/tracker"
+            code: code`import betterlytics from "@betterlytics/tracker"
 
 export default defineNuxtPlugin(() => {
-  ${initCall('  ')}
+  ${init}
 })`,
             language: 'javascript',
           },
@@ -333,12 +342,12 @@ export default defineNuxtPlugin(() => {
           {
             title: t.frameworks.svelte.step2.title,
             description: t.frameworks.svelte.step2.description,
-            code: `<script>
+            code: code`<script>
   import { onMount } from 'svelte'
   import betterlytics from '@betterlytics/tracker'
 
   onMount(() => {
-    ${initCall('    ', "'")}
+    ${initSingleQuoted}
   })
 </script>
 
@@ -359,7 +368,7 @@ export default defineNuxtPlugin(() => {
           {
             title: t.frameworks.astro.step2.title,
             description: t.frameworks.astro.step2.description,
-            code: `<html>
+            code: code`<html>
   <head>
     <!-- ... -->
   </head>
@@ -367,7 +376,7 @@ export default defineNuxtPlugin(() => {
     <slot />
     <script>
       import betterlytics from '@betterlytics/tracker'
-      ${initCall('      ', "'")}
+      ${initSingleQuoted}
     </script>
   </body>
 </html>`,
@@ -387,12 +396,12 @@ export default defineNuxtPlugin(() => {
           {
             title: t.frameworks.remix.step2.title,
             description: t.frameworks.remix.step2.description,
-            code: `import { useEffect } from 'react'
+            code: code`import { useEffect } from 'react'
 import betterlytics from "@betterlytics/tracker"
 
 export default function App() {
   useEffect(() => {
-    ${initCall('    ')}
+    ${init}
   }, [])
 
   return (
@@ -418,10 +427,10 @@ export default function App() {
           {
             title: t.frameworks.gatsby.step2.title,
             description: t.frameworks.gatsby.step2.description,
-            code: `import betterlytics from "@betterlytics/tracker"
+            code: code`import betterlytics from "@betterlytics/tracker"
 
 export const onClientEntry = () => {
-  ${initCall('  ')}
+  ${init}
 }`,
             language: 'javascript',
           },
@@ -439,11 +448,11 @@ export const onClientEntry = () => {
           {
             title: t.frameworks.angular.step2.title,
             description: t.frameworks.angular.step2.description,
-            code: `import { bootstrapApplication } from '@angular/platform-browser'
+            code: code`import { bootstrapApplication } from '@angular/platform-browser'
 import { AppComponent } from './app/app.component'
 import betterlytics from "@betterlytics/tracker"
 
-${initCall()}
+${init}
 
 bootstrapApplication(AppComponent)`,
             language: 'javascript',
@@ -462,11 +471,11 @@ bootstrapApplication(AppComponent)`,
           {
             title: t.frameworks.solidjs.step2.title,
             description: t.frameworks.solidjs.step2.description,
-            code: `import { render } from 'solid-js/web'
+            code: code`import { render } from 'solid-js/web'
 import App from './App'
 import betterlytics from "@betterlytics/tracker"
 
-${initCall()}
+${init}
 
 render(() => <App />, document.getElementById('root')!)`,
             language: 'javascript',
