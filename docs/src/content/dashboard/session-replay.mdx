@@ -9,10 +9,6 @@ import { Callout } from "nextra/components";
 
 Session Replay lets you watch real user sessions recorded with privacy‑aware defaults. Use it to debug UX issues, verify designs, and correlate with analytics.
 
-<Callout type="info">
-**Availability**: Session Replay is currently available on Betterlytics Cloud. Self-hosted support is planned. See the [feature comparison](/installation#cloud-vs-self-hosted).
-</Callout>
-
 <div style={{ textAlign: "center", margin: "20px 0" }}>
   ![Session Replay In Action](/images/dashboard/session-replay-in-action.webp)
 </div>
@@ -79,11 +75,11 @@ Session Replay operates with privacy‑first defaults:
 
 ## Troubleshooting
 
-- **No sessions found**: Ensure replay is enabled in your tracking script and storage is configured on the backend. Recordings may not appear in the dashboard until the user reloads, leaves the page or their session ends.
+- **No sessions found**: Ensure replay is enabled in your tracking script. Recordings may not appear in the dashboard until the user reloads, leaves the page or their session ends.
 - **Segments missing**: The player loads segments progressively. If the first segment is empty or fetch fails, the session may not load.
 - **Choppy seek**: Seeking reconstructs DOM snapshots. If direct seek fails, we fall back to the nearest snapshot automatically.
 - **Low sample rate**: Increase `data-replay-sample` if you need more coverage.
-- **Retention**: Session replays are stored for 60 days. After 60 days they are permanently deleted and cannot be retrieved.
+- **Retention**: Session replays are stored for 60 days on Betterlytics Cloud, or for [`REPLAY_RETENTION_DAYS`](/installation/self-hosting#session-replay) on a self-hosted instance. After that they are permanently deleted and cannot be retrieved.
 
 ---
 
