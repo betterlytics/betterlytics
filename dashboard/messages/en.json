@@ -3108,6 +3108,8 @@
       "danger": {
         "sectionTitle": "Danger Zone",
         "details": "Permanently delete your account and all associated data.",
+        "lastAdmin": "You can't delete this account because it's the only admin of this instance. Deleting it would leave the instance without an admin.",
+        "lastUser": "You are the only user on this instance, so this account can't be deleted.",
         "delete": "Delete Account",
         "dialog": {
           "title": "Delete Account Permanently",
@@ -3361,6 +3363,10 @@
       "statusPageLimit": "You have reached your status page limit. Upgrade to Pro to create more status pages.",
       "statusPageCustomDomain": "Custom domains require a Professional plan",
       "statusPageBranding": "Removing Betterlytics branding requires a Professional plan"
+    },
+    "account": {
+      "lastAdminCannotBeDeleted": "The only admin account on this instance can't be deleted.",
+      "lastUserCannotBeDeleted": "The only user account on this instance can't be deleted."
     },
     "invitations": {
       "userAlreadyHasAccess": "User already has access to this dashboard",

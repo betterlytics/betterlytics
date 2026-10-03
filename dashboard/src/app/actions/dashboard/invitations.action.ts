@@ -41,7 +41,7 @@ export const cancelInvitationAction = withDashboardMutationAuthContext(
 
 export const getUserPendingInvitationsAction = withUserAuth(
   async (user: User): Promise<InvitationWithInviter[]> => {
-    return getPendingInvitationsForUser(user.email);
+    return getPendingInvitationsForUser(user);
   },
 );
 
@@ -53,9 +53,9 @@ export const acceptInvitationAction = withUserAuth(async (user: User, token: str
 });
 
 export const declineInvitationAction = withUserAuth(async (user: User, invitationId: string): Promise<void> => {
-  await declineInvitation(invitationId, user.email);
+  await declineInvitation(invitationId, user);
 });
 
 export const acceptPendingInvitationsAction = withUserAuth(async (user: User) => {
-  return acceptPendingInvitations(user.id, user.email);
+  return acceptPendingInvitations(user);
 });

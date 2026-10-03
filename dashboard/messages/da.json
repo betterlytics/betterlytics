@@ -3111,6 +3111,8 @@
       "danger": {
         "sectionTitle": "Farezone",
         "details": "Slet din konto og alle tilknyttede data permanent.",
+        "lastAdmin": "Du kan ikke slette denne konto, fordi den er den eneste administrator på denne instans. Hvis den slettes, står instansen uden administrator.",
+        "lastUser": "Du er den eneste bruger på denne instans, så denne konto kan ikke slettes.",
         "delete": "Slet konto",
         "dialog": {
           "title": "Slet konto permanent",
@@ -3364,6 +3366,10 @@
       "statusPageLimit": "Du har nået din grænse for statussider. Opgrader til Pro for at oprette flere statussider.",
       "statusPageCustomDomain": "Eget domæne kræver en Professional plan",
       "statusPageBranding": "Fjernelse af Betterlytics-branding kræver en Professional plan"
+    },
+    "account": {
+      "lastAdminCannotBeDeleted": "Den eneste administratorkonto på denne instans kan ikke slettes.",
+      "lastUserCannotBeDeleted": "Den eneste brugerkonto på denne instans kan ikke slettes."
     },
     "invitations": {
       "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",
