@@ -93,12 +93,13 @@ export function generateSEO(
 
 export async function buildSEOConfig(
   configEntry: (typeof SEO_CONFIGS)[keyof typeof SEO_CONFIGS],
+  values?: Record<string, string>,
 ): Promise<SEOConfig> {
   const t = await getTranslations(configEntry.namespace);
 
   const config: SEOConfig = {
-    title: t('title'),
-    description: t('description'),
+    title: t('title', values),
+    description: t('description', values),
     keywords: t.raw('keywords') as string[],
     path: configEntry.path,
     structuredDataType: configEntry.structuredDataType,
@@ -287,6 +288,11 @@ export const SEO_CONFIGS = {
     path: '/signin',
     structuredDataType: 'webpage',
   },
+  signinSelfHosted: {
+    namespace: 'public.auth.signin.seoSelfHosted',
+    path: '/signin',
+    structuredDataType: 'webpage',
+  },
   signup: {
     namespace: 'public.auth.register.seo',
     path: '/signup',
@@ -299,6 +305,11 @@ export const SEO_CONFIGS = {
   },
   publicDemo: {
     namespace: 'public.demo.seo',
+    path: '/share',
+    structuredDataType: 'webpage',
+  },
+  publicDashboardSelfHosted: {
+    namespace: 'public.demo.seoSelfHosted',
     path: '/share',
     structuredDataType: 'webpage',
   },

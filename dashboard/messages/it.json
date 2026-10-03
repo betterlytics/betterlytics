@@ -732,6 +732,11 @@
             "Analisi Conforme al GDPR"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Accedi | Betterlytics",
+          "description": "Accedi a questa istanza di Betterlytics.",
+          "keywords": ["Accedi", "Login"]
+        },
         "title": "Accedi al tuo account",
         "subtitle": "Accedi alla tua dashboard analitiche",
         "errors": {
@@ -864,7 +869,17 @@
             "tooManyAttempts": "Troppi tentativi. Riprova più tardi.",
             "generic": "Impossibile reimpostare la password. Riprova."
           },
-          "successMessage": "Password reimpostata con successo!"
+          "successMessage": "Password reimpostata con successo!",
+          "newPasswordLabel": "Nuova password",
+          "newPasswordPlaceholder": "Inserisci la nuova password",
+          "confirmPasswordLabel": "Conferma nuova password",
+          "confirmPasswordPlaceholder": "Conferma la nuova password",
+          "requirementsTitle": "Requisiti della password:",
+          "requirementMinLength": "Almeno 8 caratteri",
+          "requirementLowercase": "Almeno una lettera minuscola",
+          "requirementUppercase": "Almeno una lettera maiuscola",
+          "submit": "Reimposta password",
+          "submitting": "Reimpostazione password..."
         },
         "cta": {
           "remember": "Ricordi la tua password?",
@@ -920,6 +935,11 @@
           "Demo Web",
           "Capacità Privacy-First"
         ]
+      },
+      "seoSelfHosted": {
+        "title": "{domain} | Betterlytics",
+        "description": "Analisi web per {domain}.",
+        "keywords": ["Analisi web", "Dashboard di analisi"]
       }
     },
     "comparison": {
@@ -1365,7 +1385,8 @@
       "pricing": "Prezzi",
       "goToDashboard": "Vai alla dashboard",
       "getStarted": "Inizia",
-      "login": "Accedi"
+      "login": "Accedi",
+      "toggleMenu": "Apri/chiudi menu"
     },
     "footer": {
       "blurb": "Analitiche web privacy-first per il web moderno. Conforme GDPR, senza cookie e open source.",
@@ -1387,7 +1408,8 @@
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
-      "copyright": "© {year} Betterlytics. Open source sotto licenza AGPL-3.0."
+      "copyright": "© {year} Betterlytics. Open source sotto licenza AGPL-3.0.",
+      "changeLanguage": "Cambia lingua"
     },
     "structuredData": {
       "organization": {
@@ -2823,9 +2845,6 @@
         "skipInactive": "Salta inattività",
         "playbackSpeedAria": "Velocità di riproduzione",
         "recordingDisabled": "Registrazione disabilitata su questa pagina"
-      },
-      "timeline": {
-        "viewErrorDetails": "Visualizza dettagli errore"
       }
     },
     "integration": {
@@ -3246,10 +3265,27 @@
       "badgeNew": "Nuovo",
       "tooltipWhatsNew": "Visualizza le novità",
       "openButtonAria": "Visualizza le novità nella versione {version}"
+    },
+    "themeToggle": {
+      "light": "Passa alla modalità chiara",
+      "dark": "Passa alla modalità scura"
+    },
+    "errorPage": {
+      "title": "Qualcosa è andato storto",
+      "description": "Si è verificato un errore imprevisto durante il caricamento della dashboard.",
+      "refresh": "Ricarica pagina",
+      "goToDashboards": "Vai alle dashboard",
+      "goBack": "Torna indietro",
+      "persists": "Se il problema persiste, <link>contatta il supporto</link>.",
+      "errorId": "ID errore: {id}",
+      "time": "Ora: {time}"
     }
   },
   "onboarding": {
-    "registrationDisabled": "La registrazione è attualmente disabilitata su questa istanza.",
+    "progress": {
+      "website": "Sito web",
+      "integration": "Integrazione"
+    },
     "account": {
       "features": {
         "feature1": {
@@ -3330,7 +3366,8 @@
         "reactDescription": "Aggiungi al tuo componente App principale",
         "npmDescription": "Installa il pacchetto npm",
         "npmInstallFirst": "Prima, installa il pacchetto:",
-        "npmThenInitialize": "Poi inizializzalo nel tuo codice:"
+        "npmThenInitialize": "Poi inizializzalo nel tuo codice:",
+        "viewDocs": "Vedi documentazione"
       },
       "buttons": {
         "skipForNow": "Salta per ora",
@@ -4242,6 +4279,8 @@
       "customDomainInvalid": "Inserisci un sottodominio, es. status.example.com.",
       "customDomainSetup": {
         "intro": "Aggiungi questo record DNS presso il tuo provider di dominio per puntare <strong>{domain}</strong> a Betterlytics.",
+        "introSelfHosted": "Aggiungi questo record DNS presso il tuo provider di dominio per puntare <strong>{domain}</strong> a questa istanza.",
+        "proxyHintSelfHosted": "In modalità Standalone il certificato HTTPS viene emesso automaticamente. Dietro il tuo reverse proxy, aggiungi questo dominio anche al proxy. <link>Leggi la guida alla configurazione</link>",
         "recordType": "Tipo",
         "recordName": "Nome",
         "recordValue": "Valore",
@@ -4256,6 +4295,7 @@
         "title": "Visibilità sui motori di ricerca",
         "public": "Pubblica",
         "publicHint": "Chiunque abbia il link può vederla. Indicizzata dai motori di ricerca.",
+        "publicHintSelfHosted": "Chiunque abbia il link può vederla. I motori di ricerca la indicizzano solo se questa istanza consente la scansione.",
         "unlisted": "Non in elenco",
         "unlistedHint": "Chiunque abbia il link può vederla, ma è nascosta ai motori di ricerca."
       },

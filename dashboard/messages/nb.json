@@ -732,6 +732,11 @@
             "GDPR-kompatibel analyse"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Logg inn | Betterlytics",
+          "description": "Logg inn på denne Betterlytics-instansen.",
+          "keywords": ["Logg inn", "Innlogging"]
+        },
         "title": "Logg inn på kontoen din",
         "subtitle": "Få tilgang til analysedashboardet ditt",
         "errors": {
@@ -864,7 +869,17 @@
             "tooManyAttempts": "For mange forsøk. Prøv igjen senere.",
             "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
           },
-          "successMessage": "Passordet ble tilbakestilt!"
+          "successMessage": "Passordet ble tilbakestilt!",
+          "newPasswordLabel": "Nytt passord",
+          "newPasswordPlaceholder": "Skriv inn det nye passordet ditt",
+          "confirmPasswordLabel": "Bekreft nytt passord",
+          "confirmPasswordPlaceholder": "Bekreft det nye passordet ditt",
+          "requirementsTitle": "Krav til passord:",
+          "requirementMinLength": "Minst 8 tegn",
+          "requirementLowercase": "Minst én liten bokstav",
+          "requirementUppercase": "Minst én stor bokstav",
+          "submit": "Tilbakestill passord",
+          "submitting": "Tilbakestiller passord..."
         },
         "cta": {
           "remember": "Husker du passordet ditt?",
@@ -920,6 +935,11 @@
           "Nettanalysedemo",
           "Personvern-først analyse"
         ]
+      },
+      "seoSelfHosted": {
+        "title": "{domain} | Betterlytics",
+        "description": "Nettanalyse for {domain}.",
+        "keywords": ["Nettanalyse", "Analysedashboard"]
       }
     },
     "comparison": {
@@ -1365,7 +1385,8 @@
       "pricing": "Priser",
       "goToDashboard": "Gå til dashboard",
       "getStarted": "Kom i gang",
-      "login": "Logg inn"
+      "login": "Logg inn",
+      "toggleMenu": "Vis/skjul meny"
     },
     "footer": {
       "blurb": "Personvern-først nettanalyse for det moderne nettet. GDPR-kompatibel, informasjonskapselfri og åpen kildekode.",
@@ -1387,7 +1408,8 @@
       "github": "GitHub-side",
       "bluesky": "Bluesky-kanal",
       "discord": "Discord-kanal",
-      "copyright": "© {year} Betterlytics. Åpen kildekode under AGPL-3.0-lisens."
+      "copyright": "© {year} Betterlytics. Åpen kildekode under AGPL-3.0-lisens.",
+      "changeLanguage": "Bytt språk"
     },
     "structuredData": {
       "organization": {
@@ -2823,9 +2845,6 @@
         "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Avspillingshastighet",
         "recordingDisabled": "Opptak er deaktivert på denne siden"
-      },
-      "timeline": {
-        "viewErrorDetails": "Se feildetaljer"
       }
     },
     "integration": {
@@ -3246,10 +3265,27 @@
       "badgeNew": "Ny",
       "tooltipWhatsNew": "Se hva som er nytt",
       "openButtonAria": "Se hva som er nytt i versjon {version}"
+    },
+    "themeToggle": {
+      "light": "Bytt til lyst tema",
+      "dark": "Bytt til mørkt tema"
+    },
+    "errorPage": {
+      "title": "Noe gikk galt",
+      "description": "Det oppstod en uventet feil under lasting av dashboardet ditt.",
+      "refresh": "Last inn siden på nytt",
+      "goToDashboards": "Gå til dashboards",
+      "goBack": "Gå tilbake",
+      "persists": "Hvis problemet vedvarer, <link>kontakt support</link>.",
+      "errorId": "Feil-ID: {id}",
+      "time": "Tidspunkt: {time}"
     }
   },
   "onboarding": {
-    "registrationDisabled": "Registrering er for øyeblikket deaktivert på denne instansen.",
+    "progress": {
+      "website": "Nettsted",
+      "integration": "Integrasjon"
+    },
     "account": {
       "features": {
         "feature1": {
@@ -3330,7 +3366,8 @@
         "reactDescription": "Legg til i hovedkomponenten App",
         "npmDescription": "Installer npm-pakken",
         "npmInstallFirst": "Installer først pakken:",
-        "npmThenInitialize": "Initialiser den deretter i koden din:"
+        "npmThenInitialize": "Initialiser den deretter i koden din:",
+        "viewDocs": "Se dokumentasjon"
       },
       "buttons": {
         "skipForNow": "Hopp over foreløpig",
@@ -4242,6 +4279,8 @@
       "customDomainInvalid": "Skriv inn et underdomene, f.eks. status.example.com.",
       "customDomainSetup": {
         "intro": "Legg til denne DNS-oppføringen hos domeneleverandøren din for å peke <strong>{domain}</strong> mot Betterlytics.",
+        "introSelfHosted": "Legg til denne DNS-oppføringen hos domeneleverandøren din for å peke <strong>{domain}</strong> mot denne instansen.",
+        "proxyHintSelfHosted": "I Standalone-modus utstedes HTTPS-sertifikatet automatisk. Bak din egen reverse proxy må domenet også legges til i proxyen. <link>Les oppsettsveiledningen</link>",
         "recordType": "Type",
         "recordName": "Navn",
         "recordValue": "Verdi",
@@ -4256,6 +4295,7 @@
         "title": "Synlighet i søkemotorer",
         "public": "Offentlig",
         "publicHint": "Alle med lenken kan se siden. Indekseres av søkemotorer.",
+        "publicHintSelfHosted": "Alle med lenken kan se siden. Søkemotorer indekserer den bare hvis denne instansen tillater crawling.",
         "unlisted": "Ikke oppført",
         "unlistedHint": "Alle med lenken kan se siden, men den skjules for søkemotorer."
       },
