@@ -121,7 +121,7 @@ export function getFrameworkCode(
   const { siteId, analyticsUrl, serverUrl, isCloud } = config;
   const serverUrlAttr = !isCloud && serverUrl ? `\n    data-server-url="${serverUrl}/event"` : '';
 
-  const trackingScript = `<script async
+  const trackingScript = `<script async data-betterlytics-tracker
     src="${analyticsUrl}/analytics.js"
     data-site-id="${siteId}"${serverUrlAttr}>
 </script>`;

@@ -5,9 +5,15 @@
   }
   window.__betterlytics_analytics_initialized__ = true;
 
+  // currentScript is null when an optimizer (Rocket Loader, defer/combine) injects us; never match another vendor's analytics.js
   var script =
     document.currentScript ||
-    document.querySelector('script[src*="analytics.js"]');
+    document.querySelector("script[data-betterlytics-tracker]") ||
+    document.querySelector('script[data-site-id][src*="analytics"]');
+  if (!script) {
+    console.error("Betterlytics: could not find own script tag");
+    return;
+  }
   var siteId = script.getAttribute("data-site-id");
 
   var serverUrl = script.getAttribute("data-server-url");
