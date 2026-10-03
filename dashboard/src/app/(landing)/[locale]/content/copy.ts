@@ -52,7 +52,7 @@ export const COPY = {
     activateAria: 'Click anywhere to explore the interactive demo dashboard',
   },
   customers: {
-    label: 'Trusted by *fast-growing* startups',
+    label: 'Used by teams at',
   },
   journey: {
     title: 'Everything your users *experienced*',
