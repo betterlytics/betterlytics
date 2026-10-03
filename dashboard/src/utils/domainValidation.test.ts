@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeDomainInput } from './domainValidation';
+import { normalizeDomainInput, normalizeUrl } from './domainValidation';
+
+describe('normalizeUrl', () => {
+  it('keeps a non-default port so different ports do not collide', () => {
+    expect(normalizeUrl('http://a.lan:3000/')).toBe('http://a.lan:3000/');
+    expect(normalizeUrl('http://a.lan:3000/')).not.toBe(normalizeUrl('http://a.lan:9090/'));
+  });
+
+  it.each([
+    ['http://a.lan:80/', 'http://a.lan/'],
+    ['https://a.lan:443/health', 'https://a.lan/health'],
+    ['HTTP://A.LAN:3000/x/', 'http://a.lan:3000/x'],
+  ])('%s normalizes like %s', (a, b) => {
+    expect(normalizeUrl(a)).toBe(normalizeUrl(b));
+  });
+});
 
 describe('normalizeDomainInput', () => {
   it.each([
