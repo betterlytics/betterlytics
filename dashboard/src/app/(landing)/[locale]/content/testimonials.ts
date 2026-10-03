@@ -1,70 +1,10 @@
-/**
- * Placeholders, not real customers: replace before launch.
- * `*…*` marks the emphasised clause; `volt` makes a brand-colour card; `avatar` is a file in
- * public/images/testimonials (initials without one).
- */
-export type Testimonial = { quote: string; name: string; role: string; avatar?: string; volt?: boolean };
-
-export const TESTIMONIAL_ROWS: readonly (readonly Testimonial[])[] = [
-  [
-    {
-      quote:
-        "We replaced GA4 in an afternoon and got more data back, not less. The part that convinced our board wasn't the dashboard — it was *deleting the cookie banner*.",
-      name: 'Ingrid Sørensen',
-      role: 'Head of Growth, Kestrel Bank',
-      avatar: 'placeholder-1.png',
-    },
-    {
-      quote:
-        'Our consent banner was quietly *costing us 40% of sessions*. Betterlytics needs neither, and the numbers finally match what the order table says.',
-      name: 'Tomas Lindqvist',
-      role: 'CTO, Halden Freight',
-      avatar: 'placeholder-2.png',
-    },
-    {
-      quote:
-        'Funnels that actually segment by source. We found the drop-off in two minutes; the old tool had been *averaging it away for a year*.',
-      name: 'Priya Raman',
-      role: 'Head of Product, Verity Health',
-      avatar: 'placeholder-1.png',
-    },
-    {
-      quote:
-        '4.9 kB, loaded after paint. Our *LCP went down after adding analytics*, which I did not expect to ever be able to say.',
-      name: 'Marc Delaunay',
-      role: 'Founder, Silo',
-      avatar: 'placeholder-2.png',
-    },
-  ],
-  [
-    {
-      quote:
-        'The AI-assistant breakdown is the first report I open every morning. *Nobody else was even measuring* where that traffic came from.',
-      name: 'Anna Kowalski',
-      role: 'Marketing Lead, Northbeam',
-      avatar: 'placeholder-1.png',
-    },
-    {
-      quote:
-        "*Five years of unsampled events*. We ran a cohort query across the entire history and it came back before I'd finished reading the form.",
-      name: 'Diego Santos',
-      role: 'Engineering Manager, Merida',
-      avatar: 'placeholder-2.png',
-      volt: true,
-    },
-    {
-      quote:
-        'We self-host the ingest inside our own VPC. Legal signed off *in a week instead of a quarter*, which has never happened here before.',
-      name: 'Lena Fischer',
-      role: 'Data Lead, Ordnance',
-      avatar: 'placeholder-1.png',
-    },
-    {
-      quote:
-        'Unlimited seats meant people *stopped asking me for screenshots*. Support, sales and design all just look at it themselves now.',
-      name: 'Sam Okonkwo',
-      role: 'CEO, Linnaeus',
-      avatar: 'placeholder-2.png',
-    },
-  ],
-];
+/** Awaiting Christoffer's written approval of this exact wording, his name and Edora's logo before launch. */
+export const QUOTE = {
+  /* `*…*` marks the emphasised clause */
+  text: 'Google Analytics was complex to set up and hard to get right. With Betterlytics *we run it on our own servers*, keep the control we need and get an intuitive dashboard that does a lot more.',
+  name: 'Christoffer Romild',
+  role: 'Senior Engineer',
+  company: 'Edora',
+  /* Edora's own secondary logo for dark backgrounds, unaltered */
+  logo: { src: '/images/customers/edora.svg', width: 450, height: 157 },
+};

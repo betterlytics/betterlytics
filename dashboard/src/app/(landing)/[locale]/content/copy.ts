@@ -126,11 +126,6 @@ export const COPY = {
       body: 'No cookies, no fingerprinting, no consent banner. GDPR, ePrivacy and PECR compliant by default, on EU-only infrastructure.',
     },
   },
-  quotes: {
-    title: 'Teams that stopped guessing',
-    lede: 'In their own words, what changed after the switch.',
-    marquee: 'Testimonials',
-  },
   pricing: {
     title: 'One price, scaled by your traffic',
     lede: "Bots we catch don't count, and a traffic spike never costs extra.",

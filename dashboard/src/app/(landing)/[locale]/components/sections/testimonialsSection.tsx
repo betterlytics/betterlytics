@@ -1,105 +1,34 @@
 import Image from 'next/image';
 import { Emphasis } from '@/landing/components/ui/emphasis';
 import { Panel, Section } from '@/landing/components/ui/frame';
-import { InView } from '@/landing/components/ui/inView';
-import { COPY } from '@/landing/content/copy';
-import { TESTIMONIAL_ROWS, type Testimonial } from '@/landing/content/testimonials';
-import { cn } from '@/landing/lib/cn';
+import { QUOTE } from '@/landing/content/testimonials';
 import { IDS } from '@/landing/lib/ids';
-import styles from './testimonialsSection.module.css';
-
-const TONES = {
-  surface: {
-    card: '',
-    quote: 'opacity-90',
-    emphasis: 'font-normal text-volt-soft',
-    avatar: 'border-rule-08 bg-fg/7 text-muted',
-    role: 'text-muted',
-  },
-  volt: {
-    card: cn(styles.volt, 'text-on-volt'),
-    quote: 'opacity-95',
-    emphasis: 'font-medium',
-    avatar: 'border-on-volt/28 bg-on-volt/16',
-    role: 'opacity-72',
-  },
-} as const;
-
-function initials(name: string) {
-  return name
-    .split(' ')
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 2)
-    .toUpperCase();
-}
-
-function Card({ testimonial, repeat = false }: { testimonial: Testimonial; repeat?: boolean }) {
-  const { quote, name, role, avatar, volt } = testimonial;
-  const tone = TONES[volt ? 'volt' : 'surface'];
-  return (
-    <figure
-      className={cn(
-        styles.card,
-        tone.card,
-        repeat && styles.repeat,
-        'flex w-98 flex-none flex-col gap-5.5 p-6.5 max-sm:w-full',
-      )}
-      aria-hidden={repeat || undefined}
-    >
-      <blockquote className={cn('text-body leading-[1.62] tracking-[-0.1px]', tone.quote)}>
-        <Emphasis text={quote} as='b' className={tone.emphasis} />
-      </blockquote>
-      <figcaption className='mt-auto flex items-center gap-3'>
-        <span
-          className={cn(
-            'grid size-9.5 flex-none place-items-center overflow-hidden rounded-full border font-mono text-micro tracking-[0.04em]',
-            tone.avatar,
-          )}
-          aria-hidden
-        >
-          {avatar ? (
-            <Image
-              className='size-full object-cover'
-              src={`/images/testimonials/${avatar}`}
-              alt=''
-              width={38}
-              height={38}
-              unoptimized
-            />
-          ) : (
-            initials(name)
-          )}
-        </span>
-        <span>
-          <b className='block text-label font-medium tracking-[-0.1px]'>{name}</b>
-          <span className={cn('text-code', tone.role)}>{role}</span>
-        </span>
-      </figcaption>
-    </figure>
-  );
-}
 
 export function TestimonialsSection() {
+  const { text, name, role, company, logo } = QUOTE;
   return (
-    <Section id={IDS.quotes} title={COPY.quotes.title} lede={COPY.quotes.lede}>
-      <Panel flush>
-        <InView className={styles.marquee} tabIndex={0} role='region' aria-label={COPY.quotes.marquee}>
-          <div className={styles.window}>
-            <div className={styles.track}>
-              {TESTIMONIAL_ROWS.map((row, r) => (
-                <div key={r} className={styles.row}>
-                  {row.map((testimonial) => (
-                    <Card key={testimonial.name} testimonial={testimonial} />
-                  ))}
-                  {row.map((testimonial) => (
-                    <Card key={`${testimonial.name} (repeat)`} testimonial={testimonial} repeat />
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </InView>
+    <Section id={IDS.quotes}>
+      <Panel>
+        <figure className='mx-auto flex max-w-[54rem] flex-col items-center gap-10 py-16 text-center max-sm:items-start max-sm:gap-8 max-sm:py-10 max-sm:text-left'>
+          <blockquote className='text-[2rem] leading-[1.28] font-medium tracking-[-0.03em] text-balance max-lg:text-[1.625rem] max-sm:text-[1.3125rem]'>
+            “<Emphasis text={text} as='b' className='font-medium text-volt-soft' />”
+          </blockquote>
+          <figcaption className='flex items-center gap-5'>
+            <span className='text-left'>
+              <b className='block text-label font-medium'>{name}</b>
+              <span className='text-code text-muted'>{role}</span>
+            </span>
+            <span className='h-9 w-px bg-rule-22' aria-hidden />
+            <Image
+              src={logo.src}
+              alt={company}
+              width={logo.width}
+              height={logo.height}
+              unoptimized
+              className='h-6 w-auto'
+            />
+          </figcaption>
+        </figure>
       </Panel>
     </Section>
   );
