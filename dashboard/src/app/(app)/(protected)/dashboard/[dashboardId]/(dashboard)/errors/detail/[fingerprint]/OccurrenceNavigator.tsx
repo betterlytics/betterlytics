@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import type { ErrorOccurrence } from '@/entities/analytics/errors.entities';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useTranslations } from 'next-intl';
@@ -46,12 +47,17 @@ export function OccurrenceNavigator({
   currentOffset,
 }: OccurrenceNavigatorProps) {
   const t = useTranslations('errors.detail.navigator');
+  const { timeZone } = useTimeRangeContext();
   return (
     <div className='border-border bg-muted/30 min-w-0 overflow-hidden rounded-t-xl border-b px-4 py-2'>
       <div className='flex items-center justify-between gap-2 xl:grid xl:grid-cols-3'>
         {occurrence ? (
           <span className='text-muted-foreground shrink-0 text-xs'>
-            {formatLocalDateTime(occurrence.timestamp, undefined, { dateStyle: 'medium', timeStyle: 'short' })}
+            {formatLocalDateTime(occurrence.timestamp, undefined, {
+              dateStyle: 'medium',
+              timeStyle: 'short',
+              timeZone,
+            })}
           </span>
         ) : (
           <span />

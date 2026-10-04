@@ -17,6 +17,7 @@ import {
   INTEGRATION_TYPES,
 } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
+import ExternalLink from '@/components/ExternalLink';
 import { IntegrationCard } from './IntegrationCard';
 import { PushoverConfigDialog } from './dialogs/PushoverConfigDialog';
 import { DiscordConfigDialog } from './dialogs/DiscordConfigDialog';
@@ -30,12 +31,14 @@ interface IntegrationsSettingsProps {
   availableTypesPromise: Promise<IntegrationType[]>;
   integrationsPromise: Promise<Integration[]>;
   monitoringEnabled: boolean;
+  isCloud: boolean;
 }
 
 export default function IntegrationsSettings({
   availableTypesPromise,
   integrationsPromise,
   monitoringEnabled,
+  isCloud,
 }: IntegrationsSettingsProps) {
   const t = useTranslations('integrationsSettings');
   const dashboardId = useDashboardId();
@@ -148,7 +151,22 @@ export default function IntegrationsSettings({
         ))}
       </div>
 
-      <p className='text-muted-foreground mt-6 text-center text-xs'>{t('moreIntegrations')}</p>
+      <p className='text-muted-foreground mt-6 text-center text-xs'>
+        {isCloud
+          ? t('moreIntegrations')
+          : t.rich('moreIntegrationsSelfHosted', {
+              link: (chunks) => (
+                <ExternalLink
+                  href='https://github.com/betterlytics/betterlytics/issues'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='hover:text-foreground underline'
+                >
+                  {chunks}
+                </ExternalLink>
+              ),
+            })}
+      </p>
 
       <PushoverConfigDialog
         open={configDialogType === 'pushover'}

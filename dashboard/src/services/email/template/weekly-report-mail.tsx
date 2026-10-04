@@ -2,6 +2,7 @@ import { Hr, Link, Section, Text } from '@react-email/components';
 import { format } from 'date-fns';
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 import type { EmailData } from '@/services/email/types';
 import { ReportData } from '@/services/reports/report-data.service';
 import { formatDuration } from '@/utils/dateFormatters';
@@ -32,6 +33,8 @@ function getTrend(change: number | null): { icon: string; color: string; text: s
 }
 
 function ReportSignature() {
+  if (!sharedEmailEnv.isCloud) return null;
+
   return (
     <Section className='mt-10 pt-5'>
       <Hr className='mb-5 border-slate-200' />

@@ -292,6 +292,11 @@ export const SEO_CONFIGS = {
     path: '/signup',
     structuredDataType: 'webpage',
   },
+  signupSelfHosted: {
+    namespace: 'public.auth.register.seoSelfHosted',
+    path: '/signup',
+    structuredDataType: 'webpage',
+  },
   publicDemo: {
     namespace: 'public.demo.seo',
     path: '/share',
@@ -299,6 +304,11 @@ export const SEO_CONFIGS = {
   },
   onboarding: {
     namespace: 'public.auth.register.seo',
+    path: '/onboarding',
+    structuredDataType: 'webpage',
+  },
+  onboardingSelfHosted: {
+    namespace: 'public.auth.register.seoSelfHosted',
     path: '/onboarding',
     structuredDataType: 'webpage',
   },

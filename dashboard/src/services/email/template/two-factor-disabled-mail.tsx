@@ -1,3 +1,4 @@
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 import type { EmailData } from '@/services/email/types';
 import { EmailLayout, Greeting, H1, P, PrimaryLink, renderEmailTemplate } from './_components';
 
@@ -22,10 +23,14 @@ export function TwoFactorDisabledEmail({ userName }: TwoFactorDisabledEmailData)
         protected by password only.
       </P>
 
-      <P>
-        If this wasn't you, re-enable 2FA immediately, reset your password, and contact us at{' '}
-        <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>.
-      </P>
+      {sharedEmailEnv.isCloud ? (
+        <P>
+          If this wasn't you, re-enable 2FA immediately, reset your password, and contact us at{' '}
+          <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>.
+        </P>
+      ) : (
+        <P>If this wasn't you, re-enable 2FA immediately, reset your password, and contact your administrator.</P>
+      )}
     </EmailLayout>
   );
 }

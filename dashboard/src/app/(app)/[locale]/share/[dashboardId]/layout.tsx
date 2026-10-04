@@ -69,20 +69,25 @@ export default async function PublicDashboardLayout({ params, children }: Public
     </DashboardLayoutShell>
   );
 
-  return (
-    <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
+  const dashboard = (
+    <>
       <TimezoneCookieInitializer />
       <DashboardAuthProvider isDemo={true} role='viewer'>
         <DashboardProvider initialSettings={initialSettings}>
-          <BillingFlowProvider>
-            {userSettings ? (
-              <UserSettingsProvider initialSettings={userSettings}>{shell}</UserSettingsProvider>
-            ) : (
-              shell
-            )}
-          </BillingFlowProvider>
+          <BillingFlowProvider>{shell}</BillingFlowProvider>
         </DashboardProvider>
       </DashboardAuthProvider>
+    </>
+  );
+
+  // Above the cookie and dashboard providers, so signed-in viewers see their own timezone setting
+  return (
+    <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
+      {userSettings ? (
+        <UserSettingsProvider initialSettings={userSettings}>{dashboard}</UserSettingsProvider>
+      ) : (
+        dashboard
+      )}
     </PublicEnvironmentVariablesProvider>
   );
 }

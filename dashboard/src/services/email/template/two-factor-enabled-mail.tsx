@@ -1,3 +1,4 @@
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 import type { EmailData } from '@/services/email/types';
 import { EmailLayout, Greeting, H1, P, PrimaryLink, renderEmailTemplate } from './_components';
 
@@ -18,14 +19,18 @@ export function TwoFactorEnabledEmail({ userName }: TwoFactorEnabledEmailData) {
       <Greeting userName={userName} />
 
       <P>
-        Two-factor authentication (2FA) is now active on your Betterlytics account. From now on, you'll need a
-        code from your authenticator app each time you sign in.
+        Two-factor authentication (2FA) is now active on your Betterlytics account. From now on, you'll need a code
+        from your authenticator app each time you sign in.
       </P>
 
-      <P>
-        If you didn't enable 2FA, your account may be compromised — contact us immediately at{' '}
-        <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>.
-      </P>
+      {sharedEmailEnv.isCloud ? (
+        <P>
+          If you didn't enable 2FA, your account may be compromised — contact us immediately at{' '}
+          <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>.
+        </P>
+      ) : (
+        <P>If you didn't enable 2FA, your account may be compromised. Contact your administrator immediately.</P>
+      )}
     </EmailLayout>
   );
 }

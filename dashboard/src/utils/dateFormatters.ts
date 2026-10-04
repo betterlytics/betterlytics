@@ -1,5 +1,7 @@
+import type moment from 'moment-timezone';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { DateString, DateTimeString } from '@/types/dates';
+import { createDateTimeFormat, zonedMoment } from './timezone';
 
 // Formats date strings to Clickhouse date column format
 export function toDateString(date: string | Date): DateString {
@@ -178,6 +180,16 @@ export function formatDurationPrecise(ms: number, locale?: SupportedLanguages): 
   return `${formatUnit(minutes, 'minute', locale)} ${formatUnit(seconds, 'second', locale)}`;
 }
 
+// The fields Date.prototype.toLocaleString(locale) prints by default
+export const LOCALE_STRING_OPTIONS: Intl.DateTimeFormatOptions = {
+  year: 'numeric',
+  month: 'numeric',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+};
+
 // Formats a date/time to a locale-aware human-readable string
 export function formatLocalDateTime(
   date: string | Date | undefined | null,
@@ -187,7 +199,7 @@ export function formatLocalDateTime(
   if (!date) return undefined;
   const d = typeof date === 'string' ? new Date(date) : date;
   if (Number.isNaN(d.getTime())) return undefined;
-  return new Intl.DateTimeFormat(locale, options).format(d);
+  return createDateTimeFormat(locale, options ?? {}).format(d);
 }
 
 // Formats a date relative to now (e.g., "3 days ago"), localized via Intl.RelativeTimeFormat
@@ -221,20 +233,31 @@ export function formatRelativeTimeFromNow(date: string | Date, locale?: Supporte
  * Formats a week as a date range like "Jan 6 – 12" or "Dec 30 – Jan 5"
  * Optionally includes the year: "Jan 6 – 12, 2026"
  */
-export function formatWeekRange(date: Date, locale?: SupportedLanguages, includeYear = false): string {
-  const weekStart = new Date(date);
-  const weekEnd = new Date(date);
-  weekEnd.setDate(weekEnd.getDate() + 6);
+export function formatWeekRange(
+  date: Date,
+  locale?: SupportedLanguages,
+  includeYear = false,
+  timeZone?: string,
+): string {
+  const weekStart = zonedMoment(date, timeZone);
+  const weekEnd = weekStart.clone().add(6, 'days');
 
-  return formatDateRange(weekStart, weekEnd, locale, includeYear);
+  return formatDateRange(weekStart, weekEnd, locale, includeYear, timeZone);
 }
 
-function formatDateRange(start: Date, end: Date, locale?: string, includeYear = false): string {
-  const startMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(start);
-  const endMonth = new Intl.DateTimeFormat(locale, { month: 'short' }).format(end);
-  const startDay = start.getDate();
-  const endDay = end.getDate();
-  const yearSuffix = includeYear ? `, ${end.getFullYear()}` : '';
+function formatDateRange(
+  start: moment.Moment,
+  end: moment.Moment,
+  locale?: string,
+  includeYear = false,
+  timeZone?: string,
+): string {
+  const monthFormatter = createDateTimeFormat(locale, { month: 'short' }, timeZone);
+  const startMonth = monthFormatter.format(start.toDate());
+  const endMonth = monthFormatter.format(end.toDate());
+  const startDay = start.date();
+  const endDay = end.date();
+  const yearSuffix = includeYear ? `, ${end.year()}` : '';
 
   if (startDay === endDay && startMonth === endMonth) {
     return `${startMonth} ${startDay}${yearSuffix}`;
@@ -255,34 +278,26 @@ export function getPartialBucketRange(
   rangeEnd: Date,
   granularity: 'week' | 'month',
   locale?: string,
+  timeZone?: string,
 ): string | undefined {
   if (bucketDate == null) return undefined;
-  const d = new Date(bucketDate);
-  if (Number.isNaN(d.getTime())) return undefined;
+  const parsed = new Date(bucketDate);
+  if (Number.isNaN(parsed.getTime())) return undefined;
+  const d = zonedMoment(parsed, timeZone);
 
-  let bucketStart: Date;
-  let bucketEnd: Date;
+  const bucketStart = granularity === 'week' ? d.clone() : d.clone().startOf('month');
+  const bucketEnd = granularity === 'week' ? d.clone().add(6, 'days') : d.clone().endOf('month').startOf('day');
+  const start = zonedMoment(rangeStart, timeZone);
+  const end = zonedMoment(rangeEnd, timeZone);
 
-  if (granularity === 'week') {
-    bucketStart = new Date(d);
-    bucketEnd = new Date(d);
-    bucketEnd.setDate(bucketEnd.getDate() + 6);
-  } else {
-    bucketStart = new Date(d.getFullYear(), d.getMonth(), 1);
-    bucketEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0);
-  }
+  const startOfDay = (date: moment.Moment) => date.clone().startOf('day').valueOf();
 
-  const startOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const actualStart = startOfDay(bucketStart) < startOfDay(start) ? start : bucketStart;
+  const actualEnd = startOfDay(bucketEnd) > startOfDay(end) ? end : bucketEnd;
 
-  const actualStart = startOfDay(bucketStart) < startOfDay(rangeStart) ? rangeStart : bucketStart;
-  const actualEnd = startOfDay(bucketEnd) > startOfDay(rangeEnd) ? rangeEnd : bucketEnd;
-
-  if (
-    startOfDay(actualStart).getTime() <= startOfDay(bucketStart).getTime() &&
-    startOfDay(actualEnd).getTime() >= startOfDay(bucketEnd).getTime()
-  ) {
+  if (startOfDay(actualStart) <= startOfDay(bucketStart) && startOfDay(actualEnd) >= startOfDay(bucketEnd)) {
     return undefined;
   }
 
-  return formatDateRange(actualStart, actualEnd, locale);
+  return formatDateRange(actualStart, actualEnd, locale, false, timeZone);
 }

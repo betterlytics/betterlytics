@@ -21,7 +21,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
 
-  const seoConfig = await buildSEOConfig(SEO_CONFIGS.signup);
+  const seoConfig = await buildSEOConfig(
+    isFeatureEnabled('isCloud') ? SEO_CONFIGS.signup : SEO_CONFIGS.signupSelfHosted,
+  );
   return generateSEO(seoConfig, {
     locale,
     robots: {
@@ -45,6 +47,8 @@ type SignupPageProps = {
 export default async function SignupPage({ searchParams }: SignupPageProps) {
   const session = await getAuthSession();
   const t = await getTranslations('public.auth.register');
+  const tForm = await getTranslations('onboarding.account.form');
+  const isCloud = isFeatureEnabled('isCloud');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.signup);
   const { invite } = await searchParams;
 
@@ -56,12 +60,15 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
     redirect(acceptPath ?? '/dashboards');
   }
 
-  if (
-    !(await getSignupAllowance({ email: openInvitation?.email, inviteToken: openInvitation ? invite : undefined }))
-  ) {
+  const allowance = await getSignupAllowance({
+    email: openInvitation?.email,
+    inviteToken: openInvitation ? invite : undefined,
+  });
+
+  if (!allowance) {
     return (
       <>
-        <StructuredData config={seoConfig} />
+        {isCloud && <StructuredData config={seoConfig} />}
         <div className='bg-background flex flex-1 items-center justify-center px-4 py-12 sm:px-6 lg:px-8'>
           <div className='w-full max-w-md space-y-8'>
             <div className='text-center'>
@@ -69,7 +76,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
                 <Logo variant='simple' showText textSize='lg' priority />
               </div>
               <h2 className='text-foreground text-2xl font-semibold'>{t('disabled.title')}</h2>
-              <p className='text-muted-foreground mt-3 text-sm'>{t('disabled.description')}</p>
+              <p className='text-muted-foreground mt-3 text-sm'>{tForm('registrationDisabled')}</p>
               <div className='mt-6'>
                 <Link href='/signin' className='text-primary hover:text-primary/80 text-sm font-medium underline'>
                   {t('disabled.backToSignIn')}
@@ -86,14 +93,16 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
 
   return (
     <>
-      <StructuredData config={seoConfig} />
+      {isCloud && <StructuredData config={seoConfig} />}
       <SignupForm
         providers={providers}
         invitedEmail={openInvitation?.email}
         invitedDomain={openInvitation?.dashboard?.domain}
         inviteToken={openInvitation ? invite : undefined}
         redirectTo={acceptPath}
-        requireTerms={isFeatureEnabled('isCloud')}
+        requireTerms={isCloud}
+        isCloud={isCloud}
+        isFirstUser={allowance === 'first_user'}
       />
     </>
   );
