@@ -140,7 +140,7 @@ export function getFrameworkCode(
   const init = initCall('"');
   const initSingleQuoted = initCall("'");
 
-  const trackingScript = `<script async
+  const trackingScript = `<script async data-betterlytics-tracker
     src="${scriptUrl}"
     data-site-id="${siteId}"${serverUrlAttr}>
 </script>`;
