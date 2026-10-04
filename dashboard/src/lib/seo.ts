@@ -18,7 +18,7 @@ export interface SEOConfig {
 
 /** The image repeats the landing hero's headline (and `public.shareImage.alt` quotes it); redo both when that changes. */
 const DEFAULT_IMAGE = {
-  url: '/og-image.jpg',
+  url: '/og_image.jpg',
   width: 1200,
   height: 630,
 };
