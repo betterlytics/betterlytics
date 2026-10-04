@@ -5,9 +5,10 @@ import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
 import type { Tier } from '@/entities/billing/billing.entities';
+import { EventCountFlow } from '@/components/pricing/EventCountFlow';
 import { usePlanFeatures, type PlanFeatureLabel } from '@/components/pricing/usePlanFeatures';
 import { EVENT_RANGES, isContactSalesRange } from '@/lib/billing/plans';
-import { compactEventParts, formatEventCount } from '@/utils/pricing';
+import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
 import { RollLabel } from '@/landing/components/ui/rollLabel';
@@ -22,26 +23,17 @@ import styles from './pricingPanel.module.css';
 const CURRENCY = 'USD';
 /** Plan prices are whole dollars, so drop the cents. */
 const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
-const WHOLE = { maximumFractionDigits: 0 } as const;
 /** Cancels NumberFlow's mask padding so a figure lays out like text. */
 const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
 
 type SelectedVolume = { value: number; figure: string };
-
-function Volume({ value, className }: { value: number; className?: string }) {
-  const locale = useLocale();
-  const { scaled, suffix } = compactEventParts(value, locale);
-  return (
-    <NumberFlow className={className} value={scaled} locales={locale} format={WHOLE} suffix={suffix} willChange />
-  );
-}
 
 function WithVolume({ text, volume }: { text: string; volume: SelectedVolume }) {
   return (
     <span>
       {text.split(volume.figure).map((part, i) => (
         <Fragment key={i}>
-          {i > 0 && <Volume value={volume.value} />}
+          {i > 0 && <EventCountFlow value={volume.value} />}
           {part}
         </Fragment>
       ))}
@@ -171,7 +163,7 @@ export function PricingPanel() {
       <div className='mx-auto mb-11 flex w-full max-w-[640px] flex-col items-center gap-3.5'>
         <div className='flex items-baseline gap-2'>
           <b className='text-[26px] leading-7 font-medium tracking-[-0.8px] tabular-nums'>
-            <Volume value={range.value} className={FLUSH} />
+            <EventCountFlow value={range.value} className={FLUSH} />
           </b>
           <span className='text-label tracking-ui text-muted'>{t('monthlyEvents')}</span>
         </div>
