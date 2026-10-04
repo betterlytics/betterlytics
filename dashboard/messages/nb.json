@@ -1102,7 +1102,6 @@
       "cta": "Kom i gang gratis"
     },
     "demo": {
-      "placeholder": "Interaktiv demo",
       "loading": "Laster inn live-dashboardet",
       "frameTitle": "Live-demo av Betterlytics",
       "newTab": "(åpnes i en ny fane)",

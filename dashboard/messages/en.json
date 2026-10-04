@@ -1102,7 +1102,6 @@
       "cta": "Get started free"
     },
     "demo": {
-      "placeholder": "Interactive demo",
       "loading": "Loading the live dashboard",
       "frameTitle": "Betterlytics live demo",
       "newTab": "(opens in a new tab)",

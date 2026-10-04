@@ -14,8 +14,9 @@ const URL_HOST = 'betterlytics.io';
 const URL_PATH = '/demo';
 
 export async function DemoSection() {
+  if (!env.DEMO_DASHBOARD_ID) return null;
   const [locale, t] = await Promise.all([getLocale(), getTranslations('landing.demo')]);
-  const src = env.DEMO_DASHBOARD_ID ? getPathname({ href: `/share/${env.DEMO_DASHBOARD_ID}`, locale }) : null;
+  const src = getPathname({ href: `/share/${env.DEMO_DASHBOARD_ID}`, locale });
 
   return (
     // hidden on phones (too cramped, costly to load); the nav's Demo link covers them
@@ -36,28 +37,20 @@ export async function DemoSection() {
           <i />
           <i />
         </div>
-        {src ? (
-          <>
-            <TrackedLink
-              className='absolute top-[9px] left-1/2 z-2 max-w-[40%] -translate-x-1/2 truncate rounded-full border border-rule-10 bg-fg/3 px-[18px] py-1 font-mono text-[11.5px] leading-[18px] text-muted transition-colors duration-180 ease-out-expo hover:border-rule-22 hover:text-fg max-md:max-w-[60%]'
-              href='/demo'
-              target='_blank'
-              rel='noopener'
-              placement='demo'
-              destination='demo'
-            >
-              {URL_HOST}
-              <span className='text-fg opacity-86'>{URL_PATH}</span>
-              <ArrowUpRight className='ml-1.5 inline size-3 align-[-1px]' aria-hidden />
-              <span className='sr-only'> {t('newTab')}</span>
-            </TrackedLink>
-            <DemoFrame src={src} />
-          </>
-        ) : (
-          <p className='z-1 mb-3.5 px-6 text-center font-mono text-micro font-bold tracking-[0.16em] text-muted uppercase'>
-            {t('placeholder')}
-          </p>
-        )}
+        <TrackedLink
+          className='absolute top-[9px] left-1/2 z-2 max-w-[40%] -translate-x-1/2 truncate rounded-full border border-rule-10 bg-fg/3 px-[18px] py-1 font-mono text-[11.5px] leading-[18px] text-muted transition-colors duration-180 ease-out-expo hover:border-rule-22 hover:text-fg max-md:max-w-[60%]'
+          href='/demo'
+          target='_blank'
+          rel='noopener'
+          placement='demo'
+          destination='demo'
+        >
+          {URL_HOST}
+          <span className='text-fg opacity-86'>{URL_PATH}</span>
+          <ArrowUpRight className='ml-1.5 inline size-3 align-[-1px]' aria-hidden />
+          <span className='sr-only'> {t('newTab')}</span>
+        </TrackedLink>
+        <DemoFrame src={src} />
       </div>
     </Section>
   );
