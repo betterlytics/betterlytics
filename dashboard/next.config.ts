@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { HTML_LIMITED_BOT_UA_RE } from 'next/dist/shared/lib/router/utils/html-bots';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import createNextIntlPlugin from 'next-intl/plugin';
@@ -15,8 +16,12 @@ if (result.error) {
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  // Next streams metadata into <body> for Googlebot by default, but Google only reads canonical and hreflang in <head>
-  htmlLimitedBots: /.*/,
+  // Next's list leaves out Googlebot (it streams metadata into <body>, where Google ignores canonical and hreflang)
+  // and the AI search crawlers; everyone else keeps streamed metadata, so pages don't wait on generateMetadata
+  htmlLimitedBots: new RegExp(
+    `${HTML_LIMITED_BOT_UA_RE.source}|Googlebot|GPTBot|OAI-SearchBot|PerplexityBot|ClaudeBot`,
+    'i',
+  ),
   experimental: {
     // app and landing have separate root layouts, so unmatched URLs need a global 404
     globalNotFound: true,
