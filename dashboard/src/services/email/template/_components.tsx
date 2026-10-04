@@ -89,18 +89,20 @@ export function EmailLayout({ preview, campaign, children, signature, footer }: 
   );
 }
 
+const LOGO_PATH = '/betterlytics-logo-dark-simple-96x96-q75.png';
+
+function emailLogoUrl(): string {
+  return sharedEmailEnv.isCloud
+    ? `https://betterlytics.io${LOGO_PATH}`
+    : `${sharedEmailEnv.publicBaseUrl}${LOGO_PATH}`;
+}
+
 export function EmailHeader() {
   return (
     <Section className='mb-8 border-b border-slate-200 pb-5'>
       <Row>
         <Column className='w-12 pr-3 align-middle'>
-          <Img
-            src='https://betterlytics.io/betterlytics-logo-dark-simple-96x96-q75.png'
-            alt='Betterlytics'
-            width={48}
-            height={48}
-            className='block'
-          />
+          <Img src={emailLogoUrl()} alt='Betterlytics' width={48} height={48} className='block' />
         </Column>
         <Column className='align-middle'>
           <Text className='m-0 text-xl font-semibold text-slate-800'>Betterlytics</Text>
@@ -110,7 +112,7 @@ export function EmailHeader() {
   );
 }
 
-export function EmailFooter({ campaign }: { campaign: string }) {
+export function EmailFooter({ campaign, reason }: { campaign: string; reason?: ReactNode }) {
   return (
     <Section className='mt-8 p-5 text-center'>
       <Text className='m-0 text-xs leading-relaxed text-slate-400'>
@@ -122,7 +124,7 @@ export function EmailFooter({ campaign }: { campaign: string }) {
           Betterlytics
         </Link>
         <br />
-        You're receiving this email because you have an account on this analytics platform.
+        {reason ?? <>You're receiving this email because you have an account on this analytics platform.</>}
       </Text>
     </Section>
   );

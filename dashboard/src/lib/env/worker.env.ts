@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { emailSenderEnvIssue } from './email-sender';
 import { parseEnv } from './parse-env';
 import { sharedEmailEnvSchema, zStringBoolean } from './shared.env';
 
@@ -30,6 +31,11 @@ const workerEnvSchema = sharedEmailEnvSchema.merge(workerOnlyEnvSchema).superRef
       message: 'ENABLE_EMAILS=true requires MAILER_SEND_API_TOKEN or SMTP_HOST to be set',
       path: ['ENABLE_EMAILS'],
     });
+  }
+
+  const senderIssue = emailSenderEnvIssue(env);
+  if (senderIssue) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: senderIssue, path: ['SMTP_FROM'] });
   }
 });
 

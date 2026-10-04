@@ -49,9 +49,10 @@ export function TwoFactorResetRequiredEmail({ userName, signInUrl }: TwoFactorRe
       </P>
 
       <P>
-        To protect your account with 2FA again, sign in, open <strong>Settings &rarr; Security</strong> from your
-        avatar menu, and enable two-factor authentication. Your authenticator app will get a new QR code, and you
-        can delete the old Betterlytics entry, as it no longer produces valid codes.
+        To protect your account with 2FA again, sign in, open <strong>Settings &rarr; Account</strong> from your
+        avatar menu, and enable two-factor authentication under <strong>Account security</strong>. Your
+        authenticator app will get a new QR code, and you can delete the old Betterlytics entry, as it no longer
+        produces valid codes.
       </P>
 
       <EmailButton href={withEmailUtm(signInUrl, CAMPAIGN, 'primary_cta')}>Sign in and re-enable 2FA</EmailButton>
