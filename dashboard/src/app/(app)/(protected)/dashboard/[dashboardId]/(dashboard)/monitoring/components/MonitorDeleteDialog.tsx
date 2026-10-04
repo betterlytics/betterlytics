@@ -78,7 +78,11 @@ export function MonitorDeleteDialog({
           ) : impact.data && impact.data.length > 0 ? (
             <div className='space-y-2'>
               <p className='font-medium'>{t('deleteImpactAffectedPages')}</p>
-              <ul className='max-h-60 space-y-2 overflow-y-auto'>
+              <ul
+                tabIndex={0}
+                aria-label={t('deleteImpactAffectedPages')}
+                className='focus-visible:ring-ring max-h-60 space-y-2 overflow-y-auto rounded-md focus-visible:ring-2 focus-visible:outline-none'
+              >
                 {impact.data.map((page) => (
                   <li key={page.id} className='rounded-md border px-3 py-2'>
                     <span className='font-medium break-words'>{page.name}</span>
