@@ -69,8 +69,10 @@
     background: var(--color-live);
     box-shadow: 0 0 0 3px --alpha(var(--color-live) / 14%);
   }
-  .events[data-live] .dot {
-    animation: live-dot-blink 2.4s ease-in-out infinite;
+  @media (prefers-reduced-motion: no-preference) {
+    .events[data-live] .dot {
+      animation: live-dot-blink 2.4s ease-in-out infinite;
+    }
   }
   .status[data-paused] .dot {
     width: 6px;
