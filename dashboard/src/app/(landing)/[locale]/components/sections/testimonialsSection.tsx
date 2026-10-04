@@ -3,11 +3,12 @@ import { useTranslations } from 'next-intl';
 import { Emphasis } from '@/landing/components/ui/emphasis';
 import { Panel, Section } from '@/landing/components/ui/frame';
 import { Reveal } from '@/landing/components/ui/reveal';
-import { QUOTE } from '@/landing/content/testimonials';
+import { QUOTE, SHOW_QUOTE } from '@/landing/content/testimonials';
 import { IDS } from '@/landing/lib/ids';
 
 export function TestimonialsSection() {
   const t = useTranslations('landing.quote');
+  if (!SHOW_QUOTE) return null;
   const { name, photo, company, logo } = QUOTE;
   return (
     <Section id={IDS.quotes} className='pt-0'>
