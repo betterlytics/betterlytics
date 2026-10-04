@@ -1,8 +1,12 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use serde::Deserialize;
 use tracing::{debug, error};
+use url::Url;
 
-use crate::notifications::notifier::{Notification, Notifier, NotifierError};
+use crate::monitor::guard::{self, GuardedResolver};
+use crate::notifications::notifier::{error_body_preview, Notification, Notifier, NotifierError};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -18,6 +22,9 @@ impl SlackNotifier {
     pub fn new() -> Result<Self, reqwest::Error> {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(10))
+            .dns_resolver(Arc::new(GuardedResolver))
+            // Slack incoming webhooks never redirect
+            .redirect(reqwest::redirect::Policy::none())
             .build()?;
 
         Ok(Self { client })
@@ -37,6 +44,10 @@ impl Notifier for SlackNotifier {
     ) -> Result<(), NotifierError> {
         let slack_config = SlackConfig::deserialize(config)
             .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
+        let url = Url::parse(&slack_config.webhook_url)
+            .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
+        guard::validate_vendor_webhook_url(&url, &guard::SLACK_WEBHOOK)
+            .map_err(|e| NotifierError::InvalidConfig(e.message))?;
 
         let mut text = format!("*{}*\n\n{}", notification.title, notification.message);
 
@@ -62,17 +73,14 @@ impl Notifier for SlackNotifier {
 
         let response = self
             .client
-            .post(&slack_config.webhook_url)
+            .post(url)
             .json(&payload)
             .send()
             .await?;
 
         let status = response.status();
         if !status.is_success() {
-            let body = response
-                .text()
-                .await
-                .unwrap_or_else(|_| "failed to read response body".to_string());
+            let body = error_body_preview(response).await;
 
             let msg = format!("Slack webhook returned {status}: {body}");
 
