@@ -57,7 +57,7 @@ export default async function LandingLayout({
   return (
     <html lang={locale} className={`${sans.variable} ${mono.variable}`}>
       <head>
-        <AppTrackingScript globalProperties={{ surface: 'app', locale }} />
+        <AppTrackingScript globalProperties={{ surface: 'app', locale, theme: 'dark' }} />
         <StructuredData config={seoConfig} />
       </head>
       <body>

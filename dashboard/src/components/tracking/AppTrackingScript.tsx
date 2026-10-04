@@ -28,6 +28,8 @@ type GlobalProperties = {
   locale: string;
   /** Omit where the page must not read the session; `GlobalPropertiesUpdater` sets it after load. */
   logged_in?: boolean;
+  /** Pages without a theme provider set it here; elsewhere `GlobalPropertiesUpdater` does. */
+  theme?: 'light' | 'dark';
 };
 
 export function AppTrackingScript({ globalProperties }: { globalProperties: GlobalProperties }) {
