@@ -20,13 +20,13 @@ const NAV_LINKS = [
   { key: 'pricing', href: '/pricing' },
 ] as const;
 const SHEET_ID = 'landing-nav-sheet';
-/** Must match the theme's xl breakpoint. */
-const WIDE = '(width >= 62.5rem)';
+/** Must match the theme's lg breakpoint, where the links join the bar. */
+const WIDE = '(width >= 56.25rem)';
 
 const QUIET_LINK = 'transition-opacity duration-180 ease-out-expo hover:opacity-80';
 /** Whole pixels (2px bars, 4px gaps, a 14px stack in 36px) so no bar blurs. */
 const MENU_BAR = 'h-0.5 w-[18px] bg-current transition-transform duration-220 ease-out-expo';
-const SHEET_LINK = 'border-t border-rule-08 py-3 text-fg max-sm:border-t-0 max-sm:py-0 max-sm:leading-11';
+const SHEET_LINK = 'leading-11 text-fg';
 
 function NavLinks({ className, onNavigate }: { className?: string; onNavigate?: () => void }) {
   const t = useTranslations('landing.nav');
@@ -64,7 +64,7 @@ function AccountLinks({ buttonClassName }: { buttonClassName?: string }) {
   }
   return (
     <>
-      <Link className={cn(QUIET_LINK, 'max-sm:hidden')} href='/signin'>
+      <Link className={cn(QUIET_LINK, 'max-lg:hidden')} href='/signin'>
         {t('signIn')}
       </Link>
       <TrackedLink
@@ -83,7 +83,7 @@ function SheetActions({ onNavigate }: { onNavigate: () => void }) {
   const t = useTranslations('landing.nav');
   const signedIn = useSignedIn();
   return (
-    <div className='mt-8 flex flex-col gap-2.5 sm:hidden'>
+    <div className='mt-8 flex flex-col gap-2.5'>
       {signedIn ? (
         <NextLink
           className={buttonStyles({ variant: 'volt', size: 'lg' })}
@@ -148,7 +148,7 @@ export function Nav() {
         if (open && e.relatedTarget && !e.currentTarget.contains(e.relatedTarget)) setOpen(false);
       }}
       className={cn(
-        'sticky top-0 z-20 grid h-18 grid-cols-[1fr_auto_1fr] items-center max-xl:flex max-sm:h-14 max-sm:px-(--pad)',
+        'sticky top-0 z-20 grid h-18 grid-cols-[1fr_auto_1fr] items-center data-open:z-40 max-xl:flex max-xl:justify-between max-sm:h-14 max-sm:px-(--pad)',
         // centres the 24px brand mark in the wall column
         'px-[calc(var(--pad)+(var(--wall)-24px)/2)]',
         'transition-[translate] duration-300 ease-out-expo max-md:data-stowed:not-focus-within:-translate-y-full',
@@ -160,14 +160,14 @@ export function Nav() {
     >
       <BrandLink className='justify-self-start' compact />
       <nav
-        className='relative col-start-2 flex gap-7 text-body font-medium tracking-ui text-fg max-xl:hidden'
+        className='relative col-start-2 flex gap-7 text-body font-medium tracking-ui text-fg max-lg:hidden'
         aria-label={t('label')}
       >
         <NavLinks className={QUIET_LINK} />
       </nav>
-      <div className='relative col-start-3 flex items-center gap-5 justify-self-end text-body font-medium tracking-ui text-fg max-xl:ml-auto'>
+      <div className='relative col-start-3 flex items-center gap-5 justify-self-end text-body font-medium tracking-ui text-fg'>
         <a
-          className='inline-flex size-8 items-center justify-center rounded-[7px] text-fg transition-[opacity,background-color] duration-180 ease-out-expo hover:bg-fg/6 hover:opacity-80 max-sm:hidden'
+          className='inline-flex size-8 items-center justify-center rounded-[7px] text-fg transition-[opacity,background-color] duration-180 ease-out-expo hover:bg-fg/6 hover:opacity-80 max-lg:hidden'
           href={LINKS.github}
           target='_blank'
           rel='noopener'
@@ -175,12 +175,12 @@ export function Nav() {
         >
           <GitHubIcon className='size-[17px]' />
         </a>
-        {/* SheetActions replaces it on phones while open */}
-        <AccountLinks buttonClassName={cn(open && 'max-sm:hidden')} />
+        {/* SheetActions replaces it while the menu is open */}
+        <AccountLinks buttonClassName={cn(open && 'max-lg:hidden')} />
         <button
           ref={menuRef}
           type='button'
-          className='hidden size-9 flex-col items-center justify-center gap-1 rounded-[7px] text-fg max-xl:flex'
+          className='hidden size-9 flex-col items-center justify-center gap-1 rounded-[7px] text-fg max-lg:flex'
           aria-label={t('menu')}
           aria-expanded={open}
           aria-controls={SHEET_ID}
@@ -195,16 +195,13 @@ export function Nav() {
       <nav
         ref={sheetRef}
         id={SHEET_ID}
-        className={cn(
-          'absolute inset-x-0 top-full flex flex-col border-b border-rule bg-canvas px-(--pad) pt-2 pb-[18px] text-title tracking-ui',
-          'max-sm:fixed max-sm:top-14 max-sm:bottom-0 max-sm:overflow-y-auto max-sm:overscroll-contain max-sm:border-b-0 max-sm:py-6 max-sm:text-[1.375rem]',
-        )}
+        className='fixed inset-x-0 top-18 bottom-0 flex flex-col overflow-y-auto overscroll-contain bg-canvas px-[calc(var(--pad)+(var(--wall)-24px)/2)] py-6 text-[1.375rem] tracking-ui max-sm:top-14 max-sm:px-(--pad)'
         aria-label={t('label')}
         hidden={!open}
       >
         <NavLinks className={SHEET_LINK} onNavigate={() => setOpen(false)} />
         <a
-          className={cn(SHEET_LINK, 'flex items-center gap-3 sm:hidden')}
+          className={cn(SHEET_LINK, 'flex items-center gap-3')}
           href={LINKS.github}
           target='_blank'
           rel='noopener'

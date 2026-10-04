@@ -135,8 +135,8 @@
     /* clears the sticky nav */
     scroll-padding-top: 4.5rem;
   }
-  @media (width < 40rem) {
-    /* scroll lock under the open phone menu (see nav) */
+  /* scroll lock under the open menu, which is full screen below the nav's lg breakpoint (see nav) */
+  @media (width < 56.25rem) {
     html:has(header[data-open]) {
       overflow: hidden;
     }
