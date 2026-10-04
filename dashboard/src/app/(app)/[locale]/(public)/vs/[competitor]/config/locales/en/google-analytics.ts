@@ -22,7 +22,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Lightning Fast',
-      betterlytics: '<2KB script loads instantly with zero impact on page performance.',
+      betterlytics: '3.5KB script loads instantly with zero impact on page performance.',
       competitor: '~100KB+ script size depending on configuration; commonly blocked by ad blockers.',
     },
     {
@@ -50,7 +50,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       {
         name: 'Performance & Speed',
         features: [
-          { name: 'Script size', betterlytics: '<2KB', competitor: '~100KB+' },
+          { name: 'Script size', betterlytics: '~3.5KB', competitor: '~100KB+' },
           { name: 'Page load impact', betterlytics: 'Minimal', competitor: 'Noticeable' },
           { name: 'Works with ad blockers', betterlytics: true, competitor: false },
         ],
@@ -109,7 +109,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Page Speed Matters',
-      content: `Google Analytics scripts weigh over 130KB and make extra requests that slow your site. Can impact SEO and user experience. Commonly blocked by ad blockers and privacy tools, so you're missing data anyway.\n\nOur script is under 2KB, over 98% smaller. Loads async with zero page speed impact. Ad blockers don't block us since we're not in advertising, so you get more complete data.`,
+      content: `Google Analytics scripts weigh over 130KB and make extra requests that slow your site. Can impact SEO and user experience. Commonly blocked by ad blockers and privacy tools, so you're missing data anyway.\n\nOur script is about 3.5KB, over 97% smaller. Loads async with zero page speed impact. Ad blockers don't block us since we're not in advertising, so you get more complete data.`,
       icon: 'zap',
     },
     {

@@ -37,7 +37,7 @@
         },
         "privacyPerformance": {
           "title": "Privacy e prestazioni in perfetto equilibrio",
-          "p1": "Siamo ossessionati tanto dalla privacy quanto dalle prestazioni perché la velocità del tuo sito web conta tanto quanto la privacy dei tuoi visitatori. Il nostro script di tracciamento pesa meno di 2KB. Confrontalo con i 45KB+ di Google Analytics. Costruito con standard web moderni e ottimizzato per la velocità, Betterlytics non rallenterà il tuo sito.",
+          "p1": "Siamo ossessionati tanto dalla privacy quanto dalle prestazioni perché la velocità del tuo sito web conta tanto quanto la privacy dei tuoi visitatori. Il nostro script di tracciamento pesa circa 3,5KB. Confrontalo con i 45KB+ di Google Analytics. Costruito con standard web moderni e ottimizzato per la velocità, Betterlytics non rallenterà il tuo sito.",
           "p2": "Sotto il cofano, utilizziamo tecnologie all'avanguardia: Rust per l'elaborazione dati ad alte prestazioni, ClickHouse per query analitiche velocissime e Next.js 15 per un'esperienza dashboard moderna e reattiva. Ogni decisione tecnica priorizza sia la privacy dell'utente che le prestazioni del sistema."
         },
         "builtForEveryone": {
@@ -994,7 +994,7 @@
         },
         "lightweightScript": {
           "title": "Script Leggero",
-          "description": "Script a caricamento rapido sotto 2KB che non rallenta il tuo sito."
+          "description": "Script a caricamento rapido da 3,5KB che non rallenta il tuo sito."
         },
         "highPerformance": {
           "title": "Alte Prestazioni",

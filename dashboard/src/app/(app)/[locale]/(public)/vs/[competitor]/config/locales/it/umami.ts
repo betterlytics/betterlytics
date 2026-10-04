@@ -50,7 +50,7 @@ export const umami: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '<2KB', competitor: '~2–3KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~2–3KB' },
           { name: 'Impatto sul caricamento', betterlytics: 'Minimo', competitor: 'Minimo' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: true },
         ],

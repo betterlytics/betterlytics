@@ -22,7 +22,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Lynrask',
-      betterlytics: 'Skript på <2KB lastes umiddelbart uten påvirkning på sideytelsen.',
+      betterlytics: 'Skript på 3,5KB lastes umiddelbart uten påvirkning på sideytelsen.',
       competitor: '~100KB+ skriptstørrelse avhengig av konfigurasjon; blokkeres ofte av annonseblokkere.',
     },
     {
@@ -50,7 +50,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       {
         name: 'Ytelse og hastighet',
         features: [
-          { name: 'Skriptstørrelse', betterlytics: '<2KB', competitor: '~100KB+' },
+          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '~100KB+' },
           { name: 'Påvirkning på sidelasting', betterlytics: 'Minimal', competitor: 'Merkbar' },
           { name: 'Fungerer med annonseblokkere', betterlytics: true, competitor: false },
         ],
@@ -108,7 +108,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Sidehastighet betyr noe',
-      content: `Google Analytics-skript er over 130KB og gjør ekstra forespørsler som gjør nettstedet tregere. Det kan påvirke SEO og brukeropplevelse. Blokkeres ofte av annonseblokkere og personvernverktøy, så du går uansett glipp av data.\n\nSkriptet vårt er under 2KB, over 98 % mindre. Lastes asynkront uten påvirkning på sidehastighet. Annonseblokkere blokkerer oss ikke siden vi ikke driver med annonsering, så du får mer komplette data.`,
+      content: `Google Analytics-skript er over 130KB og gjør ekstra forespørsler som gjør nettstedet tregere. Det kan påvirke SEO og brukeropplevelse. Blokkeres ofte av annonseblokkere og personvernverktøy, så du går uansett glipp av data.\n\nSkriptet vårt er på rundt 3,5KB, over 97 % mindre. Lastes asynkront uten påvirkning på sidehastighet. Annonseblokkere blokkerer oss ikke siden vi ikke driver med annonsering, så du får mer komplette data.`,
       icon: 'zap',
     },
     {

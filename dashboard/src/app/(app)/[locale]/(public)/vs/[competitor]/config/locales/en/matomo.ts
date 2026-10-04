@@ -51,7 +51,7 @@ export const matomo: ComparisonLocaleContent = {
       {
         name: 'Performance & Speed',
         features: [
-          { name: 'Script size', betterlytics: '<2KB', competitor: '~23KB' },
+          { name: 'Script size', betterlytics: '~3.5KB', competitor: '~23KB' },
           { name: 'Page load impact', betterlytics: 'Minimal', competitor: 'Moderate' },
           { name: 'Works with ad blockers', betterlytics: true, competitor: 'Limited' },
         ],

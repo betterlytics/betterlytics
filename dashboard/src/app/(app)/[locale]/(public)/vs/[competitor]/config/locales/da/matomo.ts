@@ -52,7 +52,7 @@ export const matomo: ComparisonLocaleContent = {
       {
         name: 'Performance & hastighed',
         features: [
-          { name: 'Script-størrelse', betterlytics: '<2KB', competitor: '~23KB' },
+          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '~23KB' },
           { name: 'Indvirkning på sideindlæsning', betterlytics: 'Minimal', competitor: 'Moderat' },
           { name: 'Fungerer med ad blockers', betterlytics: true, competitor: 'Limited' },
         ],

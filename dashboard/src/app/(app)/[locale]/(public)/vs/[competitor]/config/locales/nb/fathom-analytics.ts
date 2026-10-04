@@ -49,7 +49,7 @@ export const fathom: ComparisonLocaleContent = {
       {
         name: 'Ytelse og hastighet',
         features: [
-          { name: 'Skriptstørrelse', betterlytics: '<2KB', competitor: '<2KB' },
+          { name: 'Skriptstørrelse', betterlytics: '~3,5KB', competitor: '<2KB' },
           { name: 'Påvirkning på sidelasting', betterlytics: 'Minimal', competitor: 'Minimal' },
           { name: 'Fungerer med annonseblokkere', betterlytics: true, competitor: true },
         ],

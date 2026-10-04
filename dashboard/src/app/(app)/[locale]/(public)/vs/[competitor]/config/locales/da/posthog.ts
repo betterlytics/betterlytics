@@ -17,7 +17,7 @@ export const posthog: ComparisonLocaleContent = {
   keyDifferentiators: [
     {
       title: 'Ægte lightweight',
-      betterlytics: '<2KB script, designet til minimal påvirkning af sideperformance.',
+      betterlytics: '3,5KB script, designet til minimal påvirkning af sideperformance.',
       competitor: '~57KB script med et bredt funktionssæt og større load overhead.',
     },
     {
@@ -51,7 +51,7 @@ export const posthog: ComparisonLocaleContent = {
       {
         name: 'Performance & hastighed',
         features: [
-          { name: 'Script-størrelse', betterlytics: '<2KB', competitor: '~57KB' },
+          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '~57KB' },
           { name: 'Indvirkning på sideindlæsning', betterlytics: 'Minimal', competitor: 'Moderat' },
           { name: 'Fungerer med ad blockers', betterlytics: true, competitor: 'Delvist' },
         ],
@@ -111,7 +111,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Sidehastighed betyder noget',
-      content: `PostHogs script er omkring 57KB gzippet. Det inkluderer understøttelse af feature flags, session recording, autocapture og andre produktfunktioner. På mobil og langsommere forbindelser kan det mærkes.\n\nVores script er under 2KB. Dine sider forbliver hurtige, Core Web Vitals forbliver grønne, og SEO har det godt. Analytics bør ikke gøre dit site langsommere.`,
+      content: `PostHogs script er omkring 57KB gzippet. Det inkluderer understøttelse af feature flags, session recording, autocapture og andre produktfunktioner. På mobil og langsommere forbindelser kan det mærkes.\n\nVores script fylder ca. 3,5KB. Dine sider forbliver hurtige, Core Web Vitals forbliver grønne, og SEO har det godt. Analytics bør ikke gøre dit site langsommere.`,
       icon: 'zap',
     },
     {

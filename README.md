@@ -34,7 +34,7 @@ Most teams piece together how their website is doing from four or five tools: on
 | **Error Tracking**         | Client-side errors captured and grouped automatically, with stack traces and links to the session replay |
 | **Privacy & Compliance**   | Cookieless tracking, GDPR/CCPA/PECR ready, EU hosting, data anonymization, open source                                   |
 | **Access & Security**      | Role-based access control, two-factor authentication, OAuth (Google, GitHub)                                             |
-| **Developer Experience**   | Simple script tag, framework SDKs (React, Next.js), self-hosting option, <2KB payload                                    |
+| **Developer Experience**   | Simple script tag, framework SDKs (React, Next.js), self-hosting option, ~3.5KB payload                                    |
 | **AI Agents**              | Built-in MCP server, so Claude, ChatGPT or any MCP client can query your traffic, funnels, errors and uptime |
 
 **[View all features →](https://betterlytics.io/features)**

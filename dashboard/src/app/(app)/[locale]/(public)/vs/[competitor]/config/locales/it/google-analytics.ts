@@ -24,7 +24,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     {
       title: 'Estremamente veloce',
       betterlytics:
-        'Script sotto i 2KB che si carica istantaneamente senza impatto sulle performance della pagina.',
+        'Script da 3,5KB che si carica istantaneamente senza impatto sulle performance della pagina.',
       competitor: 'Script da oltre 100KB a seconda della configurazione; spesso bloccato dagli ad blocker.',
     },
     {
@@ -53,7 +53,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '<2KB', competitor: '~100KB+' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~100KB+' },
           { name: 'Impatto sul caricamento della pagina', betterlytics: 'Minimo', competitor: 'Visibile' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: false },
         ],
@@ -111,7 +111,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'La velocità conta',
-      content: `Gli script di Google Analytics hanno una dimensione superiore ai 130KB e generano richieste aggiuntive che possono rallentare il tuo sito. Questo influisce su SEO ed esperienza utente. Inoltre, vengono spesso bloccati da ad blocker e strumenti per la privacy, quindi perdi dati comunque.\n\nIl nostro script è sotto i 2KB, oltre il 98% più leggero. Si carica in modo asincrono senza alcun impatto sulla velocità della pagina. Gli ad blocker non ci bloccano perché non facciamo pubblicità, così ottieni dati più completi.`,
+      content: `Gli script di Google Analytics hanno una dimensione superiore ai 130KB e generano richieste aggiuntive che possono rallentare il tuo sito. Questo influisce su SEO ed esperienza utente. Inoltre, vengono spesso bloccati da ad blocker e strumenti per la privacy, quindi perdi dati comunque.\n\nIl nostro script pesa circa 3,5KB, oltre il 97% più leggero. Si carica in modo asincrono senza alcun impatto sulla velocità della pagina. Gli ad blocker non ci bloccano perché non facciamo pubblicità, così ottieni dati più completi.`,
       icon: 'zap',
     },
     {

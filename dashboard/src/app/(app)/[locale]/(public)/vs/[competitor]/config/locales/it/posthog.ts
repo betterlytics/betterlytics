@@ -17,7 +17,7 @@ export const posthog: ComparisonLocaleContent = {
   keyDifferentiators: [
     {
       title: 'Davvero leggero',
-      betterlytics: 'Script sotto i 2KB, progettato per un impatto minimo sulle performance della pagina.',
+      betterlytics: 'Script da 3,5KB, progettato per un impatto minimo sulle performance della pagina.',
       competitor: 'Script di circa 57KB con un ampio set di funzionalità e maggiore overhead di caricamento.',
     },
     {
@@ -56,7 +56,7 @@ export const posthog: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '<2KB', competitor: '~57KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~57KB' },
           { name: 'Impatto sul caricamento della pagina', betterlytics: 'Minimo', competitor: 'Moderato' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: 'Parziale' },
         ],
@@ -120,7 +120,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'La velocità della pagina conta',
-      content: `Lo script di PostHog pesa circa 57KB (gzip). Include feature flag, session recording, autocapture e molte altre funzionalità. Su mobile o connessioni lente, questo peso si fa sentire.\n\nIl nostro script? Meno di 2KB. Le pagine restano veloci, i Core Web Vitals restano verdi e la SEO ringrazia. Gli analytics non dovrebbero rallentare il tuo sito.`,
+      content: `Lo script di PostHog pesa circa 57KB (gzip). Include feature flag, session recording, autocapture e molte altre funzionalità. Su mobile o connessioni lente, questo peso si fa sentire.\n\nIl nostro script? Circa 3,5KB. Le pagine restano veloci, i Core Web Vitals restano verdi e la SEO ringrazia. Gli analytics non dovrebbero rallentare il tuo sito.`,
       icon: 'zap',
     },
     {

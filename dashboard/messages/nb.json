@@ -37,7 +37,7 @@
         },
         "privacyPerformance": {
           "title": "Personvern og ytelse i perfekt balanse",
-          "p1": "Vi er like opptatt av personvern som av ytelse, fordi hastigheten på nettstedet ditt er like viktig som personvernet til de besøkende. Sporingsskriptet vårt veier under 2 KB. Sammenlign det med Google Analytics sin oppblåste payload på 45 KB+. Bygget med moderne webstandarder og optimalisert for fart, vil Betterlytics ikke gjøre nettstedet tregere.",
+          "p1": "Vi er like opptatt av personvern som av ytelse, fordi hastigheten på nettstedet ditt er like viktig som personvernet til de besøkende. Sporingsskriptet vårt veier rundt 3,5 KB. Sammenlign det med Google Analytics sin oppblåste payload på 45 KB+. Bygget med moderne webstandarder og optimalisert for fart, vil Betterlytics ikke gjøre nettstedet tregere.",
           "p2": "Under panseret bruker vi banebrytende teknologi: Rust for høyytelses databehandling, ClickHouse for lynraske analytiske spørringer, og Next.js 15 for en moderne og responsiv dashboard-opplevelse. Hver tekniske beslutning prioriterer både brukernes personvern og systemytelse."
         },
         "builtForEveryone": {
@@ -994,7 +994,7 @@
         },
         "lightweightScript": {
           "title": "Lett script",
-          "description": "Raskt script under 2 KB som ikke gjør nettstedet tregere."
+          "description": "Raskt script på 3,5 KB som ikke gjør nettstedet tregere."
         },
         "highPerformance": {
           "title": "Høy ytelse",

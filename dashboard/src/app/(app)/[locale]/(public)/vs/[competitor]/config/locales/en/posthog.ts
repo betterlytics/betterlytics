@@ -17,7 +17,7 @@ export const posthog: ComparisonLocaleContent = {
   keyDifferentiators: [
     {
       title: 'Truly Lightweight',
-      betterlytics: '<2KB script. Designed for minimal page performance impact.',
+      betterlytics: '3.5KB script. Designed for minimal page performance impact.',
       competitor: '~57KB script with a broad feature set and higher load overhead.',
     },
     {
@@ -51,7 +51,7 @@ export const posthog: ComparisonLocaleContent = {
       {
         name: 'Performance & Speed',
         features: [
-          { name: 'Script size', betterlytics: '<2KB', competitor: '~57KB' },
+          { name: 'Script size', betterlytics: '~3.5KB', competitor: '~57KB' },
           { name: 'Page load impact', betterlytics: 'Minimal', competitor: 'Moderate' },
           { name: 'Works with ad blockers', betterlytics: true, competitor: 'Partial' },
         ],
@@ -112,7 +112,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Page Speed Matters',
-      content: `PostHog's script is around 57KB gzipped. That includes support for feature flags, session recording, autocapture, and other product features. On mobile or slower connections, that adds up.\n\nOur script? Under 2KB. Your pages stay fast, Core Web Vitals stay green, and SEO stays happy. Analytics shouldn't slow your site down.`,
+      content: `PostHog's script is around 57KB gzipped. That includes support for feature flags, session recording, autocapture, and other product features. On mobile or slower connections, that adds up.\n\nOur script? About 3.5KB. Your pages stay fast, Core Web Vitals stay green, and SEO stays happy. Analytics shouldn't slow your site down.`,
       icon: 'zap',
     },
     {

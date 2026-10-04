@@ -49,7 +49,7 @@ export const umami: ComparisonLocaleContent = {
       {
         name: 'Performance & Speed',
         features: [
-          { name: 'Script size', betterlytics: '<2KB', competitor: '~2–3KB' },
+          { name: 'Script size', betterlytics: '~3.5KB', competitor: '~2–3KB' },
           { name: 'Page load impact', betterlytics: 'Minimal', competitor: 'Minimal' },
           { name: 'Works with ad blockers', betterlytics: true, competitor: true },
         ],

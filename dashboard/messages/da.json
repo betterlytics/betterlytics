@@ -37,7 +37,7 @@
         },
         "privacyPerformance": {
           "title": "Privatliv og performance i perfekt balance",
-          "p1": "Vi går lige meget op i privatliv og performance, fordi din hjemmesides hastighed er lige så vigtig som dine besøgendes privatliv. Vores tracking-script er under 2KB i størrelse. Sammenlign det med Google Analytics' script, der er over 45KB. Bygget med moderne webstandarder og optimeret til hastighed, så Betterlytics ikke gør dit site langsomt.",
+          "p1": "Vi går lige meget op i privatliv og performance, fordi din hjemmesides hastighed er lige så vigtig som dine besøgendes privatliv. Vores tracking-script fylder ca. 3,5KB. Sammenlign det med Google Analytics' script, der er over 45KB. Bygget med moderne webstandarder og optimeret til hastighed, så Betterlytics ikke gør dit site langsomt.",
           "p2": "Under motorhjelmen bruger vi cutting-edge teknologi: Rust til højtydende databehandling, ClickHouse til lynhurtige analytiske forespørgsler og Next.js 15 til en moderne, responsiv dashboard-oplevelse. Hver teknisk beslutning prioriterer både privatliv og systemperformance."
         },
         "builtForEveryone": {
@@ -994,7 +994,7 @@
         },
         "lightweightScript": {
           "title": "Let script",
-          "description": "Hurtig-loadende script under 2KB der ikke sænker dit website."
+          "description": "Hurtig-loadende script på 3,5KB der ikke sænker dit website."
         },
         "highPerformance": {
           "title": "Høj performance",

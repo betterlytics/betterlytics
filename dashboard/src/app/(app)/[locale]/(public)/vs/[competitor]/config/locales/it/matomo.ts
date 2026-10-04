@@ -52,7 +52,7 @@ export const matomo: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '<2KB', competitor: '~23KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~23KB' },
           { name: 'Impatto sul caricamento della pagina', betterlytics: 'Minimo', competitor: 'Moderato' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: 'Limited' },
         ],
