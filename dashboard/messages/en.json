@@ -3839,7 +3839,11 @@
       },
       "expires": "Expires {date}",
       "expired": "Expired {date}",
-      "neverExpires": "Never expires"
+      "neverExpires": "Never expires",
+      "endpointLabel": "Server URL",
+      "endpointHint": "Point your MCP client at this URL and send your token as a bearer token. <link>Setup guides for each client</link>",
+      "copyEndpoint": "Copy server URL",
+      "endpointCopied": "Server URL copied"
     },
     "toast": {
       "created": "Token created",

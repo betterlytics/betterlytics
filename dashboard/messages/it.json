@@ -3842,7 +3842,11 @@
       },
       "expires": "Scade {date}",
       "expired": "Scaduto {date}",
-      "neverExpires": "Non scade mai"
+      "neverExpires": "Non scade mai",
+      "endpointLabel": "URL del server",
+      "endpointHint": "Configura il tuo client MCP con questo URL e invia il token come bearer token. <link>Guide di configurazione per ogni client</link>",
+      "copyEndpoint": "Copia URL del server",
+      "endpointCopied": "URL del server copiato"
     },
     "toast": {
       "created": "Token creato",
