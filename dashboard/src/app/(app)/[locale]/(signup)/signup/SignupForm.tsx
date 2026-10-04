@@ -19,6 +19,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { SupportedLanguages } from '@/constants/i18n';
 import { baEvent } from '@/lib/ba-event';
 import { useBARouter } from '@/hooks/use-ba-router';
+import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
 import Logo from '@/components/logo';
 
@@ -63,6 +64,7 @@ export default function SignupForm({
   const t = useTranslations('onboarding.account');
   const tValidation = useTranslations('validation');
   const tAuth = useTranslations('public.auth.register');
+  const authErrorMessage = useAuthErrorMessage();
   const locale = useLocale();
   const [error, setError] = useState('');
   const [isPending, startTransition] = useTransition();
@@ -133,11 +135,12 @@ export default function SignupForm({
 
           if (signUpError) {
             setError(
-              signUpError.code?.startsWith('USER_ALREADY_EXISTS')
-                ? t('form.emailAlreadyExists')
-                : signUpError.code === 'SIGNUP_DISABLED'
-                  ? t('form.registrationDisabled')
-                  : t('form.signUpError'),
+              authErrorMessage(signUpError) ??
+                (signUpError.code?.startsWith('USER_ALREADY_EXISTS')
+                  ? t('form.emailAlreadyExists')
+                  : signUpError.code === 'SIGNUP_DISABLED'
+                    ? t('form.registrationDisabled')
+                    : t('form.signUpError')),
             );
             return;
           }
@@ -182,6 +185,7 @@ export default function SignupForm({
       inviteToken,
       startTransition,
       handlePotentialInvitationsOnAccountCreation,
+      authErrorMessage,
     ],
   );
 
@@ -199,14 +203,14 @@ export default function SignupForm({
             errorCallbackURL: redirectTo ? `/signin?callbackUrl=${encodeURIComponent(redirectTo)}` : '/signin',
           });
           if (socialError) {
-            setError(t('form.signUpError'));
+            setError(authErrorMessage(socialError) ?? t('form.signUpError'));
           }
         } catch {
           setError(t('form.signUpError'));
         }
       });
     },
-    [t, redirectTo, startGithubTransition, startGoogleTransition],
+    [t, redirectTo, startGithubTransition, startGoogleTransition, authErrorMessage],
   );
 
   return (
