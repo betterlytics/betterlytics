@@ -8,6 +8,7 @@ import {
   fetchMonitorIncidentSegments,
   fetchLatestMonitorTlsResult,
   fetchMonitorDailyUptime,
+  getMonitorDeletionImpact,
 } from '@/services/analytics/monitoring.service';
 import { toMonitorUptimePresentation } from '@/presenters/toMonitorUptimeDays';
 import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
@@ -54,5 +55,11 @@ export const monitorsRouter = createRouter({
     .query(async ({ ctx, input }) => {
       const rows = await fetchMonitorDailyUptime(input.monitorId, ctx.authContext.dashboardId, ctx.authContext.siteId, input.timezone, input.days);
       return toMonitorUptimePresentation(rows, input.timezone, input.days);
+    }),
+
+  deletionImpact: dashboardProcedure
+    .input(z.object({ monitorId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await getMonitorDeletionImpact(ctx.authContext.dashboardId, input.monitorId);
     }),
 });

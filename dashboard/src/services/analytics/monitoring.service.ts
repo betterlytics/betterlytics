@@ -25,8 +25,8 @@ import {
   updateMonitorCheck as updateMonitorCheckRepo,
   deleteMonitorCheck as deleteMonitorCheckRepo,
   monitorExistsForUrl as monitorExistsForUrlRepo,
+  getMonitorDeletionImpact as getMonitorDeletionImpactRepo,
 } from '@/repositories/postgres/monitoring.repository';
-import { removeMonitorFromStatusPages } from '@/repositories/postgres/statusPage.repository';
 
 import {
   getOpenIncidentsForMonitors,
@@ -62,8 +62,13 @@ export async function updateMonitorCheck(dashboardId: string, input: MonitorChec
 }
 
 export async function deleteMonitorCheck(dashboardId: string, monitorId: string) {
-  await removeMonitorFromStatusPages(dashboardId, monitorId);
   return deleteMonitorCheckRepo(dashboardId, monitorId);
+}
+
+export async function getMonitorDeletionImpact(dashboardId: string, monitorId: string) {
+  const monitor = await getMonitorCheckById(dashboardId, monitorId);
+  if (!monitor) throw new Error('Monitor not found');
+  return getMonitorDeletionImpactRepo(dashboardId, monitorId);
 }
 
 export async function checkMonitorUrlExists(

@@ -1931,7 +1931,13 @@
       "settings": "Impostazioni",
       "deleteConfirmTitle": "Eliminare il monitor?",
       "deleteConfirmDescription": "Questa azione eliminerà permanentemente il monitor e tutti i suoi dati.",
-      "deleteError": "Impossibile eliminare il monitor"
+      "deleteError": "Impossibile eliminare il monitor",
+      "deleteImpactLoading": "Verifica delle pagine di stato interessate...",
+      "deleteImpactError": "Non è stato possibile verificare quali pagine di stato usano questo monitor.",
+      "deleteImpactUnknownWarning": "Eliminando questo monitor verrà rimosso da tutte le pagine di stato che lo usano. Le pagine pubblicate potrebbero restare pubbliche senza componenti e normalmente mostrare Sconosciuto. Gli incidenti aperti potrebbero comunque alzarne lo stato.",
+      "deleteImpactRetry": "Riprova",
+      "deleteImpactAffectedPages": "Questo monitor verrà rimosso da queste pagine di stato:",
+      "deleteImpactEmptyWarning": "Questa pagina pubblicata resterà pubblica senza componenti e normalmente mostrerà Sconosciuto. Gli incidenti aperti potrebbero comunque alzarne lo stato."
     }
   },
   "monitoringDetailPage": {
