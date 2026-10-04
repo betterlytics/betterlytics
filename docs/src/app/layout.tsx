@@ -29,7 +29,7 @@ export const metadata: Metadata = {
       "Guides and reference for Betterlytics: web analytics, session replay, error tracking, Core Web Vitals and uptime monitoring.",
     images: [
       {
-        url: getAssetPath("/og_image.jpg"),
+        url: getAssetPath("/og_image_docs.jpg"),
         width: 1200,
         height: 630,
         alt: "Betterlytics documentation",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "Betterlytics Docs",
     description:
       "Guides and reference for Betterlytics: web analytics, session replay, error tracking, Core Web Vitals and uptime monitoring.",
-    images: [getAssetPath("/og_image.jpg")],
+    images: [getAssetPath("/og_image_docs.jpg")],
     creator: "@betterlytics",
   },
   icons: {
