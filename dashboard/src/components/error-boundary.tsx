@@ -5,6 +5,7 @@ import { AlertTriangle, RefreshCw, Home, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTopLoader } from 'nextjs-toploader';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -52,6 +53,7 @@ interface ErrorFallbackProps {
 
 export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
   const { start } = useTopLoader();
+  const isCloud = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
   const handleRefresh = useCallback(() => {
     start();
@@ -118,13 +120,15 @@ export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
             {/* Help Text */}
             <div className='mt-8 border-t border-gray-800 pt-6'>
               <div className='space-y-2 text-center'>
-                <p className='text-muted-foreground text-sm'>
-                  If this problem persists, please{' '}
-                  <a href='mailto:support@betterlytics.io' className='text-blue-500 underline hover:text-blue-400'>
-                    contact support
-                  </a>
-                  .
-                </p>
+                {isCloud && (
+                  <p className='text-muted-foreground text-sm'>
+                    If this problem persists, please{' '}
+                    <a href='mailto:support@betterlytics.io' className='text-blue-500 underline hover:text-blue-400'>
+                      contact support
+                    </a>
+                    .
+                  </p>
+                )}
                 <div className='text-muted-foreground flex items-center justify-center gap-4 text-xs'>
                   <span>Error ID: {Date.now().toString(36)}</span>
                   <span>•</span>

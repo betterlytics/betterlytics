@@ -785,6 +785,11 @@
             "GDPR-kompatibel analyse"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Opprett kontoen din | Betterlytics",
+          "description": "Opprett kontoen din på denne Betterlytics-instansen.",
+          "keywords": ["Opprett konto", "Registrer deg"]
+        },
         "title": "Opprett kontoen din",
         "subtitle": "Kom i gang gratis — sett opp analyse på få minutter",
         "cta": {
@@ -793,7 +798,6 @@
         },
         "disabled": {
           "title": "Registrering deaktivert",
-          "description": "Registrering er for øyeblikket deaktivert på denne instansen.",
           "backToSignIn": "Tilbake til innlogging"
         }
       },
@@ -3265,6 +3269,13 @@
         "feature3": {
           "title": "Personvern først og åpen kildekode",
           "description": "Informasjonskapselfri, GDPR-kompatibel og hostet i EU. Transparent og sikker."
+        },
+        "feature2SelfHosted": {
+          "title": "Dine data, din server",
+          "description": "Kjører på din egen infrastruktur, under din kontroll."
+        },
+        "feature3SelfHosted": {
+          "description": "Informasjonskapselfri og GDPR-kompatibel. Transparent og sikker."
         }
       },
       "form": {
@@ -3289,7 +3300,8 @@
         "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
         "checkInput": "Vennligst sjekk inndataene dine",
         "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
-        "invitedToHint": "Du er invitert til å bli med i {domain}"
+        "invitedToHint": "Du er invitert til å bli med i {domain}",
+        "firstUserHint": "Dette er den første kontoen på denne instansen. Den blir administrator for instansen."
       }
     },
     "website": {
@@ -3869,6 +3881,7 @@
       }
     },
     "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
+    "moreIntegrationsSelfHosted": "Trenger du en annen integrasjon? <link>Be om den på GitHub</link>.",
     "history": {
       "title": "Varselslogg",
       "button": "Varselslogg",
