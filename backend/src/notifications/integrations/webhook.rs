@@ -6,7 +6,7 @@ use tracing::{debug, error};
 use url::Url;
 
 use crate::monitor::guard::{self, GuardedResolver};
-use crate::notifications::notifier::{Notification, Notifier, NotifierError};
+use crate::notifications::notifier::{error_body_preview, Notification, Notifier, NotifierError};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -74,10 +74,7 @@ impl Notifier for WebhookNotifier {
 
         let status = response.status();
         if !status.is_success() {
-            let body = response
-                .text()
-                .await
-                .unwrap_or_else(|_| "failed to read response body".to_string());
+            let body = error_body_preview(response).await;
 
             let msg = format!("Webhook returned {status}: {body}");
 

@@ -38,7 +38,23 @@ const PRIVATE = buildList([
   ['fc00::', 7, 'ipv6'],
 ]);
 
+const NAT64 = buildList([['64:ff9b::', 96, 'ipv6']]);
+
+// guard.rs classify_v6: the low 32 bits of 64:ff9b::/96 are the IPv4 target
+function nat64Target(address: string): string | null {
+  if (isIP(address) !== 6 || !NAT64.check(address, 'ipv6')) return null;
+  const tail = address.slice(address.lastIndexOf(':') + 1);
+  if (isIP(tail) === 4) return tail;
+  const [high, low] = address
+    .split(':')
+    .slice(-2)
+    .map((group) => parseInt(group || '0', 16));
+  return [high >> 8, high & 0xff, low >> 8, low & 0xff].join('.');
+}
+
 export function classifyAddress(address: string): AddressClass {
+  const embedded = nat64Target(address);
+  if (embedded) return classifyAddress(embedded);
   const family = isIP(address) === 6 ? 'ipv6' : 'ipv4';
   if (ALWAYS_BLOCKED.check(address, family)) return 'blocked';
   if (PRIVATE.check(address, family)) return 'private';
@@ -79,4 +95,32 @@ export async function isWebhookUrlAllowed(
   } catch {
     return false;
   }
+}
+
+// Keep in sync with the *_WEBHOOK rules in backend/src/monitor/guard.rs
+type VendorWebhookRule = { hosts: readonly string[]; pathPrefix: string }; // ".suffix" entries match subdomains
+
+const VENDOR_WEBHOOK_RULES = {
+  discord: { hosts: ['discord.com'], pathPrefix: '/api/webhooks/' },
+  slack: { hosts: ['hooks.slack.com'], pathPrefix: '/services/' },
+  teams: { hosts: ['.webhook.office.com', '.logic.azure.com'], pathPrefix: '' },
+} as const satisfies Record<string, VendorWebhookRule>;
+
+export type WebhookVendor = keyof typeof VENDOR_WEBHOOK_RULES;
+
+export function isVendorWebhookUrl(rawUrl: string, vendor: WebhookVendor): boolean {
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+  // URL drops a default :443, so a non-empty port is a non-default one
+  if (url.protocol !== 'https:' || url.port !== '' || url.username || url.password) return false;
+  const rule: VendorWebhookRule = VENDOR_WEBHOOK_RULES[vendor];
+  // hostname is already lowercased and IDNA/percent-decoded; IP literals and trailing dots never match
+  const hostAllowed = rule.hosts.some((host) =>
+    host.startsWith('.') ? url.hostname.endsWith(host) : url.hostname === host,
+  );
+  return hostAllowed && url.pathname.startsWith(rule.pathPrefix);
 }

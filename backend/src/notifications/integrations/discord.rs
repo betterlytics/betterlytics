@@ -1,8 +1,12 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use serde::Deserialize;
 use tracing::{debug, error};
+use url::Url;
 
-use crate::notifications::notifier::{Notification, Notifier, NotifierError};
+use crate::monitor::guard::{self, GuardedResolver};
+use crate::notifications::notifier::{error_body_preview, Notification, Notifier, NotifierError};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -32,6 +36,9 @@ impl DiscordNotifier {
     pub fn new() -> Result<Self, reqwest::Error> {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(10))
+            .dns_resolver(Arc::new(GuardedResolver))
+            // Discord webhook execution never redirects
+            .redirect(reqwest::redirect::Policy::none())
             .build()?;
 
         Ok(Self { client })
@@ -51,6 +58,10 @@ impl Notifier for DiscordNotifier {
     ) -> Result<(), NotifierError> {
         let discord_config = DiscordConfig::deserialize(config)
             .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
+        let url = Url::parse(&discord_config.webhook_url)
+            .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
+        guard::validate_vendor_webhook_url(&url, &guard::DISCORD_WEBHOOK)
+            .map_err(|e| NotifierError::InvalidConfig(e.message))?;
 
         let mut description = notification.message.clone();
         if let Some(url) = &notification.url {
@@ -71,17 +82,14 @@ impl Notifier for DiscordNotifier {
 
         let response = self
             .client
-            .post(&discord_config.webhook_url)
+            .post(url)
             .json(&payload)
             .send()
             .await?;
 
         let status = response.status();
         if !status.is_success() {
-            let body = response
-                .text()
-                .await
-                .unwrap_or_else(|_| "failed to read response body".to_string());
+            let body = error_body_preview(response).await;
 
             let msg = format!("Discord API returned {status}: {body}");
 

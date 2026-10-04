@@ -240,6 +240,59 @@ pub fn webhook_redirect_policy() -> reqwest::redirect::Policy {
     })
 }
 
+// Keep in sync with VENDOR_WEBHOOK_RULES in dashboard/src/lib/outbound-target.ts
+pub struct VendorWebhookRule {
+    /// Exact hostnames, or ".suffix" entries that match any subdomain
+    pub hosts: &'static [&'static str],
+    pub path_prefix: &'static str,
+}
+
+pub const DISCORD_WEBHOOK: VendorWebhookRule = VendorWebhookRule {
+    hosts: &["discord.com"],
+    path_prefix: "/api/webhooks/",
+};
+pub const SLACK_WEBHOOK: VendorWebhookRule = VendorWebhookRule {
+    hosts: &["hooks.slack.com"],
+    path_prefix: "/services/",
+};
+pub const TEAMS_WEBHOOK: VendorWebhookRule = VendorWebhookRule {
+    hosts: &[".webhook.office.com", ".logic.azure.com"],
+    path_prefix: "",
+};
+
+/// Vendor webhooks may only reach the vendor, whatever ALLOW_PRIVATE_TARGETS says.
+pub fn validate_vendor_webhook_url(url: &Url, rule: &VendorWebhookRule) -> Result<(), GuardError> {
+    if url.scheme() != "https" {
+        return Err(GuardError::new(
+            ReasonCode::SchemeBlocked,
+            "vendor webhook must use https",
+        ));
+    }
+    // url drops a default :443, so Some(_) is a non-default port
+    if url.port().is_some() {
+        return Err(GuardError::new(
+            ReasonCode::PortBlocked,
+            "vendor webhook must use the default port",
+        ));
+    }
+    // IP literals are Host::Ipv4/Ipv6 and never match; domains arrive lowercased and IDNA-normalised
+    let Some(Host::Domain(host)) = url.host() else {
+        return Err(GuardError::new(ReasonCode::InvalidHost, "vendor webhook host not allowed"));
+    };
+    let host_allowed = rule.hosts.iter().any(|allowed| {
+        if allowed.starts_with('.') {
+            host.ends_with(allowed)
+        } else {
+            host == *allowed
+        }
+    });
+    let no_userinfo = url.username().is_empty() && url.password().is_none();
+    if !host_allowed || !no_userinfo || !url.path().starts_with(rule.path_prefix) {
+        return Err(GuardError::new(ReasonCode::InvalidHost, "vendor webhook host not allowed"));
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -272,6 +325,7 @@ mod tests {
             "::1",
             "fd12:3456::1",
             "::ffff:127.0.0.1",
+            "64:ff9b::a00:1",
         ] {
             assert_eq!(classify_ip(ip(addr)), IpClass::Private, "{addr}");
         }
@@ -331,6 +385,49 @@ mod tests {
         assert!(validate_webhook_url(&url("https://169.254.169.254/"), true).is_err());
         assert!(validate_webhook_url(&url("https://[::ffff:127.0.0.1]/"), false).is_err());
         assert_eq!(reason("https://2130706433/", false), ReasonCode::BlockedIpLiteral);
+    }
+
+    #[test]
+    fn validates_vendor_webhook_urls() {
+        let ok = |s: &str, rule: &VendorWebhookRule| validate_vendor_webhook_url(&url(s), rule).is_ok();
+        let reason = |s: &str, rule: &VendorWebhookRule| {
+            validate_vendor_webhook_url(&url(s), rule).unwrap_err().reason_code
+        };
+
+        assert!(ok("https://contoso.webhook.office.com/webhookb2/abc", &TEAMS_WEBHOOK));
+        assert!(ok("https://prod-12.westus.logic.azure.com:443/workflows/abc", &TEAMS_WEBHOOK));
+        assert!(ok("https://PROD-12.WESTUS.LOGIC.AZURE.COM/workflows/abc", &TEAMS_WEBHOOK));
+        assert_eq!(reason("https://attacker.example/x.webhook.office.com/", &TEAMS_WEBHOOK), ReasonCode::InvalidHost);
+        assert_eq!(reason("https://10.0.0.5/a.logic.azure.com/", &TEAMS_WEBHOOK), ReasonCode::InvalidHost);
+        assert_eq!(reason("http://contoso.webhook.office.com/", &TEAMS_WEBHOOK), ReasonCode::SchemeBlocked);
+        assert_eq!(reason("https://contoso.webhook.office.com:8443/", &TEAMS_WEBHOOK), ReasonCode::PortBlocked);
+        for teams_url in [
+            "https://webhook.office.com/",
+            "https://evilwebhook.office.com/",
+            "https://contoso.webhook.office.com.attacker.example/",
+            "https://contoso.webhook.office.com./",
+            "https://user@contoso.webhook.office.com/",
+            "https://attacker.example#.webhook.office.com/",
+        ] {
+            assert_eq!(reason(teams_url, &TEAMS_WEBHOOK), ReasonCode::InvalidHost, "{teams_url}");
+        }
+
+        assert!(ok("https://hooks.slack.com/services/T0/B0/x", &SLACK_WEBHOOK));
+        assert_eq!(reason("https://hooks.slack.com/triggers/x", &SLACK_WEBHOOK), ReasonCode::InvalidHost);
+        assert_eq!(reason("https://hooks.slack.com/services/../x", &SLACK_WEBHOOK), ReasonCode::InvalidHost);
+        assert_eq!(
+            reason("https://hooks.slack.com.attacker.example/services/x", &SLACK_WEBHOOK),
+            ReasonCode::InvalidHost
+        );
+        assert_eq!(reason("https://hooks.slack.com:444/services/x", &SLACK_WEBHOOK), ReasonCode::PortBlocked);
+
+        assert!(ok("https://discord.com/api/webhooks/1/x", &DISCORD_WEBHOOK));
+        assert_eq!(reason("https://discord.com/api/other", &DISCORD_WEBHOOK), ReasonCode::InvalidHost);
+        assert_eq!(reason("https://evil.discord.com/api/webhooks/1/x", &DISCORD_WEBHOOK), ReasonCode::InvalidHost);
+        assert_eq!(
+            reason("https://discord.com@attacker.example/api/webhooks/1/x", &DISCORD_WEBHOOK),
+            ReasonCode::InvalidHost
+        );
     }
 
     #[tokio::test]

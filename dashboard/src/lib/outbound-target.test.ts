@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { classifyAddress, isWebhookUrlAllowed } from './outbound-target';
+import { classifyAddress, isVendorWebhookUrl, isWebhookUrlAllowed } from './outbound-target';
 
 describe('classifyAddress', () => {
-  it.each(['1.1.1.1', '2606:4700::1111', '::ffff:1.1.1.1'])('%s is public', (address) => {
+  it.each(['1.1.1.1', '2606:4700::1111', '::ffff:1.1.1.1', '64:ff9b::101:101'])('%s is public', (address) => {
     expect(classifyAddress(address)).toBe('public');
   });
 
@@ -17,6 +17,7 @@ describe('classifyAddress', () => {
     '::1',
     'fd12:3456::1',
     '::ffff:127.0.0.1',
+    '64:ff9b::a00:1',
   ])('%s is private', (address) => {
     expect(classifyAddress(address)).toBe('private');
   });
@@ -24,6 +25,8 @@ describe('classifyAddress', () => {
   it.each([
     '169.254.169.254',
     '::ffff:169.254.169.254',
+    '64:ff9b::a9fe:a9fe',
+    '64:ff9b::169.254.169.254',
     '100.100.100.200',
     '0.0.0.0',
     '0.1.2.3',
@@ -56,6 +59,7 @@ describe('isWebhookUrlAllowed', () => {
     ['https://10.0.0.1/', [], true, true, 'private literal with allowance'],
     ['https://169.254.169.254/', [], false, false, 'metadata literal'],
     ['https://169.254.169.254/', [], true, false, 'metadata literal with allowance'],
+    ['https://[64:ff9b::a9fe:a9fe]/', [], true, false, 'nat64 metadata literal with allowance'],
     ['https://[::1]/', [], false, false, 'ipv6 loopback without allowance'],
     ['https://[::1]/', [], true, true, 'ipv6 loopback with allowance'],
     ['http://2130706433/', [], true, true, 'decimal ip normalised to 127.0.0.1'],
@@ -70,5 +74,35 @@ describe('isWebhookUrlAllowed', () => {
       throw new Error('ENOTFOUND');
     };
     expect(await isWebhookUrlAllowed('https://hooks.example', true, failing)).toBe(false);
+  });
+});
+
+describe('isVendorWebhookUrl', () => {
+  it.each([
+    ['https://contoso.webhook.office.com/webhookb2/abc', 'teams', true],
+    ['https://prod-12.westus.logic.azure.com:443/workflows/abc', 'teams', true],
+    ['https://PROD-12.WESTUS.LOGIC.AZURE.COM/workflows/abc', 'teams', true],
+    ['https://attacker.example/x.webhook.office.com/', 'teams', false],
+    ['https://10.0.0.5/a.logic.azure.com/', 'teams', false],
+    ['http://contoso.webhook.office.com/', 'teams', false],
+    ['https://contoso.webhook.office.com:8443/', 'teams', false],
+    ['https://webhook.office.com/', 'teams', false],
+    ['https://evilwebhook.office.com/', 'teams', false],
+    ['https://contoso.webhook.office.com.attacker.example/', 'teams', false],
+    ['https://contoso.webhook.office.com./', 'teams', false],
+    ['https://user@contoso.webhook.office.com/', 'teams', false],
+    ['https://attacker.example#.webhook.office.com/', 'teams', false],
+    ['not a url', 'teams', false],
+    ['https://hooks.slack.com/services/T0/B0/x', 'slack', true],
+    ['https://hooks.slack.com/triggers/x', 'slack', false],
+    ['https://hooks.slack.com/services/../x', 'slack', false],
+    ['https://hooks.slack.com.attacker.example/services/x', 'slack', false],
+    ['https://hooks.slack.com:444/services/x', 'slack', false],
+    ['https://discord.com/api/webhooks/1/x', 'discord', true],
+    ['https://discord.com/api/other', 'discord', false],
+    ['https://evil.discord.com/api/webhooks/1/x', 'discord', false],
+    ['https://discord.com@attacker.example/api/webhooks/1/x', 'discord', false],
+  ] as const)('%s as %s → %s', (url, vendor, expected) => {
+    expect(isVendorWebhookUrl(url, vendor)).toBe(expected);
   });
 });
