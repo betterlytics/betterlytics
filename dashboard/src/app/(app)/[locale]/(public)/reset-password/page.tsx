@@ -9,6 +9,7 @@ import { getTranslations } from 'next-intl/server';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
 import { isResetTokenValid } from '@/services/auth/passwordReset.service';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export async function generateMetadata({
   params,
@@ -67,6 +68,7 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
   const session = await getAuthSession();
   const t = await getTranslations('public.auth.resetPassword');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.resetPassword);
+  const isCloud = isFeatureEnabled('isCloud');
 
   if (session) {
     redirect('/dashboards');
@@ -77,7 +79,7 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
 
   const errorState = (variant: 'expired' | 'invalid') => (
     <>
-      <StructuredData config={seoConfig} />
+      {isCloud && <StructuredData config={seoConfig} />}
       <ResetPasswordLayout title={t(`${variant}.title`)} description={t(`${variant}.description`)}>
         <div className='text-center'>
           <p className='text-muted-foreground mb-4 text-sm'>{t(variant === 'expired' ? 'expired.info' : 'invalid.note')}</p>
@@ -103,7 +105,7 @@ export default async function ResetPasswordPage({ searchParams }: ResetPasswordP
 
   return (
     <>
-      <StructuredData config={seoConfig} />
+      {isCloud && <StructuredData config={seoConfig} />}
       <ResetPasswordLayout title={t('form.title')} description={t('form.description')}>
         <ResetPasswordForm token={token} />
         <div className='mt-6 text-center'>

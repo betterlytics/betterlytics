@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useTopLoader } from 'nextjs-toploader';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { useTranslations } from 'next-intl';
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -52,6 +53,7 @@ interface ErrorFallbackProps {
 }
 
 export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
+  const t = useTranslations('components.errorPage');
   const { start } = useTopLoader();
   const isCloud = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
@@ -80,10 +82,8 @@ export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
               <div className='mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10'>
                 <AlertTriangle className='h-8 w-8 text-red-400' />
               </div>
-              <h2 className='text-foreground mb-2 text-2xl font-bold'>Something went wrong</h2>
-              <p className='text-muted-foreground text-lg'>
-                We encountered an unexpected error while loading your dashboard.
-              </p>
+              <h2 className='text-foreground mb-2 text-2xl font-bold'>{t('title')}</h2>
+              <p className='text-muted-foreground text-lg'>{t('description')}</p>
             </div>
 
             {/* Error Details (Development only) */}
@@ -105,15 +105,15 @@ export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
             <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
               <Button onClick={handleRefresh} variant='default'>
                 <RefreshCw className='mr-1 h-4 w-4' />
-                Refresh Page
+                {t('refresh')}
               </Button>
               <Button onClick={handleGoHome} variant='outline'>
                 <Home className='mr-1 h-4 w-4' />
-                Go to Dashboards
+                {t('goToDashboards')}
               </Button>
               <Button onClick={handleGoBack} variant='outline'>
                 <ArrowLeft className='mr-1 h-4 w-4' />
-                Go Back
+                {t('goBack')}
               </Button>
             </div>
 
@@ -122,17 +122,22 @@ export function ErrorPage({ error, resetError }: ErrorFallbackProps) {
               <div className='space-y-2 text-center'>
                 {isCloud && (
                   <p className='text-muted-foreground text-sm'>
-                    If this problem persists, please{' '}
-                    <a href='mailto:support@betterlytics.io' className='text-blue-500 underline hover:text-blue-400'>
-                      contact support
-                    </a>
-                    .
+                    {t.rich('persists', {
+                      link: (chunks) => (
+                        <a
+                          href='mailto:support@betterlytics.io'
+                          className='text-blue-500 underline hover:text-blue-400'
+                        >
+                          {chunks}
+                        </a>
+                      ),
+                    })}
                   </p>
                 )}
                 <div className='text-muted-foreground flex items-center justify-center gap-4 text-xs'>
-                  <span>Error ID: {Date.now().toString(36)}</span>
+                  <span>{t('errorId', { id: Date.now().toString(36) })}</span>
                   <span>•</span>
-                  <span>Time: {new Date().toLocaleString()}</span>
+                  <span>{t('time', { time: new Date().toLocaleString() })}</span>
                 </div>
               </div>
             </div>
