@@ -3982,9 +3982,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://eksempel.no/webhook",
       "webhookHint": "Skriv inn en offentlig tilgjengelig HTTPS URL. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
+      "webhookHintPrivate": "Skriv inn en HTTP- eller HTTPS URL. Denne instansen kan nå adresser i private nettverk. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
       "errors": {
         "webhookUrlRequired": "Webhook URL er påkrevd",
-        "webhookUrlInvalid": "Må være en gyldig HTTPS URL"
+        "webhookUrlInvalid": "Må være en gyldig HTTPS URL",
+        "webhookUrlInvalidHttp": "Må være en gyldig HTTP- eller HTTPS URL"
       },
       "cancel": "Avbryt",
       "save": "Lagre"
