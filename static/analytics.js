@@ -31,8 +31,18 @@
         };
       }) ?? [];
 
-  var scriptsBaseUrl =
-    script.getAttribute("data-scripts-base-url") ?? "https://betterlytics.io";
+  var scriptsBaseUrl = script.getAttribute("data-scripts-base-url");
+  if (!scriptsBaseUrl) {
+    try {
+      scriptsBaseUrl = new URL(script.src).origin;
+    } catch (e) {}
+    scriptsBaseUrl = scriptsBaseUrl || "https://betterlytics.io";
+  }
+
+  // Replaced by esbuild --define at build time; unbuilt copies stay on "dev"
+  var scriptVersion =
+    typeof __BL_VERSION__ === "string" ? __BL_VERSION__ : "dev";
+  var replayScriptUrl = `${scriptsBaseUrl}/replay.js?v=${scriptVersion}`;
 
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
@@ -78,6 +88,19 @@
 
   var globalProperties = {};
 
+  var automation =
+    !!(
+      navigator.webdriver ||
+      window._phantom ||
+      window.__nightmare ||
+      window.Cypress
+    ) ||
+    ((navigator.userAgentData && navigator.userAgentData.brands) || []).some(
+      function (b) {
+        return /headless/i.test(b.brand);
+      },
+    );
+
   // Engagement tracking state (duration + scroll depth)
   var pageStartTime = performance.now();
   var currentUrl = null;
@@ -122,6 +145,7 @@
         user_agent: userAgent,
         screen_resolution: screenResolution,
         timestamp: Math.floor(Date.now() / 1000),
+        ...(automation && { automation: true }),
         ...(Object.keys(globalProperties).length > 0 && {
           global_properties: Object.assign({}, globalProperties),
         }),
@@ -133,6 +157,8 @@
   }
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
+  var queuedGlobalProperties =
+    (window.betterlytics && window.betterlytics.gq) || [];
 
   var replayConsentCallbacks = [];
 
@@ -182,6 +208,13 @@
 
   if (initialGlobalProperties !== null) {
     window.betterlytics.setGlobalProperties(initialGlobalProperties);
+  }
+
+  for (var i = 0; i < queuedGlobalProperties.length; i++) {
+    window.betterlytics.setGlobalProperties.apply(
+      this,
+      queuedGlobalProperties[i],
+    );
   }
 
   for (var i = 0; i < queuedEvents.length; i++) {
@@ -249,7 +282,7 @@
     });
 
     var s = document.createElement("script");
-    s.src = "https://unpkg.com/web-vitals@5/dist/web-vitals.iife.js";
+    s.src = `${scriptsBaseUrl}/web-vitals.js`;
     s.async = true;
     s.onload = function () {
       if (typeof webVitals !== "undefined") {
@@ -523,7 +556,7 @@
     }
   }
 
-  if (enableReplay || enableReplayOnError) {
+  if ((enableReplay || enableReplayOnError) && !automation) {
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
     var THIRTY_MIN_MS = 30 * 60 * 1000;
@@ -585,7 +618,7 @@
       if (sampled || shouldLoadForError) {
         window.__betterlytics_replay_sampled__ = sampled;
         replayLoaded = true;
-        loadScript(`${scriptsBaseUrl}/replay.js`);
+        loadScript(replayScriptUrl);
       }
     }
 
@@ -595,7 +628,7 @@
         if (sampled || enableReplayOnError) {
           window.__betterlytics_replay_sampled__ = sampled;
           replayLoaded = true;
-          loadScript(`${scriptsBaseUrl}/replay.js`);
+          loadScript(replayScriptUrl);
         }
       } else if (!consented && replayLoaded) {
         window.__betterlytics_replay__?.stop();

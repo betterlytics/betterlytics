@@ -6,7 +6,7 @@ export const SuperAdminUserListEntrySchema = z.object({
   email: z.string().email(),
   name: z.string().nullable(),
   role: z.nativeEnum(UserRole).nullable(),
-  totpEnabled: z.boolean(),
+  twoFactorEnabled: z.boolean(),
   createdAt: z.date(),
   deletedAt: z.date().nullable(),
 });

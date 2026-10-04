@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getFaviconUrl } from '@/lib/favicons';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 interface DomainFaviconProps {
   domain?: string | null;
@@ -18,8 +19,10 @@ export function DomainFavicon({ domain, size = 16, className, containerClassName
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
+
   const resolvedAlt = alt ?? (domain ? `${domain} favicon` : 'Domain favicon');
-  const source = hasError ? null : getFaviconUrl(domain);
+  const source = hasError ? null : getFaviconUrl(domain, isFeatureFlagEnabled('enableFaviconFetching'));
 
   return (
     <span

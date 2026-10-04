@@ -56,7 +56,7 @@ export function EmailVerificationEmail({ userName, verificationUrl }: EmailVerif
         button below.
       </P>
 
-      <EmailButton href={withEmailUtm(verificationUrl, CAMPAIGN, 'primary_cta')}>Verify Email Address</EmailButton>
+      <EmailButton href={verificationUrl}>Verify Email Address</EmailButton>
 
       <InfoBox variant='info' title='Security Notice'>
         <P className='m-0 text-sm'>
@@ -80,7 +80,7 @@ export function EmailVerificationEmail({ userName, verificationUrl }: EmailVerif
 
       <P>If the button above doesn't work, you can copy and paste this link into your browser:</P>
       <Link
-        href={withEmailUtm(verificationUrl, CAMPAIGN, 'fallback_link')}
+        href={verificationUrl}
         className='block rounded bg-slate-100 p-2.5 font-mono text-sm break-all text-slate-600 no-underline'
       >
         {verificationUrl}

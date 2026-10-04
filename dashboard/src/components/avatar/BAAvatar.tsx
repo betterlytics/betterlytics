@@ -4,7 +4,7 @@ import { useUserSettings } from '@/contexts/UserSettingsProvider';
 import { Avatar } from '@/components/ui/avatar';
 import { User } from 'lucide-react';
 import { GravatarImage } from '@/components/ui/gravatar-image';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 
 export function BAAvatar() {
   const settings = useUserSettings();
@@ -21,7 +21,7 @@ function DefaultAvatar() {
 }
 
 function GravatarAvatar() {
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
 
   if (!session) {
     return <DefaultAvatar />;

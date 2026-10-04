@@ -1,32 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
 import { Check, Copy } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-function useCopyToClipboard(resetAfterMs = 1400) {
-  const [copied, setCopied] = useState(false);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    },
-    [],
-  );
-
-  const copy = useCallback(
-    (text: string) => {
-      navigator.clipboard.writeText(text);
-      setCopied(true);
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => setCopied(false), resetAfterMs);
-    },
-    [resetAfterMs],
-  );
-
-  return { copied, copy };
-}
+import { useCopy } from '@/hooks/use-copy';
 
 type CopyButtonProps = {
   text: string;
@@ -38,7 +14,7 @@ type CopyButtonProps = {
 };
 
 export function CopyButton({ text, ariaLabel, copiedLabel, className, iconClassName }: CopyButtonProps) {
-  const { copied, copy } = useCopyToClipboard();
+  const { copied, copy } = useCopy({ resetAfterMs: 1400 });
 
   return (
     <button type='button' onClick={() => copy(text)} aria-label={ariaLabel} className={className}>

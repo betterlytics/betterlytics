@@ -2,6 +2,7 @@ const meta = {
   index: "Introduction",
   installation: "Installation & Setup",
   integration: "Integration",
+  wordpress: "WordPress Plugin",
   dashboard: "Dashboard Features",
   pricing: "Pricing & Billing",
   troubleshooting: "Troubleshooting",

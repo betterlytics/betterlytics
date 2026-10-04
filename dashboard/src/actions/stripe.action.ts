@@ -3,7 +3,7 @@
 import { withUserAuth } from '@/auth/auth-actions';
 import { stripe } from '@/lib/billing/stripe';
 import { SelectedPlan, SelectedPlanSchema } from '@/types/pricing';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { env } from '@/lib/env';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { getOrCreateStripeCustomer, getLockedCustomerCurrency } from '@/services/billing/customer.service';

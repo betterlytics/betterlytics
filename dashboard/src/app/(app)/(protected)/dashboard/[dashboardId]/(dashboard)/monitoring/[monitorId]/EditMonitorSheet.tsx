@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useCallback } from 'react';
 import { trpc } from '@/trpc/client';
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { Trash2 } from 'lucide-react';
@@ -50,7 +50,7 @@ export function EditMonitorSheet({
   const utils = trpc.useUtils();
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('monitoringEditDialog');
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
 
   const { deleteMutation } = useMonitorMutations(dashboardId, monitor.id);
   const form = useMonitorForm({ mode: 'edit', monitor });

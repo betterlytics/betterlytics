@@ -1,19 +1,13 @@
 import { z } from 'zod';
 import { DashboardRole } from '@prisma/client';
 import { SiteConfigSchema } from './siteConfig.entities';
+import { normalizeDomainInput } from '@/utils/domainValidation';
 
 // Domain validation schema (example.com)
 export const domainValidation = z
   .string()
   .min(1, 'Domain is required')
-  .transform((domain) => {
-    // Clean the domain: remove protocol and www
-    return domain
-      .trim()
-      .replace(/^https?:\/\//, '')
-      .replace(/^http?:\/\//, '')
-      .replace(/^www\./, '');
-  })
+  .transform(normalizeDomainInput)
   .refine((domain) => domain.includes('.'), { message: 'Domain must include an extension (e.g., example.com)' })
   .refine(
     (domain) => {

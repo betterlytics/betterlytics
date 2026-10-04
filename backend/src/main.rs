@@ -1,7 +1,7 @@
 use axum::{
     Json, Router,
-    extract::{ConnectInfo, DefaultBodyLimit, State},
-    http::{HeaderMap, StatusCode},
+    extract::{DefaultBodyLimit, State},
+    http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
 };
@@ -13,16 +13,18 @@ use tracing::{debug, error, info, warn};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod analytics;
+mod asn;
 mod bot_detection;
 mod campaign;
 mod clickhouse;
+mod client_request;
 mod config;
 mod db;
-mod email;
 mod error_fingerprint;
 mod geoip;
 mod geoip_updater;
 mod metrics;
+mod jobqueue;
 mod monitor;
 mod notifications;
 mod outbound_link;
@@ -44,12 +46,15 @@ mod validation;
 
 use analytics::{AnalyticsEvent, RawTrackingEvent, generate_site_id};
 use clickhouse::ClickHouseClient;
+use client_request::ClientRequest;
 use db::{Database, SharedDatabase};
 use geoip::GeoIpService;
 use geoip_updater::GeoIpUpdater;
 use metrics::MetricsCollector;
 use postgres::PostgresPool;
+use config::ReplayStorage;
 use processing::EventProcessor;
+use session_replay::{MAX_UPLOAD_BODY_BYTES, ReplayCtx, store::SegmentStore};
 use site_config::{RefreshConfig, SiteConfigCache, SiteConfigDataSource, SiteConfigRepository};
 use storage::s3::S3Service;
 use validation::{EventValidator, ValidationConfig};
@@ -97,18 +102,31 @@ async fn main() {
 
     let (updater, geoip_watch_rx) =
         GeoIpUpdater::new(config.clone()).expect("Failed to create GeoIP updater");
-    let updater = Arc::new(updater);
+    let geoip_reader = updater
+        .bootstrap()
+        .await
+        .map_err(|e| format!("{e:#}"))
+        .expect("Geolocation is enabled but no GeoIP database could be obtained");
+    let geoip_service = GeoIpService::new(config.clone(), geoip_reader, geoip_watch_rx);
+    let _updater_handle = tokio::spawn(Arc::new(updater).run());
 
-    let geoip_service = GeoIpService::new(config.clone(), geoip_watch_rx)
-        .expect("Failed to initialize GeoIP service");
-
-    let _updater_handle = tokio::spawn(Arc::clone(&updater).run());
-
-    let validation_config = ValidationConfig {
-        enforce_timestamp_validation: !config.is_development,
-        ..Default::default()
+    let asn_service = if config.enable_asn_lookup {
+        let (asn_updater, asn_watch_rx) =
+            GeoIpUpdater::new_asn(config.clone()).expect("Failed to create ASN updater");
+        let asn_reader = asn_updater
+            .bootstrap()
+            .await
+            .map_err(|e| format!("{e:#}"))
+            .expect("ASN lookup is enabled but no ASN database could be obtained");
+        tokio::spawn(Arc::new(asn_updater).run());
+        Some(asn::AsnService::new(asn_reader, asn_watch_rx))
+    } else {
+        info!("ASN lookup disabled (set ENABLE_ASN_LOOKUP=true to enable)");
+        None
     };
-    let validator = Arc::new(EventValidator::new(validation_config));
+
+    bot_detection::warm();
+    let validator = Arc::new(EventValidator::new(ValidationConfig::default()));
 
     let clickhouse = Arc::new(ClickHouseClient::new(&config));
     info!("ClickHouse client initialized");
@@ -124,7 +142,7 @@ async fn main() {
         None
     };
 
-    let (db, event_tx, inserter_handle) =
+    let (db, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle) =
         Database::new(Arc::clone(&clickhouse), config.clone(), metrics_collector.clone())
             .await
             .expect("Failed to initialize database");
@@ -152,8 +170,12 @@ async fn main() {
 
     let processor = Arc::new(EventProcessor::new(
         geoip_service,
+        asn_service,
         event_tx,
+        bot_event_tx,
         metrics_collector.clone(),
+        config.is_development,
+        config.enable_bot_event_log,
     ));
 
     let site_config_pool = Arc::new(
@@ -206,7 +228,8 @@ async fn main() {
             Arc::clone(&clickhouse),
             metrics_collector.clone(),
             Some(notification_engine),
-        );
+        )
+        .await;
     } else {
         info!("uptime monitoring disabled by configuration");
     }
@@ -221,11 +244,25 @@ async fn main() {
             info!("S3 session storage disabled");
             None
         }
-        Err(e) => {
-            warn!("Failed to initialize S3 service: {}", e);
-            None
-        }
+        Err(e) => panic!("Failed to initialize S3 service: {}", e),
     };
+
+    if config.enable_session_replay && config.replay_storage == ReplayStorage::S3 {
+        info!("REPLAY_RETENTION_DAYS applies to ClickHouse data only; expire S3 objects under the 'site/' prefix with a bucket lifecycle rule");
+    }
+
+    // Built only when replay is enabled, so the config assert has already validated
+    // the storage mode for this config.
+    let replay_ctx = config.enable_session_replay.then(|| {
+        let store = match config.replay_storage {
+            ReplayStorage::S3 => SegmentStore::S3(s3_service.clone().expect("asserted by config validation")),
+            ReplayStorage::ClickHouse => SegmentStore::ClickHouse(db.clone()),
+        };
+        Arc::new(ReplayCtx {
+            mode: config.replay_storage,
+            store,
+        })
+    });
 
 	let mut router = Router::new()
 		.route("/health", get(health_check))
@@ -237,12 +274,10 @@ async fn main() {
     if config.enable_session_replay {
         router = router
             .route(
-                "/replay/presign/put",
-                post(session_replay::presign_put_segment),
-            )
-            .route(
-                "/replay/finalize",
-                post(session_replay::finalize_session_replay),
+                "/replay/segment",
+                post(session_replay::upload_segment)
+                    // Overrides the app-wide 64 KB DefaultBodyLimit; segments are up to 5 MB compressed plus error metadata
+                    .layer(DefaultBodyLimit::max(MAX_UPLOAD_BODY_BYTES as usize)),
             );
     } else {
         info!("Session replay endpoints disabled by configuration");
@@ -256,7 +291,7 @@ async fn main() {
             processor,
             metrics_collector,
             validator,
-            s3_service,
+            replay_ctx,
             site_cfg_cache.clone(),
         ))
         .layer(CorsLayer::permissive());
@@ -264,17 +299,22 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     info!("Listening on {}", addr);
     let mut inserter_handle = inserter_handle;
+    let mut bot_inserter_handle = bot_inserter_handle;
     tokio::select! {
         result = axum::serve(
             listener,
             app.into_make_service_with_connect_info::<SocketAddr>(),
         )
         .with_graceful_shutdown(shutdown_signal()) => result.unwrap(),
-        // The inserter only returns once the ingest channel closes, so reaching
-        // here means it panicked. Exit non-zero rather than keep acking events
+        // The inserters only return once their ingest channels close, so reaching
+        // here means one panicked. Exit non-zero rather than keep acking events
         // into a dead channel; the container restart policy brings us back.
         result = &mut inserter_handle => {
             error!(?result, "Inserter task exited while the server is running, exiting");
+            std::process::exit(1);
+        }
+        result = &mut bot_inserter_handle => {
+            error!(?result, "Bot event inserter task exited while the server is running, exiting");
             std::process::exit(1);
         }
     }
@@ -284,6 +324,10 @@ async fn main() {
         match inserter_handle.await {
             Ok(()) => info!("Ingest pipeline drained, buffered events committed"),
             Err(e) => error!("Inserter task failed during drain: {}", e),
+        }
+        match bot_inserter_handle.await {
+            Ok(()) => info!("Bot event pipeline drained"),
+            Err(e) => error!("Bot event inserter task failed during drain: {}", e),
         }
         monitor::clickhouse_writer::flush_all_writers().await;
     };
@@ -374,10 +418,10 @@ async fn health_check(
         Arc<EventProcessor>,
         Option<Arc<MetricsCollector>>,
         Arc<EventValidator>,
-        Option<Arc<S3Service>>,
+        Option<Arc<ReplayCtx>>,
         Arc<SiteConfigCache>,
     )>,
-) -> Result<impl IntoResponse, String> {
+) -> Result<impl IntoResponse, (StatusCode, String)> {
     match db.check_connection().await {
         Ok(_) => Ok(Json(serde_json::json!({
             "status": "ok",
@@ -385,27 +429,28 @@ async fn health_check(
         }))),
         Err(e) => {
             error!("Database health check failed: {}", e);
-            Err(format!("Database connection failed: {}", e))
+            Err((
+                StatusCode::SERVICE_UNAVAILABLE,
+                format!("Database connection failed: {}", e),
+            ))
         }
     }
 }
 
 async fn track_event(
-    State((_db, processor, metrics, validator, _s3, site_cfg_cache)): State<(
+    State((_db, processor, metrics, validator, _replay_ctx, site_cfg_cache)): State<(
         SharedDatabase,
         Arc<EventProcessor>,
         Option<Arc<MetricsCollector>>,
         Arc<EventValidator>,
-        Option<Arc<S3Service>>,
+        Option<Arc<ReplayCtx>>,
         Arc<SiteConfigCache>,
     )>,
-    ConnectInfo(addr): ConnectInfo<SocketAddr>,
-    headers: HeaderMap,
+    client: ClientRequest,
     Json(mut raw_event): Json<RawTrackingEvent>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let start_time = std::time::Instant::now();
-
-    let ip_address = ip_parser::parse_ip(&headers).unwrap_or(addr.ip()).to_string();
+    let ip_address = client.ip.clone();
 
     sanitize::sanitize_event(&mut raw_event, &sanitize::SanitizeConfig::default());
 
@@ -455,7 +500,13 @@ async fn track_event(
 
     debug!("validation passed");
 
-    let event = AnalyticsEvent::new(validated_event.raw, validated_event.ip_address);
+    let event = AnalyticsEvent::new(
+        validated_event.raw,
+        validated_event.ip_address,
+        client.user_agent,
+        client.sec_ch_ua,
+        client.prefetch,
+    );
 
     if let Err(e) = processor.process_event(event).await {
         error!("Failed to process validated event: {}", e);
@@ -477,7 +528,7 @@ async fn metrics_handler(
         Arc<EventProcessor>,
         Option<Arc<MetricsCollector>>,
         Arc<EventValidator>,
-        Option<Arc<S3Service>>,
+        Option<Arc<ReplayCtx>>,
         Arc<SiteConfigCache>,
     )>,
 ) -> impl IntoResponse {

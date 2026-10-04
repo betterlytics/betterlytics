@@ -3,7 +3,9 @@ import { safeSql, SQL } from '@/lib/safe-sql';
 import {
   DailySiteUsageSchema,
   EventCountResultSchema,
+  UsageBreakdownRowSchema,
   type DailySiteUsage,
+  type UsageBreakdownRow,
 } from '@/entities/billing/billing.entities';
 import { DateString, DateTimeString } from '@/types/dates';
 import { cache } from 'react';
@@ -16,7 +18,7 @@ async function _getSiteEventCountForRange(
 ): Promise<number> {
   const query = safeSql`
     SELECT sum(event_count) as total
-    FROM analytics.usage_by_site_daily
+    FROM analytics.usage_daily
     WHERE site_id = {site_id:String}
       AND date >= toDate({start_date:String})
       AND date <= toDate({end_date:String})
@@ -56,7 +58,7 @@ export async function getDailyEventCountsForSites(
 
   const query = safeSql`
     SELECT usage.site_id, toString(usage.date) AS date, sum(usage.event_count) AS total
-    FROM analytics.usage_by_site_daily AS usage
+    FROM analytics.usage_daily AS usage
     WHERE usage.site_id IN ${SQL.StringArray({ site_ids: siteIds })}
       AND usage.date >= toDate({earliest_start:String})
       AND usage.date <= toDate(now())
@@ -78,6 +80,39 @@ export async function getDailyEventCountsForSites(
 }
 
 /**
+ * Billable events for the period grouped by both site and event type. 
+ * One row per site/type pair
+ */
+export async function getUsageBreakdownForPeriod(
+  siteIds: string[],
+  startDate: DateString,
+): Promise<UsageBreakdownRow[]> {
+  if (siteIds.length === 0) return [];
+
+  const query = safeSql`
+    SELECT usage.site_id, usage.event_type, sum(usage.event_count) AS total
+    FROM analytics.usage_daily AS usage
+    WHERE usage.site_id IN ${SQL.StringArray({ site_ids: siteIds })}
+      AND usage.date >= toDate({start_date:String})
+      AND usage.date <= toDate(now())
+    GROUP BY usage.site_id, usage.event_type
+  `;
+
+  try {
+    const result = await clickhouse
+      .query(query.taggedSql, {
+        params: { ...query.taggedParams, start_date: startDate },
+      })
+      .toPromise();
+
+    return UsageBreakdownRowSchema.array().parse(result);
+  } catch (error) {
+    console.error('Failed to get usage breakdown for period:', error);
+    throw error;
+  }
+}
+
+/**
  * Get total event count for user's sites within billing period
  */
 export async function getUserEventCountForPeriod(siteIds: string[], startDate: DateString): Promise<number> {
@@ -92,7 +127,7 @@ export async function getUserEventCountForPeriod(siteIds: string[], startDate: D
 
   const query = safeSql`
     SELECT sum(event_count) as total
-    FROM analytics.usage_by_site_daily
+    FROM analytics.usage_daily
     WHERE (${SQL.OR(siteIdChecks)})
       AND date >= toDate({start_date:String})
       AND date <= toDate(now())

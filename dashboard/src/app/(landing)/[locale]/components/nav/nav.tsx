@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useSession } from 'next-auth/react';
 import NextLink from 'next/link';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { GitHubIcon } from '@/components/icons/SocialIcons';
+import { useHydratedSession } from '@/hooks/use-hydrated-session';
 import { BrandLink } from '@/landing/components/ui/brandMark';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
@@ -45,10 +45,14 @@ function NavLinks({ className, onNavigate }: { className?: string; onNavigate?: 
 }
 
 /** Signed-out links show while the session loads, so most readers see no shift. */
+function useSignedIn() {
+  const { data, isPending } = useHydratedSession();
+  return !isPending && Boolean(data);
+}
+
 function AccountLinks({ buttonClassName }: { buttonClassName?: string }) {
   const t = useTranslations('landing.nav');
-  const { data: session } = useSession();
-  if (session) {
+  if (useSignedIn()) {
     return (
       <NextLink
         className={buttonStyles({ variant: 'volt', size: 'sm', className: buttonClassName })}
@@ -77,10 +81,10 @@ function AccountLinks({ buttonClassName }: { buttonClassName?: string }) {
 
 function SheetActions({ onNavigate }: { onNavigate: () => void }) {
   const t = useTranslations('landing.nav');
-  const { data: session } = useSession();
+  const signedIn = useSignedIn();
   return (
     <div className='mt-8 flex flex-col gap-2.5 sm:hidden'>
-      {session ? (
+      {signedIn ? (
         <NextLink
           className={buttonStyles({ variant: 'volt', size: 'lg' })}
           href='/dashboards'

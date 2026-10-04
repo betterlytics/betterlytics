@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { createRouter, analyticsProcedure } from '@/trpc/init';
 import { GeoLevelSchema, type GeoVisitor, type GeoLevel } from '@/entities/analytics/geography.entities';
 import { fetchVisitorsByGeoLevel, fetchCompareVisitorsByGeoLevel } from '@/services/analytics/geography.service';
-import { getEnabledGeoLevels } from '@/lib/geoLevels';
+import { getQueryableGeoLevels } from '@/lib/geoLevels';
 import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
 import { toDataTable } from '@/presenters/toDataTable';
 
@@ -16,7 +16,7 @@ export const geographyRouter = createRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const enabledLevels = getEnabledGeoLevels();
+      const enabledLevels = getQueryableGeoLevels();
       if (!enabledLevels.includes(input.level)) return [];
 
       const { main, compare } = ctx;
@@ -46,7 +46,7 @@ export const geographyRouter = createRouter({
     }),
 
   worldMap: analyticsProcedure.query(async ({ ctx }) => {
-    const enabledLevels = getEnabledGeoLevels();
+    const enabledLevels = getQueryableGeoLevels();
     if (!enabledLevels.includes('country_code')) {
       return { visitorData: [], compareData: [], maxVisitors: 0 };
     }

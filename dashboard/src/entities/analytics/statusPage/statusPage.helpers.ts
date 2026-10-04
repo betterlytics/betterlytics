@@ -1,4 +1,5 @@
 import { safeHostname } from '@/utils/domainValidation';
+import { hostnameOf } from '@/lib/status-host-routing';
 import {
   STATUS_PAGE_LIMITS,
   StatusPageCustomDomainSchema,
@@ -21,6 +22,11 @@ export function statusPagePublicUrl(page: StatusPageUrlParts, publicBaseUrl: str
 
 export function statusPagePublicUrlLabel(page: StatusPageUrlParts): string {
   return page.customDomain ?? `/status/${page.slug}`;
+}
+
+export function statusPageCnameTarget(slug: string, publicHost: string, isCloud: boolean): string {
+  const host = hostnameOf(publicHost);
+  return isCloud ? `${slug}.status.${host}` : host;
 }
 
 export function defaultPublicMonitorName(monitor: { name?: string | null; url: string }): string {

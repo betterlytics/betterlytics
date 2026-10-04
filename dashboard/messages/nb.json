@@ -118,7 +118,7 @@
           },
           "freePlan": {
             "question": "Hva er inkludert i gratisplanen?",
-            "answer": "Den gratis selvhostede planen inkluderer opptil 10 000 sporede hendelser, full dashboard-tilgang og fellesskapsstøtte. Perfekt for å komme i gang! Ingen kredittkort kreves, ingen bindingstid."
+            "answer": "Den gratis Cloud-planen inkluderer opptil 10 000 sporede hendelser, full dashboard-tilgang og fellesskapsstøtte. Perfekt for å komme i gang! Ingen kredittkort kreves, ingen bindingstid. Selvhosting er gratis uten grense for hendelser."
           },
           "cloud": {
             "question": "Hvordan fungerer skyløsningen?",
@@ -646,7 +646,6 @@
         "title": "Logg inn på kontoen din",
         "subtitle": "Få tilgang til analysedashboardet ditt",
         "errors": {
-          "CredentialsSignin": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
           "OAuthAccountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn med e-post og passord i stedet.",
           "default": "Det oppstod en feil under innlogging. Prøv igjen."
         },
@@ -668,12 +667,17 @@
           "errors": {
             "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
             "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
-            "generic": "Det oppstod en feil under innlogging. Prøv igjen."
+            "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
+            "invalidBackupCode": "Ugyldig reservekode. Prøv igjen."
           },
           "twoFactor": {
             "title": "Tofaktorautentisering",
             "description": "Skriv inn verifiseringskoden fra autentiseringsappen din.",
-            "cancel": "Avbryt"
+            "cancel": "Avbryt",
+            "backupCodeDescription": "Skriv inn en av reservekodene dine. Hver kode kan bare brukes én gang.",
+            "useBackupCode": "Bruk en reservekode i stedet",
+            "useAuthenticator": "Bruk autentiseringsappen i stedet",
+            "verify": "Bekreft"
           }
         }
       },
@@ -712,7 +716,8 @@
           "sending": "Sender...",
           "remember": "Husker du passordet ditt?",
           "backToSignIn": "Tilbake til innlogging"
-        }
+        },
+        "errorMessageTooManyRequests": "For mange tilbakestillingsforespørsler. Prøv igjen senere."
       },
       "resetPassword": {
         "seo": {
@@ -733,7 +738,14 @@
         },
         "form": {
           "title": "Sett nytt passord",
-          "description": "Skriv inn det nye passordet ditt nedenfor"
+          "description": "Skriv inn det nye passordet ditt nedenfor",
+          "errors": {
+            "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
+            "weakPassword": "Passordet oppfyller ikke kravene.",
+            "tooManyAttempts": "For mange forsøk. Prøv igjen senere.",
+            "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
+          },
+          "successMessage": "Passordet ble tilbakestilt!"
         },
         "cta": {
           "remember": "Husker du passordet ditt?",
@@ -882,7 +894,7 @@
         },
         "errorTracking": {
           "title": "Feilsporing",
-          "description": "Fang automatisk opp klientside-feil og grupper dem med stack traces og session replay-lenker, slik at du raskt kan gjenskape og fikse feil."
+          "description": "Fang automatisk opp klientsidefeil og grupper dem med stack traces og lenker til sesjonsavspillinger, slik at du raskt kan gjenskape og fikse feil."
         },
         "userJourneys": {
           "title": "Brukerreiser",
@@ -1361,7 +1373,7 @@
       "retention5PlusYears": "5+ år datalagring",
       "fullDashboard": "Komplett web-analytics dashboard",
       "funnelsJourneys": "Funnels og brukerreiser",
-      "sessionReplay": "Session replay",
+      "sessionReplay": "Sesjonsavspilling",
       "errorTracking": "Feilsporing",
       "uptime1": "1 oppetidsmonitor og offentlig statusside",
       "uptime50": "50 oppetidsmonitorer med 1-minutts sjekker",
@@ -1438,7 +1450,7 @@
         "name": "Alle dashboardfunksjoner"
       },
       "sessionReplay": {
-        "name": "Sesjonsopptak"
+        "name": "Sesjonsavspilling"
       },
       "funnels": {
         "name": "Trakter og konverteringer"
@@ -1523,7 +1535,7 @@
       "subtitle": "Hver plan kommer med hele analysepakken vår",
       "items": {
         "realtimeAnalytics": "Sanntidsanalyse",
-        "sessionReplay": "Sesjonsopptak",
+        "sessionReplay": "Sesjonsavspilling",
         "geographicInsights": "Geografisk innsikt",
         "trafficSources": "Trafikkilder",
         "utmCampaigns": "UTM-kampanjesporing",
@@ -1996,6 +2008,12 @@
       "onSslExpiry": "Varsel ved SSL-utløp",
       "onSslExpiryDescription": "Send varsel når SSL-sertifikatet er i ferd med å utløpe",
       "sslExpiryDisabledTooltip": "Aktiver SSL-overvåking i Avanserte innstillinger først",
+      "emailsNotConfigured": {
+        "badge": "E-post ikke konfigurert",
+        "title": "Varsel-e-poster kan ikke leveres",
+        "description": "E-postlevering er ikke konfigurert på denne instansen, så varsel-e-poster fra oppetidsovervåking blir ikke sendt. Innstillingene beholdes og trer i kraft når e-post er konfigurert.",
+        "tooltip": "Konfigurer e-postlevering på denne instansen for å aktivere varsler"
+      },
       "failureThreshold": "Feilterskel",
       "failureThresholdDescription": "Antall påfølgende feil før varsel sendes",
       "failureCount": "{count, plural, one {{count} feil} other {{count} feil}}",
@@ -2082,7 +2100,8 @@
           "domain": "eksempel.no"
         },
         "helper": {
-          "domain": "Skriv inn domenet ditt uten https:// eller www."
+          "domain": "Lim inn nettstedets URL eller domene, f.eks. eksempel.no",
+          "willBeCreatedAs": "Opprettes som <strong>{domain}</strong>"
         },
         "buttons": {
           "cancel": "Avbryt",
@@ -2445,6 +2464,9 @@
         "maxFiltersReachedToast": "Du kan bruke opptil {max} filtre. Fjern ett for å legge til et nytt."
       },
       "filterBy": "Filtrer etter {label}",
+      "toastFiltersUpdated": "Filtre oppdatert",
+      "toastFilterAdded": "Lagt til",
+      "toastFilterRemoved": "Fjernet",
       "removeFilter": "Fjern filter",
       "notAvailableOnPage": "Ikke tilgjengelig på denne siden"
     },
@@ -2689,7 +2711,7 @@
           "title": "Ingen sesjonsavspillinger tilgjengelige",
           "description": "Prøv å utvide tidsperioden eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne økten fanget {count}+ klientsidefeil"
+        "sessionErrorsTooltip": "Denne økten fanget {count} klientsidefeil"
       },
       "playerTopbar": {
         "startLabel": "Starttid:",
@@ -2781,7 +2803,8 @@
         "resend": "Send bekreftelses-e-post på nytt",
         "sending": "Sender...",
         "toastSuccess": "Bekreftelses-e-post sendt! Sjekk innboksen din.",
-        "toastFailure": "Kunne ikke sende bekreftelses-e-post"
+        "toastFailure": "Kunne ikke sende bekreftelses-e-post",
+        "cooldown": "En bekreftelses-e-post ble nylig sendt. Vent noen minutter før du ber om en ny."
       }
     },
     "topbar": {
@@ -2856,7 +2879,13 @@
         "localization": {
           "title": "Lokalisering",
           "language": "Språk",
-          "languageDescription": "Velg språk for dashbordet"
+          "languageDescription": "Velg språk for dashbordet",
+          "timezone": "Tidssone",
+          "timezoneDescription": "Brukes for datoer og grafer i alle dashbordene dine",
+          "timezoneAuto": "Oppdag automatisk",
+          "timezoneUndetected": "Nettleseren din oppgir ingen tidssone, så data vises i UTC. Velg tidssonen din for å rette dette.",
+          "timezoneSearch": "Søk etter tidssoner...",
+          "timezoneEmpty": "Fant ingen tidssone."
         },
         "notifications": {
           "title": "Varsler",
@@ -2879,8 +2908,25 @@
         "usage": {
           "title": "Forbruk",
           "eventsLabel": "Hendelser",
-          "eventsUsed": "{current} / {limit} ({percentage})",
-          "resetsInDays": "Tilbakestilles om {days} dager"
+          "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "resetsInDays": "Tilbakestilles om {days} dager",
+          "breakdown": {
+            "byType": "Etter type",
+            "bySite": "Etter nettsted",
+            "showAllSites": "{count, plural, one {Vis # nettsted til} other {Vis # flere nettsteder}}",
+            "showFewerSites": "Vis færre nettsteder",
+            "otherSites": "{count, plural, one {Andre (# nettsted)} other {Andre (# nettsteder)}}",
+            "nonBillableNote": "Tid på siden og rulledybde måles som separate hendelser, men teller ikke med i kvoten din.",
+            "loadError": "Kunne ikke laste forbruksoversikten.",
+            "empty": "Ingen fakturerbare hendelser registrert i denne perioden ennå.",
+            "eventTypes": {
+              "pageview": "Sidevisninger",
+              "custom": "Egendefinerte hendelser",
+              "cwv": "Core Web Vitals",
+              "outbound_link": "Utgående lenker",
+              "client_error": "Feil"
+            }
+          }
         },
         "payment": {
           "title": "Betaling og fakturaer",
@@ -2924,13 +2970,16 @@
         "newPassword": "Nytt passord",
         "confirmNewPassword": "Bekreft nytt passord",
         "passwordHelp": "Passordet må være minst 8 tegn",
+        "weakPassword": "Passordet må være minst 8 tegn og inneholde både store og små bokstaver",
+        "invalidCurrentPassword": "Nåværende passord er feil",
         "passwordsMatch": "Passordene samsvarer",
         "changePassword": "Bytt passord",
         "passwordManagedByOAuth": "Passord håndteres av OAuth",
         "togglePasswordVisibility": "Vis/skjul {field}",
         "cancel": "Avbryt",
         "toast": {
-          "success": "Passord oppdatert"
+          "success": "Passord oppdatert",
+          "tooManyAttempts": "For mange forsøk. Vent et øyeblikk og prøv igjen."
         },
         "totp": {
           "title": "Tofaktorautentisering",
@@ -2942,14 +2991,29 @@
           "enabled": "Aktivert",
           "disable": "Deaktiver",
           "disableTitle": "Deaktiver 2FA",
-          "disableDescription": "Skriv inn bekreftelseskoden fra autentiseringsappen din for å deaktivere tofaktorautentisering.",
+          "disableDescription": "Skriv inn passordet ditt for å deaktivere tofaktorautentisering.",
           "disabledSuccess": "Tofaktorautentisering deaktivert",
           "disableFailed": "Kunne ikke deaktivere tofaktorautentisering. Prøv igjen.",
           "setupFailed": "Kunne ikke konfigurere tofaktorautentisering. Prøv igjen.",
           "copyFailed": "Kunne ikke kopiere",
           "enabledSuccess": "Tofaktorautentisering aktivert",
           "enableFailed": "Kunne ikke aktivere tofaktorautentisering. Prøv igjen.",
-          "managedByOAuth": "Tofaktorautentisering håndteres av innloggingsleverandøren din"
+          "managedByOAuth": "Tofaktorautentisering håndteres av innloggingsleverandøren din",
+          "passwordPromptTitle": "Bekreft passordet ditt",
+          "passwordPromptDescription": "Skriv inn passordet ditt for å fortsette.",
+          "passwordLabel": "Passord",
+          "backupCodesTitle": "Reservekoder",
+          "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted. De lar deg logge inn hvis du mister autentiseringsappen.",
+          "copyCodes": "Kopier",
+          "downloadCodes": "Last ned",
+          "backupCodesDone": "Jeg har lagret kodene mine",
+          "regenerateTitle": "Generer nye reservekoder",
+          "regenerateDescription": "Dette erstatter alle eksisterende reservekoder. Skriv inn passordet ditt for å fortsette.",
+          "regenerate": "Generer nye",
+          "regenerateFailed": "Kunne ikke generere nye reservekoder. Prøv igjen.",
+          "backupCodesWarning": "Hver kode virker én gang. De vises ikke igjen etter at du lukker dette.",
+          "copied": "Kopiert",
+          "backupCodesRowDescription": "Engangskoder som lar deg logge inn hvis du mister autentiseringsappen. Oppbevar dem like trygt som passordet ditt."
         }
       },
       "sessions": {
@@ -3144,9 +3208,11 @@
         "googleButton": "Google-konto",
         "gitHubButton": "GitHub-konto",
         "passwordsDoNotMatch": "Passordene samsvarer ikke",
-        "registrationSuccessfulButSignInFailed": "Registrering vellykket, men innlogging feilet. Prøv å logge inn manuelt.",
+        "emailAlreadyExists": "Det finnes allerede en bruker med den e-postadressen.",
         "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
-        "checkInput": "Vennligst sjekk inndataene dine"
+        "checkInput": "Vennligst sjekk inndataene dine",
+        "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
+        "invitedToHint": "Du er invitert til å bli med i {domain}"
       }
     },
     "website": {
@@ -3154,7 +3220,8 @@
       "description": "Fortell oss om nettstedet du vil spore",
       "domainLabel": "Domene",
       "domainPlaceholder": "eksempel.no",
-      "domainHelp": "Skriv inn domenet ditt uten https:// eller www. (f.eks. example.com)",
+      "domainHelp": "Lim inn nettstedets URL eller domene (f.eks. eksempel.no)",
+      "domainWillBeCreatedAs": "Opprettes som <strong>{domain}</strong>",
       "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
       "createDashboardButton": "Opprett dashboard",
       "creatingDashboard": "Oppretter dashboard...",
@@ -3237,6 +3304,7 @@
       "description": "Vi har sendt en bekreftelses-e-post til {email}.",
       "success": "Bekreftelses-e-post sendt!",
       "failure": "Kunne ikke sende bekreftelses-e-post",
+      "cooldown": "En bekreftelses-e-post ble nylig sendt. Vent noen minutter før du ber om en ny.",
       "sending": "Sender...",
       "resend": "Send e-post på nytt"
     },
@@ -3244,6 +3312,11 @@
       "title": "Integrasjon ikke oppdaget",
       "description": "Dashboardet ditt er klart, men vi har ikke mottatt data fra nettstedet ditt ennå. Fullfør integrasjonsoppsettet for å begynne å spore besøkende.",
       "setup": "Integrasjonsoppsett"
+    },
+    "timezoneFallback": {
+      "title": "Tidssone ikke oppdaget",
+      "description": "Nettleseren din oppgir ingen tidssone, så data vises i UTC.",
+      "action": "Velg tidssone"
     },
     "usageAlert": {
       "title": "Nærmer seg hendelsesgrense",
@@ -3259,6 +3332,29 @@
       "title": "Ingen Core Web Vitals-data ennå",
       "description": "Sørg for at sporing er aktivert.",
       "action": "Lær mer"
+    },
+    "featureNotEnabled": {
+      "action": "Selvhosting-guide",
+      "monitoring": {
+        "title": "Oppetidsovervåking er ikke aktivert på denne instansen",
+        "description": "Monitorer kan settes opp, men de sjekkes ikke, og ingen varsler sendes før det er aktivert."
+      },
+      "statusPages": {
+        "title": "Statussider er ikke aktivert på denne instansen",
+        "description": "Statussider kan settes opp, men de publiseres ikke før funksjonen er aktivert."
+      },
+      "statusPagesRequireMonitoring": {
+        "title": "Statussider krever oppetidsovervåking, som ikke er aktivert på denne instansen",
+        "description": "Statussider kan settes opp, men de publiseres ikke før oppetidsovervåking er aktivert."
+      },
+      "sessionReplay": {
+        "title": "Sesjonsavspilling er ikke aktivert på denne instansen",
+        "description": "Ingen sesjoner tas opp før funksjonen er aktivert."
+      },
+      "geography": {
+        "title": "Geolokasjon er ikke aktivert på denne instansen",
+        "description": "Besøkendes plassering samles ikke inn før det er aktivert."
+      }
     }
   },
   "githubStar": {
@@ -3322,10 +3418,18 @@
       "sending": "Sender...",
       "pending": "Venter",
       "invited": "Invitert",
-      "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse"
+      "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
+      "copyLink": "Kopier invitasjonslenke",
+      "linkCopied": "Invitasjonslenke kopiert"
+    },
+    "linkPanel": {
+      "emailSent": "En invitasjons-e-post ble sendt til <strong>{email}</strong>. Du kan også dele invitasjonslenken direkte:",
+      "emailNotSent": "Det ble ikke sendt noen e-post til <strong>{email}</strong> — del denne invitasjonslenken med dem selv:",
+      "dismiss": "Lukk"
     },
     "toast": {
       "sent": "Invitasjon sendt",
+      "created": "Invitasjon opprettet",
       "sendFailed": "Kunne ikke sende invitasjon",
       "cancelled": "Invitasjon kansellert",
       "cancelFailed": "Kunne ikke kansellere invitasjon",
@@ -3351,13 +3455,16 @@
       "goToSignIn": "Gå til innlogging",
       "expiredTitle": "Invitasjon utløpt",
       "expiredDescription": "Denne invitasjonen er ikke lenger gyldig.",
-      "expiredHint": "Be dashboard-eieren om å sende deg en ny invitasjon.",
+      "expiredHint": "Be {inviter} om å sende deg en ny invitasjon.",
       "emailMismatchTitle": "Feil konto",
       "emailMismatchDescription": "Denne invitasjonen ble sendt til {invitedEmail}, men du er logget inn som {currentEmail}.",
       "emailMismatchHint": "Logg ut og inn med riktig konto for å godta invitasjonen.",
       "errorTitle": "Kunne ikke godta invitasjon",
-      "errorDescription": "Noe gikk galt under godkjenning av invitasjonen. Den kan allerede være godtatt eller kansellert.",
-      "goToDashboards": "Gå til dashboards"
+      "errorDescription": "Noe gikk galt da du skulle legges til i dashboardet.",
+      "goToDashboards": "Gå til dashboards",
+      "errorHint": "Prøv igjen om litt. Hvis det fortsetter å feile, be {inviter} om å sende deg en ny invitasjon.",
+      "tryAgain": "Prøv igjen",
+      "dashboardOwner": "dashboard-eieren"
     }
   },
   "integration": {
@@ -3658,6 +3765,10 @@
     "section": {
       "description": "Koble til tredjepartstjenester for å motta oppetidsovervåkingsvarsler når nettsiden din går ned eller kommer tilbake."
     },
+    "monitoringNotConfigured": {
+      "title": "Varsler er ikke aktive på denne instansen",
+      "description": "Integrasjoner sender kun varsler fra oppetidsovervåking, og oppetidsovervåking er deaktivert på denne instansen. Integrasjoner kan fortsatt settes opp, men ingenting blir sendt før det er aktivert."
+    },
     "integrations": {
       "pushover": {
         "name": "Pushover",
@@ -3701,7 +3812,8 @@
     },
     "status": {
       "connected": "Tilkoblet",
-      "disabled": "Deaktivert"
+      "disabled": "Deaktivert",
+      "unavailable": "Ikke tilgjengelig på denne instansen"
     },
     "actions": {
       "configure": "Konfigurer",
@@ -3791,6 +3903,9 @@
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
       "invalidWebhookUrl": "Ugyldig webhook URL"
+    },
+    "unavailable": {
+      "description": "{name} krever et app-token konfigurert på denne instansen før den kan kobles til."
     }
   },
   "errors": {
@@ -3858,10 +3973,10 @@
         "occurrenceHistory": "Historikk",
         "browsers": "Nettlesere",
         "deviceType": "Enhetstype",
-        "watchReplay": "Se siste øktopptak",
+        "watchReplay": "Se siste sesjonsavspilling",
         "watchReplayDescription": "Se hva brukeren gjorde før feilen",
-        "noReplay": "Ingen session replay for denne feilen",
-        "noReplayDescription": "Replay viser hva brukere gjorde før en feil oppstod.",
+        "noReplay": "Ingen sesjonsavspilling for denne feilen",
+        "noReplayDescription": "Sesjonsavspilling viser hva brukere gjorde før en feil oppstod.",
         "learnMore": "Lær mer"
       },
       "navigator": {
@@ -3882,7 +3997,7 @@
       "sessionTrail": {
         "title": "Øktforløp",
         "eventCount": "{count, plural, one {# hendelse} other {# hendelser}} i denne økten",
-        "watchReplay": "Se replay"
+        "watchReplay": "Se sesjonsavspilling"
       },
       "occurrence": {
         "browser": "Nettleser",
@@ -3977,6 +4092,7 @@
       "viewPage": "Vis side",
       "more": "Flere handlinger",
       "linkCopied": "Lenke kopiert til utklippstavlen",
+      "linkCopyFailed": "Kunne ikke kopiere lenken",
       "openPublicPage": "Åpne offentlig side",
       "editPage": "Rediger side",
       "manageIncidents": "Administrer hendelser",

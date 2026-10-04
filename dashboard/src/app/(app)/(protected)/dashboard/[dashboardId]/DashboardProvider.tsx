@@ -8,12 +8,14 @@ import { SettingsProvider } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useQuery } from '@tanstack/react-query';
 import { useSyncURLFilters } from '@/hooks/use-sync-url-filters';
+import { useDismissFilterToastOnUnmount } from '@/components/filters/filtersUpdatedToast';
 import { UserJourneyFilterProvider } from '@/contexts/UserJourneyFilterContextProvider';
 import { getDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
 import { type DashboardSettings } from '@/entities/dashboard/dashboardSettings.entities';
 import { useSavedFilters } from '@/hooks/use-saved-filters';
 import { CapabilitiesProvider } from '@/contexts/CapabilitiesProvider';
 import { BAFilterSearchParams } from '@/utils/filterSearchParams';
+import { useResolvedTimezone } from '@/hooks/use-resolved-timezone';
 
 type DashboardProviderProps = {
   children: React.ReactNode;
@@ -23,7 +25,9 @@ type DashboardProviderProps = {
 export function DashboardProvider({ children, initialSettings }: DashboardProviderProps) {
   const dashboardId = useDashboardId();
   const searchParams = useSearchParams();
-  const initialFilters = useMemo(() => BAFilterSearchParams.parseFromSearchParams(searchParams), []);
+  useDismissFilterToastOnUnmount();
+  const { timeZone } = useResolvedTimezone();
+  const initialFilters = useMemo(() => BAFilterSearchParams.parseFromSearchParams(searchParams, timeZone), []);
 
   const { data: settings } = useQuery({
     queryKey: ['dashboard-settings', dashboardId],

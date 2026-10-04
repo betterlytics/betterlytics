@@ -1,7 +1,7 @@
 import 'server-only';
 
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/better-auth';
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import superjson from 'superjson';
@@ -9,10 +9,21 @@ import { getAuthorizedDashboardContextOrNull } from '@/services/auth/auth.servic
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { DashboardFindByUserSchema } from '@/entities/dashboard/dashboard.entities';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
+import type { Session } from '@/entities/auth/session.entities';
 import { stableStringify } from '@/utils/stableStringify';
+import { env } from '@/lib/env';
 
-export const getCachedSession = cache(async () => {
-  return await getServerSession(authOptions);
+type InferredUser = (typeof auth.$Infer.Session)['user'];
+
+const toSessionUser = (user: InferredUser): Session['user'] => user;
+
+export const getCachedSession = cache(async (): Promise<Session | null> => {
+  const result = await auth.api.getSession({ headers: await headers() });
+  if (!result) return null;
+  return {
+    user: toSessionUser(result.user),
+    session: { token: result.session.token, expiresAt: result.session.expiresAt },
+  };
 });
 
 export const getCachedAuthorizedContext = cache(
@@ -41,6 +52,27 @@ export async function resolveDemoDashboardContext(dashboardId: string): Promise<
     if (authorizedCtx) return authorizedCtx;
   }
   return await createDemoContext(dashboardId);
+}
+
+export type DashboardAuthResult =
+  | { context: AuthContext; error?: never }
+  | { context?: never; error: 'unauthenticated' | 'forbidden' };
+
+export async function resolveDashboardAuthResult(dashboardId: string): Promise<DashboardAuthResult> {
+  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
+    return { context: await resolveDemoDashboardContext(dashboardId) };
+  }
+
+  const session = await getCachedSession();
+  if (!session?.user) {
+    return { error: 'unauthenticated' };
+  }
+
+  const context = await getCachedAuthorizedContext(session.user.id, dashboardId);
+  if (!context) {
+    return { error: 'forbidden' };
+  }
+  return { context };
 }
 
 type AnyFn = (...args: unknown[]) => unknown;

@@ -70,7 +70,7 @@ const navbar = (
       chatLink="https://discord.gg/vwqSvPn6sP"
     >
       <ExternalLink
-        href="https://betterlytics.io/dashboards"
+        href="https://betterlytics.io/dashboard"
         title="To Dashboard"
       >
         To Dashboard

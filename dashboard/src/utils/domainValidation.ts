@@ -53,3 +53,17 @@ export function safeHostname(url: string): string {
   if (!normalized) return url;
   return normalized.replace(/^https?:\/\//, '').replace(/\/$/, '');
 }
+
+/**
+ * Reduces whatever a user pastes (a full URL, a domain with a path or port,
+ * a www-prefixed host, mixed casing) to the bare hostname we store.
+ */
+export function normalizeDomainInput(input: string): string {
+  return input
+    .trim()
+    .replace(/^https?:\/\//i, '')
+    .replace(/^www\./i, '')
+    .split(/[/?#:]/)[0]
+    .replace(/\.$/, '')
+    .toLowerCase();
+}

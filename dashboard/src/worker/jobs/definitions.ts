@@ -10,6 +10,8 @@ export const emailReportsJobDefinition = {
   deadLetter: undefined,
 } as const satisfies JobDefinition;
 
+// The Rust backend inserts into this queue's tables directly (backend/src/jobqueue/mod.rs),
+// so pg-boss is pinned; re-check that insert before bumping it.
 export const sendEmailJobDefinition = {
   name: 'send-email',
   schedule: undefined,

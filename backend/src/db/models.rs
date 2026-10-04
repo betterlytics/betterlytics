@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc, NaiveDate};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use strum_macros::EnumString;
-use crate::processing::ProcessedEvent;
+use crate::processing::{BotEvent, ProcessedEvent};
 
 // Ensure field order exactly matches ClickHouse table schema
 #[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
@@ -54,6 +54,46 @@ pub struct EventRow {
     pub global_properties_keys: Vec<String>,
     pub global_properties_values: Vec<String>,
     pub page_duration_seconds: u32,
+    pub asn: u32,
+    pub asn_org: String,
+}
+
+// Ensure field order exactly matches ClickHouse table schema
+#[derive(clickhouse::Row, Serialize, Debug)]
+pub struct BotEventRow {
+    pub site_id: String,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub timestamp: DateTime<Utc>,
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+    pub domain: String,
+    pub url: String,
+    pub referrer: String,
+    pub user_agent: String,
+    pub screen_resolution: String,
+    pub event_name: String,
+    pub bot_reasons: Vec<String>,
+    pub asn: u32,
+    pub asn_org: String,
+}
+
+impl BotEventRow {
+    pub fn from_bot(event: BotEvent) -> Self {
+        Self {
+            site_id: event.site_id,
+            timestamp: event.timestamp,
+            date: event.timestamp.date_naive(),
+            domain: event.domain.unwrap_or_default(),
+            url: event.url,
+            referrer: event.referrer,
+            user_agent: event.user_agent,
+            screen_resolution: event.screen_resolution,
+            event_name: event.event_name,
+            bot_reasons: event.bot_reasons,
+            asn: event.asn,
+            asn_org: event.asn_org,
+        }
+    }
 }
 
 /// One active session recovered from `analytics.sessions`, used to warm the in-memory
@@ -83,7 +123,39 @@ pub struct SessionReplayRow {
     pub event_count: u32,
     pub s3_prefix: String,
     pub start_url: String,
+    pub storage: String,
+    pub client_started_at_ms: i64,
+    pub client_ended_at_ms: i64,
     pub error_fingerprints: Vec<String>,
+    pub recorded_error_count: u32,
+}
+
+#[derive(clickhouse::Row, Deserialize, Clone)]
+pub struct SessionReplayMetaRow {
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub started_at: DateTime<Utc>,
+    #[serde(with = "clickhouse::serde::chrono::datetime")]
+    pub ended_at: DateTime<Utc>,
+    pub size_bytes: u64,
+    pub start_url: String,
+    pub event_count: u32,
+    pub visitor_id: u64,
+    pub client_started_at_ms: i64,
+    pub client_ended_at_ms: i64,
+    pub error_fingerprints: Vec<String>,
+    pub recorded_error_count: u32,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug, Deserialize)]
+pub struct SessionReplaySegmentRow {
+    pub site_id: String,
+    pub session_id: u64,
+    pub filename: String,
+    pub epoch_ms: i64,
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+    pub size_bytes: u64,
+    pub data: String,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]
@@ -168,6 +240,8 @@ impl EventRow {
             global_properties_keys: event.global_properties_keys,
             global_properties_values: event.global_properties_values,
             page_duration_seconds: event.page_duration_seconds,
+            asn: event.asn,
+            asn_org: event.asn_org,
         })
     }
 }
@@ -189,7 +263,8 @@ mod tests {
             referrer: None,
             user_agent: "test-agent".to_string(),
             screen_resolution: "1920x1080".to_string(),
-            timestamp: 1_700_000_000,
+            timestamp: Some(1_700_000_000),
+            automation: false,
             outbound_link_url: None,
             cwv_cls: None,
             cwv_lcp: None,
@@ -204,7 +279,7 @@ mod tests {
         };
 
         ProcessedEvent {
-            event: AnalyticsEvent::new(raw, "127.0.0.1".to_string()),
+            event: AnalyticsEvent::new(raw, "127.0.0.1".to_string(), "test-agent".to_string(), String::new(), false),
             event_type: event_type.to_string(),
             session_id: 1,
             session_created_at: chrono::Utc::now(),
@@ -241,6 +316,8 @@ mod tests {
             global_properties_keys: Vec::new(),
             global_properties_values: Vec::new(),
             page_duration_seconds: 0,
+            asn: 0,
+            asn_org: String::new(),
         }
     }
 

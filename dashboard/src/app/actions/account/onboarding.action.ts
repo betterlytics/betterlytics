@@ -6,7 +6,7 @@ import { completeOnboardingAndCreateDashboard } from '@/services/dashboard/dashb
 import { acceptUserTerms, setOnboardingCompleted } from '@/services/auth/user.service';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { UserException } from '@/lib/exceptions';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { getTranslations } from 'next-intl/server';
 import { SupportedLanguages } from '@/constants/i18n';
 import { env } from '@/lib/env';

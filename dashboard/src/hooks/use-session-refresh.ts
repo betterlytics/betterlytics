@@ -1,20 +1,20 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { authClient } from '@/lib/auth-client';
 import { useCallback } from 'react';
 
 export function useSessionRefresh() {
-  const { update } = useSession();
+  const { refetch } = authClient.useSession();
 
   const refreshSession = useCallback(async () => {
     try {
-      await update();
+      await refetch();
       return true;
     } catch (error) {
       console.error('Failed to refresh session:', error);
       return false;
     }
-  }, [update]);
+  }, [refetch]);
 
   return { refreshSession };
 }

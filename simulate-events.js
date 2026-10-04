@@ -65,7 +65,7 @@ const getFlag = (name, fallback) => {
  * Parameters
  */
 const SITE_ID = args[0];
-const TARGET_URL = "http://127.0.0.1:3001/event";
+const TARGET_URL = `http://127.0.0.1:${process.env.SERVER_PORT || 3001}/event`;
 const NUMBER_OF_EVENTS = getFlag("events", DEFAULT_ARGS.NUMBER_OF_EVENTS);
 const NUMBER_OF_USERS = getFlag("users", DEFAULT_ARGS.NUMBER_OF_USERS);
 const SIMULATED_DAYS = getFlag("days", DEFAULT_ARGS.SIMULATED_DAYS);
@@ -414,6 +414,7 @@ async function executeBatches(batches) {
           headers: {
             "Content-Type": "application/json",
             "X-Forwarded-For": event.user_ip,
+            "User-Agent": event.user_agent,
           },
         })
       )

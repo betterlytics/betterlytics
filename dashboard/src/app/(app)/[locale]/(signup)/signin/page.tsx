@@ -10,12 +10,14 @@ import { getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { StructuredData } from '@/components/StructuredData';
 import { getAuthSession } from '@/auth/auth-actions';
-import { getEnabledOAuthProviders } from '@/lib/auth';
+import { getEnabledOAuthProviders } from '@/lib/better-auth';
+import { isFirstUser } from '@/services/auth/signupGate.service';
+import { toSafeRelativePath } from '@/lib/auth/safe-redirect';
 
 interface SignInPageProps {
   searchParams: Promise<{
     error?: string;
-    callbackUrl?: string;
+    callbackUrl?: string | string[];
     verified?: string;
     registration?: string;
   }>;
@@ -48,7 +50,8 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const session = await getAuthSession();
   const registrationEnabled = isFeatureEnabled('enableRegistration');
   const emailsEnabled = isFeatureEnabled('enableEmails');
-  const { error, registration } = await searchParams;
+  const { error, registration, callbackUrl } = await searchParams;
+  const redirectTo = toSafeRelativePath(callbackUrl, '/dashboards');
   const t = await getTranslations('public.auth.signin');
   const tOnboarding = await getTranslations('onboarding');
 
@@ -57,19 +60,15 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const providers = getEnabledOAuthProviders();
 
   if (session) {
-    redirect('/dashboards');
+    redirect(redirectTo);
   }
 
-  const getErrorMessage = (error: string) => {
-    switch (error) {
-      case 'CredentialsSignin':
-        return t('errors.CredentialsSignin');
-      case 'OAuthAccountNotLinked':
-        return t('errors.OAuthAccountNotLinked');
-      default:
-        return t('errors.default');
-    }
-  };
+  if (!registrationEnabled && (await isFirstUser())) {
+    redirect('/signup');
+  }
+
+  const getErrorMessage = (error: string) =>
+    error === 'account_not_linked' ? t('errors.OAuthAccountNotLinked') : t('errors.default');
 
   return (
     <>
@@ -96,6 +95,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                 registrationDisabledMessage={registrationDisabledMessage}
                 forgotPasswordEnabled={emailsEnabled}
                 providers={providers}
+                redirectTo={redirectTo}
               />
             </CardContent>
           </Card>

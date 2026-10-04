@@ -11,6 +11,7 @@ import { type SupportedLanguages } from '@/constants/i18n';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import TimezoneCookieInitializer from '@/app/(app)/(protected)/TimezoneCookieInitializer';
 import { UserSettingsProvider } from '@/contexts/UserSettingsProvider';
+import { getCachedUserSettings } from '@/services/account/userSettings.service';
 import { getAuthSession } from '@/auth/auth-actions';
 
 export async function generateMetadata({
@@ -55,6 +56,7 @@ export default async function PublicDashboardLayout({ params, children }: Public
     getDashboardSettingsAction(dashboardId),
     getAuthSession(),
   ]);
+  const userSettings = session?.user ? await getCachedUserSettings(session.user.id) : null;
 
   const shell = (
     <DashboardLayoutShell
@@ -67,20 +69,25 @@ export default async function PublicDashboardLayout({ params, children }: Public
     </DashboardLayoutShell>
   );
 
-  return (
-    <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
+  const dashboard = (
+    <>
       <TimezoneCookieInitializer />
       <DashboardAuthProvider isDemo={true} role='viewer'>
         <DashboardProvider initialSettings={initialSettings}>
-          <BillingFlowProvider>
-            {session?.user.settings ? (
-              <UserSettingsProvider initialSettings={session.user.settings}>{shell}</UserSettingsProvider>
-            ) : (
-              shell
-            )}
-          </BillingFlowProvider>
+          <BillingFlowProvider>{shell}</BillingFlowProvider>
         </DashboardProvider>
       </DashboardAuthProvider>
+    </>
+  );
+
+  // Above the cookie and dashboard providers, so signed-in viewers see their own timezone setting
+  return (
+    <PublicEnvironmentVariablesProvider publicEnvironmentVariables={publicEnvironmentVariables}>
+      {userSettings ? (
+        <UserSettingsProvider initialSettings={userSettings}>{dashboard}</UserSettingsProvider>
+      ) : (
+        dashboard
+      )}
     </PublicEnvironmentVariablesProvider>
   );
 }

@@ -5,7 +5,7 @@ import { env } from '@/lib/env';
 import { upsertSubscription, getUserSubscription } from '@/repositories/postgres/subscription.repository';
 import { buildStarterSubscription } from '@/entities/billing/billing.entities';
 import { EVENT_RANGES, TIER_TO_PLANNAME_KEY, type TierName } from '@/lib/billing/plans';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { revalidatePath } from 'next/cache';
 
 export const updateDevSubscriptionAction = withUserAuth(async (user: User, tier: TierName) => {

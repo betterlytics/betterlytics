@@ -1,6 +1,6 @@
 import 'server-only';
 
-import type { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { stripe } from '@/lib/billing/stripe';
 import {
   getUserSubscription,

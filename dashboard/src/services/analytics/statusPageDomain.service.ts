@@ -5,28 +5,19 @@ import { sharedEmailEnv } from '@/lib/env/shared.env';
 import { findStatusPageByCustomDomain } from '@/repositories/postgres/statusPage.repository';
 import { canUseStatusPageCustomDomain } from '@/lib/billing/capabilityAccess';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { isOwnHost, normalizeHostname, ownHostsFrom } from '@/lib/status-host-routing';
 
 export type TlsAuthorization = 'authorized' | 'forbidden' | 'unauthorized';
 
-export function normalizeHostname(raw: string): string {
-  return raw.trim().toLowerCase().replace(/\.$/, '').replace(/:\d+$/, '');
-}
+const OWN_HOSTS = ownHostsFrom(
+  sharedEmailEnv.publicBaseUrl,
+  sharedEmailEnv.isCloud ? env.STATUS_PAGE_DOMAIN : '',
+  sharedEmailEnv.isCloud,
+);
 
-function publicBaseUrlHost(): string {
-  try {
-    return new URL(sharedEmailEnv.publicBaseUrl).hostname;
-  } catch {
-    return sharedEmailEnv.publicBaseUrl; // tolerate a bare hostname without scheme
-  }
-}
-
-// Hosts this install serves itself: the app origin and the tier-1 status namespace. Derived from
-// config rather than hardcoded so self-host deployments are protected too.
-const OWN_NAMESPACES = [publicBaseUrlHost(), env.STATUS_PAGE_DOMAIN].map(normalizeHostname).filter(Boolean);
-
-/** Rejects our own hosts + status namespace so they can never be claimed as a custom domain. */
+/** Rejects our own hosts so they can never be claimed as a custom domain; same policy the middleware routes by. */
 export function isOwnNamespace(domain: string): boolean {
-  return OWN_NAMESPACES.some((ns) => domain === ns || domain.endsWith(`.${ns}`));
+  return isOwnHost(domain, OWN_HOSTS);
 }
 
 /**

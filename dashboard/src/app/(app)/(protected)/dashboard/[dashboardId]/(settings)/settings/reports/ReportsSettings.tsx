@@ -5,11 +5,12 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { AlertCircle, Mail, Plus, X } from 'lucide-react';
+import { Mail, Plus, X } from 'lucide-react';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import SettingsSection from '@/components/settings/SettingsSection';
 import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
+import { WarningBanner } from '@/components/WarningBanner';
 import { useSettings } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
@@ -229,13 +230,11 @@ export default function ReportsSettings({ emailsEnabled }: { emailsEnabled: bool
       <SettingsPageHeader title={t('title')} />
 
       {!emailsEnabled && (
-        <div className='mb-6 flex items-center gap-3 rounded-lg border border-orange-200 bg-orange-50 p-3 dark:border-orange-800 dark:bg-orange-950'>
-          <AlertCircle className='h-5 w-5 flex-shrink-0 text-orange-600 dark:text-orange-400' />
-          <div className='flex-1'>
-            <p className='text-sm font-medium text-orange-800 dark:text-orange-200'>{t('emailsNotConfigured.title')}</p>
-            <p className='text-xs text-orange-700 dark:text-orange-300'>{t('emailsNotConfigured.description')}</p>
-          </div>
-        </div>
+        <WarningBanner
+          className='mb-6'
+          title={t('emailsNotConfigured.title')}
+          description={t('emailsNotConfigured.description')}
+        />
       )}
 
       <div className='space-y-6'>

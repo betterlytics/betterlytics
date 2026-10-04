@@ -9,6 +9,10 @@ export interface QueryCursorLike {
   toPromise: () => Promise<unknown[]>;
 }
 
+export interface QueryStreamRow {
+  text: string;
+}
+
 export interface AdapterCommandOptions {
   params?: Record<string, unknown>;
 }
@@ -16,29 +20,39 @@ export interface AdapterCommandOptions {
 export interface ClickHouseAdapterClient {
   query: (sql: string, reqParams?: AdapterQueryOptions) => QueryCursorLike;
   command: (sql: string, reqParams?: AdapterCommandOptions) => Promise<void>;
+  // Object-mode batches of rows, raw text without the trailing newline. The two
+  // observability Proxies only intercept 'query', so this is uninstrumented and unlimited.
+  queryStream: (sql: string, reqParams: AdapterQueryOptions) => Promise<AsyncIterable<QueryStreamRow[]>>;
 }
 
 interface AdapterConfig {
   url: string;
   username: string;
   password: string;
+  streamMaxOpenConnections?: number;
 }
 
 export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapterClient {
-  const client: ClickHouseClient = createClient({
-    url: config.url,
-    username: config.username,
-    password: config.password,
-    request_timeout: 30_000,
-    compression: {
-      request: false,
-      response: true,
-    },
-    clickhouse_settings: {
-      output_format_json_quote_64bit_integers: 0,
-      cancel_http_readonly_queries_on_client_close: 1,
-    },
-  });
+  const connect = (maxOpenConnections?: number): ClickHouseClient =>
+    createClient({
+      url: config.url,
+      username: config.username,
+      password: config.password,
+      request_timeout: 30_000,
+      max_open_connections: maxOpenConnections,
+      compression: {
+        request: false,
+        response: true,
+      },
+      clickhouse_settings: {
+        output_format_json_quote_64bit_integers: 0,
+        cancel_http_readonly_queries_on_client_close: 1,
+      },
+    });
+  const client = connect();
+  // A stream holds its socket until the browser has read everything, so streams get their
+  // own pool and slow viewers cannot starve dashboard queries. Lazy: the worker never streams.
+  let streamClient: ClickHouseClient | undefined;
 
   return {
     query(sql: string, reqParams?: AdapterQueryOptions): QueryCursorLike {
@@ -61,6 +75,15 @@ export function createClickHouseAdapter(config: AdapterConfig): ClickHouseAdapte
         query: sql,
         query_params: reqParams?.params ?? {},
       });
+    },
+    async queryStream(sql: string, reqParams: AdapterQueryOptions): Promise<AsyncIterable<QueryStreamRow[]>> {
+      streamClient ??= connect(config.streamMaxOpenConnections);
+      const resultSet = await streamClient.query({
+        query: sql,
+        query_params: reqParams.params ?? {},
+        format: reqParams.format ?? 'JSONEachRow',
+      });
+      return resultSet.stream();
     },
   };
 }

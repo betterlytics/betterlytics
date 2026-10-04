@@ -49,11 +49,15 @@ pub struct AlertHistoryRecord {
 }
 
 impl AlertHistoryRecord {
-    pub fn from_context(ctx: &super::dispatcher::AlertContext, details: AlertDetails) -> Self {
+    pub fn from_context(
+        ctx: &super::dispatcher::AlertContext,
+        sent_to: Vec<String>,
+        details: AlertDetails,
+    ) -> Self {
         Self {
             monitor_check_id: ctx.check_id.to_string(),
             site_id: ctx.site_id.to_string(),
-            sent_to: ctx.recipients.to_vec(),
+            sent_to,
             details,
         }
     }

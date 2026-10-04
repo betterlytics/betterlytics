@@ -1,0 +1,46 @@
+---
+title: "WordPress Plugin Settings"
+description: "Every setting in the Betterlytics WordPress plugin, its default, and the option key used to set it from WP-CLI."
+---
+
+import { Callout } from "nextra/components";
+
+# Settings
+
+The plugin's settings live at **Settings → Betterlytics** in wp-admin, under the **Settings** tab. **General Settings** holds the two settings everything else depends on; **Browser Event Tracking** holds the optional capabilities.
+
+This table is the reference for the whole plugin: what each control does, what it defaults to, and the key to use when [configuring the plugin from WP-CLI](/wordpress/configuration).
+
+| Setting | Default | Option key | What it controls |
+| --- | --- | --- | --- |
+| Enable Tracking | Off | `enabled` | Whether the tracking script is added to your site at all |
+| Site ID | Empty | `site_id` | Which Betterlytics dashboard your data goes to |
+| Outbound Links | Domain | `track_outbound.mode` | Whether clicks on external links are recorded, and in how much detail |
+| Web Vitals | Off | `track_web_vitals` | Real-user performance metrics |
+| Custom HTML Attribute Events | Off | `track_custom_html_attribute.enabled` | Clicks on elements marked with `data-betterlytics-event` |
+
+Tracking is off until you turn it on, and so is everything under **Browser Event Tracking** except outbound links, which record the destination domain by default.
+
+The three **Browser Event Tracking** settings are covered in detail in the [Events guide](/wordpress/events): what each one collects, and where the data shows up in your dashboard.
+
+## Enable Tracking
+
+This is the master switch. It is off after installing the plugin, so nothing is collected until you turn it on.
+
+When enabled, the Betterlytics tracking script is added to the `<head>` of your site's pages and starts recording. When disabled, the script is left out of the page entirely, not merely inert but absent from the source, sending nothing.
+
+<Callout type="tip">
+Turning tracking off is the clean way to pause collection during maintenance, or to keep a staging copy of your site out of your analytics, without deactivating the plugin and losing your configuration.
+</Callout>
+
+## Site ID
+
+The Site ID identifies which Betterlytics dashboard receives your data. Without it, tracking has no destination, so the plugin collects nothing even with tracking enabled.
+
+To find it, open your Betterlytics dashboard, click **Integration Setup** in the sidebar, and copy the value under **Your Site ID**. It is also shown during onboarding, immediately after you create a dashboard.
+
+<Callout type="warning">
+The Site ID is case-sensitive, and an incorrect one fails silently: your site keeps sending data and your dashboard stays empty. Use the copy button rather than retyping it.
+</Callout>
+
+Each dashboard in your account has its own Site ID, so a WordPress multisite network or a separate staging site needs a separate dashboard if you want their data kept apart.

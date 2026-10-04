@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
-import { signIn } from 'next-auth/react';
-import type { getEnabledOAuthProviders } from '@/lib/auth';
+import { authClient } from '@/lib/auth-client';
+import type { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { useBARouter } from '@/hooks/use-ba-router';
 import OtpInput from '@/components/ui/otp-input';
 import {
@@ -23,25 +23,61 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
+
+// Backup codes are `xxxxx-xxxxx` over [A-Za-z0-9]; the hyphen brings the total to 11.
+const BACKUP_CODE_LENGTH = 11;
+
+/**
+ * Normalises whatever the user typed or pasted into `xxxxx-xxxxx`, dropping characters that cannot
+ * appear in a code and re-inserting the separator. Case is preserved deliberately: codes are mixed
+ * case and compared exactly, so re-casing here would reject valid codes.
+ */
+function formatBackupCode(value: string) {
+  const chars = value.replace(/[^A-Za-z0-9]/g, '').slice(0, 10);
+  return chars.length > 5 ? `${chars.slice(0, 5)}-${chars.slice(5)}` : chars;
+}
+
+function FormError({ message, className }: { message: string; className?: string }) {
+  if (!message) return null;
+
+  return (
+    <div
+      className={cn(
+        'bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3',
+        className,
+      )}
+      role='alert'
+    >
+      <span className='block sm:inline'>{message}</span>
+    </div>
+  );
+}
 
 type LoginFormProps = {
   registrationDisabledMessage?: string | null;
   forgotPasswordEnabled?: boolean;
   providers: ReturnType<typeof getEnabledOAuthProviders>;
+  redirectTo?: string;
 };
 
 export default function LoginForm({
   registrationDisabledMessage,
   forgotPasswordEnabled,
   providers,
+  redirectTo = '/dashboards',
 }: LoginFormProps) {
   const router = useBARouter();
   const isMobile = useIsMobile();
   const t = useTranslations('public.auth.signin.form');
   const totpInputRef = useRef<HTMLInputElement>(null);
+  const backupCodeInputRef = useRef<HTMLInputElement>(null);
+  const autoSubmittedCodeRef = useRef('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [totp, setTotp] = useState('');
+  const [backupCode, setBackupCode] = useState('');
+  const [useBackupCode, setUseBackupCode] = useState(false);
   const [error, setError] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -61,18 +97,21 @@ export default function LoginForm({
     totpInputRef.current?.focus();
   }, [totpInputRef, isPending]);
 
-  const Error = () => {
-    return (
-      error && (
-        <div
-          className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
-          role='alert'
-        >
-          <span className='block sm:inline'>{error}</span>
-        </div>
-      )
-    );
-  };
+  // Keep a rejected code on screen but selected, so retrying overwrites it instead of forcing a retype.
+  useEffect(() => {
+    if (isPending || !useBackupCode || !error) return;
+
+    backupCodeInputRef.current?.select();
+  }, [isPending, useBackupCode, error]);
+
+  // AutoSubmit once a full code is entered
+  useEffect(() => {
+    if (isPending || !useBackupCode || backupCode.length < BACKUP_CODE_LENGTH) return;
+    if (autoSubmittedCodeRef.current === backupCode) return;
+
+    autoSubmittedCodeRef.current = backupCode;
+    backupCodeInputRef.current?.form?.requestSubmit();
+  }, [isPending, useBackupCode, backupCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,26 +119,29 @@ export default function LoginForm({
 
     startTransition(async () => {
       try {
-        const result = await signIn('credentials', {
-          email,
-          password,
-          totp,
-          redirect: false,
-          callbackUrl: '/dashboards',
-        });
-
-        if (result?.error) {
-          if (result.error === 'missing_otp') {
-            setIsDialogOpen(true);
-          } else if (result.error == 'invalid_otp') {
+        if (isDialogOpen) {
+          const { error: verifyError } = useBackupCode
+            ? await authClient.twoFactor.verifyBackupCode({ code: backupCode })
+            : await authClient.twoFactor.verifyTotp({ code: totp });
+          if (verifyError) {
             setTotp('');
-            setError(t('errors.invalidOtp'));
-          } else {
-            setError(t('errors.invalidCredentials'));
+            setError(t(useBackupCode ? 'errors.invalidBackupCode' : 'errors.invalidOtp'));
+            return;
           }
-        } else if (result?.url) {
-          router.push(result.url);
+          router.push(redirectTo);
+          return;
         }
+
+        const { data, error: signInError } = await authClient.signIn.email({ email, password });
+        if (signInError) {
+          setError(t('errors.invalidCredentials'));
+          return;
+        }
+        if (data && 'twoFactorRedirect' in data && data.twoFactorRedirect) {
+          setIsDialogOpen(true);
+          return;
+        }
+        router.push(redirectTo);
       } catch {
         setError(t('errors.generic'));
       }
@@ -114,24 +156,28 @@ export default function LoginForm({
 
       transition(async () => {
         try {
-          const result = await signIn(oauthProvider, {
-            callbackUrl: '/dashboards',
+          // Navigates the browser to the provider's consent screen. errorCallbackURL
+          // keeps failures off better-auth's unbranded /api/auth/error page.
+          const { error: socialError } = await authClient.signIn.social({
+            provider: oauthProvider,
+            callbackURL: redirectTo,
+            newUserCallbackURL: '/onboarding?newUser=true',
+            errorCallbackURL: '/signin',
           });
-
-          if (result?.url) {
-            router.push(result.url);
+          if (socialError) {
+            setError(t('errors.generic'));
           }
         } catch {
           setError(t('errors.generic'));
         }
       });
     },
-    [t],
+    [t, redirectTo],
   );
 
   return (
     <form id='login' className='space-y-6' onSubmit={handleSubmit}>
-      {!isDialogOpen && <Error />}
+      {!isDialogOpen && <FormError message={error} />}
       <div className='space-y-4'>
         <div className='space-y-2'>
           <Label htmlFor='email'>{t('emailLabel')}</Label>
@@ -227,15 +273,42 @@ export default function LoginForm({
         )}
       </div>
 
-      <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <AlertDialog
+        open={isDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setUseBackupCode(false);
+            setBackupCode('');
+            autoSubmittedCodeRef.current = '';
+          }
+          setIsDialogOpen(open);
+        }}
+      >
         <AlertDialogContent className='max-h-[90vh] w-80 overflow-y-auto'>
           <AlertDialogHeader>
             <AlertDialogTitle>{t('twoFactor.title')}</AlertDialogTitle>
-            <AlertDialogDescription>{t('twoFactor.description')}</AlertDialogDescription>
+            <AlertDialogDescription>
+              {t(useBackupCode ? 'twoFactor.backupCodeDescription' : 'twoFactor.description')}
+            </AlertDialogDescription>
           </AlertDialogHeader>
-          <Error />
+          <FormError message={error} className='text-sm' />
           {isPending ? (
             <Spinner className='m-auto' />
+          ) : useBackupCode ? (
+            <Input
+              ref={backupCodeInputRef}
+              value={backupCode}
+              onChange={(e) => setBackupCode(formatBackupCode(e.target.value))}
+              placeholder='xxxxx-xxxxx'
+              autoComplete='off'
+              autoCapitalize='none'
+              autoCorrect='off'
+              spellCheck={false}
+              maxLength={BACKUP_CODE_LENGTH}
+              autoFocus
+              form='login'
+              className='text-center font-mono'
+            />
           ) : (
             <OtpInput
               value={totp}
@@ -246,8 +319,36 @@ export default function LoginForm({
               form='login'
             />
           )}
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isPending}>{t('twoFactor.cancel')}</AlertDialogCancel>
+          <Button
+            type='button'
+            variant='ghost'
+            size='sm'
+            disabled={isPending}
+            onClick={() => {
+              setError('');
+              setTotp('');
+              setBackupCode('');
+              autoSubmittedCodeRef.current = '';
+              setUseBackupCode((v) => !v);
+            }}
+            className='text-muted-foreground hover:text-foreground w-full cursor-pointer font-normal'
+          >
+            {t(useBackupCode ? 'twoFactor.useAuthenticator' : 'twoFactor.useBackupCode')}
+          </Button>
+          <AlertDialogFooter className='sm:flex-col-reverse sm:justify-normal'>
+            <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
+              {t('twoFactor.cancel')}
+            </AlertDialogCancel>
+            {useBackupCode && (
+              <Button
+                type='submit'
+                form='login'
+                disabled={isPending || backupCode.length < BACKUP_CODE_LENGTH}
+                className='cursor-pointer'
+              >
+                {t('twoFactor.verify')}
+              </Button>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

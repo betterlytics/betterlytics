@@ -3,19 +3,19 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { setTimezoneCookieAction } from '@/app/actions/system/timezone.action';
-import moment from 'moment-timezone';
+import { useResolvedTimezone } from '@/hooks/use-resolved-timezone';
 
 export default function TimezoneCookieInitializer() {
   const router = useRouter();
+  const { timeZone } = useResolvedTimezone();
 
   useEffect(() => {
-    const tz = moment.tz.guess() ?? 'Etc/UTC';
-    setTimezoneCookieAction(tz).then((res) => {
+    setTimezoneCookieAction(timeZone).then((res) => {
       if (res.changed) {
         router.refresh();
       }
     });
-  }, [router]);
+  }, [timeZone, router]);
 
   return null;
 }

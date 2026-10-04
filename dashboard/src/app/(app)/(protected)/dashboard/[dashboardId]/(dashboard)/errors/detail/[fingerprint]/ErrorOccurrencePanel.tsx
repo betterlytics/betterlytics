@@ -138,7 +138,7 @@ function OccurrenceContext({ occurrence }: { occurrence: ErrorOccurrence }) {
         <FlagIcon
           countryCode={occurrence.country_code as FlagIconProps['countryCode']}
           countryName={occurrence.country_code}
-          className='h-6 w-6'
+          className='h-4!'
         />
       ),
     },

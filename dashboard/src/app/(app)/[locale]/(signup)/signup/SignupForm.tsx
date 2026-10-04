@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { isUserInvitedDashboardMemberAction, registerUserAction } from '@/app/actions/index.actions';
+import { isUserInvitedDashboardMemberAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
-import { signIn } from 'next-auth/react';
-import type { getEnabledOAuthProviders } from '@/lib/auth';
+import { authClient } from '@/lib/auth-client';
+import type { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { ZodError } from 'zod';
 import { GoogleIcon, GitHubIcon } from '@/components/icons';
 import { CheckCircleIcon } from 'lucide-react';
@@ -40,9 +40,22 @@ const itemVariants = {
 
 type SignupFormProps = {
   providers: ReturnType<typeof getEnabledOAuthProviders>;
+  invitedEmail?: string;
+  invitedDomain?: string;
+  inviteToken?: string;
+  redirectTo?: string;
+  /** Cloud only; self-host is not bound by our terms */
+  requireTerms: boolean;
 };
 
-export default function SignupForm({ providers }: SignupFormProps) {
+export default function SignupForm({
+  providers,
+  invitedEmail,
+  invitedDomain,
+  inviteToken,
+  redirectTo,
+  requireTerms,
+}: SignupFormProps) {
   const t = useTranslations('onboarding.account');
   const tValidation = useTranslations('validation');
   const tAuth = useTranslations('public.auth.register');
@@ -91,7 +104,7 @@ export default function SignupForm({ providers }: SignupFormProps) {
       }
 
       try {
-        if (!acceptedTerms) {
+        if (requireTerms && !acceptedTerms) {
           setError(tValidation('termsOfServiceRequired'));
           return;
         }
@@ -99,30 +112,38 @@ export default function SignupForm({ providers }: SignupFormProps) {
           email,
           password,
           name: name?.trim() || undefined,
-          acceptedTerms,
+          acceptedTerms: requireTerms ? acceptedTerms : undefined,
           language: locale as SupportedLanguages,
         });
 
         startTransition(async () => {
-          const result = await registerUserAction(validatedData);
-
-          if (!result.success) {
-            setError(result.error.message);
-            return;
-          }
-
-          const signInResult = await signIn('credentials', {
+          const signUpBody = {
             email: validatedData.email,
             password: validatedData.password,
-            redirect: false,
-          });
+            name: validatedData.name ?? '',
+            acceptedTerms: validatedData.acceptedTerms,
+            language: validatedData.language,
+            ...(inviteToken && { invite: inviteToken }),
+          };
+          const { error: signUpError } = await authClient.signUp.email(signUpBody);
 
-          if (signInResult?.error) {
-            setError(t('form.registrationSuccessfulButSignInFailed'));
+          if (signUpError) {
+            setError(
+              signUpError.code?.startsWith('USER_ALREADY_EXISTS')
+                ? t('form.emailAlreadyExists')
+                : signUpError.code === 'SIGNUP_DISABLED'
+                  ? t('form.registrationDisabled')
+                  : t('form.signUpError'),
+            );
             return;
           }
 
           baEvent('onboarding-account-created');
+
+          if (redirectTo) {
+            router.push(redirectTo);
+            return;
+          }
 
           const { hadInvitations } = await handlePotentialInvitationsOnAccountCreation();
 
@@ -146,7 +167,18 @@ export default function SignupForm({ providers }: SignupFormProps) {
         }
       }
     },
-    [acceptedTerms, t, tValidation, locale, router, startTransition, handlePotentialInvitationsOnAccountCreation],
+    [
+      acceptedTerms,
+      requireTerms,
+      t,
+      tValidation,
+      locale,
+      router,
+      redirectTo,
+      inviteToken,
+      startTransition,
+      handlePotentialInvitationsOnAccountCreation,
+    ],
   );
 
   const handleOAuthRegistration = useCallback(
@@ -156,20 +188,21 @@ export default function SignupForm({ providers }: SignupFormProps) {
 
       transition(async () => {
         try {
-          const result = await signIn(provider, {
-            redirect: false,
-            callbackUrl: '/dashboards',
+          const { error: socialError } = await authClient.signIn.social({
+            provider,
+            callbackURL: redirectTo ?? '/dashboards',
+            newUserCallbackURL: redirectTo ?? '/onboarding?newUser=true',
+            errorCallbackURL: redirectTo ? `/signin?callbackUrl=${encodeURIComponent(redirectTo)}` : '/signin',
           });
-
-          if (result?.url) {
-            window.location.href = result.url;
+          if (socialError) {
+            setError(t('form.signUpError'));
           }
         } catch {
           setError(t('form.signUpError'));
         }
       });
     },
-    [t, startGithubTransition, startGoogleTransition],
+    [t, redirectTo, startGithubTransition, startGoogleTransition],
   );
 
   return (
@@ -213,6 +246,11 @@ export default function SignupForm({ providers }: SignupFormProps) {
           </div>
           <div className='bg-card col-span-2 space-y-3 rounded-lg border p-3 py-4 pb-5 shadow-sm sm:p-6 md:col-span-1'>
             <h2 className='text-center text-2xl font-semibold'>{t('form.title')}</h2>
+            {invitedDomain && (
+              <p className='text-muted-foreground text-center text-sm'>
+                {t('form.invitedToHint', { domain: invitedDomain })}
+              </p>
+            )}
             {error && (
               <div
                 className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
@@ -275,8 +313,10 @@ export default function SignupForm({ providers }: SignupFormProps) {
                   required
                   placeholder={t('form.emailPlaceholder')}
                   className='h-10 rounded-md text-sm'
-                  disabled={isPending}
+                  disabled={isPending || !!invitedEmail}
+                  defaultValue={invitedEmail}
                 />
+                {invitedEmail && <input type='hidden' name='email' value={invitedEmail} />}
               </div>
 
               <div className='space-y-2'>
@@ -305,39 +345,41 @@ export default function SignupForm({ providers }: SignupFormProps) {
                 />
               </div>
 
-              <div className='mt-6 mb-1 flex items-start gap-2'>
-                <Checkbox
-                  id='agree-terms-register'
-                  checked={acceptedTerms}
-                  onCheckedChange={(v) => {
-                    const accepted = v === true;
-                    setAcceptedTerms(accepted);
-                    if (accepted) setError('');
-                  }}
-                  aria-required={true}
-                />
-                <Label
-                  htmlFor='agree-terms-register'
-                  className='text-muted-foreground text-xs leading-snug font-normal'
-                >
-                  <span>
-                    {t.rich('form.termsAgreeLabel', {
-                      termsLink: (chunks) => (
-                        <Link href='/terms' target='__blank' rel='noopener noreferrer' className='underline'>
-                          {chunks}
-                        </Link>
-                      ),
-                      privacyLink: (chunks) => (
-                        <Link href='/privacy' target='__blank' rel='noopener noreferrer' className='underline'>
-                          {chunks}
-                        </Link>
-                      ),
-                    })}
-                  </span>
-                </Label>
-              </div>
+              {requireTerms && (
+                <div className='mt-6 mb-1 flex items-start gap-2'>
+                  <Checkbox
+                    id='agree-terms-register'
+                    checked={acceptedTerms}
+                    onCheckedChange={(v) => {
+                      const accepted = v === true;
+                      setAcceptedTerms(accepted);
+                      if (accepted) setError('');
+                    }}
+                    aria-required={true}
+                  />
+                  <Label
+                    htmlFor='agree-terms-register'
+                    className='text-muted-foreground text-xs leading-snug font-normal'
+                  >
+                    <span>
+                      {t.rich('form.termsAgreeLabel', {
+                        termsLink: (chunks) => (
+                          <Link href='/terms' target='__blank' rel='noopener noreferrer' className='underline'>
+                            {chunks}
+                          </Link>
+                        ),
+                        privacyLink: (chunks) => (
+                          <Link href='/privacy' target='__blank' rel='noopener noreferrer' className='underline'>
+                            {chunks}
+                          </Link>
+                        ),
+                      })}
+                    </span>
+                  </Label>
+                </div>
+              )}
 
-              {acceptedTerms ? (
+              {!requireTerms || acceptedTerms ? (
                 <Button
                   type='submit'
                   disabled={isPending}

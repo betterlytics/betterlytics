@@ -9,6 +9,9 @@ import prisma from '@/lib/postgres';
 
 const FUNNEL_STEPS_INCLUDE = {
   funnelSteps: {
+    orderBy: {
+      position: 'asc',
+    },
     include: {
       filters: true,
     },
@@ -45,8 +48,9 @@ export async function createFunnel(funnelData: CreateFunnel) {
     data: {
       ...funnelDataWithoutSteps,
       funnelSteps: {
-        create: funnelSteps.map((step) => ({
+        create: funnelSteps.map((step, position) => ({
           name: step.name,
+          position,
           filters: {
             create: step.filters,
           },
@@ -73,8 +77,9 @@ export async function updateFunnel(dashboardId: string, funnel: UpdateFunnel): P
       isStrict: funnel.isStrict,
       funnelSteps: {
         deleteMany: {},
-        create: funnel.funnelSteps.map((step) => ({
+        create: funnel.funnelSteps.map((step, position) => ({
           name: step.name,
+          position,
           filters: {
             create: step.filters,
           },

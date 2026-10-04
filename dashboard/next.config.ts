@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
   experimental: {
     // app and landing have separate root layouts, so unmatched URLs need a global 404
     globalNotFound: true,
+    webpackMemoryOptimizations: true,
+    serverSourceMaps: true,
   },
   async redirects() {
     return [
@@ -32,7 +34,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return {
       beforeFiles: [],
-      // Single segments the middleware skips (/wp-login.php, /.env, /dashboardx) would hit the static
+      // Dotted single segments the middleware skips (/wp-login.php, /.env) would hit the static
       // landing as its locale and cache a 404 each; send them to the app's per-request catch-all.
       afterFiles: [
         {
@@ -50,12 +52,6 @@ const nextConfig: NextConfig = {
         headers: [{ key: 'X-Accel-Buffering', value: 'no' }],
       },
     ];
-  },
-  webpack: (config, { isServer }) => {
-    if (isServer) {
-      config.devtool = 'source-map';
-    }
-    return config;
   },
   productionBrowserSourceMaps: false,
 };

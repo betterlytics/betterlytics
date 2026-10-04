@@ -16,7 +16,7 @@ import {
   presentUptimeTone,
   type MonitorTone,
 } from '../styles';
-import { defaultDateLabelFormatter } from '@/utils/chartUtils';
+import { useChartDateFormatters } from '@/hooks/use-chart-date-formatters';
 import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
 import { ResponseTimeChart } from './ResponseTimeChart';
 import { useLocale, useTranslations } from 'next-intl';
@@ -136,6 +136,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
   const tLabels = useTranslations('monitoring.labels');
   const tDowntime = useTranslations('monitoringDetailPage.downtime');
   const locale = useLocale();
+  const { labelFormatter } = useChartDateFormatters('day');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const totalDays = uptime?.totalDays ?? 180;
@@ -179,7 +180,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
               const date = new Date(cell.date);
               const tone = getTone(cell.upRatio);
               const toneClass = tone ? MONITOR_TONE[tone].solid : 'bg-border/40';
-              const displayDate = defaultDateLabelFormatter(date.getTime(), 'day', locale);
+              const displayDate = labelFormatter(date.getTime());
               const label = getLabel(cell.upRatio);
               return (
                 <MonitoringTooltip key={cell.key} title={displayDate} description={label}>

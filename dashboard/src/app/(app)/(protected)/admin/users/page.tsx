@@ -69,8 +69,8 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={user.totpEnabled ? 'default' : 'outline'}>
-                      {user.totpEnabled ? 'Enabled' : 'Disabled'}
+                    <Badge variant={user.twoFactorEnabled ? 'default' : 'outline'}>
+                      {user.twoFactorEnabled ? 'Enabled' : 'Disabled'}
                     </Badge>
                   </TableCell>
                   <TableCell>

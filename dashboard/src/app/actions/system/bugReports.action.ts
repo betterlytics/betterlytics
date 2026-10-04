@@ -3,7 +3,7 @@
 import { withUserAuth } from '@/auth/auth-actions';
 import { BugReportSubmission, BugReportSubmissionSchema } from '@/entities/system/bugReport.entities';
 import { submitBugReport } from '@/services/system/bugReports.service';
-import { type User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 
 export const submitBugReportAction = withUserAuth(
   async (user: User, dashboardId: string | undefined, payload: BugReportSubmission) => {

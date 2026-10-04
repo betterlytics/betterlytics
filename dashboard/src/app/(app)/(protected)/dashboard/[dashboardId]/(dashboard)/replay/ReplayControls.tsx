@@ -60,6 +60,10 @@ function applyCanvasTransform(canvas: HTMLCanvasElement, dpr: number) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
+function barDurationMs(loadedDurationMs: number, expectedDurationSec: number) {
+  return Math.max(loadedDurationMs, 1000 * (expectedDurationSec - 1));
+}
+
 function createMarkerCanvas(
   theme: string | undefined,
   loadedDurationMs: number,
@@ -70,7 +74,7 @@ function createMarkerCanvas(
     return;
   }
 
-  const durationMs = Math.max(loadedDurationMs, 1000 * expectedDurationMs);
+  const durationMs = barDurationMs(loadedDurationMs, expectedDurationMs);
 
   const canvas = document.getElementById('marker-canvas') as HTMLCanvasElement | null;
   const ctx = canvas?.getContext('2d');
@@ -99,7 +103,7 @@ function createRangeCanvas(
     return;
   }
 
-  const durationMs = Math.max(loadedDurationMs, 1000 * expectedDurationMs);
+  const durationMs = barDurationMs(loadedDurationMs, expectedDurationMs);
 
   const canvas = document.getElementById('range-canvas') as HTMLCanvasElement | null;
   const ctx = canvas?.getContext('2d');
@@ -184,13 +188,13 @@ function ReplayControlsComponent({
       const x = event.clientX - rect.left;
 
       const ratio = Math.max(Math.min(x / rect.width, 1), 0);
-      const timestamp = ratio * session.duration * 1000;
+      const timestamp = ratio * barDurationMs(durationMs, session.duration);
       setHoverTooltipX({
         x,
         timestamp,
       });
     },
-    [session?.duration],
+    [durationMs, session?.duration],
   );
 
   const skipInactivityId = useId();

@@ -1,7 +1,11 @@
 'use server';
 
 import { withUserAuth, withDashboardAuthContext } from '@/auth/auth-actions';
-import { getUserBillingStats, getDashboardOwnerBillingStats } from '@/services/billing/billing.service';
+import {
+  getUserBillingStats,
+  getDashboardOwnerBillingStats,
+  getUserUsageBreakdownStats,
+} from '@/services/billing/billing.service';
 import { listUserInvoices } from '@/services/billing/invoice.service';
 import { getCustomerCreditBalance } from '@/services/billing/customer.service';
 import {
@@ -15,10 +19,11 @@ import {
   type UserInvoice,
   type CustomerCreditBalance,
   type SubscriptionChangePreview,
+  type UsageBreakdown,
   buildSelfHostedBillingData,
 } from '@/entities/billing/billing.entities';
 import { SelectedPlanSchema, type SelectedPlan } from '@/types/pricing';
-import { User } from 'next-auth';
+import type { User } from '@/entities/auth/session.entities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { UserException } from '@/lib/exceptions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
@@ -32,6 +37,14 @@ export const getUserBillingData = withUserAuth(async (user: User): Promise<UserB
   }
 
   return getUserBillingStats(user.id);
+});
+
+export const getUserUsageBreakdown = withUserAuth(async (user: User): Promise<UsageBreakdown> => {
+  if (!isFeatureEnabled('enableBilling')) {
+    return { total: 0, byEventType: [], bySite: [] };
+  }
+
+  return getUserUsageBreakdownStats(user.id);
 });
 
 export const getUserInvoices = withUserAuth(async (user: User): Promise<UserInvoice[]> => {

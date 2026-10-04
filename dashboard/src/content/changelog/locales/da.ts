@@ -1,5 +1,401 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v150ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.0',
+    releasedAt: '2026-09-27',
+    title: 'Backup-koder til 2FA & hurtigere, mere pålidelig session replay',
+    summary:
+      'Tofaktorgodkendelse kommer nu med backup-koder, og session replay belaster dit website mindre, er mere pålidelig og indlæses hurtigere. Du kan nu også vælge, hvilken tidszone dine dashboards vises i.',
+  },
+  sections: [
+    {
+      id: 'v150-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tofaktorgodkendelse kommer nu med backup-koder til engangsbrug, så du stadig kan logge ind, hvis du mister din autentificeringsapp.',
+            'Under Indstillinger > Præferencer kan du nu vælge, hvilken tidszone dine dashboards skal vises i. Standardvalget er fortsat Registrer automatisk.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay er blevet optimeret og belaster nu dit website mindre.',
+            'Session replay optager nu langt mere pålideligt de sidste par sekunder, før en besøgende forlader siden.',
+            'Session replays indlæses nu hurtigere i dashboardet, og afspilningen kommer hurtigere i gang.',
+            'Mindre forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem, hvor dashboardet ikke kunne indlæses i de sjældne tilfælde, hvor browseren ikke oplyste en tidszone.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v150ChangelogModalDa: ChangelogEntryData = {
+  metadata: v150ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v150-modal-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tofaktorgodkendelse kommer nu med backup-koder til engangsbrug.',
+            'Under Indstillinger > Præferencer kan du nu vælge, hvilken tidszone dine dashboards skal vises i.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay belaster nu dit website mindre.',
+            'Session replay fanger nu pålideligt de sidste par sekunder, før en besøgende forlader siden.',
+            'Session replays indlæses og starter hurtigere.',
+            'Mindre forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Dashboardet indlæses nu, selv når browseren ikke oplyser en tidszone.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v149ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.9',
+    releasedAt: '2026-09-06',
+    title: 'Stærkere bot-filtrering & sikkerhedsopdateringer',
+    summary:
+      'Anden bølge af vores bot-filtreringsregler er nu live og fjerner crawlere og scraper-trafik, der tidligere talte med som besøgende. Denne udgivelse indeholder også større sikkerhedsopdateringer til autentificering samt en håndfuld forbedringer af brugervenligheden og rettelser på tværs af filtre, funnels og teaminvitationer.',
+  },
+  sections: [
+    {
+      id: 'v149-bot-filtering',
+      title: 'Stærkere bot-filtrering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'I vores forrige udgivelse satte vi et stort sæt nye botgenkendelsesregler i observationstilstand, hvor de markerede formodet bot-trafik uden at påvirke dine tal. Efter fire ugers måling på rigtig trafik håndhæves nu de regler, der viste sig kun at fange bots.',
+        },
+        {
+          type: 'text',
+          body: 'Denne bølge fjerner en gruppe navngivne crawlere samt scraper-netværk, der kører gennem proxyer på private hjemmeforbindelser, og som på mange sites viste sig som uforklarlige besøg fra Vietnam, Brasilien og Singapore. Kun regler, der ikke viste nogen reel interaktion fra besøgende på tværs af tusindvis af sessioner, er blevet aktiveret, og de resterende regler fortsætter i observationstilstand frem mod kommende bølger.',
+        },
+      ],
+    },
+    {
+      id: 'v149-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Når du klikker i dine data for at anvende et filter, vises nu en besked om, præcis hvad der blev ændret, og du kan fortryde det.',
+            'Teaminvitationer kommer nu med et link, der kan deles, så du kan invitere folk via den kanal, du foretrækker, i stedet for at være afhængig af e-mail.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Ikoner for browser, styresystem og enhed vises nu i filter-dropdownen, på aktive filter-chips og i funnel-trin.',
+            'Diverse mindre forbedringer af design og brugervenlighed på tværs af filtre og dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Redigering af en funnel kunne bytte om på trinnene, når den blev gemt, hvilket i det skjulte ændrede både de viste trin og konverteringstallene. Rækkefølgen bevares nu.',
+            'Brugere, der er logget ind, ser ikke længere kortvarigt knapperne Log ind og Kom i gang, mens en side indlæses.',
+            'Indlæsningslinjen øverst på siden bliver ikke længere ved med at køre, efter at du har åbnet et eksternt link i en ny fane eller klikket på et e-mail- eller telefonlink.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Større sikkerhedsopdateringer til autentificering og kontohåndtering, så din konto og dine data forbliver sikre.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v149ChangelogModalDa: ChangelogEntryData = {
+  metadata: v149ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v149-modal-bot-filtering',
+      title: 'Stærkere bot-filtrering',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Anden bølge af bot-filtreringsregler håndhæves nu og fjerner navngivne crawlere og scraper-netværk bag proxyer på private hjemmeforbindelser, der tidligere talte med som besøgende, herunder den uforklarlige trafik, som mange sites så fra Vietnam, Brasilien og Singapore.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Når du anvender et filter ved at klikke i dine data, kan du nu se, hvad der blev ændret, og fortryde det.',
+            'Teaminvitationer kommer nu med et link, du kan dele.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Ikoner for browser, styresystem og enhed vises nu i hele filterlinjen og i funnel-trin.',
+            'Diverse mindre forbedringer af design og brugervenlighed på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Funnel-trin beholder deres rækkefølge, når en funnel redigeres.',
+            'Brugere, der er logget ind, ser ikke længere kortvarigt knapperne til ikke-indloggede brugere i topbaren, mens en side indlæses.',
+            'Indlæsningslinjen bliver ikke længere ved med at køre, efter at du har åbnet et eksternt link i en ny fane.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Større sikkerhedsopdateringer til autentificering og kontohåndtering.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v148ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.8',
+    releasedAt: '2026-08-16',
+    title: 'Moderniseret autentificering',
+    summary:
+      'Betterlytics kører nu på et nyt system til konti og login, som bliver aktivt vedligeholdt og løbende får sikkerhedsopdateringer. Alt fungerer som før, men tofaktorgodkendelse skal sættes op igen.',
+  },
+  sections: [
+    {
+      id: 'v148-authentication',
+      title: 'Moderniseret autentificering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Vi har flyttet det system, der håndterer din konto, dine sessioner og dit login, over på et moderne og aktivt udviklet fundament, som løbende får sikkerhedsopdateringer. Login med e-mail og adgangskode, login med Google og GitHub samt tofaktorgodkendelse fungerer som hidtil, og din adgangskode, dine dashboards, dine teammedlemmer og dine data er uændrede.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Tofaktorgodkendelse skal sættes op igen. Eksisterende opsætninger kunne ikke flyttes med over til det nye system, og alle berørte har fået en e-mail.',
+            'Du slår den til igen ved at åbne Indstillinger i menuen ved dit profilbillede og gå til Kontosikkerhed. Din autentificeringsapp får en ny QR-kode, og du kan slette den gamle Betterlytics-post i appen.',
+            'Du er muligvis blevet logget ud én gang, da ændringen blev rullet ud. Det skyldtes selve skiftet og ikke et problem med din konto.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Når du slår tofaktorgodkendelse til, skal du nu bekræfte din adgangskode, før QR-koden bliver vist.',
+            'Når du slår tofaktorgodkendelse fra, bliver du nu bedt om din adgangskode i stedet for en kode fra din autentificeringsapp.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Der bruges nu færre ressourcer på at bekræfte din session, så det føles en anelse hurtigere at bevæge sig rundt i dashboardet.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v147ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.7',
+    releasedAt: '2026-08-09',
+    title: 'Betterlytics-plugin til WordPress',
+    summary:
+      'Vores officielle WordPress-plugin er nu ude: kobl dit site til fra wp-admin uden at skrive en eneste linje kode. Denne udgivelse giver dig også et forbrugsoverblik under fakturering og første bølge af et markant stærkere bot-filter.',
+  },
+  sections: [
+    {
+      id: 'v147-wordpress',
+      title: 'WordPress-plugin',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Betterlytics har nu et officielt WordPress-plugin, som ligger i plugin-kataloget på WordPress.org. Installer det fra wp-admin, indsæt dit Site ID, slå tracking til, og dine analysedata begynder at komme ind. Der er ingen kode, du skal sætte ind i dit tema, og intet, der skal laves om efter en temaopdatering.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Sidevisninger, besøgende, sessioner, referrers, kampagner, enheder og geografi, fra det øjeblik, du slår tracking til.',
+            'Registrering af klik på udgående links, Core Web Vitals og klik-tracking på knapper og links, som hver især slås til med ét flueben.',
+            'En guide inde i wp-admin, der tager dig igennem opsætningen.',
+            'Alle indstillinger kan også styres fra WP-CLI, hvis dit site bliver deployet fra en pipeline.',
+          ],
+        },
+        {
+          type: 'text',
+          body: 'Enkelte funktioner sættes op direkte på tracking-scriptet og er endnu ikke en del af pluginet: session replay, fejlsporing, dynamisk URL-gruppering og globale egenskaber. De kræver indtil videre, at du selv indsætter tracking-scriptet. Vores dokumentation har et WordPress-afsnit, der gennemgår opsætning, alle indstillinger og hvad pluginet måler, og hvad det ikke måler.',
+        },
+      ],
+    },
+    {
+      id: 'v147-bot-filtering',
+      title: 'Stærkere bot-filtrering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Automatiseret trafik er en af de største kilder til misvisende analysedata, så vi har bygget vores botgenkendelse om fra bunden. Første bølge af nye regler er nu live og fanger flere bots, crawlere og referrer spam, før de overhovedet når frem til dine rapporter.',
+        },
+        {
+          type: 'text',
+          body: 'Sideløbende kører et langt større sæt regler i observationstilstand: de markerer formodet bot-trafik uden at påvirke dine tal, så vi kan måle hver enkelt regel på rigtig trafik, før den begynder at filtrere. Der kommer flere bølger, efterhånden som reglerne viser deres værd, og dine data bliver lidt renere for hver gang.',
+        },
+      ],
+    },
+    {
+      id: 'v147-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Under fakturering finder du nu et forbrugsoverblik, der viser, hvilke typer events dit månedlige forbrug består af, og hvor meget hvert af dine sites bidrager med.',
+            'Overblikket gør det også tydeligt, hvad der er gratis: tid på siden og scrolldybde måles som separate events, men tæller ikke med i din kvote.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Vores event-pipeline er nu mere robust under udrulninger og driftsforstyrrelser, så dine data fortsat kommer ind, som de skal.',
+            'Diverse mindre forbedringer af design og brugervenlighed på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Et gammelt dashboard-link ender ikke længere i et redirect-loop. Du bliver nu sendt videre til listen over dine dashboards.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Modtagelsen af events er nu bedre sikret mod misdannede og ondsindede data, oven i generelle sikkerhedsopdateringer, der holder Betterlytics stabil og sikker.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v146ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.6',
@@ -188,9 +584,13 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v146ChangelogEntryDa;
+export const latestChangelogModalDa = v150ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v150ChangelogEntryDa,
+  v149ChangelogEntryDa,
+  v148ChangelogEntryDa,
+  v147ChangelogEntryDa,
   v146ChangelogEntryDa,
   v145ChangelogEntryDa,
   v144ChangelogEntryDa,

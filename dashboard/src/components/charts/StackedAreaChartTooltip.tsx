@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { getTrendInfo, formatDifference, defaultDateLabelFormatter } from '@/utils/chartUtils';
+import { getTrendInfo, formatDifference } from '@/utils/chartUtils';
+import { useChartDateFormatters } from '@/hooks/use-chart-date-formatters';
 import { type ComparisonMapping } from '@/types/charts';
 import { type GranularityRangeValues } from '@/utils/granularityRanges';
 import { Separator } from '@/components/ui/separator';
@@ -22,7 +23,7 @@ interface StackedAreaChartTooltipProps {
   payload?: any;
   label?: string | number;
   formatter?: (value: number, locale?: SupportedLanguages) => string;
-  labelFormatter?: (date: string | number, granularity?: GranularityRangeValues, locale?: SupportedLanguages) => string;
+  labelFormatter?: (date: string | number) => string;
   comparisonMap?: ComparisonMapping[];
   granularity?: GranularityRangeValues;
 }
@@ -32,11 +33,13 @@ export function StackedAreaChartTooltip({
   payload,
   label,
   formatter: formatterProp,
-  labelFormatter = defaultDateLabelFormatter,
+  labelFormatter: labelFormatterProp,
   comparisonMap,
   granularity,
 }: StackedAreaChartTooltipProps) {
   const locale = useLocale();
+  const { labelFormatter: defaultLabelFormatter } = useChartDateFormatters(granularity);
+  const labelFormatter = labelFormatterProp ?? defaultLabelFormatter;
   const t = useTranslations('charts.tooltip');
   const formatter = formatterProp ?? ((value: number, loc?: SupportedLanguages) => value.toLocaleString(loc));
   const comparisonData = comparisonMap?.find((mapping) => mapping.currentDate === Number(label)) ?? null;
@@ -71,7 +74,7 @@ export function StackedAreaChartTooltip({
     <div className='border-border bg-popover/95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm'>
       <div className='mb-2'>
         <div className='text-muted-foreground text-sm font-medium tracking-wide'>
-          {labelFormatter(label, granularity, locale)}
+          {labelFormatter(label)}
         </div>
         {partialRange && (
           <div className='text-muted-foreground/60 mt-0.5 text-xs'>
@@ -81,7 +84,7 @@ export function StackedAreaChartTooltip({
         )}
         {hasComparison && comparisonData && (
           <div className='text-muted-foreground/60 mt-0.5'>
-            <div className='text-sm'>{labelFormatter(comparisonData.compareDate, granularity, locale)}</div>
+            <div className='text-sm'>{labelFormatter(comparisonData.compareDate)}</div>
             {comparePartialRange && (
               <div className='text-xs'>
                 (<span className='italic'>{t('partial')}: </span>

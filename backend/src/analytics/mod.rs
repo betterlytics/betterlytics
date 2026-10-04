@@ -25,8 +25,9 @@ pub struct RawTrackingEvent {
     pub user_agent: String,
     /// Screen resolution
     pub screen_resolution: String,
-    /// Timestamp of the event
-    pub timestamp: u64,
+    /// Client timestamp, honored only in development (seeding tools backdate events)
+    #[serde(default)]
+    pub timestamp: Option<u64>,
     /// Outbound link URL (only for outbound_link events)
     pub outbound_link_url: Option<String>,
     /// Core Web Vitals metrics (only for cwv events)
@@ -43,6 +44,9 @@ pub struct RawTrackingEvent {
     /// Global properties - user-defined metadata attached to all events
     #[serde(default)]
     pub global_properties: Option<serde_json::Value>,
+    /// Client-side automation signal (navigator.webdriver and similar)
+    #[serde(default)]
+    pub automation: bool,
     /// Duration for engagement events
     pub page_duration_seconds: Option<u32>,
 }
@@ -54,13 +58,29 @@ pub struct AnalyticsEvent {
     pub raw: RawTrackingEvent,
     /// Client IP address
     pub ip_address: String,
+    /// User-Agent HTTP header of the tracking request (as opposed to the
+    /// client-supplied `raw.user_agent` from navigator.userAgent)
+    pub header_user_agent: String,
+    /// sec-ch-ua header ("" when the client sent none)
+    pub sec_ch_ua: String,
+    /// Request carried a browser speculative-loading header
+    pub prefetch: bool,
 }
 
 impl AnalyticsEvent {
-    pub fn new(raw: RawTrackingEvent, ip_address: String) -> Self {
+    pub fn new(
+        raw: RawTrackingEvent,
+        ip_address: String,
+        header_user_agent: String,
+        sec_ch_ua: String,
+        prefetch: bool,
+    ) -> Self {
         Self {
             raw,
             ip_address,
+            header_user_agent,
+            sec_ch_ua,
+            prefetch,
         }
     }
 }

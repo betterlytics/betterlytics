@@ -1,5 +1,401 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v150ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.0',
+    releasedAt: '2026-09-27',
+    title: '2FA Backup Codes & Faster, More Reliable Session Replay',
+    summary:
+      'Two-factor authentication now comes with backup codes, and session replay is lighter on your website, more reliable, and quicker to load. You can also now choose the timezone your dashboards are shown in.',
+  },
+  sections: [
+    {
+      id: 'v150-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Two-factor authentication now comes with one-time backup codes, so you can still sign in if you lose your authenticator app.',
+            'Choose the timezone your dashboards are shown in under Settings > Preferences. Auto-detect remains the default.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay has been optimized and now has a smaller impact on your website.',
+            'Session replay is much more reliable at capturing the last few seconds before a visitor leaves the page.',
+            'Session replays now load faster in the dashboard, and playback starts sooner.',
+            'Minor usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where the dashboard would not load in the rare case that a browser did not report a timezone.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v150ChangelogModalEn: ChangelogEntryData = {
+  metadata: v150ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v150-modal-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Two-factor authentication now comes with one-time backup codes.',
+            'Choose the timezone your dashboards are shown in under Settings > Preferences.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay has a smaller impact on your website.',
+            'Session replay reliably captures the last few seconds before a visitor leaves.',
+            'Session replays load and start playing faster.',
+            'Minor usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: ['The dashboard no longer fails to load when a browser does not report a timezone.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v149ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.9',
+    releasedAt: '2026-09-06',
+    title: 'Stronger Bot Filtering & Security Updates',
+    summary:
+      'The second wave of our bot filtering rules is now live, removing crawlers and scraper traffic that previously counted as visitors. This release also brings major security updates to authentication, along with a handful of usability improvements and fixes across filters, funnels, and team invitations.',
+  },
+  sections: [
+    {
+      id: 'v149-bot-filtering',
+      title: 'Stronger Bot Filtering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'In our previous release we put a large set of new bot detection rules into observation mode, flagging suspected traffic without touching your numbers. After four weeks of measuring them against real traffic, the rules that proved to catch only bots are now enforced.',
+        },
+        {
+          type: 'text',
+          body: 'This wave removes a group of named crawlers, along with scraper fleets running through residential proxies that many sites saw as unexplained visits from Vietnam, Brazil, and Singapore. Only rules that showed no real visitor interaction across thousands of sessions were promoted, and the remaining rules continue observing for future waves.',
+        },
+      ],
+    },
+    {
+      id: 'v149-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Clicking into your data to apply a filter now shows a notice of exactly what changed, and lets you undo it.',
+            'Team invitations now come with a shareable link, so you can invite people over any channel instead of relying on email.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Browser, operating system, and device icons now appear in the filter dropdown, applied filter chips, and funnel step labels.',
+            'Various small design and usability improvements across filters and the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Editing a funnel could reorder its steps on save, silently changing both the displayed steps and the conversion numbers. Step order is now preserved.',
+            'Signed-in users no longer briefly see the Sign in and Get started buttons while a page loads.',
+            'The loading bar at the top of the page no longer runs forever after opening an external link in a new tab or clicking an email or phone link.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Major security updates to authentication and account handling, keeping your account and data safe and secure.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v149ChangelogModalEn: ChangelogEntryData = {
+  metadata: v149ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v149-modal-bot-filtering',
+      title: 'Stronger Bot Filtering',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'The second wave of bot filtering rules is now enforced, removing named crawlers and residential-proxy scraper fleets that previously counted as visitors, including the unexplained traffic many sites saw from Vietnam, Brazil, and Singapore.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Applying a filter by clicking into your data now shows what changed and lets you undo it.',
+            'Team invitations now come with a shareable link.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Browser, operating system, and device icons now appear across the filter bar and in funnel step labels.',
+            'Various small design and usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Funnel steps keep their order when a funnel is edited.',
+            'Signed-in users no longer briefly see signed-out buttons in the top bar while a page loads.',
+            'The loading bar no longer runs forever after opening an external link in a new tab.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Major security updates to authentication and account handling.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v148ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.8',
+    releasedAt: '2026-08-16',
+    title: 'Modernized Authentication',
+    summary:
+      'Betterlytics now runs on a new, actively maintained system for accounts and signing in, with ongoing security updates. Everything works as before, though two-factor authentication needs to be set up again.',
+  },
+  sections: [
+    {
+      id: 'v148-authentication',
+      title: 'Modernized Authentication',
+      blocks: [
+        {
+          type: 'text',
+          body: 'We have moved the system that handles your account, your sessions, and signing in onto a modern, actively developed foundation that receives ongoing security updates. Email and password sign-in, Google and GitHub sign-in, and two-factor authentication all continue to work, and your password, dashboards, team members, and data are unchanged.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Two-factor authentication needs to be set up again. Existing setups could not be carried over to the new system, and everyone affected has been emailed.',
+            'To re-enable it, open Settings from your avatar menu and go to Account security. Your authenticator app will get a new QR code, and you can delete the old Betterlytics entry.',
+            'You may have been signed out once as the change rolled out. That was the switch itself, not a problem with your account.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Enabling two-factor authentication now confirms your account password before showing the QR code.',
+            'Disabling two-factor authentication now asks for your account password instead of a code from your authenticator app.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v148-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Signed-in pages now do less work verifying your session, making the dashboard feel slightly quicker to move around.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v147ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.7',
+    releasedAt: '2026-08-09',
+    title: 'The Betterlytics WordPress Plugin',
+    summary:
+      'Our official WordPress plugin is now available: connect your site from wp-admin, without touching a single line of code. This release also brings a usage breakdown to billing settings and the first wave of a much stronger bot filter.',
+  },
+  sections: [
+    {
+      id: 'v147-wordpress',
+      title: 'WordPress Plugin',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Betterlytics now has an official WordPress plugin, available in the WordPress.org plugin directory. Install it from wp-admin, paste in your Site ID, enable tracking, and your analytics start filling in. There is no snippet to add to your theme, and nothing to re-apply after a theme update.',
+        },
+        {
+          type: 'list',
+          items: [
+            'Page views, visitors, sessions, referrers, campaigns, devices, and geography, from the moment you turn tracking on.',
+            'Outbound link clicks, Core Web Vitals, and click tracking on any button or link, each behind a single toggle.',
+            'A setup guide right inside wp-admin that walks you through connecting your site.',
+            'Every setting is also manageable from WP-CLI, for sites deployed from a pipeline.',
+          ],
+        },
+        {
+          type: 'text',
+          body: 'A few capabilities are configured on the tracking script itself and are not exposed by the plugin yet, including session replay, error tracking, dynamic URL grouping, and global properties. For now, those still require installing the tracking script manually. Our documentation has a dedicated WordPress section covering setup, every setting, and what the plugin does and does not track.',
+        },
+      ],
+    },
+    {
+      id: 'v147-bot-filtering',
+      title: 'Stronger Bot Filtering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'Automated traffic is one of the biggest sources of misleading analytics, so we have rebuilt how Betterlytics recognizes it. The first wave of new detection rules is now live and filters out more bots, crawlers, and referrer spam before they ever reach your reports.',
+        },
+        {
+          type: 'text',
+          body: 'Alongside it, a much larger set of rules runs in observation mode: they flag suspected bot traffic without affecting your numbers, so we can measure each rule against real traffic before it starts filtering. Expect further waves as rules prove themselves, each one making your data a little cleaner.',
+        },
+      ],
+    },
+    {
+      id: 'v147-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Billing settings now include a usage breakdown, showing exactly which event types make up your monthly quota, and how much each of your sites contributes.',
+            'The breakdown also makes clear which events are free: time on page and scroll depth are tracked as separate events but never count toward your quota.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Our event pipeline is now more resilient during deployments and infrastructure disruptions, so your data keeps arriving reliably.',
+            'Various small design and usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Following an old dashboard link no longer ends in a redirect loop. It now takes you to your list of dashboards.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v147-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Hardened event ingestion against malformed and malicious data, alongside general security updates to keep Betterlytics stable and secure.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v146ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.6',
@@ -186,9 +582,13 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v146ChangelogEntryEn;
+export const latestChangelogModalEn = v150ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v150ChangelogEntryEn,
+  v149ChangelogEntryEn,
+  v148ChangelogEntryEn,
+  v147ChangelogEntryEn,
   v146ChangelogEntryEn,
   v145ChangelogEntryEn,
   v144ChangelogEntryEn,

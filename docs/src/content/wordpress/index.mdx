@@ -1,0 +1,64 @@
+---
+title: "WordPress Plugin Overview"
+description: "The official Betterlytics WordPress plugin: what it tracks, what it doesn't, and where to go next."
+---
+
+# WordPress Plugin
+
+The official Betterlytics plugin connects your WordPress site to Betterlytics from wp-admin. Install it, paste your Site ID, turn on tracking, and your analytics start filling in. There is no snippet to add to your theme and nothing to re-apply after a theme update.
+
+[**Set up the plugin →**](/wordpress/setup)
+
+<div style={{ textAlign: "center" }}>
+  ![The Betterlytics plugin settings screen in wp-admin](/images/wordpress/wordpress-overview.webp)
+</div>
+
+## What the plugin tracks
+
+<FeatureGrid>
+
+<FeatureCard title="Traffic and Engagement" href="/dashboard">
+Pageviews, visitors, and sessions, along with time on page, scroll depth, referrers, campaigns, devices, and geography. All of it from the moment tracking is on, with no configuration beyond your Site ID.
+</FeatureCard>
+
+<FeatureCard title="Outbound Links" href="/wordpress/events#outbound-links">
+See which external links your visitors click, recorded as either the destination domain or the full URL. Useful for measuring the traffic you send to partners and social platforms.
+</FeatureCard>
+
+<FeatureCard title="Core Web Vitals" href="/dashboard/web-vitals">
+Real-user performance data collected from your visitors' browsers, rather than a synthetic lab run.
+</FeatureCard>
+
+<FeatureCard title="Click Events" href="/wordpress/events#custom-html-attribute-events">
+Track clicks on any button or link by adding a single HTML attribute to it. No JavaScript, and it works in the block editor and most page builders.
+</FeatureCard>
+
+</FeatureGrid>
+
+Everything after the first card is one control on the plugin's Settings tab. See [Settings](/wordpress/settings) for the full list with defaults.
+
+## What the plugin doesn't cover
+
+Betterlytics has capabilities that are configured on the tracking script itself, and the plugin doesn't expose them yet:
+
+| Capability | Where it's documented |
+| --- | --- |
+| Session replay | [Session Replay](/integration/session-replay) |
+| Error tracking | [Error Tracking](/integration/errors) |
+| Dynamic URL grouping | [Dynamic URLs](/integration/dynamic-urls) |
+| Global properties on every event | [Global Properties](/integration/global-properties) |
+| Events with properties, or triggered by something other than a click | [Custom Events](/integration/custom-events) |
+
+Custom events are the exception you can have anyway: `betterlytics.event()` works against the script the plugin already loads, so [events with properties](/integration/custom-events) are available from your own JavaScript. The rest are set through script attributes, so they need the [tracking script installed manually](/integration) instead of through the plugin. Turn **Enable Tracking** off first so you don't load it twice.
+
+## Next Steps
+
+- **[Setup](/wordpress/setup)** - Install the plugin and connect your site
+- **[Settings](/wordpress/settings)** - Every setting, its default, and its WP-CLI key
+- **[Events](/wordpress/events)** - Outbound links, Core Web Vitals, and click events
+- **[Configuration](/wordpress/configuration)** - Manage settings from WP-CLI or a deployment pipeline
+
+## Need Help?
+
+- **[Discord Community](https://discord.gg/vwqSvPn6sP)** - Real-time help from users and our team
+- **[Contact Support](mailto:support@betterlytics.io)** - We're always happy to help

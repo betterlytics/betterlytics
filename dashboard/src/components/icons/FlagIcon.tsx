@@ -1,13 +1,14 @@
 import React from 'react';
 import * as Flags from 'country-flag-icons/react/3x2';
 import { HelpCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export type FlagIconProps = {
   countryCode: keyof typeof Flags;
   countryName: string;
 } & Flags.ElementAttributes<Flags.HTMLSVGElement>;
 
-function FlagIconComponent({ countryCode, countryName, ...props }: FlagIconProps) {
+function FlagIconComponent({ countryCode, countryName, className, ...props }: FlagIconProps) {
   const FlagComponent = Flags[countryCode];
 
   if (!FlagComponent) {
@@ -29,16 +30,16 @@ function FlagIconComponent({ countryCode, countryName, ...props }: FlagIconProps
     <span title={countryName || 'Unknown'} className='relative flex items-center justify-center'>
       <FlagComponent
         {...props}
-        className='shadow-foreground/50 dark:shadow-background/50 inline-block !h-[1.15em] rounded-xs shadow-sm dark:rounded-none'
+        className={cn('inline-block rounded-xs dark:rounded-none', className)}
         style={{
           imageRendering: 'auto',
           shapeRendering: 'geometricPrecision',
-          height: '1.15em',
+          height: '1.1em',
           width: 'auto',
           display: 'inline-block',
         }}
       />
-      <div className='absolute h-full w-full rounded-xs border border-x-gray-900/40 border-y-gray-900/30 bg-gradient-to-b from-white/15 to-black/10 bg-origin-padding dark:rounded-none'></div>
+      <div className='absolute h-full w-full rounded-xs border border-x-gray-900/30 border-t-gray-900/25 border-b-gray-900/50 bg-linear-to-b from-white/5 via-white/15 via-20% to-black/10 bg-origin-padding dark:rounded-none dark:border-x-white/10 dark:border-t-gray-900/50 dark:border-b-black/15 dark:via-white/10'></div>
     </span>
   );
 }

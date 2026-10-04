@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useHydratedSession } from '@/hooks/use-hydrated-session';
 import { Button } from '@/components/ui/button';
 import { Link, usePathname } from '@/i18n/navigation';
 import Logo from '@/components/logo';
@@ -11,9 +11,9 @@ import { GitHubIcon } from '@/components/icons/SocialIcons';
 import { useTranslations } from 'next-intl';
 import NextLink from 'next/link';
 
-export default function PublicTopBar() {
+export default function PublicTopBar({ isCloud }: { isCloud: boolean }) {
   const t = useTranslations('public.nav');
-  const { data: session, status } = useSession();
+  const { data: session, isPending } = useHydratedSession();
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -46,18 +46,22 @@ export default function PublicTopBar() {
               >
                 {t('documentation')}
               </ExternalLink>
-              <Link
-                href='/features'
-                className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
-              >
-                {t('features')}
-              </Link>
-              <Link
-                href='/pricing'
-                className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
-              >
-                {t('pricing')}
-              </Link>
+              {isCloud && (
+                <>
+                  <Link
+                    href='/features'
+                    className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+                  >
+                    {t('features')}
+                  </Link>
+                  <Link
+                    href='/pricing'
+                    className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+                  >
+                    {t('pricing')}
+                  </Link>
+                </>
+              )}
             </nav>
 
             <div className='ml-6 flex items-center gap-6'>
@@ -70,7 +74,7 @@ export default function PublicTopBar() {
               >
                 <GitHubIcon className='h-5 w-5' />
               </ExternalLink>
-              {status === 'loading' ? (
+              {isPending ? (
                 <div className='flex items-center space-x-2'>
                   <div className='bg-muted h-4 w-16 animate-pulse rounded' />
                 </div>
@@ -107,20 +111,24 @@ export default function PublicTopBar() {
         {isMobileMenuOpen && (
           <div className='border-t md:hidden'>
             <nav className='space-y-3 py-4'>
-              <Link
-                href='/#pricing'
-                onClick={closeMobileMenu}
-                className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
-              >
-                {t('pricing')}
-              </Link>
-              <Link
-                href='/features'
-                onClick={closeMobileMenu}
-                className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
-              >
-                {t('features')}
-              </Link>
+              {isCloud && (
+                <>
+                  <Link
+                    href='/#pricing'
+                    onClick={closeMobileMenu}
+                    className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
+                  >
+                    {t('pricing')}
+                  </Link>
+                  <Link
+                    href='/features'
+                    onClick={closeMobileMenu}
+                    className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
+                  >
+                    {t('features')}
+                  </Link>
+                </>
+              )}
               <ExternalLink
                 href='https://betterlytics.io/docs'
                 onClick={closeMobileMenu}
