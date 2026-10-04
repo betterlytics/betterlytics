@@ -50,17 +50,12 @@ function Lines({ code }: { code: string }) {
 
 type FootPart = { text: string; ink?: boolean };
 
-const FETCHED: readonly FootPart[] = [
+/** The package injects the same script tag, so every tab makes this request. */
+const REQUEST: readonly FootPart[] = [
   { text: 'GET' },
   { text: '/analytics.js', ink: true },
   { text: '200', ink: true },
   { text: 'async' },
-  { text: 'after paint' },
-];
-const BUNDLED: readonly FootPart[] = [
-  { text: 'bundled' },
-  { text: '@betterlytics/tracker', ink: true },
-  { text: 'no extra request' },
 ];
 /** the 14px gap between parts, in 11px mono characters */
 const GAP_CHARS = 2;
@@ -179,8 +174,9 @@ export function SnippetPanel() {
       <div
         className='mt-auto flex items-center gap-3.5 overflow-hidden border-t border-fg/7 bg-fg/2 px-4 py-[9px] font-mono text-micro tracking-[0.02em] whitespace-nowrap text-muted'
         aria-hidden
+        data-nosnippet
       >
-        <FootParts parts={current.bundled ? BUNDLED : FETCHED} />
+        <FootParts parts={REQUEST} />
       </div>
     </div>
   );
