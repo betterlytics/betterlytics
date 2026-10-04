@@ -49,7 +49,7 @@ export const BROWSERS: Record<string, BrowserDef> = {
   vivaldi: {
     label: 'Vivaldi',
     file: 'vivaldi.svg',
-    source: 'logos/vivaldi',
+    source: 'logos/vivaldi-icon',
     match: [/vivaldi/],
   },
   arc: {
