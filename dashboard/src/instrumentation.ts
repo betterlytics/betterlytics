@@ -1,7 +1,22 @@
 export async function register() {
   await registerOpenTelemetry();
+  await registerRetiredRetentionEnvWarning();
   await registerAuthBootstrap();
   await registerBackgroundJobs();
+}
+
+async function registerRetiredRetentionEnvWarning() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    // Read raw on purpose: the var is retired and no longer part of the env schema
+    const value = process.env.DATA_RETENTION_DAYS?.trim();
+    if (!value) return;
+    const { env } = await import('@/lib/env');
+    if (env.IS_CLOUD) return;
+    console.warn(
+      `[instrumentation] DATA_RETENTION_DAYS=${value} is ignored. Retention is set per dashboard under Settings > Data. ` +
+        'A value of -1 or above 365 is carried over once, on upgrade, to dashboards at the 1 year default. Remove DATA_RETENTION_DAYS from .env.',
+    );
+  }
 }
 
 async function registerAuthBootstrap() {
