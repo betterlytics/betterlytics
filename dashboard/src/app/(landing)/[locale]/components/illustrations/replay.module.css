@@ -137,6 +137,32 @@
       display: none;
     }
   }
+  /* placeholder bars inside the text boxes, so each keeps its line height and the cursor's target doesn't move */
+  .title i,
+  .tagline i,
+  .plan strong i {
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 2.5px;
+  }
+  .title i {
+    width: 44%;
+    height: 10px;
+    background: #22201e;
+  }
+  .tagline i {
+    width: 32%;
+    height: 5px;
+    background: #d6cfc8;
+  }
+  .plan strong i {
+    width: 54%;
+    height: 10px;
+    background: #22201e;
+  }
+  .plan:first-child strong i {
+    width: 26%;
+  }
   .plans {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -176,13 +202,6 @@
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1;
-  }
-  .plan small {
-    margin-left: 1px;
-    font-size: 8.5px;
-    font-weight: 400;
-    letter-spacing: 0;
-    color: #7b736e;
   }
   .plan > i {
     height: 4px;

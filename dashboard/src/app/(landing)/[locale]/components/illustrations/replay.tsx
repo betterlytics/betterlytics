@@ -53,12 +53,19 @@ function PricingPage() {
         <span>Docs</span>
         <em>Sign in</em>
       </div>
-      <p className={styles.title}>Simple, honest pricing</p>
-      <p className={styles.tagline}>Start free. Upgrade when you grow.</p>
+      {/* bars, not a headline or prices: crawlers and AI tools read mock prices as ours */}
+      <p className={styles.title}>
+        <i />
+      </p>
+      <p className={styles.tagline}>
+        <i />
+      </p>
       <div className={styles.plans}>
         <div className={styles.plan}>
           <b>Starter</b>
-          <strong>$0</strong>
+          <strong>
+            <i />
+          </strong>
           <i />
           <i />
           <span className={styles.button}>Get started</span>
@@ -68,7 +75,7 @@ function PricingPage() {
             Pro <u>Popular</u>
           </b>
           <strong>
-            $19<small>/mo</small>
+            <i />
           </strong>
           <i />
           <i />
@@ -82,7 +89,7 @@ function PricingPage() {
         <div className={styles.plan}>
           <b>Team</b>
           <strong>
-            $49<small>/mo</small>
+            <i />
           </strong>
           <i />
           <i />
