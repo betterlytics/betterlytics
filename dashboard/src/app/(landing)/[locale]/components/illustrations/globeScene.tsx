@@ -278,6 +278,13 @@ function mountCanvas(layer: HTMLElement) {
   return canvas;
 }
 
+function releaseContexts(layer: HTMLElement) {
+  for (const canvas of layer.querySelectorAll('canvas')) {
+    const gl = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
+    gl?.getExtension('WEBGL_lose_context')?.loseContext();
+  }
+}
+
 type Globes = { near: Globe; far: Globe };
 
 function createGlobes(nearLayer: HTMLElement, farLayer: HTMLElement, dpr: number): Globes {
@@ -407,6 +414,10 @@ export function GlobeScene() {
       ro.disconnect();
       globes?.near.destroy();
       globes?.far.destroy();
+      if (globes) {
+        releaseContexts(host);
+        releaseContexts(farHost);
+      }
       globesRef.current = null;
       host.replaceChildren();
       farHost.replaceChildren();
