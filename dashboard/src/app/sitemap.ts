@@ -13,8 +13,6 @@ type PageCfg = {
 const STATIC_PAGES: PageCfg[] = [
   // Localized public pages
   { path: '/', changeFrequency: 'monthly', priority: 1, localized: true },
-  { path: '/signup', changeFrequency: 'yearly', priority: 0.5, localized: true },
-  { path: '/signin', changeFrequency: 'yearly', priority: 0.5, localized: true },
   { path: '/about', changeFrequency: 'yearly', priority: 0.8, localized: true },
   { path: '/contact', changeFrequency: 'yearly', priority: 0.8, localized: true },
   { path: '/privacy', changeFrequency: 'monthly', priority: 0.4, localized: true },
@@ -113,13 +111,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
     languages['x-default'] = `${baseUrl}${page.path}`;
 
-    entries.push({
-      url: `${baseUrl}${page.path}`,
-      lastModified: now,
-      changeFrequency: page.changeFrequency,
-      priority: page.priority,
-      alternates: { languages },
-    });
+    // one entry per language, each listing every alternate, as Google's hreflang sitemap format expects
+    for (const locale of SUPPORTED_LANGUAGES) {
+      entries.push({
+        url: languages[locale],
+        lastModified: now,
+        changeFrequency: page.changeFrequency,
+        priority: page.priority,
+        alternates: { languages },
+      });
+    }
   }
 
   return entries;
