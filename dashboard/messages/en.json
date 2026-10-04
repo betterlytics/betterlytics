@@ -1120,7 +1120,7 @@
         },
         "see": {
           "title": "What your users\nlook at",
-          "note": "Every page they open, with the country, device and language behind each visit. Live and unsampled."
+          "note": "Every page they open, with the country, city, device and browser behind each visit. Live and unsampled."
         },
         "do": {
           "title": "What your users\nactually do",
@@ -1128,7 +1128,7 @@
         },
         "follow": {
           "title": "What your users\nstruggle with",
-          "note": "Session replay: every click, scroll and rage click, as they saw it."
+          "note": "Session replay: every click and scroll, as they saw it."
         },
         "wait": {
           "title": "When your users\nwait too long",
@@ -1150,7 +1150,7 @@
       "lead": "Ask questions, not queries.",
       "body": "Your agent reads the schema and joins across traffic, funnels, errors and uptime.",
       "worksWith": "Works with",
-      "any": "ChatGPT, Zed, JetBrains — and any client that speaks the protocol over HTTP.",
+      "any": "And any other client that speaks MCP over HTTP.",
       "cta": "Set up MCP"
     },
     "frameworks": {
@@ -1165,20 +1165,20 @@
       "stats": {
         "size": {
           "label": "Script size",
-          "body": "The entire tracker, gzipped. Loads after paint, one request, never blocks a render."
+          "body": "The tracker, gzipped. Loads async and never blocks a render."
         },
-        "lag": {
-          "label": "Ingest lag",
-          "body": "From a visitor's click to the number moving on your dashboard. Real time, actually."
+        "bots": {
+          "label": "Pageviews from bots",
+          "body": "On a typical site. Filtered out before they reach your charts or your bill."
         },
-        "capture": {
-          "label": "Capture rate",
-          "body": "Of real visits recorded. First-party, so ad blockers never quietly eat your data."
+        "openSource": {
+          "label": "Open source",
+          "body": "Every line is on GitHub under AGPL-3.0. Self-host it for free, with no event limit."
         }
       },
       "thesis": {
         "label": "Cookies set",
-        "body": "No cookies, no fingerprinting, no consent banner. GDPR, ePrivacy and PECR compliant by default, on EU-only infrastructure."
+        "body": "No cookies, no persistent IDs, no consent banner. Built for GDPR, ePrivacy and PECR, with your data kept in the EU."
       }
     },
     "quote": {
@@ -1208,7 +1208,7 @@
       },
       "enterprise": {
         "name": "Enterprise",
-        "tagline": "For regulated workloads and committed volume.",
+        "tagline": "For high traffic, with an SLA and dedicated support.",
         "cta": "Talk to sales"
       }
     },
@@ -1300,9 +1300,9 @@
       "errors": {
         "alt": "A TypeError firing now, with the page and click that led to it, its stack trace and who it hit; behind it, a quieter error and a resolved one.",
         "resolved": "Resolved",
-        "inVersion": "in {version}",
-        "events": "events",
+        "events": "occurrences",
         "hoursAgo": "{count}h ago",
+        "daysAgo": "{count}d ago",
         "inApp": "in app"
       },
       "uptime": {

@@ -222,7 +222,7 @@ export function Errors({ entered }: IllustrationProps) {
           side={
             <>
               <span>{t('resolved')}</span>
-              <small>{t('inVersion', { version: 'v2.14.0' })}</small>
+              <small>{t('daysAgo', { count: 2 })}</small>
             </>
           }
         />

@@ -12,11 +12,11 @@ import { FrameworkStrip } from './frameworkStrip';
 import styles from './networkSection.module.css';
 import { SnippetPanel } from './snippetPanel';
 
-/* script size is the gzipped static/analytics.js; the other figures come from the draft */
+/* size: static/analytics.js as served, gzipped; bots: per-site median of pageviews filtered as bots in prod (21.6%, 30 days to 2026-10-04) */
 const STATS = [
-  { key: 'size', value: 4.9, decimals: 1, unit: 'kB' },
-  { key: 'lag', value: 1.4, decimals: 1, unit: 's' },
-  { key: 'capture', value: 99.8, decimals: 1, unit: '%' },
+  { key: 'size', value: 3.5, decimals: 1, unit: 'kB' },
+  { key: 'bots', value: 20, decimals: 0, unit: '%' },
+  { key: 'openSource', value: 100, decimals: 0, unit: '%' },
 ] as const;
 
 const FIGURE = 'text-[30px] leading-8 font-medium tracking-[-1px] tabular-nums';

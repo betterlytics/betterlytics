@@ -1120,7 +1120,7 @@
         },
         "see": {
           "title": "Hvad brugerne\nkigger på",
-          "note": "Hver side de åbner, med land, enhed og sprog for hvert besøg. Live og uden sampling."
+          "note": "Hver side de åbner, med land, by, enhed og browser for hvert besøg. Live og uden sampling."
         },
         "do": {
           "title": "Hvad brugerne\nfaktisk gør",
@@ -1128,7 +1128,7 @@
         },
         "follow": {
           "title": "Hvad brugerne\nhar svært ved",
-          "note": "Session replay: alle klik, scrolls og rage clicks, set med brugerens øjne."
+          "note": "Session replay: alle klik og scrolls, set med brugerens øjne."
         },
         "wait": {
           "title": "Når brugerne\nventer for længe",
@@ -1150,7 +1150,7 @@
       "lead": "Stil spørgsmål, ikke queries.",
       "body": "Din agent læser skemaet og kobler trafik, funnels, fejl og oppetid sammen.",
       "worksWith": "Virker med",
-      "any": "ChatGPT, Zed, JetBrains og enhver anden klient der taler protokollen over HTTP.",
+      "any": "Og enhver anden klient der taler MCP over HTTP.",
       "cta": "Sæt MCP op"
     },
     "frameworks": {
@@ -1165,20 +1165,20 @@
       "stats": {
         "size": {
           "label": "Scriptstørrelse",
-          "body": "Hele trackeren, gzippet. Den indlæses først når siden er vist, bruger én request og blokerer aldrig renderingen."
+          "body": "Trackeren, gzippet. Indlæses asynkront og blokerer aldrig renderingen."
         },
-        "lag": {
-          "label": "Forsinkelse",
-          "body": "Fra en besøgende klikker, til tallet rykker sig på dit dashboard. Rigtig realtid."
+        "bots": {
+          "label": "Sidevisninger fra bots",
+          "body": "På et typisk website. Filtreret fra, før de når dine grafer eller din regning."
         },
-        "capture": {
-          "label": "Dækning",
-          "body": "Andelen af ægte besøg der bliver registreret. First-party, så adblockere aldrig sluger dine data i det stille."
+        "openSource": {
+          "label": "Open source",
+          "body": "Hver eneste linje ligger på GitHub under AGPL-3.0. Host det selv gratis, uden loft over antallet af events."
         }
       },
       "thesis": {
         "label": "Antal cookies",
-        "body": "Ingen cookies, ingen fingerprinting, intet cookiebanner. Overholder GDPR, ePrivacy og PECR som standard og kører kun på infrastruktur i EU."
+        "body": "Ingen cookies, ingen vedvarende ID’er, intet cookiebanner. Bygget til GDPR, ePrivacy og PECR, og dine data bliver i EU."
       }
     },
     "quote": {
@@ -1208,7 +1208,7 @@
       },
       "enterprise": {
         "name": "Enterprise",
-        "tagline": "Til regulerede workloads og faste volumenaftaler.",
+        "tagline": "Til høj trafik, med SLA og dedikeret support.",
         "cta": "Kontakt salg"
       }
     },
@@ -1300,9 +1300,9 @@
       "errors": {
         "alt": "En TypeError der opstår lige nu, med siden og klikket der førte til den, dens stack trace og hvem den ramte. Bag den ligger en mindre hyppig fejl og en der er løst.",
         "resolved": "Løst",
-        "inVersion": "i {version}",
-        "events": "gange",
+        "events": "forekomster",
         "hoursAgo": "for {count} timer siden",
+        "daysAgo": "for {count} dage siden",
         "inApp": "i app"
       },
       "uptime": {

@@ -1120,7 +1120,7 @@
         },
         "see": {
           "title": "Cosa gli utenti\nguardano",
-          "note": "Ogni pagina che aprono, con il paese, il dispositivo e la lingua di ciascuna visita. In tempo reale e senza campionamento."
+          "note": "Ogni pagina che aprono, con il paese, la città, il dispositivo e il browser di ciascuna visita. In tempo reale e senza campionamento."
         },
         "do": {
           "title": "Cosa gli utenti\nfanno davvero",
@@ -1128,7 +1128,7 @@
         },
         "follow": {
           "title": "Dove gli utenti\nfanno fatica",
-          "note": "Session replay: ogni clic, ogni scroll e ogni rage click, esattamente come l’hanno visto loro."
+          "note": "Session replay: ogni clic e ogni scroll, esattamente come l’hanno visto loro."
         },
         "wait": {
           "title": "Quando gli utenti\naspettano troppo",
@@ -1150,7 +1150,7 @@
       "lead": "Fai domande, non query.",
       "body": "Il tuo agente legge lo schema e incrocia traffico, funnel, errori e uptime.",
       "worksWith": "Funziona con",
-      "any": "ChatGPT, Zed, JetBrains e qualsiasi client che supporti il protocollo via HTTP.",
+      "any": "E qualsiasi altro client che supporti MCP via HTTP.",
       "cta": "Configura MCP"
     },
     "frameworks": {
@@ -1165,20 +1165,20 @@
       "stats": {
         "size": {
           "label": "Peso dello script",
-          "body": "L’intero tracker, compresso con gzip. Si carica dopo il paint con una sola richiesta e non blocca mai il rendering."
+          "body": "Il tracker, compresso con gzip. Si carica in modo asincrono e non blocca mai il rendering."
         },
-        "lag": {
-          "label": "Latenza dei dati",
-          "body": "Dal clic di un visitatore al numero che si aggiorna nella tua dashboard. Tempo reale, quello vero."
+        "bots": {
+          "label": "Visualizzazioni da bot",
+          "body": "Su un sito tipico. Filtrate prima di arrivare nei tuoi grafici o in fattura."
         },
-        "capture": {
-          "label": "Tasso di rilevamento",
-          "body": "La quota di visite reali effettivamente registrate. Il tracking è first-party, quindi gli ad blocker non ti fanno sparire i dati di nascosto."
+        "openSource": {
+          "label": "Open source",
+          "body": "Ogni riga di codice è su GitHub con licenza AGPL-3.0. Puoi ospitarlo tu, gratis e senza limiti di eventi."
         }
       },
       "thesis": {
         "label": "Cookie installati",
-        "body": "Niente cookie, niente fingerprinting, niente banner per il consenso. Conforme di serie a GDPR, ePrivacy e PECR, su un’infrastruttura interamente nell’UE."
+        "body": "Niente cookie, niente ID persistenti, niente banner per il consenso. Pensato per GDPR, ePrivacy e PECR, con i tuoi dati che restano nell’UE."
       }
     },
     "quote": {
@@ -1208,7 +1208,7 @@
       },
       "enterprise": {
         "name": "Enterprise",
-        "tagline": "Per settori regolamentati e volumi concordati.",
+        "tagline": "Per traffico elevato, con SLA e supporto dedicato.",
         "cta": "Contattaci"
       }
     },
@@ -1300,9 +1300,9 @@
       "errors": {
         "alt": "Un TypeError appena scattato, con la pagina e il clic che l’hanno causato, il suo stack trace e gli utenti colpiti; dietro, un errore meno frequente e uno già risolto.",
         "resolved": "Risolto",
-        "inVersion": "in {version}",
-        "events": "eventi",
+        "events": "occorrenze",
         "hoursAgo": "{count} h fa",
+        "daysAgo": "{count} g fa",
         "inApp": "nell’app"
       },
       "uptime": {
