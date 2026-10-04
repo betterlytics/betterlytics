@@ -15,6 +15,8 @@ import { SessionListPanel, type ListPanelItem } from './SessionListPanel';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { InfoBadge } from './components/InfoBadge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { LiveIndicator } from '@/components/live-indicator';
+import { usePossiblyActiveSessions } from './hooks/use-possibly-active-sessions';
 
 type SessionReplayListProps = {
   sessions: SessionReplay[];
@@ -39,6 +41,7 @@ export function SessionReplayList({
   const [minDurationFilter, setMinDurationFilter] = useState('');
   const t = useTranslations('components.sessionReplay.sessionList');
   const tMisc = useTranslations('misc');
+  const possiblyActiveIds = usePossiblyActiveSessions(sessions);
 
   const normalizedMinDuration = Math.max(0, Number.parseInt(minDurationFilter || '0', 10) || 0);
 
@@ -72,6 +75,7 @@ export function SessionReplayList({
     const browserName = session.browser ? capitalizeFirstLetter(session.browser) : null;
     const osName = session.os ? capitalizeFirstLetter(session.os) : null;
     const deviceName = session.device_type ? capitalizeFirstLetter(session.device_type) : null;
+    const possiblyActive = possiblyActiveIds.has(session.session_id);
 
     return {
       id: session.session_id,
@@ -95,7 +99,23 @@ export function SessionReplayList({
         >
           <CardContent className='px-3 py-3'>
             <div className='text-muted-foreground flex w-full items-center justify-between gap-3 text-xs'>
-              <span>{capitalizeFirstLetter(formatRelativeTimeFromNow(startedAt, locale))}</span>
+              <span className='inline-flex items-center gap-1.5'>
+                {capitalizeFirstLetter(formatRelativeTimeFromNow(startedAt, locale))}
+                {possiblyActive && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span
+                        className='inline-flex h-3 w-3 items-center justify-center'
+                        role='img'
+                        aria-label={t('possiblyActiveTooltip')}
+                      >
+                        <LiveIndicator positionClassName='relative' sizeClassName='h-2 w-2' />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side='bottom'>{t('possiblyActiveTooltip')}</TooltipContent>
+                  </Tooltip>
+                )}
+              </span>
               <span className='inline-flex items-center gap-1 font-medium'>
                 <Clock className='h-3 w-3' aria-hidden='true' />
                 {durationLabel}

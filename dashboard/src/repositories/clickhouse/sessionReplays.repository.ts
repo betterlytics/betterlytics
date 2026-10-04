@@ -3,7 +3,12 @@
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql } from '@/lib/safe-sql';
 import { parseClickHouseDate } from '@/utils/dateHelpers';
-import { SessionReplay, SessionReplayArraySchema } from '@/entities/analytics/sessionReplays.entities';
+import {
+  SessionReplay,
+  SessionReplayActivity,
+  SessionReplayActivityArraySchema,
+  SessionReplayArraySchema,
+} from '@/entities/analytics/sessionReplays.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function hasSessionReplay(siteId: string, sessionId: string): Promise<boolean> {
@@ -129,4 +134,25 @@ export async function getSessionReplays(
     .toPromise();
 
   return SessionReplayArraySchema.parse(result);
+}
+
+export async function getSessionReplayActivity(
+  siteId: string,
+  sessionIds: string[],
+): Promise<SessionReplayActivity[]> {
+  const query = safeSql`
+    SELECT toString(session_id) AS session_id, max(ended_at) AS ended_at
+    FROM analytics.session_replays
+    WHERE site_id = {site_id:String}
+      AND session_id IN (SELECT toUInt64(arrayJoin({session_ids:Array(String)})))
+    GROUP BY session_id
+  `;
+
+  const result = await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, session_ids: sessionIds },
+    })
+    .toPromise();
+
+  return SessionReplayActivityArraySchema.parse(result);
 }

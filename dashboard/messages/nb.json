@@ -2788,7 +2788,8 @@
           "title": "Ingen sesjonsavspillinger tilgjengelige",
           "description": "Prøv å utvide tidsperioden eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne økten fanget {count} klientsidefeil"
+        "sessionErrorsTooltip": "Denne økten fanget {count} klientsidefeil",
+        "possiblyActiveTooltip": "Tar kanskje fortsatt opp, avspillingen kan være ufullstendig"
       },
       "playerTopbar": {
         "startLabel": "Starttid:",
