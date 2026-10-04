@@ -150,13 +150,11 @@ export async function generateStructuredData(config: SEOConfig) {
             '@type': 'ContactPoint',
             contactType: contactCustomer,
             email: 'hello@betterlytics.io',
-            availableLanguage: currentLocale,
           },
           {
             '@type': 'ContactPoint',
             contactType: contactTechnical,
             email: 'support@betterlytics.io',
-            availableLanguage: currentLocale,
           },
         ],
         address: {
@@ -240,13 +238,11 @@ export async function generateStructuredData(config: SEOConfig) {
               '@type': 'ContactPoint',
               contactType: contactCustomer,
               email: 'hello@betterlytics.io',
-              availableLanguage: currentLocale,
             },
             {
               '@type': 'ContactPoint',
               contactType: contactTechnical,
               email: 'support@betterlytics.io',
-              availableLanguage: currentLocale,
             },
           ],
         },
