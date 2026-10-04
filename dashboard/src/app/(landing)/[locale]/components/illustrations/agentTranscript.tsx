@@ -245,6 +245,7 @@ export function AgentTranscript({ className }: { className?: string }) {
       data-live={live || undefined}
       role='img'
       aria-label={t('alt')}
+      data-nosnippet
     >
       <FlareShimmer className={styles.shimmer} live={live} />
       {/* role='img' alone doesn't hide inner text from every screen reader */}

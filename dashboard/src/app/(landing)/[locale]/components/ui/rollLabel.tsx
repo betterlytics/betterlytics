@@ -5,7 +5,7 @@ import { vars } from '@/landing/lib/cssVars';
 export function RollLabel({ text }: { text: string }) {
   const chars = Array.from(text);
   const row = (offset: string) => (
-    <span className='flex [grid-area:1/1]' aria-hidden>
+    <span className='flex [grid-area:1/1]' aria-hidden data-nosnippet>
       {chars.map((char, i) => (
         <span
           key={i}

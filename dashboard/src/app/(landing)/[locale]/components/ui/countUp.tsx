@@ -72,7 +72,7 @@ export function CountUp({
   return (
     <b ref={ref} className={cn('tabular-nums', className)}>
       <span className='sr-only'>{format.format(value)}</span>
-      <span aria-hidden>
+      <span aria-hidden data-nosnippet>
         <span ref={wholeRef}>{whole}</span>
         {point && (
           <>

@@ -79,7 +79,7 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
 
   return (
     // Sticky range is bounded by the margin box, so my-12 keeps the copy clear of the frame's rules.
-    <div ref={ref} className='sticky top-0 my-12 pl-7.5 max-2xl:hidden' aria-hidden>
+    <div ref={ref} className='sticky top-0 my-12 pl-7.5 max-2xl:hidden' aria-hidden data-nosnippet>
       <p className='mb-3.5 font-mono text-micro tracking-[0.1em] text-muted'>
         <RollingDigits className='text-fg' value={pad(active + 1)} direction={direction} /> /{' '}
         {pad(JOURNEY_STEPS.length)}
@@ -135,7 +135,10 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
       </div>
       <div className='border border-rule-10 transition-ink'>
         {/* illustrations keep their size, so taller as it narrows; phones get a fixed height (square at 390px) */}
-        <div className='relative aspect-video overflow-hidden max-md:aspect-4/3 max-sm:aspect-auto max-sm:h-89'>
+        <div
+          className='relative aspect-video overflow-hidden max-md:aspect-4/3 max-sm:aspect-auto max-sm:h-89'
+          data-nosnippet
+        >
           <div className='absolute inset-0 flex items-center justify-center px-7.5 py-5.5 max-md:p-4'>
             <Illustration entered={entered} live={live} />
           </div>
