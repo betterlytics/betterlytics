@@ -2,7 +2,7 @@
   "public": {
     "root": {
       "seo": {
-        "title": "Betterlytics: Webanalyse, sessionsafspilning, fejl og oppetid",
+        "title": "Betterlytics: Webanalyse, session replay, fejl og oppetid",
         "description": "Betterlytics samler webanalyse, sessionsafspilning, fejlsporing, Core Web Vitals og oppetidsovervågning i ét open source-værktøj. Cookiefrit og hostet i EU."
       }
     },

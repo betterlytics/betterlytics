@@ -2,7 +2,7 @@
   "public": {
     "root": {
       "seo": {
-        "title": "Betterlytics: analisi web, replay sessioni, errori e uptime",
+        "title": "Betterlytics: analisi web, session replay, errori e uptime",
         "description": "Betterlytics riunisce analisi web, replay delle sessioni, tracciamento errori, Core Web Vitals e monitoraggio uptime in un unico strumento open source. Senza cookie e ospitato nell’UE."
       }
     },
