@@ -108,6 +108,8 @@ export async function findInvitationByEmail(
         dashboardId,
         email: email.toLowerCase(),
         status: 'pending',
+        // markExpiredInvitations has no caller: expired rows keep status 'pending', so expiry is the real filter
+        expiresAt: { gt: new Date() },
       },
     });
 
