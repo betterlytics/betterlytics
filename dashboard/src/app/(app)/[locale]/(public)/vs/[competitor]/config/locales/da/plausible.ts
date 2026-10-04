@@ -116,7 +116,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Prisoverblik',
-      content: `Plausible starter fra $9/måned for 10.000 pageviews. Der er ingen gratis plan på hosted versionen, men self-hosting er gratis, hvis du selv håndterer infrastrukturen.\n\nBetterlytics starter fra $7/måned med en gratis plan til mindre sites. Session replay, monitoring, ydeenve-indsigter og user journeys er alle inkluderet. Flere funktioner og en lavere startpris.`,
+      content: `Plausible starter fra $9/måned for 10.000 pageviews. Der er ingen gratis plan på den hostede version, men self-hosting er gratis, hvis du selv håndterer infrastrukturen.\n\nBetterlytics starter fra $7/måned med en gratis plan til mindre sites. Session replay, monitoring, ydeevne-indsigter og user journeys er alle inkluderet. Flere funktioner og en lavere startpris.`,
       icon: 'dollar',
     },
     {
