@@ -1,8 +1,12 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use serde::Deserialize;
 use tracing::{debug, error};
+use url::Url;
 
-use crate::notifications::notifier::{Notification, Notifier, NotifierError};
+use crate::monitor::guard::{self, GuardedResolver};
+use crate::notifications::notifier::{error_body_preview, Notification, Notifier, NotifierError};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -18,6 +22,9 @@ impl TeamsNotifier {
     pub fn new() -> Result<Self, reqwest::Error> {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(10))
+            .dns_resolver(Arc::new(GuardedResolver))
+            // Logic Apps can answer any 3xx; 301/302 would also turn the POST into a bodiless GET
+            .redirect(reqwest::redirect::Policy::none())
             .build()?;
 
         Ok(Self { client })
@@ -37,6 +44,11 @@ impl Notifier for TeamsNotifier {
     ) -> Result<(), NotifierError> {
         let teams_config = TeamsConfig::deserialize(config)
             .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
+        let url = Url::parse(&teams_config.webhook_url)
+            .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
+        // Rows saved under the old regex fail here, once, without retry
+        guard::validate_vendor_webhook_url(&url, &guard::TEAMS_WEBHOOK)
+            .map_err(|e| NotifierError::InvalidConfig(e.message))?;
 
         let title_color = match notification.color {
             crate::notifications::NotificationColor::Danger => "Attention",
@@ -90,17 +102,14 @@ impl Notifier for TeamsNotifier {
 
         let response = self
             .client
-            .post(&teams_config.webhook_url)
+            .post(url)
             .json(&payload)
             .send()
             .await?;
 
         let status = response.status();
         if !status.is_success() {
-            let body = response
-                .text()
-                .await
-                .unwrap_or_else(|_| "failed to read response body".to_string());
+            let body = error_body_preview(response).await;
 
             let msg = format!("Teams webhook returned {status}: {body}");
 
@@ -123,5 +132,31 @@ impl Notifier for TeamsNotifier {
 
         debug!(integration = "teams", "notification sent successfully");
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::notifications::notifier::NotificationColor;
+
+    // No network: both URLs fail the vendor rule before any request
+    #[tokio::test]
+    async fn refuses_non_vendor_urls_without_retry() {
+        let notifier = TeamsNotifier::new().unwrap();
+        let notification = Notification {
+            title: "t".to_string(),
+            message: "m".to_string(),
+            url: None,
+            url_title: None,
+            color: NotificationColor::Default,
+        };
+        for webhook_url in ["https://10.0.0.5/a.logic.azure.com/", "https://attacker.example/x.webhook.office.com/"] {
+            let result = notifier
+                .send(&serde_json::json!({ "webhookUrl": webhook_url }), &notification)
+                .await;
+            assert!(matches!(result, Err(NotifierError::InvalidConfig(_))), "{webhook_url}");
+            assert!(!result.unwrap_err().is_transient());
+        }
     }
 }

@@ -5,9 +5,15 @@
   }
   window.__betterlytics_analytics_initialized__ = true;
 
+  // currentScript is null when an optimizer (Rocket Loader, defer/combine) injects us; never match another vendor's analytics.js
   var script =
     document.currentScript ||
-    document.querySelector('script[src*="analytics.js"]');
+    document.querySelector("script[data-betterlytics-tracker]") ||
+    document.querySelector('script[data-site-id][src*="analytics"]');
+  if (!script) {
+    console.error("Betterlytics: could not find own script tag");
+    return;
+  }
   var siteId = script.getAttribute("data-site-id");
 
   var serverUrl = script.getAttribute("data-server-url");
@@ -39,10 +45,10 @@
     scriptsBaseUrl = scriptsBaseUrl || "https://betterlytics.io";
   }
 
-  // Replaced by esbuild --define at build time; unbuilt copies stay on "dev"
-  var scriptVersion =
-    typeof __BL_VERSION__ === "string" ? __BL_VERSION__ : "dev";
-  var replayScriptUrl = `${scriptsBaseUrl}/replay.js?v=${scriptVersion}`;
+  // Content hash of replay.js, replaced by esbuild --define in static/build.mjs; unbuilt copies stay on "dev"
+  var replayScriptHash =
+    typeof __BL_REPLAY_HASH__ === "string" ? __BL_REPLAY_HASH__ : "dev";
+  var replayScriptUrl = `${scriptsBaseUrl}/replay.js?v=${replayScriptHash}`;
 
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
@@ -157,6 +163,8 @@
   }
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
+  var queuedGlobalProperties =
+    (window.betterlytics && window.betterlytics.gq) || [];
 
   var replayConsentCallbacks = [];
 
@@ -206,6 +214,13 @@
 
   if (initialGlobalProperties !== null) {
     window.betterlytics.setGlobalProperties(initialGlobalProperties);
+  }
+
+  for (var i = 0; i < queuedGlobalProperties.length; i++) {
+    window.betterlytics.setGlobalProperties.apply(
+      this,
+      queuedGlobalProperties[i],
+    );
   }
 
   for (var i = 0; i < queuedEvents.length; i++) {
@@ -548,6 +563,13 @@
   }
 
   if ((enableReplay || enableReplayOnError) && !automation) {
+    // replay.js reads this instead of searching the DOM, where another "analytics.js" (Segment, GA) can come first
+    window.__betterlytics_replay_config__ = {
+      siteId: siteId,
+      serverUrl: serverUrl,
+      script: script,
+    };
+
     var REPLAY_STORAGE_KEY = "betterlytics:replay_sample";
     var CONSENT_KEY = "betterlytics:replay_consent";
     var THIRTY_MIN_MS = 30 * 60 * 1000;

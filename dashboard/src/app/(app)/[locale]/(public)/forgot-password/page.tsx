@@ -38,6 +38,7 @@ export default async function ForgotPasswordPage() {
   const session = await getAuthSession();
   const t = await getTranslations('public.auth.forgotPassword');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.forgotPassword);
+  const isCloud = isFeatureEnabled('isCloud');
 
   if (session) {
     redirect('/dashboards');
@@ -49,7 +50,7 @@ export default async function ForgotPasswordPage() {
 
   return (
     <>
-      <StructuredData config={seoConfig} />
+      {isCloud && <StructuredData config={seoConfig} />}
       <div className='bg-background flex items-center justify-center px-4 py-12 sm:px-6 sm:pt-20 lg:px-8'>
         <div className='w-full max-w-md space-y-8'>
           <div className='text-center'>

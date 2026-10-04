@@ -19,6 +19,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { formatElapsedTime, formatLocalDateTime } from '@/utils/dateFormatters';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -76,6 +77,7 @@ type IncidentColumnMeta = {
 export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsTabProps) {
   const t = useTranslations('statusPagesPage.editor.incidents');
   const locale = useLocale() as SupportedLanguages;
+  const { timeZone } = useTimeRangeContext();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { canMutate } = useDashboardAuth();
@@ -125,11 +127,11 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   // Destructured so the columns memo can depend on the stable pieces, not the whole mutation object.
   const { mutate: deleteIncident, isPending: isDeletingIncident } = deleteMutation;
 
-  const openCreate = () => openEditor(editorSeedForCreate());
+  const openCreate = () => openEditor(editorSeedForCreate(timeZone));
 
   const openEdit = useCallback(
-    (incident: StatusPageIncident) => openEditor(editorSeedForIncident(incident)),
-    [openEditor],
+    (incident: StatusPageIncident) => openEditor(editorSeedForIncident(incident, timeZone)),
+    [openEditor, timeZone],
   );
 
   const openFromSuggestion = (suggestion: DetectedOutageSuggestion) => {
@@ -137,7 +139,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
       suggestion.monitors.length === 1
         ? t('suggestedTitle', { monitor: suggestion.monitors[0].monitorPublicName })
         : t('suggestedTitleMulti', { count: suggestion.monitors.length });
-    openEditor(editorSeedForSuggestion(suggestion, title));
+    openEditor(editorSeedForSuggestion(suggestion, title, timeZone));
   };
 
   const incidents = useMemo(() => incidentsQuery.data ?? [], [incidentsQuery.data]);
@@ -166,8 +168,13 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
 
   const startedLabel = useCallback(
     (incident: StatusPageIncident): string =>
-      formatLocalDateTime(incident.startedAt, locale, { month: 'short', day: 'numeric', year: 'numeric' }) ?? '',
-    [locale],
+      formatLocalDateTime(incident.startedAt, locale, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        timeZone,
+      }) ?? '',
+    [locale, timeZone],
   );
 
   const durationMsOf = useCallback(

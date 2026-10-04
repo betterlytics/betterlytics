@@ -20,7 +20,6 @@ pub use service::{IncidentContext, IncidentOrchestrator, IncidentOrchestratorCon
 pub use backoff::{BackoffController, BackoffPolicy};
 pub use cache::{MonitorCache, RefreshConfig as MonitorCacheConfig};
 pub use clickhouse_writer::{MonitorWriter, new_monitor_writer};
-pub use guard::init_dev_mode;
 pub use models::{
     AlertConfig, BackoffReason, BackoffSnapshot, HttpMethod, MonitorCheck, MonitorResultRow,
     MonitorStatus, ProbeOutcome, ReasonCode, RequestHeader, StatusCodeValue,

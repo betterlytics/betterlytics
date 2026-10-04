@@ -67,6 +67,18 @@ async function main() {
       );
     }
 
+    // Retention is per dashboard (retention-purge job); drop the TTL older backends set from their
+    // retention env var. Checked first: REMOVE TTL on a table without one throws BAD_ARGUMENTS.
+    const eventsResult = await client.query({
+      query: `SELECT engine_full FROM system.tables WHERE database = 'analytics' AND name = 'events'`,
+      format: "JSONEachRow",
+    });
+    const [eventsTable] = await eventsResult.json();
+    if (/\bTTL\b/.test(eventsTable?.engine_full ?? "")) {
+      await client.command({ query: `ALTER TABLE analytics.events REMOVE TTL` });
+      console.log("Post-migration (clickhouse): removed table TTL from analytics.events.");
+    }
+
     if (!workerUser || !workerPassword) {
       console.log(
         "Post-migration (clickhouse): WORKER_CLICKHOUSE_WRITE_USER not set, skipping worker user creation.",

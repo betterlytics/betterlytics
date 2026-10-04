@@ -28,6 +28,7 @@ export function useSyncURLFilters() {
     setCompareMode,
     compareAlignWeekdays,
     setCompareAlignWeekdays,
+    timeZone,
   } = useTimeRangeContext();
   const { numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys } = useUserJourneyFilter();
 
@@ -42,7 +43,7 @@ export function useSyncURLFilters() {
 
       const encoded = Object.fromEntries(encodedFilterEntries);
 
-      const filters = BAFilterSearchParams.decode(encoded, Intl.DateTimeFormat().resolvedOptions().timeZone);
+      const filters = BAFilterSearchParams.decode(encoded, timeZone);
 
       if (filters.startDate && filters.endDate) {
         setPeriod(filters.startDate, filters.endDate);
@@ -98,25 +99,28 @@ export function useSyncURLFilters() {
         return;
       }
 
-      const rawEncoded = BAFilterSearchParams.encode({
-        queryFilters,
-        startDate,
-        endDate,
-        granularity,
-        interval,
-        offset,
-        compare: compareMode,
-        compareAlignWeekdays,
-        userJourney: {
-          numberOfSteps,
-          numberOfJourneys,
+      const rawEncoded = BAFilterSearchParams.encode(
+        {
+          queryFilters,
+          startDate,
+          endDate,
+          granularity,
+          interval,
+          offset,
+          compare: compareMode,
+          compareAlignWeekdays,
+          userJourney: {
+            numberOfSteps,
+            numberOfJourneys,
+          },
+          // Only include compare dates for custom mode when both are present
+          compareStartDate:
+            compareMode === 'custom' && compareStartDate && compareEndDate ? compareStartDate : undefined,
+          compareEndDate:
+            compareMode === 'custom' && compareStartDate && compareEndDate ? compareEndDate : undefined,
         },
-        // Only include compare dates for custom mode when both are present
-        compareStartDate:
-          compareMode === 'custom' && compareStartDate && compareEndDate ? compareStartDate : undefined,
-        compareEndDate:
-          compareMode === 'custom' && compareStartDate && compareEndDate ? compareEndDate : undefined,
-      });
+        timeZone,
+      );
 
       const showMainDates = interval === 'custom';
       const showCompareDates = compareMode === 'custom';
@@ -155,6 +159,7 @@ export function useSyncURLFilters() {
     compareAlignWeekdays,
     numberOfSteps,
     numberOfJourneys,
+    timeZone,
   ]);
 }
 

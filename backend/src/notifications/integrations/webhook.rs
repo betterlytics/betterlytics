@@ -1,8 +1,12 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use serde::Deserialize;
 use tracing::{debug, error};
+use url::Url;
 
-use crate::notifications::notifier::{Notification, Notifier, NotifierError};
+use crate::monitor::guard::{self, GuardedResolver};
+use crate::notifications::notifier::{error_body_preview, Notification, Notifier, NotifierError};
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -18,6 +22,8 @@ impl WebhookNotifier {
     pub fn new() -> Result<Self, reqwest::Error> {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(10))
+            .dns_resolver(Arc::new(GuardedResolver))
+            .redirect(guard::webhook_redirect_policy())
             .build()?;
 
         Ok(Self { client })
@@ -37,6 +43,11 @@ impl Notifier for WebhookNotifier {
     ) -> Result<(), NotifierError> {
         let webhook_config = WebhookConfig::deserialize(config)
             .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
+        let url = Url::parse(&webhook_config.webhook_url)
+            .map_err(|e| NotifierError::InvalidConfig(e.to_string()))?;
+        // InvalidConfig is non-transient: a blocked URL is not retried
+        guard::validate_webhook_url(&url, guard::allow_private_targets())
+            .map_err(|e| NotifierError::InvalidConfig(e.message))?;
 
         let mut payload = serde_json::json!({
             "title": notification.title,
@@ -56,17 +67,14 @@ impl Notifier for WebhookNotifier {
 
         let response = self
             .client
-            .post(&webhook_config.webhook_url)
+            .post(url)
             .json(&payload)
             .send()
             .await?;
 
         let status = response.status();
         if !status.is_success() {
-            let body = response
-                .text()
-                .await
-                .unwrap_or_else(|_| "failed to read response body".to_string());
+            let body = error_body_preview(response).await;
 
             let msg = format!("Webhook returned {status}: {body}");
 

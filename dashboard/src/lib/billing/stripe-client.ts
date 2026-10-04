@@ -1,6 +1,9 @@
 'use client';
 
-import { loadStripe, type Stripe } from '@stripe/stripe-js';
+// The pure entry injects js.stripe.com on the first loadStripe() call instead of at import,
+// so instances with billing off never load it.
+import { loadStripe } from '@stripe/stripe-js/pure';
+import type { Stripe } from '@stripe/stripe-js';
 
 let stripePromise: Promise<Stripe | null> | null = null;
 
