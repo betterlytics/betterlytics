@@ -17,12 +17,15 @@
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: 6px 14px;
+    /* one line fits only in the full 1480px column, so narrower screens get two even rows of nine, not 16/2 */
+    @media (width < 96rem) {
+      display: grid;
+      grid-template-columns: repeat(9, 30px);
+    }
     @variant max-xl {
       justify-content: flex-start;
     }
-    /* two even rows of nine on phones, not 8/8/2 */
     @variant max-sm {
-      display: grid;
       grid-template-columns: repeat(9, 1fr);
       justify-items: center;
       column-gap: 0;
@@ -77,7 +80,7 @@
     .glyphs[data-in] .shine {
       display: flex;
       animation: sweep 26s linear 2.4s infinite;
-      @variant max-sm {
+      @media (width < 96rem) {
         display: grid;
       }
     }
