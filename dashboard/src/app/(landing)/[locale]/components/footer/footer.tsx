@@ -155,19 +155,19 @@ export function LandingFooter() {
           </Column>
           <Column id='footer-connect' title={t('columns.connect')}>
             <li>
-              <a className={LINK} href={LINKS.github} target='_blank' rel='noopener noreferrer'>
+              <a className={LINK} href={LINKS.github} target='_blank' rel='noopener'>
                 <GitHubIcon className={SOCIAL_ICON} />
                 GitHub
               </a>
             </li>
             <li>
-              <a className={LINK} href={LINKS.bluesky} target='_blank' rel='noopener noreferrer'>
+              <a className={LINK} href={LINKS.bluesky} target='_blank' rel='noopener'>
                 <BlueskyIcon className={SOCIAL_ICON} />
                 Bluesky
               </a>
             </li>
             <li>
-              <a className={LINK} href={LINKS.discord} target='_blank' rel='noopener noreferrer'>
+              <a className={LINK} href={LINKS.discord} target='_blank' rel='noopener'>
                 <DiscordIcon className={SOCIAL_ICON} />
                 Discord
               </a>

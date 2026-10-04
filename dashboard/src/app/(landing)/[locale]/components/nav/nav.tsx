@@ -170,7 +170,7 @@ export function Nav() {
           className='inline-flex size-8 items-center justify-center rounded-[7px] text-fg transition-[opacity,background-color] duration-180 ease-out-expo hover:bg-fg/6 hover:opacity-80 max-sm:hidden'
           href={LINKS.github}
           target='_blank'
-          rel='noopener noreferrer'
+          rel='noopener'
           aria-label={t('githubLabel')}
         >
           <GitHubIcon className='size-[17px]' />
@@ -207,7 +207,7 @@ export function Nav() {
           className={cn(SHEET_LINK, 'flex items-center gap-3 sm:hidden')}
           href={LINKS.github}
           target='_blank'
-          rel='noopener noreferrer'
+          rel='noopener'
         >
           <GitHubIcon className='size-5' />
           GitHub
