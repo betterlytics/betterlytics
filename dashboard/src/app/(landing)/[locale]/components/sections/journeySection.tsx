@@ -20,15 +20,16 @@ import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import styles from './journeySection.module.css';
 
-const ILLUSTRATIONS: Record<JourneyStep, ComponentType<IllustrationProps>> = {
-  find: Globe,
-  see: Traffic,
-  do: Events,
-  follow: Replay,
-  wait: Vitals,
-  errors: Errors,
-  reach: Uptime,
-};
+/** `name` is the illustration's key under `landing.illustrations`, whose alt labels the box until it mounts. */
+const ILLUSTRATIONS = {
+  find: { Art: Globe, name: 'globe' },
+  see: { Art: Traffic, name: 'traffic' },
+  do: { Art: Events, name: 'events' },
+  follow: { Art: Replay, name: 'replay' },
+  wait: { Art: Vitals, name: 'vitals' },
+  errors: { Art: Errors, name: 'errors' },
+  reach: { Art: Uptime, name: 'uptime' },
+} as const satisfies Record<JourneyStep, { Art: ComponentType<IllustrationProps>; name: string }>;
 
 const TITLE = 'mb-4 text-[length:clamp(27px,2.7vw,36px)] leading-[1.1] font-medium tracking-[-1px]';
 const NOTE = 'max-w-[30ch] text-body-sm leading-[22px] text-muted';
@@ -115,8 +116,11 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
 function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const entered = useInView(ref);
+  // the illustrations are half the page's elements, so they mount (and hydrate) only as the reader nears them
+  const near = useInView(ref, 'near');
   const t = useTranslations('landing.journey.steps');
-  const Illustration = ILLUSTRATIONS[step];
+  const tArt = useTranslations('landing.illustrations');
+  const { Art, name } = ILLUSTRATIONS[step];
   const titleId = `${IDS.journey}-${step}`;
   return (
     <article ref={ref} aria-labelledby={titleId}>
@@ -140,7 +144,7 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
           data-nosnippet
         >
           <div className='absolute inset-0 flex items-center justify-center px-7.5 py-5.5 max-md:p-4'>
-            <Illustration entered={entered} live={live} />
+            {near ? <Art entered={entered} live={live} /> : <div role='img' aria-label={tArt(`${name}.alt`)} />}
           </div>
         </div>
       </div>
