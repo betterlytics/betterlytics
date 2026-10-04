@@ -4071,7 +4071,11 @@
       "hours": "{count, plural, one {# hour} other {# hours}}",
       "days": "{count, plural, one {# day} other {# days}}"
     },
-    "poweredBy": "Powered by"
+    "poweredBy": "Powered by",
+    "notFound": {
+      "title": "Status page not found",
+      "description": "This status page doesn't exist or isn't published."
+    }
   },
   "statusPagesPage": {
     "title": "Status Pages",

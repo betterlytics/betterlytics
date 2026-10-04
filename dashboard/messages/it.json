@@ -4074,7 +4074,11 @@
       "hours": "{count, plural, one {# ora} other {# ore}}",
       "days": "{count, plural, one {# giorno} other {# giorni}}"
     },
-    "poweredBy": "Realizzato con"
+    "poweredBy": "Realizzato con",
+    "notFound": {
+      "title": "Pagina di stato non trovata",
+      "description": "Questa pagina di stato non esiste o non è pubblicata."
+    }
   },
   "statusPagesPage": {
     "title": "Pagine di stato",

@@ -4074,7 +4074,11 @@
       "hours": "{count, plural, one {# time} other {# timer}}",
       "days": "{count, plural, one {# dag} other {# dage}}"
     },
-    "poweredBy": "Drevet af"
+    "poweredBy": "Drevet af",
+    "notFound": {
+      "title": "Statussiden blev ikke fundet",
+      "description": "Denne statusside findes ikke eller er ikke offentliggjort."
+    }
   },
   "statusPagesPage": {
     "title": "Statussider",

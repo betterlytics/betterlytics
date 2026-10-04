@@ -4074,7 +4074,11 @@
       "hours": "{count, plural, one {# time} other {# timer}}",
       "days": "{count, plural, one {# dag} other {# dager}}"
     },
-    "poweredBy": "Levert av"
+    "poweredBy": "Levert av",
+    "notFound": {
+      "title": "Statussiden ble ikke funnet",
+      "description": "Denne statussiden finnes ikke eller er ikke publisert."
+    }
   },
   "statusPagesPage": {
     "title": "Statussider",
