@@ -1,3 +1,4 @@
+import moment from 'moment-timezone';
 import { type MonitorDailyUptime } from '@/entities/analytics/monitoring.entities';
 import { computeDowntimeFromUptimeDays, type DowntimeMetadata } from '@/utils/formatters';
 
@@ -38,33 +39,36 @@ export type PresentedMonitorUptime = {
 
 export function toMonitorUptimePresentation(
   rows: MonitorDailyUptime[],
+  timezone: string,
   totalDays = 180,
   windows: number[] = [7, 30, 90, totalDays],
 ): PresentedMonitorUptime {
   const days = toMonitorUptimeDays(rows);
-  const grid = buildUptimeGrid(days, totalDays);
+  const grid = buildUptimeGrid(days, totalDays, timezone);
   const stats = computeUptimeStats(days, windows);
 
   return { grid, stats, totalDays };
 }
 
-function buildUptimeGrid(days: PresentedMonitorUptimeDay[], totalDays: number): PresentedMonitorUptimeCell[] {
-  const today = startOfDay(new Date());
-  const map = new Map<number, number | null>();
+function buildUptimeGrid(
+  days: PresentedMonitorUptimeDay[],
+  totalDays: number,
+  timezone: string,
+): PresentedMonitorUptimeCell[] {
+  const today = moment.tz(timezone).startOf('day');
+  const map = new Map<string, number | null>();
 
   days.forEach((d) => {
-    const key = startOfDay(new Date(d.date)).getTime();
-    map.set(key, d.upRatio ?? null);
+    map.set(d.date, d.upRatio ?? null);
   });
 
   const cells: PresentedMonitorUptimeCell[] = [];
   for (let i = totalDays - 1; i >= 0; i -= 1) {
-    const day = startOfDay(addDays(today, -i));
-    const key = day.getTime();
+    const day = today.clone().subtract(i, 'days');
     cells.push({
-      key: `${key}`,
+      key: `${day.valueOf()}`,
       date: day.toISOString(),
-      upRatio: map.get(key) ?? null,
+      upRatio: map.get(day.format('YYYY-MM-DD')) ?? null,
     });
   }
 
@@ -91,16 +95,4 @@ function sliceLastDays(days: PresentedMonitorUptimeDay[], count: number) {
   if (!days || days.length === 0) return [];
   const sorted = [...days].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   return sorted.slice(-count);
-}
-
-function startOfDay(date: Date) {
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function addDays(date: Date, days: number) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + days);
-  return d;
 }

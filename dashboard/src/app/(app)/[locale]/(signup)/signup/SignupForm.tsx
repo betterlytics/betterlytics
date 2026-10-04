@@ -47,6 +47,8 @@ type SignupFormProps = {
   redirectTo?: string;
   /** Cloud only; self-host is not bound by our terms */
   requireTerms: boolean;
+  isCloud: boolean;
+  isFirstUser: boolean;
 };
 
 export default function SignupForm({
@@ -56,6 +58,8 @@ export default function SignupForm({
   inviteToken,
   redirectTo,
   requireTerms,
+  isCloud,
+  isFirstUser,
 }: SignupFormProps) {
   const t = useTranslations('onboarding.account');
   const tValidation = useTranslations('validation');
@@ -235,21 +239,28 @@ export default function SignupForm({
               <motion.li className='flex gap-3' variants={itemVariants}>
                 <CheckCircleIcon color='var(--primary)' className='mt-0.5 h-5 w-5 shrink-0' />
                 <div>
-                  <h3 className='font-semibold'>{t('features.feature2.title')}</h3>
-                  <p className='text-muted-foreground text-sm'>{t('features.feature2.description')}</p>
+                  <h3 className='font-semibold'>
+                    {isCloud ? t('features.feature2.title') : t('features.feature2SelfHosted.title')}
+                  </h3>
+                  <p className='text-muted-foreground text-sm'>
+                    {isCloud ? t('features.feature2.description') : t('features.feature2SelfHosted.description')}
+                  </p>
                 </div>
               </motion.li>
               <motion.li className='flex gap-3' variants={itemVariants}>
                 <CheckCircleIcon color='var(--primary)' className='mt-0.5 h-5 w-5 shrink-0' />
                 <div>
                   <h3 className='font-semibold'>{t('features.feature3.title')}</h3>
-                  <p className='text-muted-foreground text-sm'>{t('features.feature3.description')}</p>
+                  <p className='text-muted-foreground text-sm'>
+                    {isCloud ? t('features.feature3.description') : t('features.feature3SelfHosted.description')}
+                  </p>
                 </div>
               </motion.li>
             </motion.ul>
           </div>
           <div className='bg-card col-span-2 space-y-3 rounded-lg border p-3 py-4 pb-5 shadow-sm sm:p-6 md:col-span-1'>
             <h2 className='text-center text-2xl font-semibold'>{t('form.title')}</h2>
+            {isFirstUser && <p className='text-muted-foreground text-center text-sm'>{t('form.firstUserHint')}</p>}
             {invitedDomain && (
               <p className='text-muted-foreground text-center text-sm'>
                 {t('form.invitedToHint', { domain: invitedDomain })}

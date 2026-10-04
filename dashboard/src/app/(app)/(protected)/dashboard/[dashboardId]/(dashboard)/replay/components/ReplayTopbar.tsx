@@ -7,6 +7,7 @@ import { useLocale } from 'next-intl';
 import { memo } from 'react';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { useTranslations } from 'next-intl';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 
 type ReplayTopbarProps = {
@@ -17,10 +18,12 @@ export const ReplayTopbar = memo(function ReplayTopbar({ session }: ReplayTopbar
   const locale = useLocale();
   const t = useTranslations('components.sessionReplay.playerTopbar');
   const tMisc = useTranslations('misc');
+  const { timeZone } = useTimeRangeContext();
 
   const startedAtLabel = formatLocalDateTime(session?.started_at, locale, {
     dateStyle: 'medium',
     timeStyle: 'short',
+    timeZone,
   });
 
   const country = session?.country_code

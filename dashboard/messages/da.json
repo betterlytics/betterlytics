@@ -150,7 +150,7 @@
           },
           "freePlan": {
             "question": "Hvad er inkluderet i den gratis plan?",
-            "answer": "Den gratis self-hosted plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger."
+            "answer": "Den gratis Cloud-plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger. Self-hosting er gratis uden grænse for events."
           },
           "cloud": {
             "question": "Hvordan fungerer cloud-hosting?",
@@ -786,6 +786,11 @@
             "GDPR-kompatibel Analyse"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Opret din konto | Betterlytics",
+          "description": "Opret din konto på denne Betterlytics-instans.",
+          "keywords": ["Opret konto", "Tilmeld"]
+        },
         "title": "Opret din konto",
         "subtitle": "Begynd at spore din analyse i dag",
         "cta": {
@@ -794,7 +799,6 @@
         },
         "disabled": {
           "title": "Registrering deaktiveret",
-          "description": "Registrering er i øjeblikket deaktiveret på denne instans.",
           "backToSignIn": "Tilbage til login"
         }
       },
@@ -1044,7 +1048,7 @@
             "features": {
               "f1": "Docker-udrulning",
               "f2": "Fuld kontrol",
-              "f3": "GDPR-kompatibel"
+              "f3": "Alle funktioner inkluderet"
             }
           }
         },
@@ -2962,7 +2966,13 @@
         "localization": {
           "title": "Lokalisering",
           "language": "Sprog",
-          "languageDescription": "Vælg sproget for dashboardet"
+          "languageDescription": "Vælg sproget for dashboardet",
+          "timezone": "Tidszone",
+          "timezoneDescription": "Bruges til datoer og grafer på tværs af dine dashboards",
+          "timezoneAuto": "Registrer automatisk",
+          "timezoneUndetected": "Din browser oplyser ingen tidszone, så data vises i UTC. Vælg din tidszone for at rette det.",
+          "timezoneSearch": "Søg i tidszoner...",
+          "timezoneEmpty": "Ingen tidszone fundet."
         },
         "notifications": {
           "title": "Notifikationer",
@@ -3111,6 +3121,8 @@
       "danger": {
         "sectionTitle": "Farezone",
         "details": "Slet din konto og alle tilknyttede data permanent.",
+        "lastAdmin": "Du kan ikke slette denne konto, fordi den er den eneste administrator på denne instans. Hvis den slettes, står instansen uden administrator.",
+        "lastUser": "Du er den eneste bruger på denne instans, så denne konto kan ikke slettes.",
         "delete": "Slet konto",
         "dialog": {
           "title": "Slet konto permanent",
@@ -3265,6 +3277,13 @@
         "feature3": {
           "title": "Privatliv først & open source",
           "description": "Cookieless, GDPR‑kompatibel og EU‑hostet. Gennemsigtigt og sikkert."
+        },
+        "feature2SelfHosted": {
+          "title": "Dine data, din server",
+          "description": "Kører på din egen infrastruktur, under din kontrol."
+        },
+        "feature3SelfHosted": {
+          "description": "Cookieless og GDPR‑kompatibel. Gennemsigtigt og sikkert."
         }
       },
       "form": {
@@ -3289,7 +3308,8 @@
         "signUpError": "Der opstod en fejl under tilmelding. Prøv igen.",
         "checkInput": "Tjek venligst dit input",
         "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
-        "invitedToHint": "Du er inviteret til at deltage i {domain}"
+        "invitedToHint": "Du er inviteret til at deltage i {domain}",
+        "firstUserHint": "Dette er den første konto på denne instans. Den bliver administrator for instansen."
       }
     },
     "website": {
@@ -3365,6 +3385,10 @@
       "statusPageCustomDomain": "Eget domæne kræver en Professional plan",
       "statusPageBranding": "Fjernelse af Betterlytics-branding kræver en Professional plan"
     },
+    "account": {
+      "lastAdminCannotBeDeleted": "Den eneste administratorkonto på denne instans kan ikke slettes.",
+      "lastUserCannotBeDeleted": "Den eneste brugerkonto på denne instans kan ikke slettes."
+    },
     "invitations": {
       "userAlreadyHasAccess": "Brugeren har allerede adgang til dette dashboard",
       "memberLimitReached": "Din plan tillader op til {limit} team-medlemmer på dette dashboard. Opgrader for at invitere flere.",
@@ -3399,6 +3423,11 @@
       "title": "Integration ikke detected",
       "description": "Dit dashboard er klar, men vi har endnu ikke modtaget data fra dit website. Gennemfør integrationsopsætningen for at begynde at spore besøgende.",
       "setup": "Integrationsopsætning"
+    },
+    "timezoneFallback": {
+      "title": "Tidszone ikke registreret",
+      "description": "Din browser oplyser ingen tidszone, så data vises i UTC.",
+      "action": "Vælg tidszone"
     },
     "webVitalsNoData": {
       "title": "Ingen Core Web Vitals data endnu",
@@ -3819,7 +3848,11 @@
       },
       "expires": "Udløber {date}",
       "expired": "Udløbet {date}",
-      "neverExpires": "Udløber aldrig"
+      "neverExpires": "Udløber aldrig",
+      "endpointLabel": "Server-URL",
+      "endpointHint": "Peg din MCP-klient mod denne URL, og send din token som bearer-token. <link>Opsætningsguides til hver klient</link>",
+      "copyEndpoint": "Kopier server-URL",
+      "endpointCopied": "Server-URL kopieret"
     },
     "toast": {
       "created": "Token oprettet",
@@ -3864,6 +3897,7 @@
       }
     },
     "moreIntegrations": "Har du brug for en anden integration? Kontakt os, så overvejer vi at tilføje den.",
+    "moreIntegrationsSelfHosted": "Har du brug for en anden integration? <link>Foreslå den på GitHub</link>.",
     "history": {
       "title": "Notifikationslog",
       "button": "Notifikationslog",
@@ -3958,9 +3992,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://eksempel.dk/webhook",
       "webhookHint": "Indtast en offentligt tilgængelig HTTPS URL. Notifikationer sendes som JSON POST-anmodninger med felterne title, message, url og url_title.",
+      "webhookHintPrivate": "Indtast en HTTP- eller HTTPS URL. Denne instans kan nå adresser på private netværk. Notifikationer sendes som JSON POST-anmodninger med felterne title, message, url og url_title.",
       "errors": {
         "webhookUrlRequired": "Webhook URL er påkrævet",
-        "webhookUrlInvalid": "Skal være en gyldig HTTPS URL"
+        "webhookUrlInvalid": "Skal være en gyldig HTTPS URL",
+        "webhookUrlInvalidHttp": "Skal være en gyldig HTTP- eller HTTPS URL"
       },
       "cancel": "Annuller",
       "save": "Gem"

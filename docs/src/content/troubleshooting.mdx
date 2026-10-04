@@ -33,12 +33,25 @@ The most common cause of missing data is that the snippet never made it into the
 
 **Check the rendered HTML, not your source file.** Open your live site, hit `Ctrl/Cmd + U`, and search the page source for `analytics.js`. You should see something like:
 
+<Tabs items={['Cloud', 'Self-hosted']}>
+<Tabs.Tab>
 ```html
 <script async
     src="https://betterlytics.io/analytics.js"
     data-site-id="your-site-id">
 </script>
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```html
+<script async
+    src="https://analytics.example.com/analytics.js"
+    data-site-id="your-site-id"
+    data-server-url="https://analytics.example.com/event">
+</script>
+```
+</Tabs.Tab>
+</Tabs>
 
 If you don't see it:
 
@@ -96,12 +109,22 @@ The share of real visitors affected by this is small, but never zero for any ana
 
 If your site sets a `Content-Security-Policy` header, the browser will silently refuse to load or call out to any host not on the allowlist. Open the **Console tab** and look for CSP violations, which show up as red error messages mentioning `script-src` or `connect-src`.
 
-For the hosted service, you need to allow:
+Allow the origin your tracking script loads from and sends data to:
 
+<Tabs items={['Cloud', 'Self-hosted']}>
+<Tabs.Tab>
 ```text
 script-src 'self' https://betterlytics.io;
 connect-src 'self' https://betterlytics.io;
 ```
+</Tabs.Tab>
+<Tabs.Tab>
+```text
+script-src 'self' https://analytics.example.com;
+connect-src 'self' https://analytics.example.com;
+```
+</Tabs.Tab>
+</Tabs>
 
 If you also use [Session Replay](/integration/session-replay) or [Web Vitals](/integration/web-vitals), the replay/web-vitals scripts load from the same origin, so the same allowlist covers them.
 
@@ -154,13 +177,16 @@ For frameworks that ship with their own analytics-friendly conventions (Next.js 
 
 If page views work but [custom events](/integration/custom-events) don't, the usual cause is that `betterlytics.event(...)` ran **before** the async script finished loading.
 
-If you load `analytics.js` with `async`, add this snippet **before** the analytics script tag so calls made during page load are queued and flushed once the script is ready:
+If you load `analytics.js` with `async`, add this snippet **before** the analytics script tag so `event()` and `setGlobalProperties()` calls made during page load are queued and flushed once the script is ready:
 
 ```html
 <script>
   window.betterlytics = window.betterlytics || {
     event: function () {
       (window.betterlytics.q = window.betterlytics.q || []).push(arguments);
+    },
+    setGlobalProperties: function () {
+      (window.betterlytics.gq = window.betterlytics.gq || []).push(arguments);
     }
   };
 </script>

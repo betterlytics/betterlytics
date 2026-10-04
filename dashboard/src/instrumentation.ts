@@ -31,6 +31,13 @@ async function registerBackgroundJobs() {
       return;
     }
     console.info('[instrumentation] Starting embedded worker...');
+    try {
+      await import('@/lib/env/worker.env');
+    } catch (error) {
+      // Next only logs instrumentation failures and keeps serving 500s; exit so supervisord stops the container
+      console.error('[instrumentation]', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
     const { startEmbeddedWorker } = await import('@/worker/embedded');
     await startEmbeddedWorker();
     console.info('[instrumentation] Embedded worker started.');

@@ -19,6 +19,7 @@ import {
   fetchRecentMonitorResults,
 } from '@/services/analytics/monitoring.service';
 import { toMonitorUptimePresentation } from '@/presenters/toMonitorUptimeDays';
+import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
 import { revalidatePath } from 'next/cache';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { isUrlOnDomain } from '@/utils/domainValidation';
@@ -29,7 +30,7 @@ import { monitoringValidator } from '@/lib/billing/validators';
 import z from 'zod';
 
 export const fetchMonitorChecksAction = withDashboardAuthContext(async (ctx: AuthContext, timezone: string) => {
-  return await getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId, timezone);
+  return await getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId, BATimeZone.parse(timezone));
 });
 
 export const fetchMonitorCheckAction = withDashboardAuthContext(
@@ -114,7 +115,7 @@ export const deleteMonitorCheckAction = withDashboardMutationAuthContext(
 
 export const fetchMonitorMetricsAction = withDashboardAuthContext(
   async (ctx: AuthContext, monitorId: string, timezone: string) =>
-    await fetchMonitorMetrics(ctx.dashboardId, monitorId, ctx.siteId, timezone),
+    await fetchMonitorMetrics(ctx.dashboardId, monitorId, ctx.siteId, BATimeZone.parse(timezone)),
 );
 
 export const fetchRecentMonitorResultsAction = withDashboardAuthContext(
@@ -135,7 +136,8 @@ export const fetchLatestMonitorTlsResultAction = withDashboardAuthContext(
 export const fetchMonitorUptimeAction = withDashboardAuthContext(
   async (ctx: AuthContext, monitorId: string, timezone: string, days?: number) => {
     const totalDays = typeof days === 'number' ? days : 180;
-    const rows = await fetchMonitorDailyUptime(monitorId, ctx.dashboardId, ctx.siteId, timezone, totalDays);
-    return toMonitorUptimePresentation(rows, totalDays);
+    const tz = BATimeZone.parse(timezone);
+    const rows = await fetchMonitorDailyUptime(monitorId, ctx.dashboardId, ctx.siteId, tz, totalDays);
+    return toMonitorUptimePresentation(rows, tz, totalDays);
   },
 );

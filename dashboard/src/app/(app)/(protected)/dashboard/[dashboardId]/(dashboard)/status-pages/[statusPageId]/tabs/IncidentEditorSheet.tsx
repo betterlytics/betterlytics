@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
+import moment from 'moment-timezone';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Pencil, Plus, Trash2, X } from 'lucide-react';
@@ -8,6 +9,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { useDisplayHour12 } from '@/hooks/use-display-hour12';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { DateTimePicker } from '@/components/ui/date-time-picker';
@@ -82,26 +84,29 @@ export type IncidentEditorSeed = {
   pending: PendingUpdate[];
 };
 
-function pad(n: number): string {
-  return String(n).padStart(2, '0');
+const ZONE_INPUT_FORMAT = 'YYYY-MM-DDTHH:mm';
+
+// Composer time is the zone's wall clock at minute precision
+function toZoneInput(date: Date, timeZone: string): string {
+  return moment.tz(date, timeZone).format(ZONE_INPUT_FORMAT);
 }
 
-function toLocalInput(date: Date): string {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+function fromZoneInput(value: string, timeZone: string): Date {
+  return moment.tz(value, ZONE_INPUT_FORMAT, timeZone).toDate();
 }
 
 function emptyForm(): IncidentForm {
   return { id: null, detectedIncidentId: null, title: '', description: '', impact: 'degraded', monitorCheckIds: [] };
 }
 
-function emptyComposer(): Composer {
-  return { status: 'investigating', message: '', timeLocal: toLocalInput(new Date()) };
+function emptyComposer(timeZone: string): Composer {
+  return { status: 'investigating', message: '', timeLocal: toZoneInput(new Date(), timeZone) };
 }
 
-export function editorSeedForCreate(): IncidentEditorSeed {
+export function editorSeedForCreate(timeZone: string): IncidentEditorSeed {
   return {
     form: emptyForm(),
-    composer: emptyComposer(),
+    composer: emptyComposer(timeZone),
     status: 'investigating',
     pending: [
       { tempId: 'seed-opening', status: 'investigating', message: '', occurredAtIso: new Date().toISOString() },
@@ -109,7 +114,7 @@ export function editorSeedForCreate(): IncidentEditorSeed {
   };
 }
 
-export function editorSeedForIncident(incident: StatusPageIncident): IncidentEditorSeed {
+export function editorSeedForIncident(incident: StatusPageIncident, timeZone: string): IncidentEditorSeed {
   return {
     form: {
       id: incident.id,
@@ -119,13 +124,17 @@ export function editorSeedForIncident(incident: StatusPageIncident): IncidentEdi
       impact: incident.impact,
       monitorCheckIds: incident.monitorCheckIds,
     },
-    composer: { ...emptyComposer(), status: incident.status },
+    composer: { ...emptyComposer(timeZone), status: incident.status },
     status: incident.status,
     pending: [],
   };
 }
 
-export function editorSeedForSuggestion(suggestion: DetectedOutageSuggestion, title: string): IncidentEditorSeed {
+export function editorSeedForSuggestion(
+  suggestion: DetectedOutageSuggestion,
+  title: string,
+  timeZone: string,
+): IncidentEditorSeed {
   const resolved = !suggestion.ongoing && suggestion.resolvedAt != null;
   return {
     form: {
@@ -135,7 +144,7 @@ export function editorSeedForSuggestion(suggestion: DetectedOutageSuggestion, ti
       impact: suggestion.suggestedImpact,
       monitorCheckIds: suggestion.monitors.map((monitor) => monitor.monitorCheckId),
     },
-    composer: emptyComposer(),
+    composer: emptyComposer(timeZone),
     status: 'investigating',
     pending: [
       {
@@ -184,12 +193,18 @@ export function IncidentEditorSheet({
   const t = useTranslations('statusPagesPage.editor.incidents');
   const locale = useLocale() as SupportedLanguages;
   const hour12 = useDisplayHour12();
+  const { timeZone } = useTimeRangeContext();
   const todayLabel = t('timeline.today');
   const yesterdayLabel = t('timeline.yesterday');
   const formatIncidentEntry = useMemo(
     () =>
-      createIncidentEntryFormatter({ locale, hour12, labels: { today: todayLabel, yesterday: yesterdayLabel } }),
-    [locale, hour12, todayLabel, yesterdayLabel],
+      createIncidentEntryFormatter({
+        locale,
+        hour12,
+        timeZone,
+        labels: { today: todayLabel, yesterday: yesterdayLabel },
+      }),
+    [locale, hour12, timeZone, todayLabel, yesterdayLabel],
   );
 
   const [form, setForm] = useState<IncidentForm>(seed.form);
@@ -279,7 +294,7 @@ export function IncidentEditorSheet({
       occurredAtIso: withEntrySeconds(composer.timeLocal).toISOString(),
     };
     setPendingUpdates((list) => [...list, staged]);
-    setComposer((c) => ({ ...c, message: '', timeLocal: toLocalInput(new Date()) }));
+    setComposer((c) => ({ ...c, message: '', timeLocal: toZoneInput(new Date(), timeZone) }));
   };
 
   const removePendingUpdate = (tempId: string) =>
@@ -347,7 +362,7 @@ export function IncidentEditorSheet({
   // arbitrarily; bump the hidden seconds past any same-minute row so insertion order
   // survives sorting here, in the DB, and on the public page.
   const withEntrySeconds = (minuteLocal: string): Date => {
-    const date = new Date(minuteLocal);
+    const date = fromZoneInput(minuteLocal, timeZone);
     const minute = Math.floor(date.getTime() / 60_000);
     const takenSeconds = timelineRows
       .filter((row) => Math.floor(row.date.getTime() / 60_000) === minute)
@@ -515,9 +530,10 @@ export function IncidentEditorSheet({
                   <div className='space-y-1.5'>
                     <div className='text-xs font-medium'>{t('composer.time')}</div>
                     <DateTimePicker
-                      value={new Date(composer.timeLocal)}
-                      onChange={(date) => setComposer((c) => ({ ...c, timeLocal: toLocalInput(date) }))}
+                      value={fromZoneInput(composer.timeLocal, timeZone)}
+                      onChange={(date) => setComposer((c) => ({ ...c, timeLocal: toZoneInput(date, timeZone) }))}
                       locale={locale}
+                      timeZone={timeZone}
                       dateLabel={t('composer.time')}
                       timeLabel={t('composer.time')}
                     />

@@ -150,7 +150,7 @@
           },
           "freePlan": {
             "question": "Cosa include il piano gratuito?",
-            "answer": "Il piano auto-ospitato gratuito include fino a 10.000 eventi tracciati, accesso completo alla dashboard e supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo."
+            "answer": "Il piano Cloud gratuito include fino a 10.000 eventi tracciati, accesso completo alla dashboard e supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo. L'auto-hosting è gratuito senza limite di eventi."
           },
           "cloud": {
             "question": "Come funziona l'hosting cloud?",
@@ -786,6 +786,11 @@
             "Analisi Conforme al GDPR"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Crea il tuo account | Betterlytics",
+          "description": "Crea il tuo account su questa istanza di Betterlytics.",
+          "keywords": ["Crea account", "Registrati"]
+        },
         "title": "Crea il tuo account",
         "subtitle": "Inizia a tracciare le tue analitiche oggi",
         "cta": {
@@ -794,7 +799,6 @@
         },
         "disabled": {
           "title": "Registrazione disabilitata",
-          "description": "La registrazione è attualmente disabilitata su questa istanza.",
           "backToSignIn": "Torna all'accesso"
         }
       },
@@ -1044,7 +1048,7 @@
             "features": {
               "f1": "Distribuzione Docker",
               "f2": "Controllo completo",
-              "f3": "Conforme GDPR"
+              "f3": "Tutte le funzionalità incluse"
             }
           }
         },
@@ -2962,7 +2966,13 @@
         "localization": {
           "title": "Localizzazione",
           "language": "Lingua",
-          "languageDescription": "Scegli la lingua della dashboard"
+          "languageDescription": "Scegli la lingua della dashboard",
+          "timezone": "Fuso orario",
+          "timezoneDescription": "Usato per date e grafici in tutte le tue dashboard",
+          "timezoneAuto": "Rilevamento automatico",
+          "timezoneUndetected": "Il tuo browser non indica un fuso orario, quindi i dati sono mostrati in UTC. Scegli il tuo fuso orario per risolvere.",
+          "timezoneSearch": "Cerca fusi orari...",
+          "timezoneEmpty": "Nessun fuso orario trovato."
         },
         "notifications": {
           "title": "Notifiche",
@@ -3111,6 +3121,8 @@
       "danger": {
         "sectionTitle": "Zona pericolosa",
         "details": "Elimina definitivamente il tuo account e tutti i dati associati.",
+        "lastAdmin": "Non puoi eliminare questo account perché è l'unico amministratore di questa istanza. Eliminarlo lascerebbe l'istanza senza amministratore.",
+        "lastUser": "Sei l'unico utente di questa istanza, quindi questo account non può essere eliminato.",
         "delete": "Elimina account",
         "dialog": {
           "title": "Elimina account definitivamente",
@@ -3265,6 +3277,13 @@
         "feature3": {
           "title": "Privacy‑first e open source",
           "description": "Senza cookie, conforme al GDPR e ospitato nell'UE. Trasparente e sicuro."
+        },
+        "feature2SelfHosted": {
+          "title": "I tuoi dati, il tuo server",
+          "description": "Funziona sulla tua infrastruttura, sotto il tuo controllo."
+        },
+        "feature3SelfHosted": {
+          "description": "Senza cookie e conforme al GDPR. Trasparente e sicuro."
         }
       },
       "form": {
@@ -3289,7 +3308,8 @@
         "signUpError": "Si è verificato un errore durante la registrazione. Riprova.",
         "checkInput": "Controlla il tuo input",
         "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi un invito al proprietario di una dashboard.",
-        "invitedToHint": "Sei stato invitato a unirti a {domain}"
+        "invitedToHint": "Sei stato invitato a unirti a {domain}",
+        "firstUserHint": "Questo è il primo account su questa istanza. Diventerà l'amministratore dell'istanza."
       }
     },
     "website": {
@@ -3365,6 +3385,10 @@
       "statusPageCustomDomain": "I domini personalizzati richiedono un piano Professional",
       "statusPageBranding": "La rimozione del branding Betterlytics richiede un piano Professional"
     },
+    "account": {
+      "lastAdminCannotBeDeleted": "L'unico account amministratore di questa istanza non può essere eliminato.",
+      "lastUserCannotBeDeleted": "L'unico account utente di questa istanza non può essere eliminato."
+    },
     "invitations": {
       "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
       "memberLimitReached": "Il tuo piano consente fino a {limit} membri del team su questa dashboard. Effettua l'upgrade per invitare altri.",
@@ -3389,6 +3413,11 @@
       "title": "Integrazione non rilevata",
       "description": "La tua dashboard è pronta, ma non stiamo ancora ricevendo dati dal tuo sito web. Completa la configurazione dell'integrazione per iniziare a tracciare i visitatori.",
       "setup": "Configura integrazione"
+    },
+    "timezoneFallback": {
+      "title": "Fuso orario non rilevato",
+      "description": "Il tuo browser non indica un fuso orario, quindi i dati sono mostrati in UTC.",
+      "action": "Imposta fuso orario"
     },
     "usageAlert": {
       "title": "Limite di eventi in avvicinamento",
@@ -3819,7 +3848,11 @@
       },
       "expires": "Scade {date}",
       "expired": "Scaduto {date}",
-      "neverExpires": "Non scade mai"
+      "neverExpires": "Non scade mai",
+      "endpointLabel": "URL del server",
+      "endpointHint": "Configura il tuo client MCP con questo URL e invia il token come bearer token. <link>Guide di configurazione per ogni client</link>",
+      "copyEndpoint": "Copia URL del server",
+      "endpointCopied": "URL del server copiato"
     },
     "toast": {
       "created": "Token creato",
@@ -3864,6 +3897,7 @@
       }
     },
     "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
+    "moreIntegrationsSelfHosted": "Hai bisogno di un'integrazione diversa? <link>Richiedila su GitHub</link>.",
     "history": {
       "title": "Registro notifiche",
       "button": "Registro notifiche",
@@ -3958,9 +3992,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://esempio.com/webhook",
       "webhookHint": "Inserisci un URL HTTPS accessibile pubblicamente. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
+      "webhookHintPrivate": "Inserisci un URL HTTP o HTTPS. Questa istanza può raggiungere indirizzi di rete privati. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
       "errors": {
         "webhookUrlRequired": "Il webhook URL è obbligatorio",
-        "webhookUrlInvalid": "Deve essere un URL HTTPS valido"
+        "webhookUrlInvalid": "Deve essere un URL HTTPS valido",
+        "webhookUrlInvalidHttp": "Deve essere un URL HTTP o HTTPS valido"
       },
       "cancel": "Annulla",
       "save": "Salva"

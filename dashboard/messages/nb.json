@@ -150,7 +150,7 @@
           },
           "freePlan": {
             "question": "Hva er inkludert i gratisplanen?",
-            "answer": "Den gratis selvhostede planen inkluderer opptil 10 000 sporede hendelser, full dashboard-tilgang og fellesskapsstøtte. Perfekt for å komme i gang! Ingen kredittkort kreves, ingen bindingstid."
+            "answer": "Den gratis Cloud-planen inkluderer opptil 10 000 sporede hendelser, full dashboard-tilgang og fellesskapsstøtte. Perfekt for å komme i gang! Ingen kredittkort kreves, ingen bindingstid. Selvhosting er gratis uten grense for hendelser."
           },
           "cloud": {
             "question": "Hvordan fungerer skyløsningen?",
@@ -757,15 +757,15 @@
             "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
             "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
             "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
-            "invalidBackupCode": "Ugyldig sikkerhetskode. Prøv igjen.",
+            "invalidBackupCode": "Ugyldig reservekode. Prøv igjen.",
             "twoFactorExpired": "Innloggingsforsøket ditt har utløpt. Logg inn på nytt."
           },
           "twoFactor": {
             "title": "Tofaktorautentisering",
             "description": "Skriv inn verifiseringskoden fra autentiseringsappen din.",
             "cancel": "Avbryt",
-            "backupCodeDescription": "Skriv inn en av sikkerhetskodene dine. Hver kode kan bare brukes én gang.",
-            "useBackupCode": "Bruk en sikkerhetskode i stedet",
+            "backupCodeDescription": "Skriv inn en av reservekodene dine. Hver kode kan bare brukes én gang.",
+            "useBackupCode": "Bruk en reservekode i stedet",
             "useAuthenticator": "Bruk autentiseringsappen i stedet",
             "verify": "Bekreft"
           }
@@ -786,6 +786,11 @@
             "GDPR-kompatibel analyse"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Opprett kontoen din | Betterlytics",
+          "description": "Opprett kontoen din på denne Betterlytics-instansen.",
+          "keywords": ["Opprett konto", "Registrer deg"]
+        },
         "title": "Opprett kontoen din",
         "subtitle": "Kom i gang gratis — sett opp analyse på få minutter",
         "cta": {
@@ -794,7 +799,6 @@
         },
         "disabled": {
           "title": "Registrering deaktivert",
-          "description": "Registrering er for øyeblikket deaktivert på denne instansen.",
           "backToSignIn": "Tilbake til innlogging"
         }
       },
@@ -1044,7 +1048,7 @@
             "features": {
               "f1": "Docker-utrulling",
               "f2": "Full kontroll",
-              "f3": "GDPR-kompatibel"
+              "f3": "Alle funksjoner inkludert"
             }
           }
         },
@@ -1233,7 +1237,7 @@
         },
         "errorTracking": {
           "title": "Feilsporing",
-          "description": "Fang automatisk opp klientside-feil og grupper dem med stack traces og session replay-lenker, slik at du raskt kan gjenskape og fikse feil."
+          "description": "Fang automatisk opp klientsidefeil og grupper dem med stack traces og lenker til sesjonsavspillinger, slik at du raskt kan gjenskape og fikse feil."
         },
         "userJourneys": {
           "title": "Brukerreiser",
@@ -1449,7 +1453,7 @@
       "retention5PlusYears": "5+ år datalagring",
       "fullDashboard": "Komplett web-analytics dashboard",
       "funnelsJourneys": "Funnels og brukerreiser",
-      "sessionReplay": "Session replay",
+      "sessionReplay": "Sesjonsavspilling",
       "errorTracking": "Feilsporing",
       "uptime1": "1 oppetidsmonitor og offentlig statusside",
       "uptime50": "50 oppetidsmonitorer med 1-minutts sjekker",
@@ -1526,7 +1530,7 @@
         "name": "Alle dashboardfunksjoner"
       },
       "sessionReplay": {
-        "name": "Sesjonsopptak"
+        "name": "Sesjonsavspilling"
       },
       "funnels": {
         "name": "Trakter og konverteringer"
@@ -1611,7 +1615,7 @@
       "subtitle": "Hver plan kommer med hele analysepakken vår",
       "items": {
         "realtimeAnalytics": "Sanntidsanalyse",
-        "sessionReplay": "Sesjonsopptak",
+        "sessionReplay": "Sesjonsavspilling",
         "geographicInsights": "Geografisk innsikt",
         "trafficSources": "Trafikkilder",
         "utmCampaigns": "UTM-kampanjesporing",
@@ -2962,7 +2966,13 @@
         "localization": {
           "title": "Lokalisering",
           "language": "Språk",
-          "languageDescription": "Velg språk for dashbordet"
+          "languageDescription": "Velg språk for dashbordet",
+          "timezone": "Tidssone",
+          "timezoneDescription": "Brukes for datoer og grafer i alle dashbordene dine",
+          "timezoneAuto": "Oppdag automatisk",
+          "timezoneUndetected": "Nettleseren din oppgir ingen tidssone, så data vises i UTC. Velg tidssonen din for å rette dette.",
+          "timezoneSearch": "Søk etter tidssoner...",
+          "timezoneEmpty": "Fant ingen tidssone."
         },
         "notifications": {
           "title": "Varsler",
@@ -3079,15 +3089,15 @@
           "passwordPromptTitle": "Bekreft passordet ditt",
           "passwordPromptDescription": "Skriv inn passordet ditt for å fortsette.",
           "passwordLabel": "Passord",
-          "backupCodesTitle": "Sikkerhetskoder",
+          "backupCodesTitle": "Reservekoder",
           "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted. De lar deg logge inn hvis du mister autentiseringsappen.",
           "copyCodes": "Kopier",
           "downloadCodes": "Last ned",
           "backupCodesDone": "Jeg har lagret kodene mine",
-          "regenerateTitle": "Generer nye sikkerhetskoder",
-          "regenerateDescription": "Dette erstatter alle eksisterende sikkerhetskoder. Skriv inn passordet ditt for å fortsette.",
+          "regenerateTitle": "Generer nye reservekoder",
+          "regenerateDescription": "Dette erstatter alle eksisterende reservekoder. Skriv inn passordet ditt for å fortsette.",
           "regenerate": "Generer nye",
-          "regenerateFailed": "Kunne ikke generere nye sikkerhetskoder. Prøv igjen.",
+          "regenerateFailed": "Kunne ikke generere nye reservekoder. Prøv igjen.",
           "backupCodesWarning": "Hver kode virker én gang. De vises ikke igjen etter at du lukker dette.",
           "copied": "Kopiert",
           "backupCodesRowDescription": "Engangskoder som lar deg logge inn hvis du mister autentiseringsappen. Oppbevar dem like trygt som passordet ditt."
@@ -3111,6 +3121,8 @@
       "danger": {
         "sectionTitle": "Faresone",
         "details": "Slett kontoen din og alle tilknyttede data permanent.",
+        "lastAdmin": "Du kan ikke slette denne kontoen fordi den er den eneste administratoren på denne instansen. Hvis den slettes, står instansen uten administrator.",
+        "lastUser": "Du er den eneste brukeren på denne instansen, så denne kontoen kan ikke slettes.",
         "delete": "Slett konto",
         "dialog": {
           "title": "Slett konto permanent",
@@ -3265,6 +3277,13 @@
         "feature3": {
           "title": "Personvern først og åpen kildekode",
           "description": "Informasjonskapselfri, GDPR-kompatibel og hostet i EU. Transparent og sikker."
+        },
+        "feature2SelfHosted": {
+          "title": "Dine data, din server",
+          "description": "Kjører på din egen infrastruktur, under din kontroll."
+        },
+        "feature3SelfHosted": {
+          "description": "Informasjonskapselfri og GDPR-kompatibel. Transparent og sikker."
         }
       },
       "form": {
@@ -3289,7 +3308,8 @@
         "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
         "checkInput": "Vennligst sjekk inndataene dine",
         "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
-        "invitedToHint": "Du er invitert til å bli med i {domain}"
+        "invitedToHint": "Du er invitert til å bli med i {domain}",
+        "firstUserHint": "Dette er den første kontoen på denne instansen. Den blir administrator for instansen."
       }
     },
     "website": {
@@ -3365,6 +3385,10 @@
       "statusPageCustomDomain": "Eget domene krever en profesjonell plan",
       "statusPageBranding": "Å fjerne Betterlytics-merking krever en profesjonell plan"
     },
+    "account": {
+      "lastAdminCannotBeDeleted": "Den eneste administratorkontoen på denne instansen kan ikke slettes.",
+      "lastUserCannotBeDeleted": "Den eneste brukerkontoen på denne instansen kan ikke slettes."
+    },
     "invitations": {
       "userAlreadyHasAccess": "Brukeren har allerede tilgang til dette dashboardet",
       "memberLimitReached": "Planen din tillater opptil {limit} teammedlemmer på dette dashboardet. Oppgrader for å invitere flere.",
@@ -3389,6 +3413,11 @@
       "title": "Integrasjon ikke oppdaget",
       "description": "Dashboardet ditt er klart, men vi har ikke mottatt data fra nettstedet ditt ennå. Fullfør integrasjonsoppsettet for å begynne å spore besøkende.",
       "setup": "Integrasjonsoppsett"
+    },
+    "timezoneFallback": {
+      "title": "Tidssone ikke oppdaget",
+      "description": "Nettleseren din oppgir ingen tidssone, så data vises i UTC.",
+      "action": "Velg tidssone"
     },
     "usageAlert": {
       "title": "Nærmer seg hendelsesgrense",
@@ -3420,8 +3449,8 @@
         "description": "Statussider kan settes opp, men de publiseres ikke før oppetidsovervåking er aktivert."
       },
       "sessionReplay": {
-        "title": "Øktopptak er ikke aktivert på denne instansen",
-        "description": "Ingen økter tas opp før det er aktivert."
+        "title": "Sesjonsavspilling er ikke aktivert på denne instansen",
+        "description": "Ingen sesjoner tas opp før funksjonen er aktivert."
       },
       "geography": {
         "title": "Geolokasjon er ikke aktivert på denne instansen",
@@ -3819,7 +3848,11 @@
       },
       "expires": "Utløper {date}",
       "expired": "Utløpt {date}",
-      "neverExpires": "Utløper aldri"
+      "neverExpires": "Utløper aldri",
+      "endpointLabel": "Server-URL",
+      "endpointHint": "Pek MCP-klienten din mot denne URL-en og send nøkkelen som bearer-token. <link>Oppsettsguider for hver klient</link>",
+      "copyEndpoint": "Kopier server-URL",
+      "endpointCopied": "Server-URL kopiert"
     },
     "toast": {
       "created": "Nøkkel opprettet",
@@ -3864,6 +3897,7 @@
       }
     },
     "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
+    "moreIntegrationsSelfHosted": "Trenger du en annen integrasjon? <link>Be om den på GitHub</link>.",
     "history": {
       "title": "Varselslogg",
       "button": "Varselslogg",
@@ -3958,9 +3992,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://eksempel.no/webhook",
       "webhookHint": "Skriv inn en offentlig tilgjengelig HTTPS URL. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
+      "webhookHintPrivate": "Skriv inn en HTTP- eller HTTPS URL. Denne instansen kan nå adresser i private nettverk. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
       "errors": {
         "webhookUrlRequired": "Webhook URL er påkrevd",
-        "webhookUrlInvalid": "Må være en gyldig HTTPS URL"
+        "webhookUrlInvalid": "Må være en gyldig HTTPS URL",
+        "webhookUrlInvalidHttp": "Må være en gyldig HTTP- eller HTTPS URL"
       },
       "cancel": "Avbryt",
       "save": "Lagre"
@@ -4045,10 +4081,10 @@
         "occurrenceHistory": "Historikk",
         "browsers": "Nettlesere",
         "deviceType": "Enhetstype",
-        "watchReplay": "Se siste øktopptak",
+        "watchReplay": "Se siste sesjonsavspilling",
         "watchReplayDescription": "Se hva brukeren gjorde før feilen",
-        "noReplay": "Ingen session replay for denne feilen",
-        "noReplayDescription": "Replay viser hva brukere gjorde før en feil oppstod.",
+        "noReplay": "Ingen sesjonsavspilling for denne feilen",
+        "noReplayDescription": "Sesjonsavspilling viser hva brukere gjorde før en feil oppstod.",
         "learnMore": "Lær mer"
       },
       "navigator": {
@@ -4069,7 +4105,7 @@
       "sessionTrail": {
         "title": "Øktforløp",
         "eventCount": "{count, plural, one {# hendelse} other {# hendelser}} i denne økten",
-        "watchReplay": "Se replay"
+        "watchReplay": "Se sesjonsavspilling"
       },
       "occurrence": {
         "browser": "Nettleser",
