@@ -3,7 +3,7 @@
     "root": {
       "seo": {
         "title": "Betterlytics: analisi web, session replay, errori e uptime",
-        "description": "Betterlytics riunisce analisi web, replay delle sessioni, tracciamento errori, Core Web Vitals e monitoraggio uptime in un unico strumento open source. Senza cookie e ospitato nell’UE."
+        "description": "Betterlytics riunisce analisi web, session replay, tracciamento errori, Core Web Vitals e monitoraggio uptime in un unico strumento open source. Senza cookie e ospitato nell’UE."
       }
     },
     "notFound": {
@@ -300,7 +300,7 @@
         "footer2": "Impegnati per privacy, trasparenza e conformità al GDPR",
         "termsLink": "Termini di Servizio",
         "dpaLink": "Accordo sul Trattamento dei Dati",
-        "subprocessorsLink": "Sottoprocessori"
+        "subprocessorsLink": "Sub-responsabili"
       }
     },
     "terms": {
@@ -524,12 +524,12 @@
         "li4": "Eliminare tutti i dati analitici immediatamente al momento dell’eliminazione dell’account."
       },
       "subprocessors": {
-        "title": "Sottoprocessori",
-        "intro": "Betterlytics può coinvolgere sottoprocessori per eseguire parti del trattamento, tra cui:",
+        "title": "Sub-responsabili del trattamento",
+        "intro": "Betterlytics può coinvolgere sub-responsabili del trattamento per eseguire parti del trattamento, tra cui:",
         "li1": "Fornitori di hosting e infrastruttura cloud con sede nell’UE",
         "li2": "Processori di pagamento (per la fatturazione dell’account)",
         "li3": "Servizi di invio email",
-        "notice": "Betterlytics mantiene un elenco aggiornato dei sottoprocessori su betterlytics.io/Sottoprocessori e informerà il Titolare del trattamento di eventuali aggiunte o modifiche."
+        "notice": "Betterlytics mantiene un elenco aggiornato dei sub-responsabili del trattamento su betterlytics.io/subprocessors e informerà il Titolare del trattamento di eventuali aggiunte o modifiche."
       },
       "rights": {
         "title": "Diritti degli interessati",
@@ -569,16 +569,16 @@
         "footer": "Questo DPA è accettato automaticamente quando utilizzi Betterlytics e fa parte dei nostri Termini di Servizio. 🇪🇺 Analitiche anonime per progettazione - Prodotto e ospitato nell’Unione Europea",
         "termsLink": "Termini di Servizio",
         "privacyLink": "Informativa sulla Privacy",
-        "subprocessorsLink": "Sottoprocessori"
+        "subprocessorsLink": "Sub-responsabili"
       }
     },
     "subprocessors": {
       "seo": {
-        "title": "Sottoprocessori | Betterlytics",
-        "description": "Visualizza l'elenco completo dei Sottoprocessori di Betterlytics. Scopri come garantiamo la conformità al GDPR attraverso fornitori di servizi UE attentamente selezionati."
+        "title": "Sub-responsabili del trattamento | Betterlytics",
+        "description": "Visualizza l’elenco completo dei sub-responsabili del trattamento di Betterlytics. Scopri come garantiamo la conformità al GDPR attraverso fornitori di servizi UE attentamente selezionati."
       },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
-      "title": "Sottoprocessori",
+      "title": "Sub-responsabili del trattamento",
       "lastUpdated": "Ultimo aggiornamento:",
       "intro": "Betterlytics si avvale di un numero limitato di fornitori di servizi terzi (sub-responsabili) attentamente selezionati per contribuire a fornire la nostra piattaforma di analytics. Questa pagina elenca tutti i sub-responsabili che possono trattare dati per conto dei nostri clienti.",
       "commitment": {
@@ -641,7 +641,7 @@
       "signin": {
         "seo": {
           "title": "Accedi | Betterlytics",
-          "description": "Accedi a Betterlytics per vedere traffico, replay delle sessioni, errori e uptime del tuo sito in un’unica dashboard."
+          "description": "Accedi a Betterlytics per vedere traffico, session replay, errori e uptime del tuo sito in un’unica dashboard."
         },
         "title": "Accedi al tuo account",
         "subtitle": "Accedi alla tua dashboard analitiche",
@@ -684,7 +684,7 @@
       "register": {
         "seo": {
           "title": "Crea il tuo account Betterlytics gratuito",
-          "description": "Crea un account Betterlytics gratuito per analisi web, replay delle sessioni, tracciamento errori e monitoraggio uptime. Nessuna carta di credito."
+          "description": "Crea un account Betterlytics gratuito per analisi web, session replay, tracciamento errori e monitoraggio uptime. Nessuna carta di credito."
         },
         "title": "Crea il tuo account",
         "subtitle": "Inizia a tracciare le tue analitiche oggi",
@@ -818,7 +818,7 @@
     "features": {
       "seo": {
         "title": "Funzionalità Betterlytics: analisi, replay, errori, uptime",
-        "description": "Analisi web, replay sessioni, tracciamento errori, Core Web Vitals, monitoraggio uptime, pagine di stato e server MCP per agenti AI, tutto in Betterlytics."
+        "description": "Analisi web, session replay, tracciamento errori, Core Web Vitals, monitoraggio uptime, pagine di stato e server MCP per agenti AI, tutto in Betterlytics."
       },
       "hero": {
         "title": "Tutte le funzionalità di cui hai bisogno per <br></br><highlight>analytics migliori</highlight>",
@@ -1031,7 +1031,7 @@
       "login": "Accedi"
     },
     "footer": {
-      "blurb": "Analisi web, replay delle sessioni, errori e uptime in un unico strumento open source. Senza cookie e ospitato nell’UE.",
+      "blurb": "Web analytics, session replay, errori e uptime in un unico strumento open source. Senza cookie e ospitato nell’UE.",
       "company": "Azienda",
       "resources": "Risorse",
       "compare": "Confronta",
@@ -1039,7 +1039,7 @@
       "about": "Chi siamo",
       "contact": "Contatti",
       "privacyPolicy": "Politica privacy",
-      "subprocessors": "Sottoprocessori",
+      "subprocessors": "Sub-responsabili",
       "termsOfService": "Termini di servizio",
       "dpa": "Accordo elaborazione dati",
       "documentation": "Documentazione",
@@ -1054,7 +1054,7 @@
     },
     "structuredData": {
       "organization": {
-        "description": "Betterlytics riunisce analisi web, replay delle sessioni, tracciamento errori, Core Web Vitals e monitoraggio uptime in un unico strumento open source. Senza cookie e ospitato nell’UE.",
+        "description": "Betterlytics riunisce analisi web, session replay, tracciamento errori, Core Web Vitals e monitoraggio uptime in un unico strumento open source. Senza cookie e ospitato nell’UE.",
         "contactTypeCustomerService": "Servizio Clienti",
         "contactTypeTechnicalSupport": "Supporto Tecnico"
       },
@@ -1065,7 +1065,7 @@
     "pricing": {
       "seo": {
         "title": "Prezzi Betterlytics: inizia gratis, paga per eventi",
-        "description": "Ogni piano include analisi web, replay sessioni, tracciamento errori e monitoraggio uptime. Inizia gratis, paga per eventi mensili o fai self-hosting gratis."
+        "description": "Ogni piano include analisi web, session replay, tracciamento errori e uptime. Inizia gratis e paga in base agli eventi mensili, o fai self-hosting gratis."
       },
       "titleEmphasis": "Prezzi semplici e",
       "titleRest": "trasparenti",
@@ -1280,7 +1280,7 @@
       },
       "replay": {
         "alt": "Il replay di un visitatore su una pagina dei prezzi: clicca su Choose Pro, scatta un TypeError, clicca nervosamente il pulsante altre quattro volte e poi se ne va.",
-        "title": "Replay sessioni",
+        "title": "Session replay",
         "pageView": "Visualizzazione pagina",
         "click": "Clic",
         "rageClick": "Rage click",
@@ -1383,8 +1383,8 @@
       "emailReports": "Report email pianificati",
       "dedicatedSupport": "Supporto dedicato",
       "slaGuarantee": "Garanzia SLA",
-      "everythingInStarter": "Tutto in Growth, più:",
-      "everythingInProfessional": "Tutto in Professional, più:"
+      "everythingInStarter": "Tutte le funzionalità di Growth, più:",
+      "everythingInProfessional": "Tutte le funzionalità di Professional, più:"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",

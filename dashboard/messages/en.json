@@ -1307,7 +1307,7 @@
       },
       "uptime": {
         "alt": "Four uptime monitors with their recent checks. When one stops responding, the alert goes out to Slack, Discord and email, and the public status page reports the outage.",
-        "sslDays": "SSL {days} days",
+        "sslDays": "SSL {days} days",
         "timeout": "timeout",
         "sslTitle": "{name} certificate expires soon",
         "sslDetail": "{host} · SSL valid for {days} more days",

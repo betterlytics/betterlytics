@@ -6,7 +6,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Google Analytics: open source-alternativ',
     description:
-      'Sammenlign Betterlytics med Google Analytics 4. Cookiefrit, open source og hostet i EU, med sessionsafspilning, fejlsporing og oppetid inkluderet.',
+      'Sammenlign Betterlytics med Google Analytics 4. Cookiefrit, open source og hostet i EU, med session replay, fejlsporing og oppetid inkluderet.',
   },
   hero: {
     title: 'Leder du efter et alternativ til Google Analytics?',

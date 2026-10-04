@@ -812,7 +812,7 @@
     "ctaStrip": {
       "eyebrow": "Kom i gang gratis",
       "title": "Klar for å prøve Betterlytics?",
-      "subtitle": "Opprett en konto og start sporing på få minutter. Gratis plan inkludert. Ingen kredittkort.",
+      "subtitle": "Opprett en konto og begynn å måle trafikken på få minutter. Gratisplan, og du trenger ikke kredittkort.",
       "primaryCta": "Kom i gang gratis"
     },
     "features": {
@@ -1065,7 +1065,7 @@
     "pricing": {
       "seo": {
         "title": "Betterlytics-priser: start gratis, betal etter hendelser",
-        "description": "Alle planer inkluderer nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Start gratis, betal etter hendelser per måned eller driv det selv gratis."
+        "description": "Alle planer har nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Start gratis og betal etter hendelser per måned, eller host det selv gratis."
       },
       "titleEmphasis": "Enkle, transparente",
       "titleRest": "priser",
@@ -1177,7 +1177,7 @@
         }
       },
       "thesis": {
-        "label": "Cookies satt",
+        "label": "Antall cookies",
         "body": "Ingen cookies, ingen varige ID-er, ingen samtykkebanner. Laget for GDPR, ePrivacy og PECR, og dataene dine blir i EU."
       }
     },
@@ -1275,8 +1275,8 @@
         "paused": "Pauset",
         "today": "i dag",
         "now": "nå",
-        "seconds": "{count} s",
-        "minutes": "{count} min"
+        "seconds": "{count} s",
+        "minutes": "{count} min"
       },
       "replay": {
         "alt": "Opptak fra en prisside: En besøkende klikker på «Choose Pro», det kastes en TypeError, knappen får fire raseriklikk, og så forlater den besøkende siden.",
@@ -1301,16 +1301,16 @@
         "alt": "En TypeError som oppstår akkurat nå, med siden og klikket som førte til den, stack trace og hvem den rammet. Bak den ligger en sjeldnere feil og en som er løst.",
         "resolved": "Løst",
         "events": "forekomster",
-        "hoursAgo": "{count} t siden",
-        "daysAgo": "{count} d siden",
+        "hoursAgo": "{count} t siden",
+        "daysAgo": "{count} d siden",
         "inApp": "i app"
       },
       "uptime": {
         "alt": "Fire oppetidsmonitorer med de siste sjekkene. Når én slutter å svare, går varselet ut på Slack, Discord og e-post, og den offentlige statussiden melder om driftsavbruddet.",
-        "sslDays": "SSL {days} dager",
+        "sslDays": "SSL {days} dager",
         "timeout": "timeout",
         "sslTitle": "Sertifikatet for {name} utløper snart",
-        "sslDetail": "{host} · SSL gyldig i {days} dager til",
+        "sslDetail": "{host} · SSL gyldig i {days} dager til",
         "downTitle": "{name} er nede",
         "downDetail": "{host} svarer ikke",
         "upTitle": "{name} er oppe igjen",
@@ -1372,9 +1372,9 @@
       "retention1PlusYear": "1+ år datalagring",
       "retention3PlusYears": "3+ år datalagring",
       "retention5PlusYears": "5+ år datalagring",
-      "fullDashboard": "Komplett web-analytics dashboard",
-      "funnelsJourneys": "Funnels og brukerreiser",
-      "sessionReplay": "Sesjonsavspilling",
+      "fullDashboard": "Komplett dashboard for nettanalyse",
+      "funnelsJourneys": "Trakter og brukerreiser",
+      "sessionReplay": "Sesjonsopptak",
       "errorTracking": "Feilsporing",
       "uptime1": "1 oppetidsmonitor og offentlig statusside",
       "uptime50": "50 oppetidsmonitorer med 1-minutts sjekker",

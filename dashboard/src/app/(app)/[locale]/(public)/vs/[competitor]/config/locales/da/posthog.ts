@@ -6,7 +6,7 @@ export const posthog: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs PostHog: et enklere alternativ hostet i EU',
     description:
-      'Sammenlign Betterlytics med PostHog. Webanalyse, sessionsafspilning, fejl og oppetid i ét enklere værktøj, hostet i EU og med forudsigelige priser.',
+      'Sammenlign Betterlytics med PostHog. Webanalyse, session replay, fejl og oppetid i ét enklere værktøj, hostet i EU og med forudsigelige priser.',
   },
   hero: {
     title: 'Leder du efter et alternativ til PostHog?',

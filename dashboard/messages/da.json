@@ -3,7 +3,7 @@
     "root": {
       "seo": {
         "title": "Betterlytics: Webanalyse, session replay, fejl og oppetid",
-        "description": "Betterlytics samler webanalyse, sessionsafspilning, fejlsporing, Core Web Vitals og oppetidsovervågning i ét open source-værktøj. Cookiefrit og hostet i EU."
+        "description": "Betterlytics samler webanalyse, session replay, fejlsporing, Core Web Vitals og oppetidsovervågning i ét open source-værktøj. Cookiefrit og hostet i EU."
       }
     },
     "notFound": {
@@ -641,7 +641,7 @@
       "signin": {
         "seo": {
           "title": "Log ind | Betterlytics",
-          "description": "Log ind på Betterlytics for at se din trafik, sessionsafspilninger, fejl og oppetid i ét dashboard."
+          "description": "Log ind på Betterlytics for at se din trafik, session replays, fejl og oppetid i ét dashboard."
         },
         "title": "Log ind på din konto",
         "subtitle": "Få adgang til dit analyse-dashboard",
@@ -684,7 +684,7 @@
       "register": {
         "seo": {
           "title": "Opret din gratis Betterlytics-konto",
-          "description": "Opret en gratis Betterlytics-konto til webanalyse, sessionsafspilning, fejlsporing og oppetidsovervågning. Intet kreditkort nødvendigt."
+          "description": "Opret en gratis Betterlytics-konto til webanalyse, session replay, fejlsporing og oppetidsovervågning. Intet kreditkort nødvendigt."
         },
         "title": "Opret din konto",
         "subtitle": "Begynd at spore din analyse i dag",
@@ -812,13 +812,13 @@
     "ctaStrip": {
       "eyebrow": "Kom i gang gratis",
       "title": "Klar til at prøve Betterlytics?",
-      "subtitle": "Opret en konto og begynd at spore på få minutter. Gratis plan inkluderet. Intet kreditkort.",
+      "subtitle": "Opret en konto, og begynd at måle på få minutter. Der er en gratis plan, og du skal ikke bruge kreditkort.",
       "primaryCta": "Kom i gang gratis"
     },
     "features": {
       "seo": {
         "title": "Betterlytics-funktioner: analyse, replay, fejl, oppetid",
-        "description": "Webanalyse, sessionsafspilning, fejlsporing, Core Web Vitals, oppetidsovervågning, statussider og en MCP-server til AI-agenter, alt sammen i Betterlytics."
+        "description": "Webanalyse, session replay, fejlsporing, Core Web Vitals, oppetidsovervågning, statussider og en MCP-server til AI-agenter, alt sammen i Betterlytics."
       },
       "hero": {
         "title": "Alle funktioner du har brug for til <br></br><highlight>bedre analyse</highlight>",
@@ -1031,7 +1031,7 @@
       "login": "Log ind"
     },
     "footer": {
-      "blurb": "Webanalyse, sessionsafspilning, fejl og oppetid i ét open source-værktøj. Cookiefrit og hostet i EU.",
+      "blurb": "Webanalyse, session replay, fejl og oppetid i ét open source-værktøj. Cookiefrit og hostet i EU.",
       "company": "Virksomhed",
       "resources": "Ressourcer",
       "compare": "Sammenlign",
@@ -1054,7 +1054,7 @@
     },
     "structuredData": {
       "organization": {
-        "description": "Betterlytics samler webanalyse, sessionsafspilning, fejlsporing, Core Web Vitals og oppetidsovervågning i ét open source-værktøj. Cookiefrit og hostet i EU.",
+        "description": "Betterlytics samler webanalyse, session replay, fejlsporing, Core Web Vitals og oppetidsovervågning i ét open source-værktøj. Cookiefrit og hostet i EU.",
         "contactTypeCustomerService": "Kundeservice",
         "contactTypeTechnicalSupport": "Teknisk support"
       },
@@ -1065,7 +1065,7 @@
     "pricing": {
       "seo": {
         "title": "Betterlytics-priser: start gratis, betal efter events",
-        "description": "Alle planer inkluderer webanalyse, sessionsafspilning, fejlsporing og oppetidsovervågning. Start gratis og betal efter events pr. måned, eller selvhost gratis."
+        "description": "Alle planer inkluderer webanalyse, session replay, fejlsporing og oppetidsovervågning. Start gratis og betal efter events pr. måned, eller host det selv gratis."
       },
       "titleEmphasis": "Simple, gennemsigtige",
       "titleRest": "priser",
@@ -1307,10 +1307,10 @@
       },
       "uptime": {
         "alt": "Oppetidsovervågning af fire tjenester med deres seneste tjek. Når én holder op med at svare, går der en advarsel ud til Slack, Discord og e-mail, og den offentlige statusside melder om nedbruddet.",
-        "sslDays": "SSL {days} dage",
+        "sslDays": "SSL {days} dage",
         "timeout": "timeout",
         "sslTitle": "Certifikatet for {name} udløber snart",
-        "sslDetail": "{host} · SSL udløber om {days} dage",
+        "sslDetail": "{host} · SSL udløber om {days} dage",
         "downTitle": "{name} er nede",
         "downDetail": "{host} svarer ikke",
         "upTitle": "{name} er oppe igen",

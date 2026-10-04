@@ -6,7 +6,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Google Analytics: alternativa open source',
     description:
-      'Confronta Betterlytics con Google Analytics 4. Senza cookie, open source e ospitato nell’UE, con replay sessioni, tracciamento errori e uptime inclusi.',
+      'Confronta Betterlytics con Google Analytics 4. Senza cookie, open source e ospitato nell’UE, con session replay, tracciamento errori e uptime inclusi.',
   },
   hero: {
     title: 'Cerchi un’alternativa a Google Analytics?',

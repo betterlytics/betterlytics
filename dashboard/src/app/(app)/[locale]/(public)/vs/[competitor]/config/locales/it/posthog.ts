@@ -6,7 +6,7 @@ export const posthog: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs PostHog: alternativa più semplice, nell’UE',
     description:
-      'Confronta Betterlytics con PostHog. Analisi web, replay sessioni, errori e uptime in uno strumento più semplice, ospitato nell’UE e con prezzi prevedibili.',
+      'Confronta Betterlytics con PostHog. Analisi web, session replay, errori e uptime in uno strumento più semplice, ospitato nell’UE e con prezzi prevedibili.',
   },
   hero: {
     title: 'Cerchi un’alternativa a PostHog?',
