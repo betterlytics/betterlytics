@@ -59,7 +59,6 @@ CREATE TABLE IF NOT EXISTS analytics.events_new (
 PARTITION BY toYYYYMM(date)
 ORDER BY (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
 SAMPLE BY visitor_id
-TTL timestamp + toIntervalDay(365)
 SETTINGS index_granularity = 8192;
 
 DROP VIEW IF EXISTS analytics.daily_page_views;
