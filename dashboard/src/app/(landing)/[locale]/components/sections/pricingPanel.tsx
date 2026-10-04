@@ -209,19 +209,21 @@ export function PricingPanel() {
             aria-valuetext={t('rangeValueText', { events: formatEventCount(range.value, locale) })}
           />
         </Slider.Root>
-        {/* inset by the 9px thumb radius so captions sit under the thumb's centre */}
-        <div className='relative -mt-0.5 h-4.5 w-full' role='group' aria-label={t('monthlyEvents')}>
+        {/* inset by the 9px thumb radius so captions sit under the thumb's centre;
+            a pointer shortcut only, since the slider already covers keyboards and screen readers */}
+        <div className='relative -mt-0.5 h-4.5 w-full' aria-hidden>
           {EVENT_RANGES.map((r, i) => (
             <button
               key={r.value}
               type='button'
+              tabIndex={-1}
               className={cn(
-                'absolute top-0 left-[calc(9px+(100%-18px)*var(--stop))] -translate-x-1/2 px-1 py-0.5 text-micro whitespace-nowrap text-muted tabular-nums transition-[color] duration-200 ease-out-expo hover:text-fg aria-pressed:font-medium aria-pressed:text-fg',
+                'absolute top-0 left-[calc(9px+(100%-18px)*var(--stop))] -translate-x-1/2 px-1 py-0.5 text-micro whitespace-nowrap text-muted tabular-nums transition-[color] duration-200 ease-out-expo hover:text-fg data-active:font-medium data-active:text-fg',
                 // phones show every other stop and the last; its neighbour would collide in long locales ("10 mio.+")
                 (i % 2 === 1 || i === lastIndex - 1) && i !== lastIndex && 'max-sm:hidden',
               )}
               style={vars({ '--stop': i / lastIndex })}
-              aria-pressed={i === rangeIndex}
+              data-active={i === rangeIndex || undefined}
               onClick={() => pickStop(i)}
             >
               {formatEventCount(r.value, locale)}
