@@ -13,6 +13,20 @@ const GLYPHS: ReadonlyArray<{ name: string; path: string; hover?: string }> = FR
   ...FRAMEWORK_GLYPHS[framework.logo],
 }));
 
+const symbolId = (i: number) => `framework-glyph-${i}`;
+
+function GlyphDefs() {
+  return (
+    <svg width={0} height={0} className='absolute' aria-hidden focusable='false'>
+      {GLYPHS.map((glyph, i) => (
+        <symbol key={glyph.name} id={symbolId(i)} viewBox='0 0 24 24'>
+          <path d={glyph.path} fill='currentColor' />
+        </symbol>
+      ))}
+    </svg>
+  );
+}
+
 /** Monochrome glyphs rather than logo files, so every mark sits at one tone. */
 export function FrameworkStrip({ className }: { className?: string }) {
   const t = useTranslations('landing.frameworks');
@@ -33,6 +47,7 @@ export function FrameworkStrip({ className }: { className?: string }) {
         </span>
       </p>
       <InView className={styles.glyphs}>
+        <GlyphDefs />
         <ul className={styles.row}>
           {GLYPHS.map((glyph, i) => (
             <li
@@ -42,16 +57,16 @@ export function FrameworkStrip({ className }: { className?: string }) {
               style={vars(glyph.hover ? { '--i': i, '--hover': glyph.hover } : { '--i': i })}
             >
               <svg viewBox='0 0 24 24' width='22' height='22' role='img' aria-label={glyph.name}>
-                <path d={glyph.path} fill='currentColor' />
+                <use href={`#${symbolId(i)}`} />
               </svg>
             </li>
           ))}
         </ul>
         <ul className={cn(styles.row, styles.shine)} aria-hidden>
-          {GLYPHS.map((glyph) => (
+          {GLYPHS.map((glyph, i) => (
             <li key={glyph.name} className={styles.glyph}>
               <svg viewBox='0 0 24 24' width='22' height='22'>
-                <path d={glyph.path} fill='currentColor' />
+                <use href={`#${symbolId(i)}`} />
               </svg>
             </li>
           ))}
