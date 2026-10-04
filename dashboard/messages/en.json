@@ -1931,7 +1931,13 @@
       "settings": "Settings",
       "deleteConfirmTitle": "Delete monitor?",
       "deleteConfirmDescription": "This will permanently delete the monitor and all its data.",
-      "deleteError": "Failed to delete monitor"
+      "deleteError": "Failed to delete monitor",
+      "deleteImpactLoading": "Checking affected status pages...",
+      "deleteImpactError": "We could not check which status pages use this monitor.",
+      "deleteImpactUnknownWarning": "Deleting this monitor will remove it from any status pages that use it. Published pages may be left public with no components and normally show Unknown. Open incidents may still raise their status.",
+      "deleteImpactRetry": "Retry",
+      "deleteImpactAffectedPages": "This monitor will be removed from these status pages:",
+      "deleteImpactEmptyWarning": "This published page will stay public with no components and normally show Unknown. Open incidents may still raise its status."
     }
   },
   "monitoringDetailPage": {

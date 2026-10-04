@@ -1931,7 +1931,13 @@
       "settings": "Indstillinger",
       "deleteConfirmTitle": "Slet overvågning?",
       "deleteConfirmDescription": "Dette sletter overvågningen og alle dens data permanent.",
-      "deleteError": "Kunne ikke slette overvågning"
+      "deleteError": "Kunne ikke slette overvågning",
+      "deleteImpactLoading": "Tjekker berørte statussider...",
+      "deleteImpactError": "Vi kunne ikke tjekke, hvilke statussider der bruger denne overvågning.",
+      "deleteImpactUnknownWarning": "Hvis du sletter denne overvågning, fjernes den fra alle statussider, der bruger den. Publicerede sider kan forblive offentlige uden komponenter og viser normalt Ukendt. Åbne hændelser kan stadig hæve deres status.",
+      "deleteImpactRetry": "Prøv igen",
+      "deleteImpactAffectedPages": "Denne overvågning fjernes fra disse statussider:",
+      "deleteImpactEmptyWarning": "Denne publicerede side forbliver offentlig uden komponenter og viser normalt Ukendt. Åbne hændelser kan stadig hæve dens status."
     }
   },
   "monitoringDetailPage": {
