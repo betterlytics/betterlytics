@@ -102,3 +102,5 @@ export function getMaxRetentionDaysForTier(tier: TierName): number {
 }
 
 export const MIN_DATA_RETENTION_DAYS = 180;
+
+export const UNLIMITED_DATA_RETENTION_DAYS = -1;

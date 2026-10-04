@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getAuthorizedDashboardContextOrNull, assertPublicDashboardAccess } from '@/services/auth/auth.service';
+import {
+  getAuthorizedDashboardContextOrNull,
+  assertPublicDashboardAccess,
+  isPublicDashboardId,
+} from '@/services/auth/auth.service';
 import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/dashboard.repository';
 
 vi.mock('@/lib/env', () => ({
@@ -52,5 +56,15 @@ describe('assertPublicDashboardAccess', () => {
 
   it('rejects any other dashboard with a not-found error', async () => {
     await expect(assertPublicDashboardAccess('some-other-dashboard')).rejects.toThrow();
+  });
+});
+
+describe('isPublicDashboardId', () => {
+  it('is true for the configured demo id', () => {
+    expect(isPublicDashboardId('demo-dashboard-id')).toBe(true);
+  });
+
+  it('is false for any other id', () => {
+    expect(isPublicDashboardId('some-other-dashboard')).toBe(false);
   });
 });

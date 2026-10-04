@@ -24,6 +24,7 @@ export function isUrlOnDomain(url: string, domain: string): boolean {
 /**
  * Normalizes a URL for comparison/deduplication:
  * - Lowercases the hostname
+ * - Keeps a non-default port, drops a default one
  * - Removes trailing slashes from the path
  * - Ignores query parameters and fragments
  *
@@ -37,7 +38,7 @@ export function normalizeUrl(url: string): string | null {
     if (path.length > 1 && path.endsWith('/')) {
       path = path.slice(0, -1);
     }
-    return `${parsed.protocol}//${parsed.hostname.toLowerCase()}${path}`;
+    return `${parsed.protocol}//${parsed.host.toLowerCase()}${path}`;
   } catch {
     return null;
   }

@@ -1,5 +1,101 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v150ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.0',
+    releasedAt: '2026-09-27',
+    title: 'Codici di backup per la 2FA e un session replay più veloce e affidabile',
+    summary:
+      "L'autenticazione a due fattori include ora i codici di backup, e il session replay pesa meno sul tuo sito, è più affidabile e si carica più velocemente. Puoi anche scegliere il fuso orario in cui visualizzare le tue dashboard.",
+  },
+  sections: [
+    {
+      id: 'v150-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "L'autenticazione a due fattori include ora codici di backup monouso, così puoi accedere anche se perdi l'app di autenticazione.",
+            'Scegli il fuso orario in cui visualizzare le tue dashboard da Impostazioni > Preferenze. L\'opzione predefinita resta "Rilevamento automatico".',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Il session replay è stato ottimizzato e ora ha un impatto minore sul tuo sito.',
+            'Il session replay è molto più affidabile nel registrare gli ultimi secondi prima che un visitatore lasci la pagina.',
+            'I session replay ora si caricano più velocemente nella dashboard e la riproduzione parte prima.',
+            'Piccoli miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Risolto un problema per cui la dashboard non si caricava nel raro caso in cui il browser non indicasse un fuso orario.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v150ChangelogModalIt: ChangelogEntryData = {
+  metadata: v150ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v150-modal-new-features',
+      title: 'Nuove funzionalità',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            "L'autenticazione a due fattori include ora codici di backup monouso.",
+            'Scegli il fuso orario in cui visualizzare le tue dashboard da Impostazioni > Preferenze.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Il session replay ha ora un impatto minore sul tuo sito.',
+            'Il session replay registra in modo affidabile gli ultimi secondi prima che un visitatore lasci la pagina.',
+            'I session replay si caricano e partono più velocemente.',
+            'Piccoli miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: ['La dashboard ora si carica anche quando il browser non indica un fuso orario.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v149ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.9',
@@ -490,9 +586,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v149ChangelogModalIt;
+export const latestChangelogModalIt = v150ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v150ChangelogEntryIt,
   v149ChangelogEntryIt,
   v148ChangelogEntryIt,
   v147ChangelogEntryIt,

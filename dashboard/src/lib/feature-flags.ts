@@ -17,6 +17,7 @@ export const featureFlags = {
   enableUptimeMonitoring: env.ENABLE_UPTIME_MONITORING,
   // Status pages publish uptime data, so they additionally require monitoring to be enabled
   enablePublicStatusPages: env.ENABLE_UPTIME_MONITORING && env.ENABLE_PUBLIC_STATUS_PAGES,
+  allowPrivateTargets: !env.IS_CLOUD && env.ALLOW_PRIVATE_TARGETS,
   enableFaviconFetching: clientFeatureFlags.enableFaviconFetching,
 } as const;
 

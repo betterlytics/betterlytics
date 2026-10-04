@@ -1,5 +1,101 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v150ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.0',
+    releasedAt: '2026-09-27',
+    title: 'Reservekoder for 2FA og raskere, mer pålitelig session replay',
+    summary:
+      'Tofaktorautentisering kommer nå med reservekoder, og session replay belaster nettstedet ditt mindre, er mer pålitelig og lastes raskere. Du kan nå også velge hvilken tidssone dashbordene dine vises i.',
+  },
+  sections: [
+    {
+      id: 'v150-new-features',
+      title: 'Nye funksjoner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tofaktorautentisering kommer nå med reservekoder til engangsbruk, slik at du fortsatt kan logge inn hvis du mister autentiseringsappen din.',
+            'Under Innstillinger > Preferanser kan du velge hvilken tidssone dashbordene dine vises i. Standardvalget er fortsatt Oppdag automatisk.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay er optimalisert og belaster nå nettstedet ditt mindre.',
+            'Session replay fanger nå langt mer pålitelig opp de siste par sekundene før en besøkende forlater siden.',
+            'Opptakene i session replay lastes nå raskere i dashbordet, og avspillingen kommer fortere i gang.',
+            'Mindre forbedringer i brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem der dashbordet ikke ble lastet inn i de sjeldne tilfellene der nettleseren ikke oppga en tidssone.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v150ChangelogModalNb: ChangelogEntryData = {
+  metadata: v150ChangelogEntryNb.metadata,
+  sections: [
+    {
+      id: 'v150-modal-new-features',
+      title: 'Nye funksjoner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tofaktorautentisering kommer nå med reservekoder til engangsbruk.',
+            'Under Innstillinger > Preferanser kan du velge hvilken tidssone dashbordene dine vises i.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay belaster nå nettstedet ditt mindre.',
+            'Session replay fanger nå pålitelig opp de siste par sekundene før en besøkende forlater siden.',
+            'Opptakene i session replay lastes og kommer i gang raskere.',
+            'Mindre forbedringer i brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Dashbordet lastes nå selv når nettleseren ikke oppgir en tidssone.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v149ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.9',
@@ -488,9 +584,10 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v149ChangelogModalNb;
+export const latestChangelogModalNb = v150ChangelogModalNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v150ChangelogEntryNb,
   v149ChangelogEntryNb,
   v148ChangelogEntryNb,
   v147ChangelogEntryNb,

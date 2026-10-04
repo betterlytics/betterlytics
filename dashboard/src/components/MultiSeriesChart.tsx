@@ -15,7 +15,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import MultiLineChartTooltip from './charts/MultiLineChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
+import { useChartDateFormatters } from '@/hooks/use-chart-date-formatters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -96,7 +96,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     showSinglePoints,
   }) => {
     const locale = useLocale();
-    const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
+    const { axisFormatter, labelFormatter } = useChartDateFormatters(granularity);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
         const text = formatValue ? formatValue(value, locale) : value.toLocaleString(locale);
@@ -155,7 +155,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                 <Tooltip
                   content={
                     <MultiLineChartTooltip
-                      labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
+                      labelFormatter={labelFormatter}
                       formatter={formatValue}
                     />
                   }

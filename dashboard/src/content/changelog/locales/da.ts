@@ -1,5 +1,101 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v150ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.0',
+    releasedAt: '2026-09-27',
+    title: 'Backup-koder til 2FA & hurtigere, mere pålidelig session replay',
+    summary:
+      'Tofaktorgodkendelse kommer nu med backup-koder, og session replay belaster dit website mindre, er mere pålidelig og indlæses hurtigere. Du kan nu også vælge, hvilken tidszone dine dashboards vises i.',
+  },
+  sections: [
+    {
+      id: 'v150-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tofaktorgodkendelse kommer nu med backup-koder til engangsbrug, så du stadig kan logge ind, hvis du mister din autentificeringsapp.',
+            'Under Indstillinger > Præferencer kan du nu vælge, hvilken tidszone dine dashboards skal vises i. Standardvalget er fortsat Registrer automatisk.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay er blevet optimeret og belaster nu dit website mindre.',
+            'Session replay optager nu langt mere pålideligt de sidste par sekunder, før en besøgende forlader siden.',
+            'Session replays indlæses nu hurtigere i dashboardet, og afspilningen kommer hurtigere i gang.',
+            'Mindre forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Rettet et problem, hvor dashboardet ikke kunne indlæses i de sjældne tilfælde, hvor browseren ikke oplyste en tidszone.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v150ChangelogModalDa: ChangelogEntryData = {
+  metadata: v150ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v150-modal-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Tofaktorgodkendelse kommer nu med backup-koder til engangsbrug.',
+            'Under Indstillinger > Præferencer kan du nu vælge, hvilken tidszone dine dashboards skal vises i.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay belaster nu dit website mindre.',
+            'Session replay fanger nu pålideligt de sidste par sekunder, før en besøgende forlader siden.',
+            'Session replays indlæses og starter hurtigere.',
+            'Mindre forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Dashboardet indlæses nu, selv når browseren ikke oplyser en tidszone.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v149ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.9',
@@ -488,9 +584,10 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v149ChangelogModalDa;
+export const latestChangelogModalDa = v150ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v150ChangelogEntryDa,
   v149ChangelogEntryDa,
   v148ChangelogEntryDa,
   v147ChangelogEntryDa,

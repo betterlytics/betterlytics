@@ -38,6 +38,9 @@ If you're loading the analytics script asynchronously, and not using our npm pac
     window.betterlytics || {
       event: function () {
         (window.betterlytics.q = window.betterlytics.q || []).push(arguments);
+      },
+      setGlobalProperties: function () {
+        (window.betterlytics.gq = window.betterlytics.gq || []).push(arguments);
       }
     };
 </script>
@@ -48,7 +51,11 @@ If you're loading the analytics script asynchronously, and not using our npm pac
 ></script>
 ```
 
-This ensures `betterlytics.event()` calls work immediately, even before the main script finishes loading.
+<Callout type="info">
+Self-hosting? Load `analytics.js` from your instance and send events to it, with the script tag and the npm package alike. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
+</Callout>
+
+This ensures `betterlytics.event()` and `betterlytics.setGlobalProperties()` calls work immediately, even before the main script finishes loading. Queued global properties are applied before events.
 
 ### Simple Event Tracking
 

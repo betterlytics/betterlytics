@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Integration, type WebhookConfig } from '@/entities/dashboard/integration.entities';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 type WebhookConfigDialogProps = {
   open: boolean;
@@ -25,6 +26,8 @@ export function WebhookConfigDialog({
   onSave,
 }: WebhookConfigDialogProps) {
   const t = useTranslations('integrationsSettings.webhookDialog');
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
+  const allowPrivateTargets = isFeatureFlagEnabled('allowPrivateTargets');
   const existingConfig = integration?.config as Partial<WebhookConfig> | undefined;
 
   const [webhookUrl, setWebhookUrl] = useState(existingConfig?.webhookUrl ?? '');
@@ -45,8 +48,9 @@ export function WebhookConfigDialog({
       setError(t('errors.webhookUrlRequired'));
       return;
     }
-    if (!/^https:\/\//.test(trimmedUrl)) {
-      setError(t('errors.webhookUrlInvalid'));
+    const urlPattern = allowPrivateTargets ? /^https?:\/\//i : /^https:\/\//;
+    if (!urlPattern.test(trimmedUrl)) {
+      setError(t(allowPrivateTargets ? 'errors.webhookUrlInvalidHttp' : 'errors.webhookUrlInvalid'));
       return;
     }
 
@@ -78,7 +82,7 @@ export function WebhookConfigDialog({
               disabled={isPending}
             />
             {error && <p className='text-destructive text-sm'>{error}</p>}
-            <p className='text-muted-foreground text-xs'>{t('webhookHint')}</p>
+            <p className='text-muted-foreground text-xs'>{t(allowPrivateTargets ? 'webhookHintPrivate' : 'webhookHint')}</p>
           </div>
         </div>
 

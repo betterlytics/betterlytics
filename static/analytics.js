@@ -45,10 +45,10 @@
     scriptsBaseUrl = scriptsBaseUrl || "https://betterlytics.io";
   }
 
-  // Replaced by esbuild --define at build time; unbuilt copies stay on "dev"
-  var scriptVersion =
-    typeof __BL_VERSION__ === "string" ? __BL_VERSION__ : "dev";
-  var replayScriptUrl = `${scriptsBaseUrl}/replay.js?v=${scriptVersion}`;
+  // Content hash of replay.js, replaced by esbuild --define in static/build.mjs; unbuilt copies stay on "dev"
+  var replayScriptHash =
+    typeof __BL_REPLAY_HASH__ === "string" ? __BL_REPLAY_HASH__ : "dev";
+  var replayScriptUrl = `${scriptsBaseUrl}/replay.js?v=${replayScriptHash}`;
 
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
@@ -163,6 +163,8 @@
   }
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
+  var queuedGlobalProperties =
+    (window.betterlytics && window.betterlytics.gq) || [];
 
   var replayConsentCallbacks = [];
 
@@ -212,6 +214,13 @@
 
   if (initialGlobalProperties !== null) {
     window.betterlytics.setGlobalProperties(initialGlobalProperties);
+  }
+
+  for (var i = 0; i < queuedGlobalProperties.length; i++) {
+    window.betterlytics.setGlobalProperties.apply(
+      this,
+      queuedGlobalProperties[i],
+    );
   }
 
   for (var i = 0; i < queuedEvents.length; i++) {

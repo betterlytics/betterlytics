@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { formatElapsedTime, formatLocalDateTime, formatRelativeTimeFromNow } from '@/utils/dateFormatters';
 import { useDisplayHour12 } from '@/hooks/use-display-hour12';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
@@ -23,6 +24,7 @@ export function IncidentSuggestionsPanel({ suggestions, onCreateIncident }: Inci
   const t = useTranslations('statusPagesPage.editor.incidents');
   const locale = useLocale() as SupportedLanguages;
   const hour12 = useDisplayHour12();
+  const { timeZone } = useTimeRangeContext();
   const [panelOpen, setPanelOpen] = useState(false);
 
   if (suggestions.length === 0) return null;
@@ -74,6 +76,7 @@ export function IncidentSuggestionsPanel({ suggestions, onCreateIncident }: Inci
                       hour: '2-digit',
                       minute: '2-digit',
                       hour12,
+                      timeZone,
                     }) ?? '');
                 const durationMs =
                   (suggestion.ongoing

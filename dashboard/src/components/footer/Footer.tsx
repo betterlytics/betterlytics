@@ -4,8 +4,12 @@ import { GitHubIcon, DiscordIcon, BlueskyIcon } from '@/components/icons/SocialI
 import ExternalLink from '@/components/ExternalLink';
 import { getTranslations } from 'next-intl/server';
 import { FooterLanguageSelector } from './FooterLanguageSelector';
+import { MinimalFooter } from './MinimalFooter';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export async function Footer() {
+  if (!isFeatureEnabled('isCloud')) return <MinimalFooter />;
+
   const t = await getTranslations('public.footer');
   return (
     <footer className='border-border/40 border-t py-12'>

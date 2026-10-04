@@ -11,7 +11,13 @@ import { GitHubIcon } from '@/components/icons/SocialIcons';
 import { useTranslations } from 'next-intl';
 import NextLink from 'next/link';
 
-export default function PublicTopBar() {
+export default function PublicTopBar({
+  isCloud,
+  registrationEnabled,
+}: {
+  isCloud: boolean;
+  registrationEnabled: boolean;
+}) {
   const t = useTranslations('public.nav');
   const { data: session, isPending } = useHydratedSession();
   const pathname = usePathname();
@@ -46,18 +52,22 @@ export default function PublicTopBar() {
               >
                 {t('documentation')}
               </ExternalLink>
-              <Link
-                href='/features'
-                className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
-              >
-                {t('features')}
-              </Link>
-              <Link
-                href='/pricing'
-                className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
-              >
-                {t('pricing')}
-              </Link>
+              {isCloud && (
+                <>
+                  <Link
+                    href='/features'
+                    className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+                  >
+                    {t('features')}
+                  </Link>
+                  <Link
+                    href='/pricing'
+                    className='text-muted-foreground hover:text-foreground text-sm font-medium transition-colors'
+                  >
+                    {t('pricing')}
+                  </Link>
+                </>
+              )}
             </nav>
 
             <div className='ml-6 flex items-center gap-6'>
@@ -87,9 +97,11 @@ export default function PublicTopBar() {
                       {t('login')}
                     </Button>
                   </Link>
-                  <Link href='/signup'>
-                    <Button className='cursor-pointer'>{t('getStarted')}</Button>
-                  </Link>
+                  {registrationEnabled && (
+                    <Link href='/signup'>
+                      <Button className='cursor-pointer'>{t('getStarted')}</Button>
+                    </Link>
+                  )}
                 </div>
               ) : null}
             </div>
@@ -98,7 +110,7 @@ export default function PublicTopBar() {
           <button
             className='flex items-center justify-center p-2 md:hidden'
             onClick={toggleMobileMenu}
-            aria-label='Toggle menu'
+            aria-label={t('toggleMenu')}
           >
             {isMobileMenuOpen ? <X className='h-5 w-5' /> : <Menu className='h-5 w-5' />}
           </button>
@@ -107,20 +119,24 @@ export default function PublicTopBar() {
         {isMobileMenuOpen && (
           <div className='border-t md:hidden'>
             <nav className='space-y-3 py-4'>
-              <Link
-                href='/#pricing'
-                onClick={closeMobileMenu}
-                className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
-              >
-                {t('pricing')}
-              </Link>
-              <Link
-                href='/features'
-                onClick={closeMobileMenu}
-                className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
-              >
-                {t('features')}
-              </Link>
+              {isCloud && (
+                <>
+                  <Link
+                    href='/#pricing'
+                    onClick={closeMobileMenu}
+                    className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
+                  >
+                    {t('pricing')}
+                  </Link>
+                  <Link
+                    href='/features'
+                    onClick={closeMobileMenu}
+                    className='text-foreground hover:text-foreground block text-sm font-medium transition-colors'
+                  >
+                    {t('features')}
+                  </Link>
+                </>
+              )}
               <ExternalLink
                 href='https://betterlytics.io/docs'
                 onClick={closeMobileMenu}
@@ -150,9 +166,11 @@ export default function PublicTopBar() {
                   </NextLink>
                 ) : !isOnAuthPage ? (
                   <div className='flex flex-col gap-2'>
-                    <Link href='/signup' onClick={closeMobileMenu}>
-                      <Button className='w-full cursor-pointer'>{t('getStarted')}</Button>
-                    </Link>
+                    {registrationEnabled && (
+                      <Link href='/signup' onClick={closeMobileMenu}>
+                        <Button className='w-full cursor-pointer'>{t('getStarted')}</Button>
+                      </Link>
+                    )}
                     <Link href='/signin' onClick={closeMobileMenu}>
                       <Button variant='outline' className='w-full cursor-pointer'>
                         {t('login')}

@@ -1,3 +1,5 @@
+import { createDateTimeFormat } from '@/utils/timezone';
+
 export type IncidentEntryLabels = {
   today: string;
   yesterday: string;
@@ -16,17 +18,15 @@ export function createIncidentEntryFormatter({
   hour12,
   labels,
 }: IncidentEntryFormatterOptions) {
-  const time = new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', hour12, timeZone });
-  const date = new Intl.DateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric', timeZone });
-  const dateWithYear = new Intl.DateTimeFormat(locale, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
+  const time = createDateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', hour12 }, timeZone);
+  const date = createDateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }, timeZone);
+  const dateWithYear = createDateTimeFormat(
+    locale,
+    { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' },
     timeZone,
-  });
+  );
 
-  const dayKey = new Intl.DateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit', timeZone });
+  const dayKey = createDateTimeFormat('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }, timeZone);
 
   return (entry: Date, now: Date): string => {
     const key = dayKey.format(entry);
