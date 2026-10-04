@@ -57,7 +57,6 @@ pub struct Config {
     pub custom_referrers_path: PathBuf,
     pub ga4_source_categories_path: PathBuf,
     pub ua_regexes_path: PathBuf,
-    pub data_retention_days: i32,
     // Monitoring configuration
     pub enable_monitoring: bool,
     pub enable_uptime_monitoring: bool,
@@ -114,11 +113,6 @@ impl Config {
         } else {
             GeolocationMode::Countries
         };
-
-        let data_retention_days: i32 = env::var("DATA_RETENTION_DAYS")
-            .unwrap_or_else(|_| "365".to_string())
-            .parse()
-            .unwrap_or(365);
 
         let s3_enabled = env::var("S3_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false);
         let replay_storage = match env::var("REPLAY_STORAGE").ok().as_deref() {
@@ -187,7 +181,6 @@ impl Config {
             ua_regexes_path: env::var("UA_REGEXES_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/user_agent_headers/regexes.yaml")),
-            data_retention_days,
             // Monitoring configuration
             enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")

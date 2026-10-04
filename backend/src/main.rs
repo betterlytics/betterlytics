@@ -143,7 +143,7 @@ async fn main() {
     };
 
     let (db, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle) =
-        Database::new(Arc::clone(&clickhouse), config.clone(), metrics_collector.clone())
+        Database::new(Arc::clone(&clickhouse), metrics_collector.clone())
             .await
             .expect("Failed to initialize database");
 

@@ -1,8 +1,14 @@
 import { z } from 'zod';
 import { TIME_RANGE_PRESETS } from '@/utils/timeRanges';
-import { MIN_DATA_RETENTION_DAYS } from '@/lib/billing/capabilities';
+import { MIN_DATA_RETENTION_DAYS, UNLIMITED_DATA_RETENTION_DAYS } from '@/lib/billing/capabilities';
 
 export const MAX_REPORT_RECIPIENTS = 5;
+
+// Instance gating (unlimited is self-hosted only) lives in the service: entities are shared with the client
+export const DataRetentionDaysSchema = z.union([
+  z.literal(UNLIMITED_DATA_RETENTION_DAYS),
+  z.number().int().min(MIN_DATA_RETENTION_DAYS),
+]);
 
 export const TimeRangeValueSchema = z.enum(
   TIME_RANGE_PRESETS.map((preset) => preset.value) as [string, ...string[]],
@@ -18,7 +24,7 @@ export const DashboardSettingsSchema = z
     defaultDateRange: TimeRangeValueSchema,
 
     // Data Settings
-    dataRetentionDays: z.number().int().min(MIN_DATA_RETENTION_DAYS),
+    dataRetentionDays: DataRetentionDaysSchema,
     retentionGraceUntil: z.date().nullable(),
     retentionGraceRestoreDays: z.number().int().positive().nullable(),
 
@@ -45,7 +51,7 @@ export const DashboardSettingsCreateSchema = z
     dashboardId: z.string(),
     showGridLines: z.boolean(),
     defaultDateRange: TimeRangeValueSchema,
-    dataRetentionDays: z.number().int().min(MIN_DATA_RETENTION_DAYS),
+    dataRetentionDays: DataRetentionDaysSchema,
     retentionGraceUntil: z.date().nullable(),
     retentionGraceRestoreDays: z.number().int().positive().nullable(),
     weeklyReports: z.boolean(),
@@ -61,7 +67,7 @@ export const DashboardSettingsCreateSchema = z
 export const DashboardSettingsUpdateSchema = z.object({
   showGridLines: z.boolean().optional(),
   defaultDateRange: TimeRangeValueSchema.optional(),
-  dataRetentionDays: z.number().int().min(MIN_DATA_RETENTION_DAYS).optional(),
+  dataRetentionDays: DataRetentionDaysSchema.optional(),
   weeklyReports: z.boolean().optional(),
   weeklyReportDay: z.number().int().min(1).max(7).optional(),
   weeklyReportRecipients: z.array(z.string().email()).max(MAX_REPORT_RECIPIENTS).optional(),
@@ -96,7 +102,7 @@ export const DashboardWithReportSettingsSchema = z.object({
 export const RetentionPurgeCandidateSchema = z.object({
   siteId: z.string(),
   createdAt: z.date(),
-  dataRetentionDays: z.number().int().min(MIN_DATA_RETENTION_DAYS),
+  dataRetentionDays: DataRetentionDaysSchema,
   retentionGraceUntil: z.date().nullable(),
   retentionGraceRestoreDays: z.number().int().positive().nullable(),
 });
@@ -108,13 +114,13 @@ export const RetentionClampResultSchema = z.object({
 
 export const OwnerRetentionSettingsRowSchema = z.object({
   id: z.string(),
-  dataRetentionDays: z.number().int().min(MIN_DATA_RETENTION_DAYS),
+  dataRetentionDays: DataRetentionDaysSchema,
   retentionGraceRestoreDays: z.number().int().positive().nullable(),
 });
 
 export const RetentionSettingsPatchSchema = z.object({
   settingsId: z.string(),
-  dataRetentionDays: z.number().int().min(MIN_DATA_RETENTION_DAYS).optional(),
+  dataRetentionDays: DataRetentionDaysSchema.optional(),
   retentionGraceRestoreDays: z.number().int().positive().nullable().optional(),
   retentionGraceUntil: z.date().nullable().optional(),
 });

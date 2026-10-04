@@ -3182,7 +3182,8 @@
           "y1": "1 anno",
           "y2": "2 anni",
           "y3": "3 anni",
-          "y5": "5 anni"
+          "y5": "5 anni",
+          "forever": "Conserva per sempre"
         },
         "retentionConfirm": {
           "title": "Cambiare periodo di conservazione?",
