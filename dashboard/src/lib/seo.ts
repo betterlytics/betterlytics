@@ -10,13 +10,12 @@ export interface SEOConfig {
   title: string;
   description: string;
   path: string;
-  /** Link-preview copy (Open Graph, X); falls back to the title and description. */
   socialTitle?: string;
   socialDescription?: string;
   structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
 }
 
-/** The image repeats the landing hero's headline (and `public.shareImage.alt` quotes it); redo both when that changes. */
+/** The image repeats the landing hero's headline, as `public.shareImage.alt` does; redo both when it changes. */
 const DEFAULT_IMAGE = {
   url: '/og_image.jpg',
   width: 1200,

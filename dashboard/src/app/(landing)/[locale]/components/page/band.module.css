@@ -38,8 +38,7 @@
     transform: translateX(-50%) scaleX(1);
   }
 
-  /* --ink (set by band.tsx) is how far the wall is drawn; the default draws it all for
-     no-JS and reduced motion. 160px must match FEATHER. */
+  /* --ink comes from band.tsx; the default draws it all for no-JS and reduced motion; 160px must match FEATHER */
   .wall {
     --ink: 200000px;
     position: absolute;

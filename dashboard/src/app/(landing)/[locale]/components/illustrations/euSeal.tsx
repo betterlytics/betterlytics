@@ -28,7 +28,7 @@ function Stars({ cx, cy, radius, size }: { cx: number; cy: number; radius: numbe
   );
 }
 
-/** EU star ring watermark; on `group` hover it turns one star (30°), so it rests looking unchanged. */
+/** Hover turns the ring by one star (30°), so it rests looking unchanged. */
 export function EuSeal() {
   return (
     <svg

@@ -25,7 +25,7 @@ import type { IllustrationProps } from './types';
 import styles from './events.module.css';
 import { FLAGS, type FlagCode } from './flags';
 
-/* Mock data, kept literal on purpose; the product's own labels are translated. */
+/* Mock data, deliberately untranslated. */
 
 type Kind = { name: string; icon: LucideIcon; key: string; values: readonly string[] };
 
@@ -157,7 +157,6 @@ export function Events({ entered, live }: IllustrationProps) {
   const serial = useRef(0);
   const seededAt = useRef(0);
 
-  // hovering pauses the log so a row can be read; arrivals are held until release
   const [paused, setPaused] = useState(false);
   const pausedRef = useRef(false);
   const held = useRef<Row[]>([]);
@@ -194,7 +193,7 @@ export function Events({ entered, live }: IllustrationProps) {
     const timers: ReturnType<typeof setTimeout>[] = [];
     const later = (fn: () => void, ms: number) => timers.push(setTimeout(() => !cancelled && fn(), ms));
 
-    // the seed was stamped at load; on first going live, shift it to now so it reads "4s", not "40s"
+    // the seed was stamped at load; shift it to now so it reads "4s", not "40s"
     if (seededAt.current) {
       const shift = Date.now() - seededAt.current;
       seededAt.current = 0;

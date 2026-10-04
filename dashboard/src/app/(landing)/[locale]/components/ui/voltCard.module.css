@@ -22,8 +22,7 @@
     background-size: 10px 10px;
   }
 
-  /* turned onto the hatch, so lines every 10/√2 px (7.0711) land on the 10px tiles; moved by
-     transform only, to stay on the compositor */
+  /* rotated onto the hatch so lines every 10/√2 px (7.0711) land on the 10px tiles; transform-only to stay on the compositor */
   .wave {
     display: none;
   }

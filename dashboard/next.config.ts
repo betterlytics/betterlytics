@@ -16,8 +16,7 @@ if (result.error) {
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  // Next's list leaves out Googlebot (it streams metadata into <body>, where Google ignores canonical and hreflang)
-  // and the AI search crawlers; everyone else keeps streamed metadata, so pages don't wait on generateMetadata
+  // Next's list omits Googlebot and AI crawlers; Google ignores canonical and hreflang streamed into <body>
   htmlLimitedBots: new RegExp(
     `${HTML_LIMITED_BOT_UA_RE.source}|Googlebot|GPTBot|OAI-SearchBot|PerplexityBot|ClaudeBot`,
     'i',
@@ -39,8 +38,7 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return {
       beforeFiles: [],
-      // Dotted single segments the middleware skips (/wp-login.php, /.env) would hit the static
-      // landing as its locale and cache a 404 each; send them to the app's per-request catch-all.
+      // Dotted segments the middleware skips (/wp-login.php) would each cache a 404 as a landing locale
       afterFiles: [
         {
           source: `/:segment((?!(?:${SUPPORTED_LANGUAGES.join('|')})$)[^/]+)`,

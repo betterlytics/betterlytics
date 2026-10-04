@@ -10,7 +10,7 @@ import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './replay.module.css';
 
-/* Acme's page and the event details are mock data, kept literal on purpose; the product's own labels are translated. */
+/* Mock data, deliberately untranslated. */
 
 /** Every keyframe loop in replay.module.css runs on this. */
 const LOOP_MS = 11000;

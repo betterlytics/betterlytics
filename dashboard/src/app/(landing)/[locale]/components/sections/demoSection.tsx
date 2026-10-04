@@ -23,7 +23,6 @@ export async function DemoSection() {
       id={IDS.demo}
       className={cn(
         'z-2 flow-root px-[calc(var(--inset)+8px)] pt-0 max-sm:hidden',
-        // the customers row, when shown, hangs right under the window
         CUSTOMERS.length > 0 && 'pb-2 max-lg:pb-2',
       )}
     >

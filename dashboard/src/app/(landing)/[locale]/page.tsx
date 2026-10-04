@@ -20,7 +20,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     {
       ...(await buildSEOConfig(SEO_CONFIGS.root)),
       description: t('seo.description'),
-      // link previews in chats and social posts use the hero's own words
       socialTitle: t('hero.title'),
       socialDescription: t('hero.lede'),
     },

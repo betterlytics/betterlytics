@@ -7,7 +7,7 @@ import styles from './brandMark.module.css';
 
 const SYMBOL_ID = 'landing-brand-mark';
 const FILL_MASK_ID = 'landing-brand-mark-fill';
-/** The mark's three columns, [x, width] in its viewBox. */
+/** [x, width] in the viewBox. */
 const COLUMNS = [
   [0, 375],
   [375, 375],
@@ -35,7 +35,7 @@ export function BrandMark({ className }: { className?: string }) {
   );
 }
 
-/** The mark filling up column by column, as the app's loading logo does. One per page: its mask id is fixed. */
+/** One per page: its mask id is fixed. */
 export function LoadingMark({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox='0 0 1072 1069' aria-hidden>

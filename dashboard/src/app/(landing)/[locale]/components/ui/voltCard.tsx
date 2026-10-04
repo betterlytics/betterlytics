@@ -9,7 +9,6 @@ const VARIANTS = {
   cta: 'h-[528px] max-lg:h-auto max-lg:pt-16 max-lg:pb-[100px] max-sm:rounded-none max-sm:pt-30 max-sm:pb-42',
 } as const;
 
-/** the hero title runs to several lines on a phone, so its copy goes left-aligned there */
 const CONTENT = {
   hero: 'max-sm:items-start max-sm:text-left',
   cta: '',

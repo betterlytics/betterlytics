@@ -8,7 +8,6 @@ import { Heading, Lede } from './text';
 
 type SectionProps = {
   id: string;
-  /** `*word*` underlines that word. */
   title?: string;
   lede?: string;
   balanced?: boolean;
@@ -53,7 +52,7 @@ export function Corners({ persistent = false, className }: { persistent?: boolea
   );
 }
 
-/** Phones have no walls: by default its rules run to the screen edges; `framed` draws its own sides, for cards. */
+/** On phones its rules run to the screen edges unless `framed`. */
 export function Panel({
   children,
   className,

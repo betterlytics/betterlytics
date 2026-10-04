@@ -32,7 +32,7 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
 };
 
-/** None at build time (placeholder env); each locale renders on first request, then serves from cache. */
+/** None at build time (placeholder env); each locale renders on first request, then caches. */
 export function generateStaticParams() {
   return [];
 }

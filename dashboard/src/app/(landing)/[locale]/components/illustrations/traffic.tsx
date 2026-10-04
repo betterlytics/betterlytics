@@ -9,7 +9,7 @@ import { rovingTabKeys } from '@/landing/lib/rovingTabs';
 import type { IllustrationProps } from './types';
 import styles from './traffic.module.css';
 
-/* Mock data, kept literal on purpose; the product's own labels are translated. */
+/* Mock data, deliberately untranslated. */
 
 const TABS = [
   {
@@ -55,7 +55,7 @@ const weekdays = (locale: string) =>
   );
 const HOURS = 24;
 
-/** 0 to 1; deterministic rather than random so server and client render the same. */
+/** Deterministic rather than random so server and client render the same. */
 function intensity(day: number, hour: number) {
   const weekend = day >= 5;
   const office = Math.exp(-((hour - 11) ** 2) / 14);
@@ -72,7 +72,6 @@ export function Traffic({ entered }: IllustrationProps) {
   const count = new Intl.NumberFormat(locale);
   const percent = new Intl.NumberFormat(locale, { style: 'percent' });
   const days = weekdays(locale);
-  // `from`: the previous tab, null until the first switch
   const [{ tab, from }, setView] = useState<{ tab: number; from: number | null }>({ tab: 0, from: null });
   const direction = from === null || tab > from ? 1 : -1;
   const switched = from !== null;

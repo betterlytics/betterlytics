@@ -1,7 +1,7 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* Opaque: it overlaps the hero card. The shadow is cast upward so it spares the logo panel's top rule. */
+  /* opaque because it overlaps the hero card; the shadow is cast upward to spare the logo panel's top rule */
   .window {
     position: relative;
     display: grid;

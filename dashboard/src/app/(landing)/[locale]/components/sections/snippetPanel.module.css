@@ -40,7 +40,7 @@
     font-style: italic;
   }
 
-  /* phones: fade the overflowing tab bar's right edge, keeping its 1px border row solid */
+  /* the second mask layer keeps the 1px border row unfaded */
   .tabs {
     @variant max-sm {
       mask:

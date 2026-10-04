@@ -1,10 +1,9 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* the margins make room for the back cards so the whole stack centres */
   .stack {
     --dx: 28px;
-    /* just clears a back card's header text; the next card covers its bottom padding */
+    /* just clears a back card's header text */
     --dy: 54px;
     --behind: 2;
     position: relative;
@@ -144,7 +143,7 @@
   }
 
   .trail {
-    /* time column, shared with the frames' line numbers; phones show HH:MM */
+    /* time column; phones show HH:MM */
     --when: 58px;
     padding: 10px 14px 14px;
     @variant max-sm {

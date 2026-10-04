@@ -9,7 +9,7 @@ import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import styles from './globe.module.css';
 
-/* Mock data, kept literal on purpose, but for the generic sources (`direct`, `newsletter`), which are translated. */
+/* Mock data, deliberately untranslated except the generic sources. */
 const ARRIVALS = [
   { id: 'cph', city: 'Copenhagen, DK', source: 'ChatGPT', lat: 55.7, lng: 12.6 },
   { id: 'nyc', city: 'New York, US', source: 'Google', lat: 40.7, lng: -74.0 },
@@ -44,7 +44,6 @@ const FLING_MS = 1700;
 const START_YAW = 4.6; // Europe facing the viewer
 const TILT = -0.1; // camera just below the equator
 const ROLL = 0.26; // rad clockwise: the axis leans right
-/* Mark sizes in CSS px. */
 const MARK_DOT = 2.2;
 const MARK_RING = 6;
 const MARK_ACTIVE_DOT = 3;
@@ -55,15 +54,15 @@ const MARK_FADE = 0.35; // facing cosine below which marks fade toward the limb
 const DWELL_MS = 3600;
 const WELL_FACING = 0.45; // min facing cosine for a callout
 const CALLOUT_INSET = 32; // px; more than a marker moves in one dwell
-const FACING_CHECK_EVERY = 6; // frames
+const FACING_CHECK_EVERY = 6;
 const LAND_SETTLE_MS = 1000;
 const MAX_DPR = 2; // phones too: at 1.5 the dots visibly soften on 2x screens
 const FAR_DPR = 1; // the far side is faint enough for 1x
 const LABEL_DX = 14;
 const LABEL_DY = 10;
-const LABEL_FLIP_PX = 80; // closer than this to the top, the label drops below its marker
-const GRID_STEP = 15; // degrees
-const MAJOR_ALPHA = 0.64; // 30° meridians
+const LABEL_FLIP_PX = 80;
+const GRID_STEP = 15;
+const MAJOR_ALPHA = 0.64;
 const MINOR_ALPHA = 0.3;
 const PARALLEL_ALPHA = 0.25;
 const FAR_GRID_ALPHA = 0.1;
@@ -79,7 +78,7 @@ const LOOK = {
   mapBaseBrightness: 0.02,
   baseColor: LAND,
   glowColor: GLOW,
-  markers: [], // drawn on the marks canvas instead
+  markers: [],
   markerColor: LAND, // required by the types; unused
 } satisfies Partial<COBEOptions>;
 
@@ -105,8 +104,7 @@ function mul(a: Mat3, b: Mat3): Mat3 {
   return m;
 }
 
-/* The globe yaws about the screen's vertical, not its poles; each frame that pose is decomposed into
-   cobe's Rx(theta)·Ry(phi) plus a CSS roll Rz(-roll). */
+/* The globe yaws about the screen's vertical, not its poles, so each pose is split into cobe's phi/theta plus a CSS roll. */
 type Pose = { phi: number; theta: number; roll: number };
 const REST: Mat3 = mul(rotZ(-ROLL), mul(rotX(TILT), rotY(START_YAW)));
 function poseAt(yaw: number): Pose {
@@ -223,7 +221,7 @@ function drawMarks(
 
 const byId = (id: string) => ARRIVALS.find((a) => a.id === id) ?? ARRIVALS[0];
 
-/* Host layer's box and the scene's size in CSS px, read per resize (offsets ignore transforms). */
+/* In CSS px, from offsets, which ignore the CSS roll. */
 type HostBox = { left: number; top: number; size: number; width: number; height: number };
 
 /* Rolled as CSS rolls the canvases; `depth` is the facing cosine (1 at the centre, 0 on the limb). */
@@ -245,7 +243,6 @@ function inScene(box: HostBox, m: { x: number; y: number }, inset = 0) {
   return m.x >= inset && m.x <= box.width - inset && m.y >= inset && m.y <= box.height - inset;
 }
 
-/* Places the label beside its marker; returns whether it should show (marker facing and in the scene). */
 function placeLabel(box: HostBox, label: HTMLElement, a: Arrival, project: Project, roll: number) {
   const m = markerAt(box, a, project, roll);
   const w = label.offsetWidth;
@@ -312,7 +309,6 @@ function createGlobes(nearLayer: HTMLElement, farLayer: HTMLElement, dpr: number
   return { near, far };
 }
 
-/** Without WebGL it falls back to a still graticule. */
 export function GlobeScene() {
   const t = useTranslations('landing.illustrations.globe');
   const sceneRef = useRef<HTMLDivElement>(null);
@@ -324,7 +320,7 @@ export function GlobeScene() {
   // returns whether the active marker faces the viewer
   const renderRef = useRef<() => boolean>(() => true);
   const boxRef = useRef<HostBox>({ left: 0, top: 0, size: 1, width: 1, height: 1 });
-  const loopRef = useRef(false); // the rAF loop is running and renders each frame
+  const loopRef = useRef(false);
   const yawRef = useRef(START_YAW);
   const velRef = useRef(IDLE_RAD_PER_MS);
   const flingRef = useRef<{ v0: number; start: number } | null>(null);

@@ -33,7 +33,6 @@
       border-right: 0;
     }
   }
-  /* no bottom rule on the last pair; on phones, the last row only */
   .row:nth-last-child(-n + 2) {
     @variant max-xl {
       border-bottom: 0;

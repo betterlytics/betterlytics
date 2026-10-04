@@ -31,7 +31,6 @@ function Highlight({ code }: { code: string }) {
   return <>{out}</>;
 }
 
-/** A leading `+` marks an added line. */
 function Lines({ code }: { code: string }) {
   return (
     <>
@@ -60,7 +59,6 @@ const REQUEST: readonly FootPart[] = [
 /** the 14px gap between parts, in 11px mono characters */
 const GAP_CHARS = 2;
 
-/** Delays each part by its character offset so the scramble sweeps left to right as one line. */
 function FootParts({ parts }: { parts: readonly FootPart[] }) {
   let at = 0;
   return (

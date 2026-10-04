@@ -6,7 +6,7 @@ import { EASE_OUT_EXPO } from '@/landing/lib/easing';
 
 const ROLL_S = 0.45;
 
-// functions of AnimatePresence's `custom`, so a leaving digit follows the latest change's direction
+// functions of AnimatePresence's `custom`, so a leaving digit follows the latest direction
 const ROLL = {
   enter: (direction: 1 | -1) => ({ y: `${100 * direction}%` }),
   settle: { y: '0%', transition: { duration: ROLL_S, ease: EASE_OUT_EXPO } },
@@ -16,13 +16,11 @@ const ROLL = {
   }),
 };
 
-/** Odometer digits: only changed characters roll, up when `direction` is 1. */
 export function RollingDigits({
   value,
   direction = 1,
   className,
 }: {
-  /** Pre-formatted, e.g. "03"; one slot per character. */
   value: string;
   direction?: 1 | -1;
   className?: string;

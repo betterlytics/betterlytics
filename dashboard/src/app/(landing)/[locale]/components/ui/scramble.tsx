@@ -13,7 +13,6 @@ const REROLL = 55;
 
 const roll = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
 
-/** Scrambles text in on first view and on each change; frames write to the DOM, so nothing re-renders. */
 export function Scramble({ text, delay = 0, className }: { text: string; delay?: number; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const shownRef = useRef<HTMLSpanElement>(null);

@@ -1,7 +1,7 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* one-time nudge hinting the thumb is draggable; reduced motion is handled in the base layer */
+  /* reduced motion is handled in the base layer */
   .slider[data-seen] .thumb {
     @variant max-sm {
       animation: thumb-nudge 1s ease-in-out 0.4s;

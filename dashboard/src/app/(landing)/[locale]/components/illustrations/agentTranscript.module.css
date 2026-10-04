@@ -7,7 +7,7 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid --alpha(var(--color-fg) / 9%);
-    border-left-width: 0; /* no left edge on purpose */
+    border-left-width: 0;
     border-radius: 8px;
     background: var(--color-terminal);
   }
@@ -97,7 +97,6 @@
     margin-left: auto;
     font-size: 11px;
     opacity: 0.8;
-    /* with the session it would wrap on phones */
     @variant max-sm {
       display: none;
     }
@@ -124,7 +123,6 @@
       display: block;
     }
   }
-  /* reserves show the finished state: every line but the working indicator */
   .reserve .line:not([data-shown]) {
     display: block;
   }
@@ -157,7 +155,6 @@
       transform: translateY(4px);
     }
   }
-  /* without JS or with reduced motion, the first script stands finished */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     .line:not([data-shown]) {
       display: none;
@@ -194,7 +191,6 @@
   .toolName {
     color: var(--color-volt-soft);
   }
-  /* elided on phones, where they would wrap to five lines */
   .args {
     @variant max-sm {
       display: none;

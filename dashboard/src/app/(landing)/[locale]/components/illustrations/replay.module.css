@@ -56,7 +56,6 @@
     color: var(--color-muted);
   }
   .viewport {
-    /* Starter card and Choose Pro positions, for cursor-path */
     --starter-y: 56%;
     --pro-y: 76%;
     position: relative;
@@ -74,7 +73,6 @@
     overflow: hidden;
   }
 
-  /* zoomed out on phones so all three plans fit */
   .page {
     position: absolute;
     inset: 0;
@@ -426,7 +424,7 @@
   }
   .tick {
     position: absolute;
-    z-index: 1; /* above the fill */
+    z-index: 1;
     left: calc(var(--at) * 100%);
     top: 50%;
     width: 2px;
@@ -438,7 +436,6 @@
   .tick[data-bad] {
     background: var(--color-down);
   }
-  /* delayed by its own position so the flare starts as the head arrives */
   .tick[data-flare] {
     @media (prefers-reduced-motion: no-preference) {
       animation-name: error-flare;
@@ -464,7 +461,7 @@
     fill: var(--color-fg);
     stroke: none;
   }
-  /* carries the icons' baseline drop itself; ::before enlarges the hit area */
+  /* carries the icons' baseline drop itself */
   .toggle {
     position: relative;
     display: block;
@@ -555,7 +552,6 @@
     left: 52%;
     top: calc(var(--pro-y) - 1%);
   }
-  /* rage clicks land in one spot, as the detector defines them */
   57%,
   59% {
     left: 51%;

@@ -1,7 +1,6 @@
 import { Fragment, type ElementType, type ReactNode } from 'react';
 
 type EmphasisProps = {
-  /** `*word*` marks emphasis; `\n` breaks the line on phones only. */
   text: string;
   as: ElementType<{ className?: string; children: ReactNode }>;
   className?: string;

@@ -12,7 +12,7 @@
       gap: 24px;
     }
   }
-  /* top and bottom rules; InkFrame draws them in */
+  /* InkFrame draws these rules in */
   .frame::before,
   .frame::after {
     content: '';

@@ -1,7 +1,4 @@
-/**
- * A leading `+` marks a line the reader adds (lit; the rest dims). `logo` is a file in public/framework-logos.
- * Without `name`, the tab reads the translated `landing.network.packageTab`.
- */
+/** A leading `+` marks an added line; `logo` is in public/framework-logos; no `name` shows `landing.network.packageTab`. */
 type Snippet = { id: string; name?: string; file?: string; logo?: string; code: string };
 
 const SRC = 'https://betterlytics.io/analytics.js';

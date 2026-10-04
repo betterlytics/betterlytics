@@ -5,7 +5,7 @@ import { useInView } from '@/landing/hooks/useInView';
 import { cn } from '@/landing/lib/cn';
 import styles from './inkFrame.module.css';
 
-/** Draws its rules in on first entry; `className` must position the ::before/::after edges. */
+/** `className` must position the ::before/::after edges. */
 export function InkFrame({ className, children }: { className?: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const drawn = useInView(ref, 'draw');

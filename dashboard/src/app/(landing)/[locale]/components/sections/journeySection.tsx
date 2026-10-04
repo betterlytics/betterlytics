@@ -20,7 +20,6 @@ import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 import styles from './journeySection.module.css';
 
-/** `name` is the illustration's key under `landing.illustrations`, whose alt labels the box until it mounts. */
 const ILLUSTRATIONS = {
   find: { Art: Globe, name: 'globe' },
   see: { Art: Traffic, name: 'traffic' },
@@ -58,14 +57,14 @@ function nearestToViewportCentre(cards: HTMLElement[]) {
   return cards.reduce((best, card) => (distance(card) < distance(best) ? card : best));
 }
 
-/** Visual duplicate of the active card's copy; aria-hidden since the cards carry it for screen readers. */
+/** aria-hidden: the cards carry the same copy for screen readers. */
 function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
   const ref = useRef<HTMLDivElement>(null);
   const t = useTranslations('landing.journey.steps');
   const step = JOURNEY_STEPS[active];
   const lines = t(`${step}.title`).split('\n');
 
-  // Sticky top that centres the rail; re-measured per step since the copy changes its height.
+  // re-measured per step since the copy changes the rail's height
   useEffect(() => {
     const rail = ref.current;
     if (!rail) return;
@@ -112,7 +111,6 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
   );
 }
 
-/** `entered` latches so a played illustration stays drawn. From 2xl the copy is sr-only; the rail shows it. */
 function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const entered = useInView(ref);
@@ -138,7 +136,7 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
         <p className={cn(NOTE, '2xl:sr-only')}>{t(`${step}.note`)}</p>
       </div>
       <div className='border border-rule-10 transition-ink'>
-        {/* illustrations keep their size, so taller as it narrows; phones get a fixed height (square at 390px) */}
+        {/* illustrations keep their size, so taller as it narrows; h-89 is square at 390px */}
         <div
           className='relative aspect-video overflow-hidden max-md:aspect-4/3 max-sm:aspect-auto max-sm:h-89'
           data-nosnippet
@@ -152,7 +150,7 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
   );
 }
 
-/** `live` gates looping motion and needs the stack on screen, so a jump away leaves nothing looping. */
+/** `live` also needs the stack on screen, so a jump away leaves nothing looping. */
 export function JourneySection() {
   const t = useTranslations('landing.journey');
   const stackRef = useRef<HTMLDivElement>(null);

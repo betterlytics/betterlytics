@@ -24,7 +24,7 @@ export function TrackedLink({
   );
 }
 
-/** For pages outside the Next router (e.g. docs), which need a full navigation. */
+/** For pages outside the Next router (e.g. docs). */
 export function TrackedAnchor({ placement, destination, plan, onClick, ...props }: ComponentProps<'a'> & Cta) {
   return (
     <a

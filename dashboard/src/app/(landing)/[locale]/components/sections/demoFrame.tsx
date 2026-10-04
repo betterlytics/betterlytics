@@ -11,7 +11,6 @@ import styles from './demoFrame.module.css';
 
 /** Cap on waiting for the page's load event, which a hung request elsewhere can stall. */
 const LOAD_WAIT_MS = 3000;
-/** After this, the loader gives way to a link to the full demo. */
 const STALL_MS = 15000;
 
 function whenPageSettles(start: () => void) {
@@ -44,7 +43,7 @@ function whenPageSettles(start: () => void) {
   };
 }
 
-/** Click-to-activate dashboard embed; the scrim stops the iframe swallowing page scroll. */
+/** Click-to-activate: the scrim stops the iframe swallowing page scroll. */
 export function DemoFrame({ src }: { src: string }) {
   const t = useTranslations('landing.demo');
   const [requested, setRequested] = useState(false);
@@ -99,7 +98,6 @@ export function DemoFrame({ src }: { src: string }) {
           )}
         </div>
       )}
-      {/* laid out at 1/scale, then scaled down, so more of the dashboard fits */}
       {requested && (
         <iframe
           ref={frame}

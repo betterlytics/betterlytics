@@ -23,7 +23,6 @@ function split(format: Intl.NumberFormat, n: number) {
   return { whole, point, fraction };
 }
 
-/** Counts up once in view; frames write to the DOM directly, so nothing re-renders. */
 export function CountUp({
   value,
   decimals = 0,

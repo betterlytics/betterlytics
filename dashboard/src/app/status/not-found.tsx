@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 
 export { buildStatusPageNotFoundMetadata as generateMetadata } from '@/app/status/shared/statusPageShell';
 
-/** Unknown or unpublished status pages. No link out: on a customer's own domain there is nowhere to send visitors. */
+/** No link out: on a customer's own domain there is nowhere to send visitors. */
 export default async function StatusPageNotFound() {
   const t = await getTranslations({ locale: 'en', namespace: 'publicStatusPage.notFound' });
 

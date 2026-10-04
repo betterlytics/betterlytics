@@ -3,7 +3,6 @@ import { useEffect, useState, type RefObject } from 'react';
 /** Min scroll (px) before `scrolledDown` flips, so jitter doesn't flick the bar. */
 const TOLERANCE = 8;
 
-/** `grid`: the nav is past `gridStartId`'s top. `scrolledDown`: the last move was down, below the bar. */
 export function useNavScrollState(navRef: RefObject<HTMLElement | null>, gridStartId: string) {
   const [grid, setGrid] = useState(false);
   const [scrolledDown, setScrolledDown] = useState(false);

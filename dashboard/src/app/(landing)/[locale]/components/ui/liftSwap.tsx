@@ -5,7 +5,7 @@ import { AnimatePresence, m, useReducedMotion } from 'motion/react';
 import { cn } from '@/landing/lib/cn';
 import { EASE_OUT_EXPO } from '@/landing/lib/easing';
 
-export const LIFT_STEP_S = 0.04; // stagger between slots
+export const LIFT_STEP_S = 0.04;
 const IN_S = 0.5;
 const OUT_S = 0.26;
 const LIFT = 10;
@@ -13,7 +13,7 @@ const BLUR = 'blur(5px)';
 
 type Swap = { direction: 1 | -1; delay: number };
 
-// functions of AnimatePresence's `custom`, so leaving content follows the latest change's direction
+// functions of AnimatePresence's `custom`, so leaving content follows the latest direction
 const SWAP = {
   enter: ({ direction }: Swap) => ({ opacity: 0, y: LIFT * direction, filter: BLUR }),
   settle: ({ delay }: Swap) => ({
@@ -32,7 +32,6 @@ const SWAP = {
   }),
 };
 
-/** Swaps content with a blurred lift when `id` changes; `direction` 1 rises from below. */
 export function LiftSwap({
   id,
   direction = 1,

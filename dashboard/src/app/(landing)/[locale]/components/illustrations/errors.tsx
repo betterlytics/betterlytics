@@ -8,7 +8,7 @@ import styles from './errors.module.css';
 import type { IllustrationProps } from './types';
 import { FLAGS } from './flags';
 
-/* Errors, pages and events are mock data, kept literal on purpose; the product's own labels are translated. */
+/* Mock data, deliberately untranslated. */
 
 type Frame = { line: number; fn: string; file: string; col: number; lib?: boolean };
 type Step = { at: string; label: string };
@@ -147,7 +147,6 @@ function Card({
   className,
 }: {
   group: Group;
-  /** 0 is the front card. */
   depth: number;
   resolved?: boolean;
   side: ReactNode;

@@ -8,7 +8,6 @@ import { vars } from '@/landing/lib/cssVars';
 import { EASE_INK } from '@/landing/lib/easing';
 import styles from './reveal.module.css';
 
-/** Lifts in when scrolled into view; `index` staggers siblings. */
 export function Reveal({
   children,
   className,
@@ -32,7 +31,7 @@ export function Reveal({
   );
 }
 
-/** Ink underline; hidden until drawn, as an undrawn path still shows its round cap. */
+/** Hidden until drawn: an undrawn path still shows its round cap. */
 export function Underline({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, 'read');

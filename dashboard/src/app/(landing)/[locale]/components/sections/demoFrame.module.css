@@ -1,7 +1,7 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* Translucent so the dashboard stays legible. Keep its centre empty: the whole frame is the target. */
+  /* keep the centre empty: the whole frame is the target */
   .scrim {
     position: absolute;
     inset: 0;

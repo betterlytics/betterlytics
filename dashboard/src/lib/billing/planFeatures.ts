@@ -1,6 +1,6 @@
 import type { Tier } from '@/entities/billing/billing.entities';
 
-/** Keys under `pricingCards.features` messages, in display order; `events` formats with the selected range. */
+/** Keys under `pricingCards.features` messages; `events` formats with the selected range. */
 export type PlanFeatureItem =
   | { kind: 'events' }
   | { kind: 'header'; key: 'everythingInStarter' | 'everythingInProfessional' }

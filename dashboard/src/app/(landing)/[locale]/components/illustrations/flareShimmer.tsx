@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { vars } from '@/landing/lib/cssVars';
 
-/* Feeds `.terminal::after` in agentTranscript.module.css via FLARE_FIELD, so the canvas lands on its dots. */
+/* Must match `.terminal::after` in agentTranscript.module.css, which reads FLARE_FIELD. */
 const BOX = 620;
 const PITCH = 11;
 const DOT = 1.2; // radius, and offset into its tile
@@ -38,7 +38,7 @@ function falloff(d: number) {
   return d <= FULL ? 1 : Math.max(0, 1 - (d - FULL) / (FADE - FULL));
 }
 
-/** Light waves over the MCP flare's CSS dot field (whose frame carries FLARE_FIELD); draws only while `live`. */
+/** The parent element must be the frame carrying FLARE_FIELD. */
 export function FlareShimmer({ className, live }: { className?: string; live: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -58,7 +58,6 @@ export function FlareShimmer({ className, live }: { className?: string; live: bo
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.fillStyle = 'rgb(220, 226, 255)';
 
-    // only the dots the frame doesn't clip, relative to the flare's centre
     let dots: Dot[] = [];
     const measure = () => {
       const c = canvas.getBoundingClientRect();

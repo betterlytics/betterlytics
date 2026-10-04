@@ -9,7 +9,7 @@ import { cn } from '@/landing/lib/cn';
 import styles from './agentTranscript.module.css';
 import { FLARE_FIELD, FlareShimmer } from './flareShimmer';
 
-/* The conversation is translated; the terminal chrome and tool calls are literal, matching src/mcp/tools/describe.ts. */
+/* Tool calls stay literal, matching src/mcp/tools/describe.ts. */
 type Step =
   | { kind: 'question'; text: string }
   | { kind: 'working'; ms: number }
@@ -140,7 +140,6 @@ function liveText(step: Step, elapsed: number) {
   }
 }
 
-/** Writes the state `t` ms into the script straight to the DOM, touching only what changed. */
 function stage(body: HTMLElement, { cues, done, out }: Timeline, t: number) {
   body.toggleAttribute('data-out', t >= out);
   body.toggleAttribute('data-done', t >= done);
@@ -154,7 +153,7 @@ function stage(body: HTMLElement, { cues, done, out }: Timeline, t: number) {
   });
 }
 
-/** `stage` rewrites the `data-text` part; React never updates these lines, so the two don't collide. */
+/** `stage` writes `data-text` directly; React never updates these lines. */
 function Line({ step }: { step: Step }) {
   switch (step.kind) {
     case 'question':
@@ -201,7 +200,6 @@ function Line({ step }: { step: Step }) {
   }
 }
 
-/** Plays while on screen; each frame writes to the DOM, and React re-renders only to switch scripts. */
 export function AgentTranscript({ className }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -212,7 +210,6 @@ export function AgentTranscript({ className }: { className?: string }) {
   const scripts = useMemo(() => buildScripts(t), [t]);
   const timelines = useMemo(() => scripts.map(toTimeline), [scripts]);
   const [script, setScript] = useState(0);
-  /** ms into the current script, kept across pauses */
   const elapsed = useRef(0);
 
   useEffect(() => {
@@ -260,7 +257,7 @@ export function AgentTranscript({ className }: { className?: string }) {
         </span>
       </div>
       <div className={styles.screen}>
-        {/* hidden finished copies hold the tallest script's height on phones, so printing never shifts the page */}
+        {/* hidden finished copies reserve the tallest script's height, so printing never shifts the page */}
         {scripts.map((steps, s) => (
           <div key={s} className={cn(styles.body, styles.reserve)} aria-hidden>
             {steps.map((step, i) => (

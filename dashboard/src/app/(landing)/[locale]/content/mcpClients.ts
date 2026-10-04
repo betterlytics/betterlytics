@@ -3,7 +3,7 @@ import { LINKS } from '@/landing/lib/links';
 
 type McpClientName = (typeof MCP_CLIENT_ICONS)[number]['name'];
 
-/** Anchors on the MCP docs page, which selects the client from the URL hash. */
+/** The MCP docs page selects the client from the URL hash. */
 const DOCS_ANCHOR = {
   Claude: 'claude-desktop',
   'Claude Code': 'claude-code',

@@ -1,13 +1,10 @@
-/*
- * Separate from the app's globals.css (own tokens, scans only this folder) so nothing leaks either way.
- * CSS modules wrap their rules in @layer components so className utilities win.
- */
+/* Separate from the app's globals.css so nothing leaks either way.
+   CSS modules wrap their rules in @layer components so className utilities win. */
 @layer theme, base, components, utilities;
 
 @import 'tailwindcss' source(none);
 
 @source './**/*.{ts,tsx}';
-/* shared app components the page renders */
 @source '../../../components/gauge/**/*.tsx';
 
 /* `static` emits every token, so CSS modules and scripts can read them */
@@ -33,8 +30,7 @@
   --color-live: #4ade9b;
   --color-white: #fff;
   --color-black: #000;
-  /* Alphas sit below the % in each name: solid lines read heavier than dashed ones.
-     An undrawn InkFrame blanks these to hide the rules inside it. */
+  /* alphas sit below each name's %: solid lines read heavier than dashed ones; inkFrame.module.css blanks these */
   --color-rule: rgb(235 232 230 / 0.086);
   --color-rule-08: rgb(235 232 230 / 0.06);
   --color-rule-10: rgb(235 232 230 / 0.075);
@@ -48,14 +44,13 @@
   --font-sans: var(--font-landing-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-landing-mono), ui-monospace, Menlo, monospace;
 
-  /* desktop-first: components mostly use max-* variants */
   --breakpoint-*: initial;
-  --breakpoint-sm: 40rem; /* 640px */
-  --breakpoint-md: 47.5rem; /* 760px */
-  --breakpoint-lg: 56.25rem; /* 900px */
-  --breakpoint-xl: 62.5rem; /* 1000px */
-  --breakpoint-2xl: 67.5rem; /* 1080px */
-  --breakpoint-3xl: 75rem; /* 1200px */
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 47.5rem;
+  --breakpoint-lg: 56.25rem;
+  --breakpoint-xl: 62.5rem;
+  --breakpoint-2xl: 67.5rem;
+  --breakpoint-3xl: 75rem;
 
   /* display and lede sizes change per breakpoint in the base layer */
   --text-*: initial;
@@ -68,13 +63,13 @@
   --text-lede: 1.2rem;
   --text-lede--line-height: 1.5rem;
   --text-lede--letter-spacing: -0.03rem;
-  --text-title: 1.0625rem; /* 17px */
-  --text-body: 0.96875rem; /* 15.5px */
-  --text-body-sm: 0.9375rem; /* 15px */
-  --text-label: 0.875rem; /* 14px */
-  --text-caption: 0.8125rem; /* 13px */
-  --text-code: 0.78125rem; /* 12.5px */
-  --text-micro: 0.6875rem; /* 11px */
+  --text-title: 1.0625rem;
+  --text-body: 0.96875rem;
+  --text-body-sm: 0.9375rem;
+  --text-label: 0.875rem;
+  --text-caption: 0.8125rem;
+  --text-code: 0.78125rem;
+  --text-micro: 0.6875rem;
 
   --tracking-ui: -0.0125rem;
 
@@ -132,10 +127,9 @@
   html {
     background-color: var(--color-canvas);
     color-scheme: dark;
-    /* clears the sticky nav */
     scroll-padding-top: 4.5rem;
   }
-  /* scroll lock under the open menu, which is full screen below the nav's lg breakpoint (see nav) */
+  /* the open menu is full screen below the nav's lg breakpoint */
   @media (width < 56.25rem) {
     html:has(header[data-open]) {
       overflow: hidden;
@@ -186,8 +180,7 @@
   transition: border-color 0.5s ease 0.55s;
 }
 
-/* Full-viewport hairline on a positioned element's ::before/::after; set edge and colour
-   alongside, e.g. `after:bleed-rule after:bottom-0 after:bg-rule`. */
+/* set edge and colour alongside, e.g. `after:bleed-rule after:bottom-0 after:bg-rule` */
 @utility bleed-rule {
   position: absolute;
   left: 50%;

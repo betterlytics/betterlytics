@@ -17,7 +17,7 @@
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: 6px 14px;
-    /* one line fits only in the full 1480px column, so narrower screens get two even rows of nine, not 16/2 */
+    /* one line fits only in the full 1480px column, so narrower screens get two even rows of nine */
     @media (width < 96rem) {
       display: grid;
       grid-template-columns: repeat(9, 30px);
@@ -48,7 +48,6 @@
     }
   }
 
-  /* Glint: a full-tone copy of the row, masked to a travelling "/" band. */
   .shine {
     display: none;
     position: absolute;
@@ -64,7 +63,6 @@
     transition: none;
   }
 
-  /* hide only where a script will bring them in */
   @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
     .glyphs:not([data-in]) .glyph {
       opacity: 0;

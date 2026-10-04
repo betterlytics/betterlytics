@@ -1,10 +1,7 @@
 import { useInView as useMotionInView, type UseInViewOptions } from 'motion/react';
 import type { RefObject } from 'react';
 
-/**
- * Trigger lines must stay reachable by any element, even the last on a tall screen.
- * `draw` and `read` fire well up the viewport so they play while the reader is there.
- */
+/** Trigger lines must stay reachable by the last element on a tall screen; `draw`/`read` sit high to play while read. */
 const PRESETS = {
   enter: { once: true, amount: 0.15, margin: '0px 0px -6% 0px' },
   draw: { once: true, amount: 0, margin: '0px 0px -22% 0px' },

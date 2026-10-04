@@ -21,7 +21,6 @@ const robotoMono = Inter_Tight({
   subsets: ['latin'],
 });
 
-/** Shared by the app and status root layouts; per-request, unlike the landing's static document. */
 export async function AppDocument({ children }: { children: React.ReactNode }) {
   const [locale, seoConfig, sessionToken] = await Promise.all([
     getLocale(),

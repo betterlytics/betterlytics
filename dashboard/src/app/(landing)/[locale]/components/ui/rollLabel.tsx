@@ -1,10 +1,7 @@
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 
-/**
- * Rolls on hover of the parent `group`; the sr-only copy stops readers spelling it letter by letter.
- * The rolling letters are CSS content, so crawlers read the link text once, not three times.
- */
+/** Letters are CSS content so crawlers read the text once; the sr-only copy stops readers spelling it out. */
 export function RollLabel({ text }: { text: string }) {
   const chars = Array.from(text);
   const row = (offset: string) => (

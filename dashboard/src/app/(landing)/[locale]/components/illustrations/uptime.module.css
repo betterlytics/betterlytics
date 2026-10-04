@@ -1,13 +1,11 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* the card's own width decides the layout: beside the rail it is as narrow as a tablet's */
+  /* beside the rail the card is as narrow as a tablet, so its own width decides the layout */
   .uptime {
     container-type: inline-size;
   }
-  /* The monitors start 15% of the width down while the card has room for them and for the notices
-     hanging below the list (about 105px, 24 of it over the last card). On a shorter card the gap
-     gives way first, so the notices stay inside the frame. */
+  /* on short cards the 15cqw gap gives way first, so the notices hanging ~105px below the list stay in frame */
   .stage {
     display: grid;
     grid-template-rows: minmax(0, 15cqw) auto 96px;
@@ -182,13 +180,11 @@
     border-radius: 1px;
     background: --alpha(var(--color-live) / 50%);
   }
-  /* today's bar */
   .statusRow[data-down] .history i:last-child {
     background: var(--color-down);
   }
 
-  /* Both shadow lists carry the stripe so it can fade in; the lift uses `scale`, apart from the
-     draw-in's delayed `transform`. Solid base because the cards overlap the status page. */
+  /* stripe in both shadow lists so it fades in; the `scale` lift skips the draw-in's `transform` delay; opaque over the status page */
   .monitor {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) 50px 34% 48px;
@@ -218,8 +214,7 @@
       padding: 11px 14px 12px;
     }
   }
-  /* narrow cards keep the two that take turns failing (OUTAGES), leaving room for the notice;
-     phones also keep Docs, the SSL notice's monitor */
+  /* narrow cards keep the two that take turns failing (OUTAGES); phones also keep Docs, the SSL notice's monitor */
   .monitor:nth-child(1),
   .monitor:nth-child(4) {
     @variant max-md {
@@ -231,8 +226,7 @@
       display: grid;
     }
   }
-  /* a 16:9 card under 800px wide (beside the rail, or a small tablet) is too short for four rows,
-     so it drops Marketing site, which never fails */
+  /* a 16:9 card under 800px wide is too short for four rows; Marketing site never fails */
   .monitor:nth-child(1) {
     @container (width < 800px) {
       display: none;
@@ -394,8 +388,7 @@
     opacity: 0.95;
   }
 
-  /* left aligns with the strips: they end 79px in (border, padding, uptime column, gap) and
-     span 34% of a content box 34px narrower than the card, so they start at 66% - 67px */
+  /* lines up with the strips: 34% of a content box 34px narrower than the card, ending 79px in */
   .notices {
     position: absolute;
     top: calc(100% - 24px);

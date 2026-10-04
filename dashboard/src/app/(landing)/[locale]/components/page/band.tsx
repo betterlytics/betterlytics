@@ -11,7 +11,6 @@ const LEAD = 0.92;
 /* must match the mask feather in band.module.css; the pen overshoots by it to ink the end fully */
 const FEATHER = 160;
 
-/** The middle band, whose hatched walls ink downward as the reader scrolls. */
 export function Band({ children }: { children: ReactNode }) {
   const bandRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);

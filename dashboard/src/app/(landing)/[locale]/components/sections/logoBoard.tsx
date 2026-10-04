@@ -12,7 +12,6 @@ const SLOTS = 8;
 const FIRST_GAP_MS = 2400;
 const GAP_MS: [number, number] = [3600, 6400];
 const FLIP_S = 0.6;
-/** Slow release, fast turn, short settle. */
 const ROTATE = [0, -180, -174, -180];
 const TIMES = [0, 0.7, 0.85, 1];
 const EASES: Array<[number, number, number, number]> = [

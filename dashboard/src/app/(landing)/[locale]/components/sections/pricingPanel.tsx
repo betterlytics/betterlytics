@@ -21,7 +21,6 @@ import styles from './pricingPanel.module.css';
 
 /** USD only here, though billing also offers EUR. */
 const CURRENCY = 'USD';
-/** Plan prices are whole dollars, so drop the cents. */
 const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
 /** Cancels NumberFlow's mask padding so a figure lays out like text. */
 const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
@@ -67,7 +66,6 @@ type PlanProps = {
   badge?: string;
   features: PlanFeatureLabel[];
   cta: PlanCta;
-  /** The recommended tier. */
   pick?: boolean;
   volume: SelectedVolume;
 };
@@ -195,8 +193,7 @@ export function PricingPanel() {
             aria-valuetext={t('rangeValueText', { events: formatEventCount(range.value, locale) })}
           />
         </Slider.Root>
-        {/* inset by the 9px thumb radius so captions sit under the thumb's centre;
-            a pointer shortcut only, since the slider already covers keyboards and screen readers */}
+        {/* inset by the 9px thumb radius; aria-hidden since the slider already serves keyboards and screen readers */}
         <div className='relative -mt-0.5 h-4.5 w-full' aria-hidden>
           {EVENT_RANGES.map((r, i) => (
             <button
@@ -219,7 +216,6 @@ export function PricingPanel() {
       </div>
 
       <Panel>
-        {/* full-bleed on phones so the rules between plans reach the panel edges */}
         <div className='flex max-lg:flex-col max-sm:-mx-(--pad)'>
           <Plan
             tier='growth'

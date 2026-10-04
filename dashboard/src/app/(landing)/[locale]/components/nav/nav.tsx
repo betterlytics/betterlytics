@@ -175,7 +175,6 @@ export function Nav() {
         >
           <GitHubIcon className='size-[17px]' />
         </a>
-        {/* SheetActions replaces it while the menu is open */}
         <AccountLinks buttonClassName={cn(open && 'max-lg:hidden')} />
         <button
           ref={menuRef}

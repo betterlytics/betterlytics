@@ -10,7 +10,7 @@ import { vars } from '@/landing/lib/cssVars';
 import type { IllustrationProps } from './types';
 import styles from './uptime.module.css';
 
-/* Acme's monitors and hosts are mock data, kept literal on purpose; the product's own labels are translated. */
+/* Mock data, deliberately untranslated. */
 
 /** `uptime` is in hundredths of a percent, so each failed check takes off exactly one. */
 const MONITORS = [
@@ -45,7 +45,6 @@ const fails = (row: number, t: number) => {
   return outageAt(t) === row && m >= FAIL_FROM && m < UP_AT;
 };
 
-/** Counts only failed checks still in the strip, so the number tracks the bars. */
 function uptimeAt(row: number, t: number) {
   let failed = 0;
   for (let k = t - CELLS + 1; k <= t; k++) if (fails(row, k)) failed++;
@@ -77,7 +76,7 @@ function placeNotice(at: number, t: number): { state: NoticeState; depth: number
   return { state: 'on', depth };
 }
 
-/** Under reduced motion it holds POSTER, set after mount since the server can't know the preference. */
+/** POSTER is set after mount since the server can't know the reduced-motion preference. */
 function useChecks(run: boolean) {
   const reduce = useReducedMotion();
   const [t, setT] = useState(0);

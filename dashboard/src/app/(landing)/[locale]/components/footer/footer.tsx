@@ -9,7 +9,6 @@ import { BrandLink } from '@/landing/components/ui/brandMark';
 import { cn } from '@/landing/lib/cn';
 import { LINKS } from '@/landing/lib/links';
 
-/* slugs without a /vs page are dropped */
 const COMPARE = [
   { slug: 'google-analytics', name: 'Google Analytics' },
   { slug: 'matomo', name: 'Matomo' },
@@ -19,7 +18,6 @@ const COMPARE = [
   { slug: 'umami', name: 'Umami' },
 ];
 
-/** Skip competitors without a comparison page, so no link 404s. */
 const COMPARISONS = COMPARE.filter(({ slug }) => getCompetitorData(slug) !== undefined);
 
 const LINK =
@@ -69,7 +67,6 @@ function Column({ id, title, children }: { id: string; title: string; children: 
   );
 }
 
-/** Same destinations as the site's shared footer. */
 export function LandingFooter() {
   const t = useTranslations('landing.footer');
   return (
@@ -187,7 +184,6 @@ export function LandingFooter() {
             ),
           })}
         </span>
-        {/* first on phones so the copyright stays the page's last line */}
         <a
           className='transition-colors duration-180 ease-out-expo hover:text-fg max-sm:order-first'
           href={LINKS.securityPolicy}

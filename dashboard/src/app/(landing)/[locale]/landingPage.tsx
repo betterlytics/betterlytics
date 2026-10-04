@@ -18,8 +18,7 @@ import { IDS } from '@/landing/lib/ids';
 export function LandingPage() {
   const t = useTranslations('landing.nav');
   return (
-    // clips the 100vw bleed rules (100vw includes a classic scrollbar); not on body, whose
-    // overflow passes to the viewport, which touch browsers still let the reader pan
+    // clips the 100vw bleed rules (100vw includes a classic scrollbar); not on body, as touch browsers still pan the viewport
     <div className='overflow-x-clip'>
       <BrandMarkDefs />
       <a

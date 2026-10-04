@@ -27,7 +27,6 @@ function GlyphDefs() {
   );
 }
 
-/** Monochrome glyphs rather than logo files, so every mark sits at one tone. */
 export function FrameworkStrip({ className }: { className?: string }) {
   const t = useTranslations('landing.frameworks');
   return (
