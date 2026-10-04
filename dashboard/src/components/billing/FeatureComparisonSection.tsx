@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { ComparisonTable } from '@/components/public/comparison-table';
-import { formatNumber } from '@/utils/formatters';
+import { formatEventCount } from '@/utils/pricing';
 
 type FeatureValue = boolean | string | 'partial';
 
@@ -76,8 +76,8 @@ export function FeatureComparisonSection() {
   const locale = useLocale();
 
   const formatEventRange = () => {
-    const min = formatNumber(10_000, locale, { maximumFractionDigits: 0 });
-    const max = formatNumber(10_000_000, locale, { maximumFractionDigits: 0 });
+    const min = formatEventCount(10_000, locale);
+    const max = formatEventCount(10_000_000, locale);
     return `${min} – ${max}+`;
   };
 
