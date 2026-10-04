@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -15,20 +16,24 @@ export interface SEOConfig {
   structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
 }
 
-/** The image repeats the landing hero's headline; redo it when that changes. */
+/** The image repeats the landing hero's headline (and `public.shareImage.alt` quotes it); redo both when that changes. */
 const DEFAULT_IMAGE = {
   url: '/og-image.jpg',
   width: 1200,
   height: 630,
-  alt: "“You shouldn't need five tools to understand one website” above the Betterlytics dashboard",
 };
 
-export function generateSEO(
+export async function generateSEO(
   { title, description, path, socialTitle = title, socialDescription = description }: SEOConfig,
   options?: { locale?: string; robots?: Metadata['robots'] },
-): Metadata {
+): Promise<Metadata> {
   const defaultLocale = routing.defaultLocale;
   const currentLocale = options?.locale ?? defaultLocale;
+  const t = await getTranslations({
+    locale: hasLocale(routing.locales, currentLocale) ? currentLocale : defaultLocale,
+    namespace: 'public.shareImage',
+  });
+  const image = { ...DEFAULT_IMAGE, alt: t('alt') };
   const BASE_URL = env.PUBLIC_BASE_URL;
   const localizedPath =
     currentLocale === defaultLocale ? path : path === '/' ? `/${currentLocale}` : `/${currentLocale}${path}`;
@@ -67,13 +72,14 @@ export function generateSEO(
       title: socialTitle,
       description: socialDescription,
       siteName: 'Betterlytics',
-      images: [DEFAULT_IMAGE],
+      images: [image],
     },
     twitter: {
       card: 'summary_large_image',
       title: socialTitle,
       description: socialDescription,
-      images: [DEFAULT_IMAGE],
+      images: [image],
+      site: '@betterlytics',
       creator: '@betterlytics',
     },
     robots: options?.robots ?? {
