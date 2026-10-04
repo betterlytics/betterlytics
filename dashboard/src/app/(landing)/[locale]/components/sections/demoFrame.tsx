@@ -12,6 +12,8 @@ import styles from './demoFrame.module.css';
 /** Cap on waiting for the page's load event, which a hung request elsewhere can stall. */
 const LOAD_WAIT_MS = 3000;
 const STALL_MS = 15000;
+/** Once on screen, the loader stays at least this long, so a fast load doesn't flash it. */
+const MIN_LOADER_MS = 400;
 
 function whenPageSettles(start: () => void) {
   let cancel = () => {};
@@ -52,9 +54,18 @@ export function DemoFrame({ src }: { src: string }) {
   const [stalled, setStalled] = useState(false);
   const areaRef = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
+  const loaderSeenAt = useRef<number | null>(null);
+  const revealTimer = useRef<number | undefined>(undefined);
   const near = useInView(areaRef, 'near');
   const onScreen = useInView(areaRef, 'onScreen');
   const armed = loaded && !active;
+
+  const reveal = () => {
+    const seenAt = loaderSeenAt.current;
+    const wait = seenAt === null ? 0 : MIN_LOADER_MS - (performance.now() - seenAt);
+    if (wait > 0) revealTimer.current = window.setTimeout(() => setLoaded(true), wait);
+    else setLoaded(true);
+  };
 
   // same-origin, so it shares this page's main thread: load only once near and idle
   useEffect(() => (near ? whenPageSettles(() => setRequested(true)) : undefined), [near]);
@@ -67,6 +78,10 @@ export function DemoFrame({ src }: { src: string }) {
   useEffect(() => {
     if (!onScreen) setActive(false);
   }, [onScreen]);
+  useEffect(() => {
+    if (onScreen && !loaded && loaderSeenAt.current === null) loaderSeenAt.current = performance.now();
+  }, [onScreen, loaded]);
+  useEffect(() => () => window.clearTimeout(revealTimer.current), []);
 
   return (
     <div
@@ -108,7 +123,7 @@ export function DemoFrame({ src }: { src: string }) {
           sandbox='allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox'
           referrerPolicy='no-referrer'
           tabIndex={armed ? -1 : undefined}
-          onLoad={() => setLoaded(true)}
+          onLoad={reveal}
         />
       )}
       {loaded && (
