@@ -1221,6 +1221,7 @@
     "footer": {
       "tagline": "Web analytics, session replay, errors and uptime in one open-source tool. Cookieless and hosted in the EU.",
       "nav": "Footer",
+      "language": "Language",
       "columns": {
         "company": "Company",
         "resources": "Resources",

@@ -1221,6 +1221,7 @@
     "footer": {
       "tagline": "Web analytics, session replay, errori e uptime in un unico strumento open source. Senza cookie e ospitato nell’UE.",
       "nav": "Piè di pagina",
+      "language": "Lingua",
       "columns": {
         "company": "Azienda",
         "resources": "Risorse",

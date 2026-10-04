@@ -1,9 +1,12 @@
 import type { ReactNode } from 'react';
-import { useTranslations } from 'next-intl';
+import { Globe } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { getCompetitorData } from '@/app/(app)/[locale]/(public)/vs/[competitor]/config';
+import { LANGUAGE_METADATA, SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import { Link } from '@/i18n/navigation';
 import { BlueskyIcon, DiscordIcon, GitHubIcon } from '@/components/icons/SocialIcons';
 import { BrandLink } from '@/landing/components/ui/brandMark';
+import { cn } from '@/landing/lib/cn';
 import { LINKS } from '@/landing/lib/links';
 
 /* slugs without a /vs page are dropped */
@@ -26,6 +29,35 @@ const SOCIAL_ICON = 'size-[15px] flex-none';
 const FINE_LINK =
   'whitespace-nowrap underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current';
 
+/** Plain links rather than a menu, so crawlers can follow them; the link also updates the locale cookie `/` redirects on. */
+function LanguageLinks() {
+  const t = useTranslations('landing.footer');
+  const locale = useLocale();
+  return (
+    <div className='flex items-center gap-2.5 text-caption'>
+      <Globe aria-hidden className='size-3.5 flex-none text-muted' />
+      <ul aria-label={t('language')} className='flex flex-wrap gap-x-4'>
+        {SUPPORTED_LANGUAGES.map((lang) => (
+          <li key={lang}>
+            <Link
+              className={cn(
+                'inline-block py-1 transition-colors duration-180 ease-out-expo',
+                lang === locale ? 'text-fg' : 'text-muted hover:text-fg',
+              )}
+              href='/'
+              locale={lang}
+              lang={lang}
+              aria-current={lang === locale ? 'page' : undefined}
+            >
+              {LANGUAGE_METADATA[lang].name}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function Column({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <div className='flex-1 max-2xl:basis-[40%]'>
@@ -46,6 +78,7 @@ export function LandingFooter() {
         <div className='w-[420px] flex-none max-2xl:w-full'>
           <BrandLink />
           <p className='my-5 max-w-[34ch] text-body leading-[23px] text-muted'>{t('tagline')}</p>
+          <LanguageLinks />
         </div>
         <nav
           aria-label={t('nav')}

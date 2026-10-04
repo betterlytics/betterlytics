@@ -1221,6 +1221,7 @@
     "footer": {
       "tagline": "Nettanalyse, sesjonsopptak, feil og oppetid i ett verktøy med åpen kildekode. Uten cookies og driftet i EU.",
       "nav": "Bunnmeny",
+      "language": "Språk",
       "columns": {
         "company": "Selskapet",
         "resources": "Ressurser",

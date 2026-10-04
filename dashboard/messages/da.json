@@ -1221,6 +1221,7 @@
     "footer": {
       "tagline": "Webanalyse, session replay, fejl og oppetid i ét open source-værktøj. Cookiefrit og hostet i EU.",
       "nav": "Sidefod",
+      "language": "Sprog",
       "columns": {
         "company": "Virksomhed",
         "resources": "Ressourcer",
