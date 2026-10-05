@@ -185,10 +185,14 @@ describe('McpQueryInputSchema', () => {
 
   it.each([
     ['Foo/Bar', 'Etc/UTC'],
+    ['Etc/Unknown', 'Etc/UTC'],
     ['', 'Etc/UTC'],
     ['   ', 'Etc/UTC'],
     ['europe/berlin', 'Europe/Berlin'],
+    ['Europe/Berlin', 'Europe/Berlin'],
     ['America/New_York', 'America/New_York'],
+    ['UTC', 'UTC'],
+    ['Etc/UTC', 'Etc/UTC'],
   ])('normalizes timezone %j to %j', (timezone, expected) => {
     const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', timezone });
     expect(result.success).toBe(true);
