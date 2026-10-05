@@ -183,6 +183,20 @@ describe('McpQueryInputSchema', () => {
     }
   });
 
+  it.each([
+    ['Foo/Bar', 'Etc/UTC'],
+    ['', 'Etc/UTC'],
+    ['   ', 'Etc/UTC'],
+    ['europe/berlin', 'Europe/Berlin'],
+    ['America/New_York', 'America/New_York'],
+  ])('normalizes timezone %j to %j', (timezone, expected) => {
+    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', timezone });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.timezone).toBe(expected);
+    }
+  });
+
   it.each([null, 1, ['UTC'], { zone: 'UTC' }])('rejects non-string timezone %j', (timezone) => {
     const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', timezone });
     expect(result.success).toBe(false);
