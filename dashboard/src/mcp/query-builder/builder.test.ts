@@ -197,7 +197,7 @@ describe('buildQuery timezone handling', () => {
 
   function build(timezone: string, overrides: Partial<McpQueryInput> = {}) {
     return buildQuery(
-      { metrics: ['pageviews'], timeRange: '7d', timezone, order: 'desc', limit: 100, ...overrides },
+      McpQueryInputSchema.parse({ metrics: ['pageviews'], timeRange: '7d', timezone, ...overrides }),
       siteId,
     );
   }
