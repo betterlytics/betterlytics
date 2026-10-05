@@ -27,7 +27,7 @@ async function main() {
     }
 
     const url = `https://api.iconify.design/${asset.source}.svg`;
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: AbortSignal.timeout(30_000) });
     if (!res.ok) {
       console.error(`FAILED    ${rel} (${res.status} from ${url})`);
       failures++;
