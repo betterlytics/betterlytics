@@ -1,32 +1,14 @@
 'use client';
 
-import { useCallback } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { parseCountryParam, SUBDIVISION_COUNTRY_PARAM } from './params';
+import { createContext, useContext } from 'react';
+import type { SubdivisionDrilldownController } from './use-subdivision-drilldown';
 
-// Plain next router: a same-page param change should not flash the top loader
-export function useSubdivisionPanel() {
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
+export const SubdivisionPanelContext = createContext<SubdivisionDrilldownController | null>(null);
 
-  const countryCode = parseCountryParam(searchParams?.get(SUBDIVISION_COUNTRY_PARAM));
-
-  const open = useCallback(
-    (code: string) => {
-      const params = new URLSearchParams(searchParams?.toString());
-      params.set(SUBDIVISION_COUNTRY_PARAM, code);
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
-    },
-    [searchParams, pathname, router],
-  );
-
-  const close = useCallback(() => {
-    const params = new URLSearchParams(searchParams?.toString());
-    params.delete(SUBDIVISION_COUNTRY_PARAM);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
-  }, [searchParams, pathname, router]);
-
-  return { countryCode, open, close };
+export function useSubdivisionPanel(): SubdivisionDrilldownController {
+  const context = useContext(SubdivisionPanelContext);
+  if (!context) {
+    throw new Error('useSubdivisionPanel must be used within SubdivisionDrilldown');
+  }
+  return context;
 }
