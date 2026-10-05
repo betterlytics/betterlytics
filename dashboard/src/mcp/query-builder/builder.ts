@@ -6,6 +6,7 @@ import { getResolvedRanges } from '@/lib/ba-timerange';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { McpQueryInput } from '@/mcp/entities/mcp.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { FALLBACK_TIMEZONE, normalizeTimezone } from '@/utils/timezone';
 
 type BuildResult = {
   taggedSql: string;
@@ -13,7 +14,7 @@ type BuildResult = {
 };
 
 export function buildQuery(input: McpQueryInput, siteId: string): BuildResult {
-  const timezone = input.timezone;
+  const timezone = normalizeTimezone(input.timezone) ?? FALLBACK_TIMEZONE;
   const customStart = new Date(input.startDate!);
   const customEnd = new Date(input.endDate!);
 

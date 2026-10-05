@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -17,7 +17,7 @@ vi.mock('@/observability/clickhouse-concurrency', () => ({
 }));
 
 import { buildQuery } from '@/mcp/query-builder/builder';
-import { McpQueryInput } from '@/mcp/entities/mcp.entities';
+import { McpQueryInput, McpQueryInputSchema } from '@/mcp/entities/mcp.entities';
 
 describe('buildQuery', () => {
   const siteId = 'test-site-id';
@@ -178,5 +178,85 @@ describe('buildQuery', () => {
 
     expect(result.taggedSql).toContain('uniq(visitor_id)');
     expect(result.taggedParams.site_id).toBe(siteId);
+  });
+});
+
+describe('buildQuery timezone handling', () => {
+  const siteId = 'test-site-id';
+  const customRange = { timeRange: 'custom', startDate: '2026-01-05', endDate: '2026-01-18' } as const;
+  const shortCustomRange = { timeRange: 'custom', startDate: '2026-01-10', endDate: '2026-01-11' } as const;
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-03-15T12:00:00Z'));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  function build(timezone: string, overrides: Partial<McpQueryInput> = {}) {
+    return buildQuery(
+      { metrics: ['pageviews'], timeRange: '7d', timezone, order: 'desc', limit: 100, ...overrides },
+      siteId,
+    );
+  }
+
+  function bounds(result: ReturnType<typeof buildQuery>) {
+    return { start: result.taggedParams.start_date, end: result.taggedParams.end_date };
+  }
+
+  describe.each(['Foo/Bar', 'Etc/Unknown', '', '   '])('invalid timezone %j', (timezone) => {
+    it('uses UTC bounds for a preset aggregate query', () => {
+      expect(bounds(build(timezone))).toEqual(bounds(build('Etc/UTC')));
+    });
+
+    it('uses UTC bounds and binds the fallback zone for a custom daily time series', () => {
+      const result = build(timezone, { ...customRange, granularity: 'day' });
+
+      expect(bounds(result)).toEqual(bounds(build('Etc/UTC', { ...customRange, granularity: 'day' })));
+      expect(result.taggedParams.timezone).toBe('Etc/UTC');
+      expect(result.taggedParams.site_id).toBe(siteId);
+      expect(result.taggedSql).toContain('{timezone:String}');
+    });
+  });
+
+  it('uses UTC for an hourly time series with an invalid timezone', () => {
+    const result = build('Foo/Bar', { ...shortCustomRange, granularity: 'hour' });
+
+    expect(result).toEqual(build('Etc/UTC', { ...shortCustomRange, granularity: 'hour' }));
+    expect(result.taggedParams.timezone).toBe('Etc/UTC');
+  });
+
+  it('keeps a recognized non-UTC zone for bounds and parameters', () => {
+    const result = build('America/New_York', { ...customRange, granularity: 'day' });
+
+    expect(result.taggedParams.timezone).toBe('America/New_York');
+    expect(bounds(result)).not.toEqual(bounds(build('UTC', { ...customRange, granularity: 'day' })));
+  });
+
+  it('normalizes the letter case of a recognized zone', () => {
+    expect(build('europe/berlin', { ...customRange, granularity: 'day' })).toEqual(
+      build('Europe/Berlin', { ...customRange, granularity: 'day' }),
+    );
+    expect(build('europe/berlin')).toEqual(build('Europe/Berlin'));
+    expect(build('europe/berlin', { granularity: 'day' }).taggedParams.timezone).toBe('Europe/Berlin');
+  });
+
+  it('accepts UTC and Etc/UTC', () => {
+    const utc = build('UTC', { ...customRange, granularity: 'day' });
+    const etcUtc = build('Etc/UTC', { ...customRange, granularity: 'day' });
+
+    expect(utc.taggedParams.timezone).toBe('UTC');
+    expect(etcUtc.taggedParams.timezone).toBe('Etc/UTC');
+    expect(bounds(utc)).toEqual(bounds(etcUtc));
+  });
+
+  it('defaults an omitted timezone to UTC', () => {
+    const parsed = McpQueryInputSchema.parse({ metrics: ['pageviews'], ...customRange, granularity: 'day' });
+    const result = buildQuery(parsed, siteId);
+
+    expect(result.taggedParams.timezone).toBe('UTC');
+    expect(bounds(result)).toEqual(bounds(build('UTC', { ...customRange, granularity: 'day' })));
   });
 });
