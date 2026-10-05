@@ -175,6 +175,19 @@ describe('McpQueryInputSchema', () => {
     expect(result.success).toBe(false);
   });
 
+  it('defaults an omitted timezone to UTC', () => {
+    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d' });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.timezone).toBe('UTC');
+    }
+  });
+
+  it.each([null, 1, ['UTC'], { zone: 'UTC' }])('rejects non-string timezone %j', (timezone) => {
+    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', timezone });
+    expect(result.success).toBe(false);
+  });
+
   it('rejects invalid granularity', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
