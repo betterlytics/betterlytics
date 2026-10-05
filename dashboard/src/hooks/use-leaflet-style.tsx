@@ -121,5 +121,9 @@ export function useMapStyle({ maxValue: maxVisitors }: UseMapStyleProps): MapSty
     );
   }, []);
 
-  return { originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale };
+  // Stable identity: consumers key selection resets and Leaflet handlers on this object
+  return useMemo(
+    () => ({ originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale }),
+    [originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale],
+  );
 }
