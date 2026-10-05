@@ -26,8 +26,6 @@ export const McpDateRangeSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'endDate must be in YYYY-MM-DD format')
     .optional()
     .describe('End date in YYYY-MM-DD format (inclusive). Required when timeRange is "custom".'),
-  // 'UTC' is the default the published tool schema advertises; unknown names fall back to the app-wide
-  // FALLBACK_TIMEZONE ('Etc/UTC'). Both are the same zero-offset zone, so either yields identical results
   timezone: z
     .string()
     .default('UTC')
