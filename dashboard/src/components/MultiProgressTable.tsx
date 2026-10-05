@@ -3,30 +3,13 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PropertyValueBar } from '@/components/PropertyValueBar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useTranslations } from 'next-intl';
-import DataEmptyComponent from './DataEmptyComponent';
-import { ChevronDown, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ProgressBarList, type ProgressBarData } from '@/components/ProgressBarList';
 import { Spinner } from '@/components/ui/spinner';
 import MultiProgressTableRowSkeleton from '@/components/skeleton/MultiProgressTableSkeleton';
 import { cn } from '@/lib/utils';
-import type { FilterColumn } from '@/entities/analytics/filter.entities';
 
-export type ProgressBarRowFilter = { column: FilterColumn; value?: string };
-
-export interface ProgressBarData {
-  label: string;
-  value: number;
-  key?: string;
-  trendPercentage?: number;
-  comparisonValue?: number;
-  icon?: React.ReactElement;
-  filters?: ProgressBarRowFilter[];
-  tooltipLabel?: string; // overrides label in the "Filter by" tooltip
-  children?: ProgressBarData[];
-}
+export type { ProgressBarData, ProgressBarRowFilter } from '@/components/ProgressBarList';
 
 interface TabConfig<T extends ProgressBarData> {
   key: string;
@@ -61,9 +44,6 @@ function MultiProgressTable<T extends ProgressBarData>({
   const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.key || '');
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
-  const t = useTranslations('dashboard.emptyStates');
-  const tFilters = useTranslations('components.filters');
-
   const activeTabIndex = useMemo(
     () =>
       Math.max(
@@ -93,98 +73,6 @@ function MultiProgressTable<T extends ProgressBarData>({
     });
   }, []);
 
-  const renderProgressList = useCallback(
-    (data: T[], tabKey: string, level = 0) => {
-      if (data.length === 0) {
-        return <DataEmptyComponent />;
-      }
-
-      const maxVisitors = Math.max(...data.map((d) => d.value), 1);
-      const total = data.reduce((sum, d) => sum + d.value, 0) || 1;
-      const hasComparison = data.some((d) => d.comparisonValue);
-
-      return (
-        <div className='space-y-2'>
-          {data.map((item, index) => {
-            const { key, label, tooltipLabel, value, children = [], trendPercentage, comparisonValue, icon } = item;
-            const itemKey = key ?? label;
-            const isExpandable = children.length > 0;
-            const isExpanded = expandedKeys.has(itemKey);
-
-            const relativePercentage = (value / maxVisitors) * 100;
-            const percentage = (value / total) * 100;
-            const interactive = isItemInteractive ? isItemInteractive(tabKey, item) : !!onItemClick;
-
-            return (
-              <div
-                key={itemKey}
-                style={{ paddingLeft: level ? level * 8 : undefined }}
-                className={`group relative ${interactive ? 'cursor-pointer' : ''}`}
-                role={interactive ? 'button' : undefined}
-                tabIndex={interactive ? 0 : undefined}
-                title={
-                  interactive && typeof label === 'string'
-                    ? tFilters('filterBy', { label: tooltipLabel ?? label })
-                    : undefined
-                }
-                onClick={interactive ? () => onItemClick?.(tabKey, item) : undefined}
-                onKeyDown={
-                  interactive
-                    ? (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') onItemClick?.(tabKey, item);
-                      }
-                    : undefined
-                }
-              >
-                <PropertyValueBar
-                  value={{
-                    value: label,
-                    count: value,
-                    relativePercentage: Math.max(relativePercentage, 2),
-                    percentage,
-                    trendPercentage,
-                    comparisonValue,
-                  }}
-                  respectComparison={hasComparison}
-                  icon={icon}
-                  leading={
-                    isExpandable && (
-                      <Button
-                        type='button'
-                        variant='ghost'
-                        size='sm'
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleExpand(itemKey);
-                        }}
-                        aria-expanded={isExpanded}
-                        className='group/button h-6 w-6 cursor-pointer rounded-sm !bg-transparent p-0'
-                      >
-                        {isExpanded ? (
-                          <ChevronDown className='text-muted-foreground group-hover/button:text-foreground h-4 w-4 transition-colors duration-150' />
-                        ) : (
-                          <ChevronRight className='text-muted-foreground group-hover/button:text-foreground h-4 w-4 transition-colors duration-150' />
-                        )}
-                      </Button>
-                    )
-                  }
-                  index={index + 1}
-                />
-
-                {isExpandable && isExpanded && (
-                  <div className='mt-2 ml-4 border-l' onClick={(e) => e.stopPropagation()}>
-                    {renderProgressList(children as T[], tabKey, level + 1)}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      );
-    },
-    [onItemClick, isItemInteractive, t, tFilters, expandedKeys, toggleExpand],
-  );
-
   const renderTabContent = useCallback(
     (tab: TabConfig<T>) => {
       if (tab.loading) {
@@ -195,9 +83,17 @@ function MultiProgressTable<T extends ProgressBarData>({
         return tab.customContent;
       }
 
-      return renderProgressList(tab.data, tab.key);
+      return (
+        <ProgressBarList
+          data={tab.data}
+          onItemClick={onItemClick ? (item) => onItemClick(tab.key, item) : undefined}
+          isItemInteractive={isItemInteractive ? (item) => isItemInteractive(tab.key, item) : undefined}
+          expandedKeys={expandedKeys}
+          onToggleExpand={toggleExpand}
+        />
+      );
     },
-    [renderProgressList],
+    [onItemClick, isItemInteractive, expandedKeys, toggleExpand],
   );
 
   const tabsList = useMemo(
@@ -233,7 +129,7 @@ function MultiProgressTable<T extends ProgressBarData>({
     () =>
       tabs.map((tab) => (
         <TabsContent key={tab.key} value={tab.key} className='tab-content-animated mt-0'>
-           <ScrollArea className='h-[22rem] [&_[data-slot=scroll-area-scrollbar]]:translate-x-2'>
+          <ScrollArea className='h-[22rem] [&_[data-slot=scroll-area-scrollbar]]:translate-x-2'>
             {renderTabContent(tab)}
           </ScrollArea>
         </TabsContent>
