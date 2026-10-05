@@ -2,17 +2,15 @@ import { cn } from '@/lib/utils';
 
 type StaticIconProps = {
   src: string;
-  label: string;
   mono?: boolean;
   className?: string;
 };
 
-export function StaticIcon({ src, label, mono, className }: StaticIconProps) {
+export function StaticIcon({ src, mono, className }: StaticIconProps) {
   if (mono) {
     return (
       <span
-        role='img'
-        aria-label={label}
+        aria-hidden='true'
         className={cn('inline-block shrink-0 bg-current align-[-0.125em]', className)}
         style={{
           maskImage: `url(${src})`,
@@ -26,5 +24,5 @@ export function StaticIcon({ src, label, mono, className }: StaticIconProps) {
     );
   }
 
-  return <img src={src} alt={label} className={cn('shrink-0', className)} />;
+  return <img src={src} alt='' className={cn('shrink-0', className)} />;
 }

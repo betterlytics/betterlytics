@@ -31,7 +31,8 @@ describe('OSIcon', () => {
     const [icon] = tags;
 
     expect(icon.element).toBe('span');
-    expect(icon.tag).toContain(`aria-label="${name}"`);
+    expect(icon.tag).toContain('aria-hidden="true"');
+    expect(icon.tag).not.toContain('aria-label');
     expect(icon.tag).toContain(`--icon-light:url(/os-icons/${light})`);
     expect(icon.tag).toContain(`--icon-dark:url(/os-icons/${dark})`);
 

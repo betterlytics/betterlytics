@@ -13,5 +13,5 @@ export function BrowserIcon({ name, className = 'h-3.5 w-3.5' }: BrowserIconProp
 
   if (!def) return <Globe className={cn('shrink-0', className)} />;
 
-  return <StaticIcon src={`/browser-icons/${def.file}`} label={def.label} mono={def.mono} className={className} />;
+  return <StaticIcon src={`/browser-icons/${def.file}`} mono={def.mono} className={className} />;
 }
