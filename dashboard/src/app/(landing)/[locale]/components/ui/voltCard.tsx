@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { InView } from '@/landing/components/ui/inView';
+import { VoltGlow } from '@/landing/components/ui/voltGlow';
 import { cn } from '@/landing/lib/cn';
 import styles from './voltCard.module.css';
 
@@ -31,10 +32,11 @@ export function VoltCard({ variant, children }: { variant: keyof typeof VARIANTS
         VARIANTS[variant],
       )}
     >
+      <VoltGlow className={styles.glow} />
       <div className={styles.wave} aria-hidden>
         <i />
       </div>
-      <div className={cn(styles.bloom, styles[variant])} aria-hidden />
+      <div className={cn(styles.bloom, styles[variant])} data-bloom aria-hidden />
       <div
         className={cn(
           'relative z-2 flex w-full flex-col items-center gap-[34px] px-6 text-center',
