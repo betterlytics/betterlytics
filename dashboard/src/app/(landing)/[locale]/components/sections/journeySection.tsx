@@ -111,7 +111,17 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
   );
 }
 
-function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
+function JourneyCard({
+  step,
+  live,
+  first,
+  last,
+}: {
+  step: JourneyStep;
+  live: boolean;
+  first: boolean;
+  last: boolean;
+}) {
   const ref = useRef<HTMLElement>(null);
   const entered = useInView(ref);
   // the illustrations are half the page's elements, so they mount (and hydrate) only as the reader nears them
@@ -135,7 +145,14 @@ function JourneyCard({ step, live }: { step: JourneyStep; live: boolean }) {
         </h3>
         <p className={cn(NOTE, '2xl:sr-only')}>{t(`${step}.note`)}</p>
       </div>
-      <div className='border border-rule-10 transition-ink'>
+      {/* the frame's rules run along these edges, and two translucent rules on one row read thicker */}
+      <div
+        className={cn(
+          'border border-rule-10 transition-ink',
+          first && '2xl:border-t-transparent',
+          last && 'border-b-transparent',
+        )}
+      >
         {/* illustrations keep their size, so taller as it narrows; h-89 is square at 390px */}
         <div
           className='relative aspect-video overflow-hidden max-md:aspect-4/3 max-sm:aspect-auto max-sm:h-89'
@@ -203,7 +220,12 @@ export function JourneySection() {
                   aria-hidden
                 />
               )}
-              <JourneyCard step={step} live={onScreen && active === i} />
+              <JourneyCard
+                step={step}
+                live={onScreen && active === i}
+                first={i === 0}
+                last={i === JOURNEY_STEPS.length - 1}
+              />
             </Fragment>
           ))}
         </div>
