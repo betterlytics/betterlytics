@@ -31,8 +31,18 @@
         };
       }) ?? [];
 
-  var scriptsBaseUrl =
-    script.getAttribute("data-scripts-base-url") ?? "https://betterlytics.io";
+  var scriptsBaseUrl = script.getAttribute("data-scripts-base-url");
+  if (!scriptsBaseUrl) {
+    try {
+      scriptsBaseUrl = new URL(script.src).origin;
+    } catch (e) {}
+    scriptsBaseUrl = scriptsBaseUrl || "https://betterlytics.io";
+  }
+
+  // Replaced by esbuild --define at build time; unbuilt copies stay on "dev"
+  var scriptVersion =
+    typeof __BL_VERSION__ === "string" ? __BL_VERSION__ : "dev";
+  var replayScriptUrl = `${scriptsBaseUrl}/replay.js?v=${scriptVersion}`;
 
   // "off" | "domain" | "full" (defaults to "domain")
   var outboundLinks = script.getAttribute("data-outbound-links") ?? "domain";
@@ -147,6 +157,8 @@
   }
 
   var queuedEvents = (window.betterlytics && window.betterlytics.q) || [];
+  var queuedGlobalProperties =
+    (window.betterlytics && window.betterlytics.gq) || [];
 
   var replayConsentCallbacks = [];
 
@@ -196,6 +208,13 @@
 
   if (initialGlobalProperties !== null) {
     window.betterlytics.setGlobalProperties(initialGlobalProperties);
+  }
+
+  for (var i = 0; i < queuedGlobalProperties.length; i++) {
+    window.betterlytics.setGlobalProperties.apply(
+      this,
+      queuedGlobalProperties[i],
+    );
   }
 
   for (var i = 0; i < queuedEvents.length; i++) {
@@ -263,7 +282,7 @@
     });
 
     var s = document.createElement("script");
-    s.src = "https://unpkg.com/web-vitals@5/dist/web-vitals.iife.js";
+    s.src = `${scriptsBaseUrl}/web-vitals.js`;
     s.async = true;
     s.onload = function () {
       if (typeof webVitals !== "undefined") {
@@ -599,7 +618,7 @@
       if (sampled || shouldLoadForError) {
         window.__betterlytics_replay_sampled__ = sampled;
         replayLoaded = true;
-        loadScript(`${scriptsBaseUrl}/replay.js`);
+        loadScript(replayScriptUrl);
       }
     }
 
@@ -609,7 +628,7 @@
         if (sampled || enableReplayOnError) {
           window.__betterlytics_replay_sampled__ = sampled;
           replayLoaded = true;
-          loadScript(`${scriptsBaseUrl}/replay.js`);
+          loadScript(replayScriptUrl);
         }
       } else if (!consented && replayLoaded) {
         window.__betterlytics_replay__?.stop();

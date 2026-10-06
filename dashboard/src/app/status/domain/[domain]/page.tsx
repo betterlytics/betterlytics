@@ -2,13 +2,14 @@ import { cache } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { normalizeHostname } from '@/services/analytics/statusPageDomain.service';
+import { normalizeHostname } from '@/lib/status-host-routing';
 import { getPublicStatusPageDataByDomain } from '@/services/analytics/publicStatusPage.service';
 import { buildStatusPageMetadata, StatusPageShell } from '@/app/status/shared/statusPageShell';
 
 /**
- * Custom-domain (tier-2) status host entry point. Caddy rewrites the custom
- * domain's `/` to `/status/domain/{host}`
+ * Custom-domain (tier-2) status host entry point. The middleware rewrites `/` on a host that has
+ * a custom-domain row to `/status/domain/{host}` (see lib/status-host-routing.ts); this page still
+ * answers 404 while that page is unpublished.
  */
 export const revalidate = 60;
 

@@ -5,6 +5,7 @@ use tracing::{info, warn};
 
 use crate::clickhouse::ClickHouseClient;
 use crate::config::Config;
+use crate::jobqueue::{self, JobQueue, PGBOSS_SCHEMA_VERSION};
 use crate::metrics::MetricsCollector;
 use crate::monitor::incident::IncidentStore;
 use crate::notifications::NotificationEngine;
@@ -13,12 +14,12 @@ use crate::postgres::PostgresPool;
 use super::alert::new_alert_history_writer;
 use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 use super::{
-    DomainRateLimiter, HttpRunner, HttpRuntimeConfig, IncidentOrchestrator,
+    new_monitor_writer, DomainRateLimiter, HttpRunner, HttpRuntimeConfig, IncidentOrchestrator,
     IncidentOrchestratorConfig, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource,
-    MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig, new_monitor_writer,
+    MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig,
 };
 
-pub fn spawn_monitoring(
+pub async fn spawn_monitoring(
     config: Arc<Config>,
     clickhouse: Arc<ClickHouseClient>,
     metrics: Option<Arc<MetricsCollector>>,
@@ -31,10 +32,42 @@ pub fn spawn_monitoring(
         .clone()
         .expect("MONITORING_DATABASE_URL must be set to a valid Postgres URL when ENABLE_UPTIME_MONITORING is true; set it or disable uptime monitoring");
 
+    let job_queue_db_url = config
+        .job_queue_database_url
+        .clone()
+        .expect("JOB_QUEUE_DATABASE_URL must be set to a valid Postgres URL when ENABLE_UPTIME_MONITORING is true");
+
+    let monitor_pool = Arc::new(
+        PostgresPool::new(&monitor_db_url, "betterlytics_monitor", 4)
+            .await
+            .expect("MONITORING_DATABASE_URL is not a valid Postgres URL"),
+    );
+    let job_queue_pool = Arc::new(
+        PostgresPool::new(&job_queue_db_url, "betterlytics_job_queue", 2)
+            .await
+            .expect("JOB_QUEUE_DATABASE_URL is not a valid Postgres URL"),
+    );
+    let (monitor_ok, job_queue_ok) = tokio::join!(
+        monitor_pool.check_connection(),
+        job_queue_pool.check_connection()
+    );
+    monitor_ok.expect("Cannot reach Postgres via MONITORING_DATABASE_URL; check the URL, credentials, and that Postgres is up");
+    job_queue_ok.expect("Cannot reach Postgres via JOB_QUEUE_DATABASE_URL; check the URL, credentials, and that Postgres is up");
+
+    let schema_version = jobqueue::schema_version(&job_queue_pool)
+        .await
+        .expect("Failed to read the pg-boss schema version via JOB_QUEUE_DATABASE_URL")
+        .expect("pg-boss schema is not migrated; run the initializer (scripts/migrate_pgboss.js) before starting the backend");
+    assert_eq!(
+        schema_version, PGBOSS_SCHEMA_VERSION,
+        "pg-boss schema version in the database does not match PGBOSS_SCHEMA_VERSION; re-verify backend/src/jobqueue/mod.rs against the installed pg-boss"
+    );
+
     tokio::spawn(async move {
         run_monitoring_init_loop(
             config,
-            monitor_db_url,
+            monitor_pool,
+            job_queue_pool,
             clickhouse,
             metrics,
             notification_engine,
@@ -45,7 +78,8 @@ pub fn spawn_monitoring(
 
 async fn run_monitoring_init_loop(
     config: Arc<Config>,
-    monitor_db_url: String,
+    monitor_pool: Arc<PostgresPool>,
+    job_queue_pool: Arc<PostgresPool>,
     clickhouse: Arc<ClickHouseClient>,
     metrics: Option<Arc<MetricsCollector>>,
     notification_engine: Option<Arc<NotificationEngine>>,
@@ -55,16 +89,6 @@ async fn run_monitoring_init_loop(
 
     loop {
         info!("uptime monitoring enabled; initializing monitor components");
-
-        let monitor_pool = match PostgresPool::new(&monitor_db_url, "betterlytics_monitor", 4).await
-        {
-            Ok(pool) => Arc::new(pool),
-            Err(err) => {
-                warn!(error = ?err, "Failed to create monitor PostgreSQL pool; retrying");
-                sleep(retry_delay).await;
-                continue;
-            }
-        };
 
         let monitor_repo: Arc<dyn MonitorCheckDataSource> =
             Arc::new(MonitorRepository::new(Arc::clone(&monitor_pool)));
@@ -120,21 +144,23 @@ async fn run_monitoring_init_loop(
             }
         };
 
-        let incident_store = match IncidentStore::new(
-            Arc::clone(&clickhouse),
-            &config.monitor_incidents_table,
-        ) {
-            Ok(store) => Some(store),
-            Err(err) => {
-                warn!(error = ?err, "Failed to create incident store; retrying");
-                sleep(retry_delay).await;
-                continue;
-            }
-        };
+        let incident_store =
+            match IncidentStore::new(Arc::clone(&clickhouse), &config.monitor_incidents_table) {
+                Ok(store) => Some(store),
+                Err(err) => {
+                    warn!(error = ?err, "Failed to create incident store; retrying");
+                    sleep(retry_delay).await;
+                    continue;
+                }
+            };
+
+        // A Postgres outage after boot surfaces per enqueue and the alert is retried on the next probe.
+        let job_queue = Arc::new(JobQueue::new(Arc::clone(&job_queue_pool)));
 
         let incident_orchestrator = Arc::new(
             IncidentOrchestrator::new(
                 IncidentOrchestratorConfig::from_config(&config),
+                job_queue,
                 history_writer,
                 incident_store,
                 notification_engine.clone(),
@@ -174,4 +200,3 @@ async fn run_monitoring_init_loop(
         break;
     }
 }
-

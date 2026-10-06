@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Mail, X, ChevronDown } from 'lucide-react';
+import { CopyButton } from '@/components/CopyButton';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { toast } from 'sonner';
 import { RoleBadge, formatDate } from './member-utils';
 import { inviteMemberAction, cancelInvitationAction } from '@/app/actions/dashboard/invitations.action';
@@ -23,15 +25,30 @@ interface InviteSectionProps {
   dashboardId: string;
   pendingInvitations: InvitationWithInviter[];
   memberCount: number;
+  inviteBaseUrl: string;
+  emailsEnabled: boolean;
 }
 
-export function InviteSection({ dashboardId, pendingInvitations, memberCount }: InviteSectionProps) {
+export function InviteSection({
+  dashboardId,
+  pendingInvitations,
+  memberCount,
+  inviteBaseUrl,
+  emailsEnabled,
+}: InviteSectionProps) {
   const t = useTranslations('invitations');
   const tRoles = useTranslations('members.roles');
   const locale = useLocale();
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<DashboardRole>('viewer');
+  const [createdInvitation, setCreatedInvitation] = useState<{
+    id: string;
+    email: string;
+    token: string;
+  } | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const inviteLinkFor = (token: string) => `${inviteBaseUrl}/accept-invite/${token}`;
   const { caps, isLoading: capsLoading } = useCapabilities();
   const maxMembers = caps.dashboards.maxMembers;
   const seatsUsed = memberCount + pendingInvitations.length;
@@ -49,8 +66,9 @@ export function InviteSection({ dashboardId, pendingInvitations, memberCount }: 
 
     startTransition(async () => {
       try {
-        await inviteMemberAction(dashboardId, email, role);
-        toast.success(t('toast.sent'));
+        const invitation = await inviteMemberAction(dashboardId, email, role);
+        toast.success(emailsEnabled ? t('toast.sent') : t('toast.created'));
+        setCreatedInvitation({ id: invitation.id, email: invitation.email, token: invitation.token });
         setEmail('');
       } catch (error) {
         toast.error(error instanceof Error ? error.message : t('toast.sendFailed'));
@@ -63,6 +81,7 @@ export function InviteSection({ dashboardId, pendingInvitations, memberCount }: 
       try {
         await cancelInvitationAction(dashboardId, invitationId);
         toast.success(t('toast.cancelled'));
+        setCreatedInvitation((current) => (current?.id === invitationId ? null : current));
       } catch (error) {
         toast.error(error instanceof Error ? error.message : t('toast.cancelFailed'));
       }
@@ -140,6 +159,46 @@ export function InviteSection({ dashboardId, pendingInvitations, memberCount }: 
         )}
       </div>
 
+      {createdInvitation && (
+        <div className='animate-in fade-in slide-in-from-top-2 space-y-2 rounded-lg border border-blue-500/30 bg-blue-500/5 p-4 duration-300'>
+          <div className='flex items-start justify-between gap-2'>
+            <p className='text-muted-foreground text-xs'>
+              {t.rich(emailsEnabled ? 'linkPanel.emailSent' : 'linkPanel.emailNotSent', {
+                email: createdInvitation.email,
+                strong: (chunks) => <span className='text-foreground font-medium'>{chunks}</span>,
+              })}
+            </p>
+            <button
+              type='button'
+              aria-label={t('linkPanel.dismiss')}
+              className='text-muted-foreground hover:text-foreground flex size-6 flex-none cursor-pointer items-center justify-center rounded-md'
+              onClick={() => setCreatedInvitation(null)}
+            >
+              <X className='size-3.5' />
+            </button>
+          </div>
+          <div className='flex items-center gap-2'>
+            <p className='border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 font-mono text-xs break-all select-all'>
+              {inviteLinkFor(createdInvitation.token)}
+            </p>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className='flex flex-none'>
+                  <CopyButton
+                    text={inviteLinkFor(createdInvitation.token)}
+                    ariaLabel={t('section.copyLink')}
+                    copiedLabel={t('section.linkCopied')}
+                    className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 cursor-pointer items-center justify-center rounded-md transition-colors'
+                    iconClassName='size-4'
+                  />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>{t('section.copyLink')}</TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
+      )}
+
       {hasPendingInvitations && (
         <Collapsible className='group/advanced border-border border-t-1'>
           <CollapsibleTrigger className='hover:bg-muted/50 flex w-full cursor-pointer items-center justify-between px-2 pt-4 pb-2'>
@@ -172,6 +231,20 @@ export function InviteSection({ dashboardId, pendingInvitations, memberCount }: 
                       <div className='hidden sm:block'>
                         <RoleBadge role={invitation.role} />
                       </div>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className='flex'>
+                            <CopyButton
+                              text={inviteLinkFor(invitation.token)}
+                              ariaLabel={t('section.copyLink')}
+                              copiedLabel={t('section.linkCopied')}
+                              className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors'
+                              iconClassName='size-3.5'
+                            />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>{t('section.copyLink')}</TooltipContent>
+                      </Tooltip>
                       <PermissionGate permission='canInviteMembers'>
                         {(disabled) => (
                           <Button

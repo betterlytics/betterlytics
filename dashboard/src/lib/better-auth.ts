@@ -13,7 +13,7 @@ import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/servi
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
-import { isFeatureEnabled } from '@/lib/feature-flags';
+import { getSignupAllowance } from '@/services/auth/signupGate.service';
 import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { PasswordSchema } from '@/entities/auth/password.entities';
 import { MAX_EMAIL_LENGTH } from '@/entities/auth/user.entities';
@@ -25,7 +25,11 @@ import {
   sendPasswordChangedNotification,
   sendResetPasswordEmail,
 } from '@/services/auth/passwordReset.service';
-import { RESET_TOKEN_PREFIX, deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
+import {
+  RESET_TOKEN_PREFIX,
+  deleteUserResetTokens,
+  findResetTokenUserId,
+} from '@/repositories/postgres/resetToken.repository';
 
 // better-auth only enforces password length; these body fields get our full policy.
 const PASSWORD_POLICY_FIELDS: Record<string, string> = {
@@ -43,7 +47,9 @@ const FIRST_SIGN_IN_WINDOW_MS = 60_000;
 
 function signupLanguage(body: unknown): SupportedLanguages | undefined {
   const language = (body as { language?: unknown } | undefined)?.language;
-  return SUPPORTED_LANGUAGES.includes(language as SupportedLanguages) ? (language as SupportedLanguages) : undefined;
+  return SUPPORTED_LANGUAGES.includes(language as SupportedLanguages)
+    ? (language as SupportedLanguages)
+    : undefined;
 }
 
 export const auth = betterAuth({
@@ -53,7 +59,6 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: 'postgresql', transaction: true }),
   emailAndPassword: {
     enabled: true,
-    disableSignUp: !isFeatureEnabled('enableRegistration'),
     minPasswordLength: 8,
     maxPasswordLength: 100,
     password: {
@@ -62,7 +67,8 @@ export const auth = betterAuth({
     },
     resetPasswordTokenExpiresIn: RESET_TOKEN_EXPIRY_SECONDS,
     revokeSessionsOnPasswordReset: true,
-    sendResetPassword: ({ user, url, token }) => sendResetPasswordEmail({ ...user, name: user.name ?? null }, url, token),
+    sendResetPassword: ({ user, url, token }) =>
+      sendResetPasswordEmail({ ...user, name: user.name ?? null }, url, token),
     onPasswordReset: async ({ user }) => {
       try {
         await deleteUserResetTokens(user.id);
@@ -87,7 +93,8 @@ export const auth = betterAuth({
       default: 'plain',
       overrides: {
         [RESET_TOKEN_PREFIX]: {
-          hash: async (identifier: string) => resetTokenStoredIdentifier(identifier.slice(RESET_TOKEN_PREFIX.length)),
+          hash: async (identifier: string) =>
+            resetTokenStoredIdentifier(identifier.slice(RESET_TOKEN_PREFIX.length)),
         },
       },
     },
@@ -98,7 +105,6 @@ export const auth = betterAuth({
           github: {
             clientId: env.GITHUB_ID,
             clientSecret: env.GITHUB_SECRET,
-            disableSignUp: !isFeatureEnabled('enableRegistration'),
           },
         }
       : {}),
@@ -107,7 +113,6 @@ export const auth = betterAuth({
           google: {
             clientId: env.GOOGLE_CLIENT_ID,
             clientSecret: env.GOOGLE_CLIENT_SECRET,
-            disableSignUp: !isFeatureEnabled('enableRegistration'),
           },
         }
       : {}),
@@ -163,7 +168,21 @@ export const auth = betterAuth({
         });
       }
 
-      if (ctx.path === '/sign-up/email' && ctx.body?.acceptedTerms !== true) {
+      // Before better-auth's email lookup, so a closed instance can't leak USER_ALREADY_EXISTS
+      if (ctx.path === '/sign-up/email') {
+        const allowed = await getSignupAllowance({
+          email: String(ctx.body?.email ?? ''),
+          inviteToken: typeof ctx.body?.invite === 'string' ? ctx.body.invite : undefined,
+        });
+        if (!allowed) {
+          throw new APIError('FORBIDDEN', {
+            message: 'Registration is disabled on this instance',
+            code: 'SIGNUP_DISABLED',
+          });
+        }
+      }
+
+      if (env.IS_CLOUD && ctx.path === '/sign-up/email' && ctx.body?.acceptedTerms !== true) {
         throw new APIError('BAD_REQUEST', {
           message: 'Terms of service must be accepted',
           code: 'TERMS_NOT_ACCEPTED',
@@ -190,12 +209,31 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user, ctx) => {
+          // Replaces the static disableSignUp so invites and the first account can still sign up
+          const invite = (ctx?.body as { invite?: unknown } | undefined)?.invite;
+          const allowed = await getSignupAllowance({
+            email: user.email,
+            inviteToken: typeof invite === 'string' ? invite : undefined,
+            emailVerified: user.emailVerified === true,
+          });
+          if (!allowed) {
+            throw new APIError('FORBIDDEN', {
+              message: 'Registration is disabled on this instance',
+              code: 'SIGNUP_DISABLED',
+            });
+          }
+
           const extra: Record<string, unknown> = {};
+          if (allowed === 'first_user') {
+            extra.role = 'admin';
+          }
           if (user.emailVerified) {
             extra.emailVerifiedAt = new Date();
           }
           if (ctx?.path === '/sign-up/email') {
             extra.name = user.name?.trim() || null;
+          }
+          if ((ctx?.body as { acceptedTerms?: unknown } | undefined)?.acceptedTerms === true) {
             extra.termsAcceptedAt = new Date();
             extra.termsAcceptedVersion = CURRENT_TERMS_VERSION;
           }

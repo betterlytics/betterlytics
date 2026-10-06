@@ -3,6 +3,7 @@
 import { useState, useTransition, useMemo, use } from 'react';
 import { toast } from 'sonner';
 import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
+import { WarningBanner } from '@/components/WarningBanner';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import {
   saveIntegrationAction,
@@ -28,11 +29,13 @@ import { NotificationHistoryDialog } from '@/components/dialogs/NotificationHist
 interface IntegrationsSettingsProps {
   availableTypesPromise: Promise<IntegrationType[]>;
   integrationsPromise: Promise<Integration[]>;
+  monitoringEnabled: boolean;
 }
 
 export default function IntegrationsSettings({
   availableTypesPromise,
   integrationsPromise,
+  monitoringEnabled,
 }: IntegrationsSettingsProps) {
   const t = useTranslations('integrationsSettings');
   const dashboardId = useDashboardId();
@@ -54,11 +57,6 @@ export default function IntegrationsSettings({
         description: t(`integrations.${type}.description`),
       })),
     [t],
-  );
-
-  const availableIntegrations = useMemo(
-    () => allIntegrations.filter((def) => initialTypes.includes(def.type)),
-    [allIntegrations, initialTypes],
   );
 
   const handleSave = (type: IntegrationType, config: IntegrationConfigInput) => {
@@ -125,14 +123,23 @@ export default function IntegrationsSettings({
 
       <p className='text-muted-foreground -mt-4 mb-6 text-sm'>{t('section.description')}</p>
 
+      {!monitoringEnabled && (
+        <WarningBanner
+          className='mb-6'
+          title={t('monitoringNotConfigured.title')}
+          description={t('monitoringNotConfigured.description')}
+        />
+      )}
+
       <div className='space-y-3'>
-        {availableIntegrations.map((def) => (
+        {allIntegrations.map((def) => (
           <IntegrationCard
             key={def.type}
             iconSrc={def.iconSrc}
             name={def.name}
             description={def.description}
             integration={integrations[def.type]}
+            unavailable={!initialTypes.includes(def.type)}
             isPending={isPending}
             onConfigure={() => setConfigDialogType(def.type)}
             onDisconnect={() => setDisconnectType(def.type)}

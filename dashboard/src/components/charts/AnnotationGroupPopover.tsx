@@ -10,6 +10,8 @@ import { type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
 import { useTheme } from 'next-themes';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { PermissionGate } from '../tooltip/PermissionGate';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { formatLocalDateTime } from '@/utils/dateFormatters';
 
 export interface AnnotationGroupPopoverProps {
   group: AnnotationGroup | null;
@@ -29,6 +31,7 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
   onDelete,
 }) => {
   const locale = useLocale();
+  const { timeZone } = useTimeRangeContext();
   const t = useTranslations('components.annotations.popover');
   const { resolvedTheme } = useTheme();
   const themeMode = useMemo(() => (resolvedTheme === 'dark' ? 'dark' : 'light'), [resolvedTheme]);
@@ -45,13 +48,16 @@ const AnnotationGroupPopover: React.FC<AnnotationGroupPopoverProps> = ({
   const bucketDate = useMemo(() => (group ? new Date(group.bucketDate) : null), [group]);
   const bucketDateLabel = useMemo(() => {
     if (!bucketDate) return '';
-    return bucketDate.toLocaleDateString(locale, {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  }, [bucketDate, locale]);
+    return (
+      formatLocalDateTime(bucketDate, locale, {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        timeZone,
+      }) ?? ''
+    );
+  }, [bucketDate, locale, timeZone]);
 
   return (
     <Popover open={!!group} onOpenChange={(open) => !open && onClose()}>

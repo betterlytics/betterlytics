@@ -47,9 +47,12 @@ export const RegisterUserSchema = z.object({
     .max(MAX_EMAIL_LENGTH, 'Email address is too long')
     .toLowerCase(),
   password: PasswordSchema,
-  acceptedTerms: z.literal(true, {
-    errorMap: () => ({ message: 'onboarding.account.termsOfServiceRequired' }),
-  }),
+  // Cloud only; self-host instances are not bound by our terms
+  acceptedTerms: z
+    .literal(true, {
+      errorMap: () => ({ message: 'onboarding.account.termsOfServiceRequired' }),
+    })
+    .optional(),
   language: z.preprocess(
     (val) => (SUPPORTED_LANGUAGES.includes(val as SupportedLanguages) ? val : 'en'),
     z.enum(SUPPORTED_LANGUAGES).default('en'),

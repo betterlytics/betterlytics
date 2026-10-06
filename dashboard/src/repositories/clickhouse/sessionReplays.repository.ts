@@ -2,6 +2,7 @@
 
 import { clickhouse } from '@/lib/clickhouse';
 import { safeSql } from '@/lib/safe-sql';
+import { parseClickHouseDate } from '@/utils/dateHelpers';
 import { SessionReplay, SessionReplayArraySchema } from '@/entities/analytics/sessionReplays.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -10,7 +11,7 @@ export async function hasSessionReplay(siteId: string, sessionId: string): Promi
     SELECT 1
     FROM analytics.session_replays FINAL
     WHERE site_id = {site_id:String}
-      AND toString(session_id) = {session_id:String}
+      AND session_id = {session_id:UInt64}
     LIMIT 1
   `;
 
@@ -23,16 +24,36 @@ export async function hasSessionReplay(siteId: string, sessionId: string): Promi
   return result.length > 0;
 }
 
-export async function findReplaySessionForError(
+export async function getReplaySessionMeta(
   siteId: string,
-  fingerprint: string,
-): Promise<string | null> {
+  sessionId: string,
+): Promise<{ storage: string; endedAt: Date } | null> {
   const query = safeSql`
-    SELECT toString(session_id) as session_id
+    SELECT storage, ended_at
+    FROM analytics.session_replays FINAL
+    WHERE site_id = {site_id:String}
+      AND session_id = {session_id:UInt64}
+    LIMIT 1
+  `;
+
+  const result = (await clickhouse
+    .query(query.taggedSql, {
+      params: { ...query.taggedParams, site_id: siteId, session_id: sessionId },
+    })
+    .toPromise()) as { storage: string; ended_at: string }[];
+
+  return result.length > 0
+    ? { storage: result[0].storage, endedAt: parseClickHouseDate(result[0].ended_at) }
+    : null;
+}
+
+export async function findReplaySessionForError(siteId: string, fingerprint: string): Promise<string | null> {
+  const query = safeSql`
+    SELECT toString(session_id) AS session_id
     FROM analytics.session_replays FINAL
     WHERE site_id = {site_id:String}
       AND has(error_fingerprints, {fingerprint:String})
-    ORDER BY started_at DESC
+    ORDER BY started_at DESC, session_id DESC
     LIMIT 1
   `;
 
@@ -53,8 +74,16 @@ export async function getSessionReplays(
   const { siteId, startDateTime, endDateTime } = siteQuery;
 
   const query = safeSql`
+    WITH page AS (
+      SELECT *
+      FROM analytics.session_replays FINAL
+      WHERE site_id = {site_id:String}
+        AND started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
+      ORDER BY started_at DESC, session_id DESC
+      LIMIT {limit:UInt32} OFFSET {offset:UInt32}
+    )
     SELECT
-      r.site_id,
+      r.site_id AS site_id,
       toString(r.session_id) as session_id,
       toString(r.visitor_id) as visitor_id,
       r.started_at,
@@ -65,19 +94,12 @@ export async function getSessionReplays(
       r.event_count,
       r.s3_prefix,
       r.start_url,
-      r.error_fingerprints,
+      r.recorded_error_count AS error_count,
       e.device_type,
       e.browser,
       e.os,
       e.country_code
-    FROM (
-      SELECT *
-      FROM analytics.session_replays FINAL
-      WHERE site_id = {site_id:String}
-        AND started_at BETWEEN {start_date:DateTime} AND {end_date:DateTime}
-      ORDER BY started_at DESC
-      LIMIT {limit:UInt32} OFFSET {offset:UInt32}
-    ) AS r
+    FROM page AS r
     LEFT ANY JOIN (
       SELECT
         site_id,
@@ -88,7 +110,9 @@ export async function getSessionReplays(
         country_code
       FROM analytics.sessions FINAL
       WHERE site_id = {site_id:String}
+        AND session_id IN (SELECT session_id FROM page)
     ) AS e USING (site_id, session_id)
+    ORDER BY r.started_at DESC, r.session_id DESC
   `;
 
   const result = await clickhouse

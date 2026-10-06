@@ -1,7 +1,13 @@
 'server-only';
 
 import { env } from '@/lib/env';
-import { EMAIL_TYPES, SEND_EMAIL_JOB_NAME, type SendEmailPayload } from '@/services/email/email-types';
+import {
+  EMAIL_TYPES,
+  SEND_EMAIL_JOB_NAME,
+  sendEmailSingletonKey,
+  type EmailTypeDefinition,
+  type SendEmailPayload,
+} from '@/services/email/email-types';
 import { emailSkipReason } from '@/services/email/email-guards';
 import { enqueueJob } from '@/worker/queue';
 
@@ -18,12 +24,11 @@ export async function enqueueEmail(payload: SendEmailPayload): Promise<EnqueueEm
     return 'skipped';
   }
 
-  const emailType = EMAIL_TYPES[payload.type];
-  const throttleSeconds = 'throttleSeconds' in emailType ? emailType.throttleSeconds : undefined;
+  const { retry, throttleSeconds }: EmailTypeDefinition = EMAIL_TYPES[payload.type];
   const jobId = await enqueueJob(SEND_EMAIL_JOB_NAME, payload, {
-    singletonKey: `${payload.campaignKey}:${payload.recipientKey}`,
+    singletonKey: sendEmailSingletonKey(payload),
     ...(throttleSeconds ? { singletonSeconds: throttleSeconds } : {}),
-    ...emailType.retry,
+    ...retry,
   });
   return jobId ? 'enqueued' : 'throttled';
 }

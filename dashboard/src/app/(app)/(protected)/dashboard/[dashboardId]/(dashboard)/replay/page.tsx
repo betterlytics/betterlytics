@@ -3,7 +3,7 @@ import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { notFound } from 'next/navigation';
+import { FeatureNotEnabledBanner } from '@/components/dashboard/FeatureNotEnabledBanner';
 
 type PageProps = {
   params: Promise<{ dashboardId: string }>;
@@ -11,16 +11,13 @@ type PageProps = {
 };
 
 export default async function Page({ params }: PageProps) {
-  if (!isFeatureEnabled('enableSessionReplay')) {
-    notFound();
-  }
-
   const { dashboardId } = await params;
 
   const t = await getTranslations('dashboard.sidebar');
 
   return (
     <div className='w-full space-y-4 p-4'>
+      {!isFeatureEnabled('enableSessionReplay') && <FeatureNotEnabledBanner feature='sessionReplay' />}
       <DashboardHeader title={t('sessionReplay')}>
         <DashboardFilters showComparison={false} />
       </DashboardHeader>

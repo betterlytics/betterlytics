@@ -36,6 +36,10 @@ export const saveIntegrationAction = withDashboardMutationAuthContext(
     config: IntegrationConfigInput,
     name?: string | null,
   ): Promise<SaveIntegrationResult> => {
+    if (!integrationAvailability[type]()) {
+      return { success: false, error: 'unavailable' };
+    }
+
     const validationError = await IntegrationService.validateIntegrationConfig(type, config);
     if (validationError) {
       return { success: false, error: validationError };

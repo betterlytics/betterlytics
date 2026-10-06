@@ -36,6 +36,37 @@ async function main() {
       query: `GRANT dictGet ON analytics.* TO dashboard_role`,
     });
 
+    const parseDays = (value) => {
+      const days = parseInt(value ?? "", 10);
+      return Number.isFinite(days) ? days : undefined;
+    };
+    const retentionDays = parseDays(process.env.REPLAY_RETENTION_DAYS) ?? 60;
+    const replayTables = ["session_replays", "session_replay_segments"];
+    const retentionMarker = `replay_retention_days=${retentionDays > 0 ? retentionDays : -1}`;
+    for (const table of replayTables) {
+      const result = await client.query({
+        query: `SELECT comment, engine_full FROM system.tables WHERE database = 'analytics' AND name = '${table}'`,
+        format: "JSONEachRow",
+      });
+      const rows = await result.json();
+      if (rows[0]?.comment === retentionMarker) continue;
+
+      const hasTtl = /\bTTL\b/.test(rows[0]?.engine_full ?? "");
+      if (retentionDays > 0) {
+        await client.command({
+          query: `ALTER TABLE analytics.${table} MODIFY TTL date + INTERVAL ${retentionDays} DAY DELETE`,
+        });
+      } else if (hasTtl) {
+        await client.command({ query: `ALTER TABLE analytics.${table} REMOVE TTL` });
+      }
+      await client.command({
+        query: `ALTER TABLE analytics.${table} MODIFY COMMENT '${retentionMarker}'`,
+      });
+      console.log(
+        `Post-migration (clickhouse): set analytics.${table} replay retention to ${retentionDays > 0 ? `${retentionDays} days` : "indefinite"}.`,
+      );
+    }
+
     if (!workerUser || !workerPassword) {
       console.log(
         "Post-migration (clickhouse): WORKER_CLICKHOUSE_WRITE_USER not set, skipping worker user creation.",

@@ -1,5 +1,247 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v150ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.0',
+    releasedAt: '2026-09-27',
+    title: '2FA Backup Codes & Faster, More Reliable Session Replay',
+    summary:
+      'Two-factor authentication now comes with backup codes, and session replay is lighter on your website, more reliable, and quicker to load. You can also now choose the timezone your dashboards are shown in.',
+  },
+  sections: [
+    {
+      id: 'v150-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Two-factor authentication now comes with one-time backup codes, so you can still sign in if you lose your authenticator app.',
+            'Choose the timezone your dashboards are shown in under Settings > Preferences. Auto-detect remains the default.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay has been optimized and now has a smaller impact on your website.',
+            'Session replay is much more reliable at capturing the last few seconds before a visitor leaves the page.',
+            'Session replays now load faster in the dashboard, and playback starts sooner.',
+            'Minor usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Fixed an issue where the dashboard would not load in the rare case that a browser did not report a timezone.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v150ChangelogModalEn: ChangelogEntryData = {
+  metadata: v150ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v150-modal-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Two-factor authentication now comes with one-time backup codes.',
+            'Choose the timezone your dashboards are shown in under Settings > Preferences.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Session replay has a smaller impact on your website.',
+            'Session replay reliably captures the last few seconds before a visitor leaves.',
+            'Session replays load and start playing faster.',
+            'Minor usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v150-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: ['The dashboard no longer fails to load when a browser does not report a timezone.'],
+        },
+      ],
+    },
+  ],
+};
+
+const v149ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.4.9',
+    releasedAt: '2026-09-06',
+    title: 'Stronger Bot Filtering & Security Updates',
+    summary:
+      'The second wave of our bot filtering rules is now live, removing crawlers and scraper traffic that previously counted as visitors. This release also brings major security updates to authentication, along with a handful of usability improvements and fixes across filters, funnels, and team invitations.',
+  },
+  sections: [
+    {
+      id: 'v149-bot-filtering',
+      title: 'Stronger Bot Filtering',
+      blocks: [
+        {
+          type: 'text',
+          body: 'In our previous release we put a large set of new bot detection rules into observation mode, flagging suspected traffic without touching your numbers. After four weeks of measuring them against real traffic, the rules that proved to catch only bots are now enforced.',
+        },
+        {
+          type: 'text',
+          body: 'This wave removes a group of named crawlers, along with scraper fleets running through residential proxies that many sites saw as unexplained visits from Vietnam, Brazil, and Singapore. Only rules that showed no real visitor interaction across thousands of sessions were promoted, and the remaining rules continue observing for future waves.',
+        },
+      ],
+    },
+    {
+      id: 'v149-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Clicking into your data to apply a filter now shows a notice of exactly what changed, and lets you undo it.',
+            'Team invitations now come with a shareable link, so you can invite people over any channel instead of relying on email.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Browser, operating system, and device icons now appear in the filter dropdown, applied filter chips, and funnel step labels.',
+            'Various small design and usability improvements across filters and the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Editing a funnel could reorder its steps on save, silently changing both the displayed steps and the conversion numbers. Step order is now preserved.',
+            'Signed-in users no longer briefly see the Sign in and Get started buttons while a page loads.',
+            'The loading bar at the top of the page no longer runs forever after opening an external link in a new tab or clicking an email or phone link.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Major security updates to authentication and account handling, keeping your account and data safe and secure.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v149ChangelogModalEn: ChangelogEntryData = {
+  metadata: v149ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v149-modal-bot-filtering',
+      title: 'Stronger Bot Filtering',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'The second wave of bot filtering rules is now enforced, removing named crawlers and residential-proxy scraper fleets that previously counted as visitors, including the unexplained traffic many sites saw from Vietnam, Brazil, and Singapore.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Applying a filter by clicking into your data now shows what changed and lets you undo it.',
+            'Team invitations now come with a shareable link.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Browser, operating system, and device icons now appear across the filter bar and in funnel step labels.',
+            'Various small design and usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Funnel steps keep their order when a funnel is edited.',
+            'Signed-in users no longer briefly see signed-out buttons in the top bar while a page loads.',
+            'The loading bar no longer runs forever after opening an external link in a new tab.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v149-modal-security',
+      title: 'Security',
+      blocks: [
+        {
+          type: 'list',
+          items: ['Major security updates to authentication and account handling.'],
+        },
+      ],
+    },
+  ],
+};
+
 const v148ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.4.8',
@@ -48,49 +290,6 @@ const v148ChangelogEntryEn: ChangelogEntryData = {
           type: 'list',
           items: [
             'Signed-in pages now do less work verifying your session, making the dashboard feel slightly quicker to move around.',
-          ],
-        },
-      ],
-    },
-  ],
-};
-
-const v148ChangelogModalEn: ChangelogEntryData = {
-  metadata: v148ChangelogEntryEn.metadata,
-  sections: [
-    {
-      id: 'v148-modal-authentication',
-      title: 'Modernized Authentication',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'We have moved the system that handles your account, your sessions, and signing in onto a modern, actively developed foundation that receives ongoing security updates.',
-            'Two-factor authentication needs to be set up again. Existing setups could not be carried over, and everyone affected has been emailed.',
-            'To re-enable it, open Settings from your avatar menu and go to Account security. Your authenticator app will get a new QR code.',
-            'You may have been signed out once as the change rolled out. That was the switch itself, not a problem with your account.',
-          ],
-        },
-      ],
-    },
-    {
-      id: 'v148-modal-security',
-      title: 'Security',
-      blocks: [
-        {
-          type: 'list',
-          items: ['Enabling and disabling two-factor authentication now confirm your account password.'],
-        },
-      ],
-    },
-    {
-      id: 'v148-modal-improvements',
-      title: 'Improvements',
-      blocks: [
-        {
-          type: 'list',
-          items: [
-            'Signed-in pages now do less work verifying your session, making the dashboard feel slightly quicker.',
           ],
         },
       ],
@@ -383,9 +582,11 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v148ChangelogModalEn;
+export const latestChangelogModalEn = v150ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v150ChangelogEntryEn,
+  v149ChangelogEntryEn,
   v148ChangelogEntryEn,
   v147ChangelogEntryEn,
   v146ChangelogEntryEn,

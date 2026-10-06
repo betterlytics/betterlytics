@@ -4,8 +4,6 @@ import { findUserDashboardWithDashboardOrNull } from '@/repositories/postgres/da
 
 vi.mock('@/lib/env', () => ({
   env: {
-    ADMIN_EMAIL: 'admin@example.com',
-    ADMIN_PASSWORD: 'admin-Password-1',
     DEMO_DASHBOARD_ID: 'demo-dashboard-id',
   },
 }));

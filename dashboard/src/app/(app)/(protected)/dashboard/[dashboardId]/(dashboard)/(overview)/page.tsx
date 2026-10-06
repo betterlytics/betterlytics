@@ -6,7 +6,7 @@ import DevicesSection from './DevicesSection';
 import TrafficSourcesSection from './TrafficSourcesSection';
 import CustomEventsSection from './CustomEventsSection';
 import WeeklyHeatmapSection from './WeeklyHeatmapSection';
-import { getEnabledGeoLevels } from '@/lib/geoLevels';
+import { getCollectedGeoLevels } from '@/lib/geoLevels';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { getTranslations } from 'next-intl/server';
 import { LazySection } from '@/components/LazySection';
@@ -15,7 +15,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 
 export default async function DashboardPage() {
-  const enabledLevels = getEnabledGeoLevels();
+  const enabledLevels = getCollectedGeoLevels();
   const t = await getTranslations('dashboard');
 
   return (

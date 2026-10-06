@@ -7,8 +7,7 @@ export async function register() {
 async function registerAuthBootstrap() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     try {
-      const { ensureAdminAccount, resetLegacyTwoFactor } = await import('@/services/auth/bootstrap.service');
-      await ensureAdminAccount();
+      const { resetLegacyTwoFactor } = await import('@/services/auth/bootstrap.service');
       await resetLegacyTwoFactor();
     } catch (error) {
       console.error('[instrumentation] Auth bootstrap failed:', error);

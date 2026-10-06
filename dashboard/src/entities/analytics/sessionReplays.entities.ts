@@ -17,21 +17,9 @@ export const SessionReplaySchema = z.object({
   browser: z.string().optional().default(''),
   os: z.string().optional().default(''),
   country_code: z.string().optional().nullable(),
-  error_fingerprints: z.array(z.string()).optional().default([]),
+  error_count: z.number().optional().default(0),
 });
 
 export const SessionReplayArraySchema = SessionReplaySchema.array();
 
 export type SessionReplay = z.infer<typeof SessionReplaySchema>;
-
-export const ReplaySegmentManifestEntrySchema = z.object({
-  key: z.string(),
-  url: z.string(),
-  sizeBytes: z.number(),
-  lastModified: z.string().optional(),
-});
-
-export const ReplaySegmentManifestSchema = ReplaySegmentManifestEntrySchema.array();
-
-export type ReplaySegmentManifestEntry = z.infer<typeof ReplaySegmentManifestEntrySchema>;
-export type ReplaySegmentManifest = z.infer<typeof ReplaySegmentManifestSchema>;

@@ -1,4 +1,4 @@
-use maxminddb::geoip2;
+use maxminddb::{geoip2, Reader};
 use std::net::IpAddr;
 use std::sync::Arc;
 use tracing::{info, warn, debug};
@@ -27,13 +27,12 @@ pub struct GeoIpService {
 }
 
 impl GeoIpService {
-    pub fn new(config: Arc<Config>, geoip_watch_rx: GeoIpWatchRx) -> Self {
+    pub fn new(config: Arc<Config>, initial_reader: Option<Arc<Reader<Vec<u8>>>>, geoip_watch_rx: GeoIpWatchRx) -> Self {
         if !config.geolocation_mode.is_enabled() {
             info!("Geolocation is disabled via config.");
         }
-        let db_path = config.geolocation_mode.is_enabled().then(|| config.geoip_db_path.as_path());
         Self {
-            source: MmdbSource::new(db_path, "GeoIP", geoip_watch_rx, READER_UPDATE_CHECK_INTERVAL),
+            source: MmdbSource::new(initial_reader, geoip_watch_rx, READER_UPDATE_CHECK_INTERVAL),
             cache: Cache::builder().max_capacity(CACHE_SIZE).time_to_idle(CACHE_TTI).build(),
             geolocation_mode: config.geolocation_mode,
         }
@@ -64,11 +63,7 @@ impl GeoIpService {
 
         let reader = match self.source.reader() {
             Some(r) => r,
-            None => {
-                let result = GeoLocation::default();
-                self.cache.insert(anonymized, result.clone());
-                return result;
-            }
+            None => return GeoLocation::default(),
         };
 
         let ip: IpAddr = match anonymized.parse() {
@@ -134,5 +129,38 @@ impl GeoIpService {
         self.cache.insert(anonymized, result.clone());
 
         result
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::geoip_updater::tests::minimal_mmdb;
+    use tokio::sync::watch;
+
+    fn service(initial: Option<Arc<Reader<Vec<u8>>>>) -> (GeoIpService, watch::Sender<Option<Arc<Reader<Vec<u8>>>>>) {
+        let (tx, rx) = watch::channel(None);
+        let service = GeoIpService {
+            source: MmdbSource::new(initial, rx, READER_UPDATE_CHECK_INTERVAL),
+            cache: Cache::builder().max_capacity(CACHE_SIZE).build(),
+            geolocation_mode: GeolocationMode::Countries,
+        };
+        (service, tx)
+    }
+
+    #[test]
+    fn lookup_without_database_is_not_cached_and_recovers_after_update() {
+        let (service, tx) = service(None);
+
+        assert!(service.lookup("8.8.8.8").country_code.is_none());
+        service.cache.run_pending_tasks();
+        assert_eq!(service.cache.entry_count(), 0);
+
+        tx.send(Some(Arc::new(Reader::from_source(minimal_mmdb()).unwrap()))).unwrap();
+
+        service.lookup("8.8.8.8");
+        service.cache.run_pending_tasks();
+        assert_eq!(service.cache.entry_count(), 1);
+        assert!(service.source.reader().is_some());
     }
 }

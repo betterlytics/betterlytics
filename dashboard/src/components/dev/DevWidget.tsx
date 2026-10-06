@@ -13,7 +13,11 @@ import { updateDevSubscriptionAction } from '@/app/actions/dev.actions';
 import {
   updateUserLanguageAction,
   updateUserThemeAction,
+  updateUserTimezoneAction,
 } from '@/app/actions/account/userSettings.action';
+import { TimezoneSelect } from '@/components/userSettings/preferences/TimezoneSelect';
+import { useUserSettings } from '@/contexts/UserSettingsProvider';
+import { useUserSettingsMutation } from '@/hooks/use-user-settings-mutation';
 import { TIER_TO_PLANNAME_KEY, type TierName } from '@/lib/billing/plans';
 import { useRouter } from 'next/navigation';
 import type { Theme } from '@prisma/client';
@@ -39,6 +43,8 @@ export function DevWidget({ initialTier }: DevWidgetProps) {
   const locale = useLocale();
   const [isPending, startTransition] = useTransition();
   const [currentTier, setCurrentTier] = useState<TierName>(initialTier);
+  const settings = useUserSettings();
+  const timezoneMutation = useUserSettingsMutation({ action: updateUserTimezoneAction });
 
   function handleTierChange(tier: TierName) {
     setCurrentTier(tier);
@@ -129,6 +135,14 @@ export function DevWidget({ initialTier }: DevWidgetProps) {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            <div className='grid gap-1.5'>
+              <label className='text-muted-foreground text-xs'>Timezone</label>
+              <TimezoneSelect
+                value={settings.timezone}
+                onUpdate={(timezone) => timezoneMutation.mutate({ timezone })}
+              />
             </div>
           </div>
         </PopoverContent>

@@ -17,7 +17,7 @@ import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { ChartTooltip } from './charts/ChartTooltip';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { type ComparisonMapping } from '@/types/charts';
-import { defaultDateLabelFormatter, granularityDateFormatter } from '@/utils/chartUtils';
+import { useChartDateFormatters } from '@/hooks/use-chart-date-formatters';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
@@ -131,7 +131,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       return [...annotationGroups.filter((g) => g.bucketDate !== hoveredGroup), hovered];
     }, [annotationGroups, hoveredGroup]);
 
-    const axisFormatter = useMemo(() => granularityDateFormatter(granularity, locale), [granularity, locale]);
+    const { axisFormatter, labelFormatter } = useChartDateFormatters(granularity);
     const yTickFormatter = useMemo(() => {
       return (value: number) => {
         const text = formatValue ? formatValue(value, locale) : formatNumber(value, locale);
@@ -238,14 +238,14 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
         return (
           <ChartTooltip
             {...tooltipProps}
-            labelFormatter={(date) => defaultDateLabelFormatter(date, granularity, locale)}
+            labelFormatter={labelFormatter}
             formatter={formatValue}
             comparisonMap={comparisonMap}
             title={tooltipTitle}
           />
         );
       },
-      [hoveredPillGroup, granularity, locale, formatValue, comparisonMap, tooltipTitle],
+      [hoveredPillGroup, labelFormatter, formatValue, comparisonMap, tooltipTitle],
     );
 
     return (

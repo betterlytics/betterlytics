@@ -190,7 +190,7 @@ impl EventProcessor {
     }
 
     /// Bot gate for the replay endpoints; only header-derived signals are available
-    /// there. The verdict is cached because presign fires once per uploaded segment
+    /// there. The verdict is cached because the segment upload fires once per chunk
     /// on inputs that are constant for the session.
     pub fn check_replay_request(
         &self,

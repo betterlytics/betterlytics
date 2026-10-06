@@ -6,7 +6,7 @@ import {
   fetchCompareVisitorsByGeoLevel,
   fetchSubdivisionVisitorsForCountry,
 } from '@/services/analytics/geography.service';
-import { getEnabledGeoLevels } from '@/lib/geoLevels';
+import { getQueryableGeoLevels } from '@/lib/geoLevels';
 import { CountryCodeFormat, dataToWorldMap, subdivisionsToGeoMap } from '@/presenters/toWorldMap';
 import { toDataTable } from '@/presenters/toDataTable';
 
@@ -20,7 +20,7 @@ export const geographyRouter = createRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const enabledLevels = getEnabledGeoLevels();
+      const enabledLevels = getQueryableGeoLevels();
       if (!enabledLevels.includes(input.level)) return [];
 
       const { main, compare } = ctx;
@@ -50,7 +50,7 @@ export const geographyRouter = createRouter({
     }),
 
   worldMap: analyticsProcedure.query(async ({ ctx }) => {
-    const enabledLevels = getEnabledGeoLevels();
+    const enabledLevels = getQueryableGeoLevels();
     if (!enabledLevels.includes('country_code')) {
       return { visitorData: [], compareData: [], maxVisitors: 0 };
     }
@@ -65,7 +65,7 @@ export const geographyRouter = createRouter({
   subdivisionMap: analyticsProcedure
     .input(z.object({ countryCode: z.string().regex(/^[A-Z]{2}$/) }))
     .query(async ({ ctx, input }) => {
-      if (!getEnabledGeoLevels().includes('subdivision_code')) {
+      if (!getQueryableGeoLevels().includes('subdivision_code')) {
         return { visitorData: [], compareData: [], maxVisitors: 0 };
       }
 

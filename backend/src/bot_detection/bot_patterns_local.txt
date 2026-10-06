@@ -19,3 +19,23 @@ googleproducer
 mediapartners-google
 # Site24x7 monitoring (the bare "24x7" pattern is shadow-only)
 site24x7
+baiduspider
+bytespider
+sogou web spider
+worldgraphspider
+yisouspider
+360spider
+yeti/
+iubenda-radar
+dataprovider\.com
+rootevidence
+lightpanda
+bitdiscovery
+playstore-google
+google-businesslinkverification
+google-websight
+google web preview
+google-app-companion
+google-structured-data-testing-tool
+google-ads-conversions
+^google$

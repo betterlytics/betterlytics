@@ -17,6 +17,8 @@ import { getTranslations } from 'next-intl/server';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { DashboardDropdown } from '@/components/sidebar/DashboardDropdown';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/index.actions';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { env } from '@/lib/env';
 
 type SettingsSidebarProps = {
   dashboardId: string;
@@ -131,7 +133,13 @@ export default async function SettingsSidebar({ dashboardId }: SettingsSidebarPr
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter></SidebarFooter>
+      <SidebarFooter className='bg-sidebar'>
+        {!isFeatureEnabled('isCloud') && (
+          <span className='text-muted-foreground/70 px-2 font-mono text-xs group-data-[collapsible=icon]:hidden'>
+            {env.APP_VERSION}
+          </span>
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }

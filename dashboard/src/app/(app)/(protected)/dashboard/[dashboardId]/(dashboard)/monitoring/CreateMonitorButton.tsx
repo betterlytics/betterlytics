@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { UpgradeButton } from '@/components/billing/UpgradeButton';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
+import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 type CreateMonitorButtonProps = {
   dashboardId: string;
@@ -29,10 +31,21 @@ export function CreateMonitorButton({
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const t = useTranslations('monitoringPage.form');
+  const tBanner = useTranslations('banners.featureNotEnabled.monitoring');
+  const monitoringEnabled = useClientFeatureFlags().isFeatureFlagEnabled('enableUptimeMonitoring');
 
   if (atLimit) {
     return <UpgradeButton>{t('upgradeToCreate')}</UpgradeButton>;
   }
+
+  const createButton = (featureDisabled: boolean) => (
+    <Button variant='default' className='cursor-pointer whitespace-nowrap' disabled={disabled || featureDisabled}>
+      {t('create')}
+      <span className='ml-1.5 text-xs opacity-70'>
+        ({monitorCount}/{maxMonitors})
+      </span>
+    </Button>
+  );
 
   return (
     <CreateMonitorDialog
@@ -43,12 +56,15 @@ export function CreateMonitorButton({
       existingUrls={existingUrls}
       onCreated={() => router.refresh()}
       trigger={
-        <Button variant='default' className='cursor-pointer whitespace-nowrap' disabled={disabled}>
-          {t('create')}
-          <span className='ml-1.5 text-xs opacity-70'>
-            ({monitorCount}/{maxMonitors})
+        monitoringEnabled ? (
+          createButton(false)
+        ) : (
+          <span>
+            <DisabledTooltip disabled message={tBanner('title')}>
+              {createButton}
+            </DisabledTooltip>
           </span>
-        </Button>
+        )
       }
     />
   );
