@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import type { MonitorCheck, StatusCodeValue } from '@/entities/analytics/monitoring.entities';
 import {
+  MONITOR_DEFAULTS,
   MONITOR_LIMITS,
   MonitorCheckBaseSchema,
   MonitorCheckCreate,
@@ -27,7 +28,8 @@ const createDefaultState = (): MonitorFormState => ({
 const createStateFromMonitor = (m: MonitorCheck): MonitorFormState => ({
   ...m,
   requestHeaders: ensureEmptyHeaderRow(m.requestHeaders ?? []),
-  acceptedStatusCodes: m.acceptedStatusCodes ?? ['2xx'],
+  acceptedStatusCodes:
+    m.acceptedStatusCodes.length > 0 ? m.acceptedStatusCodes : [...MONITOR_DEFAULTS.acceptedStatusCodes],
   alertEmails: m.alertEmails ?? [],
 });
 
@@ -108,7 +110,11 @@ export function useMonitorForm(options: CreateOptions | EditOptions): MonitorFor
   );
 
   const removeStatusCode = useCallback((code: StatusCodeValue) => {
-    setState((prev) => ({ ...prev, acceptedStatusCodes: prev.acceptedStatusCodes.filter((c) => c !== code) }));
+    setState((prev) =>
+      prev.acceptedStatusCodes.length <= 1
+        ? prev
+        : { ...prev, acceptedStatusCodes: prev.acceptedStatusCodes.filter((c) => c !== code) },
+    );
   }, []);
 
   const buildCreatePayload = useCallback(

@@ -2083,6 +2083,7 @@
       "acceptedStatusCodes": {
         "label": "Aksepterte statuskoder",
         "description": "Andre koder vil utløse hendelser",
+        "lastCodeRequired": "Minst én statuskode er påkrevd",
         "validation": {
           "maxCodes": "Maksimalt {max} statuskoder tillatt",
           "alreadyAdded": "{code} er allerede lagt til",

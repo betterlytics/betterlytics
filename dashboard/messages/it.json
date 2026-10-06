@@ -2083,6 +2083,7 @@
       "acceptedStatusCodes": {
         "label": "Codici di stato accettati",
         "description": "Altri codici attiveranno incidenti",
+        "lastCodeRequired": "È richiesto almeno un codice di stato",
         "validation": {
           "maxCodes": "Massimo {max} codici di stato consentiti",
           "alreadyAdded": "{code} è già stato aggiunto",
