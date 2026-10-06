@@ -58,14 +58,12 @@ export function LoadingMark({ className }: { className?: string }) {
   );
 }
 
-export function BrandLink({ className, compact = false }: { className?: string; compact?: boolean }) {
+export function BrandLink({ className, wordmarkClassName }: { className?: string; wordmarkClassName?: string }) {
   const t = useTranslations('landing.nav');
   return (
     <Link className={cn('relative flex items-center gap-2.5', className)} href='/' aria-label={t('home')}>
       <BrandMark className='size-6 flex-none text-fg' />
-      <span className={cn('text-[19px] font-semibold tracking-[-0.4px]', compact && 'max-sm:hidden')}>
-        Betterlytics
-      </span>
+      <span className={cn('text-[19px] font-semibold tracking-[-0.4px]', wordmarkClassName)}>Betterlytics</span>
     </Link>
   );
 }

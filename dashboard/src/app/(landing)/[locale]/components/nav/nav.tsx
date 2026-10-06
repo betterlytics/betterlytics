@@ -158,7 +158,10 @@ export function Nav() {
         'after:bleed-rule after:invisible after:bottom-0 after:bg-rule data-grid:after:visible max-sm:after:hidden',
       )}
     >
-      <BrandLink className='justify-self-start' compact />
+      <BrandLink
+        className='justify-self-start'
+        wordmarkClassName='transition-[opacity,clip-path,visibility] duration-200 ease-out-expo [clip-path:inset(0)] in-data-grid:invisible in-data-grid:opacity-0 in-data-grid:[clip-path:inset(0_100%_0_0)] max-sm:hidden'
+      />
       <nav
         className='relative col-start-2 flex gap-7 text-body font-medium tracking-ui text-fg max-lg:hidden'
         aria-label={t('label')}
