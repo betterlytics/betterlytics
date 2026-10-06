@@ -1,0 +1,153 @@
+@reference '../../landing.css';
+
+/* Stacking, all in the root's one context: the shader's opaque sky, then the rules, the panel and its construction
+   lines, then the globe, whose lighten blend hides its body against everything under it (so the lines show through
+   the planet), and the caption on top. Nothing between the globe and the root may form a stacking context (no z-index,
+   transform, opacity or animation), or the blend would only see transparency and the body would show. */
+@layer components {
+  .sky {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  .root {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    overflow: hidden;
+    --auth-radius: 6px;
+    --auth-gap: 20px;
+    --auth-field: rgb(235 232 230 / 0.025);
+  }
+
+  /* Meridian's stage, placed without a transform: half its size off its anchor instead */
+  .root .stage {
+    top: calc(50% - min(32vw, 58vh));
+    z-index: auto;
+    translate: none;
+    pointer-events: none;
+    animation: none;
+    @variant max-xl {
+      top: calc(-1 * min(65vw, 360px));
+      left: calc(50% - min(65vw, 360px));
+      opacity: 1;
+    }
+  }
+  .root .stage > * {
+    z-index: auto;
+  }
+  .veil {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(to bottom, transparent 0, var(--color-canvas) 300px);
+    @variant max-xl {
+      display: block;
+    }
+  }
+
+  .top,
+  .bottom {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-inline: clamp(20px, 3vw, 40px);
+    @variant max-xl {
+      z-index: 2;
+    }
+    @variant max-sm {
+      padding-inline: var(--pad);
+    }
+  }
+  .top {
+    height: 72px;
+    @variant max-sm {
+      height: 56px;
+    }
+  }
+  .bottom {
+    justify-content: space-between;
+    gap: 24px;
+    height: 56px;
+    @variant max-sm {
+      justify-content: center;
+      height: auto;
+      padding-block: 18px;
+    }
+  }
+  .top::after,
+  .bottom::before {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    height: 1px;
+    background: var(--color-rule);
+    pointer-events: none;
+  }
+  .top::after {
+    bottom: 0;
+  }
+  .bottom::before {
+    top: 0;
+  }
+
+  /* the construction lines may cross the page, but stop at the top bar and the footer */
+  .middle {
+    position: relative;
+    display: grid;
+    flex: 1;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    overflow: visible clip;
+    @variant max-xl {
+      z-index: 2;
+      grid-template-columns: minmax(0, 1fr);
+      padding-top: 150px;
+    }
+  }
+  .cell {
+    display: grid;
+    place-items: center;
+    padding: 48px clamp(24px, 4vw, 64px);
+    @variant max-sm {
+      padding: 28px var(--pad) 36px;
+    }
+  }
+
+  /* level with the page, not its own layer: the globe paints over its lines */
+  .root .panel {
+    z-index: 0;
+  }
+  /* centred on the panel, so 200vw reaches both edges: in from the left, out behind the globe */
+  .root .panel > [data-guide='x'] {
+    width: 200vw;
+    -webkit-mask-image: linear-gradient(to right, transparent 37.5%, #000 44%, #000 72%, transparent 84%);
+    mask-image: linear-gradient(to right, transparent 37.5%, #000 44%, #000 72%, transparent 84%);
+  }
+  .root .panel > [data-guide] {
+    @variant max-xl {
+      display: none;
+    }
+  }
+
+  .caption {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    @variant max-xl {
+      display: none;
+    }
+  }
+}
