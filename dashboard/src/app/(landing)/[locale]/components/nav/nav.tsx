@@ -124,7 +124,7 @@ export function Nav() {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
-      if (sheetRef.current?.contains(document.activeElement)) menuRef.current?.focus();
+      if (sheetRef.current?.contains(document.activeElement)) menuRef.current?.focus({ preventScroll: true });
       setOpen(false);
     };
     const wide = window.matchMedia(WIDE);
