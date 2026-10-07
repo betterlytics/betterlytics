@@ -186,7 +186,7 @@ export function PricingPanel() {
           <Slider.Thumb
             className={cn(
               styles.thumb,
-              'relative block size-4.5 cursor-grab rounded-full border-2 border-canvas bg-volt-lift transition-[scale,box-shadow] duration-120 ease-[ease-out] hover:scale-112 focus-visible:ring-5 focus-visible:ring-volt-lift/28 focus-visible:outline-hidden active:scale-112 active:cursor-grabbing active:ring-5 active:ring-volt-lift/28',
+              'relative block size-4.5 cursor-grab rounded-full border-2 border-canvas bg-volt-lift transition-[scale,box-shadow] duration-120 ease-[ease-out] hover:scale-112 active:scale-112 active:cursor-grabbing active:ring-5 active:ring-volt-lift/28',
               'max-sm:size-6 max-sm:before:absolute max-sm:before:-inset-3',
             )}
             aria-label={t('rangeLabel')}
