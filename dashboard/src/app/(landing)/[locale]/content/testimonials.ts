@@ -1,4 +1,4 @@
-/** Off until it can return beside the logo row (CUSTOMERS). */
+/** Off until it returns beside the logo row (CUSTOMERS); restore its images from 10f81dbb7. */
 export const SHOW_QUOTE = false;
 
 export const QUOTE = {
