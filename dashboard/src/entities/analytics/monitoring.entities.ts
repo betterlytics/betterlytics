@@ -88,7 +88,7 @@ export const MonitorCheckBaseSchema = z.object({
   failureThreshold: z.number().int().min(1).max(10).default(MONITOR_DEFAULTS.failureThreshold),
 });
 
-// Only writes require a code: rows stored before this rule may hold an empty list and must still parse.
+// Only writes require a code. Older empty lists are backfilled to 2xx, but reads stay lenient so a stored empty list never breaks loading.
 export const MonitorCheckCreateSchema = MonitorCheckBaseSchema.extend({
   acceptedStatusCodes: AcceptedStatusCodesSchema.min(1, 'At least one accepted status code is required').default([
     ...MONITOR_DEFAULTS.acceptedStatusCodes,
