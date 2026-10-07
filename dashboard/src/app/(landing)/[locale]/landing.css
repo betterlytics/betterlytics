@@ -24,6 +24,8 @@
   /* volt reads too dark as text on the canvas */
   --color-volt-text: #6b7aff;
   --color-on-volt: #f2f5ff;
+  /* mirrors PEAK in voltGlow.tsx */
+  --color-glow: #a2d4ff;
   --color-on-paper: #191615;
   --color-down: #e2586b;
   --color-warn: #e4a93c;

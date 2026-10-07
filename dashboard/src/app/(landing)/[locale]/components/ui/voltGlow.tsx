@@ -17,7 +17,6 @@ const lin = (hex: string) =>
     .join(',')})`;
 const BASE = lin('#1a2bd1');
 const MID = lin('#3572ff');
-// caps the light, so the core never clips to white
 const PEAK = lin('#a2d4ff');
 const LINE = lin('#f2f5ff');
 
