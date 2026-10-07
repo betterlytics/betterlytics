@@ -39,7 +39,7 @@ export function VoltCard({ variant, children }: { variant: keyof typeof VARIANTS
       <div className={cn(styles.bloom, styles[variant])} data-bloom aria-hidden />
       <div
         className={cn(
-          'relative z-2 flex w-full flex-col items-center gap-[34px] px-6 text-center',
+          'relative z-2 flex w-full flex-col items-center gap-[34px] px-6 text-center [&_:focus-visible]:outline-on-volt',
           CONTENT[variant],
         )}
       >
