@@ -1,11 +1,10 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { LIFT_STEP_S, LiftSwap } from '@/landing/components/ui/liftSwap';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
-import { rovingTabKeys } from '@/landing/lib/rovingTabs';
 import type { IllustrationProps } from './types';
 import styles from './traffic.module.css';
 
@@ -76,35 +75,24 @@ export function Traffic({ entered }: IllustrationProps) {
   const direction = from === null || tab > from ? 1 : -1;
   const switched = from !== null;
 
-  const id = useId();
-  const tabId = (i: number) => `${id}-tab-${i}`;
-  const panelId = `${id}-panel`;
-
   const pick = (next: number) => {
     if (next !== tab) setView({ tab: next, from: tab });
   };
 
   return (
     <div className={styles.traffic} data-in={entered || undefined}>
-      <div className={cn(styles.card, styles.pages)}>
+      <p className='sr-only'>{t('alt')}</p>
+      <div className={cn(styles.card, styles.pages)} aria-hidden>
         <div className={styles.head}>
           <p className={styles.title}>{t('topPages')}</p>
-          <div
-            className={styles.tabs}
-            role='tablist'
-            aria-label={t('tabs')}
-            style={vars({ '--i': tab })}
-            onKeyDown={rovingTabKeys(tab, TABS.length, pick)}
-          >
+          <div className={styles.tabs} style={vars({ '--i': tab })}>
             {TABS.map((item, i) => (
+              // a pointer-only flourish in a picture, so kept out of the tab order
               <button
                 key={item.key}
                 type='button'
-                role='tab'
-                id={tabId(i)}
-                aria-selected={i === tab}
-                aria-controls={panelId}
-                tabIndex={i === tab ? 0 : -1}
+                tabIndex={-1}
+                data-selected={i === tab || undefined}
                 className={styles.tab}
                 onClick={() => pick(i)}
               >
@@ -114,7 +102,7 @@ export function Traffic({ entered }: IllustrationProps) {
           </div>
         </div>
         {/* index keys keep the rows in place; the bars resize and LiftSwap swaps the text */}
-        <div className={styles.body} id={panelId} role='tabpanel' aria-labelledby={tabId(tab)}>
+        <div className={styles.body}>
           {TABS[tab].pages.map((page, i) => (
             <div key={i} className={styles.row}>
               <span
@@ -147,24 +135,24 @@ export function Traffic({ entered }: IllustrationProps) {
         </div>
       </div>
 
-      <div className={cn(styles.card, styles.depth)}>
+      <div className={cn(styles.card, styles.depth)} aria-hidden>
         <div className={styles.head}>
           <p className={styles.title}>{t('scrollDepth')}</p>
         </div>
         <div className={styles.body}>
           <p className={styles.url}>/blog/cookieless-analytics</p>
           <div className={styles.page}>
-            <div className={styles.chrome} aria-hidden>
+            <div className={styles.chrome}>
               <i />
               <i />
               <i />
             </div>
-            <div className={styles.read} aria-hidden>
+            <div className={styles.read}>
               {DEPTH.map((reach, i) => (
                 <span key={i} style={vars({ '--reach': reach / 100, '--d': `${0.5 + i * 0.16}s` })} />
               ))}
             </div>
-            <ol className={styles.marks} aria-label={t('depthMarks')}>
+            <ol className={styles.marks}>
               {DEPTH.map((reach, i) => (
                 <li key={i} style={vars({ '--quarter': i })}>
                   {percent.format(reach / 100)}
@@ -178,18 +166,18 @@ export function Traffic({ entered }: IllustrationProps) {
         </div>
       </div>
 
-      <div className={cn(styles.card, styles.week)}>
+      <div className={cn(styles.card, styles.week)} aria-hidden>
         <div className={styles.head}>
           <p className={styles.title}>{t('weekly')}</p>
           <span className={styles.caption}>{t('byHour')}</span>
         </div>
-        <div className={cn(styles.body, styles.heatmap)} role='img' aria-label={t('alt')}>
-          <div className={styles.days} aria-hidden>
+        <div className={cn(styles.body, styles.heatmap)}>
+          <div className={styles.days}>
             {days.map((day, i) => (
               <span key={i}>{day}</span>
             ))}
           </div>
-          <div className={styles.grid} aria-hidden>
+          <div className={styles.grid}>
             {days.map((_, day) =>
               Array.from({ length: HOURS }, (_, hour) => (
                 <i
@@ -202,7 +190,7 @@ export function Traffic({ entered }: IllustrationProps) {
               )),
             )}
           </div>
-          <div className={styles.hours} aria-hidden>
+          <div className={styles.hours}>
             <span>00</span>
             <span>06</span>
             <span>12</span>

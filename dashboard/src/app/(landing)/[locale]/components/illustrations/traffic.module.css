@@ -187,14 +187,9 @@
     transition: color 0.2s;
   }
   .tab:hover,
-  .tab[aria-selected='true'] {
+  .tab[data-selected] {
     color: var(--color-fg);
   }
-  .tab:focus-visible {
-    outline: 1px solid var(--color-volt-soft);
-    outline-offset: -1px;
-  }
-
   .row {
     position: relative;
     display: flex;

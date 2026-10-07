@@ -1260,12 +1260,10 @@
       "traffic": {
         "alt": "Besøgende fordelt på ugedag og time: mest travlt i hverdagenes kontortid, med en mindre top om aftenen og roligere weekender.",
         "topPages": "Topsider",
-        "tabs": "Sider",
         "all": "Alle",
         "entry": "Indgang",
         "exit": "Udgang",
         "scrollDepth": "Scroll-dybde",
-        "depthMarks": "Læsere der stadig er på siden ved hver fjerdedel",
         "avgDepth": "Gns. dybde",
         "weekly": "Ugentlig trafik",
         "byHour": "besøgende pr. time"

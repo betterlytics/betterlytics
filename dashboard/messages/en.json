@@ -1260,12 +1260,10 @@
       "traffic": {
         "alt": "Visitors by weekday and hour: busiest in weekday office hours, with a smaller evening peak and quieter weekends.",
         "topPages": "Top pages",
-        "tabs": "Pages",
         "all": "All",
         "entry": "Entry",
         "exit": "Exit",
         "scrollDepth": "Scroll depth",
-        "depthMarks": "Readers still on the page at each quarter",
         "avgDepth": "Avg. depth",
         "weekly": "Weekly traffic",
         "byHour": "visitors by hour"

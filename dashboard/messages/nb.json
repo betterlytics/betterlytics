@@ -1260,12 +1260,10 @@
       "traffic": {
         "alt": "Besøkende per ukedag og time: mest trafikk i arbeidstiden på hverdager, en mindre topp om kvelden og roligere helger.",
         "topPages": "Populære sider",
-        "tabs": "Sider",
         "all": "Alle",
         "entry": "Inngang",
         "exit": "Utgang",
         "scrollDepth": "Scroll-dybde",
-        "depthMarks": "Lesere som fortsatt er på siden ved hver fjerdedel",
         "avgDepth": "Snittdybde",
         "weekly": "Ukentlig trafikk",
         "byHour": "besøkende per time"

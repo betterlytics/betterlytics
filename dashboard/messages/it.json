@@ -1260,12 +1260,10 @@
       "traffic": {
         "alt": "Visitatori per giorno della settimana e ora: il picco è nei giorni feriali in orario d’ufficio, con un secondo picco più contenuto la sera e weekend più tranquilli.",
         "topPages": "Più visitate",
-        "tabs": "Pagine",
         "all": "Tutte",
         "entry": "Entrata",
         "exit": "Uscita",
         "scrollDepth": "Profondità di scorrimento",
-        "depthMarks": "Lettori che arrivano a ogni quarto della pagina",
         "avgDepth": "Media",
         "weekly": "Traffico settimanale",
         "byHour": "visitatori per ora"
