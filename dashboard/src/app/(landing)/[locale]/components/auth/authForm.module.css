@@ -236,7 +236,7 @@
     animation: auth-spin 0.7s linear infinite;
   }
 
-  /* --- oauth: a strip of cells, edge to edge under the panel's header --- */
+  /* --- oauth --- */
   .cells {
     display: flex;
     margin-inline: calc(-1 * var(--auth-cell-bleed, 0px));
@@ -295,7 +295,6 @@
   }
 
   /* --- sign-up and reset --- */
-  /* the password's rules, each ticking off as it is met */
   .rules {
     display: flex;
     flex-wrap: wrap;
@@ -326,7 +325,6 @@
     color: var(--color-volt-soft);
     opacity: 1;
   }
-  /* agreeing to the terms (cloud sign-up) */
   .check {
     display: flex;
     align-items: flex-start;
@@ -355,7 +353,6 @@
   .check label {
     cursor: pointer;
   }
-  /* what happens next, in place of a form */
   .note {
     color: var(--color-muted);
     font-size: 14px;

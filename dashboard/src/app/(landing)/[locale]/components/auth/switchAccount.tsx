@@ -6,10 +6,7 @@ import { PanelLink } from './authPanel';
 import { Spinner } from './icons';
 import styles from './authForm.module.css';
 
-/**
- * Signed in as someone other than an invitation's addressee: sign out, then back to the invitation, which sends the
- * visitor on to sign in or sign up as the address it was sent to. The way into their current account stays beside it.
- */
+/** Signs out, then back to the invitation, which sends the visitor on to sign in or sign up as its addressee. */
 export function SwitchAccount({
   note,
   continueHref,

@@ -24,7 +24,6 @@
     }
   }
 
-  /* no bars: the construction lines run on and fade out toward the page's edges */
   .middle {
     position: relative;
     display: grid;
@@ -32,14 +31,12 @@
     grid-template-columns: minmax(0, 1fr);
     place-items: center;
     padding: 56px calc(var(--inset) + 24px);
-    /* phones: the panel sits under the header instead of floating mid-screen */
     @variant max-sm {
       place-items: start center;
       padding: 20px var(--pad) 36px;
     }
   }
 
-  /* no bar: one quiet line at the bottom centre */
   .bottom {
     display: flex;
     flex-wrap: wrap;

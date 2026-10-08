@@ -26,20 +26,18 @@ import styles from './authForm.module.css';
 
 type SignUpFormProps = {
   providers: Providers;
-  /** An open invitation's address, which the account must use. */
+  /** The account must use this address. */
   invitedEmail?: string;
   inviteToken?: string;
-  /** Where to go once the account exists; an invitation's accept page, else onboarding. */
+  /** An invitation's accept page; without one, sign-up goes on to onboarding. */
   redirectTo?: string;
   /** Cloud only; self-host is not bound by our terms. */
   requireTerms: boolean;
-  /** From the URL: an OAuth sign-up that came back with an error. */
   initialError?: string | null;
 };
 
 type FormError = { message: string; field: 'email' | 'password' | 'terms' | null; focus: boolean };
 
-/** Google and GitHub, then email and a password whose rules tick off, and on cloud the terms to agree to. */
 export function SignUpForm({
   providers,
   invitedEmail,
@@ -70,8 +68,7 @@ export function SignUpForm({
     terms: `${id}-terms`,
   };
 
-  // after a submit, back to the field the error is about, else the first one; an invited address is fixed, so then
-  // the password
+  // an invited address is fixed, so focus goes to the password instead
   useEffect(() => {
     if (!error?.focus) return;
     if (error.field === 'terms') {

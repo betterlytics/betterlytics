@@ -1,18 +1,13 @@
-/*
- * The choices the auth pages make from their URLs: which state to show, which message, and how an invitation is
- * carried between sign-in and sign-up. Pure, so the pages stay thin and the rules are tested.
- */
+/* What the auth pages decide from their URLs, kept pure so the pages stay thin and the rules are tested. */
 import { SIGN_IN_REDIRECT_DEFAULT, SIGNUP_DISABLED_MESSAGE } from '@/constants/auth';
 import { toSafeRelativePath } from './safe-redirect';
 
 const ACCEPT_INVITE_PATH = /^(?:\/[a-z]{2})?\/accept-invite\/([^/?#]+)$/;
-// pages only for the signed out, each of which sends a signed-in visitor straight on
 const SIGNED_OUT_PAGE = /^(?:\/[a-z]{2})?\/(?:signin|signup|forgot-password|reset-password)\/?$/;
 
 /**
- * Where sign-in sends the visitor once they're signed in: the callbackUrl when it is a path on this site, else the
- * default. Never back to a page only for the signed out, which would bounce them on, or (sign-in itself) round in a
- * loop. The path is decoded first, as the router decodes it: /%73ignin is sign-in too.
+ * The callbackUrl when it is a path on this site, else the default. Never a page only for the signed out, which would
+ * bounce the visitor on (or, for sign-in itself, loop). Decoded first, as the router does: /%73ignin is sign-in too.
  */
 export function signInRedirectPath(callbackUrl: unknown): string {
   const target = toSafeRelativePath(callbackUrl, SIGN_IN_REDIRECT_DEFAULT);
@@ -24,24 +19,20 @@ export function signInRedirectPath(callbackUrl: unknown): string {
   }
 }
 
-/** Where an invitation is accepted; sign-in returns there once the invitee has an account. */
 export function acceptInvitePath(token: string): string {
   return `/accept-invite/${token}`;
 }
 
-/** The invitation token in a callbackUrl that points at its accept page, so sign-up can carry the invite on. */
 export function inviteTokenFromCallback(callbackUrl: string): string | null {
   return ACCEPT_INVITE_PATH.exec(callbackUrl)?.[1] ?? null;
 }
 
-/** Sign-in, returning afterwards to `callbackUrl` unless that is where it goes anyway. */
 export function signInPath(callbackUrl?: string): string {
   return callbackUrl && callbackUrl !== SIGN_IN_REDIRECT_DEFAULT
     ? `/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`
     : '/signin';
 }
 
-/** Sign-up, carrying an invitation when there is one. */
 export function signUpPath(inviteToken?: string | null): string {
   return inviteToken ? `/signup?invite=${encodeURIComponent(inviteToken)}` : '/signup';
 }
@@ -49,8 +40,8 @@ export function signUpPath(inviteToken?: string | null): string {
 export type ResetLinkProblem = 'invalid' | 'expired';
 
 /**
- * Why a reset link can't be used, or null when it can. better-auth's emailed link checks the token first and lands
- * here with `?token=` or `?error=INVALID_TOKEN`; a token that is no longer stored has expired.
+ * Null when the link is usable. better-auth's emailed link checks the token first and lands here with `?token=` or
+ * `?error=INVALID_TOKEN`; a token that is no longer stored has expired.
  */
 export function resetLinkProblem({
   token,
@@ -89,8 +80,8 @@ export function verifyEmailState({
 }
 
 /**
- * Whether better-auth has ended a second-factor attempt, and why; only a fresh password sign-in starts a new one.
- * It counts wrong codes per attempt (and stops checking codes after five), and the attempt's cookie lapses.
+ * better-auth ends a second-factor attempt after five wrong codes or when its cookie lapses; only a fresh password
+ * sign-in starts a new one.
  */
 export function twoFactorAttemptEnded(code: string | undefined): 'tooManyCodes' | 'expired' | null {
   if (code === 'TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE') return 'tooManyCodes';
@@ -103,10 +94,7 @@ export type SignInErrorKey =
 
 const SIGNUP_DISABLED_ERROR = SIGNUP_DISABLED_MESSAGE.replaceAll(' ', '_');
 
-/**
- * The message for an OAuth sign-in or sign-up that came back to /signin with `?error=`, or null when there is
- * nothing to say: the visitor cancelled at the provider.
- */
+/** For an OAuth sign-in or sign-up that came back with `?error=`; null when the visitor cancelled at the provider. */
 export function signInErrorKey(error: string | undefined): SignInErrorKey | null {
   switch (error) {
     case undefined:

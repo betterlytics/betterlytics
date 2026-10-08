@@ -5,7 +5,6 @@ export const PASSWORD_MAX_LENGTH = 100;
 const LOWERCASE = /[a-z]/;
 const UPPERCASE = /[A-Z]/;
 
-/** The rules PasswordSchema enforces, for forms that tick them off as the password is typed. */
 export const PASSWORD_RULES = {
   length: (password: string) => password.length >= PASSWORD_MIN_LENGTH && password.length <= PASSWORD_MAX_LENGTH,
   lower: (password: string) => LOWERCASE.test(password),

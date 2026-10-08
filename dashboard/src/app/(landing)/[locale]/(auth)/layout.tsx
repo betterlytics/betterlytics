@@ -7,7 +7,6 @@ import { AuthShell } from '@/landing/components/auth/authShell';
 // Every auth page reads the session, so none can be cached: rendered per request, never prerendered with the landing
 export const dynamic = 'force-dynamic';
 
-/** Sign in, sign up and the password and email steps around them, in the landing's look. */
 export default async function AuthLayout({
   children,
   params,
@@ -21,7 +20,7 @@ export default async function AuthLayout({
   }
   setRequestLocale(locale);
   const messages = await getMessages();
-  // only what the forms read reaches the browser: the auth copy, without each page's SEO strings
+  // only the auth copy reaches the browser, without each page's SEO strings
   const auth = Object.fromEntries(
     Object.entries(messages.public.auth).map(([page, copy]) => [
       page,

@@ -11,10 +11,7 @@ import styles from './authForm.module.css';
 const PAUSE_MS = 2000;
 const TIMEOUT_MS = 5000;
 
-/**
- * Says the address is confirmed, then moves on: to the dashboards when signed in, else to sign in. It is a full load,
- * so the next page reads the now-verified session afresh.
- */
+/** Moves on with a full load, so the next page reads the now-verified session afresh. */
 export function VerifiedRedirect({ hasSession }: { hasSession: boolean }) {
   const t = useTranslations('public.auth.verifyEmail');
   const [stalled, setStalled] = useState(false);

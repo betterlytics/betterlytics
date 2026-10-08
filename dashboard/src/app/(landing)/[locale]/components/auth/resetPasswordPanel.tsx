@@ -10,8 +10,8 @@ import { Alert, AuthForm, describedBy, Field, PasswordInput, PasswordRules, Subm
 import styles from './authForm.module.css';
 
 /**
- * From the emailed link (its token already checked by the page): a new password twice, its rules ticking off.
- * `email` is the account's, so a password manager saves the new password against the right login.
+ * The page has already checked `token`. `email` is the account's, so a password manager saves the new password
+ * against the right login.
  */
 export function ResetPasswordPanel({ token, email }: { token: string; email: string }) {
   const t = useTranslations('public.auth.resetPassword');
@@ -31,7 +31,6 @@ export function ResetPasswordPanel({ token, email }: { token: string; email: str
     if (done) titleRef.current?.focus();
   }, [done]);
 
-  // back to the field the error is about, else the new password; only the former is marked invalid
   useEffect(() => {
     if (!error) return;
     const field = error.field === 'confirm' ? confirmRef.current : passwordRef.current;

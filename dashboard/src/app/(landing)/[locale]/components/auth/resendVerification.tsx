@@ -9,8 +9,8 @@ import { Alert, AuthForm, describedBy, EmailInput, Field, isEmailAddress, Submit
 import styles from './authForm.module.css';
 
 /**
- * A new verification link. Signed in, it goes to the account's address in one click; signed out, to the address
- * typed, and the note after never says whether that address has an account waiting. `back` is the way on without one.
+ * Signed in, the link goes to the account's address; signed out, to the address typed, and the note after never says
+ * whether that address has an account waiting.
  */
 export function ResendVerification({
   accountEmail,
@@ -28,7 +28,7 @@ export function ResendVerification({
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<{ message: string; aboutEmail: boolean } | null>(null);
-  // bumped to put the cursor back in the field, once the form is on screen
+  // bumped to refocus the field once the form is on screen
   const [refocus, setRefocus] = useState(0);
   const ids = { error: `${id}-error`, email: `${id}-email` };
 

@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 
-/** The auth pages stay out of search results. */
 export const NO_INDEX: Metadata['robots'] = {
   index: false,
   follow: false,

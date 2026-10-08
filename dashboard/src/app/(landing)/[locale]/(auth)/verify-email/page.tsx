@@ -47,7 +47,6 @@ export default async function VerifyEmailPage({ params, searchParams }: Props) {
     redirect(session ? '/dashboards' : '/signin');
   }
 
-  // expired, failed or no link at all: a new one
   const isLinkProblem = state === 'expired' || state === 'failed';
   const back = session
     ? { href: '/dashboards', label: t('returnToDashboard') }

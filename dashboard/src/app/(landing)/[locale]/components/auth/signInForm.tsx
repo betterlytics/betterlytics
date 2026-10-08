@@ -24,13 +24,10 @@ import { ArrowLeftIcon, ShieldIcon } from './icons';
 import styles from './authForm.module.css';
 
 const OTP_LENGTH = 6;
-// Backup codes are `xxxxx-xxxxx` over [A-Za-z0-9]; the hyphen brings the total to 11.
+// Backup codes are `xxxxx-xxxxx`: ten characters plus the hyphen.
 const BACKUP_CODE_LENGTH = 11;
 
-/**
- * Normalises whatever was typed or pasted into `xxxxx-xxxxx`. Case is kept: codes are mixed case and compared
- * exactly.
- */
+/** Case is kept: backup codes are mixed case and compared exactly. */
 function formatBackupCode(value: string) {
   const chars = value.replace(/[^A-Za-z0-9]/g, '').slice(0, 10);
   return chars.length > 5 ? `${chars.slice(0, 5)}-${chars.slice(5)}` : chars;
@@ -40,12 +37,10 @@ type SignInFormProps = {
   providers: Providers;
   forgotPassword: boolean;
   redirectTo: string;
-  /** From the URL, e.g. an OAuth sign-in that came back with an error. */
   initialError: string | null;
   notice: string | null;
 };
 
-/** Google and GitHub, then email and password; a second factor, when the account has one, replaces the form. */
 export function SignInForm({ providers, forgotPassword, redirectTo, initialError, notice }: SignInFormProps) {
   const t = useTranslations('public.auth.signin');
   const tFields = useTranslations('public.auth.fields');
@@ -56,10 +51,9 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
   const [password, setPassword] = useState('');
   const [step, setStep] = useState<'credentials' | 'twoFactor'>('credentials');
   const [error, setError] = useState<string | null>(initialError);
-  // which fields the error is about: outlined, and the first of them takes focus
   const [invalid, setInvalid] = useState<'email' | 'password' | 'both' | null>(null);
   const [pending, setPending] = useState<'email' | OAuthProvider | null>(null);
-  // bumped to put the cursor back in a field, once the credentials form is on screen again
+  // bumped to refocus a field once the credentials form is back on screen
   const [refocus, setRefocus] = useState<{ count: number; field: 'email' | 'password' }>({
     count: 0,
     field: 'password',
@@ -112,8 +106,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
     setError(null);
     setPending(provider);
     try {
-      // navigates to the provider's consent screen; errorCallbackURL keeps failures off better-auth's own error
-      // page, and keeps where the visitor was headed
+      // errorCallbackURL keeps failures off better-auth's own error page, and keeps where the visitor was headed
       const { error: socialError } = await authClient.signIn.social({
         provider,
         callbackURL: redirectTo,
@@ -217,7 +210,6 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
   );
 }
 
-/** The code from an authenticator app, or one of the account's backup codes; either submits itself once complete. */
 function TwoFactorStep({
   redirectTo,
   onBack,
@@ -225,7 +217,6 @@ function TwoFactorStep({
 }: {
   redirectTo: string;
   onBack: () => void;
-  /** better-auth has ended the attempt (too many wrong codes, or it timed out): back to the password. */
   onEnded: (reason: 'tooManyCodes' | 'expired') => void;
 }) {
   const t = useTranslations('public.auth.signin');

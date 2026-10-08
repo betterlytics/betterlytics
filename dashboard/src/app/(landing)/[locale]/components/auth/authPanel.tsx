@@ -9,10 +9,6 @@ import { cn } from '@/landing/lib/cn';
 import form from './authForm.module.css';
 import styles from './authPanel.module.css';
 
-/**
- * The inked panel every auth step sits in: corner squares, rules between its head, body and hatched foot, and its
- * edges carried out across the page as construction lines.
- */
 export function AuthPanel({
   title,
   lede,
@@ -23,7 +19,7 @@ export function AuthPanel({
   title: ReactNode;
   lede: ReactNode;
   foot?: ReactNode;
-  /** For a step that swaps its form for an outcome: focus moves to the new heading, so it is read out. */
+  /** For a step that swaps its form for an outcome: focusing the new heading gets it read out. */
   titleRef?: Ref<HTMLHeadingElement>;
   children: ReactNode;
 }) {
@@ -53,7 +49,6 @@ export function AuthPanel({
   );
 }
 
-/** The foot's line: a lead-in and the page to go to instead. */
 export function AuthPrompt({ lead, href, label }: { lead?: string; href: string; label: string }) {
   return (
     <p className='text-center text-label text-muted'>
@@ -65,7 +60,6 @@ export function AuthPrompt({ lead, href, label }: { lead?: string; href: string;
   );
 }
 
-/** A link to an auth page in the visitor's language, or a plain one into the signed-in app. */
 export function PanelLink({
   href,
   className,
@@ -87,7 +81,6 @@ export function PanelLink({
   );
 }
 
-/** A panel body with nothing to fill in: what happened, and the way on (and, rarely, a second way). */
 export function AuthAction({
   note,
   href,

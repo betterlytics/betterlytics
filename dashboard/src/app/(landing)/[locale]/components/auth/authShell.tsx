@@ -9,10 +9,7 @@ import styles from './authShell.module.css';
 
 const QUIET_LINK = 'text-muted transition-colors duration-180 ease-out-expo hover:text-fg';
 
-/**
- * The page around every auth step: only the brand on top, so nothing leads away mid-form; the panel in the middle;
- * the fine print below.
- */
+/** Only the brand on top, so nothing leads away mid-form. */
 export async function AuthShell({ children }: { children: ReactNode }) {
   const t = await getTranslations('public.auth.shell');
   const tFooter = await getTranslations('landing.footer');

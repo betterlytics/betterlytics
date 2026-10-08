@@ -24,10 +24,9 @@ const PROVIDERS = [
 const PASSWORD_RULES_HINT = `minlength: ${PASSWORD_MIN_LENGTH}; maxlength: ${PASSWORD_MAX_LENGTH}; required: lower; required: upper; allowed: digit, special;`;
 
 /**
- * Every auth form. POST, so a submit before hydration puts nothing in the URL (logs, history, the page tracker);
- * once hydrated, `onSubmit` takes over. `noValidate`: each form checks its own fields and says what's wrong in the
- * page's language and style; the browser's bubbles follow the browser's language and vanish. `required` and
- * `type='email'` stay on the fields for screen readers and phone keyboards.
+ * POST, so a submit before hydration puts nothing in the URL (logs, history, the page tracker). `noValidate`: each
+ * form reports errors in the page's language and style, where the browser's bubbles follow the browser's language
+ * and vanish. `required` and `type='email'` stay on the fields for screen readers and phone keyboards.
  */
 export function AuthForm({
   className,
@@ -61,7 +60,7 @@ export function AuthForm({
 
 const EMAIL = z.string().email();
 
-/** The same check the server's schemas make, for a form to run before it submits. */
+/** The same check the server's schemas make. */
 export function isEmailAddress(value: string) {
   return EMAIL.safeParse(value.trim()).success;
 }
@@ -105,7 +104,7 @@ export function EmailInput({
   onChange: (value: string) => void;
   readOnly: boolean;
   invalid?: boolean;
-  /** The error, while there is one: focus comes back to the field, and it should say why. */
+  /** The error while there is one: focus returns to the field, which should then say why. */
   describedBy?: string;
   autoComplete?: 'email' | 'username';
   inputRef?: Ref<HTMLInputElement>;
@@ -132,7 +131,6 @@ export function EmailInput({
   );
 }
 
-/** Joins the ids a field is described by, leaving out the absent ones. */
 export function describedBy(...ids: (string | false | null | undefined)[]) {
   return ids.filter(Boolean).join(' ') || undefined;
 }
@@ -192,7 +190,6 @@ export function PasswordInput({
   );
 }
 
-/** PasswordSchema's rules, each ticking off as it is met; the tick is spelled out for screen readers. */
 export function PasswordRules({ id, password }: { id: string; password: string }) {
   const t = useTranslations('public.auth.fields.rules');
   const rules = (['length', 'lower', 'upper'] as const).map((rule) => ({
@@ -212,7 +209,6 @@ export function PasswordRules({ id, password }: { id: string; password: string }
   );
 }
 
-/** Google and GitHub as a strip of cells, flush under the panel's header. */
 export function OAuthCells({
   providers,
   pending,

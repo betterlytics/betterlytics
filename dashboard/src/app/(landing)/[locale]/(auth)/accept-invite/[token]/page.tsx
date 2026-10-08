@@ -18,10 +18,6 @@ type Props = { params: Promise<{ locale: SupportedLanguages; token: string }> };
 
 export const metadata: Metadata = { title: 'Betterlytics', robots: NO_INDEX };
 
-/**
- * An invitation link: accepted straight away when the right account is signed in, otherwise a panel saying why not.
- * Signed-out visitors go to sign-up (a new address, which the invitation unlocks) or sign-in, and come back here.
- */
 export default async function AcceptInvitePage({ params }: Props) {
   const { locale, token } = await params;
   setRequestLocale(locale);
