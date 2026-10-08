@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
 import { StructuredData } from '@/components/StructuredData';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { inviteTokenFromCallback, signInErrorKey } from '@/lib/auth/auth-page-state';
 import { toSafeRelativePath } from '@/lib/auth/safe-redirect';
 import { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
@@ -40,6 +41,9 @@ export default async function SignInPage({ params, searchParams }: Props) {
   }
 
   const t = await getTranslations('public.auth.signin');
+  const errorKey = signInErrorKey(error);
+  // headed for an invitation: sign-up carries it on, and it opens sign-up even where registration is off
+  const inviteToken = inviteTokenFromCallback(redirectTo);
 
   return (
     <>
@@ -48,8 +52,12 @@ export default async function SignInPage({ params, searchParams }: Props) {
         title={t('title')}
         lede={t('lede')}
         foot={
-          registrationEnabled ? (
-            <AuthPrompt lead={t('noAccount')} href='/signup' label={t('createAccount')} />
+          registrationEnabled || inviteToken ? (
+            <AuthPrompt
+              lead={t('noAccount')}
+              href={inviteToken ? `/signup?invite=${encodeURIComponent(inviteToken)}` : '/signup'}
+              label={t('createAccount')}
+            />
           ) : (
             <p className='text-center text-label text-muted'>{t('askAdmin')}</p>
           )
@@ -59,9 +67,7 @@ export default async function SignInPage({ params, searchParams }: Props) {
           providers={getEnabledOAuthProviders()}
           forgotPassword={isFeatureEnabled('enableEmails')}
           redirectTo={redirectTo}
-          initialError={
-            error ? t(error === 'account_not_linked' ? 'errors.accountNotLinked' : 'errors.default') : null
-          }
+          initialError={errorKey ? t(`errors.${errorKey}`) : null}
           notice={registration === 'disabled' ? t('registrationDisabled') : null}
         />
       </AuthPanel>
