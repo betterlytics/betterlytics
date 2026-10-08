@@ -799,7 +799,17 @@
         },
         "returnToDashboard": "Return to dashboard",
         "backToSignIn": "Back to sign in",
-        "helpLine": "Need help? Contact support at support@betterlytics.io"
+        "helpLine": "Need help? Contact support at support@betterlytics.io",
+        "resend": {
+          "submit": "Send a new link",
+          "submitting": "Sending…",
+          "to": "We’ll send it to {email}.",
+          "sent": "A new link is on its way to {email}. It works for 24 hours.",
+          "sentIfWaiting": "If {email} has an account waiting to be verified, a new link is on its way. It works for 24 hours.",
+          "alreadyVerified": "Your email is already verified.",
+          "failed": "Couldn’t send a new link, please try again.",
+          "differentEmail": "Use a different email"
+        }
       }
     },
     "demo": {

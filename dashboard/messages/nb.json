@@ -799,7 +799,17 @@
         },
         "returnToDashboard": "Gå til dashboard",
         "backToSignIn": "Tilbake til innlogging",
-        "helpLine": "Trenger du hjelp? Kontakt support på support@betterlytics.io"
+        "helpLine": "Trenger du hjelp? Kontakt support på support@betterlytics.io",
+        "resend": {
+          "submit": "Send en ny lenke",
+          "submitting": "Sender...",
+          "to": "Vi sender den til {email}.",
+          "sent": "En ny lenke er på vei til {email}. Den virker i 24 timer.",
+          "sentIfWaiting": "Hvis {email} har en konto som venter på bekreftelse, er en ny lenke på vei. Den virker i 24 timer.",
+          "alreadyVerified": "E-postadressen din er allerede bekreftet.",
+          "failed": "Kunne ikke sende en ny lenke. Prøv igjen.",
+          "differentEmail": "Bruk en annen e-post"
+        }
       }
     },
     "demo": {

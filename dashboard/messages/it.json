@@ -799,7 +799,17 @@
         },
         "returnToDashboard": "Torna alla Dashboard",
         "backToSignIn": "Torna al Login",
-        "helpLine": "Hai bisogno di aiuto? Contatta il supporto a support@betterlytics.io"
+        "helpLine": "Hai bisogno di aiuto? Contatta il supporto a support@betterlytics.io",
+        "resend": {
+          "submit": "Invia un nuovo link",
+          "submitting": "Invio...",
+          "to": "Lo invieremo a {email}.",
+          "sent": "Un nuovo link è in arrivo a {email}. È valido per 24 ore.",
+          "sentIfWaiting": "Se {email} ha un account in attesa di verifica, un nuovo link è in arrivo. È valido per 24 ore.",
+          "alreadyVerified": "La tua email è già verificata.",
+          "failed": "Impossibile inviare un nuovo link, riprova.",
+          "differentEmail": "Usa un'altra email"
+        }
       }
     },
     "demo": {
