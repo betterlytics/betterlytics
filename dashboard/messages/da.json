@@ -713,7 +713,7 @@
           "description": "Opret en gratis Betterlytics-konto til webanalyse, session replay, fejlsporing og oppetidsovervågning. Intet kreditkort nødvendigt."
         },
         "title": "Opret din konto",
-        "lede": "Gratis at komme i gang, intet betalingskort.",
+        "lede": "Gratis at komme i gang, intet kreditkort påkrævet.",
         "ledeSelfHosted": "Én konto til analyse, session replay, fejl og oppetid.",
         "invited": "Du er inviteret til at deltage i {domain}.",
         "submit": "Opret konto",

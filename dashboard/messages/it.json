@@ -713,7 +713,7 @@
           "description": "Crea un account Betterlytics gratuito per analisi web, session replay, tracciamento errori e monitoraggio uptime. Nessuna carta di credito."
         },
         "title": "Crea il tuo account",
-        "lede": "Gratis per iniziare, senza carta di credito.",
+        "lede": "Gratis per iniziare, nessuna carta di credito richiesta.",
         "ledeSelfHosted": "Un solo account per analytics, session replay, errori e uptime.",
         "invited": "Sei stato invitato a unirti a {domain}.",
         "submit": "Crea account",
