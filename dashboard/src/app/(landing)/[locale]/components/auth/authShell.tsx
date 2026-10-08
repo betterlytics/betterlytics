@@ -7,7 +7,7 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { BrandLink, BrandMarkDefs } from '@/landing/components/ui/brandMark';
 import { cn } from '@/landing/lib/cn';
 import { LINKS } from '@/landing/lib/links';
-import { CurrentPageLanguageLinks } from './languageLinks';
+import { LanguageMenu } from './languageMenu';
 import styles from './authShell.module.css';
 
 const QUIET_LINK = 'text-muted transition-colors duration-180 ease-out-expo hover:text-fg';
@@ -57,7 +57,7 @@ export async function AuthShell({ children }: { children: ReactNode }) {
             </Link>
           </nav>
         ) : null}
-        <CurrentPageLanguageLinks
+        <LanguageMenu
           label={tFooter('language')}
           languages={SUPPORTED_LANGUAGES.map((code) => ({ code, name: LANGUAGE_METADATA[code].name }))}
         />
