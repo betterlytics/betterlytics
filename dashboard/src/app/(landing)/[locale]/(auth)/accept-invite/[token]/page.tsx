@@ -12,6 +12,7 @@ import { acceptInvitation } from '@/services/dashboard/invitation.service';
 import { maskEmail } from '@/utils/maskEmail';
 import { AuthAction, AuthPanel } from '@/landing/components/auth/authPanel';
 import { NO_INDEX } from '@/landing/components/auth/metadata';
+import { SwitchAccount } from '@/landing/components/auth/switchAccount';
 
 type Props = { params: Promise<{ locale: SupportedLanguages; token: string }> };
 
@@ -80,7 +81,13 @@ export default async function AcceptInvitePage({ params }: Props) {
           currentEmail: session.user.email,
         })}
       >
-        <AuthAction note={t('emailMismatchHint')} href='/dashboards' label={t('goToDashboards')} />
+        <SwitchAccount
+          note={t('emailMismatchHint')}
+          continueHref={`/${locale}${acceptInvitePath(token)}`}
+          label={t('signOutAndContinue')}
+          stayHref='/dashboards'
+          stayLabel={t('goToDashboards')}
+        />
       </AuthPanel>
     );
   }
