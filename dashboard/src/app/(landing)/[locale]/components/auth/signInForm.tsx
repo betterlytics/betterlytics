@@ -4,11 +4,13 @@ import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import * as OTP from '@radix-ui/react-one-time-password-field';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { inviteTokenFromCallback, signInPath, twoFactorAttemptEnded } from '@/lib/auth/auth-page-state';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
 import {
   Alert,
   AuthForm,
+  describedBy,
   EmailInput,
   Field,
   OAuthCells,
@@ -23,9 +25,6 @@ import styles from './authForm.module.css';
 const OTP_LENGTH = 6;
 // Backup codes are `xxxxx-xxxxx` over [A-Za-z0-9]; the hyphen brings the total to 11.
 const BACKUP_CODE_LENGTH = 11;
-// better-auth ends the second-factor attempt after five wrong codes, or once its cookie lapses; only a fresh
-// password sign-in starts a new one
-const TWO_FACTOR_EXPIRED = new Set(['TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE', 'INVALID_TWO_FACTOR_COOKIE']);
 
 /**
  * Normalises whatever was typed or pasted into `xxxxx-xxxxx`. Case is kept: codes are mixed case and compared
@@ -108,9 +107,9 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
       const { error: socialError } = await authClient.signIn.social({
         provider,
         callbackURL: redirectTo,
-        newUserCallbackURL: '/onboarding?newUser=true',
-        errorCallbackURL:
-          redirectTo === '/dashboards' ? '/signin' : `/signin?callbackUrl=${encodeURIComponent(redirectTo)}`,
+        // a first-time account headed for an invitation goes to it, not to onboarding
+        newUserCallbackURL: inviteTokenFromCallback(redirectTo) ? redirectTo : '/onboarding?newUser=true',
+        errorCallbackURL: signInPath(redirectTo),
       });
       if (socialError) {
         setPending(null);
@@ -131,10 +130,10 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
             setStep('credentials');
             setRefocus((count) => count + 1);
           }}
-          onExpired={() => {
+          onEnded={(reason) => {
             setStep('credentials');
             setPassword('');
-            fail(t('errors.twoFactorExpired'));
+            fail(t(reason === 'tooManyCodes' ? 'errors.twoFactorTooMany' : 'errors.twoFactorExpired'));
           }}
         />
       </div>
@@ -170,6 +169,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
             onChange={setEmail}
             readOnly={isPending}
             invalid={rejected}
+            describedBy={describedBy(error && ids.error)}
             autoComplete='username'
           />
         </Field>
@@ -192,6 +192,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
             onChange={setPassword}
             readOnly={isPending}
             invalid={rejected}
+            describedBy={describedBy(error && ids.error)}
           />
         </Field>
         <SubmitButton
@@ -209,12 +210,12 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
 function TwoFactorStep({
   redirectTo,
   onBack,
-  onExpired,
+  onEnded,
 }: {
   redirectTo: string;
   onBack: () => void;
-  /** The attempt is over (too many wrong codes, or it timed out): back to the password. */
-  onExpired: () => void;
+  /** better-auth has ended the attempt (too many wrong codes, or it timed out): back to the password. */
+  onEnded: (reason: 'tooManyCodes' | 'expired') => void;
 }) {
   const t = useTranslations('public.auth.signin');
   const tFields = useTranslations('public.auth.fields');
@@ -249,8 +250,9 @@ function TwoFactorStep({
           ? await authClient.twoFactor.verifyBackupCode({ code: value })
           : await authClient.twoFactor.verifyTotp({ code: value });
       if (verifyError) {
-        if (verifyError.code && TWO_FACTOR_EXPIRED.has(verifyError.code)) {
-          onExpired();
+        const ended = twoFactorAttemptEnded(verifyError.code);
+        if (ended) {
+          onEnded(ended);
           return;
         }
         setPending(false);
@@ -338,6 +340,7 @@ function TwoFactorStep({
           }}
           disabled={pending}
           aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
         />
       )}
       <SubmitButton

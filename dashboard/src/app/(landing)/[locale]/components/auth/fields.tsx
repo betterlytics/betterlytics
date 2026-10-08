@@ -16,8 +16,11 @@ const PROVIDERS = [
   { id: 'github', name: 'GitHub', Mark: GitHubIcon },
 ] as const;
 
-/** Lets Safari's password generator make one that passes PasswordSchema. */
-const PASSWORD_RULES_HINT = `minlength: ${PASSWORD_MIN_LENGTH}; maxlength: ${PASSWORD_MAX_LENGTH}; required: lower; required: upper;`;
+/**
+ * Lets password generators make one that passes PasswordSchema. `allowed` matters: without it only the required
+ * classes may be used, and generated passwords would be letters only.
+ */
+const PASSWORD_RULES_HINT = `minlength: ${PASSWORD_MIN_LENGTH}; maxlength: ${PASSWORD_MAX_LENGTH}; required: lower; required: upper; allowed: digit, special;`;
 
 /**
  * Every auth form. POST, so a submit before hydration puts nothing in the URL (logs, history, the page tracker);
@@ -82,6 +85,7 @@ export function EmailInput({
   onChange,
   readOnly,
   invalid,
+  describedBy,
   autoComplete = 'email',
   inputRef,
 }: {
@@ -90,6 +94,8 @@ export function EmailInput({
   onChange: (value: string) => void;
   readOnly: boolean;
   invalid?: boolean;
+  /** The error, while there is one: focus comes back to the field, and it should say why. */
+  describedBy?: string;
   autoComplete?: 'email' | 'username';
   inputRef?: Ref<HTMLInputElement>;
 }) {
@@ -110,8 +116,14 @@ export function EmailInput({
       onChange={(event) => onChange(event.target.value)}
       readOnly={readOnly}
       aria-invalid={invalid || undefined}
+      aria-describedby={describedBy}
     />
   );
+}
+
+/** Joins the ids a field is described by, leaving out the absent ones. */
+export function describedBy(...ids: (string | false | null | undefined)[]) {
+  return ids.filter(Boolean).join(' ') || undefined;
 }
 
 export function PasswordInput({

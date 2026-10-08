@@ -13,7 +13,7 @@ import { ResetPasswordPanel } from '@/landing/components/auth/resetPasswordPanel
 
 type Props = {
   params: Promise<{ locale: SupportedLanguages }>;
-  searchParams: Promise<{ token?: string; error?: string }>;
+  searchParams: Promise<{ token?: string | string[]; error?: string | string[] }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -29,7 +29,10 @@ export default async function ResetPasswordPage({ params, searchParams }: Props)
     redirect('/dashboards');
   }
 
-  const { token, error } = await searchParams;
+  const query = await searchParams;
+  // a repeated parameter arrives as an array, which no link of ours makes
+  const token = typeof query.token === 'string' ? query.token : undefined;
+  const error = typeof query.error === 'string' ? query.error : undefined;
   const structuredData = <StructuredData config={await buildSEOConfig(SEO_CONFIGS.resetPassword)} />;
   const accountEmail = token && !error ? await findResetTokenEmail(token) : null;
   const problem = resetLinkProblem({ token, error, tokenIsLive: accountEmail !== null });

@@ -3,8 +3,9 @@ import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
 import { StructuredData } from '@/components/StructuredData';
+import { SIGN_IN_REDIRECT_DEFAULT } from '@/constants/auth';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { inviteTokenFromCallback, signInErrorKey } from '@/lib/auth/auth-page-state';
+import { inviteTokenFromCallback, signInErrorKey, signUpPath } from '@/lib/auth/auth-page-state';
 import { toSafeRelativePath } from '@/lib/auth/safe-redirect';
 import { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
@@ -28,7 +29,7 @@ export default async function SignInPage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const { error, callbackUrl, registration } = await searchParams;
-  const redirectTo = toSafeRelativePath(callbackUrl, '/dashboards');
+  const redirectTo = toSafeRelativePath(callbackUrl, SIGN_IN_REDIRECT_DEFAULT);
 
   if (await getAuthSession()) {
     redirect(redirectTo);
@@ -53,11 +54,7 @@ export default async function SignInPage({ params, searchParams }: Props) {
         lede={t('lede')}
         foot={
           registrationEnabled || inviteToken ? (
-            <AuthPrompt
-              lead={t('noAccount')}
-              href={inviteToken ? `/signup?invite=${encodeURIComponent(inviteToken)}` : '/signup'}
-              label={t('createAccount')}
-            />
+            <AuthPrompt lead={t('noAccount')} href={signUpPath(inviteToken)} label={t('createAccount')} />
           ) : (
             <p className='text-center text-label text-muted'>{t('askAdmin')}</p>
           )

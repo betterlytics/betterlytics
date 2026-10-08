@@ -690,7 +690,8 @@
           "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
           "emailNotFound": "Vi kunne ikke hente en e-mailadresse fra den konto. Gør din e-mail synlig hos udbyderen, eller log ind med e-mail og adgangskode.",
           "unableToLink": "Vi kunne ikke forbinde den konto med din. Log ind med din e-mail og adgangskode i stedet.",
-          "twoFactorExpired": "Dit loginforsøg er udløbet. Indtast din adgangskode igen."
+          "twoFactorExpired": "Dit loginforsøg er udløbet. Indtast din adgangskode igen.",
+          "twoFactorTooMany": "For mange forkerte koder. Indtast din adgangskode for at prøve igen."
         },
         "twoFactor": {
           "title": "To-faktor-godkendelse",
@@ -710,6 +711,7 @@
         },
         "title": "Opret din konto",
         "lede": "Gratis at komme i gang, intet betalingskort",
+        "ledeSelfHosted": "Én konto til analyse, session replay, fejl og oppetid.",
         "invited": "Du er inviteret til at deltage i {domain}",
         "submit": "Opret konto",
         "submitting": "Opretter konto...",
