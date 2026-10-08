@@ -5,6 +5,7 @@ import { getAuthSession } from '@/auth/auth-actions';
 import { StructuredData } from '@/components/StructuredData';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { isOpenInvitation } from '@/entities/dashboard/invitation.entities';
+import { acceptInvitePath } from '@/lib/auth/auth-page-state';
 import { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
@@ -31,7 +32,7 @@ export default async function SignUpPage({ params, searchParams }: Props) {
 
   const invitation = invite ? await findInvitationByToken(invite) : null;
   const openInvitation = invitation && isOpenInvitation(invitation) ? invitation : null;
-  const acceptPath = openInvitation ? `/accept-invite/${invite}` : undefined;
+  const acceptPath = openInvitation && invite ? acceptInvitePath(invite) : undefined;
 
   if (await getAuthSession()) {
     redirect(acceptPath ?? '/dashboards');
@@ -55,21 +56,35 @@ export default async function SignUpPage({ params, searchParams }: Props) {
     );
   }
 
+  const isCloud = isFeatureEnabled('isCloud');
   const invitedDomain = openInvitation?.dashboard?.domain;
+  // "free to start" is the cloud's offer; a self-hosted instance says what the account is for
+  const lede = invitedDomain
+    ? t('invited', { domain: invitedDomain })
+    : isCloud
+      ? t('lede')
+      : (await getTranslations('public.auth.signin'))('lede');
   return (
     <>
       {structuredData}
       <AuthPanel
         title={t('title')}
-        lede={invitedDomain ? t('invited', { domain: invitedDomain }) : t('lede')}
-        foot={<AuthPrompt lead={t('haveAccount')} href='/signin' label={t('signIn')} />}
+        lede={lede}
+        foot={
+          <AuthPrompt
+            lead={t('haveAccount')}
+            // an invitee who has an account after all signs in and lands on the invitation
+            href={acceptPath ? `/signin?callbackUrl=${encodeURIComponent(acceptPath)}` : '/signin'}
+            label={t('signIn')}
+          />
+        }
       >
         <SignUpForm
           providers={getEnabledOAuthProviders()}
           invitedEmail={openInvitation?.email}
           inviteToken={openInvitation ? invite : undefined}
           redirectTo={acceptPath}
-          requireTerms={isFeatureEnabled('isCloud')}
+          requireTerms={isCloud}
         />
       </AuthPanel>
     </>
