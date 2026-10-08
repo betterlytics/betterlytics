@@ -11,7 +11,7 @@ type Props = {
   searchParams: Promise<{ token?: string; error?: string; verified?: string }>;
 };
 
-export const metadata: Metadata = { robots: NO_INDEX };
+export const metadata: Metadata = { title: 'Betterlytics', robots: NO_INDEX };
 
 /*
  * better-auth's emailed link verifies the token server-side and redirects here: success lands with ?verified=1,
