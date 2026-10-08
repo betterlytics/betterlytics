@@ -638,47 +638,64 @@
       }
     },
     "auth": {
+      "shell": {
+        "legal": "Juridisk",
+        "privacy": "Personvern",
+        "terms": "Vilkår"
+      },
+      "fields": {
+        "email": "E-post",
+        "emailPlaceholder": "deg@firma.no",
+        "password": "Passord",
+        "newPassword": "Nytt passord",
+        "confirmPassword": "Bekreft passord",
+        "showPassword": "Vis passord",
+        "hidePassword": "Skjul passord",
+        "continueWith": "Fortsett med {provider}",
+        "rules": {
+          "label": "Passordet ditt må ha",
+          "length": "8+ tegn",
+          "lower": "Én liten bokstav",
+          "upper": "Én stor bokstav"
+        },
+        "errors": {
+          "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
+          "weakPassword": "Passordet oppfyller ikke kravene.",
+          "passwordsDoNotMatch": "Passordene samsvarer ikke",
+          "tooManyRequests": "For mange forsøk. Prøv igjen senere."
+        }
+      },
       "signin": {
         "seo": {
           "title": "Logg inn | Betterlytics",
           "description": "Logg inn på Betterlytics for å se trafikk, sesjonsopptak, feil og oppetid for nettstedet ditt i ett dashboard."
         },
-        "title": "Logg inn på kontoen din",
-        "subtitle": "Få tilgang til analysedashboardet ditt",
+        "title": "Velkommen tilbake",
+        "lede": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
+        "forgotPassword": "Glemt passordet ditt?",
+        "submit": "Logg inn",
+        "submitting": "Logger inn...",
+        "noAccount": "Ny hos Betterlytics?",
+        "createAccount": "Opprett en konto",
+        "askAdmin": "Be administratoren din om en konto.",
+        "registrationDisabled": "Registrering er for øyeblikket deaktivert på denne instansen.",
         "errors": {
-          "OAuthAccountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn med e-post og passord i stedet.",
-          "default": "Det oppstod en feil under innlogging. Prøv igjen."
+          "accountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn med e-post og passord i stedet.",
+          "default": "Det oppstod en feil under innlogging. Prøv igjen.",
+          "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
+          "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
+          "invalidBackupCode": "Ugyldig reservekode. Prøv igjen.",
+          "generic": "Det oppstod en feil under innlogging. Prøv igjen."
         },
-        "cta": {
-          "noAccount": "Har du ikke en konto?",
-          "createOne": "Opprett en"
-        },
-        "form": {
-          "emailLabel": "E-post",
-          "emailPlaceholder": "Skriv inn e-post",
-          "passwordLabel": "Passord",
-          "passwordPlaceholder": "Skriv inn passord",
-          "forgotPassword": "Glemt passordet ditt?",
-          "submitButton": "Logg inn",
-          "submitting": "Logger inn...",
-          "orDivider": "eller",
-          "continueWithGoogle": "Fortsett med Google",
-          "continueWithGithub": "Fortsett med GitHub",
-          "errors": {
-            "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
-            "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
-            "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
-            "invalidBackupCode": "Ugyldig reservekode. Prøv igjen."
-          },
-          "twoFactor": {
-            "title": "Tofaktorautentisering",
-            "description": "Skriv inn verifiseringskoden fra autentiseringsappen din.",
-            "cancel": "Avbryt",
-            "backupCodeDescription": "Skriv inn en av reservekodene dine. Hver kode kan bare brukes én gang.",
-            "useBackupCode": "Bruk en reservekode i stedet",
-            "useAuthenticator": "Bruk autentiseringsappen i stedet",
-            "verify": "Bekreft"
-          }
+        "twoFactor": {
+          "title": "Tofaktorautentisering",
+          "description": "Skriv inn verifiseringskoden fra autentiseringsappen din.",
+          "backupCodeDescription": "Skriv inn en av reservekodene dine. Hver kode kan bare brukes én gang.",
+          "backupCodeLabel": "Reservekode",
+          "useBackupCode": "Bruk en reservekode i stedet",
+          "useAuthenticator": "Bruk autentiseringsappen i stedet",
+          "verify": "Bekreft",
+          "back": "Tilbake"
         }
       },
       "register": {
@@ -687,10 +704,17 @@
           "description": "Opprett en gratis Betterlytics-konto for nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Ingen kredittkort nødvendig."
         },
         "title": "Opprett kontoen din",
-        "subtitle": "Kom i gang gratis — sett opp analyse på få minutter",
-        "cta": {
-          "haveAccount": "Har du allerede en konto?",
-          "signIn": "Logg inn"
+        "lede": "Gratis å komme i gang, uten betalingskort",
+        "invited": "Du er invitert til å bli med i {domain}",
+        "submit": "Opprett konto",
+        "submitting": "Oppretter konto...",
+        "legal": "Ved å fortsette godtar du <terms>tjenestevilkårene</terms> og <privacy>personvernerklæringen</privacy>.",
+        "haveAccount": "Har du allerede en konto?",
+        "signIn": "Logg inn",
+        "errors": {
+          "emailExists": "Det finnes allerede en bruker med den e-postadressen.",
+          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
+          "generic": "Det oppstod en feil under registrering. Prøv igjen."
         },
         "disabled": {
           "title": "Registrering deaktivert",
@@ -704,90 +728,67 @@
           "description": "Tilbakestill Betterlytics-passordet ditt sikkert. Skriv inn e-postadressen din for å motta en beskyttet tilbakestillingslenke og få tilgang til kontoen igjen."
         },
         "title": "Tilbakestill passordet ditt",
-        "subtitle": "Skriv inn e-posten din, så sender vi en lenke for tilbakestilling",
-        "emailField": "E-postadresse",
-        "emailFieldPlaceholder": "Skriv inn e-postadressen din",
-        "emailFieldDescription": "Skriv inn e-postadressen knyttet til kontoen din, så sender vi en lenke for tilbakestilling av passord.",
-        "successMessage": "E-post for tilbakestilling av passord sendt!",
-        "errorMessage": "Kunne ikke sende e-post for tilbakestilling av passord, prøv igjen.",
-        "errorMessageInvalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
-        "cta": {
-          "sendResetLink": "Send lenke for tilbakestilling",
-          "sending": "Sender...",
-          "remember": "Husker du passordet ditt?",
-          "backToSignIn": "Tilbake til innlogging"
-        },
-        "errorMessageTooManyRequests": "For mange tilbakestillingsforespørsler. Prøv igjen senere."
+        "lede": "Vi sender deg en lenke på e-post",
+        "submit": "Send tilbakestillingslenke",
+        "submitting": "Sender...",
+        "sentTitle": "Sjekk innboksen din",
+        "sentBody": "Hvis det finnes en konto for {email}, er en tilbakestillingslenke på vei. Den virker i én time.",
+        "differentEmail": "Bruk en annen e-post",
+        "remember": "Husker du passordet ditt?",
+        "signIn": "Logg inn",
+        "errors": {
+          "failed": "Kunne ikke sende e-post for tilbakestilling av passord, prøv igjen."
+        }
       },
       "resetPassword": {
         "seo": {
           "title": "Tilbakestill passordet ditt | Betterlytics",
           "description": "Sett et nytt passord for Betterlytics-kontoen din sikkert ved hjelp av den beskyttede tilbakestillingslenken og få full tilgang igjen."
         },
+        "title": "Sett nytt passord",
+        "lede": "For Betterlytics-kontoen din",
+        "submit": "Lagre passord",
+        "submitting": "Lagrer…",
+        "doneTitle": "Passord oppdatert",
+        "doneLede": "Logg inn med det nye passordet ditt",
+        "remember": "Husker du passordet ditt?",
+        "signIn": "Logg inn",
+        "requestLink": "Be om ny tilbakestillingslenke",
         "invalid": {
           "title": "Ugyldig tilbakestillingslenke",
           "description": "Denne lenken for tilbakestilling av passord er ugyldig eller mangler token.",
-          "note": "Be om en ny lenke for tilbakestilling av passord.",
-          "requestLink": "Be om ny tilbakestillingslenke"
+          "note": "Be om en ny lenke for tilbakestilling av passord."
         },
         "expired": {
           "title": "Tilbakestillingslenke utløpt",
           "description": "Denne lenken for tilbakestilling av passord er utløpt eller ugyldig.",
-          "info": "Lenker for tilbakestilling av passord utløper etter 1 time av sikkerhetsgrunner. Be om en ny.",
-          "requestLink": "Be om ny tilbakestillingslenke"
+          "info": "Lenker for tilbakestilling av passord utløper etter 1 time av sikkerhetsgrunner. Be om en ny."
         },
-        "form": {
-          "title": "Sett nytt passord",
-          "description": "Skriv inn det nye passordet ditt nedenfor",
-          "errors": {
-            "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
-            "weakPassword": "Passordet oppfyller ikke kravene.",
-            "tooManyAttempts": "For mange forsøk. Prøv igjen senere.",
-            "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
-          },
-          "successMessage": "Passordet ble tilbakestilt!"
-        },
-        "cta": {
-          "remember": "Husker du passordet ditt?",
-          "backToSignIn": "Tilbake til innlogging"
+        "errors": {
+          "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
+          "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
         }
       },
       "verifyEmail": {
         "invalid": {
           "title": "Ugyldig verifiseringslenke",
-          "description": "Verifiseringslenken er ugyldig eller mangler. Sjekk e-posten din og prøv igjen.",
-          "backToSignIn": "Tilbake til innlogging"
+          "description": "Verifiseringslenken er ugyldig eller mangler. Sjekk e-posten din og prøv igjen."
         },
         "failed": {
           "title": "Verifisering mislyktes",
           "expiredInfo": "Verifiseringslenker utløper etter 24 timer av sikkerhetsgrunner. Du kan be om en ny og prøve igjen.",
           "genericFallback": "Det oppstod en feil under verifisering."
         },
-        "buttons": {
-          "returnToDashboard": "Gå til dashboard",
-          "backToSignIn": "Tilbake til innlogging"
-        },
-        "helpLine": "Trenger du hjelp? Kontakt support på support@betterlytics.io",
-        "loading": {
-          "title": "Verifiserer...",
-          "description": "Vent et øyeblikk mens vi verifiserer e-postadressen din."
-        },
         "success": {
           "title": "E-post verifisert!",
           "description": "E-postadressen din er verifisert.",
-          "celebration": "Velkommen ombord!",
           "redirecting": "Sender deg til dashboardet...",
-          "clickHere": "Klikk her hvis du ikke blir videresendt automatisk",
           "redirectingToSignin": "Sender deg til innlogging...",
-          "errors": {
-            "redirectTimeout": "Videresending tar lengre tid enn forventet.",
-            "redirectFailed": "Noe gikk galt under videresendingen."
-          }
+          "redirectTimeout": "Videresending tar lengre tid enn forventet."
         },
-        "verifying": {
-          "title": "Verifiserer e-posten din...",
-          "description": "Vent mens vi bekrefter e-postadressen din."
-        }
+        "returnToDashboard": "Gå til dashboard",
+        "backToSignIn": "Tilbake til innlogging",
+        "helpLine": "Trenger du hjelp? Kontakt support på support@betterlytics.io"
       }
     },
     "demo": {
@@ -3175,47 +3176,6 @@
     }
   },
   "onboarding": {
-    "registrationDisabled": "Registrering er for øyeblikket deaktivert på denne instansen.",
-    "account": {
-      "features": {
-        "feature1": {
-          "title": "Kom i gang på under 2 minutter",
-          "description": "Legg bare til en kodelinje eller installer npm-pakken vår. Ingen informasjonskapsler, ingen pop-ups."
-        },
-        "feature2": {
-          "title": "Gratis å komme i gang",
-          "description": "10 000 hendelser per måned. Ingen kredittkort. Ingen bindingstid."
-        },
-        "feature3": {
-          "title": "Personvern først og åpen kildekode",
-          "description": "Informasjonskapselfri, GDPR-kompatibel og hostet i EU. Transparent og sikker."
-        }
-      },
-      "form": {
-        "title": "Opprett kontoen din",
-        "signUpWith": "Registrer deg med",
-        "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
-        "orDivider": "eller",
-        "emailLabel": "E-post",
-        "emailPlaceholder": "Skriv inn e-posten din",
-        "passwordLabel": "Passord",
-        "passwordPlaceholder": "Skriv inn passordet ditt (min. 8 tegn)",
-        "confirmPasswordLabel": "Bekreft passord",
-        "confirmPasswordPlaceholder": "Bekreft passordet ditt",
-        "continueButton": "Fortsett",
-        "creatingAccount": "Oppretter konto...",
-        "signingUpGoogle": "Registrerer...",
-        "signingUpGitHub": "Registrerer...",
-        "googleButton": "Google-konto",
-        "gitHubButton": "GitHub-konto",
-        "passwordsDoNotMatch": "Passordene samsvarer ikke",
-        "emailAlreadyExists": "Det finnes allerede en bruker med den e-postadressen.",
-        "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
-        "checkInput": "Vennligst sjekk inndataene dine",
-        "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
-        "invitedToHint": "Du er invitert til å bli med i {domain}"
-      }
-    },
     "website": {
       "title": "Sett opp dashboardet ditt",
       "description": "Fortell oss om nettstedet du vil spore",
