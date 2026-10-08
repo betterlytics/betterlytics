@@ -9,6 +9,7 @@ import { UserException } from '@/lib/exceptions';
 import { findInvitationByToken } from '@/repositories/postgres/invitation.repository';
 import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import { acceptInvitation } from '@/services/dashboard/invitation.service';
+import { maskEmail } from '@/utils/maskEmail';
 import { AuthAction, AuthPanel } from '@/landing/components/auth/authPanel';
 import { NO_INDEX } from '@/landing/components/auth/metadata';
 
@@ -74,7 +75,10 @@ export default async function AcceptInvitePage({ params }: Props) {
     return (
       <AuthPanel
         title={t('emailMismatchTitle')}
-        lede={t('emailMismatchDescription', { invitedEmail: invitation.email, currentEmail: session.user.email })}
+        lede={t('emailMismatchDescription', {
+          invitedEmail: maskEmail(invitation.email),
+          currentEmail: session.user.email,
+        })}
       >
         <AuthAction note={t('emailMismatchHint')} href='/dashboards' label={t('goToDashboards')} />
       </AuthPanel>
