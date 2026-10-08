@@ -64,14 +64,53 @@ export function AuthPrompt({ lead, href, label }: { lead?: string; href: string;
   );
 }
 
-/** A panel body with nothing to fill in: what happened, and the one way on. */
-export function AuthAction({ note, href, label }: { note?: ReactNode; href: string; label: string }) {
+// the signed-in app's routes carry no locale (/da/dashboards is a 404), and live under another root layout anyway
+const UNLOCALIZED_APP_ROUTE = /^\/dashboards?(?:[/?#]|$)/;
+
+/** A link to an auth page in the visitor's language, or a plain one into the signed-in app. */
+export function PanelLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return UNLOCALIZED_APP_ROUTE.test(href) ? (
+    <a className={className} href={href}>
+      {children}
+    </a>
+  ) : (
+    <Link className={className} href={href}>
+      {children}
+    </Link>
+  );
+}
+
+/** A panel body with nothing to fill in: what happened, and the way on (and, rarely, a second way). */
+export function AuthAction({
+  note,
+  href,
+  label,
+  secondary,
+}: {
+  note?: ReactNode;
+  href: string;
+  label: string;
+  secondary?: { href: string; label: string };
+}) {
   return (
     <div className={form.root}>
       {note ? <p className={form.note}>{note}</p> : null}
-      <Link className={form.primary} href={href}>
+      <PanelLink className={form.primary} href={href}>
         {label}
-      </Link>
+      </PanelLink>
+      {secondary ? (
+        <PanelLink className={form.secondary} href={secondary.href}>
+          {secondary.label}
+        </PanelLink>
+      ) : null}
     </div>
   );
 }

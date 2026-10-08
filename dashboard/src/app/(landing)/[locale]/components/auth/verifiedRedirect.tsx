@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
 import { cn } from '@/landing/lib/cn';
+import { PanelLink } from './authPanel';
 import { Alert } from './fields';
 import { Spinner } from './icons';
 import styles from './authForm.module.css';
@@ -42,9 +42,9 @@ export function VerifiedRedirect({ hasSession }: { hasSession: boolean }) {
           {t(hasSession ? 'success.redirecting' : 'success.redirectingToSignin')}
         </p>
       )}
-      <Link className={styles.secondary} href={target}>
+      <PanelLink className={styles.secondary} href={target}>
         {t(hasSession ? 'returnToDashboard' : 'backToSignIn')}
-      </Link>
+      </PanelLink>
     </div>
   );
 }
