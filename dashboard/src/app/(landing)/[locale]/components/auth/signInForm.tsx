@@ -63,6 +63,10 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
       const { data, error: signInError } = await authClient.signIn.email({ email, password });
       if (signInError) {
         setPending(null);
+        if (signInError.status === 429) {
+          setError(tFields('errors.tooManyRequests'));
+          return;
+        }
         setRejected(true);
         setError(t('errors.invalidCredentials'));
         return;
@@ -179,6 +183,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
 /** The code from an authenticator app, or one of the account's backup codes; either submits itself once complete. */
 function TwoFactorStep({ redirectTo, onBack }: { redirectTo: string; onBack: () => void }) {
   const t = useTranslations('public.auth.signin');
+  const tFields = useTranslations('public.auth.fields');
   const id = useId();
   const errorId = `${id}-error`;
   const [mode, setMode] = useState<'totp' | 'backup'>('totp');
@@ -212,7 +217,11 @@ function TwoFactorStep({ redirectTo, onBack }: { redirectTo: string; onBack: () 
       if (verifyError) {
         setPending(false);
         if (mode === 'totp') setCode('');
-        setError(t(mode === 'backup' ? 'errors.invalidBackupCode' : 'errors.invalidOtp'));
+        setError(
+          verifyError.status === 429
+            ? tFields('errors.tooManyRequests')
+            : t(mode === 'backup' ? 'errors.invalidBackupCode' : 'errors.invalidOtp'),
+        );
         return;
       }
       window.location.assign(redirectTo);

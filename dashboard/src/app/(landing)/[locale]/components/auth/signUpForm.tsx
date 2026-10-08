@@ -102,11 +102,13 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
       if (signUpError) {
         setPending(null);
         setError(
-          signUpError.code?.startsWith('USER_ALREADY_EXISTS')
-            ? t('errors.emailExists')
-            : signUpError.code === 'SIGNUP_DISABLED'
-              ? t('errors.registrationDisabled')
-              : t('errors.generic'),
+          signUpError.status === 429
+            ? tFields('errors.tooManyRequests')
+            : signUpError.code?.startsWith('USER_ALREADY_EXISTS')
+              ? t('errors.emailExists')
+              : signUpError.code === 'SIGNUP_DISABLED'
+                ? t('errors.registrationDisabled')
+                : t('errors.generic'),
         );
         return;
       }
