@@ -321,12 +321,34 @@
     color: var(--color-volt-soft);
     opacity: 1;
   }
-  .legal {
+  /* agreeing to the terms (cloud sign-up) */
+  .check {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
     color: var(--color-muted);
-    font-size: 12.5px;
+    font-size: 13px;
     line-height: 19px;
-    text-align: center;
-    text-wrap: balance;
+    text-wrap: pretty;
+  }
+  .check input {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 1.5px;
+    accent-color: var(--color-volt);
+    cursor: pointer;
+  }
+  .check input[aria-invalid='true'] {
+    outline: 1.5px solid color-mix(in srgb, var(--color-down) 70%, transparent);
+    outline-offset: 2px;
+  }
+  .check input:focus-visible {
+    outline: 2px solid var(--color-volt-lift);
+    outline-offset: 2px;
+  }
+  .check label {
+    cursor: pointer;
   }
   /* what happens next, in place of a form */
   .note {

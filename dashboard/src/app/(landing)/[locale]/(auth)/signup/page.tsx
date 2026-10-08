@@ -5,7 +5,7 @@ import { getAuthSession } from '@/auth/auth-actions';
 import { StructuredData } from '@/components/StructuredData';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { isOpenInvitation } from '@/entities/dashboard/invitation.entities';
-import { acceptInvitePath, signInPath } from '@/lib/auth/auth-page-state';
+import { acceptInvitePath, signInErrorKey, signInPath } from '@/lib/auth/auth-page-state';
 import { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
@@ -17,7 +17,7 @@ import { SignUpForm } from '@/landing/components/auth/signUpForm';
 
 type Props = {
   params: Promise<{ locale: SupportedLanguages }>;
-  searchParams: Promise<{ invite?: string | string[] }>;
+  searchParams: Promise<{ invite?: string | string[]; error?: string | string[] }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -31,6 +31,7 @@ export default async function SignUpPage({ params, searchParams }: Props) {
   const query = await searchParams;
   // a repeated parameter arrives as an array, which no link of ours makes
   const invite = typeof query.invite === 'string' ? query.invite : undefined;
+  const error = typeof query.error === 'string' ? query.error : undefined;
 
   const invitation = invite ? await findInvitationByToken(invite) : null;
   const openInvitation = invitation && isOpenInvitation(invitation) ? invitation : null;
@@ -59,6 +60,8 @@ export default async function SignUpPage({ params, searchParams }: Props) {
   }
 
   const isCloud = isFeatureEnabled('isCloud');
+  // an OAuth sign-up that came back with an error (a cancel at the provider says nothing)
+  const errorKey = signInErrorKey(error);
   const invitedDomain = openInvitation?.dashboard?.domain;
   // "free to start" is the cloud's offer; a self-hosted instance says what the account is for
   const lede = invitedDomain ? t('invited', { domain: invitedDomain }) : isCloud ? t('lede') : t('ledeSelfHosted');
@@ -83,6 +86,7 @@ export default async function SignUpPage({ params, searchParams }: Props) {
           inviteToken={openInvitation ? invite : undefined}
           redirectTo={acceptPath}
           requireTerms={isCloud}
+          initialError={errorKey ? (await getTranslations('public.auth.signin'))(`errors.${errorKey}`) : null}
         />
       </AuthPanel>
     </>

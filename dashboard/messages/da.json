@@ -715,13 +715,14 @@
         "invited": "Du er inviteret til at deltage i {domain}",
         "submit": "Opret konto",
         "submitting": "Opretter konto...",
-        "legal": "Ved at fortsætte accepterer du vores <terms>servicevilkår</terms> og <privacy>privatlivspolitik</privacy>.",
+        "termsAgree": "Jeg har læst og accepterer <terms>Servicevilkårene</terms> og <privacy>Privatlivspolitikken</privacy>.",
         "haveAccount": "Har du allerede en konto?",
         "signIn": "Log ind",
         "errors": {
           "emailExists": "Der findes allerede en bruger med den e-mail.",
           "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
-          "generic": "Der opstod en fejl under tilmelding. Prøv igen."
+          "generic": "Der opstod en fejl under tilmelding. Prøv igen.",
+          "termsRequired": "Du skal acceptere servicevilkårene for at fortsætte."
         },
         "disabled": {
           "title": "Registrering deaktiveret",

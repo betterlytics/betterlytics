@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { Link } from '@/i18n/navigation';
-import { signInPath } from '@/lib/auth/auth-page-state';
+import { signUpPath } from '@/lib/auth/auth-page-state';
 import { authClient } from '@/lib/auth-client';
 import { baEvent } from '@/lib/ba-event';
 import { FINE_LINK } from '@/landing/components/ui/text';
@@ -33,33 +33,59 @@ type SignUpFormProps = {
   redirectTo?: string;
   /** Cloud only; self-host is not bound by our terms. */
   requireTerms: boolean;
+  /** From the URL: an OAuth sign-up that came back with an error. */
+  initialError?: string | null;
 };
 
-/** Google and GitHub, then email and a password whose rules tick off; the terms are agreed to by continuing. */
-export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, requireTerms }: SignUpFormProps) {
+type FormError = { message: string; field: 'email' | 'password' | 'terms' | null; focus: boolean };
+
+/** Google and GitHub, then email and a password whose rules tick off, and on cloud the terms to agree to. */
+export function SignUpForm({
+  providers,
+  invitedEmail,
+  inviteToken,
+  redirectTo,
+  requireTerms,
+  initialError,
+}: SignUpFormProps) {
   const t = useTranslations('public.auth.register');
   const tFields = useTranslations('public.auth.fields');
   const locale = useLocale();
   const id = useId();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const termsRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState(invitedEmail ?? '');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<{ message: string; field: 'email' | 'password' | null } | null>(null);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [error, setError] = useState<FormError | null>(
+    initialError ? { message: initialError, field: null, focus: false } : null,
+  );
   const [pending, setPending] = useState<'email' | OAuthProvider | null>(null);
-  const ids = { error: `${id}-error`, email: `${id}-email`, password: `${id}-password`, rules: `${id}-rules` };
+  const ids = {
+    error: `${id}-error`,
+    email: `${id}-email`,
+    password: `${id}-password`,
+    rules: `${id}-rules`,
+    terms: `${id}-terms`,
+  };
 
-  // back to the field the error is about, else the first one; an invited address is fixed, so then the password
+  // after a submit, back to the field the error is about, else the first one; an invited address is fixed, so then
+  // the password
   useEffect(() => {
-    if (!error) return;
+    if (!error?.focus) return;
+    if (error.field === 'terms') {
+      termsRef.current?.focus();
+      return;
+    }
     const field = error.field === 'password' || invitedEmail ? passwordRef.current : emailRef.current;
     field?.focus();
     field?.select();
   }, [error, invitedEmail]);
 
-  const fail = (message: string, field: 'email' | 'password' | null = null) => {
+  const fail = (message: string, field: FormError['field'] = null) => {
     setPending(null);
-    setError({ message, field });
+    setError({ message, field, focus: true });
   };
 
   const continueWith = async (provider: OAuthProvider) => {
@@ -71,21 +97,21 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
         provider,
         callbackURL: redirectTo ?? '/dashboards',
         newUserCallbackURL: redirectTo ?? '/onboarding?newUser=true',
-        errorCallbackURL: signInPath(redirectTo),
+        // back here, invite and all, so a cancel or a refusal leaves the visitor where they started
+        errorCallbackURL: signUpPath(inviteToken),
       });
-      if (socialError) {
-        setPending(null);
-        setError({ message: t('errors.generic'), field: null });
-      }
+      if (socialError) fail(t('errors.generic'));
     } catch {
-      setPending(null);
-      setError({ message: t('errors.generic'), field: null });
+      fail(t('errors.generic'));
     }
   };
 
   const register = async () => {
     if (pending) return;
-    // continuing is the act of agreeing (the line under the form), so on cloud the terms are accepted here
+    if (requireTerms && !acceptedTerms) {
+      fail(t('errors.termsRequired'), 'terms');
+      return;
+    }
     const parsed = RegisterUserSchema.safeParse({
       email,
       password,
@@ -180,6 +206,39 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
           />
         </Field>
         <PasswordRules id={ids.rules} password={password} />
+        {requireTerms ? (
+          <div className={styles.check}>
+            <input
+              ref={termsRef}
+              id={ids.terms}
+              type='checkbox'
+              name='acceptedTerms'
+              checked={acceptedTerms}
+              onChange={(event) => {
+                setAcceptedTerms(event.target.checked);
+                if (event.target.checked && error?.field === 'terms') setError(null);
+              }}
+              disabled={isPending}
+              aria-invalid={error?.field === 'terms' || undefined}
+              aria-describedby={describedBy(error?.field === 'terms' && ids.error)}
+            />
+            {/* the policies open in a new tab, so the form isn't lost */}
+            <label htmlFor={ids.terms}>
+              {t.rich('termsAgree', {
+                terms: (chunks) => (
+                  <Link className={FINE_LINK} href='/terms' target='_blank' rel='noopener noreferrer'>
+                    {chunks}
+                  </Link>
+                ),
+                privacy: (chunks) => (
+                  <Link className={FINE_LINK} href='/privacy' target='_blank' rel='noopener noreferrer'>
+                    {chunks}
+                  </Link>
+                ),
+              })}
+            </label>
+          </div>
+        ) : null}
         <SubmitButton
           pending={pending === 'email'}
           disabled={isPending}
@@ -187,23 +246,6 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
           pendingLabel={t('submitting')}
         />
       </AuthForm>
-
-      {requireTerms ? (
-        <p className={styles.legal}>
-          {t.rich('legal', {
-            terms: (chunks) => (
-              <Link className={FINE_LINK} href='/terms'>
-                {chunks}
-              </Link>
-            ),
-            privacy: (chunks) => (
-              <Link className={FINE_LINK} href='/privacy'>
-                {chunks}
-              </Link>
-            ),
-          })}
-        </p>
-      ) : null}
     </div>
   );
 }
