@@ -13,6 +13,7 @@ import {
   describedBy,
   EmailInput,
   Field,
+  isEmailAddress,
   OAuthCells,
   PasswordInput,
   SubmitButton,
@@ -49,40 +50,49 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
   const t = useTranslations('public.auth.signin');
   const tFields = useTranslations('public.auth.fields');
   const id = useId();
+  const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [step, setStep] = useState<'credentials' | 'twoFactor'>('credentials');
   const [error, setError] = useState<string | null>(initialError);
-  const [rejected, setRejected] = useState(false);
+  // which fields the error is about: outlined, and the first of them takes focus
+  const [invalid, setInvalid] = useState<'email' | 'password' | 'both' | null>(null);
   const [pending, setPending] = useState<'email' | OAuthProvider | null>(null);
-  // bumped to put the cursor back in the password field, once the credentials form is on screen again
-  const [refocus, setRefocus] = useState(0);
+  // bumped to put the cursor back in a field, once the credentials form is on screen again
+  const [refocus, setRefocus] = useState<{ count: number; field: 'email' | 'password' }>({
+    count: 0,
+    field: 'password',
+  });
   const ids = { error: `${id}-error`, email: `${id}-email`, password: `${id}-password` };
 
   useEffect(() => {
-    if (!refocus) return;
-    passwordRef.current?.focus();
-    passwordRef.current?.select();
+    if (!refocus.count) return;
+    const field = refocus.field === 'email' ? emailRef.current : passwordRef.current;
+    field?.focus();
+    field?.select();
   }, [refocus]);
 
-  const fail = (message: string, { wrongCredentials = false } = {}) => {
+  const fail = (message: string, about: 'email' | 'password' | 'both' | null = null) => {
     setPending(null);
-    setRejected(wrongCredentials);
+    setInvalid(about);
     setError(message);
-    setRefocus((count) => count + 1);
+    setRefocus(({ count }) => ({ count: count + 1, field: about === 'email' ? 'email' : 'password' }));
   };
 
   const signInWithEmail = async () => {
     if (pending) return;
+    if (!email.trim()) return fail(tFields('errors.emailRequired'), 'email');
+    if (!isEmailAddress(email)) return fail(tFields('errors.invalidEmail'), 'email');
+    if (!password) return fail(tFields('errors.passwordRequired'), 'password');
     setError(null);
-    setRejected(false);
+    setInvalid(null);
     setPending('email');
     try {
       const { data, error: signInError } = await authClient.signIn.email({ email, password });
       if (signInError) {
         if (signInError.status === 429) fail(tFields('errors.tooManyRequests'));
-        else fail(t('errors.invalidCredentials'), { wrongCredentials: true });
+        else fail(t('errors.invalidCredentials'), 'both');
         return;
       }
       if (data && 'twoFactorRedirect' in data && data.twoFactorRedirect) {
@@ -128,7 +138,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
           redirectTo={redirectTo}
           onBack={() => {
             setStep('credentials');
-            setRefocus((count) => count + 1);
+            setRefocus(({ count }) => ({ count: count + 1, field: 'password' }));
           }}
           onEnded={(reason) => {
             setStep('credentials');
@@ -165,10 +175,11 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
         <Field id={ids.email} label={tFields('email')}>
           <EmailInput
             id={ids.email}
+            inputRef={emailRef}
             value={email}
             onChange={setEmail}
             readOnly={isPending}
-            invalid={rejected}
+            invalid={invalid === 'email' || invalid === 'both'}
             describedBy={describedBy(error && ids.error)}
             autoComplete='username'
           />
@@ -191,7 +202,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
             value={password}
             onChange={setPassword}
             readOnly={isPending}
-            invalid={rejected}
+            invalid={invalid === 'password' || invalid === 'both'}
             describedBy={describedBy(error && ids.error)}
           />
         </Field>

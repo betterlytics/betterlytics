@@ -44,6 +44,7 @@ export function ForgotPasswordPanel() {
 
   const send = async () => {
     if (pending) return;
+    if (!email.trim()) return fail(tFields('errors.emailRequired'), true);
     const parsed = ForgotPasswordSchema.safeParse({ email });
     if (!parsed.success) {
       fail(tFields('errors.invalidEmail'), true);

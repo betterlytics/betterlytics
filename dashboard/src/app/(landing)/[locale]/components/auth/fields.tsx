@@ -2,6 +2,7 @@
 
 import { useState, type ReactNode, type Ref } from 'react';
 import { useTranslations } from 'next-intl';
+import { z } from 'zod';
 import { GitHubIcon } from '@/components/icons/SocialIcons';
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_RULES } from '@/entities/auth/password.entities';
 import { cn } from '@/landing/lib/cn';
@@ -24,7 +25,9 @@ const PASSWORD_RULES_HINT = `minlength: ${PASSWORD_MIN_LENGTH}; maxlength: ${PAS
 
 /**
  * Every auth form. POST, so a submit before hydration puts nothing in the URL (logs, history, the page tracker);
- * once hydrated, `onSubmit` takes over.
+ * once hydrated, `onSubmit` takes over. `noValidate`: each form checks its own fields and says what's wrong in the
+ * page's language and style; the browser's bubbles follow the browser's language and vanish. `required` and
+ * `type='email'` stay on the fields for screen readers and phone keyboards.
  */
 export function AuthForm({
   className,
@@ -42,6 +45,7 @@ export function AuthForm({
   return (
     <form
       method='post'
+      noValidate
       className={className}
       data-pending={pending || undefined}
       aria-describedby={describedBy}
@@ -53,6 +57,13 @@ export function AuthForm({
       {children}
     </form>
   );
+}
+
+const EMAIL = z.string().email();
+
+/** The same check the server's schemas make, for a form to run before it submits. */
+export function isEmailAddress(value: string) {
+  return EMAIL.safeParse(value.trim()).success;
 }
 
 export function Field({

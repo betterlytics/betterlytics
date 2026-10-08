@@ -46,6 +46,8 @@ export function ResetPasswordPanel({ token, email }: { token: string; email: str
 
   const save = async () => {
     if (pending) return;
+    if (!password) return fail(tFields('errors.passwordRequired'), 'password');
+    if (!confirm) return fail(tFields('errors.confirmRequired'), 'confirm');
     const parsed = ResetPasswordSchema.safeParse({ token, newPassword: password, confirmPassword: confirm });
     if (!parsed.success) {
       const field = parsed.error.errors[0]?.path[0];

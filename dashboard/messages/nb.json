@@ -663,7 +663,10 @@
           "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
           "weakPassword": "Passordet oppfyller ikke kravene.",
           "passwordsDoNotMatch": "Passordene samsvarer ikke",
-          "tooManyRequests": "For mange forsøk. Prøv igjen senere."
+          "tooManyRequests": "For mange forsøk. Prøv igjen senere.",
+          "emailRequired": "Skriv inn e-postadressen din.",
+          "passwordRequired": "Skriv inn passordet ditt.",
+          "confirmRequired": "Bekreft det nye passordet ditt."
         }
       },
       "signin": {
@@ -3433,7 +3436,8 @@
       "goToDashboards": "Gå til dashboards",
       "errorHint": "Prøv igjen om litt. Hvis det fortsetter å feile, be {inviter} om å sende deg en ny invitasjon.",
       "tryAgain": "Prøv igjen",
-      "dashboardOwner": "dashboard-eieren"
+      "dashboardOwner": "dashboard-eieren",
+      "signOutAndContinue": "Logg ut og fortsett"
     }
   },
   "integration": {

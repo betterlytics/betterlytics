@@ -663,7 +663,10 @@
           "invalidEmail": "Inserisci un indirizzo email valido",
           "weakPassword": "La password non soddisfa i requisiti.",
           "passwordsDoNotMatch": "Le password non corrispondono",
-          "tooManyRequests": "Troppi tentativi. Riprova più tardi."
+          "tooManyRequests": "Troppi tentativi. Riprova più tardi.",
+          "emailRequired": "Inserisci il tuo indirizzo email.",
+          "passwordRequired": "Inserisci la password.",
+          "confirmRequired": "Conferma la nuova password."
         }
       },
       "signin": {
@@ -3433,7 +3436,8 @@
       "goToDashboards": "Vai alle dashboard",
       "errorHint": "Riprova tra qualche istante. Se il problema persiste, chiedi a {inviter} di inviarti un nuovo invito.",
       "tryAgain": "Riprova",
-      "dashboardOwner": "il proprietario della dashboard"
+      "dashboardOwner": "il proprietario della dashboard",
+      "signOutAndContinue": "Esci e continua"
     }
   },
   "integration": {

@@ -663,7 +663,10 @@
           "invalidEmail": "Please enter a valid email address.",
           "weakPassword": "Password does not meet the requirements.",
           "passwordsDoNotMatch": "Passwords do not match.",
-          "tooManyRequests": "Too many attempts. Please try again later."
+          "tooManyRequests": "Too many attempts. Please try again later.",
+          "emailRequired": "Enter your email address.",
+          "passwordRequired": "Enter your password.",
+          "confirmRequired": "Confirm your new password."
         }
       },
       "signin": {
@@ -3430,7 +3433,8 @@
       "goToDashboards": "Go to dashboards",
       "errorHint": "Try again in a moment. If it keeps failing, ask {inviter} to send you a new invitation.",
       "tryAgain": "Try again",
-      "dashboardOwner": "the dashboard owner"
+      "dashboardOwner": "the dashboard owner",
+      "signOutAndContinue": "Sign out and continue"
     }
   },
   "integration": {

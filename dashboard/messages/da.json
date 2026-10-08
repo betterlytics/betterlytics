@@ -663,7 +663,10 @@
           "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
           "weakPassword": "Adgangskoden opfylder ikke kravene.",
           "passwordsDoNotMatch": "Adgangskoder matcher ikke",
-          "tooManyRequests": "For mange forsøg. Prøv igen senere."
+          "tooManyRequests": "For mange forsøg. Prøv igen senere.",
+          "emailRequired": "Indtast din e-mailadresse.",
+          "passwordRequired": "Indtast din adgangskode.",
+          "confirmRequired": "Bekræft din nye adgangskode."
         }
       },
       "signin": {
@@ -3433,7 +3436,8 @@
       "goToDashboards": "Gå til dashboards",
       "errorHint": "Prøv igen om lidt. Hvis det bliver ved med at fejle, så bed {inviter} om at sende dig en ny invitation.",
       "tryAgain": "Prøv igen",
-      "dashboardOwner": "dashboard-ejeren"
+      "dashboardOwner": "dashboard-ejeren",
+      "signOutAndContinue": "Log ud og fortsæt"
     }
   },
   "integration": {
