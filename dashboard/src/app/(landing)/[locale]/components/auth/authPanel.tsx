@@ -3,13 +3,10 @@ import { Link } from '@/i18n/navigation';
 import { Corners } from '@/landing/components/ui/frame';
 import frame from '@/landing/components/ui/frame.module.css';
 import { InkFrame } from '@/landing/components/ui/inkFrame';
+import { FINE_LINK } from '@/landing/components/ui/text';
 import { cn } from '@/landing/lib/cn';
 import form from './authForm.module.css';
 import styles from './authPanel.module.css';
-
-/** Underlined so it isn't told from its sentence by colour alone (as in the landing footer). */
-export const FINE_LINK =
-  'underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current';
 
 /**
  * The inked panel every auth step sits in: corner squares, rules between its head, body and hatched foot, and its

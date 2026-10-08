@@ -6,6 +6,7 @@ import { LANGUAGE_METADATA, SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import { Link } from '@/i18n/navigation';
 import { BlueskyIcon, DiscordIcon, GitHubIcon } from '@/components/icons/SocialIcons';
 import { BrandLink } from '@/landing/components/ui/brandMark';
+import { FINE_LINK } from '@/landing/components/ui/text';
 import { cn } from '@/landing/lib/cn';
 import { LINKS } from '@/landing/lib/links';
 
@@ -23,9 +24,6 @@ const COMPARISONS = COMPARE.filter(({ slug }) => getCompetitorData(slug) !== und
 const LINK =
   'flex w-fit items-center gap-[9px] py-2 text-body-sm leading-4 tracking-ui text-fg transition-opacity duration-180 ease-out-expo hover:opacity-80 max-sm:py-1 max-sm:text-body';
 const SOCIAL_ICON = 'size-[15px] flex-none';
-/** Underlined so it isn't told from its sentence by colour alone. */
-const FINE_LINK =
-  'whitespace-nowrap underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current';
 
 /** Plain links rather than a menu, so crawlers can follow them; the link also updates the locale cookie `/` redirects on. */
 function LanguageLinks() {
@@ -178,7 +176,7 @@ export function LandingFooter() {
           {t('copyright', { year: String(new Date().getFullYear()) })}{' '}
           {t.rich('license', {
             link: (name) => (
-              <a className={FINE_LINK} href={LINKS.license}>
+              <a className={cn('whitespace-nowrap', FINE_LINK)} href={LINKS.license}>
                 {name}
               </a>
             ),

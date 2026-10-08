@@ -8,7 +8,7 @@ import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { Link } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
 import { baEvent } from '@/lib/ba-event';
-import { FINE_LINK } from './authPanel';
+import { FINE_LINK } from '@/landing/components/ui/text';
 import {
   Alert,
   EmailInput,
