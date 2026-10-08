@@ -1,0 +1,248 @@
+@reference '../../landing.css';
+
+@layer components {
+  .root {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
+    gap: 12px;
+    min-height: 100svh;
+    padding: 12px;
+    @variant max-xl {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    @variant max-sm {
+      padding: 0;
+    }
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    padding: 16px clamp(20px, 5.4vw, 88px) 18px;
+    @variant max-sm {
+      padding: 18px var(--pad) 20px;
+    }
+  }
+
+  /* lifts in once, after first paint */
+  .column {
+    animation: volt-rise 0.7s var(--ease-out-expo) 0.05s backwards;
+  }
+
+  .panel {
+    position: relative;
+    display: flex;
+    min-height: 640px;
+    overflow: hidden;
+    isolation: isolate;
+    border-radius: 16px;
+    background: var(--color-volt);
+    @variant max-xl {
+      display: none;
+    }
+  }
+
+  /* A2: deep space, near-black at the top; the only blue left is the planet's light, rising from the card's foot */
+  .panel[data-space] {
+    background:
+      radial-gradient(120% 58% at 50% 100%, rgb(34 51 228 / 0.38) 0%, rgb(26 43 209 / 0.16) 45%, transparent 75%),
+      linear-gradient(to bottom, #04050c 0%, #05071a 55%, #080c26 100%);
+    box-shadow: inset 0 0 0 1px rgb(139 151 255 / 0.1);
+  }
+  /* no hatch or glassy top edge in space */
+  .panel[data-space]::before {
+    display: none;
+  }
+  .panel[data-space]::after {
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06);
+  }
+  /* the lamp was tuned against the blue card; on black it burns, so it is dimmed and drawn in closer */
+  .panel[data-space] .bloom {
+    height: 440px;
+    opacity: 0.42;
+  }
+  /* A3: black under the shader, which screens all of the space over it; the disc keeps only its body */
+  .panel[data-shader] {
+    background: #000;
+  }
+  /* in the dark the card's blue planet is the brightest thing on the page; a step down lets the light lead */
+  .panel[data-shader] .disc {
+    filter: brightness(0.78) saturate(0.92);
+  }
+  .panel[data-shader] .disc::before,
+  .panel[data-shader] .disc::after {
+    display: none;
+  }
+  .shader {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+  .stars {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 78%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 40%, transparent 78%);
+  }
+
+  /* The planet rises out of the card's foot. Its box is 118% of the card's width; cobe draws the sphere at 80%
+     of it, so the sphere's top sits 10% of the box below the box's top: margin-top (a width percentage)
+     lifts it back so the limb lands at 47% of the card's height. */
+  .planet {
+    position: absolute;
+    top: 47%;
+    left: 50%;
+    z-index: 1;
+    width: 118%;
+    aspect-ratio: 1;
+    margin-top: calc(118% * -0.1);
+    translate: -50% 0;
+    animation: volt-planet 1.4s var(--ease-out-expo) 0.15s backwards;
+  }
+  /* The layers paint in DOM order with no z-index of their own, so the globe's screen blend reaches the
+     disc and the lamp; a z-index would isolate it and the sphere would come out black. */
+  /* the hero's lamp, behind the planet: only a sunrise along the limb shows */
+  .planet .bloom {
+    top: 10%;
+    z-index: auto;
+    width: 1400px;
+    height: 560px;
+    background: var(--lamp-below);
+  }
+  .disc {
+    position: absolute;
+    inset: 10%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 50% 18%,
+      color-mix(in srgb, var(--color-volt-hover) 92%, white) 0%,
+      var(--color-volt) 34%,
+      color-mix(in srgb, var(--color-volt) 70%, black) 100%
+    );
+    box-shadow: inset 0 2px 0 rgb(255 255 255 / 0.22);
+  }
+  /* cobe's atmosphere, redrawn from its shader: a rim light that rises steeply toward the limb, and a glow that
+     fades out by 1.146× the radius. Screened like the globe, so both brighten the lamp behind instead of covering it. */
+  .disc::before,
+  .disc::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+  .disc::before {
+    inset: 0;
+    background: radial-gradient(
+      closest-side,
+      rgb(15 17 26) 0%,
+      rgb(15 17 26) 84%,
+      rgb(92 112 255 / 0.12) 90%,
+      rgb(92 112 255 / 0.24) 95%,
+      rgb(92 112 255 / 0.45) 98%,
+      rgb(92 112 255 / 0.9) 100%
+    );
+  }
+  .disc::after {
+    inset: -7.3%;
+    background: radial-gradient(
+      closest-side,
+      transparent 87%,
+      rgb(92 112 255 / 0.9) 87.3%,
+      rgb(92 112 255 / 0.62) 90%,
+      rgb(92 112 255 / 0.32) 93.5%,
+      rgb(92 112 255 / 0.1) 97%,
+      transparent 100%
+    );
+  }
+  .globe {
+    position: absolute;
+    inset: 0;
+  }
+  /* cobe draws each land dot as a soft cone, which reads as blur at this size: thresholding the layer keeps the
+     cones' bright middles and drops their halos, so the dots come out crisp (and shrink toward the limb) */
+  .dots {
+    filter: brightness(0.85) contrast(2.2);
+  }
+
+  .panelInner {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: clamp(44px, 8vh, 84px) clamp(28px, 4vw, 64px) 0;
+    text-align: center;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+    padding: 5px 14px 5px 5px;
+    border: 1px solid rgb(242 245 255 / 0.26);
+    border-radius: 999px;
+    background: rgb(242 245 255 / 0.07);
+    color: var(--color-on-volt);
+    font-size: 13px;
+    line-height: 20px;
+    transition:
+      background-color 0.18s var(--ease-out-expo),
+      border-color 0.18s var(--ease-out-expo);
+    animation: volt-rise 0.7s var(--ease-out-expo) 0.12s backwards;
+  }
+  .pill:hover {
+    border-color: rgb(242 245 255 / 0.5);
+    background: rgb(242 245 255 / 0.13);
+  }
+  .pillTag {
+    flex: none;
+    padding: 1px 9px;
+    border-radius: 999px;
+    background: var(--color-on-volt);
+    color: var(--color-volt);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .pillText {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .title {
+    max-width: 19ch;
+    margin-top: 30px;
+    color: var(--color-on-volt);
+    font-size: clamp(1.875rem, 2.6vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.05rem;
+    text-wrap: balance;
+    animation: volt-rise 0.8s var(--ease-out-expo) 0.18s backwards;
+  }
+}
+
+@keyframes volt-rise {
+  from {
+    opacity: 0;
+    translate: 0 12px;
+  }
+}
+@keyframes volt-planet {
+  from {
+    opacity: 0;
+    translate: -50% 60px;
+  }
+}

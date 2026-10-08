@@ -1,0 +1,239 @@
+@reference '../../landing.css';
+
+/* Deliberately neutral and dark on every direction: it's a tool, not part of the design.
+   A rail on the left edge on desktop (the one strip no direction uses), a bar along the bottom on phones. */
+@layer components {
+  .bar,
+  .restore {
+    position: fixed;
+    z-index: 100;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    background: rgb(12 11 11 / 0.86);
+    color: #d8d3d0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 16px;
+    box-shadow:
+      0 16px 48px rgb(0 0 0 / 0.42),
+      inset 0 1px 0 rgb(255 255 255 / 0.06);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+  .bar {
+    top: 50%;
+    left: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 5px;
+    translate: 0 -50%;
+    border-radius: 14px;
+    animation: lab-in 0.5s var(--ease-out-expo);
+    @media (width < 40rem) {
+      top: auto;
+      bottom: 10px;
+      left: 50%;
+      flex-direction: row;
+      translate: -50% 0;
+      border-radius: 14px;
+    }
+  }
+  .restore {
+    bottom: 14px;
+    left: 14px;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+  }
+  .tag {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 22px;
+    @media (width < 40rem) {
+      display: none;
+    }
+  }
+  .dot {
+    display: block;
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--color-volt-lift);
+    box-shadow: 0 0 10px rgb(74 92 255 / 0.9);
+  }
+
+  .tab {
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    color: #b6aeaa;
+    font-weight: 500;
+    transition:
+      background-color 0.18s var(--ease-out-expo),
+      color 0.18s var(--ease-out-expo);
+    @media (width < 40rem) {
+      width: 33px;
+    }
+  }
+  .tab:hover {
+    background: rgb(255 255 255 / 0.08);
+    color: #f0edeb;
+  }
+  .active,
+  .active:hover {
+    background: #ebe8e6;
+    color: #151414;
+  }
+  .pressed {
+    background: rgb(255 255 255 / 0.12);
+    color: #f0edeb;
+  }
+  .glyph {
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+  }
+  .flag {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-volt-lift);
+  }
+
+  /* hover labels, to the right of the rail */
+  .tip {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 14px);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 11px;
+    translate: -4px -50%;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 10px;
+    background: rgb(16 15 15 / 0.96);
+    color: #9a918d;
+    font-weight: 400;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      opacity 0.18s var(--ease-out-expo),
+      translate 0.18s var(--ease-out-expo);
+    @media (width < 40rem) {
+      display: none;
+    }
+  }
+  .tip b {
+    color: #f0edeb;
+    font-weight: 500;
+  }
+  .tab:hover .tip,
+  .tab:focus-visible .tip {
+    translate: 0 -50%;
+    opacity: 1;
+  }
+
+  .sep {
+    flex: none;
+    width: 18px;
+    height: 1px;
+    margin: 4px 0;
+    background: rgb(255 255 255 / 0.12);
+    @media (width < 40rem) {
+      width: 1px;
+      height: 18px;
+      margin: 0 4px;
+    }
+  }
+
+  .menuWrap {
+    position: relative;
+    flex: none;
+  }
+  .menu {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 14px);
+    width: 250px;
+    padding: 6px;
+    translate: 0 -50%;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 14px;
+    background: rgb(16 15 15 / 0.97);
+    box-shadow: 0 18px 50px rgb(0 0 0 / 0.5);
+    @media (width < 40rem) {
+      position: fixed;
+      top: auto;
+      bottom: 66px;
+      left: 50%;
+      translate: -50% 0;
+    }
+  }
+  .menuTitle {
+    padding: 8px 10px 4px;
+    color: #7f7773;
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .menuItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: #d8d3d0;
+  }
+  .menuItem:hover {
+    background: rgb(255 255 255 / 0.07);
+  }
+  .radio,
+  .check {
+    display: block;
+    flex: none;
+    width: 12px;
+    height: 12px;
+    border: 1px solid rgb(255 255 255 / 0.3);
+  }
+  .radio {
+    border-radius: 50%;
+  }
+  .check {
+    border-radius: 3px;
+  }
+  .menuItem[aria-checked='true'] .radio,
+  .menuItem[aria-checked='true'] .check {
+    border-color: var(--color-volt-lift);
+    background: var(--color-volt-lift);
+    box-shadow: inset 0 0 0 2px rgb(16 15 15);
+  }
+  .hint {
+    margin-top: 4px;
+    padding: 8px 10px 4px;
+    border-top: 1px solid rgb(255 255 255 / 0.08);
+    color: #6f6763;
+    font-size: 10.5px;
+  }
+}
+
+@keyframes lab-in {
+  from {
+    opacity: 0;
+  }
+}

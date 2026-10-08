@@ -1,0 +1,185 @@
+@reference '../../landing.css';
+
+@layer components {
+  .root {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    overflow: hidden;
+    --auth-height: 46px;
+    --auth-radius: 999px;
+    --auth-gap: 12px;
+    --auth-field: rgb(235 232 230 / 0.04);
+    --auth-secondary-bg: rgb(235 232 230 / 0.03);
+  }
+
+  /* the landing's lamp (voltCard's bloom) laid on its side along the bottom edge */
+  .sky {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  /* C3: thins out toward the horizon, where the atmosphere's light would wash the stars out */
+  .stars {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 30%, transparent 70%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 30%, transparent 70%);
+  }
+  /* C4: the whole sky, planet included */
+  .shader {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .glow {
+    position: absolute;
+    left: 50%;
+    bottom: -52vh;
+    width: max(1600px, 150vw);
+    height: 92vh;
+    translate: -50% 0;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      rgb(255 246 224 / 0.92) 0%,
+      rgb(255 236 206 / 0.7) 14%,
+      rgb(176 184 255 / 0.5) 32%,
+      rgb(74 92 255 / 0.4) 52%,
+      rgb(26 43 209 / 0.2) 74%,
+      rgb(26 43 209 / 0) 100%
+    );
+    @media (prefers-reduced-motion: no-preference) {
+      animation: horizon-breathe 10s ease-in-out infinite alternate;
+    }
+  }
+  /* C2: the blue stops near-opaque, so the band reads as the hero card's volt, not a navy wash over the canvas */
+  .root[data-tone='volt'] .glow {
+    background: radial-gradient(
+      closest-side,
+      rgb(255 246 224 / 0.95) 0%,
+      rgb(255 236 206 / 0.8) 13%,
+      rgb(186 194 255 / 0.74) 27%,
+      rgb(84 102 255 / 0.84) 42%,
+      rgb(34 51 228 / 0.8) 58%,
+      rgb(26 43 209 / 0.5) 77%,
+      rgb(26 43 209 / 0) 100%
+    );
+  }
+  /* the hatch only shows where the light reaches */
+  .hatch {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(315deg, rgb(242 245 255 / 0.11) 0 1px, transparent 0 50%);
+    background-size: 10px 10px;
+    -webkit-mask-image: radial-gradient(75% 46% at 50% 104%, #000 0%, rgb(0 0 0 / 0.55) 46%, transparent 78%);
+    mask-image: radial-gradient(75% 46% at 50% 104%, #000 0%, rgb(0 0 0 / 0.55) 46%, transparent 78%);
+  }
+
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(340px, 100%);
+    animation: horizon-rise 0.8s var(--ease-out-expo) backwards;
+  }
+
+  .tile {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border: 1px solid var(--color-rule-22);
+    border-radius: 18px;
+    background: linear-gradient(to bottom, rgb(235 232 230 / 0.07), rgb(235 232 230 / 0.02));
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.08),
+      0 18px 40px -12px rgb(0 0 0 / 0.7),
+      0 0 0 6px rgb(235 232 230 / 0.02);
+    transition: box-shadow 0.4s var(--ease-out-expo);
+  }
+  .tile[data-pending] {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.08),
+      0 18px 40px -12px rgb(0 0 0 / 0.7),
+      0 0 0 6px rgb(74 92 255 / 0.12),
+      0 0 40px rgb(74 92 255 / 0.35);
+  }
+
+  /* sign-up: the password's rules, each ticking off as it is met */
+  .rules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin-top: -6px;
+    color: var(--color-muted);
+    font-size: 12.5px;
+    line-height: 18px;
+  }
+  .rules li {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s var(--ease-out-expo);
+  }
+  .rules svg {
+    width: 13px;
+    height: 13px;
+    opacity: 0.35;
+    transition:
+      opacity 0.2s var(--ease-out-expo),
+      color 0.2s var(--ease-out-expo);
+  }
+  .rules li[data-met] {
+    color: var(--color-fg);
+  }
+  .rules li[data-met] svg {
+    color: var(--color-volt-soft);
+    opacity: 1;
+  }
+  .legal {
+    color: var(--color-muted);
+    font-size: 12.5px;
+    line-height: 19px;
+    text-align: center;
+    text-wrap: balance;
+  }
+  /* reset: what happens next, in place of the form */
+  .sent {
+    color: var(--color-muted);
+    font-size: 14px;
+    line-height: 21px;
+    text-align: center;
+    text-wrap: pretty;
+  }
+
+  /* Google leads as the paper pill, as the hero's call to action does on the blue card */
+  .stage [data-oauth] > button:first-child {
+    border-color: transparent;
+    background: var(--color-on-volt);
+    color: var(--color-on-paper);
+  }
+  .stage [data-oauth] > button:first-child:hover:not(:disabled) {
+    background: var(--color-white);
+    box-shadow: 0 0 0 4px rgb(242 245 255 / 0.12);
+  }
+}
+
+@keyframes horizon-breathe {
+  to {
+    scale: 1.06 1.1;
+    opacity: 0.88;
+  }
+}
+@keyframes horizon-rise {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+  }
+}
