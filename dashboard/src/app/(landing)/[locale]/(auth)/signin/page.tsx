@@ -3,10 +3,13 @@ import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
 import { StructuredData } from '@/components/StructuredData';
-import { SIGN_IN_REDIRECT_DEFAULT } from '@/constants/auth';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { inviteTokenFromCallback, signInErrorKey, signUpPath } from '@/lib/auth/auth-page-state';
-import { toSafeRelativePath } from '@/lib/auth/safe-redirect';
+import {
+  inviteTokenFromCallback,
+  signInErrorKey,
+  signInRedirectPath,
+  signUpPath,
+} from '@/lib/auth/auth-page-state';
 import { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
@@ -29,7 +32,7 @@ export default async function SignInPage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const { error, callbackUrl, registration } = await searchParams;
-  const redirectTo = toSafeRelativePath(callbackUrl, SIGN_IN_REDIRECT_DEFAULT);
+  const redirectTo = signInRedirectPath(callbackUrl);
 
   if (await getAuthSession()) {
     redirect(redirectTo);

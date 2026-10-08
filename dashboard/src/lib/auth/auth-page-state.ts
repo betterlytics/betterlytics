@@ -3,8 +3,26 @@
  * carried between sign-in and sign-up. Pure, so the pages stay thin and the rules are tested.
  */
 import { SIGN_IN_REDIRECT_DEFAULT, SIGNUP_DISABLED_MESSAGE } from '@/constants/auth';
+import { toSafeRelativePath } from './safe-redirect';
 
 const ACCEPT_INVITE_PATH = /^(?:\/[a-z]{2})?\/accept-invite\/([^/?#]+)$/;
+// pages only for the signed out, each of which sends a signed-in visitor straight on
+const SIGNED_OUT_PAGE = /^(?:\/[a-z]{2})?\/(?:signin|signup|forgot-password|reset-password)\/?$/;
+
+/**
+ * Where sign-in sends the visitor once they're signed in: the callbackUrl when it is a path on this site, else the
+ * default. Never back to a page only for the signed out, which would bounce them on, or (sign-in itself) round in a
+ * loop. The path is decoded first, as the router decodes it: /%73ignin is sign-in too.
+ */
+export function signInRedirectPath(callbackUrl: unknown): string {
+  const target = toSafeRelativePath(callbackUrl, SIGN_IN_REDIRECT_DEFAULT);
+  try {
+    const { pathname } = new URL(target, 'http://placeholder.invalid');
+    return SIGNED_OUT_PAGE.test(decodeURIComponent(pathname)) ? SIGN_IN_REDIRECT_DEFAULT : target;
+  } catch {
+    return SIGN_IN_REDIRECT_DEFAULT;
+  }
+}
 
 /** Where an invitation is accepted; sign-in returns there once the invitee has an account. */
 export function acceptInvitePath(token: string): string {

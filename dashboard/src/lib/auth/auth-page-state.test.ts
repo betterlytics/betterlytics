@@ -6,10 +6,46 @@ import {
   resetLinkProblem,
   signInErrorKey,
   signInPath,
+  signInRedirectPath,
   signUpPath,
   twoFactorAttemptEnded,
   verifyEmailState,
 } from '@/lib/auth/auth-page-state';
+
+describe('signInRedirectPath', () => {
+  it('returns to a path on this site, query and all', () => {
+    expect(signInRedirectPath('/accept-invite/tok')).toBe('/accept-invite/tok');
+    expect(signInRedirectPath('/dashboard/abc?range=7d')).toBe('/dashboard/abc?range=7d');
+    expect(signInRedirectPath('/verify-email?verified=1')).toBe('/verify-email?verified=1');
+  });
+
+  it('falls back to the default for anything else', () => {
+    for (const value of [undefined, '', 'https://evil.com', '//evil.com', '/\\evil.com', ['/a', '/b']]) {
+      expect(signInRedirectPath(value)).toBe('/dashboards');
+    }
+  });
+
+  it('never returns to a page only for the signed out, however it is spelled', () => {
+    for (const value of [
+      '/signin',
+      '/signin/',
+      '/signin?callbackUrl=%2Fsignin',
+      '/da/signin',
+      '/%73ignin',
+      '/./signin',
+      '/signup?invite=tok',
+      '/forgot-password',
+      '/nb/reset-password?token=x',
+    ]) {
+      expect(signInRedirectPath(value)).toBe('/dashboards');
+    }
+  });
+
+  it('keeps look-alike paths', () => {
+    expect(signInRedirectPath('/signin-help')).toBe('/signin-help');
+    expect(signInRedirectPath('/docs/signin')).toBe('/docs/signin');
+  });
+});
 
 describe('signInPath and signUpPath', () => {
   it('carries a callbackUrl to sign-in, unless it is the default', () => {
