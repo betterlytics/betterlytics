@@ -18,6 +18,8 @@ import {
 } from '@/entities/dashboard/mcpToken.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { useCopy } from '@/hooks/use-copy';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
 interface McpTokenManagerProps {
   dashboardId: string;
@@ -33,10 +35,12 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
   const [newlyCreatedToken, setNewlyCreatedToken] = useState<{ id: string; plainToken: string } | null>(null);
   const { copied, copy } = useCopy();
   const [deleteTokenId, setDeleteTokenId] = useState<string | null>(null);
+  const { hasPermission } = useDashboardAuth();
+  const canManageTokens = hasPermission('canManageSettings');
 
   const handleCreate = () => {
     const trimmed = name.trim();
-    if (!trimmed) return;
+    if (!canManageTokens || !trimmed) return;
 
     startTransition(async () => {
       try {
@@ -93,34 +97,55 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end'>
         <div className='flex-1 space-y-1.5'>
           <Label className='text-muted-foreground'>{t('settings.tokenNameLabel')}</Label>
-          <Input
-            type='text'
-            className='text-sm'
-            placeholder={t('settings.tokenNamePlaceholder')}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-          />
+          <PermissionGate permission='canManageSettings' wrapperClassName='block'>
+            {(disabled) => (
+              <Input
+                type='text'
+                className='text-sm'
+                placeholder={t('settings.tokenNamePlaceholder')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                disabled={disabled}
+              />
+            )}
+          </PermissionGate>
         </div>
         <div className='space-y-1.5'>
           <Label className='text-muted-foreground'>{t('settings.expirationLabel')}</Label>
-          <Select value={lifetime} onValueChange={(value) => setLifetime(value as McpTokenLifetime)}>
-            <SelectTrigger className='w-full cursor-pointer sm:w-40'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {McpTokenLifetimeSchema.options.map((option) => (
-                <SelectItem key={option} value={option} className='cursor-pointer'>
-                  {t(`settings.lifetime.${option}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <PermissionGate permission='canManageSettings' wrapperClassName='block'>
+            {(disabled) => (
+              <Select
+                value={lifetime}
+                onValueChange={(value) => setLifetime(value as McpTokenLifetime)}
+                disabled={disabled}
+              >
+                <SelectTrigger className='w-full cursor-pointer sm:w-40'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {McpTokenLifetimeSchema.options.map((option) => (
+                    <SelectItem key={option} value={option} className='cursor-pointer'>
+                      {t(`settings.lifetime.${option}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </PermissionGate>
         </div>
-        <Button onClick={handleCreate} disabled={!name.trim() || isPending} className='cursor-pointer sm:w-auto'>
-          <Plus className='size-4' />
-          {isPending ? t('settings.creating') : t('settings.createButton')}
-        </Button>
+        <PermissionGate permission='canManageSettings'>
+          {(disabled) => (
+            <Button
+              onClick={handleCreate}
+              disabled={disabled || !name.trim() || isPending}
+              className='w-full cursor-pointer sm:w-auto'
+            >
+              <Plus className='size-4' />
+              {isPending ? t('settings.creating') : t('settings.createButton')}
+            </Button>
+          )}
+        </PermissionGate>
       </div>
 
       {tokens.length > 0 && (
@@ -144,15 +169,19 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
                   )}
                 </p>
               </div>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='text-muted-foreground hover:text-destructive size-8 shrink-0 cursor-pointer'
-                onClick={() => setDeleteTokenId(tkn.id)}
-                disabled={isPending}
-              >
-                <Trash2 className='size-3.5' />
-              </Button>
+              <PermissionGate permission='canManageSettings' wrapperClassName='shrink-0'>
+                {(disabled) => (
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='text-muted-foreground hover:text-destructive size-8 shrink-0 cursor-pointer'
+                    onClick={() => setDeleteTokenId(tkn.id)}
+                    disabled={disabled || isPending}
+                  >
+                    <Trash2 className='size-3.5' />
+                  </Button>
+                )}
+              </PermissionGate>
             </div>
           ))}
         </div>
