@@ -21,7 +21,6 @@ import { useCopy } from '@/hooks/use-copy';
 import { CopyButton } from '@/components/CopyButton';
 import ExternalLink from '@/components/ExternalLink';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
 interface McpTokenManagerProps {
   dashboardId: string;
@@ -38,12 +37,10 @@ export function McpTokenManager({ dashboardId, tokens, endpointUrl }: McpTokenMa
   const [newlyCreatedToken, setNewlyCreatedToken] = useState<{ id: string; plainToken: string } | null>(null);
   const { copied, copy } = useCopy();
   const [deleteTokenId, setDeleteTokenId] = useState<string | null>(null);
-  const { hasPermission } = useDashboardAuth();
-  const canManageTokens = hasPermission('canManageSettings');
 
   const handleCreate = () => {
     const trimmed = name.trim();
-    if (!canManageTokens || !trimmed) return;
+    if (!trimmed) return;
 
     startTransition(async () => {
       try {
