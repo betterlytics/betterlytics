@@ -770,8 +770,8 @@
           "description": "This link is incomplete or has already been used. Request a new one to continue."
         },
         "expired": {
-          "title": "Reset link expired",
-          "description": "Reset links work for one hour. Request a new one to continue."
+          "title": "Reset link no longer works",
+          "description": "Reset links work once, for one hour. Request a new one to continue."
         },
         "errors": {
           "invalidToken": "This reset link is invalid or has expired. Request a new one.",
