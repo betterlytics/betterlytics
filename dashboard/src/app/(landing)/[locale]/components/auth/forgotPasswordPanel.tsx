@@ -6,7 +6,7 @@ import { ForgotPasswordSchema } from '@/entities/auth/passwordReset.entities';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
 import { AuthPanel, AuthPrompt } from './authPanel';
-import { Alert, AuthForm, EmailInput, Field, SubmitButton } from './fields';
+import { Alert, AuthForm, describedBy, EmailInput, Field, SubmitButton } from './fields';
 import styles from './authForm.module.css';
 
 /** One field, then a note to check the inbox that never says whether the account exists. */
@@ -19,7 +19,7 @@ export function ForgotPasswordPanel() {
   const [email, setEmail] = useState('');
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ message: string; aboutEmail: boolean } | null>(null);
   // bumped to put the cursor back in the field, once the form is on screen
   const [refocus, setRefocus] = useState(0);
   const ids = { error: `${id}-error`, email: `${id}-email` };
@@ -35,9 +35,10 @@ export function ForgotPasswordPanel() {
     emailRef.current?.select();
   }, [refocus]);
 
-  const fail = (message: string) => {
+  /** `aboutEmail`: the address itself was wrong, so the field is marked invalid; otherwise it only takes focus */
+  const fail = (message: string, aboutEmail = false) => {
     setPending(false);
-    setError(message);
+    setError({ message, aboutEmail });
     setRefocus((count) => count + 1);
   };
 
@@ -45,7 +46,7 @@ export function ForgotPasswordPanel() {
     if (pending) return;
     const parsed = ForgotPasswordSchema.safeParse({ email });
     if (!parsed.success) {
-      fail(tFields('errors.invalidEmail'));
+      fail(tFields('errors.invalidEmail'), true);
       return;
     }
     setError(null);
@@ -95,7 +96,7 @@ export function ForgotPasswordPanel() {
           describedBy={error ? ids.error : undefined}
           onSubmit={send}
         >
-          {error ? <Alert id={ids.error}>{error}</Alert> : null}
+          {error ? <Alert id={ids.error}>{error.message}</Alert> : null}
           <Field id={ids.email} label={tFields('email')}>
             <EmailInput
               id={ids.email}
@@ -103,7 +104,8 @@ export function ForgotPasswordPanel() {
               value={email}
               onChange={setEmail}
               readOnly={pending}
-              invalid={Boolean(error)}
+              invalid={error?.aboutEmail}
+              describedBy={describedBy(error && ids.error)}
             />
           </Field>
           <SubmitButton pending={pending} label={t('submit')} pendingLabel={t('submitting')} />

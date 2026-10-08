@@ -6,7 +6,7 @@ import { ResetPasswordSchema } from '@/entities/auth/passwordReset.entities';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
 import { AuthAction, AuthPanel, AuthPrompt } from './authPanel';
-import { Alert, AuthForm, Field, PasswordInput, PasswordRules, SubmitButton } from './fields';
+import { Alert, AuthForm, describedBy, Field, PasswordInput, PasswordRules, SubmitButton } from './fields';
 import styles from './authForm.module.css';
 
 /**
@@ -24,13 +24,14 @@ export function ResetPasswordPanel({ token, email }: { token: string; email: str
   const [confirm, setConfirm] = useState('');
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState(false);
-  const [error, setError] = useState<{ message: string; field: 'password' | 'confirm' } | null>(null);
+  const [error, setError] = useState<{ message: string; field: 'password' | 'confirm' | null } | null>(null);
   const ids = { error: `${id}-error`, password: `${id}-password`, confirm: `${id}-confirm`, rules: `${id}-rules` };
 
   useEffect(() => {
     if (done) titleRef.current?.focus();
   }, [done]);
 
+  // back to the field the error is about, else the new password; only the former is marked invalid
   useEffect(() => {
     if (!error) return;
     const field = error.field === 'confirm' ? confirmRef.current : passwordRef.current;
@@ -38,7 +39,7 @@ export function ResetPasswordPanel({ token, email }: { token: string; email: str
     field?.select();
   }, [error]);
 
-  const fail = (message: string, field: 'password' | 'confirm' = 'password') => {
+  const fail = (message: string, field: 'password' | 'confirm' | null = null) => {
     setPending(false);
     setError({ message, field });
   };
@@ -50,7 +51,7 @@ export function ResetPasswordPanel({ token, email }: { token: string; email: str
       const field = parsed.error.errors[0]?.path[0];
       if (field === 'token') fail(t('errors.invalidToken'));
       else if (field === 'confirmPassword') fail(tFields('errors.passwordsDoNotMatch'), 'confirm');
-      else fail(tFields('errors.weakPassword'));
+      else fail(tFields('errors.weakPassword'), 'password');
       return;
     }
     setError(null);
@@ -63,7 +64,7 @@ export function ResetPasswordPanel({ token, email }: { token: string; email: str
       if (resetError) {
         if (resetError.status === 429) fail(tFields('errors.tooManyRequests'));
         else if (resetError.code === 'INVALID_TOKEN') fail(t('errors.invalidToken'));
-        else if (resetError.code === 'WEAK_PASSWORD') fail(tFields('errors.weakPassword'));
+        else if (resetError.code === 'WEAK_PASSWORD') fail(tFields('errors.weakPassword'), 'password');
         else fail(t('errors.generic'));
         return;
       }
@@ -106,7 +107,7 @@ export function ResetPasswordPanel({ token, email }: { token: string; email: str
             readOnly={pending}
             isNew
             invalid={error?.field === 'password'}
-            describedBy={ids.rules}
+            describedBy={describedBy(error && ids.error, ids.rules)}
           />
         </Field>
         <PasswordRules id={ids.rules} password={password} />
@@ -120,6 +121,7 @@ export function ResetPasswordPanel({ token, email }: { token: string; email: str
             readOnly={pending}
             isNew
             invalid={error?.field === 'confirm'}
+            describedBy={describedBy(error && ids.error)}
           />
         </Field>
         <SubmitButton pending={pending} label={t('submit')} pendingLabel={t('submitting')} />

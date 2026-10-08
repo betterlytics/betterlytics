@@ -5,12 +5,14 @@ import { useLocale, useTranslations } from 'next-intl';
 import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { Link } from '@/i18n/navigation';
+import { signInPath } from '@/lib/auth/auth-page-state';
 import { authClient } from '@/lib/auth-client';
 import { baEvent } from '@/lib/ba-event';
 import { FINE_LINK } from '@/landing/components/ui/text';
 import {
   Alert,
   AuthForm,
+  describedBy,
   EmailInput,
   Field,
   OAuthCells,
@@ -69,7 +71,7 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
         provider,
         callbackURL: redirectTo ?? '/dashboards',
         newUserCallbackURL: redirectTo ?? '/onboarding?newUser=true',
-        errorCallbackURL: redirectTo ? `/signin?callbackUrl=${encodeURIComponent(redirectTo)}` : '/signin',
+        errorCallbackURL: signInPath(redirectTo),
       });
       if (socialError) {
         setPending(null);
@@ -160,6 +162,7 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
             onChange={setEmail}
             readOnly={isPending || Boolean(invitedEmail)}
             invalid={error?.field === 'email'}
+            describedBy={describedBy(error && ids.error)}
             autoComplete='username'
           />
         </Field>
@@ -173,7 +176,7 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
             readOnly={isPending}
             isNew
             invalid={error?.field === 'password'}
-            describedBy={ids.rules}
+            describedBy={describedBy(error && ids.error, ids.rules)}
           />
         </Field>
         <PasswordRules id={ids.rules} password={password} />

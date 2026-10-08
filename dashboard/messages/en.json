@@ -690,7 +690,8 @@
           "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner for an invitation.",
           "emailNotFound": "We couldn't get an email address from that account. Make your email visible with the provider, or sign in with email and password.",
           "unableToLink": "We couldn't connect that account to yours. Sign in with your email and password instead.",
-          "twoFactorExpired": "Your sign-in attempt expired. Enter your password again."
+          "twoFactorExpired": "Your sign-in attempt expired. Enter your password again.",
+          "twoFactorTooMany": "Too many incorrect codes. Enter your password to try again."
         },
         "twoFactor": {
           "title": "Two-factor authentication",
@@ -710,6 +711,7 @@
         },
         "title": "Create your account",
         "lede": "Free to start, no card needed",
+        "ledeSelfHosted": "One account for analytics, session replay, errors and uptime.",
         "invited": "You've been invited to join {domain}",
         "submit": "Create account",
         "submitting": "Creating account…",
