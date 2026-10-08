@@ -2,7 +2,7 @@
 
 import { useHydratedSession } from '@/hooks/use-hydrated-session';
 import { Button } from '@/components/ui/button';
-import { Link, usePathname } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import Logo from '@/components/logo';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
@@ -14,7 +14,6 @@ import NextLink from 'next/link';
 export default function PublicTopBar({ isCloud }: { isCloud: boolean }) {
   const t = useTranslations('public.nav');
   const { data: session, isPending } = useHydratedSession();
-  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -24,8 +23,6 @@ export default function PublicTopBar({ isCloud }: { isCloud: boolean }) {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
-
-  const isOnAuthPage = pathname === '/signin' || pathname === '/signup';
 
   return (
     <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur'>
@@ -84,7 +81,7 @@ export default function PublicTopBar({ isCloud }: { isCloud: boolean }) {
                     {t('goToDashboard')}
                   </Button>
                 </NextLink>
-              ) : !isOnAuthPage ? (
+              ) : (
                 <div className='flex items-center space-x-2'>
                   <Link href='/signin'>
                     <Button variant='outline' className='cursor-pointer'>
@@ -95,7 +92,7 @@ export default function PublicTopBar({ isCloud }: { isCloud: boolean }) {
                     <Button className='cursor-pointer'>{t('getStarted')}</Button>
                   </Link>
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
 
@@ -156,7 +153,7 @@ export default function PublicTopBar({ isCloud }: { isCloud: boolean }) {
                       {t('goToDashboard')}
                     </Button>
                   </NextLink>
-                ) : !isOnAuthPage ? (
+                ) : (
                   <div className='flex flex-col gap-2'>
                     <Link href='/signup' onClick={closeMobileMenu}>
                       <Button className='w-full cursor-pointer'>{t('getStarted')}</Button>
@@ -167,7 +164,7 @@ export default function PublicTopBar({ isCloud }: { isCloud: boolean }) {
                       </Button>
                     </Link>
                   </div>
-                ) : null}
+                )}
               </div>
             </nav>
           </div>
