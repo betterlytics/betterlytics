@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { verifyEmailState } from '@/lib/auth/auth-page-state';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { AuthAction, AuthPanel } from '@/landing/components/auth/authPanel';
 import { NO_INDEX } from '@/landing/components/auth/metadata';
 import { VerifiedRedirect } from '@/landing/components/auth/verifiedRedirect';
@@ -13,25 +15,22 @@ type Props = {
 
 export const metadata: Metadata = { title: 'Betterlytics', robots: NO_INDEX };
 
-/*
- * better-auth's emailed link verifies the token server-side and redirects here: success lands with ?verified=1,
- * failure appends ?verified=1&error=<code>, so error must win over verified. Legacy pre-migration links arrive with
- * ?token= and are treated as expired.
- */
 export default async function VerifyEmailPage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const { token, error, verified } = await searchParams;
+  const state = verifyEmailState(await searchParams);
   const t = await getTranslations('public.auth.verifyEmail');
 
-  if (error || token) {
+  if (state === 'expired' || state === 'failed') {
     const session = await getAuthSession();
-    const expired = error === 'TOKEN_EXPIRED' || !error;
     return (
       <AuthPanel
         title={t('failed.title')}
-        lede={t(expired ? 'failed.expiredInfo' : 'failed.genericFallback')}
-        foot={<p className='text-center text-label text-muted'>{t('helpLine')}</p>}
+        lede={t(state === 'expired' ? 'failed.expiredInfo' : 'failed.genericFallback')}
+        // our support address is the cloud's; a self-hosted instance has its own administrator
+        foot={
+          isFeatureEnabled('isCloud') ? <p className='text-center text-label text-muted'>{t('helpLine')}</p> : null
+        }
       >
         <AuthAction
           href={session ? '/dashboards' : '/signin'}
@@ -41,7 +40,7 @@ export default async function VerifyEmailPage({ params, searchParams }: Props) {
     );
   }
 
-  if (verified) {
+  if (state === 'verified') {
     const session = await getAuthSession();
     return (
       <AuthPanel title={t('success.title')} lede={t('success.description')}>
