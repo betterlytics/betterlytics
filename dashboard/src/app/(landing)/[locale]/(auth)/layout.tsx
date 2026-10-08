@@ -4,10 +4,7 @@ import { getMessages, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { AuthShell } from '@/landing/components/auth/authShell';
 
-/*
- * Every auth page reads the session, so none can be cached. Without this they would inherit the landing's empty
- * generateStaticParams, be built as static-on-first-request, and fail in production on their first headers() read.
- */
+// Every auth page reads the session, so none can be cached: rendered per request, never prerendered with the landing
 export const dynamic = 'force-dynamic';
 
 /** Sign in, sign up and the password and email steps around them, in the landing's look. */
