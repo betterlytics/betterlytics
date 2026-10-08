@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { twoFactor } from 'better-auth/plugins';
-import { APIError, createAuthMiddleware } from 'better-auth/api';
+import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
 import prisma from '@/lib/postgres';
 import { hashPassword, verifyPasswordHash } from '@/lib/password';
@@ -9,7 +9,11 @@ import { env } from '@/lib/env';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
-import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
+import {
+  sendVerificationEmail,
+  VERIFICATION_EMAIL_THROTTLED,
+  VERIFICATION_LINK_EXPIRY_SECONDS,
+} from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
@@ -206,6 +210,21 @@ export const auth = betterAuth({
 
       if (ctx.path === '/change-password') {
         return { context: { body: { ...ctx.body, revokeOtherSessions: true } } };
+      }
+    }),
+    after: createAuthMiddleware(async (ctx) => {
+      // Signed out, a link already sent in the last few minutes must read like any other answer: only an unverified
+      // account can be throttled, so a 429 would say the address has one. Nothing more is sent either way; signed
+      // in, the throttle still shows, as the account's own banner counts on it.
+      const returned = ctx.context.returned;
+      if (
+        ctx.path === '/send-verification-email' &&
+        isAPIError(returned) &&
+        returned.body?.code === VERIFICATION_EMAIL_THROTTLED &&
+        !(await getSessionFromCtx(ctx))
+      ) {
+        // a whole Response: better-auth would keep the replaced error's 429 status for a plain body
+        return Response.json({ status: true });
       }
     }),
   },
