@@ -6,16 +6,7 @@ export const fathom: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Fathom Analytics: Più funzionalità a un prezzo inferiore',
     description:
-      'Confronta Betterlytics con Fathom Analytics. Stesso approccio privacy-first con session replay, funnel e percorsi utente inclusi. Piano gratuito disponibile, da $6/mese.',
-    keywords: [
-      'alternativa Fathom Analytics',
-      'alternativa Fathom',
-      'analytics privacy-first',
-      'session replay',
-      'analisi funnel',
-      'analytics convenienti',
-      'analytics conformi GDPR',
-    ],
+      'Confronta Betterlytics con Fathom Analytics. Stesso approccio privacy-first con session replay, funnel e percorsi utente inclusi. Piano gratuito disponibile, da $7/mese.',
   },
   hero: {
     title: 'Cerchi un’alternativa a Fathom Analytics?',
@@ -36,7 +27,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Prezzo di partenza più basso',
-      betterlytics: 'Da $6/mese con un piano gratuito per siti più piccoli.',
+      betterlytics: 'Da $7/mese con un piano gratuito per siti più piccoli.',
       competitor: 'Da $15/mese. Nessun piano gratuito.',
     },
   ],
@@ -58,7 +49,7 @@ export const fathom: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '<2KB', competitor: '<2KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '<2KB' },
           { name: 'Impatto sul caricamento della pagina', betterlytics: 'Minimo', competitor: 'Minimo' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: true },
         ],
@@ -95,7 +86,7 @@ export const fathom: ComparisonLocaleContent = {
         name: 'Prezzi e supporto',
         features: [
           { name: 'Piano gratuito disponibile', betterlytics: true, competitor: false },
-          { name: 'Prezzo di partenza', betterlytics: 'Da $6/mese', competitor: 'Da $15/mese' },
+          { name: 'Prezzo di partenza', betterlytics: 'Da $7/mese', competitor: 'Da $15/mese' },
           { name: 'Prezzi trasparenti', betterlytics: true, competitor: true },
           { name: 'Supporto via email', betterlytics: true, competitor: true },
         ],
@@ -121,7 +112,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Prezzo vs valore',
-      content: `Fathom parte da $15/mese per 100.000 pageview. Nessun piano gratuito e pagamento richiesto fin dall’inizio.\n\nBetterlytics parte da $6/mese, quasi il 60% in meno, con un piano gratuito per siti più piccoli. Ottieni più funzionalità (session replay, funnel, percorsi utente) a un prezzo inferiore. Entrambi offrono prezzi trasparenti.`,
+      content: `Fathom parte da $15/mese per 100.000 pageview. Nessun piano gratuito e pagamento richiesto fin dall’inizio.\n\nBetterlytics parte da $7/mese, meno della metà, con un piano gratuito per siti più piccoli. Ottieni più funzionalità (session replay, funnel, percorsi utente) a un prezzo inferiore. Entrambi offrono prezzi trasparenti.`,
       icon: 'dollar',
     },
     {

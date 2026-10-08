@@ -4,18 +4,9 @@ export const posthog: ComparisonLocaleContent = {
   name: 'PostHog',
   logo: '/tools/posthog-logo.svg',
   seo: {
-    title: 'Betterlytics vs PostHog: Fokuseret og letvægts alternativ',
+    title: 'Betterlytics vs PostHog: et enklere alternativ hostet i EU',
     description:
-      'Sammenlign Betterlytics med PostHog. Fokuseret webanalyse med et meget lille script, privatliv som standard og forudsigelig prissætning. Ingen kompleksitet, kun klarhed.',
-    keywords: [
-      'PostHog alternativ',
-      'letvægts analytics',
-      'privatlivsvenlig analytics',
-      'simpel webanalyse',
-      'cookieless analytics',
-      'PostHog erstatning',
-      'forudsigelig prissætning analytics',
-    ],
+      'Sammenlign Betterlytics med PostHog. Webanalyse, session replay, fejl og oppetid i ét enklere værktøj, hostet i EU og med forudsigelige priser.',
   },
   hero: {
     title: 'Leder du efter et alternativ til PostHog?',
@@ -26,7 +17,7 @@ export const posthog: ComparisonLocaleContent = {
   keyDifferentiators: [
     {
       title: 'Ægte lightweight',
-      betterlytics: '<2KB script, designet til minimal påvirkning af sideperformance.',
+      betterlytics: '3,5KB script, designet til minimal påvirkning af sideperformance.',
       competitor: '~57KB script med et bredt funktionssæt og større load overhead.',
     },
     {
@@ -36,7 +27,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Simpel og forudsigelig prissætning',
-      betterlytics: 'Gratis plan til små sites. Betalte planer fra $6/måned med kernefunktioner inkluderet.',
+      betterlytics: 'Gratis plan til små sites. Betalte planer fra $7/måned med kernefunktioner inkluderet.',
       competitor:
         'Generøs gratis plan, men forbrugsbaseret prissætning på tværs af flere produkter bliver kompleks ved skalering.',
     },
@@ -60,7 +51,7 @@ export const posthog: ComparisonLocaleContent = {
       {
         name: 'Performance & hastighed',
         features: [
-          { name: 'Script-størrelse', betterlytics: '<2KB', competitor: '~57KB' },
+          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '~57KB' },
           { name: 'Indvirkning på sideindlæsning', betterlytics: 'Minimal', competitor: 'Moderat' },
           { name: 'Fungerer med ad blockers', betterlytics: true, competitor: 'Delvist' },
         ],
@@ -120,7 +111,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Sidehastighed betyder noget',
-      content: `PostHogs script er omkring 57KB gzippet. Det inkluderer understøttelse af feature flags, session recording, autocapture og andre produktfunktioner. På mobil og langsommere forbindelser kan det mærkes.\n\nVores script er under 2KB. Dine sider forbliver hurtige, Core Web Vitals forbliver grønne, og SEO har det godt. Analytics bør ikke gøre dit site langsommere.`,
+      content: `PostHogs script er omkring 57KB gzippet. Det inkluderer understøttelse af feature flags, session recording, autocapture og andre produktfunktioner. På mobil og langsommere forbindelser kan det mærkes.\n\nVores script fylder ca. 3,5KB. Dine sider forbliver hurtige, Core Web Vitals forbliver grønne, og SEO har det godt. Analytics bør ikke gøre dit site langsommere.`,
       icon: 'zap',
     },
     {
@@ -130,7 +121,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Vid hvad du betaler',
-      content: `PostHog afregner separat for events, session recordings, feature flags, surveys og mere. Den gratis plan er generøs, men omkostningerne kan stige hurtigt, når dit brug vokser. Det gør de månedlige udgifter sværere at forudsige.\n\nHos os er det enkelt. Fast prissætning fra $6/måned med klare grænser. Session replay, monitoring og kerne-analytics er alle inkluderet. Du kan forstå din regning uden at skulle bruge et regneark.`,
+      content: `PostHog afregner separat for events, session recordings, feature flags, surveys og mere. Den gratis plan er generøs, men omkostningerne kan stige hurtigt, når dit brug vokser. Det gør de månedlige udgifter sværere at forudsige.\n\nHos os er det enkelt. Fast prissætning fra $7/måned med klare grænser. Session replay, monitoring og kerne-analytics er alle inkluderet. Du kan forstå din regning uden at skulle bruge et regneark.`,
       icon: 'dollar',
     },
     {

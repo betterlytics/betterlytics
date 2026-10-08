@@ -1,0 +1,777 @@
+@reference '../../landing.css';
+
+@layer components {
+  .player {
+    width: 70%;
+    @variant max-sm {
+      width: 92%;
+    }
+    border-radius: 11px;
+    overflow: hidden;
+    background: var(--color-panel);
+    border: 1px solid --alpha(var(--color-fg) / 9%);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.05) inset,
+      0 16px 34px rgb(0 0 0 / 0.52);
+    transition:
+      opacity 0.45s var(--ease-out-expo),
+      transform 0.5s var(--ease-out-expo);
+    @media (prefers-reduced-motion: no-preference) {
+      &:not([data-in]) {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+    }
+  }
+  /* one clock for every loop, so they stay in step with each other and the JS-read scrub */
+  .player *,
+  .player *::after {
+    @media (prefers-reduced-motion: no-preference) {
+      animation-duration: var(--loop);
+      animation-iteration-count: infinite;
+    }
+  }
+  .player:not([data-live]) *,
+  .player:not([data-live]) *::after,
+  .player[data-paused] *,
+  .player[data-paused] *::after {
+    animation-play-state: paused;
+  }
+
+  .header {
+    display: flex;
+    align-items: baseline;
+    padding: 12px 14px 11px;
+  }
+  .header b {
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    color: var(--color-fg);
+  }
+  .header span {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--color-muted);
+  }
+  .viewport {
+    --starter-y: 56%;
+    --pro-y: 76%;
+    position: relative;
+    height: 266px;
+    @variant max-sm {
+      --starter-y: 43.5%;
+      --pro-y: 65%;
+      height: 126px;
+    }
+    margin: 0 10px;
+    border-radius: 7px;
+    background: #e7e3de;
+    box-shadow: 0 0 0 1px --alpha(var(--color-fg) / 8%);
+    color: #22201e;
+    overflow: hidden;
+  }
+
+  .page {
+    position: absolute;
+    inset: 0;
+    padding: 16px 20px;
+    font-family: var(--font-sans);
+    @variant max-sm {
+      padding: 12px 14px;
+      zoom: 0.8;
+    }
+  }
+  .siteNav {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    font-size: 9px;
+    color: #7b736e;
+  }
+  .siteNav b {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-right: auto;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #22201e;
+  }
+  .siteNav b i {
+    width: 9px;
+    height: 9px;
+    border-radius: 2.5px;
+    background: #22201e;
+  }
+  .siteNav em {
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid #d6cfc8;
+    font-style: normal;
+    color: #22201e;
+  }
+  .title {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .tagline {
+    margin: 0 0 16px;
+    font-size: 9.5px;
+    color: #7b736e;
+    text-align: center;
+  }
+  .siteNav,
+  .title,
+  .tagline {
+    @variant max-sm {
+      display: none;
+    }
+  }
+  /* placeholder bars inside the text boxes, so each keeps its line height and the cursor's target doesn't move */
+  .title i,
+  .tagline i,
+  .plan strong i {
+    display: inline-block;
+    vertical-align: middle;
+    border-radius: 2.5px;
+  }
+  .title i {
+    width: 44%;
+    height: 10px;
+    background: #c4bbb3;
+  }
+  .tagline i {
+    width: 32%;
+    height: 5px;
+    background: #d6cfc8;
+  }
+  .plan strong i {
+    width: 54%;
+    height: 10px;
+    background: #d4ccc4;
+  }
+  .plan:first-child strong i {
+    width: 26%;
+  }
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  .plan {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 11px;
+    border-radius: 7px;
+    background: #f7f5f2;
+    border: 1px solid #e2dbd4;
+  }
+  .popular {
+    border-color: #22201e;
+    box-shadow: 0 6px 14px rgb(34 32 30 / 0.08);
+  }
+  .plan b {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 9.5px;
+    font-weight: 600;
+  }
+  .plan b u {
+    padding: 1px 5px;
+    border-radius: 999px;
+    background: #22201e;
+    color: #f7f5f2;
+    font-size: 7.5px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .plan strong {
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .plan > i {
+    height: 4px;
+    border-radius: 2px;
+    background: #e2dbd4;
+  }
+  .plan > i + i {
+    width: 68%;
+  }
+  .button {
+    display: grid;
+    place-items: center;
+    height: 21px;
+    margin-top: 4px;
+    border-radius: 5px;
+    border: 1px solid #d6cfc8;
+    font-size: 8.5px;
+    font-weight: 600;
+  }
+  .cta {
+    position: relative;
+    display: block;
+  }
+  .pro {
+    background: #22201e;
+    border-color: #22201e;
+    color: #f7f5f2;
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: pro-press;
+      animation-timing-function: linear;
+    }
+  }
+  .pro > span,
+  .pro > s {
+    grid-area: 1 / 1;
+  }
+  .pro > span {
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: pro-label;
+      animation-timing-function: linear;
+    }
+  }
+  .pro > s {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid rgb(247 245 242 / 0.25);
+    border-top-color: #f7f5f2;
+    opacity: 0;
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: pro-spinner;
+      animation-timing-function: linear;
+    }
+  }
+
+  /* ripples ride the cursor's path so they land under the tip */
+  .cursor,
+  .ripple {
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    pointer-events: none;
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: cursor-path;
+      animation-timing-function: cubic-bezier(0.4, 0.04, 0.25, 1);
+    }
+  }
+  .cursor {
+    z-index: 3;
+    /* reduced-motion still (STILL_BEAT): on Choose Pro */
+    @media (prefers-reduced-motion: reduce) {
+      left: 51%;
+      top: var(--pro-y);
+    }
+  }
+  .cursor svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 2px 4px rgb(20 24 80 / 0.28));
+  }
+  .tag {
+    position: absolute;
+    left: 13px;
+    top: 17px;
+    display: grid;
+    justify-items: center;
+    padding: 3px 8px;
+    border-radius: 5px;
+    background: var(--color-volt-lift);
+    box-shadow: 0 4px 12px rgb(20 24 80 / 0.22);
+    color: var(--color-white);
+    font-family: var(--font-sans);
+    font-size: 9.5px;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: cursor-tag;
+      animation-timing-function: linear;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      background: var(--color-down);
+    }
+  }
+  .tag > span {
+    grid-area: 1 / 1;
+    @media (prefers-reduced-motion: no-preference) {
+      animation-timing-function: linear;
+    }
+  }
+  .tag > span:first-child {
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: tag-captured;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      opacity: 0;
+    }
+  }
+  .tag > span:last-child {
+    opacity: 0;
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: tag-raged;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      opacity: 1;
+    }
+  }
+  .ripple {
+    z-index: 2;
+  }
+  .ripple::after {
+    content: '';
+    position: absolute;
+    left: -13px;
+    top: -13px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--color-volt-lift);
+    opacity: 0;
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: click-ring;
+      animation-timing-function: linear;
+    }
+  }
+  .rage::after {
+    border-color: var(--color-down);
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: rage-rings;
+    }
+  }
+
+  .bar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 13px 14px 12px;
+  }
+  .event {
+    height: 14px;
+    margin: 0;
+    font-size: 10.5px;
+    line-height: 14px;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+  .event i {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 8px;
+    border-radius: 50%;
+    vertical-align: 1px;
+    background: var(--color-volt-soft);
+  }
+  .event b {
+    margin-right: 8px;
+    font-weight: 400;
+    color: var(--color-fg);
+  }
+  .event i[data-bad] {
+    background: var(--color-down);
+  }
+  .event i[data-bad] + b {
+    color: var(--color-down);
+  }
+  .track {
+    position: relative;
+    display: block;
+    height: 2px;
+    border-radius: 1px;
+    background: --alpha(var(--color-fg) / 12%);
+  }
+  .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 1px;
+    background: var(--color-volt-lift);
+    width: 0;
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: scrub-fill;
+      animation-timing-function: linear;
+    }
+    /* still: the head on the rage click (BEATS[STILL_BEAT].at) */
+    @media (prefers-reduced-motion: reduce) {
+      width: 59%;
+    }
+  }
+  .fill::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    right: -4px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    background: var(--color-fg);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.5);
+  }
+  .tick {
+    position: absolute;
+    z-index: 1;
+    left: calc(var(--at) * 100%);
+    top: 50%;
+    width: 2px;
+    height: 8px;
+    border-radius: 1px;
+    transform: translate(-50%, -50%);
+    background: --alpha(var(--color-fg) / 50%);
+  }
+  .tick[data-bad] {
+    background: var(--color-down);
+  }
+  .tick[data-flare] {
+    @media (prefers-reduced-motion: no-preference) {
+      animation-name: error-flare;
+      animation-timing-function: ease-out;
+      animation-delay: calc(var(--at) * var(--loop));
+    }
+  }
+  /* baseline, not centre: the mono line box sits lower under the digits than above */
+  .controls {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--color-muted);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  /* puts a 10px icon's middle at half the digits' height (Plex Mono caps 0.698em ≈ 7.3px) */
+  .controls svg {
+    display: block;
+    flex: none;
+    margin-bottom: -1.35px;
+    fill: var(--color-fg);
+    stroke: none;
+  }
+  /* carries the icons' baseline drop itself */
+  .toggle {
+    position: relative;
+    display: block;
+    flex: none;
+    width: 9px;
+    height: 10px;
+    margin: 0 2px -1.35px 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-fg);
+    cursor: pointer;
+  }
+  .toggle::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  .controls .toggle svg {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    transition: opacity 0.2s;
+  }
+  .toggle:hover svg {
+    opacity: 0.75;
+  }
+  .toggle:focus-visible {
+    outline: 1px solid var(--color-volt-soft);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+  .toggle:disabled {
+    cursor: default;
+  }
+  .clock {
+    color: var(--color-fg);
+  }
+  .divider {
+    opacity: 0.5;
+  }
+  .speed {
+    margin-left: auto;
+    padding: 2px 7px;
+    border-radius: 5px;
+    background: --alpha(var(--color-fg) / 8%);
+    font-family: var(--font-sans);
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 13px;
+    color: var(--color-fg);
+  }
+  .controls .expand {
+    width: 10px;
+    height: 10px;
+    margin-left: 4px;
+    fill: none;
+    stroke: var(--color-fg);
+    stroke-width: 1.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+}
+
+/* Keyframe times here are in phase with BEATS in replay.tsx. */
+@keyframes cursor-path {
+  0% {
+    left: 80%;
+    top: 16%;
+    opacity: 0;
+  }
+  4% {
+    left: 80%;
+    top: 16%;
+    opacity: 1;
+  }
+  18%,
+  24% {
+    left: 21%;
+    top: var(--starter-y);
+  }
+  34%,
+  36% {
+    left: 51%;
+    top: var(--pro-y);
+  }
+  42% {
+    left: 52%;
+    top: calc(var(--pro-y) - 1%);
+  }
+  57%,
+  59% {
+    left: 51%;
+    top: var(--pro-y);
+  }
+  63.5% {
+    left: 51.3%;
+    top: calc(var(--pro-y) - 0.2%);
+  }
+  68%,
+  74% {
+    left: 51.1%;
+    top: var(--pro-y);
+  }
+  /* no further right, or the tag leaves the viewport */
+  86% {
+    left: 72%;
+    top: 4%;
+    opacity: 1;
+  }
+  90% {
+    left: 74%;
+    top: -12%;
+    opacity: 0;
+  }
+  100% {
+    left: 80%;
+    top: 16%;
+    opacity: 0;
+  }
+}
+@keyframes click-ring {
+  0%,
+  35.9% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  36% {
+    opacity: 0.9;
+    transform: scale(0.35);
+  }
+  41%,
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+@keyframes rage-rings {
+  0%,
+  58.9% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  59%,
+  62%,
+  65%,
+  68% {
+    opacity: 0.9;
+    transform: scale(0.35);
+  }
+  61.9% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+  64.9% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+  67.9% {
+    opacity: 0;
+    transform: scale(1.55);
+  }
+  71%,
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+@keyframes pro-press {
+  0%,
+  35.9%,
+  37%,
+  58.9%,
+  60%,
+  61.9%,
+  63%,
+  64.9%,
+  66%,
+  67.9%,
+  69%,
+  100% {
+    transform: none;
+  }
+  36%,
+  59%,
+  62%,
+  65%,
+  68% {
+    transform: scale(0.95);
+  }
+}
+@keyframes pro-label {
+  0%,
+  36%,
+  43%,
+  100% {
+    opacity: 1;
+  }
+  36.8%,
+  42.2% {
+    opacity: 0;
+  }
+}
+@keyframes pro-spinner {
+  0%,
+  36%,
+  43%,
+  100% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  36.8% {
+    opacity: 1;
+    transform: rotate(90deg);
+  }
+  42.2% {
+    opacity: 1;
+    transform: rotate(1600deg);
+  }
+}
+@keyframes cursor-tag {
+  0%,
+  35.8% {
+    opacity: 0;
+    background: var(--color-volt-lift);
+    transform: translateX(0);
+  }
+  36.6%,
+  44% {
+    opacity: 1;
+    background: var(--color-volt-lift);
+  }
+  45% {
+    opacity: 0;
+    background: var(--color-volt-lift);
+  }
+  50%,
+  58.9% {
+    opacity: 0;
+    background: var(--color-down);
+    transform: translateX(0);
+  }
+  59.5% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  60.1% {
+    transform: translateX(-3px);
+  }
+  60.7% {
+    transform: translateX(3px);
+  }
+  61.3% {
+    transform: translateX(-2px);
+  }
+  61.9% {
+    transform: translateX(1px);
+  }
+  62.5%,
+  84% {
+    opacity: 1;
+    background: var(--color-down);
+    transform: translateX(0);
+  }
+  85%,
+  100% {
+    opacity: 0;
+    background: var(--color-down);
+  }
+}
+/* the labels swap while the tag is hidden (cursor-tag 45–59%) */
+@keyframes tag-captured {
+  0%,
+  49.9% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes tag-raged {
+  0%,
+  49.9% {
+    opacity: 0;
+  }
+  50%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes error-flare {
+  0%,
+  9%,
+  100% {
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 0 rgba(226, 88, 107, 0);
+  }
+  1.5% {
+    transform: translate(-50%, -50%) scale(1.5, 1.75);
+    box-shadow:
+      0 0 0 3px rgba(226, 88, 107, 0.22),
+      0 0 12px rgba(226, 88, 107, 0.75);
+  }
+}
+@keyframes scrub-fill {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}

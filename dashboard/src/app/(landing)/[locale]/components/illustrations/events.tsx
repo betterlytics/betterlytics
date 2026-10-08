@@ -1,0 +1,287 @@
+'use client';
+
+import { useEffect, useRef, useState, type PointerEvent } from 'react';
+import {
+  Clock,
+  CreditCard,
+  Download,
+  FileText,
+  Mail,
+  Monitor,
+  MousePointerClick,
+  Play,
+  Search,
+  Send,
+  Smartphone,
+  UserPlus,
+  type LucideIcon,
+} from 'lucide-react';
+import { m, useReducedMotion } from 'motion/react';
+import Image from 'next/image';
+import { useLocale, useTranslations } from 'next-intl';
+import { RollingDigits } from '@/landing/components/ui/rollingDigits';
+import { EASE_OUT_EXPO } from '@/landing/lib/easing';
+import type { IllustrationProps } from './types';
+import styles from './events.module.css';
+import { FLAGS, type FlagCode } from './flags';
+
+/* Mock data, deliberately untranslated. */
+
+type Kind = { name: string; icon: LucideIcon; key: string; values: readonly string[] };
+
+const KINDS: readonly Kind[] = [
+  { name: 'signup', icon: UserPlus, key: 'plan', values: ['free', 'pro', 'team'] },
+  { name: 'purchase', icon: CreditCard, key: 'amount', values: ['$49', '$19', '$99'] },
+  {
+    name: 'button_click',
+    icon: MousePointerClick,
+    key: 'label',
+    values: ['Start trial', 'Book a demo', 'Get started'],
+  },
+  { name: 'newsletter_signup', icon: Mail, key: 'source', values: ['footer', 'blog', 'popup'] },
+  { name: 'file_download', icon: Download, key: 'file', values: ['pricing.pdf', 'report.csv', 'guide.pdf'] },
+  { name: 'video_play', icon: Play, key: 'video', values: ['onboarding', 'product tour'] },
+  { name: 'search', icon: Search, key: 'query', values: ['webhooks', 'pricing', 'export'] },
+  { name: 'invite_sent', icon: Send, key: 'role', values: ['editor', 'admin', 'viewer'] },
+  { name: 'trial_started', icon: Clock, key: 'source', values: ['chatgpt', 'google', 'direct'] },
+  { name: 'form_submit', icon: FileText, key: 'form', values: ['contact', 'feedback', 'waitlist'] },
+];
+
+/** Kinds within this many top rows are skipped for the next arrival. */
+const FRESH_ROWS = 5;
+
+const SEED: ReadonlyArray<readonly [kind: number, agoS: number]> = [
+  [2, 4],
+  [4, 11],
+  [1, 17],
+  [8, 26],
+  [3, 34],
+  [0, 43],
+  [6, 55],
+  [5, 68],
+];
+
+const MAX_ROWS = 10;
+const HELD_MAX = 3;
+const FIRST_ARRIVAL_MS = 1200;
+const GAP_MS = [3500, 6000] as const;
+const PAIR_MS = 1100;
+const PAIR_ODDS = 0.15;
+
+const GAP_S = 0.45;
+const SETTLE_S = 0.7;
+const SETTLE_DELAY_S = 0.18;
+const LIFTED = {
+  opacity: 0,
+  y: -8,
+  scale: 1.015,
+  backgroundColor: 'rgba(40, 38, 37, 1)',
+  boxShadow: '0 14px 30px rgba(0, 0, 0, 0.5)',
+};
+const SETTLED = {
+  opacity: 1,
+  y: 0,
+  scale: 1,
+  backgroundColor: 'rgba(40, 38, 37, 0)',
+  boxShadow: '0 0px 0px rgba(0, 0, 0, 0)',
+};
+
+type Browser = 'chrome' | 'safari' | 'firefox' | 'edge';
+type Visitor = { country: FlagCode; browser: Browser; device: 'desktop' | 'mobile' };
+
+const VISITORS: readonly Visitor[] = [
+  { country: 'US', browser: 'chrome', device: 'desktop' },
+  { country: 'DE', browser: 'firefox', device: 'desktop' },
+  { country: 'DK', browser: 'safari', device: 'mobile' },
+  { country: 'GB', browser: 'chrome', device: 'mobile' },
+  { country: 'IN', browser: 'chrome', device: 'desktop' },
+  { country: 'FR', browser: 'safari', device: 'desktop' },
+  { country: 'US', browser: 'safari', device: 'mobile' },
+  { country: 'NL', browser: 'edge', device: 'desktop' },
+  { country: 'SE', browser: 'chrome', device: 'desktop' },
+  { country: 'BR', browser: 'chrome', device: 'mobile' },
+  { country: 'JP', browser: 'safari', device: 'desktop' },
+  { country: 'CA', browser: 'firefox', device: 'desktop' },
+  { country: 'DK', browser: 'chrome', device: 'desktop' },
+];
+
+type Row = {
+  id: number;
+  at: number;
+  kind: Kind;
+  value: string;
+  visitor: Visitor;
+};
+
+function rowOf(kind: Kind, id: number, at: number, n: number): Row {
+  return {
+    id,
+    at,
+    kind,
+    value: kind.values[n % kind.values.length],
+    visitor: VISITORS[(n * 5 + 2) % VISITORS.length],
+  };
+}
+
+function Who({ visitor }: { visitor: Visitor }) {
+  const Flag = FLAGS[visitor.country];
+  const Device = visitor.device === 'mobile' ? Smartphone : Monitor;
+  return (
+    <span className={styles.who}>
+      <Flag className={styles.flag} />
+      <Image
+        className={styles.browser}
+        src={`/browser-icons/${visitor.browser}.svg`}
+        alt=''
+        width={14}
+        height={14}
+      />
+      <Device className={styles.device} strokeWidth={1.75} />
+    </span>
+  );
+}
+
+export function Events({ entered, live }: IllustrationProps) {
+  const t = useTranslations('landing.illustrations.events');
+  const locale = useLocale();
+  const ago = (ms: number) => {
+    const s = Math.floor(ms / 1000);
+    if (s < 2) return t('now');
+    if (s < 60) return t('seconds', { count: s });
+    return t('minutes', { count: Math.floor(s / 60) });
+  };
+  const reduce = useReducedMotion();
+  const [rows, setRows] = useState<Row[]>([]);
+  const [now, setNow] = useState(0);
+  const [total, setTotal] = useState(18_406);
+  const serial = useRef(0);
+  const seededAt = useRef(0);
+
+  const [paused, setPaused] = useState(false);
+  const pausedRef = useRef(false);
+  const held = useRef<Row[]>([]);
+  const rowsRef = useRef<Row[]>([]);
+  useEffect(() => {
+    rowsRef.current = rows;
+  }, [rows]);
+
+  const hold = (e: PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    pausedRef.current = true;
+    setPaused(true);
+  };
+  const release = () => {
+    if (!pausedRef.current) return;
+    pausedRef.current = false;
+    setPaused(false);
+    const waiting = held.current;
+    held.current = [];
+    if (waiting.length) setRows((prev) => [...waiting, ...prev].slice(0, MAX_ROWS));
+  };
+
+  // seeded on the client so the times use the reader's clock
+  useEffect(() => {
+    const t = Date.now();
+    seededAt.current = t;
+    setNow(t);
+    setRows(SEED.map(([kind, agoS], i) => rowOf(KINDS[kind], -1 - i, t - agoS * 1000, i)));
+  }, []);
+
+  useEffect(() => {
+    if (!live || reduce) return;
+    let cancelled = false;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const later = (fn: () => void, ms: number) => timers.push(setTimeout(() => !cancelled && fn(), ms));
+
+    // the seed was stamped at load; shift it to now so it reads "4s", not "40s"
+    if (seededAt.current) {
+      const shift = Date.now() - seededAt.current;
+      seededAt.current = 0;
+      setRows((prev) => prev.map((row) => ({ ...row, at: row.at + shift })));
+      setNow(Date.now());
+    }
+
+    const arrive = () => {
+      const n = serial.current++;
+      const newest = [...held.current, ...rowsRef.current].slice(0, FRESH_ROWS);
+      const recent = new Set(newest.map((row) => row.kind.name));
+      const fresh = KINDS.filter((kind) => !recent.has(kind.name));
+      const row = rowOf(fresh[n % fresh.length], n, Date.now(), n + SEED.length);
+      if (pausedRef.current) held.current = [row, ...held.current].slice(0, HELD_MAX);
+      else setRows((prev) => [row, ...prev].slice(0, MAX_ROWS));
+      setTotal((t) => t + 1);
+    };
+    const next = () => {
+      arrive();
+      if (Math.random() < PAIR_ODDS) later(arrive, PAIR_MS);
+      later(next, GAP_MS[0] + Math.random() * (GAP_MS[1] - GAP_MS[0]));
+    };
+    later(next, FIRST_ARRIVAL_MS);
+
+    const clock = setInterval(() => setNow(Date.now()), 1000);
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+      clearInterval(clock);
+    };
+  }, [live, reduce]);
+
+  return (
+    <div
+      className={styles.events}
+      data-in={entered || undefined}
+      data-live={live || undefined}
+      role='img'
+      aria-label={t('alt')}
+    >
+      <div className={styles.panel} aria-hidden onPointerEnter={hold} onPointerLeave={release}>
+        <div className={styles.head}>
+          <p className={styles.title}>{t('title')}</p>
+          <span className={styles.status} data-paused={paused || undefined}>
+            <i className={styles.dot} />
+            {paused ? t('paused') : t('live')}
+          </span>
+          <span className={styles.total}>
+            <RollingDigits value={total.toLocaleString(locale)} />
+            <small>{t('today')}</small>
+          </span>
+        </div>
+        <ol>
+          {rows.map((row, i) => {
+            // seed rows have negative ids and skip the insert animation
+            const arriving = row.id >= 0;
+            const Icon = row.kind.icon;
+            return (
+              <m.li
+                key={row.id}
+                initial={arriving ? { height: 0 } : false}
+                animate={{ height: 'auto' }}
+                transition={{ duration: GAP_S, ease: EASE_OUT_EXPO }}
+              >
+                <m.div
+                  className={styles.row}
+                  data-new={arriving || undefined}
+                  data-top={i === 0 || undefined}
+                  initial={arriving ? LIFTED : false}
+                  animate={SETTLED}
+                  transition={{ duration: SETTLE_S, ease: EASE_OUT_EXPO, delay: SETTLE_DELAY_S }}
+                >
+                  <Icon className={styles.icon} strokeWidth={1.75} />
+                  <span className={styles.name}>{row.kind.name}</span>
+                  <span className={styles.prop}>
+                    <span className={styles.key}>{row.kind.key}:</span>
+                    {row.value}
+                  </span>
+                  <Who visitor={row.visitor} />
+                  <time className={styles.ago} dateTime={new Date(row.at).toISOString()}>
+                    {now ? ago(now - row.at) : ''}
+                  </time>
+                </m.div>
+              </m.li>
+            );
+          })}
+        </ol>
+      </div>
+    </div>
+  );
+}

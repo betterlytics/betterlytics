@@ -7,15 +7,6 @@ export const plausible: ComparisonLocaleContent = {
     title: 'Betterlytics vs Plausible: Flere funktioner, samme privatliv',
     description:
       'Sammenlign Betterlytics med Plausible. Samme privatlivsvenlige tilgang plus session replay, brugerrejser og overvågning. Gratis plan tilgængelig, ingen bindinger.',
-    keywords: [
-      'Plausible alternativ',
-      'Plausible Analytics alternativ',
-      'privatlivsvenlig analytics',
-      'session replay',
-      'brugerrejse tracking',
-      'letvægts analytics',
-      'GDPR-kompatibel analytics',
-    ],
   },
   hero: {
     title: 'Leder du efter et alternativ til Plausible?',
@@ -57,7 +48,7 @@ export const plausible: ComparisonLocaleContent = {
       {
         name: 'Performance & hastighed',
         features: [
-          { name: 'Script-størrelse', betterlytics: '<2KB', competitor: '<2KB' },
+          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '<2KB' },
           { name: 'Indvirkning på sideindlæsning', betterlytics: 'Minimal', competitor: 'Minimal' },
           { name: 'Fungerer med ad blockers', betterlytics: true, competitor: 'Delvist' },
         ],
@@ -125,7 +116,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Prisoverblik',
-      content: `Plausible starter fra $9/måned for 10.000 pageviews. Der er ingen gratis plan på hosted versionen, men self-hosting er gratis, hvis du selv håndterer infrastrukturen.\n\nBetterlytics starter fra $6/måned med en gratis plan til mindre sites. Session replay, monitoring, ydeenve-indsigter og user journeys er alle inkluderet. Flere funktioner og en lavere startpris.`,
+      content: `Plausible starter fra $9/måned for 10.000 pageviews. Der er ingen gratis plan på den hostede version, men self-hosting er gratis, hvis du selv håndterer infrastrukturen.\n\nBetterlytics starter fra $7/måned med en gratis plan til mindre sites. Session replay, monitoring, ydeevne-indsigter og user journeys er alle inkluderet. Flere funktioner og en lavere startpris.`,
       icon: 'dollar',
     },
     {

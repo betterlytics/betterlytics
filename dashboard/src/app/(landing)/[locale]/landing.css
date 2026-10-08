@@ -1,0 +1,198 @@
+/* Separate from the app's globals.css so nothing leaks either way.
+   CSS modules wrap their rules in @layer components so className utilities win. */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss' source(none);
+
+@source './**/*.{ts,tsx}';
+@source '../../../components/gauge/**/*.tsx';
+
+/* `static` emits every token, so CSS modules and scripts can read them */
+@theme static {
+  --color-*: initial;
+  --color-canvas: #151414;
+  --color-surface: #1c1a1a;
+  --color-panel: #191817;
+  --color-panel-raised: #1b1a19;
+  --color-terminal: #08080a;
+  --color-fg: #ebe8e6;
+  --color-muted: #aea5a1;
+  --color-volt: #1a2bd1;
+  --color-volt-hover: #2233e4;
+  --color-volt-lift: #4a5cff;
+  --color-volt-soft: #8b97ff;
+  /* volt reads too dark as text on the canvas */
+  --color-volt-text: #6b7aff;
+  --color-on-volt: #f2f5ff;
+  /* mirrors PEAK in voltGlow.tsx */
+  --color-glow: #a2d4ff;
+  --color-on-paper: #191615;
+  --color-down: #e2586b;
+  --color-warn: #e4a93c;
+  --color-live: #4ade9b;
+  --color-white: #fff;
+  --color-black: #000;
+  /* alphas sit below each name's %: solid lines read heavier than dashed ones; inkFrame.module.css blanks these */
+  --color-rule: rgb(235 232 230 / 0.086);
+  --color-rule-08: rgb(235 232 230 / 0.06);
+  --color-rule-10: rgb(235 232 230 / 0.075);
+  --color-rule-125: rgb(235 232 230 / 0.094);
+  --color-rule-22: rgb(235 232 230 / 0.168);
+  --color-rule-30: rgb(235 232 230 / 0.228);
+  /* the hatch covers ~14% of a surface; any stronger reads as stripes, not texture */
+  --color-hatch-ink: rgb(235 232 230 / 0.02);
+
+  --font-*: initial;
+  --font-sans: var(--font-landing-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-landing-mono), ui-monospace, Menlo, monospace;
+
+  --breakpoint-*: initial;
+  --breakpoint-sm: 40rem;
+  --breakpoint-md: 47.5rem;
+  --breakpoint-lg: 56.25rem;
+  --breakpoint-xl: 62.5rem;
+  --breakpoint-2xl: 67.5rem;
+  --breakpoint-3xl: 75rem;
+
+  /* display and lede sizes change per breakpoint in the base layer */
+  --text-*: initial;
+  --text-display-1: 3.5rem;
+  --text-display-1--line-height: 3.4375rem;
+  --text-display-1--letter-spacing: -0.0875rem;
+  --text-display-2: 3rem;
+  --text-display-2--line-height: 3rem;
+  --text-display-2--letter-spacing: -0.075rem;
+  --text-lede: 1.2rem;
+  --text-lede--line-height: 1.5rem;
+  --text-lede--letter-spacing: -0.03rem;
+  --text-title: 1.0625rem;
+  --text-body: 0.96875rem;
+  --text-body-sm: 0.9375rem;
+  --text-label: 0.875rem;
+  --text-caption: 0.8125rem;
+  --text-code: 0.78125rem;
+  --text-micro: 0.6875rem;
+
+  --tracking-ui: -0.0125rem;
+
+  /* stock keyframes (spin, ping, pulse, bounce) would override same-named module keyframes */
+  --animate-*: initial;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-pen: cubic-bezier(0.3, 0.02, 0.15, 1);
+}
+
+@layer base {
+  /* --pad: gutter outside the wall; --wall: the hatched wall column */
+  :root {
+    --pad: 0px;
+    --wall: 72px;
+    --inset: calc(var(--pad) + var(--wall));
+    --hero-overlap: 180px;
+  }
+  @media (width < 95rem) {
+    :root {
+      --pad: 24px;
+    }
+  }
+  @media (width < 75rem) {
+    :root {
+      --wall: 52px;
+    }
+  }
+  @media (width < 56.25rem) {
+    :root {
+      --pad: 20px;
+      --wall: 32px;
+      --text-display-1: 3rem;
+      --text-display-1--line-height: 3rem;
+      --text-display-1--letter-spacing: -0.075rem;
+      --text-display-2: 2.125rem;
+      --text-display-2--line-height: 2.25rem;
+      --text-display-2--letter-spacing: -0.05625rem;
+    }
+  }
+  @media (width < 40rem) {
+    :root {
+      --pad: 16px;
+      --wall: 0px;
+      --text-display-1: 2.5rem;
+      --text-display-1--line-height: 2.5rem;
+      --text-display-1--letter-spacing: -0.0625rem;
+      --text-lede: 1.3rem;
+      --text-lede--line-height: 1.5625rem;
+      /* the phone nav is shorter (see nav) */
+      scroll-padding-top: 3.5rem;
+    }
+  }
+
+  html {
+    background-color: var(--color-canvas);
+    color-scheme: dark;
+    scroll-padding-top: 4.5rem;
+  }
+  /* the open menu is full screen below the nav's lg breakpoint */
+  @media (width < 56.25rem) {
+    html:has(header[data-open]) {
+      overflow: hidden;
+    }
+  }
+  body {
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  svg {
+    max-width: 100%;
+  }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
+  ::selection {
+    background-color: var(--color-volt);
+    color: var(--color-white);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-volt-lift);
+    outline-offset: 3px;
+  }
+
+  /* components this would catch mid-loop set their resting state in their own module */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+/* the delay waits for the InkFrame's edges to land (see ui/inkFrame) */
+@utility transition-ink {
+  transition: border-color 0.5s ease 0.55s;
+}
+
+/* set edge and colour alongside, e.g. `after:bleed-rule after:bottom-0 after:bg-rule` */
+@utility bleed-rule {
+  position: absolute;
+  left: 50%;
+  width: 100vw;
+  height: 1px;
+  translate: -50% 0;
+  pointer-events: none;
+}
+
+@utility bg-hatch {
+  background-image: repeating-linear-gradient(315deg, var(--color-hatch-ink) 0 1px, transparent 0 50%);
+  background-size: 10px 10px;
+}

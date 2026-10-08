@@ -1,0 +1,65 @@
+@reference '../../landing.css';
+
+@layer components {
+  .band {
+    position: relative;
+    margin-block: 12px;
+  }
+  .band::before,
+  .band::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-top: 1px solid var(--color-rule);
+  }
+  /* under the lifted demo frame; phones have no frame, so no top rule */
+  .band::before {
+    top: 0;
+    z-index: 1;
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .band::after {
+    bottom: 0;
+  }
+  /* only JS sets data-inking, so no-JS and reduced motion keep the rule drawn */
+  .band[data-inking]::after {
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: 0 50%;
+    transition: transform 0.7s var(--ease-pen);
+  }
+  .band[data-inking][data-closed]::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  /* --ink comes from band.tsx; the default draws it all for no-JS and reduced motion; 160px must match FEATHER */
+  .wall {
+    --ink: 200000px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: var(--wall);
+    pointer-events: none;
+    z-index: 0;
+    border-inline: 1px solid var(--color-rule);
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(var(--ink) - 160px), transparent var(--ink));
+    mask-image: linear-gradient(to bottom, #000 calc(var(--ink) - 160px), transparent var(--ink));
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .left {
+    left: var(--pad);
+    border-left-color: transparent;
+  }
+  .right {
+    right: var(--pad);
+    border-right-color: transparent;
+  }
+}

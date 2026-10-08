@@ -7,15 +7,6 @@ export const matomo: ComparisonLocaleContent = {
     title: 'Betterlytics vs Matomo: Moderne og letvægts alternativ',
     description:
       'Sammenlign Betterlytics med Matomo Cloud. Moderne webanalyse uden kompleksitet, plugins eller serveradministration. Session replay og overvågning inkluderet. Gratis plan uden bindinger.',
-    keywords: [
-      'Matomo alternativ',
-      'Matomo Cloud alternativ',
-      'Piwik alternativ',
-      'privatlivsvenlig analytics',
-      'simpel webanalyse',
-      'letvægts analytics',
-      'session replay',
-    ],
   },
 
   hero: {
@@ -37,7 +28,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Simpel prissætning',
-      betterlytics: 'Gratis plan tilgængelig. Betalte planer fra $6/måned med alt inkluderet.',
+      betterlytics: 'Gratis plan tilgængelig. Betalte planer fra $7/måned med alt inkluderet.',
       competitor:
         'Self-hosted kræver infrastruktur og vedligeholdelse. Cloud-planer starter højere med betalte add-ons.',
     },
@@ -61,7 +52,7 @@ export const matomo: ComparisonLocaleContent = {
       {
         name: 'Performance & hastighed',
         features: [
-          { name: 'Script-størrelse', betterlytics: '<2KB', competitor: '~23KB' },
+          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '~23KB' },
           { name: 'Indvirkning på sideindlæsning', betterlytics: 'Minimal', competitor: 'Moderat' },
           { name: 'Fungerer med ad blockers', betterlytics: true, competitor: 'Limited' },
         ],
@@ -121,7 +112,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Den reelle pris på "gratis"',
-      content: `Matomos self-hosted version er gratis at downloade, men du betaler med serveromkostninger, vedligeholdelse og premium plugins som session recording. Matomo Cloud starter fra $19/måned og skalerer med pageviews.\n\nBetterlytics tilbyder en gratis plan til mindre sites. Betalte planer starter fra $6/måned med alt inkluderet. Session replay, monitoring og ingen add-on-gebyrer. Det, du ser, er det, du betaler.`,
+      content: `Matomos self-hosted version er gratis at downloade, men du betaler med serveromkostninger, vedligeholdelse og premium plugins som session recording. Matomo Cloud starter fra $19/måned og skalerer med pageviews.\n\nBetterlytics tilbyder en gratis plan til mindre sites. Betalte planer starter fra $7/måned med alt inkluderet. Session replay, monitoring og ingen add-on-gebyrer. Det, du ser, er det, du betaler.`,
       icon: 'dollar',
     },
     {

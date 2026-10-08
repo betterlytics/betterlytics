@@ -6,7 +6,7 @@
   <img alt="Betterlytics" src=".github/assets/betterlytics-logo-full-inline-dark.svg" width="320">
 </picture>
 
-**A modern take on cookieless, privacy-focused web analytics**
+**Web analytics, session replay, error tracking, Core Web Vitals and uptime monitoring in one open-source tool**
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 <br>
@@ -20,7 +20,7 @@
 
 ## Why Betterlytics?
 
-Betterlytics is a high-performance analytics platform that puts you in control of your data. It requires no cookies, is GDPR/CCPA/PECR ready out of the box, and never shares data with third parties. Built on Rust and ClickHouse for speed, it delivers real-time insights through a modern dashboard, all with a tracking script under 2KB.
+Most teams piece together how their website is doing from four or five tools: one for traffic, one for session replay, one for errors, one for uptime and one for performance. Betterlytics puts all of it in one dashboard, on one data model and one bill. It runs without cookies, is hosted in the EU or on your own servers, and never shares data with third parties. It is built on Rust and ClickHouse and open source under AGPL-3.0.
 
 > **Want to see it in action?** Explore the [live demo](https://betterlytics.io/demo).
 
@@ -31,9 +31,11 @@ Betterlytics is a high-performance analytics platform that puts you in control o
 | **Core Analytics**         | Page views, visitors, bounce rate, traffic sources, geographic insights, device analytics, real-time data, custom events |
 | **Advanced Analytics**     | Session replay, user journeys, funnels, time period comparisons, annotations, outbound link tracking                     |
 | **Performance Monitoring** | Core Web Vitals (LCP, INP, CLS, TTFB), uptime monitoring, SSL certificate monitoring, public status pages with custom domain support |
+| **Error Tracking**         | Client-side errors captured and grouped automatically, with stack traces and links to the session replay |
 | **Privacy & Compliance**   | Cookieless tracking, GDPR/CCPA/PECR ready, EU hosting, data anonymization, open source                                   |
 | **Access & Security**      | Role-based access control, two-factor authentication, OAuth (Google, GitHub)                                             |
-| **Developer Experience**   | Simple script tag, framework SDKs (React, Next.js), self-hosting option, <2KB payload                                    |
+| **Developer Experience**   | Simple script tag, framework SDKs (React, Next.js), self-hosting option, ~3.5KB payload                                    |
+| **AI Agents**              | Built-in MCP server, so Claude, ChatGPT or any MCP client can query your traffic, funnels, errors and uptime |
 
 **[View all features →](https://betterlytics.io/features)**
 

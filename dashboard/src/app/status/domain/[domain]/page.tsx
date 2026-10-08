@@ -4,7 +4,11 @@ import { notFound } from 'next/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { normalizeHostname } from '@/lib/status-host-routing';
 import { getPublicStatusPageDataByDomain } from '@/services/analytics/publicStatusPage.service';
-import { buildStatusPageMetadata, StatusPageShell } from '@/app/status/shared/statusPageShell';
+import {
+  buildStatusPageMetadata,
+  buildStatusPageNotFoundMetadata,
+  StatusPageShell,
+} from '@/app/status/shared/statusPageShell';
 
 /**
  * Custom-domain (tier-2) status host entry point. The middleware rewrites `/` on a host that has
@@ -27,8 +31,7 @@ const resolveStatusPage = cache(async (rawDomain: string) => {
 export async function generateMetadata({ params }: StatusPageParams): Promise<Metadata> {
   const { domain } = await params;
   const data = await resolveStatusPage(domain);
-  // `manifest: null` opts out of the app-wide web manifest even on the not-found path.
-  return data ? buildStatusPageMetadata(data) : { manifest: null };
+  return data ? buildStatusPageMetadata(data) : buildStatusPageNotFoundMetadata();
 }
 
 export default async function PublicStatusPageByDomain({ params }: StatusPageParams) {

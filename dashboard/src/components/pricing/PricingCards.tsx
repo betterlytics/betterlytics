@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData, Tier, Currency } from '@/entities/billing/billing.entities';
-import { formatPrice, formatEventCount } from '@/utils/pricing';
+import { formatPrice } from '@/utils/pricing';
 import { capitalizeFirstLetter } from '@/utils/formatters';
 import { EventRange, isContactSalesRange } from '@/lib/billing/plans';
 import { Dispatch, useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
+import { usePlanFeatures, type PlanFeatureLabel } from './usePlanFeatures';
 
 interface PricingCardsProps {
   eventRange: EventRange;
@@ -24,14 +25,12 @@ interface PricingCardsProps {
   billingData?: UserBillingData;
 }
 
-type FeatureItem = string | { kind: 'header'; label: string };
-
 interface PlanConfig {
   tier: Tier;
   price_cents: number;
   period: string;
   description: string;
-  features: readonly FeatureItem[];
+  features: readonly PlanFeatureLabel[];
   cta: string;
   popular: boolean;
   lookup_key: string | null;
@@ -53,10 +52,7 @@ export function PricingCards({
 
   const isFree = growthPrice === 0;
   const isContactSales = isContactSalesRange(eventRange);
-
-  const eventsLabel = t('features.upToEventsPerMonth', {
-    events: formatEventCount(eventRange.value, locale),
-  });
+  const featuresFor = usePlanFeatures(eventRange);
 
   const plans: PlanConfig[] = useMemo(
     () => [
@@ -65,17 +61,7 @@ export function PricingCards({
         price_cents: growthPrice,
         period: !isFree && !isContactSales ? t('periodPerMonth') : '',
         description: t('descriptions.growth'),
-        features: [
-          eventsLabel,
-          t('features.twoSites'),
-          t('features.threeTeamMembers'),
-          t('features.retention1PlusYear'),
-          t('features.uptime1'),
-          t('features.fullDashboard'),
-          t('features.funnelsJourneys'),
-          t('features.sessionReplay'),
-          t('features.errorTracking'),
-        ],
+        features: featuresFor('growth'),
         cta: isFree ? t('cta.getStartedForFree') : isContactSales ? t('cta.contactSales') : t('cta.getStarted'),
         popular: false,
         lookup_key: eventRange.growth.lookup_key,
@@ -85,15 +71,7 @@ export function PricingCards({
         price_cents: professionalPrice,
         period: !isContactSales ? t('periodPerMonth') : '',
         description: t('descriptions.professional'),
-        features: [
-          { kind: 'header', label: t('features.everythingInStarter') },
-          t('features.upTo50Sites'),
-          t('features.upTo50TeamMembers'),
-          t('features.retention3PlusYears'),
-          t('features.uptime50'),
-          t('features.statusPagesPro'),
-          t('features.emailReports'),
-        ],
+        features: featuresFor('professional'),
         cta: isContactSales ? t('cta.contactSales') : t('cta.getStarted'),
         popular: true,
         lookup_key: eventRange.professional.lookup_key,
@@ -103,22 +81,13 @@ export function PricingCards({
         price_cents: -1,
         period: '',
         description: t('descriptions.enterprise'),
-        features: [
-          { kind: 'header', label: t('features.everythingInProfessional') },
-          t('features.unlimitedSites'),
-          t('features.unlimitedTeamMembers'),
-          t('features.retention5PlusYears'),
-          t('features.uptimeUnlimited'),
-          t('features.customEventVolume'),
-          t('features.dedicatedSupport'),
-          t('features.slaGuarantee'),
-        ],
+        features: featuresFor('enterprise'),
         cta: t('cta.contactUs'),
         popular: false,
         lookup_key: null,
       },
     ],
-    [eventRange, growthPrice, professionalPrice, isFree, isContactSales, eventsLabel, t],
+    [eventRange, growthPrice, professionalPrice, isFree, isContactSales, featuresFor, t],
   );
 
   const handlePlanClick = (plan: PlanConfig) => {
@@ -251,22 +220,19 @@ export function PricingCards({
           </CardHeader>
           <CardContent className='flex flex-grow flex-col'>
             <ul className='mb-6 flex-grow space-y-3'>
-              {plan.features.map((feature, idx) => {
-                if (typeof feature === 'string') {
-                  return (
-                    <li key={feature} className='flex items-center'>
-                      <Check className='mr-3 h-4 w-4 flex-shrink-0 text-blue-500' />
-                      <span className='text-foreground/90 text-sm'>{feature}</span>
-                    </li>
-                  );
-                }
-                return (
-                  <li key={`h-${idx}`} className='flex items-center'>
-                    <Check className='mr-3 h-4 w-4 flex-shrink-0 text-blue-500' />
-                    <span className='text-foreground text-sm font-semibold'>{feature.label}</span>
-                  </li>
-                );
-              })}
+              {plan.features.map((feature) => (
+                <li key={feature.label} className='flex items-center'>
+                  <Check className='mr-3 h-4 w-4 flex-shrink-0 text-blue-500' />
+                  <span
+                    className={cn(
+                      'text-sm',
+                      feature.kind === 'header' ? 'text-foreground font-semibold' : 'text-foreground/90',
+                    )}
+                  >
+                    {feature.label}
+                  </span>
+                </li>
+              ))}
             </ul>
             {renderButton(plan)}
           </CardContent>

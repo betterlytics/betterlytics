@@ -2,20 +2,8 @@
   "public": {
     "root": {
       "seo": {
-        "title": "Betterlytics | Analisi Web Privacy-First",
-        "description": "Betterlytics è un’alternativa open-source a Google Analytics orientata alla privacy. Ottieni informazioni GDPR-compliant e senza cookie senza tracking invasivo, rispettando la privacy degli utenti.",
-        "keywords": [
-          "Alternativa a Google Analytics",
-          "Analisi Privacy-First",
-          "Web Analytics Senza Cookie",
-          "Analisi GDPR-Compliant",
-          "Piattaforma Analisi Open Source",
-          "Analisi Privacy-Friendly",
-          "Analisi Traffico Web",
-          "Analisi Visitatori",
-          "Strumento Web Analytics",
-          "Betterlytics"
-        ]
+        "title": "Betterlytics: analisi web, session replay, errori e uptime",
+        "description": "Betterlytics riunisce analisi web, session replay, tracciamento errori, Core Web Vitals e monitoraggio uptime in un unico strumento open source. Senza cookie e ospitato nell’UE."
       }
     },
     "notFound": {
@@ -26,17 +14,7 @@
     "about": {
       "seo": {
         "title": "Informazioni su Betterlytics | Analisi Web Open Source e Privacy-First",
-        "description": "Scopri la storia di Betterlytics - creiamo strumenti di analisi web open-source e senza cookie che rispettano la privacy e la conformità GDPR.",
-        "keywords": [
-          "Informazioni su Betterlytics",
-          "Analisi Privacy-First",
-          "Analisi Web Open Source",
-          "Analisi Senza Cookie",
-          "Analisi Conforme al GDPR",
-          "Piattaforma di Analisi della Privacy",
-          "Analisi Senza Cookie",
-          "Strumento di Analisi Open Source"
-        ]
+        "description": "Scopri la storia di Betterlytics - creiamo strumenti di analisi web open-source e senza cookie che rispettano la privacy e la conformità GDPR."
       },
       "aboutUs": "Chi siamo - Betterlytics",
       "intro": "Stiamo costruendo il futuro delle analitiche web: privacy-first, open source e progettate per il web moderno. Non devi più scegliere tra insights potenti e rispettare la privacy dei tuoi visitatori.",
@@ -59,7 +37,7 @@
         },
         "privacyPerformance": {
           "title": "Privacy e prestazioni in perfetto equilibrio",
-          "p1": "Siamo ossessionati tanto dalla privacy quanto dalle prestazioni perché la velocità del tuo sito web conta tanto quanto la privacy dei tuoi visitatori. Il nostro script di tracciamento pesa meno di 2KB. Confrontalo con i 45KB+ di Google Analytics. Costruito con standard web moderni e ottimizzato per la velocità, Betterlytics non rallenterà il tuo sito.",
+          "p1": "Siamo ossessionati tanto dalla privacy quanto dalle prestazioni perché la velocità del tuo sito web conta tanto quanto la privacy dei tuoi visitatori. Il nostro script di tracciamento pesa circa 3,5KB. Confrontalo con i 45KB+ di Google Analytics. Costruito con standard web moderni e ottimizzato per la velocità, Betterlytics non rallenterà il tuo sito.",
           "p2": "Sotto il cofano, utilizziamo tecnologie all'avanguardia: Rust per l'elaborazione dati ad alte prestazioni, ClickHouse per query analitiche velocissime e Next.js 15 per un'esperienza dashboard moderna e reattiva. Ogni decisione tecnica priorizza sia la privacy dell'utente che le prestazioni del sistema."
         },
         "builtForEveryone": {
@@ -96,18 +74,8 @@
     },
     "contact": {
       "seo": {
-        "title": "Contatta Betterlytics | Analisi Web Privacy-First",
-        "description": "Contatta il team Betterlytics per supporto, feedback o collaborazioni sulla nostra piattaforma di analisi web open-source e senza cookie.",
-        "keywords": [
-          "Contatta Betterlytics",
-          "Supporto Betterlytics",
-          "Aiuto Analisi Web",
-          "Supporto Analisi Privacy-First",
-          "Contatto Analisi GDPR",
-          "Supporto Analisi Senza Cookie",
-          "Assistenza Clienti Betterlytics",
-          "Pagina Contatti"
-        ]
+        "title": "Contatti | Betterlytics",
+        "description": "Contatta il team Betterlytics per supporto, feedback o proposte di collaborazione."
       },
       "title": "Contattaci",
       "intro": "Domande su Betterlytics? Hai bisogno di supporto per la configurazione delle analitiche? Il nostro team è pronto ad assisterti.",
@@ -191,14 +159,7 @@
     "changelog": {
       "seo": {
         "title": "Changelog | Note di Rilascio & Aggiornamenti di Betterlytics",
-        "description": "Leggi tutte le note di rilascio di Betterlytics in un unico posto. Segui aggiornamenti di prodotto, correzioni di affidabilità e punti salienti della roadmap della nostra piattaforma di analytics privacy-first.",
-        "keywords": [
-          "Changelog Betterlytics",
-          "Aggiornamenti prodotto",
-          "Note di rilascio",
-          "Roadmap analytics",
-          "Aggiornamenti analytics privacy-first"
-        ]
+        "description": "Leggi tutte le note di rilascio di Betterlytics in un unico posto. Segui nuove funzionalità, correzioni di affidabilità e novità della roadmap."
       },
       "hero": {
         "eyebrow": "Storico delle versioni",
@@ -213,18 +174,8 @@
     },
     "privacy": {
       "seo": {
-        "title": "Informativa sulla Privacy | GDPR e Analisi Senza Cookie",
-        "description": "Informativa sulla privacy di Betterlytics — conforme al GDPR e senza cookie. Scopri come proteggiamo i tuoi dati con analisi anonime.",
-        "keywords": [
-          "Informativa sulla Privacy Betterlytics",
-          "Conformità GDPR",
-          "Privacy dei Dati",
-          "Protezione dei Dati",
-          "Analisi Senza Cookie",
-          "Analisi Anonime",
-          "Privacy Utente",
-          "Analisi Incentrata sulla Privacy"
-        ]
+        "title": "Informativa sulla privacy | Betterlytics",
+        "description": "Informativa sulla privacy di Betterlytics — conforme al GDPR e senza cookie. Scopri come proteggiamo i tuoi dati con analisi anonime."
       },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Informativa sulla Privacy di Betterlytics",
@@ -349,23 +300,13 @@
         "footer2": "Impegnati per privacy, trasparenza e conformità al GDPR",
         "termsLink": "Termini di Servizio",
         "dpaLink": "Accordo sul Trattamento dei Dati",
-        "subprocessorsLink": "Sottoprocessori"
+        "subprocessorsLink": "Sub-responsabili"
       }
     },
     "terms": {
       "seo": {
-        "title": "Termini di Servizio | Analisi Web Privacy-First",
-        "description": "Leggi i Termini di Servizio di Betterlytics — scopri diritti, responsabilità e condizioni d’uso della nostra piattaforma di analisi web orientata alla privacy.",
-        "keywords": [
-          "Termini di Servizio Betterlytics",
-          "Termini e Condizioni",
-          "Accordo di Servizio Analisi",
-          "Termini Analisi Web",
-          "Termini Analisi Privacy",
-          "Condizioni d’Uso",
-          "Accordo Legale Betterlytics",
-          "Analisi Privacy-First"
-        ]
+        "title": "Termini di servizio | Betterlytics",
+        "description": "Leggi i Termini di servizio di Betterlytics: diritti, responsabilità e regole per l’uso del servizio cloud."
       },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Termini di Servizio di Betterlytics",
@@ -513,19 +454,8 @@
     },
     "dpa": {
       "seo": {
-        "title": "Accordo sul Trattamento dei Dati (DPA) | GDPR e Analisi Privacy-First",
-        "description": "Accordo sul Trattamento dei Dati di Betterlytics (DPA) — conforme al GDPR, con analisi orientata alla privacy e trattamento sicuro dei dati anonimi.",
-        "keywords": [
-          "Accordo sul Trattamento dei Dati Betterlytics",
-          "DPA",
-          "Conformità GDPR",
-          "GDPR DPA",
-          "Privacy dei Dati",
-          "Accordo di Protezione dei Dati",
-          "Analisi Privacy-First",
-          "Analisi Anonime",
-          "Analisi Web GDPR"
-        ]
+        "title": "Accordo sul trattamento dei dati (DPA) | Betterlytics",
+        "description": "Accordo sul Trattamento dei Dati di Betterlytics (DPA) — conforme al GDPR, con analisi orientata alla privacy e trattamento sicuro dei dati anonimi."
       },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
       "title": "Accordo sul Trattamento dei Dati (DPA)",
@@ -594,12 +524,12 @@
         "li4": "Eliminare tutti i dati analitici immediatamente al momento dell’eliminazione dell’account."
       },
       "subprocessors": {
-        "title": "Sottoprocessori",
-        "intro": "Betterlytics può coinvolgere sottoprocessori per eseguire parti del trattamento, tra cui:",
+        "title": "Sub-responsabili del trattamento",
+        "intro": "Betterlytics può coinvolgere sub-responsabili del trattamento per eseguire parti del trattamento, tra cui:",
         "li1": "Fornitori di hosting e infrastruttura cloud con sede nell’UE",
         "li2": "Processori di pagamento (per la fatturazione dell’account)",
         "li3": "Servizi di invio email",
-        "notice": "Betterlytics mantiene un elenco aggiornato dei sottoprocessori su betterlytics.io/Sottoprocessori e informerà il Titolare del trattamento di eventuali aggiunte o modifiche."
+        "notice": "Betterlytics mantiene un elenco aggiornato dei sub-responsabili del trattamento su betterlytics.io/subprocessors e informerà il Titolare del trattamento di eventuali aggiunte o modifiche."
       },
       "rights": {
         "title": "Diritti degli interessati",
@@ -639,25 +569,16 @@
         "footer": "Questo DPA è accettato automaticamente quando utilizzi Betterlytics e fa parte dei nostri Termini di Servizio. 🇪🇺 Analitiche anonime per progettazione - Prodotto e ospitato nell’Unione Europea",
         "termsLink": "Termini di Servizio",
         "privacyLink": "Informativa sulla Privacy",
-        "subprocessorsLink": "Sottoprocessori"
+        "subprocessorsLink": "Sub-responsabili"
       }
     },
     "subprocessors": {
       "seo": {
-        "title": "Sottoprocessori | Conformità GDPR e trattamento dati",
-        "description": "Visualizza l'elenco completo dei Sottoprocessori di Betterlytics. Scopri come garantiamo la conformità al GDPR attraverso fornitori di servizi UE attentamente selezionati.",
-        "keywords": [
-          "Sottoprocessori Betterlytics",
-          "Responsabili del trattamento",
-          "Conformità GDPR",
-          "Servizi di terze parti",
-          "Trattamento dati",
-          "Hosting dati UE",
-          "Conformità Privacy"
-        ]
+        "title": "Sub-responsabili del trattamento | Betterlytics",
+        "description": "Visualizza l’elenco completo dei sub-responsabili del trattamento di Betterlytics. Scopri come garantiamo la conformità al GDPR attraverso fornitori di servizi UE attentamente selezionati."
       },
       "translationDisclaimer": "Questo documento è fornito in più lingue per comodità. In caso di discrepanze, prevarrà la versione in inglese.",
-      "title": "Sottoprocessori",
+      "title": "Sub-responsabili del trattamento",
       "lastUpdated": "Ultimo aggiornamento:",
       "intro": "Betterlytics si avvale di un numero limitato di fornitori di servizi terzi (sub-responsabili) attentamente selezionati per contribuire a fornire la nostra piattaforma di analytics. Questa pagina elenca tutti i sub-responsabili che possono trattare dati per conto dei nostri clienti.",
       "commitment": {
@@ -719,18 +640,8 @@
     "auth": {
       "signin": {
         "seo": {
-          "title": "Accedi | Analisi Web Privacy-First Betterlytics",
-          "description": "Accedi al tuo dashboard Betterlytics — analisi web sicura, senza cookie e conforme al GDPR, con focus sulla privacy.",
-          "keywords": [
-            "Accedi",
-            "Login",
-            "Account Betterlytics",
-            "Dashboard Utente",
-            "Analisi Privacy-First",
-            "Analisi Senza Cookie",
-            "Alternativa a Google Analytics",
-            "Analisi Conforme al GDPR"
-          ]
+          "title": "Accedi | Betterlytics",
+          "description": "Accedi a Betterlytics per vedere traffico, session replay, errori e uptime del tuo sito in un’unica dashboard."
         },
         "title": "Accedi al tuo account",
         "subtitle": "Accedi alla tua dashboard analitiche",
@@ -772,18 +683,8 @@
       },
       "register": {
         "seo": {
-          "title": "Crea il tuo account Betterlytics — Inizia gratis",
-          "description": "Crea un account Betterlytics gratuito per analisi web senza cookie e orientate alla privacy. Monitora siti e app in modo sicuro e conforme al GDPR.",
-          "keywords": [
-            "Crea Account Betterlytics",
-            "Registrati",
-            "Iscriviti",
-            "Analisi Web Gratuite",
-            "Analisi Privacy-First",
-            "Analisi Senza Cookie",
-            "Alternativa a Google Analytics",
-            "Analisi Conforme al GDPR"
-          ]
+          "title": "Crea il tuo account Betterlytics gratuito",
+          "description": "Crea un account Betterlytics gratuito per analisi web, session replay, tracciamento errori e monitoraggio uptime. Nessuna carta di credito."
         },
         "title": "Crea il tuo account",
         "subtitle": "Inizia a tracciare le tue analitiche oggi",
@@ -800,15 +701,7 @@
       "forgotPassword": {
         "seo": {
           "title": "Reimposta password | Betterlytics",
-          "description": "Reimposta in modo sicuro la tua password Betterlytics. Inserisci l’e-mail per ricevere un link protetto e recuperare l’accesso all’account.",
-          "keywords": [
-            "Password Dimenticata",
-            "Reimposta Password",
-            "Recupero Account",
-            "Reimposta Password Betterlytics",
-            "Account Betterlytics",
-            "Accesso Sicuro"
-          ]
+          "description": "Reimposta in modo sicuro la tua password Betterlytics. Inserisci l’e-mail per ricevere un link protetto e recuperare l’accesso all’account."
         },
         "title": "Reimposta la tua password",
         "subtitle": "Inserisci la tua email e ti invieremo un link per reimpostare la password",
@@ -829,15 +722,7 @@
       "resetPassword": {
         "seo": {
           "title": "Reimposta password | Account Betterlytics",
-          "description": "Imposta una nuova password per il tuo account Betterlytics in modo sicuro utilizzando il link protetto di reimpostazione.",
-          "keywords": [
-            "Reimposta Password",
-            "Reset Password",
-            "Recupero Account",
-            "Account Betterlytics",
-            "Reimpostazione Sicura",
-            "Assistenza Accesso"
-          ]
+          "description": "Imposta una nuova password per il tuo account Betterlytics in modo sicuro utilizzando il link protetto di reimpostazione."
         },
         "invalid": {
           "title": "Link di reimpostazione non valido",
@@ -908,14 +793,7 @@
     "demo": {
       "seo": {
         "title": "Betterlytics | Dashboard Dimostrativa",
-        "description": "Esplora le capacità di Betterlytics in questa dashboard demo interattiva.",
-        "keywords": [
-          "Demo Betterlytics",
-          "Demo Capacità",
-          "Tour del Prodotto",
-          "Demo Web",
-          "Capacità Privacy-First"
-        ]
+        "description": "Esplora le capacità di Betterlytics in questa dashboard demo interattiva."
       }
     },
     "comparison": {
@@ -931,227 +809,16 @@
       },
       "disclaimer": "Ci impegniamo a mantenere questo confronto accurato e aggiornato."
     },
-    "landing": {
-      "seo": {
-        "title": "Betterlytics | Una Migliore Alternativa a Google Analytics",
-        "description": "Betterlytics è una piattaforma di analytics privacy-first e senza cookie — conforme al GDPR, senza cookie, senza tracciamento, senza banner di consenso.",
-        "keywords": [
-          "Alternativa a Google Analytics",
-          "Analytics Senza Cookie",
-          "Analytics Privacy-First",
-          "Analytics Conforme GDPR",
-          "Piattaforma Analytics Open Source",
-          "Analytics Rispetta Privacy",
-          "Analisi Sito Web",
-          "Statistiche Visitatori",
-          "Betterlytics"
-        ]
-      },
-      "hero": {
-        "title": "Una <highlight>Migliore Alternativa</highlight> a Google Analytics",
-        "description": "Analytics semplici e potenti che rispettano la privacy. <br></br>Senza cookie, conformi al GDPR e senza banner dei cookie.",
-        "ctaPrimary": "Inizia Gratis",
-        "ctaGithub": "Vedi su GitHub",
-        "ctaDemo": "Prova live demo",
-        "eyebrow": "Prova Betterlytics in azione"
-      },
-      "framework": {
-        "title": "Funziona con i tuoi strumenti preferiti",
-        "subtitle": "Compatibilità universale - funziona con qualsiasi sito web, framework o piattaforma",
-        "footer": "E molti altri... Se funziona sul web, lo supportiamo!"
-      },
-      "principles": {
-        "titleEmphasis": "Analitiche ad",
-        "titleRest": "alte prestazioni che rispettano la privacy",
-        "subtitle": "Insights in tempo reale, prestazioni velocissime e completa conformità sulla privacy per tutti",
-        "features": {
-          "euGdpr": {
-            "title": "Con sede in UE e conforme al GDPR",
-            "description": "Server ospitati nell'UE con rigorosi standard di protezione dati. Completa conformità GDPR con raccolta dati anonima e robuste salvaguardie sulla privacy."
-          },
-          "noConsent": {
-            "title": "Nessun banner di consenso richiesto",
-            "description": "Analitiche completamente anonime significano nessun banner per i cookie, nessun modulo di consenso GDPR, nessun attrito per l'utente. Installa e inizia a tracciare immediatamente."
-          },
-          "dataOwnership": {
-            "title": "Completa proprietà dei dati",
-            "description": "I tuoi dati rimangono tuoi per sempre. Auto-ospita con la nostra versione open-source o utilizza la nostra infrastruttura cloud sicura."
-          },
-          "realtime": {
-            "title": "Insights in tempo reale",
-            "description": "Tracciamento visitatori velocissimo e analitiche di conversione in tutto il mondo. Belle dashboard ti aiutano a prendere decisioni basate sui dati istantaneamente."
-          },
-          "lightweight": {
-            "title": "Leggero e developer-friendly",
-            "description": "Script sotto 2KB, codebase open-source e documentazione completa. Costruito da sviluppatori, per sviluppatori."
-          },
-          "simpleSetup": {
-            "title": "Configurazione semplice, funzionalità potenti",
-            "description": "Integrazione di una riga per qualsiasi sito web. Opzioni di personalizzazione avanzate e funzionalità di livello enterprise disponibili."
-          }
-        }
-      },
-      "showcase": {
-        "titleEmphasis": "Funzionalità potenti",
-        "titleRest": "a portata di mano",
-        "subtitle": "Esplora l'arsenale completo delle capacità analitiche",
-        "categories": {
-          "analytics": "Analisi e approfondimenti",
-          "engagement": "Coinvolgimento e comportamento",
-          "performance": "Monitoraggio e prestazioni"
-        },
-        "featuresButton": "Esplora tutte le funzionalità",
-        "featuresTitle": "Esplora tutte le funzionalità di Betterlytics"
-      },
-      "ctaStrip": {
-        "eyebrow": "Inizia gratis",
-        "title": "Pronto a provare Betterlytics?",
-        "subtitle": "Crea un account e inizia a tracciare in pochi minuti. Piano gratuito incluso. Nessuna carta di credito.",
-        "primaryCta": "Inizia gratis"
-      },
-      "integration": {
-        "titleStart": "Inizia in",
-        "titleEmphasis": "meno di 2 minuti",
-        "subtitle": "Aggiungi il nostro script leggero e inizia a raccogliere analitiche senza cookie e rispettose della privacy immediatamente. Nessun cookie, nessun dato personale, nessun banner di consenso richiesto.",
-        "cards": {
-          "script": {
-            "title": "Tag script semplice",
-            "description": "Aggiungi una riga al tuo HTML e inizia a tracciare immediatamente. Funziona con qualsiasi sito web o CMS.",
-            "features": {
-              "f1": "Installazione di una riga",
-              "f2": "Funziona ovunque",
-              "f3": "Nessun processo di build necessario"
-            }
-          },
-          "framework": {
-            "title": "Pronto per i framework",
-            "description": "Supporto nativo per React, Next.js, Vue e altri framework moderni con TypeScript.",
-            "features": {
-              "f1": "Supporto TypeScript",
-              "f2": "Componenti framework",
-              "f3": "Tree-shakeable"
-            }
-          },
-          "selfHosted": {
-            "title": "Opzione auto-ospitata",
-            "description": "Distribuisci sulla tua infrastruttura con Docker per completa proprietà e controllo dei dati.",
-            "features": {
-              "f1": "Distribuzione Docker",
-              "f2": "Controllo completo",
-              "f3": "Tutte le funzionalità incluse"
-            }
-          }
-        },
-        "guideButton": "Vedi guida integrazione",
-        "guideTitle": "Guida integrazione Betterlytics",
-        "footer": "Istruzioni dettagliate di installazione per tutte le piattaforme e framework"
-      },
-      "openSource": {
-        "titleEmphasis": "Open Source",
-        "titleRest": "e guidato dalla community",
-        "subtitle": "Sviluppo trasparente e guidato dalla community. Unisciti ai nostri contributori, richiedi funzionalità o adatta la piattaforma ai tuoi requisiti unici.",
-        "starOnGithub": "Stella su GitHub",
-        "viewDocs": "Vedi documentazione",
-        "docsTitle": "Documentazione completa Betterlytics"
-      },
-      "pricing": {
-        "titleEmphasis": "Prezzi semplici,",
-        "titleRest": "scalabili",
-        "subtitle": "Piani basati sul traffico che si adattano alla tua crescita. Inizia gratis, scala mentre cresci.",
-        "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
-        "compareLink": "Confronta tutte le funzionalità"
-      },
-      "cards": {
-        "advancedFilters": {
-          "title": "Filtri avanzati",
-          "description": "Taglia e analizza i tuoi dati analitici per qualsiasi dimensione per scoprire insights azionabili."
-        },
-        "coreWebVitals": {
-          "title": "Core Web Vitals",
-          "description": "Monitora e misura le prestazioni del tuo sito con i Core Web Vitals."
-        },
-        "trafficSources": {
-          "title": "Fonti di traffico",
-          "description": "Scopri da dove arrivano i tuoi visitatori e ottimizza i tuoi sforzi di marketing.",
-          "totalVisitors": "Visitatori totali",
-          "thisMonth": "questo mese",
-          "visitorsLabel": "visitatori",
-          "sources": {
-            "googleSearch": "Ricerca Google",
-            "direct": "Diretto",
-            "socialMedia": "Social media",
-            "email": "Email",
-            "other": "Altro"
-          }
-        },
-        "errorTracking": {
-          "title": "Tracciamento errori",
-          "description": "Cattura gli errori lato client in anticipo. Ispeziona gli stack trace e riproduci le sessioni per capire cosa è andato storto.",
-          "status": {
-            "unresolved": "Non risolto",
-            "resolved": "Risolto"
-          },
-          "watchReplay": "Guarda registrazione",
-          "usersAffected": "{count} utenti",
-          "summary": "37 errori questo mese",
-          "unresolved": "{count} non risolti"
-        },
-        "funnels": {
-          "title": "Funnel",
-          "description": "Traccia il tasso di conversione dei percorsi utente chiave del tuo sito web.",
-          "total": "Totale",
-          "dropOff": "abbandono",
-          "sinceLastWeek": "dalla scorsa settimana"
-        },
-        "events": {
-          "title": "Eventi in tempo reale",
-          "description": "Traccia ogni interazione utente mentre accade con logging dettagliato degli eventi.",
-          "showing": "Mostrati {loaded} di {total} eventi"
-        },
-        "sessionReplay": {
-          "title": "Replay Sessioni",
-          "description": "Guarda registrazioni anonimizzate e perfette al pixel per individuare rapidamente attriti, clic furiosi e problemi visivi.",
-          "cursorClick": "Clic registrato",
-          "sessionPlayback": "Riproduzione sessione",
-          "playing": "In riproduzione"
-        },
-        "journeys": {
-          "title": "Percorsi utente",
-          "description": "Traccia percorsi utente multipli e vedi come i visitatori navigano nel tuo sito."
-        },
-        "worldMap": {
-          "title": "Analitiche geografiche",
-          "description": "Vedi da dove arrivano i tuoi visitatori nel mondo.",
-          "topCountries": "Paesi principali"
-        },
-        "uptimeMonitoring": {
-          "title": "Monitoraggio uptime",
-          "description": "Ricevi avvisi istantanei quando il tuo sito va offline, con monitoraggio dei certificati SSL e pagine di stato pubbliche che puoi ospitare sul tuo dominio.",
-          "alertDown": "{site} è offline",
-          "alertSent": "Avviso inviato a {email}",
-          "incidentDetected": "{count, plural, one {{count} incidente rilevato} other {{count} incidenti rilevati}}",
-          "allOperational": "Tutti i sistemi operativi",
-          "ssl": "SSL"
-        }
-      }
+    "ctaStrip": {
+      "eyebrow": "Inizia gratis",
+      "title": "Pronto a provare Betterlytics?",
+      "subtitle": "Crea un account e inizia a tracciare in pochi minuti. Piano gratuito incluso. Nessuna carta di credito.",
+      "primaryCta": "Inizia gratis"
     },
     "features": {
       "seo": {
-        "title": "Funzionalità di Betterlytics | Analytics Privacy-First, Senza Cookie",
-        "description": "Scopri tutte le funzionalità di Betterlytics: dashboard in tempo reale, funnel di conversione, Core Web Vitals e molto altro. Analytics privacy-first, conformi GDPR senza cookie o banner di consenso.",
-        "keywords": [
-          "Funzionalità Analytics",
-          "Analytics Privacy-First",
-          "Analytics Senza Cookie",
-          "Analytics Conforme GDPR",
-          "Dashboard Tempo Reale",
-          "Funnel Conversione",
-          "Replay Sessioni",
-          "Eventi Personalizzati",
-          "Monitoraggio Uptime",
-          "Pagine di Stato Pubbliche",
-          "Funzionalità Web Analytics"
-        ]
+        "title": "Funzionalità Betterlytics: analisi, replay, errori, uptime",
+        "description": "Analisi web, session replay, tracciamento errori, Core Web Vitals, monitoraggio uptime, pagine di stato e server MCP per agenti AI, tutto in Betterlytics."
       },
       "hero": {
         "title": "Tutte le funzionalità di cui hai bisogno per <br></br><highlight>analytics migliori</highlight>",
@@ -1327,7 +994,7 @@
         },
         "lightweightScript": {
           "title": "Script Leggero",
-          "description": "Script a caricamento rapido sotto 2KB che non rallenta il tuo sito."
+          "description": "Script a caricamento rapido da 3,5KB che non rallenta il tuo sito."
         },
         "highPerformance": {
           "title": "Alte Prestazioni",
@@ -1364,7 +1031,7 @@
       "login": "Accedi"
     },
     "footer": {
-      "blurb": "Analitiche web privacy-first per il web moderno. Conforme GDPR, senza cookie e open source.",
+      "blurb": "Web analytics, session replay, errori e uptime in un unico strumento open source. Senza cookie e ospitato nell’UE.",
       "company": "Azienda",
       "resources": "Risorse",
       "compare": "Confronta",
@@ -1372,7 +1039,7 @@
       "about": "Chi siamo",
       "contact": "Contatti",
       "privacyPolicy": "Politica privacy",
-      "subprocessors": "Sottoprocessori",
+      "subprocessors": "Sub-responsabili",
       "termsOfService": "Termini di servizio",
       "dpa": "Accordo elaborazione dati",
       "documentation": "Documentazione",
@@ -1387,7 +1054,7 @@
     },
     "structuredData": {
       "organization": {
-        "description": "Betterlytics è una piattaforma di analisi web open-source, senza cookie e conforme al GDPR, che rispetta la privacy degli utenti fornendo informazioni utili e azionabili.",
+        "description": "Betterlytics riunisce analisi web, session replay, tracciamento errori, Core Web Vitals e monitoraggio uptime in un unico strumento open source. Senza cookie e ospitato nell’UE.",
         "contactTypeCustomerService": "Servizio Clienti",
         "contactTypeTechnicalSupport": "Supporto Tecnico"
       },
@@ -1397,17 +1064,8 @@
     },
     "pricing": {
       "seo": {
-        "title": "Prezzi | Betterlytics Analytics Privacy-First",
-        "description": "Prezzi semplici e trasparenti per Betterlytics. Inizia gratis, scala quando cresci. Analytics privacy-first, conformi al GDPR per ogni dimensione aziendale.",
-        "keywords": [
-          "Prezzi Analytics",
-          "Piani Web Analytics",
-          "Prezzi Privacy Analytics",
-          "Costo Analytics GDPR",
-          "Piani Betterlytics",
-          "Analytics Convenienti",
-          "Piano Analytics Gratuito"
-        ]
+        "title": "Prezzi Betterlytics: inizia gratis, paga per eventi",
+        "description": "Ogni piano include analisi web, session replay, tracciamento errori e uptime. Inizia gratis e paga in base agli eventi mensili, o fai self-hosting gratis."
       },
       "titleEmphasis": "Prezzi semplici e",
       "titleRest": "trasparenti",
@@ -1415,6 +1073,279 @@
       "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
       "comparisonTitle": "Confronta tutte le funzionalità",
       "exploreFeaturesLink": "Esplora tutte le funzionalità in dettaglio"
+    },
+    "shareImage": {
+      "alt": "“You shouldn’t need five tools to understand one website” sopra la dashboard di Betterlytics"
+    }
+  },
+  "landing": {
+    "seo": {
+      "description": "Traffico, session replay, errori, Core Web Vitals e uptime del tuo sito in un’unica dashboard. Open source, senza cookie e con un piano gratuito."
+    },
+    "nav": {
+      "skip": "Vai al contenuto",
+      "home": "Home page di Betterlytics",
+      "menu": "Menu",
+      "label": "Menu principale",
+      "demo": "Demo",
+      "features": "Funzionalità",
+      "pricing": "Prezzi",
+      "docs": "Documentazione",
+      "githubLabel": "Betterlytics su GitHub",
+      "signIn": "Accedi",
+      "cta": "Inizia",
+      "goToDashboard": "Vai alla dashboard"
+    },
+    "hero": {
+      "title": "Non dovrebbero servirti cinque strumenti per capire un solo sito",
+      "lede": "Web analytics senza cookie, session replay, Core Web Vitals, errori e uptime. Un’unica dashboard, un’unica fattura.",
+      "cta": "Inizia gratis"
+    },
+    "demo": {
+      "loading": "Caricamento della dashboard live",
+      "frameTitle": "Demo live di Betterlytics",
+      "newTab": "(si apre in una nuova scheda)",
+      "stalled": "Apri la demo live",
+      "activateLine": "Clicca ovunque per esplorare",
+      "activateAria": "Clicca ovunque per esplorare la demo interattiva della dashboard"
+    },
+    "customers": {
+      "label": "Lo usano i team di"
+    },
+    "journey": {
+      "title": "Tutto ciò che i tuoi utenti hanno *vissuto*",
+      "lede": "Dalla loro prima visita al tuo prossimo disservizio.",
+      "steps": {
+        "find": {
+          "title": "Come gli utenti\nti trovano",
+          "note": "Motori di ricerca, referral, campagne e social, compresi ChatGPT e Perplexity."
+        },
+        "see": {
+          "title": "Cosa gli utenti\nguardano",
+          "note": "Ogni pagina che aprono, con il paese, la città, il dispositivo e il browser di ciascuna visita. In tempo reale e senza campionamento."
+        },
+        "do": {
+          "title": "Cosa gli utenti\nfanno davvero",
+          "note": "Eventi personalizzati, come registrazioni e acquisti, e funnel che mostrano dove le persone abbandonano."
+        },
+        "follow": {
+          "title": "Dove gli utenti\nfanno fatica",
+          "note": "Session replay: ogni clic e ogni scroll, esattamente come l’hanno visto loro."
+        },
+        "wait": {
+          "title": "Quando gli utenti\naspettano troppo",
+          "note": "Core Web Vitals (LCP, INP e CLS) misurati nei browser reali dei tuoi visitatori."
+        },
+        "errors": {
+          "title": "Quando gli utenti\nincontrano errori",
+          "note": "Errori JavaScript con lo stack trace, la pagina e il replay della sessione in cui si sono verificati."
+        },
+        "reach": {
+          "title": "Quando gli utenti\nti trovano offline",
+          "note": "Monitor di uptime, incidenti, scadenza dei certificati SSL e una pagina di stato pubblica."
+        }
+      }
+    },
+    "mcp": {
+      "title": "Collega il *tuo*\nagente",
+      "lede": "Il server MCP è già integrato. Fai domande in linguaggio naturale e ottieni risposte su tutti i tuoi dati.",
+      "lead": "Fai domande, non query.",
+      "body": "Il tuo agente legge lo schema e incrocia traffico, funnel, errori e uptime.",
+      "worksWith": "Funziona con",
+      "any": "E qualsiasi altro client che supporti MCP via HTTP.",
+      "cta": "Configura MCP"
+    },
+    "frameworks": {
+      "title": "Il tuo framework, *così com’è*",
+      "lede": "Un tag script, oppure un pacchetto se preferisci. Il resto non cambia."
+    },
+    "network": {
+      "title": "Un solo script, nient’altro da aggiungere",
+      "lede": "Ecco esattamente quanto pesa sul tuo sito.",
+      "snippetLabel": "Snippet di installazione",
+      "packageTab": "Pacchetto",
+      "stats": {
+        "size": {
+          "label": "Peso dello script",
+          "body": "Il tracker, compresso con gzip. Si carica in modo asincrono e non blocca mai il rendering."
+        },
+        "bots": {
+          "label": "Visualizzazioni da bot",
+          "body": "Su un sito tipico. Filtrate prima di arrivare nei tuoi grafici o in fattura."
+        },
+        "openSource": {
+          "label": "Open source",
+          "body": "Ogni riga di codice è su GitHub con licenza AGPL-3.0. Puoi ospitarlo tu, gratis e senza limiti di eventi."
+        }
+      },
+      "thesis": {
+        "label": "Cookie installati",
+        "body": "Niente cookie, niente ID persistenti, niente banner per il consenso. Pensato per GDPR, ePrivacy e PECR, con i tuoi dati che restano nell’UE."
+      }
+    },
+    "quote": {
+      "text": "Google Analytics era complicato da configurare e difficile da far funzionare bene. Betterlytics ci fa vedere di più, in una dashboard che *tutto il team riesce davvero a usare*.",
+      "role": "Senior Engineer"
+    },
+    "pricing": {
+      "title": "Un solo prezzo, calibrato sul tuo traffico",
+      "lede": "I bot che intercettiamo non vengono conteggiati e un picco di traffico non ti costa mai di più.",
+      "monthlyEvents": "Eventi mensili",
+      "rangeLabel": "Volume mensile di eventi",
+      "rangeValueText": "{events} eventi",
+      "perMonth": "/mese",
+      "free": "Gratuito",
+      "custom": "Personalizzato",
+      "growth": {
+        "name": "Growth",
+        "tagline": "Per progetti personali e piccoli siti.",
+        "ctaFree": "Inizia gratis",
+        "cta": "Inizia"
+      },
+      "professional": {
+        "name": "Professional",
+        "tagline": "Per team che gestiscono più prodotti.",
+        "cta": "Inizia",
+        "badge": "Il più scelto"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "Per traffico elevato, con SLA e supporto dedicato.",
+        "cta": "Contattaci"
+      }
+    },
+    "cta": {
+      "title": "Aggiungi uno script e guarda arrivare il tuo primo visitatore",
+      "lede": "Il piano gratuito ha lo stesso script, la stessa dashboard e gli stessi dati non campionati di tutti i piani a pagamento. Non serve la carta di credito.",
+      "primary": "Inizia gratis",
+      "secondary": "Leggi la documentazione"
+    },
+    "footer": {
+      "tagline": "Web analytics, session replay, errori e uptime in un unico strumento open source. Senza cookie e ospitato nell’UE.",
+      "nav": "Piè di pagina",
+      "language": "Lingua",
+      "columns": {
+        "company": "Azienda",
+        "resources": "Risorse",
+        "compare": "Confronta",
+        "connect": "Seguici"
+      },
+      "company": {
+        "about": "Chi siamo",
+        "contact": "Contatti",
+        "privacy": "Informativa privacy",
+        "terms": "Termini di servizio",
+        "dpa": "Accordo sul trattamento dati",
+        "subprocessors": "Sub-responsabili"
+      },
+      "resources": {
+        "docs": "Documentazione",
+        "changelog": "Changelog",
+        "features": "Funzionalità",
+        "pricing": "Prezzi",
+        "status": "Stato dei servizi"
+      },
+      "compareLink": "vs {name}",
+      "copyright": "© {year} Betterlytics.",
+      "license": "Open source con licenza <link>AGPL-3.0</link>.",
+      "reportVulnerability": "Segnala una vulnerabilità"
+    },
+    "illustrations": {
+      "globe": {
+        "alt": "Un globo che ruota e segna da dove arrivano i visitatori: ogni città è indicata insieme alla fonte che li ha portati, ad esempio Copenaghen via ChatGPT.",
+        "via": "via {source}",
+        "direct": "accesso diretto",
+        "newsletter": "newsletter"
+      },
+      "traffic": {
+        "alt": "Visitatori per giorno della settimana e ora: il picco è nei giorni feriali in orario d’ufficio, con un secondo picco più contenuto la sera e weekend più tranquilli.",
+        "topPages": "Più visitate",
+        "all": "Tutte",
+        "entry": "Entrata",
+        "exit": "Uscita",
+        "scrollDepth": "Profondità di scorrimento",
+        "avgDepth": "Media",
+        "weekly": "Traffico settimanale",
+        "byHour": "visitatori per ora"
+      },
+      "events": {
+        "alt": "Un log in tempo reale di eventi personalizzati come registrazioni e acquisti, ciascuno con la proprietà con cui è stato inviato e con paese, browser e dispositivo del visitatore.",
+        "title": "Eventi personalizzati",
+        "live": "Live",
+        "paused": "In pausa",
+        "today": "oggi",
+        "now": "ora",
+        "seconds": "{count} s",
+        "minutes": "{count} min"
+      },
+      "replay": {
+        "alt": "Il replay di un visitatore su una pagina dei prezzi: clicca su Choose Pro, scatta un TypeError, clicca nervosamente il pulsante altre quattro volte e poi se ne va.",
+        "title": "Session replay",
+        "pageView": "Visualizzazione pagina",
+        "click": "Clic",
+        "rageClick": "Rage click",
+        "pageExit": "Uscita",
+        "rageDetail": "{count}× su {target}",
+        "clickCaptured": "Clic registrato",
+        "rageClicks": "{count}× rage click",
+        "play": "Riproduci il replay",
+        "pause": "Metti in pausa il replay"
+      },
+      "vitals": {
+        "alt": "Indicatori per FCP, TTFB, LCP, INP e CLS, ciascuno valutato come buono, da migliorare o scarso.",
+        "good": "Buono",
+        "needsWork": "Da migliorare",
+        "poor": "Scarso"
+      },
+      "errors": {
+        "alt": "Un TypeError appena scattato, con la pagina e il clic che l’hanno causato, il suo stack trace e gli utenti colpiti; dietro, un errore meno frequente e uno già risolto.",
+        "resolved": "Risolto",
+        "events": "occorrenze",
+        "hoursAgo": "{count} h fa",
+        "daysAgo": "{count} g fa",
+        "inApp": "nell’app"
+      },
+      "uptime": {
+        "alt": "Quattro monitor di uptime con i controlli più recenti. Quando uno smette di rispondere, l’avviso viene inviato su Slack, Discord e via email, e la pagina di stato pubblica segnala il disservizio.",
+        "sslDays": "SSL {days} giorni",
+        "timeout": "timeout",
+        "sslTitle": "Certificato di {name} in scadenza",
+        "sslDetail": "{host} · SSL valido ancora per {days} giorni",
+        "downTitle": "{name} è offline",
+        "downDetail": "{host} non risponde",
+        "upTitle": "{name} è di nuovo online",
+        "upDetail": "Offline per 2 min 30 s · risolto",
+        "now": "ora",
+        "sentTo": "Inviato a",
+        "allUp": "Tutti i sistemi sono operativi",
+        "someDown": "Alcuni sistemi sono fuori servizio",
+        "down": "Fuori servizio",
+        "operational": "Operativo"
+      },
+      "transcript": {
+        "alt": "Una sessione nel terminale: alla domanda su quali pagine abbiano perso traffico dopo il restyling di agosto, un agente consulta visualizzazioni ed errori tramite il server MCP di Betterlytics e scopre che /pricing ha perso il 34% ed è stata colpita da un TypeError finito in produzione lo stesso giorno.",
+        "redesign": {
+          "question": "quali pagine hanno perso traffico dopo il restyling di agosto?",
+          "say": "Confronto le visualizzazioni giornaliere di luglio e agosto, poi cerco errori nelle pagine in calo.",
+          "pages": "41 pagine · 6 in calo di oltre il 20%",
+          "errors": "1 gruppo · TypeError · prima occorrenza 12 ago · 1.206 sessioni",
+          "answer": "/pricing ha perso il 34%. Lo stesso giorno è finito in produzione un TypeError nel selettore dei piani, che ha colpito 1.206 sessioni."
+        },
+        "outage": {
+          "question": "il down del checkout di ieri sera ci ha fatto perdere vendite?",
+          "say": "Trovo l’incidente, poi lo metto a confronto con gli acquisti, ora per ora.",
+          "incident": "1 incidente · offline 23:12–23:31 · risolto",
+          "purchases": "23:00 → 6 acquisti · stessa ora, 6 sere precedenti: 38 in media",
+          "answer": "Sì. Il checkout è rimasto offline per 19 minuti e in quell’ora ci sono stati 6 acquisti contro i soliti 38: circa 32 vendite perse."
+        },
+        "sources": {
+          "question": "quale fonte di traffico porta visitatori che si registrano davvero?",
+          "say": "Estraggo i visitatori per fonte, poi le registrazioni per fonte, e confronto i tassi.",
+          "visitors": "Google 18,2k · ChatGPT 2,1k · Hacker News 1,4k",
+          "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
+          "answer": "ChatGPT porta un nono dei visitatori di Google, ma il 3,4% di loro si registra contro lo 0,9%: un tasso quasi quattro volte più alto."
+        }
+      }
     }
   },
   "pricingSlider": {
@@ -1452,8 +1383,8 @@
       "emailReports": "Report email pianificati",
       "dedicatedSupport": "Supporto dedicato",
       "slaGuarantee": "Garanzia SLA",
-      "everythingInStarter": "Tutto in Growth, più:",
-      "everythingInProfessional": "Tutto in Professional, più:"
+      "everythingInStarter": "Tutte le funzionalità di Growth, più:",
+      "everythingInProfessional": "Tutte le funzionalità di Professional, più:"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",
@@ -2107,9 +2038,6 @@
     "created": "Creato",
     "unknown": "Sconosciuto",
     "noChange": "nessuna variazione",
-    "good": "Buono",
-    "fair": "Discreto",
-    "poor": "Scarso",
     "rename": "Rinomina",
     "renaming": "Rinominando",
     "delete": "Elimina",
@@ -2359,10 +2287,6 @@
       "matchDayOfWeek": "Allinea giorno della settimana"
     },
     "loading": {
-      "dashboard": {
-        "initializing": "Inizializzazione dashboard",
-        "loadingSettings": "Caricamento impostazioni della dashboard..."
-      },
       "geography": {
         "title": "Inizializzazione mappa mondiale",
         "description": "Preparazione di una visualizzazione geografica dei dati dei visitatori..."
@@ -4147,7 +4071,11 @@
       "hours": "{count, plural, one {# ora} other {# ore}}",
       "days": "{count, plural, one {# giorno} other {# giorni}}"
     },
-    "poweredBy": "Realizzato con"
+    "poweredBy": "Realizzato con",
+    "notFound": {
+      "title": "Pagina di stato non trovata",
+      "description": "Questa pagina di stato non esiste o non è pubblicata."
+    }
   },
   "statusPagesPage": {
     "title": "Pagine di stato",

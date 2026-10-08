@@ -7,15 +7,6 @@ export const umami: ComparisonLocaleContent = {
     title: 'Betterlytics vs Umami: Session replay og overvågning inkluderet',
     description:
       'Sammenlign Betterlytics med Umami. Samme letvægts, privatlivsvenlige analytics – med session replay, brugerrejser og oppetidsovervågning inkluderet. Gratis plan tilgængelig.',
-    keywords: [
-      'Umami alternativ',
-      'Umami Analytics alternativ',
-      'privatlivsvenlig analytics',
-      'session replay',
-      'oppetidsovervågning',
-      'letvægts analytics',
-      'open source analytics',
-    ],
   },
   hero: {
     title: 'Leder du efter et alternativ til Umami?',
@@ -59,7 +50,7 @@ export const umami: ComparisonLocaleContent = {
       {
         name: 'Performance & hastighed',
         features: [
-          { name: 'Script-størrelse', betterlytics: '<2KB', competitor: '~2–3KB' },
+          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '~2–3KB' },
           { name: 'Indvirkning på loadtid', betterlytics: 'Minimal', competitor: 'Minimal' },
           { name: 'Fungerer med adblockere', betterlytics: true, competitor: true },
         ],
@@ -127,7 +118,7 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Hosted eller self-hosted',
-      content: `Begge værktøjer understøtter self-hosting. Umami bruger PostgreSQL eller MySQL. Betterlytics bruger Docker med ClickHouse.\n\nFor managed hosting starter Betterlytics ved $6/måned med en gratis plan. Umami Cloud starter ved $20/måned. Begge giver adgang til alle funktioner uden skjulte premium-tilvalg.`,
+      content: `Begge værktøjer understøtter self-hosting. Umami bruger PostgreSQL eller MySQL. Betterlytics bruger Docker med ClickHouse.\n\nFor managed hosting starter Betterlytics ved $7/måned med en gratis plan. Umami Cloud starter ved $20/måned. Begge giver adgang til alle funktioner uden skjulte premium-tilvalg.`,
       icon: 'server',
     },
     {

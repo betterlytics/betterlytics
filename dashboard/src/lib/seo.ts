@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { hasLocale } from 'next-intl';
 import { routing } from '@/i18n/routing';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -8,20 +9,30 @@ import { env } from './env';
 export interface SEOConfig {
   title: string;
   description: string;
-  keywords: string[];
   path: string;
-  imageAlt?: string;
+  socialTitle?: string;
+  socialDescription?: string;
   structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
 }
 
-const DEFAULT_IMAGE = '/og_image.jpg';
+/** The image repeats the landing hero's headline, as `public.shareImage.alt` does; redo both when it changes. */
+const DEFAULT_IMAGE = {
+  url: '/og_image.jpg',
+  width: 1200,
+  height: 630,
+};
 
-export function generateSEO(
-  { title, description, keywords, path, imageAlt }: SEOConfig,
+export async function generateSEO(
+  { title, description, path, socialTitle = title, socialDescription = description }: SEOConfig,
   options?: { locale?: string; robots?: Metadata['robots'] },
-): Metadata {
+): Promise<Metadata> {
   const defaultLocale = routing.defaultLocale;
   const currentLocale = options?.locale ?? defaultLocale;
+  const t = await getTranslations({
+    locale: hasLocale(routing.locales, currentLocale) ? currentLocale : defaultLocale,
+    namespace: 'public.shareImage',
+  });
+  const image = { ...DEFAULT_IMAGE, alt: t('alt') };
   const BASE_URL = env.PUBLIC_BASE_URL;
   const localizedPath =
     currentLocale === defaultLocale ? path : path === '/' ? `/${currentLocale}` : `/${currentLocale}${path}`;
@@ -38,7 +49,6 @@ export function generateSEO(
   return {
     title: title,
     description,
-    keywords,
     authors: [{ name: 'Betterlytics Team' }],
     creator: 'Betterlytics',
     publisher: 'Betterlytics',
@@ -58,23 +68,17 @@ export function generateSEO(
         LANGUAGE_METADATA[currentLocale as SupportedLanguages]?.ogLocale ??
         LANGUAGE_METADATA[defaultLocale].ogLocale,
       url: fullUrl,
-      title: title,
-      description,
+      title: socialTitle,
+      description: socialDescription,
       siteName: 'Betterlytics',
-      images: [
-        {
-          url: DEFAULT_IMAGE,
-          width: 1200,
-          height: 630,
-          alt: imageAlt || title,
-        },
-      ],
+      images: [image],
     },
     twitter: {
       card: 'summary_large_image',
-      title: title,
-      description,
-      images: [DEFAULT_IMAGE],
+      title: socialTitle,
+      description: socialDescription,
+      images: [image],
+      site: '@betterlytics',
       creator: '@betterlytics',
     },
     robots: options?.robots ?? {
@@ -99,12 +103,11 @@ export async function buildSEOConfig(
   const config: SEOConfig = {
     title: t('title'),
     description: t('description'),
-    keywords: t.raw('keywords') as string[],
     path: configEntry.path,
     structuredDataType: configEntry.structuredDataType,
   };
 
-  if (!config.title || !config.description || !config.keywords?.length) {
+  if (!config.title || !config.description) {
     throw new Error(`Missing SEO translation for namespace "${configEntry.namespace}"`);
   }
 
@@ -138,22 +141,25 @@ export async function generateStructuredData(config: SEOConfig) {
         '@type': 'Organization',
         name: 'Betterlytics',
         url: BASE_URL,
-        logo: `${BASE_URL}/betterlytics-logo-full-light.png`,
+        logo: `${BASE_URL}/betterlytics-logo-full-dark.png`,
         description: orgDescription,
         foundingDate: '2024',
-        sameAs: ['https://github.com/betterlytics/betterlytics'],
+        sameAs: [
+          'https://github.com/betterlytics/betterlytics',
+          'https://x.com/betterlytics',
+          'https://bsky.app/profile/betterlytics.bsky.social',
+          'https://www.linkedin.com/company/betterlytics',
+        ],
         contactPoint: [
           {
             '@type': 'ContactPoint',
             contactType: contactCustomer,
             email: 'hello@betterlytics.io',
-            availableLanguage: currentLocale,
           },
           {
             '@type': 'ContactPoint',
             contactType: contactTechnical,
             email: 'support@betterlytics.io',
-            availableLanguage: currentLocale,
           },
         ],
         address: {
@@ -163,11 +169,14 @@ export async function generateStructuredData(config: SEOConfig) {
         areaServed: 'Worldwide',
         knowsAbout: [
           'Web Analytics',
-          'Privacy-First Analytics',
-          'GDPR Compliance',
-          'Cookieless Tracking',
+          'Session Replay',
+          'Error Tracking',
+          'Core Web Vitals',
           'Uptime Monitoring',
           'Status Pages',
+          'Model Context Protocol',
+          'Cookieless Tracking',
+          'GDPR Compliance',
           'Open Source Software',
         ],
       };
@@ -183,7 +192,7 @@ export async function generateStructuredData(config: SEOConfig) {
         publisher: {
           '@type': 'Organization',
           name: 'Betterlytics',
-          logo: `${BASE_URL}/betterlytics-logo-full-light.png`,
+          logo: `${BASE_URL}/betterlytics-logo-full-dark.png`,
         },
       };
 
@@ -234,13 +243,11 @@ export async function generateStructuredData(config: SEOConfig) {
               '@type': 'ContactPoint',
               contactType: contactCustomer,
               email: 'hello@betterlytics.io',
-              availableLanguage: currentLocale,
             },
             {
               '@type': 'ContactPoint',
               contactType: contactTechnical,
               email: 'support@betterlytics.io',
-              availableLanguage: currentLocale,
             },
           ],
         },
@@ -252,11 +259,6 @@ export async function generateStructuredData(config: SEOConfig) {
 }
 
 export const SEO_CONFIGS = {
-  landing: {
-    namespace: 'public.landing.seo',
-    path: '/',
-    structuredDataType: 'website',
-  },
   about: {
     namespace: 'public.about.seo',
     path: '/about',
@@ -336,5 +338,10 @@ export const SEO_CONFIGS = {
     namespace: 'public.root.seo',
     path: '/',
     structuredDataType: 'website',
+  },
+  organization: {
+    namespace: 'public.root.seo',
+    path: '/',
+    structuredDataType: 'organization',
   },
 } as const;

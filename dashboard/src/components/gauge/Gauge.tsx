@@ -4,6 +4,7 @@ import React from 'react';
 import { useGauge } from './useGauge';
 import { DEFAULT_TOTAL_ANGLE, type GaugeSegment, type GaugeProps as BaseGaugeProps } from './gauge-utils';
 import { cn } from '@/lib/utils';
+import styles from './gauge.module.css';
 
 type GaugeProps = BaseGaugeProps & { children?: React.ReactNode };
 
@@ -37,7 +38,7 @@ function Gauge({
   return (
     <div
       {...props}
-      className={cn('gauge-root relative flex items-center justify-center', className)}
+      className={cn(styles.root, 'relative flex items-center justify-center', className)}
       style={{ ...style, width: svgWidth, height: viewBoxHeight }}
     >
       <svg
@@ -54,7 +55,7 @@ function Gauge({
             fill='none'
             stroke={seg.color}
             strokeWidth={strokeWidth}
-            className='gauge-segment'
+            className={styles.segment}
           />
         ))}
 
@@ -65,7 +66,7 @@ function Gauge({
           fill='none'
           stroke={progressColor}
           strokeWidth={innerStrokeWidth}
-          className='gauge-progress'
+          className={styles.progress}
           style={
             {
               '--path-length': pathLength,

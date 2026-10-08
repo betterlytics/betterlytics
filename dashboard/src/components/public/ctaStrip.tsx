@@ -10,7 +10,7 @@ interface CtaStripProps {
 }
 
 export async function CtaStrip({ eyebrow, title, subtitle, buttonText }: CtaStripProps = {}) {
-  const t = await getTranslations('public.landing.ctaStrip');
+  const t = await getTranslations('public.ctaStrip');
 
   return (
     <div className='container mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8'>

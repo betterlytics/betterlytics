@@ -1,0 +1,81 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* keep the centre empty: the whole frame is the target */
+  .scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    background: radial-gradient(
+      70% 70% at 50% 46%,
+      --alpha(var(--color-canvas) / 44%),
+      --alpha(var(--color-canvas) / 78%)
+    );
+    -webkit-backdrop-filter: blur(1.5px);
+    backdrop-filter: blur(1.5px);
+    /* no fill mode: a held end state would override the :disabled opacity */
+    animation: enter 0.45s var(--ease-out-expo);
+    transition:
+      opacity 0.28s var(--ease-out-expo),
+      background 0.3s var(--ease-out-expo),
+      -webkit-backdrop-filter 0.3s var(--ease-out-expo),
+      backdrop-filter 0.3s var(--ease-out-expo);
+  }
+  .scrim:hover,
+  .scrim:focus-visible {
+    background: radial-gradient(
+      70% 70% at 50% 46%,
+      --alpha(var(--color-canvas) / 28%),
+      --alpha(var(--color-canvas) / 60%)
+    );
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+  }
+  /* disabled rather than unmounted, so it fades out with the window edge and leaves the tab order */
+  .scrim:disabled {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* -22px (half the 44px title bar) centres it on the window, not the scrim */
+  .line {
+    position: absolute;
+    left: 50%;
+    top: calc(50% - 22px);
+    transform: translate(-50%, -50%);
+    width: max-content;
+    max-width: 80%;
+    padding: 7px 15px;
+    border: 1px solid --alpha(var(--color-fg) / 16%);
+    border-radius: 999px;
+    background-color: --alpha(var(--color-fg) / 7%);
+    -webkit-backdrop-filter: blur(12px) saturate(1.15);
+    backdrop-filter: blur(12px) saturate(1.15);
+    box-shadow: 0 10px 28px -14px rgb(0 0 0 / 0.7);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-align: center;
+    text-wrap: balance;
+    text-shadow: 0 1px 2px --alpha(var(--color-canvas) / 60%);
+    transition:
+      background-color 0.3s var(--ease-out-expo),
+      border-color 0.3s var(--ease-out-expo);
+  }
+  .scrim:hover .line,
+  .scrim:focus-visible .line {
+    border-color: --alpha(var(--color-fg) / 24%);
+    background-color: --alpha(var(--color-fg) / 10%);
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
