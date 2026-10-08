@@ -32,9 +32,8 @@ export const viewport: Viewport = {
   colorScheme: 'dark',
 };
 
-/** None at build time (placeholder env); each locale renders on first request, then caches. */
 export function generateStaticParams() {
-  return [];
+  return routing.locales.map((locale) => ({ locale }));
 }
 
 /** Must read nothing from the request (the client fetches the session) so the page can be cached. */
