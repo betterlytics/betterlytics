@@ -672,7 +672,7 @@
       "signin": {
         "seo": {
           "title": "Accedi | Betterlytics",
-          "description": "Accedi a Betterlytics per vedere traffico, session replay, errori e uptime del tuo sito in un’unica dashboard."
+          "description": "Accedi a Betterlytics per vedere traffico, session replay, errori e uptime del tuo sito in un'unica dashboard."
         },
         "title": "Bentornato",
         "lede": "Un solo account per analytics, session replay, errori e uptime.",
@@ -684,12 +684,12 @@
         "askAdmin": "Chiedi al proprietario di una dashboard di invitarti.",
         "registrationDisabled": "La registrazione è disabilitata su questa istanza.",
         "errors": {
-          "accountNotLinked": "Esiste già un account con questa email. Accedi come hai fatto l’ultima volta.",
-          "default": "Qualcosa è andato storto durante l’accesso. Riprova.",
+          "accountNotLinked": "Esiste già un account con questa email. Accedi come hai fatto l'ultima volta.",
+          "default": "Qualcosa è andato storto durante l'accesso. Riprova.",
           "invalidCredentials": "Email o password errati.",
           "invalidOtp": "Il codice non ha funzionato. Controlla la tua app di autenticazione e riprova.",
           "invalidBackupCode": "Il codice di backup non ha funzionato. Controllalo e riprova.",
-          "generic": "Qualcosa è andato storto durante l’accesso. Riprova.",
+          "generic": "Qualcosa è andato storto durante l'accesso. Riprova.",
           "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi al proprietario di una dashboard di invitarti.",
           "emailNotFound": "Non siamo riusciti a ottenere un indirizzo email da quell'account. Rendi visibile la tua email presso il provider oppure accedi con email e password.",
           "unableToLink": "Non siamo riusciti a collegare quell'account al tuo. Accedi invece con email e password.",
@@ -718,13 +718,13 @@
         "invited": "Sei stato invitato a unirti a {domain}.",
         "submit": "Crea account",
         "submitting": "Creazione account…",
-        "termsAgree": "Accetto i <terms>Termini di servizio</terms> e ho letto l'<privacy>Informativa sulla privacy</privacy>.",
+        "termsAgree": "Accetto i <terms>Termini di servizio</terms> e ho letto <privacy>l'Informativa sulla privacy</privacy>.",
         "haveAccount": "Hai già un account?",
         "signIn": "Accedi",
         "errors": {
           "emailExists": "Esiste già un account con questa email. Accedi invece.",
           "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi al proprietario di una dashboard di invitarti.",
-          "generic": "Qualcosa è andato storto durante la creazione dell’account. Riprova.",
+          "generic": "Qualcosa è andato storto durante la creazione dell'account. Riprova.",
           "termsRequired": "Accetta i Termini di servizio per continuare."
         },
         "disabled": {
@@ -736,7 +736,7 @@
       "forgotPassword": {
         "seo": {
           "title": "Reimposta password | Betterlytics",
-          "description": "Reimposta in modo sicuro la tua password Betterlytics. Inserisci l’e-mail per ricevere un link protetto e recuperare l’accesso all’account."
+          "description": "Reimposta in modo sicuro la tua password Betterlytics. Inserisci l'e-mail per ricevere un link protetto e recuperare l'accesso all'account."
         },
         "title": "Reimposta la tua password",
         "lede": "Ti invieremo via email un link per impostarne una nuova.",
@@ -748,7 +748,7 @@
         "remember": "Ricordi la tua password?",
         "signIn": "Accedi",
         "errors": {
-          "failed": "Non siamo riusciti a inviare l’email di reimpostazione. Riprova."
+          "failed": "Non siamo riusciti a inviare l'email di reimpostazione. Riprova."
         }
       },
       "resetPassword": {
@@ -797,7 +797,7 @@
           "redirectTimeout": "Il reindirizzamento sta impiegando più tempo del previsto."
         },
         "returnToDashboard": "Vai alle dashboard",
-        "backToSignIn": "Torna all’accesso",
+        "backToSignIn": "Torna all'accesso",
         "helpLine": "Hai bisogno di aiuto? Contatta il supporto a <mail>support@betterlytics.io</mail>",
         "resend": {
           "submit": "Invia un nuovo link",
@@ -3204,7 +3204,7 @@
       "domainPlaceholder": "esempio.com",
       "domainHelp": "Incolla l’URL o il dominio del tuo sito (es. esempio.com)",
       "domainWillBeCreatedAs": "Verrà creato come <strong>{domain}</strong>",
-      "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
+      "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e <privacyLink>l'Informativa sulla privacy</privacyLink>.",
       "createDashboardButton": "Crea dashboard",
       "creatingDashboard": "Creazione dashboard...",
       "dashboardCreatedSuccess": "Dashboard creata con successo!"
