@@ -25,9 +25,13 @@ export const createMcpTokenAction = withDashboardMutationAuthContext(
     revalidatePath(`/dashboard/${ctx.dashboardId}/settings/mcp`);
     return token;
   },
+  { permission: 'canManageSettings' },
 );
 
-export const deleteMcpTokenAction = withDashboardMutationAuthContext(async (ctx: AuthContext, tokenId: string) => {
-  await removeMcpToken(tokenId, ctx.dashboardId);
-  revalidatePath(`/dashboard/${ctx.dashboardId}/settings/mcp`);
-});
+export const deleteMcpTokenAction = withDashboardMutationAuthContext(
+  async (ctx: AuthContext, tokenId: string) => {
+    await removeMcpToken(tokenId, ctx.dashboardId);
+    revalidatePath(`/dashboard/${ctx.dashboardId}/settings/mcp`);
+  },
+  { permission: 'canManageSettings' },
+);
