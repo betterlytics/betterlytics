@@ -67,7 +67,11 @@
       padding: 24px 20px 28px;
     }
   }
-  /* the oauth strip sits flush under the header */
+  /* the oauth strip sits flush under the header, whose rule is its top edge: that rule comes with the strip's own
+     rules, so the buttons never show without it */
+  .head:has(+ .body [data-oauth='cells']) {
+    transition: none;
+  }
   .body [data-oauth='cells'] {
     margin-top: -28px;
     margin-bottom: 8px;
