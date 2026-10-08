@@ -56,11 +56,7 @@ export default async function ResetPasswordPage({ params, searchParams }: Props)
         lede={t(`${state}.description`)}
         foot={<AuthPrompt lead={t('remember')} href='/signin' label={t('signIn')} />}
       >
-        <AuthAction
-          note={t(state === 'expired' ? 'expired.info' : 'invalid.note')}
-          href='/forgot-password'
-          label={t('requestLink')}
-        />
+        <AuthAction href='/forgot-password' label={t('requestLink')} />
       </AuthPanel>
     </>
   );

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
 import type { SupportedLanguages } from '@/constants/i18n';
@@ -8,6 +9,7 @@ import { AuthAction, AuthPanel } from '@/landing/components/auth/authPanel';
 import { NO_INDEX } from '@/landing/components/auth/metadata';
 import { ResendVerification } from '@/landing/components/auth/resendVerification';
 import { VerifiedRedirect } from '@/landing/components/auth/verifiedRedirect';
+import { FINE_LINK } from '@/landing/components/ui/text';
 
 type Props = {
   params: Promise<{ locale: SupportedLanguages }>;
@@ -31,15 +33,28 @@ export default async function VerifyEmailPage({ params, searchParams }: Props) {
     );
   }
 
-  // expired, failed or no link at all: a new one, unless the account is verified by now or the instance never sends
-  // them (self-host)
+  // an old link or a second click, with the account verified by now: nothing is wrong
+  if (session?.user.emailVerified) {
+    return (
+      <AuthPanel title={t('alreadyVerifiedTitle')} lede={t('success.description')}>
+        <AuthAction href='/dashboards' label={t('returnToDashboard')} />
+      </AuthPanel>
+    );
+  }
+
+  // an instance that never sends links (self-host) has nothing to offer here
+  if (!isFeatureEnabled('enableAccountVerification')) {
+    redirect(session ? '/dashboards' : '/signin');
+  }
+
+  // expired, failed or no link at all: a new one
   const isLinkProblem = state === 'expired' || state === 'failed';
   const back = session
     ? { href: '/dashboards', label: t('returnToDashboard') }
     : { href: '/signin', label: t('backToSignIn') };
   return (
     <AuthPanel
-      title={t(isLinkProblem ? 'failed.title' : 'invalid.title')}
+      title={t(state === 'expired' ? 'failed.expiredTitle' : isLinkProblem ? 'failed.title' : 'invalid.title')}
       lede={t(
         state === 'expired'
           ? 'failed.expiredInfo'
@@ -50,17 +65,19 @@ export default async function VerifyEmailPage({ params, searchParams }: Props) {
       // our support address is the cloud's; a self-hosted instance has its own administrator
       foot={
         isLinkProblem && isFeatureEnabled('isCloud') ? (
-          <p className='text-center text-label text-muted'>{t('helpLine')}</p>
+          <p className='text-center text-label text-muted'>
+            {t.rich('helpLine', {
+              mail: (chunks) => (
+                <a className={FINE_LINK} href='mailto:support@betterlytics.io'>
+                  {chunks}
+                </a>
+              ),
+            })}
+          </p>
         ) : null
       }
     >
-      {!isFeatureEnabled('enableAccountVerification') ? (
-        <AuthAction href={back.href} label={back.label} />
-      ) : session?.user.emailVerified ? (
-        <AuthAction note={t('resend.alreadyVerified')} href={back.href} label={back.label} />
-      ) : (
-        <ResendVerification accountEmail={session?.user.email} back={back} />
-      )}
+      <ResendVerification accountEmail={session?.user.email} back={back} />
     </AuthPanel>
   );
 }

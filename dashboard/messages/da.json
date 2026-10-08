@@ -660,9 +660,9 @@
           "unmet": "ikke opfyldt"
         },
         "errors": {
-          "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
-          "weakPassword": "Adgangskoden opfylder ikke kravene.",
-          "passwordsDoNotMatch": "Adgangskoder matcher ikke",
+          "invalidEmail": "Indtast en gyldig e-mailadresse.",
+          "weakPassword": "Din adgangskode opfylder ikke kravene.",
+          "passwordsDoNotMatch": "Adgangskoderne er ikke ens.",
           "tooManyRequests": "For mange forsøg. Prøv igen senere.",
           "emailRequired": "Indtast din e-mailadresse.",
           "passwordRequired": "Indtast din adgangskode.",
@@ -678,19 +678,19 @@
         "lede": "Én konto til analyse, session replay, fejl og oppetid.",
         "forgotPassword": "Glemt din adgangskode?",
         "submit": "Log ind",
-        "submitting": "Logger ind...",
+        "submitting": "Logger ind…",
         "noAccount": "Ny hos Betterlytics?",
         "createAccount": "Opret en konto",
-        "askAdmin": "Bed din administrator om en konto.",
-        "registrationDisabled": "Registrering er i øjeblikket deaktiveret på denne instans.",
+        "askAdmin": "Bed en dashboard-ejer om at invitere dig.",
+        "registrationDisabled": "Registrering er slået fra på denne instans.",
         "errors": {
-          "accountNotLinked": "Der findes allerede en konto med denne e-mail. Log venligst ind med din e-mail og adgangskode i stedet.",
-          "default": "Der opstod en fejl under login. Prøv venligst igen.",
-          "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
-          "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
-          "invalidBackupCode": "Ugyldig backup-kode. Prøv igen.",
-          "generic": "Der opstod en fejl under login. Prøv venligst igen.",
-          "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
+          "accountNotLinked": "Der findes allerede en konto med denne e-mail. Log ind på samme måde som sidst.",
+          "default": "Noget gik galt under login. Prøv igen.",
+          "invalidCredentials": "Forkert e-mail eller adgangskode.",
+          "invalidOtp": "Koden virkede ikke. Tjek din authenticator-app, og prøv igen.",
+          "invalidBackupCode": "Backup-koden virkede ikke. Tjek den, og prøv igen.",
+          "generic": "Noget gik galt under login. Prøv igen.",
+          "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om at invitere dig.",
           "emailNotFound": "Vi kunne ikke hente en e-mailadresse fra den konto. Gør din e-mail synlig hos udbyderen, eller log ind med e-mail og adgangskode.",
           "unableToLink": "Vi kunne ikke forbinde den konto med din. Log ind med din e-mail og adgangskode i stedet.",
           "twoFactorExpired": "Dit loginforsøg er udløbet. Indtast din adgangskode igen.",
@@ -713,23 +713,23 @@
           "description": "Opret en gratis Betterlytics-konto til webanalyse, session replay, fejlsporing og oppetidsovervågning. Intet kreditkort nødvendigt."
         },
         "title": "Opret din konto",
-        "lede": "Gratis at komme i gang, intet betalingskort",
+        "lede": "Gratis at komme i gang, intet betalingskort.",
         "ledeSelfHosted": "Én konto til analyse, session replay, fejl og oppetid.",
-        "invited": "Du er inviteret til at deltage i {domain}",
+        "invited": "Du er inviteret til at deltage i {domain}.",
         "submit": "Opret konto",
-        "submitting": "Opretter konto...",
+        "submitting": "Opretter konto…",
         "termsAgree": "Jeg accepterer <terms>Servicevilkårene</terms> og har læst <privacy>Privatlivspolitikken</privacy>.",
         "haveAccount": "Har du allerede en konto?",
         "signIn": "Log ind",
         "errors": {
-          "emailExists": "Der findes allerede en bruger med den e-mail.",
-          "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
-          "generic": "Der opstod en fejl under tilmelding. Prøv igen.",
-          "termsRequired": "Du skal acceptere servicevilkårene for at fortsætte."
+          "emailExists": "Der findes allerede en konto med denne e-mail. Log ind i stedet.",
+          "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om at invitere dig.",
+          "generic": "Noget gik galt, da din konto skulle oprettes. Prøv igen.",
+          "termsRequired": "Accepter servicevilkårene for at fortsætte."
         },
         "disabled": {
-          "title": "Registrering deaktiveret",
-          "description": "Registrering er i øjeblikket deaktiveret på denne instans.",
+          "title": "Registrering er slået fra",
+          "description": "Nye konti oprettes kun via invitation. Bed en dashboard-ejer om at invitere dig.",
           "backToSignIn": "Tilbage til login"
         }
       },
@@ -739,16 +739,16 @@
           "description": "Nulstil din Betterlytics-adgangskode sikkert. Indtast din e-mail for at modtage et beskyttet link til nulstilling og gendan adgang til kontoen."
         },
         "title": "Nulstil din adgangskode",
-        "lede": "Vi sender dig et link på e-mail",
+        "lede": "Vi sender dig et link, så du kan vælge en ny.",
         "submit": "Send nulstillingslink",
-        "submitting": "Sender...",
+        "submitting": "Sender…",
         "sentTitle": "Tjek din indbakke",
         "sentBody": "Hvis der findes en konto for {email}, er et nulstillingslink på vej. Det virker i én time.",
         "differentEmail": "Brug en anden e-mail",
         "remember": "Kan du huske din adgangskode?",
         "signIn": "Log ind",
         "errors": {
-          "failed": "Det lykkedes ikke at sende e-mailen til nulstilling af adgangskode. Prøv igen."
+          "failed": "Vi kunne ikke sende e-mailen. Prøv igen."
         }
       },
       "resetPassword": {
@@ -757,59 +757,59 @@
           "description": "Indstil en ny adgangskode til din Betterlytics-konto sikkert ved hjælp af dit beskyttede nulstillingslink."
         },
         "title": "Angiv din nye adgangskode",
-        "lede": "Til din Betterlytics-konto",
+        "lede": "Vælg en, du ikke bruger andre steder.",
         "submit": "Gem adgangskode",
         "submitting": "Gemmer…",
         "doneTitle": "Adgangskode opdateret",
-        "doneLede": "Log ind med din nye adgangskode",
+        "doneLede": "Log ind med din nye adgangskode.",
         "remember": "Kan du huske din adgangskode?",
         "signIn": "Log ind",
         "requestLink": "Anmod om nyt nulstillingslink",
         "invalid": {
           "title": "Ugyldigt nulstillingslink",
-          "description": "Dette link til nulstilling af adgangskode er ugyldigt eller mangler et token.",
-          "note": "Anmod venligst om et nyt link til nulstilling af adgangskode."
+          "description": "Linket er ufuldstændigt eller allerede brugt. Anmod om et nyt for at fortsætte."
         },
         "expired": {
           "title": "Nulstillingslink udløbet",
-          "description": "Dette link til nulstilling af adgangskode er udløbet eller ugyldigt.",
-          "info": "Links til nulstilling af adgangskode udløber efter 1 time af sikkerhedshensyn. Anmod venligst om et nyt."
+          "description": "Nulstillingslinks virker i én time. Anmod om et nyt for at fortsætte."
         },
         "errors": {
-          "invalidToken": "Dette nulstillingslink er ugyldigt eller udløbet. Anmod venligst om et nyt.",
-          "generic": "Kunne ikke nulstille adgangskoden. Prøv venligst igen."
+          "invalidToken": "Dette nulstillingslink er ugyldigt eller udløbet. Anmod om et nyt.",
+          "generic": "Vi kunne ikke gemme din adgangskode. Prøv igen."
         }
       },
       "verifyEmail": {
         "invalid": {
-          "title": "Ugyldigt Verifikationslink",
-          "description": "Verifikationslinket er ugyldigt eller mangler. Tjek din e-mail og prøv igen."
+          "title": "Ugyldigt bekræftelseslink",
+          "description": "Linket er ufuldstændigt eller allerede brugt. Send dig selv et nyt herunder."
         },
         "failed": {
-          "title": "Verifikation Mislykkedes",
-          "expiredInfo": "Verifikationslinks udløber efter 24 timer af sikkerhedsmæssige årsager. Du kan anmode om et nyt og prøve igen.",
-          "genericFallback": "Der opstod en fejl under verifikationen."
+          "title": "Bekræftelse mislykkedes",
+          "expiredInfo": "Bekræftelseslinks virker i 24 timer. Send dig selv et nyt herunder.",
+          "genericFallback": "Linket virkede ikke. Send dig selv et nyt herunder.",
+          "expiredTitle": "Linket er udløbet"
         },
         "success": {
-          "title": "E-mail Verificeret!",
-          "description": "Din e-mail er blevet verificeret.",
-          "redirecting": "Sender dig videre til dit dashboard...",
-          "redirectingToSignin": "Sender dig videre til login...",
+          "title": "E-mail bekræftet",
+          "description": "Alt er på plads.",
+          "redirecting": "Sender dig videre til dit dashboard…",
+          "redirectingToSignin": "Sender dig videre til login…",
           "redirectTimeout": "Omdirigeringen tager længere tid end forventet."
         },
-        "returnToDashboard": "Tilbage til Dashboard",
-        "backToSignIn": "Tilbage til Log ind",
-        "helpLine": "Brug for hjælp? Kontakt support på support@betterlytics.io",
+        "returnToDashboard": "Gå til dashboards",
+        "backToSignIn": "Tilbage til login",
+        "helpLine": "Brug for hjælp? Kontakt support på <mail>support@betterlytics.io</mail>",
         "resend": {
           "submit": "Send et nyt link",
-          "submitting": "Sender...",
+          "submitting": "Sender…",
           "to": "Vi sender det til {email}.",
           "sent": "Et nyt link er på vej til {email}. Det virker i 24 timer.",
           "sentIfWaiting": "Hvis {email} har en konto, der venter på bekræftelse, er et nyt link på vej. Det virker i 24 timer.",
           "alreadyVerified": "Din e-mail er allerede bekræftet.",
           "failed": "Kunne ikke sende et nyt link. Prøv igen.",
           "differentEmail": "Brug en anden e-mail"
-        }
+        },
+        "alreadyVerifiedTitle": "E-mail allerede bekræftet"
       }
     },
     "demo": {
