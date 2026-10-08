@@ -1,12 +1,13 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* clips the panel's full-width construction lines, as the landing's page wrapper does */
+  /* clips the panel's construction lines, which run past the page both ways: across, and above and below on a
+     short window, where they would otherwise make a page that fits scroll */
   .root {
     display: flex;
     flex-direction: column;
     min-height: 100svh;
-    overflow-x: clip;
+    overflow: clip;
   }
 
   .top {
