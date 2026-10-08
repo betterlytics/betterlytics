@@ -715,13 +715,14 @@
         "invited": "You've been invited to join {domain}",
         "submit": "Create account",
         "submitting": "Creating account…",
-        "legal": "By continuing, you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
+        "termsAgree": "I have read and agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
         "haveAccount": "Already have an account?",
         "signIn": "Sign in",
         "errors": {
           "emailExists": "An account with this email already exists.",
           "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner for an invitation.",
-          "generic": "An error occurred during sign up. Please try again."
+          "generic": "An error occurred during sign up. Please try again.",
+          "termsRequired": "You must accept the terms of service to continue."
         },
         "disabled": {
           "title": "Registration is disabled",
