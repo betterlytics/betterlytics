@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { Link } from '@/i18n/navigation';
 import { Corners } from '@/landing/components/ui/frame';
 import frame from '@/landing/components/ui/frame.module.css';
@@ -16,11 +16,14 @@ export function AuthPanel({
   title,
   lede,
   foot,
+  titleRef,
   children,
 }: {
   title: ReactNode;
   lede: ReactNode;
   foot?: ReactNode;
+  /** For a step that swaps its form for an outcome: focus moves to the new heading, so it is read out. */
+  titleRef?: Ref<HTMLHeadingElement>;
   children: ReactNode;
 }) {
   return (
@@ -32,7 +35,13 @@ export function AuthPanel({
       <i className={cn(styles.guide, styles.guideY, styles.atEnd)} aria-hidden />
 
       <div className={styles.head}>
-        <h1 className='text-[1.875rem] leading-[2.125rem] font-medium tracking-[-0.05rem]'>{title}</h1>
+        <h1
+          ref={titleRef}
+          tabIndex={titleRef ? -1 : undefined}
+          className='text-[1.875rem] leading-[2.125rem] font-medium tracking-[-0.05rem] outline-none'
+        >
+          {title}
+        </h1>
         <p className='mt-2.5 text-body-sm text-balance text-muted'>{lede}</p>
       </div>
 

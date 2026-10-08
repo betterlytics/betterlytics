@@ -89,8 +89,14 @@
   .input[aria-invalid='true'] {
     border-color: color-mix(in srgb, var(--color-down) 60%, transparent);
   }
-  .input:disabled {
+  /* fields stay read-only (not disabled) while a request runs, so they keep focus; this dims them the same way */
+  .input:disabled,
+  [data-pending] .input {
     opacity: 0.65;
+  }
+  /* an invitation's address: fixed, but still the account it will be */
+  .input:read-only:not([data-pending] *) {
+    cursor: default;
   }
   .input:-webkit-autofill,
   .input:-webkit-autofill:hover {
