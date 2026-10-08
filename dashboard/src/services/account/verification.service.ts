@@ -6,6 +6,7 @@ import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export const VERIFICATION_LINK_EXPIRY_SECONDS = 24 * 60 * 60;
+export const VERIFICATION_EMAIL_THROTTLED = 'VERIFICATION_EMAIL_THROTTLED';
 
 export async function sendVerificationEmail(
   user: { id: string; email: string; name: string | null },
@@ -21,6 +22,7 @@ export async function sendVerificationEmail(
   if (result === 'throttled') {
     throw new APIError('TOO_MANY_REQUESTS', {
       message: 'A verification email was sent recently. Please wait a few minutes before trying again.',
+      code: VERIFICATION_EMAIL_THROTTLED,
     });
   }
 }
