@@ -661,8 +661,8 @@
         },
         "errors": {
           "invalidEmail": "Enter a valid email address.",
-          "weakPassword": "Your password doesn’t meet the requirements.",
-          "passwordsDoNotMatch": "The passwords don’t match.",
+          "weakPassword": "Your password doesn't meet the requirements.",
+          "passwordsDoNotMatch": "The passwords don't match.",
           "tooManyRequests": "Too many attempts. Please try again later.",
           "emailRequired": "Enter your email address.",
           "passwordRequired": "Enter your password.",
@@ -687,8 +687,8 @@
           "accountNotLinked": "An account with this email already exists. Sign in the way you did before.",
           "default": "Something went wrong signing you in. Please try again.",
           "invalidCredentials": "Incorrect email or password.",
-          "invalidOtp": "That code didn’t work. Check your authenticator app and try again.",
-          "invalidBackupCode": "That backup code didn’t work. Check it and try again.",
+          "invalidOtp": "That code didn't work. Check your authenticator app and try again.",
+          "invalidBackupCode": "That backup code didn't work. Check it and try again.",
           "generic": "Something went wrong signing you in. Please try again.",
           "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner to invite you.",
           "emailNotFound": "We couldn't get an email address from that account. Make your email visible with the provider, or sign in with email and password.",
@@ -715,7 +715,7 @@
         "title": "Create your account",
         "lede": "Free to start, no credit card required.",
         "ledeSelfHosted": "One account for analytics, session replay, errors and uptime.",
-        "invited": "You’ve been invited to join {domain}.",
+        "invited": "You've been invited to join {domain}.",
         "submit": "Create account",
         "submitting": "Creating account…",
         "termsAgree": "I agree to the <terms>Terms of Service</terms> and have read the <privacy>Privacy Policy</privacy>.",
@@ -739,7 +739,7 @@
           "description": "Reset your Betterlytics password securely. Enter your email to receive a protected reset link and regain account access."
         },
         "title": "Reset your password",
-        "lede": "We’ll email you a link to set a new one.",
+        "lede": "We'll email you a link to set a new one.",
         "submit": "Send reset link",
         "submitting": "Sending…",
         "sentTitle": "Check your inbox",
@@ -748,7 +748,7 @@
         "remember": "Remember your password?",
         "signIn": "Sign in",
         "errors": {
-          "failed": "We couldn’t send the reset email. Please try again."
+          "failed": "We couldn't send the reset email. Please try again."
         }
       },
       "resetPassword": {
@@ -757,7 +757,7 @@
           "description": "Set a new password for your Betterlytics account securely using your protected reset link and regain full access."
         },
         "title": "Set your new password",
-        "lede": "Pick one you don’t use anywhere else.",
+        "lede": "Pick one you don't use anywhere else.",
         "submit": "Save password",
         "submitting": "Saving…",
         "doneTitle": "Password updated",
@@ -775,7 +775,7 @@
         },
         "errors": {
           "invalidToken": "This reset link is invalid or has expired. Request a new one.",
-          "generic": "We couldn’t save your password. Please try again."
+          "generic": "We couldn't save your password. Please try again."
         }
       },
       "verifyEmail": {
@@ -786,12 +786,12 @@
         "failed": {
           "title": "Verification failed",
           "expiredInfo": "Verification links work for 24 hours. Send yourself a new one below.",
-          "genericFallback": "This link didn’t work. Send yourself a new one below.",
+          "genericFallback": "This link didn't work. Send yourself a new one below.",
           "expiredTitle": "Link expired"
         },
         "success": {
           "title": "Email verified",
-          "description": "You’re all set.",
+          "description": "You're all set.",
           "redirecting": "Taking you to your dashboard…",
           "redirectingToSignin": "Taking you to sign in…",
           "redirectTimeout": "Redirect is taking longer than expected."
@@ -802,11 +802,11 @@
         "resend": {
           "submit": "Send a new link",
           "submitting": "Sending…",
-          "to": "We’ll send it to {email}.",
+          "to": "We'll send it to {email}.",
           "sent": "A new link is on its way to {email}. It works for 24 hours.",
           "sentIfWaiting": "If {email} has an account waiting to be verified, a new link is on its way. It works for 24 hours.",
           "alreadyVerified": "Your email is already verified.",
-          "failed": "Couldn’t send a new link, please try again.",
+          "failed": "Couldn't send a new link, please try again.",
           "differentEmail": "Use a different email"
         },
         "alreadyVerifiedTitle": "Email already verified"
