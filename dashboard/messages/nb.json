@@ -660,9 +660,9 @@
           "unmet": "ikke oppfylt"
         },
         "errors": {
-          "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
-          "weakPassword": "Passordet oppfyller ikke kravene.",
-          "passwordsDoNotMatch": "Passordene samsvarer ikke",
+          "invalidEmail": "Skriv inn en gyldig e-postadresse.",
+          "weakPassword": "Passordet ditt oppfyller ikke kravene.",
+          "passwordsDoNotMatch": "Passordene er ikke like.",
           "tooManyRequests": "For mange forsøk. Prøv igjen senere.",
           "emailRequired": "Skriv inn e-postadressen din.",
           "passwordRequired": "Skriv inn passordet ditt.",
@@ -678,19 +678,19 @@
         "lede": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
         "forgotPassword": "Glemt passordet ditt?",
         "submit": "Logg inn",
-        "submitting": "Logger inn...",
+        "submitting": "Logger inn…",
         "noAccount": "Ny hos Betterlytics?",
         "createAccount": "Opprett en konto",
-        "askAdmin": "Be administratoren din om en konto.",
-        "registrationDisabled": "Registrering er for øyeblikket deaktivert på denne instansen.",
+        "askAdmin": "Be en dashbord-eier om å invitere deg.",
+        "registrationDisabled": "Registrering er deaktivert på denne instansen.",
         "errors": {
-          "accountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn med e-post og passord i stedet.",
-          "default": "Det oppstod en feil under innlogging. Prøv igjen.",
-          "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
-          "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
-          "invalidBackupCode": "Ugyldig reservekode. Prøv igjen.",
-          "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
-          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
+          "accountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn slik du gjorde sist.",
+          "default": "Noe gikk galt under innloggingen. Prøv igjen.",
+          "invalidCredentials": "Feil e-post eller passord.",
+          "invalidOtp": "Koden fungerte ikke. Sjekk autentiseringsappen din og prøv igjen.",
+          "invalidBackupCode": "Reservekoden fungerte ikke. Sjekk den og prøv igjen.",
+          "generic": "Noe gikk galt under innloggingen. Prøv igjen.",
+          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om å invitere deg.",
           "emailNotFound": "Vi fikk ikke tak i en e-postadresse fra den kontoen. Gjør e-posten din synlig hos leverandøren, eller logg inn med e-post og passord.",
           "unableToLink": "Vi kunne ikke koble den kontoen til din. Logg inn med e-post og passord i stedet.",
           "twoFactorExpired": "Innloggingsforsøket ditt er utløpt. Skriv inn passordet ditt på nytt.",
@@ -713,23 +713,23 @@
           "description": "Opprett en gratis Betterlytics-konto for nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Ingen kredittkort nødvendig."
         },
         "title": "Opprett kontoen din",
-        "lede": "Gratis å komme i gang, uten betalingskort",
+        "lede": "Gratis å komme i gang, uten betalingskort.",
         "ledeSelfHosted": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
-        "invited": "Du er invitert til å bli med i {domain}",
+        "invited": "Du er invitert til å bli med i {domain}.",
         "submit": "Opprett konto",
-        "submitting": "Oppretter konto...",
+        "submitting": "Oppretter konto…",
         "termsAgree": "Jeg godtar <terms>tjenestevilkårene</terms> og har lest <privacy>personvernerklæringen</privacy>.",
         "haveAccount": "Har du allerede en konto?",
         "signIn": "Logg inn",
         "errors": {
-          "emailExists": "Det finnes allerede en bruker med den e-postadressen.",
-          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
-          "generic": "Det oppstod en feil under registrering. Prøv igjen.",
-          "termsRequired": "Du må godta vilkårene for å fortsette."
+          "emailExists": "En konto med denne e-postadressen finnes allerede. Logg inn i stedet.",
+          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om å invitere deg.",
+          "generic": "Noe gikk galt da kontoen din skulle opprettes. Prøv igjen.",
+          "termsRequired": "Godta tjenestevilkårene for å fortsette."
         },
         "disabled": {
           "title": "Registrering deaktivert",
-          "description": "Registrering er for øyeblikket deaktivert på denne instansen.",
+          "description": "Nye kontoer opprettes bare via invitasjon. Be en dashbord-eier om å invitere deg.",
           "backToSignIn": "Tilbake til innlogging"
         }
       },
@@ -739,16 +739,16 @@
           "description": "Tilbakestill Betterlytics-passordet ditt sikkert. Skriv inn e-postadressen din for å motta en beskyttet tilbakestillingslenke og få tilgang til kontoen igjen."
         },
         "title": "Tilbakestill passordet ditt",
-        "lede": "Vi sender deg en lenke på e-post",
+        "lede": "Vi sender deg en lenke på e-post, så du kan velge et nytt.",
         "submit": "Send tilbakestillingslenke",
-        "submitting": "Sender...",
+        "submitting": "Sender…",
         "sentTitle": "Sjekk innboksen din",
         "sentBody": "Hvis det finnes en konto for {email}, er en tilbakestillingslenke på vei. Den virker i én time.",
         "differentEmail": "Bruk en annen e-post",
         "remember": "Husker du passordet ditt?",
         "signIn": "Logg inn",
         "errors": {
-          "failed": "Kunne ikke sende e-post for tilbakestilling av passord, prøv igjen."
+          "failed": "Vi kunne ikke sende e-posten. Prøv igjen."
         }
       },
       "resetPassword": {
@@ -757,59 +757,59 @@
           "description": "Sett et nytt passord for Betterlytics-kontoen din sikkert ved hjelp av den beskyttede tilbakestillingslenken og få full tilgang igjen."
         },
         "title": "Sett nytt passord",
-        "lede": "For Betterlytics-kontoen din",
+        "lede": "Velg et du ikke bruker andre steder.",
         "submit": "Lagre passord",
         "submitting": "Lagrer…",
         "doneTitle": "Passord oppdatert",
-        "doneLede": "Logg inn med det nye passordet ditt",
+        "doneLede": "Logg inn med det nye passordet ditt.",
         "remember": "Husker du passordet ditt?",
         "signIn": "Logg inn",
         "requestLink": "Be om ny tilbakestillingslenke",
         "invalid": {
           "title": "Ugyldig tilbakestillingslenke",
-          "description": "Denne lenken for tilbakestilling av passord er ugyldig eller mangler token.",
-          "note": "Be om en ny lenke for tilbakestilling av passord."
+          "description": "Lenken er ufullstendig eller allerede brukt. Be om en ny for å fortsette."
         },
         "expired": {
           "title": "Tilbakestillingslenke utløpt",
-          "description": "Denne lenken for tilbakestilling av passord er utløpt eller ugyldig.",
-          "info": "Lenker for tilbakestilling av passord utløper etter 1 time av sikkerhetsgrunner. Be om en ny."
+          "description": "Tilbakestillingslenker virker i én time. Be om en ny for å fortsette."
         },
         "errors": {
           "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
-          "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
+          "generic": "Vi kunne ikke lagre passordet ditt. Prøv igjen."
         }
       },
       "verifyEmail": {
         "invalid": {
-          "title": "Ugyldig verifiseringslenke",
-          "description": "Verifiseringslenken er ugyldig eller mangler. Sjekk e-posten din og prøv igjen."
+          "title": "Ugyldig bekreftelseslenke",
+          "description": "Lenken er ufullstendig eller allerede brukt. Send deg selv en ny nedenfor."
         },
         "failed": {
-          "title": "Verifisering mislyktes",
-          "expiredInfo": "Verifiseringslenker utløper etter 24 timer av sikkerhetsgrunner. Du kan be om en ny og prøve igjen.",
-          "genericFallback": "Det oppstod en feil under verifisering."
+          "title": "Bekreftelsen mislyktes",
+          "expiredInfo": "Bekreftelseslenker virker i 24 timer. Send deg selv en ny nedenfor.",
+          "genericFallback": "Lenken fungerte ikke. Send deg selv en ny nedenfor.",
+          "expiredTitle": "Lenken er utløpt"
         },
         "success": {
-          "title": "E-post verifisert!",
-          "description": "E-postadressen din er verifisert.",
-          "redirecting": "Sender deg til dashboardet...",
-          "redirectingToSignin": "Sender deg til innlogging...",
+          "title": "E-post bekreftet",
+          "description": "Alt er klart.",
+          "redirecting": "Sender deg til dashboardet…",
+          "redirectingToSignin": "Sender deg til innlogging…",
           "redirectTimeout": "Videresending tar lengre tid enn forventet."
         },
-        "returnToDashboard": "Gå til dashboard",
+        "returnToDashboard": "Gå til dashbord",
         "backToSignIn": "Tilbake til innlogging",
-        "helpLine": "Trenger du hjelp? Kontakt support på support@betterlytics.io",
+        "helpLine": "Trenger du hjelp? Kontakt support på <mail>support@betterlytics.io</mail>",
         "resend": {
           "submit": "Send en ny lenke",
-          "submitting": "Sender...",
+          "submitting": "Sender…",
           "to": "Vi sender den til {email}.",
           "sent": "En ny lenke er på vei til {email}. Den virker i 24 timer.",
           "sentIfWaiting": "Hvis {email} har en konto som venter på bekreftelse, er en ny lenke på vei. Den virker i 24 timer.",
           "alreadyVerified": "E-postadressen din er allerede bekreftet.",
           "failed": "Kunne ikke sende en ny lenke. Prøv igjen.",
           "differentEmail": "Bruk en annen e-post"
-        }
+        },
+        "alreadyVerifiedTitle": "E-postadressen er allerede bekreftet"
       }
     },
     "demo": {
