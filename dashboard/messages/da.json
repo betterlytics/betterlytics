@@ -715,7 +715,7 @@
         "invited": "Du er inviteret til at deltage i {domain}",
         "submit": "Opret konto",
         "submitting": "Opretter konto...",
-        "termsAgree": "Jeg har læst og accepterer <terms>Servicevilkårene</terms> og <privacy>Privatlivspolitikken</privacy>.",
+        "termsAgree": "Jeg accepterer <terms>Servicevilkårene</terms> og har læst <privacy>Privatlivspolitikken</privacy>.",
         "haveAccount": "Har du allerede en konto?",
         "signIn": "Log ind",
         "errors": {

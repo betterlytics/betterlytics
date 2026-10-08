@@ -715,7 +715,7 @@
         "invited": "Sei stato invitato a unirti a {domain}",
         "submit": "Crea account",
         "submitting": "Creazione account...",
-        "termsAgree": "Ho letto e accetto i <terms>Termini di servizio</terms> e l'<privacy>Informativa sulla privacy</privacy>.",
+        "termsAgree": "Accetto i <terms>Termini di servizio</terms> e ho letto l'<privacy>Informativa sulla privacy</privacy>.",
         "haveAccount": "Hai già un account?",
         "signIn": "Accedi",
         "errors": {
