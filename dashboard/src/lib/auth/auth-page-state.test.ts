@@ -1,11 +1,42 @@
 import { describe, it, expect } from 'vitest';
+import { SIGNUP_DISABLED_MESSAGE } from '@/constants/auth';
 import {
   acceptInvitePath,
   inviteTokenFromCallback,
   resetLinkProblem,
   signInErrorKey,
+  signInPath,
+  signUpPath,
+  twoFactorAttemptEnded,
   verifyEmailState,
 } from '@/lib/auth/auth-page-state';
+
+describe('signInPath and signUpPath', () => {
+  it('carries a callbackUrl to sign-in, unless it is the default', () => {
+    expect(signInPath('/accept-invite/tok')).toBe('/signin?callbackUrl=%2Faccept-invite%2Ftok');
+    expect(signInPath('/dashboards')).toBe('/signin');
+    expect(signInPath(undefined)).toBe('/signin');
+  });
+
+  it('carries an invitation to sign-up', () => {
+    expect(signUpPath('tok')).toBe('/signup?invite=tok');
+    expect(signUpPath(null)).toBe('/signup');
+  });
+
+  it('round-trips an invitation through sign-in', () => {
+    const callbackUrl = decodeURIComponent(signInPath(acceptInvitePath('tok')).split('callbackUrl=')[1]);
+    expect(signUpPath(inviteTokenFromCallback(callbackUrl))).toBe('/signup?invite=tok');
+  });
+});
+
+describe('twoFactorAttemptEnded', () => {
+  it("names why better-auth ended the attempt, and nothing for a code that's merely wrong", () => {
+    expect(twoFactorAttemptEnded('TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE')).toBe('tooManyCodes');
+    expect(twoFactorAttemptEnded('INVALID_TWO_FACTOR_COOKIE')).toBe('expired');
+    expect(twoFactorAttemptEnded('INVALID_CODE')).toBeNull();
+    expect(twoFactorAttemptEnded(undefined)).toBeNull();
+  });
+});
 
 describe('inviteTokenFromCallback', () => {
   it('reads the token from an accept-invite path, with or without a locale', () => {
@@ -71,7 +102,7 @@ describe('signInErrorKey', () => {
     ['account_not_linked', 'accountNotLinked'],
     ['signup_disabled', 'registrationDisabled'],
     ['SIGNUP_DISABLED', 'registrationDisabled'],
-    ['Registration_is_disabled_on_this_instance', 'registrationDisabled'],
+    [SIGNUP_DISABLED_MESSAGE.replaceAll(' ', '_'), 'registrationDisabled'],
     ['email_not_found', 'emailNotFound'],
     ['unable_to_link_account', 'unableToLink'],
     ['invalid_code', 'default'],

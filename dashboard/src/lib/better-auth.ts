@@ -17,6 +17,7 @@ import { getSignupAllowance } from '@/services/auth/signupGate.service';
 import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { PasswordSchema } from '@/entities/auth/password.entities';
 import { MAX_EMAIL_LENGTH } from '@/entities/auth/user.entities';
+import { SIGNUP_DISABLED_MESSAGE } from '@/constants/auth';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import {
@@ -56,6 +57,9 @@ export const auth = betterAuth({
   appName: 'Betterlytics',
   baseURL: env.AUTH_URL,
   secret: env.AUTH_SECRET,
+  // OAuth failures that carry no errorCallbackURL of their own (a lost state cookie) land on sign-in, which says what
+  // went wrong, rather than better-auth's unbranded error page
+  onAPIError: { errorURL: '/signin' },
   database: prismaAdapter(prisma, { provider: 'postgresql', transaction: true }),
   emailAndPassword: {
     enabled: true,
@@ -176,7 +180,7 @@ export const auth = betterAuth({
         });
         if (!allowed) {
           throw new APIError('FORBIDDEN', {
-            message: 'Registration is disabled on this instance',
+            message: SIGNUP_DISABLED_MESSAGE,
             code: 'SIGNUP_DISABLED',
           });
         }
@@ -218,7 +222,7 @@ export const auth = betterAuth({
           });
           if (!allowed) {
             throw new APIError('FORBIDDEN', {
-              message: 'Registration is disabled on this instance',
+              message: SIGNUP_DISABLED_MESSAGE,
               code: 'SIGNUP_DISABLED',
             });
           }
