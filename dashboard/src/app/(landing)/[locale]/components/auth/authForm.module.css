@@ -122,6 +122,11 @@
   .inputWrap > .input {
     padding-right: 48px;
   }
+  /* Edge draws its own reveal eye (and clear button) inside the field, next to ours */
+  .input::-ms-reveal,
+  .input::-ms-clear {
+    display: none;
+  }
   .reveal {
     position: absolute;
     top: 50%;
