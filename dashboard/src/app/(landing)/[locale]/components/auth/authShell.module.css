@@ -1,0 +1,50 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* clips the panel's full-width construction lines, as the landing's page wrapper does */
+  .root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    overflow-x: clip;
+  }
+
+  .top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 72px;
+    padding-inline: clamp(20px, 3vw, 40px);
+    @variant max-sm {
+      height: 56px;
+      padding-inline: var(--pad);
+    }
+  }
+
+  /* no bars: the construction lines run on and fade out toward the page's edges */
+  .middle {
+    position: relative;
+    display: grid;
+    flex: 1;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    padding: 56px calc(var(--inset) + 24px);
+    /* phones: the panel sits under the header instead of floating mid-screen */
+    @variant max-sm {
+      place-items: start center;
+      padding: 20px var(--pad) 36px;
+    }
+  }
+
+  /* no bar: one quiet line at the bottom centre */
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 20px;
+    padding: 8px var(--pad) 26px;
+  }
+}
