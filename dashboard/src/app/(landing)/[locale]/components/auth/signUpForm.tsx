@@ -108,10 +108,9 @@ export function SignUpForm({
 
   const register = async () => {
     if (pending) return;
-    if (requireTerms && !acceptedTerms) {
-      fail(t('errors.termsRequired'), 'terms');
-      return;
-    }
+    // top to bottom, so the first problem on the page is the one reported
+    if (!email.trim()) return fail(tFields('errors.emailRequired'), 'email');
+    if (!password) return fail(tFields('errors.passwordRequired'), 'password');
     const parsed = RegisterUserSchema.safeParse({
       email,
       password,
@@ -125,6 +124,7 @@ export function SignUpForm({
       else fail(t('errors.generic'));
       return;
     }
+    if (requireTerms && !acceptedTerms) return fail(t('errors.termsRequired'), 'terms');
     setError(null);
     setPending('email');
     try {
