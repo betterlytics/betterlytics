@@ -12,7 +12,7 @@
     }
   }
 
-  /* construction lines: the panel's edges carried out across the page, fading toward its edges */
+  /* construction lines: the panel's edges carried out across the page */
   .guide {
     position: absolute;
     pointer-events: none;

@@ -213,9 +213,9 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
-      // Signed out, a link already sent in the last few minutes must read like any other answer: only an unverified
-      // account can be throttled, so a 429 would say the address has one. Nothing more is sent either way; signed
-      // in, the throttle still shows, as the account's own banner counts on it.
+      // Signed out, a throttled resend must read like any other answer: only an unverified account can be throttled,
+      // so a 429 would say the address has one. Nothing more is sent either way; signed in, the throttle still shows,
+      // as the account's own banner counts on it.
       const returned = ctx.context.returned;
       if (
         ctx.path === '/send-verification-email' &&

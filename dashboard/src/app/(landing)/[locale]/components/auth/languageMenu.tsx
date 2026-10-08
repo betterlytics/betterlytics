@@ -11,9 +11,9 @@ import { CheckIcon } from './icons';
 import styles from './languageMenu.module.css';
 
 /**
- * This page in another language, keeping its query (the callbackUrl, reset token or invite). A menu of links rather
- * than the landing's row of them, so the footer stays within the panel's lines; a select would navigate on every
- * arrow key. The auth pages aren't indexed, so crawlers following the links don't matter here.
+ * Keeps the query (callbackUrl, reset token, invite). A menu of links rather than the landing's row, so the footer
+ * stays within the panel's lines; a select would navigate on every arrow key. The auth pages aren't indexed, so
+ * crawlers following the links don't matter.
  */
 export function LanguageMenu({
   label,

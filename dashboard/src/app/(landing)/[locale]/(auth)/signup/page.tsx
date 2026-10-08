@@ -60,7 +60,7 @@ export default async function SignUpPage({ params, searchParams }: Props) {
   }
 
   const isCloud = isFeatureEnabled('isCloud');
-  // an OAuth sign-up that came back with an error (a cancel at the provider says nothing)
+  // an OAuth sign-up that came back with an error
   const errorKey = signInErrorKey(error);
   const invitedDomain = openInvitation?.dashboard?.domain;
   // "free to start" is the cloud's offer; a self-hosted instance says what the account is for

@@ -9,7 +9,7 @@ import { AuthPanel, AuthPrompt } from './authPanel';
 import { Alert, AuthForm, describedBy, EmailInput, Field, SubmitButton } from './fields';
 import styles from './authForm.module.css';
 
-/** One field, then a note to check the inbox that never says whether the account exists. */
+/** The sent note never says whether the account exists. */
 export function ForgotPasswordPanel() {
   const t = useTranslations('public.auth.forgotPassword');
   const tFields = useTranslations('public.auth.fields');
@@ -20,7 +20,7 @@ export function ForgotPasswordPanel() {
   const [sentTo, setSentTo] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<{ message: string; aboutEmail: boolean } | null>(null);
-  // bumped to put the cursor back in the field, once the form is on screen
+  // bumped to refocus the field once the form is on screen
   const [refocus, setRefocus] = useState(0);
   const ids = { error: `${id}-error`, email: `${id}-email` };
 
@@ -35,7 +35,6 @@ export function ForgotPasswordPanel() {
     emailRef.current?.select();
   }, [refocus]);
 
-  /** `aboutEmail`: the address itself was wrong, so the field is marked invalid; otherwise it only takes focus */
   const fail = (message: string, aboutEmail = false) => {
     setPending(false);
     setError({ message, aboutEmail });
