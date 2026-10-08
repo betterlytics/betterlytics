@@ -1,5 +1,6 @@
 import type { ReactNode, Ref } from 'react';
 import { Link } from '@/i18n/navigation';
+import { isUnlocalizedPath } from '@/i18n/routing';
 import { Corners } from '@/landing/components/ui/frame';
 import frame from '@/landing/components/ui/frame.module.css';
 import { InkFrame } from '@/landing/components/ui/inkFrame';
@@ -64,9 +65,6 @@ export function AuthPrompt({ lead, href, label }: { lead?: string; href: string;
   );
 }
 
-// the signed-in app's routes carry no locale (/da/dashboards is a 404), and live under another root layout anyway
-const UNLOCALIZED_APP_ROUTE = /^\/dashboards?(?:[/?#]|$)/;
-
 /** A link to an auth page in the visitor's language, or a plain one into the signed-in app. */
 export function PanelLink({
   href,
@@ -77,7 +75,8 @@ export function PanelLink({
   className?: string;
   children: ReactNode;
 }) {
-  return UNLOCALIZED_APP_ROUTE.test(href) ? (
+  // the app lives under another root layout anyway, so a plain link costs nothing
+  return isUnlocalizedPath(href) ? (
     <a className={className} href={href}>
       {children}
     </a>
