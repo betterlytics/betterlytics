@@ -770,8 +770,8 @@
           "description": "Linket er ufuldstændigt eller allerede brugt. Anmod om et nyt for at fortsætte."
         },
         "expired": {
-          "title": "Nulstillingslink udløbet",
-          "description": "Nulstillingslinks virker i én time. Anmod om et nyt for at fortsætte."
+          "title": "Nulstillingslinket virker ikke længere",
+          "description": "Nulstillingslinks virker én gang, i én time. Anmod om et nyt for at fortsætte."
         },
         "errors": {
           "invalidToken": "Dette nulstillingslink er ugyldigt eller udløbet. Anmod om et nyt.",

@@ -770,8 +770,8 @@
           "description": "Lenken er ufullstendig eller allerede brukt. Be om en ny for å fortsette."
         },
         "expired": {
-          "title": "Tilbakestillingslenke utløpt",
-          "description": "Tilbakestillingslenker virker i én time. Be om en ny for å fortsette."
+          "title": "Tilbakestillingslenken virker ikke lenger",
+          "description": "Tilbakestillingslenker virker én gang, i én time. Be om en ny for å fortsette."
         },
         "errors": {
           "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
