@@ -713,7 +713,7 @@
           "description": "Opprett en gratis Betterlytics-konto for nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Ingen kredittkort nødvendig."
         },
         "title": "Opprett kontoen din",
-        "lede": "Gratis å komme i gang, uten betalingskort.",
+        "lede": "Gratis å komme i gang, ingen kredittkort nødvendig.",
         "ledeSelfHosted": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
         "invited": "Du er invitert til å bli med i {domain}.",
         "submit": "Opprett konto",

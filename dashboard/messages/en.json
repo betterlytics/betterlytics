@@ -710,10 +710,10 @@
       "register": {
         "seo": {
           "title": "Create your free Betterlytics account",
-          "description": "Create a free Betterlytics account for web analytics, session replay, error tracking and uptime monitoring. No credit card needed."
+          "description": "Create a free Betterlytics account for web analytics, session replay, error tracking and uptime monitoring. No credit card required."
         },
         "title": "Create your account",
-        "lede": "Free to start, no card needed.",
+        "lede": "Free to start, no credit card required.",
         "ledeSelfHosted": "One account for analytics, session replay, errors and uptime.",
         "invited": "You’ve been invited to join {domain}.",
         "submit": "Create account",
