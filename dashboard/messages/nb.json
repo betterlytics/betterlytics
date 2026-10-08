@@ -650,13 +650,14 @@
         "newPassword": "Nytt passord",
         "confirmPassword": "Bekreft passord",
         "showPassword": "Vis passord",
-        "hidePassword": "Skjul passord",
         "continueWith": "Fortsett med {provider}",
         "rules": {
           "label": "Passordet ditt må ha",
           "length": "8+ tegn",
           "lower": "Én liten bokstav",
-          "upper": "Én stor bokstav"
+          "upper": "Én stor bokstav",
+          "met": "oppfylt",
+          "unmet": "ikke oppfylt"
         },
         "errors": {
           "invalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
@@ -685,7 +686,11 @@
           "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
           "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
           "invalidBackupCode": "Ugyldig reservekode. Prøv igjen.",
-          "generic": "Det oppstod en feil under innlogging. Prøv igjen."
+          "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
+          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
+          "emailNotFound": "Vi fikk ikke tak i en e-postadresse fra den kontoen. Gjør e-posten din synlig hos leverandøren, eller logg inn med e-post og passord.",
+          "unableToLink": "Vi kunne ikke koble den kontoen til din. Logg inn med e-post og passord i stedet.",
+          "twoFactorExpired": "Innloggingsforsøket ditt er utløpt. Skriv inn passordet ditt på nytt."
         },
         "twoFactor": {
           "title": "Tofaktorautentisering",

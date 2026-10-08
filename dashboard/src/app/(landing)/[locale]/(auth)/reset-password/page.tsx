@@ -4,8 +4,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getAuthSession } from '@/auth/auth-actions';
 import { StructuredData } from '@/components/StructuredData';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { resetLinkProblem } from '@/lib/auth/auth-page-state';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
-import { isResetTokenValid } from '@/services/auth/passwordReset.service';
+import { findResetTokenEmail } from '@/services/auth/passwordReset.service';
 import { AuthAction, AuthPanel, AuthPrompt } from '@/landing/components/auth/authPanel';
 import { authMetadata } from '@/landing/components/auth/metadata';
 import { ResetPasswordPanel } from '@/landing/components/auth/resetPasswordPanel';
@@ -28,31 +29,32 @@ export default async function ResetPasswordPage({ params, searchParams }: Props)
     redirect('/dashboards');
   }
 
-  // better-auth's emailed link checks the token first, landing here with ?token= or ?error=INVALID_TOKEN
   const { token, error } = await searchParams;
   const structuredData = <StructuredData config={await buildSEOConfig(SEO_CONFIGS.resetPassword)} />;
+  const accountEmail = token && !error ? await findResetTokenEmail(token) : null;
+  const problem = resetLinkProblem({ token, error, tokenIsLive: accountEmail !== null });
 
-  if (token && !error && (await isResetTokenValid(token))) {
+  if (!problem && token && accountEmail) {
     return (
       <>
         {structuredData}
-        <ResetPasswordPanel token={token} />
+        <ResetPasswordPanel token={token} email={accountEmail} />
       </>
     );
   }
 
   const t = await getTranslations('public.auth.resetPassword');
-  const problem = error || token ? 'expired' : 'invalid';
+  const state = problem ?? 'invalid';
   return (
     <>
       {structuredData}
       <AuthPanel
-        title={t(`${problem}.title`)}
-        lede={t(`${problem}.description`)}
+        title={t(`${state}.title`)}
+        lede={t(`${state}.description`)}
         foot={<AuthPrompt lead={t('remember')} href='/signin' label={t('signIn')} />}
       >
         <AuthAction
-          note={t(problem === 'expired' ? 'expired.info' : 'invalid.note')}
+          note={t(state === 'expired' ? 'expired.info' : 'invalid.note')}
           href='/forgot-password'
           label={t('requestLink')}
         />

@@ -1,9 +1,8 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
-import { isUserInvitedDashboardMemberAction } from '@/app/actions/index.actions';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
 import { Link } from '@/i18n/navigation';
 import { authClient } from '@/lib/auth-client';
@@ -11,6 +10,7 @@ import { baEvent } from '@/lib/ba-event';
 import { FINE_LINK } from '@/landing/components/ui/text';
 import {
   Alert,
+  AuthForm,
   EmailInput,
   Field,
   OAuthCells,
@@ -39,11 +39,26 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
   const tFields = useTranslations('public.auth.fields');
   const locale = useLocale();
   const id = useId();
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState(invitedEmail ?? '');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ message: string; field: 'email' | 'password' | null } | null>(null);
   const [pending, setPending] = useState<'email' | OAuthProvider | null>(null);
   const ids = { error: `${id}-error`, email: `${id}-email`, password: `${id}-password`, rules: `${id}-rules` };
+
+  // back to the field the error is about, else the first one; an invited address is fixed, so then the password
+  useEffect(() => {
+    if (!error) return;
+    const field = error.field === 'password' || invitedEmail ? passwordRef.current : emailRef.current;
+    field?.focus();
+    field?.select();
+  }, [error, invitedEmail]);
+
+  const fail = (message: string, field: 'email' | 'password' | null = null) => {
+    setPending(null);
+    setError({ message, field });
+  };
 
   const continueWith = async (provider: OAuthProvider) => {
     if (pending) return;
@@ -58,11 +73,11 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
       });
       if (socialError) {
         setPending(null);
-        setError(t('errors.generic'));
+        setError({ message: t('errors.generic'), field: null });
       }
     } catch {
       setPending(null);
-      setError(t('errors.generic'));
+      setError({ message: t('errors.generic'), field: null });
     }
   };
 
@@ -77,13 +92,9 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
     });
     if (!parsed.success) {
       const field = parsed.error.errors[0]?.path[0];
-      setError(
-        field === 'password'
-          ? tFields('errors.weakPassword')
-          : field === 'email'
-            ? tFields('errors.invalidEmail')
-            : t('errors.generic'),
-      );
+      if (field === 'password') fail(tFields('errors.weakPassword'), 'password');
+      else if (field === 'email') fail(tFields('errors.invalidEmail'), 'email');
+      else fail(t('errors.generic'));
       return;
     }
     setError(null);
@@ -100,21 +111,14 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
       };
       const { error: signUpError } = await authClient.signUp.email(signUpBody);
       if (signUpError) {
-        setPending(null);
-        setError(
-          signUpError.status === 429
-            ? tFields('errors.tooManyRequests')
-            : signUpError.code?.startsWith('USER_ALREADY_EXISTS')
-              ? t('errors.emailExists')
-              : signUpError.code === 'SIGNUP_DISABLED'
-                ? t('errors.registrationDisabled')
-                : t('errors.generic'),
-        );
+        if (signUpError.status === 429) fail(tFields('errors.tooManyRequests'));
+        else if (signUpError.code?.startsWith('USER_ALREADY_EXISTS')) fail(t('errors.emailExists'), 'email');
+        else if (signUpError.code === 'SIGNUP_DISABLED') fail(t('errors.registrationDisabled'));
+        else fail(t('errors.generic'));
         return;
       }
     } catch {
-      setPending(null);
-      setError(t('errors.generic'));
+      fail(t('errors.generic'));
       return;
     }
 
@@ -124,15 +128,11 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
       window.location.assign(redirectTo);
       return;
     }
-    // an invited user goes straight to the dashboards they were invited to
-    let destination = '/onboarding';
+    // onboarding sends anyone who is now a member of an invited dashboard on to the dashboards
     try {
-      const accepted = await acceptPendingInvitationsAction();
-      const member = await isUserInvitedDashboardMemberAction();
-      if ((accepted.success && accepted.data.length > 0) || (member.success && member.data))
-        destination = '/dashboards';
+      await acceptPendingInvitationsAction();
     } catch {}
-    window.location.assign(destination);
+    window.location.assign('/onboarding');
   };
 
   const isPending = pending !== null;
@@ -144,33 +144,35 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
         disabled={isPending}
         onSelect={continueWith}
       />
-      {error ? <Alert id={ids.error}>{error}</Alert> : null}
+      {error ? <Alert id={ids.error}>{error.message}</Alert> : null}
 
-      <form
+      <AuthForm
         className={styles.form}
-        onSubmit={(event) => {
-          event.preventDefault();
-          register();
-        }}
-        aria-describedby={error ? ids.error : undefined}
+        pending={isPending}
+        describedBy={error ? ids.error : undefined}
+        onSubmit={register}
       >
         <Field id={ids.email} label={tFields('email')}>
           <EmailInput
             id={ids.email}
+            inputRef={emailRef}
             value={email}
             onChange={setEmail}
-            disabled={isPending}
-            readOnly={Boolean(invitedEmail)}
+            readOnly={isPending || Boolean(invitedEmail)}
+            invalid={error?.field === 'email'}
+            autoComplete='username'
           />
         </Field>
         <Field id={ids.password} label={tFields('password')}>
           <PasswordInput
             id={ids.password}
             name='password'
+            inputRef={passwordRef}
             value={password}
             onChange={setPassword}
-            disabled={isPending}
-            autoComplete='new-password'
+            readOnly={isPending}
+            isNew
+            invalid={error?.field === 'password'}
             describedBy={ids.rules}
           />
         </Field>
@@ -181,7 +183,7 @@ export function SignUpForm({ providers, invitedEmail, inviteToken, redirectTo, r
           label={t('submit')}
           pendingLabel={t('submitting')}
         />
-      </form>
+      </AuthForm>
 
       {requireTerms ? (
         <p className={styles.legal}>

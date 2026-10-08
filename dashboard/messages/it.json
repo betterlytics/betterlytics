@@ -650,13 +650,14 @@
         "newPassword": "Nuova password",
         "confirmPassword": "Conferma password",
         "showPassword": "Mostra password",
-        "hidePassword": "Nascondi password",
         "continueWith": "Continua con {provider}",
         "rules": {
           "label": "La tua password deve avere",
           "length": "8+ caratteri",
           "lower": "Una minuscola",
-          "upper": "Una maiuscola"
+          "upper": "Una maiuscola",
+          "met": "soddisfatto",
+          "unmet": "non soddisfatto"
         },
         "errors": {
           "invalidEmail": "Inserisci un indirizzo email valido",
@@ -685,7 +686,11 @@
           "invalidCredentials": "Email o password non validi. Controlla le tue credenziali e riprova.",
           "invalidOtp": "Codice di verifica non valido. Controlla le tue credenziali e riprova.",
           "invalidBackupCode": "Codice di backup non valido. Riprova.",
-          "generic": "Si è verificato un errore durante l'accesso. Riprova."
+          "generic": "Si è verificato un errore durante l'accesso. Riprova.",
+          "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi un invito al proprietario di una dashboard.",
+          "emailNotFound": "Non siamo riusciti a ottenere un indirizzo email da quell'account. Rendi visibile la tua email presso il provider oppure accedi con email e password.",
+          "unableToLink": "Non siamo riusciti a collegare quell'account al tuo. Accedi invece con email e password.",
+          "twoFactorExpired": "Il tentativo di accesso è scaduto. Inserisci di nuovo la password."
         },
         "twoFactor": {
           "title": "Autenticazione a due fattori",

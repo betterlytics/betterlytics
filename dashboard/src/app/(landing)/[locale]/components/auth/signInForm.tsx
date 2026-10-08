@@ -8,6 +8,7 @@ import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
 import {
   Alert,
+  AuthForm,
   EmailInput,
   Field,
   OAuthCells,
@@ -22,6 +23,9 @@ import styles from './authForm.module.css';
 const OTP_LENGTH = 6;
 // Backup codes are `xxxxx-xxxxx` over [A-Za-z0-9]; the hyphen brings the total to 11.
 const BACKUP_CODE_LENGTH = 11;
+// better-auth ends the second-factor attempt after five wrong codes, or once its cookie lapses; only a fresh
+// password sign-in starts a new one
+const TWO_FACTOR_EXPIRED = new Set(['TOO_MANY_ATTEMPTS_REQUEST_NEW_CODE', 'INVALID_TWO_FACTOR_COOKIE']);
 
 /**
  * Normalises whatever was typed or pasted into `xxxxx-xxxxx`. Case is kept: codes are mixed case and compared
@@ -46,13 +50,29 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
   const t = useTranslations('public.auth.signin');
   const tFields = useTranslations('public.auth.fields');
   const id = useId();
+  const passwordRef = useRef<HTMLInputElement>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [step, setStep] = useState<'credentials' | 'twoFactor'>('credentials');
   const [error, setError] = useState<string | null>(initialError);
   const [rejected, setRejected] = useState(false);
   const [pending, setPending] = useState<'email' | OAuthProvider | null>(null);
+  // bumped to put the cursor back in the password field, once the credentials form is on screen again
+  const [refocus, setRefocus] = useState(0);
   const ids = { error: `${id}-error`, email: `${id}-email`, password: `${id}-password` };
+
+  useEffect(() => {
+    if (!refocus) return;
+    passwordRef.current?.focus();
+    passwordRef.current?.select();
+  }, [refocus]);
+
+  const fail = (message: string, { wrongCredentials = false } = {}) => {
+    setPending(null);
+    setRejected(wrongCredentials);
+    setError(message);
+    setRefocus((count) => count + 1);
+  };
 
   const signInWithEmail = async () => {
     if (pending) return;
@@ -62,13 +82,8 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
     try {
       const { data, error: signInError } = await authClient.signIn.email({ email, password });
       if (signInError) {
-        setPending(null);
-        if (signInError.status === 429) {
-          setError(tFields('errors.tooManyRequests'));
-          return;
-        }
-        setRejected(true);
-        setError(t('errors.invalidCredentials'));
+        if (signInError.status === 429) fail(tFields('errors.tooManyRequests'));
+        else fail(t('errors.invalidCredentials'), { wrongCredentials: true });
         return;
       }
       if (data && 'twoFactorRedirect' in data && data.twoFactorRedirect) {
@@ -79,8 +94,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
       // the app is another root layout, so this is a full load either way
       window.location.assign(redirectTo);
     } catch {
-      setPending(null);
-      setError(t('errors.generic'));
+      fail(t('errors.generic'));
     }
   };
 
@@ -89,12 +103,14 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
     setError(null);
     setPending(provider);
     try {
-      // navigates to the provider's consent screen; errorCallbackURL keeps failures off better-auth's own error page
+      // navigates to the provider's consent screen; errorCallbackURL keeps failures off better-auth's own error
+      // page, and keeps where the visitor was headed
       const { error: socialError } = await authClient.signIn.social({
         provider,
         callbackURL: redirectTo,
         newUserCallbackURL: '/onboarding?newUser=true',
-        errorCallbackURL: '/signin',
+        errorCallbackURL:
+          redirectTo === '/dashboards' ? '/signin' : `/signin?callbackUrl=${encodeURIComponent(redirectTo)}`,
       });
       if (socialError) {
         setPending(null);
@@ -109,7 +125,18 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
   if (step === 'twoFactor') {
     return (
       <div className={styles.root}>
-        <TwoFactorStep redirectTo={redirectTo} onBack={() => setStep('credentials')} />
+        <TwoFactorStep
+          redirectTo={redirectTo}
+          onBack={() => {
+            setStep('credentials');
+            setRefocus((count) => count + 1);
+          }}
+          onExpired={() => {
+            setStep('credentials');
+            setPassword('');
+            fail(t('errors.twoFactorExpired'));
+          }}
+        />
       </div>
     );
   }
@@ -130,20 +157,18 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
       ) : null}
       {error ? <Alert id={ids.error}>{error}</Alert> : null}
 
-      <form
+      <AuthForm
         className={styles.form}
-        onSubmit={(event) => {
-          event.preventDefault();
-          signInWithEmail();
-        }}
-        aria-describedby={error ? ids.error : undefined}
+        pending={isPending}
+        describedBy={error ? ids.error : undefined}
+        onSubmit={signInWithEmail}
       >
         <Field id={ids.email} label={tFields('email')}>
           <EmailInput
             id={ids.email}
             value={email}
             onChange={setEmail}
-            disabled={isPending}
+            readOnly={isPending}
             invalid={rejected}
             autoComplete='username'
           />
@@ -162,10 +187,10 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
           <PasswordInput
             id={ids.password}
             name='password'
+            inputRef={passwordRef}
             value={password}
             onChange={setPassword}
-            disabled={isPending}
-            autoComplete='current-password'
+            readOnly={isPending}
             invalid={rejected}
           />
         </Field>
@@ -175,13 +200,22 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
           label={t('submit')}
           pendingLabel={t('submitting')}
         />
-      </form>
+      </AuthForm>
     </div>
   );
 }
 
 /** The code from an authenticator app, or one of the account's backup codes; either submits itself once complete. */
-function TwoFactorStep({ redirectTo, onBack }: { redirectTo: string; onBack: () => void }) {
+function TwoFactorStep({
+  redirectTo,
+  onBack,
+  onExpired,
+}: {
+  redirectTo: string;
+  onBack: () => void;
+  /** The attempt is over (too many wrong codes, or it timed out): back to the password. */
+  onExpired: () => void;
+}) {
   const t = useTranslations('public.auth.signin');
   const tFields = useTranslations('public.auth.fields');
   const id = useId();
@@ -215,6 +249,10 @@ function TwoFactorStep({ redirectTo, onBack }: { redirectTo: string; onBack: () 
           ? await authClient.twoFactor.verifyBackupCode({ code: value })
           : await authClient.twoFactor.verifyTotp({ code: value });
       if (verifyError) {
+        if (verifyError.code && TWO_FACTOR_EXPIRED.has(verifyError.code)) {
+          onExpired();
+          return;
+        }
         setPending(false);
         if (mode === 'totp') setCode('');
         setError(
@@ -241,13 +279,11 @@ function TwoFactorStep({ redirectTo, onBack }: { redirectTo: string; onBack: () 
   const complete = mode === 'totp' ? code.length === OTP_LENGTH : code.length === BACKUP_CODE_LENGTH;
 
   return (
-    <form
+    <AuthForm
       className={styles.otp}
-      onSubmit={(event) => {
-        event.preventDefault();
-        verify();
-      }}
-      aria-describedby={error ? errorId : undefined}
+      pending={pending}
+      describedBy={error ? errorId : undefined}
+      onSubmit={() => verify()}
     >
       <div className={styles.otpHead}>
         <span className={styles.otpBadge}>
@@ -288,7 +324,8 @@ function TwoFactorStep({ redirectTo, onBack }: { redirectTo: string; onBack: () 
           name='backupCode'
           aria-label={t('twoFactor.backupCodeLabel')}
           placeholder='xxxxx-xxxxx'
-          autoComplete='one-time-code'
+          // not one-time-code: that would invite the authenticator's TOTP, which never fits here
+          autoComplete='off'
           autoCapitalize='none'
           autoCorrect='off'
           spellCheck={false}
@@ -318,6 +355,6 @@ function TwoFactorStep({ redirectTo, onBack }: { redirectTo: string; onBack: () 
           {t(mode === 'backup' ? 'twoFactor.useAuthenticator' : 'twoFactor.useBackupCode')}
         </button>
       </div>
-    </form>
+    </AuthForm>
   );
 }

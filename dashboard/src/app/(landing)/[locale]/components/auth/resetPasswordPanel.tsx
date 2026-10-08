@@ -1,38 +1,56 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ResetPasswordSchema } from '@/entities/auth/passwordReset.entities';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
 import { AuthAction, AuthPanel, AuthPrompt } from './authPanel';
-import { Alert, Field, PasswordInput, PasswordRules, SubmitButton } from './fields';
+import { Alert, AuthForm, Field, PasswordInput, PasswordRules, SubmitButton } from './fields';
 import styles from './authForm.module.css';
 
-/** From the emailed link (its token already checked by the page): a new password twice, its rules ticking off. */
-export function ResetPasswordPanel({ token }: { token: string }) {
+/**
+ * From the emailed link (its token already checked by the page): a new password twice, its rules ticking off.
+ * `email` is the account's, so a password manager saves the new password against the right login.
+ */
+export function ResetPasswordPanel({ token, email }: { token: string; email: string }) {
   const t = useTranslations('public.auth.resetPassword');
   const tFields = useTranslations('public.auth.fields');
   const id = useId();
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmRef = useRef<HTMLInputElement>(null);
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [pending, setPending] = useState(false);
   const [done, setDone] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<{ message: string; field: 'password' | 'confirm' } | null>(null);
   const ids = { error: `${id}-error`, password: `${id}-password`, confirm: `${id}-confirm`, rules: `${id}-rules` };
+
+  useEffect(() => {
+    if (done) titleRef.current?.focus();
+  }, [done]);
+
+  useEffect(() => {
+    if (!error) return;
+    const field = error.field === 'confirm' ? confirmRef.current : passwordRef.current;
+    field?.focus();
+    field?.select();
+  }, [error]);
+
+  const fail = (message: string, field: 'password' | 'confirm' = 'password') => {
+    setPending(false);
+    setError({ message, field });
+  };
 
   const save = async () => {
     if (pending) return;
     const parsed = ResetPasswordSchema.safeParse({ token, newPassword: password, confirmPassword: confirm });
     if (!parsed.success) {
       const field = parsed.error.errors[0]?.path[0];
-      setError(
-        field === 'token'
-          ? t('errors.invalidToken')
-          : field === 'confirmPassword'
-            ? tFields('errors.passwordsDoNotMatch')
-            : tFields('errors.weakPassword'),
-      );
+      if (field === 'token') fail(t('errors.invalidToken'));
+      else if (field === 'confirmPassword') fail(tFields('errors.passwordsDoNotMatch'), 'confirm');
+      else fail(tFields('errors.weakPassword'));
       return;
     }
     setError(null);
@@ -42,32 +60,24 @@ export function ResetPasswordPanel({ token }: { token: string }) {
         newPassword: parsed.data.newPassword,
         token: parsed.data.token,
       });
-      setPending(false);
       if (resetError) {
-        setError(
-          resetError.status === 429
-            ? tFields('errors.tooManyRequests')
-            : resetError.code === 'INVALID_TOKEN'
-              ? t('errors.invalidToken')
-              : resetError.code === 'WEAK_PASSWORD'
-                ? tFields('errors.weakPassword')
-                : t('errors.generic'),
-        );
+        if (resetError.status === 429) fail(tFields('errors.tooManyRequests'));
+        else if (resetError.code === 'INVALID_TOKEN') fail(t('errors.invalidToken'));
+        else if (resetError.code === 'WEAK_PASSWORD') fail(tFields('errors.weakPassword'));
+        else fail(t('errors.generic'));
         return;
       }
+      setPending(false);
       setDone(true);
     } catch {
-      setPending(false);
-      setError(t('errors.generic'));
+      fail(t('errors.generic'));
     }
   };
 
   if (done) {
     return (
-      <AuthPanel title={t('doneTitle')} lede={t('doneLede')}>
-        <div role='status'>
-          <AuthAction href='/signin' label={t('signIn')} />
-        </div>
+      <AuthPanel title={t('doneTitle')} lede={t('doneLede')} titleRef={titleRef}>
+        <AuthAction href='/signin' label={t('signIn')} />
       </AuthPanel>
     );
   }
@@ -78,23 +88,24 @@ export function ResetPasswordPanel({ token }: { token: string }) {
       lede={t('lede')}
       foot={<AuthPrompt lead={t('remember')} href='/signin' label={t('signIn')} />}
     >
-      <form
+      <AuthForm
         className={cn(styles.root, styles.form)}
-        onSubmit={(event) => {
-          event.preventDefault();
-          save();
-        }}
-        aria-describedby={error ? ids.error : undefined}
+        pending={pending}
+        describedBy={error ? ids.error : undefined}
+        onSubmit={save}
       >
-        {error ? <Alert id={ids.error}>{error}</Alert> : null}
+        {error ? <Alert id={ids.error}>{error.message}</Alert> : null}
+        <input type='email' name='username' autoComplete='username' value={email} readOnly hidden />
         <Field id={ids.password} label={tFields('newPassword')}>
           <PasswordInput
             id={ids.password}
             name='newPassword'
+            inputRef={passwordRef}
             value={password}
             onChange={setPassword}
-            disabled={pending}
-            autoComplete='new-password'
+            readOnly={pending}
+            isNew
+            invalid={error?.field === 'password'}
             describedBy={ids.rules}
           />
         </Field>
@@ -103,14 +114,16 @@ export function ResetPasswordPanel({ token }: { token: string }) {
           <PasswordInput
             id={ids.confirm}
             name='confirmPassword'
+            inputRef={confirmRef}
             value={confirm}
             onChange={setConfirm}
-            disabled={pending}
-            autoComplete='new-password'
+            readOnly={pending}
+            isNew
+            invalid={error?.field === 'confirm'}
           />
         </Field>
         <SubmitButton pending={pending} label={t('submit')} pendingLabel={t('submitting')} />
-      </form>
+      </AuthForm>
     </AuthPanel>
   );
 }

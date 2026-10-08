@@ -650,13 +650,14 @@
         "newPassword": "Ny adgangskode",
         "confirmPassword": "Bekræft adgangskode",
         "showPassword": "Vis adgangskode",
-        "hidePassword": "Skjul adgangskode",
         "continueWith": "Fortsæt med {provider}",
         "rules": {
           "label": "Din adgangskode skal have",
           "length": "8+ tegn",
           "lower": "Ét lille bogstav",
-          "upper": "Ét stort bogstav"
+          "upper": "Ét stort bogstav",
+          "met": "opfyldt",
+          "unmet": "ikke opfyldt"
         },
         "errors": {
           "invalidEmail": "Indtast venligst en gyldig e-mailadresse",
@@ -685,7 +686,11 @@
           "invalidCredentials": "Ugyldig e-mail eller adgangskode. Tjek dine oplysninger og prøv igen.",
           "invalidOtp": "Ugyldig bekræftelseskode. Tjek dine oplysninger og prøv igen.",
           "invalidBackupCode": "Ugyldig backup-kode. Prøv igen.",
-          "generic": "Der opstod en fejl under login. Prøv venligst igen."
+          "generic": "Der opstod en fejl under login. Prøv venligst igen.",
+          "registrationDisabled": "Registrering er slået fra på denne instans. Bed en dashboard-ejer om en invitation.",
+          "emailNotFound": "Vi kunne ikke hente en e-mailadresse fra den konto. Gør din e-mail synlig hos udbyderen, eller log ind med e-mail og adgangskode.",
+          "unableToLink": "Vi kunne ikke forbinde den konto med din. Log ind med din e-mail og adgangskode i stedet.",
+          "twoFactorExpired": "Dit loginforsøg er udløbet. Indtast din adgangskode igen."
         },
         "twoFactor": {
           "title": "To-faktor-godkendelse",

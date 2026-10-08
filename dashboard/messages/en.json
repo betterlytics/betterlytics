@@ -650,13 +650,14 @@
         "newPassword": "New password",
         "confirmPassword": "Confirm password",
         "showPassword": "Show password",
-        "hidePassword": "Hide password",
         "continueWith": "Continue with {provider}",
         "rules": {
           "label": "Your password needs",
           "length": "8+ characters",
           "lower": "One lowercase",
-          "upper": "One uppercase"
+          "upper": "One uppercase",
+          "met": "met",
+          "unmet": "not met"
         },
         "errors": {
           "invalidEmail": "Please enter a valid email address.",
@@ -685,7 +686,11 @@
           "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
           "invalidOtp": "Invalid verification code. Please check your credentials and try again.",
           "invalidBackupCode": "Invalid backup code. Please try again.",
-          "generic": "An error occurred during sign in. Please try again."
+          "generic": "An error occurred during sign in. Please try again.",
+          "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner for an invitation.",
+          "emailNotFound": "We couldn't get an email address from that account. Make your email visible with the provider, or sign in with email and password.",
+          "unableToLink": "We couldn't connect that account to yours. Sign in with your email and password instead.",
+          "twoFactorExpired": "Your sign-in attempt expired. Enter your password again."
         },
         "twoFactor": {
           "title": "Two-factor authentication",

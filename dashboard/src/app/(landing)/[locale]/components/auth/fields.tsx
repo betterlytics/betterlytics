@@ -3,6 +3,7 @@
 import { useState, type ReactNode, type Ref } from 'react';
 import { useTranslations } from 'next-intl';
 import { GitHubIcon } from '@/components/icons/SocialIcons';
+import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH, PASSWORD_RULES } from '@/entities/auth/password.entities';
 import { cn } from '@/landing/lib/cn';
 import { AlertIcon, CheckIcon, EyeIcon, EyeOffIcon, GoogleMark, Spinner } from './icons';
 import styles from './authForm.module.css';
@@ -14,6 +15,42 @@ const PROVIDERS = [
   { id: 'google', name: 'Google', Mark: GoogleMark },
   { id: 'github', name: 'GitHub', Mark: GitHubIcon },
 ] as const;
+
+/** Lets Safari's password generator make one that passes PasswordSchema. */
+const PASSWORD_RULES_HINT = `minlength: ${PASSWORD_MIN_LENGTH}; maxlength: ${PASSWORD_MAX_LENGTH}; required: lower; required: upper;`;
+
+/**
+ * Every auth form. POST, so a submit before hydration puts nothing in the URL (logs, history, the page tracker);
+ * once hydrated, `onSubmit` takes over.
+ */
+export function AuthForm({
+  className,
+  pending = false,
+  describedBy,
+  onSubmit,
+  children,
+}: {
+  className?: string;
+  pending?: boolean;
+  describedBy?: string;
+  onSubmit: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <form
+      method='post'
+      className={className}
+      data-pending={pending || undefined}
+      aria-describedby={describedBy}
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit();
+      }}
+    >
+      {children}
+    </form>
+  );
+}
 
 export function Field({
   id,
@@ -38,11 +75,11 @@ export function Field({
   );
 }
 
+/** Read-only rather than disabled while a request runs, so focus stays put and can come back to it on an error. */
 export function EmailInput({
   id,
   value,
   onChange,
-  disabled,
   readOnly,
   invalid,
   autoComplete = 'email',
@@ -51,8 +88,7 @@ export function EmailInput({
   id: string;
   value: string;
   onChange: (value: string) => void;
-  disabled: boolean;
-  readOnly?: boolean;
+  readOnly: boolean;
   invalid?: boolean;
   autoComplete?: 'email' | 'username';
   inputRef?: Ref<HTMLInputElement>;
@@ -72,7 +108,6 @@ export function EmailInput({
       placeholder={t('emailPlaceholder')}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      disabled={disabled}
       readOnly={readOnly}
       aria-invalid={invalid || undefined}
     />
@@ -84,41 +119,47 @@ export function PasswordInput({
   name,
   value,
   onChange,
-  disabled,
-  autoComplete,
+  readOnly,
+  isNew = false,
   invalid,
   describedBy,
+  inputRef,
 }: {
   id: string;
   name: string;
   value: string;
   onChange: (value: string) => void;
-  disabled: boolean;
-  autoComplete: 'current-password' | 'new-password';
+  readOnly: boolean;
+  /** A password being chosen rather than entered: autofill offers to generate one. */
+  isNew?: boolean;
   invalid?: boolean;
   describedBy?: string;
+  inputRef?: Ref<HTMLInputElement>;
 }) {
   const t = useTranslations('public.auth.fields');
   const [revealed, setRevealed] = useState(false);
   return (
     <div className={cn(styles.inputWrap, styles.control)}>
       <input
+        ref={inputRef}
         id={id}
         className={styles.input}
         type={revealed ? 'text' : 'password'}
         name={name}
-        autoComplete={autoComplete}
+        autoComplete={isNew ? 'new-password' : 'current-password'}
+        {...(isNew && { passwordrules: PASSWORD_RULES_HINT })}
         required
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        disabled={disabled}
+        readOnly={readOnly}
         aria-invalid={invalid || undefined}
         aria-describedby={describedBy}
       />
+      {/* one fixed label, its state in aria-pressed: a label that flips too would be read as the opposite action */}
       <button
         type='button'
         className={styles.reveal}
-        aria-label={revealed ? t('hidePassword') : t('showPassword')}
+        aria-label={t('showPassword')}
         aria-pressed={revealed}
         onClick={() => setRevealed((shown) => !shown)}
       >
@@ -128,20 +169,20 @@ export function PasswordInput({
   );
 }
 
-/** The password's rules (the app's PasswordSchema), each ticking off as it is met. */
+/** PasswordSchema's rules, each ticking off as it is met; the tick is spelled out for screen readers. */
 export function PasswordRules({ id, password }: { id: string; password: string }) {
   const t = useTranslations('public.auth.fields.rules');
-  const rules = [
-    { label: t('length'), met: password.length >= 8 },
-    { label: t('lower'), met: /[a-z]/.test(password) },
-    { label: t('upper'), met: /[A-Z]/.test(password) },
-  ];
+  const rules = (['length', 'lower', 'upper'] as const).map((rule) => ({
+    label: t(rule),
+    met: PASSWORD_RULES[rule](password),
+  }));
   return (
     <ul id={id} className={styles.rules} aria-label={t('label')}>
       {rules.map((rule) => (
         <li key={rule.label} data-met={rule.met || undefined}>
           <CheckIcon />
           {rule.label}
+          <span className='sr-only'>, {rule.met ? t('met') : t('unmet')}</span>
         </li>
       ))}
     </ul>
