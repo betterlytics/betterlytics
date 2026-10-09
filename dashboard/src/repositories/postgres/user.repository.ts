@@ -274,12 +274,13 @@ export async function deleteUserAccount(
 }
 
 /**
- * Disabling removes access, so it is refused for the last enabled admin or user. Disabling also ends every
- * session and voids pending reset links; re-enabling restores access without touching anything else.
+ * Disabling removes access, so with `guard` it is refused for the last enabled admin or user. Disabling also
+ * ends every session and voids pending reset links; re-enabling restores access without touching anything else.
  */
 export async function setUserDisabledUnlessBlocked(
   userId: string,
   disabled: boolean,
+  options: { guard: boolean },
 ): Promise<AccountDeletionBlocker | null> {
   try {
     return await prisma.$transaction(async (tx) => {
@@ -295,8 +296,10 @@ export async function setUserDisabledUnlessBlocked(
 
       if (target.disabledAt) return null;
 
-      const blocker = await resolveRemovalBlockerWith(tx, target);
-      if (blocker) return blocker;
+      if (options.guard) {
+        const blocker = await resolveRemovalBlockerWith(tx, target);
+        if (blocker) return blocker;
+      }
 
       await tx.user.update({ where: { id: userId }, data: { disabledAt: new Date() } });
       await tx.session.deleteMany({ where: { userId } });
@@ -377,6 +380,8 @@ async function anonymizeUserWith(tx: Prisma.TransactionClient, userId: string): 
     where: { createdBy: userId, deletedAt: null },
     data: { deletedAt: new Date() },
   });
+  await tx.adminAuditLog.updateMany({ where: { targetType: 'user', targetId: userId }, data: { targetLabel: null } });
+  await tx.adminAuditLog.updateMany({ where: { actorUserId: userId }, data: { actorLabel: null } });
 }
 
 export async function acceptTermsForUser(userId: string, version: number): Promise<void> {

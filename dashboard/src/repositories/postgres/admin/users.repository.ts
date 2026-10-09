@@ -9,7 +9,6 @@ import {
   AdminUserSummarySchema,
   AdminUserTargetSchema,
   type AdminTransferCandidate,
-  type AdminUserDashboard,
   type AdminUserDetail,
   type AdminUserListQuery,
   type AdminUserStatus,
@@ -132,6 +131,7 @@ export async function findAdminUserTarget(userId: string): Promise<AdminUserTarg
       email: true,
       name: true,
       role: true,
+      twoFactorEnabled: true,
       disabledAt: true,
       deletedAt: true,
       _count: { select: { accounts: { where: { providerId: CREDENTIAL_PROVIDER_ID, password: { not: null } } } } },
@@ -141,17 +141,6 @@ export async function findAdminUserTarget(userId: string): Promise<AdminUserTarg
 
   const { _count, ...user } = row;
   return AdminUserTargetSchema.parse({ ...user, hasPassword: _count.accounts > 0 });
-}
-
-export async function findOwnedLiveDashboards(userId: string): Promise<AdminUserDashboard[]> {
-  const rows = await prisma.userDashboard.findMany({
-    where: { userId, role: 'owner', dashboard: { deletedAt: null } },
-    select: { role: true, dashboard: { select: { id: true, domain: true } } },
-    orderBy: { createdAt: 'asc' },
-  });
-  return rows.map((row) =>
-    AdminUserDashboardSchema.parse({ dashboardId: row.dashboard.id, domain: row.dashboard.domain, role: row.role }),
-  );
 }
 
 export async function findTransferCandidates(excludeUserId: string): Promise<AdminTransferCandidate[]> {

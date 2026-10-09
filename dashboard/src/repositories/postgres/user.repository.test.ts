@@ -53,6 +53,9 @@ const prismaMock = vi.hoisted(() => {
     mcpToken: {
       updateMany: vi.fn(),
     },
+    adminAuditLog: {
+      updateMany: vi.fn(),
+    },
     $transaction: vi.fn(),
     $executeRaw: vi.fn(),
   };
@@ -246,6 +249,19 @@ describe('deleteUserAccount', () => {
     });
   });
 
+  it('scrubs their email from audit log entries they appear in', async () => {
+    await deleteUserAccount('user-1', deleteOwned);
+
+    expect(prismaMock.adminAuditLog.updateMany).toHaveBeenCalledWith({
+      where: { targetType: 'user', targetId: 'user-1' },
+      data: { targetLabel: null },
+    });
+    expect(prismaMock.adminAuditLog.updateMany).toHaveBeenCalledWith({
+      where: { actorUserId: 'user-1' },
+      data: { actorLabel: null },
+    });
+  });
+
   it('soft-deletes owned dashboards and cancels their pending invitations', async () => {
     prismaMock.userDashboard.findMany.mockResolvedValue([{ id: 'ud-1', dashboardId: 'dash-1' }]);
 
@@ -325,7 +341,7 @@ describe('setUserDisabledUnlessBlocked', () => {
     prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: null, disabledAt: null });
     mockCounts(1, 2);
 
-    expect(await setUserDisabledUnlessBlocked('user-1', true)).toBeNull();
+    expect(await setUserDisabledUnlessBlocked('user-1', true, { guard: true })).toBeNull();
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
       data: { disabledAt: expect.any(Date) },
@@ -340,15 +356,24 @@ describe('setUserDisabledUnlessBlocked', () => {
     prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
     mockCounts(1, 3);
 
-    expect(await setUserDisabledUnlessBlocked('user-1', true)).toBe('last_admin');
+    expect(await setUserDisabledUnlessBlocked('user-1', true, { guard: true })).toBe('last_admin');
     expect(prismaMock.user.update).not.toHaveBeenCalled();
     expect(prismaMock.session.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('skips the last-admin check when unguarded (cloud)', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
+    mockCounts(1, 3);
+
+    expect(await setUserDisabledUnlessBlocked('user-1', true, { guard: false })).toBeNull();
+    expect(prismaMock.user.count).not.toHaveBeenCalled();
+    expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
   });
 
   it('re-enables without touching sessions', async () => {
     prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: null, disabledAt: new Date() });
 
-    expect(await setUserDisabledUnlessBlocked('user-1', false)).toBeNull();
+    expect(await setUserDisabledUnlessBlocked('user-1', false, { guard: true })).toBeNull();
     expect(prismaMock.user.update).toHaveBeenCalledWith({ where: { id: 'user-1' }, data: { disabledAt: null } });
     expect(prismaMock.session.deleteMany).not.toHaveBeenCalled();
   });
@@ -356,7 +381,7 @@ describe('setUserDisabledUnlessBlocked', () => {
   it('leaves deleted users alone', async () => {
     prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: new Date(), disabledAt: null });
 
-    expect(await setUserDisabledUnlessBlocked('user-1', true)).toBeNull();
+    expect(await setUserDisabledUnlessBlocked('user-1', true, { guard: true })).toBeNull();
     expect(prismaMock.user.update).not.toHaveBeenCalled();
   });
 });

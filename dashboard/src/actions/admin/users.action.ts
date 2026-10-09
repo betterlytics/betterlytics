@@ -103,7 +103,7 @@ export const deleteUserAction = withAdminAction(
     section: 'users',
     action: 'delete_user',
     targetType: 'user',
-    audit: async (userId: string, input: AdminDeleteUserInput) => ({ ...(await userTarget(userId)), payload: input }),
+    audit: async (userId: string, input: AdminDeleteUserInput) => ({ targetId: userId, payload: input }),
   },
   async (ctx: AdminCtx, userId: string, input: AdminDeleteUserInput) => {
     await AdminUsersService.deleteUser(ctx.actor, UserIdSchema.parse(userId), AdminDeleteUserInputSchema.parse(input));

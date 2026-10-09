@@ -13,18 +13,23 @@ export function isSuperAdmin(userId: string | undefined): boolean {
 
 export function resolveAdminActor(session: Session | null): AdminActor | null {
   const user = session?.user;
-  if (!user?.id) return null;
+  if (!session || !user?.id) return null;
 
-  const twoFactorEnabled = Boolean(user.twoFactorEnabled);
+  const base = {
+    userId: user.id,
+    email: user.email,
+    twoFactorEnabled: Boolean(user.twoFactorEnabled),
+    sessionToken: session.session.token,
+  };
 
   if (isFeatureEnabled('isCloud')) {
     if (!isSuperAdmin(user.id)) return null;
-    if (!env.IS_DEVELOPMENT && !twoFactorEnabled) return null;
-    return { userId: user.id, email: user.email, kind: 'super_admin', edition: 'cloud', twoFactorEnabled };
+    if (!env.IS_DEVELOPMENT && !base.twoFactorEnabled) return null;
+    return { ...base, kind: 'super_admin', edition: 'cloud' };
   }
 
   if (user.role !== 'admin') return null;
-  return { userId: user.id, email: user.email, kind: 'instance_admin', edition: 'selfhost', twoFactorEnabled };
+  return { ...base, kind: 'instance_admin', edition: 'selfhost' };
 }
 
 export async function getCurrentAdminActor(): Promise<AdminActor | null> {

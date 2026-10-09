@@ -1,7 +1,6 @@
 import 'server-only';
 
 import { isSuperAdmin } from '@/auth/admin-auth';
-import { getCachedSession } from '@/auth/api-auth';
 import {
   resolveAdminTargetBlocker,
   resolveAdminTargetBlockers,
@@ -24,6 +23,7 @@ import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { UserException } from '@/lib/exceptions';
 import * as AdminUsersRepository from '@/repositories/postgres/admin/users.repository';
+import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
 import * as UserRepository from '@/repositories/postgres/user.repository';
 import * as SessionRepository from '@/repositories/postgres/session.repository';
 import { deleteUser as deleteUserAccount } from '@/services/account/userSettings.service';
@@ -32,8 +32,7 @@ import {
   issueAdminPasswordResetLink,
   sendResetPasswordEmail,
 } from '@/services/auth/passwordReset.service';
-import { enqueueEmail } from '@/services/email/email.service';
-import { createUserRecipientKey } from '@/services/email/recipient-key.service';
+import { sendTwoFactorChangedNotification } from '@/services/auth/twoFactorNotification.service';
 
 const TARGET_BLOCKER_MESSAGES: Record<AdminTargetBlocker, string> = {
   self: "You can't do this to your own account",
@@ -122,18 +121,22 @@ export async function getUser(actor: AdminActor, userId: string): Promise<AdminU
 
 async function currentActorSessionId(actor: AdminActor, userId: string): Promise<string | null> {
   if (actor.userId !== userId) return null;
-  const token = (await getCachedSession())?.session.token;
-  return token ? SessionRepository.findSessionIdByToken(token) : null;
+  return SessionRepository.findSessionIdByToken(actor.sessionToken);
 }
+
+// Cloud has no instance admins to protect, so only self-host keeps one enabled admin around
+const guardsLastAdmin = (actor: AdminActor) => actor.edition === 'selfhost';
 
 export async function disableUser(actor: AdminActor, userId: string): Promise<void> {
   await requireTarget(actor, userId, 'disable');
-  throwIfAccessRemovalBlocked(await UserRepository.setUserDisabledUnlessBlocked(userId, true));
+  throwIfAccessRemovalBlocked(
+    await UserRepository.setUserDisabledUnlessBlocked(userId, true, { guard: guardsLastAdmin(actor) }),
+  );
 }
 
 export async function enableUser(actor: AdminActor, userId: string): Promise<void> {
   await requireTarget(actor, userId, 'enable');
-  await UserRepository.setUserDisabledUnlessBlocked(userId, false);
+  await UserRepository.setUserDisabledUnlessBlocked(userId, false, { guard: guardsLastAdmin(actor) });
 }
 
 export async function setInstanceAdmin(actor: AdminActor, userId: string, isAdmin: boolean): Promise<void> {
@@ -153,9 +156,7 @@ export async function revokeUserSession(actor: AdminActor, userId: string, sessi
 export async function revokeAllUserSessions(actor: AdminActor, userId: string): Promise<{ revoked: number }> {
   await requireTarget(actor, userId, 'revoke_sessions');
   if (actor.userId === userId) {
-    const token = (await getCachedSession())?.session.token;
-    if (!token) throw new UserException('No active session token found');
-    return { revoked: await SessionRepository.deleteOtherUserSessions(userId, token) };
+    return { revoked: await SessionRepository.deleteOtherUserSessions(userId, actor.sessionToken) };
   }
   return { revoked: await SessionRepository.deleteAllUserSessions(userId) };
 }
@@ -190,29 +191,21 @@ export async function emailPasswordResetLink(actor: AdminActor, userId: string):
 
 export async function resetTwoFactor(actor: AdminActor, userId: string): Promise<void> {
   const target = await requireTarget(actor, userId, 'reset_two_factor');
-  await UserRepository.resetUserTwoFactor(userId);
+  if (!target.twoFactorEnabled) throw new UserException("Two-factor authentication isn't turned on for this user");
 
-  try {
-    await enqueueEmail({
-      type: 'two-factor-disabled',
-      recipientKey: createUserRecipientKey(target.id),
-      campaignKey: `two-factor-disabled:${new Date().toISOString()}`,
-      data: { to: target.email, userName: target.name },
-    });
-  } catch (error) {
-    console.error('Failed to enqueue 2FA reset notification:', error);
-  }
+  await UserRepository.resetUserTwoFactor(userId);
+  await sendTwoFactorChangedNotification({ id: target.id, email: target.email, name: target.name }, false);
 }
 
 export async function getDeleteUserContext(actor: AdminActor, userId: string): Promise<AdminDeleteUserContext> {
   await requireTarget(actor, userId, 'delete');
   const canTransfer = actor.edition === 'selfhost';
   const [ownedDashboards, transferCandidates] = await Promise.all([
-    AdminUsersRepository.findOwnedLiveDashboards(userId),
+    DashboardRepository.findOwnedDashboards(userId),
     canTransfer ? AdminUsersRepository.findTransferCandidates(userId) : Promise.resolve([]),
   ]);
   return {
-    ownedDashboards: ownedDashboards.map(({ dashboardId, domain }) => ({ dashboardId, domain })),
+    ownedDashboards: ownedDashboards.map((dashboard) => ({ dashboardId: dashboard.id, domain: dashboard.domain })),
     transferCandidates,
     canTransfer,
   };
@@ -232,8 +225,8 @@ export async function deleteUser(actor: AdminActor, userId: string, input: Admin
   }
 
   if (env.DEMO_DASHBOARD_ID) {
-    const owned = await AdminUsersRepository.findOwnedLiveDashboards(userId);
-    if (owned.some((dashboard) => dashboard.dashboardId === env.DEMO_DASHBOARD_ID)) {
+    const owned = await DashboardRepository.findOwnedDashboards(userId);
+    if (owned.some((dashboard) => dashboard.id === env.DEMO_DASHBOARD_ID)) {
       throw new UserException('This user owns the public demo dashboard and cannot be deleted');
     }
   }

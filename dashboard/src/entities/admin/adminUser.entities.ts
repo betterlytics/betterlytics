@@ -64,6 +64,7 @@ export const AdminUserTargetSchema = z.object({
   email: z.string(),
   name: z.string().nullable(),
   role: z.nativeEnum(UserRole).nullable(),
+  twoFactorEnabled: z.boolean(),
   hasPassword: z.boolean(),
   disabledAt: z.date().nullable(),
   deletedAt: z.date().nullable(),

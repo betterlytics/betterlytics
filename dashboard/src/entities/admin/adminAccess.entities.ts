@@ -8,6 +8,7 @@ export type AdminActor = {
   kind: AdminActorKind;
   edition: AdminEdition;
   twoFactorEnabled: boolean;
+  sessionToken: string;
 };
 
 export const ADMIN_SECTIONS = {

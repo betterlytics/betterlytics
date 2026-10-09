@@ -52,7 +52,7 @@ export default async function AdminAuditLogPage({ searchParams }: AuditLogPagePr
                   </TableCell>
                   <TableCell className='text-sm'>{describeAuditAction(entry.action, entry.payload)}</TableCell>
                   <TableCell className='text-muted-foreground max-w-56 truncate text-sm'>
-                    {entry.targetLabel ?? entry.targetId ?? '-'}
+                    {entry.targetLabel ?? (entry.targetType === 'user' ? 'Deleted user' : (entry.targetId ?? '-'))}
                   </TableCell>
                   <TableCell>
                     <Badge variant={entry.status === 'success' ? 'outline' : 'destructive'}>

@@ -10,8 +10,7 @@ import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
-import { enqueueEmail } from '@/services/email/email.service';
-import { createUserRecipientKey } from '@/services/email/recipient-key.service';
+import { sendTwoFactorChangedNotification } from '@/services/auth/twoFactorNotification.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
 import {
@@ -283,17 +282,10 @@ export const auth = betterAuth({
         after: async (user, ctx) => {
           if (ctx?.path?.startsWith('/two-factor/') && user.email) {
             const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
-            const type = enabled ? ('two-factor-enabled' as const) : ('two-factor-disabled' as const);
-            try {
-              await enqueueEmail({
-                type,
-                recipientKey: createUserRecipientKey(user.id),
-                campaignKey: `${type}:${new Date().toISOString()}`,
-                data: { to: user.email, userName: user.name ?? null },
-              });
-            } catch (error) {
-              console.error('Failed to enqueue 2FA change notification:', error);
-            }
+            await sendTwoFactorChangedNotification(
+              { id: user.id, email: user.email, name: user.name ?? null },
+              enabled,
+            );
           }
         },
       },
