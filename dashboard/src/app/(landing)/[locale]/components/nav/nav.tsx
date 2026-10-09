@@ -23,7 +23,11 @@ const SHEET_ID = 'landing-nav-sheet';
 /** Must match the theme's lg breakpoint, where the links join the bar. */
 const WIDE = '(width >= 56.25rem)';
 
-const QUIET_LINK = 'transition-opacity duration-180 ease-out-expo hover:opacity-80';
+/* the GitHub icon and Sign in share this hover box */
+const BOXED =
+  'inline-flex h-8 items-center justify-center rounded-[7px] text-fg transition-[opacity,background-color] duration-180 ease-out-expo hover:bg-fg/6 hover:opacity-80';
+/* muted at rest and white on hover, as nextjs.org does; the inverse read as every item being 'on' */
+const NAV_LINK = 'text-muted transition-colors duration-180 ease-out-expo hover:text-fg';
 /** Whole pixels (2px bars, 4px gaps, a 14px stack in 36px) so no bar blurs. */
 const MENU_BAR = 'h-0.5 w-[18px] bg-current transition-transform duration-220 ease-out-expo';
 const SHEET_LINK = 'leading-11 text-fg';
@@ -64,7 +68,8 @@ function AccountLinks({ buttonClassName }: { buttonClassName?: string }) {
   }
   return (
     <>
-      <Link className={cn(QUIET_LINK, 'max-lg:hidden')} href='/signin'>
+      {/* negative margin keeps the text where it was; the box grows into the gap */}
+      <Link className={cn(BOXED, '-mx-2.5 px-2.5 max-lg:hidden')} href='/signin'>
         {t('signIn')}
       </Link>
       <TrackedLink
@@ -166,11 +171,11 @@ export function Nav() {
         className='relative col-start-2 flex gap-7 text-body font-medium tracking-ui text-fg max-lg:hidden'
         aria-label={t('label')}
       >
-        <NavLinks className={QUIET_LINK} />
+        <NavLinks className={NAV_LINK} />
       </nav>
       <div className='relative col-start-3 flex items-center gap-5 justify-self-end text-body font-medium tracking-ui text-fg'>
         <a
-          className='inline-flex size-8 items-center justify-center rounded-[7px] text-fg transition-[opacity,background-color] duration-180 ease-out-expo hover:bg-fg/6 hover:opacity-80 max-lg:hidden'
+          className={cn(BOXED, 'w-8 max-lg:hidden')}
           href={LINKS.github}
           target='_blank'
           rel='noopener'
