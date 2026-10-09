@@ -26,7 +26,7 @@ if (!url || !db) {
   process.exit(1);
 }
 
-const command = `clickhouse-migrations migrate --host=${url} --db=${db} --migrations-home=./migrations --user=${user} --password=${password} --timeout=600000`;
+const command = `clickhouse-migrations migrate --host=${url} --db=${db} --migrations-home=./migrations --user=${user} --password=${password} --timeout=86400000`;
 
 try {
   execSync(command, { stdio: "inherit" });

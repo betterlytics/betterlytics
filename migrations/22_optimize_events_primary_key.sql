@@ -3,6 +3,8 @@
 -- ORDER BY (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
 -- Adds SAMPLE BY visitor_id for approximate query support
 
+DROP TABLE IF EXISTS analytics.events_new;
+
 CREATE TABLE IF NOT EXISTS analytics.events_new (
     site_id LowCardinality(String),
     visitor_id UInt64,
@@ -68,8 +70,6 @@ DROP VIEW IF EXISTS analytics.daily_unique_visitors;
 DROP VIEW IF EXISTS analytics.usage_by_site_daily;
 
 SET max_execution_time = 0;
-SET send_progress_in_http_headers = 1;
-SET http_headers_progress_interval_ms = 30000;
 
 INSERT INTO analytics.events_new (
     site_id, visitor_id, session_id, domain, url, device_type, country_code, subdivision_code, city,
