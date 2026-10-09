@@ -9,6 +9,10 @@ export const TEXT_STYLES = {
   label: 'text-label leading-5 font-normal tracking-ui text-muted',
 } as const;
 
+/** A link inside a sentence, underlined so it isn't told from the text by colour alone. */
+export const FINE_LINK =
+  'underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current';
+
 type HeadingSize = 'display-1' | 'display-2' | 'title';
 
 export function Heading({

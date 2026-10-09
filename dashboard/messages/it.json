@@ -638,47 +638,73 @@
       }
     },
     "auth": {
+      "shell": {
+        "legal": "Note legali",
+        "privacy": "Privacy",
+        "terms": "Termini"
+      },
+      "fields": {
+        "email": "Email",
+        "emailPlaceholder": "tu@azienda.it",
+        "password": "Password",
+        "newPassword": "Nuova password",
+        "confirmPassword": "Conferma password",
+        "showPassword": "Mostra password",
+        "continueWith": "Continua con {provider}",
+        "rules": {
+          "label": "La tua password deve avere",
+          "length": "8+ caratteri",
+          "lower": "Una minuscola",
+          "upper": "Una maiuscola",
+          "met": "soddisfatto",
+          "unmet": "non soddisfatto"
+        },
+        "errors": {
+          "invalidEmail": "Inserisci un indirizzo email valido.",
+          "weakPassword": "La tua password non soddisfa i requisiti.",
+          "passwordsDoNotMatch": "Le password non corrispondono.",
+          "tooManyRequests": "Troppi tentativi. Riprova più tardi.",
+          "emailRequired": "Inserisci il tuo indirizzo email.",
+          "passwordRequired": "Inserisci la password.",
+          "confirmRequired": "Conferma la nuova password."
+        }
+      },
       "signin": {
         "seo": {
           "title": "Accedi | Betterlytics",
-          "description": "Accedi a Betterlytics per vedere traffico, session replay, errori e uptime del tuo sito in un’unica dashboard."
+          "description": "Accedi a Betterlytics per vedere traffico, session replay, errori e uptime del tuo sito in un'unica dashboard."
         },
-        "title": "Accedi al tuo account",
-        "subtitle": "Accedi alla tua dashboard analitiche",
+        "title": "Bentornato",
+        "lede": "Un solo account per analytics, session replay, errori e uptime.",
+        "forgotPassword": "Password dimenticata?",
+        "submit": "Accedi",
+        "submitting": "Accesso in corso…",
+        "noAccount": "Nuovo su Betterlytics?",
+        "createAccount": "Crea un account",
+        "askAdmin": "Chiedi al proprietario di una dashboard di invitarti.",
+        "registrationDisabled": "La registrazione è disabilitata su questa istanza.",
         "errors": {
-          "OAuthAccountNotLinked": "Esiste già un account con questa email. Accedi con la tua email e password.",
-          "default": "Si è verificato un errore durante l'accesso. Riprova."
+          "accountNotLinked": "Esiste già un account con questa email. Accedi come hai fatto l'ultima volta.",
+          "default": "Qualcosa è andato storto durante l'accesso. Riprova.",
+          "invalidCredentials": "Email o password errati.",
+          "invalidOtp": "Il codice non ha funzionato. Controlla la tua app di autenticazione e riprova.",
+          "invalidBackupCode": "Il codice di backup non ha funzionato. Controllalo e riprova.",
+          "generic": "Qualcosa è andato storto durante l'accesso. Riprova.",
+          "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi al proprietario di una dashboard di invitarti.",
+          "emailNotFound": "Non siamo riusciti a ottenere un indirizzo email da quell'account. Rendi visibile la tua email presso il provider oppure accedi con email e password.",
+          "unableToLink": "Non siamo riusciti a collegare quell'account al tuo. Accedi invece con email e password.",
+          "twoFactorExpired": "Il tentativo di accesso è scaduto. Inserisci di nuovo la password.",
+          "twoFactorTooMany": "Troppi codici errati. Inserisci la password per riprovare."
         },
-        "cta": {
-          "noAccount": "Non hai un account?",
-          "createOne": "Creane uno"
-        },
-        "form": {
-          "emailLabel": "Email",
-          "emailPlaceholder": "Inserisci la tua email",
-          "passwordLabel": "Password",
-          "passwordPlaceholder": "Inserisci la tua password",
-          "forgotPassword": "Password dimenticata?",
-          "submitButton": "Accedi",
-          "submitting": "Accesso in corso...",
-          "orDivider": "oppure",
-          "continueWithGoogle": "Continua con Google",
-          "continueWithGithub": "Continua con GitHub",
-          "errors": {
-            "invalidOtp": "Codice di verifica non valido. Controlla le tue credenziali e riprova.",
-            "invalidCredentials": "Email o password non validi. Controlla le tue credenziali e riprova.",
-            "generic": "Si è verificato un errore durante l'accesso. Riprova.",
-            "invalidBackupCode": "Codice di backup non valido. Riprova."
-          },
-          "twoFactor": {
-            "title": "Autenticazione a due fattori",
-            "description": "Inserisci il codice di verifica dalla tua app.",
-            "cancel": "Annulla",
-            "backupCodeDescription": "Inserisci uno dei tuoi codici di backup. Ogni codice può essere usato una sola volta.",
-            "useBackupCode": "Usa un codice di backup",
-            "useAuthenticator": "Usa l'app di autenticazione",
-            "verify": "Verifica"
-          }
+        "twoFactor": {
+          "title": "Autenticazione a due fattori",
+          "description": "Inserisci il codice di verifica dalla tua app.",
+          "backupCodeDescription": "Inserisci uno dei tuoi codici di backup. Ogni codice può essere usato una sola volta.",
+          "backupCodeLabel": "Codice di backup",
+          "useBackupCode": "Usa un codice di backup",
+          "useAuthenticator": "Usa l'app di autenticazione",
+          "verify": "Verifica",
+          "back": "Indietro"
         }
       },
       "register": {
@@ -687,107 +713,103 @@
           "description": "Crea un account Betterlytics gratuito per analisi web, session replay, tracciamento errori e monitoraggio uptime. Nessuna carta di credito."
         },
         "title": "Crea il tuo account",
-        "subtitle": "Inizia a tracciare le tue analitiche oggi",
-        "cta": {
-          "haveAccount": "Hai già un account?",
-          "signIn": "Accedi"
+        "lede": "Gratis per iniziare, nessuna carta di credito richiesta.",
+        "ledeSelfHosted": "Un solo account per analytics, session replay, errori e uptime.",
+        "invited": "Sei stato invitato a unirti a {domain}.",
+        "submit": "Crea account",
+        "submitting": "Creazione account…",
+        "termsAgree": "Accetto i <terms>Termini di servizio</terms> e ho letto <privacy>l'Informativa sulla privacy</privacy>.",
+        "haveAccount": "Hai già un account?",
+        "signIn": "Accedi",
+        "errors": {
+          "emailExists": "Esiste già un account con questa email. Accedi invece.",
+          "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi al proprietario di una dashboard di invitarti.",
+          "generic": "Qualcosa è andato storto durante la creazione dell'account. Riprova.",
+          "termsRequired": "Accetta i Termini di servizio per continuare."
         },
         "disabled": {
           "title": "Registrazione disabilitata",
-          "description": "La registrazione è attualmente disabilitata su questa istanza.",
+          "description": "I nuovi account sono solo su invito. Chiedi al proprietario di una dashboard di invitarti.",
           "backToSignIn": "Torna all'accesso"
         }
       },
       "forgotPassword": {
         "seo": {
           "title": "Reimposta password | Betterlytics",
-          "description": "Reimposta in modo sicuro la tua password Betterlytics. Inserisci l’e-mail per ricevere un link protetto e recuperare l’accesso all’account."
+          "description": "Reimposta in modo sicuro la tua password Betterlytics. Inserisci l'e-mail per ricevere un link protetto e recuperare l'accesso all'account."
         },
         "title": "Reimposta la tua password",
-        "subtitle": "Inserisci la tua email e ti invieremo un link per reimpostare la password",
-        "emailField": "Indirizzo Email",
-        "emailFieldPlaceholder": "Inserisci il tuo indirizzo email",
-        "emailFieldDescription": "Inserisci l'indirizzo email associato al tuo account e ti invieremo un link per reimpostare la password.",
-        "successMessage": "Email per il reset della password inviata!",
-        "errorMessage": "Impossibile inviare l'email per il reset della password. Riprova.",
-        "errorMessageInvalidEmail": "Inserisci un indirizzo email valido",
-        "cta": {
-          "sendResetLink": "Invia link per il reset della password",
-          "sending": "Invio...",
-          "remember": "Ricordi la tua password?",
-          "backToSignIn": "Torna all'accesso"
-        },
-        "errorMessageTooManyRequests": "Troppe richieste di reimpostazione. Riprova più tardi."
+        "lede": "Ti invieremo via email un link per impostarne una nuova.",
+        "submit": "Invia link di reimpostazione",
+        "submitting": "Invio…",
+        "sentTitle": "Controlla la tua casella di posta",
+        "sentBody": "Se esiste un account per {email}, è in arrivo un link di reimpostazione. Vale per un'ora.",
+        "differentEmail": "Usa un'altra email",
+        "remember": "Ricordi la tua password?",
+        "signIn": "Accedi",
+        "errors": {
+          "failed": "Non siamo riusciti a inviare l'email di reimpostazione. Riprova."
+        }
       },
       "resetPassword": {
         "seo": {
           "title": "Reimposta password | Account Betterlytics",
           "description": "Imposta una nuova password per il tuo account Betterlytics in modo sicuro utilizzando il link protetto di reimpostazione."
         },
+        "title": "Imposta la tua nuova password",
+        "lede": "Scegline una che non usi altrove.",
+        "submit": "Salva password",
+        "submitting": "Salvataggio…",
+        "doneTitle": "Password aggiornata",
+        "doneLede": "Accedi con la tua nuova password.",
+        "remember": "Ricordi la tua password?",
+        "signIn": "Accedi",
+        "requestLink": "Richiedi nuovo link di reimpostazione",
         "invalid": {
           "title": "Link di reimpostazione non valido",
-          "description": "Questo link per reimpostare la password non è valido o manca un token.",
-          "note": "Richiedi un nuovo link per reimpostare la password.",
-          "requestLink": "Richiedi nuovo link di reimpostazione"
+          "description": "Questo link è incompleto o è già stato usato. Richiedine uno nuovo per continuare."
         },
         "expired": {
-          "title": "Link di reimpostazione scaduto",
-          "description": "Questo link per reimpostare la password è scaduto o non è valido.",
-          "info": "I link per reimpostare la password scadono dopo 1 ora per motivi di sicurezza. Richiedine uno nuovo.",
-          "requestLink": "Richiedi nuovo link di reimpostazione"
+          "title": "Il link di reimpostazione non è più valido",
+          "description": "I link di reimpostazione valgono una sola volta, per un'ora. Richiedine uno nuovo per continuare."
         },
-        "form": {
-          "title": "Imposta la tua nuova password",
-          "description": "Inserisci la tua nuova password sotto",
-          "errors": {
-            "invalidToken": "Questo link di reimpostazione non è valido o è scaduto. Richiedine uno nuovo.",
-            "weakPassword": "La password non soddisfa i requisiti.",
-            "tooManyAttempts": "Troppi tentativi. Riprova più tardi.",
-            "generic": "Impossibile reimpostare la password. Riprova."
-          },
-          "successMessage": "Password reimpostata con successo!"
-        },
-        "cta": {
-          "remember": "Ricordi la tua password?",
-          "backToSignIn": "Torna all'accesso"
+        "errors": {
+          "invalidToken": "Questo link di reimpostazione non è valido o è scaduto. Richiedine uno nuovo.",
+          "generic": "Non siamo riusciti a salvare la password. Riprova."
         }
       },
       "verifyEmail": {
         "invalid": {
-          "title": "Link di Verifica Non Valido",
-          "description": "Il link di verifica è non valido o mancante. Controlla la tua email e riprova.",
-          "backToSignIn": "Torna al Login"
+          "title": "Link di verifica non valido",
+          "description": "Questo link è incompleto o è già stato usato. Inviatene uno nuovo qui sotto."
         },
         "failed": {
-          "title": "Verifica Fallita",
-          "expiredInfo": "I link di verifica scadono dopo 24 ore per motivi di sicurezza. Puoi richiederne uno nuovo e riprovare.",
-          "genericFallback": "Si è verificato un errore durante la verifica."
-        },
-        "buttons": {
-          "returnToDashboard": "Torna alla Dashboard",
-          "backToSignIn": "Torna al Login"
-        },
-        "helpLine": "Hai bisogno di aiuto? Contatta il supporto a support@betterlytics.io",
-        "loading": {
-          "title": "Verifica in corso...",
-          "description": "Attendi un momento mentre verifichiamo il tuo indirizzo email."
+          "title": "Verifica non riuscita",
+          "expiredInfo": "I link di verifica valgono 24 ore. Inviatene uno nuovo qui sotto.",
+          "genericFallback": "Questo link non ha funzionato. Inviatene uno nuovo qui sotto.",
+          "expiredTitle": "Link scaduto"
         },
         "success": {
-          "title": "Email Verificata!",
-          "description": "La tua email è stata verificata con successo.",
-          "celebration": "Benvenuto a bordo!",
-          "redirecting": "Ti stiamo portando alla tua dashboard...",
-          "clickHere": "Clicca qui se non vieni reindirizzato automaticamente",
-          "redirectingToSignin": "Ti stiamo portando alla pagina di login...",
-          "errors": {
-            "redirectTimeout": "Il reindirizzamento sta impiegando più tempo del previsto.",
-            "redirectFailed": "Qualcosa è andato storto durante il reindirizzamento."
-          }
+          "title": "Email verificata",
+          "description": "È tutto pronto.",
+          "redirecting": "Ti stiamo portando alla tua dashboard…",
+          "redirectingToSignin": "Ti stiamo portando alla pagina di login…",
+          "redirectTimeout": "Il reindirizzamento sta impiegando più tempo del previsto."
         },
-        "verifying": {
-          "title": "Verifica della tua email...",
-          "description": "Attendi mentre confermiamo il tuo indirizzo email."
-        }
+        "returnToDashboard": "Vai alle dashboard",
+        "backToSignIn": "Torna all'accesso",
+        "helpLine": "Hai bisogno di aiuto? Contatta il supporto a <mail>support@betterlytics.io</mail>",
+        "resend": {
+          "submit": "Invia un nuovo link",
+          "submitting": "Invio…",
+          "to": "Lo invieremo a {email}.",
+          "sent": "Un nuovo link è in arrivo a {email}. È valido per 24 ore.",
+          "sentIfWaiting": "Se {email} ha un account in attesa di verifica, un nuovo link è in arrivo. È valido per 24 ore.",
+          "alreadyVerified": "La tua email è già verificata.",
+          "failed": "Impossibile inviare un nuovo link, riprova.",
+          "differentEmail": "Usa un'altra email"
+        },
+        "alreadyVerifiedTitle": "Email già verificata"
       }
     },
     "demo": {
@@ -3175,47 +3197,6 @@
     }
   },
   "onboarding": {
-    "registrationDisabled": "La registrazione è attualmente disabilitata su questa istanza.",
-    "account": {
-      "features": {
-        "feature1": {
-          "title": "Inizia in meno di 2 minuti",
-          "description": "Aggiungi una riga di codice o installa il nostro pacchetto npm. Niente cookie, niente pop‑up."
-        },
-        "feature2": {
-          "title": "Gratis per iniziare",
-          "description": "10.000 eventi al mese. Nessuna carta di credito. Nessun vincolo."
-        },
-        "feature3": {
-          "title": "Privacy‑first e open source",
-          "description": "Senza cookie, conforme al GDPR e ospitato nell'UE. Trasparente e sicuro."
-        }
-      },
-      "form": {
-        "title": "Crea il tuo account",
-        "signUpWith": "Registrati con",
-        "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
-        "orDivider": "oppure",
-        "emailLabel": "Email",
-        "emailPlaceholder": "Inserisci la tua email",
-        "passwordLabel": "Password",
-        "passwordPlaceholder": "Inserisci la tua password (min. 8 caratteri)",
-        "confirmPasswordLabel": "Conferma password",
-        "confirmPasswordPlaceholder": "Conferma la tua password",
-        "continueButton": "Continua",
-        "creatingAccount": "Creazione account...",
-        "signingUpGoogle": "Registrazione...",
-        "signingUpGitHub": "Registrazione...",
-        "googleButton": "Google",
-        "gitHubButton": "GitHub",
-        "passwordsDoNotMatch": "Le password non corrispondono",
-        "emailAlreadyExists": "Esiste già un utente con questa email.",
-        "signUpError": "Si è verificato un errore durante la registrazione. Riprova.",
-        "checkInput": "Controlla il tuo input",
-        "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi un invito al proprietario di una dashboard.",
-        "invitedToHint": "Sei stato invitato a unirti a {domain}"
-      }
-    },
     "website": {
       "title": "Configura il tuo dashboard",
       "description": "Raccontaci del sito web che vuoi monitorare",
@@ -3223,7 +3204,7 @@
       "domainPlaceholder": "esempio.com",
       "domainHelp": "Incolla l’URL o il dominio del tuo sito (es. esempio.com)",
       "domainWillBeCreatedAs": "Verrà creato come <strong>{domain}</strong>",
-      "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e l'<privacyLink>Informativa sulla privacy</privacyLink>.",
+      "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e <privacyLink>l'Informativa sulla privacy</privacyLink>.",
       "createDashboardButton": "Crea dashboard",
       "creatingDashboard": "Creazione dashboard...",
       "dashboardCreatedSuccess": "Dashboard creata con successo!"
@@ -3465,7 +3446,8 @@
       "goToDashboards": "Vai alle dashboard",
       "errorHint": "Riprova tra qualche istante. Se il problema persiste, chiedi a {inviter} di inviarti un nuovo invito.",
       "tryAgain": "Riprova",
-      "dashboardOwner": "il proprietario della dashboard"
+      "dashboardOwner": "il proprietario della dashboard",
+      "signOutAndContinue": "Esci e continua"
     }
   },
   "integration": {

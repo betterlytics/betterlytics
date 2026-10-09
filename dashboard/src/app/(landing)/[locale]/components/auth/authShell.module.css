@@ -1,0 +1,48 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* clips the panel's construction lines, which run past the page both ways: across, and above and below on a
+     short window, where they would otherwise make a page that fits scroll */
+  .root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    overflow: clip;
+  }
+
+  .top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 72px;
+    padding-inline: clamp(20px, 3vw, 40px);
+    @variant max-sm {
+      height: 56px;
+      padding-inline: var(--pad);
+    }
+  }
+
+  .middle {
+    position: relative;
+    display: grid;
+    flex: 1;
+    grid-template-columns: minmax(0, 1fr);
+    place-items: center;
+    padding: 56px calc(var(--inset) + 24px);
+    @variant max-sm {
+      place-items: start center;
+      padding: 20px var(--pad) 36px;
+    }
+  }
+
+  .bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 20px;
+    padding: 8px var(--pad) 26px;
+  }
+}

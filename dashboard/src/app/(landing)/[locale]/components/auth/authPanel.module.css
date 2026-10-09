@@ -1,0 +1,88 @@
+@reference '../../landing.css';
+
+@layer components {
+  .panel {
+    position: relative;
+    z-index: 1;
+    width: min(448px, 100%);
+    border-inline: 1px solid var(--color-rule);
+    background: rgb(25 24 23 / 0.72);
+    @variant max-sm {
+      width: 100%;
+    }
+  }
+
+  /* construction lines: the panel's edges carried out across the page */
+  .guide {
+    position: absolute;
+    pointer-events: none;
+    background: var(--color-rule-125);
+    transition: background-color 0.6s ease 0.6s;
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .guideX {
+    left: 50%;
+    width: 100vw;
+    height: 1px;
+    translate: -50% 0;
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 24%, #000 76%, transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 24%, #000 76%, transparent 100%);
+  }
+  .guideY {
+    top: 50%;
+    width: 1px;
+    height: 1400px;
+    translate: 0 -50%;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 12%, #000 34%, #000 66%, transparent 88%);
+    mask-image: linear-gradient(to bottom, transparent 12%, #000 34%, #000 66%, transparent 88%);
+  }
+  .atTop {
+    top: -1px;
+  }
+  .atBottom {
+    bottom: -1px;
+  }
+  .atStart {
+    left: -1px;
+  }
+  .atEnd {
+    right: -1px;
+  }
+
+  .head {
+    padding: 30px 32px 28px;
+    border-bottom: 1px solid var(--color-rule-10);
+    transition: border-color 0.5s ease 0.55s;
+    @variant max-sm {
+      padding: 26px 20px 24px;
+    }
+  }
+  .body {
+    --auth-cell-bleed: 32px;
+    padding: 28px 32px 32px;
+    @variant max-sm {
+      --auth-cell-bleed: 20px;
+      padding: 24px 20px 28px;
+    }
+  }
+  /* the oauth strip sits flush under the header, whose rule is its top edge: that rule comes with the strip's own
+     rules, so the buttons never show without it */
+  .head:has(+ .body [data-oauth='cells']) {
+    transition: none;
+  }
+  .body [data-oauth='cells'] {
+    margin-top: -28px;
+    margin-bottom: 8px;
+    border-top: 0;
+    @variant max-sm {
+      margin-top: -24px;
+    }
+  }
+  .foot {
+    padding: 15px 24px;
+    border-top: 1px solid var(--color-rule-10);
+    transition: border-color 0.5s ease 0.55s;
+  }
+}

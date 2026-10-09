@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { LoadingMark } from '@/landing/components/ui/brandMark';
+import { FINE_LINK } from '@/landing/components/ui/text';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
 import { useInView } from '@/landing/hooks/useInView';
+import { cn } from '@/landing/lib/cn';
 import { track } from '@/landing/lib/analytics';
 import styles from './demoFrame.module.css';
 
@@ -94,7 +96,7 @@ export function DemoFrame({ src }: { src: string }) {
         <div className='absolute inset-0 grid place-items-center'>
           {stalled ? (
             <TrackedLink
-              className='text-label text-muted underline decoration-rule-30 underline-offset-[3px] transition-colors duration-180 ease-out-expo hover:text-fg hover:decoration-current'
+              className={cn('text-label text-muted', FINE_LINK)}
               href='/demo'
               target='_blank'
               rel='noopener'

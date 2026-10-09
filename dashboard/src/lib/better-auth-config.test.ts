@@ -14,6 +14,7 @@ import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
+import { APIError, getSessionFromCtx } from 'better-auth/api';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -57,6 +58,11 @@ vi.mock('@/services/billing/subscription.service', () => ({
 vi.mock('@/services/account/verification.service', () => ({
   sendVerificationEmail: vi.fn(),
   VERIFICATION_LINK_EXPIRY_SECONDS: 86400,
+  VERIFICATION_EMAIL_THROTTLED: 'VERIFICATION_EMAIL_THROTTLED',
+}));
+vi.mock('better-auth/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('better-auth/api')>()),
+  getSessionFromCtx: vi.fn(),
 }));
 vi.mock('@/services/email/email.service', () => ({
   enqueueEmail: vi.fn(),
@@ -342,6 +348,43 @@ describe('email verification (better-auth module)', () => {
       { id: 'user-1', email: 'user@example.com', name: 'Test User' },
       'https://app.test/api/auth/verify-email?token=jwt&callbackURL=%2Fverify-email%3Fverified%3D1',
     );
+  });
+});
+
+describe('after hook (a throttled resend, signed out)', () => {
+  type AfterHook = (ctx: {
+    path: string;
+    context: { returned: unknown };
+    json: (data: unknown) => unknown;
+  }) => Promise<unknown>;
+  const runAfterHook = (path: string, returned: unknown) =>
+    (auth.options.hooks!.after as unknown as AfterHook)({ path, context: { returned }, json: (data) => data });
+  const throttled = () =>
+    new APIError('TOO_MANY_REQUESTS', { message: 'sent recently', code: 'VERIFICATION_EMAIL_THROTTLED' });
+
+  it('answers signed out exactly as for an unknown address, so the throttle names no account', async () => {
+    vi.mocked(getSessionFromCtx).mockResolvedValue(null);
+
+    const response = (await runAfterHook('/send-verification-email', throttled())) as Response;
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: true });
+  });
+
+  it('keeps the throttle for a signed-in account', async () => {
+    vi.mocked(getSessionFromCtx).mockResolvedValue({ user: { id: 'user-1' } } as never);
+
+    await expect(runAfterHook('/send-verification-email', throttled())).resolves.toBeUndefined();
+  });
+
+  it('leaves every other answer alone', async () => {
+    vi.mocked(getSessionFromCtx).mockResolvedValue(null);
+
+    await expect(
+      runAfterHook('/send-verification-email', new APIError('BAD_REQUEST', { code: 'EMAIL_MISMATCH' })),
+    ).resolves.toBeUndefined();
+    await expect(runAfterHook('/send-verification-email', { status: true })).resolves.toBeUndefined();
+    await expect(runAfterHook('/request-password-reset', throttled())).resolves.toBeUndefined();
   });
 });
 

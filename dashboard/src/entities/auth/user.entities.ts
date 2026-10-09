@@ -6,7 +6,7 @@ import { PasswordSchema } from './password.entities';
 export const UserSchema = z.object({
   id: z.string(),
   name: z.string().nullable(),
-  email: z.string().email(),
+  email: z.string(),
   role: z.nativeEnum(UserRole).nullable(),
   emailVerified: z.boolean().default(false),
   image: z.string().nullable().optional(),
@@ -66,7 +66,7 @@ export const AuthenticatedUserSchema = UserSchema.extend({
 
 export const UserWithoutDashboardCandidateSchema = z.object({
   userId: z.string(),
-  email: z.string().email(),
+  email: UserSchema.shape.email,
   name: z.string().nullable(),
 });
 

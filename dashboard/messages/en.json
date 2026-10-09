@@ -638,64 +638,99 @@
       }
     },
     "auth": {
+      "shell": {
+        "legal": "Legal",
+        "privacy": "Privacy",
+        "terms": "Terms"
+      },
+      "fields": {
+        "email": "Email",
+        "emailPlaceholder": "you@company.com",
+        "password": "Password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm password",
+        "showPassword": "Show password",
+        "continueWith": "Continue with {provider}",
+        "rules": {
+          "label": "Your password needs",
+          "length": "8+ characters",
+          "lower": "One lowercase",
+          "upper": "One uppercase",
+          "met": "met",
+          "unmet": "not met"
+        },
+        "errors": {
+          "invalidEmail": "Enter a valid email address.",
+          "weakPassword": "Your password doesn't meet the requirements.",
+          "passwordsDoNotMatch": "The passwords don't match.",
+          "tooManyRequests": "Too many attempts. Please try again later.",
+          "emailRequired": "Enter your email address.",
+          "passwordRequired": "Enter your password.",
+          "confirmRequired": "Confirm your new password."
+        }
+      },
       "signin": {
         "seo": {
           "title": "Sign in | Betterlytics",
           "description": "Sign in to Betterlytics to see your website traffic, session replays, errors and uptime in one dashboard."
         },
-        "title": "Sign in to your account",
-        "subtitle": "Access your analytics dashboard",
+        "title": "Welcome back",
+        "lede": "One account for analytics, session replay, errors and uptime.",
+        "forgotPassword": "Forgot your password?",
+        "submit": "Sign in",
+        "submitting": "Signing in…",
+        "noAccount": "New to Betterlytics?",
+        "createAccount": "Create an account",
+        "askAdmin": "Ask a dashboard owner to invite you.",
+        "registrationDisabled": "Registration is disabled on this instance.",
         "errors": {
-          "OAuthAccountNotLinked": "An account with this email already exists. Please sign in with your email and password instead.",
-          "default": "An error occurred during sign in. Please try again."
+          "accountNotLinked": "An account with this email already exists. Sign in the way you did before.",
+          "default": "Something went wrong signing you in. Please try again.",
+          "invalidCredentials": "Incorrect email or password.",
+          "invalidOtp": "That code didn't work. Check your authenticator app and try again.",
+          "invalidBackupCode": "That backup code didn't work. Check it and try again.",
+          "generic": "Something went wrong signing you in. Please try again.",
+          "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner to invite you.",
+          "emailNotFound": "We couldn't get an email address from that account. Make your email visible with the provider, or sign in with email and password.",
+          "unableToLink": "We couldn't connect that account to yours. Sign in with your email and password instead.",
+          "twoFactorExpired": "Your sign-in attempt expired. Enter your password again.",
+          "twoFactorTooMany": "Too many incorrect codes. Enter your password to try again."
         },
-        "cta": {
-          "noAccount": "Don't have an account?",
-          "createOne": "Create one"
-        },
-        "form": {
-          "emailLabel": "Email",
-          "emailPlaceholder": "Enter your email",
-          "passwordLabel": "Password",
-          "passwordPlaceholder": "Enter your password",
-          "forgotPassword": "Forgot your password?",
-          "submitButton": "Sign in",
-          "submitting": "Signing in...",
-          "orDivider": "or",
-          "continueWithGoogle": "Continue with Google",
-          "continueWithGithub": "Continue with GitHub",
-          "errors": {
-            "invalidOtp": "Invalid verification code. Please check your credentials and try again.",
-            "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
-            "generic": "An error occurred during sign in. Please try again.",
-            "invalidBackupCode": "Invalid backup code. Please try again."
-          },
-          "twoFactor": {
-            "title": "Two-factor authentication",
-            "description": "Enter the verification code from your authenticator app.",
-            "cancel": "Cancel",
-            "backupCodeDescription": "Enter one of your backup codes. Each code can only be used once.",
-            "useBackupCode": "Use a backup code instead",
-            "useAuthenticator": "Use your authenticator app instead",
-            "verify": "Verify"
-          }
+        "twoFactor": {
+          "title": "Two-factor authentication",
+          "description": "Enter the verification code from your authenticator app.",
+          "backupCodeDescription": "Enter one of your backup codes. Each code can only be used once.",
+          "backupCodeLabel": "Backup code",
+          "useBackupCode": "Use a backup code instead",
+          "useAuthenticator": "Use your authenticator app instead",
+          "verify": "Verify",
+          "back": "Back"
         }
       },
       "register": {
         "seo": {
           "title": "Create your free Betterlytics account",
-          "description": "Create a free Betterlytics account for web analytics, session replay, error tracking and uptime monitoring. No credit card needed."
+          "description": "Create a free Betterlytics account for web analytics, session replay, error tracking and uptime monitoring. No credit card required."
         },
         "title": "Create your account",
-        "subtitle": "Get started for free — set up your analytics in minutes",
-        "cta": {
-          "haveAccount": "Already have an account?",
-          "signIn": "Sign in"
+        "lede": "Free to start, no credit card required.",
+        "ledeSelfHosted": "One account for analytics, session replay, errors and uptime.",
+        "invited": "You've been invited to join {domain}.",
+        "submit": "Create account",
+        "submitting": "Creating account…",
+        "termsAgree": "I agree to the <terms>Terms of Service</terms> and have read the <privacy>Privacy Policy</privacy>.",
+        "haveAccount": "Already have an account?",
+        "signIn": "Sign in",
+        "errors": {
+          "emailExists": "An account with this email already exists. Sign in instead.",
+          "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner to invite you.",
+          "generic": "Something went wrong creating your account. Please try again.",
+          "termsRequired": "Agree to the Terms of Service to continue."
         },
         "disabled": {
-          "title": "Registration Disabled",
-          "description": "Registration is currently disabled on this instance.",
-          "backToSignIn": "Back to Sign In"
+          "title": "Registration is disabled",
+          "description": "New accounts are by invitation only. Ask a dashboard owner to invite you.",
+          "backToSignIn": "Back to sign in"
         }
       },
       "forgotPassword": {
@@ -704,90 +739,77 @@
           "description": "Reset your Betterlytics password securely. Enter your email to receive a protected reset link and regain account access."
         },
         "title": "Reset your password",
-        "subtitle": "Enter your email and we'll send you a password reset link",
-        "emailField": "Email Address",
-        "emailFieldPlaceholder": "Enter your email address",
-        "emailFieldDescription": "Enter the email address associated with your account and we'll send you a password reset link.",
-        "successMessage": "Password reset email sent!",
-        "errorMessage": "Failed to send password reset email, please try again.",
-        "errorMessageInvalidEmail": "Please enter a valid email address",
-        "cta": {
-          "sendResetLink": "Send Password Reset Link",
-          "sending": "Sending...",
-          "remember": "Remember your password?",
-          "backToSignIn": "Back to Sign In"
-        },
-        "errorMessageTooManyRequests": "Too many reset requests. Please try again later."
+        "lede": "We'll email you a link to set a new one.",
+        "submit": "Send reset link",
+        "submitting": "Sending…",
+        "sentTitle": "Check your inbox",
+        "sentBody": "If an account exists for {email}, a reset link is on its way. It works for one hour.",
+        "differentEmail": "Use a different email",
+        "remember": "Remember your password?",
+        "signIn": "Sign in",
+        "errors": {
+          "failed": "We couldn't send the reset email. Please try again."
+        }
       },
       "resetPassword": {
         "seo": {
           "title": "Reset your password | Betterlytics",
           "description": "Set a new password for your Betterlytics account securely using your protected reset link and regain full access."
         },
+        "title": "Set your new password",
+        "lede": "Pick one you don't use anywhere else.",
+        "submit": "Save password",
+        "submitting": "Saving…",
+        "doneTitle": "Password updated",
+        "doneLede": "Sign in with your new password.",
+        "remember": "Remember your password?",
+        "signIn": "Sign in",
+        "requestLink": "Request a new link",
         "invalid": {
-          "title": "Invalid Reset Link",
-          "description": "This password reset link is invalid or missing a token.",
-          "note": "Please request a new password reset link.",
-          "requestLink": "Request New Reset Link"
+          "title": "Invalid reset link",
+          "description": "This link is incomplete or has already been used. Request a new one to continue."
         },
         "expired": {
-          "title": "Reset Link Expired",
-          "description": "This password reset link has expired or is invalid.",
-          "info": "Password reset links expire after 1 hour for security reasons. Please request a new one.",
-          "requestLink": "Request New Reset Link"
+          "title": "Reset link no longer works",
+          "description": "Reset links work once, for one hour. Request a new one to continue."
         },
-        "form": {
-          "title": "Set your new password",
-          "description": "Enter your new password below",
-          "errors": {
-            "invalidToken": "This reset link is invalid or has expired. Please request a new one.",
-            "weakPassword": "Password does not meet the requirements.",
-            "tooManyAttempts": "Too many attempts. Please try again later.",
-            "generic": "Failed to reset password. Please try again."
-          },
-          "successMessage": "Password reset successful!"
-        },
-        "cta": {
-          "remember": "Remember your password?",
-          "backToSignIn": "Back to Sign In"
+        "errors": {
+          "invalidToken": "This reset link is invalid or has expired. Request a new one.",
+          "generic": "We couldn't save your password. Please try again."
         }
       },
       "verifyEmail": {
         "invalid": {
-          "title": "Invalid Verification Link",
-          "description": "The verification link is invalid or missing. Please check your email and try again.",
-          "backToSignIn": "Back to Sign In"
+          "title": "Invalid verification link",
+          "description": "This link is incomplete or has already been used. Send yourself a new one below."
         },
         "failed": {
-          "title": "Verification Failed",
-          "expiredInfo": "Verification links expire after 24 hours for security. You can request a new one and try again.",
-          "genericFallback": "An error occurred during verification."
-        },
-        "buttons": {
-          "returnToDashboard": "Return to Dashboard",
-          "backToSignIn": "Back to Sign In"
-        },
-        "helpLine": "Need help? Contact support at support@betterlytics.io",
-        "loading": {
-          "title": "Verifying...",
-          "description": "Please wait a moment while we verify your email address."
+          "title": "Verification failed",
+          "expiredInfo": "Verification links work for 24 hours. Send yourself a new one below.",
+          "genericFallback": "This link didn't work. Send yourself a new one below.",
+          "expiredTitle": "Link expired"
         },
         "success": {
-          "title": "Email Verified!",
-          "description": "Your email has been successfully verified.",
-          "celebration": "Welcome aboard!",
-          "redirecting": "Taking you to your dashboard...",
-          "clickHere": "Click here if not redirected automatically",
-          "redirectingToSignin": "Taking you to sign in...",
-          "errors": {
-            "redirectTimeout": "Redirect is taking longer than expected.",
-            "redirectFailed": "Something went wrong during the redirect."
-          }
+          "title": "Email verified",
+          "description": "You're all set.",
+          "redirecting": "Taking you to your dashboard…",
+          "redirectingToSignin": "Taking you to sign in…",
+          "redirectTimeout": "Redirect is taking longer than expected."
         },
-        "verifying": {
-          "title": "Verifying your email...",
-          "description": "Please wait while we confirm your email address."
-        }
+        "returnToDashboard": "Go to dashboards",
+        "backToSignIn": "Back to sign in",
+        "helpLine": "Need help? Contact support at <mail>support@betterlytics.io</mail>",
+        "resend": {
+          "submit": "Send a new link",
+          "submitting": "Sending…",
+          "to": "We'll send it to {email}.",
+          "sent": "A new link is on its way to {email}. It works for 24 hours.",
+          "sentIfWaiting": "If {email} has an account waiting to be verified, a new link is on its way. It works for 24 hours.",
+          "alreadyVerified": "Your email is already verified.",
+          "failed": "Couldn't send a new link, please try again.",
+          "differentEmail": "Use a different email"
+        },
+        "alreadyVerifiedTitle": "Email already verified"
       }
     },
     "demo": {
@@ -3172,47 +3194,6 @@
     }
   },
   "onboarding": {
-    "registrationDisabled": "Registration is currently disabled on this instance.",
-    "account": {
-      "features": {
-        "feature1": {
-          "title": "Get started in under 2 minutes",
-          "description": "Just add one line of code or install our npm package. No cookies, no pop-ups."
-        },
-        "feature2": {
-          "title": "Free to get started",
-          "description": "10,000 events per month. No credit card. No commitment."
-        },
-        "feature3": {
-          "title": "Privacy-first & open source",
-          "description": "Cookieless, GDPR-compliant, and EU-hosted. Transparent and secure."
-        }
-      },
-      "form": {
-        "title": "Create your account",
-        "signUpWith": "Sign up with",
-        "termsAgreeLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
-        "orDivider": "or",
-        "emailLabel": "Email",
-        "emailPlaceholder": "Enter your email",
-        "passwordLabel": "Password",
-        "passwordPlaceholder": "Enter your password (min. 8 characters)",
-        "confirmPasswordLabel": "Confirm Password",
-        "confirmPasswordPlaceholder": "Confirm your password",
-        "continueButton": "Continue",
-        "creatingAccount": "Creating account...",
-        "signingUpGoogle": "Signing up...",
-        "signingUpGitHub": "Signing up...",
-        "googleButton": "Google",
-        "gitHubButton": "GitHub",
-        "passwordsDoNotMatch": "Passwords do not match",
-        "emailAlreadyExists": "User with that email already exists.",
-        "signUpError": "An error occurred during sign up. Please try again.",
-        "checkInput": "Please check your input",
-        "registrationDisabled": "Registration is disabled on this instance. Ask a dashboard owner for an invitation.",
-        "invitedToHint": "You've been invited to join {domain}"
-      }
-    },
     "website": {
       "title": "Set up your dashboard",
       "description": "Tell us about the website you want to track",
@@ -3448,21 +3429,22 @@
       "pendingCount": "{current} of {total} pending invitations"
     },
     "acceptPage": {
-      "notFoundTitle": "Invitation Not Found",
+      "notFoundTitle": "Invitation not found",
       "notFoundDescription": "This invitation link is invalid or has already been used.",
-      "goToSignIn": "Go to Sign In",
-      "expiredTitle": "Invitation Expired",
+      "goToSignIn": "Go to sign in",
+      "expiredTitle": "Invitation expired",
       "expiredDescription": "This invitation is no longer valid.",
       "expiredHint": "Ask {inviter} to send you a new invitation.",
-      "emailMismatchTitle": "Wrong Account",
+      "emailMismatchTitle": "Wrong account",
       "emailMismatchDescription": "This invitation was sent to {invitedEmail}, but you are signed in as {currentEmail}.",
       "emailMismatchHint": "Sign out and sign in with the correct account to accept this invitation.",
-      "errorTitle": "Could Not Accept Invitation",
+      "errorTitle": "Could not accept invitation",
       "errorDescription": "Something went wrong while adding you to the dashboard.",
-      "goToDashboards": "Go to Dashboards",
+      "goToDashboards": "Go to dashboards",
       "errorHint": "Try again in a moment. If it keeps failing, ask {inviter} to send you a new invitation.",
       "tryAgain": "Try again",
-      "dashboardOwner": "the dashboard owner"
+      "dashboardOwner": "the dashboard owner",
+      "signOutAndContinue": "Sign out and continue"
     }
   },
   "integration": {
