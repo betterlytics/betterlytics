@@ -15,6 +15,7 @@ import {
   describedBy,
   EmailInput,
   Field,
+  isEmailAddress,
   OAuthCells,
   PasswordInput,
   PasswordRules,
@@ -107,6 +108,7 @@ export function SignUpForm({
     if (pending) return;
     // top to bottom, so the first problem on the page is the one reported
     if (!email.trim()) return fail(tFields('errors.emailRequired'), 'email');
+    if (!isEmailAddress(email)) return fail(tFields('errors.invalidEmail'), 'email');
     if (!password) return fail(tFields('errors.passwordRequired'), 'password');
     const parsed = RegisterUserSchema.safeParse({
       email,
