@@ -5,6 +5,7 @@ import { env } from '@/lib/env';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
 import { decideStatusHostRoute, isOwnHost, normalizeHostname, ownHostsFrom } from '@/lib/status-host-routing';
 import { classifyStatusHost } from '@/services/analytics/statusHost.service';
+import { withSigninReturnTo } from '@/lib/auth/signin-redirect';
 
 const intlMiddleware = createMiddleware(routing);
 const OWN_HOSTS = ownHostsFrom(
@@ -14,6 +15,7 @@ const OWN_HOSTS = ownHostsFrom(
 );
 // Was the matcher's negative lookahead; now applied after the host check so status hosts can 404 these.
 const SKIP_INTL = /^\/(api|dashboard|dashboards|billing|admin)(\/|$)/;
+const SIGNED_IN_AREA = /^\/(dashboard|dashboards|billing|admin)(\/|$)/;
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -46,6 +48,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.rewrite(url);
     }
     return NextResponse.next();
+  }
+
+  if (SIGNED_IN_AREA.test(pathname)) {
+    return NextResponse.next({ request: { headers: withSigninReturnTo(request) } });
   }
 
   if (SKIP_INTL.test(pathname) || pathname.includes('.')) return NextResponse.next();

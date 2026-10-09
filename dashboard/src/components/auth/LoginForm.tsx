@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { authClient } from '@/lib/auth-client';
 import type { getEnabledOAuthProviders } from '@/lib/better-auth';
-import { useBARouter } from '@/hooks/use-ba-router';
 import OtpInput from '@/components/ui/otp-input';
 import {
   AlertDialog,
@@ -65,9 +64,9 @@ export default function LoginForm({
   registrationDisabledMessage,
   forgotPasswordEnabled,
   providers,
-  redirectTo = '/dashboards',
+  redirectTo,
 }: LoginFormProps) {
-  const router = useBARouter();
+  const destination = redirectTo ?? '/dashboard';
   const isMobile = useIsMobile();
   const t = useTranslations('public.auth.signin.form');
   const totpInputRef = useRef<HTMLInputElement>(null);
@@ -113,6 +112,15 @@ export default function LoginForm({
     backupCodeInputRef.current?.form?.requestSubmit();
   }, [isPending, useBackupCode, backupCode]);
 
+  // A full page load, not router.push: destinations such as /dashboard answer with a server redirect,
+  // which crashes the Next.js client router ("Rendered more hooks") when pushed from a freshly loaded
+  // sign-in page. The load also leaves no signed-out router state behind. The returned promise never
+  // settles, so the transition and the form stay pending until the page unloads.
+  const openDestination = () => {
+    window.location.assign(destination);
+    return new Promise<never>(() => {});
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -128,7 +136,7 @@ export default function LoginForm({
             setError(t(useBackupCode ? 'errors.invalidBackupCode' : 'errors.invalidOtp'));
             return;
           }
-          router.push(redirectTo);
+          await openDestination();
           return;
         }
 
@@ -141,7 +149,7 @@ export default function LoginForm({
           setIsDialogOpen(true);
           return;
         }
-        router.push(redirectTo);
+        await openDestination();
       } catch {
         setError(t('errors.generic'));
       }
@@ -160,9 +168,9 @@ export default function LoginForm({
           // keeps failures off better-auth's unbranded /api/auth/error page.
           const { error: socialError } = await authClient.signIn.social({
             provider: oauthProvider,
-            callbackURL: redirectTo,
+            callbackURL: destination,
             newUserCallbackURL: '/onboarding?newUser=true',
-            errorCallbackURL: '/signin',
+            errorCallbackURL: redirectTo ? `/signin?callbackUrl=${encodeURIComponent(redirectTo)}` : '/signin',
           });
           if (socialError) {
             setError(t('errors.generic'));
@@ -172,7 +180,7 @@ export default function LoginForm({
         }
       });
     },
-    [t, redirectTo],
+    [t, redirectTo, destination],
   );
 
   return (

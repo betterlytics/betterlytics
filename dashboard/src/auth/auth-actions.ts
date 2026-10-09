@@ -2,6 +2,8 @@ import 'server-only';
 
 import type { User, Session } from '@/entities/auth/session.entities';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+import { getSigninPath } from '@/lib/auth/signin-redirect';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import { withServerAction } from '@/middlewares/serverActionHandler';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
@@ -57,7 +59,7 @@ export async function requireAuth(): Promise<Session> {
   const session = await getAuthSession();
 
   if (!session?.user) {
-    redirect('/signin');
+    redirect(getSigninPath(await headers()));
   }
 
   return session;
@@ -77,7 +79,7 @@ async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
 async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
   const result = await resolveDashboardAuthResult(dashboardId);
   if (result.error) {
-    redirect(result.error === 'unauthenticated' ? '/signin' : '/dashboards');
+    redirect(result.error === 'unauthenticated' ? getSigninPath(await headers()) : '/dashboards');
   }
   return result.context;
 }
