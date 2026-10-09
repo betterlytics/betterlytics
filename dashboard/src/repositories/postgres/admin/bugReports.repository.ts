@@ -1,8 +1,8 @@
 import 'server-only';
 
 import prisma from '@/lib/postgres';
-import { AdminBugReportSchema, type AdminBugReport } from '@/entities/superadmin/bugReport.entities';
-import { ADMIN_PAGE_SIZE } from '@/constants/superadmin';
+import { AdminBugReportSchema, type AdminBugReport } from '@/entities/admin/bugReport.entities';
+import { ADMIN_PAGE_SIZE } from '@/constants/admin';
 import type { BugReportStatus } from '@prisma/client';
 
 export async function listBugReports(
