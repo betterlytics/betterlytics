@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { DashboardRole } from '@prisma/client';
 import { SiteConfigSchema } from './siteConfig.entities';
 import { normalizeDomainInput } from '@/utils/domainValidation';
+import { UserSchema } from '@/entities/auth/user.entities';
 
 // Domain validation schema (example.com)
 export const domainValidation = z
@@ -63,7 +64,7 @@ export const OnboardingDashboardCandidateSchema = z.object({
   domain: z.string(),
   createdAt: z.date(),
   ownerUserId: z.string(),
-  ownerEmail: z.string().email(),
+  ownerEmail: UserSchema.shape.email,
   ownerName: z.string().nullable(),
 });
 

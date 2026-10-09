@@ -1,9 +1,10 @@
 import { UserRole } from '@prisma/client';
 import { z } from 'zod';
+import { UserSchema } from '@/entities/auth/user.entities';
 
 export const SuperAdminUserListEntrySchema = z.object({
   id: z.string(),
-  email: z.string().email(),
+  email: UserSchema.shape.email,
   name: z.string().nullable(),
   role: z.nativeEnum(UserRole).nullable(),
   twoFactorEnabled: z.boolean(),
