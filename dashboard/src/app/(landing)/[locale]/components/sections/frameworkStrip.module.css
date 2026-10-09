@@ -128,7 +128,7 @@
       animation: rise 1.1s var(--ease-out-expo) backwards;
       animation-delay: calc(var(--i, 0) * 45ms);
     }
-    /* 5s across (sweep's 50%), then a 5s rest; the delay also holds after a hover resets it */
+    /* 3s across (sweep's 30%), then a 7s rest; the delay also holds after a hover resets it */
     .glyphs[data-in] .shine {
       display: flex;
       animation: sweep 10s linear 10s infinite;
@@ -163,7 +163,7 @@
   0% {
     mask-position: 100% 0;
   }
-  50%,
+  30%,
   100% {
     mask-position: 0% 0;
   }
