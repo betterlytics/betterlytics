@@ -1,9 +1,12 @@
 /* What the auth pages decide from their URLs, kept pure so the pages stay thin and the rules are tested. */
-import { SIGN_IN_REDIRECT_DEFAULT, SIGNUP_DISABLED_MESSAGE } from '@/constants/auth';
+import { SIGNUP_DISABLED_MESSAGE } from '@/constants/auth';
+import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import { toSafeRelativePath } from './safe-redirect';
 
-const ACCEPT_INVITE_PATH = /^(?:\/[a-z]{2})?\/accept-invite\/([^/?#]+)$/;
-const SIGNED_OUT_PAGE = /^(?:\/[a-z]{2})?\/(?:signin|signup|forgot-password|reset-password)\/?$/;
+const SIGN_IN_REDIRECT_DEFAULT = '/dashboards';
+const LOCALE_PREFIX = `(?:/(?:${SUPPORTED_LANGUAGES.join('|')}))?`;
+const ACCEPT_INVITE_PATH = new RegExp(`^${LOCALE_PREFIX}/accept-invite/([^/?#]+)$`);
+const SIGNED_OUT_PAGE = new RegExp(`^${LOCALE_PREFIX}/(?:signin|signup|forgot-password|reset-password)/?$`);
 
 /**
  * The callbackUrl when it is a path on this site, else the default. Never a page only for the signed out, which would
