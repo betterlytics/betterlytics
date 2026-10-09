@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { SIGNUP_DISABLED_MESSAGE } from '@/constants/auth';
+import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import {
   acceptInvitePath,
   inviteTokenFromCallback,
@@ -39,6 +40,14 @@ describe('signInRedirectPath', () => {
     ]) {
       expect(signInRedirectPath(value)).toBe('/dashboards');
     }
+  });
+
+  it('knows every supported locale, and only those', () => {
+    for (const locale of SUPPORTED_LANGUAGES) {
+      expect(signInRedirectPath(`/${locale}/signin`)).toBe('/dashboards');
+      expect(inviteTokenFromCallback(`/${locale}/accept-invite/tok`)).toBe('tok');
+    }
+    expect(signInRedirectPath('/xx/signin')).toBe('/xx/signin');
   });
 
   it('keeps look-alike paths', () => {
