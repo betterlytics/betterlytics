@@ -30,4 +30,19 @@ describe('toSafeRelativePath', () => {
   it('normalizes encoded slashes so the result cannot become protocol-relative', () => {
     expect(toSafeRelativePath('/%2F%2Fevil.example', '/dashboards')).toBe('/%2F%2Fevil.example');
   });
+
+  it.each([
+    ['dot segment', '/.//evil.example'],
+    ['double-dot segment', '/..//evil.example'],
+    ['nested dot segments', '/a/..//evil.example/x'],
+    ['encoded dot segment', '/%2e//evil.example'],
+    ['encoded uppercase dot segment', '/%2E//evil.example'],
+    ['encoded double-dot segment', '/%2e%2e//evil.example'],
+  ])('falls back when a %s normalizes to a protocol-relative path', (_label, value) => {
+    expect(toSafeRelativePath(value, '/dashboards')).toBe('/dashboards');
+  });
+
+  it('keeps dot segments that normalize to a same-origin path', () => {
+    expect(toSafeRelativePath('/dashboard/./1/../2?x=1', '/dashboards')).toBe('/dashboard/2?x=1');
+  });
 });

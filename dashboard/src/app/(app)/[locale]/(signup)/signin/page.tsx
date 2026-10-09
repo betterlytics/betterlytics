@@ -51,7 +51,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const registrationEnabled = isFeatureEnabled('enableRegistration');
   const emailsEnabled = isFeatureEnabled('enableEmails');
   const { error, registration, callbackUrl } = await searchParams;
-  const redirectTo = toSafeRelativePath(callbackUrl, '/dashboards');
+  const callbackPath = toSafeRelativePath(callbackUrl, '');
   const t = await getTranslations('public.auth.signin');
   const tOnboarding = await getTranslations('onboarding');
 
@@ -60,7 +60,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const providers = getEnabledOAuthProviders();
 
   if (session) {
-    redirect(redirectTo);
+    redirect(callbackPath || '/dashboard');
   }
 
   if (!registrationEnabled && (await isFirstUser())) {
@@ -95,7 +95,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
                 registrationDisabledMessage={registrationDisabledMessage}
                 forgotPasswordEnabled={emailsEnabled}
                 providers={providers}
-                redirectTo={redirectTo}
+                redirectTo={callbackPath || undefined}
               />
             </CardContent>
           </Card>

@@ -65,8 +65,9 @@ export default function LoginForm({
   registrationDisabledMessage,
   forgotPasswordEnabled,
   providers,
-  redirectTo = '/dashboards',
+  redirectTo,
 }: LoginFormProps) {
+  const destination = redirectTo ?? '/dashboard';
   const router = useBARouter();
   const isMobile = useIsMobile();
   const t = useTranslations('public.auth.signin.form');
@@ -128,7 +129,7 @@ export default function LoginForm({
             setError(t(useBackupCode ? 'errors.invalidBackupCode' : 'errors.invalidOtp'));
             return;
           }
-          router.push(redirectTo);
+          router.push(destination);
           return;
         }
 
@@ -141,7 +142,7 @@ export default function LoginForm({
           setIsDialogOpen(true);
           return;
         }
-        router.push(redirectTo);
+        router.push(destination);
       } catch {
         setError(t('errors.generic'));
       }
@@ -160,9 +161,9 @@ export default function LoginForm({
           // keeps failures off better-auth's unbranded /api/auth/error page.
           const { error: socialError } = await authClient.signIn.social({
             provider: oauthProvider,
-            callbackURL: redirectTo,
+            callbackURL: destination,
             newUserCallbackURL: '/onboarding?newUser=true',
-            errorCallbackURL: '/signin',
+            errorCallbackURL: redirectTo ? `/signin?callbackUrl=${encodeURIComponent(redirectTo)}` : '/signin',
           });
           if (socialError) {
             setError(t('errors.generic'));
@@ -172,7 +173,7 @@ export default function LoginForm({
         }
       });
     },
-    [t, redirectTo],
+    [t, redirectTo, destination],
   );
 
   return (

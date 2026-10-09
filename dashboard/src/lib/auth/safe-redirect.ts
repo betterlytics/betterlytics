@@ -9,7 +9,9 @@ export function toSafeRelativePath(value: unknown, fallback: string): string {
   try {
     const url = new URL(value, PLACEHOLDER_ORIGIN);
     if (url.origin !== PLACEHOLDER_ORIGIN) return fallback;
-    return `${url.pathname}${url.search}${url.hash}`;
+    const path = `${url.pathname}${url.search}${url.hash}`;
+    // Dot segments collapse during parsing: `/.//evil.example` comes out as protocol-relative `//evil.example`.
+    return path.startsWith('//') ? fallback : path;
   } catch {
     return fallback;
   }
