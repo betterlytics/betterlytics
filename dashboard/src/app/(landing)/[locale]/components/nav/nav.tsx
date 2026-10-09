@@ -25,7 +25,7 @@ const WIDE = '(width >= 56.25rem)';
 
 /* the GitHub icon and Sign in share this hover box */
 const BOXED =
-  'inline-flex h-8 items-center justify-center rounded-[7px] text-fg transition-[opacity,background-color] duration-180 ease-out-expo hover:bg-fg/6 hover:opacity-80';
+  'inline-flex h-8 items-center justify-center rounded-[7px] text-fg transition-[background-color] duration-180 ease-out-expo hover:bg-fg/6';
 /* muted at rest and white on hover, as nextjs.org does; the inverse read as every item being 'on' */
 const NAV_LINK = 'text-muted transition-colors duration-180 ease-out-expo hover:text-fg';
 /** Whole pixels (2px bars, 4px gaps, a 14px stack in 36px) so no bar blurs. */
