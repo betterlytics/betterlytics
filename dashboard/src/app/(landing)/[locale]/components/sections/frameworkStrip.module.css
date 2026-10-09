@@ -57,7 +57,6 @@
   }
   /* dot field behind the glyph, in its brand colour; the disc overflows the cell but its mask has faded out by the neighbour */
   .glyph::before {
-    --halo: 0%;
     content: '';
     position: absolute;
     inset: -8px;
@@ -77,22 +76,18 @@
       --halo 0.5s var(--ease-out-expo),
       opacity 0.25s var(--ease-out-expo);
   }
-  @variant hover {
-    .glyph:hover {
+  /* nested, not a top-level @variant: that compiles with a :scope prefix whose specificity would also beat the pre-reveal opacity */
+  .glyph {
+    @variant hover {
       opacity: 1;
       color: var(--hover, var(--color-fg));
-    }
-    .glyph:hover svg {
-      translate: 0 -1px;
-    }
-    .glyph:hover::before {
-      --halo: 100%;
-      opacity: 1;
-    }
-    /* the sweep copy can't follow the lift, so it steps aside while the reader is in the row and restarts after */
-    .glyphs:hover .shine {
-      opacity: 0;
-      animation: none;
+      svg {
+        translate: 0 -1px;
+      }
+      &::before {
+        --halo: 100%;
+        opacity: 1;
+      }
     }
   }
 
@@ -105,7 +100,6 @@
     mask-size: 300% 100%;
     mask-repeat: no-repeat;
     mask-position: 100% 0;
-    transition: opacity 0.2s var(--ease-out-expo);
   }
   /* the band passes in brand colour */
   .shine .glyph {
@@ -134,6 +128,14 @@
       animation: sweep 10s linear 10s infinite;
       @media (width < 96rem) {
         display: grid;
+      }
+    }
+    /* the sweep copy can't follow the lift, so a hover resets it; the band sits outside the row until the delay runs again */
+    .glyphs[data-in] {
+      @variant hover {
+        .shine {
+          animation: none;
+        }
       }
     }
     .glyphs:not([data-live]) .shine {
