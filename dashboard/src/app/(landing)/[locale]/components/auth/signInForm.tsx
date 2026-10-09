@@ -86,7 +86,9 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
       const { data, error: signInError } = await authClient.signIn.email({ email, password });
       if (signInError) {
         if (signInError.status === 429) fail(tFields('errors.tooManyRequests'));
-        else fail(t('errors.invalidCredentials'), 'both');
+        // only a 401 is a wrong password: an outage mustn't send someone off to reset a correct one
+        else if (signInError.status === 401) fail(t('errors.invalidCredentials'), 'both');
+        else fail(t('errors.generic'));
         return;
       }
       if (data && 'twoFactorRedirect' in data && data.twoFactorRedirect) {
@@ -262,7 +264,9 @@ function TwoFactorStep({
         setError(
           verifyError.status === 429
             ? tFields('errors.tooManyRequests')
-            : t(mode === 'backup' ? 'errors.invalidBackupCode' : 'errors.invalidOtp'),
+            : verifyError.status === 401
+              ? t(mode === 'backup' ? 'errors.invalidBackupCode' : 'errors.invalidOtp')
+              : t('errors.generic'),
         );
         return;
       }
