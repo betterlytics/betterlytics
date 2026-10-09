@@ -14,7 +14,7 @@ async function registerRetiredRetentionEnvWarning() {
     if (env.IS_CLOUD) return;
     console.warn(
       `[instrumentation] DATA_RETENTION_DAYS=${value} is ignored. Retention is set per dashboard under Settings > Data. ` +
-        'A value of -1 or above 365 is carried over once, on upgrade, to dashboards at the 1 year default. Remove DATA_RETENTION_DAYS from .env.',
+        'It was carried over once, on upgrade, as the minimum retention of every dashboard. Remove DATA_RETENTION_DAYS from .env.',
     );
   }
 }
