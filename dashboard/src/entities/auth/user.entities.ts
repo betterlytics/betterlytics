@@ -17,6 +17,8 @@ export const UserSchema = z.object({
   onboardingCompletedAt: z.date().nullable().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  lastActiveAt: z.date().nullable().optional(),
+  disabledAt: z.date().nullable().optional(),
   deletedAt: z.date().nullable().optional(),
 });
 

@@ -14,7 +14,13 @@ import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
-import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
+import {
+  findUserById,
+  findUserByEmail,
+  findCredentialAccount,
+  touchUserLastActive,
+} from '@/repositories/postgres/user.repository';
+import { ACCOUNT_DISABLED_ERROR_CODE } from '@/lib/auth/auth-error';
 import { PasswordSchema } from '@/entities/auth/password.entities';
 import { MAX_EMAIL_LENGTH } from '@/entities/auth/user.entities';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
@@ -44,6 +50,14 @@ const VERIFY_EMAIL_CALLBACK_URL = '/verify-email?verified=1';
 // A session created this soon after the user row is their first sign-in; skip the
 // locale sync there so default settings don't overwrite the locale they signed up in.
 const FIRST_SIGN_IN_WINDOW_MS = 60_000;
+
+async function recordUserActivity(userId: string): Promise<void> {
+  try {
+    await touchUserLastActive(userId);
+  } catch (error) {
+    console.error('Failed to record user activity:', { userId, error });
+  }
+}
 
 function signupLanguage(body: unknown): SupportedLanguages | undefined {
   const language = (body as { language?: unknown } | undefined)?.language;
@@ -139,10 +153,10 @@ export const auth = betterAuth({
         throw new APIError('NOT_FOUND');
       }
 
-      // OAuth-only accounts get no reset token; the response must match the unknown-email case
+      // OAuth-only and disabled accounts get no reset token; the response must match the unknown-email case
       if (ctx.path === '/request-password-reset' && typeof ctx.body?.email === 'string') {
         const user = await findUserByEmail(ctx.body.email);
-        if (user && !(await findCredentialAccount(user.id))) {
+        if (user && (user.disabledAt || !(await findCredentialAccount(user.id)))) {
           return ctx.json({
             status: true,
             message: 'If this email exists in our system, check your email for the reset link',
@@ -150,12 +164,13 @@ export const auth = betterAuth({
         }
       }
 
-      // Defence in depth: redeeming a reset for an OAuth-only account would attach a password login to it
+      // Defence in depth: redeeming a reset for an OAuth-only account would attach a password login to it,
+      // and a disabled account must not regain access through a link issued before it was disabled
       if (ctx.path === '/reset-password') {
         const token = ctx.body?.token ?? ctx.query?.token;
         if (typeof token === 'string' && token) {
           const userId = await findResetTokenUserId(resetTokenStoredIdentifier(token));
-          if (userId && !(await findCredentialAccount(userId))) {
+          if (userId && ((await findUserById(userId))?.disabledAt || !(await findCredentialAccount(userId)))) {
             throw new APIError('BAD_REQUEST', { message: 'Invalid token', code: 'INVALID_TOKEN' });
           }
         }
@@ -301,7 +316,19 @@ export const auth = betterAuth({
     },
     session: {
       create: {
+        // Every sign-in path (password, OAuth, 2FA, email verification) creates its session here
+        before: async (session) => {
+          const user = await findUserById(session.userId);
+          if (user?.disabledAt) {
+            throw new APIError('FORBIDDEN', {
+              message: 'This account has been disabled',
+              code: ACCOUNT_DISABLED_ERROR_CODE,
+            });
+          }
+        },
         after: async (session) => {
+          await recordUserActivity(session.userId);
+
           try {
             const user = await findUserById(session.userId);
             if (!user?.createdAt) return;
@@ -314,6 +341,12 @@ export const auth = betterAuth({
           } catch (error) {
             console.error('Failed to sync locale cookie on sign-in:', error);
           }
+        },
+      },
+      // Sessions refresh at most once per updateAge, which bounds these writes to one a day per session
+      update: {
+        after: async (session) => {
+          await recordUserActivity(session.userId);
         },
       },
     },

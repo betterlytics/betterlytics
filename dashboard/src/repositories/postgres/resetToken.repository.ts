@@ -15,6 +15,13 @@ export async function findResetTokenUserId(identifier: string): Promise<string |
   }
 }
 
+export async function replaceUserResetToken(userId: string, identifier: string, expiresAt: Date): Promise<void> {
+  await prisma.$transaction([
+    prisma.verification.deleteMany({ where: { value: userId, identifier: { startsWith: RESET_TOKEN_PREFIX } } }),
+    prisma.verification.create({ data: { identifier, value: userId, expiresAt } }),
+  ]);
+}
+
 export async function deleteUserResetTokens(userId: string, keepIdentifier?: string): Promise<void> {
   await prisma.verification.deleteMany({
     where: {

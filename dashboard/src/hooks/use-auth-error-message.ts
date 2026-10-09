@@ -17,6 +17,8 @@ export function useAuthErrorMessage() {
           return t('originMismatch', { origin: window.location.origin });
         case 'accountLocked':
           return t('accountLocked');
+        case 'accountDisabled':
+          return t('accountDisabled');
         case 'rateLimited':
           return t('rateLimited');
         case 'other':

@@ -13,6 +13,7 @@ import { getAuthSession } from '@/auth/auth-actions';
 import { getEnabledOAuthProviders } from '@/lib/better-auth';
 import { isFirstUser } from '@/services/auth/signupGate.service';
 import { toSafeRelativePath } from '@/lib/auth/safe-redirect';
+import { ACCOUNT_DISABLED_ERROR_CODE } from '@/lib/auth/auth-error';
 
 interface SignInPageProps {
   searchParams: Promise<{
@@ -56,6 +57,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const redirectTo = toSafeRelativePath(callbackUrl, '/dashboards');
   const t = await getTranslations('public.auth.signin');
   const tForm = await getTranslations('onboarding.account.form');
+  const tAuthErrors = await getTranslations('public.auth.errors');
 
   const registrationDisabledMessage = registration === 'disabled' ? tForm('registrationDisabled') : null;
   const isCloud = isFeatureEnabled('isCloud');
@@ -70,8 +72,11 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
     redirect('/signup');
   }
 
-  const getErrorMessage = (error: string) =>
-    error === 'account_not_linked' ? t('errors.OAuthAccountNotLinked') : t('errors.default');
+  const getErrorMessage = (error: string) => {
+    if (error === 'account_not_linked') return t('errors.OAuthAccountNotLinked');
+    if (error === ACCOUNT_DISABLED_ERROR_CODE) return tAuthErrors('accountDisabled');
+    return t('errors.default');
+  };
 
   return (
     <>

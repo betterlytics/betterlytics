@@ -5,6 +5,8 @@ import { getTranslations } from 'next-intl/server';
 import { UpdateUserData } from '@/entities/auth/user.entities';
 import {
   AccountDeletionBlocker,
+  AccountDeletionOutcome,
+  OwnedDashboardsDisposal,
   UserSettings,
   UserSettingsUpdate,
   DEFAULT_USER_SETTINGS,
@@ -14,8 +16,6 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { UserException } from '@/lib/exceptions';
 import * as UserSettingsRepository from '@/repositories/postgres/userSettings.repository';
 import * as UserRepository from '@/repositories/postgres/user.repository';
-import * as DashboardRepository from '@/repositories/postgres/dashboard.repository';
-import * as InvitationRepository from '@/repositories/postgres/invitation.repository';
 import type { SupportedLanguages } from '@/constants/i18n';
 
 export async function getUserSettings(userId: string): Promise<UserSettings> {
@@ -81,32 +81,25 @@ export async function getAccountDeletionBlocker(userId: string): Promise<Account
   return resolveAccountDeletionBlocker(user, { activeAdmins, activeUsers });
 }
 
-export async function deleteUser(userId: string): Promise<void> {
-  const isCloud = isFeatureEnabled('isCloud');
+export async function deleteUser(
+  userId: string,
+  options: { ownedDashboards: OwnedDashboardsDisposal } = { ownedDashboards: { mode: 'delete' } },
+): Promise<void> {
+  const guard = !isFeatureEnabled('isCloud');
 
-  // Pre-check so nothing is destroyed on refusal; the anonymize transaction re-checks under a lock
-  if (!isCloud) await throwIfDeletionBlocked(await getAccountDeletionBlocker(userId));
-
-  let blocker: AccountDeletionBlocker | null = null;
+  let outcome: AccountDeletionOutcome = null;
   try {
-    const deletedDashboardIds = await DashboardRepository.deleteOwnedDashboards(userId);
-
-    if (deletedDashboardIds.length > 0) {
-      await InvitationRepository.cancelPendingInvitationsForDashboards(deletedDashboardIds);
-    }
-
-    if (isCloud) {
-      await UserRepository.anonymizeUser(userId);
-    } else {
-      blocker = await UserRepository.anonymizeUserUnlessBlocked(userId);
-    }
+    outcome = await UserRepository.deleteUserAccount(userId, { guard, ownedDashboards: options.ownedDashboards });
   } catch (error) {
     console.error(`Error deleting user ${userId}:`, error);
     throw new Error('Failed to delete user account and associated data');
   }
 
   // Outside the try above: its catch rewraps into a plain Error and would mask this message
-  await throwIfDeletionBlocked(blocker);
+  if (outcome === 'invalid_recipient') {
+    throw new UserException('The selected user can no longer receive these dashboards');
+  }
+  await throwIfDeletionBlocked(outcome);
   console.log(`Successfully anonymized user ${userId} and deleted all associated data`);
 }
 

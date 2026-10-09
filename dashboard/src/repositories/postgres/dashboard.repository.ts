@@ -318,29 +318,6 @@ export async function updateDashboardDomain(dashboardId: string, domain: string)
   }
 }
 
-export async function deleteOwnedDashboards(userId: string): Promise<string[]> {
-  try {
-    const ownedDashboards = await prisma.userDashboard.findMany({
-      where: { userId, role: 'owner', dashboard: { deletedAt: null } },
-      select: { dashboardId: true },
-    });
-
-    const dashboardIds = ownedDashboards.map((d) => d.dashboardId);
-
-    if (dashboardIds.length > 0) {
-      await prisma.dashboard.updateMany({
-        where: { id: { in: dashboardIds } },
-        data: { deletedAt: new Date() },
-      });
-    }
-
-    return dashboardIds;
-  } catch (error) {
-    console.error(`Error deleting owned dashboards for user ${userId}:`, error);
-    throw new Error('Failed to delete owned dashboards');
-  }
-}
-
 export async function findOnboardingDashboardCandidates(
   createdAfter: Date,
   limit: number,
