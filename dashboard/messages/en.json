@@ -2083,6 +2083,7 @@
       "acceptedStatusCodes": {
         "label": "Accepted status codes",
         "description": "Other codes will trigger incidents",
+        "lastCodeRequired": "At least one status code is required",
         "validation": {
           "maxCodes": "Maximum of {max} status codes allowed",
           "alreadyAdded": "{code} is already added",

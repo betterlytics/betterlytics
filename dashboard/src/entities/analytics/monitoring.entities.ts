@@ -58,6 +58,8 @@ export const StatusCodeValueSchema = z.union([
   z.string().regex(/^[2-5]xx$/, 'Must be a valid range like 2xx, 3xx, 4xx, or 5xx'),
 ]);
 
+const AcceptedStatusCodesSchema = z.array(StatusCodeValueSchema).max(MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX);
+
 export const MonitorCheckBaseSchema = z.object({
   name: z.string().trim().max(MONITOR_LIMITS.NAME_MAX).optional().nullable(),
   intervalSeconds: z
@@ -72,10 +74,7 @@ export const MonitorCheckBaseSchema = z.object({
   sslExpiryReminders: z.boolean().default(MONITOR_DEFAULTS.sslExpiryReminders),
   httpMethod: HttpMethodSchema.default(MONITOR_DEFAULTS.httpMethod),
   requestHeaders: z.array(RequestHeaderSchema).max(MONITOR_LIMITS.REQUEST_HEADERS_MAX).optional().nullable(),
-  acceptedStatusCodes: z
-    .array(StatusCodeValueSchema)
-    .max(MONITOR_LIMITS.ACCEPTED_STATUS_CODES_MAX)
-    .default([...MONITOR_DEFAULTS.acceptedStatusCodes]),
+  acceptedStatusCodes: AcceptedStatusCodesSchema.default([...MONITOR_DEFAULTS.acceptedStatusCodes]),
   expectedKeyword: z.string().trim().max(MONITOR_LIMITS.EXPECTED_KEYWORD_MAX).optional().nullable(),
   alertsEnabled: z.boolean().default(MONITOR_DEFAULTS.alertsEnabled),
   alertEmails: z
@@ -89,7 +88,11 @@ export const MonitorCheckBaseSchema = z.object({
   failureThreshold: z.number().int().min(1).max(10).default(MONITOR_DEFAULTS.failureThreshold),
 });
 
+// Only writes require a code. Older empty lists are backfilled to 2xx, but reads stay lenient so a stored empty list never breaks loading.
 export const MonitorCheckCreateSchema = MonitorCheckBaseSchema.extend({
+  acceptedStatusCodes: AcceptedStatusCodesSchema.min(1, 'At least one accepted status code is required').default([
+    ...MONITOR_DEFAULTS.acceptedStatusCodes,
+  ]),
   url: z
     .string()
     .url()
