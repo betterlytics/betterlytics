@@ -1,3 +1,4 @@
+import { sharedEmailEnv } from '@/lib/env/shared.env';
 import type { EmailData } from '@/services/email/types';
 import {
   EmailButton,
@@ -5,8 +6,8 @@ import {
   Greeting,
   H1,
   P,
-  PrimaryLink,
   renderEmailTemplate,
+  SupportLine,
   withEmailUtm,
 } from './_components';
 
@@ -28,15 +29,13 @@ export function PasswordChangedEmail({ userName, resetPasswordUrl }: PasswordCha
 
       <P>
         If this was you, no further action is needed. If you didn't make this change, your account may be
-        compromised — reset your password immediately and let us know.
+        compromised — reset your password immediately and{' '}
+        {sharedEmailEnv.isCloud ? 'let us know' : 'let your administrator know'}.
       </P>
 
       <EmailButton href={withEmailUtm(resetPasswordUrl, CAMPAIGN, 'primary_cta')}>Reset password</EmailButton>
 
-      <P className='text-sm text-slate-500'>
-        Questions? Reply to this email or write to{' '}
-        <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>.
-      </P>
+      <SupportLine />
     </EmailLayout>
   );
 }

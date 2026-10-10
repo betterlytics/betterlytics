@@ -1,7 +1,22 @@
 export async function register() {
   await registerOpenTelemetry();
+  await registerRetiredRetentionEnvWarning();
   await registerAuthBootstrap();
   await registerBackgroundJobs();
+}
+
+async function registerRetiredRetentionEnvWarning() {
+  if (process.env.NEXT_RUNTIME === 'nodejs') {
+    // Read raw on purpose: the var is retired and no longer part of the env schema
+    const value = process.env.DATA_RETENTION_DAYS?.trim();
+    if (!value) return;
+    const { env } = await import('@/lib/env');
+    if (env.IS_CLOUD) return;
+    console.warn(
+      `[instrumentation] DATA_RETENTION_DAYS=${value} is ignored. Retention is set per dashboard under Settings > Data. ` +
+        'It was carried over once, on upgrade, as the minimum retention of every dashboard. Remove DATA_RETENTION_DAYS from .env.',
+    );
+  }
 }
 
 async function registerAuthBootstrap() {
@@ -31,6 +46,13 @@ async function registerBackgroundJobs() {
       return;
     }
     console.info('[instrumentation] Starting embedded worker...');
+    try {
+      await import('@/lib/env/worker.env');
+    } catch (error) {
+      // Next only logs instrumentation failures and keeps serving 500s; exit so supervisord stops the container
+      console.error('[instrumentation]', error instanceof Error ? error.message : error);
+      process.exit(1);
+    }
     const { startEmbeddedWorker } = await import('@/worker/embedded');
     await startEmbeddedWorker();
     console.info('[instrumentation] Embedded worker started.');

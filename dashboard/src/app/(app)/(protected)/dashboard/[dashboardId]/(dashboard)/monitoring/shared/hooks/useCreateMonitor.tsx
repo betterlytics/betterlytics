@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { CheckCircle2 } from 'lucide-react';
 import { createMonitorCheckAction } from '@/app/actions/analytics/monitoring.actions';
 import { MONITOR_LIMITS, type MonitorCheck } from '@/entities/analytics/monitoring.entities';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 import { isUrlOnDomain, normalizeUrl } from '@/utils/domainValidation';
 import { useMonitorForm } from './useMonitorForm';
 
@@ -24,6 +25,7 @@ export function useCreateMonitor({ dashboardId, domain, existingUrls, onCreated 
   const [url, setUrl] = useState(`https://${domain}`);
   const [expandedSection, setExpandedSection] = useState<Section>('timing');
   const [isPending, startTransition] = useTransition();
+  const allowPrivateTargets = useClientFeatureFlags().isFeatureFlagEnabled('allowPrivateTargets');
 
   const reset = () => {
     setUrl(`https://${domain}`);
@@ -38,6 +40,7 @@ export function useCreateMonitor({ dashboardId, domain, existingUrls, onCreated 
   const urlInvalid = !urlEmpty && !isUrlOnDomain(url, domain);
 
   const hasCustomPort = (() => {
+    if (allowPrivateTargets) return false;
     try {
       return new URL(url.trim()).port !== '';
     } catch {
@@ -62,12 +65,16 @@ export function useCreateMonitor({ dashboardId, domain, existingUrls, onCreated 
     startTransition(async () => {
       try {
         const payload = form.buildCreatePayload(url.trim());
-        const created = await createMonitorCheckAction(dashboardId, payload);
+        const result = await createMonitorCheckAction(dashboardId, payload);
+        if (!result.success) {
+          toast.error(t('targetBlocked'));
+          return;
+        }
         toast.success(t('success'), {
           icon: <CheckCircle2 className='h-4 w-4 text-emerald-500' />,
           description: t('successDescription'),
         });
-        onCreated?.(created);
+        onCreated?.(result.monitor);
       } catch (error) {
         console.error(error);
         toast.error(t('error'));

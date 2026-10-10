@@ -119,3 +119,61 @@ limitations under the License.
 ```
 
 **Full License Text**: https://www.apache.org/licenses/LICENSE-2.0
+
+---
+
+## Caddy
+
+**Files**: `/usr/bin/caddy` in the self-hosted Docker image (built in `Dockerfile.selfhost`, stage `caddy-builder`)
+**Source**: [caddyserver/caddy](https://github.com/caddyserver/caddy)
+**Version**: v2.11.4, built with xcaddy
+**License**: Apache License 2.0
+**Copyright**: Copyright 2015 Matthew Holt and The Caddy Authors
+**Description**: Web server and reverse proxy in front of the dashboard and backend in the self-hosted image, with automatic HTTPS (ACME) and on-demand TLS for status-page custom domains.
+
+### Apache License 2.0
+
+```
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
+**Full License Text**: https://www.apache.org/licenses/LICENSE-2.0
+
+---
+
+## caddy-ratelimit
+
+**Files**: compiled into `/usr/bin/caddy` in the self-hosted Docker image
+**Source**: [mholt/caddy-ratelimit](https://github.com/mholt/caddy-ratelimit)
+**Version**: commit `5625512f24f6f59d6f64fb3aafe5eecff0b286db`
+**License**: Apache License 2.0
+**Copyright**: Copyright 2021 Matthew Holt
+**Description**: Caddy HTTP rate-limiting handler, used by the self-hosted proxy config.
+
+### Apache License 2.0
+
+```
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
+
+**Full License Text**: https://www.apache.org/licenses/LICENSE-2.0

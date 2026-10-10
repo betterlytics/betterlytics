@@ -121,6 +121,7 @@ export const auth = betterAuth({
     expiresIn: SESSION_MAX_AGE_SECONDS,
     updateAge: SESSION_UPDATE_AGE_SECONDS,
   },
+  advanced: { ipAddress: { trustedProxies: env.AUTH_TRUSTED_PROXIES } },
   user: {
     additionalFields: {
       role: { type: 'string', required: false, input: false },

@@ -732,6 +732,11 @@
             "Analisi Conforme al GDPR"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Accedi | Betterlytics",
+          "description": "Accedi a questa istanza di Betterlytics.",
+          "keywords": ["Accedi", "Login"]
+        },
         "title": "Accedi al tuo account",
         "subtitle": "Accedi alla tua dashboard analitiche",
         "errors": {
@@ -757,7 +762,8 @@
             "invalidOtp": "Codice di verifica non valido. Controlla le tue credenziali e riprova.",
             "invalidCredentials": "Email o password non validi. Controlla le tue credenziali e riprova.",
             "generic": "Si è verificato un errore durante l'accesso. Riprova.",
-            "invalidBackupCode": "Codice di backup non valido. Riprova."
+            "invalidBackupCode": "Codice di backup non valido. Riprova.",
+            "twoFactorExpired": "Il tentativo di accesso è scaduto. Accedi di nuovo."
           },
           "twoFactor": {
             "title": "Autenticazione a due fattori",
@@ -785,6 +791,11 @@
             "Analisi Conforme al GDPR"
           ]
         },
+        "seoSelfHosted": {
+          "title": "Crea il tuo account | Betterlytics",
+          "description": "Crea il tuo account su questa istanza di Betterlytics.",
+          "keywords": ["Crea account", "Registrati"]
+        },
         "title": "Crea il tuo account",
         "subtitle": "Inizia a tracciare le tue analitiche oggi",
         "cta": {
@@ -793,7 +804,6 @@
         },
         "disabled": {
           "title": "Registrazione disabilitata",
-          "description": "La registrazione è attualmente disabilitata su questa istanza.",
           "backToSignIn": "Torna all'accesso"
         }
       },
@@ -860,7 +870,17 @@
             "tooManyAttempts": "Troppi tentativi. Riprova più tardi.",
             "generic": "Impossibile reimpostare la password. Riprova."
           },
-          "successMessage": "Password reimpostata con successo!"
+          "successMessage": "Password reimpostata con successo!",
+          "newPasswordLabel": "Nuova password",
+          "newPasswordPlaceholder": "Inserisci la nuova password",
+          "confirmPasswordLabel": "Conferma nuova password",
+          "confirmPasswordPlaceholder": "Conferma la nuova password",
+          "requirementsTitle": "Requisiti della password:",
+          "requirementMinLength": "Almeno 8 caratteri",
+          "requirementLowercase": "Almeno una lettera minuscola",
+          "requirementUppercase": "Almeno una lettera maiuscola",
+          "submit": "Reimposta password",
+          "submitting": "Reimpostazione password..."
         },
         "cta": {
           "remember": "Ricordi la tua password?",
@@ -903,6 +923,11 @@
           "title": "Verifica della tua email...",
           "description": "Attendi mentre confermiamo il tuo indirizzo email."
         }
+      },
+      "errors": {
+        "originMismatch": "Questa pagina è aperta su {origin}, che non corrisponde all'indirizzo per cui è configurata questa istanza di Betterlytics, quindi la richiesta è stata bloccata. Apri Betterlytics al suo indirizzo configurato. Se gestisci questa istanza, assicurati che l'URL configurato (schema, host e porta) corrisponda all'indirizzo nel tuo browser.",
+        "accountLocked": "Troppi codici errati. L'accesso con autenticazione a due fattori è bloccato per 15 minuti.",
+        "rateLimited": "Troppi tentativi. Attendi un momento e riprova."
       }
     },
     "demo": {
@@ -916,6 +941,11 @@
           "Demo Web",
           "Capacità Privacy-First"
         ]
+      },
+      "seoSelfHosted": {
+        "title": "{domain} | Betterlytics",
+        "description": "Analisi web per {domain}.",
+        "keywords": ["Analisi web", "Dashboard di analisi"]
       }
     },
     "comparison": {
@@ -1361,7 +1391,8 @@
       "pricing": "Prezzi",
       "goToDashboard": "Vai alla dashboard",
       "getStarted": "Inizia",
-      "login": "Accedi"
+      "login": "Accedi",
+      "toggleMenu": "Apri/chiudi menu"
     },
     "footer": {
       "blurb": "Analitiche web privacy-first per il web moderno. Conforme GDPR, senza cookie e open source.",
@@ -1383,7 +1414,8 @@
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
-      "copyright": "© {year} Betterlytics. Open source sotto licenza AGPL-3.0."
+      "copyright": "© {year} Betterlytics. Open source sotto licenza AGPL-3.0.",
+      "changeLanguage": "Cambia lingua"
     },
     "structuredData": {
       "organization": {
@@ -1889,7 +1921,8 @@
       },
       "success": "Monitor creato",
       "successDescription": "Il tuo monitor inizierà a controllare immediatamente.",
-      "error": "Impossibile creare il monitor"
+      "error": "Impossibile creare il monitor",
+      "targetBlocked": "Questo indirizzo non può essere monitorato."
     },
     "actions": {
       "renameTitle": "Rinomina monitor",
@@ -2819,9 +2852,6 @@
         "skipInactive": "Salta inattività",
         "playbackSpeedAria": "Velocità di riproduzione",
         "recordingDisabled": "Registrazione disabilitata su questa pagina"
-      },
-      "timeline": {
-        "viewErrorDetails": "Visualizza dettagli errore"
       }
     },
     "integration": {
@@ -3111,6 +3141,8 @@
       "danger": {
         "sectionTitle": "Zona pericolosa",
         "details": "Elimina definitivamente il tuo account e tutti i dati associati.",
+        "lastAdmin": "Non puoi eliminare questo account perché è l'unico amministratore di questa istanza. Eliminarlo lascerebbe l'istanza senza amministratore.",
+        "lastUser": "Sei l'unico utente di questa istanza, quindi questo account non può essere eliminato.",
         "delete": "Elimina account",
         "dialog": {
           "title": "Elimina account definitivamente",
@@ -3151,7 +3183,8 @@
           "y1": "1 anno",
           "y2": "2 anni",
           "y3": "3 anni",
-          "y5": "5 anni"
+          "y5": "5 anni",
+          "forever": "Conserva per sempre"
         },
         "retentionConfirm": {
           "title": "Cambiare periodo di conservazione?",
@@ -3248,10 +3281,27 @@
       "badgeNew": "Nuovo",
       "tooltipWhatsNew": "Visualizza le novità",
       "openButtonAria": "Visualizza le novità nella versione {version}"
+    },
+    "themeToggle": {
+      "light": "Passa alla modalità chiara",
+      "dark": "Passa alla modalità scura"
+    },
+    "errorPage": {
+      "title": "Qualcosa è andato storto",
+      "description": "Si è verificato un errore imprevisto durante il caricamento della dashboard.",
+      "refresh": "Ricarica pagina",
+      "goToDashboards": "Vai alle dashboard",
+      "goBack": "Torna indietro",
+      "persists": "Se il problema persiste, <link>contatta il supporto</link>.",
+      "errorId": "ID errore: {id}",
+      "time": "Ora: {time}"
     }
   },
   "onboarding": {
-    "registrationDisabled": "La registrazione è attualmente disabilitata su questa istanza.",
+    "progress": {
+      "website": "Sito web",
+      "integration": "Integrazione"
+    },
     "account": {
       "features": {
         "feature1": {
@@ -3265,6 +3315,13 @@
         "feature3": {
           "title": "Privacy‑first e open source",
           "description": "Senza cookie, conforme al GDPR e ospitato nell'UE. Trasparente e sicuro."
+        },
+        "feature2SelfHosted": {
+          "title": "I tuoi dati, il tuo server",
+          "description": "Funziona sulla tua infrastruttura, sotto il tuo controllo."
+        },
+        "feature3SelfHosted": {
+          "description": "Senza cookie e conforme al GDPR. Trasparente e sicuro."
         }
       },
       "form": {
@@ -3289,7 +3346,8 @@
         "signUpError": "Si è verificato un errore durante la registrazione. Riprova.",
         "checkInput": "Controlla il tuo input",
         "registrationDisabled": "La registrazione è disabilitata su questa istanza. Chiedi un invito al proprietario di una dashboard.",
-        "invitedToHint": "Sei stato invitato a unirti a {domain}"
+        "invitedToHint": "Sei stato invitato a unirti a {domain}",
+        "firstUserHint": "Questo è il primo account su questa istanza. Diventerà l'amministratore dell'istanza."
       }
     },
     "website": {
@@ -3324,7 +3382,8 @@
         "reactDescription": "Aggiungi al tuo componente App principale",
         "npmDescription": "Installa il pacchetto npm",
         "npmInstallFirst": "Prima, installa il pacchetto:",
-        "npmThenInitialize": "Poi inizializzalo nel tuo codice:"
+        "npmThenInitialize": "Poi inizializzalo nel tuo codice:",
+        "viewDocs": "Vedi documentazione"
       },
       "buttons": {
         "skipForNow": "Salta per ora",
@@ -3364,6 +3423,10 @@
       "statusPageLimit": "Hai raggiunto il limite di pagine di stato. Esegui l'upgrade a Pro per crearne altre.",
       "statusPageCustomDomain": "I domini personalizzati richiedono un piano Professional",
       "statusPageBranding": "La rimozione del branding Betterlytics richiede un piano Professional"
+    },
+    "account": {
+      "lastAdminCannotBeDeleted": "L'unico account amministratore di questa istanza non può essere eliminato.",
+      "lastUserCannotBeDeleted": "L'unico account utente di questa istanza non può essere eliminato."
     },
     "invitations": {
       "userAlreadyHasAccess": "L'utente ha già accesso a questa dashboard",
@@ -3824,7 +3887,11 @@
       },
       "expires": "Scade {date}",
       "expired": "Scaduto {date}",
-      "neverExpires": "Non scade mai"
+      "neverExpires": "Non scade mai",
+      "endpointLabel": "URL del server",
+      "endpointHint": "Configura il tuo client MCP con questo URL e invia il token come bearer token. <link>Guide di configurazione per ogni client</link>",
+      "copyEndpoint": "Copia URL del server",
+      "endpointCopied": "URL del server copiato"
     },
     "toast": {
       "created": "Token creato",
@@ -3869,6 +3936,7 @@
       }
     },
     "moreIntegrations": "Hai bisogno di un'integrazione diversa? Contattaci e valuteremo di aggiungerla.",
+    "moreIntegrationsSelfHosted": "Hai bisogno di un'integrazione diversa? <link>Richiedila su GitHub</link>.",
     "history": {
       "title": "Registro notifiche",
       "button": "Registro notifiche",
@@ -3963,9 +4031,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://esempio.com/webhook",
       "webhookHint": "Inserisci un URL HTTPS accessibile pubblicamente. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
+      "webhookHintPrivate": "Inserisci un URL HTTP o HTTPS. Questa istanza può raggiungere indirizzi di rete privati. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
       "errors": {
         "webhookUrlRequired": "Il webhook URL è obbligatorio",
-        "webhookUrlInvalid": "Deve essere un URL HTTPS valido"
+        "webhookUrlInvalid": "Deve essere un URL HTTPS valido",
+        "webhookUrlInvalidHttp": "Deve essere un URL HTTP o HTTPS valido"
       },
       "cancel": "Annulla",
       "save": "Salva"
@@ -3979,7 +4049,8 @@
       "invalidDiscordWebhook": "Webhook URL Discord non valido",
       "invalidSlackWebhook": "Webhook URL Slack non valido",
       "invalidTeamsWebhook": "Webhook URL Teams non valido",
-      "invalidWebhookUrl": "Webhook URL non valido"
+      "invalidWebhookUrl": "Webhook URL non valido",
+      "webhookTargetBlocked": "Non è possibile inviare notifiche a questo indirizzo."
     },
     "unavailable": {
       "description": "{name} richiede un token app configurato su questa istanza prima di poter essere collegato."
@@ -4240,6 +4311,8 @@
       "customDomainInvalid": "Inserisci un sottodominio, es. status.example.com.",
       "customDomainSetup": {
         "intro": "Aggiungi questo record DNS presso il tuo provider di dominio per puntare <strong>{domain}</strong> a Betterlytics.",
+        "introSelfHosted": "Aggiungi questo record DNS presso il tuo provider di dominio per puntare <strong>{domain}</strong> a questa istanza.",
+        "proxyHintSelfHosted": "In modalità Standalone il certificato HTTPS viene emesso automaticamente. Dietro il tuo reverse proxy, aggiungi questo dominio anche al proxy. <link>Leggi la guida alla configurazione</link>",
         "recordType": "Tipo",
         "recordName": "Nome",
         "recordValue": "Valore",
@@ -4254,6 +4327,7 @@
         "title": "Visibilità sui motori di ricerca",
         "public": "Pubblica",
         "publicHint": "Chiunque abbia il link può vederla. Indicizzata dai motori di ricerca.",
+        "publicHintSelfHosted": "Chiunque abbia il link può vederla. I motori di ricerca la indicizzano solo se questa istanza consente la scansione.",
         "unlisted": "Non in elenco",
         "unlistedHint": "Chiunque abbia il link può vederla, ma è nascosta ai motori di ricerca."
       },

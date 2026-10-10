@@ -10,6 +10,9 @@ import {
 import * as IntegrationRepository from '@/repositories/postgres/integration.repository';
 import { symmetricEncrypt, symmetricDecrypt } from '@/lib/crypto';
 import { env } from '@/lib/env';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { checkWebhookUrl, isVendorWebhookUrl, type TargetVerdict } from '@/lib/outbound-target';
+import { postJsonGuarded } from '@/lib/outbound-request';
 
 const ENCRYPTION_KEY = env.INTEGRATION_ENCRYPTION_KEY;
 
@@ -82,8 +85,10 @@ const integrationValidators: Partial<Record<IntegrationType, IntegrationValidato
   webhook: async (config) => {
     if (!('webhookUrl' in config) || !config.webhookUrl) return null;
     if (typeof config.webhookUrl !== 'string') return 'invalid_webhook_url';
-    const isValid = await validateWebhookUrl(config.webhookUrl);
-    return isValid ? null : 'invalid_webhook_url';
+    const verdict = await validateWebhookUrl(config.webhookUrl);
+    if (verdict === 'allowed') return null;
+    // mixed: the confirmation request must not be able to pick the refused address
+    return verdict === 'blocked' || verdict === 'mixed' ? 'webhook_target_blocked' : 'invalid_webhook_url';
   },
 };
 
@@ -186,10 +191,10 @@ export async function toggleIntegration(
 }
 
 export async function validateDiscordWebhookUrl(webhookUrl: string): Promise<boolean> {
-  if (!/^https:\/\/discord\.com\/api\/webhooks\//.test(webhookUrl)) return false;
+  if (!isVendorWebhookUrl(webhookUrl, 'discord')) return false;
 
   try {
-    const response = await fetch(webhookUrl, { method: 'GET' });
+    const response = await fetch(webhookUrl, { method: 'GET', redirect: 'manual' });
     return response.ok;
   } catch (error) {
     console.error('Error validating Discord webhook URL:', error);
@@ -198,15 +203,15 @@ export async function validateDiscordWebhookUrl(webhookUrl: string): Promise<boo
 }
 
 export async function validateSlackWebhookUrl(webhookUrl: string): Promise<boolean> {
-  return /^https:\/\/hooks\.slack\.com\/services\//.test(webhookUrl);
+  return isVendorWebhookUrl(webhookUrl, 'slack');
 }
 
 export async function validateTeamsWebhookUrl(webhookUrl: string): Promise<boolean> {
-  return /^https:\/\/(.*\.webhook\.office\.com\/|.*\.logic\.azure\.com(:443)?\/)/i.test(webhookUrl);
+  return isVendorWebhookUrl(webhookUrl, 'teams');
 }
 
-export async function validateWebhookUrl(webhookUrl: string): Promise<boolean> {
-  return /^https:\/\//.test(webhookUrl);
+export async function validateWebhookUrl(webhookUrl: string): Promise<TargetVerdict> {
+  return checkWebhookUrl(webhookUrl, isFeatureEnabled('allowPrivateTargets'));
 }
 
 export async function validatePushoverUserKey(userKey: string): Promise<boolean> {
@@ -237,6 +242,7 @@ const setupConfirmationSenders: Partial<Record<IntegrationType, SetupConfirmatio
     if (!('webhookUrl' in config)) return;
     await fetch(config.webhookUrl, {
       method: 'POST',
+      redirect: 'manual',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         embeds: [
@@ -267,6 +273,7 @@ const setupConfirmationSenders: Partial<Record<IntegrationType, SetupConfirmatio
     if (!('webhookUrl' in config)) return;
     await fetch(config.webhookUrl, {
       method: 'POST',
+      redirect: 'manual',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         text: '*Betterlytics Connected*\nThis channel will now receive notifications from your Betterlytics dashboard.',
@@ -277,6 +284,7 @@ const setupConfirmationSenders: Partial<Record<IntegrationType, SetupConfirmatio
     if (!('webhookUrl' in config)) return;
     await fetch(config.webhookUrl, {
       method: 'POST',
+      redirect: 'manual',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         type: 'message',
@@ -308,14 +316,15 @@ const setupConfirmationSenders: Partial<Record<IntegrationType, SetupConfirmatio
   },
   webhook: async (config) => {
     if (!('webhookUrl' in config)) return;
-    await fetch(config.webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    // Resolves again at connect time, so a host that changed its DNS answer after validation is still refused
+    await postJsonGuarded(
+      config.webhookUrl,
+      {
         title: 'Betterlytics Connected',
         message: 'This webhook will now receive notifications from your Betterlytics dashboard.',
-      }),
-    });
+      },
+      isFeatureEnabled('allowPrivateTargets'),
+    );
   },
 };
 

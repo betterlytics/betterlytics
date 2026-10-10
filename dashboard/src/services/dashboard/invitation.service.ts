@@ -21,9 +21,20 @@ import { enqueueEmail } from '@/services/email/email.service';
 import { createEmailRecipientKey, createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
 import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
+import type { User } from '@/entities/auth/session.entities';
 import { hasPermission } from '@/lib/permissions';
 import { UserException } from '@/lib/exceptions';
 import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
+
+type Invitee = Pick<User, 'id' | 'email' | 'emailVerified'>;
+
+// Mirrors signupGate isInvited: an unverified address proves nothing, so it joins only via the token link (acceptInvitation)
+async function findAddressMatchedInvitations(
+  user: Pick<User, 'email' | 'emailVerified'>,
+): Promise<InvitationWithInviter[]> {
+  if (user.emailVerified !== true) return [];
+  return findPendingInvitationsByEmail(user.email);
+}
 
 export async function inviteUserToDashboard(
   dashboardId: string,
@@ -179,9 +190,9 @@ async function sendInvitationAcceptedNotification(
   }
 }
 
-export async function declineInvitation(invitationId: string, userEmail: string): Promise<void> {
+export async function declineInvitation(invitationId: string, user: Invitee): Promise<void> {
   const t = await getTranslations('validation.invitations');
-  const invitations = await findPendingInvitationsByEmail(userEmail);
+  const invitations = await findAddressMatchedInvitations(user);
   const invitation = invitations.find((i) => i.id === invitationId);
 
   if (!invitation) {
@@ -201,8 +212,8 @@ export type AcceptedInvitation = {
   role: DashboardRole;
 };
 
-export async function acceptPendingInvitations(userId: string, email: string): Promise<AcceptedInvitation[]> {
-  const invitations = await findPendingInvitationsByEmail(email);
+export async function acceptPendingInvitations(user: Invitee): Promise<AcceptedInvitation[]> {
+  const invitations = await findAddressMatchedInvitations(user);
   const accepted: AcceptedInvitation[] = [];
 
   for (const invitation of invitations) {
@@ -212,7 +223,7 @@ export async function acceptPendingInvitations(userId: string, email: string): P
     }
 
     try {
-      await addDashboardMember(invitation.dashboardId, userId, invitation.role);
+      await addDashboardMember(invitation.dashboardId, user.id, invitation.role);
       accepted.push({
         dashboardId: invitation.dashboardId,
         dashboardDomain: invitation.dashboard?.domain,
@@ -223,17 +234,17 @@ export async function acceptPendingInvitations(userId: string, email: string): P
     }
 
     await updateInvitationStatus(invitation.id, 'accepted');
-    await sendInvitationAcceptedNotification(invitation, email);
+    await sendInvitationAcceptedNotification(invitation, user.email);
   }
 
   return accepted;
 }
 
-export async function getPendingInvitationsForUser(email: string): Promise<InvitationWithInviter[]> {
-  return findPendingInvitationsByEmail(email);
+export async function getPendingInvitationsForUser(user: Invitee): Promise<InvitationWithInviter[]> {
+  return findAddressMatchedInvitations(user);
 }
 
-export async function isUserInvited(email: string): Promise<boolean> {
-  const invitations = await findPendingInvitationsByEmail(email);
+export async function isUserInvited(user: Invitee): Promise<boolean> {
+  const invitations = await findAddressMatchedInvitations(user);
   return invitations.length > 0;
 }

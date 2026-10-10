@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
+import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState('');
@@ -15,6 +16,7 @@ export default function ForgotPasswordForm() {
   const [success, setSuccess] = useState('');
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('public.auth.forgotPassword');
+  const authErrorMessage = useAuthErrorMessage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +33,11 @@ export default function ForgotPasswordForm() {
         });
 
         if (resetError) {
-          setError(t(resetError.status === 429 ? 'errorMessageTooManyRequests' : 'errorMessage'));
+          setError(
+            resetError.status === 429
+              ? t('errorMessageTooManyRequests')
+              : (authErrorMessage(resetError) ?? t('errorMessage')),
+          );
         } else {
           setSuccess(t('successMessage'));
           setEmail('');

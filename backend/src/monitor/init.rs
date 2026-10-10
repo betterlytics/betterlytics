@@ -25,8 +25,6 @@ pub async fn spawn_monitoring(
     metrics: Option<Arc<MetricsCollector>>,
     notification_engine: Option<Arc<NotificationEngine>>,
 ) {
-    super::init_dev_mode(config.is_development);
-
     let monitor_db_url = config
         .monitor_database_url
         .clone()

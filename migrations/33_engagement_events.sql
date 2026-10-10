@@ -28,6 +28,15 @@ SET max_execution_time = 0;
 SET send_progress_in_http_headers = 1;
 SET http_headers_progress_interval_ms = 30000;
 
+-- A retry after a failed run must not keep the partial backfill. No real engagement
+-- events can exist before this migration has been applied. The interrupted insert can
+-- outlive its client by one progress interval, so it is stopped before the cleanup.
+KILL QUERY WHERE query LIKE 'INSERT INTO analytics.events%pv_with_window%' SYNC;
+
+ALTER TABLE analytics.events
+    DELETE WHERE event_type = 'engagement'
+    SETTINGS mutations_sync = 2;
+
 -- Insert synthetic engagement events for all historical pageviews.
 -- Duration: leadInFrame gap to the next pageview in the session, capped at 1800s.
 -- Scroll: per-pageview-instance attribution. A legacy scroll_depth event at time t

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
+import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 
 interface ResetPasswordFormProps {
   token: string;
@@ -21,6 +22,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
   const [isPending, startTransition] = useTransition();
   const router = useBARouter();
   const t = useTranslations('public.auth.resetPassword.form');
+  const authErrorMessage = useAuthErrorMessage();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +49,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           } else if (resetError.code === 'WEAK_PASSWORD') {
             setError(t('errors.weakPassword'));
           } else {
-            setError(t('errors.generic'));
+            setError(authErrorMessage(resetError) ?? t('errors.generic'));
           }
           return;
         }
@@ -74,7 +76,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       <div className='space-y-4'>
         <div>
           <Label htmlFor='newPassword' className='text-foreground mb-2 block text-sm font-medium'>
-            New Password
+            {t('newPasswordLabel')}
           </Label>
           <Input
             id='newPassword'
@@ -84,14 +86,14 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             className='w-full'
-            placeholder='Enter your new password'
+            placeholder={t('newPasswordPlaceholder')}
             disabled={isPending}
           />
         </div>
 
         <div>
           <Label htmlFor='confirmPassword' className='text-foreground mb-2 block text-sm font-medium'>
-            Confirm New Password
+            {t('confirmPasswordLabel')}
           </Label>
           <Input
             id='confirmPassword'
@@ -101,18 +103,18 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className='w-full'
-            placeholder='Confirm your new password'
+            placeholder={t('confirmPasswordPlaceholder')}
             disabled={isPending}
           />
         </div>
       </div>
 
       <div className='text-muted-foreground text-sm'>
-        <p>Password requirements:</p>
+        <p>{t('requirementsTitle')}</p>
         <ul className='mt-1 list-inside list-disc space-y-1'>
-          <li>At least 8 characters long</li>
-          <li>At least one lowercase letter</li>
-          <li>At least one uppercase letter</li>
+          <li>{t('requirementMinLength')}</li>
+          <li>{t('requirementLowercase')}</li>
+          <li>{t('requirementUppercase')}</li>
         </ul>
       </div>
 
@@ -121,7 +123,7 @@ export default function ResetPasswordForm({ token }: ResetPasswordFormProps) {
         disabled={isPending || !newPassword.trim() || !confirmPassword.trim()}
         className='w-full'
       >
-        {isPending ? 'Resetting Password...' : 'Reset Password'}
+        {isPending ? t('submitting') : t('submit')}
       </Button>
     </form>
   );

@@ -48,6 +48,8 @@ The generic webhook integration sends a `POST` request with `Content-Type: appli
 | `url` | string (optional) | Link to the relevant dashboard page |
 | `url_title` | string (optional) | Display label for the link |
 
+On self-hosted instances, the webhook URL may use `http://` and point to a private network address, such as n8n or Home Assistant on your LAN. Loopback addresses (`localhost`, `127.0.0.1`) are always blocked; to reach a service on the same server, use the server's LAN IP address or `host.docker.internal`. Betterlytics Cloud requires a public `https://` URL. See [Monitoring Internal Services](/installation/self-hosting#monitoring-internal-services).
+
 You can test your webhook endpoint with `curl`:
 
 ```bash

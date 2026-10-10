@@ -26,10 +26,18 @@ if (!url || !db) {
   process.exit(1);
 }
 
-const command = `clickhouse-migrations migrate --host=${url} --db=${db} --migrations-home=./migrations --user=${user} --password=${password} --timeout=600000`;
+const command = `clickhouse-migrations migrate --host=${url} --db=${db} --migrations-home=./migrations --user=${user} --password=${password} --timeout=86400000`;
+
+// Long migrations get a ClickHouse progress header every 30s, which overflows Node's 16 KB default after about 35 minutes
+const nodeOptions = [process.env.NODE_OPTIONS, "--max-http-header-size=2097152"]
+  .filter(Boolean)
+  .join(" ");
 
 try {
-  execSync(command, { stdio: "inherit" });
+  execSync(command, {
+    stdio: "inherit",
+    env: { ...process.env, NODE_OPTIONS: nodeOptions },
+  });
 } catch (error) {
   console.error("Migration failed:", error.message);
   process.exit(1);

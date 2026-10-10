@@ -29,7 +29,9 @@ export async function generateMetadata({
   params: Promise<{ locale: SupportedLanguages }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const seoConfig = await buildSEOConfig(SEO_CONFIGS.signin);
+  const seoConfig = await buildSEOConfig(
+    isFeatureEnabled('isCloud') ? SEO_CONFIGS.signin : SEO_CONFIGS.signinSelfHosted,
+  );
   return generateSEO(seoConfig, {
     locale,
     robots: {
@@ -53,9 +55,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
   const { error, registration, callbackUrl } = await searchParams;
   const redirectTo = toSafeRelativePath(callbackUrl, '/dashboards');
   const t = await getTranslations('public.auth.signin');
-  const tOnboarding = await getTranslations('onboarding');
+  const tForm = await getTranslations('onboarding.account.form');
 
-  const registrationDisabledMessage = registration === 'disabled' ? tOnboarding('registrationDisabled') : null;
+  const registrationDisabledMessage = registration === 'disabled' ? tForm('registrationDisabled') : null;
+  const isCloud = isFeatureEnabled('isCloud');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.signin);
   const providers = getEnabledOAuthProviders();
 
@@ -72,7 +75,7 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
 
   return (
     <>
-      <StructuredData config={seoConfig} />
+      {isCloud && <StructuredData config={seoConfig} />}
       <main className='relative flex w-full flex-1 flex-col items-center justify-center gap-2 py-8'>
         <div className='w-full max-w-md space-y-6 px-4'>
           <div className='flex justify-center pb-2'>

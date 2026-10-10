@@ -17,6 +17,7 @@ import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import {
   deriveOverallUptime,
   deriveStatusWithIncidents,
+  isStatusPageNoindex,
   toPublicIncident,
   type OpenIncidentRef,
 } from '@/entities/analytics/statusPage/publicStatusPage.helpers';
@@ -38,6 +39,8 @@ import {
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
 import { toDateTimeString } from '@/utils/dateFormatters';
+import { env } from '@/lib/env';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 function deriveMonitorStatus(
   isEnabled: boolean,
@@ -281,7 +284,7 @@ async function assembleStatusPage(
     logoUrl: page.logoUrl,
     faviconUrl: page.faviconUrl,
     homepageUrl: page.homepageUrl,
-    noindex: page.visibility === 'unlisted',
+    noindex: isStatusPageNoindex(page.visibility, isFeatureEnabled('isCloud'), env.ALLOW_CRAWLING),
     accentColor: page.accentColor,
     theme: page.theme,
     overallStatus,
