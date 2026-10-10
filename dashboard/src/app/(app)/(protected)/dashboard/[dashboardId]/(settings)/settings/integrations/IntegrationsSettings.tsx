@@ -73,6 +73,7 @@ export default function IntegrationsSettings({
             invalid_slack_webhook: t('toast.invalidSlackWebhook'),
             invalid_teams_webhook: t('toast.invalidTeamsWebhook'),
             invalid_webhook_url: t('toast.invalidWebhookUrl'),
+            webhook_target_blocked: t('toast.webhookTargetBlocked'),
           };
           toast.error(errorMessages[result.error] ?? t('toast.error'));
           return;

@@ -366,9 +366,11 @@ Everything described in the [Public Status Pages guide](/dashboard/status-pages)
 
 ## Monitoring Internal Services
 
-Uptime monitors and the generic webhook integration can reach services on your private network out of the box. A self-hosted instance allows loopback, private (RFC 1918 and IPv6 unique local) and CGNAT (`100.64.0.0/10`, used by Tailscale) addresses on any port, and generic webhooks may use plain `http://` URLs. This lets you monitor services like `http://grafana.home.lan:3000` and send alerts to n8n, ntfy or Home Assistant on your LAN.
+Uptime monitors and the generic webhook integration can reach services on your private network out of the box. A self-hosted instance allows private (RFC 1918 and IPv6 unique local) and CGNAT (`100.64.0.0/10`, used by Tailscale) addresses on any port, and generic webhooks may use plain `http://` URLs. This lets you monitor services like `http://grafana.home.lan:3000` and send alerts to n8n, ntfy or Home Assistant on your LAN.
 
 Link-local addresses (`169.254.0.0/16` and `fe80::/10`) are always blocked. They include the cloud metadata endpoint `169.254.169.254`, which exposes credentials on most cloud servers.
+
+Loopback addresses (`127.0.0.0/8` and `::1`, including `localhost`) are always blocked too. Inside the Betterlytics container they only reach Betterlytics' own internal services, never your server. To monitor a service on the same server, use the server's LAN IP address or `host.docker.internal`.
 
 To turn this off, for example on an instance shared with people you do not fully trust, add the following to your `.env` and apply it with `docker compose up -d --wait`:
 
@@ -377,10 +379,6 @@ ALLOW_PRIVATE_TARGETS=false
 ```
 
 With `ALLOW_PRIVATE_TARGETS=false`, monitors behave like on Betterlytics Cloud: they only reach public addresses on ports 80 and 443, and webhooks need a public `https://` URL. If you run the Betterlytics image without the official `docker-compose.yml`, the setting defaults to `false`; set `ALLOW_PRIVATE_TARGETS=true` yourself to allow private targets.
-
-<Callout type="info">
-Betterlytics runs inside a Docker container, so `localhost` and `127.0.0.1` refer to the container itself, not your server. To monitor a service on the same server, use the server's LAN IP address or `host.docker.internal`.
-</Callout>
 
 Monitors can only target URLs on their dashboard's domain or its subdomains. To monitor internal hosts, create a dashboard for your internal domain (for example `home.lan`, which covers `grafana.home.lan`) or for the host's IP address.
 
@@ -556,7 +554,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 |----------|---------|----------|
 | `BACKGROUND_JOBS_ENABLED` | `true` | Runs the background worker, which sends all outgoing email and runs the data-retention cleanup. `false` stops both |
 | `PUSHOVER_APP_TOKEN` | | Pushover application token for uptime alerts via Pushover |
-| `ALLOW_PRIVATE_TARGETS` | `true` | Uptime monitors and webhooks may reach private, LAN and loopback addresses on any port, and webhooks may use `http://`. Link-local addresses stay blocked. `false` limits them to public addresses as on Cloud, see [Monitoring Internal Services](#monitoring-internal-services) |
+| `ALLOW_PRIVATE_TARGETS` | `true` | Uptime monitors and webhooks may reach private and LAN addresses on any port, and webhooks may use `http://`. Loopback and link-local addresses stay blocked. `false` limits them to public addresses as on Cloud, see [Monitoring Internal Services](#monitoring-internal-services) |
 | `PUBLIC_ENABLE_FAVICON_FETCHING` | `true` | Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead |
 | `LOG_LEVEL` | `info` | Backend log level: `error`, `warn`, `info`, `debug` or `trace` |
 

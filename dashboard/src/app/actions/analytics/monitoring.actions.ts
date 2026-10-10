@@ -25,6 +25,7 @@ import { findDashboardById } from '@/repositories/postgres/dashboard.repository'
 import { isUrlOnDomain } from '@/utils/domainValidation';
 import { UserException } from '@/lib/exceptions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { checkTargetUrl } from '@/lib/outbound-target';
 import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
 import { monitoringValidator } from '@/lib/billing/validators';
 import z from 'zod';
@@ -50,6 +51,11 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
 
     if (!isUrlOnDomain(payload.url, dashboard.domain)) {
       throw new UserException(t('urlMustBeOnDomain', { domain: dashboard.domain }));
+    }
+
+    // Unresolved and mixed answers pass: resolve_ip in guard.rs accepts or refuses them at probe time
+    if ((await checkTargetUrl(payload.url, isFeatureEnabled('allowPrivateTargets'))) === 'blocked') {
+      throw new UserException(t('monitorTargetBlocked'));
     }
 
     const alreadyExists = await checkMonitorUrlExists(ctx.dashboardId, payload.url);

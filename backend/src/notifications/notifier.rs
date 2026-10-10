@@ -161,7 +161,7 @@ mod tests {
 
     #[tokio::test]
     async fn resolver_denials_are_not_transient() {
-        // init_target_policy is never called in tests, so allow_private_targets() is false and loopback is refused
+        // Loopback is always refused, so localhost resolves to nothing dialable
         let client = reqwest::Client::builder()
             .dns_resolver(Arc::new(GuardedResolver))
             .build()

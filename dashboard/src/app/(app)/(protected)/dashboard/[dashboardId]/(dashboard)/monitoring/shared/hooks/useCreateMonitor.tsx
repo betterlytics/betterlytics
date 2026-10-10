@@ -73,7 +73,7 @@ export function useCreateMonitor({ dashboardId, domain, existingUrls, onCreated 
         onCreated?.(created);
       } catch (error) {
         console.error(error);
-        toast.error(t('error'));
+        toast.error(error instanceof Error ? error.message : t('error'));
       }
     });
   };

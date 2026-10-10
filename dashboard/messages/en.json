@@ -3400,6 +3400,7 @@
     "termsOfServiceRequired": "You must accept the terms of service to continue.",
     "urlMustBeOnDomain": "URL must be on {domain} or a subdomain",
     "monitorAlreadyExists": "A monitor for this URL already exists",
+    "monitorTargetBlocked": "This URL points to an address monitors are not allowed to reach. Loopback addresses (localhost, 127.0.0.1) are always blocked.",
     "statusPageSlugTaken": "This URL slug is already in use",
     "statusPageDomainTaken": "This domain is already in use on another status page",
     "statusPageDomainReserved": "This domain is reserved",
@@ -4030,7 +4031,7 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://example.com/webhook",
       "webhookHint": "Enter a publicly accessible HTTPS URL. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
-      "webhookHintPrivate": "Enter an HTTP or HTTPS URL. This instance can reach private network addresses. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
+      "webhookHintPrivate": "Enter an HTTP or HTTPS URL. This instance can reach private network addresses, except its own loopback (localhost, 127.0.0.1); use the host's LAN IP or host.docker.internal instead. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
       "errors": {
         "webhookUrlRequired": "Webhook URL is required",
         "webhookUrlInvalid": "Must be a valid HTTPS URL",
@@ -4048,7 +4049,8 @@
       "invalidDiscordWebhook": "Invalid Discord webhook URL",
       "invalidSlackWebhook": "Invalid Slack webhook URL",
       "invalidTeamsWebhook": "Invalid Teams webhook URL",
-      "invalidWebhookUrl": "Invalid webhook URL"
+      "invalidWebhookUrl": "Invalid webhook URL",
+      "webhookTargetBlocked": "This URL points to an address Betterlytics is not allowed to reach. Loopback addresses (localhost, 127.0.0.1) are always blocked."
     },
     "unavailable": {
       "description": "{name} needs an app token configured on this instance before it can be connected."
