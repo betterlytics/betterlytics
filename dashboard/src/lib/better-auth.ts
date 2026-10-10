@@ -121,6 +121,10 @@ export const auth = betterAuth({
     expiresIn: SESSION_MAX_AGE_SECONDS,
     updateAge: SESSION_UPDATE_AGE_SECONDS,
   },
+  // Unset keeps better-auth's default: only a single-entry X-Forwarded-For is trusted
+  ...(env.AUTH_TRUSTED_PROXIES.length > 0
+    ? { advanced: { ipAddress: { trustedProxies: env.AUTH_TRUSTED_PROXIES } } }
+    : {}),
   user: {
     additionalFields: {
       role: { type: 'string', required: false, input: false },

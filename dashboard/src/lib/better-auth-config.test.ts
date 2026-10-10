@@ -19,6 +19,7 @@ vi.mock('@/lib/env', () => ({
   env: {
     AUTH_URL: 'http://localhost:3000',
     AUTH_SECRET: 'test-auth-secret',
+    AUTH_TRUSTED_PROXIES: [],
     PUBLIC_BASE_URL: 'http://localhost:3000',
     IS_CLOUD: true,
     GITHUB_ID: '',
