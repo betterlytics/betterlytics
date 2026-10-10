@@ -1,7 +1,7 @@
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { z } from 'zod';
 import { parseEnv } from '@/lib/env/parse-env';
-import { parseTrustedProxies } from '@/lib/auth/trusted-proxies';
+import { zTrustedProxies } from '@/lib/env/trusted-proxies';
 import { sharedEmailEnvSchema, zStringBoolean, zStringBooleanDefaultTrue } from '@/lib/env/shared.env';
 
 const appEnvSchema = z.object({
@@ -12,21 +12,7 @@ const appEnvSchema = z.object({
   PUBLIC_ANALYTICS_BASE_URL: z.string().min(1),
   AUTH_URL: z.string().url(),
   AUTH_SECRET: z.string().min(1),
-  AUTH_TRUSTED_PROXIES: z
-    .string()
-    .optional()
-    .default('')
-    .transform((val, ctx) => {
-      const { valid, invalid } = parseTrustedProxies(val);
-      if (invalid.length > 0) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: `invalid entries: ${invalid.join(', ')}. Each entry must be an IP address or CIDR range`,
-        });
-        return z.NEVER;
-      }
-      return valid;
-    }),
+  AUTH_TRUSTED_PROXIES: zTrustedProxies,
   ENABLE_DASHBOARD_TRACKING: zStringBoolean,
   ENABLE_REGISTRATION: zStringBoolean,
   PUBLIC_IS_CLOUD: zStringBoolean,
