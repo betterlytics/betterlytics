@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
+import { getIp } from 'better-auth/api';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
 import { env } from '@/lib/env';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
@@ -19,6 +20,7 @@ vi.mock('@/lib/env', () => ({
   env: {
     AUTH_URL: 'http://localhost:3000',
     AUTH_SECRET: 'test-auth-secret',
+    AUTH_TRUSTED_PROXIES: ['172.18.0.1'],
     PUBLIC_BASE_URL: 'http://localhost:3000',
     IS_CLOUD: true,
     GITHUB_ID: '',
@@ -111,6 +113,12 @@ describe('session configuration', () => {
       expiresIn: 30 * 24 * 60 * 60,
       updateAge: 24 * 60 * 60,
     });
+  });
+});
+
+describe('client IP resolution', () => {
+  it('skips the trusted proxy hop from AUTH_TRUSTED_PROXIES', () => {
+    expect(getIp(new Headers({ 'x-forwarded-for': '203.0.113.7, 172.18.0.1' }), auth.options)).toBe('203.0.113.7');
   });
 });
 
