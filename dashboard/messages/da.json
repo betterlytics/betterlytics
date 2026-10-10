@@ -1921,7 +1921,8 @@
       },
       "success": "Overvågning oprettet",
       "successDescription": "Din overvågning begynder at tjekke med det samme.",
-      "error": "Kunne ikke oprette overvågning"
+      "error": "Kunne ikke oprette overvågning",
+      "targetBlocked": "Denne adresse kan ikke overvåges."
     },
     "actions": {
       "renameTitle": "Omdøb overvågning",
@@ -3400,7 +3401,6 @@
     "termsOfServiceRequired": "Du skal acceptere servicevilkårene for at fortsætte.",
     "urlMustBeOnDomain": "URL skal være på {domain} eller et underdomæne",
     "monitorAlreadyExists": "En monitor for denne URL eksisterer allerede",
-    "monitorTargetBlocked": "Denne URL peger på en adresse, som monitorer ikke må nå. Loopback-adresser (localhost, 127.0.0.1) er altid blokeret.",
     "statusPageSlugTaken": "Denne URL-slug er allerede i brug",
     "statusPageDomainTaken": "Dette domæne er allerede i brug på en anden statusside",
     "statusPageDomainReserved": "Dette domæne er reserveret",
@@ -4031,7 +4031,7 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://eksempel.dk/webhook",
       "webhookHint": "Indtast en offentligt tilgængelig HTTPS URL. Notifikationer sendes som JSON POST-anmodninger med felterne title, message, url og url_title.",
-      "webhookHintPrivate": "Indtast en HTTP- eller HTTPS URL. Denne instans kan nå adresser på private netværk, undtagen sin egen loopback (localhost, 127.0.0.1); brug i stedet værtens LAN-IP eller host.docker.internal. Notifikationer sendes som JSON POST-anmodninger med felterne title, message, url og url_title.",
+      "webhookHintPrivate": "Indtast en HTTP- eller HTTPS URL. Denne instans kan nå adresser på private netværk. Notifikationer sendes som JSON POST-anmodninger med felterne title, message, url og url_title.",
       "errors": {
         "webhookUrlRequired": "Webhook URL er påkrævet",
         "webhookUrlInvalid": "Skal være en gyldig HTTPS URL",
@@ -4050,7 +4050,7 @@
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
       "invalidWebhookUrl": "Ugyldig webhook URL",
-      "webhookTargetBlocked": "Denne URL peger på en adresse, som Betterlytics ikke må nå. Loopback-adresser (localhost, 127.0.0.1) er altid blokeret."
+      "webhookTargetBlocked": "Notifikationer kan ikke sendes til denne adresse."
     },
     "unavailable": {
       "description": "{name} kræver et app-token konfigureret på denne instans, før den kan tilsluttes."

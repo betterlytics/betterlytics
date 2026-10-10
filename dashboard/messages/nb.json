@@ -1921,7 +1921,8 @@
       },
       "success": "Overvåker opprettet",
       "successDescription": "Overvåkeren starter sjekker umiddelbart.",
-      "error": "Kunne ikke opprette overvåker"
+      "error": "Kunne ikke opprette overvåker",
+      "targetBlocked": "Denne adressen kan ikke overvåkes."
     },
     "actions": {
       "renameTitle": "Gi nytt navn til overvåker",
@@ -3400,7 +3401,6 @@
     "termsOfServiceRequired": "Du må godta vilkårene for å fortsette.",
     "urlMustBeOnDomain": "URL-en må være på {domain} eller et underdomene",
     "monitorAlreadyExists": "En monitor for denne URL-en finnes allerede",
-    "monitorTargetBlocked": "Denne URL-en peker til en adresse monitorer ikke har lov til å nå. Loopback-adresser (localhost, 127.0.0.1) er alltid blokkert.",
     "statusPageSlugTaken": "Denne URL-sluggen er allerede i bruk",
     "statusPageDomainTaken": "Dette domenet er allerede i bruk på en annen statusside",
     "statusPageDomainReserved": "Dette domenet er reservert",
@@ -4031,7 +4031,7 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://eksempel.no/webhook",
       "webhookHint": "Skriv inn en offentlig tilgjengelig HTTPS URL. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
-      "webhookHintPrivate": "Skriv inn en HTTP- eller HTTPS URL. Denne instansen kan nå adresser i private nettverk, unntatt sin egen loopback (localhost, 127.0.0.1); bruk vertens LAN-IP eller host.docker.internal i stedet. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
+      "webhookHintPrivate": "Skriv inn en HTTP- eller HTTPS URL. Denne instansen kan nå adresser i private nettverk. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
       "errors": {
         "webhookUrlRequired": "Webhook URL er påkrevd",
         "webhookUrlInvalid": "Må være en gyldig HTTPS URL",
@@ -4050,7 +4050,7 @@
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
       "invalidWebhookUrl": "Ugyldig webhook URL",
-      "webhookTargetBlocked": "Denne URL-en peker til en adresse Betterlytics ikke har lov til å nå. Loopback-adresser (localhost, 127.0.0.1) er alltid blokkert."
+      "webhookTargetBlocked": "Varsler kan ikke sendes til denne adressen."
     },
     "unavailable": {
       "description": "{name} krever et app-token konfigurert på denne instansen før den kan kobles til."

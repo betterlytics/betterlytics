@@ -1921,7 +1921,8 @@
       },
       "success": "Monitor creato",
       "successDescription": "Il tuo monitor inizierà a controllare immediatamente.",
-      "error": "Impossibile creare il monitor"
+      "error": "Impossibile creare il monitor",
+      "targetBlocked": "Questo indirizzo non può essere monitorato."
     },
     "actions": {
       "renameTitle": "Rinomina monitor",
@@ -3400,7 +3401,6 @@
     "termsOfServiceRequired": "Devi accettare i termini di servizio per continuare.",
     "urlMustBeOnDomain": "L'URL deve essere su {domain} o un sottodominio",
     "monitorAlreadyExists": "Esiste già un monitor per questo URL",
-    "monitorTargetBlocked": "Questo URL punta a un indirizzo che i monitor non possono raggiungere. Gli indirizzi di loopback (localhost, 127.0.0.1) sono sempre bloccati.",
     "statusPageSlugTaken": "Questo slug URL è già in uso",
     "statusPageDomainTaken": "Questo dominio è già in uso su un'altra pagina di stato",
     "statusPageDomainReserved": "Questo dominio è riservato",
@@ -4031,7 +4031,7 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://esempio.com/webhook",
       "webhookHint": "Inserisci un URL HTTPS accessibile pubblicamente. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
-      "webhookHintPrivate": "Inserisci un URL HTTP o HTTPS. Questa istanza può raggiungere indirizzi di rete privati, tranne il proprio loopback (localhost, 127.0.0.1); usa invece l'IP LAN dell'host o host.docker.internal. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
+      "webhookHintPrivate": "Inserisci un URL HTTP o HTTPS. Questa istanza può raggiungere indirizzi di rete privati. Le notifiche vengono inviate come richieste JSON POST con i campi title, message, url e url_title.",
       "errors": {
         "webhookUrlRequired": "Il webhook URL è obbligatorio",
         "webhookUrlInvalid": "Deve essere un URL HTTPS valido",
@@ -4050,7 +4050,7 @@
       "invalidSlackWebhook": "Webhook URL Slack non valido",
       "invalidTeamsWebhook": "Webhook URL Teams non valido",
       "invalidWebhookUrl": "Webhook URL non valido",
-      "webhookTargetBlocked": "Questo URL punta a un indirizzo che Betterlytics non può raggiungere. Gli indirizzi di loopback (localhost, 127.0.0.1) sono sempre bloccati."
+      "webhookTargetBlocked": "Non è possibile inviare notifiche a questo indirizzo."
     },
     "unavailable": {
       "description": "{name} richiede un token app configurato su questa istanza prima di poter essere collegato."

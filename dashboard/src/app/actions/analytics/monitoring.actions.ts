@@ -1,6 +1,10 @@
 'use server';
 
-import { MonitorCheckCreateSchema, MonitorCheckUpdateSchema } from '@/entities/analytics/monitoring.entities';
+import {
+  MonitorCheckCreateSchema,
+  MonitorCheckUpdateSchema,
+  type MonitorCheck,
+} from '@/entities/analytics/monitoring.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext, getCachedSession } from '@/auth/auth-actions';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
 import { getTranslations } from 'next-intl/server';
@@ -38,8 +42,10 @@ export const fetchMonitorCheckAction = withDashboardAuthContext(
   async (ctx: AuthContext, monitorId: string) => await getMonitorCheck(ctx.dashboardId, monitorId),
 );
 
+type CreateMonitorResult = { success: true; monitor: MonitorCheck } | { success: false; error: 'target_blocked' };
+
 export const createMonitorCheckAction = withDashboardMutationAuthContext(
-  async (ctx: AuthContext, input: z.input<typeof MonitorCheckCreateSchema>) => {
+  async (ctx: AuthContext, input: z.input<typeof MonitorCheckCreateSchema>): Promise<CreateMonitorResult> => {
     if (!isFeatureEnabled('enableUptimeMonitoring')) {
       throw new UserException('Uptime monitoring is not enabled');
     }
@@ -55,7 +61,7 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
 
     // Unresolved and mixed answers pass: resolve_ip in guard.rs accepts or refuses them at probe time
     if ((await checkTargetUrl(payload.url, isFeatureEnabled('allowPrivateTargets'))) === 'blocked') {
-      throw new UserException(t('monitorTargetBlocked'));
+      return { success: false, error: 'target_blocked' };
     }
 
     const alreadyExists = await checkMonitorUrlExists(ctx.dashboardId, payload.url);
@@ -81,7 +87,7 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
     });
 
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring`);
-    return created;
+    return { success: true, monitor: created };
   },
 );
 
