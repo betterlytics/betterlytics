@@ -1921,7 +1921,8 @@
       },
       "success": "Overvågning oprettet",
       "successDescription": "Din overvågning begynder at tjekke med det samme.",
-      "error": "Kunne ikke oprette overvågning"
+      "error": "Kunne ikke oprette overvågning",
+      "targetBlocked": "Denne adresse kan ikke overvåges."
     },
     "actions": {
       "renameTitle": "Omdøb overvågning",
@@ -4048,7 +4049,8 @@
       "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
-      "invalidWebhookUrl": "Ugyldig webhook URL"
+      "invalidWebhookUrl": "Ugyldig webhook URL",
+      "webhookTargetBlocked": "Notifikationer kan ikke sendes til denne adresse."
     },
     "unavailable": {
       "description": "{name} kræver et app-token konfigureret på denne instans, før den kan tilsluttes."

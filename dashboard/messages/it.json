@@ -1921,7 +1921,8 @@
       },
       "success": "Monitor creato",
       "successDescription": "Il tuo monitor inizierà a controllare immediatamente.",
-      "error": "Impossibile creare il monitor"
+      "error": "Impossibile creare il monitor",
+      "targetBlocked": "Questo indirizzo non può essere monitorato."
     },
     "actions": {
       "renameTitle": "Rinomina monitor",
@@ -4048,7 +4049,8 @@
       "invalidDiscordWebhook": "Webhook URL Discord non valido",
       "invalidSlackWebhook": "Webhook URL Slack non valido",
       "invalidTeamsWebhook": "Webhook URL Teams non valido",
-      "invalidWebhookUrl": "Webhook URL non valido"
+      "invalidWebhookUrl": "Webhook URL non valido",
+      "webhookTargetBlocked": "Non è possibile inviare notifiche a questo indirizzo."
     },
     "unavailable": {
       "description": "{name} richiede un token app configurato su questa istanza prima di poter essere collegato."

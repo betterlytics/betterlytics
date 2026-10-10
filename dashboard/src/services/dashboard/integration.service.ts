@@ -11,7 +11,8 @@ import * as IntegrationRepository from '@/repositories/postgres/integration.repo
 import { symmetricEncrypt, symmetricDecrypt } from '@/lib/crypto';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { isVendorWebhookUrl, isWebhookUrlAllowed } from '@/lib/outbound-target';
+import { checkWebhookUrl, isVendorWebhookUrl, type TargetVerdict } from '@/lib/outbound-target';
+import { postJsonGuarded } from '@/lib/outbound-request';
 
 const ENCRYPTION_KEY = env.INTEGRATION_ENCRYPTION_KEY;
 
@@ -84,8 +85,10 @@ const integrationValidators: Partial<Record<IntegrationType, IntegrationValidato
   webhook: async (config) => {
     if (!('webhookUrl' in config) || !config.webhookUrl) return null;
     if (typeof config.webhookUrl !== 'string') return 'invalid_webhook_url';
-    const isValid = await validateWebhookUrl(config.webhookUrl);
-    return isValid ? null : 'invalid_webhook_url';
+    const verdict = await validateWebhookUrl(config.webhookUrl);
+    if (verdict === 'allowed') return null;
+    // mixed: the confirmation request must not be able to pick the refused address
+    return verdict === 'blocked' || verdict === 'mixed' ? 'webhook_target_blocked' : 'invalid_webhook_url';
   },
 };
 
@@ -207,8 +210,8 @@ export async function validateTeamsWebhookUrl(webhookUrl: string): Promise<boole
   return isVendorWebhookUrl(webhookUrl, 'teams');
 }
 
-export async function validateWebhookUrl(webhookUrl: string): Promise<boolean> {
-  return isWebhookUrlAllowed(webhookUrl, isFeatureEnabled('allowPrivateTargets'));
+export async function validateWebhookUrl(webhookUrl: string): Promise<TargetVerdict> {
+  return checkWebhookUrl(webhookUrl, isFeatureEnabled('allowPrivateTargets'));
 }
 
 export async function validatePushoverUserKey(userKey: string): Promise<boolean> {
@@ -313,16 +316,15 @@ const setupConfirmationSenders: Partial<Record<IntegrationType, SetupConfirmatio
   },
   webhook: async (config) => {
     if (!('webhookUrl' in config)) return;
-    await fetch(config.webhookUrl, {
-      method: 'POST',
-      // Only the validated host; never follow into an unvalidated one
-      redirect: 'manual',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+    // Resolves again at connect time, so a host that changed its DNS answer after validation is still refused
+    await postJsonGuarded(
+      config.webhookUrl,
+      {
         title: 'Betterlytics Connected',
         message: 'This webhook will now receive notifications from your Betterlytics dashboard.',
-      }),
-    });
+      },
+      isFeatureEnabled('allowPrivateTargets'),
+    );
   },
 };
 

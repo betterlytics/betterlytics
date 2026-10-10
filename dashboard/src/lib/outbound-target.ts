@@ -1,5 +1,5 @@
 import 'server-only';
-import { BlockList, isIP } from 'node:net';
+import { BlockList, isIP, type LookupFunction } from 'node:net';
 import { lookup } from 'node:dns/promises';
 
 // Mirrors classify_ip in backend/src/monitor/guard.rs; keep the two range lists in sync.
@@ -16,6 +16,7 @@ function buildList(subnets: Subnet[]): BlockList {
 // BlockList matches ::ffff:a.b.c.d against IPv4 rules, so mapped addresses need no special case.
 const ALWAYS_BLOCKED = buildList([
   ['0.0.0.0', 8, 'ipv4'],
+  ['127.0.0.0', 8, 'ipv4'],
   ['169.254.0.0', 16, 'ipv4'],
   ['100.100.100.200', 32, 'ipv4'],
   ['192.0.2.0', 24, 'ipv4'],
@@ -23,18 +24,17 @@ const ALWAYS_BLOCKED = buildList([
   ['203.0.113.0', 24, 'ipv4'],
   ['224.0.0.0', 3, 'ipv4'],
   ['::', 128, 'ipv6'],
+  ['::1', 128, 'ipv6'],
   ['fe80::', 10, 'ipv6'],
   ['ff00::', 8, 'ipv6'],
   ['fd00:ec2::254', 128, 'ipv6'],
 ]);
 
 const PRIVATE = buildList([
-  ['127.0.0.0', 8, 'ipv4'],
   ['10.0.0.0', 8, 'ipv4'],
   ['172.16.0.0', 12, 'ipv4'],
   ['192.168.0.0', 16, 'ipv4'],
   ['100.64.0.0', 10, 'ipv4'],
-  ['::1', 128, 'ipv6'],
   ['fc00::', 7, 'ipv6'],
 ]);
 
@@ -66,35 +66,79 @@ export function isAddressAllowed(address: string, allowPrivateTargets: boolean):
   return addressClass === 'public' || (addressClass === 'private' && allowPrivateTargets);
 }
 
-type Resolver = (hostname: string) => Promise<string[]>;
+export type TargetVerdict = 'allowed' | 'mixed' | 'blocked' | 'unresolved' | 'invalid';
+
+export type Resolver = (hostname: string) => Promise<string[]>;
 
 const resolveAll: Resolver = async (hostname) =>
   (await lookup(hostname, { all: true })).map((entry) => entry.address);
 
-export async function isWebhookUrlAllowed(
+function parseUrl(rawUrl: string): URL | null {
+  try {
+    return new URL(rawUrl);
+  } catch {
+    return null;
+  }
+}
+
+export function urlHostname(url: URL): string {
+  return url.hostname.replace(/^\[|\]$/g, '');
+}
+
+// Scheme-agnostic: monitors allow http everywhere, webhooks add their own scheme rule in checkWebhookUrl.
+export async function checkTargetUrl(
   rawUrl: string,
   allowPrivateTargets: boolean,
   resolve: Resolver = resolveAll,
-): Promise<boolean> {
-  let url: URL;
+): Promise<TargetVerdict> {
+  const url = parseUrl(rawUrl);
+  const hostname = url ? urlHostname(url) : '';
+  if (!hostname) return 'invalid';
+
+  let addresses: string[];
   try {
-    url = new URL(rawUrl);
+    addresses = isIP(hostname) ? [hostname] : await resolve(hostname);
   } catch {
-    return false;
+    return 'unresolved';
   }
+  if (addresses.length === 0) return 'unresolved';
+
+  const allowedCount = addresses.filter((address) => isAddressAllowed(address, allowPrivateTargets)).length;
+  if (allowedCount === addresses.length) return 'allowed';
+  return allowedCount === 0 ? 'blocked' : 'mixed';
+}
+
+export async function checkWebhookUrl(
+  rawUrl: string,
+  allowPrivateTargets: boolean,
+  resolve: Resolver = resolveAll,
+): Promise<TargetVerdict> {
+  const url = parseUrl(rawUrl);
+  if (!url) return 'invalid';
   const schemeAllowed = url.protocol === 'https:' || (allowPrivateTargets && url.protocol === 'http:');
-  if (!schemeAllowed) return false;
+  if (!schemeAllowed) return 'invalid';
+  return checkTargetUrl(rawUrl, allowPrivateTargets, resolve);
+}
 
-  const hostname = url.hostname.replace(/^\[|\]$/g, '');
-  if (!hostname) return false;
-
-  try {
-    const addresses = isIP(hostname) ? [hostname] : await resolve(hostname);
-    // every(): a mixed public/private answer must not let the confirmation fetch pick the private one
-    return addresses.length > 0 && addresses.every((address) => isAddressAllowed(address, allowPrivateTargets));
-  } catch {
-    return false;
-  }
+// Dashboard counterpart of GuardedResolver in guard.rs: the socket only gets addresses the guard allows.
+export function createGuardedLookup(allowPrivateTargets: boolean, resolve: Resolver = resolveAll): LookupFunction {
+  return (hostname, options, callback) => {
+    resolve(hostname).then(
+      (addresses) => {
+        const allowed = addresses
+          .filter((address) => isAddressAllowed(address, allowPrivateTargets))
+          .map((address) => ({ address, family: isIP(address) }));
+        if (allowed.length === 0) {
+          callback(Object.assign(new Error(`Blocked target: ${hostname}`), { code: 'EACCES' }), []);
+          return;
+        }
+        // net asks with all: true when autoSelectFamily is on (default since Node 20), otherwise for one address
+        if (options.all) callback(null, allowed);
+        else callback(null, allowed[0].address, allowed[0].family);
+      },
+      (error) => callback(error, []),
+    );
+  };
 }
 
 // Keep in sync with the *_WEBHOOK rules in backend/src/monitor/guard.rs

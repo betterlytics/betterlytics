@@ -1921,7 +1921,8 @@
       },
       "success": "Overvåker opprettet",
       "successDescription": "Overvåkeren starter sjekker umiddelbart.",
-      "error": "Kunne ikke opprette overvåker"
+      "error": "Kunne ikke opprette overvåker",
+      "targetBlocked": "Denne adressen kan ikke overvåkes."
     },
     "actions": {
       "renameTitle": "Gi nytt navn til overvåker",
@@ -4048,7 +4049,8 @@
       "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
-      "invalidWebhookUrl": "Ugyldig webhook URL"
+      "invalidWebhookUrl": "Ugyldig webhook URL",
+      "webhookTargetBlocked": "Varsler kan ikke sendes til denne adressen."
     },
     "unavailable": {
       "description": "{name} krever et app-token konfigurert på denne instansen før den kan kobles til."

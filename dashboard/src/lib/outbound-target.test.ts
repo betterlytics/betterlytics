@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { classifyAddress, isVendorWebhookUrl, isWebhookUrlAllowed } from './outbound-target';
+import {
+  checkTargetUrl,
+  checkWebhookUrl,
+  classifyAddress,
+  createGuardedLookup,
+  isVendorWebhookUrl,
+} from './outbound-target';
+
+const resolvesTo =
+  (...addresses: string[]) =>
+  async () =>
+    addresses;
+
+const failingResolver = async () => {
+  throw new Error('ENOTFOUND');
+};
 
 describe('classifyAddress', () => {
   it.each(['1.1.1.1', '2606:4700::1111', '::ffff:1.1.1.1', '64:ff9b::101:101'])('%s is public', (address) => {
@@ -7,16 +22,14 @@ describe('classifyAddress', () => {
   });
 
   it.each([
-    '127.0.0.1',
     '10.1.2.3',
     '172.16.0.1',
     '172.31.255.255',
     '192.168.1.10',
     '100.64.0.1',
     '100.127.255.254',
-    '::1',
     'fd12:3456::1',
-    '::ffff:127.0.0.1',
+    '::ffff:10.1.2.3',
     '64:ff9b::a00:1',
   ])('%s is private', (address) => {
     expect(classifyAddress(address)).toBe('private');
@@ -38,42 +51,104 @@ describe('classifyAddress', () => {
     '::',
     'ff02::1',
     'fd00:ec2::254',
+    '127.0.0.1',
+    '127.1.2.3',
+    '::1',
+    '::ffff:127.0.0.1',
+    '64:ff9b::7f00:1',
+    '64:ff9b::127.0.0.1',
   ])('%s is always blocked', (address) => {
     expect(classifyAddress(address)).toBe('blocked');
   });
 });
 
-describe('isWebhookUrlAllowed', () => {
-  const resolvesTo =
-    (...addresses: string[]) =>
-    async () =>
-      addresses;
-
+describe('checkWebhookUrl', () => {
   it.each([
-    ['https://hooks.example', ['93.184.216.34'], false, true, 'public https'],
-    ['https://hooks.example', ['93.184.216.34'], true, true, 'public https with allowance'],
-    ['http://hooks.example', ['93.184.216.34'], false, false, 'http without allowance'],
-    ['http://hooks.example', ['93.184.216.34'], true, true, 'http with allowance'],
-    ['https://hooks.example', ['93.184.216.34', '10.0.0.1'], false, false, 'mixed public/private answer'],
-    ['https://10.0.0.1/', [], false, false, 'private literal without allowance'],
-    ['https://10.0.0.1/', [], true, true, 'private literal with allowance'],
-    ['https://169.254.169.254/', [], false, false, 'metadata literal'],
-    ['https://169.254.169.254/', [], true, false, 'metadata literal with allowance'],
-    ['https://[64:ff9b::a9fe:a9fe]/', [], true, false, 'nat64 metadata literal with allowance'],
-    ['https://[::1]/', [], false, false, 'ipv6 loopback without allowance'],
-    ['https://[::1]/', [], true, true, 'ipv6 loopback with allowance'],
-    ['http://2130706433/', [], true, true, 'decimal ip normalised to 127.0.0.1'],
-    ['not a url', [], true, false, 'unparseable'],
-    ['ftp://x', ['93.184.216.34'], true, false, 'unsupported scheme'],
+    ['https://hooks.example', ['93.184.216.34'], false, 'allowed', 'public https'],
+    ['https://hooks.example', ['93.184.216.34'], true, 'allowed', 'public https with allowance'],
+    ['http://hooks.example', ['93.184.216.34'], false, 'invalid', 'http without allowance'],
+    ['http://hooks.example', ['93.184.216.34'], true, 'allowed', 'http with allowance'],
+    ['https://hooks.example', ['93.184.216.34', '10.0.0.1'], false, 'mixed', 'mixed public/private answer'],
+    ['https://hooks.example', ['93.184.216.34', '127.0.0.1'], true, 'mixed', 'mixed public/loopback answer'],
+    ['https://10.0.0.1/', [], false, 'blocked', 'private literal without allowance'],
+    ['https://10.0.0.1/', [], true, 'allowed', 'private literal with allowance'],
+    ['http://192.168.1.10:8080/', [], true, 'allowed', 'lan literal with allowance'],
+    ['http://nas.lan', ['192.168.1.10'], true, 'allowed', 'lan hostname with allowance'],
+    ['https://169.254.169.254/', [], false, 'blocked', 'metadata literal'],
+    ['https://169.254.169.254/', [], true, 'blocked', 'metadata literal with allowance'],
+    ['https://[64:ff9b::a9fe:a9fe]/', [], true, 'blocked', 'nat64 metadata literal with allowance'],
+    ['https://[::1]/', [], false, 'blocked', 'ipv6 loopback without allowance'],
+    ['https://[::1]/', [], true, 'blocked', 'ipv6 loopback with allowance'],
+    ['http://127.0.0.1:2019/stop', [], true, 'blocked', 'ipv4 loopback with allowance'],
+    ['http://127.1.2.3/', [], true, 'blocked', 'ipv4 loopback range with allowance'],
+    ['http://[::ffff:127.0.0.1]/', [], true, 'blocked', 'mapped loopback with allowance'],
+    ['http://[64:ff9b::7f00:1]/', [], true, 'blocked', 'nat64 loopback with allowance'],
+    ['http://2130706433/', [], true, 'blocked', 'decimal ip normalised to 127.0.0.1'],
+    ['http://localhost:3000', ['127.0.0.1', '::1'], true, 'blocked', 'localhost with allowance'],
+    ['https://hooks.example', [], true, 'unresolved', 'empty answer'],
+    ['not a url', [], true, 'invalid', 'unparseable'],
+    ['ftp://x', ['93.184.216.34'], true, 'invalid', 'unsupported scheme'],
   ])('%s resolving to %j, allowPrivateTargets=%s → %s (%s)', async (url, addresses, allowPrivateTargets, expected) => {
-    expect(await isWebhookUrlAllowed(url, allowPrivateTargets, resolvesTo(...addresses))).toBe(expected);
+    expect(await checkWebhookUrl(url, allowPrivateTargets, resolvesTo(...addresses))).toBe(expected);
   });
 
-  it('rejects when resolution fails', async () => {
-    const failing = async () => {
-      throw new Error('ENOTFOUND');
-    };
-    expect(await isWebhookUrlAllowed('https://hooks.example', true, failing)).toBe(false);
+  it('is unresolved when resolution fails', async () => {
+    expect(await checkWebhookUrl('https://hooks.example', true, failingResolver)).toBe('unresolved');
+  });
+});
+
+describe('checkTargetUrl', () => {
+  it.each([
+    ['http://example.com', ['93.184.216.34'], false, 'allowed', 'http is not a webhook-only rule'],
+    ['http://127.0.0.1:3000', [], true, 'blocked', 'ipv4 loopback literal with allowance'],
+    ['http://[::1]/', [], true, 'blocked', 'ipv6 loopback literal with allowance'],
+    ['http://app.example', ['127.0.0.1'], true, 'blocked', 'hostname resolving to loopback'],
+    ['http://app.example', ['93.184.216.34', '127.0.0.1'], true, 'mixed', 'public and loopback answer'],
+    ['http://192.168.1.10:8080', [], true, 'allowed', 'lan literal with allowance'],
+    ['http://192.168.1.10:8080', [], false, 'blocked', 'lan literal without allowance'],
+    ['not a url', [], true, 'invalid', 'unparseable'],
+  ])('%s resolving to %j, allowPrivateTargets=%s → %s (%s)', async (url, addresses, allowPrivateTargets, expected) => {
+    expect(await checkTargetUrl(url, allowPrivateTargets, resolvesTo(...addresses))).toBe(expected);
+  });
+
+  it('is unresolved when resolution fails', async () => {
+    expect(await checkTargetUrl('http://app.example', true, failingResolver)).toBe('unresolved');
+  });
+});
+
+describe('createGuardedLookup', () => {
+  type LookupResult = { error: NodeJS.ErrnoException | null; address: unknown; family?: number };
+
+  const run = (lookup: ReturnType<typeof createGuardedLookup>, all: boolean) =>
+    new Promise<LookupResult>((done) => {
+      lookup('target.example', { all }, (error, address, family) => done({ error, address, family }));
+    });
+
+  it('returns only the allowed addresses of a mixed answer', async () => {
+    const lookup = createGuardedLookup(true, resolvesTo('93.184.216.34', '127.0.0.1'));
+    expect(await run(lookup, true)).toMatchObject({
+      error: null,
+      address: [{ address: '93.184.216.34', family: 4 }],
+    });
+    expect(await run(lookup, false)).toMatchObject({ error: null, address: '93.184.216.34', family: 4 });
+  });
+
+  it.each([true, false])('refuses an all-loopback answer, allowPrivateTargets=%s', async (allowPrivateTargets) => {
+    const lookup = createGuardedLookup(allowPrivateTargets, resolvesTo('127.0.0.1', '::1'));
+    expect((await run(lookup, true)).error?.code).toBe('EACCES');
+    expect((await run(lookup, false)).error?.code).toBe('EACCES');
+  });
+
+  it('passes a private address only with the allowance', async () => {
+    expect(await run(createGuardedLookup(true, resolvesTo('192.168.1.10')), false)).toMatchObject({
+      error: null,
+      address: '192.168.1.10',
+    });
+    expect((await run(createGuardedLookup(false, resolvesTo('192.168.1.10')), false)).error?.code).toBe('EACCES');
+  });
+
+  it('passes a resolver error through', async () => {
+    expect((await run(createGuardedLookup(true, failingResolver), true)).error?.message).toBe('ENOTFOUND');
   });
 });
 

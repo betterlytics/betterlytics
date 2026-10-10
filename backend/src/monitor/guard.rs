@@ -70,10 +70,16 @@ fn classify_ip(ip: IpAddr) -> IpClass {
 fn classify_v4(v4: Ipv4Addr) -> IpClass {
     let [a, b, _, _] = v4.octets();
     // Link-local holds the AWS/GCP/Azure metadata endpoint; Alibaba's sits inside CGNAT, which the allowance opens.
-    // 0.0.0.0 connects to localhost on Linux.
-    if v4.is_link_local() || v4 == ALIBABA_METADATA || a == 0 || a >= 224 || v4.is_documentation() {
+    // Loopback reaches this server's own services (Caddy admin, backend, dashboard); 0.0.0.0 connects to localhost on Linux.
+    if v4.is_link_local()
+        || v4.is_loopback()
+        || v4 == ALIBABA_METADATA
+        || a == 0
+        || a >= 224
+        || v4.is_documentation()
+    {
         IpClass::AlwaysBlocked
-    } else if v4.is_loopback() || v4.is_private() || (a == 100 && (b & 0xc0) == 64) {
+    } else if v4.is_private() || (a == 100 && (b & 0xc0) == 64) {
         // 100.64/10 CGNAT (Tailscale); Ipv4Addr::is_shared is unstable
         IpClass::Private
     } else {
@@ -87,9 +93,14 @@ fn classify_v6(v6: Ipv6Addr) -> IpClass {
         // NAT64 64:ff9b::/96 carries an IPv4 target; classify that so DNS64-only hosts keep working
         return classify_v4(Ipv4Addr::from(((s[6] as u32) << 16) | s[7] as u32));
     }
-    if v6.is_unicast_link_local() || v6.is_unspecified() || v6.is_multicast() || v6 == AWS_IMDS_V6 {
+    if v6.is_unicast_link_local()
+        || v6.is_loopback()
+        || v6.is_unspecified()
+        || v6.is_multicast()
+        || v6 == AWS_IMDS_V6
+    {
         IpClass::AlwaysBlocked
-    } else if v6.is_loopback() || v6.is_unique_local() {
+    } else if v6.is_unique_local() {
         IpClass::Private
     } else {
         IpClass::Public
@@ -315,16 +326,14 @@ mod tests {
     #[test]
     fn classifies_private_addresses() {
         for addr in [
-            "127.0.0.1",
             "10.1.2.3",
             "172.16.0.1",
             "172.31.255.255",
             "192.168.1.10",
             "100.64.0.1",
             "100.127.255.254",
-            "::1",
             "fd12:3456::1",
-            "::ffff:127.0.0.1",
+            "::ffff:10.1.2.3",
             "64:ff9b::a00:1",
         ] {
             assert_eq!(classify_ip(ip(addr)), IpClass::Private, "{addr}");
@@ -348,6 +357,11 @@ mod tests {
             "::",
             "ff02::1",
             "fd00:ec2::254",
+            "127.0.0.1",
+            "127.1.2.3",
+            "::1",
+            "::ffff:127.0.0.1",
+            "64:ff9b::7f00:1",
         ] {
             assert_eq!(classify_ip(ip(addr)), IpClass::AlwaysBlocked, "{addr}");
         }
@@ -357,8 +371,12 @@ mod tests {
     fn blocks_by_class_and_allowance() {
         assert!(is_blocked_ip(&ip("10.0.0.1"), false));
         assert!(!is_blocked_ip(&ip("10.0.0.1"), true));
+        assert!(!is_blocked_ip(&ip("192.168.1.10"), true));
         assert!(is_blocked_ip(&ip("169.254.169.254"), true));
         assert!(!is_blocked_ip(&ip("1.1.1.1"), false));
+        for loopback in ["127.0.0.1", "127.1.2.3", "::1", "::ffff:127.0.0.1", "64:ff9b::7f00:1"] {
+            assert!(is_blocked_ip(&ip(loopback), true), "{loopback}");
+        }
     }
 
     #[test]
@@ -385,6 +403,10 @@ mod tests {
         assert!(validate_webhook_url(&url("https://169.254.169.254/"), true).is_err());
         assert!(validate_webhook_url(&url("https://[::ffff:127.0.0.1]/"), false).is_err());
         assert_eq!(reason("https://2130706433/", false), ReasonCode::BlockedIpLiteral);
+        for loopback in ["http://127.0.0.1:2019/stop", "http://127.1/", "http://[::1]:3001/", "https://2130706433/"] {
+            assert_eq!(reason(loopback, true), ReasonCode::BlockedIpLiteral, "{loopback}");
+        }
+        assert!(validate_webhook_url(&url("http://192.168.1.10:8080/"), true).is_ok());
     }
 
     #[test]
@@ -432,17 +454,28 @@ mod tests {
 
     #[tokio::test]
     async fn resolves_ip_literals_by_allowance() {
-        assert_eq!(resolve_ip(&url("http://127.0.0.1:3000/"), true).await.unwrap(), ip("127.0.0.1"));
+        assert_eq!(resolve_ip(&url("http://192.168.1.10:3000/"), true).await.unwrap(), ip("192.168.1.10"));
         assert_eq!(
-            resolve_ip(&url("http://127.0.0.1:3000/"), false).await.unwrap_err().reason_code,
+            resolve_ip(&url("http://192.168.1.10:3000/"), false).await.unwrap_err().reason_code,
             ReasonCode::BlockedIpLiteral
         );
-        assert_eq!(resolve_ip(&url("http://[::1]/"), true).await.unwrap(), ip("::1"));
+        for loopback in ["http://127.0.0.1:3001/", "http://[::1]/", "http://[::ffff:127.0.0.1]/"] {
+            assert_eq!(
+                resolve_ip(&url(loopback), true).await.unwrap_err().reason_code,
+                ReasonCode::BlockedIpLiteral,
+                "{loopback}"
+            );
+        }
     }
 
     #[tokio::test]
     async fn guarded_resolution_filters_localhost() {
-        assert!(resolve_allowed("localhost", false).await.is_err());
-        assert!(!resolve_allowed("localhost", true).await.unwrap().is_empty());
+        for allow in [false, true] {
+            assert!(resolve_allowed("localhost", allow).await.is_err());
+            assert_eq!(
+                resolve_ip(&url("http://localhost:3000/"), allow).await.unwrap_err().reason_code,
+                ReasonCode::DnsBlocked
+            );
+        }
     }
 }

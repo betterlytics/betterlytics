@@ -65,12 +65,16 @@ export function useCreateMonitor({ dashboardId, domain, existingUrls, onCreated 
     startTransition(async () => {
       try {
         const payload = form.buildCreatePayload(url.trim());
-        const created = await createMonitorCheckAction(dashboardId, payload);
+        const result = await createMonitorCheckAction(dashboardId, payload);
+        if (!result.success) {
+          toast.error(t('targetBlocked'));
+          return;
+        }
         toast.success(t('success'), {
           icon: <CheckCircle2 className='h-4 w-4 text-emerald-500' />,
           description: t('successDescription'),
         });
-        onCreated?.(created);
+        onCreated?.(result.monitor);
       } catch (error) {
         console.error(error);
         toast.error(t('error'));
