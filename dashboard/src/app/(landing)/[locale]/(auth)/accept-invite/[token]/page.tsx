@@ -41,10 +41,7 @@ export default async function AcceptInvitePage({ params }: Props) {
       );
     }
     // an accepted invitation stays good past its date: its link leads back to the dashboard
-    if (
-      invitation.status === 'expired' ||
-      (invitation.status !== 'accepted' && new Date() > invitation.expiresAt)
-    ) {
+    if (invitation.status !== 'accepted' && !isOpenInvitation(invitation)) {
       return (
         <AuthPanel title={t('expiredTitle')} lede={t('expiredDescription')}>
           <AuthAction
