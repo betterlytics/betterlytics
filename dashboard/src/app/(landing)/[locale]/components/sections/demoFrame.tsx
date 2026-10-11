@@ -7,6 +7,7 @@ import { LoadingMark } from '@/landing/components/ui/brandMark';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
 import { useInView } from '@/landing/hooks/useInView';
 import { track } from '@/landing/lib/analytics';
+import { cn } from '@/landing/lib/cn';
 import styles from './demoFrame.module.css';
 
 /** Cap on waiting for the page's load event, which a hung request elsewhere can stall. */
@@ -114,9 +115,13 @@ export function DemoFrame({ src }: { src: string }) {
         </div>
       )}
       {requested && (
+        // hidden until load: it stacks above the loader, and half-loaded it would take scroll before the scrim exists
         <iframe
           ref={frame}
-          className='absolute top-0 left-0 size-[calc(100%/var(--demo-scale))] origin-top-left scale-(--demo-scale)'
+          className={cn(
+            'absolute top-0 left-0 size-[calc(100%/var(--demo-scale))] origin-top-left scale-(--demo-scale) transition-opacity duration-300 ease-out-expo',
+            !loaded && 'pointer-events-none opacity-0',
+          )}
           src={src}
           title={t('frameTitle')}
           allowFullScreen
