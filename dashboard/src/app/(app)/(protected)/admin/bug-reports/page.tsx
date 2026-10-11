@@ -7,7 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { cn } from '@/lib/utils';
 import { AdminPage } from '@/app/(app)/(protected)/admin/_components/AdminPage';
 import { AdminPagination } from '@/app/(app)/(protected)/admin/_components/AdminPagination';
-import { formatDate, parsePage } from '@/app/(app)/(protected)/admin/_lib/format';
+import { LocalDate } from '@/app/(app)/(protected)/admin/_components/LocalDate';
+import { parsePage } from '@/app/(app)/(protected)/admin/_lib/format';
 import { requireAdminPage } from '@/app/(app)/(protected)/admin/_lib/guard';
 import { BugReportStatusButtons } from './_components/BugReportStatusButtons';
 import { ViewMessageDialog } from './_components/ViewMessageDialog';
@@ -101,7 +102,9 @@ export default async function AdminBugReportsPage({ searchParams }: PageProps) {
                   <TableCell>
                     <Badge variant={statusBadgeVariant(report.status)}>{report.status}</Badge>
                   </TableCell>
-                  <TableCell className='text-muted-foreground'>{formatDate(report.createdAt)}</TableCell>
+                  <TableCell className='text-muted-foreground'>
+                    <LocalDate date={report.createdAt} />
+                  </TableCell>
                   <TableCell>
                     <div className='flex items-center justify-end gap-1'>
                       <ViewMessageDialog title='Bug Report' message={report.message} />

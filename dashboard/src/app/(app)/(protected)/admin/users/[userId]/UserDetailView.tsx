@@ -14,12 +14,8 @@ import type { AdminEdition, AdminTargetAction } from '@/entities/admin/adminAcce
 import type { AdminUserView } from '@/entities/admin/adminUser.entities';
 import { RoleBadge } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(settings)/settings/members/member-utils';
 import { AdminConfirmDialog } from '@/app/(app)/(protected)/admin/_components/AdminConfirmDialog';
-import {
-  describeUserAgent,
-  formatDate,
-  formatRelative,
-  userDisplayName,
-} from '@/app/(app)/(protected)/admin/_lib/format';
+import { describeUserAgent, userDisplayName } from '@/app/(app)/(protected)/admin/_lib/format';
+import { LastActive, LocalDate } from '@/app/(app)/(protected)/admin/_components/LocalDate';
 import { UserRoleBadge } from '@/app/(app)/(protected)/admin/users/_components/UserBadges';
 import {
   UserActionDialogs,
@@ -131,13 +127,17 @@ function ProfileSection({
           <DetailRow label='Two-factor authentication'>{user.twoFactorEnabled ? 'On' : 'Off'}</DetailRow>
         </>
       )}
-      <DetailRow label='Joined'>{formatDate(user.createdAt)}</DetailRow>
-      <DetailRow label='Last active'>
-        <span title={user.lastActiveAt ? formatDate(user.lastActiveAt, true) : undefined}>
-          {formatRelative(user.lastActiveAt)}
-        </span>
+      <DetailRow label='Joined'>
+        <LocalDate date={user.createdAt} />
       </DetailRow>
-      {user.disabledAt && <DetailRow label='Disabled'>{formatDate(user.disabledAt, true)}</DetailRow>}
+      <DetailRow label='Last active'>
+        <LastActive date={user.lastActiveAt} />
+      </DetailRow>
+      {user.disabledAt && (
+        <DetailRow label='Disabled'>
+          <LocalDate date={user.disabledAt} includeTime />
+        </DetailRow>
+      )}
     </SettingsSection>
   );
 }
@@ -211,7 +211,8 @@ function SessionsSection({ user, canRevoke }: SectionProps & { canRevoke: boolea
                   )}
                 </div>
                 <p className='text-muted-foreground truncate text-xs'>
-                  {[session.ipAddress, `Signed in ${formatDate(session.createdAt, true)}`].filter(Boolean).join(' · ')}
+                  {session.ipAddress && `${session.ipAddress} · `}
+                  Signed in <LocalDate date={session.createdAt} includeTime />
                 </p>
               </div>
               {canRevoke && !session.isCurrent && (

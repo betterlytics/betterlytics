@@ -3,7 +3,8 @@ import { getAdminUserAction } from '@/actions/admin/users.action';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { AdminPage } from '@/app/(app)/(protected)/admin/_components/AdminPage';
 import { requireAdminPage } from '@/app/(app)/(protected)/admin/_lib/guard';
-import { formatDate, userDisplayName } from '@/app/(app)/(protected)/admin/_lib/format';
+import { LocalDate } from '@/app/(app)/(protected)/admin/_components/LocalDate';
+import { userDisplayName } from '@/app/(app)/(protected)/admin/_lib/format';
 import { UserStatusBadge } from '@/app/(app)/(protected)/admin/users/_components/UserBadges';
 import { UserDetailView } from './UserDetailView';
 
@@ -20,11 +21,13 @@ export default async function AdminUserPage({ params }: AdminUserPageProps) {
   const user = result.data;
   if (!user) notFound();
 
-  const description = user.deletedAt
-    ? `Deleted on ${formatDate(user.deletedAt)}`
-    : user.name
-      ? user.email
-      : undefined;
+  const description = user.deletedAt ? (
+    <>
+      Deleted on <LocalDate date={user.deletedAt} />
+    </>
+  ) : user.name ? (
+    user.email
+  ) : undefined;
 
   return (
     <AdminPage

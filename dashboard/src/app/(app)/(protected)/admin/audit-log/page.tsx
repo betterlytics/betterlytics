@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AdminPage } from '@/app/(app)/(protected)/admin/_components/AdminPage';
 import { AdminPagination } from '@/app/(app)/(protected)/admin/_components/AdminPagination';
-import { describeAuditAction, formatDate, parsePage } from '@/app/(app)/(protected)/admin/_lib/format';
+import { LocalDate } from '@/app/(app)/(protected)/admin/_components/LocalDate';
+import { describeAuditAction, parsePage } from '@/app/(app)/(protected)/admin/_lib/format';
 import { requireAdminPage } from '@/app/(app)/(protected)/admin/_lib/guard';
 
 type AuditLogPageProps = {
@@ -42,7 +43,7 @@ export default async function AdminAuditLogPage({ searchParams }: AuditLogPagePr
               entries.map((entry) => (
                 <TableRow key={entry.id}>
                   <TableCell className='text-muted-foreground whitespace-nowrap'>
-                    {formatDate(entry.createdAt, true)}
+                    <LocalDate date={entry.createdAt} includeTime />
                   </TableCell>
                   <TableCell>
                     <div className='text-sm'>{entry.actorLabel ?? entry.actorUserId}</div>

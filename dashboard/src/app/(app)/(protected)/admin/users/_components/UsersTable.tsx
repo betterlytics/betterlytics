@@ -10,7 +10,8 @@ import {
   getAvatarColor,
   getInitials,
 } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(settings)/settings/members/member-utils';
-import { formatDate, formatRelative, userDisplayName } from '@/app/(app)/(protected)/admin/_lib/format';
+import { userDisplayName } from '@/app/(app)/(protected)/admin/_lib/format';
+import { LastActive, LocalDate } from '@/app/(app)/(protected)/admin/_components/LocalDate';
 import { UserRoleBadge, UserStatusBadge } from './UserBadges';
 import { UserRowActions } from './UserRowActions';
 
@@ -59,13 +60,12 @@ export function UsersTable({ users, edition, actorUserId, emailsEnabled, emptyMe
                   <UserStatusBadge status={user.status} />
                 </TableCell>
                 <TableCell className='hidden text-right tabular-nums md:table-cell'>{user.dashboardCount}</TableCell>
-                <TableCell
-                  className='text-muted-foreground hidden sm:table-cell'
-                  title={user.lastActiveAt ? formatDate(user.lastActiveAt, true) : undefined}
-                >
-                  {formatRelative(user.lastActiveAt)}
+                <TableCell className='text-muted-foreground hidden sm:table-cell'>
+                  <LastActive date={user.lastActiveAt} />
                 </TableCell>
-                <TableCell className='text-muted-foreground hidden lg:table-cell'>{formatDate(user.createdAt)}</TableCell>
+                <TableCell className='text-muted-foreground hidden lg:table-cell'>
+                  <LocalDate date={user.createdAt} />
+                </TableCell>
                 <TableCell className='text-right'>
                   <UserRowActions
                     user={user}
