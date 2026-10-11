@@ -806,6 +806,7 @@
           "sent": "Un nuovo link è in arrivo a {email}. È valido per 24 ore.",
           "sentIfWaiting": "Se {email} ha un account in attesa di verifica, un nuovo link è in arrivo. È valido per 24 ore.",
           "alreadyVerified": "La tua email è già verificata.",
+          "sentRecently": "Un link è stato inviato di recente. Controlla la tua casella di posta o riprova tra qualche minuto.",
           "failed": "Impossibile inviare un nuovo link, riprova.",
           "differentEmail": "Usa un'altra email"
         },

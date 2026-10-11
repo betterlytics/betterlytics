@@ -806,6 +806,7 @@
           "sent": "Et nyt link er på vej til {email}. Det virker i 24 timer.",
           "sentIfWaiting": "Hvis {email} har en konto, der venter på bekræftelse, er et nyt link på vej. Det virker i 24 timer.",
           "alreadyVerified": "Din e-mail er allerede bekræftet.",
+          "sentRecently": "Der er lige blevet sendt et link. Tjek din indbakke, eller prøv igen om et par minutter.",
           "failed": "Kunne ikke sende et nyt link. Prøv igen.",
           "differentEmail": "Brug en anden e-mail"
         },

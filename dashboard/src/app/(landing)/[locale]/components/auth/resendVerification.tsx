@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { VERIFICATION_EMAIL_THROTTLED } from '@/constants/auth';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
 import { PanelLink } from './authPanel';
@@ -58,7 +59,9 @@ export function ResendVerification({
     try {
       const { error: sendError } = await authClient.sendVerificationEmail({ email: email.trim() });
       if (sendError) {
-        if (sendError.status === 429) fail(tFields('errors.tooManyRequests'));
+        // only signed in: signed out, the server answers a throttled resend as sent
+        if (sendError.code === VERIFICATION_EMAIL_THROTTLED) fail(t('sentRecently'));
+        else if (sendError.status === 429) fail(tFields('errors.tooManyRequests'));
         else if (sendError.code === 'EMAIL_ALREADY_VERIFIED') fail(t('alreadyVerified'));
         else fail(t('failed'));
         return;

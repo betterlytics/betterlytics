@@ -806,6 +806,7 @@
           "sent": "A new link is on its way to {email}. It works for 24 hours.",
           "sentIfWaiting": "If {email} has an account waiting to be verified, a new link is on its way. It works for 24 hours.",
           "alreadyVerified": "Your email is already verified.",
+          "sentRecently": "A link was sent recently. Check your inbox, or try again in a few minutes.",
           "failed": "Couldn't send a new link, please try again.",
           "differentEmail": "Use a different email"
         },
