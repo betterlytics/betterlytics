@@ -27,7 +27,6 @@ export async function recordAdminAction(params: {
 }): Promise<void> {
   await createAuditLogEntry({
     actorUserId: params.actor.userId,
-    actorKind: params.actor.kind,
     actorLabel: params.actor.email,
     action: params.action,
     targetType: params.targetType,

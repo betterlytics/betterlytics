@@ -25,11 +25,11 @@ export function resolveAdminActor(session: Session | null): AdminActor | null {
   if (isFeatureEnabled('isCloud')) {
     if (!isSuperAdmin(user.id)) return null;
     if (!env.IS_DEVELOPMENT && !base.twoFactorEnabled) return null;
-    return { ...base, kind: 'super_admin', edition: 'cloud' };
+    return { ...base, edition: 'cloud' };
   }
 
   if (user.role !== 'admin') return null;
-  return { ...base, kind: 'instance_admin', edition: 'selfhost' };
+  return { ...base, edition: 'selfhost' };
 }
 
 export async function getCurrentAdminActor(): Promise<AdminActor | null> {

@@ -69,11 +69,6 @@ enum AdminAuditStatus {
   failed
 }
 
-enum AdminActorKind {
-  super_admin
-  instance_admin
-}
-
 enum GithubStarPromptState {
   pending
   dismissed
@@ -748,7 +743,6 @@ model SentEmail {
 model AdminAuditLog {
   id          String           @id @default(cuid())
   actorUserId String
-  actorKind   AdminActorKind
   actorLabel  String?
   action      String
   targetType  String

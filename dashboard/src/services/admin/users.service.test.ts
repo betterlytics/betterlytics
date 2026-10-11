@@ -45,12 +45,11 @@ vi.mock('@/services/auth/twoFactorNotification.service', () => ({ sendTwoFactorC
 const selfHost: AdminActor = {
   userId: 'admin-1',
   email: 'admin@example.com',
-  kind: 'instance_admin',
   edition: 'selfhost',
   twoFactorEnabled: false,
   sessionToken: 'token',
 };
-const cloud: AdminActor = { ...selfHost, kind: 'super_admin', edition: 'cloud' };
+const cloud: AdminActor = { ...selfHost, edition: 'cloud' };
 
 function target(overrides: Partial<AdminUserTarget> = {}): AdminUserTarget {
   return {

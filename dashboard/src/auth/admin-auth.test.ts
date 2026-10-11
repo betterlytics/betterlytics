@@ -35,7 +35,6 @@ describe('resolveAdminActor on self-host', () => {
   it('lets instance admins in, carrying their session token', () => {
     expect(resolveAdminActor(session({ id: 'user-1', role: 'admin' }))).toMatchObject({
       userId: 'user-1',
-      kind: 'instance_admin',
       edition: 'selfhost',
       sessionToken: 'token-user-1',
     });
@@ -57,7 +56,6 @@ describe('resolveAdminActor on cloud', () => {
 
   it('lets allowlisted super admins with 2FA in', () => {
     expect(resolveAdminActor(session({ id: 'staff-1', twoFactorEnabled: true }))).toMatchObject({
-      kind: 'super_admin',
       edition: 'cloud',
     });
   });

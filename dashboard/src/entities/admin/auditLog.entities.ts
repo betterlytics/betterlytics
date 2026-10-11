@@ -1,10 +1,9 @@
 import { z } from 'zod';
-import { AdminActorKind, AdminAuditStatus } from '@prisma/client';
+import { AdminAuditStatus } from '@prisma/client';
 
 export const AdminAuditLogEntrySchema = z.object({
   id: z.string(),
   actorUserId: z.string(),
-  actorKind: z.nativeEnum(AdminActorKind),
   actorLabel: z.string().nullable(),
   action: z.string(),
   targetType: z.string(),
@@ -19,7 +18,6 @@ export type AdminAuditLogEntry = z.infer<typeof AdminAuditLogEntrySchema>;
 
 export type AdminAuditRecord = {
   actorUserId: string;
-  actorKind: AdminActorKind;
   actorLabel: string | null;
   action: string;
   targetType: string;

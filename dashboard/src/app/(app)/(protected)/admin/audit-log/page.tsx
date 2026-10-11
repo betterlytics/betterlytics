@@ -45,12 +45,7 @@ export default async function AdminAuditLogPage({ searchParams }: AuditLogPagePr
                   <TableCell className='text-muted-foreground whitespace-nowrap'>
                     <LocalDate date={entry.createdAt} includeTime />
                   </TableCell>
-                  <TableCell>
-                    <div className='text-sm'>{entry.actorLabel ?? entry.actorUserId}</div>
-                    <div className='text-muted-foreground text-xs'>
-                      {entry.actorKind === 'super_admin' ? 'Staff' : 'Instance admin'}
-                    </div>
-                  </TableCell>
+                  <TableCell className='text-sm'>{entry.actorLabel ?? entry.actorUserId}</TableCell>
                   <TableCell className='text-sm'>{describeAuditAction(entry.action, entry.payload)}</TableCell>
                   <TableCell className='text-muted-foreground max-w-56 truncate text-sm'>
                     {entry.targetLabel ?? (entry.targetType === 'user' ? 'Deleted user' : (entry.targetId ?? '-'))}

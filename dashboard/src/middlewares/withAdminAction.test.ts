@@ -13,7 +13,6 @@ vi.mock('@/services/admin/auditLog.service', () => ({ recordAdminAction: vi.fn()
 const selfHostAdmin: AdminActor = {
   userId: 'admin-1',
   email: 'admin@example.com',
-  kind: 'instance_admin',
   edition: 'selfhost',
   twoFactorEnabled: false,
   sessionToken: 'token',

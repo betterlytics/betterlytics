@@ -1,11 +1,8 @@
-import type { AdminActorKind } from '@prisma/client';
-
 export type AdminEdition = 'cloud' | 'selfhost';
 
 export type AdminActor = {
   userId: string;
   email: string;
-  kind: AdminActorKind;
   edition: AdminEdition;
   twoFactorEnabled: boolean;
   sessionToken: string;
