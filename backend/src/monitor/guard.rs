@@ -58,7 +58,9 @@ enum IpClass {
 }
 
 const AWS_IMDS_V6: Ipv6Addr = Ipv6Addr::new(0xfd00, 0x0ec2, 0, 0, 0, 0, 0, 0x0254);
+const GCP_METADATA_V6: Ipv6Addr = Ipv6Addr::new(0xfd20, 0x00ce, 0, 0, 0, 0, 0, 0x0254);
 const ALIBABA_METADATA: Ipv4Addr = Ipv4Addr::new(100, 100, 100, 200);
+const AZURE_WIRESERVER: Ipv4Addr = Ipv4Addr::new(168, 63, 129, 16);
 
 fn classify_ip(ip: IpAddr) -> IpClass {
     match ip.to_canonical() {
@@ -69,11 +71,13 @@ fn classify_ip(ip: IpAddr) -> IpClass {
 
 fn classify_v4(v4: Ipv4Addr) -> IpClass {
     let [a, b, _, _] = v4.octets();
-    // Link-local holds the AWS/GCP/Azure metadata endpoint; Alibaba's sits inside CGNAT, which the allowance opens.
+    // Link-local holds the AWS/GCP/Azure metadata endpoint; Alibaba's sits inside CGNAT, which the allowance opens,
+    // and Azure's WireServer is a public address.
     // Loopback reaches this server's own services (Caddy admin, backend, dashboard); 0.0.0.0 connects to localhost on Linux.
     if v4.is_link_local()
         || v4.is_loopback()
         || v4 == ALIBABA_METADATA
+        || v4 == AZURE_WIRESERVER
         || a == 0
         || a >= 224
         || v4.is_documentation()
@@ -98,6 +102,7 @@ fn classify_v6(v6: Ipv6Addr) -> IpClass {
         || v6.is_unspecified()
         || v6.is_multicast()
         || v6 == AWS_IMDS_V6
+        || v6 == GCP_METADATA_V6
     {
         IpClass::AlwaysBlocked
     } else if v6.is_unique_local() {
@@ -357,6 +362,10 @@ mod tests {
             "::",
             "ff02::1",
             "fd00:ec2::254",
+            "fd20:ce::254",
+            "168.63.129.16",
+            "::ffff:168.63.129.16",
+            "64:ff9b::a83f:8110",
             "127.0.0.1",
             "127.1.2.3",
             "::1",
