@@ -117,11 +117,7 @@
     grid-area: 1 / 1;
   }
   .reserve {
-    display: none;
     visibility: hidden;
-    @variant max-sm {
-      display: block;
-    }
   }
   .reserve .line:not([data-shown]) {
     display: block;
