@@ -157,6 +157,12 @@ describe('isVendorWebhookUrl', () => {
     ['https://contoso.webhook.office.com/webhookb2/abc', 'teams', true],
     ['https://prod-12.westus.logic.azure.com:443/workflows/abc', 'teams', true],
     ['https://PROD-12.WESTUS.LOGIC.AZURE.COM/workflows/abc', 'teams', true],
+    [
+      'https://default0a1b.2c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/abc/triggers/manual/paths/invoke?api-version=1',
+      'teams',
+      true,
+    ],
+    ['https://environment.api.powerplatform.com/powerautomate/', 'teams', false],
     ['https://attacker.example/x.webhook.office.com/', 'teams', false],
     ['https://10.0.0.5/a.logic.azure.com/', 'teams', false],
     ['http://contoso.webhook.office.com/', 'teams', false],

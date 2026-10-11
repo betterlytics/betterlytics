@@ -147,7 +147,10 @@ type VendorWebhookRule = { hosts: readonly string[]; pathPrefix: string }; // ".
 const VENDOR_WEBHOOK_RULES = {
   discord: { hosts: ['discord.com'], pathPrefix: '/api/webhooks/' },
   slack: { hosts: ['hooks.slack.com'], pathPrefix: '/services/' },
-  teams: { hosts: ['.webhook.office.com', '.logic.azure.com'], pathPrefix: '' },
+  teams: {
+    hosts: ['.webhook.office.com', '.logic.azure.com', '.environment.api.powerplatform.com'],
+    pathPrefix: '',
+  },
 } as const satisfies Record<string, VendorWebhookRule>;
 
 export type WebhookVendor = keyof typeof VENDOR_WEBHOOK_RULES;

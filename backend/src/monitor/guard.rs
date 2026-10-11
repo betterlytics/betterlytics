@@ -267,7 +267,7 @@ pub const SLACK_WEBHOOK: VendorWebhookRule = VendorWebhookRule {
     path_prefix: "/services/",
 };
 pub const TEAMS_WEBHOOK: VendorWebhookRule = VendorWebhookRule {
-    hosts: &[".webhook.office.com", ".logic.azure.com"],
+    hosts: &[".webhook.office.com", ".logic.azure.com", ".environment.api.powerplatform.com"],
     path_prefix: "",
 };
 
@@ -419,6 +419,14 @@ mod tests {
         assert!(ok("https://contoso.webhook.office.com/webhookb2/abc", &TEAMS_WEBHOOK));
         assert!(ok("https://prod-12.westus.logic.azure.com:443/workflows/abc", &TEAMS_WEBHOOK));
         assert!(ok("https://PROD-12.WESTUS.LOGIC.AZURE.COM/workflows/abc", &TEAMS_WEBHOOK));
+        assert!(ok(
+            "https://default0a1b.2c.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/abc/triggers/manual/paths/invoke?api-version=1",
+            &TEAMS_WEBHOOK
+        ));
+        assert_eq!(
+            reason("https://environment.api.powerplatform.com/powerautomate/", &TEAMS_WEBHOOK),
+            ReasonCode::InvalidHost
+        );
         assert_eq!(reason("https://attacker.example/x.webhook.office.com/", &TEAMS_WEBHOOK), ReasonCode::InvalidHost);
         assert_eq!(reason("https://10.0.0.5/a.logic.azure.com/", &TEAMS_WEBHOOK), ReasonCode::InvalidHost);
         assert_eq!(reason("http://contoso.webhook.office.com/", &TEAMS_WEBHOOK), ReasonCode::SchemeBlocked);
