@@ -3201,7 +3201,7 @@
       "domainPlaceholder": "example.com",
       "domainHelp": "Paste your website URL or domain (e.g., example.com)",
       "domainWillBeCreatedAs": "Will be created as <strong>{domain}</strong>",
-      "termsAgreeLabel": "I have read and agree to the <termsLink>Terms of Service</termsLink> and <privacyLink>Privacy Policy</privacyLink>.",
+      "termsAgreeLabel": "I agree to the <termsLink>Terms of Service</termsLink> and have read the <privacyLink>Privacy Policy</privacyLink>.",
       "createDashboardButton": "Create Dashboard",
       "creatingDashboard": "Creating Dashboard...",
       "dashboardCreatedSuccess": "Dashboard created successfully!"

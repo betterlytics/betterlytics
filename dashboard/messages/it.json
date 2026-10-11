@@ -3204,7 +3204,7 @@
       "domainPlaceholder": "esempio.com",
       "domainHelp": "Incolla l’URL o il dominio del tuo sito (es. esempio.com)",
       "domainWillBeCreatedAs": "Verrà creato come <strong>{domain}</strong>",
-      "termsAgreeLabel": "Ho letto e accetto i <termsLink>Termini di servizio</termsLink> e <privacyLink>l'Informativa sulla privacy</privacyLink>.",
+      "termsAgreeLabel": "Accetto i <termsLink>Termini di servizio</termsLink> e ho letto <privacyLink>l'Informativa sulla privacy</privacyLink>.",
       "createDashboardButton": "Crea dashboard",
       "creatingDashboard": "Creazione dashboard...",
       "dashboardCreatedSuccess": "Dashboard creata con successo!"

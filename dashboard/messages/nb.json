@@ -3204,7 +3204,7 @@
       "domainPlaceholder": "eksempel.no",
       "domainHelp": "Lim inn nettstedets URL eller domene (f.eks. eksempel.no)",
       "domainWillBeCreatedAs": "Opprettes som <strong>{domain}</strong>",
-      "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
+      "termsAgreeLabel": "Jeg godtar <termsLink>tjenestevilkårene</termsLink> og har lest <privacyLink>personvernerklæringen</privacyLink>.",
       "createDashboardButton": "Opprett dashboard",
       "creatingDashboard": "Oppretter dashboard...",
       "dashboardCreatedSuccess": "Dashboard opprettet!"
