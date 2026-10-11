@@ -21,7 +21,16 @@ describe('signInRedirectPath', () => {
   });
 
   it('falls back to the default for anything else', () => {
-    for (const value of [undefined, '', 'https://evil.com', '//evil.com', '/\\evil.com', ['/a', '/b']]) {
+    for (const value of [
+      undefined,
+      '',
+      'https://evil.com',
+      '//evil.com',
+      '/.//evil.com',
+      '/a/..//evil.com',
+      '/\\evil.com',
+      ['/a', '/b'],
+    ]) {
       expect(signInRedirectPath(value)).toBe('/dashboards');
     }
   });
