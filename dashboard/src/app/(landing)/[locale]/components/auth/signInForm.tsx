@@ -291,7 +291,10 @@ function TwoFactorStep({
       className={styles.otp}
       pending={pending}
       describedBy={error ? errorId : undefined}
-      onSubmit={() => verify()}
+      // Enter in a code cell submits past the disabled button, and a short code still costs one of the five tries
+      onSubmit={() => {
+        if (complete) verify();
+      }}
     >
       <div className={styles.otpHead}>
         <span className={styles.otpBadge}>
