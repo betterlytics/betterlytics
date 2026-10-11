@@ -681,7 +681,7 @@
         "submitting": "Logger inn…",
         "noAccount": "Ny hos Betterlytics?",
         "createAccount": "Opprett en konto",
-        "askAdmin": "Be en dashbord-eier om å invitere deg.",
+        "askAdmin": "Be en dashboard-eier om å invitere deg.",
         "registrationDisabled": "Registrering er deaktivert på denne instansen.",
         "errors": {
           "accountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn slik du gjorde sist.",
@@ -690,7 +690,7 @@
           "invalidOtp": "Koden fungerte ikke. Sjekk autentiseringsappen din og prøv igjen.",
           "invalidBackupCode": "Reservekoden fungerte ikke. Sjekk den og prøv igjen.",
           "generic": "Noe gikk galt under innloggingen. Prøv igjen.",
-          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om å invitere deg.",
+          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashboard-eier om å invitere deg.",
           "emailNotFound": "Vi fikk ikke tak i en e-postadresse fra den kontoen. Gjør e-posten din synlig hos leverandøren, eller logg inn med e-post og passord.",
           "unableToLink": "Vi kunne ikke koble den kontoen til din. Logg inn med e-post og passord i stedet.",
           "twoFactorExpired": "Innloggingsforsøket ditt er utløpt. Skriv inn passordet ditt på nytt.",
@@ -723,13 +723,13 @@
         "signIn": "Logg inn",
         "errors": {
           "emailExists": "En konto med denne e-postadressen finnes allerede. Logg inn i stedet.",
-          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om å invitere deg.",
+          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashboard-eier om å invitere deg.",
           "generic": "Noe gikk galt da kontoen din skulle opprettes. Prøv igjen.",
           "termsRequired": "Godta tjenestevilkårene for å fortsette."
         },
         "disabled": {
           "title": "Registrering deaktivert",
-          "description": "Nye kontoer opprettes bare via invitasjon. Be en dashbord-eier om å invitere deg.",
+          "description": "Nye kontoer opprettes bare via invitasjon. Be en dashboard-eier om å invitere deg.",
           "backToSignIn": "Tilbake til innlogging"
         }
       },
@@ -796,7 +796,7 @@
           "redirectingToSignin": "Sender deg til innlogging…",
           "redirectTimeout": "Videresending tar lengre tid enn forventet."
         },
-        "returnToDashboard": "Gå til dashbord",
+        "returnToDashboard": "Gå til dashboards",
         "backToSignIn": "Tilbake til innlogging",
         "helpLine": "Trenger du hjelp? Kontakt support på <mail>support@betterlytics.io</mail>",
         "resend": {
@@ -2887,7 +2887,7 @@
         "appearance": {
           "title": "Utseende",
           "themeLabel": "Tema",
-          "themeDescription": "Velg et personlig tema for dashbordet",
+          "themeDescription": "Velg et personlig tema for dashboardet",
           "light": "Lys",
           "dark": "Mørk",
           "system": "Systemstandard"
@@ -2903,9 +2903,9 @@
         "localization": {
           "title": "Lokalisering",
           "language": "Språk",
-          "languageDescription": "Velg språk for dashbordet",
+          "languageDescription": "Velg språk for dashboardet",
           "timezone": "Tidssone",
-          "timezoneDescription": "Brukes for datoer og grafer i alle dashbordene dine",
+          "timezoneDescription": "Brukes for datoer og grafer i alle dashboardene dine",
           "timezoneAuto": "Oppdag automatisk",
           "timezoneUndetected": "Nettleseren din oppgir ingen tidssone, så data vises i UTC. Velg tidssonen din for å rette dette.",
           "timezoneSearch": "Søk etter tidssoner...",
