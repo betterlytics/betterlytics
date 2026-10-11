@@ -45,6 +45,10 @@ vi.mock('@/lib/billing/capabilityAccess', () => ({
   getDashboardCapabilities: vi.fn(),
 }));
 vi.mock('next-intl/server', () => ({ getTranslations: vi.fn(async () => (key: string) => key) }));
+const flags = vi.hoisted(() => ({ isCloud: true, enableRegistration: false }));
+vi.mock('@/lib/feature-flags', () => ({
+  isFeatureEnabled: (flag: keyof typeof flags) => flags[flag],
+}));
 
 const future = new Date(Date.now() + 60_000);
 const invitation = (overrides: Partial<InvitationWithInviter> = {}): InvitationWithInviter => ({
@@ -68,6 +72,8 @@ const unknownVerification = { id: 'user-1', email: 'invited@example.com', emailV
 
 beforeEach(() => {
   vi.resetAllMocks();
+  flags.isCloud = true;
+  flags.enableRegistration = false;
   vi.mocked(findPendingInvitationsByEmail).mockResolvedValue([invitation()]);
   vi.mocked(findUserDashboardOrNull).mockResolvedValue(null);
 });
@@ -110,6 +116,24 @@ describe('address-matched lookups', () => {
   it('refuses to decline on behalf of an unverified address', async () => {
     await expect(declineInvitation('inv-1', unverified)).rejects.toThrow('invitationNotFound');
     expect(updateInvitationStatus).not.toHaveBeenCalled();
+  });
+
+  it('trusts an unverified address on self-host with registration closed', async () => {
+    flags.isCloud = false;
+
+    expect(await getPendingInvitationsForUser(unverified)).toHaveLength(1);
+    expect(await isUserInvited(unverified)).toBe(true);
+    expect(await acceptPendingInvitations(unverified)).toHaveLength(1);
+    expect(addDashboardMember).toHaveBeenCalledWith('dash-1', 'user-1', 'viewer');
+  });
+
+  it('does not trust an unverified address on self-host with registration open', async () => {
+    flags.isCloud = false;
+    flags.enableRegistration = true;
+
+    expect(await getPendingInvitationsForUser(unverified)).toEqual([]);
+    expect(await acceptPendingInvitations(unverified)).toEqual([]);
+    expect(findPendingInvitationsByEmail).not.toHaveBeenCalled();
   });
 });
 

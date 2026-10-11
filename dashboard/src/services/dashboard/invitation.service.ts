@@ -25,14 +25,17 @@ import type { User } from '@/entities/auth/session.entities';
 import { hasPermission } from '@/lib/permissions';
 import { UserException } from '@/lib/exceptions';
 import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 
 type Invitee = Pick<User, 'id' | 'email' | 'emailVerified'>;
 
-// Mirrors signupGate isInvited: an unverified address proves nothing, so it joins only via the token link (acceptInvitation)
+// Unverified addresses are only trusted on self-host with registration closed, where every account joined by invite token or as the first user
 async function findAddressMatchedInvitations(
   user: Pick<User, 'email' | 'emailVerified'>,
 ): Promise<InvitationWithInviter[]> {
-  if (user.emailVerified !== true) return [];
+  const addressTrusted =
+    user.emailVerified === true || (!isFeatureEnabled('isCloud') && !isFeatureEnabled('enableRegistration'));
+  if (!addressTrusted) return [];
   return findPendingInvitationsByEmail(user.email);
 }
 
