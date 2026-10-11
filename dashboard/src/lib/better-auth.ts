@@ -143,6 +143,7 @@ export const auth = betterAuth({
       termsAcceptedVersion: { type: 'number', required: false, input: false },
       changelogVersionSeen: { type: 'string', required: false, input: false },
       githubStarPromptState: { type: 'string', required: false, input: false },
+      disabledAt: { type: 'date', required: false, input: false },
     },
   },
   hooks: {
