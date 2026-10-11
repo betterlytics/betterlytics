@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, type ReactNode, type Ref } from 'react';
+import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
+import { useComposedRefs } from '@radix-ui/react-compose-refs';
 import { useTranslations } from 'next-intl';
 import { z } from 'zod';
 import { GitHubIcon } from '@/components/icons/SocialIcons';
@@ -88,6 +89,20 @@ export function Field({
   );
 }
 
+/**
+ * A password manager can fill a field before hydration. React keeps that value on screen but not in state, so the
+ * first submit would find the field empty and the render after would clear it; taken into state once, on mount.
+ */
+function usePrefilledValue(value: string, onChange: (value: string) => void, inputRef?: Ref<HTMLInputElement>) {
+  const ref = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    const prefilled = ref.current?.value;
+    if (prefilled && prefilled !== value) onChange(prefilled);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return useComposedRefs(ref, inputRef);
+}
+
 /** Read-only rather than disabled while a request runs, so focus stays put and can come back to it on an error. */
 export function EmailInput({
   id,
@@ -110,9 +125,10 @@ export function EmailInput({
   inputRef?: Ref<HTMLInputElement>;
 }) {
   const t = useTranslations('public.auth.fields');
+  const ref = usePrefilledValue(value, onChange, inputRef);
   return (
     <input
-      ref={inputRef}
+      ref={ref}
       id={id}
       className={cn(styles.input, styles.control)}
       type='email'
@@ -159,10 +175,11 @@ export function PasswordInput({
 }) {
   const t = useTranslations('public.auth.fields');
   const [revealed, setRevealed] = useState(false);
+  const ref = usePrefilledValue(value, onChange, inputRef);
   return (
     <div className={cn(styles.inputWrap, styles.control)}>
       <input
-        ref={inputRef}
+        ref={ref}
         id={id}
         className={styles.input}
         type={revealed ? 'text' : 'password'}
