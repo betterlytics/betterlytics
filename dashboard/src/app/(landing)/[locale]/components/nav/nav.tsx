@@ -37,7 +37,8 @@ function NavLinks({ className, onNavigate }: { className?: string; onNavigate?: 
           {t(link.key)}
         </AppLink>
       ))}
-      <a className={className} href={LINKS.docs}>
+      {/* closes too, or Back restores the page from bfcache with the menu open */}
+      <a className={className} href={LINKS.docs} onClick={onNavigate}>
         {t('docs')}
       </a>
     </>
@@ -124,6 +125,9 @@ export function Nav() {
 
   useEffect(() => {
     if (!open) return;
+    // the sheet covers the page, so screen readers mustn't swipe into what's behind it
+    const behind = [...(ref.current?.parentElement?.children ?? [])].filter((el) => el !== ref.current);
+    behind.forEach((el) => el.toggleAttribute('inert', true));
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
       if (sheetRef.current?.contains(document.activeElement)) menuRef.current?.focus({ preventScroll: true });
@@ -134,6 +138,7 @@ export function Nav() {
     window.addEventListener('keydown', onKey);
     wide.addEventListener('change', onWide);
     return () => {
+      behind.forEach((el) => el.toggleAttribute('inert', false));
       window.removeEventListener('keydown', onKey);
       wide.removeEventListener('change', onWide);
     };
@@ -162,6 +167,7 @@ export function Nav() {
     >
       <BrandLink
         className='justify-self-start'
+        onClick={() => setOpen(false)}
         wordmarkClassName='transition-[opacity,clip-path,visibility] duration-200 ease-out-expo [clip-path:inset(0)] in-data-grid:invisible in-data-grid:opacity-0 in-data-grid:[clip-path:inset(0_100%_0_0)] max-sm:hidden'
       />
       <nav
