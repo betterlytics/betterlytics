@@ -1,7 +1,7 @@
 'use client';
 
 import type { ComponentProps } from 'react';
-import { Link } from '@/i18n/navigation';
+import { AppLink } from '@/landing/components/ui/appLink';
 import { track, type CtaDestination, type CtaPlacement } from '@/landing/lib/analytics';
 
 type Cta = { placement: CtaPlacement; destination: CtaDestination; plan?: string };
@@ -12,9 +12,9 @@ export function TrackedLink({
   plan,
   onClick,
   ...props
-}: ComponentProps<typeof Link> & Cta) {
+}: ComponentProps<typeof AppLink> & Cta) {
   return (
-    <Link
+    <AppLink
       {...props}
       onClick={(event) => {
         track.cta(placement, destination, plan);

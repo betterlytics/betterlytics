@@ -5,6 +5,7 @@ import { getCompetitorData } from '@/app/(app)/[locale]/(public)/vs/[competitor]
 import { LANGUAGE_METADATA, SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import { Link } from '@/i18n/navigation';
 import { BlueskyIcon, DiscordIcon, GitHubIcon } from '@/components/icons/SocialIcons';
+import { AppLink } from '@/landing/components/ui/appLink';
 import { BrandLink } from '@/landing/components/ui/brandMark';
 import { cn } from '@/landing/lib/cn';
 import { LINKS } from '@/landing/lib/links';
@@ -83,34 +84,34 @@ export function LandingFooter() {
         >
           <Column id='footer-company' title={t('columns.company')}>
             <li>
-              <Link className={LINK} href='/about'>
+              <AppLink className={LINK} href='/about'>
                 {t('company.about')}
-              </Link>
+              </AppLink>
             </li>
             <li>
-              <Link className={LINK} href='/contact'>
+              <AppLink className={LINK} href='/contact'>
                 {t('company.contact')}
-              </Link>
+              </AppLink>
             </li>
             <li>
-              <Link className={LINK} href='/privacy'>
+              <AppLink className={LINK} href='/privacy'>
                 {t('company.privacy')}
-              </Link>
+              </AppLink>
             </li>
             <li>
-              <Link className={LINK} href='/terms'>
+              <AppLink className={LINK} href='/terms'>
                 {t('company.terms')}
-              </Link>
+              </AppLink>
             </li>
             <li>
-              <Link className={LINK} href='/dpa'>
+              <AppLink className={LINK} href='/dpa'>
                 {t('company.dpa')}
-              </Link>
+              </AppLink>
             </li>
             <li>
-              <Link className={LINK} href='/subprocessors'>
+              <AppLink className={LINK} href='/subprocessors'>
                 {t('company.subprocessors')}
-              </Link>
+              </AppLink>
             </li>
           </Column>
           <Column id='footer-resources' title={t('columns.resources')}>
@@ -120,19 +121,19 @@ export function LandingFooter() {
               </a>
             </li>
             <li>
-              <Link className={LINK} href='/changelog'>
+              <AppLink className={LINK} href='/changelog'>
                 {t('resources.changelog')}
-              </Link>
+              </AppLink>
             </li>
             <li>
-              <Link className={LINK} href='/features'>
+              <AppLink className={LINK} href='/features'>
                 {t('resources.features')}
-              </Link>
+              </AppLink>
             </li>
             <li>
-              <Link className={LINK} href='/pricing'>
+              <AppLink className={LINK} href='/pricing'>
                 {t('resources.pricing')}
-              </Link>
+              </AppLink>
             </li>
             <li>
               <a className={LINK} href={LINKS.status}>
@@ -143,10 +144,10 @@ export function LandingFooter() {
           <Column id='footer-compare' title={t('columns.compare')}>
             {COMPARISONS.map(({ slug, name }) => (
               <li key={slug}>
-                <Link className={LINK} href={`/vs/${slug}`}>
+                <AppLink className={LINK} href={`/vs/${slug}`}>
                   {/* a no-break space after "vs", so a narrow column never strands it on its own line */}
                   {t('compareLink', { name }).replace(/^(\S+) /, '$1\u00a0')}
-                </Link>
+                </AppLink>
               </li>
             ))}
           </Column>

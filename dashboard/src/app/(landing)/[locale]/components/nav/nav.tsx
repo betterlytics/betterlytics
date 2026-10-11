@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import NextLink from 'next/link';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
 import { GitHubIcon } from '@/components/icons/SocialIcons';
 import { useHydratedSession } from '@/hooks/use-hydrated-session';
+import { AppLink } from '@/landing/components/ui/appLink';
 import { BrandLink } from '@/landing/components/ui/brandMark';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
@@ -33,9 +33,9 @@ function NavLinks({ className, onNavigate }: { className?: string; onNavigate?: 
   return (
     <>
       {NAV_LINKS.map((link) => (
-        <Link key={link.href} className={className} href={link.href} onClick={onNavigate}>
+        <AppLink key={link.href} className={className} href={link.href} onClick={onNavigate}>
           {t(link.key)}
-        </Link>
+        </AppLink>
       ))}
       <a className={className} href={LINKS.docs}>
         {t('docs')}
@@ -55,6 +55,7 @@ function AccountLinks({ buttonClassName }: { buttonClassName?: string }) {
   if (useSignedIn()) {
     return (
       <NextLink
+        prefetch={false}
         className={buttonStyles({ variant: 'volt', size: 'sm', className: buttonClassName })}
         href='/dashboards'
       >
@@ -64,9 +65,9 @@ function AccountLinks({ buttonClassName }: { buttonClassName?: string }) {
   }
   return (
     <>
-      <Link className={cn(QUIET_LINK, 'max-lg:hidden')} href='/signin'>
+      <AppLink className={cn(QUIET_LINK, 'max-lg:hidden')} href='/signin'>
         {t('signIn')}
-      </Link>
+      </AppLink>
       <TrackedLink
         className={buttonStyles({ variant: 'volt', size: 'sm', className: buttonClassName })}
         href='/signup'
@@ -86,6 +87,7 @@ function SheetActions({ onNavigate }: { onNavigate: () => void }) {
     <div className='mt-8 flex flex-col gap-2.5'>
       {signedIn ? (
         <NextLink
+          prefetch={false}
           className={buttonStyles({ variant: 'volt', size: 'lg' })}
           href='/dashboards'
           onClick={onNavigate}
@@ -94,9 +96,9 @@ function SheetActions({ onNavigate }: { onNavigate: () => void }) {
         </NextLink>
       ) : (
         <>
-          <Link className={buttonStyles({ variant: 'line', size: 'lg' })} href='/signin' onClick={onNavigate}>
+          <AppLink className={buttonStyles({ variant: 'line', size: 'lg' })} href='/signin' onClick={onNavigate}>
             {t('signIn')}
-          </Link>
+          </AppLink>
           <TrackedLink
             className={buttonStyles({ variant: 'volt', size: 'lg' })}
             href='/signup'
