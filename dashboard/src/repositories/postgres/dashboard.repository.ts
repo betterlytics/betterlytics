@@ -330,7 +330,7 @@ export async function findOnboardingDashboardCandidates(
         userAccess: {
           some: {
             role: 'owner',
-            user: { deletedAt: null },
+            user: { deletedAt: null, disabledAt: null },
           },
         },
       },
@@ -340,7 +340,7 @@ export async function findOnboardingDashboardCandidates(
         domain: true,
         createdAt: true,
         userAccess: {
-          where: { role: 'owner', user: { deletedAt: null } },
+          where: { role: 'owner', user: { deletedAt: null, disabledAt: null } },
           orderBy: { createdAt: 'asc' },
           take: 1,
           select: {

@@ -404,6 +404,7 @@ export async function findUsersWithoutDashboardsInWindow(
     const users = await prisma.user.findMany({
       where: {
         deletedAt: null,
+        disabledAt: null,
         createdAt: { gt: window.signedUpAfter, lt: window.signedUpBefore },
         dashboardAccess: { none: {} },
       },
