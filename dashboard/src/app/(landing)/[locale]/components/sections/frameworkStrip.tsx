@@ -37,7 +37,7 @@ export function FrameworkStrip({ className }: { className?: string }) {
         className,
       )}
     >
-      <p className={cn(TEXT_STYLES.title, 'flex flex-none flex-col gap-0.5 whitespace-nowrap text-fg')}>
+      <p className={cn(TEXT_STYLES.title, 'flex min-w-0 flex-1 flex-col gap-0.5 whitespace-nowrap text-fg')}>
         <span>
           <Emphasis text={t('title')} as='em' className='text-volt-text not-italic' />
         </span>
