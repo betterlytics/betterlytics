@@ -6,7 +6,8 @@ const PRESETS = {
   enter: { once: true, amount: 0.15, margin: '0px 0px -6% 0px' },
   draw: { once: true, amount: 0, margin: '0px 0px -22% 0px' },
   read: { once: true, amount: 0.5, margin: '0px 0px -34% 0px' },
-  near: { once: true, amount: 0, margin: '0px 0px 50% 0px' },
+  // both ways, for readers who land lower down (a #pricing link, a reload) and scroll up
+  near: { once: true, amount: 0, margin: '50% 0px 50% 0px' },
   onScreen: { once: false, amount: 'some' },
 } satisfies Record<string, UseInViewOptions>;
 
