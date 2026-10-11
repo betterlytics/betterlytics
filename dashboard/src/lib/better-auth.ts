@@ -9,11 +9,7 @@ import { env } from '@/lib/env';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
-import {
-  sendVerificationEmail,
-  VERIFICATION_EMAIL_THROTTLED,
-  VERIFICATION_LINK_EXPIRY_SECONDS,
-} from '@/services/account/verification.service';
+import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { setLocaleCookie } from '@/constants/cookies';
@@ -21,7 +17,7 @@ import { getSignupAllowance } from '@/services/auth/signupGate.service';
 import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { PasswordSchema } from '@/entities/auth/password.entities';
 import { MAX_EMAIL_LENGTH } from '@/entities/auth/user.entities';
-import { SIGNUP_DISABLED_MESSAGE } from '@/constants/auth';
+import { SIGNUP_DISABLED_MESSAGE, VERIFICATION_EMAIL_THROTTLED } from '@/constants/auth';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import {

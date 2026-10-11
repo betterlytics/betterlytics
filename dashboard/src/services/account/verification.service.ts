@@ -1,12 +1,12 @@
 'server-only';
 
 import { APIError } from 'better-auth/api';
+import { VERIFICATION_EMAIL_THROTTLED } from '@/constants/auth';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 
 export const VERIFICATION_LINK_EXPIRY_SECONDS = 24 * 60 * 60;
-export const VERIFICATION_EMAIL_THROTTLED = 'VERIFICATION_EMAIL_THROTTLED';
 
 export async function sendVerificationEmail(
   user: { id: string; email: string; name: string | null },

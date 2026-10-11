@@ -11,6 +11,7 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
 import { makeUser, hashPassword } from '@/test/auth-fixtures';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { VERIFICATION_EMAIL_THROTTLED } from '@/constants/auth';
 import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
@@ -58,7 +59,6 @@ vi.mock('@/services/billing/subscription.service', () => ({
 vi.mock('@/services/account/verification.service', () => ({
   sendVerificationEmail: vi.fn(),
   VERIFICATION_LINK_EXPIRY_SECONDS: 86400,
-  VERIFICATION_EMAIL_THROTTLED: 'VERIFICATION_EMAIL_THROTTLED',
 }));
 vi.mock('better-auth/api', async (importOriginal) => ({
   ...(await importOriginal<typeof import('better-auth/api')>()),
@@ -360,7 +360,7 @@ describe('after hook (a throttled resend, signed out)', () => {
   const runAfterHook = (path: string, returned: unknown) =>
     (auth.options.hooks!.after as unknown as AfterHook)({ path, context: { returned }, json: (data) => data });
   const throttled = () =>
-    new APIError('TOO_MANY_REQUESTS', { message: 'sent recently', code: 'VERIFICATION_EMAIL_THROTTLED' });
+    new APIError('TOO_MANY_REQUESTS', { message: 'sent recently', code: VERIFICATION_EMAIL_THROTTLED });
 
   it('answers signed out exactly as for an unknown address, so the throttle names no account', async () => {
     vi.mocked(getSessionFromCtx).mockResolvedValue(null);

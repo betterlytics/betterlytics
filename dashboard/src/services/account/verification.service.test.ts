@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { VERIFICATION_EMAIL_THROTTLED } from '@/constants/auth';
 import { sendVerificationEmail } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
@@ -46,10 +47,13 @@ describe('sendVerificationEmail', () => {
     });
   });
 
-  it('surfaces a queue-throttled resend as a 429', async () => {
+  it('surfaces a queue-throttled resend as a 429 with the code the auth hook and resend form look for', async () => {
     vi.mocked(enqueueEmail).mockResolvedValue('throttled');
 
-    await expect(sendVerificationEmail(USER, URL)).rejects.toMatchObject({ statusCode: 429 });
+    await expect(sendVerificationEmail(USER, URL)).rejects.toMatchObject({
+      statusCode: 429,
+      body: { code: VERIFICATION_EMAIL_THROTTLED },
+    });
   });
 
   it('does not treat a feature-flag skip as throttled', async () => {
