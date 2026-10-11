@@ -120,6 +120,8 @@ export function VoltGlow({ className }: { className?: string }) {
     drawRef.current = draw;
 
     const measure = () => {
+      // drawing would mark the dead canvas ready and hide the CSS fallback
+      if (gl.isContextLost()) return;
       const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
       const c = card.getBoundingClientRect();
       const b = bloom.getBoundingClientRect();
