@@ -136,6 +136,8 @@ HTTP_PORT=5566
 
 Your proxy must terminate TLS, pass the `Host` header through unchanged, and set `X-Forwarded-Proto` and `X-Forwarded-For`. Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, list it in `TRUSTED_PROXIES`, otherwise every visitor is recorded with the proxy's IP. To check, compare `request.remote_ip` and `request.client_ip` in `docker compose logs betterlytics-selfhost`.
 
+Sign-in rate limits need one more setting behind your own proxy. Until `AUTH_TRUSTED_PROXIES` is set, all sign-in attempts share one limit, so a few failed logins block sign-in for everyone for about 10 seconds. Set it to the exact address your proxy connects from, which is the `request.remote_ip` value in those logs (usually the Docker bridge gateway, for example `172.18.0.1`). List that single address rather than a whole private range, because a client inside a trusted range can choose the address it is counted under. The gateway address can change when the Docker network is recreated, so check it again if sign-in limits become shared. If you set `TRUSTED_PROXIES`, add the same entries here.
+
 <Callout type="info">
 Your proxy must serve Betterlytics over HTTPS at `DOMAIN`. Logins only work from `https://<DOMAIN>`. If the proxy listens on a non-standard port, include it: `DOMAIN=analytics.example.com:8443`.
 </Callout>
@@ -512,6 +514,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 | `HTTP_PORT` | `5566` | Host port mapped to the container's port 80. Must be `80` in standalone mode |
 | `HTTPS_PORT` | `443` | Host port mapped to the container's port 443, standalone mode only |
 | `TRUSTED_PROXIES` | | Extra proxy IPs or CIDRs whose forwarded headers are trusted, for proxies on public addresses |
+| `AUTH_TRUSTED_PROXIES` | | Only behind your own proxy: the IPs or CIDRs it connects from, so sign-in rate limits apply per visitor instead of being shared. See [Behind a Reverse Proxy](#behind-a-reverse-proxy) |
 
 ### Secrets
 
