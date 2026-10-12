@@ -2,7 +2,6 @@
 
 import LeafletMap from '@/components/map/LeafletMap';
 import MapZoomButtons from '@/components/map/MapZoomButtons';
-import RegionList from './RegionList';
 import { useRegionGeoJson } from './use-region-geojson';
 import { createRegionDisplayResolver } from '@/utils/regionDisplay';
 import { REGION_MAP_COUNTRIES } from '@/constants/regionCountries';
@@ -38,7 +37,7 @@ export default function SubdivisionMapSection({ countryCode }: { countryCode: st
       className='min-h-0 flex-1'
     >
       {(mapData) => (
-        <div className='h-full space-y-4 overflow-y-auto px-4 pb-4'>
+        <div className='h-full px-4 pb-4'>
           {showMap ? (
             <div className='h-[280px] w-full'>
               {geoJsonQuery.data ? (
@@ -64,11 +63,6 @@ export default function SubdivisionMapSection({ countryCode }: { countryCode: st
           ) : (
             <p className='text-muted-foreground py-2 text-sm'>{t('noRegionalMap')}</p>
           )}
-          <RegionList
-            regions={mapData.visitorData}
-            maxVisitors={mapData.maxVisitors}
-            resolveDisplay={resolveDisplay}
-          />
         </div>
       )}
     </QuerySection>

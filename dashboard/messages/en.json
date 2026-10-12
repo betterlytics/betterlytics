@@ -2681,7 +2681,6 @@
       "loading": "Loading map...",
       "visitors": "Visitors",
       "regionLoadError": "Failed to load region data",
-      "unknownRegion": "Unknown",
       "noRegionalMap": "No regional map is available for this country"
     },
     "userJourney": {

@@ -2681,7 +2681,6 @@
       "loading": "Laster kart...",
       "visitors": "Besøkende",
       "regionLoadError": "Kunne ikke laste regiondata",
-      "unknownRegion": "Ukjent",
       "noRegionalMap": "Regionalt kart er ikke tilgjengelig for dette landet"
     },
     "userJourney": {
