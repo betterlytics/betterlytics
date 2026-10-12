@@ -49,12 +49,6 @@ export default function SubdivisionMapSection({ countryCode }: { countryCode: st
                   fitBounds
                   controls={<MapZoomButtons />}
                   showLegend={false}
-                  interactionConfig={{
-                    dragging: true,
-                    scrollWheelZoom: false,
-                    doubleClickZoom: true,
-                    touchZoom: true,
-                  }}
                 />
               ) : (
                 <GeographyLoading />

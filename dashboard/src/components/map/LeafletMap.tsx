@@ -34,12 +34,6 @@ type LeafletMapProps = GeoMapResponse & {
   onFeatureClick?: (featureId: string) => void;
   selectedFeatureId?: string;
   fitBounds?: boolean;
-  interactionConfig?: {
-    dragging?: boolean;
-    scrollWheelZoom?: boolean;
-    doubleClickZoom?: boolean;
-    touchZoom?: boolean;
-  };
 };
 
 export default function LeafletMap({
@@ -57,7 +51,6 @@ export default function LeafletMap({
   onFeatureClick,
   selectedFeatureId,
   fitBounds = false,
-  interactionConfig,
 }: LeafletMapProps) {
   const [geoJson, setGeoJson] = useState<RegionGeoJson | null>(null);
   const outerScope = useMapScope();
@@ -162,7 +155,6 @@ export default function LeafletMap({
           zoomDelta={0.1}
           zoomSnap={0.1}
           attributionControl={false}
-          {...interactionConfig}
         >
           <MapSelectionContextProvider style={style} selectedFeatureId={selectedFeatureId}>
             <MapBackgroundLayer Polygon={Polygon} />
