@@ -2675,6 +2675,8 @@
       }
     },
     "geography": {
+      "zoomIn": "Ingrandisci",
+      "zoomOut": "Riduci",
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
       "loading": "Caricamento mappa...",
       "visitors": "Visitatori",
