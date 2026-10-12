@@ -4,10 +4,11 @@ import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
 import MapLegend from '@/components/map/MapLegend';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
+import MapInstanceBridge from '@/components/map/MapInstanceBridge';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
 import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
 import { useMapStyle } from '@/hooks/use-leaflet-style';
-import type { LatLngBoundsExpression } from 'leaflet';
+import type { LatLngBoundsExpression, Map as LeafletMapInstance } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 import GeographyLoading from '@/components/loading/GeographyLoading';
@@ -19,6 +20,7 @@ type LeafletMapProps = WorldMapResponse & {
   showLegend?: boolean;
   initialZoom?: number;
   size?: 'sm' | 'lg';
+  onMapReady?: (map: LeafletMapInstance | null) => void;
 };
 
 export default function LeafletMap({
@@ -29,6 +31,7 @@ export default function LeafletMap({
   showLegend = true,
   size = 'sm',
   initialZoom,
+  onMapReady,
 }: LeafletMapProps) {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
   const [mapComponents, setMapComponents] = useState<{
@@ -113,6 +116,7 @@ export default function LeafletMap({
           />
           <MapStickyTooltip size={size} />
           {showLegend && <MapLegend maxVisitors={maxVisitors} />}
+          {onMapReady && <MapInstanceBridge onReady={onMapReady} />}
         </MapSelectionContextProvider>
       </MapContainer>
     </div>
