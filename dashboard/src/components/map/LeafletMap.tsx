@@ -30,6 +30,7 @@ type LeafletMapProps = GeoMapResponse & {
   resolveDisplay?: FeatureDisplayResolver;
   shouldHideFeature?: (featureId: string) => boolean;
   onFeatureClick?: (featureId: string) => void;
+  selectedFeatureId?: string;
   fitBounds?: boolean;
   interactionConfig?: {
     dragging?: boolean;
@@ -51,6 +52,7 @@ export default function LeafletMap({
   resolveDisplay: resolveDisplayProp,
   shouldHideFeature,
   onFeatureClick,
+  selectedFeatureId,
   fitBounds = false,
   interactionConfig,
 }: LeafletMapProps) {
@@ -149,7 +151,7 @@ export default function LeafletMap({
     <MapScopeProvider scope={scope}>
       <div className='relative h-full w-full' key={debouncedTheme}>
         {style.LeafletCSS}
-        <MapSelectionContextProvider style={style}>
+        <MapSelectionContextProvider style={style} selectedFeatureId={selectedFeatureId}>
           <MapContainer
             {...containerProps}
             style={{ height: '100%', width: '100%' }}

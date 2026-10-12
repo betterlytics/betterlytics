@@ -3,7 +3,7 @@
 import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
-import React, { createContext, useCallback, useContext } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 export type MapFeatureVisitor = {
   geoVisitor: GeoFeatureVisitorWithCompare;
@@ -18,9 +18,11 @@ type MapSelectionStateContextType = {
 
 type MapSelectionSetterContextType = {
   setMapSelection: React.Dispatch<Partial<MapFeatureSelection> | null>;
+  registerFeature: (code: string, entry: MapFeatureVisitor) => void;
+  markLayersReady: () => void;
 };
 
-type MapSelectionProps = { children: React.ReactNode; style: MapStyle };
+type MapSelectionProps = { children: React.ReactNode; style: MapStyle; selectedFeatureId?: string };
 type MapFeatureSelection = {
   hovered: MapFeatureVisitor | undefined;
   clicked: MapFeatureVisitor | undefined;
@@ -45,13 +47,21 @@ export function useMapSelectionSetter() {
   return context;
 }
 
-export function MapSelectionContextProvider({ children, style }: MapSelectionProps) {
+export function MapSelectionContextProvider({ children, style, selectedFeatureId }: MapSelectionProps) {
   const [combined, setCombined] = React.useState({
     clicked: undefined,
     hovered: undefined,
   } as MapFeatureSelection);
+  const featuresRef = useRef(new Map<string, MapFeatureVisitor>());
+  const [layersVersion, setLayersVersion] = useState(0);
 
   const isMobile = useIsMobile();
+
+  const registerFeature = useCallback((code: string, entry: MapFeatureVisitor) => {
+    featuresRef.current.set(code, entry);
+  }, []);
+
+  const markLayersReady = useCallback(() => setLayersVersion((v) => v + 1), []);
 
   /**
    * Updates map selection state and applies corresponding styles.
@@ -115,6 +125,22 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
     [style, isMobile],
   );
 
+  // Converges the map selection on the owner's selected feature (panel close, deep link, data refresh)
+  useEffect(() => {
+    const clicked = combined.clicked;
+    if (selectedFeatureId === undefined) {
+      if (clicked) setMapSelection(null);
+      return;
+    }
+    const entry = featuresRef.current.get(selectedFeatureId);
+    if (!entry) return;
+    if (clicked?.layer !== entry.layer) {
+      if (clicked) setMapSelection(null);
+      setMapSelection({ clicked: entry });
+    }
+    if (!entry.layer.isPopupOpen()) entry.layer.openPopup();
+  }, [selectedFeatureId, layersVersion, combined.clicked, setMapSelection]);
+
   const stateValue = React.useMemo(
     () => ({
       hoveredFeature: combined.hovered,
@@ -124,10 +150,8 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
   );
 
   const setterValue = React.useMemo(
-    () => ({
-      setMapSelection,
-    }),
-    [setMapSelection],
+    () => ({ setMapSelection, registerFeature, markLayersReady }),
+    [setMapSelection, registerFeature, markLayersReady],
   );
 
   return (

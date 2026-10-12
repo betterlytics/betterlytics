@@ -49,7 +49,7 @@ export default function MapCountryGeoJSON({
   shouldHideFeature,
   onFeatureClick,
 }: MapCountryGeoJSONProps) {
-  const { setMapSelection } = useMapSelectionSetter();
+  const { setMapSelection, registerFeature, markLayersReady } = useMapSelectionSetter();
   const locale = useLocale();
   const t = useTranslations('components');
   const timeRangeCtx = useTimeRangeContext();
@@ -68,6 +68,13 @@ export default function MapCountryGeoJSON({
     setMapSelection(null);
   }, [visitorData, compareData, setMapSelection]);
 
+  const layerKey = `${dataVersion.current}-${timeRangeCtx.compareMode}-${locale}`;
+
+  // Runs after the GeoJSON child has created its layers, so the registry is complete when the owner syncs
+  useEffect(() => {
+    markLayersReady();
+  }, [layerKey, markLayersReady]);
+
   const onEachFeature = useCallback(
     (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>, layer: L.Polygon) => {
       const featureId = getFeatureId(feature);
@@ -84,6 +91,8 @@ export default function MapCountryGeoJSON({
         ...geoVisitor,
         compareVisitors: timeRangeCtx.compareMode === 'off' ? undefined : (compareVisitor?.visitors ?? 0),
       };
+
+      registerFeature(featureId, { geoVisitor: geoVisitorWithComparison, layer });
 
       const display = resolveDisplay(featureId);
       const popupContainer = document.createElement('div');
@@ -152,18 +161,12 @@ export default function MapCountryGeoJSON({
       t,
       timeRangeCtx,
       setMapSelection,
+      registerFeature,
       resolveDisplay,
       shouldHideFeature,
       onFeatureClick,
     ],
   );
 
-  return (
-    <GeoJSON
-      key={`${dataVersion.current}-${timeRangeCtx.compareMode}-${locale}`}
-      data={geoData}
-      onEachFeature={onEachFeature}
-      {...DEFAULT_OPTS}
-    />
-  );
+  return <GeoJSON key={layerKey} data={geoData} onEachFeature={onEachFeature} {...DEFAULT_OPTS} />;
 }

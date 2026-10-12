@@ -31,6 +31,7 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
                 size='lg'
                 shouldHideFeature={hideAntarcticaWhenEmpty}
                 onFeatureClick={subdivisionsEnabled ? drilldown.toggle : undefined}
+                selectedFeatureId={subdivisionsEnabled ? drilldown.countryCode : undefined}
               >
                 <MapLegend maxVisitors={mapData.maxVisitors} className='absolute right-4 bottom-4' />
               </LeafletMap>
