@@ -59,18 +59,23 @@
   .glyph::before {
     content: '';
     position: absolute;
-    inset: -8px;
+    /* 52px: the largest square whose faded rim stays out of the next row in the 2x9 grid */
+    inset: -10px;
     border-radius: 50%;
     pointer-events: none;
     /* black-and-white marks keep a white glyph but take the volt field, as white dots read as noise */
     background-image: radial-gradient(
       circle at 3px 3px,
-      color-mix(in srgb, var(--hover, var(--color-volt-soft)) 55%, transparent) 1px,
+      color-mix(in srgb, var(--hover, var(--color-volt-soft)) 70%, transparent) 1px,
       transparent 0
     );
     background-size: 6px 6px;
     background-position: center;
-    mask-image: radial-gradient(closest-side, #000 calc(var(--halo) * 0.3), transparent var(--halo));
+    /* a clear centre keeps dots out of the glyph's counters; the bloom still grows from the middle */
+    mask-image:
+      radial-gradient(closest-side, transparent 38%, #000 68%),
+      radial-gradient(closest-side, #000 calc(var(--halo) * 0.3), transparent var(--halo));
+    mask-composite: intersect;
     opacity: 0;
     transition:
       --halo 0.5s var(--ease-out-expo),
