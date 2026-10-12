@@ -47,12 +47,6 @@ export default function SubdivisionMapSection({ countryCode }: { countryCode: st
                   geoJsonData={geoJsonQuery.data}
                   resolveDisplay={resolveDisplay}
                   fitBounds
-                  interactionConfig={{
-                    dragging: true,
-                    scrollWheelZoom: false,
-                    doubleClickZoom: true,
-                    touchZoom: true,
-                  }}
                 >
                   <MapZoomButtons className='absolute top-2.5 left-2.5' />
                 </LeafletMap>
