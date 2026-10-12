@@ -136,7 +136,7 @@ export function SnippetPanel() {
                 <span
                   className={cn(
                     'grid size-[15px] place-items-center rounded-full opacity-80 group-aria-selected:opacity-100',
-                    snippet.plate && 'bg-fg/12 ring-1 ring-fg/10',
+                    snippet.plate && 'bg-fg/9 ring-1 ring-fg/8',
                   )}
                 >
                   <Image
