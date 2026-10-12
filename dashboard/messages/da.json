@@ -2696,7 +2696,6 @@
       "loading": "Indlæser kort...",
       "visitors": "Besøgende",
       "regionLoadError": "Kunne ikke indlæse regionsdata",
-      "unknownRegion": "Ukendt",
       "noRegionalMap": "Der findes ikke et regionalt kort for dette land"
     },
     "userJourney": {
