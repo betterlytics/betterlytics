@@ -129,7 +129,6 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
             <div className='h-[22rem] w-full'>
               <LeafletMap
                 {...(worldMapQuery.data ?? { maxVisitors: 0, visitorData: [], compareData: [] })}
-                showZoomControls={false}
                 initialZoom={1}
               />
             </div>
