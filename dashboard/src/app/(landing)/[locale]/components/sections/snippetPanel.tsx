@@ -133,13 +133,20 @@ export function SnippetPanel() {
               onClick={() => setActive(i)}
             >
               {snippet.logo ? (
-                <Image
-                  className='size-[13px] opacity-80 group-aria-selected:opacity-100'
-                  src={`/framework-logos/${snippet.logo}-icon.svg`}
-                  alt=''
-                  width={13}
-                  height={13}
-                />
+                <span
+                  className={cn(
+                    'grid size-[15px] place-items-center rounded-full opacity-80 group-aria-selected:opacity-100',
+                    snippet.plate && 'bg-fg/12 ring-1 ring-fg/10',
+                  )}
+                >
+                  <Image
+                    className='size-[13px]'
+                    src={`/framework-logos/${snippet.logo}-icon.svg`}
+                    alt=''
+                    width={13}
+                    height={13}
+                  />
+                </span>
               ) : (
                 <BoxIcon />
               )}

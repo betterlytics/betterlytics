@@ -1,5 +1,5 @@
-/** A leading `+` marks an added line; `logo` is in public/framework-logos; no `name` shows `landing.network.packageTab`. */
-type Snippet = { id: string; name?: string; file?: string; logo?: string; code: string };
+/** A leading `+` marks an added line; `logo` is in public/framework-logos; `plate` backs a mark that vanishes on the bar; no `name` shows `landing.network.packageTab`. */
+type Snippet = { id: string; name?: string; file?: string; logo?: string; plate?: boolean; code: string };
 
 const SRC = 'https://betterlytics.io/analytics.js';
 
@@ -27,6 +27,7 @@ export const SNIPPETS: readonly Snippet[] = [
     name: 'Next.js',
     file: 'app/layout.tsx',
     logo: 'nextjs-glyph',
+    plate: true,
     code: `+import Script from 'next/script'
 
 export default function RootLayout({ children }) {
