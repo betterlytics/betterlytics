@@ -3,11 +3,10 @@
 import MapZoomButtons from '@/components/map/MapZoomButtons';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { useSidebar } from '@/components/ui/sidebar';
-import type { Map as LeafletMapInstance } from 'leaflet';
 import type { CSSProperties } from 'react';
 
 // The page is fixed under the sidebar (stacking fix from #336); from md up the toolbar starts where the sidebar ends
-export default function GeographyToolbar({ map }: { map: LeafletMapInstance | null }) {
+export default function GeographyToolbar() {
   const { state } = useSidebar();
   const sidebarWidth = state === 'collapsed' ? 'var(--sidebar-width-icon)' : 'var(--sidebar-width)';
 
@@ -17,7 +16,7 @@ export default function GeographyToolbar({ map }: { map: LeafletMapInstance | nu
       style={{ '--toolbar-sidebar-width': sidebarWidth } as CSSProperties}
     >
       <div className='pointer-events-auto shrink-0'>
-        <MapZoomButtons map={map} />
+        <MapZoomButtons />
       </div>
       <div className='bg-card pointer-events-auto flex gap-4 rounded-md p-2 shadow-md'>
         <DashboardFilters />

@@ -37,7 +37,6 @@ export default async function WorldMapCard() {
             visitorData={MOCK_WORLD_GEOVISITORS}
             compareData={MOCK_COMPARE_GEOVISITORS}
             maxVisitors={MOCK_WORLD_GEOVISITORS[0]?.visitors}
-            showZoomControls={false}
             showLegend={false}
             initialZoom={1}
           />
