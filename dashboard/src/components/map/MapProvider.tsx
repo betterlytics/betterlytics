@@ -22,7 +22,11 @@ export function useMapScope(): MapScope | null {
 }
 
 export function useMapInstance(): LeafletMapInstance | null {
-  return useMapScope()?.map ?? null;
+  const scope = useMapScope();
+  if (!scope) {
+    throw new Error('useMapInstance must be used within MapProvider or as LeafletMap controls');
+  }
+  return scope.map;
 }
 
 export function MapScopeProvider({ scope, children }: { scope: MapScope; children: ReactNode }) {
