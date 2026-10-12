@@ -1,0 +1,33 @@
+(security_headers) {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+# Defaults for responses where the app set none; the app's own value always wins.
+# One directive per header: several ? fields in one block share a single "all absent" condition.
+# Not imported by status sites, so status pages can be embedded on other sites.
+(framing_defaults) {
+	header ?X-Frame-Options "SAMEORIGIN"
+	header ?Content-Security-Policy "frame-ancestors 'self'"
+}
+
+# Usage: import app_proxy <upstream> <max body size>
+# Caddy already sets X-Forwarded-For (append), -Proto, -Host and passes Host through.
+# {client_ip} is the XFF-resolved client behind a trusted own proxy, the peer otherwise.
+# CF-Connecting-IP and True-Client-IP pass through untouched: a CDN's peer is public, so
+# {client_ip} would be the edge, and backend/src/ip_parser ranks those headers first.
+(app_proxy) {
+	request_body {
+		max_size {args[1]}
+	}
+	reverse_proxy {args[0]} {
+		header_up X-Real-IP {client_ip}
+		transport http {
+			response_header_timeout 60s
+		}
+	}
+}

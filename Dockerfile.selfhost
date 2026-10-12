@@ -150,6 +150,19 @@ COPY static/web-vitals.js /srv/static/web-vitals.js
 
 COPY LICENSE THIRD-PARTY-LICENSES.md /app/
 
+# Startup, proxy and process config. The selfhost compose mounts only /derive.sh.
+COPY selfhost/proxy/ /etc/caddy/
+COPY selfhost/supervisord.conf /etc/supervisor/conf.d/betterlytics.conf
+COPY selfhost/entrypoint.sh selfhost/env.sh selfhost/secrets-env.sh selfhost/healthcheck.sh /app/selfhost/
+
+# Inherited by every container from this image; the selfhost compose disables it for betterlytics-init.
+# start-period covers the first HTTPS boot waiting on ACME. --start-interval needs Docker Engine 25.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=120s --start-interval=5s --retries=3 \
+    CMD ["/bin/sh", "/app/selfhost/healthcheck.sh"]
+
+ENTRYPOINT ["/bin/sh", "/app/selfhost/entrypoint.sh"]
+CMD ["run"]
+
 # Bake the release version for the dashboard
 ARG APP_VERSION=dev
 ENV APP_VERSION=$APP_VERSION
