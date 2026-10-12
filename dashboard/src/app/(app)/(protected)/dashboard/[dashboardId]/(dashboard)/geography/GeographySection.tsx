@@ -1,29 +1,27 @@
 'use client';
 
 import LeafletMap from '@/components/map/LeafletMap';
+import { MapProvider } from '@/components/map/MapProvider';
 import GeographyToolbar from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/geography/GeographyToolbar';
 import { useTranslations } from 'next-intl';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { QuerySection } from '@/components/QuerySection';
 import GeographyLoading from '@/components/loading/GeographyLoading';
-import type { Map as LeafletMapInstance } from 'leaflet';
-import { useState } from 'react';
 
 export default function GeographySection() {
   const { input, options } = useBAQueryParams();
   const query = trpc.geography.worldMap.useQuery(input, options);
   const t = useTranslations('components.geography');
-  const [map, setMap] = useState<LeafletMapInstance | null>(null);
 
   return (
-    <>
-      <GeographyToolbar map={map} />
+    <MapProvider>
+      <GeographyToolbar />
       <QuerySection query={query} fallback={<GeographyLoading />} className='h-full w-full'>
         {(mapData) => (
           <>
             <div className='h-full w-full'>
-              <LeafletMap {...mapData} showZoomControls={false} size='lg' onMapReady={setMap} />
+              <LeafletMap {...mapData} size='lg' />
             </div>
 
             {mapData.visitorData.length === 0 && (
@@ -34,6 +32,6 @@ export default function GeographySection() {
           </>
         )}
       </QuerySection>
-    </>
+    </MapProvider>
   );
 }

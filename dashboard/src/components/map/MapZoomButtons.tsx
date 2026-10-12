@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { Map as LeafletMapInstance } from 'leaflet';
 import { Button } from '@/components/ui/button';
+import { useMapInstance } from '@/components/map/MapProvider';
 import { Separator } from '@/components/ui/separator';
 import { Minus, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -12,7 +12,8 @@ const ZOOM_STEP = 0.3;
 // aria-disabled instead of disabled so a focused button keeps focus when it reaches the zoom limit
 const LIMIT_CLASS = 'aria-disabled:pointer-events-none aria-disabled:opacity-50';
 
-export default function MapZoomButtons({ map }: { map: LeafletMapInstance | null }) {
+export default function MapZoomButtons() {
+  const map = useMapInstance();
   const t = useTranslations('components.geography');
   const [limits, setLimits] = useState({ atMin: true, atMax: true });
 
