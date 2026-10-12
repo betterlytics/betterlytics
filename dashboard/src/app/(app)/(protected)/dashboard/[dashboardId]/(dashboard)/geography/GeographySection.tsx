@@ -30,6 +30,7 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
                 size='lg'
                 shouldHideFeature={hideAntarcticaWhenEmpty}
                 onFeatureClick={subdivisionsEnabled ? drilldown.toggle : undefined}
+                selectedFeatureId={subdivisionsEnabled ? drilldown.countryCode : undefined}
               />
             </div>
 

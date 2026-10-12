@@ -32,6 +32,7 @@ type LeafletMapProps = GeoMapResponse & {
   resolveDisplay?: FeatureDisplayResolver;
   shouldHideFeature?: (featureId: string) => boolean;
   onFeatureClick?: (featureId: string) => void;
+  selectedFeatureId?: string;
   fitBounds?: boolean;
   interactionConfig?: {
     dragging?: boolean;
@@ -54,6 +55,7 @@ export default function LeafletMap({
   resolveDisplay: resolveDisplayProp,
   shouldHideFeature,
   onFeatureClick,
+  selectedFeatureId,
   fitBounds = false,
   interactionConfig,
 }: LeafletMapProps) {
@@ -162,7 +164,7 @@ export default function LeafletMap({
           attributionControl={false}
           {...interactionConfig}
         >
-          <MapSelectionContextProvider style={style}>
+          <MapSelectionContextProvider style={style} selectedFeatureId={selectedFeatureId}>
             <MapBackgroundLayer Polygon={Polygon} />
             <MapCountryGeoJSON
               GeoJSON={GeoJSON}
