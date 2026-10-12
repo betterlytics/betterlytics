@@ -2975,6 +2975,8 @@
       }
     },
     "geography": {
+      "zoomIn": "Zoom inn",
+      "zoomOut": "Zoom ut",
       "noData": "Ingen geografiske data tilgjengelige for valgt periode",
       "loading": "Laster kart...",
       "visitors": "Besøkende",
