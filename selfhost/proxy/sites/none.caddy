@@ -1,0 +1,4 @@
+# Custom status page domains are disabled (TLS=off).
+# An unused snippet rather than an empty file: Caddy warns on imports with no tokens.
+(status_site_disabled) {
+}
