@@ -123,7 +123,7 @@ impl Config {
         };
 
         let is_cloud = env::var("IS_CLOUD").map(|v| v.to_lowercase() == "true").unwrap_or(false);
-        // Self-host gets `true` from the selfhost image (selfhost/env.sh)
+        // Self-host gets `true` from the selfhost compose
         let allow_private_targets = !is_cloud
             && env::var("ALLOW_PRIVATE_TARGETS").map(|v| v.to_lowercase() == "true").unwrap_or(false);
 

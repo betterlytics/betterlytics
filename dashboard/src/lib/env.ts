@@ -66,7 +66,7 @@ const appEnvSchema = z.object({
     .default('true')
     .transform((v) => v === 'true'),
   IS_DEVELOPMENT: zStringBoolean,
-  // The selfhost image defaults this to true (selfhost/env.sh)
+  // The selfhost compose sets true
   ALLOW_PRIVATE_TARGETS: zStringBoolean,
   ENABLE_GEOLOCATION: zStringBoolean,
   GEOLOCATION_MODE: z.enum(['country', 'full']).optional().default('country'),
