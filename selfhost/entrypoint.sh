@@ -50,7 +50,7 @@ warn_weak_secret_base() {
         echo "WARNING: SECRET_BASE in .env is empty, still CHANGEME, or shorter than 32 characters." >&2
         echo "WARNING: Every database password and the sign-in key derive from it; anyone who can guess it can forge a login." >&2
         echo "WARNING: No data yet? Run docker compose down -v, set SECRET_BASE to 32+ random characters (openssl rand -hex 32), then docker compose up -d --wait." >&2
-        echo "WARNING: Existing data: changing SECRET_BASE changes the database passwords. Read SECRET_BASE in README.md (Configuration Reference) first." >&2
+        echo "WARNING: Existing data: changing SECRET_BASE changes the database passwords. Read SECRET_BASE in the Self-Hosting Guide (Configuration Reference) first: https://betterlytics.io/docs/installation/self-hosting" >&2
     fi
 }
 warn_weak_secret_base
