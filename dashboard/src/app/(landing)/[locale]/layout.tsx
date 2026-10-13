@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, Schibsted_Grotesk } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
+import NextTopLoader from 'nextjs-toploader';
 import { BASE_METADATA } from '@/app/baseMetadata';
 import { StructuredData } from '@/components/StructuredData';
 import { AppTrackingScript } from '@/components/tracking/AppTrackingScript';
@@ -60,6 +61,7 @@ export default async function LandingLayout({
         <StructuredData config={seoConfig} />
       </head>
       <body>
+        <NextTopLoader color='var(--color-volt-lift)' height={3} showSpinner={false} shadow={false} />
         {/* only what client components read; server components' copy stays out of the payload */}
         <NextIntlClientProvider
           messages={{
