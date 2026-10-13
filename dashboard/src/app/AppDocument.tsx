@@ -21,9 +21,10 @@ const robotoMono = Inter_Tight({
   subsets: ['latin'],
 });
 
-export async function AppDocument({ children }: { children: React.ReactNode }) {
+/** `lang` overrides the visitor's locale for pages that render in a fixed language. */
+export async function AppDocument({ children, lang }: { children: React.ReactNode; lang?: string }) {
   const [locale, seoConfig, sessionToken] = await Promise.all([
-    getLocale(),
+    lang ?? getLocale(),
     buildSEOConfig(SEO_CONFIGS.root),
     env.ENABLE_APP_TRACKING ? headers().then(getSessionCookie) : undefined,
   ]);
