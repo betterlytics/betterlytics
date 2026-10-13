@@ -1,8 +1,8 @@
 import 'server-only';
 
 import type { BugReportStatus } from '@prisma/client';
-import { listBugReports, setBugReportStatus } from '@/repositories/postgres/superadmin/bugReports.repository';
-import { ADMIN_PAGE_SIZE } from '@/constants/superadmin';
+import { listBugReports, setBugReportStatus } from '@/repositories/postgres/admin/bugReports.repository';
+import { ADMIN_PAGE_SIZE } from '@/constants/admin';
 
 export async function getBugReports(page = 1, status?: BugReportStatus) {
   const { reports, total } = await listBugReports(page, status);

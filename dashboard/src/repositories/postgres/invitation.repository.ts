@@ -161,24 +161,6 @@ export async function markExpiredInvitations(): Promise<number> {
   }
 }
 
-export async function cancelPendingInvitationsForDashboards(dashboardIds: string[]): Promise<number> {
-  if (dashboardIds.length === 0) return 0;
-
-  try {
-    const result = await prisma.dashboardInvitation.updateMany({
-      where: {
-        dashboardId: { in: dashboardIds },
-        status: 'pending',
-      },
-      data: { status: 'cancelled' },
-    });
-    return result.count;
-  } catch (error) {
-    console.error('Error cancelling pending invitations:', error);
-    return 0;
-  }
-}
-
 /**
  * Returns the subset of `emails` that currently have an active (non-expired) pending invitation.
  */

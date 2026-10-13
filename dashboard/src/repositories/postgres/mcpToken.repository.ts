@@ -37,7 +37,12 @@ export async function findMcpTokensByDashboard(dashboardId: string): Promise<Mcp
 
 export async function findMcpTokenByHash(tokenHash: string): Promise<McpTokenWithDashboard | null> {
   const row = await prisma.mcpToken.findFirst({
-    where: { tokenHash, deletedAt: null },
+    where: {
+      tokenHash,
+      deletedAt: null,
+      dashboard: { deletedAt: null },
+      user: { deletedAt: null, disabledAt: null },
+    },
     include: { dashboard: true },
   });
 

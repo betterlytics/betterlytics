@@ -1,88 +1,59 @@
 import { Suspense } from 'react';
-import { getAuditLogAction } from '@/actions/superadmin/auditLog.action';
-import { AdminPagination } from '../_components/AdminPagination';
-import { formatDate, parsePage } from '../_lib/utils';
+import { getAuditLogAction } from '@/actions/admin/auditLog.action';
 import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { AdminPage } from '@/app/(app)/(protected)/admin/_components/AdminPage';
+import { AdminPagination } from '@/app/(app)/(protected)/admin/_components/AdminPagination';
+import { LocalDate } from '@/app/(app)/(protected)/admin/_components/LocalDate';
+import { describeAuditAction, parsePage } from '@/app/(app)/(protected)/admin/_lib/format';
+import { requireAdminPage } from '@/app/(app)/(protected)/admin/_lib/guard';
 
-interface PageProps {
+type AuditLogPageProps = {
   searchParams: Promise<{ page?: string }>;
-}
+};
 
-function actionVariant(action: string): 'default' | 'destructive' | 'secondary' | 'outline' {
-  if (action.startsWith('delete_')) return 'destructive';
-  if (action.startsWith('create_') || action.startsWith('add_')) return 'default';
-  return 'secondary';
-}
-
-function statusVariant(status: string): 'default' | 'destructive' {
-  return status === 'failed' ? 'destructive' : 'default';
-}
-
-export default async function AdminAuditLogPage({ searchParams }: PageProps) {
-  const { page: pageStr } = await searchParams;
-  const page = parsePage(pageStr);
-
-  const result = await getAuditLogAction(page);
+export default async function AdminAuditLogPage({ searchParams }: AuditLogPageProps) {
+  await requireAdminPage('audit-log');
+  const { page: pageParam } = await searchParams;
+  const result = await getAuditLogAction(parsePage(pageParam));
   if (!result.success) throw new Error(result.error.message);
-  const { entries, total, totalPages, pageSize } = result.data;
+  const { entries, total, page, pageSize, totalPages } = result.data;
 
   return (
-    <div>
-      <div className='mb-6'>
-        <h1 className='text-2xl font-semibold mb-1'>Audit Log</h1>
-        <p className='text-muted-foreground text-sm'>{total} total entries</p>
-      </div>
-
-      <div className='rounded-md border'>
+    <AdminPage width='wide' title='Audit log' description='Every action taken in this admin panel.'>
+      <div className='bg-card rounded-md border'>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Actor</TableHead>
+              <TableHead>When</TableHead>
+              <TableHead>Admin</TableHead>
               <TableHead>Action</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead>Target</TableHead>
-              <TableHead>Payload</TableHead>
-              <TableHead>Timestamp</TableHead>
+              <TableHead>Result</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {entries.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className='text-center py-10 text-muted-foreground'>
-                  No audit log entries
+                <TableCell colSpan={5} className='text-muted-foreground py-10 text-center'>
+                  No admin actions yet.
                 </TableCell>
               </TableRow>
             ) : (
               entries.map((entry) => (
                 <TableRow key={entry.id}>
-                  <TableCell className='font-mono text-xs text-muted-foreground'>{entry.actorUserId}</TableCell>
-                  <TableCell>
-                    <Badge variant={actionVariant(entry.action)}>{entry.action}</Badge>
+                  <TableCell className='text-muted-foreground whitespace-nowrap'>
+                    <LocalDate date={entry.createdAt} includeTime />
+                  </TableCell>
+                  <TableCell className='text-sm'>{entry.actorLabel ?? entry.actorUserId}</TableCell>
+                  <TableCell className='text-sm'>{describeAuditAction(entry.action, entry.payload)}</TableCell>
+                  <TableCell className='text-muted-foreground max-w-56 truncate text-sm'>
+                    {entry.targetLabel ?? (entry.targetType === 'user' ? 'Deleted user' : (entry.targetId ?? '-'))}
                   </TableCell>
                   <TableCell>
-                    <Badge variant={statusVariant(entry.status)}>{entry.status}</Badge>
-                  </TableCell>
-                  <TableCell className='text-sm'>
-                    <span className='text-muted-foreground'>{entry.targetType}</span>
-                    {entry.targetId && (
-                      <span className='font-mono text-xs text-muted-foreground ml-1'>
-                        #{entry.targetId.slice(0, 8)}
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className='font-mono text-xs text-muted-foreground max-w-xs truncate'>
-                    {Object.keys(entry.payload).length > 0 ? JSON.stringify(entry.payload) : '—'}
-                  </TableCell>
-                  <TableCell className='text-muted-foreground text-sm whitespace-nowrap'>
-                    {formatDate(entry.createdAt, true)}
+                    <Badge variant={entry.status === 'success' ? 'outline' : 'destructive'}>
+                      {entry.status === 'success' ? 'Success' : 'Failed'}
+                    </Badge>
                   </TableCell>
                 </TableRow>
               ))
@@ -94,6 +65,6 @@ export default async function AdminAuditLogPage({ searchParams }: PageProps) {
       <Suspense>
         <AdminPagination page={page} totalPages={totalPages} total={total} pageSize={pageSize} />
       </Suspense>
-    </div>
+    </AdminPage>
   );
 }

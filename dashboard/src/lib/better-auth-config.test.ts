@@ -9,7 +9,12 @@ import { sendVerificationEmail } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
+import {
+  findUserById,
+  findUserByEmail,
+  findCredentialAccount,
+  touchUserLastActive,
+} from '@/repositories/postgres/user.repository';
 import { makeUser, hashPassword } from '@/test/auth-fixtures';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
@@ -40,6 +45,7 @@ vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserById: vi.fn(),
   findUserByEmail: vi.fn(),
   findCredentialAccount: vi.fn(),
+  touchUserLastActive: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/resetToken.repository', () => ({
   RESET_TOKEN_PREFIX: 'reset-password:',
@@ -403,6 +409,42 @@ describe('session create hook (locale sync)', () => {
   });
 });
 
+describe('session hooks (disabled accounts and last activity)', () => {
+  const SESSION = { userId: 'user-1' } as never;
+
+  const runBeforeCreate = () => auth.options.databaseHooks!.session!.create!.before!(SESSION);
+  const runAfterCreate = () => auth.options.databaseHooks!.session!.create!.after!(SESSION);
+  const runAfterUpdate = () => auth.options.databaseHooks!.session!.update!.after!(SESSION);
+
+  it('refuses a session for a disabled account, on every sign-in path', async () => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser({ disabledAt: new Date() }));
+
+    await expect(runBeforeCreate()).rejects.toMatchObject({ statusCode: 403, body: { code: 'ACCOUNT_DISABLED' } });
+  });
+
+  it('lets enabled accounts sign in', async () => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser());
+
+    await expect(runBeforeCreate()).resolves.toBeUndefined();
+  });
+
+  it('records activity when a session is created or refreshed', async () => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser({ createdAt: new Date() }));
+
+    await runAfterCreate();
+    await runAfterUpdate();
+
+    expect(touchUserLastActive).toHaveBeenCalledTimes(2);
+    expect(touchUserLastActive).toHaveBeenCalledWith('user-1');
+  });
+
+  it('never fails a sign-in or refresh because activity could not be recorded', async () => {
+    vi.mocked(touchUserLastActive).mockRejectedValue(new Error('db down'));
+
+    await expect(runAfterUpdate()).resolves.toBeUndefined();
+  });
+});
+
 describe('before hook (closed better-auth endpoints)', () => {
   type BeforeHook = (ctx: { path: string; body?: unknown; json: (data: unknown) => unknown }) => Promise<unknown>;
   const runBeforeHook = (path: string, body: unknown = {}) =>
@@ -453,6 +495,16 @@ describe('before hook (closed better-auth endpoints)', () => {
       expect(findUserByEmail).toHaveBeenCalledWith('user@example.com');
     });
 
+    it('gives disabled accounts the same unknown-email response, minting no token', async () => {
+      vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ disabledAt: new Date() }));
+      vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' });
+
+      await expect(runBeforeHook('/request-password-reset', body)).resolves.toEqual({
+        status: true,
+        message: 'If this email exists in our system, check your email for the reset link',
+      });
+    });
+
     it('lets unknown emails through to better-auth (which fakes the same response)', async () => {
       vi.mocked(findUserByEmail).mockResolvedValue(null);
 
@@ -486,6 +538,17 @@ describe('before hook (closed better-auth endpoints)', () => {
         body: { code: 'INVALID_TOKEN' },
       });
       expect(findResetTokenUserId).toHaveBeenCalledWith(resetTokenStoredIdentifier('raw-token'));
+    });
+
+    it('rejects redemption for a disabled account, even with a link issued before it was disabled', async () => {
+      vi.mocked(findResetTokenUserId).mockResolvedValue('user-1');
+      vi.mocked(findUserById).mockResolvedValueOnce(makeUser({ disabledAt: new Date() }));
+      vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' } as never);
+
+      await expect(runBeforeHook('/reset-password', body)).rejects.toMatchObject({
+        statusCode: 400,
+        body: { code: 'INVALID_TOKEN' },
+      });
     });
 
     it('lets credential accounts and unknown tokens through to better-auth', async () => {

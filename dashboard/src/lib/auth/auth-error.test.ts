@@ -12,6 +12,10 @@ describe('classifyAuthError', () => {
     expect(classifyAuthError({ status: 403, code: 'SIGNUP_DISABLED' })).toBe('other');
   });
 
+  it('treats a 403 ACCOUNT_DISABLED as an account an admin disabled', () => {
+    expect(classifyAuthError({ status: 403, code: 'ACCOUNT_DISABLED' })).toBe('accountDisabled');
+  });
+
   it('treats a 429 ACCOUNT_TEMPORARILY_LOCKED as the two-factor lockout', () => {
     expect(classifyAuthError({ status: 429, code: 'ACCOUNT_TEMPORARILY_LOCKED' })).toBe('accountLocked');
   });
