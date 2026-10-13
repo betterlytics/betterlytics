@@ -18,7 +18,7 @@ export default function GeographyToolbar() {
       <div className='pointer-events-auto shrink-0'>
         <MapZoomButtons />
       </div>
-      <div className='bg-card pointer-events-auto flex gap-4 rounded-md p-2 shadow-md'>
+      <div className='pointer-events-auto flex gap-4 rounded-md bg-card p-2 shadow-md dark:bg-(--card-interactive)'>
         <DashboardFilters />
       </div>
     </div>
