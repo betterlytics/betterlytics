@@ -2,6 +2,7 @@
 
 import LeafletMap from '@/components/map/LeafletMap';
 import MapZoomButtons from '@/components/map/MapZoomButtons';
+import { MapProvider } from '@/components/map/MapProvider';
 import { useRegionGeoJson } from './use-region-geojson';
 import { createRegionDisplayResolver } from '@/utils/regionDisplay';
 import { REGION_MAP_COUNTRIES } from '@/constants/regionCountries';
@@ -41,15 +42,18 @@ export default function SubdivisionMapSection({ countryCode }: { countryCode: st
           {showMap ? (
             <div className='h-[280px] w-full'>
               {geoJsonQuery.data ? (
-                <LeafletMap
-                  key={countryCode}
-                  {...mapData}
-                  geoJsonData={geoJsonQuery.data}
-                  resolveDisplay={resolveDisplay}
-                  fitBounds
-                >
-                  <MapZoomButtons className='absolute top-2.5 left-2.5' />
-                </LeafletMap>
+                // Own provider so the panel map does not replace the page map in the toolbar's scope
+                <MapProvider>
+                  <LeafletMap
+                    key={countryCode}
+                    {...mapData}
+                    geoJsonData={geoJsonQuery.data}
+                    resolveDisplay={resolveDisplay}
+                    fitBounds
+                  >
+                    <MapZoomButtons className='absolute top-2.5 left-2.5' />
+                  </LeafletMap>
+                </MapProvider>
               ) : (
                 <GeographyLoading />
               )}
