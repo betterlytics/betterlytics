@@ -3,14 +3,13 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useMapInstance } from '@/components/map/MapProvider';
-import { Separator } from '@/components/ui/separator';
 import { Minus, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-// The map's own zoomDelta is 0.1, too small a step for a button; the wheel keeps its own rate
 const ZOOM_STEP = 0.3;
-// aria-disabled instead of disabled so a focused button keeps focus when it reaches the zoom limit
-const LIMIT_CLASS = 'cursor-pointer aria-disabled:pointer-events-none aria-disabled:opacity-50';
+// aria-disabled keeps focus at the zoom limit
+const BUTTON_CLASS =
+  'border-input relative cursor-pointer border focus-visible:z-10 aria-disabled:pointer-events-none aria-disabled:opacity-50';
 
 export default function MapZoomButtons() {
   const map = useMapInstance();
@@ -32,28 +31,27 @@ export default function MapZoomButtons() {
   }, [map]);
 
   return (
-    <div className='bg-card border-input flex flex-col rounded-md border shadow-xs dark:bg-(--card-interactive)'>
+    <div className='bg-card inline-flex flex-col rounded-md shadow-xs dark:bg-(--card-interactive)'>
       <Button
         variant='ghost'
         size='icon'
         aria-label={t('zoomIn')}
         title={t('zoomIn')}
         aria-disabled={!map || limits.atMax}
-        className={LIMIT_CLASS}
+        className={`${BUTTON_CLASS} rounded-b-none`}
         onClick={() => {
           if (map && !limits.atMax) map.zoomIn(ZOOM_STEP);
         }}
       >
         <Plus />
       </Button>
-      <Separator />
       <Button
         variant='ghost'
         size='icon'
         aria-label={t('zoomOut')}
         title={t('zoomOut')}
         aria-disabled={!map || limits.atMin}
-        className={LIMIT_CLASS}
+        className={`${BUTTON_CLASS} -mt-px rounded-t-none`}
         onClick={() => {
           if (map && !limits.atMin) map.zoomOut(ZOOM_STEP);
         }}

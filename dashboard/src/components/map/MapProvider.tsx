@@ -10,7 +10,7 @@ export type MapScope = {
 
 const MapContext = createContext<MapScope | null>(null);
 
-/** Lets map controls rendered outside LeafletMap (for example in a page toolbar) attach to the map instance; one map per provider */
+/** Attaches controls rendered outside LeafletMap to its instance; one map per provider */
 export function MapProvider({ children }: { children: ReactNode }) {
   const [map, setMap] = useState<LeafletMapInstance | null>(null);
   const scope = useMemo(() => ({ map, setMap }), [map]);
