@@ -57,7 +57,7 @@ function assembleGeojson(parts) {
   );
 }
 
-/** One feature per polygon part, so mapshaper's keep-shapes protects every island, not one ring per region. */
+/** One feature per polygon part so keep-shapes protects every island. */
 function explodeForSimplify(geojson) {
   return {
     type: 'FeatureCollection',
@@ -89,7 +89,7 @@ async function simplify(geojson, budgetBytes) {
   return best;
 }
 
-/** Balance inset extension so the mainland sits horizontally centered in the fitted view. */
+/** Extends the opposite side so the mainland is centered in the fitted view. */
 function symmetrizeLon(finalBbox, anchorBbox) {
   const center = (anchorBbox.minLon + anchorBbox.maxLon) / 2;
   const half = Math.max(center - finalBbox.minLon, finalBbox.maxLon - center);

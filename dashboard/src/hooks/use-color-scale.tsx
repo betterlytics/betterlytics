@@ -17,7 +17,7 @@ export type UseColorScaleProps = {
 
 export type ColorScale = (value: number) => string;
 
-/** Gamma scale for exponentially distributed counts; a single-value domain maps the value to the top color instead of NaN */
+/** Gamma scale for exponentially distributed counts; a single-value domain maps to the top color */
 export function createGammaScale(colors: string[], maxValue: number): ColorScale {
   const gamma = 1 / 4;
   const max = Math.max(1, maxValue);

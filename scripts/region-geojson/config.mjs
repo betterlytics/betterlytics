@@ -1,47 +1,41 @@
 export const INFLATION_THRESHOLD = 1.15;
 export const LINK_KM = 100;
 
-/** Vertex-retention ladders by raw country size: small countries keep more detail per vertex. */
+/** Vertex-retention ladders by raw country size. */
 export const SIMPLIFY_TIERS = [
   { maxBytes: 80 * 1024, percentages: [35, 20, 12, 7] },
   { maxBytes: 250 * 1024, percentages: [20, 12, 7, 4] },
   { maxBytes: Infinity, percentages: [12, 7, 4, 2] },
 ];
-/** Output coordinate grid for mapshaper; the validator's containment tolerance derives from it. */
+/** mapshaper output grid; the validator's tolerance derives from it. */
 export const SIMPLIFY_PRECISION_DEG = 0.0001;
 export const FILE_BUDGET_BYTES = 260 * 1024;
 export const TOTAL_BUDGET_BYTES = 6 * 1024 * 1024;
 
 /**
  * Treatment for every country the analysis pass flags (inflation > threshold
- * or antimeridian-shifted). The validator fails if a flagged country has no
- * entry, so a Natural Earth update introducing a new problem country is caught.
+ * or antimeridian-shifted); the validator fails if a flagged country has no entry.
  *
  * - insets: detached parts of the listed features are scaled into framed boxes
- *   stacked along a side of the mainland, following each country's national
- *   map convention (d3-composite-projections layouts where one exists).
+ *   along a side of the mainland, following the national map convention.
  *   wholeFeature: true boxes every part of the feature, including parts that
- *   cluster with the mainland (Okinawa chains to Kyushu in <100km hops).
+ *   cluster with the mainland.
  *   inside: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' places the
- *   frame within the anchor bbox corner instead of outside it - frames must land
- *   on empty sea; the frame-collision validator enforces it.
+ *   frame within the anchor bbox corner instead of outside it.
  * - crop: detached parts of the listed features are dropped from the map.
- *   Only for uninhabited specks or conventional omissions; the region list
- *   under the map stays complete regardless.
- * - keepAll: render everything in place. Archipelago nations where the wide
- *   extent IS the country, or where antimeridian normalization alone fixes it.
+ * - keepAll: render everything in place.
  *
  * Feature ids here are post-remap (current ISO via CLDR), not raw NE ids.
  */
-/** Crimea and Sevastopol: NE groups them under RU; ISO, CLDR, and MaxMind file them under Ukraine. */
+/** NE files Crimea and Sevastopol under RU; ISO, CLDR and MaxMind file them under UA. */
 export const countryReassign = { 'UA-43': 'UA', 'UA-40': 'UA' };
 
-/** Cross-country NE ids with no matchable ISO code in their own file; explicit pseudo ids. */
+/** NE ids with no matchable ISO code in their own file. */
 export const idOverrides = { 'US-PR': 'PR-X00~', 'NL-SX': 'SX-X00~' };
 
 export const countryConfig = {
   FR: {
-    // INSEE convention: single DROM column left; mainland centering comes from viewBbox
+    // INSEE convention: single DROM column on the left
     insets: [
       { features: ['FR-971'], label: 'Guadeloupe', side: 'left', scaleFrac: 0.16 },
       { features: ['FR-972'], label: 'Martinique', side: 'left', scaleFrac: 0.16 },

@@ -11,7 +11,7 @@ export type SubdivisionDrilldownController = {
   toggle: (code: string) => void;
 };
 
-// Local state is the source of truth so the panel opens in the same frame as the map click; the URL only mirrors it
+// Local state is the source of truth; the URL only mirrors it
 export function useSubdivisionDrilldown(): SubdivisionDrilldownController {
   const [urlValue, writeUrlValue] = useReplaceStateParam(SUBDIVISION_COUNTRY_PARAM);
   const [countryCode, setCountryCode] = useState(() => parseCountryParam(urlValue));

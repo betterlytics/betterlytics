@@ -17,7 +17,7 @@ export function replaceSearchParam(search: string, key: string, next: string | u
   return query ? `?${query}` : '';
 }
 
-// Native replaceState keeps useSearchParams in sync without an RSC refetch or a history entry
+// replaceState syncs useSearchParams without an RSC refetch or a history entry
 export function useReplaceStateParam(key: string) {
   const value = useSearchParams()?.get(key) ?? undefined;
 

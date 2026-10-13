@@ -15,7 +15,7 @@ const REGIONS_DIR = path.join(ROOT, 'dashboard', 'public', 'data', 'regions');
 const MANIFEST_PATH = path.join(ROOT, 'scripts', 'region-geojson', 'manifest.json');
 const WORLD_MAP_PATH = path.join(ROOT, 'dashboard', 'public', 'data', 'countries.geo.json');
 const MAX_TREATED_INFLATION = 1.8;
-/** Half the output grid step absorbs mapshaper's coordinate rounding, nothing else. */
+/** Half the output grid step, for mapshaper's coordinate rounding. */
 const CONTAINMENT_EPSILON = SIMPLIFY_PRECISION_DEG / 2;
 
 const errors = [];
@@ -118,7 +118,7 @@ function validateFramePlacement(code, geojson, frames) {
   }
 }
 
-/** viewBbox must span the geometry and every frame so fit-bounds never crops; inset countries also center on the mainland. */
+/** viewBbox must span the geometry and every frame; inset countries also center on the mainland. */
 function validateViewBbox(code, geojson, frames, bbox, anchorCenterLon) {
   const vb = geojson.viewBbox;
   if (!Array.isArray(vb) || vb.length !== 4 || !vb.every(Number.isFinite)) {

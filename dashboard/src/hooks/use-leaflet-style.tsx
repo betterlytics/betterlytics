@@ -109,7 +109,7 @@ export function useMapStyle({ maxValue: maxVisitors }: UseMapStyleProps): MapSty
           .leaflet-popup {
             z-index: 11;
           }
-          /* Leaflet sets inline width and transform on the marker div, so the label is centred on an inner span */
+          /* Leaflet sets inline width and transform on the marker div */
           .map-inset-label span {
             position: absolute;
             top: 1px;
@@ -126,7 +126,7 @@ export function useMapStyle({ maxValue: maxVisitors }: UseMapStyleProps): MapSty
     );
   }, []);
 
-  // Stable identity: consumers key selection resets and Leaflet handlers on this object
+  // Stable identity; consumers key effects on this object
   return useMemo(
     () => ({ originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale }),
     [originalStyle, selectedStyle, hoveredStyle, LeafletCSS, fillColorScale, borderColorScale],

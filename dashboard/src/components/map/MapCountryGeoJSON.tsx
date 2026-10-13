@@ -70,7 +70,7 @@ export default function MapCountryGeoJSON({
 
   const layerKey = `${dataVersion.current}-${timeRangeCtx.compareMode}-${locale}`;
 
-  // Runs after the GeoJSON child has created its layers, so the registry is complete when the owner syncs
+  // Runs after the GeoJSON child has created its layers
   useEffect(() => {
     markLayersReady();
   }, [layerKey, markLayersReady]);

@@ -31,8 +31,14 @@ export default function SubdivisionMapSection({ countryCode }: { countryCode: st
     <QuerySection
       query={query}
       fallback={
-        <div className='h-full px-4 pb-4'>
-          <GeographyLoading />
+        <div className='px-4 pb-4'>
+          {showMap ? (
+            <div className='h-[280px] w-full'>
+              <GeographyLoading className='bg-transparent' />
+            </div>
+          ) : (
+            <div className='h-9' />
+          )}
         </div>
       }
       className='min-h-0 flex-1'
@@ -42,7 +48,7 @@ export default function SubdivisionMapSection({ countryCode }: { countryCode: st
           {showMap ? (
             <div className='h-[280px] w-full'>
               {geoJsonQuery.data ? (
-                // Own provider so the panel map does not replace the page map in the toolbar's scope
+                // Keeps the panel map out of the toolbar's scope
                 <MapProvider>
                   <LeafletMap
                     key={countryCode}
@@ -55,7 +61,7 @@ export default function SubdivisionMapSection({ countryCode }: { countryCode: st
                   </LeafletMap>
                 </MapProvider>
               ) : (
-                <GeographyLoading />
+                <GeographyLoading className='bg-transparent' />
               )}
             </div>
           ) : (

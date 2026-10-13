@@ -120,7 +120,7 @@ export default function LeafletMap({
   }, [fitBounds, mapComponents, geoJson]);
 
   if (isPending || !mapComponents || !geoJson || !style) {
-    return <GeographyLoading />;
+    return <GeographyLoading className='bg-transparent' />;
   }
 
   const { MapContainer, GeoJSON, Polygon, Rectangle, Marker, L } = mapComponents;

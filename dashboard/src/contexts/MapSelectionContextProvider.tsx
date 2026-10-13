@@ -125,7 +125,7 @@ export function MapSelectionContextProvider({ children, style, selectedFeatureId
     [style, isMobile],
   );
 
-  // Converges the map selection on the owner's selected feature (panel close, deep link, data refresh)
+  // Converges the map selection on the owner's selected feature
   useEffect(() => {
     const clicked = combined.clicked;
     if (selectedFeatureId === undefined) {
