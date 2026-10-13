@@ -11,7 +11,7 @@ describe('resolveOSIcon', () => {
 
   it('uses one mono windows file for both themes', () => {
     const def = resolveOSIcon('Windows');
-    expect(def?.icon).toEqual({ file: 'windows.svg', source: 'mdi/microsoft-windows', mono: true });
+    expect(def?.icon).toEqual({ file: 'windows.svg', source: 'cib/windows', mono: true });
     expect(def?.iconDark).toBeUndefined();
   });
 

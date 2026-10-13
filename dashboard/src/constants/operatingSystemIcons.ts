@@ -4,7 +4,7 @@ export type OSDef =
   | { label: string; icon: IconAsset; iconDark?: undefined }
   | { label: string; icon: IconAsset & { mono?: undefined }; iconDark: IconAsset & { mono: true } };
 
-const WINDOWS_ICON: IconAsset = { file: 'windows.svg', source: 'mdi/microsoft-windows', mono: true };
+const WINDOWS_ICON: IconAsset = { file: 'windows.svg', source: 'cib/windows', mono: true };
 const APPLE_ICON = { file: 'apple.svg', source: 'logos/apple' };
 const APPLE_ICON_DARK = { file: 'apple-dark.svg', source: 'simple-icons/apple', mono: true } as const;
 
