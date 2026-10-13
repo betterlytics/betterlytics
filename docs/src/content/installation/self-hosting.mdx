@@ -107,6 +107,8 @@ In standalone mode the container is what the internet reaches. The built-in Cadd
 ```bash
 PUBLIC_URL=https://analytics.example.com
 TLS=auto
+
+# Reachable from the internet on port 80, where Let's Encrypt verifies the domain
 BIND_ADDRESS=0.0.0.0
 HTTP_PORT=80
 ```
@@ -577,24 +579,6 @@ Major updates may run one-time database migrations on first boot. Do not interru
 </Callout>
 
 <details>
-<summary>Upgrading to PUBLIC_URL and TLS</summary>
-
-`DOMAIN`, `HTTP_SCHEME`, `FORCE_HTTP_SCHEME` and `HTTPS_PORT` are replaced by `PUBLIC_URL` and `TLS`. An instance whose `.env` still has only the old names stops at start, and `docker compose logs betterlytics-init` prints the two lines to add. Replace them like this:
-
-| Old `.env` | New `.env` |
-|------------|------------|
-| `HTTP_SCHEME=https` | `PUBLIC_URL=https://<DOMAIN>` and `TLS=auto` |
-| `HTTP_SCHEME=http` | `PUBLIC_URL=https://<DOMAIN>` and `TLS=off` |
-| `HTTP_SCHEME=http` with `FORCE_HTTP_SCHEME=http` | `PUBLIC_URL=http://<DOMAIN>` and `TLS=off` |
-| `HTTPS_PORT` | Remove it. If your `docker-compose.override.yml` uses `${HTTPS_PORT}`, write `443` there first |
-
-`HTTP_PORT` and `BIND_ADDRESS` keep their meaning. Then run `docker compose up -d --wait` again.
-
-To switch an existing instance from your own proxy to built-in certificates, set `TLS=auto`, `HTTP_PORT=80` and `BIND_ADDRESS=0.0.0.0`, and add the port 443 override shown under [Standalone](#standalone).
-
-</details>
-
-<details>
 <summary>Upgrading from v1.3.5 or earlier</summary>
 
 Releases after v1.3.5 run one-time ClickHouse migrations that rewrite the events table, replace nginx and certbot with Caddy, and move two-factor authentication to a new system. Before upgrading:
@@ -604,8 +588,17 @@ Releases after v1.3.5 run one-time ClickHouse migrations that rewrite the events
 - Back up the `betterlytics_selfhost_clickhouse_data` and `betterlytics_selfhost_postgres_data` volumes first.
 - If `ENABLE_EMAILS=true`, set `SMTP_FROM` to an address on a domain your email provider has verified. Earlier versions sent as `info@betterlytics.io` when it was unset, which providers reject; the instance now refuses to start without it.
 - In standalone mode, keep port 80 reachable from the internet. Caddy requests new certificates on first boot and validates them over port 80.
-- If `git pull` reports local changes in `base/proxy` or `base/.env.base`, save a copy, discard them with `git checkout -- base`, and pull again. The nginx templates are replaced by a Caddy configuration that ships inside the image, so move proxy changes to [your own reverse proxy](#behind-a-reverse-proxy), or mount a Caddy configuration directory of your own over `/etc/caddy` in `docker-compose.override.yml`.
-- Replace the old address variables in `.env`, see "Upgrading to PUBLIC_URL and TLS" above. If you changed `DATA_RETENTION_DAYS` there, add the same line to `.env`, for example `DATA_RETENTION_DAYS=-1`, before running `docker compose up`. The first boot carries the value in `.env` over to your dashboards, see below.
+- If `git pull` reports local changes in `base/proxy` or `base/.env.base`, save a copy, discard them with `git checkout -- base`, and pull again. The nginx templates are replaced by a Caddy configuration that ships inside the image, so move proxy changes to [your own reverse proxy](#behind-a-reverse-proxy), or mount a Caddy configuration directory of your own over `/etc/caddy` in `docker-compose.override.yml`. If you changed `DATA_RETENTION_DAYS` there, add the same line to `.env`, for example `DATA_RETENTION_DAYS=-1`, before running `docker compose up`. The first boot carries the value in `.env` over to your dashboards, see below.
+- Replace the address variables in `.env`. `DOMAIN`, `HTTP_SCHEME`, `FORCE_HTTP_SCHEME` and `HTTPS_PORT` are replaced by `PUBLIC_URL` and `TLS`; `HTTP_PORT` and `BIND_ADDRESS` keep their meaning:
+
+  | Old `.env` | New `.env` |
+  |------------|------------|
+  | `HTTP_SCHEME=https` | `PUBLIC_URL=https://<DOMAIN>` and `TLS=auto` |
+  | `HTTP_SCHEME=http` | `PUBLIC_URL=https://<DOMAIN>` and `TLS=off` |
+  | `HTTP_SCHEME=http` with `FORCE_HTTP_SCHEME=http` | `PUBLIC_URL=http://<DOMAIN>` and `TLS=off` |
+  | `HTTPS_PORT` | Remove it. If your `docker-compose.override.yml` uses `${HTTPS_PORT}`, write `443` there first |
+
+  An instance whose `.env` still has only the old names stops at start, and `docker compose logs betterlytics-init` prints the two lines to add.
 
 After the first boot:
 
@@ -629,7 +622,7 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - Check that required ports (80/443 in standalone mode) are not in use
 - Review container logs: `docker compose logs`
 - `TLS=auto requires HTTP_PORT=80`: set `HTTP_PORT=80` in `.env` and map port 443 as shown under [Standalone](#standalone), or switch to `TLS=off` behind your own proxy
-- `DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME are no longer read`: replace them with `PUBLIC_URL` and `TLS`, see "Upgrading to PUBLIC_URL and TLS" under [Updating](#updating)
+- `DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME are no longer read`: replace them with `PUBLIC_URL` and `TLS`, see "Upgrading from v1.3.5 or earlier" under [Updating](#updating)
 - `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again. If only `betterlytics-selfhost` keeps restarting, an override changes its image; `docker compose logs betterlytics-selfhost` shows the same message
 - `Cannot find module '/init'` in the `betterlytics-init` log: an override pins an image from before this release. Remove the image override
 - `Geolocation is enabled but no GeoIP database could be obtained`: check `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`, or set `ENABLE_GEOLOCATION=false`
