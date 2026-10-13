@@ -109,11 +109,16 @@ export function useMapStyle({ maxValue: maxVisitors }: UseMapStyleProps): MapSty
           .leaflet-popup {
             z-index: 11;
           }
-          .map-inset-label {
-            width: max-content;
-            transform: translate(-50%, 4px);
+          /* Leaflet sets inline width and transform on the marker div, so the label is centred on an inner span */
+          .map-inset-label span {
+            position: absolute;
+            top: 1px;
+            left: 0;
+            transform: translateX(-50%);
+            white-space: nowrap;
             color: var(--muted-foreground);
             font-size: 10px;
+            line-height: 1;
             pointer-events: none;
           }
         `}

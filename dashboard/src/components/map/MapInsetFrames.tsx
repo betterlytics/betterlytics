@@ -39,7 +39,7 @@ export default function MapInsetFrames({ L, Rectangle, Marker, frames }: MapInse
               keyboard={false}
               icon={L.divIcon({
                 className: 'map-inset-label',
-                html: escapeHtml(frame.label),
+                html: `<span>${escapeHtml(frame.label)}</span>`,
                 iconSize: [0, 0],
               })}
             />
