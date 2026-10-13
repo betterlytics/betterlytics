@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 // The map's own zoomDelta is 0.1, too small a step for a button; the wheel keeps its own rate
 const ZOOM_STEP = 0.3;
 // aria-disabled instead of disabled so a focused button keeps focus when it reaches the zoom limit
-const LIMIT_CLASS = 'aria-disabled:pointer-events-none aria-disabled:opacity-50';
+const LIMIT_CLASS = 'cursor-pointer aria-disabled:pointer-events-none aria-disabled:opacity-50';
 
 export default function MapZoomButtons() {
   const map = useMapInstance();
@@ -32,7 +32,7 @@ export default function MapZoomButtons() {
   }, [map]);
 
   return (
-    <div className='bg-card flex flex-col rounded-md shadow-md'>
+    <div className='bg-card border-input flex flex-col rounded-md border shadow-xs dark:bg-(--card-interactive)'>
       <Button
         variant='ghost'
         size='icon'
