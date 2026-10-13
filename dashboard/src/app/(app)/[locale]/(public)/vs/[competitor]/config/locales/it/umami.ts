@@ -7,15 +7,6 @@ export const umami: ComparisonLocaleContent = {
     title: 'Betterlytics vs Umami: Session replay e monitoraggio inclusi',
     description:
       'Confronta Betterlytics con Umami. Le stesse analytics leggere e orientate alla privacy, con session replay, percorsi utente e monitoraggio dell’uptime inclusi. Piano gratuito disponibile.',
-    keywords: [
-      'alternativa Umami',
-      'alternativa Umami Analytics',
-      'analytics privacy-first',
-      'session replay',
-      'monitoraggio uptime',
-      'analytics leggere',
-      'analytics open source',
-    ],
   },
   hero: {
     title: 'Cerchi un’alternativa a Umami?',
@@ -59,7 +50,7 @@ export const umami: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '<2KB', competitor: '~2–3KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~2–3KB' },
           { name: 'Impatto sul caricamento', betterlytics: 'Minimo', competitor: 'Minimo' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: true },
         ],
@@ -127,7 +118,7 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Hosted o self-hosted',
-      content: `Entrambi gli strumenti supportano il self-hosting. Umami utilizza PostgreSQL o MySQL. Betterlytics utilizza Docker con ClickHouse.\n\nPer l’hosting gestito, Betterlytics parte da $6/mese con un piano gratuito. Umami Cloud parte da $20/mese. Entrambi offrono accesso completo alle funzionalità senza componenti aggiuntivi premium.`,
+      content: `Entrambi gli strumenti supportano il self-hosting. Umami utilizza PostgreSQL o MySQL. Betterlytics utilizza Docker con ClickHouse.\n\nPer l’hosting gestito, Betterlytics parte da $7/mese con un piano gratuito. Umami Cloud parte da $20/mese. Entrambi offrono accesso completo alle funzionalità senza componenti aggiuntivi premium.`,
       icon: 'server',
     },
     {

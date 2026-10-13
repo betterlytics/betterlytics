@@ -4,18 +4,9 @@ export const posthog: ComparisonLocaleContent = {
   name: 'PostHog',
   logo: '/tools/posthog-logo.svg',
   seo: {
-    title: 'Betterlytics vs PostHog: Focused, Lightweight Alternative',
+    title: 'Betterlytics vs PostHog: a simpler, EU-hosted alternative',
     description:
-      'Compare Betterlytics to PostHog. Get focused web analytics with a tiny script, privacy by default, and predictable pricing. No complexity, just clarity.',
-    keywords: [
-      'PostHog alternative',
-      'lightweight analytics',
-      'privacy-first analytics',
-      'simple web analytics',
-      'cookieless analytics',
-      'PostHog replacement',
-      'predictable pricing analytics',
-    ],
+      'Compare Betterlytics with PostHog. Web analytics, session replay, errors and uptime in one simpler tool, hosted in the EU, with predictable pricing.',
   },
   hero: {
     title: 'Looking for a PostHog Alternative?',
@@ -26,7 +17,7 @@ export const posthog: ComparisonLocaleContent = {
   keyDifferentiators: [
     {
       title: 'Truly Lightweight',
-      betterlytics: '<2KB script. Designed for minimal page performance impact.',
+      betterlytics: '3.5KB script. Designed for minimal page performance impact.',
       competitor: '~57KB script with a broad feature set and higher load overhead.',
     },
     {
@@ -36,7 +27,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Simple, Predictable Pricing',
-      betterlytics: 'Free forever for small sites. Paid plans from $6/month with core features included.',
+      betterlytics: 'Free forever for small sites. Paid plans from $7/month with core features included.',
       competitor:
         'Generous free tier, but usage-based billing across multiple products gets complex as you scale.',
     },
@@ -60,7 +51,7 @@ export const posthog: ComparisonLocaleContent = {
       {
         name: 'Performance & Speed',
         features: [
-          { name: 'Script size', betterlytics: '<2KB', competitor: '~57KB' },
+          { name: 'Script size', betterlytics: '~3.5KB', competitor: '~57KB' },
           { name: 'Page load impact', betterlytics: 'Minimal', competitor: 'Moderate' },
           { name: 'Works with ad blockers', betterlytics: true, competitor: 'Partial' },
         ],
@@ -121,7 +112,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Page Speed Matters',
-      content: `PostHog's script is around 57KB gzipped. That includes support for feature flags, session recording, autocapture, and other product features. On mobile or slower connections, that adds up.\n\nOur script? Under 2KB. Your pages stay fast, Core Web Vitals stay green, and SEO stays happy. Analytics shouldn't slow your site down.`,
+      content: `PostHog's script is around 57KB gzipped. That includes support for feature flags, session recording, autocapture, and other product features. On mobile or slower connections, that adds up.\n\nOur script? About 3.5KB. Your pages stay fast, Core Web Vitals stay green, and SEO stays happy. Analytics shouldn't slow your site down.`,
       icon: 'zap',
     },
     {
@@ -131,7 +122,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Know What You Pay',
-      content: `PostHog bills separately for events, session recordings, feature flags, surveys, and more. Their free tier is generous, but costs can spike as you scale. This can make monthly costs harder to predict as usage grows.\n\nWe keep it simple: flat pricing from $6/month with clear event limits. Session replay, monitoring, and core analytics included. No spreadsheet required to figure out what you owe.`,
+      content: `PostHog bills separately for events, session recordings, feature flags, surveys, and more. Their free tier is generous, but costs can spike as you scale. This can make monthly costs harder to predict as usage grows.\n\nWe keep it simple: flat pricing from $7/month with clear event limits. Session replay, monitoring, and core analytics included. No spreadsheet required to figure out what you owe.`,
       icon: 'dollar',
     },
     {

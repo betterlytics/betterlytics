@@ -1,0 +1,289 @@
+@reference '../../landing.css';
+
+@layer components {
+  .stack {
+    --dx: 28px;
+    /* just clears a back card's header text */
+    --dy: 54px;
+    --behind: 2;
+    position: relative;
+    width: 56%;
+    margin: calc(var(--dy) * var(--behind)) 0 0 calc(var(--dx) * var(--behind));
+    @variant max-md {
+      --dx: 12px;
+      width: calc(94% - var(--dx) * var(--behind));
+    }
+    /* .quieter is hidden on phones */
+    @variant max-sm {
+      --behind: 1;
+      width: calc(86% - var(--dx));
+    }
+  }
+
+  .card {
+    --delay: calc(0.25s - var(--depth) * 0.1s);
+    border-radius: 12px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    border: 1px solid var(--color-rule-10);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 14px 34px rgb(0 0 0 / 0.45);
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 0.45s var(--ease-out-expo) var(--delay),
+      transform 0.5s var(--ease-out-expo) var(--delay);
+  }
+  .root[data-in] .card {
+    opacity: 1;
+    transform: none;
+  }
+  .front {
+    position: relative;
+    z-index: 3;
+  }
+  /* --step: depth, less any card hidden in front of it */
+  .back {
+    --step: var(--depth);
+    position: absolute;
+    left: calc(var(--step) * var(--dx) * -1);
+    top: calc(var(--step) * var(--dy) * -1);
+    z-index: calc(3 - var(--step));
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .root[data-in] .back {
+    opacity: calc(1.35 - var(--step) * 0.35);
+  }
+  .quieter {
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .back[data-resolved] {
+    @variant max-sm {
+      --step: 1;
+    }
+  }
+
+  /* keyed on .stack, whose box stays put, so sliding cards can't flicker it; translate skips transform's delay */
+  @media (hover: hover) {
+    .card {
+      transition:
+        opacity 0.45s var(--ease-out-expo) var(--delay),
+        transform 0.5s var(--ease-out-expo) var(--delay),
+        translate 0.6s var(--ease-out-expo);
+    }
+    .stack:hover .back {
+      translate: calc(var(--step) * -7px) calc(var(--step) * -7px);
+    }
+    .stack:hover .front {
+      translate: 5px 5px;
+    }
+  }
+
+  .icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: --alpha(var(--color-down) / 15%);
+    color: var(--color-down);
+  }
+  .icon svg {
+    width: 17px;
+    height: 17px;
+  }
+  .type {
+    display: block;
+    margin-bottom: 3px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-down);
+  }
+  .side {
+    display: grid;
+    justify-items: end;
+    gap: 3px;
+    white-space: nowrap;
+  }
+  .side > :first-child {
+    font-family: var(--font-mono);
+    font-size: 15px;
+    color: var(--color-fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .side small {
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .side > :first-child small {
+    margin-left: 5px;
+  }
+  .back .icon {
+    background: --alpha(var(--color-fg) / 7%);
+    color: var(--color-muted);
+  }
+  .back .type {
+    color: var(--color-muted);
+  }
+  .card[data-resolved] .icon {
+    background: --alpha(var(--color-live) / 14%);
+    color: var(--color-live);
+  }
+  .card[data-resolved] .side > :first-child {
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    color: var(--color-live);
+  }
+
+  .trail {
+    /* time column; phones show HH:MM */
+    --when: 58px;
+    padding: 10px 14px 14px;
+    @variant max-sm {
+      --when: 34px;
+    }
+    border-top: 1px solid --alpha(var(--color-fg) / 7%);
+  }
+  .trail > * {
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      transform 0.5s var(--ease-out-expo);
+  }
+  .root[data-in] .trail > * {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(0.3s + var(--stagger) * 0.12s);
+  }
+  .step {
+    display: grid;
+    grid-template-columns: var(--when) 18px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+    color: var(--color-fg);
+  }
+  .glyph {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: 18px;
+  }
+  .glyph svg {
+    width: 14px;
+    height: 14px;
+  }
+  /* connector to the next icon across the rows' padding; .event's runs past the box border to the triangle's tip */
+  .page .glyph::after,
+  .event .glyph::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: calc(50% - 0.5px);
+    width: 1px;
+    height: 11px;
+    background: --alpha(var(--color-fg) / 14%);
+  }
+  .event .glyph::after {
+    height: 14px;
+  }
+  .page svg {
+    color: #38bdf8;
+  }
+  .page {
+    @variant max-sm {
+      display: none;
+    }
+  }
+  .event svg {
+    color: #a78bfa;
+  }
+  /* these icons sit optically left of the connector line */
+  .event svg,
+  .thrown svg {
+    translate: 1px 0;
+  }
+  /* 10px less the box's border, so the columns line up with the rows above */
+  .thrown {
+    padding-left: 9px;
+    background: --alpha(var(--color-down) / 10%);
+    box-shadow: inset 2px 0 0 var(--color-down);
+    border-bottom: 1px solid --alpha(var(--color-down) / 18%);
+    color: rgb(248 113 113 / 0.75);
+    font-weight: 400;
+  }
+  .thrown svg,
+  .thrown b {
+    color: #f87171;
+  }
+  .thrown b {
+    font-weight: 600;
+  }
+
+  .frame {
+    display: grid;
+    grid-template-columns: var(--when) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px 6px 9px;
+    color: var(--color-muted);
+  }
+  .frame + .frame {
+    border-top: 1px solid --alpha(var(--color-fg) / 5%);
+  }
+  .frame[data-lib] {
+    background: rgb(0 0 0 / 0.18);
+  }
+  .call {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fn {
+    font-weight: 500;
+  }
+  .frame:first-child .fn {
+    color: var(--color-fg);
+  }
+  .frame[data-lib] :is(.call, .fn) {
+    opacity: 0.6;
+  }
+
+  .back .trail {
+    opacity: 0.3;
+  }
+  .back .thrown {
+    background: --alpha(var(--color-fg) / 5%);
+    box-shadow: inset 2px 0 0 var(--color-muted);
+    border-bottom-color: --alpha(var(--color-fg) / 8%);
+    color: var(--color-muted);
+  }
+  .back .thrown svg,
+  .back .thrown b {
+    color: var(--color-muted);
+  }
+
+  /* the back cards still wait for the entrance, just without moving */
+  @media (prefers-reduced-motion: reduce) {
+    .card,
+    .trail > * {
+      transform: none;
+      transition: none;
+    }
+    .front,
+    .trail > * {
+      opacity: 1;
+    }
+  }
+}

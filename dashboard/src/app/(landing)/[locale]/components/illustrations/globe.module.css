@@ -1,0 +1,52 @@
+@layer components {
+  .scene {
+    position: relative;
+    isolation: isolate;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .scene[data-grabbing] {
+    cursor: grabbing;
+  }
+  /* no WebGL: a still graticule, nothing to drag */
+  .scene[data-flat] {
+    cursor: auto;
+  }
+  /* opaque backdrop for the lighten blend; oversized because the globe overflows the box */
+  .scene::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    z-index: -1;
+    background: var(--color-canvas);
+  }
+
+  /* All layers share this box so they land on the same sphere; JS sets transform every frame. */
+  .layer {
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    height: 140%;
+    aspect-ratio: 1;
+    will-change: transform;
+    transform: translateX(-50%);
+  }
+  /* closest-side makes 100% the half-width, so the sphere's edge is at 80% */
+  .far {
+    opacity: 0.28;
+    mix-blend-mode: lighten;
+    -webkit-mask-image: radial-gradient(circle closest-side, rgb(0 0 0 / 0.1) 18%, #000 76%);
+    mask-image: radial-gradient(circle closest-side, rgb(0 0 0 / 0.1) 18%, #000 76%);
+  }
+  /* hides cobe's sphere body (a tenth of the land colour, darker than the canvas), keeps the dots */
+  .globe {
+    mix-blend-mode: lighten;
+  }
+  .grid,
+  .marks {
+    pointer-events: none;
+  }
+}

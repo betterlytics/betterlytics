@@ -4,18 +4,9 @@ export const googleAnalytics: ComparisonLocaleContent = {
   name: 'Google Analytics',
   logo: '/tools/google_analytics-logo.svg',
   seo: {
-    title: 'Betterlytics vs Google Analytics: Privatlivsvenligt alternativ',
+    title: 'Betterlytics vs Google Analytics: open source-alternativ',
     description:
-      'Sammenlign Betterlytics med Google Analytics. Letvægts, GDPR-klar webanalyse uden cookiebannere, hurtigere sideindlæsning og fuldt ejerskab over dine data. Gratis plan tilgængelig.',
-    keywords: [
-      'Google Analytics alternativ',
-      'GA4 alternativ',
-      'privatlivsvenlig analytics',
-      'GDPR-kompatibel analytics',
-      'cookieless analytics',
-      'letvægts webanalyse',
-      'Google Analytics erstatning',
-    ],
+      'Sammenlign Betterlytics med Google Analytics 4. Cookiefrit, open source og hostet i EU, med session replay, fejlsporing og oppetid inkluderet.',
   },
   hero: {
     title: 'Leder du efter et alternativ til Google Analytics?',
@@ -32,7 +23,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Lynhurtig',
-      betterlytics: '<2KB script der loader øjeblikkeligt uden påvirkning af sidens performance.',
+      betterlytics: '3,5KB script der loader øjeblikkeligt uden påvirkning af sidens performance.',
       competitor: '~100KB+ script afhængigt af opsætning. Ofte blokeret af ad blockers.',
     },
     {
@@ -61,7 +52,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       {
         name: 'Performance & hastighed',
         features: [
-          { name: 'Script-størrelse', betterlytics: '<2KB', competitor: '~100KB+' },
+          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '~100KB+' },
           { name: 'Indvirkning på sideindlæsning', betterlytics: 'Minimal', competitor: 'Mærkbar' },
           { name: 'Fungerer med ad blockers', betterlytics: true, competitor: false },
         ],
@@ -119,7 +110,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Sidehastighed betyder noget',
-      content: `Google Analytics-scripts har en størrelse på over 130KB og laver ekstra requests, som kan gøre din side langsommere. Det kan påvirke både SEO og brugeroplevelsen. Det er ofte blokeret af ad blockers og privacy tools, så du mister data alligevel.\n\nVores script er under 2KB og mere end 98% mindre. Det loader asynkront uden påvirkning af sidehastighed. Ad blockers blokerer os ikke, da vi ikke er en del af annonceindustrien, så du får mere komplet data.`,
+      content: `Google Analytics-scripts har en størrelse på over 130KB og laver ekstra requests, som kan gøre din side langsommere. Det kan påvirke både SEO og brugeroplevelsen. Det er ofte blokeret af ad blockers og privacy tools, så du mister data alligevel.\n\nVores script fylder ca. 3,5KB og er mere end 97% mindre. Det loader asynkront uden påvirkning af sidehastighed. Ad blockers blokerer os ikke, da vi ikke er en del af annonceindustrien, så du får mere komplet data.`,
       icon: 'zap',
     },
     {
@@ -134,7 +125,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Ingen skjulte omkostninger',
-      content: `Google Analytics er "gratis", men den skjulte pris er din data. Enterprise-funktioner? GA360 starter typisk i titusindvis af dollars om året.\n\nBetterlytics er transparent og starter fra $6/måned med en gratis plan. Session replay, monitoring og alle funktioner er inkluderet. Ingen overraskelser og ingen datamæssige kompromiser.`,
+      content: `Google Analytics er "gratis", men den skjulte pris er din data. Enterprise-funktioner? GA360 starter typisk i titusindvis af dollars om året.\n\nBetterlytics er transparent og starter fra $7/måned med en gratis plan. Session replay, monitoring og alle funktioner er inkluderet. Ingen overraskelser og ingen datamæssige kompromiser.`,
       icon: 'dollar',
     },
     {

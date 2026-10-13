@@ -4,18 +4,9 @@ export const googleAnalytics: ComparisonLocaleContent = {
   name: 'Google Analytics',
   logo: '/tools/google_analytics-logo.svg',
   seo: {
-    title: 'Betterlytics vs Google Analytics: Alternativa orientata alla privacy',
+    title: 'Betterlytics vs Google Analytics: alternativa open source',
     description:
-      'Confronta Betterlytics con Google Analytics. Analytics leggere e conformi al GDPR, senza banner cookie, con pagine più veloci e pieno controllo dei dati. Piano gratuito disponibile.',
-    keywords: [
-      'alternativa Google Analytics',
-      'alternativa GA4',
-      'analytics privacy-first',
-      'analytics conformi GDPR',
-      'analytics senza cookie',
-      'analytics web leggere',
-      'sostituto Google Analytics',
-    ],
+      'Confronta Betterlytics con Google Analytics 4. Senza cookie, open source e ospitato nell’UE, con session replay, tracciamento errori e uptime inclusi.',
   },
   hero: {
     title: 'Cerchi un’alternativa a Google Analytics?',
@@ -33,7 +24,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     {
       title: 'Estremamente veloce',
       betterlytics:
-        'Script sotto i 2KB che si carica istantaneamente senza impatto sulle performance della pagina.',
+        'Script da 3,5KB che si carica istantaneamente senza impatto sulle performance della pagina.',
       competitor: 'Script da oltre 100KB a seconda della configurazione; spesso bloccato dagli ad blocker.',
     },
     {
@@ -62,7 +53,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '<2KB', competitor: '~100KB+' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~100KB+' },
           { name: 'Impatto sul caricamento della pagina', betterlytics: 'Minimo', competitor: 'Visibile' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: false },
         ],
@@ -120,7 +111,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'La velocità conta',
-      content: `Gli script di Google Analytics hanno una dimensione superiore ai 130KB e generano richieste aggiuntive che possono rallentare il tuo sito. Questo influisce su SEO ed esperienza utente. Inoltre, vengono spesso bloccati da ad blocker e strumenti per la privacy, quindi perdi dati comunque.\n\nIl nostro script è sotto i 2KB, oltre il 98% più leggero. Si carica in modo asincrono senza alcun impatto sulla velocità della pagina. Gli ad blocker non ci bloccano perché non facciamo pubblicità, così ottieni dati più completi.`,
+      content: `Gli script di Google Analytics hanno una dimensione superiore ai 130KB e generano richieste aggiuntive che possono rallentare il tuo sito. Questo influisce su SEO ed esperienza utente. Inoltre, vengono spesso bloccati da ad blocker e strumenti per la privacy, quindi perdi dati comunque.\n\nIl nostro script pesa circa 3,5KB, oltre il 97% più leggero. Si carica in modo asincrono senza alcun impatto sulla velocità della pagina. Gli ad blocker non ci bloccano perché non facciamo pubblicità, così ottieni dati più completi.`,
       icon: 'zap',
     },
     {
@@ -135,7 +126,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Nessun costo nascosto',
-      content: `Google Analytics è “gratuito”, ma il costo nascosto è cedere i tuoi dati a Google. Le funzionalità enterprise? I prezzi di GA360 partono spesso da decine di migliaia di dollari all’anno.\n\nBetterlytics è trasparente. Parte da $6/mese con un piano gratuito. Session replay, monitoring e tutte le funzionalità incluse. Nessuna sorpresa, nessun compromesso sui dati.`,
+      content: `Google Analytics è “gratuito”, ma il costo nascosto è cedere i tuoi dati a Google. Le funzionalità enterprise? I prezzi di GA360 partono spesso da decine di migliaia di dollari all’anno.\n\nBetterlytics è trasparente. Parte da $7/mese con un piano gratuito. Session replay, monitoring e tutte le funzionalità incluse. Nessuna sorpresa, nessun compromesso sui dati.`,
       icon: 'dollar',
     },
     {

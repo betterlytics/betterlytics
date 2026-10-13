@@ -3,7 +3,11 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { getPublicStatusPageData } from '@/services/analytics/publicStatusPage.service';
-import { buildStatusPageMetadata, StatusPageShell } from '@/app/status/shared/statusPageShell';
+import {
+  buildStatusPageMetadata,
+  buildStatusPageNotFoundMetadata,
+  StatusPageShell,
+} from '@/app/status/shared/statusPageShell';
 
 export const revalidate = 60;
 
@@ -19,8 +23,7 @@ const resolveStatusPage = cache(async (slug: string) => {
 export async function generateMetadata({ params }: StatusPageParams): Promise<Metadata> {
   const { slug } = await params;
   const data = await resolveStatusPage(slug);
-  // `manifest: null` opts out of the app-wide web manifest even on the not-found path.
-  return data ? buildStatusPageMetadata(data) : { manifest: null };
+  return data ? buildStatusPageMetadata(data) : buildStatusPageNotFoundMetadata();
 }
 
 export default async function PublicStatusPage({ params }: StatusPageParams) {

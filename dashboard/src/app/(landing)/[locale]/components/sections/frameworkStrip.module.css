@@ -1,0 +1,116 @@
+@reference '../../landing.css';
+
+@layer components {
+  .glyphs {
+    position: relative;
+    min-width: 0;
+    margin-left: auto;
+    @variant max-xl {
+      margin-left: 0;
+    }
+    @variant max-sm {
+      align-self: stretch;
+    }
+  }
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px 14px;
+    /* one line fits only in the full 1480px column, so narrower screens get two even rows of nine */
+    @media (width < 96rem) {
+      display: grid;
+      grid-template-columns: repeat(9, 30px);
+    }
+    @variant max-xl {
+      justify-content: flex-start;
+    }
+    @variant max-sm {
+      grid-template-columns: repeat(9, 1fr);
+      justify-items: center;
+      column-gap: 0;
+    }
+  }
+
+  .glyph {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    color: var(--color-fg);
+    opacity: 0.55;
+    transition:
+      opacity 0.2s var(--ease-out-expo),
+      color 0.2s var(--ease-out-expo);
+    @variant hover {
+      opacity: 1;
+      color: var(--hover, var(--color-fg));
+    }
+  }
+
+  .shine {
+    display: none;
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    mask-image: linear-gradient(115deg, transparent 42%, rgb(0 0 0 / 0.6) 50%, transparent 58%);
+    mask-size: 300% 100%;
+    mask-repeat: no-repeat;
+    mask-position: 100% 0;
+  }
+  .shine .glyph {
+    opacity: 1;
+    transition: none;
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .glyphs:not([data-in]) .glyph {
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    /* `backwards`, not `both`, so the rest and hover styles take over after */
+    .glyphs[data-in] .row:not(.shine) .glyph {
+      animation: rise 1.1s var(--ease-out-expo) backwards;
+      animation-delay: calc(var(--i, 0) * 45ms);
+    }
+    /* 16s across (sweep's 62%), then a 10s rest */
+    .glyphs[data-in] .shine {
+      display: flex;
+      animation: sweep 26s linear 2.4s infinite;
+      @media (width < 96rem) {
+        display: grid;
+      }
+    }
+    .glyphs:not([data-live]) .shine {
+      animation-play-state: paused;
+    }
+  }
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+    color: var(--color-fg);
+  }
+  40% {
+    opacity: 1;
+    transform: none;
+    color: var(--hover, var(--color-fg));
+  }
+  100% {
+    opacity: 0.55;
+    color: var(--color-fg);
+  }
+}
+
+@keyframes sweep {
+  0% {
+    mask-position: 100% 0;
+  }
+  62%,
+  100% {
+    mask-position: 0% 0;
+  }
+}

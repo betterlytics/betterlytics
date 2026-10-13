@@ -1,0 +1,48 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* copied from the app's .dark theme, which the landing doesn't sit under */
+  .root {
+    --cwv-threshold-good: rgb(88, 207, 146);
+    --cwv-threshold-fair: oklch(80% 0.18 80);
+    --cwv-threshold-poor: rgb(212, 89, 81);
+    --cwv-threshold-good-label: rgb(100, 220, 160);
+    --cwv-threshold-fair-label: oklch(85% 0.16 80);
+    --cwv-threshold-poor-label: rgb(230, 105, 95);
+  }
+
+  /* scale into a slot of the scaled size; zoom left the numbers full size on some phones */
+  .slot {
+    --shrink: 0.68;
+    flex: none;
+    @variant max-md {
+      width: calc(var(--box-w) * var(--shrink));
+      height: calc(var(--box-h) * var(--shrink));
+    }
+  }
+  .slot > * {
+    @variant max-md {
+      transform-origin: 0 0;
+      scale: var(--shrink);
+    }
+  }
+
+  .value {
+    display: inline-flex;
+    align-items: baseline;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    --number-flow-char-height: 1em;
+  }
+  .value[data-level='good'] {
+    color: var(--cwv-threshold-good-label);
+  }
+  .value[data-level='fair'] {
+    color: var(--cwv-threshold-fair-label);
+  }
+  .value[data-level='poor'] {
+    color: var(--cwv-threshold-poor-label);
+  }
+}

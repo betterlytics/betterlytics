@@ -1,0 +1,65 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* opaque because it overlaps the hero card; the shadow is cast upward to spare the logo panel's top rule */
+  /* edge painted as border-box backgrounds so the hero's light can catch its top */
+  .window {
+    --edge: var(--color-rule-22);
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background:
+      linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.5%)) padding-box,
+      linear-gradient(var(--color-canvas), var(--color-canvas)) padding-box,
+      radial-gradient(42% 14px at 50% 0, --alpha(var(--color-glow) / 85%), transparent) border-box,
+      linear-gradient(var(--edge), var(--edge)) border-box;
+    box-shadow:
+      inset 1px 6px 6px 0 rgb(255 255 255 / 0.045),
+      0 -1px 0 rgb(255 255 255 / 0.06),
+      0 -6px 36px -10px rgb(0 0 0 / 0.55);
+    /* 0.28s matches the scrim fade in demoFrame.module.css, so edge and veil leave together */
+    transition: --edge 0.28s var(--ease-out-expo);
+    @variant max-md {
+      aspect-ratio: 4 / 3;
+      border-radius: 14px;
+    }
+  }
+  .window::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 44px;
+    border-bottom: 1px solid var(--color-rule-10);
+    background: --alpha(var(--color-fg) / 2%);
+  }
+  /* the hero's light spilling onto the title bar */
+  .window::after {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 1;
+    height: 44px;
+    pointer-events: none;
+    background: radial-gradient(38% 100% at 50% 0, --alpha(var(--color-glow) / 13%), transparent);
+  }
+
+  .window:has([data-armed]):hover {
+    --edge: --alpha(var(--color-volt-lift) / 55%);
+  }
+  /* the scrim's own focus ring would be clipped, so the window draws it */
+  .window:has([data-armed] :focus-visible) {
+    outline: 2px solid var(--color-volt-lift);
+    outline-offset: 3px;
+  }
+}
+
+/* registered so the hover edge colour transitions */
+@property --edge {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: transparent;
+}

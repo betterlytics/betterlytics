@@ -1,0 +1,73 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* bleeds over the pre's 22px padding; 20px + the 2px bar keeps the text aligned */
+  .line {
+    display: block;
+    margin-inline: -22px;
+    padding: 0 22px 0 20px;
+    border-left: 2px solid transparent;
+    /* the lowest that keeps dimmed code at 4.5:1 on the terminal */
+    opacity: 0.72;
+  }
+  .line[data-added] {
+    opacity: 1;
+    border-left-color: var(--color-volt-soft);
+    background-color: --alpha(var(--color-volt-soft) / 7%);
+  }
+
+  .string {
+    color: var(--color-volt-soft);
+  }
+  .line:not([data-added]) .string {
+    color: inherit;
+  }
+  .tag {
+    color: var(--color-fg);
+  }
+  .line[data-added] .tag {
+    color: var(--color-white);
+  }
+  .keyword,
+  .attribute {
+    color: var(--color-muted);
+  }
+  .comment {
+    color: var(--color-muted);
+  }
+  .variable {
+    color: var(--color-muted);
+    font-style: italic;
+  }
+
+  /* the second mask layer keeps the 1px border row unfaded */
+  .tabs {
+    @variant max-sm {
+      mask:
+        linear-gradient(to right, #000 calc(100% - var(--fade)), transparent),
+        linear-gradient(#000 0 0) bottom / 100% 1px no-repeat;
+    }
+  }
+  /* clear the fade over the last 32px of scroll so the end isn't left faded */
+  @supports (animation-timeline: scroll()) {
+    .tabs {
+      @variant max-sm {
+        animation: tabs-fade linear both;
+        animation-timeline: scroll(self inline);
+        animation-range: calc(100% - 32px) 100%;
+      }
+    }
+  }
+}
+
+@property --fade {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 32px;
+}
+
+@keyframes tabs-fade {
+  to {
+    --fade: 0px;
+  }
+}
