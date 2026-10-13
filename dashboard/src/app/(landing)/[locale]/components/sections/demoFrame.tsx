@@ -7,7 +7,6 @@ import { LoadingMark } from '@/landing/components/ui/brandMark';
 import { FINE_LINK } from '@/landing/components/ui/text';
 import { TrackedLink } from '@/landing/components/ui/trackedLink';
 import { useInView } from '@/landing/hooks/useInView';
-import { cn } from '@/landing/lib/cn';
 import { track } from '@/landing/lib/analytics';
 import { cn } from '@/landing/lib/cn';
 import styles from './demoFrame.module.css';
