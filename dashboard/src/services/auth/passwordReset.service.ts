@@ -9,6 +9,7 @@ import {
   deleteUserResetTokens,
   findResetTokenUserId,
 } from '@/repositories/postgres/resetToken.repository';
+import { findUserById } from '@/repositories/postgres/user.repository';
 
 export const RESET_TOKEN_EXPIRY_SECONDS = 3600;
 
@@ -19,8 +20,11 @@ export function resetTokenStoredIdentifier(token: string): string {
   return RESET_TOKEN_PREFIX + createHash('sha256').update(token).digest('hex');
 }
 
-export async function isResetTokenValid(token: string): Promise<boolean> {
-  return (await findResetTokenUserId(resetTokenStoredIdentifier(token))) !== null;
+/** The email of the account a live reset token belongs to, or null when the token is unknown or expired. */
+export async function findResetTokenEmail(token: string): Promise<string | null> {
+  const userId = await findResetTokenUserId(resetTokenStoredIdentifier(token));
+  if (!userId) return null;
+  return (await findUserById(userId))?.email ?? null;
 }
 
 export async function sendResetPasswordEmail(
