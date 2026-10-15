@@ -10,10 +10,26 @@
     <count>3</count>
   </logger>
 
+  <!-- System log tables. Keep this block identical in betterlytics, production-setup and betterlytics-selfhost.
+       Off: nothing reads them. Every other default log keeps 30 days; processors_profile_log,
+       asynchronous_insert_log and blob_storage_log ship with a TTL already.
+       Only list logs ClickHouse enables by default: a section here switches a log on. -->
   <trace_log remove="remove" />
   <text_log remove="remove" />
   <metric_log remove="remove" />
   <asynchronous_metric_log remove="remove" />
+  <query_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></query_log>
+  <query_thread_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></query_thread_log>
+  <query_views_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></query_views_log>
+  <query_metric_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></query_metric_log>
+  <part_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></part_log>
+  <error_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></error_log>
+  <crash_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></crash_log>
+  <backup_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></backup_log>
+  <iceberg_metadata_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></iceberg_metadata_log>
+  <s3queue_log><ttl>event_date + INTERVAL 30 DAY DELETE</ttl></s3queue_log>
+  <!-- Its default is an engine string, which ClickHouse refuses to combine with ttl: same engine plus the TTL. -->
+  <opentelemetry_span_log><engine>ENGINE = MergeTree PARTITION BY toYYYYMM(finish_date) ORDER BY (finish_date, finish_time_us) TTL finish_date + INTERVAL 30 DAY DELETE</engine></opentelemetry_span_log>
   
   <!-- Display setup -->
   <display_name>ch-1S_1K</display_name>
