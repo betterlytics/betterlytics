@@ -1,0 +1,14 @@
+@layer components {
+  .reveal {
+    transition:
+      opacity 0.62s var(--ease-out-expo),
+      transform 0.62s var(--ease-out-expo);
+    transition-delay: calc(var(--stagger, 0) * 55ms);
+  }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .reveal:not([data-in]) {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+}

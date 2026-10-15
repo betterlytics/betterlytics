@@ -1,0 +1,31 @@
+@reference '../../landing.css';
+
+@layer components {
+  .frame {
+    position: relative;
+    display: grid;
+    grid-template-columns: 318px 1fr;
+    gap: 30px;
+    align-items: start;
+    @variant max-2xl {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+  /* InkFrame draws these rules in */
+  .frame::before,
+  .frame::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    height: 1px;
+    background: var(--color-rule-10);
+    pointer-events: none;
+  }
+  .frame::before {
+    top: 0;
+  }
+  .frame::after {
+    bottom: 0;
+  }
+}

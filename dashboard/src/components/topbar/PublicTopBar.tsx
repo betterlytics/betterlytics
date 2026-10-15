@@ -2,7 +2,7 @@
 
 import { useHydratedSession } from '@/hooks/use-hydrated-session';
 import { Button } from '@/components/ui/button';
-import { Link, usePathname } from '@/i18n/navigation';
+import { Link } from '@/i18n/navigation';
 import Logo from '@/components/logo';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
@@ -20,7 +20,6 @@ export default function PublicTopBar({
 }) {
   const t = useTranslations('public.nav');
   const { data: session, isPending } = useHydratedSession();
-  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -30,8 +29,6 @@ export default function PublicTopBar({
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
-
-  const isOnAuthPage = pathname === '/signin' || pathname === '/signup';
 
   return (
     <header className='bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur'>
@@ -90,7 +87,7 @@ export default function PublicTopBar({
                     {t('goToDashboard')}
                   </Button>
                 </NextLink>
-              ) : !isOnAuthPage ? (
+              ) : (
                 <div className='flex items-center space-x-2'>
                   <Link href='/signin'>
                     <Button variant='outline' className='cursor-pointer'>
@@ -103,7 +100,7 @@ export default function PublicTopBar({
                     </Link>
                   )}
                 </div>
-              ) : null}
+              )}
             </div>
           </div>
 
@@ -164,7 +161,7 @@ export default function PublicTopBar({
                       {t('goToDashboard')}
                     </Button>
                   </NextLink>
-                ) : !isOnAuthPage ? (
+                ) : (
                   <div className='flex flex-col gap-2'>
                     {registrationEnabled && (
                       <Link href='/signup' onClick={closeMobileMenu}>
@@ -177,7 +174,7 @@ export default function PublicTopBar({
                       </Button>
                     </Link>
                   </div>
-                ) : null}
+                )}
               </div>
             </nav>
           </div>

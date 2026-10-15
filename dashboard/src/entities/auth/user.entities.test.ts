@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PasswordSchema } from '@/entities/auth/password.entities';
-import { RegisterUserSchema } from '@/entities/auth/user.entities';
+import { RegisterUserSchema, UserSchema } from '@/entities/auth/user.entities';
 import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 
 describe('PasswordSchema (password policy)', () => {
@@ -34,9 +34,9 @@ describe('RegisterUserSchema', () => {
 
   it('rejects an invalid email and one longer than 254 chars', () => {
     expect(RegisterUserSchema.safeParse({ ...valid, email: 'not-an-email' }).success).toBe(false);
-    expect(
-      RegisterUserSchema.safeParse({ ...valid, email: `${'a'.repeat(250)}@example.com` }).success,
-    ).toBe(false);
+    expect(RegisterUserSchema.safeParse({ ...valid, email: `${'a'.repeat(250)}@example.com` }).success).toBe(
+      false,
+    );
   });
 
   it('enforces the password policy on registration', () => {
@@ -54,5 +54,14 @@ describe('RegisterUserSchema', () => {
     if (!other) return; // only meaningful when more than one language is supported
 
     expect(RegisterUserSchema.parse({ ...valid, language: other }).language).toBe(other);
+  });
+});
+
+describe('UserSchema', () => {
+  it('loads a stored address an OAuth provider handed over, however unusual', () => {
+    for (const email of ['jørgen@example.dk', 'info@blåbær.dk', 'a&b@example.com', 'user#tag@example.com']) {
+      const user = { id: 'user-1', name: null, email, role: null, createdAt: new Date(), updatedAt: new Date() };
+      expect(UserSchema.parse(user).email).toBe(email);
+    }
   });
 });

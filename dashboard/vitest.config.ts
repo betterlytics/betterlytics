@@ -6,6 +6,7 @@ export default defineConfig({
   esbuild: { jsx: 'automatic' },
   resolve: {
     alias: {
+      '@/landing': path.resolve(__dirname, 'src/app/(landing)/[locale]'),
       '@': path.resolve(__dirname, 'src'),
       'server-only': path.resolve(__dirname, 'src/test/server-only-stub.ts'),
     },

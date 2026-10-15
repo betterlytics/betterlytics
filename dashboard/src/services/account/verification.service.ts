@@ -1,6 +1,7 @@
 'server-only';
 
 import { APIError } from 'better-auth/api';
+import { VERIFICATION_EMAIL_THROTTLED } from '@/constants/auth';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
@@ -21,6 +22,7 @@ export async function sendVerificationEmail(
   if (result === 'throttled') {
     throw new APIError('TOO_MANY_REQUESTS', {
       message: 'A verification email was sent recently. Please wait a few minutes before trying again.',
+      code: VERIFICATION_EMAIL_THROTTLED,
     });
   }
 }

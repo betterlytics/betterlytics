@@ -2,11 +2,11 @@
 
 import * as SliderPrimitive from '@radix-ui/react-slider';
 import { ChevronDown } from 'lucide-react';
-import { EVENT_RANGES, EventRange, isContactSalesRange } from '@/lib/billing/plans';
+import { EVENT_RANGES, EventRange } from '@/lib/billing/plans';
 import { cn } from '@/lib/utils';
 import { formatEventCount } from '@/utils/pricing';
+import { EventCountFlow } from '@/components/pricing/EventCountFlow';
 import { useLocale, useTranslations } from 'next-intl';
-import NumberFlow from '@number-flow/react';
 
 interface PricingSliderProps {
   currentRange: EventRange;
@@ -26,7 +26,6 @@ export function PricingSlider({
   const t = useTranslations('pricingSlider');
   const locale = useLocale();
 
-  const isUnlimited = isContactSalesRange(currentRange);
   const lastIndex = EVENT_RANGES.length - 1;
   const suggestedLeft =
     suggestedRangeIndex === undefined
@@ -36,14 +35,7 @@ export function PricingSlider({
   return (
     <div className={className}>
       <div className='mb-3 flex items-baseline justify-center gap-2'>
-        <NumberFlow
-          className='text-2xl font-semibold tabular-nums'
-          value={currentRange.value}
-          locales={locale}
-          format={{ notation: 'compact' }}
-          suffix={isUnlimited ? '+' : undefined}
-          willChange
-        />
+        <EventCountFlow className='text-2xl font-semibold tabular-nums' value={currentRange.value} />
         <span className='text-muted-foreground text-sm'>{t('monthlyEvents')}</span>
       </div>
 

@@ -7,6 +7,9 @@ import { cn } from '@/lib/utils';
 
 type GaugeProps = BaseGaugeProps & { children?: React.ReactNode };
 
+/** Utilities, not a CSS file: a stylesheet shared with the landing gets merged into the landing's CSS chunk. */
+const TRANSITION = 'duration-700 ease-in-out motion-reduce:transition-none';
+
 export type { GaugeSegment as Segment, GaugeProps };
 
 function Gauge({
@@ -37,7 +40,7 @@ function Gauge({
   return (
     <div
       {...props}
-      className={cn('gauge-root relative flex items-center justify-center', className)}
+      className={cn('relative flex items-center justify-center', className)}
       style={{ ...style, width: svgWidth, height: viewBoxHeight }}
     >
       <svg
@@ -54,7 +57,7 @@ function Gauge({
             fill='none'
             stroke={seg.color}
             strokeWidth={strokeWidth}
-            className='gauge-segment'
+            className={cn('transition-[stroke]', TRANSITION)}
           />
         ))}
 
@@ -65,13 +68,11 @@ function Gauge({
           fill='none'
           stroke={progressColor}
           strokeWidth={innerStrokeWidth}
-          className='gauge-progress'
-          style={
-            {
-              '--path-length': pathLength,
-              '--dash-offset': dashOffset,
-            } as React.CSSProperties
-          }
+          className={cn(
+            'transition-[stroke-dashoffset,stroke] will-change-[stroke-dashoffset,stroke]',
+            TRANSITION,
+          )}
+          style={{ strokeDasharray: pathLength, strokeDashoffset: dashOffset }}
         />
       </svg>
 

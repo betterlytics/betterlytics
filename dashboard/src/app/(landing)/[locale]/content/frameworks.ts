@@ -1,0 +1,24 @@
+import type { FRAMEWORK_GLYPHS } from '@/landing/content/frameworkGlyphs';
+
+type Framework = { name: string; logo: keyof typeof FRAMEWORK_GLYPHS };
+
+export const FRAMEWORKS: readonly Framework[] = [
+  { name: 'React', logo: 'react' },
+  { name: 'Next.js', logo: 'nextjs' },
+  { name: 'Vue', logo: 'vue' },
+  { name: 'Nuxt', logo: 'nuxtjs' },
+  { name: 'Svelte', logo: 'svelte' },
+  { name: 'Astro', logo: 'astro' },
+  { name: 'Remix', logo: 'remix' },
+  { name: 'Solid', logo: 'solidjs' },
+  { name: 'Angular', logo: 'angular' },
+  { name: 'WordPress', logo: 'wordpress' },
+  { name: 'Shopify', logo: 'shopify' },
+  { name: 'Webflow', logo: 'webflow' },
+  { name: 'Squarespace', logo: 'squarespace' },
+  { name: 'Wix', logo: 'wix' },
+  { name: 'Gatsby', logo: 'gatsby' },
+  { name: 'Laravel', logo: 'laravel' },
+  { name: 'HTML', logo: 'html' },
+  { name: 'Tag Manager', logo: 'gtm' },
+];

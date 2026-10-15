@@ -16,7 +16,6 @@ import { useDebounce } from '@/hooks/useDebounce';
 
 type LeafletMapProps = WorldMapResponse & {
   showZoomControls?: boolean;
-  showLegend?: boolean;
   initialZoom?: number;
   size?: 'sm' | 'lg';
 };
@@ -26,7 +25,6 @@ export default function LeafletMap({
   compareData,
   maxVisitors,
   showZoomControls,
-  showLegend = true,
   size = 'sm',
   initialZoom,
 }: LeafletMapProps) {
@@ -112,7 +110,7 @@ export default function LeafletMap({
             style={style}
           />
           <MapStickyTooltip size={size} />
-          {showLegend && <MapLegend maxVisitors={maxVisitors} />}
+          <MapLegend maxVisitors={maxVisitors} />
         </MapSelectionContextProvider>
       </MapContainer>
     </div>

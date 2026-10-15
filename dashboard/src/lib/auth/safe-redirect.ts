@@ -8,7 +8,8 @@ export function toSafeRelativePath(value: unknown, fallback: string): string {
   }
   try {
     const url = new URL(value, PLACEHOLDER_ORIGIN);
-    if (url.origin !== PLACEHOLDER_ORIGIN) return fallback;
+    // dot segments resolve after the host is settled: /.//evil.com comes out as //evil.com, which a browser reads as one
+    if (url.origin !== PLACEHOLDER_ORIGIN || url.pathname.startsWith('//')) return fallback;
     return `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return fallback;

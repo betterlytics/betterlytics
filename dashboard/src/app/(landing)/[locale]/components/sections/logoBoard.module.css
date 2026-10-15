@@ -1,0 +1,109 @@
+@reference '../../landing.css';
+
+@layer components {
+  .board {
+    display: grid;
+    grid-template-columns: 1.9fr repeat(4, 1fr);
+    @variant max-xl {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    /* bleed to the screen edge on phones so its rules meet the panel's */
+    @variant max-sm {
+      margin-inline: calc(-1 * var(--pad));
+    }
+  }
+  .label {
+    grid-row: 1 / span 2;
+    border-right: 1px solid var(--color-rule-08);
+    @variant max-xl {
+      grid-row: auto;
+      grid-column: 1 / -1;
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+  }
+
+  /* Inner rules only. The label is child 1, so the cells are children 2-9. */
+  .cell {
+    border-right: 1px solid var(--color-rule-08);
+    border-bottom: 1px solid var(--color-rule-08);
+  }
+  .cell:nth-child(5),
+  .cell:nth-child(9) {
+    border-right: 0;
+  }
+  .cell:nth-child(n + 6) {
+    border-bottom: 0;
+  }
+  /* two columns: the left column is the even children */
+  .cell:nth-child(even) {
+    @variant max-xl {
+      border-right: 1px solid var(--color-rule-08);
+    }
+  }
+  .cell:nth-child(odd) {
+    @variant max-xl {
+      border-right: 0;
+    }
+  }
+  .cell:nth-child(n + 6) {
+    @variant max-xl {
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+  }
+  .cell:nth-last-child(-n + 2) {
+    @variant max-xl {
+      border-bottom: 0;
+    }
+  }
+
+  .cell[data-flipping] {
+    position: relative;
+    perspective: 640px;
+    /* the turning card's near half projects past the cell */
+    z-index: 1;
+  }
+  .slot,
+  .tile,
+  .face,
+  .lift,
+  .shade {
+    position: absolute;
+    inset: 0;
+  }
+  .slot {
+    background: var(--color-surface);
+    pointer-events: none;
+  }
+  /* Holds the cell's size. Flex, not inline: descender space would grow the cell mid-flip. */
+  .size {
+    display: flex;
+    visibility: hidden;
+  }
+  .tile {
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+  .face {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* matches a resting cell, so the unmount after landing is invisible */
+    background: var(--color-canvas);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  .back {
+    transform: rotateX(180deg);
+  }
+  .lift {
+    background: var(--color-surface);
+    box-shadow: inset 0 0 0 1px var(--color-rule-125);
+    pointer-events: none;
+  }
+  /* black: a canvas-toned veil wouldn't register on this dark palette */
+  .shade {
+    background: var(--color-black);
+    pointer-events: none;
+  }
+}

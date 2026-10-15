@@ -44,6 +44,12 @@ export async function buildStatusPageMetadata(data: PublicStatusPageData): Promi
   };
 }
 
+/** Both the pages and `status/not-found.tsx` export it: the server error shell reads the latter's, the client document the page's. */
+export async function buildStatusPageNotFoundMetadata(): Promise<Metadata> {
+  const t = await getTranslations({ locale: 'en', namespace: 'publicStatusPage.notFound' });
+  return { title: t('title'), manifest: null };
+}
+
 /** Renders a resolved public status page. Status pages always render in English, independent of visitor locale. */
 export async function StatusPageShell({ data }: { data: PublicStatusPageData }) {
   const messages = await getMessages({ locale: 'en' });
