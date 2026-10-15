@@ -40,6 +40,15 @@ check_retired_names() {
         fi
         fail "PUBLIC_URL is not set. Set it in .env to the address browsers use, for example PUBLIC_URL=https://analytics.example.com."
     fi
+    # HTTP_SCHEME=https always meant this container terminates TLS; with TLS off it would start healthy on plain HTTP only.
+    if [ "$HTTP_SCHEME" = "https" ] && [ "$TLS" != "auto" ]; then
+        echo "HTTP_SCHEME=https is set in .env but TLS is not auto, so Betterlytics would serve only plain HTTP."
+        echo "HTTP_SCHEME is no longer read. Pick one in .env:"
+        echo "  Built-in HTTPS (this container gets the certificate): set TLS=auto and remove HTTP_SCHEME."
+        echo "  Your own reverse proxy in front terminates HTTPS: remove HTTP_SCHEME and leave TLS=off."
+        echo "Then run \`docker compose up -d --wait\` again."
+        exit 1
+    fi
     if [ -n "$DOMAIN$HTTP_SCHEME$FORCE_HTTP_SCHEME" ]; then
         echo "WARNING: DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME in .env are ignored; PUBLIC_URL and TLS are used. Remove them." >&2
     fi
