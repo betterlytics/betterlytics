@@ -116,7 +116,7 @@ resolve_public_url() {
   BIND_ADDRESS=0.0.0.0 in .env, or this server's public or port-forwarded IP (currently ${BIND_ADDRESS:-unset}). Empty or loopback publishes port 80 only to this machine, so Let's Encrypt cannot reach it." ;;
         esac
         [ "$BL_HTTPS_PUBLISHED" = "true" ] || _missing="${_missing}
-  Port 443 published in docker-compose.override.yml: under services, betterlytics-selfhost, add ports \"\${BIND_ADDRESS}:443:443\" and environment BL_HTTPS_PUBLISHED=true."
+  Port 443 published in docker-compose.override.yml: add ports \"\${BIND_ADDRESS}:443:443\" to betterlytics-selfhost, and BL_HTTPS_PUBLISHED=true to the environment of both betterlytics-selfhost and betterlytics-init."
         if [ -n "$_missing" ]; then
             echo "TLS=auto needs ports 80 and 443 of this server published to Betterlytics. Missing:${_missing}"
             echo "setup.sh 'Standalone' writes all of this. Or set TLS=off behind your own reverse proxy."
