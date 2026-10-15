@@ -35,6 +35,9 @@ check_retired_names() {
             echo "  TLS=${_tls}"
             # A hand-written override may interpolate ${HTTPS_PORT}; without the variable it publishes a random port.
             echo "HTTPS_PORT is no longer read either. If docker-compose.override.yml uses \${HTTPS_PORT}, write 443 there before removing it from .env."
+            if [ "$_tls" = "auto" ] && [ "$BL_HTTPS_PUBLISHED" != "true" ]; then
+                echo "TLS=auto also needs BL_HTTPS_PUBLISHED=true in the environment of both betterlytics-selfhost and betterlytics-init in docker-compose.override.yml, next to the existing 443 mapping."
+            fi
             echo "Then run \`docker compose up -d --wait\` again."
             exit 1
         fi
@@ -116,7 +119,7 @@ resolve_public_url() {
   BIND_ADDRESS=0.0.0.0 in .env, or this server's public or port-forwarded IP (currently ${BIND_ADDRESS:-unset}). Empty or loopback publishes port 80 only to this machine, so Let's Encrypt cannot reach it." ;;
         esac
         [ "$BL_HTTPS_PUBLISHED" = "true" ] || _missing="${_missing}
-  Port 443 published in docker-compose.override.yml: add ports \"\${BIND_ADDRESS}:443:443\" to betterlytics-selfhost, and BL_HTTPS_PUBLISHED=true to the environment of both betterlytics-selfhost and betterlytics-init."
+  Port 443 published in docker-compose.override.yml: betterlytics-selfhost needs ports \"\${BIND_ADDRESS}:443:443\" (if not already there), and both betterlytics-selfhost and betterlytics-init need BL_HTTPS_PUBLISHED=true in environment."
         if [ -n "$_missing" ]; then
             echo "TLS=auto needs ports 80 and 443 of this server published to Betterlytics. Missing:${_missing}"
             echo "setup.sh 'Standalone' writes all of this. Or set TLS=off behind your own reverse proxy."
