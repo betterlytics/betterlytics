@@ -105,8 +105,23 @@ resolve_public_url() {
         if printf '%s' "$BL_PUBLIC_HOST" | grep -qE '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
             fail "TLS=auto cannot get a certificate for an IP address. Use a hostname, or set TLS=off."
         fi
-        # Let's Encrypt HTTP-01 reaches the container only through host port 80.
-        [ "$HTTP_PORT" = "80" ] || fail "TLS=auto requires HTTP_PORT=80 in .env and a host mapping of port 443 (setup.sh 'Standalone' writes both). Or set TLS=off behind your own reverse proxy."
+        # Let's Encrypt HTTP-01 reaches the container only through host port 80, browsers only through host port 443.
+        # The image cannot see host port mappings; compose passes BIND_ADDRESS and the setup.sh override sets the marker.
+        _missing=""
+        [ "$HTTP_PORT" = "80" ] || _missing="${_missing}
+  HTTP_PORT=80 in .env (currently ${HTTP_PORT:-unset})."
+        case $(printf '%s' "$BIND_ADDRESS" | tr 'A-Z' 'a-z') in
+            ''|127.*|::1|'[::1]'|localhost)
+                _missing="${_missing}
+  BIND_ADDRESS=0.0.0.0 in .env, or this server's public or port-forwarded IP (currently ${BIND_ADDRESS:-unset}). Empty or loopback publishes port 80 only to this machine, so Let's Encrypt cannot reach it." ;;
+        esac
+        [ "$BL_HTTPS_PUBLISHED" = "true" ] || _missing="${_missing}
+  Port 443 published in docker-compose.override.yml: under services, betterlytics-selfhost, add ports \"\${BIND_ADDRESS}:443:443\" and environment BL_HTTPS_PUBLISHED=true."
+        if [ -n "$_missing" ]; then
+            echo "TLS=auto needs ports 80 and 443 of this server published to Betterlytics. Missing:${_missing}"
+            echo "setup.sh 'Standalone' writes all of this. Or set TLS=off behind your own reverse proxy."
+            exit 1
+        fi
     fi
 
     PUBLIC_URL="${_scheme}://${BL_PUBLIC_HOST}"
