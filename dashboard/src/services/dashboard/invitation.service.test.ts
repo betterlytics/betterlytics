@@ -3,11 +3,13 @@ import {
   acceptInvitation,
   acceptPendingInvitations,
   declineInvitation,
+  getPendingInvitations,
   getPendingInvitationsForUser,
   isUserInvited,
 } from '@/services/dashboard/invitation.service';
 import {
   findInvitationByToken,
+  findPendingInvitationsByDashboard,
   findPendingInvitationsByEmail,
   updateInvitationStatus,
 } from '@/repositories/postgres/invitation.repository';
@@ -76,6 +78,23 @@ beforeEach(() => {
   flags.enableRegistration = false;
   vi.mocked(findPendingInvitationsByEmail).mockResolvedValue([invitation()]);
   vi.mocked(findUserDashboardOrNull).mockResolvedValue(null);
+});
+
+describe('getPendingInvitations', () => {
+  beforeEach(() => {
+    vi.mocked(findPendingInvitationsByDashboard).mockResolvedValue([invitation({ role: 'admin' })]);
+  });
+
+  it.each(['owner', 'admin'] as const)('gives a %s the invite tokens', async (role) => {
+    const [pending] = await getPendingInvitations('dash-1', role);
+    expect(pending.token).toBe('token-1');
+  });
+
+  it.each(['editor', 'viewer'] as const)('withholds the invite tokens from a %s', async (role) => {
+    const [pending] = await getPendingInvitations('dash-1', role);
+    expect(pending.token).toBeNull();
+    expect(pending.email).toBe('invited@example.com');
+  });
 });
 
 describe('acceptPendingInvitations', () => {

@@ -20,7 +20,7 @@ import { findUserByEmail } from '@/repositories/postgres/user.repository';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createEmailRecipientKey, createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
+import { InvitationWithInviter, PendingInvitation } from '@/entities/dashboard/invitation.entities';
 import type { User } from '@/entities/auth/session.entities';
 import { hasPermission } from '@/lib/permissions';
 import { UserException } from '@/lib/exceptions';
@@ -205,8 +205,15 @@ export async function declineInvitation(invitationId: string, user: Invitee): Pr
   await updateInvitationStatus(invitationId, 'declined');
 }
 
-export async function getPendingInvitations(dashboardId: string): Promise<InvitationWithInviter[]> {
-  return findPendingInvitationsByDashboard(dashboardId);
+export async function getPendingInvitations(
+  dashboardId: string,
+  viewerRole: DashboardRole,
+): Promise<PendingInvitation[]> {
+  const invitations = await findPendingInvitationsByDashboard(dashboardId);
+  if (hasPermission(viewerRole, 'canInviteMembers')) {
+    return invitations;
+  }
+  return invitations.map((invitation) => ({ ...invitation, token: null }));
 }
 
 export type AcceptedInvitation = {

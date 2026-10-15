@@ -11,14 +11,14 @@ import {
   declineInvitation,
   acceptPendingInvitations,
 } from '@/services/dashboard/invitation.service';
-import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
+import { InvitationWithInviter, PendingInvitation } from '@/entities/dashboard/invitation.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext, withUserAuth } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import type { User } from '@/entities/auth/session.entities';
 
 export const getPendingInvitationsAction = withDashboardAuthContext(
-  async (ctx: AuthContext): Promise<InvitationWithInviter[]> => {
-    return getPendingInvitations(ctx.dashboardId);
+  async (ctx: AuthContext): Promise<PendingInvitation[]> => {
+    return getPendingInvitations(ctx.dashboardId, ctx.role);
   },
 );
 
