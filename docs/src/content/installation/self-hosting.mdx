@@ -112,16 +112,21 @@ BIND_ADDRESS=0.0.0.0
 HTTP_PORT=80
 ```
 
-and create a `docker-compose.override.yml` that exposes port 443:
+and create a `docker-compose.override.yml` that exposes port 443 and tells both containers it is published:
 
 ```yaml
 services:
   betterlytics-selfhost:
     ports:
       - "0.0.0.0:443:443"
+    environment:
+      - BL_HTTPS_PUBLISHED=true
+  betterlytics-init:
+    environment:
+      - BL_HTTPS_PUBLISHED=true
 ```
 
-`HTTP_PORT` must be `80`, otherwise the HTTP-01 challenge never reaches the container. The container refuses to start when `TLS=auto` and `HTTP_PORT` is anything else, or when `PUBLIC_URL` is not an `https://` address with a public hostname and no port. `SSL_EMAIL` and `ACME_CA` are optional; see [Domain and HTTPS](#domain-and-https). Certificates are stored in the `betterlytics_selfhost_caddy_data` volume and survive restarts and updates.
+`HTTP_PORT` must be `80`, otherwise the HTTP-01 challenge never reaches the container. The container cannot see how ports are published on the host, so with `TLS=auto` it refuses to start when `HTTP_PORT` is anything else, when `BIND_ADDRESS` is empty or a loopback address such as `127.0.0.1`, when `BL_HTTPS_PUBLISHED=true` is missing, or when `PUBLIC_URL` is not an `https://` address with a public hostname and no port. `SSL_EMAIL` and `ACME_CA` are optional; see [Domain and HTTPS](#domain-and-https). Certificates are stored in the `betterlytics_selfhost_caddy_data` volume and survive restarts and updates.
 
 ### Behind a Reverse Proxy
 
@@ -597,7 +602,8 @@ Releases after v1.3.5 run one-time ClickHouse migrations that rewrite the events
   | `HTTP_SCHEME=http` with `FORCE_HTTP_SCHEME=http` | `PUBLIC_URL=http://<DOMAIN>` and `TLS=off` |
   | `HTTPS_PORT` | Remove it. If your `docker-compose.override.yml` uses `${HTTPS_PORT}`, write `443` there first |
 
-  An instance whose `.env` still has only the old names stops at start, and `docker compose logs betterlytics-init` prints the two lines to add.
+  An instance whose `.env` still has only the old names stops at start, and `docker compose logs betterlytics-init` prints the two lines to add. So does one that keeps `HTTP_SCHEME=https` without `TLS=auto`.
+- In standalone mode, add `BL_HTTPS_PUBLISHED=true` to your existing `docker-compose.override.yml` as shown under [Standalone](#standalone), and check that `.env` has `BIND_ADDRESS=0.0.0.0`. Without them the instance stops at start.
 
 After the first boot:
 
@@ -620,7 +626,8 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - Verify Docker and Docker Compose are installed and running
 - Check that required ports (80/443 in standalone mode) are not in use
 - Review container logs: `docker compose logs`
-- `TLS=auto requires HTTP_PORT=80`: set `HTTP_PORT=80` in `.env` and map port 443 as shown under [Standalone](#standalone), or switch to `TLS=off` behind your own proxy
+- `TLS=auto needs ports 80 and 443 of this server published`: the log lists what is missing. Set `HTTP_PORT=80` and `BIND_ADDRESS=0.0.0.0` in `.env` and map port 443 as shown under [Standalone](#standalone), or switch to `TLS=off` behind your own proxy
+- `HTTP_SCHEME=https is set in .env but TLS is not auto`: set `TLS=auto` and remove `HTTP_SCHEME` for built-in HTTPS, or only remove `HTTP_SCHEME` if your own proxy terminates HTTPS
 - `DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME are no longer read`: replace them with `PUBLIC_URL` and `TLS`, see "Upgrading from v1.3.5 or earlier" under [Updating](#updating)
 - `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again. If only `betterlytics-selfhost` keeps restarting, an override changes its image; `docker compose logs betterlytics-selfhost` shows the same message
 - `Cannot find module '/init'` in the `betterlytics-init` log: an override pins an image from before this release. Remove the image override
