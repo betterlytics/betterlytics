@@ -35,10 +35,22 @@ check_retired_names() {
             echo "  TLS=${_tls}"
             # A hand-written override may interpolate ${HTTPS_PORT}; without the variable it publishes a random port.
             echo "HTTPS_PORT is no longer read either. If docker-compose.override.yml uses \${HTTPS_PORT}, write 443 there before removing it from .env."
+            if [ "$_tls" = "auto" ] && [ "$BL_HTTPS_PUBLISHED" != "true" ]; then
+                echo "TLS=auto also needs BL_HTTPS_PUBLISHED=true in the environment of both betterlytics-selfhost and betterlytics-init in docker-compose.override.yml, next to the existing 443 mapping."
+            fi
             echo "Then run \`docker compose up -d --wait\` again."
             exit 1
         fi
         fail "PUBLIC_URL is not set. Set it in .env to the address browsers use, for example PUBLIC_URL=https://analytics.example.com."
+    fi
+    # HTTP_SCHEME=https always meant this container terminates TLS; with TLS off it would start healthy on plain HTTP only.
+    if [ "$HTTP_SCHEME" = "https" ] && [ "$TLS" != "auto" ]; then
+        echo "HTTP_SCHEME=https is set in .env but TLS is not auto, so Betterlytics would serve only plain HTTP."
+        echo "HTTP_SCHEME is no longer read. Pick one in .env:"
+        echo "  Built-in HTTPS (this container gets the certificate): set TLS=auto and remove HTTP_SCHEME."
+        echo "  Your own reverse proxy in front terminates HTTPS: remove HTTP_SCHEME and leave TLS=off."
+        echo "Then run \`docker compose up -d --wait\` again."
+        exit 1
     fi
     if [ -n "$DOMAIN$HTTP_SCHEME$FORCE_HTTP_SCHEME" ]; then
         echo "WARNING: DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME in .env are ignored; PUBLIC_URL and TLS are used. Remove them." >&2
@@ -96,8 +108,23 @@ resolve_public_url() {
         if printf '%s' "$BL_PUBLIC_HOST" | grep -qE '^[0-9]{1,3}(\.[0-9]{1,3}){3}$'; then
             fail "TLS=auto cannot get a certificate for an IP address. Use a hostname, or set TLS=off."
         fi
-        # Let's Encrypt HTTP-01 reaches the container only through host port 80.
-        [ "$HTTP_PORT" = "80" ] || fail "TLS=auto requires HTTP_PORT=80 in .env and a host mapping of port 443 (setup.sh 'Standalone' writes both). Or set TLS=off behind your own reverse proxy."
+        # Let's Encrypt HTTP-01 reaches the container only through host port 80, browsers only through host port 443.
+        # The image cannot see host port mappings; compose passes BIND_ADDRESS and the setup.sh override sets the marker.
+        _missing=""
+        [ "$HTTP_PORT" = "80" ] || _missing="${_missing}
+  HTTP_PORT=80 in .env (currently ${HTTP_PORT:-unset})."
+        case $(printf '%s' "$BIND_ADDRESS" | tr 'A-Z' 'a-z') in
+            ''|127.*|::1|'[::1]'|localhost)
+                _missing="${_missing}
+  BIND_ADDRESS=0.0.0.0 in .env, or this server's public or port-forwarded IP (currently ${BIND_ADDRESS:-unset}). Empty or loopback publishes port 80 only to this machine, so Let's Encrypt cannot reach it." ;;
+        esac
+        [ "$BL_HTTPS_PUBLISHED" = "true" ] || _missing="${_missing}
+  Port 443 published in docker-compose.override.yml: betterlytics-selfhost needs ports \"\${BIND_ADDRESS}:443:443\" (if not already there), and both betterlytics-selfhost and betterlytics-init need BL_HTTPS_PUBLISHED=true in environment."
+        if [ -n "$_missing" ]; then
+            echo "TLS=auto needs ports 80 and 443 of this server published to Betterlytics. Missing:${_missing}"
+            echo "setup.sh 'Standalone' writes all of this. Or set TLS=off behind your own reverse proxy."
+            exit 1
+        fi
     fi
 
     PUBLIC_URL="${_scheme}://${BL_PUBLIC_HOST}"

@@ -91,16 +91,21 @@ BIND_ADDRESS=0.0.0.0
 HTTP_PORT=80
 ```
 
-and create a `docker-compose.override.yml` that exposes port 443:
+and create a `docker-compose.override.yml` that exposes port 443 and tells both containers it is published:
 
 ```yaml
 services:
   betterlytics-selfhost:
     ports:
       - "0.0.0.0:443:443"
+    environment:
+      - BL_HTTPS_PUBLISHED=true
+  betterlytics-init:
+    environment:
+      - BL_HTTPS_PUBLISHED=true
 ```
 
-`HTTP_PORT` must be `80`, otherwise Let's Encrypt can't verify the domain, and `PUBLIC_URL` must be an `https://` address with a public hostname and no port.
+`HTTP_PORT` must be `80` and `BIND_ADDRESS` a public interface such as `0.0.0.0`, otherwise Let's Encrypt can't verify the domain. `PUBLIC_URL` must be an `https://` address with a public hostname and no port.
 
 </details>
 
@@ -470,7 +475,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 ### Network
 
 <EnvTable>
-  <EnvVar name="BIND_ADDRESS" default="127.0.0.1">Interface the exposed ports listen on. `0.0.0.0` for standalone mode or a proxy on another machine</EnvVar>
+  <EnvVar name="BIND_ADDRESS" default="127.0.0.1">Interface the exposed ports listen on. `0.0.0.0` for standalone mode or a proxy on another machine. Must not be empty or loopback with `TLS=auto`</EnvVar>
   <EnvVar name="HTTP_PORT" default="5566">Host port mapped to the container's port 80. Must be `80` with `TLS=auto`</EnvVar>
   <EnvVar name="TRUSTED_PROXIES">Extra proxy IPs or CIDRs whose forwarded headers are trusted, for proxies on public addresses</EnvVar>
   <EnvVar name="AUTH_TRUSTED_PROXIES">Only behind your own proxy: the single address it connects from (not a range), so sign-in rate limits apply per visitor instead of being shared. See [Can't sign in](#cant-sign-in)</EnvVar>
@@ -543,6 +548,7 @@ Before you pull:
 
 - Free up disk space of at least 2 to 3 times the size of your ClickHouse data volume. The first boot rewrites the events table, which can take a long time on large installations.
 - If you changed files under `base/`, save a copy and discard them with `git checkout -- base`. Move proxy changes to [your own reverse proxy](#behind-a-reverse-proxy). If you changed `DATA_RETENTION_DAYS` there, add that line to `.env`, so the first boot keeps your retention.
+- In standalone mode, add `BL_HTTPS_PUBLISHED=true` to your `docker-compose.override.yml` as shown under [Standalone](#standalone) → **Configuring by hand**, and set `BIND_ADDRESS=0.0.0.0` in `.env`.
 
 After the first boot:
 
@@ -562,7 +568,8 @@ A cleanup job deletes data older than each dashboard's retention every Saturday 
 - Verify Docker and Docker Compose are installed and running
 - Check that required ports (80/443 in standalone mode) are not in use
 - Review container logs: `docker compose logs`
-- `TLS=auto requires HTTP_PORT=80`: set `HTTP_PORT=80` in `.env` and map port 443 as shown under [Standalone](#standalone) → **Configuring by hand**, or switch to `TLS=off` behind your own proxy
+- `TLS=auto needs ports 80 and 443 of this server published`: the log lists what is missing. Set `HTTP_PORT=80` and `BIND_ADDRESS=0.0.0.0` in `.env` and map port 443 as shown under [Standalone](#standalone) → **Configuring by hand**, or switch to `TLS=off` behind your own proxy
+- `HTTP_SCHEME=https is set in .env but TLS is not auto`: set `TLS=auto` and remove `HTTP_SCHEME` for built-in HTTPS, or only remove `HTTP_SCHEME` if your own proxy terminates HTTPS
 - `DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME are no longer read`: replace them in `.env` with the `PUBLIC_URL` and `TLS` lines the log prints
 - `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again. If only `betterlytics-selfhost` keeps restarting, an override changes its image; `docker compose logs betterlytics-selfhost` shows the same message
 - `Cannot find module '/init'` in the `betterlytics-init` log: an override pins an image from before this release. Remove the image override
