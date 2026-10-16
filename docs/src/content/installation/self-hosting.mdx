@@ -429,24 +429,11 @@ See the [Custom Status Page Domain guide](/integration/custom-status-page-domain
 
 ### Adding Users
 
-The first account is created on the sign-up page of a new instance. After that, sign-up is closed and new people join by invitation only.
-
-To invite someone, open a dashboard, go to **Settings > Members**, enter their email address, pick a role, and click **Invite**. Owners and admins of the dashboard can invite. With [email set up](#setting-up-email), the invitation arrives by email. Without it, nothing is sent: click **Copy invite link** next to the invitation and pass the link on yourself. The invited person opens the link and creates their account with the email address you invited. Invite links expire after 7 days.
-
-Accounts on a self-hosted instance are never asked to verify their email address.
+After the first account, sign-up closes and people join by invitation: open a dashboard, go to **Settings > Members** and invite them. Without [email](#setting-up-email), click **Copy invite link** and send the link yourself.
 
 ### Managing Users
 
-The first account is an instance admin. Instance admins open the **Admin** panel from the user menu, and under **Users** they can:
-
-- **Reset password** for someone who forgot theirs. This creates a link, valid for 24 hours, to copy and pass on, so it works without email
-- **Reset two-factor** for someone who lost their authenticator app
-- **Make admin** or **Remove admin**
-- **Disable account**, **Delete user** or **Sign out everywhere**. Deleting someone lets you hand their dashboards to another user; otherwise they are deleted with the account
-
-The **Audit log** in the same panel records these actions.
-
-Admins can't use these on their own account, and the last admin can't be disabled, demoted or deleted. Make a second user an instance admin, so someone can help when an admin is locked out. A sole admin who forgets their password needs [email set up](#setting-up-email) to use **Forgot your password?**, and a lost authenticator app is recovered with one of the two-factor backup codes.
+The first account is the instance admin and manages all accounts from the **Admin** panel in the user menu, including password reset links when email isn't set up. Make a second user an admin: admins can't reset their own password, so a sole admin who gets locked out needs [email](#setting-up-email) to recover.
 
 ### What Needs Email
 
