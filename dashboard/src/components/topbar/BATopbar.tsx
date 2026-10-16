@@ -99,9 +99,9 @@ export default function BATopbar() {
             ) : session ? (
               // No account menu on the share page: a visitor who signs in after load has no personal settings here
               isDemo ? (
-                <NextLink href='/dashboards'>
-                  <Button className='cursor-pointer'>{tPublicNav('goToDashboard')}</Button>
-                </NextLink>
+                <Button asChild>
+                  <NextLink href='/dashboards'>{tPublicNav('goToDashboard')}</NextLink>
+                </Button>
               ) : (
                 <>
                   {isChangelogEnabled && <ChangelogModal />}
