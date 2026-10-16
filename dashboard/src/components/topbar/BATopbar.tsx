@@ -44,6 +44,7 @@ export default function BATopbar() {
   const [showBugReportDialog, setShowBugReportDialog] = useState(false);
   const { start: startLoader } = useTopLoader();
   const t = useTranslations('components.topbar.userMenu');
+  const tPublicNav = useTranslations('public.nav');
   const dashboardNav = useOptionalDashboardNavigation();
   const isDemo = dashboardNav?.isDemo ?? false;
   const isEmbedded = useIsEmbedded();
@@ -96,16 +97,13 @@ export default function BATopbar() {
                 <div className='bg-muted h-8 w-8 animate-pulse rounded-full' />
               </div>
             ) : session ? (
-              disableTopbarNav ? (
-                <div
-                  className='flex h-10 cursor-default items-center space-x-2 rounded-full px-3 select-none'
-                  aria-disabled='true'
-                >
-                  <span className='text-foreground hidden text-sm font-medium sm:block'>
-                    {session.user.name || t('userFallback')}
-                  </span>
-                  <BAAvatar />
-                </div>
+              // No account menu on the share page: a visitor who signs in after load has no personal settings here
+              isDemo ? (
+                disableTopbarNav ? null : (
+                  <NextLink href='/dashboards'>
+                    <Button className='cursor-pointer'>{tPublicNav('goToDashboard')}</Button>
+                  </NextLink>
+                )
               ) : (
                 <>
                   {isChangelogEnabled && <ChangelogModal />}
@@ -171,7 +169,7 @@ export default function BATopbar() {
         </div>
       </header>
 
-      {session && <UserSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />}
+      {session && !isDemo && <UserSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />}
       {isBugReportsEnabled && <BugReportDialog open={showBugReportDialog} onOpenChange={setShowBugReportDialog} />}
     </>
   );
