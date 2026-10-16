@@ -475,43 +475,68 @@ Set `ENABLE_EMAILS=true`, a sender address in `SMTP_FROM`, and one provider in `
 
 All options are read from `.env` in the repository root. Database passwords, auth secrets, and internal tokens are derived from `SECRET_BASE`, so that is the only secret you need to set. After editing `.env`, run `docker compose up -d --wait`.
 
-| Variable | Default | Behavior |
-|----------|---------|----------|
-| <span id="domain-and-https" className="table-group" />**Domain and HTTPS** | | |
-| `PUBLIC_URL` | | The full address browsers use: scheme, host and, if non-standard, the port, for example `https://analytics.example.com` or `https://analytics.example.com:8443`. No path. Logins, links, and the tracking snippet all use exactly this address. Use `http://` only when browsers reach the instance over plain HTTP, as in [Try Locally](#try-locally) and [Plain HTTP or IP Access](#plain-http-or-ip-access) |
-| `TLS` | `off` | `auto` enables built-in Let's Encrypt certificates (standalone mode) and needs an `https://` `PUBLIC_URL` with a public hostname and no port. `off` serves plain HTTP, for use behind your own proxy, locally, or on a trusted network |
-| `SSL_EMAIL` | unset | Optional contact address registered with your Let's Encrypt account |
-| `ACME_CA` | Let's Encrypt production | Optional ACME directory URL. Use `https://acme-staging-v02.api.letsencrypt.org/directory` while testing to avoid rate limits |
-| <span id="network" className="table-group" />**Network** | | |
-| `BIND_ADDRESS` | `127.0.0.1` | Interface the exposed ports listen on. `0.0.0.0` for standalone mode or a proxy on another machine |
-| `HTTP_PORT` | `5566` | Host port mapped to the container's port 80. Must be `80` with `TLS=auto` |
-| `TRUSTED_PROXIES` | | Extra proxy IPs or CIDRs whose forwarded headers are trusted, for proxies on public addresses |
-| `AUTH_TRUSTED_PROXIES` | | Only behind your own proxy: the single address it connects from (not a range), so sign-in rate limits apply per visitor instead of being shared. See [Can't sign in](#cant-sign-in) |
-| <span id="secrets" className="table-group" />**Secrets** | | |
-| `SECRET_BASE` | | Single secret all passwords and auth keys derive from. Use at least 32 random characters, for example the output of `openssl rand -hex 32`; `setup.sh` generates one. The instance logs a warning at startup when it is empty, `CHANGEME`, or shorter than 32 characters. Keep it once the instance has started: the databases were created with passwords derived from it |
-| <span id="email" className="table-group" />**Email** | | |
-| `ENABLE_EMAILS` | `false` | Enables outgoing email: password resets, invitations, reports, alerts, and security notices. Needs `SMTP_FROM` and one provider below |
-| `SMTP_FROM` | | Sender for all outgoing mail, MailerSend and SMTP alike. Required when `ENABLE_EMAILS=true`; the instance does not start without it. Use an address on a domain your email provider has verified, optionally with a display name: `"Acme Analytics <analytics@example.com>"` |
-| `MAILER_SEND_API_TOKEN` | | MailerSend API token. When set, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` are not needed, but `SMTP_FROM` still is. If both are set, MailerSend is used |
-| `SMTP_HOST`<br />`SMTP_PORT`<br />`SMTP_USER`<br />`SMTP_PASSWORD` | | SMTP server for other providers. `SMTP_PORT` defaults to `587` |
-| <span id="geolocation-1" className="table-group" />**Geolocation** | | |
-| `ENABLE_GEOLOCATION` | `false` | Master switch. When disabled, no geo data is collected |
-| `MAXMIND_ACCOUNT_ID` | | MaxMind account ID |
-| `MAXMIND_LICENSE_KEY` | | MaxMind license key |
-| `GEOLOCATION_MODE` | `country` | `country`: country-level data only. `full` adds subdivision + city drill-down |
-| `ENABLE_ASN_LOOKUP` | `false` | Looks up each visitor's network (ASN) to improve bot detection. Downloads MaxMind's GeoLite2-ASN database with `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`; the instance refuses to start when that download fails |
-| <span id="session-replay-1" className="table-group" />**Session Replay** | | |
-| `SESSION_REPLAYS_ENABLED` | `true` | Set to `false` to disable the feature |
-| `REPLAY_RETENTION_DAYS` | `60` | Days to keep recordings, `-1` for indefinitely. ClickHouse storage only |
-| `REPLAY_STORAGE` | derived | `clickhouse` or `s3`. Resolves to `s3` when `S3_ENABLED=true` |
-| `S3_ENABLED`<br />`S3_BUCKET`<br />`S3_REGION`<br />`S3_ENDPOINT`<br />`S3_ACCESS_KEY_ID`<br />`S3_SECRET_ACCESS_KEY`<br />`S3_FORCE_PATH_STYLE` | | Your own S3-compatible storage, see [Storing Recordings in Your Own S3](#storing-recordings-in-your-own-s3) |
-| `S3_SSE_ENABLED` | `false` | Set to `true` to request server-side encryption (SSE-S3, AES256) for recordings uploaded to your bucket |
-| <span id="other" className="table-group" />**Other** | | |
-| `BACKGROUND_JOBS_ENABLED` | `true` | Runs the background worker, which sends all outgoing email and runs the data-retention cleanup. `false` stops both |
-| `PUSHOVER_APP_TOKEN` | | Pushover application token for uptime alerts via Pushover |
-| `ALLOW_PRIVATE_TARGETS` | `true` | Uptime monitors and webhooks may reach private and LAN addresses on any port, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services) |
-| `PUBLIC_ENABLE_FAVICON_FETCHING` | `true` | Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead |
-| `LOG_LEVEL` | `info` | Backend log level: `error`, `warn`, `info`, `debug` or `trace` |
+### Domain and HTTPS
+
+<EnvTable>
+  <EnvVar name="PUBLIC_URL">The full address browsers use: scheme, host and, if non-standard, the port, for example `https://analytics.example.com` or `https://analytics.example.com:8443`. No path. Logins, links, and the tracking snippet all use exactly this address. Use `http://` only when browsers reach the instance over plain HTTP, as in [Try Locally](#try-locally) and [Plain HTTP or IP Access](#plain-http-or-ip-access)</EnvVar>
+  <EnvVar name="TLS" default="off">`auto` enables built-in Let's Encrypt certificates (standalone mode) and needs an `https://` `PUBLIC_URL` with a public hostname and no port. `off` serves plain HTTP, for use behind your own proxy, locally, or on a trusted network</EnvVar>
+  <EnvVar name="SSL_EMAIL">Optional contact address registered with your Let's Encrypt account</EnvVar>
+  <EnvVar name="ACME_CA" default={<>Let's Encrypt production</>}>Optional ACME directory URL. Use `https://acme-staging-v02.api.letsencrypt.org/directory` while testing to avoid rate limits</EnvVar>
+</EnvTable>
+
+### Network
+
+<EnvTable>
+  <EnvVar name="BIND_ADDRESS" default="127.0.0.1">Interface the exposed ports listen on. `0.0.0.0` for standalone mode or a proxy on another machine</EnvVar>
+  <EnvVar name="HTTP_PORT" default="5566">Host port mapped to the container's port 80. Must be `80` with `TLS=auto`</EnvVar>
+  <EnvVar name="TRUSTED_PROXIES">Extra proxy IPs or CIDRs whose forwarded headers are trusted, for proxies on public addresses</EnvVar>
+  <EnvVar name="AUTH_TRUSTED_PROXIES">Only behind your own proxy: the single address it connects from (not a range), so sign-in rate limits apply per visitor instead of being shared. See [Can't sign in](#cant-sign-in)</EnvVar>
+</EnvTable>
+
+### Secrets
+
+<EnvTable>
+  <EnvVar name="SECRET_BASE">Single secret all passwords and auth keys derive from. Use at least 32 random characters, for example the output of `openssl rand -hex 32`; `setup.sh` generates one. The instance logs a warning at startup when it is empty, `CHANGEME`, or shorter than 32 characters. Keep it once the instance has started: the databases were created with passwords derived from it</EnvVar>
+</EnvTable>
+
+### Email
+
+<EnvTable>
+  <EnvVar name="ENABLE_EMAILS" default="false">Enables outgoing email: password resets, invitations, reports, alerts, and security notices. Needs `SMTP_FROM` and one provider below</EnvVar>
+  <EnvVar name="SMTP_FROM">Sender for all outgoing mail, MailerSend and SMTP alike. Required when `ENABLE_EMAILS=true`; the instance does not start without it. Use an address on a domain your email provider has verified, optionally with a display name: `"Acme Analytics <analytics@example.com>"`</EnvVar>
+  <EnvVar name="MAILER_SEND_API_TOKEN">MailerSend API token. When set, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER` and `SMTP_PASSWORD` are not needed, but `SMTP_FROM` still is. If both are set, MailerSend is used</EnvVar>
+  <EnvVar name={["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASSWORD"]}>SMTP server for other providers. `SMTP_PORT` defaults to `587`</EnvVar>
+</EnvTable>
+
+### Geolocation
+
+<EnvTable>
+  <EnvVar name="ENABLE_GEOLOCATION" default="false">Master switch. When disabled, no geo data is collected</EnvVar>
+  <EnvVar name="MAXMIND_ACCOUNT_ID">MaxMind account ID</EnvVar>
+  <EnvVar name="MAXMIND_LICENSE_KEY">MaxMind license key</EnvVar>
+  <EnvVar name="GEOLOCATION_MODE" default="country">`country`: country-level data only. `full` adds subdivision + city drill-down</EnvVar>
+  <EnvVar name="ENABLE_ASN_LOOKUP" default="false">Looks up each visitor's network (ASN) to improve bot detection. Downloads MaxMind's GeoLite2-ASN database with `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`; the instance refuses to start when that download fails</EnvVar>
+</EnvTable>
+
+### Session Replay
+
+<EnvTable>
+  <EnvVar name="SESSION_REPLAYS_ENABLED" default="true">Set to `false` to disable the feature</EnvVar>
+  <EnvVar name="REPLAY_RETENTION_DAYS" default="60">Days to keep recordings, `-1` for indefinitely. ClickHouse storage only</EnvVar>
+  <EnvVar name="REPLAY_STORAGE" default={<>derived</>}>`clickhouse` or `s3`. Resolves to `s3` when `S3_ENABLED=true`</EnvVar>
+  <EnvVar name={["S3_ENABLED", "S3_BUCKET", "S3_REGION", "S3_ENDPOINT", "S3_ACCESS_KEY_ID", "S3_SECRET_ACCESS_KEY", "S3_FORCE_PATH_STYLE"]}>Your own S3-compatible storage, see [Storing Recordings in Your Own S3](#storing-recordings-in-your-own-s3)</EnvVar>
+  <EnvVar name="S3_SSE_ENABLED" default="false">Set to `true` to request server-side encryption (SSE-S3, AES256) for recordings uploaded to your bucket</EnvVar>
+</EnvTable>
+
+### Other
+
+<EnvTable>
+  <EnvVar name="BACKGROUND_JOBS_ENABLED" default="true">Runs the background worker, which sends all outgoing email and runs the data-retention cleanup. `false` stops both</EnvVar>
+  <EnvVar name="PUSHOVER_APP_TOKEN">Pushover application token for uptime alerts via Pushover</EnvVar>
+  <EnvVar name="ALLOW_PRIVATE_TARGETS" default="true">Uptime monitors and webhooks may reach private and LAN addresses on any port, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services)</EnvVar>
+  <EnvVar name="PUBLIC_ENABLE_FAVICON_FETCHING" default="true">Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead</EnvVar>
+  <EnvVar name="LOG_LEVEL" default="info">Backend log level: `error`, `warn`, `info`, `debug` or `trace`</EnvVar>
+</EnvTable>
 
 ## Updating
 

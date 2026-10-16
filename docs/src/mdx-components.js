@@ -4,6 +4,7 @@ import {
   DashboardSectionCard,
 } from "./app/components/DashboardSectionGrid";
 import { HostingComparisonTable } from "./app/components/HostingComparisonTable";
+import { EnvTable, EnvVar } from "./app/components/EnvTable";
 import { FeatureCard, FeatureGrid } from "./app/components/FeatureCard";
 import {
   IntegrationIconRow,
@@ -21,6 +22,8 @@ export function useMDXComponents(components) {
     FeatureCard,
     FeatureGrid,
     HostingComparisonTable,
+    EnvTable,
+    EnvVar,
     IntegrationIconRow,
     IntegrationIcon,
     McpSetup,
