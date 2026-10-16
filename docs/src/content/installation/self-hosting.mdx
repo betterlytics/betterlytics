@@ -37,7 +37,7 @@ The interactive setup script generates your `.env` file and any necessary Docker
 ./setup.sh
 ```
 
-It asks for a deployment mode and your domain:
+It asks for a deployment mode, then your domain or, for Try locally, a port:
 
 - [**Standalone**](#standalone): the container provisions HTTPS certificates itself. Pick this when nothing else listens on ports 80 and 443.
 - [**Basic**](#behind-a-reverse-proxy): plain HTTP on a port of your choice, for use behind your own reverse proxy.
@@ -57,28 +57,13 @@ The first start runs database migrations before the app comes up, so give it a m
 
 Then open your domain in a browser and create your account.
 
-<Callout type="info">
-The first account created on a new instance becomes its admin and can manage every account from the [Admin panel](#managing-users). The instance is reachable as soon as it starts, so create your account right after `docker compose up -d --wait` returns. Everyone else joins by invitation, see [Users and Email](#users-and-email).
+<Callout type="warning">
+Create your account right away: whoever opens the sign-up page first becomes the admin and can manage every account from the [Admin panel](#managing-users). Everyone else joins by invitation, see [Users and Email](#users-and-email).
 </Callout>
 
 ### Install the Tracking Script
 
-Once logged in, follow the in-app integration guide to add the tracking script to your website. The snippet it generates already points at your instance. It looks like this:
-
-```html
-<script
-  async
-  src="https://analytics.example.com/analytics.js"
-  data-site-id="your-site-id"
-  data-server-url="https://analytics.example.com/event"
-></script>
-```
-
-<Callout type="warning">
-The snippets elsewhere in these docs are written for Betterlytics Cloud: they load `analytics.js` from `betterlytics.io` and send events there. When copying one, change the script origin and add `data-server-url`, or the npm package's `scriptUrl` and `serverUrl` options, as shown in [Tracking Scripts](#tracking-scripts).
-</Callout>
-
-The [Integration Overview](/integration) covers what the script can do.
+Once logged in, follow the in-app integration guide. The snippet it generates already points at your instance. Copying snippets from elsewhere in these docs? See [Tracking Scripts](#tracking-scripts). The [Integration Overview](/integration) covers what the script can do.
 
 </Steps>
 
@@ -223,7 +208,7 @@ Over plain HTTP, passwords and sessions cross the network unencrypted. Only do t
 
 ### Try Locally
 
-The third `setup.sh` mode runs the instance on `http://localhost:5566` with no domain and no TLS. Use it to try Betterlytics on your own computer, not for a real deployment.
+The third `setup.sh` mode runs the instance on `http://localhost:5566`, or the port you picked, with no domain and no TLS. Use it to try Betterlytics on your own computer, not for a real deployment.
 
 ## Tracking Scripts
 
@@ -290,7 +275,7 @@ After completing the flow, you'll be shown your license key. Copy it (you won't 
 
 ### Configure Your Environment
 
-Add the following to your `.env` file:
+Set the following in `.env`:
 
 ```bash
 ENABLE_GEOLOCATION=true
@@ -345,14 +330,6 @@ The endpoint only needs to be reachable from the containers, never from visitors
 
 The main differences from Cloud are how alerts are delivered and where the page is served. Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box, and can reach services on your private network, see [Monitoring Internal Services](#monitoring-internal-services). Email alerts need [email sending configured](#email), and Pushover alerts need the `PUSHOVER_APP_TOKEN` variable in `.env` set to your own Pushover application token.
 
-A published status page is served by your instance at:
-
-```
-https://analytics.example.com/status/{your-slug}
-```
-
-The [Public Status Pages guide](/dashboard/status-pages) covers building and publishing one.
-
 ### Monitoring Internal Services
 
 Monitors and generic webhook alerts can reach services on your own network, on any port. You can monitor something like `http://grafana.home.lan:3000` or a Tailscale address, and send alerts to n8n, ntfy or Home Assistant over plain `http://`.
@@ -375,7 +352,13 @@ Monitors then only reach public addresses on ports 80 and 443, and webhooks need
 
 ### Custom Status Page Domains
 
-A status page can be served from its own domain, for example `status.acme.com`, instead of `/status/{your-slug}` on your instance. Enter the domain in the status page's **Settings** tab and publish the page; then set up DNS and TLS for the deployment mode you run.
+A published status page is served by your instance at:
+
+```
+https://analytics.example.com/status/{your-slug}
+```
+
+The [Public Status Pages guide](/dashboard/status-pages) covers building and publishing one. A page can also be served from its own domain, for example `status.acme.com`. Enter the domain in the status page's **Settings** tab and publish the page; then set up DNS and TLS for the deployment mode you run.
 
 **Standalone (`TLS=auto`):** add a CNAME record pointing the domain at your instance's hostname, the host of its `PUBLIC_URL`. The certificate is issued automatically the first time the domain is visited after the page is published. No `.env` change and no restart are needed. Certificates are only issued for domains that a published status page claims.
 
@@ -387,7 +370,7 @@ A status page can be served from its own domain, for example `status.acme.com`, 
 
 <Tabs items={['Caddy', 'Nginx']}>
   <Tabs.Tab>
-    ```md
+    ```
     analytics.example.com {
         reverse_proxy 127.0.0.1:5566
     }
