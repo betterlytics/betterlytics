@@ -540,10 +540,6 @@ All options are read from `.env` in the repository root. Database passwords, aut
 
 ## Updating
 
-<Callout type="warning">
-Coming from v1.3.5 or earlier? Read **Upgrading from v1.3.5 or earlier** below before you pull: it needs a backup, free disk space and `.env` changes. An instance that still has the old `.env` stops at start.
-</Callout>
-
 Each release bumps the image version pinned in `docker-compose.yml`, so updating the `betterlytics-selfhost` repository is what upgrades your instance:
 
 ```bash
@@ -551,47 +547,30 @@ git pull
 docker compose up -d --wait
 ```
 
-Compose pulls the new image on its own. Read the release notes first for version-specific steps such as backups or disk space.
+Compose pulls the new image on its own. Check the [release notes](https://github.com/betterlytics/betterlytics/releases) for version-specific steps. Backing up your data volumes before a major upgrade is a good idea.
 
-<Callout type="info">
-Major updates may run one-time database migrations on first boot. Do not interrupt the container while they run.
+<Callout type="warning">
+Some releases run one-time database migrations on first boot, so don't interrupt the container while it starts. If a release needs a change on your side, such as a new required setting in `.env`, the instance stops at start and `docker compose logs` says what to change.
 </Callout>
 
 <details>
 <summary>Upgrading from v1.3.5 or earlier</summary>
 
-Releases after v1.3.5 run one-time ClickHouse migrations that rewrite the events table, replace nginx and certbot with Caddy, and move two-factor authentication to a new system. Before upgrading:
+Before you pull:
 
-- Ensure free disk space of at least 2 to 3 times the size of your ClickHouse data volume. The events table is rewritten twice, and the space is reclaimed at the end.
-- Expect a long first boot on large installations.
-- Back up the `betterlytics_selfhost_clickhouse_data` and `betterlytics_selfhost_postgres_data` volumes first.
-- If `ENABLE_EMAILS=true`, set `SMTP_FROM` to an address on a domain your email provider has verified. Earlier versions sent as `info@betterlytics.io` when it was unset, which providers reject; the instance now refuses to start without it.
-- In standalone mode, keep port 80 reachable from the internet. Caddy requests new certificates on first boot and validates them over port 80.
-- If `git pull` reports local changes in `base/proxy` or `base/.env.base`, save a copy, discard them with `git checkout -- base`, and pull again. The nginx templates are replaced by a Caddy configuration that ships inside the image, so move proxy changes to [your own reverse proxy](#behind-a-reverse-proxy), or mount a Caddy configuration directory of your own over `/etc/caddy` in `docker-compose.override.yml`. If you changed `DATA_RETENTION_DAYS` there, add the same line to `.env`, for example `DATA_RETENTION_DAYS=-1`, before running `docker compose up`. The first boot carries the value in `.env` over to your dashboards, see below.
-- Replace the address variables in `.env`. `DOMAIN`, `HTTP_SCHEME`, `FORCE_HTTP_SCHEME` and `HTTPS_PORT` are replaced by `PUBLIC_URL` and `TLS`; `HTTP_PORT` and `BIND_ADDRESS` keep their meaning:
-
-  | Old `.env` | New `.env` |
-  |------------|------------|
-  | `HTTP_SCHEME=https` | `PUBLIC_URL=https://<DOMAIN>` and `TLS=auto` |
-  | `HTTP_SCHEME=http` | `PUBLIC_URL=https://<DOMAIN>` and `TLS=off` |
-  | `HTTP_SCHEME=http` with `FORCE_HTTP_SCHEME=http` | `PUBLIC_URL=http://<DOMAIN>` and `TLS=off` |
-  | `HTTPS_PORT` | Remove it. If your `docker-compose.override.yml` uses `${HTTPS_PORT}`, write `443` there first |
-
-  An instance whose `.env` still has only the old names stops at start, and `docker compose logs betterlytics-init` prints the two lines to add.
+- Free up disk space of at least 2 to 3 times the size of your ClickHouse data volume. The first boot rewrites the events table, which can take a long time on large installations.
+- If you changed files under `base/`, save a copy and discard them with `git checkout -- base`. Move proxy changes to [your own reverse proxy](#behind-a-reverse-proxy). If you changed `DATA_RETENTION_DAYS` there, add that line to `.env`, so the first boot keeps your retention.
 
 After the first boot:
 
-- **Two-factor authentication is reset.** Existing authenticator enrollments cannot be carried over, so 2FA is turned off for every account that had it. Users sign in with their password and turn it on again under **User Settings > Account**. Affected users are notified by email only when [email sending](#email) is configured and background jobs are enabled.
-- **Retention is set per dashboard.** A dashboard's owner or admin sets its retention under **Settings > Data**, where self-hosted instances also offer **Keep forever**. On the first boot every dashboard keeps at least the retention your instance enforced before: 1 year, or `DATA_RETENTION_DAYS` from `.env` when set. `-1` makes every dashboard **Keep forever**, and a value above `365` becomes the next longer period (2, 3 or 5 years, or **Keep forever** above 5 years). Dashboards with a longer period stay as they are. A shorter period picked there on v1.3.5 never took effect, so it is raised too. This happens once. After that `DATA_RETENTION_DAYS` has no effect and the container log warns while it is set, so remove it from `.env`.
-- **The old certificate volumes are left behind.** Certificates now live in the `betterlytics_selfhost_caddy_data` volume. Once HTTPS works, find the old volumes with `docker volume ls`, their names end in `letsencrypt_certs` and `certbot_www`, and remove them with `docker volume rm`.
+- Two-factor authentication is turned off for every account. Users turn it on again under **User Settings > Account**.
+- Retention is now set per dashboard under **Settings > Data**, starting from the retention your instance had: 1 year, or `DATA_RETENTION_DAYS`. Remove `DATA_RETENTION_DAYS` from `.env` afterwards.
 
 <Callout type="warning">
-A cleanup job deletes data older than each dashboard's retention every Saturday at 02:00 UTC. Before then, check every dashboard under **Settings > Data** and choose **Keep forever** or a longer period wherever you want to keep more. If you upgraded without carrying a longer `DATA_RETENTION_DAYS` into `.env`, your dashboards were set to 1 year; adding it afterwards changes nothing, so set the longer period on each dashboard before the cleanup runs. To hold the cleanup until every dashboard owner has checked, set `BACKGROUND_JOBS_ENABLED=false`; this also pauses outgoing email.
+A cleanup job deletes data older than each dashboard's retention every Saturday at 02:00 UTC. Check each dashboard's retention before then.
 </Callout>
 
 </details>
-
-You can follow new releases on [GitHub](https://github.com/betterlytics/betterlytics/releases).
 
 ## Troubleshooting
 
@@ -601,7 +580,7 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - Check that required ports (80/443 in standalone mode) are not in use
 - Review container logs: `docker compose logs`
 - `TLS=auto requires HTTP_PORT=80`: set `HTTP_PORT=80` in `.env` and map port 443 as shown under [Standalone](#standalone) → **Configuring by hand**, or switch to `TLS=off` behind your own proxy
-- `DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME are no longer read`: replace them with `PUBLIC_URL` and `TLS`, see "Upgrading from v1.3.5 or earlier" under [Updating](#updating)
+- `DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME are no longer read`: replace them in `.env` with the `PUBLIC_URL` and `TLS` lines the log prints
 - `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again. If only `betterlytics-selfhost` keeps restarting, an override changes its image; `docker compose logs betterlytics-selfhost` shows the same message
 - `Cannot find module '/init'` in the `betterlytics-init` log: an override pins an image from before this release. Remove the image override
 - `Geolocation is enabled but no GeoIP database could be obtained`: check `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`, or set `ENABLE_GEOLOCATION=false`
