@@ -91,19 +91,17 @@ export default function BATopbar() {
           </div>
 
           <div className='flex items-center space-x-4'>
-            {isPending ? (
+            {disableTopbarNav ? null : isPending ? (
               <div className='flex items-center space-x-2'>
                 <div className='bg-muted h-4 w-16 animate-pulse rounded' />
-                <div className='bg-muted h-8 w-8 animate-pulse rounded-full' />
+                {!isDemo && <div className='bg-muted h-8 w-8 animate-pulse rounded-full' />}
               </div>
             ) : session ? (
               // No account menu on the share page: a visitor who signs in after load has no personal settings here
               isDemo ? (
-                disableTopbarNav ? null : (
-                  <NextLink href='/dashboards'>
-                    <Button className='cursor-pointer'>{tPublicNav('goToDashboard')}</Button>
-                  </NextLink>
-                )
+                <NextLink href='/dashboards'>
+                  <Button className='cursor-pointer'>{tPublicNav('goToDashboard')}</Button>
+                </NextLink>
               ) : (
                 <>
                   {isChangelogEnabled && <ChangelogModal />}
