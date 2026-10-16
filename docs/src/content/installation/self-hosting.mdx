@@ -12,10 +12,15 @@ This guide walks you through deploying Betterlytics on your own infrastructure u
 
 All self-hosting files and configuration live in the [betterlytics-selfhost](https://github.com/betterlytics/betterlytics-selfhost) repository.
 
+<Callout type="info">
+Rather not run servers? [Betterlytics Cloud](/installation/cloud-hosting) is fully managed, always up to date, and gets new features first. [Compare Cloud and self-hosting](/installation#cloud-vs-self-hosted).
+</Callout>
+
 ## Requirements
 
 - **Docker Engine 25** or newer with **Docker Compose v2.24** or newer. Check with `docker version` and `docker compose version`
-- A **hostname** the instance is reached at, pointed at your server or your reverse proxy (not needed to try it locally)
+- **2 GB RAM** and a few GB of free disk, on amd64 or arm64. A small VPS is fine
+- A **hostname** the instance is reached at, pointed at your server or your reverse proxy (not needed to try it locally or for [plain HTTP or IP access](#plain-http-or-ip-access))
 - Ports **80** and **443** reachable from the internet (standalone mode), or a reverse proxy you already run
 
 ## Quick Start
@@ -69,7 +74,7 @@ Once logged in, follow the in-app integration guide. The snippet it generates al
 
 ## Deployment Modes
 
-The instance can be the public endpoint and manage its own certificate, or sit behind a proxy you already run. `setup.sh` asks which. When configuring by hand, the `TLS` variable in `.env` is the switch, see [Domain and HTTPS](#domain-and-https).
+The instance can manage its own certificate (Standalone) or sit behind a proxy you already run (Basic). For a local trial or a trusted network it can also serve plain HTTP. `setup.sh` asks which. When configuring by hand, the `TLS` variable in `.env` is the switch, see [Domain and HTTPS](#domain-and-https).
 
 ### Standalone
 
@@ -80,9 +85,10 @@ In standalone mode the container faces the internet directly. It gets a certific
 <details>
 <summary>Configuring by hand (skip if you used `setup.sh`)</summary>
 
-Copy `.env.example` to `.env`, set `SECRET_BASE` (for example `openssl rand -hex 32`), then set:
+Copy `.env.example` to `.env`, then set:
 
 ```bash
+SECRET_BASE= # openssl rand -hex 32
 PUBLIC_URL=https://analytics.example.com
 TLS=auto
 
@@ -116,14 +122,14 @@ This is the **Basic** mode in `setup.sh`, for when you already run a reverse pro
 <details>
 <summary>Configuring by hand (skip if you used `setup.sh`)</summary>
 
-Copy `.env.example` to `.env`, set `SECRET_BASE` (for example `openssl rand -hex 32`), then set:
+Copy `.env.example` to `.env`, then set:
 
 ```bash
+SECRET_BASE= # openssl rand -hex 32
 PUBLIC_URL=https://analytics.example.com
-TLS=off
-BIND_ADDRESS=127.0.0.1
-HTTP_PORT=5566
 ```
+
+`TLS=off`, `BIND_ADDRESS=127.0.0.1` and `HTTP_PORT=5566` are the defaults.
 
 </details>
 
@@ -131,7 +137,7 @@ By default (`BIND_ADDRESS=127.0.0.1`) the port only accepts connections from the
 
 Your proxy must serve Betterlytics over HTTPS at exactly `PUBLIC_URL`, because logins only work from that address. If the proxy listens on a port other than 443, include it: `PUBLIC_URL=https://analytics.example.com:8443`. It must also pass the `Host` header through unchanged and set `X-Forwarded-Proto` and `X-Forwarded-For`. Example configurations for a proxy on the same machine, forwarding to the default port `5566`:
 
-<Tabs items={['Caddy', 'Nginx', 'Traefik']}>
+<Tabs items={['Caddy', 'Nginx']}>
   <Tabs.Tab>
     ```
     analytics.example.com {
@@ -158,38 +164,6 @@ Your proxy must serve Betterlytics over HTTPS at exactly `PUBLIC_URL`, because l
             proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
-    ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-    Add a router and service in your Traefik dynamic configuration:
-
-    ```yaml
-    http:
-      routers:
-        betterlytics:
-          rule: "Host(`analytics.example.com`)"
-          entryPoints:
-            - websecure
-          tls:
-            certResolver: letsencrypt
-          service: betterlytics
-
-      services:
-        betterlytics:
-          loadBalancer:
-            servers:
-              - url: "http://127.0.0.1:5566"
-    ```
-
-    If you use Docker labels instead of file-based configuration, add these to the Betterlytics service in your `docker-compose.override.yml`. Traefik talks to the container directly, so the port is the container's port 80, not `HTTP_PORT`:
-
-    ```yaml
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.betterlytics.rule=Host(`analytics.example.com`)"
-      - "traefik.http.routers.betterlytics.entrypoints=websecure"
-      - "traefik.http.routers.betterlytics.tls.certresolver=letsencrypt"
-      - "traefik.http.services.betterlytics.loadbalancer.server.port=80"
     ```
   </Tabs.Tab>
 </Tabs>
@@ -333,7 +307,7 @@ The endpoint only needs to be reachable from the containers, never from visitors
 
 ## Uptime Monitoring and Status Pages
 
-The main differences from Cloud are how alerts are delivered and where the page is served. Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box, and can reach services on your private network, see [Monitoring Internal Services](#monitoring-internal-services). Email alerts need [email sending configured](#email), and Pushover alerts need the `PUSHOVER_APP_TOKEN` variable in `.env` set to your own Pushover application token.
+The main differences from Cloud are how alerts are delivered and where the page is served. Monitors and their Slack, Discord, Teams, and webhook alerts work out of the box. Monitors and generic webhooks can also reach your private network, see [Monitoring Internal Services](#monitoring-internal-services). Email alerts need [email sending configured](#setting-up-email), and Pushover alerts need the `PUSHOVER_APP_TOKEN` variable in `.env` set to your own Pushover application token.
 
 ### Monitoring Internal Services
 
@@ -521,7 +495,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 <EnvTable>
   <EnvVar name="BACKGROUND_JOBS_ENABLED" default="true">Runs the background worker, which sends all outgoing email and runs the data-retention cleanup. `false` stops both</EnvVar>
   <EnvVar name="PUSHOVER_APP_TOKEN">Pushover application token for uptime alerts via Pushover</EnvVar>
-  <EnvVar name="ALLOW_PRIVATE_TARGETS" default="true">Uptime monitors and webhooks may reach private and LAN addresses on any port, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services)</EnvVar>
+  <EnvVar name="ALLOW_PRIVATE_TARGETS" default="true">Uptime monitors and webhooks may reach private and LAN addresses, any port is allowed, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services)</EnvVar>
   <EnvVar name="PUBLIC_ENABLE_FAVICON_FETCHING" default="true">Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead</EnvVar>
   <EnvVar name="LOG_LEVEL" default="info">Backend log level: `error`, `warn`, `info`, `debug` or `trace`</EnvVar>
 </EnvTable>
