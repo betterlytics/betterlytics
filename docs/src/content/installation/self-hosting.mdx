@@ -85,9 +85,10 @@ In standalone mode the container faces the internet directly. It gets a certific
 <details>
 <summary>Configuring by hand (skip if you used `setup.sh`)</summary>
 
-Copy `.env.example` to `.env`, set `SECRET_BASE` (for example `openssl rand -hex 32`), then set:
+Copy `.env.example` to `.env`, then set:
 
 ```bash
+SECRET_BASE= # openssl rand -hex 32
 PUBLIC_URL=https://analytics.example.com
 TLS=auto
 
@@ -121,9 +122,10 @@ This is the **Basic** mode in `setup.sh`, for when you already run a reverse pro
 <details>
 <summary>Configuring by hand (skip if you used `setup.sh`)</summary>
 
-Copy `.env.example` to `.env`, set `SECRET_BASE` (for example `openssl rand -hex 32`), then set:
+Copy `.env.example` to `.env`, then set:
 
 ```bash
+SECRET_BASE= # openssl rand -hex 32
 PUBLIC_URL=https://analytics.example.com
 ```
 
@@ -135,7 +137,7 @@ By default (`BIND_ADDRESS=127.0.0.1`) the port only accepts connections from the
 
 Your proxy must serve Betterlytics over HTTPS at exactly `PUBLIC_URL`, because logins only work from that address. If the proxy listens on a port other than 443, include it: `PUBLIC_URL=https://analytics.example.com:8443`. It must also pass the `Host` header through unchanged and set `X-Forwarded-Proto` and `X-Forwarded-For`. Example configurations for a proxy on the same machine, forwarding to the default port `5566`:
 
-<Tabs items={['Caddy', 'Nginx', 'Traefik']}>
+<Tabs items={['Caddy', 'Nginx']}>
   <Tabs.Tab>
     ```
     analytics.example.com {
@@ -162,26 +164,6 @@ Your proxy must serve Betterlytics over HTTPS at exactly `PUBLIC_URL`, because l
             proxy_set_header X-Forwarded-Proto $scheme;
         }
     }
-    ```
-  </Tabs.Tab>
-  <Tabs.Tab>
-    Add these Docker labels to the Betterlytics service in your `docker-compose.override.yml`. Traefik talks to the container directly, so the port is the container's port 80, not `HTTP_PORT`. Betterlytics must also join Traefik's Docker network, here named `traefik`:
-
-    ```yaml
-    services:
-      betterlytics-selfhost:
-        networks: [traefik]
-        labels:
-          - "traefik.enable=true"
-          - "traefik.docker.network=traefik"
-          - "traefik.http.routers.betterlytics.rule=Host(`analytics.example.com`)"
-          - "traefik.http.routers.betterlytics.entrypoints=websecure"
-          - "traefik.http.routers.betterlytics.tls.certresolver=letsencrypt"
-          - "traefik.http.services.betterlytics.loadbalancer.server.port=80"
-
-    networks:
-      traefik:
-        external: true
     ```
   </Tabs.Tab>
 </Tabs>
