@@ -1864,6 +1864,10 @@
       "back": "Torna ai monitor",
       "monitoring": "Monitoraggio"
     },
+    "notFound": {
+      "title": "Monitor non trovato",
+      "description": "Il monitor potrebbe essere stato eliminato da questa dashboard, oppure il link potrebbe essere errato."
+    },
     "responseTime": {
       "title": "Tempo di risposta",
       "badge": "Ultime 24 ore",

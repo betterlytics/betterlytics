@@ -1864,6 +1864,10 @@
       "back": "Tilbage til overvågninger",
       "monitoring": "Overvågning"
     },
+    "notFound": {
+      "title": "Overvågning ikke fundet",
+      "description": "Overvågningen kan være slettet fra dette dashboard, eller linket kan være forkert."
+    },
     "responseTime": {
       "title": "Responstid",
       "badge": "Seneste 24 timer",

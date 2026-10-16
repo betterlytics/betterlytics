@@ -1864,6 +1864,10 @@
       "back": "Back to Monitors",
       "monitoring": "Monitoring"
     },
+    "notFound": {
+      "title": "Monitor not found",
+      "description": "The monitor may have been deleted from this dashboard, or the link may be wrong."
+    },
     "responseTime": {
       "title": "Response time",
       "badge": "Last 24 hours",
