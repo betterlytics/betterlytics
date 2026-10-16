@@ -168,3 +168,22 @@
   margin-top: 0.625rem !important;
   margin-bottom: 0.625rem !important;
 }
+
+/* Markdown tables can't span cells: a <span className="table-group" /> in a row turns it into a full-width group label */
+tr:has(.table-group) > td {
+  background-color: var(--muted);
+  border-inline-width: 0;
+  padding-top: 1rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+tr:has(.table-group) > td:first-child {
+  border-inline-start-width: 1px;
+}
+
+tr:has(.table-group) > td:last-child {
+  border-inline-end-width: 1px;
+}
