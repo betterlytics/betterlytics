@@ -39,18 +39,6 @@
   <http_port>8123</http_port>
   <tcp_port>9000</tcp_port>
 
-  <!-- Optimize for less than recommended 16GB of memory -->
-  <profile>
-    <default>
-      <mark_cache_size>536870912</mark_cache_size>
-      <max_threads>1</max_threads>
-      <max_block_size>8192</max_block_size>
-      <max_download_threads>1</max_download_threads>
-      <input_format_parallel_parsing>0</input_format_parallel_parsing>
-      <output_format_parallel_formatting>0</output_format_parallel_formatting>
-    </default>
-  </profile>
-  
   <timezone>UTC</timezone>
 
   <named_collections>
