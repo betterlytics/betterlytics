@@ -547,7 +547,7 @@ git pull
 docker compose up -d --wait
 ```
 
-Compose pulls the new image on its own. Check the [release notes](https://github.com/betterlytics/betterlytics/releases) for version-specific steps. Backing up your data volumes before a major upgrade is a good idea.
+Compose pulls the new image on its own. Backing up your data volumes before a major upgrade is a good idea.
 
 <Callout type="warning">
 Some releases run one-time database migrations on first boot, so don't interrupt the container while it starts. If a release needs a change on your side, such as a new required setting in `.env`, the instance stops at start and `docker compose logs` says what to change.
