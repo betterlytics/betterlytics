@@ -80,7 +80,7 @@ In standalone mode the container faces the internet directly. It gets a certific
 <details>
 <summary>Configuring by hand (skip if you used `setup.sh`)</summary>
 
-Set the following in `.env`:
+Copy `.env.example` to `.env`, set `SECRET_BASE` (for example `openssl rand -hex 32`), then set:
 
 ```bash
 PUBLIC_URL=https://analytics.example.com
@@ -116,7 +116,7 @@ This is the **Basic** mode in `setup.sh`, for when you already run a reverse pro
 <details>
 <summary>Configuring by hand (skip if you used `setup.sh`)</summary>
 
-Set the following in `.env`:
+Copy `.env.example` to `.env`, set `SECRET_BASE` (for example `openssl rand -hex 32`), then set:
 
 ```bash
 PUBLIC_URL=https://analytics.example.com
@@ -484,7 +484,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 ### Secrets
 
 <EnvTable>
-  <EnvVar name="SECRET_BASE">Single secret all passwords and auth keys derive from. Use at least 32 random characters, for example the output of `openssl rand -hex 32`; `setup.sh` generates one. The instance logs a warning at startup when it is empty, `CHANGEME`, or shorter than 32 characters. Keep it once the instance has started: the databases were created with passwords derived from it</EnvVar>
+  <EnvVar name="SECRET_BASE">Single secret all passwords and auth keys derive from. Use at least 32 random characters, for example the output of `openssl rand -hex 32`; `setup.sh` generates one. The instance refuses to start when it is empty, and logs a warning at startup when it is `CHANGEME` or shorter than 32 characters. Keep it once the instance has started: the databases were created with passwords derived from it</EnvVar>
 </EnvTable>
 
 ### Email
