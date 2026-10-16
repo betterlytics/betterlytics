@@ -58,7 +58,7 @@ The first start runs database migrations before the app comes up, so give it a m
 Then open your domain in a browser and create your account.
 
 <Callout type="info">
-The first account created on a new instance becomes its admin. The instance is reachable as soon as it starts, so create your account right after `docker compose up -d --wait` returns. Everyone else joins by invitation, see [Users and Email](#users-and-email).
+The first account created on a new instance becomes its admin and can manage every account from the [Admin panel](#managing-users). The instance is reachable as soon as it starts, so create your account right after `docker compose up -d --wait` returns. Everyone else joins by invitation, see [Users and Email](#users-and-email).
 </Callout>
 
 ### Install the Tracking Script
@@ -90,7 +90,12 @@ The instance can be the public endpoint and manage its own certificate, or sit b
 
 In standalone mode the container faces the internet directly. It gets a certificate from Let's Encrypt and renews it automatically. Ports 80 and 443 must both be open: Let's Encrypt verifies your domain over port 80, and HTTPS traffic arrives on 443.
 
-`setup.sh` configures this for you. If you are setting up manually, set the following in `.env`:
+`setup.sh` configures this for you. To register a contact address with Let's Encrypt or use another certificate authority, set `SSL_EMAIL` or `ACME_CA` in `.env`, see [Domain and HTTPS](#domain-and-https).
+
+<details>
+<summary>Configuring by hand (skip if you used `setup.sh`)</summary>
+
+Set the following in `.env`:
 
 ```bash
 PUBLIC_URL=https://analytics.example.com
@@ -110,11 +115,18 @@ services:
       - "0.0.0.0:443:443"
 ```
 
-`HTTP_PORT` must be `80`, otherwise Let's Encrypt can't verify the domain, and `PUBLIC_URL` must be an `https://` address with a public hostname and no port. `SSL_EMAIL` and `ACME_CA` are optional; see [Domain and HTTPS](#domain-and-https).
+`HTTP_PORT` must be `80`, otherwise Let's Encrypt can't verify the domain, and `PUBLIC_URL` must be an `https://` address with a public hostname and no port.
+
+</details>
 
 ### Behind a Reverse Proxy
 
-This is the **Basic** mode in `setup.sh`. If you already have a reverse proxy (Caddy, Nginx, Traefik, etc.), set `TLS=off` in `.env` and bind to a custom port so the instance itself never terminates TLS:
+This is the **Basic** mode in `setup.sh`, for when you already run a reverse proxy (Caddy, Nginx, Traefik, etc.). The instance serves plain HTTP on a local port, `5566` by default, and your proxy handles HTTPS.
+
+<details>
+<summary>Configuring by hand (skip if you used `setup.sh`)</summary>
+
+Set the following in `.env`:
 
 ```bash
 PUBLIC_URL=https://analytics.example.com
@@ -123,7 +135,9 @@ BIND_ADDRESS=127.0.0.1
 HTTP_PORT=5566
 ```
 
-`setup.sh` in Basic mode binds to `127.0.0.1`, so the port is only reachable from the same machine. When the proxy runs elsewhere, set `BIND_ADDRESS` to the interface it connects through, or `0.0.0.0` for all interfaces, and firewall the port accordingly.
+</details>
+
+By default (`BIND_ADDRESS=127.0.0.1`) the port only accepts connections from the same machine. When the proxy runs elsewhere, set `BIND_ADDRESS` in `.env` to the interface it connects through, or `0.0.0.0` for all interfaces, and firewall the port accordingly.
 
 Your proxy must serve Betterlytics over HTTPS at exactly `PUBLIC_URL`, because logins only work from that address. If the proxy listens on a port other than 443, include it: `PUBLIC_URL=https://analytics.example.com:8443`. It must also pass the `Host` header through unchanged and set `X-Forwarded-Proto` and `X-Forwarded-For`. Example configurations for a proxy on the same machine, forwarding to the default port `5566`:
 
@@ -192,8 +206,6 @@ Your proxy must serve Betterlytics over HTTPS at exactly `PUBLIC_URL`, because l
 
 Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, add it to the `TRUSTED_PROXIES` variable in `.env` (see [Network](#network)), otherwise every visitor is recorded with the proxy's IP. To check, compare `request.remote_ip` and `request.client_ip` in `docker compose logs betterlytics-selfhost`.
 
-Sign-in rate limits need one more setting behind your own proxy. Until the `AUTH_TRUSTED_PROXIES` variable in `.env` is set, all sign-in attempts share one limit, so a few failed logins block sign-in for everyone for about 10 seconds. Set it to the exact address your proxy connects from, which is the `request.remote_ip` value in those logs (usually the Docker bridge gateway, for example `172.18.0.1`). List that single address rather than a whole private range, because a client inside a trusted range can choose the address it is counted under. The gateway address can change when the Docker network is recreated, so check it again if sign-in limits become shared. If you set `TRUSTED_PROXIES`, add the same entries here.
-
 ### Plain HTTP or IP Access
 
 To serve Betterlytics without TLS, at an IP address or an internal hostname on a network you trust, configure `.env` by hand. `setup.sh` doesn't offer this, because its Basic mode expects a hostname your proxy serves over HTTPS. Start from the `.env` that `setup.sh` wrote in Basic mode, or from a copy of `.env.example` with `SECRET_BASE` set, then set:
@@ -243,7 +255,7 @@ The in-app integration guide fills in your instance's address. The snippets else
   </Tabs.Tab>
 </Tabs>
 
-Every other attribute and option in the [integration guides](/integration) works unchanged next to these. The [WordPress plugin](/wordpress/configuration#self-hosted-instances) has its own settings for the same two addresses.
+The [WordPress plugin](/wordpress/configuration#self-hosted-instances) has its own settings for the same two addresses.
 
 The session replay and Web Vitals scripts load from the same origin as `analytics.js`. If you serve `analytics.js` from somewhere else, for example a CDN in front of your instance, set `data-scripts-base-url` on the script tag to the origin they should load from.
 
@@ -339,27 +351,29 @@ A published status page is served by your instance at:
 https://analytics.example.com/status/{your-slug}
 ```
 
-Everything described in the [Public Status Pages guide](/dashboard/status-pages) applies. Removing the Betterlytics branding and serving a page on your own domain are available on every self-hosted instance.
+The [Public Status Pages guide](/dashboard/status-pages) covers building and publishing one.
 
-## Monitoring Internal Services
+### Monitoring Internal Services
 
-Uptime monitors and the generic webhook integration can reach services on your private network out of the box. A self-hosted instance allows private (RFC 1918 and IPv6 unique local) and CGNAT (`100.64.0.0/10`, used by Tailscale) addresses on any port, and generic webhooks may use plain `http://` URLs. This lets you monitor services like `http://grafana.home.lan:3000` and send alerts to n8n, ntfy or Home Assistant on your LAN.
+Monitors and generic webhook alerts can reach services on your own network, on any port. You can monitor something like `http://grafana.home.lan:3000` or a Tailscale address, and send alerts to n8n, ntfy or Home Assistant over plain `http://`.
 
-Link-local addresses (`169.254.0.0/16` and `fe80::/10`) are always blocked. They include the cloud metadata endpoint `169.254.169.254`, which exposes credentials on most cloud servers.
+A monitor can only check URLs on its dashboard's domain or its subdomains. To monitor internal hosts, create a dashboard for your internal domain (for example `home.lan`, which covers `grafana.home.lan`) or for the host's IP address.
 
-Loopback addresses (`127.0.0.0/8` and `::1`, including `localhost`) are always blocked too. Inside the Betterlytics container they only reach Betterlytics' own internal services, never your server. To monitor a service on the same server, use the server's LAN IP address or `host.docker.internal`.
+These are always blocked:
 
-To turn this off, for example on an instance shared with people you do not fully trust, add the following to your `.env` and apply it with `docker compose up -d --wait`:
+- **`localhost`** (`127.0.0.1`, `::1`): inside the Betterlytics container it points at Betterlytics itself, not your server. To monitor a service on the same server, use the server's LAN IP address or `host.docker.internal`.
+- **Link-local addresses** (`169.254.x.x`, `fe80::`): they include the cloud metadata service, which exposes credentials on most cloud servers.
+- A few reserved and cloud metadata addresses.
+
+To limit monitors and webhooks to the public internet, for example on an instance shared with people you do not fully trust, add the following to your `.env` and apply it with `docker compose up -d --wait`:
 
 ```bash
 ALLOW_PRIVATE_TARGETS=false
 ```
 
-With `ALLOW_PRIVATE_TARGETS=false`, monitors behave like on Betterlytics Cloud: they only reach public addresses on ports 80 and 443, and webhooks need a public `https://` URL.
+Monitors then only reach public addresses on ports 80 and 443, and webhooks need a public `https://` URL.
 
-Monitors can only target URLs on their dashboard's domain or its subdomains. To monitor internal hosts, create a dashboard for your internal domain (for example `home.lan`, which covers `grafana.home.lan`) or for the host's IP address.
-
-## Custom Status Page Domains
+### Custom Status Page Domains
 
 A status page can be served from its own domain, for example `status.acme.com`, instead of `/status/{your-slug}` on your instance. Enter the domain in the status page's **Settings** tab and publish the page; then set up DNS and TLS for the deployment mode you run.
 
@@ -419,27 +433,30 @@ The first account is created on the sign-up page of a new instance. After that, 
 
 To invite someone, open a dashboard, go to **Settings > Members**, enter their email address, pick a role, and click **Invite**. Owners and admins of the dashboard can invite. With [email set up](#setting-up-email), the invitation arrives by email. Without it, nothing is sent: click **Copy invite link** next to the invitation and pass the link on yourself. The invited person opens the link and creates their account with the email address you invited. Invite links expire after 7 days.
 
-An invitation gives access to one dashboard. To give someone access to several, invite them from each one.
-
 Accounts on a self-hosted instance are never asked to verify their email address.
+
+### Managing Users
+
+The first account is an instance admin. Instance admins open the **Admin** panel from the user menu, and under **Users** they can:
+
+- **Reset password** for someone who forgot theirs. This creates a link, valid for 24 hours, to copy and pass on, so it works without email
+- **Reset two-factor** for someone who lost their authenticator app
+- **Make admin** or **Remove admin**
+- **Disable account**, **Delete user** or **Sign out everywhere**. Deleting someone lets you hand their dashboards to another user; otherwise they are deleted with the account
+
+The **Audit log** in the same panel records these actions.
+
+Admins can't use these on their own account, and the last admin can't be disabled, demoted or deleted. Make a second user an instance admin, so someone can help when an admin is locked out. A sole admin who forgets their password needs [email set up](#setting-up-email) to use **Forgot your password?**, and a lost authenticator app is recovered with one of the two-factor backup codes.
 
 ### What Needs Email
 
 Email is off by default. Everything else works without it, but these features need it:
 
-- **Password reset:** the **Forgot your password?** link on the sign-in page only appears when email is set up
-- **Invitation emails:** invite links work without email, see above
+- **Password reset by the user:** the **Forgot your password?** link on the sign-in page only appears when email is set up. Without it, an instance admin [creates a reset link](#managing-users)
+- **Invitation emails**
 - **[Email reports](/dashboard/email-reports)**
-- **Email alerts for [uptime monitors](/dashboard/monitoring):** Slack, Discord, Teams, Pushover, and webhook alerts work without email
+- **Email alerts for [uptime monitors](/dashboard/monitoring)**
 - **Security notices** about password changes and two-factor authentication
-
-Emails are sent by the instance's background jobs, which are on by default. With `BACKGROUND_JOBS_ENABLED=false`, no email is sent at all.
-
-### Lost Passwords and Two-Factor Authentication
-
-Without email, a forgotten password cannot be reset. To recover an account, [set up email](#setting-up-email), apply it with `docker compose up -d --wait`, and use **Forgot your password?** on the sign-in page.
-
-Someone who loses their authenticator app signs in with one of the backup codes shown when they turned on two-factor authentication. Each code works once, and new ones can be generated under **User Settings > Account**. This works without email.
 
 ### Setting Up Email
 
@@ -465,7 +482,7 @@ Set `ENABLE_EMAILS=true`, a sender address in `SMTP_FROM`, and one provider in `
   </Tabs.Tab>
 </Tabs>
 
-`SMTP_FROM` is required with either provider, MailerSend included, and the instance does not start without it. Use an address on a domain your email provider has verified, optionally with a display name: `SMTP_FROM="Acme Analytics <analytics@example.com>"`. Apply the change with `docker compose up -d --wait`. The [Email reference](#email) lists every option.
+`SMTP_FROM` is required with either provider, MailerSend included. Use an address on a domain your email provider has verified, optionally with a display name: `SMTP_FROM="Acme Analytics <analytics@example.com>"`. Apply the change with `docker compose up -d --wait`. The [Email reference](#email) lists every option.
 
 ## Configuration Reference
 
@@ -489,7 +506,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 | `BIND_ADDRESS` | `127.0.0.1` | Interface the exposed ports listen on. `0.0.0.0` for standalone mode or a proxy on another machine |
 | `HTTP_PORT` | `5566` | Host port mapped to the container's port 80. Must be `80` with `TLS=auto` |
 | `TRUSTED_PROXIES` | | Extra proxy IPs or CIDRs whose forwarded headers are trusted, for proxies on public addresses |
-| `AUTH_TRUSTED_PROXIES` | | Only behind your own proxy: the IPs or CIDRs it connects from, so sign-in rate limits apply per visitor instead of being shared. See [Behind a Reverse Proxy](#behind-a-reverse-proxy) |
+| `AUTH_TRUSTED_PROXIES` | | Only behind your own proxy: the single address it connects from (not a range), so sign-in rate limits apply per visitor instead of being shared. See [Can't sign in](#cant-sign-in) |
 
 ### Secrets
 
@@ -532,7 +549,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
 |----------|---------|----------|
 | `BACKGROUND_JOBS_ENABLED` | `true` | Runs the background worker, which sends all outgoing email and runs the data-retention cleanup. `false` stops both |
 | `PUSHOVER_APP_TOKEN` | | Pushover application token for uptime alerts via Pushover |
-| `ALLOW_PRIVATE_TARGETS` | `true` | Uptime monitors and webhooks may reach private and LAN addresses on any port, and webhooks may use `http://`. Loopback and link-local addresses stay blocked. `false` limits them to public addresses as on Cloud, see [Monitoring Internal Services](#monitoring-internal-services) |
+| `ALLOW_PRIVATE_TARGETS` | `true` | Uptime monitors and webhooks may reach private and LAN addresses on any port, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services) |
 | `PUBLIC_ENABLE_FAVICON_FETCHING` | `true` | Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead |
 | `LOG_LEVEL` | `info` | Backend log level: `error`, `warn`, `info`, `debug` or `trace` |
 
@@ -598,7 +615,7 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - Verify Docker and Docker Compose are installed and running
 - Check that required ports (80/443 in standalone mode) are not in use
 - Review container logs: `docker compose logs`
-- `TLS=auto requires HTTP_PORT=80`: set `HTTP_PORT=80` in `.env` and map port 443 as shown under [Standalone](#standalone), or switch to `TLS=off` behind your own proxy
+- `TLS=auto requires HTTP_PORT=80`: set `HTTP_PORT=80` in `.env` and map port 443 as shown under [Standalone](#standalone) → **Configuring by hand**, or switch to `TLS=off` behind your own proxy
 - `DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME are no longer read`: replace them with `PUBLIC_URL` and `TLS`, see "Upgrading from v1.3.5 or earlier" under [Updating](#updating)
 - `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again. If only `betterlytics-selfhost` keeps restarting, an override changes its image; `docker compose logs betterlytics-selfhost` shows the same message
 - `Cannot find module '/init'` in the `betterlytics-init` log: an override pins an image from before this release. Remove the image override
@@ -617,7 +634,7 @@ You can follow new releases on [GitHub](https://github.com/betterlytics/betterly
 - **"This page is open at …, which doesn't match the address…":** open the instance at its `PUBLIC_URL`, or fix `PUBLIC_URL` in `.env` and run `docker compose up -d --wait`.
 - The logs confirm it: `docker compose logs betterlytics-selfhost | grep "Invalid origin"`.
 - `setup.sh` Basic mode no longer accepts an IP address; see [Plain HTTP or IP Access](#plain-http-or-ip-access).
-- **"Too many attempts":** wait about 10 seconds. Sign-in allows 3 attempts per 10 seconds per IP.
+- **"Too many attempts":** wait about 10 seconds. Sign-in allows 3 attempts per 10 seconds per IP. Behind your own reverse proxy, everyone shares that limit until `AUTH_TRUSTED_PROXIES` in `.env` is set to the single address your proxy connects from: the `request.remote_ip` value in `docker compose logs betterlytics-selfhost`, usually the Docker bridge gateway such as `172.18.0.1`. Then run `docker compose up -d --wait`, and check the address again after the Docker network is recreated.
 - Sign-in, invite links, and tracking snippets all use `PUBLIC_URL`, so other addresses, such as the server's IP or a second hostname pointing at it, don't work. In standalone mode the browser shows a certificate or connection error for them instead of the sign-in page.
 - Behind your own proxy, check that it passes the `Host` header unchanged and sets `X-Forwarded-Proto`.
 
