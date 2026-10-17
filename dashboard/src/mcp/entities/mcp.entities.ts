@@ -4,6 +4,7 @@ import { DIMENSION_KEYS } from '@/mcp/registry/dimensions';
 import { FilterColumnSchema, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
 import { TIME_RANGE_VALUES, type TimeRangeValue } from '@/utils/timeRanges';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
+import { FALLBACK_TIMEZONE, normalizeTimezone } from '@/utils/timezone';
 
 export const MCP_GRANULARITIES = ['hour', 'day'] as const satisfies readonly GranularityRangeValues[];
 
@@ -28,7 +29,8 @@ export const McpDateRangeSchema = z.object({
   timezone: z
     .string()
     .default('UTC')
-    .describe('IANA time zone identifier, e.g. "Europe/Berlin" or "America/New_York"'),
+    .describe('IANA time zone identifier, e.g. "Europe/Berlin" or "America/New_York"')
+    .transform((tz) => normalizeTimezone(tz) ?? FALLBACK_TIMEZONE),
 });
 
 export const McpFiltersSchema = z
