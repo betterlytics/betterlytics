@@ -23,3 +23,11 @@ export const SessionReplaySchema = z.object({
 export const SessionReplayArraySchema = SessionReplaySchema.array();
 
 export type SessionReplay = z.infer<typeof SessionReplaySchema>;
+
+export const SESSION_REPLAY_ACTIVITY_MAX_IDS = 100;
+
+export const SessionReplayActivitySchema = SessionReplaySchema.pick({ session_id: true, ended_at: true });
+
+export const SessionReplayActivityArraySchema = SessionReplayActivitySchema.array();
+
+export type SessionReplayActivity = z.infer<typeof SessionReplayActivitySchema>;
