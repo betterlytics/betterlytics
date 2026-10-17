@@ -23,6 +23,7 @@ impl TeamsNotifier {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(10))
             .dns_resolver(Arc::new(GuardedResolver))
+            .no_proxy()
             // Logic Apps can answer any 3xx; 301/302 would also turn the POST into a bodiless GET
             .redirect(reqwest::redirect::Policy::none())
             .build()?;

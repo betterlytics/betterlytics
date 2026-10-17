@@ -23,6 +23,7 @@ impl WebhookNotifier {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(10))
             .dns_resolver(Arc::new(GuardedResolver))
+            .no_proxy()
             .redirect(guard::webhook_redirect_policy())
             .build()?;
 

@@ -37,6 +37,7 @@ impl DiscordNotifier {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(10))
             .dns_resolver(Arc::new(GuardedResolver))
+            .no_proxy()
             // Discord webhook execution never redirects
             .redirect(reqwest::redirect::Policy::none())
             .build()?;
