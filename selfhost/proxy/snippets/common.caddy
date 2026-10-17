@@ -15,6 +15,22 @@
 	header ?Content-Security-Policy "frame-ancestors 'self'"
 }
 
+# Self-host logs sit on the operator's machine, so they never hold a visitor IP (masked or not)
+# or the request headers (User-Agent, Referer, cookies).
+(access_log) {
+	log {
+		output stdout
+		format filter {
+			wrap json
+			fields {
+				request>remote_ip delete
+				request>client_ip delete
+				request>headers delete
+			}
+		}
+	}
+}
+
 # Usage: import app_proxy <upstream> <max body size>
 # Caddy already sets X-Forwarded-For (append), -Proto, -Host and passes Host through.
 # {client_ip} is the XFF-resolved client behind a trusted own proxy, the peer otherwise.

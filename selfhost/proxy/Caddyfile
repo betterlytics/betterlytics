@@ -32,6 +32,11 @@
 		level DEBUG
 		include tls.permission.http
 	}
+	# The rate_limit plugin logs every rejection with the full client IP. Rejected requests
+	# still reach the IP-free access log (snippets/common.caddy), the only sign a limit fired.
+	log default {
+		exclude http.handlers.rate_limit
+	}
 }
 
 import snippets/*.caddy
