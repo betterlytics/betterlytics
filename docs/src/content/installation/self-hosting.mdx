@@ -523,7 +523,8 @@ Before you pull:
 - Free up disk space of at least 2 to 3 times the size of your ClickHouse data volume. The first boot rewrites the events table, which can take a long time on large installations.
 - If you changed files under `base/`, save a copy and discard them with `git checkout -- base`. Move proxy changes to [your own reverse proxy](#behind-a-reverse-proxy). If you changed `DATA_RETENTION_DAYS` there, add that line to `.env`, so the first boot keeps your retention.
 - In standalone mode, add `BL_HTTPS_PUBLISHED=true` to your `docker-compose.override.yml` as shown under [Standalone](#standalone) → **Configuring by hand**, and set `BIND_ADDRESS=0.0.0.0` in `.env`.
-- Delete `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `DEFAULT_LANGUAGE` and `ENABLE_UPTIME_MONITORING` from `.env`. They are no longer read, and `ADMIN_PASSWORD` is your admin password in plain text. Then make `.env` readable by its owner only with `chmod 600 .env`.
+- Delete `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `DEFAULT_LANGUAGE` and `ENABLE_UPTIME_MONITORING` from `.env`, since Betterlytics no longer reads them.
+- Run `chmod 600 .env` so only your user can read it. Older versions of `setup.sh` created it readable by every user on the server.
 
 After the first boot:
 
