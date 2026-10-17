@@ -143,7 +143,7 @@ async fn main() {
     };
 
     let (db, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle) =
-        Database::new(Arc::clone(&clickhouse), config.clone(), metrics_collector.clone())
+        Database::new(Arc::clone(&clickhouse), metrics_collector.clone())
             .await
             .expect("Failed to initialize database");
 
@@ -213,6 +213,13 @@ async fn main() {
         SiteConfigCache::initialize(site_config_repo, refresh_config, metrics_collector.clone())
             .await
             .expect("Failed to init SiteConfigCache");
+
+    monitor::guard::init_target_policy(config.allow_private_targets);
+    info!(
+        is_cloud = config.is_cloud,
+        allow_private_targets = config.allow_private_targets,
+        "Outbound target guard configured"
+    );
 
     let notification_engine = crate::notifications::initialize_notification_engine(
         Arc::clone(&site_config_pool),

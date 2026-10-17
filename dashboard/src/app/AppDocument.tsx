@@ -6,6 +6,7 @@ import { AppTrackingScript } from '@/components/tracking/AppTrackingScript';
 import NextTopLoader from 'nextjs-toploader';
 import { getLocale } from 'next-intl/server';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { env } from '@/lib/env';
 import { headers } from 'next/headers';
 import { getSessionCookie } from 'better-auth/cookies';
@@ -23,9 +24,10 @@ const robotoMono = Inter_Tight({
 
 /** `lang` overrides the visitor's locale for pages that render in a fixed language. */
 export async function AppDocument({ children, lang }: { children: React.ReactNode; lang?: string }) {
+  const isCloud = isFeatureEnabled('isCloud');
   const [locale, seoConfig, sessionToken] = await Promise.all([
     lang ?? getLocale(),
-    buildSEOConfig(SEO_CONFIGS.root),
+    isCloud ? buildSEOConfig(SEO_CONFIGS.root) : null,
     env.ENABLE_APP_TRACKING ? headers().then(getSessionCookie) : undefined,
   ]);
 
@@ -34,7 +36,7 @@ export async function AppDocument({ children, lang }: { children: React.ReactNod
       <head>
         <meta name='theme-color' content='#fff' />
         <AppTrackingScript globalProperties={{ surface: 'app', logged_in: Boolean(sessionToken), locale }} />
-        <StructuredData config={seoConfig} />
+        {seoConfig && <StructuredData config={seoConfig} />}
       </head>
       <body className={`${robotoSans.variable} ${robotoMono.variable} antialiased`}>
         <NextTopLoader color='var(--primary)' height={3} showSpinner={false} shadow={false} />

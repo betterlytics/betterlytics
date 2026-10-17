@@ -8213,13 +8213,30 @@ or you can use record.mirror to access the mirror instance during recording.`;
   if (window.__betterlytics_replay_initialized__) {
     return;
   }
+  var handoff = window.__betterlytics_replay_config__;
+  if (!handoff || !handoff.siteId || !handoff.serverUrl || !handoff.script) {
+    // A cached analytics.js older than the handoff still writes data-server-url onto its own tag before loading us
+    var legacyScript = document.querySelector(
+      "script[data-site-id][data-server-url]"
+    );
+    if (!legacyScript) {
+      console.warn(
+        "Betterlytics: replay.js needs a newer analytics.js; replay disabled"
+      );
+      return;
+    }
+    handoff = {
+      siteId: legacyScript.getAttribute("data-site-id"),
+      serverUrl: legacyScript.getAttribute("data-server-url"),
+      script: legacyScript,
+    };
+  }
   window.__betterlytics_replay_initialized__ = true;
 
-  var script = document.querySelector('script[src*="analytics.js"]');
+  var script = handoff.script;
 
-  var siteId = script.getAttribute("data-site-id");
-  var serverUrl =
-    script.getAttribute("data-server-url") ?? "https://betterlytics.io/event";
+  var siteId = handoff.siteId;
+  var serverUrl = handoff.serverUrl;
   var urlPatterns =
     script
       .getAttribute("data-dynamic-urls")

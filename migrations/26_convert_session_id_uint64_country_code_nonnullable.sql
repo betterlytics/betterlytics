@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS analytics.events_new;
+
 CREATE TABLE IF NOT EXISTS analytics.events_new (
     site_id LowCardinality(String),
     visitor_id UInt64,

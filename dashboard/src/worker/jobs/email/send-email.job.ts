@@ -1,5 +1,6 @@
 'server-only';
 
+import { parseSenderAddress } from '@/lib/env/email-sender';
 import { workerEnv } from '@/lib/env/worker.env';
 import type { Job } from '@/worker/jobs/types';
 import { sendEmailJobDefinition } from '@/worker/jobs/definitions';
@@ -39,13 +40,14 @@ async function handleSendEmail(raw: unknown): Promise<void> {
   try {
     const template = await renderEmail(payload);
     const providerMessageId = await dispatchEmail(template, payload.data, {
+      isCloud: workerEnv.IS_CLOUD,
       defaultSender: senderFor(payload.type, workerEnv.IS_CLOUD),
       mailerSendApiToken: workerEnv.MAILER_SEND_API_TOKEN,
       smtpHost: workerEnv.SMTP_HOST,
       smtpPort: workerEnv.SMTP_PORT,
       smtpUser: workerEnv.SMTP_USER,
       smtpPassword: workerEnv.SMTP_PASSWORD,
-      smtpFrom: workerEnv.SMTP_FROM,
+      configuredSender: parseSenderAddress(workerEnv.SMTP_FROM),
     });
     await recordSent(payload.recipientKey, payload.campaignKey, providerMessageId);
     emailSendsTotal.inc({ type: payload.type, status: 'success' });

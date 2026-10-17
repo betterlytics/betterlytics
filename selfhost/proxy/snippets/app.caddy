@@ -1,0 +1,79 @@
+(http01_tls) {
+	tls {
+		issuer acme {
+			disable_tlsalpn_challenge
+		}
+	}
+}
+
+(app_routes) {
+	import security_headers
+	import framing_defaults
+	log {
+		output stdout
+		format json
+	}
+
+	rate_limit {
+		zone event {
+			match {
+				path /event* /track*
+			}
+			key {client_ip}
+			events 1200
+			window 1m
+		}
+		zone replay {
+			match {
+				path /replay/segment
+			}
+			key {client_ip}
+			events 300
+			window 1m
+		}
+	}
+
+	@scripts path /analytics.js /replay.js /web-vitals.js
+	handle @scripts {
+		log_skip
+		root * /srv/static
+		encode gzip
+		header Cache-Control "public, max-age=3600, stale-while-revalidate=86400, stale-if-error=604800"
+		file_server
+	}
+
+	@metrics path /metrics* /api/metrics*
+	handle @metrics {
+		respond "Metrics endpoint is not publicly accessible" 403
+	}
+
+	@event path /event* /track*
+	handle @event {
+		log_skip
+		import app_proxy 127.0.0.1:3001 1MiB
+	}
+
+	handle /replay/segment {
+		log_skip
+		import app_proxy 127.0.0.1:3001 6MiB
+	}
+
+	handle {
+		import app_proxy 127.0.0.1:3000 1MiB
+	}
+
+	handle_errors {
+		import security_headers
+		import framing_defaults
+		# log_skip is `vars log_skip true`; re-enable so edge failures on ingest still log
+		vars log_skip false
+		# replay.js stops recording on any 4xx and retries on 5xx; nginx answered 503
+		@ratelimited expression {err.status_code} == 429
+		handle @ratelimited {
+			respond "Rate limited" 503
+		}
+		handle {
+			respond "{err.status_code} {err.status_text}" {err.status_code}
+		}
+	}
+}

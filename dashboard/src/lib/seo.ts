@@ -97,12 +97,13 @@ export async function generateSEO(
 
 export async function buildSEOConfig(
   configEntry: (typeof SEO_CONFIGS)[keyof typeof SEO_CONFIGS],
+  values?: Record<string, string>,
 ): Promise<SEOConfig> {
   const t = await getTranslations(configEntry.namespace);
 
   const config: SEOConfig = {
-    title: t('title'),
-    description: t('description'),
+    title: t('title', values),
+    description: t('description', values),
     path: configEntry.path,
     structuredDataType: configEntry.structuredDataType,
   };
@@ -289,8 +290,18 @@ export const SEO_CONFIGS = {
     path: '/signin',
     structuredDataType: 'webpage',
   },
+  signinSelfHosted: {
+    namespace: 'public.auth.signin.seoSelfHosted',
+    path: '/signin',
+    structuredDataType: 'webpage',
+  },
   signup: {
     namespace: 'public.auth.register.seo',
+    path: '/signup',
+    structuredDataType: 'webpage',
+  },
+  signupSelfHosted: {
+    namespace: 'public.auth.register.seoSelfHosted',
     path: '/signup',
     structuredDataType: 'webpage',
   },
@@ -299,8 +310,18 @@ export const SEO_CONFIGS = {
     path: '/share',
     structuredDataType: 'webpage',
   },
+  publicDashboardSelfHosted: {
+    namespace: 'public.demo.seoSelfHosted',
+    path: '/share',
+    structuredDataType: 'webpage',
+  },
   onboarding: {
     namespace: 'public.auth.register.seo',
+    path: '/onboarding',
+    structuredDataType: 'webpage',
+  },
+  onboardingSelfHosted: {
+    namespace: 'public.auth.register.seoSelfHosted',
     path: '/onboarding',
     structuredDataType: 'webpage',
   },

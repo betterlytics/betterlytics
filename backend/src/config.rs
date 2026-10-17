@@ -57,7 +57,6 @@ pub struct Config {
     pub custom_referrers_path: PathBuf,
     pub ga4_source_categories_path: PathBuf,
     pub ua_regexes_path: PathBuf,
-    pub data_retention_days: i32,
     // Monitoring configuration
     pub enable_monitoring: bool,
     pub enable_uptime_monitoring: bool,
@@ -83,8 +82,10 @@ pub struct Config {
     pub site_config_database_url: String,
     // Salt database (read-write) - stores the secret rotating fingerprint salts
     pub salts_database_url: String,
-    // Development mode - allows localhost monitoring targets
+    // Development mode - honors client-supplied event timestamps
     pub is_development: bool,
+    pub is_cloud: bool,
+    pub allow_private_targets: bool,
     // Public-facing base URL (used for dashboard links in push notifications)
     pub public_base_url: String,
     // Integration config encryption key (32 bytes)
@@ -113,11 +114,6 @@ impl Config {
             GeolocationMode::Countries
         };
 
-        let data_retention_days: i32 = env::var("DATA_RETENTION_DAYS")
-            .unwrap_or_else(|_| "365".to_string())
-            .parse()
-            .unwrap_or(365);
-
         let s3_enabled = env::var("S3_ENABLED").map(|v| v.to_lowercase() == "true").unwrap_or(false);
         let replay_storage = match env::var("REPLAY_STORAGE").ok().as_deref() {
             Some("s3") => ReplayStorage::S3,
@@ -125,6 +121,11 @@ impl Config {
             Some(other) => panic!("REPLAY_STORAGE must be 's3' or 'clickhouse', got '{}'", other),
             None => if s3_enabled { ReplayStorage::S3 } else { ReplayStorage::ClickHouse },
         };
+
+        let is_cloud = env::var("IS_CLOUD").map(|v| v.to_lowercase() == "true").unwrap_or(false);
+        // Self-host gets `true` from the selfhost compose
+        let allow_private_targets = !is_cloud
+            && env::var("ALLOW_PRIVATE_TARGETS").map(|v| v.to_lowercase() == "true").unwrap_or(false);
 
         let config = Config {
             server_port: env::var("SERVER_PORT")
@@ -180,7 +181,6 @@ impl Config {
             ua_regexes_path: env::var("UA_REGEXES_PATH")
                 .map(PathBuf::from)
                 .unwrap_or_else(|_| PathBuf::from("assets/user_agent_headers/regexes.yaml")),
-            data_retention_days,
             // Monitoring configuration
             enable_monitoring: env::var("ENABLE_MONITORING")
                 .map(|val| val.to_lowercase() == "true")
@@ -223,6 +223,8 @@ impl Config {
             is_development: env::var("IS_DEVELOPMENT")
                 .map(|val| val.to_lowercase() == "true")
                 .unwrap_or(false),
+            is_cloud,
+            allow_private_targets,
             // Public-facing base URL for dashboard links in push notifications
             public_base_url: env::var("PUBLIC_BASE_URL")
                 .unwrap_or_else(|_| "https://betterlytics.io".to_string()),

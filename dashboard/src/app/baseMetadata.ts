@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { env } from '@/lib/env';
 
 export const BASE_METADATA: Metadata = {
   icons: {
@@ -8,6 +9,6 @@ export const BASE_METADATA: Metadata = {
     ],
     apple: [{ url: '/apple-icon.png', sizes: '180x180' }],
   },
-  metadataBase: new URL('https://betterlytics.io'),
+  metadataBase: new URL(env.PUBLIC_BASE_URL),
   manifest: '/manifest.json',
 };

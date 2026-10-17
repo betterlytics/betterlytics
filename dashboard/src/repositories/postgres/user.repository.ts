@@ -1,7 +1,7 @@
 import 'server-only';
 
 import prisma from '@/lib/postgres';
-import { GithubStarPromptState, Prisma } from '@prisma/client';
+import { GithubStarPromptState, Prisma, type UserRole } from '@prisma/client';
 import {
   User,
   UserSchema,
@@ -12,7 +12,13 @@ import {
   UserWithoutDashboardCandidateSchema,
 } from '@/entities/auth/user.entities';
 import { buildStarterSubscription } from '@/entities/billing/billing.entities';
-import { DEFAULT_USER_SETTINGS } from '@/entities/account/userSettings.entities';
+import {
+  AccountDeletionBlocker,
+  AccountDeletionOutcome,
+  DEFAULT_USER_SETTINGS,
+  OwnedDashboardsDisposal,
+  resolveAccountDeletionBlocker,
+} from '@/entities/account/userSettings.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 
 // better-auth's providerId for email+password accounts; accountId is the user id by its convention.
@@ -48,6 +54,32 @@ export async function countUsers(): Promise<number> {
     console.error('Error counting users:', error);
     throw new Error('Failed to count users.');
   }
+}
+
+// Rows anonymized before role was cleared still carry admin, so filter on deletedAt too
+const ENABLED_ADMIN_WHERE = { role: 'admin', deletedAt: null, disabledAt: null } as const;
+const ENABLED_USER_WHERE = { deletedAt: null, disabledAt: null } as const;
+
+export async function countActiveAdmins(): Promise<number> {
+  try {
+    return await prisma.user.count({ where: ENABLED_ADMIN_WHERE });
+  } catch (error) {
+    console.error('Error counting active admins:', error);
+    throw new Error('Failed to count active admins.');
+  }
+}
+
+export async function countActiveUsers(): Promise<number> {
+  try {
+    return await prisma.user.count({ where: ENABLED_USER_WHERE });
+  } catch (error) {
+    console.error('Error counting active users:', error);
+    throw new Error('Failed to count active users.');
+  }
+}
+
+export async function touchUserLastActive(userId: string): Promise<void> {
+  await prisma.user.updateMany({ where: { id: userId }, data: { lastActiveAt: new Date() } });
 }
 
 async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | null> {
@@ -160,34 +192,196 @@ export async function markOnboardingCompleted(userId: string): Promise<void> {
   }
 }
 
-export async function anonymizeUser(userId: string): Promise<void> {
+// Arbitrary app-wide key; serializes guarded access removals (delete, disable, demote) so two
+// concurrent requests cannot both pass the last-admin check
+const ACCOUNT_DELETION_LOCK_KEY = 271_000_001;
+
+async function lockAccountRemovals(tx: Prisma.TransactionClient): Promise<void> {
+  await tx.$executeRaw`SELECT pg_advisory_xact_lock(${ACCOUNT_DELETION_LOCK_KEY}::bigint)`;
+}
+
+async function resolveRemovalBlockerWith(
+  tx: Prisma.TransactionClient,
+  target: { role: string | null; deletedAt: Date | null; disabledAt: Date | null },
+): Promise<AccountDeletionBlocker | null> {
+  const [activeAdmins, activeUsers] = await Promise.all([
+    tx.user.count({ where: ENABLED_ADMIN_WHERE }),
+    tx.user.count({ where: ENABLED_USER_WHERE }),
+  ]);
+  return resolveAccountDeletionBlocker(target, { activeAdmins, activeUsers });
+}
+
+const REMOVAL_TARGET_SELECT = { role: true, deletedAt: true, disabledAt: true } as const;
+
+/**
+ * Deletes (anonymizes) a user and disposes of the dashboards they own in one locked transaction, so a
+ * refused deletion never leaves dashboards half-deleted. With `guard`, the last enabled admin or user is
+ * refused. Returns the refusal reason, or null when the user was deleted.
+ */
+export async function deleteUserAccount(
+  userId: string,
+  options: { guard: boolean; ownedDashboards: OwnedDashboardsDisposal },
+): Promise<AccountDeletionOutcome> {
   try {
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          email: `deleted_${userId}@deleted.invalid`,
-          name: null,
-          image: null,
-          twoFactorEnabled: false,
-          totpSecret: null,
-          emailVerified: false,
-          deletedAt: new Date(),
-        },
-      }),
-      prisma.account.deleteMany({ where: { userId } }),
-      prisma.session.deleteMany({ where: { userId } }),
-      prisma.twoFactor.deleteMany({ where: { userId } }),
-      prisma.verification.deleteMany({ where: { value: userId } }),
-      prisma.mcpToken.updateMany({
-        where: { createdBy: userId, deletedAt: null },
-        data: { deletedAt: new Date() },
-      }),
-    ]);
+    return await prisma.$transaction(async (tx) => {
+      await lockAccountRemovals(tx);
+
+      if (options.guard) {
+        const target = await tx.user.findUnique({ where: { id: userId }, select: REMOVAL_TARGET_SELECT });
+        if (target) {
+          const blocker = await resolveRemovalBlockerWith(tx, target);
+          if (blocker) return blocker;
+        }
+      }
+
+      const owned = await tx.userDashboard.findMany({
+        where: { userId, role: 'owner', dashboard: { deletedAt: null } },
+        select: { id: true, dashboardId: true },
+      });
+      const dashboardIds = owned.map((row) => row.dashboardId);
+
+      if (options.ownedDashboards.mode === 'transfer') {
+        const toUserId = options.ownedDashboards.toUserId;
+        const recipient = await tx.user.findFirst({
+          where: { id: toUserId, ...ENABLED_USER_WHERE },
+          select: { id: true },
+        });
+        if (!recipient || recipient.id === userId) return 'invalid_recipient';
+
+        for (const row of owned) {
+          await tx.userDashboard.delete({ where: { id: row.id } });
+          await tx.userDashboard.upsert({
+            where: { userId_dashboardId: { userId: toUserId, dashboardId: row.dashboardId } },
+            create: { userId: toUserId, dashboardId: row.dashboardId, role: 'owner' },
+            update: { role: 'owner' },
+          });
+        }
+      } else if (dashboardIds.length > 0) {
+        await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt: new Date() } });
+        await tx.dashboardInvitation.updateMany({
+          where: { dashboardId: { in: dashboardIds }, status: 'pending' },
+          data: { status: 'cancelled' },
+        });
+      }
+
+      await anonymizeUserWith(tx, userId);
+      return null;
+    });
   } catch (error) {
-    console.error(`Error anonymizing user ${userId}:`, error);
-    throw new Error(`Failed to anonymize user ${userId}.`);
+    console.error(`Error deleting user ${userId}:`, error);
+    throw new Error(`Failed to delete user ${userId}.`);
   }
+}
+
+/**
+ * Disabling removes access, so with `guard` it is refused for the last enabled admin or user. Disabling also
+ * ends every session and voids pending reset links; re-enabling restores access without touching anything else.
+ */
+export async function setUserDisabledUnlessBlocked(
+  userId: string,
+  disabled: boolean,
+  options: { guard: boolean },
+): Promise<AccountDeletionBlocker | null> {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      await lockAccountRemovals(tx);
+
+      const target = await tx.user.findUnique({ where: { id: userId }, select: REMOVAL_TARGET_SELECT });
+      if (!target || target.deletedAt) return null;
+
+      if (!disabled) {
+        await tx.user.update({ where: { id: userId }, data: { disabledAt: null } });
+        return null;
+      }
+
+      if (target.disabledAt) return null;
+
+      if (options.guard) {
+        const blocker = await resolveRemovalBlockerWith(tx, target);
+        if (blocker) return blocker;
+      }
+
+      await tx.user.update({ where: { id: userId }, data: { disabledAt: new Date() } });
+      await tx.session.deleteMany({ where: { userId } });
+      await tx.verification.deleteMany({ where: { value: userId, identifier: { startsWith: 'reset-password:' } } });
+      return null;
+    });
+  } catch (error) {
+    console.error(`Error updating disabled state for user ${userId}:`, error);
+    throw new Error(`Failed to update user ${userId}.`);
+  }
+}
+
+export async function setUserRoleUnlessBlocked(
+  userId: string,
+  role: UserRole | null,
+): Promise<AccountDeletionBlocker | null> {
+  try {
+    return await prisma.$transaction(async (tx) => {
+      await lockAccountRemovals(tx);
+
+      const target = await tx.user.findUnique({ where: { id: userId }, select: REMOVAL_TARGET_SELECT });
+      if (!target || target.deletedAt) return null;
+
+      if (role !== 'admin' && target.role === 'admin' && !target.disabledAt) {
+        const activeAdmins = await tx.user.count({ where: ENABLED_ADMIN_WHERE });
+        if (activeAdmins <= 1) return 'last_admin';
+      }
+
+      await tx.user.update({ where: { id: userId }, data: { role } });
+      return null;
+    });
+  } catch (error) {
+    console.error(`Error updating role for user ${userId}:`, error);
+    throw new Error(`Failed to update role for user ${userId}.`);
+  }
+}
+
+// Mirrors better-auth's /two-factor/disable, plus trusted devices and pending challenges, so the
+// user signs in with only their password and enrolls again
+export async function resetUserTwoFactor(userId: string): Promise<void> {
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.twoFactor.deleteMany({ where: { userId } });
+      await tx.user.update({ where: { id: userId }, data: { twoFactorEnabled: false, totpSecret: null } });
+      await tx.verification.deleteMany({
+        where: {
+          value: userId,
+          OR: [{ identifier: { startsWith: 'trust-device-' } }, { identifier: { startsWith: '2fa-' } }],
+        },
+      });
+      await tx.session.deleteMany({ where: { userId } });
+    });
+  } catch (error) {
+    console.error(`Error resetting two-factor for user ${userId}:`, error);
+    throw new Error(`Failed to reset two-factor for user ${userId}.`);
+  }
+}
+
+async function anonymizeUserWith(tx: Prisma.TransactionClient, userId: string): Promise<void> {
+  await tx.user.update({
+    where: { id: userId },
+    data: {
+      email: `deleted_${userId}@deleted.invalid`,
+      name: null,
+      image: null,
+      role: null,
+      twoFactorEnabled: false,
+      totpSecret: null,
+      emailVerified: false,
+      deletedAt: new Date(),
+    },
+  });
+  await tx.account.deleteMany({ where: { userId } });
+  await tx.session.deleteMany({ where: { userId } });
+  await tx.twoFactor.deleteMany({ where: { userId } });
+  await tx.verification.deleteMany({ where: { value: userId } });
+  await tx.mcpToken.updateMany({
+    where: { createdBy: userId, deletedAt: null },
+    data: { deletedAt: new Date() },
+  });
+  await tx.adminAuditLog.updateMany({ where: { targetType: 'user', targetId: userId }, data: { targetLabel: null } });
+  await tx.adminAuditLog.updateMany({ where: { actorUserId: userId }, data: { actorLabel: null } });
 }
 
 export async function acceptTermsForUser(userId: string, version: number): Promise<void> {
@@ -210,6 +404,7 @@ export async function findUsersWithoutDashboardsInWindow(
     const users = await prisma.user.findMany({
       where: {
         deletedAt: null,
+        disabledAt: null,
         createdAt: { gt: window.signedUpAfter, lt: window.signedUpBefore },
         dashboardAccess: { none: {} },
       },

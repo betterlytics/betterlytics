@@ -9,6 +9,7 @@ import {
   TOKEN_PLACEHOLDER,
   isClientId,
 } from "./clients";
+import { CLOUD_MCP_SERVER_URL, resolveServerUrl } from "./serverUrl";
 
 const PROSE = cn(
   "text-[color:var(--foreground)]",
@@ -26,6 +27,7 @@ export function McpSetup() {
   const [selectedId, setSelectedId] = useState(DEFAULT_CLIENT_ID);
   const [variantIndex, setVariantIndex] = useState(0);
   const [token, setToken] = useState("");
+  const [serverUrlInput, setServerUrlInput] = useState("");
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const selected = useMemo(
@@ -37,6 +39,10 @@ export function McpSetup() {
   const trimmedToken = token.trim();
   const hasToken = trimmedToken.length > 0;
   const effectiveToken = hasToken ? trimmedToken : TOKEN_PLACEHOLDER;
+  const snippetInput = {
+    token: effectiveToken,
+    serverUrl: resolveServerUrl(serverUrlInput),
+  };
 
   const select = useCallback((id: string, fromUser = true) => {
     setSelectedId(id);
@@ -123,8 +129,35 @@ export function McpSetup() {
 
       <div className="mt-5 rounded-xl border border-[color:var(--border)] bg-[color:var(--card)] p-4">
         <label
-          htmlFor="mcp-token"
+          htmlFor="mcp-server-url"
           className="block text-sm font-medium text-[color:var(--foreground)]"
+        >
+          Server URL{" "}
+          <span className="font-normal text-[color:var(--muted-foreground)]">
+            (self-hosted only)
+          </span>
+        </label>
+        <input
+          id="mcp-server-url"
+          type="text"
+          inputMode="url"
+          value={serverUrlInput}
+          onChange={(event) => setServerUrlInput(event.target.value)}
+          placeholder={CLOUD_MCP_SERVER_URL}
+          spellCheck={false}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          className="mt-2 w-full min-w-0 rounded-lg border border-[color:var(--border)] bg-[color:var(--background)] px-3 py-2 font-mono text-sm text-[color:var(--foreground)] placeholder:text-[color:var(--muted-foreground)] focus:border-[color:var(--primary)] focus:outline-none"
+        />
+        <p className="mt-2 text-xs leading-relaxed text-[color:var(--muted-foreground)]">
+          Leave empty for Betterlytics Cloud. Self-hosting? Paste the server URL
+          shown under <strong>Settings &gt; MCP</strong> in your dashboard.
+        </p>
+
+        <label
+          htmlFor="mcp-token"
+          className="mt-4 block text-sm font-medium text-[color:var(--foreground)]"
         >
           Your token{" "}
           <span className="font-normal text-[color:var(--muted-foreground)]">
@@ -167,13 +200,15 @@ export function McpSetup() {
         className="mt-6"
       >
         {selected.intro && (
-          <div className={cn(PROSE, "text-sm")}>{selected.intro}</div>
+          <div className={cn(PROSE, "text-sm")}>
+            {selected.intro(snippetInput.serverUrl)}
+          </div>
         )}
 
         {selected.install && (
           <div className="mt-4">
             <a
-              href={selected.install.href(effectiveToken)}
+              href={selected.install.href(snippetInput)}
               className="inline-flex items-center gap-2 rounded-lg bg-[color:var(--primary)] px-4 py-2.5 text-sm font-semibold text-[color:var(--primary-foreground)] no-underline transition-opacity hover:opacity-90"
             >
               <svg
@@ -232,7 +267,7 @@ export function McpSetup() {
 
         <div className="mt-3">
           <CodeBlock
-            code={variant.code(effectiveToken)}
+            code={variant.code(snippetInput)}
             lang={variant.lang}
             mark={hasToken ? trimmedToken : undefined}
           />

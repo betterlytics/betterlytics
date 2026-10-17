@@ -42,13 +42,14 @@ export default async function SignUpPage({ params, searchParams }: Props) {
   }
 
   const t = await getTranslations('public.auth.register');
-  const structuredData = <StructuredData config={await buildSEOConfig(SEO_CONFIGS.signup)} />;
+  const isCloud = isFeatureEnabled('isCloud');
+  const structuredData = isCloud ? <StructuredData config={await buildSEOConfig(SEO_CONFIGS.signup)} /> : null;
 
-  const allowed = await getSignupAllowance({
+  const allowance = await getSignupAllowance({
     email: openInvitation?.email,
     inviteToken: openInvitation ? invite : undefined,
   });
-  if (!allowed) {
+  if (!allowance) {
     return (
       <>
         {structuredData}
@@ -59,12 +60,17 @@ export default async function SignUpPage({ params, searchParams }: Props) {
     );
   }
 
-  const isCloud = isFeatureEnabled('isCloud');
   // an OAuth sign-up that came back with an error
   const errorKey = signInErrorKey(error);
   const invitedDomain = openInvitation?.dashboard?.domain;
   // "free to start" is the cloud's offer; a self-hosted instance says what the account is for
-  const lede = invitedDomain ? t('invited', { domain: invitedDomain }) : isCloud ? t('lede') : t('ledeSelfHosted');
+  const lede = invitedDomain
+    ? t('invited', { domain: invitedDomain })
+    : allowance === 'first_user'
+      ? t('ledeFirstUser')
+      : isCloud
+        ? t('lede')
+        : t('ledeSelfHosted');
   return (
     <>
       {structuredData}

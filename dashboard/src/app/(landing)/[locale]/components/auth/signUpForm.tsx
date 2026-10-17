@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { acceptPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
 import { RegisterUserSchema } from '@/entities/auth/user.entities';
+import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import { Link } from '@/i18n/navigation';
 import { signUpPath } from '@/lib/auth/auth-page-state';
 import { authClient } from '@/lib/auth-client';
@@ -49,6 +50,7 @@ export function SignUpForm({
 }: SignUpFormProps) {
   const t = useTranslations('public.auth.register');
   const tFields = useTranslations('public.auth.fields');
+  const authErrorMessage = useAuthErrorMessage();
   const locale = useLocale();
   const id = useId();
   const emailRef = useRef<HTMLInputElement>(null);
@@ -98,7 +100,7 @@ export function SignUpForm({
         // back here, invite and all, so a cancel or a refusal leaves the visitor where they started
         errorCallbackURL: signUpPath(inviteToken),
       });
-      if (socialError) fail(t('errors.generic'));
+      if (socialError) fail(authErrorMessage(socialError) ?? t('errors.generic'));
     } catch {
       fail(t('errors.generic'));
     }
@@ -138,7 +140,9 @@ export function SignUpForm({
       };
       const { error: signUpError } = await authClient.signUp.email(signUpBody);
       if (signUpError) {
-        if (signUpError.status === 429) fail(tFields('errors.tooManyRequests'));
+        const shared = authErrorMessage(signUpError);
+        if (shared) fail(shared);
+        else if (signUpError.status === 429) fail(tFields('errors.tooManyRequests'));
         else if (signUpError.code?.startsWith('USER_ALREADY_EXISTS')) fail(t('errors.emailExists'), 'email');
         else if (signUpError.code === 'SIGNUP_DISABLED') fail(t('errors.registrationDisabled'));
         else fail(t('errors.generic'));

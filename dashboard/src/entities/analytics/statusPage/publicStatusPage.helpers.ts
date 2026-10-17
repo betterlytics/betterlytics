@@ -8,6 +8,16 @@ import type {
   StatusPageIncident,
   StatusPageIncidentImpact,
 } from './statusPageIncident.entities';
+import type { StatusPageVisibility } from './statusPage.entities';
+
+// Self-hosted custom domains get no robots.txt, so the page itself must opt out of indexing.
+export function isStatusPageNoindex(
+  visibility: StatusPageVisibility,
+  isCloud: boolean,
+  allowCrawling: boolean,
+): boolean {
+  return visibility === 'unlisted' || (!isCloud && !allowCrawling);
+}
 
 const FAVICON_DOT_COLOR: Record<PublicOverallStatus, string> = {
   operational: '#10b981',

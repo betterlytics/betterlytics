@@ -674,6 +674,10 @@
           "title": "Sign in | Betterlytics",
           "description": "Sign in to Betterlytics to see your website traffic, session replays, errors and uptime in one dashboard."
         },
+        "seoSelfHosted": {
+          "title": "Sign in | Betterlytics",
+          "description": "Sign in to this Betterlytics instance."
+        },
         "title": "Welcome back",
         "lede": "One account for analytics, session replay, errors and uptime.",
         "forgotPassword": "Forgot your password?",
@@ -694,7 +698,8 @@
           "emailNotFound": "We couldn't get an email address from that account. Make your email visible with the provider, or sign in with email and password.",
           "unableToLink": "We couldn't connect that account to yours. Sign in with your email and password instead.",
           "twoFactorExpired": "Your sign-in attempt expired. Enter your password again.",
-          "twoFactorTooMany": "Too many incorrect codes. Enter your password to try again."
+          "twoFactorTooMany": "Too many incorrect codes. Enter your password to try again.",
+          "accountDisabled": "This account has been disabled. Contact your administrator."
         },
         "twoFactor": {
           "title": "Two-factor authentication",
@@ -712,9 +717,14 @@
           "title": "Create your free Betterlytics account",
           "description": "Create a free Betterlytics account for web analytics, session replay, error tracking and uptime monitoring. No credit card required."
         },
+        "seoSelfHosted": {
+          "title": "Create your account | Betterlytics",
+          "description": "Create your account on this Betterlytics instance."
+        },
         "title": "Create your account",
         "lede": "Free to start, no credit card required.",
         "ledeSelfHosted": "One account for analytics, session replay, errors and uptime.",
+        "ledeFirstUser": "This is the first account on this instance. It becomes the instance admin.",
         "invited": "You've been invited to join {domain}.",
         "submit": "Create account",
         "submitting": "Creating account…",
@@ -811,12 +821,22 @@
           "differentEmail": "Use a different email"
         },
         "alreadyVerifiedTitle": "Email already verified"
+      },
+      "errors": {
+        "originMismatch": "This page is open at {origin}, which doesn't match the address this Betterlytics instance is configured for, so the request was blocked. Open Betterlytics at its configured address. If you run this instance, make sure its configured URL (scheme, host and port) matches the address in your browser.",
+        "accountLocked": "Too many incorrect codes. Two-factor sign-in is locked for 15 minutes.",
+        "accountDisabled": "This account has been disabled. Contact your administrator.",
+        "rateLimited": "Too many attempts. Please wait a moment and try again."
       }
     },
     "demo": {
       "seo": {
         "title": "Betterlytics | Demo Dashboard",
         "description": "Explore Betterlytics' capabilities in this interactive demo dashboard."
+      },
+      "seoSelfHosted": {
+        "title": "{domain} | Betterlytics",
+        "description": "Web analytics for {domain}."
       }
     },
     "comparison": {
@@ -1051,7 +1071,8 @@
       "pricing": "Pricing",
       "goToDashboard": "Go to Dashboard",
       "getStarted": "Get Started",
-      "login": "Log in"
+      "login": "Log in",
+      "toggleMenu": "Toggle menu"
     },
     "footer": {
       "blurb": "Web analytics, session replay, errors and uptime in one open-source tool. Cookieless and hosted in the EU.",
@@ -1073,7 +1094,8 @@
       "github": "GitHub",
       "bluesky": "Bluesky",
       "discord": "Discord",
-      "copyright": "© {year} Betterlytics. Open source under AGPL-3.0 license."
+      "copyright": "© {year} Betterlytics. Open source under AGPL-3.0 license.",
+      "changeLanguage": "Change language"
     },
     "structuredData": {
       "organization": {
@@ -1843,7 +1865,8 @@
       },
       "success": "Monitor created",
       "successDescription": "Your monitor will start checking immediately.",
-      "error": "Failed to create monitor"
+      "error": "Failed to create monitor",
+      "targetBlocked": "This address can't be monitored."
     },
     "actions": {
       "renameTitle": "Rename monitor",
@@ -2832,6 +2855,7 @@
       "userMenu": {
         "userFallback": "User",
         "dashboards": "Dashboards",
+        "admin": "Admin",
         "upgradePlan": "Upgrade Plan",
         "reportBug": "Report Bug",
         "settings": "Settings",
@@ -3055,6 +3079,8 @@
       "danger": {
         "sectionTitle": "Danger Zone",
         "details": "Permanently delete your account and all associated data.",
+        "lastAdmin": "You can't delete this account because it's the only admin of this instance. Deleting it would leave the instance without an admin.",
+        "lastUser": "You are the only user on this instance, so this account can't be deleted.",
         "delete": "Delete Account",
         "dialog": {
           "title": "Delete Account Permanently",
@@ -3095,7 +3121,8 @@
           "y1": "1 year",
           "y2": "2 years",
           "y3": "3 years",
-          "y5": "5 years"
+          "y5": "5 years",
+          "forever": "Keep forever"
         },
         "retentionConfirm": {
           "title": "Change retention period?",
@@ -3192,9 +3219,27 @@
       "badgeNew": "New",
       "tooltipWhatsNew": "View what's new",
       "openButtonAria": "View what's new in version {version}"
+    },
+    "themeToggle": {
+      "light": "Switch to light mode",
+      "dark": "Switch to dark mode"
+    },
+    "errorPage": {
+      "title": "Something went wrong",
+      "description": "We encountered an unexpected error while loading your dashboard.",
+      "refresh": "Refresh Page",
+      "goToDashboards": "Go to Dashboards",
+      "goBack": "Go Back",
+      "persists": "If this problem persists, please <link>contact support</link>.",
+      "errorId": "Error ID: {id}",
+      "time": "Time: {time}"
     }
   },
   "onboarding": {
+    "progress": {
+      "website": "Website",
+      "integration": "Integration"
+    },
     "website": {
       "title": "Set up your dashboard",
       "description": "Tell us about the website you want to track",
@@ -3227,7 +3272,8 @@
         "reactDescription": "Add to your main App component",
         "npmDescription": "Install the npm package",
         "npmInstallFirst": "First, install the package:",
-        "npmThenInitialize": "Then initialize it in your code:"
+        "npmThenInitialize": "Then initialize it in your code:",
+        "viewDocs": "View docs"
       },
       "buttons": {
         "skipForNow": "Skip for Now",
@@ -3267,6 +3313,10 @@
       "statusPageLimit": "You have reached your status page limit. Upgrade to Pro to create more status pages.",
       "statusPageCustomDomain": "Custom domains require a Professional plan",
       "statusPageBranding": "Removing Betterlytics branding requires a Professional plan"
+    },
+    "account": {
+      "lastAdminCannotBeDeleted": "The only admin account on this instance can't be deleted.",
+      "lastUserCannotBeDeleted": "The only user account on this instance can't be deleted."
     },
     "invitations": {
       "userAlreadyHasAccess": "User already has access to this dashboard",
@@ -3728,7 +3778,11 @@
       },
       "expires": "Expires {date}",
       "expired": "Expired {date}",
-      "neverExpires": "Never expires"
+      "neverExpires": "Never expires",
+      "endpointLabel": "Server URL",
+      "endpointHint": "Point your MCP client at this URL and send your token as a bearer token. <link>Setup guides for each client</link>",
+      "copyEndpoint": "Copy server URL",
+      "endpointCopied": "Server URL copied"
     },
     "toast": {
       "created": "Token created",
@@ -3773,6 +3827,7 @@
       }
     },
     "moreIntegrations": "Need a different integration? Contact us and we'll consider adding it.",
+    "moreIntegrationsSelfHosted": "Need a different integration? <link>Request it on GitHub</link>.",
     "history": {
       "title": "Notification Log",
       "button": "Notification Log",
@@ -3867,9 +3922,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://example.com/webhook",
       "webhookHint": "Enter a publicly accessible HTTPS URL. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
+      "webhookHintPrivate": "Enter an HTTP or HTTPS URL. This instance can reach private network addresses. Notifications are sent as JSON POST requests with title, message, url, and url_title fields.",
       "errors": {
         "webhookUrlRequired": "Webhook URL is required",
-        "webhookUrlInvalid": "Must be a valid HTTPS URL"
+        "webhookUrlInvalid": "Must be a valid HTTPS URL",
+        "webhookUrlInvalidHttp": "Must be a valid HTTP or HTTPS URL"
       },
       "cancel": "Cancel",
       "save": "Save"
@@ -3883,7 +3940,8 @@
       "invalidDiscordWebhook": "Invalid Discord webhook URL",
       "invalidSlackWebhook": "Invalid Slack webhook URL",
       "invalidTeamsWebhook": "Invalid Teams webhook URL",
-      "invalidWebhookUrl": "Invalid webhook URL"
+      "invalidWebhookUrl": "Invalid webhook URL",
+      "webhookTargetBlocked": "Notifications can't be sent to this address."
     },
     "unavailable": {
       "description": "{name} needs an app token configured on this instance before it can be connected."
@@ -4151,6 +4209,8 @@
       "customDomainInvalid": "Enter a subdomain, e.g. status.example.com.",
       "customDomainSetup": {
         "intro": "Add this DNS record at your domain provider to point <strong>{domain}</strong> at Betterlytics.",
+        "introSelfHosted": "Add this DNS record at your domain provider to point <strong>{domain}</strong> at this instance.",
+        "proxyHintSelfHosted": "In Standalone mode the HTTPS certificate is issued automatically. Behind your own reverse proxy, add this domain to the proxy as well. <link>Read the setup guide</link>",
         "recordType": "Type",
         "recordName": "Name",
         "recordValue": "Value",
@@ -4163,6 +4223,7 @@
         "title": "Search engine visibility",
         "public": "Public",
         "publicHint": "Anyone with the link can view. Indexed by search engines.",
+        "publicHintSelfHosted": "Anyone with the link can view. Search engines only index it if this instance allows crawling.",
         "unlisted": "Unlisted",
         "unlistedHint": "Anyone with the link can view, but hidden from search engines."
       },

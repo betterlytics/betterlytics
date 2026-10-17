@@ -159,6 +159,7 @@ describe('signInErrorKey', () => {
     [SIGNUP_DISABLED_MESSAGE.replaceAll(' ', '_'), 'registrationDisabled'],
     ['email_not_found', 'emailNotFound'],
     ['unable_to_link_account', 'unableToLink'],
+    ['ACCOUNT_DISABLED', 'accountDisabled'],
     ['invalid_code', 'default'],
     ['something_new', 'default'],
   ] as const)('maps %s to %s', (error, key) => {

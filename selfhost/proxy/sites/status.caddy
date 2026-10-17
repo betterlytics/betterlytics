@@ -1,0 +1,46 @@
+# Custom status page domains: any host that is not the instance host. The more specific instance host site wins
+# for the instance host itself, so the ask endpoint is never consulted for it.
+https:// {
+	# No issuer block: a catch-all site is also the default TLS policy, and Caddy rejects
+	# issuers there that differ from the global ones.
+	tls {
+		on_demand
+	}
+
+	# SNI and Host must agree, or a cert for one name could front requests for another.
+	@fronted expression {http.request.tls.server_name} != {http.request.host}
+	respond @fronted 421
+
+	import security_headers
+	log {
+		output stdout
+		format json
+	}
+
+	rate_limit {
+		zone status_custom {
+			match {
+				not path /_next/static/*
+			}
+			key {client_ip}
+			events 120
+			window 1m
+		}
+	}
+
+	@metrics path /metrics* /api/metrics*
+	handle @metrics {
+		respond "Metrics endpoint is not publicly accessible" 403
+	}
+
+	# Dashboard only: no /event, /replay/segment or script paths on customer hostnames.
+	# The app middleware rewrites / to the status page and 404s everything else.
+	handle {
+		import app_proxy 127.0.0.1:3000 1MiB
+	}
+
+	handle_errors {
+		import security_headers
+		respond "{err.status_code} {err.status_text}" {err.status_code}
+	}
+}

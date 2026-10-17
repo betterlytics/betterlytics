@@ -24,7 +24,7 @@ export default async function AuthLayout({
   const auth = Object.fromEntries(
     Object.entries(messages.public.auth).map(([page, copy]) => [
       page,
-      Object.fromEntries(Object.entries(copy).filter(([key]) => key !== 'seo')),
+      Object.fromEntries(Object.entries(copy).filter(([key]) => key !== 'seo' && key !== 'seoSelfHosted')),
     ]),
   );
 

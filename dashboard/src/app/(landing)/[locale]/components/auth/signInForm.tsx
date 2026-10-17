@@ -4,6 +4,7 @@ import { Fragment, useEffect, useId, useRef, useState } from 'react';
 import * as OTP from '@radix-ui/react-one-time-password-field';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import { inviteTokenFromCallback, signInPath, twoFactorAttemptEnded } from '@/lib/auth/auth-page-state';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
@@ -44,6 +45,7 @@ type SignInFormProps = {
 export function SignInForm({ providers, forgotPassword, redirectTo, initialError, notice }: SignInFormProps) {
   const t = useTranslations('public.auth.signin');
   const tFields = useTranslations('public.auth.fields');
+  const authErrorMessage = useAuthErrorMessage();
   const id = useId();
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -85,7 +87,9 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
     try {
       const { data, error: signInError } = await authClient.signIn.email({ email, password });
       if (signInError) {
-        if (signInError.status === 429) fail(tFields('errors.tooManyRequests'));
+        const shared = authErrorMessage(signInError);
+        if (shared) fail(shared);
+        else if (signInError.status === 429) fail(tFields('errors.tooManyRequests'));
         // only a 401 is a wrong password: an outage mustn't send someone off to reset a correct one
         else if (signInError.status === 401) fail(t('errors.invalidCredentials'), 'both');
         else fail(t('errors.generic'));
@@ -118,7 +122,7 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
       });
       if (socialError) {
         setPending(null);
-        setError(t('errors.generic'));
+        setError(authErrorMessage(socialError) ?? t('errors.generic'));
       }
     } catch {
       setPending(null);
@@ -223,6 +227,7 @@ function TwoFactorStep({
 }) {
   const t = useTranslations('public.auth.signin');
   const tFields = useTranslations('public.auth.fields');
+  const authErrorMessage = useAuthErrorMessage();
   const id = useId();
   const errorId = `${id}-error`;
   const [mode, setMode] = useState<'totp' | 'backup'>('totp');
@@ -262,11 +267,12 @@ function TwoFactorStep({
         setPending(false);
         if (mode === 'totp') setCode('');
         setError(
-          verifyError.status === 429
-            ? tFields('errors.tooManyRequests')
-            : verifyError.status === 401
-              ? t(mode === 'backup' ? 'errors.invalidBackupCode' : 'errors.invalidOtp')
-              : t('errors.generic'),
+          authErrorMessage(verifyError) ??
+            (verifyError.status === 429
+              ? tFields('errors.tooManyRequests')
+              : verifyError.status === 401
+                ? t(mode === 'backup' ? 'errors.invalidBackupCode' : 'errors.invalidOtp')
+                : t('errors.generic')),
         );
         return;
       }

@@ -11,7 +11,7 @@ import {
 import * as SettingsRepository from '@/repositories/postgres/dashboardSettings.repository';
 import { findDashboardOwner } from '@/repositories/postgres/dashboard.repository';
 import { getUserSubscription } from '@/repositories/postgres/subscription.repository';
-import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
+import { getMaxRetentionDaysForTier, UNLIMITED_DATA_RETENTION_DAYS } from '@/lib/billing/capabilities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { UserException } from '@/lib/exceptions';
 
@@ -35,6 +35,7 @@ export async function updateDashboardSettings(
   updates: DashboardSettingsUpdate,
 ): Promise<DashboardSettings> {
   try {
+    assertRetentionAllowedOnInstance(updates);
     await assertRetentionWithinPlan(dashboardId, updates);
 
     const patch: DashboardSettingsInternalPatch = { ...updates };
@@ -50,6 +51,12 @@ export async function updateDashboardSettings(
     }
     console.error('Error updating dashboard settings:', error);
     throw new Error('Failed to update dashboard settings');
+  }
+}
+
+function assertRetentionAllowedOnInstance(updates: DashboardSettingsUpdate): void {
+  if (updates.dataRetentionDays === UNLIMITED_DATA_RETENTION_DAYS && isFeatureEnabled('isCloud')) {
+    throw new UserException('Unlimited data retention is only available on self-hosted instances.');
   }
 }
 

@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ResetPasswordSchema } from '@/entities/auth/passwordReset.entities';
+import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
 import { AuthAction, AuthPanel, AuthPrompt } from './authPanel';
@@ -16,6 +17,7 @@ import styles from './authForm.module.css';
 export function ResetPasswordPanel({ token, email }: { token: string; email: string }) {
   const t = useTranslations('public.auth.resetPassword');
   const tFields = useTranslations('public.auth.fields');
+  const authErrorMessage = useAuthErrorMessage();
   const id = useId();
   const titleRef = useRef<HTMLHeadingElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -66,7 +68,7 @@ export function ResetPasswordPanel({ token, email }: { token: string; email: str
         if (resetError.status === 429) fail(tFields('errors.tooManyRequests'));
         else if (resetError.code === 'INVALID_TOKEN') fail(t('errors.invalidToken'));
         else if (resetError.code === 'WEAK_PASSWORD') fail(tFields('errors.weakPassword'), 'password');
-        else fail(t('errors.generic'));
+        else fail(authErrorMessage(resetError) ?? t('errors.generic'));
         return;
       }
       setPending(false);

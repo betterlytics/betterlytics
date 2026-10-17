@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function ThemeToggleFab() {
+  const t = useTranslations('components.themeToggle');
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -19,7 +21,7 @@ export default function ThemeToggleFab() {
       <div className='bg-muted/70 supports-[backdrop-filter]:bg-muted/50 border-border text-muted-foreground hover:text-foreground inline-flex items-center gap-1 rounded-full border p-1 shadow-lg backdrop-blur transition-colors'>
         <button
           type='button'
-          aria-label='Switch to light mode'
+          aria-label={t('light')}
           className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors ${!isDark ? 'bg-primary/30 text-foreground' : ''}`}
           onClick={() => setTheme('light')}
         >
@@ -27,7 +29,7 @@ export default function ThemeToggleFab() {
         </button>
         <button
           type='button'
-          aria-label='Switch to dark mode'
+          aria-label={t('dark')}
           className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors ${isDark ? 'bg-primary/60 text-foreground' : ''}`}
           onClick={() => setTheme('dark')}
         >

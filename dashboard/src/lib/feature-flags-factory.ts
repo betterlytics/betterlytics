@@ -5,7 +5,8 @@ type FeatureFlagEnvironmentKeys =
   | 'PUBLIC_ENABLE_FAVICON_FETCHING'
   | 'ENABLE_EMAILS'
   | 'ENABLE_UPTIME_MONITORING'
-  | 'ENABLE_PUBLIC_STATUS_PAGES';
+  | 'ENABLE_PUBLIC_STATUS_PAGES'
+  | 'ALLOW_PRIVATE_TARGETS';
 export type FeatureFlagEnvironment = {
   [K in FeatureFlagEnvironmentKeys]: (typeof env)[K];
 };
@@ -20,5 +21,6 @@ export function createFeatureFlags(environment: FeatureFlagEnvironment) {
     enableEmails: environment.ENABLE_EMAILS,
     enableUptimeMonitoring: environment.ENABLE_UPTIME_MONITORING,
     enablePublicStatusPages: environment.ENABLE_UPTIME_MONITORING && environment.ENABLE_PUBLIC_STATUS_PAGES,
+    allowPrivateTargets: !environment.PUBLIC_IS_CLOUD && environment.ALLOW_PRIVATE_TARGETS,
   } as const;
 }

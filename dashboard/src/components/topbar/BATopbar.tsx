@@ -20,6 +20,7 @@ import {
   ArrowUpCircle,
   CreditCard,
   Bug,
+  ShieldCheck,
 } from 'lucide-react';
 import Logo from '@/components/logo';
 import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
@@ -51,6 +52,7 @@ export default function BATopbar() {
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
   const isBillingEnabled = isFeatureFlagEnabled('enableBilling');
   const isChangelogEnabled = isFeatureFlagEnabled('enableChangelog');
+  const showInstanceAdmin = !isFeatureFlagEnabled('isCloud') && session?.user.role === 'admin';
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -142,6 +144,14 @@ export default function BATopbar() {
                         <Settings className='mr-2 h-4 w-4' />
                         <span>{t('settings')}</span>
                       </DropdownMenuItem>
+                      {showInstanceAdmin && (
+                        <DropdownMenuItem asChild className='cursor-pointer'>
+                          <NextLink href='/admin'>
+                            <ShieldCheck className='mr-2 h-4 w-4' />
+                            <span>{t('admin')}</span>
+                          </NextLink>
+                        </DropdownMenuItem>
+                      )}
 
                       <DropdownMenuSeparator />
 

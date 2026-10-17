@@ -19,7 +19,8 @@ const toSessionUser = (user: InferredUser): Session['user'] => user;
 
 export const getCachedSession = cache(async (): Promise<Session | null> => {
   const result = await auth.api.getSession({ headers: await headers() });
-  if (!result) return null;
+  // A sign-in racing an admin's disable can leave a session behind, so the account is checked on every request
+  if (!result || result.user.disabledAt) return null;
   return {
     user: toSessionUser(result.user),
     session: { token: result.session.token, expiresAt: result.session.expiresAt },

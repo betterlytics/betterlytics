@@ -51,7 +51,7 @@ export default async function SignInPage({ params, searchParams }: Props) {
 
   return (
     <>
-      <StructuredData config={await buildSEOConfig(SEO_CONFIGS.signin)} />
+      {isFeatureEnabled('isCloud') && <StructuredData config={await buildSEOConfig(SEO_CONFIGS.signin)} />}
       <AuthPanel
         title={t('title')}
         lede={t('lede')}

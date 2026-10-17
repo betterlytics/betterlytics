@@ -180,12 +180,16 @@ export default function Integration() {
         <CardTitle className='flex items-center justify-between text-base font-medium'>
           <span>{t('instructions.title')}</span>
           <ExternalLink
-            href='https://betterlytics.io/docs/installation/cloud-hosting#step-3-install-your-tracking-script'
+            href={
+              IS_CLOUD
+                ? 'https://betterlytics.io/docs/installation/cloud-hosting#step-3-install-your-tracking-script'
+                : 'https://betterlytics.io/docs/integration'
+            }
             className='text-muted-foreground hover:text-foreground text-sm underline'
             target='_blank'
             rel='noopener noreferrer'
           >
-            View docs
+            {t('instructions.viewDocs')}
           </ExternalLink>
         </CardTitle>
         <CardDescription className='text-sm'>{t('instructions.selectFramework')}</CardDescription>

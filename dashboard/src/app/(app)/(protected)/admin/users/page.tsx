@@ -1,99 +1,70 @@
 import { Suspense } from 'react';
-import { getUsersAction } from '@/actions/superadmin/users.action';
-import { AdminPagination } from '../_components/AdminPagination';
-import { SearchInput } from '../_components/SearchInput';
-import { DeleteUserButton } from './_components/DeleteUserButton';
-import { formatDate, parsePage } from '../_lib/utils';
-import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { getAdminUsersAction } from '@/actions/admin/users.action';
+import { AdminUserStatusSchema, type AdminUserStatus } from '@/entities/admin/adminUser.entities';
+import { WarningBanner } from '@/components/WarningBanner';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { AdminPage } from '@/app/(app)/(protected)/admin/_components/AdminPage';
+import { AdminPagination } from '@/app/(app)/(protected)/admin/_components/AdminPagination';
+import { SearchInput } from '@/app/(app)/(protected)/admin/_components/SearchInput';
+import { parsePage } from '@/app/(app)/(protected)/admin/_lib/format';
+import { requireAdminPage } from '@/app/(app)/(protected)/admin/_lib/guard';
+import { StatusTabs } from './_components/StatusTabs';
+import { UsersTable } from './_components/UsersTable';
 
-interface PageProps {
-  searchParams: Promise<{ search?: string; page?: string }>;
-}
+type AdminUsersPageProps = {
+  searchParams: Promise<{ search?: string; status?: string; page?: string }>;
+};
 
-export default async function AdminUsersPage({ searchParams }: PageProps) {
-  const { search, page: pageStr } = await searchParams;
-  const page = parsePage(pageStr);
+const EMPTY_MESSAGES: Record<AdminUserStatus, string> = {
+  active: 'No users match your search.',
+  disabled: 'No disabled users.',
+  deleted: 'No deleted users.',
+};
 
-  const result = await getUsersAction(search, page);
+export default async function AdminUsersPage({ searchParams }: AdminUsersPageProps) {
+  const params = await searchParams;
+  const status = AdminUserStatusSchema.catch('active').parse(params.status);
+  const search = params.search?.trim() || undefined;
+
+  const actor = await requireAdminPage('users');
+  const result = await getAdminUsersAction({ search, status, page: parsePage(params.page) });
   if (!result.success) throw new Error(result.error.message);
-  const { users, total, totalPages, pageSize } = result.data;
+  const { users, total, page, pageSize, totalPages, statusCounts } = result.data;
 
   return (
-    <div>
-      <div className='flex items-center justify-between mb-6'>
-        <div>
-          <h1 className='text-2xl font-semibold mb-1'>Users</h1>
-          <p className='text-muted-foreground text-sm'>{total} total users</p>
-        </div>
+    <AdminPage
+      width='wide'
+      title='Users'
+      description={
+        actor.edition === 'selfhost' ? 'Everyone with an account on this instance.' : 'Every account on Betterlytics Cloud.'
+      }
+    >
+      {actor.edition === 'selfhost' && !actor.twoFactorEnabled && (
+        <WarningBanner
+          className='mb-6'
+          title='Protect your admin account with two-factor authentication'
+          description='Admins can disable, delete and reset every user here. Turn it on under Settings, Account.'
+        />
+      )}
+
+      <div className='mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
+        <StatusTabs active={status} counts={statusCounts} search={search} />
         <Suspense>
-          <SearchInput placeholder='Search by email or name...' />
+          <SearchInput placeholder='Search name or email' />
         </Suspense>
       </div>
 
-      <div className='rounded-md border'>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Email</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>2FA</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Joined</TableHead>
-              <TableHead />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className='text-center py-10 text-muted-foreground'>
-                  No users found
-                </TableCell>
-              </TableRow>
-            ) : (
-              users.map((user) => (
-                <TableRow key={user.id} className={user.deletedAt ? 'opacity-60' : undefined}>
-                  <TableCell className='font-medium'>{user.email}</TableCell>
-                  <TableCell className='text-muted-foreground'>{user.name ?? '—'}</TableCell>
-                  <TableCell>
-                    <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
-                      {user.role ?? 'user'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={user.twoFactorEnabled ? 'default' : 'outline'}>
-                      {user.twoFactorEnabled ? 'Enabled' : 'Disabled'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {user.deletedAt ? (
-                      <Badge variant='destructive'>Deleted</Badge>
-                    ) : (
-                      <Badge variant='outline'>Active</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className='text-muted-foreground'>{formatDate(user.createdAt)}</TableCell>
-                  <TableCell className='text-right'>
-                    {!user.deletedAt && <DeleteUserButton userId={user.id} userEmail={user.email} />}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <UsersTable
+        users={users}
+        edition={actor.edition}
+        actorUserId={actor.userId}
+        emailsEnabled={isFeatureEnabled('enableEmails')}
+        emptyMessage={search ? 'No users match your search.' : EMPTY_MESSAGES[status]}
+      />
 
       <Suspense>
         <AdminPagination page={page} totalPages={totalPages} total={total} pageSize={pageSize} />
       </Suspense>
-    </div>
+    </AdminPage>
   );
 }

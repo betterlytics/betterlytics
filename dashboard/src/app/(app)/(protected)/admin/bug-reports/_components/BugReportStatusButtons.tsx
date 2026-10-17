@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import type { BugReportStatus } from '@prisma/client';
-import { setBugReportStatusAction } from '@/actions/superadmin/bugReports.action';
+import { setBugReportStatusAction } from '@/actions/admin/bugReports.action';
 
 interface Props {
   reportId: string;

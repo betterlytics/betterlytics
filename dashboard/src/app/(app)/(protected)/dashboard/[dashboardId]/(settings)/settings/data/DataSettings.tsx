@@ -1,7 +1,7 @@
 'use client';
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DATA_RETENTION_PRESETS } from '@/utils/settingsUtils';
+import { DATA_RETENTION_PRESETS, UNLIMITED_RETENTION_PRESET, retentionRank } from '@/utils/settingsUtils';
 import SettingsSection from '@/components/settings/SettingsSection';
 import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
 import { useTranslations } from 'next-intl';
@@ -15,6 +15,7 @@ import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { ProBadge } from '@/components/billing/ProBadge';
 import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 const SELF_SERVE_MAX_RETENTION_DAYS = getMaxRetentionDaysForTier('professional');
 
@@ -25,10 +26,14 @@ export default function DataSettings() {
   const t = useTranslations('components.dashboardSettingsDialog');
   const [dataRetentionDays, setDataRetentionDays] = useState<number>(settings.dataRetentionDays);
   const [isPending, startTransition] = useTransition();
+  const isCloud = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
   const maxRetentionDays = caps.dataRetention.maxDataRetentionDays;
-  const visibleRetentionPresets = DATA_RETENTION_PRESETS.filter(
-    (preset) => preset.value <= maxRetentionDays || preset.value <= SELF_SERVE_MAX_RETENTION_DAYS,
-  );
+  const visibleRetentionPresets = [
+    ...DATA_RETENTION_PRESETS.filter(
+      (preset) => preset.value <= maxRetentionDays || preset.value <= SELF_SERVE_MAX_RETENTION_DAYS,
+    ),
+    ...(isCloud ? [] : [UNLIMITED_RETENTION_PRESET]),
+  ];
 
   const [pendingRetentionValue, setPendingRetentionValue] = useState<number | null>(null);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -54,7 +59,8 @@ export default function DataSettings() {
     if (newValue === dataRetentionDays) return;
     if (newValue > maxRetentionDays) return;
 
-    if (newValue >= dataRetentionDays) {
+    // Keeping more data never deletes anything, so only a shrink goes through the confirm dialog
+    if (retentionRank(newValue) >= retentionRank(dataRetentionDays)) {
       persistRetention(newValue);
       return;
     }

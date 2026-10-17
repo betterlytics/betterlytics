@@ -1,6 +1,6 @@
 'server-only';
 
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import { env } from '@/lib/env';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
@@ -8,13 +8,19 @@ import {
   RESET_TOKEN_PREFIX,
   deleteUserResetTokens,
   findResetTokenUserId,
+  replaceUserResetToken,
 } from '@/repositories/postgres/resetToken.repository';
 import { findUserById } from '@/repositories/postgres/user.repository';
 
 export const RESET_TOKEN_EXPIRY_SECONDS = 3600;
 
-const EXPIRY_HOURS = RESET_TOKEN_EXPIRY_SECONDS / 3600;
-const EXPIRATION_TIME_TEXT = `${EXPIRY_HOURS} hour${EXPIRY_HOURS > 1 ? 's' : ''}`;
+// Admin-issued links travel out of band (chat, in person), so they outlive the self-service one
+export const ADMIN_RESET_TOKEN_EXPIRY_SECONDS = 24 * 3600;
+
+function expirationTimeText(expirySeconds: number): string {
+  const hours = expirySeconds / 3600;
+  return `${hours} hour${hours > 1 ? 's' : ''}`;
+}
 
 export function resetTokenStoredIdentifier(token: string): string {
   return RESET_TOKEN_PREFIX + createHash('sha256').update(token).digest('hex');
@@ -31,6 +37,7 @@ export async function sendResetPasswordEmail(
   user: { id: string; email: string; name: string | null },
   url: string,
   token: string,
+  expirySeconds: number = RESET_TOKEN_EXPIRY_SECONDS,
 ): Promise<void> {
   await deleteUserResetTokens(user.id, resetTokenStoredIdentifier(token));
 
@@ -42,9 +49,21 @@ export async function sendResetPasswordEmail(
       to: user.email,
       userName: user.name,
       resetUrl: url,
-      expirationTime: EXPIRATION_TIME_TEXT,
+      expirationTime: expirationTimeText(expirySeconds),
     },
   });
+}
+
+/**
+ * Issues a reset link the same way better-auth does (hashed `reset-password:` Verification row,
+ * value = userId), replacing any earlier link, so the regular /reset-password page redeems it.
+ */
+export async function issueAdminPasswordResetLink(userId: string): Promise<{ token: string; url: string; expiresAt: Date }> {
+  const token = randomBytes(24).toString('base64url');
+  const expiresAt = new Date(Date.now() + ADMIN_RESET_TOKEN_EXPIRY_SECONDS * 1000);
+  await replaceUserResetToken(userId, resetTokenStoredIdentifier(token), expiresAt);
+  const url = `${env.PUBLIC_BASE_URL}/reset-password?token=${encodeURIComponent(token)}`;
+  return { token, url, expiresAt };
 }
 
 export async function sendPasswordChangedNotification(

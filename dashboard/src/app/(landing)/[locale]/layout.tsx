@@ -10,6 +10,7 @@ import { AppTrackingScript } from '@/components/tracking/AppTrackingScript';
 import { GlobalPropertiesUpdater } from '@/components/tracking/GlobalPropertiesUpdater';
 import { routing } from '@/i18n/routing';
 import { env } from '@/lib/env';
+import { isFeatureEnabled } from '@/lib/feature-flags';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
 import { LandingProviders } from './providers';
 import './landing.css';
@@ -51,14 +52,17 @@ export default async function LandingLayout({
   }
   setRequestLocale(locale);
 
-  const [messages, seoConfig] = await Promise.all([getMessages(), buildSEOConfig(SEO_CONFIGS.root)]);
+  const [messages, seoConfig] = await Promise.all([
+    getMessages(),
+    isFeatureEnabled('isCloud') ? buildSEOConfig(SEO_CONFIGS.root) : null,
+  ]);
   const { nav, demo, journey, network, pricing, illustrations } = messages.landing;
 
   return (
     <html lang={locale} className={`${sans.variable} ${mono.variable}`}>
       <head>
         <AppTrackingScript globalProperties={{ surface: 'app', locale, theme: 'dark' }} />
-        <StructuredData config={seoConfig} />
+        {seoConfig && <StructuredData config={seoConfig} />}
       </head>
       <body>
         <NextTopLoader color='var(--color-volt-lift)' height={3} showSpinner={false} shadow={false} />

@@ -674,6 +674,10 @@
           "title": "Logg inn | Betterlytics",
           "description": "Logg inn på Betterlytics for å se trafikk, sesjonsopptak, feil og oppetid for nettstedet ditt i ett dashboard."
         },
+        "seoSelfHosted": {
+          "title": "Logg inn | Betterlytics",
+          "description": "Logg inn på denne Betterlytics-instansen."
+        },
         "title": "Velkommen tilbake",
         "lede": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
         "forgotPassword": "Glemt passordet ditt?",
@@ -694,7 +698,8 @@
           "emailNotFound": "Vi fikk ikke tak i en e-postadresse fra den kontoen. Gjør e-posten din synlig hos leverandøren, eller logg inn med e-post og passord.",
           "unableToLink": "Vi kunne ikke koble den kontoen til din. Logg inn med e-post og passord i stedet.",
           "twoFactorExpired": "Innloggingsforsøket ditt er utløpt. Skriv inn passordet ditt på nytt.",
-          "twoFactorTooMany": "For mange feil koder. Skriv inn passordet ditt for å prøve på nytt."
+          "twoFactorTooMany": "For mange feil koder. Skriv inn passordet ditt for å prøve på nytt.",
+          "accountDisabled": "Denne kontoen er deaktivert. Kontakt administratoren din."
         },
         "twoFactor": {
           "title": "Tofaktorautentisering",
@@ -712,9 +717,14 @@
           "title": "Opprett din gratis Betterlytics-konto",
           "description": "Opprett en gratis Betterlytics-konto for nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Ingen kredittkort nødvendig."
         },
+        "seoSelfHosted": {
+          "title": "Opprett kontoen din | Betterlytics",
+          "description": "Opprett kontoen din på denne Betterlytics-instansen."
+        },
         "title": "Opprett kontoen din",
         "lede": "Gratis å komme i gang, ingen kredittkort nødvendig.",
         "ledeSelfHosted": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
+        "ledeFirstUser": "Dette er den første kontoen på denne instansen. Den blir administrator for instansen.",
         "invited": "Du er invitert til å bli med i {domain}.",
         "submit": "Opprett konto",
         "submitting": "Oppretter konto…",
@@ -811,12 +821,22 @@
           "differentEmail": "Bruk en annen e-post"
         },
         "alreadyVerifiedTitle": "E-postadressen er allerede bekreftet"
+      },
+      "errors": {
+        "originMismatch": "Denne siden er åpnet på {origin}, som ikke samsvarer med adressen denne Betterlytics-instansen er konfigurert for, så forespørselen ble blokkert. Åpne Betterlytics på den konfigurerte adressen. Hvis du drifter denne instansen, sørg for at den konfigurerte URL-en (protokoll, vert og port) samsvarer med adressen i nettleseren.",
+        "accountLocked": "For mange feil koder. Innlogging med tofaktorautentisering er låst i 15 minutter.",
+        "accountDisabled": "Denne kontoen er deaktivert. Kontakt administratoren din.",
+        "rateLimited": "For mange forsøk. Vent litt og prøv igjen."
       }
     },
     "demo": {
       "seo": {
         "title": "Betterlytics | Demo-dashboard",
         "description": "Utforsk Betterlytics sine muligheter i dette interaktive demo-dashboardet."
+      },
+      "seoSelfHosted": {
+        "title": "{domain} | Betterlytics",
+        "description": "Nettanalyse for {domain}."
       }
     },
     "comparison": {
@@ -1051,7 +1071,8 @@
       "pricing": "Priser",
       "goToDashboard": "Gå til dashboard",
       "getStarted": "Kom i gang",
-      "login": "Logg inn"
+      "login": "Logg inn",
+      "toggleMenu": "Vis/skjul meny"
     },
     "footer": {
       "blurb": "Nettanalyse, sesjonsopptak, feil og oppetid i ett verktøy med åpen kildekode. Uten informasjonskapsler og driftet i EU.",
@@ -1073,7 +1094,8 @@
       "github": "GitHub-side",
       "bluesky": "Bluesky-kanal",
       "discord": "Discord-kanal",
-      "copyright": "© {year} Betterlytics. Åpen kildekode under AGPL-3.0-lisens."
+      "copyright": "© {year} Betterlytics. Åpen kildekode under AGPL-3.0-lisens.",
+      "changeLanguage": "Bytt språk"
     },
     "structuredData": {
       "organization": {
@@ -1843,7 +1865,8 @@
       },
       "success": "Overvåker opprettet",
       "successDescription": "Overvåkeren starter sjekker umiddelbart.",
-      "error": "Kunne ikke opprette overvåker"
+      "error": "Kunne ikke opprette overvåker",
+      "targetBlocked": "Denne adressen kan ikke overvåkes."
     },
     "actions": {
       "renameTitle": "Gi nytt navn til overvåker",
@@ -2766,9 +2789,6 @@
         "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Avspillingshastighet",
         "recordingDisabled": "Opptak er deaktivert på denne siden"
-      },
-      "timeline": {
-        "viewErrorDetails": "Se feildetaljer"
       }
     },
     "integration": {
@@ -2835,6 +2855,7 @@
       "userMenu": {
         "userFallback": "Bruker",
         "dashboards": "Oversikter",
+        "admin": "Administrasjon",
         "upgradePlan": "Oppgrader plan",
         "reportBug": "Rapporter feil",
         "settings": "Innstillinger",
@@ -3058,6 +3079,8 @@
       "danger": {
         "sectionTitle": "Faresone",
         "details": "Slett kontoen din og alle tilknyttede data permanent.",
+        "lastAdmin": "Du kan ikke slette denne kontoen fordi den er den eneste administratoren på denne instansen. Hvis den slettes, står instansen uten administrator.",
+        "lastUser": "Du er den eneste brukeren på denne instansen, så denne kontoen kan ikke slettes.",
         "delete": "Slett konto",
         "dialog": {
           "title": "Slett konto permanent",
@@ -3098,7 +3121,8 @@
           "y1": "1 år",
           "y2": "2 år",
           "y3": "3 år",
-          "y5": "5 år"
+          "y5": "5 år",
+          "forever": "Behold for alltid"
         },
         "retentionConfirm": {
           "title": "Endre oppbevaringsperiode?",
@@ -3195,9 +3219,27 @@
       "badgeNew": "Ny",
       "tooltipWhatsNew": "Se hva som er nytt",
       "openButtonAria": "Se hva som er nytt i versjon {version}"
+    },
+    "themeToggle": {
+      "light": "Bytt til lyst tema",
+      "dark": "Bytt til mørkt tema"
+    },
+    "errorPage": {
+      "title": "Noe gikk galt",
+      "description": "Det oppstod en uventet feil under lasting av dashboardet ditt.",
+      "refresh": "Last inn siden på nytt",
+      "goToDashboards": "Gå til dashboards",
+      "goBack": "Gå tilbake",
+      "persists": "Hvis problemet vedvarer, <link>kontakt support</link>.",
+      "errorId": "Feil-ID: {id}",
+      "time": "Tidspunkt: {time}"
     }
   },
   "onboarding": {
+    "progress": {
+      "website": "Nettsted",
+      "integration": "Integrasjon"
+    },
     "website": {
       "title": "Sett opp dashboardet ditt",
       "description": "Fortell oss om nettstedet du vil spore",
@@ -3230,7 +3272,8 @@
         "reactDescription": "Legg til i hovedkomponenten App",
         "npmDescription": "Installer npm-pakken",
         "npmInstallFirst": "Installer først pakken:",
-        "npmThenInitialize": "Initialiser den deretter i koden din:"
+        "npmThenInitialize": "Initialiser den deretter i koden din:",
+        "viewDocs": "Se dokumentasjon"
       },
       "buttons": {
         "skipForNow": "Hopp over foreløpig",
@@ -3270,6 +3313,10 @@
       "statusPageLimit": "Du har nådd grensen for statussider. Oppgrader til Pro for å opprette flere statussider.",
       "statusPageCustomDomain": "Eget domene krever en profesjonell plan",
       "statusPageBranding": "Å fjerne Betterlytics-merking krever en profesjonell plan"
+    },
+    "account": {
+      "lastAdminCannotBeDeleted": "Den eneste administratorkontoen på denne instansen kan ikke slettes.",
+      "lastUserCannotBeDeleted": "Den eneste brukerkontoen på denne instansen kan ikke slettes."
     },
     "invitations": {
       "userAlreadyHasAccess": "Brukeren har allerede tilgang til dette dashboardet",
@@ -3731,7 +3778,11 @@
       },
       "expires": "Utløper {date}",
       "expired": "Utløpt {date}",
-      "neverExpires": "Utløper aldri"
+      "neverExpires": "Utløper aldri",
+      "endpointLabel": "Server-URL",
+      "endpointHint": "Pek MCP-klienten din mot denne URL-en og send nøkkelen som bearer-token. <link>Oppsettsguider for hver klient</link>",
+      "copyEndpoint": "Kopier server-URL",
+      "endpointCopied": "Server-URL kopiert"
     },
     "toast": {
       "created": "Nøkkel opprettet",
@@ -3776,6 +3827,7 @@
       }
     },
     "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
+    "moreIntegrationsSelfHosted": "Trenger du en annen integrasjon? <link>Be om den på GitHub</link>.",
     "history": {
       "title": "Varselslogg",
       "button": "Varselslogg",
@@ -3870,9 +3922,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://eksempel.no/webhook",
       "webhookHint": "Skriv inn en offentlig tilgjengelig HTTPS URL. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
+      "webhookHintPrivate": "Skriv inn en HTTP- eller HTTPS URL. Denne instansen kan nå adresser i private nettverk. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
       "errors": {
         "webhookUrlRequired": "Webhook URL er påkrevd",
-        "webhookUrlInvalid": "Må være en gyldig HTTPS URL"
+        "webhookUrlInvalid": "Må være en gyldig HTTPS URL",
+        "webhookUrlInvalidHttp": "Må være en gyldig HTTP- eller HTTPS URL"
       },
       "cancel": "Avbryt",
       "save": "Lagre"
@@ -3886,7 +3940,8 @@
       "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
-      "invalidWebhookUrl": "Ugyldig webhook URL"
+      "invalidWebhookUrl": "Ugyldig webhook URL",
+      "webhookTargetBlocked": "Varsler kan ikke sendes til denne adressen."
     },
     "unavailable": {
       "description": "{name} krever et app-token konfigurert på denne instansen før den kan kobles til."
@@ -4151,6 +4206,8 @@
       "customDomainInvalid": "Skriv inn et underdomene, f.eks. status.example.com.",
       "customDomainSetup": {
         "intro": "Legg til denne DNS-oppføringen hos domeneleverandøren din for å peke <strong>{domain}</strong> mot Betterlytics.",
+        "introSelfHosted": "Legg til denne DNS-oppføringen hos domeneleverandøren din for å peke <strong>{domain}</strong> mot denne instansen.",
+        "proxyHintSelfHosted": "I Standalone-modus utstedes HTTPS-sertifikatet automatisk. Bak din egen reverse proxy må domenet også legges til i proxyen. <link>Les oppsettsveiledningen</link>",
         "recordType": "Type",
         "recordName": "Navn",
         "recordValue": "Verdi",
@@ -4165,6 +4222,7 @@
         "title": "Synlighet i søkemotorer",
         "public": "Offentlig",
         "publicHint": "Alle med lenken kan se siden. Indekseres av søkemotorer.",
+        "publicHintSelfHosted": "Alle med lenken kan se siden. Søkemotorer indekserer den bare hvis denne instansen tillater crawling.",
         "unlisted": "Ikke oppført",
         "unlistedHint": "Alle med lenken kan se siden, men den skjules for søkemotorer."
       },

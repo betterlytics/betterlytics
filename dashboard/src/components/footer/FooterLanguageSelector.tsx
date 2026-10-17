@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Globe } from 'lucide-react';
 import { useRouter, usePathname } from '@/i18n/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages, LANGUAGE_METADATA } from '@/constants/i18n';
 import { CountryDisplay } from '@/components/language/CountryDisplay';
 
@@ -16,13 +16,14 @@ export function FooterLanguageSelector() {
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
+  const t = useTranslations('public.footer');
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type='button'
-          aria-label='Change language'
+          aria-label={t('changeLanguage')}
           className='text-foreground/90 hover:text-foreground inline-flex cursor-pointer items-center gap-2 rounded-md py-1 text-sm transition-colors'
         >
           <Globe className='text-muted-foregroundh-5 w-5' />

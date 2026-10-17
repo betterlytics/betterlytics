@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ForgotPasswordSchema } from '@/entities/auth/passwordReset.entities';
+import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
 import { AuthPanel, AuthPrompt } from './authPanel';
@@ -13,6 +14,7 @@ import styles from './authForm.module.css';
 export function ForgotPasswordPanel() {
   const t = useTranslations('public.auth.forgotPassword');
   const tFields = useTranslations('public.auth.fields');
+  const authErrorMessage = useAuthErrorMessage();
   const id = useId();
   const titleRef = useRef<HTMLHeadingElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -57,7 +59,11 @@ export function ForgotPasswordPanel() {
         redirectTo: '/reset-password',
       });
       if (resetError) {
-        fail(resetError.status === 429 ? tFields('errors.tooManyRequests') : t('errors.failed'));
+        fail(
+          resetError.status === 429
+            ? tFields('errors.tooManyRequests')
+            : (authErrorMessage(resetError) ?? t('errors.failed')),
+        );
         return;
       }
       setPending(false);

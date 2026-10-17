@@ -1,8 +1,8 @@
 'use client';
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface SearchInputProps {
   placeholder?: string;
@@ -24,17 +24,19 @@ export function SearchInput({ placeholder = 'Search...', paramName = 'search' }:
       params.delete(paramName);
     }
     params.delete('page');
-    router.push(`${pathname}?${params.toString()}`);
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
   }
 
   return (
-    <form onSubmit={handleSubmit} className='relative'>
-      <Search className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none' />
+    <form onSubmit={handleSubmit} className='relative w-full sm:w-64' role='search'>
+      <Search className='text-muted-foreground pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
       <Input
         name={paramName}
         placeholder={placeholder}
+        aria-label={placeholder}
         defaultValue={searchParams.get(paramName) ?? ''}
-        className='pl-8 w-64'
+        className='pl-9'
       />
     </form>
   );

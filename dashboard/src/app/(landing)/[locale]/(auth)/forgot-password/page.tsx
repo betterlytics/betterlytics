@@ -30,7 +30,7 @@ export default async function ForgotPasswordPage({ params }: Props) {
 
   return (
     <>
-      <StructuredData config={await buildSEOConfig(SEO_CONFIGS.forgotPassword)} />
+      {isFeatureEnabled('isCloud') && <StructuredData config={await buildSEOConfig(SEO_CONFIGS.forgotPassword)} />}
       <ForgotPasswordPanel />
     </>
   );

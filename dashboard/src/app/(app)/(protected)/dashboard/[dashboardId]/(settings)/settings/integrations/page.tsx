@@ -21,6 +21,7 @@ export default async function IntegrationsPage({ params }: IntegrationsPageProps
       availableTypesPromise={availableTypesPromise}
       integrationsPromise={integrationsPromise}
       monitoringEnabled={monitoringEnabled}
+      isCloud={isFeatureEnabled('isCloud')}
     />
   );
 }

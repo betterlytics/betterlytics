@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { EMAIL_TYPES, renderEmail, senderFor, validateSendEmailPayload } from '@/services/email/email-types';
 import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
+import { resolveSender } from '@/services/email/transport';
+import { TwoFactorResetRequiredEmail } from '@/services/email/template/two-factor-reset-required-mail';
+import { WeeklyReportEmail } from '@/services/email/template/weekly-report-mail';
 
 const monitorBase = {
   to: 'owner@example.com',
@@ -153,5 +156,81 @@ describe('monitor alert templates', () => {
     });
     expect(expired.subject).toBe('SSL Certificate Expired: example.com');
     expect(expired.html).toContain('Certificate has expired!');
+  });
+});
+
+describe('resolveSender', () => {
+  const data = { to: 'owner@example.com' };
+
+  it('throws off-cloud when no sender is configured', () => {
+    expect(() => resolveSender({ isCloud: false }, data)).toThrow('SMTP_FROM');
+  });
+
+  it('falls back to info@betterlytics.io on Cloud', () => {
+    expect(resolveSender({ isCloud: true }, data)).toEqual({
+      email: 'info@betterlytics.io',
+      name: 'Betterlytics',
+    });
+  });
+
+  it('uses the configured sender address and display name', () => {
+    expect(
+      resolveSender({ isCloud: false, configuredSender: { email: 'analytics@acme.test', name: 'Acme' } }, data),
+    ).toEqual({ email: 'analytics@acme.test', name: 'Acme' });
+  });
+
+  it('lets the per-type sender name beat the configured display name', () => {
+    expect(
+      resolveSender(
+        {
+          isCloud: false,
+          configuredSender: { email: 'analytics@acme.test', name: 'Acme' },
+          defaultSender: { name: 'Betterlytics Alerts' },
+        },
+        data,
+      ),
+    ).toEqual({ email: 'analytics@acme.test', name: 'Betterlytics Alerts' });
+  });
+
+  it('lets data.from and data.fromName beat everything', () => {
+    expect(
+      resolveSender(
+        {
+          isCloud: true,
+          configuredSender: { email: 'analytics@acme.test', name: 'Acme' },
+          defaultSender: { email: 'alerts@betterlytics.io', name: 'Betterlytics Alerts' },
+        },
+        { ...data, from: 'custom@acme.test', fromName: 'Custom' },
+      ),
+    ).toEqual({ email: 'custom@acme.test', name: 'Custom' });
+  });
+});
+
+describe('off-cloud rendering', () => {
+  it('loads the logo from PUBLIC_BASE_URL and names the real 2FA settings path', async () => {
+    const email = await renderEmail({
+      type: 'two-factor-reset-required',
+      recipientKey: 'k',
+      campaignKey: 'c',
+      data: TwoFactorResetRequiredEmail.PreviewProps,
+    });
+    expect(email.html).toContain('src="http://localhost:3000/betterlytics-logo-dark-simple-96x96-q75.png"');
+    expect(email.html).not.toContain('src="https://betterlytics.io');
+    expect(email.text).toContain('Settings → Account');
+    expect(email.text).not.toContain('Settings → Security');
+  });
+
+  it('tells report recipients who added them and how to be removed', async () => {
+    const email = await renderEmail({
+      type: 'report',
+      recipientKey: 'k',
+      campaignKey: 'c',
+      data: WeeklyReportEmail.PreviewProps,
+    });
+    expect(email.text).toContain('Settings → Email Reports');
+    expect(email.text).toContain('example.com');
+    expect(email.text).toContain('localhost:3000');
+    expect(email.text).toContain('user@example.com');
+    expect(email.html).not.toContain('src="https://betterlytics.io');
   });
 });

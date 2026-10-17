@@ -36,6 +36,11 @@ export const InvitationWithInviterSchema = DashboardInvitationSchema.extend({
     .optional(),
 });
 
+// The token is the invite link, so only members who can invite get it
+export const PendingInvitationSchema = InvitationWithInviterSchema.extend({
+  token: z.string().nullable(),
+});
+
 export const DashboardMemberSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -58,4 +63,5 @@ export function isOpenInvitation(invitation: Pick<DashboardInvitation, 'status' 
 }
 export type CreateInvitationData = z.infer<typeof CreateInvitationSchema>;
 export type InvitationWithInviter = z.infer<typeof InvitationWithInviterSchema>;
+export type PendingInvitation = z.infer<typeof PendingInvitationSchema>;
 export type DashboardMember = z.infer<typeof DashboardMemberSchema>;

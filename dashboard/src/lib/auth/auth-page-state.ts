@@ -1,6 +1,7 @@
 /* What the auth pages decide from their URLs, kept pure so the pages stay thin and the rules are tested. */
 import { SIGNUP_DISABLED_MESSAGE } from '@/constants/auth';
 import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
+import { ACCOUNT_DISABLED_ERROR_CODE } from './auth-error';
 import { toSafeRelativePath } from './safe-redirect';
 
 const SIGN_IN_REDIRECT_DEFAULT = '/dashboards';
@@ -93,7 +94,7 @@ export function twoFactorAttemptEnded(code: string | undefined): 'tooManyCodes' 
 }
 
 export type SignInErrorKey =
-  'accountNotLinked' | 'registrationDisabled' | 'emailNotFound' | 'unableToLink' | 'default';
+  'accountNotLinked' | 'registrationDisabled' | 'emailNotFound' | 'unableToLink' | 'accountDisabled' | 'default';
 
 const SIGNUP_DISABLED_ERROR = SIGNUP_DISABLED_MESSAGE.replaceAll(' ', '_');
 
@@ -116,6 +117,8 @@ export function signInErrorKey(error: string | undefined): SignInErrorKey | null
       return 'emailNotFound';
     case 'unable_to_link_account':
       return 'unableToLink';
+    case ACCOUNT_DISABLED_ERROR_CODE:
+      return 'accountDisabled';
     default:
       return 'default';
   }

@@ -1,5 +1,5 @@
 import type { EmailData } from '@/services/email/types';
-import { EmailLayout, Greeting, H1, P, PrimaryLink, renderEmailTemplate } from './_components';
+import { EmailLayout, Greeting, H1, P, renderEmailTemplate, SupportLine } from './_components';
 
 const CAMPAIGN = 'member_removed';
 
@@ -24,10 +24,7 @@ export function MemberRemovedEmail({ userName, dashboardDomain }: MemberRemovedE
         If you think this was a mistake, reach out to the dashboard's owner or admin — they can re-invite you.
       </P>
 
-      <P className='text-sm text-slate-500'>
-        Questions? Reply to this email or write to{' '}
-        <PrimaryLink href='mailto:support@betterlytics.io'>support@betterlytics.io</PrimaryLink>.
-      </P>
+      <SupportLine />
     </EmailLayout>
   );
 }
