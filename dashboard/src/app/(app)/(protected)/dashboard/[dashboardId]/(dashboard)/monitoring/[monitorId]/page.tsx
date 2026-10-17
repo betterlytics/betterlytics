@@ -7,7 +7,8 @@ import {
   fetchRecentMonitorResultsAction,
 } from '@/app/actions/analytics/monitoring.actions';
 import { MonitorDetailClient } from './MonitorDetailClient';
-import { NotFoundCard } from './NotFoundCard';
+import { NotFoundState } from './NotFoundState';
+import { MonitorDetailGhost } from './MonitorDetailGhost';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { safeHostname } from '@/utils/domainValidation';
@@ -31,11 +32,12 @@ export default async function MonitorDetailPage({ params }: MonitorDetailParams)
   if (!monitor) {
     const t = await getTranslations('monitoringDetailPage');
     return (
-      <NotFoundCard
+      <NotFoundState
         title={t('notFound.title')}
         description={t('notFound.description')}
         actionLabel={t('header.back')}
         href='monitoring'
+        backdrop={<MonitorDetailGhost />}
       />
     );
   }
