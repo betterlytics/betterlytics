@@ -17,10 +17,10 @@ importers:
   .:
     dependencies:
       '@clickhouse/client':
-        specifier: ^1.15.0
+        specifier: 1.23.1
         version: 1.23.1
       clickhouse-migrations:
-        specifier: ^1.0.4
+        specifier: 1.4.0
         version: 1.4.0
       dotenv:
         specifier: ^16.5.0
