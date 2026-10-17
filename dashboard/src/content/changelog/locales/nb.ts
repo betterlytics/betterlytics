@@ -1,5 +1,107 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v151ChangelogEntryNb: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.1',
+    releasedAt: '2026-10-18',
+    title: 'Sikkerhetsoppdateringer og bedre brukervennlighet',
+    summary:
+      'Denne utgivelsen styrker sikkerheten rundt teaminvitasjoner, MCP-nøkler, oppetidsmonitorer og webhooks. Den inneholder også en håndfull brukervennlighetsforbedringer og rettelser i dashbordet og session replay.',
+  },
+  sections: [
+    {
+      id: 'v151-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Dialogen Bytt passord viser nå passordkravene i en sjekkliste som oppdateres mens du skriver.',
+            'Diverse mindre forbedringer i brukervennlighet, blant annet nettleser- og operativsystemikoner som lastes med en gang, en tydelig «Overvåker ikke funnet»-side, en kontroll som sikrer at hver monitor har minst én akseptert statuskode, og oversettelser som manglet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Hvis du bytter dashbord mens du ser på en oppetidsmonitor, en statusside eller en feil, havner du ikke lenger på en feilside.',
+            'Session replay tar nå opp som det skal på nettsteder som også bruker andre analyseskript.',
+            'En utløpt invitasjon hindrer deg ikke lenger i å invitere den samme personen på nytt.',
+            'Feilmeldinger ved innlogging er nå tydeligere og forteller deg hva som gikk galt.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Bare eiere og administratorer av dashbordet kan nå opprette og slette MCP-nøkler.',
+            'Teaminvitasjoner er nå sikrere. Lenker til ventende invitasjoner vises bare for medlemmer som selv kan invitere, og invitasjoner kobles først til kontoen din når e-postadressen din er bekreftet.',
+            'Oppetidsmonitorer og webhooks kan ikke lenger nå private og interne adresser eller skyleverandørers metadataadresser.',
+            'Sikkerhetsrettelser i innlogging og e-postbekreftelse.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v151ChangelogModalNb: ChangelogEntryData = {
+  metadata: v151ChangelogEntryNb.metadata,
+  sections: [
+    {
+      id: 'v151-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Dialogen Bytt passord viser passordkravene mens du skriver.',
+            'Mindre forbedringer i brukervennlighet på tvers av dashbordet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Bytter du dashbord mens du ser på en oppetidsmonitor, en statusside eller en feil, havner du ikke lenger på en feilside.',
+            'Session replay tar opp som det skal på nettsteder som også bruker andre analyseskript.',
+            'Utløpte invitasjoner hindrer deg ikke lenger i å invitere den samme personen på nytt.',
+            'Tydeligere feilmeldinger ved innlogging.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-modal-security',
+      title: 'Sikkerhet',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Bare eiere og administratorer kan opprette og slette MCP-nøkler.',
+            'Sikkerhetsforbedringer i teaminvitasjoner, innlogging, oppetidsmonitorer og webhooks.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v150ChangelogEntryNb: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.0',
@@ -584,9 +686,10 @@ const v144ChangelogEntryNb: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalNb = v150ChangelogModalNb;
+export const latestChangelogModalNb = v151ChangelogModalNb;
 
 export const changelogEntriesNb: readonly ChangelogEntryData[] = [
+  v151ChangelogEntryNb,
   v150ChangelogEntryNb,
   v149ChangelogEntryNb,
   v148ChangelogEntryNb,
