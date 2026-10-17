@@ -211,10 +211,6 @@ export async function deleteStatusPage(dashboardId: string, statusPageId: string
   });
 }
 
-export async function removeMonitorFromStatusPages(dashboardId: string, monitorCheckId: string): Promise<void> {
-  await prisma.statusPageMonitor.deleteMany({ where: { dashboardId, monitorCheckId } });
-}
-
 /**
  * Read for the public image route handler — the ONLY query that loads the blob. Not gated on
  * isPublished so the editor's live preview can render draft pages' images; the slug uniquely
