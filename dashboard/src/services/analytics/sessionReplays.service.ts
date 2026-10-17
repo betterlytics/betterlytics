@@ -4,13 +4,45 @@ import { getSessionReplays } from '@/repositories/clickhouse/index.repository';
 import { getReplaySessionMeta } from '@/repositories/clickhouse/sessionReplays.repository';
 import { readerFor, type ReplaySegmentReader } from '@/repositories/replaySegments.repository';
 import { replayStorage } from '@/lib/env';
+import { DEMO_SESSION_REPLAYS } from '@/constants/demoSessionReplays';
 import type { AuthContext } from '@/entities/auth/authContext.entities';
+import type { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 const STREAM_PREFETCH_AHEAD = 4;
 
-export async function getSessionReplaysForSite(siteQuery: BASiteQuery, limit: number, offset: number) {
+export async function getSessionReplaysForSite(
+  authContext: AuthContext,
+  siteQuery: BASiteQuery,
+  limit: number,
+  offset: number,
+): Promise<SessionReplay[]> {
+  if (authContext.isDemo) {
+    return getDemoSessionReplays(authContext.siteId).slice(offset, offset + limit);
+  }
   return getSessionReplays(siteQuery, limit, offset);
+}
+
+// Fixed recordings, re-dated on every request so the demo always shows recent sessions
+function getDemoSessionReplays(siteId: string): SessionReplay[] {
+  const now = Date.now();
+  return DEMO_SESSION_REPLAYS.map(({ endedMinutesAgo, ...replay }) => {
+    const endedAt = new Date(now - endedMinutesAgo * 60_000);
+    const startedAt = new Date(endedAt.getTime() - replay.duration * 1000);
+    return {
+      ...replay,
+      site_id: siteId,
+      started_at: startedAt,
+      ended_at: endedAt,
+      date: startedAt.toISOString().slice(0, 10),
+      s3_prefix: '',
+    };
+  });
+}
+
+export function getDemoReplayFixturePath(sessionId: string): string | null {
+  const known = DEMO_SESSION_REPLAYS.some((replay) => replay.session_id === sessionId);
+  return known ? `/demo-replays/${sessionId}.ndjson` : null;
 }
 
 export type ReplaySegmentStream = { stream: ReadableStream<Uint8Array>; endedAt: Date };
