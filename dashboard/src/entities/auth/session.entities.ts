@@ -5,6 +5,7 @@ export interface User {
   emailVerified?: boolean;
   image?: string | null;
   role?: string | null;
+  signupMethod?: string | null;
   twoFactorEnabled?: boolean | null;
   onboardingCompletedAt?: Date | null;
   termsAcceptedAt?: Date | null;

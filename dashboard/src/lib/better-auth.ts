@@ -142,6 +142,7 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: { type: 'string', required: false, input: false },
+      signupMethod: { type: 'string', required: false, input: false },
       emailVerifiedAt: { type: 'date', required: false, input: false },
       onboardingCompletedAt: { type: 'date', required: false, input: false },
       termsAcceptedAt: { type: 'date', required: false, input: false },
@@ -258,7 +259,7 @@ export const auth = betterAuth({
             });
           }
 
-          const extra: Record<string, unknown> = {};
+          const extra: Record<string, unknown> = { signupMethod: allowed };
           if (allowed === 'first_user') {
             extra.role = 'admin';
           }

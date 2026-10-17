@@ -75,6 +75,12 @@ enum GithubStarPromptState {
   starred
 }
 
+enum SignupMethod {
+  registration_enabled
+  invited
+  first_user
+}
+
 enum StatusPageIncidentImpact {
   degraded
   partial_outage
@@ -139,6 +145,8 @@ model User {
   totpSecret String?
   twofactors TwoFactor[]
   role UserRole?
+  // Null for accounts created before it was recorded
+  signupMethod SignupMethod?
 
   termsAcceptedVersion Int?
   termsAcceptedAt      DateTime?

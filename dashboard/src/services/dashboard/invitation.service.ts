@@ -25,16 +25,15 @@ import type { User } from '@/entities/auth/session.entities';
 import { hasPermission } from '@/lib/permissions';
 import { UserException } from '@/lib/exceptions';
 import { getDashboardCapabilities } from '@/lib/billing/capabilityAccess';
-import { isFeatureEnabled } from '@/lib/feature-flags';
 
-type Invitee = Pick<User, 'id' | 'email' | 'emailVerified'>;
+type Invitee = Pick<User, 'id' | 'email' | 'emailVerified' | 'signupMethod'>;
 
-// Unverified addresses are only trusted on self-host with registration closed, where every account joined by invite token or as the first user
+// An unverified address is only trusted if the account was created by invite token or as the first user
 async function findAddressMatchedInvitations(
-  user: Pick<User, 'email' | 'emailVerified'>,
+  user: Pick<User, 'email' | 'emailVerified' | 'signupMethod'>,
 ): Promise<InvitationWithInviter[]> {
   const addressTrusted =
-    user.emailVerified === true || (!isFeatureEnabled('isCloud') && !isFeatureEnabled('enableRegistration'));
+    user.emailVerified === true || user.signupMethod === 'invited' || user.signupMethod === 'first_user';
   if (!addressTrusted) return [];
   return findPendingInvitationsByEmail(user.email);
 }

@@ -231,6 +231,17 @@ describe('user create before hook (sign-up field stamping)', () => {
         expect(result!.data.role).toBeNull();
       },
     );
+
+    it.each(['invited', 'first_user', 'registration_enabled'] as const)(
+      'records how a %s sign-up was let in',
+      async (why) => {
+        vi.mocked(getSignupAllowance).mockResolvedValue(why);
+
+        const result = await runBeforeCreateHook(signup, { path: '/sign-up/email', body: {} });
+
+        expect(result!.data.signupMethod).toBe(why);
+      },
+    );
   });
 
   it('stamps terms acceptance on email/password sign-ups', async () => {
