@@ -1,14 +1,13 @@
 'use client';
 
 import { BrowserStats } from '@/entities/analytics/devices.entities';
-import { DataTable } from '@/components/DataTable';
+import { DataTable, type DataTableColumnMeta } from '@/components/DataTable';
 import { ColumnDef } from '@tanstack/react-table';
 import { BrowserIcon } from '@/components/icons';
 import type { ToDataTable } from '@/presenters/toDataTable';
 import { TableCompareCell } from '../TableCompareCell';
 import { formatPercentage } from '@/utils/formatters';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
 
 interface BrowserTableProps {
@@ -25,18 +24,15 @@ export default function BrowserTable({ data, loading }: BrowserTableProps) {
       accessorKey: 'browser',
       header: tCols('browser'),
       minSize: 150,
+      meta: {
+        onCellClick: (data) => makeFilterClick('browser')(data.browser),
+        cellTitle: (data) => tFilters('filterBy', { label: data.browser }),
+      } satisfies DataTableColumnMeta<ToDataTable<'browser', BrowserStats>>,
       cell: ({ row }) => (
-        <Button
-          variant='ghost'
-          onClick={() => makeFilterClick('browser')(row.original.browser)}
-          className='cursor-pointer bg-transparent p-1 text-left text-sm font-medium select-text'
-          title={tFilters('filterBy', { label: row.original.browser })}
-        >
-          <span className='flex items-center gap-2'>
-            <BrowserIcon name={row.original.browser} className='h-4 w-4' />
-            <span>{row.original.browser}</span>
-          </span>
-        </Button>
+        <span className='flex items-center gap-2 font-medium'>
+          <BrowserIcon name={row.original.browser} className='h-4 w-4' />
+          <span>{row.original.browser}</span>
+        </span>
       ),
     },
     {
