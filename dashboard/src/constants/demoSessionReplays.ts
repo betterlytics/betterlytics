@@ -16,7 +16,7 @@ export const DEMO_SESSION_REPLAYS: DemoSessionReplay[] = [
     start_url: '/vs/google-analytics',
     device_type: 'desktop',
     browser: 'Chrome',
-    os: 'Mac OS X',
+    os: 'macOS',
     country_code: 'DE',
     error_count: 0,
   },
