@@ -26,7 +26,8 @@ if (!url || !db) {
   process.exit(1);
 }
 
-const command = `clickhouse-migrations migrate --host=${url} --db=${db} --migrations-home=./migrations --user=${user} --password=${password} --timeout=86400000`;
+// Credentials go through env so they stay out of the process list and out of execSync's error message
+const command = `clickhouse-migrations migrate --host=${url} --db=${db} --migrations-home=./migrations --timeout=86400000`;
 
 // Long migrations get a ClickHouse progress header every 30s, which overflows Node's 16 KB default after about 35 minutes
 const nodeOptions = [process.env.NODE_OPTIONS, "--max-http-header-size=2097152"]
@@ -36,9 +37,14 @@ const nodeOptions = [process.env.NODE_OPTIONS, "--max-http-header-size=2097152"]
 try {
   execSync(command, {
     stdio: "inherit",
-    env: { ...process.env, NODE_OPTIONS: nodeOptions },
+    env: {
+      ...process.env,
+      NODE_OPTIONS: nodeOptions,
+      CH_MIGRATIONS_USER: user,
+      CH_MIGRATIONS_PASSWORD: password,
+    },
   });
 } catch (error) {
-  console.error("Migration failed:", error.message);
+  console.error(`Migration failed (exit status ${error.status ?? "unknown"})`);
   process.exit(1);
 }
