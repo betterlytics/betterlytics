@@ -10,7 +10,11 @@ import {
   replayStreamsRefusedTotal,
 } from '@/lib/replay-stream.metrics';
 import { throughNodeTransform } from '@/lib/web-stream-pipeline';
-import { openReplaySegmentStream, type ReplaySegmentStream } from '@/services/analytics/sessionReplays.service';
+import {
+  getDemoReplayFixturePath,
+  openReplaySegmentStream,
+  type ReplaySegmentStream,
+} from '@/services/analytics/sessionReplays.service';
 
 const MAX_STREAMS_PER_USER = 3;
 // A per-user refusal is almost always a just-aborted stream whose slot frees within ms
@@ -40,7 +44,10 @@ export async function GET(request: NextRequest) {
     return new NextResponse(null, { status: result.error === 'unauthenticated' ? 401 : 403 });
   }
   if (result.context.isDemo) {
-    return new NextResponse(null, { status: 403 });
+    const fixturePath = getDemoReplayFixturePath(sessionId);
+    return fixturePath
+      ? new NextResponse(null, { status: 307, headers: { Location: fixturePath } })
+      : new NextResponse(null, { status: 404 });
   }
 
   // Acquire before the ClickHouse/S3 work starts; release only via the pipeline callback.
