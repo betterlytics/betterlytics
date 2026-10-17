@@ -1,7 +1,6 @@
 import { getMembersAction } from '@/app/actions/dashboard/members.action';
 import { getPendingInvitationsAction } from '@/app/actions/dashboard/invitations.action';
-import { getAuthSession } from '@/auth/auth-actions';
-import { redirect } from 'next/navigation';
+import { requireAuth } from '@/auth/auth-actions';
 import { MembersTable } from './MembersTable';
 import { InviteSection } from './InviteSection';
 import { getTranslations } from 'next-intl/server';
@@ -19,13 +18,9 @@ interface MembersPageProps {
 
 export default async function MembersPage({ params }: MembersPageProps) {
   const { dashboardId } = await params;
-  const session = await getAuthSession();
+  const session = await requireAuth();
   const t = await getTranslations('members');
   const tSidebar = await getTranslations('dashboard.settings.sidebar');
-
-  if (!session?.user?.id) {
-    redirect('/signin');
-  }
 
   const [members, pendingInvitations] = await Promise.all([
     getMembersAction(dashboardId),
