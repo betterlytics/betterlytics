@@ -26,7 +26,6 @@ if (!url || !db) {
   process.exit(1);
 }
 
-// Credentials go through env so they stay out of the process list and out of execSync's error message
 const command = `clickhouse-migrations migrate --host=${url} --db=${db} --migrations-home=./migrations --timeout=86400000`;
 
 // Long migrations get a ClickHouse progress header every 30s, which overflows Node's 16 KB default after about 35 minutes
