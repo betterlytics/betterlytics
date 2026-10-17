@@ -18,7 +18,9 @@ export async function getSessionReplaysForSite(
   offset: number,
 ): Promise<SessionReplay[]> {
   if (authContext.isDemo) {
-    return getDemoSessionReplays(authContext.siteId).slice(offset, offset + limit);
+    return getDemoSessionReplays(authContext.siteId)
+      .filter((replay) => replay.started_at >= siteQuery.startDate && replay.started_at <= siteQuery.endDate)
+      .slice(offset, offset + limit);
   }
   return getSessionReplays(siteQuery, limit, offset);
 }
