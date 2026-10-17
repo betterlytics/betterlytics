@@ -23,7 +23,7 @@ export async function getSessionReplaysForSite(
   return getSessionReplays(siteQuery, limit, offset);
 }
 
-// Fixed recordings, re-dated on every request so the demo always shows recent sessions
+// Fixed recordings, re-dated relative to now so the demo always shows recent sessions
 function getDemoSessionReplays(siteId: string): SessionReplay[] {
   const now = Date.now();
   return DEMO_SESSION_REPLAYS.map(({ endedMinutesAgo, ...replay }) => {
