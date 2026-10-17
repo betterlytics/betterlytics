@@ -23,6 +23,8 @@ impl SlackNotifier {
         let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(10))
             .dns_resolver(Arc::new(GuardedResolver))
+            // An HTTP(S)_PROXY from the environment would resolve the target itself, bypassing GuardedResolver
+            .no_proxy()
             // Slack incoming webhooks never redirect
             .redirect(reqwest::redirect::Policy::none())
             .build()?;
