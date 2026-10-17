@@ -1,9 +1,11 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use serde::Deserialize;
 use tracing::{debug, error};
 use url::Url;
 
-use crate::monitor::guard;
+use crate::monitor::guard::{self, GuardedResolver};
 use crate::notifications::notifier::{error_body_preview, Notification, Notifier, NotifierError};
 
 #[derive(Deserialize)]
@@ -18,8 +20,11 @@ pub struct WebhookNotifier {
 
 impl WebhookNotifier {
     pub fn new() -> Result<Self, reqwest::Error> {
-        let client = guard::guarded_client_builder()
+        let client = reqwest::Client::builder()
             .timeout(std::time::Duration::from_secs(10))
+            .dns_resolver(Arc::new(GuardedResolver))
+            // An HTTP(S)_PROXY from the environment would resolve the target itself, bypassing GuardedResolver
+            .no_proxy()
             .redirect(guard::webhook_redirect_policy())
             .build()?;
 

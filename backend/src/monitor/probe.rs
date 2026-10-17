@@ -15,7 +15,7 @@ use tracing::{debug, warn};
 use url::Url;
 use x509_parser::prelude::FromDer;
 
-use crate::monitor::guard::{GuardError, MAX_REDIRECTS, BODY_STREAM_LIMIT, get_port, guarded_client_builder, validate_target};
+use crate::monitor::guard::{GuardError, GuardedResolver, MAX_REDIRECTS, BODY_STREAM_LIMIT, get_port, validate_target};
 use crate::monitor::models::{HttpMethod, MonitorStatus, StatusCodeValue, is_status_code_accepted};
 use crate::monitor::sanitize::apply_custom_headers;
 use crate::monitor::{MonitorCheck, ProbeOutcome, ReasonCode};
@@ -65,8 +65,7 @@ pub struct MonitorProbe {
 
 impl MonitorProbe {
     pub fn new(default_timeout: Duration) -> anyhow::Result<Self> {
-        // validate_target resolves first, but reqwest resolves again on its own; the guarded resolver closes the rebinding window
-        let client = guarded_client_builder()
+        let client = Client::builder()
             .user_agent("betterlytics-monitor/0.1")
             .pool_max_idle_per_host(8)
             .tcp_keepalive(Some(Duration::from_secs(30)))
@@ -74,6 +73,10 @@ impl MonitorProbe {
             .min_tls_version(Version::TLS_1_2)
             // We handle redirects manually to validate each hop and DNS result
             .redirect(Policy::none())
+            // validate_target resolves first, but reqwest resolves again on its own; filtering that answer closes the rebinding window
+            .dns_resolver(Arc::new(GuardedResolver))
+            // An HTTP(S)_PROXY from the environment would resolve the target itself, bypassing GuardedResolver
+            .no_proxy()
             .build()?;
 
         Ok(Self { client })
