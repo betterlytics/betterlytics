@@ -1887,6 +1887,10 @@
       "back": "Tilbake til overvåkere",
       "monitoring": "Overvåking"
     },
+    "notFound": {
+      "title": "Overvåker ikke funnet",
+      "description": "Overvåkeren kan ha blitt slettet fra dette dashboardet, eller lenken kan være feil."
+    },
     "responseTime": {
       "title": "Responstid",
       "badge": "Siste 24 timer",
