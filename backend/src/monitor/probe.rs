@@ -75,7 +75,6 @@ impl MonitorProbe {
             .redirect(Policy::none())
             // validate_target resolves first, but reqwest resolves again on its own; filtering that answer closes the rebinding window
             .dns_resolver(Arc::new(GuardedResolver))
-            // An HTTP(S)_PROXY from the environment would resolve the target itself, bypassing GuardedResolver
             .no_proxy()
             .build()?;
 
