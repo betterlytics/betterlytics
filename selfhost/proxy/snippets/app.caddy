@@ -9,10 +9,7 @@
 (app_routes) {
 	import security_headers
 	import framing_defaults
-	log {
-		output stdout
-		format json
-	}
+	import access_log
 
 	rate_limit {
 		zone event {

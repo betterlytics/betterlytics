@@ -12,10 +12,7 @@ https:// {
 	respond @fronted 421
 
 	import security_headers
-	log {
-		output stdout
-		format json
-	}
+	import access_log
 
 	rate_limit {
 		zone status_custom {
