@@ -1,5 +1,5 @@
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr};
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 use reqwest::dns::{Addrs, Name, Resolve, Resolving};
 use tokio::net::lookup_host;
 use url::{Host, Url};
@@ -204,6 +204,14 @@ impl Resolve for GuardedResolver {
             Ok(Box::new(addrs.into_iter()) as Addrs)
         })
     }
+}
+
+/// Client builder for user-chosen targets. Proxies are off because a proxy from
+/// HTTP(S)_PROXY or ALL_PROXY would resolve the target itself, skipping GuardedResolver.
+pub fn guarded_client_builder() -> reqwest::ClientBuilder {
+    reqwest::Client::builder()
+        .dns_resolver(Arc::new(GuardedResolver))
+        .no_proxy()
 }
 
 async fn resolve_allowed(host: &str, allow_private: bool) -> std::io::Result<Vec<SocketAddr>> {

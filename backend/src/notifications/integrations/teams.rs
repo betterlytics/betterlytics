@@ -1,11 +1,9 @@
-use std::sync::Arc;
-
 use async_trait::async_trait;
 use serde::Deserialize;
 use tracing::{debug, error};
 use url::Url;
 
-use crate::monitor::guard::{self, GuardedResolver};
+use crate::monitor::guard;
 use crate::notifications::notifier::{error_body_preview, Notification, Notifier, NotifierError};
 
 #[derive(Deserialize)]
@@ -20,11 +18,8 @@ pub struct TeamsNotifier {
 
 impl TeamsNotifier {
     pub fn new() -> Result<Self, reqwest::Error> {
-        let client = reqwest::Client::builder()
+        let client = guard::guarded_client_builder()
             .timeout(std::time::Duration::from_secs(10))
-            .dns_resolver(Arc::new(GuardedResolver))
-            // An HTTP(S)_PROXY from the environment would resolve the target itself, bypassing GuardedResolver
-            .no_proxy()
             // Logic Apps can answer any 3xx; 301/302 would also turn the POST into a bodiless GET
             .redirect(reqwest::redirect::Policy::none())
             .build()?;

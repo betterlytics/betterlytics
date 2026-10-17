@@ -1,11 +1,9 @@
-use std::sync::Arc;
-
 use async_trait::async_trait;
 use serde::Deserialize;
 use tracing::{debug, error};
 use url::Url;
 
-use crate::monitor::guard::{self, GuardedResolver};
+use crate::monitor::guard;
 use crate::notifications::notifier::{error_body_preview, Notification, Notifier, NotifierError};
 
 #[derive(Deserialize)]
@@ -34,11 +32,8 @@ pub struct DiscordNotifier {
 
 impl DiscordNotifier {
     pub fn new() -> Result<Self, reqwest::Error> {
-        let client = reqwest::Client::builder()
+        let client = guard::guarded_client_builder()
             .timeout(std::time::Duration::from_secs(10))
-            .dns_resolver(Arc::new(GuardedResolver))
-            // An HTTP(S)_PROXY from the environment would resolve the target itself, bypassing GuardedResolver
-            .no_proxy()
             // Discord webhook execution never redirects
             .redirect(reqwest::redirect::Policy::none())
             .build()?;
