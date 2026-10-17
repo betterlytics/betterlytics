@@ -25,7 +25,7 @@ import { PermissionGate } from '@/components/tooltip/PermissionGate';
 interface McpTokenManagerProps {
   dashboardId: string;
   tokens: McpTokenListItem[];
-  endpointUrl: string;
+  endpointUrl?: string;
 }
 
 export function McpTokenManager({ dashboardId, tokens, endpointUrl }: McpTokenManagerProps) {
@@ -75,35 +75,37 @@ export function McpTokenManager({ dashboardId, tokens, endpointUrl }: McpTokenMa
 
   return (
     <div className='space-y-4'>
-      <div className='space-y-1.5'>
-        <Label className='text-muted-foreground'>{t('settings.endpointLabel')}</Label>
-        <div className='flex items-center gap-2'>
-          <p className='border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 font-mono text-xs break-all select-all'>
-            {endpointUrl}
+      {endpointUrl && (
+        <div className='space-y-1.5'>
+          <Label className='text-muted-foreground'>{t('settings.endpointLabel')}</Label>
+          <div className='flex items-center gap-2'>
+            <p className='border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 font-mono text-xs break-all select-all'>
+              {endpointUrl}
+            </p>
+            <CopyButton
+              text={endpointUrl}
+              ariaLabel={t('settings.copyEndpoint')}
+              copiedLabel={t('settings.endpointCopied')}
+              className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
+              iconClassName='size-4'
+            />
+          </div>
+          <p className='text-muted-foreground text-xs'>
+            {t.rich('settings.endpointHint', {
+              link: (chunks) => (
+                <ExternalLink
+                  href='https://betterlytics.io/docs/dashboard/mcp'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-primary underline underline-offset-2'
+                >
+                  {chunks}
+                </ExternalLink>
+              ),
+            })}
           </p>
-          <CopyButton
-            text={endpointUrl}
-            ariaLabel={t('settings.copyEndpoint')}
-            copiedLabel={t('settings.endpointCopied')}
-            className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
-            iconClassName='size-4'
-          />
         </div>
-        <p className='text-muted-foreground text-xs'>
-          {t.rich('settings.endpointHint', {
-            link: (chunks) => (
-              <ExternalLink
-                href='https://betterlytics.io/docs/dashboard/mcp'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='text-primary underline underline-offset-2'
-              >
-                {chunks}
-              </ExternalLink>
-            ),
-          })}
-        </p>
-      </div>
+      )}
 
       {newlyCreatedToken && (
         <div className='bg-primary/5 border-primary/20 space-y-2 rounded-md border p-3'>
