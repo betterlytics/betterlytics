@@ -1,5 +1,107 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v151ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.1',
+    releasedAt: '2026-10-18',
+    title: 'Sikkerhedsopdateringer & bedre brugervenlighed',
+    summary:
+      'Denne udgivelse styrker sikkerheden omkring teaminvitationer, MCP-tokens, uptime-monitorer og webhooks. Den indeholder også en håndfuld forbedringer af brugervenligheden og rettelser på tværs af dashboardet og session replay.',
+  },
+  sections: [
+    {
+      id: 'v151-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Dialogen Skift adgangskode viser nu kravene til adgangskoden som en tjekliste, der opdateres, mens du skriver.',
+            'Diverse mindre forbedringer af brugervenligheden, blandt andet browser- og styresystemikoner, der indlæses med det samme, en tydelig "Overvågning ikke fundet"-side, et krav om mindst én accepteret statuskode på hver monitor samt oversættelser, der manglede.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Hvis du skifter dashboard, mens du ser en monitor, en statusside eller en fejl, ender du ikke længere på en fejlside.',
+            'Session replay optager nu korrekt på websites, der også kører andre analysescripts.',
+            'En udløbet invitation forhindrer ikke længere, at du inviterer den samme person igen.',
+            'Fejlbeskeder ved login er nu tydeligere og fortæller dig, hvad der gik galt.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Kun dashboardets ejer og administratorer kan nu oprette og slette MCP-tokens.',
+            'Teaminvitationer er nu sikrere. Links til afventende invitationer vises kun for medlemmer, der selv kan invitere, og invitationer kobles først til din konto, når din e-mailadresse er bekræftet.',
+            'Uptime-monitorer og webhooks kan ikke længere tilgå private, interne eller cloud-metadata-adresser.',
+            'Sikkerhedsrettelser i login og e-mailbekræftelse.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v151ChangelogModalDa: ChangelogEntryData = {
+  metadata: v151ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v151-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Dialogen Skift adgangskode viser kravene til adgangskoden, mens du skriver.',
+            'Mindre forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Skifter du dashboard, mens du ser en monitor, en statusside eller en fejl, ender du ikke længere på en fejlside.',
+            'Session replay optager korrekt på websites, der også kører andre analysescripts.',
+            'Udløbne invitationer forhindrer ikke længere, at du inviterer den samme person igen.',
+            'Tydeligere fejlbeskeder ved login.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-modal-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Kun ejere og administratorer kan oprette og slette MCP-tokens.',
+            'Sikkerhedsforbedringer til teaminvitationer, login, monitorer og webhooks.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v150ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.0',
@@ -584,9 +686,10 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v150ChangelogModalDa;
+export const latestChangelogModalDa = v151ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v151ChangelogEntryDa,
   v150ChangelogEntryDa,
   v149ChangelogEntryDa,
   v148ChangelogEntryDa,
