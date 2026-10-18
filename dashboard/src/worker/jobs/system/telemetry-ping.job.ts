@@ -9,7 +9,12 @@ export const telemetryPingJob: Job = {
   runOnStart: true,
   handler: async () => {
     const result = await sendTelemetryPingIfDue();
-    if (result.outcome === 'skipped_policy' || result.outcome === 'skipped_recent') return;
+    if (
+      result.outcome === 'skipped_policy' ||
+      result.outcome === 'skipped_recent' ||
+      result.outcome === 'skipped_first_day'
+    )
+      return;
     // Failures log only when the outcome changes, so an air-gapped host doesn't log every hour
     if (result.outcome !== 'delivered' && result.outcome === lastLoggedOutcome) return;
     lastLoggedOutcome = result.outcome;

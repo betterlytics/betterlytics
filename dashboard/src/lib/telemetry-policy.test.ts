@@ -91,7 +91,6 @@ describe('describeTelemetryState', () => {
     backgroundJobsEnabled: true,
     endpoint: 'https://telemetry.betterlytics.io/v1/ping',
     payload,
-    lastSentAt: null,
   };
 
   it('prints the exact payload and endpoint when enabled', () => {

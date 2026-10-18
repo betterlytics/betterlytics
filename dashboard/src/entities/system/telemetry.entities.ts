@@ -29,5 +29,4 @@ export type TelemetryStatus = {
   backgroundJobsEnabled: boolean;
   endpoint: string;
   payload: TelemetryPayload | null;
-  lastSentAt: Date | null;
 };

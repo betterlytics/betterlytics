@@ -62,7 +62,7 @@ export async function getTelemetryStatus(): Promise<TelemetryStatus> {
   const policy = resolveCurrentTelemetryPolicy();
   const base = { policy, backgroundJobsEnabled: env.BACKGROUND_JOBS_ENABLED, endpoint: env.TELEMETRY_ENDPOINT };
 
-  if (!policy.enabled && policy.reason === 'cloud') return { ...base, payload: null, lastSentAt: null };
+  if (!policy.enabled && policy.reason === 'cloud') return { ...base, payload: null };
 
   // Mint an ID only when it will be sent: its createdAt starts the first-send delay
   const willSend = policy.enabled && env.BACKGROUND_JOBS_ENABLED;
@@ -71,6 +71,5 @@ export async function getTelemetryStatus(): Promise<TelemetryStatus> {
   return {
     ...base,
     payload: instance ? buildTelemetryPayload(instance.instanceId, env.APP_VERSION) : null,
-    lastSentAt: instance?.lastSentAt ?? null,
   };
 }

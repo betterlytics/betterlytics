@@ -68,7 +68,10 @@ const appEnvSchema = z.object({
   // Raw strings: any value other than "true" turns telemetry off in resolveTelemetryPolicy instead of failing boot
   TELEMETRY_ENABLED: z.string().optional(),
   DO_NOT_TRACK: z.string().optional(),
-  TELEMETRY_ENDPOINT: z.string().url().optional().default('https://telemetry.betterlytics.io/v1/ping'),
+  TELEMETRY_ENDPOINT: z.preprocess(
+    (value) => (value === '' ? undefined : value),
+    z.string().url().optional().default('https://telemetry.betterlytics.io/v1/ping'),
+  ),
   IS_DEVELOPMENT: zStringBoolean,
   // The selfhost compose sets true
   ALLOW_PRIVATE_TARGETS: zStringBoolean,
