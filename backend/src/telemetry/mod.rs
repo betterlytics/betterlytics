@@ -34,12 +34,10 @@ pub async fn receive_telemetry(
         debug!("Telemetry ping rejected by validation");
         return StatusCode::UNPROCESSABLE_ENTITY;
     }
-    let received_at = Utc::now();
     let row = TelemetryPingRow {
-        date: received_at.date_naive(),
+        date: Utc::now().date_naive(),
         instance_id: ping.instance_id,
         version: ping.version,
-        received_at,
     };
     match db.insert_telemetry_ping(row).await {
         Ok(()) => StatusCode::NO_CONTENT,

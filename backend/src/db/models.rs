@@ -166,8 +166,6 @@ pub struct TelemetryPingRow {
     #[serde(with = "clickhouse::serde::uuid")]
     pub instance_id: Uuid,
     pub version: String,
-    #[serde(with = "clickhouse::serde::chrono::datetime")]
-    pub received_at: DateTime<Utc>,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]
