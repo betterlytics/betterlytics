@@ -503,10 +503,10 @@ All options are read from `.env` in the repository root. Database passwords, aut
 
 ## Updating
 
-Each release bumps the image version pinned in `docker-compose.yml`, so updating the `betterlytics-selfhost` repository is what upgrades your instance:
+Each release of `betterlytics-selfhost` is a branch named after its version, and the default branch on GitHub is always the latest one. The latest version is `v1.5.1`, and the release notes name the version of each release. Pulling its branch bumps the image version pinned in `docker-compose.yml`, which is what upgrades your instance:
 
 ```bash
-git pull
+git pull origin v1.5.1
 docker compose up -d --wait
 ```
 
@@ -557,7 +557,7 @@ To turn telemetry off, set `TELEMETRY_ENABLED=false` in `.env` and run `docker c
 - `TLS=auto needs ports 80 and 443 of this server published`: the log lists what is missing. Set `HTTP_PORT=80` and `BIND_ADDRESS=0.0.0.0` in `.env` and map port 443 as shown under [Standalone](#standalone) → **Configuring by hand**, or switch to `TLS=off` behind your own proxy
 - `HTTP_SCHEME=https is set in .env but TLS is not auto`: set `TLS=auto` and remove `HTTP_SCHEME` for built-in HTTPS, or only remove `HTTP_SCHEME` if your own proxy terminates HTTPS
 - `DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME are no longer read`: replace them in `.env` with the `PUBLIC_URL` and `TLS` lines the log prints
-- `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again. If only `betterlytics-selfhost` keeps restarting, an override changes its image; `docker compose logs betterlytics-selfhost` shows the same message
+- `Configuration/image version mismatch`: the log shows the repository and image versions. When the repository is older, pull the branch of the image version the log names, for example `git pull origin v1.5.1`, then run `docker compose up -d --wait` again. If only `betterlytics-selfhost` keeps restarting, an override changes its image; `docker compose logs betterlytics-selfhost` shows the same message
 - `Cannot find module '/init'` in the `betterlytics-init` log: an override pins an image from before this release. Remove the image override
 - `Geolocation is enabled but no GeoIP database could be obtained`: check `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`, or set `ENABLE_GEOLOCATION=false`
 - `ENABLE_EMAILS=true requires SMTP_FROM on self-hosted instances`: set `SMTP_FROM` in `.env` to your sender address (MailerSend needs it too), or set `ENABLE_EMAILS=false`, then `docker compose up -d --wait` again
