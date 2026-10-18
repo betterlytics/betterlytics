@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ArrowUpRight, CircleCheck, CircleX, ShieldAlert } from 'lucide-react';
+import { ArrowUpRight, Check } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { SpotlightList } from '@/landing/components/ui/spotlightList';
@@ -28,12 +28,7 @@ const CHANNELS: { name: string; translated?: 'email' | 'webhook'; glyph: ReactNo
   },
 ];
 
-/* `says` is the alert's title as monitor/service.rs writes it, left literal like the preview */
-const EVENTS = [
-  { key: 'down', tone: 'down', Icon: CircleX, says: 'Checkout is down' },
-  { key: 'recovery', tone: 'live', Icon: CircleCheck, says: 'Checkout is back up' },
-  { key: 'ssl', tone: 'warn', Icon: ShieldAlert, says: 'SSL certificate expiring for Checkout' },
-] as const;
+const EVENTS = ['down', 'recovery', 'ssl'] as const;
 
 function MailIcon() {
   return (
@@ -48,7 +43,7 @@ export function AlertsPanel() {
   const t = useTranslations('landing.uptime.alerts');
   return (
     <div className='grid grid-cols-[1fr_1.1fr] max-lg:grid-cols-1'>
-      <div className='flex flex-col border-r border-rule-10 px-7.5 pt-8 pb-8 transition-ink max-lg:border-r-0 max-lg:border-b max-sm:px-6'>
+      <div className='flex flex-col justify-center border-r border-rule-10 px-7.5 pt-8 pb-8 transition-ink max-lg:border-r-0 max-lg:border-b max-sm:px-6'>
         <Heading as='h3' size='title' className='mb-2'>
           {t('lead')}
         </Heading>
@@ -65,20 +60,21 @@ export function AlertsPanel() {
             </li>
           ))}
         </SpotlightList>
-        <Label className='mt-8 mb-3 block'>{t('events.label')}</Label>
-        <ul className='grid gap-3.5'>
-          {EVENTS.map(({ key, tone, Icon, says }) => (
-            <li key={key} className={styles.event} data-tone={tone}>
-              <span className={styles.eventIcon}>
-                <Icon aria-hidden />
-              </span>
-              <span className='min-w-0'>
+        <div className='pt-8'>
+          <Label className='mb-3 block'>{t('events.label')}</Label>
+          {/* the status-page points' checkmark, at the channel tiles' size, so it reads as a footnote to them */}
+          <ul className='flex flex-wrap gap-x-5 gap-y-2'>
+            {EVENTS.map((key) => (
+              <li
+                key={key}
+                className='inline-flex items-center gap-2 text-[13.5px] leading-5 tracking-[-0.15px] text-fg/85'
+              >
+                <Check className='size-[15px] text-volt-soft' strokeWidth={2.4} aria-hidden />
                 {t(`events.${key}`)}
-                <span className={styles.says}>“{says}”</span>
-              </span>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
       <div className={cn('flex min-w-0 p-4.5 max-sm:p-0', 'bg-hatch')}>
         <AlertPreview />

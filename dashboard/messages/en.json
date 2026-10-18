@@ -1563,9 +1563,9 @@
         "webhook": "Webhook",
         "events": {
           "label": "Pick what each monitor sends",
-          "down": "When it goes down",
-          "recovery": "When it's back up",
-          "ssl": "Before the certificate expires, 1 to 30 days ahead"
+          "down": "Down",
+          "recovery": "Back up",
+          "ssl": "Certificate expiration"
         },
         "payload": "POST to your webhook",
         "views": {

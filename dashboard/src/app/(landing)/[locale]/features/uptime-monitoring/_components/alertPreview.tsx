@@ -35,7 +35,7 @@ const VIEWS: { key: View; glyph: ReactNode }[] = [
   {
     key: 'email',
     glyph: (
-      <svg viewBox='0 0 16 16' fill='none' className='size-3'>
+      <svg viewBox='0 0 16 16' fill='none' className='size-3.5'>
         <rect x='2' y='3.5' width='12' height='9' rx='1.6' stroke='currentColor' strokeWidth='1.4' />
         <path d='m2.6 4.4 5.4 4.1 5.4-4.1' stroke='currentColor' strokeWidth='1.4' strokeLinejoin='round' />
       </svg>

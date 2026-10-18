@@ -70,42 +70,6 @@
     background: --alpha(var(--color-fg) / 7%);
   }
 
-  .event {
-    --tone: var(--color-live);
-    display: grid;
-    grid-template-columns: 18px minmax(0, 1fr);
-    align-items: start;
-    gap: 11px;
-    font-size: 13.5px;
-    line-height: 18px;
-    color: var(--color-fg);
-  }
-  .event[data-tone='down'] {
-    --tone: var(--color-down);
-  }
-  .event[data-tone='warn'] {
-    --tone: var(--color-warn);
-  }
-  /* 1px down: centred on mixed-case text rather than on its capitals */
-  .eventIcon {
-    display: grid;
-    margin-top: 1px;
-    color: var(--tone);
-  }
-  .eventIcon svg {
-    width: 18px;
-    height: 18px;
-  }
-  .says {
-    display: block;
-    margin-top: 2px;
-    overflow: hidden;
-    font-size: 12.5px;
-    color: var(--color-muted);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
   /* chrome matches the snippet panel and the agent transcript */
   .terminal {
     display: flex;
@@ -311,8 +275,8 @@
     display: grid;
     flex: 1;
     align-content: start;
-    gap: 12px;
-    padding: 16px 18px 20px;
+    gap: 10px;
+    padding: 14px 18px 16px;
   }
   [data-drawn] .mail {
     animation: payload-in 0.6s var(--ease-out-expo) 0.2s backwards;
@@ -330,21 +294,26 @@
     white-space: nowrap;
     text-overflow: ellipsis;
   }
+  /* cropped like an inbox preview: the message runs on below a fade, so it never sets the panel's height */
   .mailBody {
-    padding: 15px 18px 17px;
+    max-height: 254px;
+    overflow: hidden;
+    padding: 13px 18px 14px;
     border-radius: 10px;
     border: 1px solid --alpha(var(--color-fg) / 9%);
     background: --alpha(var(--color-fg) / 3%);
     color: #d1d2d3;
     font-size: 12px;
-    line-height: 1.55;
+    line-height: 1.5;
+    -webkit-mask-image: linear-gradient(#000 74%, transparent);
+    mask-image: linear-gradient(#000 74%, transparent);
   }
   .mailBrand {
     display: flex;
     align-items: center;
     gap: 7px;
-    margin-bottom: 12px;
-    padding-bottom: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
     border-bottom: 1px solid --alpha(var(--color-fg) / 8%);
     font-size: 13.5px;
     font-weight: 600;
@@ -352,14 +321,14 @@
   }
   .mailTitle {
     display: block;
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
     line-height: 1.25;
     color: #f8f8f8;
   }
   .mailBox {
-    margin-top: 10px;
-    padding: 9px 12px;
+    margin-top: 8px;
+    padding: 8px 12px;
     border-left: 3px solid #ef4444;
     border-radius: 0 6px 6px 0;
     background: rgb(239 68 68 / 0.1);
@@ -376,9 +345,9 @@
   }
   .mailRows {
     display: grid;
-    gap: 2px;
-    margin-top: 10px;
-    padding: 9px 12px;
+    gap: 1px;
+    margin-top: 8px;
+    padding: 8px 12px;
     border: 1px solid --alpha(var(--color-fg) / 8%);
     border-radius: 6px;
     background: --alpha(var(--color-fg) / 2.5%);
@@ -398,7 +367,7 @@
   .mailButton {
     display: block;
     width: fit-content;
-    margin: 12px auto 0;
+    margin: 10px auto 0;
     padding: 6px 16px;
     border-radius: 6px;
     background: #dc2626;
@@ -408,10 +377,10 @@
   .code {
     flex: 1;
     overflow-x: auto;
-    padding: 22px 22px 26px;
+    padding: 14px 22px 14px;
     font-family: var(--font-mono);
     font-size: var(--text-code);
-    line-height: 1.85;
+    line-height: 1.5;
     white-space: pre;
     color: --alpha(var(--color-fg) / 72%);
   }
@@ -419,7 +388,7 @@
     display: block;
   }
   .block + .block {
-    margin-top: 18px;
+    margin-top: 10px;
   }
   [data-drawn] .block {
     animation: payload-in 0.6s var(--ease-out-expo) backwards;
