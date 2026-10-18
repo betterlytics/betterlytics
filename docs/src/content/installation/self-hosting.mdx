@@ -559,7 +559,7 @@ The startup log has a `[telemetry]` line saying whether telemetry is on and, if 
 
 ### Turning it off
 
-Set `TELEMETRY_ENABLED=false` in `.env` (see [Other](#other)) and run `docker compose up -d --wait`. `DO_NOT_TRACK=1` and `BACKGROUND_JOBS_ENABLED=false` also turn it off. Turning it off does not affect any feature.
+Set `TELEMETRY_ENABLED=false` in `.env` (see [Other](#other)) and run `docker compose up -d --wait`. `DO_NOT_TRACK=1` and `BACKGROUND_JOBS_ENABLED=false` also turn it off. The setup script's "Try locally" mode writes `TELEMETRY_ENABLED="false"` for you. Turning it off does not affect any feature.
 
 To have reports we already received deleted, email [privacy@betterlytics.io](mailto:privacy@betterlytics.io) with the instance ID from the `[telemetry]` startup log line. A copied or restored database keeps the same instance ID; to give an instance a new one, run `DELETE FROM "TelemetryInstance";` against its Postgres database. The legal details are in our [privacy policy](https://betterlytics.io/privacy).
 
