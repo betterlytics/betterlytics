@@ -190,7 +190,7 @@
       },
       "selfHostedTelemetry": {
         "title": "Telemetri fra selv-hostede installationer",
-        "intro": "Selv-hostede installationer af Betterlytics med telemetri slået til (opsætningsscriptet slår det til) sender os en lille rapport én gang om dagen. Den første rapport sendes 24 timer efter, at installationen er startet første gang. Betterlytics er dataansvarlig for disse data.",
+        "intro": "Selv-hostede installationer af Betterlytics sender os en lille rapport én gang om dagen, medmindre operatøren slår det fra. Den første rapport sendes 24 timer efter, at installationen er startet første gang. Betterlytics er dataansvarlig for disse data.",
         "received": "Hvad vi modtager: et tilfældigt instans-ID, som installationen genererer og gemmer i sin egen database, og den Betterlytics-version, den kører. Vi gemmer én registrering pr. instans pr. dag: datoen, instans-ID'et og versionen. Vi bruger kun den IP-adresse, rapporten kommer fra, til at modtage den og til at begrænse misbrugende trafik, og vi gemmer den aldrig. Rapporten indeholder aldrig oplysninger om dine brugere, dine websites eller dine analysedata.",
         "purpose": "Formål og retsgrundlag: vi tæller aktive installationer og ser, hvilke versioner der er i brug, så vi kan prioritere support og sikkerhedsrettelser. Det er vores legitime interesse i henhold til GDPR artikel 6, stk. 1, litra f. Du kan bede os om vores vurdering af denne legitime interesse.",
         "retention": "Opbevaring: hver daglig registrering slettes 365 dage efter sin dato.",

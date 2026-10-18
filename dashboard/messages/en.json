@@ -190,7 +190,7 @@
       },
       "selfHostedTelemetry": {
         "title": "Telemetry from self-hosted installations",
-        "intro": "Self-hosted installations of Betterlytics that have telemetry turned on (the setup script turns it on) send us a small report once a day. The first report is sent 24 hours after the installation first starts. Betterlytics is the controller for this data.",
+        "intro": "Self-hosted installations of Betterlytics send us a small report once a day unless the operator turns it off. The first report is sent 24 hours after the installation first starts. Betterlytics is the controller for this data.",
         "received": "What we receive: a random instance ID that the installation generates and stores in its own database, and the Betterlytics version it runs. We keep one record per instance per day: the date, the instance ID and the version. We use the IP address a report comes from only to receive it and to limit abusive traffic, and never store it. The report never includes anything about your users, your websites or your analytics data.",
         "purpose": "Purpose and legal basis: we count active installations and see which versions are in use, so we can prioritise support and security fixes. This is our legitimate interest under Art. 6(1)(f) GDPR. You can ask us for our assessment of this legitimate interest.",
         "retention": "Retention: each daily record is deleted 365 days after its date.",
