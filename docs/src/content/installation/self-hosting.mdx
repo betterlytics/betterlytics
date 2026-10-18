@@ -168,7 +168,7 @@ Your proxy must serve Betterlytics over HTTPS at exactly `PUBLIC_URL`, because l
   </Tabs.Tab>
 </Tabs>
 
-Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, add it to the `TRUSTED_PROXIES` variable in `.env` (see [Network](#network)), otherwise every visitor is recorded with the proxy's IP. To check, compare `request.remote_ip` and `request.client_ip` in `docker compose logs betterlytics-selfhost`.
+Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, add it to the `TRUSTED_PROXIES` variable in `.env` (see [Network](#network)), otherwise every visitor is recorded with the proxy's IP. To check, send a few visits from another network and open the dashboard's **Geography** page: with the proxy trusted, visitors show up in their own countries; untrusted, every visitor lands in the proxy's location.
 
 ### Plain HTTP or IP Access
 
@@ -565,7 +565,7 @@ A cleanup job deletes data older than each dashboard's retention every Saturday 
 - **"This page is open at …, which doesn't match the address…":** open the instance at its `PUBLIC_URL`, or fix `PUBLIC_URL` in `.env` and run `docker compose up -d --wait`.
 - The logs confirm it: `docker compose logs betterlytics-selfhost | grep "Invalid origin"`.
 - `setup.sh` Basic mode no longer accepts an IP address; see [Plain HTTP or IP Access](#plain-http-or-ip-access).
-- **"Too many attempts":** wait about 10 seconds. Sign-in allows 3 attempts per 10 seconds per IP. Behind your own reverse proxy, everyone shares that limit until `AUTH_TRUSTED_PROXIES` in `.env` is set to the single address your proxy connects from: the `request.remote_ip` value in `docker compose logs betterlytics-selfhost`, usually the Docker bridge gateway such as `172.18.0.1`. Then run `docker compose up -d --wait`, and check the address again after the Docker network is recreated.
+- **"Too many attempts":** wait about 10 seconds. Sign-in allows 3 attempts per 10 seconds per IP. Behind your own reverse proxy, everyone shares that limit until `AUTH_TRUSTED_PROXIES` in `.env` is set to the single address your proxy connects from. A proxy on the same machine connects from the gateway of the instance's Docker network, such as `172.18.0.1`, which `docker network inspect betterlytics_clickhouse_network -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}'` prints. A proxy on another machine connects from its own address. Then run `docker compose up -d --wait`, and check the address again after the Docker network is recreated.
 - Sign-in, invite links, and tracking snippets all use `PUBLIC_URL`, so other addresses, such as the server's IP or a second hostname pointing at it, don't work. In standalone mode the browser shows a certificate or connection error for them instead of the sign-in page.
 - Behind your own proxy, check that it passes the `Host` header unchanged and sets `X-Forwarded-Proto`.
 

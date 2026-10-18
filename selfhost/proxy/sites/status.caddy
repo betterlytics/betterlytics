@@ -12,12 +12,11 @@ https:// {
 	respond @fronted 421
 
 	import security_headers
-	log {
-		output stdout
-		format json
-	}
+	import access_log
 
 	rate_limit {
+		# The rejection log's remote_ip is the TCP peer (an own proxy); the key is the visitor
+		log_key
 		zone status_custom {
 			match {
 				not path /_next/static/*

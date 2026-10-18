@@ -9,12 +9,11 @@
 (app_routes) {
 	import security_headers
 	import framing_defaults
-	log {
-		output stdout
-		format json
-	}
+	import access_log
 
 	rate_limit {
+		# The rejection log's remote_ip is the TCP peer (an own proxy); the key is the visitor
+		log_key
 		zone event {
 			match {
 				path /event* /track*
