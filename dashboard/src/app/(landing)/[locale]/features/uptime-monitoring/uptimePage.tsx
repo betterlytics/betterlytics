@@ -14,11 +14,11 @@ import { AlertsPanel } from './_components/alertsPanel';
 import { ChecksGrid } from './_components/checksGrid';
 import { IncidentStory } from './_components/incidentStory';
 import { MonitorDemo } from './_components/monitorDemo';
-import { PlansTable } from './_components/plansTable';
 import { StatusShowcase } from './_components/statusShowcase';
 
 const FAQ_KEYS = [
   'what',
+  'free',
   'scope',
   'often',
   'false',
@@ -26,7 +26,6 @@ const FAQ_KEYS = [
   'alerts',
   'ssl',
   'domain',
-  'free',
   'internal',
   'dedicated',
 ] as const;
@@ -80,19 +79,24 @@ export function UptimePage() {
               body: t('specs.interval.body'),
             },
             {
-              value: 3,
-              unit: t('specs.threshold.unit'),
-              label: t('specs.threshold.label'),
-              body: t('specs.threshold.body'),
+              value: 30,
+              unit: t('specs.ssl.unit'),
+              label: t('specs.ssl.label'),
+              body: t('specs.ssl.body'),
             },
             {
-              value: 6,
-              unit: t('specs.channels.unit'),
-              label: t('specs.channels.label'),
-              body: t('specs.channels.body'),
+              value: 90,
+              unit: t('specs.history.unit'),
+              label: t('specs.history.label'),
+              body: t('specs.history.body'),
             },
           ]}
-          lit={{ value: 1, label: t('specs.thesis.label'), body: t('specs.thesis.body') }}
+          lit={{
+            value: 5,
+            unit: t('specs.thesis.unit'),
+            label: t('specs.thesis.label'),
+            body: t('specs.thesis.body'),
+          }}
         />
       </Section>
       <Section id='incident' title={t('story.title')} lede={t('story.lede')}>
@@ -118,11 +122,6 @@ export function UptimePage() {
       <Section id='mcp' title={t('agent.title')} lede={t('agent.lede')}>
         <Panel flush framed>
           <AgentPanel />
-        </Panel>
-      </Section>
-      <Section id='plans' title={t('plans.title')} lede={t('plans.lede')}>
-        <Panel flush>
-          <PlansTable />
         </Panel>
       </Section>
       <FaqSection

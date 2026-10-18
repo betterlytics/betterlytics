@@ -1446,19 +1446,20 @@
           "label": "Check interval",
           "body": "Check as often as every minute, or as rarely as once a day."
         },
-        "threshold": {
-          "unit": "in a row",
-          "label": "Failures before an alert",
-          "body": "The default, so a one-off blip never wakes anyone up. Adjust it per monitor."
+        "ssl": {
+          "unit": "days",
+          "label": "Certificate warning",
+          "body": "Certificates are checked every hour, with a warning up to 30 days before they expire."
         },
-        "channels": {
-          "unit": "channels",
-          "label": "Where alerts go",
-          "body": "Email, Slack, Discord, Microsoft Teams, Pushover and webhooks."
+        "history": {
+          "unit": "days",
+          "label": "Public uptime history",
+          "body": "Status pages show 90 days of daily uptime, with past incidents underneath."
         },
         "thesis": {
-          "label": "Dashboard",
-          "body": "Monitors sit beside your traffic, errors and replays. One login, one bill."
+          "unit": "in 1",
+          "label": "One login, one bill",
+          "body": "Uptime, analytics, errors, session replay and Web Vitals, side by side."
         }
       },
       "story": {
@@ -1626,27 +1627,6 @@
         "lead": "From alert to cause in one question",
         "body": "Your agent reads the open incident, checks what shipped just before it, and comes back with the likely cause and a fix for you to approve.",
         "cta": "Set up MCP"
-      },
-      "plans": {
-        "title": "On every plan, *including* free",
-        "lede": "Monitoring comes with Betterlytics. There's nothing extra to buy.",
-        "perDashboard": "Limits are per dashboard.",
-        "rows": {
-          "monitors": "Monitors",
-          "interval": "Fastest check",
-          "advanced": "Headers, status codes and keywords",
-          "statusPages": "Status pages",
-          "customDomain": "Status page on your domain"
-        },
-        "unlimited": "Unlimited",
-        "included": "Included",
-        "notIncluded": "Not included",
-        "minutes": "Every {count, plural, one {minute} other {# minutes}}",
-        "from": "From {price}/month",
-        "free": "Free",
-        "custom": "Custom",
-        "selfHost": "Self-hosting? There are no limits, and monitors can reach services on your private network.",
-        "compare": "Compare plans"
       },
       "faq": {
         "title": "Frequently asked questions",
