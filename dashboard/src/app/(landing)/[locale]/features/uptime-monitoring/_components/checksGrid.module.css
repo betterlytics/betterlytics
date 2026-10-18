@@ -1,5 +1,12 @@
 @reference '../../../landing.css';
 
+/* registered so the keyword's scan brackets can transition and replay */
+@property --scan-gap {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 11px;
+}
+
 @layer components {
   .grid {
     display: grid;
@@ -290,10 +297,15 @@
     letter-spacing: -0.3px;
     white-space: nowrap;
     opacity: 0;
-    transition: opacity 0.4s var(--ease-out-expo) 0.4s;
+    /* --scan-gap is how far the scan brackets sit outside the word; they close in on it */
+    --scan-gap: 11px;
+    transition:
+      opacity 0.4s var(--ease-out-expo) 0.4s,
+      --scan-gap 0.6s var(--ease-out-expo) 0.45s;
   }
   [data-in] .keyword {
     opacity: 1;
+    --scan-gap: 5px;
   }
   .keyword::before,
   .keyword::after,
@@ -306,39 +318,26 @@
     border-color: var(--color-fg);
     border-style: solid;
     border-width: 0;
-    transition: inset 0.6s var(--ease-out-expo) 0.45s;
   }
   .keyword::before {
-    inset: -11px auto auto -11px;
+    inset: calc(-1 * var(--scan-gap)) auto auto calc(-1 * var(--scan-gap));
     border-top-width: 1.5px;
     border-left-width: 1.5px;
   }
   .keyword::after {
-    inset: -11px -11px auto auto;
+    inset: calc(-1 * var(--scan-gap)) calc(-1 * var(--scan-gap)) auto auto;
     border-top-width: 1.5px;
     border-right-width: 1.5px;
   }
   .keyword i::before {
-    inset: auto auto -11px -11px;
+    inset: auto auto calc(-1 * var(--scan-gap)) calc(-1 * var(--scan-gap));
     border-bottom-width: 1.5px;
     border-left-width: 1.5px;
   }
   .keyword i::after {
-    inset: auto -11px -11px auto;
+    inset: auto calc(-1 * var(--scan-gap)) calc(-1 * var(--scan-gap)) auto;
     border-bottom-width: 1.5px;
     border-right-width: 1.5px;
-  }
-  [data-in] .keyword::before {
-    inset: -5px auto auto -5px;
-  }
-  [data-in] .keyword::after {
-    inset: -5px -5px auto auto;
-  }
-  [data-in] .keyword i::before {
-    inset: auto auto -5px -5px;
-  }
-  [data-in] .keyword i::after {
-    inset: auto -5px -5px auto;
   }
   .keywordBadge {
     left: 262px;
@@ -350,13 +349,44 @@
     width: 274px;
     height: 132px;
   }
+  /* the shield's light falls on the stage's own hatch: the same 10px pattern in the shield's blue, laid
+     exactly over it, as a ring around the shield (86px left of centre, where certComp puts it). The middle
+     stays dark: the shield's face is see-through, and lit stripes behind it read as a glare. */
+  .litStage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: repeating-linear-gradient(315deg, --alpha(var(--color-volt-lift) / 8%) 0 1px, transparent 0 50%) 0
+      0 / 10px 10px;
+    -webkit-mask-image: radial-gradient(
+      96px 114px at calc(50% - 86px) 50%,
+      transparent 46%,
+      rgb(0 0 0 / 0.85) 57%,
+      rgb(0 0 0 / 0.4) 74%,
+      transparent 96%
+    );
+    mask-image: radial-gradient(
+      96px 114px at calc(50% - 86px) 50%,
+      transparent 46%,
+      rgb(0 0 0 / 0.85) 57%,
+      rgb(0 0 0 / 0.4) 74%,
+      transparent 96%
+    );
+    opacity: 0;
+    transition: opacity 0.9s var(--ease-out-expo) 0.35s;
+    pointer-events: none;
+  }
+  .litStage[data-in]::before {
+    opacity: 1;
+  }
   .shield {
     position: absolute;
     left: 0;
     top: 4px;
     width: 102px;
     height: 122px;
-    filter: drop-shadow(0 0 18px --alpha(var(--color-volt-lift) / 45%));
+    filter: drop-shadow(0 0 16px --alpha(var(--color-volt-lift) / 28%));
     opacity: 0;
     transition: opacity 0.6s var(--ease-out-expo) 0.1s;
   }
@@ -449,11 +479,12 @@
     align-items: center;
     gap: 11px;
   }
+  /* the thread stops where the arrow starts (290px in), so the arrow alone carries on to the bell */
   .tiles::before {
     content: '';
     position: absolute;
     left: 14px;
-    right: 14px;
+    right: 48px;
     top: 50%;
     height: 1px;
     background: --alpha(var(--color-fg) / 22%);
@@ -712,22 +743,66 @@
     transition-delay: 0.75s;
   }
 
+  /* --- hover on the scene itself: it acts out its check once, then settles back; only once it has drawn in, never
+         for touch or reduced motion, and nothing that suggests a click --- */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    /* request: the call goes out along the wire, and the answer comes back */
+    .stage[data-in]:hover .reqWire {
+      animation: hover-wire 0.55s var(--ease-pen);
+    }
+    .stage[data-in]:hover .okChip {
+      animation: hover-await 0.8s var(--ease-out-expo);
+    }
+    .stage[data-in]:hover .okChip i {
+      animation: hover-ping 0.8s var(--ease-out-expo) 0.55s;
+    }
+    /* keyword: the brackets close on the phrase again, then the check pops */
+    .stage[data-in]:hover .keyword {
+      animation: hover-scan 0.65s var(--ease-out-expo);
+    }
+    .stage[data-in]:hover .keywordBadge {
+      animation: hover-pop 0.5s var(--ease-out-expo) 0.4s backwards;
+    }
+    /* certificate: signed again */
+    .stage[data-in]:hover .signature path {
+      animation: hover-draw 1s var(--ease-pen);
+    }
+    /* threshold: the run replays left to right, and the bell rings once the third failure lands */
+    .stage[data-in]:hover .tile {
+      animation: hover-tile 0.4s var(--ease-out-expo) calc(var(--i) * 0.08s) backwards;
+    }
+    .stage[data-in]:hover .tile[data-state='bell'] svg {
+      transform-origin: 50% 15%;
+      animation: hover-ring 0.7s ease-in-out calc(var(--i) * 0.08s + 0.25s);
+    }
+    /* response time: the line runs again and lands on today */
+    .stage[data-in]:hover .today {
+      animation: hover-draw 1s var(--ease-pen);
+    }
+    .stage[data-in]:hover .chartEnd {
+      animation: hover-pop 0.4s var(--ease-out-expo) 0.9s backwards;
+    }
+    /* reasons: the selection steps through each one, and the detail swaps with it */
+    .stage[data-in]:hover .reason:nth-child(1) {
+      animation: hover-lit-first 1.8s linear;
+    }
+    .stage[data-in]:hover .reason:nth-child(2) {
+      animation: hover-lit-second 1.8s linear;
+    }
+    .stage[data-in]:hover .reason:nth-child(3) {
+      animation: hover-lit-third 1.8s linear;
+    }
+    .stage[data-in]:hover .detail i {
+      animation: hover-swap 1.8s linear;
+    }
+  }
+
   /* --- copy under each stage --- */
   .copy {
-    padding: 28px 32px 36px;
+    padding: 34px 32px 44px;
     @variant max-sm {
       padding-inline: var(--pad);
     }
-  }
-  .icon {
-    display: inline-grid;
-    color: var(--color-fg);
-    opacity: 0.85;
-  }
-  .icon svg {
-    width: 17px;
-    height: 17px;
-    stroke-width: 1.7;
   }
   @media (prefers-reduced-motion: reduce) {
     .card,
@@ -736,10 +811,6 @@
     .reqWire,
     .okChip,
     .keyword,
-    .keyword::before,
-    .keyword::after,
-    .keyword i::before,
-    .keyword i::after,
     .shield,
     .shieldOuter,
     .certText,
@@ -753,5 +824,134 @@
     .listWire path {
       transition: none;
     }
+  }
+}
+
+/* hover replays: each ends on the scene's resting state, so nothing jumps when it finishes */
+@keyframes hover-wire {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+@keyframes hover-await {
+  0%,
+  60% {
+    opacity: 0.35;
+  }
+}
+@keyframes hover-ping {
+  from {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-live) 45%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 9px color-mix(in oklab, var(--color-live) 0%, transparent);
+  }
+}
+@keyframes hover-scan {
+  from {
+    --scan-gap: 12px;
+  }
+  to {
+    --scan-gap: 5px;
+  }
+}
+@keyframes hover-pop {
+  from {
+    scale: 0.4;
+  }
+}
+@keyframes hover-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes hover-tile {
+  from {
+    opacity: 0.25;
+    scale: 0.85;
+  }
+}
+@keyframes hover-ring {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  15% {
+    rotate: 16deg;
+  }
+  30% {
+    rotate: -13deg;
+  }
+  45% {
+    rotate: 9deg;
+  }
+  60% {
+    rotate: -5deg;
+  }
+  75% {
+    rotate: 2deg;
+  }
+}
+/* the selection moves HTTP 5xx → Timeout → SSL and back, a short hold on each */
+@keyframes hover-lit-first {
+  0%,
+  28%,
+  92%,
+  100% {
+    border-color: var(--color-volt-lift);
+    background: color-mix(in oklab, var(--color-volt) 16%, transparent);
+  }
+  32%,
+  88% {
+    border-color: transparent;
+    background: transparent;
+  }
+}
+@keyframes hover-lit-second {
+  0%,
+  28%,
+  62%,
+  100% {
+    border-color: transparent;
+    background: transparent;
+  }
+  32%,
+  58% {
+    border-color: var(--color-volt-lift);
+    background: color-mix(in oklab, var(--color-volt) 16%, transparent);
+  }
+}
+@keyframes hover-lit-third {
+  0%,
+  58%,
+  92%,
+  100% {
+    border-color: transparent;
+    background: transparent;
+  }
+  62%,
+  88% {
+    border-color: var(--color-volt-lift);
+    background: color-mix(in oklab, var(--color-volt) 16%, transparent);
+  }
+}
+@keyframes hover-swap {
+  0%,
+  28%,
+  36%,
+  58%,
+  66%,
+  88%,
+  96%,
+  100% {
+    opacity: 1;
+  }
+  32%,
+  62%,
+  92% {
+    opacity: 0.2;
   }
 }

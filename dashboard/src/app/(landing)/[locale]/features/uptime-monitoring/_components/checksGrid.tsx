@@ -1,16 +1,5 @@
-import type { ComponentType, ReactNode } from 'react';
-import {
-  AlertOctagon,
-  Bell,
-  Check,
-  ChevronDown,
-  Gauge,
-  Globe,
-  ScanText,
-  ShieldHalf,
-  Timer,
-  X,
-} from 'lucide-react';
+import type { ComponentType } from 'react';
+import { Bell, Check, ChevronDown, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Stage } from '@/landing/components/feature/showcase';
 import { Corners } from '@/landing/components/ui/frame';
@@ -98,12 +87,12 @@ function Certificate() {
       <svg className={styles.shield} viewBox='0 0 80 92' fill='none'>
         <defs>
           <linearGradient id='checks-shield' x1='0' x2='0' y1='0' y2='1'>
-            <stop offset='0' stopColor='#a9b2ff' />
-            <stop offset='1' stopColor='#5d6cf2' />
+            <stop offset='0' stopColor='#929be6' />
+            <stop offset='1' stopColor='#4f5cc9' />
           </linearGradient>
           <linearGradient id='checks-lock' x1='0' x2='0' y1='0' y2='1'>
-            <stop offset='0' stopColor='#e3e6fd' />
-            <stop offset='1' stopColor='#a3abe6' />
+            <stop offset='0' stopColor='#cdd1ee' />
+            <stop offset='1' stopColor='#9097c9' />
           </linearGradient>
         </defs>
         <path
@@ -116,12 +105,12 @@ function Certificate() {
         />
         <path
           d='M40 11.5 13.5 21V40c0 18 10.8 31.5 26.5 40C55.7 71.5 66.5 58 66.5 40V21L40 11.5Z'
-          fill='rgb(26 43 209 / 0.12)'
-          stroke='rgb(139 151 255 / 0.4)'
+          fill='rgb(26 43 209 / 0.1)'
+          stroke='rgb(139 151 255 / 0.3)'
           strokeWidth='1.2'
           strokeLinejoin='round'
         />
-        <path d='M32.5 43v-5.5a7.5 7.5 0 0 1 15 0V43' stroke='#cfd3f5' strokeWidth='3.6' />
+        <path d='M32.5 43v-5.5a7.5 7.5 0 0 1 15 0V43' stroke='#b9bee3' strokeWidth='3.6' />
         <rect x='27' y='42' width='26' height='20' rx='3.5' fill='url(#checks-lock)' stroke='#6c75c8' />
         <circle cx='40' cy='50' r='2.8' fill='#1c2250' />
         <path d='M40 51.5v4.5' stroke='#1c2250' strokeWidth='2.4' strokeLinecap='round' />
@@ -253,13 +242,13 @@ function Reasons({ t }: { t: Art }) {
   );
 }
 
-const SCENES: Record<Key, { icon: ReactNode; Scene: ComponentType<{ t: Art }> }> = {
-  http: { icon: <Globe />, Scene: Request },
-  keyword: { icon: <ScanText />, Scene: Keyword },
-  ssl: { icon: <ShieldHalf />, Scene: Certificate },
-  threshold: { icon: <Timer />, Scene: Threshold },
-  latency: { icon: <Gauge />, Scene: Latency },
-  reasons: { icon: <AlertOctagon />, Scene: Reasons },
+const SCENES: Record<Key, ComponentType<{ t: Art }>> = {
+  http: Request,
+  keyword: Keyword,
+  ssl: Certificate,
+  threshold: Threshold,
+  latency: Latency,
+  reasons: Reasons,
 };
 
 const KEYS = Object.keys(SCENES) as Key[];
@@ -270,18 +259,15 @@ export function ChecksGrid() {
   return (
     <ul className={styles.grid}>
       {KEYS.map((key, i) => {
-        const { Scene, icon } = SCENES[key];
+        const Scene = SCENES[key];
         return (
           <li key={key} className={styles.cell}>
             <Corners />
-            <Stage className={styles.stage}>
+            <Stage className={key === 'ssl' ? `${styles.stage} ${styles.litStage}` : styles.stage}>
               <Scene t={art} />
             </Stage>
             <Reveal index={i % 3} className={styles.copy}>
-              <span className={styles.icon} aria-hidden>
-                {icon}
-              </span>
-              <h3 className='mt-4 text-title leading-6 font-medium tracking-ui'>{t(`items.${key}.title`)}</h3>
+              <h3 className='text-title leading-6 font-medium tracking-ui'>{t(`items.${key}.title`)}</h3>
               <p className='mt-2 text-label leading-[22px] text-muted'>{t(`items.${key}.body`)}</p>
             </Reveal>
           </li>
