@@ -156,8 +156,8 @@ export function StatusShowcase() {
   }, []);
   return (
     <div className='grid grid-cols-[0.92fr_1.25fr] max-xl:grid-cols-1'>
-      <div className='flex flex-col justify-center border-r border-rule-10 px-7.5 pt-8 pb-8 transition-ink max-xl:border-r-0 max-xl:border-b max-sm:px-6'>
-        <ul className='grid gap-3.5'>
+      <div className='flex flex-col border-r border-rule-10 px-7.5 pt-9 pb-8 transition-ink max-xl:border-r-0 max-xl:border-b max-xl:pt-8 max-sm:px-6'>
+        <ul className='grid gap-4.5'>
           {POINTS.map((key) => (
             <li key={key} className='grid grid-cols-[18px_1fr] gap-3 text-body leading-[23px]'>
               <Check className='mt-[3px] size-[17px] text-volt-soft' strokeWidth={2.4} aria-hidden />
@@ -165,65 +165,58 @@ export function StatusShowcase() {
             </li>
           ))}
         </ul>
-        <div className='mt-9 border-t border-rule-08 pt-6 transition-ink'>
-          <Label className='mb-4 block'>{t('try')}</Label>
-          <div className='flex flex-wrap items-center gap-x-7 gap-y-4'>
-            <div className='flex items-center gap-3'>
-              <span className='text-label text-muted'>{t('theme')}</span>
-              <div className={styles.segmented} role='group' aria-label={t('theme')}>
-                {(['light', 'dark'] as const).map((value) => (
-                  <button key={value} type='button' aria-pressed={theme === value} onClick={() => setTheme(value)}>
-                    {t(value)}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className='flex items-center gap-3'>
-              <span className='text-label text-muted'>{t('accent')}</span>
-              <div className='flex gap-2' role='group' aria-label={t('accent')}>
-                {ACCENTS.map(({ name, value }) => (
-                  <button
-                    key={value}
-                    type='button'
-                    aria-label={t(`accents.${name}`)}
-                    aria-pressed={accent === value}
-                    className={styles.swatch}
-                    style={vars({ '--swatch': value })}
-                    onClick={() => setAccent(value)}
-                  />
-                ))}
-                <label
-                  ref={swatchRef}
-                  className={styles.customSwatch}
-                  data-active={custom || undefined}
-                  style={custom ? vars({ '--swatch': accent }) : undefined}
-                >
-                  <input
-                    ref={pickerRef}
-                    type='color'
-                    defaultValue={ACCENTS[0].value}
-                    aria-label={t('accents.custom')}
-                    onInput={(event) => {
-                      const { value } = event.currentTarget;
-                      paint(value);
-                      if (!custom) setAccent(value);
-                    }}
-                  />
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
         <a
           href={LINKS.status}
           target='_blank'
           rel='noopener'
-          className='mt-8 inline-flex items-center gap-2 self-start text-label text-volt-text transition-colors duration-180 ease-out-expo hover:text-fg'
+          className='mt-6 inline-flex items-center gap-2 self-start text-label text-volt-text transition-colors duration-180 ease-out-expo hover:text-fg'
         >
-          <i className='size-1.5 rounded-full bg-live shadow-[0_0_0_3px_rgb(74_222_155/0.2)]' aria-hidden />
           {t('proof')}
           <ArrowUpRight className='size-3.5' aria-hidden />
         </a>
+        <div className='mt-8 border-t border-rule-08 pt-6 transition-ink'>
+          <Label className='mb-4 block'>{t('try')}</Label>
+          <div className='flex flex-wrap items-center gap-x-7 gap-y-4'>
+            <div className={styles.segmented} role='group' aria-label={t('theme')}>
+              {(['light', 'dark'] as const).map((value) => (
+                <button key={value} type='button' aria-pressed={theme === value} onClick={() => setTheme(value)}>
+                  {t(value)}
+                </button>
+              ))}
+            </div>
+            <div className='flex gap-2' role='group' aria-label={t('accent')}>
+              {ACCENTS.map(({ name, value }) => (
+                <button
+                  key={value}
+                  type='button'
+                  aria-label={t(`accents.${name}`)}
+                  aria-pressed={accent === value}
+                  className={styles.swatch}
+                  style={vars({ '--swatch': value })}
+                  onClick={() => setAccent(value)}
+                />
+              ))}
+              <label
+                ref={swatchRef}
+                className={styles.customSwatch}
+                data-active={custom || undefined}
+                style={custom ? vars({ '--swatch': accent }) : undefined}
+              >
+                <input
+                  ref={pickerRef}
+                  type='color'
+                  defaultValue={ACCENTS[0].value}
+                  aria-label={t('accents.custom')}
+                  onInput={(event) => {
+                    const { value } = event.currentTarget;
+                    paint(value);
+                    if (!custom) setAccent(value);
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
       {/* the window runs off the bottom edge and fades into the hatch there */}
       <div
