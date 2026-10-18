@@ -12,6 +12,8 @@
 	import access_log
 
 	rate_limit {
+		# The rejection log's remote_ip is the TCP peer (an own proxy); the key is the visitor
+		log_key
 		zone event {
 			match {
 				path /event* /track*

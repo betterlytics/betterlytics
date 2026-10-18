@@ -15,8 +15,9 @@
 	header ?Content-Security-Policy "frame-ancestors 'self'"
 }
 
-# Self-host logs sit on the operator's machine, so they never hold a visitor IP (masked or not)
-# or the request headers (User-Agent, Referer, cookies).
+# Access log without client IPs or request headers (User-Agent, Referer, cookies).
+# The rate_limit plugin's own rejection line keeps the client IP on purpose, so operators can
+# see who is over a limit.
 (access_log) {
 	log {
 		output stdout
