@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { User } from '@/entities/auth/user.entities';
 import {
-  isResetTokenValid,
+  findResetTokenEmail,
   resetTokenStoredIdentifier,
   sendPasswordChangedNotification,
   sendResetPasswordEmail,
 } from '@/services/auth/passwordReset.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
+import { findUserById } from '@/repositories/postgres/user.repository';
 
 vi.mock('@/lib/env', () => ({
   env: {
@@ -20,6 +22,9 @@ vi.mock('@/repositories/postgres/resetToken.repository', () => ({
   RESET_TOKEN_PREFIX: 'reset-password:',
   findResetTokenUserId: vi.fn(),
   deleteUserResetTokens: vi.fn(),
+}));
+vi.mock('@/repositories/postgres/user.repository', () => ({
+  findUserById: vi.fn(),
 }));
 
 beforeEach(() => {
@@ -37,15 +42,21 @@ describe('resetTokenStoredIdentifier', () => {
   });
 });
 
-describe('isResetTokenValid', () => {
-  it('looks up the hashed identifier', async () => {
+describe('findResetTokenEmail', () => {
+  it("looks up the hashed identifier and returns its account's email", async () => {
     vi.mocked(findResetTokenUserId).mockResolvedValue('user-1');
+    vi.mocked(findUserById).mockResolvedValue({ id: 'user-1', email: 'ada@example.com' } as User);
 
-    await expect(isResetTokenValid('raw-token')).resolves.toBe(true);
+    await expect(findResetTokenEmail('raw-token')).resolves.toBe('ada@example.com');
     expect(findResetTokenUserId).toHaveBeenCalledWith(resetTokenStoredIdentifier('raw-token'));
+    expect(findUserById).toHaveBeenCalledWith('user-1');
+  });
 
+  it('returns null for an unknown or expired token, without looking up a user', async () => {
     vi.mocked(findResetTokenUserId).mockResolvedValue(null);
-    await expect(isResetTokenValid('raw-token')).resolves.toBe(false);
+
+    await expect(findResetTokenEmail('raw-token')).resolves.toBeNull();
+    expect(findUserById).not.toHaveBeenCalled();
   });
 });
 
@@ -53,7 +64,6 @@ describe('sendResetPasswordEmail', () => {
   const USER = { id: 'user-1', email: 'user@example.com', name: 'Test' };
 
   it('prunes older tokens and enqueues the reset email', async () => {
-
     await sendResetPasswordEmail(USER, 'https://app.test/link', 'raw-token');
 
     expect(deleteUserResetTokens).toHaveBeenCalledWith('user-1', resetTokenStoredIdentifier('raw-token'));

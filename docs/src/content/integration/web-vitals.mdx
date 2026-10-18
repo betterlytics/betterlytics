@@ -28,6 +28,10 @@ Add `data-web-vitals="true"` to your analytics script to enable CWV collection:
 ></script>
 ```
 
+<Callout type="info">
+Self-hosting? Load `analytics.js` from your instance and send events to it, with the script tag and the npm package alike. [Tracking Scripts](/installation/self-hosting#tracking-scripts) in the Self-Hosting guide shows the two changes.
+</Callout>
+
 To disable later, remove the attribute or set `data-web-vitals="false"`.
 
 ### Using the npm package
@@ -68,7 +72,7 @@ Single‑page applications (SPAs): Today we only collect CWV on the initial page
 
 ## First-party loading
 
-The `web-vitals` library loads first-party from the same origin the analytics script itself was loaded from - no request leaves for any third-party host. If your site sets a Content-Security-Policy, `script-src` only needs to allow your Betterlytics origin (for the hosted service, `https://betterlytics.io`).
+The `web-vitals` library loads first-party from the same origin the analytics script itself was loaded from - no request leaves for any third-party host. If your site sets a Content-Security-Policy, allow your Betterlytics origin in both `script-src` and `connect-src`: `https://betterlytics.io` for the hosted service, or your instance's origin when [self-hosting](/installation/self-hosting#content-security-policy).
 
 ---
 

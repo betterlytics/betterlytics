@@ -3,6 +3,8 @@ title: "MCP Server"
 description: "Connect AI agents to your Betterlytics analytics data using the Model Context Protocol (MCP)."
 ---
 
+import { Callout } from "nextra/components";
+
 # MCP Server
 
 Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) server. This lets you ask AI agents about your website's traffic in natural language, and connect real analytics data to your UI, UX, and code to make data-driven optimizations directly from your development workflow. No dashboards or manual queries needed.
@@ -18,6 +20,10 @@ Betterlytics exposes your analytics data through a [Model Context Protocol (MCP)
 ## Setup
 
 Pick your client below to see only its setup steps. Claude Desktop, Claude Code, Cursor, VS Code, Windsurf, Antigravity and Codex are supported.
+
+<Callout type="info">
+Self-hosting? Your instance serves its own MCP endpoint at `/api/mcp`, for example `https://analytics.example.com/api/mcp`. Create the token on your instance: the **API Tokens** section under **Dashboard > Settings > MCP** shows this address as the **Server URL**, with a copy button. Paste it into the **Server URL** field below, and every snippet and install link uses your instance instead of Betterlytics Cloud.
+</Callout>
 
 <McpSetup />
 

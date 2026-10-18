@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CopyButton } from '@/components/CopyButton';
+import ExternalLink from '@/components/ExternalLink';
 import { statusPageCnameTarget } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
@@ -17,11 +18,12 @@ type CustomDomainSetupProps = {
 export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: CustomDomainSetupProps) {
   const t = useTranslations('statusPagesPage.editor');
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
+  const isCloud = isFeatureFlagEnabled('isCloud');
 
   const domain = customDomain.trim();
   if (!domain || !isValid || !slug.trim()) return null;
 
-  const target = statusPageCnameTarget(slug, publicHost, isFeatureFlagEnabled('isCloud'));
+  const target = statusPageCnameTarget(slug, publicHost, isCloud);
   // Many providers (Namecheap, Cloudflare, GoDaddy…) auto-append the domain, so the Name field wants
   // just the subdomain label.
   const hostLabel = domain.split('.')[0];
@@ -31,7 +33,7 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: C
       <div className='flex items-center gap-2'>
         <Info className='h-4 w-4 flex-none text-blue-600 dark:text-blue-400' />
         <p className='text-muted-foreground text-xs'>
-          {t.rich('customDomainSetup.intro', {
+          {t.rich(isCloud ? 'customDomainSetup.intro' : 'customDomainSetup.introSelfHosted', {
             domain,
             strong: (chunks) => <span className='text-foreground font-medium'>{chunks}</span>,
           })}
@@ -66,6 +68,22 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: C
         })}
       </p>
       <p className='text-muted-foreground text-xs'>{t('customDomainSetup.propagation')}</p>
+      {!isCloud && (
+        <p className='text-muted-foreground text-xs'>
+          {t.rich('customDomainSetup.proxyHintSelfHosted', {
+            link: (chunks) => (
+              <ExternalLink
+                href='https://betterlytics.io/docs/installation/self-hosting#custom-status-page-domains'
+                target='_blank'
+                rel='noopener noreferrer'
+                className='hover:text-foreground underline'
+              >
+                {chunks}
+              </ExternalLink>
+            ),
+          })}
+        </p>
+      )}
     </div>
   );
 }

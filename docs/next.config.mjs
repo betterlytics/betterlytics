@@ -2,7 +2,9 @@ import nextra from "nextra";
 import * as path from "path";
 import dotenv from "dotenv";
 
-const withNextra = nextra({});
+const withNextra = nextra({
+  defaultShowCopyCode: true,
+});
 
 const rootDir = path.resolve(process.cwd(), "..");
 const envPath = path.join(rootDir, ".env");

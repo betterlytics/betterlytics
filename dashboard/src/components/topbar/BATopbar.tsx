@@ -20,6 +20,7 @@ import {
   ArrowUpCircle,
   CreditCard,
   Bug,
+  ShieldCheck,
 } from 'lucide-react';
 import Logo from '@/components/logo';
 import UserSettingsDialog from '@/components/userSettings/UserSettingsDialog';
@@ -44,6 +45,7 @@ export default function BATopbar() {
   const [showBugReportDialog, setShowBugReportDialog] = useState(false);
   const { start: startLoader } = useTopLoader();
   const t = useTranslations('components.topbar.userMenu');
+  const tPublicNav = useTranslations('public.nav');
   const dashboardNav = useOptionalDashboardNavigation();
   const isDemo = dashboardNav?.isDemo ?? false;
   const isEmbedded = useIsEmbedded();
@@ -51,6 +53,7 @@ export default function BATopbar() {
   const isBugReportsEnabled = isFeatureFlagEnabled('enableBugReports');
   const isBillingEnabled = isFeatureFlagEnabled('enableBilling');
   const isChangelogEnabled = isFeatureFlagEnabled('enableChangelog');
+  const showInstanceAdmin = !isFeatureFlagEnabled('isCloud') && session?.user.role === 'admin';
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -90,22 +93,17 @@ export default function BATopbar() {
           </div>
 
           <div className='flex items-center space-x-4'>
-            {isPending ? (
+            {disableTopbarNav ? null : isPending ? (
               <div className='flex items-center space-x-2'>
                 <div className='bg-muted h-4 w-16 animate-pulse rounded' />
-                <div className='bg-muted h-8 w-8 animate-pulse rounded-full' />
+                {!isDemo && <div className='bg-muted h-8 w-8 animate-pulse rounded-full' />}
               </div>
             ) : session ? (
-              disableTopbarNav ? (
-                <div
-                  className='flex h-10 cursor-default items-center space-x-2 rounded-full px-3 select-none'
-                  aria-disabled='true'
-                >
-                  <span className='text-foreground hidden text-sm font-medium sm:block'>
-                    {session.user.name || t('userFallback')}
-                  </span>
-                  <BAAvatar />
-                </div>
+              // No account menu on the share page: a visitor who signs in after load has no personal settings here
+              isDemo ? (
+                <Button asChild>
+                  <NextLink href='/dashboards'>{tPublicNav('goToDashboard')}</NextLink>
+                </Button>
               ) : (
                 <>
                   {isChangelogEnabled && <ChangelogModal />}
@@ -142,6 +140,14 @@ export default function BATopbar() {
                         <Settings className='mr-2 h-4 w-4' />
                         <span>{t('settings')}</span>
                       </DropdownMenuItem>
+                      {showInstanceAdmin && (
+                        <DropdownMenuItem asChild className='cursor-pointer'>
+                          <NextLink href='/admin'>
+                            <ShieldCheck className='mr-2 h-4 w-4' />
+                            <span>{t('admin')}</span>
+                          </NextLink>
+                        </DropdownMenuItem>
+                      )}
 
                       <DropdownMenuSeparator />
 
@@ -171,7 +177,7 @@ export default function BATopbar() {
         </div>
       </header>
 
-      {session && <UserSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />}
+      {session && !isDemo && <UserSettingsDialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog} />}
       {isBugReportsEnabled && <BugReportDialog open={showBugReportDialog} onOpenChange={setShowBugReportDialog} />}
     </>
   );

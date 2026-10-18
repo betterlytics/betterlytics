@@ -22,7 +22,11 @@ export async function getAuthorizedDashboardContextOrNull(data: DashboardFindByU
   });
 }
 
+export function isPublicDashboardId(dashboardId: string): boolean {
+  return Boolean(env.DEMO_DASHBOARD_ID) && dashboardId === env.DEMO_DASHBOARD_ID;
+}
+
 export async function assertPublicDashboardAccess(dashboardId: string): Promise<void> {
-  if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) return;
+  if (isPublicDashboardId(dashboardId)) return;
   notFound();
 }

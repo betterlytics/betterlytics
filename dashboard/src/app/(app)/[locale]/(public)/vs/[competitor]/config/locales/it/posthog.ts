@@ -4,18 +4,9 @@ export const posthog: ComparisonLocaleContent = {
   name: 'PostHog',
   logo: '/tools/posthog-logo.svg',
   seo: {
-    title: 'Betterlytics vs PostHog: Alternativa leggera e focalizzata',
+    title: 'Betterlytics vs PostHog: alternativa più semplice, nell’UE',
     description:
-      'Confronta Betterlytics con PostHog. Analytics web focalizzate con uno script leggerissimo, privacy di default e prezzi prevedibili. Niente complessità, solo chiarezza.',
-    keywords: [
-      'alternativa PostHog',
-      'analytics leggere',
-      'analytics privacy-first',
-      'analytics web semplici',
-      'analytics senza cookie',
-      'sostituto PostHog',
-      'prezzi prevedibili analytics',
-    ],
+      'Confronta Betterlytics con PostHog. Analisi web, session replay, errori e uptime in uno strumento più semplice, ospitato nell’UE e con prezzi prevedibili.',
   },
   hero: {
     title: 'Cerchi un’alternativa a PostHog?',
@@ -26,7 +17,7 @@ export const posthog: ComparisonLocaleContent = {
   keyDifferentiators: [
     {
       title: 'Davvero leggero',
-      betterlytics: 'Script sotto i 2KB, progettato per un impatto minimo sulle performance della pagina.',
+      betterlytics: 'Script da 3,5KB, progettato per un impatto minimo sulle performance della pagina.',
       competitor: 'Script di circa 57KB con un ampio set di funzionalità e maggiore overhead di caricamento.',
     },
     {
@@ -37,7 +28,7 @@ export const posthog: ComparisonLocaleContent = {
     {
       title: 'Prezzi semplici e prevedibili',
       betterlytics:
-        'Piano gratuito per sempre per siti piccoli. Piani a pagamento da $6/mese con le funzionalità principali incluse.',
+        'Piano gratuito per sempre per siti piccoli. Piani a pagamento da $7/mese con le funzionalità principali incluse.',
       competitor:
         'Piano gratuito generoso, ma la fatturazione basata sull’utilizzo su più prodotti diventa complessa con la crescita.',
     },
@@ -65,7 +56,7 @@ export const posthog: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '<2KB', competitor: '~57KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~57KB' },
           { name: 'Impatto sul caricamento della pagina', betterlytics: 'Minimo', competitor: 'Moderato' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: 'Parziale' },
         ],
@@ -129,7 +120,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'La velocità della pagina conta',
-      content: `Lo script di PostHog pesa circa 57KB (gzip). Include feature flag, session recording, autocapture e molte altre funzionalità. Su mobile o connessioni lente, questo peso si fa sentire.\n\nIl nostro script? Meno di 2KB. Le pagine restano veloci, i Core Web Vitals restano verdi e la SEO ringrazia. Gli analytics non dovrebbero rallentare il tuo sito.`,
+      content: `Lo script di PostHog pesa circa 57KB (gzip). Include feature flag, session recording, autocapture e molte altre funzionalità. Su mobile o connessioni lente, questo peso si fa sentire.\n\nIl nostro script? Circa 3,5KB. Le pagine restano veloci, i Core Web Vitals restano verdi e la SEO ringrazia. Gli analytics non dovrebbero rallentare il tuo sito.`,
       icon: 'zap',
     },
     {
@@ -139,7 +130,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Sai sempre quanto spendi',
-      content: `PostHog fattura separatamente eventi, session replay, feature flag, sondaggi e altro. Il piano gratuito è generoso, ma i costi possono crescere rapidamente con l’aumento dell’utilizzo, rendendo la spesa mensile meno prevedibile.\n\nNoi manteniamo tutto semplice: prezzo fisso da $6/mese con limiti chiari sugli eventi. Session replay, monitoring e analytics principali inclusi. Nessun foglio di calcolo per capire quanto devi pagare.`,
+      content: `PostHog fattura separatamente eventi, session replay, feature flag, sondaggi e altro. Il piano gratuito è generoso, ma i costi possono crescere rapidamente con l’aumento dell’utilizzo, rendendo la spesa mensile meno prevedibile.\n\nNoi manteniamo tutto semplice: prezzo fisso da $7/mese con limiti chiari sugli eventi. Session replay, monitoring e analytics principali inclusi. Nessun foglio di calcolo per capire quanto devi pagare.`,
       icon: 'dollar',
     },
     {

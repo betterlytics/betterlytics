@@ -11,7 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { toast } from 'sonner';
 import { RoleBadge, formatDate } from './member-utils';
 import { inviteMemberAction, cancelInvitationAction } from '@/app/actions/dashboard/invitations.action';
-import { InvitationWithInviter, CreateInvitationSchema } from '@/entities/dashboard/invitation.entities';
+import { PendingInvitation, CreateInvitationSchema } from '@/entities/dashboard/invitation.entities';
 import { DashboardRole } from '@prisma/client';
 import { useLocale, useTranslations } from 'next-intl';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -23,7 +23,7 @@ const InviteFormSchema = CreateInvitationSchema.pick({ email: true, role: true }
 
 interface InviteSectionProps {
   dashboardId: string;
-  pendingInvitations: InvitationWithInviter[];
+  pendingInvitations: PendingInvitation[];
   memberCount: number;
   inviteBaseUrl: string;
   emailsEnabled: boolean;
@@ -231,20 +231,22 @@ export function InviteSection({
                       <div className='hidden sm:block'>
                         <RoleBadge role={invitation.role} />
                       </div>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span className='flex'>
-                            <CopyButton
-                              text={inviteLinkFor(invitation.token)}
-                              ariaLabel={t('section.copyLink')}
-                              copiedLabel={t('section.linkCopied')}
-                              className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors'
-                              iconClassName='size-3.5'
-                            />
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>{t('section.copyLink')}</TooltipContent>
-                      </Tooltip>
+                      {invitation.token && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className='flex'>
+                              <CopyButton
+                                text={inviteLinkFor(invitation.token)}
+                                ariaLabel={t('section.copyLink')}
+                                copiedLabel={t('section.linkCopied')}
+                                className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-7 cursor-pointer items-center justify-center rounded-md transition-colors'
+                                iconClassName='size-3.5'
+                              />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>{t('section.copyLink')}</TooltipContent>
+                        </Tooltip>
+                      )}
                       <PermissionGate permission='canInviteMembers'>
                         {(disabled) => (
                           <Button

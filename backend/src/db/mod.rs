@@ -9,7 +9,6 @@ use tokio::time::{timeout_at, Instant};
 use tracing::{debug, error, info, warn};
 
 use crate::clickhouse::ClickHouseClient;
-use crate::config::Config;
 use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
@@ -34,7 +33,6 @@ const REJECTED_BATCH_ATTEMPTS: u32 = 3;
 
 pub struct Database {
     clickhouse: Arc<ClickHouseClient>,
-    config: Arc<Config>,
 }
 
 pub type SharedDatabase = Arc<Database>;
@@ -43,7 +41,6 @@ impl Database {
     /// Creates the database handle plus the event and bot-event ingest channels
     pub async fn new(
         clickhouse: Arc<ClickHouseClient>,
-        config: Arc<Config>,
         metrics: Option<Arc<MetricsCollector>>,
     ) -> Result<(Self, Sender<ProcessedEvent>, Sender<BotEvent>, JoinHandle<()>, JoinHandle<()>)> {
         let (event_tx, event_rx) = mpsc::channel(EVENT_CHANNEL_CAPACITY);
@@ -65,7 +62,7 @@ impl Database {
             metrics,
         ));
 
-        Ok((Self { clickhouse, config }, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle))
+        Ok((Self { clickhouse }, event_tx, bot_event_tx, inserter_handle, bot_inserter_handle))
     }
 
     /// Fetch the current session of every visitor active within `window`, from `analytics.sessions`
@@ -103,58 +100,7 @@ impl Database {
             return Ok(());
         }
 
-        if self.config.data_retention_days == -1 {
-            info!("Data retention explicitly disabled (data_retention_days = -1). Removing TTL if present.");
-            if let Err(e) = Self::remove_data_retention_policy(self.clickhouse.inner()).await {
-                error!("Could not remove data retention policy: {}", e);
-                return Err(e);
-            }
-        } else if self.config.data_retention_days > 0 {
-            if let Err(e) = Self::apply_data_retention_policy(self.clickhouse.inner(), self.config.data_retention_days).await {
-                error!("Could not apply data retention policy: {}", e);
-                return Err(e);
-            }
-        } else {
-            warn!(
-                "Invalid value for DATA_RETENTION_DAYS: {}. TTL policy will not be changed. Use a positive integer to set TTL, or -1 to remove TTL.",
-                self.config.data_retention_days
-            );
-        }
-
-        info!("Database schema validation and TTL setup complete.");
-        Ok(())
-    }
-
-    async fn apply_data_retention_policy(client: &clickhouse::Client, data_retention_days: i32) -> Result<()> {
-        let alter_query = format!(
-            "ALTER TABLE analytics.events MODIFY TTL timestamp + INTERVAL {} DAY",
-            data_retention_days
-        );
-        client.query(&alter_query).execute().await.map_err(|e|
-            anyhow::anyhow!("Failed to apply data retention policy for analytics.events table: {}.", e)
-        )?;
-        Ok(())
-    }
-
-    async fn remove_data_retention_policy(client: &clickhouse::Client) -> Result<()> {
-        let create_table_query: String = client
-            .query("SELECT create_table_query FROM system.tables WHERE database = 'analytics' AND name = 'events'")
-            .fetch_one()
-            .await?;
-
-        if create_table_query.contains("TTL ") {
-            info!("TTL policy exists, removing it.");
-            let alter_query = "ALTER TABLE analytics.events REMOVE TTL";
-            client
-                .query(alter_query)
-                .execute()
-                .await
-                .map_err(|e| anyhow::anyhow!("Failed to remove data retention policy: {}", e))?;
-            info!("TTL policy removed successfully.");
-        } else {
-            info!("No TTL policy found on events table, nothing to remove.");
-        }
-
+        info!("Database schema validation complete.");
         Ok(())
     }
 

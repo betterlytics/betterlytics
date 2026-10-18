@@ -1,52 +1,36 @@
 import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { getCachedSession } from '@/auth/api-auth';
-import { assertSuperAdmin } from '@/auth/superAdmin-auth';
-import { ForbiddenError } from '@/lib/exceptions';
+import { getCurrentAdminActor } from '@/auth/admin-auth';
+import { getAvailableAdminSections } from '@/entities/admin/adminAccess.entities';
+import BATopbar from '@/components/topbar/BATopbar';
+import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
+import { SidebarProvider } from '@/components/ui/sidebar';
+import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
+import { getPublicEnvironmentVariables } from '@/services/system/environment.service';
+import { AdminSidebar } from './_components/AdminSidebar';
 
 export const metadata: Metadata = {
+  title: 'Admin',
   robots: { index: false, follow: false },
 };
 
-const NAV_LINKS = [
-  { href: '/admin/users', label: 'Users' },
-  { href: '/admin/bug-reports', label: 'Bug Reports' },
-  { href: '/admin/audit-log', label: 'Audit Log' },
-];
-
-export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const session = await getCachedSession();
-
-  try {
-    assertSuperAdmin(session);
-  } catch (error) {
-    if (error instanceof ForbiddenError) {
-      notFound();
-    }
-    throw error;
-  }
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  const actor = await getCurrentAdminActor();
+  if (!actor) notFound();
 
   return (
-    <div className='flex min-h-screen flex-col'>
-      <header className='bg-background border-b px-6 py-3'>
-        <div className='flex items-center gap-6'>
-          <span className='text-muted-foreground text-sm font-semibold tracking-wider uppercase'>Admin</span>
-          <nav className='flex items-center gap-4'>
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className='text-muted-foreground hover:text-foreground text-sm transition-colors'
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-          <div className='text-muted-foreground ml-auto text-xs'>{session.user.email}</div>
-        </div>
-      </header>
-      <main className='flex-1 p-6'>{children}</main>
-    </div>
+    <PublicEnvironmentVariablesProvider publicEnvironmentVariables={getPublicEnvironmentVariables()}>
+      <section className='h-full w-full'>
+        <BATopbar />
+        <main className='bg-background w-full overflow-x-hidden'>
+          <SidebarProvider>
+            <AdminSidebar edition={actor.edition} sections={getAvailableAdminSections(actor.edition)} />
+            <BAMobileSidebarTrigger />
+            <div className='flex w-full justify-center md:mt-14'>{children}</div>
+          </SidebarProvider>
+        </main>
+      </section>
+    </PublicEnvironmentVariablesProvider>
   );
 }

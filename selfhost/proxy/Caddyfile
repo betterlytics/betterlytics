@@ -1,0 +1,46 @@
+{
+	# Nothing in the image reloads Caddy, and the API would let any loopback request stop or reconfigure it.
+	admin off
+	order rate_limit before handle
+	# Whole directive so an unset SSL_EMAIL leaves no bare `email` line.
+	{$CADDY_EMAIL_DIRECTIVE}
+	acme_ca {$ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
+	servers {
+		trusted_proxies static private_ranges {$TRUSTED_PROXIES}
+		trusted_proxies_strict
+		timeouts {
+			read_header 10s
+			read_body 60s
+			idle 5m
+		}
+	}
+	# Inert unless a site uses `tls { on_demand }`. Loopback only, so the token never leaves the container.
+	on_demand_tls {
+		ask http://127.0.0.1:3000/api/status-page/ask?token={$STATUS_PAGE_ASK_SECRET}
+	}
+	# Ask denials are logged at DEBUG only; scoped so the default INFO log is unchanged.
+	log on_demand_ask {
+		output stdout
+		format filter {
+			wrap json
+			fields {
+				url query {
+					delete token
+				}
+			}
+		}
+		level DEBUG
+		include tls.permission.http
+	}
+}
+
+import snippets/*.caddy
+
+# ":80" for TLS=off, the bare host of PUBLIC_URL for TLS=auto.
+{$CADDY_SITE} {
+	import http01_tls
+	import app_routes
+}
+
+# sites/status.caddy or sites/none.caddy, chosen in entrypoint.sh
+import {$CADDY_STATUS_SITE}

@@ -2,6 +2,7 @@
 
 import { Stepper } from '@/components/ui/stepper';
 import { useCallback, useMemo } from 'react';
+import { useTranslations } from 'next-intl';
 
 type Steps = 'website' | 'integration';
 
@@ -10,7 +11,8 @@ type OnboardingPorgressProps = {
 };
 
 export function OnboardingProgress({ step }: OnboardingPorgressProps) {
-  const steps = useMemo(() => [{ label: 'Website' }, { label: 'Integration' }], []);
+  const t = useTranslations('onboarding.progress');
+  const steps = useMemo(() => [{ label: t('website') }, { label: t('integration') }], [t]);
 
   const getCurrentStep = useCallback(() => {
     if (step === 'website') return 1;

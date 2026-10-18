@@ -64,7 +64,7 @@ enum BugReportStatus {
   ignored
 }
 
-enum SuperAdminAuditStatus {
+enum AdminAuditStatus {
   success
   failed
 }
@@ -157,7 +157,9 @@ model User {
   mcpTokens McpToken[]
   statusPageIncidents StatusPageIncident[]
 
-  deletedAt DateTime?
+  lastActiveAt DateTime?
+  disabledAt   DateTime?
+  deletedAt    DateTime?
 }
 
 model Verification {
@@ -577,7 +579,7 @@ model StatusPageIncidentUpdate {
   status  StatusPageIncidentStatus // status posted with this update — drives the public timeline
   message String                   // the update's public message (editable; may be empty for status-only)
 
-  // Acting user. Stored as a plain id (no FK) to mirror SuperAdminAuditLog and keep this log table
+  // Acting user. Stored as a plain id (no FK) to mirror AdminAuditLog and keep this log table
   // decoupled from the User lifecycle; null for system-authored entries.
   createdById String?
 
@@ -738,15 +740,17 @@ model SentEmail {
   @@index([recipientKey])
 }
 
-model SuperAdminAuditLog {
-  id           String   @id @default(cuid())
-  actorUserId  String
-  action       String
-  targetType   String
-  targetId     String?
-  payload      Json     @default("{}")
-  status       SuperAdminAuditStatus @default(success)
-  createdAt    DateTime @default(now())
+model AdminAuditLog {
+  id          String           @id @default(cuid())
+  actorUserId String
+  actorLabel  String?
+  action      String
+  targetType  String
+  targetId    String?
+  targetLabel String?
+  payload     Json             @default("{}")
+  status      AdminAuditStatus @default(success)
+  createdAt   DateTime         @default(now())
 
   @@index([actorUserId])
   @@index([createdAt])

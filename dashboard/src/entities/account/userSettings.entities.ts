@@ -63,3 +63,20 @@ export const DEFAULT_USER_SETTINGS: Omit<UserSettings, 'id' | 'userId' | 'create
 export type UserSettingsUpdate = z.infer<typeof UserSettingsUpdateSchema>;
 export type UserSettings = z.infer<typeof UserSettingsSchema>;
 export type UserSettingsCreate = z.infer<typeof UserSettingsCreateSchema>;
+
+export type AccountDeletionBlocker = 'last_admin' | 'last_user';
+
+// Never leave a self-host instance without an enabled admin or without any enabled user; signup does
+// not reopen. Counts only include enabled accounts, so removing an already disabled one never blocks.
+export function resolveAccountDeletionBlocker(
+  target: { role: string | null; deletedAt?: Date | null; disabledAt?: Date | null },
+  counts: { activeAdmins: number; activeUsers: number },
+): AccountDeletionBlocker | null {
+  if (target.deletedAt || target.disabledAt) return null;
+  if (target.role === 'admin' && counts.activeAdmins <= 1) return 'last_admin';
+  return counts.activeUsers <= 1 ? 'last_user' : null;
+}
+
+export type OwnedDashboardsDisposal = { mode: 'delete' } | { mode: 'transfer'; toUserId: string };
+
+export type AccountDeletionOutcome = AccountDeletionBlocker | 'invalid_recipient' | null;

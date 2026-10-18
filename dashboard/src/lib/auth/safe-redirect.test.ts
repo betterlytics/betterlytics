@@ -10,6 +10,10 @@ describe('toSafeRelativePath', () => {
   it.each([
     ['absolute URL', 'https://evil.example/x'],
     ['protocol-relative', '//evil.example/x'],
+    ['protocol-relative after a dot segment', '/.//evil.example/x'],
+    ['protocol-relative after a parent segment', '/..//evil.example/x'],
+    ['protocol-relative after a resolved parent segment', '/a/..//evil.example/x'],
+    ['protocol-relative after an encoded dot segment', '/%2e//evil.example/x'],
     ['backslash host', '/\\evil.example'],
     ['tab-split host', '/\t/evil.example'],
     ['newline-split host', '/\n/evil.example'],

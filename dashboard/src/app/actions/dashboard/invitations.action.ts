@@ -11,14 +11,14 @@ import {
   declineInvitation,
   acceptPendingInvitations,
 } from '@/services/dashboard/invitation.service';
-import { InvitationWithInviter } from '@/entities/dashboard/invitation.entities';
+import { InvitationWithInviter, PendingInvitation } from '@/entities/dashboard/invitation.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext, withUserAuth } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
 import type { User } from '@/entities/auth/session.entities';
 
 export const getPendingInvitationsAction = withDashboardAuthContext(
-  async (ctx: AuthContext): Promise<InvitationWithInviter[]> => {
-    return getPendingInvitations(ctx.dashboardId);
+  async (ctx: AuthContext): Promise<PendingInvitation[]> => {
+    return getPendingInvitations(ctx.dashboardId, ctx.role);
   },
 );
 
@@ -41,7 +41,7 @@ export const cancelInvitationAction = withDashboardMutationAuthContext(
 
 export const getUserPendingInvitationsAction = withUserAuth(
   async (user: User): Promise<InvitationWithInviter[]> => {
-    return getPendingInvitationsForUser(user.email);
+    return getPendingInvitationsForUser(user);
   },
 );
 
@@ -53,9 +53,9 @@ export const acceptInvitationAction = withUserAuth(async (user: User, token: str
 });
 
 export const declineInvitationAction = withUserAuth(async (user: User, invitationId: string): Promise<void> => {
-  await declineInvitation(invitationId, user.email);
+  await declineInvitation(invitationId, user);
 });
 
 export const acceptPendingInvitationsAction = withUserAuth(async (user: User) => {
-  return acceptPendingInvitations(user.id, user.email);
+  return acceptPendingInvitations(user);
 });

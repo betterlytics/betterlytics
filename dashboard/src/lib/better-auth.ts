@@ -1,7 +1,7 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { twoFactor } from 'better-auth/plugins';
-import { APIError, createAuthMiddleware } from 'better-auth/api';
+import { APIError, createAuthMiddleware, getSessionFromCtx, isAPIError } from 'better-auth/api';
 import { nextCookies } from 'better-auth/next-js';
 import prisma from '@/lib/postgres';
 import { hashPassword, verifyPasswordHash } from '@/lib/password';
@@ -10,13 +10,19 @@ import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
 import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
-import { enqueueEmail } from '@/services/email/email.service';
-import { createUserRecipientKey } from '@/services/email/recipient-key.service';
+import { sendTwoFactorChangedNotification } from '@/services/auth/twoFactorNotification.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
-import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
+import {
+  findUserById,
+  findUserByEmail,
+  findCredentialAccount,
+  touchUserLastActive,
+} from '@/repositories/postgres/user.repository';
+import { ACCOUNT_DISABLED_ERROR_CODE } from '@/lib/auth/auth-error';
 import { PasswordSchema } from '@/entities/auth/password.entities';
 import { MAX_EMAIL_LENGTH } from '@/entities/auth/user.entities';
+import { SIGNUP_DISABLED_MESSAGE, VERIFICATION_EMAIL_THROTTLED } from '@/constants/auth';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import {
@@ -45,6 +51,14 @@ const VERIFY_EMAIL_CALLBACK_URL = '/verify-email?verified=1';
 // locale sync there so default settings don't overwrite the locale they signed up in.
 const FIRST_SIGN_IN_WINDOW_MS = 60_000;
 
+async function recordUserActivity(userId: string): Promise<void> {
+  try {
+    await touchUserLastActive(userId);
+  } catch (error) {
+    console.error('Failed to record user activity:', { userId, error });
+  }
+}
+
 function signupLanguage(body: unknown): SupportedLanguages | undefined {
   const language = (body as { language?: unknown } | undefined)?.language;
   return SUPPORTED_LANGUAGES.includes(language as SupportedLanguages)
@@ -56,6 +70,9 @@ export const auth = betterAuth({
   appName: 'Betterlytics',
   baseURL: env.AUTH_URL,
   secret: env.AUTH_SECRET,
+  // OAuth failures that carry no errorCallbackURL of their own (a lost state cookie) land on sign-in, which says what
+  // went wrong, rather than better-auth's unbranded error page
+  onAPIError: { errorURL: '/signin' },
   database: prismaAdapter(prisma, { provider: 'postgresql', transaction: true }),
   emailAndPassword: {
     enabled: true,
@@ -121,6 +138,7 @@ export const auth = betterAuth({
     expiresIn: SESSION_MAX_AGE_SECONDS,
     updateAge: SESSION_UPDATE_AGE_SECONDS,
   },
+  advanced: { ipAddress: { trustedProxies: env.AUTH_TRUSTED_PROXIES } },
   user: {
     additionalFields: {
       role: { type: 'string', required: false, input: false },
@@ -130,6 +148,7 @@ export const auth = betterAuth({
       termsAcceptedVersion: { type: 'number', required: false, input: false },
       changelogVersionSeen: { type: 'string', required: false, input: false },
       githubStarPromptState: { type: 'string', required: false, input: false },
+      disabledAt: { type: 'date', required: false, input: false },
     },
   },
   hooks: {
@@ -139,10 +158,10 @@ export const auth = betterAuth({
         throw new APIError('NOT_FOUND');
       }
 
-      // OAuth-only accounts get no reset token; the response must match the unknown-email case
+      // OAuth-only and disabled accounts get no reset token; the response must match the unknown-email case
       if (ctx.path === '/request-password-reset' && typeof ctx.body?.email === 'string') {
         const user = await findUserByEmail(ctx.body.email);
-        if (user && !(await findCredentialAccount(user.id))) {
+        if (user && (user.disabledAt || !(await findCredentialAccount(user.id)))) {
           return ctx.json({
             status: true,
             message: 'If this email exists in our system, check your email for the reset link',
@@ -150,12 +169,13 @@ export const auth = betterAuth({
         }
       }
 
-      // Defence in depth: redeeming a reset for an OAuth-only account would attach a password login to it
+      // Defence in depth: redeeming a reset for an OAuth-only account would attach a password login to it,
+      // and a disabled account must not regain access through a link issued before it was disabled
       if (ctx.path === '/reset-password') {
         const token = ctx.body?.token ?? ctx.query?.token;
         if (typeof token === 'string' && token) {
           const userId = await findResetTokenUserId(resetTokenStoredIdentifier(token));
-          if (userId && !(await findCredentialAccount(userId))) {
+          if (userId && ((await findUserById(userId))?.disabledAt || !(await findCredentialAccount(userId)))) {
             throw new APIError('BAD_REQUEST', { message: 'Invalid token', code: 'INVALID_TOKEN' });
           }
         }
@@ -176,7 +196,7 @@ export const auth = betterAuth({
         });
         if (!allowed) {
           throw new APIError('FORBIDDEN', {
-            message: 'Registration is disabled on this instance',
+            message: SIGNUP_DISABLED_MESSAGE,
             code: 'SIGNUP_DISABLED',
           });
         }
@@ -204,6 +224,21 @@ export const auth = betterAuth({
         return { context: { body: { ...ctx.body, revokeOtherSessions: true } } };
       }
     }),
+    after: createAuthMiddleware(async (ctx) => {
+      // Signed out, a throttled resend must read like any other answer: only an unverified account can be throttled,
+      // so a 429 would say the address has one. Nothing more is sent either way; signed in, the throttle still shows,
+      // as the account's own banner counts on it.
+      const returned = ctx.context.returned;
+      if (
+        ctx.path === '/send-verification-email' &&
+        isAPIError(returned) &&
+        returned.body?.code === VERIFICATION_EMAIL_THROTTLED &&
+        !(await getSessionFromCtx(ctx))
+      ) {
+        // a whole Response: better-auth would keep the replaced error's 429 status for a plain body
+        return Response.json({ status: true });
+      }
+    }),
   },
   databaseHooks: {
     user: {
@@ -218,7 +253,7 @@ export const auth = betterAuth({
           });
           if (!allowed) {
             throw new APIError('FORBIDDEN', {
-              message: 'Registration is disabled on this instance',
+              message: SIGNUP_DISABLED_MESSAGE,
               code: 'SIGNUP_DISABLED',
             });
           }
@@ -268,17 +303,10 @@ export const auth = betterAuth({
         after: async (user, ctx) => {
           if (ctx?.path?.startsWith('/two-factor/') && user.email) {
             const enabled = Boolean((user as { twoFactorEnabled?: boolean }).twoFactorEnabled);
-            const type = enabled ? ('two-factor-enabled' as const) : ('two-factor-disabled' as const);
-            try {
-              await enqueueEmail({
-                type,
-                recipientKey: createUserRecipientKey(user.id),
-                campaignKey: `${type}:${new Date().toISOString()}`,
-                data: { to: user.email, userName: user.name ?? null },
-              });
-            } catch (error) {
-              console.error('Failed to enqueue 2FA change notification:', error);
-            }
+            await sendTwoFactorChangedNotification(
+              { id: user.id, email: user.email, name: user.name ?? null },
+              enabled,
+            );
           }
         },
       },
@@ -301,7 +329,19 @@ export const auth = betterAuth({
     },
     session: {
       create: {
+        // Every sign-in path (password, OAuth, 2FA, email verification) creates its session here
+        before: async (session) => {
+          const user = await findUserById(session.userId);
+          if (user?.disabledAt) {
+            throw new APIError('FORBIDDEN', {
+              message: 'This account has been disabled',
+              code: ACCOUNT_DISABLED_ERROR_CODE,
+            });
+          }
+        },
         after: async (session) => {
+          await recordUserActivity(session.userId);
+
           try {
             const user = await findUserById(session.userId);
             if (!user?.createdAt) return;
@@ -314,6 +354,12 @@ export const auth = betterAuth({
           } catch (error) {
             console.error('Failed to sync locale cookie on sign-in:', error);
           }
+        },
+      },
+      // Sessions refresh at most once per updateAge, which bounds these writes to one a day per session
+      update: {
+        after: async (session) => {
+          await recordUserActivity(session.userId);
         },
       },
     },

@@ -8,3 +8,11 @@ export const routing = defineRouting({
   defaultLocale,
   localePrefix: 'as-needed',
 });
+
+// The signed-in app, its API and admin carry no locale: the middleware skips them, and links into them mustn't add
+// one (/da/dashboards is a 404)
+const UNLOCALIZED_PATH = /^\/(api|dashboard|dashboards|billing|admin)(\/|$)/;
+
+export function isUnlocalizedPath(href: string) {
+  return UNLOCALIZED_PATH.test(href.split(/[?#]/, 1)[0]);
+}

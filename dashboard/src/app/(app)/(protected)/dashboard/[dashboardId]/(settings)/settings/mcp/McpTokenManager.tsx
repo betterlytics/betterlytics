@@ -18,13 +18,17 @@ import {
 } from '@/entities/dashboard/mcpToken.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { useCopy } from '@/hooks/use-copy';
+import { CopyButton } from '@/components/CopyButton';
+import ExternalLink from '@/components/ExternalLink';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 
 interface McpTokenManagerProps {
   dashboardId: string;
   tokens: McpTokenListItem[];
+  endpointUrl?: string;
 }
 
-export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
+export function McpTokenManager({ dashboardId, tokens, endpointUrl }: McpTokenManagerProps) {
   const t = useTranslations('mcp');
   const locale = useLocale();
   const [name, setName] = useState('');
@@ -71,6 +75,38 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
 
   return (
     <div className='space-y-4'>
+      {endpointUrl && (
+        <div className='space-y-1.5'>
+          <Label className='text-muted-foreground'>{t('settings.endpointLabel')}</Label>
+          <div className='flex items-center gap-2'>
+            <p className='border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 font-mono text-xs break-all select-all'>
+              {endpointUrl}
+            </p>
+            <CopyButton
+              text={endpointUrl}
+              ariaLabel={t('settings.copyEndpoint')}
+              copiedLabel={t('settings.endpointCopied')}
+              className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
+              iconClassName='size-4'
+            />
+          </div>
+          <p className='text-muted-foreground text-xs'>
+            {t.rich('settings.endpointHint', {
+              link: (chunks) => (
+                <ExternalLink
+                  href='https://betterlytics.io/docs/dashboard/mcp'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='text-primary underline underline-offset-2'
+                >
+                  {chunks}
+                </ExternalLink>
+              ),
+            })}
+          </p>
+        </div>
+      )}
+
       {newlyCreatedToken && (
         <div className='bg-primary/5 border-primary/20 space-y-2 rounded-md border p-3'>
           <p className='text-sm font-medium'>{t('settings.newTokenNotice')}</p>
@@ -93,34 +129,55 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end'>
         <div className='flex-1 space-y-1.5'>
           <Label className='text-muted-foreground'>{t('settings.tokenNameLabel')}</Label>
-          <Input
-            type='text'
-            className='text-sm'
-            placeholder={t('settings.tokenNamePlaceholder')}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-          />
+          <PermissionGate permission='canManageSettings' wrapperClassName='block'>
+            {(disabled) => (
+              <Input
+                type='text'
+                className='text-sm'
+                placeholder={t('settings.tokenNamePlaceholder')}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                disabled={disabled}
+              />
+            )}
+          </PermissionGate>
         </div>
         <div className='space-y-1.5'>
           <Label className='text-muted-foreground'>{t('settings.expirationLabel')}</Label>
-          <Select value={lifetime} onValueChange={(value) => setLifetime(value as McpTokenLifetime)}>
-            <SelectTrigger className='w-full cursor-pointer sm:w-40'>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {McpTokenLifetimeSchema.options.map((option) => (
-                <SelectItem key={option} value={option} className='cursor-pointer'>
-                  {t(`settings.lifetime.${option}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <PermissionGate permission='canManageSettings' wrapperClassName='block'>
+            {(disabled) => (
+              <Select
+                value={lifetime}
+                onValueChange={(value) => setLifetime(value as McpTokenLifetime)}
+                disabled={disabled}
+              >
+                <SelectTrigger className='w-full cursor-pointer sm:w-40'>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {McpTokenLifetimeSchema.options.map((option) => (
+                    <SelectItem key={option} value={option} className='cursor-pointer'>
+                      {t(`settings.lifetime.${option}`)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </PermissionGate>
         </div>
-        <Button onClick={handleCreate} disabled={!name.trim() || isPending} className='cursor-pointer sm:w-auto'>
-          <Plus className='size-4' />
-          {isPending ? t('settings.creating') : t('settings.createButton')}
-        </Button>
+        <PermissionGate permission='canManageSettings'>
+          {(disabled) => (
+            <Button
+              onClick={handleCreate}
+              disabled={disabled || !name.trim() || isPending}
+              className='w-full cursor-pointer sm:w-auto'
+            >
+              <Plus className='size-4' />
+              {isPending ? t('settings.creating') : t('settings.createButton')}
+            </Button>
+          )}
+        </PermissionGate>
       </div>
 
       {tokens.length > 0 && (
@@ -144,15 +201,19 @@ export function McpTokenManager({ dashboardId, tokens }: McpTokenManagerProps) {
                   )}
                 </p>
               </div>
-              <Button
-                variant='ghost'
-                size='icon'
-                className='text-muted-foreground hover:text-destructive size-8 shrink-0 cursor-pointer'
-                onClick={() => setDeleteTokenId(tkn.id)}
-                disabled={isPending}
-              >
-                <Trash2 className='size-3.5' />
-              </Button>
+              <PermissionGate permission='canManageSettings' wrapperClassName='shrink-0'>
+                {(disabled) => (
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='text-muted-foreground hover:text-destructive size-8 shrink-0 cursor-pointer'
+                    onClick={() => setDeleteTokenId(tkn.id)}
+                    disabled={disabled || isPending}
+                  >
+                    <Trash2 className='size-3.5' />
+                  </Button>
+                )}
+              </PermissionGate>
             </div>
           ))}
         </div>

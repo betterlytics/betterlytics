@@ -12,8 +12,8 @@ export function Footer() {
               <Logo variant="simple" showText textSize="lg" priority />
             </div>
             <p className="text-muted-foreground text-sm">
-              Privacy-first web analytics for the modern web. GDPR compliant,
-              cookieless, and open source.
+              Web analytics, session replay, errors and uptime in one
+              open-source tool. Cookieless and hosted in the EU.
             </p>
           </div>
           <div>

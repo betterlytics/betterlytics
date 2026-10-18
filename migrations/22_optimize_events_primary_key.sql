@@ -3,6 +3,8 @@
 -- ORDER BY (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
 -- Adds SAMPLE BY visitor_id for approximate query support
 
+DROP TABLE IF EXISTS analytics.events_new;
+
 CREATE TABLE IF NOT EXISTS analytics.events_new (
     site_id LowCardinality(String),
     visitor_id UInt64,
@@ -59,7 +61,6 @@ CREATE TABLE IF NOT EXISTS analytics.events_new (
 PARTITION BY toYYYYMM(date)
 ORDER BY (site_id, event_type, toDate(timestamp), visitor_id, timestamp)
 SAMPLE BY visitor_id
-TTL timestamp + toIntervalDay(365)
 SETTINGS index_granularity = 8192;
 
 DROP VIEW IF EXISTS analytics.daily_page_views;
@@ -69,8 +70,6 @@ DROP VIEW IF EXISTS analytics.daily_unique_visitors;
 DROP VIEW IF EXISTS analytics.usage_by_site_daily;
 
 SET max_execution_time = 0;
-SET send_progress_in_http_headers = 1;
-SET http_headers_progress_interval_ms = 30000;
 
 INSERT INTO analytics.events_new (
     site_id, visitor_id, session_id, domain, url, device_type, country_code, subdivision_code, city,
@@ -95,23 +94,3 @@ FROM analytics.events;
 RENAME TABLE
     analytics.events TO analytics.events_old,
     analytics.events_new TO analytics.events;
-
-CREATE MATERIALIZED VIEW analytics.usage_by_site_daily
-ENGINE = SummingMergeTree()
-ORDER BY (site_id, date)
-AS SELECT
-    site_id,
-    toDate(timestamp) as date,
-    count() as event_count
-FROM analytics.events
-WHERE event_type != 'scroll_depth'
-GROUP BY site_id, date;
-
-INSERT INTO analytics.usage_by_site_daily
-SELECT
-    site_id,
-    toDate(timestamp) as date,
-    count() as event_count
-FROM analytics.events
-WHERE event_type != 'scroll_depth'
-GROUP BY site_id, date;

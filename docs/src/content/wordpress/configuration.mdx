@@ -32,7 +32,7 @@ wp option update betterlytics_options --format=json < betterlytics-config.json
 ```
 
 <Callout type="warning">
-This replaces the entire option rather than merging into it. Any key your file omits reverts to its default, so keep the file complete. It is the full description of the plugin's state, not a patch.
+This replaces the entire option rather than merging into it. Any key your file omits reverts to its default, so keep the file complete. It is the full description of the plugin's state, not a patch. On a self-hosted instance, the file must also contain `server_url` and `script_url`, see [Self-Hosted Instances](#self-hosted-instances).
 </Callout>
 
 That is also what makes it useful: applying the file forces a known configuration regardless of what was set before, including keys left behind by an older version of the plugin.
@@ -51,8 +51,37 @@ wp option get betterlytics_options --format=json | \
   jq '.site_id = "new-site-id"' | \
   wp option update betterlytics_options --format=json
 
-# Reset to plugin defaults
+# Reset to plugin defaults (this also points server_url and script_url back at Betterlytics Cloud)
 wp option delete betterlytics_options
+```
+
+## Self-Hosted Instances
+
+The plugin sends data to Betterlytics Cloud unless told otherwise. For a [self-hosted instance](/installation/self-hosting), set two option keys to your instance's address. Neither has a control in wp-admin yet, so set them with WP-CLI after activating the plugin:
+
+```bash
+wp option patch update betterlytics_options server_url https://analytics.example.com/event
+wp option patch update betterlytics_options script_url https://analytics.example.com/analytics.js
+```
+
+`server_url` is where events are sent, and `script_url` is where `analytics.js` is loaded from. Saving the Settings tab in wp-admin keeps both values, so set the Site ID and turn on tracking there as usual.
+
+To check, load your site and view the page source: the `analytics.js` script tag should load from your instance and carry `data-server-url="https://analytics.example.com/event"`.
+
+<Callout type="warning">
+`wp option update` replaces the whole option and `wp option delete` removes it. Either way, a missing `server_url` or `script_url` falls back to Betterlytics Cloud. Keep both keys in every JSON file you apply.
+</Callout>
+
+```json
+{
+  "site_id": "your-site-id",
+  "server_url": "https://analytics.example.com/event",
+  "script_url": "https://analytics.example.com/analytics.js",
+  "enabled": true,
+  "track_web_vitals": false,
+  "track_outbound": { "mode": "domain" },
+  "track_custom_html_attribute": { "enabled": false }
+}
 ```
 
 ## Multisite

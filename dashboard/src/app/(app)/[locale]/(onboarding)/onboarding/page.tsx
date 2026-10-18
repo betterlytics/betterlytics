@@ -56,11 +56,12 @@ export default async function Onboarding() {
 
   const initialStep = getStep();
 
+  const isCloud = isFeatureEnabled('isCloud');
   const seoConfig = await buildSEOConfig(SEO_CONFIGS.onboarding);
 
   return (
     <>
-      <StructuredData config={seoConfig} />
+      {isCloud && <StructuredData config={seoConfig} />}
       <OnboardingProvider initialDashboard={dashboard}>
         <OnboardingPage initialStep={initialStep} />
       </OnboardingProvider>
@@ -74,7 +75,9 @@ export async function generateMetadata({
   params: Promise<{ locale: SupportedLanguages }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const seoConfig = await buildSEOConfig(SEO_CONFIGS.onboarding);
+  const seoConfig = await buildSEOConfig(
+    isFeatureEnabled('isCloud') ? SEO_CONFIGS.onboarding : SEO_CONFIGS.onboardingSelfHosted,
+  );
   return generateSEO(seoConfig, {
     locale,
     robots: {

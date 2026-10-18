@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
+import { getIp } from 'better-auth/api';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
 import { env } from '@/lib/env';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
@@ -8,17 +9,25 @@ import { sendVerificationEmail } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { setLocaleCookie } from '@/constants/cookies';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { findUserById, findUserByEmail, findCredentialAccount } from '@/repositories/postgres/user.repository';
+import {
+  findUserById,
+  findUserByEmail,
+  findCredentialAccount,
+  touchUserLastActive,
+} from '@/repositories/postgres/user.repository';
 import { makeUser, hashPassword } from '@/test/auth-fixtures';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
+import { VERIFICATION_EMAIL_THROTTLED } from '@/constants/auth';
 import { resetTokenStoredIdentifier } from '@/services/auth/passwordReset.service';
 import { deleteUserResetTokens, findResetTokenUserId } from '@/repositories/postgres/resetToken.repository';
 import { getSignupAllowance } from '@/services/auth/signupGate.service';
+import { APIError, getSessionFromCtx } from 'better-auth/api';
 
 vi.mock('@/lib/env', () => ({
   env: {
     AUTH_URL: 'http://localhost:3000',
     AUTH_SECRET: 'test-auth-secret',
+    AUTH_TRUSTED_PROXIES: ['172.18.0.1'],
     PUBLIC_BASE_URL: 'http://localhost:3000',
     IS_CLOUD: true,
     GITHUB_ID: '',
@@ -38,6 +47,7 @@ vi.mock('@/repositories/postgres/user.repository', () => ({
   findUserById: vi.fn(),
   findUserByEmail: vi.fn(),
   findCredentialAccount: vi.fn(),
+  touchUserLastActive: vi.fn(),
 }));
 vi.mock('@/repositories/postgres/resetToken.repository', () => ({
   RESET_TOKEN_PREFIX: 'reset-password:',
@@ -57,6 +67,10 @@ vi.mock('@/services/billing/subscription.service', () => ({
 vi.mock('@/services/account/verification.service', () => ({
   sendVerificationEmail: vi.fn(),
   VERIFICATION_LINK_EXPIRY_SECONDS: 86400,
+}));
+vi.mock('better-auth/api', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('better-auth/api')>()),
+  getSessionFromCtx: vi.fn(),
 }));
 vi.mock('@/services/email/email.service', () => ({
   enqueueEmail: vi.fn(),
@@ -111,6 +125,12 @@ describe('session configuration', () => {
       expiresIn: 30 * 24 * 60 * 60,
       updateAge: 24 * 60 * 60,
     });
+  });
+});
+
+describe('client IP resolution', () => {
+  it('skips the trusted proxy hop from AUTH_TRUSTED_PROXIES', () => {
+    expect(getIp(new Headers({ 'x-forwarded-for': '203.0.113.7, 172.18.0.1' }), auth.options)).toBe('203.0.113.7');
   });
 });
 
@@ -345,6 +365,43 @@ describe('email verification (better-auth module)', () => {
   });
 });
 
+describe('after hook (a throttled resend, signed out)', () => {
+  type AfterHook = (ctx: {
+    path: string;
+    context: { returned: unknown };
+    json: (data: unknown) => unknown;
+  }) => Promise<unknown>;
+  const runAfterHook = (path: string, returned: unknown) =>
+    (auth.options.hooks!.after as unknown as AfterHook)({ path, context: { returned }, json: (data) => data });
+  const throttled = () =>
+    new APIError('TOO_MANY_REQUESTS', { message: 'sent recently', code: VERIFICATION_EMAIL_THROTTLED });
+
+  it('answers signed out exactly as for an unknown address, so the throttle names no account', async () => {
+    vi.mocked(getSessionFromCtx).mockResolvedValue(null);
+
+    const response = (await runAfterHook('/send-verification-email', throttled())) as Response;
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: true });
+  });
+
+  it('keeps the throttle for a signed-in account', async () => {
+    vi.mocked(getSessionFromCtx).mockResolvedValue({ user: { id: 'user-1' } } as never);
+
+    await expect(runAfterHook('/send-verification-email', throttled())).resolves.toBeUndefined();
+  });
+
+  it('leaves every other answer alone', async () => {
+    vi.mocked(getSessionFromCtx).mockResolvedValue(null);
+
+    await expect(
+      runAfterHook('/send-verification-email', new APIError('BAD_REQUEST', { code: 'EMAIL_MISMATCH' })),
+    ).resolves.toBeUndefined();
+    await expect(runAfterHook('/send-verification-email', { status: true })).resolves.toBeUndefined();
+    await expect(runAfterHook('/request-password-reset', throttled())).resolves.toBeUndefined();
+  });
+});
+
 describe('user update before hook (emailVerifiedAt sync)', () => {
   type BeforeHook = (user: unknown) => Promise<{ data: Record<string, unknown> } | undefined>;
   const runBeforeUpdateHook = (user: unknown) =>
@@ -392,6 +449,42 @@ describe('session create hook (locale sync)', () => {
     vi.mocked(getUserSettings).mockRejectedValue(new Error('db down'));
 
     await expect(runSessionHook()).resolves.toBeUndefined();
+  });
+});
+
+describe('session hooks (disabled accounts and last activity)', () => {
+  const SESSION = { userId: 'user-1' } as never;
+
+  const runBeforeCreate = () => auth.options.databaseHooks!.session!.create!.before!(SESSION);
+  const runAfterCreate = () => auth.options.databaseHooks!.session!.create!.after!(SESSION);
+  const runAfterUpdate = () => auth.options.databaseHooks!.session!.update!.after!(SESSION);
+
+  it('refuses a session for a disabled account, on every sign-in path', async () => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser({ disabledAt: new Date() }));
+
+    await expect(runBeforeCreate()).rejects.toMatchObject({ statusCode: 403, body: { code: 'ACCOUNT_DISABLED' } });
+  });
+
+  it('lets enabled accounts sign in', async () => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser());
+
+    await expect(runBeforeCreate()).resolves.toBeUndefined();
+  });
+
+  it('records activity when a session is created or refreshed', async () => {
+    vi.mocked(findUserById).mockResolvedValue(makeUser({ createdAt: new Date() }));
+
+    await runAfterCreate();
+    await runAfterUpdate();
+
+    expect(touchUserLastActive).toHaveBeenCalledTimes(2);
+    expect(touchUserLastActive).toHaveBeenCalledWith('user-1');
+  });
+
+  it('never fails a sign-in or refresh because activity could not be recorded', async () => {
+    vi.mocked(touchUserLastActive).mockRejectedValue(new Error('db down'));
+
+    await expect(runAfterUpdate()).resolves.toBeUndefined();
   });
 });
 
@@ -445,6 +538,16 @@ describe('before hook (closed better-auth endpoints)', () => {
       expect(findUserByEmail).toHaveBeenCalledWith('user@example.com');
     });
 
+    it('gives disabled accounts the same unknown-email response, minting no token', async () => {
+      vi.mocked(findUserByEmail).mockResolvedValue(makeUser({ disabledAt: new Date() }));
+      vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' });
+
+      await expect(runBeforeHook('/request-password-reset', body)).resolves.toEqual({
+        status: true,
+        message: 'If this email exists in our system, check your email for the reset link',
+      });
+    });
+
     it('lets unknown emails through to better-auth (which fakes the same response)', async () => {
       vi.mocked(findUserByEmail).mockResolvedValue(null);
 
@@ -478,6 +581,17 @@ describe('before hook (closed better-auth endpoints)', () => {
         body: { code: 'INVALID_TOKEN' },
       });
       expect(findResetTokenUserId).toHaveBeenCalledWith(resetTokenStoredIdentifier('raw-token'));
+    });
+
+    it('rejects redemption for a disabled account, even with a link issued before it was disabled', async () => {
+      vi.mocked(findResetTokenUserId).mockResolvedValue('user-1');
+      vi.mocked(findUserById).mockResolvedValueOnce(makeUser({ disabledAt: new Date() }));
+      vi.mocked(findCredentialAccount).mockResolvedValue({ id: 'account-1' } as never);
+
+      await expect(runBeforeHook('/reset-password', body)).rejects.toMatchObject({
+        statusCode: 400,
+        body: { code: 'INVALID_TOKEN' },
+      });
     });
 
     it('lets credential accounts and unknown tokens through to better-auth', async () => {

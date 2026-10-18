@@ -4,7 +4,12 @@ import {
   findUserByEmail,
   findCredentialAccount,
   createUser,
-  anonymizeUser,
+  countActiveAdmins,
+  countActiveUsers,
+  deleteUserAccount,
+  setUserDisabledUnlessBlocked,
+  setUserRoleUnlessBlocked,
+  resetUserTwoFactor,
 } from '@/repositories/postgres/user.repository';
 import { makeUser } from '@/test/auth-fixtures';
 
@@ -12,9 +17,22 @@ const prismaMock = vi.hoisted(() => {
   const mock = {
     user: {
       findUnique: vi.fn(),
+      findFirst: vi.fn(),
       findMany: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+      count: vi.fn(),
+    },
+    userDashboard: {
+      findMany: vi.fn(),
+      delete: vi.fn(),
+      upsert: vi.fn(),
+    },
+    dashboard: {
+      updateMany: vi.fn(),
+    },
+    dashboardInvitation: {
+      updateMany: vi.fn(),
     },
     account: {
       findFirst: vi.fn(),
@@ -35,7 +53,11 @@ const prismaMock = vi.hoisted(() => {
     mcpToken: {
       updateMany: vi.fn(),
     },
+    adminAuditLog: {
+      updateMany: vi.fn(),
+    },
     $transaction: vi.fn(),
+    $executeRaw: vi.fn(),
   };
   return mock;
 });
@@ -145,16 +167,59 @@ describe('findCredentialAccount', () => {
   });
 });
 
-describe('anonymizeUser', () => {
-  it('runs the full cleanup inside a single transaction', async () => {
-    await anonymizeUser('user-1');
+
+function mockCounts(activeAdmins: number, activeUsers: number) {
+  prismaMock.user.count.mockImplementation(async ({ where }: { where: { role?: string } }) =>
+    where.role === 'admin' ? activeAdmins : activeUsers,
+  );
+}
+
+const enabledAdmin = { role: 'admin', deletedAt: null, disabledAt: null };
+
+describe('countActiveAdmins', () => {
+  it('counts admins that are neither deleted nor disabled', async () => {
+    prismaMock.user.count.mockResolvedValue(1);
+
+    expect(await countActiveAdmins()).toBe(1);
+    expect(prismaMock.user.count).toHaveBeenCalledWith({
+      where: { role: 'admin', deletedAt: null, disabledAt: null },
+    });
+  });
+
+  it('wraps database failures', async () => {
+    prismaMock.user.count.mockRejectedValue(new Error('db down'));
+
+    await expect(countActiveAdmins()).rejects.toThrow(/Failed to count active admins/);
+  });
+});
+
+describe('countActiveUsers', () => {
+  it('counts users that are neither deleted nor disabled', async () => {
+    prismaMock.user.count.mockResolvedValue(3);
+
+    expect(await countActiveUsers()).toBe(3);
+    expect(prismaMock.user.count).toHaveBeenCalledWith({ where: { deletedAt: null, disabledAt: null } });
+  });
+});
+
+describe('deleteUserAccount', () => {
+  const deleteOwned = { guard: false, ownedDashboards: { mode: 'delete' as const } };
+
+  beforeEach(() => {
+    prismaMock.userDashboard.findMany.mockResolvedValue([]);
+  });
+
+  it('runs the full cleanup inside a single locked transaction', async () => {
+    await deleteUserAccount('user-1', deleteOwned);
 
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
-    expect(prismaMock.$transaction.mock.calls[0][0]).toHaveLength(6);
+    expect(prismaMock.$executeRaw.mock.calls[0][0].join('')).toContain('pg_advisory_xact_lock');
+    expect(prismaMock.user.update).toHaveBeenCalledTimes(1);
+    expect(prismaMock.mcpToken.updateMany).toHaveBeenCalledTimes(1);
   });
 
   it('scrubs identity and credentials and marks the user deleted', async () => {
-    await anonymizeUser('user-1');
+    await deleteUserAccount('user-1', deleteOwned);
 
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
@@ -162,6 +227,7 @@ describe('anonymizeUser', () => {
         email: 'deleted_user-1@deleted.invalid',
         name: null,
         image: null,
+        role: null,
         twoFactorEnabled: false,
         totpSecret: null,
         emailVerified: false,
@@ -171,7 +237,7 @@ describe('anonymizeUser', () => {
   });
 
   it('removes accounts (incl. credential), sessions, 2FA rows, and reset tokens, and soft-deletes MCP tokens', async () => {
-    await anonymizeUser('user-1');
+    await deleteUserAccount('user-1', deleteOwned);
 
     expect(prismaMock.account.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
@@ -183,9 +249,192 @@ describe('anonymizeUser', () => {
     });
   });
 
+  it('scrubs their email from audit log entries they appear in', async () => {
+    await deleteUserAccount('user-1', deleteOwned);
+
+    expect(prismaMock.adminAuditLog.updateMany).toHaveBeenCalledWith({
+      where: { targetType: 'user', targetId: 'user-1' },
+      data: { targetLabel: null },
+    });
+    expect(prismaMock.adminAuditLog.updateMany).toHaveBeenCalledWith({
+      where: { actorUserId: 'user-1' },
+      data: { actorLabel: null },
+    });
+  });
+
+  it('soft-deletes owned dashboards and cancels their pending invitations', async () => {
+    prismaMock.userDashboard.findMany.mockResolvedValue([{ id: 'ud-1', dashboardId: 'dash-1' }]);
+
+    await deleteUserAccount('user-1', deleteOwned);
+
+    expect(prismaMock.dashboard.updateMany).toHaveBeenCalledWith({
+      where: { id: { in: ['dash-1'] } },
+      data: { deletedAt: expect.any(Date) },
+    });
+    expect(prismaMock.dashboardInvitation.updateMany).toHaveBeenCalledWith({
+      where: { dashboardId: { in: ['dash-1'] }, status: 'pending' },
+      data: { status: 'cancelled' },
+    });
+  });
+
+  it('hands owned dashboards to the recipient instead of deleting them', async () => {
+    prismaMock.userDashboard.findMany.mockResolvedValue([{ id: 'ud-1', dashboardId: 'dash-1' }]);
+    prismaMock.user.findFirst.mockResolvedValue({ id: 'user-2' });
+
+    const outcome = await deleteUserAccount('user-1', {
+      guard: false,
+      ownedDashboards: { mode: 'transfer', toUserId: 'user-2' },
+    });
+
+    expect(outcome).toBeNull();
+    expect(prismaMock.dashboard.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.userDashboard.delete).toHaveBeenCalledWith({ where: { id: 'ud-1' } });
+    expect(prismaMock.userDashboard.upsert).toHaveBeenCalledWith({
+      where: { userId_dashboardId: { userId: 'user-2', dashboardId: 'dash-1' } },
+      create: { userId: 'user-2', dashboardId: 'dash-1', role: 'owner' },
+      update: { role: 'owner' },
+    });
+  });
+
+  it('refuses a recipient that is not an enabled user, without writing', async () => {
+    prismaMock.user.findFirst.mockResolvedValue(null);
+
+    const outcome = await deleteUserAccount('user-1', {
+      guard: false,
+      ownedDashboards: { mode: 'transfer', toUserId: 'user-2' },
+    });
+
+    expect(outcome).toBe('invalid_recipient');
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
+    expect(prismaMock.userDashboard.upsert).not.toHaveBeenCalled();
+  });
+
+  it('refuses the last enabled admin without writing when guarded', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
+    mockCounts(1, 2);
+
+    expect(await deleteUserAccount('user-1', { ...deleteOwned, guard: true })).toBe('last_admin');
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
+    expect(prismaMock.dashboard.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('takes the advisory lock before reading the counts', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
+    mockCounts(2, 2);
+
+    await deleteUserAccount('user-1', { ...deleteOwned, guard: true });
+
+    expect(prismaMock.$executeRaw.mock.invocationCallOrder[0]).toBeLessThan(
+      prismaMock.user.count.mock.invocationCallOrder[0],
+    );
+  });
+
   it('wraps transaction failures', async () => {
     prismaMock.$transaction.mockRejectedValue(new Error('db down'));
 
-    await expect(anonymizeUser('user-1')).rejects.toThrow('Failed to anonymize user user-1.');
+    await expect(deleteUserAccount('user-1', deleteOwned)).rejects.toThrow('Failed to delete user user-1.');
+  });
+});
+
+describe('setUserDisabledUnlessBlocked', () => {
+  it('disables the user, ends their sessions and voids their reset links', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: null, disabledAt: null });
+    mockCounts(1, 2);
+
+    expect(await setUserDisabledUnlessBlocked('user-1', true, { guard: true })).toBeNull();
+    expect(prismaMock.user.update).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      data: { disabledAt: expect.any(Date) },
+    });
+    expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+    expect(prismaMock.verification.deleteMany).toHaveBeenCalledWith({
+      where: { value: 'user-1', identifier: { startsWith: 'reset-password:' } },
+    });
+  });
+
+  it('refuses to disable the last enabled admin', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
+    mockCounts(1, 3);
+
+    expect(await setUserDisabledUnlessBlocked('user-1', true, { guard: true })).toBe('last_admin');
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
+    expect(prismaMock.session.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('skips the last-admin check when unguarded (cloud)', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
+    mockCounts(1, 3);
+
+    expect(await setUserDisabledUnlessBlocked('user-1', true, { guard: false })).toBeNull();
+    expect(prismaMock.user.count).not.toHaveBeenCalled();
+    expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+  });
+
+  it('re-enables without touching sessions', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: null, disabledAt: new Date() });
+
+    expect(await setUserDisabledUnlessBlocked('user-1', false, { guard: true })).toBeNull();
+    expect(prismaMock.user.update).toHaveBeenCalledWith({ where: { id: 'user-1' }, data: { disabledAt: null } });
+    expect(prismaMock.session.deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('leaves deleted users alone', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: new Date(), disabledAt: null });
+
+    expect(await setUserDisabledUnlessBlocked('user-1', true, { guard: true })).toBeNull();
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
+  });
+});
+
+describe('setUserRoleUnlessBlocked', () => {
+  it('refuses to demote the last enabled admin', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
+    mockCounts(1, 3);
+
+    expect(await setUserRoleUnlessBlocked('user-1', null)).toBe('last_admin');
+    expect(prismaMock.user.update).not.toHaveBeenCalled();
+  });
+
+  it('demotes when another enabled admin remains', async () => {
+    prismaMock.user.findUnique.mockResolvedValue(enabledAdmin);
+    mockCounts(2, 3);
+
+    expect(await setUserRoleUnlessBlocked('user-1', null)).toBeNull();
+    expect(prismaMock.user.update).toHaveBeenCalledWith({ where: { id: 'user-1' }, data: { role: null } });
+  });
+
+  it('demotes a disabled admin even when no other admin is enabled', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ ...enabledAdmin, disabledAt: new Date() });
+    mockCounts(1, 3);
+
+    expect(await setUserRoleUnlessBlocked('user-1', null)).toBeNull();
+    expect(prismaMock.user.update).toHaveBeenCalled();
+  });
+
+  it('promotes without counting', async () => {
+    prismaMock.user.findUnique.mockResolvedValue({ role: null, deletedAt: null, disabledAt: null });
+
+    expect(await setUserRoleUnlessBlocked('user-1', 'admin')).toBeNull();
+    expect(prismaMock.user.count).not.toHaveBeenCalled();
+    expect(prismaMock.user.update).toHaveBeenCalledWith({ where: { id: 'user-1' }, data: { role: 'admin' } });
+  });
+});
+
+describe('resetUserTwoFactor', () => {
+  it('removes 2FA, trusted devices and pending challenges, and ends sessions', async () => {
+    await resetUserTwoFactor('user-1');
+
+    expect(prismaMock.twoFactor.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
+    expect(prismaMock.user.update).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+      data: { twoFactorEnabled: false, totpSecret: null },
+    });
+    expect(prismaMock.verification.deleteMany).toHaveBeenCalledWith({
+      where: {
+        value: 'user-1',
+        OR: [{ identifier: { startsWith: 'trust-device-' } }, { identifier: { startsWith: '2fa-' } }],
+      },
+    });
+    expect(prismaMock.session.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
   });
 });

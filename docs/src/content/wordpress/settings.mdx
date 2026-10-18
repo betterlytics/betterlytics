@@ -15,6 +15,8 @@ This table is the reference for the whole plugin: what each control does, what i
 | --- | --- | --- | --- |
 | Enable Tracking | Off | `enabled` | Whether the tracking script is added to your site at all |
 | Site ID | Empty | `site_id` | Which Betterlytics dashboard your data goes to |
+| Server URL | `https://betterlytics.io/event` | `server_url` | Where events are sent. No control in wp-admin: set it [from WP-CLI](/wordpress/configuration#self-hosted-instances) for a self-hosted instance |
+| Script URL | `https://betterlytics.io/analytics.js` | `script_url` | Where the tracking script is loaded from. No control in wp-admin: set it from WP-CLI, like `server_url` |
 | Outbound Links | Domain | `track_outbound.mode` | Whether clicks on external links are recorded, and in how much detail |
 | Web Vitals | Off | `track_web_vitals` | Real-user performance metrics |
 | Custom HTML Attribute Events | Off | `track_custom_html_attribute.enabled` | Clicks on elements marked with `data-betterlytics-event` |

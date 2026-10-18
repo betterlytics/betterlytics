@@ -1,7 +1,11 @@
 'use server';
 
 import { UpdateUserNameData, UpdateUserNameSchema } from '@/entities/auth/user.entities';
-import { UserSettings, UserSettingsUpdateSchema } from '@/entities/account/userSettings.entities';
+import {
+  AccountDeletionBlocker,
+  UserSettings,
+  UserSettingsUpdateSchema,
+} from '@/entities/account/userSettings.entities';
 import { withUserAuth, getCachedSession } from '@/auth/auth-actions';
 import * as UserSettingsService from '@/services/account/userSettings.service';
 import * as UserRepository from '@/repositories/postgres/user.repository';
@@ -50,6 +54,12 @@ export const updateUserMarketingEmailsAction = withUserAuth(
   async (user: User, input: { marketingEmails: boolean }): Promise<UserSettings> => {
     const payload = UserSettingsUpdateSchema.required().pick({ marketingEmails: true }).parse(input);
     return UserSettingsService.updateUserSettings(user.id, payload);
+  },
+);
+
+export const getAccountDeletionBlockerAction = withUserAuth(
+  async (user: User): Promise<AccountDeletionBlocker | null> => {
+    return UserSettingsService.getAccountDeletionBlocker(user.id);
   },
 );
 

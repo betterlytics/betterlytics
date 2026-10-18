@@ -2,20 +2,8 @@
   "public": {
     "root": {
       "seo": {
-        "title": "Betterlytics | Personvern-først nettanalyse",
-        "description": "Betterlytics er et personvern-først, åpen kildekode-alternativ til Google Analytics. Få GDPR-kompatibel, informasjonskapselfri innsikt uten påtrengende sporing, samtidig som du respekterer brukernes personvern.",
-        "keywords": [
-          "Alternativ til Google Analytics",
-          "Personvern-først analyse",
-          "Informasjonskapselfri nettanalyse",
-          "GDPR-kompatibel analyse",
-          "Analyseplattform med åpen kildekode",
-          "Personvernvennlig analyse",
-          "Analyse av nettstedstrafikk",
-          "Besøksanalyse",
-          "Nettanalyseverktøy",
-          "Betterlytics analyse"
-        ]
+        "title": "Betterlytics: Nettanalyse, sesjonsopptak, feil og oppetid",
+        "description": "Betterlytics samler nettanalyse, sesjonsopptak, feilsporing, Core Web Vitals og oppetidsovervåking i ett verktøy med åpen kildekode. Uten informasjonskapsler og driftet i EU."
       }
     },
     "notFound": {
@@ -26,17 +14,7 @@
     "about": {
       "seo": {
         "title": "Om Betterlytics | Personvern-først nettanalyse",
-        "description": "Lær hvordan Betterlytics bygger åpen kildekode, informasjonskapselfri analyse som beskytter brukernes personvern, er fullt GDPR-kompatibel og gir transparent innsikt på nett.",
-        "keywords": [
-          "Om Betterlytics",
-          "Personvern-først analyse",
-          "Nettanalyse med åpen kildekode",
-          "Informasjonskapselfri analyse",
-          "GDPR-kompatibel analyse",
-          "Analyseplattform for personvern",
-          "Analyse uten informasjonskapsler",
-          "Analyseverktøy med åpen kildekode"
-        ]
+        "description": "Lær hvordan Betterlytics bygger åpen kildekode, informasjonskapselfri analyse som beskytter brukernes personvern, er fullt GDPR-kompatibel og gir transparent innsikt på nett."
       },
       "aboutUs": "Om Betterlytics",
       "intro": "Vi bygger fremtiden for nettanalyse: personvern-først, åpen kildekode og laget for det moderne nettet. Du trenger ikke lenger velge mellom kraftig innsikt og respekt for de besøkendes personvern.",
@@ -59,7 +37,7 @@
         },
         "privacyPerformance": {
           "title": "Personvern og ytelse i perfekt balanse",
-          "p1": "Vi er like opptatt av personvern som av ytelse, fordi hastigheten på nettstedet ditt er like viktig som personvernet til de besøkende. Sporingsskriptet vårt veier under 2 KB. Sammenlign det med Google Analytics sin oppblåste payload på 45 KB+. Bygget med moderne webstandarder og optimalisert for fart, vil Betterlytics ikke gjøre nettstedet tregere.",
+          "p1": "Vi er like opptatt av personvern som av ytelse, fordi hastigheten på nettstedet ditt er like viktig som personvernet til de besøkende. Sporingsskriptet vårt veier rundt 3,5 KB. Sammenlign det med Google Analytics sin oppblåste payload på 45 KB+. Bygget med moderne webstandarder og optimalisert for fart, vil Betterlytics ikke gjøre nettstedet tregere.",
           "p2": "Under panseret bruker vi banebrytende teknologi: Rust for høyytelses databehandling, ClickHouse for lynraske analytiske spørringer, og Next.js 15 for en moderne og responsiv dashboard-opplevelse. Hver tekniske beslutning prioriterer både brukernes personvern og systemytelse."
         },
         "builtForEveryone": {
@@ -96,18 +74,8 @@
     },
     "contact": {
       "seo": {
-        "title": "Kontakt Betterlytics | Personvern-først analyse",
-        "description": "Ta kontakt med Betterlytics-teamet for support, tilbakemeldinger eller partnerskap rundt vår åpne, personvern-først nettanalyseplattform.",
-        "keywords": [
-          "Kontakt Betterlytics",
-          "Betterlytics support",
-          "Hjelp med nettanalyse",
-          "Support for personvern-først analyse",
-          "Kontakt for GDPR-analyse",
-          "Support for informasjonskapselfri analyse",
-          "Kundesupport Betterlytics",
-          "Kontaktside"
-        ]
+        "title": "Kontakt | Betterlytics",
+        "description": "Ta kontakt med Betterlytics-teamet for support, tilbakemeldinger eller spørsmål om samarbeid."
       },
       "title": "Kontakt oss",
       "intro": "Spørsmål om Betterlytics? Trenger du hjelp med analyseoppsettet ditt? Teamet vårt står klart til å hjelpe.",
@@ -191,14 +159,7 @@
     "changelog": {
       "seo": {
         "title": "Endringslogg | Betterlytics utgivelsesnotater og produktoppdateringer",
-        "description": "Les alle Betterlytics-utgivelsesnotater på ett sted. Følg produktoppdateringer, stabilitetsforbedringer og høydepunkter fra veikartet for vår personvern-først analyseplattform.",
-        "keywords": [
-          "Betterlytics endringslogg",
-          "Produktoppdateringer",
-          "Utgivelsesnotater",
-          "Analyseveikart",
-          "Oppdateringer for personvern-først analyse"
-        ]
+        "description": "Les alle Betterlytics-utgivelsesnotater på ett sted. Følg nye funksjoner, stabilitetsforbedringer og høydepunkter fra veikartet etter hvert som de lanseres."
       },
       "hero": {
         "eyebrow": "Utgivelseshistorikk",
@@ -213,18 +174,8 @@
     },
     "privacy": {
       "seo": {
-        "title": "Personvernerklæring | GDPR og informasjonskapselfri analyse",
-        "description": "Betterlytics personvernerklæring — GDPR-kompatibel og informasjonskapselfri av design. Lær hvordan vi beskytter dataene dine og sikrer personvern gjennom anonym analyse.",
-        "keywords": [
-          "Betterlytics personvernerklæring",
-          "GDPR-overholdelse",
-          "Datapersonvern",
-          "Databeskyttelse",
-          "Informasjonskapselfri analyse",
-          "Anonym analyse",
-          "Brukerpersonvern",
-          "Personvernfokusert analyse"
-        ]
+        "title": "Personvernerklæring | Betterlytics",
+        "description": "Betterlytics personvernerklæring — GDPR-kompatibel og informasjonskapselfri av design. Lær hvordan vi beskytter dataene dine og sikrer personvern gjennom anonym analyse."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
       "title": "Betterlytics personvernerklæring",
@@ -354,18 +305,8 @@
     },
     "terms": {
       "seo": {
-        "title": "Tjenestevilkår | Personvern-først analyse",
-        "description": "Les Betterlytics sine tjenestevilkår — lær om rettighetene dine, ansvaret ditt og bruksvilkår for vår personvern-først nettanalyseplattform.",
-        "keywords": [
-          "Betterlytics tjenestevilkår",
-          "Vilkår og betingelser",
-          "Tjenesteavtale for analyse",
-          "Vilkår for nettanalyse",
-          "Vilkår for personvernanalyse",
-          "Bruksvilkår",
-          "Juridisk avtale Betterlytics",
-          "Personvern-først analyse"
-        ]
+        "title": "Tjenestevilkår | Betterlytics",
+        "description": "Les tjenestevilkårene til Betterlytics: rettighetene dine, ansvaret ditt og reglene for bruk av skytjenesten."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
       "title": "Betterlytics tjenestevilkår",
@@ -513,19 +454,8 @@
     },
     "dpa": {
       "seo": {
-        "title": "Databehandleravtale (DPA) | GDPR og personvernanalyse",
-        "description": "Betterlytics databehandleravtale (DPA) — bygget for full GDPR-overholdelse, personvern-først analyse og sikker, anonym databehandling.",
-        "keywords": [
-          "Betterlytics databehandleravtale",
-          "Databehandleravtale (DPA)",
-          "GDPR-overholdelse",
-          "GDPR databehandleravtale",
-          "Datapersonvern",
-          "Databehandleravtale",
-          "Personvern-først analyse",
-          "Anonym analyse",
-          "Nettanalyse GDPR"
-        ]
+        "title": "Databehandleravtale (DPA) | Betterlytics",
+        "description": "Betterlytics databehandleravtale (DPA) — bygget for full GDPR-overholdelse, personvern-først analyse og sikker, anonym databehandling."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
       "title": "Databehandleravtale (DPA)",
@@ -644,17 +574,8 @@
     },
     "subprocessors": {
       "seo": {
-        "title": "Underdatabehandlere | GDPR-overholdelse og databehandling",
-        "description": "Se komplett liste over Betterlytics underdatabehandlere. Forstå hvordan vi sikrer GDPR-overholdelse gjennom nøye utvalgte EU-baserte tjenesteleverandører.",
-        "keywords": [
-          "Betterlytics underdatabehandlere",
-          "Databehandlere",
-          "GDPR-overholdelse",
-          "Tredjepartstjenester",
-          "Databehandling",
-          "EU-datahosting",
-          "Personvernoverholdelse"
-        ]
+        "title": "Underdatabehandlere | Betterlytics",
+        "description": "Se komplett liste over Betterlytics underdatabehandlere. Forstå hvordan vi sikrer GDPR-overholdelse gjennom nøye utvalgte EU-baserte tjenesteleverandører."
       },
       "translationDisclaimer": "Dette dokumentet er tilgjengelig på flere språk for enkelhets skyld. Ved avvik gjelder den engelske versjonen.",
       "title": "Underdatabehandlere",
@@ -717,205 +638,205 @@
       }
     },
     "auth": {
+      "shell": {
+        "legal": "Juridisk",
+        "privacy": "Personvern",
+        "terms": "Vilkår"
+      },
+      "fields": {
+        "email": "E-post",
+        "emailPlaceholder": "deg@firma.no",
+        "password": "Passord",
+        "newPassword": "Nytt passord",
+        "confirmPassword": "Bekreft passord",
+        "showPassword": "Vis passord",
+        "continueWith": "Fortsett med {provider}",
+        "rules": {
+          "label": "Passordet ditt må ha",
+          "length": "8+ tegn",
+          "lower": "Én liten bokstav",
+          "upper": "Én stor bokstav",
+          "met": "oppfylt",
+          "unmet": "ikke oppfylt"
+        },
+        "errors": {
+          "invalidEmail": "Skriv inn en gyldig e-postadresse.",
+          "weakPassword": "Passordet ditt oppfyller ikke kravene.",
+          "passwordsDoNotMatch": "Passordene er ikke like.",
+          "tooManyRequests": "For mange forsøk. Prøv igjen senere.",
+          "emailRequired": "Skriv inn e-postadressen din.",
+          "passwordRequired": "Skriv inn passordet ditt.",
+          "confirmRequired": "Bekreft det nye passordet ditt."
+        }
+      },
       "signin": {
         "seo": {
-          "title": "Logg inn | Betterlytics personvern-først analyse",
-          "description": "Logg inn på Betterlytics-dashboardet ditt — sikker, informasjonskapselfri og personvern-først nettanalyse for GDPR-kompatibel innsikt.",
-          "keywords": [
-            "Logg inn",
-            "Innlogging",
-            "Betterlytics konto",
-            "Brukerdashboard",
-            "Personvern-først analyse",
-            "Informasjonskapselfri analyse",
-            "Alternativ til Google Analytics",
-            "GDPR-kompatibel analyse"
-          ]
+          "title": "Logg inn | Betterlytics",
+          "description": "Logg inn på Betterlytics for å se trafikk, sesjonsopptak, feil og oppetid for nettstedet ditt i ett dashboard."
         },
-        "title": "Logg inn på kontoen din",
-        "subtitle": "Få tilgang til analysedashboardet ditt",
+        "seoSelfHosted": {
+          "title": "Logg inn | Betterlytics",
+          "description": "Logg inn på denne Betterlytics-instansen."
+        },
+        "title": "Velkommen tilbake",
+        "lede": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
+        "forgotPassword": "Glemt passordet ditt?",
+        "submit": "Logg inn",
+        "submitting": "Logger inn…",
+        "noAccount": "Ny hos Betterlytics?",
+        "createAccount": "Opprett en konto",
+        "askAdmin": "Be en dashboard-eier om å invitere deg.",
+        "registrationDisabled": "Registrering er deaktivert på denne instansen.",
         "errors": {
-          "OAuthAccountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn med e-post og passord i stedet.",
-          "default": "Det oppstod en feil under innlogging. Prøv igjen."
+          "accountNotLinked": "En konto med denne e-postadressen finnes allerede. Logg inn slik du gjorde sist.",
+          "default": "Noe gikk galt under innloggingen. Prøv igjen.",
+          "invalidCredentials": "Feil e-post eller passord.",
+          "invalidOtp": "Koden fungerte ikke. Sjekk autentiseringsappen din og prøv igjen.",
+          "invalidBackupCode": "Reservekoden fungerte ikke. Sjekk den og prøv igjen.",
+          "generic": "Noe gikk galt under innloggingen. Prøv igjen.",
+          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashboard-eier om å invitere deg.",
+          "emailNotFound": "Vi fikk ikke tak i en e-postadresse fra den kontoen. Gjør e-posten din synlig hos leverandøren, eller logg inn med e-post og passord.",
+          "unableToLink": "Vi kunne ikke koble den kontoen til din. Logg inn med e-post og passord i stedet.",
+          "twoFactorExpired": "Innloggingsforsøket ditt er utløpt. Skriv inn passordet ditt på nytt.",
+          "twoFactorTooMany": "For mange feil koder. Skriv inn passordet ditt for å prøve på nytt.",
+          "accountDisabled": "Denne kontoen er deaktivert. Kontakt administratoren din."
         },
-        "cta": {
-          "noAccount": "Har du ikke en konto?",
-          "createOne": "Opprett en"
-        },
-        "form": {
-          "emailLabel": "E-post",
-          "emailPlaceholder": "Skriv inn e-post",
-          "passwordLabel": "Passord",
-          "passwordPlaceholder": "Skriv inn passord",
-          "forgotPassword": "Glemt passordet ditt?",
-          "submitButton": "Logg inn",
-          "submitting": "Logger inn...",
-          "orDivider": "eller",
-          "continueWithGoogle": "Fortsett med Google",
-          "continueWithGithub": "Fortsett med GitHub",
-          "errors": {
-            "invalidOtp": "Ugyldig verifiseringskode. Sjekk innloggingsdetaljene dine og prøv igjen.",
-            "invalidCredentials": "Ugyldig e-post eller passord. Sjekk innloggingsdetaljene dine og prøv igjen.",
-            "generic": "Det oppstod en feil under innlogging. Prøv igjen.",
-            "invalidBackupCode": "Ugyldig reservekode. Prøv igjen."
-          },
-          "twoFactor": {
-            "title": "Tofaktorautentisering",
-            "description": "Skriv inn verifiseringskoden fra autentiseringsappen din.",
-            "cancel": "Avbryt",
-            "backupCodeDescription": "Skriv inn en av reservekodene dine. Hver kode kan bare brukes én gang.",
-            "useBackupCode": "Bruk en reservekode i stedet",
-            "useAuthenticator": "Bruk autentiseringsappen i stedet",
-            "verify": "Bekreft"
-          }
+        "twoFactor": {
+          "title": "Tofaktorautentisering",
+          "description": "Skriv inn verifiseringskoden fra autentiseringsappen din.",
+          "backupCodeDescription": "Skriv inn en av reservekodene dine. Hver kode kan bare brukes én gang.",
+          "backupCodeLabel": "Reservekode",
+          "useBackupCode": "Bruk en reservekode i stedet",
+          "useAuthenticator": "Bruk autentiseringsappen i stedet",
+          "verify": "Bekreft",
+          "back": "Tilbake"
         }
       },
       "register": {
         "seo": {
-          "title": "Opprett Betterlytics-kontoen din — kom i gang gratis",
-          "description": "Opprett en gratis Betterlytics-konto for personvern-først, informasjonskapselfri nettanalyse. Begynn å måle trafikk på nettsted og app sikkert og GDPR-kompatibelt.",
-          "keywords": [
-            "Opprett Betterlytics-konto",
-            "Registrer",
-            "Meld deg på",
-            "Gratis nettanalyse",
-            "Personvern-først analyse",
-            "Informasjonskapselfri analyse",
-            "Alternativ til Google Analytics",
-            "GDPR-kompatibel analyse"
-          ]
+          "title": "Opprett din gratis Betterlytics-konto",
+          "description": "Opprett en gratis Betterlytics-konto for nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Ingen kredittkort nødvendig."
+        },
+        "seoSelfHosted": {
+          "title": "Opprett kontoen din | Betterlytics",
+          "description": "Opprett kontoen din på denne Betterlytics-instansen."
         },
         "title": "Opprett kontoen din",
-        "subtitle": "Kom i gang gratis — sett opp analyse på få minutter",
-        "cta": {
-          "haveAccount": "Har du allerede en konto?",
-          "signIn": "Logg inn"
+        "lede": "Gratis å komme i gang, ingen kredittkort nødvendig.",
+        "ledeSelfHosted": "Én konto for analyse, sesjonsopptak, feil og oppetid.",
+        "ledeFirstUser": "Dette er den første kontoen på denne instansen. Den blir administrator for instansen.",
+        "invited": "Du er invitert til å bli med i {domain}.",
+        "submit": "Opprett konto",
+        "submitting": "Oppretter konto…",
+        "termsAgree": "Jeg godtar <terms>tjenestevilkårene</terms> og har lest <privacy>personvernerklæringen</privacy>.",
+        "haveAccount": "Har du allerede en konto?",
+        "signIn": "Logg inn",
+        "errors": {
+          "emailExists": "En konto med denne e-postadressen finnes allerede. Logg inn i stedet.",
+          "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashboard-eier om å invitere deg.",
+          "generic": "Noe gikk galt da kontoen din skulle opprettes. Prøv igjen.",
+          "termsRequired": "Godta tjenestevilkårene for å fortsette."
         },
         "disabled": {
           "title": "Registrering deaktivert",
-          "description": "Registrering er for øyeblikket deaktivert på denne instansen.",
+          "description": "Nye kontoer opprettes bare via invitasjon. Be en dashboard-eier om å invitere deg.",
           "backToSignIn": "Tilbake til innlogging"
         }
       },
       "forgotPassword": {
         "seo": {
           "title": "Glemt passordet ditt? | Betterlytics",
-          "description": "Tilbakestill Betterlytics-passordet ditt sikkert. Skriv inn e-postadressen din for å motta en beskyttet tilbakestillingslenke og få tilgang til kontoen igjen.",
-          "keywords": [
-            "Glemt passord",
-            "Tilbakestilling av passord",
-            "Gjenoppretting av konto",
-            "Tilbakestill Betterlytics-passord",
-            "Betterlytics-konto",
-            "Sikker innlogging"
-          ]
+          "description": "Tilbakestill Betterlytics-passordet ditt sikkert. Skriv inn e-postadressen din for å motta en beskyttet tilbakestillingslenke og få tilgang til kontoen igjen."
         },
         "title": "Tilbakestill passordet ditt",
-        "subtitle": "Skriv inn e-posten din, så sender vi en lenke for tilbakestilling",
-        "emailField": "E-postadresse",
-        "emailFieldPlaceholder": "Skriv inn e-postadressen din",
-        "emailFieldDescription": "Skriv inn e-postadressen knyttet til kontoen din, så sender vi en lenke for tilbakestilling av passord.",
-        "successMessage": "E-post for tilbakestilling av passord sendt!",
-        "errorMessage": "Kunne ikke sende e-post for tilbakestilling av passord, prøv igjen.",
-        "errorMessageInvalidEmail": "Vennligst skriv inn en gyldig e-postadresse",
-        "cta": {
-          "sendResetLink": "Send lenke for tilbakestilling",
-          "sending": "Sender...",
-          "remember": "Husker du passordet ditt?",
-          "backToSignIn": "Tilbake til innlogging"
-        },
-        "errorMessageTooManyRequests": "For mange tilbakestillingsforespørsler. Prøv igjen senere."
+        "lede": "Vi sender deg en lenke på e-post, så du kan velge et nytt.",
+        "submit": "Send tilbakestillingslenke",
+        "submitting": "Sender…",
+        "sentTitle": "Sjekk innboksen din",
+        "sentBody": "Hvis det finnes en konto for {email}, er en tilbakestillingslenke på vei. Den virker i én time.",
+        "differentEmail": "Bruk en annen e-post",
+        "remember": "Husker du passordet ditt?",
+        "signIn": "Logg inn",
+        "errors": {
+          "failed": "Vi kunne ikke sende e-posten. Prøv igjen."
+        }
       },
       "resetPassword": {
         "seo": {
           "title": "Tilbakestill passordet ditt | Betterlytics",
-          "description": "Sett et nytt passord for Betterlytics-kontoen din sikkert ved hjelp av den beskyttede tilbakestillingslenken og få full tilgang igjen.",
-          "keywords": [
-            "Tilbakestill passord",
-            "Passordtilbakestilling",
-            "Gjenoppretting av konto",
-            "Betterlytics-konto",
-            "Sikker passordtilbakestilling",
-            "Innloggingshjelp"
-          ]
+          "description": "Sett et nytt passord for Betterlytics-kontoen din sikkert ved hjelp av den beskyttede tilbakestillingslenken og få full tilgang igjen."
         },
+        "title": "Sett nytt passord",
+        "lede": "Velg et du ikke bruker andre steder.",
+        "submit": "Lagre passord",
+        "submitting": "Lagrer…",
+        "doneTitle": "Passord oppdatert",
+        "doneLede": "Logg inn med det nye passordet ditt.",
+        "remember": "Husker du passordet ditt?",
+        "signIn": "Logg inn",
+        "requestLink": "Be om ny tilbakestillingslenke",
         "invalid": {
           "title": "Ugyldig tilbakestillingslenke",
-          "description": "Denne lenken for tilbakestilling av passord er ugyldig eller mangler token.",
-          "note": "Be om en ny lenke for tilbakestilling av passord.",
-          "requestLink": "Be om ny tilbakestillingslenke"
+          "description": "Lenken er ufullstendig eller allerede brukt. Be om en ny for å fortsette."
         },
         "expired": {
-          "title": "Tilbakestillingslenke utløpt",
-          "description": "Denne lenken for tilbakestilling av passord er utløpt eller ugyldig.",
-          "info": "Lenker for tilbakestilling av passord utløper etter 1 time av sikkerhetsgrunner. Be om en ny.",
-          "requestLink": "Be om ny tilbakestillingslenke"
+          "title": "Tilbakestillingslenken virker ikke lenger",
+          "description": "Tilbakestillingslenker virker én gang, i én time. Be om en ny for å fortsette."
         },
-        "form": {
-          "title": "Sett nytt passord",
-          "description": "Skriv inn det nye passordet ditt nedenfor",
-          "errors": {
-            "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
-            "weakPassword": "Passordet oppfyller ikke kravene.",
-            "tooManyAttempts": "For mange forsøk. Prøv igjen senere.",
-            "generic": "Kunne ikke tilbakestille passordet. Prøv igjen."
-          },
-          "successMessage": "Passordet ble tilbakestilt!"
-        },
-        "cta": {
-          "remember": "Husker du passordet ditt?",
-          "backToSignIn": "Tilbake til innlogging"
+        "errors": {
+          "invalidToken": "Denne tilbakestillingslenken er ugyldig eller utløpt. Be om en ny.",
+          "generic": "Vi kunne ikke lagre passordet ditt. Prøv igjen."
         }
       },
       "verifyEmail": {
         "invalid": {
-          "title": "Ugyldig verifiseringslenke",
-          "description": "Verifiseringslenken er ugyldig eller mangler. Sjekk e-posten din og prøv igjen.",
-          "backToSignIn": "Tilbake til innlogging"
+          "title": "Ugyldig bekreftelseslenke",
+          "description": "Lenken er ufullstendig eller allerede brukt. Send deg selv en ny nedenfor."
         },
         "failed": {
-          "title": "Verifisering mislyktes",
-          "expiredInfo": "Verifiseringslenker utløper etter 24 timer av sikkerhetsgrunner. Du kan be om en ny og prøve igjen.",
-          "genericFallback": "Det oppstod en feil under verifisering."
-        },
-        "buttons": {
-          "returnToDashboard": "Gå til dashboard",
-          "backToSignIn": "Tilbake til innlogging"
-        },
-        "helpLine": "Trenger du hjelp? Kontakt support på support@betterlytics.io",
-        "loading": {
-          "title": "Verifiserer...",
-          "description": "Vent et øyeblikk mens vi verifiserer e-postadressen din."
+          "title": "Bekreftelsen mislyktes",
+          "expiredInfo": "Bekreftelseslenker virker i 24 timer. Send deg selv en ny nedenfor.",
+          "genericFallback": "Lenken fungerte ikke. Send deg selv en ny nedenfor.",
+          "expiredTitle": "Lenken er utløpt"
         },
         "success": {
-          "title": "E-post verifisert!",
-          "description": "E-postadressen din er verifisert.",
-          "celebration": "Velkommen ombord!",
-          "redirecting": "Sender deg til dashboardet...",
-          "clickHere": "Klikk her hvis du ikke blir videresendt automatisk",
-          "redirectingToSignin": "Sender deg til innlogging...",
-          "errors": {
-            "redirectTimeout": "Videresending tar lengre tid enn forventet.",
-            "redirectFailed": "Noe gikk galt under videresendingen."
-          }
+          "title": "E-post bekreftet",
+          "description": "Alt er klart.",
+          "redirecting": "Sender deg til dashboardet…",
+          "redirectingToSignin": "Sender deg til innlogging…",
+          "redirectTimeout": "Videresending tar lengre tid enn forventet."
         },
-        "verifying": {
-          "title": "Verifiserer e-posten din...",
-          "description": "Vent mens vi bekrefter e-postadressen din."
-        }
+        "returnToDashboard": "Gå til dashboards",
+        "backToSignIn": "Tilbake til innlogging",
+        "helpLine": "Trenger du hjelp? Kontakt support på <mail>support@betterlytics.io</mail>",
+        "resend": {
+          "submit": "Send en ny lenke",
+          "submitting": "Sender…",
+          "to": "Vi sender den til {email}.",
+          "sent": "En ny lenke er på vei til {email}. Den virker i 24 timer.",
+          "sentIfWaiting": "Hvis {email} har en konto som venter på bekreftelse, er en ny lenke på vei. Den virker i 24 timer.",
+          "alreadyVerified": "E-postadressen din er allerede bekreftet.",
+          "sentRecently": "En lenke ble nylig sendt. Sjekk innboksen din, eller prøv igjen om noen minutter.",
+          "failed": "Kunne ikke sende en ny lenke. Prøv igjen.",
+          "differentEmail": "Bruk en annen e-post"
+        },
+        "alreadyVerifiedTitle": "E-postadressen er allerede bekreftet"
+      },
+      "errors": {
+        "originMismatch": "Denne siden er åpnet på {origin}, som ikke samsvarer med adressen denne Betterlytics-instansen er konfigurert for, så forespørselen ble blokkert. Åpne Betterlytics på den konfigurerte adressen. Hvis du drifter denne instansen, sørg for at den konfigurerte URL-en (protokoll, vert og port) samsvarer med adressen i nettleseren.",
+        "accountLocked": "For mange feil koder. Innlogging med tofaktorautentisering er låst i 15 minutter.",
+        "accountDisabled": "Denne kontoen er deaktivert. Kontakt administratoren din.",
+        "rateLimited": "For mange forsøk. Vent litt og prøv igjen."
       }
     },
     "demo": {
       "seo": {
         "title": "Betterlytics | Demo-dashboard",
-        "description": "Utforsk Betterlytics sine muligheter i dette interaktive demo-dashboardet.",
-        "keywords": [
-          "Betterlytics demo",
-          "Analysedemo",
-          "Produktomvisning",
-          "Nettanalysedemo",
-          "Personvern-først analyse"
-        ]
+        "description": "Utforsk Betterlytics sine muligheter i dette interaktive demo-dashboardet."
+      },
+      "seoSelfHosted": {
+        "title": "{domain} | Betterlytics",
+        "description": "Nettanalyse for {domain}."
       }
     },
     "comparison": {
@@ -931,227 +852,16 @@
       },
       "disclaimer": "Vi forsøker å holde denne sammenligningen nøyaktig og oppdatert."
     },
-    "landing": {
-      "seo": {
-        "title": "Betterlytics | Et Bedre Alternativ til Google Analytics",
-        "description": "Betterlytics er en personvern-først, informasjonskapselfri analyseplattform — GDPR-kompatibel, ingen informasjonskapsler, ingen sporing, ingen samtykkebannere.",
-        "keywords": [
-          "Alternativ til Google Analytics",
-          "Informasjonskapselfri analyse",
-          "Personvern-først analyse",
-          "GDPR-kompatibel analyse",
-          "Analyseplattform med åpen kildekode",
-          "Personvernvennlig analyse",
-          "Nettanalyse",
-          "Besøksinnsikt",
-          "Betterlytics analyse"
-        ]
-      },
-      "hero": {
-        "title": "Et <highlight>Bedre Alternativ</highlight> til Google Analytics",
-        "description": "Enkel og kraftig analyse som respekterer personvern. <br></br>Informasjonskapselfri, GDPR-klar og uten behov for samtykkebannere.",
-        "ctaPrimary": "Kom i gang gratis",
-        "ctaGithub": "Se på GitHub",
-        "ctaDemo": "Se live demo",
-        "eyebrow": "Prøv Betterlytics i praksis"
-      },
-      "framework": {
-        "title": "Fungerer med favorittverktøyene dine",
-        "subtitle": "Universell kompatibilitet — fungerer med alle nettsteder, rammeverk og plattformer",
-        "footer": "Og utallige flere... Hvis det kjører på nettet, støtter vi det!"
-      },
-      "principles": {
-        "titleEmphasis": "Høyytelses",
-        "titleRest": "analyse som respekterer personvern",
-        "subtitle": "Sanntidsinnsikt, lynrask ytelse og full personvernoverholdelse for alle",
-        "features": {
-          "euGdpr": {
-            "title": "EU-basert og GDPR-kompatibel",
-            "description": "Servere hostet i EU med strenge databeskyttelsesstandarder. Full GDPR-overholdelse med anonym datainnsamling og sterke personverntiltak."
-          },
-          "noConsent": {
-            "title": "Ingen samtykkebanner kreves",
-            "description": "Fullt anonym analyse betyr ingen cookie-bannere, ingen GDPR-samtykkeskjemaer og ingen brukerfriksjon. Installer og start sporing umiddelbart."
-          },
-          "dataOwnership": {
-            "title": "Fullt dataeierskap",
-            "description": "Dataene dine forblir dine for alltid. Selvhost med vår åpne kildekodeversjon eller bruk vår sikre skyinfrastruktur."
-          },
-          "realtime": {
-            "title": "Sanntidsinnsikt",
-            "description": "Lynrask sporing av besøkende og konverteringsanalyse globalt. Vakre dashboard hjelper deg å ta datadrevne beslutninger umiddelbart."
-          },
-          "lightweight": {
-            "title": "Lett og utviklervennlig",
-            "description": "Script under 2 KB, åpen kodebase og omfattende dokumentasjon. Bygget av utviklere, for utviklere."
-          },
-          "simpleSetup": {
-            "title": "Enkelt oppsett, kraftige funksjoner",
-            "description": "Enlinjes integrasjon for alle nettsteder. Avanserte tilpasningsmuligheter og funksjoner på enterprise-nivå tilgjengelig."
-          }
-        }
-      },
-      "showcase": {
-        "titleEmphasis": "Kraftige funksjoner",
-        "titleRest": "rett ved hånden",
-        "subtitle": "Utforsk hele arsenalet av analysemuligheter",
-        "categories": {
-          "analytics": "Analyse og innsikt",
-          "engagement": "Engasjement og atferd",
-          "performance": "Overvåking og ytelse"
-        },
-        "featuresButton": "Utforsk alle funksjoner",
-        "featuresTitle": "Utforsk alle Betterlytics-funksjoner"
-      },
-      "ctaStrip": {
-        "eyebrow": "Kom i gang gratis",
-        "title": "Klar for å prøve Betterlytics?",
-        "subtitle": "Opprett en konto og start sporing på få minutter. Gratis plan inkludert. Ingen kredittkort.",
-        "primaryCta": "Kom i gang gratis"
-      },
-      "integration": {
-        "titleStart": "Kom i gang på",
-        "titleEmphasis": "under 2 minutter",
-        "subtitle": "Legg til vårt lette script og start å samle inn informasjonskapselfri, personvernvennlig analyse umiddelbart. Ingen informasjonskapsler, ingen persondata, ingen samtykkebannere nødvendig.",
-        "cards": {
-          "script": {
-            "title": "Enkelt script-tag",
-            "description": "Legg til en linje i HTML-en din og start sporing umiddelbart. Fungerer med alle nettsteder og CMS.",
-            "features": {
-              "f1": "Enlinjes installasjon",
-              "f2": "Fungerer overalt",
-              "f3": "Ingen byggeprosess nødvendig"
-            }
-          },
-          "framework": {
-            "title": "Klar for rammeverk",
-            "description": "Innebygd støtte for React, Next.js, Vue og andre moderne rammeverk med TypeScript.",
-            "features": {
-              "f1": "TypeScript-støtte",
-              "f2": "Rammeverkskomponenter",
-              "f3": "Tree-shakebar"
-            }
-          },
-          "selfHosted": {
-            "title": "Selvhostet alternativ",
-            "description": "Rull ut på egen infrastruktur med Docker for full dataeierskap og kontroll.",
-            "features": {
-              "f1": "Docker-utrulling",
-              "f2": "Full kontroll",
-              "f3": "Alle funksjoner inkludert"
-            }
-          }
-        },
-        "guideButton": "Se integrasjonsguide",
-        "guideTitle": "Integrasjonsguide for Betterlytics",
-        "footer": "Detaljerte installasjonsinstruksjoner for alle plattformer og rammeverk"
-      },
-      "openSource": {
-        "titleEmphasis": "Open source",
-        "titleRest": "fellesskapsdrevet",
-        "subtitle": "Transparent, fellesskapsdrevet utvikling. Delta som bidragsyter, ønsk funksjoner eller tilpass plattformen til behovene dine.",
-        "starOnGithub": "Gi en stjerne på GitHub",
-        "viewDocs": "Se dokumentasjon",
-        "docsTitle": "Komplett Betterlytics-dokumentasjon"
-      },
-      "pricing": {
-        "titleEmphasis": "Enkel, skalerbar",
-        "titleRest": "prising",
-        "subtitle": "Trafikkbaserte planer som matcher veksten din. Start gratis, skaler når du vokser.",
-        "footer": "Start med gratisplanen vår – ingen kredittkort kreves.",
-        "compareLink": "Sammenlign alle funksjoner"
-      },
-      "cards": {
-        "advancedFilters": {
-          "title": "Avanserte filtre",
-          "description": "Segmenter analysedataene dine etter enhver dimensjon for å finne handlingsrettet innsikt."
-        },
-        "coreWebVitals": {
-          "title": "Core Web Vitals-målinger",
-          "description": "Overvåk og mål nettstedets ytelse med Core Web Vitals."
-        },
-        "trafficSources": {
-          "title": "Trafikkilder",
-          "description": "Finn ut hvor de besøkende kommer fra, og optimaliser markedsføringen din.",
-          "totalVisitors": "Totale besøkende",
-          "thisMonth": "denne måneden",
-          "visitorsLabel": "besøkende",
-          "sources": {
-            "googleSearch": "Google-søk",
-            "direct": "Direkte",
-            "socialMedia": "Sosiale medier",
-            "email": "E-post",
-            "other": "Annet"
-          }
-        },
-        "errorTracking": {
-          "title": "Feilsporing",
-          "description": "Fang feil på klientsiden tidlig. Undersøk stack traces og spill av sesjoner for å se hva som gikk galt.",
-          "status": {
-            "unresolved": "Uløst",
-            "resolved": "Løst"
-          },
-          "watchReplay": "Se opptak",
-          "usersAffected": "{count} brukere",
-          "summary": "37 feil denne måneden",
-          "unresolved": "{count} uløste"
-        },
-        "funnels": {
-          "title": "Trakter",
-          "description": "Følg konverteringsraten for de viktigste brukerreisene dine.",
-          "total": "Totalt",
-          "dropOff": "frafall",
-          "sinceLastWeek": "siden forrige uke"
-        },
-        "events": {
-          "title": "Realtidshendelser",
-          "description": "Spor alle brukerinteraksjoner når de skjer, med detaljert hendelseslogging.",
-          "showing": "Viser {loaded} av {total} hendelser"
-        },
-        "sessionReplay": {
-          "title": "Sesjonsavspilling",
-          "description": "Se anonymiserte opptak for raskt å oppdage friksjon, rasende klikk og visuelle feil.",
-          "cursorClick": "Museklikk registrert",
-          "sessionPlayback": "Sesjonsavspilling",
-          "playing": "Spiller av"
-        },
-        "journeys": {
-          "title": "Brukerreiser",
-          "description": "Følg flere brukerforløp og se hvordan besøkende navigerer på nettstedet ditt."
-        },
-        "worldMap": {
-          "title": "Geografisk analyse",
-          "description": "Se hvor de besøkende kommer fra i hele verden.",
-          "topCountries": "Toppland"
-        },
-        "uptimeMonitoring": {
-          "title": "Oppetidsovervåking",
-          "description": "Få varsler når nettstedet ditt går ned, med SSL-sertifikatovervåking og offentlige statussider du kan hoste på ditt eget domene.",
-          "alertDown": "{site} er nede",
-          "alertSent": "Advarsel sendt til {email}",
-          "incidentDetected": "{count, plural, one {{count} hendelse oppdaget} other {{count} hendelser oppdaget}}",
-          "allOperational": "Alle systemer kjører",
-          "ssl": "SSL-sertifikat"
-        }
-      }
+    "ctaStrip": {
+      "eyebrow": "Kom i gang gratis",
+      "title": "Klar for å prøve Betterlytics?",
+      "subtitle": "Opprett en konto og begynn å måle trafikken på få minutter. Gratisplan, og du trenger ikke kredittkort.",
+      "primaryCta": "Kom i gang gratis"
     },
     "features": {
       "seo": {
-        "title": "Funksjoner i Betterlytics | Personvern-først, informasjonskapselfri analyse",
-        "description": "Oppdag alle funksjonene i Betterlytics: sanntidsdashboard, konverteringstrakter, Core Web Vitals og mer. Personvern-først, GDPR-kompatibel analyse uten informasjonskapsler eller samtykkebannere.",
-        "keywords": [
-          "Analysefunksjoner",
-          "Personvern-først analyse",
-          "Informasjonskapselfri analyse",
-          "GDPR-kompatibel analyse",
-          "Sanntidsdashboard",
-          "Konverteringstrakter",
-          "Sesjonsavspilling",
-          "Egendefinerte hendelser",
-          "Oppetidsovervåking",
-          "Offentlige statussider",
-          "Funksjoner for nettanalyse"
-        ]
+        "title": "Betterlytics-funksjoner: analyse, opptak, feil, oppetid",
+        "description": "Nettanalyse, sesjonsopptak, feilsporing, Core Web Vitals, oppetidsovervåking, statussider og en MCP-server for AI-agenter, alt i Betterlytics."
       },
       "hero": {
         "title": "Alle funksjonene du trenger for <br></br><highlight>bedre analyse</highlight>",
@@ -1327,7 +1037,7 @@
         },
         "lightweightScript": {
           "title": "Lett script",
-          "description": "Raskt script under 2 KB som ikke gjør nettstedet tregere."
+          "description": "Raskt script på 3,5 KB som ikke gjør nettstedet tregere."
         },
         "highPerformance": {
           "title": "Høy ytelse",
@@ -1361,10 +1071,11 @@
       "pricing": "Priser",
       "goToDashboard": "Gå til dashboard",
       "getStarted": "Kom i gang",
-      "login": "Logg inn"
+      "login": "Logg inn",
+      "toggleMenu": "Vis/skjul meny"
     },
     "footer": {
-      "blurb": "Personvern-først nettanalyse for det moderne nettet. GDPR-kompatibel, informasjonskapselfri og åpen kildekode.",
+      "blurb": "Nettanalyse, sesjonsopptak, feil og oppetid i ett verktøy med åpen kildekode. Uten informasjonskapsler og driftet i EU.",
       "company": "Selskap",
       "resources": "Ressurser",
       "compare": "Sammenlign",
@@ -1383,11 +1094,12 @@
       "github": "GitHub-side",
       "bluesky": "Bluesky-kanal",
       "discord": "Discord-kanal",
-      "copyright": "© {year} Betterlytics. Åpen kildekode under AGPL-3.0-lisens."
+      "copyright": "© {year} Betterlytics. Åpen kildekode under AGPL-3.0-lisens.",
+      "changeLanguage": "Bytt språk"
     },
     "structuredData": {
       "organization": {
-        "description": "Betterlytics er en personvern-først, informasjonskapselfri, GDPR-kompatibel og åpen nettanalyseplattform som respekterer brukernes personvern samtidig som den gir handlingsbar innsikt.",
+        "description": "Betterlytics samler nettanalyse, sesjonsopptak, feilsporing, Core Web Vitals og oppetidsovervåking i ett verktøy med åpen kildekode. Uten informasjonskapsler og driftet i EU.",
         "contactTypeCustomerService": "Kundeservice",
         "contactTypeTechnicalSupport": "Teknisk support"
       },
@@ -1397,17 +1109,8 @@
     },
     "pricing": {
       "seo": {
-        "title": "Priser | Betterlytics personvern-først analyse",
-        "description": "Enkle og transparente priser for Betterlytics. Start gratis, skaler når du vokser. Personvern-først, GDPR-kompatibel nettanalyse for alle virksomhetsstørrelser.",
-        "keywords": [
-          "Analysepriser",
-          "Planer for nettanalyse",
-          "Priser for personvernanalyse",
-          "Kostnad for GDPR-analyse",
-          "Betterlytics-planer",
-          "Rimelig analyse",
-          "Gratis analyseplan"
-        ]
+        "title": "Betterlytics-priser: start gratis, betal etter hendelser",
+        "description": "Alle planer har nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Start gratis og betal etter hendelser per måned, eller host det selv gratis."
       },
       "titleEmphasis": "Enkle, transparente",
       "titleRest": "priser",
@@ -1415,6 +1118,279 @@
       "footer": "Start med gratisplanen vår — ingen kredittkort kreves.",
       "comparisonTitle": "Sammenlign alle funksjoner",
       "exploreFeaturesLink": "Utforsk alle funksjoner i detalj"
+    },
+    "shareImage": {
+      "alt": "«You shouldn’t need five tools to understand one website» over Betterlytics-dashboardet"
+    }
+  },
+  "landing": {
+    "seo": {
+      "description": "Se trafikk, sesjonsopptak, feil, Core Web Vitals og oppetid for nettstedet ditt i ett dashboard. Åpen kildekode, uten cookies og med en gratisplan."
+    },
+    "nav": {
+      "skip": "Hopp til innholdet",
+      "home": "Betterlytics – forside",
+      "menu": "Meny",
+      "label": "Hovedmeny",
+      "demo": "Demo",
+      "features": "Funksjoner",
+      "pricing": "Priser",
+      "docs": "Dokumentasjon",
+      "githubLabel": "Betterlytics på GitHub",
+      "signIn": "Logg inn",
+      "cta": "Kom i gang",
+      "goToDashboard": "Gå til dashboardet"
+    },
+    "hero": {
+      "title": "Du skal ikke trenge fem verktøy for å forstå ett nettsted",
+      "lede": "Cookiefri nettanalyse, sesjonsopptak, Core Web Vitals, feil og oppetid. Ett dashboard, én faktura.",
+      "cta": "Kom i gang gratis"
+    },
+    "demo": {
+      "loading": "Laster inn live-dashboardet",
+      "frameTitle": "Live-demo av Betterlytics",
+      "newTab": "(åpnes i en ny fane)",
+      "stalled": "Åpne live-demoen",
+      "activateLine": "Klikk hvor som helst for å utforske",
+      "activateAria": "Klikk hvor som helst for å utforske det interaktive dashboardet i demoen"
+    },
+    "customers": {
+      "label": "Brukes av team hos"
+    },
+    "journey": {
+      "title": "Alt brukerne dine *opplevde*",
+      "lede": "Fra første besøk til neste driftsavbrudd.",
+      "steps": {
+        "find": {
+          "title": "Hvor brukerne\nkommer fra",
+          "note": "Søk, henvisninger, kampanjer og sosiale medier, inkludert ChatGPT og Perplexity."
+        },
+        "see": {
+          "title": "Hva brukerne\nser på",
+          "note": "Hver side de åpner, med land, by, enhet og nettleser for hvert besøk. I sanntid og uten sampling."
+        },
+        "do": {
+          "title": "Hva brukerne\nfaktisk gjør",
+          "note": "Egendefinerte hendelser som registreringer og kjøp, og trakter som viser hvor folk faller fra."
+        },
+        "follow": {
+          "title": "Hva brukerne\nsliter med",
+          "note": "Sesjonsopptak: alle klikk og all scrolling, akkurat slik de så det."
+        },
+        "wait": {
+          "title": "Når brukerne\nventer for lenge",
+          "note": "Core Web Vitals (LCP, INP og CLS), målt i de besøkendes egne nettlesere."
+        },
+        "errors": {
+          "title": "Når brukerne\nstøter på en feil",
+          "note": "JavaScript-feil med stack trace, siden der feilen oppsto, og et opptak av sesjonen der det skjedde."
+        },
+        "reach": {
+          "title": "Når brukerne\nikke kommer inn",
+          "note": "Oppetidsovervåking, driftshendelser, SSL-utløp og en offentlig statusside."
+        }
+      }
+    },
+    "mcp": {
+      "title": "Slipp din *egen*\nagent løs på dataene",
+      "lede": "Betterlytics har en innebygd MCP-server. Spør på vanlig norsk og få svar på tvers av alt sammen.",
+      "lead": "Still spørsmål, ikke spørringer.",
+      "body": "Agenten din leser skjemaet og kobler sammen trafikk, trakter, feil og oppetid.",
+      "worksWith": "Fungerer med",
+      "any": "Og alle andre klienter som snakker MCP over HTTP.",
+      "cta": "Sett opp MCP"
+    },
+    "frameworks": {
+      "title": "Rammeverket ditt, *urørt*",
+      "lede": "Én script-tag – eller en pakke, hvis du heller vil det. Ellers endres ingenting."
+    },
+    "network": {
+      "title": "Ett skript, ingenting annet å legge til",
+      "lede": "Dette er nøyaktig hva det koster nettstedet ditt.",
+      "snippetLabel": "Installasjonskode",
+      "packageTab": "Pakke",
+      "stats": {
+        "size": {
+          "label": "Skriptstørrelse",
+          "body": "Sporingsskriptet, gzippet. Lastes asynkront og blokkerer aldri renderingen."
+        },
+        "bots": {
+          "label": "Sidevisninger fra boter",
+          "body": "På et typisk nettsted. Filtrert bort før de havner i grafene eller på regningen din."
+        },
+        "openSource": {
+          "label": "Åpen kildekode",
+          "body": "Hver eneste kodelinje ligger på GitHub under AGPL-3.0. Du kan selvhoste det gratis, uten tak på antall hendelser."
+        }
+      },
+      "thesis": {
+        "label": "Antall cookies",
+        "body": "Ingen cookies, ingen varige ID-er, ingen samtykkebanner. Laget for GDPR, ePrivacy og PECR, og dataene dine blir i EU."
+      }
+    },
+    "quote": {
+      "text": "Google Analytics var komplisert å sette opp og vanskelig å få helt riktig. Med Betterlytics ser vi mer, i et dashboard *hele teamet faktisk kan bruke*.",
+      "role": "Senior Engineer"
+    },
+    "pricing": {
+      "title": "Én pris som følger trafikken din",
+      "lede": "Bottrafikk vi fanger opp, teller ikke med, og en trafikktopp koster aldri ekstra.",
+      "monthlyEvents": "Hendelser per måned",
+      "rangeLabel": "Antall hendelser per måned",
+      "rangeValueText": "{events} hendelser",
+      "perMonth": "/mnd",
+      "free": "Gratis",
+      "custom": "Etter avtale",
+      "growth": {
+        "name": "Growth",
+        "tagline": "For sideprosjekter og små nettsteder.",
+        "ctaFree": "Kom i gang gratis",
+        "cta": "Kom i gang"
+      },
+      "professional": {
+        "name": "Professional",
+        "tagline": "For team med flere produkter i drift.",
+        "cta": "Kom i gang",
+        "badge": "Mest populær"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "tagline": "For høy trafikk, med SLA og dedikert support.",
+        "cta": "Kontakt salg"
+      }
+    },
+    "cta": {
+      "title": "Legg inn ett skript og se den første besøkende tikke inn",
+      "lede": "På gratisplanen får du samme skript, samme dashboard og samme data uten sampling som på alle betalte planer. Du trenger ikke kredittkort.",
+      "primary": "Kom i gang gratis",
+      "secondary": "Les dokumentasjonen"
+    },
+    "footer": {
+      "tagline": "Nettanalyse, sesjonsopptak, feil og oppetid i ett verktøy med åpen kildekode. Uten cookies og driftet i EU.",
+      "nav": "Bunnmeny",
+      "language": "Språk",
+      "columns": {
+        "company": "Selskapet",
+        "resources": "Ressurser",
+        "compare": "Sammenlign",
+        "connect": "Følg oss"
+      },
+      "company": {
+        "about": "Om oss",
+        "contact": "Kontakt",
+        "privacy": "Personvernerklæring",
+        "terms": "Tjenestevilkår",
+        "dpa": "Databehandleravtale",
+        "subprocessors": "Underdatabehandlere"
+      },
+      "resources": {
+        "docs": "Dokumentasjon",
+        "changelog": "Endringslogg",
+        "features": "Funksjoner",
+        "pricing": "Priser",
+        "status": "Driftsstatus"
+      },
+      "compareLink": "vs. {name}",
+      "copyright": "© {year} Betterlytics.",
+      "license": "Åpen kildekode, lisensiert under <link>AGPL-3.0</link>.",
+      "reportVulnerability": "Rapporter en sårbarhet"
+    },
+    "illustrations": {
+      "globe": {
+        "alt": "En roterende globus som markerer hvor de besøkende kommer fra. Hver by vises med kilden som sendte dem, for eksempel København via ChatGPT.",
+        "via": "via {source}",
+        "direct": "Direkte",
+        "newsletter": "Nyhetsbrev"
+      },
+      "traffic": {
+        "alt": "Populære sider, med /pricing øverst; hvor langt leserne scroller i et blogginnlegg, i snitt 58 %; og besøkende per ukedag og time, med mest trafikk i arbeidstiden på hverdager.",
+        "topPages": "Populære sider",
+        "all": "Alle",
+        "entry": "Inngang",
+        "exit": "Utgang",
+        "scrollDepth": "Scroll-dybde",
+        "avgDepth": "Snittdybde",
+        "weekly": "Ukentlig trafikk",
+        "byHour": "besøkende per time"
+      },
+      "events": {
+        "alt": "En sanntidslogg over egendefinerte hendelser, som registreringer og kjøp. Hver hendelse vises med egenskapen den ble sendt med, og den besøkendes land, nettleser og enhet.",
+        "title": "Hendelser",
+        "live": "Live",
+        "paused": "Pauset",
+        "today": "i dag",
+        "now": "nå",
+        "seconds": "{count} s",
+        "minutes": "{count} min"
+      },
+      "replay": {
+        "alt": "Opptak fra en prisside: En besøkende klikker på «Choose Pro», det kastes en TypeError, knappen får fire raseriklikk, og så forlater den besøkende siden.",
+        "title": "Sesjonsopptak",
+        "pageView": "Sidevisning",
+        "click": "Klikk",
+        "rageClick": "Raseriklikk",
+        "pageExit": "Forlot siden",
+        "rageDetail": "{count}× på {target}",
+        "clickCaptured": "Klikk registrert",
+        "rageClicks": "{count}× raseriklikk",
+        "play": "Spill av opptaket",
+        "pause": "Sett opptaket på pause"
+      },
+      "vitals": {
+        "alt": "Målere for FCP, TTFB, LCP, INP og CLS. Hver måling er merket «God», «Må forbedres» eller «Dårlig».",
+        "good": "God",
+        "needsWork": "Må forbedres",
+        "poor": "Dårlig"
+      },
+      "errors": {
+        "alt": "En TypeError som oppstår akkurat nå, med siden og klikket som førte til den, stack trace og hvem den rammet. Bak den ligger en sjeldnere feil og en som er løst.",
+        "resolved": "Løst",
+        "events": "forekomster",
+        "hoursAgo": "{count} t siden",
+        "daysAgo": "{count} d siden",
+        "inApp": "i app"
+      },
+      "uptime": {
+        "alt": "Fire oppetidsmonitorer med de siste sjekkene. Når én slutter å svare, går varselet ut på Slack, Discord og e-post, og den offentlige statussiden melder om driftsavbruddet.",
+        "sslDays": "SSL {days} dager",
+        "timeout": "timeout",
+        "sslTitle": "Sertifikatet for {name} utløper snart",
+        "sslDetail": "{host} · SSL gyldig i {days} dager til",
+        "downTitle": "{name} er nede",
+        "downDetail": "{host} svarer ikke",
+        "upTitle": "{name} er oppe igjen",
+        "upDetail": "Nede i 2 min 30 s · hendelsen er løst",
+        "now": "nå",
+        "sentTo": "Sendt til",
+        "allUp": "Alle systemer i drift",
+        "someDown": "Noen systemer er nede",
+        "down": "Nede",
+        "operational": "I drift"
+      },
+      "transcript": {
+        "alt": "En terminaløkt: En agent får spørsmål om hvilke sider som mistet trafikk etter redesignet i august. Den henter sidevisninger og feil via MCP-serveren i Betterlytics og finner ut at /pricing har falt 34 %, rammet av en TypeError som ble rullet ut samme dag.",
+        "redesign": {
+          "question": "hvilke sider har mistet trafikk etter redesignet i august?",
+          "say": "Jeg sammenligner daglige sidevisninger i juli og august, og ser så etter feil på sidene som falt.",
+          "pages": "41 stier · 6 ned over 20 %",
+          "errors": "1 gruppe · TypeError · først sett 12. aug. · 1 206 sesjoner",
+          "answer": "/pricing har falt 34 %. En TypeError i planvelgeren ble rullet ut samme dag – 1 206 sesjoner har støtt på den."
+        },
+        "outage": {
+          "question": "mistet vi salg da kassen var nede i går kveld?",
+          "say": "Jeg finner driftsavbruddet og holder kjøpene opp mot det, time for time.",
+          "incident": "1 driftshendelse · nede 23:12–23:31 · løst",
+          "purchases": "23:00 → 6 kjøp · samme time de 6 foregående kveldene: 38 i snitt",
+          "answer": "Ja. Kassen var nede i 19 minutter, og den timen kom det inn 6 kjøp, mot 38 en vanlig kveld – rundt 32 tapte salg."
+        },
+        "sources": {
+          "question": "hvilken trafikkilde gir besøkende som faktisk registrerer seg?",
+          "say": "Jeg henter besøkende per kilde, så registreringer per kilde, og sammenligner andelene.",
+          "visitors": "Google 18,2k · ChatGPT 2,1k · Hacker News 1,4k",
+          "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
+          "answer": "ChatGPT sender en niendedel så mange besøkende som Google, men 3,4 % av dem registrerer seg, mot 0,9 % – nesten fire ganger så høy andel."
+        }
+      }
     }
   },
   "pricingSlider": {
@@ -1441,9 +1417,9 @@
       "retention1PlusYear": "1+ år datalagring",
       "retention3PlusYears": "3+ år datalagring",
       "retention5PlusYears": "5+ år datalagring",
-      "fullDashboard": "Komplett web-analytics dashboard",
-      "funnelsJourneys": "Funnels og brukerreiser",
-      "sessionReplay": "Sesjonsavspilling",
+      "fullDashboard": "Komplett dashboard for nettanalyse",
+      "funnelsJourneys": "Trakter og brukerreiser",
+      "sessionReplay": "Sesjonsopptak",
       "errorTracking": "Feilsporing",
       "uptime1": "1 oppetidsmonitor og offentlig statusside",
       "uptime50": "50 oppetidsmonitorer med 1-minutts sjekker",
@@ -1452,8 +1428,8 @@
       "emailReports": "Planlagte e-postrapporter",
       "dedicatedSupport": "Dedikert support",
       "slaGuarantee": "SLA-garanti",
-      "everythingInStarter": "Alt i Vekst, pluss:",
-      "everythingInProfessional": "Alt i Profesjonell, pluss:"
+      "everythingInStarter": "Alt i Growth, pluss:",
+      "everythingInProfessional": "Alt i Professional, pluss:"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
@@ -1889,7 +1865,8 @@
       },
       "success": "Overvåker opprettet",
       "successDescription": "Overvåkeren starter sjekker umiddelbart.",
-      "error": "Kunne ikke opprette overvåker"
+      "error": "Kunne ikke opprette overvåker",
+      "targetBlocked": "Denne adressen kan ikke overvåkes."
     },
     "actions": {
       "renameTitle": "Gi nytt navn til overvåker",
@@ -1909,6 +1886,10 @@
     "header": {
       "back": "Tilbake til overvåkere",
       "monitoring": "Overvåking"
+    },
+    "notFound": {
+      "title": "Overvåker ikke funnet",
+      "description": "Overvåkeren kan ha blitt slettet fra dette dashboardet, eller lenken kan være feil."
     },
     "responseTime": {
       "title": "Responstid",
@@ -2051,6 +2032,7 @@
       "acceptedStatusCodes": {
         "label": "Aksepterte statuskoder",
         "description": "Andre koder vil utløse hendelser",
+        "lastCodeRequired": "Minst én statuskode er påkrevd",
         "validation": {
           "maxCodes": "Maksimalt {max} statuskoder tillatt",
           "alreadyAdded": "{code} er allerede lagt til",
@@ -2107,9 +2089,6 @@
     "created": "Opprettet",
     "unknown": "Ukjent",
     "noChange": "ingen endring",
-    "good": "God",
-    "fair": "Middels",
-    "poor": "Dårlig",
     "rename": "Gi nytt navn",
     "renaming": "Omdøper",
     "delete": "Slett",
@@ -2359,10 +2338,6 @@
       "matchDayOfWeek": "Match ukedag"
     },
     "loading": {
-      "dashboard": {
-        "initializing": "Initialiserer dashboard",
-        "loadingSettings": "Laster inn dashboard-innstillingene dine..."
-      },
       "geography": {
         "title": "Initialiserer verdenskort",
         "description": "Forbereder en geografisk visualisering av besøksdata..."
@@ -2819,9 +2794,6 @@
         "skipInactive": "Spring inaktivitet over",
         "playbackSpeedAria": "Avspillingshastighet",
         "recordingDisabled": "Opptak er deaktivert på denne siden"
-      },
-      "timeline": {
-        "viewErrorDetails": "Se feildetaljer"
       }
     },
     "integration": {
@@ -2888,6 +2860,7 @@
       "userMenu": {
         "userFallback": "Bruker",
         "dashboards": "Oversikter",
+        "admin": "Administrasjon",
         "upgradePlan": "Oppgrader plan",
         "reportBug": "Rapporter feil",
         "settings": "Innstillinger",
@@ -2940,7 +2913,7 @@
         "appearance": {
           "title": "Utseende",
           "themeLabel": "Tema",
-          "themeDescription": "Velg et personlig tema for dashbordet",
+          "themeDescription": "Velg et personlig tema for dashboardet",
           "light": "Lys",
           "dark": "Mørk",
           "system": "Systemstandard"
@@ -2956,9 +2929,9 @@
         "localization": {
           "title": "Lokalisering",
           "language": "Språk",
-          "languageDescription": "Velg språk for dashbordet",
+          "languageDescription": "Velg språk for dashboardet",
           "timezone": "Tidssone",
-          "timezoneDescription": "Brukes for datoer og grafer i alle dashbordene dine",
+          "timezoneDescription": "Brukes for datoer og grafer i alle dashboardene dine",
           "timezoneAuto": "Oppdag automatisk",
           "timezoneUndetected": "Nettleseren din oppgir ingen tidssone, så data vises i UTC. Velg tidssonen din for å rette dette.",
           "timezoneSearch": "Søk etter tidssoner...",
@@ -3046,8 +3019,8 @@
         "currentPassword": "Nåværende passord",
         "newPassword": "Nytt passord",
         "confirmNewPassword": "Bekreft nytt passord",
-        "passwordHelp": "Passordet må være minst 8 tegn",
-        "weakPassword": "Passordet må være minst 8 tegn og inneholde både store og små bokstaver",
+        "dialogDescription": "Skriv inn det nåværende passordet ditt, og velg deretter et nytt.",
+        "newPasswordSameAsCurrent": "Det nye passordet må være forskjellig fra det nåværende passordet ditt.",
         "invalidCurrentPassword": "Nåværende passord er feil",
         "passwordsMatch": "Passordene samsvarer",
         "changePassword": "Bytt passord",
@@ -3111,6 +3084,8 @@
       "danger": {
         "sectionTitle": "Faresone",
         "details": "Slett kontoen din og alle tilknyttede data permanent.",
+        "lastAdmin": "Du kan ikke slette denne kontoen fordi den er den eneste administratoren på denne instansen. Hvis den slettes, står instansen uten administrator.",
+        "lastUser": "Du er den eneste brukeren på denne instansen, så denne kontoen kan ikke slettes.",
         "delete": "Slett konto",
         "dialog": {
           "title": "Slett konto permanent",
@@ -3151,7 +3126,8 @@
           "y1": "1 år",
           "y2": "2 år",
           "y3": "3 år",
-          "y5": "5 år"
+          "y5": "5 år",
+          "forever": "Behold for alltid"
         },
         "retentionConfirm": {
           "title": "Endre oppbevaringsperiode?",
@@ -3248,49 +3224,26 @@
       "badgeNew": "Ny",
       "tooltipWhatsNew": "Se hva som er nytt",
       "openButtonAria": "Se hva som er nytt i versjon {version}"
+    },
+    "themeToggle": {
+      "light": "Bytt til lyst tema",
+      "dark": "Bytt til mørkt tema"
+    },
+    "errorPage": {
+      "title": "Noe gikk galt",
+      "description": "Det oppstod en uventet feil under lasting av dashboardet ditt.",
+      "refresh": "Last inn siden på nytt",
+      "goToDashboards": "Gå til dashboards",
+      "goBack": "Gå tilbake",
+      "persists": "Hvis problemet vedvarer, <link>kontakt support</link>.",
+      "errorId": "Feil-ID: {id}",
+      "time": "Tidspunkt: {time}"
     }
   },
   "onboarding": {
-    "registrationDisabled": "Registrering er for øyeblikket deaktivert på denne instansen.",
-    "account": {
-      "features": {
-        "feature1": {
-          "title": "Kom i gang på under 2 minutter",
-          "description": "Legg bare til en kodelinje eller installer npm-pakken vår. Ingen informasjonskapsler, ingen pop-ups."
-        },
-        "feature2": {
-          "title": "Gratis å komme i gang",
-          "description": "10 000 hendelser per måned. Ingen kredittkort. Ingen bindingstid."
-        },
-        "feature3": {
-          "title": "Personvern først og åpen kildekode",
-          "description": "Informasjonskapselfri, GDPR-kompatibel og hostet i EU. Transparent og sikker."
-        }
-      },
-      "form": {
-        "title": "Opprett kontoen din",
-        "signUpWith": "Registrer deg med",
-        "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
-        "orDivider": "eller",
-        "emailLabel": "E-post",
-        "emailPlaceholder": "Skriv inn e-posten din",
-        "passwordLabel": "Passord",
-        "passwordPlaceholder": "Skriv inn passordet ditt (min. 8 tegn)",
-        "confirmPasswordLabel": "Bekreft passord",
-        "confirmPasswordPlaceholder": "Bekreft passordet ditt",
-        "continueButton": "Fortsett",
-        "creatingAccount": "Oppretter konto...",
-        "signingUpGoogle": "Registrerer...",
-        "signingUpGitHub": "Registrerer...",
-        "googleButton": "Google-konto",
-        "gitHubButton": "GitHub-konto",
-        "passwordsDoNotMatch": "Passordene samsvarer ikke",
-        "emailAlreadyExists": "Det finnes allerede en bruker med den e-postadressen.",
-        "signUpError": "Det oppstod en feil under registrering. Prøv igjen.",
-        "checkInput": "Vennligst sjekk inndataene dine",
-        "registrationDisabled": "Registrering er deaktivert på denne instansen. Be en dashbord-eier om en invitasjon.",
-        "invitedToHint": "Du er invitert til å bli med i {domain}"
-      }
+    "progress": {
+      "website": "Nettsted",
+      "integration": "Integrasjon"
     },
     "website": {
       "title": "Sett opp dashboardet ditt",
@@ -3299,7 +3252,7 @@
       "domainPlaceholder": "eksempel.no",
       "domainHelp": "Lim inn nettstedets URL eller domene (f.eks. eksempel.no)",
       "domainWillBeCreatedAs": "Opprettes som <strong>{domain}</strong>",
-      "termsAgreeLabel": "Jeg har lest og godtar <termsLink>tjenestevilkårene</termsLink> og <privacyLink>personvernerklæringen</privacyLink>.",
+      "termsAgreeLabel": "Jeg godtar <termsLink>tjenestevilkårene</termsLink> og har lest <privacyLink>personvernerklæringen</privacyLink>.",
       "createDashboardButton": "Opprett dashboard",
       "creatingDashboard": "Oppretter dashboard...",
       "dashboardCreatedSuccess": "Dashboard opprettet!"
@@ -3324,7 +3277,8 @@
         "reactDescription": "Legg til i hovedkomponenten App",
         "npmDescription": "Installer npm-pakken",
         "npmInstallFirst": "Installer først pakken:",
-        "npmThenInitialize": "Initialiser den deretter i koden din:"
+        "npmThenInitialize": "Initialiser den deretter i koden din:",
+        "viewDocs": "Se dokumentasjon"
       },
       "buttons": {
         "skipForNow": "Hopp over foreløpig",
@@ -3364,6 +3318,10 @@
       "statusPageLimit": "Du har nådd grensen for statussider. Oppgrader til Pro for å opprette flere statussider.",
       "statusPageCustomDomain": "Eget domene krever en profesjonell plan",
       "statusPageBranding": "Å fjerne Betterlytics-merking krever en profesjonell plan"
+    },
+    "account": {
+      "lastAdminCannotBeDeleted": "Den eneste administratorkontoen på denne instansen kan ikke slettes.",
+      "lastUserCannotBeDeleted": "Den eneste brukerkontoen på denne instansen kan ikke slettes."
     },
     "invitations": {
       "userAlreadyHasAccess": "Brukeren har allerede tilgang til dette dashboardet",
@@ -3541,7 +3499,8 @@
       "goToDashboards": "Gå til dashboards",
       "errorHint": "Prøv igjen om litt. Hvis det fortsetter å feile, be {inviter} om å sende deg en ny invitasjon.",
       "tryAgain": "Prøv igjen",
-      "dashboardOwner": "dashboard-eieren"
+      "dashboardOwner": "dashboard-eieren",
+      "signOutAndContinue": "Logg ut og fortsett"
     }
   },
   "integration": {
@@ -3824,7 +3783,11 @@
       },
       "expires": "Utløper {date}",
       "expired": "Utløpt {date}",
-      "neverExpires": "Utløper aldri"
+      "neverExpires": "Utløper aldri",
+      "endpointLabel": "Server-URL",
+      "endpointHint": "Pek MCP-klienten din mot denne URL-en og send nøkkelen som bearer-token. <link>Oppsettsguider for hver klient</link>",
+      "copyEndpoint": "Kopier server-URL",
+      "endpointCopied": "Server-URL kopiert"
     },
     "toast": {
       "created": "Nøkkel opprettet",
@@ -3869,6 +3832,7 @@
       }
     },
     "moreIntegrations": "Trenger du en annen integrasjon? Kontakt oss, så vurderer vi å legge den til.",
+    "moreIntegrationsSelfHosted": "Trenger du en annen integrasjon? <link>Be om den på GitHub</link>.",
     "history": {
       "title": "Varselslogg",
       "button": "Varselslogg",
@@ -3963,9 +3927,11 @@
       "webhookUrlLabel": "Webhook URL",
       "webhookUrlPlaceholder": "https://eksempel.no/webhook",
       "webhookHint": "Skriv inn en offentlig tilgjengelig HTTPS URL. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
+      "webhookHintPrivate": "Skriv inn en HTTP- eller HTTPS URL. Denne instansen kan nå adresser i private nettverk. Varsler sendes som JSON POST-forespørsler med feltene title, message, url og url_title.",
       "errors": {
         "webhookUrlRequired": "Webhook URL er påkrevd",
-        "webhookUrlInvalid": "Må være en gyldig HTTPS URL"
+        "webhookUrlInvalid": "Må være en gyldig HTTPS URL",
+        "webhookUrlInvalidHttp": "Må være en gyldig HTTP- eller HTTPS URL"
       },
       "cancel": "Avbryt",
       "save": "Lagre"
@@ -3979,7 +3945,8 @@
       "invalidDiscordWebhook": "Ugyldig Discord webhook URL",
       "invalidSlackWebhook": "Ugyldig Slack webhook URL",
       "invalidTeamsWebhook": "Ugyldig Teams webhook URL",
-      "invalidWebhookUrl": "Ugyldig webhook URL"
+      "invalidWebhookUrl": "Ugyldig webhook URL",
+      "webhookTargetBlocked": "Varsler kan ikke sendes til denne adressen."
     },
     "unavailable": {
       "description": "{name} krever et app-token konfigurert på denne instansen før den kan kobles til."
@@ -4147,7 +4114,11 @@
       "hours": "{count, plural, one {# time} other {# timer}}",
       "days": "{count, plural, one {# dag} other {# dager}}"
     },
-    "poweredBy": "Levert av"
+    "poweredBy": "Levert av",
+    "notFound": {
+      "title": "Statussiden ble ikke funnet",
+      "description": "Denne statussiden finnes ikke eller er ikke publisert."
+    }
   },
   "statusPagesPage": {
     "title": "Statussider",
@@ -4240,6 +4211,8 @@
       "customDomainInvalid": "Skriv inn et underdomene, f.eks. status.example.com.",
       "customDomainSetup": {
         "intro": "Legg til denne DNS-oppføringen hos domeneleverandøren din for å peke <strong>{domain}</strong> mot Betterlytics.",
+        "introSelfHosted": "Legg til denne DNS-oppføringen hos domeneleverandøren din for å peke <strong>{domain}</strong> mot denne instansen.",
+        "proxyHintSelfHosted": "I Standalone-modus utstedes HTTPS-sertifikatet automatisk. Bak din egen reverse proxy må domenet også legges til i proxyen. <link>Les oppsettsveiledningen</link>",
         "recordType": "Type",
         "recordName": "Navn",
         "recordValue": "Verdi",
@@ -4254,6 +4227,7 @@
         "title": "Synlighet i søkemotorer",
         "public": "Offentlig",
         "publicHint": "Alle med lenken kan se siden. Indekseres av søkemotorer.",
+        "publicHintSelfHosted": "Alle med lenken kan se siden. Søkemotorer indekserer den bare hvis denne instansen tillater crawling.",
         "unlisted": "Ikke oppført",
         "unlistedHint": "Alle med lenken kan se siden, men den skjules for søkemotorer."
       },
