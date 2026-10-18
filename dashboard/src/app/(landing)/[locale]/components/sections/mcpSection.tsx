@@ -13,6 +13,30 @@ import styles from './mcpSection.module.css';
 
 const WORKS_WITH_ID = 'mcp-works-with';
 
+/** The client tiles, each linking to its setup steps in the MCP docs. */
+export function McpClientTiles({ labelledBy }: { labelledBy: string }) {
+  return (
+    <SpotlightList
+      aria-labelledby={labelledBy}
+      className='grid grid-cols-2 gap-[9px] border-t border-rule-08 pt-4.5 transition-ink'
+    >
+      {MCP_CLIENTS.map((client) => (
+        <li key={client.name} className={styles.tile}>
+          <a
+            className='relative flex items-center gap-[11px] rounded-[inherit] px-3 py-[9px] outline-hidden focus-visible:inset-ring-[1.5px] focus-visible:inset-ring-volt-soft/70'
+            href={client.href}
+          >
+            <span className='grid size-6.5 flex-none place-items-center rounded-md bg-fg/7 opacity-90'>
+              <PathIcon icon={client.icon} className='size-3.5' />
+            </span>
+            {client.name}
+          </a>
+        </li>
+      ))}
+    </SpotlightList>
+  );
+}
+
 export function McpSection() {
   const t = useTranslations('landing.mcp');
   return (
@@ -27,24 +51,7 @@ export function McpSection() {
             <Label id={WORKS_WITH_ID} className='mb-4 block'>
               {t('worksWith')}
             </Label>
-            <SpotlightList
-              aria-labelledby={WORKS_WITH_ID}
-              className='grid grid-cols-2 gap-[9px] border-t border-rule-08 pt-4.5 transition-ink'
-            >
-              {MCP_CLIENTS.map((client) => (
-                <li key={client.name} className={styles.tile}>
-                  <a
-                    className='relative flex items-center gap-[11px] rounded-[inherit] px-3 py-[9px] outline-hidden focus-visible:inset-ring-[1.5px] focus-visible:inset-ring-volt-soft/70'
-                    href={client.href}
-                  >
-                    <span className='grid size-6.5 flex-none place-items-center rounded-md bg-fg/7 opacity-90'>
-                      <PathIcon icon={client.icon} className='size-3.5' />
-                    </span>
-                    {client.name}
-                  </a>
-                </li>
-              ))}
-            </SpotlightList>
+            <McpClientTiles labelledBy={WORKS_WITH_ID} />
             <p className='mt-7 text-caption leading-[19px] text-muted'>{t('any')}</p>
           </div>
           <AgentTranscript className='row-span-2 m-4.5 max-lg:row-span-1 max-lg:mt-0 max-sm:m-0 max-sm:rounded-none max-sm:border-0' />

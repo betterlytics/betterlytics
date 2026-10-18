@@ -13,7 +13,18 @@ const REROLL = 55;
 
 const roll = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
 
-export function Scramble({ text, delay = 0, className }: { text: string; delay?: number; className?: string }) {
+/** `align='end'` pads on the left and sweeps from the right, for text set against a right edge. */
+export function Scramble({
+  text,
+  delay = 0,
+  align = 'start',
+  className,
+}: {
+  text: string;
+  delay?: number;
+  align?: 'start' | 'end';
+  className?: string;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const shownRef = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref);
@@ -38,9 +49,12 @@ export function Scramble({ text, delay = 0, className }: { text: string; delay?:
       return;
     }
     const n = Math.max(from.length, text.length);
+    const pad = (s: string) => (align === 'end' ? s.padStart(n, BLANK) : s.padEnd(n, BLANK));
+    const source = pad(from);
+    const target = pad(text);
     const glyphs = Array.from({ length: n }, roll);
     // React already rendered the new text; show the old until the sweep reaches it
-    shown.textContent = from.padEnd(n, BLANK);
+    shown.textContent = source;
     let start = 0;
     let rerolled = 0;
     let raf = 0;
@@ -58,17 +72,17 @@ export function Scramble({ text, delay = 0, className }: { text: string; delay?:
       }
       let s = '';
       for (let i = 0; i < n; i++) {
-        const at = i * SCRAMBLE_STEP;
-        if (t < at) s += from[i] ?? BLANK;
-        else if (t < at + HOLD) s += text[i] === ' ' ? ' ' : glyphs[i];
-        else s += text[i] ?? BLANK;
+        const at = (align === 'end' ? n - 1 - i : i) * SCRAMBLE_STEP;
+        if (t < at) s += source[i];
+        else if (t < at + HOLD) s += target[i] === ' ' ? ' ' : glyphs[i];
+        else s += target[i];
       }
       shown.textContent = s;
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [text, inView, reduce, delay]);
+  }, [text, inView, reduce, delay, align]);
 
   return (
     // relative, so the absolute sr-only copy stays inside the text, not off the page

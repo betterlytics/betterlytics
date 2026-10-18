@@ -1,14 +1,11 @@
 @reference '../../landing.css';
 
 @layer components {
-  /* opaque because it overlaps the hero card; the shadow is cast upward to spare the logo panel's top rule */
+  /* opaque because it overlaps the hero card; the shadow is cast upward to spare the panel's top rule below */
   /* edge painted as border-box backgrounds so the hero's light can catch its top */
   .window {
     --edge: var(--color-rule-22);
     position: relative;
-    display: grid;
-    place-items: center;
-    aspect-ratio: 16 / 9;
     overflow: hidden;
     border: 1px solid transparent;
     border-radius: 12px;
@@ -24,7 +21,6 @@
     /* 0.28s matches the scrim fade in demoFrame.module.css, so edge and veil leave together */
     transition: --edge 0.28s var(--ease-out-expo);
     @variant max-md {
-      aspect-ratio: 4 / 3;
       border-radius: 14px;
     }
   }
@@ -35,6 +31,9 @@
     height: 44px;
     border-bottom: 1px solid var(--color-rule-10);
     background: --alpha(var(--color-fg) / 2%);
+  }
+  .window[data-bare]::before {
+    display: none;
   }
   /* the hero's light spilling onto the title bar */
   .window::after {

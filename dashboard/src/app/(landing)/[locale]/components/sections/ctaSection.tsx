@@ -6,8 +6,17 @@ import { VoltCard, VoltCardActions } from '@/landing/components/ui/voltCard';
 import { cn } from '@/landing/lib/cn';
 import { LINKS } from '@/landing/lib/links';
 
-export function CtaSection() {
+type CtaCopy = { title: string; lede: string; primary: string; secondary: string; secondaryHref?: string };
+
+/** Defaults to the home page's copy; feature pages pass their own. */
+export function CtaSection({ copy }: { copy?: CtaCopy }) {
   const t = useTranslations('landing.cta');
+  const { title, lede, primary, secondary, secondaryHref } = copy ?? {
+    title: t('title'),
+    lede: t('lede'),
+    primary: t('primary'),
+    secondary: t('secondary'),
+  };
   return (
     // phone hatch band mirrors the one in pricingSection
     <section
@@ -23,12 +32,12 @@ export function CtaSection() {
           as='h2'
           size='display-2'
           id='cta-title'
-          className='max-w-[20ch] text-on-volt max-sm:text-[2.5rem] max-sm:leading-10 max-sm:font-semibold max-sm:tracking-[-0.0625rem]'
+          className='max-w-[20ch] text-balance text-on-volt max-sm:text-[2.5rem] max-sm:leading-10 max-sm:font-semibold max-sm:tracking-[-0.0625rem]'
         >
-          {t('title')}
+          {title}
         </Heading>
         <Lede className='mx-auto -mt-2 max-w-[600px] text-on-volt opacity-84 max-sm:mt-1 max-sm:opacity-100'>
-          {t('lede')}
+          {lede}
         </Lede>
         <VoltCardActions>
           <TrackedLink
@@ -37,15 +46,15 @@ export function CtaSection() {
             placement='cta'
             destination='signup'
           >
-            {t('primary')}
+            {primary}
           </TrackedLink>
           <TrackedAnchor
             className={buttonStyles({ variant: 'onVolt', size: 'lg' })}
-            href={LINKS.docs}
+            href={secondaryHref ?? LINKS.docs}
             placement='cta'
             destination='docs'
           >
-            {t('secondary')}
+            {secondary}
           </TrackedAnchor>
         </VoltCardActions>
       </VoltCard>
