@@ -186,7 +186,14 @@
       },
       "scope": {
         "title": "Scope of This Policy",
-        "body": "This privacy policy applies exclusively to the Betterlytics hosted cloud service available at betterlytics.io and our official domains. It does not apply to self-hosted installations of our open source software. If you self-host Betterlytics, you are responsible for your own privacy policy, data processing practices, and legal compliance."
+        "body": "This privacy policy applies exclusively to the Betterlytics hosted cloud service available at betterlytics.io and our official domains. It does not apply to self-hosted installations of our open source software, except for the daily instance report those installations send to us, described in \"Self-hosted instance telemetry\" below. If you self-host Betterlytics, you are responsible for your own privacy policy, data processing practices, and legal compliance."
+      },
+      "selfHostedTelemetry": {
+        "title": "Self-hosted instance telemetry",
+        "p1": "Self-hosted installations of Betterlytics send us a small report about once a day unless the operator turns it off. It contains exactly two fields: a random instance ID that the installation generates and stores in its own database, and the installed Betterlytics version. For each instance we record when it first and last reported, and its first and current version.",
+        "p2": "Our server sees the IP address the report comes from only to answer the request. The telemetry service never reads it, request logging is turned off for this endpoint, and it is not stored. It is held briefly in memory only to rate-limit abusive traffic. The report never contains information about your users, your websites or your analytics data.",
+        "p3": "We use this data to count active self-hosted installations and see which versions are in use, so we can prioritise support and security fixes. The legal basis is our legitimate interest under Art. 6(1)(f) GDPR. The data is stored on our own servers at Hetzner in the EU and is not shared with third parties. We may publish aggregated totals, never individual instance IDs.",
+        "p4": "An instance's records are deleted 365 days after its last report. You can object at any time by setting TELEMETRY_ENABLED=false or DO_NOT_TRACK=1, which stops all reports. To have reports we already received deleted, email privacy@betterlytics.io with the instance ID shown under Settings > Telemetry. Turning telemetry off does not affect any feature of Betterlytics."
       },
       "intro": {
         "p1": "At Betterlytics, we are committed to complying with GDPR, CCPA, PECR and other privacy regulations. The privacy of your data — and it is your data, not ours! — is a big deal to us. We are based in the European Union and all data processing occurs within EU boundaries.",
@@ -2879,7 +2886,32 @@
       "tabs": {
         "account": "Account",
         "preferences": "Preferences",
-        "billing": "Billing"
+        "billing": "Billing",
+        "telemetry": "Telemetry"
+      },
+      "telemetry": {
+        "status": "Status",
+        "on": "On",
+        "off": "Off",
+        "reason": {
+          "cloud": "Telemetry is never sent from Betterlytics Cloud.",
+          "dev_build": "Telemetry is off for development builds (APP_VERSION=dev).",
+          "do_not_track": "Telemetry is off because DO_NOT_TRACK is set.",
+          "disabled_by_env": "Telemetry is off because TELEMETRY_ENABLED=false.",
+          "invalid_value": "Telemetry is off because TELEMETRY_ENABLED has an unrecognised value. Use true or false."
+        },
+        "inactiveJobsOff": "Telemetry is enabled but inactive: BACKGROUND_JOBS_ENABLED=false stops the daily ping, so nothing is sent.",
+        "isSent": "What is sent",
+        "wouldBeSent": "What would be sent",
+        "frequency": "Once a day, with the first report at startup. No IP address or other data is stored.",
+        "endpoint": "Endpoint",
+        "lastDelivered": "Last delivered",
+        "neverDelivered": "Never",
+        "noIdYet": "No instance ID exists yet. One is created the first time telemetry runs while it is on.",
+        "howToTurnOff": "How to turn it off",
+        "turnOffSteps": "Set <code>TELEMETRY_ENABLED=false</code> in your <code>.env</code> file, then run <code>docker compose up -d</code>.",
+        "doNotTrackAlt": "Setting <code>DO_NOT_TRACK=1</code> also turns it off.",
+        "learnMore": "Learn more about telemetry"
       },
       "dialog": {
         "title": "User Settings",

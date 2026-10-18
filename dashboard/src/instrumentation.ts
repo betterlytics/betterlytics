@@ -3,6 +3,21 @@ export async function register() {
   await registerRetiredRetentionEnvWarning();
   await registerAuthBootstrap();
   await registerBackgroundJobs();
+  await registerTelemetryNotice();
+}
+
+async function registerTelemetryNotice() {
+  if (process.env.NEXT_RUNTIME !== 'nodejs') return;
+  try {
+    const { getTelemetryStatus } = await import('@/services/system/telemetry.service');
+    const status = await getTelemetryStatus();
+    if (!status.policy.enabled && status.policy.reason === 'cloud') return;
+    const { describeTelemetryState } = await import('@/lib/telemetry-policy');
+    const isInvalid = !status.policy.enabled && status.policy.reason === 'invalid_value';
+    (isInvalid ? console.warn : console.info)(describeTelemetryState(status));
+  } catch (error) {
+    console.error('[telemetry] Could not determine telemetry state:', error);
+  }
 }
 
 async function registerRetiredRetentionEnvWarning() {

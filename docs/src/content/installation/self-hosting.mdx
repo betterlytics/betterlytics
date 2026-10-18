@@ -538,6 +538,10 @@ A cleanup job deletes data older than each dashboard's retention every Saturday 
 
 </details>
 
+## Telemetry
+
+Self-hosted instances send an anonymous report once a day with a random instance ID and the Betterlytics version, so we can count installs. No IP address is stored. Turn it off with `TELEMETRY_ENABLED=false` in your `.env`. See [Telemetry](/installation/telemetry) for exactly what is sent and stored.
+
 ## Troubleshooting
 
 ### Containers won't start

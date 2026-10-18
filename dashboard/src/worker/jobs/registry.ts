@@ -4,6 +4,8 @@ import { usageThresholdScanJob } from '@/worker/jobs/billing/usage-threshold-sca
 import { subscriptionEndingScanJob } from '@/worker/jobs/billing/subscription-ending-scan.job';
 import { onboardingEmailsJob } from '@/worker/jobs/onboarding/onboarding-emails.job';
 import { retentionPurgeJob } from './data-retention/retention-purge.job';
+import { telemetryPingJob } from '@/worker/jobs/system/telemetry-ping.job';
+import { telemetryRetentionJob } from '@/worker/jobs/system/telemetry-retention.job';
 
 export const JOB_REGISTRY = [
   emailReportsJob,
@@ -12,4 +14,6 @@ export const JOB_REGISTRY = [
   subscriptionEndingScanJob,
   retentionPurgeJob,
   onboardingEmailsJob,
+  telemetryPingJob,
+  telemetryRetentionJob,
 ];

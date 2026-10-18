@@ -38,6 +38,7 @@ mod ip_parser;
 mod session_replay;
 mod site_config;
 mod storage;
+mod telemetry;
 mod ua_parser;
 mod url_utils;
 mod visitor;
@@ -288,6 +289,15 @@ async fn main() {
             );
     } else {
         info!("Session replay endpoints disabled by configuration");
+    }
+
+    if config.telemetry_receiver_enabled {
+        router = router.route(
+            "/telemetry",
+            post(telemetry::receive_telemetry).layer(DefaultBodyLimit::max(1024)),
+        );
+    } else {
+        info!("Telemetry receiver disabled by configuration");
     }
 
     let app = router

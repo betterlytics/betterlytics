@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: S
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.privacy), { locale });
 }
 
-const UPDATED_AT = new Date('2025-01-12');
+const UPDATED_AT = new Date('2026-10-03');
 
 export default async function PrivacyPage() {
   if (!env.IS_CLOUD) {
@@ -141,6 +141,14 @@ export default async function PrivacyPage() {
               </div>
               <p className='text-foreground mt-4'>{t('customer.cookieUse')}</p>
               <p className='text-foreground mt-4'>{t('customer.responsibility')}</p>
+            </section>
+
+            <section>
+              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('selfHostedTelemetry.title')}</h2>
+              <p className='text-foreground mb-4'>{t('selfHostedTelemetry.p1')}</p>
+              <p className='text-foreground mb-4'>{t('selfHostedTelemetry.p2')}</p>
+              <p className='text-foreground mb-4'>{t('selfHostedTelemetry.p3')}</p>
+              <p className='text-foreground'>{t('selfHostedTelemetry.p4')}</p>
             </section>
 
             <section>

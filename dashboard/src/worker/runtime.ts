@@ -9,8 +9,9 @@ type RuntimeGlobal = { _workerRegistration?: Promise<void> };
 type RuntimeJob = Job<unknown>;
 const globalForWorkerRuntime = globalThis as unknown as RuntimeGlobal;
 
-function isJobEnabled<T extends { saasOnly?: boolean }>(job: T): boolean {
+function isJobEnabled<T extends { saasOnly?: boolean; selfHostOnly?: boolean }>(job: T): boolean {
   if (job.saasOnly && !sharedEmailEnv.isCloud) return false;
+  if (job.selfHostOnly && sharedEmailEnv.isCloud) return false;
   return true;
 }
 
@@ -27,7 +28,7 @@ async function registerWorkers(boss: PgBoss): Promise<void> {
   const enabledJobs = JOB_REGISTRY.filter(isJobEnabled);
   const skippedCount = JOB_REGISTRY.length - enabledJobs.length;
   console.info(
-    `Registering ${enabledJobs.length} jobs${skippedCount > 0 ? ` (${skippedCount} skipped: saasOnly outside cloud)` : ''}.`,
+    `Registering ${enabledJobs.length} jobs${skippedCount > 0 ? ` (${skippedCount} skipped by deployment mode)` : ''}.`,
   );
 
   for (const job of enabledJobs) {

@@ -65,6 +65,10 @@ const appEnvSchema = z.object({
     .optional()
     .default('true')
     .transform((v) => v === 'true'),
+  // Raw strings: resolveTelemetryPolicy parses them leniently so a typo never crashes boot
+  TELEMETRY_ENABLED: z.string().optional(),
+  DO_NOT_TRACK: z.string().optional(),
+  TELEMETRY_ENDPOINT: z.string().url().optional().default('https://betterlytics.io/telemetry'),
   IS_DEVELOPMENT: zStringBoolean,
   // The selfhost compose sets true
   ALLOW_PRIVATE_TARGETS: zStringBoolean,
