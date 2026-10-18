@@ -186,11 +186,16 @@
       },
       "scope": {
         "title": "Scope of This Policy",
-        "body": "This privacy policy applies exclusively to the Betterlytics hosted cloud service available at betterlytics.io and our official domains. It does not apply to self-hosted installations of our open source software, except for the daily instance report those installations send to us, described in \"Self-hosted instance telemetry\" below. If you self-host Betterlytics, you are responsible for your own privacy policy, data processing practices, and legal compliance."
+        "body": "This privacy policy applies exclusively to the Betterlytics hosted cloud service available at betterlytics.io and our official domains. It does not apply to self-hosted installations of our open source software, except for the daily instance report those installations send to us, described in \"Telemetry from self-hosted installations\" below. If you self-host Betterlytics, you are responsible for your own privacy policy, data processing practices, and legal compliance."
       },
       "selfHostedTelemetry": {
-        "title": "Self-hosted instance telemetry",
-        "body": "Unless the operator turns it off, self-hosted installations of Betterlytics send us a daily report with only a random instance ID and the installed version. We use it to count active installations and versions, based on our legitimate interest (Art. 6(1)(f) GDPR). We do not store the sender's IP address, and each daily record is deleted after 365 days. How to turn it off and how to request deletion are described in the <docs>self-hosting documentation</docs>."
+        "title": "Telemetry from self-hosted installations",
+        "intro": "Self-hosted installations of Betterlytics send us a small report once a day unless the operator turns it off. The first report is sent 24 hours after the installation first starts. Betterlytics is the controller for this data.",
+        "received": "What we receive: a random instance ID that the installation generates and stores in its own database, and the Betterlytics version it runs. We keep one record per instance per day: the date, the instance ID and the version. We use the IP address a report comes from only to receive it and never store it. The report never includes anything about your users, your websites or your analytics data.",
+        "purpose": "Purpose and legal basis: we count active installations and see which versions are in use, so we can prioritise support and security fixes. This is our legitimate interest under Art. 6(1)(f) GDPR. You can ask us for our assessment of this legitimate interest.",
+        "retention": "Retention: each daily record is deleted 365 days after its date.",
+        "sharing": "Sharing: the data is stored on our servers at Hetzner in the EU and is not shared with anyone else. We may publish aggregate numbers, never individual instance IDs.",
+        "objection": "Right to object: you can turn telemetry off at any time, and no further reports are sent. <link>See how in the self-hosting docs</link>. To have past reports deleted, email privacy@betterlytics.io with your instance ID from the [telemetry] line of your startup log."
       },
       "intro": {
         "p1": "At Betterlytics, we are committed to complying with GDPR, CCPA, PECR and other privacy regulations. The privacy of your data — and it is your data, not ours! — is a big deal to us. We are based in the European Union and all data processing occurs within EU boundaries.",

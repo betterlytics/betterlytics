@@ -5,6 +5,7 @@ import { getTranslations, getLocale } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { StructuredData } from '@/components/StructuredData';
 import { Link } from '@/i18n/navigation';
+import ExternalLink from '@/components/ExternalLink';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
@@ -183,17 +184,24 @@ export default async function PrivacyPage() {
               </ul>
             </section>
 
-            <section>
+            <section id='self-hosted-telemetry'>
               <h3 className='text-foreground mb-4 text-xl font-semibold'>{t('selfHostedTelemetry.title')}</h3>
-              <p className='text-foreground'>
-                {t.rich('selfHostedTelemetry.body', {
-                  docs: (chunks) => (
-                    <a
+              <p className='text-foreground mb-4'>{t('selfHostedTelemetry.intro')}</p>
+              <ul className='text-foreground list-disc space-y-2 pl-6'>
+                <li>{t('selfHostedTelemetry.received')}</li>
+                <li>{t('selfHostedTelemetry.purpose')}</li>
+                <li>{t('selfHostedTelemetry.retention')}</li>
+                <li>{t('selfHostedTelemetry.sharing')}</li>
+              </ul>
+              <p className='text-foreground border-primary mt-4 border-l-4 pl-4'>
+                {t.rich('selfHostedTelemetry.objection', {
+                  link: (chunks) => (
+                    <ExternalLink
                       href='https://betterlytics.io/docs/installation/self-hosting#telemetry'
-                      className='text-primary hover:text-primary/80 underline'
+                      className='text-primary hover:text-primary/80'
                     >
                       {chunks}
-                    </a>
+                    </ExternalLink>
                   ),
                 })}
               </p>
