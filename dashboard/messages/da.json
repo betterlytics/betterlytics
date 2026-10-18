@@ -186,7 +186,16 @@
       },
       "scope": {
         "title": "Anvendelsesområde for denne politik",
-        "body": "Denne privatlivspolitik gælder udelukkende for Betterlytics' hostede cloudtjeneste tilgængelig på betterlytics.io og vores officielle domæner. Den gælder ikke for selv-hostede installationer af vores open source-software. Hvis du selv-hoster Betterlytics, er du ansvarlig for din egen privatlivspolitik, databehandlingspraksis og juridiske overholdelse."
+        "body": "Denne privatlivspolitik gælder udelukkende for Betterlytics' hostede cloudtjeneste tilgængelig på betterlytics.io og vores officielle domæner. Den gælder ikke for selv-hostede installationer af vores open source-software, bortset fra den daglige instansrapport, som disse installationer sender til os, beskrevet i \"Telemetri fra selv-hostede installationer\" nedenfor. Hvis du selv-hoster Betterlytics, er du ansvarlig for din egen privatlivspolitik, databehandlingspraksis og juridiske overholdelse."
+      },
+      "selfHostedTelemetry": {
+        "title": "Telemetri fra selv-hostede installationer",
+        "intro": "Selv-hostede installationer af Betterlytics sender os en lille rapport én gang om dagen, medmindre operatøren slår det fra. Den første rapport sendes 24 timer efter, at installationen er startet første gang. Betterlytics er dataansvarlig for disse data.",
+        "received": "Hvad vi modtager: et tilfældigt instans-ID, som installationen genererer og gemmer i sin egen database, og den Betterlytics-version, den kører. Vi gemmer én registrering pr. instans pr. dag: datoen, instans-ID'et og versionen. Vi bruger kun den IP-adresse, rapporten kommer fra, til at modtage den og til at begrænse misbrugende trafik, og vi gemmer den aldrig. Rapporten indeholder aldrig oplysninger om dine brugere, dine websites eller dine analysedata.",
+        "purpose": "Formål og retsgrundlag: vi tæller aktive installationer og ser, hvilke versioner der er i brug, så vi kan prioritere support og sikkerhedsrettelser. Det er vores legitime interesse i henhold til GDPR artikel 6, stk. 1, litra f. Du kan bede os om vores vurdering af denne legitime interesse.",
+        "retention": "Opbevaring: hver daglig registrering slettes 365 dage efter sin dato.",
+        "sharing": "Deling: dataene opbevares på vores servere hos Hetzner i EU og deles ikke med andre. Vi kan offentliggøre samlede tal, aldrig individuelle instans-ID'er.",
+        "objection": "Ret til indsigelse: du kan til enhver tid slå telemetri fra, så der ikke sendes flere rapporter. <link>Se hvordan i dokumentationen om selv-hosting</link>. Hvis du vil have slettet tidligere rapporter, skal du skrive til privacy@betterlytics.io med dit instans-ID fra [telemetry]-linjen i opstartsloggen."
       },
       "intro": {
         "p1": "Hos Betterlytics er vi forpligtet til at overholde GDPR, CCPA, PECR og andre privatlivsregler. Beskyttelsen af dine data — og det er dine data, ikke vores! — er meget vigtig for os. Vi har base i EU, og al databehandling foregår inden for EU's grænser.",
@@ -274,6 +283,7 @@
         "li5": "Ret til dataportabilitet: Modtage dine data i et portabelt format",
         "li6": "Ret til indsigelse: Gøre indsigelse mod behandling baseret på legitime interesser",
         "li7": "Ret til at trække samtykke tilbage: Tilbagekalde samtykke til databehandling",
+        "li8": "Ret til at klage: Klage til en databeskyttelsesmyndighed, f.eks. Datatilsynet eller myndigheden i det EU- eller EØS-land, hvor du bor",
         "contact": "For at udøve nogen af disse rettigheder, kontakt os på privacy@betterlytics.io"
       },
       "noCookies": {

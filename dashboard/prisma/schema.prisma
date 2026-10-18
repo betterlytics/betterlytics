@@ -755,3 +755,10 @@ model AdminAuditLog {
   @@index([actorUserId])
   @@index([createdAt])
 }
+
+model TelemetryInstance {
+  id         String    @id @default("instance")
+  instanceId String    @unique @db.Uuid
+  lastSentAt DateTime?
+  createdAt  DateTime  @default(now())
+}

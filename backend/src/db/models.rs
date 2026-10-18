@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc, NaiveDate};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 use strum_macros::EnumString;
+use uuid::Uuid;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 // Ensure field order exactly matches ClickHouse table schema
@@ -156,6 +157,15 @@ pub struct SessionReplaySegmentRow {
     pub date: NaiveDate,
     pub size_bytes: u64,
     pub data: String,
+}
+
+#[derive(clickhouse::Row, Serialize, Debug)]
+pub struct TelemetryPingRow {
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
+    #[serde(with = "clickhouse::serde::uuid")]
+    pub instance_id: Uuid,
+    pub version: String,
 }
 
 #[derive(Debug, EnumString, Serialize_repr, Deserialize_repr)]

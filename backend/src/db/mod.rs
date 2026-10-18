@@ -13,7 +13,7 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, TelemetryPingRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
@@ -209,6 +209,10 @@ impl Database {
 
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
         self.insert_one("analytics.session_replay_segments", &row).await
+    }
+
+    pub async fn insert_telemetry_ping(&self, row: TelemetryPingRow) -> Result<()> {
+        self.insert_one("analytics.telemetry_daily", &row).await
     }
 }
 
