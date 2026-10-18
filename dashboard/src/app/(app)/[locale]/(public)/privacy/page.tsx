@@ -165,6 +165,7 @@ export default async function PrivacyPage() {
                 <li>{t('rights.li5')}</li>
                 <li>{t('rights.li6')}</li>
                 <li>{t('rights.li7')}</li>
+                <li>{t('rights.li8')}</li>
               </ul>
               <p className='text-foreground mt-4'>{t('rights.contact')}</p>
             </section>

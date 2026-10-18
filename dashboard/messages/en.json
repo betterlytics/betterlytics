@@ -283,6 +283,7 @@
         "li5": "Right to data portability: Receive your data in a portable format",
         "li6": "Right to object: Object to processing based on legitimate interests",
         "li7": "Right to withdraw consent: Withdraw consent for data processing",
+        "li8": "Right to lodge a complaint: Complain to a data protection authority, such as the Danish Data Protection Agency (Datatilsynet) or the authority in the EU or EEA country where you live",
         "contact": "To exercise any of these rights, please contact us at privacy@betterlytics.io"
       },
       "noCookies": {

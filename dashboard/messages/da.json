@@ -283,6 +283,7 @@
         "li5": "Ret til dataportabilitet: Modtage dine data i et portabelt format",
         "li6": "Ret til indsigelse: Gøre indsigelse mod behandling baseret på legitime interesser",
         "li7": "Ret til at trække samtykke tilbage: Tilbagekalde samtykke til databehandling",
+        "li8": "Ret til at klage: Klage til en databeskyttelsesmyndighed, f.eks. Datatilsynet eller myndigheden i det EU- eller EØS-land, hvor du bor",
         "contact": "For at udøve nogen af disse rettigheder, kontakt os på privacy@betterlytics.io"
       },
       "noCookies": {
