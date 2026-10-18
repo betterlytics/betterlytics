@@ -498,7 +498,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
   <EnvVar name="ALLOW_PRIVATE_TARGETS" default="true">Uptime monitors and webhooks may reach private and LAN addresses, any port is allowed, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services)</EnvVar>
   <EnvVar name="PUBLIC_ENABLE_FAVICON_FETCHING" default="true">Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead</EnvVar>
   <EnvVar name="LOG_LEVEL" default="info">Backend log level: `error`, `warn`, `info`, `debug` or `trace`</EnvVar>
-  <EnvVar name="TELEMETRY_ENABLED" default="true">Sends a daily report with a random instance ID and the Betterlytics version. `false` stops it, see [Telemetry](#telemetry)</EnvVar>
+  <EnvVar name="TELEMETRY_ENABLED" default="true">Sends us the Betterlytics version and a random instance ID once a day. `false` turns it off, see [Telemetry](#telemetry)</EnvVar>
 </EnvTable>
 
 ## Updating
@@ -541,27 +541,11 @@ A cleanup job deletes data older than each dashboard's retention every Saturday 
 
 ## Telemetry
 
-Self-hosted instances send one small report a day to `https://telemetry.betterlytics.io/v1/ping`, so we can count how many instances exist and which versions they run. It is on by default. The report is exactly this JSON, and nothing else:
+Once a day, your instance sends us its Betterlytics version and a random instance ID, so we know how many instances are running and which versions they use. Nothing about your users, websites or analytics data is included, and we don't store your IP address. The first report is sent a day after your instance first starts, so you can turn it off before anything is sent. See our [privacy policy](https://betterlytics.io/privacy#self-hosted-telemetry) for details.
 
-```json
-{
-  "instance_id": "9b2f6c1e-3a4d-4e5f-8a6b-7c8d9e0f1a2b",
-  "version": "v1.6.0"
-}
-```
-
-- `instance_id` is a random UUID your instance generates the first time it starts with telemetry on, and stores in its own Postgres database (the `TelemetryInstance` table). It is not derived from your hostname, IP address, secrets or any other data.
-- `version` is the Betterlytics version you are running.
-
-The first report goes out 24 hours after that first start, so you have time to read this and turn it off. After that it is sent once a day, and restarts do not send extra reports. A failed report is retried an hour later. We store one row per instance per day: the date, the instance ID and the version. We do not store your IP address, and request logging is off for this endpoint. Each row is deleted 365 days after its date. We may publish aggregate numbers, never individual instance IDs.
-
-The startup log has a `[telemetry]` line saying whether telemetry is on and, if so, the exact JSON it sends. When it is off, the line still shows the instance ID if one was ever created.
-
-### Turning it off
-
-Set `TELEMETRY_ENABLED=false` in `.env` (see [Other](#other)) and run `docker compose up -d --wait`. `DO_NOT_TRACK=1` and `BACKGROUND_JOBS_ENABLED=false` also turn it off. The setup script's "Try locally" mode writes `TELEMETRY_ENABLED="false"` for you. Turning it off does not affect any feature.
-
-To have reports we already received deleted, email [privacy@betterlytics.io](mailto:privacy@betterlytics.io) with the instance ID from the `[telemetry]` startup log line. A copied or restored database keeps the same instance ID; to give an instance a new one, run `DELETE FROM "TelemetryInstance";` against its Postgres database. The legal details are in our [privacy policy](https://betterlytics.io/privacy).
+<Callout type="info">
+To turn telemetry off, set `TELEMETRY_ENABLED=false` in `.env` and run `docker compose up -d --wait`. The setup script's "Try locally" mode turns it off for you.
+</Callout>
 
 ## Troubleshooting
 
