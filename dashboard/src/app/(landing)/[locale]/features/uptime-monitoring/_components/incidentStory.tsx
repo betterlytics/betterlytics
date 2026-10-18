@@ -7,8 +7,8 @@ import { Stage } from '@/landing/components/feature/showcase';
 import { useInView } from '@/landing/hooks/useInView';
 import { vars } from '@/landing/lib/cssVars';
 import { rovingTabKeys } from '@/landing/lib/rovingTabs';
-import { IncidentScene } from './incidentScene';
 import styles from './incidentStory.module.css';
+import { StoryScenes } from './storyScenes';
 
 const STEPS = ['fail', 'confirm', 'alert', 'status', 'recover'] as const;
 
@@ -75,7 +75,8 @@ export function IncidentStory() {
       <div id='story-stage' role='tabpanel' aria-labelledby={`story-tab-${STEPS[step]}`} className={styles.panel}>
         <p className={styles.caption}>{t(`steps.${STEPS[step]}.body`)}</p>
         <Stage className={styles.stage}>
-          <IncidentScene step={step} />
+          <i className={styles.drift} />
+          <StoryScenes step={step} />
         </Stage>
       </div>
     </div>

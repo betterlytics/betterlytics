@@ -1495,10 +1495,21 @@
         "stage": {
           "suggested": "Suggested incident",
           "suggestedBody": "Checkout down since 10:12",
-          "write": "Write update",
-          "upDetail": "Down for 19m · incident resolved",
-          "incidentFlag": "Incident · http_5xx",
-          "failingFlag": "{count} of 3 failed"
+          "write": "Write update"
+        },
+        "scenes": {
+          "failing": "Failing",
+          "down": "Down",
+          "recentChecks": "Recent checks",
+          "waiting": "Waiting for two more failures before alerting",
+          "failedOf": "{count} of 3 failed",
+          "incidentOpened": "Incident opened",
+          "reason": "Reason",
+          "started": "Started",
+          "startedValue": "10:12 · 3 failed checks in a row",
+          "downFor": "Down for",
+          "backAt": "Back up",
+          "alertsSent": "Alerts sent"
         }
       },
       "checks": {

@@ -179,13 +179,15 @@
       animation-name: story-fill-x;
     }
   }
-  /* held off screen, under a mouse, and while the keyboard is in the list */
+  /* held off screen, under a mouse (on the list, or on the illustration itself rather than the stage around
+     it, so scrolling past doesn't stop it), and while the keyboard is in the list */
   .story[data-held] .progress::after,
   .steps:has(:focus-visible) .progress::after {
     animation-play-state: paused;
   }
   @media (hover: hover) {
-    .steps:hover .progress::after {
+    .steps:hover .progress::after,
+    .story:has([data-hold]:hover) .progress::after {
       animation-play-state: paused;
     }
   }
@@ -221,6 +223,30 @@
       min-height: 400px;
     }
   }
+  /* barely-there life, after the hero's wave: the stage's own 10px hatch, a hair brighter, under a soft
+     band of mask that drifts across and loops; still while off screen, absent without motion */
+  .drift {
+    position: absolute;
+    inset: 0;
+    display: none;
+    background: repeating-linear-gradient(315deg, rgb(242 245 255 / 0.03) 0 1px, transparent 0 50%) 0 0 / 10px 10px;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 50%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 50%, transparent);
+    -webkit-mask-size: 34% 100%;
+    mask-size: 34% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .drift {
+      display: block;
+      animation: story-drift 22s linear infinite;
+    }
+    .story[data-held] .drift {
+      animation-play-state: paused;
+    }
+  }
 
   @media (prefers-reduced-motion: reduce) {
     .step,
@@ -238,5 +264,16 @@
 @keyframes story-fill-x {
   from {
     transform: scaleX(0);
+  }
+}
+/* the 34%-wide band enters fully off the left edge and leaves fully off the right */
+@keyframes story-drift {
+  from {
+    -webkit-mask-position: -90% 0;
+    mask-position: -90% 0;
+  }
+  to {
+    -webkit-mask-position: 190% 0;
+    mask-position: 190% 0;
   }
 }
