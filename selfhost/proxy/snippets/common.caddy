@@ -15,6 +15,23 @@
 	header ?Content-Security-Policy "frame-ancestors 'self'"
 }
 
+# Access log without client IPs or request headers (User-Agent, Referer, cookies).
+# The rate_limit plugin's own rejection line keeps the client IP on purpose, so operators can
+# see who is over a limit.
+(access_log) {
+	log {
+		output stdout
+		format filter {
+			wrap json
+			fields {
+				request>remote_ip delete
+				request>client_ip delete
+				request>headers delete
+			}
+		}
+	}
+}
+
 # Usage: import app_proxy <upstream> <max body size>
 # Caddy already sets X-Forwarded-For (append), -Proto, -Host and passes Host through.
 # {client_ip} is the XFF-resolved client behind a trusted own proxy, the peer otherwise.
