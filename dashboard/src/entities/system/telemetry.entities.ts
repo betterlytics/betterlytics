@@ -15,7 +15,13 @@ export type TelemetryInstance = z.infer<typeof TelemetryInstanceSchema>;
 
 export type TelemetryPayload = { instance_id: string; version: string };
 
-export type TelemetryDisabledReason = 'cloud' | 'dev_build' | 'do_not_track' | 'disabled_by_env' | 'invalid_value';
+export type TelemetryDisabledReason =
+  | 'cloud'
+  | 'dev_build'
+  | 'do_not_track'
+  | 'disabled_by_env'
+  | 'invalid_value'
+  | 'invalid_version';
 
 export type TelemetryPolicy = { enabled: true } | { enabled: false; reason: TelemetryDisabledReason };
 

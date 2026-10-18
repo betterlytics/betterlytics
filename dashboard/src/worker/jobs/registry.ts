@@ -5,7 +5,6 @@ import { subscriptionEndingScanJob } from '@/worker/jobs/billing/subscription-en
 import { onboardingEmailsJob } from '@/worker/jobs/onboarding/onboarding-emails.job';
 import { retentionPurgeJob } from './data-retention/retention-purge.job';
 import { telemetryPingJob } from '@/worker/jobs/system/telemetry-ping.job';
-import { telemetryRetentionJob } from '@/worker/jobs/system/telemetry-retention.job';
 
 export const JOB_REGISTRY = [
   emailReportsJob,
@@ -15,5 +14,4 @@ export const JOB_REGISTRY = [
   retentionPurgeJob,
   onboardingEmailsJob,
   telemetryPingJob,
-  telemetryRetentionJob,
 ];

@@ -161,6 +161,8 @@ pub struct SessionReplaySegmentRow {
 
 #[derive(clickhouse::Row, Serialize, Debug)]
 pub struct TelemetryPingRow {
+    #[serde(with = "clickhouse::serde::chrono::date")]
+    pub date: NaiveDate,
     #[serde(with = "clickhouse::serde::uuid")]
     pub instance_id: Uuid,
     pub version: String,

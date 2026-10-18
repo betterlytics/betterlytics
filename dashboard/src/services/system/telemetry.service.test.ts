@@ -6,7 +6,7 @@ const { mockEnv, repo } = vi.hoisted(() => ({
     APP_VERSION: 'v1.6.0',
     TELEMETRY_ENABLED: undefined as string | undefined,
     DO_NOT_TRACK: undefined as string | undefined,
-    TELEMETRY_ENDPOINT: 'https://betterlytics.io/telemetry',
+    TELEMETRY_ENDPOINT: 'https://telemetry.betterlytics.io/v1/ping',
     BACKGROUND_JOBS_ENABLED: true,
   },
   repo: {
@@ -66,7 +66,7 @@ describe('sendTelemetryPingIfDue', () => {
   it('skips without fetching when the version is invalid', async () => {
     mockEnv.APP_VERSION = 'v1.6';
 
-    expect(await sendTelemetryPingIfDue(NOW)).toEqual({ outcome: 'invalid_version' });
+    expect(await sendTelemetryPingIfDue(NOW)).toEqual({ outcome: 'skipped_policy' });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -123,7 +123,7 @@ describe('sendTelemetryPingIfDue', () => {
     await sendTelemetryPingIfDue(NOW);
 
     const [url, init] = fetchMock.mock.calls[0];
-    expect(url).toBe('https://betterlytics.io/telemetry');
+    expect(url).toBe('https://telemetry.betterlytics.io/v1/ping');
     expect(init.method).toBe('POST');
     expect(init.headers).toEqual({ 'content-type': 'application/json' });
     expect(init.redirect).toBe('error');

@@ -2,7 +2,7 @@ import 'server-only';
 
 import { env } from '@/lib/env';
 import type { TelemetryPolicy, TelemetryStatus } from '@/entities/system/telemetry.entities';
-import { buildTelemetryPayload, isValidTelemetryVersion, resolveTelemetryPolicy } from '@/lib/telemetry-policy';
+import { buildTelemetryPayload, resolveTelemetryPolicy } from '@/lib/telemetry-policy';
 import {
   findTelemetryInstance,
   getOrCreateTelemetryInstance,
@@ -15,13 +15,7 @@ const SEND_TIMEOUT_MS = 5000;
 
 export type TelemetrySendOutcome =
   | {
-      outcome:
-        | 'skipped_policy'
-        | 'skipped_first_day'
-        | 'skipped_recent'
-        | 'delivered'
-        | 'network_error'
-        | 'invalid_version';
+      outcome: 'skipped_policy' | 'skipped_first_day' | 'skipped_recent' | 'delivered' | 'network_error';
     }
   | { outcome: 'http_error'; status: number };
 
@@ -36,7 +30,6 @@ export function resolveCurrentTelemetryPolicy(): TelemetryPolicy {
 
 export async function sendTelemetryPingIfDue(now: Date = new Date()): Promise<TelemetrySendOutcome> {
   if (!resolveCurrentTelemetryPolicy().enabled) return { outcome: 'skipped_policy' };
-  if (!isValidTelemetryVersion(env.APP_VERSION)) return { outcome: 'invalid_version' };
 
   const instance = await getOrCreateTelemetryInstance();
   if (!instance.lastSentAt && now.getTime() - instance.createdAt.getTime() < FIRST_SEND_DELAY_MS) {

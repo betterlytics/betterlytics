@@ -55,6 +55,13 @@ describe('resolveTelemetryPolicy', () => {
       reason: 'invalid_value',
     });
   });
+
+  it('is off when APP_VERSION is not a release version, so it never reports Enabled without sending', () => {
+    expect(resolveTelemetryPolicy({ isCloud: false, appVersion: 'v1.6' })).toEqual({
+      enabled: false,
+      reason: 'invalid_version',
+    });
+  });
 });
 
 describe('isValidTelemetryVersion', () => {
@@ -86,7 +93,7 @@ describe('describeTelemetryState', () => {
   const base: TelemetryStatus = {
     policy: { enabled: true },
     backgroundJobsEnabled: true,
-    endpoint: 'https://betterlytics.io/telemetry',
+    endpoint: 'https://telemetry.betterlytics.io/v1/ping',
     payload,
     lastSentAt: null,
   };
@@ -94,7 +101,7 @@ describe('describeTelemetryState', () => {
   it('prints the exact payload and endpoint when enabled', () => {
     const text = describeTelemetryState(base);
     expect(text).toContain(JSON.stringify(payload));
-    expect(text).toContain('https://betterlytics.io/telemetry');
+    expect(text).toContain('https://telemetry.betterlytics.io/v1/ping');
     expect(text).toContain('TELEMETRY_ENABLED=false');
     expect(text).toContain('24 hours');
     expect(text).toContain('https://betterlytics.io/privacy');

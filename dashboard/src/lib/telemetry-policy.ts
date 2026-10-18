@@ -29,9 +29,10 @@ export function resolveTelemetryPolicy(input: TelemetryPolicyInput): TelemetryPo
     return { enabled: false, reason: 'do_not_track' };
 
   const raw = input.telemetryEnabled?.trim().toLowerCase();
-  if (!raw || TRUE_VALUES.has(raw)) return { enabled: true };
-  if (FALSE_VALUES.has(raw)) return { enabled: false, reason: 'disabled_by_env' };
-  return { enabled: false, reason: 'invalid_value' };
+  if (FALSE_VALUES.has(raw ?? '')) return { enabled: false, reason: 'disabled_by_env' };
+  if (raw && !TRUE_VALUES.has(raw)) return { enabled: false, reason: 'invalid_value' };
+  if (!isValidTelemetryVersion(input.appVersion)) return { enabled: false, reason: 'invalid_version' };
+  return { enabled: true };
 }
 
 export function isValidTelemetryVersion(version: string): boolean {
@@ -52,7 +53,7 @@ export function describeTelemetryState(status: TelemetryStatus): string {
     return [
       `[telemetry] Enabled. Once a day this instance sends ${JSON.stringify(status.payload)} to ${status.endpoint}, so Betterlytics can count installs and versions.`,
       '[telemetry] The first report goes out 24 hours after telemetry was first enabled. Your IP address is not stored.',
-      '[telemetry] To turn it off set TELEMETRY_ENABLED=false in .env and restart.',
+      '[telemetry] To turn it off set TELEMETRY_ENABLED=false in .env and run: docker compose up -d --wait',
       `[telemetry] Details: ${TELEMETRY_DOCS_URL} Privacy: ${TELEMETRY_PRIVACY_URL}`,
     ].join('\n');
   }
@@ -72,6 +73,8 @@ function describeDisabledReason(reason: TelemetryDisabledReason): string {
       return '[telemetry] Disabled: TELEMETRY_ENABLED has an unrecognised value; use true or false. Nothing is sent.';
     case 'dev_build':
       return '[telemetry] Disabled for development builds (APP_VERSION=dev). Nothing is sent.';
+    case 'invalid_version':
+      return '[telemetry] Disabled: APP_VERSION is not a release version. Nothing is sent.';
     case 'cloud':
       return '[telemetry] Disabled on Betterlytics Cloud. Nothing is sent.';
   }

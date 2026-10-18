@@ -212,7 +212,7 @@ impl Database {
     }
 
     pub async fn insert_telemetry_ping(&self, row: TelemetryPingRow) -> Result<()> {
-        self.insert_one("analytics.telemetry_pings", &row).await
+        self.insert_one("analytics.telemetry_daily", &row).await
     }
 }
 

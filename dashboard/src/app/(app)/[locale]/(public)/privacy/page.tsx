@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: S
   return generateSEO(await buildSEOConfig(SEO_CONFIGS.privacy), { locale });
 }
 
-const UPDATED_AT = new Date('2026-10-03');
+const UPDATED_AT = new Date('2026-10-18');
 
 export default async function PrivacyPage() {
   if (!env.IS_CLOUD) {
@@ -144,14 +144,6 @@ export default async function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className='text-foreground mb-4 text-2xl font-semibold'>{t('selfHostedTelemetry.title')}</h2>
-              <p className='text-foreground mb-4'>{t('selfHostedTelemetry.p1')}</p>
-              <p className='text-foreground mb-4'>{t('selfHostedTelemetry.p2')}</p>
-              <p className='text-foreground mb-4'>{t('selfHostedTelemetry.p3')}</p>
-              <p className='text-foreground'>{t('selfHostedTelemetry.p4')}</p>
-            </section>
-
-            <section>
               <h3 className='text-foreground mb-4 text-xl font-semibold'>{t('dataRetention.title')}</h3>
               <ul className='text-foreground list-disc space-y-2 pl-6'>
                 <li>{t('dataRetention.li1')}</li>
@@ -189,6 +181,22 @@ export default async function PrivacyPage() {
                 <li>{t('security.li3')}</li>
                 <li>{t('security.li4')}</li>
               </ul>
+            </section>
+
+            <section>
+              <h3 className='text-foreground mb-4 text-xl font-semibold'>{t('selfHostedTelemetry.title')}</h3>
+              <p className='text-foreground'>
+                {t.rich('selfHostedTelemetry.body', {
+                  docs: (chunks) => (
+                    <a
+                      href='https://betterlytics.io/docs/installation/self-hosting#telemetry'
+                      className='text-primary hover:text-primary/80 underline'
+                    >
+                      {chunks}
+                    </a>
+                  ),
+                })}
+              </p>
             </section>
 
             <section>

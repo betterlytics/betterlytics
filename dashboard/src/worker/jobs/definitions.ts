@@ -76,17 +76,6 @@ export const telemetryPingJobDefinition = {
   selfHostOnly: true,
 } as const satisfies JobDefinition;
 
-export const telemetryRetentionJobDefinition = {
-  name: 'telemetry-retention',
-  schedule: '0 3 * * 0',
-  retryLimit: 2,
-  retryBackoff: true,
-  expireInSeconds: 600,
-  policy: 'exclusive',
-  deadLetter: undefined,
-  saasOnly: true,
-} as const satisfies JobDefinition;
-
 export const JOB_DEFINITIONS = [
   emailReportsJobDefinition,
   sendEmailJobDefinition,
@@ -95,7 +84,6 @@ export const JOB_DEFINITIONS = [
   subscriptionEndingScanJobDefinition,
   onboardingEmailsJobDefinition,
   telemetryPingJobDefinition,
-  telemetryRetentionJobDefinition,
 ] as const;
 
 export type JobName = (typeof JOB_DEFINITIONS)[number]['name'];

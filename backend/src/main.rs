@@ -291,14 +291,18 @@ async fn main() {
         info!("Session replay endpoints disabled by configuration");
     }
 
-    if config.telemetry_receiver_enabled {
-        router = router.route(
-            "/telemetry",
-            post(telemetry::receive_telemetry).layer(DefaultBodyLimit::max(1024)),
-        );
+    // Server-to-server only, so it is merged after the CORS layer and gets no CORS headers
+    let telemetry_router = if config.telemetry_receiver_enabled {
+        Router::new()
+            .route(
+                "/v1/ping",
+                post(telemetry::receive_telemetry).layer(DefaultBodyLimit::max(1024)),
+            )
+            .with_state(db.clone())
     } else {
         info!("Telemetry receiver disabled by configuration");
-    }
+        Router::new()
+    };
 
     let app = router
         .fallback(fallback_handler)
@@ -311,7 +315,8 @@ async fn main() {
             replay_ctx,
             site_cfg_cache.clone(),
         ))
-        .layer(CorsLayer::permissive());
+        .layer(CorsLayer::permissive())
+        .merge(telemetry_router);
 
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     info!("Listening on {}", addr);

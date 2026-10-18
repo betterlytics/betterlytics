@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use axum::{extract::State, http::StatusCode, Json};
 use chrono::Utc;
 use once_cell::sync::Lazy;
@@ -9,11 +7,6 @@ use tracing::{debug, error};
 use uuid::Uuid;
 
 use crate::db::{SharedDatabase, TelemetryPingRow};
-use crate::metrics::MetricsCollector;
-use crate::processing::EventProcessor;
-use crate::session_replay::ReplayCtx;
-use crate::site_config::SiteConfigCache;
-use crate::validation::EventValidator;
 
 // [0-9] rather than \d: regex-crate \d matches Unicode digits, the dashboard's JS regex does not
 static VERSION_RE: Lazy<Regex> =
@@ -34,24 +27,19 @@ pub fn is_valid_ping(ping: &TelemetryPing) -> bool {
 }
 
 pub async fn receive_telemetry(
-    State((db, _, _, _, _, _)): State<(
-        SharedDatabase,
-        Arc<EventProcessor>,
-        Option<Arc<MetricsCollector>>,
-        Arc<EventValidator>,
-        Option<Arc<ReplayCtx>>,
-        Arc<SiteConfigCache>,
-    )>,
+    State(db): State<SharedDatabase>,
     Json(ping): Json<TelemetryPing>,
 ) -> StatusCode {
     if !is_valid_ping(&ping) {
         debug!("Telemetry ping rejected by validation");
         return StatusCode::UNPROCESSABLE_ENTITY;
     }
+    let received_at = Utc::now();
     let row = TelemetryPingRow {
+        date: received_at.date_naive(),
         instance_id: ping.instance_id,
         version: ping.version,
-        received_at: Utc::now(),
+        received_at,
     };
     match db.insert_telemetry_ping(row).await {
         Ok(()) => StatusCode::NO_CONTENT,
