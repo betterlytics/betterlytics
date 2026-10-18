@@ -1389,7 +1389,308 @@
           "visitors": "Google 18.2k · ChatGPT 2.1k · Hacker News 1.4k",
           "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
           "answer": "ChatGPT sends a ninth of the visitors Google does, but 3.4% of them sign up against 0.9% — nearly four times the rate."
+        },
+        "uptimeAlt": "A terminal session: asked to investigate a Checkout downtime alert, an agent reads the open incident through the Betterlytics MCP server, finds a commit shipped three minutes before the outage and offers to revert it. Then it works out what last night's checkout outage cost in sales.",
+        "investigate": {
+          "question": "checkout is alerting as down, can you investigate?",
+          "say": "I'll pull the open incident from Betterlytics, then check what shipped just before it started.",
+          "incident": "1 ongoing incident · Checkout · down since 10:12 · HTTP 503 · 3 failed checks",
+          "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
+          "answer": "Checkout has returned 503s since 10:12, three minutes after a41f2c9 moved the Stripe keys to env vars. Want me to revert it?"
         }
+      }
+    },
+    "feature": {
+      "breadcrumb": "Breadcrumb",
+      "features": "Features",
+      "related": {
+        "title": "Also in the *same* dashboard",
+        "lede": "Uptime is one part of Betterlytics. Everything below shares the script, the login and the bill.",
+        "learnMore": "Learn more"
+      },
+      "relatedItems": {
+        "analytics": {
+          "title": "Web analytics",
+          "body": "Cookieless traffic, sources, pages and funnels, live and unsampled."
+        },
+        "replay": {
+          "title": "Session replay",
+          "body": "Watch what a visitor saw, click by click and scroll by scroll."
+        },
+        "errors": {
+          "title": "Error tracking",
+          "body": "JavaScript errors with the stack trace, the page and the session behind them."
+        },
+        "vitals": {
+          "title": "Core Web Vitals",
+          "body": "LCP, INP and CLS measured in your visitors' real browsers."
+        }
+      }
+    },
+    "uptime": {
+      "seo": {
+        "title": "Uptime monitoring with SSL alerts & status pages | Betterlytics",
+        "description": "Check your site every minute, get alerts in Slack, Discord, Teams or email, catch expiring SSL certificates and publish a status page. In the same dashboard as your analytics, with a free plan."
+      },
+      "hero": {
+        "eyebrow": "Uptime monitoring",
+        "title": "Know when your site goes down, and what it cost you",
+        "lede": "Checks every minute, alerts where your team talks, SSL warnings and a public status page. In the dashboard that already holds your traffic.",
+        "primary": "Start monitoring free",
+        "secondary": "Read the docs",
+        "proof": "Our own status page runs on it"
+      },
+      "specs": {
+        "interval": {
+          "unit": "min",
+          "label": "Check interval",
+          "body": "Check as often as every minute, or as rarely as once a day."
+        },
+        "threshold": {
+          "unit": "in a row",
+          "label": "Failures before an alert",
+          "body": "The default, so a one-off blip never wakes anyone up. Adjust it per monitor."
+        },
+        "channels": {
+          "unit": "channels",
+          "label": "Where alerts go",
+          "body": "Email, Slack, Discord, Microsoft Teams, Pushover and webhooks."
+        },
+        "thesis": {
+          "label": "Dashboard",
+          "body": "Monitors sit beside your traffic, errors and replays. One login, one bill."
+        }
+      },
+      "story": {
+        "title": "From the first failed check to *all clear*",
+        "lede": "What happens when checkout stops answering at 10:12.",
+        "stepsLabel": "Incident timeline",
+        "steps": {
+          "fail": {
+            "time": "10:12",
+            "title": "A check fails",
+            "body": "checkout.acme.com answers with a 503. One failure could be a blip, so nothing fires yet."
+          },
+          "confirm": {
+            "time": "10:14",
+            "title": "The incident opens",
+            "body": "The third failure in a row confirms it. The incident records the reason and the status code."
+          },
+          "alert": {
+            "time": "10:14",
+            "title": "Your team hears about it",
+            "body": "One message to Slack, Discord and email, with a link straight to the monitor."
+          },
+          "status": {
+            "time": "10:15",
+            "title": "Your status page follows",
+            "body": "The banner switches on its own, and the outage waits as a suggested incident for your update."
+          },
+          "recover": {
+            "time": "10:32",
+            "title": "It's back up",
+            "body": "Two passing checks close the incident after 19 minutes, and a recovery message goes out."
+          }
+        },
+        "stage": {
+          "suggested": "Suggested incident",
+          "suggestedBody": "Checkout down since 10:12",
+          "write": "Write update",
+          "upDetail": "Down for 19m · incident resolved",
+          "incidentFlag": "Incident · http_5xx",
+          "failingFlag": "{count} of 3 failed"
+        }
+      },
+      "checks": {
+        "title": "Checks that test what *matters*",
+        "lede": "A server can answer and still be broken. Tell each monitor what working looks like.",
+        "art": {
+          "request": "Request",
+          "headers": "Headers",
+          "timeout": "Timeout",
+          "response": "Response time",
+          "lastDay": "Last 24 h",
+          "reason5xx": "HTTP 5xx",
+          "reasonTimeout": "Timeout",
+          "reasonSsl": "SSL"
+        },
+        "items": {
+          "http": {
+            "title": "Your request, your rules",
+            "body": "HEAD or GET, custom headers, the status codes you accept and a timeout up to 30 seconds. Redirects are followed."
+          },
+          "keyword": {
+            "title": "Keyword checks",
+            "body": "Require a phrase like Add to cart. If the page loads without it, the check fails."
+          },
+          "ssl": {
+            "title": "SSL certificates",
+            "body": "Checked hourly for expiry, a wrong hostname, an untrusted issuer or revocation. Warnings start up to 30 days out."
+          },
+          "threshold": {
+            "title": "No alarm for a blip",
+            "body": "Choose how many checks must fail in a row before an incident opens. Two clean checks close it."
+          },
+          "latency": {
+            "title": "Response times",
+            "body": "Median, p95 and average over the last day, so a slowdown shows before it turns into downtime."
+          },
+          "reasons": {
+            "title": "The reason, not just red",
+            "body": "Every incident says why: a timeout, a DNS error, a 5xx, a bad certificate or a missing keyword."
+          }
+        }
+      },
+      "alerts": {
+        "title": "Alerts where your team *already* talks",
+        "lede": "One message when a monitor goes down, one when it's back, and a warning before a certificate runs out.",
+        "lead": "Connect once, every monitor uses it",
+        "body": "Channels belong to the dashboard, so a new monitor alerts from its first check. Turn down, recovery and certificate alerts on or off per monitor.",
+        "channels": "Channels",
+        "email": "Email",
+        "webhook": "Webhook",
+        "events": {
+          "label": "Pick what each monitor sends",
+          "down": "When it goes down",
+          "recovery": "When it's back up",
+          "ssl": "Before the certificate expires, 1 to 30 days ahead"
+        },
+        "payload": "POST to your webhook",
+        "views": {
+          "slack": "Slack",
+          "email": "Email",
+          "webhook": "Webhook"
+        },
+        "channel": "incidents",
+        "app": "App",
+        "today": "Today",
+        "inbox": "Inbox",
+        "notes": {
+          "slack": "Discord, Teams and Pushover get the same alert, formatted for each.",
+          "email": "Get an email when a monitor goes down, and another when it recovers.",
+          "webhook": "Plain JSON, so it fits a bot, an incident tool or a ten-line script."
+        }
+      },
+      "status": {
+        "title": "A status page that *keeps itself* current",
+        "lede": "Uptime bars and the banner follow your monitors. You only write when there's something to say.",
+        "points": {
+          "monitors": "Up to 20 monitors per page, each under the public name you choose",
+          "history": "90 days of daily uptime, and past incidents underneath",
+          "updates": "Incident updates from investigating to resolved, with a suggested draft for every outage",
+          "brand": "Your logo, favicon, accent colour, and a light or dark theme",
+          "domain": "Your own domain, with HTTPS handled for you"
+        },
+        "try": "Try it",
+        "theme": "Theme",
+        "light": "Light",
+        "dark": "Dark",
+        "accent": "Accent",
+        "accents": {
+          "blue": "Blue",
+          "violet": "Violet",
+          "teal": "Teal",
+          "ember": "Ember",
+          "custom": "Custom colour"
+        },
+        "page": {
+          "allUp": "All systems operational",
+          "updated": "Last updated on Oct 18, 10:42",
+          "operational": "Operational",
+          "ago": "{days} days ago",
+          "today": "Today",
+          "uptime": "{value} uptime",
+          "past": "Past incidents",
+          "incidentTitle": "Checkout unavailable",
+          "incidentMeta": "Resolved after 19 minutes",
+          "poweredBy": "Powered by",
+          "impact": "Partial Outage",
+          "overall": "Overall uptime <value>{uptime}</value> · last 90 days"
+        },
+        "proof": "See ours, live"
+      },
+      "agent": {
+        "title": "Ask your agent *why* it went down",
+        "lede": "Monitors and incidents are in the built-in MCP server, so your agent can look into an outage next to your code, traffic and errors.",
+        "lead": "From alert to cause in one question",
+        "body": "Your agent reads the open incident, checks what shipped just before it, and comes back with the likely cause and a fix for you to approve.",
+        "cta": "Set up MCP"
+      },
+      "plans": {
+        "title": "On every plan, *including* free",
+        "lede": "Monitoring comes with Betterlytics. There's nothing extra to buy.",
+        "perDashboard": "Limits are per dashboard.",
+        "rows": {
+          "monitors": "Monitors",
+          "interval": "Fastest check",
+          "advanced": "Headers, status codes and keywords",
+          "statusPages": "Status pages",
+          "customDomain": "Status page on your domain"
+        },
+        "unlimited": "Unlimited",
+        "included": "Included",
+        "notIncluded": "Not included",
+        "minutes": "Every {count, plural, one {minute} other {# minutes}}",
+        "from": "From {price}/month",
+        "free": "Free",
+        "custom": "Custom",
+        "selfHost": "Self-hosting? There are no limits, and monitors can reach services on your private network.",
+        "compare": "Compare plans"
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": {
+          "what": {
+            "q": "What is uptime monitoring?",
+            "a": "An uptime monitor requests your site on a schedule and checks the answer. When the site stops responding, returns an error or loses the content you expect, it opens an incident and tells you, ideally before your visitors notice."
+          },
+          "scope": {
+            "q": "What can I monitor?",
+            "a": "Any HTTP or HTTPS address on your dashboard's domain or its subdomains, such as your homepage, api.example.com/health or a checkout page."
+          },
+          "often": {
+            "q": "How often does Betterlytics check my site?",
+            "a": "As often as every minute, or as rarely as once a day. You choose the interval for each monitor."
+          },
+          "false": {
+            "q": "How do you avoid false alarms?",
+            "a": "An incident only opens after several failed checks in a row: three by default, anything from 1 to 10 if you prefer. It closes after two passing checks, so a flapping server doesn't flood your channels."
+          },
+          "down": {
+            "q": "What counts as down?",
+            "a": "A timeout, a connection or DNS error, a certificate problem, a status code outside the ones you accept, or a missing keyword. Each incident records which it was."
+          },
+          "alerts": {
+            "q": "Where do alerts go?",
+            "a": "Email, Slack, Discord, Microsoft Teams, Pushover and any webhook that accepts JSON. You get one alert when a monitor goes down and one when it recovers."
+          },
+          "ssl": {
+            "q": "Can it warn me before my SSL certificate expires?",
+            "a": "Yes. HTTPS monitors check the certificate every hour and start warning you as expiry approaches, up to 30 days ahead. They also catch a hostname mismatch, an untrusted issuer and a revoked certificate."
+          },
+          "domain": {
+            "q": "Can the status page use my own domain?",
+            "a": "Yes, on Professional and Enterprise. Point a subdomain such as status.example.com at Betterlytics with a CNAME record, and the certificate is issued automatically."
+          },
+          "free": {
+            "q": "Is uptime monitoring free?",
+            "a": "The free plan includes one monitor checked every five minutes and one status page. Professional raises that to 50 monitors with one-minute checks and three status pages."
+          },
+          "internal": {
+            "q": "Can I monitor internal services?",
+            "a": "On Betterlytics Cloud, monitors reach public addresses on ports 80 and 443. If you self-host, they can also reach services on your private network, on any port."
+          },
+          "dedicated": {
+            "q": "When is a dedicated monitoring tool the better fit?",
+            "a": "Betterlytics checks HTTP and HTTPS from a single location. If you need checks from many regions, TCP, ping or cron monitoring, phone and SMS alerts, or on-call rotations, reach for a dedicated tool."
+          }
+        }
+      },
+      "cta": {
+        "title": "Add your first monitor in a minute",
+        "lede": "Paste a URL, choose how often to check and where alerts go. The free plan includes a monitor and a status page.",
+        "primary": "Start monitoring free",
+        "secondary": "Read the monitoring docs"
       }
     }
   },

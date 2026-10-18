@@ -1,0 +1,612 @@
+@reference '../../../landing.css';
+
+/* The home page's uptime illustration (illustrations/uptime.module.css), told as one incident. */
+@layer components {
+  .scene {
+    position: absolute;
+    inset: 0;
+    container-type: inline-size;
+  }
+
+  /* --- layers: each steps back when the story looks elsewhere --- */
+  .layer {
+    position: absolute;
+    transition:
+      opacity 0.5s var(--ease-out-expo),
+      translate 0.6s var(--ease-out-expo);
+  }
+  .layer:not([data-focus]) {
+    opacity: 0.45;
+  }
+  .statusLayer {
+    top: 7%;
+    right: 5%;
+    z-index: 1;
+    width: 43%;
+    @container (width < 640px) {
+      display: none;
+    }
+  }
+  .statusLayer:not([data-focus]) {
+    opacity: 0.6;
+  }
+  /* its step brings it over the rows and the alerts */
+  .statusLayer[data-focus] {
+    z-index: 4;
+    translate: -6% 3%;
+  }
+  .scene[data-step='3'] .noticesLayer {
+    opacity: 0.25;
+  }
+  .monitorsLayer {
+    top: 22%;
+    left: 6%;
+    z-index: 2;
+    width: 63%;
+    @container (width < 640px) {
+      left: 4%;
+      width: 92%;
+    }
+  }
+  .noticesLayer {
+    top: 66%;
+    left: 30%;
+    z-index: 3;
+    width: 56%;
+    height: 96px;
+    @container (width < 640px) {
+      left: 4%;
+      width: 92%;
+    }
+  }
+  .noticesLayer:not([data-focus]) {
+    opacity: 0.7;
+  }
+  /* --- monitor rows --- */
+  .monitors {
+    display: grid;
+    gap: 8px;
+  }
+  .monitor {
+    --tone: var(--color-live);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) 46px 34% 50px;
+    align-items: center;
+    gap: 0 14px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    border: 1px solid var(--color-rule-10);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      inset 2px 0 0 transparent,
+      0 6px 16px rgb(0 0 0 / 0.32);
+    transition:
+      scale 0.5s var(--ease-out-expo),
+      background-color 0.3s,
+      border-color 0.3s,
+      box-shadow 0.3s;
+    @container (width < 640px) {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 9px 12px;
+    }
+  }
+  .monitor[data-state='failing'] {
+    --tone: var(--color-warn);
+    background-color: #1b1814;
+    border-color: --alpha(var(--color-warn) / 24%);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      inset 2px 0 0 var(--color-warn),
+      0 10px 24px rgb(0 0 0 / 0.42);
+  }
+  .monitor[data-state='down'] {
+    --tone: var(--color-down);
+    scale: 1.015;
+    background-color: #1c1415;
+    border-color: --alpha(var(--color-down) / 26%);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      inset 2px 0 0 var(--color-down),
+      0 12px 28px rgb(0 0 0 / 0.46);
+  }
+  .dot {
+    position: relative;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--tone);
+    box-shadow: 0 0 0 3px --alpha(var(--tone) / 14%);
+    transition:
+      background-color 0.25s,
+      box-shadow 0.25s;
+  }
+  .dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid var(--tone);
+    opacity: 0;
+  }
+  .name {
+    min-width: 0;
+  }
+  .name b {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 3px;
+    font-size: 13.5px;
+    font-weight: 400;
+    letter-spacing: -0.15px;
+    white-space: nowrap;
+  }
+  .flag {
+    font-size: 10.5px;
+    color: var(--tone);
+  }
+  .host {
+    display: block;
+    font-size: 10.5px;
+    color: var(--color-muted);
+    opacity: 0.72;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .latency {
+    font-size: 11px;
+    text-align: right;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+    transition: color 0.25s;
+    @container (width < 640px) {
+      display: none;
+    }
+  }
+  .monitor[data-state] .latency {
+    color: var(--tone);
+  }
+  .percent {
+    font-size: 12px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .strip {
+    display: flex;
+    height: 22px;
+    margin-right: -3px;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 35%);
+    mask-image: linear-gradient(to right, transparent, #000 35%);
+    @container (width < 640px) {
+      grid-column: 2 / 4;
+      grid-row: 2;
+      height: 16px;
+    }
+  }
+  .strip i {
+    flex: 1 1 0;
+    margin-right: 3px;
+    border-radius: 2px;
+    background: var(--color-live);
+    opacity: 0.42;
+    transition:
+      background-color 0.35s var(--ease-out-expo),
+      opacity 0.35s var(--ease-out-expo);
+  }
+  .strip i[data-down] {
+    background: var(--color-down);
+    opacity: 0.95;
+  }
+
+  /* --- alerts, stacked as they arrive --- */
+  .notice {
+    --tone: var(--color-down);
+    position: absolute;
+    inset: 0 0 auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    column-gap: 13px;
+    padding: 14px 16px 12px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgb(30 28 28 / 0.9);
+    backdrop-filter: blur(14px) saturate(1.3);
+    border: 1px solid --alpha(var(--color-fg) / 12%);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.06) inset,
+      0 2px 8px rgb(0 0 0 / 0.3),
+      0 24px 60px rgb(0 0 0 / 0.62);
+    transform-origin: 50% 0;
+    opacity: 0;
+    transform: translateY(26px) scale(0.98);
+    filter: blur(6px);
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      transform 0.6s var(--ease-out-expo),
+      filter 0.5s var(--ease-out-expo);
+  }
+  .notice[data-kind='up'] {
+    --tone: var(--color-live);
+    z-index: 1;
+  }
+  .notice[data-shown] {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  .notice[data-shown][data-behind] {
+    transform: translateY(-14px) scale(0.95);
+  }
+  .notice::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(90% 130% at 0% 0%, --alpha(var(--tone) / 15%), transparent 62%);
+  }
+  .notice > * {
+    position: relative;
+    transition: opacity 0.3s var(--ease-out-expo);
+  }
+  .notice[data-behind] > * {
+    opacity: 0;
+  }
+  .noticeIcon {
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: --alpha(var(--tone) / 15%);
+    color: var(--tone);
+  }
+  .noticeIcon svg {
+    width: 17px;
+    height: 17px;
+  }
+  .noticeText b {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: -0.2px;
+  }
+  .noticeText span {
+    display: block;
+    font-size: 12px;
+    color: var(--color-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .notice time {
+    font-size: 10.5px;
+    color: var(--color-muted);
+    opacity: 0.7;
+  }
+  .channels {
+    grid-column: 2 / 4;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 9px;
+    border-top: 1px solid --alpha(var(--color-fg) / 7%);
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .channel {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: --alpha(var(--color-fg) / 6%);
+    border: 1px solid --alpha(var(--color-fg) / 8%);
+    color: var(--color-fg);
+  }
+  .channel:first-of-type {
+    margin-left: 4px;
+  }
+  .channel img,
+  .channel svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* --- the public status page, after app/status/[slug]'s dark tokens, as statusShowcase draws it --- */
+  .status {
+    --sp-page-bg: #0b0d0f;
+    --sp-card-bg: #14171a;
+    --sp-card-border: #2a2f35;
+    --sp-card-divider: #1d2126;
+    --sp-text: #e7eaee;
+    --sp-ok: #22c55e;
+    --sp-warn: #f0b429;
+    --sp-down: #f43f5e;
+    --sp-hero: #16a34a;
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--color-panel);
+    border: 1px solid --alpha(var(--color-fg) / 12%);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.05) inset,
+      0 16px 40px rgb(0 0 0 / 0.5);
+  }
+  .status[data-down] {
+    --sp-hero: #ea580c;
+  }
+  .chrome {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 11px;
+    border-bottom: 1px solid --alpha(var(--color-fg) / 7%);
+  }
+  .chrome i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: --alpha(var(--color-fg) / 15%);
+  }
+  .chrome span {
+    flex: 1;
+    margin-left: 6px;
+    padding: 3px 9px;
+    border-radius: 5px;
+    background: --alpha(var(--color-fg) / 5%);
+    font-size: 10px;
+    color: var(--color-muted);
+  }
+  .viewport {
+    position: relative;
+    isolation: isolate;
+    padding-bottom: 14px;
+    background: var(--sp-page-bg);
+    color: var(--sp-text);
+  }
+  .band {
+    height: 84px;
+    padding: 10px 14px 0;
+    background: #2f63d6;
+    color: #fff;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .brand i {
+    width: 11px;
+    height: 11px;
+    border-radius: 3px;
+    background: currentColor;
+  }
+  .statusCard {
+    position: relative;
+    z-index: 0;
+    margin: -52px 14px 0;
+  }
+  .hero {
+    position: relative;
+    z-index: 0;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    padding: 13px 10px 12px;
+    border: 1px solid color-mix(in srgb, var(--sp-hero) 55%, transparent);
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+    background: var(--sp-hero);
+    background-clip: padding-box;
+    color: #fff;
+    text-align: center;
+    transition:
+      background-color 0.4s var(--ease-out-expo),
+      border-color 0.4s var(--ease-out-expo);
+  }
+  /* the real page's cast: multiplied, so it darkens the band instead of greying it */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    box-shadow: 0 0 14px 2px rgb(0 0 0 / 0.17);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+  .heroIcon {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--sp-hero);
+    box-shadow: 0 0 0 4px rgb(255 255 255 / 0.18);
+    transition: color 0.4s var(--ease-out-expo);
+  }
+  .heroIcon svg {
+    width: 13px;
+    height: 13px;
+  }
+  .hero strong {
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
+  }
+  .statusRows {
+    overflow: hidden;
+    border: 1px solid var(--sp-card-border);
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    background: var(--sp-card-bg);
+    box-shadow: 0 10px 14px -6px rgb(0 0 0 / 0.5);
+  }
+  .statusRow {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 7px 6px;
+    padding: 9px 11px;
+    font-size: 10.5px;
+  }
+  .statusRow + .statusRow {
+    border-top: 1px solid var(--sp-card-divider);
+  }
+  .statusRow > svg {
+    width: 11px;
+    height: 11px;
+    color: var(--sp-ok);
+  }
+  .statusRow[data-down] > svg {
+    color: #fb7185;
+  }
+  .statusRow b {
+    font-weight: 600;
+  }
+  .badge {
+    padding: 1px 7px;
+    border-radius: 999px;
+    border: 1px solid #1d3a28;
+    background: #10231a;
+    color: #4ade80;
+    font-size: 9px;
+    font-weight: 600;
+    transition:
+      color 0.3s,
+      background-color 0.3s,
+      border-color 0.3s;
+  }
+  .statusRow[data-down] .badge {
+    border-color: #5c1b24;
+    background: #2a1014;
+    color: #fb7185;
+  }
+  .history {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 2px;
+    height: 14px;
+  }
+  .history i {
+    flex: 1;
+    border-radius: 1.5px;
+    background: var(--sp-ok);
+    transition: background-color 0.3s;
+  }
+  .history i[data-dip] {
+    background: var(--sp-warn);
+  }
+  .statusRow[data-down] .history i:last-child {
+    background: var(--sp-down);
+  }
+  /* the outage, waiting as a draft for someone to write up */
+  .suggestion {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    background: rgb(30 28 28 / 0.94);
+    backdrop-filter: blur(10px);
+    border: 1px solid --alpha(var(--color-volt-lift) / 45%);
+    box-shadow: 0 16px 40px rgb(0 0 0 / 0.55);
+    font-size: 11px;
+    color: var(--color-muted);
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      transform 0.5s var(--ease-out-expo);
+  }
+  .suggestion[data-shown] {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.3s;
+  }
+  .suggestion b {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .write {
+    flex: none;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: var(--color-volt);
+    color: var(--color-on-volt);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .monitor[data-state='down'] .dot::after {
+      animation: scene-ping 1.3s var(--ease-out-expo) infinite;
+    }
+    .notice[data-kind='down'][data-shown]:not([data-behind]) .noticeIcon svg {
+      transform-origin: 50% 15%;
+      animation: scene-ring 0.7s ease-in-out 0.35s;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .layer,
+    .monitor,
+    .strip i,
+    .notice,
+    .notice > *,
+    .suggestion {
+      transition: none;
+    }
+    .notice {
+      filter: none;
+    }
+  }
+}
+
+@keyframes scene-ping {
+  from {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+@keyframes scene-ring {
+  0%,
+  100% {
+    rotate: 0deg;
+  }
+  15% {
+    rotate: 14deg;
+  }
+  30% {
+    rotate: -12deg;
+  }
+  45% {
+    rotate: 8deg;
+  }
+  60% {
+    rotate: -5deg;
+  }
+  75% {
+    rotate: 2deg;
+  }
+}

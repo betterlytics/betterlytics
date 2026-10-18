@@ -1,0 +1,7 @@
+@layer components {
+  .stage {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+}

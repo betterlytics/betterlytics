@@ -1,0 +1,461 @@
+@reference '../../../landing.css';
+
+@layer components {
+  /* the MCP section's client tiles, plus a hover arrow; --mx/--my come from SpotlightList */
+  .tile {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 8px;
+    background: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    box-shadow: inset 0 1px 0 --alpha(var(--color-white) / 4%);
+    font-size: 13.5px;
+    letter-spacing: -0.15px;
+    white-space: nowrap;
+    transition: border-color 0.22s var(--ease-out-expo);
+  }
+  .tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      150px circle at var(--mx, 50%) var(--my, 50%),
+      --alpha(var(--color-volt-soft) / 20%),
+      --alpha(var(--color-volt-soft) / 5%) 45%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out-expo);
+  }
+  .tile:hover,
+  .tile:has(:focus-visible) {
+    border-color: --alpha(var(--color-volt-soft) / 35%);
+  }
+  .tile:hover::before {
+    opacity: 1;
+  }
+  .tileLink {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 12px;
+    border-radius: inherit;
+    outline: none;
+  }
+  .tileArrow {
+    width: 14px;
+    height: 14px;
+    margin-left: auto;
+    color: var(--color-muted);
+    opacity: 0;
+    translate: -3px 3px;
+    transition:
+      opacity 0.2s var(--ease-out-expo),
+      translate 0.25s var(--ease-out-expo);
+  }
+  .tile:hover .tileArrow,
+  .tile:has(:focus-visible) .tileArrow {
+    opacity: 1;
+    translate: 0;
+  }
+  .glyph {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: --alpha(var(--color-fg) / 7%);
+  }
+
+  .event {
+    --tone: var(--color-live);
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr);
+    align-items: start;
+    gap: 11px;
+    font-size: 13.5px;
+    line-height: 18px;
+    color: var(--color-fg);
+  }
+  .event[data-tone='down'] {
+    --tone: var(--color-down);
+  }
+  .event[data-tone='warn'] {
+    --tone: var(--color-warn);
+  }
+  /* 1px down: centred on mixed-case text rather than on its capitals */
+  .eventIcon {
+    display: grid;
+    margin-top: 1px;
+    color: var(--tone);
+  }
+  .eventIcon svg {
+    width: 18px;
+    height: 18px;
+  }
+  .says {
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    font-size: 12.5px;
+    color: var(--color-muted);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  /* chrome matches the snippet panel and the agent transcript */
+  .terminal {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid --alpha(var(--color-fg) / 9%);
+    background: var(--color-terminal);
+    @variant max-sm {
+      border-radius: 0;
+      border-inline: 0;
+    }
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 16px;
+    border-bottom: 1px solid --alpha(var(--color-fg) / 7%);
+    background: --alpha(var(--color-fg) / 3%);
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .method {
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: --alpha(var(--color-volt-soft) / 16%);
+    color: var(--color-volt-soft);
+    font-weight: 500;
+    animation: payload-in 0.3s var(--ease-out-expo) backwards;
+  }
+  .tabs {
+    display: inline-flex;
+    flex: none;
+    padding: 2px;
+    border-radius: 999px;
+    border: 1px solid var(--color-rule-10);
+    background: --alpha(var(--color-fg) / 3%);
+    font-family: var(--font-sans);
+  }
+  .tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--color-muted);
+    transition:
+      color 0.2s var(--ease-out-expo),
+      background-color 0.2s var(--ease-out-expo);
+  }
+  .tabs button:hover {
+    color: var(--color-fg);
+  }
+  .tabs button[aria-pressed='true'] {
+    background: --alpha(var(--color-fg) / 9%);
+    color: var(--color-fg);
+  }
+  .tabs img {
+    opacity: 0.6;
+    transition: opacity 0.2s var(--ease-out-expo);
+  }
+  .tabs button[aria-pressed='true'] img {
+    opacity: 1;
+  }
+
+  /* both views stack in one cell; the taller sets the height */
+  .views {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+  .views > * {
+    grid-area: 1 / 1;
+    display: flex;
+    min-width: 0;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      opacity 0.25s var(--ease-out-expo),
+      visibility 0.25s;
+  }
+  .views > [data-active] {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  /* the Slack message, after notifications/integrations/slack.rs and Slack's dark theme */
+  .chat {
+    display: grid;
+    flex: 1;
+    align-content: start;
+    gap: 16px;
+    padding: 16px 22px 24px;
+    color: #d1d2d3;
+  }
+  .day {
+    position: relative;
+    display: grid;
+    place-items: center;
+  }
+  .day::before {
+    content: '';
+    position: absolute;
+    inset: 50% 0 auto;
+    height: 1px;
+    background: --alpha(var(--color-fg) / 10%);
+  }
+  .day span {
+    position: relative;
+    padding: 3px 14px;
+    border-radius: 999px;
+    border: 1px solid --alpha(var(--color-fg) / 13%);
+    background: var(--color-terminal);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-fg);
+  }
+  .message {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 10px;
+  }
+  [data-drawn] .message {
+    animation: payload-in 0.6s var(--ease-out-expo) backwards;
+  }
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--color-volt);
+    color: var(--color-on-volt);
+  }
+  /* the mark's solid bars weigh left of its box, so it reads centred a pixel to the right */
+  .avatar svg {
+    width: 20px;
+    height: 20px;
+    translate: 1px 0;
+  }
+  .sender {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 20px;
+  }
+  .sender b {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #f8f8f8;
+  }
+  .app {
+    padding: 0 3px;
+    border-radius: 2px;
+    background: rgb(232 232 232 / 0.13);
+    font-size: 9.5px;
+    font-weight: 700;
+    line-height: 15px;
+    text-transform: uppercase;
+    color: #ababad;
+  }
+  .sender time {
+    margin-left: 2px;
+    font-size: 11.5px;
+    color: #ababad;
+  }
+  /* Slack's attachment: a rounded colour bar, no box */
+  .attachment {
+    position: relative;
+    display: grid;
+    gap: 5px;
+    margin-top: 4px;
+    padding: 2px 0 2px 16px;
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .attachment::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    border-radius: 8px;
+    background: var(--bar);
+  }
+  .attachment b {
+    font-weight: 700;
+    color: #f8f8f8;
+  }
+  .attachment p {
+    overflow-wrap: anywhere;
+  }
+  .link {
+    color: #1d9bd1;
+  }
+
+  /* the down email, after services/email/template/monitor-down-mail.tsx, as a dark-mode mail client shows it */
+  .mail {
+    display: grid;
+    flex: 1;
+    align-content: start;
+    gap: 12px;
+    padding: 16px 18px 20px;
+  }
+  [data-drawn] .mail {
+    animation: payload-in 0.6s var(--ease-out-expo) 0.2s backwards;
+  }
+  .mailHead {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+  }
+  .subject {
+    overflow: hidden;
+    font-size: 13.5px;
+    color: #d1d2d3;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .mailBody {
+    padding: 15px 18px 17px;
+    border-radius: 10px;
+    border: 1px solid --alpha(var(--color-fg) / 9%);
+    background: --alpha(var(--color-fg) / 3%);
+    color: #d1d2d3;
+    font-size: 12px;
+    line-height: 1.55;
+  }
+  .mailBrand {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid --alpha(var(--color-fg) / 8%);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--color-fg);
+  }
+  .mailTitle {
+    display: block;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: #f8f8f8;
+  }
+  .mailBox {
+    margin-top: 10px;
+    padding: 9px 12px;
+    border-left: 3px solid #ef4444;
+    border-radius: 0 6px 6px 0;
+    background: rgb(239 68 68 / 0.1);
+  }
+  .mailBox b {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f87171;
+  }
+  .mailBox strong {
+    color: #f8f8f8;
+  }
+  .mailRows {
+    display: grid;
+    gap: 2px;
+    margin-top: 10px;
+    padding: 9px 12px;
+    border: 1px solid --alpha(var(--color-fg) / 8%);
+    border-radius: 6px;
+    background: --alpha(var(--color-fg) / 2.5%);
+    color: #a9adb3;
+  }
+  .mailRows p {
+    overflow-wrap: anywhere;
+  }
+  .mailRows strong {
+    font-weight: 600;
+    color: #e4e6e8;
+  }
+  .mailLink {
+    font-weight: 500;
+    color: #60a5fa;
+  }
+  .mailButton {
+    display: block;
+    width: fit-content;
+    margin: 12px auto 0;
+    padding: 6px 16px;
+    border-radius: 6px;
+    background: #dc2626;
+    font-weight: 600;
+    color: #fff;
+  }
+  .code {
+    flex: 1;
+    overflow-x: auto;
+    padding: 22px 22px 26px;
+    font-family: var(--font-mono);
+    font-size: var(--text-code);
+    line-height: 1.85;
+    white-space: pre;
+    color: --alpha(var(--color-fg) / 72%);
+  }
+  .block {
+    display: block;
+  }
+  .block + .block {
+    margin-top: 18px;
+  }
+  [data-drawn] .block {
+    animation: payload-in 0.6s var(--ease-out-expo) backwards;
+  }
+  .comment {
+    color: var(--color-muted);
+    opacity: 0.75;
+  }
+  .key {
+    color: var(--color-fg);
+  }
+  .value {
+    color: var(--color-volt-soft);
+  }
+  .punct {
+    color: var(--color-muted);
+  }
+  .swatch {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    margin-right: 6px;
+    border-radius: 2px;
+    vertical-align: 0;
+  }
+  .note {
+    padding: 11px 16px;
+    border-top: 1px solid --alpha(var(--color-fg) / 7%);
+    background: --alpha(var(--color-fg) / 2%);
+    font-size: 12.5px;
+    color: var(--color-muted);
+  }
+}
+
+@keyframes payload-in {
+  from {
+    opacity: 0;
+  }
+}

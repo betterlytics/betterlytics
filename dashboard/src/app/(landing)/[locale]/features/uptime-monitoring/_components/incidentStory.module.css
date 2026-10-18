@@ -1,0 +1,242 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .story {
+    display: grid;
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    @variant max-xl {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* --- steps --- */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-rule-08);
+    @variant max-xl {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    @variant max-md {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-rows: auto 0fr;
+    column-gap: 10px;
+    padding: 17px 26px 17px 22px;
+    border-bottom: 1px solid var(--color-rule-08);
+    text-align: left;
+    color: var(--color-muted);
+    transition:
+      grid-template-rows 0.5s var(--ease-out-expo),
+      background-color 0.3s var(--ease-out-expo),
+      color 0.3s var(--ease-out-expo);
+    @variant max-xl {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto;
+      border-right: 1px solid var(--color-rule-08);
+      padding: 13px 16px 15px;
+    }
+    @variant max-sm {
+      padding-inline: var(--pad);
+    }
+  }
+  .step:last-child {
+    border-bottom: 0;
+  }
+  /* the list runs the stage's full height: closed steps share what the open one leaves, centred in their share */
+  .step {
+    @variant xl {
+      flex: 1 1 0;
+      align-content: center;
+    }
+  }
+  .step[aria-selected='true'] {
+    @variant xl {
+      flex: none;
+    }
+  }
+  /* five steps: below xl the last one widens to close its row, 3 + 2 on tablets, 2 + 2 + 1 on phones */
+  .step:last-child {
+    @variant max-xl {
+      grid-column: span 2;
+      border-right: 0;
+    }
+  }
+  .step:nth-child(3) {
+    @variant max-xl {
+      border-right: 0;
+    }
+    @variant max-md {
+      border-right: 1px solid var(--color-rule-08);
+    }
+  }
+  .step:nth-child(2n) {
+    @variant max-md {
+      border-right: 0;
+    }
+  }
+  /* the list's own bottom rule closes the last row */
+  .step:nth-last-child(-n + 2) {
+    @variant max-xl {
+      border-bottom: 0;
+    }
+  }
+  .step:nth-last-child(2) {
+    @variant max-md {
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+  }
+  .step:hover {
+    color: var(--color-fg);
+  }
+  .step[aria-selected='true'] {
+    grid-template-rows: auto 1fr;
+    color: var(--color-fg);
+    background: linear-gradient(90deg, --alpha(var(--color-volt-lift) / 9%), transparent 70%);
+  }
+  .step:focus-visible {
+    outline-offset: -2px;
+  }
+  .time {
+    font-size: 12.5px;
+    line-height: 24px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+    transition: color 0.3s var(--ease-out-expo);
+  }
+  .step[aria-selected='true'] .time {
+    color: var(--color-fg);
+  }
+  .stepTitle {
+    font-size: var(--text-title);
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: var(--tracking-ui);
+    @variant max-xl {
+      font-size: var(--text-body-sm);
+      line-height: 20px;
+    }
+  }
+  .stepBody {
+    grid-column: 2;
+    overflow: hidden;
+    min-height: 0;
+    font-size: var(--text-label);
+    line-height: 21px;
+    color: var(--color-muted);
+    opacity: 0;
+    transition: opacity 0.35s var(--ease-out-expo);
+    @variant max-xl {
+      display: none;
+    }
+  }
+  .step[aria-selected='true'] .stepBody {
+    padding-top: 4px;
+    opacity: 1;
+    transition-delay: 0.12s;
+  }
+  /* the bar runs down the selected step; it fills over the dwell while the story plays */
+  .progress {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: --alpha(var(--color-volt-lift) / 25%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    @variant max-xl {
+      inset: auto 0 0;
+      width: auto;
+      height: 2px;
+    }
+  }
+  .progress::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-volt-lift);
+    transform-origin: 50% 0;
+    @variant max-xl {
+      transform-origin: 0 50%;
+    }
+  }
+  .step[aria-selected='true'] .progress {
+    opacity: 1;
+  }
+  /* the selected step's bar is the timer: when it fills, incidentStory moves on */
+  .step[aria-selected='true'] .progress::after {
+    animation: story-fill var(--dwell) linear both;
+    @variant max-xl {
+      animation-name: story-fill-x;
+    }
+  }
+  /* held off screen, under a mouse, and while the keyboard is in the list */
+  .story[data-held] .progress::after,
+  .steps:has(:focus-visible) .progress::after {
+    animation-play-state: paused;
+  }
+  @media (hover: hover) {
+    .steps:hover .progress::after {
+      animation-play-state: paused;
+    }
+  }
+  /* no timer for reduced motion: the global 0.001ms duration would otherwise race through the steps */
+  .story[data-still] .progress::after {
+    animation: none;
+  }
+
+  /* --- stage --- */
+  .panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  /* below xl the steps are a grid with no room for bodies, so the selected one sits over the stage */
+  .caption {
+    display: none;
+    padding: 14px 18px;
+    font-size: var(--text-label);
+    line-height: 21px;
+    color: var(--color-muted);
+    @variant max-xl {
+      display: block;
+    }
+    @variant max-sm {
+      padding-inline: var(--pad);
+    }
+  }
+  .stage {
+    flex: 1;
+    min-height: 420px;
+    @variant max-sm {
+      min-height: 400px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step,
+    .stepBody {
+      transition: none;
+    }
+  }
+}
+
+@keyframes story-fill {
+  from {
+    transform: scaleY(0);
+  }
+}
+@keyframes story-fill-x {
+  from {
+    transform: scaleX(0);
+  }
+}

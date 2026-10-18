@@ -1,0 +1,52 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* --mx/--my are written by SpotlightList */
+  .card {
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid var(--color-rule-08);
+    background: transparent;
+    transition: background-color 0.25s var(--ease-out-expo);
+    @variant max-xl {
+      &:nth-child(2n) {
+        border-right: 0;
+      }
+      &:nth-child(-n + 2) {
+        border-bottom: 1px solid var(--color-rule-08);
+      }
+    }
+    @variant max-sm {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+  }
+  .card:last-child {
+    border-right: 0;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      220px circle at var(--mx, 50%) var(--my, 50%),
+      --alpha(var(--color-volt-soft) / 13%),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out-expo);
+  }
+  .card:hover::before {
+    opacity: 1;
+  }
+  .arrow {
+    transition: translate 0.25s var(--ease-out-expo);
+  }
+  .card:hover .arrow {
+    translate: 3px 0;
+  }
+}

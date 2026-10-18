@@ -9,20 +9,24 @@ import { cn } from '@/landing/lib/cn';
 import styles from './agentTranscript.module.css';
 import { FLARE_FIELD, FlareShimmer } from './flareShimmer';
 
-/* Tool calls stay literal, matching src/mcp/tools/describe.ts. */
+/* Tool calls stay literal, matching src/mcp/tools/describe.ts; `mcp: false` is one of the client's own tools. */
 type Step =
   | { kind: 'question'; text: string }
   | { kind: 'working'; ms: number }
   | { kind: 'say'; text: string }
-  | { kind: 'tool'; name: string; args: string }
+  | { kind: 'tool'; name: string; args: string; mcp?: false }
   | { kind: 'result'; text: string }
   | { kind: 'answer'; text: string };
 
 type Translate = ReturnType<typeof useTranslations<'landing.illustrations.transcript'>>;
 
-/** The first is also the static state (no JS or reduced motion). */
-const buildScripts = (t: Translate): Step[][] => [
-  [
+export type ScriptKey = 'redesign' | 'outage' | 'sources' | 'investigate';
+
+/** The first script played is also the static state (no JS or reduced motion). */
+const DEFAULT_SCRIPTS: ScriptKey[] = ['redesign', 'outage', 'sources'];
+
+const buildScripts = (t: Translate): Record<ScriptKey, Step[]> => ({
+  redesign: [
     { kind: 'question', text: t('redesign.question') },
     { kind: 'working', ms: 900 },
     { kind: 'say', text: t('redesign.say') },
@@ -36,7 +40,7 @@ const buildScripts = (t: Translate): Step[][] => [
     { kind: 'result', text: t('redesign.errors') },
     { kind: 'answer', text: t('redesign.answer') },
   ],
-  [
+  outage: [
     { kind: 'question', text: t('outage.question') },
     { kind: 'working', ms: 900 },
     { kind: 'say', text: t('outage.say') },
@@ -54,7 +58,7 @@ const buildScripts = (t: Translate): Step[][] => [
     { kind: 'result', text: t('outage.purchases') },
     { kind: 'answer', text: t('outage.answer') },
   ],
-  [
+  sources: [
     { kind: 'question', text: t('sources.question') },
     { kind: 'working', ms: 900 },
     { kind: 'say', text: t('sources.say') },
@@ -72,7 +76,26 @@ const buildScripts = (t: Translate): Step[][] => [
     { kind: 'result', text: t('sources.signups') },
     { kind: 'answer', text: t('sources.answer') },
   ],
-];
+  investigate: [
+    { kind: 'question', text: t('investigate.question') },
+    { kind: 'working', ms: 900 },
+    { kind: 'say', text: t('investigate.say') },
+    {
+      kind: 'tool',
+      name: 'betterlytics – list_monitor_incidents',
+      args: '(timeRange: "24h", monitorId: "checkout", state: "ongoing")',
+    },
+    { kind: 'result', text: t('investigate.incident') },
+    {
+      kind: 'tool',
+      name: 'Bash',
+      args: '(git log --since="09:30" --format="%h %ad %s" --date=format:%H:%M)',
+      mcp: false,
+    },
+    { kind: 'result', text: t('investigate.commits') },
+    { kind: 'answer', text: t('investigate.answer') },
+  ],
+});
 
 /** In ms; question and answer are per character. */
 const PACE = {
@@ -184,7 +207,8 @@ function Line({ step }: { step: Step }) {
       return (
         <div className={cn(styles.line, styles.tool)}>
           <span className={styles.bullet}>●</span>
-          <span className={styles.toolName}>{step.name}</span> (MCP)
+          <span className={styles.toolName}>{step.name}</span>
+          {step.mcp !== false && ' (MCP)'}
           <span className={styles.args}>{step.args}</span>
           <span className={styles.argsElided}>(…)</span>
         </div>
@@ -200,14 +224,24 @@ function Line({ step }: { step: Step }) {
   }
 }
 
-export function AgentTranscript({ className }: { className?: string }) {
+export function AgentTranscript({
+  className,
+  only = DEFAULT_SCRIPTS,
+  alt,
+}: {
+  className?: string;
+  only?: ScriptKey[];
+  alt?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const onScreen = useInView(ref, 'onScreen');
   const reduce = useReducedMotion();
   const live = onScreen && !reduce;
   const t = useTranslations('landing.illustrations.transcript');
-  const scripts = useMemo(() => buildScripts(t), [t]);
+  const all = useMemo(() => buildScripts(t), [t]);
+  // `only` must be a stable array (a module constant), or every render restarts the script
+  const scripts = useMemo(() => only.map((key) => all[key]), [all, only]);
   const timelines = useMemo(() => scripts.map(toTimeline), [scripts]);
   const [script, setScript] = useState(0);
   const elapsed = useRef(0);
@@ -241,7 +275,7 @@ export function AgentTranscript({ className }: { className?: string }) {
       style={FLARE_FIELD}
       data-live={live || undefined}
       role='img'
-      aria-label={t('alt')}
+      aria-label={alt ?? t('alt')}
       data-nosnippet
     >
       <FlareShimmer className={styles.shimmer} live={live} />

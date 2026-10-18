@@ -1,0 +1,98 @@
+@reference '../../landing.css';
+
+@layer components {
+  .item {
+    border-bottom: 1px solid var(--color-rule-08);
+    interpolate-size: allow-keywords;
+  }
+  .item:last-child {
+    border-bottom: 0;
+  }
+  /* browsers without ::details-content just snap open */
+  .item::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 0.45s var(--ease-out-expo),
+      content-visibility 0.45s allow-discrete;
+  }
+  .item[open]::details-content {
+    block-size: auto;
+  }
+
+  .question {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 24px;
+    padding: 21px 26px;
+    list-style: none;
+    cursor: pointer;
+    font-size: var(--text-title);
+    font-weight: 500;
+    letter-spacing: var(--tracking-ui);
+    line-height: 1.4;
+    transition: color 0.18s var(--ease-out-expo);
+    @variant max-sm {
+      padding-inline: var(--pad);
+    }
+  }
+  .question::-webkit-details-marker {
+    display: none;
+  }
+  .question:hover {
+    color: var(--color-white);
+  }
+  .question:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* a plus whose vertical bar folds away when open */
+  .toggle {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid var(--color-rule-22);
+    transition:
+      border-color 0.2s var(--ease-out-expo),
+      background-color 0.2s var(--ease-out-expo);
+  }
+  .toggle::before,
+  .toggle::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 2px;
+    border-radius: 1px;
+    background: currentColor;
+    translate: -50% -50%;
+    transition: rotate 0.35s var(--ease-out-expo);
+  }
+  .toggle::after {
+    rotate: 90deg;
+  }
+  .question:hover .toggle {
+    border-color: var(--color-fg);
+  }
+  .item[open] .toggle {
+    border-color: var(--color-volt-lift);
+    background: var(--color-volt);
+  }
+  .item[open] .toggle::after {
+    rotate: 0deg;
+  }
+
+  .answer {
+    max-width: 64ch;
+    padding: 0 26px 24px;
+    color: var(--color-muted);
+    font-size: var(--text-body);
+    line-height: 25px;
+    @variant max-sm {
+      padding-inline: var(--pad);
+    }
+  }
+}
