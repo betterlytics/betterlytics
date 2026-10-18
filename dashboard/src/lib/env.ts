@@ -65,7 +65,7 @@ const appEnvSchema = z.object({
     .optional()
     .default('true')
     .transform((v) => v === 'true'),
-  // Raw strings: resolveTelemetryPolicy parses them leniently so a typo never crashes boot
+  // Raw strings: any value other than "true" turns telemetry off in resolveTelemetryPolicy instead of failing boot
   TELEMETRY_ENABLED: z.string().optional(),
   DO_NOT_TRACK: z.string().optional(),
   TELEMETRY_ENDPOINT: z.string().url().optional().default('https://telemetry.betterlytics.io/v1/ping'),

@@ -4,7 +4,7 @@ const { mockEnv, repo } = vi.hoisted(() => ({
   mockEnv: {
     IS_CLOUD: false,
     APP_VERSION: 'v1.6.0',
-    TELEMETRY_ENABLED: undefined as string | undefined,
+    TELEMETRY_ENABLED: 'true' as string | undefined,
     DO_NOT_TRACK: undefined as string | undefined,
     TELEMETRY_ENDPOINT: 'https://telemetry.betterlytics.io/v1/ping',
     BACKGROUND_JOBS_ENABLED: true,
@@ -40,7 +40,7 @@ beforeEach(() => {
   Object.assign(mockEnv, {
     IS_CLOUD: false,
     APP_VERSION: 'v1.6.0',
-    TELEMETRY_ENABLED: undefined,
+    TELEMETRY_ENABLED: 'true',
     DO_NOT_TRACK: undefined,
     BACKGROUND_JOBS_ENABLED: true,
   });

@@ -7,7 +7,7 @@ import {
   resolveTelemetryPolicy,
 } from './telemetry-policy';
 
-const SELF_HOST = { isCloud: false, appVersion: 'v1.6.0' };
+const SELF_HOST = { isCloud: false, appVersion: 'v1.6.0', telemetryEnabled: 'true' };
 
 describe('resolveTelemetryPolicy', () => {
   it('is off on cloud regardless of the other inputs', () => {
@@ -38,26 +38,22 @@ describe('resolveTelemetryPolicy', () => {
     expect(resolveTelemetryPolicy({ ...SELF_HOST, doNotTrack })).toEqual({ enabled: true });
   });
 
-  it.each([undefined, 'TRUE', '1', 'on'])('is on when TELEMETRY_ENABLED=%s', (telemetryEnabled) => {
-    expect(resolveTelemetryPolicy({ ...SELF_HOST, telemetryEnabled })).toEqual({ enabled: true });
+  it('is on only when TELEMETRY_ENABLED is exactly "true"', () => {
+    expect(resolveTelemetryPolicy(SELF_HOST)).toEqual({ enabled: true });
   });
 
-  it.each(['False', '0', 'off'])('is off when TELEMETRY_ENABLED=%s', (telemetryEnabled) => {
-    expect(resolveTelemetryPolicy({ ...SELF_HOST, telemetryEnabled })).toEqual({
-      enabled: false,
-      reason: 'disabled_by_env',
-    });
-  });
-
-  it('fails closed on an unrecognised TELEMETRY_ENABLED value', () => {
-    expect(resolveTelemetryPolicy({ ...SELF_HOST, telemetryEnabled: 'maybe' })).toEqual({
-      enabled: false,
-      reason: 'invalid_value',
-    });
-  });
+  it.each([undefined, '', 'false', 'TRUE', 'True', '1', 'yes', ' true'])(
+    'is off when TELEMETRY_ENABLED=%j',
+    (telemetryEnabled) => {
+      expect(resolveTelemetryPolicy({ ...SELF_HOST, telemetryEnabled })).toEqual({
+        enabled: false,
+        reason: 'not_enabled',
+      });
+    },
+  );
 
   it('is off when APP_VERSION is not a release version, so it never reports Enabled without sending', () => {
-    expect(resolveTelemetryPolicy({ isCloud: false, appVersion: 'v1.6' })).toEqual({
+    expect(resolveTelemetryPolicy({ ...SELF_HOST, appVersion: 'v1.6' })).toEqual({
       enabled: false,
       reason: 'invalid_version',
     });
@@ -109,8 +105,8 @@ describe('describeTelemetryState', () => {
   });
 
   it('shows an existing instance ID when disabled, for deletion requests', () => {
-    expect(describeTelemetryState({ ...base, policy: { enabled: false, reason: 'disabled_by_env' } })).toBe(
-      '[telemetry] Disabled (TELEMETRY_ENABLED=false). Nothing is sent.\n' +
+    expect(describeTelemetryState({ ...base, policy: { enabled: false, reason: 'not_enabled' } })).toBe(
+      '[telemetry] Disabled (TELEMETRY_ENABLED is not "true"). Nothing is sent.\n' +
         `[telemetry] Instance ID for deletion requests: ${payload.instance_id}`,
     );
   });
@@ -122,12 +118,8 @@ describe('describeTelemetryState', () => {
   });
 
   it.each([
-    ['disabled_by_env', '[telemetry] Disabled (TELEMETRY_ENABLED=false). Nothing is sent.'],
+    ['not_enabled', '[telemetry] Disabled (TELEMETRY_ENABLED is not "true"). Nothing is sent.'],
     ['do_not_track', '[telemetry] Disabled (DO_NOT_TRACK is set). Nothing is sent.'],
-    [
-      'invalid_value',
-      '[telemetry] Disabled: TELEMETRY_ENABLED has an unrecognised value; use true or false. Nothing is sent.',
-    ],
     ['dev_build', '[telemetry] Disabled for development builds (APP_VERSION=dev). Nothing is sent.'],
   ] as const)('describes %s', (reason, expected) => {
     expect(describeTelemetryState({ ...base, payload: null, policy: { enabled: false, reason } })).toBe(expected);

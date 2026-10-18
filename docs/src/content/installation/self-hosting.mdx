@@ -498,7 +498,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
   <EnvVar name="ALLOW_PRIVATE_TARGETS" default="true">Uptime monitors and webhooks may reach private and LAN addresses, any port is allowed, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services)</EnvVar>
   <EnvVar name="PUBLIC_ENABLE_FAVICON_FETCHING" default="true">Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead</EnvVar>
   <EnvVar name="LOG_LEVEL" default="info">Backend log level: `error`, `warn`, `info`, `debug` or `trace`</EnvVar>
-  <EnvVar name="TELEMETRY_ENABLED" default="true">Sends us the Betterlytics version and a random instance ID once a day. `false` turns it off, see [Telemetry](#telemetry)</EnvVar>
+  <EnvVar name="TELEMETRY_ENABLED" default="false">`true` sends us the Betterlytics version and a random instance ID once a day; the setup script sets it. Any other value turns it off, see [Telemetry](#telemetry)</EnvVar>
 </EnvTable>
 
 ## Updating
@@ -541,7 +541,7 @@ A cleanup job deletes data older than each dashboard's retention every Saturday 
 
 ## Telemetry
 
-Once a day, your instance sends us its Betterlytics version and a random instance ID, so we know how many instances are running and which versions they use. Nothing about your users, websites or analytics data is included, and we don't store your IP address. The first report is sent a day after your instance first starts, so you can turn it off before anything is sent. See our [privacy policy](https://betterlytics.io/privacy#self-hosted-telemetry) for details.
+When `TELEMETRY_ENABLED=true` is in your `.env` (the setup script adds it), your instance sends us its Betterlytics version and a random instance ID once a day, so we know how many instances are running and which versions they use. Nothing about your users, websites or analytics data is included, and we don't store your IP address. The first report is sent a day after your instance first starts, so you can turn it off before anything is sent. See our [privacy policy](https://betterlytics.io/privacy#self-hosted-telemetry) for details.
 
 <Callout type="info">
 To turn telemetry off, set `TELEMETRY_ENABLED=false` in `.env` and run `docker compose up -d --wait`. The setup script's "Try locally" mode turns it off for you.

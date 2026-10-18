@@ -19,8 +19,7 @@ export type TelemetryDisabledReason =
   | 'cloud'
   | 'dev_build'
   | 'do_not_track'
-  | 'disabled_by_env'
-  | 'invalid_value'
+  | 'not_enabled'
   | 'invalid_version';
 
 export type TelemetryPolicy = { enabled: true } | { enabled: false; reason: TelemetryDisabledReason };

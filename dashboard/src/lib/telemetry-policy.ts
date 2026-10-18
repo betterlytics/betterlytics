@@ -7,9 +7,6 @@ import {
   type TelemetryStatus,
 } from '@/entities/system/telemetry.entities';
 
-const TRUE_VALUES = new Set(['true', '1', 'yes', 'on']);
-const FALSE_VALUES = new Set(['false', '0', 'no', 'off']);
-
 export const TELEMETRY_DOCS_URL = 'https://betterlytics.io/docs/installation/self-hosting#telemetry';
 export const TELEMETRY_PRIVACY_URL = 'https://betterlytics.io/privacy';
 
@@ -28,9 +25,7 @@ export function resolveTelemetryPolicy(input: TelemetryPolicyInput): TelemetryPo
   if (doNotTrack && doNotTrack !== '0' && doNotTrack !== 'false')
     return { enabled: false, reason: 'do_not_track' };
 
-  const raw = input.telemetryEnabled?.trim().toLowerCase();
-  if (FALSE_VALUES.has(raw ?? '')) return { enabled: false, reason: 'disabled_by_env' };
-  if (raw && !TRUE_VALUES.has(raw)) return { enabled: false, reason: 'invalid_value' };
+  if (input.telemetryEnabled !== 'true') return { enabled: false, reason: 'not_enabled' };
   if (!isValidTelemetryVersion(input.appVersion)) return { enabled: false, reason: 'invalid_version' };
   return { enabled: true };
 }
@@ -65,12 +60,10 @@ export function describeTelemetryState(status: TelemetryStatus): string {
 
 function describeDisabledReason(reason: TelemetryDisabledReason): string {
   switch (reason) {
-    case 'disabled_by_env':
-      return '[telemetry] Disabled (TELEMETRY_ENABLED=false). Nothing is sent.';
+    case 'not_enabled':
+      return '[telemetry] Disabled (TELEMETRY_ENABLED is not "true"). Nothing is sent.';
     case 'do_not_track':
       return '[telemetry] Disabled (DO_NOT_TRACK is set). Nothing is sent.';
-    case 'invalid_value':
-      return '[telemetry] Disabled: TELEMETRY_ENABLED has an unrecognised value; use true or false. Nothing is sent.';
     case 'dev_build':
       return '[telemetry] Disabled for development builds (APP_VERSION=dev). Nothing is sent.';
     case 'invalid_version':

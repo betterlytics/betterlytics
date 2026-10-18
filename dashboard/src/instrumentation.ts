@@ -13,8 +13,7 @@ async function registerTelemetryNotice() {
     const status = await getTelemetryStatus();
     if (!status.policy.enabled && status.policy.reason === 'cloud') return;
     const { describeTelemetryState } = await import('@/lib/telemetry-policy');
-    const isInvalid = !status.policy.enabled && status.policy.reason === 'invalid_value';
-    (isInvalid ? console.warn : console.info)(describeTelemetryState(status));
+    console.info(describeTelemetryState(status));
   } catch (error) {
     console.error('[telemetry] Could not determine telemetry state:', error);
   }
