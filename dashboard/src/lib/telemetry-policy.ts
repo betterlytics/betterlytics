@@ -9,7 +9,7 @@ import {
 const TRUE_VALUES = new Set(['true', '1', 'yes', 'on']);
 const FALSE_VALUES = new Set(['false', '0', 'no', 'off']);
 
-export const TELEMETRY_DOCS_URL = 'https://betterlytics.io/docs/installation/telemetry';
+export const TELEMETRY_DOCS_URL = 'https://betterlytics.io/docs/installation/self-hosting#telemetry';
 
 export type TelemetryPolicyInput = {
   isCloud: boolean;

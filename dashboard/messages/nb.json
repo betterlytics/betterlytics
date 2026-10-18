@@ -193,7 +193,7 @@
         "p1": "Selvhostede installasjoner av Betterlytics sender oss en liten rapport omtrent én gang om dagen, med mindre operatøren slår det av. Den inneholder nøyaktig to felt: en tilfeldig instans-ID som installasjonen genererer og lagrer i sin egen database, og den installerte Betterlytics-versjonen. For hver instans registrerer vi når den først og sist rapporterte, og dens første og nåværende versjon.",
         "p2": "Serveren vår ser IP-adressen rapporten kommer fra kun for å besvare forespørselen. Telemetritjenesten leser den aldri, forespørselslogging er slått av for dette endepunktet, og den lagres ikke. Den holdes kortvarig i minnet kun for å begrense misbrukende trafikk. Rapporten inneholder aldri informasjon om brukerne dine, nettstedene dine eller analysedataene dine.",
         "p3": "Vi bruker disse dataene til å telle aktive selvhostede installasjoner og se hvilke versjoner som er i bruk, slik at vi kan prioritere støtte og sikkerhetsrettinger. Det rettslige grunnlaget er vår berettigede interesse etter GDPR artikkel 6 nr. 1 bokstav f. Dataene lagres på våre egne servere hos Hetzner i EU og deles ikke med tredjeparter. Vi kan publisere aggregerte totaler, aldri enkeltstående instans-ID-er.",
-        "p4": "En instans sine registreringer slettes 365 dager etter siste rapport. Du kan når som helst protestere ved å sette TELEMETRY_ENABLED=false eller DO_NOT_TRACK=1, som stopper alle rapporter. For å få slettet rapporter vi allerede har mottatt, send en e-post til privacy@betterlytics.io med instans-ID-en som vises under Innstillinger > Telemetri. Å slå av telemetri påvirker ingen funksjoner i Betterlytics."
+        "p4": "En instans sine registreringer slettes 365 dager etter siste rapport. Du kan når som helst protestere ved å sette TELEMETRY_ENABLED=false eller DO_NOT_TRACK=1, som stopper alle rapporter. For å få slettet rapporter vi allerede har mottatt, send en e-post til privacy@betterlytics.io med instans-ID-en som står i [telemetry]-linjen i oppstartsloggen. Å slå av telemetri påvirker ingen funksjoner i Betterlytics."
       },
       "intro": {
         "p1": "Hos Betterlytics er vi forpliktet til å overholde GDPR, CCPA, PECR og andre personvernregler. Personvernet til dataene dine — og det er dine data, ikke våre! — er svært viktig for oss. Vi holder til i EU, og all databehandling skjer innenfor EU.",
@@ -2886,32 +2886,7 @@
       "tabs": {
         "account": "Konto",
         "preferences": "Preferanser",
-        "billing": "Fakturering",
-        "telemetry": "Telemetri"
-      },
-      "telemetry": {
-        "status": "Status",
-        "on": "På",
-        "off": "Av",
-        "reason": {
-          "cloud": "Telemetri sendes aldri fra Betterlytics Cloud.",
-          "dev_build": "Telemetri er slått av for utviklingsbygg (APP_VERSION=dev).",
-          "do_not_track": "Telemetri er slått av fordi DO_NOT_TRACK er satt.",
-          "disabled_by_env": "Telemetri er slått av fordi TELEMETRY_ENABLED=false.",
-          "invalid_value": "Telemetri er slått av fordi TELEMETRY_ENABLED har en ukjent verdi. Bruk true eller false."
-        },
-        "inactiveJobsOff": "Telemetri er slått på, men inaktiv: BACKGROUND_JOBS_ENABLED=false stopper den daglige pingen, så ingenting sendes.",
-        "isSent": "Hva som sendes",
-        "wouldBeSent": "Hva som ville blitt sendt",
-        "frequency": "Én gang om dagen, med første rapport ved oppstart. Ingen IP-adresse eller andre data lagres.",
-        "endpoint": "Endepunkt",
-        "lastDelivered": "Sist levert",
-        "neverDelivered": "Aldri",
-        "noIdYet": "Det finnes ingen instans-ID ennå. En opprettes første gang telemetri kjører mens den er slått på.",
-        "howToTurnOff": "Slik slår du det av",
-        "turnOffSteps": "Sett <code>TELEMETRY_ENABLED=false</code> i <code>.env</code>-filen din, og kjør deretter <code>docker compose up -d</code>.",
-        "doNotTrackAlt": "<code>DO_NOT_TRACK=1</code> slår det også av.",
-        "learnMore": "Les mer om telemetri"
+        "billing": "Fakturering"
       },
       "dialog": {
         "title": "Brukerinnstillinger",

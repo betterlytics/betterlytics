@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
-  Activity,
   ArrowUpCircle,
   ArrowUpRight,
   Bug,
@@ -17,8 +16,6 @@ import {
 import UserAccountSettings from '@/components/userSettings/account/UserAccountSettings';
 import UserPreferencesSettings from '@/components/userSettings/preferences/UserPreferencesSettings';
 import UserBillingSettings from '@/components/userSettings/billing/UserBillingSettings';
-import TelemetrySettings from '@/components/userSettings/telemetry/TelemetrySettings';
-import { authClient } from '@/lib/auth-client';
 import { BugReportDialog } from '@/components/bugReport/BugReportDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -85,8 +82,6 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
   const { isFeatureFlagEnabled } = useClientFeatureFlags();
   const tTabs = useTranslations('components.userSettings.tabs');
   const { PUBLIC_IS_CLOUD } = usePublicEnvironmentVariablesContext();
-  const { data: session } = authClient.useSession();
-  const isInstanceAdmin = session?.user?.role === 'admin';
 
   const tabs: TabConfig[] = useMemo(
     () => [
@@ -109,15 +104,8 @@ function UserSettingsDialogContent({ closeDialog, initialTab }: UserSettingsDial
         disabled: !isFeatureFlagEnabled('enableBilling'),
         render: ({ closeDialog }) => <UserBillingSettings onCloseDialog={closeDialog} />,
       },
-      {
-        id: 'telemetry',
-        label: tTabs('telemetry'),
-        icon: Activity,
-        disabled: isFeatureFlagEnabled('isCloud') || !isInstanceAdmin,
-        render: () => <TelemetrySettings />,
-      },
     ],
-    [tTabs, isFeatureFlagEnabled, isInstanceAdmin],
+    [tTabs, isFeatureFlagEnabled],
   );
 
   const availableTabs = tabs.filter((tab) => !tab.disabled);

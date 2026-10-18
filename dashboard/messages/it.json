@@ -193,7 +193,7 @@
         "p1": "Le installazioni self-hosted di Betterlytics ci inviano un piccolo report circa una volta al giorno, a meno che l'operatore non lo disattivi. Contiene esattamente due campi: un ID di istanza casuale che l'installazione genera e memorizza nel proprio database, e la versione di Betterlytics installata. Per ogni istanza registriamo quando ha inviato il primo e l'ultimo report, e la sua prima versione e quella attuale.",
         "p2": "Il nostro server vede l'indirizzo IP da cui proviene il report solo per rispondere alla richiesta. Il servizio di telemetria non lo legge mai, il logging delle richieste è disattivato per questo endpoint e l'indirizzo non viene memorizzato. Viene conservato brevemente in memoria solo per limitare il traffico abusivo. Il report non contiene mai informazioni sui tuoi utenti, sui tuoi siti web o sui tuoi dati di analisi.",
         "p3": "Utilizziamo questi dati per contare le installazioni self-hosted attive e vedere quali versioni sono in uso, così da poter dare priorità al supporto e alle correzioni di sicurezza. La base giuridica è il nostro legittimo interesse ai sensi dell'art. 6, par. 1, lett. f) del GDPR. I dati sono conservati sui nostri server presso Hetzner nell'UE e non sono condivisi con terze parti. Potremmo pubblicare totali aggregati, mai singoli ID di istanza.",
-        "p4": "I dati registrati di un'istanza vengono cancellati 365 giorni dopo il suo ultimo report. Puoi opporti in qualsiasi momento impostando TELEMETRY_ENABLED=false o DO_NOT_TRACK=1, il che interrompe tutti i report. Per far cancellare i report che abbiamo già ricevuto, scrivi a privacy@betterlytics.io indicando l'ID di istanza mostrato in Impostazioni > Telemetria. Disattivare la telemetria non influisce su alcuna funzionalità di Betterlytics."
+        "p4": "I dati registrati di un'istanza vengono cancellati 365 giorni dopo il suo ultimo report. Puoi opporti in qualsiasi momento impostando TELEMETRY_ENABLED=false o DO_NOT_TRACK=1, il che interrompe tutti i report. Per far cancellare i report che abbiamo già ricevuto, scrivi a privacy@betterlytics.io indicando l'ID di istanza riportato nella riga [telemetry] del log di avvio. Disattivare la telemetria non influisce su alcuna funzionalità di Betterlytics."
       },
       "intro": {
         "p1": "In Betterlytics ci impegniamo a rispettare GDPR, CCPA, PECR e altre normative sulla privacy. La riservatezza dei tuoi dati — e sono i tuoi dati, non i nostri! — è per noi fondamentale. Siamo con sede nell’Unione Europea e tutto il trattamento dei dati avviene all’interno dei confini dell’UE.",
@@ -2886,32 +2886,7 @@
       "tabs": {
         "account": "Account",
         "preferences": "Preferenze",
-        "billing": "Fatturazione",
-        "telemetry": "Telemetria"
-      },
-      "telemetry": {
-        "status": "Stato",
-        "on": "Attiva",
-        "off": "Disattivata",
-        "reason": {
-          "cloud": "La telemetria non viene mai inviata da Betterlytics Cloud.",
-          "dev_build": "La telemetria è disattivata per le build di sviluppo (APP_VERSION=dev).",
-          "do_not_track": "La telemetria è disattivata perché DO_NOT_TRACK è impostato.",
-          "disabled_by_env": "La telemetria è disattivata perché TELEMETRY_ENABLED=false.",
-          "invalid_value": "La telemetria è disattivata perché TELEMETRY_ENABLED ha un valore non riconosciuto. Usa true o false."
-        },
-        "inactiveJobsOff": "La telemetria è abilitata ma inattiva: BACKGROUND_JOBS_ENABLED=false interrompe il ping giornaliero, quindi non viene inviato nulla.",
-        "isSent": "Cosa viene inviato",
-        "wouldBeSent": "Cosa verrebbe inviato",
-        "frequency": "Una volta al giorno, con il primo report all'avvio. Nessun indirizzo IP né altri dati vengono memorizzati.",
-        "endpoint": "Endpoint",
-        "lastDelivered": "Ultimo invio riuscito",
-        "neverDelivered": "Mai",
-        "noIdYet": "Non esiste ancora un ID di istanza. Ne viene creato uno la prima volta che la telemetria viene eseguita mentre è attiva.",
-        "howToTurnOff": "Come disattivarla",
-        "turnOffSteps": "Imposta <code>TELEMETRY_ENABLED=false</code> nel file <code>.env</code>, poi esegui <code>docker compose up -d</code>.",
-        "doNotTrackAlt": "Anche <code>DO_NOT_TRACK=1</code> la disattiva.",
-        "learnMore": "Scopri di più sulla telemetria"
+        "billing": "Fatturazione"
       },
       "dialog": {
         "title": "Impostazioni utente",

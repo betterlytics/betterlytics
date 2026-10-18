@@ -193,7 +193,7 @@
         "p1": "Selv-hostede installationer af Betterlytics sender os en lille rapport cirka én gang om dagen, medmindre operatøren slår det fra. Den indeholder præcis to felter: et tilfældigt instans-ID, som installationen genererer og gemmer i sin egen database, og den installerede Betterlytics-version. For hver instans registrerer vi, hvornår den første og seneste gang rapporterede, samt dens første og nuværende version.",
         "p2": "Vores server ser den IP-adresse, rapporten kommer fra, kun for at besvare forespørgslen. Telemetritjenesten læser den aldrig, logning af forespørgsler er slået fra for dette endpoint, og den gemmes ikke. Den holdes kortvarigt i hukommelsen kun for at begrænse misbrugende trafik. Rapporten indeholder aldrig oplysninger om dine brugere, dine websites eller dine analysedata.",
         "p3": "Vi bruger disse data til at tælle aktive selv-hostede installationer og se, hvilke versioner der er i brug, så vi kan prioritere support og sikkerhedsrettelser. Retsgrundlaget er vores legitime interesse i henhold til GDPR artikel 6, stk. 1, litra f. Dataene opbevares på vores egne servere hos Hetzner i EU og deles ikke med tredjeparter. Vi kan offentliggøre samlede totaler, aldrig individuelle instans-ID'er.",
-        "p4": "En instans' registreringer slettes 365 dage efter dens seneste rapport. Du kan til enhver tid gøre indsigelse ved at sætte TELEMETRY_ENABLED=false eller DO_NOT_TRACK=1, hvilket stopper alle rapporter. Hvis du vil have slettet rapporter, vi allerede har modtaget, skal du sende en e-mail til privacy@betterlytics.io med det instans-ID, der vises under Indstillinger > Telemetri. At slå telemetri fra påvirker ikke nogen af Betterlytics' funktioner."
+        "p4": "En instans' registreringer slettes 365 dage efter dens seneste rapport. Du kan til enhver tid gøre indsigelse ved at sætte TELEMETRY_ENABLED=false eller DO_NOT_TRACK=1, hvilket stopper alle rapporter. Hvis du vil have slettet rapporter, vi allerede har modtaget, skal du sende en e-mail til privacy@betterlytics.io med det instans-ID, der står i [telemetry]-linjen i opstartsloggen. At slå telemetri fra påvirker ikke nogen af Betterlytics' funktioner."
       },
       "intro": {
         "p1": "Hos Betterlytics er vi forpligtet til at overholde GDPR, CCPA, PECR og andre privatlivsregler. Beskyttelsen af dine data — og det er dine data, ikke vores! — er meget vigtig for os. Vi har base i EU, og al databehandling foregår inden for EU's grænser.",
@@ -2886,32 +2886,7 @@
       "tabs": {
         "account": "Konto",
         "preferences": "Præferencer",
-        "billing": "Fakturering",
-        "telemetry": "Telemetri"
-      },
-      "telemetry": {
-        "status": "Status",
-        "on": "Til",
-        "off": "Fra",
-        "reason": {
-          "cloud": "Telemetri sendes aldrig fra Betterlytics Cloud.",
-          "dev_build": "Telemetri er slået fra for udviklingsbuilds (APP_VERSION=dev).",
-          "do_not_track": "Telemetri er slået fra, fordi DO_NOT_TRACK er sat.",
-          "disabled_by_env": "Telemetri er slået fra, fordi TELEMETRY_ENABLED=false.",
-          "invalid_value": "Telemetri er slået fra, fordi TELEMETRY_ENABLED har en ukendt værdi. Brug true eller false."
-        },
-        "inactiveJobsOff": "Telemetri er slået til, men inaktiv: BACKGROUND_JOBS_ENABLED=false stopper det daglige ping, så intet sendes.",
-        "isSent": "Hvad der sendes",
-        "wouldBeSent": "Hvad der ville blive sendt",
-        "frequency": "Én gang om dagen, med den første rapport ved opstart. Ingen IP-adresse eller andre data gemmes.",
-        "endpoint": "Endpoint",
-        "lastDelivered": "Senest leveret",
-        "neverDelivered": "Aldrig",
-        "noIdYet": "Der findes endnu intet instans-ID. Et oprettes første gang telemetri kører, mens den er slået til.",
-        "howToTurnOff": "Sådan slår du det fra",
-        "turnOffSteps": "Sæt <code>TELEMETRY_ENABLED=false</code> i din <code>.env</code>-fil, og kør derefter <code>docker compose up -d</code>.",
-        "doNotTrackAlt": "<code>DO_NOT_TRACK=1</code> slår det også fra.",
-        "learnMore": "Læs mere om telemetri"
+        "billing": "Fakturering"
       },
       "dialog": {
         "title": "Brugerindstillinger",
