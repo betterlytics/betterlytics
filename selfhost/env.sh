@@ -15,7 +15,7 @@ check_version() {
     echo "  betterlytics-selfhost repo: $BETTERLYTICS_VERSION"
     echo "  image:                      $APP_VERSION"
     if [ "$(printf '%s\n%s\n' "$BETTERLYTICS_VERSION" "$APP_VERSION" | sort -V | head -n1)" = "$BETTERLYTICS_VERSION" ]; then
-        echo "The repo is older: run \`git pull\` in betterlytics-selfhost, then \`docker compose up -d --wait\`."
+        echo "The repo is older: run \`git pull origin $APP_VERSION\` in betterlytics-selfhost, then \`docker compose up -d --wait\`."
     else
         echo "The image is older: check docker-compose.override.yml for an image override, or run \`docker compose pull\`."
     fi
