@@ -8,6 +8,7 @@ export const TELEMETRY_MAX_VERSION_LENGTH = 48;
 export const TelemetryInstanceSchema = z.object({
   instanceId: z.string().uuid(),
   lastSentAt: z.date().nullable(),
+  createdAt: z.date(),
 });
 
 export type TelemetryInstance = z.infer<typeof TelemetryInstanceSchema>;

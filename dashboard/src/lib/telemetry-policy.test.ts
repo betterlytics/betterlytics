@@ -96,7 +96,16 @@ describe('describeTelemetryState', () => {
     expect(text).toContain(JSON.stringify(payload));
     expect(text).toContain('https://betterlytics.io/telemetry');
     expect(text).toContain('TELEMETRY_ENABLED=false');
-    expect(text.split('\n')).toHaveLength(3);
+    expect(text).toContain('24 hours');
+    expect(text).toContain('https://betterlytics.io/privacy');
+    expect(text.split('\n')).toHaveLength(4);
+  });
+
+  it('shows an existing instance ID when disabled, for deletion requests', () => {
+    expect(describeTelemetryState({ ...base, policy: { enabled: false, reason: 'disabled_by_env' } })).toBe(
+      '[telemetry] Disabled (TELEMETRY_ENABLED=false). Nothing is sent.\n' +
+        `[telemetry] Instance ID for deletion requests: ${payload.instance_id}`,
+    );
   });
 
   it('says nothing is sent when background jobs are off', () => {
@@ -114,6 +123,6 @@ describe('describeTelemetryState', () => {
     ],
     ['dev_build', '[telemetry] Disabled for development builds (APP_VERSION=dev). Nothing is sent.'],
   ] as const)('describes %s', (reason, expected) => {
-    expect(describeTelemetryState({ ...base, policy: { enabled: false, reason } })).toBe(expected);
+    expect(describeTelemetryState({ ...base, payload: null, policy: { enabled: false, reason } })).toBe(expected);
   });
 });

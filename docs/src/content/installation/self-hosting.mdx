@@ -498,7 +498,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
   <EnvVar name="ALLOW_PRIVATE_TARGETS" default="true">Uptime monitors and webhooks may reach private and LAN addresses, any port is allowed, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services)</EnvVar>
   <EnvVar name="PUBLIC_ENABLE_FAVICON_FETCHING" default="true">Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead</EnvVar>
   <EnvVar name="LOG_LEVEL" default="info">Backend log level: `error`, `warn`, `info`, `debug` or `trace`</EnvVar>
-  <EnvVar name="TELEMETRY_ENABLED" default="true">Sends a daily anonymous report with a random instance ID and the Betterlytics version. `false` stops it, see [Telemetry](#telemetry)</EnvVar>
+  <EnvVar name="TELEMETRY_ENABLED" default="true">Sends a daily report with a random instance ID and the Betterlytics version. `false` stops it, see [Telemetry](#telemetry)</EnvVar>
 </EnvTable>
 
 ## Updating
@@ -541,7 +541,7 @@ A cleanup job deletes data older than each dashboard's retention every Saturday 
 
 ## Telemetry
 
-Self-hosted instances send one small, anonymous report a day to `https://betterlytics.io/telemetry`, so we can count how many instances exist and which versions they run. It is on by default. Betterlytics Cloud never sends it. The report is exactly this JSON, and nothing else:
+Self-hosted instances send one small report a day to `https://betterlytics.io/telemetry`, so we can count how many instances exist and which versions they run. It is on by default. Betterlytics Cloud never sends it. The report is exactly this JSON, and nothing else:
 
 ```json
 {
@@ -550,12 +550,12 @@ Self-hosted instances send one small, anonymous report a day to `https://betterl
 }
 ```
 
-- `instance_id` is a random UUID your instance generates the first time telemetry runs and stores in its own Postgres database (the `TelemetryInstance` table). It is not derived from your hostname, IP address, secrets or any other data.
+- `instance_id` is a random UUID your instance generates the first time it starts with telemetry on, and stores in its own Postgres database (the `TelemetryInstance` table). It is not derived from your hostname, IP address, secrets or any other data.
 - `version` is the Betterlytics version you are running.
 
-The first report goes out shortly after startup, and restarts do not send extra reports. A failed report is retried an hour later. For each instance ID we store when it first and last reported, and its first and current version. We do not store your IP address, and request logging is off for this endpoint. An instance's records are deleted 365 days after its last report. We may publish aggregate numbers, never individual instance IDs.
+The first report goes out 24 hours after that first start, so you have time to read this and turn it off. After that it is sent once a day, and restarts do not send extra reports. A failed report is retried an hour later. For each instance ID we store when it first and last reported, and its first and current version. We do not store your IP address, and request logging is off for this endpoint. An instance's records are deleted 365 days after its last report. We may publish aggregate numbers, never individual instance IDs.
 
-The startup log has a `[telemetry]` line saying whether telemetry is on and, if so, the exact JSON it sends.
+The startup log has a `[telemetry]` line saying whether telemetry is on and, if so, the exact JSON it sends. When it is off, the line still shows the instance ID if one was ever created.
 
 ### Turning it off
 

@@ -2,8 +2,8 @@ export async function register() {
   await registerOpenTelemetry();
   await registerRetiredRetentionEnvWarning();
   await registerAuthBootstrap();
-  await registerBackgroundJobs();
   await registerTelemetryNotice();
+  await registerBackgroundJobs();
 }
 
 async function registerTelemetryNotice() {

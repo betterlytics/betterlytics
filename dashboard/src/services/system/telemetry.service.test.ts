@@ -24,10 +24,15 @@ import { getTelemetryStatus, sendTelemetryPingIfDue } from './telemetry.service'
 const INSTANCE_ID = '9b2f6c1e-3a4d-4e5f-8a6b-7c8d9e0f1a2b';
 const NOW = new Date('2026-10-03T12:00:00Z');
 const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 const fetchMock = vi.fn();
 
-function instanceSentAgo(ms: number | null) {
-  return { instanceId: INSTANCE_ID, lastSentAt: ms === null ? null : new Date(NOW.getTime() - ms) };
+function instanceSentAgo(ms: number | null, createdAgo = 30 * DAY_MS) {
+  return {
+    instanceId: INSTANCE_ID,
+    lastSentAt: ms === null ? null : new Date(NOW.getTime() - ms),
+    createdAt: new Date(NOW.getTime() - createdAgo),
+  };
 }
 
 beforeEach(() => {
@@ -73,6 +78,19 @@ describe('sendTelemetryPingIfDue', () => {
 
     expect(await sendTelemetryPingIfDue(NOW)).toEqual({ outcome: 'skipped_recent' });
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('holds the first send until 24h after the ID was created', async () => {
+    repo.getOrCreateTelemetryInstance.mockResolvedValue(instanceSentAgo(null, 23 * HOUR_MS));
+
+    expect(await sendTelemetryPingIfDue(NOW)).toEqual({ outcome: 'skipped_first_day' });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('sends the first report once 24h have passed since the ID was created', async () => {
+    repo.getOrCreateTelemetryInstance.mockResolvedValue(instanceSentAgo(null, DAY_MS));
+
+    expect(await sendTelemetryPingIfDue(NOW)).toEqual({ outcome: 'delivered' });
   });
 
   it('sends when the last delivery was 23h31m ago', async () => {
@@ -134,6 +152,15 @@ describe('getTelemetryStatus', () => {
     expect(repo.findTelemetryInstance).toHaveBeenCalledTimes(1);
     expect(repo.getOrCreateTelemetryInstance).not.toHaveBeenCalled();
     expect(status.payload).toBeNull();
+  });
+
+  it('does not mint an ID when background jobs are off', async () => {
+    mockEnv.BACKGROUND_JOBS_ENABLED = false;
+
+    await getTelemetryStatus();
+
+    expect(repo.getOrCreateTelemetryInstance).not.toHaveBeenCalled();
+    expect(repo.findTelemetryInstance).toHaveBeenCalledTimes(1);
   });
 
   it('returns the exact payload when enabled', async () => {

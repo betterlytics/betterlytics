@@ -10,10 +10,19 @@ import {
 } from '@/repositories/postgres/telemetryInstance.repository';
 
 const RESEND_AFTER_MS = 23.5 * 60 * 60 * 1000;
+const FIRST_SEND_DELAY_MS = 24 * 60 * 60 * 1000;
 const SEND_TIMEOUT_MS = 5000;
 
 export type TelemetrySendOutcome =
-  | { outcome: 'skipped_policy' | 'skipped_recent' | 'delivered' | 'network_error' | 'invalid_version' }
+  | {
+      outcome:
+        | 'skipped_policy'
+        | 'skipped_first_day'
+        | 'skipped_recent'
+        | 'delivered'
+        | 'network_error'
+        | 'invalid_version';
+    }
   | { outcome: 'http_error'; status: number };
 
 export function resolveCurrentTelemetryPolicy(): TelemetryPolicy {
@@ -30,6 +39,9 @@ export async function sendTelemetryPingIfDue(now: Date = new Date()): Promise<Te
   if (!isValidTelemetryVersion(env.APP_VERSION)) return { outcome: 'invalid_version' };
 
   const instance = await getOrCreateTelemetryInstance();
+  if (!instance.lastSentAt && now.getTime() - instance.createdAt.getTime() < FIRST_SEND_DELAY_MS) {
+    return { outcome: 'skipped_first_day' };
+  }
   if (instance.lastSentAt && now.getTime() - instance.lastSentAt.getTime() < RESEND_AFTER_MS) {
     return { outcome: 'skipped_recent' };
   }
@@ -59,8 +71,9 @@ export async function getTelemetryStatus(): Promise<TelemetryStatus> {
 
   if (!policy.enabled && policy.reason === 'cloud') return { ...base, payload: null, lastSentAt: null };
 
-  // Never mint an ID while telemetry is off
-  const instance = policy.enabled ? await getOrCreateTelemetryInstance() : await findTelemetryInstance();
+  // Mint an ID only when it will be sent: its createdAt starts the first-send delay
+  const willSend = policy.enabled && env.BACKGROUND_JOBS_ENABLED;
+  const instance = willSend ? await getOrCreateTelemetryInstance() : await findTelemetryInstance();
 
   return {
     ...base,
