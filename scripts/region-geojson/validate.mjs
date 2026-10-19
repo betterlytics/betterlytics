@@ -3,25 +3,42 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   countryConfig,
+  COVERAGE_FLOOR,
   INFLATION_THRESHOLD,
   FILE_BUDGET_BYTES,
   TOTAL_BUDGET_BYTES,
   SIMPLIFY_PRECISION_DEG,
 } from './config.mjs';
 import { loadCldrEnNames, cldrKey } from './lib/cldr.mjs';
+import { loadFirstLevelCodes } from './lib/reference.mjs';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 const REGIONS_DIR = path.join(ROOT, 'dashboard', 'public', 'data', 'regions');
 const MANIFEST_PATH = path.join(ROOT, 'scripts', 'region-geojson', 'manifest.json');
 const WORLD_MAP_PATH = path.join(ROOT, 'dashboard', 'public', 'data', 'countries.geo.json');
 const MAX_TREATED_INFLATION = 1.8;
-/** Half the output grid step, for mapshaper's coordinate rounding. */
+// Half the output grid step covers mapshaper's coordinate rounding
 const CONTAINMENT_EPSILON = SIMPLIFY_PRECISION_DEG / 2;
 
 const errors = [];
 const warnings = [];
 
-function validateFile(code, entry, cldrNames) {
+function validateCoverage(code, entry, geojson, codes) {
+  if (!codes) {
+    errors.push(`${code}: no first-level codes in GeoLite2, the build should have excluded it`);
+    return;
+  }
+  const ids = new Set(geojson.features.map((f) => f.id));
+  const coverage = +(codes.filter((c) => ids.has(c.code)).length / codes.length).toFixed(3);
+  if (coverage < COVERAGE_FLOOR) {
+    errors.push(`${code}: only ${Math.round(coverage * 100)}% of GeoLite2 first-level codes have a shape`);
+  }
+  if (Math.abs(coverage - entry.coverage) > 0.001) {
+    errors.push(`${code}: coverage ${coverage} differs from manifest ${entry.coverage}`);
+  }
+}
+
+function validateFile(code, entry, cldrNames, codes) {
   const filePath = path.join(REGIONS_DIR, `${code}.geo.json`);
   if (!fs.existsSync(filePath)) {
     errors.push(`${code}: file missing`);
@@ -37,6 +54,7 @@ function validateFile(code, entry, cldrNames) {
     errors.push(`${code}: not a non-empty FeatureCollection`);
     return { unresolvedNames: [] };
   }
+  validateCoverage(code, entry, geojson, codes);
 
   const unresolvedNames = [];
   for (const feature of geojson.features) {
@@ -90,7 +108,7 @@ function bboxContains(outer, inner, eps) {
   );
 }
 
-/** Inset frames must sit clear of the in-place geometry and of each other. */
+// Frames must not overlap each other or the in-place geometry
 function validateFramePlacement(code, geojson, frames) {
   const frameBoxes = frames.map(frameToBbox);
   for (let i = 0; i < frameBoxes.length; i++) {
@@ -118,7 +136,7 @@ function validateFramePlacement(code, geojson, frames) {
   }
 }
 
-/** viewBbox must span the geometry and every frame; inset countries also center on the mainland. */
+// viewBbox must span the geometry and every frame, centered on the mainland when there are frames
 function validateViewBbox(code, geojson, frames, bbox, anchorCenterLon) {
   const vb = geojson.viewBbox;
   if (!Array.isArray(vb) || vb.length !== 4 || !vb.every(Number.isFinite)) {
@@ -219,6 +237,10 @@ function main() {
   const manifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, 'utf-8'));
   const cldrNames = loadCldrEnNames();
   if (!cldrNames) warnings.push('cldr-subdivisions-full not installed in dashboard; skipping name resolution check');
+  const reference = loadFirstLevelCodes();
+  if (reference.database !== manifest.geoLite) {
+    errors.push(`manifest was built against ${manifest.geoLite}, first-level-codes.json is ${reference.database}`);
+  }
   const allUnresolved = [];
 
   for (const entry of manifest.countries) {
@@ -235,7 +257,7 @@ function main() {
     }
     for (const warning of entry.warnings) warnings.push(`${entry.code}: ${warning}`);
 
-    const { unresolvedNames } = validateFile(entry.code, entry, cldrNames);
+    const { unresolvedNames } = validateFile(entry.code, entry, cldrNames, reference.countries[entry.code]);
     allUnresolved.push(...unresolvedNames.map((id) => `${entry.code}: ${id}`));
   }
 

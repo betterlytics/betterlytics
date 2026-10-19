@@ -7,11 +7,15 @@ import { extractParts, mergeBboxes, bboxDiagonalKm } from './lib/geometry.mjs';
 import { normalizeAntimeridian, clusterParts } from './lib/clusters.mjs';
 import { composeCountry } from './lib/compose.mjs';
 import { loadCldrEnNames } from './lib/cldr.mjs';
-import { applyIdFixes } from './lib/remap.mjs';
+import { reassignCountries } from './lib/reassign.mjs';
+import { alignCountry } from './lib/align.mjs';
+import { loadFirstLevelCodes } from './lib/reference.mjs';
 import {
   countryConfig,
   countryReassign,
+  regionGroups,
   idOverrides,
+  COVERAGE_FLOOR,
   INFLATION_THRESHOLD,
   LINK_KM,
   SIMPLIFY_TIERS,
@@ -57,7 +61,7 @@ function assembleGeojson(parts) {
   );
 }
 
-/** One feature per polygon part so keep-shapes protects every island. */
+// keep-shapes protects every island only when each island is its own feature
 function explodeForSimplify(geojson) {
   return {
     type: 'FeatureCollection',
@@ -89,7 +93,7 @@ async function simplify(geojson, budgetBytes) {
   return best;
 }
 
-/** Extends the opposite side so the mainland is centered in the fitted view. */
+// Extends the opposite side so the mainland sits centered in the fitted view
 function symmetrizeLon(finalBbox, anchorBbox) {
   const center = (anchorBbox.minLon + anchorBbox.maxLon) / 2;
   const half = Math.max(center - finalBbox.minLon, finalBbox.maxLon - center);
@@ -134,7 +138,7 @@ function writeRegionCountriesConstant(codes) {
   fs.writeFileSync(REGION_CONSTANT_PATH, content);
 }
 
-async function buildCountry(countryCode, features, rawDir) {
+async function buildCountry(countryCode, features, rawDir, buildDir) {
   const parts = features.flatMap(extractParts);
   if (parts.length === 0) return null;
 
@@ -167,10 +171,11 @@ async function buildCountry(countryCode, features, rawDir) {
   const assembled = assembleGeojson(finalParts);
   const { pct, buf } = await simplify(assembled, FILE_BUDGET_BYTES);
   const output = finalizeOutput(buf, composed.frames, viewBbox);
-  fs.writeFileSync(path.join(OUTPUT_DIR, `${countryCode}.geo.json`), output);
+  fs.writeFileSync(path.join(buildDir, `${countryCode}.geo.json`), output);
 
   return {
     code: countryCode,
+    featureIds: assembled.features.map((f) => f.id),
     bytes: Buffer.byteLength(output),
     features: assembled.features.length,
     parts: finalParts.length,
@@ -190,24 +195,43 @@ async function main() {
   const geojson = await loadSourceGeojson();
   const { byCountry, skipped } = groupByCountry(geojson);
   const cldrNames = loadCldrEnNames();
-  if (!cldrNames) console.log('cldr-subdivisions-full not found in dashboard; skipping id remapping');
-  const idFixes = applyIdFixes(byCountry, cldrNames, { idOverrides, countryReassign });
-  console.log(
-    `Id fixes: ${idFixes.reassigned.length} reassigned, ${idFixes.overridden.length} overridden, ` +
-      `${idFixes.remapped.length} remapped via CLDR names, ${idFixes.unmatched.length} unmatched`,
-  );
+  if (!cldrNames) throw new Error('cldr-subdivisions-full is not installed in dashboard/node_modules');
+  const reference = loadFirstLevelCodes();
+  const reassigned = reassignCountries(byCountry, countryReassign);
+
   const rawDir = cachePath('raw');
+  const buildDir = cachePath('build');
   fs.mkdirSync(rawDir, { recursive: true });
-  fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
-  fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+  fs.rmSync(buildDir, { recursive: true, force: true });
+  fs.mkdirSync(buildDir, { recursive: true });
 
   const entries = [];
-  const codes = [...byCountry.keys()].sort();
-  for (const code of codes) {
-    const entry = await buildCountry(code, byCountry.get(code), rawDir);
-    if (!entry) continue;
-    entries.push(entry);
+  const excluded = [];
+  for (const code of [...byCountry.keys()].sort()) {
+    const codes = reference.countries[code];
+    if (!codes) {
+      excluded.push({ code, reason: 'no first-level codes in GeoLite2' });
+      continue;
+    }
+    const alignment = await alignCountry(code, byCountry.get(code), codes, cldrNames, { regionGroups, idOverrides });
+    if (alignment.coverage < COVERAGE_FLOOR) {
+      excluded.push({ code, reason: `coverage ${alignment.coverage}`, missingCodes: alignment.missingCodes });
+      console.log(`${code}  excluded at ${Math.round(alignment.coverage * 100)}% coverage (${alignment.layout})`);
+      continue;
+    }
+    const { featureIds, ...entry } = (await buildCountry(code, alignment.features, rawDir, buildDir)) ?? {};
+    if (!entry.code) continue;
+    const shipped = new Set(featureIds);
+    const coverage = +(codes.filter((c) => shipped.has(c.code)).length / codes.length).toFixed(3);
+    entries.push({
+      ...entry,
+      layout: alignment.layout,
+      coverage,
+      missingCodes: codes.filter((c) => !shipped.has(c.code)).map((c) => c.code),
+      unmatchedIds: alignment.unmatchedIds,
+    });
     const marks = [
+      `${Math.round(coverage * 100)}% ${alignment.layout}`,
       entry.insets.length ? `insets: ${entry.insets.join(', ')}` : '',
       entry.cropped.length ? `cropped: ${entry.cropped.join(', ')}` : '',
       ...entry.warnings.map((w) => `WARN ${w}`),
@@ -221,7 +245,9 @@ async function main() {
 
   const totalBytes = entries.reduce((sum, e) => sum + e.bytes, 0);
   const overBudget = entries.filter((e) => e.bytes > FILE_BUDGET_BYTES);
-  console.log(`\nTotal: ${(totalBytes / 1024 / 1024).toFixed(2)} MB across ${entries.length} files`);
+  console.log(
+    `\nTotal: ${(totalBytes / 1024 / 1024).toFixed(2)} MB across ${entries.length} files, ${excluded.length} countries excluded`,
+  );
   if (overBudget.length > 0) {
     console.log('Over per-file budget even at the smallest ladder step:');
     for (const e of overBudget) console.log(`  ${e.code}: ${Math.round(e.bytes / 1024)} KB`);
@@ -230,14 +256,18 @@ async function main() {
     console.log(`TOTAL BUDGET EXCEEDED (${(TOTAL_BUDGET_BYTES / 1024 / 1024).toFixed(1)} MB)`);
   }
 
+  fs.rmSync(OUTPUT_DIR, { recursive: true, force: true });
+  fs.renameSync(buildDir, OUTPUT_DIR);
   writeRegionCountriesConstant(entries.map((e) => e.code));
 
   const manifest = {
     neCommit: NE_COMMIT,
-    generatedAt: new Date().toISOString(),
+    geoLite: reference.database,
+    coverageFloor: COVERAGE_FLOOR,
     totalBytes,
     skippedSourceFeatures: skipped,
-    idFixes,
+    reassigned,
+    excluded,
     countries: entries,
   };
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');

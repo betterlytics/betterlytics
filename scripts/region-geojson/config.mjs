@@ -1,49 +1,90 @@
 export const INFLATION_THRESHOLD = 1.15;
 export const LINK_KM = 100;
+export const COVERAGE_FLOOR = 0.8;
 
-/** Vertex-retention ladders by raw country size. */
+// Vertex-retention ladders by raw country size
 export const SIMPLIFY_TIERS = [
   { maxBytes: 80 * 1024, percentages: [35, 20, 12, 7] },
   { maxBytes: 250 * 1024, percentages: [20, 12, 7, 4] },
   { maxBytes: Infinity, percentages: [12, 7, 4, 2] },
 ];
-/** mapshaper output grid; the validator's tolerance derives from it. */
+// The validator's containment tolerance derives from this output grid
 export const SIMPLIFY_PRECISION_DEG = 0.0001;
 export const FILE_BUDGET_BYTES = 260 * 1024;
 export const TOTAL_BUDGET_BYTES = 6 * 1024 * 1024;
 
-/**
- * Treatment for every country the analysis pass flags (inflation > threshold
- * or antimeridian-shifted); the validator fails if a flagged country has no entry.
- *
- * - insets: detached parts of the listed features are scaled into framed boxes
- *   along a side of the mainland, following the national map convention.
- *   wholeFeature: true boxes every part of the feature, including parts that
- *   cluster with the mainland.
- *   inside: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' places the
- *   frame within the anchor bbox corner instead of outside it.
- * - crop: detached parts of the listed features are dropped from the map.
- * - keepAll: render everything in place.
- *
- * Feature ids here are post-remap (current ISO via CLDR), not raw NE ids.
- */
-/** NE files Crimea and Sevastopol under RU; ISO, CLDR and MaxMind file them under UA. */
-export const countryReassign = { 'UA-43': 'UA', 'UA-40': 'UA' };
+// NE files these under a different country than ISO and MaxMind do
+export const countryReassign = {
+  'UA-43': 'UA',
+  'UA-40': 'UA',
+  'FR-GF': 'GF',
+  'FR-GP': 'GP',
+  'FR-MQ': 'MQ',
+  'FR-RE': 'RE',
+  'FR-YT': 'YT',
+  'NL-BQ1': 'BQ',
+  'NL-BQ2': 'BQ',
+  'NL-BQ3': 'BQ',
+  'NL-SX': 'SX',
+  'US-PR': 'PR',
+};
 
-/** NE ids with no matchable ISO code in their own file. */
-export const idOverrides = { 'US-PR': 'PR-X00~', 'NL-SX': 'SX-X00~' };
-
-export const countryConfig = {
-  FR: {
-    // INSEE convention: single DROM column on the left
-    insets: [
-      { features: ['FR-971'], label: 'Guadeloupe', side: 'left', scaleFrac: 0.16 },
-      { features: ['FR-972'], label: 'Martinique', side: 'left', scaleFrac: 0.16 },
-      { features: ['FR-973'], label: 'Guyane', side: 'left', scaleFrac: 0.16 },
-      { features: ['FR-974'], label: 'La Réunion', side: 'left', scaleFrac: 0.16 },
-      { features: ['FR-976'], label: 'Mayotte', side: 'left', scaleFrac: 0.16 },
-    ],
+// Explicit groupings to MaxMind's first level where NE regions do not line up
+export const regionGroups = {
+  GB: {
+    'GB-ENG': {
+      regions: [
+        'North West',
+        'West Midlands',
+        'South West',
+        'North East',
+        'Yorkshire and the Humber',
+        'East Midlands',
+        'East',
+        'South East',
+        'Greater London',
+      ],
+    },
+    'GB-SCT': { regions: ['Eastern', 'South Western', 'Highlands and Islands', 'North Eastern'] },
+    'GB-WLS': { regions: ['West Wales and the Valleys', 'East Wales'] },
+    'GB-NIR': { regions: ['Northern Ireland'] },
   },
+  IE: {
+    'IE-C': { ids: ['IE-G', 'IE-LM', 'IE-MO', 'IE-RN', 'IE-SO'] },
+    'IE-L': { ids: ['IE-CW', 'IE-D', 'IE-KE', 'IE-KK', 'IE-LS', 'IE-LD', 'IE-LH', 'IE-MH', 'IE-OY', 'IE-WH', 'IE-WX', 'IE-WW'] },
+    'IE-M': { ids: ['IE-CE', 'IE-CO', 'IE-KY', 'IE-LK', 'IE-TA', 'IE-WD'] },
+    'IE-U': { ids: ['IE-CN', 'IE-DL', 'IE-MN'] },
+  },
+  NO: {
+    'NO-34': { ids: ['NO-04', 'NO-05'] },
+    'NO-42': { ids: ['NO-09', 'NO-10'] },
+    'NO-46': { ids: ['NO-12', 'NO-14'] },
+    'NO-50': { ids: ['NO-16', 'NO-17'] },
+  },
+};
+
+// Keys are an NE id, "id|name" or a region name; values are MaxMind codes
+export const idOverrides = {
+  PL: {
+    'PL-DS': 'PL-02',
+    'PL-MZ': 'PL-14',
+    'PL-PK': 'PL-18',
+    'PL-PD': 'PL-20',
+    'PL-PM': 'PL-22',
+    'PL-SL': 'PL-24',
+    'PL-WN': 'PL-28',
+    'PL-ZP': 'PL-32',
+  },
+  ES: { 'Foral de Navarra': 'ES-NC', 'Islas Baleares': 'ES-IB' },
+  BE: { Flemish: 'BE-VLG', Walloon: 'BE-WAL' },
+  MX: { 'MX-DIF': 'MX-CMX' },
+  CO: { 'CO-CUN|Bogota': 'CO-DC' },
+  TW: { 'TW-TPQ': 'TW-NWT' },
+  BQ: { 'NL-BQ1': 'BQ-BO', 'NL-BQ2': 'BQ-SA', 'NL-BQ3': 'BQ-SE' },
+};
+
+// Treatment for every flagged country; the validator fails if one has no entry. Feature ids are post-alignment
+export const countryConfig = {
   US: {
     insets: [
       { features: ['US-AK'], label: 'Alaska', side: 'bottom', scaleFrac: 0.32 },
@@ -51,7 +92,7 @@ export const countryConfig = {
     ],
   },
   ES: {
-    insets: [{ features: ['ES-TF', 'ES-GC'], label: 'Canarias', side: 'bottom', align: 'start' }],
+    insets: [{ features: ['ES-CN'], label: 'Canarias', side: 'bottom', align: 'start' }],
   },
   PT: {
     insets: [
@@ -59,15 +100,14 @@ export const countryConfig = {
       { features: ['PT-30'], label: 'Madeira', side: 'left', maxGapKm: 200 },
     ],
   },
-  NL: {
-    insets: [
-      { features: ['NL-BQ1'], label: 'Bonaire', side: 'left', scaleFrac: 0.14 },
-      { features: ['NL-BQ2'], label: 'Saba', side: 'left', scaleFrac: 0.14 },
-      { features: ['NL-BQ3'], label: 'Sint Eustatius', side: 'left', scaleFrac: 0.14 },
-    ],
-  },
   DK: {
     insets: [{ features: ['DK-84'], label: 'Bornholm', inside: 'top-right' }],
+  },
+  BQ: {
+    insets: [
+      { features: ['BQ-SA'], label: 'Saba', side: 'right' },
+      { features: ['BQ-SE'], label: 'Sint Eustatius', side: 'right' },
+    ],
   },
   JP: {
     insets: [{ features: ['JP-47'], label: 'Okinawa', inside: 'top-left', wholeFeature: true, scaleFrac: 0.45 }],

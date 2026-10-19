@@ -65,6 +65,9 @@ jobs:
       - name: Lint check
         run: pnpm --filter dashboard lint
 
+      - name: Validate region geojson
+        run: pnpm run regions-validate
+
   check-backend:
     needs: detect-changes
     if: needs.detect-changes.outputs.backend == 'true'

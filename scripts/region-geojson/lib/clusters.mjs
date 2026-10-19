@@ -1,6 +1,5 @@
 import { bboxGapKm, mergeBboxes, shiftPart } from './geometry.mjs';
 
-
 export function normalizeAntimeridian(parts) {
   if (parts.length === 0) return false;
   const largest = parts.reduce((a, b) => (b.areaKm2 > a.areaKm2 ? b : a));

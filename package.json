@@ -19,6 +19,8 @@
     "unit-tests": "pnpm --filter dashboard unit-tests",
     "check-translations": "node scripts/check-translations.js",
     "check-migration-versions": "node scripts/check-migration-versions.js",
+    "regions-codes": "node scripts/region-geojson/extract-first-level-codes.mjs",
+    "regions-align": "node scripts/region-geojson/align-report.mjs",
     "regions-analyze": "node scripts/region-geojson/analyze.mjs",
     "regions-build": "node scripts/region-geojson/build.mjs && node scripts/region-geojson/validate.mjs",
     "regions-validate": "node scripts/region-geojson/validate.mjs",
