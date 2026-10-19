@@ -2,7 +2,6 @@
 
 import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
-import MapLegend from '@/components/map/MapLegend';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import MapInstanceBridge from '@/components/map/MapInstanceBridge';
 import MapResizeSync from '@/components/map/MapResizeSync';
@@ -18,21 +17,18 @@ import { useTheme } from 'next-themes';
 import { useDebounce } from '@/hooks/useDebounce';
 
 type LeafletMapProps = WorldMapResponse & {
-  showLegend?: boolean;
   initialZoom?: number;
   size?: 'sm' | 'lg';
-  // Map controls rendered inset at the top-left; controls placed elsewhere attach through MapProvider instead
-  controls?: ReactNode;
+  children?: ReactNode;
 };
 
 export default function LeafletMap({
   visitorData,
   compareData,
   maxVisitors,
-  showLegend = true,
   size = 'sm',
   initialZoom,
-  controls,
+  children,
 }: LeafletMapProps) {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
   const outerScope = useMapScope();
@@ -96,22 +92,21 @@ export default function LeafletMap({
   return (
     <MapScopeProvider scope={scope}>
       <div className='relative h-full w-full' key={debouncedTheme}>
-        {controls && <div className='absolute top-2.5 left-2.5 z-[1000]'>{controls}</div>}
         {style.LeafletCSS}
-        <MapContainer
-          center={[20, 0]}
-          style={{ height: '100%', width: '100%' }}
-          zoom={initialZoom || 2}
-          zoomControl={false}
-          maxBounds={worldBounds as LatLngBoundsExpression}
-          maxBoundsViscosity={0.5}
-          minZoom={1}
-          maxZoom={7}
-          zoomDelta={0.1}
-          zoomSnap={0.1}
-          attributionControl={false}
-        >
-          <MapSelectionContextProvider style={style}>
+        <MapSelectionContextProvider style={style}>
+          <MapContainer
+            center={[20, 0]}
+            style={{ height: '100%', width: '100%' }}
+            zoom={initialZoom || 2}
+            zoomControl={false}
+            maxBounds={worldBounds as LatLngBoundsExpression}
+            maxBoundsViscosity={0.5}
+            minZoom={1}
+            maxZoom={7}
+            zoomDelta={0.1}
+            zoomSnap={0.1}
+            attributionControl={false}
+          >
             <MapBackgroundLayer Polygon={Polygon} />
             <MapCountryGeoJSON
               GeoJSON={GeoJSON}
@@ -121,11 +116,11 @@ export default function LeafletMap({
               style={style}
             />
             <MapStickyTooltip size={size} />
-            {showLegend && <MapLegend maxVisitors={maxVisitors} />}
-            {(controls || outerScope) && <MapInstanceBridge onReady={scope.setMap} />}
+            {(children || outerScope) && <MapInstanceBridge onReady={scope.setMap} />}
             <MapResizeSync />
-          </MapSelectionContextProvider>
-        </MapContainer>
+          </MapContainer>
+          {children}
+        </MapSelectionContextProvider>
       </div>
     </MapScopeProvider>
   );

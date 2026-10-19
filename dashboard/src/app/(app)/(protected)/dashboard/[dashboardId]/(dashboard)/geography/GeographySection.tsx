@@ -1,6 +1,7 @@
 'use client';
 
 import LeafletMap from '@/components/map/LeafletMap';
+import MapLegend from '@/components/map/MapLegend';
 import { MapProvider } from '@/components/map/MapProvider';
 import GeographyToolbar from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/geography/GeographyToolbar';
 import { useTranslations } from 'next-intl';
@@ -21,7 +22,9 @@ export default function GeographySection() {
         {(mapData) => (
           <>
             <div className='h-full w-full'>
-              <LeafletMap {...mapData} size='lg' />
+              <LeafletMap {...mapData} size='lg'>
+                <MapLegend maxVisitors={mapData.maxVisitors} className='absolute right-4 bottom-4' />
+              </LeafletMap>
             </div>
 
             {mapData.visitorData.length === 0 && (
