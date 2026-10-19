@@ -5,6 +5,7 @@ import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
 import MapLegend from '@/components/map/MapLegend';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import MapInstanceBridge from '@/components/map/MapInstanceBridge';
+import MapResizeSync from '@/components/map/MapResizeSync';
 import { MapScopeProvider, useMapScope } from '@/components/map/MapProvider';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
 import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
@@ -122,6 +123,7 @@ export default function LeafletMap({
             <MapStickyTooltip size={size} />
             {showLegend && <MapLegend maxVisitors={maxVisitors} />}
             {(controls || outerScope) && <MapInstanceBridge onReady={scope.setMap} />}
+            <MapResizeSync />
           </MapSelectionContextProvider>
         </MapContainer>
       </div>
