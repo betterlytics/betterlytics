@@ -79,7 +79,7 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
 COPY dashboard/package.json ./dashboard/
 COPY backend/package.json ./backend/
 COPY docs/package.json ./docs/
-RUN pnpm install --frozen-lockfile --filter .
+RUN pnpm install --frozen-lockfile --prod --filter .
 
 ####
 # Minify static files

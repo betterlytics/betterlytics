@@ -1,4 +1,5 @@
 backend/target/
 **/node_modules/
 dashboard/.next/
+scripts/region-geojson/.cache/
 .git/
