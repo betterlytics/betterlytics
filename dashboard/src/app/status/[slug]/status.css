@@ -10,7 +10,8 @@
  * (Baseline 2024); the owner's theme just sets color-scheme, with `system`
  * (`light dark`) resolved by the visitor's OS preference.
  *
- * --sp-accent and --sp-accent-foreground are injected inline per page.
+ * --sp-accent and --sp-accent-foreground are injected inline per page, and left
+ * unset when the header is transparent, so their readers carry a neutral fallback.
  */
 
 .bl-status-page {
@@ -76,14 +77,15 @@
 }
 
 /* Brief highlight when an incident's affected-monitor chip scrolls to its uptime
-   row, so the eye lands on the right monitor. Tinted with the page's brand accent. */
+   row, so the eye lands on the right monitor. Tinted with the page's brand accent,
+   or a neutral grey when the header is transparent. */
 .bl-status-page .bl-monitor-flash {
   animation: blMonitorFlash 1.5s ease-out;
 }
 @keyframes blMonitorFlash {
   0%,
   12% {
-    background-color: color-mix(in srgb, var(--sp-accent) 20%, transparent);
+    background-color: color-mix(in srgb, var(--sp-accent, var(--sp-muted)) 20%, transparent);
   }
   100% {
     background-color: transparent;

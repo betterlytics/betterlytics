@@ -4254,7 +4254,9 @@
       "removeImage": "Rimuovi",
       "imageTooLarge": "L'immagine è troppo grande. Scegli un file più piccolo.",
       "svgUnsafe": "L'SVG contiene contenuti non supportati o non sicuri. Prova un'esportazione vettoriale semplice.",
-      "accentColor": "Colore principale",
+      "accentColor": "Colore dell'intestazione",
+      "accentColorTransparent": "Trasparente",
+      "accentColorTransparentAria": "Intestazione trasparente che riprende lo sfondo della pagina",
       "theme": "Tema",
       "themes": {
         "light": "Chiaro",

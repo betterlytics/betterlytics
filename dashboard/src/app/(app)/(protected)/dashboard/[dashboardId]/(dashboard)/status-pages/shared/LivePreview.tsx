@@ -27,7 +27,7 @@ export type PreviewDraft = {
   slug: string;
   customDomain: string | null;
   theme: StatusPageTheme;
-  accentColor: string;
+  accentColor: string | null;
   logoUrl: string | null;
   faviconUrl: string | null;
   showPastIncidents: boolean;
@@ -220,9 +220,10 @@ export function LivePreview({
       // The preview renders inline, so don't make the logo a real link that would navigate the
       // editor away when clicked. The homepage link has no visual effect to preview anyway.
       homepageUrl: null,
-      accentColor: StatusPageAccentColorSchema.safeParse(draft.accentColor).success
-        ? draft.accentColor
-        : payload.data.accentColor,
+      accentColor:
+        draft.accentColor === null || StatusPageAccentColorSchema.safeParse(draft.accentColor).success
+          ? draft.accentColor
+          : payload.data.accentColor,
       hideBranding: draft.hideBranding,
       showPastIncidents: draft.showPastIncidents,
       overallStatus: derived.overallStatus,
