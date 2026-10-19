@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useMapInstance } from '@/components/map/MapProvider';
+import { cn } from '@/lib/utils';
 import { Minus, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -11,7 +12,7 @@ const ZOOM_STEP = 0.3;
 const BUTTON_CLASS =
   'border-input relative cursor-pointer border focus-visible:z-10 aria-disabled:pointer-events-none aria-disabled:opacity-50';
 
-export default function MapZoomButtons() {
+export default function MapZoomButtons({ className }: { className?: string }) {
   const map = useMapInstance();
   const t = useTranslations('components.geography');
   const [limits, setLimits] = useState({ atMin: true, atMax: true });
@@ -31,7 +32,7 @@ export default function MapZoomButtons() {
   }, [map]);
 
   return (
-    <div className='bg-card inline-flex flex-col rounded-md shadow-xs dark:bg-(--card-interactive)'>
+    <div className={cn('bg-card inline-flex flex-col rounded-md shadow-xs dark:bg-(--card-interactive)', className)}>
       <Button
         variant='ghost'
         size='icon'
