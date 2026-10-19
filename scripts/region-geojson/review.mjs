@@ -128,4 +128,4 @@ http
       res.end('not found');
     }
   })
-  .listen(PORT, () => console.log(`Region review: http://localhost:${PORT}`));
+  .listen(PORT, '127.0.0.1', () => console.log(`Region review: http://localhost:${PORT}`));

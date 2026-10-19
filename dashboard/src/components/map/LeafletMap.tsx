@@ -2,7 +2,8 @@
 
 import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
-import MapFitBounds from '@/components/map/MapFitBounds';
+import { ANTARCTICA_CODE } from '@/components/map/feature-filters';
+import MapFitBounds, { FIT_PADDING } from '@/components/map/MapFitBounds';
 import MapInsetFrames from '@/components/map/MapInsetFrames';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import MapInstanceBridge from '@/components/map/MapInstanceBridge';
@@ -21,12 +22,13 @@ import { useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useDebounce } from '@/hooks/useDebounce';
 
+const WORLD_GEOJSON_URL = '/data/countries.geo.json';
+
 type LeafletMapProps = GeoMapResponse & {
   initialZoom?: number;
   size?: 'sm' | 'lg';
   children?: ReactNode;
   geoJsonData?: RegionGeoJson;
-  geoJsonUrl?: string;
   resolveDisplay?: FeatureDisplayResolver;
   shouldHideFeature?: (featureId: string) => boolean;
   onFeatureClick?: (featureId: string) => void;
@@ -43,7 +45,6 @@ export default function LeafletMap({
   initialZoom,
   children,
   geoJsonData,
-  geoJsonUrl = '/data/countries.geo.json',
   resolveDisplay: resolveDisplayProp,
   shouldHideFeature,
   onFeatureClick,
@@ -83,7 +84,7 @@ export default function LeafletMap({
           const [leafletModule, reactLeafletModule, geoData] = await Promise.all([
             import('leaflet'),
             import('react-leaflet'),
-            geoJsonData ?? fetch(geoJsonUrl).then((res) => (res.ok ? res.json() : null)),
+            geoJsonData ?? fetch(WORLD_GEOJSON_URL).then((res) => (res.ok ? res.json() : null)),
           ]);
 
           if (!geoData) return;
@@ -104,11 +105,11 @@ export default function LeafletMap({
 
       loadMapDependencies();
     });
-  }, [geoJsonUrl, geoJsonData]);
+  }, [geoJsonData]);
 
   const worldBounds = useMemo(() => {
     if (fitBounds || !mapComponents?.L) return null;
-    const hasAntarctica = visitorData.some((d) => d.code === 'AQ' && d.visitors);
+    const hasAntarctica = visitorData.some((d) => d.code === ANTARCTICA_CODE && d.visitors);
     return mapComponents.L.latLngBounds(
       mapComponents.L.latLng(hasAntarctica ? -100 : -60, -220),
       mapComponents.L.latLng(100, 220),
@@ -131,7 +132,7 @@ export default function LeafletMap({
     fitBounds && contentBounds
       ? {
           bounds: contentBounds,
-          boundsOptions: { padding: [16, 16] as [number, number] },
+          boundsOptions: { padding: FIT_PADDING },
         }
       : {
           center: [20, 0] as [number, number],

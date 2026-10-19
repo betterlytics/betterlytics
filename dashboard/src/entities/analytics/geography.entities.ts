@@ -13,20 +13,17 @@ export const GeoVisitorSchema = z.object({
 
 export type GeoVisitor = z.infer<typeof GeoVisitorSchema>;
 
-export const GeoFeatureVisitorSchema = z.object({
-  code: z.string(),
-  visitors: z.preprocess((val) => Number(val), z.number()),
-});
-export type GeoFeatureVisitor = z.infer<typeof GeoFeatureVisitorSchema>;
+export type GeoFeatureVisitor = {
+  code: string;
+  visitors: number;
+};
 
-export const geoMapResponseSchema = z.object({
-  visitorData: z.array(GeoFeatureVisitorSchema),
-  compareData: z.array(GeoFeatureVisitorSchema),
-  maxVisitors: z.number(),
-});
-export type GeoMapResponse = z.infer<typeof geoMapResponseSchema>;
+export type GeoMapResponse = {
+  visitorData: GeoFeatureVisitor[];
+  compareData: GeoFeatureVisitor[];
+  maxVisitors: number;
+};
 
 export type GeoFeatureVisitorWithCompare = GeoFeatureVisitor & {
   compareVisitors?: number;
 };
-

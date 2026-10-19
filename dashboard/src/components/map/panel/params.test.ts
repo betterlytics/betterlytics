@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { parseCountryParam } from './params';
+import { parseCountryParam } from '@/components/map/panel/params';
 
 describe('parseCountryParam', () => {
-  it('accepts two uppercase letters', () => {
+  it('accepts a known two-letter country code', () => {
     expect(parseCountryParam('DK')).toBe('DK');
   });
 
@@ -13,5 +13,6 @@ describe('parseCountryParam', () => {
     expect(parseCountryParam('dk')).toBeUndefined();
     expect(parseCountryParam('DNK')).toBeUndefined();
     expect(parseCountryParam('D1')).toBeUndefined();
+    expect(parseCountryParam('ZZ')).toBeUndefined();
   });
 });

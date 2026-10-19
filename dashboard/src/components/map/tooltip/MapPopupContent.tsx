@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
 import { formatLocalDateTime, LOCALE_STRING_OPTIONS } from '@/utils/dateFormatters';
 import { formatNumber } from '@/utils/formatters';
+import { calculatePercentageChange } from '@/utils/percentageChange';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 
@@ -41,12 +42,7 @@ function MapPopupContentComponent({
   const resolvedCompare = timeRangeCtx.resolvedCompareRange;
   const rangeTooltipOptions = { ...LOCALE_STRING_OPTIONS, timeZone: timeRangeCtx.timeZone };
 
-  const percentageChange =
-    geoVisitor.compareVisitors !== undefined
-      ? geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0
-        ? undefined
-        : ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
-      : undefined;
+  const percentageChange = calculatePercentageChange(geoVisitor.visitors, geoVisitor.compareVisitors);
 
   const Row = ({
     color,

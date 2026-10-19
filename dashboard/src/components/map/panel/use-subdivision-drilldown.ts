@@ -2,16 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useReplaceStateParam } from '@/hooks/use-replace-state-param';
-import { parseCountryParam, SUBDIVISION_COUNTRY_PARAM } from './params';
+import { SUBDIVISION_COUNTRY_PARAM } from '@/constants/subdivisionPanel';
+import { parseCountryParam } from '@/components/map/panel/params';
 
 export type SubdivisionDrilldownController = {
   countryCode: string | undefined;
-  open: (code: string) => void;
   close: () => void;
   toggle: (code: string) => void;
 };
 
-// Local state is the source of truth; the URL only mirrors it
+// Local state leads; the URL mirrors it and only wins on back, forward or a soft navigation
 export function useSubdivisionDrilldown(): SubdivisionDrilldownController {
   const [urlValue, writeUrlValue] = useReplaceStateParam(SUBDIVISION_COUNTRY_PARAM);
   const [countryCode, setCountryCode] = useState(() => parseCountryParam(urlValue));
@@ -20,9 +20,12 @@ export function useSubdivisionDrilldown(): SubdivisionDrilldownController {
     writeUrlValue(countryCode);
   }, [countryCode, writeUrlValue]);
 
-  const open = useCallback((code: string) => setCountryCode(code), []);
+  useEffect(() => {
+    setCountryCode(parseCountryParam(urlValue));
+  }, [urlValue]);
+
   const close = useCallback(() => setCountryCode(undefined), []);
   const toggle = useCallback((code: string) => setCountryCode((prev) => (prev === code ? undefined : code)), []);
 
-  return useMemo(() => ({ countryCode, open, close, toggle }), [countryCode, open, close, toggle]);
+  return useMemo(() => ({ countryCode, close, toggle }), [countryCode, close, toggle]);
 }

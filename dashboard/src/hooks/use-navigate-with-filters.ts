@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { useCallback } from 'react';
 import { useBARouter } from '@/hooks/use-ba-router';
 import { useOptionalDashboardNavigation } from '@/contexts/DashboardNavigationContext';
-import { SUBDIVISION_COUNTRY_PARAM } from '@/components/map/panel/params';
+import { SUBDIVISION_COUNTRY_PARAM } from '@/constants/subdivisionPanel';
 
 // Params that are page-specific and should NOT be persisted across navigations
 const EXCLUDED_PARAMS = ['occurrence', 'tab', SUBDIVISION_COUNTRY_PARAM];

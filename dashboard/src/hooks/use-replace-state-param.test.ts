@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { replaceSearchParam } from './use-replace-state-param';
+import { replaceSearchParam } from '@/hooks/use-replace-state-param';
 
 describe('replaceSearchParam', () => {
   it('adds the key while keeping other params', () => {

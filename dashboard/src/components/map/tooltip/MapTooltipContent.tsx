@@ -4,6 +4,7 @@ import { SupportedLanguages } from '@/constants/i18n';
 import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { cn } from '@/lib/utils';
 import { formatNumber } from '@/utils/formatters';
+import { calculatePercentageChange } from '@/utils/percentageChange';
 import React from 'react';
 
 export type MapTooltipContentProps = {
@@ -29,12 +30,7 @@ function MapTooltipContent({
 }: MapTooltipContentProps) {
   if (!geoVisitor) return null;
 
-  const percentageChange =
-    geoVisitor.compareVisitors !== undefined
-      ? geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0
-        ? undefined
-        : ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
-      : undefined;
+  const percentageChange = calculatePercentageChange(geoVisitor.visitors, geoVisitor.compareVisitors);
 
   return (
     <div

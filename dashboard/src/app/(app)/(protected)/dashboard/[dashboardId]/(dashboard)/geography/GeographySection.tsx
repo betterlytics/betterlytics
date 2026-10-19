@@ -6,7 +6,9 @@ import { MapProvider } from '@/components/map/MapProvider';
 import GeographyToolbar from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/geography/GeographyToolbar';
 import SubdivisionDrilldown from '@/components/map/panel/SubdivisionDrilldown';
 import { useSubdivisionDrilldown } from '@/components/map/panel/use-subdivision-drilldown';
-import { hideAntarcticaWhenEmpty } from '@/components/map/types';
+import { hideAntarcticaWhenEmpty } from '@/components/map/feature-filters';
+import { useLgViewport } from '@/hooks/use-lg-viewport';
+import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
@@ -17,7 +19,11 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
   const { input, options } = useBAQueryParams();
   const query = trpc.geography.worldMap.useQuery(input, options);
   const drilldown = useSubdivisionDrilldown();
+  const isLgViewport = useLgViewport();
   const t = useTranslations('components.geography');
+  const panelAvailable = subdivisionsEnabled && isLgViewport;
+  // The panel docks bottom-right
+  const cornerClass = panelAvailable ? 'absolute bottom-4 left-4' : 'absolute right-4 bottom-4';
 
   return (
     <MapProvider>
@@ -30,27 +36,25 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
                 {...mapData}
                 size='lg'
                 shouldHideFeature={hideAntarcticaWhenEmpty}
-                onFeatureClick={subdivisionsEnabled ? drilldown.toggle : undefined}
-                onBackgroundClick={subdivisionsEnabled ? drilldown.close : undefined}
-                selectedFeatureId={subdivisionsEnabled ? (drilldown.countryCode ?? null) : undefined}
+                onFeatureClick={panelAvailable ? drilldown.toggle : undefined}
+                onBackgroundClick={panelAvailable ? drilldown.close : undefined}
+                selectedFeatureId={panelAvailable ? (drilldown.countryCode ?? null) : undefined}
               >
-                {/* The subdivision panel docks bottom-right from lg */}
-                <MapLegend
-                  maxVisitors={mapData.maxVisitors}
-                  className='absolute right-4 bottom-4 lg:right-auto lg:left-4'
-                />
+                {mapData.visitorData.length > 0 && (
+                  <MapLegend maxVisitors={mapData.maxVisitors} className={cornerClass} />
+                )}
               </LeafletMap>
             </div>
 
             {mapData.visitorData.length === 0 && (
-              <div className='absolute right-4 bottom-4 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
+              <div className={cn(cornerClass, 'rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md')}>
                 <p className='text-sm text-amber-700'>{t('noData')}</p>
               </div>
             )}
           </>
         )}
       </QuerySection>
-      {subdivisionsEnabled && <SubdivisionDrilldown drilldown={drilldown} />}
+      {panelAvailable && <SubdivisionDrilldown drilldown={drilldown} />}
     </MapProvider>
   );
 }

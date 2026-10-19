@@ -9,7 +9,7 @@ import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useProgressTableFilterClick } from '@/hooks/use-progress-table-filter-click';
 import { type GeoLevel } from '@/entities/analytics/geography.entities';
-import { hideAntarcticaWhenEmpty } from '@/components/map/types';
+import { hideAntarcticaWhenEmpty } from '@/components/map/feature-filters';
 import type { SupportedLanguages } from '@/constants/i18n';
 import dynamic from 'next/dynamic';
 import { useBAQueryParams } from '@/trpc/hooks';

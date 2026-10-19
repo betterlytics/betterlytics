@@ -1,8 +1,7 @@
 'use client';
 
-import SubdivisionPanel from './SubdivisionPanel';
-import { SubdivisionPanelContext } from './use-subdivision-panel';
-import type { SubdivisionDrilldownController } from './use-subdivision-drilldown';
+import SubdivisionPanel from '@/components/map/panel/SubdivisionPanel';
+import type { SubdivisionDrilldownController } from '@/components/map/panel/use-subdivision-drilldown';
 import { useMapInstance } from '@/components/map/MapProvider';
 import { useEffect, useState } from 'react';
 
@@ -16,9 +15,5 @@ export default function SubdivisionDrilldown({ drilldown }: { drilldown: Subdivi
 
   if (!mapReady) return null;
 
-  return (
-    <SubdivisionPanelContext.Provider value={drilldown}>
-      <SubdivisionPanel />
-    </SubdivisionPanelContext.Provider>
-  );
+  return <SubdivisionPanel drilldown={drilldown} />;
 }

@@ -7,7 +7,7 @@ import {
   fetchSubdivisionVisitorsForCountry,
 } from '@/services/analytics/geography.service';
 import { getQueryableGeoLevels } from '@/lib/geoLevels';
-import { CountryCodeFormat, dataToWorldMap, subdivisionsToGeoMap } from '@/presenters/toWorldMap';
+import { CountryCodeFormat, dataToWorldMap, subdivisionsToGeoMap } from '@/presenters/toGeoMap';
 import { toDataTable } from '@/presenters/toDataTable';
 
 const GEO_VISITS_LIMIT = 10;

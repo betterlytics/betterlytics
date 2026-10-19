@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createGammaScale } from './use-color-scale';
+import { createGammaScale } from '@/hooks/use-color-scale';
 
 const LOW = '#aaccff';
 const HIGH = '#1133aa';

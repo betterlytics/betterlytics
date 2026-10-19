@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createRegionDisplayResolver } from './regionDisplay';
-import { getSubdivisionName } from './subdivisionCodes';
+import { createRegionDisplayResolver } from '@/utils/regionDisplay';
+import { getSubdivisionName } from '@/utils/subdivisionCodes';
 import type { RegionGeoJson } from '@/components/map/types';
 
 const geoJson: RegionGeoJson = {

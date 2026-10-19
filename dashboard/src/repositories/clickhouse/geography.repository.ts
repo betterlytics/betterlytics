@@ -3,6 +3,7 @@ import { GeoVisitor, GeoVisitorSchema } from '@/entities/analytics/geography.ent
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import type { QueryFilter } from '@/entities/analytics/filter.entities';
 import { BASessionQuery } from '@/lib/ba-session-query';
 import { BAHourlyQuery } from '@/lib/ba-hourly-query';
 
@@ -65,13 +66,17 @@ export async function getVisitorsByCountry(siteQuery: BASiteQuery, limit: number
 export async function getVisitorsBySubdivision(
   siteQuery: BASiteQuery,
   limit: number = 1000,
+  countryCode?: string,
 ): Promise<GeoVisitor[]> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+  const countryFilters: QueryFilter[] = countryCode
+    ? [{ id: 'subdivision-country', column: 'country_code', operator: '=', values: [countryCode] }]
+    : [];
 
   if (!BAHourlyQuery.canUseGeoHourlyMV(siteQuery)) {
     const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
       ['subdivision_code', 'country_code', 'visitor_id'],
-      queryFilters,
+      [...queryFilters, ...countryFilters],
       siteId,
       startDateTime,
       endDateTime,
@@ -102,12 +107,14 @@ export async function getVisitorsBySubdivision(
   }
 
   const filters = BAHourlyQuery.getGeoHourlyFilters(queryFilters);
+  const countryClause = countryCode ? safeSql`AND country_code = ${SQL.String({ countryCode })}` : safeSql``;
   const query = safeSql`
     SELECT subdivision_code AS code, country_code, uniqMerge(visitors) as visitors
     FROM analytics.geo_hourly
     WHERE site_id = ${SQL.String({ siteId })}
       AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
       AND subdivision_code != ''
+      ${countryClause}
       AND ${SQL.AND(filters)}
     GROUP BY code, country_code
     ORDER BY visitors DESC
@@ -117,71 +124,6 @@ export async function getVisitorsBySubdivision(
   const result = (await clickhouse
     .query(query.taggedSql, {
       params: { ...query.taggedParams, limit },
-    })
-    .toPromise()) as any[];
-
-  return result.map((row) =>
-    GeoVisitorSchema.parse({
-      country_code: row.country_code,
-      subdivision_code: row.code,
-      visitors: Number(row.visitors),
-    }),
-  );
-}
-
-export async function getVisitorsBySubdivisionForCountry(
-  siteQuery: BASiteQuery,
-  countryCode: string,
-): Promise<GeoVisitor[]> {
-  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
-
-  if (!BAHourlyQuery.canUseGeoHourlyMV(siteQuery)) {
-    const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
-      ['subdivision_code', 'country_code', 'visitor_id'],
-      queryFilters,
-      siteId,
-      startDateTime,
-      endDateTime,
-    );
-
-    const query = safeSql`
-      SELECT subdivision_code AS code, country_code, uniq(visitor_id) as visitors
-      FROM ${sessionSubQuery}
-      WHERE country_code = ${SQL.String({ countryCode })}
-      GROUP BY code, country_code
-      ORDER BY visitors DESC
-    `;
-
-    const result = (await clickhouse
-      .query(query.taggedSql, {
-        params: { ...query.taggedParams },
-      })
-      .toPromise()) as any[];
-
-    return result.map((row) =>
-      GeoVisitorSchema.parse({
-        country_code: row.country_code,
-        subdivision_code: row.code,
-        visitors: Number(row.visitors),
-      }),
-    );
-  }
-
-  const filters = BAHourlyQuery.getGeoHourlyFilters(queryFilters);
-  const query = safeSql`
-    SELECT subdivision_code AS code, country_code, uniqMerge(visitors) as visitors
-    FROM analytics.geo_hourly
-    WHERE site_id = ${SQL.String({ siteId })}
-      AND hour BETWEEN ${SQL.DateTime({ startDate: startDateTime })} AND ${SQL.DateTime({ endDate: endDateTime })}
-      AND country_code = ${SQL.String({ countryCode })}
-      AND ${SQL.AND(filters)}
-    GROUP BY code, country_code
-    ORDER BY visitors DESC
-  `;
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: { ...query.taggedParams },
     })
     .toPromise()) as any[];
 

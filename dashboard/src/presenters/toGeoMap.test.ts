@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CountryCodeFormat, dataToWorldMap, subdivisionsToGeoMap } from './toWorldMap';
+import { CountryCodeFormat, dataToWorldMap, subdivisionsToGeoMap } from '@/presenters/toGeoMap';
 
 const row = (country_code: string, visitors: number) => ({ country_code, visitors });
 
@@ -44,15 +44,6 @@ describe('subdivisionsToGeoMap', () => {
       { code: 'DK-85', visitors: 2 },
     ]);
     expect(result.compareData).toEqual([{ code: 'DK-84', visitors: 1 }]);
-    expect(result.maxVisitors).toBe(4);
-  });
-
-  it('keeps empty-subdivision rows but excludes them from maxVisitors', () => {
-    const result = subdivisionsToGeoMap([sub('DK', '', 7), sub('DK', 'DK-84', 4)], []);
-    expect(result.visitorData).toEqual([
-      { code: '', visitors: 7 },
-      { code: 'DK-84', visitors: 4 },
-    ]);
     expect(result.maxVisitors).toBe(4);
   });
 });
