@@ -1,5 +1,7 @@
 'use client';
 
+import { largestRingCenter } from '@/components/map/feature-anchor';
+import { planConvergence } from '@/components/map/selection-convergence';
 import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { MapStyle } from '@/hooks/use-leaflet-style';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -22,7 +24,7 @@ type MapSelectionSetterContextType = {
   markLayersReady: () => void;
 };
 
-type MapSelectionProps = { children: React.ReactNode; style: MapStyle; selectedFeatureId?: string };
+type MapSelectionProps = { children: React.ReactNode; style: MapStyle; selectedFeatureId?: string | null };
 type MapFeatureSelection = {
   hovered: MapFeatureVisitor | undefined;
   clicked: MapFeatureVisitor | undefined;
@@ -125,20 +127,18 @@ export function MapSelectionContextProvider({ children, style, selectedFeatureId
     [style, isMobile],
   );
 
-  // Converges the map selection on the owner's selected feature
   useEffect(() => {
     const clicked = combined.clicked;
-    if (selectedFeatureId === undefined) {
-      if (clicked) setMapSelection(null);
-      return;
-    }
-    const entry = featuresRef.current.get(selectedFeatureId);
-    if (!entry) return;
-    if (clicked?.layer !== entry.layer) {
+    const entry = typeof selectedFeatureId === 'string' ? featuresRef.current.get(selectedFeatureId) : undefined;
+    const step = planConvergence(selectedFeatureId, clicked?.layer, entry?.layer);
+    if (step === 'clear') setMapSelection(null);
+    if (step === 'select' && entry) {
       if (clicked) setMapSelection(null);
       setMapSelection({ clicked: entry });
     }
-    if (!entry.layer.isPopupOpen()) entry.layer.openPopup();
+    if (entry && step !== 'ignore' && !entry.layer.isPopupOpen()) {
+      entry.layer.openPopup(largestRingCenter(entry.layer));
+    }
   }, [selectedFeatureId, layersVersion, combined.clicked, setMapSelection]);
 
   const stateValue = React.useMemo(

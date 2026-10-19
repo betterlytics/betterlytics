@@ -30,7 +30,8 @@ type LeafletMapProps = GeoMapResponse & {
   resolveDisplay?: FeatureDisplayResolver;
   shouldHideFeature?: (featureId: string) => boolean;
   onFeatureClick?: (featureId: string) => void;
-  selectedFeatureId?: string;
+  onBackgroundClick?: () => void;
+  selectedFeatureId?: string | null;
   fitBounds?: boolean;
 };
 
@@ -46,6 +47,7 @@ export default function LeafletMap({
   resolveDisplay: resolveDisplayProp,
   shouldHideFeature,
   onFeatureClick,
+  onBackgroundClick,
   selectedFeatureId,
   fitBounds = false,
 }: LeafletMapProps) {
@@ -153,7 +155,7 @@ export default function LeafletMap({
             zoomSnap={0.1}
             attributionControl={false}
           >
-            <MapBackgroundLayer Polygon={Polygon} />
+            <MapBackgroundLayer Polygon={Polygon} onClick={onBackgroundClick} />
             <MapCountryGeoJSON
               GeoJSON={GeoJSON}
               geoData={geoJson}

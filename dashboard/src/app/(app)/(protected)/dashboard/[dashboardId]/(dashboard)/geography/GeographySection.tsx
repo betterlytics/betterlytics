@@ -31,7 +31,8 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
                 size='lg'
                 shouldHideFeature={hideAntarcticaWhenEmpty}
                 onFeatureClick={subdivisionsEnabled ? drilldown.toggle : undefined}
-                selectedFeatureId={subdivisionsEnabled ? drilldown.countryCode : undefined}
+                onBackgroundClick={subdivisionsEnabled ? drilldown.close : undefined}
+                selectedFeatureId={subdivisionsEnabled ? (drilldown.countryCode ?? null) : undefined}
               >
                 {/* The subdivision panel docks bottom-right from lg */}
                 <MapLegend
