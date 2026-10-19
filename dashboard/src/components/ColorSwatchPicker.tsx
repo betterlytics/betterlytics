@@ -4,10 +4,11 @@ import { Label } from '@/components/ui/label';
 
 type ColorSwatchPickerProps<T extends string> = {
   options: ReadonlyArray<{ value: T; hex: string }>;
-  value: T;
+  value: T | null;
   onChange: (value: T) => void;
   label?: string;
   ariaLabelForValue?: (value: T) => string;
+  leading?: React.ReactNode;
   children?: React.ReactNode;
 };
 
@@ -17,12 +18,14 @@ export function ColorSwatchPicker<T extends string>({
   onChange,
   label,
   ariaLabelForValue,
+  leading,
   children,
 }: ColorSwatchPickerProps<T>) {
   return (
     <div className='grid gap-2'>
       {label ? <Label className='text-sm font-medium'>{label}</Label> : null}
       <div className='flex flex-wrap items-center gap-2'>
+        {leading}
         {options.map((option) => (
           <button
             key={option.value}
