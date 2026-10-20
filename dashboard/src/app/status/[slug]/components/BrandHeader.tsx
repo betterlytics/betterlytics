@@ -10,8 +10,9 @@ type BrandHeaderProps = {
   tall: boolean;
 };
 
-/** Brand band at the top of the page. Always the owner's accent color — incident
-    state never bleeds into it, so the logo is never stranded on a warning color. */
+/** Brand band at the top of the page. The owner's header color, or the page background
+    when it is transparent (no --sp-accent); incident state never bleeds into it, so the
+    logo is never stranded on a warning color. */
 export function BrandHeader({ name, logoUrl, homepageUrl, tall }: BrandHeaderProps) {
   const brand = logoUrl ? (
     // eslint-disable-next-line @next/next/no-img-element -- served from our image route, or a client-side blob preview in the editor; already a small resized WebP, so next/image adds nothing
@@ -25,7 +26,12 @@ export function BrandHeader({ name, logoUrl, homepageUrl, tall }: BrandHeaderPro
   );
 
   return (
-    <header style={{ backgroundColor: 'var(--sp-accent)', color: 'var(--sp-accent-foreground)' }}>
+    <header
+      style={{
+        backgroundColor: 'var(--sp-accent, var(--sp-page-bg))',
+        color: 'var(--sp-accent-foreground, var(--sp-heading))',
+      }}
+    >
       <div
         className={cn(
           'mx-auto flex w-full max-w-3xl items-center px-4 pt-7 @min-[640px]:px-8',

@@ -139,7 +139,8 @@ export const StatusPageCreateSchema = z.object({
   // Publish-at-create rides the single insert, so create+publish can never half-fail.
   isPublished: z.boolean().default(false),
   theme: StatusPageThemeSchema.default('system'),
-  accentColor: StatusPageAccentColorSchema.default(STATUS_PAGE_DEFAULT_ACCENT_COLOR),
+  // null = transparent header that shows the page background.
+  accentColor: StatusPageAccentColorSchema.nullable().default(STATUS_PAGE_DEFAULT_ACCENT_COLOR),
   showPastIncidents: z.boolean().default(true),
   hideBranding: z.boolean().default(false),
   visibility: StatusPageVisibilitySchema.default('public'),
@@ -170,7 +171,7 @@ export const StatusPageSchema = z.object({
   homepageUrl: z.string().nullable(),
   customDomain: z.string().nullable(),
   theme: StatusPageThemeSchema,
-  accentColor: z.string(),
+  accentColor: z.string().nullable(),
   logoUrl: z.string().nullable(),
   faviconUrl: z.string().nullable(),
   showPastIncidents: z.boolean(),

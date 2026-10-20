@@ -44,10 +44,12 @@ export function StatusPageView({ data }: { data: PublicStatusPageData }) {
       data-sp-theme={data.theme}
       className='bl-status-page @container isolate min-h-screen bg-[var(--sp-page-bg)] font-sans antialiased'
       style={
-        {
-          '--sp-accent': data.accentColor,
-          '--sp-accent-foreground': accentForeground(data.accentColor),
-        } as CSSProperties
+        data.accentColor
+          ? ({
+              '--sp-accent': data.accentColor,
+              '--sp-accent-foreground': accentForeground(data.accentColor),
+            } as CSSProperties)
+          : undefined
       }
     >
       <BrandHeader

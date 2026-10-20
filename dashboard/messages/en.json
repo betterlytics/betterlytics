@@ -4255,7 +4255,9 @@
       "removeImage": "Remove",
       "imageTooLarge": "That image is too large. Please choose a smaller file.",
       "svgUnsafe": "That SVG contains unsupported or unsafe content. Try a plain vector export.",
-      "accentColor": "Accent color",
+      "accentColor": "Header color",
+      "accentColorTransparent": "Transparent",
+      "accentColorTransparentAria": "Transparent header that matches the page background",
       "theme": "Theme",
       "themes": {
         "light": "Light",

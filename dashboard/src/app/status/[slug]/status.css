@@ -10,7 +10,8 @@
  * (Baseline 2024); the owner's theme just sets color-scheme, with `system`
  * (`light dark`) resolved by the visitor's OS preference.
  *
- * --sp-accent and --sp-accent-foreground are injected inline per page.
+ * --sp-accent and --sp-accent-foreground are injected inline per page, and left
+ * unset when the header is transparent, so their readers carry a neutral fallback.
  */
 
 .bl-status-page {
@@ -38,10 +39,11 @@
   --sp-info-text: light-dark(#0284c7, #7dd3fc);
   --sp-neutral: light-dark(#e5e7eb, #24282d);
   /* Card elevation is split in two so the shadow ON THE BRAND BAND stays identical
-     across themes (the band color is theme-independent — injected per page, not
-     light-dark). --sp-card-shadow is the normal drop shadow, biased downward (offset
-     >= blur + |spread|) so it lifts the card off the page bg WITHOUT haloing up onto the
-     band; only its alpha changes per theme, to match each page background. */
+     across themes (a colored band is theme-independent, injected per page rather than
+     light-dark; a transparent band is just the page bg). --sp-card-shadow is the normal
+     drop shadow, biased downward (offset >= blur + |spread|) so it lifts the card off
+     the page bg WITHOUT haloing up onto the band; only its alpha changes per theme, to
+     match each page background. */
   --sp-card-shadow: 0 10px 14px -6px rgba(0, 0, 0, 0.09);
   /* --sp-card-cast owns everything that touches the brand: a multiply ::before, so it
      darkens the band's actual color instead of greying it. Multiply against the same
@@ -76,14 +78,15 @@
 }
 
 /* Brief highlight when an incident's affected-monitor chip scrolls to its uptime
-   row, so the eye lands on the right monitor. Tinted with the page's brand accent. */
+   row, so the eye lands on the right monitor. Tinted with the page's brand accent,
+   or a neutral grey when the header is transparent. */
 .bl-status-page .bl-monitor-flash {
   animation: blMonitorFlash 1.5s ease-out;
 }
 @keyframes blMonitorFlash {
   0%,
   12% {
-    background-color: color-mix(in srgb, var(--sp-accent) 20%, transparent);
+    background-color: color-mix(in srgb, var(--sp-accent, var(--sp-muted)) 20%, transparent);
   }
   100% {
     background-color: transparent;

@@ -18,7 +18,7 @@ export type StatusPageFormInitial = {
   name: string;
   slug: string;
   theme: StatusPageTheme;
-  accentColor: string;
+  accentColor: string | null;
   showPastIncidents: boolean;
   hideBranding?: boolean;
   visibility: StatusPageVisibility;
@@ -33,7 +33,7 @@ export type StatusPageFormValues = {
   name: string;
   slug: string;
   theme: StatusPageTheme;
-  accentColor: string;
+  accentColor: string | null;
   showPastIncidents: boolean;
   hideBranding: boolean;
   visibility: StatusPageVisibility;

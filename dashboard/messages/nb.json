@@ -4254,7 +4254,9 @@
       "removeImage": "Fjern",
       "imageTooLarge": "Bildet er for stort. Velg en mindre fil.",
       "svgUnsafe": "SVG-en inneholder innhold som ikke støttes eller er utrygt. Prøv en enkel vektoreksport.",
-      "accentColor": "Aksentfarge",
+      "accentColor": "Headerfarge",
+      "accentColorTransparent": "Gjennomsiktig",
+      "accentColorTransparentAria": "Gjennomsiktig header som matcher sidens bakgrunn",
       "theme": "Tema",
       "themes": {
         "light": "Lys",
