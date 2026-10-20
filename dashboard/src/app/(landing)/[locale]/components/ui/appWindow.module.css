@@ -32,9 +32,6 @@
     border-bottom: 1px solid var(--color-rule-10);
     background: --alpha(var(--color-fg) / 2%);
   }
-  .window[data-bare]::before {
-    display: none;
-  }
   /* the hero's light spilling onto the title bar */
   .window::after {
     content: '';

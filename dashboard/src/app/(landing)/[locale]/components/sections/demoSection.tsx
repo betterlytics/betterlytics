@@ -11,12 +11,13 @@ import { IDS } from '@/landing/lib/ids';
 import { DemoFrame } from './demoFrame';
 
 const URL_HOST = 'betterlytics.io';
-const URL_PATH = '/demo';
 
-export async function DemoSection() {
+type DemoSectionProps = { href?: string; src?: string; className?: string };
+
+export async function DemoSection({ href = '/demo', src, className }: DemoSectionProps) {
   if (!env.DEMO_DASHBOARD_ID) return null;
   const [locale, t] = await Promise.all([getLocale(), getTranslations('landing.demo')]);
-  const src = getPathname({ href: `/share/${env.DEMO_DASHBOARD_ID}`, locale });
+  const frameSrc = getPathname({ href: src ?? `/share/${env.DEMO_DASHBOARD_ID}`, locale });
 
   return (
     // hidden on phones (too cramped, costly to load); the nav's Demo link covers them
@@ -25,6 +26,7 @@ export async function DemoSection() {
       className={cn(
         'z-2 flow-root px-[calc(var(--inset)+8px)] pt-0 max-sm:hidden',
         CUSTOMERS.length > 0 && 'pb-2 max-lg:pb-2',
+        className,
       )}
     >
       {/* pull up the window, not the section: a section margin would drag the wall's top rule up */}
@@ -36,20 +38,20 @@ export async function DemoSection() {
               WINDOW_BAR,
               'transition-colors duration-180 ease-out-expo hover:border-rule-22 hover:text-fg',
             )}
-            href='/demo'
+            href={href}
             target='_blank'
             rel='noopener'
             placement='demo'
             destination='demo'
           >
             {URL_HOST}
-            <span className='text-fg opacity-86'>{URL_PATH}</span>
+            <span className='text-fg opacity-86'>{href}</span>
             <ArrowUpRight className='ml-1.5 inline size-3 align-[-1px]' aria-hidden />
             <span className='sr-only'> {t('newTab')}</span>
           </TrackedLink>
         }
       >
-        <DemoFrame src={src} />
+        <DemoFrame src={frameSrc} href={href} />
       </AppWindow>
     </Section>
   );

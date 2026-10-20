@@ -7,7 +7,6 @@ import { BrandMarkDefs } from '@/landing/components/ui/brandMark';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 
-/** The marketing page frame: nav, the hero above the hatched band, the sections inside it, and what follows it. */
 export function PageShell({ hero, children, after }: { hero: ReactNode; children: ReactNode; after?: ReactNode }) {
   const t = useTranslations('landing.nav');
   return (

@@ -13,7 +13,6 @@ const REROLL = 55;
 
 const roll = () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
 
-/** `align='end'` pads on the left and sweeps from the right, for text set against a right edge. */
 export function Scramble({
   text,
   delay = 0,

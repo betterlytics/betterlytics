@@ -2,7 +2,9 @@ import type { ReactNode } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Panel, Section } from '@/landing/components/ui/frame';
+import ruled from '@/landing/components/ui/ruledGrid.module.css';
 import { SpotlightList } from '@/landing/components/ui/spotlightList';
+import { cn } from '@/landing/lib/cn';
 import styles from './relatedSection.module.css';
 
 export type RelatedItem = {
@@ -13,13 +15,12 @@ export type RelatedItem = {
 
 const RELATED_ID = 'related';
 
-/** Siblings of the feature, keyed under `landing.feature.relatedItems`. */
-export function RelatedSection({ items }: { items: RelatedItem[] }) {
+export function RelatedSection({ items, lede }: { items: RelatedItem[]; lede: string }) {
   const t = useTranslations('landing.feature');
   return (
-    <Section id={RELATED_ID} title={t('related.title')} lede={t('related.lede')}>
+    <Section id={RELATED_ID} title={t('related.title')} lede={lede}>
       <Panel flush>
-        <SpotlightList className='grid grid-cols-4 max-xl:grid-cols-2 max-sm:-mx-(--pad) max-sm:grid-cols-1'>
+        <SpotlightList className={cn(ruled.grid, ruled.cols4)}>
           {items.map((item) => (
             <li key={item.key} className={styles.card}>
               <a

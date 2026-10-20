@@ -8,7 +8,6 @@
   .item:last-child {
     border-bottom: 0;
   }
-  /* browsers without ::details-content just snap open */
   .item::details-content {
     block-size: 0;
     overflow: clip;
@@ -47,7 +46,6 @@
     outline-offset: -2px;
   }
 
-  /* a plus whose vertical bar folds away when open */
   .toggle {
     position: relative;
     width: 26px;

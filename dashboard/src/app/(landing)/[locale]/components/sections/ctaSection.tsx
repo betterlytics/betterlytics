@@ -8,7 +8,6 @@ import { LINKS } from '@/landing/lib/links';
 
 type CtaCopy = { title: string; lede: string; primary: string; secondary: string; secondaryHref?: string };
 
-/** Defaults to the home page's copy; feature pages pass their own. */
 export function CtaSection({ copy }: { copy?: CtaCopy }) {
   const t = useTranslations('landing.cta');
   const { title, lede, primary, secondary, secondaryHref } = copy ?? {
