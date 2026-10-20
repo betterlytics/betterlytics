@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
+import { JsonLd } from '@/components/JsonLd';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { getPathname } from '@/i18n/navigation';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { env } from '@/lib/env';
 import { generateSEO } from '@/lib/seo';
@@ -27,6 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       socialTitle: t('hero.title'),
       socialDescription: t('hero.lede'),
       structuredDataType: 'webpage',
+      image: { url: '/og_uptime_monitoring.jpg', alt: t('seo.imageAlt') },
     },
     { locale },
   );
@@ -47,16 +50,23 @@ export default async function UptimeMonitoringPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: tFeature('features'), item: `${env.PUBLIC_BASE_URL}/features` },
-      { '@type': 'ListItem', position: 2, name: t('hero.eyebrow'), item: `${env.PUBLIC_BASE_URL}${PATH}` },
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: tFeature('features'),
+        item: `${env.PUBLIC_BASE_URL}${getPathname({ href: '/features', locale })}`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: t('hero.eyebrow'),
+        item: `${env.PUBLIC_BASE_URL}${getPathname({ href: PATH, locale })}`,
+      },
     ],
   };
   return (
     <NextIntlClientProvider messages={landingClientMessages(messages, { uptime: messages.landing.uptime })}>
-      <script
-        type='application/ld+json'
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs).replace(/</g, '\\u003c') }}
-      />
+      <JsonLd data={breadcrumbs} />
       <UptimePage />
     </NextIntlClientProvider>
   );
