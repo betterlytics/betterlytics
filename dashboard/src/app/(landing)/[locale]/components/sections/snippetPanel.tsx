@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useId, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { SCRAMBLE_STEP, Scramble } from '@/landing/components/ui/scramble';
-import { SNIPPETS } from '@/landing/content/snippets';
+import { SNIPPETS, type Snippet } from '@/landing/content/snippets';
 import { cn } from '@/landing/lib/cn';
 import { rovingTabKeys } from '@/landing/lib/rovingTabs';
 import styles from './snippetPanel.module.css';
@@ -47,7 +47,7 @@ function Lines({ code }: { code: string }) {
   );
 }
 
-type FootPart = { text: string; ink?: boolean };
+export type FootPart = { text: string; ink?: boolean };
 
 /** The package injects the same script tag, so every tab makes this request. */
 const REQUEST: readonly FootPart[] = [
@@ -92,11 +92,13 @@ function BoxIcon() {
 }
 
 /** Frame chrome matches AgentTranscript's. */
-export function SnippetPanel() {
+type SnippetPanelProps = { snippets?: readonly Snippet[]; label?: string; foot?: readonly FootPart[] };
+
+export function SnippetPanel({ snippets = SNIPPETS, label, foot = REQUEST }: SnippetPanelProps) {
   const t = useTranslations('landing.network');
   const id = useId();
   const [active, setActive] = useState(0);
-  const current = SNIPPETS[active];
+  const current = snippets[active];
   const tabId = (index: number) => `${id}-tab-${index}`;
   const panelId = (index: number) => `${id}-panel-${index}`;
 
@@ -111,11 +113,11 @@ export function SnippetPanel() {
       >
         <div
           role='tablist'
-          aria-label={t('snippetLabel')}
+          aria-label={label ?? t('snippetLabel')}
           className='flex gap-0.5'
-          onKeyDown={rovingTabKeys(active, SNIPPETS.length, setActive)}
+          onKeyDown={rovingTabKeys(active, snippets.length, setActive)}
         >
-          {SNIPPETS.map((snippet, i) => (
+          {snippets.map((snippet, i) => (
             <button
               key={snippet.id}
               type='button'
@@ -141,7 +143,7 @@ export function SnippetPanel() {
                   height={13}
                 />
               ) : (
-                <BoxIcon />
+                (snippet.glyph ?? <BoxIcon />)
               )}
               {snippet.name ?? t('packageTab')}
             </button>
@@ -156,7 +158,7 @@ export function SnippetPanel() {
       </div>
       {/* all snippets share one grid cell so the frame keeps the tallest's height across tabs */}
       <pre className='grid min-h-[260px] flex-1 content-start overflow-x-auto px-[22px] pt-5 pb-6 font-mono text-code leading-[1.75] whitespace-pre text-fg/72'>
-        {SNIPPETS.map((snippet, i) => (
+        {snippets.map((snippet, i) => (
           <code
             key={snippet.id}
             role='tabpanel'
@@ -174,7 +176,7 @@ export function SnippetPanel() {
         aria-hidden
         data-nosnippet
       >
-        <FootParts parts={REQUEST} />
+        <FootParts parts={foot} />
       </div>
     </div>
   );
