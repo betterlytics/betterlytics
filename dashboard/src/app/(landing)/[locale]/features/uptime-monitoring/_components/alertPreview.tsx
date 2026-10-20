@@ -21,7 +21,6 @@ import styles from './alertPreview.module.css';
 
 const SENT = [ALERTS.down, ALERTS.up];
 
-/* The down email (services/email/template/monitor-down-mail.tsx), also English-only in the product. */
 const EMAIL_ROWS = [
   ['URL', SITE],
   ['Time', '2026-10-18 10:14:07 UTC'],

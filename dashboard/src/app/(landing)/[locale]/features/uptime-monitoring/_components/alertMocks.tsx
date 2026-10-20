@@ -7,7 +7,6 @@ import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './alertMocks.module.css';
 
-/* What the backend sends (notifications/integrations/{slack,webhook}.rs, monitor/service.rs), left literal. */
 export const SITE = 'https://checkout.acme.com';
 export const MONITOR_URL = 'https://betterlytics.io/dashboard/…/monitoring/…';
 export const URL_TITLE = 'View Monitor';
