@@ -1433,8 +1433,7 @@
     "uptime": {
       "seo": {
         "title": "Uptime monitoring, SSL alerts & status pages | Betterlytics",
-        "description": "Uptime monitoring with alerts in Slack, Discord, Teams or email, SSL expiry warnings and a status page, in the dashboard with your analytics. Free plan.",
-        "imageAlt": "“Know when your site goes down, and what it cost you” above a Betterlytics status page"
+        "description": "Uptime monitoring with alerts in Slack, Discord, Teams or email, SSL expiry warnings and a status page, in the dashboard with your analytics. Free plan."
       },
       "hero": {
         "eyebrow": "Uptime monitoring",

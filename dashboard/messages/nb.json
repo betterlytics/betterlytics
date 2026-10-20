@@ -1433,8 +1433,7 @@
     "uptime": {
       "seo": {
         "title": "Oppetidsovervåking, SSL-varsler og statusside | Betterlytics",
-        "description": "Oppetidsovervåking med varsler i Slack, Discord, Teams eller på e-post, SSL-varsler før utløp og en statusside, i samme dashboard som analysen din. Gratisplan.",
-        "imageAlt": "«Know when your site goes down, and what it cost you» over en statusside fra Betterlytics"
+        "description": "Oppetidsovervåking med varsler i Slack, Discord, Teams eller på e-post, SSL-varsler før utløp og en statusside, i samme dashboard som analysen din. Gratisplan."
       },
       "hero": {
         "eyebrow": "Oppetidsovervåking",

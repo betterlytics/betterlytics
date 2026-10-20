@@ -29,7 +29,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       socialTitle: t('hero.title'),
       socialDescription: t('hero.lede'),
       structuredDataType: 'webpage',
-      image: { url: '/og_uptime_monitoring.jpg', alt: t('seo.imageAlt') },
     },
     { locale },
   );

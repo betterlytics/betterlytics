@@ -1433,8 +1433,7 @@
     "uptime": {
       "seo": {
         "title": "Monitoraggio uptime, SSL e pagine di stato | Betterlytics",
-        "description": "Monitoraggio uptime con avvisi su Slack, Discord, Teams o email, controllo SSL e una pagina di stato, accanto alle tue analytics. Piano gratuito.",
-        "imageAlt": "“Know when your site goes down, and what it cost you” sopra una pagina di stato Betterlytics"
+        "description": "Monitoraggio uptime con avvisi su Slack, Discord, Teams o email, controllo SSL e una pagina di stato, accanto alle tue analytics. Piano gratuito."
       },
       "hero": {
         "eyebrow": "Monitoraggio uptime",

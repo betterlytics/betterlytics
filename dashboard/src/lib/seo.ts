@@ -13,7 +13,6 @@ export interface SEOConfig {
   socialTitle?: string;
   socialDescription?: string;
   structuredDataType: 'organization' | 'website' | 'webpage' | 'contact';
-  image?: { url: string; alt: string };
 }
 
 /** The image repeats the landing hero's headline, as `public.shareImage.alt` does; redo both when it changes. */
@@ -24,14 +23,7 @@ const DEFAULT_IMAGE = {
 };
 
 export async function generateSEO(
-  {
-    title,
-    description,
-    path,
-    socialTitle = title,
-    socialDescription = description,
-    image: customImage,
-  }: SEOConfig,
+  { title, description, path, socialTitle = title, socialDescription = description }: SEOConfig,
   options?: { locale?: string; robots?: Metadata['robots'] },
 ): Promise<Metadata> {
   const defaultLocale = routing.defaultLocale;
@@ -40,7 +32,7 @@ export async function generateSEO(
     locale: hasLocale(routing.locales, currentLocale) ? currentLocale : defaultLocale,
     namespace: 'public.shareImage',
   });
-  const image = customImage ? { ...DEFAULT_IMAGE, ...customImage } : { ...DEFAULT_IMAGE, alt: t('alt') };
+  const image = { ...DEFAULT_IMAGE, alt: t('alt') };
   const BASE_URL = env.PUBLIC_BASE_URL;
   const localizedPath =
     currentLocale === defaultLocale ? path : path === '/' ? `/${currentLocale}` : `/${currentLocale}${path}`;
