@@ -1,0 +1,172 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .story {
+    display: grid;
+    grid-template-areas:
+      'panel'
+      'steps';
+  }
+
+  .panel {
+    grid-area: panel;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .caption {
+    padding: 14px 18px;
+    font-size: var(--text-label);
+    line-height: 21px;
+    color: var(--color-muted);
+    border-bottom: 1px solid var(--color-rule-08);
+    @variant lg {
+      @apply sr-only;
+    }
+    @variant max-sm {
+      padding-inline: var(--pad);
+    }
+  }
+  .caption b {
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .stage {
+    min-height: 440px;
+    @variant max-sm {
+      min-height: 420px;
+    }
+  }
+
+  .steps {
+    grid-area: steps;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    border-top: 1px solid var(--color-rule-08);
+  }
+  .step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 22px 22px 24px;
+    border-right: 1px solid var(--color-rule-08);
+    text-align: left;
+    color: var(--color-muted);
+    transition:
+      background-color 0.3s var(--ease-out-expo),
+      color 0.3s var(--ease-out-expo);
+    @variant max-xl {
+      padding: 20px 16px 20px;
+    }
+    @variant max-md {
+      align-items: center;
+      padding: 14px 4px;
+    }
+  }
+  .step:last-child {
+    border-right: 0;
+  }
+  .step:hover {
+    color: var(--color-fg);
+  }
+  .step[aria-selected='true'] {
+    color: var(--color-fg);
+    background: linear-gradient(180deg, --alpha(var(--color-volt-lift) / 9%), transparent 75%);
+  }
+  .step:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* each step owns its stretch of the scrubber, sitting on the panel's top rule */
+  .track {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    overflow: hidden;
+  }
+  .fill {
+    position: absolute;
+    inset: 0;
+    background: var(--color-volt-lift);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+  .step[data-played] .fill {
+    transform: none;
+  }
+  /* the selected step's fill is the timer: when it ends, replayStory moves on */
+  .step[aria-selected='true'] .fill {
+    animation: scrub-fill var(--dwell) linear both;
+  }
+  .story[data-held] .fill,
+  .steps:has(:focus-visible) .fill {
+    animation-play-state: paused;
+  }
+  @media (hover: hover) {
+    .steps:hover .fill,
+    .story:has([data-hold]:hover) .fill {
+      animation-play-state: paused;
+    }
+  }
+  /* no timer for reduced motion: the global 0.001ms duration would otherwise race through the steps */
+  .story[data-still] .step[aria-selected='true'] .fill {
+    animation: none;
+    transform: none;
+  }
+
+  .time {
+    font-size: 12.5px;
+    line-height: 22px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+  }
+  .step[aria-selected='true'] .time {
+    color: var(--color-fg);
+  }
+  .stepTitle {
+    font-size: var(--text-title);
+    line-height: 23px;
+    font-weight: 500;
+    letter-spacing: var(--tracking-ui);
+    @variant max-xl {
+      font-size: var(--text-body-sm);
+      line-height: 20px;
+    }
+    @variant max-md {
+      display: none;
+    }
+  }
+  .stepBody {
+    margin-top: 4px;
+    font-size: var(--text-label);
+    line-height: 21px;
+    color: var(--color-muted);
+    opacity: 0.6;
+    transition: opacity 0.35s var(--ease-out-expo);
+    @variant max-lg {
+      display: none;
+    }
+  }
+  .step[aria-selected='true'] .stepBody {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step,
+    .stepBody {
+      transition: none;
+    }
+  }
+}
+
+@keyframes scrub-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

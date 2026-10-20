@@ -1,0 +1,148 @@
+@reference '../../../landing.css';
+
+/* registered so the divider can sweep in on first view */
+@property --split {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 50%;
+}
+
+@layer components {
+  .compare {
+    --split: var(--pos);
+    position: relative;
+    width: min(640px, 100%);
+    margin-inline: auto;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--color-rule-22);
+    background: var(--color-panel);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.05) inset,
+      0 26px 60px rgb(0 0 0 / 0.55);
+    transition: --split 1.5s var(--ease-out-expo) 0.15s;
+  }
+  .compare:not([data-in]) {
+    --split: 94%;
+  }
+  .compare[data-touched] {
+    transition: none;
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 14px;
+    border-bottom: 1px solid var(--color-rule-10);
+  }
+  .bar i {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-rule-22);
+  }
+  .bar span {
+    margin-inline: auto;
+    padding: 2px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--color-rule-10);
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--color-muted);
+    translate: -13px 0;
+  }
+
+  .view {
+    position: relative;
+    height: 388px;
+  }
+  .replay {
+    position: absolute;
+    inset: 0;
+    clip-path: inset(0 0 0 var(--split));
+  }
+
+  .handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--split);
+    width: 2px;
+    translate: -1px 0;
+    background: var(--color-volt-lift);
+    box-shadow: 0 0 18px --alpha(var(--color-volt-lift) / 60%);
+    pointer-events: none;
+  }
+  .handle svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    padding: 6px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: var(--color-volt);
+    color: var(--color-on-volt);
+    box-shadow:
+      0 0 0 4px --alpha(var(--color-volt-lift) / 28%),
+      0 8px 20px rgb(0 0 0 / 0.35);
+    transition: box-shadow 0.25s var(--ease-out-expo);
+  }
+  .compare:has(.range:focus-visible) .handle svg {
+    box-shadow:
+      0 0 0 4px var(--color-volt-soft),
+      0 8px 20px rgb(0 0 0 / 0.35);
+  }
+
+  .tag {
+    position: absolute;
+    bottom: 12px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgb(21 20 20 / 0.86);
+    color: var(--color-fg);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.25);
+    pointer-events: none;
+  }
+  .tag[data-side='visitor'] {
+    left: 12px;
+    @variant max-sm {
+      bottom: 46px;
+    }
+  }
+  .tag[data-side='replay'] {
+    right: 12px;
+    background: var(--color-volt);
+    color: var(--color-on-volt);
+  }
+
+  /* invisible, over the whole page, so a press anywhere moves the divider and the keys still work */
+  .range {
+    position: absolute;
+    inset: 34px 0 0;
+    width: 100%;
+    height: calc(100% - 34px);
+    margin: 0;
+    opacity: 0;
+    cursor: ew-resize;
+    appearance: none;
+  }
+  /* a hairline thumb, so the value under the pointer is where the divider lands */
+  .range::-webkit-slider-thumb {
+    width: 2px;
+    height: 300px;
+    appearance: none;
+  }
+  .range::-moz-range-thumb {
+    width: 2px;
+    height: 300px;
+    border: 0;
+  }
+}

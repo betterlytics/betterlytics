@@ -1,0 +1,466 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stage {
+    display: grid;
+    place-items: center;
+    height: 204px;
+    border-bottom: 1px solid var(--color-rule-08);
+  }
+  .litStage::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: repeating-linear-gradient(315deg, --alpha(var(--color-down) / 10%) 0 1px, transparent 0 50%) 0 0 /
+      10px 10px;
+    -webkit-mask-image: radial-gradient(120px 90px at calc(50% + 80px) 50%, #000, transparent);
+    mask-image: radial-gradient(120px 90px at calc(50% + 80px) 50%, #000, transparent);
+    opacity: 0;
+    transition: opacity 0.8s var(--ease-out-expo) 0.6s;
+  }
+  .litStage[data-in]::before {
+    opacity: 1;
+  }
+
+  /* every scene is drawn on the same 300×140 canvas */
+  .comp {
+    position: relative;
+    width: 300px;
+    height: 140px;
+  }
+
+  .card {
+    position: absolute;
+    border-radius: 10px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 5%), --alpha(var(--color-fg) / 1.5%));
+    border: 1px solid var(--color-rule-10);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 14px 30px rgb(0 0 0 / 0.45);
+    opacity: 0;
+    translate: 0 10px;
+    transition:
+      opacity 0.5s var(--ease-out-expo),
+      translate 0.6s var(--ease-out-expo);
+  }
+  [data-in] .card {
+    opacity: 1;
+    translate: 0;
+  }
+
+  /* sample */
+  .sampleCard {
+    inset: 4px 10px;
+    padding: 12px 14px;
+  }
+  .sampleHead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  .sampleHead b {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .sampleTrack {
+    position: relative;
+    display: block;
+    height: 4px;
+    margin: 8px 0 14px;
+    border-radius: 2px;
+    background: var(--color-rule-22);
+  }
+  .sampleTrack::before {
+    content: '';
+    position: absolute;
+    inset: 0 95% 0 0;
+    border-radius: 2px;
+    background: var(--color-volt-lift);
+  }
+  .sampleTrack i {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    width: 12px;
+    height: 12px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: var(--color-fg);
+    box-shadow: 0 0 0 3px --alpha(var(--color-volt-lift) / 35%);
+  }
+  .visits {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    gap: 6px 5px;
+  }
+  .visits i {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-rule-22);
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out-expo) calc(0.2s + var(--i) * 0.025s);
+  }
+  [data-in] .visits i {
+    opacity: 1;
+  }
+  .visits i[data-lit] {
+    background: var(--color-volt-lift);
+    box-shadow: 0 0 0 3px --alpha(var(--color-volt-lift) / 28%);
+  }
+  .legend {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--color-muted);
+  }
+  .legend i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-volt-lift);
+  }
+
+  /* errors: only the stretch before the error is kept */
+  .tape {
+    left: 0;
+    right: 0;
+    top: 34px;
+    height: 50px;
+  }
+  .ticks {
+    position: absolute;
+    inset: 0 14px;
+  }
+  .ticks i {
+    position: absolute;
+    top: 17px;
+    bottom: 17px;
+    left: calc(var(--x) * 100%);
+    width: 3px;
+    border-radius: 1.5px;
+    background: var(--color-rule-22);
+  }
+  .ticks i[data-kept] {
+    background: #38bdf8;
+  }
+  .ticks i[data-error] {
+    top: 11px;
+    bottom: 11px;
+    width: 4px;
+    background: var(--color-down);
+    box-shadow: 0 0 0 3px --alpha(var(--color-down) / 25%);
+  }
+  .window {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: calc(14px + 0.56 * (100% - 28px));
+    right: calc(14px + 0.06 * (100% - 28px));
+    border-radius: 6px;
+    background: --alpha(var(--color-volt-lift) / 12%);
+    box-shadow: inset 0 0 0 1px --alpha(var(--color-volt-lift) / 40%);
+    transform: scaleX(0);
+    transform-origin: 100% 50%;
+    transition: transform 0.8s var(--ease-out-expo) 0.5s;
+  }
+  [data-in] .window {
+    transform: none;
+  }
+  .windowLabel {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    translate: -50% 0;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: var(--color-volt);
+    color: var(--color-on-volt);
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .errorChip {
+    position: absolute;
+    right: 0;
+    bottom: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid --alpha(var(--color-down) / 45%);
+    background: color-mix(in oklab, var(--color-canvas), var(--color-down) 14%);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #f6a3ae;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out-expo) 0.9s;
+  }
+  [data-in] .errorChip {
+    opacity: 1;
+  }
+  .errorChip i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--color-down);
+  }
+
+  /* paths */
+  .paths {
+    inset: 6px 20px;
+    padding: 6px;
+  }
+  .pathRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+  }
+  .pathRow + .pathRow {
+    margin-top: 2px;
+  }
+  .pathRow code {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+  }
+  .skeleton {
+    flex: 1;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--color-rule-10);
+  }
+  .pathRow b {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: --alpha(var(--color-live) / 14%);
+    color: var(--color-live);
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+  .pathRow[data-off] {
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  .pathRow[data-off] code {
+    color: var(--color-muted);
+  }
+  .pathRow[data-off] .skeleton {
+    filter: blur(2px);
+    background: var(--color-rule-30);
+  }
+  .pathRow[data-off] b {
+    background: --alpha(var(--color-fg) / 8%);
+    color: var(--color-muted);
+  }
+
+  /* light */
+  .network {
+    inset: 4px 0;
+    padding: 6px 4px;
+  }
+  .request {
+    display: grid;
+    grid-template-columns: 30px 38px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--color-muted);
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out-expo) calc(0.35s + var(--i) * 0.3s);
+  }
+  [data-in] .request {
+    opacity: 1;
+  }
+  .request + .request {
+    border-top: 1px solid var(--color-rule-08);
+  }
+  .request b {
+    font-weight: 500;
+    color: var(--color-volt-soft);
+  }
+  .request b[data-method='GET'] {
+    color: var(--color-live);
+  }
+  .request span {
+    overflow: hidden;
+    color: var(--color-fg);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .request em {
+    font-style: normal;
+  }
+
+  /* single-page apps */
+  .urlBar {
+    left: 0;
+    right: 0;
+    top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 9px 14px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .lock {
+    width: 9px;
+    height: 9px;
+    margin-right: 8px;
+    border-radius: 2px;
+    background: var(--color-rule-30);
+  }
+  .route {
+    position: relative;
+    display: inline-grid;
+    color: var(--color-fg);
+  }
+  .route span {
+    grid-area: 1 / 1;
+    opacity: 0;
+  }
+  .route span:last-child {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .stage[data-live] .route span {
+      animation: route-cycle 6s steps(1, end) infinite;
+      animation-delay: calc(var(--i) * 2s);
+      opacity: 0;
+    }
+  }
+  .views {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 58px;
+    display: grid;
+    gap: 2px;
+  }
+  .view {
+    display: grid;
+    grid-template-columns: 30px 7px auto 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 11px;
+    color: var(--color-muted);
+    opacity: 0;
+    translate: 0 6px;
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      translate 0.5s var(--ease-out-expo);
+    transition-delay: calc(0.4s + var(--i) * 0.2s);
+  }
+  [data-in] .view {
+    opacity: 1;
+    translate: 0;
+  }
+  .view time {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .view i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #38bdf8;
+  }
+  .view code {
+    font-family: var(--font-mono);
+    color: var(--color-fg);
+  }
+
+  /* bots */
+  .agents {
+    inset: 8px 24px;
+    padding: 6px;
+  }
+  .agent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    font-size: 12.5px;
+  }
+  .agent + .agent {
+    margin-top: 2px;
+  }
+  .agent > svg {
+    width: 14px;
+    height: 14px;
+    color: var(--color-muted);
+  }
+  .agent b {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-live);
+  }
+  .agent b svg {
+    width: 12px;
+    height: 12px;
+  }
+  .agent:not([data-bot]) {
+    border: 1.5px solid --alpha(var(--color-live) / 40%);
+    background: --alpha(var(--color-live) / 7%);
+  }
+  .agent[data-bot] {
+    color: var(--color-muted);
+  }
+  .agent[data-bot] b {
+    color: var(--color-muted);
+  }
+
+  .copy {
+    padding: 34px 32px 44px;
+    @variant max-sm {
+      padding-inline: var(--pad);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card,
+    .visits i,
+    .window,
+    .errorChip,
+    .request,
+    .view {
+      transition: none;
+    }
+  }
+}
+
+@keyframes route-cycle {
+  0%,
+  33.33% {
+    opacity: 1;
+  }
+  33.34%,
+  100% {
+    opacity: 0;
+  }
+}

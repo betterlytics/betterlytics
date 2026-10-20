@@ -8,7 +8,7 @@ import { cn } from '@/landing/lib/cn';
 import styles from './relatedSection.module.css';
 
 export type RelatedItem = {
-  key: 'analytics' | 'replay' | 'errors' | 'vitals';
+  key: 'analytics' | 'replay' | 'errors' | 'vitals' | 'uptime';
   icon: ReactNode;
   href: string;
 };
