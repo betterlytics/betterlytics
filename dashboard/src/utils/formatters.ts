@@ -45,10 +45,12 @@ export function formatUptime(num: number, locale?: SupportedLanguages): string {
  * Format a string, adds ellipsis to middle of string instead of end
  */
 export function formatString(value: string, maxLength: number = 50) {
-  if (value.length <= maxLength) {
+  const half = Math.floor(maxLength / 2);
+  const shortenedLength = half * 2 + 3;
+
+  if (value.length <= shortenedLength) {
     return value;
   }
-  const half = Math.floor(maxLength / 2);
 
   const start = value.slice(0, half);
   const end = value.slice(-half);
