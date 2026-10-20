@@ -1270,10 +1270,16 @@
       "nav": "Footer",
       "language": "Language",
       "columns": {
+        "product": "Product",
         "company": "Company",
         "resources": "Resources",
         "compare": "Compare",
         "connect": "Connect"
+      },
+      "product": {
+        "features": "Features",
+        "uptime": "Uptime monitoring",
+        "pricing": "Pricing"
       },
       "company": {
         "about": "About",
@@ -1286,8 +1292,6 @@
       "resources": {
         "docs": "Documentation",
         "changelog": "Changelog",
-        "features": "Features",
-        "pricing": "Pricing",
         "status": "Status"
       },
       "compareLink": "vs {name}",
