@@ -1,13 +1,12 @@
 'use client';
 
-import { type Ref, useEffect, useRef, useState } from 'react';
-import { ArrowUpRight, Check, CircleCheck } from 'lucide-react';
-import { useLocale, useTranslations } from 'next-intl';
-import { BrandMark } from '@/landing/components/ui/brandMark';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowUpRight, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Label } from '@/landing/components/ui/text';
-import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import { LINKS } from '@/landing/lib/links';
+import { type MockMonitor, StatusPageMock } from './statusPageMock';
 import styles from './statusShowcase.module.css';
 
 const POINTS = ['monitors', 'history', 'updates', 'brand', 'domain'] as const;
@@ -19,117 +18,16 @@ const ACCENTS = [
   { name: 'ember', value: '#d4572a' },
 ] as const;
 
-/* Mock data, deliberately untranslated. 45 days, as the real page shows at this width; days count back from
-   today, and 0.97 is an amber day, 0.9 a red one (the real page's 95% / 99% cut-offs). */
 const DAYS = 45;
-const MONITORS = [
-  { name: 'Website', uptime: 1, dips: {} as Record<number, number> },
-  { name: 'Checkout', uptime: 0.9987, dips: { 4: 0.9, 31: 0.97 } as Record<number, number> },
-  { name: 'API', uptime: 0.9998, dips: { 22: 0.97 } as Record<number, number> },
+const MONITORS: MockMonitor[] = [
+  { name: 'Website', uptime: 1 },
+  { name: 'Checkout', uptime: 0.9987, dips: { 4: 0.9, 31: 0.97 } },
+  { name: 'API', uptime: 0.9998, dips: { 22: 0.97 } },
 ];
-
-const percent = (value: number, locale: string) =>
-  new Intl.NumberFormat(locale, {
-    style: 'percent',
-    minimumFractionDigits: value === 1 ? 0 : 2,
-    maximumFractionDigits: 2,
-  }).format(value);
-
-/** After app/status/[slug]: brand band, status hero, monitor card, incidents, powered-by. */
-function StatusPage({
-  theme,
-  accent,
-  pageRef,
-}: {
-  theme: 'light' | 'dark';
-  accent: string;
-  pageRef: Ref<HTMLDivElement>;
-}) {
-  const t = useTranslations('landing.uptime.status.page');
-  const locale = useLocale();
-  return (
-    <div className={styles.window} aria-hidden data-nosnippet>
-      <div className={styles.chrome}>
-        <i />
-        <i />
-        <i />
-        <span>status.acme.com</span>
-      </div>
-      <div ref={pageRef} className={styles.page} data-theme={theme} style={vars({ '--sp-accent': accent })}>
-        <div className={styles.band}>
-          <b className={styles.brand}>
-            <i />
-            Acme
-          </b>
-        </div>
-        <div className={styles.card}>
-          <div className={styles.hero}>
-            <span className={styles.heroIcon}>
-              <Check strokeWidth={3} />
-            </span>
-            <strong>{t('allUp')}</strong>
-            <span>{t('updated')}</span>
-          </div>
-          <div className={styles.monitors}>
-            {MONITORS.map((monitor, row) => (
-              <div key={monitor.name} className={styles.row}>
-                <div className={styles.rowHead}>
-                  <span className={styles.rowName}>
-                    <CircleCheck />
-                    {monitor.name}
-                  </span>
-                  <span className={styles.rowMeta}>
-                    {t('uptime', { value: percent(monitor.uptime, locale) })}
-                    <span className={styles.pill} data-tone='ok'>
-                      {t('operational')}
-                    </span>
-                  </span>
-                </div>
-                <div className={styles.bars}>
-                  {Array.from({ length: DAYS }, (_, i) => {
-                    const dip = monitor.dips[DAYS - 1 - i];
-                    return <i key={i} data-dip={dip === undefined ? undefined : dip < 0.95 ? 'down' : 'warn'} />;
-                  })}
-                </div>
-                {row === MONITORS.length - 1 && (
-                  <div className={styles.axis}>
-                    <span>{t('ago', { days: DAYS })}</span>
-                    <span>{t('today')}</span>
-                  </div>
-                )}
-              </div>
-            ))}
-            <p className={styles.overall}>
-              {t.rich('overall', { uptime: percent(0.9995, locale), value: (chunks) => <b>{chunks}</b> })}
-            </p>
-          </div>
-        </div>
-        <p className={styles.pastLabel}>{t('past')}</p>
-        <article className={styles.incident}>
-          <div className={styles.incidentHead}>
-            <span>
-              <b>{t('incidentTitle')}</b>
-              <span>{t('incidentMeta')}</span>
-            </span>
-            <span className={styles.pill} data-tone='partial'>
-              {t('impact')}
-            </span>
-          </div>
-        </article>
-        <p className={styles.powered}>
-          {t('poweredBy')}
-          <b>
-            <BrandMark className='size-3.5' />
-            Betterlytics
-          </b>
-        </p>
-      </div>
-    </div>
-  );
-}
 
 export function StatusShowcase() {
   const t = useTranslations('landing.uptime.status');
+  const tDemo = useTranslations('landing.demo');
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [accent, setAccent] = useState<string>(ACCENTS[0].value);
   const custom = !ACCENTS.some(({ value }) => value === accent);
@@ -173,6 +71,7 @@ export function StatusShowcase() {
         >
           {t('proof')}
           <ArrowUpRight className='size-3.5' aria-hidden />
+          <span className='sr-only'> {tDemo('newTab')}</span>
         </a>
         <div className='mt-8 border-t border-rule-08 pt-6 transition-ink'>
           <Label className='mb-4 block'>{t('try')}</Label>
@@ -218,15 +117,22 @@ export function StatusShowcase() {
           </div>
         </div>
       </div>
-      {/* the window runs off the bottom edge and fades into the hatch there */}
-      <div
-        className={cn(
-          'relative min-h-[540px] min-w-0 overflow-hidden max-xl:h-[520px] max-sm:h-[460px]',
-          'bg-hatch',
-        )}
-      >
+      <div className='relative min-h-[540px] min-w-0 overflow-hidden bg-hatch max-xl:h-[520px] max-sm:h-[460px]'>
         <div className={styles.fade}>
-          <StatusPage theme={theme} accent={accent} pageRef={pageRef} />
+          <StatusPageMock
+            className={styles.window}
+            monitors={MONITORS}
+            days={DAYS}
+            headline={t('page.allUp')}
+            updated={t('page.updated')}
+            theme={theme}
+            accent={accent}
+            axis
+            overall={0.9995}
+            incident={{ title: t('page.incidentTitle'), meta: t('page.incidentMeta'), impact: t('page.impact') }}
+            poweredBy
+            pageRef={pageRef}
+          />
         </div>
       </div>
     </div>

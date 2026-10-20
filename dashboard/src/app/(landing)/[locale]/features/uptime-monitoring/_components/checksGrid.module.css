@@ -8,50 +8,10 @@
 }
 
 @layer components {
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    @variant max-xl {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    @variant max-sm {
-      grid-template-columns: minmax(0, 1fr);
-      margin-inline: calc(-1 * var(--pad));
-    }
-  }
   .cell {
     position: relative;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid var(--color-rule-08);
-    border-bottom: 1px solid var(--color-rule-08);
-  }
-  .cell:nth-child(3n) {
-    border-right: 0;
-  }
-  .cell:nth-last-child(-n + 3) {
-    border-bottom: 0;
-  }
-  @variant max-xl {
-    .cell:nth-child(n) {
-      border-right: 1px solid var(--color-rule-08);
-      border-bottom: 1px solid var(--color-rule-08);
-    }
-    .cell:nth-child(2n) {
-      border-right: 0;
-    }
-    .cell:nth-last-child(-n + 2) {
-      border-bottom: 0;
-    }
-  }
-  @variant max-sm {
-    .cell:nth-child(n) {
-      border-right: 0;
-      border-bottom: 1px solid var(--color-rule-08);
-    }
-    .cell:last-child {
-      border-bottom: 0;
-    }
   }
 
   .stage {
@@ -60,14 +20,12 @@
     height: 204px;
     border-bottom: 1px solid var(--color-rule-08);
   }
-  /* every scene is drawn on the same 300×140 canvas */
   .comp {
     position: relative;
     width: 300px;
     height: 140px;
   }
 
-  /* the home page's card */
   .card {
     position: absolute;
     border-radius: 10px;
@@ -110,7 +68,6 @@
     height: 11px;
   }
 
-  /* --- request --- */
   .reqCard {
     left: 0;
     top: 2px;
@@ -166,7 +123,6 @@
     border-radius: 2px;
     background: --alpha(var(--color-fg) / 14%);
   }
-  /* the fill and the thumb travel out to their value as the scene arrives */
   .slider > i > i {
     position: absolute;
     inset: 0 auto 0 0;
@@ -237,7 +193,6 @@
     translate: 0;
   }
 
-  /* --- keyword --- */
   .browser {
     left: 8px;
     top: 0;
@@ -284,7 +239,6 @@
     border-radius: 2px;
     background: --alpha(var(--color-fg) / 14%);
   }
-  /* the matched phrase, held in scan brackets */
   .keyword {
     position: absolute;
     left: 96px;
@@ -297,7 +251,6 @@
     letter-spacing: -0.3px;
     white-space: nowrap;
     opacity: 0;
-    /* --scan-gap is how far the scan brackets sit outside the word; they close in on it */
     --scan-gap: 11px;
     transition:
       opacity 0.4s var(--ease-out-expo) 0.4s,
@@ -344,14 +297,11 @@
     top: 84px;
   }
 
-  /* --- certificate: no card, the shield stands on the hatch --- */
   .certComp {
     width: 274px;
     height: 132px;
   }
-  /* the shield's light falls on the stage's own hatch: the same 10px pattern in the shield's blue, laid
-     exactly over it, as a ring around the shield (86px left of centre, where certComp puts it). The middle
-     stays dark: the shield's face is see-through, and lit stripes behind it read as a glare. */
+  /* the stage's 10px hatch in the shield's blue, ringed around the shield (86px left of centre) */
   .litStage::before {
     content: '';
     position: absolute;
@@ -450,7 +400,6 @@
   [data-in] .signature path {
     stroke-dashoffset: 0;
   }
-  /* filled here, where the others are outlined */
   /* centred under the end of the first line */
   .certBadge {
     left: 239px;
@@ -467,7 +416,6 @@
     height: 13px;
   }
 
-  /* --- threshold: no card, the checks hang on a thread across the hatch --- */
   .tilesComp {
     width: 338px;
     height: 48px;
@@ -556,7 +504,6 @@
     rotate: 45deg;
   }
 
-  /* --- response time: no card, the chart sinks into the hatch --- */
   .chartComp {
     width: 294px;
     height: 150px;
@@ -672,7 +619,6 @@
     scale: 1;
   }
 
-  /* --- reasons --- */
   .list {
     left: 4px;
     top: 6px;
@@ -743,10 +689,7 @@
     transition-delay: 0.75s;
   }
 
-  /* --- hover on the scene itself: it acts out its check once, then settles back; only once it has drawn in, never
-         for touch or reduced motion, and nothing that suggests a click --- */
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
-    /* request: the call goes out along the wire, and the answer comes back */
     .stage[data-in]:hover .reqWire {
       animation: hover-wire 0.55s var(--ease-pen);
     }
@@ -756,18 +699,15 @@
     .stage[data-in]:hover .okChip i {
       animation: hover-ping 0.8s var(--ease-out-expo) 0.55s;
     }
-    /* keyword: the brackets close on the phrase again, then the check pops */
     .stage[data-in]:hover .keyword {
       animation: hover-scan 0.65s var(--ease-out-expo);
     }
     .stage[data-in]:hover .keywordBadge {
       animation: hover-pop 0.5s var(--ease-out-expo) 0.4s backwards;
     }
-    /* certificate: signed again */
     .stage[data-in]:hover .signature path {
       animation: hover-draw 1s var(--ease-pen);
     }
-    /* threshold: the run replays left to right, and the bell rings once the third failure lands */
     .stage[data-in]:hover .tile {
       animation: hover-tile 0.4s var(--ease-out-expo) calc(var(--i) * 0.08s) backwards;
     }
@@ -775,14 +715,12 @@
       transform-origin: 50% 15%;
       animation: hover-ring 0.7s ease-in-out calc(var(--i) * 0.08s + 0.25s);
     }
-    /* response time: the line runs again and lands on today */
     .stage[data-in]:hover .today {
       animation: hover-draw 1s var(--ease-pen);
     }
     .stage[data-in]:hover .chartEnd {
       animation: hover-pop 0.4s var(--ease-out-expo) 0.9s backwards;
     }
-    /* reasons: the selection steps through each one, and the detail swaps with it */
     .stage[data-in]:hover .reason:nth-child(1) {
       animation: hover-lit-first 1.8s linear;
     }
@@ -797,7 +735,6 @@
     }
   }
 
-  /* --- copy under each stage --- */
   .copy {
     padding: 34px 32px 44px;
     @variant max-sm {
@@ -895,7 +832,7 @@
     rotate: 2deg;
   }
 }
-/* the selection moves HTTP 5xx → Timeout → SSL and back, a short hold on each */
+/* the selection moves HTTP 5xx → Timeout → Keyword and back, a short hold on each */
 @keyframes hover-lit-first {
   0%,
   28%,

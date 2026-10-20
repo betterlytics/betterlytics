@@ -1,17 +1,13 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { CircleCheck, CircleX, Mail, RefreshCw } from 'lucide-react';
+import { CircleCheck, CircleX, RefreshCw } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { BrandMark } from '@/landing/components/ui/brandMark';
-import { vars } from '@/landing/lib/cssVars';
-import alerts from './alertsPanel.module.css';
-import { OutageStatusPage } from './outageStatusPage';
+import { formatUptime } from '@/utils/formatters';
+import { ALERTS, EMAIL_SUBJECT, MailIcon, SlackAlert } from './alertMocks';
+import { type MockMonitor, StatusPageMock } from './statusPageMock';
 import styles from './storyScenes.module.css';
-
-/* One focused illustration per step, crossfading, each over the step's colour in the hatch and with one
-   supporting piece for depth. Mock data stays literal, as elsewhere. */
 
 const CHECKS = [
   { at: '10:10', code: '200 OK', ms: '212 ms', ok: true },
@@ -19,7 +15,7 @@ const CHECKS = [
   { at: '10:12', code: '503 Service Unavailable', ms: '—', ok: false },
 ];
 
-function Card({ tone, children }: { tone?: 'down' | 'live' | 'warn'; children: ReactNode }) {
+function Card({ tone, children }: { tone?: 'down'; children: ReactNode }) {
   return (
     <div className={styles.card} data-tone={tone}>
       {children}
@@ -46,7 +42,7 @@ function MonitorHead({ state }: { state: 'failing' | 'down' }) {
 function CheckLog() {
   const t = useTranslations('landing.uptime.story.scenes');
   return (
-    <Card tone='warn'>
+    <Card>
       <MonitorHead state='failing' />
       <p className={styles.label}>{t('recentChecks')}</p>
       <ul className={styles.checks}>
@@ -83,7 +79,6 @@ function Confirm() {
   const t = useTranslations('landing.uptime.story.scenes');
   return (
     <div className={styles.compose} data-hold>
-      {/* the check log it grew out of, one step back */}
       <div className={styles.behind}>
         <CheckLog />
       </div>
@@ -114,44 +109,13 @@ function Confirm() {
   );
 }
 
-function Slack({ kind }: { kind: 'down' | 'up' }) {
-  const t = useTranslations('landing.uptime.alerts');
-  const down = kind === 'down';
-  return (
-    <div className={styles.slack}>
-      <div className={alerts.message}>
-        <span className={alerts.avatar}>
-          <BrandMark />
-        </span>
-        <div className='min-w-0'>
-          <p className={alerts.sender}>
-            <b>Betterlytics</b>
-            <span className={alerts.app}>{t('app')}</span>
-            <time>{down ? '10:14' : '10:32'}</time>
-          </p>
-          <div className={alerts.attachment} style={vars({ '--bar': down ? '#EF4444' : '#10B981' })}>
-            <b>{down ? 'Checkout is down' : 'Checkout is back up'}</b>
-            <p>
-              Checkout (<span className={alerts.link}>https://checkout.acme.com</span>){' '}
-              {down ? 'is not responding' : 'has recovered after 19m'}
-            </p>
-            <p className={alerts.link}>View Monitor</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** The same alert in another channel, stacked behind the Slack message like grouped notifications;
-    hovering the stack spreads it, so each one's title shows. */
 function Echo({ depth, icon, name, title }: { depth: 1 | 2; icon: ReactNode; name: string; title: string }) {
   return (
     <div className={styles.echo} data-depth={depth}>
       <span className={styles.echoHead}>
         {icon}
         {name}
-        <time>10:14</time>
+        <time>{ALERTS.down.at}</time>
       </span>
       <b className={styles.echoTitle}>{title}</b>
     </div>
@@ -161,45 +125,67 @@ function Echo({ depth, icon, name, title }: { depth: 1 | 2; icon: ReactNode; nam
 function Alert() {
   return (
     <div className={styles.compose} data-hold>
-      <Echo depth={2} icon={<Mail aria-hidden />} name='Email' title='Uptime Alert: Site Is Down: Checkout' />
+      <Echo depth={2} icon={<MailIcon />} name='Email' title={EMAIL_SUBJECT} />
       <Echo
         depth={1}
         icon={<Image src='/images/integrations/discord.svg' alt='' width={13} height={13} />}
         name='Discord'
-        title='Checkout is down'
+        title={ALERTS.down.title}
       />
-      <Slack kind='down' />
+      <div className={styles.slack}>
+        <SlackAlert alert={ALERTS.down} />
+      </div>
     </div>
   );
 }
+
+const OUTAGE: MockMonitor[] = [
+  { name: 'API', uptime: 0.9991, dips: { 21: 0.97 } },
+  { name: 'Checkout', uptime: 0.9996, dips: { 0: 0 }, down: true },
+  { name: 'Website', uptime: 1 },
+];
 
 function Status() {
+  const text = useTranslations('landing.illustrations.uptime');
+  const t = useTranslations('landing.uptime.story.stage');
   return (
     <div className={styles.page} data-hold>
-      <OutageStatusPage />
+      <StatusPageMock
+        className={styles.zoomed}
+        monitors={OUTAGE}
+        days={36}
+        headline={text('someDown')}
+        outage
+        brand={false}
+      />
+      <div className={styles.suggestion}>
+        <span>
+          <b>{t('suggested')}</b>
+          {t('suggestedBody')}
+        </span>
+        <span className={styles.write}>{t('write')}</span>
+      </div>
     </div>
   );
 }
 
-/* The status page's monitor row at its 45-day compact width: one bar a day, and today, with 19 minutes down
-   (98.7%), amber by the real page's 95%/99% cut-offs. 45 days is 64,800 minutes, so 99.97% over the window. */
+/* 45 days is 64,800 minutes, so 19 minutes down is 99.97% over the window and 98.7% for today: amber. */
 const DAYS = 45;
 
 function Recover() {
   const t = useTranslations('landing.uptime.story.scenes');
   const page = useTranslations('landing.uptime.status.page');
   const locale = useLocale();
-  const uptime = new Intl.NumberFormat(locale, { style: 'percent', minimumFractionDigits: 2 }).format(0.9997);
   return (
     <div className={styles.compose} data-hold>
-      <Card tone='live'>
+      <Card>
         <div className={styles.head}>
           <span className={styles.name}>
             <CircleCheck className={styles.ok} aria-hidden />
             <b>Checkout</b>
             <span>checkout.acme.com</span>
           </span>
-          <span className={styles.uptime}>{page('uptime', { value: uptime })}</span>
+          <span className={styles.uptime}>{page('uptime', { value: formatUptime(99.97, locale) })}</span>
         </div>
         <span className={styles.bars} aria-hidden>
           {Array.from({ length: DAYS }, (_, i) => (
@@ -226,7 +212,9 @@ function Recover() {
         </dl>
       </Card>
       <div className={styles.toast}>
-        <Slack kind='up' />
+        <div className={styles.slack}>
+          <SlackAlert alert={ALERTS.up} />
+        </div>
       </div>
     </div>
   );

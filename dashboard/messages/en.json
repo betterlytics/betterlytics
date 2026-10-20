@@ -1398,7 +1398,7 @@
         "investigate": {
           "question": "checkout is alerting as down, can you investigate?",
           "say": "I'll pull the open incident from Betterlytics, then check what shipped just before it started.",
-          "incident": "1 ongoing incident · Checkout · down since 10:12 · HTTP 503 · 3 failed checks",
+          "incident": "1 ongoing incident · Checkout · down since 10:12",
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout has returned 503s since 10:12, three minutes after a41f2c9 moved the Stripe keys to env vars. Want me to revert it?"
         }
@@ -1409,7 +1409,6 @@
       "features": "Features",
       "related": {
         "title": "Also in the *same* dashboard",
-        "lede": "Uptime is one part of Betterlytics. Everything below shares the script, the login and the bill.",
         "learnMore": "Learn more"
       },
       "relatedItems": {
@@ -1433,13 +1432,14 @@
     },
     "uptime": {
       "seo": {
-        "title": "Uptime monitoring with SSL alerts & status pages | Betterlytics",
-        "description": "Check your site every minute, get alerts in Slack, Discord, Teams or email, catch expiring SSL certificates and publish a status page. In the same dashboard as your analytics, with a free plan."
+        "title": "Uptime monitoring, SSL alerts & status pages | Betterlytics",
+        "description": "Uptime monitoring with alerts in Slack, Discord, Teams or email, SSL expiry warnings and a status page, in the dashboard with your analytics. Free plan.",
+        "imageAlt": "“Know when your site goes down, and what it cost you” above a Betterlytics status page"
       },
       "hero": {
         "eyebrow": "Uptime monitoring",
         "title": "Know when your site goes down, and what it cost you",
-        "lede": "Checks every minute, alerts where your team talks, SSL warnings and a public status page. In the dashboard that already holds your traffic.",
+        "lede": "Checks as often as every minute, alerts where your team talks, SSL warnings and a public status page. In the dashboard that already holds your traffic.",
         "primary": "Start monitoring free",
         "secondary": "Read the docs",
         "proof": "Our own status page runs on it"
@@ -1528,7 +1528,7 @@
           "lastDay": "Last 24 h",
           "reason5xx": "HTTP 5xx",
           "reasonTimeout": "Timeout",
-          "reasonSsl": "SSL"
+          "reasonKeyword": "Keyword"
         },
         "items": {
           "http": {
@@ -1537,11 +1537,11 @@
           },
           "keyword": {
             "title": "Keyword checks",
-            "body": "Require a phrase like Add to cart. If the page loads without it, the check fails."
+            "body": "Require a phrase like “Add to cart”. If the page loads without it, the check fails."
           },
           "ssl": {
             "title": "SSL certificates",
-            "body": "Checked hourly for expiry, a wrong hostname, an untrusted issuer or revocation. Warnings start up to 30 days out."
+            "body": "Checked hourly, with reminders from up to 30 days before expiry. An expired, mismatched or untrusted certificate fails the check."
           },
           "threshold": {
             "title": "No alarm for a blip",
@@ -1553,7 +1553,7 @@
           },
           "reasons": {
             "title": "The reason, not just red",
-            "body": "Every incident says why: a timeout, a DNS error, a 5xx, a bad certificate or a missing keyword."
+            "body": "Every incident says why: a timeout, a DNS or connection error, a 5xx or a missing keyword."
           }
         }
       },
@@ -1561,7 +1561,7 @@
         "title": "Alerts where your team *already* talks",
         "lede": "One message when a monitor goes down, one when it's back, and a warning before a certificate runs out.",
         "lead": "Connect once, every monitor uses it",
-        "body": "Channels belong to the dashboard, so a new monitor alerts from its first check. Turn down, recovery and certificate alerts on or off per monitor.",
+        "body": "Channels belong to the dashboard, so every new monitor is covered from the start. Each monitor keeps a log of every alert sent, failed alerts are retried, and none goes out twice.",
         "channels": "Channels",
         "email": "Email",
         "webhook": "Webhook",
@@ -1571,7 +1571,6 @@
           "recovery": "Back up",
           "ssl": "Certificate expiration"
         },
-        "payload": "POST to your webhook",
         "views": {
           "slack": "Slack",
           "email": "Email",
@@ -1584,7 +1583,7 @@
         "notes": {
           "slack": "Discord, Teams and Pushover get the same alert, formatted for each.",
           "email": "Get an email when a monitor goes down, and another when it recovers.",
-          "webhook": "Plain JSON, so it fits a bot, an incident tool or a ten-line script."
+          "webhook": "Plain JSON, so it fits a bot or a ten-line script."
         }
       },
       "status": {
@@ -1593,8 +1592,8 @@
         "points": {
           "monitors": "Up to 20 monitors per page, each under the public name you choose",
           "history": "90 days of daily uptime, and past incidents underneath",
-          "updates": "Incident updates from investigating to resolved, with a suggested draft for every outage",
-          "brand": "Your logo, favicon, accent colour, and a light or dark theme",
+          "updates": "Incident updates from investigating to resolved, with an impact level and a pre-filled draft for each outage your monitors catch.",
+          "brand": "Your logo, favicon, accent colour, and a light, dark or automatic theme",
           "domain": "Your own domain, with HTTPS handled for you"
         },
         "try": "Try it",
@@ -1613,6 +1612,7 @@
           "allUp": "All systems operational",
           "updated": "Last updated on Oct 18, 10:42",
           "operational": "Operational",
+          "down": "Down",
           "ago": "{days} days ago",
           "today": "Today",
           "uptime": "{value} uptime",
@@ -1629,8 +1629,11 @@
         "title": "Ask your agent *why* it went down",
         "lede": "Monitors and incidents are in the built-in MCP server, so your agent can look into an outage next to your code, traffic and errors.",
         "lead": "From alert to cause in one question",
-        "body": "Your agent reads the open incident, checks what shipped just before it, and comes back with the likely cause and a fix for you to approve.",
+        "body": "Your agent reads the open incident, checks what shipped just before it, and comes back with the likely cause and a fix for you to approve. Or line an outage up against your traffic and sales to see what it cost.",
         "cta": "Set up MCP"
+      },
+      "related": {
+        "lede": "Uptime is one part of Betterlytics. Everything below shares the script, the login and the bill."
       },
       "faq": {
         "title": "Frequently asked questions",
@@ -1653,7 +1656,7 @@
           },
           "down": {
             "q": "What counts as down?",
-            "a": "A timeout, a connection or DNS error, a certificate problem, a status code outside the ones you accept, or a missing keyword. Each incident records which it was."
+            "a": "A timeout, a DNS or connection failure (including an invalid certificate), a status code outside the ones you accept, or a missing keyword. Each incident records which it was."
           },
           "alerts": {
             "q": "Where do alerts go?",
@@ -1661,15 +1664,15 @@
           },
           "ssl": {
             "q": "Can it warn me before my SSL certificate expires?",
-            "a": "Yes. HTTPS monitors check the certificate every hour and start warning you as expiry approaches, up to 30 days ahead. They also catch a hostname mismatch, an untrusted issuer and a revoked certificate."
+            "a": "Yes. HTTPS monitors check the certificate every hour and send reminders from up to 30 days before it expires. An expired, mismatched or untrusted certificate fails the check, so you hear about it as an incident."
           },
           "domain": {
             "q": "Can the status page use my own domain?",
-            "a": "Yes, on Professional and Enterprise. Point a subdomain such as status.example.com at Betterlytics with a CNAME record, and the certificate is issued automatically."
+            "a": "Yes. Point a subdomain such as status.example.com at Betterlytics with a CNAME record, and the certificate is issued automatically once the page is published."
           },
           "free": {
             "q": "Is uptime monitoring free?",
-            "a": "The free plan includes one monitor checked every five minutes and one status page. Professional raises that to 50 monitors with one-minute checks and three status pages."
+            "a": "The free plan includes one monitor per site, checked every five minutes, and one status page. The Professional plan unlocks more advanced configuration: one-minute checks, custom headers, accepted status codes and keyword checks, more monitors and status pages, and your own domain. Self-hosted, there are no limits."
           },
           "internal": {
             "q": "Can I monitor internal services?",

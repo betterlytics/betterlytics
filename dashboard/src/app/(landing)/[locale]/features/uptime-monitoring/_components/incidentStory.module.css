@@ -9,19 +9,13 @@
     }
   }
 
-  /* --- steps --- */
   .steps {
     display: flex;
     flex-direction: column;
     border-right: 1px solid var(--color-rule-08);
     @variant max-xl {
       border-right: 0;
-      border-bottom: 1px solid var(--color-rule-08);
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    @variant max-md {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-top: 1px solid var(--color-rule-08);
     }
   }
   .step {
@@ -38,12 +32,6 @@
       grid-template-rows 0.5s var(--ease-out-expo),
       background-color 0.3s var(--ease-out-expo),
       color 0.3s var(--ease-out-expo);
-    @variant max-xl {
-      grid-template-columns: minmax(0, 1fr);
-      grid-template-rows: auto auto;
-      border-right: 1px solid var(--color-rule-08);
-      padding: 13px 16px 15px;
-    }
     @variant max-sm {
       padding-inline: var(--pad);
     }
@@ -51,7 +39,6 @@
   .step:last-child {
     border-bottom: 0;
   }
-  /* the list runs the stage's full height: closed steps share what the open one leaves, centred in their share */
   .step {
     @variant xl {
       flex: 1 1 0;
@@ -61,37 +48,6 @@
   .step[aria-selected='true'] {
     @variant xl {
       flex: none;
-    }
-  }
-  /* five steps: below xl the last one widens to close its row, 3 + 2 on tablets, 2 + 2 + 1 on phones */
-  .step:last-child {
-    @variant max-xl {
-      grid-column: span 2;
-      border-right: 0;
-    }
-  }
-  .step:nth-child(3) {
-    @variant max-xl {
-      border-right: 0;
-    }
-    @variant max-md {
-      border-right: 1px solid var(--color-rule-08);
-    }
-  }
-  .step:nth-child(2n) {
-    @variant max-md {
-      border-right: 0;
-    }
-  }
-  /* the list's own bottom rule closes the last row */
-  .step:nth-last-child(-n + 2) {
-    @variant max-xl {
-      border-bottom: 0;
-    }
-  }
-  .step:nth-last-child(2) {
-    @variant max-md {
-      border-bottom: 1px solid var(--color-rule-08);
     }
   }
   .step:hover {
@@ -120,10 +76,6 @@
     line-height: 24px;
     font-weight: 500;
     letter-spacing: var(--tracking-ui);
-    @variant max-xl {
-      font-size: var(--text-body-sm);
-      line-height: 20px;
-    }
   }
   .stepBody {
     grid-column: 2;
@@ -134,16 +86,12 @@
     color: var(--color-muted);
     opacity: 0;
     transition: opacity 0.35s var(--ease-out-expo);
-    @variant max-xl {
-      display: none;
-    }
   }
   .step[aria-selected='true'] .stepBody {
     padding-top: 4px;
     opacity: 1;
     transition-delay: 0.12s;
   }
-  /* the bar runs down the selected step; it fills over the dwell while the story plays */
   .progress {
     position: absolute;
     left: 0;
@@ -153,11 +101,6 @@
     background: --alpha(var(--color-volt-lift) / 25%);
     opacity: 0;
     transition: opacity 0.3s;
-    @variant max-xl {
-      inset: auto 0 0;
-      width: auto;
-      height: 2px;
-    }
   }
   .progress::after {
     content: '';
@@ -165,9 +108,6 @@
     inset: 0;
     background: var(--color-volt-lift);
     transform-origin: 50% 0;
-    @variant max-xl {
-      transform-origin: 0 50%;
-    }
   }
   .step[aria-selected='true'] .progress {
     opacity: 1;
@@ -175,12 +115,7 @@
   /* the selected step's bar is the timer: when it fills, incidentStory moves on */
   .step[aria-selected='true'] .progress::after {
     animation: story-fill var(--dwell) linear both;
-    @variant max-xl {
-      animation-name: story-fill-x;
-    }
   }
-  /* held off screen, under a mouse (on the list, or on the illustration itself rather than the stage around
-     it, so scrolling past doesn't stop it), and while the keyboard is in the list */
   .story[data-held] .progress::after,
   .steps:has(:focus-visible) .progress::after {
     animation-play-state: paused;
@@ -191,40 +126,29 @@
       animation-play-state: paused;
     }
   }
-  /* no timer for reduced motion: the global 0.001ms duration would otherwise race through the steps */
+  /* no timer once a step is picked, or for reduced motion: the global 0.001ms duration would otherwise race through the steps */
   .story[data-still] .progress::after {
     animation: none;
   }
 
-  /* --- stage --- */
   .panel {
     display: flex;
     flex-direction: column;
     min-width: 0;
-  }
-  /* below xl the steps are a grid with no room for bodies, so the selected one sits over the stage */
-  .caption {
-    display: none;
-    padding: 14px 18px;
-    font-size: var(--text-label);
-    line-height: 21px;
-    color: var(--color-muted);
     @variant max-xl {
-      display: block;
+      order: -1;
     }
-    @variant max-sm {
-      padding-inline: var(--pad);
-    }
+  }
+  .caption {
+    @apply sr-only;
   }
   .stage {
     flex: 1;
     min-height: 420px;
     @variant max-sm {
-      min-height: 400px;
+      min-height: 360px;
     }
   }
-  /* barely-there life, after the hero's wave: the stage's own 10px hatch, a hair brighter, under a soft
-     band of mask that drifts across and loops; still while off screen, absent without motion */
   .drift {
     position: absolute;
     inset: 0;
@@ -259,11 +183,6 @@
 @keyframes story-fill {
   from {
     transform: scaleY(0);
-  }
-}
-@keyframes story-fill-x {
-  from {
-    transform: scaleX(0);
   }
 }
 /* the 34%-wide band enters fully off the left edge and leaves fully off the right */

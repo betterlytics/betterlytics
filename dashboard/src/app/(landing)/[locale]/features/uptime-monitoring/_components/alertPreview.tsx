@@ -5,18 +5,21 @@ import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { BrandMark } from '@/landing/components/ui/brandMark';
 import { Scramble } from '@/landing/components/ui/scramble';
-import { vars } from '@/landing/lib/cssVars';
-import styles from './alertsPanel.module.css';
+import { rovingTabKeys } from '@/landing/lib/rovingTabs';
+import {
+  ALERTS,
+  AlertMessage,
+  EMAIL_SUBJECT,
+  MailIcon,
+  MONITOR_URL,
+  SITE,
+  SlackAlert,
+  URL_TITLE,
+  messageOf,
+} from './alertMocks';
+import styles from './alertPreview.module.css';
 
-/* What the backend sends (notifications/integrations/{slack,webhook}.rs, monitor/service.rs), left literal. */
-const SITE = 'https://checkout.acme.com';
-const ALERTS = [
-  { at: '10:14', title: 'Checkout is down', outcome: 'is not responding', color: '#EF4444' },
-  { at: '10:32', title: 'Checkout is back up', outcome: 'has recovered after 19m', color: '#10B981' },
-];
-const messageOf = (outcome: string) => `Checkout (${SITE}) ${outcome}`;
-const MONITOR_URL = 'https://betterlytics.io/dashboard/…/monitoring/…';
-const URL_TITLE = 'View Monitor';
+const SENT = [ALERTS.down, ALERTS.up];
 
 /* The down email (services/email/template/monitor-down-mail.tsx), also English-only in the product. */
 const EMAIL_ROWS = [
@@ -32,15 +35,7 @@ const logo = (src: string) => <Image src={src} alt='' width={12} height={12} />;
 
 const VIEWS: { key: View; glyph: ReactNode }[] = [
   { key: 'slack', glyph: logo('/images/integrations/slack.svg') },
-  {
-    key: 'email',
-    glyph: (
-      <svg viewBox='0 0 16 16' fill='none' className='size-3.5'>
-        <rect x='2' y='3.5' width='12' height='9' rx='1.6' stroke='currentColor' strokeWidth='1.4' />
-        <path d='m2.6 4.4 5.4 4.1 5.4-4.1' stroke='currentColor' strokeWidth='1.4' strokeLinejoin='round' />
-      </svg>
-    ),
-  },
+  { key: 'email', glyph: <MailIcon /> },
   { key: 'webhook', glyph: logo('/images/integrations/webhook.svg') },
 ];
 
@@ -51,26 +46,8 @@ function Slack() {
       <p className={styles.day}>
         <span>{t('today')}</span>
       </p>
-      {ALERTS.map(({ at, title, outcome, color }, i) => (
-        <div key={at} className={styles.message} style={{ animationDelay: `${0.2 + i * 0.5}s` }}>
-          <span className={styles.avatar}>
-            <BrandMark />
-          </span>
-          <div className='min-w-0'>
-            <p className={styles.sender}>
-              <b>Betterlytics</b>
-              <span className={styles.app}>{t('app')}</span>
-              <time>{at}</time>
-            </p>
-            <div className={styles.attachment} style={vars({ '--bar': color })}>
-              <b>{title}</b>
-              <p>
-                Checkout (<span className={styles.link}>{SITE}</span>) {outcome}
-              </p>
-              <p className={styles.link}>{URL_TITLE}</p>
-            </div>
-          </div>
-        </div>
+      {SENT.map((alert, i) => (
+        <SlackAlert key={alert.at} alert={alert} style={{ animationDelay: `${0.2 + i * 0.5}s` }} />
       ))}
     </div>
   );
@@ -79,18 +56,9 @@ function Slack() {
 function Email() {
   return (
     <div className={styles.mail}>
-      <div className={styles.mailHead}>
-        <span className={styles.avatar}>
-          <BrandMark />
-        </span>
-        <div className='min-w-0'>
-          <p className={styles.sender}>
-            <b>Betterlytics</b>
-            <time>10:14</time>
-          </p>
-          <p className={styles.subject}>Uptime Alert: Site Is Down: Checkout</p>
-        </div>
-      </div>
+      <AlertMessage at={ALERTS.down.at} className='items-center'>
+        <p className={styles.subject}>{EMAIL_SUBJECT}</p>
+      </AlertMessage>
       <div className={styles.mailBody}>
         <p className={styles.mailBrand}>
           <BrandMark className='size-5' />
@@ -118,20 +86,19 @@ function Email() {
 }
 
 function Payload() {
-  const t = useTranslations('landing.uptime.alerts');
   return (
-    <pre className={styles.code} aria-label={t('payload')}>
-      {ALERTS.map(({ at, title, outcome, color }, p) => {
+    <pre className={styles.code}>
+      {SENT.map((alert, p) => {
         const fields = [
-          ['title', title],
-          ['message', messageOf(outcome)],
-          ['color', color],
+          ['title', alert.title],
+          ['message', messageOf(alert)],
+          ['color', alert.color],
           ['url', MONITOR_URL],
           ['url_title', URL_TITLE],
         ];
         return (
-          <code key={at} className={styles.block} style={{ animationDelay: `${0.2 + p * 0.5}s` }}>
-            <span className={styles.comment}>{`// ${at}\n`}</span>
+          <code key={alert.at} className={styles.block} style={{ animationDelay: `${0.2 + p * 0.5}s` }}>
+            <span className={styles.comment}>{`// ${alert.at}\n`}</span>
             <span className={styles.punct}>{'{\n'}</span>
             {fields.map(([key, value], i) => (
               <span key={key}>
@@ -156,16 +123,33 @@ function Payload() {
 
 const PANES: Record<View, () => ReactNode> = { slack: Slack, email: Email, webhook: Payload };
 
-/** The same alert where people read it (Slack, email) and as the raw webhook for developers. */
 export function AlertPreview() {
   const t = useTranslations('landing.uptime.alerts');
   const [view, setView] = useState<View>('slack');
   return (
     <div className={styles.terminal}>
       <div className={styles.bar}>
-        <div className={styles.tabs} role='group' aria-label={t('channels')}>
+        <div
+          className={styles.tabs}
+          role='tablist'
+          aria-label={t('channels')}
+          onKeyDown={rovingTabKeys(
+            VIEWS.findIndex(({ key }) => key === view),
+            VIEWS.length,
+            (i) => setView(VIEWS[i].key),
+          )}
+        >
           {VIEWS.map(({ key, glyph }) => (
-            <button key={key} type='button' aria-pressed={view === key} onClick={() => setView(key)}>
+            <button
+              key={key}
+              type='button'
+              role='tab'
+              id={`alert-tab-${key}`}
+              aria-selected={view === key}
+              aria-controls={`alert-panel-${key}`}
+              tabIndex={view === key ? 0 : -1}
+              onClick={() => setView(key)}
+            >
               {glyph}
               {t(`views.${key}`)}
             </button>
@@ -180,12 +164,18 @@ export function AlertPreview() {
           />
         </span>
       </div>
-      {/* every view shares one cell, so switching never changes the panel's height */}
       <div className={styles.views}>
         {VIEWS.map(({ key }) => {
           const Pane = PANES[key];
           return (
-            <div key={key} data-active={view === key || undefined} aria-hidden={view !== key}>
+            <div
+              key={key}
+              id={`alert-panel-${key}`}
+              role='tabpanel'
+              aria-labelledby={`alert-tab-${key}`}
+              tabIndex={view === key ? 0 : -1}
+              data-active={view === key || undefined}
+            >
               <Pane />
             </div>
           );

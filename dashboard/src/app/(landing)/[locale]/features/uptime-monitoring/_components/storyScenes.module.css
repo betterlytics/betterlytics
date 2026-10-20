@@ -1,6 +1,5 @@
 @reference '../../../landing.css';
 
-/* Each step is its own centred illustration; only the active one is shown. */
 @layer components {
   .scenes {
     position: absolute;
@@ -39,8 +38,7 @@
   .scene[data-glow='live'] {
     --glow: var(--color-live);
   }
-  /* the stage's own hatch, picking up the step's colour around the illustration: same 10px pattern,
-     laid exactly over it, faded out from the middle; plus a breath of light under it */
+  /* same angle and 10px tile as the stage's bg-hatch, so the tinted lines sit exactly on it */
   .scene::before {
     content: '';
     position: absolute;
@@ -58,9 +56,7 @@
     width: min(480px, 100%);
   }
 
-  /* --- the shared card, as the home page's monitor rows draw it --- */
   .card {
-    --tone: var(--color-live);
     position: relative;
     width: 100%;
     overflow: hidden;
@@ -73,15 +69,9 @@
       0 22px 50px rgb(0 0 0 / 0.5);
   }
   .card[data-tone='down'] {
-    --tone: var(--color-down);
     border-color: --alpha(var(--color-down) / 30%);
   }
-  .card[data-tone='warn'] {
-    --tone: var(--color-warn);
-  }
 
-  /* the previous step's card, one step back */
-  /* the card keeps its own solid surface; only what's on it fades, so it reads as further back, not black */
   .behind {
     position: absolute;
     inset: 0;
@@ -95,7 +85,6 @@
   .behind .card > * {
     opacity: 0.45;
   }
-  /* on the left edge, clear of the status pill on the right */
   .floatChip {
     position: absolute;
     top: -13px;
@@ -182,7 +171,6 @@
     color: var(--color-muted);
   }
 
-  /* --- 1: the check log --- */
   .checks {
     border-top: 1px solid var(--color-rule-08);
   }
@@ -249,7 +237,6 @@
     color: var(--color-warn);
   }
 
-  /* --- 2: the incident --- */
   .banner {
     display: flex;
     align-items: center;
@@ -302,8 +289,6 @@
     box-shadow: 0 0 0 3px --alpha(var(--color-down) / 16%);
   }
 
-  /* --- 3: Slack in front, the same alert in Discord and email fanned out behind --- */
-  /* the same surface as the notifications stacked behind it */
   .slack {
     position: relative;
     z-index: 1;
@@ -316,7 +301,6 @@
       0 1px 0 rgb(255 255 255 / 0.05) inset,
       0 24px 54px rgb(0 0 0 / 0.55);
   }
-  /* stacked behind, like grouped notifications: only their headers show above the Slack card */
   .echo {
     position: absolute;
     inset: 0;
@@ -334,16 +318,14 @@
       transform 0.5s var(--ease-out-expo),
       filter 0.4s var(--ease-out-expo);
   }
-  /* further back reads as darker, not see-through: the cards stay solid and the stage never shows through */
   .echo[data-depth='1'] {
-    filter: brightness(0.78);
+    filter: brightness(0.84);
     transform: translateY(-26px) scale(0.95);
   }
   .echo[data-depth='2'] {
-    filter: brightness(0.6);
+    filter: brightness(0.72);
     transform: translateY(-50px) scale(0.9);
   }
-  /* only shown once the stack spreads: stacked, it would sit under the card in front of it */
   .echoTitle {
     overflow: hidden;
     font-size: 13px;
@@ -369,13 +351,49 @@
     margin-left: auto;
   }
 
-  /* --- 4: the status page, in its real colours but calmed to sit with the other steps' dark cards --- */
   .page {
+    position: relative;
     width: min(360px, 100%);
     filter: saturate(0.72) brightness(0.9);
   }
+  .zoomed {
+    --sp-page-end: 56px;
+    zoom: 0.78;
+  }
+  .suggestion {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    background: rgb(30 28 28 / 0.94);
+    backdrop-filter: blur(10px);
+    border: 1px solid --alpha(var(--color-volt-lift) / 45%);
+    box-shadow: 0 16px 40px rgb(0 0 0 / 0.55);
+    font-size: 11px;
+    color: var(--color-muted);
+  }
+  .suggestion b {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .write {
+    flex: none;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: var(--color-volt);
+    color: var(--color-on-volt);
+    font-size: 11px;
+    font-weight: 500;
+  }
 
-  /* --- 5: back up, as the status page's monitor row draws it, with the recovery message landing on top --- */
   .ok {
     flex: none;
     align-self: center;
@@ -440,8 +458,6 @@
     margin: -46px -6% 0 auto;
   }
 
-  /* hover: the grouped notifications spread so each title shows, and the front card lifts a little;
-     nothing changes the cursor, since none of it is a control */
   @media (hover: hover) {
     .compose:hover .echo[data-depth='1'] {
       filter: brightness(0.95);
@@ -463,7 +479,6 @@
         translate 0.35s var(--ease-out-expo),
         box-shadow 0.35s var(--ease-out-expo);
     }
-    /* the card and the chip pinned to its edge lift as one */
     .compose:hover > .card,
     .compose:hover > .floatChip,
     .slack:hover,
@@ -478,9 +493,37 @@
     }
   }
 
+  @container (max-width: 480px) {
+    .scene {
+      padding: 16px 14px;
+    }
+    .compose {
+      zoom: 0.86;
+    }
+    .page {
+      zoom: 0.9;
+    }
+    .toast {
+      width: 94%;
+      margin-right: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-active] .suggestion {
+      animation: suggestion-in 0.5s var(--ease-out-expo) 0.35s backwards;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .scene {
       transition: none;
     }
+  }
+}
+
+@keyframes suggestion-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
 }

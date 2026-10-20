@@ -1,16 +1,18 @@
 import type { ComponentType } from 'react';
 import { Bell, Check, ChevronDown, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Stage } from '@/landing/components/feature/showcase';
+import { Stage } from '@/landing/components/feature/stage';
 import { Corners } from '@/landing/components/ui/frame';
 import { Reveal } from '@/landing/components/ui/reveal';
+import ruled from '@/landing/components/ui/ruledGrid.module.css';
+import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './checksGrid.module.css';
 
 type Key = 'http' | 'keyword' | 'ssl' | 'threshold' | 'latency' | 'reasons';
 type Art = ReturnType<typeof useTranslations<'landing.uptime.checks.art'>>;
 
-/* Values are mock data, left literal; labels are copy. Each scene is a fixed 300×140 composition. */
+/* Values are mock data, left literal; labels are copy. */
 
 function CheckBadge({ className }: { className?: string }) {
   return (
@@ -217,7 +219,7 @@ function Reasons({ t }: { t: Art }) {
   const rows = [
     { label: t('reason5xx'), count: 2, tone: 'down' },
     { label: t('reasonTimeout'), count: 1, tone: 'warn' },
-    { label: t('reasonSsl'), count: 1, tone: 'volt' },
+    { label: t('reasonKeyword'), count: 1, tone: 'volt' },
   ];
   return (
     <div className={styles.comp}>
@@ -257,7 +259,7 @@ export function ChecksGrid() {
   const t = useTranslations('landing.uptime.checks');
   const art = useTranslations('landing.uptime.checks.art');
   return (
-    <ul className={styles.grid}>
+    <ul className={cn(ruled.grid, ruled.cols3)}>
       {KEYS.map((key, i) => {
         const Scene = SCENES[key];
         return (

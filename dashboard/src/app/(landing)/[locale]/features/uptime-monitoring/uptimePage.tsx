@@ -1,19 +1,19 @@
-import { Activity, Bug, Gauge, MousePointerClick, PlayCircle } from 'lucide-react';
-import { ArrowUpRight } from 'lucide-react';
+import { Activity, ArrowUpRight, Bug, Gauge, MousePointerClick, PlayCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { FaqSection } from '@/landing/components/feature/faqSection';
-import { FeatureHero } from '@/landing/components/feature/featureHero';
 import { RelatedSection } from '@/landing/components/feature/relatedSection';
 import { SpecStrip } from '@/landing/components/feature/specStrip';
+import type { ScriptKey } from '@/landing/components/illustrations/agentTranscript';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { CtaSection } from '@/landing/components/sections/ctaSection';
+import { DemoSection } from '@/landing/components/sections/demoSection';
+import { HeroSection } from '@/landing/components/sections/heroSection';
+import { McpPanel } from '@/landing/components/sections/mcpSection';
 import { Panel, Section } from '@/landing/components/ui/frame';
 import { LINKS } from '@/landing/lib/links';
-import { AgentPanel } from './_components/agentPanel';
 import { AlertsPanel } from './_components/alertsPanel';
 import { ChecksGrid } from './_components/checksGrid';
 import { IncidentStory } from './_components/incidentStory';
-import { MonitorDemo } from './_components/monitorDemo';
 import { StatusShowcase } from './_components/statusShowcase';
 
 const FAQ_KEYS = [
@@ -30,28 +30,35 @@ const FAQ_KEYS = [
   'dedicated',
 ] as const;
 
+const MCP_SCRIPTS: ScriptKey[] = ['investigate', 'outage'];
+
 export function UptimePage() {
   const t = useTranslations('landing.uptime');
+  const tTranscript = useTranslations('landing.illustrations.transcript');
+  const tDemo = useTranslations('landing.demo');
   return (
     <PageShell
       hero={
-        <FeatureHero
-          icon={<Activity className='size-3' strokeWidth={2.5} />}
-          eyebrow={t('hero.eyebrow')}
-          title={t('hero.title')}
-          lede={t('hero.lede')}
-          primary={t('hero.primary')}
-          secondary={{ label: t('hero.secondary'), href: LINKS.monitoringDocs }}
+        <HeroSection
+          copy={{
+            title: t('hero.title'),
+            lede: t('hero.lede'),
+            primary: t('hero.primary'),
+            secondary: { label: t('hero.secondary'), href: LINKS.monitoringDocs },
+          }}
+          breadcrumb={{ icon: <Activity className='size-3' strokeWidth={2.5} />, label: t('hero.eyebrow') }}
+          titleClassName='max-w-[980px] max-2xl:max-w-[700px]'
           note={
             <a
               href={LINKS.status}
               target='_blank'
               rel='noopener'
-              className='-mt-3 inline-flex items-center gap-2 text-label text-on-volt opacity-80 transition-opacity duration-180 ease-out-expo hover:opacity-100 max-sm:mt-0'
+              className='-mt-3 inline-flex items-center gap-2 text-label text-on-volt transition-opacity duration-180 ease-out-expo [text-shadow:0_1px_10px_rgb(16_28_150/0.7)] hover:opacity-80 max-sm:mt-0 max-sm:self-center'
             >
               <i className='size-1.5 rounded-full bg-live shadow-[0_0_0_3px_rgb(74_222_155/0.25)]' aria-hidden />
               {t('hero.proof')}
               <ArrowUpRight className='size-3.5' aria-hidden />
+              <span className='sr-only'> {tDemo('newTab')}</span>
             </a>
           }
         />
@@ -68,7 +75,7 @@ export function UptimePage() {
         />
       }
     >
-      <MonitorDemo />
+      <DemoSection href='/demo/monitoring' src='/demo/monitoring' className='pb-2 max-lg:pb-2' />
       <Section id='specs' className='pt-0 max-sm:pt-8'>
         <SpecStrip
           specs={[
@@ -121,7 +128,13 @@ export function UptimePage() {
       </Section>
       <Section id='mcp' title={t('agent.title')} lede={t('agent.lede')}>
         <Panel flush framed>
-          <AgentPanel />
+          <McpPanel
+            lead={t('agent.lead')}
+            body={t('agent.body')}
+            cta={t('agent.cta')}
+            scripts={MCP_SCRIPTS}
+            alt={tTranscript('uptimeAlt')}
+          />
         </Panel>
       </Section>
       <FaqSection
@@ -130,6 +143,7 @@ export function UptimePage() {
         items={FAQ_KEYS.map((key) => ({ q: t(`faq.items.${key}.q`), a: t(`faq.items.${key}.a`) }))}
       />
       <RelatedSection
+        lede={t('related.lede')}
         items={[
           { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs },
           {

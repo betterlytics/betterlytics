@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
-import { Stage } from '@/landing/components/feature/showcase';
+import { Stage } from '@/landing/components/feature/stage';
 import { useInView } from '@/landing/hooks/useInView';
 import { vars } from '@/landing/lib/cssVars';
 import { rovingTabKeys } from '@/landing/lib/rovingTabs';
@@ -12,7 +12,6 @@ import { StoryScenes } from './storyScenes';
 
 const STEPS = ['fail', 'confirm', 'alert', 'status', 'recover'] as const;
 
-/** How long each step holds; the selected step's bar fills over it, and the next step comes when it's full. */
 const DWELL_MS = 5000;
 
 export function IncidentStory() {
@@ -21,16 +20,18 @@ export function IncidentStory() {
   const onScreen = useInView(ref, 'onScreen');
   const entered = useInView(ref, 'read');
   const reduce = useReducedMotion();
+  // state, so the server markup and first client render agree
+  const [still, setStill] = useState(false);
+  useEffect(() => setStill(reduce === true), [reduce]);
   const [step, setStep] = useState(0);
-  // bumped on every pick, so picking the step already shown still restarts its bar
-  const [pick, setPick] = useState(0);
+  const [auto, setAuto] = useState(true);
 
   const select = (index: number) => {
     setStep(index);
-    setPick((n) => n + 1);
+    setAuto(false);
   };
   const advance = () => {
-    if (!reduce) setStep((s) => (s + 1) % STEPS.length);
+    if (auto && !still) setStep((s) => (s + 1) % STEPS.length);
   };
 
   return (
@@ -38,7 +39,7 @@ export function IncidentStory() {
       ref={ref}
       className={styles.story}
       data-held={!(entered && onScreen) || undefined}
-      data-still={reduce || undefined}
+      data-still={still || !auto || undefined}
     >
       <div
         role='tablist'
@@ -62,9 +63,11 @@ export function IncidentStory() {
           >
             <time className={styles.time}>{t(`steps.${key}.time`)}</time>
             <span className={styles.stepTitle}>{t(`steps.${key}.title`)}</span>
-            <span className={styles.stepBody}>{t(`steps.${key}.body`)}</span>
+            <span className={styles.stepBody} aria-hidden>
+              {t(`steps.${key}.body`)}
+            </span>
             <i
-              key={i === step ? `${step}-${pick}` : i}
+              key={i === step ? `${step}-${auto}` : i}
               className={styles.progress}
               aria-hidden
               onAnimationEnd={i === step ? advance : undefined}
