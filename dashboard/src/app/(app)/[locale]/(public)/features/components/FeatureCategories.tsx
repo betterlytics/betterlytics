@@ -86,9 +86,9 @@ const CATEGORIES = [
     features: [
       { id: 'coreWebVitals', icon: Gauge },
       { id: 'uptimeMonitoring', icon: MonitorCheck, href: UPTIME },
-      { id: 'statusPages', icon: Radio, href: `${UPTIME}#status-pages` },
-      { id: 'sslMonitoring', icon: ShieldCheck, href: `${UPTIME}#checks` },
-      { id: 'notificationIntegrations', icon: Bell, href: `${UPTIME}#alerts` },
+      { id: 'statusPages', icon: Radio, href: UPTIME },
+      { id: 'sslMonitoring', icon: ShieldCheck, href: UPTIME },
+      { id: 'notificationIntegrations', icon: Bell, href: UPTIME },
     ],
   },
   {
