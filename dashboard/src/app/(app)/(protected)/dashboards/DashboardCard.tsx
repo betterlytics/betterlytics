@@ -8,6 +8,10 @@ import { ExternalLink, Calendar, Settings, Users } from 'lucide-react';
 import { useFormattedDate } from '@/hooks/use-formatted-date';
 import { useTranslations } from 'next-intl';
 import { DomainFavicon } from '@/components/domain/DomainFavicon';
+import { formatString } from '@/utils/formatters';
+
+const DOMAIN_MAX_LENGTH = 25;
+const SITE_ID_MAX_LENGTH = 32;
 
 interface DashboardCardProps {
   dashboard: DashboardWithMemberCount;
@@ -34,19 +38,21 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
 
       <div className='block h-full'>
         <CardHeader className='pb-4'>
-          <div className='flex items-start justify-between'>
-            <div className='flex items-center gap-3'>
-              <div className='bg-primary/10 group-hover:bg-primary/20 group-focus-within:bg-primary/20 flex items-center justify-center rounded-md p-1.5 transition-colors'>
+          <div className='flex min-w-0 items-start justify-between'>
+            <div className='flex min-w-0 flex-1 items-center gap-3'>
+              <div className='bg-primary/10 group-hover:bg-primary/20 group-focus-within:bg-primary/20 flex shrink-0 items-center justify-center rounded-md p-1.5 transition-colors'>
                 <DomainFavicon domain={dashboard.domain} size={24} className='h-7 w-7' />
               </div>
               <div className='min-w-0 flex-1'>
                 <CardTitle className='group-hover:text-primary group-focus-within:text-primary truncate text-lg font-semibold transition-colors'>
-                  {dashboard.domain}
+                  {formatString(dashboard.domain, DOMAIN_MAX_LENGTH)}
                 </CardTitle>
-                <p className='text-muted-foreground mt-1 text-sm'>{dashboard.siteId}</p>
+                <p className='text-muted-foreground mt-1 truncate text-sm'>
+                  {formatString(dashboard.siteId, SITE_ID_MAX_LENGTH)}
+                </p>
               </div>
             </div>
-            <div className='flex w-8 justify-center pt-1'>
+            <div className='flex w-8 shrink-0 justify-center pt-1'>
               {hasMultipleMembers ? (
                 <TooltipProvider delayDuration={100}>
                   <Tooltip>
