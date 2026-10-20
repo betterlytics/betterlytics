@@ -53,10 +53,6 @@ export async function getMonitorCheck(dashboardId: string, monitorId: string) {
   return getMonitorCheckById(dashboardId, monitorId);
 }
 
-export async function getMonitorChecks(dashboardId: string) {
-  return listMonitorChecks(dashboardId);
-}
-
 export async function addMonitorCheck(dashboardId: string, input: MonitorCheckCreate) {
   return createMonitorCheck(dashboardId, input);
 }
