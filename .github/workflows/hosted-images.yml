@@ -114,6 +114,41 @@ jobs:
           cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
           cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
 
+  deploy-staging:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: image-build
+    permissions: {}
+    steps:
+      # Builds can finish out of order; a commit that main has moved past would deploy an older staging
+      - name: Checking ${{ github.sha }} is still the head of main
+        id: head
+        run: |
+          head=$(git ls-remote "https://github.com/$GITHUB_REPOSITORY" refs/heads/main | cut -f1)
+          if [ "$head" = "$GITHUB_SHA" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "main has moved on to $head, whose run deploys staging"
+            echo "current=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/create-github-app-token@v2
+        if: steps.head.outputs.current == 'true'
+        id: token
+        with:
+          app-id: ${{ vars.DEPLOY_DISPATCH_APP_ID }}
+          private-key: ${{ secrets.DEPLOY_DISPATCH_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: production-setup
+          permission-actions: write
+
+      - name: Starting the staging deploy of ${{ env.COMMIT_TAG }}
+        if: steps.head.outputs.current == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: gh workflow run deploy-staging.yml --repo "$GITHUB_REPOSITORY_OWNER/production-setup" --ref main -f tag="$COMMIT_TAG"
+
   tag:
     needs: [plan, build]
     if: >-
