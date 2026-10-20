@@ -47,6 +47,8 @@ import {
 
 import { MCPIcon } from '@/components/icons';
 
+const UPTIME = '/features/uptime-monitoring';
+
 const CATEGORIES = [
   {
     id: 'coreAnalytics',
@@ -83,10 +85,10 @@ const CATEGORIES = [
     id: 'performanceMonitoring',
     features: [
       { id: 'coreWebVitals', icon: Gauge },
-      { id: 'uptimeMonitoring', icon: MonitorCheck },
-      { id: 'statusPages', icon: Radio },
-      { id: 'sslMonitoring', icon: ShieldCheck },
-      { id: 'notificationIntegrations', icon: Bell },
+      { id: 'uptimeMonitoring', icon: MonitorCheck, href: UPTIME },
+      { id: 'statusPages', icon: Radio, href: `${UPTIME}#status-pages` },
+      { id: 'sslMonitoring', icon: ShieldCheck, href: `${UPTIME}#checks` },
+      { id: 'notificationIntegrations', icon: Bell, href: `${UPTIME}#alerts` },
     ],
   },
   {
@@ -153,6 +155,7 @@ export async function FeatureCategories() {
                     icon={feature.icon}
                     title={t(`items.${feature.id}.title`)}
                     description={t(`items.${feature.id}.description`)}
+                    href={'href' in feature ? feature.href : undefined}
                   />
                 ))}
               </div>
