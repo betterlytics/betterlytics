@@ -42,7 +42,7 @@ export function SetupPanel() {
 betterlytics.init('YOUR_SITE_ID', {
 +  enableSessionReplay: true,
 +  replaySample: 20,
-+  disableReplayOnUrls: ['/admin/**', '/billing/**'],
++  disableReplayOnUrls: ['/admin/**'],
 })`,
     },
     {

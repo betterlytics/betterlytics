@@ -49,7 +49,11 @@ const CHAR_MS = 45;
 const TYPE_MS = 230;
 const CODE_TYPE_MS = 140;
 const POSTCODE = '1620';
-const URL_ADDED = ',/billing/**';
+/** The excluded path the visitor adds in each snippet, keyed by the quote its /admin/** string opens with. */
+const URL_ADDED: Record<string, { typed: string; suffix: string }> = {
+  '"': { typed: ',/billing/**', suffix: '"' },
+  "'": { typed: ", '/billing/**'", suffix: '' },
+};
 const SAMPLES = [5, 20];
 const ROUTES = 3;
 
@@ -349,11 +353,24 @@ export function ReplayCursor() {
       const pill = row?.querySelector('b');
       const onLabel = pill?.textContent;
       const offLabel = find('#controls [data-replay-path][data-off] b')?.textContent;
-      const token = Array.from(find('#setup code.visible')?.querySelectorAll('span') ?? []).find((span) =>
-        span.textContent?.startsWith('"/admin'),
-      );
+      const edits = Array.from(find('#setup pre')?.querySelectorAll('code span') ?? []).flatMap((token) => {
+        const text = token.textContent ?? '';
+        const spec = /^["']\/admin/.test(text) ? URL_ADDED[text[0]] : undefined;
+        return spec ? [{ ...spec, token, base: text.slice(0, text.length - spec.suffix.length), added: '' }] : [];
+      });
       const consent = textIn(find('#setup ol li:nth-child(2) p'));
-      if (!card || !knob || !track || !value || !row || !pill || !onLabel || !offLabel || !token || !consent)
+      if (
+        !card ||
+        !knob ||
+        !track ||
+        !value ||
+        !row ||
+        !pill ||
+        !onLabel ||
+        !offLabel ||
+        !edits.length ||
+        !consent
+      )
         return;
 
       const setSample = (v: number) => {
@@ -362,17 +379,16 @@ export function ReplayCursor() {
         const lit = Math.round((v / 100) * dots.length);
         for (const dot of dots) dot.toggleAttribute('data-lit', Number(dot.dataset.rank) < lit);
       };
-      const base = (token.textContent ?? '').slice(0, -1);
-      let added = '';
       /** Rewrites the string token and keeps the caret and the pointer just past what's been typed. */
-      const setCode = (next: string) => {
-        token.textContent = `${base}${next}"`;
-        const text = token.firstChild;
+      const setCode = (edit: (typeof edits)[number], next: string) => {
+        edit.added = next;
+        edit.token.textContent = `${edit.base}${next}${edit.suffix}`;
+        const text = edit.token.firstChild;
         if (!(text instanceof Text) || text.length < 2) return;
-        const typedEnd = lastChar(text, 2);
+        const typedEnd = lastChar(text, edit.suffix.length + 1);
         place(caret, { left: typedEnd.right, top: typedEnd.top, height: typedEnd.height });
-        const quote = lastChar(text);
-        owner.pos = { x: quote.right, y: quote.top };
+        const end = lastChar(text);
+        owner.pos = { x: end.right, y: end.top };
       };
 
       await gate();
@@ -402,25 +418,27 @@ export function ReplayCursor() {
         pill.textContent = off ? offLabel : onLabel;
         await sleep(2400, signal);
 
-        const text = token.firstChild;
-        if (text instanceof Text) await approach(owner, lastChar(text), 'top-right', () => 'input', 0);
-        click(owner);
-        setCode(added);
-        caret.dataset.on = '';
-        const target = added ? '' : URL_ADDED;
-        try {
-          while (added !== target) {
-            await sleep(added.length < target.length ? CODE_TYPE_MS : 70, signal);
-            added = target ? target.slice(0, added.length + 1) : added.slice(0, -1);
-            setCode(added);
+        // types into whichever snippet is showing; the consent one has no paths, so it goes straight to the highlight
+        const edit = edits.find(({ token }) => token.closest('code.visible'));
+        if (edit) {
+          const text = edit.token.firstChild;
+          if (text instanceof Text) await approach(owner, lastChar(text), 'top-right', () => 'input', 0);
+          click(owner);
+          setCode(edit, edit.added);
+          caret.dataset.on = '';
+          const target = edit.added ? '' : edit.typed;
+          try {
+            while (edit.added !== target && edit.token.closest('code.visible')) {
+              await sleep(edit.added.length < target.length ? CODE_TYPE_MS : 70, signal);
+              setCode(edit, target ? target.slice(0, edit.added.length + 1) : edit.added.slice(0, -1));
+            }
+          } finally {
+            // never leave a snippet half-typed, even when the reader leaves or switches tabs mid-word
+            setCode(edit, target);
           }
-        } finally {
-          // never leave the snippet half-typed, even when the reader leaves mid-word
-          added = target;
-          setCode(added);
+          delete caret.dataset.on;
+          await sleep(2400, signal);
         }
-        delete caret.dataset.on;
-        await sleep(2400, signal);
 
         const sentence = consent.data.indexOf('.') + 1 || consent.data.length;
         await select(owner, consent, 0, sentence);
