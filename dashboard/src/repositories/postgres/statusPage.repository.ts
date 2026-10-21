@@ -225,7 +225,7 @@ export async function getStatusPageImageBySlug(
   kind: StatusPageImageKind,
 ): Promise<{ data: Buffer; mimeType: string; hash: string | null } | null> {
   const image = await prisma.statusPageImage.findFirst({
-    where: { kind, statusPage: { slug, deletedAt: null } },
+    where: { kind, statusPage: { slug, deletedAt: null, dashboard: { deletedAt: null } } },
     select: {
       data: true,
       mimeType: true,
@@ -267,7 +267,7 @@ function toPublishedStatusPage(row: StatusPageSnapshotRow): PublishedStatusPage 
 
 export async function getPublishedStatusPageBySlug(slug: string): Promise<PublishedStatusPage | null> {
   const row = await prisma.statusPage.findFirst({
-    where: { slug, isPublished: true, deletedAt: null },
+    where: { slug, isPublished: true, deletedAt: null, dashboard: { deletedAt: null } },
     include: statusPageSnapshotInclude,
   });
   return row ? toPublishedStatusPage(row) : null;
@@ -278,7 +278,7 @@ export async function getPublishedStatusPageByCustomDomain(
   customDomain: string,
 ): Promise<PublishedStatusPage | null> {
   const row = await prisma.statusPage.findFirst({
-    where: { customDomain, isPublished: true, deletedAt: null },
+    where: { customDomain, isPublished: true, deletedAt: null, dashboard: { deletedAt: null } },
     include: statusPageSnapshotInclude,
   });
   return row ? toPublishedStatusPage(row) : null;
@@ -304,7 +304,7 @@ export async function findStatusPageByCustomDomain(
   customDomain: string,
 ): Promise<{ id: string; dashboardId: string; slug: string; isPublished: boolean } | null> {
   return prisma.statusPage.findFirst({
-    where: { customDomain, deletedAt: null },
+    where: { customDomain, deletedAt: null, dashboard: { deletedAt: null } },
     select: { id: true, dashboardId: true, slug: true, isPublished: true },
   });
 }
