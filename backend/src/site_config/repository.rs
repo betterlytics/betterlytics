@@ -15,6 +15,7 @@ SELECT
     sc."updatedAt" AS updated_at
 FROM "SiteConfig" sc
 INNER JOIN "Dashboard" d ON d."id" = sc."dashboardId"
+WHERE d."deletedAt" IS NULL
 "#;
 
 const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY sc."updatedAt" ASC"#;
@@ -61,6 +62,14 @@ impl SiteConfigRepository {
         Self { pool }
     }
 
+    fn all_configs_query() -> String {
+        format!("{BASE_SELECT}{ORDER_BY_UPDATED_AT}")
+    }
+
+    fn configs_updated_since_query() -> String {
+        format!(r#"{BASE_SELECT} AND sc."updatedAt" > $1{ORDER_BY_UPDATED_AT}"#)
+    }
+
     fn rowset_to_records(
         rows: Vec<Row>,
     ) -> Result<Vec<SiteConfigRecord>, PostgresError> {
@@ -74,8 +83,7 @@ impl SiteConfigRepository {
 impl SiteConfigDataSource for SiteConfigRepository {
     async fn fetch_all_configs(&self) -> Result<Vec<SiteConfigRecord>, PostgresError> {
         let conn = self.pool.connection().await?;
-        let query = format!("{BASE_SELECT}{ORDER_BY_UPDATED_AT}");
-        let rows = conn.query(&query, &[]).await?;
+        let rows = conn.query(&Self::all_configs_query(), &[]).await?;
         Self::rowset_to_records(rows)
     }
 
@@ -84,12 +92,32 @@ impl SiteConfigDataSource for SiteConfigRepository {
         since: DateTime<Utc>,
     ) -> Result<Vec<SiteConfigRecord>, PostgresError> {
         let conn = self.pool.connection().await?;
-        let query = format!(
-            r#"{BASE_SELECT} WHERE sc."updatedAt" > $1{ORDER_BY_UPDATED_AT}"#
-        );
         let rows = conn
-            .query(&query, &[&since.naive_utc()])
+            .query(&Self::configs_updated_since_query(), &[&since.naive_utc()])
             .await?;
         Self::rowset_to_records(rows)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn both_queries_skip_soft_deleted_dashboards() {
+        for query in [
+            SiteConfigRepository::all_configs_query(),
+            SiteConfigRepository::configs_updated_since_query(),
+        ] {
+            assert!(query.contains(r#"WHERE d."deletedAt" IS NULL"#));
+            assert_eq!(query.matches("WHERE").count(), 1);
+            assert!(query.ends_with(ORDER_BY_UPDATED_AT));
+        }
+    }
+
+    #[test]
+    fn updated_since_query_combines_with_the_deleted_filter() {
+        let query = SiteConfigRepository::configs_updated_since_query();
+        assert!(query.contains(r#" AND sc."updatedAt" > $1 ORDER BY"#));
     }
 }
