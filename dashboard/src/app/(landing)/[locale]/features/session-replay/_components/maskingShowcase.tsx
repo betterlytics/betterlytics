@@ -57,12 +57,6 @@ export function MaskingShowcase() {
             <div className={styles.replay}>
               <CheckoutMock masked />
             </div>
-            <span className={styles.tag} data-side='visitor'>
-              {t('visitor')}
-            </span>
-            <span className={styles.tag} data-side='replay'>
-              {t('you')}
-            </span>
             <span className={styles.handle}>
               <ChevronsLeftRight />
             </span>
@@ -80,8 +74,14 @@ export function MaskingShowcase() {
               setSplit(Number(event.currentTarget.value));
             }}
           />
+          <span className={styles.tag} data-side='visitor' aria-hidden>
+            {t('visitor')}
+          </span>
+          <span className={styles.tag} data-side='replay' aria-hidden>
+            {t('you')}
+          </span>
         </div>
-        <Label className='self-center text-caption' aria-hidden>
+        <Label className='mt-1.5 self-center text-caption max-sm:mt-0' aria-hidden>
           {t('try')}
         </Label>
       </div>

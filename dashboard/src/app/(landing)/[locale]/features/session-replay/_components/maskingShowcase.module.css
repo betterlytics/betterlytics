@@ -14,7 +14,6 @@
     width: min(640px, 100%);
     margin-inline: auto;
     border-radius: 12px;
-    overflow: hidden;
     border: 1px solid var(--color-rule-22);
     background: var(--color-panel);
     box-shadow:
@@ -53,9 +52,12 @@
     translate: -13px 0;
   }
 
+  /* clipped here rather than on the frame, so the pills can hang over its bottom edge */
   .view {
     position: relative;
     height: 388px;
+    overflow: hidden;
+    border-radius: 0 0 11px 11px;
   }
   .replay {
     position: absolute;
@@ -63,6 +65,7 @@
     clip-path: inset(0 0 0 var(--split));
   }
 
+  /* the usual before/after look: a white hairline and a round white grip */
   .handle {
     position: absolute;
     top: 0;
@@ -70,38 +73,50 @@
     left: var(--split);
     width: 2px;
     translate: -1px 0;
-    background: var(--color-volt-lift);
-    box-shadow: 0 0 18px --alpha(var(--color-volt-lift) / 60%);
+    background: var(--color-white);
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.06),
+      0 0 10px rgb(0 0 0 / 0.25);
     pointer-events: none;
   }
   .handle svg {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 30px;
-    height: 30px;
-    padding: 6px;
+    width: 36px;
+    /* it sits inside the 2px line, so the base svg max-width: 100% would squash it */
+    max-width: none;
+    height: 36px;
+    padding: 8px;
     translate: -50% -50%;
     border-radius: 50%;
-    background: var(--color-volt);
-    color: var(--color-on-volt);
+    background: var(--color-white);
+    color: #22201e;
     box-shadow:
-      0 0 0 4px --alpha(var(--color-volt-lift) / 28%),
-      0 8px 20px rgb(0 0 0 / 0.35);
+      0 0 0 1px rgb(0 0 0 / 0.08),
+      0 6px 16px rgb(0 0 0 / 0.3);
     transition: box-shadow 0.25s var(--ease-out-expo);
   }
   .compare:has(.range:focus-visible) .handle svg {
     box-shadow:
-      0 0 0 4px var(--color-volt-soft),
-      0 8px 20px rgb(0 0 0 / 0.35);
+      0 0 0 3px var(--color-volt-soft),
+      0 6px 16px rgb(0 0 0 / 0.3);
   }
 
+  /* straddle the frame's bottom edge; on phones there is no room for both, so they stay inside */
   .tag {
     position: absolute;
-    bottom: 12px;
+    z-index: 1;
+    bottom: 0;
+    translate: 0 50%;
+    @variant max-sm {
+      bottom: 12px;
+      translate: none;
+    }
     padding: 4px 10px;
     border-radius: 999px;
-    background: rgb(21 20 20 / 0.86);
+    border: 1px solid var(--color-rule-22);
+    background: rgb(21 20 20 / 0.92);
     color: var(--color-fg);
     font-size: 11px;
     font-weight: 500;
@@ -118,6 +133,7 @@
   }
   .tag[data-side='replay'] {
     right: 12px;
+    border-color: var(--color-volt-hover);
     background: var(--color-volt);
     color: var(--color-on-volt);
   }
