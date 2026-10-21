@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import { Bot, Check, X } from 'lucide-react';
+import { Check, Eye, X } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { Stage } from '@/landing/components/feature/stage';
@@ -51,10 +51,6 @@ function Sample({ t }: { t: Art }) {
             />
           ))}
         </div>
-        <span className={styles.legend}>
-          <i />
-          {t('recorded')}
-        </span>
       </div>
     </div>
   );
@@ -68,7 +64,7 @@ function Errors({ t }: { t: Art }) {
     <div className={styles.comp}>
       <div className={`${styles.card} ${styles.tape}`}>
         <span className={styles.window}>
-          <span className={styles.windowLabel}>{t('kept')}</span>
+          <span className={styles.windowLabel}>{t('leadUp')}</span>
         </span>
         <span className={styles.ticks}>
           {QUIET.map((x) => (
@@ -158,7 +154,7 @@ function Spa({ t }: { t: Art }) {
         {ROUTES.map(({ route, at }, i) => (
           <li key={route} className={styles.view} style={vars({ '--i': i })} data-replay-view={i}>
             <time>{at}</time>
-            <i />
+            <Eye aria-hidden />
             {t('pageview')}
             <code>{route}</code>
           </li>
@@ -169,18 +165,18 @@ function Spa({ t }: { t: Art }) {
 }
 
 const AGENTS = [
-  { name: 'Chrome 129', bot: false },
-  { name: 'HeadlessChrome', bot: true },
-  { name: 'Cypress', bot: true },
+  { name: 'Chrome 129', icon: 'chrome', bot: false },
+  { name: 'Playwright', icon: 'playwright', bot: true },
+  { name: 'Cypress', icon: 'cypress', bot: true },
 ];
 
 function Bots({ t }: { t: Art }) {
   return (
     <div className={styles.comp}>
       <div className={`${styles.card} ${styles.agents}`}>
-        {AGENTS.map(({ name, bot }) => (
+        {AGENTS.map(({ name, icon, bot }) => (
           <span key={name} className={styles.agent} data-bot={bot || undefined}>
-            {bot ? <Bot aria-hidden /> : <Image src='/browser-icons/chrome.svg' alt='' width={14} height={14} />}
+            <Image src={`/browser-icons/${icon}.svg`} alt='' width={14} height={14} />
             {name}
             <b>
               {bot ? <X aria-hidden /> : <Check aria-hidden />}

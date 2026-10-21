@@ -1824,7 +1824,7 @@
           "sample": "Sample",
           "recorded": "Recorded",
           "error": "TypeError",
-          "kept": "Kept",
+          "leadUp": "1–2 min",
           "off": "Off",
           "on": "On",
           "skipped": "Skipped",
@@ -1853,7 +1853,7 @@
           },
           "bots": {
             "title": "People only",
-            "body": "Headless browsers, WebDriver sessions and test runners like Cypress are never recorded."
+            "body": "Headless browsers, WebDriver sessions and test runners like Playwright and Cypress are never recorded."
           }
         }
       },
