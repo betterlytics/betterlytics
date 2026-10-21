@@ -1,10 +1,17 @@
 import type { Dispatch, KeyboardEvent } from 'react';
 
-export function nextTabIndex(key: string, index: number, count: number) {
+type Orientation = 'horizontal' | 'vertical';
+
+const KEYS: Record<Orientation, { next: string; previous: string }> = {
+  horizontal: { next: 'ArrowRight', previous: 'ArrowLeft' },
+  vertical: { next: 'ArrowDown', previous: 'ArrowUp' },
+};
+
+export function nextTabIndex(key: string, index: number, count: number, orientation: Orientation = 'horizontal') {
   switch (key) {
-    case 'ArrowRight':
+    case KEYS[orientation].next:
       return (index + 1) % count;
-    case 'ArrowLeft':
+    case KEYS[orientation].previous:
       return (index - 1 + count) % count;
     case 'Home':
       return 0;
@@ -16,9 +23,14 @@ export function nextTabIndex(key: string, index: number, count: number) {
 }
 
 /** onKeyDown for the `role='tablist'` element; give the selected tab `tabIndex` 0, the rest -1. */
-export function rovingTabKeys(index: number, count: number, select: Dispatch<number>) {
+export function rovingTabKeys(
+  index: number,
+  count: number,
+  select: Dispatch<number>,
+  orientation: Orientation = 'horizontal',
+) {
   return (event: KeyboardEvent<HTMLElement>) => {
-    const next = nextTabIndex(event.key, index, count);
+    const next = nextTabIndex(event.key, index, count, orientation);
     if (next === null) return;
     event.preventDefault();
     select(next);

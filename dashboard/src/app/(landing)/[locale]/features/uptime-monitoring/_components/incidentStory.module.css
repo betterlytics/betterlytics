@@ -1,0 +1,198 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .story {
+    display: grid;
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    @variant max-xl {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--color-rule-08);
+    @variant max-xl {
+      border-right: 0;
+      border-top: 1px solid var(--color-rule-08);
+    }
+  }
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-rows: auto 0fr;
+    column-gap: 10px;
+    padding: 17px 26px 17px 22px;
+    border-bottom: 1px solid var(--color-rule-08);
+    text-align: left;
+    color: var(--color-muted);
+    transition:
+      grid-template-rows 0.5s var(--ease-out-expo),
+      background-color 0.3s var(--ease-out-expo),
+      color 0.3s var(--ease-out-expo);
+    @variant max-sm {
+      padding-inline: var(--pad);
+    }
+  }
+  .step:last-child {
+    border-bottom: 0;
+  }
+  .step {
+    @variant xl {
+      flex: 1 1 0;
+      align-content: center;
+    }
+  }
+  .step[aria-selected='true'] {
+    @variant xl {
+      flex: none;
+    }
+  }
+  .step:hover {
+    color: var(--color-fg);
+  }
+  .step[aria-selected='true'] {
+    grid-template-rows: auto 1fr;
+    color: var(--color-fg);
+    background: linear-gradient(90deg, --alpha(var(--color-volt-lift) / 9%), transparent 70%);
+  }
+  .step:focus-visible {
+    outline-offset: -2px;
+  }
+  .time {
+    font-size: 12.5px;
+    line-height: 24px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+    transition: color 0.3s var(--ease-out-expo);
+  }
+  .step[aria-selected='true'] .time {
+    color: var(--color-fg);
+  }
+  .stepTitle {
+    font-size: var(--text-title);
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: var(--tracking-ui);
+  }
+  .stepBody {
+    grid-column: 2;
+    overflow: hidden;
+    min-height: 0;
+    font-size: var(--text-label);
+    line-height: 21px;
+    color: var(--color-muted);
+    opacity: 0;
+    transition: opacity 0.35s var(--ease-out-expo);
+  }
+  .step[aria-selected='true'] .stepBody {
+    padding-top: 4px;
+    opacity: 1;
+    transition-delay: 0.12s;
+  }
+  .progress {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: --alpha(var(--color-volt-lift) / 25%);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .progress::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--color-volt-lift);
+    transform-origin: 50% 0;
+  }
+  .step[aria-selected='true'] .progress {
+    opacity: 1;
+  }
+  /* the selected step's bar is the timer: when it fills, incidentStory moves on */
+  .step[aria-selected='true'] .progress::after {
+    animation: story-fill var(--dwell) linear both;
+  }
+  .story[data-held] .progress::after,
+  .steps:has(:focus-visible) .progress::after {
+    animation-play-state: paused;
+  }
+  @media (hover: hover) {
+    .steps:hover .progress::after,
+    .story:has([data-hold]:hover) .progress::after {
+      animation-play-state: paused;
+    }
+  }
+  /* no timer once a step is picked, or for reduced motion: the global 0.001ms duration would otherwise race through the steps */
+  .story[data-still] .progress::after {
+    animation: none;
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    @variant max-xl {
+      order: -1;
+    }
+  }
+  .caption {
+    @apply sr-only;
+  }
+  .stage {
+    flex: 1;
+    min-height: 420px;
+    @variant max-sm {
+      min-height: 360px;
+    }
+  }
+  .drift {
+    position: absolute;
+    inset: 0;
+    display: none;
+    background: repeating-linear-gradient(315deg, rgb(242 245 255 / 0.03) 0 1px, transparent 0 50%) 0 0 / 10px 10px;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 50%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 50%, transparent);
+    -webkit-mask-size: 34% 100%;
+    mask-size: 34% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .drift {
+      display: block;
+      animation: story-drift 22s linear infinite;
+    }
+    .story[data-held] .drift {
+      animation-play-state: paused;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step,
+    .stepBody {
+      transition: none;
+    }
+  }
+}
+
+@keyframes story-fill {
+  from {
+    transform: scaleY(0);
+  }
+}
+/* the 34%-wide band enters fully off the left edge and leaves fully off the right */
+@keyframes story-drift {
+  from {
+    -webkit-mask-position: -90% 0;
+    mask-position: -90% 0;
+  }
+  to {
+    -webkit-mask-position: 190% 0;
+    mask-position: 190% 0;
+  }
+}

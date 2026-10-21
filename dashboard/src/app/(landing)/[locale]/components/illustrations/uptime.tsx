@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { RollingDigits } from '@/landing/components/ui/rollingDigits';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
+import { formatUptime } from '@/utils/formatters';
 import type { IllustrationProps } from './types';
 import styles from './uptime.module.css';
 
@@ -50,12 +51,6 @@ function uptimeAt(row: number, t: number) {
   for (let k = t - CELLS + 1; k <= t; k++) if (fails(row, k)) failed++;
   return MONITORS[row].uptime - failed;
 }
-const formatUptime = (value: number, locale: string) =>
-  new Intl.NumberFormat(locale, {
-    style: 'percent',
-    minimumFractionDigits: value === 10000 ? 0 : 2,
-    maximumFractionDigits: 2,
-  }).format(value / 10000);
 
 type NoticeKind = 'ssl' | 'down' | 'up';
 type NoticeState = 'pending' | 'on' | 'gone';
@@ -139,7 +134,10 @@ function Monitor({ row, t, ticked }: { row: number; t: number; ticked: boolean }
       <span className={styles.latency}>{down ? text('timeout') : ms}</span>
       <Strip row={row} t={t} ticked={ticked} />
       <span className={styles.percent}>
-        <RollingDigits value={formatUptime(uptime, locale)} direction={uptime < uptimeAt(row, t - 1) ? -1 : 1} />
+        <RollingDigits
+          value={formatUptime(uptime / 100, locale)}
+          direction={uptime < uptimeAt(row, t - 1) ? -1 : 1}
+        />
       </span>
     </div>
   );
