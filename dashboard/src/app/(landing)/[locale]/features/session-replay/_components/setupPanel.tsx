@@ -29,7 +29,7 @@ export function SetupPanel() {
   data-site-id="YOUR_SITE_ID"
 +  data-replay="true"
 +  data-replay-sample="20"
-+  data-disable-replay-on-urls="/admin/**,/billing/**"
++  data-disable-replay-on-urls="/admin/**"
 +  data-track-errors="true"
 +  data-replay-on-error="true">
 </script>`,
