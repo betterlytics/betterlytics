@@ -1779,23 +1779,16 @@
         },
         "scenes": {
           "recording": "Recording",
-          "sampled": "In the 5% sample",
-          "chunk": "Chunk {n}",
           "newError": "New error",
-          "firstSeen": "First seen 14:03",
           "occurrences": "{count, plural, one {# session} other {# sessions}}",
           "sessions": "Sessions",
           "justNow": "Just now",
           "minutesAgo": "{count} min ago",
-          "watchReplay": "Watch replay",
-          "latestSession": "Latest session with this error",
           "timeline": "Timeline",
-          "pageview": "Pageview",
           "input": "Input",
           "click": "Click",
           "clientError": "Client error",
           "emptyField": "Postcode: empty",
-          "clicks": "{count}× on Pay",
           "start": "Start:",
           "skip": "Skip inactivity"
         }
