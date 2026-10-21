@@ -298,13 +298,27 @@ export async function getStatusPageSnapshotById(
 /**
  * Resolve a custom domain to its live status page. Used by the TLS-authorization (`ask`) endpoint
  * and the custom-domain public route. `findFirst` because customDomain is partial-unique (one live
- * page per domain) — never `findUnique`.
+ * page per domain) — never `findUnique`. A deleted dashboard's page is still returned, so its host
+ * keeps routing to the status page and answers not found like an unpublished one.
  */
-export async function findStatusPageByCustomDomain(
-  customDomain: string,
-): Promise<{ id: string; dashboardId: string; slug: string; isPublished: boolean } | null> {
-  return prisma.statusPage.findFirst({
-    where: { customDomain, deletedAt: null, dashboard: { deletedAt: null } },
-    select: { id: true, dashboardId: true, slug: true, isPublished: true },
+export async function findStatusPageByCustomDomain(customDomain: string): Promise<{
+  id: string;
+  dashboardId: string;
+  slug: string;
+  isPublished: boolean;
+  isDashboardDeleted: boolean;
+} | null> {
+  const row = await prisma.statusPage.findFirst({
+    where: { customDomain, deletedAt: null },
+    select: {
+      id: true,
+      dashboardId: true,
+      slug: true,
+      isPublished: true,
+      dashboard: { select: { deletedAt: true } },
+    },
   });
+  if (!row) return null;
+  const { dashboard, ...page } = row;
+  return { ...page, isDashboardDeleted: dashboard.deletedAt !== null };
 }
