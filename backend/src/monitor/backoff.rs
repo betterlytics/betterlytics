@@ -87,11 +87,9 @@ impl BackoffController {
             state.consecutive_successes = state.consecutive_successes.saturating_add(1);
             state.consecutive_failures = 0;
             if state.backoff_level > 0 && state.consecutive_successes >= policy.success_threshold {
-                state.backoff_level = state.backoff_level.saturating_sub(1);
+                state.backoff_level = 0;
                 state.consecutive_successes = 0;
-                if state.backoff_level == 0 {
-                    state.reason = BackoffReason::None;
-                }
+                state.reason = BackoffReason::None;
             }
         } else {
             state.consecutive_failures = state.consecutive_failures.saturating_add(1);
@@ -218,6 +216,12 @@ mod tests {
         ProbeOutcome::failure(StdDuration::from_millis(50), Some(503), ReasonCode::Http5xx)
     }
 
+    fn escalate(controller: &mut BackoffController, check: &MonitorCheck, levels: u16) {
+        for _ in 0..policy().failure_threshold * levels {
+            controller.apply_outcome(check, &failure());
+        }
+    }
+
     #[test]
     fn level_zero_is_exactly_the_base_interval() {
         // 44 minutes is not a "round" value; it must not be snapped to anything else.
@@ -282,6 +286,22 @@ mod tests {
         let snapshot = controller.apply_outcome(&check, &success());
         assert_eq!(snapshot.backoff_level, 0);
         assert_eq!(snapshot.effective_interval, check.interval);
+        assert_eq!(snapshot.backoff_reason, BackoffReason::None);
+    }
+
+    #[test]
+    fn two_successes_reset_a_deep_backoff_to_level_zero() {
+        let mut controller = BackoffController::new(policy());
+        let check = check(300);
+        escalate(&mut controller, &check, 3);
+        assert_eq!(controller.current_snapshot(&check).backoff_level, 3);
+
+        let snapshot = controller.apply_outcome(&check, &success());
+        assert_eq!(snapshot.backoff_level, 3);
+        let snapshot = controller.apply_outcome(&check, &success());
+        assert_eq!(snapshot.backoff_level, 0);
+        assert_eq!(snapshot.effective_interval, check.interval);
+        assert_eq!(snapshot.backoff_reason, BackoffReason::None);
     }
 
     #[test]
