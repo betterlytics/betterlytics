@@ -16,22 +16,39 @@ type Art = ReturnType<typeof useTranslations<'landing.replay.controls.art'>>;
 /* Values are mock data, left literal; labels are copy. Each scene is a fixed 300×140 composition. */
 
 const VISITS = 40;
-const SAMPLED = new Set([13, 31]);
+const SAMPLE = 5;
+/** The order visits light up in as the sample grows; a step coprime with 40 spreads them over the grid. */
+const ORDER = [
+  13,
+  31,
+  ...Array.from({ length: VISITS }, (_, i) => (i * 23 + 7) % VISITS).filter((i) => i !== 13 && i !== 31),
+];
+const RANK = Array.from({ length: VISITS }, (_, i) => ORDER.indexOf(i));
+const litBelow = (sample: number) => Math.round((sample / 100) * VISITS);
 
 function Sample({ t }: { t: Art }) {
   return (
     <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.sampleCard}`}>
+      <div
+        className={`${styles.card} ${styles.sampleCard}`}
+        style={vars({ '--sample': SAMPLE })}
+        data-replay-sample=''
+      >
         <div className={styles.sampleHead}>
           <span>{t('sample')}</span>
-          <b>5%</b>
+          <b data-replay-sample-value=''>{SAMPLE}%</b>
         </div>
         <span className={styles.sampleTrack}>
-          <i />
+          <i data-replay-knob='' />
         </span>
         <div className={styles.visits}>
           {Array.from({ length: VISITS }, (_, i) => (
-            <i key={i} data-lit={SAMPLED.has(i) || undefined} style={vars({ '--i': i % 20 })} />
+            <i
+              key={i}
+              data-rank={RANK[i]}
+              data-lit={RANK[i] < litBelow(SAMPLE) || undefined}
+              style={vars({ '--i': i % 20 })}
+            />
           ))}
         </div>
         <span className={styles.legend}>
@@ -82,7 +99,7 @@ function Paths({ t }: { t: Art }) {
     <div className={styles.comp}>
       <div className={`${styles.card} ${styles.paths}`}>
         {PATHS.map(({ path, on }) => (
-          <span key={path} className={styles.pathRow} data-off={!on || undefined}>
+          <span key={path} className={styles.pathRow} data-off={!on || undefined} data-replay-path={path}>
             <code>{path}</code>
             <i className={styles.skeleton} />
             <b>{on ? t('on') : t('off')}</b>
@@ -126,10 +143,10 @@ const ROUTES = [
 function Spa({ t }: { t: Art }) {
   return (
     <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.urlBar}`}>
+      <div className={`${styles.card} ${styles.urlBar}`} data-replay-url=''>
         <span className={styles.lock} />
         northwind.coffee
-        <span className={styles.route}>
+        <span className={styles.route} data-replay-route=''>
           {ROUTES.map(({ route }, i) => (
             <span key={route} style={vars({ '--i': i })}>
               {route}
@@ -139,7 +156,7 @@ function Spa({ t }: { t: Art }) {
       </div>
       <ul className={styles.views}>
         {ROUTES.map(({ route, at }, i) => (
-          <li key={route} className={styles.view} style={vars({ '--i': i })}>
+          <li key={route} className={styles.view} style={vars({ '--i': i })} data-replay-view={i}>
             <time>{at}</time>
             <i />
             {t('pageview')}

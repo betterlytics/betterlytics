@@ -47,7 +47,7 @@ export function CheckoutMock({ masked = false, flagPostcode = false, adorn, clas
           <div className={styles.pair}>
             <div className={styles.field} data-flag={flagPostcode || undefined}>
               <span>{m('Postcode')}</span>
-              <span className={styles.input} />
+              <span className={styles.input} data-replay-target='postcode' />
               {adorn?.postcode}
             </div>
             <div className={styles.field}>
@@ -55,7 +55,7 @@ export function CheckoutMock({ masked = false, flagPostcode = false, adorn, clas
               <span className={styles.input}>{m('Copenhagen')}</span>
             </div>
           </div>
-          <span className={styles.pay}>
+          <span className={styles.pay} data-replay-target='pay'>
             {m('Pay now')}
             {adorn?.pay}
           </span>

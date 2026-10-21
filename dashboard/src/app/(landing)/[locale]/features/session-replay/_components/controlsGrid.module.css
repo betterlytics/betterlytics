@@ -85,14 +85,14 @@
   .sampleTrack::before {
     content: '';
     position: absolute;
-    inset: 0 95% 0 0;
+    inset: 0 calc(100% - var(--sample) * 1%) 0 0;
     border-radius: 2px;
     background: var(--color-volt-lift);
   }
   .sampleTrack i {
     position: absolute;
     top: 50%;
-    left: 5%;
+    left: calc(var(--sample) * 1%);
     width: 12px;
     height: 12px;
     translate: -50% -50%;
@@ -110,7 +110,10 @@
     border-radius: 50%;
     background: var(--color-rule-22);
     opacity: 0;
-    transition: opacity 0.4s var(--ease-out-expo) calc(0.2s + var(--i) * 0.025s);
+    transition:
+      opacity 0.4s var(--ease-out-expo) calc(0.2s + var(--i) * 0.025s),
+      background-color 0.2s,
+      box-shadow 0.2s;
   }
   [data-in] .visits i {
     opacity: 1;
@@ -244,6 +247,15 @@
     height: 5px;
     border-radius: 3px;
     background: var(--color-rule-10);
+  }
+  .pathRow,
+  .pathRow code,
+  .pathRow b,
+  .skeleton {
+    transition:
+      background-color 0.3s var(--ease-out-expo),
+      color 0.3s var(--ease-out-expo),
+      filter 0.3s var(--ease-out-expo);
   }
   .pathRow b {
     padding: 1px 8px;
@@ -440,6 +452,23 @@
     @variant max-sm {
       padding-inline: var(--pad);
     }
+  }
+
+  /* once the replay cursor clicks the address bar, it picks the route instead of the loop */
+  .urlBar[data-route] .route span {
+    animation: none;
+    opacity: 0;
+  }
+  .urlBar[data-route='0'] .route span:nth-child(1),
+  .urlBar[data-route='1'] .route span:nth-child(2),
+  .urlBar[data-route='2'] .route span:nth-child(3) {
+    opacity: 1;
+  }
+  .view[data-current] {
+    color: var(--color-fg);
+  }
+  .view[data-current] i {
+    box-shadow: 0 0 0 3px rgb(56 189 248 / 0.3);
   }
 
   @media (prefers-reduced-motion: reduce) {
