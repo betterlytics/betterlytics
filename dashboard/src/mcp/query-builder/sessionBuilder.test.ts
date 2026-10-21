@@ -173,6 +173,23 @@ describe('buildSessionsQuery', () => {
     expect(result.taggedSql).toContain('utm_campaign.2 ILIKE pattern');
   });
 
+  it('filters on the session column when the same column is a dimension', () => {
+    const result = buildSessionsQuery(
+      input({
+        dimensions: ['utm_source', 'referrer_url'],
+        filters: [
+          { column: 'utm_source', operator: '=', values: ['*'] },
+          { column: 'referrer_url', operator: '!=', values: ['*google*'] },
+        ],
+      }),
+      siteId,
+    );
+
+    expect(result.taggedSql).toContain('utm_source.2 as utm_source');
+    expect(result.taggedSql).toContain("sessions.utm_source.2 != ''");
+    expect(result.taggedSql).toContain('sessions.referrer_url.2 NOT ILIKE pattern');
+  });
+
   it('ignores duplicate metrics and dimensions', () => {
     const result = buildSessionsQuery(
       input({ metrics: ['sessions', 'sessions'], dimensions: ['os', 'os'] }),

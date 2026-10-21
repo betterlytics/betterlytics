@@ -28,7 +28,9 @@ export function filterColumnSqlForSession(col: TableFilterColumn, tupleColumns: 
   const sql = filterColumnSql(parsed);
   const isTuple = !FILTER_COLUMN_SQL_OVERRIDES[parsed] && tupleColumns.includes(parsed);
 
-  return isTuple ? safeSql`${sql}.2` : sql;
+  // Qualified, because the session subquery selects `col.2 as col`, and an
+  // unqualified `col` in its WHERE would resolve to that String alias.
+  return isTuple ? safeSql`sessions.${sql}.2` : sql;
 }
 
 /**
