@@ -221,4 +221,15 @@ describe('buildSessionsQuery', () => {
       buildSessionsQuery(input({ dimensions: ['url'] as unknown as McpQuerySessionsInput['dimensions'] }), siteId),
     ).toThrow('Unknown dimension');
   });
+
+  it('rejects a sort key outside the identifier list even when the input skipped schema validation', () => {
+    expect(() =>
+      buildSessionsQuery(
+        input({
+          orderBy: 'sessions; DROP TABLE analytics.sessions' as unknown as McpQuerySessionsInput['orderBy'],
+        }),
+        siteId,
+      ),
+    ).toThrow();
+  });
 });

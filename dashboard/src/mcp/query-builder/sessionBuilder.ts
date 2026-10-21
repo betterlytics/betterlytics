@@ -5,11 +5,14 @@ import { matchAnyValueFilterSql } from '@/lib/filter-sql';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
-import { getSessionMetricByKey } from '@/mcp/registry/sessionMetrics';
-import { getSessionDimensionByKey, validateSessionDimensionColumn } from '@/mcp/registry/sessionDimensions';
+import { getSessionMetricByKey, SESSION_METRIC_KEYS } from '@/mcp/registry/sessionMetrics';
+import {
+  getSessionDimensionByKey,
+  SESSION_DIMENSION_COLUMNS,
+  SESSION_DIMENSION_KEYS,
+} from '@/mcp/registry/sessionDimensions';
 import {
   isSessionPageFilterColumn,
-  SESSION_PAGE_FILTER_COLUMNS,
   type McpQuerySessionsInput,
   type McpSessionPageFilter,
 } from '@/mcp/entities/mcp.entities';
@@ -20,7 +23,18 @@ type BuildResult = {
   taggedParams: Record<string, unknown>;
 };
 
-const SessionPageFilterColumnSchema = z.enum(SESSION_PAGE_FILTER_COLUMNS);
+// Every name this builder writes into the SQL text: dimension columns (entry_page and exit_page
+// included), dimension keys used as aliases, and metric keys used as sort keys.
+const SqlIdentifierSchema = z.enum([
+  ...SESSION_DIMENSION_COLUMNS,
+  ...SESSION_DIMENSION_KEYS,
+  ...SESSION_METRIC_KEYS,
+]);
+
+/** The builder's only raw SQL: the name is parsed against the fixed list above before it is injected. */
+function identifierSql(name: string) {
+  return SQL.Unsafe(SqlIdentifierSchema.parse(name));
+}
 
 /**
  * Aggregates analytics.sessions for the query_sessions tool. Sessions are picked by when they
@@ -58,7 +72,9 @@ export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string)
   const dimensions = [...new Set(input.dimensions ?? [])].map((key) => {
     const dim = getSessionDimensionByKey(key);
     if (!dim) throw new Error(`Unknown dimension: ${key}`);
-    return { key: dim.key, column: validateSessionDimensionColumn(dim.column) };
+    const columnSql = identifierSql(dim.column);
+    const selectSql = dim.column === dim.key ? columnSql : safeSql`${columnSql} AS ${identifierSql(dim.key)}`;
+    return { column: dim.column, columnSql, selectSql };
   });
 
   const pageFilters: McpSessionPageFilter[] = [];
@@ -91,7 +107,7 @@ export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string)
     endDateTime,
   );
 
-  const dimensionColumns = dimensions.map((d) => SQL.Unsafe(d.column));
+  const dimensionColumns = dimensions.map((d) => d.columnSql);
 
   // Breakdowns leave out sessions without a value for any requested dimension.
   const sessionWhere = [
@@ -110,9 +126,7 @@ export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string)
     WHERE ${SQL.AND(sessionWhere.length > 0 ? sessionWhere : [safeSql`1=1`])}
   )`;
 
-  const dimensionSelects = dimensions.map((d) =>
-    d.column === d.key ? SQL.Unsafe(d.column) : safeSql`${SQL.Unsafe(d.column)} AS ${SQL.Unsafe(d.key)}`,
-  );
+  const dimensionSelects = dimensions.map((d) => d.selectSql);
 
   if (isTimeSeries) {
     return buildTimeSeriesQuery({
@@ -129,7 +143,7 @@ export function buildSessionsQuery(input: McpQuerySessionsInput, siteId: string)
   }
 
   const orderByKey = input.orderBy ?? metrics[0].key;
-  const orderByColumn = SQL.Unsafe(orderByKey);
+  const orderByColumn = identifierSql(orderByKey);
   const orderDirection = input.order === 'asc' ? safeSql`ASC` : safeSql`DESC`;
 
   const query = safeSql`
@@ -185,7 +199,7 @@ function buildTimeSeriesQuery(opts: {
 
 /** Entry and exit page filters, with the same pattern and `*` semantics as the other filters. */
 function buildPageFilter(filter: McpSessionPageFilter, index: number) {
-  const column = SQL.Unsafe(SessionPageFilterColumnSchema.parse(filter.column));
+  const column = identifierSql(filter.column);
   const patterns = filter.values.map((value) => value.replaceAll('*', '%'));
   const values = SQL.StringArray({ [`mcp_page_filter_${index}`]: patterns });
 

@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import type { SessionsTableSelectableColumn } from '@/lib/ba-session-query';
 
 export const SESSION_DIMENSION_KEYS = [
@@ -72,16 +71,11 @@ export const SESSION_DIMENSIONS = [
   { key: 'utm_content', column: 'utm_content', description: "UTM content of the session's first event" },
 ] satisfies SessionDimensionDefinition[];
 
-const SESSION_DIMENSION_COLUMNS = SESSION_DIMENSIONS.map((d) => d.column) as [
+export const SESSION_DIMENSION_COLUMNS = SESSION_DIMENSIONS.map((d) => d.column) as [
   SessionsTableSelectableColumn,
   ...SessionsTableSelectableColumn[],
 ];
-const SessionDimensionColumnSchema = z.enum(SESSION_DIMENSION_COLUMNS);
 
 export function getSessionDimensionByKey(key: string): SessionDimensionDefinition | undefined {
   return SESSION_DIMENSIONS.find((d) => d.key === key);
-}
-
-export function validateSessionDimensionColumn(column: string): SessionsTableSelectableColumn {
-  return SessionDimensionColumnSchema.parse(column);
 }
