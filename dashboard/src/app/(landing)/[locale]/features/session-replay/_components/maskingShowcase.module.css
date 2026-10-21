@@ -48,7 +48,6 @@
     padding: 2px 14px;
     border-radius: 999px;
     border: 1px solid var(--color-rule-10);
-    font-family: var(--font-mono);
     font-size: 10.5px;
     color: var(--color-muted);
     translate: -13px 0;

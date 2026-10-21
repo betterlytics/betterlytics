@@ -63,7 +63,7 @@ betterlytics.init('YOUR_SITE_ID', {
         <ol className='grid gap-6'>
           {STEPS.map((key, i) => (
             <li key={key} className='grid grid-cols-[28px_1fr] gap-3.5'>
-              <span className='grid size-7 place-items-center rounded-full border border-rule-22 font-mono text-caption text-fg'>
+              <span className='grid size-7 place-items-center rounded-full border border-rule-22 text-caption text-fg tabular-nums'>
                 {i + 1}
               </span>
               <div>

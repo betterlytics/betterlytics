@@ -106,7 +106,6 @@
   }
   .url {
     overflow: hidden;
-    font-family: var(--font-mono);
     font-size: 10.5px;
     color: var(--color-muted);
     white-space: nowrap;
@@ -179,7 +178,6 @@
     border-radius: 8px;
     border: 1px solid --alpha(var(--color-volt-lift) / 35%);
     background: color-mix(in oklab, var(--color-canvas), var(--color-volt) 18%);
-    font-family: var(--font-mono);
     font-size: 10.5px;
     color: var(--color-fg);
     box-shadow: 0 10px 24px rgb(0 0 0 / 0.45);
@@ -285,7 +283,6 @@
     margin-left: auto;
   }
   .path {
-    font-family: var(--font-mono);
     font-size: 11px;
     color: var(--color-fg);
   }
@@ -374,7 +371,6 @@
     color: var(--color-muted);
   }
   .playerTop b {
-    font-family: var(--font-mono);
     font-weight: 400;
     color: var(--color-fg);
   }
