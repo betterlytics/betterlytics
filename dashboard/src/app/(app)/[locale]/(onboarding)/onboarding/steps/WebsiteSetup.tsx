@@ -120,7 +120,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
                 onCheckedChange={(v) => setAgree(Boolean(v))}
                 aria-required={true}
               />
-              <Label htmlFor='agree-terms' className='gap-0 text-sm leading-snug font-normal'>
+              <Label htmlFor='agree-terms' className='cursor-pointer gap-0 text-sm leading-snug font-normal'>
                 <span>
                   {t.rich('termsAgreeLabel', {
                     termsLink: (chunks) => (
