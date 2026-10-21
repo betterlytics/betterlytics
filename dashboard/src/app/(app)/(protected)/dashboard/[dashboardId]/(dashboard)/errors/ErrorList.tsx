@@ -272,7 +272,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
                   (table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate'))
                 }
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                className={cn('mr-2', disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
+                className='mr-2'
                 disabled={disabled}
                 aria-label={t('table.selectAll')}
               />
@@ -283,7 +283,6 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
           <PermissionGate>
             {(disabled) => (
               <Checkbox
-                className={cn(disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
                 checked={!disabled && row.getIsSelected()}
                 onCheckedChange={(value) => row.toggleSelected(!!value)}
                 onClick={(e) => e.stopPropagation()}
