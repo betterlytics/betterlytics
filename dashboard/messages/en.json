@@ -1845,7 +1845,7 @@
           },
           "light": {
             "title": "Light on your site",
-            "body": "The recorder is a separate file that loads only when it's needed, and sends gzipped chunks every 20 seconds."
+            "body": "The recorder is a separate file that loads only when it's needed, and sends compressed chunks in the background."
           },
           "spa": {
             "title": "Made for single-page apps",
@@ -1868,8 +1868,8 @@
             "body": "Add data-replay to your script tag, or set enableSessionReplay in the npm package."
           },
           "consent": {
-            "title": "Ask first",
-            "body": "Recording waits for consent. Call setReplayConsent(true) when your banner resolves, or add data-consent-replay to a script you only render after consent."
+            "title": "Handle consent",
+            "body": "Rules like the EU's ePrivacy Directive may require consent before you record. If they do, call setReplayConsent(true) when your banner resolves. If not, set data-consent-replay=\"true\" on the script tag."
           },
           "tune": {
             "title": "Tune it",
@@ -1902,7 +1902,7 @@
           },
           "slow": {
             "q": "Will session replay slow down my site?",
-            "a": "The recorder is a separate file that only loads when a visit is recorded or error capture is on. It sends gzipped chunks every 20 seconds in the background, and samples mouse movement instead of following every pixel."
+            "a": "The recorder is a separate file that only loads when a visit is recorded or error capture is on. It sends compressed chunks in the background and samples mouse movement instead of following every pixel."
           },
           "sample": {
             "q": "How many visits are recorded?",
