@@ -10,6 +10,7 @@ import { HeroSection } from '@/landing/components/sections/heroSection';
 import { Panel, Section } from '@/landing/components/ui/frame';
 import { LINKS } from '@/landing/lib/links';
 import { ControlsGrid } from './_components/controlsGrid';
+import { ReplayCursor } from './_components/replayCursor';
 import { MaskingShowcase } from './_components/maskingShowcase';
 import { ReplayStory } from './_components/replayStory';
 import { SetupPanel } from './_components/setupPanel';
@@ -55,6 +56,7 @@ export function ReplayPage() {
         />
       }
     >
+      <ReplayCursor />
       <DemoSection href='/demo/replay' src='/demo/replay' className='pb-2 max-lg:pb-2' />
       <Section id='specs' className='pt-0 max-sm:pt-8'>
         <SpecStrip

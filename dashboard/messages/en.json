@@ -1716,6 +1716,14 @@
         "primary": "Start recording free",
         "secondary": "Read the docs"
       },
+      "cursor": {
+        "input": "Input captured",
+        "drag": "Drag captured",
+        "click": "Click captured",
+        "selection": "Selection captured",
+        "pageview": "Pageview captured",
+        "paused": "Capture paused"
+      },
       "specs": {
         "speed": {
           "unit": "×",
