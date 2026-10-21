@@ -6,10 +6,17 @@ function request(method: string, headers: Record<string, string>, pathname: stri
 }
 
 const DOCUMENT = { 'sec-fetch-dest': 'document' };
+// what a browser asks for on a page load; over plain HTTP (not localhost) it sends no Sec-Fetch-Dest
+const HTML_ACCEPT = { accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' };
 
 describe('withSigninReturnTo', () => {
   it('records path and query of a document load', () => {
     const headers = withSigninReturnTo(request('GET', DOCUMENT, '/dashboard/abc/pages', '?filters=x&range=7d'));
+    expect(headers.get(SIGNIN_RETURN_TO_HEADER)).toBe('/dashboard/abc/pages?filters=x&range=7d');
+  });
+
+  it('records a page load over plain HTTP by its Accept header', () => {
+    const headers = withSigninReturnTo(request('GET', HTML_ACCEPT, '/dashboard/abc/pages', '?filters=x&range=7d'));
     expect(headers.get(SIGNIN_RETURN_TO_HEADER)).toBe('/dashboard/abc/pages?filters=x&range=7d');
   });
 
@@ -20,8 +27,17 @@ describe('withSigninReturnTo', () => {
 
   it.each([
     ['server action', request('POST', { ...DOCUMENT, 'next-action': 'abc' }, '/dashboard/abc/funnels')],
+    [
+      'server action over plain HTTP',
+      request('POST', { accept: 'text/x-component', 'next-action': 'abc' }, '/dashboard/abc/funnels'),
+    ],
     ['client navigation or prefetch', request('GET', { 'sec-fetch-dest': 'empty' }, '/dashboard/abc/pages')],
-    ['request without Sec-Fetch-Dest', request('GET', {}, '/dashboard/abc/pages')],
+    [
+      'client navigation or prefetch that also accepts HTML',
+      request('GET', { ...HTML_ACCEPT, 'sec-fetch-dest': 'empty' }, '/dashboard/abc/pages'),
+    ],
+    ['client navigation or prefetch over plain HTTP', request('GET', { accept: '*/*' }, '/dashboard/abc/pages')],
+    ['request without Sec-Fetch-Dest or Accept', request('GET', {}, '/dashboard/abc/pages')],
   ])('records nothing for a %s', (_label, req) => {
     expect(withSigninReturnTo(req).has(SIGNIN_RETURN_TO_HEADER)).toBe(false);
   });
