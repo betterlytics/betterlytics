@@ -1,7 +1,8 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { getSchemaDescription, type ToolAvailability } from '@/mcp/tools/describe';
 import { executeQuery } from '@/mcp/tools/query';
-import { McpQueryInputBaseSchema } from '@/mcp/entities/mcp.entities';
+import { executeQuerySessions } from '@/mcp/tools/querySessions';
+import { McpQueryInputBaseSchema, McpQuerySessionsInputBaseSchema } from '@/mcp/entities/mcp.entities';
 import { executeUserJourneys, McpUserJourneysInputBaseSchema } from '@/mcp/tools/userJourneys';
 import { executeFunnelPreview, McpFunnelPreviewInputBaseSchema } from '@/mcp/tools/funnelPreview';
 import { executeListFunnels, McpListFunnelsInputBaseSchema } from '@/mcp/tools/listFunnels';
@@ -76,10 +77,20 @@ export function createMcpServer(context: McpContext): McpServer {
     'query',
     {
       description:
-        'Query analytics data with flexible metrics and dimensions. Use describe first to see available options.',
+        'Query analytics data with flexible metrics and dimensions. Use describe first to see available options. For bounce rate, visit duration, pages per session, and landing or exit pages, use query_sessions.',
       inputSchema: McpQueryInputBaseSchema.shape,
     },
     (params) => runTool('query', () => executeQuery(params, context.siteId)),
+  );
+
+  server.registerTool(
+    'query_sessions',
+    {
+      description:
+        'Query aggregate session analytics: sessions, visitors, pageviews, bounce rate, average visit duration, and pages per session, as totals or as an hourly or daily series, broken down by landing page (entry_page), exit page, device, geography, referrer, or UTM fields. Filters take the same columns as query plus entry_page and exit_page. Sessions are picked by when they started, and metrics always cover the whole session. A filter on url, event_type, custom_event_name, outbound_link_url, or cep.<key> keeps a session when any of its events in the range matches, and != drops the whole session. Breakdowns leave out sessions with an empty value for a requested dimension. Results match the Overview session cards and chart for the same range, timezone and filters. Use describe first: its querySessions section lists the metrics with units, the dimensions, and how this compares with the Entry pages and Campaigns pages.',
+      inputSchema: McpQuerySessionsInputBaseSchema.shape,
+    },
+    (params) => runTool('query_sessions', () => executeQuerySessions(params, context.siteId)),
   );
 
   server.registerTool(
