@@ -345,7 +345,7 @@ const QUERY_SESSIONS_DESCRIPTION: QuerySessionsDescription = {
   emptyValues:
     'Breakdowns leave out sessions with an empty value for a requested dimension: sessions without a landing page, untagged sessions in a utm_* breakdown, an unknown country, and so on. Totals without dimensions still count every session, so a breakdown can add up to less than the total. To limit totals to tagged traffic, filter with { column: "utm_source", operator: "=", values: ["*"] }: "*" alone matches any non-empty value, and != "*" keeps only sessions where the value is empty.',
   timeSeries:
-    'With a granularity, rows are bucketed by session start in the requested timezone and dates without sessions are filled with zeros. visitors counts each visitor only in the bucket of their first session, so the buckets add up to the total visitors.',
+    'With a granularity, rows are bucketed by session start in the requested timezone. Without dimensions, dates without sessions are filled with zeros; with dimensions, only dates where a value had sessions are returned, so a missing date means zero. visitors counts each visitor only in the bucket of their first session, so the buckets add up to the total visitors.',
   dashboardComparison: {
     overview:
       'Totals and series match the Overview session cards and chart (Visitors, Sessions, Bounce Rate, Avg. Visit Duration, Pages per Session) for the same range, timezone and filters, up to rounding. The Overview card rounds bounce rate to a whole percent. pageviews counts every pageview of the selected sessions, so it can differ slightly from the Overview Pageviews card at the edges of the range.',

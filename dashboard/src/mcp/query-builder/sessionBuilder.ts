@@ -161,6 +161,9 @@ function buildTimeSeriesQuery(opts: {
     opts.endDateTime,
   );
 
+  // Zero-filled rows would carry an empty dimension value, so only plain series are filled.
+  const dateFill = opts.dimensionColumns.length === 0 ? fill : safeSql``;
+
   const selectParts = [
     safeSql`${granularityFunc('session_created_at')} AS date`,
     ...opts.dimensionSelects,
@@ -171,7 +174,7 @@ function buildTimeSeriesQuery(opts: {
     SELECT ${SQL.SEPARATOR(selectParts)}
     FROM ${opts.sessions}
     GROUP BY ${SQL.SEPARATOR([safeSql`date`, ...opts.dimensionColumns])}
-    ORDER BY date ASC ${fill}
+    ORDER BY date ASC ${dateFill}
     LIMIT ${SQL.UInt32({ limit: opts.limit })}
   `;
 

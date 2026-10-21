@@ -190,6 +190,13 @@ describe('buildSessionsQuery', () => {
     expect(result.taggedSql).toContain('sessions.referrer_url.2 NOT ILIKE pattern');
   });
 
+  it('does not zero-fill a time series with dimensions', () => {
+    const result = buildSessionsQuery(input({ dimensions: ['utm_campaign'], granularity: 'hour' }), siteId);
+
+    expect(result.taggedSql).toContain('ORDER BY date ASC');
+    expect(result.taggedSql).not.toContain('WITH FILL');
+  });
+
   it('ignores duplicate metrics and dimensions', () => {
     const result = buildSessionsQuery(
       input({ metrics: ['sessions', 'sessions'], dimensions: ['os', 'os'] }),
