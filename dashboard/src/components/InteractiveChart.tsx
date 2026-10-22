@@ -22,7 +22,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { Pencil, X } from 'lucide-react';
+import { Eye, EyeOff, Pencil, X } from 'lucide-react';
 import { type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
 import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
 import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
@@ -52,6 +52,8 @@ const PILL = {
   textFont: ANNOTATION_PILL_TEXT.font,
 } as const;
 
+const ANNOTATION_SAVE_HOLD_MS = 1500;
+
 interface ChartDataPoint {
   date: string | number;
   value: Array<number | null>;
@@ -75,6 +77,8 @@ interface InteractiveChartProps {
     updates: Pick<ChartAnnotation, 'label' | 'description' | 'colorToken' | 'date'>,
   ) => void;
   onDeleteAnnotation?: (id: string) => void;
+  annotationsVisible?: boolean;
+  onToggleAnnotationsVisible?: () => void;
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
@@ -93,6 +97,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     onAddAnnotation,
     onUpdateAnnotation,
     onDeleteAnnotation,
+    annotationsVisible = true,
+    onToggleAnnotationsVisible,
   }) => {
     const locale = useLocale();
     const t = useTranslations('components.annotations.chart');
@@ -105,6 +111,11 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const [openGroup, setOpenGroup] = useState<AnnotationGroup | null>(null);
     const [popoverAnchorRect, setPopoverAnchorRect] = useState<DOMRect | null>(null);
+
+    const [isHoldingAfterSave, setIsHoldingAfterSave] = useState(false);
+    // Annotation mode and the pause after a save reveal hidden annotations without changing the saved choice
+    const isAnnotationLayerVisible = annotationsVisible || isAnnotationMode || isHoldingAfterSave;
+    const showAnnotationsLabel = annotationsVisible ? t('hideAnnotations') : t('showAnnotations');
 
     const measureTextWidth = useMemo<((text: string) => number) | undefined>(() => {
       if (typeof document === 'undefined') return undefined;
@@ -195,6 +206,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       (annotation: Omit<ChartAnnotation, 'id'>) => {
         onAddAnnotation?.(annotation);
         setIsAnnotationMode(false);
+        setIsHoldingAfterSave(true);
       },
       [onAddAnnotation],
     );
@@ -232,6 +244,20 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const isMobile = useIsMobile();
     const [hoveredPillGroup, setHoveredPillGroup] = useState<number | null>(null);
 
+    useEffect(() => {
+      if (!isHoldingAfterSave) return;
+      const timeout = setTimeout(() => setIsHoldingAfterSave(false), ANNOTATION_SAVE_HOLD_MS);
+      return () => clearTimeout(timeout);
+    }, [isHoldingAfterSave]);
+
+    useEffect(() => {
+      if (isAnnotationLayerVisible) return;
+      setOpenGroup(null);
+      setPopoverAnchorRect(null);
+      setHoveredGroup(null);
+      setHoveredPillGroup(null);
+    }, [isAnnotationLayerVisible]);
+
     const renderChartTooltip = useCallback(
       (tooltipProps: any) => {
         if (hoveredPillGroup !== null) return null;
@@ -253,26 +279,47 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div ref={chartContainerRef} className='relative h-80 py-1 sm:px-2 md:px-4'>
-            {onAddAnnotation && (
-              <PermissionGate hideWhenDisabled>
-                {(disabled) => (
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={() => setIsAnnotationMode(!isAnnotationMode)}
-                    disabled={disabled}
-                    className={`absolute top-0 right-0 z-10 h-8 w-8 cursor-pointer ${
-                      isAnnotationMode
-                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    }`}
-                    title={isAnnotationMode ? t('exitAnnotationMode') : t('enterAnnotationMode')}
-                  >
-                    {isAnnotationMode ? <X className='h-4 w-4' /> : <Pencil className='h-4 w-4' />}
-                  </Button>
-                )}
-              </PermissionGate>
-            )}
+            <div className='absolute top-0 right-0 z-10 flex items-center gap-1'>
+              {onToggleAnnotationsVisible && annotations && annotations.length > 0 && (
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => {
+                    setIsHoldingAfterSave(false);
+                    onToggleAnnotationsVisible();
+                  }}
+                  disabled={isAnnotationMode}
+                  className='text-muted-foreground hover:bg-muted hover:text-foreground h-8 w-8 cursor-pointer'
+                  title={showAnnotationsLabel}
+                  aria-label={showAnnotationsLabel}
+                >
+                  {annotationsVisible ? <Eye className='h-4 w-4' /> : <EyeOff className='h-4 w-4' />}
+                </Button>
+              )}
+              {onAddAnnotation && (
+                <PermissionGate hideWhenDisabled>
+                  {(disabled) => (
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      onClick={() => {
+                        setIsAnnotationMode(!isAnnotationMode);
+                        setIsHoldingAfterSave(false);
+                      }}
+                      disabled={disabled}
+                      className={`h-8 w-8 cursor-pointer ${
+                        isAnnotationMode
+                          ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      }`}
+                      title={isAnnotationMode ? t('exitAnnotationMode') : t('enterAnnotationMode')}
+                    >
+                      {isAnnotationMode ? <X className='h-4 w-4' /> : <Pencil className='h-4 w-4' />}
+                    </Button>
+                  )}
+                </PermissionGate>
+              )}
+            </div>
 
             {isAnnotationMode && (
               <Badge
@@ -408,6 +455,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                         onSingleClick={handleSingleAnnotationClick}
                         isAnnotationMode={isAnnotationMode}
                         isDisabled={!canMutate && group.annotations.length === 1}
+                        isVisible={isAnnotationLayerVisible}
                       />
                     }
                   />
