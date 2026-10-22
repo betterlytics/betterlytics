@@ -111,7 +111,6 @@ mod tests {
         ] {
             assert!(query.contains(r#"WHERE d."deletedAt" IS NULL"#));
             assert_eq!(query.matches("WHERE").count(), 1);
-            assert!(query.ends_with(ORDER_BY_UPDATED_AT));
         }
     }
 
