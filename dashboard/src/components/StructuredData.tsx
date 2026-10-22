@@ -1,3 +1,4 @@
+import { JsonLd } from '@/components/JsonLd';
 import { generateStructuredData } from '@/lib/seo';
 import type { SEOConfig } from '@/lib/seo';
 
@@ -8,12 +9,5 @@ export async function StructuredData({ config }: { config: SEOConfig }) {
     return null;
   }
 
-  return (
-    <script
-      type='application/ld+json'
-      dangerouslySetInnerHTML={{
-        __html: JSON.stringify(structuredData).replace(/</g, '\\u003c'),
-      }}
-    />
-  );
+  return <JsonLd data={structuredData} />;
 }

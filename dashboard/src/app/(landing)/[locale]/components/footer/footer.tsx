@@ -55,9 +55,19 @@ function LanguageLinks() {
   );
 }
 
-function Column({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+function Column({
+  id,
+  title,
+  className,
+  children,
+}: {
+  id: string;
+  title: string;
+  className?: string;
+  children: ReactNode;
+}) {
   return (
-    <div className='flex-1 max-2xl:basis-[40%]'>
+    <div className={cn('flex-1 max-2xl:basis-[40%]', className)}>
       <h2 id={id} className='mb-2 text-caption font-medium tracking-[-0.1px] text-muted max-sm:mb-1'>
         {title}
       </h2>
@@ -80,7 +90,24 @@ export function LandingFooter() {
           aria-label={t('nav')}
           className='flex flex-1 gap-6 max-2xl:basis-full max-2xl:flex-wrap max-sm:gap-y-13'
         >
-          <Column id='footer-company' title={t('columns.company')}>
+          <Column id='footer-product' title={t('columns.product')}>
+            <li>
+              <AppLink className={LINK} href='/features'>
+                {t('product.features')}
+              </AppLink>
+            </li>
+            <li>
+              <AppLink className={LINK} href='/features/uptime-monitoring'>
+                {t('product.uptime')}
+              </AppLink>
+            </li>
+            <li>
+              <AppLink className={LINK} href='/pricing'>
+                {t('product.pricing')}
+              </AppLink>
+            </li>
+          </Column>
+          <Column id='footer-company' title={t('columns.company')} className='max-2xl:order-1'>
             <li>
               <AppLink className={LINK} href='/about'>
                 {t('company.about')}
@@ -124,22 +151,12 @@ export function LandingFooter() {
               </AppLink>
             </li>
             <li>
-              <AppLink className={LINK} href='/features'>
-                {t('resources.features')}
-              </AppLink>
-            </li>
-            <li>
-              <AppLink className={LINK} href='/pricing'>
-                {t('resources.pricing')}
-              </AppLink>
-            </li>
-            <li>
               <a className={LINK} href={LINKS.status}>
                 {t('resources.status')}
               </a>
             </li>
           </Column>
-          <Column id='footer-compare' title={t('columns.compare')}>
+          <Column id='footer-compare' title={t('columns.compare')} className='max-2xl:order-1'>
             {COMPARISONS.map(({ slug, name }) => (
               <li key={slug}>
                 <AppLink className={LINK} href={`/vs/${slug}`}>
@@ -149,7 +166,7 @@ export function LandingFooter() {
               </li>
             ))}
           </Column>
-          <Column id='footer-connect' title={t('columns.connect')}>
+          <Column id='footer-connect' title={t('columns.connect')} className='max-2xl:order-2'>
             <li>
               <a className={LINK} href={LINKS.github} target='_blank' rel='noopener'>
                 <GitHubIcon className={SOCIAL_ICON} />

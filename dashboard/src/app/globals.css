@@ -302,6 +302,9 @@
   pre {
     font-family: var(--font-roboto-mono);
   }
+  button:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 /* Minimal leaflet z-index fixes to prevent map from appearing above UI dialogs */
@@ -320,10 +323,6 @@
   .map-sticky-tooltip {
     display: none;
   }
-}
-
-[data-slot='sheet-content'] > button.absolute.top-4.right-4 {
-  cursor: pointer;
 }
 
 .rr-player .replayer-mouse:after {

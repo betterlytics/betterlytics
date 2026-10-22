@@ -12,6 +12,7 @@ import { MonitorList } from './MonitorList';
 import { FilterSelectValue } from './components';
 import { MonitoringEmptyState } from './MonitoringEmptyState';
 import { presentSslStatus } from './styles';
+import { compareDownFirst, monitorSortName, OPERATIONAL_STATE_PRIORITY } from './utils';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 
@@ -66,14 +67,6 @@ const STATUS_FILTER_STATES: Record<StatusFilter, MonitorOperationalState[] | nul
   paused: ['paused'],
   preparing: ['preparing'],
   ssl: null, // SSL filter uses different logic
-};
-
-const OPERATIONAL_STATE_PRIORITY: Record<MonitorOperationalState, number> = {
-  down: 0,
-  degraded: 1,
-  up: 2,
-  preparing: 3,
-  paused: 4,
 };
 
 type MonitoringClientProps = {
@@ -136,7 +129,6 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
   );
 
   const sortedMonitors = useMemo(() => {
-    const nameValue = (monitor: MonitorWithStatus) => (monitor.name || monitor.url || '').toLowerCase();
     const createdAtMs = (monitor: MonitorWithStatus) =>
       monitor.createdAt ? new Date(monitor.createdAt).getTime() : Number.NEGATIVE_INFINITY;
     const sslDays = (monitor: MonitorWithStatus) => {
@@ -150,27 +142,24 @@ export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringCl
 
     return [...filteredMonitors].sort((a, b) => {
       switch (sortKey) {
-        case 'downFirst': {
-          const priorityDiff =
-            OPERATIONAL_STATE_PRIORITY[a.operationalState] - OPERATIONAL_STATE_PRIORITY[b.operationalState];
-          return priorityDiff !== 0 ? priorityDiff : nameValue(a).localeCompare(nameValue(b));
-        }
+        case 'downFirst':
+          return compareDownFirst(a, b);
         case 'upFirst': {
           const priorityDiff =
             OPERATIONAL_STATE_PRIORITY[b.operationalState] - OPERATIONAL_STATE_PRIORITY[a.operationalState];
-          return priorityDiff !== 0 ? priorityDiff : nameValue(a).localeCompare(nameValue(b));
+          return priorityDiff !== 0 ? priorityDiff : monitorSortName(a).localeCompare(monitorSortName(b));
         }
         case 'newest':
-          return createdAtMs(b) - createdAtMs(a) || nameValue(a).localeCompare(nameValue(b));
+          return createdAtMs(b) - createdAtMs(a) || monitorSortName(a).localeCompare(monitorSortName(b));
         case 'oldest':
-          return createdAtMs(a) - createdAtMs(b) || nameValue(a).localeCompare(nameValue(b));
+          return createdAtMs(a) - createdAtMs(b) || monitorSortName(a).localeCompare(monitorSortName(b));
         case 'nameDesc':
-          return nameValue(b).localeCompare(nameValue(a));
+          return monitorSortName(b).localeCompare(monitorSortName(a));
         case 'ssl':
-          return sslDays(a) - sslDays(b) || nameValue(a).localeCompare(nameValue(b));
+          return sslDays(a) - sslDays(b) || monitorSortName(a).localeCompare(monitorSortName(b));
         case 'nameAsc':
         default:
-          return nameValue(a).localeCompare(nameValue(b));
+          return monitorSortName(a).localeCompare(monitorSortName(b));
       }
     });
   }, [filteredMonitors, sortKey]);

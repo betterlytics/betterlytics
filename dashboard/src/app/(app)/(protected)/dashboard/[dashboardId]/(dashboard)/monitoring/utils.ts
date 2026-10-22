@@ -1,4 +1,5 @@
 import type { useTranslations } from 'next-intl';
+import type { MonitorOperationalState, MonitorWithStatus } from '@/entities/analytics/monitoring.entities';
 
 type MonitoringPageTranslation = ReturnType<typeof useTranslations<'monitoringPage'>>;
 
@@ -37,4 +38,22 @@ export function formatSslTimeRemaining(
   }
 
   return { value: diffHours, unit: 'hours' };
+}
+
+export const OPERATIONAL_STATE_PRIORITY: Record<MonitorOperationalState, number> = {
+  down: 0,
+  degraded: 1,
+  up: 2,
+  preparing: 3,
+  paused: 4,
+};
+
+export const monitorSortName = (monitor: Pick<MonitorWithStatus, 'name' | 'url'>) =>
+  (monitor.name || monitor.url || '').toLowerCase();
+
+export function compareDownFirst(a: MonitorWithStatus, b: MonitorWithStatus) {
+  return (
+    OPERATIONAL_STATE_PRIORITY[a.operationalState] - OPERATIONAL_STATE_PRIORITY[b.operationalState] ||
+    monitorSortName(a).localeCompare(monitorSortName(b))
+  );
 }

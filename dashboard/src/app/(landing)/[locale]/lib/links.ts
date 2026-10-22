@@ -1,6 +1,8 @@
 export const LINKS = {
   docs: 'https://betterlytics.io/docs',
   mcpDocs: 'https://betterlytics.io/docs/dashboard/mcp',
+  monitoringDocs: 'https://betterlytics.io/docs/dashboard/monitoring',
+  integrationsDocs: 'https://betterlytics.io/docs/dashboard/integrations',
   github: 'https://github.com/betterlytics/betterlytics',
   license: 'https://github.com/betterlytics/betterlytics/blob/main/LICENSE',
   securityPolicy: 'https://github.com/betterlytics/betterlytics/security/policy',
