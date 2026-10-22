@@ -398,7 +398,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const hasActiveFilters = globalFilter.trim().length > 0 || stateFilter !== 'all';
 
   return (
-    <div className='space-y-4'>
+    <div className='space-y-4 pb-20 md:pb-0'>
       <IncidentSuggestionsPanel suggestions={suggestions} onCreateIncident={openFromSuggestion} />
 
       <Section

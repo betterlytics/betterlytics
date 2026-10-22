@@ -474,7 +474,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
   }
 
   return (
-    <div className='space-y-3'>
+    <div className='space-y-3 pb-20 md:pb-0'>
       <StatusFilterTabs value={statusFilter} counts={statusCounts} onChange={changeStatusFilter} />
 
       <ErrorToolbar
