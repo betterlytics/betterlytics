@@ -4,7 +4,8 @@ import { SUPPORTED_LANGUAGES } from '@/constants/i18n';
 import { ACCOUNT_DISABLED_ERROR_CODE } from './auth-error';
 import { toSafeRelativePath } from './safe-redirect';
 
-const SIGN_IN_REDIRECT_DEFAULT = '/dashboards';
+// the smart entry: the user's only dashboard, else Your Dashboards
+const SIGN_IN_REDIRECT_DEFAULT = '/dashboard';
 const LOCALE_PREFIX = `(?:/(?:${SUPPORTED_LANGUAGES.join('|')}))?`;
 const ACCEPT_INVITE_PATH = new RegExp(`^${LOCALE_PREFIX}/accept-invite/([^/?#]+)$`);
 const SIGNED_OUT_PAGE = new RegExp(`^${LOCALE_PREFIX}/(?:signin|signup|forgot-password|reset-password)/?$`);
