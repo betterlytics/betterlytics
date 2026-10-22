@@ -155,6 +155,7 @@ Session Replay operates with privacy‑first defaults:
 - All text content and form inputs are masked before transmission.
 - Raw user data (keystrokes, messages, or identifiers) are never captured in readable form.
 - Developers can extend masking or blocking with `[data-rrweb-mask]`, `.rr-block`, and `.rr-ignore`.
+- The page address stored with a recording keeps only the normalized path, without the query string or hash.
 - The feature is designed to comply with major data protection regulations (e.g., GDPR, CCPA) when used with user consent and proper disclosure in your site’s privacy policy.
 
 ## Storage and Security
