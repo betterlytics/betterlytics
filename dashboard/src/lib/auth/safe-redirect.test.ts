@@ -14,6 +14,8 @@ describe('toSafeRelativePath', () => {
     ['protocol-relative after a parent segment', '/..//evil.example/x'],
     ['protocol-relative after a resolved parent segment', '/a/..//evil.example/x'],
     ['protocol-relative after an encoded dot segment', '/%2e//evil.example/x'],
+    ['protocol-relative after an uppercase encoded dot segment', '/%2E//evil.example/x'],
+    ['protocol-relative after an encoded parent segment', '/%2e%2e//evil.example/x'],
     ['backslash host', '/\\evil.example'],
     ['tab-split host', '/\t/evil.example'],
     ['newline-split host', '/\n/evil.example'],
@@ -33,5 +35,9 @@ describe('toSafeRelativePath', () => {
 
   it('normalizes encoded slashes so the result cannot become protocol-relative', () => {
     expect(toSafeRelativePath('/%2F%2Fevil.example', '/dashboards')).toBe('/%2F%2Fevil.example');
+  });
+
+  it('keeps dot segments that normalize to a same-origin path', () => {
+    expect(toSafeRelativePath('/dashboard/./1/../2?x=1', '/dashboards')).toBe('/dashboard/2?x=1');
   });
 });

@@ -1,10 +1,11 @@
 import createMiddleware from 'next-intl/middleware';
-import { isUnlocalizedPath, routing } from '@/i18n/routing';
+import { isSignedInPath, isUnlocalizedPath, routing } from '@/i18n/routing';
 import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '@/lib/env';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
 import { decideStatusHostRoute, isOwnHost, normalizeHostname, ownHostsFrom } from '@/lib/status-host-routing';
 import { classifyStatusHost } from '@/services/analytics/statusHost.service';
+import { withSigninReturnTo } from '@/lib/auth/signin-redirect';
 
 const intlMiddleware = createMiddleware(routing);
 const OWN_HOSTS = ownHostsFrom(
@@ -44,6 +45,10 @@ export async function middleware(request: NextRequest) {
       return NextResponse.rewrite(url);
     }
     return NextResponse.next();
+  }
+
+  if (isSignedInPath(pathname)) {
+    return NextResponse.next({ request: { headers: withSigninReturnTo(request) } });
   }
 
   // Was the matcher's negative lookahead; now applied after the host check so status hosts can 404 these.
