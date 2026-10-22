@@ -35,15 +35,16 @@ export const PaginationControls = memo(
     const mobilePages = useMemo(() => getPageNumbers(currentPage, totalPages, true), [currentPage, totalPages]);
 
     return (
-      <div className='flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between'>
+      <div className='flex flex-wrap items-center justify-between gap-x-2 gap-y-3 text-sm sm:flex-nowrap sm:gap-x-3'>
         {showPageSizeControls && (
-          <div className='flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-start sm:gap-3'>
-            <p className='text-muted-foreground/80 text-xs whitespace-nowrap sm:text-sm'>
+          // On mobile the wrapper dissolves so the showing line can wrap below the selector and navigation
+          <div className='contents sm:flex sm:items-center sm:gap-3'>
+            <p className='text-muted-foreground/80 order-last w-full text-xs whitespace-nowrap sm:order-none sm:w-auto sm:text-sm'>
               {t('showing', { startItem, endItem, totalItems })}
             </p>
             <div className='flex items-center gap-1.5 sm:gap-2'>
               <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange(Number(value))}>
-                <SelectTrigger size='sm' className='h-7 w-[70px] cursor-pointer sm:h-8'>
+                <SelectTrigger size='sm' className='h-7 w-[70px] cursor-pointer sm:h-8' aria-label={t('perPage')}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -54,7 +55,9 @@ export const PaginationControls = memo(
                   ))}
                 </SelectContent>
               </Select>
-              <span className='text-muted-foreground/80 text-xs whitespace-nowrap sm:text-sm'>{t('perPage')}</span>
+              <span className='text-muted-foreground/80 hidden text-xs whitespace-nowrap sm:inline sm:text-sm'>
+                {t('perPage')}
+              </span>
             </div>
           </div>
         )}
@@ -62,7 +65,7 @@ export const PaginationControls = memo(
         <nav
           aria-label='Pagination'
           className={cn(
-            'flex items-center justify-end gap-0.5',
+            'ml-auto flex items-center justify-end gap-0.5 sm:ml-0',
             showPageSizeControls && 'border-border/40 sm:border-l sm:pl-4',
           )}
         >
@@ -100,7 +103,7 @@ export const PaginationControls = memo(
                 pages={mobilePages}
                 currentPage={currentPage}
                 onPageChange={onPageChange}
-                className='flex sm:hidden'
+                className='flex px-0 sm:hidden'
                 compact
               />
             </>
@@ -160,7 +163,7 @@ const PageNumbers = memo(({ pages, currentPage, onPageChange, className, compact
           aria-current={page === currentPage ? 'page' : undefined}
           className={cn(
             'cursor-pointer rounded-md py-1 text-sm font-medium tabular-nums transition-colors',
-            compact ? 'min-w-[1.5rem] px-1.5' : 'min-w-[1.75rem] px-2',
+            compact ? 'min-w-[1.5rem] px-1' : 'min-w-[1.75rem] px-2',
             page === currentPage
               ? 'bg-primary text-primary-foreground'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/60',
@@ -181,12 +184,12 @@ function getPageNumbers(currentPage: number, totalPages: number, compact: boolea
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
     if (currentPage <= 3) {
-      return [1, 2, 3, 4, 'ellipsis-end', totalPages];
+      return [1, 2, 3, 'ellipsis-end', totalPages];
     }
     if (currentPage >= totalPages - 2) {
-      return [1, 'ellipsis-start', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      return [1, 'ellipsis-start', totalPages - 2, totalPages - 1, totalPages];
     }
-    return [1, 'ellipsis-start', currentPage - 1, currentPage, currentPage + 1, 'ellipsis-end', totalPages];
+    return [1, 'ellipsis-start', currentPage, 'ellipsis-end', totalPages];
   }
 
   if (totalPages <= 6) return Array.from({ length: totalPages }, (_, i) => i + 1);
