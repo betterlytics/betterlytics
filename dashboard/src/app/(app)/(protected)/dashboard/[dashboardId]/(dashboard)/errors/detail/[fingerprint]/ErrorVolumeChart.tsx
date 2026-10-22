@@ -42,7 +42,8 @@ export function ErrorVolumeChart({ data }: ErrorVolumeChartProps) {
               if (!active || !payload?.[0]) return null;
               const count = payload[0].payload.count as number;
               // The day is a bare YYYY-MM-DD in the user's zone, so format it in UTC to keep the same calendar day
-              const dateLabel = formatLocalDateTime(String(label), locale, { dateStyle: 'medium', timeZone: 'UTC' }) ?? label;
+              const dateLabel =
+                formatLocalDateTime(String(label), locale, { dateStyle: 'medium', timeZone: 'UTC' }) ?? label;
               return (
                 <div className='bg-popover border-border rounded-md border px-3 py-1.5 shadow-sm'>
                   <p className='text-popover-foreground text-sm'>{dateLabel}</p>
