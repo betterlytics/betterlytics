@@ -115,6 +115,7 @@ export default function UserPreferencesSettings() {
           description={t('localization.languageDescription')}
           action={
             <LanguageSelect
+              id='language'
               value={settings.language as SupportedLanguages}
               onUpdate={(language) => languageMutation.mutate({ language })}
             />
