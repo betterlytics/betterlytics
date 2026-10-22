@@ -38,6 +38,7 @@ FROM "MonitorCheck" mc
 JOIN "Dashboard" d ON mc."dashboardId" = d.id
 WHERE mc."isEnabled" = TRUE
 AND mc."deletedAt" IS NULL
+AND d."deletedAt" IS NULL
 "#;
 
 const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY mc."updatedAt" ASC"#;
@@ -194,6 +195,14 @@ impl MonitorRepository {
         Self { pool }
     }
 
+    fn all_checks_query() -> String {
+        format!("{BASE_SELECT}{ORDER_BY_UPDATED_AT}")
+    }
+
+    fn checks_updated_since_query() -> String {
+        format!(r#"{BASE_SELECT} AND mc."updatedAt" > $1{ORDER_BY_UPDATED_AT}"#)
+    }
+
     fn rows_to_checks(rows: Vec<Row>) -> Result<Vec<MonitorCheck>, MonitorRepositoryError> {
         rows.into_iter()
             .map(|row| {
@@ -209,8 +218,7 @@ impl MonitorRepository {
 impl MonitorCheckDataSource for MonitorRepository {
     async fn fetch_all_checks(&self) -> Result<Vec<MonitorCheck>, MonitorRepositoryError> {
         let conn = self.pool.connection().await?;
-        let query = format!("{BASE_SELECT}{ORDER_BY_UPDATED_AT}");
-        let rows = conn.query(&query, &[]).await
+        let rows = conn.query(&Self::all_checks_query(), &[]).await
             .map_err(|e| MonitorRepositoryError::Postgres(PostgresError::Query(e)))?;
         Self::rows_to_checks(rows)
     }
@@ -220,9 +228,30 @@ impl MonitorCheckDataSource for MonitorRepository {
         since: DateTime<Utc>,
     ) -> Result<Vec<MonitorCheck>, MonitorRepositoryError> {
         let conn = self.pool.connection().await?;
-        let query = format!(r#"{BASE_SELECT} AND mc."updatedAt" > $1{ORDER_BY_UPDATED_AT}"#);
-        let rows = conn.query(&query, &[&since.naive_utc()]).await
+        let rows = conn.query(&Self::checks_updated_since_query(), &[&since.naive_utc()]).await
             .map_err(|e| MonitorRepositoryError::Postgres(PostgresError::Query(e)))?;
         Self::rows_to_checks(rows)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn both_queries_skip_soft_deleted_dashboards() {
+        for query in [
+            MonitorRepository::all_checks_query(),
+            MonitorRepository::checks_updated_since_query(),
+        ] {
+            assert!(query.contains(r#"AND d."deletedAt" IS NULL"#));
+            assert_eq!(query.matches("WHERE").count(), 1);
+        }
+    }
+
+    #[test]
+    fn updated_since_query_combines_with_the_deleted_filter() {
+        let query = MonitorRepository::checks_updated_since_query();
+        assert!(query.contains(r#" AND mc."updatedAt" > $1 ORDER BY"#));
     }
 }
