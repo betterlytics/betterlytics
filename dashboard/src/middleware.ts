@@ -1,5 +1,5 @@
 import createMiddleware from 'next-intl/middleware';
-import { isUnlocalizedPath, routing } from '@/i18n/routing';
+import { isSignedInPath, isUnlocalizedPath, routing } from '@/i18n/routing';
 import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '@/lib/env';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
@@ -13,7 +13,6 @@ const OWN_HOSTS = ownHostsFrom(
   sharedEmailEnv.isCloud ? env.STATUS_PAGE_DOMAIN : '',
   sharedEmailEnv.isCloud,
 );
-const SIGNED_IN_AREA = /^\/(dashboard|dashboards|billing|admin)(\/|$)/;
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -48,7 +47,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (SIGNED_IN_AREA.test(pathname)) {
+  if (isSignedInPath(pathname)) {
     return NextResponse.next({ request: { headers: withSigninReturnTo(request) } });
   }
 
