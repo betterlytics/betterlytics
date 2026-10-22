@@ -1,3 +1,4 @@
+import { signInPath } from '@/lib/auth/auth-page-state';
 import { toSafeRelativePath } from '@/lib/auth/safe-redirect';
 
 // Carries the requested page from middleware to the sign-in redirect of a signed-out page load.
@@ -32,6 +33,5 @@ export function withSigninReturnTo(request: MiddlewareRequest): Headers {
 }
 
 export function getSigninPath(requestHeaders: Headers): string {
-  const returnTo = toSafeRelativePath(requestHeaders.get(SIGNIN_RETURN_TO_HEADER), '');
-  return returnTo ? `/signin?callbackUrl=${encodeURIComponent(returnTo)}` : '/signin';
+  return signInPath(toSafeRelativePath(requestHeaders.get(SIGNIN_RETURN_TO_HEADER), ''));
 }

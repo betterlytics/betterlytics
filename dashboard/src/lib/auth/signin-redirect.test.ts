@@ -74,6 +74,7 @@ describe('getSigninPath', () => {
     ['external', 'https://evil.example/x'],
     ['protocol-relative', '//evil.example'],
     ['dot segment', '/.//evil.example'],
+    ['the default after sign-in', '/dashboard'],
   ])('falls back to plain /signin when the destination is %s', (_label, value) => {
     const headers = new Headers(value === undefined ? {} : { [SIGNIN_RETURN_TO_HEADER]: value });
     expect(getSigninPath(headers)).toBe('/signin');
