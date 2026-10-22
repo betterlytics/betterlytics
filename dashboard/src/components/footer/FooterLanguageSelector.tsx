@@ -25,7 +25,7 @@ export function FooterLanguageSelector() {
           aria-label={t('changeLanguage')}
           className='text-foreground/90 hover:text-foreground inline-flex cursor-pointer items-center gap-2 rounded-md py-1 text-sm transition-colors'
         >
-          <Globe className='text-muted-foregroundh-5 w-5' />
+          <Globe className='text-muted-foreground h-5 w-5' />
           <span className='font-medium'>{LANGUAGE_METADATA[locale as SupportedLanguages].name}</span>
         </button>
       </DropdownMenuTrigger>
