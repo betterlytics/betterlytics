@@ -10,6 +10,7 @@ import { type SummaryCardData } from '@/components/dashboard/SummaryCardsSection
 import InlineMetricsHeader from '@/components/dashboard/InlineMetricsHeader';
 import { formatPercentage } from '@/utils/formatters';
 import { useChartAnnotations } from '@/hooks/useChartAnnotations';
+import { useAnnotationsVisibility } from '@/hooks/use-annotations-visibility';
 import { BARouterOutputs } from '@/trpc/client';
 
 type ActiveMetric = 'visitors' | 'sessions' | 'pageviews' | 'bounceRate' | 'avgDuration' | 'pagesPerSession';
@@ -131,6 +132,7 @@ export default function OverviewChartSection({
   const { annotations, createAnnotation, updateAnnotation, deleteAnnotation } = useChartAnnotations({
     chartId: 'overview',
   });
+  const { isVisible: annotationsVisible, toggleVisible: toggleAnnotationsVisible } = useAnnotationsVisibility();
 
   return (
     <InteractiveChart
@@ -148,6 +150,8 @@ export default function OverviewChartSection({
       onAddAnnotation={createAnnotation}
       onUpdateAnnotation={updateAnnotation}
       onDeleteAnnotation={deleteAnnotation}
+      annotationsVisible={annotationsVisible}
+      onToggleAnnotationsVisible={toggleAnnotationsVisible}
     />
   );
 }

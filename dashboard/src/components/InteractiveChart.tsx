@@ -29,7 +29,6 @@ import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
 import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
 import { ANNOTATION_PILL_TEXT, groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
-import { useAnnotationsVisibility } from '@/hooks/use-annotations-visibility';
 
 const AXIS = {
   fontSize: 12,
@@ -78,6 +77,8 @@ interface InteractiveChartProps {
     updates: Pick<ChartAnnotation, 'label' | 'description' | 'colorToken' | 'date'>,
   ) => void;
   onDeleteAnnotation?: (id: string) => void;
+  annotationsVisible?: boolean;
+  onToggleAnnotationsVisible?: () => void;
 }
 
 const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
@@ -96,6 +97,8 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     onAddAnnotation,
     onUpdateAnnotation,
     onDeleteAnnotation,
+    annotationsVisible = true,
+    onToggleAnnotationsVisible,
   }) => {
     const locale = useLocale();
     const t = useTranslations('components.annotations.chart');
@@ -109,12 +112,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const [openGroup, setOpenGroup] = useState<AnnotationGroup | null>(null);
     const [popoverAnchorRect, setPopoverAnchorRect] = useState<DOMRect | null>(null);
 
-    const { isVisible: savedAnnotationsVisible, toggleVisible: toggleAnnotationsVisible } =
-      useAnnotationsVisibility();
     const [isHoldingAfterSave, setIsHoldingAfterSave] = useState(false);
     // Annotation mode and the pause after a save reveal hidden annotations without changing the saved choice
-    const isAnnotationLayerVisible = savedAnnotationsVisible || isAnnotationMode || isHoldingAfterSave;
-    const showAnnotationsLabel = savedAnnotationsVisible ? t('hideAnnotations') : t('showAnnotations');
+    const isAnnotationLayerVisible = annotationsVisible || isAnnotationMode || isHoldingAfterSave;
+    const showAnnotationsLabel = annotationsVisible ? t('hideAnnotations') : t('showAnnotations');
 
     const measureTextWidth = useMemo<((text: string) => number) | undefined>(() => {
       if (typeof document === 'undefined') return undefined;
@@ -279,16 +280,16 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div ref={chartContainerRef} className='relative h-80 py-1 sm:px-2 md:px-4'>
             <div className='absolute top-0 right-0 z-10 flex items-center gap-1'>
-              {annotations && annotations.length > 0 && (
+              {onToggleAnnotationsVisible && annotations && annotations.length > 0 && (
                 <Button
                   variant='ghost'
                   size='icon'
-                  onClick={toggleAnnotationsVisible}
+                  onClick={onToggleAnnotationsVisible}
                   className='text-muted-foreground hover:bg-muted hover:text-foreground h-8 w-8 cursor-pointer'
                   title={showAnnotationsLabel}
                   aria-label={showAnnotationsLabel}
                 >
-                  {savedAnnotationsVisible ? <Eye className='h-4 w-4' /> : <EyeOff className='h-4 w-4' />}
+                  {annotationsVisible ? <Eye className='h-4 w-4' /> : <EyeOff className='h-4 w-4' />}
                 </Button>
               )}
               {onAddAnnotation && (
