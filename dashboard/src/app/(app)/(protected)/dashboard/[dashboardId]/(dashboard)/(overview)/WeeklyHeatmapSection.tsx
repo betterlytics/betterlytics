@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { type WeeklyHeatmapMatrix } from '@/presenters/toWeeklyHeatmapMatrix';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatDuration } from '@/utils/dateFormatters';
+import { formatDuration, formatShortWeekdayNames } from '@/utils/dateFormatters';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { useLocale, useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -139,10 +139,7 @@ type HeatmapGridProps = {
 
 function HeatmapGrid({ data, maxValue, metricLabel, metric }: HeatmapGridProps) {
   const locale = useLocale();
-  const dayLabels = useMemo(() => {
-    const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short' });
-    return Array.from({ length: 7 }, (_, i) => formatter.format(new Date(Date.UTC(1970, 0, 5 + i))));
-  }, [locale]);
+  const dayLabels = useMemo(() => formatShortWeekdayNames(locale), [locale]);
 
   const colorScale = useColorScale({
     maxValue,
