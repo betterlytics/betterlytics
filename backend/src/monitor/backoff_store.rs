@@ -13,7 +13,6 @@ struct BackoffSeedRow {
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis")]
     ts: DateTime<Utc>,
     backoff_level: u8,
-    effective_interval_seconds: u32,
 }
 
 /// Reads the backoff level from each check's latest result within `lookback`. SSL
@@ -33,8 +32,7 @@ pub async fn load_backoff_seeds(
         SELECT
             check_id,
             ts,
-            backoff_level,
-            effective_interval_seconds
+            backoff_level
         FROM {table}
         WHERE check_id IN {{check_ids:Array(String)}}
           AND kind != 'tls'
@@ -58,7 +56,6 @@ pub async fn load_backoff_seeds(
             let seed = BackoffSeed {
                 ts: row.ts,
                 backoff_level: row.backoff_level,
-                effective_interval: StdDuration::from_secs(row.effective_interval_seconds.into()),
             };
             (row.check_id, seed)
         })

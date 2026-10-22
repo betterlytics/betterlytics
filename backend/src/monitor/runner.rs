@@ -603,7 +603,6 @@ mod tests {
         let seed = BackoffSeed {
             ts: Utc::now() - chrono::Duration::minutes(10),
             backoff_level: 3,
-            effective_interval: StdDuration::from_secs(2_400),
         };
         let scheduler = BackoffScheduler::new(HashMap::from([(check.id.clone(), seed)]));
         (scheduler, check)

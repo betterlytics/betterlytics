@@ -15,13 +15,15 @@ use super::alert::new_alert_history_writer;
 use super::backoff_store::load_backoff_seeds;
 use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 use super::{
-    new_monitor_writer, BackoffPolicy, BackoffSeeds, DomainRateLimiter, HttpRunner,
-    HttpRuntimeConfig, IncidentOrchestrator, IncidentOrchestratorConfig, MonitorCache,
-    MonitorCacheConfig, MonitorCheckDataSource, MonitorProbe, MonitorRepository, TlsRunner,
-    TlsRuntimeConfig,
+    new_monitor_writer, BackoffSeeds, DomainRateLimiter, HttpRunner, HttpRuntimeConfig,
+    IncidentOrchestrator, IncidentOrchestratorConfig, MonitorCache, MonitorCacheConfig,
+    MonitorCheckDataSource, MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig,
 };
 
 const BACKOFF_SEED_TIMEOUT: Duration = Duration::from_secs(10);
+/// Only bounds the cost of the startup lookup. A backed-off check writes a result at least
+/// every 24h, so this still covers about two days of downtime at the deepest level.
+const BACKOFF_SEED_LOOKBACK: Duration = Duration::from_secs(3 * 86_400);
 
 pub async fn spawn_monitoring(
     config: Arc<Config>,
@@ -216,12 +218,7 @@ async fn restore_backoff_seeds(
     cache: &MonitorCache,
 ) -> BackoffSeeds {
     let check_ids: Vec<String> = cache.snapshot().iter().map(|c| c.id.clone()).collect();
-    let lookup = load_backoff_seeds(
-        clickhouse,
-        table,
-        &check_ids,
-        BackoffPolicy::default().max_seed_age(),
-    );
+    let lookup = load_backoff_seeds(clickhouse, table, &check_ids, BACKOFF_SEED_LOOKBACK);
 
     match tokio::time::timeout(BACKOFF_SEED_TIMEOUT, lookup).await {
         Ok(Ok(seeds)) => {
