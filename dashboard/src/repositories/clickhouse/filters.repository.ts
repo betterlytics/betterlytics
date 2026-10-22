@@ -2,7 +2,7 @@ import { clickhouse } from '@/lib/clickhouse';
 import { type TableFilterColumn } from '@/entities/analytics/filter.entities';
 import { type PropertySourceKind } from '@/entities/analytics/propertySources';
 import { safeSql, SQL } from '@/lib/safe-sql';
-import { filterColumnSql } from '@/lib/filter-sql';
+import { escapeLikePattern, filterColumnSql } from '@/lib/filter-sql';
 import { PROPERTY_SQL } from '@/lib/property-source-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
@@ -20,7 +20,7 @@ export async function getFilterDistinctValues(
 
   const searchClause =
     search && search.trim()
-      ? safeSql`AND ${columnSql} ILIKE ${SQL.String({ search: `%${search.trim()}%` })}`
+      ? safeSql`AND ${columnSql} ILIKE ${SQL.String({ search: `%${escapeLikePattern(search.trim())}%` })}`
       : safeSql``;
 
   const query = safeSql`
@@ -57,7 +57,7 @@ export async function getPropertyKeys(
 
   const searchClause =
     search && search.trim()
-      ? safeSql`HAVING key ILIKE ${SQL.String({ search: `%${search.trim()}%` })}`
+      ? safeSql`HAVING key ILIKE ${SQL.String({ search: `%${escapeLikePattern(search.trim())}%` })}`
       : safeSql``;
 
   const query = safeSql`
@@ -97,7 +97,7 @@ export async function getPropertyValues(
 
   const searchClause =
     search && search.trim()
-      ? safeSql`AND value ILIKE ${SQL.String({ search: `%${search.trim()}%` })}`
+      ? safeSql`AND value ILIKE ${SQL.String({ search: `%${escapeLikePattern(search.trim())}%` })}`
       : safeSql``;
 
   const query = safeSql`
