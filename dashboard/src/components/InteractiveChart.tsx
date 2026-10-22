@@ -22,13 +22,19 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { Pencil, X } from 'lucide-react';
+import { Eye, EyeOff, Pencil, X } from 'lucide-react';
 import { type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
 import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
 import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
 import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
-import { ANNOTATION_PILL_TEXT, groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
+import {
+  ANNOTATION_FADE_MS,
+  ANNOTATION_PILL_TEXT,
+  groupAnnotationsByBucket,
+  type AnnotationGroup,
+} from '@/utils/chartAnnotations';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useAnnotationsVisibility } from '@/hooks/use-annotations-visibility';
 
 const AXIS = {
   fontSize: 12,
@@ -51,6 +57,8 @@ const GRADIENT = {
 const PILL = {
   textFont: ANNOTATION_PILL_TEXT.font,
 } as const;
+
+const ANNOTATION_SAVE_HOLD_MS = 1500;
 
 interface ChartDataPoint {
   date: string | number;
@@ -105,6 +113,15 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
 
     const [openGroup, setOpenGroup] = useState<AnnotationGroup | null>(null);
     const [popoverAnchorRect, setPopoverAnchorRect] = useState<DOMRect | null>(null);
+
+    const { isVisible: savedAnnotationsVisible, toggleVisible: toggleAnnotationsVisible } =
+      useAnnotationsVisibility();
+    const [isHoldingAfterSave, setIsHoldingAfterSave] = useState(false);
+    const [isAnnotationLayerMounted, setIsAnnotationLayerMounted] = useState(false);
+    const [isAnnotationLayerShown, setIsAnnotationLayerShown] = useState(false);
+    // Annotation mode and the pause after a save reveal hidden annotations without changing the saved choice
+    const isAnnotationLayerVisible = Boolean(savedAnnotationsVisible) || isAnnotationMode || isHoldingAfterSave;
+    const showAnnotationsLabel = savedAnnotationsVisible === false ? t('showAnnotations') : t('hideAnnotations');
 
     const measureTextWidth = useMemo<((text: string) => number) | undefined>(() => {
       if (typeof document === 'undefined') return undefined;
@@ -195,6 +212,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
       (annotation: Omit<ChartAnnotation, 'id'>) => {
         onAddAnnotation?.(annotation);
         setIsAnnotationMode(false);
+        setIsHoldingAfterSave(true);
       },
       [onAddAnnotation],
     );
@@ -232,6 +250,31 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const isMobile = useIsMobile();
     const [hoveredPillGroup, setHoveredPillGroup] = useState<number | null>(null);
 
+    useEffect(() => {
+      if (!isHoldingAfterSave) return;
+      const timeout = setTimeout(() => setIsHoldingAfterSave(false), ANNOTATION_SAVE_HOLD_MS);
+      return () => clearTimeout(timeout);
+    }, [isHoldingAfterSave]);
+
+    useEffect(() => {
+      if (isAnnotationLayerVisible) {
+        setIsAnnotationLayerMounted(true);
+        // Wait for the markers to paint transparent so the opacity transition runs
+        let frame = requestAnimationFrame(() => {
+          frame = requestAnimationFrame(() => setIsAnnotationLayerShown(true));
+        });
+        return () => cancelAnimationFrame(frame);
+      }
+
+      setIsAnnotationLayerShown(false);
+      setOpenGroup(null);
+      setPopoverAnchorRect(null);
+      setHoveredGroup(null);
+      setHoveredPillGroup(null);
+      const timeout = setTimeout(() => setIsAnnotationLayerMounted(false), ANNOTATION_FADE_MS);
+      return () => clearTimeout(timeout);
+    }, [isAnnotationLayerVisible]);
+
     const renderChartTooltip = useCallback(
       (tooltipProps: any) => {
         if (hoveredPillGroup !== null) return null;
@@ -253,26 +296,47 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
         <CardContent className='p-0'>
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div ref={chartContainerRef} className='relative h-80 py-1 sm:px-2 md:px-4'>
-            {onAddAnnotation && (
-              <PermissionGate hideWhenDisabled>
-                {(disabled) => (
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    onClick={() => setIsAnnotationMode(!isAnnotationMode)}
-                    disabled={disabled}
-                    className={`absolute top-0 right-0 z-10 h-8 w-8 cursor-pointer ${
-                      isAnnotationMode
-                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                        : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                    }`}
-                    title={isAnnotationMode ? t('exitAnnotationMode') : t('enterAnnotationMode')}
-                  >
-                    {isAnnotationMode ? <X className='h-4 w-4' /> : <Pencil className='h-4 w-4' />}
-                  </Button>
-                )}
-              </PermissionGate>
-            )}
+            <div className='absolute top-0 right-0 z-10 flex items-center gap-1'>
+              {annotations && annotations.length > 0 && (
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  onClick={toggleAnnotationsVisible}
+                  className='text-muted-foreground hover:bg-muted hover:text-foreground h-8 w-8 cursor-pointer'
+                  title={showAnnotationsLabel}
+                  aria-label={showAnnotationsLabel}
+                >
+                  {savedAnnotationsVisible === false ? (
+                    <EyeOff className='h-4 w-4' />
+                  ) : (
+                    <Eye className='h-4 w-4' />
+                  )}
+                </Button>
+              )}
+              {onAddAnnotation && (
+                <PermissionGate hideWhenDisabled>
+                  {(disabled) => (
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      onClick={() => {
+                        setIsAnnotationMode(!isAnnotationMode);
+                        setIsHoldingAfterSave(false);
+                      }}
+                      disabled={disabled}
+                      className={`h-8 w-8 cursor-pointer ${
+                        isAnnotationMode
+                          ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      }`}
+                      title={isAnnotationMode ? t('exitAnnotationMode') : t('enterAnnotationMode')}
+                    >
+                      {isAnnotationMode ? <X className='h-4 w-4' /> : <Pencil className='h-4 w-4' />}
+                    </Button>
+                  )}
+                </PermissionGate>
+              )}
+            </div>
 
             {isAnnotationMode && (
               <Badge
@@ -391,38 +455,42 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   strokeOpacity={0.5}
                   dot={false}
                 />
-                {orderedAnnotationGroups.map((group) => (
-                  <ReferenceDot
-                    key={group.bucketDate}
-                    x={group.bucketDate}
-                    y={group.dataValue}
-                    r={0}
-                    isFront
-                    shape={
-                      <AnnotationGroupMarker
-                        group={group}
-                        isHovered={hoveredGroup === group.bucketDate}
-                        onHover={setHoveredGroup}
-                        onHoverPill={setHoveredPillGroup}
-                        onGroupClick={handleGroupClick}
-                        onSingleClick={handleSingleAnnotationClick}
-                        isAnnotationMode={isAnnotationMode}
-                        isDisabled={!canMutate && group.annotations.length === 1}
-                      />
-                    }
-                  />
-                ))}
+                {isAnnotationLayerMounted &&
+                  orderedAnnotationGroups.map((group) => (
+                    <ReferenceDot
+                      key={group.bucketDate}
+                      x={group.bucketDate}
+                      y={group.dataValue}
+                      r={0}
+                      isFront
+                      shape={
+                        <AnnotationGroupMarker
+                          group={group}
+                          isHovered={hoveredGroup === group.bucketDate}
+                          onHover={setHoveredGroup}
+                          onHoverPill={setHoveredPillGroup}
+                          onGroupClick={handleGroupClick}
+                          onSingleClick={handleSingleAnnotationClick}
+                          isAnnotationMode={isAnnotationMode}
+                          isDisabled={!canMutate && group.annotations.length === 1}
+                          isVisible={isAnnotationLayerShown}
+                        />
+                      }
+                    />
+                  ))}
               </ComposedChart>
             </ResponsiveContainer>
 
-            <AnnotationGroupPopover
-              group={openGroup}
-              anchorRect={popoverAnchorRect}
-              containerRef={chartContainerRef}
-              onClose={handleClosePopover}
-              onEdit={handleEditFromPopover}
-              onDelete={handleDeleteFromPopover}
-            />
+            {isAnnotationLayerMounted && (
+              <AnnotationGroupPopover
+                group={openGroup}
+                anchorRect={popoverAnchorRect}
+                containerRef={chartContainerRef}
+                onClose={handleClosePopover}
+                onEdit={handleEditFromPopover}
+                onDelete={handleDeleteFromPopover}
+              />
+            )}
           </div>
         </CardContent>
 

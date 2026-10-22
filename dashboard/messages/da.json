@@ -2436,7 +2436,9 @@
       "chart": {
         "exitAnnotationMode": "Forlad annoteringstilstand",
         "enterAnnotationMode": "Tilføj annotation",
-        "annotationModeHint": "Klik på diagrammet for at tilføje en annotation"
+        "annotationModeHint": "Klik på diagrammet for at tilføje en annotation",
+        "hideAnnotations": "Skjul annotationer",
+        "showAnnotations": "Vis annotationer"
       },
       "groupMarker": {
         "clickToSeeAll": "Klik for at se alle"

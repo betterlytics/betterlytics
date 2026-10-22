@@ -2436,7 +2436,9 @@
       "chart": {
         "exitAnnotationMode": "Esci dalla modalità annotazione",
         "enterAnnotationMode": "Aggiungi annotazione",
-        "annotationModeHint": "Clicca sul grafico per aggiungere un’annotazione"
+        "annotationModeHint": "Clicca sul grafico per aggiungere un’annotazione",
+        "hideAnnotations": "Nascondi annotazioni",
+        "showAnnotations": "Mostra annotazioni"
       },
       "groupMarker": {
         "clickToSeeAll": "Clicca per vedere tutto"
