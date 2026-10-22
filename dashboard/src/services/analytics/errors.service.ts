@@ -1,5 +1,7 @@
 'server-only';
 
+import moment from 'moment-timezone';
+import { toDateTimeString } from '@/utils/dateFormatters';
 import {
   hasAnyErrors,
   getErrorGroups,
@@ -49,11 +51,19 @@ export async function getErrorGroupForSite(
 export async function getErrorGroupSidebarDataForSite(
   siteId: string,
   fingerprint: string,
+  timezone: string,
+  days = 30,
 ): Promise<ErrorGroupSidebarData> {
+  // Whole calendar days in the zone, ending after today so only today is partial
+  const rangeEndDate = moment.tz(timezone).startOf('day').add(1, 'day');
+  const rangeStartDate = rangeEndDate.clone().subtract(days, 'days');
+  const rangeStart = toDateTimeString(rangeStartDate.toDate());
+  const rangeEnd = toDateTimeString(rangeEndDate.toDate());
+
   const [browsers, deviceTypes, dailyVolume] = await Promise.all([
     getErrorGroupBrowserBreakdown(siteId, fingerprint),
     getErrorGroupDeviceTypeBreakdown(siteId, fingerprint),
-    getErrorGroupDailyVolume(siteId, fingerprint),
+    getErrorGroupDailyVolume(siteId, fingerprint, timezone, rangeStart, rangeEnd),
   ]);
   return { browsers, deviceTypes, dailyVolume };
 }
