@@ -14,6 +14,7 @@ import { DateTimeString } from '@/types/dates';
 import {
   filterColumnSql,
   filterColumnSqlForSession,
+  filterValueToLikePattern,
   isMatchAnyValueFilter,
   matchAnyValueFilterSql,
 } from './filter-sql';
@@ -55,7 +56,7 @@ const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   ...filter,
   rawOperator: filter.operator,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
-  values: filter.values.map((value) => value.replaceAll('*', '%')),
+  values: filter.values.map(filterValueToLikePattern),
 }));
 
 // Selectors
