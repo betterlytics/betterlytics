@@ -10,7 +10,6 @@ import { Globe } from 'lucide-react';
 import { useRouter, usePathname } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages, LANGUAGE_METADATA } from '@/constants/i18n';
-import { CountryDisplay } from '@/components/language/CountryDisplay';
 
 export function FooterLanguageSelector() {
   const router = useRouter();
@@ -40,11 +39,7 @@ export function FooterLanguageSelector() {
             }}
             className='cursor-pointer'
           >
-            <CountryDisplay
-              countryCode={LANGUAGE_METADATA[lang].code}
-              countryName={LANGUAGE_METADATA[lang].name}
-              className='py-0 pl-0'
-            />
+            {LANGUAGE_METADATA[lang].name}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
