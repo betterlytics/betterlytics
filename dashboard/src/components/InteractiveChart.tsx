@@ -27,12 +27,7 @@ import { type ChartAnnotation } from '@/entities/dashboard/annotation.entities';
 import AnnotationDialogs, { type AnnotationDialogsRef } from './charts/AnnotationDialogs';
 import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
 import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
-import {
-  ANNOTATION_FADE_MS,
-  ANNOTATION_PILL_TEXT,
-  groupAnnotationsByBucket,
-  type AnnotationGroup,
-} from '@/utils/chartAnnotations';
+import { ANNOTATION_PILL_TEXT, groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 import { useAnnotationsVisibility } from '@/hooks/use-annotations-visibility';
 
@@ -117,11 +112,9 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     const { isVisible: savedAnnotationsVisible, toggleVisible: toggleAnnotationsVisible } =
       useAnnotationsVisibility();
     const [isHoldingAfterSave, setIsHoldingAfterSave] = useState(false);
-    const [isAnnotationLayerMounted, setIsAnnotationLayerMounted] = useState(false);
-    const [isAnnotationLayerShown, setIsAnnotationLayerShown] = useState(false);
     // Annotation mode and the pause after a save reveal hidden annotations without changing the saved choice
-    const isAnnotationLayerVisible = Boolean(savedAnnotationsVisible) || isAnnotationMode || isHoldingAfterSave;
-    const showAnnotationsLabel = savedAnnotationsVisible === false ? t('showAnnotations') : t('hideAnnotations');
+    const isAnnotationLayerVisible = savedAnnotationsVisible || isAnnotationMode || isHoldingAfterSave;
+    const showAnnotationsLabel = savedAnnotationsVisible ? t('hideAnnotations') : t('showAnnotations');
 
     const measureTextWidth = useMemo<((text: string) => number) | undefined>(() => {
       if (typeof document === 'undefined') return undefined;
@@ -257,22 +250,11 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     }, [isHoldingAfterSave]);
 
     useEffect(() => {
-      if (isAnnotationLayerVisible) {
-        setIsAnnotationLayerMounted(true);
-        // Wait for the markers to paint transparent so the opacity transition runs
-        let frame = requestAnimationFrame(() => {
-          frame = requestAnimationFrame(() => setIsAnnotationLayerShown(true));
-        });
-        return () => cancelAnimationFrame(frame);
-      }
-
-      setIsAnnotationLayerShown(false);
+      if (isAnnotationLayerVisible) return;
       setOpenGroup(null);
       setPopoverAnchorRect(null);
       setHoveredGroup(null);
       setHoveredPillGroup(null);
-      const timeout = setTimeout(() => setIsAnnotationLayerMounted(false), ANNOTATION_FADE_MS);
-      return () => clearTimeout(timeout);
     }, [isAnnotationLayerVisible]);
 
     const renderChartTooltip = useCallback(
@@ -306,11 +288,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   title={showAnnotationsLabel}
                   aria-label={showAnnotationsLabel}
                 >
-                  {savedAnnotationsVisible === false ? (
-                    <EyeOff className='h-4 w-4' />
-                  ) : (
-                    <Eye className='h-4 w-4' />
-                  )}
+                  {savedAnnotationsVisible ? <Eye className='h-4 w-4' /> : <EyeOff className='h-4 w-4' />}
                 </Button>
               )}
               {onAddAnnotation && (
@@ -455,42 +433,39 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   strokeOpacity={0.5}
                   dot={false}
                 />
-                {isAnnotationLayerMounted &&
-                  orderedAnnotationGroups.map((group) => (
-                    <ReferenceDot
-                      key={group.bucketDate}
-                      x={group.bucketDate}
-                      y={group.dataValue}
-                      r={0}
-                      isFront
-                      shape={
-                        <AnnotationGroupMarker
-                          group={group}
-                          isHovered={hoveredGroup === group.bucketDate}
-                          onHover={setHoveredGroup}
-                          onHoverPill={setHoveredPillGroup}
-                          onGroupClick={handleGroupClick}
-                          onSingleClick={handleSingleAnnotationClick}
-                          isAnnotationMode={isAnnotationMode}
-                          isDisabled={!canMutate && group.annotations.length === 1}
-                          isVisible={isAnnotationLayerShown}
-                        />
-                      }
-                    />
-                  ))}
+                {orderedAnnotationGroups.map((group) => (
+                  <ReferenceDot
+                    key={group.bucketDate}
+                    x={group.bucketDate}
+                    y={group.dataValue}
+                    r={0}
+                    isFront
+                    shape={
+                      <AnnotationGroupMarker
+                        group={group}
+                        isHovered={hoveredGroup === group.bucketDate}
+                        onHover={setHoveredGroup}
+                        onHoverPill={setHoveredPillGroup}
+                        onGroupClick={handleGroupClick}
+                        onSingleClick={handleSingleAnnotationClick}
+                        isAnnotationMode={isAnnotationMode}
+                        isDisabled={!canMutate && group.annotations.length === 1}
+                        isVisible={isAnnotationLayerVisible}
+                      />
+                    }
+                  />
+                ))}
               </ComposedChart>
             </ResponsiveContainer>
 
-            {isAnnotationLayerMounted && (
-              <AnnotationGroupPopover
-                group={openGroup}
-                anchorRect={popoverAnchorRect}
-                containerRef={chartContainerRef}
-                onClose={handleClosePopover}
-                onEdit={handleEditFromPopover}
-                onDelete={handleDeleteFromPopover}
-              />
-            )}
+            <AnnotationGroupPopover
+              group={openGroup}
+              anchorRect={popoverAnchorRect}
+              containerRef={chartContainerRef}
+              onClose={handleClosePopover}
+              onEdit={handleEditFromPopover}
+              onDelete={handleDeleteFromPopover}
+            />
           </div>
         </CardContent>
 

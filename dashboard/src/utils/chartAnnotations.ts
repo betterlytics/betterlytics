@@ -3,7 +3,6 @@ import { type AnnotationColorToken, type ChartAnnotation } from '@/entities/dash
 export type ThemeMode = 'light' | 'dark';
 
 export const ANNOTATION_BADGE_WIDTH = 28;
-export const ANNOTATION_FADE_MS = 200;
 export const ANNOTATION_PILL_TEXT = {
   font: '500 11px Inter, system-ui, -apple-system, sans-serif',
   fontFamily: 'Inter, system-ui, -apple-system, sans-serif',

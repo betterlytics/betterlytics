@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import {
   ANNOTATION_BADGE_WIDTH,
-  ANNOTATION_FADE_MS,
   ANNOTATION_PILL_TEXT,
   getAnnotationPillWidth,
   resolveAnnotationColor,
@@ -312,11 +311,11 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       ref={pillRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className='transition-opacity motion-reduce:transition-none'
+      className='transition-[opacity,visibility] duration-200 motion-reduce:transition-none'
       style={{
         color: primaryColor,
         opacity: isVisible ? 1 : 0,
-        transitionDuration: `${ANNOTATION_FADE_MS}ms`,
+        visibility: isVisible ? 'visible' : 'hidden',
         pointerEvents: isVisible ? undefined : 'none',
       }}
     >
