@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import {
   ANNOTATION_BADGE_WIDTH,
+  ANNOTATION_FADE_MS,
   ANNOTATION_PILL_TEXT,
   getAnnotationPillWidth,
   resolveAnnotationColor,
@@ -90,6 +91,7 @@ interface AnnotationGroupMarkerProps {
   onSingleClick: (annotation: ChartAnnotation) => void;
   isAnnotationMode?: boolean;
   isDisabled?: boolean;
+  isVisible?: boolean;
   cx?: number;
   cy?: number;
 }
@@ -103,6 +105,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
   onSingleClick,
   isAnnotationMode = false,
   isDisabled = false,
+  isVisible = true,
   cx = 0,
   cy = 0,
 }) => {
@@ -234,7 +237,7 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       onMouseEnter={() => onHoverPill?.(group.bucketDate)}
       onMouseLeave={() => onHoverPill?.(null)}
       onClick={isDisabled ? undefined : handleClick}
-      style={{ pointerEvents: 'auto', cursor: isDisabled ? 'default' : 'pointer' }}
+      style={{ pointerEvents: isVisible ? 'auto' : 'none', cursor: isDisabled ? 'default' : 'pointer' }}
     >
       <rect
         x={cx - totalWidth / 2 - PILL.backdropPadding}
@@ -309,7 +312,13 @@ const AnnotationGroupMarker: React.FC<AnnotationGroupMarkerProps> = ({
       ref={pillRef}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      style={{ color: primaryColor }}
+      className='transition-opacity motion-reduce:transition-none'
+      style={{
+        color: primaryColor,
+        opacity: isVisible ? 1 : 0,
+        transitionDuration: `${ANNOTATION_FADE_MS}ms`,
+        pointerEvents: isVisible ? undefined : 'none',
+      }}
     >
       {/* Dashed line from pill to data point */}
       <line
