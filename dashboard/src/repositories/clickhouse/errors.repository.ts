@@ -248,11 +248,14 @@ export async function getErrorGroupDeviceTypeBreakdown(
 export async function getErrorGroupDailyVolume(
   siteId: string,
   fingerprint: string,
-  days: number = 30,
+  timezone: string,
+  rangeStart: string,
+  rangeEnd: string,
 ): Promise<ErrorGroupVolumePoint[]> {
-  const fillFrom = safeSql`toDate(now() - INTERVAL {days:UInt16} DAY)`;
-  const fillTo = safeSql`toDate(now() + INTERVAL 1 DAY)`;
-  const fill = safeSql`WITH FILL FROM ${fillFrom} TO ${fillTo} STEP INTERVAL 1 DAY`;
+  const start = SQL.DateTime({ range_start: rangeStart });
+  const end = SQL.DateTime({ range_end: rangeEnd });
+  const tz = SQL.String({ timezone });
+  const fill = safeSql`WITH FILL FROM toDate(${start}, ${tz}) TO toDate(${end}, ${tz}) STEP INTERVAL 1 DAY`;
 
   const query = safeSql`
     SELECT
@@ -262,14 +265,15 @@ export async function getErrorGroupDailyVolume(
     WHERE site_id = {site_id:String}
       AND event_type = 'client_error'
       AND error_fingerprint = {fingerprint:String}
-      AND timestamp >= now() - INTERVAL {days:UInt16} DAY
-    GROUP BY toDate(timestamp) AS day
+      AND timestamp >= ${start}
+      AND timestamp < ${end}
+    GROUP BY toDate(timestamp, ${tz}) AS day
     ORDER BY day ASC ${fill}
   `;
 
   const result = (await clickhouse
     .query(query.taggedSql, {
-      params: { ...query.taggedParams, site_id: siteId, fingerprint, days },
+      params: { ...query.taggedParams, site_id: siteId, fingerprint },
     })
     .toPromise()) as any[];
 
