@@ -284,7 +284,10 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                 <Button
                   variant='ghost'
                   size='icon'
-                  onClick={onToggleAnnotationsVisible}
+                  onClick={() => {
+                    setIsHoldingAfterSave(false);
+                    onToggleAnnotationsVisible();
+                  }}
                   disabled={isAnnotationMode}
                   className='text-muted-foreground hover:bg-muted hover:text-foreground h-8 w-8 cursor-pointer'
                   title={showAnnotationsLabel}
