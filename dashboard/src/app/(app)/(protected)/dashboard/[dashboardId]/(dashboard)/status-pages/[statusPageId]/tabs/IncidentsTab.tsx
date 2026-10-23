@@ -458,7 +458,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
             </div>
           </div>
         ) : (
-          <>
+          <div className='space-y-3'>
             <div className='border-border overflow-x-auto rounded-lg border'>
               <Table className='min-w-0 sm:min-w-[600px] md:min-w-[720px] lg:min-w-[880px] xl:min-w-[920px]'>
                 <TableHeader>
@@ -560,7 +560,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
               </Table>
             </div>
 
-            {filteredCount > 0 && table.getPageCount() > 1 && (
+            {filteredCount > 0 && (
               <PaginationControls
                 pageIndex={table.getState().pagination.pageIndex}
                 totalPages={table.getPageCount()}
@@ -570,7 +570,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                 onPageSizeChange={(size) => setPagination({ pageIndex: 0, pageSize: size })}
               />
             )}
-          </>
+          </div>
         )}
       </Section>
 

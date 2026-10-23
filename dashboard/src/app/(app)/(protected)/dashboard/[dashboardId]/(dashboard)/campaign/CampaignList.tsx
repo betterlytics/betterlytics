@@ -70,7 +70,7 @@ export default function CampaignList() {
   const skeletonRowCount = pageSize || DEFAULT_PAGE_SIZE;
 
   return (
-    <div className='space-y-4 pb-8 md:pb-0'>
+    <div className='space-y-4'>
       {showTopPagination && (
         <CompactPagination pageIndex={safePageIndex} totalPages={totalPages} onPageChange={handlePageChange} />
       )}
