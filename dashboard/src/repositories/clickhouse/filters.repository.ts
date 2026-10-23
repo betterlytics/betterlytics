@@ -24,12 +24,14 @@ export async function getFilterDistinctValues(
       : safeSql``;
 
   const query = safeSql`
-    SELECT DISTINCT ${selectExpr} AS value
+    SELECT ${selectExpr} AS value
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       ${searchClause}
       AND value != ''
+    GROUP BY value
+    ORDER BY count() DESC, value ASC
     LIMIT {limit:UInt32}
   `;
 
@@ -101,7 +103,7 @@ export async function getPropertyValues(
       : safeSql``;
 
   const query = safeSql`
-    SELECT DISTINCT ${valueExpr} AS value
+    SELECT ${valueExpr} AS value
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -109,6 +111,8 @@ export async function getPropertyValues(
       ${discovery.eventScopeClause}
       AND value != ''
       ${searchClause}
+    GROUP BY value
+    ORDER BY count() DESC, value ASC
     LIMIT {limit:UInt32}
   `;
 

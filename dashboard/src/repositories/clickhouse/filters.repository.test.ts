@@ -53,3 +53,35 @@ describe('filter value search', () => {
     expect(boundSearch()).toBe('%/users/*%');
   });
 });
+
+describe('filter value ordering', () => {
+  beforeEach(() => {
+    query.mockReset();
+    query.mockReturnValue({ toPromise: () => Promise.resolve([]) });
+  });
+
+  function normalizedSql() {
+    return (query.mock.calls[0][0] as string).replace(/\s+/g, ' ');
+  }
+
+  it('orders distinct values most common first, ties alphabetical', async () => {
+    await getFilterDistinctValues(siteQuery, 'browser', 50);
+
+    expect(normalizedSql()).toContain('GROUP BY value ORDER BY count() DESC, value ASC LIMIT');
+  });
+
+  it('keeps the same order when searching distinct values', async () => {
+    await getFilterDistinctValues(siteQuery, 'url', 50, '/blog');
+
+    expect(normalizedSql()).toContain('GROUP BY value ORDER BY count() DESC, value ASC LIMIT');
+  });
+
+  it.each(['gp', 'cep'] as const)(
+    'orders %s property values most common first, ties alphabetical',
+    async (source) => {
+      await getPropertyValues(siteQuery, source, 'plan', 'pro');
+
+      expect(normalizedSql()).toContain('GROUP BY value ORDER BY count() DESC, value ASC LIMIT');
+    },
+  );
+});
