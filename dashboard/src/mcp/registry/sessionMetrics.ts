@@ -35,7 +35,7 @@ export const SESSION_METRICS = [
     key: 'visitors',
     unit: 'count',
     description:
-      'Unique visitors with at least one selected session. In a time series each visitor counts only in the bucket of their first session, so the buckets add up to the total, like the Overview chart.',
+      'Unique visitors with at least one selected session. In a time series each visitor counts only in the bucket of their first session, so the buckets add up to the total.',
     columns: ['visitor_id'],
     expression: safeSql`uniq(visitor_id) AS visitors`,
     // first_session_created_at is added by the session builder's window over each visitor (and group).
@@ -45,7 +45,7 @@ export const SESSION_METRICS = [
     key: 'pageviews',
     unit: 'count',
     description:
-      'Every pageview of the selected sessions, including pageviews after the range end, so it can differ slightly from the Overview Pageviews card at the edges of the range.',
+      'Every pageview of the selected sessions, including pageviews after the range end.',
     columns: ['pageview_count'],
     expression: safeSql`${SessionMetricSql.pageviews} AS pageviews`,
   },
@@ -60,7 +60,7 @@ export const SESSION_METRICS = [
     key: 'avg_visit_duration',
     unit: 'seconds (whole)',
     description:
-      'Average visit duration as on the Overview card: the total time of the selected sessions divided by the number of sessions with more than one pageview. 0 when every session bounced.',
+      'Average visit duration: the total time of the selected sessions divided by the number of sessions with more than one pageview. 0 when every session bounced.',
     columns: ['session_start', 'session_end', 'pageview_count'],
     expression: safeSql`round(${SessionMetricSql.avgVisitDuration}) AS avg_visit_duration`,
   },
