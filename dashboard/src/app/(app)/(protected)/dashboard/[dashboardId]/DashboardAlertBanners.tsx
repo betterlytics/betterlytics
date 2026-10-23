@@ -93,7 +93,9 @@ export function StatusPageIncidentBanner() {
           size='sm'
           className='bg-primary text-primary-foreground hover:bg-primary/40 cursor-pointer border-1 border-white shadow-md'
         >
-          <FilterPreservingLink href={single ? `/status-pages/${single.statusPageId}` : '/status-pages'}>
+          <FilterPreservingLink
+            href={single ? `/status-pages/${single.statusPageId}?incident=${single.incidentId}` : '/status-pages'}
+          >
             {single ? t('viewIncident') : t('viewIncidents')}
           </FilterPreservingLink>
         </Button>
