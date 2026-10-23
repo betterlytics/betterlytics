@@ -20,7 +20,12 @@ export default async function MonitoringPage({ params }: MonitoringPageParams) {
   return (
     <div className='container space-y-4 p-2 pt-4 sm:p-6'>
       {!isFeatureEnabled('enableUptimeMonitoring') && <FeatureNotEnabledBanner feature='monitoring' />}
-      <MonitoringClient dashboardId={dashboardId} monitors={monitors} domain={dashboard.domain} />
+      <MonitoringClient
+        dashboardId={dashboardId}
+        initialMonitors={monitors}
+        timezone={timezone}
+        domain={dashboard.domain}
+      />
     </div>
   );
 }
