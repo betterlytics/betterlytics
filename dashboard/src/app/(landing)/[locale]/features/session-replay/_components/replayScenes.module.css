@@ -156,8 +156,9 @@
     color: var(--color-muted);
   }
   .meta svg {
-    width: 13px;
-    height: 13px;
+    width: 12px;
+    height: 12px;
+    color: var(--color-fg);
   }
   /* optical sizes: the Apple mark is narrow, the Windows one fills its square */
   .os {
