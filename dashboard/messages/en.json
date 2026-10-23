@@ -1708,7 +1708,7 @@
     "replay": {
       "seo": {
         "title": "Privacy-first session replay, masked by default | Betterlytics",
-        "description": "Watch real visits click by click, with every word and input masked in the browser. Jump from a JavaScript error to its replay. Free on every plan."
+        "description": "Watch session recordings of real visits, with every word and input masked in the browser. Jump from a JavaScript error to its replay. Free on every plan."
       },
       "hero": {
         "eyebrow": "Session replay",
@@ -1880,7 +1880,7 @@
         "items": {
           "what": {
             "q": "What is session replay?",
-            "a": "Session replay records how a page changed and what the visitor did on it, then rebuilds the visit in your dashboard so you can watch it like a video. No video is captured, and Betterlytics masks the text before anything is sent."
+            "a": "Session replay, also called session recording, saves how a page changed and what the visitor did on it, then rebuilds the visit in your dashboard so you can watch it like a video. No video is captured, and Betterlytics masks the text before anything is sent."
           },
           "free": {
             "q": "Is session replay free?",
@@ -1888,7 +1888,7 @@
           },
           "consent": {
             "q": "Do I need consent for session replay?",
-            "a": "In many places, including the EU, you may need it. Betterlytics records nothing until you call setReplayConsent(true) or render the script with data-consent-replay, so you can connect it to the consent banner you already have."
+            "a": "It depends on where your visitors are. In the EU, the GDPR and the ePrivacy Directive can require consent before you record a visit. Replays don't start until your site gives the go-ahead. That can come from the consent banner you already have, or from a script setting when you don't need consent."
           },
           "masked": {
             "q": "What gets masked?",
