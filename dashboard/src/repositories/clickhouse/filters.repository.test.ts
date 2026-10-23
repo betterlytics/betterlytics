@@ -84,4 +84,22 @@ describe('filter value ordering', () => {
       expect(normalizedSql()).toContain('GROUP BY value ORDER BY count() DESC, value ASC LIMIT');
     },
   );
+
+  it('ranks distinct values by events from rankFrom when the lookup was widened', async () => {
+    await getFilterDistinctValues(siteQuery, 'url', 50, undefined, '2026-01-25 00:00:00');
+
+    expect(normalizedSql()).toMatch(
+      /ORDER BY countIf\(timestamp >= \{rank_from\w*:DateTime\}\) DESC, value ASC LIMIT/,
+    );
+    expect(Object.values(query.mock.calls[0][1].params)).toContain('2026-01-25 00:00:00');
+  });
+
+  it('ranks property values by events from rankFrom when the lookup was widened', async () => {
+    await getPropertyValues(siteQuery, 'cep', 'plan', undefined, 50, '2026-01-25 00:00:00');
+
+    expect(normalizedSql()).toMatch(
+      /ORDER BY countIf\(timestamp >= \{rank_from\w*:DateTime\}\) DESC, value ASC LIMIT/,
+    );
+    expect(Object.values(query.mock.calls[0][1].params)).toContain('2026-01-25 00:00:00');
+  });
 });

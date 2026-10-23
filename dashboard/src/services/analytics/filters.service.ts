@@ -8,18 +8,21 @@ import {
   getPropertyValues,
 } from '@/repositories/clickhouse/filters.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { toDateTimeString } from '@/utils/dateFormatters';
 
 export async function getDistinctValuesForFilterColumn(
   siteQuery: BASiteQuery,
   column: FilterColumn,
   search?: string,
   limit?: number,
+  rankFrom?: Date,
 ) {
   const parsed = parseFilterColumn(column);
+  const rankFromDateTime = rankFrom ? toDateTimeString(rankFrom) : undefined;
   if (parsed.kind === 'standard') {
-    return getFilterDistinctValues(siteQuery, parsed.col, limit, search?.trim());
+    return getFilterDistinctValues(siteQuery, parsed.col, limit, search?.trim(), rankFromDateTime);
   }
-  return getPropertyValues(siteQuery, parsed.source, parsed.key, search?.trim(), limit);
+  return getPropertyValues(siteQuery, parsed.source, parsed.key, search?.trim(), limit, rankFromDateTime);
 }
 
 /* Keys that fail the filter-column constraint would be unusable as filters, so discovery hides them. */

@@ -65,6 +65,8 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
       column: filter.column,
       search: isDirty ? debouncedSearch || undefined : undefined,
       limit: SEARCH_LIMIT,
+      // The extended range only widens which values are found; they still rank by the selected period
+      rankFrom: query.startDate < baseQuery.startDate ? baseQuery.startDate : undefined,
     },
     {
       staleTime: 5 * 60 * 1000,
