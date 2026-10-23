@@ -97,7 +97,9 @@ type SnippetPanelProps = { snippets?: readonly Snippet[]; label?: string; foot?:
 export function SnippetPanel({ snippets = SNIPPETS, label, foot = REQUEST }: SnippetPanelProps) {
   const t = useTranslations('landing.network');
   const id = useId();
-  const [active, setActive] = useState(0);
+  const [picked, setActive] = useState(0);
+  // a tab can disappear while it's open (the error setup drops its consent tab), so fall back to the last one
+  const active = Math.min(picked, snippets.length - 1);
   const current = snippets[active];
   const tabId = (index: number) => `${id}-tab-${index}`;
   const panelId = (index: number) => `${id}-panel-${index}`;

@@ -2066,7 +2066,6 @@
         "title": "Start catching with *one* attribute",
         "lede": "Error tracking runs in the script you already have. Pick what to catch, then copy the snippet.",
         "lead": "Choose what to catch",
-        "body": "Uncaught errors are the core. The other two are up to you.",
         "always": "Always on",
         "options": {
           "errors": {
@@ -2079,10 +2078,11 @@
           },
           "replay": {
             "title": "Replay the lead-up",
-            "body": "Keep up to two minutes before each error as a replay, for visitors who consented to replay."
+            "body": "Keep up to two minutes before each error as a replay, for visitors who consent. The Consent tab shows the call to make."
           }
         },
         "snippetLabel": "Error tracking setup",
+        "consentTab": "Consent",
         "cta": "Read the setup guide"
       },
       "related": {

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { ShieldCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { SnippetPanel } from '@/landing/components/sections/snippetPanel';
 import { buttonStyles } from '@/landing/components/ui/button';
@@ -18,7 +19,8 @@ const OPTIONS = {
   replay: { attr: 'data-replay-on-error', npm: 'replayOnError' },
 } as const satisfies Record<Option, { attr: string; npm: string }>;
 
-function buildSnippets(on: Record<Option, boolean>): Snippet[] {
+/** Replay only records visitors who consented, so turning it on adds the consent call as its own tab. */
+function buildSnippets(on: Record<Option, boolean>, consentTab: string): Snippet[] {
   const picked = (Object.keys(OPTIONS) as Option[]).filter((key) => on[key]);
   const attrs = ['data-track-errors', ...picked.map((key) => OPTIONS[key].attr)];
   const npm = ['trackErrors', ...picked.map((key) => OPTIONS[key].npm)];
@@ -47,12 +49,25 @@ function buildSnippets(on: Record<Option, boolean>): Snippet[] {
         '})',
       ].join('\n'),
     },
+    ...(on.replay
+      ? [
+          {
+            id: 'consent',
+            name: consentTab,
+            file: 'consent.js',
+            glyph: <ShieldCheck className='size-[13px] opacity-80' aria-hidden />,
+            code: `// when your consent banner resolves
++window.betterlytics?.setReplayConsent(true)`,
+          },
+        ]
+      : []),
   ];
 }
 
 export function SetupConfigurator() {
   const t = useTranslations('landing.errors.setup');
-  const [on, setOn] = useState<Record<Option, boolean>>({ console: false, replay: true });
+  const [on, setOn] = useState<Record<Option, boolean>>({ console: false, replay: false });
+  const id = useId();
   const toggle = (key: Option) => setOn((current) => ({ ...current, [key]: !current[key] }));
 
   return (
@@ -75,13 +90,15 @@ export function SetupConfigurator() {
                 type='button'
                 role='switch'
                 aria-checked={on[key]}
+                aria-labelledby={`${id}-${key}-title`}
+                aria-describedby={`${id}-${key}-body`}
                 className={styles.option}
                 data-on={on[key] || undefined}
                 onClick={() => toggle(key)}
               >
                 <span className={styles.text}>
-                  <b>{t(`options.${key}.title`)}</b>
-                  <span>{t(`options.${key}.body`)}</span>
+                  <b id={`${id}-${key}-title`}>{t(`options.${key}.title`)}</b>
+                  <span id={`${id}-${key}-body`}>{t(`options.${key}.body`)}</span>
                 </span>
                 <span className={styles.switch} aria-hidden>
                   <i />
@@ -102,7 +119,7 @@ export function SetupConfigurator() {
         </div>
       </div>
       <div className='flex min-w-0 bg-hatch p-4.5 max-sm:p-0'>
-        <SnippetPanel snippets={buildSnippets(on)} label={t('snippetLabel')} />
+        <SnippetPanel snippets={buildSnippets(on, t('consentTab'))} label={t('snippetLabel')} />
       </div>
     </div>
   );
