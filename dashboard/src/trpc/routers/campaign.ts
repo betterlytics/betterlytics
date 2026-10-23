@@ -7,19 +7,16 @@ import {
   fetchCampaignLandingPagePerformance,
   fetchCampaignAudienceProfile,
 } from '@/services/analytics/campaign.service';
-import { formatPercentage } from '@/utils/formatters';
-import { getLocale } from 'next-intl/server';
-import type { SupportedLanguages } from '@/constants/i18n';
 
 function buildAudienceDistribution<
   TLabelKey extends string,
   TItem extends { visitors: number } & Record<TLabelKey, string>,
->(audience: TItem[], labelKey: TLabelKey, locale: SupportedLanguages): { label: string; value: string }[] {
+>(audience: TItem[], labelKey: TLabelKey): { label: string; value: number }[] {
   const totalVisitors = audience.reduce((sum, item) => sum + item.visitors, 0);
   if (totalVisitors === 0) return [];
   return audience.map((item) => ({
     label: item[labelKey],
-    value: formatPercentage((item.visitors / totalVisitors) * 100, locale, { maximumFractionDigits: 0 }),
+    value: (item.visitors / totalVisitors) * 100,
   }));
 }
 
@@ -47,14 +44,13 @@ export const campaignRouter = createRouter({
         fetchCampaignLandingPagePerformance(main, input.campaignName),
         fetchCampaignAudienceProfile(main, input.campaignName),
       ]);
-      const locale = (await getLocale()) as SupportedLanguages;
       return {
         utmSource,
         landingPages,
-        devices: buildAudienceDistribution(audienceProfile.devices, 'device_type', locale),
-        countries: buildAudienceDistribution(audienceProfile.countries, 'country_code', locale),
-        browsers: buildAudienceDistribution(audienceProfile.browsers, 'browser', locale),
-        operatingSystems: buildAudienceDistribution(audienceProfile.operatingSystems, 'os', locale),
+        devices: buildAudienceDistribution(audienceProfile.devices, 'device_type'),
+        countries: buildAudienceDistribution(audienceProfile.countries, 'country_code'),
+        browsers: buildAudienceDistribution(audienceProfile.browsers, 'browser'),
+        operatingSystems: buildAudienceDistribution(audienceProfile.operatingSystems, 'os'),
       };
     }),
 
