@@ -526,12 +526,20 @@
     });
 
     if (enableConsoleErrors) {
-      // Tag check covers Errors and DOMExceptions from other frames, where instanceof fails
+      // Error.isError also accepts DOMExceptions and Errors from other frames. Without it, the tag check
+      // rejects objects faking it with Symbol.toStringTag, and DOMException's code getter throws for non-DOMExceptions
       function isError(a) {
         if (a == null || typeof a !== "object") return false;
+        if (Error.isError) return Error.isError(a);
         if (a instanceof Error) return true;
-        var tag = Object.prototype.toString.call(a);
-        return tag === "[object Error]" || tag === "[object DOMException]";
+        if (Object.prototype.toString.call(a) === "[object Error]")
+          return !(Symbol.toStringTag in a);
+        try {
+          Object.getOwnPropertyDescriptor(DOMException.prototype, "code").get.call(a);
+          return true;
+        } catch (e) {
+          return false;
+        }
       }
 
       function formatError(e) {
