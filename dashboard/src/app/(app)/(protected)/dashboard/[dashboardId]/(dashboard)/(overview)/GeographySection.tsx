@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { useQueryState } from '@/hooks/use-query-state';
+import MapLegend from '@/components/map/MapLegend';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
 
@@ -129,9 +130,13 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
             <div className='h-[22rem] w-full'>
               <LeafletMap
                 {...(worldMapQuery.data ?? { maxVisitors: 0, visitorData: [], compareData: [] })}
-                showZoomControls={false}
                 initialZoom={1}
-              />
+              >
+                <MapLegend
+                  maxVisitors={worldMapQuery.data?.maxVisitors ?? 0}
+                  className='absolute right-[1%] bottom-[1%]'
+                />
+              </LeafletMap>
             </div>
           ),
         },

@@ -1,6 +1,9 @@
 'use client';
 
 import LeafletMap from '@/components/map/LeafletMap';
+import MapLegend from '@/components/map/MapLegend';
+import { MapProvider } from '@/components/map/MapProvider';
+import GeographyToolbar from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/geography/GeographyToolbar';
 import { useTranslations } from 'next-intl';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
@@ -13,20 +16,25 @@ export default function GeographySection() {
   const t = useTranslations('components.geography');
 
   return (
-    <QuerySection query={query} fallback={<GeographyLoading />} className='h-full w-full'>
-      {(mapData) => (
-        <>
-          <div className='h-full w-full'>
-            <LeafletMap {...mapData} showZoomControls={true} size='lg' />
-          </div>
-
-          {mapData.visitorData.length === 0 && (
-            <div className='absolute right-4 bottom-4 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
-              <p className='text-sm text-amber-700'>{t('noData')}</p>
+    <MapProvider>
+      <GeographyToolbar />
+      <QuerySection query={query} fallback={<GeographyLoading />} className='h-full w-full'>
+        {(mapData) => (
+          <>
+            <div className='h-full w-full'>
+              <LeafletMap {...mapData} size='lg'>
+                <MapLegend maxVisitors={mapData.maxVisitors} className='absolute right-4 bottom-4' />
+              </LeafletMap>
             </div>
-          )}
-        </>
-      )}
-    </QuerySection>
+
+            {mapData.visitorData.length === 0 && (
+              <div className='absolute right-4 bottom-4 rounded-md border border-amber-200 bg-amber-50 p-3 shadow-md'>
+                <p className='text-sm text-amber-700'>{t('noData')}</p>
+              </div>
+            )}
+          </>
+        )}
+      </QuerySection>
+    </MapProvider>
   );
 }

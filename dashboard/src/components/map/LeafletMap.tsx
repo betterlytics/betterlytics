@@ -2,33 +2,38 @@
 
 import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
-import MapLegend from '@/components/map/MapLegend';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
+import MapInstanceBridge from '@/components/map/MapInstanceBridge';
+import MapResizeSync from '@/components/map/MapResizeSync';
+import { MapScopeProvider, useMapScope } from '@/components/map/MapProvider';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
 import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
 import { useMapStyle } from '@/hooks/use-leaflet-style';
-import type { LatLngBoundsExpression } from 'leaflet';
+import type { LatLngBoundsExpression, Map as LeafletMapInstance } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import React, { useEffect, useMemo, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useState, useTransition, type ReactNode } from 'react';
 import GeographyLoading from '@/components/loading/GeographyLoading';
 import { useTheme } from 'next-themes';
 import { useDebounce } from '@/hooks/useDebounce';
 
 type LeafletMapProps = WorldMapResponse & {
-  showZoomControls?: boolean;
   initialZoom?: number;
   size?: 'sm' | 'lg';
+  children?: ReactNode;
 };
 
 export default function LeafletMap({
   visitorData,
   compareData,
   maxVisitors,
-  showZoomControls,
   size = 'sm',
   initialZoom,
+  children,
 }: LeafletMapProps) {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
+  const outerScope = useMapScope();
+  const [localMap, setLocalMap] = useState<LeafletMapInstance | null>(null);
+  const scope = useMemo(() => outerScope ?? { map: localMap, setMap: setLocalMap }, [outerScope, localMap]);
   const [mapComponents, setMapComponents] = useState<{
     L: typeof import('leaflet');
     MapContainer: typeof import('react-leaflet').MapContainer;
@@ -85,34 +90,38 @@ export default function LeafletMap({
   const { MapContainer, GeoJSON, Polygon } = mapComponents;
 
   return (
-    <div className='h-full w-full' key={debouncedTheme}>
-      {style.LeafletCSS}
-      <MapContainer
-        center={[20, 0]}
-        style={{ height: '100%', width: '100%' }}
-        zoom={initialZoom || 2}
-        zoomControl={showZoomControls}
-        maxBounds={worldBounds as LatLngBoundsExpression}
-        maxBoundsViscosity={0.5}
-        minZoom={1}
-        maxZoom={7}
-        zoomDelta={0.1}
-        zoomSnap={0.1}
-        attributionControl={false}
-      >
+    <MapScopeProvider scope={scope}>
+      <div className='relative h-full w-full' key={debouncedTheme}>
+        {style.LeafletCSS}
         <MapSelectionContextProvider style={style}>
-          <MapBackgroundLayer Polygon={Polygon} />
-          <MapCountryGeoJSON
-            GeoJSON={GeoJSON}
-            geoData={worldGeoJson}
-            visitorData={visitorData}
-            compareData={compareData}
-            style={style}
-          />
-          <MapStickyTooltip size={size} />
-          <MapLegend maxVisitors={maxVisitors} />
+          <MapContainer
+            center={[20, 0]}
+            style={{ height: '100%', width: '100%' }}
+            zoom={initialZoom || 2}
+            zoomControl={false}
+            maxBounds={worldBounds as LatLngBoundsExpression}
+            maxBoundsViscosity={0.5}
+            minZoom={1}
+            maxZoom={7}
+            zoomDelta={0.1}
+            zoomSnap={0.1}
+            attributionControl={false}
+          >
+            <MapBackgroundLayer Polygon={Polygon} />
+            <MapCountryGeoJSON
+              GeoJSON={GeoJSON}
+              geoData={worldGeoJson}
+              visitorData={visitorData}
+              compareData={compareData}
+              style={style}
+            />
+            <MapStickyTooltip size={size} />
+            {(children || outerScope) && <MapInstanceBridge onReady={scope.setMap} />}
+            <MapResizeSync />
+          </MapContainer>
+          {children}
         </MapSelectionContextProvider>
-      </MapContainer>
-    </div>
+      </div>
+    </MapScopeProvider>
   );
 }
