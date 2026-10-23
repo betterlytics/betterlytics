@@ -1929,7 +1929,9 @@
         "observability": "Overvågning"
       },
       "collapseNav": "Skjul navigation",
-      "errorTracking": "Fejlsporing"
+      "errorTracking": "Fejlsporing",
+      "downMonitorsCount": "{count, plural, one {# monitor nede} other {# monitorer nede}}",
+      "activeIncidentsCount": "{count, plural, one {# aktiv hændelse} other {# aktive hændelser}}"
     },
     "settings": {
       "sidebar": {
@@ -3700,6 +3702,18 @@
         "title": "Geolokation er ikke aktiveret på denne instans",
         "description": "Besøgendes placering indsamles ikke, før det er aktiveret."
       }
+    },
+    "monitorDown": {
+      "titleSingle": "Monitoren {name} er nede",
+      "titleMultiple": "{count, plural, one {# monitor er nede} other {# monitorer er nede}}",
+      "viewMonitor": "Se monitor",
+      "viewMonitors": "Se monitorer"
+    },
+    "statusPageIncident": {
+      "titleSingle": "Aktiv hændelse på {statusPage}",
+      "titleMultiple": "{count, plural, one {# aktiv hændelse på statussider} other {# aktive hændelser på statussider}}",
+      "viewIncident": "Se hændelse",
+      "viewIncidents": "Se hændelser"
     }
   },
   "githubStar": {

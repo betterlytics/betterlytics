@@ -42,6 +42,8 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+import { SidebarAlertBadge, SidebarDownDot } from './SidebarAlertBadge';
 
 const ICON_SIZE = 16;
 
@@ -73,6 +75,9 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
     : currentDashboardPromise.then((d) => ({ success: true, data: [d] }));
 
   const t = await getTranslations('dashboard.sidebar');
+
+  const showMonitorAlerts = !isDemo && isFeatureEnabled('enableUptimeMonitoring');
+  const showStatusPageAlerts = !isDemo && isFeatureEnabled('enablePublicStatusPages');
 
   const analyticsItems: SidebarItem[] = [
     { name: t('overview'), key: 'overview', href: '', icon: <LayoutDashboard size={ICON_SIZE} /> },
@@ -208,11 +213,20 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                       className='flex items-center justify-between'
                     >
                       <div className='flex items-center gap-2'>
-                        <span className='dark:text-muted-foreground/90'>{item.icon}</span>
+                        <span className='dark:text-muted-foreground/90 relative'>
+                          {item.icon}
+                          {item.key === 'monitoring' && showMonitorAlerts && <SidebarDownDot />}
+                        </span>
                         <span>{item.name}</span>
                       </div>
 
-                      {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
+                      <div className='flex items-center gap-1'>
+                        {item.key === 'monitoring' && showMonitorAlerts && <SidebarAlertBadge kind='monitoring' />}
+                        {item.key === 'statusPages' && showStatusPageAlerts && (
+                          <SidebarAlertBadge kind='statusPages' />
+                        )}
+                        {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
+                      </div>
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

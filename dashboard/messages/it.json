@@ -1929,7 +1929,9 @@
         "observability": "Osservabilità"
       },
       "collapseNav": "Comprimi navigazione",
-      "errorTracking": "Monitoraggio errori"
+      "errorTracking": "Monitoraggio errori",
+      "downMonitorsCount": "{count, plural, one {# monitor offline} other {# monitor offline}}",
+      "activeIncidentsCount": "{count, plural, one {# incidente attivo} other {# incidenti attivi}}"
     },
     "settings": {
       "sidebar": {
@@ -3700,6 +3702,18 @@
         "title": "La geolocalizzazione non è abilitata su questa istanza",
         "description": "La posizione dei visitatori non viene raccolta finché non è abilitata."
       }
+    },
+    "monitorDown": {
+      "titleSingle": "Il monitor {name} è offline",
+      "titleMultiple": "{count, plural, one {# monitor è offline} other {# monitor sono offline}}",
+      "viewMonitor": "Vedi monitor",
+      "viewMonitors": "Vedi monitor"
+    },
+    "statusPageIncident": {
+      "titleSingle": "Incidente attivo su {statusPage}",
+      "titleMultiple": "{count, plural, one {# incidente attivo sulle pagine di stato} other {# incidenti attivi sulle pagine di stato}}",
+      "viewIncident": "Vedi incidente",
+      "viewIncidents": "Vedi incidenti"
     }
   },
   "githubStar": {
