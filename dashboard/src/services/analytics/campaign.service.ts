@@ -1,13 +1,7 @@
 'server-only';
 
-import {
-  getCampaignVisitorTrendData,
-  getCampaignLandingPagePerformanceData,
-  getCampaignAudienceProfileData,
-  getCampaignCount,
-  getCampaignPerformancePageData,
-  getCampaignUTMBreakdownData,
-} from '@/repositories/clickhouse/campaign.repository';
+import * as campaignRepository from '@/repositories/clickhouse/campaign.repository';
+import { demoCampaignDataSource } from '@/services/analytics/demoCampaigns.service';
 import {
   CampaignPerformance,
   CampaignPerformanceArraySchema,
@@ -35,6 +29,13 @@ import { GeoVisitorSchema, type GeoVisitor } from '@/entities/analytics/geograph
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import type { AuthContext } from '@/entities/auth/authContext.entities';
+import { isFeatureEnabled } from '@/lib/feature-flags';
+
+// Public demo visitors on Cloud get the bundled example campaigns; self-hosted public dashboards keep their real data
+function getCampaignDataSource(authContext: AuthContext) {
+  return authContext.isDemo && isFeatureEnabled('isCloud') ? demoCampaignDataSource : campaignRepository;
+}
 
 interface RawMetricsData {
   total_sessions: number;
@@ -70,17 +71,23 @@ export type CampaignPerformancePage = {
 };
 
 async function fetchCampaignPerformancePage(
+  authContext: AuthContext,
   siteQuery: BASiteQuery,
   pageIndex: number,
   pageSize: number,
 ): Promise<CampaignPerformancePage> {
   const safePageSize = pageSize > 0 ? Math.min(pageSize, 100) : 10;
-  const totalCampaigns = await getCampaignCount(siteQuery);
+  const dataSource = getCampaignDataSource(authContext);
+  const totalCampaigns = await dataSource.getCampaignCount(siteQuery);
   const totalPages = Math.max(1, Math.ceil(totalCampaigns / safePageSize));
   const safePageIndex = Math.min(Math.max(pageIndex, 0), totalPages - 1);
   const offset = safePageIndex * safePageSize;
 
-  const rawCampaignData: RawCampaignData[] = await getCampaignPerformancePageData(siteQuery, safePageSize, offset);
+  const rawCampaignData: RawCampaignData[] = await dataSource.getCampaignPerformancePageData(
+    siteQuery,
+    safePageSize,
+    offset,
+  );
 
   const transformedData: CampaignPerformance[] = rawCampaignData.map((raw: RawCampaignData) => {
     const metrics = calculateCommonCampaignMetrics(raw);
@@ -109,15 +116,16 @@ export type CampaignDirectoryPage = {
 };
 
 export async function fetchCampaignDirectoryPage(
+  authContext: AuthContext,
   siteQuery: BASiteQuery,
   pageIndex: number,
   pageSize: number,
 ): Promise<CampaignDirectoryPage> {
-  const performancePage = await fetchCampaignPerformancePage(siteQuery, pageIndex, pageSize);
+  const performancePage = await fetchCampaignPerformancePage(authContext, siteQuery, pageIndex, pageSize);
   const campaignNames = performancePage.campaigns.map((campaign) => campaign.name);
 
   const sparklineMap =
-    campaignNames.length > 0 ? await fetchCampaignSparklines(siteQuery, campaignNames) : {};
+    campaignNames.length > 0 ? await fetchCampaignSparklines(authContext, siteQuery, campaignNames) : {};
 
   const campaigns: CampaignListRowSummary[] = performancePage.campaigns.map((campaign) => ({
     ...campaign,
@@ -133,11 +141,17 @@ export async function fetchCampaignDirectoryPage(
 }
 
 export async function fetchCampaignUTMBreakdown(
+  authContext: AuthContext,
   siteQuery: BASiteQuery,
   dimension: UTMDimension,
   campaignName?: string,
 ): Promise<CampaignUTMBreakdownItem[]> {
-  const rawData: RawCampaignUTMBreakdownItem[] = await getCampaignUTMBreakdownData(siteQuery, dimension, campaignName);
+  const dataSource = getCampaignDataSource(authContext);
+  const rawData: RawCampaignUTMBreakdownItem[] = await dataSource.getCampaignUTMBreakdownData(
+    siteQuery,
+    dimension,
+    campaignName,
+  );
 
   const transformedData: CampaignUTMBreakdownItem[] = rawData.map((raw) => {
     const metrics = calculateCommonCampaignMetrics(raw);
@@ -152,13 +166,13 @@ export async function fetchCampaignUTMBreakdown(
 }
 
 export async function fetchCampaignLandingPagePerformance(
+  authContext: AuthContext,
   siteQuery: BASiteQuery,
   campaignName?: string,
 ): Promise<CampaignLandingPagePerformanceItem[]> {
-  const rawLandingPageData: RawCampaignLandingPagePerformanceItem[] = await getCampaignLandingPagePerformanceData(
-    siteQuery,
-    campaignName,
-  );
+  const dataSource = getCampaignDataSource(authContext);
+  const rawLandingPageData: RawCampaignLandingPagePerformanceItem[] =
+    await dataSource.getCampaignLandingPagePerformanceData(siteQuery, campaignName);
 
   const transformedData: CampaignLandingPagePerformanceItem[] = rawLandingPageData.map(
     (raw: RawCampaignLandingPagePerformanceItem) => {
@@ -176,6 +190,7 @@ export async function fetchCampaignLandingPagePerformance(
 }
 
 export async function fetchCampaignSparklines(
+  authContext: AuthContext,
   siteQuery: BASiteQuery,
   campaignNames: string[],
 ): Promise<Record<string, CampaignSparklinePoint[]>> {
@@ -186,7 +201,8 @@ export async function fetchCampaignSparklines(
   const safeGranularity = getSafeSparklineGranularity(siteQuery.granularity);
   const sparklineSiteQuery: BASiteQuery = { ...siteQuery, granularity: safeGranularity };
 
-  const trendRows = await getCampaignVisitorTrendData(sparklineSiteQuery, campaignNames);
+  const dataSource = getCampaignDataSource(authContext);
+  const trendRows = await dataSource.getCampaignVisitorTrendData(sparklineSiteQuery, campaignNames);
 
   const grouped = trendRows.reduce<Record<string, CampaignTrendRow[]>>((acc, row) => {
     (acc[row.utm_campaign] ??= []).push(row);
@@ -229,12 +245,14 @@ export type CampaignAudienceProfileData = {
 };
 
 export async function fetchCampaignAudienceProfile(
+  authContext: AuthContext,
   siteQuery: BASiteQuery,
   campaignName?: string,
 ): Promise<CampaignAudienceProfileData> {
   const AUDIENCE_DIMENSION_LIMIT = 3;
 
-  const raw = await getCampaignAudienceProfileData(siteQuery, campaignName, AUDIENCE_DIMENSION_LIMIT);
+  const dataSource = getCampaignDataSource(authContext);
+  const raw = await dataSource.getCampaignAudienceProfileData(siteQuery, campaignName, AUDIENCE_DIMENSION_LIMIT);
 
   const mapRows = <T>(dimension: string, mapper: (row: (typeof raw)[number]) => T): T[] =>
     raw.filter((row) => row.dimension === dimension).map(mapper);

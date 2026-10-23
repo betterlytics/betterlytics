@@ -25,14 +25,14 @@ export const campaignRouter = createRouter({
     .input(z.object({ pageIndex: z.number(), pageSize: z.number() }))
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      return fetchCampaignDirectoryPage(main, input.pageIndex, input.pageSize);
+      return fetchCampaignDirectoryPage(ctx.authContext, main, input.pageIndex, input.pageSize);
     }),
 
   sparklines: analyticsProcedure
     .input(z.object({ campaignNames: z.array(z.string()) }))
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      return fetchCampaignSparklines(main, input.campaignNames);
+      return fetchCampaignSparklines(ctx.authContext, main, input.campaignNames);
     }),
 
   expandedDetails: analyticsProcedure
@@ -40,9 +40,9 @@ export const campaignRouter = createRouter({
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
       const [utmSource, landingPages, audienceProfile] = await Promise.all([
-        fetchCampaignUTMBreakdown(main, 'source', input.campaignName),
-        fetchCampaignLandingPagePerformance(main, input.campaignName),
-        fetchCampaignAudienceProfile(main, input.campaignName),
+        fetchCampaignUTMBreakdown(ctx.authContext, main, 'source', input.campaignName),
+        fetchCampaignLandingPagePerformance(ctx.authContext, main, input.campaignName),
+        fetchCampaignAudienceProfile(ctx.authContext, main, input.campaignName),
       ]);
       return {
         utmSource,
@@ -61,6 +61,6 @@ export const campaignRouter = createRouter({
     }))
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      return fetchCampaignUTMBreakdown(main, input.dimension, input.campaignName);
+      return fetchCampaignUTMBreakdown(ctx.authContext, main, input.dimension, input.campaignName);
     }),
 });
