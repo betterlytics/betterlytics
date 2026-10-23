@@ -216,11 +216,12 @@ const REMOVAL_TARGET_SELECT = { role: true, deletedAt: true, disabledAt: true } 
 /**
  * Deletes (anonymizes) a user and disposes of the dashboards they own in one locked transaction, so a
  * refused deletion never leaves dashboards half-deleted. With `guard`, the last enabled admin or user is
- * refused. Returns the refusal reason, or null when the user was deleted.
+ * refused. Every live membership of the user is ended with `removedById` as the remover. Returns the
+ * refusal reason, or null when the user was deleted.
  */
 export async function deleteUserAccount(
   userId: string,
-  options: { guard: boolean; ownedDashboards: OwnedDashboardsDisposal },
+  options: { guard: boolean; ownedDashboards: OwnedDashboardsDisposal; removedById: string },
 ): Promise<AccountDeletionOutcome> {
   try {
     return await prisma.$transaction(async (tx) => {
@@ -235,8 +236,8 @@ export async function deleteUserAccount(
       }
 
       const owned = await tx.userDashboard.findMany({
-        where: { userId, role: 'owner', dashboard: { deletedAt: null } },
-        select: { id: true, dashboardId: true },
+        where: { userId, role: 'owner', deletedAt: null, dashboard: { deletedAt: null } },
+        select: { dashboardId: true },
       });
       const dashboardIds = owned.map((row) => row.dashboardId);
 
@@ -248,13 +249,16 @@ export async function deleteUserAccount(
         });
         if (!recipient || recipient.id === userId) return 'invalid_recipient';
 
-        for (const row of owned) {
-          await tx.userDashboard.delete({ where: { id: row.id } });
-          await tx.userDashboard.upsert({
-            where: { userId_dashboardId: { userId: toUserId, dashboardId: row.dashboardId } },
-            create: { userId: toUserId, dashboardId: row.dashboardId, role: 'owner' },
-            update: { role: 'owner' },
+        for (const dashboardId of dashboardIds) {
+          const recipientAccess = await tx.userDashboard.findFirst({
+            where: { userId: toUserId, dashboardId, deletedAt: null },
+            select: { id: true },
           });
+          if (recipientAccess) {
+            await tx.userDashboard.update({ where: { id: recipientAccess.id }, data: { role: 'owner' } });
+          } else {
+            await tx.userDashboard.create({ data: { userId: toUserId, dashboardId, role: 'owner' } });
+          }
         }
       } else if (dashboardIds.length > 0) {
         await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt: new Date() } });
@@ -263,6 +267,12 @@ export async function deleteUserAccount(
           data: { status: 'cancelled' },
         });
       }
+
+      // Ends the owner rows too, so a transferred dashboard keeps the old owner's access period
+      await tx.userDashboard.updateMany({
+        where: { userId, deletedAt: null },
+        data: { deletedAt: new Date(), deletedById: options.removedById },
+      });
 
       await anonymizeUserWith(tx, userId);
       return null;
@@ -406,7 +416,7 @@ export async function findUsersWithoutDashboardsInWindow(
         deletedAt: null,
         disabledAt: null,
         createdAt: { gt: window.signedUpAfter, lt: window.signedUpBefore },
-        dashboardAccess: { none: {} },
+        dashboardAccess: { none: { deletedAt: null } },
       },
       select: { id: true, email: true, name: true },
       orderBy: { createdAt: 'asc' },
