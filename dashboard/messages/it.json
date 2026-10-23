@@ -3539,6 +3539,9 @@
       "light": "Passa alla modalità chiara",
       "dark": "Passa alla modalità scura"
     },
+    "scrollToTop": {
+      "label": "Torna in cima"
+    },
     "errorPage": {
       "title": "Qualcosa è andato storto",
       "description": "Si è verificato un errore imprevisto durante il caricamento della dashboard.",
