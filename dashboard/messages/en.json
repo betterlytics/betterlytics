@@ -2682,6 +2682,10 @@
         "docsHint": "Need help getting campaigns to show up?",
         "docsLinkLabel": "Read the campaign tracking guide"
       },
+      "periodEmptyState": {
+        "title": "No campaign traffic in this period",
+        "description": "Try a wider date range to see earlier campaigns."
+      },
       "loading": "Loading campaigns...",
       "campaignRow": {
         "visitors": "{count, plural, one {# visitor} other {# visitors}}",
