@@ -61,9 +61,6 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 2px 9px 2px 7px;
-    border-radius: 999px;
-    background: --alpha(var(--color-down) / 14%);
     color: #f08b98;
     font-size: 10.5px;
     font-weight: 500;

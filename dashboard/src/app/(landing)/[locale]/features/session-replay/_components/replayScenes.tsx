@@ -150,9 +150,10 @@ function SessionList({ t }: { t: Scenes }) {
             </span>
             <span className={visit.bar}>
               {'ticks' in session && (
-                // drawn at the tape's size and shrunk the same way, so it matches the first row's landed tape
                 <span className={`${visit.track} ${visit.mini}`}>
-                  <i className={visit.full} />
+                  <i className={visit.rail}>
+                    <i className={visit.played} />
+                  </i>
                   {session.ticks.map(([x, kind]) => (
                     <i key={x} data-kind={kind} data-state='shown' style={vars({ '--x': x / 100 })} />
                   ))}
@@ -200,10 +201,13 @@ const TICKS = [
 ] as const;
 
 const ERROR = 0.75;
-/** Each step: how far the recording has got (`to`), and the head's run, recording at first and the playhead later. */
+/**
+ * Each step: how far the recording has got (`to`), and the head's run, recording at first and the playhead later.
+ * The first run lasts the whole step (replayStory's 5.6 s dwell) and the second keeps its speed, so the head never pauses.
+ */
 const RUNS = [
-  { to: 0.62, head: [0, 0.62], delay: 0.5, dur: 4.4, ease: 'linear' },
-  { to: ERROR, head: [0.62, ERROR], delay: 0, dur: 0.7, ease: 'linear' },
+  { to: 0.62, head: [0, 0.62], delay: 0.5, dur: 5.1, ease: 'linear' },
+  { to: ERROR, head: [0.62, ERROR], delay: 0, dur: 1.1, ease: 'linear' },
   { to: 1, head: [ERROR, 1], delay: 0, dur: 0.4, ease: 'linear' },
   { to: 1, head: [0, ERROR], delay: 1.4, dur: 0.9, ease: 'var(--ease-out-expo)' },
   { to: 1, head: [ERROR, ERROR], delay: 0, dur: 0.1, ease: 'linear' },
@@ -277,8 +281,6 @@ function Visit({ t, step }: { t: Scenes; step: number }) {
         <div
           className={`${visit.track} ${visit.tape}`}
           style={vars({
-            '--from': from,
-            '--to': to,
             '--head-from': head[0],
             '--head-to': head[1],
             '--delay': `${delay}s`,
@@ -286,8 +288,10 @@ function Visit({ t, step }: { t: Scenes; step: number }) {
             '--ease': ease,
           })}
         >
-          {/* keyed by step, so the head and the saved stretch run again from where the last step left them */}
-          <i key={`saved-${step}`} className={visit.saved} />
+          {/* keyed by step, so the handle and its fill run again from where the last step left them */}
+          <i className={visit.rail}>
+            <i key={`played-${step}`} className={visit.played} />
+          </i>
           {TICKS.map(([x, kind]) => {
             const where = x / 100;
             return (
@@ -301,7 +305,7 @@ function Visit({ t, step }: { t: Scenes; step: number }) {
           })}
           <i key={`head-${step}`} className={visit.head} />
         </div>
-        <span className={visit.tip}>{t('clientError')} · 1:41</span>
+        <span className={visit.tip}>{t('clientError')}</span>
         <ErrorCard t={t} className={visit.error} />
         <div className={`${styles.card} ${visit.events}`}>
           <p className={styles.cardHead}>{t('timeline')}</p>
