@@ -73,7 +73,7 @@ function ErrorCard({ t, className }: { t: Scenes; className: string }) {
       <div className={styles.banner}>
         <CircleX aria-hidden />
         <b>{t('newError')}</b>
-        <time>14:03</time>
+        <time>10:03</time>
       </div>
       <div className={styles.errorHead}>
         <b>TypeError</b>

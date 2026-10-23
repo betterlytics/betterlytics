@@ -1749,33 +1749,33 @@
       },
       "story": {
         "title": "From a failed checkout to *the reason*",
-        "lede": "What happens when the Pay button breaks for one visitor at 14:03.",
+        "lede": "What happens when the Pay button breaks at 10:03.",
         "stepsLabel": "Replay timeline",
         "steps": {
           "record": {
-            "time": "14:02",
+            "time": "10:02",
             "title": "The visit is recorded",
-            "body": "This visitor falls in your 5% sample, so the recorder loads and saves the visit as it goes."
+            "body": "The visit is picked for recording and saved as they browse."
           },
           "error": {
-            "time": "14:03",
+            "time": "10:03",
             "title": "Pay throws an error",
-            "body": "A TypeError in checkout.js. Error tracking groups it with the stack trace, the page and the browser."
+            "body": "A JavaScript error stops the payment. Error tracking logs it with the page, the browser and the code that failed."
           },
           "ready": {
-            "time": "14:05",
+            "time": "10:05",
             "title": "The replay lands",
-            "body": "The rest uploads as they leave. The session joins the list with its error count."
+            "body": "When they leave, the session lands in your replay list, flagged with its error."
           },
           "jump": {
-            "time": "14:20",
+            "time": "10:20",
             "title": "You jump to the moment",
-            "body": "From the error, open its replay and click the red marker to land where it broke."
+            "body": "From the error, open the replay and jump straight to the moment it happened."
           },
           "why": {
-            "time": "14:21",
+            "time": "10:21",
             "title": "And see why",
-            "body": "Two clicks on Pay with the postcode left empty. Masked text keeps its length, so an empty field still looks empty."
+            "body": "Two clicks on Pay with an empty postcode field. The text is masked, yet you can still see what was left blank."
           }
         },
         "scenes": {
@@ -1796,12 +1796,12 @@
       },
       "privacy": {
         "title": "Masked *before* it leaves the browser",
-        "lede": "You see where visitors clicked, scrolled and typed. What they read and typed stays on their device.",
+        "lede": "You see where visitors clicked, scrolled and typed. Their privacy stays intact: what they read and typed never leaves their device.",
         "points": {
           "text": "Every character of text and every input value becomes an asterisk, so the layout keeps its shape",
           "media": "Images and iframes are replaced by empty boxes of the same size",
-          "consent": "Recording waits for a go-ahead: one JavaScript call or a script attribute",
-          "exclude": "Leave out whole paths like /billing/**, or single elements with the rr-block class",
+          "consent": "Can wait for consent before recording anything, wherever the law asks for it",
+          "exclude": "Leave out whole pages or sections of your site, or single elements you mark as private",
           "storage": "No cookies, and no IP address saved with a replay"
         },
         "docs": "How masking works",
@@ -1827,7 +1827,7 @@
         "items": {
           "sample": {
             "title": "Pick your sample",
-            "body": "Record 5% of visits by default, or any share up to all of them. A visit is either recorded from its first page or not at all."
+            "body": "Record a small share of visits or every single one. Each visit is recorded in full or not at all."
           },
           "errors": {
             "title": "Keep the lead-up to errors",
@@ -1835,35 +1835,35 @@
           },
           "paths": {
             "title": "Leave pages out",
-            "body": "Turn recording off for patterns like /admin/** or /billing/**. The player blurs those stretches."
+            "body": "Turn recording off for any page or whole section, like your admin area or account pages. Nothing is recorded there, and the player blurs that part of the visit."
           },
           "light": {
             "title": "Light on your site",
-            "body": "The recorder is a separate file that loads only when it's needed, and sends compressed chunks in the background."
+            "body": "The recorder is a separate file that loads only when it's needed, and uploads in small compressed batches in the background, so your pages stay fast."
           },
           "spa": {
             "title": "Made for single-page apps",
-            "body": "Route changes in React, Vue or Next.js apps show up as page views on the timeline."
+            "body": "Route changes in single-page apps built with React, Vue or Next.js show up as page views on the timeline, just like full page loads."
           },
           "bots": {
             "title": "People only",
-            "body": "Headless browsers, WebDriver sessions and test runners like Playwright and Cypress are never recorded."
+            "body": "Headless browsers and test runners like Playwright and Cypress are never recorded, so your replays only show real people."
           }
         }
       },
       "setup": {
         "title": "Turn it on with *two* lines",
-        "lede": "Replay runs on the script you already have. One line turns it on and one handles consent. Sampling and private paths take a line each.",
+        "lede": "No new script and no new vendor. Replay runs on the Betterlytics script you already have.",
         "snippetLabel": "Setup examples",
         "consentTab": "Consent",
         "steps": {
           "enable": {
             "title": "Turn it on",
-            "body": "Add data-replay=\"true\" to your script tag, or set enableSessionReplay in the npm package."
+            "body": "Add one attribute to your script tag, or one option in the npm package."
           },
           "consent": {
             "title": "Handle consent",
-            "body": "Rules like the EU's ePrivacy Directive may require consent before you record. If they do, call setReplayConsent(true) when your banner resolves. If not, set data-consent-replay=\"true\" on the script tag."
+            "body": "Where the law requires consent, as in the EU, one line connects recording to your consent banner."
           },
           "tune": {
             "title": "Tune it",
