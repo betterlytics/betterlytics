@@ -12,7 +12,12 @@ export type RelatedItem = {
   key: 'analytics' | 'replay' | 'errors' | 'vitals' | 'uptime';
   icon: ReactNode;
   href: string;
+  /** Docs are a separate app, so these skip the client router. */
+  docs?: boolean;
 };
+
+const CARD =
+  'relative flex h-full flex-col px-6.5 pt-6.5 pb-6 outline-hidden focus-visible:inset-ring-[1.5px] focus-visible:inset-ring-volt-soft/70 max-sm:px-(--pad)';
 
 const RELATED_ID = 'related';
 
@@ -22,12 +27,9 @@ export function RelatedSection({ items, lede }: { items: RelatedItem[]; lede: st
     <Section id={RELATED_ID} title={t('related.title')} lede={lede}>
       <Panel flush>
         <SpotlightList className={cn(ruled.grid, ruled.cols4)}>
-          {items.map((item) => (
-            <li key={item.key} className={styles.card}>
-              <AppLink
-                href={item.href}
-                className='relative flex h-full flex-col px-6.5 pt-6.5 pb-6 outline-hidden focus-visible:inset-ring-[1.5px] focus-visible:inset-ring-volt-soft/70 max-sm:px-(--pad)'
-              >
+          {items.map((item) => {
+            const body = (
+              <>
                 <span className='mb-9 grid size-9 place-items-center rounded-[9px] border border-rule-10 bg-fg/5 text-fg'>
                   {item.icon}
                 </span>
@@ -41,9 +43,22 @@ export function RelatedSection({ items, lede }: { items: RelatedItem[]; lede: st
                   {t('related.learnMore')}
                   <ArrowRight className={`${styles.arrow} size-3.5`} aria-hidden />
                 </span>
-              </AppLink>
-            </li>
-          ))}
+              </>
+            );
+            return (
+              <li key={item.key} className={styles.card}>
+                {item.docs ? (
+                  <a href={item.href} className={CARD}>
+                    {body}
+                  </a>
+                ) : (
+                  <AppLink href={item.href} className={CARD}>
+                    {body}
+                  </AppLink>
+                )}
+              </li>
+            );
+          })}
         </SpotlightList>
       </Panel>
     </Section>

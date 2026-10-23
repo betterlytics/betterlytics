@@ -128,9 +128,14 @@ export function ReplayPage() {
       <RelatedSection
         lede={t('related.lede')}
         items={[
-          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs },
-          { key: 'errors', icon: <Bug className='size-4' />, href: `${LINKS.docs}/dashboard/errors` },
-          { key: 'vitals', icon: <Gauge className='size-4' />, href: `${LINKS.docs}/dashboard/web-vitals` },
+          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs, docs: true },
+          { key: 'errors', icon: <Bug className='size-4' />, href: `${LINKS.docs}/dashboard/errors`, docs: true },
+          {
+            key: 'vitals',
+            icon: <Gauge className='size-4' />,
+            href: `${LINKS.docs}/dashboard/web-vitals`,
+            docs: true,
+          },
           { key: 'uptime', icon: <Activity className='size-4' />, href: '/features/uptime-monitoring' },
         ]}
       />

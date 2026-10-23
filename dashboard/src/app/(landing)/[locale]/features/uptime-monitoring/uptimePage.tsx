@@ -145,10 +145,15 @@ export function UptimePage() {
       <RelatedSection
         lede={t('related.lede')}
         items={[
-          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs },
+          { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs, docs: true },
           { key: 'replay', icon: <PlayCircle className='size-4' />, href: '/features/session-replay' },
-          { key: 'errors', icon: <Bug className='size-4' />, href: `${LINKS.docs}/dashboard/errors` },
-          { key: 'vitals', icon: <Gauge className='size-4' />, href: `${LINKS.docs}/dashboard/web-vitals` },
+          { key: 'errors', icon: <Bug className='size-4' />, href: `${LINKS.docs}/dashboard/errors`, docs: true },
+          {
+            key: 'vitals',
+            icon: <Gauge className='size-4' />,
+            href: `${LINKS.docs}/dashboard/web-vitals`,
+            docs: true,
+          },
         ]}
       />
     </PageShell>
