@@ -8410,6 +8410,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       errorCheckoutTimer: null,
       errorLastFlushAt: 0,
       errorFlushPending: false,
+      rageBurst: null,
+      rageTimer: null,
     };
 
     var config = {
@@ -8422,6 +8424,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
     var MAX_ERROR_METADATA_BYTES = 256 * 1024;
     var MAX_ERROR_SOURCES = 128;
     var MAX_ERROR_SOURCE_BYTES = 16 * 1024;
+
+    // A rage click is a burst of clicks, each close to and soon after the previous one
+    var RAGE_CLICK_MIN_CLICKS = 3;
+    var RAGE_CLICK_MAX_DISTANCE_PX = 30;
+    var RAGE_CLICK_MAX_GAP_MS = 1000;
+    var RAGE_CLICK_MAX_SELECTOR_CHARS = 200;
 
     function hasReachedMinDuration() {
       if (!minReplayDurationSec) return true;
@@ -8449,6 +8457,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
         qs += "&ended_at_ms=" + payload.lastEventTs;
       }
       qs += "&event_count=" + payload.eventCount;
+      if (payload.rageClickCount) {
+        qs += "&rage_click_count=" + payload.rageClickCount;
+      }
       qs += "&chunk_id=" + encodeURIComponent(payload.chunkId);
       if (payload.encoding === "gzip") {
         qs += "&encoding=gzip";
@@ -8510,10 +8521,19 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return entries;
     }
 
+    function countRageClicks(events) {
+      var count = 0;
+      events.forEach(function (event) {
+        if (event.type === 5 && event.data && event.data.tag === "rage_click") count++;
+      });
+      return count;
+    }
+
     function buildChunk(events, lastEventTs, startedAtMs) {
       var seq = state.chunkSeq++;
       var chunkId = pageNonce + "-" + (seq < 10000 ? ("000" + seq).slice(-4) : seq);
       var errors = collectChunkErrors(events);
+      var rageClickCount = countRageClicks(events);
       return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
         if (errors.length) {
           var metadata = new TextEncoder().encode(JSON.stringify(errors));
@@ -8527,6 +8547,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         enc.lastEventTs = lastEventTs;
         enc.startedAtMs = startedAtMs || state.startedAt;
         enc.eventCount = events.length;
+        enc.rageClickCount = rageClickCount;
         enc.chunkId = chunkId;
         return enc;
       });
@@ -8705,6 +8726,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function stopRecording() {
       if (state.stopping) return;
       state.stopping = true;
+      endRageBurst();
       try {
         if (state.recordingStop) {
           state.recordingStop();
@@ -8728,6 +8750,87 @@ or you can use record.mirror to access the mirror instance during recording.`;
       } catch (_) {
         return 0;
       }
+    }
+
+    function shortSelector(node) {
+      var el = node && node.nodeType === 1 ? node : node && node.parentElement;
+      var parts = [];
+      while (el && el.nodeType === 1 && parts.length < 3) {
+        var part = el.tagName.toLowerCase();
+        if (el.id) {
+          parts.unshift(part + "#" + el.id);
+          break;
+        }
+        var classes =
+          typeof el.className === "string"
+            ? el.className.trim().split(/\s+/).filter(Boolean).slice(0, 2)
+            : [];
+        if (classes.length) part += "." + classes.join(".");
+        parts.unshift(part);
+        if (part === "body" || part === "html") break;
+        el = el.parentElement;
+      }
+      return parts.join(" > ").slice(0, RAGE_CLICK_MAX_SELECTOR_CHARS);
+    }
+
+    function endRageBurst() {
+      if (state.rageTimer) {
+        clearTimeout(state.rageTimer);
+        state.rageTimer = null;
+      }
+      var burst = state.rageBurst;
+      state.rageBurst = null;
+      if (!burst || burst.clickCount < RAGE_CLICK_MIN_CLICKS) return;
+      try {
+        if (window.rrweb && typeof window.rrweb.record.addCustomEvent === "function") {
+          window.rrweb.record.addCustomEvent("rage_click", {
+            timestamp: burst.firstTs,
+            x: burst.x,
+            y: burst.y,
+            clickCount: burst.clickCount,
+            selector: burst.selector,
+          });
+        }
+      } catch (_) {}
+    }
+
+    function trackClick(e) {
+      var data = e.data;
+      if (typeof data.x !== "number" || typeof data.y !== "number") return;
+      var burst = state.rageBurst;
+      var continues =
+        burst &&
+        e.timestamp - burst.lastTs <= RAGE_CLICK_MAX_GAP_MS &&
+        Math.abs(data.x - burst.lastX) + Math.abs(data.y - burst.lastY) <=
+          RAGE_CLICK_MAX_DISTANCE_PX;
+      if (continues) {
+        burst.clickCount++;
+        burst.lastTs = e.timestamp;
+        burst.lastX = data.x;
+        burst.lastY = data.y;
+        if (burst.clickCount === RAGE_CLICK_MIN_CLICKS) {
+          var node = null;
+          try {
+            node = window.rrweb.record.mirror.getNode(burst.nodeId);
+          } catch (_) {}
+          burst.selector = shortSelector(node);
+        }
+      } else {
+        endRageBurst();
+        state.rageBurst = {
+          firstTs: e.timestamp,
+          lastTs: e.timestamp,
+          x: data.x,
+          y: data.y,
+          lastX: data.x,
+          lastY: data.y,
+          nodeId: data.id,
+          clickCount: 1,
+          selector: "",
+        };
+      }
+      if (state.rageTimer) clearTimeout(state.rageTimer);
+      state.rageTimer = setTimeout(endRageBurst, RAGE_CLICK_MAX_GAP_MS);
     }
 
     function handleRecordingEmit(e, isCheckout) {
@@ -8760,6 +8863,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
           if (state.errorMatrix.length > 2) state.errorMatrix.shift();
         }
         state.errorMatrix[state.errorMatrix.length - 1].push(e);
+      }
+
+      // IncrementalSnapshot > MouseInteraction > Click; taps also produce a click
+      if (e.type === 3 && e.data.source === 2 && e.data.type === 2) {
+        trackClick(e);
       }
     }
 
@@ -8877,6 +8985,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
           emitReplayPageview(window.location.href, true);
         }
       } else {
+        // Emit a burst from the previous page before the blacklist hides it
+        endRageBurst();
         emitReplayBlacklist();
         stopRecording();
       }
