@@ -1,9 +1,11 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { ArrowUpRight, Check, ChevronsLeftRight } from 'lucide-react';
+import { Check, ChevronsLeftRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { buttonStyles } from '@/landing/components/ui/button';
 import { Label } from '@/landing/components/ui/text';
+import { TrackedAnchor } from '@/landing/components/ui/trackedLink';
 import { useInView } from '@/landing/hooks/useInView';
 import { vars } from '@/landing/lib/cssVars';
 import { LINKS } from '@/landing/lib/links';
@@ -20,7 +22,7 @@ export function MaskingShowcase() {
   const [touched, setTouched] = useState(false);
   return (
     <div className='grid grid-cols-[0.92fr_1.25fr] max-xl:grid-cols-1'>
-      <div className='flex flex-col border-r border-rule-10 px-7.5 pt-9 pb-8 transition-ink max-xl:border-r-0 max-xl:border-b max-xl:pt-8 max-sm:px-6'>
+      <div className='flex flex-col border-r border-rule-10 px-7.5 py-9 transition-ink max-xl:border-r-0 max-xl:border-b max-xl:py-8 max-sm:px-6'>
         <ul className='grid gap-4.5'>
           {POINTS.map((key) => (
             <li key={key} className='grid grid-cols-[18px_1fr] gap-3 text-body leading-[23px]'>
@@ -29,13 +31,16 @@ export function MaskingShowcase() {
             </li>
           ))}
         </ul>
-        <a
-          href={`${LINKS.replayDocs}#what-is-recorded`}
-          className='mt-7 inline-flex items-center gap-2 self-start text-label text-volt-text transition-colors duration-180 ease-out-expo hover:text-fg'
-        >
-          {t('docs')}
-          <ArrowUpRight className='size-3.5' aria-hidden />
-        </a>
+        <div className='pt-8'>
+          <TrackedAnchor
+            className={buttonStyles({ variant: 'line', size: 'sm' })}
+            href={`${LINKS.replayDocs}#what-is-recorded`}
+            placement='privacy'
+            destination='docs'
+          >
+            {t('docs')}
+          </TrackedAnchor>
+        </div>
       </div>
       <div className='relative flex min-w-0 flex-col justify-center gap-4 bg-hatch p-9 max-xl:p-7 max-sm:px-(--pad) max-sm:py-6'>
         <p className='sr-only'>{t('alt')}</p>
