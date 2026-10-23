@@ -11,6 +11,11 @@ import {
 
 export const revalidate = 60;
 
+/** Prerenders nothing at build: without it Next renders every request live. Each page is cached on first visit. */
+export function generateStaticParams() {
+  return [];
+}
+
 type StatusPageParams = { params: Promise<{ slug: string }> };
 
 const resolveStatusPage = cache(async (slug: string) => {

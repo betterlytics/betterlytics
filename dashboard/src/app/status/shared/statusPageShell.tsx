@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getTranslations } from 'next-intl/server';
+import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { env } from '@/lib/env';
 import type { PublicStatusPageData } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { statusPagePublicUrl } from '@/entities/analytics/statusPage/statusPage.helpers';
@@ -52,6 +52,9 @@ export async function buildStatusPageNotFoundMetadata(): Promise<Metadata> {
 
 /** Renders a resolved public status page. Status pages always render in English, independent of visitor locale. */
 export async function StatusPageShell({ data }: { data: PublicStatusPageData }) {
+  // The provider reads time zone and formats from the request config; without a set locale that
+  // resolves it from the request headers, which would render every request live.
+  setRequestLocale('en');
   const messages = await getMessages({ locale: 'en' });
 
   return (
