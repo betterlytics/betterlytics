@@ -178,7 +178,7 @@ const PageNumbers = memo(({ pages, currentPage, onPageChange, className, compact
 
 PageNumbers.displayName = 'PageNumbers';
 
-function getPageNumbers(currentPage: number, totalPages: number, compact: boolean): PageItem[] {
+export function getPageNumbers(currentPage: number, totalPages: number, compact: boolean): PageItem[] {
   if (compact) {
     if (totalPages <= 5) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
