@@ -23,7 +23,7 @@ function MapLegendComponent({ maxVisitors = 1, className }: MapLegendProps) {
   return (
     <div
       className={cn(
-        'info-legend rounded-md bg-card p-2.5 text-xs leading-normal shadow-md dark:bg-(--card-interactive)',
+        'info-legend border-border rounded-md border bg-card p-2.5 text-xs leading-normal shadow-md dark:bg-(--card-interactive)',
         className,
       )}
       onMouseEnter={clearHovered}

@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 const ZOOM_STEP = 0.3;
 // aria-disabled keeps focus at the zoom limit
 const BUTTON_CLASS =
-  'border-input relative cursor-pointer border focus-visible:z-10 aria-disabled:pointer-events-none aria-disabled:opacity-50';
+  'relative cursor-pointer focus-visible:z-10 aria-disabled:pointer-events-none aria-disabled:opacity-50';
 
 export default function MapZoomButtons({ className }: { className?: string }) {
   const map = useMapInstance();
@@ -32,7 +32,12 @@ export default function MapZoomButtons({ className }: { className?: string }) {
   }, [map]);
 
   return (
-    <div className={cn('bg-card inline-flex flex-col rounded-md shadow-xs dark:bg-(--card-interactive)', className)}>
+    <div
+      className={cn(
+        'bg-card border-border divide-border inline-flex flex-col divide-y rounded-md border shadow-md dark:bg-(--card-interactive)',
+        className,
+      )}
+    >
       <Button
         variant='ghost'
         size='icon'
@@ -52,7 +57,7 @@ export default function MapZoomButtons({ className }: { className?: string }) {
         aria-label={t('zoomOut')}
         title={t('zoomOut')}
         aria-disabled={!map || limits.atMin}
-        className={`${BUTTON_CLASS} -mt-px rounded-t-none`}
+        className={`${BUTTON_CLASS} rounded-t-none`}
         onClick={() => {
           if (map && !limits.atMin) map.zoomOut(ZOOM_STEP);
         }}
