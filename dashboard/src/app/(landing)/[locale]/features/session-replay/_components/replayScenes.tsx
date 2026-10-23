@@ -13,6 +13,8 @@ import visit from './replayVisit.module.css';
 
 /* Values are mock data, left literal; labels are copy. */
 
+export const DWELL_MS = 5600;
+
 type Scenes = ReturnType<typeof useTranslations<'landing.replay.story.scenes'>>;
 
 const SITE_URL = 'northwind.coffee/checkout';
@@ -37,7 +39,6 @@ function Browser({ children, rec }: { children: ReactNode; rec: string }) {
   );
 }
 
-/** Single-colour marks, drawn in the text colour as the dashboard does in dark mode. */
 const OS_ICONS = {
   apple: '/os-icons/apple-dark.svg',
   windows: '/os-icons/windows.svg',
@@ -95,7 +96,6 @@ function ErrorCard({ t, className }: { t: Scenes; className: string }) {
   );
 }
 
-/** The first row is the visit itself: its thumbnail and bar are the window and the tape, landed in place. */
 const SESSIONS = [
   { ago: 'now', duration: '2m 14s', path: '/', flag: 'DK', browser: 'chrome', os: 'apple', errors: 1 },
   {
@@ -180,7 +180,6 @@ function SessionList({ t }: { t: Scenes }) {
   );
 }
 
-/** Marker colours follow the player's: clicks blue, scrolls amber, inputs rose. */
 const TICKS = [
   [3, 'click'],
   [8, 'scroll'],
@@ -201,19 +200,15 @@ const TICKS = [
 ] as const;
 
 const ERROR = 0.75;
-/**
- * Each step: how far the recording has got (`to`), and the head's run, recording at first and the playhead later.
- * The first run lasts the whole step (replayStory's 5.6 s dwell) and the second keeps its speed, so the head never pauses.
- */
+const LEAD_S = 0.5;
 const RUNS = [
-  { to: 0.62, head: [0, 0.62], delay: 0.5, dur: 5.1, ease: 'linear' },
+  { to: 0.62, head: [0, 0.62], delay: LEAD_S, dur: DWELL_MS / 1000 - LEAD_S, ease: 'linear' },
   { to: ERROR, head: [0.62, ERROR], delay: 0, dur: 1.1, ease: 'linear' },
   { to: 1, head: [ERROR, 1], delay: 0, dur: 0.4, ease: 'linear' },
   { to: 1, head: [0, ERROR], delay: 1.4, dur: 0.9, ease: 'var(--ease-out-expo)' },
   { to: 1, head: [ERROR, ERROR], delay: 0, dur: 0.1, ease: 'linear' },
 ] as const;
 
-/** Icons and colours are the replayer's timeline: Mouse Interaction, Input and client_error. */
 const EVENTS = [
   { at: '1:32', key: 'input', Icon: Keyboard },
   { at: '1:38', key: 'click', Icon: MousePointer2 },
@@ -221,10 +216,6 @@ const EVENTS = [
   { at: '1:43', key: 'click', Icon: MousePointer2 },
 ] as const;
 
-/**
- * One visit, drawn once. Every step moves the same window, tape and cards instead of swapping pictures, so any
- * step animates into any other.
- */
 function Visit({ t, step }: { t: Scenes; step: number }) {
   const from = step ? RUNS[step - 1].to : 0;
   const { to, head, delay, dur, ease } = RUNS[step];
@@ -288,7 +279,6 @@ function Visit({ t, step }: { t: Scenes; step: number }) {
             '--ease': ease,
           })}
         >
-          {/* keyed by step, so the handle and its fill run again from where the last step left them */}
           <i className={visit.rail}>
             <i key={`played-${step}`} className={visit.played} />
           </i>

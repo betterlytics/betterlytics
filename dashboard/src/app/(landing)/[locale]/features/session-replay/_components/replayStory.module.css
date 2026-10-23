@@ -78,7 +78,6 @@
     outline-offset: -2px;
   }
 
-  /* each step owns its stretch of the scrubber, sitting on the panel's top rule */
   .track {
     position: absolute;
     top: -1px;
@@ -97,24 +96,23 @@
   .step[data-played] .fill {
     transform: none;
   }
-  /* the selected step's fill is the timer: when it ends, replayStory moves on */
+  /* the timer: its animationend advances the story */
   .step[aria-selected='true'] .fill {
     animation: scrub-fill var(--dwell) linear both;
   }
-  .story[data-held] .fill,
-  .steps:has(:focus-visible) .fill {
-    animation-play-state: paused;
-  }
-  @media (hover: hover) {
-    .steps:hover .fill,
-    .story:has([data-hold]:hover) .fill {
-      animation-play-state: paused;
-    }
-  }
-  /* no timer for reduced motion: the global 0.001ms duration would otherwise race through the steps */
   .story[data-still] .step[aria-selected='true'] .fill {
     animation: none;
     transform: none;
+  }
+  /* !important: the illustration's animation shorthands are more specific */
+  .story:not([data-still])[data-held] :is(.fill, .stage *),
+  .story:not([data-still]):has(.steps :focus-visible) :is(.fill, .stage *) {
+    animation-play-state: paused !important;
+  }
+  @media (hover: hover) {
+    .story:not([data-still]):has(.steps:hover) :is(.fill, .stage *) {
+      animation-play-state: paused !important;
+    }
   }
 
   .time {
@@ -144,7 +142,7 @@
     font-size: var(--text-label);
     line-height: 21px;
     color: var(--color-muted);
-    opacity: 0.6;
+    opacity: 0.75;
     transition: opacity 0.35s var(--ease-out-expo);
     @variant max-lg {
       display: none;

@@ -27,8 +27,6 @@
     letter-spacing: -0.1px;
   }
 
-  /* the browser around the visitor's page */
-  /* lights, then the address centred in a pill, like the other browser frames on the page */
   .bar {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -81,7 +79,6 @@
     height: 246px;
     overflow: hidden;
   }
-  /* the error */
   .banner {
     display: flex;
     align-items: center;
@@ -162,7 +159,7 @@
     width: 13px;
     height: 13px;
   }
-  /* the Apple mark is narrow and the Windows one fills its square, so each is sized to sit with the round icons */
+  /* optical sizes: the Apple mark is narrow, the Windows one fills its square */
   .os {
     width: 12px;
     height: 12px;

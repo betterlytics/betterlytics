@@ -1,18 +1,13 @@
 @reference '../../../landing.css';
 
-/* registered so the backdrop's tint can fade from step to step */
+/* registered so it can transition */
 @property --visit-glow {
   syntax: '<color>';
   inherits: true;
   initial-value: transparent;
 }
 
-/*
- * One visit on a fixed 620×340 canvas. The window, tape and cards keep their resting boxes and each step only
- * transforms and clips them, so the browser can animate any step into any other. The numbers in those transforms
- * are the geometry of what they land on: the session list's first row, the player's view and strip, and the
- * postcode and Pay corner of the form.
- */
+/* transform and origin numbers are the geometry of what each piece lands on or grows out of */
 @layer components {
   .visit {
     --ease-morph: cubic-bezier(0.65, 0, 0.35, 1);
@@ -26,7 +21,7 @@
   .visit:is([data-step='1'], [data-step='3']) {
     --visit-glow: var(--color-down);
   }
-  /* same angle and 10px tile as the stage's bg-hatch, so the tinted lines sit exactly on it */
+  /* the stage's bg-hatch angle and tile, so the lines overlap */
   .visit::before {
     content: '';
     position: absolute;
@@ -51,7 +46,6 @@
     }
   }
 
-  /* the visitor's window: live, then a thumbnail, then the player's view, then a close-up */
   .win {
     position: absolute;
     top: 0;
@@ -60,7 +54,7 @@
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 22px 50px rgb(0 0 0 / 0.5);
-    /* the negative inset keeps the shadow; the player and close-up cut it down to the page */
+    /* negative inset keeps the shadow */
     clip-path: inset(-60px round 12px);
     transform-origin: 0 0;
     transition:
@@ -90,7 +84,6 @@
     transform: translate(-69.8px, -176.8px) scale(1.444);
     clip-path: inset(164px 190px 4px 4px round 10px);
   }
-  /* the replay of the same page, wiped in over it as the player opens */
   .masked {
     position: absolute;
     inset: 0;
@@ -118,7 +111,6 @@
     animation: visit-click 0.7s var(--ease-out-expo) 0.6s both;
   }
 
-  /* one line: a thin bar that fills up to the handle, with each event as a dot on it */
   .tape {
     position: absolute;
     top: 292px;
@@ -158,7 +150,6 @@
   [data-in] .played {
     animation: visit-played var(--dur) var(--ease) var(--delay) both;
   }
-  /* the ring is the page colour, so a dot reads the same over the filled and the empty bar */
   .track > i[data-kind] {
     --tick: #38bdf8;
     --size: 6px;
@@ -189,7 +180,6 @@
   [data-in] .track > i[data-state='due'] {
     animation: visit-tick 0.35s var(--ease-out-expo) var(--d) both;
   }
-  /* the recording's head, and later the player's; it undoes the tape's horizontal squeeze to stay round */
   .head {
     position: absolute;
     top: 50%;
@@ -211,6 +201,7 @@
     opacity: 0;
     transition-delay: 0.4s;
   }
+  /* undo the tape's x-scale, so the head stays round */
   .visit[data-step='3'] .head {
     scale: 1.116 1;
     transition-delay: 1s;
@@ -218,7 +209,7 @@
   .visit[data-step='4'] .head {
     scale: 1.198 1;
   }
-  /* the other sessions' bars: drawn at the tape's size and shrunk the same way, so they match the first row */
+  /* the tape's size and step-2 shrink, so they match the first row */
   .mini {
     position: absolute;
     top: 0;
@@ -255,7 +246,6 @@
     transition-delay: 2.3s;
   }
 
-  /* grows out of the error's tick, then folds into the session's error count */
   .error {
     position: absolute;
     bottom: 58px;
@@ -280,7 +270,6 @@
       opacity 0.4s ease 0.15s;
   }
 
-  /* the session list the visit lands in */
   .list {
     position: absolute;
     top: 34px;
@@ -297,7 +286,6 @@
     translate: 0;
     transition-delay: 0.35s;
   }
-  /* clears for the player as the row grows into it */
   .visit[data-step='3'] .list {
     translate: 0;
     transition-delay: 0.15s;
@@ -351,7 +339,7 @@
   .visit[data-step='2'] .row[data-own] > * {
     transition-delay: 1.2s;
   }
-  /* the window and the tape land here */
+  /* the window and tape land here */
   .row[data-own] > .thumb,
   .row[data-own] > .bar {
     visibility: hidden;
@@ -408,7 +396,6 @@
     width: 12px;
     height: 12px;
   }
-  /* the player around the replayed page; its view and strip are where the window and tape land */
   .player {
     position: absolute;
     top: 0;
@@ -501,7 +488,6 @@
     color: var(--color-fg);
   }
 
-  /* the close-up: pinned to the postcode field and the Pay button, so they ride along with the zoom */
   .note {
     position: absolute;
     padding: 4px 10px;
@@ -567,7 +553,6 @@
     height: 22px;
   }
 
-  /* the visit's events around the error; it grows out of the error's tick like the error card did */
   .events {
     position: absolute;
     top: 60px;
