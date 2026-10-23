@@ -2,22 +2,21 @@ import type { ComponentType } from 'react';
 import { Check, Eye, X } from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { Stage } from '@/landing/components/feature/stage';
-import { Corners } from '@/landing/components/ui/frame';
-import { Reveal } from '@/landing/components/ui/reveal';
-import ruled from '@/landing/components/ui/ruledGrid.module.css';
-import { cn } from '@/landing/lib/cn';
+import { FeatureGrid } from '@/landing/components/feature/featureGrid';
+import grid from '@/landing/components/feature/featureGrid.module.css';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './controlsGrid.module.css';
 
 type Key = 'sample' | 'errors' | 'paths' | 'light' | 'spa' | 'bots';
 type Art = ReturnType<typeof useTranslations<'landing.replay.controls.art'>>;
 
-/* Values are mock data, left literal; labels are copy. Each scene is a fixed 300×140 composition. */
+/* Values are mock data, left literal; labels are copy. */
+
+const comp = `${grid.comp} ${styles.comp}`;
 
 const VISITS = 40;
 const SAMPLE = 5;
-/** The order visits light up in as the sample grows; a step coprime with 40 spreads them over the grid. */
+/** Light-up order as the sample grows; stepping by 23 (coprime with 40) spreads it over the grid. */
 const ORDER = [
   13,
   31,
@@ -28,18 +27,18 @@ const litBelow = (sample: number) => Math.round((sample / 100) * VISITS);
 
 function Sample({ t }: { t: Art }) {
   return (
-    <div className={styles.comp}>
+    <div className={comp}>
       <div
-        className={`${styles.card} ${styles.sampleCard}`}
+        className={`${grid.card} ${styles.sampleCard}`}
         style={vars({ '--sample': SAMPLE })}
-        data-replay-sample=''
+        data-cursor-sample=''
       >
         <div className={styles.sampleHead}>
           <span>{t('sample')}</span>
-          <b data-replay-sample-value=''>{SAMPLE}%</b>
+          <b data-cursor-sample-value=''>{SAMPLE}%</b>
         </div>
         <span className={styles.sampleTrack}>
-          <i data-replay-knob='' />
+          <i data-cursor-knob='' />
         </span>
         <div className={styles.visits}>
           {Array.from({ length: VISITS }, (_, i) => (
@@ -61,8 +60,8 @@ const BUFFERED = [60, 66, 71, 79, 84];
 
 function Errors({ t }: { t: Art }) {
   return (
-    <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.tape}`}>
+    <div className={comp}>
+      <div className={`${grid.card} ${styles.tape}`}>
         <span className={styles.window}>
           <span className={styles.windowLabel}>{t('leadUp')}</span>
         </span>
@@ -92,10 +91,10 @@ const PATHS = [
 
 function Paths({ t }: { t: Art }) {
   return (
-    <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.paths}`}>
+    <div className={comp}>
+      <div className={`${grid.card} ${styles.paths}`}>
         {PATHS.map(({ path, on }) => (
-          <span key={path} className={styles.pathRow} data-off={!on || undefined} data-replay-path={path}>
+          <span key={path} className={styles.pathRow} data-off={!on || undefined} data-cursor-path={path}>
             <code>{path}</code>
             <i className={styles.skeleton} />
             <b>{on ? t('on') : t('off')}</b>
@@ -115,8 +114,8 @@ const REQUESTS = [
 
 function Light() {
   return (
-    <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.network}`}>
+    <div className={comp}>
+      <div className={`${grid.card} ${styles.network}`}>
         {REQUESTS.map(({ at, method, name, size }, i) => (
           <span key={at} className={styles.request} style={vars({ '--i': i })}>
             <time>{at}</time>
@@ -138,11 +137,11 @@ const ROUTES = [
 
 function Spa({ t }: { t: Art }) {
   return (
-    <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.urlBar}`} data-replay-url=''>
+    <div className={comp}>
+      <div className={`${grid.card} ${styles.urlBar}`} data-cursor-url=''>
         <span className={styles.lock} />
         northwind.coffee
-        <span className={styles.route} data-replay-route=''>
+        <span className={styles.route} data-cursor-route=''>
           {ROUTES.map(({ route }, i) => (
             <span key={route} style={vars({ '--i': i })}>
               {route}
@@ -152,7 +151,7 @@ function Spa({ t }: { t: Art }) {
       </div>
       <ul className={styles.views}>
         {ROUTES.map(({ route, at }, i) => (
-          <li key={route} className={styles.view} style={vars({ '--i': i })} data-replay-view={i}>
+          <li key={route} className={styles.view} style={vars({ '--i': i })} data-cursor-view={i}>
             <time>{at}</time>
             <Eye aria-hidden />
             {t('pageview')}
@@ -172,8 +171,8 @@ const AGENTS = [
 
 function Bots({ t }: { t: Art }) {
   return (
-    <div className={styles.comp}>
-      <div className={`${styles.card} ${styles.agents}`}>
+    <div className={comp}>
+      <div className={`${grid.card} ${styles.agents}`}>
         {AGENTS.map(({ name, icon, bot }) => (
           <span key={name} className={styles.agent} data-bot={bot || undefined}>
             <Image src={`/browser-icons/${icon}.svg`} alt='' width={14} height={14} />
@@ -204,22 +203,13 @@ export function ControlsGrid() {
   const t = useTranslations('landing.replay.controls');
   const art = useTranslations('landing.replay.controls.art');
   return (
-    <ul className={cn(ruled.grid, ruled.cols3)}>
-      {KEYS.map((key, i) => {
+    <FeatureGrid
+      items={KEYS.map((key) => {
         const Scene = SCENES[key];
-        return (
-          <li key={key} className={styles.cell}>
-            <Corners />
-            <Stage className={key === 'errors' ? `${styles.stage} ${styles.litStage}` : styles.stage}>
-              <Scene t={art} />
-            </Stage>
-            <Reveal index={i % 3} className={styles.copy}>
-              <h3 className='text-title leading-6 font-medium tracking-ui'>{t(`items.${key}.title`)}</h3>
-              <p className='mt-2 text-label leading-[22px] text-muted'>{t(`items.${key}.body`)}</p>
-            </Reveal>
-          </li>
-        );
+        return { key, title: t(`items.${key}.title`), body: t(`items.${key}.body`), scene: <Scene t={art} /> };
       })}
-    </ul>
+      stageClassName={styles.stage}
+      lit={{ key: 'errors', className: styles.litStage }}
+    />
   );
 }

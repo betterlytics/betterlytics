@@ -1,6 +1,5 @@
 @reference '../../../landing.css';
 
-/* registered so the error's scan brackets can close in, and spread again on hover */
 @property --scan-gap {
   syntax: '<length>';
   inherits: true;
@@ -13,62 +12,14 @@
 }
 
 @layer components {
-  .cell {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .stage {
-    display: grid;
-    place-items: center;
-    height: 204px;
-    border-bottom: 1px solid var(--color-rule-08);
-  }
   .litStage::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
     background: repeating-linear-gradient(315deg, --alpha(var(--color-down) / 10%) 0 1px, transparent 0 50%) 0 0 /
       10px 10px;
     -webkit-mask-image: radial-gradient(120px 90px at calc(50% + 80px) 50%, #000, transparent);
     mask-image: radial-gradient(120px 90px at calc(50% + 80px) 50%, #000, transparent);
-    opacity: 0;
     transition: opacity 0.8s var(--ease-out-expo) 0.6s;
   }
-  .litStage[data-in]::before {
-    opacity: 1;
-  }
 
-  /* every scene is drawn on the same 300×140 canvas */
-  .comp {
-    position: relative;
-    width: 300px;
-    height: 140px;
-  }
-
-  .card {
-    position: absolute;
-    border-radius: 10px;
-    background-color: var(--color-canvas);
-    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 5%), --alpha(var(--color-fg) / 1.5%));
-    border: 1px solid var(--color-rule-10);
-    box-shadow:
-      0 1px 0 rgb(255 255 255 / 0.04) inset,
-      0 14px 30px rgb(0 0 0 / 0.45);
-    opacity: 0;
-    translate: 0 10px;
-    transition:
-      opacity 0.5s var(--ease-out-expo),
-      translate 0.6s var(--ease-out-expo);
-  }
-  [data-in] .card {
-    opacity: 1;
-    translate: 0;
-  }
-
-  /* sample */
   .sampleCard {
     top: 20px;
     left: 10px;
@@ -137,7 +88,6 @@
     box-shadow: 0 0 0 3px --alpha(var(--color-volt-lift) / 28%);
   }
 
-  /* errors: only the stretch before the error is kept */
   .tape {
     left: 0;
     right: 0;
@@ -185,7 +135,6 @@
   [data-in] .window {
     transform: none;
   }
-  /* a dimension line over the kept stretch, shown once the window has opened */
   .windowLabel {
     position: absolute;
     left: 0;
@@ -215,7 +164,6 @@
     border-radius: 2px 2px 0 0;
   }
 
-  /* hangs over the tape, caught in scan brackets like the uptime page's keyword */
   .errorChip {
     position: absolute;
     top: 90px;
@@ -271,7 +219,6 @@
     border-right-width: 1.5px;
   }
 
-  /* paths */
   .paths {
     inset: 6px 20px;
     padding: 6px;
@@ -329,7 +276,6 @@
     color: var(--color-muted);
   }
 
-  /* light */
   .network {
     inset: 4px 0;
     padding: 6px 4px;
@@ -372,7 +318,6 @@
     transition: color 0.3s var(--ease-out-expo);
   }
 
-  /* single-page apps */
   .urlBar {
     left: 0;
     right: 0;
@@ -457,7 +402,6 @@
     color: var(--color-fg);
   }
 
-  /* bots */
   .agents {
     inset: 8px 24px;
     padding: 6px;
@@ -501,14 +445,7 @@
     color: var(--color-muted);
   }
 
-  .copy {
-    padding: 34px 32px 44px;
-    @variant max-sm {
-      padding-inline: var(--pad);
-    }
-  }
-
-  /* once the replay cursor clicks the address bar, it picks the route instead of the loop */
+  /* data-route and data-current are set by the replay cursor */
   .urlBar[data-route] .route span {
     animation: none;
     opacity: 0;
@@ -522,10 +459,7 @@
     color: var(--color-fg);
   }
 
-  /*
-   * Hover poses: held while the illustration itself is hovered and eased back when it isn't. They use properties
-   * the entrance animations don't, so nothing waits on an entrance delay, and leave alone what the replay cursor moves.
-   */
+  /* hover poses stay off the properties the entrances and the replay cursor animate, so none wait on a delay */
   @media (hover: hover) {
     .comp:hover .visits i:not([data-lit]) {
       filter: opacity(0.65);
@@ -578,7 +512,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .card,
     .visits i,
     .window,
     .windowLabel,
