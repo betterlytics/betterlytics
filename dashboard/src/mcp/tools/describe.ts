@@ -9,6 +9,13 @@ type ToolInput = { name: string; type: string; required: boolean; description: s
 type ToolDescription = { name: string; description: string; inputs: ToolInput[] };
 export type ToolAvailability = { uptimeMonitoring: boolean; publicStatusPages: boolean };
 
+const TIMEZONE_INPUT: ToolInput = {
+  name: 'timezone',
+  type: 'string',
+  required: false,
+  description: 'IANA time zone. Defaults to UTC. Unknown time zones are rejected.',
+};
+
 type SchemaDescription = {
   metrics: { key: string; description: string }[];
   dimensions: { key: string; description: string }[];
@@ -22,7 +29,7 @@ type SchemaDescription = {
   granularities: readonly string[];
   orderBy: { validValues: string[]; description: string };
   order: { validValues: string[]; default: string };
-  timezone: { format: string; default: string; examples: string[] };
+  timezone: { format: string; default: string; examples: string[]; unknown: string };
   tools: { name: string; description: string; inputs: ToolInput[] }[];
 };
 
@@ -72,6 +79,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
       format: 'IANA time zone identifier',
       default: 'UTC',
       examples: ['Europe/Berlin', 'America/New_York', 'Asia/Tokyo'],
+      unknown: 'An unknown time zone is rejected with an input validation error and returns no data.',
     },
     tools: [
       {
@@ -108,7 +116,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: false,
             description: 'YYYY-MM-DD. Required when timeRange is "custom".',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'filters',
             type: 'array',
@@ -147,7 +155,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'filters',
             type: 'array',
@@ -179,7 +187,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'steps',
             type: 'array',
@@ -206,7 +214,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
         ],
       },
       {
@@ -220,7 +228,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'key',
             type: 'string',
@@ -241,7 +249,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'search',
             type: 'string',
@@ -316,7 +324,7 @@ const MONITORING_TOOLS: ToolDescription[] = [
         description:
           'Time range the uptime and response time summary covers. Valid values are listed in the timeRanges field of this schema. Operational state is always current, regardless of this range.',
       },
-      { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+      TIMEZONE_INPUT,
     ],
   },
   {
@@ -331,7 +339,7 @@ const MONITORING_TOOLS: ToolDescription[] = [
         description:
           'Time range to search. Incidents overlapping the range are returned, including ones that started before it. Valid values are listed in the timeRanges field of this schema.',
       },
-      { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+      TIMEZONE_INPUT,
       {
         name: 'monitorId',
         type: 'string',
