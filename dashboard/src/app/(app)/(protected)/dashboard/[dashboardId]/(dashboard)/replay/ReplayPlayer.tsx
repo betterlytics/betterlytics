@@ -3,7 +3,7 @@
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import rrwebPlayer from 'rrweb-player';
 import 'rrweb-player/dist/style.css';
-import { EventType, type eventWithTime } from '@rrweb/types';
+import { EventType, IncrementalSource, MouseInteractions, type eventWithTime } from '@rrweb/types';
 import { useResizeObserver } from '@/hooks/use-resize-observer';
 import { UsePlayerStateReturn } from './hooks/usePlayerState';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -51,6 +51,30 @@ type PlayerEventTarget = {
   removeEventListener: (type: string, listener: EventListener) => void;
 };
 
+type ReplayPlugin = NonNullable<ConstructorParameters<typeof rrwebPlayer>[0]['props']['plugins']>[number];
+
+type RageRange = { start: number; end: number };
+
+const RAGE_CURSOR_MS = 600;
+
+// The rage_click event is emitted when the burst ends and carries the burst start time
+function rageRangesFrom(events: eventWithTime[]): RageRange[] {
+  return events.flatMap((event) => {
+    if (event.type !== EventType.Custom || event.data.tag !== 'rage_click') return [];
+    const payload = event.data.payload as { timestamp?: unknown } | undefined;
+    const start = typeof payload?.timestamp === 'number' ? payload.timestamp : event.timestamp;
+    return [{ start, end: event.timestamp }];
+  });
+}
+
+function isClick(event: eventWithTime) {
+  return (
+    event.type === EventType.IncrementalSnapshot &&
+    event.data.source === IncrementalSource.MouseInteraction &&
+    event.data.type === MouseInteractions.Click
+  );
+}
+
 const ReplayPlayerComponent = (
   { onReady, playerState, isPlaying }: ReplayPlayerProps,
   ref: React.ForwardedRef<ReplayPlayerHandle>,
@@ -64,6 +88,23 @@ const ReplayPlayerComponent = (
   const speedRef = useRef<number>(1);
   const skipInactivityRef = useRef<boolean>(playerState.isSkippingInactive);
   const isSkippingInactivityRef = useRef<boolean>(false);
+  const rageRangesRef = useRef<RageRange[]>([]);
+  const rageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const rageCursorPlugin = useRef<ReplayPlugin>({
+    handler(event, isSync, { replayer }) {
+      if (isSync || !isClick(event)) return;
+      const inBurst = rageRangesRef.current.some(
+        (range) => event.timestamp >= range.start && event.timestamp <= range.end,
+      );
+      if (!inBurst) return;
+      const mouse = replayer.wrapper.querySelector('.replayer-mouse');
+      if (!mouse) return;
+      mouse.classList.add('rage');
+      if (rageTimerRef.current) clearTimeout(rageTimerRef.current);
+      rageTimerRef.current = setTimeout(() => mouse.classList.remove('rage'), RAGE_CURSOR_MS);
+    },
+  }).current;
 
   const findClosestEventBefore = useCallback(
     (timeOffset: number, eventTypes?: EventType | EventType[]) => {
@@ -114,6 +155,11 @@ const ReplayPlayerComponent = (
   );
 
   const destroyPlayer = useCallback(() => {
+    if (rageTimerRef.current) {
+      clearTimeout(rageTimerRef.current);
+      rageTimerRef.current = null;
+    }
+
     if (playerRef.current) {
       try {
         playerRef.current.pause();
@@ -144,6 +190,7 @@ const ReplayPlayerComponent = (
 
       destroyPlayer();
 
+      rageRangesRef.current = rageRangesFrom(events);
       playerRef.current = new rrwebPlayer({
         target: containerRef.current,
         props: {
@@ -154,6 +201,7 @@ const ReplayPlayerComponent = (
           skipInactive: playerState.isSkippingInactive,
           width: size.width,
           height: size.height,
+          plugins: [rageCursorPlugin],
         },
       });
 
@@ -163,7 +211,7 @@ const ReplayPlayerComponent = (
 
       onReady?.();
     },
-    [destroyPlayer, size, onReady],
+    [destroyPlayer, size, onReady, rageCursorPlugin],
   );
 
   const redactBlacklisted = useCallback(() => {
@@ -276,6 +324,7 @@ const ReplayPlayerComponent = (
       if (!playerRef.current || events.length === 0) {
         return;
       }
+      rageRangesRef.current = rageRangesRef.current.concat(rageRangesFrom(events));
       // Use try/catch to avoid noisy console errors if player was disposed mid-loop
       try {
         events.forEach((event) => playerRef.current?.addEvent(event));

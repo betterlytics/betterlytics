@@ -325,17 +325,71 @@
   }
 }
 
+.rr-player .replayer-mouse:not(.touch-device) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M1.5 1.5v15.6l4.3-4.1 2.8 6.3 2.8-1.2-2.7-6.2 6-.2z' fill='white' stroke='%23111' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: 0 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
 .rr-player .replayer-mouse:after {
   width: 18px !important;
   height: 18px !important;
   background: var(--primary) !important;
   border-radius: 9999px !important;
   border: 2px solid white !important;
-  opacity: 0.9 !important;
+  opacity: 0;
+}
+.rr-player .replayer-mouse.active:after {
+  animation: replayer-click 0.4s ease-out 1;
+}
+@keyframes replayer-click {
+  0% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.6);
+  }
 }
 .dark .rr-player .replayer-mouse:after {
   border-color: rgba(0, 0, 0, 0.9) !important;
   background: color-mix(in oklab, var(--primary), white 20%) !important;
+}
+.rr-player .replayer-mouse.rage {
+  animation: replayer-rage-shake 0.3s ease-in-out infinite;
+}
+.rr-player .replayer-mouse.rage:after {
+  background: var(--destructive) !important;
+}
+.rr-player .replayer-mouse.rage:before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: -20px;
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--destructive);
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: replayer-rage-ring 0.6s ease-out infinite;
+}
+@keyframes replayer-rage-shake {
+  25% {
+    transform: translate3d(-3px, 0, 0);
+  }
+  75% {
+    transform: translate3d(3px, 0, 0);
+  }
+}
+@keyframes replayer-rage-ring {
+  0% {
+    opacity: 0.9;
+    transform: scale(0.4);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.6);
+  }
 }
 
 /* Allow chart tooltips/annotations to extend beyond the SVG bounds */
