@@ -462,10 +462,10 @@
   /* hover poses stay off the properties the entrances and the replay cursor animate, so none wait on a delay */
   @media (hover: hover) {
     .comp:hover .visits i:not([data-lit]) {
-      filter: opacity(0.65);
+      filter: opacity(0.75);
     }
     .comp:hover .visits i[data-lit] {
-      filter: brightness(1.15);
+      filter: brightness(1.1);
     }
     .comp:hover .window {
       filter: brightness(1.5);
@@ -495,7 +495,7 @@
   }
   @media (hover: hover) and (prefers-reduced-motion: no-preference) {
     .comp:hover .visits i[data-lit] {
-      scale: 1.15;
+      scale: 1.08;
     }
     .comp:hover .errorChip {
       --spread: 4px;
