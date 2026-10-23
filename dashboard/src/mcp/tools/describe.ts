@@ -432,7 +432,7 @@ const MONITORING_TOOLS: ToolDescription[] = [
         type: 'string',
         required: true,
         description:
-          'Time range the uptime and response time summary covers. Valid values are listed in the timeRanges field of this schema. Operational state is always current, regardless of this range.',
+          'Time range the uptime and response time summary covers. Valid values are listed in the timeRanges field of this schema. 7d, 28d and 90d cover that many calendar days including today, as on the monitor detail page. Operational state is always current, regardless of this range.',
       },
       { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
     ],

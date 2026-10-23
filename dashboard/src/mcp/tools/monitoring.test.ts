@@ -89,7 +89,7 @@ describe('executeListMonitors', () => {
       name: 'API health',
       operational_state: 'up',
       last_status: 'ok',
-      uptime: { percent: 99.987, up_seconds: 86391, measured_seconds: 86400 },
+      uptime: { percent: 99.98, up_seconds: 86391, measured_seconds: 86400 },
       response_time_ms: { avg: 120.5, min: 90.1, max: 801 },
     });
   });
@@ -126,12 +126,68 @@ describe('executeListMonitors', () => {
     expect(result.total).toBe(120);
   });
 
-  it('rounds uptime down like the status page, so a monitor with any downtime never reads 100', async () => {
+  it("rounds uptime down to the status page's two decimals, so any downtime never reads 100", async () => {
     getSummaries.mockResolvedValue([{ ...summary, uptimePercent: 99.99965 }]);
 
     const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
 
-    expect(result.monitors[0].uptime.percent).toBe(99.999);
+    expect(result.monitors[0].uptime.percent).toBe(99.99);
+  });
+
+  it('covers N calendar days including today for the day presets, as the monitor detail page does', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    getSummaries.mockResolvedValue([]);
+
+    try {
+      const result = await executeListMonitors({ timeRange: '7d', timezone: 'UTC' }, 'site-1', 'dash-1');
+
+      expect(getSummaries).toHaveBeenCalledWith(
+        'dash-1',
+        'site-1',
+        new Date('2026-10-17T00:00:00Z'),
+        new Date('2026-10-24T00:00:00Z'),
+      );
+      expect(result.time_range).toEqual({ start: '2026-10-17T00:00:00.000Z', end: '2026-10-23T23:59:59.000Z' });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('starts the day presets on the calendar day in the requested zone', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    getSummaries.mockResolvedValue([]);
+
+    try {
+      await executeListMonitors({ timeRange: '7d', timezone: 'Europe/Copenhagen' }, 'site-1', 'dash-1');
+
+      expect(getSummaries).toHaveBeenCalledWith(
+        'dash-1',
+        'site-1',
+        new Date('2026-10-16T22:00:00Z'),
+        new Date('2026-10-23T22:00:00Z'),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('includes the last second of a custom range, so a fully monitored day is a whole day', async () => {
+    getSummaries.mockResolvedValue([]);
+
+    await executeListMonitors(
+      { timeRange: 'custom', startDate: '2026-10-22', endDate: '2026-10-22', timezone: 'UTC' },
+      'site-1',
+      'dash-1',
+    );
+
+    expect(getSummaries).toHaveBeenCalledWith(
+      'dash-1',
+      'site-1',
+      new Date('2026-10-22T00:00:00Z'),
+      new Date('2026-10-23T00:00:00Z'),
+    );
   });
 
   it('reports null uptime when nothing was measured', async () => {
