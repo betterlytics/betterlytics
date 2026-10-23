@@ -183,7 +183,7 @@ describe('McpQueryInputSchema', () => {
     }
   });
 
-  it.each(['Foo/Bar', 'Etc/Unknown', '', '   '])(
+  it.each(['Foo/Bar', 'Etc/Unknown', '', '   ', '__proto__', 'constructor'])(
     'rejects unknown timezone %j on the timezone field',
     (timezone) => {
       const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', timezone });
