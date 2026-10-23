@@ -68,14 +68,24 @@ export function ReplayPage() {
       <Section id='specs' className='pt-0 max-sm:pt-8'>
         <SpecStrip
           specs={[
-            { value: 8, unit: t('specs.speed.unit'), label: t('specs.speed.label'), body: t('specs.speed.body') },
+            {
+              value: 1,
+              unit: t('specs.errors.unit'),
+              label: t('specs.errors.label'),
+              body: t('specs.errors.body'),
+            },
             {
               value: 60,
               unit: t('specs.history.unit'),
               label: t('specs.history.label'),
               body: t('specs.history.body'),
             },
-            { value: 15, unit: t('specs.short.unit'), label: t('specs.short.label'), body: t('specs.short.body') },
+            {
+              value: 0,
+              unit: t('specs.cookies.unit'),
+              label: t('specs.cookies.label'),
+              body: t('specs.cookies.body'),
+            },
           ]}
           lit={{
             value: 100,

@@ -1726,20 +1726,20 @@
         "paused": "Capture paused"
       },
       "specs": {
-        "speed": {
-          "unit": "×",
-          "label": "Playback speed",
-          "body": "Watch at up to 8× speed, with idle stretches skipped by default."
+        "errors": {
+          "unit": "click",
+          "label": "From error to replay",
+          "body": "Every JavaScript error links to the session that hit it, so you go from stack trace to replay in one click."
         },
         "history": {
           "unit": "days",
           "label": "Replay history",
           "body": "Recordings stay in your dashboard for 60 days on Betterlytics Cloud."
         },
-        "short": {
-          "unit": "sec",
-          "label": "Minimum length",
-          "body": "Recordings shorter than 15 seconds aren't kept, so bounces don't crowd the list."
+        "cookies": {
+          "unit": "cookies",
+          "label": "No cookies, no IPs",
+          "body": "Replays set no cookies and save no IP address with a recording."
         },
         "thesis": {
           "unit": "%",
