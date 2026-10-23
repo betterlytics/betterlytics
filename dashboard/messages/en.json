@@ -3539,6 +3539,9 @@
       "light": "Switch to light mode",
       "dark": "Switch to dark mode"
     },
+    "scrollToTop": {
+      "label": "Scroll to top"
+    },
     "errorPage": {
       "title": "Something went wrong",
       "description": "We encountered an unexpected error while loading your dashboard.",

@@ -3539,6 +3539,9 @@
       "light": "Bytt til lyst tema",
       "dark": "Bytt til mørkt tema"
     },
+    "scrollToTop": {
+      "label": "Rull til toppen"
+    },
     "errorPage": {
       "title": "Noe gikk galt",
       "description": "Det oppstod en uventet feil under lasting av dashboardet ditt.",
