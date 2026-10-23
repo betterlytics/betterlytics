@@ -3073,7 +3073,8 @@
           "title": "Ingen sessionsafspilninger tilgængelige",
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl"
+        "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl",
+        "sessionRageClicksTooltip": "{count, plural, one {Denne session har {count} raseriklik} other {Denne session har {count} raseriklik}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3098,7 +3099,8 @@
         "blacklist": "Sortlistet",
         "viewportResize": "Viewport-ændring",
         "mediaInteraction": "Medieinteraktion",
-        "clientError": "Klientfejl"
+        "clientError": "Klientfejl",
+        "rageClick": "Raseriklik"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",
