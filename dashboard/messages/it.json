@@ -1682,11 +1682,11 @@
           },
           "free": {
             "q": "Il monitoraggio uptime è gratuito?",
-            "a": "Il piano gratuito include un monitor per sito, controllato ogni cinque minuti, e una pagina di stato. Il piano Professional sblocca la configurazione avanzata: controlli ogni minuto, header personalizzati, codici di stato accettati e controlli per parola chiave, più monitor e pagine di stato, e il tuo dominio. In self-hosting non ci sono limiti."
+            "a": "Il piano gratuito include un monitor per sito, controllato ogni cinque minuti, e una pagina di stato. Il piano Professional sblocca la configurazione avanzata: controlli ogni minuto, header personalizzati, codici di stato accettati e controlli per parola chiave, più monitor e pagine di stato, e il tuo dominio."
           },
           "internal": {
             "q": "Posso monitorare servizi interni?",
-            "a": "Su Betterlytics Cloud, i monitor raggiungono indirizzi pubblici sulle porte 80 e 443. In self-hosting possono raggiungere anche i servizi della tua rete privata, su qualsiasi porta."
+            "a": "I monitor raggiungono indirizzi pubblici sulle porte 80 e 443, quindi un servizio deve essere raggiungibile da internet."
           },
           "dedicated": {
             "q": "Quando conviene uno strumento di monitoraggio dedicato?",

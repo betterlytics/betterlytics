@@ -1686,11 +1686,11 @@
           },
           "free": {
             "q": "Is uptime monitoring free?",
-            "a": "The free plan includes one monitor per site, checked every five minutes, and one status page. The Professional plan unlocks more advanced configuration: one-minute checks, custom headers, accepted status codes and keyword checks, more monitors and status pages, and your own domain. Self-hosted, there are no limits."
+            "a": "The free plan includes one monitor per site, checked every five minutes, and one status page. The Professional plan unlocks more advanced configuration: one-minute checks, custom headers, accepted status codes and keyword checks, more monitors and status pages, and your own domain."
           },
           "internal": {
             "q": "Can I monitor internal services?",
-            "a": "On Betterlytics Cloud, monitors reach public addresses on ports 80 and 443. If you self-host, they can also reach services on your private network, on any port."
+            "a": "Monitors reach public addresses on ports 80 and 443, so a service needs to be reachable from the internet."
           },
           "dedicated": {
             "q": "When is a dedicated monitoring tool the better fit?",

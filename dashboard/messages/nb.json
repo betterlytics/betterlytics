@@ -1682,11 +1682,11 @@
           },
           "free": {
             "q": "Er oppetidsovervåking gratis?",
-            "a": "Gratisplanen inkluderer én monitor per nettsted, sjekket hvert femte minutt, og én statusside. Professional-planen gir deg mer avansert oppsett: sjekker hvert minutt, egne headere, godkjente statuskoder og nøkkelordsjekker, flere monitorer og statussider, og ditt eget domene. Selvhostet er det ingen begrensninger."
+            "a": "Gratisplanen inkluderer én monitor per nettsted, sjekket hvert femte minutt, og én statusside. Professional-planen gir deg mer avansert oppsett: sjekker hvert minutt, egne headere, godkjente statuskoder og nøkkelordsjekker, flere monitorer og statussider, og ditt eget domene."
           },
           "internal": {
             "q": "Kan jeg overvåke interne tjenester?",
-            "a": "På Betterlytics Cloud når monitorene offentlige adresser på port 80 og 443. Hvis du selvhoster, kan de også nå tjenester på det private nettverket ditt, på hvilken som helst port."
+            "a": "Monitorene når offentlige adresser på port 80 og 443, så en tjeneste må kunne nås fra internett."
           },
           "dedicated": {
             "q": "Når passer et dedikert overvåkingsverktøy bedre?",
