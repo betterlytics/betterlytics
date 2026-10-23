@@ -124,6 +124,47 @@ describe('getFilterQuery custom event properties', () => {
   });
 });
 
+describe('getFilterQuery literal metacharacters', () => {
+  function buildParams(filters: QueryFilter[]) {
+    return Object.assign({}, ...BAQuery.getFilterQuery(filters).map((part) => part.taggedParams));
+  }
+
+  it.each(['=', '!='] as const)('escapes underscore, percent and backslash for %s', (operator) => {
+    const params = buildParams([makeFilter('custom_event_name', operator, ['plan_pro', '50%off', 'a\\b'])]);
+
+    expect(params).toEqual({ query_filter_0: ['plan\\_pro', '50\\%off', 'a\\\\b'] });
+  });
+
+  it('escapes before mapping * so the wildcard stays live', () => {
+    const params = buildParams([makeFilter('utm_campaign', '=', ['plan_*'])]);
+
+    expect(params).toEqual({ query_filter_0: ['plan\\_%'] });
+  });
+
+  it.each([
+    ['=', 'custom_event_name ILIKE pattern'],
+    ['!=', 'custom_event_name NOT ILIKE pattern'],
+  ] as const)('treats a lone percent sign as a literal for %s', (operator, expected) => {
+    const filters = [makeFilter('custom_event_name', operator, ['%'])];
+
+    expect(buildSql(filters)).toContain(expected);
+    expect(buildParams(filters)).toEqual({ query_filter_0: ['\\%'] });
+  });
+
+  it.each(['=', '!='] as const)('escapes global property values for %s', (operator) => {
+    const params = buildParams([makeFilter('gp.plan', operator, ['plan_pro', '50%off', 'a\\b'])]);
+
+    expect(params.query_filter_0).toEqual(['plan\\_pro', '50\\%off', 'a\\\\b']);
+  });
+
+  it('keeps a lone percent sign on a global property as a value match, not key existence', () => {
+    const sql = buildSql([makeFilter('gp.plan', '=', ['%'])]);
+
+    expect(sql).not.toContain('has(global_properties_keys');
+    expect(sql).toContain('ILIKE pattern');
+  });
+});
+
 describe('getTimestampRange timeWrapper', () => {
   it('reads week and month Date buckets in the query zone', () => {
     const { timeWrapper } = BAQuery.getTimestampRange(

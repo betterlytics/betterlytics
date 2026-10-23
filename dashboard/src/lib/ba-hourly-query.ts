@@ -3,7 +3,7 @@ import 'server-only';
 import { QueryFilter } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { safeSql, SQL } from './safe-sql';
-import { matchAnyValueFilterSql } from './filter-sql';
+import { filterValueToLikePattern, matchAnyValueFilterSql } from './filter-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 const HOUR_MS = 3_600_000;
@@ -66,17 +66,16 @@ function buildHourlyMvFilters(
 
   return applicable.map((filter, i) => {
     const col = SQL.Unsafe(filter.column);
-    const presenceCheck = matchAnyValueFilterSql(filter.values, filter.operator, col);
+    const patterns = filter.values.map(filterValueToLikePattern);
+    const presenceCheck = matchAnyValueFilterSql(patterns, filter.operator, col);
     if (presenceCheck) {
       return presenceCheck;
     }
 
-    const patterns = SQL.StringArray({
-      [`hourly_mv_filter_${i}`]: filter.values.map((v) => v.replaceAll('*', '%')),
-    });
+    const patternsSql = SQL.StringArray({ [`hourly_mv_filter_${i}`]: patterns });
     return filter.operator === '='
-      ? safeSql`arrayExists(pattern -> ${col} ILIKE pattern, ${patterns})`
-      : safeSql`arrayAll(pattern -> ${col} NOT ILIKE pattern, ${patterns})`;
+      ? safeSql`arrayExists(pattern -> ${col} ILIKE pattern, ${patternsSql})`
+      : safeSql`arrayAll(pattern -> ${col} NOT ILIKE pattern, ${patternsSql})`;
   });
 }
 
