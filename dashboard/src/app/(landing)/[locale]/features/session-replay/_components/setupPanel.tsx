@@ -28,6 +28,7 @@ export function SetupPanel() {
   src="${SRC}"
   data-site-id="YOUR_SITE_ID"
 +  data-replay="true"
++  data-consent-replay="true"
 +  data-replay-sample="20"
 +  data-disable-replay-on-urls="/admin/**"
 +  data-track-errors="true"
@@ -41,6 +42,7 @@ export function SetupPanel() {
 
 betterlytics.init('YOUR_SITE_ID', {
 +  enableSessionReplay: true,
++  consentReplay: true,
 +  replaySample: 20,
 +  disableReplayOnUrls: ['/admin/**'],
 })`,
@@ -70,7 +72,12 @@ betterlytics.init('YOUR_SITE_ID', {
                 <Heading as='h3' size='title' className='mb-1.5 leading-7'>
                   {t(`steps.${key}.title`)}
                 </Heading>
-                <p className='text-body leading-[23px] text-muted'>{t(`steps.${key}.body`)}</p>
+                <p
+                  className='text-body leading-[23px] text-muted'
+                  data-cursor-consent={key === 'consent' || undefined}
+                >
+                  {t(`steps.${key}.body`)}
+                </p>
               </div>
             </li>
           ))}

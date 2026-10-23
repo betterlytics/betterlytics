@@ -1755,7 +1755,7 @@
           "record": {
             "time": "14:02",
             "title": "The visit is recorded",
-            "body": "This visitor falls in your 5% sample, so the recorder loads and saves the visit in small chunks as it goes."
+            "body": "This visitor falls in your 5% sample, so the recorder loads and saves the visit as it goes."
           },
           "error": {
             "time": "14:03",
@@ -1765,12 +1765,12 @@
           "ready": {
             "time": "14:05",
             "title": "The replay lands",
-            "body": "The last chunk uploads as they leave, and the session joins the list with its error count."
+            "body": "The rest uploads as they leave. The session joins the list with its error count."
           },
           "jump": {
             "time": "14:20",
             "title": "You jump to the moment",
-            "body": "From the error, press Watch replay, then click the red marker to land where it broke."
+            "body": "From the error, open its replay and click the red marker to land where it broke."
           },
           "why": {
             "time": "14:21",
@@ -1800,7 +1800,7 @@
         "points": {
           "text": "Every character of text and every input value becomes an asterisk, so the layout keeps its shape",
           "media": "Images and iframes are replaced by empty boxes of the same size",
-          "consent": "Nothing records until consent is given, through one JavaScript call or a script attribute",
+          "consent": "Recording waits for a go-ahead: one JavaScript call or a script attribute",
           "exclude": "Leave out whole paths like /billing/**, or single elements with the rr-block class",
           "storage": "No cookies, and no IP address saved with a replay"
         },
@@ -1827,7 +1827,7 @@
         "items": {
           "sample": {
             "title": "Pick your sample",
-            "body": "Record 5% of visits by default, or any share up to all of them. Each visit is in or out from its first page."
+            "body": "Record 5% of visits by default, or any share up to all of them. A visit is either recorded from its first page or not at all."
           },
           "errors": {
             "title": "Keep the lead-up to errors",
@@ -1852,14 +1852,14 @@
         }
       },
       "setup": {
-        "title": "Turn it on with *one* attribute",
-        "lede": "Replay runs on the script you already have. Consent and sampling take one more line each.",
+        "title": "Turn it on with *two* lines",
+        "lede": "Replay runs on the script you already have. One line turns it on and one handles consent. Sampling and private paths take a line each.",
         "snippetLabel": "Setup examples",
         "consentTab": "Consent",
         "steps": {
           "enable": {
             "title": "Turn it on",
-            "body": "Add data-replay to your script tag, or set enableSessionReplay in the npm package."
+            "body": "Add data-replay=\"true\" to your script tag, or set enableSessionReplay in the npm package."
           },
           "consent": {
             "title": "Handle consent",
@@ -1922,7 +1922,7 @@
       },
       "cta": {
         "title": "Watch your first replay today",
-        "lede": "Add one attribute to your script and connect your consent banner. Session replay is free on every plan.",
+        "lede": "Turn it on in the script you already have and, where needed, connect your consent banner. Session replay is free on every plan.",
         "primary": "Start recording free",
         "secondary": "Read the replay docs"
       }
