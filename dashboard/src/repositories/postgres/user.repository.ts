@@ -327,7 +327,7 @@ export async function resetUserTwoFactor(userId: string): Promise<void> {
   try {
     await prisma.$transaction(async (tx) => {
       await tx.twoFactor.deleteMany({ where: { userId } });
-      await tx.user.update({ where: { id: userId }, data: { twoFactorEnabled: false, totpSecret: null } });
+      await tx.user.update({ where: { id: userId }, data: { twoFactorEnabled: false } });
       await tx.verification.deleteMany({
         where: {
           value: userId,
@@ -351,7 +351,6 @@ async function anonymizeUserWith(tx: Prisma.TransactionClient, userId: string): 
       image: null,
       role: null,
       twoFactorEnabled: false,
-      totpSecret: null,
       emailVerified: false,
       deletedAt: new Date(),
     },
