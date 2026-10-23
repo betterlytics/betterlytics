@@ -39,16 +39,21 @@ async function handleSendEmail(raw: unknown): Promise<void> {
 
   try {
     const template = await renderEmail(payload);
-    const providerMessageId = await dispatchEmail(template, payload.data, {
-      isCloud: workerEnv.IS_CLOUD,
-      defaultSender: senderFor(payload.type, workerEnv.IS_CLOUD),
-      mailerSendApiToken: workerEnv.MAILER_SEND_API_TOKEN,
-      smtpHost: workerEnv.SMTP_HOST,
-      smtpPort: workerEnv.SMTP_PORT,
-      smtpUser: workerEnv.SMTP_USER,
-      smtpPassword: workerEnv.SMTP_PASSWORD,
-      configuredSender: parseSenderAddress(workerEnv.SMTP_FROM),
-    });
+    const providerMessageId = await dispatchEmail(
+      template,
+      payload.data,
+      {
+        isCloud: workerEnv.IS_CLOUD,
+        defaultSender: senderFor(payload.type, workerEnv.IS_CLOUD),
+        mailerSendApiToken: workerEnv.MAILER_SEND_API_TOKEN,
+        smtpHost: workerEnv.SMTP_HOST,
+        smtpPort: workerEnv.SMTP_PORT,
+        smtpUser: workerEnv.SMTP_USER,
+        smtpPassword: workerEnv.SMTP_PASSWORD,
+        configuredSender: parseSenderAddress(workerEnv.SMTP_FROM),
+      },
+      payload.type,
+    );
     await recordSent(payload.recipientKey, payload.campaignKey, providerMessageId);
     emailSendsTotal.inc({ type: payload.type, status: 'success' });
   } catch (err) {

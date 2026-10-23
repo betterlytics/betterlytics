@@ -2,8 +2,10 @@
 
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
 import nodemailer from 'nodemailer';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 import type { SenderAddress } from '@/lib/env/email-sender';
 import type { EmailData, EmailTemplate } from '@/services/email/types';
+import type { EmailType } from '@/services/email/email-types';
 
 export type EmailTransportConfig = {
   isCloud: boolean;
@@ -15,6 +17,8 @@ export type EmailTransportConfig = {
   configuredSender?: SenderAddress;
   defaultSender?: { email?: string; name: string };
 };
+
+const tracer = trace.getTracer('email');
 
 const CLOUD_FALLBACK_SENDER_EMAIL = 'info@betterlytics.io';
 const DEFAULT_SENDER_NAME = 'Betterlytics';
@@ -84,14 +88,37 @@ export async function dispatchEmail(
   template: EmailTemplate,
   data: EmailData,
   config: EmailTransportConfig,
+  emailType: EmailType,
 ): Promise<string | null> {
-  if (config.mailerSendApiToken) {
-    return sendViaMailerSend(template, data, config);
+  const provider = config.mailerSendApiToken ? 'mailersend' : config.smtpHost ? 'smtp' : null;
+  if (!provider) {
+    throw new Error('No email provider configured (set MAILER_SEND_API_TOKEN or SMTP_HOST)');
   }
 
-  if (config.smtpHost) {
-    return sendViaSmtp(template, data, config);
-  }
-
-  throw new Error('No email provider configured (set MAILER_SEND_API_TOKEN or SMTP_HOST)');
+  // Never recipient, subject or body on the span
+  return tracer.startActiveSpan(
+    'email.send',
+    { attributes: { 'email.provider': provider, 'email.type': emailType } },
+    async (span) => {
+      try {
+        const messageId =
+          provider === 'mailersend'
+            ? await sendViaMailerSend(template, data, config)
+            : await sendViaSmtp(template, data, config);
+        span.setAttribute('email.outcome', 'success');
+        span.setStatus({ code: SpanStatusCode.OK });
+        return messageId;
+      } catch (err) {
+        // No exception message: provider errors can echo the recipient address
+        span.setAttributes({
+          'email.outcome': 'failure',
+          'error.type': err instanceof Error ? err.name : 'unknown',
+        });
+        span.setStatus({ code: SpanStatusCode.ERROR });
+        throw err;
+      } finally {
+        span.end();
+      }
+    },
+  );
 }
