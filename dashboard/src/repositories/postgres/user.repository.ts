@@ -164,22 +164,6 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
   }
 }
 
-export async function findLegacyTwoFactorUsers(): Promise<
-  Array<{ id: string; email: string | null; name: string | null; twoFactorEnabled: boolean }>
-> {
-  return prisma.user.findMany({
-    where: { totpSecret: { not: null } },
-    select: { id: true, email: true, name: true, twoFactorEnabled: true },
-  });
-}
-
-export async function clearLegacyTwoFactor(): Promise<void> {
-  await prisma.user.updateMany({
-    where: { totpSecret: { not: null } },
-    data: { twoFactorEnabled: false, totpSecret: null },
-  });
-}
-
 export async function markOnboardingCompleted(userId: string): Promise<void> {
   try {
     await prisma.user.update({
