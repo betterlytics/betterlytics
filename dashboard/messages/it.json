@@ -2955,12 +2955,7 @@
       "table": {
         "details": "Dettagli sito di riferimento",
         "tabs": {
-          "all": "Tutti",
-          "search": "Ricerca",
-          "social": "Social",
-          "direct": "Diretto",
-          "email": "Email",
-          "other": "Altro"
+          "all": "Tutti"
         },
         "columns": {
           "source": "Fonte",
@@ -2972,6 +2967,14 @@
           "direct": "Diretto",
           "unknown": "Sconosciuto"
         }
+      },
+      "categories": {
+        "search": "Ricerca",
+        "social": "Social",
+        "ai": "IA",
+        "direct": "Diretto",
+        "email": "Email",
+        "other": "Altro"
       }
     },
     "geography": {

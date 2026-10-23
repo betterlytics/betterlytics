@@ -2955,12 +2955,7 @@
       "table": {
         "details": "Henvisningsdetaljer",
         "tabs": {
-          "all": "Alle",
-          "search": "Søgning",
-          "social": "Social",
-          "direct": "Direkte",
-          "email": "E-mail",
-          "other": "Andet"
+          "all": "Alle"
         },
         "columns": {
           "source": "Kilde",
@@ -2972,6 +2967,14 @@
           "direct": "Direkte",
           "unknown": "Ukendt"
         }
+      },
+      "categories": {
+        "search": "Søgning",
+        "social": "Social",
+        "ai": "AI",
+        "direct": "Direkte",
+        "email": "E-mail",
+        "other": "Andet"
       }
     },
     "geography": {
