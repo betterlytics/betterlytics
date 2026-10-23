@@ -44,7 +44,7 @@ const summary: MonitorRangeSummary = {
   backoffLevel: 2,
   uptimePercent: 99.98765,
   uptimeSeconds: 86391,
-  totalSeconds: 86400,
+  monitoredSeconds: 86400,
   latency: { avgMs: 120.456, minMs: 90.1, maxMs: 800.99 },
   tls: { ts: '2026-02-01T10:00:00.000Z', status: 'ok', reasonCode: null, tlsNotAfter: '2026-06-01T00:00:00.000Z' },
 };
@@ -127,7 +127,7 @@ describe('executeListMonitors', () => {
   });
 
   it('reports null uptime when nothing was measured', async () => {
-    getSummaries.mockResolvedValue([{ ...summary, uptimePercent: null, uptimeSeconds: 0, totalSeconds: 0 }]);
+    getSummaries.mockResolvedValue([{ ...summary, uptimePercent: null, uptimeSeconds: 0, monitoredSeconds: 0 }]);
 
     const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
 

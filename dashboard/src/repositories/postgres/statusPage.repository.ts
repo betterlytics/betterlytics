@@ -242,7 +242,7 @@ const statusPageSnapshotInclude = {
   monitors: {
     orderBy: { position: 'asc' as const },
     where: { monitorCheck: { deletedAt: null } },
-    include: { monitorCheck: { select: { isEnabled: true, createdAt: true } } },
+    include: { monitorCheck: { select: { isEnabled: true, createdAt: true, intervalSeconds: true } } },
   },
 };
 
@@ -261,6 +261,7 @@ function toPublishedStatusPage(row: StatusPageSnapshotRow): PublishedStatusPage 
       position: monitor.position,
       isEnabled: monitor.monitorCheck.isEnabled,
       monitorCreatedAt: monitor.monitorCheck.createdAt,
+      monitorIntervalSeconds: monitor.monitorCheck.intervalSeconds,
     })),
   };
 }

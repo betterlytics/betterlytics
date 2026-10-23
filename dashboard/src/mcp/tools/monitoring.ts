@@ -42,7 +42,7 @@ function formatMonitor(summary: MonitorRangeSummary) {
     uptime: {
       percent: round(summary.uptimePercent, 3),
       up_seconds: summary.uptimeSeconds,
-      measured_seconds: summary.totalSeconds,
+      measured_seconds: summary.monitoredSeconds,
     },
     response_time_ms: {
       avg: round(summary.latency.avgMs, 1),
