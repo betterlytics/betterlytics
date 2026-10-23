@@ -5,6 +5,8 @@ import {
   isOwnHost,
   normalizeHostname,
   ownHostsFrom,
+  statusPageNotFoundPath,
+  statusPagePathTarget,
 } from './status-host-routing';
 import { statusPageCnameTarget } from '@/entities/analytics/statusPage/statusPage.helpers';
 
@@ -60,7 +62,11 @@ describe('isOwnHost', () => {
   });
 
   it('parses ownHostsFrom inputs leniently', () => {
-    expect(ownHostsFrom('https://acme.com', '', false)).toEqual({ appHost: 'acme.com', statusPageDomain: '', wildcard: false });
+    expect(ownHostsFrom('https://acme.com', '', false)).toEqual({
+      appHost: 'acme.com',
+      statusPageDomain: '',
+      wildcard: false,
+    });
     expect(ownHostsFrom('localhost:3000', '', false).appHost).toBe('localhost');
     expect(ownHostsFrom('acme.com', '', false).appHost).toBe('acme.com');
   });
@@ -97,8 +103,12 @@ describe('decideStatusHostRoute', () => {
 
   it('reports unavailable regardless of path or deployment', () => {
     for (const pathname of paths) {
-      expect(decideStatusHostRoute('unavailable', domain, pathname, true), pathname).toEqual({ kind: 'unavailable' });
-      expect(decideStatusHostRoute('unavailable', domain, pathname, false), pathname).toEqual({ kind: 'unavailable' });
+      expect(decideStatusHostRoute('unavailable', domain, pathname, true), pathname).toEqual({
+        kind: 'unavailable',
+      });
+      expect(decideStatusHostRoute('unavailable', domain, pathname, false), pathname).toEqual({
+        kind: 'unavailable',
+      });
     }
   });
 
@@ -114,5 +124,32 @@ describe('statusPageCnameTarget', () => {
   it('returns a bare hostname without port or path', () => {
     expect(statusPageCnameTarget('acme', 'acme.com:8443/', false)).toBe('acme.com');
     expect(statusPageCnameTarget('acme', 'acme.com:8443/', true)).toBe('acme.status.acme.com');
+  });
+});
+
+describe('statusPagePathTarget', () => {
+  it('keys slug and custom domain paths', () => {
+    expect(statusPagePathTarget('/status/acme')).toEqual({ kind: 'slug', key: 'acme' });
+    expect(statusPagePathTarget('/status/domain/status.acme.com')).toEqual({
+      kind: 'domain',
+      key: 'status.acme.com',
+    });
+    expect(statusPagePathTarget('/status/domain/status.acme.com:443')).toEqual({
+      kind: 'domain',
+      key: 'status.acme.com',
+    });
+  });
+
+  it('ignores paths that are not a status page', () => {
+    expect(statusPagePathTarget('/status/acme/image/logo')).toBeNull();
+    expect(statusPagePathTarget('/status/')).toBeNull();
+    expect(statusPagePathTarget('/dashboard/x')).toBeNull();
+  });
+
+  it('maps the not-found paths back to themselves', () => {
+    for (const kind of ['slug', 'domain'] as const) {
+      const path = statusPageNotFoundPath(kind);
+      expect(statusPagePathTarget(path)?.kind).toBe(kind);
+    }
   });
 });

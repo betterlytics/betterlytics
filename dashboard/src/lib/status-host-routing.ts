@@ -46,10 +46,7 @@ const STATUS_IMAGE_PATH = /^\/status\/[^/]+\/image\/[^/]+$/;
 export type StatusHostClassification = 'status' | 'unknown' | 'unavailable';
 
 export type StatusHostRoute =
-  | { kind: 'pass' }
-  | { kind: 'rewrite'; pathname: string }
-  | { kind: 'notFound' }
-  | { kind: 'unavailable' };
+  { kind: 'pass' } | { kind: 'rewrite'; pathname: string } | { kind: 'notFound' } | { kind: 'unavailable' };
 
 export function decideStatusHostRoute(
   classification: StatusHostClassification,
@@ -66,4 +63,23 @@ export function decideStatusHostRoute(
   // Legacy: the production proxy still rewrites `/` to this path itself. Remove once it no longer does.
   if (pathname.toLowerCase().replace(/\.+$/, '') === `/status/domain/${domain}`) return { kind: 'pass' };
   return { kind: 'notFound' };
+}
+
+export type StatusPagePathTarget = { kind: 'slug' | 'domain'; key: string };
+
+/** The status page a `/status/...` path renders, keyed for classification; null for other paths (images). */
+export function statusPagePathTarget(pathname: string): StatusPagePathTarget | null {
+  const domain = /^\/status\/domain\/([^/]+)$/.exec(pathname);
+  if (domain) return { kind: 'domain', key: normalizeHostname(domain[1]) };
+  const slug = /^\/status\/([^/]+)$/.exec(pathname);
+  return slug ? { kind: 'slug', key: slug[1] } : null;
+}
+
+/**
+ * Where middleware sends unknown slugs and domains. Status pages are cached per path, not-found
+ * renders included, so random paths would each write a cache entry; this way they all share one.
+ * The underscore keeps it out of reach of real slugs and domains.
+ */
+export function statusPageNotFoundPath(kind: StatusPagePathTarget['kind']): string {
+  return kind === 'domain' ? '/status/domain/_not-found' : '/status/_not-found';
 }
