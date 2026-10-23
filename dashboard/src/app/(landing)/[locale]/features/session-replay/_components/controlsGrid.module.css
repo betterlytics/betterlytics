@@ -1,10 +1,15 @@
 @reference '../../../landing.css';
 
-/* registered so the error's scan brackets can close in */
+/* registered so the error's scan brackets can close in, and spread again on hover */
 @property --scan-gap {
   syntax: '<length>';
   inherits: true;
   initial-value: 10px;
+}
+@property --spread {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
 }
 
 @layer components {
@@ -120,7 +125,9 @@
     transition:
       opacity 0.4s var(--ease-out-expo) calc(0.2s + var(--i) * 0.025s),
       background-color 0.2s,
-      box-shadow 0.2s;
+      box-shadow 0.2s,
+      scale 0.35s var(--ease-out-expo),
+      filter 0.3s var(--ease-out-expo);
   }
   [data-in] .visits i {
     opacity: 1;
@@ -171,7 +178,9 @@
     box-shadow: inset 0 0 0 1px --alpha(var(--color-volt-lift) / 40%);
     transform: scaleX(0);
     transform-origin: 100% 50%;
-    transition: transform 0.8s var(--ease-out-expo) 0.5s;
+    transition:
+      transform 0.8s var(--ease-out-expo) 0.5s,
+      filter 0.3s var(--ease-out-expo);
   }
   [data-in] .window {
     transform: none;
@@ -222,7 +231,8 @@
     --scan-gap: 10px;
     transition:
       opacity 0.4s var(--ease-out-expo) 0.9s,
-      --scan-gap 0.6s var(--ease-out-expo) 0.95s;
+      --scan-gap 0.6s var(--ease-out-expo) 0.95s,
+      --spread 0.4s var(--ease-out-expo);
   }
   [data-in] .errorChip {
     opacity: 1;
@@ -241,22 +251,22 @@
     border-width: 0;
   }
   .errorChip::before {
-    inset: calc(-1 * var(--scan-gap)) auto auto calc(-1 * var(--scan-gap));
+    inset: calc(-1 * (var(--scan-gap) + var(--spread))) auto auto calc(-1 * (var(--scan-gap) + var(--spread)));
     border-top-width: 1.5px;
     border-left-width: 1.5px;
   }
   .errorChip::after {
-    inset: calc(-1 * var(--scan-gap)) calc(-1 * var(--scan-gap)) auto auto;
+    inset: calc(-1 * (var(--scan-gap) + var(--spread))) calc(-1 * (var(--scan-gap) + var(--spread))) auto auto;
     border-top-width: 1.5px;
     border-right-width: 1.5px;
   }
   .errorChip i::before {
-    inset: auto auto calc(-1 * var(--scan-gap)) calc(-1 * var(--scan-gap));
+    inset: auto auto calc(-1 * (var(--scan-gap) + var(--spread))) calc(-1 * (var(--scan-gap) + var(--spread)));
     border-bottom-width: 1.5px;
     border-left-width: 1.5px;
   }
   .errorChip i::after {
-    inset: auto calc(-1 * var(--scan-gap)) calc(-1 * var(--scan-gap)) auto;
+    inset: auto calc(-1 * (var(--scan-gap) + var(--spread))) calc(-1 * (var(--scan-gap) + var(--spread))) auto;
     border-bottom-width: 1.5px;
     border-right-width: 1.5px;
   }
@@ -334,7 +344,9 @@
     font-size: 10.5px;
     color: var(--color-muted);
     opacity: 0;
-    transition: opacity 0.4s var(--ease-out-expo) calc(0.35s + var(--i) * 0.3s);
+    transition:
+      opacity 0.4s var(--ease-out-expo) calc(0.35s + var(--i) * 0.3s),
+      translate 0.4s var(--ease-out-expo);
   }
   [data-in] .request {
     opacity: 1;
@@ -357,6 +369,7 @@
   }
   .request em {
     font-style: normal;
+    transition: color 0.3s var(--ease-out-expo);
   }
 
   /* single-page apps */
@@ -405,6 +418,7 @@
     top: 58px;
     display: grid;
     gap: 2px;
+    transition: gap 0.4s var(--ease-out-expo);
   }
   .view {
     display: grid;
@@ -434,6 +448,9 @@
     width: 13px;
     height: 13px;
     color: #38bdf8;
+    transition:
+      color 0.3s var(--ease-out-expo),
+      scale 0.35s var(--ease-out-expo);
   }
   .view code {
     font-family: inherit;
@@ -452,6 +469,9 @@
     padding: 9px 10px;
     border-radius: 7px;
     font-size: 12.5px;
+    transition:
+      opacity 0.3s var(--ease-out-expo),
+      border-color 0.3s var(--ease-out-expo);
   }
   .agent + .agent {
     margin-top: 2px;
@@ -464,6 +484,7 @@
     font-size: 11px;
     font-weight: 500;
     color: var(--color-live);
+    transition: color 0.3s var(--ease-out-expo);
   }
   .agent b svg {
     width: 12px;
@@ -499,6 +520,61 @@
   }
   .view[data-current] {
     color: var(--color-fg);
+  }
+
+  /*
+   * Hover poses: held while the illustration itself is hovered and eased back when it isn't. They use properties
+   * the entrance animations don't, so nothing waits on an entrance delay, and leave alone what the replay cursor moves.
+   */
+  @media (hover: hover) {
+    .comp:hover .visits i:not([data-lit]) {
+      filter: opacity(0.65);
+    }
+    .comp:hover .visits i[data-lit] {
+      filter: brightness(1.15);
+    }
+    .comp:hover .window {
+      filter: brightness(1.5);
+    }
+    .comp:hover .pathRow[data-off] code,
+    .comp:hover .pathRow[data-off] b {
+      filter: blur(1.5px);
+    }
+    .comp:hover .pathRow[data-off] .skeleton {
+      filter: blur(3px);
+    }
+    .comp:hover .request em {
+      color: var(--color-fg);
+    }
+    .comp:hover .view svg {
+      color: #7dd3fc;
+    }
+    .comp:hover .agent[data-bot] {
+      opacity: 0.55;
+    }
+    .comp:hover .agent[data-bot] b {
+      color: #f87171;
+    }
+    .comp:hover .agent:not([data-bot]) {
+      border-color: --alpha(var(--color-live) / 75%);
+    }
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .comp:hover .visits i[data-lit] {
+      scale: 1.15;
+    }
+    .comp:hover .errorChip {
+      --spread: 4px;
+    }
+    .comp:hover .request {
+      translate: 0 calc((var(--i) - 1.5) * 3px);
+    }
+    .comp:hover .views {
+      gap: 7px;
+    }
+    .comp:hover .view svg {
+      scale: 1.15;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
