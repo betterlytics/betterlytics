@@ -183,11 +183,20 @@ describe('McpQueryInputSchema', () => {
     }
   });
 
+  it.each(['Foo/Bar', 'Etc/Unknown', '', '   '])(
+    'rejects unknown timezone %j on the timezone field',
+    (timezone) => {
+      const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', timezone });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const issue = result.error.issues.find((i) => i.path.join('.') === 'timezone');
+        expect(issue?.message).toContain(JSON.stringify(timezone));
+        expect(issue?.message).toContain('Europe/Berlin');
+      }
+    },
+  );
+
   it.each([
-    ['Foo/Bar', 'Etc/UTC'],
-    ['Etc/Unknown', 'Etc/UTC'],
-    ['', 'Etc/UTC'],
-    ['   ', 'Etc/UTC'],
     ['europe/berlin', 'Europe/Berlin'],
     ['Europe/Berlin', 'Europe/Berlin'],
     ['America/New_York', 'America/New_York'],
