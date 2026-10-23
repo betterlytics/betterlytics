@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { McpDateRangeSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
-import { round } from '@/mcp/utils/round';
+import { floorUptime, round } from '@/mcp/utils/round';
 import {
   IncidentStateSchema,
   type MonitorIncidentWithMonitor,
@@ -40,7 +40,7 @@ function formatMonitor(summary: MonitorRangeSummary) {
     effective_check_interval_seconds: summary.effectiveIntervalSeconds,
     backoff_level: summary.backoffLevel,
     uptime: {
-      percent: round(summary.uptimePercent, 3),
+      percent: floorUptime(summary.uptimePercent, 3),
       up_seconds: summary.uptimeSeconds,
       measured_seconds: summary.monitoredSeconds,
     },

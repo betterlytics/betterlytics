@@ -89,7 +89,7 @@ describe('executeListMonitors', () => {
       name: 'API health',
       operational_state: 'up',
       last_status: 'ok',
-      uptime: { percent: 99.988, up_seconds: 86391, measured_seconds: 86400 },
+      uptime: { percent: 99.987, up_seconds: 86391, measured_seconds: 86400 },
       response_time_ms: { avg: 120.5, min: 90.1, max: 801 },
     });
   });
@@ -124,6 +124,14 @@ describe('executeListMonitors', () => {
     // A cap without an offset would strand the rest: nothing here can select a specific monitor.
     expect(result.monitors).toHaveLength(120);
     expect(result.total).toBe(120);
+  });
+
+  it('rounds uptime down like the status page, so a monitor with any downtime never reads 100', async () => {
+    getSummaries.mockResolvedValue([{ ...summary, uptimePercent: 99.99965 }]);
+
+    const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
+
+    expect(result.monitors[0].uptime.percent).toBe(99.999);
   });
 
   it('reports null uptime when nothing was measured', async () => {
