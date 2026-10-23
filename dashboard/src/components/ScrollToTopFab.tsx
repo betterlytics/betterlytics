@@ -24,11 +24,11 @@ export default function ScrollToTopFab() {
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'instant' : 'smooth' });
   };
 
-  // Sits 12px left of ThemeToggleFab (right-6, 78px wide)
+  // Sits 8px left of ThemeToggleFab (right-6, 78px wide)
   return (
     <div
       inert={!visible}
-      className={`fixed right-[calc(1.5rem+78px+0.75rem)] bottom-6 z-50 transition-opacity duration-300 motion-reduce:transition-none ${
+      className={`fixed right-[calc(1.5rem+78px+0.5rem)] bottom-6 z-50 transition-opacity duration-300 motion-reduce:transition-none ${
         visible ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
       }`}
     >
