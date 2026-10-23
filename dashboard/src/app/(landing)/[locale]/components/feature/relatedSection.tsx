@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { AppLink } from '@/landing/components/ui/appLink';
 import { Panel, Section } from '@/landing/components/ui/frame';
 import ruled from '@/landing/components/ui/ruledGrid.module.css';
 import { SpotlightList } from '@/landing/components/ui/spotlightList';
@@ -23,7 +24,8 @@ export function RelatedSection({ items, lede }: { items: RelatedItem[]; lede: st
         <SpotlightList className={cn(ruled.grid, ruled.cols4)}>
           {items.map((item) => (
             <li key={item.key} className={styles.card}>
-              <a
+              {/* keeps the visitor's language on internal pages; docs URLs pass through untouched */}
+              <AppLink
                 href={item.href}
                 className='relative flex h-full flex-col px-6.5 pt-6.5 pb-6 outline-hidden focus-visible:inset-ring-[1.5px] focus-visible:inset-ring-volt-soft/70 max-sm:px-(--pad)'
               >
@@ -40,7 +42,7 @@ export function RelatedSection({ items, lede }: { items: RelatedItem[]; lede: st
                   {t('related.learnMore')}
                   <ArrowRight className={`${styles.arrow} size-3.5`} aria-hidden />
                 </span>
-              </a>
+              </AppLink>
             </li>
           ))}
         </SpotlightList>
