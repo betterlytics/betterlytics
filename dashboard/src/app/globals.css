@@ -325,41 +325,41 @@
   }
 }
 
+/* The landing page's replay cursor (session-replay feature page); the tip sits on the click point */
 .rr-player .replayer-mouse:not(.touch-device) {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M1.5 1.5v15.6l4.3-4.1 2.8 6.3 2.8-1.2-2.7-6.2 6-.2z' fill='white' stroke='%23111' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='2.5 2.5 20 20'%3E%3Cpath d='M3.56 4.36Q3 3 4.36 3.56L18.64 9.44Q20 10 18.95 10.45L13.84 12.64Q13 13 12.64 13.84L10.45 18.95Q10 20 9.44 18.64Z' fill='white' stroke='%23111' stroke-width='0.85' stroke-linejoin='round'/%3E%3C/svg%3E");
+  width: 24px;
+  height: 24px;
+  background-size: 24px 24px;
   background-position: 0 0;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.3));
 }
 .rr-player .replayer-mouse:after {
-  width: 18px !important;
-  height: 18px !important;
-  background: var(--primary) !important;
+  width: 28px !important;
+  height: 28px !important;
+  background: transparent !important;
   border-radius: 9999px !important;
-  border: 2px solid white !important;
+  border: 2px solid #4a5cff !important;
   opacity: 0;
 }
 .rr-player .replayer-mouse.active:after {
-  animation: replayer-click 0.4s ease-out 1;
+  animation: replayer-click 0.7s cubic-bezier(0.16, 1, 0.3, 1) 1;
 }
 @keyframes replayer-click {
   0% {
     opacity: 0.9;
-    transform: translate(-50%, -50%) scale(0.6);
+    transform: translate(-50%, -50%) scale(0.3);
   }
   100% {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(1.6);
+    transform: translate(-50%, -50%) scale(1.5);
   }
-}
-.dark .rr-player .replayer-mouse:after {
-  border-color: rgba(0, 0, 0, 0.9) !important;
-  background: color-mix(in oklab, var(--primary), white 20%) !important;
 }
 .rr-player .replayer-mouse.rage {
   animation: replayer-rage-shake 0.3s ease-in-out infinite;
 }
 .rr-player .replayer-mouse.rage:after {
-  background: var(--destructive) !important;
+  border-color: var(--destructive) !important;
 }
 .rr-player .replayer-mouse.rage:before {
   content: '';
