@@ -18,6 +18,7 @@ import type {
   StatusPage,
   StatusPageCreate,
   StatusPageListItem,
+  StatusPagePublicRef,
   StatusPageUpdate,
 } from '@/entities/analytics/statusPage/statusPage.entities';
 
@@ -59,12 +60,12 @@ export async function saveStatusPage(
   dashboardId: string,
   data: StatusPageUpdate,
   images?: StatusPageImageWrites,
-): Promise<{ page: StatusPage; previousSlug: string } | null> {
+): Promise<{ page: StatusPage; previous: StatusPagePublicRef } | null> {
   const existing = await getStatusPageById(dashboardId, data.id);
   if (!existing) return null;
 
   const page = await updateStatusPage(dashboardId, data, images);
-  return { page, previousSlug: existing.slug };
+  return { page, previous: { slug: existing.slug, customDomain: existing.customDomain } };
 }
 
 export async function publishStatusPage(
@@ -75,12 +76,15 @@ export async function publishStatusPage(
   return setStatusPagePublished(dashboardId, statusPageId, isPublished);
 }
 
-export async function removeStatusPage(dashboardId: string, statusPageId: string): Promise<string | null> {
+export async function removeStatusPage(
+  dashboardId: string,
+  statusPageId: string,
+): Promise<StatusPagePublicRef | null> {
   const existing = await getStatusPageById(dashboardId, statusPageId);
   if (!existing) return null;
 
   await deleteStatusPage(dashboardId, statusPageId);
-  return existing.slug;
+  return { slug: existing.slug, customDomain: existing.customDomain };
 }
 
 export async function isStatusPageSlugAvailable(slug: string, excludeStatusPageId?: string): Promise<boolean> {

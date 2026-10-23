@@ -24,6 +24,11 @@ export function statusPagePublicUrlLabel(page: StatusPageUrlParts): string {
   return page.customDomain ?? `/status/${page.slug}`;
 }
 
+/** Cache tag of a custom domain's public page data, revalidated by the status page actions. */
+export function statusPageDomainCacheTag(customDomain: string): string {
+  return `status-page-domain:${customDomain}`;
+}
+
 export function statusPageCnameTarget(slug: string, publicHost: string, isCloud: boolean): string {
   const host = hostnameOf(publicHost);
   return isCloud ? `${slug}.status.${host}` : host;

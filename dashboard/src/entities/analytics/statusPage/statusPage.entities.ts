@@ -181,6 +181,9 @@ export const StatusPageSchema = z.object({
 });
 export type StatusPage = z.infer<typeof StatusPageSchema>;
 
+/** What locates a page's public URLs: `/status/{slug}` and, when set, its custom domain. */
+export type StatusPagePublicRef = Pick<StatusPage, 'slug' | 'customDomain'>;
+
 export const StatusPageMonitorRowSchema = z.object({
   id: z.string(),
   statusPageId: z.string(),

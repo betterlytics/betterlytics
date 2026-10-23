@@ -1,9 +1,11 @@
 import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { normalizeHostname } from '@/lib/status-host-routing';
 import { getPublicStatusPageDataByDomain } from '@/services/analytics/publicStatusPage.service';
+import { statusPageDomainCacheTag } from '@/entities/analytics/statusPage/statusPage.helpers';
 import {
   buildStatusPageMetadata,
   buildStatusPageNotFoundMetadata,
@@ -17,6 +19,11 @@ import {
  */
 export const revalidate = 60;
 
+/** Prerenders nothing at build: without it Next renders every request live. Each page is cached on first visit. */
+export function generateStaticParams() {
+  return [];
+}
+
 type StatusPageParams = { params: Promise<{ domain: string }> };
 
 const resolveStatusPage = cache(async (rawDomain: string) => {
@@ -25,7 +32,12 @@ const resolveStatusPage = cache(async (rawDomain: string) => {
   }
   const domain = normalizeHostname(rawDomain);
   if (!domain) return null;
-  return getPublicStatusPageDataByDomain(domain);
+  // Next only serves its page cache when the original request path matches the route, so visits
+  // rewritten from `/` always render. Caching the data keeps them off the databases.
+  return unstable_cache(() => getPublicStatusPageDataByDomain(domain), ['public-status-page-by-domain', domain], {
+    revalidate,
+    tags: [statusPageDomainCacheTag(domain)],
+  })();
 });
 
 export async function generateMetadata({ params }: StatusPageParams): Promise<Metadata> {
