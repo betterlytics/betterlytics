@@ -1884,7 +1884,7 @@
           },
           "free": {
             "q": "Is session replay free?",
-            "a": "Yes. Session replay is included on every plan, including the free one, and recordings don't count toward your monthly events. It's included when you self-host too."
+            "a": "Yes. Session replay is included on <link>every plan</link>, including the free one, and recordings don't count toward your monthly events. It's included when you self-host too."
           },
           "consent": {
             "q": "Do I need consent for session replay?",
@@ -1916,7 +1916,7 @@
           },
           "dedicated": {
             "q": "When is a dedicated replay tool the better fit?",
-            "a": "Betterlytics shows what visitors did, with every word masked. If you need heatmaps, rage-click detection, console and network logs, readable text, or search by user and event, a dedicated tool will serve you better."
+            "a": "Betterlytics shows what visitors did, with every word masked. If you need heatmaps, rage-click detection, console and network logs, readable text, or search by user and event, a dedicated tool will serve you better. Our <link>PostHog comparison</link> shows the differences feature by feature."
           }
         }
       },

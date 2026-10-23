@@ -7,7 +7,9 @@ import { PageShell } from '@/landing/components/page/pageShell';
 import { CtaSection } from '@/landing/components/sections/ctaSection';
 import { DemoSection } from '@/landing/components/sections/demoSection';
 import { HeroSection } from '@/landing/components/sections/heroSection';
+import { AppLink } from '@/landing/components/ui/appLink';
 import { Panel, Section } from '@/landing/components/ui/frame';
+import { FINE_LINK } from '@/landing/components/ui/text';
 import { LINKS } from '@/landing/lib/links';
 import { ControlsGrid } from './_components/controlsGrid';
 import { ReplayCursor } from './_components/replayCursor';
@@ -27,6 +29,11 @@ const FAQ_KEYS = [
   'mobile',
   'dedicated',
 ] as const;
+
+const FAQ_LINKS: Partial<Record<(typeof FAQ_KEYS)[number], string>> = {
+  free: '/pricing',
+  dedicated: '/vs/posthog',
+};
 
 export function ReplayPage() {
   const t = useTranslations('landing.replay');
@@ -101,7 +108,22 @@ export function ReplayPage() {
       <FaqSection
         id='faq'
         title={t('faq.title')}
-        items={FAQ_KEYS.map((key) => ({ q: t(`faq.items.${key}.q`), a: t(`faq.items.${key}.a`) }))}
+        items={FAQ_KEYS.map((key) => {
+          const href = FAQ_LINKS[key];
+          return {
+            q: t(`faq.items.${key}.q`),
+            a: t.markup(`faq.items.${key}.a`, { link: (chunks) => chunks }),
+            rich: href
+              ? t.rich(`faq.items.${key}.a`, {
+                  link: (chunks) => (
+                    <AppLink className={FINE_LINK} href={href}>
+                      {chunks}
+                    </AppLink>
+                  ),
+                })
+              : undefined,
+          };
+        })}
       />
       <RelatedSection
         lede={t('related.lede')}
