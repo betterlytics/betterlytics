@@ -1,7 +1,6 @@
 'use server';
 
 import { createHash } from 'crypto';
-import { revalidatePath, revalidateTag } from 'next/cache';
 import { getMessages, getTranslations } from 'next-intl/server';
 import z from 'zod';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
@@ -14,16 +13,12 @@ import {
   StatusPageUpdateSchema,
   type StatusPageImageKind,
   type StatusPageImagesInput,
-  type StatusPagePublicRef,
 } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
   StatusPageIncidentBatchSaveSchema,
   StatusPageIncidentCreateSchema,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
-import {
-  defaultPublicMonitorName,
-  statusPageDomainCacheTag,
-} from '@/entities/analytics/statusPage/statusPage.helpers';
+import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import {
   addStatusPage,
   countStatusPagesForDashboard,
@@ -62,26 +57,11 @@ import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.serv
 import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import { getUserTimezone } from '@/lib/cookies';
 import { UserException } from '@/lib/exceptions';
+import { revalidateStatusPagePaths } from '@/lib/status-page-revalidation';
 
 function assertStatusPagesEnabled() {
   if (!isFeatureEnabled('enablePublicStatusPages')) {
     throw new UserException('Status pages are not enabled');
-  }
-}
-
-function revalidateStatusPagePaths(dashboardId: string, ...pages: Array<StatusPagePublicRef | null | undefined>) {
-  revalidatePath(`/dashboard/${dashboardId}/status-pages`);
-  const paths = new Set<string>();
-  for (const page of pages) {
-    if (!page) continue;
-    paths.add(`/status/${page.slug}`);
-    if (page.customDomain) {
-      paths.add(`/status/domain/${page.customDomain}`);
-      revalidateTag(statusPageDomainCacheTag(page.customDomain));
-    }
-  }
-  for (const path of paths) {
-    revalidatePath(path);
   }
 }
 
