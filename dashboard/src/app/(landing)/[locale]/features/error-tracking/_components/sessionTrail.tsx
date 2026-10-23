@@ -2,8 +2,10 @@ import type { ReactNode } from 'react';
 import { AlertTriangle, Eye, MousePointerClick, type LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
+import { AppleMark } from '@/landing/components/illustrations/errors';
 import { FLAGS } from '@/landing/components/illustrations/flags';
 import { InView } from '@/landing/components/ui/inView';
+import { PLAN_ERROR } from '@/landing/content/planError';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './sessionTrail.module.css';
@@ -13,7 +15,7 @@ import styles from './sessionTrail.module.css';
 type Kind = 'page' | 'event' | 'error';
 type Entry = { at: string; kind: Kind; label: string; current?: boolean };
 
-const MESSAGE = "Cannot read properties of null (reading 'plan')";
+const MESSAGE = PLAN_ERROR.message;
 
 const BEFORE: Entry[] = [
   { at: '12:03:41', kind: 'page', label: '/' },
@@ -29,16 +31,10 @@ const AFTER: Entry[] = [
 ];
 const TOTAL = BEFORE.length + THROWN.length + AFTER.length;
 
-const FRAMES = [
-  { line: 142, fn: 'selectPlan', file: 'pricing.tsx', col: 19 },
-  { line: 61, fn: 'onClick', file: 'PlanCard.tsx', col: 7 },
-  { line: 4164, fn: 'callCallback', file: 'react-dom.js', col: 14, lib: true },
-];
 const MORE_FRAMES = 4;
 
 const GLYPHS: Record<Kind, LucideIcon> = { page: Eye, event: MousePointerClick, error: AlertTriangle };
 
-/** One stretch of the trail, its bracket and the note beside it; the grid places all three on one row. */
 function Stretch({
   row,
   entries,
@@ -80,7 +76,7 @@ function Stretch({
                 <Glyph />
               </span>
               <span className={styles.label}>
-                {entry.kind === 'error' && <b>TypeError </b>}
+                {entry.kind === 'error' && <b>{PLAN_ERROR.type} </b>}
                 {entry.label}
               </span>
             </li>
@@ -128,16 +124,16 @@ export function SessionTrail() {
             <div className={styles.stack}>
               <div className={styles.stackHead}>
                 <b>{t('thrown.stacktrace')}</b>
-                <span>onuncaughtexception</span>
+                <span>{t('thrown.mechanism')}</span>
               </div>
               <ol>
-                {FRAMES.map((frame) => (
-                  <li key={frame.fn} className={styles.frame} data-lib={frame.lib || undefined}>
+                {PLAN_ERROR.frames.map((frame) => (
+                  <li key={frame.fn} className={styles.frame}>
                     <span className={styles.frameLine}>{frame.line}</span>
                     <span className={styles.call}>
                       at <b>{frame.fn}</b> ({frame.file}:{frame.col})
                     </span>
-                    {!frame.lib && <span className={styles.inApp}>{t('thrown.inApp')}</span>}
+                    <span className={styles.inApp}>{t('thrown.inApp')}</span>
                   </li>
                 ))}
               </ol>
@@ -149,7 +145,7 @@ export function SessionTrail() {
                 Chrome 129
               </span>
               <span>
-                <i className={styles.apple} />
+                <AppleMark className='size-[13px]' />
                 macOS
               </span>
               <span>{t('thrown.desktop')}</span>

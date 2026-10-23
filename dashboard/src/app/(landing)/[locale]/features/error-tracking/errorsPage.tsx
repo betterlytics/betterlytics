@@ -21,6 +21,7 @@ const FAQ_KEYS = [
   'free',
   'captured',
   'filtered',
+  'frameworks',
   'grouped',
   'sourcemaps',
   'alerts',
@@ -97,7 +98,7 @@ export function ErrorsPage() {
           <SessionTrail />
         </Panel>
       </Section>
-      <Section id='triage'>
+      <Section id='triage' labelledBy='triage-title'>
         <Panel flush framed>
           <TriageBento />
         </Panel>

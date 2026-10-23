@@ -108,7 +108,7 @@ const SCRIPTS = {
       args: '(fingerprint: "a91f2c…e07", includeBreadcrumbs: true)',
     },
     { kind: 'result', text: t('debug.trace') },
-    { kind: 'tool', name: 'Read', args: '(src/pricing.tsx)', mcp: false },
+    { kind: 'tool', name: 'Read', args: '(js/pricing.js)', mcp: false },
     { kind: 'result', text: t('debug.code') },
     { kind: 'answer', text: t('debug.answer') },
   ],

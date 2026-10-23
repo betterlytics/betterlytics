@@ -42,7 +42,6 @@
       display: none;
     }
   }
-  /* the spine; glyphs sit on it with an opaque fill */
   .card::before {
     content: '';
     position: absolute;
@@ -348,9 +347,6 @@
     background: --alpha(var(--color-down) / 7%);
     box-shadow: inset 2px 0 0 var(--color-down);
   }
-  .frame[data-lib] {
-    background: rgb(0 0 0 / 0.18);
-  }
   .frameLine {
     text-align: right;
     opacity: 0.6;
@@ -370,9 +366,6 @@
   }
   .frame:first-child .call b {
     color: var(--color-fg);
-  }
-  .frame[data-lib] .call {
-    opacity: 0.6;
   }
   .inApp {
     padding: 1px 7px;
@@ -426,14 +419,6 @@
     .trail[data-in] .entry[data-current] {
       animation: trail-flash 1.4s var(--ease-out-expo) calc(0.4s + var(--i) * 85ms) both;
     }
-  }
-  /* the file paints in currentColor, which an <img> can't inherit, so it masks the text colour instead */
-  .apple {
-    width: 13px;
-    height: 13px;
-    background: currentColor;
-    -webkit-mask: url(/os-icons/apple-dark.svg) center / 100% 100% no-repeat;
-    mask: url(/os-icons/apple-dark.svg) center / 100% 100% no-repeat;
   }
 }
 

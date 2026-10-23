@@ -4,13 +4,14 @@ import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
+import { PLAN_ERROR } from '@/landing/content/planError';
 import styles from './errors.module.css';
 import type { IllustrationProps } from './types';
 import { FLAGS } from './flags';
 
 /* Mock data, deliberately untranslated. */
 
-type Frame = { line: number; fn: string; file: string; col: number; lib?: boolean };
+type Frame = { line: number; fn: string; file: string; col: number };
 type Step = { at: string; label: string };
 type Group = {
   type: string;
@@ -30,9 +31,9 @@ const RESOLVED: Group = {
   ],
   thrownAt: '09:41:53',
   frames: [
-    { line: 31, fn: 'sendMessage', file: 'contact.ts', col: 9 },
-    { line: 24, fn: 'onSubmit', file: 'ContactForm.tsx', col: 5 },
-    { line: 4164, fn: 'dispatchEvent', file: 'react-dom.js', col: 14, lib: true },
+    { line: 31, fn: 'sendMessage', file: 'contact.js', col: 9 },
+    { line: 24, fn: 'onSubmit', file: 'contact-form.js', col: 5 },
+    { line: 7, fn: 'handleSubmit', file: 'contact-form.js', col: 3 },
   ],
 };
 const QUIETER: Group = {
@@ -44,39 +45,39 @@ const QUIETER: Group = {
   ],
   thrownAt: '08:58:45',
   frames: [
-    { line: 87, fn: 'mountCardForm', file: 'checkout.ts', col: 16 },
-    { line: 52, fn: 'onPayClick', file: 'checkout.ts', col: 3 },
-    { line: 4164, fn: 'dispatchEvent', file: 'react-dom.js', col: 14, lib: true },
+    { line: 87, fn: 'mountCardForm', file: 'checkout.js', col: 16 },
+    { line: 52, fn: 'onPayClick', file: 'checkout.js', col: 3 },
+    { line: 12, fn: 'handleClick', file: 'checkout.js', col: 5 },
   ],
 };
 const FIRING: Group = {
-  type: 'TypeError',
-  message: "Cannot read properties of null (reading 'plan')",
+  ...PLAN_ERROR,
   trail: [
     { at: '12:04:02', label: '/pricing' },
     { at: '12:04:18', label: 'plan_selected' },
   ],
   thrownAt: '12:04:19',
-  frames: [
-    { line: 142, fn: 'selectPlan', file: 'pricing.tsx', col: 19 },
-    { line: 61, fn: 'onClick', file: 'PlanCard.tsx', col: 7 },
-    { line: 4164, fn: 'callCallback', file: 'react-dom.js', col: 14, lib: true },
-  ],
 };
 
-/** The Apple mark is Simple Icons', as the product draws it on dark. */
+/** Simple Icons' Apple mark, as the product draws it on dark. */
+export function AppleMark({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox='0 0 24 24' role='img' aria-label='macOS'>
+      <path
+        d='M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701'
+        fill='currentColor'
+      />
+    </svg>
+  );
+}
+
 function Who() {
   const locale = useLocale();
   return (
     <span className='inline-flex h-[15px] items-center gap-1.5 text-fg'>
       <Image src='/browser-icons/safari.svg' alt='Safari' width={13} height={13} />
       {/* larger box and a half-pixel lift so the Apple mark optically matches Safari's round logo */}
-      <svg className='-my-px size-[15px] -translate-y-[0.5px]' viewBox='0 0 24 24' role='img' aria-label='macOS'>
-        <path
-          d='M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701'
-          fill='currentColor'
-        />
-      </svg>
+      <AppleMark className='-my-px size-[15px] -translate-y-[0.5px]' />
       {/* 3:2 at 9px tall, to weigh the same as the logos */}
       <FLAGS.DK
         className='h-[9px] w-[13.5px] rounded-[1.5px] ring-1 ring-white/8'
@@ -86,7 +87,7 @@ function Who() {
   );
 }
 
-const WARN_ICON = (
+export const WARN_ICON = (
   <svg viewBox='0 0 20 20' fill='none' aria-hidden>
     <path
       d='M8.6 3.4 2.5 14a1.6 1.6 0 0 0 1.4 2.4h12.2a1.6 1.6 0 0 0 1.4-2.4L11.4 3.4a1.6 1.6 0 0 0-2.8 0Z'
@@ -183,16 +184,14 @@ function Card({
           </TrailStep>
           <ol className='font-mono text-[11.5px] leading-normal'>
             {group.frames.map((frame) => (
-              <li key={frame.fn} className={styles.frame} data-lib={frame.lib || undefined}>
+              <li key={frame.fn} className={styles.frame}>
                 <span className='tabular-nums opacity-60'>{frame.line}</span>
                 <span className={styles.call}>
                   at <b className={styles.fn}>{frame.fn}</b> ({frame.file}:{frame.col})
                 </span>
-                {!frame.lib && (
-                  <span className='rounded-[5px] border border-fg/10 bg-fg/6 px-[7px] py-px font-sans text-[10px]'>
-                    {t('inApp')}
-                  </span>
-                )}
+                <span className='rounded-[5px] border border-fg/10 bg-fg/6 px-[7px] py-px font-sans text-[10px]'>
+                  {t('inApp')}
+                </span>
               </li>
             ))}
           </ol>

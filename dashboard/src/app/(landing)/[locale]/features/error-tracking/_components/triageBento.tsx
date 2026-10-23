@@ -15,7 +15,6 @@ import styles from './triageBento.module.css';
 
 /* Mock data, deliberately untranslated. Each art holds a second state that hovering its cell swaps in. */
 
-/** A digit that rolls from one value to the next while the cell is hovered. */
 function Roll({ from, to }: { from: string; to: string }) {
   return (
     <span className={styles.roll}>

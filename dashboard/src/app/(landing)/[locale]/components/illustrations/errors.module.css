@@ -242,9 +242,6 @@
   .frame + .frame {
     border-top: 1px solid --alpha(var(--color-fg) / 5%);
   }
-  .frame[data-lib] {
-    background: rgb(0 0 0 / 0.18);
-  }
   .call {
     white-space: nowrap;
     overflow: hidden;
@@ -255,9 +252,6 @@
   }
   .frame:first-child .fn {
     color: var(--color-fg);
-  }
-  .frame[data-lib] :is(.call, .fn) {
-    opacity: 0.6;
   }
 
   .back .trail {

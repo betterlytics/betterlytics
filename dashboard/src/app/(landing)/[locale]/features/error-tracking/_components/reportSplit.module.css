@@ -174,7 +174,8 @@
       left: 0;
       animation: report-fly var(--dur) linear var(--delay) infinite;
     }
-    .split:not([data-live]) .flyer {
+    .split:not([data-live]) .flyer,
+    .guess:hover .flyer {
       animation-play-state: paused;
     }
   }
@@ -307,14 +308,6 @@
   .count {
     margin-left: auto;
     white-space: nowrap;
-  }
-  /* the file paints in currentColor, which an <img> can't inherit, so it masks the text colour instead */
-  .apple {
-    width: 13px;
-    height: 13px;
-    background: currentColor;
-    -webkit-mask: url(/os-icons/apple-dark.svg) center / 100% 100% no-repeat;
-    mask: url(/os-icons/apple-dark.svg) center / 100% 100% no-repeat;
   }
 }
 

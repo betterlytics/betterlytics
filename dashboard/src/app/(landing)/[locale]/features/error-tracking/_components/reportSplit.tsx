@@ -1,9 +1,11 @@
 import { Hash, Image as ImageIcon, Inbox, Mail, type LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
+import { AppleMark, WARN_ICON } from '@/landing/components/illustrations/errors';
 import { FLAGS } from '@/landing/components/illustrations/flags';
 import { CountUp } from '@/landing/components/ui/countUp';
 import { InView } from '@/landing/components/ui/inView';
+import { PLAN_ERROR } from '@/landing/content/planError';
 import { vars } from '@/landing/lib/cssVars';
 import styles from './reportSplit.module.css';
 
@@ -37,19 +39,6 @@ const FLYERS: Flyer[] = [
   { key: 'inbox', lane: 4, dur: 33, at: 0.4, r: 1.5, rest: 8, icon: Inbox, kind: 'inbox' },
   { key: 'ticket', lane: 4, dur: 33, at: 0.9, r: -2.5, rest: 56, kind: 'ticket' },
 ];
-
-const WARN_ICON = (
-  <svg viewBox='0 0 20 20' fill='none' aria-hidden>
-    <path
-      d='M8.6 3.4 2.5 14a1.6 1.6 0 0 0 1.4 2.4h12.2a1.6 1.6 0 0 0 1.4-2.4L11.4 3.4a1.6 1.6 0 0 0-2.8 0Z'
-      stroke='currentColor'
-      strokeWidth='1.5'
-      strokeLinejoin='round'
-    />
-    <path d='M10 7.6v3.6' stroke='currentColor' strokeWidth='1.6' strokeLinecap='round' />
-    <circle cx='10' cy='13.6' r='0.95' fill='currentColor' />
-  </svg>
-);
 
 export function ReportSplit() {
   const t = useTranslations('landing.errors.report');
@@ -101,28 +90,23 @@ export function ReportSplit() {
           <div className={styles.issueHead}>
             <span className={styles.icon}>{WARN_ICON}</span>
             <span className='min-w-0'>
-              <b className={styles.type}>TypeError</b>
-              <span className={styles.message}>Cannot read properties of null (reading &apos;plan&apos;)</span>
+              <b className={styles.type}>{PLAN_ERROR.type}</b>
+              <span className={styles.message}>{PLAN_ERROR.message}</span>
             </span>
           </div>
-          <div className={styles.frame}>
-            <span className={styles.line}>142</span>
-            <span className={styles.call}>
-              at <b>selectPlan</b> (pricing.tsx:19)
-            </span>
-            <span className={styles.inApp}>{t('inApp')}</span>
-          </div>
-          <div className={styles.frame}>
-            <span className={styles.line}>61</span>
-            <span className={styles.call}>
-              at <b>onClick</b> (PlanCard.tsx:7)
-            </span>
-            <span className={styles.inApp}>{t('inApp')}</span>
-          </div>
+          {PLAN_ERROR.frames.slice(0, 2).map((frame) => (
+            <div key={frame.fn} className={styles.frame}>
+              <span className={styles.line}>{frame.line}</span>
+              <span className={styles.call}>
+                at <b>{frame.fn}</b> ({frame.file}:{frame.col})
+              </span>
+              <span className={styles.inApp}>{t('inApp')}</span>
+            </div>
+          ))}
           <div className={styles.meta}>
             <span className={styles.who}>
-              <Image src='/browser-icons/chrome.svg' alt='Chrome' width={14} height={14} />
-              <i className={styles.apple} role='img' aria-label='macOS' />
+              <Image src='/browser-icons/chrome.svg' alt='' width={14} height={14} />
+              <AppleMark className='size-[13px]' />
               <FLAGS.DK className='h-[10px] w-[15px] rounded-[1.5px] ring-1 ring-white/8' title={region} />
             </span>
             <span className={styles.page}>/pricing</span>

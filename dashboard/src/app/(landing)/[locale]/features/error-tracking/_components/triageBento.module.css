@@ -24,7 +24,6 @@
       padding: 30px var(--pad);
     }
   }
-  /* the hatch rises from the bottom of the title cell into the empty space below its copy */
   .lead::after {
     content: '';
     position: absolute;
@@ -113,7 +112,6 @@
     }
   }
 
-  /* shared card face, as in the rest of the page */
   .miniList,
   .actionBar,
   .historyArt,
@@ -458,7 +456,6 @@
   }
 }
 
-/* the checkmark dips, then lands a touch large before settling */
 @keyframes copied-pop {
   0% {
     scale: 1;

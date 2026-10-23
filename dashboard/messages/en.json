@@ -1413,12 +1413,12 @@
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout has returned 503s since 10:12, three minutes after a41f2c9 moved the Stripe keys to env vars. Want me to revert it?"
         },
-        "debugAlt": "A terminal session: told that choosing a plan does nothing, an agent lists errors on /pricing through the Betterlytics MCP server, reads the TypeError's stack trace and session trail, opens pricing.tsx at line 142 and offers a fix.",
+        "debugAlt": "A terminal session: told that choosing a plan does nothing, an agent lists errors on /pricing through the Betterlytics MCP server, reads the TypeError's stack trace and session trail, opens pricing.js at line 142 and offers a fix.",
         "debug": {
           "question": "people say choosing a plan does nothing, can you look?",
           "say": "I'll check Betterlytics for errors on /pricing, then read the stack trace of the top group.",
           "errors": "1 group · TypeError · reading 'plan' · 1,206 occurrences in 318 sessions",
-          "trace": "at selectPlan (pricing.tsx:142) · trail: /pricing → plan_selected → TypeError",
+          "trace": "at selectPlan (pricing.js:142) · trail: /pricing → plan_selected → TypeError",
           "code": "142  setPlan(selected.plan)",
           "answer": "On the first click, selectPlan reads selected.plan before the plans have loaded, so selected is still null. I'd disable the buttons until the request finishes. Want me to make that change?"
         }
@@ -1950,7 +1950,7 @@
       "hero": {
         "eyebrow": "Error tracking",
         "title": "Catch the errors your visitors hit, and see what led to them",
-        "lede": "Betterlytics groups uncaught errors and failed promises by stack trace, and shows what each visitor did before and after. It's free on every plan and runs in the same script as your analytics.",
+        "lede": "Betterlytics groups uncaught JavaScript errors and failed promises by stack trace, and shows what each visitor did before and after. It's free on every plan and runs in the same script as your analytics.",
         "primary": "Start tracking errors free",
         "secondary": "Read the docs"
       },
@@ -1977,11 +1977,11 @@
         }
       },
       "report": {
-        "title": "From “it doesn't work” to *line 142*",
+        "title": "From “it doesn’t work” to *line 142*",
         "lede": "Most visitors who hit an error leave without a word, and the few who write in can only describe what they saw. Betterlytics shows you where the code threw, in which browser, and how often.",
         "guess": "Guessing from bug reports",
         "fix": "Fixing from the stack trace",
-        "alt": "On the left, vague reports about the pricing page keep streaming past: the same can't-upgrade email three times, a report that choosing a plan does nothing, a support chat, a blurry screenshot, a guess at the browser, a note saying it works on my machine, a P1 ticket saying upgrades have failed since Monday and a support inbox with 14 unread. On the right, the same bug as one error group: a TypeError thrown in selectPlan at line 142 of pricing.tsx and called from onClick in PlanCard.tsx, in Chrome on macOS in Denmark, on /pricing, 1,206 times.",
+        "alt": "On the left, vague reports about the pricing page keep streaming past: the same can't-upgrade email three times, a report that choosing a plan does nothing, a support chat, a blurry screenshot, a guess at the browser, a note saying it works on my machine, a P1 ticket saying upgrades have failed since Monday and a support inbox with 14 unread. On the right, the same bug as one error group: a TypeError thrown in selectPlan at line 142 of pricing.js and called from onClick in plan-card.js, in Chrome on macOS in Denmark, on /pricing, 1,206 times.",
         "notes": {
           "upgrade": "Can't upgrade??",
           "pricing": "anyone else seeing pricing do nothing?",
@@ -2001,7 +2001,7 @@
       "trail": {
         "title": "See what they did *before and after*",
         "lede": "Every occurrence keeps the session it happened in: the pages, events and other errors from that visit, in order. When the visit was recorded, the replay is one click away.",
-        "alt": "A session trail of eight events. Before the error, the visitor landed on the home page, opened /pricing and picked a plan. The TypeError came one second later, thrown in selectPlan at line 142 of pricing.tsx in Chrome 129 on macOS, on a desktop in Denmark. After it, they reloaded /pricing, picked a plan again, hit the same error and left for /contact.",
+        "alt": "A session trail of eight events. Before the error, the visitor landed on the home page, opened /pricing and picked a plan. The TypeError came one second later, thrown in selectPlan at line 142 of pricing.js in Chrome 129 on macOS, on a desktop in Denmark. After it, they reloaded /pricing, picked a plan again, hit the same error and left for /contact.",
         "label": "Session trail",
         "count": "{count} events in this session",
         "before": {
@@ -2010,8 +2010,9 @@
         },
         "thrown": {
           "label": "The error",
-          "body": "Thrown in selectPlan, line 142 of pricing.tsx. Each occurrence also records the browser, OS, device and country.",
-          "stacktrace": "Stacktrace",
+          "body": "Thrown in selectPlan, line 142 of pricing.js. Each occurrence also records the browser, OS, device and country.",
+          "stacktrace": "Stack trace",
+          "mechanism": "Uncaught",
           "inApp": "in app",
           "more": "Show {count} more frames",
           "desktop": "Desktop"
@@ -2023,12 +2024,12 @@
       },
       "triage": {
         "title": "Work the list *together*",
-        "body": "Statuses live on the dashboard, so the whole team works from one list. Editors and admins resolve or ignore groups, and viewers follow along.",
+        "body": "Statuses live on the dashboard, so the whole team works from one list. Owners, admins and editors resolve or ignore groups, and viewers follow along.",
         "cta": "Read the dashboard guide",
         "items": {
           "status": {
             "title": "Resolve, ignore, reopen",
-            "body": "Mark groups resolved or ignored one at a time or in bulk. The Unresolved tab is what's left to fix."
+            "body": "Mark groups resolved or ignored one at a time or in bulk. The Unresolved tab holds everything nobody has dealt with yet."
           },
           "history": {
             "title": "See who it hits",
@@ -2107,9 +2108,13 @@
             "q": "Are errors from browser extensions and bots filtered out?",
             "a": "Yes. The script skips errors whose stack trace points into a browser extension, so a visitor's ad blocker or password manager doesn't show up as your bug. Errors from bots, headless browsers and test tools like Playwright are dropped before they're stored, the same as their pageviews."
           },
+          "frameworks": {
+            "q": "Does it work with React, Next.js and Vue?",
+            "a": "Yes. The script catches errors on any site, whatever framework it runs. Errors a framework catches itself, such as in a React error boundary or Vue's error handler, are usually logged with console.error instead of thrown, so turn on console.error capture to see those too."
+          },
           "grouped": {
             "q": "How are errors grouped?",
-            "a": "By the error type and the top five frames of the stack trace: the function, the file and the line. Column numbers, domains and query strings are ignored, so the same bug stays in one group even when its message changes. Errors without a stack trace are grouped by type and message. A deploy that renames your bundles or moves the line starts a new group."
+            "a": "By the error type and the top five frames of the stack trace: the function, the file and the line. Column numbers, domains and query strings are ignored, so the same bug stays in one group even when its message changes. Errors without a stack trace are grouped by type and message. If a release renames your script files or moves the line, the bug starts a new group."
           },
           "sourcemaps": {
             "q": "Do you support source maps?",
@@ -2121,7 +2126,7 @@
           },
           "privacy": {
             "q": "Does error tracking collect personal data?",
-            "a": "It uses no cookies, like the rest of Betterlytics. Query strings are cut from page and script URLs before anything is stored, and messages and stack traces are trimmed to a fixed length. Messages are kept as your code wrote them, so keep personal data out of them, and leave console capture off if your logs can contain it."
+            "a": "It uses no cookies, like the rest of Betterlytics, and query strings are cut from page and script URLs before anything is stored. Messages are kept as your code wrote them, so keep personal data out of them, and leave console capture off if your logs can contain it."
           },
           "quota": {
             "q": "Can a broken loop use up my events?",
@@ -2133,13 +2138,13 @@
           },
           "dedicated": {
             "q": "When is a dedicated error tracker the better fit?",
-            "a": "Betterlytics tracks errors in the browser, next to your analytics and replays. If you need source maps, alerts, server-side errors, release health, user-level search or native mobile apps, a dedicated error tracker will serve you better."
+            "a": "Betterlytics tracks errors in the browser, next to your analytics and replays. If you need source maps, alerts, server-side errors, release health, user-level search or native mobile apps, a dedicated error tracker like Sentry will serve you better."
           }
         }
       },
       "cta": {
         "title": "Catch your first error today",
-        "lede": "Add one attribute to your script tag, then open Errors in your dashboard. Error tracking is free on every plan.",
+        "lede": "Add one attribute to your script tag and errors start arriving under Error Tracking in your dashboard. It's free on every plan.",
         "primary": "Start tracking errors free",
         "secondary": "Read the error docs"
       }
