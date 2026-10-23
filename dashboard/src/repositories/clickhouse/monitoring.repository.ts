@@ -93,6 +93,20 @@ export async function getUptimeBuckets(
     options.granularity === 'day'
       ? safeSql`toStartOfDay(fromUnixTimestamp64Milli(${ms}, 'UTC'), {timezone:String})`
       : safeSql`toStartOfHour(fromUnixTimestamp64Milli(${ms}, 'UTC'), {timezone:String})`;
+  // Every bucket a [fromMs, toMs) span touches, one row each
+  const bucketsOf = (fromMs: ReturnType<typeof safeSql>, toMs: ReturnType<typeof safeSql>) => safeSql`
+    arrayJoin(
+      arrayMap(
+        i -> ${toBucketStart(fromMs)} + INTERVAL i ${unit},
+        range(toUInt32(dateDiff(
+          ${unitName},
+          ${toBucketStart(fromMs)},
+          fromUnixTimestamp64Milli(${toMs} - 1, 'UTC'),
+          {timezone:String}
+        )) + 1)
+      )
+    )
+  `;
 
   const query = safeSql`
     WITH
@@ -140,53 +154,52 @@ export async function getUptimeBuckets(
         INNER JOIN monitors AS m ON m.check_id = p.check_id
         WHERE covered_to_ms > covered_from_ms
       ),
-      downtime AS (
+      incidents AS (
         SELECT
           check_id,
-          groupArray((
-            toUnixTimestamp64Milli(started_at),
-            ifNull(toUnixTimestamp64Milli(resolved_at), toUnixTimestamp64Milli(now64(3)))
-          )) AS spans
+          greatest(toUnixTimestamp64Milli(started_at), {range_start_ms:Int64}) AS down_from_ms,
+          least(
+            ifNull(toUnixTimestamp64Milli(resolved_at), toUnixTimestamp64Milli(now64(3))),
+            {range_end_ms:Int64}
+          ) AS down_to_ms
         FROM analytics.monitor_incidents FINAL
         WHERE check_id IN {check_ids:Array(String)}
           AND site_id = {site_id:String}
           AND kind != 'tls'
           AND started_at < fromUnixTimestamp64Milli({range_end_ms:Int64}, 'UTC')
           AND (resolved_at IS NULL OR resolved_at > fromUnixTimestamp64Milli({range_start_ms:Int64}, 'UTC'))
-        GROUP BY check_id
+      ),
+      -- Incident spans per bucket, so each coverage segment only meets its own bucket's incidents
+      downtime AS (
+        SELECT
+          check_id,
+          ${bucketsOf(safeSql`down_from_ms`, safeSql`down_to_ms`)} AS bucket_start,
+          groupArray((down_from_ms, down_to_ms)) AS spans
+        FROM incidents
+        WHERE down_to_ms > down_from_ms
+        GROUP BY check_id, bucket_start
       ),
       segments AS (
         SELECT
-          c.check_id AS check_id,
-          arrayJoin(
-            arrayMap(
-              i -> ${toBucketStart(safeSql`c.covered_from_ms`)} + INTERVAL i ${unit},
-              range(toUInt32(dateDiff(
-                ${unitName},
-                ${toBucketStart(safeSql`c.covered_from_ms`)},
-                fromUnixTimestamp64Milli(c.covered_to_ms - 1, 'UTC'),
-                {timezone:String}
-              )) + 1)
-            )
-          ) AS bucket_start,
-          greatest(c.covered_from_ms, toInt64(toUnixTimestamp(bucket_start)) * 1000) AS from_ms,
-          least(c.covered_to_ms, toInt64(toUnixTimestamp(bucket_start + INTERVAL 1 ${unit})) * 1000) AS to_ms,
-          d.spans AS spans
-        FROM coverage AS c
-        LEFT JOIN downtime AS d ON d.check_id = c.check_id
+          check_id,
+          ${bucketsOf(safeSql`covered_from_ms`, safeSql`covered_to_ms`)} AS bucket_start,
+          greatest(covered_from_ms, toInt64(toUnixTimestamp(bucket_start)) * 1000) AS from_ms,
+          least(covered_to_ms, toInt64(toUnixTimestamp(bucket_start + INTERVAL 1 ${unit})) * 1000) AS to_ms
+        FROM coverage
       )
     SELECT
-      check_id,
-      toTimeZone(bucket_start, 'UTC') AS date,
-      sum(to_ms - from_ms) / 1000 AS monitored_seconds,
+      s.check_id AS check_id,
+      toTimeZone(s.bucket_start, 'UTC') AS date,
+      sum(s.to_ms - s.from_ms) / 1000 AS monitored_seconds,
       sum(least(
-        to_ms - from_ms,
-        arraySum(span -> greatest(0, least(to_ms, span.2) - greatest(from_ms, span.1)), spans)
+        s.to_ms - s.from_ms,
+        arraySum(span -> greatest(0, least(s.to_ms, span.2) - greatest(s.from_ms, span.1)), d.spans)
       )) / 1000 AS down_seconds
-    FROM segments
-    WHERE to_ms > from_ms
-    GROUP BY check_id, bucket_start
-    ORDER BY check_id, bucket_start
+    FROM segments AS s
+    LEFT JOIN downtime AS d ON d.check_id = s.check_id AND d.bucket_start = s.bucket_start
+    WHERE s.to_ms > s.from_ms
+    GROUP BY s.check_id, s.bucket_start
+    ORDER BY s.check_id, s.bucket_start
   `;
 
   const rangeStartMs = options.rangeStart.getTime();
