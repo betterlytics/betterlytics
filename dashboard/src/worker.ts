@@ -3,11 +3,16 @@ import { getBoss } from '@/lib/pgboss';
 import { workerEnv } from '@/lib/env/worker.env';
 import { register } from '@/worker/metrics';
 import { registerWorkersOnce } from '@/worker/runtime';
+import { registerTracing } from '@/observability/otel';
 
 async function main() {
   if (!workerEnv.BACKGROUND_JOBS_ENABLED) {
     console.info('BACKGROUND_JOBS_ENABLED=false, exiting');
     return;
+  }
+
+  if (workerEnv.ENABLE_MONITORING) {
+    await registerTracing(workerEnv.WORKER_OTEL_SERVICE_NAME);
   }
 
   const boss = await getBoss();
