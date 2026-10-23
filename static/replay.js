@@ -8834,9 +8834,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function handleRecordingEmit(e, isCheckout) {
+      // Rage clicks are only built from clicks recorded on an enabled page, so a burst
+      // flushed on navigation to a disabled page still gets through
       if (
         isReplayEnabledOnPage() === false &&
-        (e.type == 5 && e.data.tag === "Blacklist") === false
+        (e.type == 5 && (e.data.tag === "Blacklist" || e.data.tag === "rage_click")) === false
       ) {
         return;
       }
