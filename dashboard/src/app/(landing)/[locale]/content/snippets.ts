@@ -1,9 +1,6 @@
 import type { ReactNode } from 'react';
 
-/**
- * A leading `+` marks an added line; `logo` is in public/framework-logos, `glyph` stands in when there's none;
- * no `name` shows `landing.network.packageTab`.
- */
+/** A leading `+` marks an added line; `logo` is in public/framework-logos; no `name` shows `landing.network.packageTab`. */
 export type Snippet = { id: string; name?: string; file?: string; logo?: string; glyph?: ReactNode; code: string };
 
 export const SRC = 'https://betterlytics.io/analytics.js';

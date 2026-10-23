@@ -1,7 +1,7 @@
 @reference '../../../landing.css';
 
 @layer components {
-  /* a light page, so it reads as the customer's site and not as our dashboard */
+  /* light, so it reads as the customer's site, not our dashboard */
   .page {
     --ink: #22201e;
     --soft: #7b736e;
@@ -146,7 +146,6 @@
     border-radius: 7px;
     background: linear-gradient(160deg, #e9dccd, #d9c4ac);
   }
-  /* how a replay shows a blocked image: an empty box the same size */
   .photo[data-blocked] {
     background: #e6e1db;
     box-shadow: inset 0 0 0 1px var(--line);

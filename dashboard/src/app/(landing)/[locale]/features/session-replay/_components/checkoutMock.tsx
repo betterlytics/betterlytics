@@ -2,9 +2,8 @@ import type { ReactNode } from 'react';
 import { cn } from '@/landing/lib/cn';
 import styles from './checkoutMock.module.css';
 
-/* A made-up shop, deliberately untranslated. Prices are bars: crawlers and AI tools read mock prices as ours. */
+/* Deliberately untranslated. Prices are bars because crawlers and AI tools read mock prices as ours. */
 
-/** What the recorder does to text: every non-space character becomes an asterisk. */
 export const maskText = (text: string) => text.replace(/\S/g, '*');
 
 const FIELDS = [
@@ -15,9 +14,7 @@ const FIELDS = [
 
 type CheckoutMockProps = {
   masked?: boolean;
-  /** Rings the empty postcode field, for the scene that points at it. */
   flagPostcode?: boolean;
-  /** Drawn inside the postcode field and the Pay button, so notes stay pinned to them. */
   adorn?: { postcode?: ReactNode; pay?: ReactNode };
   className?: string;
 };
@@ -47,7 +44,7 @@ export function CheckoutMock({ masked = false, flagPostcode = false, adorn, clas
           <div className={styles.pair}>
             <div className={styles.field} data-flag={flagPostcode || undefined}>
               <span>{m('Postcode')}</span>
-              <span className={styles.input} data-replay-target='postcode' />
+              <span className={styles.input} data-cursor-target='postcode' />
               {adorn?.postcode}
             </div>
             <div className={styles.field}>
@@ -55,14 +52,13 @@ export function CheckoutMock({ masked = false, flagPostcode = false, adorn, clas
               <span className={styles.input}>{m('Copenhagen')}</span>
             </div>
           </div>
-          <span className={styles.pay} data-replay-target='pay'>
+          <span className={styles.pay} data-cursor-target='pay'>
             {m('Pay now')}
             {adorn?.pay}
           </span>
         </div>
         <div className={styles.summary}>
           <div className={styles.product}>
-            {/* blocked like any image in a replay: same box, no picture */}
             <span className={styles.photo} data-blocked={masked || undefined}>
               {!masked && (
                 <svg viewBox='0 0 40 52' aria-hidden>

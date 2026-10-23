@@ -20,36 +20,35 @@ type Actor = {
   marks: HTMLElement;
   pos: Point;
   offset: Point;
-  /** where the tip points now, and where it is turning to, in screen radians */
   angle: number;
   aim: number;
   moving: boolean;
   bend: number;
-  /** glide speed in px/ms, so the two drift in and out of step */
+  /** px/ms, unequal so the two drift in and out of step */
   speed: number;
   ripple: number;
   say: Dispatch<Pill | null>;
 };
 
-const DESKTOP = '(min-width: 56.25rem)';
+/** the landing lg breakpoint, below which the CSS hides the layer */
+const WIDE = '(width >= 56.25rem)';
 const ZONE = ['#privacy', '#controls', '#setup'];
 /** the drawn arrow points up and to the left */
 const NATURAL = (-3 * Math.PI) / 4;
-/** at rest a pointer always faces into its target diagonally, from whichever corner it sits at */
 const FACING: Record<Corner, number> = {
   'top-left': Math.PI / 4,
   'top-right': (3 * Math.PI) / 4,
   'bottom-left': -Math.PI / 4,
   'bottom-right': NATURAL,
 };
-/** the pill's bearing from the tip in the resting pose (below, a little right); it turns with the pointer */
+/** radians from the tip to the pill at rest: below, a little right */
 const PILL_BEARING = 1.27;
 const REPEL_PX = 100;
 const CHAR_MS = 45;
 const TYPE_MS = 230;
 const CODE_TYPE_MS = 140;
 const POSTCODE = '1620';
-/** The excluded path the visitor adds in each snippet, keyed by the quote its /admin/** string opens with. */
+/** keyed by the quote each snippet's /admin/** string opens with */
 const URL_ADDED: Record<string, { typed: string; suffix: string }> = {
   '"': { typed: ',/billing/**', suffix: '"' },
   "'": { typed: ", '/billing/**'", suffix: '' },
@@ -71,8 +70,15 @@ class Aborted extends Error {}
 function sleep(ms: number, signal: AbortSignal) {
   return new Promise<void>((resolve, reject) => {
     if (signal.aborted) return reject(new Aborted());
-    const id = setTimeout(resolve, ms);
-    signal.addEventListener('abort', () => (clearTimeout(id), reject(new Aborted())), { once: true });
+    const onAbort = () => {
+      clearTimeout(id);
+      reject(new Aborted());
+    };
+    const id = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal.addEventListener('abort', onAbort, { once: true });
   });
 }
 
@@ -81,28 +87,33 @@ function tween(ms: number, signal: AbortSignal, frame: Dispatch<number>, ease = 
     if (signal.aborted) return reject(new Aborted());
     const start = performance.now();
     let raf = 0;
+    const onAbort = () => {
+      cancelAnimationFrame(raf);
+      reject(new Aborted());
+    };
     const step = (now: number) => {
       const k = Math.min(1, (now - start) / ms);
       frame(ease(k));
-      if (k < 1) raf = requestAnimationFrame(step);
-      else resolve();
+      if (k < 1) {
+        raf = requestAnimationFrame(step);
+      } else {
+        signal.removeEventListener('abort', onAbort);
+        resolve();
+      }
     };
     raf = requestAnimationFrame(step);
-    signal.addEventListener('abort', () => (cancelAnimationFrame(raf), reject(new Aborted())), { once: true });
+    signal.addEventListener('abort', onAbort, { once: true });
   });
 }
 
 const textIn = (el: Element | null) =>
   Array.from(el?.childNodes ?? []).find((node): node is Text => node instanceof Text && !!node.data.trim());
 
-/**
- * Two past visitors, replayed for as long as the checkout, controls and setup sections are on screen: a site owner
- * changing settings and a shopper at the checkout. They only touch illustrations, never anything the reader can use.
- */
 export function ReplayCursor() {
   const t = useTranslations('landing.replay.cursor');
   const reduce = useReducedMotion();
   const [host, setHost] = useState<HTMLElement | null>(null);
+  const [wide, setWide] = useState(false);
   const [pills, setPills] = useState<(Pill | null)[]>([null, null]);
   const cursorEls = useRef<(HTMLDivElement | null)[]>([]);
   const pointerEls = useRef<(SVGSVGElement | null)[]>([]);
@@ -115,6 +126,14 @@ export function ReplayCursor() {
   useEffect(() => setHost(document.getElementById(IDS.main)), []);
 
   useEffect(() => {
+    const query = window.matchMedia(WIDE);
+    const onChange = () => setWide(query.matches);
+    onChange();
+    query.addEventListener('change', onChange);
+    return () => query.removeEventListener('change', onChange);
+  }, []);
+
+  useEffect(() => {
     const typed = typedRef.current;
     const caret = caretRef.current;
     const halo = haloRef.current;
@@ -124,7 +143,7 @@ export function ReplayCursor() {
       ripples: rippleEls.current[i],
       marks: markEls.current[i],
     }));
-    if (!host || reduce || !typed || !caret || !halo || !window.matchMedia(DESKTOP).matches) return;
+    if (!host || reduce || !wide || !typed || !caret || !halo) return;
     if (parts.some((part) => !part.el || !part.pointer || !part.ripples || !part.marks)) return;
 
     const find = (selector: string) => host.querySelector<HTMLElement>(selector);
@@ -177,7 +196,6 @@ export function ReplayCursor() {
       return box(r);
     };
 
-    // positions are page-relative, so the cursors scroll with the content; this adds the turn, the pill and the push
     let raf = 0;
     const tick = () => {
       for (const [me, other] of [
@@ -209,7 +227,6 @@ export function ReplayCursor() {
           const w = pill.offsetWidth;
           const h = pill.offsetHeight;
           const reach = 26 + (Math.abs(cos) * w) / 2 + (Math.abs(sin) * h) / 2;
-          // kept on the page next to the right edge
           const ox = Math.min(cos * reach, host.clientWidth - 8 - x - w / 2);
           pill.style.transform = `translate(${ox}px, ${sin * reach}px) translate(-50%, -50%)`;
         }
@@ -217,15 +234,18 @@ export function ReplayCursor() {
       raf = requestAnimationFrame(tick);
     };
 
-    // everything waits while none of the three sections is on screen
     const onScreen = new Set<Element>();
     let waiters: (() => void)[] = [];
     const gate = () =>
       onScreen.size
         ? Promise.resolve()
         : new Promise<void>((resolve, reject) => {
-            waiters.push(resolve);
-            signal.addEventListener('abort', () => reject(new Aborted()), { once: true });
+            const onAbort = () => reject(new Aborted());
+            waiters.push(() => {
+              signal.removeEventListener('abort', onAbort);
+              resolve();
+            });
+            signal.addEventListener('abort', onAbort, { once: true });
           });
     const observer = new IntersectionObserver((entries) => {
       for (const entry of entries) {
@@ -246,7 +266,6 @@ export function ReplayCursor() {
       if (section) observer.observe(section);
     }
 
-    /** A slight arc, alternating sides, nose first like a paper plane; `near` fires most of the way there. */
     const glide = (actor: Actor, x: number, y: number, near?: () => void) => {
       const from = actor.pos;
       const dx = x - from.x;
@@ -277,10 +296,6 @@ export function ReplayCursor() {
         actor.moving = false;
       });
     };
-    /**
-     * Flies to a corner of a target, `inset` px in from it, shows its pill on the way in, then settles pointing
-     * diagonally into the target.
-     */
     const approach = async (actor: Actor, b: Box, corner: Corner, pill: () => Pill, inset = 6) => {
       const tip = {
         x: corner.endsWith('left') ? b.left + inset : b.right - inset,
@@ -306,7 +321,7 @@ export function ReplayCursor() {
         typed.textContent += char;
       }
     };
-    /** Drags a text selection across a run of text, drawn over it so nothing is actually selected. */
+    /** Painted rather than a real selection, so the reader's own selection is left alone. */
     const select = async (actor: Actor, node: Text, from: number, to: number) => {
       const range = document.createRange();
       range.setStart(node, from);
@@ -324,7 +339,6 @@ export function ReplayCursor() {
           );
         });
         const last = rects.at(-1);
-        // the tip rides just above the end of the selection
         return last ? { x: last.right - o.left, y: last.top - o.top - 1 } : null;
       };
       const firstRange = document.createRange();
@@ -344,21 +358,24 @@ export function ReplayCursor() {
     };
 
     const runOwner = async () => {
-      const card = find('#controls [data-replay-sample]');
-      const knob = card?.querySelector('[data-replay-knob]');
+      const card = find('#controls [data-cursor-sample]');
+      const knob = card?.querySelector('[data-cursor-knob]');
       const track = knob?.parentElement;
-      const value = card?.querySelector('[data-replay-sample-value]');
+      const value = card?.querySelector('[data-cursor-sample-value]');
       const dots = Array.from(card?.querySelectorAll<HTMLElement>('[data-rank]') ?? []);
-      const row = find('#controls [data-replay-path="/checkout"]');
+      const row = find('#controls [data-cursor-path="/checkout"]');
       const pill = row?.querySelector('b');
-      const onLabel = pill?.textContent;
-      const offLabel = find('#controls [data-replay-path][data-off] b')?.textContent;
-      const edits = Array.from(find('#setup pre')?.querySelectorAll('code span') ?? []).flatMap((token) => {
+      const onLabel = find('#controls [data-cursor-path]:not([data-off]) b')?.textContent;
+      const offLabel = find('#controls [data-cursor-path][data-off] b')?.textContent;
+      const edits = Array.from(host.querySelectorAll('#setup code span')).flatMap((token) => {
         const text = token.textContent ?? '';
         const spec = /^["']\/admin/.test(text) ? URL_ADDED[text[0]] : undefined;
-        return spec ? [{ ...spec, token, base: text.slice(0, text.length - spec.suffix.length), added: '' }] : [];
+        if (!spec) return [];
+        // an earlier run may have left the path added
+        const added = text.endsWith(spec.typed + spec.suffix) ? spec.typed : '';
+        return [{ ...spec, token, base: text.slice(0, text.length - spec.suffix.length - added.length), added }];
       });
-      const consent = textIn(find('#setup ol li:nth-child(2) p'));
+      const consent = textIn(find('#setup [data-cursor-consent]'));
       if (
         !card ||
         !knob ||
@@ -379,7 +396,6 @@ export function ReplayCursor() {
         const lit = Math.round((v / 100) * dots.length);
         for (const dot of dots) dot.toggleAttribute('data-lit', Number(dot.dataset.rank) < lit);
       };
-      /** Rewrites the string token and keeps the caret and the pointer just past what's been typed. */
       const setCode = (edit: (typeof edits)[number], next: string) => {
         edit.added = next;
         edit.token.textContent = `${edit.base}${next}${edit.suffix}`;
@@ -397,9 +413,9 @@ export function ReplayCursor() {
       owner.pos = { x: first.right + 60, y: first.bottom + 80 };
       owner.el.dataset.on = '';
 
-      for (let lap = 0; ; lap++) {
+      for (;;) {
         const from = parseFloat(card.style.getPropertyValue('--sample')) || SAMPLES[0];
-        const to = SAMPLES[(lap + 1) % SAMPLES.length];
+        const to = from < SAMPLES[1] ? SAMPLES[1] : SAMPLES[0];
         await approach(owner, box(knob), 'top-right', () => 'drag');
         const b = box(track);
         const xAt = (v: number) => b.left + (v / 100) * b.width;
@@ -418,8 +434,8 @@ export function ReplayCursor() {
         pill.textContent = off ? offLabel : onLabel;
         await sleep(2400, signal);
 
-        // types into whichever snippet is showing; the consent one has no paths, so it goes straight to the highlight
-        const edit = edits.find(({ token }) => token.closest('code.visible'));
+        // the consent snippet has no path to add
+        const edit = edits.find(({ token }) => token.closest('code[data-active]'));
         if (edit) {
           const text = edit.token.firstChild;
           if (text instanceof Text) await approach(owner, lastChar(text), 'top-right', () => 'input', 0);
@@ -428,12 +444,12 @@ export function ReplayCursor() {
           caret.dataset.on = '';
           const target = edit.added ? '' : edit.typed;
           try {
-            while (edit.added !== target && edit.token.closest('code.visible')) {
+            while (edit.added !== target && edit.token.closest('code[data-active]')) {
               await sleep(edit.added.length < target.length ? CODE_TYPE_MS : 70, signal);
               setCode(edit, target ? target.slice(0, edit.added.length + 1) : edit.added.slice(0, -1));
             }
           } finally {
-            // never leave a snippet half-typed, even when the reader leaves or switches tabs mid-word
+            // never leave the copyable snippet half-typed
             setCode(edit, target);
           }
           delete caret.dataset.on;
@@ -448,15 +464,15 @@ export function ReplayCursor() {
     };
 
     const runShopper = async () => {
-      const postcode = find('#privacy [data-replay-target="postcode"]');
-      const pay = find('#privacy [data-replay-target="pay"]');
-      const row = find('#controls [data-replay-path="/checkout"]');
-      const promise = textIn(find('#privacy ul li:last-child'));
-      const url = find('#controls [data-replay-url]');
-      const routeText = url?.querySelector('[data-replay-route]');
-      const views = Array.from(host.querySelectorAll<HTMLElement>('#controls [data-replay-view]'));
+      const postcode = find('#privacy [data-cursor-target="postcode"]');
+      const pay = find('#privacy [data-cursor-target="pay"]');
+      const row = find('#controls [data-cursor-path="/checkout"]');
+      const promise = textIn(find('#privacy [data-cursor-promise]'));
+      const url = find('#controls [data-cursor-url]');
+      const routeText = url?.querySelector('[data-cursor-route]');
+      const views = Array.from(host.querySelectorAll<HTMLElement>('#controls [data-cursor-view]'));
       if (!postcode || !pay || !row || !promise || !url || !routeText) return;
-      let route = 0;
+      let route = Number(url.dataset.route ?? 0);
 
       await gate();
       await sleep(4200, signal);
@@ -468,11 +484,9 @@ export function ReplayCursor() {
         const f = box(postcode);
         await approach(shopper, f, 'top-left', () => 'input');
         click(shopper);
-        // a replay only ever shows what was typed as asterisks
         await typeInto({ ...f, left: f.left + 10 }, maskText(POSTCODE), TYPE_MS);
         await sleep(2600, signal);
 
-        // the mock checkout lives at /checkout, so while the owner has it left out nothing here is recorded
         let paused = false;
         const p = box(pay);
         await approach(shopper, p, 'top-right', () => {
@@ -520,7 +534,7 @@ export function ReplayCursor() {
       }
       for (const overlay of [typed, caret, halo]) delete overlay.dataset.on;
     };
-  }, [host, reduce]);
+  }, [host, reduce, wide]);
 
   if (!host) return null;
   return createPortal(

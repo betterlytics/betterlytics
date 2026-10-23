@@ -25,7 +25,11 @@ export function MaskingShowcase() {
       <div className='flex flex-col border-r border-rule-10 px-7.5 py-9 transition-ink max-xl:border-r-0 max-xl:border-b max-xl:py-8 max-sm:px-6'>
         <ul className='grid gap-4.5'>
           {POINTS.map((key) => (
-            <li key={key} className='grid grid-cols-[18px_1fr] gap-3 text-body leading-[23px]'>
+            <li
+              key={key}
+              className='grid grid-cols-[18px_1fr] gap-3 text-body leading-[23px]'
+              data-cursor-promise={key === 'storage' || undefined}
+            >
               <Check className='mt-[3px] size-[17px] text-volt-soft' strokeWidth={2.4} aria-hidden />
               {t(`points.${key}`)}
             </li>

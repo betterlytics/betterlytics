@@ -1,6 +1,6 @@
 @reference '../../../landing.css';
 
-/* registered so the divider can sweep in on first view */
+/* registered so it can transition */
 @property --split {
   syntax: '<percentage>';
   inherits: true;
@@ -52,7 +52,7 @@
     translate: -13px 0;
   }
 
-  /* clipped here rather than on the frame, so the pills can hang over its bottom edge */
+  /* clipped here, not on the frame, so the tags can hang over its edge */
   .view {
     position: relative;
     height: 388px;
@@ -65,7 +65,6 @@
     clip-path: inset(0 0 0 var(--split));
   }
 
-  /* the usual before/after look: a white hairline and a round white grip */
   .handle {
     position: absolute;
     top: 0;
@@ -84,7 +83,7 @@
     top: 50%;
     left: 50%;
     width: 36px;
-    /* it sits inside the 2px line, so the base svg max-width: 100% would squash it */
+    /* inside the 2px line, so the base max-width: 100% would squash it */
     max-width: none;
     height: 36px;
     padding: 8px;
@@ -103,7 +102,6 @@
       0 6px 16px rgb(0 0 0 / 0.3);
   }
 
-  /* straddle the frame's bottom edge; on phones there is no room for both, so they stay inside */
   .tag {
     position: absolute;
     z-index: 1;
@@ -138,7 +136,7 @@
     color: var(--color-on-volt);
   }
 
-  /* invisible, over the whole page, so a press anywhere moves the divider and the keys still work */
+  /* invisible and full-size, so a press anywhere moves the divider and the keys still work */
   .range {
     position: absolute;
     inset: 34px 0 0;
@@ -149,7 +147,7 @@
     cursor: ew-resize;
     appearance: none;
   }
-  /* a hairline thumb, so the value under the pointer is where the divider lands */
+  /* hairline thumb, so the divider lands under the pointer */
   .range::-webkit-slider-thumb {
     width: 2px;
     height: 300px;

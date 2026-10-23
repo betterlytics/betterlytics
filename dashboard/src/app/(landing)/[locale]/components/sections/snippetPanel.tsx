@@ -91,9 +91,9 @@ function BoxIcon() {
   );
 }
 
-/** Frame chrome matches AgentTranscript's. */
 type SnippetPanelProps = { snippets?: readonly Snippet[]; label?: string; foot?: readonly FootPart[] };
 
+/** Frame chrome matches AgentTranscript's. */
 export function SnippetPanel({ snippets = SNIPPETS, label, foot = REQUEST }: SnippetPanelProps) {
   const t = useTranslations('landing.network');
   const id = useId();
@@ -166,6 +166,7 @@ export function SnippetPanel({ snippets = SNIPPETS, label, foot = REQUEST }: Sni
             aria-labelledby={tabId(i)}
             tabIndex={0}
             className={cn('col-start-1 row-start-1', i === active ? 'visible' : 'invisible')}
+            data-active={i === active || undefined}
           >
             <Lines code={snippet.code} />
           </code>

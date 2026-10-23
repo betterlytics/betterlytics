@@ -1,7 +1,7 @@
 @reference '../../../landing.css';
 
 @layer components {
-  /* spans #main, under the sticky nav (z-20) and the wall rules */
+  /* under the sticky nav (z-20) and the wall rules */
   .layer {
     position: absolute;
     inset: 0;
@@ -13,7 +13,6 @@
     }
   }
 
-  /* typed into the mock checkout's postcode field; the mock itself is left alone */
   .typed {
     position: absolute;
     display: flex;
@@ -38,7 +37,6 @@
     margin-left: 1px;
     background: #22201e;
   }
-  /* sits in the code snippet while the visitor types into it */
   .caret {
     position: absolute;
     width: 1.5px;
@@ -49,7 +47,6 @@
     opacity: 1;
   }
 
-  /* a text selection, one box per line, drawn over the text */
   .marks i {
     position: absolute;
     border-radius: 2px;
@@ -61,7 +58,6 @@
     opacity: 1;
   }
 
-  /* marks the visitor's spot on the checkout while capture is paused there */
   .halo {
     position: absolute;
     border-radius: 12px;
@@ -87,13 +83,13 @@
   .cursor[data-on] {
     opacity: 1;
   }
-  /* the tip sits on the cursor's origin and the arrow turns around it */
+  /* the tip sits on the origin and the arrow turns around it */
   .pointer {
     position: absolute;
     top: -4.25px;
     left: -4.25px;
     width: 34px;
-    /* the cursor box has no width, so the base svg max-width: 100% would squash it to nothing */
+    /* the cursor box has no width, so the base max-width: 100% would squash it */
     max-width: none;
     height: 34px;
     transform-origin: 4.25px 4.25px;
@@ -106,7 +102,6 @@
     stroke-linejoin: round;
   }
 
-  /* placed around the tip each frame, opposite the way the pointer faces */
   .tag {
     position: absolute;
     top: 0;
@@ -123,7 +118,6 @@
     white-space: nowrap;
     box-shadow: 0 6px 16px rgb(0 0 0 / 0.25);
   }
-  /* the three dots of 'Capture paused', appearing one by one */
   .dots i {
     font-style: normal;
     animation: 1.6s steps(1) infinite;
