@@ -576,7 +576,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
         </Table>
       </div>
 
-      {filteredCount > 0 && table.getPageCount() > 1 && (
+      {filteredCount > 0 && (
         <PaginationControls
           pageIndex={table.getState().pagination.pageIndex}
           totalPages={table.getPageCount()}

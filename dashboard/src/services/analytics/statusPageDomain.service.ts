@@ -22,9 +22,9 @@ export function isOwnNamespace(domain: string): boolean {
 
 /**
  * Authorizes Caddy on-demand TLS for a hostname (called by the `ask` endpoint before issuance).
- * No ownership-verification step: a published status page must own the domain and the
- * dashboard's plan must include custom domains. ACME itself only issues for a host already pointed
- * at us, so pointing the CNAME is the implicit proof.
+ * No ownership-verification step: a published status page of a live dashboard must own the domain
+ * and the dashboard's plan must include custom domains. ACME itself only issues for a host already
+ * pointed at us, so pointing the CNAME is the implicit proof.
  */
 export async function getTlsAuthorization(rawDomain: string): Promise<TlsAuthorization> {
   if (!isFeatureEnabled('enablePublicStatusPages')) return 'unauthorized';
@@ -34,7 +34,7 @@ export async function getTlsAuthorization(rawDomain: string): Promise<TlsAuthori
   if (isOwnNamespace(domain)) return 'forbidden';
 
   const page = await findStatusPageByCustomDomain(domain);
-  if (!page || !page.isPublished) return 'unauthorized';
+  if (!page || !page.isPublished || page.isDashboardDeleted) return 'unauthorized';
 
   const allowed = await canUseStatusPageCustomDomain(page.dashboardId);
   return allowed ? 'authorized' : 'unauthorized';

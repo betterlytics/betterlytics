@@ -1,5 +1,5 @@
 import { VideoOff } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Card, CardContent } from '@/components/ui/card';
 import { BrowserIcon } from '@/components/icons/BrowserIcon';
 import { DeviceIcon } from '@/components/icons/DeviceIcon';
@@ -10,6 +10,7 @@ import { ReplayCard } from './ReplayCard';
 import type { ErrorGroupRow, ErrorGroupSidebarData } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { getUserTimezone } from '@/lib/cookies';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 function StatRow({ label, value }: { label: string; value?: string }) {
   if (!value) return null;
@@ -34,6 +35,7 @@ export async function ErrorDetailSidebar({
 }: ErrorDetailSidebarProps) {
   const t = await getTranslations('errors.detail.sidebar');
   const timeZone = await getUserTimezone();
+  const locale = (await getLocale()) as SupportedLanguages;
   const { browsers, deviceTypes, dailyVolume } = sidebarData;
 
   const browserItems = browsers.map((row) => ({
@@ -56,7 +58,7 @@ export async function ErrorDetailSidebar({
             <dl className='grid grid-cols-2 gap-x-6 gap-y-1.5 lg:grid-cols-1'>
               <StatRow
                 label={t('firstSeen')}
-                value={formatLocalDateTime(errorGroup.first_seen, undefined, {
+                value={formatLocalDateTime(errorGroup.first_seen, locale, {
                   dateStyle: 'medium',
                   timeStyle: 'short',
                   timeZone,
@@ -64,7 +66,7 @@ export async function ErrorDetailSidebar({
               />
               <StatRow
                 label={t('lastSeen')}
-                value={formatLocalDateTime(errorGroup.last_seen, undefined, {
+                value={formatLocalDateTime(errorGroup.last_seen, locale, {
                   dateStyle: 'medium',
                   timeStyle: 'short',
                   timeZone,

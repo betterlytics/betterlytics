@@ -13,7 +13,8 @@ import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 type SessionTrailProps = {
   dashboardId: string;
@@ -43,6 +44,7 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
   const { resolvedTheme } = useTheme();
   const { resolveHref } = useDashboardNavigation();
   const { timeZone } = useTimeRangeContext();
+  const locale = useLocale() as SupportedLanguages;
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
   const utils = trpc.useUtils();
 
@@ -134,7 +136,7 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
                 )}
               >
                 <span className='text-muted-foreground w-16 shrink-0 text-left text-[11px] tabular-nums'>
-                  {formatLocalDateTime(event.timestamp, undefined, { timeStyle: 'medium', timeZone })}
+                  {formatLocalDateTime(event.timestamp, locale, { timeStyle: 'medium', timeZone })}
                 </span>
                 <span className='relative flex h-5 w-5 shrink-0 items-center justify-center'>
                   {!isLast && <span className='bg-border absolute top-full h-[calc(100%+8px)] w-px' />}

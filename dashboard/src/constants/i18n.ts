@@ -6,14 +6,11 @@ export const SUPPORTED_LANGUAGES = ['en', 'da', 'it', 'nb'] as const;
 export type SupportedLanguages = (typeof SUPPORTED_LANGUAGES)[number];
 
 export const LANGUAGE_METADATA = {
-  en: { name: 'English', code: 'GB', ogLocale: 'en_GB', dateFnsLocale: enGB },
-  da: { name: 'Dansk', code: 'DK', ogLocale: 'da_DK', dateFnsLocale: da },
-  it: { name: 'Italiano', code: 'IT', ogLocale: 'it_IT', dateFnsLocale: it },
-  nb: { name: 'Norsk', code: 'NO', ogLocale: 'nb_NO', dateFnsLocale: nb },
-} as const satisfies Record<
-  SupportedLanguages,
-  { name: string; code: string; ogLocale: string; dateFnsLocale: Locale }
->;
+  en: { name: 'English', ogLocale: 'en_GB', dateFnsLocale: enGB },
+  da: { name: 'Dansk', ogLocale: 'da_DK', dateFnsLocale: da },
+  it: { name: 'Italiano', ogLocale: 'it_IT', dateFnsLocale: it },
+  nb: { name: 'Norsk', ogLocale: 'nb_NO', dateFnsLocale: nb },
+} as const satisfies Record<SupportedLanguages, { name: string; ogLocale: string; dateFnsLocale: Locale }>;
 
 export function resolveDateFnsLocale(locale: SupportedLanguages): Locale {
   return LANGUAGE_METADATA[locale]?.dateFnsLocale ?? enGB;

@@ -2436,7 +2436,9 @@
       "chart": {
         "exitAnnotationMode": "Forlat merknadsmodus",
         "enterAnnotationMode": "Legg til merknad",
-        "annotationModeHint": "Klikk på diagrammet for å legge til en merknad"
+        "annotationModeHint": "Klikk på diagrammet for å legge til en merknad",
+        "hideAnnotations": "Skjul merknader",
+        "showAnnotations": "Vis merknader"
       },
       "groupMarker": {
         "clickToSeeAll": "Klikk for å se alle"

@@ -2436,7 +2436,9 @@
       "chart": {
         "exitAnnotationMode": "Exit annotation mode",
         "enterAnnotationMode": "Add annotation",
-        "annotationModeHint": "Click on the chart to add an annotation"
+        "annotationModeHint": "Click on the chart to add an annotation",
+        "hideAnnotations": "Hide annotations",
+        "showAnnotations": "Show annotations"
       },
       "groupMarker": {
         "clickToSeeAll": "Click to see all"
