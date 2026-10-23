@@ -2811,6 +2811,8 @@
         "apply": "Anvend",
         "selectValue": "Vælg en værdi",
         "noValuesForCurrentPeriod": "Ingen værdier fundet for den aktuelle periode",
+        "valuesTruncated": "Viser {shown, number} af {total, number} værdier. Skriv for at søge i resten.",
+        "valuesTruncatedAtLimit": "Viser {shown, number} af {total, number}+ værdier. Skriv for at søge i resten.",
         "savedFilters": "Gemte filtre",
         "noSavedFilters": "Ingen gemte filtre endnu",
         "saveFilters": "Gem",

@@ -103,9 +103,8 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     }
   }, [shouldSearchServer, serverOptions, search]);
 
-  const slicedOptions = useMemo(() => {
-    return filteredOptions.slice(0, 10);
-  }, [filteredOptions]);
+  // A full page means the server stopped at the limit, so more values exist than were returned
+  const isTruncated = filteredOptions.length >= SEARCH_LIMIT;
 
-  return { search, setSearch, isDirty, options: slicedOptions, isLoading };
+  return { search, setSearch, isDirty, options: filteredOptions, isTruncated, isLoading };
 }
