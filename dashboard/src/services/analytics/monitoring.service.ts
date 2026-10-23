@@ -49,15 +49,12 @@ import {
 import { normalizeUptimeBuckets } from '@/presenters/toMonitorMetrics';
 import { formatDayKey } from '@/utils/timezone';
 
-function toUptimeMonitorRef(check: Pick<MonitorCheck, 'id' | 'createdAt' | 'intervalSeconds'>): UptimeMonitorRef {
-  return { checkId: check.id, createdAt: check.createdAt, intervalSeconds: check.intervalSeconds };
+function toUptimeMonitorRef(check: Pick<MonitorCheck, 'id' | 'createdAt'>): UptimeMonitorRef {
+  return { checkId: check.id, createdAt: check.createdAt };
 }
 
 // The last 24 whole hours, ending at the start of the next hour, in hourly buckets
-async function getUptimeBuckets24h(
-  checks: Array<Pick<MonitorCheck, 'id' | 'createdAt' | 'intervalSeconds'>>,
-  siteId: string,
-) {
+async function getUptimeBuckets24h(checks: Array<Pick<MonitorCheck, 'id' | 'createdAt'>>, siteId: string) {
   const hourMs = 60 * 60 * 1000;
   const rangeEnd = new Date(Math.ceil(Date.now() / hourMs) * hourMs);
   const rangeStart = new Date(rangeEnd.getTime() - 24 * hourMs);

@@ -209,6 +209,5 @@ export type PublishedStatusPage = {
     position: number;
     isEnabled: boolean;
     monitorCreatedAt: Date;
-    monitorIntervalSeconds: number;
   }>;
 };

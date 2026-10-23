@@ -6,7 +6,6 @@ vi.mock('@/repositories/postgres/monitoring.repository', () => ({
   getMonitorCheckById: vi.fn(async () => ({
     id: 'monitor-1',
     createdAt: new Date('2026-01-01T00:00:00Z'),
-    intervalSeconds: 300,
   })),
 }));
 vi.mock('@/repositories/postgres/statusPage.repository', () => ({}));
@@ -37,7 +36,7 @@ describe('fetchMonitorDailyUptime', () => {
     await fetchMonitorDailyUptime('monitor-1', 'dashboard-1', 'site-1', timezone, 180);
 
     expect(uptimeBuckets).toHaveBeenCalledWith(
-      [{ checkId: 'monitor-1', createdAt: expect.any(Date), intervalSeconds: 300 }],
+      [{ checkId: 'monitor-1', createdAt: expect.any(Date) }],
       'site-1',
       { rangeStart: new Date(rangeStart), rangeEnd: new Date(rangeEnd), granularity: 'day', timezone },
     );

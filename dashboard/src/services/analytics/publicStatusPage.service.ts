@@ -135,7 +135,6 @@ async function assembleStatusPagePreview(
         position: selection?.position ?? snapshot.monitors.length + index,
         isEnabled: monitor.isEnabled,
         monitorCreatedAt: monitor.createdAt,
-        monitorIntervalSeconds: monitor.intervalSeconds,
       };
     }),
   };
@@ -179,7 +178,6 @@ export async function getStatusPagePreviewDataForDashboard(
       position: index,
       isEnabled: monitor.isEnabled,
       monitorCreatedAt: monitor.createdAt,
-      monitorIntervalSeconds: monitor.intervalSeconds,
     })),
   };
 
@@ -201,11 +199,7 @@ async function assembleStatusPage(
   const [bucketsByCheckId, openIncidents, latestCheckInfo, { publishedIncidents, updatesByIncident }] =
     await Promise.all([
       getUptimeBuckets(
-        monitors.map((monitor) => ({
-          checkId: monitor.monitorCheckId,
-          createdAt: monitor.monitorCreatedAt,
-          intervalSeconds: monitor.monitorIntervalSeconds,
-        })),
+        monitors.map((monitor) => ({ checkId: monitor.monitorCheckId, createdAt: monitor.monitorCreatedAt })),
         siteId,
         { rangeStart, rangeEnd, granularity: 'day', timezone: 'UTC' },
       ),

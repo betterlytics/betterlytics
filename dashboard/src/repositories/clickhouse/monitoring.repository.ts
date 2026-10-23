@@ -60,18 +60,21 @@ function parseIncidentSegmentRow(row: IncidentSegmentRow): MonitorIncidentSegmen
   });
 }
 
-// A probe covers at most its interval (backoff included) plus 20% for jitter, in permille so that
-// interval seconds times it gives milliseconds. Intervals never exceed 24 hours.
+// The wait before the next check may run up to the interval (backoff included) plus 20% for jitter,
+// in permille so that interval seconds times it gives milliseconds. Intervals never exceed 24 hours.
 const PROBE_COVERAGE_PERMILLE = 1200;
-const MAX_PROBE_COVERAGE_MS = 24 * 60 * 60 * PROBE_COVERAGE_PERMILLE;
+// Far enough back to reach the probe whose coverage runs into the range, with room for its duration
+const COVERAGE_LOOKBACK_MS = 24 * 60 * 60 * PROBE_COVERAGE_PERMILLE + 10 * 60 * 1000;
 
-export type UptimeMonitorRef = { checkId: string; createdAt: Date; intervalSeconds: number };
+export type UptimeMonitorRef = { checkId: string; createdAt: Date };
 
 /**
  * Monitored and up seconds per hour or day bucket, for many monitors in one query.
  *
- * Each non-TLS probe result covers the time from its check until the next check, capped at its
- * recorded interval plus 20%. Downtime is incident time inside that coverage, so unmonitored time
+ * Each non-TLS probe result covers the time from its check until the next check, as long as the
+ * next check started within its recorded interval plus 20%; otherwise it covers only that capped
+ * interval. The next check's start is its timestamp minus its latency, since a result is stamped
+ * when its probe finishes, so a slow or timing out probe doesn't eat into the allowance. Downtime is incident time inside that coverage, so unmonitored time
  * (paused, not yet created, our own probing down) counts on neither side of the ratio. Coverage
  * is split across bucket boundaries and clipped to [rangeStart, rangeEnd), to the monitor's
  * creation and to now, so summing the buckets gives the exact range. Only buckets with monitored
@@ -96,10 +99,9 @@ export async function getUptimeBuckets(
       monitors AS (
         SELECT
           tupleElement(m, 1) AS check_id,
-          tupleElement(m, 2) AS created_ms,
-          tupleElement(m, 3) AS configured_interval_seconds
+          tupleElement(m, 2) AS created_ms
         FROM (
-          SELECT arrayJoin(arrayZip({check_ids:Array(String)}, {created_ms:Array(Int64)}, {intervals:Array(UInt32)})) AS m
+          SELECT arrayJoin(arrayZip({check_ids:Array(String)}, {created_ms:Array(Int64)})) AS m
         )
       ),
       probes AS (
@@ -109,6 +111,9 @@ export async function getUptimeBuckets(
           leadInFrame(toNullable(toUnixTimestamp64Milli(ts))) OVER (
             PARTITION BY check_id ORDER BY ts ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
           ) AS next_probe_ms,
+          leadInFrame(toNullable(toInt64(ifNull(latency_ms, 0)))) OVER (
+            PARTITION BY check_id ORDER BY ts ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING
+          ) AS next_latency_ms,
           effective_interval_seconds
         FROM analytics.monitor_results
         WHERE check_id IN {check_ids:Array(String)}
@@ -120,14 +125,14 @@ export async function getUptimeBuckets(
       coverage AS (
         SELECT
           p.check_id AS check_id,
-          p.probe_ms + toInt64(
-            if(p.effective_interval_seconds > 0, p.effective_interval_seconds, m.configured_interval_seconds)
-            * {coverage_permille:UInt32}
-          ) AS capped_ms,
+          p.probe_ms + toInt64(p.effective_interval_seconds * {coverage_permille:UInt32}) AS capped_ms,
           greatest(p.probe_ms, m.created_ms, {range_start_ms:Int64}) AS covered_from_ms,
           least(
-            ifNull(p.next_probe_ms, capped_ms),
-            capped_ms,
+            if(
+              ifNull(p.next_probe_ms - p.next_latency_ms <= capped_ms, 0),
+              assumeNotNull(p.next_probe_ms),
+              capped_ms
+            ),
             {range_end_ms:Int64},
             toUnixTimestamp64Milli(now64(3))
           ) AS covered_to_ms
@@ -191,12 +196,11 @@ export async function getUptimeBuckets(
         ...query.taggedParams,
         check_ids: monitors.map((monitor) => monitor.checkId),
         created_ms: monitors.map((monitor) => monitor.createdAt.getTime()),
-        intervals: monitors.map((monitor) => monitor.intervalSeconds),
         site_id: siteId,
         timezone: options.timezone,
         range_start_ms: rangeStartMs,
         range_end_ms: options.rangeEnd.getTime(),
-        lookback_start_ms: rangeStartMs - MAX_PROBE_COVERAGE_MS,
+        lookback_start_ms: rangeStartMs - COVERAGE_LOOKBACK_MS,
         coverage_permille: PROBE_COVERAGE_PERMILLE,
       },
     })
