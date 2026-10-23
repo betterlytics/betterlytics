@@ -28,7 +28,6 @@ export function SetupPanel() {
   src="${SRC}"
   data-site-id="YOUR_SITE_ID"
 +  data-replay="true"
-+  data-consent-replay="true"
 +  data-replay-sample="20"
 +  data-disable-replay-on-urls="/admin/**"
 +  data-track-errors="true"
@@ -42,7 +41,6 @@ export function SetupPanel() {
 
 betterlytics.init('YOUR_SITE_ID', {
 +  enableSessionReplay: true,
-+  consentReplay: true,
 +  replaySample: 20,
 +  disableReplayOnUrls: ['/admin/**'],
 })`,
@@ -56,7 +54,9 @@ betterlytics.init('YOUR_SITE_ID', {
 +window.betterlytics?.setReplayConsent(true)
 
 // if the visitor changes their mind
-+window.betterlytics?.setReplayConsent(false)`,
++window.betterlytics?.setReplayConsent(false)
+
+// no consent needed? set data-consent-replay="true" on the script tag instead`,
     },
   ];
   return (
