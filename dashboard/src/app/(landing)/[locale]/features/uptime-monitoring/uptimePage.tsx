@@ -146,11 +146,7 @@ export function UptimePage() {
         lede={t('related.lede')}
         items={[
           { key: 'analytics', icon: <MousePointerClick className='size-4' />, href: LINKS.docs },
-          {
-            key: 'replay',
-            icon: <PlayCircle className='size-4' />,
-            href: `${LINKS.docs}/dashboard/session-replay`,
-          },
+          { key: 'replay', icon: <PlayCircle className='size-4' />, href: '/features/session-replay' },
           { key: 'errors', icon: <Bug className='size-4' />, href: `${LINKS.docs}/dashboard/errors` },
           { key: 'vitals', icon: <Gauge className='size-4' />, href: `${LINKS.docs}/dashboard/web-vitals` },
         ]}
