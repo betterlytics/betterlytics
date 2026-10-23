@@ -1941,6 +1941,208 @@
         "primary": "Start recording free",
         "secondary": "Read the replay docs"
       }
+    },
+    "errors": {
+      "seo": {
+        "title": "JavaScript error tracking with session context | Betterlytics",
+        "description": "Catch uncaught errors and failed promises in your visitors' browsers, grouped by stack trace, with the pages and events around each one. Free on every plan."
+      },
+      "hero": {
+        "eyebrow": "Error tracking",
+        "title": "Catch the errors your visitors hit, and see what led to them",
+        "lede": "Betterlytics groups uncaught errors and failed promises by stack trace, and shows what each visitor did before and after. It's free on every plan and runs in the same script as your analytics.",
+        "primary": "Start tracking errors free",
+        "secondary": "Read the docs"
+      },
+      "specs": {
+        "frames": {
+          "unit": "frames",
+          "label": "Grouped by stack",
+          "body": "Errors with the same type and top five stack frames share a group, whatever their message says."
+        },
+        "flood": {
+          "unit": "per 10 sec",
+          "label": "Flood cap",
+          "body": "Each page sends at most 10 errors of one type every 10 seconds, so a runaway loop stays cheap."
+        },
+        "leadUp": {
+          "unit": "min",
+          "label": "Replay lead-up",
+          "body": "With replay on error, consented visits outside your sample still save up to two minutes before the error."
+        },
+        "thesis": {
+          "unit": "script",
+          "label": "Nothing new to install",
+          "body": "The analytics script catches errors too. Add one attribute to turn it on."
+        }
+      },
+      "report": {
+        "title": "From “it doesn't work” to *line 142*",
+        "lede": "Most visitors who hit an error leave without a word, and the few who write in can only describe what they saw. Betterlytics shows you where the code threw, in which browser, and how often.",
+        "guess": "Guessing from bug reports",
+        "fix": "Fixing from the stack trace",
+        "alt": "On the left, vague reports about the pricing page keep streaming past: the same can't-upgrade email three times, a report that choosing a plan does nothing, a support chat, a blurry screenshot, a guess at the browser, a note saying it works on my machine, a P1 ticket saying upgrades have failed since Monday and a support inbox with 14 unread. On the right, the same bug as one error group: a TypeError thrown in selectPlan at line 142 of pricing.tsx and called from onClick in PlanCard.tsx, in Chrome on macOS in Denmark, on /pricing, 1,206 times.",
+        "notes": {
+          "upgrade": "Can't upgrade??",
+          "pricing": "anyone else seeing pricing do nothing?",
+          "dead": "Choose plan does nothing",
+          "screenshot": "screenshot.png",
+          "phone": "same here, but on my phone",
+          "sticky": "Works on my machine",
+          "again": "Re: Re: still broken",
+          "chrome": "I'm on Chrome, I think?",
+          "ticket": "Upgrades failing since Monday",
+          "inbox": "Support inbox",
+          "unread": "{count} unread"
+        },
+        "inApp": "in app",
+        "occurrences": "occurrences"
+      },
+      "trail": {
+        "title": "See what they did *before and after*",
+        "lede": "Every occurrence keeps the session it happened in: the pages, events and other errors from that visit, in order. When the visit was recorded, the replay is one click away.",
+        "alt": "A session trail of eight events. Before the error, the visitor landed on the home page, opened /pricing and picked a plan. The TypeError came one second later, thrown in selectPlan at line 142 of pricing.tsx in Chrome 129 on macOS, on a desktop in Denmark. After it, they reloaded /pricing, picked a plan again, hit the same error and left for /contact.",
+        "label": "Session trail",
+        "count": "{count} events in this session",
+        "before": {
+          "label": "Before",
+          "body": "Landed on the home page, opened pricing and picked a plan."
+        },
+        "thrown": {
+          "label": "The error",
+          "body": "Thrown in selectPlan, line 142 of pricing.tsx. Each occurrence also records the browser, OS, device and country.",
+          "stacktrace": "Stacktrace",
+          "inApp": "in app",
+          "more": "Show {count} more frames",
+          "desktop": "Desktop"
+        },
+        "after": {
+          "label": "After",
+          "body": "Reloaded, hit it again, then left for /contact."
+        }
+      },
+      "triage": {
+        "title": "Work the list *together*",
+        "body": "Statuses live on the dashboard, so the whole team works from one list. Editors and admins resolve or ignore groups, and viewers follow along.",
+        "cta": "Read the dashboard guide",
+        "items": {
+          "status": {
+            "title": "Resolve, ignore, reopen",
+            "body": "Mark groups resolved or ignored one at a time or in bulk. The Unresolved tab is what's left to fix."
+          },
+          "history": {
+            "title": "See who it hits",
+            "body": "Each group keeps 30 days of daily occurrences and its top browsers and device types, so a Safari-only bug stands out from one that hits everyone."
+          },
+          "share": {
+            "title": "Share the exact occurrence",
+            "body": "Share copies a link to the occurrence on screen, so a teammate opens exactly what you're looking at."
+          },
+          "occurrences": {
+            "title": "Step through occurrences",
+            "body": "Page from the newest occurrence back to the first. Each keeps its own time, page, browser, device and country."
+          }
+        },
+        "art": {
+          "selected": "<count></count> selected",
+          "resolve": "Resolve",
+          "ignore": "Ignore",
+          "copied": "Link copied",
+          "occurrenceOf": "Occurrence <number></number> of {total}",
+          "mobile": "Mobile",
+          "history": "Occurrence history",
+          "days": "{count} days",
+          "desktop": "Desktop"
+        }
+      },
+      "agent": {
+        "title": "Hand the bug *to your agent*",
+        "lede": "Errors are in the built-in MCP server, so your agent can read a group's stack trace and session trail right next to your code.",
+        "lead": "From complaint to fix in one question",
+        "body": "Your agent finds the group behind a report, reads the frames and what the visitor did, then proposes a fix in the file the stack points to. You approve the change.",
+        "cta": "Set up MCP"
+      },
+      "setup": {
+        "title": "Start catching with *one* attribute",
+        "lede": "Error tracking runs in the script you already have. Pick what to catch, then copy the snippet.",
+        "lead": "Choose what to catch",
+        "body": "Uncaught errors are the core. The other two are up to you.",
+        "always": "Always on",
+        "options": {
+          "errors": {
+            "title": "Uncaught errors and rejections",
+            "body": "Anything your code throws without catching, and promises that reject with no handler."
+          },
+          "console": {
+            "title": "console.error calls",
+            "body": "Also send what your app logs as an error. Leave it off if your logs can hold personal data."
+          },
+          "replay": {
+            "title": "Replay the lead-up",
+            "body": "Keep up to two minutes before each error as a replay, for visitors who consented to replay."
+          }
+        },
+        "snippetLabel": "Error tracking setup",
+        "cta": "Read the setup guide"
+      },
+      "related": {
+        "lede": "Error tracking is one part of Betterlytics. Everything below shares the script, the login and the bill."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": {
+          "what": {
+            "q": "What is error tracking?",
+            "a": "Error tracking records the JavaScript errors your visitors run into, then groups repeats of the same bug so you can see which ones happen most. Betterlytics catches them with the analytics script you already run, and keeps the session each one happened in."
+          },
+          "free": {
+            "q": "Is error tracking free?",
+            "a": "Yes. It's on every plan, including the free one, and it's included when you self-host. Each error counts as one event toward your monthly limit, like a pageview."
+          },
+          "captured": {
+            "q": "Which errors are captured?",
+            "a": "Uncaught exceptions and unhandled promise rejections, with their type, message and stack trace, plus the page, browser, device and country. You can also capture console.error calls. A failed request is only captured when your code leaves its error unhandled, and failed image or script loads aren't captured."
+          },
+          "filtered": {
+            "q": "Are errors from browser extensions and bots filtered out?",
+            "a": "Yes. The script skips errors whose stack trace points into a browser extension, so a visitor's ad blocker or password manager doesn't show up as your bug. Errors from bots, headless browsers and test tools like Playwright are dropped before they're stored, the same as their pageviews."
+          },
+          "grouped": {
+            "q": "How are errors grouped?",
+            "a": "By the error type and the top five frames of the stack trace: the function, the file and the line. Column numbers, domains and query strings are ignored, so the same bug stays in one group even when its message changes. Errors without a stack trace are grouped by type and message. A deploy that renames your bundles or moves the line starts a new group."
+          },
+          "sourcemaps": {
+            "q": "Do you support source maps?",
+            "a": "No. Stack traces show the code as the browser ran it, so frames from a minified bundle point into the minified file."
+          },
+          "alerts": {
+            "q": "Can I get alerts for new errors?",
+            "a": "No. New errors appear in the Unresolved tab and through the MCP server, but nothing is sent out when one starts. Alerts are available for uptime monitors."
+          },
+          "privacy": {
+            "q": "Does error tracking collect personal data?",
+            "a": "It uses no cookies, like the rest of Betterlytics. Query strings are cut from page and script URLs before anything is stored, and messages and stack traces are trimmed to a fixed length. Messages are kept as your code wrote them, so keep personal data out of them, and leave console capture off if your logs can contain it."
+          },
+          "quota": {
+            "q": "Can a broken loop use up my events?",
+            "a": "Each page sends at most 10 errors of the same type every 10 seconds, so a loop that throws on every frame stays small. Ignoring a group hides it from the list, but new occurrences still count as events until you fix the cause."
+          },
+          "replay": {
+            "q": "How does it work with session replay?",
+            "a": "If a session with an error was recorded, the error links to its replay, where red markers show each error on the timeline. Turn on data-replay-on-error to keep up to two minutes before each error as a replay, even for visits outside your sample, once the visitor has consented to replay."
+          },
+          "dedicated": {
+            "q": "When is a dedicated error tracker the better fit?",
+            "a": "Betterlytics tracks errors in the browser, next to your analytics and replays. If you need source maps, alerts, server-side errors, release health, user-level search or native mobile apps, a dedicated error tracker will serve you better."
+          }
+        }
+      },
+      "cta": {
+        "title": "Catch your first error today",
+        "lede": "Add one attribute to your script tag, then open Errors in your dashboard. Error tracking is free on every plan.",
+        "primary": "Start tracking errors free",
+        "secondary": "Read the error docs"
+      }
     }
   },
   "pricingSlider": {

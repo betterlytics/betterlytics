@@ -1,0 +1,448 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .trail {
+    --row-h: 44px;
+    --time: 66px;
+    --glyph: 22px;
+    --gap: 12px;
+    --gutter: 92px;
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) var(--gutter) minmax(0, 0.85fr);
+    grid-template-rows: auto auto auto auto;
+    padding: 46px 52px 52px;
+    @apply bg-hatch;
+    @media (width < 85rem) {
+      --gutter: 76px;
+      padding-inline: 36px;
+    }
+    @variant max-3xl {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      padding: 32px 30px 36px;
+    }
+    @variant max-sm {
+      padding: 24px var(--pad) 28px;
+    }
+  }
+
+  .card {
+    position: relative;
+    grid-column: 1;
+    grid-row: 1 / -1;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 14px;
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4%), --alpha(var(--color-fg) / 1.2%));
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 18px 44px rgb(0 0 0 / 0.42);
+    @variant max-3xl {
+      display: none;
+    }
+  }
+  /* the spine; glyphs sit on it with an opaque fill */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 70px;
+    bottom: 34px;
+    /* the group's 10px and the entry's 11px padding, less the card's 1px border */
+    left: calc(21px + var(--time) + var(--gap) + var(--glyph) / 2 - 1.5px);
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      --alpha(var(--color-fg) / 13%),
+      --alpha(var(--color-fg) / 13%) 92%,
+      transparent
+    );
+  }
+
+  .head {
+    position: relative;
+    z-index: 1;
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 17px 22px 15px;
+    border-bottom: 1px solid --alpha(var(--color-fg) / 7%);
+    @variant max-3xl {
+      grid-row: auto;
+      padding: 0 4px 12px;
+      border: 0;
+    }
+  }
+  .head b {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .head span {
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+
+  .group {
+    position: relative;
+    z-index: 1;
+    grid-column: 1;
+    grid-row: var(--row);
+    align-self: center;
+    padding: 12px 10px;
+    /* on one column the notes interleave, so each stretch of the trail is its own card */
+    @variant max-3xl {
+      grid-row: auto;
+      padding: 8px;
+      border: 1px solid var(--color-rule-10);
+      border-radius: 14px;
+      background: var(--color-canvas);
+    }
+  }
+
+  .entry {
+    display: grid;
+    grid-template-columns: var(--time) var(--glyph) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--gap);
+    height: var(--row-h);
+    padding: 0 11px;
+    border-radius: 9px;
+    font-size: 13px;
+    transition:
+      opacity 0.5s var(--ease-out-expo),
+      translate 0.6s var(--ease-out-expo);
+    transition-delay: calc(0.15s + var(--i) * 85ms);
+    @variant max-sm {
+      grid-template-columns: 54px var(--glyph) minmax(0, 1fr);
+      gap: 10px;
+      padding: 0 8px;
+    }
+  }
+  .entry time {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+    @variant max-sm {
+      font-size: 10.5px;
+    }
+  }
+  .glyph {
+    display: grid;
+    place-items: center;
+    width: var(--glyph);
+    height: var(--glyph);
+    border: 1px solid --alpha(var(--color-fg) / 11%);
+    border-radius: 50%;
+    background: var(--color-panel);
+  }
+  .glyph svg {
+    width: 12px;
+    height: 12px;
+  }
+  .entry[data-kind='page'] .glyph {
+    color: #38bdf8;
+  }
+  .entry[data-kind='event'] .glyph {
+    color: #a78bfa;
+  }
+  .entry[data-kind='error'] .glyph {
+    border-color: --alpha(#f87171 / 35%);
+    background: #2a1a1c;
+    color: #f87171;
+  }
+  .label {
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--color-fg);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .entry[data-kind='error'] .label {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: rgb(248 113 113 / 0.72);
+  }
+  .entry[data-kind='error'] .label b {
+    font-weight: 600;
+    color: #f87171;
+  }
+  .entry[data-current] {
+    background: --alpha(var(--color-down) / 11%);
+    box-shadow:
+      inset 2px 0 0 var(--color-down),
+      0 0 0 1px --alpha(var(--color-down) / 16%);
+  }
+
+  /* the bracket opens toward its stretch of the trail, past the card's edge; the stem runs on to the note */
+  .group::after,
+  .group::before {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    transition:
+      opacity 0.5s var(--ease-out-expo) calc(0.25s + var(--i) * 85ms),
+      border-color 0.25s var(--ease-out-expo),
+      background-color 0.25s var(--ease-out-expo);
+    @variant max-3xl {
+      display: none;
+    }
+  }
+  .group::after {
+    left: calc(100% + 15px);
+    top: 16px;
+    bottom: 16px;
+    width: 16px;
+    border: 1px solid var(--color-rule-22);
+    border-left: 0;
+    border-radius: 0 7px 7px 0;
+  }
+  .group::before {
+    left: calc(100% + 31px);
+    top: 50%;
+    width: calc(var(--gutter) - 31px);
+    height: 1px;
+    background: var(--color-rule-22);
+  }
+  .group[data-error]::after {
+    border-color: --alpha(#f87171 / 50%);
+  }
+  .group[data-error]::before {
+    background: --alpha(#f87171 / 50%);
+  }
+
+  /* hovering a stretch, its bracket or its note lights all three; the bracket hit-tests as the group */
+  @media (hover: hover) {
+    .group::after,
+    .group::before {
+      pointer-events: auto;
+    }
+    :is(.group:hover, .group:has(+ .note:hover))::after {
+      border-color: var(--color-muted);
+    }
+    :is(.group:hover, .group:has(+ .note:hover))::before {
+      background: var(--color-muted);
+    }
+    .group[data-error]:is(:hover, :has(+ .note:hover))::after {
+      border-color: #f87171;
+    }
+    .group[data-error]:is(:hover, :has(+ .note:hover))::before {
+      background: #f87171;
+    }
+    :is(.group:hover, .group:has(+ .note:hover)) .entry:not([data-current]) {
+      background: --alpha(var(--color-fg) / 3.5%);
+    }
+    :is(.group:hover + .note, .note:hover) :is(.noteLabel, .noteBody) {
+      color: var(--color-fg);
+    }
+    :is(.group[data-error]:hover + .note, .thrownNote:hover) .noteLabel {
+      color: #fca5a5;
+    }
+  }
+
+  /* starts under the label column, so the spine runs past it */
+  .detail {
+    padding: 4px 4px 6px calc(11px + var(--time) + var(--gap) + var(--glyph) + var(--gap));
+    transition:
+      opacity 0.5s var(--ease-out-expo),
+      translate 0.6s var(--ease-out-expo);
+    transition-delay: calc(0.15s + var(--i) * 85ms);
+    @variant max-sm {
+      padding-left: 8px;
+    }
+  }
+
+  .note {
+    position: relative;
+    z-index: 1;
+    grid-column: 3;
+    grid-row: var(--row);
+    align-self: center;
+    min-width: 0;
+    padding: 16px 0 16px 16px;
+    transition:
+      opacity 0.55s var(--ease-out-expo),
+      translate 0.7s var(--ease-out-expo);
+    transition-delay: calc(0.3s + var(--i) * 85ms);
+    @variant max-3xl {
+      grid-column: 1;
+      grid-row: auto;
+      padding: 18px 0 30px 18px;
+      margin-left: 22px;
+      border-left: 1px solid var(--color-rule-22);
+    }
+    @variant max-sm {
+      margin-left: 14px;
+      padding-left: 14px;
+    }
+  }
+  .noteLabel {
+    display: block;
+    margin-bottom: 7px;
+    font-size: var(--text-label);
+    font-weight: 500;
+    letter-spacing: var(--tracking-ui);
+    color: var(--color-muted);
+    transition: color 0.25s var(--ease-out-expo);
+  }
+  .thrownNote .noteLabel {
+    color: #f87171;
+  }
+  .afterNote {
+    padding-block: 0;
+  }
+  .noteBody {
+    max-width: 40ch;
+    font-size: 16px;
+    line-height: 25px;
+    letter-spacing: -0.15px;
+    color: --alpha(var(--color-fg) / 88%);
+    text-wrap: pretty;
+    transition: color 0.25s var(--ease-out-expo);
+  }
+
+  .stack {
+    overflow: hidden;
+    border: 1px solid --alpha(var(--color-fg) / 8%);
+    border-radius: 10px;
+    background: rgb(0 0 0 / 0.16);
+  }
+  .stackHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 14px 10px;
+    border-bottom: 1px solid --alpha(var(--color-fg) / 7%);
+    font-size: 12.5px;
+  }
+  .stackHead b {
+    font-weight: 500;
+  }
+  .stackHead span {
+    padding: 1px 7px;
+    border: 1px solid --alpha(var(--color-fg) / 9%);
+    border-radius: 5px;
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: var(--color-muted);
+  }
+  .frame {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 14px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .frame + .frame {
+    border-top: 1px solid --alpha(var(--color-fg) / 5%);
+  }
+  .frame:first-child {
+    background: --alpha(var(--color-down) / 7%);
+    box-shadow: inset 2px 0 0 var(--color-down);
+  }
+  .frame[data-lib] {
+    background: rgb(0 0 0 / 0.18);
+  }
+  .frameLine {
+    text-align: right;
+    opacity: 0.6;
+    font-variant-numeric: tabular-nums;
+  }
+  .frame:first-child .frameLine {
+    opacity: 1;
+    color: var(--color-fg);
+  }
+  .call {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .call b {
+    font-weight: 500;
+  }
+  .frame:first-child .call b {
+    color: var(--color-fg);
+  }
+  .frame[data-lib] .call {
+    opacity: 0.6;
+  }
+  .inApp {
+    padding: 1px 7px;
+    border: 1px solid --alpha(var(--color-fg) / 10%);
+    border-radius: 5px;
+    background: --alpha(var(--color-fg) / 6%);
+    font-family: var(--font-sans);
+    font-size: 10px;
+    color: var(--color-fg);
+  }
+  .more {
+    display: block;
+    padding: 8px 14px 10px;
+    border-top: 1px solid --alpha(var(--color-fg) / 5%);
+    font-size: 11.5px;
+    color: var(--color-volt-text);
+  }
+
+  .context {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .context span {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 26px;
+    padding: 0 10px;
+    border: 1px solid --alpha(var(--color-fg) / 9%);
+    border-radius: 7px;
+    background: --alpha(var(--color-fg) / 3%);
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .trail:not([data-in]) :is(.entry, .detail) {
+      opacity: 0;
+      translate: -8px 0;
+    }
+    .trail:not([data-in]) .group::after,
+    .trail:not([data-in]) .group::before {
+      opacity: 0;
+    }
+    .trail:not([data-in]) .note {
+      opacity: 0;
+      translate: 10px 0;
+    }
+    .trail[data-in] .entry[data-current] {
+      animation: trail-flash 1.4s var(--ease-out-expo) calc(0.4s + var(--i) * 85ms) both;
+    }
+  }
+  /* the file paints in currentColor, which an <img> can't inherit, so it masks the text colour instead */
+  .apple {
+    width: 13px;
+    height: 13px;
+    background: currentColor;
+    -webkit-mask: url(/os-icons/apple-dark.svg) center / 100% 100% no-repeat;
+    mask: url(/os-icons/apple-dark.svg) center / 100% 100% no-repeat;
+  }
+}
+
+@keyframes trail-flash {
+  0%,
+  100% {
+    background-color: rgb(226 88 107 / 0.11);
+  }
+  30% {
+    background-color: rgb(226 88 107 / 0.26);
+  }
+}
