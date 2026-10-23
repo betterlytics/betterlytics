@@ -42,8 +42,8 @@ function formatMonitor(summary: MonitorRangeSummary) {
     backoff_level: summary.backoffLevel,
     uptime: {
       percent: floorUptime(summary.uptimePercent, 2),
-      up_seconds: summary.uptimeSeconds,
-      measured_seconds: summary.monitoredSeconds,
+      up_seconds: round(summary.uptimeSeconds, 3),
+      measured_seconds: round(summary.monitoredSeconds, 3),
     },
     response_time_ms: {
       avg: round(summary.latency.avgMs, 1),

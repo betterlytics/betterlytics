@@ -190,6 +190,14 @@ describe('executeListMonitors', () => {
     );
   });
 
+  it('rounds the seconds to milliseconds', async () => {
+    getSummaries.mockResolvedValue([{ ...summary, uptimeSeconds: 250211.99899999998, monitoredSeconds: 259212 }]);
+
+    const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
+
+    expect(result.monitors[0].uptime).toMatchObject({ up_seconds: 250211.999, measured_seconds: 259212 });
+  });
+
   it('reports null uptime when nothing was measured', async () => {
     getSummaries.mockResolvedValue([{ ...summary, uptimePercent: null, uptimeSeconds: 0, monitoredSeconds: 0 }]);
 
