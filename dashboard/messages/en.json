@@ -1734,7 +1734,7 @@
         "history": {
           "unit": "days",
           "label": "Replay history",
-          "body": "Recordings stay in your dashboard for 60 days on Betterlytics Cloud."
+          "body": "Recordings stay in your dashboard for 60 days."
         },
         "cookies": {
           "unit": "cookies",
@@ -1884,7 +1884,7 @@
           },
           "free": {
             "q": "Is session replay free?",
-            "a": "Yes. Session replay is included on <link>every plan</link>, including the free one, and recordings don't count toward your monthly events. It's included when you self-host too."
+            "a": "Yes. Session replay is included on <link>every plan</link>, including the free one, and recordings don't count toward your monthly events."
           },
           "consent": {
             "q": "Do I need consent for session replay?",
@@ -1908,7 +1908,7 @@
           },
           "history": {
             "q": "How long are replays kept?",
-            "a": "60 days on Betterlytics Cloud. When you self-host, you choose the retention with REPLAY_RETENTION_DAYS."
+            "a": "60 days. After that they're deleted for good."
           },
           "mobile": {
             "q": "Does it work in mobile apps?",
