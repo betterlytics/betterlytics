@@ -8565,8 +8565,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return buildChunk(events, lastEventTs, firstEventTs);
     }
 
-    // Number of leading events that fit in one chunk; an event over the target goes alone
-    function chunkLength(sizes) {
+    // Number of leading events that fit in one chunk; an event over the target goes alone.
+    // A Meta event always shares its chunk with the full snapshot after it, since the player
+    // needs both in the first segment it loads.
+    function chunkLength(events, sizes) {
       var count = 0;
       var bytes = 0;
       while (
@@ -8574,6 +8576,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
         (count === 0 || bytes + sizes[count] <= config.maxUncompressedBytes)
       ) {
         bytes += sizes[count];
+        count++;
+      }
+      if (count < events.length && events[count - 1] && events[count - 1].type === 4) {
         count++;
       }
       return count;
@@ -8594,7 +8599,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         if (state.buffer.length === 0) return Promise.resolve();
         if (!hasReachedMinDuration()) return Promise.resolve();
 
-        var count = chunkLength(state.bufferSizes);
+        var count = chunkLength(state.buffer, state.bufferSizes);
         var events = state.buffer.splice(0, count);
         state.bufferSizes.splice(0, count).forEach(function (size) {
           state.approxBytes -= size;
@@ -8709,7 +8714,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       });
       var groups = [];
       while (events.length > 0) {
-        var count = chunkLength(sizes);
+        var count = chunkLength(events, sizes);
         sizes.splice(0, count);
         groups.push(events.splice(0, count));
       }
