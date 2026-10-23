@@ -3,7 +3,7 @@ import { getBoss } from '@/lib/pgboss';
 import { workerEnv } from '@/lib/env/worker.env';
 import { register } from '@/worker/metrics';
 import { registerWorkersOnce } from '@/worker/runtime';
-import { registerTracing } from '@/observability/otel';
+import { flushTracing, registerTracing } from '@/observability/otel';
 
 async function main() {
   if (!workerEnv.BACKGROUND_JOBS_ENABLED) {
@@ -67,9 +67,11 @@ async function main() {
     try {
       await boss.stop({ graceful: true, timeout: 25_000 });
       console.info('Worker stopped');
+      await flushTracing();
       process.exit(0);
     } catch (err) {
       console.error({ event: 'worker:shutdown-failed', err });
+      await flushTracing();
       process.exit(1);
     }
   };
