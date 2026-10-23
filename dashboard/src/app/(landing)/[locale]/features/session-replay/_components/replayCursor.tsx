@@ -376,19 +376,7 @@ export function ReplayCursor() {
         return [{ ...spec, token, base: text.slice(0, text.length - spec.suffix.length - added.length), added }];
       });
       const consent = textIn(find('#setup [data-cursor-consent]'));
-      if (
-        !card ||
-        !knob ||
-        !track ||
-        !value ||
-        !row ||
-        !pill ||
-        !onLabel ||
-        !offLabel ||
-        !edits.length ||
-        !consent
-      )
-        return;
+      if (!card || !knob || !track || !value || !row || !pill || !onLabel || !offLabel || !consent) return;
 
       const setSample = (v: number) => {
         card.style.setProperty('--sample', String(v));
