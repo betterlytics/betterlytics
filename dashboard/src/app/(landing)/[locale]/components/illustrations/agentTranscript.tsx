@@ -20,13 +20,14 @@ type Step =
 
 type Translate = ReturnType<typeof useTranslations<'landing.illustrations.transcript'>>;
 
-export type ScriptKey = 'redesign' | 'outage' | 'sources' | 'investigate';
+export type ScriptKey = 'redesign' | 'outage' | 'sources' | 'investigate' | 'debug';
 
 /** The first script played is also the static state (no JS or reduced motion). */
 const DEFAULT_SCRIPTS: ScriptKey[] = ['redesign', 'outage', 'sources'];
 
-const buildScripts = (t: Translate): Record<ScriptKey, Step[]> => ({
-  redesign: [
+/** Built on demand, so a page only reads the messages of the scripts it plays. */
+const SCRIPTS = {
+  redesign: (t: Translate): Step[] => [
     { kind: 'question', text: t('redesign.question') },
     { kind: 'working', ms: 900 },
     { kind: 'say', text: t('redesign.say') },
@@ -40,7 +41,7 @@ const buildScripts = (t: Translate): Record<ScriptKey, Step[]> => ({
     { kind: 'result', text: t('redesign.errors') },
     { kind: 'answer', text: t('redesign.answer') },
   ],
-  outage: [
+  outage: (t: Translate): Step[] => [
     { kind: 'question', text: t('outage.question') },
     { kind: 'working', ms: 900 },
     { kind: 'say', text: t('outage.say') },
@@ -58,7 +59,7 @@ const buildScripts = (t: Translate): Record<ScriptKey, Step[]> => ({
     { kind: 'result', text: t('outage.purchases') },
     { kind: 'answer', text: t('outage.answer') },
   ],
-  sources: [
+  sources: (t: Translate): Step[] => [
     { kind: 'question', text: t('sources.question') },
     { kind: 'working', ms: 900 },
     { kind: 'say', text: t('sources.say') },
@@ -76,7 +77,7 @@ const buildScripts = (t: Translate): Record<ScriptKey, Step[]> => ({
     { kind: 'result', text: t('sources.signups') },
     { kind: 'answer', text: t('sources.answer') },
   ],
-  investigate: [
+  investigate: (t: Translate): Step[] => [
     { kind: 'question', text: t('investigate.question') },
     { kind: 'working', ms: 900 },
     { kind: 'say', text: t('investigate.say') },
@@ -95,7 +96,23 @@ const buildScripts = (t: Translate): Record<ScriptKey, Step[]> => ({
     { kind: 'result', text: t('investigate.commits') },
     { kind: 'answer', text: t('investigate.answer') },
   ],
-});
+  debug: (t: Translate): Step[] => [
+    { kind: 'question', text: t('debug.question') },
+    { kind: 'working', ms: 900 },
+    { kind: 'say', text: t('debug.say') },
+    { kind: 'tool', name: 'betterlytics – list_errors', args: '(filters: [url = "/pricing"], timeRange: "24h")' },
+    { kind: 'result', text: t('debug.errors') },
+    {
+      kind: 'tool',
+      name: 'betterlytics – get_error',
+      args: '(fingerprint: "a91f2c…e07", includeBreadcrumbs: true)',
+    },
+    { kind: 'result', text: t('debug.trace') },
+    { kind: 'tool', name: 'Read', args: '(src/pricing.tsx)', mcp: false },
+    { kind: 'result', text: t('debug.code') },
+    { kind: 'answer', text: t('debug.answer') },
+  ],
+} satisfies Record<ScriptKey, unknown>;
 
 /** In ms; question and answer are per character. */
 const PACE = {
@@ -239,9 +256,8 @@ export function AgentTranscript({
   const reduce = useReducedMotion();
   const live = onScreen && !reduce;
   const t = useTranslations('landing.illustrations.transcript');
-  const all = useMemo(() => buildScripts(t), [t]);
   // `only` must be a stable array (a module constant), or every render restarts the script
-  const scripts = useMemo(() => only.map((key) => all[key]), [all, only]);
+  const scripts = useMemo(() => only.map((key) => SCRIPTS[key](t)), [t, only]);
   const timelines = useMemo(() => scripts.map(toTimeline), [scripts]);
   const [script, setScript] = useState(0);
   const elapsed = useRef(0);
