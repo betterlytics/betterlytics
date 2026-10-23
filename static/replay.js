@@ -8820,7 +8820,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
         }
       } else if (enableReplayOnError) {
         // Case 2: maintain two-segment ring buffer, no periodic flushes.
-        if (isCheckout && e.type === 2) {
+        // Rotate on the checkout's Meta so each segment starts with Meta + FullSnapshot.
+        if (isCheckout && e.type === 4) {
           state.errorMatrix.push([]);
           if (state.errorMatrix.length > 2) state.errorMatrix.shift();
         }
