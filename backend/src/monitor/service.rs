@@ -7,6 +7,7 @@ use tracing::{debug, info, warn};
 use super::alert::{
     Alert, AlertContext, AlertDispatcher, AlertHistoryWriter, NotificationTracker,
 };
+use super::alert::dispatcher::expiry_bucket;
 use crate::jobqueue::JobQueue;
 use crate::monitor::incident::{
     IncidentEvaluator, IncidentEvaluatorConfig, IncidentEvent, IncidentStore,
@@ -406,7 +407,7 @@ impl IncidentOrchestrator {
             NotificationEvent {
                 dashboard_id: ctx.check.dashboard_id.clone(),
                 monitor_id: ctx.check.id.to_string(),
-                event_key: format!("ssl_{}:{}", if expired { "expired" } else { "expiring" }, ctx.check.id),
+                event_key: ssl_event_key(&ctx.check.id, expired, ctx.tls_not_after, days_left),
                 strategy: DeliveryStrategy::Once,
                 notification: Notification {
                     title: ssl_title,
@@ -502,6 +503,22 @@ impl IncidentOrchestrator {
     }
 }
 
+/// Send-once key for integrations: one per certificate when expired, one per milestone of a
+/// certificate when expiring, so a renewed certificate or the next milestone alerts again.
+fn ssl_event_key(
+    check_id: &str,
+    expired: bool,
+    expiry_date: Option<chrono::DateTime<chrono::Utc>>,
+    days_left: i32,
+) -> String {
+    let expiry = expiry_bucket(expiry_date);
+    if expired {
+        format!("ssl_expired:{check_id}:{expiry}")
+    } else {
+        format!("ssl_expiring:{check_id}:{expiry}:{days_left}")
+    }
+}
+
 fn humanize_duration(d: Duration) -> String {
     let total_secs = d.num_seconds();
     if total_secs < 60 {
@@ -517,5 +534,43 @@ fn humanize_duration(d: Duration) -> String {
         } else {
             format!("{hours}h")
         }
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::{TimeZone, Utc};
+
+    #[test]
+    fn ssl_event_keys_are_per_certificate_and_milestone() {
+        let cert = Utc.with_ymd_and_hms(2026, 1, 1, 0, 0, 0).unwrap();
+        let renewed = Utc.with_ymd_and_hms(2026, 4, 1, 0, 0, 0).unwrap();
+
+        assert_eq!(
+            ssl_event_key("check-1", true, Some(cert), -3),
+            format!("ssl_expired:check-1:{}", cert.timestamp())
+        );
+        // The expired key ignores days_left, so the same certificate alerts once
+        assert_eq!(
+            ssl_event_key("check-1", true, Some(cert), -3),
+            ssl_event_key("check-1", true, Some(cert), -40)
+        );
+        assert_ne!(
+            ssl_event_key("check-1", true, Some(cert), -3),
+            ssl_event_key("check-1", true, Some(renewed), -3)
+        );
+
+        assert_eq!(
+            ssl_event_key("check-1", false, Some(cert), 14),
+            format!("ssl_expiring:check-1:{}:14", cert.timestamp())
+        );
+        assert_ne!(
+            ssl_event_key("check-1", false, Some(cert), 14),
+            ssl_event_key("check-1", false, Some(cert), 7)
+        );
+        assert_ne!(
+            ssl_event_key("check-1", false, Some(cert), 14),
+            ssl_event_key("check-1", false, Some(renewed), 14)
+        );
     }
 }
