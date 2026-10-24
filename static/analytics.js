@@ -526,6 +526,41 @@
     });
 
     if (enableConsoleErrors) {
+      // Error.isError also accepts DOMExceptions and Errors from other frames. Without it, the tag check
+      // rejects objects faking it with Symbol.toStringTag, and DOMException's code getter throws for non-DOMExceptions
+      function isError(a) {
+        if (a == null || typeof a !== "object") return false;
+        if (Error.isError) return Error.isError(a);
+        if (a instanceof Error) return true;
+        if (Object.prototype.toString.call(a) === "[object Error]")
+          return !(Symbol.toStringTag in a);
+        try {
+          Object.getOwnPropertyDescriptor(DOMException.prototype, "code").get.call(a);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function formatError(e) {
+        var name = e.name ? String(e.name) : "Error";
+        var message = e.message != null ? String(e.message) : "";
+        return message ? name + ": " + message : name;
+      }
+
+      // Errors serialize to {}, so write them as text; circular objects and BigInts throw, so fall back to String
+      function formatArg(a) {
+        if (isError(a)) return formatError(a);
+        if (a == null || typeof a !== "object") return String(a);
+        try {
+          return JSON.stringify(a, function (k, v) {
+            return isError(v) ? formatError(v) : v;
+          });
+        } catch (e) {
+          return String(a);
+        }
+      }
+
       var _origConsoleError = console.error;
       var _inConsoleCapture = false;
       console.error = function () {
@@ -535,26 +570,42 @@
         try {
           var args = Array.prototype.slice.call(arguments);
           var first = args[0];
-          if (first != null && typeof first === "object") {
+          if (isError(first)) {
+            var message = String(first.message);
+            if (args.length > 1) {
+              message =
+                (message ? message + " " : "") +
+                args.slice(1).map(formatArg).join(" ");
+            }
+            captureError(
+              { name: first.name, message: message, stack: first.stack },
+              "onconsole",
+            );
+          } else if (first != null && typeof first === "object") {
             if (!first.name) {
               first = Object.assign({ name: "ConsoleError" }, first);
             }
+            if (first.message == null) {
+              first = {
+                name: first.name,
+                message: formatArg(first),
+                stack: first.stack,
+              };
+            }
             captureError(first, "onconsole");
           } else {
+            var firstError = args.filter(isError)[0];
             captureError(
               {
                 name: "ConsoleError",
-                message: args
-                  .map(function (a) {
-                    return typeof a === "object"
-                      ? JSON.stringify(a)
-                      : String(a);
-                  })
-                  .join(" "),
+                message: args.map(formatArg).join(" "),
+                stack: firstError ? firstError.stack : undefined,
               },
               "onconsole",
             );
           }
+        } catch (e) {
+          // Capture must never throw into the page's console.error call
         } finally {
           _inConsoleCapture = false;
         }
