@@ -1713,7 +1713,7 @@
       "hero": {
         "eyebrow": "Session replay",
         "title": "Se hvor dine besøgende sidder fast, og hvad der stoppede dem",
-        "lede": "Afspil rigtige besøg klik for klik. Rage clicks bliver markeret, og al tekst og alle indtastninger maskeres, før noget forlader browseren. Gratis i alle planer og i samme dashboard som din trafik og dine fejl.",
+        "lede": "Afspil rigtige besøg klik for klik. Rage clicks bliver markeret, og al tekst og alle indtastninger maskeres, før noget forlader browseren. Gratis i alle planer og samlet i ét dashboard med din trafik og dine fejl.",
         "primary": "Begynd at optage gratis",
         "secondary": "Læs dokumentationen"
       },
@@ -1761,7 +1761,7 @@
           "error": {
             "time": "10:03",
             "title": "Betalingen fejler",
-            "body": "En JavaScript-fejl stopper betalingen. Fejlsporing logger den sammen med siden, browseren og den kode, der fejlede."
+            "body": "En JavaScript-fejl stopper betalingen. Fejlsporingen logger den sammen med siden, browseren og den kode, der fejlede."
           },
           "ready": {
             "time": "10:05",
@@ -1828,7 +1828,7 @@
         },
         "items": {
           "sample": {
-            "title": "Vælg hvor meget der optages",
+            "title": "Vælg stikprøvens størrelse",
             "body": "Optag en lille andel af besøgene eller dem alle. Hvert besøg bliver optaget helt eller slet ikke."
           },
           "errors": {
@@ -1910,7 +1910,7 @@
           },
           "rage": {
             "q": "Opdager det rage clicks?",
-            "a": "Ja. Når en besøgende klikker på det samme sted igen og igen, markerer Betterlytics det som et rage click (raseriklik). Du ser det på replayets tidslinje og som et antal i listen over replays, så frustrerede besøgende er nemme at finde."
+            "a": "Ja. Når en besøgende klikker på det samme sted igen og igen, markerer Betterlytics det som et rage click (raseriklik). Du ser det på replayets tidslinje, og antallet står i listen over replays, så frustrerede besøgende er nemme at finde."
           },
           "history": {
             "q": "Hvor længe gemmes optagelserne?",
