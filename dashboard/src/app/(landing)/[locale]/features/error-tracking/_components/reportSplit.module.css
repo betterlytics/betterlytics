@@ -174,8 +174,7 @@
       left: 0;
       animation: report-fly var(--dur) linear var(--delay) infinite;
     }
-    .split:not([data-live]) .flyer,
-    .guess:hover .flyer {
+    .split:not([data-live]) .flyer {
       animation-play-state: paused;
     }
   }
