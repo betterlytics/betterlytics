@@ -131,7 +131,7 @@ export function SessionTrail() {
                   <li key={frame.fn} className={styles.frame}>
                     <span className={styles.frameLine}>{frame.line}</span>
                     <span className={styles.call}>
-                      at <b>{frame.fn}</b> ({frame.file}:{frame.col})
+                      at <b>{frame.fn}</b> ({frame.file})
                     </span>
                     <span className={styles.inApp}>{t('thrown.inApp')}</span>
                   </li>

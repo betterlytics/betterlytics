@@ -11,7 +11,7 @@ import { FLAGS } from './flags';
 
 /* Mock data, deliberately untranslated. */
 
-type Frame = { line: number; fn: string; file: string; col: number };
+type Frame = { line: number; fn: string; file: string };
 type Step = { at: string; label: string };
 type Group = {
   type: string;
@@ -31,9 +31,9 @@ const RESOLVED: Group = {
   ],
   thrownAt: '09:41:53',
   frames: [
-    { line: 31, fn: 'sendMessage', file: 'contact.js', col: 9 },
-    { line: 24, fn: 'onSubmit', file: 'contact-form.js', col: 5 },
-    { line: 7, fn: 'handleSubmit', file: 'contact-form.js', col: 3 },
+    { line: 31, fn: 'sendMessage', file: 'contact.js' },
+    { line: 24, fn: 'onSubmit', file: 'contact-form.js' },
+    { line: 7, fn: 'handleSubmit', file: 'contact-form.js' },
   ],
 };
 const QUIETER: Group = {
@@ -45,9 +45,9 @@ const QUIETER: Group = {
   ],
   thrownAt: '08:58:45',
   frames: [
-    { line: 87, fn: 'mountCardForm', file: 'checkout.js', col: 16 },
-    { line: 52, fn: 'onPayClick', file: 'checkout.js', col: 3 },
-    { line: 12, fn: 'handleClick', file: 'checkout.js', col: 5 },
+    { line: 87, fn: 'mountCardForm', file: 'checkout.js' },
+    { line: 52, fn: 'onPayClick', file: 'checkout.js' },
+    { line: 12, fn: 'handleClick', file: 'checkout.js' },
   ],
 };
 const FIRING: Group = {
@@ -187,7 +187,7 @@ function Card({
               <li key={frame.fn} className={styles.frame}>
                 <span className='tabular-nums opacity-60'>{frame.line}</span>
                 <span className={styles.call}>
-                  at <b className={styles.fn}>{frame.fn}</b> ({frame.file}:{frame.col})
+                  at <b className={styles.fn}>{frame.fn}</b> ({frame.file})
                 </span>
                 <span className='rounded-[5px] border border-fg/10 bg-fg/6 px-[7px] py-px font-sans text-[10px]'>
                   {t('inApp')}
