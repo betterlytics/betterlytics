@@ -87,13 +87,13 @@
     @apply bg-hatch;
   }
   .copy {
-    padding: 28px 32px 32px;
+    padding: 34px 38px 38px;
     @variant max-sm {
-      padding: 24px var(--pad) 28px;
+      padding: 28px var(--pad) 32px;
     }
   }
   .copy p {
-    margin-top: 8px;
+    margin-top: 10px;
     max-width: 44ch;
     font-size: var(--text-label);
     line-height: 22px;
