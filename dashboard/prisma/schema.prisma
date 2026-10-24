@@ -135,8 +135,6 @@ model User {
   sessions      Session[]
 
   twoFactorEnabled Boolean @default(false)
-  // Legacy secret superseded by TwoFactor - to be removed once all users are migrated to TwoFactor
-  totpSecret String?
   twofactors TwoFactor[]
   role UserRole?
 
