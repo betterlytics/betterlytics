@@ -480,7 +480,7 @@ model StatusPage {
 
   // Branding (structured only — no custom CSS)
   theme       String  @default("system") // 'light' | 'dark' | 'system'
-  accentColor String? @default("#4845d8") // null = transparent header (page background)
+  accentColor String? @default("#304870") // null = transparent header (page background)
   // Present iff an uploaded logo/favicon exists. sha256 prefix of the bytes: doubles as the "has image" flag
   // and as a cache-bust token.
   logoHash    String?
