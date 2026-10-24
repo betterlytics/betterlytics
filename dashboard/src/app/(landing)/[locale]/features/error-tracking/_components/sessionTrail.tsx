@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AlertTriangle, Eye, MousePointerClick, type LucideIcon } from 'lucide-react';
+import { AlertTriangle, Eye, Monitor, MousePointerClick, type LucideIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
 import { AppleMark } from '@/landing/components/illustrations/errors';
@@ -148,7 +148,10 @@ export function SessionTrail() {
                 <AppleMark className='size-[13px]' />
                 macOS
               </span>
-              <span>{t('thrown.desktop')}</span>
+              <span>
+                <Monitor className='size-[13px]' />
+                {t('thrown.desktop')}
+              </span>
               <span>
                 <FLAGS.DK className='h-[9px] w-[13.5px] rounded-[1.5px] ring-1 ring-white/8' title={region} />
                 {region}

@@ -1,7 +1,18 @@
 import type { ReactNode } from 'react';
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Link2, Monitor } from 'lucide-react';
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Eye,
+  Link2,
+  Monitor,
+  Smartphone,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { AppleMark } from '@/landing/components/illustrations/errors';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Emphasis } from '@/landing/components/ui/emphasis';
 import { InView } from '@/landing/components/ui/inView';
@@ -145,6 +156,17 @@ function ShareArt() {
   );
 }
 
+function WindowsMark({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox='0 0 32 32'>
+      <path
+        d='m0 4.599l13-1.796v12.599H0zm14.599-2L32 0v15.197H14.599zM0 16.803h13v12.599L0 27.599zm14.599 0H32V32l-17.197-2.401z'
+        fill='currentColor'
+      />
+    </svg>
+  );
+}
+
 function OccurrenceArt() {
   const t = useTranslations('landing.errors.triage.art');
   return (
@@ -180,12 +202,46 @@ function OccurrenceArt() {
       </div>
       <Swap
         className={styles.navContext}
-        from={['/pricing', 'Safari 18', 'iOS', t('mobile')].map((chip) => (
-          <span key={chip}>{chip}</span>
-        ))}
-        to={['/pricing', 'Chrome 129', 'Windows', t('desktop')].map((chip) => (
-          <span key={chip}>{chip}</span>
-        ))}
+        from={
+          <>
+            <span>
+              <Eye className='size-3.5' />
+              /pricing
+            </span>
+            <span>
+              <Image src='/browser-icons/safari.svg' alt='' width={13} height={13} />
+              Safari 18
+            </span>
+            <span>
+              <AppleMark className='size-[13px]' />
+              iOS
+            </span>
+            <span>
+              <Smartphone className='size-3.5' />
+              {t('mobile')}
+            </span>
+          </>
+        }
+        to={
+          <>
+            <span>
+              <Eye className='size-3.5' />
+              /pricing
+            </span>
+            <span>
+              <Image src='/browser-icons/chrome.svg' alt='' width={13} height={13} />
+              Chrome 129
+            </span>
+            <span>
+              <WindowsMark className='size-3' />
+              Windows
+            </span>
+            <span>
+              <Monitor className='size-3.5' />
+              {t('desktop')}
+            </span>
+          </>
+        }
       />
     </div>
   );

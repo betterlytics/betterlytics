@@ -387,18 +387,13 @@
   .context {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 12px;
+    gap: 6px 16px;
+    margin-top: 14px;
   }
   .context span {
     display: inline-flex;
     align-items: center;
     gap: 7px;
-    height: 26px;
-    padding: 0 10px;
-    border: 1px solid --alpha(var(--color-fg) / 9%);
-    border-radius: 7px;
-    background: --alpha(var(--color-fg) / 3%);
     font-size: 12px;
     color: var(--color-muted);
   }
