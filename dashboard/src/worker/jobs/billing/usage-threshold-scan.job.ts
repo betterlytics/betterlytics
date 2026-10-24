@@ -8,6 +8,7 @@ import {
   getScannableSubscriptions,
   loadRecordedSessionsForSubscriptions,
   loadUsageForSubscriptions,
+  sumRecordedSessionsForSubscription,
   sumUsageForSubscription,
 } from '@/services/billing/usage-scan.service';
 import { enqueueEmail } from '@/services/email/email.service';
@@ -86,7 +87,7 @@ async function runUsageThresholdScan(): Promise<void> {
     if (replaysBySite) {
       checks.push({
         quota: 'replays',
-        usage: sumUsageForSubscription(sub, replaysBySite),
+        usage: sumRecordedSessionsForSubscription(sub, replaysBySite),
         limit: getRecordedSessionLimitForTier(sub.tier),
         campaignPrefix: 'usage-alert:replay',
       });
