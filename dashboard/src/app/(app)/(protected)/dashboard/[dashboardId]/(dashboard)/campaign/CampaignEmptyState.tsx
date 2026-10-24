@@ -3,7 +3,7 @@
 import { useLocale, useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ExternalLink as ExternalLinkIcon } from 'lucide-react';
+import { CalendarSearch, ExternalLink as ExternalLinkIcon } from 'lucide-react';
 import ExternalLink from '@/components/ExternalLink';
 import { cn } from '@/lib/utils';
 import { formatDuration } from '@/utils/dateFormatters';
@@ -152,5 +152,21 @@ export function CampaignEmptyState() {
         <FannedCampaignPreview />
       </div>
     </div>
+  );
+}
+
+export function CampaignPeriodEmptyState() {
+  const t = useTranslations('components.campaign.periodEmptyState');
+
+  return (
+    <Card className='flex flex-col items-center gap-3 px-6 py-10 text-center'>
+      <div className='bg-muted text-muted-foreground flex h-10 w-10 items-center justify-center rounded-full'>
+        <CalendarSearch className='h-5 w-5' aria-hidden />
+      </div>
+      <div className='space-y-1'>
+        <p className='text-sm font-medium'>{t('title')}</p>
+        <p className='text-muted-foreground text-sm'>{t('description')}</p>
+      </div>
+    </Card>
   );
 }

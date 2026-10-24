@@ -11,6 +11,13 @@ type ToolInput = { name: string; type: string; required: boolean; description: s
 type ToolDescription = { name: string; description: string; inputs: ToolInput[] };
 export type ToolAvailability = { uptimeMonitoring: boolean; publicStatusPages: boolean };
 
+const TIMEZONE_INPUT: ToolInput = {
+  name: 'timezone',
+  type: 'string',
+  required: true,
+  description: 'IANA time zone, e.g. "Europe/Berlin" or "UTC". Unknown time zones are rejected.',
+};
+
 type SchemaDescription = {
   metrics: { key: string; description: string }[];
   dimensions: { key: string; description: string }[];
@@ -24,7 +31,7 @@ type SchemaDescription = {
   granularities: readonly string[];
   orderBy: { validValues: string[]; description: string };
   order: { validValues: string[]; default: string };
-  timezone: { format: string; default: string; examples: string[] };
+  timezone: { format: string; examples: string[]; unknown: string };
   querySessions: QuerySessionsDescription;
   tools: { name: string; description: string; inputs: ToolInput[] }[];
 };
@@ -38,7 +45,6 @@ type QuerySessionsDescription = {
   filterSemantics: { sessionColumns: string; eventColumns: string; globalProperties: string };
   emptyValues: string;
   timeSeries: string;
-  dashboardComparison: { overview: string; entryAndExitPages: string; campaigns: string };
 };
 
 export function getSchemaDescription(available: ToolAvailability): SchemaDescription {
@@ -85,8 +91,8 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
     },
     timezone: {
       format: 'IANA time zone identifier',
-      default: 'UTC',
-      examples: ['Europe/Berlin', 'America/New_York', 'Asia/Tokyo'],
+      examples: ['UTC', 'Europe/Berlin', 'America/New_York', 'Asia/Tokyo'],
+      unknown: 'An unknown time zone is rejected with an input validation error and returns no data.',
     },
     querySessions: QUERY_SESSIONS_DESCRIPTION,
     tools: [
@@ -124,7 +130,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: false,
             description: 'YYYY-MM-DD. Required when timeRange is "custom".',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'filters',
             type: 'array',
@@ -164,7 +170,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'filters',
             type: 'array',
@@ -196,7 +202,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'steps',
             type: 'array',
@@ -223,7 +229,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
         ],
       },
       {
@@ -237,7 +243,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'key',
             type: 'string',
@@ -258,7 +264,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
             required: true,
             description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
           },
-          { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+          TIMEZONE_INPUT,
           {
             name: 'search',
             type: 'string',
@@ -346,14 +352,6 @@ const QUERY_SESSIONS_DESCRIPTION: QuerySessionsDescription = {
     'Breakdowns leave out sessions with an empty value for a requested dimension: sessions without a landing page, untagged sessions in a utm_* breakdown, an unknown country, and so on. Totals without dimensions still count every session, so a breakdown can add up to less than the total. To limit totals to tagged traffic, filter with { column: "utm_source", operator: "=", values: ["*"] }: "*" alone matches any non-empty value, and != "*" keeps only sessions where the value is empty.',
   timeSeries:
     'With a granularity, rows are bucketed by session start in the requested timezone. Without dimensions, dates without sessions are filled with zeros; with dimensions, only dates where a value had sessions are returned, so a missing date means zero. visitors counts each visitor only in the bucket of their first session, so the buckets add up to the total visitors.',
-  dashboardComparison: {
-    overview:
-      'Totals and series match the Overview session cards and chart (Visitors, Sessions, Bounce Rate, Avg. Visit Duration, Pages per Session) for the same range, timezone and filters, up to rounding. The Overview card rounds bounce rate to a whole percent. pageviews counts every pageview of the selected sessions, so it can differ slightly from the Overview Pageviews card at the edges of the range.',
-    entryAndExitPages:
-      'The Entry Pages and Exit Pages tabs show session counts in their Visitors column, so compare them with sessions, not visitors. Their Avg. Session Time averages over every session, bounces included, while avg_visit_duration follows the Overview card.',
-    campaigns:
-      'The Campaigns page counts tagged pageviews only, so its numbers differ from query_sessions. A utm_* breakdown here matches the Overview with the same UTM filter applied.',
-  },
 };
 
 const QUERY_SESSIONS_TOOL: ToolDescription = {
@@ -391,7 +389,7 @@ const QUERY_SESSIONS_TOOL: ToolDescription = {
       required: false,
       description: 'YYYY-MM-DD. Required when timeRange is "custom".',
     },
-    { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+    TIMEZONE_INPUT,
     {
       name: 'filters',
       type: 'array',
@@ -434,7 +432,7 @@ const MONITORING_TOOLS: ToolDescription[] = [
         description:
           'Time range the uptime and response time summary covers. Valid values are listed in the timeRanges field of this schema. 7d, 28d and 90d cover that many calendar days including today, as on the monitor detail page. Operational state is always current, regardless of this range.',
       },
-      { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+      TIMEZONE_INPUT,
     ],
   },
   {
@@ -449,7 +447,7 @@ const MONITORING_TOOLS: ToolDescription[] = [
         description:
           'Time range to search. Incidents overlapping the range are returned, including ones that started before it. Valid values are listed in the timeRanges field of this schema.',
       },
-      { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+      TIMEZONE_INPUT,
       {
         name: 'monitorId',
         type: 'string',

@@ -169,15 +169,12 @@ describe('getSchemaDescription', () => {
     expect(querySessions.filterColumns.extraColumns.map((c) => c.key)).toEqual(['entry_page', 'exit_page']);
   });
 
-  it('documents query_sessions semantics and how it compares with the dashboard', () => {
+  it('documents query_sessions semantics', () => {
     const { querySessions } = getSchemaDescription(ALL_ENABLED);
 
     expect(querySessions.sessionDates).toContain('started');
     expect(querySessions.filterSemantics.eventColumns).toContain('drops the whole session');
     expect(querySessions.emptyValues).toContain('"*"');
-    expect(querySessions.dashboardComparison.overview).toContain('Overview');
-    expect(querySessions.dashboardComparison.entryAndExitPages).toContain('Avg. Session Time');
-    expect(querySessions.dashboardComparison.campaigns).toContain('tagged pageviews');
   });
 
   it('includes query_sessions in the tools section with the query inputs', () => {
