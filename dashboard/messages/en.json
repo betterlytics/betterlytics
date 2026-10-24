@@ -1713,7 +1713,7 @@
       "hero": {
         "eyebrow": "Session replay",
         "title": "See where visitors get stuck, and what stopped them",
-        "lede": "Replay real visits click by click, with every word and input masked before it leaves the browser. Free on every plan, next to your traffic and errors.",
+        "lede": "Replay real visits click by click, with rage clicks flagged and every word and input masked before it leaves the browser. Free on every plan, next to your traffic and errors.",
         "primary": "Start recording free",
         "secondary": "Read the docs"
       },
@@ -1906,7 +1906,11 @@
           },
           "find": {
             "q": "How do I find the session I'm looking for?",
-            "a": "The replay list shows each session's start page, duration, country, browser, device and error count, and you can hide short sessions. From an error, Watch replay opens the latest session that hit it."
+            "a": "The replay list shows each session's start page, duration, country, browser, device, error count and rage clicks, and you can hide short sessions. From an error, Watch replay opens the latest session that hit it."
+          },
+          "rage": {
+            "q": "Does it detect rage clicks?",
+            "a": "Yes. When a visitor clicks the same spot again and again, Betterlytics flags it as a rage click. You see it on the replay's timeline and as a count in the replay list, so frustrated visitors are easy to find."
           },
           "history": {
             "q": "How long are replays kept?",
@@ -1918,7 +1922,7 @@
           },
           "dedicated": {
             "q": "When is a dedicated replay tool the better fit?",
-            "a": "Betterlytics shows what visitors did, with every word masked. If you need heatmaps, rage-click detection, console and network logs, readable text, or search by user and event, a dedicated tool will serve you better. Our <link>PostHog comparison</link> shows the differences feature by feature."
+            "a": "Betterlytics shows what visitors did, with every word masked. If you need heatmaps, console and network logs, readable text, or search by user and event, a dedicated tool will serve you better. Our <link>PostHog comparison</link> shows the differences feature by feature."
           }
         }
       },

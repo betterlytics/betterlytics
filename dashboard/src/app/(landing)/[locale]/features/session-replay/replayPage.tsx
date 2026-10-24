@@ -25,6 +25,7 @@ const FAQ_KEYS = [
   'slow',
   'sample',
   'find',
+  'rage',
   'history',
   'mobile',
   'dedicated',
