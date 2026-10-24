@@ -29,6 +29,9 @@ export type TimeRangeContextProps = {
   resolvedMainRange: TimeRangeResult['main'];
   resolvedCompareRange?: TimeRangeResult['compare'];
   resolvedGranularity: TimeRangeResult['granularity'];
+  recordZoom: (startDate: Date, endDate: Date) => void;
+  isZoomed: boolean;
+  resetZoom: () => void;
 };
 
 const TimeRangeContext = React.createContext<TimeRangeContextProps>({} as TimeRangeContextProps);
@@ -41,6 +44,20 @@ type TimeRangeContextProviderProps = {
 // Stored dates keep the zone they were set in
 type ZonedPeriod = { start: Date; end: Date; timeZone: string };
 type ZonedComparePeriod = { start?: Date; end?: Date; timeZone: string };
+
+type TimeRangeSnapshot = {
+  period: ZonedPeriod;
+  granularity: GranularityRangeValues;
+  interval: TimeRangeValue;
+  offset: number;
+  comparePeriod: ZonedComparePeriod;
+};
+
+// The state before the first zoom of a chain, and the periods the chain's zooms produced
+type ZoomChain = { before: TimeRangeSnapshot; zoomedKeys: string[] };
+
+const getPeriodKey = (interval: TimeRangeValue, start: Date, end: Date) =>
+  `${interval}:${start.getTime()}:${end.getTime()}`;
 
 export function TimeRangeContextProvider({ children, initialFilters }: TimeRangeContextProviderProps) {
   const { timeZone } = useResolvedTimezone();
@@ -179,6 +196,36 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
     [timeZone],
   );
 
+  // Held in the page only, and active while the period is one a zoom produced, so any other range change
+  // (picker, arrows, Back past the first zoom) hides the reset
+  const [zoomChain, setZoomChain] = React.useState<ZoomChain | null>(null);
+  const periodKey = getPeriodKey(interval, startDate, endDate);
+  const isZoomed = zoomChain?.zoomedKeys.includes(periodKey) ?? false;
+
+  const recordZoom = useCallback(
+    (zoomStart: Date, zoomEnd: Date) => {
+      const zoomedKey = getPeriodKey('custom', zoomStart, zoomEnd);
+      const before: TimeRangeSnapshot = { period, granularity, interval, offset, comparePeriod };
+      setZoomChain((prev) =>
+        prev?.zoomedKeys.includes(periodKey)
+          ? { ...prev, zoomedKeys: [...prev.zoomedKeys, zoomedKey] }
+          : { before, zoomedKeys: [zoomedKey] },
+      );
+    },
+    [period, granularity, interval, offset, comparePeriod, periodKey],
+  );
+
+  const resetZoom = useCallback(() => {
+    if (!zoomChain) return;
+    const { before } = zoomChain;
+    setPeriodState(before.period);
+    setGranularity(before.granularity);
+    setRangeInterval(before.interval);
+    setOffset(before.offset);
+    setComparePeriod(before.comparePeriod);
+    setZoomChain(null);
+  }, [zoomChain]);
+
   return (
     <TimeRangeContext.Provider
       value={{
@@ -204,6 +251,9 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
         resolvedMainRange: resolvedRanges.main,
         resolvedCompareRange: resolvedRanges.compare,
         resolvedGranularity: resolvedRanges.granularity,
+        recordZoom,
+        isZoomed,
+        resetZoom,
       }}
     >
       {children}

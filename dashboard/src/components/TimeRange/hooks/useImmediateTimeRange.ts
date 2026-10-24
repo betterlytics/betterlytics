@@ -3,7 +3,7 @@
 import { useCallback, useMemo } from 'react';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { TimeRangeValue } from '@/utils/timeRanges';
-import { GranularityRangeValues } from '@/utils/granularityRanges';
+import { GranularityRangeValues, getAllowedGranularities, getFinestGranularity } from '@/utils/granularityRanges';
 import { baEvent } from '@/lib/ba-event';
 import { isNowInFirstBucket, getResolvedRanges } from '@/lib/ba-timerange';
 
@@ -66,7 +66,7 @@ export function useImmediateTimeRange() {
   );
 
   const setCustomRange = useCallback(
-    (from?: Date, to?: Date) => {
+    (from?: Date, to?: Date, granularity: GranularityRangeValues = ctx.granularity) => {
       if (!from || !to) return;
       const resolved = getResolvedRanges(
         'custom',
@@ -74,7 +74,7 @@ export function useImmediateTimeRange() {
         ctx.timeZone,
         from,
         to,
-        ctx.granularity,
+        granularity,
         ctx.compareStartDate,
         ctx.compareEndDate,
         0,
@@ -94,8 +94,19 @@ export function useImmediateTimeRange() {
         from,
         to,
       });
+      return resolved;
     },
     [ctx],
+  );
+
+  // A chart selection, from its first bucket's start to the end of its last bucket
+  const zoomToRange = useCallback(
+    (start: Date, endExclusive: Date) => {
+      const granularity = getFinestGranularity(getAllowedGranularities(start, endExclusive));
+      const resolved = setCustomRange(start, new Date(endExclusive.getTime() - 1000), granularity);
+      if (resolved) ctx.recordZoom(resolved.main.start, resolved.main.end);
+    },
+    [ctx, setCustomRange],
   );
 
   const setGranularity = useCallback(
@@ -209,6 +220,8 @@ export function useImmediateTimeRange() {
   return {
     setPresetRange,
     setCustomRange,
+    zoomToRange,
+    resetZoom: ctx.resetZoom,
     setGranularity,
     enableCompare,
     setComparePreset,

@@ -2645,7 +2645,8 @@
         "minute_15": "15 min",
         "minute_1": "1 min"
       },
-      "matchDayOfWeek": "Allinea giorno della settimana"
+      "matchDayOfWeek": "Allinea giorno della settimana",
+      "resetZoom": "Reimposta zoom"
     },
     "loading": {
       "geography": {

@@ -2645,7 +2645,8 @@
         "minute_15": "15 min",
         "minute_1": "1 min"
       },
-      "matchDayOfWeek": "Match Day of Week"
+      "matchDayOfWeek": "Match Day of Week",
+      "resetZoom": "Reset zoom"
     },
     "loading": {
       "geography": {

@@ -9,6 +9,7 @@ import {
   Line,
   ComposedChart,
   ReferenceDot,
+  ReferenceArea,
 } from 'recharts';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +30,8 @@ import AnnotationGroupMarker from './charts/AnnotationGroupMarker';
 import AnnotationGroupPopover from './charts/AnnotationGroupPopover';
 import { ANNOTATION_PILL_TEXT, groupAnnotationsByBucket, type AnnotationGroup } from '@/utils/chartAnnotations';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useChartDragZoom } from '@/hooks/use-chart-drag-zoom';
+import ResetZoomButton from './charts/ResetZoomButton';
 
 const AXIS = {
   fontSize: 12,
@@ -242,6 +245,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     );
 
     const isMobile = useIsMobile();
+    const dragZoom = useChartDragZoom(data, !isAnnotationMode);
     const [hoveredPillGroup, setHoveredPillGroup] = useState<number | null>(null);
 
     useEffect(() => {
@@ -280,6 +284,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
           {headerContent && <div className='mb-5 p-0 sm:px-4'>{headerContent}</div>}
           <div ref={chartContainerRef} className='relative h-80 py-1 sm:px-2 md:px-4'>
             <div className='absolute top-0 right-0 z-10 flex items-center gap-1'>
+              <ResetZoomButton />
               {onToggleAnnotationsVisible && annotations && annotations.length > 0 && (
                 <Button
                   variant='ghost'
@@ -339,6 +344,7 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   right: CHART_MARGIN.right,
                 }}
                 onClick={isAnnotationMode && canMutate ? handleChartClick : undefined}
+                {...dragZoom.handlers}
                 style={{ cursor: isAnnotationMode && canMutate ? 'crosshair' : undefined }}
               >
                 <defs>
@@ -438,6 +444,15 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
                   strokeOpacity={0.5}
                   dot={false}
                 />
+                {dragZoom.previewArea && (
+                  <ReferenceArea
+                    x1={dragZoom.previewArea.x1}
+                    x2={dragZoom.previewArea.x2}
+                    fill='var(--primary)'
+                    fillOpacity={0.12}
+                    ifOverflow='hidden'
+                  />
+                )}
                 {orderedAnnotationGroups.map((group) => (
                   <ReferenceDot
                     key={group.bucketDate}

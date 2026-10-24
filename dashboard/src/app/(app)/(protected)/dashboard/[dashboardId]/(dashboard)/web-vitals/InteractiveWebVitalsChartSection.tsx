@@ -93,6 +93,7 @@ export default function InteractiveWebVitalsChartSection() {
           series={SERIES_DEFS}
           yReferenceAreas={yReferenceAreas}
           headerContent={gaugeContent}
+          dragZoom
         />
       </div>
     </div>

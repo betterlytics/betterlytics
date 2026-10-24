@@ -20,6 +20,8 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useLocale } from 'next-intl';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { cn } from '@/lib/utils';
+import { useChartDragZoom } from '@/hooks/use-chart-drag-zoom';
+import ResetZoomButton from './charts/ResetZoomButton';
 
 interface ChartDataPoint {
   date: string | number;
@@ -75,6 +77,8 @@ interface MultiSeriesChartProps {
   className?: string;
   contentClassName?: string;
   showSinglePoints?: boolean;
+  // Drag across the chart to zoom the dashboard time range
+  dragZoom?: boolean;
 }
 
 const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
@@ -94,6 +98,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
     className,
     contentClassName,
     showSinglePoints,
+    dragZoom = false,
   }) => {
     const locale = useLocale();
     const { axisFormatter, labelFormatter } = useChartDateFormatters(granularity);
@@ -104,6 +109,7 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
       };
     }, [formatValue, locale]);
     const isMobile = useIsMobile();
+    const zoom = useChartDragZoom(data, dragZoom);
 
     return (
       <Card className={cn('px-3 pt-2 pb-4 sm:px-2 sm:pt-4 sm:pb-5', className)}>
@@ -123,9 +129,18 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
               <Skeleton className='h-80 w-full' />
             </div>
           ) : (
-          <div className='h-80 overflow-hidden py-1 md:px-4'>
+          <div className='relative h-80 overflow-hidden py-1 md:px-4'>
+            {dragZoom && (
+              <div className='absolute top-0 right-0 z-10'>
+                <ResetZoomButton />
+              </div>
+            )}
             <ResponsiveContainer width='100%' height='100%' className='mt-0'>
-              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }}>
+              <ComposedChart
+                data={data}
+                margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }}
+                {...zoom.handlers}
+              >
                 <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
                 <XAxis
                   dataKey='date'
@@ -210,6 +225,15 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
                     ifOverflow='hidden'
                   />
                 ))}
+                {zoom.previewArea && (
+                  <ReferenceArea
+                    x1={zoom.previewArea.x1}
+                    x2={zoom.previewArea.x2}
+                    fill='var(--primary)'
+                    fillOpacity={0.12}
+                    ifOverflow='hidden'
+                  />
+                )}
               </ComposedChart>
             </ResponsiveContainer>
           </div>
