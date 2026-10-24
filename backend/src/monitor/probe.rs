@@ -504,7 +504,6 @@ fn classify_tls_error(err: &std::io::Error) -> ReasonCode {
                 CertificateError::NotValidForName => ReasonCode::TlsHostnameMismatch,
                 CertificateError::Expired | CertificateError::ExpiredContext { .. } => ReasonCode::TlsExpired,
                 CertificateError::NotValidYet | CertificateError::NotValidYetContext { .. } => ReasonCode::TlsNotYetValid,
-                CertificateError::Revoked => ReasonCode::TlsRevoked,
                 CertificateError::UnknownIssuer => ReasonCode::TlsUntrustedCa,
                 CertificateError::BadEncoding | CertificateError::BadSignature => ReasonCode::TlsHandshakeFailed,
                 _ => ReasonCode::TlsHandshakeFailed,
@@ -519,11 +518,39 @@ fn classify_tls_error(err: &std::io::Error) -> ReasonCode {
         ReasonCode::TlsExpired
     } else if msg.contains("notvalidyet") {
         ReasonCode::TlsNotYetValid
-    } else if msg.contains("revoked") {
-        ReasonCode::TlsRevoked
     } else if msg.contains("unknownissuer") {
         ReasonCode::TlsUntrustedCa
     } else {
         ReasonCode::TlsHandshakeFailed
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::{Error as IoError, ErrorKind};
+
+    fn rustls_io_error(cert_err: CertificateError) -> IoError {
+        IoError::new(ErrorKind::InvalidData, RustlsError::InvalidCertificate(cert_err))
+    }
+
+    #[test]
+    fn revoked_certificate_is_a_handshake_failure() {
+        assert_eq!(classify_tls_error(&rustls_io_error(CertificateError::Revoked)), ReasonCode::TlsHandshakeFailed);
+        assert_eq!(classify_tls_error(&IoError::other("invalid peer certificate: Revoked")), ReasonCode::TlsHandshakeFailed);
+    }
+
+    #[test]
+    fn expired_revocation_data_is_not_an_expired_certificate() {
+        let err = IoError::other("invalid peer certificate: ExpiredRevocationList");
+        assert_eq!(classify_tls_error(&err), ReasonCode::TlsHandshakeFailed);
+    }
+
+    #[test]
+    fn known_certificate_errors_keep_their_reason() {
+        assert_eq!(classify_tls_error(&rustls_io_error(CertificateError::Expired)), ReasonCode::TlsExpired);
+        assert_eq!(classify_tls_error(&rustls_io_error(CertificateError::NotValidForName)), ReasonCode::TlsHostnameMismatch);
+        assert_eq!(classify_tls_error(&rustls_io_error(CertificateError::UnknownIssuer)), ReasonCode::TlsUntrustedCa);
+        assert_eq!(classify_tls_error(&IoError::other("invalid peer certificate: Expired")), ReasonCode::TlsExpired);
     }
 }
