@@ -232,8 +232,11 @@ function computeFineCompare(
   shouldAlignWeekdays?: boolean,
   customCompareRange?: TimeRange,
 ): TimeRange | undefined {
-  const diff = countUnitsBetween(range, granularity);
-  const { unit } = GRANULARITY_CONFIG[granularity];
+  // A sub-day custom range need not be a whole number of buckets; its comparison keeps its exact length
+  const units = countUnitsBetween(range, granularity);
+  const isWholeUnits = range.start.clone().add(units, GRANULARITY_CONFIG[granularity].unit).isSame(range.end);
+  const diff = isWholeUnits ? units : range.end.diff(range.start, 'minutes');
+  const unit = isWholeUnits ? GRANULARITY_CONFIG[granularity].unit : 'minutes';
 
   if (mode === 'custom' && customCompareRange) {
     const alignedStart = customCompareRange.start.clone().set({

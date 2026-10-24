@@ -70,3 +70,25 @@ describe('getResolvedRanges custom time of day', () => {
     expect(result.main).toEqual({ start: at('2026-10-26', tz), end: at('2026-10-27 23:59:59', tz) });
   });
 });
+
+describe('getResolvedRanges compare for a range that is not whole buckets', () => {
+  it('compares against a previous period of the same length', () => {
+    const tz = 'Europe/Copenhagen';
+    const result = getResolvedRanges(
+      'custom',
+      'previous',
+      tz,
+      at('2026-09-20 14:15', tz),
+      at('2026-09-20 17:59:59', tz),
+      'hour',
+      undefined,
+      undefined,
+      0,
+      false,
+      true,
+    );
+
+    expect(result.main).toEqual({ start: at('2026-09-20 14:15', tz), end: at('2026-09-20 17:59:59', tz) });
+    expect(result.compare).toEqual({ start: at('2026-09-20 10:30', tz), end: at('2026-09-20 14:14:59', tz) });
+  });
+});
