@@ -6,9 +6,7 @@ type TokenInfo = {
   dashboardId: string;
 };
 
-type ValidateTokenResult =
-  | { valid: true; tokenInfo: TokenInfo }
-  | { valid: false; reason: string };
+type ValidateTokenResult = { valid: true; tokenInfo: TokenInfo } | { valid: false; reason: string };
 
 export async function validateToken(token: string): Promise<ValidateTokenResult> {
   const tokenHash = hashMcpToken(token);

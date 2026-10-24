@@ -24,7 +24,9 @@ describe('getSessionTableSubQuery event-column filters', () => {
     const { taggedSql } = buildSubQuery([makeFilter('custom_event_name', '=', ['signup'])]);
 
     expect(taggedSql).toContain('session_id IN ( SELECT session_id FROM analytics.events');
-    expect(taggedSql).toMatch(/arrayExists\(pattern -> custom_event_name ILIKE pattern, \{query_filter_[0-9a-f]+:Array\(String\)\}\)/);
+    expect(taggedSql).toMatch(
+      /arrayExists\(pattern -> custom_event_name ILIKE pattern, \{query_filter_[0-9a-f]+:Array\(String\)\}\)/,
+    );
     expect(taggedSql).not.toContain('session_id NOT IN');
   });
 
@@ -172,7 +174,9 @@ describe('getSessionTableSubQuery custom event property filters', () => {
     const { taggedSql } = buildSubQuery([makeFilter('cep.plan', '!=', ['*'])]);
 
     expect(taggedSql).toContain('session_id NOT IN');
-    expect(taggedSql).toMatch(/event_type = 'custom' AND JSONHas\(custom_event_json, \{cep_key_[0-9a-f]+:String\}\)/);
+    expect(taggedSql).toMatch(
+      /event_type = 'custom' AND JSONHas\(custom_event_json, \{cep_key_[0-9a-f]+:String\}\)/,
+    );
   });
 
   it('shares a single IN bridge with event-column = filters so both match the same event', () => {

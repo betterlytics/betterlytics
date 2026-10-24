@@ -14,7 +14,10 @@ export function usePropertyKeys(): PropertyKeysBySource {
   const gpEnabled = !getSourceStatus('gp').disabled;
   const cepEnabled = !getSourceStatus('cep').disabled;
 
-  const gpQuery = trpc.filters.getPropertyKeys.useQuery({ ...input, source: 'gp' }, { ...options, enabled: gpEnabled });
+  const gpQuery = trpc.filters.getPropertyKeys.useQuery(
+    { ...input, source: 'gp' },
+    { ...options, enabled: gpEnabled },
+  );
   const cepQuery = trpc.filters.getPropertyKeys.useQuery(
     { ...input, source: 'cep' },
     { ...options, enabled: cepEnabled },

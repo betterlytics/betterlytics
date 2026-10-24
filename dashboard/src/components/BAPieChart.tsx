@@ -120,7 +120,9 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(
                       ></span>
                       {getIcon && getIcon(entry.name)}
                       <span className='text-foreground truncate font-medium'>{label}</span>
-                      <span className='text-muted-foreground shrink-0'>{formatPercentage(entry.percentage, locale)}</span>
+                      <span className='text-muted-foreground shrink-0'>
+                        {formatPercentage(entry.percentage, locale)}
+                      </span>
                     </div>
                   );
                 })}

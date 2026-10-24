@@ -8,13 +8,7 @@ interface SettingsSectionProps {
   headerExtra?: React.ReactNode;
 }
 
-export default function SettingsSection({
-  title,
-  description,
-  children,
-  pro,
-  headerExtra,
-}: SettingsSectionProps) {
+export default function SettingsSection({ title, description, children, pro, headerExtra }: SettingsSectionProps) {
   return (
     <section className='space-y-4'>
       <div className='flex items-start justify-between gap-2'>

@@ -50,7 +50,15 @@ function CountdownButton({
         (pendingLabel ?? children)
       ) : hasCountdown && !canConfirm ? (
         <>
-          {children} <NumberFlow value={countdown} locales={locale} prefix='(' suffix=')' willChange className='tabular-nums' />
+          {children}{' '}
+          <NumberFlow
+            value={countdown}
+            locales={locale}
+            prefix='('
+            suffix=')'
+            willChange
+            className='tabular-nums'
+          />
         </>
       ) : (
         children

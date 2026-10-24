@@ -39,7 +39,10 @@ export function AdminSidebar({ edition, sections }: AdminSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href='/dashboards' className='text-muted-foreground hover:text-foreground flex items-center gap-2'>
+              <Link
+                href='/dashboards'
+                className='text-muted-foreground hover:text-foreground flex items-center gap-2'
+              >
                 <ChevronLeft size={18} />
                 <span>Back to dashboards</span>
               </Link>

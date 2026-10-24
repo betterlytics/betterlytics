@@ -16,13 +16,11 @@ export function MemberRemovedEmail({ userName, dashboardDomain }: MemberRemovedE
       <Greeting userName={userName} />
 
       <P>
-        Your access to <strong>{dashboardDomain}</strong> has been removed. You no longer have visibility into
-        this dashboard.
+        Your access to <strong>{dashboardDomain}</strong> has been removed. You no longer have visibility into this
+        dashboard.
       </P>
 
-      <P>
-        If you think this was a mistake, reach out to the dashboard's owner or admin — they can re-invite you.
-      </P>
+      <P>If you think this was a mistake, reach out to the dashboard's owner or admin — they can re-invite you.</P>
 
       <SupportLine />
     </EmailLayout>

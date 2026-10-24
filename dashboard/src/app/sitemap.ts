@@ -39,7 +39,12 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/docs/integration/web-vitals', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/session-replay', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/integration/errors', changeFrequency: 'monthly', priority: 0.8, localized: false },
-  { path: '/docs/integration/custom-status-page-domain', changeFrequency: 'monthly', priority: 0.8, localized: false },
+  {
+    path: '/docs/integration/custom-status-page-domain',
+    changeFrequency: 'monthly',
+    priority: 0.8,
+    localized: false,
+  },
   { path: '/docs/dashboard', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/referrers', changeFrequency: 'monthly', priority: 0.8, localized: false },
   { path: '/docs/dashboard/geography', changeFrequency: 'monthly', priority: 0.8, localized: false },

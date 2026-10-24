@@ -18,10 +18,7 @@ type SavedFilterEntryInput = {
 
 export function useSavedFilters() {
   const dashboardId = useDashboardId();
-  return trpc.savedFilters.list.useQuery(
-    { dashboardId },
-    { staleTime: 5 * 60 * 1000, gcTime: 15 * 60 * 1000 },
-  );
+  return trpc.savedFilters.list.useQuery({ dashboardId }, { staleTime: 5 * 60 * 1000, gcTime: 15 * 60 * 1000 });
 }
 
 export function useSavedFiltersLimitReached() {

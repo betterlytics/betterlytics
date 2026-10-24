@@ -123,96 +123,91 @@ const MultiSeriesChart: React.FC<MultiSeriesChartProps> = React.memo(
               <Skeleton className='h-80 w-full' />
             </div>
           ) : (
-          <div className='h-80 overflow-hidden py-1 md:px-4'>
-            <ResponsiveContainer width='100%' height='100%' className='mt-0'>
-              <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }}>
-                <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
-                <XAxis
-                  dataKey='date'
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  className='text-muted-foreground'
-                  tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-                  tickFormatter={(value) =>
-                    axisFormatter(new Date(typeof value === 'number' ? value : String(value)))
-                  }
-                  minTickGap={100}
-                  tickMargin={6}
-                />
-                <YAxis
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
-                  tickFormatter={yTickFormatter}
-                  className='text-muted-foreground'
-                  width={40}
-                  mirror={isMobile}
-                  domain={yDomain}
-                />
-
-                <Tooltip
-                  content={
-                    <MultiLineChartTooltip
-                      labelFormatter={labelFormatter}
-                      formatter={formatValue}
-                    />
-                  }
-                />
-                {series.map((s, idx) => (
-                  <Line
-                    key={`${s.dataKey}-${idx}`}
-                    type='monotone'
-                    dataKey={s.dataKey}
-                    stroke={s.stroke}
-                    strokeWidth={s.strokeWidth ?? 2}
-                    dot={s.dot ?? (showSinglePoints ? LineDot : false)}
-                    name={s.name}
-                    strokeDasharray={s.strokeDasharray}
-                  />
-                ))}
-                {referenceLines?.map((r, i) => (
-                  <ReferenceLine
-                    key={`ref-${i}-${r.y}`}
-                    y={r.y}
-                    stroke={r.stroke ?? 'var(--chart-comparison)'}
-                    strokeDasharray={r.strokeDasharray ?? '4 4'}
-                    label={
-                      r.label ? (
-                        <ReferenceLineLabel text={r.label} fill={r.labelFill ?? r.stroke} isMobile={isMobile} />
-                      ) : undefined
+            <div className='h-80 overflow-hidden py-1 md:px-4'>
+              <ResponsiveContainer width='100%' height='100%' className='mt-0'>
+                <ComposedChart data={data} margin={{ top: 10, left: isMobile ? 0 : 12, bottom: 0, right: 1 }}>
+                  <CartesianGrid className='opacity-10' vertical={false} strokeWidth={1.5} />
+                  <XAxis
+                    dataKey='date'
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    className='text-muted-foreground'
+                    tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                    tickFormatter={(value) =>
+                      axisFormatter(new Date(typeof value === 'number' ? value : String(value)))
                     }
+                    minTickGap={100}
+                    tickMargin={6}
                   />
-                ))}
-                {yReferenceAreas?.map((yArea, i) => (
-                  <ReferenceArea
-                    key={`y-ref-area-${yArea.y1}-${yArea.y2}-${i}`}
-                    y1={yArea.y1}
-                    y2={yArea.y2}
-                    fill={yArea.fill ?? 'var(--chart-comparison)'}
-                    fillOpacity={yArea.fillOpacity ?? 0.08}
-                    label={yArea.label ? <ReferenceAreaLabel area={yArea} isMobile={isMobile} /> : undefined}
-                    ifOverflow='hidden'
+                  <YAxis
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+                    tickFormatter={yTickFormatter}
+                    className='text-muted-foreground'
+                    width={40}
+                    mirror={isMobile}
+                    domain={yDomain}
                   />
-                ))}
-                {referenceAreas?.map((referenceArea, i) => (
-                  <ReferenceArea
-                    key={`ref-area-${referenceArea.x1}-${referenceArea.x2}-${i}`}
-                    x1={referenceArea.x1}
-                    x2={referenceArea.x2}
-                    y1={0}
-                    y2={10000}
-                    fill={referenceArea.fill ?? 'var(--chart-comparison)'}
-                    fillOpacity={referenceArea.fillOpacity ?? 0.15}
-                    stroke={referenceArea.stroke}
-                    strokeDasharray={referenceArea.strokeDasharray}
-                    ifOverflow='hidden'
+
+                  <Tooltip
+                    content={<MultiLineChartTooltip labelFormatter={labelFormatter} formatter={formatValue} />}
                   />
-                ))}
-              </ComposedChart>
-            </ResponsiveContainer>
-          </div>
+                  {series.map((s, idx) => (
+                    <Line
+                      key={`${s.dataKey}-${idx}`}
+                      type='monotone'
+                      dataKey={s.dataKey}
+                      stroke={s.stroke}
+                      strokeWidth={s.strokeWidth ?? 2}
+                      dot={s.dot ?? (showSinglePoints ? LineDot : false)}
+                      name={s.name}
+                      strokeDasharray={s.strokeDasharray}
+                    />
+                  ))}
+                  {referenceLines?.map((r, i) => (
+                    <ReferenceLine
+                      key={`ref-${i}-${r.y}`}
+                      y={r.y}
+                      stroke={r.stroke ?? 'var(--chart-comparison)'}
+                      strokeDasharray={r.strokeDasharray ?? '4 4'}
+                      label={
+                        r.label ? (
+                          <ReferenceLineLabel text={r.label} fill={r.labelFill ?? r.stroke} isMobile={isMobile} />
+                        ) : undefined
+                      }
+                    />
+                  ))}
+                  {yReferenceAreas?.map((yArea, i) => (
+                    <ReferenceArea
+                      key={`y-ref-area-${yArea.y1}-${yArea.y2}-${i}`}
+                      y1={yArea.y1}
+                      y2={yArea.y2}
+                      fill={yArea.fill ?? 'var(--chart-comparison)'}
+                      fillOpacity={yArea.fillOpacity ?? 0.08}
+                      label={yArea.label ? <ReferenceAreaLabel area={yArea} isMobile={isMobile} /> : undefined}
+                      ifOverflow='hidden'
+                    />
+                  ))}
+                  {referenceAreas?.map((referenceArea, i) => (
+                    <ReferenceArea
+                      key={`ref-area-${referenceArea.x1}-${referenceArea.x2}-${i}`}
+                      x1={referenceArea.x1}
+                      x2={referenceArea.x2}
+                      y1={0}
+                      y2={10000}
+                      fill={referenceArea.fill ?? 'var(--chart-comparison)'}
+                      fillOpacity={referenceArea.fillOpacity ?? 0.15}
+                      stroke={referenceArea.stroke}
+                      strokeDasharray={referenceArea.strokeDasharray}
+                      ifOverflow='hidden'
+                    />
+                  ))}
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
           )}
         </CardContent>
       </Card>

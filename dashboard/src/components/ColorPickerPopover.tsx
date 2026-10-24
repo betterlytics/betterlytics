@@ -24,7 +24,9 @@ export function ColorPickerPopover({ value, onChange, selected = false, ariaLabe
             background: 'conic-gradient(from 180deg, #ef4444, #f59e0b, #22c55e, #0ea5e9, #8b5cf6, #ef4444)',
           }}
         >
-          {selected && <span className='h-4 w-4 rounded-full border border-white/60' style={{ backgroundColor: value }} />}
+          {selected && (
+            <span className='h-4 w-4 rounded-full border border-white/60' style={{ backgroundColor: value }} />
+          )}
         </button>
       </PopoverTrigger>
       <PopoverContent align='start' className='w-auto p-3'>

@@ -40,11 +40,7 @@ export default async function ErrorDetailPage({ params }: ErrorDetailPageParams)
           />
         </div>
 
-        <ErrorDetailSidebar
-          errorGroup={errorGroup}
-          sidebarData={sidebarData}
-          replaySessionId={replaySessionId}
-        />
+        <ErrorDetailSidebar errorGroup={errorGroup} sidebarData={sidebarData} replaySessionId={replaySessionId} />
       </div>
     </div>
   );

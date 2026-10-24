@@ -3,10 +3,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import {
-  deleteStatusPageAction,
-  setStatusPagePublishedAction,
-} from '@/app/actions/analytics/statusPage.actions';
+import { deleteStatusPageAction, setStatusPagePublishedAction } from '@/app/actions/analytics/statusPage.actions';
 
 export function useSetStatusPagePublishedMutation(dashboardId: string, opts?: { onSuccess?: () => void }) {
   const t = useTranslations('statusPagesPage');

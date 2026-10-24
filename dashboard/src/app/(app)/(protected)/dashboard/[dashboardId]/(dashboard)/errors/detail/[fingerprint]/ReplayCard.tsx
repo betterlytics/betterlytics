@@ -23,9 +23,7 @@ export function ReplayCard({ replaySessionId }: ReplayCardProps) {
         <Play className='text-primary h-3.5 w-3.5 translate-x-[1px]' />
       </div>
       <div>
-        <p className='text-sm font-medium'>
-          {t('watchReplay')}
-        </p>
+        <p className='text-sm font-medium'>{t('watchReplay')}</p>
         <p className='text-muted-foreground text-xs'>{t('watchReplayDescription')}</p>
       </div>
     </div>
@@ -33,21 +31,13 @@ export function ReplayCard({ replaySessionId }: ReplayCardProps) {
 
   const card = (
     <Card className='border-primary/30 bg-primary/10'>
-      <CardContent className='px-4 py-3'>
-        {content}
-      </CardContent>
+      <CardContent className='px-4 py-3'>{content}</CardContent>
     </Card>
   );
 
   return (
     <PermissionGate allowViewer>
-      {() => (
-        isDemo ? card : (
-          <Link href={resolveHref(`/replay?sessionId=${replaySessionId}`)}>
-            {card}
-          </Link>
-        )
-      )}
+      {() => (isDemo ? card : <Link href={resolveHref(`/replay?sessionId=${replaySessionId}`)}>{card}</Link>)}
     </PermissionGate>
   );
 }

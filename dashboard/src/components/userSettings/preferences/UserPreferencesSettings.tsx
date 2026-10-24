@@ -56,10 +56,7 @@ export default function UserPreferencesSettings() {
           label={<Label htmlFor='theme'>{t('appearance.themeLabel')}</Label>}
           description={t('appearance.themeDescription')}
           action={
-            <UserThemeSelector
-              value={settings.theme}
-              onUpdate={(theme) => themeMutation.mutate({ theme })}
-            />
+            <UserThemeSelector value={settings.theme} onUpdate={(theme) => themeMutation.mutate({ theme })} />
           }
         />
 

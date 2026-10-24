@@ -17,7 +17,11 @@ describe('sanitizeSvgLogo', () => {
     });
 
     it('accepts width/height instead of viewBox', () => {
-      expect(sanitize('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40"><rect width="100" height="40"/></svg>')).not.toBeNull();
+      expect(
+        sanitize(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40"><rect width="100" height="40"/></svg>',
+        ),
+      ).not.toBeNull();
     });
 
     it('adds xmlns when missing', () => {

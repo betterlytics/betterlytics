@@ -80,8 +80,7 @@ export type FilterOperator = (typeof FILTER_OPERATORS)[number];
  * SQL-building code should operate on this - never on raw FilterColumn strings.
  */
 export type ParsedFilterColumn =
-  | { kind: 'standard'; col: TableFilterColumn }
-  | { kind: 'property'; source: PropertySourceKind; key: string };
+  { kind: 'standard'; col: TableFilterColumn } | { kind: 'property'; source: PropertySourceKind; key: string };
 
 /**
  * Narrow a validated FilterColumn into a discriminated union suitable for SQL.

@@ -45,72 +45,62 @@ export default function DevicesSection() {
           key: 'browsers',
           label: t('tabs.browsers'),
           loading: browsersState.loading,
-          data: (browsersQuery.data ?? []).map(
-            (item): ProgressBarData => ({
-              label: item.browser,
-              value: item.current.visitors,
-              trendPercentage: item.change?.visitors,
-              comparisonValue: item.compare?.visitors,
-              filters: [{ column: 'browser' }],
+          data: (browsersQuery.data ?? []).map((item): ProgressBarData => ({
+            label: item.browser,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
+            filters: [{ column: 'browser' }],
+            icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
+            children: item.children?.map((v): ProgressBarData => ({
+              filters: [
+                { column: 'browser', value: item.browser },
+                { column: 'browser_version', value: v.version },
+              ],
               icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
-              children: item.children?.map(
-                (v): ProgressBarData => ({
-                  filters: [
-                    { column: 'browser', value: item.browser },
-                    { column: 'browser_version', value: v.version },
-                  ],
-                  icon: <BrowserIcon name={item.browser} className='h-4 w-4' />,
-                  label: `${item.browser} ${v.version}`,
-                  value: v.current.visitors,
-                  comparisonValue: v.compare?.visitors,
-                  trendPercentage: v.change?.visitors,
-                }),
-              ),
-            }),
-          ),
+              label: `${item.browser} ${v.version}`,
+              value: v.current.visitors,
+              comparisonValue: v.compare?.visitors,
+              trendPercentage: v.change?.visitors,
+            })),
+          })),
         },
         {
           key: 'os',
           label: t('tabs.operatingSystems'),
           loading: osState.loading,
-          data: (osQuery.data ?? []).map(
-            (item): ProgressBarData => ({
-              label: item.os,
-              value: item.current.visitors,
-              trendPercentage: item.change?.visitors,
-              comparisonValue: item.compare?.visitors,
-              filters: [{ column: 'os' }],
+          data: (osQuery.data ?? []).map((item): ProgressBarData => ({
+            label: item.os,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
+            filters: [{ column: 'os' }],
+            icon: <OSIcon name={item.os} className='h-4 w-4' />,
+            children: item.children?.map((v): ProgressBarData => ({
+              filters: [
+                { column: 'os', value: item.os },
+                { column: 'os_version', value: v.version },
+              ],
               icon: <OSIcon name={item.os} className='h-4 w-4' />,
-              children: item.children?.map(
-                (v): ProgressBarData => ({
-                  filters: [
-                    { column: 'os', value: item.os },
-                    { column: 'os_version', value: v.version },
-                  ],
-                  icon: <OSIcon name={item.os} className='h-4 w-4' />,
-                  label: `${item.os} ${v.version}`,
-                  value: v.current.visitors,
-                  comparisonValue: v.compare?.visitors,
-                  trendPercentage: v.change?.visitors,
-                }),
-              ),
-            }),
-          ),
+              label: `${item.os} ${v.version}`,
+              value: v.current.visitors,
+              comparisonValue: v.compare?.visitors,
+              trendPercentage: v.change?.visitors,
+            })),
+          })),
         },
         {
           key: 'devices',
           label: t('tabs.devices'),
           loading: devicesState.loading,
-          data: (devicesQuery.data ?? []).map(
-            (item): ProgressBarData => ({
-              label: item.device_type,
-              value: item.current.visitors,
-              trendPercentage: item.change?.visitors,
-              comparisonValue: item.compare?.visitors,
-              filters: [{ column: 'device_type' }],
-              icon: <DeviceIcon type={item.device_type} className='h-4 w-4' />,
-            }),
-          ),
+          data: (devicesQuery.data ?? []).map((item): ProgressBarData => ({
+            label: item.device_type,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
+            filters: [{ column: 'device_type' }],
+            icon: <DeviceIcon type={item.device_type} className='h-4 w-4' />,
+          })),
         },
       ]}
       footer={

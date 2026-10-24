@@ -82,7 +82,9 @@ export function WebhookConfigDialog({
               disabled={isPending}
             />
             {error && <p className='text-destructive text-sm'>{error}</p>}
-            <p className='text-muted-foreground text-xs'>{t(allowPrivateTargets ? 'webhookHintPrivate' : 'webhookHint')}</p>
+            <p className='text-muted-foreground text-xs'>
+              {t(allowPrivateTargets ? 'webhookHintPrivate' : 'webhookHint')}
+            </p>
           </div>
         </div>
 

@@ -83,13 +83,18 @@ export default function FunnelBarplot({
           'bg-card w-full overflow-x-auto rounded-lg border shadow-sm transition-opacity',
           '[scrollbar-width:thin] [scrollbar-color:var(--border)_transparent]',
           '[&::-webkit-scrollbar]:h-2',
-          '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border',
+          '[&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full',
           '[&::-webkit-scrollbar-track]:bg-transparent',
           fill && 'flex flex-1 flex-col',
           refetching && 'pointer-events-none opacity-60',
         )}
       >
-        <div className={cn('group/steps relative flex flex-col sm:flex-row', fill ? 'w-full min-w-fit sm:flex-1' : 'w-fit')}>
+        <div
+          className={cn(
+            'group/steps relative flex flex-col sm:flex-row',
+            fill ? 'w-full min-w-fit sm:flex-1' : 'w-fit',
+          )}
+        >
           {funnel.steps.map((step, i) => (
             <FunnelStep
               key={step.step.id}
@@ -123,12 +128,7 @@ export default function FunnelBarplot({
                 </div>
                 <h4 className='text-foreground/70 truncate text-sm font-semibold'>{step.name}</h4>
               </div>
-              <div
-                className={cn(
-                  'hidden w-full pt-2 sm:flex',
-                  fill ? 'sm:flex-1' : 'h-40',
-                )}
-              >
+              <div className={cn('hidden w-full pt-2 sm:flex', fill ? 'sm:flex-1' : 'h-40')}>
                 <HorizontalProgress percentage={1} isFirst={false} isLast={i === emptySteps.length - 1} />
                 {i < emptySteps.length - 1 && <HorizontalConnector previousPercentage={1} currentPercentage={1} />}
               </div>

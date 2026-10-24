@@ -28,8 +28,8 @@ export const DragHandle = forwardRef<HTMLButtonElement, DragHandleProps>(functio
         'text-muted-foreground/60 hover:text-foreground flex items-center justify-center transition-colors',
         'cursor-grab active:cursor-grabbing',
         // Stop the touch long-press from selecting / zooming / showing the iOS callout while grabbing
-        'touch-none select-none [-webkit-touch-callout:none] [-webkit-tap-highlight-color:transparent]',
-        'focus-visible:ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-none',
+        'touch-none select-none [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none]',
+        'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring focus-visible:outline-none',
         className,
       )}
     >

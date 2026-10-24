@@ -106,7 +106,9 @@ export function ChartTooltip({
               </div>
             </div>
             <div className='text-popover-foreground/60 text-sm'>
-              {formatter ? formatter(previousValue as number, locale) : formatNumber(previousValue as number, locale)}
+              {formatter
+                ? formatter(previousValue as number, locale)
+                : formatNumber(previousValue as number, locale)}
             </div>
           </div>
         )}

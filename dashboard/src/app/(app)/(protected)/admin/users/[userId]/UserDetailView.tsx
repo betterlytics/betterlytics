@@ -39,7 +39,12 @@ export function UserDetailView({ user, edition, actorUserId, emailsEnabled }: Us
 
   return (
     <div className='space-y-12'>
-      <ProfileSection user={user} edition={edition} canChangeRole={!deleted && can('change_role')} onDialog={setDialog} />
+      <ProfileSection
+        user={user}
+        edition={edition}
+        canChangeRole={!deleted && can('change_role')}
+        onDialog={setDialog}
+      />
 
       {!deleted && (
         <>
@@ -64,7 +69,15 @@ export function UserDetailView({ user, edition, actorUserId, emailsEnabled }: Us
   );
 }
 
-function DetailRow({ label, description, children }: { label: string; description?: string; children: ReactNode }) {
+function DetailRow({
+  label,
+  description,
+  children,
+}: {
+  label: string;
+  description?: string;
+  children: ReactNode;
+}) {
   return (
     <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4'>
       <div className='min-w-0'>
@@ -159,7 +172,10 @@ function DashboardsSection({ user }: SectionProps) {
       ) : (
         <ul className='divide-y'>
           {user.dashboards.map((dashboard) => (
-            <li key={dashboard.dashboardId} className='flex items-center justify-between gap-4 py-2 first:pt-0 last:pb-0'>
+            <li
+              key={dashboard.dashboardId}
+              className='flex items-center justify-between gap-4 py-2 first:pt-0 last:pb-0'
+            >
               <span className='truncate text-sm font-medium'>{dashboard.domain}</span>
               <RoleBadge role={dashboard.role} />
             </li>
@@ -266,7 +282,12 @@ function SecuritySection({ user, can, onDialog }: ActionSectionProps) {
       {can('reset_password') && (
         <DetailRow label='Password' description={passwordDescription}>
           {user.hasPassword && (
-            <Button variant='outline' size='sm' className='cursor-pointer' onClick={() => onDialog('reset-password')}>
+            <Button
+              variant='outline'
+              size='sm'
+              className='cursor-pointer'
+              onClick={() => onDialog('reset-password')}
+            >
               Reset password
             </Button>
           )}
@@ -282,7 +303,12 @@ function SecuritySection({ user, can, onDialog }: ActionSectionProps) {
           }
         >
           {user.twoFactorEnabled && (
-            <Button variant='outline' size='sm' className='cursor-pointer' onClick={() => onDialog('reset-two-factor')}>
+            <Button
+              variant='outline'
+              size='sm'
+              className='cursor-pointer'
+              onClick={() => onDialog('reset-two-factor')}
+            >
               Reset two-factor
             </Button>
           )}
@@ -328,7 +354,7 @@ function DangerZoneSection({ user, can, onDialog }: ActionSectionProps) {
         : can('disable') && (
             <DetailRow
               label='Disable account'
-              description="Sign them out everywhere and block sign-in. Nothing is deleted, and you can enable them again."
+              description='Sign them out everywhere and block sign-in. Nothing is deleted, and you can enable them again.'
             >
               <Button variant='ghost' size='sm' className={destructiveButton} onClick={() => onDialog('disable')}>
                 Disable

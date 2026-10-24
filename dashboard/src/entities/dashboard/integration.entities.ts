@@ -78,7 +78,8 @@ export type DiscordConfigInput = Omit<DiscordConfig, 'webhookUrl'> & { webhookUr
 export type SlackConfigInput = Omit<SlackConfig, 'webhookUrl'> & { webhookUrl?: string };
 export type TeamsConfigInput = Omit<TeamsConfig, 'webhookUrl'> & { webhookUrl?: string };
 export type WebhookConfigInput = Omit<WebhookConfig, 'webhookUrl'> & { webhookUrl?: string };
-export type IntegrationConfigInput = PushoverConfigInput | DiscordConfigInput | SlackConfigInput | TeamsConfigInput | WebhookConfigInput;
+export type IntegrationConfigInput =
+  PushoverConfigInput | DiscordConfigInput | SlackConfigInput | TeamsConfigInput | WebhookConfigInput;
 export type SlackConfig = z.infer<typeof SlackConfigSchema>;
 export type TeamsConfig = z.infer<typeof TeamsConfigSchema>;
 export type WebhookConfig = z.infer<typeof WebhookConfigSchema>;

@@ -100,12 +100,7 @@ export function getValidGranularityFallback(
   return found ?? allowedGranularities[0] ?? 'day';
 }
 
-const SUB_DAY_GRANULARITIES = new Set<GranularityRangeValues>([
-  'minute_1',
-  'minute_15',
-  'minute_30',
-  'hour',
-]);
+const SUB_DAY_GRANULARITIES = new Set<GranularityRangeValues>(['minute_1', 'minute_15', 'minute_30', 'hour']);
 
 export function isSubDayGranularity(granularity: GranularityRangeValues): boolean {
   return SUB_DAY_GRANULARITIES.has(granularity);

@@ -23,4 +23,3 @@ export type WorldMapResponse = z.infer<typeof worldMapResponseSchema>;
 export type GeoVisitorWithCompare = GeoVisitor & {
   compareVisitors?: number;
 };
-

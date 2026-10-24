@@ -11,10 +11,17 @@ const SESSION_REPLAYS_MAX_PAGE_SIZE = 100;
 
 export const sessionReplaysRouter = createRouter({
   list: dashboardProcedure
-    .input(queryInput.extend({
-      limit: z.number().int().min(1).max(SESSION_REPLAYS_MAX_PAGE_SIZE).default(SESSION_REPLAYS_DEFAULT_PAGE_SIZE),
-      cursor: z.number().nullish(),
-    }))
+    .input(
+      queryInput.extend({
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(SESSION_REPLAYS_MAX_PAGE_SIZE)
+          .default(SESSION_REPLAYS_DEFAULT_PAGE_SIZE),
+        cursor: z.number().nullish(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { main } = toSiteQuery(ctx.authContext.siteId, input.query);
       return getSessionReplaysForSite(ctx.authContext, main, input.limit, input.cursor ?? 0);

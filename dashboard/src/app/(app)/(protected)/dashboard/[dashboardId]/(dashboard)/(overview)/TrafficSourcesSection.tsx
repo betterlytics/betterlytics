@@ -46,41 +46,35 @@ export default function TrafficSourcesSection() {
           key: 'referrers',
           label: t('tabs.referrers'),
           loading: referrersState.loading,
-          data: (referrersQuery.data ?? []).map(
-            (item): ProgressBarData => ({
-              label: item.source_name,
-              value: item.current.visitors,
-              trendPercentage: item.change?.visitors,
-              comparisonValue: item.compare?.visitors,
-              filters: item.stored_source_name
-                ? [{ column: 'referrer_source_name', value: item.stored_source_name }]
-                : undefined,
-              children: item.children?.map(
-                (child): ProgressBarData => ({
-                  label: child.referrer_url,
-                  value: child.current.visitors,
-                  trendPercentage: child.change?.visitors,
-                  comparisonValue: child.compare?.visitors,
-                  filters: [{ column: 'referrer_url' }],
-                }),
-              ),
-            }),
-          ),
+          data: (referrersQuery.data ?? []).map((item): ProgressBarData => ({
+            label: item.source_name,
+            value: item.current.visitors,
+            trendPercentage: item.change?.visitors,
+            comparisonValue: item.compare?.visitors,
+            filters: item.stored_source_name
+              ? [{ column: 'referrer_source_name', value: item.stored_source_name }]
+              : undefined,
+            children: item.children?.map((child): ProgressBarData => ({
+              label: child.referrer_url,
+              value: child.current.visitors,
+              trendPercentage: child.change?.visitors,
+              comparisonValue: child.compare?.visitors,
+              filters: [{ column: 'referrer_url' }],
+            })),
+          })),
         },
         {
           key: 'channels',
           label: t('tabs.channels'),
           loading: channelsState.loading,
-          data: (channelsQuery.data ?? []).map(
-            (item): ProgressBarData => ({
-              key: item.channel,
-              label: categoryLabel(item.channel),
-              value: item.current.visits,
-              trendPercentage: item.change?.visits,
-              comparisonValue: item.compare?.visits,
-              filters: [{ column: 'referrer_source', value: item.channel }],
-            }),
-          ),
+          data: (channelsQuery.data ?? []).map((item): ProgressBarData => ({
+            key: item.channel,
+            label: categoryLabel(item.channel),
+            value: item.current.visits,
+            trendPercentage: item.change?.visits,
+            comparisonValue: item.compare?.visits,
+            filters: [{ column: 'referrer_source', value: item.channel }],
+          })),
         },
       ]}
       footer={

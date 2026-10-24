@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { createContext, useContext, useState, Dispatch, SetStateAction } from "react";
+import React, { createContext, useContext, useState, Dispatch, SetStateAction } from 'react';
 
 type UserJourneyFilterContextType = {
   numberOfSteps: number;
@@ -13,7 +13,7 @@ const UserJourneyFilterContext = createContext<UserJourneyFilterContextType | un
 
 export function useUserJourneyFilter() {
   const context = useContext(UserJourneyFilterContext);
-  if (!context) throw new Error("useUserJourneyFilter must be used within UserJourneyFilterProvider");
+  if (!context) throw new Error('useUserJourneyFilter must be used within UserJourneyFilterProvider');
   return context;
 }
 
@@ -28,8 +28,10 @@ export function UserJourneyFilterProvider({ children, initialNumberOfSteps, init
   const [numberOfJourneys, setNumberOfJourneys] = useState<number>(initialNumberOfJourneys ?? 10);
 
   return (
-    <UserJourneyFilterContext.Provider value={{ numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys }}>
+    <UserJourneyFilterContext.Provider
+      value={{ numberOfSteps, setNumberOfSteps, numberOfJourneys, setNumberOfJourneys }}
+    >
       {children}
     </UserJourneyFilterContext.Provider>
   );
-} 
+}

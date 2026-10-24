@@ -73,7 +73,13 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const hasData = Boolean(monitor.uptimeBuckets && monitor.uptimeBuckets.length > 0);
         const uptimePercent = hasData ? weightedUptimePercent(monitor.uptimeBuckets ?? []) : null;
         const percentLabel =
-          uptimePercent != null ? formatPercentage(uptimePercent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }) : '— %';
+          uptimePercent != null
+            ? formatPercentage(uptimePercent, locale, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                trimHundred: true,
+              })
+            : '— %';
         const { theme } = presentUptimeTone(uptimePercent ?? null);
 
         const isBackedOff = (monitor.backoffLevel ?? 0) > 0 && (monitor.effectiveIntervalSeconds ?? 0) > 0;

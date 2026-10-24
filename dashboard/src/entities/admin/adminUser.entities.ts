@@ -119,7 +119,10 @@ export type AdminDeleteUserContext = {
   canTransfer: boolean;
 };
 
-export function resolveAdminUserStatus(user: { disabledAt: Date | null; deletedAt: Date | null }): AdminUserStatus {
+export function resolveAdminUserStatus(user: {
+  disabledAt: Date | null;
+  deletedAt: Date | null;
+}): AdminUserStatus {
   if (user.deletedAt) return 'deleted';
   if (user.disabledAt) return 'disabled';
   return 'active';

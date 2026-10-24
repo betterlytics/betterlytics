@@ -76,7 +76,7 @@ function StackFrameRow({ frame }: { frame: StackFrame }) {
         isCulprit ? 'bg-background' : 'bg-muted/30',
       )}
     >
-      <span className='text-muted-foreground/60 w-10 shrink-0 select-none text-right tabular-nums'>
+      <span className='text-muted-foreground/60 w-10 shrink-0 text-right tabular-nums select-none'>
         {frame.line ?? ''}
       </span>
       <span className='flex min-w-0 flex-1 items-center gap-2'>

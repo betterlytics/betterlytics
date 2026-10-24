@@ -2,9 +2,7 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export function Timeline({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <ol className={cn('relative grid grid-cols-[18px_minmax(0,1fr)] gap-x-3', className)}>{children}</ol>
-  );
+  return <ol className={cn('relative grid grid-cols-[18px_minmax(0,1fr)] gap-x-3', className)}>{children}</ol>;
 }
 
 type TimelineItemProps = {

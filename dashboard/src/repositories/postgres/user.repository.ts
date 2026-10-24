@@ -95,10 +95,7 @@ async function findUserBy(where: Prisma.UserWhereUniqueInput): Promise<User | nu
   }
 }
 
-export async function setGithubStarPromptState(
-  userId: string,
-  state: GithubStarPromptState,
-): Promise<void> {
+export async function setGithubStarPromptState(userId: string, state: GithubStarPromptState): Promise<void> {
   try {
     await prisma.user.update({
       where: { id: userId },
@@ -303,7 +300,9 @@ export async function setUserDisabledUnlessBlocked(
 
       await tx.user.update({ where: { id: userId }, data: { disabledAt: new Date() } });
       await tx.session.deleteMany({ where: { userId } });
-      await tx.verification.deleteMany({ where: { value: userId, identifier: { startsWith: 'reset-password:' } } });
+      await tx.verification.deleteMany({
+        where: { value: userId, identifier: { startsWith: 'reset-password:' } },
+      });
       return null;
     });
   } catch (error) {
@@ -380,7 +379,10 @@ async function anonymizeUserWith(tx: Prisma.TransactionClient, userId: string): 
     where: { createdBy: userId, deletedAt: null },
     data: { deletedAt: new Date() },
   });
-  await tx.adminAuditLog.updateMany({ where: { targetType: 'user', targetId: userId }, data: { targetLabel: null } });
+  await tx.adminAuditLog.updateMany({
+    where: { targetType: 'user', targetId: userId },
+    data: { targetLabel: null },
+  });
   await tx.adminAuditLog.updateMany({ where: { actorUserId: userId }, data: { actorLabel: null } });
 }
 

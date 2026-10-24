@@ -52,9 +52,7 @@ export default function UserSessionsSettings() {
   return (
     <UserSettingsSection title={t('title')}>
       <SettingRow
-        label={
-          isLoading ? <Skeleton className='h-4 w-32' /> : t('activeCount', { count: sessionCount ?? 0 })
-        }
+        label={isLoading ? <Skeleton className='h-4 w-32' /> : t('activeCount', { count: sessionCount ?? 0 })}
         description={t('description')}
         action={
           <Button

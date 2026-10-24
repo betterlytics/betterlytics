@@ -24,10 +24,12 @@ export default function MetricInfo({ metric, iconClassName = 'h-4 w-4', triggerC
       <InfoTooltip.Description>{t(`info.descriptions.${metric}`)}</InfoTooltip.Description>
       <InfoTooltip.Secondary>
         <div>
-          <span className='opacity-80'>{t('info.good')}:</span> ≤ {formatCWV(metric, CWV_THRESHOLDS[metric][0], locale)}
+          <span className='opacity-80'>{t('info.good')}:</span> ≤{' '}
+          {formatCWV(metric, CWV_THRESHOLDS[metric][0], locale)}
         </div>
         <div>
-          <span className='opacity-80'>{t('info.fair')}:</span> ≤ {formatCWV(metric, CWV_THRESHOLDS[metric][1], locale)}
+          <span className='opacity-80'>{t('info.fair')}:</span> ≤{' '}
+          {formatCWV(metric, CWV_THRESHOLDS[metric][1], locale)}
         </div>
       </InfoTooltip.Secondary>
     </InfoTooltip>

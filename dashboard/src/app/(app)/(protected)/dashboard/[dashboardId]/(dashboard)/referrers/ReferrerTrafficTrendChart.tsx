@@ -40,9 +40,7 @@ export default function ReferrerTrafficTrendChart({
   const { axisFormatter } = useChartDateFormatters('day');
   const categoryLabel = useReferrerCategoryLabel();
   if (!chartData || chartData.length === 0 || categories.length === 0) {
-    return (
-      <DataEmptyComponent />
-    );
+    return <DataEmptyComponent />;
   }
 
   return (

@@ -56,8 +56,7 @@ export async function resolveDemoDashboardContext(dashboardId: string): Promise<
 }
 
 export type DashboardAuthResult =
-  | { context: AuthContext; error?: never }
-  | { context?: never; error: 'unauthenticated' | 'forbidden' };
+  { context: AuthContext; error?: never } | { context?: never; error: 'unauthenticated' | 'forbidden' };
 
 export async function resolveDashboardAuthResult(dashboardId: string): Promise<DashboardAuthResult> {
   if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {

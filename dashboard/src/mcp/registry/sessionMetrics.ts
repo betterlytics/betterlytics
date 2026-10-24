@@ -44,8 +44,7 @@ export const SESSION_METRICS = [
   {
     key: 'pageviews',
     unit: 'count',
-    description:
-      'Every pageview of the selected sessions, including pageviews after the range end.',
+    description: 'Every pageview of the selected sessions, including pageviews after the range end.',
     columns: ['pageview_count'],
     expression: safeSql`${SessionMetricSql.pageviews} AS pageviews`,
   },

@@ -59,10 +59,12 @@ export const campaignRouter = createRouter({
     }),
 
   utmBreakdown: analyticsProcedure
-    .input(z.object({
-      campaignName: z.string(),
-      dimension: z.enum(['source', 'medium', 'term', 'content']),
-    }))
+    .input(
+      z.object({
+        campaignName: z.string(),
+        dimension: z.enum(['source', 'medium', 'term', 'content']),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
       return fetchCampaignUTMBreakdown(main, input.dimension, input.campaignName);

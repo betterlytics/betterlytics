@@ -524,7 +524,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                         className={cn(
                           'group',
                           canMutate &&
-                            'hover:bg-accent dark:hover:bg-primary/10 focus-visible:bg-accent dark:focus-visible:bg-primary/10 focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none',
+                            'hover:bg-accent dark:hover:bg-primary/10 focus-visible:bg-accent dark:focus-visible:bg-primary/10 focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
                         )}
                         onClick={canMutate ? () => openEdit(row.original) : undefined}
                         onKeyDown={

@@ -67,13 +67,11 @@ export const deleteUserAccountAction = withUserAuth(async (user: User): Promise<
   return await UserSettingsService.deleteUser(user.id);
 });
 
-export const updateUserNameAction = withUserAuth(
-  async (user: User, data: UpdateUserNameData): Promise<void> => {
-    const validatedData = UpdateUserNameSchema.parse(data);
+export const updateUserNameAction = withUserAuth(async (user: User, data: UpdateUserNameData): Promise<void> => {
+  const validatedData = UpdateUserNameSchema.parse(data);
 
-    return await UserSettingsService.updateUser(user.id, validatedData);
-  },
-);
+  return await UserSettingsService.updateUser(user.id, validatedData);
+});
 
 export const getActiveSessionCountAction = withUserAuth(async (user: User): Promise<number> => {
   return countUserSessions(user.id);

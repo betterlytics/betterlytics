@@ -27,7 +27,8 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Enkel og forutsigbar prising',
-      betterlytics: 'Gratis for alltid for små nettsteder. Betalte planer fra $7/måned med kjernefunksjoner inkludert.',
+      betterlytics:
+        'Gratis for alltid for små nettsteder. Betalte planer fra $7/måned med kjernefunksjoner inkludert.',
       competitor:
         'Generøst gratisnivå, men bruksbasert fakturering på tvers av flere produkter blir komplisert når du skalerer.',
     },
@@ -97,9 +98,7 @@ export const posthog: ComparisonLocaleContent = {
       },
       {
         name: 'AI og integrasjoner',
-        features: [
-          { name: 'MCP-server', betterlytics: true, competitor: true },
-        ],
+        features: [{ name: 'MCP-server', betterlytics: true, competitor: true }],
       },
     ],
   },

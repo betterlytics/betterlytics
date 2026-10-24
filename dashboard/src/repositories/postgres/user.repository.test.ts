@@ -167,7 +167,6 @@ describe('findCredentialAccount', () => {
   });
 });
 
-
 function mockCounts(activeAdmins: number, activeUsers: number) {
   prismaMock.user.count.mockImplementation(async ({ where }: { where: { role?: string } }) =>
     where.role === 'admin' ? activeAdmins : activeUsers,

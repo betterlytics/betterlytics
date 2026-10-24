@@ -84,9 +84,7 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
               <span className='text-sm font-medium'>{t('eventUsage')}</span>
             </div>
             {!isCanceled && (
-              <p className='text-muted-foreground text-xs'>
-                {t('resetsInDays', { days: usage.daysUntilReset })}
-              </p>
+              <p className='text-muted-foreground text-xs'>{t('resetsInDays', { days: usage.daysUntilReset })}</p>
             )}
           </div>
 

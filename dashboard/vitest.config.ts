@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
-import path from 'path'
+import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
   // Next's tsconfig uses jsx: preserve; React Email templates under test need the automatic runtime.
@@ -17,6 +17,6 @@ export default defineConfig({
     // Email templates parse the shared env at import time.
     env: { PUBLIC_BASE_URL: 'http://localhost:3000' },
     include: ['**/*.test.{ts,tsx}'],
-    exclude: ['node_modules']
+    exclude: ['node_modules'],
   },
-})
+});

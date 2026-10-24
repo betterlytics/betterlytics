@@ -42,15 +42,13 @@ export default function CustomEventsSection() {
           key: 'events',
           label: t('tabs.events'),
           loading: eventsState.loading,
-          data: (eventsQuery.data ?? []).map(
-            (event): ProgressBarData => ({
-              label: event.event_name,
-              value: event.current.count,
-              trendPercentage: event.change?.count,
-              comparisonValue: event.compare?.count,
-              filters: [{ column: 'custom_event_name' }],
-            }),
-          ),
+          data: (eventsQuery.data ?? []).map((event): ProgressBarData => ({
+            label: event.event_name,
+            value: event.current.count,
+            trendPercentage: event.change?.count,
+            comparisonValue: event.compare?.count,
+            filters: [{ column: 'custom_event_name' }],
+          })),
         },
         {
           key: 'properties',
@@ -65,15 +63,13 @@ export default function CustomEventsSection() {
               trendPercentage: prop.change?.percentage,
               comparisonValue: prop.compare?.visitors,
               filters: [{ column: filterKey, value: '*' }],
-              children: prop.children.map(
-                (v): ProgressBarData => ({
-                  filters: [{ column: filterKey }],
-                  label: v.value,
-                  value: v.current.visitors,
-                  trendPercentage: v.change?.percentage,
-                  comparisonValue: v.compare?.visitors,
-                }),
-              ),
+              children: prop.children.map((v): ProgressBarData => ({
+                filters: [{ column: filterKey }],
+                label: v.value,
+                value: v.current.visitors,
+                trendPercentage: v.change?.percentage,
+                comparisonValue: v.compare?.visitors,
+              })),
             };
           }),
         },

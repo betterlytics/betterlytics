@@ -131,9 +131,7 @@ export async function previewSubscriptionChange(
   }
 }
 
-export type ApplyChangeResult =
-  | { status: 'succeeded' }
-  | { status: 'requires_action'; clientSecret: string };
+export type ApplyChangeResult = { status: 'succeeded' } | { status: 'requires_action'; clientSecret: string };
 
 export async function applySubscriptionChange(
   userId: string,

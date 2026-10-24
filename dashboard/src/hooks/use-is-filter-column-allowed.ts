@@ -22,8 +22,7 @@ const DEMO_ALLOWED_COLUMNS = new Set<TableFilterColumn>(['url', 'device_type']);
 export type FilterColumnDisabledReason = 'demo' | 'page';
 
 export type FilterColumnStatus =
-  | { disabled: false; reason: null }
-  | { disabled: true; reason: FilterColumnDisabledReason };
+  { disabled: false; reason: null } | { disabled: true; reason: FilterColumnDisabledReason };
 
 const ENABLED: FilterColumnStatus = { disabled: false, reason: null };
 

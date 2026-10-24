@@ -18,8 +18,7 @@ const FORMAT_TO_MIME: Record<string, string> = {
 disableTypes(types.filter((type) => !(type in FORMAT_TO_MIME)));
 
 export type InspectedStatusPageImage =
-  | { ok: true; mimeType: string; data: Uint8Array }
-  | { ok: false; reason: 'type' | 'svgRejected' };
+  { ok: true; mimeType: string; data: Uint8Array } | { ok: false; reason: 'type' | 'svgRejected' };
 
 /**
  * Validate an uploaded status-page image and produce the exact bytes to store.

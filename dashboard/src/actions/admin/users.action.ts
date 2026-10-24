@@ -63,10 +63,17 @@ export const revokeUserSessionAction = withAdminAction(
     section: 'users',
     action: 'revoke_user_session',
     targetType: 'user',
-    audit: async (userId: string, sessionId: string) => ({ ...(await userTarget(userId)), payload: { sessionId } }),
+    audit: async (userId: string, sessionId: string) => ({
+      ...(await userTarget(userId)),
+      payload: { sessionId },
+    }),
   },
   async (ctx: AdminCtx, userId: string, sessionId: string) => {
-    await AdminUsersService.revokeUserSession(ctx.actor, UserIdSchema.parse(userId), z.string().min(1).parse(sessionId));
+    await AdminUsersService.revokeUserSession(
+      ctx.actor,
+      UserIdSchema.parse(userId),
+      z.string().min(1).parse(sessionId),
+    );
   },
 );
 
@@ -106,6 +113,10 @@ export const deleteUserAction = withAdminAction(
     audit: async (userId: string, input: AdminDeleteUserInput) => ({ targetId: userId, payload: input }),
   },
   async (ctx: AdminCtx, userId: string, input: AdminDeleteUserInput) => {
-    await AdminUsersService.deleteUser(ctx.actor, UserIdSchema.parse(userId), AdminDeleteUserInputSchema.parse(input));
+    await AdminUsersService.deleteUser(
+      ctx.actor,
+      UserIdSchema.parse(userId),
+      AdminDeleteUserInputSchema.parse(input),
+    );
   },
 );

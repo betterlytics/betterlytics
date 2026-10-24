@@ -1,5 +1,10 @@
 import { z } from 'zod';
-import { McpDateRangeSchema, McpFiltersSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
+import {
+  McpDateRangeSchema,
+  McpFiltersSchema,
+  customDateRangeRefinement,
+  dateOrderRefinement,
+} from '@/mcp/entities/mcp.entities';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
 import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
 import { getUserJourneyForSankeyDiagram } from '@/services/analytics/userJourney.service';
@@ -24,9 +29,10 @@ export const McpUserJourneysInputBaseSchema = McpDateRangeSchema.extend({
     .describe('Max number of top unique paths to include. Defaults to 50.'),
 });
 
-export const McpUserJourneysInputSchema = McpUserJourneysInputBaseSchema
-  .refine(customDateRangeRefinement.check, customDateRangeRefinement)
-  .refine(dateOrderRefinement.check, dateOrderRefinement);
+export const McpUserJourneysInputSchema = McpUserJourneysInputBaseSchema.refine(
+  customDateRangeRefinement.check,
+  customDateRangeRefinement,
+).refine(dateOrderRefinement.check, dateOrderRefinement);
 
 export async function executeUserJourneys(rawInput: unknown, siteId: string) {
   const input = McpUserJourneysInputSchema.parse(rawInput);

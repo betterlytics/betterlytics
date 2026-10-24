@@ -24,7 +24,7 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
   const hasMultipleMembers = dashboard.memberCount > 1;
 
   return (
-    <Card className='group hover:border-primary/30 focus-within:border-primary/30 has-[>a:focus-visible]:ring-ring/50 has-[>a:focus-visible]:ring-1 border-border/50 relative z-0 h-full cursor-pointer transition-all duration-200 hover:shadow-lg focus-within:shadow-lg'>
+    <Card className='group hover:border-primary/30 focus-within:border-primary/30 has-[>a:focus-visible]:ring-ring/50 border-border/50 relative z-0 h-full cursor-pointer transition-all duration-200 focus-within:shadow-lg hover:shadow-lg has-[>a:focus-visible]:ring-1'>
       <Link
         href={`/dashboard/${dashboard.id}`}
         className='absolute inset-0 z-0 outline-none'
@@ -59,7 +59,7 @@ export default function DashboardCard({ dashboard }: DashboardCardProps) {
                   </Tooltip>
                 </TooltipProvider>
               ) : (
-                <ExternalLink className='text-muted-foreground h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100' />
+                <ExternalLink className='text-muted-foreground h-4 w-4 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100' />
               )}
             </div>
           </div>

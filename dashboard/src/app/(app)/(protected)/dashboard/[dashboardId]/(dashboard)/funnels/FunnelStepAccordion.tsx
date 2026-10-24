@@ -223,10 +223,10 @@ export function FunnelStepAccordion({
         ref={scrollerRef}
         data-slot='steps-scroll'
         className={cn(
-          'overflow-x-hidden overflow-y-auto overscroll-contain scroll-pb-14 [container-type:size]',
+          '[container-type:size] scroll-pb-14 overflow-x-hidden overflow-y-auto overscroll-contain',
           '[scrollbar-width:thin] [scrollbar-color:var(--border)_transparent]',
           '[&::-webkit-scrollbar]:w-2',
-          '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border',
+          '[&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:rounded-full',
           '[&::-webkit-scrollbar-track]:bg-transparent',
           'max-sm:[scrollbar-width:none] max-sm:[&::-webkit-scrollbar]:hidden',
           className,
@@ -243,7 +243,7 @@ export function FunnelStepAccordion({
               userInitiatedOpenRef.current = next ?? null;
               setOpenStepId(next);
             }}
-            className='flex flex-col gap-3 pl-1 pr-1 pt-3 pb-1 sm:pr-3'
+            className='flex flex-col gap-3 pt-3 pr-1 pb-1 pl-1 sm:pr-3'
           >
             {steps.map((step, index) => (
               <FunnelStepAccordionItem
@@ -266,7 +266,7 @@ export function FunnelStepAccordion({
             scroll area when the list overflows (steps scroll underneath). */}
         <div
           ref={addStepPinRef}
-          className='bg-background sticky -bottom-px z-10 pl-8 pr-1 pt-2 pb-2 shadow-[0_-10px_12px_-6px_var(--background)] sm:pl-11 sm:pr-3'
+          className='bg-background sticky -bottom-px z-10 pt-2 pr-1 pb-2 pl-8 shadow-[0_-10px_12px_-6px_var(--background)] sm:pr-3 sm:pl-11'
         >
           <Button variant='outline' onClick={onAddStep} className='w-full cursor-pointer'>
             <PlusIcon className='size-4' /> {addStepLabel}

@@ -28,27 +28,44 @@ beforeEach(() => {
 
 describe('withAdminAction', () => {
   it('runs the action and records a successful audit entry', async () => {
-    const action = withAdminAction({ section: 'users', action: 'disable_user', targetType: 'user', audit }, async () => 'ok');
+    const action = withAdminAction(
+      { section: 'users', action: 'disable_user', targetType: 'user', audit },
+      async () => 'ok',
+    );
 
     expect(await action('user-1')).toEqual({ success: true, data: 'ok' });
     expect(recordAdminAction).toHaveBeenCalledWith(
-      expect.objectContaining({ actor: selfHostAdmin, action: 'disable_user', targetId: 'user-1', status: 'success' }),
+      expect.objectContaining({
+        actor: selfHostAdmin,
+        action: 'disable_user',
+        targetId: 'user-1',
+        status: 'success',
+      }),
     );
   });
 
   it('records a failed audit entry and passes user-safe messages through', async () => {
-    const action = withAdminAction({ section: 'users', action: 'disable_user', targetType: 'user', audit }, async () => {
-      throw new UserException('This is the last admin.');
-    });
+    const action = withAdminAction(
+      { section: 'users', action: 'disable_user', targetType: 'user', audit },
+      async () => {
+        throw new UserException('This is the last admin.');
+      },
+    );
 
-    expect(await action('user-1')).toMatchObject({ success: false, error: { message: 'This is the last admin.' } });
+    expect(await action('user-1')).toMatchObject({
+      success: false,
+      error: { message: 'This is the last admin.' },
+    });
     expect(recordAdminAction).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed' }));
   });
 
   it('masks unexpected errors', async () => {
-    const action = withAdminAction({ section: 'users', action: 'disable_user', targetType: 'user', audit }, async () => {
-      throw new Error('db down');
-    });
+    const action = withAdminAction(
+      { section: 'users', action: 'disable_user', targetType: 'user', audit },
+      async () => {
+        throw new Error('db down');
+      },
+    );
 
     expect(await action('user-1')).toMatchObject({ success: false, error: { message: 'An error occurred' } });
   });

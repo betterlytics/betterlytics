@@ -29,27 +29,33 @@ export function useErrorGroupActions(errorGroups: ErrorGroupRow[], dashboardId: 
     return errorGroups.filter((g) => getStatus(g.error_fingerprint, g.status) === statusFilter);
   }, [errorGroups, statusFilter, getStatus]);
 
-  const setStatus = useCallback(async (fingerprint: string, status: ErrorGroupStatusValue) => {
-    setStatusOverrides((prev) => ({ ...prev, [fingerprint]: status }));
-    setRowSelection((prev) => {
-      const next = { ...prev };
-      delete next[fingerprint];
-      return next;
-    });
-    await upsertErrorGroupAction(dashboardId, fingerprint, status);
-  }, [dashboardId]);
+  const setStatus = useCallback(
+    async (fingerprint: string, status: ErrorGroupStatusValue) => {
+      setStatusOverrides((prev) => ({ ...prev, [fingerprint]: status }));
+      setRowSelection((prev) => {
+        const next = { ...prev };
+        delete next[fingerprint];
+        return next;
+      });
+      await upsertErrorGroupAction(dashboardId, fingerprint, status);
+    },
+    [dashboardId],
+  );
 
-  const bulkSetStatus = useCallback(async (fingerprints: string[], status: ErrorGroupStatusValue) => {
-    setStatusOverrides((prev) => {
-      const next = { ...prev };
-      for (const fp of fingerprints) {
-        next[fp] = status;
-      }
-      return next;
-    });
-    await bulkUpsertErrorGroupAction(dashboardId, fingerprints, status);
-    setRowSelection({});
-  }, [dashboardId]);
+  const bulkSetStatus = useCallback(
+    async (fingerprints: string[], status: ErrorGroupStatusValue) => {
+      setStatusOverrides((prev) => {
+        const next = { ...prev };
+        for (const fp of fingerprints) {
+          next[fp] = status;
+        }
+        return next;
+      });
+      await bulkUpsertErrorGroupAction(dashboardId, fingerprints, status);
+      setRowSelection({});
+    },
+    [dashboardId],
+  );
 
   const changeStatusFilter = useCallback((next: StatusFilter) => {
     setStatusFilter(next);

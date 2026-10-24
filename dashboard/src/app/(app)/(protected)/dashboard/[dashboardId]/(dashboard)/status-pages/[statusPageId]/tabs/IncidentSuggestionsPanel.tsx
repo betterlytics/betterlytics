@@ -43,10 +43,7 @@ export function IncidentSuggestionsPanel({ suggestions, onCreateIncident }: Inci
           <div className='text-muted-foreground text-xs'>{t('suggestionsHint')}</div>
         </div>
         <ChevronDown
-          className={cn(
-            'text-muted-foreground h-4 w-4 flex-none transition-transform',
-            panelOpen && 'rotate-180',
-          )}
+          className={cn('text-muted-foreground h-4 w-4 flex-none transition-transform', panelOpen && 'rotate-180')}
         />
       </button>
       {panelOpen && (

@@ -35,9 +35,7 @@ class StatusPageCapabilityValidator extends CapabilityValidator {
   }
 }
 
-export async function statusPageValidator(
-  caps: StatusPagesCapabilities,
-): Promise<StatusPageCapabilityValidator> {
+export async function statusPageValidator(caps: StatusPagesCapabilities): Promise<StatusPageCapabilityValidator> {
   const t = await getTranslations('validation');
   return new StatusPageCapabilityValidator(caps, t);
 }

@@ -2,12 +2,12 @@ import { createColorGetter } from './colorUtils';
 
 // Colors for different referrer categories
 export const REFERRER_COLORS: Record<string, string> = {
-  'search': '#3B82F6', // Blue
-  'social': '#8B5CF6', // Violet
-  'ai': '#EC4899',     // Pink
-  'direct': '#10B981', // Emerald
-  'email': '#EF4444',  // Red
-  'other': '#F59E0B',  // Amber
+  search: '#3B82F6', // Blue
+  social: '#8B5CF6', // Violet
+  ai: '#EC4899', // Pink
+  direct: '#10B981', // Emerald
+  email: '#EF4444', // Red
+  other: '#F59E0B', // Amber
 };
 
 /**
@@ -18,4 +18,4 @@ export function getReferrerColor(referrerType: string): string {
     colorMap: REFERRER_COLORS,
     defaultColor: REFERRER_COLORS.other,
   })(referrerType);
-} 
+}

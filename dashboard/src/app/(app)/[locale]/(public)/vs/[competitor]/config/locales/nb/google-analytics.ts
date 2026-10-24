@@ -11,7 +11,8 @@ export const googleAnalytics: ComparisonLocaleContent = {
   hero: {
     title: 'Ser du etter et alternativ til Google Analytics?',
     titleHighlight: 'alternativ',
-    subtitle: 'Et lettvekts, personvernfokusert alternativ til Google Analytics. Ingen cookies, ingen bannere, ingen overflødighet.',
+    subtitle:
+      'Et lettvekts, personvernfokusert alternativ til Google Analytics. Ingen cookies, ingen bannere, ingen overflødighet.',
   },
   keyDifferentiators: [
     {
@@ -94,9 +95,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       },
       {
         name: 'AI og integrasjoner',
-        features: [
-          { name: 'MCP-server', betterlytics: true, competitor: true },
-        ],
+        features: [{ name: 'MCP-server', betterlytics: true, competitor: true }],
       },
     ],
   },

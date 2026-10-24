@@ -46,10 +46,7 @@ const STATUS_IMAGE_PATH = /^\/status\/[^/]+\/image\/[^/]+$/;
 export type StatusHostClassification = 'status' | 'unknown' | 'unavailable';
 
 export type StatusHostRoute =
-  | { kind: 'pass' }
-  | { kind: 'rewrite'; pathname: string }
-  | { kind: 'notFound' }
-  | { kind: 'unavailable' };
+  { kind: 'pass' } | { kind: 'rewrite'; pathname: string } | { kind: 'notFound' } | { kind: 'unavailable' };
 
 export function decideStatusHostRoute(
   classification: StatusHostClassification,

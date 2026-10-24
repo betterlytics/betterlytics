@@ -20,7 +20,11 @@ export function ThemeSegmentedControl({ value, onChange }: ThemeSegmentedControl
   const t = useTranslations('statusPagesPage.editor');
 
   return (
-    <div role='radiogroup' aria-label={t('theme')} className='border-input inline-flex overflow-hidden rounded-md border'>
+    <div
+      role='radiogroup'
+      aria-label={t('theme')}
+      className='border-input inline-flex overflow-hidden rounded-md border'
+    >
       {THEME_OPTIONS.map(({ value: option, Icon }) => (
         <button
           key={option}

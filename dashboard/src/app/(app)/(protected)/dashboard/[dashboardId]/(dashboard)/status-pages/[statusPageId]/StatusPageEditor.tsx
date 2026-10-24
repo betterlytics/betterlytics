@@ -109,9 +109,7 @@ export function StatusPageEditor({
     window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`);
   }, []);
 
-  const [showStudio, setShowStudio] = useState(
-    () => canManageStatusPages && searchParams.get('studio') === '1',
-  );
+  const [showStudio, setShowStudio] = useState(() => canManageStatusPages && searchParams.get('studio') === '1');
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const livePreviewQuery = useQuery({

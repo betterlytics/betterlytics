@@ -20,12 +20,7 @@ import {
 } from './filter-sql';
 
 // Filters
-const MAIN_TABLE_FILTERS: TableFilterColumn[] = [
-  'url',
-  'event_type',
-  'custom_event_name',
-  'outbound_link_url',
-];
+const MAIN_TABLE_FILTERS: TableFilterColumn[] = ['url', 'event_type', 'custom_event_name', 'outbound_link_url'];
 const SESSION_TUPLE_COLUMNS: (TableFilterColumn | (typeof SESSIONS_TABLE_SELECTABLE_COLUMNS)[number])[] = [
   'entry_page',
   'exit_page',
@@ -221,7 +216,9 @@ function buildEventsBridgeQueries(
   ];
   const excludes = [
     ...eventsFilters.filter((filter) => filter.rawOperator === '!=').map((filter) => buildEventMatchQuery(filter)),
-    ...cepFilters.filter((filter) => filter.rawOperator === '!=').map((filter) => buildCustomEventPropertyMatch(filter)),
+    ...cepFilters
+      .filter((filter) => filter.rawOperator === '!=')
+      .map((filter) => buildCustomEventPropertyMatch(filter)),
   ];
 
   const includeBridges = buildIncludePredicates(includes).map(

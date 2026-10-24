@@ -181,8 +181,7 @@ export const SendEmailEnvelopeSchema = z.object({
 });
 
 export type SendEmailPayloadValidation =
-  | { ok: true; payload: SendEmailPayload }
-  | { ok: false; type: string; error: string };
+  { ok: true; payload: SendEmailPayload } | { ok: false; type: string; error: string };
 
 export function validateSendEmailPayload(raw: unknown): SendEmailPayloadValidation {
   const envelope = SendEmailEnvelopeSchema.safeParse(raw);

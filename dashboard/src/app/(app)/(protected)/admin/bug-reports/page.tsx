@@ -65,7 +65,9 @@ export default async function AdminBugReportsPage({ searchParams }: PageProps) {
               aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'rounded px-3 py-1 text-sm font-medium transition-colors',
-                isActive ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
+                isActive
+                  ? 'bg-background text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
               {label}
@@ -98,7 +100,9 @@ export default async function AdminBugReportsPage({ searchParams }: PageProps) {
                 <TableRow key={report.id}>
                   <TableCell className='font-medium'>{report.userEmail}</TableCell>
                   <TableCell className='text-muted-foreground max-w-sm'>{truncate(report.message)}</TableCell>
-                  <TableCell className='text-muted-foreground font-mono text-xs'>{report.dashboardId ?? '—'}</TableCell>
+                  <TableCell className='text-muted-foreground font-mono text-xs'>
+                    {report.dashboardId ?? '—'}
+                  </TableCell>
                   <TableCell>
                     <Badge variant={statusBadgeVariant(report.status)}>{report.status}</Badge>
                   </TableCell>

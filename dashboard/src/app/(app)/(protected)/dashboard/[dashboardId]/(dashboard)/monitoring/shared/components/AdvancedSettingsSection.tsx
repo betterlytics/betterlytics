@@ -130,7 +130,9 @@ export function AdvancedSettingsSection({
                       form.setField('expectedKeyword')(value);
                     }}
                     maxLength={MONITOR_LIMITS.EXPECTED_KEYWORD_MAX}
-                    disabled={isPending || (locked && !form.state.expectedKeyword) || form.state.httpMethod !== 'GET'}
+                    disabled={
+                      isPending || (locked && !form.state.expectedKeyword) || form.state.httpMethod !== 'GET'
+                    }
                     className='h-9 text-sm'
                   />
                   <p className='text-muted-foreground text-xs'>
@@ -287,7 +289,6 @@ export function AdvancedSettingsSection({
               )}
             </CapabilityGate>
           </div>
-
         </div>
       </CollapsibleContent>
     </Collapsible>

@@ -6,9 +6,7 @@ export async function executeQuery(rawInput: unknown, siteId: string) {
   const input = McpQueryInputSchema.parse(rawInput);
   const { taggedSql, taggedParams } = buildQuery(input, siteId);
 
-  const result = await clickhouse
-    .query(taggedSql, { params: taggedParams })
-    .toPromise();
+  const result = await clickhouse.query(taggedSql, { params: taggedParams }).toPromise();
 
   return McpQueryResultSchema.parse(result);
 }

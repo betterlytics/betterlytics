@@ -92,9 +92,12 @@ describe('checkWebhookUrl', () => {
     ['https://hooks.example', [], true, 'unresolved', 'empty answer'],
     ['not a url', [], true, 'invalid', 'unparseable'],
     ['ftp://x', ['93.184.216.34'], true, 'invalid', 'unsupported scheme'],
-  ])('%s resolving to %j, allowPrivateTargets=%s → %s (%s)', async (url, addresses, allowPrivateTargets, expected) => {
-    expect(await checkWebhookUrl(url, allowPrivateTargets, resolvesTo(...addresses))).toBe(expected);
-  });
+  ])(
+    '%s resolving to %j, allowPrivateTargets=%s → %s (%s)',
+    async (url, addresses, allowPrivateTargets, expected) => {
+      expect(await checkWebhookUrl(url, allowPrivateTargets, resolvesTo(...addresses))).toBe(expected);
+    },
+  );
 
   it('is unresolved when resolution fails', async () => {
     expect(await checkWebhookUrl('https://hooks.example', true, failingResolver)).toBe('unresolved');
@@ -111,9 +114,12 @@ describe('checkTargetUrl', () => {
     ['http://192.168.1.10:8080', [], true, 'allowed', 'lan literal with allowance'],
     ['http://192.168.1.10:8080', [], false, 'blocked', 'lan literal without allowance'],
     ['not a url', [], true, 'invalid', 'unparseable'],
-  ])('%s resolving to %j, allowPrivateTargets=%s → %s (%s)', async (url, addresses, allowPrivateTargets, expected) => {
-    expect(await checkTargetUrl(url, allowPrivateTargets, resolvesTo(...addresses))).toBe(expected);
-  });
+  ])(
+    '%s resolving to %j, allowPrivateTargets=%s → %s (%s)',
+    async (url, addresses, allowPrivateTargets, expected) => {
+      expect(await checkTargetUrl(url, allowPrivateTargets, resolvesTo(...addresses))).toBe(expected);
+    },
+  );
 
   it('is unresolved when resolution fails', async () => {
     expect(await checkTargetUrl('http://app.example', true, failingResolver)).toBe('unresolved');

@@ -58,7 +58,9 @@ export default function ReferrersChartsSection() {
                 <Spinner />
               </div>
             )}
-            <div className={cn(distributionRefetching && 'pointer-events-none opacity-60', 'flex flex-1 flex-col')}>
+            <div
+              className={cn(distributionRefetching && 'pointer-events-none opacity-60', 'flex flex-1 flex-col')}
+            >
               <BAPieChart
                 data={distributionQuery.data ?? []}
                 loading={distributionLoading}

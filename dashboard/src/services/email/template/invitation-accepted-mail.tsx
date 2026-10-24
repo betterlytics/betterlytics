@@ -44,9 +44,8 @@ export function InvitationAcceptedEmail({
       <Greeting userName={inviterName} />
 
       <P>
-        <strong>{accepterEmail}</strong> just accepted your invitation to{' '}
-        <strong>{dashboardDomain}</strong> as <strong>{roleDisplay}</strong>. They now have access to the
-        dashboard.
+        <strong>{accepterEmail}</strong> just accepted your invitation to <strong>{dashboardDomain}</strong> as{' '}
+        <strong>{roleDisplay}</strong>. They now have access to the dashboard.
       </P>
 
       <EmailButton href={withEmailUtm(dashboardUrl, CAMPAIGN, 'primary_cta')}>View members</EmailButton>

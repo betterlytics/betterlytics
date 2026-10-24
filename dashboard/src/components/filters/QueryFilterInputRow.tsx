@@ -41,9 +41,9 @@ export function QueryFilterInputRow<TEntity>({
   return (
     <div
       className={cn(
-        'grid items-start gap-1 rounded border md:border-0 p-1',
+        'grid items-start gap-1 rounded border p-1 md:border-0',
         'grid-cols-[minmax(0,8fr)_minmax(0,2fr)_minmax(0,2fr)] [grid-template-areas:"col_op_op"_"val_val_delete"]',
-        'md:grid-cols-[minmax(0,4fr)_minmax(0,2fr)_minmax(0,5fr)_minmax(0,1fr)] md:[grid-template-areas:"col_op_val_delete"] md:grid-rows-1',
+        'md:grid-cols-[minmax(0,4fr)_minmax(0,2fr)_minmax(0,5fr)_minmax(0,1fr)] md:grid-rows-1 md:[grid-template-areas:"col_op_val_delete"]',
         className,
       )}
     >
@@ -86,7 +86,7 @@ export function QueryFilterInputRow<TEntity>({
       <Button
         variant='ghost'
         size='icon'
-        className='[grid-area:delete] size-8 cursor-pointer justify-self-end text-muted-foreground hover:text-foreground'
+        className='text-muted-foreground hover:text-foreground size-8 cursor-pointer justify-self-end [grid-area:delete]'
         onClick={() => requestRemoval?.(filter.id)}
         disabled={disableDeletion}
       >

@@ -22,7 +22,9 @@ export default function PagesAnalyticsSection() {
   const pagesState = useQueryState(pagesQuery, activeTab === 'pages');
   const entryState = useQueryState(entryQuery, activeTab === 'entry');
   const exitState = useQueryState(exitQuery, activeTab === 'exit');
-  const activeState = { pages: pagesState, entry: entryState, exit: exitState }[activeTab as 'pages' | 'entry' | 'exit'];
+  const activeState = { pages: pagesState, entry: entryState, exit: exitState }[
+    activeTab as 'pages' | 'entry' | 'exit'
+  ];
 
   const mapPage = (page: {
     url: string;

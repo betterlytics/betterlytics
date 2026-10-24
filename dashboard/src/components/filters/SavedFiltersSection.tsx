@@ -73,12 +73,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange, classN
       {(disabled) => (
         <div className={cn('flex flex-col gap-2', className)}>
           <Separator />
-          <Collapsible
-            className={cn('group')}
-            disabled={disabled}
-            open={isOpen}
-            onOpenChange={onOpenChange}
-          >
+          <Collapsible className={cn('group')} disabled={disabled} open={isOpen} onOpenChange={onOpenChange}>
             <CollapsibleTrigger asChild>
               <Button variant='ghost' className='h-8 w-full cursor-pointer justify-between px-2'>
                 <span className='text-muted-foreground flex items-center gap-2 text-sm'>
@@ -91,7 +86,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange, classN
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent>
-              <div 
+              <div
                 className='grid grid-cols-1 grid-rows-[fit-content(min(40vh,calc(var(--radix-popover-content-available-height,85vh)_-_var(--query-filters-popover-min-h,11rem))))]'
                 data-slot='saved-filters-collapsible-content'
               >
@@ -100,15 +95,15 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange, classN
                   onWheel={(e) => e.stopPropagation()}
                   onTouchMove={(e) => e.stopPropagation()}
                 >
-                  <div className='border-border/50 ml-2 mr-1 space-y-1 border-l pt-1 pl-2'>
+                  <div className='border-border/50 mr-1 ml-2 space-y-1 border-l pt-1 pl-2'>
                     {savedFilters.map((savedFilter) => (
                       <div
                         key={savedFilter.id}
-                        className='group/saved-filter hover:bg-accent has-focus-visible:ring-ring/50 has-focus-visible:ring flex items-center rounded-md transition-colors last:mb-1 pr-2'
+                        className='group/saved-filter hover:bg-accent has-focus-visible:ring-ring/50 flex items-center rounded-md pr-2 transition-colors last:mb-1 has-focus-visible:ring'
                       >
                         <button
                           type='button'
-                          className='flex-1 min-w-0 cursor-pointer truncate rounded-md px-2 py-1.5 text-left text-sm outline-none'
+                          className='min-w-0 flex-1 cursor-pointer truncate rounded-md px-2 py-1.5 text-left text-sm outline-none'
                           onClick={() => handleLoad(savedFilter)}
                         >
                           {savedFilter.name}
@@ -119,7 +114,7 @@ export function SavedFiltersSection({ onLoadFilter, isOpen, onOpenChange, classN
                               variant='ghost'
                               size='icon'
                               className={cn(
-                                'dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer opacity-0 transition-opacity focus-visible:opacity-100 group-hover/saved-filter:opacity-100',
+                                'dark:hover:bg-muted/50 hover:bg-foreground/10 h-6 w-6 cursor-pointer opacity-0 transition-opacity group-hover/saved-filter:opacity-100 focus-visible:opacity-100',
                                 deletingFilterId === savedFilter.id && 'opacity-100',
                               )}
                               onClick={(e) => handleDelete(savedFilter.id, e)}

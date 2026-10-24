@@ -264,7 +264,13 @@ function Last24hCard({
   const t = useTranslations('monitoringDetailPage.summary.last24h');
   const tDowntime = useTranslations('monitoringDetailPage.downtime');
   const formattedPercent =
-    uptimePercent != null ? formatPercentage(uptimePercent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }) : '— %';
+    uptimePercent != null
+      ? formatPercentage(uptimePercent, locale, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+          trimHundred: true,
+        })
+      : '— %';
   const downtimeMeta =
     uptimePercent != null && uptimeHours != null
       ? computeDowntimeFromUptimeHours(uptimePercent, uptimeHours)

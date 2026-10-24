@@ -126,9 +126,7 @@ export async function getBrowserRollup(siteQuery: BASiteQuery): Promise<BrowserR
     ORDER BY browser ASC, is_rollup DESC, visitors DESC
   `;
 
-  const result = await clickhouse
-    .query(query.taggedSql, { params: query.taggedParams })
-    .toPromise();
+  const result = await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise();
 
   return BrowserRollupRowSchema.array().parse(result);
 }
@@ -198,9 +196,7 @@ export async function getOperatingSystemRollup(siteQuery: BASiteQuery): Promise<
       ORDER BY os ASC, is_rollup DESC, visitors DESC
     `;
 
-  const result = await clickhouse
-    .query(query.taggedSql, { params: query.taggedParams })
-    .toPromise();
+  const result = await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise();
 
   return OperatingSystemRollupRowSchema.array().parse(result);
 }

@@ -19,7 +19,7 @@ export function TableTrendIndicator({
   allowNullish,
 }: TableTrendIndicatorProps) {
   const locale = useLocale();
-  const formatter = (val: number) => formatterProp ? formatterProp(val, locale) : val.toLocaleString(locale);
+  const formatter = (val: number) => (formatterProp ? formatterProp(val, locale) : val.toLocaleString(locale));
 
   if (percentage === undefined) {
     return null;

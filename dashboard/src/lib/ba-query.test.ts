@@ -106,13 +106,17 @@ describe('getFilterQuery custom event properties', () => {
   it('filters = through JSONExtractString on the blob', () => {
     const sql = buildSql([makeFilter('cep.plan', '=', ['pro'])]);
 
-    expect(sql).toMatch(/arrayExists\(pattern -> JSONExtractString\(custom_event_json, \{cep_key_0:String\}\) ILIKE pattern/);
+    expect(sql).toMatch(
+      /arrayExists\(pattern -> JSONExtractString\(custom_event_json, \{cep_key_0:String\}\) ILIKE pattern/,
+    );
   });
 
   it('keeps != as a per-event arrayAll NOT ILIKE', () => {
     const sql = buildSql([makeFilter('cep.plan', '!=', ['pro'])]);
 
-    expect(sql).toMatch(/arrayAll\(pattern -> JSONExtractString\(custom_event_json, \{cep_key_0:String\}\) NOT ILIKE pattern/);
+    expect(sql).toMatch(
+      /arrayAll\(pattern -> JSONExtractString\(custom_event_json, \{cep_key_0:String\}\) NOT ILIKE pattern/,
+    );
   });
 
   it('keeps cep bare wildcard as key existence', () => {

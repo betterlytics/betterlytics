@@ -104,7 +104,9 @@ describe('disableUser', () => {
 
 describe('password reset links', () => {
   it('issues a link for an enabled account with a password', async () => {
-    expect(await createPasswordResetLink(selfHost, 'user-1')).toMatchObject({ url: expect.stringContaining('token=') });
+    expect(await createPasswordResetLink(selfHost, 'user-1')).toMatchObject({
+      url: expect.stringContaining('token='),
+    });
   });
 
   it('refuses disabled and OAuth-only accounts', async () => {
@@ -132,7 +134,10 @@ describe('resetTwoFactor', () => {
     await resetTwoFactor(selfHost, 'user-1');
 
     expect(UserRepository.resetUserTwoFactor).toHaveBeenCalledWith('user-1');
-    expect(sendTwoFactorChangedNotification).toHaveBeenCalledWith(expect.objectContaining({ id: 'user-1' }), false);
+    expect(sendTwoFactorChangedNotification).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'user-1' }),
+      false,
+    );
   });
 
   it('refuses a user without 2FA, so nobody is signed out or emailed for nothing', async () => {
@@ -161,7 +166,9 @@ describe('deleteUser', () => {
   it('refuses to delete the public demo dashboard with its owner', async () => {
     vi.mocked(DashboardRepository.findOwnedDashboards).mockResolvedValue([{ id: 'demo-dash' }] as never);
 
-    await expect(deleteUser(selfHost, 'user-1', { ownedDashboards: 'delete' })).rejects.toBeInstanceOf(UserException);
+    await expect(deleteUser(selfHost, 'user-1', { ownedDashboards: 'delete' })).rejects.toBeInstanceOf(
+      UserException,
+    );
     expect(deleteUserAccount).not.toHaveBeenCalled();
   });
 
