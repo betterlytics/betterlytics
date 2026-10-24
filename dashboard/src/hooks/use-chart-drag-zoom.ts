@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useImmediateTimeRange } from '@/components/TimeRange/hooks/useImmediateTimeRange';
+import { getZoomWindow } from '@/utils/chartZoom';
 
 // Shorter drags are clicks, so tooltips and annotation clicks keep working
 const DRAG_THRESHOLD_PX = 5;
-const MIN_ZOOM_MS = 15 * 60 * 1000;
 
 type ChartLabel = string | number;
 type ChartMouseState = { activeLabel?: ChartLabel; chartX?: number } | null;
@@ -18,9 +18,10 @@ const isDrag = (selection: Selection) => Math.abs(selection.endX - selection.sta
 
 /**
  * Drag across a time series chart to zoom the dashboard range to the selected buckets. Spread `handlers`
- * on the Recharts chart and draw `previewArea` as a ReferenceArea.
+ * on the Recharts chart and draw `previewArea` as a ReferenceArea. `points` holds every series' points, so
+ * the bucket edges include the incomplete buckets drawn separately.
  */
-export function useChartDragZoom(data: ReadonlyArray<{ date: ChartLabel }>, enabled: boolean) {
+export function useChartDragZoom(points: ReadonlyArray<{ date: ChartLabel }>, enabled: boolean) {
   const { resolvedMainRange } = useTimeRangeContext();
   const { zoomToRange } = useImmediateTimeRange();
   const [selection, setSelection] = useState<Selection | null>(null);
@@ -33,30 +34,14 @@ export function useChartDragZoom(data: ReadonlyArray<{ date: ChartLabel }>, enab
 
   const commit = useCallback(
     ({ startLabel, endLabel }: Selection) => {
-      const bucketStarts = data.map((point) => toMs(point.date));
-      const first = Math.min(toMs(startLabel), toMs(endLabel));
-      const last = Math.max(toMs(startLabel), toMs(endLabel));
-      const rangeStart = resolvedMainRange.start.getTime();
-      const rangeEnd = resolvedMainRange.end.getTime() + 1000;
-
-      // The selection ends where the bucket after the last selected one starts
-      const lastIndex = bucketStarts.indexOf(last);
-      const lastBucketEnd =
-        lastIndex >= 0 && lastIndex < bucketStarts.length - 1 ? bucketStarts[lastIndex + 1] : rangeEnd;
-
-      let start = Math.max(first, rangeStart);
-      let end = Math.min(lastBucketEnd, rangeEnd);
-      if (end - start < MIN_ZOOM_MS) {
-        end = start + MIN_ZOOM_MS;
-        if (end > rangeEnd) {
-          end = rangeEnd;
-          start = end - MIN_ZOOM_MS;
-        }
-      }
-
+      const { start, end } = getZoomWindow(
+        points.map((point) => toMs(point.date)),
+        [toMs(startLabel), toMs(endLabel)],
+        { start: resolvedMainRange.start.getTime(), endExclusive: resolvedMainRange.end.getTime() + 1000 },
+      );
       zoomToRange(new Date(start), new Date(end));
     },
-    [data, resolvedMainRange, zoomToRange],
+    [points, resolvedMainRange, zoomToRange],
   );
 
   const onMouseDown = useCallback(

@@ -245,7 +245,11 @@ const InteractiveChart: React.FC<InteractiveChartProps> = React.memo(
     );
 
     const isMobile = useIsMobile();
-    const dragZoom = useChartDragZoom(data, !isAnnotationMode);
+    const zoomPoints = useMemo(
+      () => [...(incompleteStart ?? []), ...data, ...(incomplete ?? [])],
+      [incompleteStart, data, incomplete],
+    );
+    const dragZoom = useChartDragZoom(zoomPoints, !isAnnotationMode);
     const [hoveredPillGroup, setHoveredPillGroup] = useState<number | null>(null);
 
     useEffect(() => {
