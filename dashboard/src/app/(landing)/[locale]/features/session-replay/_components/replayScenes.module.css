@@ -160,7 +160,7 @@
     height: 12px;
     color: var(--color-fg);
   }
-  /* optical sizes: the Apple mark is narrow, the Windows one fills its square */
+  /* optical sizes: the Apple mark is narrow and its body sits under the leaf, the Windows one fills its square */
   .os {
     width: 12px;
     height: 12px;
@@ -171,6 +171,7 @@
   .os[data-os='apple'] {
     width: 13px;
     height: 13px;
+    translate: 0 -1.5px;
   }
   .os[data-os='windows'] {
     width: 11px;
