@@ -57,7 +57,7 @@ function buildSnippets(on: Record<Option, boolean>, consentTab: string): Snippet
             file: 'consent.js',
             glyph: <ShieldCheck className='size-[13px] opacity-80' aria-hidden />,
             code: `// when your consent banner resolves
-+window.betterlytics?.setReplayConsent(true)`,
++window.betterlytics?.setReplayConsent?.(true)`,
           },
         ]
       : []),
