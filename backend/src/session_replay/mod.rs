@@ -5,7 +5,7 @@ use std::future::Future;
 use std::time::{Duration, Instant};
 use std::sync::Arc;
 
-use axum::{extract::{Query, State}, http::StatusCode};
+use axum::{extract::{Query, State, rejection::{BytesRejection, QueryRejection}}, http::StatusCode};
 use bytes::Bytes;
 use tracing::{error, warn};
 use moka::sync::Cache;
@@ -191,11 +191,15 @@ fn upload_outcome(result: &Result<Uploaded, Rejection>) -> (UploadOutcome, u64) 
 pub async fn upload_segment(
     State((db, processor, metrics, _, replay_ctx, site_cfg_cache)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<ReplayCtx>>, Arc<SiteConfigCache>)>,
     client: ClientRequest,
-    Query(p): Query<UploadSegmentParams>,
-    body: Bytes,
+    query: Result<Query<UploadSegmentParams>, QueryRejection>,
+    body: Result<Bytes, BytesRejection>,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let replay_ctx = replay_ctx.ok_or((StatusCode::SERVICE_UNAVAILABLE, "session replay not configured".to_string()))?;
-    let result = store_segment(&db, &processor, metrics.as_deref(), &replay_ctx, &site_cfg_cache, &client, &p, body).await;
+    let result = match (query, body) {
+        (Ok(Query(p)), Ok(body)) => store_segment(&db, &processor, metrics.as_deref(), &replay_ctx, &site_cfg_cache, &client, &p, body).await,
+        (Err(e), _) => Err(Rejection::new(UploadOutcome::Invalid, e.status(), e.body_text())),
+        (_, Err(e)) => Err(Rejection::new(UploadOutcome::Invalid, e.status(), e.body_text())),
+    };
     if let Some(m) = &metrics {
         let (outcome, stored_bytes) = upload_outcome(&result);
         m.record_replay_upload(replay_ctx.mode.as_str(), outcome.as_str(), stored_bytes);
