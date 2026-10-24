@@ -20,6 +20,7 @@ const FAQ_KEYS = [
   'what',
   'free',
   'captured',
+  'server',
   'filtered',
   'frameworks',
   'grouped',

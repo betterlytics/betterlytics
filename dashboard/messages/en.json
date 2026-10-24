@@ -2102,7 +2102,7 @@
         "items": {
           "what": {
             "q": "What is error tracking?",
-            "a": "Error tracking records the JavaScript errors your visitors run into, then groups repeats of the same bug so you can see which ones happen most. Betterlytics catches them with the same script that tracks your pageviews, and keeps the session each one happened in."
+            "a": "Error tracking, also called error monitoring, records the JavaScript errors your visitors run into, then groups repeats of the same bug so you can see which ones happen most. Betterlytics catches them with the same script that tracks your pageviews, and keeps the session each one happened in."
           },
           "free": {
             "q": "Is error tracking free?",
@@ -2111,6 +2111,10 @@
           "captured": {
             "q": "Which errors are captured?",
             "a": "Uncaught exceptions and unhandled promise rejections, with their type, message and stack trace, plus the page, browser, device and country. You can also capture console.error calls. A failed request is only captured when your code leaves its error unhandled, and failed image or script loads aren't captured."
+          },
+          "server": {
+            "q": "Does it catch server-side errors?",
+            "a": "No. It covers frontend errors, the JavaScript that runs in your visitors' browsers. Errors in your server code, API routes or background jobs aren't captured."
           },
           "filtered": {
             "q": "Are errors from browser extensions and bots filtered out?",
