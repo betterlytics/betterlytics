@@ -1708,12 +1708,12 @@
     "replay": {
       "seo": {
         "title": "Session replay der maskerer alt som standard | Betterlytics",
-        "description": "Se optagelser af rigtige besøg med al tekst og alle indtastninger maskeret i browseren. Gå direkte fra en JavaScript-fejl til optagelsen. Gratis på alle planer."
+        "description": "Session replay af rigtige besøg med al tekst og alle indtastninger maskeret i browseren. Gå direkte fra en JavaScript-fejl til optagelsen. Gratis i alle planer."
       },
       "hero": {
         "eyebrow": "Session replay",
         "title": "Se hvor dine besøgende sidder fast, og hvad der stoppede dem",
-        "lede": "Afspil rigtige besøg klik for klik. Raseriklik bliver markeret, og al tekst og alle indtastninger maskeres, før noget forlader browseren. Gratis på alle planer, side om side med din trafik og dine fejl.",
+        "lede": "Afspil rigtige besøg klik for klik. Rage clicks bliver markeret, og al tekst og alle indtastninger maskeres, før noget forlader browseren. Gratis i alle planer og i samme dashboard som din trafik og dine fejl.",
         "primary": "Begynd at optage gratis",
         "secondary": "Læs dokumentationen"
       },
@@ -1721,7 +1721,7 @@
         "input": "Indtastning registreret",
         "drag": "Træk registreret",
         "click": "Klik registreret",
-        "rage": "Raseriklik registreret",
+        "rage": "Rage click registreret",
         "selection": "Markering registreret",
         "pageview": "Sidevisning registreret",
         "paused": "Optagelse på pause"
@@ -1730,7 +1730,7 @@
         "errors": {
           "unit": "klik",
           "label": "Fra fejl til replay",
-          "body": "Hver JavaScript-fejl linker til den session, der stødte på den, så du går fra stack trace til replay med ét klik."
+          "body": "Hver JavaScript-fejl linker til den session, hvor den opstod, så du kommer fra stack trace til replay med ét klik."
         },
         "history": {
           "unit": "dage",
@@ -1766,7 +1766,7 @@
           "ready": {
             "time": "10:05",
             "title": "Replayet er klar",
-            "body": "Når den besøgende forlader siden, dukker sessionen op i din liste over replays, markeret med fejlen og et raseriklik."
+            "body": "Når den besøgende forlader siden, dukker sessionen op i din liste over replays, markeret med fejlen og et rage click."
           },
           "jump": {
             "time": "10:20",
@@ -1776,7 +1776,7 @@
           "why": {
             "time": "10:21",
             "title": "Og ser hvorfor",
-            "body": "Den besøgende klikkede igen og igen på betalingsknappen med postnummeret tomt, og det er markeret som et raseriklik. Teksten er maskeret, men du kan stadig se, hvad der ikke blev udfyldt."
+            "body": "Den besøgende blev ved med at klikke på betalingsknappen, mens postnummeret stod tomt, og det blev markeret som rage click. Teksten er maskeret, men du kan stadig se, hvad der ikke blev udfyldt."
           }
         },
         "scenes": {
@@ -1790,7 +1790,7 @@
           "input": "Indtastning",
           "click": "Klik",
           "clientError": "Klientfejl",
-          "rageClick": "Raseriklik",
+          "rageClick": "Rage click",
           "emptyField": "Postnummer: tomt",
           "start": "Start:",
           "skip": "Spring inaktivitet over"
@@ -1798,20 +1798,20 @@
       },
       "privacy": {
         "title": "Maskeret *før* det forlader browseren",
-        "lede": "Du ser, hvor de besøgende klikkede, scrollede og skrev. Deres privatliv forbliver intakt, for det, de læste og skrev, forlader aldrig deres enhed.",
+        "lede": "Du ser, hvor de besøgende klikkede, scrollede og skrev, men deres privatliv er i behold: det, de læste og skrev, forlader aldrig deres enhed.",
         "points": {
-          "text": "Hvert tegn i tekst og indtastede værdier bliver til en stjerne, så layoutet bevarer sin form",
+          "text": "Hvert tegn i tekster og indtastningsfelter bliver til en stjerne, så layoutet bevarer sin form",
           "media": "Billeder og iframes erstattes af tomme bokse i samme størrelse",
           "consent": "Kan vente på samtykke, før der optages noget, overalt hvor loven kræver det",
-          "exclude": "Udelad hele sider eller sektioner af dit website, eller enkelte elementer du markerer som private",
-          "storage": "Ingen cookies, og ingen IP-adresse gemt sammen med en optagelse"
+          "exclude": "Udelad hele sider, dele af dit website eller enkelte elementer, du markerer som private",
+          "storage": "Ingen cookies og ingen IP-adresse gemt sammen med en optagelse"
         },
         "docs": "Sådan virker maskeringen",
         "try": "Træk for at sammenligne",
         "visitor": "Det din besøgende ser",
         "you": "Det du ser i replayet",
         "slider": "Sammenlign det, den besøgende ser, med det maskerede replay",
-        "alt": "Betalingssiden i en kaffebutik, vist to gange. Den besøgende kan læse navn, e-mail og adresse, men i replayet er hvert ord erstattet af stjerner, og produktbilledet er en tom boks."
+        "alt": "Betalingssiden i en webshop med kaffe, vist to gange. Den besøgende kan læse navn, e-mail og adresse, men i replayet er hvert ord erstattet af stjerner, og produktbilledet er en tom boks."
       },
       "controls": {
         "title": "Optag de sessioner, der er *værd* at se",
@@ -1828,12 +1828,12 @@
         },
         "items": {
           "sample": {
-            "title": "Vælg din stikprøve",
-            "body": "Optag en lille andel af besøgene eller hvert eneste et. Hvert besøg bliver optaget helt eller slet ikke."
+            "title": "Vælg hvor meget der optages",
+            "body": "Optag en lille andel af besøgene eller dem alle. Hvert besøg bliver optaget helt eller slet ikke."
           },
           "errors": {
             "title": "Gem optakten til fejl",
-            "body": "Med optagelse ved fejl slået til gemmer besøg uden for stikprøven stadig et minut eller to op til en JavaScript-fejl."
+            "body": "Når optagelse ved fejl er slået til, gemmes et minut eller to op til en JavaScript-fejl også for besøg uden for stikprøven."
           },
           "paths": {
             "title": "Udelad sider",
@@ -1869,7 +1869,7 @@
           },
           "tune": {
             "title": "Finjuster det",
-            "body": "Indstil stikprøven, udelad private stier, og behold optagelser af sessioner, der støder på en fejl."
+            "body": "Indstil stikprøven, udelad private stier og gem optagelser af sessioner med fejl."
           }
         },
         "cta": "Læs opsætningsguiden"
@@ -1894,7 +1894,7 @@
           },
           "masked": {
             "q": "Hvad bliver maskeret?",
-            "a": "Al tekst på siden og alle indtastede værdier, herunder adgangskoder, e-mails og søgefelter, erstattes med stjerner i den besøgendes browser. Billeder og iframes udelades. Du kan blokere mere med klassen rr-block eller slå optagelse fra for hele stier."
+            "a": "Al tekst på siden og alle indtastede værdier, herunder adgangskoder, e-mailadresser og søgefelter, erstattes med stjerner i den besøgendes browser. Billeder og iframes udelades. Du kan blokere mere med klassen rr-block eller slå optagelse fra for hele stier."
           },
           "slow": {
             "q": "Gør session replay mit website langsommere?",
@@ -1906,11 +1906,11 @@
           },
           "find": {
             "q": "Hvordan finder jeg den session, jeg leder efter?",
-            "a": "Listen over replays viser hver sessions startside, varighed, land, browser, enhed, antal fejl og raseriklik, og du kan skjule korte sessioner. Fra en fejl åbner »Se replay« den seneste session, der stødte på fejlen."
+            "a": "Listen over replays viser hver sessions startside, varighed, land, browser, enhed, antal fejl og rage clicks, og du kan skjule korte sessioner. Fra en fejl åbner knappen »Se replay« den seneste session, hvor fejlen opstod."
           },
           "rage": {
-            "q": "Opdager den raseriklik?",
-            "a": "Ja. Når en besøgende klikker på det samme sted igen og igen, markerer Betterlytics det som et raseriklik (rage click). Du ser det på replayets tidslinje og som et antal i listen over replays, så frustrerede besøgende er nemme at finde."
+            "q": "Opdager det rage clicks?",
+            "a": "Ja. Når en besøgende klikker på det samme sted igen og igen, markerer Betterlytics det som et rage click (raseriklik). Du ser det på replayets tidslinje og som et antal i listen over replays, så frustrerede besøgende er nemme at finde."
           },
           "history": {
             "q": "Hvor længe gemmes optagelserne?",
@@ -1922,13 +1922,13 @@
           },
           "dedicated": {
             "q": "Hvornår er et dedikeret replay-værktøj det bedre valg?",
-            "a": "Betterlytics viser, hvad de besøgende gjorde, med hvert ord maskeret. Har du brug for heatmaps, konsol- og netværkslogs, læsbar tekst eller søgning efter bruger og event, er et dedikeret værktøj et bedre valg. Vores <link>sammenligning med PostHog</link> viser forskellene funktion for funktion."
+            "a": "Betterlytics viser, hvad de besøgende gjorde, med hvert ord maskeret. Har du brug for heatmaps, konsol- og netværkslogs, læsbar tekst eller søgning efter bruger og event, er du bedre tjent med et dedikeret værktøj. Vores <link>sammenligning med PostHog</link> viser forskellene funktion for funktion."
           }
         }
       },
       "cta": {
         "title": "Se dit første replay i dag",
-        "lede": "Slå det til i det script, du allerede har, og forbind dit samtykkebanner, hvor det er nødvendigt. Session replay er gratis på alle planer.",
+        "lede": "Slå session replay til i det script, du allerede har, og kobl det til dit samtykkebanner, hvis det er nødvendigt. Det er gratis i alle planer.",
         "primary": "Begynd at optage gratis",
         "secondary": "Læs dokumentationen om session replay"
       }
