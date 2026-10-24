@@ -2098,7 +2098,7 @@
           },
           "free": {
             "q": "Is error tracking free?",
-            "a": "Yes. It's on every plan, including the free one, and it's included when you self-host. Each error counts as one event toward your monthly limit, like a pageview."
+            "a": "Yes. It's on every plan, including the free one. Each error counts as one event toward your monthly limit, like a pageview."
           },
           "captured": {
             "q": "Which errors are captured?",
