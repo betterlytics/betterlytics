@@ -28,6 +28,8 @@
     }
   }
   .caption b {
+    display: block;
+    margin-bottom: 2px;
     font-weight: 500;
     color: var(--color-fg);
   }
