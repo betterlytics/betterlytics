@@ -390,7 +390,7 @@ const QUERY_SESSIONS_TOOL: ToolDescription = {
       required: false,
       description: 'YYYY-MM-DD. Required when timeRange is "custom".',
     },
-    { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+    TIMEZONE_INPUT,
     {
       name: 'filters',
       type: 'array',
