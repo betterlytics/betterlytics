@@ -9007,6 +9007,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function setupEventListeners() {
       document.addEventListener("visibilitychange", function () {
         if (document.visibilityState === "hidden") {
+          endRageBurst();
           flush(true);
         }
       });
