@@ -1979,13 +1979,13 @@
         },
         "thesis": {
           "unit": "script",
-          "label": "Niente da installare",
+          "label": "Niente di nuovo da installare",
           "body": "Lo script che traccia le tue visualizzazioni di pagina cattura anche gli errori. Basta un attributo per attivarlo."
         }
       },
       "report": {
         "title": "Da “non funziona” alla *riga 142*",
-        "lede": "La maggior parte dei visitatori che trova un bug se ne va senza dire nulla. Betterlytics mostra in quale punto del codice è scattato l’errore, in quale browser e quanto spesso.",
+        "lede": "La maggior parte dei visitatori che incappano in un bug se ne va senza dire nulla. Betterlytics mostra in quale punto del codice è scattato l’errore, in quale browser e quanto spesso.",
         "guess": "Indovinare dalle segnalazioni",
         "fix": "Correggere dallo stack trace",
         "alt": "A sinistra scorre un flusso continuo di segnalazioni vaghe sulla pagina dei prezzi: la stessa email sull’upgrade impossibile ricevuta tre volte, qualcuno che scrive che scegliere un piano non fa nulla, una chat con il supporto, uno screenshot sfocato, un’ipotesi sul browser, un post-it con scritto “da me funziona”, un ticket P1 secondo cui gli upgrade falliscono da lunedì e una casella del supporto con 14 messaggi non letti. A destra, lo stesso bug come un unico gruppo di errori: un TypeError lanciato in selectPlan alla riga 142 di pricing.js e chiamato da onClick in plan-card.js, su Chrome per macOS in Danimarca, su /pricing, 1.206 volte.",
@@ -2048,7 +2048,7 @@
           },
           "occurrences": {
             "title": "Scorri le occorrenze",
-            "body": "Sfoglia le occorrenze dalla più recente fino alla prima. Ognuna conserva la propria ora, pagina, browser, dispositivo e paese."
+            "body": "Sfoglia le occorrenze dalla più recente fino alla prima. Ognuna conserva i propri dati: ora, pagina, browser, dispositivo e paese."
           }
         },
         "art": {
@@ -2069,7 +2069,7 @@
         "title": "Passa il bug *al tuo agente*",
         "lede": "Gli errori sono nel server MCP integrato, così il tuo agente può leggere stack trace e tracce di sessione accanto al tuo codice.",
         "lead": "Dalla lamentela alla correzione con una sola domanda",
-        "body": "Riporta la lamentela di un utente a Claude Code, Cursor o a qualsiasi client MCP. Trova l’errore corrispondente, legge lo stack trace e la traccia della sessione e apre il file indicato dallo stack.",
+        "body": "Riporta la lamentela di un utente a Claude Code, Cursor o a qualsiasi client MCP. L’agente trova l’errore corrispondente, legge lo stack trace e la traccia della sessione e apre il file indicato dallo stack.",
         "cta": "Configura MCP"
       },
       "setup": {
@@ -2135,7 +2135,7 @@
           },
           "privacy": {
             "q": "Il tracciamento errori raccoglie dati personali?",
-            "a": "Come il resto di Betterlytics non usa cookie, e le query string vengono rimosse dagli URL di pagine e script prima di salvare qualsiasi cosa. I messaggi vengono conservati così come li ha scritti il tuo codice, quindi tienili privi di dati personali e lascia disattivata la cattura della console se i tuoi log possono contenerne."
+            "a": "Come il resto di Betterlytics, non usa cookie, e le query string vengono rimosse dagli URL di pagine e script prima di salvare qualsiasi cosa. I messaggi vengono conservati così come li ha scritti il tuo codice, quindi tienili privi di dati personali e lascia disattivata la cattura della console se i tuoi log possono contenerne."
           },
           "quota": {
             "q": "Un loop impazzito può esaurire i miei eventi?",

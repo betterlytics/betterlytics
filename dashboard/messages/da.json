@@ -1998,7 +1998,7 @@
           "sticky": "Virker på min maskine",
           "again": "SV: SV: stadig i stykker",
           "chrome": "Det er Chrome, tror jeg?",
-          "ticket": "Opgraderinger fejler siden mandag",
+          "ticket": "Fejl ved opgradering siden mandag",
           "inbox": "Supportindbakke",
           "unread": "{count} ulæste"
         },
@@ -2040,7 +2040,7 @@
           },
           "history": {
             "title": "Se hvem den rammer",
-            "body": "Se hvor ofte hver fejl opstår dag for dag, og hvilke browsere og enheder den rammer."
+            "body": "Se, hvor ofte hver fejl opstår dag for dag, og hvilke browsere og enheder den rammer."
           },
           "filter": {
             "title": "Filtrér som i din webanalyse",
@@ -2074,9 +2074,9 @@
       },
       "setup": {
         "title": "Begynd at fange fejl med *én* attribut",
-        "lede": "Fejlsporing er bygget ind i Betterlytics-scriptet. Vælg hvad der skal fanges, og kopiér kodestykket.",
+        "lede": "Fejlsporing er bygget ind i Betterlytics-scriptet. Vælg, hvad der skal fanges, og kopiér kodestykket.",
         "lead": "Vælg hvad der skal fanges",
-        "always": "Altid til",
+        "always": "Altid aktiv",
         "options": {
           "errors": {
             "title": "Uhåndterede fejl og afviste promises",
@@ -2087,7 +2087,7 @@
             "body": "Send også det, din app logger som fejl. Lad det være slået fra, hvis dine logs kan indeholde persondata."
           },
           "replay": {
-            "title": "Afspil optakten",
+            "title": "Replay af optakten",
             "body": "Gem op til to minutter før hver fejl som et replay."
           }
         },
@@ -2119,7 +2119,7 @@
           },
           "filtered": {
             "q": "Bliver fejl fra browserudvidelser og bots filtreret fra?",
-            "a": "Ja. Scriptet springer fejl over, hvis stack trace peger ind i en browserudvidelse, så en besøgendes adblocker eller password manager ikke dukker op som din bug. Fejl fra bots, headless browsere og testværktøjer som Playwright bliver smidt væk, før de gemmes, ligesom deres sidevisninger."
+            "a": "Ja. Scriptet springer fejl over, når deres stack trace peger ind i en browserudvidelse, så en besøgendes adblocker eller password manager ikke dukker op som din bug. Fejl fra bots, headless browsere og testværktøjer som Playwright bliver smidt væk, før de gemmes, ligesom deres sidevisninger."
           },
           "frameworks": {
             "q": "Virker det med React, Next.js og Vue?",
@@ -2138,7 +2138,7 @@
             "a": "Fejlsporing bruger ingen cookies, ligesom resten af Betterlytics, og query strings fjernes fra side- og script-URL’er, før noget bliver gemt. Fejlbeskeder gemmes præcis, som din kode skrev dem, så hold persondata ude af dem, og lad opsamling af console.error være slået fra, hvis dine logs kan indeholde persondata."
           },
           "quota": {
-            "q": "Kan et loop, der fejler, bruge alle mine events op?",
+            "q": "Kan et loop, der løber løbsk, bruge alle mine events op?",
             "a": "Hver side sender højst 10 fejl af samme type hvert 10. sekund, så et loop, der kaster en fejl i hver frame, ikke fylder ret meget. Ignorerer du en gruppe, forsvinder den fra listen, men nye forekomster tæller stadig som events, indtil du retter årsagen."
           },
           "replay": {
@@ -2151,7 +2151,7 @@
         "title": "Fang din første fejl i dag",
         "lede": "Tilføj én attribut til dit script-tag, så begynder fejlene at dukke op under Fejlsporing i dit dashboard. Det er gratis i alle planer.",
         "primary": "Start gratis fejlsporing",
-        "secondary": "Læs om fejlsporing"
+        "secondary": "Læs dokumentationen om fejlsporing"
       }
     }
   },

@@ -1998,7 +1998,7 @@
           "sticky": "Funker på min maskin",
           "again": "SV: SV: fortsatt ødelagt",
           "chrome": "Bruker Chrome, tror jeg?",
-          "ticket": "Oppgraderinger feiler siden mandag",
+          "ticket": "Feil ved oppgradering siden mandag",
           "inbox": "Supportinnboks",
           "unread": "{count} uleste"
         },
@@ -2048,7 +2048,7 @@
           },
           "occurrences": {
             "title": "Bla gjennom forekomstene",
-            "body": "Gå fra den nyeste forekomsten tilbake til den første. Hver av dem har sitt eget tidspunkt, side, nettleser, enhet og land."
+            "body": "Gå fra den nyeste forekomsten tilbake til den første. Hver av dem lagrer tidspunkt, side, nettleser, enhet og land for seg."
           }
         },
         "art": {
