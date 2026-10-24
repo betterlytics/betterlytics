@@ -129,7 +129,8 @@ export async function fetchCampaignDirectoryPage(
     campaignNames.length > 0 ? await fetchCampaignSparklines(authContext, siteQuery, campaignNames) : {};
 
   const hasEverHadCampaigns =
-    performancePage.totalCampaigns > 0 || (await campaignRepository.hasAnyCampaignData(siteQuery.siteId));
+    performancePage.totalCampaigns > 0 ||
+    (await getCampaignDataSource(authContext).hasAnyCampaignData(siteQuery.siteId));
 
   const campaigns: CampaignListRowSummary[] = performancePage.campaigns.map((campaign) => ({
     ...campaign,

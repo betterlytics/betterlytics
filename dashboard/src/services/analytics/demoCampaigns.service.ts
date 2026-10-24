@@ -194,6 +194,10 @@ function bucketStarts(siteQuery: BASiteQuery): moment.Moment[] {
 }
 
 export const demoCampaignDataSource = {
+  async hasAnyCampaignData(): Promise<boolean> {
+    return true;
+  },
+
   async getCampaignCount(siteQuery: BASiteQuery): Promise<number> {
     return rankedCampaigns(siteQuery).length;
   },
@@ -282,6 +286,7 @@ export const demoCampaignDataSource = {
   },
 } satisfies Pick<
   typeof campaignRepository,
+  | 'hasAnyCampaignData'
   | 'getCampaignCount'
   | 'getCampaignPerformancePageData'
   | 'getCampaignUTMBreakdownData'
