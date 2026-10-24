@@ -19,7 +19,7 @@ const OPTIONS = {
   replay: { attr: 'data-replay-on-error', npm: 'replayOnError' },
 } as const satisfies Record<Option, { attr: string; npm: string }>;
 
-/** Replay only records visitors who consented, so turning it on adds the consent call as its own tab. */
+/** Replay waits for the site's go-ahead, so turning it on adds a tab showing both ways to give it. */
 function buildSnippets(on: Record<Option, boolean>, consentTab: string): Snippet[] {
   const picked = (Object.keys(OPTIONS) as Option[]).filter((key) => on[key]);
   const attrs = ['data-track-errors', ...picked.map((key) => OPTIONS[key].attr)];
@@ -57,7 +57,9 @@ function buildSnippets(on: Record<Option, boolean>, consentTab: string): Snippet
             file: 'consent.js',
             glyph: <ShieldCheck className='size-[13px] opacity-80' aria-hidden />,
             code: `// when your consent banner resolves
-+window.betterlytics?.setReplayConsent?.(true)`,
++window.betterlytics?.setReplayConsent?.(true)
+
+// no consent needed? set data-consent-replay="true" on the script tag instead`,
           },
         ]
       : []),

@@ -24,11 +24,9 @@ const FAQ_KEYS = [
   'frameworks',
   'grouped',
   'sourcemaps',
-  'alerts',
   'privacy',
   'quota',
   'replay',
-  'dedicated',
 ] as const;
 
 const MCP_SCRIPTS: ScriptKey[] = ['debug'];

@@ -1950,7 +1950,7 @@
       "hero": {
         "eyebrow": "Error tracking",
         "title": "Catch the errors your visitors hit, and see what led to them",
-        "lede": "Betterlytics groups uncaught JavaScript errors by stack trace and shows what each visitor did before and after. It's free on every plan and runs in your analytics script.",
+        "lede": "Betterlytics groups uncaught JavaScript errors by stack trace and shows what each visitor did before and after. It's free on every plan, with nothing extra to install.",
         "primary": "Start tracking errors free",
         "secondary": "Read the docs"
       },
@@ -1968,12 +1968,12 @@
         "leadUp": {
           "unit": "min",
           "label": "Replay lead-up",
-          "body": "With replay on error, consented visits outside your sample still save up to two minutes before the error."
+          "body": "With replay on error, visits outside your sample still save up to two minutes before the error."
         },
         "thesis": {
           "unit": "script",
           "label": "Nothing new to install",
-          "body": "The analytics script catches errors too. Add one attribute to turn it on."
+          "body": "The script that tracks your pageviews catches errors too. Add one attribute to turn it on."
         }
       },
       "report": {
@@ -2029,11 +2029,11 @@
         "items": {
           "status": {
             "title": "Resolve, ignore, reopen",
-            "body": "Mark groups resolved or ignored one at a time or in bulk. The Unresolved tab holds everything nobody has dealt with yet."
+            "body": "Give errors a status one at a time or in bulk. Anything nobody has dealt with yet stays under Unresolved."
           },
           "history": {
             "title": "See who it hits",
-            "body": "Each group keeps 30 days of daily occurrences and its top browsers and device types, so a Safari-only bug stands out from one that hits everyone."
+            "body": "See how often each error happens day by day, and which browsers and devices it hits."
           },
           "share": {
             "title": "Share the exact occurrence",
@@ -2065,7 +2065,7 @@
       },
       "setup": {
         "title": "Start catching with *one* attribute",
-        "lede": "Error tracking runs in your analytics script. Pick what to catch and copy the snippet.",
+        "lede": "Error tracking is built into the Betterlytics script. Pick what to catch and copy the snippet.",
         "lead": "Choose what to catch",
         "always": "Always on",
         "options": {
@@ -2094,7 +2094,7 @@
         "items": {
           "what": {
             "q": "What is error tracking?",
-            "a": "Error tracking records the JavaScript errors your visitors run into, then groups repeats of the same bug so you can see which ones happen most. Betterlytics catches them with the analytics script you already run, and keeps the session each one happened in."
+            "a": "Error tracking records the JavaScript errors your visitors run into, then groups repeats of the same bug so you can see which ones happen most. Betterlytics catches them with the same script that tracks your pageviews, and keeps the session each one happened in."
           },
           "free": {
             "q": "Is error tracking free?",
@@ -2120,10 +2120,6 @@
             "q": "Do you support source maps?",
             "a": "No. Stack traces show the code as the browser ran it, so frames from a minified bundle point into the minified file."
           },
-          "alerts": {
-            "q": "Can I get alerts for new errors?",
-            "a": "No. New errors appear in the Unresolved tab and through the MCP server, but nothing is sent out when one starts. Alerts are available for uptime monitors."
-          },
           "privacy": {
             "q": "Does error tracking collect personal data?",
             "a": "It uses no cookies, like the rest of Betterlytics, and query strings are cut from page and script URLs before anything is stored. Messages are kept as your code wrote them, so keep personal data out of them, and leave console capture off if your logs can contain it."
@@ -2134,11 +2130,7 @@
           },
           "replay": {
             "q": "How does it work with session replay?",
-            "a": "If a session with an error was recorded, the error links to its replay, where red markers show each error on the timeline. Turn on data-replay-on-error to keep up to two minutes before each error as a replay, even for visits outside your sample, once the visitor has consented to replay."
-          },
-          "dedicated": {
-            "q": "When is a dedicated error tracker the better fit?",
-            "a": "Betterlytics tracks errors in the browser, next to your analytics and replays. If you need source maps, alerts, server-side errors, release health, user-level search or native mobile apps, a dedicated error tracker like Sentry will serve you better."
+            "a": "If a session with an error was recorded, the error links to its replay, where red markers show each error on the timeline. Turn on data-replay-on-error to keep up to two minutes before each error as a replay, even for visits outside your sample."
           }
         }
       },
