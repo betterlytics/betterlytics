@@ -9,7 +9,7 @@ import { IDS } from '@/landing/lib/ids';
 import { maskText } from './checkoutMock';
 import styles from './replayCursor.module.css';
 
-type Pill = 'input' | 'drag' | 'click' | 'selection' | 'pageview' | 'paused';
+type Pill = 'input' | 'drag' | 'click' | 'rage' | 'selection' | 'pageview' | 'paused';
 type Box = { left: number; top: number; right: number; bottom: number; width: number; height: number };
 type Point = { x: number; y: number };
 type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
@@ -479,10 +479,16 @@ export function ReplayCursor() {
         const p = box(pay);
         await approach(shopper, p, 'top-right', () => {
           paused = row.hasAttribute('data-off');
-          return paused ? 'paused' : 'click';
+          return paused ? 'paused' : 'rage';
         });
         delete typed.dataset.on;
         click(shopper);
+        if (!paused) {
+          for (let n = 0; n < 2; n++) {
+            await sleep(180, signal);
+            click(shopper);
+          }
+        }
         if (paused) {
           place(halo, { left: p.left - 6, top: p.top - 6, width: p.width + 12, height: p.height + 12 });
           halo.dataset.on = '';
@@ -561,6 +567,7 @@ export function ReplayCursor() {
             >
               <i className={styles.ripple} />
               <i className={styles.ripple} />
+              <i className={styles.ripple} />
             </span>
             <svg
               ref={(el) => {
@@ -572,7 +579,7 @@ export function ReplayCursor() {
               <path d='M3.56 4.36Q3 3 4.36 3.56L18.64 9.44Q20 10 18.95 10.45L13.84 12.64Q13 13 12.64 13.84L10.45 18.95Q10 20 9.44 18.64Z' />
             </svg>
             {pill && (
-              <span className={styles.tag} data-pill=''>
+              <span className={styles.tag} data-pill='' data-kind={pill}>
                 <LiftSwap as='span' className='block' id={pill}>
                   {t(pill)}
                   {pill === 'paused' && (

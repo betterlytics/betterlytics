@@ -1721,6 +1721,7 @@
         "input": "Input captured",
         "drag": "Drag captured",
         "click": "Click captured",
+        "rage": "Rage click captured",
         "selection": "Selection captured",
         "pageview": "Pageview captured",
         "paused": "Capture paused"

@@ -118,6 +118,10 @@
     white-space: nowrap;
     box-shadow: 0 6px 16px rgb(0 0 0 / 0.25);
   }
+  .tag[data-kind='rage'] {
+    border-color: #86198f;
+    background: #c026d3;
+  }
   .dots i {
     font-style: normal;
     animation: 1.6s steps(1) infinite;
@@ -141,6 +145,9 @@
     border-radius: 50%;
     border: 2px solid var(--color-volt-lift);
     opacity: 0;
+  }
+  .cursor:has([data-kind='rage']) .ripple {
+    border-color: #e879f9;
   }
   .ripple[data-on] {
     animation: replay-click 0.7s var(--ease-out-expo);
