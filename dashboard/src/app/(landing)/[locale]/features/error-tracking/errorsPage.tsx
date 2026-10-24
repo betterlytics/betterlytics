@@ -29,7 +29,7 @@ const FAQ_KEYS = [
   'replay',
 ] as const;
 
-const MCP_SCRIPTS: ScriptKey[] = ['debug'];
+const MCP_SCRIPTS: ScriptKey[] = ['debug', 'triage'];
 
 export function ErrorsPage() {
   const t = useTranslations('landing.errors');

@@ -20,7 +20,7 @@ type Step =
 
 type Translate = ReturnType<typeof useTranslations<'landing.illustrations.transcript'>>;
 
-export type ScriptKey = 'redesign' | 'outage' | 'sources' | 'investigate' | 'debug';
+export type ScriptKey = 'redesign' | 'outage' | 'sources' | 'investigate' | 'debug' | 'triage';
 
 /** The first script played is also the static state (no JS or reduced motion). */
 const DEFAULT_SCRIPTS: ScriptKey[] = ['redesign', 'outage', 'sources'];
@@ -111,6 +111,14 @@ const SCRIPTS = {
     { kind: 'tool', name: 'Read', args: '(js/pricing.js)', mcp: false },
     { kind: 'result', text: t('debug.code') },
     { kind: 'answer', text: t('debug.answer') },
+  ],
+  triage: (t: Translate): Step[] => [
+    { kind: 'question', text: t('triage.question') },
+    { kind: 'working', ms: 900 },
+    { kind: 'say', text: t('triage.say') },
+    { kind: 'tool', name: 'betterlytics – list_errors', args: '(timeRange: "7d", limit: 3)' },
+    { kind: 'result', text: t('triage.groups') },
+    { kind: 'answer', text: t('triage.answer') },
   ],
 } satisfies Record<ScriptKey, unknown>;
 

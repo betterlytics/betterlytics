@@ -1413,14 +1413,20 @@
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout has returned 503s since 10:12, three minutes after a41f2c9 moved the Stripe keys to env vars. Want me to revert it?"
         },
-        "debugAlt": "A terminal session: told that choosing a plan does nothing, an agent lists errors on /pricing through the Betterlytics MCP server, reads the TypeError's stack trace and session trail, opens pricing.js at line 142 and offers a fix.",
+        "debugAlt": "A terminal session: told that choosing a plan does nothing, an agent lists errors on /pricing through the Betterlytics MCP server, reads the TypeError's stack trace and session trail, opens pricing.js at line 142 and offers a fix. Then, asked which errors to fix first, it sorts this week's errors by sessions hit and picks that TypeError.",
         "debug": {
           "question": "people say choosing a plan does nothing, can you look?",
-          "say": "I'll check Betterlytics for errors on /pricing, then read the stack trace of the top group.",
-          "errors": "1 group · TypeError · reading 'plan' · 1,206 occurrences in 318 sessions",
-          "trace": "at selectPlan (pricing.js:142) · trail: /pricing → plan_selected → TypeError",
+          "say": "I'll check errors on /pricing first.",
+          "errors": "1,206 TypeErrors in 318 sessions",
+          "trace": "selectPlan (pricing.js:142) after plan_selected",
           "code": "142  setPlan(selected.plan)",
-          "answer": "On the first click, selectPlan reads selected.plan before the plans have loaded, so selected is still null. I'd disable the buttons until the request finishes. Want me to make that change?"
+          "answer": "Clicks before the plans load find selected still null. Want me to disable the buttons until they load?"
+        },
+        "triage": {
+          "question": "which errors should I fix first?",
+          "say": "I'll rank this week's errors.",
+          "groups": "TypeError 318 sessions · ChunkLoadError 41 · RangeError 6",
+          "answer": "Start with the TypeError reading 'plan'. It hit 318 sessions, more than six times the other two combined."
         }
       }
     },
