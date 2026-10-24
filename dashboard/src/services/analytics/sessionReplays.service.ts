@@ -48,19 +48,30 @@ export function getDemoReplayFixturePath(sessionId: string): string | null {
 }
 
 export type ReplaySegmentStream = { stream: ReadableStream<Uint8Array>; endedAt: Date };
-export type OpenedReplay = { storage: ReplayStorage; replay: ReplaySegmentStream | null };
+export type ReplaySessionSource = { storage: ReplayStorage; endedAt: Date | null };
 
-export async function openReplaySegmentStream(authContext: AuthContext, sessionId: string): Promise<OpenedReplay> {
-  const { siteId } = authContext;
-  const meta = await getReplaySessionMeta(siteId, sessionId);
+export async function getReplaySessionSource(
+  authContext: AuthContext,
+  sessionId: string,
+): Promise<ReplaySessionSource> {
+  const meta = await getReplaySessionMeta(authContext.siteId, sessionId);
   // A missing or unrecognized marker falls back to the deployment's active mode; in a
   // ClickHouse-only deploy the S3 reader is unreachable that way (its client throws).
   const storage = meta?.storage === 's3' || meta?.storage === 'clickhouse' ? meta.storage : replayStorage;
-  const reader = readerFor(storage);
+  return { storage, endedAt: meta?.endedAt ?? null };
+}
+
+export async function openReplaySegmentStream(
+  authContext: AuthContext,
+  sessionId: string,
+  source: ReplaySessionSource,
+): Promise<ReplaySegmentStream | null> {
+  const { siteId } = authContext;
+  const reader = readerFor(source.storage);
   const segments = await reader.list(siteId, sessionId);
-  if (segments.length === 0) return { storage, replay: null };
+  if (segments.length === 0) return null;
   // A segment row without a session row is a race at ingest; treat it as still recording.
-  const endedAt = meta?.endedAt ?? new Date();
+  const endedAt = source.endedAt ?? new Date();
   const stream = reader.stream
     ? await reader.stream(siteId, sessionId)
     : toNdjsonStream(
@@ -71,7 +82,7 @@ export async function openReplaySegmentStream(authContext: AuthContext, sessionI
           segments.map((segment) => segment.filename),
         ),
       );
-  return { storage, replay: { stream, endedAt } };
+  return { stream, endedAt };
 }
 
 function toNdjsonStream(lines: AsyncGenerator<string>): ReadableStream<Uint8Array> {

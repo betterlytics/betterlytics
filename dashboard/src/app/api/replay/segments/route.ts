@@ -15,8 +15,9 @@ import {
 import { throughNodeTransform } from '@/lib/web-stream-pipeline';
 import {
   getDemoReplayFixturePath,
+  getReplaySessionSource,
   openReplaySegmentStream,
-  type OpenedReplay,
+  type ReplaySegmentStream,
 } from '@/services/analytics/sessionReplays.service';
 
 const MAX_STREAMS_PER_USER = 3;
@@ -76,20 +77,20 @@ export async function GET(request: NextRequest) {
     endTimer({ outcome, storage });
   };
 
-  let opened: OpenedReplay;
+  let replay: ReplaySegmentStream | null;
   try {
-    opened = await openReplaySegmentStream(result.context, sessionId);
+    const source = await getReplaySessionSource(result.context, sessionId);
+    if (source.storage !== storage) {
+      replayStreamsOpen.dec({ storage });
+      storage = source.storage;
+      replayStreamsOpen.inc({ storage });
+    }
+    replay = await openReplaySegmentStream(result.context, sessionId, source);
   } catch (error) {
     endOpenTimer({ outcome: 'error', storage });
     release('error');
     throw error;
   }
-  if (opened.storage !== storage) {
-    replayStreamsOpen.dec({ storage });
-    storage = opened.storage;
-    replayStreamsOpen.inc({ storage });
-  }
-  const { replay } = opened;
   if (!replay) {
     endOpenTimer({ outcome: 'not_found', storage });
     release('not_found');
