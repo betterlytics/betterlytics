@@ -33,7 +33,7 @@ export const McpDateRangeSchema = z.object({
       required_error: 'timezone is required. Use an IANA time zone identifier such as "Europe/Berlin" or "UTC".',
     })
     .describe(
-      'Required. IANA time zone identifier, e.g. "Europe/Berlin", "America/New_York" or "UTC". Unknown time zones are rejected.',
+      'IANA time zone identifier, e.g. "Europe/Berlin", "America/New_York" or "UTC". Unknown time zones are rejected.',
     )
     .transform((tz, ctx) => {
       const zone = normalizeTimezone(tz);
