@@ -1438,6 +1438,10 @@
         "vitals": {
           "title": "Core Web Vitals",
           "body": "LCP, INP og CLS målt i de browsere dine besøgende rent faktisk bruger."
+        },
+        "uptime": {
+          "title": "Oppetidsovervågning",
+          "body": "Tjek helt ned til hvert minut, alarmer der hvor dit team taler sammen, og en statusside."
         }
       }
     },
@@ -1699,6 +1703,234 @@
         "lede": "Indsæt en URL, vælg hvor ofte der skal tjekkes, og hvor alarmerne skal hen. Den gratis plan omfatter en monitor og en statusside.",
         "primary": "Start gratis overvågning",
         "secondary": "Læs dokumentationen om overvågning"
+      }
+    },
+    "replay": {
+      "seo": {
+        "title": "Session replay der maskerer alt som standard | Betterlytics",
+        "description": "Se optagelser af rigtige besøg med al tekst og alle indtastninger maskeret i browseren. Gå direkte fra en JavaScript-fejl til optagelsen. Gratis på alle planer."
+      },
+      "hero": {
+        "eyebrow": "Session replay",
+        "title": "Se hvor dine besøgende sidder fast, og hvad der stoppede dem",
+        "lede": "Afspil rigtige besøg klik for klik. Raseriklik bliver markeret, og al tekst og alle indtastninger maskeres, før noget forlader browseren. Gratis på alle planer, side om side med din trafik og dine fejl.",
+        "primary": "Begynd at optage gratis",
+        "secondary": "Læs dokumentationen"
+      },
+      "cursor": {
+        "input": "Indtastning registreret",
+        "drag": "Træk registreret",
+        "click": "Klik registreret",
+        "rage": "Raseriklik registreret",
+        "selection": "Markering registreret",
+        "pageview": "Sidevisning registreret",
+        "paused": "Optagelse på pause"
+      },
+      "specs": {
+        "errors": {
+          "unit": "klik",
+          "label": "Fra fejl til replay",
+          "body": "Hver JavaScript-fejl linker til den session, der stødte på den, så du går fra stack trace til replay med ét klik."
+        },
+        "history": {
+          "unit": "dage",
+          "label": "Replay-historik",
+          "body": "Optagelser ligger i dit dashboard i 60 dage."
+        },
+        "cookies": {
+          "unit": "cookies",
+          "label": "Ingen cookies, ingen IP’er",
+          "body": "Session replay sætter ingen cookies og gemmer ingen IP-adresse sammen med en optagelse."
+        },
+        "thesis": {
+          "unit": "%",
+          "label": "Maskeret i browseren",
+          "body": "Hver tekstlinje og hver indtastning bliver til stjerner, før optagelsen forlader siden."
+        }
+      },
+      "story": {
+        "title": "Fra et mislykket køb til *årsagen*",
+        "lede": "Sådan forløber det, når betalingsknappen holder op med at virke kl. 10:03.",
+        "stepsLabel": "Replay-tidslinje",
+        "steps": {
+          "record": {
+            "time": "10:02",
+            "title": "Besøget bliver optaget",
+            "body": "Besøget bliver udvalgt til optagelse og gemt løbende, mens den besøgende klikker rundt."
+          },
+          "error": {
+            "time": "10:03",
+            "title": "Betalingen fejler",
+            "body": "En JavaScript-fejl stopper betalingen. Fejlsporing logger den sammen med siden, browseren og den kode, der fejlede."
+          },
+          "ready": {
+            "time": "10:05",
+            "title": "Replayet er klar",
+            "body": "Når den besøgende forlader siden, dukker sessionen op i din liste over replays, markeret med fejlen og et raseriklik."
+          },
+          "jump": {
+            "time": "10:20",
+            "title": "Du springer til øjeblikket",
+            "body": "Åbn replayet direkte fra fejlen, og spring lige til det øjeblik, den opstod."
+          },
+          "why": {
+            "time": "10:21",
+            "title": "Og ser hvorfor",
+            "body": "Den besøgende klikkede igen og igen på betalingsknappen med postnummeret tomt, og det er markeret som et raseriklik. Teksten er maskeret, men du kan stadig se, hvad der ikke blev udfyldt."
+          }
+        },
+        "scenes": {
+          "recording": "Optager",
+          "newError": "Ny fejl",
+          "occurrences": "{count, plural, one {# session} other {# sessioner}}",
+          "sessions": "Sessioner",
+          "justNow": "Lige nu",
+          "minutesAgo": "{count} min. siden",
+          "timeline": "Tidslinje",
+          "input": "Indtastning",
+          "click": "Klik",
+          "clientError": "Klientfejl",
+          "rageClick": "Raseriklik",
+          "emptyField": "Postnummer: tomt",
+          "start": "Start:",
+          "skip": "Spring inaktivitet over"
+        }
+      },
+      "privacy": {
+        "title": "Maskeret *før* det forlader browseren",
+        "lede": "Du ser, hvor de besøgende klikkede, scrollede og skrev. Deres privatliv forbliver intakt, for det, de læste og skrev, forlader aldrig deres enhed.",
+        "points": {
+          "text": "Hvert tegn i tekst og indtastede værdier bliver til en stjerne, så layoutet bevarer sin form",
+          "media": "Billeder og iframes erstattes af tomme bokse i samme størrelse",
+          "consent": "Kan vente på samtykke, før der optages noget, overalt hvor loven kræver det",
+          "exclude": "Udelad hele sider eller sektioner af dit website, eller enkelte elementer du markerer som private",
+          "storage": "Ingen cookies, og ingen IP-adresse gemt sammen med en optagelse"
+        },
+        "docs": "Sådan virker maskeringen",
+        "try": "Træk for at sammenligne",
+        "visitor": "Det din besøgende ser",
+        "you": "Det du ser i replayet",
+        "slider": "Sammenlign det, den besøgende ser, med det maskerede replay",
+        "alt": "Betalingssiden i en kaffebutik, vist to gange. Den besøgende kan læse navn, e-mail og adresse, men i replayet er hvert ord erstattet af stjerner, og produktbilledet er en tom boks."
+      },
+      "controls": {
+        "title": "Optag de sessioner, der er *værd* at se",
+        "lede": "Bestem hvor meget der skal optages, og hvor. Resten sker uden at genere dine besøgende.",
+        "art": {
+          "sample": "Stikprøve",
+          "recorded": "Optaget",
+          "error": "TypeError",
+          "leadUp": "1–2 min",
+          "off": "Fra",
+          "on": "Til",
+          "skipped": "Ignoreret",
+          "pageview": "Sidevisning"
+        },
+        "items": {
+          "sample": {
+            "title": "Vælg din stikprøve",
+            "body": "Optag en lille andel af besøgene eller hvert eneste et. Hvert besøg bliver optaget helt eller slet ikke."
+          },
+          "errors": {
+            "title": "Gem optakten til fejl",
+            "body": "Med optagelse ved fejl slået til gemmer besøg uden for stikprøven stadig et minut eller to op til en JavaScript-fejl."
+          },
+          "paths": {
+            "title": "Udelad sider",
+            "body": "Slå optagelse fra for enkelte sider eller hele sektioner, fx dit adminområde eller dine kontosider. Der bliver intet optaget, og afspilleren slører den del af besøget."
+          },
+          "light": {
+            "title": "Skåner dit website",
+            "body": "Optageren er en separat fil, der kun indlæses, når der er brug for den. Den sender data i små komprimerede bidder i baggrunden, så dine sider forbliver hurtige."
+          },
+          "spa": {
+            "title": "Bygget til single-page apps",
+            "body": "Ruteskift i single-page apps bygget med React, Vue eller Next.js vises som sidevisninger på tidslinjen, præcis som almindelige sideindlæsninger."
+          },
+          "bots": {
+            "title": "Kun rigtige mennesker",
+            "body": "Headless browsere og testværktøjer som Playwright og Cypress bliver aldrig optaget, så du kun ser rigtige besøgende."
+          }
+        }
+      },
+      "setup": {
+        "title": "Slå det til med *to* linjer",
+        "lede": "Intet nyt script og ingen ny leverandør. Session replay kører på det Betterlytics-script, du allerede har.",
+        "snippetLabel": "Eksempler på opsætning",
+        "consentTab": "Samtykke",
+        "steps": {
+          "enable": {
+            "title": "Slå det til",
+            "body": "Tilføj én attribut til dit script-tag eller én indstilling i npm-pakken."
+          },
+          "consent": {
+            "title": "Håndter samtykke",
+            "body": "Hvor loven kræver samtykke, som i EU, kobler én linje optagelsen til dit samtykkebanner."
+          },
+          "tune": {
+            "title": "Finjuster det",
+            "body": "Indstil stikprøven, udelad private stier, og behold optagelser af sessioner, der støder på en fejl."
+          }
+        },
+        "cta": "Læs opsætningsguiden"
+      },
+      "related": {
+        "lede": "Session replay er én del af Betterlytics. Alt nedenfor deler dashboard, login og regning."
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "items": {
+          "what": {
+            "q": "Hvad er session replay?",
+            "a": "Session replay (også kaldet sessionsoptagelse) gemmer, hvordan en side ændrer sig, og hvad den besøgende gør på den. Bagefter genskabes besøget i dit dashboard, så du kan se det som en video. Der optages ingen video, og Betterlytics maskerer teksten, før noget bliver sendt."
+          },
+          "free": {
+            "q": "Er session replay gratis?",
+            "a": "Ja. Session replay er inkluderet i <link>alle planer</link>, også den gratis, og optagelser tæller ikke med i dine månedlige events."
+          },
+          "consent": {
+            "q": "Skal jeg have samtykke til session replay?",
+            "a": "Det afhænger af, hvor dine besøgende befinder sig. I EU kan GDPR og ePrivacy-direktivet kræve samtykke, før du optager et besøg. Optagelsen starter først, når dit website giver grønt lys. Det kan komme fra det samtykkebanner, du allerede har, eller fra en indstilling i scriptet, hvis du ikke har brug for samtykke."
+          },
+          "masked": {
+            "q": "Hvad bliver maskeret?",
+            "a": "Al tekst på siden og alle indtastede værdier, herunder adgangskoder, e-mails og søgefelter, erstattes med stjerner i den besøgendes browser. Billeder og iframes udelades. Du kan blokere mere med klassen rr-block eller slå optagelse fra for hele stier."
+          },
+          "slow": {
+            "q": "Gør session replay mit website langsommere?",
+            "a": "Optageren er en separat fil, der kun indlæses, når et besøg bliver optaget, eller når optagelse ved fejl er slået til. Den sender komprimerede bidder i baggrunden og registrerer musebevægelser med jævne mellemrum i stedet for at følge hver eneste pixel."
+          },
+          "sample": {
+            "q": "Hvor mange besøg bliver optaget?",
+            "a": "5 % som standard. Sæt data-replay-sample til en værdi fra 0 til 100. Optagelser under 15 sekunder gemmes ikke, og en optagelse stopper efter 10 minutters inaktivitet eller 20 minutter i alt."
+          },
+          "find": {
+            "q": "Hvordan finder jeg den session, jeg leder efter?",
+            "a": "Listen over replays viser hver sessions startside, varighed, land, browser, enhed, antal fejl og raseriklik, og du kan skjule korte sessioner. Fra en fejl åbner »Se replay« den seneste session, der stødte på fejlen."
+          },
+          "rage": {
+            "q": "Opdager den raseriklik?",
+            "a": "Ja. Når en besøgende klikker på det samme sted igen og igen, markerer Betterlytics det som et raseriklik (rage click). Du ser det på replayets tidslinje og som et antal i listen over replays, så frustrerede besøgende er nemme at finde."
+          },
+          "history": {
+            "q": "Hvor længe gemmes optagelserne?",
+            "a": "60 dage. Derefter slettes de permanent."
+          },
+          "mobile": {
+            "q": "Virker det i mobilapps?",
+            "a": "Det optager websites og webapps i browsere på både computer og mobil. Native iOS- og Android-apps understøttes ikke. På touchskærme optages tryk og scroll, men der er ingen markør at følge."
+          },
+          "dedicated": {
+            "q": "Hvornår er et dedikeret replay-værktøj det bedre valg?",
+            "a": "Betterlytics viser, hvad de besøgende gjorde, med hvert ord maskeret. Har du brug for heatmaps, konsol- og netværkslogs, læsbar tekst eller søgning efter bruger og event, er et dedikeret værktøj et bedre valg. Vores <link>sammenligning med PostHog</link> viser forskellene funktion for funktion."
+          }
+        }
+      },
+      "cta": {
+        "title": "Se dit første replay i dag",
+        "lede": "Slå det til i det script, du allerede har, og forbind dit samtykkebanner, hvor det er nødvendigt. Session replay er gratis på alle planer.",
+        "primary": "Begynd at optage gratis",
+        "secondary": "Læs dokumentationen om session replay"
       }
     }
   },
