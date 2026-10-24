@@ -1708,12 +1708,12 @@
     "replay": {
       "seo": {
         "title": "Session replay privacy-first, tutto mascherato | Betterlytics",
-        "description": "Guarda le registrazioni delle sessioni reali, con testo e campi mascherati nel browser. Passa da un errore JavaScript al suo replay. Gratis in tutti i piani."
+        "description": "Guarda le registrazioni di visite reali, con testo e campi mascherati nel browser. Passa da un errore JavaScript al suo replay. Gratis in tutti i piani."
       },
       "hero": {
         "eyebrow": "Session replay",
         "title": "Scopri dove i visitatori si bloccano, e cosa li ha fermati",
-        "lede": "Rivedi le visite reali clic dopo clic, con i rage click segnalati e ogni parola e ogni campo mascherati prima che lascino il browser. Gratis in tutti i piani, accanto al tuo traffico e ai tuoi errori.",
+        "lede": "Rivedi le visite reali clic dopo clic, con i rage click segnalati e ogni parola e ogni campo mascherati prima che lascino il browser. Gratis in tutti i piani, nella stessa dashboard del tuo traffico e dei tuoi errori.",
         "primary": "Inizia a registrare gratis",
         "secondary": "Leggi la documentazione"
       },
@@ -1745,7 +1745,7 @@
         "thesis": {
           "unit": "%",
           "label": "Mascherato nel browser",
-          "body": "Ogni riga di testo e ogni campo diventano asterischi prima che la registrazione lasci la pagina."
+          "body": "Ogni riga di testo e ogni campo si trasformano in asterischi prima che la registrazione lasci la pagina."
         }
       },
       "story": {
@@ -1770,7 +1770,7 @@
           },
           "jump": {
             "time": "10:20",
-            "title": "Vai dritto al momento",
+            "title": "Salti al momento esatto",
             "body": "Dall’errore apri il replay e arrivi subito al momento in cui è successo."
           },
           "why": {
@@ -1829,7 +1829,7 @@
         "items": {
           "sample": {
             "title": "Scegli il campione",
-            "body": "Registra una piccola parte delle visite o tutte quante. Ogni visita viene registrata per intero o per niente."
+            "body": "Registra una piccola parte delle visite o tutte quante. Ogni visita viene registrata per intero oppure non viene registrata affatto."
           },
           "errors": {
             "title": "Conserva i minuti prima di un errore",
@@ -1837,7 +1837,7 @@
           },
           "paths": {
             "title": "Escludi alcune pagine",
-            "body": "Disattiva la registrazione su qualsiasi pagina o intera sezione, come l’area admin o le pagine dell’account. Lì non viene registrato nulla e il player sfoca quella parte della visita."
+            "body": "Disattiva la registrazione per singole pagine o intere sezioni, come l’area admin o le pagine dell’account. Lì non viene registrato nulla e il player sfoca quella parte della visita."
           },
           "light": {
             "title": "Non appesantisce il tuo sito",
@@ -1890,7 +1890,7 @@
           },
           "consent": {
             "q": "Serve il consenso per il session replay?",
-            "a": "Dipende da dove si trovano i tuoi visitatori. Nell’UE, il GDPR e la direttiva ePrivacy possono richiedere il consenso prima di registrare una visita. I replay non partono finché il tuo sito non dà il via libera. Il via libera può arrivare dal banner di consenso che hai già, oppure da un’impostazione dello script se il consenso non ti serve."
+            "a": "Dipende da dove si trovano i tuoi visitatori. Nell’UE, il GDPR e la direttiva ePrivacy possono richiedere il consenso prima di registrare una visita. I replay non partono finché il tuo sito non dà il via libera, che può arrivare dal banner di consenso che hai già, oppure da un’impostazione dello script se il consenso non ti serve."
           },
           "masked": {
             "q": "Cosa viene mascherato?",
@@ -1910,7 +1910,7 @@
           },
           "rage": {
             "q": "Rileva i rage click?",
-            "a": "Sì. Quando un visitatore clicca più e più volte sullo stesso punto, Betterlytics lo segnala come rage click (un clic di frustrazione). Lo vedi nella cronologia del replay e come conteggio nell’elenco dei replay, così trovi subito i visitatori frustrati."
+            "a": "Sì. Quando un visitatore clicca più e più volte sullo stesso punto, Betterlytics lo segnala come rage click (un clic di frustrazione). Lo vedi nella cronologia del replay e, con il loro numero, nell’elenco dei replay, così trovi subito i visitatori frustrati."
           },
           "history": {
             "q": "Per quanto tempo vengono conservati i replay?",
