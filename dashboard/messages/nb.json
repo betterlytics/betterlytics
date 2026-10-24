@@ -1804,7 +1804,10 @@
         "name": "Alle dashboardfunksjoner"
       },
       "sessionReplay": {
-        "name": "Sesjonsavspilling"
+        "name": "Sesjonsavspilling",
+        "values": {
+          "recordedSessions": "{count} sesjoner / måned"
+        }
       },
       "funnels": {
         "name": "Trakter og konverteringer"

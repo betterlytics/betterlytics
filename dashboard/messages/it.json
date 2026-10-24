@@ -1804,7 +1804,10 @@
         "name": "Tutte le funzionalità dashboard"
       },
       "sessionReplay": {
-        "name": "Replay sessioni"
+        "name": "Replay sessioni",
+        "values": {
+          "recordedSessions": "{count} sessioni / mese"
+        }
       },
       "funnels": {
         "name": "Funnel e conversioni"
