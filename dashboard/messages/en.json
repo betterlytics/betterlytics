@@ -1290,6 +1290,7 @@
         "features": "Features",
         "uptime": "Uptime monitoring",
         "replay": "Session replay",
+        "errors": "Error tracking",
         "pricing": "Pricing"
       },
       "company": {

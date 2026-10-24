@@ -1290,6 +1290,7 @@
         "features": "Funktioner",
         "uptime": "Oppetidsovervågning",
         "replay": "Session replay",
+        "errors": "Fejlsporing",
         "pricing": "Priser"
       },
       "company": {
