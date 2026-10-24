@@ -51,7 +51,9 @@ type PlayerEventTarget = {
   removeEventListener: (type: string, listener: EventListener) => void;
 };
 
-type ReplayPlugin = NonNullable<ConstructorParameters<typeof rrwebPlayer>[0]['props']['plugins']>[number];
+type ReplayPlugin = {
+  handler?: (event: eventWithTime, isSync: boolean, context: { replayer: { wrapper: HTMLElement } }) => void;
+};
 
 type RageRange = { start: number; end: number };
 
