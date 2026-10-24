@@ -7,11 +7,20 @@ import { PROPERTY_SQL } from '@/lib/property-source-sql';
 import { BAQuery } from '@/lib/ba-query';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
+/**
+ * Ranks values by events, most common first. With `rankFrom` only events from that
+ * point count, so a widened lookup still ranks by the selected period.
+ */
+function valueRankSql(rankFrom?: string) {
+  return rankFrom ? safeSql`countIf(timestamp >= ${SQL.DateTime({ rank_from: rankFrom })})` : safeSql`count()`;
+}
+
 export async function getFilterDistinctValues(
   siteQuery: BASiteQuery,
   column: TableFilterColumn,
   limit: number = 50,
   search?: string,
+  rankFrom?: string,
 ): Promise<string[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
 
@@ -24,12 +33,14 @@ export async function getFilterDistinctValues(
       : safeSql``;
 
   const query = safeSql`
-    SELECT DISTINCT ${selectExpr} AS value
+    SELECT ${selectExpr} AS value
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
       ${searchClause}
       AND value != ''
+    GROUP BY value
+    ORDER BY ${valueRankSql(rankFrom)} DESC, value ASC
     LIMIT {limit:UInt32}
   `;
 
@@ -51,9 +62,7 @@ export async function getPropertyKeys(
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const { keysSelectExpr, hasAnyKey, eventScopeClause, sampleKeys } = PROPERTY_SQL[source].discovery;
 
-  const sample = sampleKeys
-    ? (await BAQuery.getSampling(siteId, startDateTime, endDateTime)).sample
-    : safeSql``;
+  const sample = sampleKeys ? (await BAQuery.getSampling(siteId, startDateTime, endDateTime)).sample : safeSql``;
 
   const searchClause =
     search && search.trim()
@@ -88,6 +97,7 @@ export async function getPropertyValues(
   propertyKey: string,
   search?: string,
   limit: number = 50,
+  rankFrom?: string,
 ): Promise<string[]> {
   const { siteId, startDateTime, endDateTime } = siteQuery;
   const { sql, discovery } = PROPERTY_SQL[source];
@@ -101,7 +111,7 @@ export async function getPropertyValues(
       : safeSql``;
 
   const query = safeSql`
-    SELECT DISTINCT ${valueExpr} AS value
+    SELECT ${valueExpr} AS value
     FROM analytics.events
     WHERE site_id = {site_id:String}
       AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
@@ -109,6 +119,8 @@ export async function getPropertyValues(
       ${discovery.eventScopeClause}
       AND value != ''
       ${searchClause}
+    GROUP BY value
+    ORDER BY ${valueRankSql(rankFrom)} DESC, value ASC
     LIMIT {limit:UInt32}
   `;
 

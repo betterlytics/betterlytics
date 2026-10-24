@@ -5,10 +5,9 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 
 import { useEffect } from 'react';
 
-import { Command as CommandPrimitive, useCommandState } from 'cmdk';
 import { PlusIcon, XIcon } from 'lucide-react';
+import { List, useListRef, type RowComponentProps } from 'react-window';
 
-import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 
 export interface Option {
@@ -75,25 +74,17 @@ interface MultiSelectProps {
   className?: string;
   badgeClassName?: string;
 
-  /**
-   * First item selected is a default behavior by cmdk. That is why the default is true.
-   * This is a workaround solution by add a dummy item.
-   *
-   * @reference: https://github.com/pacocoursey/cmdk/issues/171
-   */
+  /** Highlight the first option when the list opens or changes. */
   selectFirstItem?: boolean;
 
   /** Allow user to create option when there is no option matched. */
   creatable?: boolean;
 
-  /** Props of `Command` */
-  commandProps?: React.ComponentPropsWithoutRef<typeof Command>;
+  /** Class name of the root element that holds the input and the dropdown. */
+  rootClassName?: string;
 
-  /** Props of `CommandInput` */
-  inputProps?: Omit<
-    React.ComponentPropsWithoutRef<typeof CommandPrimitive.Input>,
-    'value' | 'placeholder' | 'disabled'
-  >;
+  /** Props of the search input */
+  inputProps?: Omit<React.ComponentPropsWithoutRef<'input'>, 'value' | 'placeholder' | 'disabled'>;
 
   /** hide the clear all button. */
   hideClearAllButton?: boolean;
@@ -106,6 +97,9 @@ interface MultiSelectProps {
 
   /** Custom renderer for option content in the dropdown list and selected badges. Defaults to option.label. */
   renderOption?: (option: Option) => React.ReactNode;
+
+  /** Rendered below the option list, e.g. a note that the list is truncated. */
+  footer?: React.ReactNode;
 }
 
 export interface MultiSelectRef {
@@ -175,17 +169,89 @@ function isOptionsExist(groupOption: GroupOption, targetOption: Option[]) {
   return false;
 }
 
-const CommandEmpty = ({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) => {
-  const render = useCommandState((state) => state.filtered.count === 0);
+const ROW_HEIGHT = 32;
+const MAX_LIST_HEIGHT = 300;
 
-  if (!render) return null;
+type ListRow =
+  | { type: 'heading'; key: string; label: string }
+  | { type: 'option'; key: string; option: Option }
+  | { type: 'create'; key: string; value: string };
 
-  return (
-    <div className={cn('px-2 py-4 text-center text-sm', className)} cmdk-empty='' role='presentation' {...props} />
-  );
+function isSelectableRow(row: ListRow) {
+  return row.type === 'create' || (row.type === 'option' && !row.option.disable);
+}
+
+type OptionRowProps = {
+  rows: ListRow[];
+  activeIndex: number;
+  listId: string;
+  onActivate: (index: number) => void;
+  onSelectRow: (row: ListRow) => void;
+  renderOption?: (option: Option) => React.ReactNode;
 };
 
-CommandEmpty.displayName = 'CommandEmpty';
+function OptionRow({
+  index,
+  style,
+  rows,
+  activeIndex,
+  listId,
+  onActivate,
+  onSelectRow,
+  renderOption,
+}: RowComponentProps<OptionRowProps>) {
+  const row = rows[index];
+
+  if (row.type === 'heading') {
+    return (
+      <div
+        style={style}
+        role='presentation'
+        className='text-muted-foreground flex items-center px-2 text-xs font-medium'
+      >
+        {row.label}
+      </div>
+    );
+  }
+
+  const disabled = row.type === 'option' && row.option.disable;
+
+  return (
+    <div
+      style={style}
+      id={`${listId}-${index}`}
+      role='option'
+      aria-selected={index === activeIndex}
+      aria-disabled={disabled || undefined}
+      data-selected={index === activeIndex}
+      onMouseMove={() => {
+        if (!disabled && index !== activeIndex) onActivate(index);
+      }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      onClick={() => {
+        if (!disabled) onSelectRow(row);
+      }}
+      className={cn(
+        'flex cursor-pointer items-center gap-2 overflow-hidden rounded-sm px-2 text-sm outline-none select-none',
+        'data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0',
+        disabled && 'pointer-events-none cursor-not-allowed opacity-50',
+      )}
+    >
+      {row.type === 'create' ? (
+        <>
+          <PlusIcon /> <span className='truncate'>{`"${row.value}"`}</span>
+        </>
+      ) : renderOption ? (
+        renderOption(row.option)
+      ) : (
+        <span className='truncate'>{row.option.label}</span>
+      )}
+    </div>
+  );
+}
 
 export const MultiSelect = ({
   value,
@@ -208,14 +274,18 @@ export const MultiSelect = ({
   selectFirstItem = true,
   creatable = false,
   triggerSearchOnFocus = false,
-  commandProps,
+  rootClassName,
   inputProps,
   hideClearAllButton = false,
   inputValue: inputValueProp,
   onInputValueChange,
   renderOption,
+  footer,
 }: MultiSelectProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const listRef = useListRef(null);
+  const listId = React.useId();
+  const [activeKey, setActiveKey] = React.useState<string | null>(null);
   const [open, setOpen] = React.useState(false);
   const [onScrollbar, setOnScrollbar] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -378,101 +448,127 @@ export const MultiSelect = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearchTerm, groupBy, open, triggerSearchOnFocus]);
 
-  const CreatableItem = () => {
-    if (!creatable) return undefined;
-
-    if (
-      isOptionsExist(options, [{ value: effectiveInputValue, label: effectiveInputValue }]) ||
-      selected.find((s) => s.value === effectiveInputValue)
-    ) {
-      return undefined;
-    }
-
-    const Item = (
-      <CommandItem
-        value={effectiveInputValue}
-        className='cursor-pointer'
-        onMouseDown={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-        onSelect={(value: string) => {
-          if (selected.length >= maxSelected) {
-            onMaxSelected?.(selected.length);
-
-            return;
-          }
-
-          handleInputChange('');
-          const newOptions = [...selected, { value, label: value }];
-
-          setSelected(newOptions);
-          onChange?.(newOptions);
-          setOpen(false);
-        }}
-      >
-        <PlusIcon /> {`"${effectiveInputValue}"`}
-      </CommandItem>
-    );
-
-    // For normal creatable
-    if (!onSearch && effectiveInputValue.length > 0) {
-      return Item;
-    }
-
-    // For async search creatable. avoid showing creatable item before loading at first.
-    if (onSearch && debouncedSearchTerm.length > 0 && !isLoading) {
-      return Item;
-    }
-
-    return undefined;
-  };
-
-  const EmptyItem = React.useCallback(() => {
-    if (!emptyIndicator) return undefined;
-
-    // For async search that showing emptyIndicator
-    if (onSearch && !creatable && Object.keys(options).length === 0) {
-      return (
-        <CommandItem value='-' disabled>
-          {emptyIndicator}
-        </CommandItem>
-      );
-    }
-
-    return <CommandEmpty>{emptyIndicator}</CommandEmpty>;
-  }, [creatable, emptyIndicator, onSearch, options]);
-
   const selectables = React.useMemo<GroupOption>(() => removePickedOption(options, selected), [options, selected]);
 
-  /** Avoid Creatable Selector freezing or lagging when paste a long string. */
-  const commandFilter = React.useCallback(() => {
-    if (commandProps?.filter) {
-      return commandProps.filter;
+  const showCreatable =
+    creatable &&
+    !isOptionsExist(options, [{ value: effectiveInputValue, label: effectiveInputValue }]) &&
+    !selected.find((s) => s.value === effectiveInputValue) &&
+    // For async search, avoid showing the creatable item before the first load.
+    (onSearch ? debouncedSearchTerm.length > 0 && !isLoading : effectiveInputValue.length > 0);
+
+  const rows = React.useMemo<ListRow[]>(() => {
+    const result: ListRow[] = [];
+    for (const [group, groupOptions] of Object.entries(selectables)) {
+      if (group && groupOptions.length > 0) {
+        result.push({ type: 'heading', key: `heading:${group}`, label: group });
+      }
+      for (const option of groupOptions) {
+        result.push({ type: 'option', key: `option:${option.value}`, option });
+      }
+    }
+    if (showCreatable) {
+      result.push({ type: 'create', key: 'create', value: effectiveInputValue });
+    }
+    return result;
+  }, [selectables, showCreatable, effectiveInputValue]);
+
+  const activeIndex = React.useMemo(() => {
+    const index = rows.findIndex((row) => row.key === activeKey && isSelectableRow(row));
+    if (index !== -1 || !selectFirstItem) return index;
+    return rows.findIndex(isSelectableRow);
+  }, [rows, activeKey, selectFirstItem]);
+
+  // Typing changes what matches, so start again from the top of the list
+  useEffect(() => {
+    setActiveKey(null);
+    listRef.current?.element?.scrollTo({ top: 0 });
+  }, [effectiveInputValue, listRef]);
+
+  useEffect(() => {
+    if (!open) setActiveKey(null);
+  }, [open]);
+
+  const selectRow = React.useCallback(
+    (row: ListRow) => {
+      if (row.type === 'heading') return;
+
+      if (selected.length >= maxSelected) {
+        onMaxSelected?.(selected.length);
+        return;
+      }
+
+      handleInputChange('');
+      const newOption = row.type === 'create' ? { value: row.value, label: row.value } : row.option;
+      const newOptions = [...selected, newOption];
+
+      setSelected(newOptions);
+      onChange?.(newOptions);
+      setOpen(false);
+    },
+    [selected, maxSelected, onMaxSelected, handleInputChange, onChange],
+  );
+
+  const activateRow = React.useCallback((index: number) => setActiveKey(rows[index]?.key ?? null), [rows]);
+
+  // Moves the highlight by keyboard, scrolling rows that are not rendered yet into view
+  const moveActive = (target: number, step: 1 | -1) => {
+    let index = target;
+    while (index >= 0 && index < rows.length && !isSelectableRow(rows[index])) {
+      index += step;
+    }
+    if (index < 0 || index >= rows.length) return;
+
+    setActiveKey(rows[index].key);
+    listRef.current?.scrollToRow({ index, align: 'smart' });
+  };
+
+  const handleListKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.nativeEvent.isComposing) return;
+
+    // Enter never submits a surrounding form, even with the list closed
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (open && activeIndex !== -1) selectRow(rows[activeIndex]);
+      return;
     }
 
-    if (creatable) {
-      return (value: string, search: string) => {
-        return value.toLowerCase().includes(search.toLowerCase()) ? 1 : -1;
-      };
-    }
+    if (!open) return;
 
-    // Using default filter in `cmdk`. We don&lsquo;t have to provide it.
-    return undefined;
-  }, [creatable, commandProps?.filter]);
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        moveActive(activeIndex + 1, 1);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        moveActive(activeIndex - 1, -1);
+        break;
+      case 'Home':
+        e.preventDefault();
+        moveActive(0, 1);
+        break;
+      case 'End':
+        e.preventDefault();
+        moveActive(rows.length - 1, -1);
+        break;
+    }
+  };
+
+  const rowProps = React.useMemo<OptionRowProps>(
+    () => ({ rows, activeIndex, listId, onActivate: activateRow, onSelectRow: selectRow, renderOption }),
+    [rows, activeIndex, listId, activateRow, selectRow, renderOption],
+  );
 
   return (
     <PopoverPrimitive.Root open={open} modal={false}>
-      <Command
+      <div
         ref={dropdownRef}
-        {...commandProps}
         onKeyDown={(e) => {
           handleKeyDown(e);
-          commandProps?.onKeyDown?.(e);
+          handleListKeyDown(e);
         }}
-        className={cn('h-auto overflow-visible bg-transparent', commandProps?.className)}
-        shouldFilter={commandProps?.shouldFilter !== undefined ? commandProps.shouldFilter : !onSearch}
-        filter={commandFilter()}
+        className={cn('text-popover-foreground flex w-full flex-col rounded-md bg-transparent', rootClassName)}
       >
         <PopoverPrimitive.Anchor asChild>
           <div
@@ -525,18 +621,28 @@ export const MultiSelect = ({
                 );
               })}
               {/* Avoid having the "Search" Icon */}
-              <CommandPrimitive.Input
+              <input
                 {...inputProps}
                 ref={inputRef}
+                type='text'
+                role='combobox'
+                aria-autocomplete='list'
+                aria-expanded={open}
+                aria-controls={listId}
+                aria-activedescendant={open && activeIndex !== -1 ? `${listId}-${activeIndex}` : undefined}
+                autoComplete='off'
+                autoCorrect='off'
+                spellCheck={false}
                 value={effectiveInputValue}
                 disabled={disabled}
-                onValueChange={(value) => {
+                onChange={(event) => {
+                  const value = event.target.value;
                   handleInputChange(value);
                   // Open dropdown when typing
                   if (value && !open) {
                     setOpen(true);
                   }
-                  inputProps?.onValueChange?.(value);
+                  inputProps?.onChange?.(event);
                 }}
                 onBlur={(event) => {
                   // When creatable and input has value, add it as a selection on blur
@@ -612,7 +718,7 @@ export const MultiSelect = ({
               e.preventDefault();
             }}
           >
-            <CommandList
+            <div
               className='bg-popover text-popover-foreground shadow-lg outline-hidden'
               onMouseLeave={() => {
                 setOnScrollbar(false);
@@ -627,57 +733,33 @@ export const MultiSelect = ({
               onTouchMove={(e) => e.stopPropagation()}
             >
               {isLoading ? (
-                <>{loadingIndicator}</>
+                loadingIndicator
+              ) : rows.length === 0 ? (
+                <div id={listId} role='listbox' className='px-2 py-4 text-center text-sm'>
+                  {emptyIndicator}
+                </div>
               ) : (
                 <>
-                  {EmptyItem()}
-                  {!selectFirstItem && <CommandItem value='-' className='hidden' />}
-                  {Object.entries(selectables).map(([key, dropdowns]) => (
-                    <CommandGroup key={key} heading={key} className='h-full overflow-auto'>
-                      <>
-                        {dropdowns.map((option) => {
-                          return (
-                            <CommandItem
-                              key={option.value}
-                              value={option.value}
-                              disabled={option.disable}
-                              onMouseDown={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                              }}
-                              onSelect={() => {
-                                if (selected.length >= maxSelected) {
-                                  onMaxSelected?.(selected.length);
-
-                                  return;
-                                }
-
-                                handleInputChange('');
-                                const newOptions = [...selected, option];
-
-                                setSelected(newOptions);
-                                onChange?.(newOptions);
-                                setOpen(false);
-                              }}
-                              className={cn(
-                                'cursor-pointer',
-                                option.disable && 'pointer-events-none cursor-not-allowed opacity-50',
-                              )}
-                            >
-                              {renderOption ? renderOption(option) : option.label}
-                            </CommandItem>
-                          );
-                        })}
-                      </>
-                    </CommandGroup>
-                  ))}
-                  {CreatableItem()}
+                  <div className='p-1'>
+                    <List
+                      id={listId}
+                      role='listbox'
+                      listRef={listRef}
+                      style={{ height: Math.min(rows.length * ROW_HEIGHT, MAX_LIST_HEIGHT) }}
+                      rowComponent={OptionRow}
+                      rowCount={rows.length}
+                      rowHeight={ROW_HEIGHT}
+                      rowProps={rowProps}
+                      overscanCount={5}
+                    />
+                  </div>
+                  {footer}
                 </>
               )}
-            </CommandList>
+            </div>
           </PopoverPrimitive.Content>
         </PopoverPrimitive.Portal>
-      </Command>
+      </div>
     </PopoverPrimitive.Root>
   );
 };
