@@ -7,8 +7,10 @@ import { useQueryFilterSearch } from './use-query-filter-search';
 import { cn } from '@/lib/utils';
 import { formatString } from '@/utils/formatters';
 import { FilterValueLabel } from '@/components/filters/FilterValueLabel';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const MAX_VISIBLE_OPTIONS = 200;
+const SKELETON_ROW_WIDTHS = ['w-3/5', 'w-2/5', 'w-1/2', 'w-1/3'];
 
 type FilterValueSearchProps<TEntity> = {
   filter: QueryFilter & TEntity;
@@ -36,7 +38,7 @@ export function FilterValueSearch<TEntity>({
   const locale = useLocale();
   const strategy = getFilterStrategy(filter.column);
 
-  const { search, setSearch, options, isTruncated } = useQueryFilterSearch(filter, {
+  const { search, setSearch, options, isTruncated, isLoading } = useQueryFilterSearch(filter, {
     useExtendedRange,
     disabled,
   });
@@ -105,9 +107,14 @@ export function FilterValueSearch<TEntity>({
           <span>{t('noValuesForCurrentPeriod')}</span>
         </div>
       }
+      loading={isLoading}
       loadingIndicator={
-        <div className='text-muted-foreground flex items-center gap-2 p-2 text-sm'>
-          <span>{tMisc('loading')}</span>
+        <div className='p-1' role='status' aria-label={tMisc('loading')}>
+          {SKELETON_ROW_WIDTHS.map((width) => (
+            <div key={width} className='flex h-8 items-center px-2'>
+              <Skeleton className={cn('h-4', width)} />
+            </div>
+          ))}
         </div>
       }
       creatable
