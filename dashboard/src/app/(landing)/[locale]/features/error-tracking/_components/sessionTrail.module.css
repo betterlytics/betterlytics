@@ -91,9 +91,10 @@
     grid-row: var(--row);
     align-self: center;
     padding: 12px 10px;
-    /* on one column the notes interleave, so each stretch of the trail is its own card */
+    /* on one column each stretch of the trail is its own card, captioned by its note */
     @variant max-3xl {
       grid-row: auto;
+      order: calc(var(--row) * 2 + 1);
       padding: 8px;
       border: 1px solid var(--color-rule-10);
       border-radius: 14px;
@@ -270,13 +271,13 @@
     @variant max-3xl {
       grid-column: 1;
       grid-row: auto;
-      padding: 18px 0 30px 18px;
-      margin-left: 22px;
-      border-left: 1px solid var(--color-rule-22);
+      order: calc(var(--row) * 2);
+      padding: 30px 4px 12px;
     }
-    @variant max-sm {
-      margin-left: 14px;
-      padding-left: 14px;
+  }
+  .head + .group + .note {
+    @variant max-3xl {
+      padding-top: 12px;
     }
   }
   .noteLabel {
@@ -292,12 +293,18 @@
     color: #f87171;
   }
   .afterNote {
-    padding-block: 0;
+    @variant 3xl {
+      padding-block: 0;
+    }
   }
   .noteBody {
     max-width: 40ch;
     font-size: 16px;
     line-height: 25px;
+    @variant max-sm {
+      font-size: 15px;
+      line-height: 23px;
+    }
     letter-spacing: -0.15px;
     color: --alpha(var(--color-fg) / 88%);
     text-wrap: pretty;
@@ -339,6 +346,11 @@
     font-family: var(--font-mono);
     font-size: 11.5px;
     color: var(--color-muted);
+    @variant max-sm {
+      grid-template-columns: 24px minmax(0, 1fr);
+      gap: 10px;
+      padding-inline: 12px;
+    }
   }
   .frame + .frame {
     border-top: 1px solid --alpha(var(--color-fg) / 5%);
@@ -375,6 +387,9 @@
     font-family: var(--font-sans);
     font-size: 10px;
     color: var(--color-fg);
+    @variant max-sm {
+      display: none;
+    }
   }
   .more {
     display: block;
@@ -389,6 +404,11 @@
     flex-wrap: wrap;
     gap: 6px 16px;
     margin-top: 14px;
+    @variant max-sm {
+      display: grid;
+      grid-template-columns: repeat(2, max-content);
+      gap: 10px 28px;
+    }
   }
   .context span {
     display: inline-flex;
