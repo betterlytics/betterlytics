@@ -11,7 +11,7 @@ import {
   Smartphone,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { AppleMark } from '@/landing/components/illustrations/errors';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Emphasis } from '@/landing/components/ui/emphasis';
@@ -140,13 +140,14 @@ function HistoryArt() {
 
 /* the Safari counts match the history cell's 21% share; ChunkLoadError keeps all of its occurrences */
 const FILTERED = [
-  { type: 'TypeError', from: '1,206', to: '253' },
-  { type: 'ChunkLoadError', from: '58', to: '58', stays: true },
-  { type: 'RangeError', from: '9', to: '0', drops: true },
+  { type: 'TypeError', from: 1206, to: 253 },
+  { type: 'ChunkLoadError', from: 58, to: 58, stays: true },
+  { type: 'RangeError', from: 9, to: 0, drops: true },
 ];
 
 function FilterArt() {
   const t = useTranslations('landing.errors.triage.art');
+  const { format } = new Intl.NumberFormat(useLocale());
   const value = (chunks: ReactNode) => <b>{chunks}</b>;
   return (
     <div className={styles.filterArt} aria-hidden>
@@ -179,7 +180,7 @@ function FilterArt() {
             data-drops={row.drops || undefined}
           >
             <b>{row.type}</b>
-            <Roll from={row.from} to={row.to} />
+            <Roll from={format(row.from)} to={format(row.to)} />
           </div>
         ))}
       </div>
@@ -200,6 +201,9 @@ function WindowsMark({ className }: { className?: string }) {
 
 function OccurrenceArt() {
   const t = useTranslations('landing.errors.triage.art');
+  const { format } = new Intl.NumberFormat(useLocale());
+  // only the last digit changes, so it alone rolls
+  const [from, to] = [format(1204), format(1203)];
   return (
     <div className={styles.occurrenceArt} aria-hidden>
       <div className={styles.navigator}>
@@ -215,11 +219,11 @@ function OccurrenceArt() {
           {t.rich('occurrenceOf', {
             number: () => (
               <>
-                1,20
-                <Roll from='4' to='3' />
+                {from.slice(0, -1)}
+                <Roll from={from.slice(-1)} to={to.slice(-1)} />
               </>
             ),
-            total: '1,206',
+            total: format(1206),
           })}
         </span>
         <span className={styles.navButtons}>
