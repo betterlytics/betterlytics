@@ -39,25 +39,6 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
   return {
     locale: locale as SupportedLanguages,
-    messages: await loadMessages(locale),
+    messages: (await import(`../../messages/${locale}.json`)).default,
   };
 });
-
-type MessageTree = { [key: string]: string | MessageTree };
-
-/** Keys a locale hasn't translated yet fall back to English rather than rendering as raw key paths. */
-async function loadMessages(locale: string): Promise<MessageTree> {
-  const own: MessageTree = (await import(`../../messages/${locale}.json`)).default;
-  if (locale === routing.defaultLocale) return own;
-  const fallback: MessageTree = (await import(`../../messages/${routing.defaultLocale}.json`)).default;
-  return withFallback(own, fallback);
-}
-
-function withFallback(own: MessageTree, fallback: MessageTree): MessageTree {
-  const result: MessageTree = { ...fallback };
-  for (const [key, value] of Object.entries(own)) {
-    const base = fallback[key];
-    result[key] = typeof value === 'object' && typeof base === 'object' ? withFallback(value, base) : value;
-  }
-  return result;
-}
