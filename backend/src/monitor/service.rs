@@ -203,7 +203,7 @@ impl IncidentOrchestrator {
                 strategy: DeliveryStrategy::Once,
                 notification: Notification {
                     title: format!("{} is down", monitor_name),
-                    message: format!("{} ({}) is not responding", monitor_name, ctx.check.url),
+                    message: down_message(&monitor_name, ctx.check.url.as_str(), ctx.reason_code),
                     url: Some(self.monitor_url(ctx)),
                     url_title: Some("View Monitor".to_string()),
                     color: NotificationColor::Danger,
@@ -385,11 +385,7 @@ impl IncidentOrchestrator {
         let (ssl_title, ssl_message) = if expired {
             (
                 format!("SSL certificate expired for {}", monitor_name),
-                format!(
-                    "The SSL certificate for {} ({}) has expired",
-                    monitor_name,
-                    ctx.check.url,
-                ),
+                ssl_expired_message(&monitor_name, ctx.check.url.as_str(), ctx.tls_not_after),
             )
         } else {
             (
@@ -503,6 +499,30 @@ impl IncidentOrchestrator {
     }
 }
 
+/// Integration text for a down alert. Certificate problems are named, since "not responding"
+/// would send the reader looking for an outage instead of a certificate to fix.
+fn down_message(monitor_name: &str, url: &str, reason_code: ReasonCode) -> String {
+    if reason_code.as_str().starts_with("tls_") {
+        format!("{monitor_name} ({url}) is down: {}", reason_code.to_message())
+    } else {
+        format!("{monitor_name} ({url}) is not responding")
+    }
+}
+
+fn ssl_expired_message(
+    monitor_name: &str,
+    url: &str,
+    expiry_date: Option<chrono::DateTime<chrono::Utc>>,
+) -> String {
+    match expiry_date {
+        Some(date) => format!(
+            "The SSL certificate for {monitor_name} ({url}) expired on {}",
+            date.format("%B %-d, %Y")
+        ),
+        None => format!("The SSL certificate for {monitor_name} ({url}) has expired"),
+    }
+}
+
 /// Send-once key for integrations: one per certificate when expired, one per milestone of a
 /// certificate when expiring, so a renewed certificate or the next milestone alerts again.
 fn ssl_event_key(
@@ -540,6 +560,31 @@ fn humanize_duration(d: Duration) -> String {
 mod tests {
     use super::*;
     use chrono::{TimeZone, Utc};
+
+    #[test]
+    fn down_message_names_certificate_problems() {
+        assert_eq!(
+            down_message("Shop", "https://shop.example/", ReasonCode::TlsExpired),
+            "Shop (https://shop.example/) is down: SSL certificate has expired"
+        );
+        assert_eq!(
+            down_message("Shop", "https://shop.example/", ReasonCode::TlsHostnameMismatch),
+            "Shop (https://shop.example/) is down: SSL certificate hostname mismatch"
+        );
+        assert_eq!(
+            down_message("Shop", "https://shop.example/", ReasonCode::HttpConnectError),
+            "Shop (https://shop.example/) is not responding"
+        );
+    }
+
+    #[test]
+    fn ssl_expired_message_shows_the_expiry_date() {
+        let cert = Utc.with_ymd_and_hms(2015, 4, 12, 23, 59, 59).unwrap();
+        assert_eq!(
+            ssl_expired_message("Shop", "https://shop.example/", Some(cert)),
+            "The SSL certificate for Shop (https://shop.example/) expired on April 12, 2015"
+        );
+    }
 
     #[test]
     fn ssl_event_keys_are_per_certificate_and_milestone() {
