@@ -129,7 +129,7 @@ describe('executeListMonitors', () => {
   it("rounds uptime down to the status page's two decimals, so any downtime never reads 100", async () => {
     getSummaries.mockResolvedValue([{ ...summary, uptimePercent: 99.99965 }]);
 
-    const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
 
     expect(result.monitors[0].uptime.percent).toBe(99.99);
   });
@@ -193,7 +193,7 @@ describe('executeListMonitors', () => {
   it('rounds the seconds to milliseconds', async () => {
     getSummaries.mockResolvedValue([{ ...summary, uptimeSeconds: 250211.99899999998, monitoredSeconds: 259212 }]);
 
-    const result = await executeListMonitors({ timeRange: '24h' }, 'site-1', 'dash-1');
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
 
     expect(result.monitors[0].uptime).toMatchObject({ up_seconds: 250211.999, measured_seconds: 259212 });
   });
