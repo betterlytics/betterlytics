@@ -202,6 +202,7 @@ const ReplayPlayerComponent = (
           width: size.width,
           height: size.height,
           plugins: [rageCursorPlugin],
+          mouseTail: false,
         },
       });
 

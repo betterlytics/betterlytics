@@ -355,9 +355,6 @@
     transform: translate(-50%, -50%) scale(1.5);
   }
 }
-.rr-player .replayer-mouse.rage {
-  animation: replayer-rage-shake 0.3s ease-in-out infinite;
-}
 .rr-player .replayer-mouse.rage:after {
   border-color: var(--destructive) !important;
 }
@@ -372,14 +369,6 @@
   border-radius: 9999px;
   pointer-events: none;
   animation: replayer-rage-ring 0.6s ease-out infinite;
-}
-@keyframes replayer-rage-shake {
-  25% {
-    transform: translate3d(-3px, 0, 0);
-  }
-  75% {
-    transform: translate3d(3px, 0, 0);
-  }
 }
 @keyframes replayer-rage-ring {
   0% {
