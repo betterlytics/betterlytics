@@ -8,6 +8,7 @@ const timeRange: ResolvedTimeRange = {
   end: new Date('2026-01-31T23:59:59Z'),
   startDateTime: '2026-01-01 00:00:00',
   endDateTime: '2026-01-31 23:59:59',
+  granularity: 'day',
 };
 
 describe('buildSiteQuery', () => {

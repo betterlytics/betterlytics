@@ -1,5 +1,7 @@
 import { METRICS, METRIC_KEYS } from '@/mcp/registry/metrics';
 import { DIMENSIONS, DIMENSION_KEYS } from '@/mcp/registry/dimensions';
+import { SESSION_METRICS } from '@/mcp/registry/sessionMetrics';
+import { SESSION_DIMENSIONS } from '@/mcp/registry/sessionDimensions';
 import { FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
 import { getFilterColumnDescription } from '@/mcp/registry/filterColumns';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
@@ -23,7 +25,19 @@ type SchemaDescription = {
   orderBy: { validValues: string[]; description: string };
   order: { validValues: string[]; default: string };
   timezone: { format: string; default: string; examples: string[] };
+  querySessions: QuerySessionsDescription;
   tools: { name: string; description: string; inputs: ToolInput[] }[];
+};
+
+type QuerySessionsDescription = {
+  description: string;
+  metrics: { key: string; unit: string; description: string }[];
+  dimensions: { key: string; description: string }[];
+  filterColumns: { description: string; extraColumns: { key: string; description: string }[] };
+  sessionDates: string;
+  filterSemantics: { sessionColumns: string; eventColumns: string; globalProperties: string };
+  emptyValues: string;
+  timeSeries: string;
 };
 
 export function getSchemaDescription(available: ToolAvailability): SchemaDescription {
@@ -73,6 +87,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
       default: 'UTC',
       examples: ['Europe/Berlin', 'America/New_York', 'Asia/Tokyo'],
     },
+    querySessions: QUERY_SESSIONS_DESCRIPTION,
     tools: [
       {
         name: 'query',
@@ -136,6 +151,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
           },
         ],
       },
+      QUERY_SESSIONS_TOOL,
       {
         name: 'user_journeys',
         description:
@@ -302,6 +318,99 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
     ],
   };
 }
+
+const QUERY_SESSIONS_DESCRIPTION: QuerySessionsDescription = {
+  description:
+    'The query_sessions tool aggregates sessions instead of events. The top-level metrics, dimensions and orderBy fields belong to query; query_sessions uses the metrics and dimensions below. timeRanges, customDateRange, granularities, order, timezone, filterOperators and filterFormat work the same for both tools.',
+  metrics: SESSION_METRICS.map((m) => ({ key: m.key, unit: m.unit, description: m.description })),
+  dimensions: SESSION_DIMENSIONS.map((d) => ({ key: d.key, description: d.description })),
+  filterColumns: {
+    description:
+      'Every column in the top-level filterColumns list works, including gp.<key> and cep.<key>, plus these two columns that only query_sessions accepts.',
+    extraColumns: [
+      { key: 'entry_page', description: "Landing page: URL path of the session's first pageview" },
+      { key: 'exit_page', description: "URL path of the session's last pageview" },
+    ],
+  },
+  sessionDates:
+    'Sessions are picked by when they started: a session belongs to the range, and to a time-series bucket, by the time of its first event. A session that started before the range is left out even if it continues into it, and a session that started inside the range counts in full, including events after the range end.',
+  filterSemantics: {
+    sessionColumns:
+      "Filters on device, browser, os, geography, referrer, utm_*, entry_page and exit_page match the session's own value. Referrer and UTM values come from the session's first event.",
+    eventColumns:
+      'Filters on url, event_type, custom_event_name, outbound_link_url and cep.<key> match the events of the session within the range: = keeps a session when any of its events matches, and != drops the whole session when any of its events matches. Metrics still cover the whole session, not only the matching events. A url filter keeps sessions that viewed the page at any point; to filter by where sessions started or ended, use entry_page or exit_page.',
+    globalProperties: 'gp.<key> keeps a session when any of its events carried a matching global property.',
+  },
+  emptyValues:
+    'Breakdowns leave out sessions with an empty value for a requested dimension: sessions without a landing page, untagged sessions in a utm_* breakdown, an unknown country, and so on. Totals without dimensions still count every session, so a breakdown can add up to less than the total. To limit totals to tagged traffic, filter with { column: "utm_source", operator: "=", values: ["*"] }: "*" alone matches any non-empty value, and != "*" keeps only sessions where the value is empty.',
+  timeSeries:
+    'With a granularity, rows are bucketed by session start in the requested timezone. Without dimensions, dates without sessions are filled with zeros; with dimensions, only dates where a value had sessions are returned, so a missing date means zero. visitors counts each visitor only in the bucket of their first session, so the buckets add up to the total visitors.',
+};
+
+const QUERY_SESSIONS_TOOL: ToolDescription = {
+  name: 'query_sessions',
+  description:
+    'Query aggregate session analytics (bounce rate, visit duration, pages per session, landing and exit pages). See the querySessions field of this schema for metrics, dimensions and semantics.',
+  inputs: [
+    {
+      name: 'metrics',
+      type: 'string[]',
+      required: true,
+      description: 'Metrics to query (see querySessions.metrics). At least one required.',
+    },
+    {
+      name: 'dimensions',
+      type: 'string[]',
+      required: false,
+      description: 'Dimensions to group by (see querySessions.dimensions).',
+    },
+    {
+      name: 'timeRange',
+      type: 'string',
+      required: true,
+      description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
+    },
+    {
+      name: 'startDate',
+      type: 'string',
+      required: false,
+      description: 'YYYY-MM-DD. Required when timeRange is "custom".',
+    },
+    {
+      name: 'endDate',
+      type: 'string',
+      required: false,
+      description: 'YYYY-MM-DD. Required when timeRange is "custom".',
+    },
+    { name: 'timezone', type: 'string', required: false, description: 'IANA time zone. Defaults to UTC.' },
+    {
+      name: 'filters',
+      type: 'array',
+      required: false,
+      description: 'Filters to apply (see filterFormat and querySessions.filterColumns).',
+    },
+    {
+      name: 'granularity',
+      type: 'string',
+      required: false,
+      description: 'Time-series granularity: "hour" or "day". Omit for aggregate totals.',
+    },
+    {
+      name: 'orderBy',
+      type: 'string',
+      required: false,
+      description:
+        'A requested metric or dimension to sort by. Defaults to first metric. Time-series queries are always sorted by date.',
+    },
+    { name: 'order', type: 'string', required: false, description: '"asc" or "desc". Defaults to "desc".' },
+    {
+      name: 'limit',
+      type: 'number',
+      required: false,
+      description: 'Max rows to return (1-10000). Defaults to 100.',
+    },
+  ],
+};
 
 const MONITORING_TOOLS: ToolDescription[] = [
   {

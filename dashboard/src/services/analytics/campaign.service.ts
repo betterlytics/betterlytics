@@ -113,6 +113,7 @@ export type CampaignDirectoryPage = {
   totalCampaigns: number;
   pageIndex: number;
   pageSize: number;
+  hasEverHadCampaigns: boolean;
 };
 
 export async function fetchCampaignDirectoryPage(
@@ -127,6 +128,9 @@ export async function fetchCampaignDirectoryPage(
   const sparklineMap =
     campaignNames.length > 0 ? await fetchCampaignSparklines(authContext, siteQuery, campaignNames) : {};
 
+  const hasEverHadCampaigns =
+    performancePage.totalCampaigns > 0 || (await campaignRepository.hasAnyCampaignData(siteQuery.siteId));
+
   const campaigns: CampaignListRowSummary[] = performancePage.campaigns.map((campaign) => ({
     ...campaign,
     sparkline: sparklineMap[campaign.name] ?? [],
@@ -137,6 +141,7 @@ export async function fetchCampaignDirectoryPage(
     totalCampaigns: performancePage.totalCampaigns,
     pageIndex: performancePage.pageIndex,
     pageSize: performancePage.pageSize,
+    hasEverHadCampaigns,
   };
 }
 
