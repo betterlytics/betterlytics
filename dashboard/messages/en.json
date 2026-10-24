@@ -2955,12 +2955,7 @@
       "table": {
         "details": "Referrer Details",
         "tabs": {
-          "all": "All",
-          "search": "Search",
-          "social": "Social",
-          "direct": "Direct",
-          "email": "Email",
-          "other": "Other"
+          "all": "All"
         },
         "columns": {
           "source": "Source",
@@ -2972,6 +2967,14 @@
           "direct": "Direct",
           "unknown": "Unknown"
         }
+      },
+      "categories": {
+        "search": "Search",
+        "social": "Social",
+        "ai": "AI",
+        "direct": "Direct",
+        "email": "Email",
+        "other": "Other"
       }
     },
     "geography": {

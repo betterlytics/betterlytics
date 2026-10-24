@@ -20,6 +20,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useChartDateFormatters } from '@/hooks/use-chart-date-formatters';
 import { formatNumber } from '@/utils/formatters';
 import DataEmptyComponent from '@/components/DataEmptyComponent';
+import { useReferrerCategoryLabel } from '@/hooks/use-referrer-category-label';
 
 interface ReferrerTrafficTrendChartProps {
   chartData: Array<{ date: number } & Record<string, number>>;
@@ -37,6 +38,7 @@ export default function ReferrerTrafficTrendChart({
   const locale = useLocale();
   const isMobile = useIsMobile();
   const { axisFormatter } = useChartDateFormatters('day');
+  const categoryLabel = useReferrerCategoryLabel();
   if (!chartData || chartData.length === 0 || categories.length === 0) {
     return (
       <DataEmptyComponent />
@@ -90,7 +92,7 @@ export default function ReferrerTrafficTrendChart({
               stroke={getReferrerColor(source)}
               fill={getReferrerColor(source)}
               fillOpacity={0.6}
-              name={source}
+              name={categoryLabel(source)}
             />
           ))}
         </AreaChart>

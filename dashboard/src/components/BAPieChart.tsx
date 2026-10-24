@@ -15,6 +15,7 @@ interface ChartDataPoint {
 interface BAPieChartProps {
   data: ChartDataPoint[];
   getLabel: (name: string) => string;
+  getFullLabel?: (name: string) => string; // untruncated label for the tooltip and title
   getColor: (name: string) => string;
   getIcon?: (name: string) => React.ReactNode;
   formatValue?: (value: number) => string;
@@ -23,7 +24,7 @@ interface BAPieChartProps {
 }
 
 const BAPieChart: React.FC<BAPieChartProps> = React.memo(
-  ({ data, getColor, getIcon, formatValue, getLabel, onSliceClick, loading = false }) => {
+  ({ data, getColor, getIcon, formatValue, getLabel, getFullLabel, onSliceClick, loading = false }) => {
     const t = useTranslations('dashboard.emptyStates');
     const tFilters = useTranslations('components.filters');
     const locale = useLocale();
@@ -84,7 +85,7 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(
                       content={
                         <PieChartTooltip
                           valueFormatter={formatValue}
-                          labelFormatter={capitalizeFirstLetter}
+                          labelFormatter={getFullLabel ?? capitalizeFirstLetter}
                           renderIcon={getIcon}
                         />
                       }
@@ -95,7 +96,7 @@ const BAPieChart: React.FC<BAPieChartProps> = React.memo(
               <div className='mt-4 flex w-full flex-wrap justify-center gap-x-4 gap-y-2'>
                 {data.slice(0, 4).map((entry) => {
                   const label = getLabel?.(entry.name) ?? capitalizeFirstLetter(entry.name);
-                  const fullLabel = entry.name;
+                  const fullLabel = getFullLabel?.(entry.name) ?? entry.name;
                   return (
                     <div
                       key={entry.name}

@@ -3,11 +3,11 @@
 import ReferrerTrafficTrendChart from './ReferrerTrafficTrendChart';
 import BAPieChart from '@/components/BAPieChart';
 import { getReferrerColor } from '@/utils/referrerColors';
-import { capitalizeFirstLetter } from '@/utils/formatters';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useReferrerCategoryLabel } from '@/hooks/use-referrer-category-label';
 import { QuerySection } from '@/components/QuerySection';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
@@ -24,6 +24,7 @@ export default function ReferrersChartsSection() {
   const { granularity } = useTimeRangeContext();
   const t = useTranslations('components.referrers.charts');
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
+  const categoryLabel = useReferrerCategoryLabel();
 
   return (
     <div className='grid grid-cols-1 gap-4 xl:grid-cols-8'>
@@ -62,7 +63,8 @@ export default function ReferrersChartsSection() {
                 data={distributionQuery.data ?? []}
                 loading={distributionLoading}
                 getColor={getReferrerColor}
-                getLabel={capitalizeFirstLetter}
+                getLabel={categoryLabel}
+                getFullLabel={categoryLabel}
                 onSliceClick={makeFilterClick('referrer_source')}
               />
             </div>
