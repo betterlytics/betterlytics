@@ -1,0 +1,201 @@
+@reference '../../../landing.css';
+
+@layer components {
+  /* spans #main, under the sticky nav (z-20) and the wall rules */
+  .layer {
+    position: absolute;
+    inset: 0;
+    z-index: 15;
+    overflow: hidden;
+    pointer-events: none;
+    @variant max-lg {
+      display: none;
+    }
+  }
+
+  /* typed into the mock checkout's postcode field; the mock itself is left alone */
+  .typed {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    color: #22201e;
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out-expo);
+  }
+  .typed[data-on] {
+    opacity: 1;
+  }
+  .typed::after,
+  .caret[data-on] {
+    animation: replay-caret 1s steps(1) infinite;
+  }
+  .typed::after {
+    content: '';
+    width: 1px;
+    height: 13px;
+    margin-left: 1px;
+    background: #22201e;
+  }
+  /* sits in the code snippet while the visitor types into it */
+  .caret {
+    position: absolute;
+    width: 1.5px;
+    background: var(--color-fg);
+    opacity: 0;
+  }
+  .caret[data-on] {
+    opacity: 1;
+  }
+
+  /* a text selection, one box per line, drawn over the text */
+  .marks i {
+    position: absolute;
+    border-radius: 2px;
+    background: rgb(74 92 255 / 0.32);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out-expo);
+  }
+  .marks[data-on] i {
+    opacity: 1;
+  }
+
+  /* marks the visitor's spot on the checkout while capture is paused there */
+  .halo {
+    position: absolute;
+    border-radius: 12px;
+    box-shadow:
+      0 0 0 2px var(--color-volt-hover),
+      0 0 0 8px rgb(34 51 228 / 0.18);
+    opacity: 0;
+    transition: opacity 0.35s var(--ease-out-expo);
+  }
+  .halo[data-on] {
+    opacity: 1;
+    animation: replay-halo 1.8s ease-in-out infinite;
+  }
+
+  .cursor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out-expo);
+    will-change: transform;
+  }
+  .cursor[data-on] {
+    opacity: 1;
+  }
+  /* the tip sits on the cursor's origin and the arrow turns around it */
+  .pointer {
+    position: absolute;
+    top: -4.25px;
+    left: -4.25px;
+    width: 34px;
+    /* the cursor box has no width, so the base svg max-width: 100% would squash it to nothing */
+    max-width: none;
+    height: 34px;
+    transform-origin: 4.25px 4.25px;
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.3));
+  }
+  .pointer path {
+    fill: var(--color-volt-hover);
+    stroke: #0f1ca6;
+    stroke-width: 1;
+    stroke-linejoin: round;
+  }
+
+  /* placed around the tip each frame, opposite the way the pointer faces */
+  .tag {
+    position: absolute;
+    top: 0;
+    left: 0;
+    will-change: transform;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid #0f1ca6;
+    background: var(--color-volt-hover);
+    color: var(--color-on-volt);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.1px;
+    white-space: nowrap;
+    box-shadow: 0 6px 16px rgb(0 0 0 / 0.25);
+  }
+  /* the three dots of 'Capture paused', appearing one by one */
+  .dots i {
+    font-style: normal;
+    animation: 1.6s steps(1) infinite;
+  }
+  .dots i:nth-child(1) {
+    animation-name: replay-dot-1;
+  }
+  .dots i:nth-child(2) {
+    animation-name: replay-dot-2;
+  }
+  .dots i:nth-child(3) {
+    animation-name: replay-dot-3;
+  }
+
+  .ripple {
+    position: absolute;
+    top: -14px;
+    left: -14px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--color-volt-lift);
+    opacity: 0;
+  }
+  .ripple[data-on] {
+    animation: replay-click 0.7s var(--ease-out-expo);
+  }
+}
+
+@keyframes replay-click {
+  from {
+    opacity: 0.9;
+    scale: 0.3;
+  }
+  to {
+    opacity: 0;
+    scale: 1.5;
+  }
+}
+@keyframes replay-caret {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes replay-halo {
+  50% {
+    box-shadow:
+      0 0 0 2px var(--color-volt-hover),
+      0 0 0 12px rgb(34 51 228 / 0.08);
+  }
+}
+@keyframes replay-dot-1 {
+  0% {
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+}
+@keyframes replay-dot-2 {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes replay-dot-3 {
+  0% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 1;
+  }
+}
