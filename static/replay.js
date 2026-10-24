@@ -8805,6 +8805,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
     function trackClick(e) {
       var data = e.data;
       if (typeof data.x !== "number" || typeof data.y !== "number") return;
+      // Clicks from the keyboard or el.click() have no position
+      if (data.x === 0 && data.y === 0) return;
       var burst = state.rageBurst;
       var continues =
         burst &&
