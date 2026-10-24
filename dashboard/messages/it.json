@@ -3069,6 +3069,7 @@
       "toastFilterAdded": "Aggiunto",
       "toastFilterRemoved": "Rimosso",
       "removeFilter": "Rimuovi filtro",
+      "pillMoreValues": "+{count, number} altri, clicca per vederli tutti",
       "notAvailableOnPage": "Non disponibile in questa pagina"
     },
     "funnels": {
