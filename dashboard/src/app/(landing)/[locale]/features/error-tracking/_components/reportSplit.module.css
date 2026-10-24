@@ -182,7 +182,7 @@
   .issue {
     position: absolute;
     left: 50%;
-    top: 60%;
+    top: 55%;
     width: min(440px, calc(100% - 48px));
     overflow: hidden;
     border: 1px solid var(--color-rule-10);
