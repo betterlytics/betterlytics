@@ -2682,6 +2682,10 @@
         "docsHint": "Brug for hjælp til at få kampagner til at dukke op?",
         "docsLinkLabel": "Læs guiden til kampagnesporing"
       },
+      "periodEmptyState": {
+        "title": "Ingen kampagnetrafik i denne periode",
+        "description": "Prøv et bredere datointerval for at se tidligere kampagner."
+      },
       "loading": "Indlæser kampagner...",
       "campaignRow": {
         "visitors": "{count, plural, one {# besøgende} other {# besøgende}}",
@@ -2955,12 +2959,7 @@
       "table": {
         "details": "Henvisningsdetaljer",
         "tabs": {
-          "all": "Alle",
-          "search": "Søgning",
-          "social": "Social",
-          "direct": "Direkte",
-          "email": "E-mail",
-          "other": "Andet"
+          "all": "Alle"
         },
         "columns": {
           "source": "Kilde",
@@ -2972,6 +2971,14 @@
           "direct": "Direkte",
           "unknown": "Ukendt"
         }
+      },
+      "categories": {
+        "search": "Søgning",
+        "social": "Social",
+        "ai": "AI",
+        "direct": "Direkte",
+        "email": "E-mail",
+        "other": "Andet"
       }
     },
     "geography": {
@@ -3073,7 +3080,8 @@
           "title": "Ingen sessionsafspilninger tilgængelige",
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl"
+        "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl",
+        "sessionRageClicksTooltip": "{count, plural, one {Denne session har {count} raseriklik} other {Denne session har {count} raseriklik}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3098,7 +3106,8 @@
         "blacklist": "Sortlistet",
         "viewportResize": "Viewport-ændring",
         "mediaInteraction": "Medieinteraktion",
-        "clientError": "Klientfejl"
+        "clientError": "Klientfejl",
+        "rageClick": "Raseriklik"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",
@@ -3538,6 +3547,9 @@
     "themeToggle": {
       "light": "Skift til lyst tema",
       "dark": "Skift til mørkt tema"
+    },
+    "scrollToTop": {
+      "label": "Rul til toppen"
     },
     "errorPage": {
       "title": "Noget gik galt",
