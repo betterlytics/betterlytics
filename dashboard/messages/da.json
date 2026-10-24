@@ -2931,7 +2931,7 @@
       "table": {
         "path": "Sti",
         "filterByPath": "Filtrer efter {path}",
-        "visitors": "Besøgende",
+        "sessions": "Sessioner",
         "pageviews": "Sidevisninger",
         "sessionPageviews": "Sidevisninger i sessioner",
         "bounceRate": "Afvisningsprocent",

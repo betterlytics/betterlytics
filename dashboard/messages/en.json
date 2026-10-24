@@ -2931,7 +2931,7 @@
       "table": {
         "path": "Path",
         "filterByPath": "Filter by {path}",
-        "visitors": "Visitors",
+        "sessions": "Sessions",
         "pageviews": "Pageviews",
         "sessionPageviews": "Session Pageviews",
         "bounceRate": "Bounce Rate",
