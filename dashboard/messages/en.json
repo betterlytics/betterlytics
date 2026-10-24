@@ -2041,9 +2041,9 @@
             "title": "See who it hits",
             "body": "See how often each error happens day by day, and which browsers and devices it hits."
           },
-          "share": {
-            "title": "Share the exact occurrence",
-            "body": "Share copies a link to the occurrence on screen, so a teammate opens exactly what you're looking at."
+          "filter": {
+            "title": "Filter like your analytics",
+            "body": "Narrow the list with the same filters as the rest of your dashboard, like page, browser, device or country."
           },
           "occurrences": {
             "title": "Step through occurrences",
@@ -2054,12 +2054,14 @@
           "selected": "<count></count> selected",
           "resolve": "Resolve",
           "ignore": "Ignore",
-          "copied": "Link copied",
           "occurrenceOf": "Occurrence <number></number> of {total}",
           "mobile": "Mobile",
           "history": "Occurrence history",
           "days": "{count} days",
-          "desktop": "Desktop"
+          "desktop": "Desktop",
+          "pageIs": "Page is <value>/pricing</value>",
+          "browserIs": "Browser is <value>Safari</value>",
+          "addFilter": "Add filter"
         }
       },
       "agent": {

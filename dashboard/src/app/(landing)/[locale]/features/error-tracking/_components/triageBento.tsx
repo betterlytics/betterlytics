@@ -6,8 +6,8 @@ import {
   ChevronsLeft,
   ChevronsRight,
   Eye,
-  Link2,
   Monitor,
+  Plus,
   Smartphone,
 } from 'lucide-react';
 import Image from 'next/image';
@@ -138,20 +138,51 @@ function HistoryArt() {
   );
 }
 
-function ShareArt() {
+/* the Safari counts match the history cell's 21% share; ChunkLoadError keeps all of its occurrences */
+const FILTERED = [
+  { type: 'TypeError', from: '1,206', to: '253' },
+  { type: 'ChunkLoadError', from: '58', to: '58', stays: true },
+  { type: 'RangeError', from: '9', to: '0', drops: true },
+];
+
+function FilterArt() {
   const t = useTranslations('landing.errors.triage.art');
+  const value = (chunks: ReactNode) => <b>{chunks}</b>;
   return (
-    <div className={styles.shareArt} aria-hidden>
-      <span className={styles.urlPill}>
-        <Link2 className='size-3.5' />
-        <span>
-          …/errors/a91f2c<b>?occurrence=1204</b>
+    <div className={styles.filterArt} aria-hidden>
+      <div className={styles.filterBar}>
+        <span className={styles.filterPill}>
+          <Eye className='size-3.5' />
+          {t.rich('pageIs', { value })}
         </span>
-      </span>
-      <span className={styles.toast}>
-        <Check className='size-3.5' strokeWidth={2.6} />
-        {t('copied')}
-      </span>
+        <Swap
+          from={
+            <span className={styles.addPill}>
+              <Plus className='size-3.5' />
+              {t('addFilter')}
+            </span>
+          }
+          to={
+            <span className={styles.filterPill}>
+              <Image src='/browser-icons/safari.svg' alt='' width={13} height={13} />
+              {t.rich('browserIs', { value })}
+            </span>
+          }
+        />
+      </div>
+      <div className={styles.filterList}>
+        {FILTERED.map((row) => (
+          <div
+            key={row.type}
+            className={styles.filterRow}
+            data-stays={row.stays || undefined}
+            data-drops={row.drops || undefined}
+          >
+            <b>{row.type}</b>
+            <Roll from={row.from} to={row.to} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -273,7 +304,7 @@ export function TriageBento() {
       <ul className={styles.cells}>
         <Cell art={<StatusArt />} title={t('items.status.title')} body={t('items.status.body')} />
         <Cell art={<HistoryArt />} title={t('items.history.title')} body={t('items.history.body')} />
-        <Cell art={<ShareArt />} title={t('items.share.title')} body={t('items.share.body')} />
+        <Cell art={<FilterArt />} title={t('items.filter.title')} body={t('items.filter.body')} />
         <Cell art={<OccurrenceArt />} title={t('items.occurrences.title')} body={t('items.occurrences.body')} />
       </ul>
     </div>
