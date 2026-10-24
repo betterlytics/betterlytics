@@ -97,7 +97,7 @@ type SnippetPanelProps = { snippets?: readonly Snippet[]; label?: string; foot?:
 export function SnippetPanel({ snippets = SNIPPETS, label, foot = REQUEST }: SnippetPanelProps) {
   const t = useTranslations('landing.network');
   const id = useId();
-  const [picked, setActive] = useState(0);
+  const [picked, setPicked] = useState(0);
   // a tab can disappear while it's open (the error setup drops its consent tab), so fall back to the last one
   const active = Math.min(picked, snippets.length - 1);
   const current = snippets[active];
@@ -117,7 +117,7 @@ export function SnippetPanel({ snippets = SNIPPETS, label, foot = REQUEST }: Sni
           role='tablist'
           aria-label={label ?? t('snippetLabel')}
           className='flex gap-0.5'
-          onKeyDown={rovingTabKeys(active, snippets.length, setActive)}
+          onKeyDown={rovingTabKeys(active, snippets.length, setPicked)}
         >
           {snippets.map((snippet, i) => (
             <button
@@ -134,7 +134,7 @@ export function SnippetPanel({ snippets = SNIPPETS, label, foot = REQUEST }: Sni
                 'transition-[color,background-color,border-color] duration-200 ease-out-expo',
                 'aria-selected:border-volt-soft aria-selected:bg-fg/6 aria-selected:text-fg',
               )}
-              onClick={() => setActive(i)}
+              onClick={() => setPicked(i)}
             >
               {snippet.logo ? (
                 <Image
