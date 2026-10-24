@@ -8819,9 +8819,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
         burst.lastX = data.x;
         burst.lastY = data.y;
         if (burst.clickCount === RAGE_CLICK_MIN_CLICKS) {
+          // The first click's element may already be gone from the mirror
           var node = null;
           try {
-            node = window.rrweb.record.mirror.getNode(burst.nodeId);
+            node = window.rrweb.record.mirror.getNode(data.id);
           } catch (_) {}
           burst.selector = shortSelector(node);
         }
@@ -8834,7 +8835,6 @@ or you can use record.mirror to access the mirror instance during recording.`;
           y: data.y,
           lastX: data.x,
           lastY: data.y,
-          nodeId: data.id,
           clickCount: 1,
           selector: "",
         };
