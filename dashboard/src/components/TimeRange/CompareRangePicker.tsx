@@ -12,7 +12,8 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
 import { isDerivedCompareMode } from '@/utils/compareRanges';
 import { formatLocalDateTime, LOCALE_STRING_OPTIONS } from '@/utils/dateFormatters';
-import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
+import { formatPrimaryRangeLabel, isFullDayRange } from '@/utils/formatPrimaryRangeLabel';
+import { zonedMoment } from '@/utils/timezone';
 import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
@@ -30,10 +31,11 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
 
   const label = () => {
     if (ctx.compareMode === 'off' || !resolvedCompareDates) return t('disabled');
-    if (isDerivedCompareMode(ctx.compareMode)) {
+    // A sub-day custom range (a chart zoom) shows its comparison's times, whatever the mode
+    const isSubDayCustom = ctx.interval === 'custom' && !isFullDayRange(ctx.startDate, ctx.endDate, ctx.timeZone);
+    if (isDerivedCompareMode(ctx.compareMode) && !isSubDayCustom) {
       return ctx.compareMode === 'previous' ? t('previousPeriod') : t('previousYear');
     }
-    // Same format as the main range, so a sub-day range shows its times
     return formatPrimaryRangeLabel({
       interval: 'custom',
       offset: 0,
@@ -41,6 +43,10 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
       endDate: resolvedCompareDates.end,
       locale,
       timeZone: ctx.timeZone,
+      // Otherwise a previous-year comparison reads the same as the main range
+      showYear:
+        zonedMoment(resolvedCompareDates.start, ctx.timeZone).year() !==
+        zonedMoment(ctx.startDate, ctx.timeZone).year(),
     });
   };
 

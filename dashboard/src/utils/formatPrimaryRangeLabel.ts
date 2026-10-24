@@ -9,6 +9,15 @@ interface FormatPrimaryRangeLabelParams {
   endDate: Date;
   locale: SupportedLanguages;
   timeZone?: string;
+  showYear?: boolean;
+}
+
+export function isFullDayRange(startDate: Date, endDate: Date, timeZone?: string): boolean {
+  const start = zonedMoment(startDate, timeZone);
+  const end = zonedMoment(endDate, timeZone);
+  const isStartMidnight = start.hour() === 0 && start.minute() === 0;
+  const isEndEndOfDay = end.hour() === 23 && end.minute() >= 59; // tolerate seconds/millis
+  return isStartMidnight && isEndEndOfDay;
 }
 
 export function formatPrimaryRangeLabel({
@@ -18,13 +27,16 @@ export function formatPrimaryRangeLabel({
   endDate,
   locale,
   timeZone,
+  showYear = false,
 }: FormatPrimaryRangeLabelParams): string {
-  const dateFormatter = createDateTimeFormat(locale, { month: 'short', day: 'numeric' }, timeZone);
+  const year = showYear ? ({ year: 'numeric' } as const) : {};
+  const dateFormatter = createDateTimeFormat(locale, { month: 'short', day: 'numeric', ...year }, timeZone);
   const dateTimeFormatter = createDateTimeFormat(
     locale,
     {
       month: 'short',
       day: 'numeric',
+      ...year,
       hour: '2-digit',
       minute: '2-digit',
       hour12: false,
@@ -42,11 +54,7 @@ export function formatPrimaryRangeLabel({
 
   const isSameDay = start.isSame(end, 'day');
 
-  const isStartMidnight = start.hour() === 0 && start.minute() === 0;
-  const isEndEndOfDay = end.hour() === 23 && end.minute() >= 59; // tolerate seconds/millis
-  const isFullDayRange = isStartMidnight && isEndEndOfDay;
-
-  if (isFullDayRange) {
+  if (isFullDayRange(startDate, endDate, timeZone)) {
     if (isSameDay) return dateFormatter.format(startDate);
     return `${dateFormatter.format(startDate)} - ${dateFormatter.format(endDate)}`;
   }
