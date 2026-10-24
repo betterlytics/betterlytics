@@ -1950,7 +1950,7 @@
       "hero": {
         "eyebrow": "Error tracking",
         "title": "Catch the errors your visitors hit, and see what led to them",
-        "lede": "Betterlytics groups uncaught JavaScript errors and failed promises by stack trace, and shows what each visitor did before and after. It's free on every plan and runs in the same script as your analytics.",
+        "lede": "Betterlytics groups uncaught JavaScript errors by stack trace and shows what each visitor did before and after. It's free on every plan and runs in your analytics script.",
         "primary": "Start tracking errors free",
         "secondary": "Read the docs"
       },
@@ -1978,7 +1978,7 @@
       },
       "report": {
         "title": "From “it doesn’t work” to *line 142*",
-        "lede": "Most visitors who hit an error leave without a word, and the few who write in can only describe what they saw. Betterlytics shows you where the code threw, in which browser, and how often.",
+        "lede": "Most visitors who hit a bug leave without a word. Betterlytics shows where the code threw, in which browser, and how often.",
         "guess": "Guessing from bug reports",
         "fix": "Fixing from the stack trace",
         "alt": "On the left, vague reports about the pricing page keep streaming past: the same can't-upgrade email three times, a report that choosing a plan does nothing, a support chat, a blurry screenshot, a guess at the browser, a note saying it works on my machine, a P1 ticket saying upgrades have failed since Monday and a support inbox with 14 unread. On the right, the same bug as one error group: a TypeError thrown in selectPlan at line 142 of pricing.js and called from onClick in plan-card.js, in Chrome on macOS in Denmark, on /pricing, 1,206 times.",
@@ -2000,8 +2000,8 @@
       },
       "trail": {
         "title": "See what they did *before and after*",
-        "lede": "Every occurrence keeps the session it happened in: the pages, events and other errors from that visit, in order. When the visit was recorded, the replay is one click away.",
-        "alt": "A session trail of eight events. Before the error, the visitor landed on the home page, opened /pricing and picked a plan. The TypeError came one second later, thrown in selectPlan at line 142 of pricing.js in Chrome 129 on macOS, on a desktop in Denmark. After it, they reloaded /pricing, picked a plan again, hit the same error and left for /contact.",
+        "lede": "Each error keeps the pages, events and other errors from the same visit, in order, plus its replay if the visit was recorded.",
+        "alt": "A session trail of eight events. Before the error, the visitor landed on the home page, opened /pricing and picked a plan. The TypeError came one second later, thrown in selectPlan at line 142 of pricing.js in Chrome 129 on macOS, on a desktop in Denmark. After it, they reloaded /pricing, picked a plan again, hit the same error and left for /contact instead of upgrading.",
         "label": "Session trail",
         "count": "{count} events in this session",
         "before": {
@@ -2019,12 +2019,12 @@
         },
         "after": {
           "label": "After",
-          "body": "Reloaded, hit it again, then left for /contact."
+          "body": "Reloaded, hit it again, then left for /contact instead of upgrading."
         }
       },
       "triage": {
         "title": "Work the list *together*",
-        "body": "Statuses live on the dashboard, so the whole team works from one list. Owners, admins and editors resolve or ignore groups, and viewers follow along.",
+        "body": "Statuses are shared with your team, so everyone works from the same list and nobody chases a bug that's already fixed.",
         "cta": "Read the dashboard guide",
         "items": {
           "status": {
@@ -2058,14 +2058,14 @@
       },
       "agent": {
         "title": "Hand the bug *to your agent*",
-        "lede": "Errors are in the built-in MCP server, so your agent can read a group's stack trace and session trail right next to your code.",
+        "lede": "Errors are in the built-in MCP server, so your agent can read stack traces and session trails next to your code.",
         "lead": "From complaint to fix in one question",
-        "body": "Your agent finds the group behind a report, reads the frames and what the visitor did, then proposes a fix in the file the stack points to. You approve the change.",
+        "body": "Ask Claude Code, Cursor or any MCP client about a complaint. It looks up the matching error, reads the stack trace and session trail, and opens the file the stack points to.",
         "cta": "Set up MCP"
       },
       "setup": {
         "title": "Start catching with *one* attribute",
-        "lede": "Error tracking runs in the script you already have. Pick what to catch, then copy the snippet.",
+        "lede": "Error tracking runs in your analytics script. Pick what to catch and copy the snippet.",
         "lead": "Choose what to catch",
         "always": "Always on",
         "options": {
@@ -2079,7 +2079,7 @@
           },
           "replay": {
             "title": "Replay the lead-up",
-            "body": "Keep up to two minutes before each error as a replay, for visitors who consent. The Consent tab shows the call to make."
+            "body": "Keep up to two minutes before each error as a replay."
           }
         },
         "snippetLabel": "Error tracking setup",
