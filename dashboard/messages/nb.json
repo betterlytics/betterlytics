@@ -3080,7 +3080,8 @@
           "title": "Ingen sesjonsavspillinger tilgjengelige",
           "description": "Prøv å utvide tidsperioden eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne økten fanget {count} klientsidefeil"
+        "sessionErrorsTooltip": "Denne økten fanget {count} klientsidefeil",
+        "sessionRageClicksTooltip": "{count, plural, one {Denne økten har {count} raseriklikk} other {Denne økten har {count} raseriklikk}}"
       },
       "playerTopbar": {
         "startLabel": "Starttid:",
@@ -3105,7 +3106,8 @@
         "blacklist": "Svartelistet",
         "viewportResize": "Endring av viewport",
         "mediaInteraction": "Medieinteraksjon",
-        "clientError": "Klientside-feil"
+        "clientError": "Klientside-feil",
+        "rageClick": "Raseriklikk"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",

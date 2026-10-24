@@ -3080,7 +3080,8 @@
           "title": "No session replays available",
           "description": "Try expanding your time range or adjusting filters."
         },
-        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}"
+        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}",
+        "sessionRageClicksTooltip": "{count, plural, one {This session has {count} rage click} other {This session has {count} rage clicks}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3105,7 +3106,8 @@
         "blacklist": "Blacklisted",
         "viewportResize": "Viewport Resize",
         "mediaInteraction": "Media Interaction",
-        "clientError": "Client Error"
+        "clientError": "Client Error",
+        "rageClick": "Rage click"
       },
       "player": {
         "skipInactive": "Skip inactivity",

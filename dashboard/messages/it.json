@@ -3080,7 +3080,8 @@
           "title": "Nessuna sessione replay disponibile",
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
         },
-        "sessionErrorsTooltip": "{count, plural, one {Questa sessione ha catturato {count} errore lato client} other {Questa sessione ha catturato {count} errori lato client}}"
+        "sessionErrorsTooltip": "{count, plural, one {Questa sessione ha catturato {count} errore lato client} other {Questa sessione ha catturato {count} errori lato client}}",
+        "sessionRageClicksTooltip": "{count, plural, one {Questa sessione ha {count} clic di frustrazione} other {Questa sessione ha {count} clic di frustrazione}}"
       },
       "playerTopbar": {
         "startLabel": "Inizio:",
@@ -3105,7 +3106,8 @@
         "blacklist": "Nascosto",
         "viewportResize": "Ridimensionamento viewport",
         "mediaInteraction": "Interazione media",
-        "clientError": "Errore lato client"
+        "clientError": "Errore lato client",
+        "rageClick": "Clic di frustrazione"
       },
       "player": {
         "skipInactive": "Salta inattività",
