@@ -6,7 +6,7 @@ import { CreditBalanceCallout } from './CreditBalanceCallout';
 import { derivePlanStatus } from '@/lib/billing/subscription-status';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, AlertTriangle, ExternalLink } from 'lucide-react';
+import { TrendingUp, AlertTriangle, ExternalLink, Video } from 'lucide-react';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import { formatPrice } from '@/utils/pricing';
 import { createStripeCustomerPortalSession } from '@/actions/stripe.action';
@@ -21,7 +21,7 @@ interface CurrentPlanCardProps {
 }
 
 export function CurrentPlanCard({ billingData, showManagementButtons = false }: CurrentPlanCardProps) {
-  const { subscription, usage } = billingData;
+  const { subscription, usage, replayUsage } = billingData;
   const t = useTranslations('components.billing.currentPlan');
   const locale = useLocale();
 
@@ -104,6 +104,27 @@ export function CurrentPlanCard({ billingData, showManagementButtons = false }: 
             </div>
 
             <Progress value={Math.min(usage.usagePercentage, 100)} className='h-2' color='var(--primary)' />
+          </div>
+
+          <div className='flex items-center gap-2 pt-1'>
+            <Video size={16} className='text-muted-foreground' />
+            <span className='text-sm font-medium'>{t('replayUsage')}</span>
+          </div>
+
+          <div className='space-y-2'>
+            <div className='flex items-center justify-between text-sm'>
+              <span className='text-muted-foreground'>
+                {t('replayUsageProgress', {
+                  current: formatNumber(replayUsage.current, locale),
+                  limit: formatNumber(replayUsage.limit, locale),
+                })}
+              </span>
+              <span className='text-foreground font-medium'>
+                {formatPercentage(replayUsage.usagePercentage, locale)}
+              </span>
+            </div>
+
+            <Progress value={Math.min(replayUsage.usagePercentage, 100)} className='h-2' color='var(--primary)' />
           </div>
         </div>
       </div>

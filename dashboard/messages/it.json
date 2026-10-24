@@ -2593,6 +2593,8 @@
         "free": "Gratuito",
         "eventUsage": "Utilizzo eventi",
         "usageProgress": "{current} di {limit} eventi",
+        "replayUsage": "Utilizzo replay sessioni",
+        "replayUsageProgress": "{current} di {limit} sessioni registrate",
         "resetsInDays": "Si azzera tra {days} giorni",
         "expiresInDays": "Scade tra {days} giorni",
         "manage": "Gestisci abbonamento",
@@ -3283,6 +3285,9 @@
           "title": "Utilizzo",
           "eventsLabel": "Eventi",
           "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "replaysLabel": "Replay sessioni",
+          "replaysDescription": "Sessioni registrate in questo periodo",
+          "replaysUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
           "resetsInDays": "Si reimposta tra {days} giorni",
           "breakdown": {
             "byType": "Per tipo",

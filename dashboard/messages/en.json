@@ -2593,6 +2593,8 @@
         "free": "Free",
         "eventUsage": "Event Usage",
         "usageProgress": "{current} of {limit} events",
+        "replayUsage": "Session Replay Usage",
+        "replayUsageProgress": "{current} of {limit} recorded sessions",
         "resetsInDays": "Resets in {days} days",
         "expiresInDays": "Expires in {days} days",
         "manage": "Manage Subscription",
@@ -3283,6 +3285,9 @@
           "title": "Usage",
           "eventsLabel": "Events",
           "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "replaysLabel": "Session replays",
+          "replaysDescription": "Recorded sessions this period",
+          "replaysUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
           "resetsInDays": "Resets in {days} days",
           "breakdown": {
             "byType": "By type",

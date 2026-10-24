@@ -3,6 +3,7 @@ import { safeSql, SQL } from '@/lib/safe-sql';
 import {
   DailySiteUsageSchema,
   EventCountResultSchema,
+  RecordedSessionCountResultSchema,
   UsageBreakdownRowSchema,
   type DailySiteUsage,
   type UsageBreakdownRow,
@@ -147,6 +148,71 @@ export async function getUserEventCountForPeriod(siteIds: string[], startDate: D
     return parsed[0]?.total || 0;
   } catch (error) {
     console.error('Failed to get user event count:', error);
+    return 0;
+  }
+}
+
+/**
+ * Recorded replay sessions per site per day. session_replays gets one upsert per uploaded segment,
+ * so sessions are counted distinctly; `date` is the session's creation day, so each session lands on one day.
+ */
+export async function getDailyRecordedSessionCountsForSites(
+  siteIds: string[],
+  earliestStart: DateString,
+): Promise<DailySiteUsage[]> {
+  if (siteIds.length === 0) return [];
+
+  const query = safeSql`
+    SELECT replays.site_id, toString(replays.date) AS date, uniqExact(replays.session_id) AS total
+    FROM analytics.session_replays AS replays
+    WHERE replays.site_id IN ${SQL.StringArray({ site_ids: siteIds })}
+      AND replays.date >= toDate({earliest_start:String})
+      AND replays.date <= toDate(now())
+    GROUP BY replays.site_id, replays.date
+  `;
+
+  try {
+    const result = await clickhouse
+      .query(query.taggedSql, {
+        params: { ...query.taggedParams, earliest_start: earliestStart },
+      })
+      .toPromise();
+
+    return DailySiteUsageSchema.array().parse(result);
+  } catch (error) {
+    console.error('Failed to get daily recorded session counts for sites:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get total recorded replay sessions for user's sites within billing period
+ */
+export async function getUserRecordedSessionCountForPeriod(
+  siteIds: string[],
+  startDate: DateString,
+): Promise<number> {
+  if (siteIds.length === 0) return 0;
+
+  const query = safeSql`
+    SELECT uniqExact(replays.site_id, replays.session_id) AS total
+    FROM analytics.session_replays AS replays
+    WHERE replays.site_id IN ${SQL.StringArray({ site_ids: siteIds })}
+      AND replays.date >= toDate({start_date:String})
+      AND replays.date <= toDate(now())
+  `;
+
+  try {
+    const result = await clickhouse
+      .query(query.taggedSql, {
+        params: { ...query.taggedParams, start_date: startDate },
+      })
+      .toPromise();
+
+    const parsed = RecordedSessionCountResultSchema.array().parse(result);
+    return parsed[0]?.total || 0;
+  } catch (error) {
+    console.error('Failed to get user recorded session count:', error);
     return 0;
   }
 }
