@@ -42,6 +42,14 @@ describe('throughNodeTransform', () => {
     expect(onDone.mock.calls[0][0]).toBeFalsy();
   });
 
+  it('reports the size of every chunk it passes on', async () => {
+    const onChunk = vi.fn();
+    const out = throughNodeTransform(sourceOf(['ab\n', 'cde\n']), new PassThrough(), vi.fn(), NO_IDLE, onChunk);
+    await drain(out);
+    const total = onChunk.mock.calls.reduce((sum, [bytes]) => sum + bytes, 0);
+    expect(total).toBe(7);
+  });
+
   it('rejects the consumer read and reports the error when the source fails', async () => {
     const onDone = vi.fn();
     const out = throughNodeTransform(

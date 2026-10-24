@@ -4,17 +4,19 @@ import { ReadableStream as NodeReadableStream } from 'node:stream/web';
 // pipeline (not .pipe) so a source error errors the returned stream and a consumer
 // cancel destroys the source; onDone fires exactly once on end, error, cancel, or idle timeout.
 // The watchdog sits after the transform, so it counts wire-sized chunks: it fires only when
-// nothing reaches the consumer for idleTimeoutMs, whichever end stalled.
+// nothing reaches the consumer for idleTimeoutMs, whichever end stalled, and onChunk sees wire bytes.
 export function throughNodeTransform(
   source: ReadableStream<Uint8Array>,
   transform: Transform,
   onDone: (error?: Error | null) => void,
   idleTimeoutMs: number,
+  onChunk?: (bytes: number) => void,
 ): ReadableStream<Uint8Array> {
   let idle: NodeJS.Timeout | undefined;
   const watchdog = new Transform({
-    transform(chunk, _encoding, callback) {
+    transform(chunk: Buffer, _encoding, callback) {
       touch();
+      onChunk?.(chunk.length);
       callback(null, chunk);
     },
   });
