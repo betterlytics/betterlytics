@@ -2682,6 +2682,10 @@
         "docsHint": "Hai bisogno di aiuto per far comparire le campagne?",
         "docsLinkLabel": "Leggi la guida al tracciamento delle campagne"
       },
+      "periodEmptyState": {
+        "title": "Nessun traffico delle campagne in questo periodo",
+        "description": "Prova un intervallo di date più ampio per vedere le campagne precedenti."
+      },
       "loading": "Caricamento delle campagne...",
       "campaignRow": {
         "visitors": "{count, plural, one {# visitatore} other {# visitatori}}",

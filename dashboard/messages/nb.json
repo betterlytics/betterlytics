@@ -2682,6 +2682,10 @@
         "docsHint": "Trenger du hjelp med å få kampanjer til å dukke opp?",
         "docsLinkLabel": "Les guiden til kampanjesporing"
       },
+      "periodEmptyState": {
+        "title": "Ingen kampanjetrafikk i denne perioden",
+        "description": "Prøv et bredere datointervall for å se tidligere kampanjer."
+      },
       "loading": "Laster inn kampanjer...",
       "campaignRow": {
         "visitors": "{count, plural, one {# besøkende} other {# besøkende}}",
