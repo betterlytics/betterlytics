@@ -1929,7 +1929,9 @@
         "observability": "Observability"
       },
       "collapseNav": "Collapse nav",
-      "errorTracking": "Error Tracking"
+      "errorTracking": "Error Tracking",
+      "downMonitorsCount": "{count, plural, one {# monitor down} other {# monitors down}}",
+      "activeIncidentsCount": "{count, plural, one {# active incident} other {# active incidents}}"
     },
     "settings": {
       "sidebar": {
@@ -3706,6 +3708,18 @@
         "title": "Geolocation is not enabled on this instance",
         "description": "Visitor locations are not collected until it is enabled."
       }
+    },
+    "monitorDown": {
+      "titleSingle": "Monitor {name} is down",
+      "titleMultiple": "{count, plural, one {# monitor is down} other {# monitors are down}}",
+      "viewMonitor": "View monitor",
+      "viewMonitors": "View monitors"
+    },
+    "statusPageIncident": {
+      "titleSingle": "Active incident on {statusPage}",
+      "titleMultiple": "{count, plural, one {# active status page incident} other {# active status page incidents}}",
+      "viewIncident": "View incident",
+      "viewIncidents": "View incidents"
     }
   },
   "githubStar": {

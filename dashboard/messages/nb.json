@@ -1929,7 +1929,9 @@
         "observability": "Observerbarhet"
       },
       "collapseNav": "Skjul navigasjon",
-      "errorTracking": "Feilsporing"
+      "errorTracking": "Feilsporing",
+      "downMonitorsCount": "{count, plural, one {# monitor nede} other {# monitorer nede}}",
+      "activeIncidentsCount": "{count, plural, one {# aktiv hendelse} other {# aktive hendelser}}"
     },
     "settings": {
       "sidebar": {
@@ -3706,6 +3708,18 @@
         "title": "Geolokasjon er ikke aktivert på denne instansen",
         "description": "Besøkendes plassering samles ikke inn før det er aktivert."
       }
+    },
+    "monitorDown": {
+      "titleSingle": "Monitoren {name} er nede",
+      "titleMultiple": "{count, plural, one {# monitor er nede} other {# monitorer er nede}}",
+      "viewMonitor": "Se monitor",
+      "viewMonitors": "Se monitorer"
+    },
+    "statusPageIncident": {
+      "titleSingle": "Aktiv hendelse på {statusPage}",
+      "titleMultiple": "{count, plural, one {# aktiv hendelse på statussider} other {# aktive hendelser på statussider}}",
+      "viewIncident": "Se hendelse",
+      "viewIncidents": "Se hendelser"
     }
   },
   "githubStar": {

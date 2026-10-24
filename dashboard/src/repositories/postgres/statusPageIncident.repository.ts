@@ -11,6 +11,10 @@ import {
   type StatusPageIncidentCreate,
   type StatusPageIncidentTimelineEntry,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
+import {
+  UnresolvedStatusPageIncidentSchema,
+  type UnresolvedStatusPageIncident,
+} from '@/entities/analytics/dashboardAlerts.entities';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { groupByKey } from '@/utils/collections';
 
@@ -54,6 +58,23 @@ export async function countActiveIncidentsByStatusPage(dashboardId: string): Pro
     _count: { _all: true },
   });
   return new Map(grouped.map((row) => [row.statusPageId, row._count._all]));
+}
+
+export async function listUnresolvedIncidents(dashboardId: string): Promise<UnresolvedStatusPageIncident[]> {
+  const rows = await prisma.statusPageIncident.findMany({
+    where: { dashboardId, deletedAt: null, status: { not: 'resolved' }, statusPage: { deletedAt: null } },
+    orderBy: { startedAt: 'desc' },
+    select: { id: true, title: true, startedAt: true, statusPage: { select: { id: true, name: true } } },
+  });
+  return rows.map((row) =>
+    UnresolvedStatusPageIncidentSchema.parse({
+      incidentId: row.id,
+      title: row.title,
+      statusPageId: row.statusPage.id,
+      statusPageName: row.statusPage.name,
+      startedAt: row.startedAt,
+    }),
+  );
 }
 
 export async function createStatusPageIncident(
