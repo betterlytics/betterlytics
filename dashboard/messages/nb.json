@@ -2815,6 +2815,8 @@
         "apply": "Bruk",
         "selectValue": "Velg en verdi",
         "noValuesForCurrentPeriod": "Ingen verdier funnet for valgt periode",
+        "valuesTruncated": "Viser {shown, number} av {total, number} verdier. Skriv for å søke i resten.",
+        "valuesTruncatedAtLimit": "Viser {shown, number} av {total, number}+ verdier. Skriv for å søke i resten.",
         "savedFilters": "Lagrede filtre",
         "noSavedFilters": "Ingen lagrede filtre ennå",
         "saveFilters": "Lagre",

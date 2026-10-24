@@ -2815,6 +2815,8 @@
         "apply": "Apply",
         "selectValue": "Select a value",
         "noValuesForCurrentPeriod": "No values found for current time period",
+        "valuesTruncated": "Showing {shown, number} of {total, number} values. Type to search the rest.",
+        "valuesTruncatedAtLimit": "Showing {shown, number} of {total, number}+ values. Type to search the rest.",
         "savedFilters": "Saved Filters",
         "noSavedFilters": "No saved filters yet",
         "saveFilters": "Save",

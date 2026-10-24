@@ -2815,6 +2815,8 @@
         "apply": "Applica",
         "selectValue": "Seleziona un valore",
         "noValuesForCurrentPeriod": "Nessun valore trovato per il periodo corrente",
+        "valuesTruncated": "Mostrati {shown, number} di {total, number} valori. Digita per cercare tra gli altri.",
+        "valuesTruncatedAtLimit": "Mostrati {shown, number} di {total, number}+ valori. Digita per cercare tra gli altri.",
         "savedFilters": "Filtri salvati",
         "noSavedFilters": "Nessun filtro salvato",
         "saveFilters": "Salva",
