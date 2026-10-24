@@ -148,6 +148,7 @@ describe('deleteUser', () => {
 
     expect(deleteUserAccount).toHaveBeenCalledWith('user-1', {
       ownedDashboards: { mode: 'transfer', toUserId: 'admin-1' },
+      removedById: 'admin-1',
     });
   });
 
@@ -170,6 +171,9 @@ describe('deleteUser', () => {
 
     await deleteUser(selfHost, 'user-1', { ownedDashboards: 'delete' });
 
-    expect(deleteUserAccount).toHaveBeenCalledWith('user-1', { ownedDashboards: { mode: 'delete' } });
+    expect(deleteUserAccount).toHaveBeenCalledWith('user-1', {
+      ownedDashboards: { mode: 'delete' },
+      removedById: 'admin-1',
+    });
   });
 });

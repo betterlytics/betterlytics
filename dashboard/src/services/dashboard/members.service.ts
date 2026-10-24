@@ -93,7 +93,7 @@ export async function removeMemberFromDashboard(
     throw new Error('Admins cannot remove other admins');
   }
 
-  await removeMemberRepo(dashboardId, targetUserId);
+  await removeMemberRepo(dashboardId, targetUserId, requesterId);
   await sendMemberRemovedNotification(dashboardId, targetUserId);
 }
 
@@ -132,7 +132,7 @@ export async function leaveDashboard(dashboardId: string, userId: string): Promi
     throw new Error('Cannot leave dashboard as owner');
   }
 
-  await removeMemberRepo(dashboardId, userId);
+  await removeMemberRepo(dashboardId, userId, userId);
 }
 
 export async function isUserDashboardMember(userId: string): Promise<boolean> {
