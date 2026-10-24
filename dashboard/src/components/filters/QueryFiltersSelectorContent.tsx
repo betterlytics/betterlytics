@@ -1,6 +1,6 @@
 'use client';
 
-import { Dispatch, useCallback, useMemo, useRef, useState } from 'react';
+import { Dispatch, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { SaveIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { QueryFilterInputRow } from '@/components/filters/QueryFilterInputRow';
@@ -18,6 +18,13 @@ import { useSavedFiltersLimitReached } from '@/hooks/use-saved-filters';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { type QueryFilterPart, type QueryFiltersEditorTarget } from '@/contexts/QueryFiltersEditorProvider';
+
+const FILTER_PART_CONTROL_SELECTORS: Record<QueryFilterPart, string> = {
+  column: '[data-slot="dropdown-menu-trigger"]',
+  operator: '[data-slot="select-trigger"]',
+  values: 'input[role="combobox"]',
+};
 
 type QueryFiltersSelectorContentProps = {
   initialFilters: QueryFilter[];
@@ -28,6 +35,7 @@ type QueryFiltersSelectorContentProps = {
   onCancel: () => void;
   onLoadSavedFilter?: (filters: QueryFilter[]) => void;
   propertyKeys?: PropertyKeysBySource;
+  focusTarget?: QueryFiltersEditorTarget | null;
 };
 
 export function QueryFiltersSelectorContent({
@@ -39,6 +47,7 @@ export function QueryFiltersSelectorContent({
   onCancel,
   onLoadSavedFilter,
   propertyKeys,
+  focusTarget,
 }: QueryFiltersSelectorContentProps) {
   const t = useTranslations('components.filters');
   const getColumnStatus = useFilterColumnStatus();
@@ -58,6 +67,21 @@ export function QueryFiltersSelectorContent({
       trigger?.focus({ focusVisible: true } as FocusOptions);
     });
   }, [addEmptyQueryFilter]);
+
+  useEffect(() => {
+    if (!focusTarget) return;
+    const frame = requestAnimationFrame(() => {
+      const index = queryFilters.findIndex((filter) => filter.id === focusTarget.filterId);
+      const row = filtersListRef.current?.children[index];
+      if (!row) return;
+      row.scrollIntoView({ block: 'nearest' });
+      const control = row.querySelector<HTMLElement>(FILTER_PART_CONTROL_SELECTORS[focusTarget.part]);
+      control?.focus({ focusVisible: true } as FocusOptions);
+    });
+    return () => cancelAnimationFrame(frame);
+    // Only a new target moves focus; draft edits while the editor is open must not.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusTarget]);
 
   const applyFilters = useCallback(() => {
     onApply(filterEmptyQueryFilters(queryFilters));

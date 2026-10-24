@@ -5,6 +5,7 @@ import QueryFiltersSelector from '@/components/filters/QueryFiltersSelector';
 import { ActiveQueryFilters } from '../filters/ActiveQueryFilters';
 import { ReactNode } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { QueryFiltersEditorProvider } from '@/contexts/QueryFiltersEditorProvider';
 
 interface DashboardFiltersProps {
   showComparison?: boolean;
@@ -20,14 +21,16 @@ export default function DashboardFilters({
   const isMobile = useIsMobile();
 
   return (
-    <div className='min-w-0 space-y-2'>
-      <div className='flex flex-col justify-end gap-x-8 gap-y-2 sm:flex-row'>
-        {!isMobile && <div className='flex gap-4'>{children}</div>}
-        {showQueryFilters && <QueryFiltersSelector />}
-        <TimeRangeToolbar showComparison={showComparison} />
+    <QueryFiltersEditorProvider>
+      <div className='min-w-0 space-y-2'>
+        <div className='flex flex-col justify-end gap-x-8 gap-y-2 sm:flex-row'>
+          {!isMobile && <div className='flex gap-4'>{children}</div>}
+          {showQueryFilters && <QueryFiltersSelector />}
+          <TimeRangeToolbar showComparison={showComparison} />
+        </div>
+        {showQueryFilters && <ActiveQueryFilters />}
+        {isMobile && <div className='grid grid-cols-2 gap-2'>{children}</div>}
       </div>
-      {showQueryFilters && <ActiveQueryFilters />}
-      {isMobile && <div className='grid grid-cols-2 gap-2'>{children}</div>}
-    </div>
+    </QueryFiltersEditorProvider>
   );
 }

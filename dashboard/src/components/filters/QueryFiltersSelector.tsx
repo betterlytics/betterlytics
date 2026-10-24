@@ -17,6 +17,7 @@ import { baEvent } from '@/lib/ba-event';
 import { usePropertyKeys } from '@/hooks/use-property-keys';
 import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
+import { useQueryFiltersEditor } from '@/contexts/QueryFiltersEditorProvider';
 
 const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
   filters.length > 0
@@ -26,7 +27,7 @@ const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
 type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'>;
 
 export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const { isOpen: isPopoverOpen, setIsOpen: setIsPopoverOpen, target } = useQueryFiltersEditor();
   const [isSavedFiltersOpen, setIsSavedFiltersOpen] = useState(false);
   const isMobile = useIsMobile();
   const t = useTranslations('components.filters');
@@ -46,7 +47,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
       setQueryFilters(filters);
       setIsPopoverOpen(false);
     },
-    [setQueryFilters],
+    [setQueryFilters, setIsPopoverOpen],
   );
 
   const pendingCancelReset = useRef(false);
@@ -54,7 +55,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const cancelFilters = useCallback(() => {
     pendingCancelReset.current = true;
     setIsPopoverOpen(false);
-  }, []);
+  }, [setIsPopoverOpen]);
 
   const handleContentAnimationEnd = useCallback(
     (e: AnimationEvent<HTMLDivElement>) => {
@@ -72,7 +73,15 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
       setQueryFilters(filters);
       setIsPopoverOpen(false);
     },
-    [setQueryFilters],
+    [setQueryFilters, setIsPopoverOpen],
+  );
+
+  // A pill moves focus to its own filter row, so the default first-control focus is skipped.
+  const handleOpenAutoFocus = useCallback(
+    (e: Event) => {
+      if (target) e.preventDefault();
+    },
+    [target],
   );
 
   const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
@@ -104,6 +113,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
           aria-describedby={undefined}
           className='bg-popover max-h-[85vh] w-[calc(100vw-2rem)] max-w-[640px] overflow-y-auto px-2 py-3'
           onAnimationEnd={handleContentAnimationEnd}
+          onOpenAutoFocus={handleOpenAutoFocus}
         >
           <DialogHeader>
             <DialogTitle>{t('selector.title')}</DialogTitle>
@@ -117,6 +127,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
             onCancel={cancelFilters}
             onLoadSavedFilter={handleLoadSavedFilter}
             propertyKeys={propertyKeys}
+            focusTarget={target}
           />
         </DialogContent>
       </Dialog>
@@ -130,6 +141,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
         className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl'
         align='start'
         onAnimationEnd={handleContentAnimationEnd}
+        onOpenAutoFocus={handleOpenAutoFocus}
       >
         <QueryFiltersSelectorContent
           initialFilters={contextQueryFilters}
@@ -140,6 +152,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
           onCancel={cancelFilters}
           onLoadSavedFilter={handleLoadSavedFilter}
           propertyKeys={propertyKeys}
+          focusTarget={target}
         />
       </PopoverContent>
     </Popover>
