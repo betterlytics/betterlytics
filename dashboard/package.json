@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build && pnpm run build:worker",
-    "build:worker": "esbuild src/worker.ts --bundle --platform=node --target=node20 --jsx=automatic --external:@prisma/client --external:@prisma/engines --external:bcrypt --tsconfig=tsconfig.json --alias:server-only=./scripts/server-only-stub.js --outfile=.next/standalone/worker.js",
+    "build:worker": "esbuild src/worker.ts --bundle --platform=node --target=node20 --jsx=automatic --external:@prisma/client --external:@prisma/engines --external:bcrypt --tsconfig=tsconfig.json --alias:server-only=./scripts/server-only-stub.js --inject:./scripts/import-meta-url-shim.js --define:import.meta.url=importMetaUrl --outfile=.next/standalone/worker.js",
     "start": "next start",
     "worker": "tsx --env-file=../.env src/worker.ts",
     "lint": "next lint",
@@ -31,6 +31,7 @@
     "@number-flow/react": "^0.5.11",
     "@opentelemetry/api": "^1.9.1",
     "@prisma/client": "^6.8.2",
+    "@prisma/instrumentation": "^6.19.3",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-avatar": "^1.1.10",
