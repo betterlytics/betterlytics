@@ -86,16 +86,16 @@ export function SetupConfigurator() {
           </li>
           {(Object.keys(OPTIONS) as Option[]).map((key) => (
             <li key={key}>
-              <button
-                type='button'
-                role='switch'
-                aria-checked={on[key]}
-                aria-labelledby={`${id}-${key}-title`}
-                aria-describedby={`${id}-${key}-body`}
-                className={styles.option}
-                data-on={on[key] || undefined}
-                onClick={() => toggle(key)}
-              >
+              <label className={styles.option} data-on={on[key] || undefined}>
+                <input
+                  type='checkbox'
+                  role='switch'
+                  className='sr-only'
+                  checked={on[key]}
+                  onChange={() => toggle(key)}
+                  aria-labelledby={`${id}-${key}-title`}
+                  aria-describedby={`${id}-${key}-body`}
+                />
                 <span className={styles.text}>
                   <b id={`${id}-${key}-title`}>{t(`options.${key}.title`)}</b>
                   <span id={`${id}-${key}-body`}>{t(`options.${key}.body`)}</span>
@@ -103,7 +103,7 @@ export function SetupConfigurator() {
                 <span className={styles.switch} aria-hidden>
                   <i />
                 </span>
-              </button>
+              </label>
             </li>
           ))}
         </ul>

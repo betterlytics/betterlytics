@@ -24,16 +24,18 @@
     width: 100%;
     padding: 16px 12px;
     border-radius: 10px;
-    text-align: left;
   }
-  button.option:hover .switch {
+  label.option {
+    cursor: pointer;
+  }
+  label.option:hover .switch {
     background: --alpha(var(--color-fg) / 22%);
   }
-  button.option[data-on]:hover .switch {
+  label.option[data-on]:hover .switch {
     background: var(--color-volt-lift);
   }
-  .option:focus-visible {
-    outline-offset: 0;
+  .option:has(:focus-visible) {
+    outline: 2px solid var(--color-volt-lift);
   }
 
   .text {
