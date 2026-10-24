@@ -8,6 +8,7 @@ describe('McpQueryInputSchema', () => {
       dimensions: ['device_type'],
       filters: [{ column: 'url', operator: '=', values: ['/'] }],
       timeRange: '28d',
+      timezone: 'UTC',
       granularity: 'day',
       orderBy: 'visitors',
       order: 'desc',
@@ -18,7 +19,7 @@ describe('McpQueryInputSchema', () => {
   });
 
   it('applies defaults for limit and order', () => {
-    const input = { metrics: ['visitors'], timeRange: '7d' };
+    const input = { metrics: ['visitors'], timeRange: '7d', timezone: 'UTC' };
     const result = McpQueryInputSchema.safeParse(input);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -28,12 +29,12 @@ describe('McpQueryInputSchema', () => {
   });
 
   it('rejects empty metrics array', () => {
-    const result = McpQueryInputSchema.safeParse({ metrics: [], timeRange: '7d' });
+    const result = McpQueryInputSchema.safeParse({ metrics: [], timeRange: '7d', timezone: 'UTC' });
     expect(result.success).toBe(false);
   });
 
   it('rejects unknown metric keys', () => {
-    const result = McpQueryInputSchema.safeParse({ metrics: ['fake_metric'], timeRange: '7d' });
+    const result = McpQueryInputSchema.safeParse({ metrics: ['fake_metric'], timeRange: '7d', timezone: 'UTC' });
     expect(result.success).toBe(false);
   });
 
@@ -42,27 +43,43 @@ describe('McpQueryInputSchema', () => {
       metrics: ['visitors'],
       dimensions: ['fake_dim'],
       timeRange: '7d',
+      timezone: 'UTC',
     });
     expect(result.success).toBe(false);
   });
 
   it('rejects invalid time range', () => {
-    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: 'invalid' });
+    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: 'invalid', timezone: 'UTC' });
     expect(result.success).toBe(false);
   });
 
   it('rejects limit above 10000', () => {
-    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', limit: 50000 });
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      timezone: 'UTC',
+      limit: 50000,
+    });
     expect(result.success).toBe(false);
   });
 
   it('rejects limit of 0', () => {
-    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', limit: 0 });
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      timezone: 'UTC',
+      limit: 0,
+    });
     expect(result.success).toBe(false);
   });
 
   it('rejects negative limit', () => {
-    const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d', limit: -1 });
+    const result = McpQueryInputSchema.safeParse({
+      metrics: ['visitors'],
+      timeRange: '7d',
+      timezone: 'UTC',
+      limit: -1,
+    });
     expect(result.success).toBe(false);
   });
 
@@ -70,6 +87,7 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: '7d',
+      timezone: 'UTC',
       granularity: 'day',
       orderBy: 'date',
     });
@@ -81,6 +99,7 @@ describe('McpQueryInputSchema', () => {
       metrics: ['visitors'],
       dimensions: ['referrer_source'],
       timeRange: '7d',
+      timezone: 'UTC',
     });
     expect(result.success).toBe(true);
   });
@@ -90,20 +109,28 @@ describe('McpQueryInputSchema', () => {
       metrics: ['visitors'],
       dimensions: ['referrer_source_name'],
       timeRange: '7d',
+      timezone: 'UTC',
     });
     expect(result.success).toBe(true);
   });
 
   it('requires both dates for custom time range', () => {
-    expect(McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: 'custom' }).success).toBe(false);
     expect(
-      McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: 'custom', startDate: '2026-01-01' })
-        .success,
+      McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: 'custom', timezone: 'UTC' }).success,
     ).toBe(false);
     expect(
       McpQueryInputSchema.safeParse({
         metrics: ['visitors'],
         timeRange: 'custom',
+        timezone: 'UTC',
+        startDate: '2026-01-01',
+      }).success,
+    ).toBe(false);
+    expect(
+      McpQueryInputSchema.safeParse({
+        metrics: ['visitors'],
+        timeRange: 'custom',
+        timezone: 'UTC',
         startDate: '2026-01-01',
         endDate: '2026-01-31',
       }).success,
@@ -114,6 +141,7 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: 'custom',
+      timezone: 'UTC',
       startDate: '2026-02-01',
       endDate: '2026-01-01',
     });
@@ -124,6 +152,7 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: 'custom',
+      timezone: 'UTC',
       startDate: '01/01/2026',
       endDate: '01/31/2026',
     });
@@ -134,6 +163,7 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: '7d',
+      timezone: 'UTC',
       filters: [{ column: 'gp.plan', operator: '=', values: ['pro'] }],
     });
     expect(result.success).toBe(true);
@@ -143,6 +173,7 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: '7d',
+      timezone: 'UTC',
       filters: [{ column: 'gp.', operator: '=', values: ['pro'] }],
     });
     expect(result.success).toBe(false);
@@ -152,6 +183,7 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: '7d',
+      timezone: 'UTC',
       filters: [{ column: 'not_a_column', operator: '=', values: ['x'] }],
     });
     expect(result.success).toBe(false);
@@ -161,6 +193,7 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: '7d',
+      timezone: 'UTC',
       filters: [{ column: 'url', operator: 'LIKE', values: ['/'] }],
     });
     expect(result.success).toBe(false);
@@ -170,16 +203,18 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: '7d',
+      timezone: 'UTC',
       filters: [{ column: 'url', operator: '=', values: [] }],
     });
     expect(result.success).toBe(false);
   });
 
-  it('defaults an omitted timezone to UTC', () => {
+  it('rejects an omitted timezone on the timezone field', () => {
     const result = McpQueryInputSchema.safeParse({ metrics: ['visitors'], timeRange: '7d' });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.timezone).toBe('UTC');
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const issue = result.error.issues.find((i) => i.path.join('.') === 'timezone');
+      expect(issue?.message).toContain('timezone is required');
     }
   });
 
@@ -219,6 +254,7 @@ describe('McpQueryInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: '7d',
+      timezone: 'UTC',
       granularity: 'yearly',
     });
     expect(result.success).toBe(false);

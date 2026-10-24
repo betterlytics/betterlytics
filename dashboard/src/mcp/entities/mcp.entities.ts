@@ -29,10 +29,11 @@ export const McpDateRangeSchema = z.object({
     .optional()
     .describe('End date in YYYY-MM-DD format (inclusive). Required when timeRange is "custom".'),
   timezone: z
-    .string()
-    .default('UTC')
+    .string({
+      required_error: 'timezone is required. Use an IANA time zone identifier such as "Europe/Berlin" or "UTC".',
+    })
     .describe(
-      'IANA time zone identifier, e.g. "Europe/Berlin" or "America/New_York". Defaults to UTC. Unknown time zones are rejected.',
+      'Required. IANA time zone identifier, e.g. "Europe/Berlin", "America/New_York" or "UTC". Unknown time zones are rejected.',
     )
     .transform((tz, ctx) => {
       const zone = normalizeTimezone(tz);

@@ -33,10 +33,6 @@ describe('buildSiteQuery', () => {
     expect(query.userJourney).toEqual({ numberOfSteps: 3, numberOfJourneys: 50 });
   });
 
-  it('defaults timezone to UTC when omitted', () => {
-    expect(buildSiteQuery({ siteId: 'site-1', timeRange }).timezone).toBe('UTC');
-  });
-
   it('applies overrides for fields the caller genuinely uses', () => {
     const queryFilters: QueryFilter[] = [
       { id: 'mcp_filter_0', column: 'url', operator: '=', values: ['/pricing'] },
@@ -57,8 +53,8 @@ describe('buildSiteQuery', () => {
   });
 
   it('does not share the default user journey object between queries', () => {
-    const first = buildSiteQuery({ siteId: 'site-1', timeRange });
-    const second = buildSiteQuery({ siteId: 'site-2', timeRange });
+    const first = buildSiteQuery({ siteId: 'site-1', timeRange, timezone: 'UTC' });
+    const second = buildSiteQuery({ siteId: 'site-2', timeRange, timezone: 'UTC' });
 
     expect(first.userJourney).not.toBe(second.userJourney);
   });

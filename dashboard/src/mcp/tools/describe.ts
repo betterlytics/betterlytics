@@ -14,8 +14,8 @@ export type ToolAvailability = { uptimeMonitoring: boolean; publicStatusPages: b
 const TIMEZONE_INPUT: ToolInput = {
   name: 'timezone',
   type: 'string',
-  required: false,
-  description: 'IANA time zone. Defaults to UTC. Unknown time zones are rejected.',
+  required: true,
+  description: 'IANA time zone, e.g. "Europe/Berlin" or "UTC". Missing or unknown time zones are rejected.',
 };
 
 type SchemaDescription = {
@@ -31,7 +31,7 @@ type SchemaDescription = {
   granularities: readonly string[];
   orderBy: { validValues: string[]; description: string };
   order: { validValues: string[]; default: string };
-  timezone: { format: string; default: string; examples: string[]; unknown: string };
+  timezone: { format: string; required: boolean; examples: string[]; rejected: string };
   querySessions: QuerySessionsDescription;
   tools: { name: string; description: string; inputs: ToolInput[] }[];
 };
@@ -91,9 +91,10 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
     },
     timezone: {
       format: 'IANA time zone identifier',
-      default: 'UTC',
-      examples: ['Europe/Berlin', 'America/New_York', 'Asia/Tokyo'],
-      unknown: 'An unknown time zone is rejected with an input validation error and returns no data.',
+      required: true,
+      examples: ['UTC', 'Europe/Berlin', 'America/New_York', 'Asia/Tokyo'],
+      rejected:
+        'A missing or unknown time zone is rejected with an input validation error and returns no data. There is no default; pass "UTC" for UTC.',
     },
     querySessions: QUERY_SESSIONS_DESCRIPTION,
     tools: [
