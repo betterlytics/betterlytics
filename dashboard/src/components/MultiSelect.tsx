@@ -6,8 +6,8 @@ import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { useEffect } from 'react';
 
 import { PlusIcon, XIcon } from 'lucide-react';
-import { List, useListRef, type RowComponentProps } from 'react-window';
 
+import { ScrollArea } from '@/components/ui-extended/scroll-area';
 import { cn } from '@/lib/utils';
 
 export interface Option {
@@ -171,6 +171,7 @@ function isOptionsExist(groupOption: GroupOption, targetOption: Option[]) {
 
 const ROW_HEIGHT = 32;
 const MAX_LIST_HEIGHT = 300;
+const OVERSCAN_ROWS = 5;
 
 type ListRow =
   | { type: 'heading'; key: string; label: string }
@@ -182,6 +183,8 @@ function isSelectableRow(row: ListRow) {
 }
 
 type OptionRowProps = {
+  index: number;
+  style: React.CSSProperties;
   rows: ListRow[];
   activeIndex: number;
   listId: string;
@@ -199,7 +202,7 @@ function OptionRow({
   onActivate,
   onSelectRow,
   renderOption,
-}: RowComponentProps<OptionRowProps>) {
+}: OptionRowProps) {
   const row = rows[index];
 
   if (row.type === 'heading') {
@@ -283,7 +286,8 @@ export const MultiSelect = ({
   footer,
 }: MultiSelectProps) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
-  const listRef = useListRef(null);
+  const viewportRef = React.useRef<HTMLDivElement>(null);
+  const [scrollTop, setScrollTop] = React.useState(0);
   const listId = React.useId();
   const [activeKey, setActiveKey] = React.useState<string | null>(null);
   const [open, setOpen] = React.useState(false);
@@ -482,11 +486,15 @@ export const MultiSelect = ({
   // Typing changes what matches, so start again from the top of the list
   useEffect(() => {
     setActiveKey(null);
-    listRef.current?.element?.scrollTo({ top: 0 });
-  }, [effectiveInputValue, listRef]);
+    setScrollTop(0);
+    viewportRef.current?.scrollTo({ top: 0 });
+  }, [effectiveInputValue]);
 
   useEffect(() => {
-    if (!open) setActiveKey(null);
+    if (!open) {
+      setActiveKey(null);
+      setScrollTop(0);
+    }
   }, [open]);
 
   const selectRow = React.useCallback(
@@ -520,7 +528,15 @@ export const MultiSelect = ({
     if (index < 0 || index >= rows.length) return;
 
     setActiveKey(rows[index].key);
-    listRef.current?.scrollToRow({ index, align: 'smart' });
+
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const rowTop = index * ROW_HEIGHT;
+    if (rowTop < viewport.scrollTop) {
+      viewport.scrollTop = rowTop;
+    } else if (rowTop + ROW_HEIGHT > viewport.scrollTop + viewport.clientHeight) {
+      viewport.scrollTop = rowTop + ROW_HEIGHT - viewport.clientHeight;
+    }
   };
 
   const handleListKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -555,9 +571,13 @@ export const MultiSelect = ({
     }
   };
 
-  const rowProps = React.useMemo<OptionRowProps>(
-    () => ({ rows, activeIndex, listId, onActivate: activateRow, onSelectRow: selectRow, renderOption }),
-    [rows, activeIndex, listId, activateRow, selectRow, renderOption],
+  // Rows have a fixed height, so only the ones in and near the viewport are rendered
+  const listHeight = Math.min(rows.length * ROW_HEIGHT, MAX_LIST_HEIGHT);
+  const clampedScrollTop = Math.min(scrollTop, Math.max(0, rows.length * ROW_HEIGHT - listHeight));
+  const firstRendered = Math.max(0, Math.floor(clampedScrollTop / ROW_HEIGHT) - OVERSCAN_ROWS);
+  const lastRendered = Math.min(
+    rows.length,
+    Math.ceil((clampedScrollTop + listHeight) / ROW_HEIGHT) + OVERSCAN_ROWS,
   );
 
   return (
@@ -741,17 +761,43 @@ export const MultiSelect = ({
               ) : (
                 <>
                   <div className='p-1'>
-                    <List
-                      id={listId}
-                      role='listbox'
-                      listRef={listRef}
-                      style={{ height: Math.min(rows.length * ROW_HEIGHT, MAX_LIST_HEIGHT) }}
-                      rowComponent={OptionRow}
-                      rowCount={rows.length}
-                      rowHeight={ROW_HEIGHT}
-                      rowProps={rowProps}
-                      overscanCount={5}
-                    />
+                    <ScrollArea
+                      viewportRef={viewportRef}
+                      onViewportScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
+                      viewportClassName='[&>div]:!block'
+                      className='[&_[data-slot=scroll-area-scrollbar]]:!w-2'
+                      style={{ height: listHeight }}
+                    >
+                      <div
+                        id={listId}
+                        role='listbox'
+                        className='relative'
+                        style={{ height: rows.length * ROW_HEIGHT }}
+                      >
+                        {rows.slice(firstRendered, lastRendered).map((row, offset) => {
+                          const index = firstRendered + offset;
+                          return (
+                            <OptionRow
+                              key={row.key}
+                              index={index}
+                              style={{
+                                position: 'absolute',
+                                top: index * ROW_HEIGHT,
+                                left: 0,
+                                right: 0,
+                                height: ROW_HEIGHT,
+                              }}
+                              rows={rows}
+                              activeIndex={activeIndex}
+                              listId={listId}
+                              onActivate={activateRow}
+                              onSelectRow={selectRow}
+                              renderOption={renderOption}
+                            />
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
                   </div>
                   {footer}
                 </>
