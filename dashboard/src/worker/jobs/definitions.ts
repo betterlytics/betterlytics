@@ -76,6 +76,17 @@ export const telemetryPingJobDefinition = {
   selfHostOnly: true,
 } as const satisfies JobDefinition;
 
+export const replayStorageStatsJobDefinition = {
+  name: 'replay-storage-stats',
+  schedule: '*/15 * * * *',
+  retryLimit: 1,
+  retryBackoff: false,
+  expireInSeconds: 300,
+  policy: 'exclusive',
+  deadLetter: undefined,
+  monitoringOnly: true,
+} as const satisfies JobDefinition;
+
 export const JOB_DEFINITIONS = [
   emailReportsJobDefinition,
   sendEmailJobDefinition,
@@ -84,6 +95,7 @@ export const JOB_DEFINITIONS = [
   subscriptionEndingScanJobDefinition,
   onboardingEmailsJobDefinition,
   telemetryPingJobDefinition,
+  replayStorageStatsJobDefinition,
 ] as const;
 
 export type JobName = (typeof JOB_DEFINITIONS)[number]['name'];
