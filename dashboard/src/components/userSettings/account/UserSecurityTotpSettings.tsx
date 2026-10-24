@@ -19,6 +19,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { Check, Clipboard, Download, Loader2, TriangleAlert } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
+import type { AuthClientError } from '@/lib/auth/auth-error';
+import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import { useCopy } from '@/hooks/use-copy';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
 import { useEffect, useRef, useState, useTransition } from 'react';
@@ -26,6 +28,66 @@ import QRCode from 'react-qr-code';
 import { toast } from 'sonner';
 import ExternalLink from '@/components/ExternalLink';
 import { useTranslations } from 'next-intl';
+
+const TOTP_LENGTH = 6;
+
+function useTotpErrorMessage() {
+  const t = useTranslations('components.userSettings.security.totp');
+  const authErrorMessage = useAuthErrorMessage();
+
+  return (error: AuthClientError, fallback: string) => {
+    if (error.code === 'INVALID_CODE') return t('invalidCode');
+    if (error.code === 'INVALID_PASSWORD') return t('incorrectPassword');
+    return authErrorMessage(error) ?? fallback;
+  };
+}
+
+function PasswordField({
+  id,
+  value,
+  onChange,
+  error,
+  disabled,
+}: {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+  error: string | null;
+  disabled: boolean;
+}) {
+  const t = useTranslations('components.userSettings.security.totp');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const errorId = `${id}-error`;
+
+  // a rejected password stays in the field, selected, so retyping overwrites it
+  useEffect(() => {
+    if (!error || disabled) return;
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, [error, disabled]);
+
+  return (
+    <div className='mb-4 space-y-2'>
+      <Label htmlFor={id}>{t('passwordLabel')}</Label>
+      <Input
+        ref={inputRef}
+        id={id}
+        type='password'
+        required
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? errorId : undefined}
+      />
+      {error && (
+        <p id={errorId} className='text-destructive text-sm'>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
 
 function BackupCodes({ codes, onDone }: { codes: string[]; onDone: () => void }) {
   const t = useTranslations('components.userSettings.security.totp');
@@ -92,10 +154,13 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
   const [totpUrl, setTotpUrl] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const errorMessage = useTotpErrorMessage();
   const { copied: totpSecretCopied, copy: copySecret } = useCopy({ failedMessage: t('copyFailed') });
   const [isPending, startTransition] = useTransition();
 
   const handleDialogOpenChange = (open: boolean) => {
+    setError(null);
     if (!open) {
       setPassword('');
       setTotp('');
@@ -110,35 +175,58 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    setError(null);
     startTransition(async () => {
-      const { data, error } = await authClient.twoFactor.enable({ password });
-      if (error || !data) {
-        setPassword('');
-        toast.error(t('setupFailed'));
-        return;
+      try {
+        const { data, error } = await authClient.twoFactor.enable({ password });
+        if (error || !data) {
+          setError(error ? errorMessage(error, t('setupFailed')) : t('setupFailed'));
+          return;
+        }
+        setTotpUrl(data.totpURI);
+        setBackupCodes(data.backupCodes);
+      } catch {
+        setError(t('setupFailed'));
       }
-      setTotpUrl(data.totpURI);
-      setBackupCodes(data.backupCodes);
+    });
+  };
+
+  const submitCode = (code: string) => {
+    setError(null);
+    startTransition(async () => {
+      try {
+        const { error } = await authClient.twoFactor.verifyTotp({ code });
+        if (error) {
+          setError(errorMessage(error, t('enableFailed')));
+          return;
+        }
+        // The session refetch unmounts this component, so the parent takes over the codes
+        onEnabled(backupCodes);
+        await refreshSession();
+        toast.success(t('enabledSuccess'));
+      } catch {
+        setError(t('enableFailed'));
+      }
     });
   };
 
   const handleCodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    startTransition(async () => {
-      const { error } = await authClient.twoFactor.verifyTotp({ code: totp });
-      if (error) {
-        setTotp('');
-        totpInputRef.current?.focus();
-        toast.error(t('enableFailed'));
-        return;
-      }
-      // The session refetch unmounts this component, so the parent takes over the codes
-      onEnabled(backupCodes);
-      await refreshSession();
-      toast.success(t('enabledSuccess'));
-    });
+    // Enter in a code cell submits the form even while Confirm is disabled
+    if (totp.length === TOTP_LENGTH && !isPending) submitCode(totp);
   };
+
+  const handleCodeChange = (value: string) => {
+    setTotp(value);
+    if (value.length === TOTP_LENGTH && !isPending) submitCode(value);
+  };
+
+  // A rejected code is cleared for the retry only once its error is on screen
+  useEffect(() => {
+    if (!error || isPending || !totpUrl) return;
+    setTotp('');
+    totpInputRef.current?.focus();
+  }, [error, isPending, totpUrl]);
 
   useEffect(() => {
     if (!totpUrl) {
@@ -167,17 +255,13 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
               <AlertDialogDescription>{t('passwordPromptDescription')}</AlertDialogDescription>
             </AlertDialogHeader>
             <form onSubmit={handlePasswordSubmit}>
-              <div className='mb-4 space-y-2'>
-                <Label htmlFor='totp-setup-password'>{t('passwordLabel')}</Label>
-                <Input
-                  id='totp-setup-password'
-                  type='password'
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isPending}
-                />
-              </div>
+              <PasswordField
+                id='totp-setup-password'
+                value={password}
+                onChange={setPassword}
+                error={error}
+                disabled={isPending}
+              />
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
                   {t('cancel')}
@@ -220,14 +304,30 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
                   <QRCode value={totpUrl} size={128} className='m-auto' />
                 </ExternalLink>
 
-                <OtpInput value={totp} onValueChange={setTotp} disabled={isPending} ref={totpInputRef} />
+                <div className='space-y-2'>
+                  <OtpInput
+                    value={totp}
+                    onValueChange={handleCodeChange}
+                    disabled={isPending}
+                    ref={totpInputRef}
+                    inputProps={{
+                      'aria-invalid': error ? true : undefined,
+                      'aria-describedby': error ? 'totp-setup-code-error' : undefined,
+                    }}
+                  />
+                  {error && (
+                    <p id='totp-setup-code-error' className='text-destructive text-sm'>
+                      {error}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
                   {t('cancel')}
                 </AlertDialogCancel>
-                <Button type='submit' disabled={isPending || totp.length !== 6} className='cursor-pointer'>
+                <Button type='submit' disabled={isPending || totp.length !== TOTP_LENGTH} className='cursor-pointer'>
                   {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('confirm')}
                 </Button>
               </AlertDialogFooter>
@@ -244,25 +344,32 @@ function RegenerateBackupCodes() {
   const [password, setPassword] = useState('');
   const [codes, setCodes] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const errorMessage = useTotpErrorMessage();
   const [isPending, startTransition] = useTransition();
 
   const handleDialogOpenChange = (open: boolean) => {
     setPassword('');
     setCodes([]);
+    setError(null);
     setIsDialogOpen(open);
   };
 
   const handleOnSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    setError(null);
     startTransition(async () => {
-      const { data, error } = await authClient.twoFactor.generateBackupCodes({ password });
-      if (error || !data) {
-        setPassword('');
-        toast.error(t('regenerateFailed'));
-        return;
+      try {
+        const { data, error } = await authClient.twoFactor.generateBackupCodes({ password });
+        if (error || !data) {
+          setError(error ? errorMessage(error, t('regenerateFailed')) : t('regenerateFailed'));
+          return;
+        }
+        setCodes(data.backupCodes);
+      } catch {
+        setError(t('regenerateFailed'));
       }
-      setCodes(data.backupCodes);
     });
   };
 
@@ -283,17 +390,13 @@ function RegenerateBackupCodes() {
               <AlertDialogDescription>{t('regenerateDescription')}</AlertDialogDescription>
             </AlertDialogHeader>
             <form onSubmit={handleOnSubmit}>
-              <div className='mb-4 space-y-2'>
-                <Label htmlFor='totp-regenerate-password'>{t('passwordLabel')}</Label>
-                <Input
-                  id='totp-regenerate-password'
-                  type='password'
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isPending}
-                />
-              </div>
+              <PasswordField
+                id='totp-regenerate-password'
+                value={password}
+                onChange={setPassword}
+                error={error}
+                disabled={isPending}
+              />
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
                   {t('cancel')}
@@ -315,29 +418,36 @@ function DisableTotp() {
   const { refreshSession } = useSessionRefresh();
   const [password, setPassword] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const errorMessage = useTotpErrorMessage();
   const [isPending, startTransition] = useTransition();
 
   const handleDialogOpenChange = (open: boolean) => {
     if (!open) {
       setPassword('');
     }
+    setError(null);
     setIsDialogOpen(open);
   };
 
   const handleOnSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    setError(null);
     startTransition(async () => {
-      const { error } = await authClient.twoFactor.disable({ password });
-      if (error) {
+      try {
+        const { error } = await authClient.twoFactor.disable({ password });
+        if (error) {
+          setError(errorMessage(error, t('disableFailed')));
+          return;
+        }
+        await refreshSession();
+        setIsDialogOpen(false);
         setPassword('');
-        toast.error(t('disableFailed'));
-        return;
+        toast.success(t('disabledSuccess'));
+      } catch {
+        setError(t('disableFailed'));
       }
-      await refreshSession();
-      setIsDialogOpen(false);
-      setPassword('');
-      toast.success(t('disabledSuccess'));
     });
   };
 
@@ -359,17 +469,13 @@ function DisableTotp() {
             <AlertDialogDescription>{t('disableDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <form onSubmit={handleOnSubmit}>
-            <div className='mb-4 space-y-2'>
-              <Label htmlFor='totp-disable-password'>{t('passwordLabel')}</Label>
-              <Input
-                id='totp-disable-password'
-                type='password'
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isPending}
-              />
-            </div>
+            <PasswordField
+              id='totp-disable-password'
+              value={password}
+              onChange={setPassword}
+              error={error}
+              disabled={isPending}
+            />
             <AlertDialogFooter>
               <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
                 {t('cancel')}

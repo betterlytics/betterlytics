@@ -3365,6 +3365,8 @@
           "passwordPromptTitle": "Conferma la tua password",
           "passwordPromptDescription": "Inserisci la password del tuo account per continuare.",
           "passwordLabel": "Password",
+          "incorrectPassword": "Password errata",
+          "invalidCode": "Il codice non ha funzionato. Controlla la tua app di autenticazione e riprova.",
           "backupCodesTitle": "Codici di backup",
           "backupCodesDescription": "Conserva questi codici monouso in un luogo sicuro: ti permettono di accedere se perdi la tua app di autenticazione.",
           "copyCodes": "Copia",
