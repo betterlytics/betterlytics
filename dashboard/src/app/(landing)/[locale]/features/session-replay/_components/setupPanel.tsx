@@ -53,10 +53,10 @@ betterlytics.init('YOUR_SITE_ID', {
       file: 'consent.js',
       glyph: <ShieldCheck className='size-[13px] opacity-80' aria-hidden />,
       code: `// when your consent banner resolves
-+window.betterlytics?.setReplayConsent(true)
++window.betterlytics?.setReplayConsent?.(true)
 
 // if the visitor changes their mind
-+window.betterlytics?.setReplayConsent(false)
++window.betterlytics?.setReplayConsent?.(false)
 
 // no consent needed? set data-consent-replay="true" on the script tag instead`,
     },
