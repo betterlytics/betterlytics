@@ -25,6 +25,7 @@ const FILTER_PART_CONTROL_SELECTORS: Record<QueryFilterPart, string> = {
   operator: '[data-slot="select-trigger"]',
   values: 'input[role="combobox"]',
 };
+const ENABLED_CONTROL_SELECTOR = 'button:not(:disabled), input:not(:disabled)';
 
 type QueryFiltersSelectorContentProps = {
   initialFilters: QueryFilter[];
@@ -71,12 +72,21 @@ export function QueryFiltersSelectorContent({
   useEffect(() => {
     if (!focusTarget) return;
     const frame = requestAnimationFrame(() => {
+      const list = filtersListRef.current;
       const index = queryFilters.findIndex((filter) => filter.id === focusTarget.filterId);
-      const row = filtersListRef.current?.children[index];
-      if (!row) return;
-      row.scrollIntoView({ block: 'nearest' });
-      const control = row.querySelector<HTMLElement>(FILTER_PART_CONTROL_SELECTORS[focusTarget.part]);
-      control?.focus({ focusVisible: true } as FocusOptions);
+      const row = list?.children[index];
+      row?.scrollIntoView({ block: 'nearest' });
+      // A disabled row (or one no longer in the draft) still needs focus inside the editor,
+      // so fall back to the row's first focusable control (its remove button), then the list's.
+      const candidates = [
+        ...(row?.querySelectorAll<HTMLElement>(FILTER_PART_CONTROL_SELECTORS[focusTarget.part]) ?? []),
+        ...(row?.querySelectorAll<HTMLElement>(ENABLED_CONTROL_SELECTOR) ?? []),
+        ...(list?.querySelectorAll<HTMLElement>(ENABLED_CONTROL_SELECTOR) ?? []),
+      ];
+      for (const control of candidates) {
+        control.focus({ focusVisible: true } as FocusOptions);
+        if (document.activeElement === control) break;
+      }
     });
     return () => cancelAnimationFrame(frame);
     // Only a new target moves focus; draft edits while the editor is open must not.
