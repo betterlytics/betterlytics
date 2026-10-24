@@ -23,6 +23,7 @@ export function useImmediateTimeRange() {
         ctx.compareEndDate,
         ctx.offset + offset,
         ctx.compareAlignWeekdays,
+        true,
       );
 
       if (resolved.main.start.getTime() >= Date.now() || isNowInFirstBucket(resolved, ctx.timeZone)) {
@@ -78,6 +79,7 @@ export function useImmediateTimeRange() {
         ctx.compareEndDate,
         0,
         ctx.compareAlignWeekdays,
+        true,
       );
       ctx.setPeriod(resolved.main.start, resolved.main.end);
       ctx.setOffset(0);
@@ -109,6 +111,7 @@ export function useImmediateTimeRange() {
         ctx.compareEndDate,
         0,
         ctx.compareAlignWeekdays,
+        true,
       );
       ctx.setGranularity(resolved.granularity);
       baEvent('set-granularity', {
@@ -159,6 +162,7 @@ export function useImmediateTimeRange() {
         ctx.compareEndDate,
         0,
         ctx.compareAlignWeekdays,
+        true,
       );
       ctx.setCompareDateRange(resolved.compare?.start, resolved.compare?.end);
     },

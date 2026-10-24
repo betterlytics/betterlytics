@@ -151,14 +151,39 @@ const RANGE_CONFIG: Record<Exclude<TimeRangeValue, 'custom'>, RangeConfig> = {
   },
 };
 
-function getCustomMainRange(timezone: string, offset: number, customStart?: Date, customEnd?: Date): TimeRange {
-  const start = floorToGranularity(moment.tz(customStart, timezone), 'day');
-  const end = ceilToGranularity(moment.tz(customEnd, timezone), 'day');
-  const buckets = countBucketsBetween({ start, end }, 'day');
+function isMidnight(d: moment.Moment): boolean {
+  return floorToGranularity(d.clone(), 'day').isSame(d);
+}
 
+// Without keepTimeOfDay, or for a plain date (midnight), a bound widens to whole days. An end is otherwise
+// the range's last moment, so it rounds up to the next minute
+function getCustomMainRange(
+  timezone: string,
+  offset: number,
+  keepTimeOfDay: boolean,
+  customStart?: Date,
+  customEnd?: Date,
+): TimeRange {
+  const rawStart = moment.tz(customStart, timezone);
+  const rawEnd = moment.tz(customEnd, timezone);
+  const start = floorToGranularity(rawStart, keepTimeOfDay ? 'minute_1' : 'day');
+  const end =
+    keepTimeOfDay && !isMidnight(rawEnd)
+      ? snapCeilToGranularity(rawEnd, 'minute_1')
+      : ceilToGranularity(rawEnd, 'day');
+
+  if (isMidnight(start) && isMidnight(end)) {
+    const days = countBucketsBetween({ start, end }, 'day');
+    return {
+      start: start.clone().add(days * offset, 'days'),
+      end: end.clone().add(days * offset, 'days'),
+    };
+  }
+
+  const durationMs = end.diff(start);
   return {
-    start: start.clone().add(buckets * offset, 'days'),
-    end: end.clone().add(buckets * offset, 'days'),
+    start: start.clone().add(durationMs * offset, 'milliseconds'),
+    end: end.clone().add(durationMs * offset, 'milliseconds'),
   };
 }
 
@@ -167,11 +192,12 @@ function getMainRange(
   granularity: GranularityRangeValues,
   timezone: string,
   offset: number,
+  keepTimeOfDay: boolean,
   customStart?: Date,
   customEnd?: Date,
 ): TimeRange {
   if (timeRange === 'custom') {
-    return getCustomMainRange(timezone, offset, customStart, customEnd);
+    return getCustomMainRange(timezone, offset, keepTimeOfDay, customStart, customEnd);
   }
 
   const config = RANGE_CONFIG[timeRange];
@@ -372,9 +398,11 @@ export function getResolvedRanges(
   compareEndDate?: Date,
   offset: number = 0,
   compareAlignWeekdays?: boolean,
+  // The dashboard keeps a custom range's time of day; other callers (MCP) always cover whole days
+  keepTimeOfDay: boolean = false,
 ): TimeRangeResult {
   const resolve = (g: GranularityRangeValues, cs?: Date, ce?: Date) => {
-    const mainRange = getMainRange(timeRange, g, timezone, offset, cs, ce);
+    const mainRange = getMainRange(timeRange, g, timezone, offset, keepTimeOfDay, cs, ce);
     const customCompareRange =
       compareStartDate && compareEndDate
         ? {

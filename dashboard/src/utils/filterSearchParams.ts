@@ -8,7 +8,6 @@ import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entit
 import { getResolvedRanges } from '@/lib/ba-timerange';
 import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';
-import { formatDayKey } from '@/utils/timezone';
 import type { ReadonlyURLSearchParams } from 'next/navigation';
 
 export const TIME_RANGE_SEARCH_PARAMS = [
@@ -93,14 +92,34 @@ function filterVariable(key: string, value: unknown) {
   return true;
 }
 
+function isStartOfDay(m: moment.Moment): boolean {
+  return m.isSame(m.clone().startOf('day'));
+}
+
+// Whole days stay YYYY-MM-DD so day links keep their old form; a time of day is added only when needed
+function encodeRangeStart(date: Date, timezone: string): string {
+  const start = moment.tz(date, timezone).startOf('minute');
+  return isStartOfDay(start) ? start.format('YYYY-MM-DD') : start.format('YYYY-MM-DDTHH:mm');
+}
+
+// Ends are inclusive (the last second), so the URL carries the minute the range stops at, and a range that
+// stops at midnight carries its last day as a plain date
+function encodeRangeEnd(date: Date, timezone: string): string {
+  const afterEnd = moment.tz(date, timezone).add(1, 'second');
+  const minute = afterEnd.clone().startOf('minute');
+  const stop = minute.isSame(afterEnd) ? minute : minute.add(1, 'minute');
+  return isStartOfDay(stop) ? stop.subtract(1, 'day').format('YYYY-MM-DD') : stop.format('YYYY-MM-DDTHH:mm');
+}
+
 // Encode filter values
 function encodeValue<Key extends keyof FilterQueryParams>(key: Key, value: unknown, timezone: string): string {
   switch (key) {
     case 'startDate':
-    case 'endDate':
     case 'compareStartDate':
+      return encodeRangeStart(value as Date, timezone);
+    case 'endDate':
     case 'compareEndDate':
-      return formatDayKey(value as Date, timezone);
+      return encodeRangeEnd(value as Date, timezone);
     case 'queryFilters':
     case 'userJourney':
       return stableStringify(value);
@@ -190,6 +209,7 @@ function enforceGranularityAndDuration(
     compareEndDate,
     offset,
     compareAlignWeekdays,
+    true,
   );
 
   return {

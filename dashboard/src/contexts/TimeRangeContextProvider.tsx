@@ -111,6 +111,7 @@ export function TimeRangeContextProvider({ children, initialFilters }: TimeRange
         compareEndDate,
         offset,
         compareAlignWeekdays,
+        true,
       ),
     [
       interval,

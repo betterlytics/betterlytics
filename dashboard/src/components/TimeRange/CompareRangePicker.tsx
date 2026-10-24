@@ -12,6 +12,7 @@ import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { useImmediateTimeRange } from './hooks/useImmediateTimeRange';
 import { isDerivedCompareMode } from '@/utils/compareRanges';
 import { formatLocalDateTime, LOCALE_STRING_OPTIONS } from '@/utils/dateFormatters';
+import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
 import { DateRangeSection } from '@/components/TimeRange/DateRangeSection';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
@@ -32,12 +33,15 @@ export function CompareRangePicker({ className = '' }: { className?: string }) {
     if (isDerivedCompareMode(ctx.compareMode)) {
       return ctx.compareMode === 'previous' ? t('previousPeriod') : t('previousYear');
     }
-    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', timeZone: ctx.timeZone };
-    return `${formatLocalDateTime(resolvedCompareDates.start, locale, opts)} - ${formatLocalDateTime(
-      resolvedCompareDates.end,
+    // Same format as the main range, so a sub-day range shows its times
+    return formatPrimaryRangeLabel({
+      interval: 'custom',
+      offset: 0,
+      startDate: resolvedCompareDates.start,
+      endDate: resolvedCompareDates.end,
       locale,
-      opts,
-    )}`;
+      timeZone: ctx.timeZone,
+    });
   };
 
   const titleOptions = { ...LOCALE_STRING_OPTIONS, timeZone: ctx.timeZone };

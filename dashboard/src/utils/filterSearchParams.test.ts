@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import moment from 'moment-timezone';
 import { BAFilterSearchParams } from './filterSearchParams';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
 
@@ -136,5 +137,53 @@ describe('BAFilterSearchParams round trip', () => {
 
     expect(params.startDate).toBe('2026-09-20');
     expect(params.endDate).toBe('2026-09-22');
+  });
+
+  it('carries a sub-day range through the URL with its times', () => {
+    const tz = 'America/New_York';
+    const decoded = BAFilterSearchParams.decode(
+      { interval: 'custom', startDate: '2026-09-20T14:00', endDate: '2026-09-20T18:00', granularity: 'minute_15' },
+      tz,
+    );
+
+    expect(decoded.startDate).toEqual(moment.tz('2026-09-20 14:00', tz).toDate());
+    expect(decoded.endDate).toEqual(moment.tz('2026-09-20 17:59:59', tz).toDate());
+    expect(decoded.granularity).toBe('minute_15');
+
+    const encoded = Object.fromEntries(
+      BAFilterSearchParams.encode({ ...BAFilterSearchParams.getDefaultFilters(), ...decoded }, tz),
+    );
+    expect(encoded.startDate).toBe('2026-09-20T14:00');
+    expect(encoded.endDate).toBe('2026-09-20T18:00');
+  });
+
+  it('keeps plain dates for a sub-day range that starts or ends at midnight', () => {
+    const encoded = Object.fromEntries(
+      BAFilterSearchParams.encode(
+        {
+          ...BAFilterSearchParams.getDefaultFilters(),
+          interval: 'custom',
+          startDate: moment.tz('2026-09-20 00:00', TZ).toDate(),
+          endDate: moment.tz('2026-09-20 05:59:59', TZ).toDate(),
+        },
+        TZ,
+      ),
+    );
+    expect(encoded.startDate).toBe('2026-09-20');
+    expect(encoded.endDate).toBe('2026-09-20T06:00');
+
+    const lateEvening = Object.fromEntries(
+      BAFilterSearchParams.encode(
+        {
+          ...BAFilterSearchParams.getDefaultFilters(),
+          interval: 'custom',
+          startDate: moment.tz('2026-09-20 20:00', TZ).toDate(),
+          endDate: moment.tz('2026-09-20 23:59:59', TZ).toDate(),
+        },
+        TZ,
+      ),
+    );
+    expect(lateEvening.startDate).toBe('2026-09-20T20:00');
+    expect(lateEvening.endDate).toBe('2026-09-20');
   });
 });
