@@ -1765,7 +1765,7 @@
           "ready": {
             "time": "10:05",
             "title": "The replay lands",
-            "body": "When they leave, the session lands in your replay list, flagged with its error."
+            "body": "When they leave, the session lands in your replay list, flagged with its error and a rage click."
           },
           "jump": {
             "time": "10:20",
@@ -1775,7 +1775,7 @@
           "why": {
             "time": "10:21",
             "title": "And see why",
-            "body": "Two clicks on Pay with an empty postcode field. The text is masked, yet you can still see what was left blank."
+            "body": "The visitor kept clicking Pay with the postcode left empty, and it's flagged as a rage click. The text is masked, yet you can still see what was left blank."
           }
         },
         "scenes": {
@@ -1789,6 +1789,7 @@
           "input": "Input",
           "click": "Click",
           "clientError": "Client error",
+          "rageClick": "Rage click",
           "emptyField": "Postcode: empty",
           "start": "Start:",
           "skip": "Skip inactivity"

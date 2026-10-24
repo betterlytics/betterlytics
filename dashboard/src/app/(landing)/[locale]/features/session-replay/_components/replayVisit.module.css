@@ -170,6 +170,10 @@
   .track > i[data-kind='input'] {
     --tick: #fb7185;
   }
+  .track > i[data-kind='rage'] {
+    --tick: #e879f9;
+    --size: 7px;
+  }
   .track > i[data-kind='error'] {
     --tick: #f87171;
     --size: 8px;
@@ -264,7 +268,7 @@
     transition-delay: 1.25s;
   }
   .visit:is([data-step='2'], [data-step='3'], [data-step='4']) .error {
-    transform: translate(113px, -178px) scale(0.05);
+    transform: translate(105px, -178px) scale(0.05);
     transition:
       transform 0.6s var(--ease-morph),
       opacity 0.4s ease 0.15s;
@@ -385,14 +389,24 @@
   .duration {
     font-variant-numeric: tabular-nums;
   }
-  .bug {
+  .badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .bug,
+  .rage {
     display: inline-flex;
     align-items: center;
     gap: 3px;
     color: #f08b98;
     font-variant-numeric: tabular-nums;
   }
-  .bug svg {
+  .rage {
+    color: #e879f9;
+  }
+  .bug svg,
+  .rage svg {
     width: 12px;
     height: 12px;
   }
@@ -534,15 +548,18 @@
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    border: 2px solid var(--color-down);
+    border: 2px solid #e879f9;
     opacity: 0;
   }
   @media (prefers-reduced-motion: no-preference) {
     .visit[data-step='4'] .clicks > i {
       animation: visit-ring 2.4s var(--ease-out-expo) 1.3s infinite;
     }
-    .visit[data-step='4'] .clicks > i + i {
-      animation-delay: 1.7s;
+    .visit[data-step='4'] .clicks > i:nth-child(2) {
+      animation-delay: 1.48s;
+    }
+    .visit[data-step='4'] .clicks > i:nth-child(3) {
+      animation-delay: 1.66s;
     }
   }
   .cursor {
@@ -596,6 +613,9 @@
   }
   .events li[data-kind='input'] {
     --tone: #fb7185;
+  }
+  .events li[data-kind='rageClick'] {
+    --tone: #e879f9;
   }
   .events li[data-kind='clientError'] {
     --tone: #f87171;

@@ -1,7 +1,17 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { AlertTriangle, Bug, CircleX, Keyboard, Monitor, MousePointer2, Play, Smartphone } from 'lucide-react';
+import {
+  AlertTriangle,
+  Angry,
+  Bug,
+  CircleX,
+  Keyboard,
+  Monitor,
+  MousePointer2,
+  Play,
+  Smartphone,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { FLAGS, type FlagCode } from '@/landing/components/illustrations/flags';
@@ -97,7 +107,7 @@ function ErrorCard({ t, className }: { t: Scenes; className: string }) {
 }
 
 const SESSIONS = [
-  { ago: 'now', duration: '2m 14s', path: '/', flag: 'DK', browser: 'chrome', os: 'apple', errors: 1 },
+  { ago: 'now', duration: '2m 14s', path: '/', flag: 'DK', browser: 'chrome', os: 'apple', errors: 1, rage: 1 },
   {
     ago: 12,
     duration: '48s',
@@ -168,9 +178,15 @@ function SessionList({ t }: { t: Scenes }) {
               device={'device' in session ? session.device : undefined}
             />
             {'errors' in session && (
-              <span className={visit.bug}>
-                <Bug aria-hidden />
-                {session.errors}
+              <span className={visit.badges}>
+                <span className={visit.bug}>
+                  <Bug aria-hidden />
+                  {session.errors}
+                </span>
+                <span className={visit.rage}>
+                  <Angry aria-hidden />
+                  {session.rage}
+                </span>
               </span>
             )}
           </li>
@@ -194,7 +210,7 @@ const TICKS = [
   [63, 'input'],
   [70, 'click'],
   [75, 'error'],
-  [77, 'click'],
+  [77, 'rage'],
   [86, 'scroll'],
   [93, 'click'],
 ] as const;
@@ -213,7 +229,7 @@ const EVENTS = [
   { at: '1:32', key: 'input', Icon: Keyboard },
   { at: '1:38', key: 'click', Icon: MousePointer2 },
   { at: '1:41', key: 'clientError', Icon: AlertTriangle },
-  { at: '1:43', key: 'click', Icon: MousePointer2 },
+  { at: '1:43', key: 'rageClick', Icon: Angry },
 ] as const;
 
 function Visit({ t, step }: { t: Scenes; step: number }) {
@@ -257,6 +273,7 @@ function Visit({ t, step }: { t: Scenes; step: number }) {
                 pay: (
                   <>
                     <span className={visit.clicks}>
+                      <i />
                       <i />
                       <i />
                       <span className={visit.cursor}>
