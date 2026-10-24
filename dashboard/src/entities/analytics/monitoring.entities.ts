@@ -195,6 +195,12 @@ export const MonitorDailyUptimeSchema = z.object({
   totalSeconds: z.number().nullable(),
 });
 
+export const MonitorDeletionImpactPageSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  willBeEmpty: z.boolean(),
+});
+
 export type MonitorStatus = z.infer<typeof MonitorStatusSchema>;
 export type IncidentState = z.infer<typeof IncidentStateSchema>;
 export type MonitorOperationalState = z.infer<typeof MonitorOperationalStateSchema>;
@@ -204,6 +210,7 @@ export type StatusCodeValue = z.infer<typeof StatusCodeValueSchema>;
 export type MonitorCheck = z.infer<typeof MonitorCheckSchema>;
 export type MonitorCheckCreate = z.infer<typeof MonitorCheckCreateSchema>;
 export type MonitorCheckUpdate = z.infer<typeof MonitorCheckUpdateSchema>;
+export type MonitorDeletionImpactPage = z.infer<typeof MonitorDeletionImpactPageSchema>;
 
 // This is the primary type used in list views
 export type MonitorWithStatus = MonitorCheck & {
