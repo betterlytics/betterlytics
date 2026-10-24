@@ -1798,11 +1798,11 @@
       },
       "privacy": {
         "title": "Maskert *før* det forlater nettleseren",
-        "lede": "Du ser hvor de besøkende klikket, scrollet og skrev. Personvernet deres er i behold: det de leste og skrev, forlater aldri enheten deres.",
+        "lede": "Du ser hvor de besøkende klikket, scrollet og skrev. Personvernet deres er ivaretatt: det de leste og skrev, forlater aldri enheten deres.",
         "points": {
           "text": "Hvert tegn i tekst og skjemafelt blir til en stjerne, så layouten beholder formen",
           "media": "Bilder og iframes erstattes av tomme bokser i samme størrelse",
-          "consent": "Kan vente på samtykke før noe tas opp, der loven krever det",
+          "consent": "Opptaket kan vente på samtykke der loven krever det",
           "exclude": "Utelat hele sider eller deler av nettstedet, eller enkeltelementer du merker som private",
           "storage": "Ingen cookies, og ingen IP-adresse lagres med et opptak"
         },
@@ -1833,7 +1833,7 @@
           },
           "errors": {
             "title": "Behold minuttene før en feil",
-            "body": "Når opptak ved feil er slått på, lagres et minutt eller to før en JavaScript-feil, også for besøk utenfor utvalget."
+            "body": "Når opptak ved feil er slått på, lagres de siste par minuttene før en JavaScript-feil, også for besøk utenfor utvalget."
           },
           "paths": {
             "title": "Utelat sider",
@@ -1841,7 +1841,7 @@
           },
           "light": {
             "title": "Lite belastning på nettstedet",
-            "body": "Opptaksskriptet er en egen fil som bare lastes inn når det trengs, og laster opp i små, komprimerte bolker i bakgrunnen, så sidene dine holder seg raske."
+            "body": "Opptaksskriptet er en egen fil som bare lastes inn når det trengs, og sender data i små, komprimerte bolker i bakgrunnen, så sidene dine holder seg raske."
           },
           "spa": {
             "title": "Laget for single-page-apper",
@@ -1865,11 +1865,11 @@
           },
           "consent": {
             "title": "Håndter samtykke",
-            "body": "Der loven krever samtykke, som i EU og EØS, kobler én linje opptaket til samtykkebanneret ditt."
+            "body": "Der loven krever samtykke, som i EU og EØS, kobler du opptaket til samtykkebanneret ditt med én linje."
           },
           "tune": {
             "title": "Finjuster",
-            "body": "Angi utvalget, utelat private stier og behold opptak av sesjoner som støtte på en feil."
+            "body": "Angi utvalget, utelat private stier og behold opptak av sesjoner med feil."
           }
         },
         "cta": "Les oppsettsguiden"
@@ -1886,10 +1886,10 @@
           },
           "free": {
             "q": "Er sesjonsavspilling gratis?",
-            "a": "Ja. Sesjonsavspilling er inkludert i <link>alle planer</link>, også gratisplanen, og opptak teller ikke med i de månedlige hendelsene dine."
+            "a": "Ja. Sesjonsavspilling er inkludert i <link>alle planer</link>, også gratisplanen, og opptak teller ikke med i den månedlige hendelseskvoten din."
           },
           "consent": {
-            "q": "Trenger jeg samtykke for sesjonsavspilling?",
+            "q": "Trenger jeg samtykke for å bruke sesjonsavspilling?",
             "a": "Det kommer an på hvor de besøkende befinner seg. I EU og EØS kan GDPR og ePrivacy-direktivet kreve samtykke før du tar opp et besøk. Opptaket starter ikke før nettstedet ditt gir klarsignal. Det kan komme fra samtykkebanneret du allerede har, eller fra en innstilling i skriptet når du ikke trenger samtykke."
           },
           "masked": {
@@ -1906,7 +1906,7 @@
           },
           "find": {
             "q": "Hvordan finner jeg sesjonen jeg leter etter?",
-            "a": "Opptakslisten viser startside, varighet, land, nettleser, enhet, antall feil og raseriklikk for hver sesjon, og du kan skjule korte sesjoner. Fra en feil åpner «Se sesjonsavspilling» den siste sesjonen som støtte på den."
+            "a": "Opptakslisten viser startside, varighet, land, nettleser, enhet, antall feil og raseriklikk for hver sesjon, og du kan skjule korte sesjoner. Fra en feil åpner knappen «Se sesjonsavspilling» den siste sesjonen der feilen oppsto."
           },
           "rage": {
             "q": "Oppdager den raseriklikk?",
