@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { STATUS_PAGE_LIMITS } from './statusPage.entities';
+import { STATUS_PAGE_LIMITS, type StatusPagePublicRef } from './statusPage.entities';
 
 export const StatusPageIncidentImpactSchema = z.enum(['degraded', 'partial_outage', 'outage']);
 export type StatusPageIncidentImpact = z.infer<typeof StatusPageIncidentImpactSchema>;
@@ -25,7 +25,7 @@ export const StatusPageIncidentSchema = z.object({
 });
 export type StatusPageIncident = z.infer<typeof StatusPageIncidentSchema>;
 
-export type IncidentWithSlug = { incident: StatusPageIncident; slug: string };
+export type IncidentWithStatusPage = { incident: StatusPageIncident; statusPage: StatusPagePublicRef };
 
 export const StatusPageIncidentTimelineEntrySchema = z.object({
   id: z.string(),

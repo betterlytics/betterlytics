@@ -4,14 +4,14 @@ import {
   PublishedIncidentTimelineEntrySchema,
   StatusPageIncidentSchema,
   StatusPageIncidentTimelineEntrySchema,
-  type IncidentWithSlug,
+  type IncidentWithStatusPage,
   type PublishedIncidentTimelineEntry,
   type StatusPageIncident,
   type StatusPageIncidentBatchSave,
   type StatusPageIncidentCreate,
   type StatusPageIncidentTimelineEntry,
 } from '@/entities/analytics/statusPage/statusPageIncident.entities';
-import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
+import { STATUS_PAGE_LIMITS, type StatusPagePublicRef } from '@/entities/analytics/statusPage/statusPage.entities';
 import { groupByKey } from '@/utils/collections';
 
 async function syncIncidentFromTimeline(tx: Prisma.TransactionClient, incidentId: string) {
@@ -60,7 +60,7 @@ export async function createStatusPageIncident(
   dashboardId: string,
   createdById: string,
   data: StatusPageIncidentCreate,
-): Promise<IncidentWithSlug> {
+): Promise<IncidentWithStatusPage> {
   const { statusPageId, description, updates, ...fields } = data;
   const entries = updates.map((update) => ({
     status: update.status,
@@ -82,7 +82,7 @@ export async function createStatusPageIncident(
         startedAt,
         ...fields,
       },
-      select: { id: true, statusPage: { select: { slug: true } } },
+      select: { id: true, statusPage: { select: { slug: true, customDomain: true } } },
     });
 
     await tx.statusPageIncidentUpdate.createMany({
@@ -96,21 +96,21 @@ export async function createStatusPageIncident(
     });
 
     const synced = await syncIncidentFromTimeline(tx, incident.id);
-    return { incident: synced, slug: incident.statusPage.slug };
+    return { incident: synced, statusPage: incident.statusPage };
   });
-  return { incident: StatusPageIncidentSchema.parse(created.incident), slug: created.slug };
+  return { incident: StatusPageIncidentSchema.parse(created.incident), statusPage: created.statusPage };
 }
 
 export async function applyStatusPageIncidentChanges(
   dashboardId: string,
   actorId: string | null,
   data: StatusPageIncidentBatchSave,
-): Promise<IncidentWithSlug | null> {
+): Promise<IncidentWithStatusPage | null> {
   const { incidentId, statusPageId, metadata, editedUpdates, newUpdates, deletedUpdateIds } = data;
   return prisma.$transaction(async (tx) => {
     const existing = await tx.statusPageIncident.findFirst({
       where: { id: incidentId, statusPageId, dashboardId, deletedAt: null },
-      select: { id: true, statusPage: { select: { slug: true } } },
+      select: { id: true, statusPage: { select: { slug: true, customDomain: true } } },
     });
     if (!existing) return null;
 
@@ -154,7 +154,7 @@ export async function applyStatusPageIncidentChanges(
     }
 
     const incident = await syncIncidentFromTimeline(tx, incidentId);
-    return { incident: StatusPageIncidentSchema.parse(incident), slug: existing.statusPage.slug };
+    return { incident: StatusPageIncidentSchema.parse(incident), statusPage: existing.statusPage };
   });
 }
 
@@ -184,15 +184,15 @@ export async function deleteStatusPageIncident(
   dashboardId: string,
   statusPageId: string,
   incidentId: string,
-): Promise<string | null> {
+): Promise<StatusPagePublicRef | null> {
   const existing = await prisma.statusPageIncident.findFirst({
     where: { id: incidentId, statusPageId, dashboardId, deletedAt: null },
-    select: { id: true, statusPage: { select: { slug: true } } },
+    select: { id: true, statusPage: { select: { slug: true, customDomain: true } } },
   });
   if (!existing) return null;
 
   await prisma.statusPageIncident.update({ where: { id: existing.id }, data: { deletedAt: new Date() } });
-  return existing.statusPage.slug;
+  return existing.statusPage;
 }
 
 export async function listPublishedIncidentUpdates(

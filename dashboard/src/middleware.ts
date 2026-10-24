@@ -3,8 +3,15 @@ import { isSignedInPath, isUnlocalizedPath, routing } from '@/i18n/routing';
 import { NextResponse, type NextRequest } from 'next/server';
 import { env } from '@/lib/env';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import { decideStatusHostRoute, isOwnHost, normalizeHostname, ownHostsFrom } from '@/lib/status-host-routing';
-import { classifyStatusHost } from '@/services/analytics/statusHost.service';
+import {
+  decideStatusHostRoute,
+  isOwnHost,
+  normalizeHostname,
+  ownHostsFrom,
+  statusPageNotFoundPath,
+  statusPagePathTarget,
+} from '@/lib/status-host-routing';
+import { classifyStatusHost, classifyStatusSlug } from '@/services/analytics/statusHost.service';
 import { withSigninReturnTo } from '@/lib/auth/signin-redirect';
 
 const intlMiddleware = createMiddleware(routing);
@@ -38,7 +45,16 @@ export async function middleware(request: NextRequest) {
   // lowercase the whole path: slugs and custom domains are stored lowercase, and the other path
   // segments already are.
   if (pathname.startsWith('/status/')) {
-    const normalized = pathname.toLowerCase().replace(/\.+$/, '');
+    let normalized = pathname.toLowerCase().replace(/\.+$/, '');
+    const target = statusPagePathTarget(normalized);
+    if (target) {
+      const classify = target.kind === 'domain' ? classifyStatusHost : classifyStatusSlug;
+      const classification = await classify(target.key);
+      if (classification === 'unavailable') {
+        return new NextResponse(null, { status: 503, headers: { 'Retry-After': '10' } });
+      }
+      if (classification === 'unknown') normalized = statusPageNotFoundPath(target.kind);
+    }
     if (normalized !== pathname) {
       const url = request.nextUrl.clone();
       url.pathname = normalized;

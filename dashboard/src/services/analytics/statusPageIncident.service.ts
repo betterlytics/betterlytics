@@ -13,11 +13,11 @@ import {
   listStatusPageMonitorCheckIds,
 } from '@/repositories/postgres/statusPage.repository';
 import { getDetectedOutagesForMonitors } from '@/repositories/clickhouse/monitoring.repository';
-import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
+import { STATUS_PAGE_LIMITS, type StatusPagePublicRef } from '@/entities/analytics/statusPage/statusPage.entities';
 import {
   type DetectedOutageMonitor,
   type DetectedOutageSuggestion,
-  type IncidentWithSlug,
+  type IncidentWithStatusPage,
   type StatusPageIncident,
   type StatusPageIncidentBatchSave,
   type StatusPageIncidentCreate,
@@ -36,7 +36,7 @@ export function addStatusPageIncident(
   dashboardId: string,
   createdById: string,
   data: StatusPageIncidentCreate,
-): Promise<IncidentWithSlug> {
+): Promise<IncidentWithStatusPage> {
   return createStatusPageIncident(dashboardId, createdById, data);
 }
 
@@ -44,7 +44,7 @@ export function saveStatusPageIncidentChanges(
   dashboardId: string,
   actorId: string | null,
   data: StatusPageIncidentBatchSave,
-): Promise<IncidentWithSlug | null> {
+): Promise<IncidentWithStatusPage | null> {
   return applyStatusPageIncidentChanges(dashboardId, actorId, data);
 }
 
@@ -64,7 +64,7 @@ export function removeStatusPageIncident(
   dashboardId: string,
   statusPageId: string,
   incidentId: string,
-): Promise<string | null> {
+): Promise<StatusPagePublicRef | null> {
   return deleteStatusPageIncident(dashboardId, statusPageId, incidentId);
 }
 

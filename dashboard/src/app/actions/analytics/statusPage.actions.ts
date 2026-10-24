@@ -1,7 +1,6 @@
 'use server';
 
 import { createHash } from 'crypto';
-import { revalidatePath } from 'next/cache';
 import { getMessages, getTranslations } from 'next-intl/server';
 import z from 'zod';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
@@ -58,17 +57,11 @@ import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.serv
 import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
 import { getUserTimezone } from '@/lib/cookies';
 import { UserException } from '@/lib/exceptions';
+import { revalidateStatusPagePaths } from '@/lib/status-page-revalidation';
 
 function assertStatusPagesEnabled() {
   if (!isFeatureEnabled('enablePublicStatusPages')) {
     throw new UserException('Status pages are not enabled');
-  }
-}
-
-function revalidateStatusPagePaths(dashboardId: string, ...slugs: Array<string | undefined>) {
-  revalidatePath(`/dashboard/${dashboardId}/status-pages`);
-  for (const slug of new Set(slugs.filter(Boolean))) {
-    revalidatePath(`/status/${slug}`);
   }
 }
 
@@ -168,8 +161,8 @@ export const createStatusPageAction = withDashboardMutationAuthContext(
 
     const created = await addStatusPage(ctx.dashboardId, payload, imageWrites);
 
-    // A page published at create is public immediately, so its slug path must revalidate too.
-    revalidateStatusPagePaths(ctx.dashboardId, created.isPublished ? created.slug : undefined);
+    // A page published at create is public immediately, so its public paths must revalidate too.
+    revalidateStatusPagePaths(ctx.dashboardId, created.isPublished ? created : undefined);
     return created;
   },
   { permission: 'canManageStatusPages' },
@@ -205,8 +198,8 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
     }
 
     const result = await saveStatusPage(ctx.dashboardId, payload, imageWrites);
-    // The old public URL must drop out of the cache when the slug changes
-    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.page.slug, result.previousSlug);
+    // The old public URLs must drop out of the cache when the slug or custom domain changes
+    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.page, result.previous);
     return result?.page ?? null;
   },
   { permission: 'canManageStatusPages' },
@@ -217,7 +210,7 @@ export const setStatusPagePublishedAction = withDashboardMutationAuthContext(
     assertStatusPagesEnabled();
     const updated = await publishStatusPage(ctx.dashboardId, statusPageId, isPublished);
 
-    revalidateStatusPagePaths(ctx.dashboardId, updated.slug);
+    revalidateStatusPagePaths(ctx.dashboardId, updated);
     return updated;
   },
   { permission: 'canPublishStatusPages' },
@@ -226,9 +219,9 @@ export const setStatusPagePublishedAction = withDashboardMutationAuthContext(
 export const deleteStatusPageAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, statusPageId: string) => {
     assertStatusPagesEnabled();
-    const deletedSlug = await removeStatusPage(ctx.dashboardId, statusPageId);
+    const deleted = await removeStatusPage(ctx.dashboardId, statusPageId);
 
-    revalidateStatusPagePaths(ctx.dashboardId, deletedSlug ?? undefined);
+    revalidateStatusPagePaths(ctx.dashboardId, deleted);
   },
   { permission: 'canDeleteStatusPages' },
 );
@@ -342,8 +335,8 @@ export const createStatusPageIncidentAction = withDashboardMutationAuthContext(
       throw new UserException((await getTranslations('validation'))('statusPageIncidentLimit'));
     }
 
-    const { incident, slug } = await addStatusPageIncident(ctx.dashboardId, ctx.userId, payload);
-    revalidateStatusPagePaths(ctx.dashboardId, slug);
+    const { incident, statusPage } = await addStatusPageIncident(ctx.dashboardId, ctx.userId, payload);
+    revalidateStatusPagePaths(ctx.dashboardId, statusPage);
     return incident;
   },
   { permission: 'canManageStatusPages' },
@@ -373,7 +366,7 @@ export const saveStatusPageIncidentChangesAction = withDashboardMutationAuthCont
     }
 
     const result = await saveStatusPageIncidentChanges(ctx.dashboardId, ctx.userId, payload);
-    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.slug);
+    if (result) revalidateStatusPagePaths(ctx.dashboardId, result.statusPage);
     return result?.incident ?? null;
   },
   { permission: 'canManageStatusPages' },
@@ -382,8 +375,8 @@ export const saveStatusPageIncidentChangesAction = withDashboardMutationAuthCont
 export const deleteStatusPageIncidentAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext, statusPageId: string, incidentId: string) => {
     assertStatusPagesEnabled();
-    const slug = await removeStatusPageIncident(ctx.dashboardId, statusPageId, incidentId);
-    if (slug) revalidateStatusPagePaths(ctx.dashboardId, slug);
+    const statusPage = await removeStatusPageIncident(ctx.dashboardId, statusPageId, incidentId);
+    revalidateStatusPagePaths(ctx.dashboardId, statusPage);
   },
   { permission: 'canManageStatusPages' },
 );

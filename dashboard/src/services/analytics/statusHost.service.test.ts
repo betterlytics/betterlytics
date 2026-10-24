@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { STATUS_HOST_LIMITS as L } from './statusHost.service';
 
 const findStatusPageByCustomDomain = vi.fn();
+const statusPageSlugExists = vi.fn();
 
 vi.mock('@/repositories/postgres/statusPage.repository', () => ({
   findStatusPageByCustomDomain: (domain: string) => findStatusPageByCustomDomain(domain),
+  statusPageSlugExists: (slug: string) => statusPageSlugExists(slug),
 }));
 
 vi.mock('@/lib/feature-flags', () => ({
@@ -77,7 +79,10 @@ describe('classifyStatusHost', () => {
     const { classifyStatusHost } = await loadService();
     findStatusPageByCustomDomain.mockResolvedValueOnce(ROW);
 
-    const results = await Promise.all([classifyStatusHost('status.acme.com'), classifyStatusHost('status.acme.com')]);
+    const results = await Promise.all([
+      classifyStatusHost('status.acme.com'),
+      classifyStatusHost('status.acme.com'),
+    ]);
 
     expect(results).toEqual(['status', 'status']);
     expect(findStatusPageByCustomDomain).toHaveBeenCalledTimes(1);
@@ -212,5 +217,39 @@ describe('classifyStatusHost', () => {
 
     goStale();
     expect(await classifyStatusHost('status.acme.com')).toBe('status');
+  });
+});
+
+describe('classifyStatusSlug', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date'] });
+    findStatusPageByCustomDomain.mockReset();
+    statusPageSlugExists.mockReset();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('classifies slugs with their own cache, one query each', async () => {
+    const { classifyStatusSlug } = await loadService();
+    statusPageSlugExists.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+
+    expect(await classifyStatusSlug('acme')).toBe('status');
+    expect(await classifyStatusSlug('random')).toBe('unknown');
+    expect(await classifyStatusSlug('acme')).toBe('status');
+    expect(await classifyStatusSlug('random')).toBe('unknown');
+    expect(statusPageSlugExists).toHaveBeenCalledTimes(2);
+    expect(findStatusPageByCustomDomain).not.toHaveBeenCalled();
+  });
+
+  it('does not share its lookup budget with host classification', async () => {
+    const { classifyStatusHost, classifyStatusSlug } = await loadService();
+    findStatusPageByCustomDomain.mockResolvedValue(null);
+    statusPageSlugExists.mockResolvedValueOnce(true);
+
+    for (let i = 0; i < L.globalMaxLookups; i++) await classifyStatusHost(`h-${i}.example.com`);
+    expect(await classifyStatusHost('one-more.example.com')).toBe('unavailable');
+    expect(await classifyStatusSlug('acme')).toBe('status');
   });
 });
