@@ -1898,7 +1898,7 @@
           },
           "slow": {
             "q": "Il session replay rallenta il mio sito?",
-            "a": "Lo script di registrazione è un file separato che si carica solo quando una visita viene registrata o la cattura degli errori è attiva. Invia blocchi compressi in background e campiona i movimenti del mouse invece di seguire ogni pixel."
+            "a": "Non in modo che i tuoi visitatori se ne accorgano. Lo script di registrazione si carica senza bloccare la pagina, e solo nelle visite registrate o quando la cattura degli errori è attiva. Campiona i movimenti del mouse e lo scroll invece di seguire ogni pixel, e invia dati compressi in piccoli blocchi in background."
           },
           "sample": {
             "q": "Quante visite vengono registrate?",

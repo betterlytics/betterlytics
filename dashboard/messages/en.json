@@ -1898,7 +1898,7 @@
           },
           "slow": {
             "q": "Will session replay slow down my site?",
-            "a": "The recorder is a separate file that only loads when a visit is recorded or error capture is on. It sends compressed chunks in the background and samples mouse movement instead of following every pixel."
+            "a": "Not in a way your visitors will notice. The recorder loads without blocking your page, and only on visits that are recorded or when error capture is on. It samples mouse movement and scrolling instead of tracking every pixel, and sends compressed data in small batches in the background."
           },
           "sample": {
             "q": "How many visits are recorded?",

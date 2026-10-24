@@ -1898,7 +1898,7 @@
           },
           "slow": {
             "q": "Gør session replay mit website langsommere?",
-            "a": "Optageren er en separat fil, der kun indlæses, når et besøg bliver optaget, eller når optagelse ved fejl er slået til. Den sender komprimerede bidder i baggrunden og registrerer musebevægelser med jævne mellemrum i stedet for at følge hver eneste pixel."
+            "a": "Ikke så dine besøgende mærker det. Optageren indlæses uden at blokere din side, og kun ved besøg, der bliver optaget, eller når optagelse ved fejl er slået til. Den registrerer musebevægelser og scroll med jævne mellemrum i stedet for at følge hver eneste pixel, og sender komprimerede data i små bidder i baggrunden."
           },
           "sample": {
             "q": "Hvor mange besøg bliver optaget?",

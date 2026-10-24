@@ -1898,7 +1898,7 @@
           },
           "slow": {
             "q": "Gjør sesjonsavspilling nettstedet mitt tregere?",
-            "a": "Opptaksskriptet er en egen fil som bare lastes inn når et besøk tas opp eller opptak ved feil er slått på. Det sender komprimerte biter i bakgrunnen og registrerer musebevegelser med jevne mellomrom i stedet for å følge hver piksel."
+            "a": "Ikke slik at de besøkende merker det. Opptaksskriptet lastes inn uten å blokkere siden din, og bare ved besøk som tas opp, eller når opptak ved feil er slått på. Det registrerer musebevegelser og scrolling med jevne mellomrom i stedet for å følge hver piksel, og sender komprimerte data i små bolker i bakgrunnen."
           },
           "sample": {
             "q": "Hvor mange besøk tas opp?",
