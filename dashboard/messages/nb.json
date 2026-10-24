@@ -1428,7 +1428,7 @@
           "body": "Cookiefri trafikk, kilder, sider og trakter, i sanntid og uten sampling."
         },
         "replay": {
-          "title": "Sesjonsopptak",
+          "title": "Sesjonsavspilling",
           "body": "Se det den besøkende så, klikk for klikk og scroll for scroll."
         },
         "errors": {
@@ -1708,12 +1708,12 @@
     "replay": {
       "seo": {
         "title": "Sesjonsavspilling med personvern som standard | Betterlytics",
-        "description": "Se sesjonsopptak av ekte besøk, med all tekst og alt som tastes inn maskert i nettleseren. Hopp fra en JavaScript-feil rett til opptaket. Gratis på alle planer."
+        "description": "Session replay som maskerer all tekst og inntasting i nettleseren. Se ekte besøk, og hopp fra en JavaScript-feil rett til opptaket. Gratis på alle planer."
       },
       "hero": {
         "eyebrow": "Sesjonsavspilling",
         "title": "Se hvor de besøkende går seg fast, og hva som stoppet dem",
-        "lede": "Spill av ekte besøk klikk for klikk. Raseriklikk blir markert, og all tekst og alt som tastes inn maskeres før det forlater nettleseren. Gratis på alle planer, rett ved siden av trafikken og feilene dine.",
+        "lede": "Spill av ekte besøk klikk for klikk. Raseriklikk blir markert, og all tekst og alt som tastes inn maskeres før det forlater nettleseren. Gratis på alle planer, i samme dashboard som trafikken og feilene dine.",
         "primary": "Start opptak gratis",
         "secondary": "Les dokumentasjonen"
       },
@@ -1776,7 +1776,7 @@
           "why": {
             "time": "10:21",
             "title": "Og ser hvorfor",
-            "body": "Den besøkende klikket på betalingsknappen igjen og igjen med postnummeret tomt, og det er markert som et raseriklikk. Teksten er maskert, men du ser likevel hva som sto tomt."
+            "body": "Den besøkende klikket på betalingsknappen igjen og igjen med postnummerfeltet tomt, og det er markert som et raseriklikk. Teksten er maskert, men du ser likevel hva som sto tomt."
           }
         },
         "scenes": {
@@ -1789,11 +1789,11 @@
           "timeline": "Tidslinje",
           "input": "Inntasting",
           "click": "Klikk",
-          "clientError": "Klientside-feil",
+          "clientError": "Klientsidefeil",
           "rageClick": "Raseriklikk",
           "emptyField": "Postnummer: tomt",
-          "start": "Starttid:",
-          "skip": "Spring inaktivitet over"
+          "start": "Startside:",
+          "skip": "Hopp over inaktivitet"
         }
       },
       "privacy": {
@@ -1810,12 +1810,12 @@
         "try": "Dra for å sammenligne",
         "visitor": "Det den besøkende ser",
         "you": "Det du ser i opptaket",
-        "slider": "Sammenlign den besøkendes visning med det maskerte opptaket",
-        "alt": "Kassesiden til en kaffebutikk, vist to ganger. I den besøkendes visning kan navn, e-post og adresse leses; i opptaket er hvert ord stjerner, og produktbildet er en tom boks."
+        "slider": "Sammenlign det den besøkende ser, med det maskerte opptaket",
+        "alt": "Kassesiden til en kaffebutikk, vist to ganger. I den besøkendes visning kan navn, e-post og adresse leses; i opptaket er hvert ord byttet ut med stjerner, og produktbildet er en tom boks."
       },
       "controls": {
         "title": "Ta opp sesjonene som er *verdt* å se",
-        "lede": "Bestem hvor mye som tas opp, og hvor. Alt annet skjer uten at de besøkende merker det.",
+        "lede": "Bestem hvor mye som skal tas opp, og hvor. Alt annet skjer uten at de besøkende merker det.",
         "art": {
           "sample": "Utvalg",
           "recorded": "Tatt opp",
@@ -1832,16 +1832,16 @@
             "body": "Ta opp en liten andel av besøkene, eller hvert eneste ett. Hvert besøk tas opp i sin helhet eller ikke i det hele tatt."
           },
           "errors": {
-            "title": "Behold opptakten til feil",
-            "body": "Når opptak ved feil er slått på, lagrer også besøk utenfor utvalget minuttet eller to før en JavaScript-feil."
+            "title": "Behold minuttene før en feil",
+            "body": "Når opptak ved feil er slått på, lagres et minutt eller to før en JavaScript-feil, også for besøk utenfor utvalget."
           },
           "paths": {
             "title": "Utelat sider",
             "body": "Slå av opptak for enkeltsider eller hele seksjoner, som adminområdet eller kontosidene. Ingenting tas opp der, og den delen av besøket vises sløret i avspilleren."
           },
           "light": {
-            "title": "Lett for nettstedet ditt",
-            "body": "Opptaksskriptet er en egen fil som bare lastes inn når det trengs, og laster opp i små, komprimerte porsjoner i bakgrunnen, så sidene dine holder seg raske."
+            "title": "Lite belastning på nettstedet",
+            "body": "Opptaksskriptet er en egen fil som bare lastes inn når det trengs, og laster opp i små, komprimerte bolker i bakgrunnen, så sidene dine holder seg raske."
           },
           "spa": {
             "title": "Laget for single-page-apper",
@@ -1861,7 +1861,7 @@
         "steps": {
           "enable": {
             "title": "Slå det på",
-            "body": "Legg til ett attributt i script-taggen, eller ett valg i npm-pakken."
+            "body": "Legg til ett attributt i script-taggen, eller én innstilling i npm-pakken."
           },
           "consent": {
             "title": "Håndter samtykke",
@@ -1910,7 +1910,7 @@
           },
           "rage": {
             "q": "Oppdager den raseriklikk?",
-            "a": "Ja. Når en besøkende klikker på samme sted igjen og igjen, markerer Betterlytics det som et raseriklikk. Du ser det på tidslinjen i opptaket og som et antall i opptakslisten, så frustrerte besøkende er lette å finne."
+            "a": "Ja. Når en besøkende klikker på samme sted igjen og igjen, markerer Betterlytics det som et raseriklikk. Du ser det på tidslinjen i opptaket og som et tall i opptakslisten, så frustrerte besøkende er lette å finne."
           },
           "history": {
             "q": "Hvor lenge lagres opptakene?",
@@ -1918,11 +1918,11 @@
           },
           "mobile": {
             "q": "Fungerer det i mobilapper?",
-            "a": "Det tar opp nettsteder og nettapper, i nettlesere på både datamaskin og mobil. Native iOS- og Android-apper støttes ikke. På berøringsskjermer tas trykk og scrolling opp, men det finnes ingen markør å følge."
+            "a": "Sesjonsavspilling tar opp nettsteder og nettapper, i nettlesere på både datamaskin og mobil. Native iOS- og Android-apper støttes ikke. På berøringsskjermer tas trykk og scrolling opp, men det finnes ingen markør å følge."
           },
           "dedicated": {
             "q": "Når passer et dedikert verktøy for sesjonsavspilling bedre?",
-            "a": "Betterlytics viser hva de besøkende gjorde, med hvert ord maskert. Trenger du heatmaps, konsoll- og nettverkslogger, lesbar tekst eller søk etter bruker og hendelse, vil et dedikert verktøy passe bedre. <link>Sammenligningen vår med PostHog</link> viser forskjellene funksjon for funksjon."
+            "a": "Betterlytics viser hva de besøkende gjorde, med hvert ord maskert. Trenger du heatmaps, konsoll- og nettverkslogger, lesbar tekst eller søk etter bruker og hendelse, passer et dedikert verktøy bedre. <link>Sammenligningen vår med PostHog</link> viser forskjellene funksjon for funksjon."
           }
         }
       },
