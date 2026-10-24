@@ -1,7 +1,8 @@
 mod envelope;
 pub mod store;
 
-use std::time::Duration;
+use std::future::Future;
+use std::time::{Duration, Instant};
 use std::sync::Arc;
 
 use axum::{extract::{Query, State}, http::StatusCode};
@@ -125,6 +126,68 @@ pub struct UploadSegmentParams {
     pub format: Option<String>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum UploadOutcome {
+    Stored,
+    Duplicate,
+    Invalid,
+    Blocked,
+    RateLimited,
+    SessionSizeCap,
+    StorageUnavailable,
+    StorageError,
+}
+
+impl UploadOutcome {
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Stored => "stored",
+            Self::Duplicate => "duplicate",
+            Self::Invalid => "invalid",
+            Self::Blocked => "blocked",
+            Self::RateLimited => "rate_limited",
+            Self::SessionSizeCap => "session_size_cap",
+            Self::StorageUnavailable => "storage_unavailable",
+            Self::StorageError => "storage_error",
+        }
+    }
+}
+
+enum Uploaded {
+    Stored { bytes: u64 },
+    Duplicate,
+}
+
+struct Rejection {
+    outcome: UploadOutcome,
+    status: StatusCode,
+    message: String,
+}
+
+impl Rejection {
+    fn new(outcome: UploadOutcome, status: StatusCode, message: impl Into<String>) -> Self {
+        Self { outcome, status, message: message.into() }
+    }
+
+    fn invalid(message: impl Into<String>) -> Self {
+        Self::new(UploadOutcome::Invalid, StatusCode::BAD_REQUEST, message)
+    }
+}
+
+impl From<Rejection> for (StatusCode, String) {
+    fn from(r: Rejection) -> Self {
+        (r.status, r.message)
+    }
+}
+
+fn upload_outcome(result: &Result<Uploaded, Rejection>) -> (UploadOutcome, u64) {
+    match result {
+        Ok(Uploaded::Stored { bytes }) => (UploadOutcome::Stored, *bytes),
+        Ok(Uploaded::Duplicate) => (UploadOutcome::Duplicate, 0),
+        Err(r) => (r.outcome, 0),
+    }
+}
+
 pub async fn upload_segment(
     State((db, processor, metrics, _, replay_ctx, site_cfg_cache)): State<(SharedDatabase, Arc<EventProcessor>, Option<Arc<MetricsCollector>>, Arc<EventValidator>, Option<Arc<ReplayCtx>>, Arc<SiteConfigCache>)>,
     client: ClientRequest,
@@ -132,13 +195,45 @@ pub async fn upload_segment(
     body: Bytes,
 ) -> Result<StatusCode, (StatusCode, String)> {
     let replay_ctx = replay_ctx.ok_or((StatusCode::SERVICE_UNAVAILABLE, "session replay not configured".to_string()))?;
+    let result = store_segment(&db, &processor, metrics.as_deref(), &replay_ctx, &site_cfg_cache, &client, &p, body).await;
+    if let Some(m) = &metrics {
+        let (outcome, stored_bytes) = upload_outcome(&result);
+        m.record_replay_upload(replay_ctx.mode.as_str(), outcome.as_str(), stored_bytes);
+    }
+    result.map(|_| StatusCode::NO_CONTENT).map_err(Into::into)
+}
 
+async fn timed_storage_op<T>(
+    metrics: Option<&MetricsCollector>,
+    replay_ctx: &ReplayCtx,
+    operation: &str,
+    op: impl Future<Output = Result<T, StoreError>>,
+) -> Result<T, StoreError> {
+    let started = Instant::now();
+    let result = op.await;
+    if let Some(m) = metrics {
+        m.record_replay_storage_operation(replay_ctx.mode.as_str(), operation, started.elapsed(), result.is_err());
+    }
+    result
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn store_segment(
+    db: &SharedDatabase,
+    processor: &EventProcessor,
+    metrics: Option<&MetricsCollector>,
+    replay_ctx: &ReplayCtx,
+    site_cfg_cache: &SiteConfigCache,
+    client: &ClientRequest,
+    p: &UploadSegmentParams,
+    body: Bytes,
+) -> Result<Uploaded, Rejection> {
     let url = p.url.as_deref().unwrap_or_default();
     if url.is_empty() {
-        return Err((StatusCode::BAD_REQUEST, "missing url".to_string()));
+        return Err(Rejection::invalid("missing url"));
     }
     if url.len() > MAX_START_URL_CHARS {
-        return Err((StatusCode::BAD_REQUEST, "url too long".to_string()));
+        return Err(Rejection::invalid("url too long"));
     }
 
     if processor.check_replay_request(
@@ -150,19 +245,16 @@ pub async fn upload_segment(
         p.screen_resolution.as_deref().unwrap_or_default(),
         client.prefetch,
     ) {
-        return Err((StatusCode::FORBIDDEN, "rejected".to_string()));
+        return Err(Rejection::new(UploadOutcome::Blocked, StatusCode::FORBIDDEN, "rejected"));
     }
 
-    validate_site_policies(&site_cfg_cache, &p.site_id, url, &client.ip)
+    validate_site_policies(site_cfg_cache, &p.site_id, url, &client.ip)
         .await
-        .map_err(|e| (StatusCode::FORBIDDEN, e.to_string()))?;
+        .map_err(|e| Rejection::new(UploadOutcome::Blocked, StatusCode::FORBIDDEN, e.to_string()))?;
 
     if bot_detection::velocity::check_replay(&p.site_id, &client.ip) {
-        if let Some(m) = &metrics {
-            m.increment_events_rejected("replay_velocity");
-        }
         warn!(site_id = %p.site_id, "rejected replay segment: velocity limit exceeded");
-        return Err((StatusCode::TOO_MANY_REQUESTS, "rate limited".to_string()));
+        return Err(Rejection::new(UploadOutcome::RateLimited, StatusCode::TOO_MANY_REQUESTS, "rate limited"));
     }
     bot_detection::velocity::record_replay(&p.site_id, &client.ip);
 
@@ -188,14 +280,14 @@ pub async fn upload_segment(
     };
 
     if body.is_empty() || body.len() as u64 > MAX_UPLOAD_BODY_BYTES {
-        return Err((StatusCode::BAD_REQUEST, "invalid content length".to_string()));
+        return Err(Rejection::invalid("invalid content length"));
     }
     let (replay_bytes, error_metadata) = envelope::split_body(body, p.format.as_deref()).map_err(store_error)?;
     if replay_bytes.is_empty() || replay_bytes.len() as u64 > MAX_CONTENT_LENGTH_BYTES {
-        return Err((StatusCode::BAD_REQUEST, "invalid replay length".to_string()));
+        return Err(Rejection::invalid("invalid replay length"));
     }
     if p.chunk_id.as_deref().is_some_and(|id| !valid_chunk_id(id)) {
-        return Err((StatusCode::BAD_REQUEST, "invalid chunk_id".to_string()));
+        return Err(Rejection::invalid("invalid chunk_id"));
     }
 
     let gzip = p.encoding.as_deref() == Some("gzip");
@@ -203,11 +295,11 @@ pub async fn upload_segment(
     let stored_len = payload.stored_size();
     let invalid_timestamp = || {
         warn!(site_id = %p.site_id, "rejected replay segment with invalid time span");
-        (StatusCode::BAD_REQUEST, "invalid timestamp".to_string())
+        Rejection::invalid("invalid timestamp")
     };
     let client_bounds = client_bounds_ms(p.started_at_ms, p.ended_at_ms).ok_or_else(invalid_timestamp)?;
 
-    let internal = || (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string());
+    let internal = || Rejection::new(UploadOutcome::StorageError, StatusCode::INTERNAL_SERVER_ERROR, "internal error");
     let received_at = DateTime::from_timestamp_millis(Utc::now().timestamp_millis()).ok_or_else(internal)?;
     let filename_epoch_ms = client_bounds.1.min(MAX_FILENAME_EPOCH_MS);
     let filename = build_segment_filename(filename_epoch_ms, p.chunk_id.as_deref());
@@ -225,17 +317,19 @@ pub async fn upload_segment(
     let session_lock = META_LOCKS.get_with(key.clone(), || Arc::new(tokio::sync::Mutex::new(())));
     let _guard = session_lock.lock().await;
     if p.chunk_id.is_some()
-        && replay_ctx.store.exists(&p.site_id, identity.session_id, &filename).await.map_err(store_error)?
+        && timed_storage_op(metrics, replay_ctx, "exists", replay_ctx.store.exists(&p.site_id, identity.session_id, &filename))
+            .await
+            .map_err(store_error)?
     {
-        return Ok(StatusCode::NO_CONTENT);
+        return Ok(Uploaded::Duplicate);
     }
-    let loaded = get_or_load_meta(&db, &key, &p.site_id, identity.session_id).await.map_err(|e| {
+    let loaded = get_or_load_meta(db, &key, &p.site_id, identity.session_id).await.map_err(|e| {
         error!(site_id = %p.site_id, session_id = identity.session_id, "Failed to load replay meta, rejecting segment for client retry: {}", e);
-        (StatusCode::SERVICE_UNAVAILABLE, "temporarily unavailable".to_string())
+        Rejection::new(UploadOutcome::StorageUnavailable, StatusCode::SERVICE_UNAVAILABLE, "temporarily unavailable")
     })?;
     if let Some(meta) = &loaded {
         if meta.size_bytes.saturating_add(stored_len) > MAX_SESSION_BYTES {
-            return Err((StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded".to_string()));
+            return Err(Rejection::new(UploadOutcome::SessionSizeCap, StatusCode::TOO_MANY_REQUESTS, "session replay size limit exceeded"));
         }
     }
     let (client_started_at_ms, client_ended_at_ms) = merged_client_bounds(loaded.as_ref(), client_bounds);
@@ -244,11 +338,14 @@ pub async fn upload_segment(
     }
 
     let chunk_errors = envelope::fingerprint_metadata(&error_metadata, p.event_count);
-    replay_ctx
-        .store
-        .store(&p.site_id, identity.session_id, &filename, filename_epoch_ms, segment_date, payload)
-        .await
-        .map_err(store_error)?;
+    timed_storage_op(
+        metrics,
+        replay_ctx,
+        "write",
+        replay_ctx.store.store(&p.site_id, identity.session_id, &filename, filename_epoch_ms, segment_date, payload),
+    )
+    .await
+    .map_err(store_error)?;
 
     let started_at = estimated_started_at(received_at, client_bounds.1, client_started_at_ms);
     let mut meta = loaded.unwrap_or_else(|| SessionReplayMetaRow {
@@ -277,19 +374,22 @@ pub async fn upload_segment(
     }
 
     META_CACHE.insert(key, meta.clone());
-    if let Err(e) = upsert_replay_row(&db, &replay_ctx, &p.site_id, identity.session_id, segment_date, &meta).await {
+    if let Err(e) = upsert_replay_row(db, replay_ctx, &p.site_id, identity.session_id, segment_date, &meta).await {
+        if let Some(m) = metrics {
+            m.increment_replay_metadata_upsert_failures();
+        }
         error!(site_id = %p.site_id, session_id = identity.session_id, "Failed to upsert session replay, segment stored and meta will catch up on the next segment: {}", e);
     }
 
-    Ok(StatusCode::NO_CONTENT)
+    Ok(Uploaded::Stored { bytes: stored_len })
 }
 
-fn store_error(e: StoreError) -> (StatusCode, String) {
+fn store_error(e: StoreError) -> Rejection {
     match e {
-        StoreError::InvalidPayload(_) => (StatusCode::BAD_REQUEST, e.to_string()),
+        StoreError::InvalidPayload(_) => Rejection::invalid(e.to_string()),
         StoreError::Storage(_) => {
             error!("Failed to store replay segment: {}", e);
-            (StatusCode::INTERNAL_SERVER_ERROR, "internal error".to_string())
+            Rejection::new(UploadOutcome::StorageError, StatusCode::INTERNAL_SERVER_ERROR, "internal error")
         }
     }
 }
@@ -365,6 +465,22 @@ mod tests {
         assert_eq!(client_bounds_ms(Some(T), Some(T + MAX_SEGMENT_SPAN_MS + 1)), None);
         assert_eq!(client_bounds_ms(Some(1), Some(i64::MAX)), None);
         assert_eq!(client_bounds_ms(Some(i64::MIN), Some(i64::MAX)), None);
+    }
+
+    #[test]
+    fn store_errors_map_to_upload_outcomes() {
+        let invalid = store_error(StoreError::InvalidPayload("bad".to_string()));
+        assert_eq!((invalid.outcome, invalid.status), (UploadOutcome::Invalid, StatusCode::BAD_REQUEST));
+        let storage = store_error(StoreError::Storage(anyhow::anyhow!("bucket down")));
+        assert_eq!((storage.outcome, storage.status), (UploadOutcome::StorageError, StatusCode::INTERNAL_SERVER_ERROR));
+    }
+
+    #[test]
+    fn only_stored_segments_count_bytes() {
+        assert_eq!(upload_outcome(&Ok(Uploaded::Stored { bytes: 42 })), (UploadOutcome::Stored, 42));
+        assert_eq!(upload_outcome(&Ok(Uploaded::Duplicate)), (UploadOutcome::Duplicate, 0));
+        let rate_limited = Rejection::new(UploadOutcome::RateLimited, StatusCode::TOO_MANY_REQUESTS, "rate limited");
+        assert_eq!(upload_outcome(&Err(rate_limited)), (UploadOutcome::RateLimited, 0));
     }
 
     #[test]
