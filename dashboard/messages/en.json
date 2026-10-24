@@ -2005,11 +2005,11 @@
         "label": "Session trail",
         "count": "{count} events in this session",
         "before": {
-          "label": "Before",
+          "label": "What led up to it",
           "body": "Landed on the home page, opened pricing and picked a plan."
         },
         "thrown": {
-          "label": "The error",
+          "label": "Where it broke",
           "body": "Thrown in selectPlan, line 142 of pricing.js. Each occurrence also records the browser, OS, device and country.",
           "stacktrace": "Stack trace",
           "mechanism": "Uncaught",
@@ -2018,7 +2018,7 @@
           "desktop": "Desktop"
         },
         "after": {
-          "label": "After",
+          "label": "What it did to the visit",
           "body": "Reloaded, hit it again, then left for /contact instead of upgrading."
         }
       },
