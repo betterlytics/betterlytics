@@ -5,9 +5,13 @@ import {
   findActiveSubscriptionsWithOwnedSites,
   updateSubscriptionPeriod,
 } from '@/repositories/postgres/subscription.repository';
-import { getDailyEventCountsForSites } from '@/repositories/clickhouse/usage.repository';
+import {
+  getDailyEventCountsForSites,
+  getDailyRecordedSessionCountsForSites,
+} from '@/repositories/clickhouse/usage.repository';
 import { type DailySiteUsage, type SubscriptionWithOwnedSites } from '@/entities/billing/billing.entities';
 import { toDateString } from '@/utils/dateFormatters';
+import type { DateString } from '@/types/dates';
 
 export type UsageThresholdKind = 'exceeded' | 'approaching';
 
@@ -80,17 +84,31 @@ export function sumUsageForSubscription(
   return total;
 }
 
+function getScanRange(subs: SubscriptionWithOwnedSites[]): { siteIds: string[]; earliestStart: DateString } {
+  const siteIds = [...new Set(subs.flatMap((s) => s.siteIds))];
+  const earliestStart = subs.reduce(
+    (min, s) => (s.currentPeriodStart < min ? s.currentPeriodStart : min),
+    subs[0].currentPeriodStart,
+  );
+  return { siteIds, earliestStart: toDateString(earliestStart) };
+}
+
 export async function loadUsageForSubscriptions(
   subs: SubscriptionWithOwnedSites[],
 ): Promise<Map<string, DailySiteUsage[]>> {
   if (subs.length === 0) return new Map();
 
-  const allSiteIds = [...new Set(subs.flatMap((s) => s.siteIds))];
-  const earliestStart = subs.reduce(
-    (min, s) => (s.currentPeriodStart < min ? s.currentPeriodStart : min),
-    subs[0].currentPeriodStart,
-  );
+  const { siteIds, earliestStart } = getScanRange(subs);
+  const rows = await getDailyEventCountsForSites(siteIds, earliestStart);
+  return indexUsageBySite(rows);
+}
 
-  const rows = await getDailyEventCountsForSites(allSiteIds, toDateString(earliestStart));
+export async function loadRecordedSessionsForSubscriptions(
+  subs: SubscriptionWithOwnedSites[],
+): Promise<Map<string, DailySiteUsage[]>> {
+  if (subs.length === 0) return new Map();
+
+  const { siteIds, earliestStart } = getScanRange(subs);
+  const rows = await getDailyRecordedSessionCountsForSites(siteIds, earliestStart);
   return indexUsageBySite(rows);
 }

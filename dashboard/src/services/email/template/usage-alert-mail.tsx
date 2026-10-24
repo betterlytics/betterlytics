@@ -9,8 +9,12 @@ const CAMPAIGN = 'usage_alert';
 
 type SerializableDate = Date | string;
 
+export type UsageAlertQuota = 'events' | 'replays';
+
 export interface UsageAlertEmailData extends EmailData {
   userName?: string | null;
+  /** Which plan quota the alert is about. Defaults to events. */
+  quota?: UsageAlertQuota;
   currentUsage: number;
   usageLimit: number;
   usagePercentage: number;
@@ -32,20 +36,58 @@ function formatBillingDate(value: SerializableDate): string {
   return format(new Date(value), 'MMM d, yyyy');
 }
 
-function getSubjectLine(percentage: number, planName: string): string {
-  if (percentage >= 100) return `Usage alert: ${planName} plan event limit exceeded`;
-  return `Usage alert: ${formatPercentage(percentage)} of your ${planName} plan event limit used`;
+type QuotaCopy = { limitName: string; unit: string; heading: string };
+
+const QUOTA_COPY: Record<UsageAlertQuota, QuotaCopy> = {
+  events: { limitName: 'event limit', unit: 'events', heading: 'Usage alert' },
+  replays: { limitName: 'session replay limit', unit: 'recorded sessions', heading: 'Session replay usage alert' },
+};
+
+function getSubjectLine(percentage: number, planName: string, quota: UsageAlertQuota): string {
+  const { limitName } = QUOTA_COPY[quota];
+  if (quota === 'replays' && percentage >= 100) return `Usage alert: ${planName} plan ${limitName} reached`;
+  if (percentage >= 100) return `Usage alert: ${planName} plan ${limitName} exceeded`;
+  return `Usage alert: ${formatPercentage(percentage)} of your ${planName} plan ${limitName} used`;
 }
 
-type StatusCopy = { guidance: string; quotaWarning: string; ctaLabel: string };
+type StatusCopy = { guidance: string; quotaWarning: string; ctaLabel: string; preview: string };
 
-function getStatusCopy(severity: AlertSeverity): StatusCopy {
+function getReplayStatusCopy(severity: AlertSeverity): StatusCopy {
+  if (severity === 'exceeded') {
+    return {
+      guidance: 'Your account has reached the session replay limit included in your plan.',
+      quotaWarning:
+        'Session recording continues as normal. If you expect to record more sessions each month, take a look at the plan options to find one that fits.',
+      ctaLabel: 'Review plan options',
+      preview: 'Your account has reached the session replay limit included in your plan.',
+    };
+  }
+  if (severity === 'critical') {
+    return {
+      guidance: 'Your account is close to the session replay limit included in your plan.',
+      quotaWarning:
+        'Session recording continues as normal. If you expect to record more sessions each month, take a look at the plan options to find one that fits.',
+      ctaLabel: 'Review plan options',
+      preview: 'Your account is close to the monthly session replay limit included in your plan.',
+    };
+  }
+  return {
+    guidance: 'Your account has crossed 80% of the session replay limit included in your plan.',
+    quotaWarning: 'No action is required. Session recording continues as normal.',
+    ctaLabel: 'Review plan options',
+    preview: 'Your account has crossed 80% of the monthly session replay limit included in your plan.',
+  };
+}
+
+function getStatusCopy(severity: AlertSeverity, quota: UsageAlertQuota): StatusCopy {
+  if (quota === 'replays') return getReplayStatusCopy(severity);
   if (severity === 'exceeded') {
     return {
       guidance: 'Your account has exceeded the event limit included in your plan.',
       quotaWarning:
         'Please be aware that events above 100% of your plan limit may not be retained. Review your billing options to keep future data within plan.',
       ctaLabel: 'Review billing options',
+      preview: 'Your account has exceeded the event limit included in your plan.',
     };
   }
   if (severity === 'critical') {
@@ -54,6 +96,7 @@ function getStatusCopy(severity: AlertSeverity): StatusCopy {
       quotaWarning:
         'Please be aware that events above 100% of your plan limit may not be retained, so we recommend reviewing your billing options before usage reaches 100%.',
       ctaLabel: 'Review billing options',
+      preview: 'Your account is close to the monthly event limit included in your plan.',
     };
   }
   return {
@@ -61,12 +104,15 @@ function getStatusCopy(severity: AlertSeverity): StatusCopy {
     quotaWarning:
       'No action is required yet, but please be aware that events above 100% of your plan limit may not be retained.',
     ctaLabel: 'Review billing options',
+    preview: 'Your account has crossed 80% of the monthly event limit included in your plan.',
   };
 }
 
 export function UsageAlertEmail(data: UsageAlertEmailData) {
+  const quota = data.quota ?? 'events';
+  const quotaCopy = QUOTA_COPY[quota];
   const severity = getSeverity(data.usagePercentage);
-  const statusCopy = getStatusCopy(severity);
+  const statusCopy = getStatusCopy(severity, quota);
   const periodStart = formatBillingDate(data.currentPeriodStart);
   const periodEnd = formatBillingDate(data.currentPeriodEnd);
   const periodLabel = `${periodStart} to ${periodEnd}`;
@@ -75,29 +121,23 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
   const barColorClass =
     data.usagePercentage >= 100 ? 'bg-red-600' : data.usagePercentage >= 90 ? 'bg-amber-500' : 'bg-emerald-500';
   const barWidth = Math.min(100, data.usagePercentage);
-  const preview =
-    severity === 'exceeded'
-      ? 'Your account has exceeded the event limit included in your plan.'
-      : severity === 'critical'
-        ? 'Your account is close to the monthly event limit included in your plan.'
-        : 'Your account has crossed 80% of the monthly event limit included in your plan.';
 
   return (
-    <EmailLayout preview={preview} campaign={CAMPAIGN}>
-      <H1>Usage alert</H1>
+    <EmailLayout preview={statusCopy.preview} campaign={CAMPAIGN}>
+      <H1>{quotaCopy.heading}</H1>
 
       <Greeting userName={data.userName} className='m-0 mb-4' />
 
       <P className='m-0 mb-6'>
         {severity === 'exceeded' ? (
           <>
-            Your account has exceeded the event limit included in your <strong>{data.planName}</strong> plan for{' '}
-            <strong>{periodLabel}</strong>.
+            Your account has {quota === 'replays' ? 'reached' : 'exceeded'} the {quotaCopy.limitName} included in
+            your <strong>{data.planName}</strong> plan for <strong>{periodLabel}</strong>.
           </>
         ) : (
           <>
-            You've used <strong>{formatPercentage(data.usagePercentage)}</strong> of the event limit included in
-            your <strong>{data.planName}</strong> plan for <strong>{periodLabel}</strong>.
+            You've used <strong>{formatPercentage(data.usagePercentage)}</strong> of the {quotaCopy.limitName}{' '}
+            included in your <strong>{data.planName}</strong> plan for <strong>{periodLabel}</strong>.
           </>
         )}
       </P>
@@ -108,11 +148,11 @@ export function UsageAlertEmail(data: UsageAlertEmailData) {
         <table cellPadding={0} cellSpacing={0} border={0} className='w-full border-collapse'>
           <tbody>
             <UsageRow label='Plan' value={`${data.planName} plan`} />
-            <UsageRow label='Current usage' value={`${data.currentUsage.toLocaleString()} events`} />
-            <UsageRow label='Plan limit' value={`${data.usageLimit.toLocaleString()} events`} />
+            <UsageRow label='Current usage' value={`${data.currentUsage.toLocaleString()} ${quotaCopy.unit}`} />
+            <UsageRow label='Plan limit' value={`${data.usageLimit.toLocaleString()} ${quotaCopy.unit}`} />
             <UsageRow
               label='Remaining'
-              value={`${remaining.toLocaleString()} events`}
+              value={`${remaining.toLocaleString()} ${quotaCopy.unit}`}
               valueClass={`font-semibold ${remainingColorClass}`}
             />
           </tbody>
@@ -171,4 +211,8 @@ UsageAlertEmail.PreviewProps = {
 export default UsageAlertEmail;
 
 export const createUsageAlertEmailTemplate = (data: UsageAlertEmailData) =>
-  renderEmailTemplate(UsageAlertEmail, data, getSubjectLine(data.usagePercentage, data.planName));
+  renderEmailTemplate(
+    UsageAlertEmail,
+    data,
+    getSubjectLine(data.usagePercentage, data.planName, data.quota ?? 'events'),
+  );
