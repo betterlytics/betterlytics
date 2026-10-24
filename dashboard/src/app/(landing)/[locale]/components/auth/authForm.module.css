@@ -188,6 +188,7 @@
     white-space: nowrap;
     transition:
       translate 0.18s var(--ease-out-expo),
+      scale 0.18s var(--ease-out-expo),
       background-color 0.18s var(--ease-out-expo),
       border-color 0.18s var(--ease-out-expo),
       box-shadow 0.18s var(--ease-out-expo),
@@ -211,6 +212,11 @@
     translate: 0 -1px;
     border-color: rgb(235 232 230 / 0.5);
     background: rgb(235 232 230 / 0.04);
+  }
+  .primary:active:not(:disabled),
+  .secondary:active:not(:disabled) {
+    translate: 0 1px;
+    scale: 0.98;
   }
   .primary:disabled,
   .secondary:disabled {
@@ -257,6 +263,10 @@
   .cells > .secondary:hover:not(:disabled) {
     translate: none;
     background: rgb(235 232 230 / 0.04);
+  }
+  .cells > .secondary:active:not(:disabled) {
+    translate: none;
+    scale: none;
   }
   .cells > .secondary:focus-visible {
     outline: 2px solid var(--color-volt-lift);
