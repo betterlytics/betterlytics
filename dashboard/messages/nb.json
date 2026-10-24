@@ -1730,7 +1730,7 @@
         "errors": {
           "unit": "klikk",
           "label": "Fra feil til opptak",
-          "body": "Hver JavaScript-feil lenker til sesjonen der den oppsto, så du går fra stack trace til opptak med ett klikk."
+          "body": "Feil i sesjoner som er tatt opp, lenker til opptaket, så du går fra stack trace til opptak med ett klikk."
         },
         "history": {
           "unit": "dager",

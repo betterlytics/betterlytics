@@ -1730,7 +1730,7 @@
         "errors": {
           "unit": "klik",
           "label": "Fra fejl til replay",
-          "body": "Hver JavaScript-fejl linker til den session, hvor den opstod, så du kommer fra stack trace til replay med ét klik."
+          "body": "Fejl i optagede sessioner linker til replayet, så du kommer fra stack trace til replay med ét klik."
         },
         "history": {
           "unit": "dage",

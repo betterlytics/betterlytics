@@ -1730,7 +1730,7 @@
         "errors": {
           "unit": "click",
           "label": "From error to replay",
-          "body": "Every JavaScript error links to the session that hit it, so you go from stack trace to replay in one click."
+          "body": "Errors in recorded sessions link to their replay, so you go from stack trace to replay in one click."
         },
         "history": {
           "unit": "days",
