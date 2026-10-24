@@ -8671,6 +8671,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (state.retryQueue.length > 0) {
         pending = Promise.resolve(state.retryQueue[0]);
       } else {
+        // An open burst would otherwise land in a fresh buffer that may never be uploaded
+        if (state.rageBurst) emitRageBurst(state.rageBurst);
         var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
         if (events.length === 0) return Promise.resolve();
 
@@ -8780,7 +8782,13 @@ or you can use record.mirror to access the mirror instance during recording.`;
       }
       var burst = state.rageBurst;
       state.rageBurst = null;
-      if (!burst || burst.clickCount < RAGE_CLICK_MIN_CLICKS) return;
+      if (burst) emitRageBurst(burst);
+    }
+
+    // Emits once per burst; a burst emitted early stays open so later clicks still extend it
+    function emitRageBurst(burst) {
+      if (burst.emitted || burst.clickCount < RAGE_CLICK_MIN_CLICKS) return;
+      burst.emitted = true;
       try {
         if (window.rrweb && typeof window.rrweb.record.addCustomEvent === "function") {
           window.rrweb.record.addCustomEvent("rage_click", {
