@@ -18,6 +18,7 @@ describe('signInRedirectPath', () => {
     expect(signInRedirectPath('/accept-invite/tok')).toBe('/accept-invite/tok');
     expect(signInRedirectPath('/dashboard/abc?range=7d')).toBe('/dashboard/abc?range=7d');
     expect(signInRedirectPath('/verify-email?verified=1')).toBe('/verify-email?verified=1');
+    expect(signInRedirectPath('/dashboards')).toBe('/dashboards');
   });
 
   it('falls back to the default for anything else', () => {
@@ -31,7 +32,7 @@ describe('signInRedirectPath', () => {
       '/\\evil.com',
       ['/a', '/b'],
     ]) {
-      expect(signInRedirectPath(value)).toBe('/dashboards');
+      expect(signInRedirectPath(value)).toBe('/dashboard');
     }
   });
 
@@ -47,13 +48,13 @@ describe('signInRedirectPath', () => {
       '/forgot-password',
       '/nb/reset-password?token=x',
     ]) {
-      expect(signInRedirectPath(value)).toBe('/dashboards');
+      expect(signInRedirectPath(value)).toBe('/dashboard');
     }
   });
 
   it('knows every supported locale, and only those', () => {
     for (const locale of SUPPORTED_LANGUAGES) {
-      expect(signInRedirectPath(`/${locale}/signin`)).toBe('/dashboards');
+      expect(signInRedirectPath(`/${locale}/signin`)).toBe('/dashboard');
       expect(inviteTokenFromCallback(`/${locale}/accept-invite/tok`)).toBe('tok');
     }
     expect(signInRedirectPath('/xx/signin')).toBe('/xx/signin');
@@ -68,7 +69,8 @@ describe('signInRedirectPath', () => {
 describe('signInPath and signUpPath', () => {
   it('carries a callbackUrl to sign-in, unless it is the default', () => {
     expect(signInPath('/accept-invite/tok')).toBe('/signin?callbackUrl=%2Faccept-invite%2Ftok');
-    expect(signInPath('/dashboards')).toBe('/signin');
+    expect(signInPath('/dashboards')).toBe('/signin?callbackUrl=%2Fdashboards');
+    expect(signInPath('/dashboard')).toBe('/signin');
     expect(signInPath(undefined)).toBe('/signin');
   });
 

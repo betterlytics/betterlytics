@@ -104,7 +104,6 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       key: 'sessionReplay',
       href: '/replay',
       icon: <Video size={ICON_SIZE} />,
-      hidden: isDemo,
       hideOnMobile: true,
     },
   ];

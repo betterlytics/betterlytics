@@ -13,7 +13,7 @@ use crate::metrics::MetricsCollector;
 use crate::processing::{BotEvent, ProcessedEvent};
 
 mod models;
-pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow};
+pub use models::{ActiveSessionRow, BotEventRow, EventRow, ReferrerSourceCategoryRow, SessionReplayMetaRow, SessionReplayRow, SessionReplaySegmentRow, TelemetryPingRow};
 
 const EVENT_CHANNEL_CAPACITY: usize = 100_000;
 const BOT_CHANNEL_CAPACITY: usize = 10_000;
@@ -182,7 +182,7 @@ impl Database {
                 "WITH (ended_at, size_bytes, event_count) AS v
                 SELECT argMax(started_at, v), max(ended_at), argMax(size_bytes, v), argMax(start_url, v), argMax(event_count, v), argMax(visitor_id, v),
                 argMax(client_started_at_ms, v), argMax(client_ended_at_ms, v),
-                argMax(error_fingerprints, v), argMax(recorded_error_count, v)
+                argMax(error_fingerprints, v), argMax(recorded_error_count, v), argMax(rage_click_count, v)
                 FROM analytics.session_replays WHERE site_id = ? AND session_id = ? GROUP BY site_id, session_id",
             )
             .bind(site_id)
@@ -209,6 +209,10 @@ impl Database {
 
     pub async fn insert_replay_segment(&self, row: SessionReplaySegmentRow) -> Result<()> {
         self.insert_one("analytics.session_replay_segments", &row).await
+    }
+
+    pub async fn insert_telemetry_ping(&self, row: TelemetryPingRow) -> Result<()> {
+        self.insert_one("analytics.telemetry_daily", &row).await
     }
 }
 

@@ -4,6 +4,7 @@ import {
   fetchErrorGroupSidebarAction,
   findReplaySessionForErrorAction,
 } from '@/app/actions/analytics/errors.actions';
+import { getUserTimezone } from '@/lib/cookies';
 import { ErrorDetailHeader } from './ErrorDetailHeader';
 import { ErrorDetailSidebar } from './ErrorDetailSidebar';
 import { ErrorOccurrencePanel } from './ErrorOccurrencePanel';
@@ -14,10 +15,11 @@ type ErrorDetailPageParams = {
 
 export default async function ErrorDetailPage({ params }: ErrorDetailPageParams) {
   const { dashboardId, fingerprint } = await params;
+  const timezone = await getUserTimezone();
 
   const [errorGroup, sidebarData, replaySessionId] = await Promise.all([
     fetchErrorGroupAction(dashboardId, fingerprint),
-    fetchErrorGroupSidebarAction(dashboardId, fingerprint),
+    fetchErrorGroupSidebarAction(dashboardId, fingerprint, timezone),
     findReplaySessionForErrorAction(dashboardId, fingerprint),
   ]);
 

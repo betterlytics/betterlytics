@@ -1,5 +1,107 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v151ChangelogEntryIt: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.1',
+    releasedAt: '2026-10-18',
+    title: 'Aggiornamenti di sicurezza e miglioramenti di usabilità',
+    summary:
+      'Questa versione rafforza la sicurezza degli inviti al team, dei token MCP, dei monitor uptime e dei webhook. Porta anche alcuni miglioramenti di usabilità e correzioni in tutta la dashboard e nel session replay.',
+  },
+  sections: [
+    {
+      id: 'v151-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'La finestra "Cambia password" ora mostra i requisiti della password sotto forma di checklist che si aggiorna mentre scrivi.',
+            'Vari piccoli miglioramenti di usabilità, tra cui icone di browser e sistema operativo che si caricano subito, una pagina "Monitor non trovato" dedicata, il controllo che ogni monitor abbia almeno un codice di stato accettato e l\'aggiunta delle traduzioni mancanti.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Se cambi dashboard mentre stai visualizzando un monitor, una pagina di stato o un errore, non finisci più su una pagina di errore.',
+            'Il session replay ora registra correttamente sui siti che usano anche altri script di analisi.',
+            'Un invito scaduto non impedisce più di invitare di nuovo la stessa persona.',
+            "I messaggi di errore durante l'accesso sono ora più chiari e indicano cosa è andato storto.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Ora solo i proprietari e gli amministratori della dashboard possono creare ed eliminare i token MCP.',
+            "Gli inviti al team sono più sicuri. I link degli inviti in sospeso sono visibili solo ai membri che possono invitare, e gli inviti vengono associati al tuo account solo dopo la verifica dell'indirizzo email.",
+            'I monitor uptime e i webhook non possono più raggiungere indirizzi privati, interni o dei servizi di metadati cloud.',
+            "Correzioni di sicurezza per l'accesso e la verifica dell'email.",
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v151ChangelogModalIt: ChangelogEntryData = {
+  metadata: v151ChangelogEntryIt.metadata,
+  sections: [
+    {
+      id: 'v151-modal-improvements',
+      title: 'Miglioramenti',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'La finestra "Cambia password" mostra i requisiti della password mentre scrivi.',
+            'Piccoli miglioramenti di usabilità in tutta la dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-modal-fixes',
+      title: 'Correzioni',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Cambiare dashboard mentre visualizzi un monitor, una pagina di stato o un errore non porta più a una pagina di errore.',
+            'Il session replay registra correttamente sui siti che usano anche altri script di analisi.',
+            'Gli inviti scaduti non impediscono più di invitare di nuovo la stessa persona.',
+            "Messaggi di errore più chiari durante l'accesso.",
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-modal-security',
+      title: 'Sicurezza',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Solo proprietari e amministratori possono creare ed eliminare i token MCP.',
+            'Miglioramenti di sicurezza per inviti al team, accesso, monitor e webhook.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v150ChangelogEntryIt: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.0',
@@ -586,9 +688,10 @@ const v144ChangelogEntryIt: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalIt = v150ChangelogModalIt;
+export const latestChangelogModalIt = v151ChangelogModalIt;
 
 export const changelogEntriesIt: readonly ChangelogEntryData[] = [
+  v151ChangelogEntryIt,
   v150ChangelogEntryIt,
   v149ChangelogEntryIt,
   v148ChangelogEntryIt,

@@ -10,6 +10,7 @@ import {
 import type { ErrorGroupSidebarData } from '@/entities/analytics/errors.entities';
 import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import { AuthContext } from '@/entities/auth/authContext.entities';
+import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
 import { type ErrorGroupRow, ErrorGroupStatusValueSchema } from '@/entities/analytics/errors.entities';
 
 export const fetchErrorGroupAction = withDashboardAuthContext(
@@ -19,8 +20,8 @@ export const fetchErrorGroupAction = withDashboardAuthContext(
 );
 
 export const fetchErrorGroupSidebarAction = withDashboardAuthContext(
-  async (ctx: AuthContext, fingerprint: string): Promise<ErrorGroupSidebarData> => {
-    return getErrorGroupSidebarDataForSite(ctx.siteId, fingerprint);
+  async (ctx: AuthContext, fingerprint: string, timezone: string): Promise<ErrorGroupSidebarData> => {
+    return getErrorGroupSidebarDataForSite(ctx.siteId, fingerprint, BATimeZone.parse(timezone));
   },
 );
 

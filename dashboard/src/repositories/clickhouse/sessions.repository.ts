@@ -10,6 +10,7 @@ import {
 import { safeSql } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { BASessionQuery } from '@/lib/ba-session-query';
+import { SessionMetricSql } from '@/lib/session-metrics-sql';
 
 export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySessionMetricsRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
@@ -33,16 +34,10 @@ export async function getSessionMetrics(siteQuery: BASiteQuery): Promise<DailySe
     safeSql`
       SELECT
         ${granularityFunc('session_created_at')} AS date,
-        count() AS sessions,
-        countIf(pageview_count > 1) AS sessions_with_multiple_page_views,
-        sum(pageview_count) AS number_of_page_views,
-        sum(dateDiff('second', session_start, session_end)) AS sum_duration,
-        if(sessions_with_multiple_page_views > 0,
-          round(sum_duration / sessions_with_multiple_page_views), 0) AS avg_visit_duration,
-        if(sessions > 0,
-           100 * (sessions - sessions_with_multiple_page_views) / sessions, 0) AS bounce_rate,
-        if(number_of_page_views > 0,
-          round(number_of_page_views / sessions, 1), 0) AS pages_per_session
+        ${SessionMetricSql.sessions} AS sessions,
+        round(${SessionMetricSql.avgVisitDuration}) AS avg_visit_duration,
+        ${SessionMetricSql.bounceRate} AS bounce_rate,
+        round(${SessionMetricSql.pagesPerSession}, 1) AS pages_per_session
       FROM ${sessionSubQuery}
       GROUP BY date
       ORDER BY date ASC ${fill}
@@ -70,16 +65,10 @@ export async function getSessionRangeMetrics(siteQuery: BASiteQuery): Promise<Ra
 
   const queryResponse = safeSql`
     SELECT
-      count() AS sessions,
-      countIf(pageview_count > 1) AS sessions_with_multiple_page_views,
-      sum(pageview_count) AS number_of_page_views,
-      sum(dateDiff('second', session_start, session_end)) AS sum_duration,
-      if(sessions_with_multiple_page_views > 0,
-        round(sum_duration / sessions_with_multiple_page_views), 0) AS avg_visit_duration,
-      if(sessions > 0,
-         100 * (sessions - sessions_with_multiple_page_views) / sessions, 0) AS bounce_rate,
-      if(number_of_page_views > 0,
-        round(number_of_page_views / sessions, 1), 0) AS pages_per_session
+      ${SessionMetricSql.sessions} AS sessions,
+      round(${SessionMetricSql.avgVisitDuration}) AS avg_visit_duration,
+      ${SessionMetricSql.bounceRate} AS bounce_rate,
+      round(${SessionMetricSql.pagesPerSession}, 1) AS pages_per_session
     FROM ${sessionSubQuery}
     LIMIT 1
   `;

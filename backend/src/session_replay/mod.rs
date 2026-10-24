@@ -84,6 +84,15 @@ fn merge_chunk_errors(meta: &mut SessionReplayMetaRow, errors: envelope::ChunkEr
     meta.recorded_error_count = meta.recorded_error_count.saturating_add(errors.count);
 }
 
+// Each rage click is its own replay event, so a count above the chunk's event count is bogus.
+fn merge_chunk_rage_clicks(meta: &mut SessionReplayMetaRow, rage_click_count: Option<u32>, event_count: Option<u32>) {
+    let count = match rage_click_count {
+        Some(n) if n <= event_count.unwrap_or(0) => n,
+        _ => 0,
+    };
+    meta.rage_click_count = meta.rage_click_count.saturating_add(count);
+}
+
 pub struct ReplayCtx {
     pub mode: ReplayStorage,
     pub store: SegmentStore,
@@ -110,6 +119,7 @@ pub struct UploadSegmentParams {
     pub started_at_ms: Option<i64>,
     pub ended_at_ms: Option<i64>,
     pub event_count: Option<u32>,
+    pub rage_click_count: Option<u32>,
     pub encoding: Option<String>,
     pub chunk_id: Option<String>,
     pub format: Option<String>,
@@ -252,6 +262,7 @@ pub async fn upload_segment(
         client_ended_at_ms,
         error_fingerprints: Vec::new(),
         recorded_error_count: 0,
+        rage_click_count: 0,
     });
     meta.started_at = meta.started_at.min(started_at);
     meta.ended_at = meta.ended_at.max(received_at);
@@ -260,6 +271,7 @@ pub async fn upload_segment(
     meta.size_bytes = meta.size_bytes.saturating_add(stored_len);
     meta.event_count = meta.event_count.saturating_add(p.event_count.unwrap_or_default());
     merge_chunk_errors(&mut meta, chunk_errors);
+    merge_chunk_rage_clicks(&mut meta, p.rage_click_count, p.event_count);
     if meta.start_url.is_empty() {
         meta.start_url = start_url;
     }
@@ -319,6 +331,7 @@ async fn upsert_replay_row(
         client_ended_at_ms: meta.client_ended_at_ms,
         error_fingerprints: meta.error_fingerprints.clone(),
         recorded_error_count: meta.recorded_error_count,
+        rage_click_count: meta.rage_click_count,
     };
     db.upsert_session_replay(row).await
 }
@@ -383,6 +396,7 @@ mod tests {
             client_ended_at_ms: bounds.1,
             error_fingerprints: Vec::new(),
             recorded_error_count: 0,
+            rage_click_count: 0,
         }
     }
 
@@ -413,6 +427,26 @@ mod tests {
         merge_chunk_errors(&mut meta, envelope::ChunkErrors::default());
         assert_eq!(meta.error_fingerprints, vec!["a"]);
         assert_eq!(meta.recorded_error_count, 4);
+    }
+
+    #[test]
+    fn rage_clicks_are_capped_at_the_chunk_event_count() {
+        let mut meta = replay_meta((T, T));
+        merge_chunk_rage_clicks(&mut meta, Some(2), Some(40));
+        merge_chunk_rage_clicks(&mut meta, Some(40), Some(40));
+        assert_eq!(meta.rage_click_count, 42);
+        merge_chunk_rage_clicks(&mut meta, Some(41), Some(40));
+        merge_chunk_rage_clicks(&mut meta, Some(1), None);
+        merge_chunk_rage_clicks(&mut meta, None, Some(40));
+        assert_eq!(meta.rage_click_count, 42);
+    }
+
+    #[test]
+    fn rage_clicks_saturate() {
+        let mut meta = replay_meta((T, T));
+        meta.rage_click_count = u32::MAX - 1;
+        merge_chunk_rage_clicks(&mut meta, Some(5), Some(10));
+        assert_eq!(meta.rage_click_count, u32::MAX);
     }
 
     fn merge_all(chunks: &[(i64, i64)]) -> SessionReplayMetaRow {

@@ -14,6 +14,7 @@ import { DateTimeString } from '@/types/dates';
 import {
   filterColumnSql,
   filterColumnSqlForSession,
+  filterValueToLikePattern,
   isMatchAnyValueFilter,
   matchAnyValueFilterSql,
 } from './filter-sql';
@@ -55,7 +56,7 @@ const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   ...filter,
   rawOperator: filter.operator,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
-  values: filter.values.map((value) => value.replaceAll('*', '%')),
+  values: filter.values.map(filterValueToLikePattern),
 }));
 
 // Selectors
@@ -79,6 +80,7 @@ const SESSIONS_TABLE_SELECTABLE_COLUMNS = [
   'subdivision_code',
   'city',
   'referrer_source',
+  'referrer_source_effective',
   'referrer_source_name',
   'referrer_search_term',
   'referrer_url',
@@ -91,7 +93,7 @@ const SESSIONS_TABLE_SELECTABLE_COLUMNS = [
 
 // Utilities for selectors
 const SESSIONS_TABLE_SELECT_VALIDATOR = z.enum(SESSIONS_TABLE_SELECTABLE_COLUMNS);
-type SessionsTableSelectableColumn = z.infer<typeof SESSIONS_TABLE_SELECT_VALIDATOR>;
+export type SessionsTableSelectableColumn = z.infer<typeof SESSIONS_TABLE_SELECT_VALIDATOR>;
 
 function getSessionSelector(columns: SessionsTableSelectableColumn[]) {
   if (columns.length === 0) {

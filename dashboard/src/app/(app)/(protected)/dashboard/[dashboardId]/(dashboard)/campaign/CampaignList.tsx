@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { CampaignEmptyState } from './CampaignEmptyState';
+import { CampaignEmptyState, CampaignPeriodEmptyState } from './CampaignEmptyState';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
@@ -62,7 +62,7 @@ export default function CampaignList() {
   };
 
   if (!isLoading && campaigns.length === 0) {
-    return <CampaignEmptyState />;
+    return performancePage?.hasEverHadCampaigns ? <CampaignPeriodEmptyState /> : <CampaignEmptyState />;
   }
 
   const showTopPagination = pageSize >= 25 && totalPages > 1;
@@ -70,7 +70,7 @@ export default function CampaignList() {
   const skeletonRowCount = pageSize || DEFAULT_PAGE_SIZE;
 
   return (
-    <div className='space-y-4 pb-8 md:pb-0'>
+    <div className='space-y-4'>
       {showTopPagination && (
         <CompactPagination pageIndex={safePageIndex} totalPages={totalPages} onPageChange={handlePageChange} />
       )}

@@ -225,7 +225,7 @@ export async function getStatusPageImageBySlug(
   kind: StatusPageImageKind,
 ): Promise<{ data: Buffer; mimeType: string; hash: string | null } | null> {
   const image = await prisma.statusPageImage.findFirst({
-    where: { kind, statusPage: { slug, deletedAt: null } },
+    where: { kind, statusPage: { slug, deletedAt: null, dashboard: { deletedAt: null } } },
     select: {
       data: true,
       mimeType: true,
@@ -267,7 +267,7 @@ function toPublishedStatusPage(row: StatusPageSnapshotRow): PublishedStatusPage 
 
 export async function getPublishedStatusPageBySlug(slug: string): Promise<PublishedStatusPage | null> {
   const row = await prisma.statusPage.findFirst({
-    where: { slug, isPublished: true, deletedAt: null },
+    where: { slug, isPublished: true, deletedAt: null, dashboard: { deletedAt: null } },
     include: statusPageSnapshotInclude,
   });
   return row ? toPublishedStatusPage(row) : null;
@@ -278,7 +278,7 @@ export async function getPublishedStatusPageByCustomDomain(
   customDomain: string,
 ): Promise<PublishedStatusPage | null> {
   const row = await prisma.statusPage.findFirst({
-    where: { customDomain, isPublished: true, deletedAt: null },
+    where: { customDomain, isPublished: true, deletedAt: null, dashboard: { deletedAt: null } },
     include: statusPageSnapshotInclude,
   });
   return row ? toPublishedStatusPage(row) : null;
@@ -298,13 +298,27 @@ export async function getStatusPageSnapshotById(
 /**
  * Resolve a custom domain to its live status page. Used by the TLS-authorization (`ask`) endpoint
  * and the custom-domain public route. `findFirst` because customDomain is partial-unique (one live
- * page per domain) — never `findUnique`.
+ * page per domain) — never `findUnique`. A deleted dashboard's page is still returned, so its host
+ * keeps routing to the status page and answers not found like an unpublished one.
  */
-export async function findStatusPageByCustomDomain(
-  customDomain: string,
-): Promise<{ id: string; dashboardId: string; slug: string; isPublished: boolean } | null> {
-  return prisma.statusPage.findFirst({
+export async function findStatusPageByCustomDomain(customDomain: string): Promise<{
+  id: string;
+  dashboardId: string;
+  slug: string;
+  isPublished: boolean;
+  isDashboardDeleted: boolean;
+} | null> {
+  const row = await prisma.statusPage.findFirst({
     where: { customDomain, deletedAt: null },
-    select: { id: true, dashboardId: true, slug: true, isPublished: true },
+    select: {
+      id: true,
+      dashboardId: true,
+      slug: true,
+      isPublished: true,
+      dashboard: { select: { deletedAt: true } },
+    },
   });
+  if (!row) return null;
+  const { dashboard, ...page } = row;
+  return { ...page, isDashboardDeleted: dashboard.deletedAt !== null };
 }

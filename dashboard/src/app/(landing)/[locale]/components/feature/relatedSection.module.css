@@ -1,0 +1,34 @@
+@reference '../../landing.css';
+
+@layer components {
+  /* --mx/--my are written by SpotlightList */
+  .card {
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.25s var(--ease-out-expo);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      220px circle at var(--mx, 50%) var(--my, 50%),
+      --alpha(var(--color-volt-soft) / 13%),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-out-expo);
+  }
+  @media (hover: hover) {
+    .card:hover::before {
+      opacity: 1;
+    }
+  }
+  .arrow {
+    transition: translate 0.25s var(--ease-out-expo);
+  }
+  .card:hover .arrow {
+    translate: 3px 0;
+  }
+}

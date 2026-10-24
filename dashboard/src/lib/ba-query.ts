@@ -9,7 +9,7 @@ import {
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { z } from 'zod';
 import { safeSql, SQL } from './safe-sql';
-import { filterColumnSql, matchAnyValueFilterSql } from './filter-sql';
+import { filterColumnSql, filterValueToLikePattern, matchAnyValueFilterSql } from './filter-sql';
 import { buildPropertyFilterSql } from './property-source-sql';
 import { DateTimeString } from '@/types/dates';
 import { isHighTrafficSite } from '@/repositories/clickhouse/usage.repository';
@@ -32,7 +32,7 @@ const TransformQueryFilterSchema = QueryFilterSchema.transform((filter) => ({
   ...filter,
   rawOperator: filter.operator,
   operator: INTERNAL_FILTER_OPERATORS[filter.operator],
-  values: filter.values.map((value) => value.replaceAll('*', '%')),
+  values: filter.values.map(filterValueToLikePattern),
 }));
 
 /**

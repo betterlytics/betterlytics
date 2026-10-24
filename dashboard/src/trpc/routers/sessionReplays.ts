@@ -17,6 +17,6 @@ export const sessionReplaysRouter = createRouter({
     }))
     .query(async ({ ctx, input }) => {
       const { main } = toSiteQuery(ctx.authContext.siteId, input.query);
-      return getSessionReplaysForSite(main, input.limit, input.cursor ?? 0);
+      return getSessionReplaysForSite(ctx.authContext, main, input.limit, input.cursor ?? 0);
     }),
 });

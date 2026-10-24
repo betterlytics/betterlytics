@@ -178,19 +178,33 @@ const SKELETON_ROWS = 8;
 function ErrorTableSkeletonRow() {
   return (
     <TableRow>
-      <TableCell className='w-10 py-3 pl-4 sm:pl-6'><Skeleton className='h-4 w-4' /></TableCell>
+      <TableCell className='w-10 py-3 pl-4 sm:pl-6'>
+        <Skeleton className='h-4 w-4' />
+      </TableCell>
       <TableCell className='px-3 py-3 sm:px-6'>
         <div className='space-y-1.5'>
           <Skeleton className='h-4 w-32' />
           <Skeleton className='h-3.5 w-48' />
         </div>
       </TableCell>
-      <TableCell className='hidden px-3 py-3 xl:table-cell sm:px-6'><Skeleton className='h-8 w-20' /></TableCell>
-      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='mx-auto h-4 w-10' /></TableCell>
-      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='mx-auto h-4 w-10' /></TableCell>
-      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='h-4 w-20' /></TableCell>
-      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='h-4 w-20' /></TableCell>
-      <TableCell className='px-3 py-3 sm:px-6'><Skeleton className='h-5 w-20 rounded-full' /></TableCell>
+      <TableCell className='hidden px-3 py-3 sm:px-6 xl:table-cell'>
+        <Skeleton className='h-8 w-20' />
+      </TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'>
+        <Skeleton className='mx-auto h-4 w-10' />
+      </TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'>
+        <Skeleton className='mx-auto h-4 w-10' />
+      </TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'>
+        <Skeleton className='h-4 w-20' />
+      </TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'>
+        <Skeleton className='h-4 w-20' />
+      </TableCell>
+      <TableCell className='px-3 py-3 sm:px-6'>
+        <Skeleton className='h-5 w-20 rounded-full' />
+      </TableCell>
       <TableCell className='w-10 pr-2 sm:pr-4' />
     </TableRow>
   );
@@ -258,7 +272,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
                   (table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate'))
                 }
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                className={cn('mr-2', disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
+                className='mr-2'
                 disabled={disabled}
                 aria-label={t('table.selectAll')}
               />
@@ -269,7 +283,6 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
           <PermissionGate>
             {(disabled) => (
               <Checkbox
-                className={cn(disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer')}
                 checked={!disabled && row.getIsSelected()}
                 onCheckedChange={(value) => row.toggleSelected(!!value)}
                 onClick={(e) => e.stopPropagation()}
@@ -488,8 +501,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
                   const canSort = header.column.getCanSort();
                   const sorted = header.column.getIsSorted();
                   const meta = header.column.columnDef.meta as
-                    | { centered?: boolean; headerClassName?: string }
-                    | undefined;
+                    { centered?: boolean; headerClassName?: string } | undefined;
                   return (
                     <TableHead
                       key={header.id}
@@ -546,8 +558,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
                 >
                   {row.getVisibleCells().map((cell) => {
                     const meta = cell.column.columnDef.meta as
-                      | { cellClassName?: string; stopRowClick?: boolean }
-                      | undefined;
+                      { cellClassName?: string; stopRowClick?: boolean } | undefined;
                     return (
                       <TableCell
                         key={cell.id}
@@ -565,7 +576,7 @@ export function ErrorTable({ errorGroups, initialVolumeMap, dashboardId, loading
         </Table>
       </div>
 
-      {filteredCount > 0 && table.getPageCount() > 1 && (
+      {filteredCount > 0 && (
         <PaginationControls
           pageIndex={table.getState().pagination.pageIndex}
           totalPages={table.getPageCount()}

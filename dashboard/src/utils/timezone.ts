@@ -74,6 +74,11 @@ export function formatDayKey(instant: Date, timeZone: string): string {
   return moment.tz(instant, timeZone).format('YYYY-MM-DD');
 }
 
+// Midnight of a YYYY-MM-DD day in the zone, the inverse of formatDayKey
+export function parseDayKey(dayKey: string, timeZone: string): Date {
+  return moment.tz(dayKey, timeZone).toDate();
+}
+
 export function getSupportedTimezones(): string[] {
   try {
     const zones = Intl.supportedValuesOf('timeZone');

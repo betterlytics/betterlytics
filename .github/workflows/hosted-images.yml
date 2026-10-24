@@ -1,0 +1,190 @@
+name: Hosted images
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [released]
+
+permissions: {}
+
+# A release of a commit waits for that commit's main build, so it retags those images instead of rebuilding them
+concurrency:
+  group: hosted-images-${{ github.sha }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository_owner }}
+  COMMIT_TAG: sha-${{ github.sha }}
+
+jobs:
+  plan:
+    if: github.event_name == 'push' || !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    outputs:
+      images: ${{ steps.missing.outputs.images }}
+    steps:
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Finding images to build
+        id: missing
+        run: |
+          missing=()
+          for image in dashboard backend docs initializer; do
+            if [ "$GITHUB_EVENT_NAME" = push ]; then
+              missing+=("$image")
+              continue
+            fi
+            ref="$REGISTRY/prod-betterlytics-$image:$COMMIT_TAG"
+            if out=$(docker buildx imagetools inspect "$ref" 2>&1); then
+              echo "$ref exists"
+            elif grep -q 'not found' <<< "$out"; then
+              echo "$ref missing"
+              missing+=("$image")
+            else
+              echo "$out" >&2
+              exit 1
+            fi
+          done
+          echo "images=$(jq -cn '$ARGS.positional' --args "${missing[@]}")" >> "$GITHUB_OUTPUT"
+
+  build:
+    needs: plan
+    if: needs.plan.outputs.images != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.plan.outputs.images) }}
+    runs-on: ubuntu-latest
+    environment: image-build
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/prod-betterlytics-${{ matrix.image }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load build environment
+        if: matrix.image == 'dashboard' || matrix.image == 'docs'
+        env:
+          BUILD_ENV: ${{ secrets.BUILD_ENV }}
+          TARGET: ${{ matrix.image == 'dashboard' && './dashboard/.env.build' || './docs/.env' }}
+        run: |
+          if [ -z "$BUILD_ENV" ]; then
+            echo "::error::BUILD_ENV is not set in the image-build environment"
+            exit 1
+          fi
+          printf '%s\n' "$BUILD_ENV" > "$TARGET"
+
+      - name: Load migrations
+        if: matrix.image == 'initializer'
+        run: |
+          cp -R ./dashboard/prisma ./initializer/prisma
+          cp -R ./migrations ./initializer/migrations
+          cp -R ./scripts ./initializer/scripts
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: type=raw,value=${{ env.COMMIT_TAG }}
+          flavor: |
+            latest=false
+
+      - name: Building ${{ matrix.image }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.image }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.IMAGE }}:buildcache
+          cache-to: type=registry,ref=${{ env.IMAGE }}:buildcache,mode=max
+
+  deploy-staging:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: image-build
+    permissions: {}
+    steps:
+      # Builds can finish out of order; a commit that main has moved past would deploy an older staging
+      - name: Checking ${{ github.sha }} is still the head of main
+        id: head
+        run: |
+          head=$(git ls-remote "https://github.com/$GITHUB_REPOSITORY" refs/heads/main | cut -f1)
+          if [ "$head" = "$GITHUB_SHA" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "main has moved on to $head, whose run deploys staging"
+            echo "current=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/create-github-app-token@v2
+        if: steps.head.outputs.current == 'true'
+        id: token
+        with:
+          app-id: ${{ vars.DEPLOY_DISPATCH_APP_ID }}
+          private-key: ${{ secrets.DEPLOY_DISPATCH_APP_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: production-setup
+          permission-actions: write
+
+      - name: Starting the staging deploy of ${{ env.COMMIT_TAG }}
+        if: steps.head.outputs.current == 'true'
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+        run: gh workflow run deploy-staging.yml --repo "$GITHUB_REPOSITORY_OWNER/production-setup" --ref main -f tag="$COMMIT_TAG"
+
+  tag:
+    needs: [plan, build]
+    if: >-
+      always()
+      && github.event_name == 'release'
+      && needs.plan.result == 'success'
+      && (needs.build.result == 'success' || needs.build.result == 'skipped')
+    strategy:
+      matrix:
+        image: [dashboard, backend, docs, initializer]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/prod-betterlytics-${{ matrix.image }}
+      VERSION: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tagging ${{ matrix.image }} with ${{ github.event.release.tag_name }}
+        run: |
+          docker buildx imagetools create --prefer-index=false \
+            -t "$IMAGE:$VERSION" \
+            -t "$IMAGE:latest" \
+            "$IMAGE:$COMMIT_TAG"
+
+      - name: Checking digests match
+        run: |
+          digest() { docker buildx imagetools inspect "$1" --format '{{.Manifest.Digest}}'; }
+          commit_digest=$(digest "$IMAGE:$COMMIT_TAG")
+          version_digest=$(digest "$IMAGE:$VERSION")
+          echo "$COMMIT_TAG $commit_digest"
+          echo "$VERSION $version_digest"
+          [ "$commit_digest" = "$version_digest" ]

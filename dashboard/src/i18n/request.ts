@@ -4,8 +4,6 @@ import { hasLocale } from 'next-intl';
 import { LOCALE_COOKIE_NAME } from '@/constants/cookies';
 import { cookies } from 'next/headers';
 import { routing } from '@/i18n/routing';
-import { getCachedSession } from '@/auth/api-auth';
-import { getCachedUserSettings } from '@/services/account/userSettings.service';
 
 export default getRequestConfig(async ({ requestLocale }) => {
   let requested = await requestLocale;
@@ -15,6 +13,10 @@ export default getRequestConfig(async ({ requestLocale }) => {
   // covers signed-out visitors.
   if (!requested) {
     try {
+      // Imported lazily: a static import closes a cycle back into next-intl/server, which breaks
+      // getLocale() in route handlers such as tRPC.
+      const { getCachedSession } = await import('@/auth/api-auth');
+      const { getCachedUserSettings } = await import('@/services/account/userSettings.service');
       const session = await getCachedSession();
       if (session?.user) {
         requested = (await getCachedUserSettings(session.user.id)).language;

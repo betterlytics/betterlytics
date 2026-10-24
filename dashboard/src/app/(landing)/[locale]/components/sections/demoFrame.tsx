@@ -48,7 +48,7 @@ function whenPageSettles(start: () => void) {
 }
 
 /** Click-to-activate: the scrim stops the iframe swallowing page scroll. */
-export function DemoFrame({ src }: { src: string }) {
+export function DemoFrame({ src, href = '/demo' }: { src: string; href?: string }) {
   const t = useTranslations('landing.demo');
   const [requested, setRequested] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -97,7 +97,7 @@ export function DemoFrame({ src }: { src: string }) {
           {stalled ? (
             <TrackedLink
               className={cn('text-label text-muted', FINE_LINK)}
-              href='/demo'
+              href={href}
               target='_blank'
               rel='noopener'
               placement='demo'

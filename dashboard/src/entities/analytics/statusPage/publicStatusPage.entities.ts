@@ -74,7 +74,7 @@ export const PublicStatusPageDataSchema = z.object({
   faviconUrl: z.string().nullable().default(null),
   homepageUrl: z.string().nullable().default(null),
   noindex: z.boolean().default(false),
-  accentColor: StatusPageAccentColorSchema,
+  accentColor: StatusPageAccentColorSchema.nullable(),
   theme: StatusPageThemeSchema,
   overallStatus: PublicOverallStatusSchema,
   lastUpdatedAt: z.string(),

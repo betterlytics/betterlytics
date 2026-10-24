@@ -186,7 +186,16 @@
       },
       "scope": {
         "title": "Virkeområde for denne erklæringen",
-        "body": "Denne personvernerklæringen gjelder kun for Betterlytics sin hostede skyløsning tilgjengelig på betterlytics.io og våre offisielle domener. Den gjelder ikke selvhostede installasjoner av vår programvare med åpen kildekode. Hvis du selvhoster Betterlytics, er du ansvarlig for egen personvernerklæring, egne databehandlingspraksiser og juridisk overholdelse."
+        "body": "Denne personvernerklæringen gjelder kun for Betterlytics sin hostede skyløsning tilgjengelig på betterlytics.io og våre offisielle domener. Den gjelder ikke selvhostede installasjoner av vår programvare med åpen kildekode, bortsett fra den daglige instansrapporten disse installasjonene sender til oss, beskrevet i «Telemetri fra selvhostede installasjoner» nedenfor. Hvis du selvhoster Betterlytics, er du ansvarlig for egen personvernerklæring, egne databehandlingspraksiser og juridisk overholdelse."
+      },
+      "selfHostedTelemetry": {
+        "title": "Telemetri fra selvhostede installasjoner",
+        "intro": "Selvhostede installasjoner av Betterlytics sender oss en liten rapport én gang om dagen, med mindre operatøren slår det av. Den første rapporten sendes 24 timer etter at installasjonen startet første gang. Betterlytics er behandlingsansvarlig for disse dataene.",
+        "received": "Hva vi mottar: en tilfeldig instans-ID som installasjonen genererer og lagrer i sin egen database, og Betterlytics-versjonen den kjører. Vi lagrer én registrering per instans per dag: datoen, instans-ID-en og versjonen. Vi bruker IP-adressen rapporten kommer fra bare til å motta den og til å begrense misbrukende trafikk, og lagrer den aldri. Rapporten inneholder aldri informasjon om brukerne dine, nettstedene dine eller analysedataene dine.",
+        "purpose": "Formål og rettslig grunnlag: vi teller aktive installasjoner og ser hvilke versjoner som er i bruk, slik at vi kan prioritere støtte og sikkerhetsrettinger. Dette er vår berettigede interesse etter GDPR artikkel 6 nr. 1 bokstav f. Du kan be oss om vår vurdering av denne berettigede interessen.",
+        "retention": "Lagringstid: hver daglige registrering slettes 365 dager etter datoen sin.",
+        "sharing": "Deling: dataene lagres på våre servere hos Hetzner i EU og deles ikke med andre. Vi kan publisere aggregerte tall, aldri enkeltstående instans-ID-er.",
+        "objection": "Rett til å protestere: du kan når som helst slå av telemetri, og det sendes ingen flere rapporter. <link>Se hvordan i dokumentasjonen om selvhosting</link>. For å få slettet tidligere rapporter, send en e-post til privacy@betterlytics.io med instans-ID-en fra [telemetry]-linjen i oppstartsloggen."
       },
       "intro": {
         "p1": "Hos Betterlytics er vi forpliktet til å overholde GDPR, CCPA, PECR og andre personvernregler. Personvernet til dataene dine — og det er dine data, ikke våre! — er svært viktig for oss. Vi holder til i EU, og all databehandling skjer innenfor EU.",
@@ -274,6 +283,7 @@
         "li5": "Rett til dataportabilitet: Motta dataene dine i et portabelt format",
         "li6": "Rett til å protestere: Protestere mot behandling basert på berettiget interesse",
         "li7": "Rett til å trekke tilbake samtykke: Trekke tilbake samtykke til databehandling",
+        "li8": "Rett til å klage: Klage til en datatilsynsmyndighet, for eksempel det danske Datatilsynet eller myndigheten i EU- eller EØS-landet der du bor",
         "contact": "For å utøve noen av disse rettighetene, kontakt oss på privacy@betterlytics.io"
       },
       "noCookies": {
@@ -1270,10 +1280,16 @@
       "nav": "Bunnmeny",
       "language": "Språk",
       "columns": {
+        "product": "Produkt",
         "company": "Selskapet",
         "resources": "Ressurser",
         "compare": "Sammenlign",
         "connect": "Følg oss"
+      },
+      "product": {
+        "features": "Funksjoner",
+        "uptime": "Oppetidsovervåking",
+        "pricing": "Priser"
       },
       "company": {
         "about": "Om oss",
@@ -1286,8 +1302,6 @@
       "resources": {
         "docs": "Dokumentasjon",
         "changelog": "Endringslogg",
-        "features": "Funksjoner",
-        "pricing": "Priser",
         "status": "Driftsstatus"
       },
       "compareLink": "vs. {name}",
@@ -1389,7 +1403,301 @@
           "visitors": "Google 18,2k · ChatGPT 2,1k · Hacker News 1,4k",
           "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
           "answer": "ChatGPT sender en niendedel så mange besøkende som Google, men 3,4 % av dem registrerer seg, mot 0,9 % – nesten fire ganger så høy andel."
+        },
+        "uptimeAlt": "En terminaløkt: En agent blir bedt om å undersøke et nedetidsvarsel for Checkout. Den leser den åpne hendelsen via MCP-serveren i Betterlytics, finner en commit som ble rullet ut tre minutter før driftsavbruddet, og tilbyr å reversere den. Deretter regner den ut hva gårsdagens driftsavbrudd i kassen kostet i salg.",
+        "investigate": {
+          "question": "checkout varsler at den er nede, kan du undersøke?",
+          "say": "Jeg henter den åpne hendelsen fra Betterlytics og sjekker så hva som ble rullet ut rett før den startet.",
+          "incident": "1 pågående hendelse · Checkout · nede siden 10:12",
+          "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
+          "answer": "Checkout har svart med 503 siden 10:12, tre minutter etter at a41f2c9 flyttet Stripe-nøklene til miljøvariabler. Skal jeg reversere den?"
         }
+      }
+    },
+    "feature": {
+      "breadcrumb": "Brødsmulesti",
+      "features": "Funksjoner",
+      "related": {
+        "title": "Også i *samme* dashboard",
+        "learnMore": "Les mer"
+      },
+      "relatedItems": {
+        "analytics": {
+          "title": "Nettanalyse",
+          "body": "Cookiefri trafikk, kilder, sider og trakter, i sanntid og uten sampling."
+        },
+        "replay": {
+          "title": "Sesjonsopptak",
+          "body": "Se det den besøkende så, klikk for klikk og scroll for scroll."
+        },
+        "errors": {
+          "title": "Feilsporing",
+          "body": "JavaScript-feil med stack trace, siden og sesjonen bak dem."
+        },
+        "vitals": {
+          "title": "Core Web Vitals",
+          "body": "LCP, INP og CLS, målt i de besøkendes egne nettlesere."
+        }
+      }
+    },
+    "uptime": {
+      "seo": {
+        "title": "Oppetidsovervåking, SSL-varsler og statusside | Betterlytics",
+        "description": "Oppetidsovervåking med varsler i Slack, Discord, Teams eller på e-post, SSL-varsler før utløp og en statusside, i samme dashboard som analysen din. Gratisplan."
+      },
+      "hero": {
+        "eyebrow": "Oppetidsovervåking",
+        "title": "Vit når nettstedet ditt går ned, og hva det kostet deg",
+        "lede": "Sjekker helt ned til hvert minutt, varsler der teamet ditt snakker sammen, SSL-varsler og en offentlig statusside. I dashboardet som allerede viser trafikken din.",
+        "primary": "Start overvåking gratis",
+        "secondary": "Les dokumentasjonen",
+        "proof": "Vår egen statusside kjører på det"
+      },
+      "specs": {
+        "interval": {
+          "unit": "min",
+          "label": "Sjekkintervall",
+          "body": "Sjekk så ofte som hvert minutt, eller så sjelden som én gang i døgnet."
+        },
+        "ssl": {
+          "unit": "dager",
+          "label": "Sertifikatvarsel",
+          "body": "Sertifikatene sjekkes hver time, og du får varsel opptil 30 dager før de utløper."
+        },
+        "history": {
+          "unit": "dager",
+          "label": "Offentlig oppetidshistorikk",
+          "body": "Statussider viser 90 dager med daglig oppetid, med tidligere hendelser under."
+        },
+        "thesis": {
+          "unit": "i 1",
+          "label": "Én innlogging, én faktura",
+          "body": "Oppetid, analyse, feil, sesjonsopptak og Web Vitals, side om side."
+        }
+      },
+      "story": {
+        "title": "Fra første mislykkede sjekk til *alt klart*",
+        "lede": "Dette skjer når kassen slutter å svare klokken 10:12.",
+        "stepsLabel": "Hendelsesforløp",
+        "steps": {
+          "fail": {
+            "time": "10:12",
+            "title": "En sjekk feiler",
+            "body": "checkout.acme.com svarer med 503. Én feil kan være et blaff, så ingenting utløses ennå."
+          },
+          "confirm": {
+            "time": "10:14",
+            "title": "Hendelsen åpnes",
+            "body": "Den tredje feilen på rad bekrefter det. Hendelsen registrerer årsaken og statuskoden."
+          },
+          "alert": {
+            "time": "10:14",
+            "title": "Teamet ditt får beskjed",
+            "body": "Én melding til Slack, Discord og e-post, med lenke rett til monitoren."
+          },
+          "status": {
+            "time": "10:15",
+            "title": "Statussiden følger etter",
+            "body": "Banneret skifter av seg selv, og nedetiden venter som en foreslått hendelse på oppdateringen din."
+          },
+          "recover": {
+            "time": "10:32",
+            "title": "Den er oppe igjen",
+            "body": "To vellykkede sjekker lukker hendelsen etter 19 minutter, og en melding om at alt er oppe igjen går ut."
+          }
+        },
+        "stage": {
+          "suggested": "Foreslått hendelse",
+          "suggestedBody": "Checkout nede siden 10:12",
+          "write": "Skriv oppdatering"
+        },
+        "scenes": {
+          "failing": "Feiler",
+          "down": "Nede",
+          "recentChecks": "Siste sjekker",
+          "waiting": "Venter på to feil til før varsling",
+          "failedOf": "{count} av 3 feilet",
+          "incidentOpened": "Hendelse åpnet",
+          "reason": "Årsak",
+          "started": "Startet",
+          "startedValue": "10:12 · 3 mislykkede sjekker på rad",
+          "downFor": "Nede i",
+          "backAt": "Oppe igjen",
+          "alertsSent": "Varsler sendt"
+        }
+      },
+      "checks": {
+        "title": "Sjekker som tester det som *betyr noe*",
+        "lede": "En server kan svare og likevel være i ustand. Fortell hver monitor hvordan «fungerer» ser ut.",
+        "art": {
+          "request": "Forespørsel",
+          "headers": "Headere",
+          "timeout": "Tidsavbrudd",
+          "response": "Responstid",
+          "lastDay": "Siste 24 t",
+          "reason5xx": "HTTP 5xx",
+          "reasonTimeout": "Tidsavbrudd",
+          "reasonKeyword": "Nøkkelord"
+        },
+        "items": {
+          "http": {
+            "title": "Din forespørsel, dine regler",
+            "body": "HEAD eller GET, egne headere, statuskodene du godtar og et tidsavbrudd på opptil 30 sekunder. Omdirigeringer følges."
+          },
+          "keyword": {
+            "title": "Nøkkelordsjekker",
+            "body": "Krev en frase som «Legg i handlekurv». Lastes siden uten den, feiler sjekken."
+          },
+          "ssl": {
+            "title": "SSL-sertifikater",
+            "body": "Sjekkes hver time, med påminnelser fra opptil 30 dager før utløp. Et utløpt, feilmatchet eller ikke-betrodd sertifikat gjør at sjekken feiler."
+          },
+          "threshold": {
+            "title": "Ingen alarm for et blaff",
+            "body": "Velg hvor mange sjekker som må feile på rad før en hendelse åpnes. To feilfrie sjekker lukker den."
+          },
+          "latency": {
+            "title": "Responstider",
+            "body": "Median, p95 og snitt for det siste døgnet, så du ser at ting går tregere før det blir nedetid."
+          },
+          "reasons": {
+            "title": "Årsaken, ikke bare rødt",
+            "body": "Hver hendelse forteller hvorfor: tidsavbrudd, DNS- eller tilkoblingsfeil, en 5xx eller et manglende nøkkelord."
+          }
+        }
+      },
+      "alerts": {
+        "title": "Varsler der teamet ditt *allerede* snakker sammen",
+        "lede": "Én melding når en monitor går ned, én når den er oppe igjen, og et varsel før et sertifikat går ut.",
+        "lead": "Koble til én gang, alle monitorer bruker det",
+        "body": "Kanalene hører til dashboardet, så hver nye monitor er dekket fra start. Hver monitor logger alle varsler som er sendt, mislykkede varsler prøves på nytt, og ingen sendes to ganger.",
+        "channels": "Kanaler",
+        "email": "E-post",
+        "webhook": "Webhook",
+        "events": {
+          "label": "Velg hva hver monitor sender",
+          "down": "Nede",
+          "recovery": "Oppe igjen",
+          "ssl": "Sertifikatutløp"
+        },
+        "views": {
+          "slack": "Slack",
+          "email": "E-post",
+          "webhook": "Webhook"
+        },
+        "channel": "incidents",
+        "app": "App",
+        "today": "I dag",
+        "inbox": "Innboks",
+        "notes": {
+          "slack": "Discord, Teams og Pushover får det samme varselet, formatert for hver av dem.",
+          "email": "Få en e-post når en monitor går ned, og en til når den er oppe igjen.",
+          "webhook": "Ren JSON, så det passer for en bot eller et skript på ti linjer."
+        }
+      },
+      "status": {
+        "title": "En statusside som *holder seg selv* oppdatert",
+        "lede": "Oppetidsstolpene og banneret følger monitorene dine. Du skriver bare når det er noe å si.",
+        "points": {
+          "monitors": "Opptil 20 monitorer per side, hver med det offentlige navnet du velger",
+          "history": "90 dager med daglig oppetid, og tidligere hendelser under",
+          "updates": "Hendelsesoppdateringer fra «undersøker» til «løst», med alvorlighetsgrad og et ferdig utkast for hver nedetid monitorene dine fanger opp.",
+          "brand": "Din logo, ditt favicon, din aksentfarge og lyst, mørkt eller automatisk tema",
+          "domain": "Ditt eget domene, med HTTPS ordnet for deg"
+        },
+        "try": "Prøv selv",
+        "theme": "Tema",
+        "light": "Lyst",
+        "dark": "Mørkt",
+        "accent": "Aksent",
+        "accents": {
+          "blue": "Blå",
+          "violet": "Fiolett",
+          "teal": "Blågrønn",
+          "ember": "Glød",
+          "custom": "Egen farge"
+        },
+        "page": {
+          "allUp": "Alle systemer i drift",
+          "updated": "Sist oppdatert 18. okt., 10:42",
+          "operational": "Operativ",
+          "down": "Nede",
+          "ago": "{days} dager siden",
+          "today": "I dag",
+          "uptime": "{value} oppetid",
+          "past": "Tidligere hendelser",
+          "incidentTitle": "Checkout utilgjengelig",
+          "incidentMeta": "Løst etter 19 minutter",
+          "poweredBy": "Levert av",
+          "impact": "Delvis nedetid",
+          "overall": "Samlet oppetid <value>{uptime}</value> · siste 90 dager"
+        },
+        "proof": "Se vår, live"
+      },
+      "agent": {
+        "title": "Spør agenten din *hvorfor* den gikk ned",
+        "lede": "Monitorer og hendelser ligger i den innebygde MCP-serveren, så agenten din kan granske et driftsavbrudd ved siden av koden, trafikken og feilene dine.",
+        "lead": "Fra varsel til årsak med ett spørsmål",
+        "body": "Agenten din leser den åpne hendelsen, sjekker hva som ble rullet ut rett før, og kommer tilbake med den sannsynlige årsaken og en rettelse du kan godkjenne. Eller legg et driftsavbrudd opp mot trafikk og salg for å se hva det kostet.",
+        "cta": "Sett opp MCP"
+      },
+      "related": {
+        "lede": "Oppetid er én del av Betterlytics. Alt nedenfor deler skript, innlogging og faktura."
+      },
+      "faq": {
+        "title": "Ofte stilte spørsmål",
+        "items": {
+          "what": {
+            "q": "Hva er oppetidsovervåking?",
+            "a": "En oppetidsmonitor sender forespørsler til nettstedet ditt med faste mellomrom og sjekker svaret. Når nettstedet slutter å svare, returnerer en feil eller mangler innholdet du forventer, åpner den en hendelse og gir deg beskjed, helst før de besøkende merker noe."
+          },
+          "scope": {
+            "q": "Hva kan jeg overvåke?",
+            "a": "Alle HTTP- og HTTPS-adresser på domenet til dashboardet ditt eller underdomenene, for eksempel forsiden, api.example.com/health eller en kasseside."
+          },
+          "often": {
+            "q": "Hvor ofte sjekker Betterlytics nettstedet mitt?",
+            "a": "Så ofte som hvert minutt, eller så sjelden som én gang i døgnet. Du velger intervallet for hver monitor."
+          },
+          "false": {
+            "q": "Hvordan unngår dere falske alarmer?",
+            "a": "En hendelse åpnes først etter flere mislykkede sjekker på rad: tre som standard, eller alt fra 1 til 10 om du vil. Den lukkes etter to vellykkede sjekker, så en server som blafrer ikke oversvømmer kanalene dine."
+          },
+          "down": {
+            "q": "Hva regnes som nede?",
+            "a": "Et tidsavbrudd, en DNS- eller tilkoblingsfeil (inkludert et ugyldig sertifikat), en statuskode utenfor dem du godtar, eller et manglende nøkkelord. Hver hendelse registrerer hva det var."
+          },
+          "alerts": {
+            "q": "Hvor sendes varslene?",
+            "a": "E-post, Slack, Discord, Microsoft Teams, Pushover og alle webhooks som tar imot JSON. Du får ett varsel når en monitor går ned, og ett når den er oppe igjen."
+          },
+          "ssl": {
+            "q": "Kan den varsle meg før SSL-sertifikatet utløper?",
+            "a": "Ja. HTTPS-monitorer sjekker sertifikatet hver time og sender påminnelser fra opptil 30 dager før det utløper. Et utløpt, feilmatchet eller ikke-betrodd sertifikat gjør at sjekken feiler, så du får beskjed i form av en hendelse."
+          },
+          "domain": {
+            "q": "Kan statussiden bruke mitt eget domene?",
+            "a": "Ja. Pek et underdomene som status.example.com mot Betterlytics med en CNAME-post, så utstedes sertifikatet automatisk når siden publiseres."
+          },
+          "free": {
+            "q": "Er oppetidsovervåking gratis?",
+            "a": "Gratisplanen inkluderer én monitor per nettsted, sjekket hvert femte minutt, og én statusside. Professional-planen gir deg mer avansert oppsett: sjekker hvert minutt, egne headere, godkjente statuskoder og nøkkelordsjekker, flere monitorer og statussider, og ditt eget domene. Selvhostet er det ingen begrensninger."
+          },
+          "internal": {
+            "q": "Kan jeg overvåke interne tjenester?",
+            "a": "På Betterlytics Cloud når monitorene offentlige adresser på port 80 og 443. Hvis du selvhoster, kan de også nå tjenester på det private nettverket ditt, på hvilken som helst port."
+          },
+          "dedicated": {
+            "q": "Når passer et dedikert overvåkingsverktøy bedre?",
+            "a": "Betterlytics sjekker HTTP og HTTPS fra ett sted. Trenger du sjekker fra mange regioner, TCP-, ping- eller cron-overvåking, varsler på telefon og SMS eller vaktrotasjoner, bør du velge et dedikert verktøy."
+          }
+        }
+      },
+      "cta": {
+        "title": "Legg til din første monitor på et minutt",
+        "lede": "Lim inn en URL, velg hvor ofte den skal sjekkes og hvor varslene skal gå. Gratisplanen inkluderer en monitor og en statusside.",
+        "primary": "Start overvåking gratis",
+        "secondary": "Les dokumentasjonen om overvåking"
       }
     }
   },
@@ -1887,6 +2195,10 @@
       "back": "Tilbake til overvåkere",
       "monitoring": "Overvåking"
     },
+    "notFound": {
+      "title": "Overvåker ikke funnet",
+      "description": "Overvåkeren kan ha blitt slettet fra dette dashboardet, eller lenken kan være feil."
+    },
     "responseTime": {
       "title": "Responstid",
       "badge": "Siste 24 timer",
@@ -2028,6 +2340,7 @@
       "acceptedStatusCodes": {
         "label": "Aksepterte statuskoder",
         "description": "Andre koder vil utløse hendelser",
+        "lastCodeRequired": "Minst én statuskode er påkrevd",
         "validation": {
           "maxCodes": "Maksimalt {max} statuskoder tillatt",
           "alreadyAdded": "{code} er allerede lagt til",
@@ -2123,7 +2436,9 @@
       "chart": {
         "exitAnnotationMode": "Forlat merknadsmodus",
         "enterAnnotationMode": "Legg til merknad",
-        "annotationModeHint": "Klikk på diagrammet for å legge til en merknad"
+        "annotationModeHint": "Klikk på diagrammet for å legge til en merknad",
+        "hideAnnotations": "Skjul merknader",
+        "showAnnotations": "Vis merknader"
       },
       "groupMarker": {
         "clickToSeeAll": "Klikk for å se alle"
@@ -2367,6 +2682,10 @@
         "docsHint": "Trenger du hjelp med å få kampanjer til å dukke opp?",
         "docsLinkLabel": "Les guiden til kampanjesporing"
       },
+      "periodEmptyState": {
+        "title": "Ingen kampanjetrafikk i denne perioden",
+        "description": "Prøv et bredere datointervall for å se tidligere kampanjer."
+      },
       "loading": "Laster inn kampanjer...",
       "campaignRow": {
         "visitors": "{count, plural, one {# besøkende} other {# besøkende}}",
@@ -2496,6 +2815,8 @@
         "apply": "Bruk",
         "selectValue": "Velg en verdi",
         "noValuesForCurrentPeriod": "Ingen verdier funnet for valgt periode",
+        "valuesTruncated": "Viser {shown, number} av {total, number} verdier. Skriv for å søke i resten.",
+        "valuesTruncatedAtLimit": "Viser {shown, number} av {total, number}+ verdier. Skriv for å søke i resten.",
         "savedFilters": "Lagrede filtre",
         "noSavedFilters": "Ingen lagrede filtre ennå",
         "saveFilters": "Lagre",
@@ -2640,12 +2961,7 @@
       "table": {
         "details": "Henvisningsdetaljer",
         "tabs": {
-          "all": "Alle",
-          "search": "Søk",
-          "social": "Sosiale medier",
-          "direct": "Direkte",
-          "email": "E-post",
-          "other": "Annet"
+          "all": "Alle"
         },
         "columns": {
           "source": "Kilde",
@@ -2657,6 +2973,14 @@
           "direct": "Direkte",
           "unknown": "Ukjent"
         }
+      },
+      "categories": {
+        "search": "Søk",
+        "social": "Sosiale medier",
+        "ai": "AI",
+        "direct": "Direkte",
+        "email": "E-post",
+        "other": "Annet"
       }
     },
     "geography": {
@@ -2758,7 +3082,8 @@
           "title": "Ingen sesjonsavspillinger tilgjengelige",
           "description": "Prøv å utvide tidsperioden eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne økten fanget {count} klientsidefeil"
+        "sessionErrorsTooltip": "Denne økten fanget {count} klientsidefeil",
+        "sessionRageClicksTooltip": "{count, plural, one {Denne økten har {count} raseriklikk} other {Denne økten har {count} raseriklikk}}"
       },
       "playerTopbar": {
         "startLabel": "Starttid:",
@@ -2783,7 +3108,8 @@
         "blacklist": "Svartelistet",
         "viewportResize": "Endring av viewport",
         "mediaInteraction": "Medieinteraksjon",
-        "clientError": "Klientside-feil"
+        "clientError": "Klientside-feil",
+        "rageClick": "Raseriklikk"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",
@@ -3014,8 +3340,8 @@
         "currentPassword": "Nåværende passord",
         "newPassword": "Nytt passord",
         "confirmNewPassword": "Bekreft nytt passord",
-        "passwordHelp": "Passordet må være minst 8 tegn",
-        "weakPassword": "Passordet må være minst 8 tegn og inneholde både store og små bokstaver",
+        "dialogDescription": "Skriv inn det nåværende passordet ditt, og velg deretter et nytt.",
+        "newPasswordSameAsCurrent": "Det nye passordet må være forskjellig fra det nåværende passordet ditt.",
         "invalidCurrentPassword": "Nåværende passord er feil",
         "passwordsMatch": "Passordene samsvarer",
         "changePassword": "Bytt passord",
@@ -3223,6 +3549,9 @@
     "themeToggle": {
       "light": "Bytt til lyst tema",
       "dark": "Bytt til mørkt tema"
+    },
+    "scrollToTop": {
+      "label": "Rull til toppen"
     },
     "errorPage": {
       "title": "Noe gikk galt",
@@ -4239,7 +4568,9 @@
       "removeImage": "Fjern",
       "imageTooLarge": "Bildet er for stort. Velg en mindre fil.",
       "svgUnsafe": "SVG-en inneholder innhold som ikke støttes eller er utrygt. Prøv en enkel vektoreksport.",
-      "accentColor": "Aksentfarge",
+      "accentColor": "Headerfarge",
+      "accentColorTransparent": "Gjennomsiktig",
+      "accentColorTransparentAria": "Gjennomsiktig header som matcher sidens bakgrunn",
       "theme": "Tema",
       "themes": {
         "light": "Lys",
