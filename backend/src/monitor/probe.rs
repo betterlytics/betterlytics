@@ -24,6 +24,8 @@ use crate::monitor::{MonitorCheck, ProbeOutcome, ReasonCode};
 struct ProbeError {
     reason_code: ReasonCode,
     message: String,
+    /// Expiry of the certificate that failed verification as expired
+    tls_not_after: Option<DateTime<Utc>>,
 }
 
 impl ProbeError {
@@ -31,6 +33,7 @@ impl ProbeError {
         Self {
             reason_code,
             message: message.into(),
+            tls_not_after: None,
         }
     }
 }
@@ -237,7 +240,9 @@ impl MonitorProbe {
             error = %err.message,
             "tls probe handshake failed"
         );
-        self.tls_error_outcome(latency, err.reason_code)
+        let mut outcome = self.tls_error_outcome(latency, err.reason_code);
+        outcome.tls_not_after = err.tls_not_after;
+        outcome
     }
 
     async fn follow_with_guards(
@@ -393,8 +398,9 @@ impl MonitorProbe {
         .await
         .map_err(|_| ProbeError::new(ReasonCode::TlsHandshakeFailed, "tls connect timeout"))?
         .map_err(|e| {
-            let reason = classify_tls_error(&e);
-            ProbeError::new(reason, format!("tls connect: {e}"))
+            let mut err = ProbeError::new(classify_tls_error(&e), format!("tls connect: {e}"));
+            err.tls_not_after = expired_not_after(&e);
+            err
         })?;
 
         let (_, session) = tls_stream.get_ref();
@@ -479,6 +485,8 @@ fn check_keyword_match(expected: &Option<String>, body: &Option<Vec<u8>>) -> Opt
 fn classify_reqwest_error(err: &reqwest::Error) -> ReasonCode {
     if err.is_timeout() {
         ReasonCode::HttpTimeout
+    } else if let Some(reason) = find_rustls_error(err).and_then(classify_certificate_error) {
+        reason
     } else if err.is_connect() {
         ReasonCode::HttpConnectError
     } else if err.is_body() || err.is_decode() {
@@ -494,24 +502,57 @@ fn map_reqwest_error(err: reqwest::Error) -> ProbeError {
     ProbeError::new(classify_reqwest_error(&err), err.to_string())
 }
 
+/// Finds the rustls error in an error's source chain. rustls errors reach us wrapped in one or
+/// more `io::Error`s, whose `source()` skips the wrapped error, so those are unwrapped instead.
+fn find_rustls_error<'a>(err: &'a (dyn std::error::Error + 'static)) -> Option<&'a RustlsError> {
+    let mut current = Some(err);
+    while let Some(err) = current {
+        if let Some(rustls_err) = err.downcast_ref::<RustlsError>() {
+            return Some(rustls_err);
+        }
+        current = match err.downcast_ref::<std::io::Error>() {
+            Some(io_err) => io_err.get_ref().map(|inner| inner as &(dyn std::error::Error + 'static)),
+            None => err.source(),
+        };
+    }
+    None
+}
+
+/// Maps a certificate verification failure to its reason code; `None` for other TLS errors.
+/// See: https://docs.rs/rustls/latest/rustls/enum.CertificateError.html
+fn classify_certificate_error(err: &RustlsError) -> Option<ReasonCode> {
+    let RustlsError::InvalidCertificate(cert_err) = err else {
+        return None;
+    };
+    Some(match cert_err {
+        CertificateError::NotValidForName | CertificateError::NotValidForNameContext { .. } => {
+            ReasonCode::TlsHostnameMismatch
+        }
+        CertificateError::Expired | CertificateError::ExpiredContext { .. } => ReasonCode::TlsExpired,
+        CertificateError::NotValidYet | CertificateError::NotValidYetContext { .. } => ReasonCode::TlsNotYetValid,
+        CertificateError::Revoked => ReasonCode::TlsRevoked,
+        CertificateError::UnknownIssuer => ReasonCode::TlsUntrustedCa,
+        _ => ReasonCode::TlsHandshakeFailed,
+    })
+}
+
+/// The `notAfter` that rustls reports when a certificate in the chain has expired.
+fn expired_not_after(err: &std::io::Error) -> Option<DateTime<Utc>> {
+    match find_rustls_error(err)? {
+        RustlsError::InvalidCertificate(CertificateError::ExpiredContext { not_after, .. }) => {
+            Utc.timestamp_opt(not_after.as_secs() as i64, 0).single()
+        }
+        _ => None,
+    }
+}
+
 /// Classify TLS/rustls errors into specific reason codes.
 /// Falls back to string matching if downcast fails.
-/// See: https://docs.rs/rustls/latest/rustls/enum.CertificateError.html
 fn classify_tls_error(err: &std::io::Error) -> ReasonCode {
-    if let Some(rustls_err) = err.get_ref().and_then(|e| e.downcast_ref::<RustlsError>()) {
-        if let RustlsError::InvalidCertificate(cert_err) = rustls_err {
-            return match cert_err {
-                CertificateError::NotValidForName => ReasonCode::TlsHostnameMismatch,
-                CertificateError::Expired | CertificateError::ExpiredContext { .. } => ReasonCode::TlsExpired,
-                CertificateError::NotValidYet | CertificateError::NotValidYetContext { .. } => ReasonCode::TlsNotYetValid,
-                CertificateError::Revoked => ReasonCode::TlsRevoked,
-                CertificateError::UnknownIssuer => ReasonCode::TlsUntrustedCa,
-                CertificateError::BadEncoding | CertificateError::BadSignature => ReasonCode::TlsHandshakeFailed,
-                _ => ReasonCode::TlsHandshakeFailed,
-            };
-        }
+    if let Some(reason) = find_rustls_error(err).and_then(classify_certificate_error) {
+        return reason;
     }
-    
+
     let msg = err.to_string().to_lowercase();
     if msg.contains("notvalidforname") {
         ReasonCode::TlsHostnameMismatch
@@ -525,5 +566,100 @@ fn classify_tls_error(err: &std::io::Error) -> ReasonCode {
         ReasonCode::TlsUntrustedCa
     } else {
         ReasonCode::TlsHandshakeFailed
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tokio_rustls::rustls::pki_types::UnixTime;
+
+    fn io_error(cert_err: CertificateError) -> std::io::Error {
+        std::io::Error::new(std::io::ErrorKind::InvalidData, RustlsError::InvalidCertificate(cert_err))
+    }
+
+    fn unix(secs: u64) -> UnixTime {
+        UnixTime::since_unix_epoch(Duration::from_secs(secs))
+    }
+
+    /// Stands in for the reqwest/hyper wrappers around a failed connect
+    #[derive(Debug)]
+    struct Wrapper(std::io::Error);
+
+    /// reqwest's connector wraps the TLS stream's `io::Error` in another `io::Error`
+    fn nested(err: std::io::Error) -> Wrapper {
+        Wrapper(std::io::Error::other(err))
+    }
+
+    impl std::fmt::Display for Wrapper {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.write_str("client error (Connect)")
+        }
+    }
+
+    impl std::error::Error for Wrapper {
+        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+            Some(&self.0)
+        }
+    }
+
+    #[test]
+    fn expired_handshake_error_carries_the_certificate_expiry() {
+        let not_after = 1_767_225_600; // 2026-01-01T00:00:00Z
+        let err = io_error(CertificateError::ExpiredContext {
+            time: unix(not_after + 86_400),
+            not_after: unix(not_after),
+        });
+
+        assert_eq!(classify_tls_error(&err), ReasonCode::TlsExpired);
+        assert_eq!(
+            expired_not_after(&err),
+            Utc.timestamp_opt(not_after as i64, 0).single()
+        );
+        assert_eq!(expired_not_after(&io_error(CertificateError::Expired)), None);
+        assert_eq!(expired_not_after(&io_error(CertificateError::UnknownIssuer)), None);
+    }
+
+    #[test]
+    fn certificate_errors_map_to_their_reason_codes() {
+        let cases = [
+            (
+                CertificateError::NotValidForNameContext {
+                    expected: ServerName::try_from("example.com").unwrap(),
+                    presented: vec!["other.com".to_string()],
+                },
+                ReasonCode::TlsHostnameMismatch,
+            ),
+            (CertificateError::NotValidForName, ReasonCode::TlsHostnameMismatch),
+            (
+                CertificateError::ExpiredContext { time: unix(2), not_after: unix(1) },
+                ReasonCode::TlsExpired,
+            ),
+            (
+                CertificateError::NotValidYetContext { time: unix(1), not_before: unix(2) },
+                ReasonCode::TlsNotYetValid,
+            ),
+            (CertificateError::Revoked, ReasonCode::TlsRevoked),
+            (CertificateError::UnknownIssuer, ReasonCode::TlsUntrustedCa),
+            (CertificateError::BadSignature, ReasonCode::TlsHandshakeFailed),
+        ];
+
+        for (cert_err, expected) in cases {
+            let wrapped = nested(io_error(cert_err));
+            let found = find_rustls_error(&wrapped).and_then(classify_certificate_error);
+            assert_eq!(found, Some(expected));
+        }
+    }
+
+    #[test]
+    fn non_certificate_errors_are_not_classified_as_tls() {
+        let refused = Wrapper(std::io::Error::new(std::io::ErrorKind::ConnectionRefused, "refused"));
+        assert!(find_rustls_error(&refused).is_none());
+
+        let alert = nested(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            RustlsError::HandshakeNotComplete,
+        ));
+        assert_eq!(find_rustls_error(&alert).and_then(classify_certificate_error), None);
     }
 }
