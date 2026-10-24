@@ -43,7 +43,25 @@
     }
     @variant max-sm {
       zoom: 0.54;
+      transform: var(--camera);
+      transition: transform 0.9s var(--ease-morph);
     }
+  }
+  /* phones zoom in on each step's focus: scale, then centre it */
+  .visit[data-step='0'] {
+    --camera: scale(1.3) translateY(14px);
+  }
+  .visit[data-step='1'] {
+    --camera: scale(1.3) translate(-61px, 14px);
+  }
+  .visit[data-step='2'] {
+    --camera: scale(1.3) translate(41px, 29px);
+  }
+  .visit[data-step='3'] {
+    --camera: scale(1.36);
+  }
+  .visit[data-step='4'] {
+    --camera: scale(1.5) translate(102px, -94px);
   }
 
   .win {
@@ -280,6 +298,9 @@
     left: 40px;
     width: 540px;
     opacity: 0;
+    @variant max-sm {
+      width: 458px;
+    }
     translate: 0 10px;
     transition:
       opacity 0.4s var(--ease-out-expo),
@@ -305,6 +326,9 @@
     position: relative;
     display: grid;
     grid-template-columns: 52px 92px 150px 44px 70px 28px;
+    @variant max-sm {
+      grid-template-columns: 52px 92px 150px 44px 28px;
+    }
     column-gap: 12px;
     align-items: center;
     height: 56px;
@@ -347,6 +371,12 @@
   .row[data-own] > .thumb,
   .row[data-own] > .bar {
     visibility: hidden;
+  }
+
+  .row > .meta {
+    @variant max-sm {
+      display: none;
+    }
   }
 
   .thumb {
@@ -578,6 +608,12 @@
     opacity: 0;
     transform: scale(0.05);
     transform-origin: -116px 190px;
+    /* stacked under the replay on phones */
+    @variant max-sm {
+      top: 272px;
+      left: 116px;
+      transform-origin: 188px -22px;
+    }
     transition:
       transform 0.7s var(--ease-out-expo),
       opacity 0.3s ease;

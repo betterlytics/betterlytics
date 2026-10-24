@@ -59,16 +59,18 @@ function Meta({
   browser,
   os,
   device = 'desktop',
+  className,
 }: {
   flag: FlagCode;
   browser: string;
   os: keyof typeof OS_ICONS;
   device?: 'desktop' | 'mobile';
+  className?: string;
 }) {
   const Flag = FLAGS[flag];
   const Device = device === 'desktop' ? Monitor : Smartphone;
   return (
-    <span className={styles.meta}>
+    <span className={className ? `${styles.meta} ${className}` : styles.meta}>
       <Flag className={styles.flag} />
       <Image src={`/browser-icons/${browser}.svg`} alt='' width={12} height={12} />
       <span className={styles.os} data-os={os} style={vars({ '--src': `url(${OS_ICONS[os]})` })} />
@@ -172,6 +174,7 @@ function SessionList({ t }: { t: Scenes }) {
             </span>
             <span className={visit.duration}>{session.duration}</span>
             <Meta
+              className={visit.meta}
               flag={session.flag}
               browser={session.browser}
               os={session.os}
