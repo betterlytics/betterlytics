@@ -259,7 +259,8 @@ export function AgentTranscript({
   // `only` must be a stable array (a module constant), or every render restarts the script
   const scripts = useMemo(() => only.map((key) => SCRIPTS[key](t)), [t, only]);
   const timelines = useMemo(() => scripts.map(toTimeline), [scripts]);
-  const [script, setScript] = useState(0);
+  const [run, setRun] = useState(0);
+  const script = run % timelines.length;
   const elapsed = useRef(0);
 
   useEffect(() => {
@@ -274,7 +275,7 @@ export function AgentTranscript({
       last = now;
       if (elapsed.current >= timeline.end) {
         elapsed.current = 0;
-        setScript((s) => (s + 1) % timelines.length);
+        setRun((r) => r + 1);
         return;
       }
       stage(body, timeline, elapsed.current);
@@ -282,7 +283,7 @@ export function AgentTranscript({
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [live, script, timelines]);
+  }, [live, run, script, timelines]);
 
   return (
     <div
@@ -316,8 +317,8 @@ export function AgentTranscript({
           </div>
         ))}
         <div ref={bodyRef} className={styles.body} aria-hidden>
-          {/* keyed so no line keeps the last script's DOM state */}
-          <Fragment key={script}>
+          {/* keyed per run so no line keeps the last run's DOM state */}
+          <Fragment key={run}>
             {scripts[script].map((step, i) => (
               <Line key={i} step={step} />
             ))}
