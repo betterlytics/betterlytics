@@ -8315,6 +8315,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
     return url;
   }
 
+  // Recordings keep only origin plus normalized path; normalize leaves the query string and hash
+  function normalizePageUrl(url) {
+    var urlObj = new URL(normalize(url));
+    return urlObj.origin + urlObj.pathname;
+  }
+
   const cacheIsReplayEnabledOnPage = new Map();
   function isReplayEnabledOnPage() {
     var pathname = window.location.pathname;
@@ -8340,7 +8346,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (window.rrweb && window.rrweb.record) {
         if (typeof window.rrweb.record.addCustomEvent === "function") {
           window.rrweb.record.addCustomEvent("Pageview", {
-            url: normalize(url),
+            url: normalizePageUrl(url),
           });
         }
         if (
@@ -8432,12 +8438,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function uploadSegment(payload) {
-      var pageUrl = new URL(normalize(window.location.href));
       var qs =
         "site_id=" +
         encodeURIComponent(siteId) +
         "&url=" +
-        encodeURIComponent(pageUrl.origin + pageUrl.pathname) +
+        encodeURIComponent(normalizePageUrl(window.location.href)) +
         "&screen_resolution=" +
         window.screen.width +
         "x" +
@@ -8742,6 +8747,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
         var raw = e.data.payload.__betterlyticsErrorExceptions;
         if (typeof raw === "string") errorSourcesByEvent.set(e, raw);
         delete e.data.payload.__betterlyticsErrorExceptions;
+      }
+
+      if (e.type === 4 && e.data && typeof e.data.href === "string") {
+        e.data.href = normalizePageUrl(e.data.href);
       }
 
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);
