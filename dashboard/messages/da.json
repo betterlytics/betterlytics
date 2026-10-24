@@ -1416,7 +1416,7 @@
         },
         "debugAlt": "En terminalsession: En agent får at vide, at der ikke sker noget, når man vælger en plan. Den henter fejlene på /pricing via Betterlytics’ MCP-server, læser stack trace og sessionsforløb for en TypeError, åbner pricing.js på linje 142 og foreslår en rettelse. Bagefter bliver den spurgt, hvilke fejl der skal rettes først, sorterer ugens fejl efter, hvor mange sessioner de har ramt, og peger på den samme TypeError.",
         "debug": {
-          "question": "folk siger der ikke sker noget når de vælger en plan, kan du kigge?",
+          "question": "folk siger der ikke sker noget når de vælger en plan, kan du kigge på det?",
           "say": "Jeg tjekker først fejlene på /pricing.",
           "errors": "1.206 TypeErrors i 318 sessioner",
           "trace": "selectPlan (pricing.js:142) efter plan_selected",
@@ -1427,7 +1427,7 @@
           "question": "hvilke fejl skal jeg rette først?",
           "say": "Jeg rangordner ugens fejl.",
           "groups": "TypeError 318 sessioner · ChunkLoadError 41 · RangeError 6",
-          "answer": "Start med den TypeError, der læser 'plan'. Den ramte 318 sessioner, over seks gange så mange som de to andre tilsammen."
+          "answer": "Start med den TypeError, der handler om 'plan'. Den ramte 318 sessioner, over seks gange så mange som de to andre tilsammen."
         }
       }
     },
@@ -1952,7 +1952,7 @@
     "errors": {
       "seo": {
         "title": "JavaScript-fejlsporing med sessionskontekst | Betterlytics",
-        "description": "Fejlsporing for uhåndterede fejl og afviste promises i browseren, grupperet efter stack trace med siderne og events omkring dem. Gratis i alle planer."
+        "description": "Fejlsporing for uhåndterede fejl og afviste promises i browseren, grupperet efter stack trace, med siderne og events omkring dem. Gratis i alle planer."
       },
       "hero": {
         "eyebrow": "Fejlsporing",
@@ -1990,7 +1990,7 @@
         "fix": "Rettelser ud fra stack trace",
         "alt": "Til venstre strømmer vage meldinger om prissiden forbi: tre ens mails om, at man ikke kan opgradere, en melding om, at der ikke sker noget, når man vælger en plan, en supportchat, et sløret skærmbillede, et gæt på browseren, en seddel med »virker på min maskine«, en P1-ticket om, at opgraderinger har fejlet siden mandag, og en supportindbakke med 14 ulæste. Til højre ses den samme bug som én fejlgruppe: en TypeError kastet i selectPlan på linje 142 i pricing.js og kaldt fra onClick i plan-card.js, i Chrome på macOS i Danmark, på /pricing, 1.206 gange.",
         "notes": {
-          "upgrade": "Kan ik opgradere??",
+          "upgrade": "Kan ikke opgradere??",
           "pricing": "nogen andre hvor prissiden ikke reagerer?",
           "dead": "Vælg plan gør ingenting",
           "screenshot": "skærmbillede.png",
@@ -2007,7 +2007,7 @@
       },
       "trail": {
         "title": "Se hvad de gjorde *før og efter*",
-        "lede": "Hver fejl gemmer sider, events og andre fejl fra samme besøg i den rækkefølge, de skete, plus replayet, hvis besøget blev optaget.",
+        "lede": "Hver fejl gemmer sider, hændelser og andre fejl fra samme besøg i den rækkefølge, de skete, plus replayet, hvis besøget blev optaget.",
         "alt": "Et sessionsforløb med otte hændelser. Før fejlen landede den besøgende på forsiden, åbnede /pricing og valgte en plan. Et sekund senere kom fejlen, en TypeError kastet i selectPlan på linje 142 i pricing.js i Chrome 129 på macOS, på en computer i Danmark. Bagefter genindlæste den besøgende /pricing, valgte en plan igen, ramte den samme fejl og gik videre til /contact i stedet for at opgradere.",
         "label": "Sessionsforløb",
         "count": "{count} hændelser i denne session",
@@ -2127,7 +2127,7 @@
           },
           "grouped": {
             "q": "Hvordan bliver fejl grupperet?",
-            "a": "Efter fejltypen og de fem øverste frames i stacken: funktionen, filen og linjen. Kolonnenumre, domæner og query strings ignoreres, så den samme bug forbliver i én gruppe, selv når beskeden ændrer sig. Fejl uden stack trace grupperes efter type og besked. Hvis en release omdøber dine scriptfiler eller flytter linjen, starter buggen en ny gruppe."
+            "a": "Efter fejltypen og de fem øverste frames i stacken: funktionen, filen og linjen. Kolonnenumre, domæner og query strings ignoreres, så den samme bug forbliver i én gruppe, selv når beskeden ændrer sig. Fejl uden stack trace grupperes efter type og besked. Hvis en release omdøber dine scriptfiler eller flytter linjen, havner buggen i en ny gruppe."
           },
           "sourcemaps": {
             "q": "Understøtter I source maps?",

@@ -1427,7 +1427,7 @@
           "question": "hvilke feil bør jeg fikse først?",
           "say": "Jeg rangerer ukens feil.",
           "groups": "TypeError 318 sesjoner · ChunkLoadError 41 · RangeError 6",
-          "answer": "Begynn med TypeError-en som leser 'plan'. Den rammet 318 sesjoner, over seks ganger så mange som de to andre til sammen."
+          "answer": "Begynn med TypeError-en på 'plan'. Den rammet 318 sesjoner, over seks ganger så mange som de to andre til sammen."
         }
       }
     },
@@ -1952,7 +1952,7 @@
     "errors": {
       "seo": {
         "title": "JavaScript-feilsporing med hele sesjonen | Betterlytics",
-        "description": "Error tracking: fang uhåndterte feil og avviste promises hos de besøkende, gruppert på stack trace, med sidene og hendelsene rundt. Gratis på alle planer."
+        "description": "Error tracking: uhåndterte feil og avviste promises i nettleseren, gruppert etter stack trace, med sider og hendelser rundt dem. Gratis på alle planer."
       },
       "hero": {
         "eyebrow": "Feilsporing",
@@ -1965,7 +1965,7 @@
         "frames": {
           "unit": "frames",
           "label": "Gruppert på stack",
-          "body": "Feil med lik type og de samme fem øverste frames i stacken havner i samme gruppe, uansett hva feilmeldingen sier."
+          "body": "Feil av samme type og med de samme fem øverste frames i stacken havner i samme gruppe, uansett hva feilmeldingen sier."
         },
         "flood": {
           "unit": "per 10 sek",
@@ -1985,10 +1985,10 @@
       },
       "report": {
         "title": "Fra «det funker ikke» til *linje 142*",
-        "lede": "De fleste besøkende som møter en bug, forsvinner uten å si fra. Betterlytics viser hvor koden kastet feilen, i hvilken nettleser og hvor ofte.",
+        "lede": "De fleste besøkende som støter på en bug, forsvinner uten å si fra. Betterlytics viser hvor koden kastet feilen, i hvilken nettleser og hvor ofte.",
         "guess": "Gjette ut fra feilrapporter",
         "fix": "Fikse ut fra stack trace",
-        "alt": "Til venstre strømmer vage meldinger om prissiden forbi: den samme e-posten om at oppgradering ikke går, tre ganger, en melding om at det ikke skjer noe når man velger en plan, en supportchat, et uskarpt skjermbilde, en gjetning på hvilken nettleser det er, en lapp der det står at det funker på min maskin, en P1-sak om at oppgraderinger har feilet siden mandag, og en supportinnboks med 14 uleste. Til høyre er den samme bugen samlet i én feilgruppe: en TypeError kastet i selectPlan på linje 142 i pricing.js og kalt fra onClick i plan-card.js, i Chrome på macOS i Danmark, på /pricing, 1 206 ganger.",
+        "alt": "Til venstre strømmer vage meldinger om prissiden forbi: tre like e-poster om at oppgradering ikke går, en melding om at det ikke skjer noe når man velger en plan, en supportchat, et uskarpt skjermbilde, en gjetning på hvilken nettleser det er, en lapp der det står at det funker på min maskin, en P1-sak om at oppgraderinger har feilet siden mandag, og en supportinnboks med 14 uleste. Til høyre er den samme bugen samlet i én feilgruppe: en TypeError kastet i selectPlan på linje 142 i pricing.js og kalt fra onClick i plan-card.js, i Chrome på macOS i Danmark, på /pricing, 1 206 ganger.",
         "notes": {
           "upgrade": "Får ikke oppgradert??",
           "pricing": "noen andre der prissiden ikke gjør noe?",
@@ -2036,7 +2036,7 @@
         "items": {
           "status": {
             "title": "Løs, ignorer, gjenåpne",
-            "body": "Gi feil en status én og én eller mange på en gang. Det ingen har tatt tak i ennå, blir liggende under Uløst."
+            "body": "Gi feilene en status én og én eller mange om gangen. Det ingen har tatt tak i ennå, blir liggende under «Uløst»."
           },
           "history": {
             "title": "Se hvem den rammer",
@@ -2044,7 +2044,7 @@
           },
           "filter": {
             "title": "Filtrer som i analysen din",
-            "body": "Snevre inn listen med de samme filtrene som i resten av dashboardet, som side, nettleser, enhet eller land."
+            "body": "Snevre inn listen med de samme filtrene som i resten av dashboardet, for eksempel side, nettleser, enhet eller land."
           },
           "occurrences": {
             "title": "Bla gjennom forekomstene",
@@ -2087,7 +2087,7 @@
             "body": "Send også det appen din logger som feil. La det være av hvis loggene dine kan inneholde personopplysninger."
           },
           "replay": {
-            "title": "Ta opp forløpet",
+            "title": "Opptak før feilen",
             "body": "Behold opptil to minutter før hver feil som et opptak."
           }
         },
@@ -2139,7 +2139,7 @@
           },
           "quota": {
             "q": "Kan en løpsk løkke bruke opp hendelsene mine?",
-            "a": "Hver side sender høyst 10 feil av samme type hvert tiende sekund, så selv en løkke som kaster feil i hver frame, holder seg liten. Å ignorere en gruppe skjuler den fra listen, men nye forekomster teller fortsatt som hendelser til du har rettet årsaken."
+            "a": "Hver side sender høyst 10 feil av samme type hvert tiende sekund, så selv en løkke som kaster feil i hver frame, ikke blir dyr. Ignorerer du en gruppe, forsvinner den fra listen, men nye forekomster teller fortsatt som hendelser til du har rettet årsaken."
           },
           "replay": {
             "q": "Hvordan fungerer det sammen med sesjonsavspilling?",
