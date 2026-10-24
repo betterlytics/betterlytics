@@ -1438,6 +1438,10 @@
         "vitals": {
           "title": "Core Web Vitals",
           "body": "LCP, INP og CLS, målt i de besøkendes egne nettlesere."
+        },
+        "uptime": {
+          "title": "Oppetidsovervåking",
+          "body": "Sjekker så ofte som hvert minutt, varsler der teamet ditt snakker sammen, og en statusside."
         }
       }
     },
@@ -1699,6 +1703,234 @@
         "lede": "Lim inn en URL, velg hvor ofte den skal sjekkes og hvor varslene skal gå. Gratisplanen inkluderer en monitor og en statusside.",
         "primary": "Start overvåking gratis",
         "secondary": "Les dokumentasjonen om overvåking"
+      }
+    },
+    "replay": {
+      "seo": {
+        "title": "Sesjonsavspilling med personvern som standard | Betterlytics",
+        "description": "Se sesjonsopptak av ekte besøk, med all tekst og alt som tastes inn maskert i nettleseren. Hopp fra en JavaScript-feil rett til opptaket. Gratis på alle planer."
+      },
+      "hero": {
+        "eyebrow": "Sesjonsavspilling",
+        "title": "Se hvor de besøkende går seg fast, og hva som stoppet dem",
+        "lede": "Spill av ekte besøk klikk for klikk. Raseriklikk blir markert, og all tekst og alt som tastes inn maskeres før det forlater nettleseren. Gratis på alle planer, rett ved siden av trafikken og feilene dine.",
+        "primary": "Start opptak gratis",
+        "secondary": "Les dokumentasjonen"
+      },
+      "cursor": {
+        "input": "Inntasting registrert",
+        "drag": "Drabevegelse registrert",
+        "click": "Klikk registrert",
+        "rage": "Raseriklikk registrert",
+        "selection": "Markering registrert",
+        "pageview": "Sidevisning registrert",
+        "paused": "Opptak pauset"
+      },
+      "specs": {
+        "errors": {
+          "unit": "klikk",
+          "label": "Fra feil til opptak",
+          "body": "Hver JavaScript-feil lenker til sesjonen der den oppsto, så du går fra stack trace til opptak med ett klikk."
+        },
+        "history": {
+          "unit": "dager",
+          "label": "Opptakshistorikk",
+          "body": "Opptakene ligger i dashboardet ditt i 60 dager."
+        },
+        "cookies": {
+          "unit": "cookies",
+          "label": "Ingen cookies, ingen IP-er",
+          "body": "Sesjonsavspilling setter ingen cookies, og ingen IP-adresse lagres med opptakene."
+        },
+        "thesis": {
+          "unit": "%",
+          "label": "Maskert i nettleseren",
+          "body": "Hver tekstlinje og hvert skjemafelt blir til stjerner før opptaket forlater siden."
+        }
+      },
+      "story": {
+        "title": "Fra et mislykket kjøp til *årsaken*",
+        "lede": "Dette skjer når betalingsknappen svikter klokken 10:03.",
+        "stepsLabel": "Tidslinje for opptaket",
+        "steps": {
+          "record": {
+            "time": "10:02",
+            "title": "Besøket tas opp",
+            "body": "Besøket blir valgt ut for opptak og lagres mens den besøkende klikker seg rundt."
+          },
+          "error": {
+            "time": "10:03",
+            "title": "Betalingen feiler",
+            "body": "En JavaScript-feil stopper betalingen. Feilsporingen logger den med siden, nettleseren og koden som feilet."
+          },
+          "ready": {
+            "time": "10:05",
+            "title": "Opptaket dukker opp",
+            "body": "Når den besøkende forlater nettstedet, havner sesjonen i opptakslisten din, merket med feilen og et raseriklikk."
+          },
+          "jump": {
+            "time": "10:20",
+            "title": "Du hopper til øyeblikket",
+            "body": "Åpne opptaket fra feilen og hopp rett til øyeblikket den oppsto."
+          },
+          "why": {
+            "time": "10:21",
+            "title": "Og ser hvorfor",
+            "body": "Den besøkende klikket på betalingsknappen igjen og igjen med postnummeret tomt, og det er markert som et raseriklikk. Teksten er maskert, men du ser likevel hva som sto tomt."
+          }
+        },
+        "scenes": {
+          "recording": "Tar opp",
+          "newError": "Ny feil",
+          "occurrences": "{count, plural, one {# sesjon} other {# sesjoner}}",
+          "sessions": "Sesjoner",
+          "justNow": "Akkurat nå",
+          "minutesAgo": "{count} min siden",
+          "timeline": "Tidslinje",
+          "input": "Inntasting",
+          "click": "Klikk",
+          "clientError": "Klientside-feil",
+          "rageClick": "Raseriklikk",
+          "emptyField": "Postnummer: tomt",
+          "start": "Starttid:",
+          "skip": "Spring inaktivitet over"
+        }
+      },
+      "privacy": {
+        "title": "Maskert *før* det forlater nettleseren",
+        "lede": "Du ser hvor de besøkende klikket, scrollet og skrev. Personvernet deres er i behold: det de leste og skrev, forlater aldri enheten deres.",
+        "points": {
+          "text": "Hvert tegn i tekst og skjemafelt blir til en stjerne, så layouten beholder formen",
+          "media": "Bilder og iframes erstattes av tomme bokser i samme størrelse",
+          "consent": "Kan vente på samtykke før noe tas opp, der loven krever det",
+          "exclude": "Utelat hele sider eller deler av nettstedet, eller enkeltelementer du merker som private",
+          "storage": "Ingen cookies, og ingen IP-adresse lagres med et opptak"
+        },
+        "docs": "Slik fungerer maskeringen",
+        "try": "Dra for å sammenligne",
+        "visitor": "Det den besøkende ser",
+        "you": "Det du ser i opptaket",
+        "slider": "Sammenlign den besøkendes visning med det maskerte opptaket",
+        "alt": "Kassesiden til en kaffebutikk, vist to ganger. I den besøkendes visning kan navn, e-post og adresse leses; i opptaket er hvert ord stjerner, og produktbildet er en tom boks."
+      },
+      "controls": {
+        "title": "Ta opp sesjonene som er *verdt* å se",
+        "lede": "Bestem hvor mye som tas opp, og hvor. Alt annet skjer uten at de besøkende merker det.",
+        "art": {
+          "sample": "Utvalg",
+          "recorded": "Tatt opp",
+          "error": "TypeError",
+          "leadUp": "1–2 min",
+          "off": "Av",
+          "on": "På",
+          "skipped": "Ignorert",
+          "pageview": "Sidevisning"
+        },
+        "items": {
+          "sample": {
+            "title": "Velg utvalget",
+            "body": "Ta opp en liten andel av besøkene, eller hvert eneste ett. Hvert besøk tas opp i sin helhet eller ikke i det hele tatt."
+          },
+          "errors": {
+            "title": "Behold opptakten til feil",
+            "body": "Når opptak ved feil er slått på, lagrer også besøk utenfor utvalget minuttet eller to før en JavaScript-feil."
+          },
+          "paths": {
+            "title": "Utelat sider",
+            "body": "Slå av opptak for enkeltsider eller hele seksjoner, som adminområdet eller kontosidene. Ingenting tas opp der, og den delen av besøket vises sløret i avspilleren."
+          },
+          "light": {
+            "title": "Lett for nettstedet ditt",
+            "body": "Opptaksskriptet er en egen fil som bare lastes inn når det trengs, og laster opp i små, komprimerte porsjoner i bakgrunnen, så sidene dine holder seg raske."
+          },
+          "spa": {
+            "title": "Laget for single-page-apper",
+            "body": "Ruteendringer i apper bygget med React, Vue eller Next.js vises som sidevisninger på tidslinjen, akkurat som vanlige sideinnlastinger."
+          },
+          "bots": {
+            "title": "Bare mennesker",
+            "body": "Headless-nettlesere og testverktøy som Playwright og Cypress tas aldri opp, så opptakene dine viser bare ekte mennesker."
+          }
+        }
+      },
+      "setup": {
+        "title": "Slå det på med *to* linjer",
+        "lede": "Ikke noe nytt skript og ingen ny leverandør. Sesjonsavspilling kjører på Betterlytics-skriptet du allerede har.",
+        "snippetLabel": "Eksempler på oppsett",
+        "consentTab": "Samtykke",
+        "steps": {
+          "enable": {
+            "title": "Slå det på",
+            "body": "Legg til ett attributt i script-taggen, eller ett valg i npm-pakken."
+          },
+          "consent": {
+            "title": "Håndter samtykke",
+            "body": "Der loven krever samtykke, som i EU og EØS, kobler én linje opptaket til samtykkebanneret ditt."
+          },
+          "tune": {
+            "title": "Finjuster",
+            "body": "Angi utvalget, utelat private stier og behold opptak av sesjoner som støtte på en feil."
+          }
+        },
+        "cta": "Les oppsettsguiden"
+      },
+      "related": {
+        "lede": "Sesjonsavspilling er én del av Betterlytics. Alt nedenfor deler dashboard, innlogging og faktura."
+      },
+      "faq": {
+        "title": "Ofte stilte spørsmål",
+        "items": {
+          "what": {
+            "q": "Hva er sesjonsavspilling?",
+            "a": "Sesjonsavspilling, også kalt sesjonsopptak eller session replay, lagrer hvordan en side endret seg og hva den besøkende gjorde der, og gjenskaper så besøket i dashboardet ditt, slik at du kan se det som en video. Det tas ikke opp noen video, og Betterlytics maskerer teksten før noe sendes."
+          },
+          "free": {
+            "q": "Er sesjonsavspilling gratis?",
+            "a": "Ja. Sesjonsavspilling er inkludert i <link>alle planer</link>, også gratisplanen, og opptak teller ikke med i de månedlige hendelsene dine."
+          },
+          "consent": {
+            "q": "Trenger jeg samtykke for sesjonsavspilling?",
+            "a": "Det kommer an på hvor de besøkende befinner seg. I EU og EØS kan GDPR og ePrivacy-direktivet kreve samtykke før du tar opp et besøk. Opptaket starter ikke før nettstedet ditt gir klarsignal. Det kan komme fra samtykkebanneret du allerede har, eller fra en innstilling i skriptet når du ikke trenger samtykke."
+          },
+          "masked": {
+            "q": "Hva blir maskert?",
+            "a": "All tekst på siden og alt som skrives inn i felt, også passord, e-postadresser og søkefelt, erstattes med stjerner i den besøkendes nettleser. Bilder og iframes utelates. Du kan blokkere mer med klassen rr-block, eller slå av opptak for hele stier."
+          },
+          "slow": {
+            "q": "Gjør sesjonsavspilling nettstedet mitt tregere?",
+            "a": "Opptaksskriptet er en egen fil som bare lastes inn når et besøk tas opp eller opptak ved feil er slått på. Det sender komprimerte biter i bakgrunnen og registrerer musebevegelser med jevne mellomrom i stedet for å følge hver piksel."
+          },
+          "sample": {
+            "q": "Hvor mange besøk tas opp?",
+            "a": "5 % som standard. Sett data-replay-sample til en verdi fra 0 til 100. Opptak under 15 sekunder lagres ikke, og et opptak stopper etter 10 minutter uten aktivitet eller 20 minutter totalt."
+          },
+          "find": {
+            "q": "Hvordan finner jeg sesjonen jeg leter etter?",
+            "a": "Opptakslisten viser startside, varighet, land, nettleser, enhet, antall feil og raseriklikk for hver sesjon, og du kan skjule korte sesjoner. Fra en feil åpner «Se sesjonsavspilling» den siste sesjonen som støtte på den."
+          },
+          "rage": {
+            "q": "Oppdager den raseriklikk?",
+            "a": "Ja. Når en besøkende klikker på samme sted igjen og igjen, markerer Betterlytics det som et raseriklikk. Du ser det på tidslinjen i opptaket og som et antall i opptakslisten, så frustrerte besøkende er lette å finne."
+          },
+          "history": {
+            "q": "Hvor lenge lagres opptakene?",
+            "a": "60 dager. Deretter slettes de for godt."
+          },
+          "mobile": {
+            "q": "Fungerer det i mobilapper?",
+            "a": "Det tar opp nettsteder og nettapper, i nettlesere på både datamaskin og mobil. Native iOS- og Android-apper støttes ikke. På berøringsskjermer tas trykk og scrolling opp, men det finnes ingen markør å følge."
+          },
+          "dedicated": {
+            "q": "Når passer et dedikert verktøy for sesjonsavspilling bedre?",
+            "a": "Betterlytics viser hva de besøkende gjorde, med hvert ord maskert. Trenger du heatmaps, konsoll- og nettverkslogger, lesbar tekst eller søk etter bruker og hendelse, vil et dedikert verktøy passe bedre. <link>Sammenligningen vår med PostHog</link> viser forskjellene funksjon for funksjon."
+          }
+        }
+      },
+      "cta": {
+        "title": "Se ditt første opptak i dag",
+        "lede": "Slå det på i skriptet du allerede har, og koble til samtykkebanneret ditt der det trengs. Sesjonsavspilling er gratis på alle planer.",
+        "primary": "Start opptak gratis",
+        "secondary": "Les dokumentasjonen om opptak"
       }
     }
   },
