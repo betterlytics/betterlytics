@@ -1,9 +1,11 @@
 import prisma from '@/lib/postgres';
 import {
   MonitorCheckSchema,
+  MonitorPausePeriodSchema,
   type MonitorCheck,
   type MonitorCheckCreate,
   type MonitorCheckUpdate,
+  type MonitorPausePeriod,
 } from '@/entities/analytics/monitoring.entities';
 import { normalizeUrl } from '@/utils/domainValidation';
 
@@ -64,21 +66,85 @@ export async function createMonitorCheck(dashboardId: string, data: MonitorCheck
   return MonitorCheckSchema.parse(created);
 }
 
-export async function updateMonitorCheck(dashboardId: string, data: MonitorCheckUpdate): Promise<MonitorCheck> {
-  const updated = await prisma.monitorCheck.update({
-    where: {
-      id_dashboardId: {
-        id: data.id,
-        dashboardId,
+/**
+ * Updates a monitor and records a pause or resume when `isEnabled` flips. Resuming a monitor
+ * paused before pause times were recorded records its pause from `unrecordedPausedAt`.
+ */
+export async function updateMonitorCheck(
+  dashboardId: string,
+  data: MonitorCheckUpdate,
+  options: { unrecordedPausedAt?: Date | null } = {},
+): Promise<MonitorCheck> {
+  const updated = await prisma.$transaction(async (tx) => {
+    // Flipping isEnabled through a conditional update locks the row, so concurrent toggles
+    // record one pause period, not two.
+    const flipped =
+      data.isEnabled === undefined
+        ? 0
+        : (
+            await tx.monitorCheck.updateMany({
+              where: { id: data.id, dashboardId, isEnabled: !data.isEnabled },
+              data: { isEnabled: data.isEnabled },
+            })
+          ).count;
+
+    if (flipped > 0) {
+      const now = new Date();
+      if (data.isEnabled === false) {
+        await tx.monitorPausePeriod.create({ data: { monitorCheckId: data.id, pausedAt: now } });
+      } else {
+        const closed = await tx.monitorPausePeriod.updateMany({
+          where: { monitorCheckId: data.id, resumedAt: null },
+          data: { resumedAt: now },
+        });
+        if (closed.count === 0 && options.unrecordedPausedAt) {
+          await tx.monitorPausePeriod.create({
+            data: { monitorCheckId: data.id, pausedAt: options.unrecordedPausedAt, resumedAt: now },
+          });
+        }
+      }
+    }
+
+    return tx.monitorCheck.update({
+      where: {
+        id_dashboardId: {
+          id: data.id,
+          dashboardId,
+        },
       },
-    },
-    data: {
-      ...data,
-      requestHeaders: data.requestHeaders ?? undefined,
-    },
+      data: {
+        ...data,
+        requestHeaders: data.requestHeaders ?? undefined,
+      },
+    });
   });
 
   return MonitorCheckSchema.parse(updated);
+}
+
+/** The monitors' pause periods, oldest first, with whether each monitor is enabled now. */
+export async function listMonitorPauseState(
+  dashboardId: string,
+  monitorIds: string[],
+): Promise<{ monitors: Array<{ id: string; isEnabled: boolean }>; pauses: MonitorPausePeriod[] }> {
+  if (!monitorIds.length) return { monitors: [], pauses: [] };
+
+  const rows = await prisma.monitorCheck.findMany({
+    where: { id: { in: monitorIds }, dashboardId },
+    select: {
+      id: true,
+      isEnabled: true,
+      pausePeriods: {
+        select: { monitorCheckId: true, pausedAt: true, resumedAt: true },
+        orderBy: { pausedAt: 'asc' },
+      },
+    },
+  });
+
+  return {
+    monitors: rows.map(({ id, isEnabled }) => ({ id, isEnabled })),
+    pauses: rows.flatMap((row) => row.pausePeriods.map((pause) => MonitorPausePeriodSchema.parse(pause))),
+  };
 }
 
 export async function deleteMonitorCheck(dashboardId: string, monitorId: string): Promise<void> {

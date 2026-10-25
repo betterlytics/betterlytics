@@ -451,9 +451,22 @@ model MonitorCheck {
   deletedAt             DateTime?
 
   statusPageMonitors    StatusPageMonitor[]
+  pausePeriods          MonitorPausePeriod[]
 
   @@index([dashboardId])
   @@unique([id, dashboardId])
+}
+
+// A stretch a monitor was paused for: neither up nor down in uptime. Read by the backend's
+// monitoring_ro role for the recovery downtime.
+model MonitorPausePeriod {
+  id             String       @id @default(cuid())
+  monitorCheck   MonitorCheck @relation(fields: [monitorCheckId], references: [id], onDelete: Cascade)
+  monitorCheckId String
+  pausedAt       DateTime
+  resumedAt      DateTime? // null while still paused
+
+  @@index([monitorCheckId, pausedAt])
 }
 
 model StatusPage {

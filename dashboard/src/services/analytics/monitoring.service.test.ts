@@ -4,6 +4,7 @@ import { getMonitorDailyUptime } from '@/repositories/clickhouse/monitoring.repo
 
 vi.mock('@/repositories/postgres/monitoring.repository', () => ({
   getMonitorCheckById: vi.fn(async () => ({ createdAt: new Date('2026-01-01T00:00:00Z') })),
+  listMonitorPauseState: vi.fn(async () => ({ monitors: [], pauses: [] })),
 }));
 vi.mock('@/repositories/postgres/statusPage.repository', () => ({}));
 vi.mock('@/repositories/clickhouse/monitoring.repository', () => ({
@@ -38,6 +39,7 @@ describe('fetchMonitorDailyUptime', () => {
       rangeStart,
       rangeEnd,
       180,
+      [],
     );
   });
 });

@@ -109,7 +109,7 @@ export const updateMonitorCheckAction = withDashboardMutationAuthContext(
       .expectedKeyword(payload.expectedKeyword, payload.httpMethod)
       .validate();
 
-    const updated = await updateMonitorCheck(ctx.dashboardId, payload);
+    const updated = await updateMonitorCheck(ctx.dashboardId, ctx.siteId, payload);
 
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring`);
     revalidatePath(`/dashboard/${ctx.dashboardId}/monitoring/${payload.id}`);
@@ -137,7 +137,7 @@ export const fetchRecentMonitorResultsAction = withDashboardAuthContext(
 
 export const fetchMonitorIncidentsAction = withDashboardAuthContext(
   async (ctx: AuthContext, monitorId: string) => {
-    return await fetchMonitorIncidentSegments(monitorId, ctx.siteId);
+    return await fetchMonitorIncidentSegments(ctx.dashboardId, monitorId, ctx.siteId);
   },
 );
 

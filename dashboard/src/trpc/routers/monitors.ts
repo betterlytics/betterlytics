@@ -40,7 +40,7 @@ export const monitorsRouter = createRouter({
   incidents: dashboardProcedure
     .input(z.object({ monitorId: z.string() }))
     .query(async ({ ctx, input }) => {
-      return await fetchMonitorIncidentSegments(input.monitorId, ctx.authContext.siteId);
+      return await fetchMonitorIncidentSegments(ctx.authContext.dashboardId, input.monitorId, ctx.authContext.siteId);
     }),
 
   latestTls: dashboardProcedure

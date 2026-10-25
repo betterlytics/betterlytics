@@ -124,6 +124,13 @@ export const MonitorIncidentSegmentSchema = z.object({
   durationMs: z.number().nullable(),
 });
 
+/** A stretch a monitor was paused for; `resumedAt` is null while still paused. */
+export const MonitorPausePeriodSchema = z.object({
+  monitorCheckId: z.string(),
+  pausedAt: z.date(),
+  resumedAt: z.date().nullable(),
+});
+
 export const UptimeStatsSchema = z.object({
   uptimeSeconds: z.number(),
   totalSeconds: z.number(),
@@ -233,6 +240,7 @@ export type MonitorRangeSummary = {
   tls: MonitorTlsResult | null;
 };
 
+export type MonitorPausePeriod = z.infer<typeof MonitorPausePeriodSchema>;
 export type UptimeStats = z.infer<typeof UptimeStatsSchema>;
 export type MonitorUptimeBucket = z.infer<typeof MonitorUptimeBucketSchema>;
 export type MonitorLatencyStats = z.infer<typeof MonitorLatencyStatsSchema>;

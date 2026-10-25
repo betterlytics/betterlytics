@@ -28,6 +28,7 @@ const ROLES = [
     // Read-only: uptime monitor configuration.
     grants: {
       MonitorCheck: ["SELECT"],
+      MonitorPausePeriod: ["SELECT"],
       Dashboard: ["SELECT"],
     },
   },

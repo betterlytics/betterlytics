@@ -25,12 +25,26 @@ import {
   type IncidentState,
   DetectedOutageRowSchema,
   type DetectedOutageRow,
+  type MonitorPausePeriod,
 } from '@/entities/analytics/monitoring.entities';
+import {
+  excludePausedTime,
+  pausesForMonitor,
+  unpausedDurationMs,
+  type UptimeWindow,
+} from '@/entities/analytics/monitorPause.helpers';
 import { parseClickHouseDate, toIsoUtc } from '@/utils/dateHelpers';
 import { groupByKey } from '@/utils/collections';
 import { formatDayKey } from '@/utils/timezone';
 
-type UptimeBucketRow = { date: string; uptime_seconds: number | null; total_seconds: number };
+// Paused time is taken out in TypeScript, so the window and the incident stretches come back in unix seconds.
+type PausableWindowRow = {
+  window_start: number;
+  window_end: number;
+  down_starts: number[];
+  down_ends: number[];
+};
+type UptimeBucketRow = PausableWindowRow & { date: string; uptime_seconds: number | null; total_seconds: number };
 type IncidentSegmentRow = {
   state: string;
   reason_code: string | null;
@@ -39,25 +53,42 @@ type IncidentSegmentRow = {
   last_event_at: string | null;
 };
 
-function parseUptimeBucketRow(row: UptimeBucketRow): MonitorUptimeBucket {
+function toUptimeWindow(row: PausableWindowRow, totalSeconds: number, uptimeSeconds: number | null): UptimeWindow {
+  return {
+    totalSeconds,
+    uptimeSeconds,
+    windowStart: Number(row.window_start),
+    windowEnd: Number(row.window_end),
+    downtime: row.down_starts
+      .map((start, i): [number, number] => [Number(start), Number(row.down_ends[i])])
+      .filter(([start, end]) => end > start),
+  };
+}
+
+function parseUptimeBucketRow(row: UptimeBucketRow, pauses: MonitorPausePeriod[]): MonitorUptimeBucket {
+  const { totalSeconds, uptimeSeconds } = excludePausedTime(
+    toUptimeWindow(row, row.total_seconds, row.uptime_seconds),
+    pauses,
+  );
   return MonitorUptimeBucketSchema.parse({
     bucket: toIsoUtc(row.date) ?? row.date,
-    upRatio: row.uptime_seconds != null && row.total_seconds > 0 ? row.uptime_seconds / row.total_seconds : null,
-    totalSeconds: row.total_seconds,
+    upRatio: uptimeSeconds != null && totalSeconds > 0 ? uptimeSeconds / totalSeconds : null,
+    totalSeconds,
   });
 }
 
-function parseIncidentSegmentRow(row: IncidentSegmentRow): MonitorIncidentSegment {
-  const end = row.resolved_at ?? row.last_event_at;
+function incidentDurationMs(startedAt: string, end: string | null, pauses: MonitorPausePeriod[]): number | null {
+  if (!startedAt || !end) return null;
+  return unpausedDurationMs(pauses, parseClickHouseDate(startedAt).getTime(), parseClickHouseDate(end).getTime());
+}
+
+function parseIncidentSegmentRow(row: IncidentSegmentRow, pauses: MonitorPausePeriod[]): MonitorIncidentSegment {
   return MonitorIncidentSegmentSchema.parse({
     state: row.state,
     reason: row.reason_code,
     start: toIsoUtc(row.started_at) ?? row.started_at,
     end: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-    durationMs:
-      row.started_at && end
-        ? parseClickHouseDate(end).getTime() - parseClickHouseDate(row.started_at).getTime()
-        : null,
+    durationMs: incidentDurationMs(row.started_at, row.resolved_at ?? row.last_event_at, pauses),
   });
 }
 
@@ -71,6 +102,7 @@ export async function getMonitorUptimeBuckets(
   rangeEnd: string,
   buckets: number,
   granularity: 'day' | 'hour',
+  pauses: MonitorPausePeriod[] = [],
 ): Promise<MonitorUptimeBucket[]> {
   const createdAtStr = toDateTimeString(createdAt);
 
@@ -155,7 +187,11 @@ export async function getMonitorUptimeBuckets(
           )
         )
       ) AS uptime_seconds,
-      ${bucketSizeSeconds} AS total_seconds
+      ${bucketSizeSeconds} AS total_seconds,
+      toUnixTimestamp(greatest(bucket_start, ${SQL.DateTime({ createdAt: createdAtStr })})) AS window_start,
+      toUnixTimestamp(least(bucket_start + INTERVAL 1 ${interval}, now())) AS window_end,
+      groupArray(toUnixTimestamp(greatest(ib.started_at, bucket_start))) AS down_starts,
+      groupArray(toUnixTimestamp(least(ib.effective_resolved_at, bucket_start + INTERVAL 1 ${interval}, now()))) AS down_ends
     FROM (
       SELECT arrayJoin(
         arrayMap(
@@ -176,7 +212,8 @@ export async function getMonitorUptimeBuckets(
     })
     .toPromise()) as UptimeBucketRow[];
 
-  return rows.map(parseUptimeBucketRow);
+  const monitorPauses = pausesForMonitor(pauses, checkId);
+  return rows.map((row) => parseUptimeBucketRow(row, monitorPauses));
 }
 
 /**
@@ -194,6 +231,7 @@ export async function getUptimeBucketsForMonitors(
   rangeStart: string,
   rangeEnd: string,
   buckets: number,
+  pauses: MonitorPausePeriod[] = [],
 ): Promise<Map<string, MonitorUptimeBucket[]>> {
   if (!monitors.length) return new Map();
 
@@ -273,7 +311,11 @@ export async function getUptimeBucketsForMonitors(
           )
         )
       ) AS uptime_seconds,
-      ${bucketSizeSeconds} AS total_seconds
+      ${bucketSizeSeconds} AS total_seconds,
+      toUnixTimestamp(greatest(grid.bucket_start, grid.created_at)) AS window_start,
+      toUnixTimestamp(least(grid.bucket_start + INTERVAL 1 DAY, now())) AS window_end,
+      groupArray(toUnixTimestamp(greatest(ib.started_at, grid.bucket_start))) AS down_starts,
+      groupArray(toUnixTimestamp(least(ib.effective_resolved_at, grid.bucket_start + INTERVAL 1 DAY, now()))) AS down_ends
     FROM (
       SELECT
         m.check_id AS check_id,
@@ -308,7 +350,11 @@ export async function getUptimeBucketsForMonitors(
     })
     .toPromise()) as (UptimeBucketRow & { check_id: string })[];
 
-  return groupByKey(rows, (row) => row.check_id, parseUptimeBucketRow);
+  return groupByKey(
+    rows,
+    (row) => row.check_id,
+    (row) => parseUptimeBucketRow(row, pausesForMonitor(pauses, row.check_id)),
+  );
 }
 
 // Convenience wrapper for 24h hourly buckets
@@ -318,8 +364,9 @@ export async function getUptimeBuckets24h(
   createdAt: Date,
   rangeStart: string,
   rangeEnd: string,
+  pauses: MonitorPausePeriod[] = [],
 ): Promise<MonitorUptimeBucket[]> {
-  return getMonitorUptimeBuckets(checkId, siteId, createdAt, 'UTC', rangeStart, rangeEnd, 24, 'hour');
+  return getMonitorUptimeBuckets(checkId, siteId, createdAt, 'UTC', rangeStart, rangeEnd, 24, 'hour', pauses);
 }
 
 // Convenience wrapper for daily uptime buckets
@@ -331,6 +378,7 @@ export async function getMonitorDailyUptime(
   rangeStart: string,
   rangeEnd: string,
   days: number,
+  pauses: MonitorPausePeriod[] = [],
 ): Promise<MonitorDailyUptime[]> {
   const buckets = await getMonitorUptimeBuckets(
     checkId,
@@ -341,6 +389,7 @@ export async function getMonitorDailyUptime(
     rangeEnd,
     days,
     'day',
+    pauses,
   );
 
   return buckets
@@ -361,6 +410,7 @@ export async function getUptime24h(
   createdAt: Date,
   rangeStart: string,
   rangeEnd: string,
+  pauses: MonitorPausePeriod[] = [],
 ): Promise<UptimeStats> {
   const createdAtStr = toDateTimeString(createdAt);
 
@@ -371,6 +421,10 @@ export async function getUptime24h(
         greatest(${SQL.DateTime({ createdAt: createdAtStr })}, ${SQL.DateTime({ rangeStart })}),
         least(now(), ${SQL.DateTime({ rangeEnd })})
       )) AS total_seconds,
+      toUnixTimestamp(greatest(${SQL.DateTime({ createdAt: createdAtStr })}, ${SQL.DateTime({ rangeStart })})) AS window_start,
+      toUnixTimestamp(least(now(), ${SQL.DateTime({ rangeEnd })})) AS window_end,
+      groupArray(toUnixTimestamp(greatest(started_at, ${SQL.DateTime({ rangeStart })}))) AS down_starts,
+      groupArray(toUnixTimestamp(least(coalesce(resolved_at, now()), ${SQL.DateTime({ rangeEnd })}))) AS down_ends,
       sum(
         greatest(
           0,
@@ -393,16 +447,21 @@ export async function getUptime24h(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_id: checkId, site_id: siteId },
     })
-    .toPromise()) as { total_seconds: number; downtime_seconds: number }[];
+    .toPromise()) as (PausableWindowRow & { total_seconds: number; downtime_seconds: number })[];
 
-  const totalSeconds = row?.total_seconds ?? 0;
-  const downtimeSeconds = row?.downtime_seconds ?? 0;
-  const uptimeSeconds = Math.max(0, totalSeconds - downtimeSeconds);
+  if (!row) return UptimeStatsSchema.parse({ uptimeSeconds: 0, totalSeconds: 0 });
+  return toUptimeStats(row, pausesForMonitor(pauses, checkId));
+}
 
-  return UptimeStatsSchema.parse({
-    uptimeSeconds,
-    totalSeconds,
-  });
+function toUptimeStats(
+  row: PausableWindowRow & { total_seconds: number; downtime_seconds: number },
+  pauses: MonitorPausePeriod[],
+): UptimeStats {
+  const { totalSeconds, uptimeSeconds } = excludePausedTime(
+    toUptimeWindow(row, row.total_seconds, Math.max(0, row.total_seconds - row.downtime_seconds)),
+    pauses,
+  );
+  return UptimeStatsSchema.parse({ uptimeSeconds: uptimeSeconds ?? 0, totalSeconds });
 }
 
 export async function getRecentMonitorResults(
@@ -500,6 +559,7 @@ export async function getMonitorIncidentSegments(
   siteId: string,
   days = 7,
   limit = 5,
+  pauses: MonitorPausePeriod[] = [],
 ): Promise<MonitorIncidentSegment[]> {
   const query = safeSql`
     SELECT
@@ -522,7 +582,8 @@ export async function getMonitorIncidentSegments(
     })
     .toPromise()) as IncidentSegmentRow[];
 
-  return rows.map(parseIncidentSegmentRow);
+  const monitorPauses = pausesForMonitor(pauses, checkId);
+  return rows.map((row) => parseIncidentSegmentRow(row, monitorPauses));
 }
 
 /**
@@ -535,6 +596,7 @@ export async function getIncidentSegmentsForMonitors(
   siteId: string,
   days: number,
   limitPerMonitor: number,
+  pauses: MonitorPausePeriod[] = [],
 ): Promise<Map<string, MonitorIncidentSegment[]>> {
   if (!checkIds.length) return new Map();
 
@@ -561,7 +623,11 @@ export async function getIncidentSegmentsForMonitors(
     })
     .toPromise()) as (IncidentSegmentRow & { check_id: string })[];
 
-  return groupByKey(rows, (row) => row.check_id, parseIncidentSegmentRow);
+  return groupByKey(
+    rows,
+    (row) => row.check_id,
+    (row) => parseIncidentSegmentRow(row, pausesForMonitor(pauses, row.check_id)),
+  );
 }
 
 export async function getUptimeStatsForMonitors(
@@ -569,6 +635,7 @@ export async function getUptimeStatsForMonitors(
   siteId: string,
   rangeStart: string,
   rangeEnd: string,
+  pauses: MonitorPausePeriod[] = [],
 ): Promise<Map<string, UptimeStats>> {
   if (!monitors.length) return new Map();
 
@@ -597,7 +664,9 @@ export async function getUptimeStatsForMonitors(
                 least(coalesce(resolved_at, now()), ${SQL.DateTime({ rangeEnd })})
               )
             )
-          ) AS downtime_seconds
+          ) AS downtime_seconds,
+          groupArray(toUnixTimestamp(greatest(started_at, ${SQL.DateTime({ rangeStart })}))) AS down_starts,
+          groupArray(toUnixTimestamp(least(coalesce(resolved_at, now()), ${SQL.DateTime({ rangeEnd })}))) AS down_ends
         FROM analytics.monitor_incidents FINAL
         WHERE check_id IN ({check_ids:Array(String)})
           AND site_id = {site_id:String}
@@ -613,7 +682,11 @@ export async function getUptimeStatsForMonitors(
         greatest(m.created_at, ${SQL.DateTime({ rangeStart })}),
         least(now(), ${SQL.DateTime({ rangeEnd })})
       )) AS total_seconds,
-      coalesce(d.downtime_seconds, 0) AS downtime_seconds
+      coalesce(d.downtime_seconds, 0) AS downtime_seconds,
+      toUnixTimestamp(greatest(m.created_at, ${SQL.DateTime({ rangeStart })})) AS window_start,
+      toUnixTimestamp(least(now(), ${SQL.DateTime({ rangeEnd })})) AS window_end,
+      d.down_starts AS down_starts,
+      d.down_ends AS down_ends
     FROM monitors AS m
     LEFT JOIN downtime AS d ON d.check_id = m.check_id
   `;
@@ -627,17 +700,9 @@ export async function getUptimeStatsForMonitors(
         site_id: siteId,
       },
     })
-    .toPromise()) as { check_id: string; total_seconds: number; downtime_seconds: number }[];
+    .toPromise()) as (PausableWindowRow & { check_id: string; total_seconds: number; downtime_seconds: number })[];
 
-  return new Map(
-    rows.map((row) => [
-      row.check_id,
-      UptimeStatsSchema.parse({
-        uptimeSeconds: Math.max(0, row.total_seconds - row.downtime_seconds),
-        totalSeconds: row.total_seconds,
-      }),
-    ]),
-  );
+  return new Map(rows.map((row) => [row.check_id, toUptimeStats(row, pausesForMonitor(pauses, row.check_id))]));
 }
 
 export async function getLatencyStatsForMonitors(
@@ -690,6 +755,7 @@ export async function getMonitorIncidentsInRange(
   rangeEnd: string,
   limit: number,
   state?: IncidentState,
+  pauses: MonitorPausePeriod[] = [],
 ): Promise<MonitorIncidentRecord[]> {
   if (!checkIds.length) return [];
 
@@ -733,7 +799,7 @@ export async function getMonitorIncidentsInRange(
       reason: row.reason_code,
       startedAt: toIsoUtc(row.started_at) ?? row.started_at,
       resolvedAt: row.resolved_at ? (toIsoUtc(row.resolved_at) ?? row.resolved_at) : null,
-      durationMs: end ? parseClickHouseDate(end).getTime() - parseClickHouseDate(row.started_at).getTime() : null,
+      durationMs: incidentDurationMs(row.started_at, end, pausesForMonitor(pauses, row.check_id)),
     });
   });
 }
@@ -998,7 +1064,11 @@ export async function getIncidentCount24h(checkId: string, siteId: string): Prom
   return row?.count ?? 0;
 }
 
-export async function getIncidentSegments24h(checkId: string, siteId: string): Promise<MonitorIncidentSegment[]> {
+export async function getIncidentSegments24h(
+  checkId: string,
+  siteId: string,
+  pauses: MonitorPausePeriod[] = [],
+): Promise<MonitorIncidentSegment[]> {
   const query = safeSql`
     SELECT
       state,
@@ -1020,5 +1090,6 @@ export async function getIncidentSegments24h(checkId: string, siteId: string): P
     })
     .toPromise()) as IncidentSegmentRow[];
 
-  return rows.map(parseIncidentSegmentRow);
+  const monitorPauses = pausesForMonitor(pauses, checkId);
+  return rows.map((row) => parseIncidentSegmentRow(row, monitorPauses));
 }

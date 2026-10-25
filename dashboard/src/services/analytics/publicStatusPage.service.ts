@@ -37,7 +37,7 @@ import {
   listPublishedIncidentUpdates,
 } from '@/repositories/postgres/statusPageIncident.repository';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
-import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
+import { getMonitorChecksWithStatus, getMonitorPausePeriods } from '@/services/analytics/monitoring.service';
 import { toDateTimeString } from '@/utils/dateFormatters';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
@@ -195,6 +195,7 @@ async function assembleStatusPage(
   const rangeEndDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
   const rangeStart = toDateTimeString(new Date(rangeEndDate.getTime() - days * 24 * 60 * 60 * 1000));
   const rangeEnd = toDateTimeString(rangeEndDate);
+  const pauses = await getMonitorPausePeriods(page.dashboardId, siteId, checkIds);
 
   const [bucketsByCheckId, openIncidents, latestCheckInfo, { publishedIncidents, updatesByIncident }] =
     await Promise.all([
@@ -205,6 +206,7 @@ async function assembleStatusPage(
         rangeStart,
         rangeEnd,
         days,
+        pauses,
       ),
 
       getOpenIncidentsForMonitors(checkIds, siteId),

@@ -12,6 +12,7 @@ import {
   type MonitorIncidentWithMonitor,
   type MonitorMetrics,
   type MonitorOperationalState,
+  type MonitorPausePeriod,
   type MonitorRangeSummary,
   type MonitorResult,
   type MonitorTlsResult,
@@ -25,6 +26,7 @@ import {
   updateMonitorCheck as updateMonitorCheckRepo,
   deleteMonitorCheck as deleteMonitorCheckRepo,
   monitorExistsForUrl as monitorExistsForUrlRepo,
+  listMonitorPauseState,
 } from '@/repositories/postgres/monitoring.repository';
 import { removeMonitorFromStatusPages } from '@/repositories/postgres/statusPage.repository';
 
@@ -48,6 +50,7 @@ import {
   getIncidentSegments24h,
 } from '@/repositories/clickhouse/monitoring.repository';
 import { normalizeUptimeBuckets } from '@/presenters/toMonitorMetrics';
+import { monitorsWithUnrecordedPause, withUnrecordedPauses } from '@/entities/analytics/monitorPause.helpers';
 
 export async function getMonitorCheck(dashboardId: string, monitorId: string) {
   return getMonitorCheckById(dashboardId, monitorId);
@@ -57,8 +60,44 @@ export async function addMonitorCheck(dashboardId: string, input: MonitorCheckCr
   return createMonitorCheck(dashboardId, input);
 }
 
-export async function updateMonitorCheck(dashboardId: string, input: MonitorCheckUpdate) {
-  return updateMonitorCheckRepo(dashboardId, input);
+export async function updateMonitorCheck(dashboardId: string, siteId: string, input: MonitorCheckUpdate) {
+  return updateMonitorCheckRepo(dashboardId, input, {
+    unrecordedPausedAt:
+      input.isEnabled === true ? await getUnrecordedPausedAt(dashboardId, siteId, input.id) : null,
+  });
+}
+
+/** For a monitor paused before pause times were recorded: its last recorded check. */
+async function getUnrecordedPausedAt(
+  dashboardId: string,
+  siteId: string,
+  monitorId: string,
+): Promise<Date | null> {
+  const { monitors, pauses } = await listMonitorPauseState(dashboardId, [monitorId]);
+  if (!monitorsWithUnrecordedPause(monitors, pauses).length) return null;
+
+  const lastCheckAt = (await getLatestCheckInfoForMonitors([monitorId], siteId))[monitorId]?.ts;
+  return lastCheckAt ? new Date(lastCheckAt) : null;
+}
+
+/**
+ * Pause periods of the dashboard's monitors. A monitor paused before pause times were recorded
+ * counts as paused from its last recorded check.
+ */
+export async function getMonitorPausePeriods(
+  dashboardId: string,
+  siteId: string,
+  monitorIds: string[],
+): Promise<MonitorPausePeriod[]> {
+  const { monitors, pauses } = await listMonitorPauseState(dashboardId, monitorIds);
+  const unrecorded = monitorsWithUnrecordedPause(monitors, pauses);
+  if (!unrecorded.length) return pauses;
+
+  const lastChecks = await getLatestCheckInfoForMonitors(unrecorded, siteId);
+  const lastCheckAt = Object.fromEntries(
+    unrecorded.map((id) => [id, lastChecks[id]?.ts ? new Date(lastChecks[id].ts) : null]),
+  );
+  return withUnrecordedPauses(monitors, pauses, lastCheckAt);
 }
 
 export async function deleteMonitorCheck(dashboardId: string, monitorId: string) {
@@ -89,20 +128,21 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
   const rangeStart = toDateTimeString(rangeStartDate);
   const rangeEnd = toDateTimeString(rangeEndDate);
 
-  const [openIncidents, lastResolvedIncidents, monitorsWithResults, tlsResults, latestCheckInfo] =
+  const [openIncidents, lastResolvedIncidents, monitorsWithResults, tlsResults, latestCheckInfo, pauses] =
     await Promise.all([
       getOpenIncidentsForMonitors(checkIds, siteId),
       getLastResolvedIncidentForMonitors(checkIds, siteId),
       getMonitorsWithResults(checkIds, siteId),
       getLatestTlsResultsForMonitors(checkIds, siteId),
       getLatestCheckInfoForMonitors(checkIds, siteId),
+      getMonitorPausePeriods(dashboardId, siteId, checkIds),
     ]);
 
   // Calculate uptime buckets for each monitor using ClickHouse
   const uptimeBuckets = await Promise.all(
     checks.map(async (check) => ({
       id: check.id,
-      buckets: await getUptimeBuckets24h(check.id, siteId, check.createdAt, rangeStart, rangeEnd),
+      buckets: await getUptimeBuckets24h(check.id, siteId, check.createdAt, rangeStart, rangeEnd, pauses),
     })),
   ).then((results) =>
     results.reduce<Record<string, MonitorUptimeBucket[]>>((acc, { id, buckets }) => {
@@ -157,6 +197,7 @@ export async function fetchMonitorMetrics(
   const rangeStartDate = new Date(rangeEndDate.getTime() - 24 * 60 * 60 * 1000);
   const rangeStart = toDateTimeString(rangeStartDate);
   const rangeEnd = toDateTimeString(rangeEndDate);
+  const pauses = await getMonitorPausePeriods(dashboardId, siteId, [monitorId]);
 
   const [
     openIncidents,
@@ -170,11 +211,11 @@ export async function fetchMonitorMetrics(
     latestCheckInfo,
   ] = await Promise.all([
     getOpenIncidentsForMonitors([monitorId], siteId),
-    getIncidentSegments24h(monitorId, siteId),
+    getIncidentSegments24h(monitorId, siteId, pauses),
     getLastResolvedIncidentForMonitors([monitorId], siteId),
-    getUptime24h(monitorId, siteId, monitor.createdAt, rangeStart, rangeEnd),
+    getUptime24h(monitorId, siteId, monitor.createdAt, rangeStart, rangeEnd, pauses),
     getLatency24h(monitorId, siteId),
-    getUptimeBuckets24h(monitorId, siteId, monitor.createdAt, rangeStart, rangeEnd),
+    getUptimeBuckets24h(monitorId, siteId, monitor.createdAt, rangeStart, rangeEnd, pauses),
     getLatencySeries24h(monitorId, siteId),
     getIncidentCount24h(monitorId, siteId),
     getLatestCheckInfoForMonitors([monitorId], siteId).then((r) => r[monitorId] ?? null),
@@ -228,8 +269,9 @@ export async function fetchMonitorDailyUptime(
   const rangeStartDate = rangeEndDate.clone().subtract(days, 'days');
   const rangeStart = toDateTimeString(rangeStartDate.toDate());
   const rangeEnd = toDateTimeString(rangeEndDate.toDate());
+  const pauses = await getMonitorPausePeriods(dashboardId, siteId, [monitorId]);
 
-  return getMonitorDailyUptime(monitorId, siteId, monitor.createdAt, timezone, rangeStart, rangeEnd, days);
+  return getMonitorDailyUptime(monitorId, siteId, monitor.createdAt, timezone, rangeStart, rangeEnd, days, pauses);
 }
 
 export async function fetchRecentMonitorResults(
@@ -250,12 +292,14 @@ export async function fetchLatestMonitorTlsResult(
 }
 
 export async function fetchMonitorIncidentSegments(
+  dashboardId: string,
   monitorId: string,
   siteId: string,
   days = 7,
   limit = 5,
 ): Promise<MonitorIncidentSegment[]> {
-  return getMonitorIncidentSegments(monitorId, siteId, days, limit);
+  const pauses = await getMonitorPausePeriods(dashboardId, siteId, [monitorId]);
+  return getMonitorIncidentSegments(monitorId, siteId, days, limit, pauses);
 }
 
 export async function getMonitorSummariesForRange(
@@ -271,6 +315,8 @@ export async function getMonitorSummariesForRange(
   const rangeStart = toDateTimeString(start);
   const rangeEnd = toDateTimeString(end);
 
+  const pauses = await getMonitorPausePeriods(dashboardId, siteId, checkIds);
+
   const [openIncidents, lastResolvedIncidents, latestCheckInfo, uptimeStats, latencyStats, tlsResults] =
     await Promise.all([
       getOpenIncidentsForMonitors(checkIds, siteId),
@@ -281,6 +327,7 @@ export async function getMonitorSummariesForRange(
         siteId,
         rangeStart,
         rangeEnd,
+        pauses,
       ),
       getLatencyStatsForMonitors(checkIds, siteId, rangeStart, rangeEnd),
       getLatestTlsResultsForMonitors(checkIds, siteId),
@@ -328,13 +375,16 @@ export async function getMonitorIncidentsForRange(
   if (!scoped.length) return [];
 
   const monitorsById = new Map(scoped.map((check) => [check.id, check]));
+  const checkIds = scoped.map((check) => check.id);
+  const pauses = await getMonitorPausePeriods(dashboardId, siteId, checkIds);
   const incidents = await getMonitorIncidentsInRange(
-    scoped.map((check) => check.id),
+    checkIds,
     siteId,
     toDateTimeString(options.start),
     toDateTimeString(options.end),
     options.limit,
     options.state,
+    pauses,
   );
 
   return incidents.flatMap((incident) => {
