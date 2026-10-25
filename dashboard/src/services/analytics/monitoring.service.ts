@@ -78,16 +78,22 @@ export async function countMonitorChecks(dashboardId: string): Promise<number> {
   return countMonitorChecksRepo(dashboardId);
 }
 
+// The last 24 real hours on the zone's hour boundaries, ending after the zone's current hour
+function getLast24hRange(timezone: string) {
+  const rangeEnd = moment.tz(timezone).startOf('hour').add(1, 'hour');
+  const rangeStartDate = rangeEnd.clone().subtract(24, 'hours').toDate();
+  return {
+    rangeStartDate,
+    rangeStart: toDateTimeString(rangeStartDate),
+    rangeEnd: toDateTimeString(rangeEnd.toDate()),
+  };
+}
+
 export async function getMonitorChecksWithStatus(dashboardId: string, siteId: string, timezone: string) {
   const checks = await listMonitorChecks(dashboardId);
   const checkIds = checks.map((check) => check.id);
 
-  // Compute 24h date range aligned to hour boundaries
-  const now = new Date();
-  const rangeEndDate = new Date(Math.ceil(now.getTime() / (60 * 60 * 1000)) * 60 * 60 * 1000); // Start of next hour
-  const rangeStartDate = new Date(rangeEndDate.getTime() - 24 * 60 * 60 * 1000);
-  const rangeStart = toDateTimeString(rangeStartDate);
-  const rangeEnd = toDateTimeString(rangeEndDate);
+  const { rangeStartDate, rangeStart, rangeEnd } = getLast24hRange(timezone);
 
   const [openIncidents, lastResolvedIncidents, monitorsWithResults, tlsResults, latestCheckInfo] =
     await Promise.all([
@@ -102,7 +108,7 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
   const uptimeBuckets = await Promise.all(
     checks.map(async (check) => ({
       id: check.id,
-      buckets: await getUptimeBuckets24h(check.id, siteId, check.createdAt, rangeStart, rangeEnd),
+      buckets: await getUptimeBuckets24h(check.id, siteId, check.createdAt, timezone, rangeStart, rangeEnd),
     })),
   ).then((results) =>
     results.reduce<Record<string, MonitorUptimeBucket[]>>((acc, { id, buckets }) => {
@@ -113,7 +119,7 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
 
   return checks.map((check) => {
     const rawBuckets = uptimeBuckets[check.id] ?? [];
-    const buckets = normalizeUptimeBuckets(rawBuckets, 24);
+    const buckets = normalizeUptimeBuckets(rawBuckets, rangeStartDate, 24);
     const hasResults = monitorsWithResults.has(check.id);
     const openIncident = openIncidents.get(check.id);
     const hasOpenIncident = openIncident != null;
@@ -151,12 +157,7 @@ export async function fetchMonitorMetrics(
     throw new Error('Monitor not found');
   }
 
-  // Compute 24h date range aligned to hour boundaries
-  const now = new Date();
-  const rangeEndDate = new Date(Math.ceil(now.getTime() / (60 * 60 * 1000)) * 60 * 60 * 1000); // Start of next hour
-  const rangeStartDate = new Date(rangeEndDate.getTime() - 24 * 60 * 60 * 1000);
-  const rangeStart = toDateTimeString(rangeStartDate);
-  const rangeEnd = toDateTimeString(rangeEndDate);
+  const { rangeStartDate, rangeStart, rangeEnd } = getLast24hRange(timezone);
 
   const [
     openIncidents,
@@ -174,7 +175,7 @@ export async function fetchMonitorMetrics(
     getLastResolvedIncidentForMonitors([monitorId], siteId),
     getUptime24h(monitorId, siteId, monitor.createdAt, rangeStart, rangeEnd),
     getLatency24h(monitorId, siteId),
-    getUptimeBuckets24h(monitorId, siteId, monitor.createdAt, rangeStart, rangeEnd),
+    getUptimeBuckets24h(monitorId, siteId, monitor.createdAt, timezone, rangeStart, rangeEnd),
     getLatencySeries24h(monitorId, siteId),
     getIncidentCount24h(monitorId, siteId),
     getLatestCheckInfoForMonitors([monitorId], siteId).then((r) => r[monitorId] ?? null),
@@ -201,7 +202,7 @@ export async function fetchMonitorMetrics(
     uptime24hHours,
     incidents24h: incidentCount,
     incidentSegments24h: incidentSegments,
-    uptimeBuckets: normalizeUptimeBuckets(uptimeBuckets, 24),
+    uptimeBuckets: normalizeUptimeBuckets(uptimeBuckets, rangeStartDate, 24),
     latency: latencyStats,
     latencySeries,
     effectiveIntervalSeconds: latestCheckInfo?.effectiveIntervalSeconds ?? null,
