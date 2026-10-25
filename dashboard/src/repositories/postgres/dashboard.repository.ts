@@ -284,11 +284,19 @@ export async function getOwnedSitesWithDomain(
   }
 }
 
-export async function deleteDashboard(dashboardId: string): Promise<void> {
+/** Soft-deletes the dashboard and releases its status pages. Returns the released status page slugs. */
+export async function deleteDashboard(dashboardId: string): Promise<string[]> {
   try {
-    await prisma.dashboard.update({
-      where: { id: dashboardId },
-      data: { deletedAt: new Date() },
+    return await prisma.$transaction(async (tx) => {
+      const deletedAt = new Date();
+      await tx.dashboard.update({ where: { id: dashboardId }, data: { deletedAt } });
+      // Same timestamp as the dashboard, so a restore can tell these from pages the owner deleted earlier
+      const released = await tx.statusPage.updateManyAndReturn({
+        where: { dashboardId, deletedAt: null },
+        data: { deletedAt },
+        select: { slug: true },
+      });
+      return released.map((page) => page.slug);
     });
   } catch (error) {
     console.error(`Error deleting dashboard ${dashboardId}:`, error);

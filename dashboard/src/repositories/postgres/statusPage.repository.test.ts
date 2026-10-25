@@ -60,7 +60,7 @@ describe('public status page lookups', () => {
 describe('findStatusPageByCustomDomain', () => {
   const row = { id: 'sp1', dashboardId: 'd1', slug: 'acme', isPublished: true };
 
-  it('still resolves the page of a deleted dashboard, flagged, so its host keeps routing to the status page', async () => {
+  it('flags a live page whose dashboard is deleted', async () => {
     prismaMock.statusPage.findFirst.mockResolvedValue({ ...row, dashboard: { deletedAt: new Date() } });
 
     expect(await findStatusPageByCustomDomain('status.acme.com')).toEqual({ ...row, isDashboardDeleted: true });

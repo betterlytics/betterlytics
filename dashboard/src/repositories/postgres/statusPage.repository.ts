@@ -298,8 +298,9 @@ export async function getStatusPageSnapshotById(
 /**
  * Resolve a custom domain to its live status page. Used by the TLS-authorization (`ask`) endpoint
  * and the custom-domain public route. `findFirst` because customDomain is partial-unique (one live
- * page per domain) — never `findUnique`. A deleted dashboard's page is still returned, so its host
- * keeps routing to the status page and answers not found like an unpublished one.
+ * page per domain) — never `findUnique`. Deleting a dashboard soft-deletes its pages, so a deleted
+ * dashboard's domain finds nothing here, just like a deleted page's; `isDashboardDeleted` keeps the
+ * TLS check refusing one regardless.
  */
 export async function findStatusPageByCustomDomain(customDomain: string): Promise<{
   id: string;

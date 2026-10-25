@@ -257,7 +257,13 @@ export async function deleteUserAccount(
           });
         }
       } else if (dashboardIds.length > 0) {
-        await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt: new Date() } });
+        const deletedAt = new Date();
+        await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt } });
+        // Frees their status page slugs and domains; same timestamp as the dashboards for a later restore
+        await tx.statusPage.updateMany({
+          where: { dashboardId: { in: dashboardIds }, deletedAt: null },
+          data: { deletedAt },
+        });
         await tx.dashboardInvitation.updateMany({
           where: { dashboardId: { in: dashboardIds }, status: 'pending' },
           data: { status: 'cancelled' },
