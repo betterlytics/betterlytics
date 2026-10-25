@@ -11,12 +11,14 @@ use crate::monitor::{BackoffSeed, BackoffSeeds};
 struct BackoffSeedRow {
     check_id: String,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis")]
-    ts: DateTime<Utc>,
+    latest_ts: DateTime<Utc>,
     backoff_level: u8,
 }
 
 /// Reads the backoff level from each check's latest result within `lookback`. SSL
 /// certificate rows share the table but always record level 0, so they are left out.
+/// `GROUP BY` keeps this a parallel scan; `LIMIT 1 BY` re-sorted every check's rows on
+/// one thread. `max(ts)` must not be aliased `ts`, or `argMax` would read the alias.
 pub async fn load_backoff_seeds(
     clickhouse: &ClickHouseClient,
     table: &str,
@@ -31,14 +33,13 @@ pub async fn load_backoff_seeds(
         r#"
         SELECT
             check_id,
-            ts,
-            backoff_level
+            max(ts) AS latest_ts,
+            argMax(backoff_level, ts) AS backoff_level
         FROM {table}
         WHERE check_id IN {{check_ids:Array(String)}}
           AND kind != 'tls'
           AND ts >= subtractSeconds(now64(3), {{lookback_secs:UInt32}})
-        ORDER BY check_id, ts DESC
-        LIMIT 1 BY check_id
+        GROUP BY check_id
         "#
     );
 
@@ -54,7 +55,7 @@ pub async fn load_backoff_seeds(
         .into_iter()
         .map(|row| {
             let seed = BackoffSeed {
-                ts: row.ts,
+                ts: row.latest_ts,
                 backoff_level: row.backoff_level,
             };
             (row.check_id, seed)
