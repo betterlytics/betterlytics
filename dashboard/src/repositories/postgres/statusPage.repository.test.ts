@@ -4,11 +4,10 @@ import {
   getPublishedStatusPageByCustomDomain,
   getPublishedStatusPageBySlug,
   getStatusPageImageBySlug,
-  releaseStatusPagesOfDeletedDashboards,
 } from '@/repositories/postgres/statusPage.repository';
 
 const prismaMock = vi.hoisted(() => ({
-  statusPage: { findFirst: vi.fn(), updateManyAndReturn: vi.fn() },
+  statusPage: { findFirst: vi.fn() },
   statusPageImage: { findFirst: vi.fn() },
 }));
 
@@ -80,20 +79,5 @@ describe('findStatusPageByCustomDomain', () => {
     prismaMock.statusPage.findFirst.mockResolvedValue(null);
 
     expect(await findStatusPageByCustomDomain('status.acme.com')).toBeNull();
-  });
-});
-
-describe('releaseStatusPagesOfDeletedDashboards', () => {
-  it("soft-deletes only the dashboards' live pages, stamped with the dashboard's deletion time", async () => {
-    const deletedAt = new Date('2026-10-25T10:00:00Z');
-    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([{ slug: 'acme' }, { slug: 'acme-api' }]);
-
-    const tx = prismaMock as unknown as Parameters<typeof releaseStatusPagesOfDeletedDashboards>[0];
-    expect(await releaseStatusPagesOfDeletedDashboards(tx, ['d1', 'd2'], deletedAt)).toEqual(['acme', 'acme-api']);
-    expect(prismaMock.statusPage.updateManyAndReturn).toHaveBeenCalledWith({
-      where: { dashboardId: { in: ['d1', 'd2'] }, deletedAt: null },
-      data: { deletedAt },
-      select: { slug: true },
-    });
   });
 });

@@ -37,7 +37,7 @@ const prismaMock = vi.hoisted(() => {
       updateMany: vi.fn(),
     },
     statusPage: {
-      updateManyAndReturn: vi.fn(),
+      updateMany: vi.fn(),
     },
     account: {
       findFirst: vi.fn(),
@@ -212,7 +212,6 @@ describe('deleteUserAccount', () => {
 
   beforeEach(() => {
     prismaMock.userDashboard.findMany.mockResolvedValue([]);
-    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([]);
   });
 
   it('runs the full cleanup inside a single locked transaction', async () => {
@@ -306,10 +305,9 @@ describe('deleteUserAccount', () => {
     await deleteUserAccount('user-1', deleteOwned);
 
     const dashboardDeletedAt = prismaMock.dashboard.updateMany.mock.calls[0][0].data.deletedAt;
-    expect(prismaMock.statusPage.updateManyAndReturn).toHaveBeenCalledWith({
+    expect(prismaMock.statusPage.updateMany).toHaveBeenCalledWith({
       where: { dashboardId: { in: ['dash-1', 'dash-2'] }, deletedAt: null },
       data: { deletedAt: dashboardDeletedAt },
-      select: { slug: true },
     });
   });
 
@@ -326,7 +324,7 @@ describe('deleteUserAccount', () => {
 
     expect(outcome).toBeNull();
     expect(prismaMock.dashboard.updateMany).not.toHaveBeenCalled();
-    expect(prismaMock.statusPage.updateManyAndReturn).not.toHaveBeenCalled();
+    expect(prismaMock.statusPage.updateMany).not.toHaveBeenCalled();
     expect(prismaMock.userDashboard.findFirst).toHaveBeenCalledWith({
       where: { userId: 'user-2', dashboardId: 'dash-1', deletedAt: null },
       select: { id: true },
