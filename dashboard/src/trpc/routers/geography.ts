@@ -2,8 +2,9 @@ import { z } from 'zod';
 import { createRouter, analyticsProcedure } from '@/trpc/init';
 import { GeoLevelSchema, type GeoVisitor, type GeoLevel } from '@/entities/analytics/geography.entities';
 import { fetchVisitorsByGeoLevel, fetchCompareVisitorsByGeoLevel } from '@/services/analytics/geography.service';
+import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getQueryableGeoLevels } from '@/lib/geoLevels';
-import { CountryCodeFormat, dataToWorldMap } from '@/presenters/toWorldMap';
+import { dataToWorldMap, subdivisionsToGeoMap } from '@/presenters/toGeoMap';
 import { toDataTable } from '@/presenters/toDataTable';
 
 const GEO_VISITS_LIMIT = 10;
@@ -55,6 +56,29 @@ export const geographyRouter = createRouter({
     const geoVisitors = await fetchVisitorsByGeoLevel(main, 'country_code');
     const compareGeoVisitors = compare && (await fetchVisitorsByGeoLevel(compare, 'country_code'));
 
-    return dataToWorldMap(geoVisitors, compareGeoVisitors ?? [], CountryCodeFormat.Original);
+    return dataToWorldMap(geoVisitors, compareGeoVisitors ?? []);
   }),
+
+  subdivisionMap: analyticsProcedure
+    .input(z.object({ countryCode: z.string().regex(/^[A-Z]{2}$/) }))
+    .query(async ({ ctx, input }) => {
+      if (!getQueryableGeoLevels().includes('subdivision_code')) {
+        return { visitorData: [], compareData: [], maxVisitors: 0 };
+      }
+
+      const inCountry = (siteQuery: BASiteQuery): BASiteQuery => ({
+        ...siteQuery,
+        queryFilters: [
+          ...siteQuery.queryFilters,
+          { id: 'subdivision-country', column: 'country_code', operator: '=', values: [input.countryCode] },
+        ],
+      });
+      const { main, compare } = ctx;
+      const [subdivisions, compareSubdivisions] = await Promise.all([
+        fetchVisitorsByGeoLevel(inCountry(main), 'subdivision_code'),
+        compare ? fetchVisitorsByGeoLevel(inCountry(compare), 'subdivision_code') : Promise.resolve([]),
+      ]);
+
+      return subdivisionsToGeoMap(subdivisions, compareSubdivisions);
+    }),
 });

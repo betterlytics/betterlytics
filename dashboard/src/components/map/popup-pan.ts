@@ -109,10 +109,11 @@ export function sidebarOverlay(sidebarOffset: number): Overlay {
   return { edge: 'left', rect: { top: -Infinity, bottom: Infinity, left: -Infinity, right: sidebarOffset } };
 }
 
+// A card wrapping the map is not in its own popups' way
 export function measureOverlays(container: HTMLElement): Overlay[] {
   const marked = Array.from(document.querySelectorAll<HTMLElement>('[data-map-overlay]')).flatMap((element) => {
     const edge = element.dataset.mapOverlay;
-    return isEdge(edge) ? [{ edge, rect: element.getBoundingClientRect() }] : [];
+    return isEdge(edge) && !element.contains(container) ? [{ edge, rect: element.getBoundingClientRect() }] : [];
   });
   const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
   const sidebarOffset = parseCssLength(
