@@ -1,5 +1,4 @@
 import prisma from '@/lib/postgres';
-import type { Prisma } from '@prisma/client';
 import {
   StatusPageSchema,
   StatusPageMonitorRowSchema,
@@ -210,24 +209,6 @@ export async function deleteStatusPage(dashboardId: string, statusPageId: string
     where: { id_dashboardId: { id: statusPageId, dashboardId } },
     data: { deletedAt: new Date() },
   });
-}
-
-/**
- * Soft-deletes the live pages of dashboards being deleted, freeing their slugs and custom domains.
- * Stamped with the dashboard's own deletedAt so a dashboard restore can tell them apart from pages
- * the owner deleted earlier. Returns the released slugs.
- */
-export async function releaseStatusPagesOfDeletedDashboards(
-  tx: Prisma.TransactionClient,
-  dashboardIds: string[],
-  deletedAt: Date,
-): Promise<string[]> {
-  const released = await tx.statusPage.updateManyAndReturn({
-    where: { dashboardId: { in: dashboardIds }, deletedAt: null },
-    data: { deletedAt },
-    select: { slug: true },
-  });
-  return released.map((page) => page.slug);
 }
 
 export async function removeMonitorFromStatusPages(dashboardId: string, monitorCheckId: string): Promise<void> {

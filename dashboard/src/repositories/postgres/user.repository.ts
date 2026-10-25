@@ -20,7 +20,6 @@ import {
   resolveAccountDeletionBlocker,
 } from '@/entities/account/userSettings.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
-import { releaseStatusPagesOfDeletedDashboards } from '@/repositories/postgres/statusPage.repository';
 
 // better-auth's providerId for email+password accounts; accountId is the user id by its convention.
 const CREDENTIAL_PROVIDER_ID = 'credential';
@@ -260,7 +259,11 @@ export async function deleteUserAccount(
       } else if (dashboardIds.length > 0) {
         const deletedAt = new Date();
         await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt } });
-        await releaseStatusPagesOfDeletedDashboards(tx, dashboardIds, deletedAt);
+        // Frees their status page slugs and domains; same timestamp as the dashboards for a later restore
+        await tx.statusPage.updateMany({
+          where: { dashboardId: { in: dashboardIds }, deletedAt: null },
+          data: { deletedAt },
+        });
         await tx.dashboardInvitation.updateMany({
           where: { dashboardId: { in: dashboardIds }, status: 'pending' },
           data: { status: 'cancelled' },

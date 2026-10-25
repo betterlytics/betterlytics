@@ -25,7 +25,7 @@ describe('deleteDashboard', () => {
     expect(prismaMock.dashboard.update).toHaveBeenCalledWith({ where: { id: 'd1' }, data: { deletedAt } });
     expect(deletedAt).toBeInstanceOf(Date);
     expect(prismaMock.statusPage.updateManyAndReturn).toHaveBeenCalledWith({
-      where: { dashboardId: { in: ['d1'] }, deletedAt: null },
+      where: { dashboardId: 'd1', deletedAt: null },
       data: { deletedAt },
       select: { slug: true },
     });
