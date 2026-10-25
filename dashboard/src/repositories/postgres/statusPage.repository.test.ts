@@ -4,10 +4,11 @@ import {
   getPublishedStatusPageByCustomDomain,
   getPublishedStatusPageBySlug,
   getStatusPageImageBySlug,
+  releaseStatusPagesOfDeletedDashboards,
 } from '@/repositories/postgres/statusPage.repository';
 
 const prismaMock = vi.hoisted(() => ({
-  statusPage: { findFirst: vi.fn() },
+  statusPage: { findFirst: vi.fn(), updateManyAndReturn: vi.fn() },
   statusPageImage: { findFirst: vi.fn() },
 }));
 
@@ -60,7 +61,7 @@ describe('public status page lookups', () => {
 describe('findStatusPageByCustomDomain', () => {
   const row = { id: 'sp1', dashboardId: 'd1', slug: 'acme', isPublished: true };
 
-  it('still resolves the page of a deleted dashboard, flagged, so its host keeps routing to the status page', async () => {
+  it('flags a live page whose dashboard is deleted', async () => {
     prismaMock.statusPage.findFirst.mockResolvedValue({ ...row, dashboard: { deletedAt: new Date() } });
 
     expect(await findStatusPageByCustomDomain('status.acme.com')).toEqual({ ...row, isDashboardDeleted: true });
@@ -79,5 +80,20 @@ describe('findStatusPageByCustomDomain', () => {
     prismaMock.statusPage.findFirst.mockResolvedValue(null);
 
     expect(await findStatusPageByCustomDomain('status.acme.com')).toBeNull();
+  });
+});
+
+describe('releaseStatusPagesOfDeletedDashboards', () => {
+  it("soft-deletes only the dashboards' live pages, stamped with the dashboard's deletion time", async () => {
+    const deletedAt = new Date('2026-10-25T10:00:00Z');
+    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([{ slug: 'acme' }, { slug: 'acme-api' }]);
+
+    const tx = prismaMock as unknown as Parameters<typeof releaseStatusPagesOfDeletedDashboards>[0];
+    expect(await releaseStatusPagesOfDeletedDashboards(tx, ['d1', 'd2'], deletedAt)).toEqual(['acme', 'acme-api']);
+    expect(prismaMock.statusPage.updateManyAndReturn).toHaveBeenCalledWith({
+      where: { dashboardId: { in: ['d1', 'd2'] }, deletedAt: null },
+      data: { deletedAt },
+      select: { slug: true },
+    });
   });
 });

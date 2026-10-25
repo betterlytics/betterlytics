@@ -18,6 +18,7 @@ import {
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
 import { DashboardMember, DashboardMemberSchema } from '@/entities/dashboard/invitation.entities';
+import { releaseStatusPagesOfDeletedDashboards } from '@/repositories/postgres/statusPage.repository';
 import { DashboardRole } from '@prisma/client';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
@@ -284,11 +285,13 @@ export async function getOwnedSitesWithDomain(
   }
 }
 
-export async function deleteDashboard(dashboardId: string): Promise<void> {
+/** Soft-deletes the dashboard and releases its status pages. Returns the released status page slugs. */
+export async function deleteDashboard(dashboardId: string): Promise<string[]> {
   try {
-    await prisma.dashboard.update({
-      where: { id: dashboardId },
-      data: { deletedAt: new Date() },
+    return await prisma.$transaction(async (tx) => {
+      const deletedAt = new Date();
+      await tx.dashboard.update({ where: { id: dashboardId }, data: { deletedAt } });
+      return releaseStatusPagesOfDeletedDashboards(tx, [dashboardId], deletedAt);
     });
   } catch (error) {
     console.error(`Error deleting dashboard ${dashboardId}:`, error);

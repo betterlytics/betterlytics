@@ -1,5 +1,7 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
 import { Dashboard, DashboardWithMemberCount, domainValidation } from '@/entities/dashboard/dashboard.entities';
 import { withUserAuth, withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
 import {
@@ -30,7 +32,13 @@ export const createDashboardAction = withUserAuth(async (user: User, domain: str
 
 export const deleteDashboardAction = withDashboardMutationAuthContext(
   async (ctx: AuthContext): Promise<void> => {
-    return deleteDashboard(ctx.dashboardId);
+    const releasedSlugs = await deleteDashboard(ctx.dashboardId);
+    // After the response: revalidating in the action itself re-renders the deleted dashboard's page
+    after(() => {
+      for (const slug of releasedSlugs) {
+        revalidatePath(`/status/${slug}`);
+      }
+    });
   },
   { permission: 'canDeleteDashboard' },
 );

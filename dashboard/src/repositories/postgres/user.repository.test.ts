@@ -34,6 +34,9 @@ const prismaMock = vi.hoisted(() => {
     dashboardInvitation: {
       updateMany: vi.fn(),
     },
+    statusPage: {
+      updateManyAndReturn: vi.fn(),
+    },
     account: {
       findFirst: vi.fn(),
       findMany: vi.fn(),
@@ -207,6 +210,7 @@ describe('deleteUserAccount', () => {
 
   beforeEach(() => {
     prismaMock.userDashboard.findMany.mockResolvedValue([]);
+    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([]);
   });
 
   it('runs the full cleanup inside a single locked transaction', async () => {
@@ -277,6 +281,22 @@ describe('deleteUserAccount', () => {
     });
   });
 
+  it("releases the deleted dashboards' live status pages with the dashboards' deletion time", async () => {
+    prismaMock.userDashboard.findMany.mockResolvedValue([
+      { id: 'ud-1', dashboardId: 'dash-1' },
+      { id: 'ud-2', dashboardId: 'dash-2' },
+    ]);
+
+    await deleteUserAccount('user-1', deleteOwned);
+
+    const dashboardDeletedAt = prismaMock.dashboard.updateMany.mock.calls[0][0].data.deletedAt;
+    expect(prismaMock.statusPage.updateManyAndReturn).toHaveBeenCalledWith({
+      where: { dashboardId: { in: ['dash-1', 'dash-2'] }, deletedAt: null },
+      data: { deletedAt: dashboardDeletedAt },
+      select: { slug: true },
+    });
+  });
+
   it('hands owned dashboards to the recipient instead of deleting them', async () => {
     prismaMock.userDashboard.findMany.mockResolvedValue([{ id: 'ud-1', dashboardId: 'dash-1' }]);
     prismaMock.user.findFirst.mockResolvedValue({ id: 'user-2' });
@@ -288,6 +308,7 @@ describe('deleteUserAccount', () => {
 
     expect(outcome).toBeNull();
     expect(prismaMock.dashboard.updateMany).not.toHaveBeenCalled();
+    expect(prismaMock.statusPage.updateManyAndReturn).not.toHaveBeenCalled();
     expect(prismaMock.userDashboard.delete).toHaveBeenCalledWith({ where: { id: 'ud-1' } });
     expect(prismaMock.userDashboard.upsert).toHaveBeenCalledWith({
       where: { userId_dashboardId: { userId: 'user-2', dashboardId: 'dash-1' } },

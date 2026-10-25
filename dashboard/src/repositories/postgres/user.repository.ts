@@ -20,6 +20,7 @@ import {
   resolveAccountDeletionBlocker,
 } from '@/entities/account/userSettings.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
+import { releaseStatusPagesOfDeletedDashboards } from '@/repositories/postgres/statusPage.repository';
 
 // better-auth's providerId for email+password accounts; accountId is the user id by its convention.
 const CREDENTIAL_PROVIDER_ID = 'credential';
@@ -257,7 +258,9 @@ export async function deleteUserAccount(
           });
         }
       } else if (dashboardIds.length > 0) {
-        await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt: new Date() } });
+        const deletedAt = new Date();
+        await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt } });
+        await releaseStatusPagesOfDeletedDashboards(tx, dashboardIds, deletedAt);
         await tx.dashboardInvitation.updateMany({
           where: { dashboardId: { in: dashboardIds }, status: 'pending' },
           data: { status: 'cancelled' },
