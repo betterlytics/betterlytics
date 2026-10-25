@@ -83,7 +83,12 @@ export function UserActionDialogs({
         open={dialog === 'reset-password'}
         onOpenChange={onOpenChange}
       />
-      <ResetTwoFactorDialog user={user} label={label} open={dialog === 'reset-two-factor'} onOpenChange={onOpenChange} />
+      <ResetTwoFactorDialog
+        user={user}
+        label={label}
+        open={dialog === 'reset-two-factor'}
+        onOpenChange={onOpenChange}
+      />
       {dialog === 'delete' && (
         <DeleteUserDialog
           user={user}
@@ -117,7 +122,10 @@ function DisableUserDialog({ user, label, open, onOpenChange }: DialogProps) {
       destructive
       isPending={isPending}
       onConfirm={() =>
-        run(() => disableUserAction(user.id), { success: `${label} was disabled`, onSuccess: () => onOpenChange(false) })
+        run(() => disableUserAction(user.id), {
+          success: `${label} was disabled`,
+          onSuccess: () => onOpenChange(false),
+        })
       }
     />
   );
@@ -171,7 +179,13 @@ function ResetTwoFactorDialog({ user, label, open, onOpenChange }: DialogProps) 
   );
 }
 
-function ResetPasswordDialog({ user, label, emailsEnabled, open, onOpenChange }: DialogProps & { emailsEnabled: boolean }) {
+function ResetPasswordDialog({
+  user,
+  label,
+  emailsEnabled,
+  open,
+  onOpenChange,
+}: DialogProps & { emailsEnabled: boolean }) {
   const { run, isPending } = useAdminMutation();
   const [link, setLink] = useState<{ url: string; expiresAt: Date } | null>(null);
 
@@ -232,7 +246,10 @@ function ResetPasswordDialog({ user, label, emailsEnabled, open, onOpenChange }:
             disabled={isPending}
             className='cursor-pointer'
             onClick={() =>
-              run(() => createPasswordResetLinkAction(user.id), { refresh: false, onSuccess: (data) => setLink(data) })
+              run(() => createPasswordResetLinkAction(user.id), {
+                refresh: false,
+                onSuccess: (data) => setLink(data),
+              })
             }
           >
             {link ? 'Create a new link' : 'Create link'}

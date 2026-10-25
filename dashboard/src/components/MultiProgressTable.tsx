@@ -106,7 +106,16 @@ function MultiProgressTable<T extends ProgressBarData>({
       return (
         <div className='space-y-2'>
           {data.map((item, index) => {
-            const { key, label, tooltipLabel, value, children = [], trendPercentage, comparisonValue, icon } = item;
+            const {
+              key,
+              label,
+              tooltipLabel,
+              value,
+              children = [],
+              trendPercentage,
+              comparisonValue,
+              icon,
+            } = item;
             const itemKey = key ?? label;
             const isExpandable = children.length > 0;
             const isExpanded = expandedKeys.has(itemKey);
@@ -233,7 +242,7 @@ function MultiProgressTable<T extends ProgressBarData>({
     () =>
       tabs.map((tab) => (
         <TabsContent key={tab.key} value={tab.key} className='tab-content-animated mt-0'>
-           <ScrollArea className='h-[22rem] [&_[data-slot=scroll-area-scrollbar]]:translate-x-2'>
+          <ScrollArea className='h-[22rem] [&_[data-slot=scroll-area-scrollbar]]:translate-x-2'>
             {renderTabContent(tab)}
           </ScrollArea>
         </TabsContent>

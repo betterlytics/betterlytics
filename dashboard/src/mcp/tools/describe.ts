@@ -235,7 +235,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
       {
         name: 'list_global_properties',
         description:
-          'Discover the global properties recorded for this dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property\'s example values.',
+          "Discover the global properties recorded for this dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property's example values.",
         inputs: [
           {
             name: 'timeRange',

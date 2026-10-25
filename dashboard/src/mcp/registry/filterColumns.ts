@@ -1,4 +1,8 @@
-import { type FilterColumn, type TableFilterColumn, parseFilterColumn } from '@/entities/analytics/filter.entities';
+import {
+  type FilterColumn,
+  type TableFilterColumn,
+  parseFilterColumn,
+} from '@/entities/analytics/filter.entities';
 import { type PropertySourceKind } from '@/entities/analytics/propertySources';
 
 const STANDARD_COLUMN_DESCRIPTIONS: Record<TableFilterColumn, string> = {

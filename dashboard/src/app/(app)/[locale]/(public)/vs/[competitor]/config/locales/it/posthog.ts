@@ -106,9 +106,7 @@ export const posthog: ComparisonLocaleContent = {
       },
       {
         name: 'AI e integrazioni',
-        features: [
-          { name: 'Server MCP', betterlytics: true, competitor: true },
-        ],
+        features: [{ name: 'Server MCP', betterlytics: true, competitor: true }],
       },
     ],
   },

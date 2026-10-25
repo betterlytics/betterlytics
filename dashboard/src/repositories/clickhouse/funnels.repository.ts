@@ -14,9 +14,7 @@ import { isUsableFilter } from '@/entities/analytics/filter.entities';
  */
 function buildStepConditions(funnelSteps: FunnelStep[]) {
   const buckets = funnelSteps.map((step) => step.filters.filter(isUsableFilter));
-  const flat = buckets.flatMap((bucket, stepIdx) =>
-    bucket.map((filter) => ({ stepIdx, filter })),
-  );
+  const flat = buckets.flatMap((bucket, stepIdx) => bucket.map((filter) => ({ stepIdx, filter })));
 
   const sqls = flat.length === 0 ? [] : BAQuery.getFilterQuery(flat.map((x) => x.filter));
 
@@ -50,9 +48,7 @@ export async function getFunnelDetails(
   }
 
   const { sample } =
-    startDate && endDate
-      ? await BAQuery.getSampling(siteId, startDate, endDate)
-      : { sample: safeSql`SAMPLE 1` };
+    startDate && endDate ? await BAQuery.getSampling(siteId, startDate, endDate) : { sample: safeSql`SAMPLE 1` };
 
   const windowDurationSeconds = 24 * 60 * 60;
   let funnelWindowFunctionDefinition;

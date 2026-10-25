@@ -87,17 +87,15 @@ export const changeSubscriptionPlan = withUserAuth(
   },
 );
 
-export const syncSubscriptionPlanChangeStatus = withUserAuth(
-  async (user: User): Promise<ApplyChangeResult> => {
-    if (!isFeatureEnabled('enableBilling')) {
-      throw new UserException('Billing is not enabled.');
-    }
-    if (!user.emailVerified) {
-      throw new UserException('Email verification required to change plans.');
-    }
-    return syncSubscriptionChangeStatus(user.id);
-  },
-);
+export const syncSubscriptionPlanChangeStatus = withUserAuth(async (user: User): Promise<ApplyChangeResult> => {
+  if (!isFeatureEnabled('enableBilling')) {
+    throw new UserException('Billing is not enabled.');
+  }
+  if (!user.emailVerified) {
+    throw new UserException('Email verification required to change plans.');
+  }
+  return syncSubscriptionChangeStatus(user.id);
+});
 
 export const getDashboardOwnerBillingData = withDashboardAuthContext(
   async (ctx: AuthContext): Promise<UserBillingData> => {

@@ -32,7 +32,9 @@ export const errorsRouter = createRouter({
       last_seen: lastSeenMap[g.error_fingerprint],
     }));
     const initialVolumeMap = toGroupedTimeSeries({
-      groupKey: 'error_fingerprint', dataKey: 'error_count', data: initialVolumeRows,
+      groupKey: 'error_fingerprint',
+      dataKey: 'error_count',
+      data: initialVolumeRows,
     });
     return { hasAnyErrors, errorGroups: enrichedGroups, initialVolumeMap };
   }),

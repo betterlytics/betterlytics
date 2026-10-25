@@ -12,14 +12,16 @@ export function ViewMessageDialog({ title, message }: ViewMessageDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='ghost' size='sm'>View</Button>
+        <Button variant='ghost' size='sm'>
+          View
+        </Button>
       </DialogTrigger>
       <DialogContent className='max-w-lg'>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
-        <div className='overflow-y-auto max-h-[60vh]'>
-          <p className='text-sm whitespace-pre-wrap break-all'>{message}</p>
+        <div className='max-h-[60vh] overflow-y-auto'>
+          <p className='text-sm break-all whitespace-pre-wrap'>{message}</p>
         </div>
       </DialogContent>
     </Dialog>

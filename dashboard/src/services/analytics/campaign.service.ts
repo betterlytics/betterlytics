@@ -123,8 +123,7 @@ export async function fetchCampaignDirectoryPage(
   const performancePage = await fetchCampaignPerformancePage(siteQuery, pageIndex, pageSize);
   const campaignNames = performancePage.campaigns.map((campaign) => campaign.name);
 
-  const sparklineMap =
-    campaignNames.length > 0 ? await fetchCampaignSparklines(siteQuery, campaignNames) : {};
+  const sparklineMap = campaignNames.length > 0 ? await fetchCampaignSparklines(siteQuery, campaignNames) : {};
 
   const hasEverHadCampaigns = performancePage.totalCampaigns > 0 || (await hasAnyCampaignData(siteQuery.siteId));
 
@@ -147,7 +146,11 @@ export async function fetchCampaignUTMBreakdown(
   dimension: UTMDimension,
   campaignName?: string,
 ): Promise<CampaignUTMBreakdownItem[]> {
-  const rawData: RawCampaignUTMBreakdownItem[] = await getCampaignUTMBreakdownData(siteQuery, dimension, campaignName);
+  const rawData: RawCampaignUTMBreakdownItem[] = await getCampaignUTMBreakdownData(
+    siteQuery,
+    dimension,
+    campaignName,
+  );
 
   const locale = await getLocale();
   const transformedData: CampaignUTMBreakdownItem[] = rawData.map((raw) => {

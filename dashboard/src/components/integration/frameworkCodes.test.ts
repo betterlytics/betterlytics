@@ -2,7 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { FrameworkId } from './FrameworkGrid';
 import { getFrameworkCode, IntegrationTranslations } from './frameworkCodes';
 
-const translations: IntegrationTranslations = new Proxy({}, { get: () => translations }) as IntegrationTranslations;
+const translations: IntegrationTranslations = new Proxy(
+  {},
+  { get: () => translations },
+) as IntegrationTranslations;
 
 const ALL_FRAMEWORKS = Object.keys({
   html: true,

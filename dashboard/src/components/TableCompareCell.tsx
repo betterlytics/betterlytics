@@ -23,7 +23,7 @@ export function TableCompareCell<K extends string>({
   allowNullish,
 }: TableCompareCellProps<K>) {
   const locale = useLocale();
-  const formatter = (val: number) => formatterProp ? formatterProp(val, locale) : val.toLocaleString(locale);
+  const formatter = (val: number) => (formatterProp ? formatterProp(val, locale) : val.toLocaleString(locale));
   const { current, compare, change } = getTableCompareValues(row, dataKey);
 
   if (current == null && allowNullish) {

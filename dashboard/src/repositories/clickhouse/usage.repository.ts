@@ -80,7 +80,7 @@ export async function getDailyEventCountsForSites(
 }
 
 /**
- * Billable events for the period grouped by both site and event type. 
+ * Billable events for the period grouped by both site and event type.
  * One row per site/type pair
  */
 export async function getUsageBreakdownForPeriod(

@@ -276,9 +276,7 @@ function computeCoarseCompare(
     if (mode === 'previous' || mode === 'year') {
       let compareEnd: moment.Moment;
       if (mode === 'previous') {
-        compareEnd = shouldAlignWeekdays
-          ? alignWeekday(range.end, range.start, 'previous')
-          : range.start.clone();
+        compareEnd = shouldAlignWeekdays ? alignWeekday(range.end, range.start, 'previous') : range.start.clone();
       } else {
         const rawEnd = range.end.clone().subtract(1, 'year');
         compareEnd = shouldAlignWeekdays ? alignWeekday(range.end, rawEnd, 'year') : rawEnd;

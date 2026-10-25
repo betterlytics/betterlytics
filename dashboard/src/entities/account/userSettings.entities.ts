@@ -39,14 +39,13 @@ export const UserSettingsCreateSchema = z
   })
   .strict();
 
-export const UserSettingsUpdateSchema = UserSettingsSchema
-  .pick({
-    theme: true,
-    language: true,
-    avatar: true,
-    emailNotifications: true,
-    marketingEmails: true,
-  })
+export const UserSettingsUpdateSchema = UserSettingsSchema.pick({
+  theme: true,
+  language: true,
+  avatar: true,
+  emailNotifications: true,
+  marketingEmails: true,
+})
   .extend({ timezone: TimezoneSettingSchema })
   .partial();
 

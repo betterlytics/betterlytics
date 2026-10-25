@@ -28,11 +28,7 @@ type ErrorDetailSidebarProps = {
   replaySessionId: string | null;
 };
 
-export async function ErrorDetailSidebar({
-  errorGroup,
-  sidebarData,
-  replaySessionId,
-}: ErrorDetailSidebarProps) {
+export async function ErrorDetailSidebar({ errorGroup, sidebarData, replaySessionId }: ErrorDetailSidebarProps) {
   const t = await getTranslations('errors.detail.sidebar');
   const timeZone = await getUserTimezone();
   const locale = (await getLocale()) as SupportedLanguages;
@@ -87,7 +83,9 @@ export async function ErrorDetailSidebar({
 
             {browserItems.length > 0 && <EnvironmentDistribution title={t('browsers')} items={browserItems} />}
 
-            {deviceTypeItems.length > 0 && <EnvironmentDistribution title={t('deviceType')} items={deviceTypeItems} />}
+            {deviceTypeItems.length > 0 && (
+              <EnvironmentDistribution title={t('deviceType')} items={deviceTypeItems} />
+            )}
           </div>
         </CardContent>
       </Card>
@@ -102,9 +100,7 @@ export async function ErrorDetailSidebar({
                 <VideoOff className='h-4 w-4 shrink-0' />
                 {t('noReplay')}
               </p>
-              <p className='text-muted-foreground text-xs'>
-                {t('noReplayDescription')}
-              </p>
+              <p className='text-muted-foreground text-xs'>{t('noReplayDescription')}</p>
               <a
                 href='https://betterlytics.io/docs/dashboard/session-replay'
                 target='_blank'

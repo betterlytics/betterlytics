@@ -38,12 +38,14 @@ const STATUS_TONE_TEXT: Record<IncidentStatusTone, string> = {
 export const statusBadgeClass = (status: StatusPageIncidentStatusValue) =>
   STATUS_TONE_BADGE[INCIDENT_STATUS_TONE[status]];
 
-export const statusDotClass = (status: StatusPageIncidentStatusValue) => STATUS_TONE_DOT[INCIDENT_STATUS_TONE[status]];
+export const statusDotClass = (status: StatusPageIncidentStatusValue) =>
+  STATUS_TONE_DOT[INCIDENT_STATUS_TONE[status]];
 
 export const statusDotHollowClass = (status: StatusPageIncidentStatusValue) =>
   STATUS_TONE_DOT_HOLLOW[INCIDENT_STATUS_TONE[status]];
 
-export const statusTextClass = (status: StatusPageIncidentStatusValue) => STATUS_TONE_TEXT[INCIDENT_STATUS_TONE[status]];
+export const statusTextClass = (status: StatusPageIncidentStatusValue) =>
+  STATUS_TONE_TEXT[INCIDENT_STATUS_TONE[status]];
 
 export const IMPACT_BADGE: Record<StatusPageIncidentImpact, string> = {
   degraded: 'border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400',

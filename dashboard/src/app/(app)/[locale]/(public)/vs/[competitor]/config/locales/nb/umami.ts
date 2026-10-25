@@ -19,7 +19,8 @@ export const umami: ComparisonLocaleContent = {
       title: 'Innebygd atferdsanalyse',
       betterlytics:
         'Session replay og sporing av brukerreiser viser deg nøyaktig hvordan besøkende samhandler med nettstedet ditt.',
-      competitor: 'Fokuserer på aggregerte måltall. Ingen måte å se individuell brukeradferd eller navigasjonsstier på.',
+      competitor:
+        'Fokuserer på aggregerte måltall. Ingen måte å se individuell brukeradferd eller navigasjonsstier på.',
     },
     {
       title: 'Oppetids- og ytelsesovervåking',
@@ -93,9 +94,7 @@ export const umami: ComparisonLocaleContent = {
       },
       {
         name: 'AI og integrasjoner',
-        features: [
-          { name: 'MCP-server', betterlytics: true, competitor: false },
-        ],
+        features: [{ name: 'MCP-server', betterlytics: true, competitor: false }],
       },
     ],
   },

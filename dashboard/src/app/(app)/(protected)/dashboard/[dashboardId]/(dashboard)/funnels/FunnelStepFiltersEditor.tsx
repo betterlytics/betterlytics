@@ -86,9 +86,7 @@ function FunnelStepFiltersEditorComponent({
       )}
       onMouseDown={preventDragFromInteractiveElements}
     >
-      <div
-        className='grid max-h-(--funnel-editor-h) grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden py-1 pl-1'
-      >
+      <div className='grid max-h-(--funnel-editor-h) grid-cols-1 grid-rows-[minmax(3rem,1fr)_auto_auto] gap-2 overflow-hidden py-1 pl-1'>
         <ScrollArea
           className='h-full min-h-0 [&_[data-slot=scroll-area-scrollbar]]:!w-2'
           onWheel={(e) => e.stopPropagation()}
@@ -120,11 +118,7 @@ function FunnelStepFiltersEditorComponent({
         </ScrollArea>
         <Separator />
         <div className='flex items-center justify-between gap-2 px-1'>
-          <Button
-            className='h-8 cursor-pointer md:w-28'
-            onClick={handleAdd}
-            variant='outline'
-          >
+          <Button className='h-8 cursor-pointer md:w-28' onClick={handleAdd} variant='outline'>
             {t('selector.addFilter')}
           </Button>
           <DisabledTooltip
@@ -135,7 +129,7 @@ function FunnelStepFiltersEditorComponent({
               <Button
                 variant='ghost'
                 size='icon'
-                className='size-8 cursor-pointer text-muted-foreground hover:text-foreground'
+                className='text-muted-foreground hover:text-foreground size-8 cursor-pointer'
                 onClick={() => setIsSaveDialogOpen(true)}
                 disabled={!hasValidFilters || isLimitDisabled}
               >
@@ -145,17 +139,13 @@ function FunnelStepFiltersEditorComponent({
           </DisabledTooltip>
         </div>
         <SavedFiltersSection
-          className="pr-1 [&_[data-slot=collapsible-trigger]]:pr-2 [&_[data-slot=saved-filters-collapsible-content]]:grid-rows-[fit-content(calc(var(--funnel-editor-h)*5/9))]"
+          className='pr-1 [&_[data-slot=collapsible-trigger]]:pr-2 [&_[data-slot=saved-filters-collapsible-content]]:grid-rows-[fit-content(calc(var(--funnel-editor-h)*5/9))]'
           onLoadFilter={onChange}
           isOpen={isSavedFiltersOpen}
           onOpenChange={setIsSavedFiltersOpen}
         />
       </div>
-      <SaveQueryFilterDialog
-        open={isSaveDialogOpen}
-        onOpenChange={setIsSaveDialogOpen}
-        filters={filters}
-      />
+      <SaveQueryFilterDialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen} filters={filters} />
     </div>
   );
 }

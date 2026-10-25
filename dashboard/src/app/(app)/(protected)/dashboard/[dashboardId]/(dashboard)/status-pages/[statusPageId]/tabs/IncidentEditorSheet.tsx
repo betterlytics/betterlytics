@@ -96,7 +96,14 @@ function fromZoneInput(value: string, timeZone: string): Date {
 }
 
 function emptyForm(): IncidentForm {
-  return { id: null, detectedIncidentId: null, title: '', description: '', impact: 'degraded', monitorCheckIds: [] };
+  return {
+    id: null,
+    detectedIncidentId: null,
+    title: '',
+    description: '',
+    impact: 'degraded',
+    monitorCheckIds: [],
+  };
 }
 
 function emptyComposer(timeZone: string): Composer {
@@ -556,147 +563,145 @@ export function IncidentEditorSheet({
             </section>
 
             <section className='space-y-3'>
-                <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
-                  {t('timeline.title')}
+              <div className='text-muted-foreground text-[11px] font-semibold tracking-wider uppercase'>
+                {t('timeline.title')}
+              </div>
+              {timelineQuery.isLoading ? (
+                <div className='space-y-2'>
+                  {Array.from({ length: 3 }, (_, i) => (
+                    <Skeleton key={i} className='h-16 w-full' />
+                  ))}
                 </div>
-                {timelineQuery.isLoading ? (
-                  <div className='space-y-2'>
-                    {Array.from({ length: 3 }, (_, i) => (
-                      <Skeleton key={i} className='h-16 w-full' />
-                    ))}
-                  </div>
-                ) : timelineRows.length === 0 ? (
-                  <p className={cn('text-sm', showTimelineError ? 'text-destructive' : 'text-muted-foreground')}>
-                    {showTimelineError ? t('form.timelineRequired') : t('timeline.empty')}
-                  </p>
-                ) : (
-                  <Timeline>
-                    {timelineRows.map((row, i) => {
-                      const isLast = i === timelineRows.length - 1;
-                      const pending = row.kind === 'pending';
-                      const editing = editingUpdateId === row.id;
-                      return (
-                        <TimelineItem
-                          key={row.key}
-                          isLast={isLast}
-                          headHeightPx={28}
-                          spacingPx={16}
-                          lineClassName='bg-border'
-                          className='group'
-                          dot={
-                            <div
-                              className={cn(
-                                'ring-background h-2.5 w-2.5 rounded-full ring',
-                                pending ? statusDotHollowClass(row.status) : statusDotClass(row.status),
-                              )}
-                            />
-                          }
-                        >
-                          <div className='flex h-7 items-center gap-2'>
-                            <span className={cn('text-[13px] font-semibold', statusTextClass(row.status))}>
-                              {t(`status.${row.status}`)}
-                            </span>
-                            {pending && (
-                              <span className='text-muted-foreground text-[11px]'>
-                                {t('timeline.pendingLabel')}
-                              </span>
-                            )}
-                            <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
-                              {pending ? (
-                                <>
-                                  <Button
-                                    size='icon'
-                                    variant='ghost'
-                                    aria-label={t('timeline.editMessage')}
-                                    onClick={() => beginEditUpdate(row.id, row.message)}
-                                    className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
-                                  >
-                                    <Pencil className='h-3.5 w-3.5' />
-                                  </Button>
-                                  <Button
-                                    size='icon'
-                                    variant='ghost'
-                                    aria-label={t('timeline.removePending')}
-                                    onClick={() => removePendingUpdate(row.id)}
-                                    className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
-                                  >
-                                    <X className='h-3.5 w-3.5' />
-                                  </Button>
-                                </>
-                              ) : (
-                                <PermissionGate hideWhenDisabled>
-                                  {() => (
-                                    <>
-                                      <Button
-                                        size='icon'
-                                        variant='ghost'
-                                        aria-label={t('timeline.editMessage')}
-                                        onClick={() => beginEditUpdate(row.id, row.message)}
-                                        className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
-                                      >
-                                        <Pencil className='h-3.5 w-3.5' />
-                                      </Button>
-                                      <Button
-                                        size='icon'
-                                        variant='ghost'
-                                        aria-label={t('timeline.deleteUpdate')}
-                                        onClick={() => stageDeleteUpdate(row.id)}
-                                        className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
-                                      >
-                                        <Trash2 className='h-3.5 w-3.5' />
-                                      </Button>
-                                    </>
-                                  )}
-                                </PermissionGate>
-                              )}
-                            </div>
-                          </div>
-
-                          {editing ? (
-                            <div className='mt-2 space-y-2'>
-                              <Textarea
-                                rows={3}
-                                autoFocus
-                                value={editDraft}
-                                maxLength={STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX}
-                                onChange={(e) => setEditDraft(e.target.value)}
-                              />
-                              <div className='flex justify-end gap-2'>
-                                <Button
-                                  size='sm'
-                                  variant='outline'
-                                  onClick={() => setEditingUpdateId(null)}
-                                  className='cursor-pointer'
-                                >
-                                  {t('form.cancel')}
-                                </Button>
-                                <Button
-                                  size='sm'
-                                  onClick={() => (pending ? commitPendingEdit(row.id) : commitSavedEdit(row.id))}
-                                  className='cursor-pointer'
-                                >
-                                  {t('timeline.done')}
-                                </Button>
-                              </div>
-                            </div>
-                          ) : (
-                            row.message && (
-                              <p className='text-foreground mt-2 text-[13px] leading-relaxed break-words whitespace-pre-line'>
-                                {row.message}
-                              </p>
-                            )
-                          )}
+              ) : timelineRows.length === 0 ? (
+                <p className={cn('text-sm', showTimelineError ? 'text-destructive' : 'text-muted-foreground')}>
+                  {showTimelineError ? t('form.timelineRequired') : t('timeline.empty')}
+                </p>
+              ) : (
+                <Timeline>
+                  {timelineRows.map((row, i) => {
+                    const isLast = i === timelineRows.length - 1;
+                    const pending = row.kind === 'pending';
+                    const editing = editingUpdateId === row.id;
+                    return (
+                      <TimelineItem
+                        key={row.key}
+                        isLast={isLast}
+                        headHeightPx={28}
+                        spacingPx={16}
+                        lineClassName='bg-border'
+                        className='group'
+                        dot={
                           <div
-                            suppressHydrationWarning
-                            className='text-muted-foreground mt-2 text-[12px] whitespace-nowrap tabular-nums'
-                          >
-                            {formatIncidentEntry(row.date, new Date())}
+                            className={cn(
+                              'ring-background h-2.5 w-2.5 rounded-full ring',
+                              pending ? statusDotHollowClass(row.status) : statusDotClass(row.status),
+                            )}
+                          />
+                        }
+                      >
+                        <div className='flex h-7 items-center gap-2'>
+                          <span className={cn('text-[13px] font-semibold', statusTextClass(row.status))}>
+                            {t(`status.${row.status}`)}
+                          </span>
+                          {pending && (
+                            <span className='text-muted-foreground text-[11px]'>{t('timeline.pendingLabel')}</span>
+                          )}
+                          <div className='ml-auto flex flex-none items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100'>
+                            {pending ? (
+                              <>
+                                <Button
+                                  size='icon'
+                                  variant='ghost'
+                                  aria-label={t('timeline.editMessage')}
+                                  onClick={() => beginEditUpdate(row.id, row.message)}
+                                  className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
+                                >
+                                  <Pencil className='h-3.5 w-3.5' />
+                                </Button>
+                                <Button
+                                  size='icon'
+                                  variant='ghost'
+                                  aria-label={t('timeline.removePending')}
+                                  onClick={() => removePendingUpdate(row.id)}
+                                  className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
+                                >
+                                  <X className='h-3.5 w-3.5' />
+                                </Button>
+                              </>
+                            ) : (
+                              <PermissionGate hideWhenDisabled>
+                                {() => (
+                                  <>
+                                    <Button
+                                      size='icon'
+                                      variant='ghost'
+                                      aria-label={t('timeline.editMessage')}
+                                      onClick={() => beginEditUpdate(row.id, row.message)}
+                                      className='text-muted-foreground hover:text-foreground h-7 w-7 cursor-pointer'
+                                    >
+                                      <Pencil className='h-3.5 w-3.5' />
+                                    </Button>
+                                    <Button
+                                      size='icon'
+                                      variant='ghost'
+                                      aria-label={t('timeline.deleteUpdate')}
+                                      onClick={() => stageDeleteUpdate(row.id)}
+                                      className='text-muted-foreground hover:text-destructive h-7 w-7 cursor-pointer'
+                                    >
+                                      <Trash2 className='h-3.5 w-3.5' />
+                                    </Button>
+                                  </>
+                                )}
+                              </PermissionGate>
+                            )}
                           </div>
-                        </TimelineItem>
-                      );
-                    })}
-                  </Timeline>
-                )}
+                        </div>
+
+                        {editing ? (
+                          <div className='mt-2 space-y-2'>
+                            <Textarea
+                              rows={3}
+                              autoFocus
+                              value={editDraft}
+                              maxLength={STATUS_PAGE_LIMITS.INCIDENT_UPDATE_MESSAGE_MAX}
+                              onChange={(e) => setEditDraft(e.target.value)}
+                            />
+                            <div className='flex justify-end gap-2'>
+                              <Button
+                                size='sm'
+                                variant='outline'
+                                onClick={() => setEditingUpdateId(null)}
+                                className='cursor-pointer'
+                              >
+                                {t('form.cancel')}
+                              </Button>
+                              <Button
+                                size='sm'
+                                onClick={() => (pending ? commitPendingEdit(row.id) : commitSavedEdit(row.id))}
+                                className='cursor-pointer'
+                              >
+                                {t('timeline.done')}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          row.message && (
+                            <p className='text-foreground mt-2 text-[13px] leading-relaxed break-words whitespace-pre-line'>
+                              {row.message}
+                            </p>
+                          )
+                        )}
+                        <div
+                          suppressHydrationWarning
+                          className='text-muted-foreground mt-2 text-[12px] whitespace-nowrap tabular-nums'
+                        >
+                          {formatIncidentEntry(row.date, new Date())}
+                        </div>
+                      </TimelineItem>
+                    );
+                  })}
+                </Timeline>
+              )}
             </section>
           </div>
 

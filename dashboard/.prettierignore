@@ -3,3 +3,4 @@ node_modules
 .prettierignore
 .stylelintignore
 .eslintignore
+public/data/countries.geo.json

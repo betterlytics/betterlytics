@@ -1,23 +1,12 @@
 'use client';
 
 import { ChevronUpIcon, ChevronDownIcon } from 'lucide-react';
-import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type ComponentProps,
-} from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentProps } from 'react';
 import { useComposedRefs } from '@radix-ui/react-compose-refs';
 import { cn } from '@/lib/utils';
 
 /** Compute whether a scrollable region has content above / below the viewport. */
-export function computeScrollState(args: {
-  scrollTop: number;
-  clientHeight: number;
-  scrollHeight: number;
-}) {
+export function computeScrollState(args: { scrollTop: number; clientHeight: number; scrollHeight: number }) {
   const { scrollTop, clientHeight, scrollHeight } = args;
   return {
     canScrollUp: scrollTop > 0,
@@ -74,10 +63,7 @@ export function BAScrollContainer({
 
     if (scrollTo.focus) {
       const focusTarget =
-        target ??
-        (scrollTo.fallbackSelector
-          ? el.querySelector<HTMLElement>(scrollTo.fallbackSelector)
-          : null);
+        target ?? (scrollTo.fallbackSelector ? el.querySelector<HTMLElement>(scrollTo.fallbackSelector) : null);
       focusTarget?.focus({ preventScroll: true });
     }
 
@@ -135,7 +121,7 @@ export function BAScrollContainer({
   return (
     <div
       ref={composedRef}
-      data-slot="ba-scroll-container"
+      data-slot='ba-scroll-container'
       className={cn('overflow-x-hidden overflow-y-auto overscroll-contain', className)}
       style={{ ...style, scrollbarWidth: 'none', scrollPaddingBlock: INDICATOR_HEIGHT }}
       onWheel={(e) => e.stopPropagation()}
@@ -145,26 +131,26 @@ export function BAScrollContainer({
       {canScrollUp && (
         <div
           aria-hidden
-          data-slot="ba-scroll-container-indicator-up"
-          className="bg-popover sticky -top-0.25 z-10 flex cursor-default items-center justify-center pb-0.5"
+          data-slot='ba-scroll-container-indicator-up'
+          className='bg-popover sticky -top-0.25 z-10 flex cursor-default items-center justify-center pb-0.5'
           onPointerDown={() => startAutoScroll('up')}
           onPointerMove={() => startAutoScroll('up')}
           onPointerLeave={clearTimer}
         >
-          <ChevronUpIcon className="size-4" />
+          <ChevronUpIcon className='size-4' />
         </div>
       )}
       {children}
       {canScrollDown && (
         <div
           aria-hidden
-          data-slot="ba-scroll-container-indicator-down"
-          className="bg-popover sticky -bottom-0.25 z-10 flex cursor-default items-center justify-center pt-0.5"
+          data-slot='ba-scroll-container-indicator-down'
+          className='bg-popover sticky -bottom-0.25 z-10 flex cursor-default items-center justify-center pt-0.5'
           onPointerDown={() => startAutoScroll('down')}
           onPointerMove={() => startAutoScroll('down')}
           onPointerLeave={clearTimer}
         >
-          <ChevronDownIcon className="size-4" />
+          <ChevronDownIcon className='size-4' />
         </div>
       )}
     </div>

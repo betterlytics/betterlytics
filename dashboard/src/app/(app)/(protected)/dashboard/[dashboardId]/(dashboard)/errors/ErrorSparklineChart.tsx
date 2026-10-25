@@ -14,7 +14,13 @@ type ErrorSparklineProps = {
   height?: number;
 };
 
-function SparklineTooltipContent({ active, payload }: { active?: boolean; payload?: { payload: TimeSeriesPoint }[] }) {
+function SparklineTooltipContent({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: { payload: TimeSeriesPoint }[];
+}) {
   const t = useTranslations('errors.detail.volumeChart');
   const { timeZone } = useTimeRangeContext();
   if (!active || !payload?.length) return null;

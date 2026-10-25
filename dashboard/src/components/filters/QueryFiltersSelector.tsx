@@ -19,9 +19,7 @@ import { useAllowedQueryFilters } from '@/hooks/use-is-filter-column-allowed';
 import { QueryFiltersSelectorContent } from '@/components/filters/QueryFiltersSelectorContent';
 
 const initOrDefault = (filters: QueryFilter[]): QueryFilter[] =>
-  filters.length > 0
-    ? filters
-    : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }];
+  filters.length > 0 ? filters : [{ id: generateTempId(), column: 'url', operator: '=', values: [] }];
 
 type QueryFiltersSelectorProps = Omit<ComponentProps<typeof Popover>, 'open' | 'onOpenChange'>;
 

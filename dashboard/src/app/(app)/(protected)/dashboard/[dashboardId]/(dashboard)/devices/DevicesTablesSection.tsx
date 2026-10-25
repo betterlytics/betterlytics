@@ -17,7 +17,11 @@ export default function DevicesTablesSection() {
   const t = useTranslations('components.devices.tables');
 
   const { data: osData, loading: osLoading, refetching: osRefetching } = useQueryState(osQuery);
-  const { data: browserData, loading: browserLoading, refetching: browserRefetching } = useQueryState(browserQuery);
+  const {
+    data: browserData,
+    loading: browserLoading,
+    refetching: browserRefetching,
+  } = useQueryState(browserQuery);
 
   return (
     <div className='grid grid-cols-1 gap-3 xl:grid-cols-2'>

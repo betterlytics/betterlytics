@@ -39,7 +39,12 @@ export function BrandingPanel({ form }: BrandingPanelProps) {
       </div>
 
       <div className='grid grid-cols-2 gap-4'>
-        <ImageUploadField kind='logo' value={form.logo.url} onSelect={form.logo.stage} onRemove={form.logo.remove} />
+        <ImageUploadField
+          kind='logo'
+          value={form.logo.url}
+          onSelect={form.logo.stage}
+          onRemove={form.logo.remove}
+        />
         <ImageUploadField
           kind='favicon'
           value={form.favicon.url}

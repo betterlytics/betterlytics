@@ -54,7 +54,11 @@ function blockersFor(actor: AdminActor, target: { id: string; deletedAt: Date | 
   });
 }
 
-async function requireTarget(actor: AdminActor, userId: string, action: AdminTargetAction): Promise<AdminUserTarget> {
+async function requireTarget(
+  actor: AdminActor,
+  userId: string,
+  action: AdminTargetAction,
+): Promise<AdminUserTarget> {
   const target = await AdminUsersRepository.findAdminUserTarget(userId);
   if (!target) throw new UserException('User not found');
 

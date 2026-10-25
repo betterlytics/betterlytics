@@ -36,7 +36,9 @@ export default async function AdminUsersPage({ searchParams }: AdminUsersPagePro
       width='wide'
       title='Users'
       description={
-        actor.edition === 'selfhost' ? 'Everyone with an account on this instance.' : 'Every account on Betterlytics Cloud.'
+        actor.edition === 'selfhost'
+          ? 'Everyone with an account on this instance.'
+          : 'Every account on Betterlytics Cloud.'
       }
     >
       {actor.edition === 'selfhost' && !actor.twoFactorEnabled && (

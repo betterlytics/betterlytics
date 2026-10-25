@@ -73,9 +73,7 @@ export function StackedAreaChartTooltip({
   return (
     <div className='border-border bg-popover/95 min-w-[220px] rounded-lg border p-3 shadow-xl backdrop-blur-sm'>
       <div className='mb-2'>
-        <div className='text-muted-foreground text-sm font-medium tracking-wide'>
-          {labelFormatter(label)}
-        </div>
+        <div className='text-muted-foreground text-sm font-medium tracking-wide'>{labelFormatter(label)}</div>
         {partialRange && (
           <div className='text-muted-foreground/60 mt-0.5 text-xs'>
             (<span className='italic'>{t('partial')}: </span>
@@ -122,7 +120,9 @@ export function StackedAreaChartTooltip({
                       )}
                     </>
                   )}
-                  <span className='text-popover-foreground text-sm font-medium'>{formatter(currentValue, locale)}</span>
+                  <span className='text-popover-foreground text-sm font-medium'>
+                    {formatter(currentValue, locale)}
+                  </span>
                 </div>
               </div>
             </div>

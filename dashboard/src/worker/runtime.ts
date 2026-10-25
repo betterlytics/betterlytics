@@ -48,7 +48,13 @@ async function registerWorkers(boss: PgBoss): Promise<void> {
         jobRunsTotal.inc({ job_name: runtimeJob.name, status: 'failure' });
         endTimer({ status: 'failure' });
         jobLastRunTimestamp.set({ job_name: runtimeJob.name, status: 'failure' }, Date.now() / 1000);
-        console.error({ job: runtimeJob.name, jobId: j.id, success: false, err, durationMs: Date.now() - startedAt });
+        console.error({
+          job: runtimeJob.name,
+          jobId: j.id,
+          success: false,
+          err,
+          durationMs: Date.now() - startedAt,
+        });
         throw err;
       } finally {
         jobsInFlight.dec({ job_name: runtimeJob.name });
@@ -59,7 +65,10 @@ async function registerWorkers(boss: PgBoss): Promise<void> {
       await boss.send(runtimeJob.name);
     }
 
-    const tags = [runtimeJob.schedule ? runtimeJob.schedule : 'triggered', runtimeJob.runOnStart ? 'run-on-start' : null].filter(Boolean);
+    const tags = [
+      runtimeJob.schedule ? runtimeJob.schedule : 'triggered',
+      runtimeJob.runOnStart ? 'run-on-start' : null,
+    ].filter(Boolean);
     console.info(`Registered ${runtimeJob.name} (${tags.join(', ')})`);
   }
 }

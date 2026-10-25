@@ -1,9 +1,5 @@
 import { z } from 'zod';
-import {
-  McpDateRangeSchema,
-  customDateRangeRefinement,
-  dateOrderRefinement,
-} from '@/mcp/entities/mcp.entities';
+import { McpDateRangeSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
 import { buildSiteQuery } from '@/mcp/utils/buildSiteQuery';
 import {
@@ -29,9 +25,10 @@ export const McpListGlobalPropertiesInputBaseSchema = McpDateRangeSchema.extend(
     ),
 });
 
-export const McpListGlobalPropertiesInputSchema = McpListGlobalPropertiesInputBaseSchema
-  .refine(customDateRangeRefinement.check, customDateRangeRefinement)
-  .refine(dateOrderRefinement.check, dateOrderRefinement);
+export const McpListGlobalPropertiesInputSchema = McpListGlobalPropertiesInputBaseSchema.refine(
+  customDateRangeRefinement.check,
+  customDateRangeRefinement,
+).refine(dateOrderRefinement.check, dateOrderRefinement);
 
 export async function executeListGlobalProperties(rawInput: unknown, siteId: string) {
   const input = McpListGlobalPropertiesInputSchema.parse(rawInput);

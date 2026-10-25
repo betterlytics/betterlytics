@@ -14,10 +14,7 @@ import { toPartialPercentageCompare } from '@/presenters/toPartialPercentageComp
 export const pagesRouter = createRouter({
   pageAnalytics: analyticsProcedure.query(async ({ ctx }) => {
     const { main, compare } = ctx;
-    const [data, compareData] = await Promise.all([
-      getPageAnalytics(main),
-      compare && getPageAnalytics(compare),
-    ]);
+    const [data, compareData] = await Promise.all([getPageAnalytics(main), compare && getPageAnalytics(compare)]);
     return toDataTable({ data, compare: compareData, categoryKey: 'path' });
   }),
 
@@ -46,24 +43,43 @@ export const pagesRouter = createRouter({
       compare && getPagesSummaryWithChartsForSite(compare),
     ]);
     const compareValues = toPartialPercentageCompare({
-      data, compare: compareData,
+      data,
+      compare: compareData,
       keys: ['pagesPerSession', 'totalPageviews', 'avgTimeOnPage', 'avgBounceRate'] as const,
     });
     const dateRange = { start: main.startDate, end: main.endDate };
     return {
       ...data,
-      pagesPerSessionChartData: toSparklineSeries({ data: data.pagesPerSessionChartData, granularity: main.granularity, dataKey: 'value', dateRange }),
-      avgTimeChartData: toSparklineSeries({ data: data.avgTimeChartData, granularity: main.granularity, dataKey: 'value', dateRange }),
-      bounceRateChartData: toSparklineSeries({ data: data.bounceRateChartData, granularity: main.granularity, dataKey: 'value', dateRange }),
-      pageviewsChartData: toSparklineSeries({ data: data.pageviewsChartData, granularity: main.granularity, dataKey: 'views', dateRange }),
+      pagesPerSessionChartData: toSparklineSeries({
+        data: data.pagesPerSessionChartData,
+        granularity: main.granularity,
+        dataKey: 'value',
+        dateRange,
+      }),
+      avgTimeChartData: toSparklineSeries({
+        data: data.avgTimeChartData,
+        granularity: main.granularity,
+        dataKey: 'value',
+        dateRange,
+      }),
+      bounceRateChartData: toSparklineSeries({
+        data: data.bounceRateChartData,
+        granularity: main.granularity,
+        dataKey: 'value',
+        dateRange,
+      }),
+      pageviewsChartData: toSparklineSeries({
+        data: data.pageviewsChartData,
+        granularity: main.granularity,
+        dataKey: 'views',
+        dateRange,
+      }),
       compareValues,
     };
   }),
 
-  pageTrafficTimeSeries: analyticsProcedure
-    .input(z.object({ path: z.string() }))
-    .query(async ({ ctx, input }) => {
-      const { main } = ctx;
-      return getPageTrafficForTimePeriod(main, input.path);
-    }),
+  pageTrafficTimeSeries: analyticsProcedure.input(z.object({ path: z.string() })).query(async ({ ctx, input }) => {
+    const { main } = ctx;
+    return getPageTrafficForTimePeriod(main, input.path);
+  }),
 });

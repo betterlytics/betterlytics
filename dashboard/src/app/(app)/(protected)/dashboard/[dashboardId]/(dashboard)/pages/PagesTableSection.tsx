@@ -23,7 +23,9 @@ export default function PagesTableSection() {
   const pagesState = useQueryState(pagesQuery, activeTab === 'all');
   const entryPagesState = useQueryState(entryPagesQuery, activeTab === 'entry');
   const exitPagesState = useQueryState(exitPagesQuery, activeTab === 'exit');
-  const activeState = { all: pagesState, entry: entryPagesState, exit: exitPagesState }[activeTab as 'all' | 'entry' | 'exit'];
+  const activeState = { all: pagesState, entry: entryPagesState, exit: exitPagesState }[
+    activeTab as 'all' | 'entry' | 'exit'
+  ];
 
   return (
     <TabbedPagesTable

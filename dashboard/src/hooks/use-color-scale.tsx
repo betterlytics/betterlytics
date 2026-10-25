@@ -6,13 +6,7 @@ import { interpolateLab } from 'd3-interpolate';
 import { type CSSVariableName, useCSSColors } from './use-css-colors';
 
 export type ScaleType =
-  | 'linear'
-  | 'lab'
-  | `gamma`
-  | 'ln'
-  | `log${number}`
-  | `pow-${number}`
-  | `pow-${number}/${number}`;
+  'linear' | 'lab' | `gamma` | 'ln' | `log${number}` | `pow-${number}` | `pow-${number}/${number}`;
 
 export type UseColorScaleProps = {
   maxValue: number;

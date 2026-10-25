@@ -50,10 +50,11 @@ describe('applyFilterUpdates', () => {
   it('clears replaceColumns that have no incoming update', () => {
     const current = [filter('browser', 'Safari'), filter('browser_version', '17')];
 
-    const next = applyFilterUpdates(current, [{ column: 'browser', value: 'Chrome' }], [
-      'browser',
-      'browser_version',
-    ]);
+    const next = applyFilterUpdates(
+      current,
+      [{ column: 'browser', value: 'Chrome' }],
+      ['browser', 'browser_version'],
+    );
 
     expect(next).toHaveLength(1);
     expect(next[0]).toMatchObject({ column: 'browser', values: ['Chrome'] });
@@ -99,7 +100,11 @@ describe('applyFilterUpdates', () => {
   });
 
   it('clears a lingering city filter when a region row applies region + country', () => {
-    const current = [filter('country_code', 'US'), filter('subdivision_code', 'US-IL'), filter('city', 'Springfield')];
+    const current = [
+      filter('country_code', 'US'),
+      filter('subdivision_code', 'US-IL'),
+      filter('city', 'Springfield'),
+    ];
 
     const next = applyFilterUpdates(
       current,

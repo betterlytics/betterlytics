@@ -49,7 +49,7 @@ export const createMonitorCheckAction = withDashboardMutationAuthContext(
     if (!isFeatureEnabled('enableUptimeMonitoring')) {
       throw new UserException('Uptime monitoring is not enabled');
     }
-    
+
     const t = await getTranslations('validation');
     const payload = MonitorCheckCreateSchema.parse(input);
 

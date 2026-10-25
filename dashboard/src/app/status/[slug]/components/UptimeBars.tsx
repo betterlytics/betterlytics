@@ -29,7 +29,14 @@ type UptimeBarsProps = {
   theme: StatusPageTheme;
 };
 
-export function UptimeBars({ days, startLabelFull, startLabelCompact, todayLabel, locale, theme }: UptimeBarsProps) {
+export function UptimeBars({
+  days,
+  startLabelFull,
+  startLabelCompact,
+  todayLabel,
+  locale,
+  theme,
+}: UptimeBarsProps) {
   const t = useTranslations('publicStatusPage');
 
   // Cells older than the compact window hide via CSS on narrow widths, so the

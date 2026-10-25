@@ -77,7 +77,10 @@ describe('classifyStatusHost', () => {
     const { classifyStatusHost } = await loadService();
     findStatusPageByCustomDomain.mockResolvedValueOnce(ROW);
 
-    const results = await Promise.all([classifyStatusHost('status.acme.com'), classifyStatusHost('status.acme.com')]);
+    const results = await Promise.all([
+      classifyStatusHost('status.acme.com'),
+      classifyStatusHost('status.acme.com'),
+    ]);
 
     expect(results).toEqual(['status', 'status']);
     expect(findStatusPageByCustomDomain).toHaveBeenCalledTimes(1);

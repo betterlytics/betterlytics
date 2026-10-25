@@ -1,10 +1,4 @@
-export function polarToCartesian(
-  cx: number,
-  cy: number,
-  r: number,
-  angle: number,
-  startOffset = 0
-) {
+export function polarToCartesian(cx: number, cy: number, r: number, angle: number, startOffset = 0) {
   const rad = ((angle - 180 - startOffset) * Math.PI) / 180;
   return {
     x: cx + r * Math.cos(rad),
@@ -17,14 +11,7 @@ function round(n: number): number {
   return Math.round(n * 1e6) / 1e6;
 }
 
-export function arcPath(
-  cx: number,
-  cy: number,
-  r: number,
-  startAngle: number,
-  endAngle: number,
-  startOffset = 0
-) {
+export function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle: number, startOffset = 0) {
   const start = polarToCartesian(cx, cy, r, startAngle, startOffset);
   const end = polarToCartesian(cx, cy, r, endAngle, startOffset);
   const largeArcFlag = endAngle - startAngle > 180 ? 1 : 0;

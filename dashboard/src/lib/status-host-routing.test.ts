@@ -60,7 +60,11 @@ describe('isOwnHost', () => {
   });
 
   it('parses ownHostsFrom inputs leniently', () => {
-    expect(ownHostsFrom('https://acme.com', '', false)).toEqual({ appHost: 'acme.com', statusPageDomain: '', wildcard: false });
+    expect(ownHostsFrom('https://acme.com', '', false)).toEqual({
+      appHost: 'acme.com',
+      statusPageDomain: '',
+      wildcard: false,
+    });
     expect(ownHostsFrom('localhost:3000', '', false).appHost).toBe('localhost');
     expect(ownHostsFrom('acme.com', '', false).appHost).toBe('acme.com');
   });
@@ -97,8 +101,12 @@ describe('decideStatusHostRoute', () => {
 
   it('reports unavailable regardless of path or deployment', () => {
     for (const pathname of paths) {
-      expect(decideStatusHostRoute('unavailable', domain, pathname, true), pathname).toEqual({ kind: 'unavailable' });
-      expect(decideStatusHostRoute('unavailable', domain, pathname, false), pathname).toEqual({ kind: 'unavailable' });
+      expect(decideStatusHostRoute('unavailable', domain, pathname, true), pathname).toEqual({
+        kind: 'unavailable',
+      });
+      expect(decideStatusHostRoute('unavailable', domain, pathname, false), pathname).toEqual({
+        kind: 'unavailable',
+      });
     }
   });
 

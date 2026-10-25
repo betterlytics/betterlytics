@@ -66,7 +66,15 @@ export default function UTMBreakdownTabbedTable({
         {
           accessorKey: 'pagesPerSession',
           header: t('columns.pagesPerSession'),
-          cell: ({ row }) => <div>{formatNumber(row.getValue<number>('pagesPerSession'), locale, { notation: 'standard', minimumFractionDigits: 1, maximumFractionDigits: 1 })}</div>,
+          cell: ({ row }) => (
+            <div>
+              {formatNumber(row.getValue<number>('pagesPerSession'), locale, {
+                notation: 'standard',
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              })}
+            </div>
+          ),
         },
       ];
     },

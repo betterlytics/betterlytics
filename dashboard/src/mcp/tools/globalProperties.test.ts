@@ -9,10 +9,7 @@ import {
   getTopGlobalPropertyKeys,
   getTopGlobalPropertyValuesForKeys,
 } from '@/repositories/clickhouse/globalProperties.repository';
-import {
-  McpListGlobalPropertiesInputSchema,
-  executeListGlobalProperties,
-} from '@/mcp/tools/globalProperties';
+import { McpListGlobalPropertiesInputSchema, executeListGlobalProperties } from '@/mcp/tools/globalProperties';
 
 const getKeys = vi.mocked(getTopGlobalPropertyKeys);
 const getValues = vi.mocked(getTopGlobalPropertyValuesForKeys);

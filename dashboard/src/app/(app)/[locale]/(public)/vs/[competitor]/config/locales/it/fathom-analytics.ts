@@ -93,9 +93,7 @@ export const fathom: ComparisonLocaleContent = {
       },
       {
         name: 'AI e integrazioni',
-        features: [
-          { name: 'Server MCP', betterlytics: true, competitor: false },
-        ],
+        features: [{ name: 'Server MCP', betterlytics: true, competitor: false }],
       },
     ],
   },

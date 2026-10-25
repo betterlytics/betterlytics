@@ -98,10 +98,7 @@ function UTMPieChart({ data }: { data: CampaignUTMBreakdownItem[] }) {
 
 type UTMChartTab = UTMDimension;
 
-export default function UTMBreakdownTabbedChart({
-  campaignName,
-  initialSource,
-}: UTMBreakdownTabbedChartProps) {
+export default function UTMBreakdownTabbedChart({ campaignName, initialSource }: UTMBreakdownTabbedChartProps) {
   const t = useTranslations('components.campaign.utm');
   const [activeTab, setActiveTab] = useState<UTMChartTab>('source');
 

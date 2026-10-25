@@ -42,12 +42,7 @@ export default function OutboundLinksPieChart() {
           </div>
         )}
         <div className={cn(refetching && 'pointer-events-none opacity-60', 'flex flex-1 flex-col')}>
-          <BAPieChart
-            data={data ?? []}
-            loading={loading}
-            getColor={getOutboundLinkColor}
-            getLabel={formatUrl}
-          />
+          <BAPieChart data={data ?? []} loading={loading} getColor={getOutboundLinkColor} getLabel={formatUrl} />
         </div>
       </CardContent>
     </Card>

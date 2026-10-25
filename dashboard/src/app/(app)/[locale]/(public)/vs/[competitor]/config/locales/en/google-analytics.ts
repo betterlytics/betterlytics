@@ -95,9 +95,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       },
       {
         name: 'AI & Integrations',
-        features: [
-          { name: 'MCP server', betterlytics: true, competitor: true },
-        ],
+        features: [{ name: 'MCP server', betterlytics: true, competitor: true }],
       },
     ],
   },

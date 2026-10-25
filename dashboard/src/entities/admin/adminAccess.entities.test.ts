@@ -38,7 +38,14 @@ describe('admin sections per edition', () => {
 
 describe('resolveAdminTargetBlocker', () => {
   it('allows every action on another user on self-host', () => {
-    for (const action of ['disable', 'enable', 'change_role', 'reset_password', 'reset_two_factor', 'delete'] as const) {
+    for (const action of [
+      'disable',
+      'enable',
+      'change_role',
+      'reset_password',
+      'reset_two_factor',
+      'delete',
+    ] as const) {
       expect(blocker(action)).toBeNull();
     }
   });

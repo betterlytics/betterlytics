@@ -70,7 +70,11 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Monitoring delle performance', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Pagine di stato pubbliche', betterlytics: true, competitor: false },
-          { name: 'Integrazioni di notifica (Slack, Discord, ecc.)', betterlytics: true, competitor: 'Con plugin' },
+          {
+            name: 'Integrazioni di notifica (Slack, Discord, ecc.)',
+            betterlytics: true,
+            competitor: 'Con plugin',
+          },
         ],
       },
       {
@@ -93,9 +97,7 @@ export const matomo: ComparisonLocaleContent = {
       },
       {
         name: 'AI e integrazioni',
-        features: [
-          { name: 'Server MCP', betterlytics: true, competitor: false },
-        ],
+        features: [{ name: 'Server MCP', betterlytics: true, competitor: false }],
       },
     ],
   },

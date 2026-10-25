@@ -26,11 +26,15 @@ export const outboundLinksRouter = createRouter({
       compare && getDailyOutboundClicksForSite(compare),
     ]);
     return toAreaChart({
-      dataKey: 'outboundClicks', data, compare: compareData,
+      dataKey: 'outboundClicks',
+      data,
+      compare: compareData,
       granularity: main.granularity,
       dateRange: { start: main.startDate, end: main.endDate },
       compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
-      bucketIncomplete: main.endDate.getTime() > Date.now() || isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
+      bucketIncomplete:
+        main.endDate.getTime() > Date.now() ||
+        isEndBucketIncomplete(main.endDate, main.granularity, main.timezone),
       startBucketIncomplete: isStartBucketIncomplete(main.startDate, main.granularity, main.timezone),
     });
   }),

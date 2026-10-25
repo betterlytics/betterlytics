@@ -74,7 +74,10 @@ export function useFilterClick(defaults?: Options) {
         );
         if (existing) {
           removeQueryFilter(existing.id);
-          notifyFiltersUpdated(queryFilters, queryFilters.filter((f) => f.id !== existing.id));
+          notifyFiltersUpdated(
+            queryFilters,
+            queryFilters.filter((f) => f.id !== existing.id),
+          );
           return;
         }
         if (atCap) {
@@ -148,7 +151,16 @@ export function useFilterClick(defaults?: Options) {
       setQueryFilters(next);
       notifyFiltersUpdated(queryFilters, next);
     },
-    [getColumnStatus, queryFilters, setQueryFilters, defaultOperator, t, tFilters, notifyCapReached, notifyFiltersUpdated],
+    [
+      getColumnStatus,
+      queryFilters,
+      setQueryFilters,
+      defaultOperator,
+      t,
+      tFilters,
+      notifyCapReached,
+      notifyFiltersUpdated,
+    ],
   );
 
   const makeFilterClick = useCallback(

@@ -48,9 +48,7 @@ function SkeletonCampaignRow({
             <div className={cn('truncate text-sm font-medium', isMain ? 'text-foreground' : 'text-foreground/50')}>
               {campaign.name}
             </div>
-            <div className='text-muted-foreground/50 text-xs'>
-              {t('visitors', { count: campaign.visitors })}
-            </div>
+            <div className='text-muted-foreground/50 text-xs'>{t('visitors', { count: campaign.visitors })}</div>
           </div>
         </div>
 

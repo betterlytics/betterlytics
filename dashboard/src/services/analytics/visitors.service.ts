@@ -1,9 +1,6 @@
 'server-only';
 
-import {
-  getUniqueVisitors,
-  getActiveUsersCount,
-} from '@/repositories/clickhouse/index.repository';
+import { getUniqueVisitors, getActiveUsersCount } from '@/repositories/clickhouse/index.repository';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
 export async function getUniqueVisitorsForSite(siteQuery: BASiteQuery) {

@@ -35,7 +35,9 @@ const SUBJECT_TEXT_MAX_LEN = 60;
 
 /** For user-supplied text interpolated into a subject: strips control characters and bounds the length. */
 export function subjectText(value: string, maxLength = SUBJECT_TEXT_MAX_LEN): string {
-  return Array.from(value.replace(/\p{Cc}/gu, '')).slice(0, maxLength).join('');
+  return Array.from(value.replace(/\p{Cc}/gu, ''))
+    .slice(0, maxLength)
+    .join('');
 }
 
 /**

@@ -23,7 +23,13 @@ function formatNumericString(value: string, locale: SupportedLanguages): string 
 export function getFilterStrategy(column: FilterColumn): FilterColumnStrategy {
   const parsed = parseFilterColumn(column);
   if (parsed.kind === 'property') {
-    return { type: 'json_property', source: parsed.source, column, key: parsed.key, formatValue: formatNumericString };
+    return {
+      type: 'json_property',
+      source: parsed.source,
+      column,
+      key: parsed.key,
+      formatValue: formatNumericString,
+    };
   }
   return { type: 'standard', column, key: parsed.col, formatValue: (value) => value };
 }

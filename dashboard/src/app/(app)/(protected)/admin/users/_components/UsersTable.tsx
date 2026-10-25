@@ -59,7 +59,9 @@ export function UsersTable({ users, edition, actorUserId, emailsEnabled, emptyMe
                 <TableCell>
                   <UserStatusBadge status={user.status} />
                 </TableCell>
-                <TableCell className='hidden text-right tabular-nums md:table-cell'>{user.dashboardCount}</TableCell>
+                <TableCell className='hidden text-right tabular-nums md:table-cell'>
+                  {user.dashboardCount}
+                </TableCell>
                 <TableCell className='text-muted-foreground hidden sm:table-cell'>
                   <LastActive date={user.lastActiveAt} />
                 </TableCell>
@@ -90,7 +92,9 @@ function UserCell({ user }: { user: AdminUserListEntry }) {
   return (
     <Link href={`/admin/users/${user.id}`} className='group flex min-w-0 items-center gap-3'>
       <Avatar className='size-8 shrink-0'>
-        <AvatarFallback className={cn('text-xs text-white', deleted ? 'bg-muted-foreground/40' : getAvatarColor(user.email))}>
+        <AvatarFallback
+          className={cn('text-xs text-white', deleted ? 'bg-muted-foreground/40' : getAvatarColor(user.email))}
+        >
           {deleted ? '?' : getInitials(user.name || user.email)}
         </AvatarFallback>
       </Avatar>
@@ -107,7 +111,15 @@ function UserCell({ user }: { user: AdminUserListEntry }) {
 
 function RoleCell({ user, edition }: { user: AdminUserListEntry; edition: AdminEdition }) {
   if (edition === 'cloud') {
-    return user.isSuperAdmin ? <UserRoleBadge label='Super admin' highlighted /> : <UserRoleBadge label='User' highlighted={false} />;
+    return user.isSuperAdmin ? (
+      <UserRoleBadge label='Super admin' highlighted />
+    ) : (
+      <UserRoleBadge label='User' highlighted={false} />
+    );
   }
-  return user.role === 'admin' ? <UserRoleBadge label='Admin' highlighted /> : <UserRoleBadge label='User' highlighted={false} />;
+  return user.role === 'admin' ? (
+    <UserRoleBadge label='Admin' highlighted />
+  ) : (
+    <UserRoleBadge label='User' highlighted={false} />
+  );
 }

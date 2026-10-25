@@ -27,7 +27,9 @@ export const McpListErrorsInputBaseSchema = McpDateRangeSchema.extend({
   fingerprint: z
     .string()
     .optional()
-    .describe('Look up a specific error by its fingerprint ID. Use a fingerprint from a previous list_errors call, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.'),
+    .describe(
+      'Look up a specific error by its fingerprint ID. Use a fingerprint from a previous list_errors call, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+    ),
   limit: z
     .number()
     .int()
@@ -43,11 +45,7 @@ const McpListErrorsInputSchema = McpListErrorsInputBaseSchema.refine(
   customDateRangeRefinement,
 ).refine(dateOrderRefinement.check, dateOrderRefinement);
 
-function formatErrorGroup(
-  g: ErrorGroupRow,
-  firstSeen?: Date,
-  lastSeen?: Date,
-) {
+function formatErrorGroup(g: ErrorGroupRow, firstSeen?: Date, lastSeen?: Date) {
   return {
     fingerprint: g.error_fingerprint,
     type: g.error_type,
@@ -110,7 +108,11 @@ export async function executeListErrors(rawInput: unknown, siteId: string, dashb
 }
 
 export const McpGetErrorInputBaseSchema = z.object({
-  fingerprint: z.string().describe('The error fingerprint identifier. Use list_errors to find it, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.'),
+  fingerprint: z
+    .string()
+    .describe(
+      'The error fingerprint identifier. Use list_errors to find it, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+    ),
   occurrenceOffset: z
     .number()
     .int()

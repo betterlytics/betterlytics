@@ -341,11 +341,7 @@ const AnnotationDialogs = forwardRef<AnnotationDialogsRef, AnnotationDialogsProp
                 </AlertDialogContent>
               </AlertDialog>
               <div className='ml-auto flex gap-2'>
-                <Button
-                  variant='outline'
-                  className='min-w-[104px] cursor-pointer'
-                  onClick={handleEditCancel}
-                >
+                <Button variant='outline' className='min-w-[104px] cursor-pointer' onClick={handleEditCancel}>
                   {t('cancel')}
                 </Button>
                 <Button

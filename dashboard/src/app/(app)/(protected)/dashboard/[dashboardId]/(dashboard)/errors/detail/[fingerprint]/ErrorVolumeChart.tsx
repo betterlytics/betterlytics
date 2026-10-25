@@ -47,9 +47,7 @@ export function ErrorVolumeChart({ data }: ErrorVolumeChartProps) {
               return (
                 <div className='bg-popover border-border rounded-md border px-3 py-1.5 shadow-sm'>
                   <p className='text-popover-foreground text-sm'>{dateLabel}</p>
-                  <p className='text-popover-foreground text-sm font-medium'>
-                    {t('errorCount', { count })}
-                  </p>
+                  <p className='text-popover-foreground text-sm font-medium'>{t('errorCount', { count })}</p>
                 </div>
               );
             }}

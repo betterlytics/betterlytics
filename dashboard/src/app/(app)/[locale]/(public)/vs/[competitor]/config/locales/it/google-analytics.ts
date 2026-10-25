@@ -23,8 +23,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Estremamente veloce',
-      betterlytics:
-        'Script da 3,5KB che si carica istantaneamente senza impatto sulle performance della pagina.',
+      betterlytics: 'Script da 3,5KB che si carica istantaneamente senza impatto sulle performance della pagina.',
       competitor: 'Script da oltre 100KB a seconda della configurazione; spesso bloccato dagli ad blocker.',
     },
     {
@@ -97,9 +96,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
       },
       {
         name: 'AI e integrazioni',
-        features: [
-          { name: 'Server MCP', betterlytics: true, competitor: true },
-        ],
+        features: [{ name: 'Server MCP', betterlytics: true, competitor: true }],
       },
     ],
   },

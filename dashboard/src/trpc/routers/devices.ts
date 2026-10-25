@@ -51,7 +51,10 @@ export const devicesRouter = createRouter({
     ]);
     return toDataTable({
       data: toFormatted(data, (value) => ({ ...value, device_type: capitalizeFirstLetter(value.device_type) })),
-      compare: toFormatted(compareData, (value) => ({ ...value, device_type: capitalizeFirstLetter(value.device_type) })),
+      compare: toFormatted(compareData, (value) => ({
+        ...value,
+        device_type: capitalizeFirstLetter(value.device_type),
+      })),
       categoryKey: 'device_type',
     }).slice(0, 10);
   }),
@@ -66,7 +69,10 @@ export const devicesRouter = createRouter({
       key: 'device_type',
       dataKey: 'visitors',
       data: toFormatted(data, (value) => ({ ...value, device_type: capitalizeFirstLetter(value.device_type) })),
-      compare: toFormatted(compareData, (value) => ({ ...value, device_type: capitalizeFirstLetter(value.device_type) })),
+      compare: toFormatted(compareData, (value) => ({
+        ...value,
+        device_type: capitalizeFirstLetter(value.device_type),
+      })),
     });
   }),
 
@@ -76,7 +82,10 @@ export const devicesRouter = createRouter({
       getDeviceUsageTrendForSite(main),
       compare && getDeviceUsageTrendForSite(compare),
     ]);
-    const data = toFormatted(rawData, (value) => ({ ...value, device_type: capitalizeFirstLetter(value.device_type) }));
+    const data = toFormatted(rawData, (value) => ({
+      ...value,
+      device_type: capitalizeFirstLetter(value.device_type),
+    }));
     const sortedCategories = getSortedCategories(data, 'device_type', 'count');
     return toStackedAreaChart({
       data,
@@ -85,7 +94,10 @@ export const devicesRouter = createRouter({
       categories: sortedCategories,
       granularity: main.granularity,
       dateRange: { start: main.startDate, end: main.endDate },
-      compare: toFormatted(compareRawData, (value) => ({ ...value, device_type: capitalizeFirstLetter(value.device_type) })),
+      compare: toFormatted(compareRawData, (value) => ({
+        ...value,
+        device_type: capitalizeFirstLetter(value.device_type),
+      })),
       compareDateRange: compare ? { start: compare.startDate, end: compare.endDate } : undefined,
     });
   }),

@@ -58,7 +58,9 @@ export async function sendResetPasswordEmail(
  * Issues a reset link the same way better-auth does (hashed `reset-password:` Verification row,
  * value = userId), replacing any earlier link, so the regular /reset-password page redeems it.
  */
-export async function issueAdminPasswordResetLink(userId: string): Promise<{ token: string; url: string; expiresAt: Date }> {
+export async function issueAdminPasswordResetLink(
+  userId: string,
+): Promise<{ token: string; url: string; expiresAt: Date }> {
   const token = randomBytes(24).toString('base64url');
   const expiresAt = new Date(Date.now() + ADMIN_RESET_TOKEN_EXPIRY_SECONDS * 1000);
   await replaceUserResetToken(userId, resetTokenStoredIdentifier(token), expiresAt);

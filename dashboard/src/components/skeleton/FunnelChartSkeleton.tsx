@@ -56,13 +56,7 @@ function FunnelStepSkeleton({
   );
 }
 
-export function FunnelChartSkeleton({
-  className,
-  fill = false,
-}: {
-  className?: string;
-  fill?: boolean;
-}) {
+export function FunnelChartSkeleton({ className, fill = false }: { className?: string; fill?: boolean }) {
   return (
     <div
       className={cn(

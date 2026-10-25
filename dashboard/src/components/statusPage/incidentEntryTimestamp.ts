@@ -12,12 +12,7 @@ type IncidentEntryFormatterOptions = {
   labels: IncidentEntryLabels;
 };
 
-export function createIncidentEntryFormatter({
-  locale,
-  timeZone,
-  hour12,
-  labels,
-}: IncidentEntryFormatterOptions) {
+export function createIncidentEntryFormatter({ locale, timeZone, hour12, labels }: IncidentEntryFormatterOptions) {
   const time = createDateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', hour12 }, timeZone);
   const date = createDateTimeFormat(locale, { weekday: 'short', month: 'short', day: 'numeric' }, timeZone);
   const dateWithYear = createDateTimeFormat(
@@ -38,7 +33,7 @@ export function createIncidentEntryFormatter({
         : key === yesterdayKey
           ? labels.yesterday
           : (key.slice(0, 4) === todayKey.slice(0, 4) ? date : dateWithYear).format(entry);
-          
+
     return `${day}, ${time.format(entry)}`;
   };
 }

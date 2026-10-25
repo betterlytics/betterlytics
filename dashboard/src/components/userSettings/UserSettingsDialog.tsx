@@ -194,7 +194,7 @@ function SidebarUpgradeLink({ closeDialog }: { closeDialog: () => void }) {
       <Button
         variant='ghost'
         onClick={handleUpgrade}
-        className='text-blue-600 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-400 hover:bg-blue-500/10 w-full cursor-pointer justify-start gap-2 font-medium'
+        className='w-full cursor-pointer justify-start gap-2 font-medium text-blue-600 hover:bg-blue-500/10 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-400'
       >
         <ArrowUpCircle className='h-4 w-4 flex-shrink-0' />
         <span>{tDialog('upgradePlan')}</span>

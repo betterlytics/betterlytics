@@ -140,7 +140,7 @@ function FunnelStepAccordionItemComponent({
         }}
         className={cn(
           'absolute inset-0 cursor-pointer rounded-md',
-          'focus-visible:ring focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-none',
+          'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring focus-visible:outline-none',
         )}
       >
         <div
@@ -149,7 +149,7 @@ function FunnelStepAccordionItemComponent({
           className={cn(
             'dark:border-border border-foreground/30 bg-card shadow',
             'flex size-4 items-center justify-center rounded-full border p-3',
-            'absolute top-1/2 left-0 z-10 -translate-y-1/2 -translate-x-1/2',
+            'absolute top-1/2 left-0 z-10 -translate-x-1/2 -translate-y-1/2',
           )}
         >
           <p className='text-foreground text-xs leading-none tabular-nums'>{index + 1}</p>
@@ -165,9 +165,9 @@ function FunnelStepAccordionItemComponent({
         aria-hidden='true'
         className={cn(
           'text-muted-foreground size-4 rounded-md',
-          'group-data-[state=open]/item:rotate-180 transition-transform duration-200',
-          'group-has-[[data-slot=step-trigger]:focus-visible]/header:ring-2 group-has-[[data-slot=step-trigger]:focus-visible]/header:ring-ring/50',
-          'group-has-[[data-slot=step-trigger]:focus-visible]/header:border group-has-[[data-slot=step-trigger]:focus-visible]/header:border-ring',
+          'transition-transform duration-200 group-data-[state=open]/item:rotate-180',
+          'group-has-[[data-slot=step-trigger]:focus-visible]/header:ring-ring/50 group-has-[[data-slot=step-trigger]:focus-visible]/header:ring-2',
+          'group-has-[[data-slot=step-trigger]:focus-visible]/header:border-ring group-has-[[data-slot=step-trigger]:focus-visible]/header:border',
         )}
       />
     ),
@@ -196,7 +196,7 @@ function FunnelStepAccordionItemComponent({
             aria-label={t('tooltip.deleteStep', { index: index + 1 })}
             className={cn(
               'pointer-events-auto cursor-pointer',
-              'size-8 text-muted-foreground hover:text-foreground',
+              'text-muted-foreground hover:text-foreground size-8',
               '[body.dnd-dragging_&]:pointer-events-none',
             )}
           >
@@ -254,7 +254,18 @@ function FunnelStepAccordionItemComponent({
         </div>
       </AccordionPrimitive.Header>
     ),
-    [step, showNameError, showFilterEmptyError, filterCount, t, onUpdate, tFilters, StepTrigger, FoldIndicator, DeleteStepButton],
+    [
+      step,
+      showNameError,
+      showFilterEmptyError,
+      filterCount,
+      t,
+      onUpdate,
+      tFilters,
+      StepTrigger,
+      FoldIndicator,
+      DeleteStepButton,
+    ],
   );
 
   return (
@@ -292,9 +303,9 @@ function FunnelStepAccordionItemComponent({
         <AccordionContent
           onAnimationStart={handleContentAnimationStart}
           onAnimationEnd={handleContentAnimationEnd}
-          className={'bg-muted/10 relative pl-3 pr-1 pb-1 border-t cursor-grab active:cursor-grabbing'}
+          className={'bg-muted/10 relative cursor-grab border-t pr-1 pb-1 pl-3 active:cursor-grabbing'}
         >
-          <div className={'bg-primary/60 absolute left-0 w-0.5 h-full rounded-bl-md'} />
+          <div className={'bg-primary/60 absolute left-0 h-full w-0.5 rounded-bl-md'} />
           <FunnelStepFiltersEditor
             filters={step.filters}
             onChange={handleFiltersChange}

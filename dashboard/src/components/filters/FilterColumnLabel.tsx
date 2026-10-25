@@ -21,10 +21,7 @@ export function FilterColumnLabel({ column, className }: FilterColumnLabelProps)
 
   return (
     <span
-      className={cn(
-        'inline-flex items-center gap-0.75 [&_svg]:shrink-0 [&_svg]:text-muted-foreground',
-        className,
-      )}
+      className={cn('[&_svg]:text-muted-foreground inline-flex items-center gap-0.75 [&_svg]:shrink-0', className)}
     >
       {icon}
       <span className='truncate'>{label}</span>

@@ -39,7 +39,9 @@ export function SetupHelpEmail({ userName, domain, installGuideUrl }: SetupHelpE
 
       <P>
         If you've already installed the snippet and it still isn't working, our{' '}
-        <PrimaryLink href={withEmailUtm('https://betterlytics.io/docs/troubleshooting', CAMPAIGN, 'troubleshooting')}>
+        <PrimaryLink
+          href={withEmailUtm('https://betterlytics.io/docs/troubleshooting', CAMPAIGN, 'troubleshooting')}
+        >
           troubleshooting guide
         </PrimaryLink>{' '}
         walks through the most common reasons events fail to arrive.

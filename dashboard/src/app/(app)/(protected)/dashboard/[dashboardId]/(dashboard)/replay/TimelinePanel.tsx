@@ -53,7 +53,10 @@ function RenderGroup({ groups, onJump, index, style }: RenderGroupProps) {
   const group = groups[index];
 
   return (
-    <div style={style as React.CSSProperties} className='hover:bg-primary/10 flex items-center gap-1 rounded-md transition-colors'>
+    <div
+      style={style as React.CSSProperties}
+      className='hover:bg-primary/10 flex items-center gap-1 rounded-md transition-colors'
+    >
       <button
         type='button'
         onClick={() => onJump(group.jumpTo)}

@@ -94,11 +94,8 @@ export function BADropdownMenuActiveIndicator({
   return (
     <span
       aria-hidden
-      data-slot="ba-dropdown-menu-active-indicator"
-      className={cn(
-        'ml-auto hidden shrink-0 group-data-[active=true]/ba-active:inline-flex',
-        className,
-      )}
+      data-slot='ba-dropdown-menu-active-indicator'
+      className={cn('ml-auto hidden shrink-0 group-data-[active=true]/ba-active:inline-flex', className)}
       {...props}
     >
       {icon}
@@ -110,15 +107,11 @@ export type BADropdownMenuItemProps = ComponentProps<typeof DropdownMenuItem> & 
   active?: boolean;
 };
 
-export function BADropdownMenuItem({
-  active,
-  className,
-  ...props
-}: BADropdownMenuItemProps) {
+export function BADropdownMenuItem({ active, className, ...props }: BADropdownMenuItemProps) {
   return (
     <DropdownMenuItem
       data-active={active || undefined}
-      className={cn('group/ba-active cursor-pointer [&_svg]:text-muted-foreground', className)}
+      className={cn('group/ba-active [&_svg]:text-muted-foreground cursor-pointer', className)}
       {...props}
     />
   );
@@ -148,10 +141,7 @@ export function BADropdownMenuContent({
     >
       <BAScrollContainer
         scrollTo={ACTIVE_SCROLL_TARGET}
-        className={cn(
-          'max-h-(--radix-dropdown-menu-content-available-height)',
-          scrollClassName,
-        )}
+        className={cn('max-h-(--radix-dropdown-menu-content-available-height)', scrollClassName)}
       >
         {children}
       </BAScrollContainer>
@@ -235,7 +225,7 @@ export function BADropdownMenuSubTrigger({
       data-active={active || undefined}
       className={cn(
         'group/ba-active',
-        '[&_svg]:text-muted-foreground [&_svg:not([class*="size-"])]:size-4 gap-2',
+        '[&_svg]:text-muted-foreground gap-2 [&_svg:not([class*="size-"])]:size-4',
         'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
         className,
       )}
@@ -271,10 +261,7 @@ export function BADropdownMenuSubContent({
   return (
     <DropdownMenuSubContent
       collisionPadding={collisionPadding}
-      className={cn(
-        'max-w-(--radix-dropdown-menu-content-available-width) min-w-0 overflow-clip!',
-        className,
-      )}
+      className={cn('max-w-(--radix-dropdown-menu-content-available-width) min-w-0 overflow-clip!', className)}
       onPointerEnter={(e) => {
         cancelClose();
         onPointerEnter?.(e);
@@ -291,10 +278,7 @@ export function BADropdownMenuSubContent({
     >
       <BAScrollContainer
         scrollTo={ACTIVE_SCROLL_TARGET}
-        className={cn(
-          'max-h-(--radix-dropdown-menu-content-available-height)',
-          scrollClassName,
-        )}
+        className={cn('max-h-(--radix-dropdown-menu-content-available-height)', scrollClassName)}
       >
         {children}
       </BAScrollContainer>
@@ -304,12 +288,9 @@ export function BADropdownMenuSubContent({
 
 export type BADropdownMenuSkeletonItemProps = ComponentProps<typeof Skeleton>;
 
-export function BADropdownMenuSkeletonItem({
-  className,
-  ...props
-}: BADropdownMenuSkeletonItemProps) {
+export function BADropdownMenuSkeletonItem({ className, ...props }: BADropdownMenuSkeletonItemProps) {
   return (
-    <div data-slot="ba-dropdown-menu-skeleton-item" className="min-w-32 px-1 py-0.5">
+    <div data-slot='ba-dropdown-menu-skeleton-item' className='min-w-32 px-1 py-0.5'>
       <Skeleton className={cn('h-7 w-full rounded-sm', className)} {...props} />
     </div>
   );
@@ -317,14 +298,10 @@ export function BADropdownMenuSkeletonItem({
 
 export type BADropdownMenuEmptyProps = ComponentProps<typeof DropdownMenuItem>;
 
-export function BADropdownMenuEmpty({
-  disabled = true,
-  className,
-  ...props
-}: BADropdownMenuEmptyProps) {
+export function BADropdownMenuEmpty({ disabled = true, className, ...props }: BADropdownMenuEmptyProps) {
   return (
     <DropdownMenuItem
-      data-slot="ba-dropdown-menu-empty"
+      data-slot='ba-dropdown-menu-empty'
       disabled={disabled}
       className={cn('text-muted-foreground', className)}
       {...props}

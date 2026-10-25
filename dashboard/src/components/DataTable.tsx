@@ -76,7 +76,9 @@ export function DataTable<TData, TValue>({
                       ? 'hover:!bg-input/40 dark:hover:!bg-accent cursor-pointer select-none'
                       : ''
                   }`}
-                  style={header.column.columnDef.minSize ? { minWidth: header.column.columnDef.minSize } : undefined}
+                  style={
+                    header.column.columnDef.minSize ? { minWidth: header.column.columnDef.minSize } : undefined
+                  }
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   <div className='flex items-center'>

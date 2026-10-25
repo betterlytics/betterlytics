@@ -91,7 +91,6 @@ export const AnimatedDashboardLogo = memo(function AnimatedDashboardLogo({
           <circle cx='1024' cy='201' r='47' fill='#1E72BC' />
         </g>
       </svg>
-
     </div>
   );
 });

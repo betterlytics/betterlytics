@@ -69,9 +69,7 @@ export async function getPublicStatusPageData(slug: string): Promise<PublicStatu
  * `/status/domain/[domain]` route, which receives the tier-2 custom domain in the path from
  * Caddy's rewrite.
  */
-export async function getPublicStatusPageDataByDomain(
-  customDomain: string,
-): Promise<PublicStatusPageData | null> {
+export async function getPublicStatusPageDataByDomain(customDomain: string): Promise<PublicStatusPageData | null> {
   const published = await getPublishedStatusPageByCustomDomain(customDomain);
   if (!published) return null;
 

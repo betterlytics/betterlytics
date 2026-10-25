@@ -286,9 +286,13 @@ export default function WebVitalsTableSection() {
   const browsersState = useQueryState(browsersQuery, activeTab === 'browsers');
   const osState = useQueryState(osQuery, activeTab === 'os');
 
-  const activeState = { pages: urlState, devices: devicesState, countries: countriesState, browsers: browsersState, os: osState }[
-    activeTab as 'pages' | 'devices' | 'countries' | 'browsers' | 'os'
-  ];
+  const activeState = {
+    pages: urlState,
+    devices: devicesState,
+    countries: countriesState,
+    browsers: browsersState,
+    os: osState,
+  }[activeTab as 'pages' | 'devices' | 'countries' | 'browsers' | 'os'];
 
   const tabs: TabDefinition<Row>[] = useMemo(
     () => [

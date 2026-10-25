@@ -88,7 +88,10 @@ describe('flattenEventLogPages', () => {
   it('subtracts held rows accumulated across earlier pages within the boundary second', () => {
     const pages = [
       { events: [event(ts(5)), event(ts(5))], nextCursor: { timestamp: ts(5), skip: 2 } },
-      { events: [event(ts(5)), event(ts(5)), event(ts(5), 'purchase')], nextCursor: { timestamp: ts(5), skip: 5 } },
+      {
+        events: [event(ts(5)), event(ts(5)), event(ts(5), 'purchase')],
+        nextCursor: { timestamp: ts(5), skip: 5 },
+      },
       { events: [event(ts(5)), event(ts(5)), event(ts(5), 'purchase'), event(ts(4))], nextCursor: null },
     ];
     expect(flattenEventLogPages(pages)).toEqual([

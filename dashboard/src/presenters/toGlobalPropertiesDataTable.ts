@@ -30,16 +30,12 @@ export function toGlobalPropertiesDataTable({
 }: ToGlobalPropertiesDataTableProps): GlobalPropertyDataTableRow[] {
   const computeChange = compare && compare.length > 0;
 
-  const compareMap = computeChange
-    ? new Map(compare.map((p) => [p.property_key, p]))
-    : undefined;
+  const compareMap = computeChange ? new Map(compare.map((p) => [p.property_key, p])) : undefined;
 
   return data.map((prop) => {
     const compareProp = compareMap?.get(prop.property_key);
 
-    const compareValueMap = compareProp
-      ? new Map(compareProp.values.map((v) => [v.value, v]))
-      : undefined;
+    const compareValueMap = compareProp ? new Map(compareProp.values.map((v) => [v.value, v])) : undefined;
 
     const children: MatchedPropertyValue[] = prop.values.map((v) => {
       const cv = compareValueMap?.get(v.value);

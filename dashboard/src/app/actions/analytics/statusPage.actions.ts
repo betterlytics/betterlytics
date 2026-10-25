@@ -192,7 +192,9 @@ export const updateStatusPageAction = withDashboardMutationAuthContext(
         ? isStatusPageCustomDomainAvailable(payload.customDomain, payload.id)
         : Promise.resolve(true),
     ]);
-    await (await statusPageValidator(caps.statusPages))
+    await (
+      await statusPageValidator(caps.statusPages)
+    )
       .customDomain(payload.customDomain)
       .removeBranding(payload.hideBranding)
       .validate();

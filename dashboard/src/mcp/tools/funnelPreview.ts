@@ -27,9 +27,10 @@ export const McpFunnelPreviewInputBaseSchema = McpDateRangeSchema.extend({
     .describe('If true, steps must occur sequentially without other pages in between. Defaults to false.'),
 });
 
-export const McpFunnelPreviewInputSchema = McpFunnelPreviewInputBaseSchema
-  .refine(customDateRangeRefinement.check, customDateRangeRefinement)
-  .refine(dateOrderRefinement.check, dateOrderRefinement);
+export const McpFunnelPreviewInputSchema = McpFunnelPreviewInputBaseSchema.refine(
+  customDateRangeRefinement.check,
+  customDateRangeRefinement,
+).refine(dateOrderRefinement.check, dateOrderRefinement);
 
 export async function executeFunnelPreview(rawInput: unknown, siteId: string) {
   const input = McpFunnelPreviewInputSchema.parse(rawInput);

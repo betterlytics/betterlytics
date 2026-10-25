@@ -93,9 +93,7 @@ export const plausible: ComparisonLocaleContent = {
       },
       {
         name: 'AI & Integrations',
-        features: [
-          { name: 'MCP server', betterlytics: true, competitor: false },
-        ],
+        features: [{ name: 'MCP server', betterlytics: true, competitor: false }],
       },
     ],
   },

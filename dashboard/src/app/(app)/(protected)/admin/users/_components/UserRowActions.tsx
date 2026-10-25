@@ -38,7 +38,12 @@ export function UserRowActions({ user, edition, actorUserId, emailsEnabled }: Us
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant='ghost' size='icon' className='size-8 cursor-pointer' aria-label={`Actions for ${label}`}>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='size-8 cursor-pointer'
+            aria-label={`Actions for ${label}`}
+          >
             <MoreHorizontal className='size-4' />
           </Button>
         </DropdownMenuTrigger>
