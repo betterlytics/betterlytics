@@ -120,17 +120,15 @@ export async function getMonitorUptimeBuckets(
   const toStartOfTS = toStartOfInterval(safeSql`ts`);
 
   // Used for calculating bucket end in seconds
+  // The bucket's monitored window: from creation (if later) to the bucket's end or now, whichever is first
   const bucketSizeSeconds = safeSql`
-    least(
-      abs(
-        dateDiff(
-          'second',
-          bucket_start,
-          bucket_start + INTERVAL 1 ${interval}
-        )
-      ),
-      abs(dateDiff('second', bucket_start, now())),
-      abs(dateDiff('second', ${SQL.DateTime({ createdAt: createdAtStr })}, now()))
+    greatest(
+      0,
+      dateDiff(
+        'second',
+        greatest(bucket_start, ${SQL.DateTime({ createdAt: createdAtStr })}),
+        least(bucket_start + INTERVAL 1 ${interval}, now())
+      )
     )
   `;
 
@@ -238,11 +236,15 @@ export async function getUptimeBucketsForMonitors(
   const checkIds = monitors.map((monitor) => monitor.checkId);
   const createdAts = monitors.map((monitor) => toDateTimeString(monitor.createdAt));
 
+  // The bucket's monitored window: from creation (if later) to the bucket's end or now, whichever is first
   const bucketSizeSeconds = safeSql`
-    least(
-      abs(dateDiff('second', grid.bucket_start, grid.bucket_start + INTERVAL 1 DAY)),
-      abs(dateDiff('second', grid.bucket_start, now())),
-      abs(dateDiff('second', grid.created_at, now()))
+    greatest(
+      0,
+      dateDiff(
+        'second',
+        greatest(grid.bucket_start, grid.created_at),
+        least(grid.bucket_start + INTERVAL 1 DAY, now())
+      )
     )
   `;
 
