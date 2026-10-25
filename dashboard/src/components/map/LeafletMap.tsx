@@ -2,22 +2,48 @@
 
 import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
+import MapFitBounds, { FIT_PADDING, FIT_PAN_VISCOSITY } from '@/components/map/MapFitBounds';
+import MapInsetFrames from '@/components/map/MapInsetFrames';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
+import MapInstanceBridge from '@/components/map/MapInstanceBridge';
+import { MapContext, useMapScope } from '@/components/map/MapProvider';
+import {
+  getLoadedMapComponents,
+  getLoadedWorldGeoJson,
+  loadMapComponents,
+  loadWorldGeoJson,
+} from '@/components/map/map-assets';
+import { bboxToLatLngs } from '@/components/map/bbox';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
-import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
+import type { GeoMapResponse } from '@/entities/analytics/geography.entities';
+import type { FeatureDisplayResolver, RegionGeoJson } from '@/components/map/types';
 import { useMapStyle } from '@/hooks/use-leaflet-style';
-import type { LatLngBoundsExpression } from 'leaflet';
+import { getCountryName } from '@/utils/countryCodes';
+import type { LatLngBoundsExpression, Map as LeafletMapInstance } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import React, { useEffect, useMemo, useState, useTransition, type ReactNode } from 'react';
+import React, { useEffect, useMemo, useState, type ReactNode } from 'react';
 import GeographyLoading from '@/components/loading/GeographyLoading';
+import { useLocale } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { useDebounce } from '@/hooks/useDebounce';
 
-type LeafletMapProps = WorldMapResponse & {
+const ANTARCTICA_CODE = 'AQ';
+const isAntarctica = (featureId: string) => featureId === ANTARCTICA_CODE;
+
+export type MapSelectionControl = {
+  selectedId: string | null;
+  onToggle: (featureId: string) => void;
+  onClear: () => void;
+};
+
+type LeafletMapProps = GeoMapResponse & {
   showZoomControls?: boolean;
   initialZoom?: number;
   size?: 'sm' | 'lg';
   children?: ReactNode;
+  geoJsonData?: RegionGeoJson;
+  resolveDisplay?: FeatureDisplayResolver;
+  selection?: MapSelectionControl;
 };
 
 export default function LeafletMap({
@@ -28,96 +54,111 @@ export default function LeafletMap({
   size = 'sm',
   initialZoom,
   children,
+  geoJsonData,
+  resolveDisplay: resolveDisplayProp,
+  selection,
 }: LeafletMapProps) {
-  const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
-  const [mapComponents, setMapComponents] = useState<{
-    L: typeof import('leaflet');
-    MapContainer: typeof import('react-leaflet').MapContainer;
-    GeoJSON: typeof import('react-leaflet').GeoJSON;
-    Polygon: typeof import('react-leaflet').Polygon;
-  } | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [worldGeoJson, setWorldGeoJson] = useState(getLoadedWorldGeoJson);
+  const [mapComponents, setMapComponents] = useState(getLoadedMapComponents);
+  const geoJson = geoJsonData ?? worldGeoJson;
+  const outerScope = useMapScope();
+  const [localMap, setLocalMap] = useState<LeafletMapInstance | null>(null);
+  const scope = useMemo(() => outerScope ?? { map: localMap, setMap: setLocalMap }, [outerScope, localMap]);
+  const locale = useLocale();
   const style = useMapStyle({ maxValue: maxVisitors || 1 });
 
   const { resolvedTheme } = useTheme();
   const debouncedTheme = useDebounce(resolvedTheme, 50);
 
+  const defaultResolveDisplay = useMemo<FeatureDisplayResolver>(
+    () => (featureId) => ({ name: getCountryName(featureId, locale), countryCode: featureId }),
+    [locale],
+  );
+  const resolveDisplay = resolveDisplayProp ?? defaultResolveDisplay;
+
+  const ready = Boolean(mapComponents && geoJson);
   useEffect(() => {
-    startTransition(() => {
-      const loadMapDependencies = async () => {
-        try {
-          const [leafletModule, reactLeafletModule, worldRes] = await Promise.all([
-            import('leaflet'),
-            import('react-leaflet'),
-            fetch('/data/countries.geo.json'),
-          ]);
+    if (ready) return;
+    Promise.all([loadMapComponents(), geoJsonData ? null : loadWorldGeoJson()])
+      .then(([components, world]) => {
+        setMapComponents(components);
+        if (world) setWorldGeoJson(world);
+      })
+      .catch((error) => console.error('Error loading map dependencies:', error));
+  }, [ready, geoJsonData]);
 
-          const world = await worldRes.json();
-
-          setMapComponents({
-            L: leafletModule.default,
-            MapContainer: reactLeafletModule.MapContainer,
-            GeoJSON: reactLeafletModule.GeoJSON,
-            Polygon: reactLeafletModule.Polygon,
-          });
-          setWorldGeoJson(world);
-        } catch (err) {
-          console.error('Error loading map dependencies:', err);
-        }
-      };
-
-      loadMapDependencies();
-    });
-  }, []);
+  const contentBounds = useMemo(() => {
+    const L = mapComponents?.L;
+    return L && geoJson?.viewBbox ? L.latLngBounds(bboxToLatLngs(geoJson.viewBbox)) : null;
+  }, [mapComponents, geoJson]);
 
   const worldBounds = useMemo(() => {
-    if (!mapComponents?.L) return null;
-    const hasAntarctica = visitorData.some((d) => d.country_code === 'AQ' && d.visitors);
-    return mapComponents.L.latLngBounds(
-      mapComponents.L.latLng(hasAntarctica ? -100 : -60, -220),
-      mapComponents.L.latLng(100, 220),
-    );
-  }, [mapComponents, visitorData]);
+    const L = mapComponents?.L;
+    if (!L || contentBounds) return null;
+    const hasAntarctica = visitorData.some((d) => d.code === ANTARCTICA_CODE && d.visitors);
+    return L.latLngBounds(L.latLng(hasAntarctica ? -100 : -60, -220), L.latLng(100, 220));
+  }, [mapComponents, contentBounds, visitorData]);
 
   // Leaflet only redraws paths on moveend, so the SVG must cover half a viewport of drag on each side
   const renderer = useMemo(() => mapComponents?.L.svg({ padding: 0.5 }), [mapComponents]);
 
-  if (isPending || !mapComponents || !worldGeoJson || !style) {
-    return <GeographyLoading />;
+  if (!mapComponents || !geoJson || !style) {
+    return <GeographyLoading className='bg-transparent' />;
   }
 
-  const { MapContainer, GeoJSON, Polygon } = mapComponents;
+  const { MapContainer, GeoJSON, Polygon, Rectangle, Marker, L } = mapComponents;
+
+  const containerProps = contentBounds
+    ? {
+        bounds: contentBounds,
+        boundsOptions: { padding: FIT_PADDING },
+        maxBoundsViscosity: FIT_PAN_VISCOSITY,
+      }
+    : {
+        center: [20, 0] as [number, number],
+        zoom: initialZoom || 2,
+        maxBounds: worldBounds as LatLngBoundsExpression,
+        maxBoundsViscosity: 0.5,
+        minZoom: 1,
+        maxZoom: 7,
+      };
 
   return (
-    <div className='relative h-full w-full' key={debouncedTheme}>
-      {style.LeafletCSS}
-      <MapSelectionContextProvider style={style}>
-        <MapContainer
-          center={[20, 0]}
-          style={{ height: '100%', width: '100%' }}
-          zoom={initialZoom || 2}
-          zoomControl={showZoomControls}
-          maxBounds={worldBounds as LatLngBoundsExpression}
-          maxBoundsViscosity={0.5}
-          renderer={renderer}
-          minZoom={1}
-          maxZoom={7}
-          zoomDelta={0.1}
-          zoomSnap={0.1}
-          attributionControl={false}
-        >
-          <MapBackgroundLayer Polygon={Polygon} />
-          <MapCountryGeoJSON
-            GeoJSON={GeoJSON}
-            geoData={worldGeoJson}
-            visitorData={visitorData}
-            compareData={compareData}
-            style={style}
-          />
-          <MapStickyTooltip size={size} />
-        </MapContainer>
-        {children}
-      </MapSelectionContextProvider>
-    </div>
+    <MapContext.Provider value={scope}>
+      <div className='relative h-full w-full' key={debouncedTheme}>
+        {style.LeafletCSS}
+        <MapSelectionContextProvider style={style} selectedFeatureId={selection?.selectedId}>
+          <MapContainer
+            {...containerProps}
+            style={{ height: '100%', width: '100%' }}
+            zoomControl={showZoomControls}
+            renderer={renderer}
+            zoomDelta={0.1}
+            zoomSnap={0.1}
+            attributionControl={false}
+          >
+            <MapBackgroundLayer Polygon={Polygon} onClick={selection?.onClear} />
+            <MapCountryGeoJSON
+              GeoJSON={GeoJSON}
+              geoData={geoJson}
+              visitorData={visitorData}
+              compareData={compareData}
+              style={style}
+              size={size}
+              resolveDisplay={resolveDisplay}
+              hideWhenEmpty={geoJsonData ? undefined : isAntarctica}
+              onFeatureClick={selection?.onToggle}
+            />
+            {geoJson.insets && (
+              <MapInsetFrames L={L} Rectangle={Rectangle} Marker={Marker} frames={geoJson.insets} />
+            )}
+            {contentBounds && <MapFitBounds bounds={contentBounds} />}
+            <MapStickyTooltip size={size} />
+            {(children || outerScope) && <MapInstanceBridge setMap={scope.setMap} />}
+          </MapContainer>
+          {children}
+        </MapSelectionContextProvider>
+      </div>
+    </MapContext.Provider>
   );
 }

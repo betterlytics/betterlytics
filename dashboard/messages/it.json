@@ -3218,7 +3218,8 @@
       "noData": "Nessun dato geografico disponibile per il periodo selezionato",
       "loading": "Caricamento mappa...",
       "visitors": "Visitatori",
-      "regionLoadError": "Impossibile caricare i dati della regione"
+      "regionLoadError": "Impossibile caricare i dati della regione",
+      "noRegionalMap": "Nessuna mappa regionale disponibile per questo paese"
     },
     "userJourney": {
       "steps": "Passaggi",

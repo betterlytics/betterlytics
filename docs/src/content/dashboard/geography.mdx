@@ -1,19 +1,19 @@
 ---
 title: "Geography Analytics"
-description: "Explore your visitors’ geographic distribution with an interactive world map and city-level analytics. Gain insights into your global audience and make data-driven decisions for regional optimization."
+description: "Explore your visitors’ geographic distribution with an interactive world map, a regional drill-down per country and city-level analytics. Gain insights into your global audience and make data-driven decisions for regional optimization."
 ---
 
 import { Callout } from "nextra/components";
 
 # Geography Analytics
 
-Betterlytics provides multi-level geography analytics: an interactive world map for country-level distribution, and city-level data for granular audience insights. Together these help you understand your global audience, identify key markets, and make data-driven decisions about regional optimization.
+Betterlytics provides multi-level geography analytics: an interactive world map for country-level distribution, a regional drill-down for every country, and city-level data for granular audience insights. Together these help you understand your global audience, identify key markets, and make data-driven decisions about regional optimization.
 
 ## Accessing the World Map
 
 Navigate to **Dashboard > Geography** to view your world map analytics data.
 
-A compact version of the world map is also available in the Dashboard Overview, along with **Top Countries** and **Top Cities** tabs for a quick glance at visitor distribution.
+A compact version of the world map is also available in the Dashboard Overview, along with **Top Countries** and **Top Cities** tabs for a quick glance at visitor distribution. The [regional drill-down](#regional-drill-down) is only available on the Geography page.
 
 ## What the World Map Shows
 
@@ -36,7 +36,7 @@ See the [Metrics Glossary](/dashboard/metrics-glossary) for details on how uniqu
 
 **Country Visualization:**
   - **Color-coded countries** - Each country is shaded based on visitor volume
-  - **Blue gradient scale** - Lighter blue indicates higher visitor counts
+  - **Blue gradient scale** - The stronger the blue, the more visitors
   - **Gray countries** - Locations with no visitors appear in gray
 
 **Click to select a country**: Clicking on a country selects it and opens a popup with a detailed breakdown of that country’s data.
@@ -50,6 +50,29 @@ See the [Metrics Glossary](/dashboard/metrics-glossary) for details on how uniqu
   - **Sticky tooltip** - The tooltip follows your cursor and displays additional information about the country.
   - **Mobile Disabled** - Hovering is disabled on mobile devices.
 
+### Regional Drill-down
+
+On the Geography page, clicking a country also opens a panel in the bottom-right corner with that country's regional map, so you can see where visitors come from one level below the country: states, provinces, regions or municipalities, depending on the country.
+
+<div style={{ textAlign: "center", margin: "20px 0" }}>
+  ![Regional drill-down panel](/images/dashboard/geography-regional-drilldown.webp)
+</div>
+
+- **Same data, own scale** - Regions show unique visitors with the same comparison data as the world map, shaded on a scale from that country's busiest region
+- **Hover and click** - Hovering a region shows its sticky tooltip; clicking selects it and opens its popup. Click it again, or an empty part of the panel map, to clear the selection
+- **Shareable** - The selected country and region are kept in the page URL, so a refresh or a shared link reopens the same drill-down
+- **Closing** - Close the panel with the X in its corner, by clicking the country again or by clicking the ocean
+- **Desktop only** - On small screens the panel is not shown and clicking a country opens the popup only
+- **Filtering** - To narrow the whole dashboard to one region, use the [region filter](#city--region-filters)
+
+<Callout type="info">
+Regional maps exist for most countries. For the few territories the geolocation database does not divide, the panel shows the country as a single shape with its total. Regions the database never reports stay gray.
+</Callout>
+
+<Callout type="warning">
+On a self-hosted instance the drill-down requires `GEOLOCATION_MODE=full`, see the [geolocation configuration](/installation/self-hosting#geolocation). Regional data is only collected from the moment that mode is turned on.
+</Callout>
+
 ### Map Controls
 
 **Navigation:**
@@ -60,7 +83,7 @@ See the [Metrics Glossary](/dashboard/metrics-glossary) for details on how uniqu
 ### Legend
 
 **Understanding the Scale:**
-- **Color legend** - Located in the bottom-right corner
+- **Color legend** - Located in the bottom-left corner of the Geography map, leaving room for the regional panel, and bottom-right in the Dashboard Overview
 - **Gradient scale** - Shows the range from 0 visitors to your maximum
 - **Numeric range** - Displays actual visitor numbers for context
 
@@ -72,6 +95,11 @@ See the [Metrics Glossary](/dashboard/metrics-glossary) for details on how uniqu
 - **IP-based geolocation** - Visitor location is determined from their IP address
 - **Multi-level precision** - Data is available at country, subdivision (state/province/region), and city level depending on your [geolocation configuration](/installation/self-hosting#geolocation)
 - **GeoIP database** - Uses [MaxMind GeoLite2](https://www.maxmind.com/en/geoip2-databases) database for accurate location mapping
+
+**Map Outlines:**
+- **Regional boundaries** - Drawn from [Natural Earth](https://www.naturalearthdata.com/) (public domain), with [geoBoundaries](https://www.geoboundaries.org/) and [OCHA](https://data.humdata.org/) data for countries where Natural Earth no longer matches the regions GeoLite2 reports
+- **OpenStreetMap credit** - A few countries use OpenStreetMap-derived boundaries; their panel shows an OpenStreetMap credit
+- **Attribution** - Every source and license is listed in [THIRD-PARTY-LICENSES.md](https://github.com/betterlytics/betterlytics/blob/main/THIRD-PARTY-LICENSES.md)
 
 ### Data Considerations
 
