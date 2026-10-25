@@ -234,3 +234,36 @@ describe('off-cloud rendering', () => {
     expect(email.html).not.toContain('src="https://betterlytics.io');
   });
 });
+
+describe('tracking-silent template', () => {
+  const data = {
+    to: 'owner@example.com',
+    userName: 'Owner',
+    domain: 'example.com',
+    lastEventAt: '2026-07-24T14:32:00.000Z',
+    installGuideUrl: 'http://localhost:3000/dashboard/dash-1?showIntegration=true',
+  };
+
+  it("shows the last-received time in the owner's timezone and links to install verification", async () => {
+    const email = await renderEmail({
+      type: 'tracking-silent',
+      recipientKey: 'k',
+      campaignKey: 'c',
+      data: { ...data, timeZone: 'Europe/Copenhagen' },
+    });
+    expect(email.subject).toBe('We stopped receiving data from example.com');
+    expect(email.text).toContain('July 24, 2026 at 16:32 (Europe/Copenhagen)');
+    expect(email.html).toContain('/dashboard/dash-1?showIntegration=true');
+    expect(email.html).toContain('betterlytics.io/docs/troubleshooting');
+  });
+
+  it('labels the time UTC when no timezone is saved', async () => {
+    const email = await renderEmail({
+      type: 'tracking-silent',
+      recipientKey: 'k',
+      campaignKey: 'c',
+      data: { ...data, timeZone: null },
+    });
+    expect(email.text).toContain('July 24, 2026 at 14:32 UTC');
+  });
+});

@@ -14,6 +14,8 @@ import {
   DashboardWriteSchema,
   OnboardingDashboardCandidate,
   OnboardingDashboardCandidateSchema,
+  TrackingSilentRecipient,
+  TrackingSilentRecipientSchema,
 } from '@/entities/dashboard/dashboard.entities';
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
@@ -370,6 +372,55 @@ export async function findOnboardingDashboardCandidates(
   } catch (error) {
     console.error('Error finding onboarding dashboard candidates:', error);
     throw new Error('Failed to find onboarding dashboard candidates');
+  }
+}
+
+export async function findTrackingSilentRecipients(siteIds: string[]): Promise<TrackingSilentRecipient[]> {
+  if (siteIds.length === 0) return [];
+  try {
+    const dashboards = await prisma.dashboard.findMany({
+      where: {
+        deletedAt: null,
+        siteId: { in: siteIds },
+        userAccess: {
+          some: {
+            role: 'owner',
+            user: { deletedAt: null, disabledAt: null },
+          },
+        },
+      },
+      select: {
+        id: true,
+        siteId: true,
+        domain: true,
+        userAccess: {
+          where: { role: 'owner', user: { deletedAt: null, disabledAt: null } },
+          orderBy: { createdAt: 'asc' },
+          take: 1,
+          select: {
+            user: { select: { email: true, name: true, settings: { select: { timezone: true } } } },
+          },
+        },
+      },
+    });
+
+    return dashboards.flatMap((d) => {
+      const owner = d.userAccess[0]?.user;
+      if (!owner) return [];
+      return [
+        TrackingSilentRecipientSchema.parse({
+          dashboardId: d.id,
+          siteId: d.siteId,
+          domain: d.domain,
+          ownerEmail: owner.email,
+          ownerName: owner.name,
+          ownerTimezone: owner.settings?.timezone ?? null,
+        }),
+      ];
+    });
+  } catch (error) {
+    console.error('Error finding tracking silent recipients:', error);
+    throw new Error('Failed to find tracking silent recipients');
   }
 }
 
