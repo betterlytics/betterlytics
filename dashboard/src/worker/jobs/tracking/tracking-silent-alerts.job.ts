@@ -3,8 +3,7 @@ import 'server-only';
 import type { Job } from '@/worker/jobs/types';
 import { trackingSilentAlertsJobDefinition } from '@/worker/jobs/definitions';
 import { findTrackingSilentRecipients } from '@/repositories/postgres/dashboard.repository';
-import { findSentRecipientKeys } from '@/repositories/postgres/sentEmail.repository';
-import type { TrackingSilentRecipient } from '@/entities/dashboard/dashboard.entities';
+import { findSentCampaignKeysByPrefix } from '@/repositories/postgres/sentEmail.repository';
 import { BILLABLE_EVENT_TYPES } from '@/entities/billing/billing.entities';
 import { enqueueEmail } from '@/services/email/email.service';
 import { createDashboardRecipientKey } from '@/services/email/recipient-key.service';
@@ -14,8 +13,12 @@ import {
   classifyTrackingSilence,
   earliestNeededDay,
   findSilenceCandidates,
+  isNewEpisode,
   lookbackStart,
   OUTAGE_SILENT_SHARE,
+  parseTrackingSilentCampaignKey,
+  TRACKING_SILENT_CAMPAIGN_PREFIX,
+  trackingSilentCampaignKey,
   type DailyEventTotals,
 } from '@/worker/jobs/tracking/tracking-silence';
 
@@ -66,28 +69,6 @@ async function fetchLastEventTimes(siteIds: string[], notBefore: Date): Promise<
   return new Map(rows.map((r) => [r.siteId, new Date(Number(r.lastEventAt) * 1000)]));
 }
 
-function campaignKeyFor(lastEventAt: Date): string {
-  return `tracking-silent:${lastEventAt.toISOString()}`;
-}
-
-async function findAlreadySent(campaignKeyBySite: Map<string, string>, recipients: TrackingSilentRecipient[]) {
-  const recipientKeysByCampaign = new Map<string, string[]>();
-  for (const recipient of recipients) {
-    const campaignKey = campaignKeyBySite.get(recipient.siteId)!;
-    const keys = recipientKeysByCampaign.get(campaignKey) ?? [];
-    keys.push(createDashboardRecipientKey(recipient.dashboardId));
-    recipientKeysByCampaign.set(campaignKey, keys);
-  }
-
-  const sent = await Promise.all(
-    [...recipientKeysByCampaign].map(async ([campaignKey, keys]) => {
-      const alreadySent = await findSentRecipientKeys(keys, campaignKey);
-      return [...alreadySent].map((key) => `${campaignKey}|${key}`);
-    }),
-  );
-  return new Set(sent.flat());
-}
-
 async function runTrackingSilentAlerts(): Promise<void> {
   const now = new Date();
   const dailyBySite = await fetchDailyEventTotals(earliestNeededDay(now));
@@ -110,25 +91,30 @@ async function runTrackingSilentAlerts(): Promise<void> {
   }
 
   const lastEventAtBySite = new Map(silent.map((s) => [s.siteId, s.lastEventAt]));
-  const campaignKeyBySite = new Map(silent.map((s) => [s.siteId, campaignKeyFor(s.lastEventAt)]));
   const recipients = await findTrackingSilentRecipients(silent.map((s) => s.siteId));
-  const alreadySent = await findAlreadySent(campaignKeyBySite, recipients);
+  const sentCampaignKeys = await findSentCampaignKeysByPrefix(
+    recipients.map((r) => createDashboardRecipientKey(r.dashboardId)),
+    TRACKING_SILENT_CAMPAIGN_PREFIX,
+  );
 
   let enqueued = 0;
   for (const recipient of recipients) {
     const recipientKey = createDashboardRecipientKey(recipient.dashboardId);
-    const campaignKey = campaignKeyBySite.get(recipient.siteId)!;
-    if (alreadySent.has(`${campaignKey}|${recipientKey}`)) continue;
+    const lastEventAt = lastEventAtBySite.get(recipient.siteId)!;
+    const previouslyEmailed = (sentCampaignKeys.get(recipientKey) ?? []).flatMap(
+      (key) => parseTrackingSilentCampaignKey(key) ?? [],
+    );
+    if (!isNewEpisode(lastEventAt, previouslyEmailed)) continue;
     try {
       const result = await enqueueEmail({
         type: 'tracking-silent',
         recipientKey,
-        campaignKey,
+        campaignKey: trackingSilentCampaignKey(lastEventAt),
         data: {
           to: recipient.ownerEmail,
           userName: recipient.ownerName,
           domain: recipient.domain,
-          lastEventAt: lastEventAtBySite.get(recipient.siteId)!.toISOString(),
+          lastEventAt: lastEventAt.toISOString(),
           timeZone: recipient.ownerTimezone,
           installGuideUrl: `${sharedEmailEnv.publicBaseUrl}/dashboard/${recipient.dashboardId}?showIntegration=true`,
         },
