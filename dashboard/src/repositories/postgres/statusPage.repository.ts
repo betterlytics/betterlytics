@@ -1,4 +1,5 @@
 import prisma from '@/lib/postgres';
+import type { Prisma } from '@prisma/client';
 import {
   StatusPageSchema,
   StatusPageMonitorRowSchema,
@@ -211,6 +212,24 @@ export async function deleteStatusPage(dashboardId: string, statusPageId: string
   });
 }
 
+/**
+ * Soft-deletes the live pages of dashboards being deleted, freeing their slugs and custom domains.
+ * Stamped with the dashboard's own deletedAt so a dashboard restore can tell them apart from pages
+ * the owner deleted earlier. Returns the released slugs.
+ */
+export async function releaseStatusPagesOfDeletedDashboards(
+  tx: Prisma.TransactionClient,
+  dashboardIds: string[],
+  deletedAt: Date,
+): Promise<string[]> {
+  const released = await tx.statusPage.updateManyAndReturn({
+    where: { dashboardId: { in: dashboardIds }, deletedAt: null },
+    data: { deletedAt },
+    select: { slug: true },
+  });
+  return released.map((page) => page.slug);
+}
+
 export async function removeMonitorFromStatusPages(dashboardId: string, monitorCheckId: string): Promise<void> {
   await prisma.statusPageMonitor.deleteMany({ where: { dashboardId, monitorCheckId } });
 }
@@ -298,8 +317,9 @@ export async function getStatusPageSnapshotById(
 /**
  * Resolve a custom domain to its live status page. Used by the TLS-authorization (`ask`) endpoint
  * and the custom-domain public route. `findFirst` because customDomain is partial-unique (one live
- * page per domain) — never `findUnique`. A deleted dashboard's page is still returned, so its host
- * keeps routing to the status page and answers not found like an unpublished one.
+ * page per domain) — never `findUnique`. Deleting a dashboard soft-deletes its pages, so a deleted
+ * dashboard's domain finds nothing here, just like a deleted page's; `isDashboardDeleted` keeps the
+ * TLS check refusing one regardless.
  */
 export async function findStatusPageByCustomDomain(customDomain: string): Promise<{
   id: string;
