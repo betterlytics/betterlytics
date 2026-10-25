@@ -2360,6 +2360,8 @@
       "title": "Alarmer",
       "enabled": "Til",
       "enableAlerts": "Aktivér alarmer",
+      "emailRecipients": "E-mailalarmer sendes til {recipients}",
+      "noEmailRecipient": "Ingen e-mailmodtager",
       "description": "Få besked, når din overvågning går ned, kommer op igen, eller når SSL-certifikater er ved at udløbe.",
       "onDown": "Advarsel ved nedetid",
       "onDownDescription": "Send en alarm, når overvågningen går ned",
