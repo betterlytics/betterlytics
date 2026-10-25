@@ -3,6 +3,7 @@
 import { memo, type ReactNode } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from 'next-intl';
 
 export type CompactPaginationProps = {
   pageIndex: number;
@@ -13,6 +14,7 @@ export type CompactPaginationProps = {
 
 export const CompactPagination = memo(
   ({ pageIndex, totalPages, onPageChange, label }: CompactPaginationProps) => {
+    const t = useTranslations('components.pagination');
     const currentPage = pageIndex + 1;
 
     return (
@@ -20,7 +22,7 @@ export const CompactPagination = memo(
         {label && <span className='text-muted-foreground text-sm'>{label}</span>}
         <div className={`flex items-center gap-2 ${label ? '' : 'ml-auto'}`}>
           <span className='text-muted-foreground text-xs'>
-            Page {currentPage} of {totalPages}
+            {t('pageOf', { currentPage, totalPages })}
           </span>
           <div className='flex items-center'>
             <Button
@@ -29,7 +31,7 @@ export const CompactPagination = memo(
               className='h-7 w-7 cursor-pointer'
               disabled={pageIndex === 0}
               onClick={() => onPageChange(pageIndex - 1)}
-              aria-label='Previous page'
+              aria-label={t('previousPage')}
             >
               <ChevronLeft className='h-4 w-4' />
             </Button>
@@ -39,7 +41,7 @@ export const CompactPagination = memo(
               className='h-7 w-7 cursor-pointer'
               disabled={pageIndex >= totalPages - 1}
               onClick={() => onPageChange(pageIndex + 1)}
-              aria-label='Next page'
+              aria-label={t('nextPage')}
             >
               <ChevronRight className='h-4 w-4' />
             </Button>

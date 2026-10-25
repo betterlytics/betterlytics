@@ -2411,7 +2411,12 @@
     "pagination": {
       "pageOf": "Pagina {currentPage} di {totalPages}",
       "showing": "Mostrando {startItem}-{endItem} di {totalItems} elementi",
-      "perPage": "per pagina"
+      "perPage": "per pagina",
+      "navigation": "Paginazione",
+      "firstPage": "Prima pagina",
+      "previousPage": "Pagina precedente",
+      "nextPage": "Pagina successiva",
+      "lastPage": "Ultima pagina"
     },
     "annotations": {
       "dialogs": {

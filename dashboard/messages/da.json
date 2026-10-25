@@ -2411,7 +2411,12 @@
     "pagination": {
       "pageOf": "Side {currentPage} af {totalPages}",
       "showing": "Viser {startItem}-{endItem} af {totalItems} elementer",
-      "perPage": "pr. side"
+      "perPage": "pr. side",
+      "navigation": "Sidenavigation",
+      "firstPage": "Første side",
+      "previousPage": "Forrige side",
+      "nextPage": "Næste side",
+      "lastPage": "Sidste side"
     },
     "annotations": {
       "dialogs": {
