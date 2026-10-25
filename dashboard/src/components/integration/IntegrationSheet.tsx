@@ -15,8 +15,10 @@ import React from 'react';
 import { Separator } from '@/components/ui/separator';
 import { usePublicEnvironmentVariablesContext } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import ExternalLink from '@/components/ExternalLink';
-import { useTranslations, useMessages } from 'next-intl';
+import { useTranslations, useMessages, useLocale } from 'next-intl';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { useResolvedTimezone } from '@/hooks/use-resolved-timezone';
+import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { FrameworkGrid, FrameworkId } from './FrameworkGrid';
 import { FrameworkInstructions } from './FrameworkInstructions';
 import { getFrameworkCode, IntegrationTranslations } from './frameworkCodes';
@@ -49,7 +51,14 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
   const IS_CLOUD = useClientFeatureFlags().isFeatureFlagEnabled('isCloud');
 
   const dashboardId = useDashboardId();
-  const { isVerifying, isVerified, verify } = useTrackingVerification();
+  const { isVerifying, isVerified, lastEventAt, verify } = useTrackingVerification();
+  const locale = useLocale();
+  const { timeZone } = useResolvedTimezone();
+  const lastEventLabel = formatLocalDateTime(lastEventAt, locale, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+    timeZone,
+  });
 
   const { data: siteId, isLoading } = useQuery({
     queryKey: ['siteId', dashboardId],
@@ -185,7 +194,11 @@ export function IntegrationSheet({ open, onOpenChange }: IntegrationSheetProps) 
                       />
                       <StatusItem
                         label={t('dataReceiving')}
-                        description={t('analyticsDataFlowing')}
+                        description={
+                          lastEventLabel
+                            ? t('lastEventReceived', { time: lastEventLabel })
+                            : t('analyticsDataFlowing')
+                        }
                         isComplete={integrationStatus.dataReceiving}
                       />
                     </CardContent>

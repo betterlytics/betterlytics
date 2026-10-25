@@ -3143,6 +3143,8 @@
       "uniqueIdentifier": "Din unike identifikator",
       "dataReceiving": "Datamottak",
       "analyticsDataFlowing": "Analysedata strømmer inn",
+      "lastEventReceived": "Siste hendelse mottatt {time}",
+      "noRecentEvents": "Ingen hendelser de siste 24 timene. Sjekk at sporingsskriptet fortsatt er installert.",
       "needHelp": "Trenger du hjelp?",
       "resourcesToGetStarted": "Ressurser for å komme i gang",
       "documentation": "Dokumentasjon",

@@ -3143,6 +3143,8 @@
       "uniqueIdentifier": "Il tuo identificatore univoco",
       "dataReceiving": "Ricezione dati",
       "analyticsDataFlowing": "Flusso dati attivo",
+      "lastEventReceived": "Ultimo evento ricevuto {time}",
+      "noRecentEvents": "Nessun evento nelle ultime 24 ore. Verifica che lo script di tracciamento sia ancora installato.",
       "needHelp": "Serve aiuto?",
       "resourcesToGetStarted": "Risorse per iniziare",
       "documentation": "Documentazione",
