@@ -573,7 +573,7 @@
           var args = Array.prototype.slice.call(arguments);
           var first = args[0];
           if (isError(first)) {
-            var message = String(first.message);
+            var message = first.message != null ? String(first.message) : "";
             if (args.length > 1) {
               message =
                 (message ? message + " " : "") +
