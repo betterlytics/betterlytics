@@ -2676,11 +2676,6 @@
     },
     "campaign": {
       "title": "Kampagner",
-      "pagination": {
-        "pageOf": "Side {currentPage} af {totalPages}",
-        "showing": "Viser {startItem}-{endItem} af {totalItems} kampagner",
-        "perPage": "pr. side"
-      },
       "emptyState": {
         "title": "Ingen kampagner registreret endnu",
         "description": "Kampagner vises her, når URL’er med utm_campaign-tags bliver registreret. Begynd at tagge dine links for at se performance-metrics.",

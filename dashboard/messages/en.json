@@ -2676,11 +2676,6 @@
     },
     "campaign": {
       "title": "Campaigns",
-      "pagination": {
-        "pageOf": "Page {currentPage} of {totalPages}",
-        "showing": "Showing {startItem}-{endItem} of {totalItems} campaigns",
-        "perPage": "per page"
-      },
       "emptyState": {
         "title": "No campaigns captured yet",
         "description": "Campaigns will appear here once URLs with utm_campaign tags are captured. Start tagging your links to view performance metrics.",

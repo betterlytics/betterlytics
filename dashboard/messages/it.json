@@ -2676,11 +2676,6 @@
     },
     "campaign": {
       "title": "Campagne",
-      "pagination": {
-        "pageOf": "Pagina {currentPage} di {totalPages}",
-        "showing": "Mostrando {startItem}-{endItem} di {totalItems} campagne",
-        "perPage": "per pagina"
-      },
       "emptyState": {
         "title": "Nessuna campagna ancora registrata",
         "description": "Le campagne appariranno qui una volta che gli URL con tag utm_campaign saranno registrati. Inizia a taggare i tuoi link per visualizzare le metriche di performance.",
