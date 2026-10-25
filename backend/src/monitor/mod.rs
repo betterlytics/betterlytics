@@ -25,6 +25,6 @@ pub use models::{
     MonitorStatus, ProbeOutcome, ReasonCode, RequestHeader, StatusCodeValue,
 };
 pub use probe::MonitorProbe;
-pub use repository::{MonitorCheckDataSource, MonitorRepository};
+pub use repository::{MonitorCheckDataSource, MonitorRepository, PausePeriodSource};
 pub use runner::{HttpRunner, HttpRuntimeConfig, TlsRunner, TlsRuntimeConfig};
 

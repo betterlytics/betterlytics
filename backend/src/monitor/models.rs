@@ -198,6 +198,8 @@ pub struct MonitorCheck {
     pub accepted_status_codes: Vec<StatusCodeValue>,
     pub expected_keyword: Option<String>,
     pub check_ssl_errors: bool,
+    /// False while paused: the check is not probed, but its open incident is kept.
+    pub is_enabled: bool,
     pub alert: AlertConfig,
 }
 

@@ -409,17 +409,30 @@ async fn run_loop<S: RunnerStrategy>(
 
         // Prune stale state periodically
         if prune_counter % config.prune_every_ticks == 0 {
-            let active_ids: HashSet<String> = snapshot.iter().map(|c| c.id.clone()).collect();
+            let (active_ids, known_ids) = prune_sets(&snapshot);
             scheduler.prune_inactive(&active_ids);
             last_run.retain(|id, _| active_ids.contains(id));
-            incident_orchestrator.prune_inactive(&active_ids).await;
+            // Paused checks keep their incident state so resuming continues the same incident.
+            incident_orchestrator.prune_inactive(&known_ids).await;
             rate_limiter.prune_stale();
+
+            if !is_tls_runner {
+                let cache = Arc::clone(&cache);
+                let incident_orchestrator = Arc::clone(&incident_orchestrator);
+                tokio::spawn(async move {
+                    let checks = cache.fetch_fresh_checks().await;
+                    incident_orchestrator.run_consistency_check(checks).await;
+                });
+            }
         }
 
         let now = Instant::now();
         let mut set = JoinSet::new();
 
         for check in snapshot {
+            if !check.is_enabled {
+                continue;
+            }
             if scheduler.check_due(&check, now, &last_run).is_none() {
                 continue;
             }
@@ -523,6 +536,14 @@ async fn run_loop<S: RunnerStrategy>(
 
 // Helpers
 
+/// The ids probing state is kept for (enabled checks) and the ids incident state is kept
+/// for (every check that is not deleted, paused ones included).
+fn prune_sets(snapshot: &[Arc<MonitorCheck>]) -> (HashSet<String>, HashSet<String>) {
+    let active = snapshot.iter().filter(|c| c.is_enabled).map(|c| c.id.clone()).collect();
+    let known = snapshot.iter().map(|c| c.id.clone()).collect();
+    (active, known)
+}
+
 fn jitter_duration(base: StdDuration, jitter_ratio: f64) -> StdDuration {
     let mut rng = rand::thread_rng();
     jitter_duration_with_rng(base, jitter_ratio, &mut rng)
@@ -549,4 +570,38 @@ fn jitter_duration_with_rng<R: Rng + ?Sized>(
     let adjusted_ms = (base_ms + delta).max(1);
 
     StdDuration::from_millis(adjusted_ms as u64)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::monitor::{AlertConfig, HttpMethod};
+
+    fn check(id: &str, is_enabled: bool) -> Arc<MonitorCheck> {
+        Arc::new(MonitorCheck {
+            id: id.to_string(),
+            dashboard_id: "dash".to_string(),
+            site_id: "site".to_string(),
+            name: None,
+            url: url::Url::parse("https://example.com").unwrap(),
+            interval: StdDuration::from_secs(60),
+            timeout: StdDuration::from_secs(5),
+            updated_at: chrono::Utc::now(),
+            http_method: HttpMethod::Head,
+            request_headers: Vec::new(),
+            accepted_status_codes: Vec::new(),
+            expected_keyword: None,
+            check_ssl_errors: false,
+            is_enabled,
+            alert: AlertConfig::default(),
+        })
+    }
+
+    #[test]
+    fn paused_checks_keep_incident_state_but_not_probe_state() {
+        let (active, known) = prune_sets(&[check("live", true), check("paused", false)]);
+
+        assert!(active.contains("live") && !active.contains("paused"));
+        assert!(known.contains("live") && known.contains("paused"));
+    }
 }

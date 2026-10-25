@@ -16,7 +16,7 @@ use super::probe::DEFAULT_PROBE_TIMEOUT_MS;
 use super::{
     new_monitor_writer, DomainRateLimiter, HttpRunner, HttpRuntimeConfig, IncidentOrchestrator,
     IncidentOrchestratorConfig, MonitorCache, MonitorCacheConfig, MonitorCheckDataSource,
-    MonitorProbe, MonitorRepository, TlsRunner, TlsRuntimeConfig,
+    MonitorProbe, MonitorRepository, PausePeriodSource, TlsRunner, TlsRuntimeConfig,
 };
 
 pub async fn spawn_monitoring(
@@ -88,8 +88,9 @@ async fn run_monitoring_init_loop(
     loop {
         info!("uptime monitoring enabled; initializing monitor components");
 
-        let monitor_repo: Arc<dyn MonitorCheckDataSource> =
-            Arc::new(MonitorRepository::new(Arc::clone(&monitor_pool)));
+        let repository = Arc::new(MonitorRepository::new(Arc::clone(&monitor_pool)));
+        let monitor_repo: Arc<dyn MonitorCheckDataSource> = repository.clone();
+        let pause_periods: Arc<dyn PausePeriodSource> = repository;
 
         let monitor_cache = match MonitorCache::initialize(
             monitor_repo,
@@ -161,11 +162,17 @@ async fn run_monitoring_init_loop(
                 job_queue,
                 history_writer,
                 incident_store,
+                Some(pause_periods),
                 notification_engine.clone(),
             )
             .await,
         );
         info!("Incident orchestrator initialized");
+
+        // After warm-up and before any probe, so nothing opens an incident meanwhile.
+        incident_orchestrator
+            .run_consistency_check(monitor_cache.fetch_fresh_checks().await)
+            .await;
 
         let http_rate_limiter = Arc::new(DomainRateLimiter::default());
         let tls_rate_limiter = Arc::new(DomainRateLimiter::new(20, Duration::from_hours(1)));

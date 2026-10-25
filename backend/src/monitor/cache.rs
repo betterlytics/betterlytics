@@ -89,9 +89,18 @@ impl MonitorCache {
         Ok(cache)
     }
 
+    /// Every cached check, paused ones included.
     pub fn snapshot(&self) -> Vec<Arc<MonitorCheck>> {
         let map = self.checks.load();
         map.values().cloned().collect()
+    }
+
+    /// Reads the check list straight from Postgres, bypassing the cache, so a failed load
+    /// surfaces as an error instead of a stale list.
+    pub async fn fetch_fresh_checks(
+        &self,
+    ) -> Result<Vec<MonitorCheck>, crate::monitor::repository::MonitorRepositoryError> {
+        self.data_source.fetch_all_checks().await
     }
 
     async fn perform_full_refresh(&self) -> Result<(), MonitorCacheError> {

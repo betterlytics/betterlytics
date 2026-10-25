@@ -1,9 +1,10 @@
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 use anyhow::Result;
 use serde::Serialize;
 use tokio::sync::{mpsc, oneshot};
-use tracing::{info, warn};
+use tracing::{error, info, warn};
 
 use crate::clickhouse::ClickHouseClient;
 use crate::monitor::MonitorResultRow;
@@ -74,6 +75,29 @@ pub async fn flush_all_writers() {
     }
 }
 
+/// How a writer retries a failed insert. Retrying blocks the worker, so later
+/// batches wait behind the failed one and keep their order.
+#[derive(Clone, Copy, Debug)]
+pub struct RetryPolicy {
+    pub max_attempts: u32,
+    pub base_delay: Duration,
+    pub max_delay: Duration,
+}
+
+impl RetryPolicy {
+    /// One attempt: a failed insert is logged and dropped.
+    pub const NONE: Self = Self {
+        max_attempts: 1,
+        base_delay: Duration::ZERO,
+        max_delay: Duration::ZERO,
+    };
+
+    fn delay_after(&self, attempt: u32) -> Duration {
+        let factor = 1u32 << attempt.saturating_sub(1).min(16);
+        self.base_delay.saturating_mul(factor).min(self.max_delay)
+    }
+}
+
 /// Generic channel-based writer for ClickHouse rows.
 /// This provides a non-blocking `enqueue_rows` method that sends batches
 /// to a background worker for insertion
@@ -88,11 +112,21 @@ impl<R: clickhouse::Row + Serialize + Send + Sync + 'static> ClickhouseChannelWr
         channel_capacity: usize,
         batch_size: usize,
     ) -> Result<Arc<Self>> {
+        Self::with_retry(clickhouse, table, channel_capacity, batch_size, RetryPolicy::NONE)
+    }
+
+    pub fn with_retry(
+        clickhouse: Arc<ClickHouseClient>,
+        table: &str,
+        channel_capacity: usize,
+        batch_size: usize,
+        retry: RetryPolicy,
+    ) -> Result<Arc<Self>> {
         let (sender, receiver) = mpsc::channel(channel_capacity);
         register_writer(table, sender.downgrade(), channel_capacity);
         let writer = Arc::new(Self { sender });
 
-        Self::spawn_worker(clickhouse, table.to_string(), batch_size, receiver);
+        Self::spawn_worker(clickhouse, table.to_string(), batch_size, retry, receiver);
 
         Ok(writer)
     }
@@ -107,16 +141,15 @@ impl<R: clickhouse::Row + Serialize + Send + Sync + 'static> ClickhouseChannelWr
         clickhouse: Arc<ClickHouseClient>,
         table: String,
         batch_size: usize,
+        retry: RetryPolicy,
         mut receiver: mpsc::Receiver<Msg<R>>,
     ) {
         tokio::spawn(async move {
             while let Some(msg) = receiver.recv().await {
                 match msg {
                     Msg::Rows(batch) => {
-                        if let Err(err) =
-                            Self::insert_rows(&clickhouse, &table, batch, batch_size).await
-                        {
-                            warn!(table = %table, error = ?err, "Failed to insert rows");
+                        for chunk in batch.chunks(batch_size) {
+                            Self::insert_with_retry(&clickhouse, &table, chunk, retry).await;
                         }
                     }
                     Msg::Flush(ack) => {
@@ -127,19 +160,37 @@ impl<R: clickhouse::Row + Serialize + Send + Sync + 'static> ClickhouseChannelWr
         });
     }
 
-    async fn insert_rows(
+    async fn insert_with_retry(
         clickhouse: &ClickHouseClient,
         table: &str,
-        rows: Vec<R>,
-        batch_size: usize,
-    ) -> Result<()> {
-        for chunk in rows.chunks(batch_size) {
-            let mut inserter = clickhouse.inner().inserter(table)?;
-            for row in chunk {
-                inserter.write(row)?;
+        chunk: &[R],
+        retry: RetryPolicy,
+    ) {
+        let max_attempts = retry.max_attempts.max(1);
+        for attempt in 1..=max_attempts {
+            let Err(err) = Self::insert_chunk(clickhouse, table, chunk).await else {
+                return;
+            };
+            if attempt == max_attempts {
+                if max_attempts > 1 {
+                    error!(table = %table, attempts = attempt, rows = chunk.len(), error = ?err, "Giving up on inserting rows");
+                } else {
+                    warn!(table = %table, error = ?err, "Failed to insert rows");
+                }
+                return;
             }
-            inserter.end().await?;
+            let delay = retry.delay_after(attempt);
+            warn!(table = %table, attempt, retry_in_ms = delay.as_millis() as u64, error = ?err, "Failed to insert rows; retrying");
+            tokio::time::sleep(delay).await;
         }
+    }
+
+    async fn insert_chunk(clickhouse: &ClickHouseClient, table: &str, chunk: &[R]) -> Result<()> {
+        let mut inserter = clickhouse.inner().inserter(table)?;
+        for row in chunk {
+            inserter.write(row)?;
+        }
+        inserter.end().await?;
         Ok(())
     }
 }
@@ -197,5 +248,46 @@ mod tests {
         let rows2: Vec<TestRow> = second.collect().await;
         let ns: Vec<u32> = rows1.iter().chain(rows2.iter()).map(|r| r.n).collect();
         assert_eq!(ns, vec![1, 2, 3]);
+    }
+
+    #[tokio::test]
+    async fn a_failed_insert_is_retried_instead_of_dropped() {
+        let mock = Mock::new();
+        mock.add(handlers::failure(http::StatusCode::INTERNAL_SERVER_ERROR));
+        mock.add(handlers::failure(http::StatusCode::INTERNAL_SERVER_ERROR));
+        let recording = mock.add(handlers::record());
+        let client = clickhouse::Client::default().with_url(mock.url());
+        let clickhouse = Arc::new(ClickHouseClient::from_client(client));
+
+        let retry = RetryPolicy {
+            max_attempts: 5,
+            base_delay: Duration::from_millis(1),
+            max_delay: Duration::from_millis(5),
+        };
+        let writer =
+            ClickhouseChannelWriter::<TestRow>::with_retry(clickhouse, "test.rows", 100, 500, retry)
+                .unwrap();
+        writer.enqueue_rows(vec![TestRow { n: 7 }]).unwrap();
+
+        let (ack_tx, ack_rx) = oneshot::channel();
+        writer.sender.try_send(Msg::Flush(ack_tx)).unwrap();
+        tokio::time::timeout(Duration::from_secs(10), ack_rx)
+            .await
+            .expect("flush ack timed out")
+            .expect("worker dropped the ack");
+
+        let rows: Vec<TestRow> = recording.collect().await;
+        assert_eq!(rows.iter().map(|r| r.n).collect::<Vec<_>>(), vec![7]);
+    }
+
+    #[test]
+    fn retry_backoff_doubles_up_to_the_cap() {
+        let retry = RetryPolicy {
+            max_attempts: 10,
+            base_delay: Duration::from_secs(1),
+            max_delay: Duration::from_secs(60),
+        };
+        let delays: Vec<u64> = (1..=8).map(|attempt| retry.delay_after(attempt).as_secs()).collect();
+        assert_eq!(delays, vec![1, 2, 4, 8, 16, 32, 60, 60]);
     }
 }

@@ -1,18 +1,22 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
+use std::fmt::Debug;
 use std::sync::Arc;
 
-use chrono::Duration;
+use chrono::{DateTime, Duration, Utc};
 use tracing::{debug, info, warn};
 
 use super::alert::{
     Alert, AlertContext, AlertDispatcher, AlertHistoryWriter, NotificationTracker,
 };
 use crate::jobqueue::JobQueue;
+use crate::monitor::incident::reconcile::{
+    self, CheckStatus, Reconciliation, known_checks, plan_consistency_check, unpaused_duration,
+};
 use crate::monitor::incident::{
-    IncidentEvaluator, IncidentEvaluatorConfig, IncidentEvent, IncidentStore,
+    IncidentEvaluator, IncidentEvaluatorConfig, IncidentEvent, IncidentSnapshot, IncidentStore,
     MonitorIncidentRow,
 };
-use crate::monitor::{MonitorCheck, MonitorStatus, ProbeOutcome, ReasonCode};
+use crate::monitor::{MonitorCheck, MonitorStatus, PausePeriodSource, ProbeOutcome, ReasonCode};
 use crate::notifications::{DeliveryStrategy, Notification, NotificationColor, NotificationEngine, NotificationEvent};
 
 #[derive(Clone, Debug)]
@@ -72,8 +76,16 @@ pub struct IncidentOrchestrator {
     notification_tracker: Arc<NotificationTracker>,
     dispatcher: AlertDispatcher,
     incident_store: Option<Arc<IncidentStore>>,
+    pause_periods: Option<Arc<dyn PausePeriodSource>>,
     notification_engine: Option<Arc<NotificationEngine>>,
     public_base_url: String,
+}
+
+/// Whether a lost resolution is written again from memory or closed at its last failed check.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum LostResolution {
+    RewriteFromMemory,
+    CloseAtLastFailure,
 }
 
 impl IncidentOrchestrator {
@@ -82,6 +94,7 @@ impl IncidentOrchestrator {
         job_queue: Arc<JobQueue>,
         history_writer: Option<Arc<AlertHistoryWriter>>,
         incident_store: Option<Arc<IncidentStore>>,
+        pause_periods: Option<Arc<dyn PausePeriodSource>>,
         notification_engine: Option<Arc<NotificationEngine>>,
     ) -> Self {
         let public_base_url = config.public_base_url;
@@ -107,8 +120,158 @@ impl IncidentOrchestrator {
             notification_tracker,
             dispatcher,
             incident_store,
+            pause_periods,
             notification_engine,
             public_base_url,
+        }
+    }
+
+    /// Closes stored ongoing incidents that break "one ongoing incident per check": older
+    /// duplicates, ones memory already resolved and ones of deleted checks, each at its last
+    /// failed check and without notifications. Paused checks are left alone. Runs at startup
+    /// and hourly; does nothing when the check list failed to load or is empty.
+    pub async fn run_consistency_check<E: Debug>(&self, checks: Result<Vec<MonitorCheck>, E>) {
+        let Some(store) = &self.incident_store else {
+            return;
+        };
+
+        let statuses = checks.as_ref().map(|checks| {
+            checks
+                .iter()
+                .map(|c| {
+                    let status = if c.is_enabled { CheckStatus::Active } else { CheckStatus::Paused };
+                    (c.id.clone(), status)
+                })
+                .collect::<Vec<_>>()
+        });
+        let Some(known) = known_checks(statuses) else {
+            match &checks {
+                Err(err) => warn!(error = ?err, "Skipping incident consistency check: monitor list failed to load"),
+                Ok(_) => warn!("Skipping incident consistency check: monitor list is empty"),
+            }
+            return;
+        };
+        let checks = checks.unwrap_or_default();
+        let checks_by_id: HashMap<&str, &MonitorCheck> =
+            checks.iter().map(|c| (c.id.as_str(), c)).collect();
+
+        let stored = match store.load_active_incidents().await {
+            Ok(stored) => stored,
+            Err(err) => {
+                warn!(error = ?err, "Skipping incident consistency check: incidents failed to load");
+                return;
+            }
+        };
+
+        let plans = plan_consistency_check(&known, stored, |check_id| self.evaluator.snapshot(check_id));
+        if plans.is_empty() {
+            debug!("Incident consistency check found nothing to close");
+            return;
+        }
+
+        let mut rows = Vec::new();
+        for plan in plans {
+            if plan.deleted {
+                info!(
+                    check_id = %plan.check_id,
+                    closed = plan.reconciliation.close.len(),
+                    "Closing open incidents of a deleted monitor"
+                );
+                self.evaluator.remove(&plan.check_id);
+                self.notification_tracker.remove(&plan.check_id);
+                rows.extend(plan.reconciliation.close.iter().map(MonitorIncidentRow::closed_from_seed));
+                continue;
+            }
+
+            let Some(check) = checks_by_id.get(plan.check_id.as_str()) else {
+                continue;
+            };
+            let memory = self.evaluator.snapshot(&plan.check_id);
+            rows.extend(self.apply_reconciliation(
+                check,
+                memory.as_ref(),
+                plan.reconciliation,
+                LostResolution::CloseAtLastFailure,
+            ));
+        }
+
+        self.enqueue_incident_rows(rows);
+    }
+
+    /// Before a check opens a new incident: continue a stored ongoing one instead, or write the
+    /// resolution memory has for it and let the new one open.
+    async fn reconcile_before_open(&self, check: &MonitorCheck) {
+        let Some(store) = &self.incident_store else {
+            return;
+        };
+
+        let stored = match store.load_ongoing_for_check(&check.id).await {
+            Ok(stored) => stored,
+            Err(err) => {
+                warn!(check_id = %check.id, error = ?err, "Failed to load stored incidents before opening one");
+                return;
+            }
+        };
+        if stored.is_empty() {
+            return;
+        }
+
+        let memory = self.evaluator.snapshot(&check.id);
+        let plan = reconcile::reconcile(memory.as_ref(), stored);
+        let rows = self.apply_reconciliation(check, memory.as_ref(), plan, LostResolution::RewriteFromMemory);
+        self.enqueue_incident_rows(rows);
+    }
+
+    fn apply_reconciliation(
+        &self,
+        check: &MonitorCheck,
+        memory: Option<&IncidentSnapshot>,
+        plan: Reconciliation,
+        lost_resolution: LostResolution,
+    ) -> Vec<MonitorIncidentRow> {
+        let mut rows: Vec<MonitorIncidentRow> =
+            plan.close.iter().map(MonitorIncidentRow::closed_from_seed).collect();
+
+        if let Some(seed) = &plan.lost_resolution {
+            let rewritten = match (lost_resolution, memory) {
+                (LostResolution::RewriteFromMemory, Some(memory)) => MonitorIncidentRow::from_snapshot(
+                    memory,
+                    check,
+                    self.notification_tracker.snapshot(&check.id),
+                ),
+                _ => None,
+            };
+            rows.push(rewritten.unwrap_or_else(|| MonitorIncidentRow::closed_from_seed(seed)));
+        }
+
+        if let Some(seed) = &plan.adopt
+            && self.evaluator.adopt(seed)
+        {
+            self.notification_tracker.adopt(seed);
+            info!(check_id = %check.id, incident_id = %seed.incident_id, "Continuing stored ongoing incident");
+        }
+
+        if !rows.is_empty() {
+            info!(
+                check_id = %check.id,
+                closed = plan.close.len(),
+                lost_resolution = ?plan.lost_resolution.as_ref().map(|s| s.incident_id),
+                "Closing duplicate or stale ongoing incidents"
+            );
+        }
+
+        rows
+    }
+
+    fn enqueue_incident_rows(&self, rows: Vec<MonitorIncidentRow>) {
+        let Some(store) = &self.incident_store else {
+            return;
+        };
+        if rows.is_empty() {
+            return;
+        }
+        if let Err(err) = store.enqueue_rows(rows) {
+            warn!(error = ?err, "Failed to enqueue incident closures");
         }
     }
 
@@ -144,6 +307,14 @@ impl IncidentOrchestrator {
     )]
     async fn handle_failure(&self, ctx: &IncidentContext) {
         let alert_config = &ctx.check.alert;
+
+        if self.evaluator.opens_new_incident(
+            &ctx.check.id,
+            ctx.consecutive_failures,
+            alert_config.failure_threshold,
+        ) {
+            self.reconcile_before_open(&ctx.check).await;
+        }
 
         let event = self.evaluator.evaluate_failure(
             &ctx.check.id,
@@ -258,9 +429,15 @@ impl IncidentOrchestrator {
         let (incident_id, downtime_duration) = match event {
             Some(IncidentEvent::Resolved {
                 incident_id,
+                down_since,
+                resolved_at,
                 downtime_duration,
             }) => {
-                debug!(incident_id = %incident_id, "incident resolved");
+                let downtime_duration = match down_since {
+                    Some(since) => Some(self.unpaused_downtime(&ctx.check.id, since, resolved_at).await),
+                    None => downtime_duration,
+                };
+                debug!(incident_id = %incident_id, downtime = ?downtime_duration, "incident resolved");
                 (incident_id, downtime_duration)
             }
             _ => {
@@ -274,6 +451,20 @@ impl IncidentOrchestrator {
         self.send_recovery_alert(ctx, incident_id, downtime_duration).await;
 
         self.persist_incident_snapshot(ctx).await;
+    }
+
+    /// The downtime from `since` to `until`, leaving out the time the monitor was paused.
+    async fn unpaused_downtime(&self, check_id: &str, since: DateTime<Utc>, until: DateTime<Utc>) -> Duration {
+        let Some(source) = &self.pause_periods else {
+            return until - since;
+        };
+        match source.fetch_pause_periods(check_id, since).await {
+            Ok(pauses) => unpaused_duration(since, until, &pauses),
+            Err(err) => {
+                warn!(check_id = check_id, error = ?err, "Failed to load pause periods; reporting the full downtime");
+                until - since
+            }
+        }
     }
 
     async fn send_recovery_alert(

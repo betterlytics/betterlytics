@@ -6,6 +6,7 @@ use dashmap::DashMap;
 use tracing::info;
 use uuid::Uuid;
 
+use crate::monitor::incident::reconcile::newest_per_check;
 use crate::monitor::incident::{IncidentSeed, NotificationSnapshot};
 
 /// Milestone days for SSL expiry notifications
@@ -37,22 +38,9 @@ impl NotificationTracker {
 
     pub fn warm_from_incidents(&self, seeds: &[IncidentSeed]) {
         let mut count = 0;
-        for seed in seeds {
-            let mut entry = self.state.entry(seed.check_id.clone()).or_default();
-
-            if let Some(ts) = seed.notified_down_at {
-                entry.last_down = Some(ts);
-                entry.last_down_incident = Some(seed.incident_id);
+        for seed in newest_per_check(seeds) {
+            if self.adopt(&seed) {
                 count += 1;
-            }
-
-            if let Some(ts) = seed.notified_resolve_at {
-                entry.last_recovery = Some(ts);
-                entry.last_recovery_incident = Some(seed.incident_id);
-            }
-
-            if let Some(milestone) = seed.last_ssl_milestone_notified {
-                entry.last_ssl_milestone_notified = Some(milestone);
             }
         }
 
@@ -62,6 +50,32 @@ impl NotificationTracker {
                 "NotificationTracker warmed from incident seeds"
             );
         }
+    }
+
+    /// Takes over the notification state of a continued stored incident. Returns whether a
+    /// down notification was already sent for it.
+    pub fn adopt(&self, seed: &IncidentSeed) -> bool {
+        let mut entry = self.state.entry(seed.check_id.clone()).or_default();
+
+        if let Some(ts) = seed.notified_resolve_at {
+            entry.last_recovery = Some(ts);
+            entry.last_recovery_incident = Some(seed.incident_id);
+        }
+
+        if let Some(milestone) = seed.last_ssl_milestone_notified {
+            entry.last_ssl_milestone_notified = Some(milestone);
+        }
+
+        let Some(ts) = seed.notified_down_at else {
+            return false;
+        };
+        entry.last_down = Some(ts);
+        entry.last_down_incident = Some(seed.incident_id);
+        true
+    }
+
+    pub fn remove(&self, check_id: &str) {
+        self.state.remove(check_id);
     }
 
     pub fn should_notify_down(&self, check_id: &str, incident_id: Uuid) -> bool {

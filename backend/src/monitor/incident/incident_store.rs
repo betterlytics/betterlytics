@@ -5,8 +5,10 @@ use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+use std::time::Duration;
+
 use crate::clickhouse::ClickHouseClient;
-use crate::monitor::clickhouse_writer::ClickhouseChannelWriter;
+use crate::monitor::clickhouse_writer::{ClickhouseChannelWriter, RetryPolicy};
 use crate::monitor::models::{MonitorCheck, MonitorStatus, ReasonCode};
 use super::{IncidentSnapshot, IncidentState, IncidentSeverity};
 
@@ -71,6 +73,29 @@ impl MonitorIncidentRow {
             kind: kind.to_string(),
         })
     }
+
+    /// Resolves a stored ongoing incident at its last recorded failed check. Used for
+    /// cleanup closures, which never notify.
+    pub fn closed_from_seed(seed: &IncidentSeed) -> Self {
+        Self {
+            incident_id: seed.incident_id,
+            check_id: seed.check_id.clone(),
+            site_id: seed.site_id.clone(),
+            state: IncidentState::Resolved,
+            severity: seed.severity,
+            started_at: seed.started_at,
+            last_event_at: seed.last_event_at,
+            resolved_at: Some(seed.last_event_at),
+            reason_code: seed.reason_code.as_str().to_string(),
+            failure_count: seed.failure_count,
+            last_status: seed.last_status.unwrap_or(MonitorStatus::Failed),
+            status_code: seed.status_code,
+            notified_down_at: seed.notified_down_at,
+            notified_resolve_at: seed.notified_resolve_at,
+            last_ssl_milestone_notified: seed.last_ssl_milestone_notified,
+            kind: seed.kind.clone(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -83,6 +108,8 @@ pub struct NotificationSnapshot {
 #[derive(Debug, Clone)]
 pub struct IncidentSeed {
     pub check_id: String,
+    pub site_id: String,
+    pub kind: String,
     pub incident_id: Uuid,
     pub state: IncidentState,
     pub severity: IncidentSeverity,
@@ -111,6 +138,8 @@ struct IncidentSeedRow {
     #[serde(with = "clickhouse::serde::uuid")]
     incident_id: Uuid,
     check_id: String,
+    site_id: String,
+    kind: String,
     state: IncidentState,
     severity: IncidentSeverity,
     #[serde(with = "clickhouse::serde::chrono::datetime64::millis")]
@@ -142,6 +171,8 @@ impl From<IncidentSeedRow> for IncidentSeed {
 
         Self {
             check_id: row.check_id,
+            site_id: row.site_id,
+            kind: row.kind,
             incident_id: row.incident_id,
             state: row.state,
             severity: row.severity,
@@ -161,6 +192,12 @@ impl From<IncidentSeedRow> for IncidentSeed {
 
 const INCIDENT_BATCH_SIZE: usize = 200;
 const INCIDENT_CHANNEL_CAPACITY: usize = 2_000;
+// About 6 minutes of retries before a row is given up on.
+const INCIDENT_WRITE_RETRY: RetryPolicy = RetryPolicy {
+    max_attempts: 10,
+    base_delay: Duration::from_secs(1),
+    max_delay: Duration::from_secs(60),
+};
 
 pub struct IncidentStore {
     clickhouse: Arc<ClickHouseClient>,
@@ -170,11 +207,12 @@ pub struct IncidentStore {
 
 impl IncidentStore {
     pub fn new(clickhouse: Arc<ClickHouseClient>, table: &str) -> Result<Arc<Self>> {
-        let writer = ClickhouseChannelWriter::new(
+        let writer = ClickhouseChannelWriter::with_retry(
             Arc::clone(&clickhouse),
             table,
             INCIDENT_CHANNEL_CAPACITY,
             INCIDENT_BATCH_SIZE,
+            INCIDENT_WRITE_RETRY,
         )?;
 
         Ok(Arc::new(Self {
@@ -184,12 +222,25 @@ impl IncidentStore {
         }))
     }
 
+    /// Every stored ongoing incident, one row per incident.
     pub async fn load_active_incidents(&self) -> Result<Vec<IncidentSeed>> {
+        self.load_ongoing(None).await
+    }
+
+    /// The stored ongoing incidents of one check.
+    pub async fn load_ongoing_for_check(&self, check_id: &str) -> Result<Vec<IncidentSeed>> {
+        self.load_ongoing(Some(check_id)).await
+    }
+
+    async fn load_ongoing(&self, check_id: Option<&str>) -> Result<Vec<IncidentSeed>> {
+        let check_filter = if check_id.is_some() { "AND check_id = ?" } else { "" };
         let query = format!(
             r#"
             SELECT
                 incident_id,
                 check_id,
+                site_id,
+                kind,
                 state,
                 severity,
                 started_at,
@@ -205,13 +256,18 @@ impl IncidentStore {
             FROM {table}
             FINAL
             WHERE state = 1
+              {check_filter}
             ORDER BY check_id, incident_id, last_event_at DESC
             LIMIT 1 BY check_id, incident_id
             "#,
             table = self.table
         );
 
-        let rows: Vec<IncidentSeedRow> = self.clickhouse.inner().query(&query).fetch_all().await?;
+        let mut q = self.clickhouse.inner().query(&query);
+        if let Some(check_id) = check_id {
+            q = q.bind(check_id);
+        }
+        let rows: Vec<IncidentSeedRow> = q.fetch_all().await?;
         Ok(rows.into_iter().map(IncidentSeed::from).collect())
     }
 

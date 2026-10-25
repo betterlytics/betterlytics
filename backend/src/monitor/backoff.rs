@@ -202,6 +202,7 @@ mod tests {
             accepted_status_codes: Vec::new(),
             expected_keyword: None,
             check_ssl_errors: false,
+            is_enabled: true,
             alert: AlertConfig::default(),
         }
     }

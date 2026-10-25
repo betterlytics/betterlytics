@@ -5,6 +5,7 @@ use uuid::Uuid;
 
 use crate::monitor::{MonitorStatus, ReasonCode};
 
+use super::reconcile::newest_per_check;
 use super::{IncidentState, IncidentSeverity, IncidentSeed, IncidentSnapshot};
 
 
@@ -136,6 +137,8 @@ pub enum IncidentEvent {
     },
     Resolved {
         incident_id: Uuid,
+        down_since: Option<DateTime<Utc>>,
+        resolved_at: DateTime<Utc>,
         downtime_duration: Option<Duration>,
     },
 }
@@ -151,6 +154,15 @@ impl IncidentEvaluator {
             states: DashMap::new(),
             config,
         }
+    }
+
+    /// Whether this failure would open a new incident: none is ongoing in memory and the
+    /// failure threshold is reached.
+    pub fn opens_new_incident(&self, check_id: &str, consecutive_failures: u16, failure_threshold: i32) -> bool {
+        let already_open = self.states.get(check_id).is_some_and(|state| {
+            matches!(state.state, IncidentState::Ongoing) && state.incident_id.is_some()
+        });
+        !already_open && consecutive_failures >= failure_threshold as u16
     }
 
     pub fn evaluate_failure(
@@ -255,7 +267,8 @@ impl IncidentEvaluator {
                 return None;
             }
         };
-        let downtime_duration = state.down_since.map(|t| now.signed_duration_since(t));
+        let down_since = state.down_since;
+        let downtime_duration = down_since.map(|t| now.signed_duration_since(t));
 
         state.resolve(now);
 
@@ -268,6 +281,8 @@ impl IncidentEvaluator {
 
         Some(IncidentEvent::Resolved {
             incident_id,
+            down_since,
+            resolved_at: now,
             downtime_duration,
         })
     }
@@ -276,6 +291,8 @@ impl IncidentEvaluator {
         self.states.retain(|id, _| active_ids.contains(id));
     }
 
+    /// Seeds memory from the stored ongoing incidents. With several for one check, the one
+    /// with the most recent failed check is kept; the consistency check closes the others.
     pub fn warm_from_incidents(&self, seeds: &[IncidentSeed]) {
         if seeds.is_empty() {
             return;
@@ -283,8 +300,8 @@ impl IncidentEvaluator {
 
         let mut warm_count = 0;
 
-        for seed in seeds {
-            self.states.insert(seed.check_id.clone(), MonitorIncidentState::from_seed(seed));
+        for seed in newest_per_check(seeds) {
+            self.states.insert(seed.check_id.clone(), MonitorIncidentState::from_seed(&seed));
             warm_count += 1;
         }
 
@@ -294,7 +311,141 @@ impl IncidentEvaluator {
         );
     }
 
+    /// Continues a stored ongoing incident, unless memory meanwhile holds an ongoing one.
+    /// Returns whether it was adopted.
+    pub fn adopt(&self, seed: &IncidentSeed) -> bool {
+        let mut state = self.states.entry(seed.check_id.clone()).or_default();
+        if matches!(state.state, IncidentState::Ongoing) && state.incident_id.is_some() {
+            return false;
+        }
+        *state = MonitorIncidentState::from_seed(seed);
+        true
+    }
+
+    pub fn remove(&self, check_id: &str) {
+        self.states.remove(check_id);
+    }
+
     pub fn snapshot(&self, check_id: &str) -> Option<IncidentSnapshot> {
         self.states.get(check_id)?.to_snapshot()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashSet;
+
+    use super::*;
+
+    const CHECK: &str = "check-1";
+
+    fn fail(evaluator: &IncidentEvaluator, consecutive_failures: u16) -> Option<IncidentEvent> {
+        evaluator.evaluate_failure(
+            CHECK,
+            MonitorStatus::Failed,
+            consecutive_failures,
+            3,
+            ReasonCode::HttpTimeout,
+            None,
+        )
+    }
+
+    fn opened_id(event: Option<IncidentEvent>) -> Uuid {
+        match event {
+            Some(IncidentEvent::Opened { incident_id }) => incident_id,
+            other => panic!("expected an opened incident, got {other:?}"),
+        }
+    }
+
+    fn updated_id(event: Option<IncidentEvent>) -> Uuid {
+        match event {
+            Some(IncidentEvent::Updated { incident_id }) => incident_id,
+            other => panic!("expected an updated incident, got {other:?}"),
+        }
+    }
+
+    fn seed_from(snapshot: &IncidentSnapshot) -> IncidentSeed {
+        IncidentSeed {
+            check_id: CHECK.to_string(),
+            site_id: "site".to_string(),
+            kind: "https".to_string(),
+            incident_id: snapshot.incident_id.unwrap(),
+            state: snapshot.state,
+            severity: snapshot.severity,
+            started_at: snapshot.started_at.unwrap(),
+            last_event_at: snapshot.last_event_at.unwrap(),
+            resolved_at: snapshot.resolved_at,
+            failure_count: snapshot.failure_count,
+            last_status: snapshot.last_status,
+            reason_code: ReasonCode::HttpTimeout,
+            status_code: None,
+            notified_down_at: None,
+            notified_resolve_at: None,
+            last_ssl_milestone_notified: None,
+        }
+    }
+
+    #[test]
+    fn pausing_while_down_and_resuming_continues_the_same_incident() {
+        let evaluator = IncidentEvaluator::new(IncidentEvaluatorConfig::default());
+        let incident = opened_id(fail(&evaluator, 3));
+
+        // While paused the check stays in the known set, so the hourly prune keeps its state.
+        let known: HashSet<String> = [CHECK.to_string()].into();
+        evaluator.prune_inactive(&known);
+
+        // Probing restarts from zero consecutive failures after resume.
+        assert!(!evaluator.opens_new_incident(CHECK, 1, 3));
+        assert_eq!(updated_id(fail(&evaluator, 1)), incident);
+    }
+
+    #[test]
+    fn restarting_while_paused_and_down_continues_the_same_incident() {
+        let before = IncidentEvaluator::new(IncidentEvaluatorConfig::default());
+        let incident = opened_id(fail(&before, 3));
+        let stored = seed_from(&before.snapshot(CHECK).unwrap());
+
+        let after = IncidentEvaluator::new(IncidentEvaluatorConfig::default());
+        after.warm_from_incidents(&[stored]);
+
+        assert_eq!(updated_id(fail(&after, 1)), incident);
+    }
+
+    #[test]
+    fn a_continued_stored_incident_is_updated_instead_of_a_new_one_opening() {
+        let previous = IncidentEvaluator::new(IncidentEvaluatorConfig::default());
+        let stored_id = opened_id(fail(&previous, 3));
+        let stored = seed_from(&previous.snapshot(CHECK).unwrap());
+
+        let evaluator = IncidentEvaluator::new(IncidentEvaluatorConfig::default());
+        assert!(evaluator.opens_new_incident(CHECK, 3, 3));
+        assert!(evaluator.adopt(&stored));
+
+        assert_eq!(updated_id(fail(&evaluator, 3)), stored_id);
+    }
+
+    #[test]
+    fn adopting_never_replaces_an_ongoing_incident() {
+        let previous = IncidentEvaluator::new(IncidentEvaluatorConfig::default());
+        opened_id(fail(&previous, 3));
+        let stored = seed_from(&previous.snapshot(CHECK).unwrap());
+
+        let evaluator = IncidentEvaluator::new(IncidentEvaluatorConfig::default());
+        let current = opened_id(fail(&evaluator, 3));
+
+        assert!(!evaluator.adopt(&stored));
+        assert_eq!(evaluator.snapshot(CHECK).unwrap().incident_id, Some(current));
+    }
+
+    #[test]
+    fn a_new_outage_after_recovery_opens_a_new_incident() {
+        let evaluator = IncidentEvaluator::new(IncidentEvaluatorConfig::default());
+        let first = opened_id(fail(&evaluator, 3));
+        evaluator.evaluate_recovery(CHECK, MonitorStatus::Ok);
+        let resolved = evaluator.evaluate_recovery(CHECK, MonitorStatus::Ok);
+        assert!(matches!(resolved, Some(IncidentEvent::Resolved { incident_id, .. }) if incident_id == first));
+
+        assert!(evaluator.opens_new_incident(CHECK, 3, 3));
+        assert_ne!(opened_id(fail(&evaluator, 3)), first);
     }
 }

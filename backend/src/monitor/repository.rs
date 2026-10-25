@@ -8,6 +8,7 @@ use thiserror::Error;
 use tokio_postgres::Row;
 use url::Url;
 
+use crate::monitor::incident::PausePeriod;
 use crate::monitor::{AlertConfig, HttpMethod, MonitorCheck, RequestHeader, StatusCodeValue};
 use crate::postgres::{PostgresError, PostgresPool};
 
@@ -36,9 +37,15 @@ SELECT
     COALESCE(mc."alertEmails", ARRAY[]::text[]) AS alert_recipients
 FROM "MonitorCheck" mc
 JOIN "Dashboard" d ON mc."dashboardId" = d.id
-WHERE mc."isEnabled" = TRUE
-AND mc."deletedAt" IS NULL
+WHERE mc."deletedAt" IS NULL
 AND d."deletedAt" IS NULL
+"#;
+
+const PAUSE_PERIODS_SINCE: &str = r#"
+SELECT "pausedAt" AS paused_at, "resumedAt" AS resumed_at
+FROM "MonitorPausePeriod"
+WHERE "monitorCheckId" = $1
+AND ("resumedAt" IS NULL OR "resumedAt" > $2)
 "#;
 
 const ORDER_BY_UPDATED_AT: &str = r#" ORDER BY mc."updatedAt" ASC"#;
@@ -68,6 +75,7 @@ pub struct MonitorCheckRecord {
     pub accepted_status_codes: Vec<StatusCodeValue>,
     pub expected_keyword: Option<String>,
     pub check_ssl_errors: bool,
+    pub is_enabled: bool,
     pub alerts_enabled: bool,
     pub alert_on_down: bool,
     pub alert_on_recovery: bool,
@@ -114,6 +122,7 @@ impl TryFrom<Row> for MonitorCheckRecord {
             accepted_status_codes,
             expected_keyword: row.try_get("expected_keyword")?,
             check_ssl_errors: row.try_get("check_ssl_errors")?,
+            is_enabled: row.try_get("is_enabled")?,
             alerts_enabled: row.try_get("alerts_enabled")?,
             alert_on_down: row.try_get("alert_on_down")?,
             alert_on_recovery: row.try_get("alert_on_recovery")?,
@@ -151,6 +160,7 @@ impl TryFrom<MonitorCheckRecord> for MonitorCheck {
             accepted_status_codes: record.accepted_status_codes,
             expected_keyword: record.expected_keyword,
             check_ssl_errors: record.check_ssl_errors,
+            is_enabled: record.is_enabled,
             alert: AlertConfig {
                 enabled: record.alerts_enabled,
                 on_down: record.alert_on_down,
@@ -179,6 +189,7 @@ impl From<RequestHeaderJson> for RequestHeader {
 
 #[async_trait]
 pub trait MonitorCheckDataSource: Send + Sync + 'static {
+    /// Every check that is not deleted, paused ones included (`is_enabled = false`).
     async fn fetch_all_checks(&self) -> Result<Vec<MonitorCheck>, MonitorRepositoryError>;
     async fn fetch_checks_updated_since(
         &self,
@@ -234,6 +245,43 @@ impl MonitorCheckDataSource for MonitorRepository {
     }
 }
 
+#[async_trait]
+pub trait PausePeriodSource: Send + Sync + 'static {
+    /// The check's pause periods that were still running at or after `since`.
+    async fn fetch_pause_periods(
+        &self,
+        check_id: &str,
+        since: DateTime<Utc>,
+    ) -> Result<Vec<PausePeriod>, MonitorRepositoryError>;
+}
+
+#[async_trait]
+impl PausePeriodSource for MonitorRepository {
+    async fn fetch_pause_periods(
+        &self,
+        check_id: &str,
+        since: DateTime<Utc>,
+    ) -> Result<Vec<PausePeriod>, MonitorRepositoryError> {
+        let conn = self.pool.connection().await?;
+        let rows = conn
+            .query(PAUSE_PERIODS_SINCE, &[&check_id, &since.naive_utc()])
+            .await
+            .map_err(|e| MonitorRepositoryError::Postgres(PostgresError::Query(e)))?;
+
+        rows.into_iter()
+            .map(|row| {
+                let paused_at: NaiveDateTime = row.try_get("paused_at")?;
+                let resumed_at: Option<NaiveDateTime> = row.try_get("resumed_at")?;
+                Ok(PausePeriod {
+                    paused_at: DateTime::<Utc>::from_naive_utc_and_offset(paused_at, Utc),
+                    resumed_at: resumed_at.map(|t| DateTime::<Utc>::from_naive_utc_and_offset(t, Utc)),
+                })
+            })
+            .collect::<Result<_, tokio_postgres::Error>>()
+            .map_err(|e| MonitorRepositoryError::Postgres(PostgresError::Query(e)))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -246,6 +294,17 @@ mod tests {
         ] {
             assert!(query.contains(r#"AND d."deletedAt" IS NULL"#));
             assert_eq!(query.matches("WHERE").count(), 1);
+        }
+    }
+
+    #[test]
+    fn both_queries_load_paused_checks_with_their_enabled_flag() {
+        for query in [
+            MonitorRepository::all_checks_query(),
+            MonitorRepository::checks_updated_since_query(),
+        ] {
+            assert!(!query.contains(r#"mc."isEnabled" = TRUE"#));
+            assert!(query.contains(r#"mc."isEnabled" AS is_enabled"#));
         }
     }
 
