@@ -177,3 +177,17 @@ limitations under the License.
 ```
 
 **Full License Text**: https://www.apache.org/licenses/LICENSE-2.0
+
+---
+
+## Regional map boundaries
+
+**Files**: `dashboard/public/data/regions/*.geo.json`
+**Sources**:
+
+- [Natural Earth](https://www.naturalearthdata.com/) admin-1 boundaries, public domain, for most countries
+- [geoBoundaries](https://www.geoboundaries.org/): CD, KI, LU, MH, SO, ST and TV under ODbL 1.0 (© OpenStreetMap contributors); CI and LV under CC BY 4.0; NP under CC BY 3.0 IGO; GL's redrawn border under CC BY-SA 3.0 DE; KE and LB public domain
+- [OCHA Common Operational Datasets](https://data.humdata.org/) under CC BY-IGO: GH (Ghana Statistical Service), KZ (UNHCR), PS (Palestinian Ministry of Planning), SL (Government of Sierra Leone)
+
+**License**: The simplified and composed files are distributed under this project's AGPL-3.0 license, except that the ODbL-derived files stay under ODbL 1.0 and GL under CC BY-SA 4.0. Every file names its base data and license in a `license` member, and ODbL files carry an `attribution` member that the dashboard shows on the map.
+**Description**: First-level subdivision outlines, one file per country, keyed by the ISO 3166-2 codes the GeoLite2 database reports. Generated, not hand-edited.
