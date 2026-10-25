@@ -21,7 +21,7 @@ export const CompactPagination = memo(
       <div className='flex items-center justify-between py-1'>
         {label && <span className='text-muted-foreground text-sm'>{label}</span>}
         <div className={`flex items-center gap-2 ${label ? '' : 'ml-auto'}`}>
-          <span className='text-muted-foreground text-xs'>
+          <span className='text-muted-foreground text-xs' aria-live='polite'>
             {t('pageOf', { currentPage, totalPages })}
           </span>
           <div className='flex items-center'>
