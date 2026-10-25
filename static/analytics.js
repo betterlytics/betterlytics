@@ -527,13 +527,15 @@
 
     if (enableConsoleErrors) {
       // Error.isError also accepts DOMExceptions and Errors from other frames. Without it, the tag check
-      // rejects objects faking it with Symbol.toStringTag, and DOMException's code getter throws for non-DOMExceptions
+      // rejects objects faking it with Symbol.toStringTag, and DOMException's code getter throws for non-DOMExceptions.
+      // The getter only runs on DOMException-tagged objects, since throwing per object is slow in JSON.stringify
       function isError(a) {
         if (a == null || typeof a !== "object") return false;
         if (Error.isError) return Error.isError(a);
         if (a instanceof Error) return true;
-        if (Object.prototype.toString.call(a) === "[object Error]")
-          return !(Symbol.toStringTag in a);
+        var tag = Object.prototype.toString.call(a);
+        if (tag === "[object Error]") return !(Symbol.toStringTag in a);
+        if (tag !== "[object DOMException]") return false;
         try {
           Object.getOwnPropertyDescriptor(DOMException.prototype, "code").get.call(a);
           return true;
