@@ -14,9 +14,10 @@ const BG_COORDINATES = [
 
 interface MapBackgroundLayerProps {
   Polygon: typeof Polygon;
+  onClick?: () => void;
 }
 
-export default function MapBackgroundLayer({ Polygon }: MapBackgroundLayerProps) {
+export default function MapBackgroundLayer({ Polygon, onClick }: MapBackgroundLayerProps) {
   const { setMapSelection } = useMapSelectionSetter();
   const map = useMap();
 
@@ -26,13 +27,14 @@ export default function MapBackgroundLayer({ Polygon }: MapBackgroundLayerProps)
 
   const handleClick = useCallback(() => {
     setMapSelection(null);
-  }, [setMapSelection]);
+    onClick?.();
+  }, [setMapSelection, onClick]);
 
   const handleMouseOver = useCallback(() => {
     setMapSelection({ hovered: undefined });
   }, [setMapSelection]);
 
-  // Overlays such as the filters card sit inside the map's rect, so containment decides
+  // Overlays such as the filters card and the subdivision panel sit inside the map's rect, so containment decides
   const dismissIfOutside = useCallback(
     (e: MouseEvent) => {
       if (!(e.target instanceof Node) || !map.getContainer().contains(e.target)) clearHovered();

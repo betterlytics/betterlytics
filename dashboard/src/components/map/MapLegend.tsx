@@ -1,9 +1,9 @@
 import { cssVar, MAP_VISITOR_COLORS } from '@/constants/mapColors';
-import { useMapSelectionSetter } from '@/contexts/MapSelectionContextProvider';
+import MapCard from '@/components/map/MapCard';
 import { cn } from '@/lib/utils';
 import { formatNumber } from '@/utils/formatters';
 import { useLocale, useTranslations } from 'next-intl';
-import React, { useCallback } from 'react';
+import React from 'react';
 
 type MapLegendProps = {
   maxVisitors?: number;
@@ -13,21 +13,9 @@ type MapLegendProps = {
 function MapLegendComponent({ maxVisitors = 1, className }: MapLegendProps) {
   const locale = useLocale();
   const t = useTranslations('components.geography');
-  const { setMapSelection } = useMapSelectionSetter();
-
-  // Covered map paths never fire mouseout
-  const clearHovered = useCallback(() => {
-    setMapSelection({ hovered: undefined });
-  }, [setMapSelection]);
 
   return (
-    <div
-      className={cn(
-        'border-border bg-card rounded-md border p-2.5 text-xs leading-normal shadow-md dark:bg-(--card-interactive)',
-        className,
-      )}
-      onMouseEnter={clearHovered}
-    >
+    <MapCard className={cn('p-2.5 text-xs leading-normal', className)}>
       <h4 className='text-foreground mb-1.5 font-medium'>{t('visitors')}</h4>
       <div className='flex items-center'>
         <span className='text-muted-foreground mr-1 text-xs'>0</span>
@@ -39,7 +27,7 @@ function MapLegendComponent({ maxVisitors = 1, className }: MapLegendProps) {
         ></div>
         <span className='text-muted-foreground ml-1 text-xs'>{formatNumber(maxVisitors, locale)}</span>
       </div>
-    </div>
+    </MapCard>
   );
 }
 
