@@ -18,7 +18,12 @@ import {
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
 import { DashboardMember, DashboardMemberSchema } from '@/entities/dashboard/invitation.entities';
-import { DashboardRole } from '@prisma/client';
+import {
+  PublicDashboardSettings,
+  PublicDashboardSettingsSchema,
+  PublicDashboardSettingsUpdate,
+} from '@/entities/dashboard/publicDashboard.entities';
+import { DashboardRole, Prisma } from '@prisma/client';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
@@ -315,6 +320,73 @@ export async function updateDashboardDomain(dashboardId: string, domain: string)
   } catch (error) {
     console.error(`Error updating dashboard domain ${dashboardId}:`, error);
     throw new Error('Failed to update dashboard domain.');
+  }
+}
+
+const PUBLIC_SETTINGS_SELECT = { isPublic: true, publicSlug: true, publicEnabledPages: true } as const;
+
+function toPublicDashboardSettings(row: {
+  isPublic: boolean;
+  publicSlug: string | null;
+  publicEnabledPages: string[];
+}): PublicDashboardSettings {
+  return PublicDashboardSettingsSchema.parse({
+    isPublic: row.isPublic,
+    slug: row.publicSlug,
+    enabledPages: row.publicEnabledPages,
+  });
+}
+
+export class PublicSlugTakenError extends Error {
+  constructor() {
+    super('Public slug is already taken');
+    this.name = 'PublicSlugTakenError';
+  }
+}
+
+export async function findPublicDashboardSettings(dashboardId: string): Promise<PublicDashboardSettings | null> {
+  const row = await prisma.dashboard.findFirst({
+    where: { id: dashboardId, deletedAt: null },
+    select: PUBLIC_SETTINGS_SELECT,
+  });
+  return row ? toPublicDashboardSettings(row) : null;
+}
+
+/** Slugs from `candidates` held by live dashboards other than `excludeDashboardId`. */
+export async function findTakenPublicSlugs(candidates: string[], excludeDashboardId?: string): Promise<string[]> {
+  const rows = await prisma.dashboard.findMany({
+    where: {
+      publicSlug: { in: candidates },
+      deletedAt: null,
+      ...(excludeDashboardId ? { id: { not: excludeDashboardId } } : {}),
+    },
+    select: { publicSlug: true },
+  });
+  return rows.flatMap((row) => (row.publicSlug ? [row.publicSlug] : []));
+}
+
+/** Throws PublicSlugTakenError when another live dashboard holds the slug (partial unique index). */
+export async function updatePublicDashboardSettings(
+  dashboardId: string,
+  updates: PublicDashboardSettingsUpdate,
+): Promise<PublicDashboardSettings> {
+  try {
+    const row = await prisma.dashboard.update({
+      where: { id: dashboardId, deletedAt: null },
+      data: {
+        isPublic: updates.isPublic,
+        publicSlug: updates.slug,
+        publicEnabledPages: updates.enabledPages,
+      },
+      select: PUBLIC_SETTINGS_SELECT,
+    });
+    return toPublicDashboardSettings(row);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      throw new PublicSlugTakenError();
+    }
+    console.error(`Error updating public settings for dashboard ${dashboardId}:`, error);
+    throw new Error('Failed to update public dashboard settings');
   }
 }
 
