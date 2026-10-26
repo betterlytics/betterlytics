@@ -254,13 +254,16 @@ export async function deleteUserAccount(
             where: { userId: toUserId, dashboardId, deletedAt: null },
             select: { id: true, joinedAt: true, isDefault: true },
           });
-          if (recipientAccess) {
-            // A role change: the recipient's row ends and an owner row opens at the same moment
-            const changedAt = new Date();
-            await tx.userDashboard.update({
-              where: { id: recipientAccess.id },
-              data: { deletedAt: changedAt, deletedById: options.removedById },
-            });
+          // A role change: the recipient's row ends and an owner row opens at the same moment. The
+          // deletedAt guard keeps a removal that commits in between; the recipient then gets a new row.
+          const changedAt = new Date();
+          const ended = recipientAccess
+            ? await tx.userDashboard.updateMany({
+                where: { id: recipientAccess.id, deletedAt: null },
+                data: { deletedAt: changedAt, deletedById: options.removedById },
+              })
+            : { count: 0 };
+          if (recipientAccess && ended.count === 1) {
             await tx.userDashboard.create({
               data: {
                 userId: toUserId,

@@ -66,7 +66,7 @@ describe('updateMemberRole', () => {
 
   beforeEach(() => {
     prismaMock.userDashboard.findFirstOrThrow.mockResolvedValue({ id: 'ud-2', joinedAt, isDefault: true });
-    prismaMock.userDashboard.update.mockResolvedValue({});
+    prismaMock.userDashboard.updateMany.mockResolvedValue({ count: 1 });
     prismaMock.userDashboard.create.mockResolvedValue({ ...memberRow, id: 'ud-3', role: 'viewer' });
   });
 
@@ -77,10 +77,10 @@ describe('updateMemberRole', () => {
       where: { userId: 'user-2', dashboardId: 'dash-1', deletedAt: null },
       select: { id: true, joinedAt: true, isDefault: true },
     });
-    const ended = prismaMock.userDashboard.update.mock.calls[0][0];
+    const ended = prismaMock.userDashboard.updateMany.mock.calls[0][0];
     const opened = prismaMock.userDashboard.create.mock.calls[0][0];
     expect(ended).toEqual({
-      where: { id: 'ud-2' },
+      where: { id: 'ud-2', deletedAt: null },
       data: { deletedAt: expect.any(Date), deletedById: 'user-1' },
     });
     expect(opened.data).toEqual({
@@ -98,7 +98,7 @@ describe('updateMemberRole', () => {
   it('ends the old row before opening the new one, so one row stays live', async () => {
     await updateMemberRole('dash-1', 'user-2', 'viewer', 'user-1');
 
-    expect(prismaMock.userDashboard.update.mock.invocationCallOrder[0]).toBeLessThan(
+    expect(prismaMock.userDashboard.updateMany.mock.invocationCallOrder[0]).toBeLessThan(
       prismaMock.userDashboard.create.mock.invocationCallOrder[0],
     );
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
@@ -111,8 +111,17 @@ describe('updateMemberRole', () => {
       'Failed to update member role',
     );
     // Both writes ran inside the one transaction, which Prisma rolls back on the rejection
-    expect(prismaMock.userDashboard.update).toHaveBeenCalledTimes(1);
+    expect(prismaMock.userDashboard.updateMany).toHaveBeenCalledTimes(1);
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
+  });
+
+  it('fails without opening a row when the membership ended in the meantime', async () => {
+    prismaMock.userDashboard.updateMany.mockResolvedValue({ count: 0 });
+
+    await expect(updateMemberRole('dash-1', 'user-2', 'viewer', 'user-1')).rejects.toThrow(
+      'Failed to update member role',
+    );
+    expect(prismaMock.userDashboard.create).not.toHaveBeenCalled();
   });
 });
 

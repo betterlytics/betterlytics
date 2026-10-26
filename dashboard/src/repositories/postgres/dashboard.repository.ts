@@ -490,11 +490,13 @@ export async function updateMemberRole(
       });
       const changedAt = new Date();
 
-      // Ended first, so the partial unique index on live memberships allows the new row
-      await tx.userDashboard.update({
-        where: { id: liveMember.id },
+      // Ended first, so the partial unique index on live memberships allows the new row. The deletedAt
+      // guard makes a removal that commits in between win instead of being overwritten.
+      const { count } = await tx.userDashboard.updateMany({
+        where: { id: liveMember.id, deletedAt: null },
         data: { deletedAt: changedAt, deletedById: changedById },
       });
+      if (count !== 1) throw new Error('Membership ended during the role change');
       return tx.userDashboard.create({
         data: {
           userId,
