@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { isReservedPublicSlug, PublicSlugFormatSchema } from '@/entities/system/publicSlug.entities';
+import { isReservedPublicSlug } from '@/entities/system/publicSlug.entities';
 
 // Keys match the sidebar item keys in BASidebar.tsx
 export const PUBLIC_DASHBOARD_PAGES = [
@@ -34,11 +34,6 @@ export const PUBLIC_DASHBOARD_SLUG_FALLBACK = 'my-dashboard';
 export function isReservedPublicDashboardSlug(slug: string): boolean {
   return isReservedPublicSlug(slug) || slug.startsWith('demo');
 }
-
-export const PublicDashboardSlugSchema = PublicSlugFormatSchema.refine(
-  (slug) => !isReservedPublicDashboardSlug(slug),
-  'This slug is reserved',
-);
 
 export const PublicDashboardSettingsSchema = z.object({
   isPublic: z.boolean(),

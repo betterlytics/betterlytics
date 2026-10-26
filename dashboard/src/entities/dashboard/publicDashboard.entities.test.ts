@@ -1,18 +1,19 @@
 import { describe, it, expect } from 'vitest';
 import {
+  isReservedPublicDashboardSlug,
   PUBLIC_DASHBOARD_PAGES,
   PublicDashboardPagesSchema,
-  PublicDashboardSlugSchema,
 } from '@/entities/dashboard/publicDashboard.entities';
-import { PublicSlugSchema, slugifyDomain } from '@/entities/system/publicSlug.entities';
+import { PublicSlugFormatSchema, PublicSlugSchema, slugifyDomain } from '@/entities/system/publicSlug.entities';
 
-describe('PublicDashboardSlugSchema', () => {
+describe('public dashboard slug rules', () => {
   it.each(['abc', 'betterlytics-io', 'a1-b2-c3', 'x'.repeat(63), 'my-dashboard-2'])('accepts %s', (slug) => {
-    expect(PublicDashboardSlugSchema.safeParse(slug).success).toBe(true);
+    expect(PublicSlugFormatSchema.safeParse(slug).success).toBe(true);
+    expect(isReservedPublicDashboardSlug(slug)).toBe(false);
   });
 
   it('normalizes case and surrounding whitespace', () => {
-    expect(PublicDashboardSlugSchema.parse('  My-Site ')).toBe('my-site');
+    expect(PublicSlugFormatSchema.parse('  My-Site ')).toBe('my-site');
   });
 
   it.each([
@@ -26,15 +27,13 @@ describe('PublicDashboardSlugSchema', () => {
     ['non-ascii', 'café'],
     ['empty', ''],
   ])('rejects %s', (_label, slug) => {
-    expect(PublicDashboardSlugSchema.safeParse(slug).success).toBe(false);
+    expect(PublicSlugFormatSchema.safeParse(slug).success).toBe(false);
   });
 
   it.each(['admin', 'api', 'share', 'status', 'dashboard', 'demo', 'demo-site', 'demosite', 'democracy'])(
     'rejects reserved %s',
     (slug) => {
-      const result = PublicDashboardSlugSchema.safeParse(slug);
-      expect(result.success).toBe(false);
-      expect(result.error?.issues[0].message).toBe('This slug is reserved');
+      expect(isReservedPublicDashboardSlug(slug)).toBe(true);
     },
   );
 });
