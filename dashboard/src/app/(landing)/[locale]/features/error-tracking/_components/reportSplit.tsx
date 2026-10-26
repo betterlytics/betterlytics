@@ -46,10 +46,12 @@ export function ReportSplit() {
   const region = new Intl.DisplayNames([locale], { type: 'region' }).of('DK');
   return (
     <InView className={styles.split}>
-      <p className='sr-only'>{t('alt')}</p>
+      <p className='sr-only' data-nosnippet>
+        {t('alt')}
+      </p>
       <div className={styles.guess}>
         <p className={styles.heading}>{t('guess')}</p>
-        <div className={styles.lanes} aria-hidden>
+        <div className={styles.lanes} aria-hidden data-nosnippet>
           {FLYERS.map(({ key, lane, dur, at, r, rest, icon: Icon, kind }) => (
             <span
               key={key}
@@ -86,7 +88,7 @@ export function ReportSplit() {
       </div>
       <div className={styles.fix}>
         <p className={styles.heading}>{t('fix')}</p>
-        <div className={styles.issue} aria-hidden>
+        <div className={styles.issue} aria-hidden data-nosnippet>
           <div className={styles.issueHead}>
             <span className={styles.icon}>{WARN_ICON}</span>
             <span className='min-w-0'>

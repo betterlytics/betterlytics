@@ -68,7 +68,7 @@ function StatusArt() {
     { type: 'RangeError', message: 'Maximum call stack', checked: false, picks: true },
   ];
   return (
-    <div className={styles.statusArt} aria-hidden>
+    <div className={styles.statusArt} aria-hidden data-nosnippet>
       <div className={styles.miniList}>
         {rows.map((row) => (
           <div
@@ -107,7 +107,7 @@ const SPLIT = [
 function HistoryArt() {
   const t = useTranslations('landing.errors.triage.art');
   return (
-    <div className={styles.historyArt} aria-hidden>
+    <div className={styles.historyArt} aria-hidden data-nosnippet>
       <div className={styles.historyHead}>
         <span>{t('history')}</span>
         <span>{t('days', { count: HISTORY.length })}</span>
@@ -150,7 +150,7 @@ function FilterArt() {
   const { format } = new Intl.NumberFormat(useLocale());
   const value = (chunks: ReactNode) => <b>{chunks}</b>;
   return (
-    <div className={styles.filterArt} aria-hidden>
+    <div className={styles.filterArt} aria-hidden data-nosnippet>
       <div className={styles.filterBar}>
         <span className={styles.filterPill}>
           <Eye className='size-3.5' />
@@ -205,7 +205,7 @@ function OccurrenceArt() {
   // only the last digit changes, so it alone rolls
   const [from, to] = [format(1204), format(1203)];
   return (
-    <div className={styles.occurrenceArt} aria-hidden>
+    <div className={styles.occurrenceArt} aria-hidden data-nosnippet>
       <div className={styles.navigator}>
         <span className={styles.navButtons}>
           <i>

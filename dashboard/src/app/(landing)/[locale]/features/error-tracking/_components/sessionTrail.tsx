@@ -60,6 +60,7 @@ function Stretch({
         style={vars({ '--row': row, '--i': after })}
         data-error={entries.some((entry) => entry.current) || undefined}
         aria-hidden
+        data-nosnippet
       >
         {entries.map((entry, i) => {
           const Glyph = GLYPHS[entry.kind];
@@ -102,9 +103,11 @@ export function SessionTrail() {
   const region = new Intl.DisplayNames([locale], { type: 'region' }).of('DK');
   return (
     <InView className={styles.trail}>
-      <p className='sr-only'>{t('alt')}</p>
+      <p className='sr-only' data-nosnippet>
+        {t('alt')}
+      </p>
       <div className={styles.card} aria-hidden />
-      <div className={styles.head} aria-hidden>
+      <div className={styles.head} aria-hidden data-nosnippet>
         <b>{t('label')}</b>
         <span>{t('count', { count: TOTAL })}</span>
       </div>
