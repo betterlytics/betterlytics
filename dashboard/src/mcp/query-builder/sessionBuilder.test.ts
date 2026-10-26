@@ -85,6 +85,21 @@ describe('buildSessionsQuery', () => {
     expect(result.taggedParams.limit).toBe(25);
   });
 
+  it('reads custom dates as whole days in the requested timezone', () => {
+    const result = buildSessionsQuery(
+      input({
+        timeRange: 'custom',
+        startDate: '2026-09-20',
+        endDate: '2026-09-22',
+        timezone: 'America/Los_Angeles',
+      }),
+      siteId,
+    );
+
+    expect(result.taggedParams.startDate).toBe('2026-09-20 07:00:00');
+    expect(result.taggedParams.endDate).toBe('2026-09-23 06:59:59');
+  });
+
   it('builds a zero-filled time series bucketed by session start', () => {
     const result = buildSessionsQuery(input({ granularity: 'day', timezone: 'Europe/Berlin' }), siteId);
 

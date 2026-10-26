@@ -161,7 +161,7 @@ fn normalize_referrer_key(key: &str) -> String {
 
 fn normalize_referrer_medium(medium: &str) -> String {
     match medium {
-        "search" | "social" | "email" | "internal" => medium.to_string(),
+        "search" | "social" | "email" | "internal" | "ai" => medium.to_string(),
         _ => "other".to_string(),
     }
 }
@@ -291,6 +291,56 @@ mod tests {
         assert_eq!(categories.get("google.com").map(String::as_str), Some("search"));
         assert_eq!(categories.get("support.google.com").map(String::as_str), Some("other"));
         assert_eq!(categories.get("Gmail").map(String::as_str), Some("email"));
+    }
+
+    #[test]
+    fn ai_assistant_domains_map_to_ai() {
+        let assets = Path::new(env!("CARGO_MANIFEST_DIR")).join("assets/referrers_lists");
+        let snowplow_path = std::env::temp_dir().join(format!(
+            "betterlytics-snowplow-ai-referrers-{}.json",
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+
+        fs::write(
+            &snowplow_path,
+            r#"{
+                "search": {
+                    "Google": { "domains": ["google.com"] },
+                    "Bing": { "domains": ["bing.com"] }
+                }
+            }"#,
+        ).unwrap();
+
+        let categories = build_referrer_source_categories(
+            &snowplow_path,
+            &assets.join("ga4-source-categories.csv"),
+            &assets.join("custom_referrers.json"),
+        )
+        .unwrap()
+        .into_iter()
+        .map(|category| (category.key, category.medium))
+        .collect::<HashMap<_, _>>();
+
+        fs::remove_file(&snowplow_path).unwrap();
+
+        for domain in [
+            "chatgpt.com",
+            "chat.openai.com",
+            "gemini.google.com",
+            "bard.google.com",
+            "claude.ai",
+            "perplexity.ai",
+            "copilot.microsoft.com",
+            "chat.deepseek.com",
+            "grok.com",
+            "meta.ai",
+            "chat.mistral.ai",
+            "poe.com",
+        ] {
+            assert_eq!(categories.get(domain).map(String::as_str), Some("ai"), "{domain}");
+        }
+        assert_eq!(categories.get("google.com").map(String::as_str), Some("search"));
+        assert_eq!(normalize_referrer_medium("ai"), "ai");
     }
 
     #[test]

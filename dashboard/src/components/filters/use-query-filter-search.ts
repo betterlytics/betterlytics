@@ -65,6 +65,8 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
       column: filter.column,
       search: isDirty ? debouncedSearch || undefined : undefined,
       limit: SEARCH_LIMIT,
+      // The extended range only widens which values are found; they still rank by the selected period
+      rankFrom: query.startDate < baseQuery.startDate ? baseQuery.startDate : undefined,
     },
     {
       staleTime: 5 * 60 * 1000,
@@ -103,9 +105,22 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
     }
   }, [shouldSearchServer, serverOptions, search]);
 
-  const slicedOptions = useMemo(() => {
-    return filteredOptions.slice(0, 10);
-  }, [filteredOptions]);
+  // A full page means the server stopped at the limit, so more values exist than were returned
+  const isTruncated = filteredOptions.length >= SEARCH_LIMIT;
 
-  return { search, setSearch, isDirty, options: slicedOptions, isLoading };
+  // Covers the render between the fetch resolving and the effect copying it into serverOptions
+  const isLoadingOptions =
+    !disabled &&
+    shouldSearchServer &&
+    serverOptions.length === 0 &&
+    (isLoading || serverOptions !== fetchedOptions);
+
+  return {
+    search,
+    setSearch,
+    isDirty,
+    options: filteredOptions,
+    isTruncated,
+    isLoading: isLoadingOptions,
+  };
 }

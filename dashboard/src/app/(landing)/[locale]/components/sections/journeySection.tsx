@@ -64,7 +64,7 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
   const step = JOURNEY_STEPS[active];
   const lines = t(`${step}.title`).split('\n');
 
-  // re-measured per step since the copy changes the rail's height
+  // the note slot holds the tallest note, so the height only changes with width or fonts
   useEffect(() => {
     const rail = ref.current;
     if (!rail) return;
@@ -75,7 +75,7 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
     window.addEventListener('resize', place, { passive: true });
     document.fonts?.ready.then(place);
     return () => window.removeEventListener('resize', place);
-  }, [active]);
+  }, []);
 
   return (
     // Sticky range is bounded by the margin box, so my-12 keeps the copy clear of the frame's rules.
@@ -98,15 +98,23 @@ function Rail({ active, direction }: { active: number; direction: 1 | -1 }) {
           </LiftSwap>
         ))}
       </p>
-      <LiftSwap
-        as='p'
-        className={cn(NOTE, 'min-h-11')}
-        id={step}
-        direction={direction}
-        delay={(lines.length + 1) * LIFT_STEP_S}
-      >
-        {t(`${step}.note`)}
-      </LiftSwap>
+      {/* every note sits invisibly in the same cell, so the slot is as tall as the longest one */}
+      <div className='grid'>
+        {JOURNEY_STEPS.map((s) => (
+          <p key={s} className={cn(NOTE, 'invisible col-start-1 row-start-1')}>
+            {t(`${s}.note`)}
+          </p>
+        ))}
+        <LiftSwap
+          as='p'
+          className={cn(NOTE, 'col-start-1 row-start-1')}
+          id={step}
+          direction={direction}
+          delay={(lines.length + 1) * LIFT_STEP_S}
+        >
+          {t(`${step}.note`)}
+        </LiftSwap>
+      </div>
     </div>
   );
 }
