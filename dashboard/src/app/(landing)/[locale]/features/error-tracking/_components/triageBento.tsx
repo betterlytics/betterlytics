@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useLocale, useTranslations } from 'next-intl';
-import { AppleMark } from '@/landing/components/illustrations/errors';
+import { AppleMark, WindowsMark } from '@/landing/components/illustrations/errors';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Emphasis } from '@/landing/components/ui/emphasis';
 import { InView } from '@/landing/components/ui/inView';
@@ -106,6 +106,7 @@ const SPLIT = [
 
 function HistoryArt() {
   const t = useTranslations('landing.errors.triage.art');
+  const { format } = new Intl.NumberFormat(useLocale(), { style: 'percent' });
   return (
     <div className={styles.historyArt} aria-hidden data-nosnippet>
       <div className={styles.historyHead}>
@@ -126,12 +127,12 @@ function HistoryArt() {
         {SPLIT.map((browser) => (
           <span key={browser.name}>
             <Image src={browser.icon} alt={browser.name} width={13} height={13} />
-            {browser.share}%
+            {format(browser.share / 100)}
           </span>
         ))}
         <span className={styles.device}>
           <Monitor className='size-3.5' />
-          71%
+          {format(0.71)}
         </span>
       </div>
     </div>
@@ -185,17 +186,6 @@ function FilterArt() {
         ))}
       </div>
     </div>
-  );
-}
-
-function WindowsMark({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox='0 0 32 32'>
-      <path
-        d='m0 4.599l13-1.796v12.599H0zm14.599-2L32 0v15.197H14.599zM0 16.803h13v12.599L0 27.599zm14.599 0H32V32l-17.197-2.401z'
-        fill='currentColor'
-      />
-    </svg>
   );
 }
 
