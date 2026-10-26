@@ -2411,7 +2411,12 @@
     "pagination": {
       "pageOf": "Side {currentPage} av {totalPages}",
       "showing": "Viser {startItem}-{endItem} av {totalItems} elementer",
-      "perPage": "pr. side"
+      "perPage": "pr. side",
+      "navigation": "Sidenavigasjon",
+      "firstPage": "Første side",
+      "previousPage": "Forrige side",
+      "nextPage": "Neste side",
+      "lastPage": "Siste side"
     },
     "annotations": {
       "dialogs": {
@@ -2671,11 +2676,6 @@
     },
     "campaign": {
       "title": "Kampanjer",
-      "pagination": {
-        "pageOf": "Side {currentPage} av {totalPages}",
-        "showing": "Viser {startItem}-{endItem} av {totalItems} kampanjer",
-        "perPage": "pr. side"
-      },
       "emptyState": {
         "title": "Ingen kampanjer registrert ennå",
         "description": "Kampanjer vises her når URL-er med utm_campaign-tags blir registrert. Begynn å tagge lenkene dine for å se ytelsesmålinger.",
