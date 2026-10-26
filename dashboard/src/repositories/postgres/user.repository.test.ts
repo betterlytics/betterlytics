@@ -312,7 +312,7 @@ describe('deleteUserAccount', () => {
     expect(prismaMock.dashboard.updateMany).not.toHaveBeenCalled();
     expect(prismaMock.userDashboard.findFirst).toHaveBeenCalledWith({
       where: { userId: 'user-2', dashboardId: 'dash-1', deletedAt: null },
-      select: { id: true },
+      select: { id: true, joinedAt: true, isDefault: true },
     });
     expect(prismaMock.userDashboard.create).toHaveBeenCalledWith({
       data: { userId: 'user-2', dashboardId: 'dash-1', role: 'owner' },
@@ -323,19 +323,36 @@ describe('deleteUserAccount', () => {
     });
   });
 
-  it("promotes the recipient's live membership to owner when they are already a member", async () => {
+  it("ends an existing member's row and opens an owner row, with whoever ran the deletion as changer", async () => {
+    const joinedAt = new Date('2026-01-01T00:00:00Z');
     prismaMock.userDashboard.findMany.mockResolvedValue([{ dashboardId: 'dash-1' }]);
-    prismaMock.userDashboard.findFirst.mockResolvedValue({ id: 'ud-2' });
+    prismaMock.userDashboard.findFirst.mockResolvedValue({ id: 'ud-2', joinedAt, isDefault: true });
     prismaMock.user.findFirst.mockResolvedValue({ id: 'user-2' });
 
     await deleteUserAccount('user-1', {
       guard: false,
       ownedDashboards: { mode: 'transfer', toUserId: 'user-2' },
-      removedById: 'user-1',
+      removedById: 'admin-1',
     });
 
-    expect(prismaMock.userDashboard.update).toHaveBeenCalledWith({ where: { id: 'ud-2' }, data: { role: 'owner' } });
-    expect(prismaMock.userDashboard.create).not.toHaveBeenCalled();
+    const ended = prismaMock.userDashboard.update.mock.calls[0][0];
+    expect(ended).toEqual({
+      where: { id: 'ud-2' },
+      data: { deletedAt: expect.any(Date), deletedById: 'admin-1' },
+    });
+    expect(prismaMock.userDashboard.create).toHaveBeenCalledWith({
+      data: {
+        userId: 'user-2',
+        dashboardId: 'dash-1',
+        role: 'owner',
+        isDefault: true,
+        joinedAt,
+        createdAt: ended.data.deletedAt,
+      },
+    });
+    expect(prismaMock.userDashboard.update.mock.invocationCallOrder[0]).toBeLessThan(
+      prismaMock.userDashboard.create.mock.invocationCallOrder[0],
+    );
   });
 
   it('refuses a recipient that is not an enabled user, without writing', async () => {

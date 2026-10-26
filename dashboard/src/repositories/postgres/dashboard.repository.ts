@@ -130,7 +130,7 @@ export async function findAllUserDashboards(userId: string): Promise<DashboardWi
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        joinedAt: 'desc',
       },
     });
 
@@ -159,7 +159,7 @@ export async function findOwnedDashboards(userId: string): Promise<Dashboard[]> 
         dashboard: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        joinedAt: 'desc',
       },
     });
 
@@ -431,7 +431,7 @@ export async function findDashboardMembers(dashboardId: string): Promise<Dashboa
           },
         },
       },
-      orderBy: [{ role: 'asc' }, { createdAt: 'asc' }],
+      orderBy: [{ role: 'asc' }, { joinedAt: 'asc' }],
     });
 
     return members.map((m) => DashboardMemberSchema.parse(m));
@@ -472,29 +472,49 @@ export async function addDashboardMember(
   }
 }
 
+/**
+ * Ends the member's live row and opens one with the new role at the same moment, so the rows keep the
+ * role history. The joined date and default flag carry over; if any step fails the old row stays live.
+ */
 export async function updateMemberRole(
   dashboardId: string,
   userId: string,
   role: DashboardRole,
+  changedById: string,
 ): Promise<DashboardMember> {
   try {
-    const liveMember = await prisma.userDashboard.findFirstOrThrow({
-      where: { userId, dashboardId, deletedAt: null },
-      select: { id: true },
-    });
-    const member = await prisma.userDashboard.update({
-      where: { id: liveMember.id },
-      data: { role },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
+    const member = await prisma.$transaction(async (tx) => {
+      const liveMember = await tx.userDashboard.findFirstOrThrow({
+        where: { userId, dashboardId, deletedAt: null },
+        select: { id: true, joinedAt: true, isDefault: true },
+      });
+      const changedAt = new Date();
+
+      // Ended first, so the partial unique index on live memberships allows the new row
+      await tx.userDashboard.update({
+        where: { id: liveMember.id },
+        data: { deletedAt: changedAt, deletedById: changedById },
+      });
+      return tx.userDashboard.create({
+        data: {
+          userId,
+          dashboardId,
+          role,
+          isDefault: liveMember.isDefault,
+          joinedAt: liveMember.joinedAt,
+          createdAt: changedAt,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              image: true,
+            },
           },
         },
-      },
+      });
     });
 
     return DashboardMemberSchema.parse(member);

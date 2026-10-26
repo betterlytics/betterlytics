@@ -252,10 +252,25 @@ export async function deleteUserAccount(
         for (const dashboardId of dashboardIds) {
           const recipientAccess = await tx.userDashboard.findFirst({
             where: { userId: toUserId, dashboardId, deletedAt: null },
-            select: { id: true },
+            select: { id: true, joinedAt: true, isDefault: true },
           });
           if (recipientAccess) {
-            await tx.userDashboard.update({ where: { id: recipientAccess.id }, data: { role: 'owner' } });
+            // A role change: the recipient's row ends and an owner row opens at the same moment
+            const changedAt = new Date();
+            await tx.userDashboard.update({
+              where: { id: recipientAccess.id },
+              data: { deletedAt: changedAt, deletedById: options.removedById },
+            });
+            await tx.userDashboard.create({
+              data: {
+                userId: toUserId,
+                dashboardId,
+                role: 'owner',
+                isDefault: recipientAccess.isDefault,
+                joinedAt: recipientAccess.joinedAt,
+                createdAt: changedAt,
+              },
+            });
           } else {
             await tx.userDashboard.create({ data: { userId: toUserId, dashboardId, role: 'owner' } });
           }
