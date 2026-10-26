@@ -1957,7 +1957,7 @@
       "hero": {
         "eyebrow": "Fejlsporing",
         "title": "Fang de fejl dine besøgende støder på, og se hvad der førte til dem",
-        "lede": "Betterlytics grupperer uhåndterede JavaScript-fejl efter stack trace og viser, hvad hver besøgende gjorde før og efter. Det er gratis i alle planer, og der er intet ekstra at installere.",
+        "lede": "Find ud af, hvilke bugs der rammer flest besøgende, hvor i koden de opstår, og hvad hver besøgende gjorde bagefter. Gratis i alle planer og samlet i ét dashboard med din trafik og dine replays.",
         "primary": "Start gratis fejlsporing",
         "secondary": "Læs dokumentationen"
       },
@@ -2017,7 +2017,7 @@
         },
         "thrown": {
           "label": "Her gik det galt",
-          "body": "Kastet i selectPlan, linje 142 i pricing.js. Hver forekomst registrerer også browser, operativsystem, enhed og land.",
+          "body": "Kastet i selectPlan på linje 142 i pricing.js, med den browser, det operativsystem og det land, den skete i.",
           "stacktrace": "Stack trace",
           "mechanism": "Uncaught",
           "inApp": "i app",
@@ -2111,7 +2111,7 @@
           },
           "captured": {
             "q": "Hvilke fejl bliver fanget?",
-            "a": "Uhåndterede exceptions og afviste promises uden handler, med type, besked og stack trace samt side, browser, enhed og land. Du kan også fange console.error-kald. En mislykket forespørgsel bliver kun fanget, hvis din kode ikke håndterer fejlen. Fejl ved indlæsning af billeder og scripts udelades, fordi adblockere og ustabile forbindelser ellers ville oversvømme din liste med dem."
+            "a": "Uhåndterede exceptions og afviste promises uden handler, hver med sin stack trace og den side, den skete på. Du kan også fange console.error-kald. En mislykket forespørgsel bliver kun fanget, hvis din kode ikke håndterer fejlen. Fejl ved indlæsning af billeder og scripts udelades, fordi adblockere og ustabile forbindelser ellers ville oversvømme din liste med dem."
           },
           "server": {
             "q": "Fanger det fejl på serversiden?",
@@ -2127,7 +2127,7 @@
           },
           "grouped": {
             "q": "Hvordan bliver fejl grupperet?",
-            "a": "Alle forekomster af den samme bug havner i én gruppe med en løbende optælling, så hver bug kun står én gang på din liste i stedet for at dukke op, hver gang en besøgende rammer den. To fejl regnes som den samme bug, når de har samme type og de samme fem øverste frames i stacken: funktionen, filen og linjen. Kolonnenumre, domæner og query strings ignoreres, så en bug forbliver i én gruppe, selv når beskeden ændrer sig. Fejl uden stack trace grupperes efter type og besked."
+            "a": "Alle forekomster af den samme bug havner i én gruppe med en løbende optælling, så hver bug kun står én gang på din liste i stedet for at dukke op, hver gang en besøgende rammer den. Fejl af samme type, der bliver kastet samme sted i din kode, tæller som én bug, selv når beskederne er forskellige."
           },
           "sourcemaps": {
             "q": "Understøtter I source maps?",
@@ -2143,7 +2143,7 @@
           },
           "replay": {
             "q": "Hvordan spiller det sammen med session replay?",
-            "a": "Hvis en session med en fejl blev optaget, linker fejlen til replayet, hvor røde markører viser hver fejl på tidslinjen. Slå data-replay-on-error til for at gemme op til to minutter før hver fejl som et replay, også for besøg uden for din stikprøve."
+            "a": "Hvis et besøg med en fejl blev optaget, linker fejlen til replayet, med en rød markør ved hver fejl på tidslinjen. Du kan desuden gemme de to minutter før hver fejl som et replay, også for besøg, som session replay ellers ikke ville optage."
           }
         }
       },

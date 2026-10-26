@@ -1957,7 +1957,7 @@
       "hero": {
         "eyebrow": "Tracciamento errori",
         "title": "Cattura gli errori in cui incappano i visitatori, e scopri cosa li ha provocati",
-        "lede": "Betterlytics raggruppa gli errori JavaScript non gestiti per stack trace e mostra cosa ha fatto ogni visitatore prima e dopo. Gratis in tutti i piani, senza installare nulla in più.",
+        "lede": "Individua quali bug colpiscono più visitatori, in quale punto del codice si verificano e cosa ha fatto poi ogni visitatore. Gratis in tutti i piani, nella stessa dashboard del tuo traffico e dei tuoi replay.",
         "primary": "Inizia a tracciare gli errori gratis",
         "secondary": "Leggi la documentazione"
       },
@@ -2017,7 +2017,7 @@
         },
         "thrown": {
           "label": "Dove si è rotto",
-          "body": "Lanciato in selectPlan, riga 142 di pricing.js. Ogni occorrenza registra anche browser, sistema operativo, dispositivo e paese.",
+          "body": "Lanciato in selectPlan alla riga 142 di pricing.js, con il browser, il sistema operativo e il paese in cui si è verificato.",
           "stacktrace": "Stack trace",
           "mechanism": "Non gestito",
           "inApp": "nell’app",
@@ -2111,7 +2111,7 @@
           },
           "captured": {
             "q": "Quali errori vengono catturati?",
-            "a": "Le eccezioni non gestite e le promise rifiutate non gestite, con tipo, messaggio e stack trace, più pagina, browser, dispositivo e paese. Puoi catturare anche le chiamate a console.error. Una richiesta fallita viene catturata solo se il tuo codice non ne gestisce l’errore. I caricamenti falliti di immagini e script sono esclusi, perché ad blocker e connessioni instabili ne riempirebbero la tua lista."
+            "a": "Le eccezioni non gestite e le promise rifiutate non gestite, ognuna con il suo stack trace e la pagina in cui si è verificata. Puoi catturare anche le chiamate a console.error. Una richiesta fallita viene catturata solo se il tuo codice non ne gestisce l’errore. I caricamenti falliti di immagini e script sono esclusi, perché ad blocker e connessioni instabili ne riempirebbero la tua lista."
           },
           "server": {
             "q": "Cattura anche gli errori lato server?",
@@ -2127,7 +2127,7 @@
           },
           "grouped": {
             "q": "Come vengono raggruppati gli errori?",
-            "a": "Tutte le occorrenze dello stesso bug finiscono in un unico gruppo con un conteggio progressivo, così ogni bug compare una sola volta nella tua lista anziché ogni volta che un visitatore lo incontra. Due errori contano come lo stesso bug quando hanno lo stesso tipo e gli stessi primi cinque frame dello stack trace: funzione, file e riga. Numeri di colonna, domini e query string vengono ignorati, così un bug resta in un unico gruppo anche quando il messaggio cambia. Gli errori senza stack trace vengono raggruppati per tipo e messaggio."
+            "a": "Tutte le occorrenze dello stesso bug finiscono in un unico gruppo con un conteggio progressivo, così ogni bug compare una sola volta nella tua lista anziché ogni volta che un visitatore lo incontra. Gli errori dello stesso tipo generati nello stesso punto del codice contano come un unico bug, anche quando i messaggi sono diversi."
           },
           "sourcemaps": {
             "q": "Supportate le source map?",
@@ -2143,7 +2143,7 @@
           },
           "replay": {
             "q": "Come funziona con il session replay?",
-            "a": "Se una sessione con un errore è stata registrata, l’errore rimanda al relativo replay, dove ogni errore è segnato in rosso sulla cronologia. Attiva data-replay-on-error per conservare come replay fino a due minuti prima di ogni errore, anche per le visite fuori dal campione."
+            "a": "Se una visita con un errore è stata registrata, l’errore rimanda al suo replay, con un indicatore rosso per ogni errore nella cronologia. Puoi inoltre conservare i due minuti prima di ogni errore come replay, anche per le visite che il session replay non registrerebbe."
           }
         }
       },

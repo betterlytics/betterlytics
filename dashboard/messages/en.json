@@ -1957,7 +1957,7 @@
       "hero": {
         "eyebrow": "Error tracking",
         "title": "Catch the errors your visitors hit, and see what led to them",
-        "lede": "Betterlytics groups uncaught JavaScript errors by stack trace and shows what each visitor did before and after. It's free on every plan, with nothing extra to install.",
+        "lede": "Know which bugs hit the most visitors, where in your code they break, and what each visitor did next. Free on every plan, next to your traffic and replays.",
         "primary": "Start tracking errors free",
         "secondary": "Read the docs"
       },
@@ -2017,7 +2017,7 @@
         },
         "thrown": {
           "label": "Where it broke",
-          "body": "Thrown in selectPlan, line 142 of pricing.js. Each occurrence also records the browser, OS, device and country.",
+          "body": "Thrown in selectPlan on line 142 of pricing.js, with the browser, OS and country it happened in.",
           "stacktrace": "Stack trace",
           "mechanism": "Uncaught",
           "inApp": "in app",
@@ -2111,7 +2111,7 @@
           },
           "captured": {
             "q": "Which errors are captured?",
-            "a": "Uncaught exceptions and unhandled promise rejections, with their type, message and stack trace, plus the page, browser, device and country. You can also capture console.error calls. A failed request is only captured when your code leaves its error unhandled. Failed image and script loads are left out, because ad blockers and flaky connections would flood your list with them."
+            "a": "Uncaught exceptions and unhandled promise rejections, each with its stack trace and the page it happened on. You can also capture console.error calls. A failed request is only captured when your code leaves its error unhandled. Failed image and script loads are left out, because ad blockers and flaky connections would flood your list with them."
           },
           "server": {
             "q": "Does it catch server-side errors?",
@@ -2127,7 +2127,7 @@
           },
           "grouped": {
             "q": "How are errors grouped?",
-            "a": "Every occurrence of the same bug lands in one group with a running count, so each bug shows up once in your list instead of every time a visitor hits it. Two errors count as the same bug when they share their type and the top five frames of the stack trace: the function, the file and the line. Column numbers, domains and query strings are ignored, so a bug stays in one group even when its message changes. Errors without a stack trace are grouped by type and message."
+            "a": "Every occurrence of the same bug lands in one group with a running count, so each bug shows up once in your list instead of every time a visitor hits it. Errors of the same type, thrown from the same place in your code, count as one bug even when their messages differ."
           },
           "sourcemaps": {
             "q": "Do you support source maps?",
@@ -2143,7 +2143,7 @@
           },
           "replay": {
             "q": "How does it work with session replay?",
-            "a": "If a session with an error was recorded, the error links to its replay, where red markers show each error on the timeline. Turn on data-replay-on-error to keep up to two minutes before each error as a replay, even for visits outside your sample."
+            "a": "If a visit with an error was recorded, the error links to its replay, with a red marker at each error on the timeline. You can also keep the two minutes before every error as a replay, even for visits session replay wouldn't otherwise record."
           }
         }
       },
