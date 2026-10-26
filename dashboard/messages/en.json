@@ -2111,7 +2111,7 @@
           },
           "captured": {
             "q": "Which errors are captured?",
-            "a": "Uncaught exceptions and unhandled promise rejections, with their type, message and stack trace, plus the page, browser, device and country. You can also capture console.error calls. A failed request is only captured when your code leaves its error unhandled, and failed image or script loads aren't captured."
+            "a": "Uncaught exceptions and unhandled promise rejections, with their type, message and stack trace, plus the page, browser, device and country. You can also capture console.error calls. A failed request is only captured when your code leaves its error unhandled. Failed image and script loads are left out, because ad blockers and flaky connections would flood your list with them."
           },
           "server": {
             "q": "Does it catch server-side errors?",

@@ -2111,7 +2111,7 @@
           },
           "captured": {
             "q": "Quali errori vengono catturati?",
-            "a": "Le eccezioni non gestite e le promise rifiutate non gestite, con tipo, messaggio e stack trace, più pagina, browser, dispositivo e paese. Puoi catturare anche le chiamate a console.error. Una richiesta fallita viene catturata solo se il tuo codice non ne gestisce l’errore, mentre i caricamenti falliti di immagini o script non vengono catturati."
+            "a": "Le eccezioni non gestite e le promise rifiutate non gestite, con tipo, messaggio e stack trace, più pagina, browser, dispositivo e paese. Puoi catturare anche le chiamate a console.error. Una richiesta fallita viene catturata solo se il tuo codice non ne gestisce l’errore. I caricamenti falliti di immagini e script sono esclusi, perché ad blocker e connessioni instabili ne riempirebbero la tua lista."
           },
           "server": {
             "q": "Cattura anche gli errori lato server?",

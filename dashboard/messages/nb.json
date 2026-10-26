@@ -2111,7 +2111,7 @@
           },
           "captured": {
             "q": "Hvilke feil fanges opp?",
-            "a": "Unntak som ikke fanges, og avviste promises som ingen håndterer, med type, melding og stack trace, pluss side, nettleser, enhet og land. Du kan også fange opp console.error-kall. En mislykket forespørsel fanges bare opp når koden din lar feilen være uhåndtert, og bilder eller skript som ikke lastes inn, fanges ikke opp."
+            "a": "Unntak som ikke fanges, og avviste promises som ingen håndterer, med type, melding og stack trace, pluss side, nettleser, enhet og land. Du kan også fange opp console.error-kall. En mislykket forespørsel fanges bare opp når koden din lar feilen være uhåndtert. Bilder og skript som ikke lastes inn, holdes utenfor, fordi annonseblokkere og ustabile forbindelser ellers ville oversvømme listen din med dem."
           },
           "server": {
             "q": "Fanger den feil på serversiden?",

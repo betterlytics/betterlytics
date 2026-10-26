@@ -2111,7 +2111,7 @@
           },
           "captured": {
             "q": "Hvilke fejl bliver fanget?",
-            "a": "Uhåndterede exceptions og afviste promises uden handler, med type, besked og stack trace samt side, browser, enhed og land. Du kan også fange console.error-kald. En mislykket forespørgsel bliver kun fanget, hvis din kode ikke håndterer fejlen, og fejl ved indlæsning af billeder og scripts bliver ikke fanget."
+            "a": "Uhåndterede exceptions og afviste promises uden handler, med type, besked og stack trace samt side, browser, enhed og land. Du kan også fange console.error-kald. En mislykket forespørgsel bliver kun fanget, hvis din kode ikke håndterer fejlen. Fejl ved indlæsning af billeder og scripts udelades, fordi adblockere og ustabile forbindelser ellers ville oversvømme din liste med dem."
           },
           "server": {
             "q": "Fanger det fejl på serversiden?",
