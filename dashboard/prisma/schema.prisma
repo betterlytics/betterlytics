@@ -146,7 +146,8 @@ model User {
 
   githubStarPromptState GithubStarPromptState @default(pending)
 
-  dashboardAccess UserDashboard[]
+  dashboardAccess UserDashboard[] @relation("DashboardAccess")
+  revokedDashboardAccess UserDashboard[] @relation("DashboardAccessRevokedBy")
   settings UserSettings?
   subscription Subscription?
   bugReports BugReport[]
@@ -250,10 +251,14 @@ model ErrorGroup {
   @@index([dashboardId])
 }
 
+// Ended memberships are kept (deletedAt + deletedById) as an access audit trail, so a user can have
+// several rows per dashboard over time. One live row per user and dashboard is enforced by a partial
+// unique index (userId, dashboardId WHERE deletedAt IS NULL) created in the migration. Prisma can't
+// express partial indexes, so there is no @@unique here; every read must filter deletedAt: null.
 model UserDashboard {
   id String @id @default(cuid())
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation("DashboardAccess", fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
   dashboard Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
@@ -266,7 +271,9 @@ model UserDashboard {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, dashboardId])
+  deletedAt   DateTime?
+  deletedBy   User?     @relation("DashboardAccessRevokedBy", fields: [deletedById], references: [id], onDelete: SetNull)
+  deletedById String?
 }
 
 model Funnel {
