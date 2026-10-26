@@ -1962,30 +1962,30 @@
         "secondary": "Read the docs"
       },
       "specs": {
-        "frames": {
-          "unit": "frames",
-          "label": "Grouped by stack",
-          "body": "Errors with the same type and top five stack frames share a group, whatever their message says."
-        },
-        "flood": {
-          "unit": "per 10 sec",
-          "label": "Flood cap",
-          "body": "Each page sends at most 10 errors of one type every 10 seconds, so a runaway loop stays cheap."
-        },
         "leadUp": {
           "unit": "min",
           "label": "Replay lead-up",
-          "body": "With replay on error, visits outside your sample still save up to two minutes before the error."
+          "body": "Keep the two minutes before an error as a replay, even for visits you don't normally record."
+        },
+        "extensions": {
+          "unit": "extension errors",
+          "label": "Only your own bugs",
+          "body": "Errors from visitors' browser extensions are skipped, and bots are dropped before anything is stored."
+        },
+        "script": {
+          "unit": "script",
+          "label": "One script for everything",
+          "body": "Analytics, errors and session replay load from one script tag. Already on Betterlytics? Add one attribute."
         },
         "thesis": {
-          "unit": "script",
-          "label": "Nothing new to install",
-          "body": "The script that tracks your pageviews catches errors too. Add one attribute to turn it on."
+          "unit": "cookies",
+          "label": "No cookies, no IPs",
+          "body": "Errors are stored without cookies, IP addresses or query strings, so your visitors' privacy stays intact."
         }
       },
       "report": {
         "title": "From “it doesn’t work” to *line 142*",
-        "lede": "Most visitors who hit a bug leave without a word. Betterlytics shows where the code threw, in which browser, and how often.",
+        "lede": "Most visitors who hit a bug leave without telling you. Betterlytics shows the line that threw, the browser it happened in, and how often.",
         "guess": "Guessing from bug reports",
         "fix": "Fixing from the stack trace",
         "alt": "On the left, vague reports about the pricing page keep streaming past: the same can't-upgrade email three times, a report that choosing a plan does nothing, a support chat, a blurry screenshot, a guess at the browser, a note saying it works on my machine, a P1 ticket saying upgrades have failed since Monday and a support inbox with 14 unread. On the right, the same bug as one error group: a TypeError thrown in selectPlan at line 142 of pricing.js and called from onClick in plan-card.js, in Chrome on macOS in Denmark, on /pricing, 1,206 times.",
@@ -2007,7 +2007,7 @@
       },
       "trail": {
         "title": "See what they did *before and after*",
-        "lede": "Each error keeps the pages, events and other errors from the same visit, in order, plus its replay if the visit was recorded.",
+        "lede": "A stack trace shows where the code broke. The visit around it shows what set it off and what the visitor did next.",
         "alt": "A session trail of eight events. Before the error, the visitor landed on the home page, opened /pricing and picked a plan. The TypeError came one second later, thrown in selectPlan at line 142 of pricing.js in Chrome 129 on macOS, on a desktop in Denmark. After it, they reloaded /pricing, picked a plan again, hit the same error and left for /contact instead of upgrading.",
         "label": "Session trail",
         "count": "{count} events in this session",
@@ -2036,19 +2036,19 @@
         "items": {
           "status": {
             "title": "Resolve, ignore, reopen",
-            "body": "Give errors a status one at a time or in bulk. Anything nobody has dealt with yet stays under Unresolved."
+            "body": "Resolve what's fixed and ignore what doesn't matter, so the list only shows the bugs that still need work."
           },
           "history": {
             "title": "See who it hits",
-            "body": "See how often each error happens day by day, and which browsers and devices it hits."
+            "body": "Spot whether an error is growing or fading, and which browsers and devices it hits most."
           },
           "filter": {
             "title": "Filter like your analytics",
-            "body": "Narrow the list with the same filters as the rest of your dashboard, like page, browser, device or country."
+            "body": "Filter errors by page, browser, OS, country and more, just like your analytics, to see if a bug only hits some visitors."
           },
           "occurrences": {
             "title": "Step through occurrences",
-            "body": "Page from the newest occurrence back to the first. Each keeps its own time, page, browser, device and country."
+            "body": "Flip through every occurrence with its own visit and device, and spot the pattern, like a bug that only shows up on iOS."
           }
         },
         "art": {
@@ -2067,14 +2067,14 @@
       },
       "agent": {
         "title": "Hand the bug *to your agent*",
-        "lede": "Errors are in the built-in MCP server, so your agent can read stack traces and session trails next to your code.",
+        "lede": "Your coding agent can look up errors through the built-in MCP server and work on the fix right next to your code.",
         "lead": "From complaint to fix in one question",
         "body": "Ask Claude Code, Cursor or any MCP client about a complaint. It looks up the matching error, reads the stack trace and session trail, and opens the file the stack points to.",
         "cta": "Set up MCP"
       },
       "setup": {
         "title": "Start catching with *one* attribute",
-        "lede": "Error tracking is built into the Betterlytics script. Pick what to catch and copy the snippet.",
+        "lede": "Pick what to catch and copy the snippet. It runs in the same script as your analytics.",
         "lead": "Choose what to catch",
         "always": "Always on",
         "options": {
@@ -2149,7 +2149,7 @@
       },
       "cta": {
         "title": "Catch your first error today",
-        "lede": "Add one attribute to your script tag and errors start arriving under Error Tracking in your dashboard. It's free on every plan.",
+        "lede": "Add the Betterlytics script, or one attribute if you already have it, and errors start showing up in your dashboard. Free on every plan.",
         "primary": "Start tracking errors free",
         "secondary": "Read the error docs"
       }

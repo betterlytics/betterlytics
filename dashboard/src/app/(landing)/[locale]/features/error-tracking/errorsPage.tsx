@@ -66,21 +66,26 @@ export function ErrorsPage() {
         <SpecStrip
           specs={[
             {
-              value: 5,
-              unit: t('specs.frames.unit'),
-              label: t('specs.frames.label'),
-              body: t('specs.frames.body'),
-            },
-            { value: 10, unit: t('specs.flood.unit'), label: t('specs.flood.label'), body: t('specs.flood.body') },
-            {
               value: 2,
               unit: t('specs.leadUp.unit'),
               label: t('specs.leadUp.label'),
               body: t('specs.leadUp.body'),
             },
+            {
+              value: 0,
+              unit: t('specs.extensions.unit'),
+              label: t('specs.extensions.label'),
+              body: t('specs.extensions.body'),
+            },
+            {
+              value: 1,
+              unit: t('specs.script.unit'),
+              label: t('specs.script.label'),
+              body: t('specs.script.body'),
+            },
           ]}
           lit={{
-            value: 1,
+            value: 0,
             unit: t('specs.thesis.unit'),
             label: t('specs.thesis.label'),
             body: t('specs.thesis.body'),

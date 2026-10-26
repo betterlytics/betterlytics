@@ -1962,30 +1962,30 @@
         "secondary": "Les dokumentasjonen"
       },
       "specs": {
-        "frames": {
-          "unit": "frames",
-          "label": "Gruppert på stack",
-          "body": "Feil av samme type og med de samme fem øverste frames i stacken havner i samme gruppe, uansett hva feilmeldingen sier."
-        },
-        "flood": {
-          "unit": "per 10 sek",
-          "label": "Flomvern",
-          "body": "Hver side sender høyst 10 feil av samme type hvert tiende sekund, så en løpsk løkke ikke blir dyr."
-        },
         "leadUp": {
           "unit": "min",
           "label": "Opptak før feil",
-          "body": "Med opptak ved feil lagres opptil to minutter før feilen, også for besøk utenfor utvalget."
+          "body": "Behold de to minuttene før en feil som et opptak, også for besøk du vanligvis ikke tar opp."
+        },
+        "extensions": {
+          "unit": "feil fra utvidelser",
+          "label": "Bare dine egne bugs",
+          "body": "Feil fra de besøkendes nettleserutvidelser hoppes over, og bots sorteres ut før noe blir lagret."
+        },
+        "script": {
+          "unit": "skript",
+          "label": "Ett skript til alt",
+          "body": "Analyse, feil og sesjonsavspilling lastes inn fra én script-tag. Bruker du allerede Betterlytics? Legg til ett attributt."
         },
         "thesis": {
-          "unit": "skript",
-          "label": "Ikke noe nytt å installere",
-          "body": "Skriptet som måler sidevisningene dine, fanger også feil. Legg til ett attributt for å slå det på."
+          "unit": "cookies",
+          "label": "Ingen cookies, ingen IP-er",
+          "body": "Feil lagres uten cookies, IP-adresser eller query strings, så personvernet til de besøkende er ivaretatt."
         }
       },
       "report": {
         "title": "Fra «det funker ikke» til *linje 142*",
-        "lede": "De fleste besøkende som støter på en bug, forsvinner uten å si fra. Betterlytics viser hvor koden kastet feilen, i hvilken nettleser og hvor ofte.",
+        "lede": "De fleste besøkende som støter på en bug, forsvinner uten å si fra til deg. Betterlytics viser linjen som kastet feilen, nettleseren det skjedde i, og hvor ofte.",
         "guess": "Gjette ut fra feilrapporter",
         "fix": "Fikse ut fra stack trace",
         "alt": "Til venstre strømmer vage meldinger om prissiden forbi: tre like e-poster om at oppgradering ikke går, en melding om at det ikke skjer noe når man velger en plan, en supportchat, et uskarpt skjermbilde, en gjetning på hvilken nettleser det er, en lapp der det står at det funker på min maskin, en P1-sak om at oppgraderinger har feilet siden mandag, og en supportinnboks med 14 uleste. Til høyre er den samme bugen samlet i én feilgruppe: en TypeError kastet i selectPlan på linje 142 i pricing.js og kalt fra onClick i plan-card.js, i Chrome på macOS i Danmark, på /pricing, 1 206 ganger.",
@@ -2007,7 +2007,7 @@
       },
       "trail": {
         "title": "Se hva de gjorde *før og etter*",
-        "lede": "Hver feil beholder sidene, hendelsene og de andre feilene fra samme besøk i riktig rekkefølge, og opptaket hvis besøket ble tatt opp.",
+        "lede": "En stack trace viser hvor koden feilet. Besøket rundt feilen viser hva som utløste den og hva den besøkende gjorde etterpå.",
         "alt": "Et sesjonsforløp med åtte hendelser. Før feilen kom den besøkende inn på forsiden, åpnet /pricing og valgte en plan. Ett sekund senere kom en TypeError, kastet i selectPlan på linje 142 i pricing.js i Chrome 129 på macOS, på en datamaskin i Danmark. Etterpå lastet den besøkende /pricing på nytt, valgte en plan igjen, fikk den samme feilen og gikk til /contact i stedet for å oppgradere.",
         "label": "Sesjonsforløp",
         "count": "{count} hendelser i denne sesjonen",
@@ -2036,19 +2036,19 @@
         "items": {
           "status": {
             "title": "Løs, ignorer, gjenåpne",
-            "body": "Gi feilene en status én og én eller mange om gangen. Det ingen har tatt tak i ennå, blir liggende under «Uløst»."
+            "body": "Merk rettede feil som løst, og ignorer dem som ikke betyr noe, så listen bare viser bugene som fortsatt må fikses."
           },
           "history": {
             "title": "Se hvem den rammer",
-            "body": "Følg hvor ofte hver feil oppstår, dag for dag, og hvilke nettlesere og enheter den rammer."
+            "body": "Følg med på om en feil øker eller avtar og hvilke nettlesere og enheter den rammer mest."
           },
           "filter": {
             "title": "Filtrer som i analysen din",
-            "body": "Snevre inn listen med de samme filtrene som i resten av dashboardet, for eksempel side, nettleser, enhet eller land."
+            "body": "Filtrer feil på side, nettleser, operativsystem, land og mer, akkurat som i analysen din, og se om en bug bare rammer noen besøkende."
           },
           "occurrences": {
             "title": "Bla gjennom forekomstene",
-            "body": "Gå fra den nyeste forekomsten tilbake til den første. Hver av dem lagrer tidspunkt, side, nettleser, enhet og land for seg."
+            "body": "Klikk deg gjennom hver forekomst med sitt eget besøk og sin egen enhet, og finn mønsteret, for eksempel en bug som bare dukker opp på iOS."
           }
         },
         "art": {
@@ -2067,14 +2067,14 @@
       },
       "agent": {
         "title": "Overlat bugen *til agenten din*",
-        "lede": "Feilene ligger i den innebygde MCP-serveren, så agenten din kan lese stack traces og sesjonsforløp rett ved siden av koden din.",
+        "lede": "Kodeagenten din kan slå opp feil via den innebygde MCP-serveren og jobbe med rettelsen rett ved siden av koden din.",
         "lead": "Fra klage til rettelse med ett spørsmål",
         "body": "Spør Claude Code, Cursor eller en hvilken som helst MCP-klient om en klage. Den finner feilen som hører til, leser stack trace og sesjonsforløp, og åpner filen stacken peker på.",
         "cta": "Sett opp MCP"
       },
       "setup": {
         "title": "Begynn å fange feil med *ett* attributt",
-        "lede": "Feilsporing er bygget inn i Betterlytics-skriptet. Velg hva som skal fanges, og kopier kodesnutten.",
+        "lede": "Velg hva som skal fanges, og kopier kodesnutten. Feilsporingen kjører i samme skript som analysen din.",
         "lead": "Velg hva som skal fanges",
         "always": "Alltid på",
         "options": {
@@ -2149,7 +2149,7 @@
       },
       "cta": {
         "title": "Fang din første feil i dag",
-        "lede": "Legg til ett attributt i script-taggen, så begynner feilene å dukke opp under Feilsporing i dashboardet ditt. Det er gratis på alle planer.",
+        "lede": "Legg til Betterlytics-skriptet, eller ett attributt hvis du allerede har det, så begynner feilene å dukke opp i dashboardet ditt. Gratis på alle planer.",
         "primary": "Start feilsporing gratis",
         "secondary": "Les dokumentasjonen om feilsporing"
       }

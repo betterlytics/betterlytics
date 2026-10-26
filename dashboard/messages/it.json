@@ -1962,30 +1962,30 @@
         "secondary": "Leggi la documentazione"
       },
       "specs": {
-        "frames": {
-          "unit": "frame",
-          "label": "Gruppi per stack",
-          "body": "Gli errori dello stesso tipo e con gli stessi cinque frame in cima allo stack finiscono nello stesso gruppo, qualunque cosa dica il messaggio."
-        },
-        "flood": {
-          "unit": "ogni 10 sec",
-          "label": "Anti-flood",
-          "body": "Ogni pagina invia al massimo 10 errori dello stesso tipo ogni 10 secondi, così un loop impazzito costa poco."
-        },
         "leadUp": {
           "unit": "min",
           "label": "Replay pre-errore",
-          "body": "Con il replay sugli errori attivo, anche le visite fuori dal campione conservano fino a due minuti prima dell’errore."
+          "body": "Conserva i due minuti prima di un errore come replay, anche per le visite che di solito non registri."
+        },
+        "extensions": {
+          "unit": "errori da estensioni",
+          "label": "Solo i tuoi bug",
+          "body": "Gli errori delle estensioni del browser dei visitatori vengono ignorati e i bot vengono scartati prima di salvare qualsiasi cosa."
+        },
+        "script": {
+          "unit": "script",
+          "label": "Un solo script per tutto",
+          "body": "Analytics, errori e session replay si caricano da un unico tag script. Usi già Betterlytics? Basta un attributo."
         },
         "thesis": {
-          "unit": "script",
-          "label": "Niente di nuovo da installare",
-          "body": "Lo script che traccia le tue visualizzazioni di pagina cattura anche gli errori. Basta un attributo per attivarlo."
+          "unit": "cookie",
+          "label": "Niente cookie, niente IP",
+          "body": "Gli errori vengono salvati senza cookie, indirizzi IP né query string, così la privacy dei tuoi visitatori resta intatta."
         }
       },
       "report": {
         "title": "Da “non funziona” alla *riga 142*",
-        "lede": "La maggior parte dei visitatori che incappano in un bug se ne va senza dire nulla. Betterlytics mostra in quale punto del codice è scattato l’errore, in quale browser e quanto spesso.",
+        "lede": "La maggior parte dei visitatori che incappano in un bug se ne va senza dirtelo. Betterlytics mostra la riga che ha generato l’errore, il browser in cui è successo e quanto spesso.",
         "guess": "Indovinare dalle segnalazioni",
         "fix": "Correggere con lo stack trace",
         "alt": "A sinistra scorre un flusso continuo di segnalazioni vaghe sulla pagina dei prezzi: la stessa email sull’upgrade impossibile ricevuta tre volte, qualcuno che scrive che scegliere un piano non fa nulla, una chat con il supporto, uno screenshot sfocato, un’ipotesi sul browser, un post-it con scritto “da me funziona”, un ticket P1 secondo cui gli upgrade falliscono da lunedì e una casella del supporto con 14 messaggi non letti. A destra, lo stesso bug come un unico gruppo di errori: un TypeError lanciato in selectPlan alla riga 142 di pricing.js e chiamato da onClick in plan-card.js, su Chrome per macOS in Danimarca, su /pricing, 1206 volte.",
@@ -2007,7 +2007,7 @@
       },
       "trail": {
         "title": "Scopri cosa hanno fatto *prima e dopo*",
-        "lede": "Ogni errore conserva in ordine le pagine, gli eventi e gli altri errori della stessa visita, più il relativo replay se la visita è stata registrata.",
+        "lede": "Lo stack trace mostra dove si è rotto il codice. Il resto della visita mostra cosa ha scatenato l’errore e cosa ha fatto poi il visitatore.",
         "alt": "Una traccia di sessione con otto eventi. Prima dell’errore il visitatore è arrivato sulla homepage, ha aperto /pricing e ha scelto un piano. Il TypeError è arrivato un secondo dopo, lanciato in selectPlan alla riga 142 di pricing.js su Chrome 129 per macOS, da desktop in Danimarca. Dopo l’errore ha ricaricato /pricing, ha scelto di nuovo un piano, si è imbattuto nello stesso errore e invece di fare l’upgrade è andato su /contact.",
         "label": "Traccia sessione",
         "count": "{count} eventi in questa sessione",
@@ -2036,19 +2036,19 @@
         "items": {
           "status": {
             "title": "Risolvi, ignora, riapri",
-            "body": "Assegna uno stato agli errori uno alla volta o in blocco. Ciò che nessuno ha ancora gestito resta nello stato Non risolto."
+            "body": "Segna come risolti gli errori già corretti e ignora quelli che non contano, così la lista mostra solo i bug ancora da sistemare."
           },
           "history": {
             "title": "Scopri chi colpisce",
-            "body": "Guarda quanto spesso si verifica ogni errore, giorno per giorno, e quali browser e dispositivi colpisce."
+            "body": "Capisci se un errore sta crescendo o calando, e quali browser e dispositivi colpisce di più."
           },
           "filter": {
             "title": "Filtra come nelle tue analytics",
-            "body": "Restringi l’elenco con gli stessi filtri del resto della dashboard, come pagina, browser, dispositivo o paese."
+            "body": "Filtra gli errori per pagina, browser, sistema operativo, paese e altro, come nelle tue analytics, per capire se un bug colpisce solo alcuni visitatori."
           },
           "occurrences": {
             "title": "Scorri le occorrenze",
-            "body": "Sfoglia le occorrenze dalla più recente fino alla prima. Ognuna conserva i propri dati: ora, pagina, browser, dispositivo e paese."
+            "body": "Sfoglia ogni occorrenza con la sua visita e il suo dispositivo, e individua il pattern, ad esempio un bug che compare solo su iOS."
           }
         },
         "art": {
@@ -2067,14 +2067,14 @@
       },
       "agent": {
         "title": "Passa il bug *al tuo agente*",
-        "lede": "Gli errori sono disponibili nel server MCP integrato, così il tuo agente può leggere stack trace e tracce di sessione accanto al tuo codice.",
+        "lede": "Il tuo agente di coding può consultare gli errori tramite il server MCP integrato e lavorare alla correzione direttamente accanto al tuo codice.",
         "lead": "Dalla lamentela alla correzione con una sola domanda",
         "body": "Riporta la lamentela di un utente a Claude Code, Cursor o a qualsiasi client MCP. L’agente trova l’errore corrispondente, legge lo stack trace e la traccia della sessione e apre il file indicato dallo stack.",
         "cta": "Configura MCP"
       },
       "setup": {
         "title": "Inizia a catturare errori con *un solo* attributo",
-        "lede": "Il tracciamento errori è integrato nello script di Betterlytics. Scegli cosa catturare e copia lo snippet.",
+        "lede": "Scegli cosa catturare e copia lo snippet. Gira nello stesso script delle tue analytics.",
         "lead": "Scegli cosa catturare",
         "always": "Sempre attivo",
         "options": {
@@ -2149,7 +2149,7 @@
       },
       "cta": {
         "title": "Cattura il tuo primo errore oggi stesso",
-        "lede": "Aggiungi un attributo al tag script e gli errori iniziano ad arrivare nella sezione Monitoraggio errori della tua dashboard. È gratis in tutti i piani.",
+        "lede": "Aggiungi lo script di Betterlytics, o un attributo se lo hai già, e gli errori iniziano ad arrivare nella tua dashboard. Gratis in tutti i piani.",
         "primary": "Inizia a tracciare gli errori gratis",
         "secondary": "Leggi la documentazione sugli errori"
       }
