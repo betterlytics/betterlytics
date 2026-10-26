@@ -3631,6 +3631,11 @@
     "statusPageImageTooLarge": "The image is too large",
     "statusPageImageBadType": "The image must be a PNG, JPEG or WebP image",
     "statusPageImageSvgUnsafe": "The SVG file contains unsupported or unsafe content",
+    "publicDashboardsDisabled": "Public dashboards are not enabled",
+    "publicDashboardSlugInvalid": "Use 3 to 63 lowercase letters, digits and single hyphens",
+    "publicDashboardSlugReserved": "This URL slug is reserved",
+    "publicDashboardSlugTaken": "This URL slug is already in use by another dashboard",
+    "publicDashboardPagesInvalid": "Choose at least one page to share",
     "capabilities": {
       "dashboardLimit": "You have reached your dashboard limit. Upgrade to Pro to create more dashboards.",
       "monitorLimit": "You have reached your monitor limit. Upgrade to Pro to create more monitors.",

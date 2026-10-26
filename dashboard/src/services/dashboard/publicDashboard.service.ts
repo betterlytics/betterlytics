@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { getTranslations } from 'next-intl/server';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { UserException } from '@/lib/exceptions';
@@ -30,23 +31,21 @@ const DEFAULT_PUBLIC_DASHBOARD_SETTINGS: PublicDashboardSettings = {
   enabledPages: DEFAULT_PUBLIC_DASHBOARD_PAGES,
 };
 
-// The code lets the settings UI show a localized reason
-const SLUG_REJECTIONS: Record<PublicDashboardSlugRejection, { message: string; code: string }> = {
-  invalid: {
-    message: 'Use 3 to 63 lowercase letters, digits and single hyphens',
-    code: 'publicDashboardSlugInvalid',
-  },
-  reserved: { message: 'This slug is reserved', code: 'publicDashboardSlugReserved' },
-  taken: { message: 'This slug is already in use', code: 'publicDashboardSlugTaken' },
-};
+const SLUG_REJECTION_KEYS = {
+  invalid: 'publicDashboardSlugInvalid',
+  reserved: 'publicDashboardSlugReserved',
+  taken: 'publicDashboardSlugTaken',
+} as const satisfies Record<PublicDashboardSlugRejection, string>;
 
-function slugRejection(reason: PublicDashboardSlugRejection): UserException {
-  return new UserException(SLUG_REJECTIONS[reason].message, SLUG_REJECTIONS[reason].code);
+async function slugRejection(reason: PublicDashboardSlugRejection): Promise<UserException> {
+  const t = await getTranslations('validation');
+  return new UserException(t(SLUG_REJECTION_KEYS[reason]));
 }
 
-function assertPublicDashboardsEnabled() {
+async function assertPublicDashboardsEnabled() {
   if (!isFeatureEnabled('enablePublicDashboards')) {
-    throw new UserException('Public dashboards are not enabled', 'publicDashboardsDisabled');
+    const t = await getTranslations('validation');
+    throw new UserException(t('publicDashboardsDisabled'));
   }
 }
 
@@ -105,7 +104,7 @@ export async function setPublicDashboardVisibility(
   dashboardId: string,
   isPublic: boolean,
 ): Promise<PublicDashboardSettings> {
-  assertPublicDashboardsEnabled();
+  await assertPublicDashboardsEnabled();
 
   const current = await getPublicDashboardSettings(dashboardId);
   if (!isPublic || current.slug) {
@@ -119,7 +118,7 @@ export async function setPublicDashboardVisibility(
       return await updatePublicDashboardSettings(dashboardId, { isPublic, slug });
     } catch (error) {
       if (!(error instanceof PublicSlugTakenError)) throw error;
-      if (attempt >= CLAIM_ATTEMPTS) throw slugRejection('taken');
+      if (attempt >= CLAIM_ATTEMPTS) throw await slugRejection('taken');
     }
   }
 }
@@ -128,18 +127,18 @@ export async function setPublicDashboardSlug(
   dashboardId: string,
   input: string,
 ): Promise<PublicDashboardSettings> {
-  assertPublicDashboardsEnabled();
+  await assertPublicDashboardsEnabled();
 
   const check = await checkPublicDashboardSlug(dashboardId, input);
   if (!check.available) {
-    throw slugRejection(check.reason);
+    throw await slugRejection(check.reason);
   }
 
   try {
     return await updatePublicDashboardSettings(dashboardId, { slug: check.slug });
   } catch (error) {
     if (error instanceof PublicSlugTakenError) {
-      throw slugRejection('taken');
+      throw await slugRejection('taken');
     }
     throw error;
   }
@@ -149,11 +148,12 @@ export async function setPublicDashboardPages(
   dashboardId: string,
   pages: unknown,
 ): Promise<PublicDashboardSettings> {
-  assertPublicDashboardsEnabled();
+  await assertPublicDashboardsEnabled();
 
   const parsed = PublicDashboardPagesSchema.safeParse(pages);
   if (!parsed.success) {
-    throw new UserException('Choose at least one page from the supported list', 'publicDashboardPagesInvalid');
+    const t = await getTranslations('validation');
+    throw new UserException(t('publicDashboardPagesInvalid'));
   }
 
   return updatePublicDashboardSettings(dashboardId, { enabledPages: parsed.data });

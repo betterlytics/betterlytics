@@ -13,6 +13,7 @@ vi.mock('@/lib/feature-flags', () => ({
   isFeatureEnabled: (flag: keyof typeof mocks.flags) => mocks.flags[flag],
 }));
 vi.mock('@/lib/env', () => ({ env: mocks.env }));
+vi.mock('next-intl/server', () => ({ getTranslations: vi.fn(async () => (key: string) => key) }));
 vi.mock('@/repositories/postgres/dashboard.repository', () => ({
   findDashboardById: vi.fn(),
   findPublicDashboardSettings: vi.fn(),
@@ -175,7 +176,7 @@ describe('with ENABLE_PUBLIC_DASHBOARDS off', () => {
     ['changing the slug', () => setPublicDashboardSlug('dash-1', 'my-site')],
     ['changing the pages', () => setPublicDashboardPages('dash-1', ['overview', 'pages'])],
   ])('refuses %s and leaves stored settings alone', async (_label, write) => {
-    await expect(write()).rejects.toMatchObject({ code: 'publicDashboardsDisabled' });
+    await expect(write()).rejects.toThrow('publicDashboardsDisabled');
     expect(update).not.toHaveBeenCalled();
   });
 });
@@ -214,24 +215,20 @@ describe('setPublicDashboardSlug', () => {
     ['ab', 'publicDashboardSlugInvalid'],
     ['status', 'publicDashboardSlugReserved'],
     ['demo-x', 'publicDashboardSlugReserved'],
-  ])('refuses %s with a reason', async (slug, code) => {
-    await expect(setPublicDashboardSlug('dash-1', slug)).rejects.toMatchObject({ code });
+  ])('refuses %s with a reason', async (slug, reason) => {
+    await expect(setPublicDashboardSlug('dash-1', slug)).rejects.toThrow(reason);
     expect(update).not.toHaveBeenCalled();
   });
 
   it('refuses a slug taken by another dashboard', async () => {
     takenSlugs = new Set(['my-site']);
-    await expect(setPublicDashboardSlug('dash-1', 'my-site')).rejects.toMatchObject({
-      code: 'publicDashboardSlugTaken',
-    });
+    await expect(setPublicDashboardSlug('dash-1', 'my-site')).rejects.toThrow('publicDashboardSlugTaken');
     expect(update).not.toHaveBeenCalled();
   });
 
   it('maps a unique-index conflict on save to taken', async () => {
     update.mockRejectedValueOnce(new mocks.PublicSlugTakenError());
-    await expect(setPublicDashboardSlug('dash-1', 'my-site')).rejects.toMatchObject({
-      code: 'publicDashboardSlugTaken',
-    });
+    await expect(setPublicDashboardSlug('dash-1', 'my-site')).rejects.toThrow('publicDashboardSlugTaken');
   });
 
   it('saves a free slug', async () => {
@@ -242,16 +239,14 @@ describe('setPublicDashboardSlug', () => {
 
 describe('setPublicDashboardPages', () => {
   it('refuses an empty list', async () => {
-    await expect(setPublicDashboardPages('dash-1', [])).rejects.toMatchObject({
-      code: 'publicDashboardPagesInvalid',
-    });
+    await expect(setPublicDashboardPages('dash-1', [])).rejects.toThrow('publicDashboardPagesInvalid');
     expect(update).not.toHaveBeenCalled();
   });
 
   it('refuses unknown pages', async () => {
-    await expect(setPublicDashboardPages('dash-1', ['overview', 'settings'])).rejects.toMatchObject({
-      code: 'publicDashboardPagesInvalid',
-    });
+    await expect(setPublicDashboardPages('dash-1', ['overview', 'settings'])).rejects.toThrow(
+      'publicDashboardPagesInvalid',
+    );
   });
 
   it('saves the pages in canonical order', async () => {

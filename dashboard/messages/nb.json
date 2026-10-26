@@ -3631,6 +3631,11 @@
     "statusPageImageTooLarge": "Bildet er for stort",
     "statusPageImageBadType": "Bildet må være et PNG-, JPEG- eller WebP-bilde",
     "statusPageImageSvgUnsafe": "SVG-filen inneholder innhold som ikke støttes eller er utrygt",
+    "publicDashboardsDisabled": "Offentlige dashbord er ikke aktivert",
+    "publicDashboardSlugInvalid": "Bruk 3 til 63 små bokstaver, tall og enkle bindestreker",
+    "publicDashboardSlugReserved": "Denne URL-sluggen er reservert",
+    "publicDashboardSlugTaken": "Denne URL-sluggen er allerede i bruk på et annet dashbord",
+    "publicDashboardPagesInvalid": "Velg minst én side å dele",
     "capabilities": {
       "dashboardLimit": "Du har nådd grensen for dashboards. Oppgrader til Pro for å opprette flere dashboards.",
       "monitorLimit": "Du har nådd grensen for monitorer. Oppgrader til Pro for å opprette flere monitorer.",
