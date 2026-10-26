@@ -24,7 +24,7 @@ import { vars } from '@/landing/lib/cssVars';
 import { LINKS } from '@/landing/lib/links';
 import styles from './triageBento.module.css';
 
-/* Mock data, deliberately untranslated. Each art holds a second state that hovering its cell swaps in. */
+/* Mock data, deliberately untranslated. Each art holds a second state that hovering it swaps in. */
 
 function Roll({ from, to }: { from: string; to: string }) {
   return (

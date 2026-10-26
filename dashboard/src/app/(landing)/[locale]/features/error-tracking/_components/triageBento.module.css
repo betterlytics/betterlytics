@@ -431,43 +431,43 @@
   }
 
   @media (hover: hover) {
-    .cell:hover .swap > span:first-child {
+    .art:hover .swap > span:first-child {
       opacity: 0;
       translate: 0 -5px;
     }
-    .cell:hover .swap > span:last-child {
+    .art:hover .swap > span:last-child {
       opacity: 1;
       translate: 0 0;
     }
 
-    .cell:hover .roll > span {
+    .art:hover .roll > span {
       translate: 0 -50%;
     }
 
-    .cell:hover .miniRow[data-picks] {
+    .art:hover .miniRow[data-picks] {
       background: --alpha(var(--color-volt-lift) / 12%);
     }
-    .cell:hover .miniRow[data-picks] .box {
+    .art:hover .miniRow[data-picks] .box {
       border-color: var(--color-volt-lift);
       background: var(--color-volt-lift);
     }
-    .cell:hover .miniRow[data-picks] .box svg {
+    .art:hover .miniRow[data-picks] .box svg {
       opacity: 1;
       scale: 1;
     }
 
-    .cell:hover .bars i:not([data-today]) {
+    .art:hover .bars i:not([data-today]) {
       opacity: 0.35;
     }
 
-    .cell:hover .filterRow[data-stays] {
+    .art:hover .filterRow[data-stays] {
       background: --alpha(var(--color-volt-lift) / 12%);
     }
-    .cell:hover .filterRow[data-drops] {
+    .art:hover .filterRow[data-drops] {
       opacity: 0.4;
     }
 
-    .cell:hover .navButtons i[data-press] {
+    .art:hover .navButtons i[data-press] {
       border-color: --alpha(var(--color-volt-soft) / 45%);
       background: --alpha(var(--color-volt-lift) / 16%);
       color: var(--color-fg);
