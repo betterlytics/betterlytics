@@ -58,7 +58,7 @@ function calculateCommonCampaignMetrics(rawData: RawMetricsData): CalculatedMetr
 
   return {
     bounceRate: parseFloat(bounceRate.toFixed(1)),
-    avgSessionDuration: avgSessionDurationSeconds,
+    avgSessionDuration: parseFloat(avgSessionDurationSeconds.toFixed(1)),
     pagesPerSession: parseFloat(pagesPerSession.toFixed(1)),
   };
 }

@@ -244,22 +244,13 @@ export const demoCampaignDataSource = {
       );
       const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
       const total = campaignVisitors(campaign, siteQuery) * BUCKET_OVERLAP;
-      const lastIndex = starts.length - 1;
-      return (
-        starts
-          .map((start, index) => {
-            const expected = weightSum > 0 ? (total * weights[index]) / weightSum : 0;
-            // Dithered rounding keeps low-traffic buckets uneven, like real visits, instead of a flat run of ones
-            const visitors = Math.floor(expected + hashToUnit(campaign.name, 'round', start.valueOf()));
-            return {
-              date: toDateTimeString(start.toDate()),
-              utm_campaign: campaign.name,
-              visitors: index === lastIndex ? Math.max(1, visitors) : visitors,
-            };
-          })
-          // Like the real query, empty buckets carry no campaign; the last one always stays so the line reaches now
-          .filter((row) => row.visitors > 0)
-      );
+      // Zeros stay in so the line dips, the sparkline presenter does not fill gaps
+      return starts.map((start, index) => {
+        const expected = weightSum > 0 ? (total * weights[index]) / weightSum : 0;
+        // Dithered rounding keeps low-traffic buckets uneven, like real visits, instead of a flat run of ones
+        const visitors = Math.floor(expected + hashToUnit(campaign.name, 'round', start.valueOf()));
+        return { date: toDateTimeString(start.toDate()), utm_campaign: campaign.name, visitors };
+      });
     });
   },
 

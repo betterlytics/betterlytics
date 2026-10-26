@@ -49,7 +49,11 @@ describe('demoCampaignDataSource', () => {
     const weekTotal = week.reduce((sum, row) => sum + row.total_visitors, 0);
     expect(dayTotal).toBeGreaterThan(0);
     expect(dayTotal).toBeLessThan(weekTotal / 4);
-    expect(day.map((row) => row.utm_campaign_name)).not.toEqual(week.map((row) => row.utm_campaign_name));
+    const dayShares = day.map(
+      (row) =>
+        row.total_visitors / week.find((w) => w.utm_campaign_name === row.utm_campaign_name)!.total_visitors,
+    );
+    expect(new Set(dayShares.map((share) => share.toFixed(2))).size).toBeGreaterThan(1);
   });
 
   it('returns the same numbers for the same window', async () => {
@@ -75,7 +79,8 @@ describe('demoCampaignDataSource', () => {
 
         expect(rows.length).toBeGreaterThan(0);
         expect(rows.length).toBeLessThanOrEqual(buckets);
-        expect(rows.every((row) => row.visitors > 0)).toBe(true);
+        expect(rows.every((row) => row.visitors >= 0)).toBe(true);
+        expect(rows.some((row) => row.visitors > 0)).toBe(true);
         expect(rows[0].date >= query.startDateTime).toBe(true);
         const lastBucketStart = new Date(`${rows.at(-1)!.date}Z`).getTime();
         expect(lastBucketStart).toBeLessThanOrEqual(query.endDate.getTime());
@@ -89,6 +94,15 @@ describe('demoCampaignDataSource', () => {
       DEMO_CAMPAIGNS[0].name,
     ]);
     expect(rows.at(-1)!.date).toBe('2026-10-23 14:00:00');
+  });
+
+  it('keeps empty buckets so low-traffic sparklines dip instead of flattening', async () => {
+    const smallest = DEMO_CAMPAIGNS.at(-1)!;
+    const rows = await demoCampaignDataSource.getCampaignVisitorTrendData(siteQueryFor('24h', 'hour'), [
+      smallest.name,
+    ]);
+    expect(rows).toHaveLength(24);
+    expect(rows.some((row) => row.visitors === 0)).toBe(true);
   });
 
   it('populates every breakdown and audience dimension for every campaign on 24h', async () => {

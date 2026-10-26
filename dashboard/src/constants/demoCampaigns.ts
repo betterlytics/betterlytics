@@ -32,7 +32,10 @@ export const DEMO_CAMPAIGNS: DemoCampaign[] = [
     bounceRate: 0.52,
     pagesPerSession: 1.9,
     avgSessionSeconds: 71,
-    sources: [['google', 1]],
+    sources: [
+      ['google', 0.81],
+      ['bing', 0.19],
+    ],
     mediums: [['cpc', 1]],
     contents: [
       ['headline-cookieless', 0.45],
@@ -146,9 +149,9 @@ export const DEMO_CAMPAIGNS: DemoCampaign[] = [
       ['devops', 0.39],
     ],
     entryPages: [
-      ['/', 0.49],
-      ['/pricing', 0.29],
-      ['/features', 0.22],
+      ['/docs/installation/self-hosting', 0.71],
+      ['/', 0.18],
+      ['/pricing', 0.11],
     ],
     devices: [
       ['desktop', 0.79],
