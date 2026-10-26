@@ -565,7 +565,9 @@ mod tests {
             .expect("inserter task panicked");
 
         let rows: Vec<EventRow> = recording.collect().await;
-        assert_eq!(rows.len(), 3);
+        let mut session_ids: Vec<u64> = rows.iter().map(|r| r.session_id).collect();
+        session_ids.sort_unstable();
+        assert_eq!(session_ids, vec![0, 1, 2], "each buffered event should be inserted exactly once");
     }
 
     #[tokio::test]
