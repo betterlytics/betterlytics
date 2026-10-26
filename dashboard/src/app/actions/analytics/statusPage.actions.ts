@@ -53,6 +53,7 @@ import {
 import { isOwnNamespace } from '@/services/analytics/statusPageDomain.service';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { inspectStatusPageImage } from '@/lib/statusPageImage';
+import { slugifyDomain } from '@/entities/system/publicSlug.entities';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
 import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
@@ -244,18 +245,10 @@ export const fetchStatusPageDraftPreviewAction = withDashboardAuthContext(async 
   };
 });
 
-function slugifyDomain(domain: string): string {
-  return domain
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 async function computeStatusPageDefaults(dashboardId: string) {
   const dashboard = await findDashboardById(dashboardId);
 
-  const slug =
-    slugifyDomain(dashboard.domain).slice(0, STATUS_PAGE_LIMITS.SLUG_MAX).replace(/-+$/, '') || 'my-status-page';
+  const slug = slugifyDomain(dashboard.domain) || 'my-status-page';
 
   const domainLabel = dashboard.domain.split('.')[0] || dashboard.domain;
   const name = `${domainLabel.charAt(0).toUpperCase()}${domainLabel.slice(1)} Status`;
