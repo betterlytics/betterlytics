@@ -12,6 +12,7 @@ const EXPOSED_FEATURE_FLAG_KEYS = [
   'ENABLE_EMAILS',
   'ENABLE_UPTIME_MONITORING',
   'ENABLE_PUBLIC_STATUS_PAGES',
+  'ENABLE_PUBLIC_DASHBOARDS',
   'ALLOW_PRIVATE_TARGETS',
 ] as const satisfies readonly (keyof typeof env)[];
 
