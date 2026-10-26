@@ -2411,7 +2411,12 @@
     "pagination": {
       "pageOf": "Page {currentPage} of {totalPages}",
       "showing": "Showing {startItem}-{endItem} of {totalItems} items",
-      "perPage": "per page"
+      "perPage": "per page",
+      "navigation": "Pagination",
+      "firstPage": "First page",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "lastPage": "Last page"
     },
     "annotations": {
       "dialogs": {
@@ -2671,16 +2676,15 @@
     },
     "campaign": {
       "title": "Campaigns",
-      "pagination": {
-        "pageOf": "Page {currentPage} of {totalPages}",
-        "showing": "Showing {startItem}-{endItem} of {totalItems} campaigns",
-        "perPage": "per page"
-      },
       "emptyState": {
         "title": "No campaigns captured yet",
         "description": "Campaigns will appear here once URLs with utm_campaign tags are captured. Start tagging your links to view performance metrics.",
         "docsHint": "Need help getting campaigns to show up?",
         "docsLinkLabel": "Read the campaign tracking guide"
+      },
+      "periodEmptyState": {
+        "title": "No campaign traffic in this period",
+        "description": "Try a wider date range to see earlier campaigns."
       },
       "loading": "Loading campaigns...",
       "campaignRow": {
@@ -2811,6 +2815,8 @@
         "apply": "Apply",
         "selectValue": "Select a value",
         "noValuesForCurrentPeriod": "No values found for current time period",
+        "valuesTruncated": "Showing {shown, number} of {total, number} values. Type to search the rest.",
+        "valuesTruncatedAtLimit": "Showing {shown, number} of {total, number}+ values. Type to search the rest.",
         "savedFilters": "Saved Filters",
         "noSavedFilters": "No saved filters yet",
         "saveFilters": "Save",
@@ -2955,12 +2961,7 @@
       "table": {
         "details": "Referrer Details",
         "tabs": {
-          "all": "All",
-          "search": "Search",
-          "social": "Social",
-          "direct": "Direct",
-          "email": "Email",
-          "other": "Other"
+          "all": "All"
         },
         "columns": {
           "source": "Source",
@@ -2972,6 +2973,14 @@
           "direct": "Direct",
           "unknown": "Unknown"
         }
+      },
+      "categories": {
+        "search": "Search",
+        "social": "Social",
+        "ai": "AI",
+        "direct": "Direct",
+        "email": "Email",
+        "other": "Other"
       }
     },
     "geography": {
@@ -3073,7 +3082,8 @@
           "title": "No session replays available",
           "description": "Try expanding your time range or adjusting filters."
         },
-        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}"
+        "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}",
+        "sessionRageClicksTooltip": "{count, plural, one {This session has {count} rage click} other {This session has {count} rage clicks}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3098,7 +3108,8 @@
         "blacklist": "Blacklisted",
         "viewportResize": "Viewport Resize",
         "mediaInteraction": "Media Interaction",
-        "clientError": "Client Error"
+        "clientError": "Client Error",
+        "rageClick": "Rage click"
       },
       "player": {
         "skipInactive": "Skip inactivity",
@@ -3538,6 +3549,9 @@
     "themeToggle": {
       "light": "Switch to light mode",
       "dark": "Switch to dark mode"
+    },
+    "scrollToTop": {
+      "label": "Scroll to top"
     },
     "errorPage": {
       "title": "Something went wrong",

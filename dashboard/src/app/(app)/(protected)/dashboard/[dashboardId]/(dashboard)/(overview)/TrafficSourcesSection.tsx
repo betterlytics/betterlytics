@@ -9,10 +9,12 @@ import { useState } from 'react';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { useQueryState } from '@/hooks/use-query-state';
+import { useReferrerCategoryLabel } from '@/hooks/use-referrer-category-label';
 
 export default function TrafficSourcesSection() {
   const [activeTab, setActiveTab] = useState('referrers');
   const t = useTranslations('dashboard');
+  const categoryLabel = useReferrerCategoryLabel();
   const { onItemClick, isItemInteractive } = useProgressTableFilterClick();
   const { input, options } = useBAQueryParams();
 
@@ -71,11 +73,12 @@ export default function TrafficSourcesSection() {
           loading: channelsState.loading,
           data: (channelsQuery.data ?? []).map(
             (item): ProgressBarData => ({
-              label: item.channel,
+              key: item.channel,
+              label: categoryLabel(item.channel),
               value: item.current.visits,
               trendPercentage: item.change?.visits,
               comparisonValue: item.compare?.visits,
-              filters: [{ column: 'referrer_source' }],
+              filters: [{ column: 'referrer_source', value: item.channel }],
             }),
           ),
         },

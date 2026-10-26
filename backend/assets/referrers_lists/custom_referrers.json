@@ -1,7 +1,5 @@
 {
   "search": {
-    "Perplexity": { "domains": ["perplexity.ai"], "parameters": ["q"] },
-    "ChatGPT": { "domains": ["chatgpt.com", "chat.openai.com"] },
     "Kagi": { "domains": ["kagi.com"], "parameters": ["q"] },
     "Yandex Search Domains": { "domains": ["ya.ru", "yandex.eu", "yandex.tm"] }
   },
@@ -16,6 +14,18 @@
     "Reddit Android": { "domains": ["com.reddit.frontpage"] },
     "X": { "domains": ["x.com"] },
     "DEV": { "domains": ["dev.to"] }
+  },
+  "ai": {
+    "ChatGPT": { "domains": ["chatgpt.com", "chat.openai.com"] },
+    "Gemini": { "domains": ["gemini.google.com", "bard.google.com"] },
+    "Claude": { "domains": ["claude.ai"] },
+    "Perplexity": { "domains": ["perplexity.ai"] },
+    "Copilot": { "domains": ["copilot.microsoft.com"] },
+    "DeepSeek": { "domains": ["chat.deepseek.com"] },
+    "Grok": { "domains": ["grok.com"] },
+    "Meta AI": { "domains": ["meta.ai"] },
+    "Mistral Le Chat": { "domains": ["chat.mistral.ai"] },
+    "Poe": { "domains": ["poe.com"] }
   },
   "email": {
     "Microsoft Teams": { "domains": ["teams.microsoft.com", "statics.teams.cdn.office.net"] }

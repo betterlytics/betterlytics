@@ -2411,7 +2411,12 @@
     "pagination": {
       "pageOf": "Side {currentPage} av {totalPages}",
       "showing": "Viser {startItem}-{endItem} av {totalItems} elementer",
-      "perPage": "pr. side"
+      "perPage": "pr. side",
+      "navigation": "Sidenavigasjon",
+      "firstPage": "Første side",
+      "previousPage": "Forrige side",
+      "nextPage": "Neste side",
+      "lastPage": "Siste side"
     },
     "annotations": {
       "dialogs": {
@@ -2671,16 +2676,15 @@
     },
     "campaign": {
       "title": "Kampanjer",
-      "pagination": {
-        "pageOf": "Side {currentPage} av {totalPages}",
-        "showing": "Viser {startItem}-{endItem} av {totalItems} kampanjer",
-        "perPage": "pr. side"
-      },
       "emptyState": {
         "title": "Ingen kampanjer registrert ennå",
         "description": "Kampanjer vises her når URL-er med utm_campaign-tags blir registrert. Begynn å tagge lenkene dine for å se ytelsesmålinger.",
         "docsHint": "Trenger du hjelp med å få kampanjer til å dukke opp?",
         "docsLinkLabel": "Les guiden til kampanjesporing"
+      },
+      "periodEmptyState": {
+        "title": "Ingen kampanjetrafikk i denne perioden",
+        "description": "Prøv et bredere datointervall for å se tidligere kampanjer."
       },
       "loading": "Laster inn kampanjer...",
       "campaignRow": {
@@ -2811,6 +2815,8 @@
         "apply": "Bruk",
         "selectValue": "Velg en verdi",
         "noValuesForCurrentPeriod": "Ingen verdier funnet for valgt periode",
+        "valuesTruncated": "Viser {shown, number} av {total, number} verdier. Skriv for å søke i resten.",
+        "valuesTruncatedAtLimit": "Viser {shown, number} av {total, number}+ verdier. Skriv for å søke i resten.",
         "savedFilters": "Lagrede filtre",
         "noSavedFilters": "Ingen lagrede filtre ennå",
         "saveFilters": "Lagre",
@@ -2955,12 +2961,7 @@
       "table": {
         "details": "Henvisningsdetaljer",
         "tabs": {
-          "all": "Alle",
-          "search": "Søk",
-          "social": "Sosiale medier",
-          "direct": "Direkte",
-          "email": "E-post",
-          "other": "Annet"
+          "all": "Alle"
         },
         "columns": {
           "source": "Kilde",
@@ -2972,6 +2973,14 @@
           "direct": "Direkte",
           "unknown": "Ukjent"
         }
+      },
+      "categories": {
+        "search": "Søk",
+        "social": "Sosiale medier",
+        "ai": "AI",
+        "direct": "Direkte",
+        "email": "E-post",
+        "other": "Annet"
       }
     },
     "geography": {
@@ -3073,7 +3082,8 @@
           "title": "Ingen sesjonsavspillinger tilgjengelige",
           "description": "Prøv å utvide tidsperioden eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne økten fanget {count} klientsidefeil"
+        "sessionErrorsTooltip": "Denne økten fanget {count} klientsidefeil",
+        "sessionRageClicksTooltip": "{count, plural, one {Denne økten har {count} raseriklikk} other {Denne økten har {count} raseriklikk}}"
       },
       "playerTopbar": {
         "startLabel": "Starttid:",
@@ -3098,7 +3108,8 @@
         "blacklist": "Svartelistet",
         "viewportResize": "Endring av viewport",
         "mediaInteraction": "Medieinteraksjon",
-        "clientError": "Klientside-feil"
+        "clientError": "Klientside-feil",
+        "rageClick": "Raseriklikk"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",
@@ -3538,6 +3549,9 @@
     "themeToggle": {
       "light": "Bytt til lyst tema",
       "dark": "Bytt til mørkt tema"
+    },
+    "scrollToTop": {
+      "label": "Rull til toppen"
     },
     "errorPage": {
       "title": "Noe gikk galt",

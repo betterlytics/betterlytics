@@ -18,20 +18,26 @@ describe('McpQuerySessionsInputSchema', () => {
   });
 
   it('applies the same defaults as query', () => {
-    const result = McpQuerySessionsInputSchema.safeParse({ metrics: ['sessions'], timeRange: '7d' });
+    const result = McpQuerySessionsInputSchema.safeParse({
+      metrics: ['sessions'],
+      timeRange: '7d',
+      timezone: 'UTC',
+    });
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.limit).toBe(100);
       expect(result.data.order).toBe('desc');
-      expect(result.data.timezone).toBe('UTC');
     }
   });
 
   it('rejects empty metrics and event-only metrics', () => {
-    expect(McpQuerySessionsInputSchema.safeParse({ metrics: [], timeRange: '7d' }).success).toBe(false);
-    expect(McpQuerySessionsInputSchema.safeParse({ metrics: ['custom_events'], timeRange: '7d' }).success).toBe(
+    expect(McpQuerySessionsInputSchema.safeParse({ metrics: [], timeRange: '7d', timezone: 'UTC' }).success).toBe(
       false,
     );
+    expect(
+      McpQuerySessionsInputSchema.safeParse({ metrics: ['custom_events'], timeRange: '7d', timezone: 'UTC' })
+        .success,
+    ).toBe(false);
   });
 
   it.each(['url', 'custom_event_name', 'domain'])('rejects the %s dimension', (dimension) => {
@@ -39,6 +45,7 @@ describe('McpQuerySessionsInputSchema', () => {
       metrics: ['sessions'],
       dimensions: [dimension],
       timeRange: '7d',
+      timezone: 'UTC',
     });
     expect(result.success).toBe(false);
   });
@@ -49,6 +56,7 @@ describe('McpQuerySessionsInputSchema', () => {
       const result = McpQuerySessionsInputSchema.safeParse({
         metrics: ['sessions'],
         timeRange: '7d',
+        timezone: 'UTC',
         filters: [{ column, operator: '=', values: ['x'] }],
       });
       expect(result.success).toBe(true);
@@ -59,6 +67,7 @@ describe('McpQuerySessionsInputSchema', () => {
     const result = McpQueryInputSchema.safeParse({
       metrics: ['visitors'],
       timeRange: '7d',
+      timezone: 'UTC',
       filters: [{ column: 'entry_page', operator: '=', values: ['/'] }],
     });
     expect(result.success).toBe(false);
@@ -66,7 +75,12 @@ describe('McpQuerySessionsInputSchema', () => {
 
   it('rejects unknown filter columns, operators and empty values', () => {
     const parse = (filter: object) =>
-      McpQuerySessionsInputSchema.safeParse({ metrics: ['sessions'], timeRange: '7d', filters: [filter] }).success;
+      McpQuerySessionsInputSchema.safeParse({
+        metrics: ['sessions'],
+        timeRange: '7d',
+        timezone: 'UTC',
+        filters: [filter],
+      }).success;
 
     expect(parse({ column: 'landing_page', operator: '=', values: ['/'] })).toBe(false);
     expect(parse({ column: 'entry_page', operator: 'LIKE', values: ['/'] })).toBe(false);
@@ -75,7 +89,12 @@ describe('McpQuerySessionsInputSchema', () => {
 
   it('only sorts by a requested metric or dimension', () => {
     const parse = (fields: object) =>
-      McpQuerySessionsInputSchema.safeParse({ metrics: ['sessions'], timeRange: '7d', ...fields });
+      McpQuerySessionsInputSchema.safeParse({
+        metrics: ['sessions'],
+        timeRange: '7d',
+        timezone: 'UTC',
+        ...fields,
+      });
 
     expect(parse({ orderBy: 'sessions' }).success).toBe(true);
     expect(parse({ dimensions: ['exit_page'], orderBy: 'exit_page' }).success).toBe(true);
@@ -92,6 +111,7 @@ describe('McpQuerySessionsInputSchema', () => {
       McpQuerySessionsInputSchema.safeParse({
         metrics: ['sessions'],
         timeRange: '7d',
+        timezone: 'UTC',
         orderBy: 'date',
         ...fields,
       });
@@ -105,7 +125,12 @@ describe('McpQuerySessionsInputSchema', () => {
 
   it('applies the shared custom date range rules', () => {
     const parse = (fields: object) =>
-      McpQuerySessionsInputSchema.safeParse({ metrics: ['sessions'], timeRange: 'custom', ...fields }).success;
+      McpQuerySessionsInputSchema.safeParse({
+        metrics: ['sessions'],
+        timeRange: 'custom',
+        timezone: 'UTC',
+        ...fields,
+      }).success;
 
     expect(parse({})).toBe(false);
     expect(parse({ startDate: '2026-01-01' })).toBe(false);
@@ -115,7 +140,8 @@ describe('McpQuerySessionsInputSchema', () => {
 
   it('rejects limits outside 1 to 10000 and unsupported granularities', () => {
     const parse = (fields: object) =>
-      McpQuerySessionsInputSchema.safeParse({ metrics: ['sessions'], timeRange: '7d', ...fields }).success;
+      McpQuerySessionsInputSchema.safeParse({ metrics: ['sessions'], timeRange: '7d', timezone: 'UTC', ...fields })
+        .success;
 
     expect(parse({ limit: 0 })).toBe(false);
     expect(parse({ limit: 10001 })).toBe(false);

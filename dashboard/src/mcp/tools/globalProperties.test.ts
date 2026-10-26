@@ -19,15 +19,19 @@ const getValues = vi.mocked(getTopGlobalPropertyValuesForKeys);
 
 describe('McpListGlobalPropertiesInputSchema', () => {
   it('accepts valid input with just a time range', () => {
-    expect(McpListGlobalPropertiesInputSchema.safeParse({ timeRange: '7d' }).success).toBe(true);
+    expect(McpListGlobalPropertiesInputSchema.safeParse({ timeRange: '7d', timezone: 'UTC' }).success).toBe(true);
   });
 
   it('accepts an optional key argument', () => {
-    expect(McpListGlobalPropertiesInputSchema.safeParse({ timeRange: '7d', key: 'gp.plan' }).success).toBe(true);
+    expect(
+      McpListGlobalPropertiesInputSchema.safeParse({ timeRange: '7d', timezone: 'UTC', key: 'gp.plan' }).success,
+    ).toBe(true);
   });
 
   it('rejects custom time range without dates', () => {
-    expect(McpListGlobalPropertiesInputSchema.safeParse({ timeRange: 'custom' }).success).toBe(false);
+    expect(McpListGlobalPropertiesInputSchema.safeParse({ timeRange: 'custom', timezone: 'UTC' }).success).toBe(
+      false,
+    );
   });
 });
 
@@ -42,7 +46,7 @@ describe('executeListGlobalProperties', () => {
       { property_key: 'user_type', visitors: 50 },
     ]);
 
-    const result = await executeListGlobalProperties({ timeRange: '7d' }, 'site-1');
+    const result = await executeListGlobalProperties({ timeRange: '7d', timezone: 'UTC' }, 'site-1');
 
     expect(getKeys).toHaveBeenCalledOnce();
     expect(getValues).not.toHaveBeenCalled();
@@ -58,7 +62,10 @@ describe('executeListGlobalProperties', () => {
       { property_key: 'plan', value: 'free', visitors: 20 },
     ]);
 
-    const result = await executeListGlobalProperties({ timeRange: '7d', key: 'gp.plan' }, 'site-1');
+    const result = await executeListGlobalProperties(
+      { timeRange: '7d', timezone: 'UTC', key: 'gp.plan' },
+      'site-1',
+    );
 
     expect(getValues).toHaveBeenCalledOnce();
     expect(getValues.mock.calls[0][1]).toEqual(['plan']);
@@ -75,7 +82,10 @@ describe('executeListGlobalProperties', () => {
       Array.from({ length: 20 }, (_, i) => ({ property_key: 'plan', value: `value-${i}`, visitors: 20 - i })),
     );
 
-    const result = await executeListGlobalProperties({ timeRange: '7d', key: 'gp.plan' }, 'site-1');
+    const result = await executeListGlobalProperties(
+      { timeRange: '7d', timezone: 'UTC', key: 'gp.plan' },
+      'site-1',
+    );
 
     expect(result).toMatchObject({ truncated: true });
   });
@@ -83,7 +93,10 @@ describe('executeListGlobalProperties', () => {
   it('adds a guidance note when a valid key has no recorded values', async () => {
     getValues.mockResolvedValue([]);
 
-    const result = await executeListGlobalProperties({ timeRange: '7d', key: 'gp.plan' }, 'site-1');
+    const result = await executeListGlobalProperties(
+      { timeRange: '7d', timezone: 'UTC', key: 'gp.plan' },
+      'site-1',
+    );
 
     expect(result).toMatchObject({ column: 'gp.plan', values: [], truncated: false });
     expect(result.note).toContain('No values recorded');
@@ -92,15 +105,15 @@ describe('executeListGlobalProperties', () => {
   it('accepts a key without the gp. prefix', async () => {
     getValues.mockResolvedValue([]);
 
-    await executeListGlobalProperties({ timeRange: '7d', key: 'plan' }, 'site-1');
+    await executeListGlobalProperties({ timeRange: '7d', timezone: 'UTC', key: 'plan' }, 'site-1');
 
     expect(getValues.mock.calls[0][1]).toEqual(['plan']);
   });
 
   it('rejects an invalid key without querying the repository', async () => {
-    await expect(executeListGlobalProperties({ timeRange: '7d', key: 'gp.' }, 'site-1')).rejects.toThrow(
-      'Invalid global property key',
-    );
+    await expect(
+      executeListGlobalProperties({ timeRange: '7d', timezone: 'UTC', key: 'gp.' }, 'site-1'),
+    ).rejects.toThrow('Invalid global property key');
 
     expect(getValues).not.toHaveBeenCalled();
     expect(getKeys).not.toHaveBeenCalled();

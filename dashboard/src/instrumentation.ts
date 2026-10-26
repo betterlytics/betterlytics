@@ -1,7 +1,6 @@
 export async function register() {
   await registerOpenTelemetry();
   await registerRetiredRetentionEnvWarning();
-  await registerAuthBootstrap();
   await registerTelemetryNotice();
   await registerBackgroundJobs();
 }
@@ -30,17 +29,6 @@ async function registerRetiredRetentionEnvWarning() {
       `[instrumentation] DATA_RETENTION_DAYS=${value} is ignored. Retention is set per dashboard under Settings > Data. ` +
         'It was carried over once, on upgrade, as the minimum retention of every dashboard. Remove DATA_RETENTION_DAYS from .env.',
     );
-  }
-}
-
-async function registerAuthBootstrap() {
-  if (process.env.NEXT_RUNTIME === 'nodejs') {
-    try {
-      const { resetLegacyTwoFactor } = await import('@/services/auth/bootstrap.service');
-      await resetLegacyTwoFactor();
-    } catch (error) {
-      console.error('[instrumentation] Auth bootstrap failed:', error);
-    }
   }
 }
 
