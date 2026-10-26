@@ -40,15 +40,18 @@ export function isReservedPublicSlug(slug: string): boolean {
   return RESERVED_PUBLIC_SLUGS.has(slug) || RESERVED_PUBLIC_SLUG_PREFIX.test(slug);
 }
 
-export const PublicSlugFormatSchema = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .min(PUBLIC_SLUG_LIMITS.MIN)
-  .max(PUBLIC_SLUG_LIMITS.MAX)
-  .regex(PUBLIC_SLUG_REGEX, 'Only lowercase letters, digits and single hyphens');
+function withSlugFormat(schema: z.ZodString) {
+  return schema
+    .min(PUBLIC_SLUG_LIMITS.MIN)
+    .max(PUBLIC_SLUG_LIMITS.MAX)
+    .regex(PUBLIC_SLUG_REGEX, 'Only lowercase letters, digits and single hyphens');
+}
 
-export const PublicSlugSchema = PublicSlugFormatSchema.refine(
+/** Strict: uppercase or surrounding whitespace is refused, not normalized. */
+export const PublicSlugFormatSchema = withSlugFormat(z.string());
+
+/** Status pages normalize case and whitespace before validating. */
+export const PublicSlugSchema = withSlugFormat(z.string().trim().toLowerCase()).refine(
   (slug) => !isReservedPublicSlug(slug),
   'This slug is reserved',
 );

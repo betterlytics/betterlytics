@@ -134,6 +134,8 @@ describe('checkPublicDashboardSlug', () => {
   it.each([
     ['ab', 'invalid'],
     ['my--site', 'invalid'],
+    ['Mixed-Case', 'invalid'],
+    [' spaced-slug ', 'invalid'],
     ['admin', 'reserved'],
     ['demosite', 'reserved'],
   ])('refuses %s as %s', async (slug, reason) => {
@@ -158,7 +160,7 @@ describe('checkPublicDashboardSlug', () => {
   });
 
   it('accepts a free slug', async () => {
-    await expect(checkPublicDashboardSlug('dash-1', 'My-Site')).resolves.toEqual({
+    await expect(checkPublicDashboardSlug('dash-1', 'my-site')).resolves.toEqual({
       available: true,
       slug: 'my-site',
     });
@@ -213,6 +215,8 @@ describe('setPublicDashboardVisibility', () => {
 describe('setPublicDashboardSlug', () => {
   it.each([
     ['ab', 'publicDashboardSlugInvalid'],
+    ['Mixed-Case', 'publicDashboardSlugInvalid'],
+    [' spaced-slug ', 'publicDashboardSlugInvalid'],
     ['status', 'publicDashboardSlugReserved'],
     ['demo-x', 'publicDashboardSlugReserved'],
   ])('refuses %s with a reason', async (slug, reason) => {

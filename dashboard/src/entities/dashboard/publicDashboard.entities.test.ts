@@ -12,10 +12,6 @@ describe('public dashboard slug rules', () => {
     expect(isReservedPublicDashboardSlug(slug)).toBe(false);
   });
 
-  it('normalizes case and surrounding whitespace', () => {
-    expect(PublicSlugFormatSchema.parse('  My-Site ')).toBe('my-site');
-  });
-
   it.each([
     ['too short', 'ab'],
     ['too long', 'x'.repeat(64)],
@@ -26,6 +22,8 @@ describe('public dashboard slug rules', () => {
     ['dot', 'my.site'],
     ['non-ascii', 'café'],
     ['empty', ''],
+    ['uppercase', 'Mixed-Case'],
+    ['surrounding whitespace', ' spaced-slug '],
   ])('rejects %s', (_label, slug) => {
     expect(PublicSlugFormatSchema.safeParse(slug).success).toBe(false);
   });
@@ -43,6 +41,7 @@ describe('PublicSlugSchema (status pages)', () => {
     expect(PublicSlugSchema.safeParse('demo-site').success).toBe(false);
     expect(PublicSlugSchema.safeParse('share').success).toBe(false);
     expect(PublicSlugSchema.safeParse('demosite').success).toBe(true);
+    expect(PublicSlugSchema.parse('  My-Site ')).toBe('my-site');
   });
 });
 
