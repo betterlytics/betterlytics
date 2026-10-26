@@ -1965,7 +1965,7 @@
         "leadUp": {
           "unit": "min",
           "label": "Replay lead-up",
-          "body": "Keep the two minutes before an error as a replay, even for visits you don't normally record."
+          "body": "Keep up to two minutes before an error as a replay, even for visits you don't normally record."
         },
         "extensions": {
           "unit": "extension errors",
@@ -2143,7 +2143,7 @@
           },
           "replay": {
             "q": "How does it work with session replay?",
-            "a": "If a visit with an error was recorded, the error links to its replay, with a red marker at each error on the timeline. You can also keep the two minutes before every error as a replay, even for visits session replay wouldn't otherwise record."
+            "a": "If a visit with an error was recorded, the error links to its replay, with a red marker at each error on the timeline. You can also keep up to two minutes before every error as a replay, even for visits session replay wouldn't otherwise record."
           }
         }
       },

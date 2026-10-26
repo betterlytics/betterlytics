@@ -1965,7 +1965,7 @@
         "leadUp": {
           "unit": "min",
           "label": "Replay pre-errore",
-          "body": "Conserva i due minuti prima di un errore come replay, anche per le visite che di solito non registri."
+          "body": "Conserva fino a due minuti prima di un errore come replay, anche per le visite che di solito non registri."
         },
         "extensions": {
           "unit": "errori da estensioni",
@@ -2143,7 +2143,7 @@
           },
           "replay": {
             "q": "Come funziona con il session replay?",
-            "a": "Se una visita con un errore è stata registrata, l’errore rimanda al suo replay, con un indicatore rosso per ogni errore nella cronologia. Puoi inoltre conservare i due minuti prima di ogni errore come replay, anche per le visite che il session replay non registrerebbe."
+            "a": "Se una visita con un errore è stata registrata, l’errore rimanda al suo replay, con un indicatore rosso per ogni errore nella cronologia. Puoi inoltre conservare fino a due minuti prima di ogni errore come replay, anche per le visite che il session replay non registrerebbe."
           }
         }
       },

@@ -1965,7 +1965,7 @@
         "leadUp": {
           "unit": "min",
           "label": "Opptak før feil",
-          "body": "Behold de to minuttene før en feil som et opptak, også for besøk du vanligvis ikke tar opp."
+          "body": "Behold opptil to minutter før en feil som et opptak, også for besøk du vanligvis ikke tar opp."
         },
         "extensions": {
           "unit": "feil fra utvidelser",
@@ -2143,7 +2143,7 @@
           },
           "replay": {
             "q": "Hvordan fungerer det sammen med sesjonsavspilling?",
-            "a": "Hvis et besøk med en feil ble tatt opp, lenker feilen til opptaket, med en rød markør ved hver feil på tidslinjen. Du kan dessuten beholde de to minuttene før hver feil som et opptak, også for besøk som sesjonsavspillingen ellers ikke ville ta opp."
+            "a": "Hvis et besøk med en feil ble tatt opp, lenker feilen til opptaket, med en rød markør ved hver feil på tidslinjen. Du kan dessuten beholde opptil to minutter før hver feil som et opptak, også for besøk som sesjonsavspillingen ellers ikke ville ta opp."
           }
         }
       },

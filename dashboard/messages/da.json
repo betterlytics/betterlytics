@@ -1965,7 +1965,7 @@
         "leadUp": {
           "unit": "min",
           "label": "Replay-optakt",
-          "body": "Gem de to minutter før en fejl som et replay, også for besøg, du normalt ikke optager."
+          "body": "Gem op til to minutter før en fejl som et replay, også for besøg, du normalt ikke optager."
         },
         "extensions": {
           "unit": "udvidelsesfejl",
@@ -2143,7 +2143,7 @@
           },
           "replay": {
             "q": "Hvordan spiller det sammen med session replay?",
-            "a": "Hvis et besøg med en fejl blev optaget, linker fejlen til replayet, med en rød markør ved hver fejl på tidslinjen. Du kan desuden gemme de to minutter før hver fejl som et replay, også for besøg, som session replay ellers ikke ville optage."
+            "a": "Hvis et besøg med en fejl blev optaget, linker fejlen til replayet, med en rød markør ved hver fejl på tidslinjen. Du kan desuden gemme op til to minutter før hver fejl som et replay, også for besøg, som session replay ellers ikke ville optage."
           }
         }
       },
