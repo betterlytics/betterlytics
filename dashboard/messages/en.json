@@ -2127,7 +2127,7 @@
           },
           "grouped": {
             "q": "How are errors grouped?",
-            "a": "By the error type and the top five frames of the stack trace: the function, the file and the line. Column numbers, domains and query strings are ignored, so the same bug stays in one group even when its message changes. Errors without a stack trace are grouped by type and message. If a release renames your script files or moves the line, the bug starts a new group."
+            "a": "Every occurrence of the same bug lands in one group with a running count, so each bug shows up once in your list instead of every time a visitor hits it. Two errors count as the same bug when they share their type and the top five frames of the stack trace: the function, the file and the line. Column numbers, domains and query strings are ignored, so a bug stays in one group even when its message changes. Errors without a stack trace are grouped by type and message."
           },
           "sourcemaps": {
             "q": "Do you support source maps?",

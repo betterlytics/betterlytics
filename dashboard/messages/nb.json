@@ -2127,7 +2127,7 @@
           },
           "grouped": {
             "q": "Hvordan grupperes feil?",
-            "a": "Etter feiltypen og de fem øverste frames i stacken: funksjonen, filen og linjen. Kolonnenumre, domener og query strings ignoreres, så samme bug blir værende i én gruppe selv om meldingen endrer seg. Feil uten stack trace grupperes etter type og melding. Hvis en ny versjon gir skriptfilene dine nye navn eller flytter linjen, havner bugen i en ny gruppe."
+            "a": "Alle forekomster av samme bug havner i én gruppe med en løpende telling, så hver bug bare står én gang i listen din i stedet for å dukke opp hver gang en besøkende støter på den. To feil regnes som samme bug når de har samme type og de samme fem øverste frames i stacken: funksjonen, filen og linjen. Kolonnenumre, domener og query strings ignoreres, så en bug blir værende i én gruppe selv om meldingen endrer seg. Feil uten stack trace grupperes etter type og melding."
           },
           "sourcemaps": {
             "q": "Støtter dere source maps?",

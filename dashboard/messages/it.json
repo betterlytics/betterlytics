@@ -2127,7 +2127,7 @@
           },
           "grouped": {
             "q": "Come vengono raggruppati gli errori?",
-            "a": "In base al tipo di errore e ai primi cinque frame dello stack trace: funzione, file e riga. Numeri di colonna, domini e query string vengono ignorati, così lo stesso bug resta in un unico gruppo anche quando il messaggio cambia. Gli errori senza stack trace vengono raggruppati per tipo e messaggio. Se una release rinomina i file dei tuoi script o sposta la riga, il bug finisce in un nuovo gruppo."
+            "a": "Tutte le occorrenze dello stesso bug finiscono in un unico gruppo con un conteggio progressivo, così ogni bug compare una sola volta nella tua lista anziché ogni volta che un visitatore lo incontra. Due errori contano come lo stesso bug quando hanno lo stesso tipo e gli stessi primi cinque frame dello stack trace: funzione, file e riga. Numeri di colonna, domini e query string vengono ignorati, così un bug resta in un unico gruppo anche quando il messaggio cambia. Gli errori senza stack trace vengono raggruppati per tipo e messaggio."
           },
           "sourcemaps": {
             "q": "Supportate le source map?",
