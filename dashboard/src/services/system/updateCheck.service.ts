@@ -8,9 +8,8 @@ import {
   resolveUpdateCheckPolicy,
 } from '@/lib/update-check-policy';
 
+// Failed checks are cached for the same day, so an air-gapped host sends at most one request a day
 const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
-// Shorter after a failure, so an air-gapped host doesn't wait a day after GitHub comes back nor retry every page load
-const RETRY_AFTER_FAILURE_MS = 60 * 60 * 1000;
 const CHECK_TIMEOUT_MS = 3000;
 
 type UpdateCheckState = {
@@ -36,8 +35,8 @@ export async function getAvailableUpdate(): Promise<AvailableUpdate | null> {
   if (state.entry && Date.now() < state.entry.expiresAt) return state.entry.update;
 
   state.inflight ??= fetchAvailableUpdate()
-    .then(({ update, ok }) => {
-      state.entry = { update, expiresAt: Date.now() + (ok ? CHECK_INTERVAL_MS : RETRY_AFTER_FAILURE_MS) };
+    .then((update) => {
+      state.entry = { update, expiresAt: Date.now() + CHECK_INTERVAL_MS };
       return update;
     })
     .finally(() => {
@@ -47,7 +46,7 @@ export async function getAvailableUpdate(): Promise<AvailableUpdate | null> {
   return state.inflight;
 }
 
-async function fetchAvailableUpdate(): Promise<{ update: AvailableUpdate | null; ok: boolean }> {
+async function fetchAvailableUpdate(): Promise<AvailableUpdate | null> {
   try {
     const response = await fetch(UPDATE_CHECK_LATEST_RELEASE_URL, {
       headers: {
@@ -57,9 +56,9 @@ async function fetchAvailableUpdate(): Promise<{ update: AvailableUpdate | null;
       cache: 'no-store',
       signal: AbortSignal.timeout(CHECK_TIMEOUT_MS),
     });
-    if (!response.ok) return { update: null, ok: false };
-    return { update: resolveAvailableUpdate(await response.json(), env.APP_VERSION), ok: true };
+    if (!response.ok) return null;
+    return resolveAvailableUpdate(await response.json(), env.APP_VERSION);
   } catch {
-    return { update: null, ok: false };
+    return null;
   }
 }

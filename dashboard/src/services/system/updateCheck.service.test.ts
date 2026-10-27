@@ -81,16 +81,16 @@ describe('getAvailableUpdate', () => {
     ['a network error', () => Promise.reject(new TypeError('fetch failed'))],
     ['a rate limit', async () => new Response('{}', { status: 403 })],
     ['invalid JSON', async () => new Response('not json', { status: 200 })],
-  ])('shows nothing after %s and retries an hour later', async (_label, impl) => {
+  ])('shows nothing after %s and waits a day before retrying', async (_label, impl) => {
     fetchMock.mockImplementation(impl);
     await expect(getAvailableUpdate()).resolves.toBeNull();
 
-    vi.setSystemTime(NOW.getTime() + 30 * 60 * 1000);
+    vi.setSystemTime(NOW.getTime() + 23 * HOUR_MS);
     await getAvailableUpdate();
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     fetchMock.mockImplementation(async () => releaseResponse('v1.6.0'));
-    vi.setSystemTime(NOW.getTime() + HOUR_MS + 1);
+    vi.setSystemTime(NOW.getTime() + 24 * HOUR_MS + 1);
     await expect(getAvailableUpdate()).resolves.toMatchObject({ version: 'v1.6.0' });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
