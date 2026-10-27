@@ -338,11 +338,12 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
 
   const displayValue = isExpired ? tSsl('expired') : sslTimeRemaining ? String(sslTimeRemaining.value) : '—';
 
-  const unitLabel = sslTimeRemaining
-    ? sslTimeRemaining.unit === 'hours'
-      ? t('hoursLeft', { count: sslTimeRemaining.value })
-      : t('daysLeft', { count: sslTimeRemaining.value })
-    : null;
+  const unitLabel =
+    sslTimeRemaining && !isExpired
+      ? sslTimeRemaining.unit === 'hours'
+        ? t('hoursLeft', { count: sslTimeRemaining.value })
+        : t('daysLeft', { count: sslTimeRemaining.value })
+      : null;
 
   return (
     <SummaryCard
@@ -372,9 +373,9 @@ function SslCard({ tls, isDisabled, isHttpSite, onEnableClick }: SslCardProps) {
         >
           {displayValue}
         </p>
-        {!isDisabled && unitLabel && (
+        {!isDisabled && (unitLabel || (isExpired && expiresLabel)) && (
           <div className='flex flex-col gap-0.5 text-xs leading-tight sm:text-sm'>
-            <p className='text-foreground font-semibold capitalize'>{unitLabel}</p>
+            {unitLabel && <p className='text-foreground font-semibold capitalize'>{unitLabel}</p>}
             {expiresLabel && (
               <p className='text-muted-foreground font-medium'>{t('expires', { date: expiresLabel })}</p>
             )}
