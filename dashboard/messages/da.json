@@ -3366,7 +3366,6 @@
           "passwordPromptDescription": "Indtast din adgangskode for at fortsætte.",
           "passwordLabel": "Adgangskode",
           "incorrectPassword": "Forkert adgangskode",
-          "invalidCode": "Koden virkede ikke. Tjek din authenticator-app, og prøv igen.",
           "backupCodesTitle": "Backup-koder",
           "backupCodesDescription": "Gem disse engangskoder et sikkert sted. De giver dig adgang, hvis du mister din authenticator.",
           "copyCodes": "Kopiér",

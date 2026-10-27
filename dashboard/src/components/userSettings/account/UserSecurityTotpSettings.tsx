@@ -31,14 +31,17 @@ import { useTranslations } from 'next-intl';
 
 const TOTP_LENGTH = 6;
 
-function useTotpErrorMessage() {
+type TotpError = { message: string; invalid: boolean };
+
+function useTotpError() {
   const t = useTranslations('components.userSettings.security.totp');
+  const tSignin = useTranslations('public.auth.signin');
   const authErrorMessage = useAuthErrorMessage();
 
-  return (error: AuthClientError, fallback: string) => {
-    if (error.code === 'INVALID_CODE') return t('invalidCode');
-    if (error.code === 'INVALID_PASSWORD') return t('incorrectPassword');
-    return authErrorMessage(error) ?? fallback;
+  return (error: AuthClientError | null, fallback: string): TotpError => {
+    if (error?.code === 'INVALID_CODE') return { message: tSignin('errors.invalidOtp'), invalid: true };
+    if (error?.code === 'INVALID_PASSWORD') return { message: t('incorrectPassword'), invalid: true };
+    return { message: (error && authErrorMessage(error)) ?? fallback, invalid: false };
   };
 }
 
@@ -52,16 +55,15 @@ function PasswordField({
   id: string;
   value: string;
   onChange: (value: string) => void;
-  error: string | null;
+  error: TotpError | null;
   disabled: boolean;
 }) {
   const t = useTranslations('components.userSettings.security.totp');
   const inputRef = useRef<HTMLInputElement>(null);
   const errorId = `${id}-error`;
 
-  // a rejected password stays in the field, selected, so retyping overwrites it
   useEffect(() => {
-    if (!error || disabled) return;
+    if (!error?.invalid || disabled) return;
     inputRef.current?.focus();
     inputRef.current?.select();
   }, [error, disabled]);
@@ -73,16 +75,17 @@ function PasswordField({
         ref={inputRef}
         id={id}
         type='password'
+        autoComplete='current-password'
         required
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        aria-invalid={error ? true : undefined}
+        aria-invalid={error?.invalid || undefined}
         aria-describedby={error ? errorId : undefined}
       />
       {error && (
-        <p id={errorId} className='text-destructive text-sm'>
-          {error}
+        <p id={errorId} role='alert' className='text-destructive text-sm'>
+          {error.message}
         </p>
       )}
     </div>
@@ -154,8 +157,8 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
   const [totpUrl, setTotpUrl] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const errorMessage = useTotpErrorMessage();
+  const [error, setError] = useState<TotpError | null>(null);
+  const toTotpError = useTotpError();
   const { copied: totpSecretCopied, copy: copySecret } = useCopy({ failedMessage: t('copyFailed') });
   const [isPending, startTransition] = useTransition();
 
@@ -178,15 +181,15 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
     setError(null);
     startTransition(async () => {
       try {
-        const { data, error } = await authClient.twoFactor.enable({ password });
-        if (error || !data) {
-          setError(error ? errorMessage(error, t('setupFailed')) : t('setupFailed'));
+        const { data, error: enableError } = await authClient.twoFactor.enable({ password });
+        if (enableError || !data) {
+          setError(toTotpError(enableError, t('setupFailed')));
           return;
         }
         setTotpUrl(data.totpURI);
         setBackupCodes(data.backupCodes);
       } catch {
-        setError(t('setupFailed'));
+        setError(toTotpError(null, t('setupFailed')));
       }
     });
   };
@@ -195,9 +198,9 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
     setError(null);
     startTransition(async () => {
       try {
-        const { error } = await authClient.twoFactor.verifyTotp({ code });
-        if (error) {
-          setError(errorMessage(error, t('enableFailed')));
+        const { error: verifyError } = await authClient.twoFactor.verifyTotp({ code });
+        if (verifyError) {
+          setError(toTotpError(verifyError, t('enableFailed')));
           return;
         }
         // The session refetch unmounts this component, so the parent takes over the codes
@@ -205,7 +208,7 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
         await refreshSession();
         toast.success(t('enabledSuccess'));
       } catch {
-        setError(t('enableFailed'));
+        setError(toTotpError(null, t('enableFailed')));
       }
     });
   };
@@ -223,7 +226,7 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
 
   // A rejected code is cleared for the retry only once its error is on screen
   useEffect(() => {
-    if (!error || isPending || !totpUrl) return;
+    if (!error?.invalid || isPending || !totpUrl) return;
     setTotp('');
     totpInputRef.current?.focus();
   }, [error, isPending, totpUrl]);
@@ -311,13 +314,13 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
                     disabled={isPending}
                     ref={totpInputRef}
                     inputProps={{
-                      'aria-invalid': error ? true : undefined,
+                      'aria-invalid': error?.invalid || undefined,
                       'aria-describedby': error ? 'totp-setup-code-error' : undefined,
                     }}
                   />
                   {error && (
-                    <p id='totp-setup-code-error' className='text-destructive text-sm'>
-                      {error}
+                    <p id='totp-setup-code-error' role='alert' className='text-destructive text-sm'>
+                      {error.message}
                     </p>
                   )}
                 </div>
@@ -327,7 +330,11 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
                 <AlertDialogCancel disabled={isPending} className='cursor-pointer'>
                   {t('cancel')}
                 </AlertDialogCancel>
-                <Button type='submit' disabled={isPending || totp.length !== TOTP_LENGTH} className='cursor-pointer'>
+                <Button
+                  type='submit'
+                  disabled={isPending || totp.length !== TOTP_LENGTH}
+                  className='cursor-pointer'
+                >
                   {isPending ? <Loader2 className='h-4 w-4 animate-spin' /> : t('confirm')}
                 </Button>
               </AlertDialogFooter>
@@ -344,8 +351,8 @@ function RegenerateBackupCodes() {
   const [password, setPassword] = useState('');
   const [codes, setCodes] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const errorMessage = useTotpErrorMessage();
+  const [error, setError] = useState<TotpError | null>(null);
+  const toTotpError = useTotpError();
   const [isPending, startTransition] = useTransition();
 
   const handleDialogOpenChange = (open: boolean) => {
@@ -361,14 +368,14 @@ function RegenerateBackupCodes() {
     setError(null);
     startTransition(async () => {
       try {
-        const { data, error } = await authClient.twoFactor.generateBackupCodes({ password });
-        if (error || !data) {
-          setError(error ? errorMessage(error, t('regenerateFailed')) : t('regenerateFailed'));
+        const { data, error: regenerateError } = await authClient.twoFactor.generateBackupCodes({ password });
+        if (regenerateError || !data) {
+          setError(toTotpError(regenerateError, t('regenerateFailed')));
           return;
         }
         setCodes(data.backupCodes);
       } catch {
-        setError(t('regenerateFailed'));
+        setError(toTotpError(null, t('regenerateFailed')));
       }
     });
   };
@@ -418,8 +425,8 @@ function DisableTotp() {
   const { refreshSession } = useSessionRefresh();
   const [password, setPassword] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const errorMessage = useTotpErrorMessage();
+  const [error, setError] = useState<TotpError | null>(null);
+  const toTotpError = useTotpError();
   const [isPending, startTransition] = useTransition();
 
   const handleDialogOpenChange = (open: boolean) => {
@@ -436,9 +443,9 @@ function DisableTotp() {
     setError(null);
     startTransition(async () => {
       try {
-        const { error } = await authClient.twoFactor.disable({ password });
-        if (error) {
-          setError(errorMessage(error, t('disableFailed')));
+        const { error: disableError } = await authClient.twoFactor.disable({ password });
+        if (disableError) {
+          setError(toTotpError(disableError, t('disableFailed')));
           return;
         }
         await refreshSession();
@@ -446,7 +453,7 @@ function DisableTotp() {
         setPassword('');
         toast.success(t('disabledSuccess'));
       } catch {
-        setError(t('disableFailed'));
+        setError(toTotpError(null, t('disableFailed')));
       }
     });
   };

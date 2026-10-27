@@ -3366,7 +3366,6 @@
           "passwordPromptDescription": "Skriv inn passordet ditt for å fortsette.",
           "passwordLabel": "Passord",
           "incorrectPassword": "Feil passord",
-          "invalidCode": "Koden fungerte ikke. Sjekk autentiseringsappen din og prøv igjen.",
           "backupCodesTitle": "Reservekoder",
           "backupCodesDescription": "Oppbevar disse engangskodene på et trygt sted. De lar deg logge inn hvis du mister autentiseringsappen.",
           "copyCodes": "Kopier",
