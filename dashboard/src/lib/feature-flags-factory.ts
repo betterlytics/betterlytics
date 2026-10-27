@@ -6,6 +6,7 @@ type FeatureFlagEnvironmentKeys =
   | 'ENABLE_EMAILS'
   | 'ENABLE_UPTIME_MONITORING'
   | 'ENABLE_PUBLIC_STATUS_PAGES'
+  | 'ENABLE_PUBLIC_DASHBOARDS'
   | 'ALLOW_PRIVATE_TARGETS';
 export type FeatureFlagEnvironment = {
   [K in FeatureFlagEnvironmentKeys]: (typeof env)[K];
@@ -21,6 +22,7 @@ export function createFeatureFlags(environment: FeatureFlagEnvironment) {
     enableEmails: environment.ENABLE_EMAILS,
     enableUptimeMonitoring: environment.ENABLE_UPTIME_MONITORING,
     enablePublicStatusPages: environment.ENABLE_UPTIME_MONITORING && environment.ENABLE_PUBLIC_STATUS_PAGES,
+    enablePublicDashboards: environment.ENABLE_PUBLIC_DASHBOARDS,
     allowPrivateTargets: !environment.PUBLIC_IS_CLOUD && environment.ALLOW_PRIVATE_TARGETS,
   } as const;
 }

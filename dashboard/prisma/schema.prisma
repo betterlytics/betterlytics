@@ -217,6 +217,12 @@ model Dashboard {
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
 
+  isPublic Boolean @default(false)
+  // Uniqueness is enforced by a partial unique index (publicSlug WHERE deletedAt IS NULL) created
+  // in the migration, so deleting a dashboard frees its slug. Never use findUnique({ where: { publicSlug } }).
+  publicSlug String?
+  publicEnabledPages String[] @default(["overview"])
+
   userAccess UserDashboard[]
   funnels Funnel[]
   savedFilters SavedFilter[]
