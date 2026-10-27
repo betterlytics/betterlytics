@@ -8421,6 +8421,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       errorFlushPending: false,
       rageBurst: null,
       rageTimer: null,
+      // First page recorded in this page load; every segment reports it as the replay's start URL
+      startUrl: null,
     };
 
     var config = {
@@ -8453,7 +8455,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         "site_id=" +
         encodeURIComponent(siteId) +
         "&url=" +
-        encodeURIComponent(normalizePageUrl(window.location.href)) +
+        encodeURIComponent(state.startUrl || normalizePageUrl(window.location.href)) +
         "&screen_resolution=" +
         window.screen.width +
         "x" +
@@ -8735,6 +8737,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (state.rageBurst) emitRageBurst(state.rageBurst);
       var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
       if (events.length === 0) return Promise.resolve();
+      // The ring buffer drops its oldest pages; start the replay at the checkout Meta that opens it
+      if (events[0].type === 4) state.startUrl = events[0].data.href;
       state.errorMatrix = [[]];
 
       var sizes = events.map(function (e) {
@@ -8758,6 +8762,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function notifyError(errorType, errorExceptionsJson) {
+      // Recording is stopped here, so an upload would hold no error marker
+      if (!isReplayEnabledOnPage()) return;
       try {
         if (window.rrweb && typeof window.rrweb.record.addCustomEvent === "function") {
           var parsed = null;
@@ -8959,7 +8965,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function startRecording() {
-      if (!window.rrweb || state.initialized || state.disabled) {
+      // A deferred start can land after an in-app move to a page with replay turned off
+      if (!window.rrweb || state.initialized || state.disabled || !isReplayEnabledOnPage()) {
         return;
       }
 
@@ -9018,6 +9025,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           mouseInteraction: true,
         },
       });
+      if (!state.startUrl) state.startUrl = normalizePageUrl(window.location.href);
       emitReplayPageview(window.location.href, false);
       if (isSampledRecording) {
         startFlushLoop();
