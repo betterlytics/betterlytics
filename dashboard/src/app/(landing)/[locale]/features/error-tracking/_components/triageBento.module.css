@@ -89,7 +89,7 @@
   .copy {
     padding: 34px 38px 38px;
     @variant max-sm {
-      padding: 28px var(--pad) 32px;
+      padding: 34px var(--pad) 32px;
     }
   }
   .copy p {
