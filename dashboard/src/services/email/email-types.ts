@@ -11,6 +11,7 @@ import { createTwoFactorDisabledEmailTemplate } from '@/services/email/template/
 import { createCreateSiteNudgeEmailTemplate } from '@/services/email/template/create-site-nudge-mail';
 import { createSetupHelpEmailTemplate } from '@/services/email/template/setup-help-mail';
 import { createFirstVisitorDetectedEmailTemplate } from '@/services/email/template/first-visitor-detected-mail';
+import { createTrackingSilentEmailTemplate } from '@/services/email/template/tracking-silent-mail';
 import type { EmailTemplate } from '@/services/email/types';
 import type { EmailTransportConfig } from '@/services/email/transport';
 import { createSubscriptionEndingSoonEmailTemplate } from './template/subscription-ending-soon-mail';
@@ -131,6 +132,11 @@ export const EMAIL_TYPES = {
   },
   'first-visitor-detected': {
     template: createFirstVisitorDetectedEmailTemplate,
+    saasOnly: true,
+    retry: DEFAULT_RETRY,
+  },
+  'tracking-silent': {
+    template: createTrackingSilentEmailTemplate,
     saasOnly: true,
     retry: DEFAULT_RETRY,
   },
