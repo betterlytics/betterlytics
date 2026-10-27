@@ -2035,7 +2035,7 @@
         "cta": "Read the dashboard guide",
         "items": {
           "status": {
-            "title": "Resolve, ignore, reopen",
+            "title": "Resolve, ignore, unresolve",
             "body": "Resolve what's fixed and ignore what doesn't matter, so the list only shows the bugs that still need work."
           },
           "history": {
@@ -2092,7 +2092,6 @@
           }
         },
         "snippetLabel": "Error tracking setup",
-        "consentTab": "Consent",
         "cta": "Read the setup guide"
       },
       "related": {

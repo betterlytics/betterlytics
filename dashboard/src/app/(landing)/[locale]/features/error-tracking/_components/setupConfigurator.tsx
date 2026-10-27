@@ -1,7 +1,6 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { ShieldCheck } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { SnippetPanel } from '@/landing/components/sections/snippetPanel';
 import { buttonStyles } from '@/landing/components/ui/button';
@@ -19,8 +18,8 @@ const OPTIONS = {
   replay: { attr: 'data-replay-on-error', npm: 'replayOnError' },
 } as const satisfies Record<Option, { attr: string; npm: string }>;
 
-/** Replay waits for the site's go-ahead, so turning it on adds a tab showing both ways to give it. */
-function buildSnippets(on: Record<Option, boolean>, consentTab: string): Snippet[] {
+/** Replay waits for the site's go-ahead. The consent call stays a comment, since run here it would fire before the script has loaded. */
+function buildSnippets(on: Record<Option, boolean>): Snippet[] {
   const picked = (Object.keys(OPTIONS) as Option[]).filter((key) => on[key]);
   const attrs = ['data-track-errors', ...picked.map((key) => OPTIONS[key].attr)];
   const npm = ['trackErrors', ...picked.map((key) => OPTIONS[key].npm)];
@@ -36,6 +35,14 @@ function buildSnippets(on: Record<Option, boolean>, consentTab: string): Snippet
         '  data-site-id="YOUR_SITE_ID"',
         ...attrs.map((attr, i) => `+  ${attr}="true"${i === attrs.length - 1 ? '>' : ''}`),
         '</script>',
+        ...(on.replay
+          ? [
+              '',
+              '+<!-- after the script loads, when your consent banner resolves: -->',
+              '+<!-- window.betterlytics.setReplayConsent(true) -->',
+              '+<!-- no consent needed? add data-consent-replay="true" instead -->',
+            ]
+          : []),
       ].join('\n'),
     },
     {
@@ -47,22 +54,16 @@ function buildSnippets(on: Record<Option, boolean>, consentTab: string): Snippet
         "betterlytics.init('YOUR_SITE_ID', {",
         ...npm.map((name) => `+  ${name}: true,`),
         '})',
+        ...(on.replay
+          ? [
+              '',
+              '+// after the script loads, when your consent banner resolves:',
+              '+// window.betterlytics.setReplayConsent(true)',
+              '+// no consent needed? pass consentReplay: true instead',
+            ]
+          : []),
       ].join('\n'),
     },
-    ...(on.replay
-      ? [
-          {
-            id: 'consent',
-            name: consentTab,
-            file: 'consent.js',
-            glyph: <ShieldCheck className='size-[13px] opacity-80' aria-hidden />,
-            code: `// when your consent banner resolves
-+window.betterlytics?.setReplayConsent?.(true)
-
-// no consent needed? set data-consent-replay="true" on the script tag instead`,
-          },
-        ]
-      : []),
   ];
 }
 
@@ -121,7 +122,7 @@ export function SetupConfigurator() {
         </div>
       </div>
       <div className='flex min-w-0 bg-hatch p-4.5 max-sm:p-0'>
-        <SnippetPanel snippets={buildSnippets(on, t('consentTab'))} label={t('snippetLabel')} />
+        <SnippetPanel snippets={buildSnippets(on)} label={t('snippetLabel')} />
       </div>
     </div>
   );

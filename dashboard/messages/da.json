@@ -2035,7 +2035,7 @@
         "cta": "Læs guiden til dashboardet",
         "items": {
           "status": {
-            "title": "Løs, ignorér, genåbn",
+            "title": "Løs, ignorér, fjern som løst",
             "body": "Markér rettede fejl som løst, og ignorér dem, der ikke betyder noget, så listen kun viser de bugs, der stadig skal fikses."
           },
           "history": {
@@ -2092,7 +2092,6 @@
           }
         },
         "snippetLabel": "Opsætning af fejlsporing",
-        "consentTab": "Samtykke",
         "cta": "Læs opsætningsguiden"
       },
       "related": {

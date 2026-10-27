@@ -2035,7 +2035,7 @@
         "cta": "Les dashboardguiden",
         "items": {
           "status": {
-            "title": "Løs, ignorer, gjenåpne",
+            "title": "Løs, ignorer, fjern som løst",
             "body": "Merk rettede feil som løst, og ignorer dem som ikke betyr noe, så listen bare viser bugene som fortsatt må fikses."
           },
           "history": {
@@ -2092,7 +2092,6 @@
           }
         },
         "snippetLabel": "Oppsett av feilsporing",
-        "consentTab": "Samtykke",
         "cta": "Les oppsettsguiden"
       },
       "related": {

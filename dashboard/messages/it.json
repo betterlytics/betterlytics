@@ -2035,7 +2035,7 @@
         "cta": "Leggi la guida alla dashboard",
         "items": {
           "status": {
-            "title": "Risolvi, ignora, riapri",
+            "title": "Risolvi, ignora, segna come non risolto",
             "body": "Segna come risolti gli errori già corretti e ignora quelli che non contano, così la lista mostra solo i bug ancora da sistemare."
           },
           "history": {
@@ -2092,7 +2092,6 @@
           }
         },
         "snippetLabel": "Configurazione del tracciamento errori",
-        "consentTab": "Consenso",
         "cta": "Leggi la guida alla configurazione"
       },
       "related": {
