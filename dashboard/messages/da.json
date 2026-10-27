@@ -2134,7 +2134,7 @@
           },
           "privacy": {
             "q": "Indsamler fejlsporing persondata?",
-            "a": "Fejlsporing bruger ingen cookies, ligesom resten af Betterlytics, og query strings fjernes fra side- og script-URL’er, før noget bliver gemt. Fejlbeskeder gemmes præcis, som din kode skrev dem, så hold persondata ude af dem, og lad opsamling af console.error være slået fra, hvis dine logs kan indeholde persondata."
+            "a": "Fejlsporing bruger ingen cookies, ligesom resten af Betterlytics. Fejlbeskeder gemmes præcis, som din kode skrev dem, så hold persondata ude af dem, og lad opsamling af console.error være slået fra, hvis dine logs kan indeholde persondata."
           },
           "quota": {
             "q": "Kan et loop, der løber løbsk, bruge alle mine events op?",

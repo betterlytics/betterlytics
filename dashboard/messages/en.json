@@ -2134,7 +2134,7 @@
           },
           "privacy": {
             "q": "Does error tracking collect personal data?",
-            "a": "It uses no cookies, like the rest of Betterlytics, and query strings are cut from page and script URLs before anything is stored. Messages are kept as your code wrote them, so keep personal data out of them, and leave console capture off if your logs can contain it."
+            "a": "It uses no cookies, like the rest of Betterlytics. Messages are kept as your code wrote them, so keep personal data out of them, and leave console capture off if your logs can contain it."
           },
           "quota": {
             "q": "Can a broken loop use up my events?",

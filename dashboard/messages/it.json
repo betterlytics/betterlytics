@@ -2134,7 +2134,7 @@
           },
           "privacy": {
             "q": "Il tracciamento errori raccoglie dati personali?",
-            "a": "Come il resto di Betterlytics, non usa cookie, e le query string vengono rimosse dagli URL di pagine e script prima di salvare qualsiasi cosa. I messaggi vengono conservati così come li ha scritti il tuo codice, quindi tienili privi di dati personali e lascia disattivata la cattura della console se i tuoi log possono contenerne."
+            "a": "Come il resto di Betterlytics, non usa cookie. I messaggi vengono conservati così come li ha scritti il tuo codice, quindi tienili privi di dati personali e lascia disattivata la cattura della console se i tuoi log possono contenerne."
           },
           "quota": {
             "q": "Un loop impazzito può esaurire i miei eventi?",

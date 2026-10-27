@@ -2134,7 +2134,7 @@
           },
           "privacy": {
             "q": "Samler feilsporing inn personopplysninger?",
-            "a": "Den bruker ingen cookies, akkurat som resten av Betterlytics, og query strings fjernes fra side- og skript-URL-er før noe lagres. Meldinger lagres slik koden din skrev dem, så hold personopplysninger unna dem, og la innsamling fra konsollen være av hvis loggene dine kan inneholde slike opplysninger."
+            "a": "Den bruker ingen cookies, akkurat som resten av Betterlytics. Meldinger lagres slik koden din skrev dem, så hold personopplysninger unna dem, og la innsamling fra konsollen være av hvis loggene dine kan inneholde slike opplysninger."
           },
           "quota": {
             "q": "Kan en løpsk løkke bruke opp hendelsene mine?",
