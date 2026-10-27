@@ -118,7 +118,7 @@ function HistoryArt() {
       <div className={styles.split}>
         {SPLIT.map((browser) => (
           <span key={browser.name}>
-            <Image src={browser.icon} alt={browser.name} width={13} height={13} />
+            <Image src={browser.icon} alt='' width={13} height={13} />
             {format(browser.share / 100)}
           </span>
         ))}
