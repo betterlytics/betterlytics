@@ -3162,7 +3162,7 @@
       "table": {
         "path": "Sti",
         "filterByPath": "Filtrer etter {path}",
-        "visitors": "Besøkende",
+        "sessions": "Sesjoner",
         "pageviews": "Sidevisninger",
         "sessionPageviews": "Sidevisninger i økter",
         "bounceRate": "Fluktfrekvens",

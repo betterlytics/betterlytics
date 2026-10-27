@@ -3162,7 +3162,7 @@
       "table": {
         "path": "Percorso",
         "filterByPath": "Filtra per {path}",
-        "visitors": "Visitatori",
+        "sessions": "Sessioni",
         "pageviews": "Visualizzazioni",
         "sessionPageviews": "Visualizzazioni sessione",
         "bounceRate": "Frequenza di rimbalzo",
