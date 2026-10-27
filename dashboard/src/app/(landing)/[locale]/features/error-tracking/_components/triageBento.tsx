@@ -256,7 +256,7 @@ function OccurrenceArt() {
   );
 }
 
-export function TriageBento() {
+export function TriageBento({ titleId }: { titleId: string }) {
   const t = useTranslations('landing.errors.triage');
   return (
     <div className={styles.bento}>
@@ -264,7 +264,7 @@ export function TriageBento() {
         <Heading
           as='h2'
           size='display-2'
-          id='triage-title'
+          id={titleId}
           className='text-[2rem] leading-8 tracking-[-0.05rem] text-pretty'
         >
           <Emphasis text={t('title')} as={Underline} />

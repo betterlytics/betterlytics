@@ -32,6 +32,8 @@ const FAQ_KEYS = [
 
 const MCP_SCRIPTS: ScriptKey[] = ['debug', 'triage'];
 
+const TRIAGE_TITLE = 'triage-title';
+
 export function ErrorsPage() {
   const t = useTranslations('landing.errors');
   const tTranscript = useTranslations('landing.illustrations.transcript');
@@ -102,9 +104,9 @@ export function ErrorsPage() {
           <SessionTrail />
         </Panel>
       </Section>
-      <Section id='triage' labelledBy='triage-title'>
+      <Section id='triage' labelledBy={TRIAGE_TITLE}>
         <Panel flush framed>
-          <TriageBento />
+          <TriageBento titleId={TRIAGE_TITLE} />
         </Panel>
       </Section>
       <Section id='mcp' title={t('agent.title')} lede={t('agent.lede')}>
