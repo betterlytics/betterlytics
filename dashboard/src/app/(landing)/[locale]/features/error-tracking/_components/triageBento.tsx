@@ -22,20 +22,10 @@ import { TrackedAnchor } from '@/landing/components/ui/trackedLink';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
 import { LINKS } from '@/landing/lib/links';
+import { HoverNumber } from './hoverNumber';
 import styles from './triageBento.module.css';
 
 /* Mock data, deliberately untranslated. Each art holds a second state that hovering it swaps in. */
-
-function Roll({ from, to }: { from: string; to: string }) {
-  return (
-    <span className={styles.roll}>
-      <span>
-        <span>{from}</span>
-        <span>{to}</span>
-      </span>
-    </span>
-  );
-}
 
 function Swap({ from, to, className }: { from: ReactNode; to: ReactNode; className?: string }) {
   return (
@@ -49,7 +39,9 @@ function Swap({ from, to, className }: { from: ReactNode; to: ReactNode; classNa
 function Cell({ art, title, body }: { art: ReactNode; title: string; body: string }) {
   return (
     <li className={styles.cell}>
-      <InView className={styles.art}>{art}</InView>
+      <InView className={styles.art} data-hover-art>
+        {art}
+      </InView>
       <div className={styles.copy}>
         <Heading as='h3' size='title'>
           {title}
@@ -86,7 +78,7 @@ function StatusArt() {
         ))}
       </div>
       <div className={styles.actionBar}>
-        <span>{t.rich('selected', { count: () => <Roll from='2' to='3' /> })}</span>
+        <span>{t.rich('selected', { count: () => <HoverNumber from={2} to={3} /> })}</span>
         <i />
         <b data-tone='resolve'>{t('resolve')}</b>
         <b>{t('ignore')}</b>
@@ -148,7 +140,6 @@ const FILTERED = [
 
 function FilterArt() {
   const t = useTranslations('landing.errors.triage.art');
-  const { format } = new Intl.NumberFormat(useLocale());
   const value = (chunks: ReactNode) => <b>{chunks}</b>;
   return (
     <div className={styles.filterArt} aria-hidden data-nosnippet>
@@ -181,7 +172,7 @@ function FilterArt() {
             data-drops={row.drops || undefined}
           >
             <b>{row.type}</b>
-            <Roll from={format(row.from)} to={format(row.to)} />
+            <HoverNumber from={row.from} to={row.to} />
           </div>
         ))}
       </div>
@@ -192,8 +183,6 @@ function FilterArt() {
 function OccurrenceArt() {
   const t = useTranslations('landing.errors.triage.art');
   const { format } = new Intl.NumberFormat(useLocale());
-  // only the last digit changes, so it alone rolls
-  const [from, to] = [format(1204), format(1203)];
   return (
     <div className={styles.occurrenceArt} aria-hidden data-nosnippet>
       <div className={styles.navigator}>
@@ -207,12 +196,7 @@ function OccurrenceArt() {
         </span>
         <span className={styles.navLabel}>
           {t.rich('occurrenceOf', {
-            number: () => (
-              <>
-                {from.slice(0, -1)}
-                <Roll from={from.slice(-1)} to={to.slice(-1)} />
-              </>
-            ),
+            number: () => <HoverNumber from={1204} to={1203} />,
             total: format(1206),
           })}
         </span>

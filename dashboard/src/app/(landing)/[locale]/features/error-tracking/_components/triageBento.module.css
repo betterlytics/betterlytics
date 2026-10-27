@@ -312,10 +312,6 @@
     font-weight: 500;
     color: var(--color-fg);
   }
-  .filterRow .roll {
-    text-align: right;
-    font-variant-numeric: normal;
-  }
 
   .occurrenceArt {
     display: grid;
@@ -355,7 +351,6 @@
   .navLabel {
     font-size: 12px;
     color: var(--color-fg);
-    font-variant-numeric: tabular-nums;
     white-space: nowrap;
   }
   /* may run wider than the navigator, so the longer hover row stays on one line */
@@ -392,20 +387,6 @@
     translate: 0 5px;
   }
 
-  /* the column holds both values; hovering slides it up one line */
-  .roll {
-    display: inline-block;
-    height: 1lh;
-    overflow: hidden;
-    vertical-align: bottom;
-    font-variant-numeric: tabular-nums;
-  }
-  .roll > span {
-    display: flex;
-    flex-direction: column;
-    transition: translate 0.45s var(--ease-out-expo);
-  }
-
   .box svg {
     opacity: 0;
     scale: 0.5;
@@ -438,10 +419,6 @@
     .art:hover .swap > span:last-child {
       opacity: 1;
       translate: 0 0;
-    }
-
-    .art:hover .roll > span {
-      translate: 0 -50%;
     }
 
     .art:hover .miniRow[data-picks] {
