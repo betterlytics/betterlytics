@@ -8737,6 +8737,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (state.rageBurst) emitRageBurst(state.rageBurst);
       var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
       if (events.length === 0) return Promise.resolve();
+      // The ring buffer drops its oldest pages; start the replay at the checkout Meta that opens it
+      if (events[0].type === 4) state.startUrl = events[0].data.href;
       state.errorMatrix = [[]];
 
       var sizes = events.map(function (e) {
