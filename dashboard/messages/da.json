@@ -3604,6 +3604,7 @@
           "passwordPromptTitle": "Bekræft din adgangskode",
           "passwordPromptDescription": "Indtast din adgangskode for at fortsætte.",
           "passwordLabel": "Adgangskode",
+          "incorrectPassword": "Forkert adgangskode",
           "backupCodesTitle": "Backup-koder",
           "backupCodesDescription": "Gem disse engangskoder et sikkert sted. De giver dig adgang, hvis du mister din authenticator.",
           "copyCodes": "Kopiér",
