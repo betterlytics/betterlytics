@@ -233,9 +233,6 @@
     .group[data-error]:is(:hover, :has(+ .note:hover))::before {
       background: #f87171;
     }
-    :is(.group:hover, .group:has(+ .note:hover)) .entry:not([data-current]) {
-      background: --alpha(var(--color-fg) / 3.5%);
-    }
     :is(.group:hover + .note, .note:hover) :is(.noteLabel, .noteBody) {
       color: var(--color-fg);
     }
