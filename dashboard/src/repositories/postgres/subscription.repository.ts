@@ -29,7 +29,7 @@ export async function findActiveSubscriptionsWithOwnedSites(): Promise<Subscript
           email: true,
           name: true,
           dashboardAccess: {
-            where: { role: 'owner' },
+            where: { role: 'owner', deletedAt: null },
             select: { dashboard: { select: { siteId: true } } },
           },
         },

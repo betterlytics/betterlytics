@@ -5,6 +5,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DataTable } from '@/components/DataTable';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { formatDuration } from '@/utils/dateFormatters';
 import { useLocale, useTranslations } from 'next-intl';
 import type {
   CampaignUTMBreakdownItem,
@@ -25,7 +26,7 @@ type UTMBreakdownTabbedTableProps = {
 interface BaseUTMBreakdownItem {
   visitors: number;
   bounceRate: number;
-  avgSessionDuration: string;
+  avgSessionDuration: number;
   pagesPerSession: number;
   [key: string]: string | number;
 }
@@ -61,7 +62,7 @@ export default function UTMBreakdownTabbedTable({
         {
           accessorKey: 'avgSessionDuration',
           header: t('columns.avgSessionDuration'),
-          cell: ({ row }) => <div>{row.getValue('avgSessionDuration')}</div>,
+          cell: ({ row }) => <div>{formatDuration(row.getValue<number>('avgSessionDuration'), locale)}</div>,
         },
         {
           accessorKey: 'pagesPerSession',

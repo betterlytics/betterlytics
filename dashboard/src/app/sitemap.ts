@@ -22,6 +22,7 @@ const STATIC_PAGES: PageCfg[] = [
   { path: '/pricing', changeFrequency: 'monthly', priority: 0.8, localized: true },
   { path: '/features', changeFrequency: 'monthly', priority: 0.8, localized: true },
   { path: '/features/uptime-monitoring', changeFrequency: 'monthly', priority: 0.8, localized: true },
+  { path: '/features/session-replay', changeFrequency: 'monthly', priority: 0.8, localized: true },
   { path: '/subprocessors', changeFrequency: 'monthly', priority: 0.3, localized: true },
 
   /****************** PUBLIC PAGES ******************/

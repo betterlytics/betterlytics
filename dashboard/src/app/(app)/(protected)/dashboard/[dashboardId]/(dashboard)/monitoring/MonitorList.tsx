@@ -19,6 +19,7 @@ import {
   presentSslStatus as presentSslStatusPresentation,
   SslPresentation,
 } from './styles';
+import { isExpiredReason } from './styles/ssl';
 import { formatPercentage } from '@/utils/formatters';
 import { LiveIndicator } from '@/components/live-indicator';
 import { PillBar } from './components/PillBar';
@@ -64,7 +65,7 @@ export function MonitorList({ monitors }: MonitorListProps) {
         const sslBadgeLabel = tSsl(sslPresentation.badgeLabelKey);
         const sslTimeRemaining = formatSslTimeRemaining(monitor.tls?.tlsNotAfter);
         const sslTooltipLabel =
-          sslTimeRemaining != null
+          sslTimeRemaining != null && !isExpiredReason(monitor.tls?.reasonCode, daysLeft)
             ? tMonitoringLabels(sslTimeRemaining.unit === 'hours' ? 'hoursLeftFull' : 'daysLeftFull', {
                 count: sslTimeRemaining.value,
               })
