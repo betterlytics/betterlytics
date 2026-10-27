@@ -16,5 +16,4 @@ export type UpdateCheckPolicy = { enabled: true } | { enabled: false; reason: Up
 export type AvailableUpdate = {
   version: string;
   releaseNotesUrl: string;
-  updatingDocsUrl: string;
 };

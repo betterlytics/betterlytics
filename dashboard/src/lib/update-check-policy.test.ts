@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import {
-  UPDATING_DOCS_URL,
   isNewerVersion,
   parseReleaseVersion,
   resolveAvailableUpdate,
@@ -78,11 +77,10 @@ describe('isNewerVersion', () => {
 });
 
 describe('resolveAvailableUpdate', () => {
-  it('returns the newer release with its links', () => {
+  it('returns the newer release with its release notes link', () => {
     expect(resolveAvailableUpdate(release('v1.6.0'), 'v1.5.1')).toEqual({
       version: 'v1.6.0',
       releaseNotesUrl: 'https://github.com/betterlytics/betterlytics/releases/tag/v1.6.0',
-      updatingDocsUrl: UPDATING_DOCS_URL,
     });
   });
 

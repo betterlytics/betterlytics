@@ -7,7 +7,6 @@ import {
 
 export const UPDATE_CHECK_LATEST_RELEASE_URL =
   'https://api.github.com/repos/betterlytics/betterlytics/releases/latest';
-export const UPDATING_DOCS_URL = 'https://betterlytics.io/docs/installation/self-hosting#updating';
 const RELEASE_NOTES_BASE_URL = 'https://github.com/betterlytics/betterlytics/releases/tag/';
 
 type ReleaseVersion = [major: number, minor: number, patch: number];
@@ -51,6 +50,5 @@ export function resolveAvailableUpdate(release: unknown, appVersion: string): Av
   return {
     version: tag,
     releaseNotesUrl: `${RELEASE_NOTES_BASE_URL}${encodeURIComponent(tag)}`,
-    updatingDocsUrl: UPDATING_DOCS_URL,
   };
 }

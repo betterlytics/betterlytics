@@ -513,7 +513,7 @@ docker compose up -d --wait
 
 Compose pulls the new image on its own. Backing up your data volumes before a major upgrade is a good idea.
 
-When a newer release is out, admins see **Update available** in the admin area's sidebar, with links to its release notes and this section, and a dot on **Admin** in the account menu. To turn the check off, for example on an air-gapped server, set `UPDATE_CHECK_ENABLED=false` in `.env`.
+When a newer release is out, admins see the new version next to the running one at the bottom of the admin area's sidebar, linking to its release notes, and a dot on **Admin** in the account menu. To turn the check off, for example on an air-gapped server, set `UPDATE_CHECK_ENABLED=false` in `.env`.
 
 <Callout type="warning">
 Some releases run one-time database migrations on first boot, so don't interrupt the container while it starts. If a release needs a change on your side, such as a new required setting in `.env`, the instance stops at start and `docker compose logs` says what to change.
