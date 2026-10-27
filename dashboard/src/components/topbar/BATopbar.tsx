@@ -38,6 +38,7 @@ import { useBillingFlow } from '@/contexts/BillingFlowProvider';
 import { useBillingData } from '@/hooks/useBillingData';
 import { cn } from '@/lib/utils';
 import { Link as LocaleLink } from '@/i18n/navigation';
+import { trpc } from '@/trpc/client';
 
 export default function BATopbar() {
   const { data: session, isPending } = useHydratedSession();
@@ -54,6 +55,11 @@ export default function BATopbar() {
   const isBillingEnabled = isFeatureFlagEnabled('enableBilling');
   const isChangelogEnabled = isFeatureFlagEnabled('enableChangelog');
   const showInstanceAdmin = !isFeatureFlagEnabled('isCloud') && session?.user.role === 'admin';
+  const { data: availableUpdate } = trpc.system.availableUpdate.useQuery(undefined, {
+    enabled: showInstanceAdmin,
+    staleTime: 60 * 60 * 1000,
+    retry: false,
+  });
 
   const disableTopbarNav = isDemo && isEmbedded;
 
@@ -145,6 +151,12 @@ export default function BATopbar() {
                           <NextLink href='/admin'>
                             <ShieldCheck className='mr-2 h-4 w-4' />
                             <span>{t('admin')}</span>
+                            {availableUpdate && (
+                              <span className='ml-auto flex items-center' title={t('updateAvailable')}>
+                                <span aria-hidden='true' className='bg-primary h-2 w-2 rounded-full' />
+                                <span className='sr-only'>{t('updateAvailable')}</span>
+                              </span>
+                            )}
                           </NextLink>
                         </DropdownMenuItem>
                       )}

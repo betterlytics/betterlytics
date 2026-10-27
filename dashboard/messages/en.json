@@ -3182,6 +3182,7 @@
         "userFallback": "User",
         "dashboards": "Dashboards",
         "admin": "Admin",
+        "updateAvailable": "Update available",
         "upgradePlan": "Upgrade Plan",
         "reportBug": "Report Bug",
         "settings": "Settings",

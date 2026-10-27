@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import { Suspense, type ReactElement } from 'react';
 import Link from 'next/link';
 import { Bug, ChevronLeft, ScrollText, Users } from 'lucide-react';
 import {
@@ -16,6 +16,7 @@ import {
 import { ADMIN_SECTIONS, type AdminEdition, type AdminSectionKey } from '@/entities/admin/adminAccess.entities';
 import { env } from '@/lib/env';
 import { AdminNavLink } from './AdminNavLink';
+import { AdminUpdateNotice } from './AdminUpdateNotice';
 
 const SECTION_ICONS: Record<AdminSectionKey, ReactElement> = {
   users: <Users size={16} />,
@@ -68,9 +69,13 @@ export function AdminSidebar({ edition, sections }: AdminSidebarProps) {
       </SidebarContent>
       <SidebarFooter className='bg-sidebar'>
         {edition === 'selfhost' && (
-          <span className='text-muted-foreground/70 px-2 font-mono text-xs group-data-[collapsible=icon]:hidden'>
-            {env.APP_VERSION}
-          </span>
+          <div className='flex flex-col gap-2 group-data-[collapsible=icon]:hidden'>
+            <span className='text-muted-foreground/70 px-2 font-mono text-xs'>{env.APP_VERSION}</span>
+            {/* Streams in after the page, so a slow GitHub never holds up the admin area */}
+            <Suspense fallback={null}>
+              <AdminUpdateNotice />
+            </Suspense>
+          </div>
         )}
       </SidebarFooter>
     </Sidebar>
