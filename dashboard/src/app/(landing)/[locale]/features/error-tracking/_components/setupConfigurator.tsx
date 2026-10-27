@@ -18,7 +18,6 @@ const OPTIONS = {
   replay: { attr: 'data-replay-on-error', npm: 'replayOnError' },
 } as const satisfies Record<Option, { attr: string; npm: string }>;
 
-/** Replay waits for the site's go-ahead. The consent call stays a comment, since run here it would fire before the script has loaded. */
 function buildSnippets(on: Record<Option, boolean>): Snippet[] {
   const picked = (Object.keys(OPTIONS) as Option[]).filter((key) => on[key]);
   const attrs = ['data-track-errors', ...picked.map((key) => OPTIONS[key].attr)];
@@ -35,14 +34,6 @@ function buildSnippets(on: Record<Option, boolean>): Snippet[] {
         '  data-site-id="YOUR_SITE_ID"',
         ...attrs.map((attr, i) => `+  ${attr}="true"${i === attrs.length - 1 ? '>' : ''}`),
         '</script>',
-        ...(on.replay
-          ? [
-              '',
-              '+<!-- after the script loads, when your consent banner resolves: -->',
-              '+<!-- window.betterlytics.setReplayConsent(true) -->',
-              '+<!-- no consent needed? add data-consent-replay="true" instead -->',
-            ]
-          : []),
       ].join('\n'),
     },
     {
@@ -54,14 +45,6 @@ function buildSnippets(on: Record<Option, boolean>): Snippet[] {
         "betterlytics.init('YOUR_SITE_ID', {",
         ...npm.map((name) => `+  ${name}: true,`),
         '})',
-        ...(on.replay
-          ? [
-              '',
-              '+// after the script loads, when your consent banner resolves:',
-              '+// window.betterlytics.setReplayConsent(true)',
-              '+// no consent needed? pass consentReplay: true instead',
-            ]
-          : []),
       ].join('\n'),
     },
   ];
