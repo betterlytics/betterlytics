@@ -142,9 +142,7 @@ if (!process.env.AUTH_URL && process.env.NEXTAUTH_URL) {
 
 export const env = parseEnv('app', envSchema);
 
-export type ReplayStorage = 's3' | 'clickhouse';
-
-export const replayStorage: ReplayStorage = resolveReplayStorage(env);
+export const replayStorage: 's3' | 'clickhouse' = resolveReplayStorage(env);
 
 export const s3Env = {
   enabled: env.S3_ENABLED,

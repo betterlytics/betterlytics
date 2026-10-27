@@ -3,7 +3,7 @@ import 'server-only';
 import { getSessionReplays } from '@/repositories/clickhouse/index.repository';
 import { getReplaySessionMeta } from '@/repositories/clickhouse/sessionReplays.repository';
 import { readerFor, type ReplaySegmentReader } from '@/repositories/replaySegments.repository';
-import { replayStorage, type ReplayStorage } from '@/lib/env';
+import { replayStorage } from '@/lib/env';
 import { DEMO_SESSION_REPLAYS } from '@/constants/demoSessionReplays';
 import type { AuthContext } from '@/entities/auth/authContext.entities';
 import type { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
@@ -48,30 +48,21 @@ export function getDemoReplayFixturePath(sessionId: string): string | null {
 }
 
 export type ReplaySegmentStream = { stream: ReadableStream<Uint8Array>; endedAt: Date };
-export type ReplaySessionSource = { storage: ReplayStorage; endedAt: Date | null };
-
-export async function getReplaySessionSource(
-  authContext: AuthContext,
-  sessionId: string,
-): Promise<ReplaySessionSource> {
-  const meta = await getReplaySessionMeta(authContext.siteId, sessionId);
-  // A missing or unrecognized marker falls back to the deployment's active mode; in a
-  // ClickHouse-only deploy the S3 reader is unreachable that way (its client throws).
-  const storage = meta?.storage === 's3' || meta?.storage === 'clickhouse' ? meta.storage : replayStorage;
-  return { storage, endedAt: meta?.endedAt ?? null };
-}
 
 export async function openReplaySegmentStream(
   authContext: AuthContext,
   sessionId: string,
-  source: ReplaySessionSource,
 ): Promise<ReplaySegmentStream | null> {
   const { siteId } = authContext;
-  const reader = readerFor(source.storage);
+  const meta = await getReplaySessionMeta(siteId, sessionId);
+  // A missing or unrecognized marker falls back to the deployment's active mode; in a
+  // ClickHouse-only deploy the S3 reader is unreachable that way (its client throws).
+  const storage = meta?.storage === 's3' || meta?.storage === 'clickhouse' ? meta.storage : replayStorage;
+  const reader = readerFor(storage);
   const segments = await reader.list(siteId, sessionId);
   if (segments.length === 0) return null;
   // A segment row without a session row is a race at ingest; treat it as still recording.
-  const endedAt = source.endedAt ?? new Date();
+  const endedAt = meta?.endedAt ?? new Date();
   const stream = reader.stream
     ? await reader.stream(siteId, sessionId)
     : toNdjsonStream(
