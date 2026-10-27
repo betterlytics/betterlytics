@@ -4,18 +4,14 @@ import { syncJobQueuesOnce } from '@/worker/queue';
 import { JOB_REGISTRY } from '@/worker/jobs/registry';
 import { jobDurationSeconds, jobLastRunTimestamp, jobRunsTotal, jobsInFlight } from '@/worker/metrics';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
-import { workerEnv } from '@/lib/env/worker.env';
 
 type RuntimeGlobal = { _workerRegistration?: Promise<void> };
 type RuntimeJob = Job<unknown>;
 const globalForWorkerRuntime = globalThis as unknown as RuntimeGlobal;
 
-function isJobEnabled<T extends { saasOnly?: boolean; selfHostOnly?: boolean; monitoringOnly?: boolean }>(
-  job: T,
-): boolean {
+function isJobEnabled<T extends { saasOnly?: boolean; selfHostOnly?: boolean }>(job: T): boolean {
   if (job.saasOnly && !sharedEmailEnv.isCloud) return false;
   if (job.selfHostOnly && sharedEmailEnv.isCloud) return false;
-  if (job.monitoringOnly && !workerEnv.ENABLE_MONITORING) return false;
   return true;
 }
 

@@ -36,21 +36,4 @@ export const emailSendsTotal = new Counter({
   labelNames: ['type', 'status'] as const,
 });
 
-export const replayStoredBytes = new Gauge({
-  name: 'replay_stored_bytes',
-  help: 'Replay bytes held by stored sessions, per storage, as counted at upload',
-  labelNames: ['storage'] as const,
-});
-
-export const replayStoredSessions = new Gauge({
-  name: 'replay_stored_sessions',
-  help: 'Stored replay sessions per storage',
-  labelNames: ['storage'] as const,
-});
-
-export const replayClickHouseOldestSegmentAgeSeconds = new Gauge({
-  name: 'replay_clickhouse_oldest_segment_age_seconds',
-  help: 'Age in seconds of the oldest replay segment date stored in ClickHouse (0 when none are stored)',
-});
-
 export { register };
