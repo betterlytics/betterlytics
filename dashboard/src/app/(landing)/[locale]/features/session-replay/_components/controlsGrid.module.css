@@ -1,0 +1,535 @@
+@reference '../../../landing.css';
+
+@property --scan-gap {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 10px;
+}
+@property --spread {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
+
+@layer components {
+  .litStage::before {
+    background: repeating-linear-gradient(315deg, --alpha(var(--color-down) / 10%) 0 1px, transparent 0 50%) 0 0 /
+      10px 10px;
+    -webkit-mask-image: radial-gradient(120px 90px at calc(50% + 80px) 50%, #000, transparent);
+    mask-image: radial-gradient(120px 90px at calc(50% + 80px) 50%, #000, transparent);
+    transition: opacity 0.8s var(--ease-out-expo) 0.6s;
+  }
+
+  .sampleCard {
+    top: 20px;
+    left: 10px;
+    right: 10px;
+    padding: 12px 14px 16px;
+  }
+  .sampleHead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+  .sampleHead b {
+    font-size: 15px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .sampleTrack {
+    position: relative;
+    display: block;
+    height: 4px;
+    margin: 8px 0 14px;
+    border-radius: 2px;
+    background: var(--color-rule-22);
+  }
+  .sampleTrack::before {
+    content: '';
+    position: absolute;
+    inset: 0 calc(100% - var(--sample) * 1%) 0 0;
+    border-radius: 2px;
+    background: var(--color-volt-lift);
+  }
+  .sampleTrack i {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--sample) * 1%);
+    width: 12px;
+    height: 12px;
+    translate: -50% -50%;
+    border-radius: 50%;
+    background: var(--color-fg);
+    box-shadow: 0 0 0 3px --alpha(var(--color-volt-lift) / 35%);
+  }
+  .visits {
+    display: grid;
+    grid-template-columns: repeat(20, 1fr);
+    gap: 6px 5px;
+  }
+  .visits i {
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-rule-22);
+    opacity: 0;
+    transition:
+      opacity 0.4s var(--ease-out-expo) calc(0.2s + var(--i) * 0.025s),
+      background-color 0.2s,
+      box-shadow 0.2s,
+      scale 0.35s var(--ease-out-expo),
+      filter 0.3s var(--ease-out-expo);
+  }
+  [data-in] .visits i {
+    opacity: 1;
+  }
+  .visits i[data-lit] {
+    background: var(--color-volt-lift);
+    box-shadow: 0 0 0 3px --alpha(var(--color-volt-lift) / 28%);
+  }
+
+  .tape {
+    left: 0;
+    right: 0;
+    top: 46px;
+    height: 50px;
+  }
+  .ticks {
+    position: absolute;
+    inset: 0 14px;
+  }
+  .ticks i {
+    position: absolute;
+    top: 17px;
+    bottom: 17px;
+    left: calc(var(--x) * 100%);
+    width: 3px;
+    border-radius: 1.5px;
+    background: var(--color-rule-22);
+  }
+  .ticks i[data-kept] {
+    background: #38bdf8;
+  }
+  .ticks i[data-error] {
+    top: 11px;
+    bottom: 11px;
+    width: 4px;
+    background: var(--color-down);
+    box-shadow: 0 0 0 3px --alpha(var(--color-down) / 25%);
+  }
+  .window {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: calc(14px + 0.56 * (100% - 28px));
+    right: calc(14px + 0.06 * (100% - 28px));
+    border-radius: 6px;
+    background: --alpha(var(--color-volt-lift) / 12%);
+    box-shadow: inset 0 0 0 1px --alpha(var(--color-volt-lift) / 40%);
+    transform: scaleX(0);
+    transform-origin: 100% 50%;
+    transition:
+      transform 0.8s var(--ease-out-expo) 0.5s,
+      filter 0.3s var(--ease-out-expo);
+  }
+  [data-in] .window {
+    transform: none;
+  }
+  .windowLabel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 7px);
+    padding-bottom: 9px;
+    font-size: 11px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--color-volt-soft);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out-expo) 1.1s;
+  }
+  [data-in] .windowLabel {
+    opacity: 1;
+  }
+  .windowLabel::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 5px;
+    border: 1.5px solid currentColor;
+    border-bottom: 0;
+    border-radius: 2px 2px 0 0;
+  }
+
+  .errorChip {
+    position: absolute;
+    top: 90px;
+    right: 8px;
+    padding: 5px 11px;
+    border-radius: 3px;
+    border: 1px solid --alpha(var(--color-down) / 40%);
+    background: color-mix(in oklab, var(--color-canvas), var(--color-down) 34%);
+    font-size: 14px;
+    letter-spacing: -0.2px;
+    white-space: nowrap;
+    opacity: 0;
+    --scan-gap: 10px;
+    transition:
+      opacity 0.4s var(--ease-out-expo) 0.9s,
+      --scan-gap 0.6s var(--ease-out-expo) 0.95s,
+      --spread 0.4s var(--ease-out-expo);
+  }
+  [data-in] .errorChip {
+    opacity: 1;
+    --scan-gap: 4px;
+  }
+  .errorChip::before,
+  .errorChip::after,
+  .errorChip i::before,
+  .errorChip i::after {
+    content: '';
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-color: var(--color-fg);
+    border-style: solid;
+    border-width: 0;
+  }
+  .errorChip::before {
+    inset: calc(-1 * (var(--scan-gap) + var(--spread))) auto auto calc(-1 * (var(--scan-gap) + var(--spread)));
+    border-top-width: 1.5px;
+    border-left-width: 1.5px;
+  }
+  .errorChip::after {
+    inset: calc(-1 * (var(--scan-gap) + var(--spread))) calc(-1 * (var(--scan-gap) + var(--spread))) auto auto;
+    border-top-width: 1.5px;
+    border-right-width: 1.5px;
+  }
+  .errorChip i::before {
+    inset: auto auto calc(-1 * (var(--scan-gap) + var(--spread))) calc(-1 * (var(--scan-gap) + var(--spread)));
+    border-bottom-width: 1.5px;
+    border-left-width: 1.5px;
+  }
+  .errorChip i::after {
+    inset: auto calc(-1 * (var(--scan-gap) + var(--spread))) calc(-1 * (var(--scan-gap) + var(--spread))) auto;
+    border-bottom-width: 1.5px;
+    border-right-width: 1.5px;
+  }
+
+  .paths {
+    inset: 6px 20px;
+    padding: 6px;
+  }
+  .pathRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+  }
+  .pathRow + .pathRow {
+    margin-top: 2px;
+  }
+  .pathRow code {
+    font-family: inherit;
+    font-size: 11.5px;
+  }
+  .skeleton {
+    flex: 1;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--color-rule-10);
+  }
+  .pathRow,
+  .pathRow code,
+  .pathRow b,
+  .skeleton {
+    transition:
+      background-color 0.3s var(--ease-out-expo),
+      color 0.3s var(--ease-out-expo),
+      filter 0.3s var(--ease-out-expo);
+  }
+  .pathRow b {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: --alpha(var(--color-live) / 14%);
+    color: var(--color-live);
+    font-size: 10.5px;
+    font-weight: 500;
+  }
+  .pathRow[data-off] {
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  .pathRow[data-off] code {
+    color: var(--color-muted);
+  }
+  .pathRow[data-off] .skeleton {
+    filter: blur(2px);
+    background: var(--color-rule-30);
+  }
+  .pathRow[data-off] b {
+    background: --alpha(var(--color-fg) / 8%);
+    color: var(--color-muted);
+  }
+
+  .network {
+    inset: 4px 0;
+    padding: 6px 4px;
+  }
+  .request {
+    display: grid;
+    grid-template-columns: 30px 38px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 10.5px;
+    color: var(--color-muted);
+    opacity: 0;
+    transition:
+      opacity 0.4s var(--ease-out-expo) calc(0.35s + var(--i) * 0.3s),
+      translate 0.4s var(--ease-out-expo);
+  }
+  [data-in] .request {
+    opacity: 1;
+  }
+  .request + .request {
+    border-top: 1px solid var(--color-rule-08);
+  }
+  .request b {
+    font-weight: 500;
+    color: var(--color-volt-soft);
+  }
+  .request b[data-method='GET'] {
+    color: var(--color-live);
+  }
+  .request span {
+    overflow: hidden;
+    color: var(--color-fg);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .request em {
+    font-style: normal;
+    transition: color 0.3s var(--ease-out-expo);
+  }
+
+  .urlBar {
+    left: 0;
+    right: 0;
+    top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 9px 14px;
+    font-family: inherit;
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .lock {
+    width: 9px;
+    height: 9px;
+    margin-right: 8px;
+    border-radius: 2px;
+    background: var(--color-rule-30);
+  }
+  .route {
+    position: relative;
+    display: inline-grid;
+    color: var(--color-fg);
+  }
+  .route span {
+    grid-area: 1 / 1;
+    opacity: 0;
+  }
+  .route span:last-child {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .stage[data-live] .route span {
+      animation: route-cycle 6s steps(1, end) infinite;
+      animation-delay: calc(var(--i) * 2s);
+      opacity: 0;
+    }
+  }
+  .views {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    top: 58px;
+    display: grid;
+    gap: 2px;
+    transition: gap 0.4s var(--ease-out-expo);
+  }
+  .view {
+    display: grid;
+    grid-template-columns: 30px 13px auto 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 11px;
+    color: var(--color-muted);
+    opacity: 0;
+    translate: 0 6px;
+    transition:
+      opacity 0.4s var(--ease-out-expo),
+      translate 0.5s var(--ease-out-expo);
+    transition-delay: calc(0.4s + var(--i) * 0.2s);
+  }
+  [data-in] .view {
+    opacity: 1;
+    translate: 0;
+  }
+  .view time {
+    font-family: inherit;
+    font-size: 10.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .view svg {
+    width: 13px;
+    height: 13px;
+    color: #38bdf8;
+    transition:
+      color 0.3s var(--ease-out-expo),
+      scale 0.35s var(--ease-out-expo);
+  }
+  .view code {
+    font-family: inherit;
+    color: var(--color-fg);
+  }
+
+  .agents {
+    inset: 8px 24px;
+    padding: 6px;
+  }
+  .agent {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    transition:
+      opacity 0.3s var(--ease-out-expo),
+      border-color 0.3s var(--ease-out-expo);
+  }
+  .agent + .agent {
+    margin-top: 2px;
+  }
+  .agent b {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--color-live);
+    transition: color 0.3s var(--ease-out-expo);
+  }
+  .agent b svg {
+    width: 12px;
+    height: 12px;
+  }
+  .agent:not([data-bot]) {
+    border: 1.5px solid --alpha(var(--color-live) / 40%);
+    background: --alpha(var(--color-live) / 7%);
+  }
+  .agent[data-bot] {
+    color: var(--color-muted);
+  }
+  .agent[data-bot] b {
+    color: var(--color-muted);
+  }
+
+  /* data-route and data-current are set by the replay cursor */
+  .urlBar[data-route] .route span {
+    animation: none;
+    opacity: 0;
+  }
+  .urlBar[data-route='0'] .route span:nth-child(1),
+  .urlBar[data-route='1'] .route span:nth-child(2),
+  .urlBar[data-route='2'] .route span:nth-child(3) {
+    opacity: 1;
+  }
+  .view[data-current] {
+    color: var(--color-fg);
+  }
+
+  /* hover poses stay off the properties the entrances and the replay cursor animate, so none wait on a delay */
+  @media (hover: hover) {
+    .comp:hover .visits i:not([data-lit]) {
+      filter: opacity(0.75);
+    }
+    .comp:hover .visits i[data-lit] {
+      filter: brightness(1.1);
+    }
+    .comp:hover .window {
+      filter: brightness(1.5);
+    }
+    .comp:hover .pathRow[data-off] code,
+    .comp:hover .pathRow[data-off] b {
+      filter: blur(1.5px);
+    }
+    .comp:hover .pathRow[data-off] .skeleton {
+      filter: blur(3px);
+    }
+    .comp:hover .request em {
+      color: var(--color-fg);
+    }
+    .comp:hover .view svg {
+      color: #7dd3fc;
+    }
+    .comp:hover .agent[data-bot] {
+      opacity: 0.55;
+    }
+    .comp:hover .agent[data-bot] b {
+      color: #f87171;
+    }
+    .comp:hover .agent:not([data-bot]) {
+      border-color: --alpha(var(--color-live) / 75%);
+    }
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .comp:hover .visits i[data-lit] {
+      scale: 1.08;
+    }
+    .comp:hover .errorChip {
+      --spread: 4px;
+    }
+    .comp:hover .request {
+      translate: 0 calc((var(--i) - 1.5) * 3px);
+    }
+    .comp:hover .views {
+      gap: 7px;
+    }
+    .comp:hover .view svg {
+      scale: 1.15;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .visits i,
+    .window,
+    .windowLabel,
+    .errorChip,
+    .request,
+    .view {
+      transition: none;
+    }
+  }
+}
+
+@keyframes route-cycle {
+  0%,
+  33.33% {
+    opacity: 1;
+  }
+  33.34%,
+  100% {
+    opacity: 0;
+  }
+}
