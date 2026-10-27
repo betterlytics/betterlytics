@@ -8,7 +8,7 @@ type ResolveTimeRangeInput = {
   timeRange: TimeRangeValue;
   startDate?: string;
   endDate?: string;
-  timezone?: string;
+  timezone: string;
   granularity?: GranularityRangeValues;
 };
 
@@ -21,7 +21,7 @@ export type ResolvedTimeRange = {
 };
 
 export function resolveTimeRange(input: ResolveTimeRangeInput): ResolvedTimeRange {
-  const timezone = input.timezone ?? 'UTC';
+  const { timezone } = input;
   const customStart = input.startDate ? parseDayKey(input.startDate, timezone) : new Date();
   const customEnd = input.endDate ? parseDayKey(input.endDate, timezone) : new Date();
 

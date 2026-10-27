@@ -6,6 +6,7 @@ import { SESSION_DIMENSION_KEYS } from '@/mcp/registry/sessionDimensions';
 import { FilterColumnSchema, FILTER_OPERATORS } from '@/entities/analytics/filter.entities';
 import { TIME_RANGE_VALUES, type TimeRangeValue } from '@/utils/timeRanges';
 import type { GranularityRangeValues } from '@/utils/granularityRanges';
+import { normalizeTimezone } from '@/utils/timezone';
 
 export const MCP_GRANULARITIES = ['hour', 'day'] as const satisfies readonly GranularityRangeValues[];
 
@@ -28,9 +29,23 @@ export const McpDateRangeSchema = z.object({
     .optional()
     .describe('End date in YYYY-MM-DD format (inclusive). Required when timeRange is "custom".'),
   timezone: z
-    .string()
-    .default('UTC')
-    .describe('IANA time zone identifier, e.g. "Europe/Berlin" or "America/New_York"'),
+    .string({
+      required_error: 'timezone is required. Use an IANA time zone identifier such as "Europe/Berlin" or "UTC".',
+    })
+    .describe(
+      'IANA time zone identifier, e.g. "Europe/Berlin", "America/New_York" or "UTC". Unknown time zones are rejected.',
+    )
+    .transform((tz, ctx) => {
+      const zone = normalizeTimezone(tz);
+      if (!zone) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Unknown timezone ${JSON.stringify(tz)}. Use an IANA time zone identifier such as "Europe/Berlin".`,
+        });
+        return z.NEVER;
+      }
+      return zone;
+    }),
 });
 
 export const McpFiltersSchema = z

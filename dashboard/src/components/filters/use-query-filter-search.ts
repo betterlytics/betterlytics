@@ -108,5 +108,19 @@ export function useQueryFilterSearch(filter: QueryFilter, options?: UseQueryFilt
   // A full page means the server stopped at the limit, so more values exist than were returned
   const isTruncated = filteredOptions.length >= SEARCH_LIMIT;
 
-  return { search, setSearch, isDirty, options: filteredOptions, isTruncated, isLoading };
+  // Covers the render between the fetch resolving and the effect copying it into serverOptions
+  const isLoadingOptions =
+    !disabled &&
+    shouldSearchServer &&
+    serverOptions.length === 0 &&
+    (isLoading || serverOptions !== fetchedOptions);
+
+  return {
+    search,
+    setSearch,
+    isDirty,
+    options: filteredOptions,
+    isTruncated,
+    isLoading: isLoadingOptions,
+  };
 }

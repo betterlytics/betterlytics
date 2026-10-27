@@ -1289,6 +1289,7 @@
       "product": {
         "features": "Features",
         "uptime": "Uptime monitoring",
+        "replay": "Session replay",
         "pricing": "Pricing"
       },
       "company": {
@@ -1437,6 +1438,10 @@
         "vitals": {
           "title": "Core Web Vitals",
           "body": "LCP, INP and CLS measured in your visitors' real browsers."
+        },
+        "uptime": {
+          "title": "Uptime monitoring",
+          "body": "Checks as often as every minute, alerts where your team talks, and a status page."
         }
       }
     },
@@ -1681,11 +1686,11 @@
           },
           "free": {
             "q": "Is uptime monitoring free?",
-            "a": "The free plan includes one monitor per site, checked every five minutes, and one status page. The Professional plan unlocks more advanced configuration: one-minute checks, custom headers, accepted status codes and keyword checks, more monitors and status pages, and your own domain. Self-hosted, there are no limits."
+            "a": "The free plan includes one monitor per site, checked every five minutes, and one status page. The Professional plan unlocks more advanced configuration: one-minute checks, custom headers, accepted status codes and keyword checks, more monitors and status pages, and your own domain."
           },
           "internal": {
             "q": "Can I monitor internal services?",
-            "a": "On Betterlytics Cloud, monitors reach public addresses on ports 80 and 443. If you self-host, they can also reach services on your private network, on any port."
+            "a": "Monitors reach public addresses on ports 80 and 443, so a service needs to be reachable from the internet."
           },
           "dedicated": {
             "q": "When is a dedicated monitoring tool the better fit?",
@@ -1698,6 +1703,234 @@
         "lede": "Paste a URL, choose how often to check and where alerts go. The free plan includes a monitor and a status page.",
         "primary": "Start monitoring free",
         "secondary": "Read the monitoring docs"
+      }
+    },
+    "replay": {
+      "seo": {
+        "title": "Privacy-first session replay, masked by default | Betterlytics",
+        "description": "Watch session recordings of real visits, with every word and input masked in the browser. Jump from a JavaScript error to its replay. Free on every plan."
+      },
+      "hero": {
+        "eyebrow": "Session replay",
+        "title": "See where visitors get stuck, and what stopped them",
+        "lede": "Replay real visits click by click, with rage clicks flagged and every word and input masked before it leaves the browser. Free on every plan, next to your traffic and errors.",
+        "primary": "Start recording free",
+        "secondary": "Read the docs"
+      },
+      "cursor": {
+        "input": "Input captured",
+        "drag": "Drag captured",
+        "click": "Click captured",
+        "rage": "Rage click captured",
+        "selection": "Selection captured",
+        "pageview": "Pageview captured",
+        "paused": "Capture paused"
+      },
+      "specs": {
+        "errors": {
+          "unit": "click",
+          "label": "From error to replay",
+          "body": "Errors in recorded sessions link to their replay, so you go from stack trace to replay in one click."
+        },
+        "history": {
+          "unit": "days",
+          "label": "Replay history",
+          "body": "Recordings stay in your dashboard for 60 days."
+        },
+        "cookies": {
+          "unit": "cookies",
+          "label": "No cookies, no IPs",
+          "body": "Replays set no cookies and save no IP address with a recording."
+        },
+        "thesis": {
+          "unit": "%",
+          "label": "Masked in the browser",
+          "body": "Every line of text and every input turns to asterisks before the recording leaves the page."
+        }
+      },
+      "story": {
+        "title": "From a failed checkout to *the reason*",
+        "lede": "What happens when the Pay button breaks at 10:03.",
+        "stepsLabel": "Replay timeline",
+        "steps": {
+          "record": {
+            "time": "10:02",
+            "title": "The visit is recorded",
+            "body": "The visit is picked for recording and saved as they browse."
+          },
+          "error": {
+            "time": "10:03",
+            "title": "Pay throws an error",
+            "body": "A JavaScript error stops the payment. Error tracking logs it with the page, the browser and the code that failed."
+          },
+          "ready": {
+            "time": "10:05",
+            "title": "The replay lands",
+            "body": "When they leave, the session lands in your replay list, flagged with its error and a rage click."
+          },
+          "jump": {
+            "time": "10:20",
+            "title": "You jump to the moment",
+            "body": "From the error, open the replay and jump straight to the moment it happened."
+          },
+          "why": {
+            "time": "10:21",
+            "title": "And see why",
+            "body": "The visitor kept clicking Pay with the postcode left empty, and it's flagged as a rage click. The text is masked, yet you can still see what was left blank."
+          }
+        },
+        "scenes": {
+          "recording": "Recording",
+          "newError": "New error",
+          "occurrences": "{count, plural, one {# session} other {# sessions}}",
+          "sessions": "Sessions",
+          "justNow": "Just now",
+          "minutesAgo": "{count} min ago",
+          "timeline": "Timeline",
+          "input": "Input",
+          "click": "Click",
+          "clientError": "Client error",
+          "rageClick": "Rage click",
+          "emptyField": "Postcode: empty",
+          "start": "Start:",
+          "skip": "Skip inactivity"
+        }
+      },
+      "privacy": {
+        "title": "Masked *before* it leaves the browser",
+        "lede": "You see where visitors clicked, scrolled and typed. Their privacy stays intact: what they read and typed never leaves their device.",
+        "points": {
+          "text": "Every character of text and every input value becomes an asterisk, so the layout keeps its shape",
+          "media": "Images and iframes are replaced by empty boxes of the same size",
+          "consent": "Can wait for consent before recording anything, wherever the law asks for it",
+          "exclude": "Leave out whole pages or sections of your site, or single elements you mark as private",
+          "storage": "No cookies, and no IP address saved with a replay"
+        },
+        "docs": "How masking works",
+        "try": "Drag to compare",
+        "visitor": "What your visitor sees",
+        "you": "What you see in the replay",
+        "slider": "Compare the visitor's view with the masked replay",
+        "alt": "A coffee shop checkout shown twice. In the visitor's view the name, email and address are readable; in the replay every word is asterisks and the product photo is an empty box."
+      },
+      "controls": {
+        "title": "Record the sessions *worth* watching",
+        "lede": "Decide how much to record and where. Everything else stays out of your visitors' way.",
+        "art": {
+          "sample": "Sample",
+          "recorded": "Recorded",
+          "error": "TypeError",
+          "leadUp": "1–2 min",
+          "off": "Off",
+          "on": "On",
+          "skipped": "Skipped",
+          "pageview": "Pageview"
+        },
+        "items": {
+          "sample": {
+            "title": "Pick your sample",
+            "body": "Record a small share of visits or every single one. Each visit is recorded in full or not at all."
+          },
+          "errors": {
+            "title": "Keep the lead-up to errors",
+            "body": "With error capture on, visits outside the sample still save the minute or two before a JavaScript error."
+          },
+          "paths": {
+            "title": "Leave pages out",
+            "body": "Turn recording off for any page or whole section, like your admin area or account pages. Nothing is recorded there, and the player blurs that part of the visit."
+          },
+          "light": {
+            "title": "Light on your site",
+            "body": "The recorder is a separate file that loads only when it's needed, and uploads in small compressed batches in the background, so your pages stay fast."
+          },
+          "spa": {
+            "title": "Made for single-page apps",
+            "body": "Route changes in single-page apps built with React, Vue or Next.js show up as page views on the timeline, just like full page loads."
+          },
+          "bots": {
+            "title": "People only",
+            "body": "Headless browsers and test runners like Playwright and Cypress are never recorded, so your replays only show real people."
+          }
+        }
+      },
+      "setup": {
+        "title": "Turn it on with *two* lines",
+        "lede": "No new script and no new vendor. Replay runs on the Betterlytics script you already have.",
+        "snippetLabel": "Setup examples",
+        "consentTab": "Consent",
+        "steps": {
+          "enable": {
+            "title": "Turn it on",
+            "body": "Add one attribute to your script tag, or one option in the npm package."
+          },
+          "consent": {
+            "title": "Handle consent",
+            "body": "Where the law requires consent, as in the EU, one line connects recording to your consent banner."
+          },
+          "tune": {
+            "title": "Tune it",
+            "body": "Set the sample, leave out private paths, and keep replays of sessions that hit an error."
+          }
+        },
+        "cta": "Read the setup guide"
+      },
+      "related": {
+        "lede": "Session replay is one part of Betterlytics. Everything below shares the dashboard, the login and the bill."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": {
+          "what": {
+            "q": "What is session replay?",
+            "a": "Session replay, also called session recording, saves how a page changed and what the visitor did on it, then rebuilds the visit in your dashboard so you can watch it like a video. No video is captured, and Betterlytics masks the text before anything is sent."
+          },
+          "free": {
+            "q": "Is session replay free?",
+            "a": "Yes. Session replay is included on <link>every plan</link>, including the free one, and recordings don't count toward your monthly events."
+          },
+          "consent": {
+            "q": "Do I need consent for session replay?",
+            "a": "It depends on where your visitors are. In the EU, the GDPR and the ePrivacy Directive can require consent before you record a visit. Replays don't start until your site gives the go-ahead. That can come from the consent banner you already have, or from a script setting when you don't need consent."
+          },
+          "masked": {
+            "q": "What gets masked?",
+            "a": "All text on the page and every input value, including passwords, emails and search fields, is replaced with asterisks in the visitor's browser. Images and iframes are left out. You can block more with the rr-block class, or turn recording off for whole paths."
+          },
+          "slow": {
+            "q": "Will session replay slow down my site?",
+            "a": "Not in a way your visitors will notice. The recorder loads without blocking your page, and only on visits that are recorded or when error capture is on. It samples mouse movement and scrolling instead of tracking every pixel, and sends compressed data in small batches in the background."
+          },
+          "sample": {
+            "q": "How many visits are recorded?",
+            "a": "5% by default. Set data-replay-sample to anything from 0 to 100. Recordings under 15 seconds aren't kept, and a recording stops after 10 minutes without activity or 20 minutes in total."
+          },
+          "find": {
+            "q": "How do I find the session I'm looking for?",
+            "a": "The replay list shows each session's start page, duration, country, browser, device, error count and rage clicks, and you can hide short sessions. From an error, Watch replay opens the latest session that hit it."
+          },
+          "rage": {
+            "q": "Does it detect rage clicks?",
+            "a": "Yes. When a visitor clicks the same spot again and again, Betterlytics flags it as a rage click. You see it on the replay's timeline and as a count in the replay list, so frustrated visitors are easy to find."
+          },
+          "history": {
+            "q": "How long are replays kept?",
+            "a": "60 days. After that they're deleted for good."
+          },
+          "mobile": {
+            "q": "Does it work in mobile apps?",
+            "a": "It records websites and web apps, in desktop and mobile browsers. Native iOS and Android apps aren't supported. On touch screens, taps and scrolls are recorded, but there's no cursor to follow."
+          },
+          "dedicated": {
+            "q": "When is a dedicated replay tool the better fit?",
+            "a": "Betterlytics shows what visitors did, with every word masked. If you need heatmaps, console and network logs, readable text, or search by user and event, a dedicated tool will serve you better. Our <link>PostHog comparison</link> shows the differences feature by feature."
+          }
+        }
+      },
+      "cta": {
+        "title": "Watch your first replay today",
+        "lede": "Turn it on in the script you already have and, where needed, connect your consent banner. Session replay is free on every plan.",
+        "primary": "Start recording free",
+        "secondary": "Read the replay docs"
       }
     }
   },
@@ -2409,7 +2642,12 @@
     "pagination": {
       "pageOf": "Page {currentPage} of {totalPages}",
       "showing": "Showing {startItem}-{endItem} of {totalItems} items",
-      "perPage": "per page"
+      "perPage": "per page",
+      "navigation": "Pagination",
+      "firstPage": "First page",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "lastPage": "Last page"
     },
     "annotations": {
       "dialogs": {
@@ -2669,11 +2907,6 @@
     },
     "campaign": {
       "title": "Campaigns",
-      "pagination": {
-        "pageOf": "Page {currentPage} of {totalPages}",
-        "showing": "Showing {startItem}-{endItem} of {totalItems} campaigns",
-        "perPage": "per page"
-      },
       "emptyState": {
         "title": "No campaigns captured yet",
         "description": "Campaigns will appear here once URLs with utm_campaign tags are captured. Start tagging your links to view performance metrics.",

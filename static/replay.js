@@ -8315,6 +8315,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
     return url;
   }
 
+  // Recordings keep only origin plus normalized path; normalize leaves the query string and hash
+  function normalizePageUrl(url) {
+    var urlObj = new URL(normalize(url));
+    return urlObj.origin + urlObj.pathname;
+  }
+
   const cacheIsReplayEnabledOnPage = new Map();
   function isReplayEnabledOnPage() {
     var pathname = window.location.pathname;
@@ -8340,7 +8346,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (window.rrweb && window.rrweb.record) {
         if (typeof window.rrweb.record.addCustomEvent === "function") {
           window.rrweb.record.addCustomEvent("Pageview", {
-            url: normalize(url),
+            url: normalizePageUrl(url),
           });
         }
         if (
@@ -8397,11 +8403,14 @@ or you can use record.mirror to access the mirror instance during recording.`;
       isRecording: false,
       disabled: false,
       buffer: [],
+      bufferSizes: [],
       approxBytes: 0,
       startedAt: Date.now(),
       lastActivity: Date.now(),
       flushTimer: null,
+      holdTimer: null,
       ongoingFlush: null,
+      flushRequested: false,
       stopping: false,
       consecutiveFlushErrors: 0,
       chunkSeq: 0,
@@ -8412,6 +8421,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       errorFlushPending: false,
       rageBurst: null,
       rageTimer: null,
+      // First page recorded in this page load; every segment reports it as the replay's start URL
+      startUrl: null,
     };
 
     var config = {
@@ -8440,12 +8451,11 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function uploadSegment(payload) {
-      var pageUrl = new URL(normalize(window.location.href));
       var qs =
         "site_id=" +
         encodeURIComponent(siteId) +
         "&url=" +
-        encodeURIComponent(pageUrl.origin + pageUrl.pathname) +
+        encodeURIComponent(state.startUrl || normalizePageUrl(window.location.href)) +
         "&screen_resolution=" +
         window.screen.width +
         "x" +
@@ -8488,6 +8498,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (terminal || state.consecutiveFlushErrors >= config.maxConsecutiveFlushErrors) {
         state.disabled = true;
         state.buffer = [];
+        state.bufferSizes = [];
         state.approxBytes = 0;
         state.retryQueue = [];
         try {
@@ -8568,33 +8579,64 @@ or you can use record.mirror to access the mirror instance during recording.`;
       );
     }
 
+    function buildEventsChunk(events) {
+      var lastEventTs = state.lastActivity;
+      var last = events[events.length - 1];
+      if (last && typeof last.timestamp === "number") {
+        lastEventTs = last.timestamp;
+      }
+      var firstEventTs = lastEventTs;
+      var first = events[0];
+      if (first && typeof first.timestamp === "number") {
+        firstEventTs = first.timestamp;
+      }
+      return buildChunk(events, lastEventTs, firstEventTs);
+    }
+
+    // Number of leading events that fit in one chunk; an event over the target goes alone.
+    // A Meta event always shares its chunk with the full snapshot after it, since the player
+    // needs both in the first segment it loads.
+    function chunkLength(events, sizes) {
+      var count = 0;
+      var bytes = 0;
+      while (
+        count < sizes.length &&
+        (count === 0 || bytes + sizes[count] <= config.maxUncompressedBytes)
+      ) {
+        bytes += sizes[count];
+        count++;
+      }
+      if (count < events.length && events[count - 1] && events[count - 1].type === 4) {
+        count++;
+      }
+      return count;
+    }
+
     function flush(force) {
       if (state.disabled) return Promise.resolve();
-      if (state.ongoingFlush && !force) return state.ongoingFlush;
+      if (state.ongoingFlush && !force) {
+        state.flushRequested = true;
+        return state.ongoingFlush;
+      }
 
       var pending;
+      var leftBehind = false;
       if (state.retryQueue.length > 0) {
         pending = Promise.resolve(state.retryQueue[0]);
       } else {
         if (state.buffer.length === 0) return Promise.resolve();
         if (!hasReachedMinDuration()) return Promise.resolve();
 
-        var events = state.buffer;
-        state.buffer = [];
-        state.approxBytes = 0;
-
-        var lastEventTs = state.lastActivity;
-        var last = events[events.length - 1];
-        if (last && typeof last.timestamp === "number") {
-          lastEventTs = last.timestamp;
-        }
-        var firstEventTs = lastEventTs;
-        var first = events[0];
-        if (first && typeof first.timestamp === "number") {
-          firstEventTs = first.timestamp;
-        }
-        pending = buildChunk(events, lastEventTs, firstEventTs);
+        var count = chunkLength(state.buffer, state.bufferSizes);
+        var events = state.buffer.splice(0, count);
+        state.bufferSizes.splice(0, count).forEach(function (size) {
+          state.approxBytes -= size;
+        });
+        if (state.buffer.length === 0) state.approxBytes = 0;
+        leftBehind = state.buffer.length > 0;
+        pending = buildEventsChunk(events);
       }
+      state.flushRequested = false;
 
       var upload = pending
         .then(sendChunk)
@@ -8602,7 +8644,17 @@ or you can use record.mirror to access the mirror instance during recording.`;
           if (state.ongoingFlush === upload) state.ongoingFlush = null;
         });
       state.ongoingFlush = upload;
-      return upload;
+      // Keep uploading back to back while a backlog remains, e.g. right after the hold ends
+      return upload.then(function () {
+        if (state.disabled || state.retryQueue.length > 0) return;
+        if (
+          leftBehind ||
+          state.flushRequested ||
+          state.approxBytes >= config.maxUncompressedBytes
+        ) {
+          return flush();
+        }
+      });
     }
 
     function flushAll() {
@@ -8625,6 +8677,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
         clearInterval(state.flushTimer);
         state.flushTimer = null;
       }
+      if (state.holdTimer) {
+        clearTimeout(state.holdTimer);
+        state.holdTimer = null;
+      }
     }
 
     function startFlushLoop() {
@@ -8642,6 +8698,12 @@ or you can use record.mirror to access the mirror instance during recording.`;
           flush();
         }
       }, Math.max(3000, config.maxChunkMs));
+      if (minReplayDurationSec) {
+        state.holdTimer = setTimeout(function () {
+          state.holdTimer = null;
+          if (state.buffer.length > 0) flush();
+        }, Math.max(0, state.startedAt + minReplayDurationSec * 1000 - Date.now()) + 100);
+      }
     }
 
     var ERROR_CHECKOUT_INTERVAL_MS = 60 * 1000;
@@ -8667,29 +8729,41 @@ or you can use record.mirror to access the mirror instance during recording.`;
       state.errorFlushPending = false;
       state.errorLastFlushAt = Date.now();
 
-      var pending;
       if (state.retryQueue.length > 0) {
-        pending = Promise.resolve(state.retryQueue[0]);
-      } else {
-        // An open burst would otherwise land in a fresh buffer that may never be uploaded
-        if (state.rageBurst) emitRageBurst(state.rageBurst);
-        var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
-        if (events.length === 0) return Promise.resolve();
-
-        var firstEventTs = state.startedAt;
-        var lastEventTs = state.lastActivity;
-        var first = events[0];
-        if (first && typeof first.timestamp === "number") {
-          firstEventTs = first.timestamp;
-        }
-        state.errorMatrix = [[]];
-        pending = buildChunk(events, lastEventTs, firstEventTs);
+        return sendChunk(state.retryQueue[0]).catch(function () {});
       }
 
-      return pending.then(sendChunk).catch(function () {});
+      // An open burst would otherwise land in a fresh buffer that may never be uploaded
+      if (state.rageBurst) emitRageBurst(state.rageBurst);
+      var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
+      if (events.length === 0) return Promise.resolve();
+      // The ring buffer drops its oldest pages; start the replay at the checkout Meta that opens it
+      if (events[0].type === 4) state.startUrl = events[0].data.href;
+      state.errorMatrix = [[]];
+
+      var sizes = events.map(function (e) {
+        return estimateEventSize(e) + 1;
+      });
+      var groups = [];
+      while (events.length > 0) {
+        var count = chunkLength(events, sizes);
+        sizes.splice(0, count);
+        groups.push(events.splice(0, count));
+      }
+
+      return groups
+        .reduce(function (prev, group) {
+          return prev.then(function () {
+            if (state.disabled) return;
+            return buildEventsChunk(group).then(sendChunk);
+          });
+        }, Promise.resolve())
+        .catch(function () {});
     }
 
     function notifyError(errorType, errorExceptionsJson) {
+      // Recording is stopped here, so an upload would hold no error marker
+      if (!isReplayEnabledOnPage()) return;
       try {
         if (window.rrweb && typeof window.rrweb.record.addCustomEvent === "function") {
           var parsed = null;
@@ -8859,18 +8933,25 @@ or you can use record.mirror to access the mirror instance during recording.`;
         delete e.data.payload.__betterlyticsErrorExceptions;
       }
 
+      if (e.type === 4 && e.data && typeof e.data.href === "string") {
+        e.data.href = normalizePageUrl(e.data.href);
+      }
+
       state.lastActivity = Math.max(state.lastActivity, e.timestamp);
 
       if (isSampledRecording) {
         // Case 1: push to regular buffer, periodic S3 flushes.
+        var size = estimateEventSize(e) + 1;
         state.buffer.push(e);
-        state.approxBytes += estimateEventSize(e) + 1;
+        state.bufferSizes.push(size);
+        state.approxBytes += size;
         if (state.approxBytes >= config.maxUncompressedBytes) {
           flush();
         }
       } else if (enableReplayOnError) {
         // Case 2: maintain two-segment ring buffer, no periodic flushes.
-        if (isCheckout && e.type === 2) {
+        // Rotate on the checkout's Meta so each segment starts with Meta + FullSnapshot.
+        if (isCheckout && e.type === 4) {
           state.errorMatrix.push([]);
           if (state.errorMatrix.length > 2) state.errorMatrix.shift();
         }
@@ -8884,7 +8965,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
     }
 
     function startRecording() {
-      if (!window.rrweb || state.initialized || state.disabled) {
+      // A deferred start can land after an in-app move to a page with replay turned off
+      if (!window.rrweb || state.initialized || state.disabled || !isReplayEnabledOnPage()) {
         return;
       }
 
@@ -8943,6 +9025,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
           mouseInteraction: true,
         },
       });
+      if (!state.startUrl) state.startUrl = normalizePageUrl(window.location.href);
       emitReplayPageview(window.location.href, false);
       if (isSampledRecording) {
         startFlushLoop();
@@ -8994,6 +9077,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
         if (state.isRecording === false) {
           startRecordingDeferred();
         } else {
+          // Send the previous page's events first, so the new full snapshot starts its own chunk
+          if (isSampledRecording) flush();
           emitReplayPageview(window.location.href, true);
         }
       } else {

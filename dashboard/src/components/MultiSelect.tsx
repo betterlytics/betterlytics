@@ -36,6 +36,9 @@ interface MultiSelectProps {
   /** Loading component. */
   loadingIndicator?: React.ReactNode;
 
+  /** Show loadingIndicator while manually controlled options are loading. */
+  loading?: boolean;
+
   /** Empty component. */
   emptyIndicator?: React.ReactNode;
 
@@ -266,6 +269,7 @@ export const MultiSelect = ({
   onSearch,
   onSearchSync,
   loadingIndicator,
+  loading = false,
   emptyIndicator,
   maxSelected = Number.MAX_SAFE_INTEGER,
   onMaxSelected,
@@ -752,7 +756,7 @@ export const MultiSelect = ({
               onWheel={(e) => e.stopPropagation()}
               onTouchMove={(e) => e.stopPropagation()}
             >
-              {isLoading ? (
+              {isLoading || loading ? (
                 loadingIndicator
               ) : rows.length === 0 ? (
                 <div id={listId} role='listbox' className='px-2 py-4 text-center text-sm'>

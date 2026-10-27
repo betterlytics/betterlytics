@@ -8,7 +8,7 @@ import { McpUserJourneysInputSchema } from '@/mcp/tools/userJourneys';
 
 describe('McpUserJourneysInputSchema', () => {
   it('accepts valid input with required fields only', () => {
-    const result = McpUserJourneysInputSchema.safeParse({ timeRange: '7d' });
+    const result = McpUserJourneysInputSchema.safeParse({ timeRange: '7d', timezone: 'UTC' });
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.maxSteps).toBe(3);
@@ -31,12 +31,12 @@ describe('McpUserJourneysInputSchema', () => {
   });
 
   it('rejects custom time range without dates', () => {
-    const result = McpUserJourneysInputSchema.safeParse({ timeRange: 'custom' });
+    const result = McpUserJourneysInputSchema.safeParse({ timeRange: 'custom', timezone: 'UTC' });
     expect(result.success).toBe(false);
   });
 
   it('rejects maxSteps less than 2', () => {
-    const result = McpUserJourneysInputSchema.safeParse({ timeRange: '7d', maxSteps: 1 });
+    const result = McpUserJourneysInputSchema.safeParse({ timeRange: '7d', timezone: 'UTC', maxSteps: 1 });
     expect(result.success).toBe(false);
   });
 });
