@@ -63,9 +63,9 @@ function PasswordField({
   const errorId = `${id}-error`;
 
   useEffect(() => {
-    if (!error?.invalid || disabled) return;
+    if (!error || disabled) return;
     inputRef.current?.focus();
-    inputRef.current?.select();
+    if (error.invalid) inputRef.current?.select();
   }, [error, disabled]);
 
   return (
@@ -221,13 +221,14 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
 
   const handleCodeChange = (value: string) => {
     setTotp(value);
-    if (value.length === TOTP_LENGTH && !isPending) submitCode(value);
+    // Typing over a full field also emits six digits, so only a code that just became complete submits
+    if (value.length === TOTP_LENGTH && totp.length < TOTP_LENGTH && !isPending) submitCode(value);
   };
 
   // A rejected code is cleared for the retry only once its error is on screen
   useEffect(() => {
-    if (!error?.invalid || isPending || !totpUrl) return;
-    setTotp('');
+    if (!error || isPending || !totpUrl) return;
+    if (error.invalid) setTotp('');
     totpInputRef.current?.focus();
   }, [error, isPending, totpUrl]);
 
