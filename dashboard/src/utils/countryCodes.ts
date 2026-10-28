@@ -35,6 +35,9 @@ export function alpha3ToAlpha2Code(alpha3: string): string | undefined {
  * @returns The country name (e.g., 'Denmark') or 'Unknown' if not found
  */
 export function getCountryName(alpha2: string, locale: SupportedLanguages): string {
-  const name = countries.getName(alpha2.toUpperCase(), locale);
-  return name || 'Unknown';
+  return findCountryName(alpha2, locale) ?? 'Unknown';
+}
+
+export function findCountryName(alpha2: string, locale: SupportedLanguages): string | undefined {
+  return countries.getName(alpha2.toUpperCase(), locale) || undefined;
 }
