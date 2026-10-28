@@ -42,7 +42,7 @@ export async function updateMemberRole(
   targetUserId: string,
   newRole: DashboardRole,
   requesterId: string,
-): Promise<DashboardMember> {
+): Promise<void> {
   const requesterAccess = await findUserDashboardOrNull({ userId: requesterId, dashboardId });
   const targetAccess = await findUserDashboardOrNull({ userId: targetUserId, dashboardId });
 
@@ -66,7 +66,10 @@ export async function updateMemberRole(
     throw new Error('Requester cannot assign this role');
   }
 
-  return updateMemberRoleRepo(dashboardId, targetUserId, newRole);
+  // Keeps the role history free of periods that changed nothing
+  if (newRole === targetAccess.role) return;
+
+  await updateMemberRoleRepo(dashboardId, targetUserId, newRole, requesterId);
 }
 
 export async function removeMemberFromDashboard(
