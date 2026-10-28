@@ -171,6 +171,7 @@
   .primary,
   .secondary {
     position: relative;
+    will-change: transform;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -199,7 +200,7 @@
     color: var(--color-on-volt);
   }
   .primary:hover:not(:disabled) {
-    translate: 0 -1px;
+    scale: 1.01;
     background: var(--color-volt-hover);
     box-shadow: 0 0 0 4px rgb(74 92 255 / 0.2);
   }
@@ -209,7 +210,7 @@
     color: var(--color-fg);
   }
   .secondary:hover:not(:disabled) {
-    translate: 0 -1px;
+    scale: 1.01;
     border-color: rgb(235 232 230 / 0.5);
     background: rgb(235 232 230 / 0.04);
   }
@@ -261,7 +262,7 @@
   }
   /* they fill on hover and ring on focus, so they read as buttons */
   .cells > .secondary:hover:not(:disabled) {
-    translate: none;
+    scale: none;
     background: rgb(235 232 230 / 0.04);
   }
   .cells > .secondary:active:not(:disabled) {
