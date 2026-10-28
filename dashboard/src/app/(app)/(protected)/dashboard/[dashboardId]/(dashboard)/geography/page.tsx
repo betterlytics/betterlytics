@@ -9,7 +9,7 @@ export default function GeographyPage() {
       {!isFeatureEnabled('enableGeolocation') && <FeatureNotEnabledBanner feature='geography' />}
       <GeographySection />
 
-      <div className='fixed top-16 right-4 z-30'>
+      <div className='fixed top-16 right-4 z-30 max-w-[calc(100vw-2rem)]'>
         <div className='bg-card flex gap-4 rounded-md p-2 shadow-md'>
           <DashboardFilters />
         </div>
