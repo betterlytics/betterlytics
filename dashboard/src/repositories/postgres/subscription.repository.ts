@@ -16,6 +16,7 @@ export async function findActiveSubscriptionsWithOwnedSites(): Promise<Subscript
   const subs = await prisma.subscription.findMany({
     where: {
       status: { in: ['active', 'past_due'] },
+      user: { deletedAt: null },
     },
     select: {
       userId: true,

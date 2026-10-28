@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { CampaignEmptyState } from './CampaignEmptyState';
+import { CampaignEmptyState, CampaignPeriodEmptyState } from './CampaignEmptyState';
 import { Button } from '@/components/ui/button';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
+import { formatDuration } from '@/utils/dateFormatters';
 import type { CampaignListRowSummary } from '@/entities/analytics/campaign.entities';
 import UTMBreakdownTabbedTable from './UTMBreakdownTabbedTable';
 import UTMBreakdownTabbedChart from './UTMBreakdownTabbedChart';
@@ -62,7 +63,7 @@ export default function CampaignList() {
   };
 
   if (!isLoading && campaigns.length === 0) {
-    return <CampaignEmptyState />;
+    return performancePage?.hasEverHadCampaigns ? <CampaignPeriodEmptyState /> : <CampaignEmptyState />;
   }
 
   const showTopPagination = pageSize >= 25 && totalPages > 1;
@@ -141,7 +142,11 @@ function CampaignListEntry({ campaign, isExpanded, onToggle }: CampaignListEntry
           value={formatPercentage(campaign.bounceRate, locale)}
           className='flex'
         />
-        <CampaignMetric label={t('avgSessionDuration')} value={campaign.avgSessionDuration} className='flex' />
+        <CampaignMetric
+          label={t('avgSessionDuration')}
+          value={formatDuration(campaign.avgSessionDuration, locale)}
+          className='flex'
+        />
         <CampaignMetric
           label={t('pagesPerSession')}
           value={formatNumber(campaign.pagesPerSession, locale)}
@@ -223,7 +228,7 @@ type CampaignInlineUTMSectionProps = {
   summary: {
     visitors: number;
     bounceRate: number;
-    avgSessionDuration: string;
+    avgSessionDuration: number;
     pagesPerSession: number;
   };
 };
@@ -291,7 +296,7 @@ type CampaignExpandedRowProps = {
   summary: {
     visitors: number;
     bounceRate: number;
-    avgSessionDuration: string;
+    avgSessionDuration: number;
     pagesPerSession: number;
   };
 };

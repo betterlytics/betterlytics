@@ -1,6 +1,6 @@
 import { baEvent } from '@/lib/ba-event';
 
-export type CtaPlacement = 'nav' | 'menu' | 'hero' | 'demo' | 'mcp' | 'pricing' | 'cta';
+export type CtaPlacement = 'nav' | 'menu' | 'hero' | 'demo' | 'mcp' | 'privacy' | 'setup' | 'pricing' | 'cta';
 
 export type CtaDestination = 'signup' | 'contact' | 'docs' | 'mcp-docs' | 'demo';
 

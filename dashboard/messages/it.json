@@ -1289,6 +1289,7 @@
       "product": {
         "features": "Funzionalità",
         "uptime": "Monitoraggio uptime",
+        "replay": "Session replay",
         "pricing": "Prezzi"
       },
       "company": {
@@ -1437,6 +1438,10 @@
         "vitals": {
           "title": "Core Web Vitals",
           "body": "LCP, INP e CLS misurati nei browser reali dei tuoi visitatori."
+        },
+        "uptime": {
+          "title": "Monitoraggio uptime",
+          "body": "Controlli anche ogni minuto, avvisi dove il tuo team già comunica e una pagina di stato."
         }
       }
     },
@@ -1681,11 +1686,11 @@
           },
           "free": {
             "q": "Il monitoraggio uptime è gratuito?",
-            "a": "Il piano gratuito include un monitor per sito, controllato ogni cinque minuti, e una pagina di stato. Il piano Professional sblocca la configurazione avanzata: controlli ogni minuto, header personalizzati, codici di stato accettati e controlli per parola chiave, più monitor e pagine di stato, e il tuo dominio. In self-hosting non ci sono limiti."
+            "a": "Il piano gratuito include un monitor per sito, controllato ogni cinque minuti, e una pagina di stato. Il piano Professional sblocca la configurazione avanzata: controlli ogni minuto, header personalizzati, codici di stato accettati e controlli per parola chiave, più monitor e pagine di stato, e il tuo dominio."
           },
           "internal": {
             "q": "Posso monitorare servizi interni?",
-            "a": "Su Betterlytics Cloud, i monitor raggiungono indirizzi pubblici sulle porte 80 e 443. In self-hosting possono raggiungere anche i servizi della tua rete privata, su qualsiasi porta."
+            "a": "I monitor raggiungono indirizzi pubblici sulle porte 80 e 443, quindi un servizio deve essere raggiungibile da internet."
           },
           "dedicated": {
             "q": "Quando conviene uno strumento di monitoraggio dedicato?",
@@ -1698,6 +1703,234 @@
         "lede": "Incolla un URL, scegli ogni quanto controllarlo e dove inviare gli avvisi. Il piano gratuito include un monitor e una pagina di stato.",
         "primary": "Inizia a monitorare gratis",
         "secondary": "Leggi la documentazione sul monitoraggio"
+      }
+    },
+    "replay": {
+      "seo": {
+        "title": "Session replay privacy-first, tutto mascherato | Betterlytics",
+        "description": "Guarda le registrazioni di visite reali, con testo e campi mascherati nel browser. Passa da un errore JavaScript al suo replay. Gratis in tutti i piani."
+      },
+      "hero": {
+        "eyebrow": "Session replay",
+        "title": "Scopri dove i visitatori si bloccano, e cosa li ha fermati",
+        "lede": "Rivedi le visite reali clic dopo clic, con i rage click segnalati e ogni parola e ogni campo mascherati prima che lascino il browser. Gratis in tutti i piani, nella stessa dashboard del tuo traffico e dei tuoi errori.",
+        "primary": "Inizia a registrare gratis",
+        "secondary": "Leggi la documentazione"
+      },
+      "cursor": {
+        "input": "Input registrato",
+        "drag": "Trascinamento registrato",
+        "click": "Clic registrato",
+        "rage": "Rage click registrato",
+        "selection": "Selezione registrata",
+        "pageview": "Visualizzazione registrata",
+        "paused": "Registrazione in pausa"
+      },
+      "specs": {
+        "errors": {
+          "unit": "clic",
+          "label": "Dall’errore al replay",
+          "body": "Gli errori nelle sessioni registrate rimandano al relativo replay, così passi dallo stack trace al replay con un clic."
+        },
+        "history": {
+          "unit": "giorni",
+          "label": "Storico dei replay",
+          "body": "Le registrazioni restano nella tua dashboard per 60 giorni."
+        },
+        "cookies": {
+          "unit": "cookie",
+          "label": "Niente cookie, niente IP",
+          "body": "I replay non usano cookie e non salvano alcun indirizzo IP insieme alla registrazione."
+        },
+        "thesis": {
+          "unit": "%",
+          "label": "Mascherato nel browser",
+          "body": "Ogni riga di testo e ogni campo si trasformano in asterischi prima che la registrazione lasci la pagina."
+        }
+      },
+      "story": {
+        "title": "Da un checkout fallito al *perché*",
+        "lede": "Cosa succede quando il pulsante Pay smette di funzionare alle 10:03.",
+        "stepsLabel": "Cronologia del replay",
+        "steps": {
+          "record": {
+            "time": "10:02",
+            "title": "La visita viene registrata",
+            "body": "La visita viene selezionata per la registrazione e salvata mentre il visitatore naviga."
+          },
+          "error": {
+            "time": "10:03",
+            "title": "Il pagamento va in errore",
+            "body": "Un errore JavaScript blocca l’acquisto. Il tracciamento errori lo cattura insieme alla pagina, al browser e al punto del codice in cui si è verificato."
+          },
+          "ready": {
+            "time": "10:05",
+            "title": "Arriva il replay",
+            "body": "Quando il visitatore se ne va, la sessione compare nel tuo elenco dei replay, con l’errore e un rage click già segnalati."
+          },
+          "jump": {
+            "time": "10:20",
+            "title": "Salti al momento esatto",
+            "body": "Dall’errore apri il replay e arrivi subito al momento in cui è successo."
+          },
+          "why": {
+            "time": "10:21",
+            "title": "E capisci perché",
+            "body": "Il visitatore ha continuato a cliccare su Pay con il CAP vuoto, e il replay lo segnala come rage click. Il testo è mascherato, ma vedi comunque quale campo è rimasto vuoto."
+          }
+        },
+        "scenes": {
+          "recording": "Registrazione",
+          "newError": "Nuovo errore",
+          "occurrences": "{count, plural, one {# sessione} other {# sessioni}}",
+          "sessions": "Sessioni",
+          "justNow": "Adesso",
+          "minutesAgo": "{count} min fa",
+          "timeline": "Cronologia",
+          "input": "Inserimento",
+          "click": "Clic",
+          "clientError": "Errore lato client",
+          "rageClick": "Rage click",
+          "emptyField": "CAP: vuoto",
+          "start": "Inizio:",
+          "skip": "Salta inattività"
+        }
+      },
+      "privacy": {
+        "title": "Mascherato *prima* di lasciare il browser",
+        "lede": "Vedi dove i visitatori hanno cliccato, scrollato e scritto. La loro privacy resta intatta: ciò che leggono e scrivono non lascia mai il loro dispositivo.",
+        "points": {
+          "text": "Ogni carattere di testo e ogni valore inserito diventa un asterisco, così il layout resta invariato",
+          "media": "Immagini e iframe vengono sostituiti da riquadri vuoti delle stesse dimensioni",
+          "consent": "Dove la legge lo richiede, la registrazione può attendere il consenso prima di partire",
+          "exclude": "Escludi intere pagine o sezioni del sito, o singoli elementi che contrassegni come privati",
+          "storage": "Nessun cookie e nessun indirizzo IP salvato con un replay"
+        },
+        "docs": "Come funziona il mascheramento",
+        "try": "Trascina per confrontare",
+        "visitor": "Cosa vede il visitatore",
+        "you": "Cosa vedi tu nel replay",
+        "slider": "Confronta la vista del visitatore con il replay mascherato",
+        "alt": "Il checkout di un negozio di caffè online mostrato due volte. Nella vista del visitatore nome, email e indirizzo sono leggibili; nel replay ogni parola è fatta di asterischi e la foto del prodotto è un riquadro vuoto."
+      },
+      "controls": {
+        "title": "Registra le sessioni che *vale la pena* guardare",
+        "lede": "Decidi quanto registrare e dove. Tutto il resto avviene senza intralciare i tuoi visitatori.",
+        "art": {
+          "sample": "Campione",
+          "recorded": "Registrato",
+          "error": "TypeError",
+          "leadUp": "1–2 min",
+          "off": "Disattivato",
+          "on": "Attivato",
+          "skipped": "Escluso",
+          "pageview": "Visualizzazione pagina"
+        },
+        "items": {
+          "sample": {
+            "title": "Scegli il campione",
+            "body": "Registra una piccola parte delle visite o tutte quante. Ogni visita viene registrata per intero oppure non viene registrata affatto."
+          },
+          "errors": {
+            "title": "Conserva i minuti prima di un errore",
+            "body": "Con la cattura degli errori attiva, anche le visite fuori dal campione conservano gli ultimi 1–2 minuti prima di un errore JavaScript."
+          },
+          "paths": {
+            "title": "Escludi alcune pagine",
+            "body": "Disattiva la registrazione per singole pagine o intere sezioni, come l’area admin o le pagine dell’account. Lì non viene registrato nulla e il player sfoca quella parte della visita."
+          },
+          "light": {
+            "title": "Non appesantisce il tuo sito",
+            "body": "Lo script di registrazione è un file separato che si carica solo quando serve e invia i dati in piccoli blocchi compressi in background, così le tue pagine restano veloci."
+          },
+          "spa": {
+            "title": "Pensato per le single-page app",
+            "body": "Nelle single-page app costruite con React, Vue o Next.js, i cambi di route compaiono nella cronologia come visualizzazioni di pagina, proprio come i caricamenti completi."
+          },
+          "bots": {
+            "title": "Solo persone",
+            "body": "I browser headless e i test runner come Playwright e Cypress non vengono mai registrati, così i tuoi replay mostrano solo persone reali."
+          }
+        }
+      },
+      "setup": {
+        "title": "Attivalo con *due* righe",
+        "lede": "Nessuno script nuovo e nessun fornitore in più. Il replay funziona con lo script Betterlytics che hai già.",
+        "snippetLabel": "Esempi di configurazione",
+        "consentTab": "Consenso",
+        "steps": {
+          "enable": {
+            "title": "Attivalo",
+            "body": "Aggiungi un attributo al tag script, oppure un’opzione nel pacchetto npm."
+          },
+          "consent": {
+            "title": "Gestisci il consenso",
+            "body": "Dove la legge richiede il consenso, come nell’UE, basta una riga per collegare la registrazione al tuo banner di consenso."
+          },
+          "tune": {
+            "title": "Personalizzalo",
+            "body": "Imposta il campione, escludi i percorsi privati e conserva i replay delle sessioni con un errore."
+          }
+        },
+        "cta": "Leggi la guida alla configurazione"
+      },
+      "related": {
+        "lede": "Il session replay è solo una parte di Betterlytics. Tutto ciò che trovi qui sotto condivide la dashboard, il login e la fattura."
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "items": {
+          "what": {
+            "q": "Cos’è il session replay?",
+            "a": "Il session replay, detto anche registrazione delle sessioni, salva come cambia una pagina e cosa fa il visitatore, poi ricostruisce la visita nella tua dashboard così puoi guardarla come un video. Non viene catturato alcun video e Betterlytics maschera il testo prima di inviare qualsiasi dato."
+          },
+          "free": {
+            "q": "Il session replay è gratuito?",
+            "a": "Sì. Il session replay è incluso in <link>tutti i piani</link>, compreso quello gratuito, e le registrazioni non vengono conteggiate negli eventi mensili."
+          },
+          "consent": {
+            "q": "Serve il consenso per il session replay?",
+            "a": "Dipende da dove si trovano i tuoi visitatori. Nell’UE, il GDPR e la direttiva ePrivacy possono richiedere il consenso prima di registrare una visita. I replay non partono finché il tuo sito non dà il via libera, che può arrivare dal banner di consenso che hai già, oppure da un’impostazione dello script se il consenso non ti serve."
+          },
+          "masked": {
+            "q": "Cosa viene mascherato?",
+            "a": "Tutto il testo della pagina e ogni valore inserito, comprese password, email e campi di ricerca, vengono sostituiti da asterischi nel browser del visitatore. Immagini e iframe vengono esclusi. Puoi bloccare altri elementi con la classe rr-block, oppure disattivare la registrazione per interi percorsi."
+          },
+          "slow": {
+            "q": "Il session replay rallenta il mio sito?",
+            "a": "Non in modo che i tuoi visitatori se ne accorgano. Lo script di registrazione si carica senza bloccare la pagina, e solo nelle visite registrate o quando la cattura degli errori è attiva. Campiona i movimenti del mouse e lo scroll invece di seguire ogni pixel, e invia dati compressi in piccoli blocchi in background."
+          },
+          "sample": {
+            "q": "Quante visite vengono registrate?",
+            "a": "Il 5% di default. Imposta data-replay-sample su un valore da 0 a 100. Le registrazioni più brevi di 15 secondi non vengono conservate e una registrazione si interrompe dopo 10 minuti di inattività o 20 minuti in totale."
+          },
+          "find": {
+            "q": "Come trovo la sessione che cerco?",
+            "a": "L’elenco dei replay mostra per ogni sessione la pagina iniziale, la durata, il paese, il browser, il dispositivo, il numero di errori e i rage click, e puoi nascondere le sessioni brevi. Da un errore, il pulsante Guarda replay apre l’ultima sessione in cui si è verificato."
+          },
+          "rage": {
+            "q": "Rileva i rage click?",
+            "a": "Sì. Quando un visitatore clicca più e più volte sullo stesso punto, Betterlytics lo segnala come rage click (un clic di frustrazione). Lo vedi nella cronologia del replay e, con il loro numero, nell’elenco dei replay, così trovi subito i visitatori frustrati."
+          },
+          "history": {
+            "q": "Per quanto tempo vengono conservati i replay?",
+            "a": "60 giorni. Dopodiché vengono eliminati definitivamente."
+          },
+          "mobile": {
+            "q": "Funziona nelle app mobile?",
+            "a": "Registra siti e web app, nei browser desktop e mobile. Le app native per iOS e Android non sono supportate. Sugli schermi touch vengono registrati tocchi e scroll, ma non c’è un cursore da seguire."
+          },
+          "dedicated": {
+            "q": "Quando conviene uno strumento di replay dedicato?",
+            "a": "Betterlytics mostra cosa hanno fatto i visitatori, con ogni parola mascherata. Se ti servono heatmap, log della console e di rete, testo leggibile o la ricerca per utente ed evento, uno strumento dedicato fa più al caso tuo. Il nostro <link>confronto con PostHog</link> mostra le differenze funzionalità per funzionalità."
+          }
+        }
+      },
+      "cta": {
+        "title": "Guarda il tuo primo replay oggi stesso",
+        "lede": "Attivalo nello script che hai già e, dove serve, collegalo al tuo banner di consenso. Il session replay è gratis in tutti i piani.",
+        "primary": "Inizia a registrare gratis",
+        "secondary": "Leggi la documentazione sul replay"
       }
     }
   },
@@ -2066,9 +2299,7 @@
       "tls_hostname_mismatch": "Il certificato SSL non corrisponde al nome host",
       "tls_untrusted_ca": "Certificato SSL emesso da CA non attendibile",
       "tls_not_yet_valid": "Il certificato SSL non è ancora valido",
-      "tls_revoked": "Il certificato SSL è stato revocato",
       "tls_self_signed": "Il certificato SSL è autofirmato",
-      "tls_connection_failed": "Connessione SSL fallita",
       "http_4xx": "Il server ha restituito un errore client",
       "http_5xx": "Il server ha restituito un errore server",
       "http_other": "Codice di stato HTTP inatteso",
@@ -2411,7 +2642,12 @@
     "pagination": {
       "pageOf": "Pagina {currentPage} di {totalPages}",
       "showing": "Mostrando {startItem}-{endItem} di {totalItems} elementi",
-      "perPage": "per pagina"
+      "perPage": "per pagina",
+      "navigation": "Paginazione",
+      "firstPage": "Prima pagina",
+      "previousPage": "Pagina precedente",
+      "nextPage": "Pagina successiva",
+      "lastPage": "Ultima pagina"
     },
     "annotations": {
       "dialogs": {
@@ -2671,16 +2907,15 @@
     },
     "campaign": {
       "title": "Campagne",
-      "pagination": {
-        "pageOf": "Pagina {currentPage} di {totalPages}",
-        "showing": "Mostrando {startItem}-{endItem} di {totalItems} campagne",
-        "perPage": "per pagina"
-      },
       "emptyState": {
         "title": "Nessuna campagna ancora registrata",
         "description": "Le campagne appariranno qui una volta che gli URL con tag utm_campaign saranno registrati. Inizia a taggare i tuoi link per visualizzare le metriche di performance.",
         "docsHint": "Hai bisogno di aiuto per far comparire le campagne?",
         "docsLinkLabel": "Leggi la guida al tracciamento delle campagne"
+      },
+      "periodEmptyState": {
+        "title": "Nessun traffico delle campagne in questo periodo",
+        "description": "Prova un intervallo di date più ampio per vedere le campagne precedenti."
       },
       "loading": "Caricamento delle campagne...",
       "campaignRow": {
@@ -2811,6 +3046,8 @@
         "apply": "Applica",
         "selectValue": "Seleziona un valore",
         "noValuesForCurrentPeriod": "Nessun valore trovato per il periodo corrente",
+        "valuesTruncated": "Mostrati {shown, number} di {total, number} valori. Digita per cercare tra gli altri.",
+        "valuesTruncatedAtLimit": "Mostrati {shown, number} di {total, number}+ valori. Digita per cercare tra gli altri.",
         "savedFilters": "Filtri salvati",
         "noSavedFilters": "Nessun filtro salvato",
         "saveFilters": "Salva",
@@ -2925,7 +3162,7 @@
       "table": {
         "path": "Percorso",
         "filterByPath": "Filtra per {path}",
-        "visitors": "Visitatori",
+        "sessions": "Sessioni",
         "pageviews": "Visualizzazioni",
         "sessionPageviews": "Visualizzazioni sessione",
         "bounceRate": "Frequenza di rimbalzo",
@@ -2955,12 +3192,7 @@
       "table": {
         "details": "Dettagli sito di riferimento",
         "tabs": {
-          "all": "Tutti",
-          "search": "Ricerca",
-          "social": "Social",
-          "direct": "Diretto",
-          "email": "Email",
-          "other": "Altro"
+          "all": "Tutti"
         },
         "columns": {
           "source": "Fonte",
@@ -2972,6 +3204,14 @@
           "direct": "Diretto",
           "unknown": "Sconosciuto"
         }
+      },
+      "categories": {
+        "search": "Ricerca",
+        "social": "Social",
+        "ai": "AI",
+        "direct": "Diretto",
+        "email": "Email",
+        "other": "Altro"
       }
     },
     "geography": {
@@ -3073,7 +3313,8 @@
           "title": "Nessuna sessione replay disponibile",
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
         },
-        "sessionErrorsTooltip": "{count, plural, one {Questa sessione ha catturato {count} errore lato client} other {Questa sessione ha catturato {count} errori lato client}}"
+        "sessionErrorsTooltip": "{count, plural, one {Questa sessione ha catturato {count} errore lato client} other {Questa sessione ha catturato {count} errori lato client}}",
+        "sessionRageClicksTooltip": "{count, plural, one {Questa sessione ha {count} clic di frustrazione} other {Questa sessione ha {count} clic di frustrazione}}"
       },
       "playerTopbar": {
         "startLabel": "Inizio:",
@@ -3098,7 +3339,8 @@
         "blacklist": "Nascosto",
         "viewportResize": "Ridimensionamento viewport",
         "mediaInteraction": "Interazione media",
-        "clientError": "Errore lato client"
+        "clientError": "Errore lato client",
+        "rageClick": "Clic di frustrazione"
       },
       "player": {
         "skipInactive": "Salta inattività",
@@ -3362,6 +3604,7 @@
           "passwordPromptTitle": "Conferma la tua password",
           "passwordPromptDescription": "Inserisci la password del tuo account per continuare.",
           "passwordLabel": "Password",
+          "incorrectPassword": "Password errata",
           "backupCodesTitle": "Codici di backup",
           "backupCodesDescription": "Conserva questi codici monouso in un luogo sicuro: ti permettono di accedere se perdi la tua app di autenticazione.",
           "copyCodes": "Copia",
@@ -3538,6 +3781,9 @@
     "themeToggle": {
       "light": "Passa alla modalità chiara",
       "dark": "Passa alla modalità scura"
+    },
+    "scrollToTop": {
+      "label": "Torna in cima"
     },
     "errorPage": {
       "title": "Qualcosa è andato storto",

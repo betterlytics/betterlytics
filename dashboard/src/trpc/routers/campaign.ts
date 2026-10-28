@@ -7,19 +7,16 @@ import {
   fetchCampaignLandingPagePerformance,
   fetchCampaignAudienceProfile,
 } from '@/services/analytics/campaign.service';
-import { formatPercentage } from '@/utils/formatters';
-import { getLocale } from 'next-intl/server';
-import type { SupportedLanguages } from '@/constants/i18n';
 
 function buildAudienceDistribution<
   TLabelKey extends string,
   TItem extends { visitors: number } & Record<TLabelKey, string>,
->(audience: TItem[], labelKey: TLabelKey, locale: SupportedLanguages): { label: string; value: string }[] {
+>(audience: TItem[], labelKey: TLabelKey): { label: string; value: number }[] {
   const totalVisitors = audience.reduce((sum, item) => sum + item.visitors, 0);
   if (totalVisitors === 0) return [];
   return audience.map((item) => ({
     label: item[labelKey],
-    value: formatPercentage((item.visitors / totalVisitors) * 100, locale, { maximumFractionDigits: 0 }),
+    value: (item.visitors / totalVisitors) * 100,
   }));
 }
 
@@ -28,14 +25,14 @@ export const campaignRouter = createRouter({
     .input(z.object({ pageIndex: z.number(), pageSize: z.number() }))
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      return fetchCampaignDirectoryPage(main, input.pageIndex, input.pageSize);
+      return fetchCampaignDirectoryPage(ctx.authContext, main, input.pageIndex, input.pageSize);
     }),
 
   sparklines: analyticsProcedure
     .input(z.object({ campaignNames: z.array(z.string()) }))
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      return fetchCampaignSparklines(main, input.campaignNames);
+      return fetchCampaignSparklines(ctx.authContext, main, input.campaignNames);
     }),
 
   expandedDetails: analyticsProcedure
@@ -43,18 +40,17 @@ export const campaignRouter = createRouter({
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
       const [utmSource, landingPages, audienceProfile] = await Promise.all([
-        fetchCampaignUTMBreakdown(main, 'source', input.campaignName),
-        fetchCampaignLandingPagePerformance(main, input.campaignName),
-        fetchCampaignAudienceProfile(main, input.campaignName),
+        fetchCampaignUTMBreakdown(ctx.authContext, main, 'source', input.campaignName),
+        fetchCampaignLandingPagePerformance(ctx.authContext, main, input.campaignName),
+        fetchCampaignAudienceProfile(ctx.authContext, main, input.campaignName),
       ]);
-      const locale = (await getLocale()) as SupportedLanguages;
       return {
         utmSource,
         landingPages,
-        devices: buildAudienceDistribution(audienceProfile.devices, 'device_type', locale),
-        countries: buildAudienceDistribution(audienceProfile.countries, 'country_code', locale),
-        browsers: buildAudienceDistribution(audienceProfile.browsers, 'browser', locale),
-        operatingSystems: buildAudienceDistribution(audienceProfile.operatingSystems, 'os', locale),
+        devices: buildAudienceDistribution(audienceProfile.devices, 'device_type'),
+        countries: buildAudienceDistribution(audienceProfile.countries, 'country_code'),
+        browsers: buildAudienceDistribution(audienceProfile.browsers, 'browser'),
+        operatingSystems: buildAudienceDistribution(audienceProfile.operatingSystems, 'os'),
       };
     }),
 
@@ -65,6 +61,6 @@ export const campaignRouter = createRouter({
     }))
     .query(async ({ ctx, input }) => {
       const { main } = ctx;
-      return fetchCampaignUTMBreakdown(main, input.dimension, input.campaignName);
+      return fetchCampaignUTMBreakdown(ctx.authContext, main, input.dimension, input.campaignName);
     }),
 });

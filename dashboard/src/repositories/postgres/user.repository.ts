@@ -164,22 +164,6 @@ export async function updateUser(userId: string, data: UpdateUserData): Promise<
   }
 }
 
-export async function findLegacyTwoFactorUsers(): Promise<
-  Array<{ id: string; email: string | null; name: string | null; twoFactorEnabled: boolean }>
-> {
-  return prisma.user.findMany({
-    where: { totpSecret: { not: null } },
-    select: { id: true, email: true, name: true, twoFactorEnabled: true },
-  });
-}
-
-export async function clearLegacyTwoFactor(): Promise<void> {
-  await prisma.user.updateMany({
-    where: { totpSecret: { not: null } },
-    data: { twoFactorEnabled: false, totpSecret: null },
-  });
-}
-
 export async function markOnboardingCompleted(userId: string): Promise<void> {
   try {
     await prisma.user.update({
@@ -371,7 +355,7 @@ export async function resetUserTwoFactor(userId: string): Promise<void> {
   try {
     await prisma.$transaction(async (tx) => {
       await tx.twoFactor.deleteMany({ where: { userId } });
-      await tx.user.update({ where: { id: userId }, data: { twoFactorEnabled: false, totpSecret: null } });
+      await tx.user.update({ where: { id: userId }, data: { twoFactorEnabled: false } });
       await tx.verification.deleteMany({
         where: {
           value: userId,
@@ -395,7 +379,6 @@ async function anonymizeUserWith(tx: Prisma.TransactionClient, userId: string): 
       image: null,
       role: null,
       twoFactorEnabled: false,
-      totpSecret: null,
       emailVerified: false,
       deletedAt: new Date(),
     },

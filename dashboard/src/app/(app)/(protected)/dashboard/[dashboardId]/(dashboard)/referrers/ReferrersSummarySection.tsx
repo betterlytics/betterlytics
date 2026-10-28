@@ -7,6 +7,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useBAQueryParams } from '@/trpc/hooks';
 import { trpc } from '@/trpc/client';
 import { useQueryState } from '@/hooks/use-query-state';
+import { useReferrerCategoryLabel } from '@/hooks/use-referrer-category-label';
 
 export default function ReferrersSummarySection() {
   const { input, options } = useBAQueryParams();
@@ -14,6 +15,7 @@ export default function ReferrersSummarySection() {
   const locale = useLocale();
   const t = useTranslations('components.referrers.summary');
   const { data, loading } = useQueryState(query);
+  const categoryLabel = useReferrerCategoryLabel();
 
   const referralPercentage =
     data && data.totalSessions > 0 ? (data.referralSessions / data.totalSessions) * 100 : 0;
@@ -38,7 +40,7 @@ export default function ReferrersSummarySection() {
     {
       title: t('topReferrerSource'),
       loading,
-      value: data ? (data.topReferrerSource ?? t('none')) : undefined,
+      value: data ? (data.topReferrerSource ? categoryLabel(data.topReferrerSource) : t('none')) : undefined,
     },
     {
       title: t('avgSessionDuration'),

@@ -11,7 +11,7 @@ const RawMetricFields = {
 const MetricFields = {
   visitors: z.number().int().nonnegative(),
   bounceRate: z.number().nonnegative(),
-  avgSessionDuration: z.string(),
+  avgSessionDuration: z.number().nonnegative(),
   pagesPerSession: z.number().nonnegative(),
 };
 

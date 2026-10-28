@@ -231,7 +231,6 @@ describe('deleteUserAccount', () => {
         image: null,
         role: null,
         twoFactorEnabled: false,
-        totpSecret: null,
         emailVerified: false,
         deletedAt: expect.any(Date),
       },
@@ -507,7 +506,7 @@ describe('resetUserTwoFactor', () => {
     expect(prismaMock.twoFactor.deleteMany).toHaveBeenCalledWith({ where: { userId: 'user-1' } });
     expect(prismaMock.user.update).toHaveBeenCalledWith({
       where: { id: 'user-1' },
-      data: { twoFactorEnabled: false, totpSecret: null },
+      data: { twoFactorEnabled: false },
     });
     expect(prismaMock.verification.deleteMany).toHaveBeenCalledWith({
       where: {

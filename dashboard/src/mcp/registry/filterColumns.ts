@@ -12,7 +12,7 @@ const STANDARD_COLUMN_DESCRIPTIONS: Record<TableFilterColumn, string> = {
   browser_version: 'Browser major version (e.g. 120)',
   os: 'Operating system',
   os_version: 'Operating system major version (e.g. 10)',
-  referrer_source: 'Traffic source type (e.g. search, social, direct)',
+  referrer_source: 'Traffic source type (e.g. search, social, ai, direct)',
   referrer_source_name: 'Traffic source name (e.g. Google, Twitter)',
   referrer_search_term: 'Search term used to reach the site',
   referrer_url: 'Full referrer URL',

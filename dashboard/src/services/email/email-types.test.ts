@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { EMAIL_TYPES, renderEmail, senderFor, validateSendEmailPayload } from '@/services/email/email-types';
 import { createEmailRecipientKey } from '@/services/email/recipient-key.service';
 import { resolveSender } from '@/services/email/transport';
-import { TwoFactorResetRequiredEmail } from '@/services/email/template/two-factor-reset-required-mail';
+import { TwoFactorDisabledEmail } from '@/services/email/template/two-factor-disabled-mail';
 import { WeeklyReportEmail } from '@/services/email/template/weekly-report-mail';
 
 const monitorBase = {
@@ -207,17 +207,15 @@ describe('resolveSender', () => {
 });
 
 describe('off-cloud rendering', () => {
-  it('loads the logo from PUBLIC_BASE_URL and names the real 2FA settings path', async () => {
+  it('loads the logo from PUBLIC_BASE_URL', async () => {
     const email = await renderEmail({
-      type: 'two-factor-reset-required',
+      type: 'two-factor-disabled',
       recipientKey: 'k',
       campaignKey: 'c',
-      data: TwoFactorResetRequiredEmail.PreviewProps,
+      data: TwoFactorDisabledEmail.PreviewProps,
     });
     expect(email.html).toContain('src="http://localhost:3000/betterlytics-logo-dark-simple-96x96-q75.png"');
     expect(email.html).not.toContain('src="https://betterlytics.io');
-    expect(email.text).toContain('Settings → Account');
-    expect(email.text).not.toContain('Settings → Security');
   });
 
   it('tells report recipients who added them and how to be removed', async () => {
