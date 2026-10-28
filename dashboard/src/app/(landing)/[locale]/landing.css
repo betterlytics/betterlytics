@@ -192,6 +192,27 @@
   pointer-events: none;
 }
 
+/* add transitions with `tactile-with-[…]`, not `transition-*`, which drops the scale. will-change keeps the
+   element on its own layer, so it doesn't snap a pixel as the scale settles */
+@utility tactile {
+  will-change: transform;
+  transition-property: scale, var(--tactile-with, scale);
+  transition-duration: 160ms;
+  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  @media (hover: hover) {
+    &:hover:not(:disabled) {
+      scale: 1.01;
+    }
+  }
+  &:active:not(:disabled) {
+    scale: 0.97;
+  }
+}
+
+@utility tactile-with-* {
+  --tactile-with: --value([*]);
+}
+
 @utility bg-hatch {
   background-image: repeating-linear-gradient(315deg, var(--color-hatch-ink) 0 1px, transparent 0 50%);
   background-size: 10px 10px;

@@ -5,7 +5,7 @@ const buttonVariants = cva(
   [
     'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-transparent',
     'font-medium tracking-ui',
-    'transition-[translate,scale,background-color,border-color,box-shadow] duration-180 ease-out-expo will-change-transform hover:scale-101 active:translate-y-px active:scale-97',
+    'tactile tactile-with-[background-color,border-color,box-shadow]',
   ],
   {
     variants: {

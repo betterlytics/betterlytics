@@ -170,8 +170,9 @@
   /* --- buttons --- */
   .primary,
   .secondary {
+    @apply tactile;
+    --tactile-with: background-color, border-color, box-shadow, opacity;
     position: relative;
-    will-change: transform;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -187,20 +188,12 @@
     letter-spacing: -0.2px;
     text-decoration: none;
     white-space: nowrap;
-    transition:
-      translate 0.18s var(--ease-out-expo),
-      scale 0.18s var(--ease-out-expo),
-      background-color 0.18s var(--ease-out-expo),
-      border-color 0.18s var(--ease-out-expo),
-      box-shadow 0.18s var(--ease-out-expo),
-      opacity 0.18s var(--ease-out-expo);
   }
   .primary {
     background: var(--color-volt);
     color: var(--color-on-volt);
   }
   .primary:hover:not(:disabled) {
-    scale: 1.01;
     background: var(--color-volt-hover);
     box-shadow: 0 0 0 4px rgb(74 92 255 / 0.2);
   }
@@ -210,14 +203,8 @@
     color: var(--color-fg);
   }
   .secondary:hover:not(:disabled) {
-    scale: 1.01;
     border-color: rgb(235 232 230 / 0.5);
     background: rgb(235 232 230 / 0.04);
-  }
-  .primary:active:not(:disabled),
-  .secondary:active:not(:disabled) {
-    translate: 0 1px;
-    scale: 0.98;
   }
   .primary:disabled,
   .secondary:disabled {
@@ -266,7 +253,6 @@
     background: rgb(235 232 230 / 0.04);
   }
   .cells > .secondary:active:not(:disabled) {
-    translate: none;
     scale: none;
   }
   .cells > .secondary:focus-visible {
