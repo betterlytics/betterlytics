@@ -5,6 +5,7 @@ import * as OTP from '@radix-ui/react-one-time-password-field';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
+import { PASSWORD_TOO_LONG_ERROR_CODE } from '@/lib/auth/auth-error';
 import { inviteTokenFromCallback, signInPath, twoFactorAttemptEnded } from '@/lib/auth/auth-page-state';
 import { authClient } from '@/lib/auth-client';
 import { cn } from '@/landing/lib/cn';
@@ -90,8 +91,9 @@ export function SignInForm({ providers, forgotPassword, redirectTo, initialError
         const shared = authErrorMessage(signInError);
         if (shared) fail(shared);
         else if (signInError.status === 429) fail(tFields('errors.tooManyRequests'));
-        // only a 401 is a wrong password: an outage mustn't send someone off to reset a correct one
-        else if (signInError.status === 401) fail(t('errors.invalidCredentials'), 'both');
+        // only a 401 or an over-long password is wrong credentials: an outage mustn't send someone to reset theirs
+        else if (signInError.status === 401 || signInError.code === PASSWORD_TOO_LONG_ERROR_CODE)
+          fail(t('errors.invalidCredentials'), 'both');
         else fail(t('errors.generic'));
         return;
       }

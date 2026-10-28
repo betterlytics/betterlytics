@@ -6,6 +6,10 @@ export type AuthErrorKind = 'originMismatch' | 'accountLocked' | 'accountDisable
 // Thrown by our session create hook for accounts an admin disabled; OAuth sign-ins get it as ?error=
 export const ACCOUNT_DISABLED_ERROR_CODE = 'ACCOUNT_DISABLED';
 
+// better-auth rejects a password over maxPasswordLength before checking it; no stored password is that long,
+// so the forms treat it as a wrong password
+export const PASSWORD_TOO_LONG_ERROR_CODE = 'PASSWORD_TOO_LONG';
+
 /**
  * Classifies by status and code only: better-auth's messages are English library text that can
  * change between releases.

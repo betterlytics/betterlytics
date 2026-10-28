@@ -7,6 +7,7 @@ import { ZodIssue } from 'zod';
 import { useTranslations } from 'next-intl';
 import { ChangePasswordData, ChangePasswordSchema, PASSWORD_RULES } from '@/entities/auth/password.entities';
 import { authClient } from '@/lib/auth-client';
+import { PASSWORD_TOO_LONG_ERROR_CODE } from '@/lib/auth/auth-error';
 import { cn } from '@/lib/utils';
 import {
   Dialog,
@@ -187,7 +188,7 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
         toast.success(t('toast.success'));
         resetForm();
         onOpenChange(false);
-      } else if (error.code === 'INVALID_PASSWORD') {
+      } else if (error.code === 'INVALID_PASSWORD' || error.code === PASSWORD_TOO_LONG_ERROR_CODE) {
         setErrors({ currentPassword: t('invalidCurrentPassword') });
       } else if (error.code === 'WEAK_PASSWORD') {
         setErrors({ newPassword: tFields('errors.weakPassword') });
