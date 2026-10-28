@@ -114,8 +114,7 @@ export async function dispatchEmail(
           'error.type': err instanceof Error ? err.name : 'unknown',
         });
         span.setStatus({ code: SpanStatusCode.ERROR });
-        // Provider errors can echo the recipient address, so spans only see a generic message; logs keep the cause
-        throw new Error(`${provider} send failed`, { cause: err });
+        throw err;
       } finally {
         span.end();
       }
