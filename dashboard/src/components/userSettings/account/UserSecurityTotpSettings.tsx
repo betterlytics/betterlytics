@@ -182,7 +182,8 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
     startTransition(async () => {
       try {
         const { data, error: enableError } = await authClient.twoFactor.enable({ password });
-        if (enableError || !data) {
+        // Only the email/SMS method answers without a TOTP URI, and it isn't configured
+        if (enableError || data?.method !== 'totp') {
           setError(toTotpError(enableError, t('setupFailed')));
           return;
         }

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as bcrypt from 'bcrypt';
-import { getIp } from 'better-auth/api';
+import { getIP } from 'better-auth/api';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
 import { env } from '@/lib/env';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
@@ -130,7 +130,7 @@ describe('session configuration', () => {
 
 describe('client IP resolution', () => {
   it('skips the trusted proxy hop from AUTH_TRUSTED_PROXIES', () => {
-    expect(getIp(new Headers({ 'x-forwarded-for': '203.0.113.7, 172.18.0.1' }), auth.options)).toBe('203.0.113.7');
+    expect(getIP(new Headers({ 'x-forwarded-for': '203.0.113.7, 172.18.0.1' }), auth.options)).toBe('203.0.113.7');
   });
 });
 
