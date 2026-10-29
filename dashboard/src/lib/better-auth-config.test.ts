@@ -110,11 +110,11 @@ describe('password hashing (bcrypt compatibility)', () => {
     expect(await bcrypt.compare(PASSWORD, hash)).toBe(true);
   });
 
-  it('keeps the documented password length policy', () => {
+  it('lets passwords from before the 100-character policy reach the hash check', () => {
     expect(auth.options.emailAndPassword).toMatchObject({
       enabled: true,
       minPasswordLength: 8,
-      maxPasswordLength: 100,
+      maxPasswordLength: 1024,
     });
   });
 });
@@ -609,6 +609,19 @@ describe('before hook (closed better-auth endpoints)', () => {
     ['/sign-up/email', { password: 'no-uppercase-1', acceptedTerms: true }],
     ['/reset-password', { newPassword: 'no-uppercase-1' }],
   ])('rejects weak passwords on %s when the client-side schema is bypassed', async (path, body) => {
+    await expect(runBeforeHook(path, body)).rejects.toMatchObject({
+      statusCode: 400,
+      body: { code: 'WEAK_PASSWORD' },
+    });
+  });
+
+  const OVER_LONG_PASSWORD = `Aa1${'x'.repeat(98)}`;
+
+  it.each([
+    ['/change-password', { newPassword: OVER_LONG_PASSWORD }],
+    ['/sign-up/email', { password: OVER_LONG_PASSWORD, acceptedTerms: true }],
+    ['/reset-password', { newPassword: OVER_LONG_PASSWORD }],
+  ])('caps new passwords at 100 characters on %s', async (path, body) => {
     await expect(runBeforeHook(path, body)).rejects.toMatchObject({
       statusCode: 400,
       body: { code: 'WEAK_PASSWORD' },
