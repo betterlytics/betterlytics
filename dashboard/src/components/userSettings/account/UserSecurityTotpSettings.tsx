@@ -19,7 +19,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { Check, Clipboard, Download, Loader2, TriangleAlert } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
-import type { AuthClientError } from '@/lib/auth/auth-error';
+import { isWrongPasswordError, type AuthClientError } from '@/lib/auth/auth-error';
 import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
 import { useCopy } from '@/hooks/use-copy';
 import { useSessionRefresh } from '@/hooks/use-session-refresh';
@@ -40,7 +40,7 @@ function useTotpError() {
 
   return (error: AuthClientError | null, fallback: string): TotpError => {
     if (error?.code === 'INVALID_CODE') return { message: tSignin('errors.invalidOtp'), invalid: true };
-    if (error?.code === 'INVALID_PASSWORD') return { message: t('incorrectPassword'), invalid: true };
+    if (error && isWrongPasswordError(error)) return { message: t('incorrectPassword'), invalid: true };
     return { message: (error && authErrorMessage(error)) ?? fallback, invalid: false };
   };
 }
@@ -182,7 +182,8 @@ function SetupTotp({ onEnabled }: { onEnabled: (backupCodes: string[]) => void }
     startTransition(async () => {
       try {
         const { data, error: enableError } = await authClient.twoFactor.enable({ password });
-        if (enableError || !data) {
+        // Only the email/SMS method answers without a TOTP URI, and it isn't configured
+        if (enableError || data?.method !== 'totp') {
           setError(toTotpError(enableError, t('setupFailed')));
           return;
         }
