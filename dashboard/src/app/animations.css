@@ -216,7 +216,7 @@
 
   @keyframes filter-pill-flash {
     0% {
-      box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 50%, transparent);
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary-foreground) 70%, transparent);
     }
     100% {
       box-shadow: 0 0 0 1px transparent;

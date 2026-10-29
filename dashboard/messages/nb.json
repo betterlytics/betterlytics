@@ -3070,7 +3070,9 @@
       "toastFilterRemoved": "Fjernet",
       "removeFilter": "Fjern filter",
       "pillMoreValues": "+{count, number} til",
-      "notAvailableOnPage": "Ikke tilgjengelig på denne siden"
+      "notAvailableOnPage": "Ikke tilgjengelig på denne siden",
+      "activeFilters": "Aktive filtre",
+      "clearAll": "Fjern alle"
     },
     "funnels": {
       "skeleton": {
