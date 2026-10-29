@@ -1,0 +1,453 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .bento {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 2fr);
+    @variant max-xl {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .lead {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 34px 32px 36px;
+    border-right: 1px solid var(--color-rule-08);
+    @variant max-xl {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+    @variant max-sm {
+      padding: 30px var(--pad);
+    }
+  }
+  .lead::after {
+    content: '';
+    position: absolute;
+    inset: 40% 0 0;
+    pointer-events: none;
+    @apply bg-hatch;
+    -webkit-mask-image: linear-gradient(to top, #000 10%, transparent);
+    mask-image: linear-gradient(to top, #000 10%, transparent);
+    @variant max-xl {
+      display: none;
+    }
+  }
+  .lead > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .body {
+    max-width: 42ch;
+    margin-bottom: 8px;
+    font-size: var(--text-body);
+    line-height: 24px;
+    color: var(--color-muted);
+  }
+
+  .cells {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    @variant max-sm {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .cell {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--color-rule-08);
+  }
+  .cell:nth-child(odd) {
+    border-right: 1px solid var(--color-rule-08);
+    @variant max-sm {
+      border-right: 0;
+    }
+  }
+  .cell:nth-last-child(-n + 2) {
+    border-bottom: 0;
+    @variant max-sm {
+      border-bottom: 1px solid var(--color-rule-08);
+    }
+  }
+  .cell:last-child {
+    border-bottom: 0;
+  }
+  .art {
+    position: relative;
+    display: grid;
+    place-items: center;
+    container-type: inline-size;
+    height: 178px;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-rule-08);
+    @apply bg-hatch;
+  }
+  .copy {
+    padding: 34px 38px 38px;
+    @variant max-sm {
+      padding: 34px var(--pad) 32px;
+    }
+  }
+  .copy p {
+    margin-top: 10px;
+    max-width: 44ch;
+    font-size: var(--text-label);
+    line-height: 22px;
+    color: var(--color-muted);
+  }
+
+  .art > * {
+    transition:
+      opacity 0.55s var(--ease-out-expo) 0.1s,
+      translate 0.7s var(--ease-out-expo) 0.1s;
+  }
+  @media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+    .art:not([data-in]) > * {
+      opacity: 0;
+      translate: 0 10px;
+    }
+  }
+
+  .miniList,
+  .actionBar,
+  .historyArt,
+  .filterList,
+  .navigator {
+    border: 1px solid var(--color-rule-10);
+    background-color: var(--color-canvas);
+    background-image: linear-gradient(180deg, --alpha(var(--color-fg) / 4.5%), --alpha(var(--color-fg) / 1.4%));
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 12px 28px rgb(0 0 0 / 0.4);
+  }
+
+  .statusArt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: min(300px, calc(100cqw - 40px));
+  }
+  .miniList {
+    width: 100%;
+    padding: 4px 4px 14px;
+    border-radius: 10px;
+  }
+  .miniRow {
+    display: grid;
+    grid-template-columns: 14px auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 7px 9px;
+    border-radius: 7px;
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  .miniRow b {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .miniRow span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .miniRow[data-checked] {
+    background: --alpha(var(--color-volt-lift) / 12%);
+  }
+  .box {
+    display: grid;
+    place-items: center;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--color-rule-22);
+    border-radius: 4px;
+    color: var(--color-on-volt);
+  }
+  .miniRow[data-checked] .box {
+    border-color: var(--color-volt-lift);
+    background: var(--color-volt-lift);
+  }
+  /* rides up over the list's bottom padding, clear of the last row */
+  .actionBar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: -12px;
+    padding: 6px 7px 6px 13px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    white-space: nowrap;
+    color: var(--color-fg);
+  }
+  .actionBar i {
+    width: 1px;
+    height: 14px;
+    background: var(--color-rule-22);
+  }
+  .actionBar b {
+    padding: 3px 10px;
+    border: 1px solid var(--color-rule-22);
+    border-radius: 999px;
+    font-weight: 500;
+  }
+  .actionBar b[data-tone='resolve'] {
+    border-color: --alpha(var(--color-live) / 40%);
+    background: --alpha(var(--color-live) / 12%);
+    color: var(--color-live);
+  }
+
+  .historyArt {
+    display: grid;
+    gap: 10px;
+    width: min(320px, calc(100cqw - 40px));
+    padding: 12px 14px 13px;
+    border-radius: 10px;
+  }
+  .historyHead {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--color-muted);
+  }
+  .historyHead span:first-child {
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 40px;
+  }
+  .bars i {
+    flex: 1;
+    height: calc(var(--h) * 100%);
+    min-height: 2px;
+    border-radius: 1px;
+    background: --alpha(var(--color-down) / 75%);
+  }
+  .bars i[data-zero] {
+    background: --alpha(var(--color-fg) / 12%);
+  }
+  .split {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid --alpha(var(--color-fg) / 7%);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-fg);
+  }
+  .split span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .device {
+    margin-left: auto;
+    padding-left: 12px;
+    border-left: 1px solid --alpha(var(--color-fg) / 10%);
+    color: var(--color-muted);
+  }
+  .device svg {
+    color: var(--color-muted);
+  }
+
+  .filterArt {
+    display: grid;
+    gap: 10px;
+    width: min(300px, calc(100cqw - 40px));
+  }
+  .filterBar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .filterPill,
+  .addPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    white-space: nowrap;
+    color: var(--color-muted);
+  }
+  .filterPill {
+    border: 1px solid --alpha(var(--color-volt-soft) / 35%);
+    background: color-mix(in oklab, var(--color-volt-lift) 14%, var(--color-canvas));
+  }
+  .filterPill b {
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+  .addPill {
+    border: 1px dashed var(--color-rule-22);
+    background: var(--color-canvas);
+  }
+  .filterList {
+    padding: 4px;
+    border-radius: 10px;
+  }
+  .filterRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  .filterRow b {
+    font-weight: 500;
+    color: var(--color-fg);
+  }
+
+  .occurrenceArt {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+    width: min(320px, calc(100cqw - 40px));
+  }
+  .navigator {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    padding: 6px;
+    border-radius: 10px;
+  }
+  .navButtons {
+    display: flex;
+    gap: 4px;
+  }
+  .navButtons i {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 7px;
+    color: var(--color-muted);
+  }
+  /* first and latest go first when the cell is narrow */
+  @container (width < 360px) {
+    .navButtons:first-child i:first-child,
+    .navButtons:last-child i:last-child {
+      display: none;
+    }
+  }
+  .navLabel {
+    font-size: 12px;
+    color: var(--color-fg);
+    white-space: nowrap;
+  }
+  /* may run wider than the navigator, so the longer hover row stays on one line */
+  .navContext {
+    justify-items: center;
+    width: max-content;
+    max-width: calc(100cqw - 24px);
+  }
+  .navContext > span {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 14px;
+  }
+  .navContext > span > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  /* both states share one grid cell, so swapping never shifts the layout */
+  .swap {
+    display: inline-grid;
+  }
+  .swap > span {
+    grid-area: 1 / 1;
+    transition:
+      opacity 0.3s var(--ease-out-expo),
+      translate 0.4s var(--ease-out-expo);
+  }
+  .swap > span:last-child {
+    opacity: 0;
+    translate: 0 5px;
+  }
+
+  .box svg {
+    opacity: 0;
+    scale: 0.5;
+    transition:
+      opacity 0.2s var(--ease-out-expo),
+      scale 0.3s var(--ease-out-expo);
+  }
+  .miniRow[data-checked] .box svg {
+    opacity: 1;
+    scale: 1;
+  }
+  .miniRow,
+  .box,
+  .bars i,
+  .filterRow,
+  .navButtons i {
+    transition:
+      background-color 0.3s var(--ease-out-expo),
+      border-color 0.3s var(--ease-out-expo),
+      color 0.3s var(--ease-out-expo),
+      opacity 0.3s var(--ease-out-expo),
+      box-shadow 0.3s var(--ease-out-expo);
+  }
+
+  @media (hover: hover) {
+    .art:hover .swap > span:first-child {
+      opacity: 0;
+      translate: 0 -5px;
+    }
+    .art:hover .swap > span:last-child {
+      opacity: 1;
+      translate: 0 0;
+    }
+
+    .art:hover .miniRow[data-picks] {
+      background: --alpha(var(--color-volt-lift) / 12%);
+    }
+    .art:hover .miniRow[data-picks] .box {
+      border-color: var(--color-volt-lift);
+      background: var(--color-volt-lift);
+    }
+    .art:hover .miniRow[data-picks] .box svg {
+      opacity: 1;
+      scale: 1;
+    }
+
+    .art:hover .bars i:not([data-today]) {
+      opacity: 0.35;
+    }
+
+    .art:hover .filterRow[data-stays] {
+      background: --alpha(var(--color-volt-lift) / 12%);
+    }
+    .art:hover .filterRow[data-drops] {
+      opacity: 0.4;
+    }
+
+    .art:hover .navButtons i[data-press] {
+      border-color: --alpha(var(--color-volt-soft) / 45%);
+      background: --alpha(var(--color-volt-lift) / 16%);
+      color: var(--color-fg);
+    }
+  }
+}

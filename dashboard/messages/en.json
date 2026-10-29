@@ -1290,6 +1290,7 @@
         "features": "Features",
         "uptime": "Uptime monitoring",
         "replay": "Session replay",
+        "errors": "Error tracking",
         "pricing": "Pricing"
       },
       "company": {
@@ -1412,6 +1413,21 @@
           "incident": "1 ongoing incident · Checkout · down since 10:12",
           "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
           "answer": "Checkout has returned 503s since 10:12, three minutes after a41f2c9 moved the Stripe keys to env vars. Want me to revert it?"
+        },
+        "debugAlt": "A terminal session: told that choosing a plan does nothing, an agent lists errors on /pricing through the Betterlytics MCP server, reads the TypeError's stack trace and session trail, opens pricing.js at line 142 and offers a fix. Then, asked which errors to fix first, it sorts this week's errors by sessions hit and picks that TypeError.",
+        "debug": {
+          "question": "people say choosing a plan does nothing, can you look?",
+          "say": "I'll check errors on /pricing first.",
+          "errors": "1,206 TypeErrors in 318 sessions",
+          "trace": "selectPlan (pricing.js:142) after plan_selected",
+          "code": "142  setPlan(selected.plan)",
+          "answer": "Clicks before the plans load find selected still null. Want me to disable the buttons until they load?"
+        },
+        "triage": {
+          "question": "which errors should I fix first?",
+          "say": "I'll rank this week's errors.",
+          "groups": "TypeError 318 sessions · ChunkLoadError 41 · RangeError 6",
+          "answer": "Start with the TypeError reading 'plan'. It hit 318 sessions, more than six times the other two combined."
         }
       }
     },
@@ -1931,6 +1947,210 @@
         "lede": "Turn it on in the script you already have and, where needed, connect your consent banner. Session replay is free on every plan.",
         "primary": "Start recording free",
         "secondary": "Read the replay docs"
+      }
+    },
+    "errors": {
+      "seo": {
+        "title": "JavaScript error tracking with session context | Betterlytics",
+        "description": "Catch uncaught errors and failed promises in your visitors' browsers, grouped by stack trace, with the pages and events around each one. Free on every plan."
+      },
+      "hero": {
+        "eyebrow": "Error tracking",
+        "title": "Catch the errors your visitors hit, and see what led to them",
+        "lede": "Know which bugs hit the most visitors, where in your code they break, and what each visitor did next. Free on every plan, next to your traffic and replays.",
+        "primary": "Start tracking errors free",
+        "secondary": "Read the docs"
+      },
+      "specs": {
+        "leadUp": {
+          "unit": "min",
+          "label": "Replay lead-up",
+          "body": "Keep up to two minutes before an error as a replay, even for visits you don't normally record."
+        },
+        "extensions": {
+          "unit": "extension errors",
+          "label": "Only your own bugs",
+          "body": "Errors from visitors' browser extensions are skipped, and bots are dropped before anything is stored."
+        },
+        "script": {
+          "unit": "script",
+          "label": "One script for everything",
+          "body": "Analytics, errors and session replay load from one script tag. Already on Betterlytics? Add one attribute."
+        },
+        "thesis": {
+          "unit": "cookies",
+          "label": "No cookies, no IPs",
+          "body": "Errors are stored without cookies, IP addresses or query strings, so your visitors' privacy stays intact."
+        }
+      },
+      "report": {
+        "title": "From “it doesn’t work” to *line 142*",
+        "lede": "Most visitors who hit a bug leave without telling you. Betterlytics shows the line that threw, the browser it happened in, and how often.",
+        "guess": "Guessing from bug reports",
+        "fix": "Fixing from the stack trace",
+        "alt": "On the left, vague reports about the pricing page keep streaming past: the same can't-upgrade email three times, a report that choosing a plan does nothing, a support chat, a blurry screenshot, a guess at the browser, a note saying it works on my machine, a P1 ticket saying upgrades have failed since Monday and a support inbox with 14 unread. On the right, the same bug as one error group: a TypeError thrown in selectPlan at line 142 of pricing.js and called from onClick in plan-card.js, in Chrome on macOS in Denmark, on /pricing, 1,206 times.",
+        "notes": {
+          "upgrade": "Can't upgrade??",
+          "pricing": "anyone else seeing pricing do nothing?",
+          "dead": "Choose plan does nothing",
+          "screenshot": "screenshot.png",
+          "phone": "same here, but on my phone",
+          "sticky": "Works on my machine",
+          "again": "Re: Re: still broken",
+          "chrome": "I'm on Chrome, I think?",
+          "ticket": "Upgrades failing since Monday",
+          "inbox": "Support inbox",
+          "unread": "{count} unread"
+        },
+        "inApp": "in app",
+        "occurrences": "occurrences"
+      },
+      "trail": {
+        "title": "See what they did *before and after*",
+        "lede": "A stack trace shows where the code broke. The visit around it shows what set it off and what the visitor did next.",
+        "alt": "A session trail of eight events. Before the error, the visitor landed on the home page, opened /pricing and picked a plan. The TypeError came one second later, thrown in selectPlan at line 142 of pricing.js in Chrome 129 on macOS, on a desktop in Denmark. After it, they reloaded /pricing, picked a plan again, hit the same error and left for /contact instead of upgrading.",
+        "label": "Session trail",
+        "count": "{count} events in this session",
+        "before": {
+          "label": "What led up to it",
+          "body": "Landed on the home page, opened pricing and picked a plan."
+        },
+        "thrown": {
+          "label": "Where it broke",
+          "body": "Thrown in selectPlan on line 142 of pricing.js, with the browser, OS and country it happened in.",
+          "stacktrace": "Stack trace",
+          "mechanism": "Uncaught",
+          "inApp": "in app",
+          "more": "Show {count} more frames",
+          "desktop": "Desktop"
+        },
+        "after": {
+          "label": "What it did to the visit",
+          "body": "Reloaded, hit it again, then left for /contact instead of upgrading."
+        }
+      },
+      "triage": {
+        "title": "Work the list *together*",
+        "body": "Statuses are shared with your team, so everyone works from the same list and nobody chases a bug that's already fixed.",
+        "cta": "Read the dashboard guide",
+        "items": {
+          "status": {
+            "title": "Resolve, ignore, unresolve",
+            "body": "Resolve what's fixed and ignore what doesn't matter, so the list only shows the bugs that still need work."
+          },
+          "history": {
+            "title": "See who it hits",
+            "body": "Spot whether an error is growing or fading, and which browsers and devices it hits most."
+          },
+          "filter": {
+            "title": "Filter like your analytics",
+            "body": "Filter errors by page, browser, OS, country and more, just like your analytics, to see if a bug only hits some visitors."
+          },
+          "occurrences": {
+            "title": "Step through occurrences",
+            "body": "Flip through every occurrence with its own visit and device, and spot the pattern, like a bug that only shows up on iOS."
+          }
+        },
+        "art": {
+          "selected": "<count></count> selected",
+          "resolve": "Resolve",
+          "ignore": "Ignore",
+          "occurrenceOf": "Occurrence <number></number> of {total}",
+          "mobile": "Mobile",
+          "history": "Occurrence history",
+          "days": "{count} days",
+          "desktop": "Desktop",
+          "pageIs": "Page is <value>/pricing</value>",
+          "browserIs": "Browser is <value>Safari</value>",
+          "addFilter": "Add filter"
+        }
+      },
+      "agent": {
+        "title": "Hand the bug *to your agent*",
+        "lede": "Your coding agent can look up errors through the built-in MCP server and work on the fix right next to your code.",
+        "lead": "From complaint to fix in one question",
+        "body": "Ask Claude Code, Cursor or any MCP client about a complaint. It looks up the matching error, reads the stack trace and session trail, and opens the file the stack points to.",
+        "cta": "Set up MCP"
+      },
+      "setup": {
+        "title": "Start catching with *one* attribute",
+        "lede": "Pick what to catch and copy the snippet. It runs in the same script as your analytics.",
+        "lead": "Choose what to catch",
+        "always": "Always on",
+        "options": {
+          "errors": {
+            "title": "Uncaught errors and rejections",
+            "body": "Anything your code throws without catching, and promises that reject with no handler."
+          },
+          "console": {
+            "title": "console.error calls",
+            "body": "Also send what your app logs as an error. Leave it off if your logs can hold personal data."
+          },
+          "replay": {
+            "title": "Replay the lead-up",
+            "body": "Keep up to two minutes before each error as a replay."
+          }
+        },
+        "snippetLabel": "Error tracking setup",
+        "cta": "Read the setup guide"
+      },
+      "related": {
+        "lede": "Error tracking is one part of Betterlytics. Everything below shares the script, the login and the bill."
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": {
+          "what": {
+            "q": "What is error tracking?",
+            "a": "Error tracking, also called error monitoring, records the JavaScript errors your visitors run into, then groups repeats of the same bug so you can see which ones happen most. Betterlytics catches them with the same script that tracks your pageviews, and keeps the session each one happened in."
+          },
+          "free": {
+            "q": "Is error tracking free?",
+            "a": "Yes. It's on every plan, including the free one. Each error counts as one event toward your monthly limit, like a pageview."
+          },
+          "captured": {
+            "q": "Which errors are captured?",
+            "a": "Uncaught exceptions and unhandled promise rejections, each with its stack trace and the page it happened on. You can also capture console.error calls. A failed request is only captured when your code leaves its error unhandled. Failed image and script loads are left out, because ad blockers and flaky connections would flood your list with them."
+          },
+          "server": {
+            "q": "Does it catch server-side errors?",
+            "a": "No. It covers frontend errors, the JavaScript that runs in your visitors' browsers. Errors in your server code, API routes or background jobs aren't captured."
+          },
+          "filtered": {
+            "q": "Are errors from browser extensions and bots filtered out?",
+            "a": "Yes. The script skips errors whose stack trace points into a browser extension, so a visitor's ad blocker or password manager doesn't show up as your bug. Errors from bots, headless browsers and test tools like Playwright are dropped before they're stored, the same as their pageviews."
+          },
+          "frameworks": {
+            "q": "Does it work with React, Next.js and Vue?",
+            "a": "Yes. The script catches errors on any site, whatever framework it runs. Errors a framework catches itself, such as in a React error boundary or Vue's error handler, are usually logged with console.error instead of thrown, so turn on console.error capture to see those too."
+          },
+          "grouped": {
+            "q": "How are errors grouped?",
+            "a": "Every occurrence of the same bug lands in one group with a running count, so each bug shows up once in your list instead of every time a visitor hits it. Errors of the same type, thrown from the same place in your code, count as one bug even when their messages differ."
+          },
+          "sourcemaps": {
+            "q": "Do you support source maps?",
+            "a": "No. Stack traces show the code as the browser ran it, so frames from a minified bundle point into the minified file."
+          },
+          "privacy": {
+            "q": "Does error tracking collect personal data?",
+            "a": "It uses no cookies, like the rest of Betterlytics. Messages are kept as your code wrote them, so keep personal data out of them, and leave console capture off if your logs can contain it."
+          },
+          "quota": {
+            "q": "Can a broken loop use up my events?",
+            "a": "Each page sends at most 10 errors of the same type every 10 seconds, so a loop that throws on every frame stays small. Ignoring a group hides it from the list, but new occurrences still count as events until you fix the cause."
+          },
+          "replay": {
+            "q": "How does it work with session replay?",
+            "a": "If a visit with an error was recorded, the error links to its replay, with a red marker at each error on the timeline. You can also keep up to two minutes before every error as a replay, even for visits session replay wouldn't otherwise record."
+          }
+        }
+      },
+      "cta": {
+        "title": "Catch your first error today",
+        "lede": "Add the Betterlytics script, or one attribute if you already have it, and errors start showing up in your dashboard. Free on every plan.",
+        "primary": "Start tracking errors free",
+        "secondary": "Read the error docs"
       }
     }
   },
