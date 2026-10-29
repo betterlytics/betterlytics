@@ -162,14 +162,6 @@ export function InviteSection({
 
       {createdInvitation && (
         <Alert variant='info' className='animate-in fade-in slide-in-from-top-2 pr-10 duration-300'>
-          <button
-            type='button'
-            aria-label={t('linkPanel.dismiss')}
-            className='text-muted-foreground hover:text-foreground absolute top-2.5 right-2.5 flex size-6 cursor-pointer items-center justify-center rounded-md'
-            onClick={() => setCreatedInvitation(null)}
-          >
-            <X className='size-3.5' />
-          </button>
           <AlertDescription className='space-y-2'>
             <p>
               {t.rich(emailsEnabled ? 'linkPanel.emailSent' : 'linkPanel.emailNotSent', {
@@ -197,6 +189,14 @@ export function InviteSection({
               </Tooltip>
             </div>
           </AlertDescription>
+          <button
+            type='button'
+            aria-label={t('linkPanel.dismiss')}
+            className='text-muted-foreground hover:text-foreground absolute top-2.5 right-2.5 flex size-6 cursor-pointer items-center justify-center rounded-md'
+            onClick={() => setCreatedInvitation(null)}
+          >
+            <X className='size-3.5' />
+          </button>
         </Alert>
       )}
 
