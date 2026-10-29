@@ -5,19 +5,16 @@ import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import {
   applyFilterUpdates,
   areQueryFiltersEquivalent,
-  diffQueryFilters,
   MAX_FILTER_ROWS,
-  undoQueryFilterDiff,
   withDependentColumns,
   type FilterColumn,
   type FilterOperator,
   type FilterUpdate,
-  type QueryFilter,
 } from '@/entities/analytics/filter.entities';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useFilterColumnStatus } from '@/hooks/use-is-filter-column-allowed';
-import { showFiltersUpdatedToast } from '@/components/filters/filtersUpdatedToast';
+import { useNotifyFiltersUpdated } from '@/components/filters/filtersUpdatedToast';
 import { generateTempId } from '@/utils/temporaryId';
 
 type Behavior = 'append' | 'replace-same-column' | 'toggle';
@@ -41,18 +38,7 @@ export function useFilterClick(defaults?: Options) {
     [tFilters],
   );
 
-  const notifyFiltersUpdated = useCallback(
-    (prev: QueryFilter[], next: QueryFilter[]) => {
-      const { added, removed } = diffQueryFilters(prev, next);
-      if (added.length === 0 && removed.length === 0) return;
-      showFiltersUpdatedToast({
-        added,
-        removed,
-        onUndo: () => setQueryFilters((fs) => undoQueryFilterDiff(fs, { added, removed })),
-      });
-    },
-    [setQueryFilters],
-  );
+  const notifyFiltersUpdated = useNotifyFiltersUpdated();
 
   const applyFilter = useCallback(
     (column: FilterColumn, value: string, opts?: Options) => {

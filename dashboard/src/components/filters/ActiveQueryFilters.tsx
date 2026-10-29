@@ -13,8 +13,7 @@ import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
 import { FilterPillSection } from '@/components/filters/FilterPillSection';
 import { FilterPillTooltip } from '@/components/filters/FilterPillTooltip';
 import { FilterPillValues } from '@/components/filters/FilterPillValues';
-import { showFiltersUpdatedToast } from '@/components/filters/filtersUpdatedToast';
-import { undoQueryFilterDiff } from '@/entities/analytics/filter.entities';
+import { useNotifyFiltersUpdated } from '@/components/filters/filtersUpdatedToast';
 import { cn } from '@/lib/utils';
 
 // One opaque pill colour, so the values' "+N more" label and fade can cover text in exactly that colour.
@@ -29,6 +28,7 @@ export function ActiveQueryFilters() {
   const t = useTranslations('components.filters');
   const getColumnStatus = useFilterColumnStatus();
   const getDisabledMessage = useFilterColumnDisabledMessage();
+  const notifyFiltersUpdated = useNotifyFiltersUpdated();
 
   // Pills present on first render (e.g. from the URL) must not replay the entrance pulse.
   const initialIdsRef = useRef<Set<string> | null>(null);
@@ -39,13 +39,8 @@ export function ActiveQueryFilters() {
   }
 
   const clearAll = () => {
-    const removed = queryFilters;
     setQueryFilters([]);
-    showFiltersUpdatedToast({
-      added: [],
-      removed,
-      onUndo: () => setQueryFilters((current) => undoQueryFilterDiff(current, { added: [], removed })),
-    });
+    notifyFiltersUpdated(queryFilters, []);
   };
 
   const isBandEntering = !queryFilters.some((filter) => initialIds.has(filter.id));
@@ -63,7 +58,8 @@ export function ActiveQueryFilters() {
       <span className='flex h-8.5 shrink-0 items-center'>
         <FilterIcon aria-hidden className='size-4' />
       </span>
-      <div className='flex min-w-0 flex-1 flex-wrap gap-1 max-sm:-my-px max-sm:[scrollbar-width:none] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:py-px'>
+      {/* No intrinsic width, so the chips never widen a shrink-to-fit container like Geography's floating card */}
+      <div className='flex min-w-0 flex-1 flex-wrap gap-1 [contain:inline-size] max-sm:-my-px max-sm:[scrollbar-width:none] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:py-px'>
         {queryFilters.map((filter) => {
           const status = getColumnStatus(filter.column);
           const disabledMessage = getDisabledMessage(status);
@@ -98,6 +94,7 @@ export function ActiveQueryFilters() {
                 className={cn(
                   'border-input divide-input max-w-max min-w-0 shrink grow basis-80 items-stretch gap-0 divide-x p-0 font-sans max-sm:max-w-full max-sm:flex-none',
                   pillBackground,
+                  queryFilters.length > 1 && 'max-sm:max-w-[85%]',
                   !initialIds.has(filter.id) && 'animate-filter-pill-added',
                   status.disabled && 'opacity-50',
                 )}
