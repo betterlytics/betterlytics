@@ -56,7 +56,7 @@ export function VerificationRequiredModal({
         </DialogHeader>
 
         <div className='space-y-4'>
-          <Alert variant='info'>
+          <Alert variant='info' icon={null}>
             <AlertTitle role='heading' aria-level={3}>
               {t('whyTitle')}
             </AlertTitle>

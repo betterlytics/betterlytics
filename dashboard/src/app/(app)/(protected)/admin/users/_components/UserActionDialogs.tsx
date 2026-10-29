@@ -192,7 +192,7 @@ function ResetPasswordDialog({ user, label, emailsEnabled, open, onOpenChange }:
         </DialogHeader>
 
         {link && (
-          <Alert variant='info'>
+          <Alert variant='info' icon={null}>
             <AlertDescription className='space-y-2'>
               <div className='flex items-center gap-2'>
                 <Input readOnly value={link.url} className='font-mono text-xs' aria-label='Password reset link' />

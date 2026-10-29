@@ -161,7 +161,7 @@ export function InviteSection({
       </div>
 
       {createdInvitation && (
-        <Alert variant='info' className='animate-in fade-in slide-in-from-top-2 pr-10 duration-300'>
+        <Alert variant='info' icon={null} className='animate-in fade-in slide-in-from-top-2 pr-10 duration-300'>
           <AlertDescription className='space-y-2'>
             <p>
               {t.rich(emailsEnabled ? 'linkPanel.emailSent' : 'linkPanel.emailNotSent', {
