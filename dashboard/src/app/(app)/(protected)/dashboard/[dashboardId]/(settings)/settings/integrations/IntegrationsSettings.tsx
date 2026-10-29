@@ -3,7 +3,7 @@
 import { useState, useTransition, useMemo, use } from 'react';
 import { toast } from 'sonner';
 import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
-import { WarningBanner } from '@/components/WarningBanner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import {
   saveIntegrationAction,
@@ -128,11 +128,10 @@ export default function IntegrationsSettings({
       <p className='text-muted-foreground -mt-4 mb-6 text-sm'>{t('section.description')}</p>
 
       {!monitoringEnabled && (
-        <WarningBanner
-          className='mb-6'
-          title={t('monitoringNotConfigured.title')}
-          description={t('monitoringNotConfigured.description')}
-        />
+        <Alert variant='warning' className='mb-6'>
+          <AlertTitle>{t('monitoringNotConfigured.title')}</AlertTitle>
+          <AlertDescription>{t('monitoringNotConfigured.description')}</AlertDescription>
+        </Alert>
       )}
 
       <div className='space-y-3'>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Info } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { CopyButton } from '@/components/CopyButton';
 import ExternalLink from '@/components/ExternalLink';
@@ -29,62 +29,69 @@ export function CustomDomainSetup({ customDomain, slug, publicHost, isValid }: C
   const hostLabel = domain.split('.')[0];
 
   return (
-    <div className='space-y-3 rounded-lg border border-blue-500/30 bg-blue-500/5 p-4'>
-      <div className='flex items-center gap-2'>
-        <Info className='h-4 w-4 flex-none text-blue-600 dark:text-blue-400' />
-        <p className='text-muted-foreground text-xs'>
+    <Alert variant='info'>
+      <AlertDescription className='space-y-3'>
+        <p>
           {t.rich(isCloud ? 'customDomainSetup.intro' : 'customDomainSetup.introSelfHosted', {
             domain,
-            strong: (chunks) => <span className='text-foreground font-medium'>{chunks}</span>,
+            strong: (chunks) => <span className='font-medium'>{chunks}</span>,
           })}
         </p>
-      </div>
-      <div className='border-border bg-card divide-border grid rounded-md border max-2xl:divide-y max-2xl:px-3 2xl:grid-cols-[auto_fit-content(40%)_minmax(0,1fr)] 2xl:px-4 2xl:py-2.5'>
-        <DnsField label={t('customDomainSetup.recordType')} className='max-2xl:py-3 2xl:pr-6'>
-          <span className='font-mono text-sm'>CNAME</span>
-        </DnsField>
-        <DnsField label={t('customDomainSetup.recordName')} className='max-2xl:py-3 2xl:border-border 2xl:border-l 2xl:px-6'>
-          <span className='font-mono text-sm break-all'>{domain}</span>
-        </DnsField>
-        <DnsField label={t('customDomainSetup.recordValue')} className='max-2xl:py-3 2xl:border-border 2xl:border-l 2xl:pl-6'>
-          <div className='flex items-center gap-2'>
-            <span className='font-mono text-sm break-all'>{target}</span>
-            <CopyButton
-              text={target}
-              ariaLabel={t('customDomainSetup.copy')}
-              copiedLabel={t('customDomainSetup.copied')}
-              className='text-muted-foreground hover:text-foreground hover:bg-muted flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
-              iconClassName='h-3.5 w-3.5'
-            />
-          </div>
-        </DnsField>
-      </div>
-      <p className='text-muted-foreground text-xs'>
-        {t.rich('customDomainSetup.nameHint', {
-          label: hostLabel,
-          domain,
-          mono: (chunks) => <span className='text-foreground font-mono font-medium'>{chunks}</span>,
-          monoBreak: (chunks) => <span className='text-foreground font-mono font-medium break-all'>{chunks}</span>,
-        })}
-      </p>
-      <p className='text-muted-foreground text-xs'>{t('customDomainSetup.propagation')}</p>
-      {!isCloud && (
+        <div className='border-border bg-card divide-border grid rounded-md border max-2xl:divide-y max-2xl:px-3 2xl:grid-cols-[auto_fit-content(40%)_minmax(0,1fr)] 2xl:px-4 2xl:py-2.5'>
+          <DnsField label={t('customDomainSetup.recordType')} className='max-2xl:py-3 2xl:pr-6'>
+            <span className='font-mono text-sm'>CNAME</span>
+          </DnsField>
+          <DnsField
+            label={t('customDomainSetup.recordName')}
+            className='2xl:border-border max-2xl:py-3 2xl:border-l 2xl:px-6'
+          >
+            <span className='font-mono text-sm break-all'>{domain}</span>
+          </DnsField>
+          <DnsField
+            label={t('customDomainSetup.recordValue')}
+            className='2xl:border-border max-2xl:py-3 2xl:border-l 2xl:pl-6'
+          >
+            <div className='flex items-center gap-2'>
+              <span className='font-mono text-sm break-all'>{target}</span>
+              <CopyButton
+                text={target}
+                ariaLabel={t('customDomainSetup.copy')}
+                copiedLabel={t('customDomainSetup.copied')}
+                className='text-muted-foreground hover:text-foreground hover:bg-muted flex h-6 w-6 flex-none cursor-pointer items-center justify-center rounded-md transition-colors'
+                iconClassName='h-3.5 w-3.5'
+              />
+            </div>
+          </DnsField>
+        </div>
         <p className='text-muted-foreground text-xs'>
-          {t.rich('customDomainSetup.proxyHintSelfHosted', {
-            link: (chunks) => (
-              <ExternalLink
-                href='https://betterlytics.io/docs/installation/self-hosting#custom-status-page-domains'
-                target='_blank'
-                rel='noopener noreferrer'
-                className='hover:text-foreground underline'
-              >
-                {chunks}
-              </ExternalLink>
+          {t.rich('customDomainSetup.nameHint', {
+            label: hostLabel,
+            domain,
+            mono: (chunks) => <span className='text-foreground font-mono font-medium'>{chunks}</span>,
+            monoBreak: (chunks) => (
+              <span className='text-foreground font-mono font-medium break-all'>{chunks}</span>
             ),
           })}
         </p>
-      )}
-    </div>
+        <p className='text-muted-foreground text-xs'>{t('customDomainSetup.propagation')}</p>
+        {!isCloud && (
+          <p className='text-muted-foreground text-xs'>
+            {t.rich('customDomainSetup.proxyHintSelfHosted', {
+              link: (chunks) => (
+                <ExternalLink
+                  href='https://betterlytics.io/docs/installation/self-hosting#custom-status-page-domains'
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  className='hover:text-foreground underline'
+                >
+                  {chunks}
+                </ExternalLink>
+              ),
+            })}
+          </p>
+        )}
+      </AlertDescription>
+    </Alert>
   );
 }
 

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Trash2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
@@ -108,10 +109,10 @@ export function McpTokenManager({ dashboardId, tokens, endpointUrl }: McpTokenMa
       )}
 
       {newlyCreatedToken && (
-        <div className='bg-primary/5 border-primary/20 space-y-2 rounded-md border p-3'>
-          <p className='text-sm font-medium'>{t('settings.newTokenNotice')}</p>
-          <div className='flex items-center gap-2'>
-            <code className='bg-muted flex-1 truncate rounded px-2 py-1 text-xs'>
+        <Alert variant='warning'>
+          <AlertTitle>{t('settings.newTokenNotice')}</AlertTitle>
+          <AlertDescription className='mt-1.5 flex items-center gap-2'>
+            <code className='bg-muted text-foreground flex-1 truncate rounded px-2 py-1 text-xs'>
               {newlyCreatedToken.plainToken}
             </code>
             <Button
@@ -122,8 +123,8 @@ export function McpTokenManager({ dashboardId, tokens, endpointUrl }: McpTokenMa
             >
               {copied ? <Check className='size-4' /> : <Copy className='size-4' />}
             </Button>
-          </div>
-        </div>
+          </AlertDescription>
+        </Alert>
       )}
 
       <div className='flex flex-col gap-3 sm:flex-row sm:items-end'>

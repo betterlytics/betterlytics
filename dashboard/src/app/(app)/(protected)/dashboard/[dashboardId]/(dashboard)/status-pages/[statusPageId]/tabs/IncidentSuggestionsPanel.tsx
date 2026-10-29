@@ -30,21 +30,23 @@ export function IncidentSuggestionsPanel({ suggestions, onCreateIncident }: Inci
   if (suggestions.length === 0) return null;
 
   return (
-    <div className='overflow-hidden rounded-xl border border-amber-500/40 bg-amber-500/5'>
+    <div className='border-warning/30 bg-warning/10 overflow-hidden rounded-lg border'>
       <button
         type='button'
         onClick={() => setPanelOpen((prev) => !prev)}
         aria-expanded={panelOpen}
-        className='flex w-full cursor-pointer items-center gap-3 bg-amber-500/6 px-4 py-3 text-left'
+        className='flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left text-sm'
       >
-        <TriangleAlert className='h-5 w-5 flex-none text-amber-500' />
-        <div className='min-w-0 flex-1'>
-          <div className='text-sm font-semibold'>{t('detectedPanelTitle', { count: suggestions.length })}</div>
-          <div className='text-muted-foreground text-xs'>{t('suggestionsHint')}</div>
+        <TriangleAlert className='text-warning mt-0.5 size-4 flex-none' />
+        <div className='min-w-0 flex-1 space-y-0.5'>
+          <div className='text-foreground leading-snug font-medium tracking-tight'>
+            {t('detectedPanelTitle', { count: suggestions.length })}
+          </div>
+          <div className='text-muted-foreground leading-snug'>{t('suggestionsHint')}</div>
         </div>
         <ChevronDown
           className={cn(
-            'text-muted-foreground h-4 w-4 flex-none transition-transform',
+            'text-muted-foreground h-4 w-4 flex-none self-center transition-transform',
             panelOpen && 'rotate-180',
           )}
         />
@@ -53,7 +55,7 @@ export function IncidentSuggestionsPanel({ suggestions, onCreateIncident }: Inci
         <div className='max-h-80 overflow-y-auto'>
           <table className='w-full'>
             <thead>
-              <tr className='text-muted-foreground border-y border-amber-500/20 bg-amber-500/7 text-left text-[11px] tracking-wider uppercase'>
+              <tr className='text-muted-foreground border-warning/20 bg-warning/10 border-y text-left text-[11px] tracking-wider uppercase'>
                 <th className='py-2 pr-3 pl-4 font-semibold'>{t('suggestionsTable.outage')}</th>
                 <th className='hidden px-3 py-2 font-semibold md:table-cell'>{t('suggestionsTable.monitors')}</th>
                 <th className='hidden px-3 py-2 font-semibold sm:table-cell'>{t('suggestionsTable.detected')}</th>
@@ -62,7 +64,7 @@ export function IncidentSuggestionsPanel({ suggestions, onCreateIncident }: Inci
                 <th className='py-2 pr-4 pl-3' />
               </tr>
             </thead>
-            <tbody className='divide-y divide-amber-500/15'>
+            <tbody className='divide-warning/15 divide-y'>
               {suggestions.map((suggestion) => {
                 const isMulti = suggestion.monitors.length > 1;
                 const heading = isMulti
@@ -85,7 +87,7 @@ export function IncidentSuggestionsPanel({ suggestions, onCreateIncident }: Inci
                   new Date(suggestion.startedAt).getTime();
                 const duration = formatElapsedTime(new Date(Date.now() - durationMs), locale);
                 return (
-                  <tr key={suggestion.detectedIncidentId} className='hover:bg-amber-500/6'>
+                  <tr key={suggestion.detectedIncidentId} className='hover:bg-warning/10'>
                     <td className='w-full max-w-0 min-w-[160px] py-2.5 pr-3 pl-4'>
                       <div className='flex items-center gap-2.5'>
                         <span className='relative flex h-2 w-2 flex-none'>

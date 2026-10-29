@@ -17,7 +17,8 @@ import { Label } from '@/components/ui/label';
 import OtpInput from '@/components/ui/otp-input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
-import { Check, Clipboard, Download, Loader2, TriangleAlert } from 'lucide-react';
+import { Check, Clipboard, Download, Loader2 } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { authClient } from '@/lib/auth-client';
 import type { AuthClientError } from '@/lib/auth/auth-error';
 import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
@@ -111,10 +112,9 @@ function BackupCodes({ codes, onDone }: { codes: string[]; onDone: () => void })
         <AlertDialogTitle>{t('backupCodesTitle')}</AlertDialogTitle>
         <AlertDialogDescription>{t('backupCodesDescription')}</AlertDialogDescription>
       </AlertDialogHeader>
-      <div className='flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400'>
-        <TriangleAlert className='mt-0.5 size-4 shrink-0' />
-        <span>{t('backupCodesWarning')}</span>
-      </div>
+      <Alert variant='warning'>
+        <AlertDescription>{t('backupCodesWarning')}</AlertDescription>
+      </Alert>
       <ol className='bg-muted/50 grid grid-cols-2 gap-x-6 gap-y-1.5 rounded-md border px-4 py-3 font-mono text-sm tracking-wide whitespace-nowrap'>
         {codes.map((code, index) => (
           <li key={code} className='flex items-baseline gap-2'>

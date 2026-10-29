@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Mail, X, ChevronDown } from 'lucide-react';
@@ -160,43 +161,43 @@ export function InviteSection({
       </div>
 
       {createdInvitation && (
-        <div className='animate-in fade-in slide-in-from-top-2 space-y-2 rounded-lg border border-blue-500/30 bg-blue-500/5 p-4 duration-300'>
-          <div className='flex items-start justify-between gap-2'>
-            <p className='text-muted-foreground text-xs'>
+        <Alert variant='info' className='animate-in fade-in slide-in-from-top-2 pr-10 duration-300'>
+          <button
+            type='button'
+            aria-label={t('linkPanel.dismiss')}
+            className='text-muted-foreground hover:text-foreground absolute top-2.5 right-2.5 flex size-6 cursor-pointer items-center justify-center rounded-md'
+            onClick={() => setCreatedInvitation(null)}
+          >
+            <X className='size-3.5' />
+          </button>
+          <AlertDescription className='space-y-2'>
+            <p>
               {t.rich(emailsEnabled ? 'linkPanel.emailSent' : 'linkPanel.emailNotSent', {
                 email: createdInvitation.email,
                 strong: (chunks) => <span className='text-foreground font-medium'>{chunks}</span>,
               })}
             </p>
-            <button
-              type='button'
-              aria-label={t('linkPanel.dismiss')}
-              className='text-muted-foreground hover:text-foreground flex size-6 flex-none cursor-pointer items-center justify-center rounded-md'
-              onClick={() => setCreatedInvitation(null)}
-            >
-              <X className='size-3.5' />
-            </button>
-          </div>
-          <div className='flex items-center gap-2'>
-            <p className='border-border bg-background min-w-0 flex-1 rounded-md border px-3 py-2 font-mono text-xs break-all select-all'>
-              {inviteLinkFor(createdInvitation.token)}
-            </p>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className='flex flex-none'>
-                  <CopyButton
-                    text={inviteLinkFor(createdInvitation.token)}
-                    ariaLabel={t('section.copyLink')}
-                    copiedLabel={t('section.linkCopied')}
-                    className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 cursor-pointer items-center justify-center rounded-md transition-colors'
-                    iconClassName='size-4'
-                  />
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>{t('section.copyLink')}</TooltipContent>
-            </Tooltip>
-          </div>
-        </div>
+            <div className='flex items-center gap-2'>
+              <p className='border-border bg-background text-foreground min-w-0 flex-1 rounded-md border px-3 py-2 font-mono text-xs break-all select-all'>
+                {inviteLinkFor(createdInvitation.token)}
+              </p>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className='flex flex-none'>
+                    <CopyButton
+                      text={inviteLinkFor(createdInvitation.token)}
+                      ariaLabel={t('section.copyLink')}
+                      copiedLabel={t('section.linkCopied')}
+                      className='text-muted-foreground hover:text-foreground hover:bg-muted flex size-8 cursor-pointer items-center justify-center rounded-md transition-colors'
+                      iconClassName='size-4'
+                    />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{t('section.copyLink')}</TooltipContent>
+              </Tooltip>
+            </div>
+          </AlertDescription>
+        </Alert>
       )}
 
       {hasPendingInvitations && (

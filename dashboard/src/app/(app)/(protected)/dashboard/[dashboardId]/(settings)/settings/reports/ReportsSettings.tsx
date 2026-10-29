@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { toast } from 'sonner';
 import SettingsSection from '@/components/settings/SettingsSection';
 import SettingsPageHeader from '@/components/settings/SettingsPageHeader';
-import { WarningBanner } from '@/components/WarningBanner';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useSettings } from '@/contexts/SettingsProvider';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { updateDashboardSettingsAction } from '@/app/actions/dashboard/dashboardSettings.action';
@@ -230,11 +230,10 @@ export default function ReportsSettings({ emailsEnabled }: { emailsEnabled: bool
       <SettingsPageHeader title={t('title')} />
 
       {!emailsEnabled && (
-        <WarningBanner
-          className='mb-6'
-          title={t('emailsNotConfigured.title')}
-          description={t('emailsNotConfigured.description')}
-        />
+        <Alert variant='warning' className='mb-6'>
+          <AlertTitle>{t('emailsNotConfigured.title')}</AlertTitle>
+          <AlertDescription>{t('emailsNotConfigured.description')}</AlertDescription>
+        </Alert>
       )}
 
       <div className='space-y-6'>

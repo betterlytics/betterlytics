@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { User, BookUser, TriangleAlert } from 'lucide-react';
+import { User, BookUser } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useTranslations } from 'next-intl';
@@ -136,10 +137,9 @@ export default function UserPreferencesSettings() {
           footer={
             settings.timezone === null &&
             browserTimeZone === null && (
-              <div className='flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-400'>
-                <TriangleAlert className='mt-0.5 size-4 shrink-0' />
-                <span>{t('localization.timezoneUndetected')}</span>
-              </div>
+              <Alert variant='warning'>
+                <AlertDescription>{t('localization.timezoneUndetected')}</AlertDescription>
+              </Alert>
             )
           }
         />
