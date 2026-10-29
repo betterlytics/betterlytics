@@ -10,6 +10,8 @@ import { useDisplayHour12 } from '@/hooks/use-display-hour12';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { AlertDescription, AlertTitle, alertToneVariants } from '@/components/ui/alert';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { type DetectedOutageSuggestion } from '@/entities/analytics/statusPage/statusPageIncident.entities';
 import { IMPACT_BADGE, IMPACT_DOT, STATUS_TONE_BADGE } from '@/components/statusPage/incidentToneStyles';
@@ -30,28 +32,25 @@ export function IncidentSuggestionsPanel({ suggestions, onCreateIncident }: Inci
   if (suggestions.length === 0) return null;
 
   return (
-    <div className='border-warning/30 bg-warning/10 overflow-hidden rounded-lg border'>
-      <button
-        type='button'
-        onClick={() => setPanelOpen((prev) => !prev)}
-        aria-expanded={panelOpen}
-        className='flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left text-sm'
-      >
-        <TriangleAlert className='text-warning mt-0.5 size-4 flex-none' />
-        <div className='min-w-0 flex-1 space-y-0.5'>
-          <div className='text-foreground leading-snug font-medium tracking-tight'>
-            {t('detectedPanelTitle', { count: suggestions.length })}
-          </div>
-          <div className='text-muted-foreground leading-snug'>{t('suggestionsHint')}</div>
-        </div>
+    <Collapsible
+      open={panelOpen}
+      onOpenChange={setPanelOpen}
+      className={cn(alertToneVariants({ variant: 'warning' }), 'overflow-hidden')}
+    >
+      <CollapsibleTrigger className='flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left text-sm'>
+        <TriangleAlert data-slot='alert-icon' aria-hidden className='mt-0.5 size-4 flex-none' />
+        <span className='min-w-0 flex-1 space-y-0.5'>
+          <AlertTitle>{t('detectedPanelTitle', { count: suggestions.length })}</AlertTitle>
+          <AlertDescription>{t('suggestionsHint')}</AlertDescription>
+        </span>
         <ChevronDown
           className={cn(
             'text-muted-foreground h-4 w-4 flex-none self-center transition-transform',
             panelOpen && 'rotate-180',
           )}
         />
-      </button>
-      {panelOpen && (
+      </CollapsibleTrigger>
+      <CollapsibleContent>
         <div className='max-h-80 overflow-y-auto'>
           <table className='w-full'>
             <thead>
@@ -155,7 +154,7 @@ export function IncidentSuggestionsPanel({ suggestions, onCreateIncident }: Inci
             </tbody>
           </table>
         </div>
-      )}
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
