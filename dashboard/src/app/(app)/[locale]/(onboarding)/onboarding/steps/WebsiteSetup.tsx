@@ -3,6 +3,7 @@
 import { useState, useTransition, useCallback, useMemo, Dispatch } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { completeOnboardingAndCreateDashboardAction } from '@/app/actions/account/onboarding.action';
 import { domainValidation } from '@/entities/dashboard/dashboard.entities';
 import { normalizeDomainInput } from '@/utils/domainValidation';
@@ -139,12 +140,9 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
             </div>
           )}
           {error && (
-            <div
-              className='bg-destructive/10 border-destructive/20 text-destructive rounded-md border px-4 py-3'
-              role='alert'
-            >
-              <span className='block sm:inline'>{error}</span>
-            </div>
+            <Alert variant='destructive'>
+              <AlertTitle>{error}</AlertTitle>
+            </Alert>
           )}
 
           <div className='flex justify-end pt-4'>
