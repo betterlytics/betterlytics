@@ -44,7 +44,7 @@ function Alert({ className, variant, icon, role, children, ...props }: AlertProp
   return (
     <div
       data-slot='alert'
-      role={role ?? (tone === 'destructive' ? 'alert' : 'status')}
+      role={role ?? (tone === 'destructive' ? 'alert' : undefined)}
       className={cn(alertVariants({ variant: tone }), className)}
       {...props}
     >

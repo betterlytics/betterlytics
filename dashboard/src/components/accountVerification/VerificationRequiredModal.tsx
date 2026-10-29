@@ -57,7 +57,9 @@ export function VerificationRequiredModal({
 
         <div className='space-y-4'>
           <Alert variant='info'>
-            <AlertTitle>{t('whyTitle')}</AlertTitle>
+            <AlertTitle role='heading' aria-level={3}>
+              {t('whyTitle')}
+            </AlertTitle>
             <AlertDescription>
               <ul className='mt-1 space-y-1'>
                 <li className='flex items-start gap-2'>
