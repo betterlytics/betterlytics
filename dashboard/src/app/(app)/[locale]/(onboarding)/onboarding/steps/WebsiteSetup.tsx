@@ -3,7 +3,7 @@
 import { useState, useTransition, useCallback, useMemo, Dispatch } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { completeOnboardingAndCreateDashboardAction } from '@/app/actions/account/onboarding.action';
 import { domainValidation } from '@/entities/dashboard/dashboard.entities';
 import { normalizeDomainInput } from '@/utils/domainValidation';
@@ -141,7 +141,7 @@ export default function WebsiteSetup({ onNext }: WebsiteSetupProps) {
           )}
           {error && (
             <Alert variant='destructive'>
-              <AlertDescription>{error}</AlertDescription>
+              <AlertTitle>{error}</AlertTitle>
             </Alert>
           )}
 

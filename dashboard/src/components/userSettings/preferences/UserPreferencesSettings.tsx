@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, BookUser } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useTranslations } from 'next-intl';
@@ -138,7 +138,7 @@ export default function UserPreferencesSettings() {
             settings.timezone === null &&
             browserTimeZone === null && (
               <Alert variant='warning'>
-                <AlertDescription>{t('localization.timezoneUndetected')}</AlertDescription>
+                <AlertTitle>{t('localization.timezoneUndetected')}</AlertTitle>
               </Alert>
             )
           }

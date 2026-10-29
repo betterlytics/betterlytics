@@ -18,7 +18,7 @@ import OtpInput from '@/components/ui/otp-input';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { Check, Clipboard, Download, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { authClient } from '@/lib/auth-client';
 import type { AuthClientError } from '@/lib/auth/auth-error';
 import { useAuthErrorMessage } from '@/hooks/use-auth-error-message';
@@ -113,7 +113,7 @@ function BackupCodes({ codes, onDone }: { codes: string[]; onDone: () => void })
         <AlertDialogDescription>{t('backupCodesDescription')}</AlertDialogDescription>
       </AlertDialogHeader>
       <Alert variant='warning'>
-        <AlertDescription>{t('backupCodesWarning')}</AlertDescription>
+        <AlertTitle>{t('backupCodesWarning')}</AlertTitle>
       </Alert>
       <ol className='bg-muted/50 grid grid-cols-2 gap-x-6 gap-y-1.5 rounded-md border px-4 py-3 font-mono text-sm tracking-wide whitespace-nowrap'>
         {codes.map((code, index) => (

@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { useTranslations } from 'next-intl';
 import { acceptTermsAction } from '@/app/actions/account/legal.action';
 import { authClient } from '@/lib/auth-client';
@@ -76,7 +76,7 @@ export function TermsRequiredModal({ isOpen }: TermsRequiredModalProps) {
 
         {error && (
           <Alert variant='destructive'>
-            <AlertDescription>{error}</AlertDescription>
+            <AlertTitle>{error}</AlertTitle>
           </Alert>
         )}
 
