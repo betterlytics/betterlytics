@@ -25,8 +25,9 @@ function render(filter: Partial<QueryFilter>) {
       /data-pill-value=""[^>]*><span class="[^"]*overflow-clip[^"]*">(.*?)<\/span><span aria-hidden/g,
     ),
   ].map(([, inner]) => inner.replace(/<[^>]+>/g, ''));
-  const labels = [...html.matchAll(/style="z-index:(\d+)">(?:\+(\d+) more)?</g)].map(
-    ([, z, count]) => `${count ? `+${count}` : ''}@${z}`,
+  const count = (label: string) => label.replace(/(\d+) more/, '$1');
+  const labels = [...html.matchAll(/data-self="([^"]*)" data-after="([^"]*)" style="z-index:(\d+)"/g)].map(
+    ([, self, after, z]) => `${count(self)}|${count(after)}@${z}`,
   );
   return { html, values, labels };
 }
@@ -36,7 +37,7 @@ describe('FilterPillValues', () => {
     const { html, values, labels } = render({});
     expect(values).toEqual(['/pricing,', '/docs,', '/blog,', '/about']);
     expect(html.match(/:last-child\]:shrink-\[1000000\]/g)).toHaveLength(3);
-    expect(labels).toEqual(['+4@8', '+3@9', '+3@6', '+2@7', '+2@4', '+1@5', '+1@2', '@3']);
+    expect(labels).toEqual(['+4|+3@4', '+3|+2@3', '+2|+1@2', '+1|@1']);
   });
 
   it('keeps the probe copies silent and cheap: hidden from assistive tech, icon placeholders instead of icons', () => {
@@ -53,8 +54,8 @@ describe('FilterPillValues', () => {
     expect(mounted).toBeLessThan(100);
     expect(estimated.values.at(-1)).toBe(`+${100 - mounted}`);
     expect(estimated.html.match(/data-pill-rest=""/g)).toHaveLength(1);
-    expect(estimated.labels[0]).toBe(`+100@${2 * (mounted + 1)}`);
-    expect(estimated.labels.at(-2)).toBe(`+${100 - mounted}@2`);
+    expect(estimated.labels[0]).toBe(`+100|+99@${mounted + 1}`);
+    expect(estimated.labels.at(-1)).toBe(`+${100 - mounted}|@1`);
 
     const capped = render({ values: Array.from({ length: 200 }, () => 'DK') });
     expect(capped.values).toHaveLength(33);
