@@ -94,6 +94,15 @@ fn merge_chunk_rage_clicks(meta: &mut SessionReplayMetaRow, rage_click_count: Op
     meta.rage_click_count = meta.rage_click_count.saturating_add(count);
 }
 
+// Each dead click is its own replay event too
+fn merge_chunk_dead_clicks(meta: &mut SessionReplayMetaRow, dead_click_count: Option<u32>, event_count: Option<u32>) {
+    let count = match dead_click_count {
+        Some(n) if n <= event_count.unwrap_or(0) => n,
+        _ => 0,
+    };
+    meta.dead_click_count = meta.dead_click_count.saturating_add(count);
+}
+
 pub struct ReplayCtx {
     pub mode: ReplayStorage,
     pub store: SegmentStore,
@@ -121,6 +130,7 @@ pub struct UploadSegmentParams {
     pub ended_at_ms: Option<i64>,
     pub event_count: Option<u32>,
     pub rage_click_count: Option<u32>,
+    pub dead_click_count: Option<u32>,
     pub encoding: Option<String>,
     pub chunk_id: Option<String>,
     pub format: Option<String>,
@@ -364,6 +374,7 @@ async fn store_segment(
         error_fingerprints: Vec::new(),
         recorded_error_count: 0,
         rage_click_count: 0,
+        dead_click_count: 0,
     });
     meta.started_at = meta.started_at.min(started_at);
     meta.ended_at = meta.ended_at.max(received_at);
@@ -373,6 +384,7 @@ async fn store_segment(
     meta.event_count = meta.event_count.saturating_add(p.event_count.unwrap_or_default());
     merge_chunk_errors(&mut meta, chunk_errors);
     merge_chunk_rage_clicks(&mut meta, p.rage_click_count, p.event_count);
+    merge_chunk_dead_clicks(&mut meta, p.dead_click_count, p.event_count);
     if meta.start_url.is_empty() {
         meta.start_url = start_url;
     }
@@ -436,6 +448,7 @@ async fn upsert_replay_row(
         error_fingerprints: meta.error_fingerprints.clone(),
         recorded_error_count: meta.recorded_error_count,
         rage_click_count: meta.rage_click_count,
+        dead_click_count: meta.dead_click_count,
     };
     db.upsert_session_replay(row).await
 }
@@ -517,6 +530,7 @@ mod tests {
             error_fingerprints: Vec::new(),
             recorded_error_count: 0,
             rage_click_count: 0,
+            dead_click_count: 0,
         }
     }
 
@@ -567,6 +581,27 @@ mod tests {
         meta.rage_click_count = u32::MAX - 1;
         merge_chunk_rage_clicks(&mut meta, Some(5), Some(10));
         assert_eq!(meta.rage_click_count, u32::MAX);
+    }
+
+    #[test]
+    fn dead_clicks_are_capped_at_the_chunk_event_count() {
+        let mut meta = replay_meta((T, T));
+        merge_chunk_dead_clicks(&mut meta, Some(3), Some(40));
+        merge_chunk_dead_clicks(&mut meta, Some(40), Some(40));
+        assert_eq!(meta.dead_click_count, 43);
+        merge_chunk_dead_clicks(&mut meta, Some(41), Some(40));
+        merge_chunk_dead_clicks(&mut meta, Some(1), None);
+        merge_chunk_dead_clicks(&mut meta, None, Some(40));
+        assert_eq!(meta.dead_click_count, 43);
+        assert_eq!(meta.rage_click_count, 0);
+    }
+
+    #[test]
+    fn dead_clicks_saturate() {
+        let mut meta = replay_meta((T, T));
+        meta.dead_click_count = u32::MAX - 1;
+        merge_chunk_dead_clicks(&mut meta, Some(5), Some(10));
+        assert_eq!(meta.dead_click_count, u32::MAX);
     }
 
     fn merge_all(chunks: &[(i64, i64)]) -> SessionReplayMetaRow {
