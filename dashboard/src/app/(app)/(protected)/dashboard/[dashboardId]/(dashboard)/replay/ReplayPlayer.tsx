@@ -70,7 +70,6 @@ function rageRangesFrom(events: eventWithTime[]): RageRange[] {
 }
 
 const DEAD_CURSOR_MS = 800;
-const DEAD_CLICK_MATCH_MS = 100;
 
 // The dead_click event is emitted once the click is judged dead and carries the click time
 function deadClickTimesFrom(events: eventWithTime[]): number[] {
@@ -105,6 +104,7 @@ const ReplayPlayerComponent = (
   const rageRangesRef = useRef<RageRange[]>([]);
   const rageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const deadClickTimesRef = useRef<number[]>([]);
+  const playedToRef = useRef<number>(-Infinity);
   const deadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const rageCursorPlugin = useRef<ReplayPlugin>({
@@ -122,22 +122,26 @@ const ReplayPlayerComponent = (
     },
   }).current;
 
-  const deadCursorPlugin = useRef<ReplayPlugin>({
-    handler(event, isSync, { replayer }) {
-      if (isSync || !isClick(event)) return;
-      const mouse = replayer.wrapper.querySelector<HTMLElement>('.replayer-mouse');
-      if (!mouse) return;
-      if (deadTimerRef.current) clearTimeout(deadTimerRef.current);
-      mouse.classList.remove('dead');
-      const isDead = deadClickTimesRef.current.some(
-        (clickedAt) => Math.abs(event.timestamp - clickedAt) <= DEAD_CLICK_MATCH_MS,
-      );
-      if (!isDead) return;
-      // Restart the ring for back-to-back dead clicks
-      void mouse.offsetWidth;
-      mouse.classList.add('dead');
-      deadTimerRef.current = setTimeout(() => mouse.classList.remove('dead'), DEAD_CURSOR_MS);
-    },
+  // Driven by the playback clock rather than recorded events: rrweb records no click on blocked
+  // elements such as images, and the next event can come seconds after the click
+  const onDeadClickTick = useRef((event: Event) => {
+    const player = playerRef.current;
+    const offset = (event as unknown as { payload?: unknown }).payload;
+    if (!player || typeof offset !== 'number') return;
+    const replayer = player.getReplayer();
+    const playedTo = replayer.getMetaData().startTime + offset;
+    const playedFrom = playedToRef.current;
+    playedToRef.current = playedTo;
+    const reached = deadClickTimesRef.current.some((clickedAt) => clickedAt > playedFrom && clickedAt <= playedTo);
+    if (!reached) return;
+    const mouse = replayer.wrapper.querySelector<HTMLElement>('.replayer-mouse');
+    if (!mouse) return;
+    if (deadTimerRef.current) clearTimeout(deadTimerRef.current);
+    mouse.classList.remove('dead');
+    // Restart the ring for back-to-back dead clicks
+    void mouse.offsetWidth;
+    mouse.classList.add('dead');
+    deadTimerRef.current = setTimeout(() => mouse.classList.remove('dead'), DEAD_CURSOR_MS);
   }).current;
 
   const findClosestEventBefore = useCallback(
@@ -240,7 +244,7 @@ const ReplayPlayerComponent = (
           skipInactive: playerState.isSkippingInactive,
           width: size.width,
           height: size.height,
-          plugins: [rageCursorPlugin, deadCursorPlugin],
+          plugins: [rageCursorPlugin],
           mouseTail: false,
         },
       });
@@ -248,10 +252,11 @@ const ReplayPlayerComponent = (
       // Attach any previously registered listeners to the new player instance
       const target = playerRef.current as unknown as PlayerEventTarget;
       listenersRef.current.forEach(({ type, listener }) => target.addEventListener(type, listener));
+      target.addEventListener('ui-update-current-time', onDeadClickTick);
 
       onReady?.();
     },
-    [destroyPlayer, size, onReady, rageCursorPlugin, deadCursorPlugin],
+    [destroyPlayer, size, onReady, rageCursorPlugin, onDeadClickTick],
   );
 
   const redactBlacklisted = useCallback(() => {
@@ -292,6 +297,8 @@ const ReplayPlayerComponent = (
       }
 
       const closestEventBefore = findClosestEventBefore(timeOffset, [EventType.Custom, EventType.FullSnapshot]);
+      // A seek moves the clock without playing what it skips; a dead click right at the target still rings
+      playedToRef.current = (playerState.eventsRef.current[0]?.timestamp ?? 0) + timeOffset - 1;
 
       try {
         playerRef.current.goto(timeOffset);
@@ -358,6 +365,7 @@ const ReplayPlayerComponent = (
         return;
       }
 
+      playedToRef.current = -Infinity;
       recreatePlayer(events);
     },
     appendEvents(events) {
