@@ -11,16 +11,19 @@ export const GeoVisitorSchema = z.object({
   city: z.string().optional(),
 });
 
-export const worldMapResponseSchema = z.object({
-  visitorData: z.array(GeoVisitorSchema),
-  compareData: z.array(GeoVisitorSchema),
-  maxVisitors: z.number(),
-});
-
 export type GeoVisitor = z.infer<typeof GeoVisitorSchema>;
-export type WorldMapResponse = z.infer<typeof worldMapResponseSchema>;
 
-export type GeoVisitorWithCompare = GeoVisitor & {
-  compareVisitors?: number;
+export type GeoFeatureVisitor = {
+  code: string;
+  visitors: number;
 };
 
+export type GeoMapResponse = {
+  visitorData: GeoFeatureVisitor[];
+  compareData: GeoFeatureVisitor[];
+  maxVisitors: number;
+};
+
+export type GeoFeatureVisitorWithCompare = GeoFeatureVisitor & {
+  compareVisitors?: number;
+};
