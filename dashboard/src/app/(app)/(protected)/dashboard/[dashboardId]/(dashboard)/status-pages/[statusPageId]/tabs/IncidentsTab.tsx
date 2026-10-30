@@ -36,6 +36,7 @@ import {
 import { PaginationControls } from '@/components/PaginationControls';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { trpc } from '@/trpc/client';
 import {
   type DetectedOutageSuggestion,
   type StatusPageIncident,
@@ -80,6 +81,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
   const { timeZone } = useTimeRangeContext();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const utils = trpc.useUtils();
   const { canMutate } = useDashboardAuth();
 
   // The editor sheet initializes from its seed on mount; a fresh key per open remounts it,
@@ -113,8 +115,9 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     queryClient.invalidateQueries({ queryKey: ['statusPageIncidents', statusPageId] });
     queryClient.invalidateQueries({ queryKey: ['statusPageIncidentSuggestions', statusPageId] });
     queryClient.invalidateQueries({ queryKey: ['statusPageIncidentTimeline', statusPageId] });
+    utils.monitors.activeAlerts.invalidate({ dashboardId });
     router.refresh(); // keep the live preview / public page in sync
-  }, [queryClient, router, statusPageId]);
+  }, [queryClient, utils, router, dashboardId, statusPageId]);
 
   const deleteMutation = useMutation({
     mutationFn: (incidentId: string) => deleteStatusPageIncidentAction(dashboardId, statusPageId, incidentId),

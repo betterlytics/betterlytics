@@ -16,7 +16,11 @@ import { compareDownFirst, monitorSortName, OPERATIONAL_STATE_PRIORITY } from '.
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { trpc, type BARouterOutputs } from '@/trpc/client';
-import { DASHBOARD_ALERTS_REFRESH_INTERVAL_MS, useDashboardAlerts } from '@/hooks/use-dashboard-alerts';
+import {
+  DASHBOARD_ALERTS_REFRESH_OPTIONS,
+  useDashboardAlerts,
+  useRefetchOnWindowFocus,
+} from '@/hooks/use-dashboard-alerts';
 
 type FiltersCopy = {
   statusLabel: string;
@@ -83,18 +87,19 @@ export function MonitoringClient({ dashboardId, initialMonitors, timezone, domai
   const { caps } = useCapabilities();
   const utils = trpc.useUtils();
 
-  // Polls on the same interval as the down-monitor banner, so the list and the banner agree.
-  const { data: monitors } = trpc.monitors.list.useQuery(
+  // Refreshes on the same schedule as the sidebar's down-monitor dot, so the list and the dot agree.
+  const { data: monitors, refetch } = trpc.monitors.list.useQuery(
     { dashboardId, timezone },
-    { initialData: initialMonitors, refetchInterval: DASHBOARD_ALERTS_REFRESH_INTERVAL_MS },
+    { initialData: initialMonitors, ...DASHBOARD_ALERTS_REFRESH_OPTIONS },
   );
+  useRefetchOnWindowFocus(refetch);
 
   // A router.refresh() (e.g. after creating a monitor) hands down fresh server data.
   useEffect(() => {
     utils.monitors.list.setData({ dashboardId, timezone }, initialMonitors);
   }, [utils, dashboardId, timezone, initialMonitors]);
 
-  // The two polls run on separate timers, so refetch the list as soon as the banner's set of
+  // The two polls run on separate timers, so refetch the list as soon as the dot's set of
   // outages changes rather than up to an interval later.
   const alerts = useDashboardAlerts();
   const outageKey = alerts?.downMonitors
