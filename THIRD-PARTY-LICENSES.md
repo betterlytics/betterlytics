@@ -186,7 +186,7 @@ limitations under the License.
 **Sources**:
 
 - [Natural Earth](https://www.naturalearthdata.com/) admin-1 boundaries, public domain, for most countries
-- [geoBoundaries](https://www.geoboundaries.org/): CD, KI, LU, MH, SO, ST and TV under ODbL 1.0 (© OpenStreetMap contributors); CI and LV under CC BY 4.0; NP under CC BY 3.0 IGO; GL's redrawn border under CC BY-SA 3.0 DE; KE and LB public domain
+- [geoBoundaries](https://www.geoboundaries.org/): CD, KI, LU, MH, SO, ST, TV, TW and YE under ODbL 1.0 (© OpenStreetMap contributors); CI and LV under CC BY 4.0; NP under CC BY 3.0 IGO; GL's redrawn border under CC BY-SA 3.0 DE; KE and LB public domain
 - [OCHA Common Operational Datasets](https://data.humdata.org/) under CC BY-IGO: GH (Ghana Statistical Service), KZ (UNHCR), PS (Palestinian Ministry of Planning), SL (Government of Sierra Leone)
 
 **License**: The simplified and composed files are distributed under this project's AGPL-3.0 license, except that the ODbL-derived files stay under ODbL 1.0 and GL under CC BY-SA 4.0. Every file names its base data and license in a `license` member, and ODbL files carry an `attribution` member that the dashboard shows on the map.
