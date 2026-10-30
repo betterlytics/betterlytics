@@ -23,9 +23,9 @@ type PillValue = { render: (placeholder: boolean) => ReactNode; hidden: number; 
  * rows where the deeper row always gives way first: values fold whole from the end, exactly one gets cut, and
  * the rest reach zero width. Each value carries a probe with an invisible copy of itself at natural width minus
  * a pixel; the pixel left over collapses only when the value is squeezed, and container queries on that pixel
- * and on the value pick one of two pre-rendered "+N more" labels. Every value needs its own labels because a query
- * container also contains style, so nothing outside a probe can learn what it found. Values past the mount
- * estimate are counted by a trailing "+N" value instead.
+ * and on the value show its label with one of two pre-rendered "+N more" counts. Every value needs its own label
+ * because a query container also contains style, so nothing outside a probe can learn what it found. Values past
+ * the mount estimate are counted by a trailing "+N" value instead.
  */
 export const FilterPillValues = memo(function FilterPillValues({ filter, onOpen }: FilterPillValuesProps) {
   const t = useTranslations('components.filters');
@@ -91,6 +91,7 @@ function PillValuesLadder({ values }: { values: PillValue[] }) {
  */
 const labelClassName = cn(
   'bg-(--pill-bg) text-muted-foreground absolute inset-y-0 right-0 hidden items-center whitespace-nowrap tabular-nums',
+  '@max-[0.5px]:flex after:content-[attr(data-self)] @min-[7em]/v:after:content-[attr(data-after)]',
   'before:absolute before:inset-y-0 before:right-full before:hidden before:w-10 @min-[0.5px]/v:before:block',
   'before:bg-linear-to-r before:from-transparent before:to-(--pill-bg)',
 );
@@ -107,15 +108,13 @@ function PillValueProbe({ value, index, last }: { value: PillValue; index: numbe
   return (
     <span aria-hidden className='@container/v pointer-events-none absolute inset-0 flex'>
       <span className='invisible mr-[3px] shrink-0 whitespace-nowrap'>{value.render(true)}</span>
-      <span className='min-w-0 shrink-[1000000] grow basis-px'>
-        <span className='@container block h-full w-full'>
-          <span className={cn(labelClassName, '@max-[0.5px]:@max-[7em]/v:flex')} style={{ zIndex: 2 * index }}>
-            {t('pillMoreValues', { count: value.hidden })}
-          </span>
-          <span className={cn(labelClassName, '@max-[0.5px]:@min-[7em]/v:flex')} style={{ zIndex: 2 * index + 1 }}>
-            {after > 0 && t('pillMoreValues', { count: after })}
-          </span>
-        </span>
+      <span className='@container min-w-0 shrink-[1000000] grow basis-px'>
+        <span
+          className={labelClassName}
+          data-self={t('pillMoreValues', { count: value.hidden })}
+          data-after={after > 0 ? t('pillMoreValues', { count: after }) : ''}
+          style={{ zIndex: index }}
+        />
       </span>
     </span>
   );
