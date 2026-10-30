@@ -102,6 +102,7 @@ How to control visibility:
 - Mask additional elements by adding the attribute `[data-rrweb-mask]` to any element in your app.
 - Block entire regions from recording by adding the class `.rr-block`.
 - Ignore non‑essential elements and events by adding the class `.rr-ignore`.
+- Stop clicks on an element from being reported as dead clicks by adding the class `.bl-no-deadclick` to it or to a parent. Use it for elements that respond in a way the page doesn't show, such as a button that only copies to the clipboard.
 
 You can opt‑out on specific pages using `data-disable-replay-on-urls`.
 

@@ -51,6 +51,7 @@ Below is the list of all key events shown in the timeline:
 - **Blacklist**: user enters a page where recording is disabled.
 - **Client error**: a JavaScript error captured on the page during the session.
 - **Rage click**: three or more rapid clicks on the same spot, a sign of frustration. The marker sits where the burst started, and the session list shows how many rage clicks a session has.
+- **Dead click**: a click the page didn't react to. Nothing on the page changed within 2.5 seconds, nothing scrolled, no text was selected and no caret was placed, and the tab or window didn't change. Clicks on links, clicks with a modifier key held, and repeat clicks on the same element within a second are not counted. The marker sits at the click, and the session list shows how many dead clicks a session has. To stop clicks on an element from counting, add the class `.bl-no-deadclick` to it or to a parent.
 
 A condensed marker strip is also rendered over the seek bar so you can see activity distribution at a glance.
 
