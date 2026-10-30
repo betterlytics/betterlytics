@@ -4,6 +4,7 @@ import LeafletMap from '@/components/map/LeafletMap';
 import { MapProvider } from '@/components/map/MapProvider';
 import { useRegionGeoJson } from '@/components/map/panel/use-region-geojson';
 import { countryAsOneUnit } from '@/components/map/panel/country-unit';
+import { queriedCountry } from '@/components/map/panel/drilldown-state';
 import { createRegionDisplayResolver } from '@/components/map/panel/region-display';
 import MapAttribution from '@/components/map/MapAttribution';
 import { REGION_MAP_COUNTRIES } from '@/constants/regionCountries';
@@ -35,8 +36,8 @@ export default function SubdivisionMapSection({
       ...options,
       enabled: hasRegionMap,
       // Previous data only bridges a refetch of the same country, never another country's map
-      placeholderData: (previous) =>
-        previous?.visitorData.every((d) => d.code.startsWith(`${countryCode}-`)) ? previous : undefined,
+      placeholderData: (previous, previousQuery) =>
+        queriedCountry(previousQuery?.queryKey) === countryCode ? previous : undefined,
     },
   );
   const countryQuery = trpc.geography.worldMap.useQuery(input, {
