@@ -16,11 +16,7 @@ import { compareDownFirst, monitorSortName, OPERATIONAL_STATE_PRIORITY } from '.
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { trpc, type BARouterOutputs } from '@/trpc/client';
-import {
-  DASHBOARD_ALERTS_REFRESH_OPTIONS,
-  useDashboardAlerts,
-  useRefetchOnWindowFocus,
-} from '@/hooks/use-dashboard-alerts';
+import { useDashboardAlertsQuery } from '@/hooks/use-dashboard-alerts';
 
 type FiltersCopy = {
   statusLabel: string;
@@ -87,32 +83,25 @@ export function MonitoringClient({ dashboardId, initialMonitors, timezone, domai
   const { caps } = useCapabilities();
   const utils = trpc.useUtils();
 
-  // Refreshes on the same schedule as the sidebar's down-monitor dot, so the list and the dot agree.
-  const { data: monitors, refetch } = trpc.monitors.list.useQuery(
+  const { data: monitors } = trpc.monitors.list.useQuery(
     { dashboardId, timezone },
-    { initialData: initialMonitors, ...DASHBOARD_ALERTS_REFRESH_OPTIONS },
+    { initialData: initialMonitors },
   );
-  useRefetchOnWindowFocus(refetch);
 
   // A router.refresh() (e.g. after creating a monitor) hands down fresh server data.
   useEffect(() => {
     utils.monitors.list.setData({ dashboardId, timezone }, initialMonitors);
   }, [utils, dashboardId, timezone, initialMonitors]);
 
-  // The two polls run on separate timers, so refetch the list as soon as the dot's set of
-  // outages changes rather than up to an interval later.
-  const alerts = useDashboardAlerts();
-  const outageKey = alerts?.downMonitors
-    .map((monitor) => monitor.incidentId)
-    .sort()
-    .join(',');
-  const previousOutageKey = useRef(outageKey);
+  // The alerts query behind the sidebar dot drives the list's refresh, so the two always load together.
+  const { dataUpdatedAt: alertsUpdatedAt } = useDashboardAlertsQuery();
+  const previousAlertsUpdatedAt = useRef(alertsUpdatedAt);
   useEffect(() => {
-    if (previousOutageKey.current !== undefined && previousOutageKey.current !== outageKey) {
+    if (previousAlertsUpdatedAt.current && previousAlertsUpdatedAt.current !== alertsUpdatedAt) {
       utils.monitors.list.invalidate({ dashboardId, timezone });
     }
-    previousOutageKey.current = outageKey;
-  }, [utils, dashboardId, timezone, outageKey]);
+    previousAlertsUpdatedAt.current = alertsUpdatedAt;
+  }, [utils, dashboardId, timezone, alertsUpdatedAt]);
 
   const monitorCount = monitors.length;
   const maxMonitors = caps.monitoring.maxMonitors;
