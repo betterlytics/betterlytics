@@ -12,6 +12,7 @@ import { routing } from '@/i18n/routing';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { buildSEOConfig, SEO_CONFIGS } from '@/lib/seo';
+import { landingClientMessages } from './lib/clientMessages';
 import { LandingProviders } from './providers';
 import './landing.css';
 
@@ -56,8 +57,6 @@ export default async function LandingLayout({
     getMessages(),
     isFeatureEnabled('isCloud') ? buildSEOConfig(SEO_CONFIGS.root) : null,
   ]);
-  const { nav, demo, journey, network, pricing, illustrations } = messages.landing;
-
   return (
     <html lang={locale} className={`${sans.variable} ${mono.variable}`}>
       <head>
@@ -66,13 +65,7 @@ export default async function LandingLayout({
       </head>
       <body>
         <NextTopLoader color='var(--color-volt-lift)' height={3} showSpinner={false} shadow={false} />
-        {/* only what client components read; server components' copy stays out of the payload */}
-        <NextIntlClientProvider
-          messages={{
-            pricingCards: messages.pricingCards,
-            landing: { nav, demo, journey, network, pricing, illustrations },
-          }}
-        >
+        <NextIntlClientProvider messages={landingClientMessages(messages)}>
           <LandingProviders>
             {env.ENABLE_APP_TRACKING && <GlobalPropertiesUpdater />}
             {children}

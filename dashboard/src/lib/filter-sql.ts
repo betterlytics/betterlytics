@@ -28,17 +28,33 @@ export function filterColumnSqlForSession(col: TableFilterColumn, tupleColumns: 
   const sql = filterColumnSql(parsed);
   const isTuple = !FILTER_COLUMN_SQL_OVERRIDES[parsed] && tupleColumns.includes(parsed);
 
-  return isTuple ? safeSql`${sql}.2` : sql;
+  // Qualified, because the session subquery selects `col.2 as col`, and an
+  // unqualified `col` in its WHERE would resolve to that String alias.
+  return isTuple ? safeSql`sessions.${sql}.2` : sql;
+}
+
+/** Escapes the ILIKE metacharacters `\`, `%` and `_` so the text matches literally. */
+export function escapeLikePattern(text: string) {
+  return text.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
 /**
- * A lone bare wildcard (`*`, or `%` in builders that transform patterns before
- * checking) means "match any value". ClickHouse evaluates `'' ILIKE '%'` as
- * true, so pattern matching would also match rows where the column is unset -
- * builders special-case such filters into a presence check instead.
+ * Turns a typed filter value into an ILIKE pattern: `*` is the only wildcard and
+ * every other character matches literally. Escaping has to run before `*` becomes
+ * `%`, or it would escape our own wildcard.
  */
-export function isMatchAnyValueFilter(values: string[]) {
-  return values.length === 1 && (values[0] === '*' || values[0] === '%');
+export function filterValueToLikePattern(value: string) {
+  return escapeLikePattern(value).replaceAll('*', '%');
+}
+
+/**
+ * A lone `%` pattern, which only a bare typed `*` produces, means "match any
+ * value". ClickHouse evaluates `'' ILIKE '%'` as true, so pattern matching would
+ * also match rows where the column is unset - builders special-case such filters
+ * into a presence check instead.
+ */
+export function isMatchAnyValueFilter(patterns: string[]) {
+  return patterns.length === 1 && patterns[0] === '%';
 }
 
 /**
@@ -48,12 +64,12 @@ export function isMatchAnyValueFilter(values: string[]) {
  * it to '' throws, and it is never unset anyway.
  */
 export function matchAnyValueFilterSql(
-  values: string[],
+  patterns: string[],
   operator: '=' | '!=',
   column: SQLTaggedExpression,
   col?: TableFilterColumn,
 ): SQLTaggedExpression | null {
-  if (!isMatchAnyValueFilter(values) || col === 'event_type') {
+  if (!isMatchAnyValueFilter(patterns) || col === 'event_type') {
     return null;
   }
   return operator === '=' ? safeSql`${column} != ''` : safeSql`${column} = ''`;

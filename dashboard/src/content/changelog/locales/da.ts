@@ -1,5 +1,221 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v152ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.2',
+    releasedAt: '2026-10-28',
+    title: 'AI-trafik & registrering af rage clicks',
+    summary:
+      'Besøg fra AI-assistenter som ChatGPT og Claude har nu deres egen trafikkategori, og session replay kan registrere rage clicks, så du nemmere kan finde frustrerede besøgende. Denne udgivelse indeholder også smartere filterforslag, et nyt MCP-værktøj til nøgletal for sessioner, tydeligere SSL-alarmer og en række tidszonerettelser.',
+  },
+  sections: [
+    {
+      id: 'v152-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Besøg fra AI-assistenter som ChatGPT, Claude, Gemini, Perplexity og Copilot er nu flyttet til deres egen AI-kategori.',
+            'Session replay registrerer nu rage clicks (raseriklik), når en besøgende klikker på det samme sted igen og igen i hurtig rækkefølge.',
+            'Du kan nu skjule og vise annotationer på oversigtsgrafen.',
+            'Statussider kan nu bruge en gennemsigtig header, der går i ét med siden.',
+            'Med et nyt MCP-værktøj kan din AI-assistent rapportere om afvisningsprocent, besøgstid, sider pr. session samt indgangs- og udgangssider, opdelt efter enhed, placering, henvisningskilde eller kampagne.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filterforslag viser nu op til 200 værdier med de hyppigste øverst.',
+            "Session replays gemmer ikke længere query-strengen eller #-fragmentet i sidernes URL'er.",
+            'Session replay optager nu mere pålideligt, når besøgende hurtigt skifter mellem sider.',
+            'Afspilleren til session replay har fået et opfrisket udseende med blandt andet en ny markør og klikanimationer.',
+            'Når en monitor fejler på grund af et problem med SSL-certifikatet, angiver dens alarmer og hændelser nu præcis, hvad der er galt.',
+            'Når du logger ind, kommer du nu tilbage til den side, du prøvede at åbne.',
+            'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Grafer følger nu din valgte tidszone mere konsekvent.',
+            'Filtre behandler nu % og _ som almindelige tegn. Tidligere kunne tegnene fungere som skjulte wildcards og matche mere end det, du havde skrevet. Brug * som wildcard.',
+            'Når opsamling af konsolfejl er slået til, vises fejl fra console.error nu med deres rigtige besked og stack trace i stedet for {}.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v152ChangelogModalDa: ChangelogEntryData = {
+  metadata: v152ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v152-modal-new-features',
+      title: 'Nye funktioner',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Besøg fra AI-assistenter har nu deres egen AI-kategori.',
+            'Session replay registrerer nu rage clicks.',
+            'Du kan nu skjule og vise annotationer på oversigtsgrafen.',
+            'Statussider kan bruge en gennemsigtig header.',
+            'Et nyt MCP-værktøj giver din AI-assistent adgang til nøgletal for sessioner, f.eks. afvisningsprocent og besøgstid.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filterforslag viser de hyppigste værdier først.',
+            "Session replays gemmer ikke længere query-strenge eller fragmenter fra URL'er.",
+            'Session replay optager mere pålideligt ved hurtig navigation mellem sider.',
+            'Afspilleren til session replay har fået et opfrisket udseende.',
+            'SSL-alarmer angiver nu præcis, hvad der er galt med certifikatet.',
+            'Når du logger ind, kommer du tilbage til den side, du prøvede at åbne.',
+            'Diverse forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Grafer følger din valgte tidszone mere konsekvent.',
+            'Filtre behandler % og _ som almindelige tegn.',
+            'Opsamlede konsolfejl viser deres rigtige besked og stack trace.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v151ChangelogEntryDa: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.1',
+    releasedAt: '2026-10-18',
+    title: 'Sikkerhedsopdateringer & bedre brugervenlighed',
+    summary:
+      'Denne udgivelse styrker sikkerheden omkring teaminvitationer, MCP-tokens, uptime-monitorer og webhooks. Den indeholder også en håndfuld forbedringer af brugervenligheden og rettelser på tværs af dashboardet og session replay.',
+  },
+  sections: [
+    {
+      id: 'v151-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Dialogen Skift adgangskode viser nu kravene til adgangskoden som en tjekliste, der opdateres, mens du skriver.',
+            'Diverse mindre forbedringer af brugervenligheden, blandt andet browser- og styresystemikoner, der indlæses med det samme, en tydelig "Overvågning ikke fundet"-side, et krav om mindst én accepteret statuskode på hver monitor samt oversættelser, der manglede.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Hvis du skifter dashboard, mens du ser en monitor, en statusside eller en fejl, ender du ikke længere på en fejlside.',
+            'Session replay optager nu korrekt på websites, der også kører andre analysescripts.',
+            'En udløbet invitation forhindrer ikke længere, at du inviterer den samme person igen.',
+            'Fejlbeskeder ved login er nu tydeligere og fortæller dig, hvad der gik galt.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Kun dashboardets ejer og administratorer kan nu oprette og slette MCP-tokens.',
+            'Teaminvitationer er nu sikrere. Links til afventende invitationer vises kun for medlemmer, der selv kan invitere, og invitationer kobles først til din konto, når din e-mailadresse er bekræftet.',
+            'Uptime-monitorer og webhooks kan ikke længere tilgå private, interne eller cloud-metadata-adresser.',
+            'Sikkerhedsrettelser i login og e-mailbekræftelse.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v151ChangelogModalDa: ChangelogEntryData = {
+  metadata: v151ChangelogEntryDa.metadata,
+  sections: [
+    {
+      id: 'v151-modal-improvements',
+      title: 'Forbedringer',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Dialogen Skift adgangskode viser kravene til adgangskoden, mens du skriver.',
+            'Mindre forbedringer af brugervenligheden på tværs af dashboardet.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-modal-fixes',
+      title: 'Rettelser',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Skifter du dashboard, mens du ser en monitor, en statusside eller en fejl, ender du ikke længere på en fejlside.',
+            'Session replay optager korrekt på websites, der også kører andre analysescripts.',
+            'Udløbne invitationer forhindrer ikke længere, at du inviterer den samme person igen.',
+            'Tydeligere fejlbeskeder ved login.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v151-modal-security',
+      title: 'Sikkerhed',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Kun ejere og administratorer kan oprette og slette MCP-tokens.',
+            'Sikkerhedsforbedringer til teaminvitationer, login, monitorer og webhooks.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v150ChangelogEntryDa: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.0',
@@ -584,9 +800,11 @@ const v144ChangelogEntryDa: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalDa = v150ChangelogModalDa;
+export const latestChangelogModalDa = v152ChangelogModalDa;
 
 export const changelogEntriesDa: readonly ChangelogEntryData[] = [
+  v152ChangelogEntryDa,
+  v151ChangelogEntryDa,
   v150ChangelogEntryDa,
   v149ChangelogEntryDa,
   v148ChangelogEntryDa,

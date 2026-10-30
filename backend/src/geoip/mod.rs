@@ -19,6 +19,15 @@ pub struct GeoLocation {
     pub city: Option<String>,
 }
 
+// Svalbard is part of Norway, and MaxMind's SJ-21 becomes Norway's own NO-21
+fn normalize_country_code(iso_code: &str) -> String {
+    match iso_code {
+        "SJ" => "NO",
+        code => code,
+    }
+    .to_string()
+}
+
 #[derive(Clone)]
 pub struct GeoIpService {
     source: MmdbSource,
@@ -79,7 +88,7 @@ impl GeoIpService {
                 Ok(Some(city)) => {
                     let country_code = city.country
                         .and_then(|c| c.iso_code)
-                        .map(|s| s.to_string());
+                        .map(normalize_country_code);
 
                     let subdivision_code = city.subdivisions
                         .as_ref()
@@ -110,7 +119,7 @@ impl GeoIpService {
                 Ok(Some(country)) => {
                     let country_code = country.country
                         .and_then(|c| c.iso_code)
-                        .map(|s| s.to_string());
+                        .map(normalize_country_code);
 
                     GeoLocation {
                         country_code,
@@ -146,6 +155,12 @@ mod tests {
             geolocation_mode: GeolocationMode::Countries,
         };
         (service, tx)
+    }
+
+    #[test]
+    fn svalbard_is_reported_as_norway() {
+        assert_eq!(normalize_country_code("SJ"), "NO");
+        assert_eq!(normalize_country_code("DK"), "DK");
     }
 
     #[test]

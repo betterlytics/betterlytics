@@ -4,7 +4,7 @@ import { accentForeground } from '@/utils/colorUtils';
 type StatusPageBrandAvatarProps = {
   name: string;
   imageUrl: string | null;
-  accentColor: string;
+  accentColor: string | null;
   /** Favicons are square (cover); logos are "wordmarks" (contain). */
   imageFit?: 'cover' | 'contain';
   className?: string;
@@ -31,8 +31,12 @@ export function StatusPageBrandAvatar({
   return (
     <span
       aria-hidden
-      className={cn('flex flex-none items-center justify-center font-extrabold', className)}
-      style={{ backgroundColor: accentColor, color: accentForeground(accentColor) }}
+      className={cn(
+        'flex flex-none items-center justify-center font-extrabold',
+        className,
+        !accentColor && 'bg-muted text-muted-foreground',
+      )}
+      style={accentColor ? { backgroundColor: accentColor, color: accentForeground(accentColor) } : undefined}
     >
       {name.charAt(0).toUpperCase()}
     </span>

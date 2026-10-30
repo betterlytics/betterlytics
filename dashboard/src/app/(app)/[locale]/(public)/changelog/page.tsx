@@ -6,6 +6,7 @@ import { buildSEOConfig, generateSEO, SEO_CONFIGS } from '@/lib/seo';
 import { getLocale, getTranslations } from 'next-intl/server';
 import type { SupportedLanguages } from '@/constants/i18n';
 import { CtaStrip } from '@/components/public/ctaStrip';
+import ScrollToTopFab from '@/components/ScrollToTopFab';
 import { env } from '@/lib/env';
 import { redirect } from 'next/navigation';
 
@@ -53,6 +54,8 @@ export default async function ChangelogPage() {
       <div className='pb-24'>
         <CtaStrip />
       </div>
+
+      <ScrollToTopFab />
     </>
   );
 }

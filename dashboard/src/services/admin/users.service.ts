@@ -220,6 +220,7 @@ export async function deleteUser(actor: AdminActor, userId: string, input: Admin
     }
     await deleteUserAccount(userId, {
       ownedDashboards: { mode: 'transfer', toUserId: input.transferToUserId },
+      removedById: actor.userId,
     });
     return;
   }
@@ -231,5 +232,5 @@ export async function deleteUser(actor: AdminActor, userId: string, input: Admin
     }
   }
 
-  await deleteUserAccount(userId, { ownedDashboards: { mode: 'delete' } });
+  await deleteUserAccount(userId, { ownedDashboards: { mode: 'delete' }, removedById: actor.userId });
 }

@@ -3,10 +3,12 @@
 import { useState, useTransition } from 'react';
 import { Eye, EyeOff, Loader2, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import { ZodError } from 'zod';
+import { ZodIssue } from 'zod';
 import { useTranslations } from 'next-intl';
-import { ChangePasswordData, ChangePasswordSchema } from '@/entities/auth/password.entities';
+import { ChangePasswordData, ChangePasswordSchema, PASSWORD_RULES } from '@/entities/auth/password.entities';
 import { authClient } from '@/lib/auth-client';
+import { isWrongPasswordError } from '@/lib/auth/auth-error';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -25,6 +27,31 @@ const INITIAL_PASSWORD_STATE: ChangePasswordData = {
   confirmPassword: '',
 };
 
+const PASSWORD_RULE_KEYS = Object.keys(PASSWORD_RULES) as (keyof typeof PASSWORD_RULES)[];
+
+type PasswordErrors = Partial<Record<keyof ChangePasswordData, string>>;
+
+interface ChecklistRow {
+  label: string;
+  met: boolean;
+}
+
+interface Checklist {
+  label?: string;
+  rows: ChecklistRow[];
+}
+
+function ChecklistItem({ label, met }: ChecklistRow) {
+  const t = useTranslations('public.auth.fields.rules');
+  return (
+    <li className={cn('flex items-center gap-1', met ? 'text-foreground' : 'text-muted-foreground')}>
+      <Check aria-hidden className={cn('h-3 w-3', met ? 'text-green-600' : 'opacity-40')} />
+      {label}
+      <span className='sr-only'>, {met ? t('met') : t('unmet')}</span>
+    </li>
+  );
+}
+
 interface PasswordFieldProps {
   id: keyof ChangePasswordData;
   label: string;
@@ -35,7 +62,7 @@ interface PasswordFieldProps {
   error?: string;
   disabled: boolean;
   autoComplete: string;
-  helpText?: string;
+  checklist?: Checklist;
 }
 
 function PasswordField({
@@ -48,9 +75,12 @@ function PasswordField({
   error,
   disabled,
   autoComplete,
-  helpText,
+  checklist,
 }: PasswordFieldProps) {
   const t = useTranslations('components.userSettings.security');
+  const errorId = `${id}-error`;
+  const checklistId = `${id}-checklist`;
+  const describedBy = [error && errorId, checklist && checklistId].filter(Boolean).join(' ');
   return (
     <div className='space-y-2'>
       <Label htmlFor={id}>{label}</Label>
@@ -60,9 +90,10 @@ function PasswordField({
           type={showPassword ? 'text' : 'password'}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className={error ? 'border-destructive' : ''}
           disabled={disabled}
           autoComplete={autoComplete}
+          aria-invalid={Boolean(error) || undefined}
+          aria-describedby={describedBy || undefined}
         />
         <Button
           type='button'
@@ -77,8 +108,18 @@ function PasswordField({
           {showPassword ? <EyeOff className='h-4 w-4' /> : <Eye className='h-4 w-4' />}
         </Button>
       </div>
-      {error && <p className='text-destructive text-sm'>{error}</p>}
-      {helpText && <p className='text-muted-foreground text-xs'>{helpText}</p>}
+      {error && (
+        <p id={errorId} className='text-destructive text-sm'>
+          {error}
+        </p>
+      )}
+      {checklist && (
+        <ul id={checklistId} aria-label={checklist.label} className='flex flex-wrap gap-x-4 gap-y-1 text-xs'>
+          {checklist.rows.map((row) => (
+            <ChecklistItem key={row.label} {...row} />
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -91,10 +132,12 @@ interface ChangePasswordDialogProps {
 export default function ChangePasswordDialog({ open, onOpenChange }: ChangePasswordDialogProps) {
   const t = useTranslations('components.userSettings.security');
   const tDialog = useTranslations('components.userSettings.dialog');
+  const tFields = useTranslations('public.auth.fields');
+  const tRules = useTranslations('public.auth.fields.rules');
   const [isPending, startTransition] = useTransition();
   const [showPasswords, setShowPasswords] = useState({ current: false, new: false, confirm: false });
   const [passwords, setPasswords] = useState<ChangePasswordData>(INITIAL_PASSWORD_STATE);
-  const [errors, setErrors] = useState<Partial<Record<keyof ChangePasswordData, string>>>({});
+  const [errors, setErrors] = useState<PasswordErrors>({});
 
   const resetForm = () => {
     setPasswords(INITIAL_PASSWORD_STATE);
@@ -107,51 +150,64 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
     onOpenChange(next);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrors({});
+  // The schema's messages are English only, so each failing check maps to a translated one
+  const toFieldErrors = (issues: ZodIssue[]): PasswordErrors => {
+    const fieldErrors: PasswordErrors = {};
+    for (const issue of issues) {
+      const field = issue.path[0] as keyof ChangePasswordData;
+      if (fieldErrors[field]) continue;
+      if (field === 'currentPassword') {
+        fieldErrors.currentPassword = tFields('errors.passwordRequired');
+      } else if (field === 'confirmPassword') {
+        fieldErrors.confirmPassword =
+          issue.code === 'too_small' ? tFields('errors.confirmRequired') : tFields('errors.passwordsDoNotMatch');
+      } else if (issue.code !== 'custom') {
+        // the custom check is "same as the current password", which already shows live under the field
+        fieldErrors.newPassword = tFields('errors.weakPassword');
+      }
+    }
+    return fieldErrors;
+  };
 
-    try {
-      const validated = ChangePasswordSchema.parse(passwords);
-      startTransition(async () => {
-        const { error } = await authClient.changePassword({
-          currentPassword: validated.currentPassword,
-          newPassword: validated.newPassword,
-        });
-        if (!error) {
-          toast.success(t('toast.success'));
-          resetForm();
-          onOpenChange(false);
-        } else if (error.code === 'INVALID_PASSWORD') {
-          setErrors({ currentPassword: t('invalidCurrentPassword') });
-        } else if (error.code === 'WEAK_PASSWORD') {
-          setErrors({ newPassword: t('weakPassword') });
-        } else if (error.status === 429) {
-          toast.error(t('toast.tooManyAttempts'));
-        } else {
-          toast.error(tDialog('toast.error'));
-        }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const parsed = ChangePasswordSchema.safeParse(passwords);
+    if (!parsed.success) {
+      setErrors(toFieldErrors(parsed.error.issues));
+      return;
+    }
+
+    setErrors({});
+    startTransition(async () => {
+      const { error } = await authClient.changePassword({
+        currentPassword: parsed.data.currentPassword,
+        newPassword: parsed.data.newPassword,
       });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const fieldErrors: Partial<Record<keyof ChangePasswordData, string>> = {};
-        error.errors.forEach((err) => {
-          if (err.path[0]) {
-            fieldErrors[err.path[0] as keyof ChangePasswordData] = err.message;
-          }
-        });
-        setErrors(fieldErrors);
+      if (!error) {
+        toast.success(t('toast.success'));
+        resetForm();
+        onOpenChange(false);
+      } else if (isWrongPasswordError(error)) {
+        setErrors({ currentPassword: t('invalidCurrentPassword') });
+      } else if (error.code === 'WEAK_PASSWORD') {
+        setErrors({ newPassword: tFields('errors.weakPassword') });
+      } else if (error.status === 429) {
+        toast.error(t('toast.tooManyAttempts'));
       } else {
         toast.error(tDialog('toast.error'));
       }
-    }
+    });
   };
 
   const handlePasswordChange = (field: keyof ChangePasswordData, value: string) => {
     setPasswords((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: undefined }));
-    }
+    // the confirmation is checked against the new password, so editing either clears its error
+    setErrors((prev) => ({
+      ...prev,
+      [field]: undefined,
+      ...(field === 'newPassword' && { confirmPassword: undefined }),
+    }));
   };
 
   const togglePasswordVisibility = (field: keyof typeof showPasswords) => {
@@ -161,16 +217,32 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
   // Gate only on filled fields so submit runs the schema and surfaces strength errors
   const isFormFilled = passwords.currentPassword && passwords.newPassword && passwords.confirmPassword;
 
-  const showPasswordsMatch = Boolean(
-    passwords.confirmPassword && passwords.newPassword === passwords.confirmPassword && !errors.confirmPassword,
-  );
+  const isSameAsCurrent = passwords.newPassword !== '' && passwords.newPassword === passwords.currentPassword;
+  const newPasswordError = errors.newPassword ?? (isSameAsCurrent ? t('newPasswordSameAsCurrent') : undefined);
+
+  const passwordRules: Checklist = {
+    label: tRules('label'),
+    rows: PASSWORD_RULE_KEYS.map((rule) => ({
+      label: tRules(rule),
+      met: PASSWORD_RULES[rule](passwords.newPassword),
+    })),
+  };
+
+  const passwordsMatch: Checklist = {
+    rows: [
+      {
+        label: t('passwordsMatch'),
+        met: passwords.confirmPassword !== '' && passwords.confirmPassword === passwords.newPassword,
+      },
+    ],
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className='sm:max-w-md'>
         <DialogHeader>
           <DialogTitle>{t('changePassword')}</DialogTitle>
-          <DialogDescription>{t('passwordHelp')}</DialogDescription>
+          <DialogDescription>{t('dialogDescription')}</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className='space-y-4'>
@@ -192,9 +264,10 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
             onChange={(v) => handlePasswordChange('newPassword', v)}
             showPassword={showPasswords.new}
             onToggleVisibility={() => togglePasswordVisibility('new')}
-            error={errors.newPassword}
+            error={newPasswordError}
             disabled={isPending}
             autoComplete='new-password'
+            checklist={passwordRules}
           />
           <PasswordField
             id='confirmPassword'
@@ -206,14 +279,8 @@ export default function ChangePasswordDialog({ open, onOpenChange }: ChangePassw
             error={errors.confirmPassword}
             disabled={isPending}
             autoComplete='new-password'
+            checklist={passwordsMatch}
           />
-
-          {showPasswordsMatch && (
-            <div className='flex items-center gap-1 text-sm text-green-600'>
-              <Check className='h-3 w-3' />
-              <span>{t('passwordsMatch')}</span>
-            </div>
-          )}
 
           <DialogFooter>
             <Button

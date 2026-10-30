@@ -49,10 +49,14 @@ describe('hourly MV filters bare wildcard semantics', () => {
     expect(sql).toMatch(/arrayAll\(pattern -> city NOT ILIKE pattern/);
   });
 
-  it('treats a lone literal % the same as *, matching the transforming builders', () => {
-    const sql = buildGeoSql([makeFilter('city', '=', ['%'])]);
+  it.each([
+    ['=', /arrayExists\(pattern -> city ILIKE pattern/],
+    ['!=', /arrayAll\(pattern -> city NOT ILIKE pattern/],
+  ] as const)('treats a lone percent sign as a literal for %s', (operator, expected) => {
+    const [part] = BAHourlyQuery.getGeoHourlyFilters([makeFilter('city', operator, ['%'])]);
 
-    expect(sql).toBe(`city != ''`);
+    expect(part.taggedSql).toMatch(expected);
+    expect(part.taggedParams).toEqual({ hourly_mv_filter_0: ['\\%'] });
   });
 
   it('applies wildcard semantics to overview filters too', () => {
@@ -96,5 +100,35 @@ describe('hourly MV filters case-insensitive matching', () => {
     const [part] = BAHourlyQuery.getGeoHourlyFilters([makeFilter('city', '=', ['Copen*', 'Aarhus'])]);
 
     expect(part.taggedParams).toEqual({ hourly_mv_filter_0: ['Copen%', 'Aarhus'] });
+  });
+});
+
+describe('hourly MV filters literal metacharacters', () => {
+  it.each(['=', '!='] as const)('escapes underscore, percent and backslash for %s', (operator) => {
+    const [part] = BAHourlyQuery.getGeoHourlyFilters([
+      makeFilter('city', operator, ['San_Jose', '50%off', 'a\\b']),
+    ]);
+
+    expect(part.taggedParams).toEqual({ hourly_mv_filter_0: ['San\\_Jose', '50\\%off', 'a\\\\b'] });
+  });
+
+  it('escapes before mapping * so the wildcard stays live', () => {
+    const [part] = BAHourlyQuery.getOverviewHourlyFilters([makeFilter('browser', '=', ['Chrome_*'])]);
+
+    expect(part.taggedParams).toEqual({ hourly_mv_filter_0: ['Chrome\\_%'] });
+  });
+
+  it.each(['=', '!='] as const)('binds the same patterns as the sessions slow path for %s', (operator) => {
+    const filters = [makeFilter('city', operator, ['San_Jose', '50%off', 'a\\b', 'Copen*'])];
+    const [fast] = BAHourlyQuery.getGeoHourlyFilters(filters);
+    const slow = BASessionQuery.getSessionTableSubQuery(
+      ['visitor_id'],
+      filters,
+      'test-site',
+      '2026-01-01 00:00:00',
+      '2026-01-31 23:59:59',
+    );
+
+    expect(Object.values(slow.taggedParams)).toContainEqual(fast.taggedParams.hourly_mv_filter_0);
   });
 });

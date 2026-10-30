@@ -13,11 +13,13 @@ import { TableCompareCell } from '@/components/TableCompareCell';
 import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useFilterClick } from '@/hooks/use-filter-click';
+import { useReferrerCategoryLabel } from '@/hooks/use-referrer-category-label';
 
 export const ReferrerTab = {
   All: 'all',
   Search: 'search',
   Social: 'social',
+  AI: 'ai',
   Direct: 'direct',
   Email: 'email',
   Other: 'other',
@@ -28,6 +30,7 @@ export type ReferrerTabValue = keyof typeof ReferrerTab;
 
 const SourceTypeBadge = ({ type }: { type: string }) => {
   const color = getReferrerColor(type);
+  const categoryLabel = useReferrerCategoryLabel();
 
   const bgColorStyle = {
     backgroundColor: `${color}33`,
@@ -37,7 +40,7 @@ const SourceTypeBadge = ({ type }: { type: string }) => {
 
   return (
     <span className='rounded-full px-2 py-1 text-xs font-bold' style={bgColorStyle}>
-      {type}
+      {categoryLabel(type)}
     </span>
   );
 };
@@ -52,6 +55,7 @@ export default function ReferrerTable({ data = [], loading = false }: ReferrerTa
   const locale = useLocale();
   const t = useTranslations('components.referrers.table');
   const tFilters = useTranslations('components.filters');
+  const categoryLabel = useReferrerCategoryLabel();
   const { makeFilterClick } = useFilterClick({ behavior: 'replace-same-column' });
 
   const totalVisits = data.reduce((sum, row) => sum + row.current.visits, 0);
@@ -157,7 +161,7 @@ export default function ReferrerTable({ data = [], loading = false }: ReferrerTa
               }`}
               onClick={() => setActiveTab(value)}
             >
-              {t(`tabs.${value}`)}
+              {value === ReferrerTab.All ? t('tabs.all') : categoryLabel(value)}
             </button>
           ))}
         </div>

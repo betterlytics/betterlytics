@@ -32,11 +32,31 @@
   .tile:has(:focus-visible) {
     border-color: --alpha(var(--color-volt-soft) / 35%);
   }
-  .tile:hover::before {
+  @media (hover: hover) {
+    .tile:hover::before {
+      opacity: 1;
+    }
+  }
+  .arrow {
+    width: 14px;
+    height: 14px;
+    margin-left: auto;
+    color: var(--color-muted);
+    opacity: 0;
+    translate: -3px 3px;
+    @variant max-sm {
+      display: none;
+    }
+    transition:
+      opacity 0.2s var(--ease-out-expo),
+      translate 0.25s var(--ease-out-expo);
+  }
+  .tile:hover .arrow,
+  .tile:has(:focus-visible) .arrow {
     opacity: 1;
+    translate: 0;
   }
 
-  /* an animation, not a transition, so the hover timing is untouched after */
   [data-drawn] .tile {
     animation: ink-in 0.5s ease 0.55s backwards;
   }

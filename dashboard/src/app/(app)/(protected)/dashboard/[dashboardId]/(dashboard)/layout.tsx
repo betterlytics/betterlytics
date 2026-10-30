@@ -45,7 +45,8 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
       <BASidebar dashboardId={dashboardId} isDemo={false} />
       <BAMobileSidebarTrigger />
       <BannerProvider>
-        <div className='flex w-full justify-center'>
+        {/* Bottom padding below md keeps page content clear of the floating mobile menu button */}
+        <div className='flex w-full justify-center pb-20 md:pb-0'>
           {billingEnabled && billingDataPromise && (
             <Suspense fallback={null}>
               <UsageAlertBanner billingDataPromise={billingDataPromise} />

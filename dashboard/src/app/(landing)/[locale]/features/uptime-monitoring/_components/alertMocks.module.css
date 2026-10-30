@@ -1,0 +1,86 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .message {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr);
+    gap: 10px;
+  }
+  [data-drawn] .message {
+    animation: message-in 0.6s var(--ease-out-expo) backwards;
+  }
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--color-volt);
+    color: var(--color-on-volt);
+  }
+  /* the mark's solid bars weigh left of its box, so it reads centred a pixel to the right */
+  .avatar svg {
+    width: 20px;
+    height: 20px;
+    translate: 1px 0;
+  }
+  .sender {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 20px;
+  }
+  .sender b {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: #f8f8f8;
+  }
+  .app {
+    padding: 0 3px;
+    border-radius: 2px;
+    background: rgb(232 232 232 / 0.13);
+    font-size: 9.5px;
+    font-weight: 700;
+    line-height: 15px;
+    text-transform: uppercase;
+    color: #ababad;
+  }
+  .sender time {
+    margin-left: 2px;
+    font-size: 11.5px;
+    color: #ababad;
+  }
+  .attachment {
+    position: relative;
+    display: grid;
+    gap: 5px;
+    margin-top: 4px;
+    padding: 2px 0 2px 16px;
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .attachment::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    border-radius: 8px;
+    background: var(--bar);
+  }
+  .attachment b {
+    font-weight: 700;
+    color: #f8f8f8;
+  }
+  .attachment p {
+    overflow-wrap: anywhere;
+  }
+  .link {
+    color: #1d9bd1;
+  }
+}
+
+@keyframes message-in {
+  from {
+    opacity: 0;
+  }
+}

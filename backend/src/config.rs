@@ -92,6 +92,7 @@ pub struct Config {
     pub integration_encryption_key: Option<[u8; 32]>,
     // Pushover integration
     pub pushover_app_token: Option<String>,
+    pub telemetry_receiver_enabled: bool,
 }
 
 impl Config {
@@ -242,6 +243,9 @@ impl Config {
             }),
             // Pushover integration
             pushover_app_token: env::var("PUSHOVER_APP_TOKEN").ok(),
+            telemetry_receiver_enabled: env::var("TELEMETRY_RECEIVER_ENABLED")
+                .map(|val| val.to_lowercase() == "true")
+                .unwrap_or(false),
         };
 
         assert!(

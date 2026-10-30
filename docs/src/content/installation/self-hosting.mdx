@@ -168,7 +168,7 @@ Your proxy must serve Betterlytics over HTTPS at exactly `PUBLIC_URL`, because l
   </Tabs.Tab>
 </Tabs>
 
-Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, add it to the `TRUSTED_PROXIES` variable in `.env` (see [Network](#network)), otherwise every visitor is recorded with the proxy's IP. To check, compare `request.remote_ip` and `request.client_ip` in `docker compose logs betterlytics-selfhost`.
+Proxies on the same host or a private network are trusted automatically. If your proxy connects from a public address, add it to the `TRUSTED_PROXIES` variable in `.env` (see [Network](#network)), otherwise every visitor is recorded with the proxy's IP. To check, send a few visits from another network and open the dashboard's **Geography** page: with the proxy trusted, visitors show up in their own countries; untrusted, every visitor lands in the proxy's location.
 
 ### Plain HTTP or IP Access
 
@@ -498,14 +498,15 @@ All options are read from `.env` in the repository root. Database passwords, aut
   <EnvVar name="ALLOW_PRIVATE_TARGETS" default="true">Uptime monitors and webhooks may reach private and LAN addresses, any port is allowed, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services)</EnvVar>
   <EnvVar name="PUBLIC_ENABLE_FAVICON_FETCHING" default="true">Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead</EnvVar>
   <EnvVar name="LOG_LEVEL" default="info">Backend log level: `error`, `warn`, `info`, `debug` or `trace`</EnvVar>
+  <EnvVar name="TELEMETRY_ENABLED" default="false">`true` sends us the Betterlytics version and a random instance ID once a day; the setup script sets it. Any other value turns it off, see [Telemetry](#telemetry)</EnvVar>
 </EnvTable>
 
 ## Updating
 
-Each release bumps the image version pinned in `docker-compose.yml`, so updating the `betterlytics-selfhost` repository is what upgrades your instance:
+Each release of `betterlytics-selfhost` is a branch named after its version, and the default branch on GitHub is always the latest one. The latest version is `v1.5.1`, and the release notes name the version of each release. Pulling its branch bumps the image version pinned in `docker-compose.yml`, which is what upgrades your instance:
 
 ```bash
-git pull
+git pull origin v1.5.1
 docker compose up -d --wait
 ```
 
@@ -538,6 +539,14 @@ A cleanup job deletes data older than each dashboard's retention every Saturday 
 
 </details>
 
+## Telemetry
+
+Once a day, your instance sends us its Betterlytics version and a random instance ID, so we know how many instances are running and which versions they use. Nothing about your users, websites or analytics data is included, and we don't store your IP address. The first report is sent a day after your instance first starts, so you can turn it off before anything is sent. See our [privacy policy](https://betterlytics.io/privacy#self-hosted-telemetry) for details.
+
+<Callout type="info">
+To turn telemetry off, set `TELEMETRY_ENABLED=false` in `.env` and run `docker compose up -d --wait`. The setup script's "Try locally" mode turns it off for you.
+</Callout>
+
 ## Troubleshooting
 
 ### Containers won't start
@@ -548,7 +557,7 @@ A cleanup job deletes data older than each dashboard's retention every Saturday 
 - `TLS=auto needs ports 80 and 443 of this server published`: the log lists what is missing. Set `HTTP_PORT=80` and `BIND_ADDRESS=0.0.0.0` in `.env` and map port 443 as shown under [Standalone](#standalone) → **Configuring by hand**, or switch to `TLS=off` behind your own proxy
 - `HTTP_SCHEME=https is set in .env but TLS is not auto`: set `TLS=auto` and remove `HTTP_SCHEME` for built-in HTTPS, or only remove `HTTP_SCHEME` if your own proxy terminates HTTPS
 - `DOMAIN, HTTP_SCHEME and FORCE_HTTP_SCHEME are no longer read`: replace them in `.env` with the `PUBLIC_URL` and `TLS` lines the log prints
-- `Configuration/image version mismatch`: the log shows the repository and image versions. Run `git pull`, then `docker compose up -d --wait` again. If only `betterlytics-selfhost` keeps restarting, an override changes its image; `docker compose logs betterlytics-selfhost` shows the same message
+- `Configuration/image version mismatch`: the log shows the repository and image versions. When the repository is older, pull the branch of the image version the log names, for example `git pull origin v1.5.1`, then run `docker compose up -d --wait` again. If only `betterlytics-selfhost` keeps restarting, an override changes its image; `docker compose logs betterlytics-selfhost` shows the same message
 - `Cannot find module '/init'` in the `betterlytics-init` log: an override pins an image from before this release. Remove the image override
 - `Geolocation is enabled but no GeoIP database could be obtained`: check `MAXMIND_ACCOUNT_ID` and `MAXMIND_LICENSE_KEY`, or set `ENABLE_GEOLOCATION=false`
 - `ENABLE_EMAILS=true requires SMTP_FROM on self-hosted instances`: set `SMTP_FROM` in `.env` to your sender address (MailerSend needs it too), or set `ENABLE_EMAILS=false`, then `docker compose up -d --wait` again
@@ -565,7 +574,7 @@ A cleanup job deletes data older than each dashboard's retention every Saturday 
 - **"This page is open at …, which doesn't match the address…":** open the instance at its `PUBLIC_URL`, or fix `PUBLIC_URL` in `.env` and run `docker compose up -d --wait`.
 - The logs confirm it: `docker compose logs betterlytics-selfhost | grep "Invalid origin"`.
 - `setup.sh` Basic mode no longer accepts an IP address; see [Plain HTTP or IP Access](#plain-http-or-ip-access).
-- **"Too many attempts":** wait about 10 seconds. Sign-in allows 3 attempts per 10 seconds per IP. Behind your own reverse proxy, everyone shares that limit until `AUTH_TRUSTED_PROXIES` in `.env` is set to the single address your proxy connects from: the `request.remote_ip` value in `docker compose logs betterlytics-selfhost`, usually the Docker bridge gateway such as `172.18.0.1`. Then run `docker compose up -d --wait`, and check the address again after the Docker network is recreated.
+- **"Too many attempts":** wait about 10 seconds. Sign-in allows 3 attempts per 10 seconds per IP. Behind your own reverse proxy, everyone shares that limit until `AUTH_TRUSTED_PROXIES` in `.env` is set to the single address your proxy connects from. A proxy on the same machine connects from the gateway of the instance's Docker network, such as `172.18.0.1`, which `docker network inspect betterlytics_clickhouse_network -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}'` prints. A proxy on another machine connects from its own address. Then run `docker compose up -d --wait`, and check the address again after the Docker network is recreated.
 - Sign-in, invite links, and tracking snippets all use `PUBLIC_URL`, so other addresses, such as the server's IP or a second hostname pointing at it, don't work. In standalone mode the browser shows a certificate or connection error for them instead of the sign-in page.
 - Behind your own proxy, check that it passes the `Host` header unchanged and sets `X-Forwarded-Proto`.
 

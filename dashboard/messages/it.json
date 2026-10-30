@@ -186,7 +186,16 @@
       },
       "scope": {
         "title": "Ambito di Questa Informativa",
-        "body": "Questa informativa sulla privacy si applica esclusivamente al servizio cloud ospitato da Betterlytics disponibile su betterlytics.io e sui nostri domini ufficiali. Non si applica alle installazioni self-hosted del nostro software open source. Se esegui il self-hosting di Betterlytics, sei responsabile della tua informativa sulla privacy, delle pratiche di trattamento dei dati e della conformità legale."
+        "body": "Questa informativa sulla privacy si applica esclusivamente al servizio cloud ospitato da Betterlytics disponibile su betterlytics.io e sui nostri domini ufficiali. Non si applica alle installazioni self-hosted del nostro software open source, fatta eccezione per il report giornaliero dell'istanza che tali installazioni ci inviano, descritto in “Telemetria dalle installazioni self-hosted” più avanti. Se esegui il self-hosting di Betterlytics, sei responsabile della tua informativa sulla privacy, delle pratiche di trattamento dei dati e della conformità legale."
+      },
+      "selfHostedTelemetry": {
+        "title": "Telemetria dalle installazioni self-hosted",
+        "intro": "Le installazioni self-hosted di Betterlytics ci inviano un piccolo report una volta al giorno, a meno che l'operatore non lo disattivi. Il primo report viene inviato 24 ore dopo il primo avvio dell'installazione. Betterlytics è titolare del trattamento di questi dati.",
+        "received": "Cosa riceviamo: un ID di istanza casuale che l'installazione genera e memorizza nel proprio database, e la versione di Betterlytics in uso. Conserviamo un record per istanza al giorno: la data, l'ID di istanza e la versione. Utilizziamo l'indirizzo IP da cui proviene il report solo per riceverlo e per limitare il traffico abusivo, e non lo memorizziamo mai. Il report non contiene mai informazioni sui tuoi utenti, sui tuoi siti web o sui tuoi dati di analisi.",
+        "purpose": "Finalità e base giuridica: contiamo le installazioni attive e vediamo quali versioni sono in uso, così da poter dare priorità al supporto e alle correzioni di sicurezza. Si tratta del nostro legittimo interesse ai sensi dell'art. 6, par. 1, lett. f del GDPR. Puoi chiederci la nostra valutazione di questo legittimo interesse.",
+        "retention": "Conservazione: ogni record giornaliero viene cancellato 365 giorni dopo la sua data.",
+        "sharing": "Condivisione: i dati sono conservati sui nostri server presso Hetzner nell'UE e non sono condivisi con nessun altro. Potremmo pubblicare dati aggregati, mai singoli ID di istanza.",
+        "objection": "Diritto di opposizione: puoi disattivare la telemetria in qualsiasi momento e non verranno inviati altri report. <link>Scopri come nella documentazione sul self-hosting</link>. Per far cancellare i report precedenti, scrivi a privacy@betterlytics.io indicando l'ID di istanza riportato nella riga [telemetry] del log di avvio."
       },
       "intro": {
         "p1": "In Betterlytics ci impegniamo a rispettare GDPR, CCPA, PECR e altre normative sulla privacy. La riservatezza dei tuoi dati — e sono i tuoi dati, non i nostri! — è per noi fondamentale. Siamo con sede nell’Unione Europea e tutto il trattamento dei dati avviene all’interno dei confini dell’UE.",
@@ -274,6 +283,7 @@
         "li5": "Diritto alla portabilità dei dati: Ricevere i tuoi dati in un formato portabile",
         "li6": "Diritto di opposizione: Opporti al trattamento basato su interessi legittimi",
         "li7": "Diritto di revocare il consenso: Revocare il consenso al trattamento dei dati",
+        "li8": "Diritto di proporre reclamo: Presentare un reclamo a un'autorità di protezione dei dati, ad esempio l'autorità danese (Datatilsynet) o quella del paese dell'UE o del SEE in cui vivi",
         "contact": "Per esercitare uno di questi diritti, contattaci all’indirizzo privacy@betterlytics.io"
       },
       "noCookies": {
@@ -1270,10 +1280,17 @@
       "nav": "Piè di pagina",
       "language": "Lingua",
       "columns": {
+        "product": "Prodotto",
         "company": "Azienda",
         "resources": "Risorse",
         "compare": "Confronta",
         "connect": "Seguici"
+      },
+      "product": {
+        "features": "Funzionalità",
+        "uptime": "Monitoraggio uptime",
+        "replay": "Session replay",
+        "pricing": "Prezzi"
       },
       "company": {
         "about": "Chi siamo",
@@ -1286,8 +1303,6 @@
       "resources": {
         "docs": "Documentazione",
         "changelog": "Changelog",
-        "features": "Funzionalità",
-        "pricing": "Prezzi",
         "status": "Stato dei servizi"
       },
       "compareLink": "vs {name}",
@@ -1389,7 +1404,533 @@
           "visitors": "Google 18,2k · ChatGPT 2,1k · Hacker News 1,4k",
           "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
           "answer": "ChatGPT porta un nono dei visitatori di Google, ma il 3,4% di loro si registra contro lo 0,9%: un tasso quasi quattro volte più alto."
+        },
+        "uptimeAlt": "Una sessione nel terminale: alla richiesta di indagare su un avviso di down del Checkout, un agente legge l’incidente aperto tramite il server MCP di Betterlytics, trova un commit rilasciato tre minuti prima del disservizio e propone di annullarlo. Poi calcola quanto è costato in vendite il down del checkout di ieri sera.",
+        "investigate": {
+          "question": "il checkout risulta offline, puoi indagare?",
+          "say": "Recupero l’incidente aperto da Betterlytics, poi controllo cosa è stato rilasciato poco prima che iniziasse.",
+          "incident": "1 incidente in corso · Checkout · offline dalle 10:12",
+          "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
+          "answer": "Il checkout restituisce 503 dalle 10:12, tre minuti dopo che a41f2c9 ha spostato le chiavi Stripe nelle variabili d’ambiente. Vuoi che lo annulli?"
         }
+      }
+    },
+    "feature": {
+      "breadcrumb": "Percorso di navigazione",
+      "features": "Funzionalità",
+      "related": {
+        "title": "Anche nella *stessa* dashboard",
+        "learnMore": "Scopri di più"
+      },
+      "relatedItems": {
+        "analytics": {
+          "title": "Web analytics",
+          "body": "Traffico senza cookie, fonti, pagine e funnel, in tempo reale e senza campionamento."
+        },
+        "replay": {
+          "title": "Session replay",
+          "body": "Guarda cosa ha visto un visitatore, clic dopo clic e scroll dopo scroll."
+        },
+        "errors": {
+          "title": "Tracciamento errori",
+          "body": "Errori JavaScript con lo stack trace, la pagina e la sessione in cui si sono verificati."
+        },
+        "vitals": {
+          "title": "Core Web Vitals",
+          "body": "LCP, INP e CLS misurati nei browser reali dei tuoi visitatori."
+        },
+        "uptime": {
+          "title": "Monitoraggio uptime",
+          "body": "Controlli anche ogni minuto, avvisi dove il tuo team già comunica e una pagina di stato."
+        }
+      }
+    },
+    "uptime": {
+      "seo": {
+        "title": "Monitoraggio uptime, SSL e pagine di stato | Betterlytics",
+        "description": "Monitoraggio uptime con avvisi su Slack, Discord, Teams o email, controllo SSL e una pagina di stato, accanto alle tue analytics. Piano gratuito."
+      },
+      "hero": {
+        "eyebrow": "Monitoraggio uptime",
+        "title": "Scopri quando il tuo sito va offline, e quanto ti è costato",
+        "lede": "Controlli anche ogni minuto, avvisi dove il tuo team già comunica, notifiche SSL e una pagina di stato pubblica. Nella dashboard che contiene già il tuo traffico.",
+        "primary": "Inizia a monitorare gratis",
+        "secondary": "Leggi la documentazione",
+        "proof": "La usiamo anche per la nostra pagina di stato"
+      },
+      "specs": {
+        "interval": {
+          "unit": "min",
+          "label": "Intervallo di controllo",
+          "body": "Controlli anche ogni minuto, o anche solo una volta al giorno."
+        },
+        "ssl": {
+          "unit": "giorni",
+          "label": "Avviso sul certificato",
+          "body": "I certificati vengono verificati ogni ora, con un avviso fino a 30 giorni prima della scadenza."
+        },
+        "history": {
+          "unit": "giorni",
+          "label": "Storico uptime pubblico",
+          "body": "Le pagine di stato mostrano 90 giorni di uptime giornaliero, con gli incidenti passati subito sotto."
+        },
+        "thesis": {
+          "unit": "in 1",
+          "label": "Un solo login, un’unica fattura",
+          "body": "Uptime, analytics, errori, session replay e Web Vitals, uno accanto all’altro."
+        }
+      },
+      "story": {
+        "title": "Dal primo controllo fallito al *via libera*",
+        "lede": "Cosa succede quando il checkout smette di rispondere alle 10:12.",
+        "stepsLabel": "Cronologia dell’incidente",
+        "steps": {
+          "fail": {
+            "time": "10:12",
+            "title": "Un controllo fallisce",
+            "body": "checkout.acme.com risponde con un 503. Un solo errore potrebbe essere un intoppo passeggero, quindi per ora non parte nulla."
+          },
+          "confirm": {
+            "time": "10:14",
+            "title": "Si apre l’incidente",
+            "body": "Il terzo errore consecutivo lo conferma. L’incidente registra la causa e il codice di stato."
+          },
+          "alert": {
+            "time": "10:14",
+            "title": "Il tuo team viene avvisato",
+            "body": "Un solo messaggio su Slack, Discord e via email, con un link diretto al monitor."
+          },
+          "status": {
+            "time": "10:15",
+            "title": "La pagina di stato si aggiorna",
+            "body": "Il banner cambia da solo e il disservizio ti aspetta come incidente suggerito, pronto per il tuo aggiornamento."
+          },
+          "recover": {
+            "time": "10:32",
+            "title": "È di nuovo online",
+            "body": "Due controlli superati chiudono l’incidente dopo 19 minuti e parte un messaggio di ripristino."
+          }
+        },
+        "stage": {
+          "suggested": "Incidente suggerito",
+          "suggestedBody": "Checkout offline dalle 10:12",
+          "write": "Scrivi aggiornamento"
+        },
+        "scenes": {
+          "failing": "In errore",
+          "down": "Offline",
+          "recentChecks": "Controlli recenti",
+          "waiting": "In attesa di altri due errori prima di avvisare",
+          "failedOf": "{count} su 3 falliti",
+          "incidentOpened": "Incidente aperto",
+          "reason": "Causa",
+          "started": "Iniziato",
+          "startedValue": "10:12 · 3 controlli falliti di fila",
+          "downFor": "Offline per",
+          "backAt": "Di nuovo online",
+          "alertsSent": "Avvisi inviati"
+        }
+      },
+      "checks": {
+        "title": "Controlli che verificano ciò che *conta*",
+        "lede": "Un server può rispondere ed essere comunque rotto. Spiega a ogni monitor cosa significa funzionare.",
+        "art": {
+          "request": "Richiesta",
+          "headers": "Header",
+          "timeout": "Timeout",
+          "response": "Tempo di risposta",
+          "lastDay": "Ultime 24 h",
+          "reason5xx": "HTTP 5xx",
+          "reasonTimeout": "Timeout",
+          "reasonKeyword": "Parola chiave"
+        },
+        "items": {
+          "http": {
+            "title": "La tua richiesta, le tue regole",
+            "body": "HEAD o GET, header personalizzati, i codici di stato che accetti e un timeout fino a 30 secondi. I redirect vengono seguiti."
+          },
+          "keyword": {
+            "title": "Controlli per parola chiave",
+            "body": "Richiedi una frase come “Aggiungi al carrello”. Se la pagina si carica senza, il controllo fallisce."
+          },
+          "ssl": {
+            "title": "Certificati SSL",
+            "body": "Verificati ogni ora, con promemoria fino a 30 giorni prima della scadenza. Un certificato scaduto, non corrispondente o non attendibile fa fallire il controllo."
+          },
+          "threshold": {
+            "title": "Nessun allarme per un intoppo",
+            "body": "Scegli quanti controlli devono fallire di fila prima che si apra un incidente. Due controlli superati lo chiudono."
+          },
+          "latency": {
+            "title": "Tempi di risposta",
+            "body": "Mediana, p95 e media dell’ultimo giorno, così un rallentamento emerge prima di trasformarsi in un down."
+          },
+          "reasons": {
+            "title": "La causa, non solo il rosso",
+            "body": "Ogni incidente spiega il perché: un timeout, un errore DNS o di connessione, un 5xx o una parola chiave mancante."
+          }
+        }
+      },
+      "alerts": {
+        "title": "Avvisi dove il tuo team *già* comunica",
+        "lede": "Un messaggio quando un monitor va offline, uno quando torna online e un avviso prima che un certificato scada.",
+        "lead": "Collega una volta, vale per ogni monitor",
+        "body": "I canali appartengono alla dashboard, quindi ogni nuovo monitor è coperto fin da subito. Ogni monitor conserva un registro di tutti gli avvisi inviati, quelli non recapitati vengono ritentati e nessuno parte due volte.",
+        "channels": "Canali",
+        "email": "Email",
+        "webhook": "Webhook",
+        "events": {
+          "label": "Scegli cosa invia ogni monitor",
+          "down": "Offline",
+          "recovery": "Di nuovo online",
+          "ssl": "Scadenza SSL"
+        },
+        "views": {
+          "slack": "Slack",
+          "email": "Email",
+          "webhook": "Webhook"
+        },
+        "channel": "incidents",
+        "app": "App",
+        "today": "Oggi",
+        "inbox": "Posta in arrivo",
+        "notes": {
+          "slack": "Discord, Teams e Pushover ricevono lo stesso avviso, formattato per ciascuno.",
+          "email": "Ricevi un’email quando un monitor va offline e un’altra quando torna online.",
+          "webhook": "JSON semplice, perfetto per un bot o uno script di dieci righe."
+        }
+      },
+      "status": {
+        "title": "Una pagina di stato che *si aggiorna* da sola",
+        "lede": "Le barre di uptime e il banner seguono i tuoi monitor. Scrivi solo quando c’è qualcosa da dire.",
+        "points": {
+          "monitors": "Fino a 20 monitor per pagina, ciascuno con il nome pubblico che scegli tu",
+          "history": "90 giorni di uptime giornaliero, con gli incidenti passati subito sotto",
+          "updates": "Aggiornamenti sugli incidenti da “in esame” a “risolto”, con un livello di impatto e una bozza precompilata per ogni disservizio rilevato dai tuoi monitor.",
+          "brand": "Il tuo logo, la favicon, un colore principale e un tema chiaro, scuro o automatico",
+          "domain": "Il tuo dominio, con HTTPS gestito per te"
+        },
+        "try": "Provala",
+        "theme": "Tema",
+        "light": "Chiaro",
+        "dark": "Scuro",
+        "accent": "Colore principale",
+        "accents": {
+          "blue": "Blu",
+          "violet": "Viola",
+          "teal": "Verde acqua",
+          "ember": "Brace",
+          "custom": "Colore personalizzato"
+        },
+        "page": {
+          "allUp": "Tutti i sistemi sono operativi",
+          "updated": "Ultimo aggiornamento: 18 ott, 10:42",
+          "operational": "Operativo",
+          "down": "Fuori servizio",
+          "ago": "{days} giorni fa",
+          "today": "Oggi",
+          "uptime": "{value} di uptime",
+          "past": "Incidenti passati",
+          "incidentTitle": "Checkout non disponibile",
+          "incidentMeta": "Risolto dopo 19 minuti",
+          "poweredBy": "Powered by",
+          "impact": "Interruzione parziale",
+          "overall": "Uptime complessivo <value>{uptime}</value> · ultimi 90 giorni"
+        },
+        "proof": "Guarda la nostra, live"
+      },
+      "agent": {
+        "title": "Chiedi al tuo agente *perché* è andato offline",
+        "lede": "Monitor e incidenti sono nel server MCP integrato, così il tuo agente può analizzare un disservizio accanto al tuo codice, al traffico e agli errori.",
+        "lead": "Dall’avviso alla causa con una sola domanda",
+        "body": "Il tuo agente legge l’incidente aperto, controlla cosa è stato rilasciato poco prima e torna con la causa probabile e una correzione da approvare. Oppure confronta un disservizio con traffico e vendite per capire quanto è costato.",
+        "cta": "Configura MCP"
+      },
+      "related": {
+        "lede": "L’uptime è solo una parte di Betterlytics. Tutto ciò che trovi qui sotto condivide lo script, il login e la fattura."
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "items": {
+          "what": {
+            "q": "Cos’è il monitoraggio uptime?",
+            "a": "Un monitor di uptime interroga il tuo sito a intervalli regolari e verifica la risposta. Quando il sito smette di rispondere, restituisce un errore o perde il contenuto atteso, apre un incidente e ti avvisa, possibilmente prima che se ne accorgano i visitatori."
+          },
+          "scope": {
+            "q": "Cosa posso monitorare?",
+            "a": "Qualsiasi indirizzo HTTP o HTTPS sul dominio della tua dashboard o sui suoi sottodomini, come la homepage, api.example.com/health o una pagina di checkout."
+          },
+          "often": {
+            "q": "Ogni quanto Betterlytics controlla il mio sito?",
+            "a": "Anche ogni minuto, o anche solo una volta al giorno. Scegli tu l’intervallo per ciascun monitor."
+          },
+          "false": {
+            "q": "Come evitate i falsi allarmi?",
+            "a": "Un incidente si apre solo dopo diversi controlli falliti di fila: tre di default, oppure da 1 a 10 se preferisci. Si chiude dopo due controlli superati, così un server instabile non inonda i tuoi canali."
+          },
+          "down": {
+            "q": "Quando un sito è considerato offline?",
+            "a": "In caso di timeout, di errore DNS o di connessione (compreso un certificato non valido), di un codice di stato diverso da quelli che accetti o di una parola chiave mancante. Ogni incidente registra quale è stata la causa."
+          },
+          "alerts": {
+            "q": "Dove arrivano gli avvisi?",
+            "a": "Email, Slack, Discord, Microsoft Teams, Pushover e qualsiasi webhook che accetti JSON. Ricevi un avviso quando un monitor va offline e uno quando torna online."
+          },
+          "ssl": {
+            "q": "Può avvisarmi prima che il mio certificato SSL scada?",
+            "a": "Sì. I monitor HTTPS verificano il certificato ogni ora e inviano promemoria fino a 30 giorni prima della scadenza. Un certificato scaduto, non corrispondente o non attendibile fa fallire il controllo, quindi lo scopri come incidente."
+          },
+          "domain": {
+            "q": "La pagina di stato può usare il mio dominio?",
+            "a": "Sì. Punta un sottodominio come status.example.com verso Betterlytics con un record CNAME, e il certificato viene emesso automaticamente appena la pagina è pubblicata."
+          },
+          "free": {
+            "q": "Il monitoraggio uptime è gratuito?",
+            "a": "Il piano gratuito include un monitor per sito, controllato ogni cinque minuti, e una pagina di stato. Il piano Professional sblocca la configurazione avanzata: controlli ogni minuto, header personalizzati, codici di stato accettati e controlli per parola chiave, più monitor e pagine di stato, e il tuo dominio."
+          },
+          "internal": {
+            "q": "Posso monitorare servizi interni?",
+            "a": "I monitor raggiungono indirizzi pubblici sulle porte 80 e 443, quindi un servizio deve essere raggiungibile da internet."
+          },
+          "dedicated": {
+            "q": "Quando conviene uno strumento di monitoraggio dedicato?",
+            "a": "Betterlytics controlla HTTP e HTTPS da un’unica località. Se ti servono controlli da molte regioni, monitoraggio TCP, ping o cron, avvisi via telefono e SMS o turni di reperibilità, scegli uno strumento dedicato."
+          }
+        }
+      },
+      "cta": {
+        "title": "Aggiungi il tuo primo monitor in un minuto",
+        "lede": "Incolla un URL, scegli ogni quanto controllarlo e dove inviare gli avvisi. Il piano gratuito include un monitor e una pagina di stato.",
+        "primary": "Inizia a monitorare gratis",
+        "secondary": "Leggi la documentazione sul monitoraggio"
+      }
+    },
+    "replay": {
+      "seo": {
+        "title": "Session replay privacy-first, tutto mascherato | Betterlytics",
+        "description": "Guarda le registrazioni di visite reali, con testo e campi mascherati nel browser. Passa da un errore JavaScript al suo replay. Gratis in tutti i piani."
+      },
+      "hero": {
+        "eyebrow": "Session replay",
+        "title": "Scopri dove i visitatori si bloccano, e cosa li ha fermati",
+        "lede": "Rivedi le visite reali clic dopo clic, con i rage click segnalati e ogni parola e ogni campo mascherati prima che lascino il browser. Gratis in tutti i piani, nella stessa dashboard del tuo traffico e dei tuoi errori.",
+        "primary": "Inizia a registrare gratis",
+        "secondary": "Leggi la documentazione"
+      },
+      "cursor": {
+        "input": "Input registrato",
+        "drag": "Trascinamento registrato",
+        "click": "Clic registrato",
+        "rage": "Rage click registrato",
+        "selection": "Selezione registrata",
+        "pageview": "Visualizzazione registrata",
+        "paused": "Registrazione in pausa"
+      },
+      "specs": {
+        "errors": {
+          "unit": "clic",
+          "label": "Dall’errore al replay",
+          "body": "Gli errori nelle sessioni registrate rimandano al relativo replay, così passi dallo stack trace al replay con un clic."
+        },
+        "history": {
+          "unit": "giorni",
+          "label": "Storico dei replay",
+          "body": "Le registrazioni restano nella tua dashboard per 60 giorni."
+        },
+        "cookies": {
+          "unit": "cookie",
+          "label": "Niente cookie, niente IP",
+          "body": "I replay non usano cookie e non salvano alcun indirizzo IP insieme alla registrazione."
+        },
+        "thesis": {
+          "unit": "%",
+          "label": "Mascherato nel browser",
+          "body": "Ogni riga di testo e ogni campo si trasformano in asterischi prima che la registrazione lasci la pagina."
+        }
+      },
+      "story": {
+        "title": "Da un checkout fallito al *perché*",
+        "lede": "Cosa succede quando il pulsante Pay smette di funzionare alle 10:03.",
+        "stepsLabel": "Cronologia del replay",
+        "steps": {
+          "record": {
+            "time": "10:02",
+            "title": "La visita viene registrata",
+            "body": "La visita viene selezionata per la registrazione e salvata mentre il visitatore naviga."
+          },
+          "error": {
+            "time": "10:03",
+            "title": "Il pagamento va in errore",
+            "body": "Un errore JavaScript blocca l’acquisto. Il tracciamento errori lo cattura insieme alla pagina, al browser e al punto del codice in cui si è verificato."
+          },
+          "ready": {
+            "time": "10:05",
+            "title": "Arriva il replay",
+            "body": "Quando il visitatore se ne va, la sessione compare nel tuo elenco dei replay, con l’errore e un rage click già segnalati."
+          },
+          "jump": {
+            "time": "10:20",
+            "title": "Salti al momento esatto",
+            "body": "Dall’errore apri il replay e arrivi subito al momento in cui è successo."
+          },
+          "why": {
+            "time": "10:21",
+            "title": "E capisci perché",
+            "body": "Il visitatore ha continuato a cliccare su Pay con il CAP vuoto, e il replay lo segnala come rage click. Il testo è mascherato, ma vedi comunque quale campo è rimasto vuoto."
+          }
+        },
+        "scenes": {
+          "recording": "Registrazione",
+          "newError": "Nuovo errore",
+          "occurrences": "{count, plural, one {# sessione} other {# sessioni}}",
+          "sessions": "Sessioni",
+          "justNow": "Adesso",
+          "minutesAgo": "{count} min fa",
+          "timeline": "Cronologia",
+          "input": "Inserimento",
+          "click": "Clic",
+          "clientError": "Errore lato client",
+          "rageClick": "Rage click",
+          "emptyField": "CAP: vuoto",
+          "start": "Inizio:",
+          "skip": "Salta inattività"
+        }
+      },
+      "privacy": {
+        "title": "Mascherato *prima* di lasciare il browser",
+        "lede": "Vedi dove i visitatori hanno cliccato, scrollato e scritto. La loro privacy resta intatta: ciò che leggono e scrivono non lascia mai il loro dispositivo.",
+        "points": {
+          "text": "Ogni carattere di testo e ogni valore inserito diventa un asterisco, così il layout resta invariato",
+          "media": "Immagini e iframe vengono sostituiti da riquadri vuoti delle stesse dimensioni",
+          "consent": "Dove la legge lo richiede, la registrazione può attendere il consenso prima di partire",
+          "exclude": "Escludi intere pagine o sezioni del sito, o singoli elementi che contrassegni come privati",
+          "storage": "Nessun cookie e nessun indirizzo IP salvato con un replay"
+        },
+        "docs": "Come funziona il mascheramento",
+        "try": "Trascina per confrontare",
+        "visitor": "Cosa vede il visitatore",
+        "you": "Cosa vedi tu nel replay",
+        "slider": "Confronta la vista del visitatore con il replay mascherato",
+        "alt": "Il checkout di un negozio di caffè online mostrato due volte. Nella vista del visitatore nome, email e indirizzo sono leggibili; nel replay ogni parola è fatta di asterischi e la foto del prodotto è un riquadro vuoto."
+      },
+      "controls": {
+        "title": "Registra le sessioni che *vale la pena* guardare",
+        "lede": "Decidi quanto registrare e dove. Tutto il resto avviene senza intralciare i tuoi visitatori.",
+        "art": {
+          "sample": "Campione",
+          "recorded": "Registrato",
+          "error": "TypeError",
+          "leadUp": "1–2 min",
+          "off": "Disattivato",
+          "on": "Attivato",
+          "skipped": "Escluso",
+          "pageview": "Visualizzazione pagina"
+        },
+        "items": {
+          "sample": {
+            "title": "Scegli il campione",
+            "body": "Registra una piccola parte delle visite o tutte quante. Ogni visita viene registrata per intero oppure non viene registrata affatto."
+          },
+          "errors": {
+            "title": "Conserva i minuti prima di un errore",
+            "body": "Con la cattura degli errori attiva, anche le visite fuori dal campione conservano gli ultimi 1–2 minuti prima di un errore JavaScript."
+          },
+          "paths": {
+            "title": "Escludi alcune pagine",
+            "body": "Disattiva la registrazione per singole pagine o intere sezioni, come l’area admin o le pagine dell’account. Lì non viene registrato nulla e il player sfoca quella parte della visita."
+          },
+          "light": {
+            "title": "Non appesantisce il tuo sito",
+            "body": "Lo script di registrazione è un file separato che si carica solo quando serve e invia i dati in piccoli blocchi compressi in background, così le tue pagine restano veloci."
+          },
+          "spa": {
+            "title": "Pensato per le single-page app",
+            "body": "Nelle single-page app costruite con React, Vue o Next.js, i cambi di route compaiono nella cronologia come visualizzazioni di pagina, proprio come i caricamenti completi."
+          },
+          "bots": {
+            "title": "Solo persone",
+            "body": "I browser headless e i test runner come Playwright e Cypress non vengono mai registrati, così i tuoi replay mostrano solo persone reali."
+          }
+        }
+      },
+      "setup": {
+        "title": "Attivalo con *due* righe",
+        "lede": "Nessuno script nuovo e nessun fornitore in più. Il replay funziona con lo script Betterlytics che hai già.",
+        "snippetLabel": "Esempi di configurazione",
+        "consentTab": "Consenso",
+        "steps": {
+          "enable": {
+            "title": "Attivalo",
+            "body": "Aggiungi un attributo al tag script, oppure un’opzione nel pacchetto npm."
+          },
+          "consent": {
+            "title": "Gestisci il consenso",
+            "body": "Dove la legge richiede il consenso, come nell’UE, basta una riga per collegare la registrazione al tuo banner di consenso."
+          },
+          "tune": {
+            "title": "Personalizzalo",
+            "body": "Imposta il campione, escludi i percorsi privati e conserva i replay delle sessioni con un errore."
+          }
+        },
+        "cta": "Leggi la guida alla configurazione"
+      },
+      "related": {
+        "lede": "Il session replay è solo una parte di Betterlytics. Tutto ciò che trovi qui sotto condivide la dashboard, il login e la fattura."
+      },
+      "faq": {
+        "title": "Domande frequenti",
+        "items": {
+          "what": {
+            "q": "Cos’è il session replay?",
+            "a": "Il session replay, detto anche registrazione delle sessioni, salva come cambia una pagina e cosa fa il visitatore, poi ricostruisce la visita nella tua dashboard così puoi guardarla come un video. Non viene catturato alcun video e Betterlytics maschera il testo prima di inviare qualsiasi dato."
+          },
+          "free": {
+            "q": "Il session replay è gratuito?",
+            "a": "Sì. Il session replay è incluso in <link>tutti i piani</link>, compreso quello gratuito, e le registrazioni non vengono conteggiate negli eventi mensili."
+          },
+          "consent": {
+            "q": "Serve il consenso per il session replay?",
+            "a": "Dipende da dove si trovano i tuoi visitatori. Nell’UE, il GDPR e la direttiva ePrivacy possono richiedere il consenso prima di registrare una visita. I replay non partono finché il tuo sito non dà il via libera, che può arrivare dal banner di consenso che hai già, oppure da un’impostazione dello script se il consenso non ti serve."
+          },
+          "masked": {
+            "q": "Cosa viene mascherato?",
+            "a": "Tutto il testo della pagina e ogni valore inserito, comprese password, email e campi di ricerca, vengono sostituiti da asterischi nel browser del visitatore. Immagini e iframe vengono esclusi. Puoi bloccare altri elementi con la classe rr-block, oppure disattivare la registrazione per interi percorsi."
+          },
+          "slow": {
+            "q": "Il session replay rallenta il mio sito?",
+            "a": "Non in modo che i tuoi visitatori se ne accorgano. Lo script di registrazione si carica senza bloccare la pagina, e solo nelle visite registrate o quando la cattura degli errori è attiva. Campiona i movimenti del mouse e lo scroll invece di seguire ogni pixel, e invia dati compressi in piccoli blocchi in background."
+          },
+          "sample": {
+            "q": "Quante visite vengono registrate?",
+            "a": "Il 5% di default. Imposta data-replay-sample su un valore da 0 a 100. Le registrazioni più brevi di 15 secondi non vengono conservate e una registrazione si interrompe dopo 10 minuti di inattività o 20 minuti in totale."
+          },
+          "find": {
+            "q": "Come trovo la sessione che cerco?",
+            "a": "L’elenco dei replay mostra per ogni sessione la pagina iniziale, la durata, il paese, il browser, il dispositivo, il numero di errori e i rage click, e puoi nascondere le sessioni brevi. Da un errore, il pulsante Guarda replay apre l’ultima sessione in cui si è verificato."
+          },
+          "rage": {
+            "q": "Rileva i rage click?",
+            "a": "Sì. Quando un visitatore clicca più e più volte sullo stesso punto, Betterlytics lo segnala come rage click (un clic di frustrazione). Lo vedi nella cronologia del replay e, con il loro numero, nell’elenco dei replay, così trovi subito i visitatori frustrati."
+          },
+          "history": {
+            "q": "Per quanto tempo vengono conservati i replay?",
+            "a": "60 giorni. Dopodiché vengono eliminati definitivamente."
+          },
+          "mobile": {
+            "q": "Funziona nelle app mobile?",
+            "a": "Registra siti e web app, nei browser desktop e mobile. Le app native per iOS e Android non sono supportate. Sugli schermi touch vengono registrati tocchi e scroll, ma non c’è un cursore da seguire."
+          },
+          "dedicated": {
+            "q": "Quando conviene uno strumento di replay dedicato?",
+            "a": "Betterlytics mostra cosa hanno fatto i visitatori, con ogni parola mascherata. Se ti servono heatmap, log della console e di rete, testo leggibile o la ricerca per utente ed evento, uno strumento dedicato fa più al caso tuo. Il nostro <link>confronto con PostHog</link> mostra le differenze funzionalità per funzionalità."
+          }
+        }
+      },
+      "cta": {
+        "title": "Guarda il tuo primo replay oggi stesso",
+        "lede": "Attivalo nello script che hai già e, dove serve, collegalo al tuo banner di consenso. Il session replay è gratis in tutti i piani.",
+        "primary": "Inizia a registrare gratis",
+        "secondary": "Leggi la documentazione sul replay"
       }
     }
   },
@@ -1758,9 +2299,7 @@
       "tls_hostname_mismatch": "Il certificato SSL non corrisponde al nome host",
       "tls_untrusted_ca": "Certificato SSL emesso da CA non attendibile",
       "tls_not_yet_valid": "Il certificato SSL non è ancora valido",
-      "tls_revoked": "Il certificato SSL è stato revocato",
       "tls_self_signed": "Il certificato SSL è autofirmato",
-      "tls_connection_failed": "Connessione SSL fallita",
       "http_4xx": "Il server ha restituito un errore client",
       "http_5xx": "Il server ha restituito un errore server",
       "http_other": "Codice di stato HTTP inatteso",
@@ -1892,6 +2431,10 @@
     "header": {
       "back": "Torna ai monitor",
       "monitoring": "Monitoraggio"
+    },
+    "notFound": {
+      "title": "Monitor non trovato",
+      "description": "Il monitor potrebbe essere stato eliminato da questa dashboard, oppure il link potrebbe essere errato."
     },
     "responseTime": {
       "title": "Tempo di risposta",
@@ -2034,6 +2577,7 @@
       "acceptedStatusCodes": {
         "label": "Codici di stato accettati",
         "description": "Altri codici attiveranno incidenti",
+        "lastCodeRequired": "È richiesto almeno un codice di stato",
         "validation": {
           "maxCodes": "Massimo {max} codici di stato consentiti",
           "alreadyAdded": "{code} è già stato aggiunto",
@@ -2104,7 +2648,12 @@
     "pagination": {
       "pageOf": "Pagina {currentPage} di {totalPages}",
       "showing": "Mostrando {startItem}-{endItem} di {totalItems} elementi",
-      "perPage": "per pagina"
+      "perPage": "per pagina",
+      "navigation": "Paginazione",
+      "firstPage": "Prima pagina",
+      "previousPage": "Pagina precedente",
+      "nextPage": "Pagina successiva",
+      "lastPage": "Ultima pagina"
     },
     "annotations": {
       "dialogs": {
@@ -2129,7 +2678,9 @@
       "chart": {
         "exitAnnotationMode": "Esci dalla modalità annotazione",
         "enterAnnotationMode": "Aggiungi annotazione",
-        "annotationModeHint": "Clicca sul grafico per aggiungere un’annotazione"
+        "annotationModeHint": "Clicca sul grafico per aggiungere un’annotazione",
+        "hideAnnotations": "Nascondi annotazioni",
+        "showAnnotations": "Mostra annotazioni"
       },
       "groupMarker": {
         "clickToSeeAll": "Clicca per vedere tutto"
@@ -2362,16 +2913,15 @@
     },
     "campaign": {
       "title": "Campagne",
-      "pagination": {
-        "pageOf": "Pagina {currentPage} di {totalPages}",
-        "showing": "Mostrando {startItem}-{endItem} di {totalItems} campagne",
-        "perPage": "per pagina"
-      },
       "emptyState": {
         "title": "Nessuna campagna ancora registrata",
         "description": "Le campagne appariranno qui una volta che gli URL con tag utm_campaign saranno registrati. Inizia a taggare i tuoi link per visualizzare le metriche di performance.",
         "docsHint": "Hai bisogno di aiuto per far comparire le campagne?",
         "docsLinkLabel": "Leggi la guida al tracciamento delle campagne"
+      },
+      "periodEmptyState": {
+        "title": "Nessun traffico delle campagne in questo periodo",
+        "description": "Prova un intervallo di date più ampio per vedere le campagne precedenti."
       },
       "loading": "Caricamento delle campagne...",
       "campaignRow": {
@@ -2502,6 +3052,8 @@
         "apply": "Applica",
         "selectValue": "Seleziona un valore",
         "noValuesForCurrentPeriod": "Nessun valore trovato per il periodo corrente",
+        "valuesTruncated": "Mostrati {shown, number} di {total, number} valori. Digita per cercare tra gli altri.",
+        "valuesTruncatedAtLimit": "Mostrati {shown, number} di {total, number}+ valori. Digita per cercare tra gli altri.",
         "savedFilters": "Filtri salvati",
         "noSavedFilters": "Nessun filtro salvato",
         "saveFilters": "Salva",
@@ -2616,7 +3168,7 @@
       "table": {
         "path": "Percorso",
         "filterByPath": "Filtra per {path}",
-        "visitors": "Visitatori",
+        "sessions": "Sessioni",
         "pageviews": "Visualizzazioni",
         "sessionPageviews": "Visualizzazioni sessione",
         "bounceRate": "Frequenza di rimbalzo",
@@ -2646,12 +3198,7 @@
       "table": {
         "details": "Dettagli sito di riferimento",
         "tabs": {
-          "all": "Tutti",
-          "search": "Ricerca",
-          "social": "Social",
-          "direct": "Diretto",
-          "email": "Email",
-          "other": "Altro"
+          "all": "Tutti"
         },
         "columns": {
           "source": "Fonte",
@@ -2663,6 +3210,14 @@
           "direct": "Diretto",
           "unknown": "Sconosciuto"
         }
+      },
+      "categories": {
+        "search": "Ricerca",
+        "social": "Social",
+        "ai": "AI",
+        "direct": "Diretto",
+        "email": "Email",
+        "other": "Altro"
       }
     },
     "geography": {
@@ -2764,7 +3319,8 @@
           "title": "Nessuna sessione replay disponibile",
           "description": "Prova ad espandere il tuo intervallo di tempo o ad adeguare i filtri."
         },
-        "sessionErrorsTooltip": "{count, plural, one {Questa sessione ha catturato {count} errore lato client} other {Questa sessione ha catturato {count} errori lato client}}"
+        "sessionErrorsTooltip": "{count, plural, one {Questa sessione ha catturato {count} errore lato client} other {Questa sessione ha catturato {count} errori lato client}}",
+        "sessionRageClicksTooltip": "{count, plural, one {Questa sessione ha {count} clic di frustrazione} other {Questa sessione ha {count} clic di frustrazione}}"
       },
       "playerTopbar": {
         "startLabel": "Inizio:",
@@ -2789,7 +3345,8 @@
         "blacklist": "Nascosto",
         "viewportResize": "Ridimensionamento viewport",
         "mediaInteraction": "Interazione media",
-        "clientError": "Errore lato client"
+        "clientError": "Errore lato client",
+        "rageClick": "Clic di frustrazione"
       },
       "player": {
         "skipInactive": "Salta inattività",
@@ -3020,8 +3577,8 @@
         "currentPassword": "Password attuale",
         "newPassword": "Nuova password",
         "confirmNewPassword": "Conferma nuova password",
-        "passwordHelp": "La password deve essere lunga almeno 8 caratteri",
-        "weakPassword": "La password deve contenere almeno 8 caratteri e includere lettere maiuscole e minuscole",
+        "dialogDescription": "Inserisci la password attuale, poi scegline una nuova.",
+        "newPasswordSameAsCurrent": "La nuova password deve essere diversa da quella attuale.",
         "invalidCurrentPassword": "La password attuale non è corretta",
         "passwordsMatch": "Le password coincidono",
         "changePassword": "Cambia password",
@@ -3053,6 +3610,7 @@
           "passwordPromptTitle": "Conferma la tua password",
           "passwordPromptDescription": "Inserisci la password del tuo account per continuare.",
           "passwordLabel": "Password",
+          "incorrectPassword": "Password errata",
           "backupCodesTitle": "Codici di backup",
           "backupCodesDescription": "Conserva questi codici monouso in un luogo sicuro: ti permettono di accedere se perdi la tua app di autenticazione.",
           "copyCodes": "Copia",
@@ -3229,6 +3787,9 @@
     "themeToggle": {
       "light": "Passa alla modalità chiara",
       "dark": "Passa alla modalità scura"
+    },
+    "scrollToTop": {
+      "label": "Torna in cima"
     },
     "errorPage": {
       "title": "Qualcosa è andato storto",
@@ -4245,7 +4806,9 @@
       "removeImage": "Rimuovi",
       "imageTooLarge": "L'immagine è troppo grande. Scegli un file più piccolo.",
       "svgUnsafe": "L'SVG contiene contenuti non supportati o non sicuri. Prova un'esportazione vettoriale semplice.",
-      "accentColor": "Colore principale",
+      "accentColor": "Colore dell'intestazione",
+      "accentColorTransparent": "Trasparente",
+      "accentColorTransparentAria": "Intestazione trasparente che riprende lo sfondo della pagina",
       "theme": "Tema",
       "themes": {
         "light": "Chiaro",

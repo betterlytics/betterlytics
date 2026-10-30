@@ -82,7 +82,6 @@ export async function getMonitorUptimeBuckets(
       ? safeSql`toStartOfDay(${name}, {timezone:String})`
       : safeSql`toStartOfHour(${name}, {timezone:String})`;
 
-  // For day granularity, use timezone; for hour, no timezone needed
   const toStartOfStartedAt = toStartOfInterval(safeSql`started_at`);
   const toStartOfRange = toStartOfInterval(SQL.DateTime({ rangeStart }));
   const toStartOfTS = toStartOfInterval(safeSql`ts`);
@@ -316,10 +315,11 @@ export async function getUptimeBuckets24h(
   checkId: string,
   siteId: string,
   createdAt: Date,
+  timezone: string,
   rangeStart: string,
   rangeEnd: string,
 ): Promise<MonitorUptimeBucket[]> {
-  return getMonitorUptimeBuckets(checkId, siteId, createdAt, 'UTC', rangeStart, rangeEnd, 24, 'hour');
+  return getMonitorUptimeBuckets(checkId, siteId, createdAt, timezone, rangeStart, rangeEnd, 24, 'hour');
 }
 
 // Convenience wrapper for daily uptime buckets

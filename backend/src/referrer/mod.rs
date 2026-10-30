@@ -1,6 +1,6 @@
 use refparser::RefDb;
 use std::sync::OnceLock;
-use url::Url;
+use url::{Host, Url};
 use std::path::Path;
 use tracing::info;
 use crate::url_utils::{normalize_url, extract_root_domain};
@@ -160,6 +160,17 @@ pub fn parse_referrer(referrer: Option<&str>, current_url: Option<&str>) -> Refe
         }
     };
     
+    // Local development hosts are not real traffic sources, unless the site itself runs there
+    if is_loopback_host(&referrer_url) {
+        let is_same_host = match (referrer_url.host_str(), &current_host) {
+            (Some(ref_host), Some(curr_host)) => is_internal_referrer(ref_host, curr_host),
+            _ => false,
+        };
+        if !is_same_host {
+            return ReferrerInfo::default();
+        }
+    }
+
     // Get the parser and lookup the referrer URL.
     // The refparser crate only accepts http/https schemes and matches domains verbatim,
     // so we normalize the URL before lookup:
@@ -254,6 +265,19 @@ fn is_internal_referrer(referrer_host: &str, current_host: &String) -> bool {
     referrer_host == current_host.as_str()
 }
 
+/// Check if the URL's host is loopback: `localhost`, `*.localhost`, `127.0.0.0/8` or `[::1]`
+fn is_loopback_host(url: &Url) -> bool {
+    match url.host() {
+        Some(Host::Domain(domain)) => {
+            let domain = domain.trim_end_matches('.').to_ascii_lowercase();
+            domain == "localhost" || domain.ends_with(".localhost")
+        }
+        Some(Host::Ipv4(ip)) => ip.is_loopback(),
+        Some(Host::Ipv6(ip)) => ip.is_loopback(),
+        None => false,
+    }
+}
+
 /// Extract search term from URL using parameter names
 fn extract_search_term(url: &Url, param_names: &[String]) -> Option<String> {
     let query_pairs = url.query_pairs();
@@ -268,3 +292,97 @@ fn extract_search_term(url: &Url, param_names: &[String]) -> Option<String> {
     None
 }
 
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn parse(referrer: &str, current_url: &str) -> ReferrerInfo {
+        let db_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("assets/snowplow_referers/referers-latest.json");
+        initialize(&db_path);
+        parse_referrer(Some(referrer), Some(current_url))
+    }
+
+    fn assert_direct(info: &ReferrerInfo) {
+        assert_eq!(info.source_type, ReferrerSource::Direct);
+        assert_eq!(info.url, None);
+        assert_eq!(info.source_name, None);
+        assert_eq!(info.source_canonical, None);
+        assert_eq!(info.search_term, None);
+    }
+
+    #[test]
+    fn local_referrers_from_another_host_are_direct() {
+        for referrer in [
+            "http://localhost/",
+            "http://localhost:3000/some/page?q=1",
+            "http://foo.localhost:3010/dashboard",
+            "http://FOO.LocalHost:3010/",
+            "http://localhost./",
+            "http://127.0.0.1:3000/",
+            "http://127.42.0.7/",
+            "http://[::1]/",
+            "http://[::1]:8080/page",
+            "android-app://localhost/",
+        ] {
+            let info = parse(referrer, "https://betterlytics.io/pricing");
+            assert_direct(&info);
+        }
+    }
+
+    #[test]
+    fn local_referrer_from_a_different_local_host_is_direct() {
+        assert_direct(&parse("http://foo.localhost:3010/", "http://localhost:3000/"));
+        assert_direct(&parse("http://127.0.0.1:3000/", "http://localhost:3000/"));
+    }
+
+    #[test]
+    fn local_referrer_from_the_same_host_is_internal() {
+        let info = parse("http://localhost:3000/about", "http://localhost:3000/");
+        assert_eq!(info.source_type, ReferrerSource::Internal);
+        assert_eq!(info.url.as_deref(), Some("localhost:3000/about"));
+
+        let info = parse("http://localhost:5173/", "http://localhost:3000/");
+        assert_eq!(info.source_type, ReferrerSource::Internal);
+
+        let info = parse("http://foo.localhost:3010/a", "http://foo.localhost:3010/b");
+        assert_eq!(info.source_type, ReferrerSource::Internal);
+
+        let info = parse("http://127.0.0.1:3000/", "http://127.0.0.1:8080/");
+        assert_eq!(info.source_type, ReferrerSource::Internal);
+
+        let info = parse("http://[::1]:3000/", "http://[::1]/");
+        assert_eq!(info.source_type, ReferrerSource::Internal);
+    }
+
+    #[test]
+    fn look_alike_and_non_loopback_hosts_are_normal_referrers() {
+        for referrer in [
+            "https://localhost.example.com/",
+            "https://notlocalhost.com/",
+            "https://localhost-docs.dev/",
+            "http://0.0.0.0:3000/",
+            "http://192.168.1.10/",
+            "http://printer.local/",
+        ] {
+            let info = parse(referrer, "https://betterlytics.io/");
+            assert_eq!(info.source_type, ReferrerSource::Other, "{referrer}");
+            assert!(info.url.is_some(), "{referrer}");
+            assert!(info.source_name.is_some(), "{referrer}");
+        }
+    }
+
+    #[test]
+    fn non_local_referrers_are_unaffected() {
+        let info = parse("https://www.google.com/search?q=analytics", "https://betterlytics.io/");
+        assert_eq!(info.source_type, ReferrerSource::Search);
+        assert_eq!(info.source_canonical.as_deref(), Some("Google"));
+
+        let info = parse("https://betterlytics.io/docs", "https://betterlytics.io/");
+        assert_eq!(info.source_type, ReferrerSource::Internal);
+
+        assert_direct(&parse_referrer(None, Some("https://betterlytics.io/")));
+    }
+}

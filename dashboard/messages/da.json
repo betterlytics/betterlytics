@@ -186,7 +186,16 @@
       },
       "scope": {
         "title": "Anvendelsesområde for denne politik",
-        "body": "Denne privatlivspolitik gælder udelukkende for Betterlytics' hostede cloudtjeneste tilgængelig på betterlytics.io og vores officielle domæner. Den gælder ikke for selv-hostede installationer af vores open source-software. Hvis du selv-hoster Betterlytics, er du ansvarlig for din egen privatlivspolitik, databehandlingspraksis og juridiske overholdelse."
+        "body": "Denne privatlivspolitik gælder udelukkende for Betterlytics' hostede cloudtjeneste tilgængelig på betterlytics.io og vores officielle domæner. Den gælder ikke for selv-hostede installationer af vores open source-software, bortset fra den daglige instansrapport, som disse installationer sender til os, beskrevet i \"Telemetri fra selv-hostede installationer\" nedenfor. Hvis du selv-hoster Betterlytics, er du ansvarlig for din egen privatlivspolitik, databehandlingspraksis og juridiske overholdelse."
+      },
+      "selfHostedTelemetry": {
+        "title": "Telemetri fra selv-hostede installationer",
+        "intro": "Selv-hostede installationer af Betterlytics sender os en lille rapport én gang om dagen, medmindre operatøren slår det fra. Den første rapport sendes 24 timer efter, at installationen er startet første gang. Betterlytics er dataansvarlig for disse data.",
+        "received": "Hvad vi modtager: et tilfældigt instans-ID, som installationen genererer og gemmer i sin egen database, og den Betterlytics-version, den kører. Vi gemmer én registrering pr. instans pr. dag: datoen, instans-ID'et og versionen. Vi bruger kun den IP-adresse, rapporten kommer fra, til at modtage den og til at begrænse misbrugende trafik, og vi gemmer den aldrig. Rapporten indeholder aldrig oplysninger om dine brugere, dine websites eller dine analysedata.",
+        "purpose": "Formål og retsgrundlag: vi tæller aktive installationer og ser, hvilke versioner der er i brug, så vi kan prioritere support og sikkerhedsrettelser. Det er vores legitime interesse i henhold til GDPR artikel 6, stk. 1, litra f. Du kan bede os om vores vurdering af denne legitime interesse.",
+        "retention": "Opbevaring: hver daglig registrering slettes 365 dage efter sin dato.",
+        "sharing": "Deling: dataene opbevares på vores servere hos Hetzner i EU og deles ikke med andre. Vi kan offentliggøre samlede tal, aldrig individuelle instans-ID'er.",
+        "objection": "Ret til indsigelse: du kan til enhver tid slå telemetri fra, så der ikke sendes flere rapporter. <link>Se hvordan i dokumentationen om selv-hosting</link>. Hvis du vil have slettet tidligere rapporter, skal du skrive til privacy@betterlytics.io med dit instans-ID fra [telemetry]-linjen i opstartsloggen."
       },
       "intro": {
         "p1": "Hos Betterlytics er vi forpligtet til at overholde GDPR, CCPA, PECR og andre privatlivsregler. Beskyttelsen af dine data — og det er dine data, ikke vores! — er meget vigtig for os. Vi har base i EU, og al databehandling foregår inden for EU's grænser.",
@@ -274,6 +283,7 @@
         "li5": "Ret til dataportabilitet: Modtage dine data i et portabelt format",
         "li6": "Ret til indsigelse: Gøre indsigelse mod behandling baseret på legitime interesser",
         "li7": "Ret til at trække samtykke tilbage: Tilbagekalde samtykke til databehandling",
+        "li8": "Ret til at klage: Klage til en databeskyttelsesmyndighed, f.eks. Datatilsynet eller myndigheden i det EU- eller EØS-land, hvor du bor",
         "contact": "For at udøve nogen af disse rettigheder, kontakt os på privacy@betterlytics.io"
       },
       "noCookies": {
@@ -1270,10 +1280,17 @@
       "nav": "Sidefod",
       "language": "Sprog",
       "columns": {
+        "product": "Produkt",
         "company": "Virksomhed",
         "resources": "Ressourcer",
         "compare": "Sammenlign",
         "connect": "Find os"
+      },
+      "product": {
+        "features": "Funktioner",
+        "uptime": "Oppetidsovervågning",
+        "replay": "Session replay",
+        "pricing": "Priser"
       },
       "company": {
         "about": "Om os",
@@ -1286,8 +1303,6 @@
       "resources": {
         "docs": "Dokumentation",
         "changelog": "Changelog",
-        "features": "Funktioner",
-        "pricing": "Priser",
         "status": "Status"
       },
       "compareLink": "vs. {name}",
@@ -1389,7 +1404,533 @@
           "visitors": "Google 18,2k · ChatGPT 2,1k · Hacker News 1,4k",
           "signups": "Google 164 · ChatGPT 71 · Hacker News 9",
           "answer": "ChatGPT sender en niendedel så mange besøgende som Google, men 3,4 % af dem tilmelder sig mod 0,9 %. Det er næsten fire gange så højt."
+        },
+        "uptimeAlt": "En terminalsession: En agent bliver bedt om at undersøge en nedetidsalarm for Checkout. Den læser den åbne hændelse via Betterlytics’ MCP-server, finder et commit der gik i produktion tre minutter før nedbruddet, og tilbyder at rulle det tilbage. Bagefter regner den ud, hvad nattens checkout-nedbrud kostede i salg.",
+        "investigate": {
+          "question": "der er alarm om at checkout er nede, kan du undersøge det?",
+          "say": "Jeg henter den åbne hændelse fra Betterlytics og tjekker så, hvad der gik i produktion lige før den startede.",
+          "incident": "1 igangværende hændelse · Checkout · nede siden 10:12",
+          "commits": "a41f2c9 10:09 Move Stripe keys to env vars",
+          "answer": "Checkout har svaret med 503 siden 10:12, tre minutter efter at a41f2c9 flyttede Stripe-nøglerne til env vars. Skal jeg rulle det tilbage?"
         }
+      }
+    },
+    "feature": {
+      "breadcrumb": "Brødkrumme",
+      "features": "Funktioner",
+      "related": {
+        "title": "Også i det *samme* dashboard",
+        "learnMore": "Læs mere"
+      },
+      "relatedItems": {
+        "analytics": {
+          "title": "Webanalyse",
+          "body": "Cookiefri trafik, kilder, sider og funnels, live og uden sampling."
+        },
+        "replay": {
+          "title": "Session replay",
+          "body": "Se hvad en besøgende så, klik for klik og scroll for scroll."
+        },
+        "errors": {
+          "title": "Fejlsporing",
+          "body": "JavaScript-fejl med stack trace, siden og sessionen bag dem."
+        },
+        "vitals": {
+          "title": "Core Web Vitals",
+          "body": "LCP, INP og CLS målt i de browsere dine besøgende rent faktisk bruger."
+        },
+        "uptime": {
+          "title": "Oppetidsovervågning",
+          "body": "Tjek helt ned til hvert minut, alarmer der hvor dit team taler sammen, og en statusside."
+        }
+      }
+    },
+    "uptime": {
+      "seo": {
+        "title": "Oppetidsovervågning, SSL-alarmer og statusside | Betterlytics",
+        "description": "Oppetidsovervågning med alarmer i Slack, Discord, Teams eller på e-mail, SSL-advarsler og en statusside, i samme dashboard som din webanalyse. Gratis plan."
+      },
+      "hero": {
+        "eyebrow": "Oppetidsovervågning",
+        "title": "Få besked når dit website går ned, og se hvad det kostede dig",
+        "lede": "Tjek helt ned til hvert minut, alarmer der hvor dit team taler sammen, SSL-advarsler og en offentlig statusside. I det dashboard, der allerede rummer din trafik.",
+        "primary": "Start gratis overvågning",
+        "secondary": "Læs dokumentationen",
+        "proof": "Vores egen statusside kører på det"
+      },
+      "specs": {
+        "interval": {
+          "unit": "min",
+          "label": "Tjekinterval",
+          "body": "Tjek så ofte som hvert minut eller så sjældent som én gang i døgnet."
+        },
+        "ssl": {
+          "unit": "dage",
+          "label": "Certifikatadvarsel",
+          "body": "Certifikater tjekkes hver time, og du får en advarsel op til 30 dage før de udløber."
+        },
+        "history": {
+          "unit": "dage",
+          "label": "Offentlig oppetidshistorik",
+          "body": "Statussider viser 90 dages daglig oppetid med tidligere hændelser nedenunder."
+        },
+        "thesis": {
+          "unit": "i 1",
+          "label": "Ét login, én regning",
+          "body": "Oppetid, webanalyse, fejl, session replay og Web Vitals side om side."
+        }
+      },
+      "story": {
+        "title": "Fra første fejlede tjek til *alt klart*",
+        "lede": "Sådan forløber det, når checkout holder op med at svare kl. 10:12.",
+        "stepsLabel": "Hændelsesforløb",
+        "steps": {
+          "fail": {
+            "time": "10:12",
+            "title": "Et tjek fejler",
+            "body": "checkout.acme.com svarer med 503. Et enkelt udfald kan være tilfældigt, så der går ingen alarm endnu."
+          },
+          "confirm": {
+            "time": "10:14",
+            "title": "Hændelsen oprettes",
+            "body": "Den tredje fejl i træk bekræfter det. Hændelsen registrerer årsagen og statuskoden."
+          },
+          "alert": {
+            "time": "10:14",
+            "title": "Dit team får besked",
+            "body": "Én besked til Slack, Discord og e-mail med et link direkte til monitoren."
+          },
+          "status": {
+            "time": "10:15",
+            "title": "Din statusside følger med",
+            "body": "Banneret skifter af sig selv, og nedbruddet ligger klar som en foreslået hændelse, der venter på din opdatering."
+          },
+          "recover": {
+            "time": "10:32",
+            "title": "Oppe igen",
+            "body": "To fejlfrie tjek lukker hændelsen efter 19 minutter, og der går besked ud om, at alt kører igen."
+          }
+        },
+        "stage": {
+          "suggested": "Foreslået hændelse",
+          "suggestedBody": "Checkout nede siden 10:12",
+          "write": "Skriv opdatering"
+        },
+        "scenes": {
+          "failing": "Fejler",
+          "down": "Nede",
+          "recentChecks": "Seneste tjek",
+          "waiting": "Venter på to fejl mere, før der sendes en alarm",
+          "failedOf": "{count} af 3 fejlede",
+          "incidentOpened": "Hændelse oprettet",
+          "reason": "Årsag",
+          "started": "Startet",
+          "startedValue": "10:12 · 3 fejlede tjek i træk",
+          "downFor": "Nede i",
+          "backAt": "Oppe igen",
+          "alertsSent": "Alarmer sendt"
+        }
+      },
+      "checks": {
+        "title": "Tjek der tester det, der *betyder* noget",
+        "lede": "En server kan godt svare og stadig være i stykker. Fortæl hver monitor, hvordan det ser ud, når det virker.",
+        "art": {
+          "request": "Anmodning",
+          "headers": "Headers",
+          "timeout": "Timeout",
+          "response": "Responstid",
+          "lastDay": "Seneste 24 t",
+          "reason5xx": "HTTP 5xx",
+          "reasonTimeout": "Timeout",
+          "reasonKeyword": "Nøgleord"
+        },
+        "items": {
+          "http": {
+            "title": "Din anmodning, dine regler",
+            "body": "HEAD eller GET, egne headers, de statuskoder du accepterer og en timeout på op til 30 sekunder. Omdirigeringer bliver fulgt."
+          },
+          "keyword": {
+            "title": "Nøgleordstjek",
+            "body": "Kræv en tekst som »Læg i kurv«. Hvis siden indlæses uden den, fejler tjekket."
+          },
+          "ssl": {
+            "title": "SSL-certifikater",
+            "body": "Tjekkes hver time, med påmindelser fra op til 30 dage før udløb. Et udløbet eller ikke-betroet certifikat, eller et der ikke matcher domænet, får tjekket til at fejle."
+          },
+          "threshold": {
+            "title": "Ingen alarm for et enkelt udfald",
+            "body": "Vælg hvor mange tjek der skal fejle i træk, før en hændelse oprettes. To fejlfrie tjek lukker den igen."
+          },
+          "latency": {
+            "title": "Responstider",
+            "body": "Median, p95 og gennemsnit for det seneste døgn, så en opbremsning viser sig, før den bliver til nedetid."
+          },
+          "reasons": {
+            "title": "Årsagen, ikke bare rødt",
+            "body": "Hver hændelse fortæller hvorfor: en timeout, en DNS- eller forbindelsesfejl, en 5xx eller et manglende nøgleord."
+          }
+        }
+      },
+      "alerts": {
+        "title": "Alarmer der hvor dit team *allerede* taler sammen",
+        "lede": "Én besked når en monitor går ned, én når den er oppe igen, og en advarsel før et certifikat udløber.",
+        "lead": "Forbind én gang, så bruger alle monitorer det",
+        "body": "Kanaler hører til dashboardet, så hver ny monitor er dækket fra start. Hver monitor logger alle sendte alarmer, fejlede alarmer bliver sendt igen, og ingen går ud to gange.",
+        "channels": "Kanaler",
+        "email": "E-mail",
+        "webhook": "Webhook",
+        "events": {
+          "label": "Vælg hvad hver monitor sender",
+          "down": "Nede",
+          "recovery": "Oppe igen",
+          "ssl": "Certifikatudløb"
+        },
+        "views": {
+          "slack": "Slack",
+          "email": "E-mail",
+          "webhook": "Webhook"
+        },
+        "channel": "incidents",
+        "app": "App",
+        "today": "I dag",
+        "inbox": "Indbakke",
+        "notes": {
+          "slack": "Discord, Teams og Pushover får den samme alarm, formateret til hver af dem.",
+          "email": "Få en e-mail når en monitor går ned, og en til når den er oppe igen.",
+          "webhook": "Ren JSON, så det passer til en bot eller et script på ti linjer."
+        }
+      },
+      "status": {
+        "title": "En statusside der *holder sig selv* opdateret",
+        "lede": "Oppetidsbjælkerne og banneret følger dine monitorer. Du skriver kun selv, når der er noget at sige.",
+        "points": {
+          "monitors": "Op til 20 monitorer pr. side, hver under det offentlige navn du vælger",
+          "history": "90 dages daglig oppetid med tidligere hændelser nedenunder",
+          "updates": "Hændelsesopdateringer fra »Undersøger« til »Løst«, med et påvirkningsniveau og et udfyldt udkast til hvert nedbrud, dine monitorer fanger.",
+          "brand": "Dit logo, favicon, accentfarve og et lyst, mørkt eller automatisk tema",
+          "domain": "Dit eget domæne, med HTTPS klaret for dig"
+        },
+        "try": "Prøv det",
+        "theme": "Tema",
+        "light": "Lyst",
+        "dark": "Mørkt",
+        "accent": "Accent",
+        "accents": {
+          "blue": "Blå",
+          "violet": "Violet",
+          "teal": "Blågrøn",
+          "ember": "Glød",
+          "custom": "Egen farve"
+        },
+        "page": {
+          "allUp": "Alle systemer kører normalt",
+          "updated": "Sidst opdateret 18. okt., 10:42",
+          "operational": "I drift",
+          "down": "Nede",
+          "ago": "for {days} dage siden",
+          "today": "I dag",
+          "uptime": "{value} oppetid",
+          "past": "Tidligere hændelser",
+          "incidentTitle": "Checkout utilgængelig",
+          "incidentMeta": "Løst efter 19 minutter",
+          "poweredBy": "Drevet af",
+          "impact": "Delvist nedbrud",
+          "overall": "Samlet oppetid <value>{uptime}</value> · seneste 90 dage"
+        },
+        "proof": "Se vores, live"
+      },
+      "agent": {
+        "title": "Spørg din agent, *hvorfor* det gik ned",
+        "lede": "Monitorer og hændelser ligger i den indbyggede MCP-server, så din agent kan undersøge et nedbrud side om side med din kode, din trafik og dine fejl.",
+        "lead": "Fra alarm til årsag med ét spørgsmål",
+        "body": "Din agent læser den åbne hændelse, tjekker hvad der gik i produktion lige før, og kommer tilbage med den sandsynlige årsag og en rettelse, du kan godkende. Eller hold et nedbrud op mod din trafik og dit salg for at se, hvad det kostede.",
+        "cta": "Sæt MCP op"
+      },
+      "related": {
+        "lede": "Oppetid er én del af Betterlytics. Alt nedenfor deler script, login og regning."
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "items": {
+          "what": {
+            "q": "Hvad er oppetidsovervågning?",
+            "a": "En oppetidsmonitor sender med faste mellemrum en forespørgsel til dit website og tjekker svaret. Når siden holder op med at svare, returnerer en fejl eller mangler det indhold, du forventer, opretter den en hændelse og giver dig besked, helst før dine besøgende opdager det."
+          },
+          "scope": {
+            "q": "Hvad kan jeg overvåge?",
+            "a": "Enhver HTTP- eller HTTPS-adresse på dit dashboards domæne eller dets subdomæner, fx din forside, api.example.com/health eller en checkout-side."
+          },
+          "often": {
+            "q": "Hvor ofte tjekker Betterlytics mit website?",
+            "a": "Så ofte som hvert minut eller så sjældent som én gang i døgnet. Du vælger intervallet for hver monitor."
+          },
+          "false": {
+            "q": "Hvordan undgår I falske alarmer?",
+            "a": "En hændelse oprettes først efter flere fejlede tjek i træk: tre som standard, eller alt fra 1 til 10, hvis du foretrækker det. Den lukkes efter to fejlfrie tjek, så en ustabil server ikke oversvømmer dine kanaler."
+          },
+          "down": {
+            "q": "Hvad tæller som nede?",
+            "a": "En timeout, en DNS- eller forbindelsesfejl (herunder et ugyldigt certifikat), en statuskode uden for dem du accepterer, eller et manglende nøgleord. Hver hændelse registrerer, hvad det var."
+          },
+          "alerts": {
+            "q": "Hvor sendes alarmerne hen?",
+            "a": "E-mail, Slack, Discord, Microsoft Teams, Pushover og enhver webhook, der tager imod JSON. Du får én alarm når en monitor går ned, og én når den er oppe igen."
+          },
+          "ssl": {
+            "q": "Kan den advare mig, før mit SSL-certifikat udløber?",
+            "a": "Ja. HTTPS-monitorer tjekker certifikatet hver time og sender påmindelser fra op til 30 dage før det udløber. Et udløbet eller ikke-betroet certifikat, eller et der ikke matcher domænet, får tjekket til at fejle, så du hører om det som en hændelse."
+          },
+          "domain": {
+            "q": "Kan statussiden bruge mit eget domæne?",
+            "a": "Ja. Peg et subdomæne som status.example.com på Betterlytics med en CNAME-record, så bliver certifikatet udstedt automatisk, når siden er udgivet."
+          },
+          "free": {
+            "q": "Er oppetidsovervågning gratis?",
+            "a": "Den gratis plan omfatter én monitor pr. site, tjekket hvert femte minut, og én statusside. Professional-planen åbner for mere avanceret opsætning: tjek hvert minut, egne headers, accepterede statuskoder og nøgleordstjek, flere monitorer og statussider samt dit eget domæne."
+          },
+          "internal": {
+            "q": "Kan jeg overvåge interne tjenester?",
+            "a": "Monitorer når offentlige adresser på port 80 og 443, så en tjeneste skal kunne nås fra internettet."
+          },
+          "dedicated": {
+            "q": "Hvornår er et dedikeret overvågningsværktøj det bedre valg?",
+            "a": "Betterlytics tjekker HTTP og HTTPS fra én placering. Har du brug for tjek fra mange regioner, TCP-, ping- eller cron-overvågning, alarmer via telefon og SMS eller vagtplaner, så vælg et dedikeret værktøj."
+          }
+        }
+      },
+      "cta": {
+        "title": "Tilføj din første monitor på et minut",
+        "lede": "Indsæt en URL, vælg hvor ofte der skal tjekkes, og hvor alarmerne skal hen. Den gratis plan omfatter en monitor og en statusside.",
+        "primary": "Start gratis overvågning",
+        "secondary": "Læs dokumentationen om overvågning"
+      }
+    },
+    "replay": {
+      "seo": {
+        "title": "Session replay der maskerer alt som standard | Betterlytics",
+        "description": "Session replay af rigtige besøg med al tekst og alle indtastninger maskeret i browseren. Gå direkte fra en JavaScript-fejl til optagelsen. Gratis i alle planer."
+      },
+      "hero": {
+        "eyebrow": "Session replay",
+        "title": "Se hvor dine besøgende sidder fast, og hvad der stoppede dem",
+        "lede": "Afspil rigtige besøg klik for klik. Rage clicks bliver markeret, og al tekst og alle indtastninger maskeres, før noget forlader browseren. Gratis i alle planer og samlet i ét dashboard med din trafik og dine fejl.",
+        "primary": "Begynd at optage gratis",
+        "secondary": "Læs dokumentationen"
+      },
+      "cursor": {
+        "input": "Indtastning registreret",
+        "drag": "Træk registreret",
+        "click": "Klik registreret",
+        "rage": "Rage click registreret",
+        "selection": "Markering registreret",
+        "pageview": "Sidevisning registreret",
+        "paused": "Optagelse på pause"
+      },
+      "specs": {
+        "errors": {
+          "unit": "klik",
+          "label": "Fra fejl til replay",
+          "body": "Fejl i optagede sessioner linker til replayet, så du kommer fra stack trace til replay med ét klik."
+        },
+        "history": {
+          "unit": "dage",
+          "label": "Replay-historik",
+          "body": "Optagelser ligger i dit dashboard i 60 dage."
+        },
+        "cookies": {
+          "unit": "cookies",
+          "label": "Ingen cookies, ingen IP’er",
+          "body": "Session replay sætter ingen cookies og gemmer ingen IP-adresse sammen med en optagelse."
+        },
+        "thesis": {
+          "unit": "%",
+          "label": "Maskeret i browseren",
+          "body": "Hver tekstlinje og hver indtastning bliver til stjerner, før optagelsen forlader siden."
+        }
+      },
+      "story": {
+        "title": "Fra et mislykket køb til *årsagen*",
+        "lede": "Sådan forløber det, når betalingsknappen holder op med at virke kl. 10:03.",
+        "stepsLabel": "Replay-tidslinje",
+        "steps": {
+          "record": {
+            "time": "10:02",
+            "title": "Besøget bliver optaget",
+            "body": "Besøget bliver udvalgt til optagelse og gemt løbende, mens den besøgende klikker rundt."
+          },
+          "error": {
+            "time": "10:03",
+            "title": "Betalingen fejler",
+            "body": "En JavaScript-fejl stopper betalingen. Fejlsporingen logger den sammen med siden, browseren og den kode, der fejlede."
+          },
+          "ready": {
+            "time": "10:05",
+            "title": "Replayet er klar",
+            "body": "Når den besøgende forlader siden, dukker sessionen op i din liste over replays, markeret med fejlen og et rage click."
+          },
+          "jump": {
+            "time": "10:20",
+            "title": "Du springer til øjeblikket",
+            "body": "Åbn replayet direkte fra fejlen, og spring lige til det øjeblik, den opstod."
+          },
+          "why": {
+            "time": "10:21",
+            "title": "Og ser hvorfor",
+            "body": "Den besøgende blev ved med at klikke på betalingsknappen, mens postnummeret stod tomt, og det blev markeret som rage click. Teksten er maskeret, men du kan stadig se, hvad der ikke blev udfyldt."
+          }
+        },
+        "scenes": {
+          "recording": "Optager",
+          "newError": "Ny fejl",
+          "occurrences": "{count, plural, one {# session} other {# sessioner}}",
+          "sessions": "Sessioner",
+          "justNow": "Lige nu",
+          "minutesAgo": "{count} min. siden",
+          "timeline": "Tidslinje",
+          "input": "Indtastning",
+          "click": "Klik",
+          "clientError": "Klientfejl",
+          "rageClick": "Rage click",
+          "emptyField": "Postnummer: tomt",
+          "start": "Start:",
+          "skip": "Spring inaktivitet over"
+        }
+      },
+      "privacy": {
+        "title": "Maskeret *før* det forlader browseren",
+        "lede": "Du ser, hvor de besøgende klikkede, scrollede og skrev, men deres privatliv er i behold: det, de læste og skrev, forlader aldrig deres enhed.",
+        "points": {
+          "text": "Hvert tegn i tekster og indtastningsfelter bliver til en stjerne, så layoutet bevarer sin form",
+          "media": "Billeder og iframes erstattes af tomme bokse i samme størrelse",
+          "consent": "Kan vente på samtykke, før der optages noget, overalt hvor loven kræver det",
+          "exclude": "Udelad hele sider, dele af dit website eller enkelte elementer, du markerer som private",
+          "storage": "Ingen cookies og ingen IP-adresse gemt sammen med en optagelse"
+        },
+        "docs": "Sådan virker maskeringen",
+        "try": "Træk for at sammenligne",
+        "visitor": "Det din besøgende ser",
+        "you": "Det du ser i replayet",
+        "slider": "Sammenlign det, den besøgende ser, med det maskerede replay",
+        "alt": "Betalingssiden i en webshop med kaffe, vist to gange. Den besøgende kan læse navn, e-mail og adresse, men i replayet er hvert ord erstattet af stjerner, og produktbilledet er en tom boks."
+      },
+      "controls": {
+        "title": "Optag de sessioner, der er *værd* at se",
+        "lede": "Bestem hvor meget der skal optages, og hvor. Resten sker uden at genere dine besøgende.",
+        "art": {
+          "sample": "Stikprøve",
+          "recorded": "Optaget",
+          "error": "TypeError",
+          "leadUp": "1–2 min",
+          "off": "Fra",
+          "on": "Til",
+          "skipped": "Ignoreret",
+          "pageview": "Sidevisning"
+        },
+        "items": {
+          "sample": {
+            "title": "Vælg stikprøvens størrelse",
+            "body": "Optag en lille andel af besøgene eller dem alle. Hvert besøg bliver optaget helt eller slet ikke."
+          },
+          "errors": {
+            "title": "Gem optakten til fejl",
+            "body": "Når optagelse ved fejl er slået til, gemmes et minut eller to op til en JavaScript-fejl også for besøg uden for stikprøven."
+          },
+          "paths": {
+            "title": "Udelad sider",
+            "body": "Slå optagelse fra for enkelte sider eller hele sektioner, fx dit adminområde eller dine kontosider. Der bliver intet optaget, og afspilleren slører den del af besøget."
+          },
+          "light": {
+            "title": "Skåner dit website",
+            "body": "Optageren er en separat fil, der kun indlæses, når der er brug for den. Den sender data i små komprimerede bidder i baggrunden, så dine sider forbliver hurtige."
+          },
+          "spa": {
+            "title": "Bygget til single-page apps",
+            "body": "Ruteskift i single-page apps bygget med React, Vue eller Next.js vises som sidevisninger på tidslinjen, præcis som almindelige sideindlæsninger."
+          },
+          "bots": {
+            "title": "Kun rigtige mennesker",
+            "body": "Headless browsere og testværktøjer som Playwright og Cypress bliver aldrig optaget, så du kun ser rigtige besøgende."
+          }
+        }
+      },
+      "setup": {
+        "title": "Slå det til med *to* linjer",
+        "lede": "Intet nyt script og ingen ny leverandør. Session replay kører på det Betterlytics-script, du allerede har.",
+        "snippetLabel": "Eksempler på opsætning",
+        "consentTab": "Samtykke",
+        "steps": {
+          "enable": {
+            "title": "Slå det til",
+            "body": "Tilføj én attribut til dit script-tag eller én indstilling i npm-pakken."
+          },
+          "consent": {
+            "title": "Håndter samtykke",
+            "body": "Hvor loven kræver samtykke, som i EU, kobler én linje optagelsen til dit samtykkebanner."
+          },
+          "tune": {
+            "title": "Finjuster det",
+            "body": "Indstil stikprøven, udelad private stier og gem optagelser af sessioner med fejl."
+          }
+        },
+        "cta": "Læs opsætningsguiden"
+      },
+      "related": {
+        "lede": "Session replay er én del af Betterlytics. Alt nedenfor deler dashboard, login og regning."
+      },
+      "faq": {
+        "title": "Ofte stillede spørgsmål",
+        "items": {
+          "what": {
+            "q": "Hvad er session replay?",
+            "a": "Session replay (også kaldet sessionsoptagelse) gemmer, hvordan en side ændrer sig, og hvad den besøgende gør på den. Bagefter genskabes besøget i dit dashboard, så du kan se det som en video. Der optages ingen video, og Betterlytics maskerer teksten, før noget bliver sendt."
+          },
+          "free": {
+            "q": "Er session replay gratis?",
+            "a": "Ja. Session replay er inkluderet i <link>alle planer</link>, også den gratis, og optagelser tæller ikke med i dine månedlige events."
+          },
+          "consent": {
+            "q": "Skal jeg have samtykke til session replay?",
+            "a": "Det afhænger af, hvor dine besøgende befinder sig. I EU kan GDPR og ePrivacy-direktivet kræve samtykke, før du optager et besøg. Optagelsen starter først, når dit website giver grønt lys. Det kan komme fra det samtykkebanner, du allerede har, eller fra en indstilling i scriptet, hvis du ikke har brug for samtykke."
+          },
+          "masked": {
+            "q": "Hvad bliver maskeret?",
+            "a": "Al tekst på siden og alle indtastede værdier, herunder adgangskoder, e-mailadresser og søgefelter, erstattes med stjerner i den besøgendes browser. Billeder og iframes udelades. Du kan blokere mere med klassen rr-block eller slå optagelse fra for hele stier."
+          },
+          "slow": {
+            "q": "Gør session replay mit website langsommere?",
+            "a": "Ikke så dine besøgende mærker det. Optageren indlæses uden at blokere din side, og kun ved besøg, der bliver optaget, eller når optagelse ved fejl er slået til. Den registrerer musebevægelser og scroll med jævne mellemrum i stedet for at følge hver eneste pixel, og sender komprimerede data i små bidder i baggrunden."
+          },
+          "sample": {
+            "q": "Hvor mange besøg bliver optaget?",
+            "a": "5 % som standard. Sæt data-replay-sample til en værdi fra 0 til 100. Optagelser under 15 sekunder gemmes ikke, og en optagelse stopper efter 10 minutters inaktivitet eller 20 minutter i alt."
+          },
+          "find": {
+            "q": "Hvordan finder jeg den session, jeg leder efter?",
+            "a": "Listen over replays viser hver sessions startside, varighed, land, browser, enhed, antal fejl og rage clicks, og du kan skjule korte sessioner. Fra en fejl åbner knappen »Se replay« den seneste session, hvor fejlen opstod."
+          },
+          "rage": {
+            "q": "Opdager det rage clicks?",
+            "a": "Ja. Når en besøgende klikker på det samme sted igen og igen, markerer Betterlytics det som et rage click (raseriklik). Du ser det på replayets tidslinje, og antallet står i listen over replays, så frustrerede besøgende er nemme at finde."
+          },
+          "history": {
+            "q": "Hvor længe gemmes optagelserne?",
+            "a": "60 dage. Derefter slettes de permanent."
+          },
+          "mobile": {
+            "q": "Virker det i mobilapps?",
+            "a": "Det optager websites og webapps i browsere på både computer og mobil. Native iOS- og Android-apps understøttes ikke. På touchskærme optages tryk og scroll, men der er ingen markør at følge."
+          },
+          "dedicated": {
+            "q": "Hvornår er et dedikeret replay-værktøj det bedre valg?",
+            "a": "Betterlytics viser, hvad de besøgende gjorde, med hvert ord maskeret. Har du brug for heatmaps, konsol- og netværkslogs, læsbar tekst eller søgning efter bruger og event, er du bedre tjent med et dedikeret værktøj. Vores <link>sammenligning med PostHog</link> viser forskellene funktion for funktion."
+          }
+        }
+      },
+      "cta": {
+        "title": "Se dit første replay i dag",
+        "lede": "Slå session replay til i det script, du allerede har, og kobl det til dit samtykkebanner, hvis det er nødvendigt. Det er gratis i alle planer.",
+        "primary": "Begynd at optage gratis",
+        "secondary": "Læs dokumentationen om session replay"
       }
     }
   },
@@ -1758,9 +2299,7 @@
       "tls_hostname_mismatch": "SSL-certifikat matcher ikke værtsnavnet",
       "tls_untrusted_ca": "SSL-certifikat udstedt af ukendt CA",
       "tls_not_yet_valid": "SSL-certifikat er endnu ikke gyldigt",
-      "tls_revoked": "SSL-certifikat er blevet tilbagekaldt",
       "tls_self_signed": "SSL-certifikat er selvsigneret",
-      "tls_connection_failed": "SSL-forbindelse mislykkedes",
       "http_4xx": "Server returnerede en klientfejl",
       "http_5xx": "Server returnerede en serverfejl",
       "http_other": "Uventet HTTP-statuskode",
@@ -1892,6 +2431,10 @@
     "header": {
       "back": "Tilbage til overvågninger",
       "monitoring": "Overvågning"
+    },
+    "notFound": {
+      "title": "Overvågning ikke fundet",
+      "description": "Overvågningen kan være slettet fra dette dashboard, eller linket kan være forkert."
     },
     "responseTime": {
       "title": "Responstid",
@@ -2034,6 +2577,7 @@
       "acceptedStatusCodes": {
         "label": "Accepterede statuskoder",
         "description": "Andre koder udløser hændelser",
+        "lastCodeRequired": "Mindst én statuskode er påkrævet",
         "validation": {
           "maxCodes": "Maksimalt {max} statuskoder tilladt",
           "alreadyAdded": "{code} er allerede tilføjet",
@@ -2104,7 +2648,12 @@
     "pagination": {
       "pageOf": "Side {currentPage} af {totalPages}",
       "showing": "Viser {startItem}-{endItem} af {totalItems} elementer",
-      "perPage": "pr. side"
+      "perPage": "pr. side",
+      "navigation": "Sidenavigation",
+      "firstPage": "Første side",
+      "previousPage": "Forrige side",
+      "nextPage": "Næste side",
+      "lastPage": "Sidste side"
     },
     "annotations": {
       "dialogs": {
@@ -2129,7 +2678,9 @@
       "chart": {
         "exitAnnotationMode": "Forlad annoteringstilstand",
         "enterAnnotationMode": "Tilføj annotation",
-        "annotationModeHint": "Klik på diagrammet for at tilføje en annotation"
+        "annotationModeHint": "Klik på diagrammet for at tilføje en annotation",
+        "hideAnnotations": "Skjul annotationer",
+        "showAnnotations": "Vis annotationer"
       },
       "groupMarker": {
         "clickToSeeAll": "Klik for at se alle"
@@ -2362,16 +2913,15 @@
     },
     "campaign": {
       "title": "Kampagner",
-      "pagination": {
-        "pageOf": "Side {currentPage} af {totalPages}",
-        "showing": "Viser {startItem}-{endItem} af {totalItems} kampagner",
-        "perPage": "pr. side"
-      },
       "emptyState": {
         "title": "Ingen kampagner registreret endnu",
         "description": "Kampagner vises her, når URL’er med utm_campaign-tags bliver registreret. Begynd at tagge dine links for at se performance-metrics.",
         "docsHint": "Brug for hjælp til at få kampagner til at dukke op?",
         "docsLinkLabel": "Læs guiden til kampagnesporing"
+      },
+      "periodEmptyState": {
+        "title": "Ingen kampagnetrafik i denne periode",
+        "description": "Prøv et bredere datointerval for at se tidligere kampagner."
       },
       "loading": "Indlæser kampagner...",
       "campaignRow": {
@@ -2502,6 +3052,8 @@
         "apply": "Anvend",
         "selectValue": "Vælg en værdi",
         "noValuesForCurrentPeriod": "Ingen værdier fundet for den aktuelle periode",
+        "valuesTruncated": "Viser {shown, number} af {total, number} værdier. Skriv for at søge i resten.",
+        "valuesTruncatedAtLimit": "Viser {shown, number} af {total, number}+ værdier. Skriv for at søge i resten.",
         "savedFilters": "Gemte filtre",
         "noSavedFilters": "Ingen gemte filtre endnu",
         "saveFilters": "Gem",
@@ -2616,7 +3168,7 @@
       "table": {
         "path": "Sti",
         "filterByPath": "Filtrer efter {path}",
-        "visitors": "Besøgende",
+        "sessions": "Sessioner",
         "pageviews": "Sidevisninger",
         "sessionPageviews": "Sidevisninger i sessioner",
         "bounceRate": "Afvisningsprocent",
@@ -2646,12 +3198,7 @@
       "table": {
         "details": "Henvisningsdetaljer",
         "tabs": {
-          "all": "Alle",
-          "search": "Søgning",
-          "social": "Social",
-          "direct": "Direkte",
-          "email": "E-mail",
-          "other": "Andet"
+          "all": "Alle"
         },
         "columns": {
           "source": "Kilde",
@@ -2663,6 +3210,14 @@
           "direct": "Direkte",
           "unknown": "Ukendt"
         }
+      },
+      "categories": {
+        "search": "Søgning",
+        "social": "Social",
+        "ai": "AI",
+        "direct": "Direkte",
+        "email": "E-mail",
+        "other": "Andet"
       }
     },
     "geography": {
@@ -2764,7 +3319,8 @@
           "title": "Ingen sessionsafspilninger tilgængelige",
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         },
-        "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl"
+        "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl",
+        "sessionRageClicksTooltip": "{count, plural, one {Denne session har {count} raseriklik} other {Denne session har {count} raseriklik}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -2789,7 +3345,8 @@
         "blacklist": "Sortlistet",
         "viewportResize": "Viewport-ændring",
         "mediaInteraction": "Medieinteraktion",
-        "clientError": "Klientfejl"
+        "clientError": "Klientfejl",
+        "rageClick": "Raseriklik"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",
@@ -3020,8 +3577,8 @@
         "currentPassword": "Nuværende adgangskode",
         "newPassword": "Ny adgangskode",
         "confirmNewPassword": "Bekræft ny adgangskode",
-        "passwordHelp": "Adgangskoden skal være mindst 8 tegn",
-        "weakPassword": "Adgangskoden skal være mindst 8 tegn og indeholde både store og små bogstaver",
+        "dialogDescription": "Indtast din nuværende adgangskode, og vælg derefter en ny.",
+        "newPasswordSameAsCurrent": "Din nye adgangskode skal være forskellig fra din nuværende adgangskode.",
         "invalidCurrentPassword": "Den nuværende adgangskode er forkert",
         "passwordsMatch": "Adgangskoderne matcher",
         "changePassword": "Skift adgangskode",
@@ -3053,6 +3610,7 @@
           "passwordPromptTitle": "Bekræft din adgangskode",
           "passwordPromptDescription": "Indtast din adgangskode for at fortsætte.",
           "passwordLabel": "Adgangskode",
+          "incorrectPassword": "Forkert adgangskode",
           "backupCodesTitle": "Backup-koder",
           "backupCodesDescription": "Gem disse engangskoder et sikkert sted. De giver dig adgang, hvis du mister din authenticator.",
           "copyCodes": "Kopiér",
@@ -3229,6 +3787,9 @@
     "themeToggle": {
       "light": "Skift til lyst tema",
       "dark": "Skift til mørkt tema"
+    },
+    "scrollToTop": {
+      "label": "Rul til toppen"
     },
     "errorPage": {
       "title": "Noget gik galt",
@@ -4245,7 +4806,9 @@
       "removeImage": "Fjern",
       "imageTooLarge": "Billedet er for stort. Vælg en mindre fil.",
       "svgUnsafe": "SVG'en indeholder indhold, der ikke understøttes eller er usikkert. Prøv en enkel vektoreksport.",
-      "accentColor": "Accentfarve",
+      "accentColor": "Headerfarve",
+      "accentColorTransparent": "Gennemsigtig",
+      "accentColorTransparentAria": "Gennemsigtig header, der matcher sidens baggrund",
       "theme": "Tema",
       "themes": {
         "light": "Lys",

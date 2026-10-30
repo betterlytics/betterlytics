@@ -11,9 +11,10 @@ import { trpc } from '@/trpc/client';
 import type { GroupedSessionTrailEvent } from '@/entities/analytics/errors.entities';
 import { formatLocalDateTime } from '@/utils/dateFormatters';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
-import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import type { SupportedLanguages } from '@/constants/i18n';
 
 type SessionTrailProps = {
   dashboardId: string;
@@ -42,8 +43,8 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
   const [isPending, startTransition] = useTransition();
   const { resolvedTheme } = useTheme();
   const { resolveHref } = useDashboardNavigation();
-  const { isDemo } = useDashboardAuth();
   const { timeZone } = useTimeRangeContext();
+  const locale = useLocale() as SupportedLanguages;
   const theme = resolvedTheme === 'dark' ? 'dark' : 'light';
   const utils = trpc.useUtils();
 
@@ -94,14 +95,25 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
             {t('eventCount', { count: totalEvents })}
           </p>
         </div>
-        {hasReplay && !isDemo && (
-          <Link
-            href={resolveHref(`/replay?sessionId=${sessionId}`)}
-            className='bg-primary text-primary-foreground hover:bg-primary/90 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors'
-          >
-            <Play className='full-current h-3.5 w-3.5' />
-            {t('watchReplay')}
-          </Link>
+        {hasReplay && (
+          <PermissionGate allowViewer>
+            {(disabled) =>
+              disabled ? (
+                <span className='bg-primary text-primary-foreground flex shrink-0 cursor-not-allowed items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium opacity-50'>
+                  <Play className='full-current h-3.5 w-3.5' />
+                  {t('watchReplay')}
+                </span>
+              ) : (
+                <Link
+                  href={resolveHref(`/replay?sessionId=${sessionId}`)}
+                  className='bg-primary text-primary-foreground hover:bg-primary/90 flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors'
+                >
+                  <Play className='full-current h-3.5 w-3.5' />
+                  {t('watchReplay')}
+                </Link>
+              )
+            }
+          </PermissionGate>
         )}
       </div>
       <div className='relative'>
@@ -124,7 +136,7 @@ export function SessionTrail({ dashboardId, sessionId, currentFingerprint }: Ses
                 )}
               >
                 <span className='text-muted-foreground w-16 shrink-0 text-left text-[11px] tabular-nums'>
-                  {formatLocalDateTime(event.timestamp, undefined, { timeStyle: 'medium', timeZone })}
+                  {formatLocalDateTime(event.timestamp, locale, { timeStyle: 'medium', timeZone })}
                 </span>
                 <span className='relative flex h-5 w-5 shrink-0 items-center justify-center'>
                   {!isLast && <span className='bg-border absolute top-full h-[calc(100%+8px)] w-px' />}

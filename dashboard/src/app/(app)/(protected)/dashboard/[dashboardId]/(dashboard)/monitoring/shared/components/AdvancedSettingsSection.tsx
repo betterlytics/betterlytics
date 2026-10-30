@@ -222,22 +222,40 @@ export function AdvancedSettingsSection({
             <CapabilityGate allowed={caps.monitoring.customStatusCodes}>
               {({ locked }) => (
                 <div className='flex flex-wrap items-center gap-1.5'>
-                  {form.state.acceptedStatusCodes.map((code) => (
-                    <span
-                      key={code}
-                      className={`inline-flex h-7 items-center gap-1 rounded-md border px-2 font-mono text-xs font-medium ${getStatusCodeColorClasses(code)}`}
-                    >
-                      {code}
+                  {form.state.acceptedStatusCodes.map((code) => {
+                    const isOnlyCode = form.state.acceptedStatusCodes.length === 1;
+                    const removeButton = (
                       <button
                         type='button'
                         onClick={() => form.removeStatusCode(code)}
-                        disabled={isPending || locked}
-                        className='cursor-pointer rounded p-0.5 opacity-60 transition-opacity hover:opacity-100 disabled:cursor-not-allowed'
+                        disabled={isPending || locked || isOnlyCode}
+                        className='cursor-pointer rounded p-0.5 opacity-60 transition-opacity hover:opacity-100 disabled:cursor-not-allowed disabled:hover:opacity-60'
                       >
                         <X className='h-3 w-3' />
                       </button>
-                    </span>
-                  ))}
+                    );
+
+                    return (
+                      <span
+                        key={code}
+                        className={`inline-flex h-7 items-center gap-1 rounded-md border px-2 font-mono text-xs font-medium ${getStatusCodeColorClasses(code)}`}
+                      >
+                        {code}
+                        {isOnlyCode ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className='inline-flex cursor-not-allowed'>{removeButton}</span>
+                            </TooltipTrigger>
+                            <TooltipContent side='top' className='max-w-[220px]'>
+                              {t('advanced.acceptedStatusCodes.lastCodeRequired')}
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          removeButton
+                        )}
+                      </span>
+                    );
+                  })}
                   <div className='flex items-center gap-1'>
                     <Input
                       type='text'

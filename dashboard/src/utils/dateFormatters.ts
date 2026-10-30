@@ -202,6 +202,13 @@ export function formatLocalDateTime(
   return createDateTimeFormat(locale, options ?? {}).format(d);
 }
 
+// Short weekday names, Monday to Sunday. Formatted in UTC so the browser's zone can't shift them a day
+export function formatShortWeekdayNames(locale?: string): string[] {
+  const formatter = new Intl.DateTimeFormat(locale, { weekday: 'short', timeZone: 'UTC' });
+  // 5 Jan 1970 was a Monday
+  return Array.from({ length: 7 }, (_, i) => formatter.format(Date.UTC(1970, 0, 5 + i)));
+}
+
 // Formats a date relative to now (e.g., "3 days ago"), localized via Intl.RelativeTimeFormat
 export function formatRelativeTimeFromNow(date: string | Date, locale?: SupportedLanguages): string {
   const d = typeof date === 'string' ? new Date(date) : date;

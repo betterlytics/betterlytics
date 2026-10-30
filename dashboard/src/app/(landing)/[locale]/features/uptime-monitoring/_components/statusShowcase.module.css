@@ -1,0 +1,108 @@
+@reference '../../../landing.css';
+
+@layer components {
+  .segmented {
+    display: inline-flex;
+    padding: 3px;
+    border-radius: 999px;
+    border: 1px solid var(--color-rule-10);
+    background: --alpha(var(--color-fg) / 3%);
+  }
+  .segmented button {
+    padding: 4px 13px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--color-muted);
+    transition:
+      color 0.2s var(--ease-out-expo),
+      background-color 0.2s var(--ease-out-expo);
+  }
+  .segmented button:hover {
+    color: var(--color-fg);
+  }
+  .segmented button[aria-pressed='true'] {
+    background: var(--color-fg);
+    color: var(--color-canvas);
+  }
+  .swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--swatch);
+    box-shadow:
+      0 0 0 2px var(--color-canvas),
+      0 0 0 3px transparent;
+    transition:
+      box-shadow 0.2s var(--ease-out-expo),
+      scale 0.2s var(--ease-out-expo);
+  }
+  .swatch:hover {
+    scale: 1.08;
+  }
+  .swatch[aria-pressed='true'] {
+    box-shadow:
+      0 0 0 2px var(--color-canvas),
+      0 0 0 3.5px var(--color-fg);
+  }
+  .customSwatch {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: conic-gradient(#f43f5e, #f59e0b, #eab308, #22c55e, #06b6d4, #3b82f6, #8b5cf6, #ec4899, #f43f5e);
+    box-shadow:
+      0 0 0 2px var(--color-canvas),
+      0 0 0 3px transparent;
+    cursor: pointer;
+    transition:
+      box-shadow 0.2s var(--ease-out-expo),
+      scale 0.2s var(--ease-out-expo);
+  }
+  .customSwatch::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    background: var(--swatch, var(--color-canvas));
+    pointer-events: none;
+  }
+  .customSwatch:hover {
+    scale: 1.08;
+  }
+  .customSwatch[data-active] {
+    box-shadow:
+      0 0 0 2px var(--color-canvas),
+      0 0 0 3.5px var(--color-fg);
+  }
+  .customSwatch:has(:focus-visible) {
+    outline: 2px solid var(--color-volt-soft);
+    outline-offset: 4px;
+  }
+  .customSwatch input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .fade {
+    position: absolute;
+    inset: 0;
+    -webkit-mask-image: linear-gradient(#000 calc(100% - 130px), transparent calc(100% - 8px));
+    mask-image: linear-gradient(#000 calc(100% - 130px), transparent calc(100% - 8px));
+  }
+  .window {
+    position: absolute;
+    top: 36px;
+    left: 50%;
+    width: calc(100% - 80px);
+    max-width: 600px;
+    translate: -50% 0;
+    @variant max-sm {
+      top: 20px;
+      width: calc(100% - 24px);
+    }
+  }
+}

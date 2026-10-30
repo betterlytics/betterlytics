@@ -57,6 +57,7 @@ export default function UserPreferencesSettings() {
           description={t('appearance.themeDescription')}
           action={
             <UserThemeSelector
+              id='theme'
               value={settings.theme}
               onUpdate={(theme) => themeMutation.mutate({ theme })}
             />
@@ -71,7 +72,7 @@ export default function UserPreferencesSettings() {
               value={settings.avatar}
               onValueChange={(v) => avatarMutation.mutate({ avatar: v as AvatarMode })}
             >
-              <SelectTrigger className='w-32 cursor-pointer'>
+              <SelectTrigger id='avatar' className='w-32 cursor-pointer'>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -115,6 +116,7 @@ export default function UserPreferencesSettings() {
           description={t('localization.languageDescription')}
           action={
             <LanguageSelect
+              id='language'
               value={settings.language as SupportedLanguages}
               onUpdate={(language) => languageMutation.mutate({ language })}
             />

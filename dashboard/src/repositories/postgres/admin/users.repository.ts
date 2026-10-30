@@ -38,7 +38,7 @@ const SUMMARY_SELECT = {
   deletedAt: true,
   _count: {
     select: {
-      dashboardAccess: { where: { dashboard: { deletedAt: null } } },
+      dashboardAccess: { where: { deletedAt: null, dashboard: { deletedAt: null } } },
       accounts: { where: { providerId: CREDENTIAL_PROVIDER_ID, password: { not: null } } },
     },
   },
@@ -100,7 +100,7 @@ export async function findAdminUserDetail(userId: string): Promise<AdminUserDeta
       ...SUMMARY_SELECT,
       accounts: { where: { providerId: { not: CREDENTIAL_PROVIDER_ID } }, select: { providerId: true } },
       dashboardAccess: {
-        where: { dashboard: { deletedAt: null } },
+        where: { deletedAt: null, dashboard: { deletedAt: null } },
         select: { role: true, dashboard: { select: { id: true, domain: true } } },
         orderBy: { createdAt: 'asc' },
       },

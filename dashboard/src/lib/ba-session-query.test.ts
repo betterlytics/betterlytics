@@ -196,3 +196,44 @@ describe('getSessionTableSubQuery custom event property filters', () => {
     expect(taggedSql).toMatch(/custom_event_name ILIKE pattern.*\) OR \(.*JSONExtractString/);
   });
 });
+
+describe('getSessionTableSubQuery literal metacharacters', () => {
+  const TYPED = ['plan_pro', '50%off', 'a\\b'];
+  const ESCAPED = ['plan\\_pro', '50\\%off', 'a\\\\b'];
+
+  it.each(['=', '!='] as const)('escapes values on event-bridged columns for %s', (operator) => {
+    const { taggedParams } = buildSubQuery([makeFilter('custom_event_name', operator, TYPED)]);
+
+    expect(Object.values(taggedParams)).toContainEqual(ESCAPED);
+  });
+
+  it.each(['=', '!='] as const)('escapes values on session-native columns for %s', (operator) => {
+    const { taggedParams } = buildSubQuery([makeFilter('utm_campaign', operator, TYPED)]);
+
+    expect(Object.values(taggedParams)).toContainEqual(ESCAPED);
+  });
+
+  it.each(['=', '!='] as const)('escapes global property values for %s', (operator) => {
+    const { taggedParams } = buildSubQuery([makeFilter('gp.plan', operator, TYPED)]);
+
+    expect(Object.values(taggedParams)).toContainEqual(ESCAPED);
+  });
+
+  it.each(['=', '!='] as const)('escapes custom event property values for %s', (operator) => {
+    const { taggedParams } = buildSubQuery([makeFilter('cep.plan', operator, TYPED)]);
+
+    expect(Object.values(taggedParams)).toContainEqual(ESCAPED);
+  });
+
+  it.each(['=', '!='] as const)('treats a lone percent sign as a literal for %s', (operator) => {
+    const native = buildSubQuery([makeFilter('utm_source', operator, ['%'])]);
+    const gp = buildSubQuery([makeFilter('gp.plan', operator, ['%'])]);
+    const cep = buildSubQuery([makeFilter('cep.plan', operator, ['%'])]);
+
+    expect(native.taggedSql).toContain('ILIKE pattern');
+    expect(native.taggedSql).not.toMatch(/utm_source\.2 !?= ''/);
+    expect(Object.values(native.taggedParams)).toContainEqual(['\\%']);
+    expect(gp.taggedSql).toContain('t.2 ILIKE v');
+    expect(cep.taggedSql).not.toContain('JSONHas');
+  });
+});
