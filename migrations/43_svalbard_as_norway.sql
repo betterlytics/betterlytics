@@ -3,18 +3,18 @@ SET send_progress_in_http_headers = 1;
 SET http_headers_progress_interval_ms = 30000;
 
 ALTER TABLE analytics.events
-    UPDATE country_code = 'NO', subdivision_code = replaceOne(subdivision_code, 'SJ-', 'NO-')
+    UPDATE country_code = 'NO', subdivision_code = replaceRegexpOne(subdivision_code, '^SJ-', 'NO-')
     WHERE country_code = 'SJ'
     SETTINGS mutations_sync = 2;
 
 ALTER TABLE analytics.sessions
-    UPDATE country_code = 'NO', subdivision_code = replaceOne(subdivision_code, 'SJ-', 'NO-')
+    UPDATE country_code = 'NO', subdivision_code = replaceRegexpOne(subdivision_code, '^SJ-', 'NO-')
     WHERE country_code = 'SJ'
     SETTINGS mutations_sync = 2;
 
--- Rollup keys cannot be updated, so the rows are copied under NO and then deleted
+-- Rollup keys cannot be updated, so rows are copied under NO and then deleted; a re-run is safe only because uniq states merge idempotently
 INSERT INTO analytics.geo_hourly
-SELECT site_id, hour, 'NO', replaceOne(subdivision_code, 'SJ-', 'NO-'), city, visitors
+SELECT site_id, hour, 'NO', replaceRegexpOne(subdivision_code, '^SJ-', 'NO-'), city, visitors
 FROM analytics.geo_hourly
 WHERE country_code = 'SJ';
 
