@@ -69,6 +69,18 @@ function rageRangesFrom(events: eventWithTime[]): RageRange[] {
   });
 }
 
+const DEAD_CURSOR_MS = 800;
+const DEAD_CLICK_MATCH_MS = 100;
+
+// The dead_click event is emitted once the click is judged dead and carries the click time
+function deadClickTimesFrom(events: eventWithTime[]): number[] {
+  return events.flatMap((event) => {
+    if (event.type !== EventType.Custom || event.data.tag !== 'dead_click') return [];
+    const payload = event.data.payload as { timestamp?: unknown } | undefined;
+    return typeof payload?.timestamp === 'number' ? [payload.timestamp] : [];
+  });
+}
+
 function isClick(event: eventWithTime) {
   return (
     event.type === EventType.IncrementalSnapshot &&
@@ -92,6 +104,8 @@ const ReplayPlayerComponent = (
   const isSkippingInactivityRef = useRef<boolean>(false);
   const rageRangesRef = useRef<RageRange[]>([]);
   const rageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const deadClickTimesRef = useRef<number[]>([]);
+  const deadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const rageCursorPlugin = useRef<ReplayPlugin>({
     handler(event, isSync, { replayer }) {
@@ -105,6 +119,24 @@ const ReplayPlayerComponent = (
       mouse.classList.add('rage');
       if (rageTimerRef.current) clearTimeout(rageTimerRef.current);
       rageTimerRef.current = setTimeout(() => mouse.classList.remove('rage'), RAGE_CURSOR_MS);
+    },
+  }).current;
+
+  const deadCursorPlugin = useRef<ReplayPlugin>({
+    handler(event, isSync, { replayer }) {
+      if (isSync || !isClick(event)) return;
+      const mouse = replayer.wrapper.querySelector<HTMLElement>('.replayer-mouse');
+      if (!mouse) return;
+      if (deadTimerRef.current) clearTimeout(deadTimerRef.current);
+      mouse.classList.remove('dead');
+      const isDead = deadClickTimesRef.current.some(
+        (clickedAt) => Math.abs(event.timestamp - clickedAt) <= DEAD_CLICK_MATCH_MS,
+      );
+      if (!isDead) return;
+      // Restart the ring for back-to-back dead clicks
+      void mouse.offsetWidth;
+      mouse.classList.add('dead');
+      deadTimerRef.current = setTimeout(() => mouse.classList.remove('dead'), DEAD_CURSOR_MS);
     },
   }).current;
 
@@ -161,6 +193,10 @@ const ReplayPlayerComponent = (
       clearTimeout(rageTimerRef.current);
       rageTimerRef.current = null;
     }
+    if (deadTimerRef.current) {
+      clearTimeout(deadTimerRef.current);
+      deadTimerRef.current = null;
+    }
 
     if (playerRef.current) {
       try {
@@ -193,6 +229,7 @@ const ReplayPlayerComponent = (
       destroyPlayer();
 
       rageRangesRef.current = rageRangesFrom(events);
+      deadClickTimesRef.current = deadClickTimesFrom(events);
       playerRef.current = new rrwebPlayer({
         target: containerRef.current,
         props: {
@@ -203,7 +240,7 @@ const ReplayPlayerComponent = (
           skipInactive: playerState.isSkippingInactive,
           width: size.width,
           height: size.height,
-          plugins: [rageCursorPlugin],
+          plugins: [rageCursorPlugin, deadCursorPlugin],
           mouseTail: false,
         },
       });
@@ -214,7 +251,7 @@ const ReplayPlayerComponent = (
 
       onReady?.();
     },
-    [destroyPlayer, size, onReady, rageCursorPlugin],
+    [destroyPlayer, size, onReady, rageCursorPlugin, deadCursorPlugin],
   );
 
   const redactBlacklisted = useCallback(() => {
@@ -328,6 +365,7 @@ const ReplayPlayerComponent = (
         return;
       }
       rageRangesRef.current = rageRangesRef.current.concat(rageRangesFrom(events));
+      deadClickTimesRef.current = deadClickTimesRef.current.concat(deadClickTimesFrom(events));
       // Use try/catch to avoid noisy console errors if player was disposed mid-loop
       try {
         events.forEach((event) => playerRef.current?.addEvent(event));

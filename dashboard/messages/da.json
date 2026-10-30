@@ -3314,7 +3314,8 @@
           "description": "Prøv at udvide din tidsperiode eller juster filtrene."
         },
         "sessionErrorsTooltip": "Denne session opfangede {count} klientsidefejl",
-        "sessionRageClicksTooltip": "{count, plural, one {Denne session har {count} raseriklik} other {Denne session har {count} raseriklik}}"
+        "sessionRageClicksTooltip": "{count, plural, one {Denne session har {count} raseriklik} other {Denne session har {count} raseriklik}}",
+        "sessionDeadClicksTooltip": "{count, plural, one {Denne session har {count} dødt klik} other {Denne session har {count} døde klik}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3340,7 +3341,8 @@
         "viewportResize": "Viewport-ændring",
         "mediaInteraction": "Medieinteraktion",
         "clientError": "Klientfejl",
-        "rageClick": "Raseriklik"
+        "rageClick": "Raseriklik",
+        "deadClick": "Dødt klik"
       },
       "player": {
         "skipInactive": "Spring inaktivitet over",

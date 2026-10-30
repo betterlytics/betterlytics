@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { SessionReplay } from '@/entities/analytics/sessionReplays.entities';
 import { Spinner } from '@/components/ui/spinner';
-import { Clock, ListVideo, Bug, Angry } from 'lucide-react';
+import { Clock, ListVideo, Bug, Angry, MousePointerBan } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -128,37 +128,50 @@ export function SessionReplayList({
                 icon={deviceName && <DeviceIcon type={deviceName} />}
               />
 
-              {session.rage_click_count > 0 && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className='ml-auto inline-flex items-center gap-0.5 text-fuchsia-600 dark:text-fuchsia-400'>
-                      <Angry className='h-3 w-3' aria-hidden='true' />
-                      <span>{session.rage_click_count}</span>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side='bottom'>
-                    {t('sessionRageClicksTooltip', { count: session.rage_click_count })}
-                  </TooltipContent>
-                </Tooltip>
-              )}
+              {(session.rage_click_count > 0 || session.dead_click_count > 0 || session.error_count > 0) && (
+                <span className='ml-auto inline-flex items-center gap-2'>
+                  {session.rage_click_count > 0 && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className='inline-flex items-center gap-0.5 text-fuchsia-600 dark:text-fuchsia-400'>
+                          <Angry className='h-3 w-3' aria-hidden='true' />
+                          <span>{session.rage_click_count}</span>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side='bottom'>
+                        {t('sessionRageClicksTooltip', { count: session.rage_click_count })}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
 
-              {session.error_count > 0 && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span
-                      className={cn(
-                        'inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-500',
-                        session.rage_click_count === 0 && 'ml-auto',
-                      )}
-                    >
-                      <Bug className='h-3 w-3' aria-hidden='true' />
-                      <span>{session.error_count}</span>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side='bottom'>
-                    {t('sessionErrorsTooltip', { count: session.error_count })}
-                  </TooltipContent>
-                </Tooltip>
+                  {session.dead_click_count > 0 && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className='inline-flex items-center gap-0.5 text-teal-600 dark:text-teal-400'>
+                          <MousePointerBan className='h-3 w-3' aria-hidden='true' />
+                          <span>{session.dead_click_count}</span>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side='bottom'>
+                        {t('sessionDeadClicksTooltip', { count: session.dead_click_count })}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+
+                  {session.error_count > 0 && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className='inline-flex items-center gap-0.5 text-amber-600 dark:text-amber-500'>
+                          <Bug className='h-3 w-3' aria-hidden='true' />
+                          <span>{session.error_count}</span>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side='bottom'>
+                        {t('sessionErrorsTooltip', { count: session.error_count })}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </span>
               )}
             </div>
           </CardContent>

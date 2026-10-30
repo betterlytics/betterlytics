@@ -12,6 +12,7 @@ const MARKER_KEYS = [
   'Blacklist',
   'client_error',
   'rage_click',
+  'dead_click',
 ] as const;
 
 export type MarkerKey = (typeof MARKER_KEYS)[number];

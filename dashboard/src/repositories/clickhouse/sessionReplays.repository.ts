@@ -96,6 +96,7 @@ export async function getSessionReplays(
       r.start_url,
       r.recorded_error_count AS error_count,
       r.rage_click_count,
+      r.dead_click_count,
       e.device_type,
       e.browser,
       e.os,

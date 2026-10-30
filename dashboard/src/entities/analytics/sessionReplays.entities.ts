@@ -19,6 +19,7 @@ export const SessionReplaySchema = z.object({
   country_code: z.string().optional().nullable(),
   error_count: z.number().optional().default(0),
   rage_click_count: z.number().optional().default(0),
+  dead_click_count: z.number().optional().default(0),
 });
 
 export const SessionReplayArraySchema = SessionReplaySchema.array();

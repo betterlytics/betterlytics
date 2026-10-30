@@ -86,13 +86,15 @@ function createMarkerCanvas(
   const resolvedTheme = theme || 'light';
 
   ctx.clearRect(0, 0, cssWidth, cssHeight);
-  // Draw rage clicks last so the clicks of the burst don't paint over them
-  const isRageClick = (marker: TimelineMarker) => keyForMarker(marker) === 'rage_click';
-  [...markers.filter((m) => !isRageClick(m)), ...markers.filter(isRageClick)].forEach((marker) => {
-    ctx.fillStyle = markerFillColorForLabel(resolvedTheme, keyForMarker(marker));
-    const left = cssWidth * (marker.timestamp / durationMs);
-    ctx.fillRect(left, 0, 4, cssHeight);
-  });
+  // Draw dead and rage clicks last so the clicks themselves don't paint over them
+  const drawOrder = (marker: TimelineMarker) => ['dead_click', 'rage_click'].indexOf(keyForMarker(marker));
+  [...markers]
+    .sort((a, b) => drawOrder(a) - drawOrder(b))
+    .forEach((marker) => {
+      ctx.fillStyle = markerFillColorForLabel(resolvedTheme, keyForMarker(marker));
+      const left = cssWidth * (marker.timestamp / durationMs);
+      ctx.fillRect(left, 0, 4, cssHeight);
+    });
 }
 
 function createRangeCanvas(

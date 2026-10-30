@@ -380,6 +380,39 @@
     transform: scale(1.6);
   }
 }
+/* A dead click gets one ring in its marker color; during a rage burst it colors the click ripple instead */
+.rr-player .replayer-mouse.dead:not(.rage):before {
+  content: '';
+  position: absolute;
+  left: -20px;
+  top: -20px;
+  width: 40px;
+  height: 40px;
+  border: 3px solid #0d9488;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0;
+  animation: replayer-dead-ring 0.8s ease-out 1;
+}
+.dark .rr-player .replayer-mouse.dead:not(.rage):before {
+  border-color: #2dd4bf;
+}
+.rr-player .replayer-mouse.rage.dead:after {
+  border-color: #0d9488 !important;
+}
+.dark .rr-player .replayer-mouse.rage.dead:after {
+  border-color: #2dd4bf !important;
+}
+@keyframes replayer-dead-ring {
+  0% {
+    opacity: 1;
+    transform: scale(0.3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
 
 /* Allow chart tooltips/annotations to extend beyond the SVG bounds */
 .recharts-wrapper svg {

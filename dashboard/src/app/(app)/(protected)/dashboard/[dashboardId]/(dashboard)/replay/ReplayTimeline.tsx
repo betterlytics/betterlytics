@@ -17,6 +17,7 @@ import {
   Expand,
   AlertTriangle,
   Angry,
+  MousePointerBan,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
@@ -133,13 +134,13 @@ export function buildTimelineMarkers(
 
       if (event.type === EventType.Custom) {
         const customLabel = event.data?.tag || 'Custom event';
-        if (customLabel === 'rage_click') {
-          // The event is emitted when the burst ends; place it where the burst started
+        if (customLabel === 'rage_click' || customLabel === 'dead_click') {
+          // Both are emitted after the fact; place them at the click (the burst start for rage clicks)
           const payload = event.data?.payload as { timestamp?: unknown } | undefined;
-          const burstStart = typeof payload?.timestamp === 'number' ? payload.timestamp : event.timestamp;
+          const clickedAt = typeof payload?.timestamp === 'number' ? payload.timestamp : event.timestamp;
           return {
             key: 'Custom event',
-            timestamp: Math.max(Math.min(burstStart, event.timestamp) - baseTimestamp, 0),
+            timestamp: Math.max(Math.min(clickedAt, event.timestamp) - baseTimestamp, 0),
             label: customLabel,
           } satisfies TimelineMarkerDescriptor;
         }
@@ -184,6 +185,8 @@ function iconForKey(key: MarkerKey | string, theme: 'light' | 'dark'): React.Rea
       return <AlertTriangle className={ICON_BASE_CLASS} style={{ color }} />;
     case 'rage_click':
       return <Angry className={ICON_BASE_CLASS} style={{ color }} />;
+    case 'dead_click':
+      return <MousePointerBan className={ICON_BASE_CLASS} style={{ color }} />;
     default:
       return <Tag className={ICON_BASE_CLASS} style={{ color }} />;
   }
@@ -213,6 +216,8 @@ function labelForKey(key: MarkerKey | string, t: any) {
       return t('clientError');
     case 'rage_click':
       return t('rageClick');
+    case 'dead_click':
+      return t('deadClick');
     default:
       return key;
   }

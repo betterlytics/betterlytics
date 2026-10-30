@@ -14,6 +14,7 @@ const colorMap: Record<string, Record<string, string>> = {
     Blacklist: `oklch(0.5 0 0)`,
     client_error: `#ef4444`,
     rage_click: `#d946ef`,
+    dead_click: `#0d9488`,
     default: `oklch(0.5 0 0)`,
   },
   dark: {
@@ -29,6 +30,7 @@ const colorMap: Record<string, Record<string, string>> = {
     Blacklist: `oklch(0.86 0.02 265)`,
     client_error: `#f87171`,
     rage_click: `#e879f9`,
+    dead_click: `#2dd4bf`,
     default: `oklch(0.86 0.02 265)`,
   },
 };

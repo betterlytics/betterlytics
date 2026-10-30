@@ -3314,7 +3314,8 @@
           "description": "Try expanding your time range or adjusting filters."
         },
         "sessionErrorsTooltip": "{count, plural, one {This session captured {count} client-side error} other {This session captured {count} client-side errors}}",
-        "sessionRageClicksTooltip": "{count, plural, one {This session has {count} rage click} other {This session has {count} rage clicks}}"
+        "sessionRageClicksTooltip": "{count, plural, one {This session has {count} rage click} other {This session has {count} rage clicks}}",
+        "sessionDeadClicksTooltip": "{count, plural, one {This session has {count} dead click} other {This session has {count} dead clicks}}"
       },
       "playerTopbar": {
         "startLabel": "Start:",
@@ -3340,7 +3341,8 @@
         "viewportResize": "Viewport Resize",
         "mediaInteraction": "Media Interaction",
         "clientError": "Client Error",
-        "rageClick": "Rage click"
+        "rageClick": "Rage click",
+        "deadClick": "Dead click"
       },
       "player": {
         "skipInactive": "Skip inactivity",
