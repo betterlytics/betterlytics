@@ -1,5 +1,5 @@
 import { getUserBillingData } from '@/actions/billing.action';
-import Link from 'next/link';
+import { ManageBillingButton } from './ManageBillingButton';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { getPlanNameKey } from '@/lib/billing/plans';
 import { formatNumber, formatPercentage } from '@/utils/formatters';
@@ -26,12 +26,7 @@ export default async function PlanQuota({
     <div className='flex w-full min-w-0 flex-col gap-2 rounded-md py-1 text-sm sm:min-w-[280px]'>
       <div className='flex items-center justify-between'>
         <div className='font-medium'>{t('currentPlan.eventUsage')}</div>
-        <Link
-          href='/billing'
-          className='text-primary hover:text-primary/90 inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-medium'
-        >
-          {t('currentPlan.manage')}
-        </Link>
+        <ManageBillingButton label={t('currentPlan.manage')} />
       </div>
 
       <div className='text-2xl font-semibold'>
