@@ -24,10 +24,12 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
   const isLgViewport = useLgViewport();
   const t = useTranslations('components.geography');
   const panelAvailable = subdivisionsEnabled && isLgViewport;
-  // Panel docks bottom-right, so the legend moves left
-  const cornerClass = panelAvailable
-    ? 'absolute bottom-4 left-[calc(var(--sidebar-offset)+1rem)] transition-[left] duration-200 ease-linear'
-    : 'absolute right-2 bottom-2 sm:right-4 sm:bottom-4';
+  // Panel docks bottom-right, so the legend moves left; CSS so the first paint already has the right corner
+  const cornerClass = cn(
+    'absolute right-2 bottom-2 sm:right-4 sm:bottom-4',
+    subdivisionsEnabled &&
+      'lg:right-auto lg:left-[calc(var(--sidebar-offset)+1rem)] lg:transition-[left] lg:duration-200 lg:ease-linear',
+  );
 
   const selection = useMemo(
     () =>

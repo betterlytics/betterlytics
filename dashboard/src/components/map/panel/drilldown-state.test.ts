@@ -4,6 +4,7 @@ import {
   drilldownFromParams,
   parseCountryParam,
   parseRegionParam,
+  placeholderForCountry,
   queriedCountry,
   sameDrilldown,
   toggleCountry,
@@ -90,5 +91,22 @@ describe('queriedCountry', () => {
   it('is undefined without a previous query or an input', () => {
     expect(queriedCountry(undefined)).toBeUndefined();
     expect(queriedCountry([['geography', 'subdivisionMap']])).toBeUndefined();
+  });
+});
+
+describe('placeholderForCountry', () => {
+  const keyFor = (countryCode: string) => [
+    ['geography', 'subdivisionMap'],
+    { input: { countryCode }, type: 'query' },
+  ];
+  const previous = { visitorData: [] };
+
+  it('keeps the previous data across a refetch of the same country', () => {
+    expect(placeholderForCountry('NO')(previous, { queryKey: keyFor('NO') })).toBe(previous);
+  });
+
+  it('drops data that belongs to another country or no query', () => {
+    expect(placeholderForCountry('BR')(previous, { queryKey: keyFor('KZ') })).toBeUndefined();
+    expect(placeholderForCountry('BR')(previous, undefined)).toBeUndefined();
   });
 });

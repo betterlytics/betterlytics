@@ -198,9 +198,11 @@ export default function MapCountryGeoJSON({
   const keepFeature = useCallback(
     (feature: Feature<Geometry, GeoJSON.GeoJsonProperties>) => {
       const featureId = getFeatureId(feature);
-      return !featureId || !hideWhenEmpty?.(featureId) || !!visitorsByCode.get(featureId)?.visitors;
+      if (!featureId || !hideWhenEmpty?.(featureId) || visitorsByCode.get(featureId)?.visitors) return true;
+      registerFeature(featureId, null);
+      return false;
     },
-    [hideWhenEmpty, visitorsByCode],
+    [hideWhenEmpty, visitorsByCode, registerFeature],
   );
 
   return (

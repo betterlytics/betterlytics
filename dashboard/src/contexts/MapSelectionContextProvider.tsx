@@ -22,7 +22,7 @@ type MapSelectionStateContextType = {
 
 type MapSelectionSetterContextType = {
   setMapSelection: React.Dispatch<Partial<MapFeatureSelection> | null>;
-  registerFeature: (code: string, entry: MapFeatureVisitor) => void;
+  registerFeature: (code: string, entry: MapFeatureVisitor | null) => void;
   markLayersReady: () => void;
 };
 
@@ -61,8 +61,9 @@ export function MapSelectionContextProvider({ children, style, selectedFeatureId
 
   const isMobile = useIsMobile();
 
-  const registerFeature = useCallback((code: string, entry: MapFeatureVisitor) => {
-    featuresRef.current.set(code, entry);
+  const registerFeature = useCallback((code: string, entry: MapFeatureVisitor | null) => {
+    if (entry) featuresRef.current.set(code, entry);
+    else featuresRef.current.delete(code);
   }, []);
 
   const markLayersReady = useCallback(() => setLayersVersion((v) => v + 1), []);
@@ -136,7 +137,7 @@ export function MapSelectionContextProvider({ children, style, selectedFeatureId
   useEffect(() => {
     const clicked = combined.clicked;
     const entry = selectedFeatureId ? featuresRef.current.get(selectedFeatureId) : undefined;
-    const step = planConvergence(selectedFeatureId, clicked?.layer, entry?.layer);
+    const step = planConvergence(selectedFeatureId, clicked?.layer, entry?.layer, layersVersion > 0);
     if (step === 'clear') setMapSelection(null);
     if (step === 'select' && entry) {
       if (clicked) setMapSelection(null);
