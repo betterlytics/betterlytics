@@ -4,7 +4,7 @@ import LeafletMap from '@/components/map/LeafletMap';
 import { MapProvider } from '@/components/map/MapProvider';
 import { useRegionGeoJson } from '@/components/map/panel/use-region-geojson';
 import { countryAsOneUnit } from '@/components/map/panel/country-unit';
-import { queriedCountry } from '@/components/map/panel/drilldown-state';
+import { placeholderForCountry } from '@/components/map/panel/drilldown-state';
 import { createRegionDisplayResolver } from '@/components/map/panel/region-display';
 import MapAttribution from '@/components/map/MapAttribution';
 import { REGION_MAP_COUNTRIES } from '@/constants/regionCountries';
@@ -35,9 +35,7 @@ export default function SubdivisionMapSection({
     {
       ...options,
       enabled: hasRegionMap,
-      // Previous data only bridges a refetch of the same country, never another country's map
-      placeholderData: (previous, previousQuery) =>
-        queriedCountry(previousQuery?.queryKey) === countryCode ? previous : undefined,
+      placeholderData: placeholderForCountry(countryCode),
     },
   );
   const countryQuery = trpc.geography.worldMap.useQuery(input, {
@@ -69,10 +67,11 @@ export default function SubdivisionMapSection({
     [hasRegionMap, regionCode, onRegionToggle, onRegionClear],
   );
 
-  if (geoJsonQuery.isError || geoJsonQuery.data === null) {
+  const loadError = geoJsonQuery.isError || query.isError;
+  if (loadError || geoJsonQuery.data === null) {
     return (
       <p className='text-muted-foreground px-4 pt-2 pb-4 text-sm'>
-        {t(geoJsonQuery.isError ? 'regionLoadError' : 'noRegionalMap')}
+        {t(loadError ? 'regionLoadError' : 'noRegionalMap')}
       </p>
     );
   }
@@ -90,7 +89,7 @@ export default function SubdivisionMapSection({
       {(mapData) => (
         <MapFrame>
           {geoJsonQuery.data ? (
-            // Keeps the panel map out of the toolbar's scope
+            // Its own scope, so the panel map never registers over the world map
             <MapProvider>
               <LeafletMap
                 key={countryCode}

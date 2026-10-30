@@ -2,8 +2,8 @@ import { z } from 'zod';
 import { createRouter, analyticsProcedure } from '@/trpc/init';
 import { GeoLevelSchema, type GeoVisitor, type GeoLevel } from '@/entities/analytics/geography.entities';
 import { fetchVisitorsByGeoLevel, fetchCompareVisitorsByGeoLevel } from '@/services/analytics/geography.service';
-import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getQueryableGeoLevels } from '@/lib/geoLevels';
+import { scopeToCountry } from '@/lib/scopeToCountry';
 import { dataToWorldMap, subdivisionsToGeoMap } from '@/presenters/toGeoMap';
 import { toDataTable } from '@/presenters/toDataTable';
 
@@ -66,17 +66,12 @@ export const geographyRouter = createRouter({
         return { visitorData: [], compareData: [], maxVisitors: 0 };
       }
 
-      const inCountry = (siteQuery: BASiteQuery): BASiteQuery => ({
-        ...siteQuery,
-        queryFilters: [
-          ...siteQuery.queryFilters,
-          { id: 'subdivision-country', column: 'country_code', operator: '=', values: [input.countryCode] },
-        ],
-      });
       const { main, compare } = ctx;
       const [subdivisions, compareSubdivisions] = await Promise.all([
-        fetchVisitorsByGeoLevel(inCountry(main), 'subdivision_code'),
-        compare ? fetchVisitorsByGeoLevel(inCountry(compare), 'subdivision_code') : Promise.resolve([]),
+        fetchVisitorsByGeoLevel(scopeToCountry(main, input.countryCode), 'subdivision_code'),
+        compare
+          ? fetchVisitorsByGeoLevel(scopeToCountry(compare, input.countryCode), 'subdivision_code')
+          : Promise.resolve([]),
       ]);
 
       return subdivisionsToGeoMap(subdivisions, compareSubdivisions);

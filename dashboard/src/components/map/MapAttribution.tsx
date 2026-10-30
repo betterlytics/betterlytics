@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Info } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-const ATTRIBUTION_EXPANDED_MS = 3000;
+const ATTRIBUTION_EXPANDED_MS = 5000;
 
 type MapAttributionProps = {
   text: string;
@@ -13,7 +13,7 @@ type MapAttributionProps = {
   className?: string;
 };
 
-// ODbL wants the credit on the map; it folds to an icon after a few seconds
+// ODbL wants the credit on the map; OSMF allows folding it to an icon after five seconds
 export default function MapAttribution({ text, href, className }: MapAttributionProps) {
   const [expanded, setExpanded] = useState(true);
 
@@ -28,7 +28,6 @@ export default function MapAttribution({ text, href, className }: MapAttribution
       target='_blank'
       rel='noopener noreferrer'
       aria-label={text}
-      data-expanded={expanded}
       className={cn(
         MAP_CARD_CLASS,
         'group text-muted-foreground hover:text-foreground focus-visible:ring-ring animate-in fade-in flex items-center px-1.5 py-1 text-[10px] leading-none duration-300 outline-none focus-visible:ring-2',
