@@ -33,3 +33,9 @@ export const toggleRegion = (prev: Drilldown, code: string): Drilldown =>
 
 export const clearRegion = (prev: Drilldown): Drilldown =>
   prev.regionCode ? { countryCode: prev.countryCode } : prev;
+
+// tRPC query keys carry the input as [path, { input, type }]
+export function queriedCountry(queryKey: readonly unknown[] | undefined): string | undefined {
+  const countryCode = (queryKey?.[1] as { input?: { countryCode?: unknown } } | undefined)?.input?.countryCode;
+  return typeof countryCode === 'string' ? countryCode : undefined;
+}

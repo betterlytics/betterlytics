@@ -4,6 +4,7 @@ import {
   drilldownFromParams,
   parseCountryParam,
   parseRegionParam,
+  queriedCountry,
   sameDrilldown,
   toggleCountry,
   toggleRegion,
@@ -76,5 +77,18 @@ describe('transitions', () => {
   it('compares drilldowns by value', () => {
     expect(sameDrilldown({ countryCode: 'DK' }, { countryCode: 'DK' })).toBe(true);
     expect(sameDrilldown({ countryCode: 'DK' }, { countryCode: 'DK', regionCode: 'DK-84' })).toBe(false);
+  });
+});
+
+describe('queriedCountry', () => {
+  it('reads the country from a tRPC query key', () => {
+    expect(
+      queriedCountry([['geography', 'subdivisionMap'], { input: { countryCode: 'NO' }, type: 'query' }]),
+    ).toBe('NO');
+  });
+
+  it('is undefined without a previous query or an input', () => {
+    expect(queriedCountry(undefined)).toBeUndefined();
+    expect(queriedCountry([['geography', 'subdivisionMap']])).toBeUndefined();
   });
 });
