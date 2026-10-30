@@ -5,7 +5,6 @@ import MapLegend from '@/components/map/MapLegend';
 import MapCard from '@/components/map/MapCard';
 import MapZoomButtons from '@/components/map/MapZoomButtons';
 import { MapProvider } from '@/components/map/MapProvider';
-import GeographyToolbar from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/geography/GeographyToolbar';
 import { useSubdivisionDrilldown } from '@/components/map/panel/use-subdivision-drilldown';
 import { useLgViewport } from '@/hooks/use-lg-viewport';
 import { cn } from '@/lib/utils';
@@ -26,11 +25,11 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
   const isLgViewport = useLgViewport();
   const t = useTranslations('components.geography');
   const panelAvailable = subdivisionsEnabled && isLgViewport;
-  // Panel docks bottom-right, so the legend moves left; CSS so the first paint already has the right corner
+  // Panel docks bottom-right, so the map controls move left; CSS so the first paint already has the right corner
   const cornerClass = cn(
-    'absolute right-2 bottom-2 sm:right-4 sm:bottom-4',
+    'absolute right-2 bottom-2 items-end sm:right-4 sm:bottom-4',
     subdivisionsEnabled &&
-      'lg:right-auto lg:left-[calc(var(--sidebar-offset)+1rem)] lg:transition-[left] lg:duration-200 lg:ease-linear',
+      'lg:right-auto lg:left-[calc(var(--sidebar-offset)+1rem)] lg:items-start lg:transition-[left] lg:duration-200 lg:ease-linear',
   );
 
   const selection = useMemo(
@@ -47,13 +46,12 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
 
   return (
     <MapProvider>
-      <GeographyToolbar />
       <QuerySection query={query} fallback={<GeographyLoading />} className='h-full w-full'>
         {(mapData) => (
           <div className='h-full w-full'>
             <LeafletMap {...mapData} size='lg' selection={selection}>
-              <div className={cn(cornerClass, 'flex flex-col items-end gap-2')}>
-                <MapZoomButtons className='sm:hidden' />
+              <div className={cn('flex flex-col gap-2', cornerClass)}>
+                <MapZoomButtons />
                 {mapData.visitorData.length > 0 ? (
                   <MapLegend maxVisitors={mapData.maxVisitors} />
                 ) : (
