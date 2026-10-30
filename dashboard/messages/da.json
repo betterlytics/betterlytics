@@ -3215,6 +3215,8 @@
       }
     },
     "geography": {
+      "zoomIn": "Zoom ind",
+      "zoomOut": "Zoom ud",
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
       "loading": "Indlæser kort...",
       "visitors": "Besøgende",
