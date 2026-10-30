@@ -6,9 +6,8 @@ import {
 } from '@/entities/analytics/filterQueryParams.entities';
 import type { BAAnalyticsQuery } from '@/entities/analytics/analyticsQuery.entities';
 import { getResolvedRanges } from '@/lib/ba-timerange';
-import moment from 'moment-timezone';
 import { stableStringify } from '@/utils/stableStringify';
-import { formatDayKey } from '@/utils/timezone';
+import { formatDayKey, parseDayKey } from '@/utils/timezone';
 import type { ReadonlyURLSearchParams } from 'next/navigation';
 
 export const TIME_RANGE_SEARCH_PARAMS = [
@@ -136,7 +135,7 @@ function decodeValue<Key extends keyof FilterQueryParams>(
     case 'endDate':
     case 'compareStartDate':
     case 'compareEndDate':
-      return moment.tz(value, timezone).toDate();
+      return parseDayKey(value, timezone);
     case 'queryFilters':
     case 'userJourney':
       return JSON.parse(value);

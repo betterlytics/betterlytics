@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { getSchemaDescription, type ToolAvailability } from '@/mcp/tools/describe';
+import { METRIC_KEYS } from '@/mcp/registry/metrics';
+import { DIMENSION_KEYS } from '@/mcp/registry/dimensions';
+import { SESSION_METRIC_KEYS } from '@/mcp/registry/sessionMetrics';
+import { SESSION_DIMENSION_KEYS } from '@/mcp/registry/sessionDimensions';
 
 const ALL_ENABLED: ToolAvailability = { uptimeMonitoring: true, publicStatusPages: true };
 
@@ -141,5 +145,43 @@ describe('getSchemaDescription', () => {
         expect.objectContaining({ name: 'list_funnels' }),
       ]),
     );
+  });
+
+  it('keeps the query metrics, dimensions and orderBy values unchanged', () => {
+    const result = getSchemaDescription(ALL_ENABLED);
+
+    expect(result.metrics.map((m) => m.key)).toEqual([...METRIC_KEYS]);
+    expect(result.dimensions.map((d) => d.key)).toEqual([...DIMENSION_KEYS]);
+    expect(result.orderBy.validValues).toEqual(['date', ...METRIC_KEYS, ...DIMENSION_KEYS]);
+  });
+
+  it('documents query_sessions metrics with units and its dimensions', () => {
+    const { querySessions } = getSchemaDescription(ALL_ENABLED);
+
+    expect(querySessions.metrics.map((m) => m.key)).toEqual([...SESSION_METRIC_KEYS]);
+    for (const metric of querySessions.metrics) {
+      expect(metric.unit.length).toBeGreaterThan(0);
+      expect(metric.description.length).toBeGreaterThan(0);
+    }
+    expect(querySessions.metrics.find((m) => m.key === 'bounce_rate')?.unit).toContain('percent');
+    expect(querySessions.metrics.find((m) => m.key === 'avg_visit_duration')?.unit).toContain('seconds');
+    expect(querySessions.dimensions.map((d) => d.key)).toEqual([...SESSION_DIMENSION_KEYS]);
+    expect(querySessions.filterColumns.extraColumns.map((c) => c.key)).toEqual(['entry_page', 'exit_page']);
+  });
+
+  it('documents query_sessions semantics', () => {
+    const { querySessions } = getSchemaDescription(ALL_ENABLED);
+
+    expect(querySessions.sessionDates).toContain('started');
+    expect(querySessions.filterSemantics.eventColumns).toContain('drops the whole session');
+    expect(querySessions.emptyValues).toContain('"*"');
+  });
+
+  it('includes query_sessions in the tools section with the query inputs', () => {
+    const { tools } = getSchemaDescription({ uptimeMonitoring: false, publicStatusPages: false });
+
+    const query = tools.find((t) => t.name === 'query');
+    const querySessions = tools.find((t) => t.name === 'query_sessions');
+    expect(querySessions?.inputs.map((i) => i.name)).toEqual(query?.inputs.map((i) => i.name));
   });
 });

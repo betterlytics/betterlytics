@@ -96,7 +96,6 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       key: 'campaigns',
       href: '/campaign',
       icon: <DollarSign size={ICON_SIZE} />,
-      hidden: isDemo,
     },
   ];
 

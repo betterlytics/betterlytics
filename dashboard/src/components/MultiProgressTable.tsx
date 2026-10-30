@@ -243,18 +243,16 @@ function MultiProgressTable<T extends ProgressBarData>({
 
   return (
     <Card className='border-border flex h-full min-h-[300px] flex-col gap-1 p-3 sm:min-h-[400px] sm:p-6 sm:pt-4 sm:pb-4'>
-      <CardHeader className='px-0 pb-0'>
-        <div className='flex flex-col justify-between space-y-1 px-0 pb-1 sm:flex-row lg:flex-col xl:flex-row xl:items-center'>
-          <CardTitle className='flex-1 text-base font-medium'>
-            <span className='inline-flex items-center gap-2'>{title}</span>
-          </CardTitle>
-          <Tabs value={activeTab} onValueChange={handleTabChange} className='flex h-8 items-center sm:items-end'>
-            {tabsList}
-          </Tabs>
-        </div>
-      </CardHeader>
-      <CardContent className='flex flex-1 flex-col px-0'>
-        <Tabs value={activeTab} onValueChange={handleTabChange}>
+      <Tabs value={activeTab} onValueChange={handleTabChange} className='flex-1 gap-1'>
+        <CardHeader className='px-0 pb-0'>
+          <div className='flex flex-col justify-between space-y-1 px-0 pb-1 sm:flex-row lg:flex-col xl:flex-row xl:items-center'>
+            <CardTitle className='flex-1 text-base font-medium'>
+              <span className='inline-flex items-center gap-2'>{title}</span>
+            </CardTitle>
+            <div className='flex h-8 flex-col items-center sm:items-end'>{tabsList}</div>
+          </div>
+        </CardHeader>
+        <CardContent className='flex flex-1 flex-col px-0'>
           <div className='relative'>
             {loading && (
               <div className='absolute inset-0 z-10 flex items-center justify-center'>
@@ -263,8 +261,8 @@ function MultiProgressTable<T extends ProgressBarData>({
             )}
             <div className={cn(loading && 'pointer-events-none opacity-60')}>{tabsContent}</div>
           </div>
-        </Tabs>
-      </CardContent>
+        </CardContent>
+      </Tabs>
       {footer ? (
         <CardFooter className='justify-end px-0 pt-2'>
           <div className='w-full border-t pt-2 text-right'>{footer}</div>
