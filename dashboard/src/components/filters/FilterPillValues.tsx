@@ -37,7 +37,7 @@ export const FilterPillValues = memo(function FilterPillValues({ filter, onOpen 
   const values: PillValue[] = filter.values.slice(0, mounted).map((value, index) => ({
     render: (placeholder) => (
       <>
-        <span className='mr-1.5 inline-block align-[-0.2em] empty:hidden [&>span]:inline-flex'>
+        <span className='mr-1.5 inline-flex align-[-0.2em] empty:hidden'>
           <FilterValueIcon column={filter.column} value={value} placeholder={placeholder} />
         </span>
         {strategy.formatValue(value, locale)}
