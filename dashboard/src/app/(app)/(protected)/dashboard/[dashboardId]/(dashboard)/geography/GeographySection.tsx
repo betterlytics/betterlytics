@@ -51,7 +51,7 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
           <div className='h-full w-full'>
             <LeafletMap {...mapData} size='lg' selection={selection}>
               <div className={cn('flex flex-col gap-2', cornerClass)}>
-                <MapZoomButtons />
+                <MapZoomButtons className='lg:fixed lg:top-16 lg:left-[calc(var(--sidebar-offset)+1rem)] lg:transition-[left] lg:duration-200 lg:ease-linear' />
                 {mapData.visitorData.length > 0 ? (
                   <MapLegend maxVisitors={mapData.maxVisitors} />
                 ) : (
