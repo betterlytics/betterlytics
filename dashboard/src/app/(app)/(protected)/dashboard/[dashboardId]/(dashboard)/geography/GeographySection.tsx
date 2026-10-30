@@ -3,7 +3,9 @@
 import LeafletMap from '@/components/map/LeafletMap';
 import MapLegend from '@/components/map/MapLegend';
 import MapCard from '@/components/map/MapCard';
+import MapZoomButtons from '@/components/map/MapZoomButtons';
 import { MapProvider } from '@/components/map/MapProvider';
+import GeographyToolbar from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/geography/GeographyToolbar';
 import { useSubdivisionDrilldown } from '@/components/map/panel/use-subdivision-drilldown';
 import { useLgViewport } from '@/hooks/use-lg-viewport';
 import { cn } from '@/lib/utils';
@@ -45,23 +47,23 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
 
   return (
     <MapProvider>
+      <GeographyToolbar />
       <QuerySection query={query} fallback={<GeographyLoading />} className='h-full w-full'>
         {(mapData) => (
-          <>
-            <div className='h-full w-full'>
-              <LeafletMap {...mapData} showZoomControls={true} size='lg' selection={selection}>
-                {mapData.visitorData.length > 0 && (
-                  <MapLegend maxVisitors={mapData.maxVisitors} className={cornerClass} />
+          <div className='h-full w-full'>
+            <LeafletMap {...mapData} size='lg' selection={selection}>
+              <div className={cn(cornerClass, 'flex flex-col items-end gap-2')}>
+                <MapZoomButtons className='sm:hidden' />
+                {mapData.visitorData.length > 0 ? (
+                  <MapLegend maxVisitors={mapData.maxVisitors} />
+                ) : (
+                  <MapCard tone='warning' className='p-3'>
+                    <p className='text-sm text-amber-700'>{t('noData')}</p>
+                  </MapCard>
                 )}
-              </LeafletMap>
-            </div>
-
-            {mapData.visitorData.length === 0 && (
-              <MapCard tone='warning' className={cn(cornerClass, 'p-3')}>
-                <p className='text-sm text-amber-700'>{t('noData')}</p>
-              </MapCard>
-            )}
-          </>
+              </div>
+            </LeafletMap>
+          </div>
         )}
       </QuerySection>
       {panelAvailable && <SubdivisionDrilldown drilldown={drilldown} />}

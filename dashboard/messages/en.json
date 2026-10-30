@@ -3958,6 +3958,8 @@
       }
     },
     "geography": {
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out",
       "noData": "No geographic data available for the selected period",
       "loading": "Loading map...",
       "visitors": "Visitors",
