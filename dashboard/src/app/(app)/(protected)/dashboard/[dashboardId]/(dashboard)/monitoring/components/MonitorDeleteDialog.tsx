@@ -1,5 +1,6 @@
 'use client';
 
+import { useId, type Dispatch, type SetStateAction } from 'react';
 import { AlertTriangle, Loader2, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
@@ -17,7 +18,7 @@ import { trpc } from '@/trpc/client';
 type MonitorDeleteDialogProps = {
   dashboardId: string;
   monitorId: string;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: Dispatch<SetStateAction<boolean>>;
   onConfirm: () => void;
   isPending: boolean;
 };
@@ -31,6 +32,7 @@ export function MonitorDeleteDialog({
 }: MonitorDeleteDialogProps) {
   const t = useTranslations('monitoringPage.actions');
   const tMisc = useTranslations('misc');
+  const affectedPagesHeadingId = useId();
 
   const impact = trpc.monitors.deletionImpact.useQuery(
     { dashboardId, monitorId },
@@ -54,12 +56,12 @@ export function MonitorDeleteDialog({
 
         <div aria-live='polite' className='text-sm'>
           {checking ? (
-            <p role='status' className='text-muted-foreground flex items-center gap-2'>
+            <p className='text-muted-foreground flex items-center gap-2'>
               <Loader2 className='h-4 w-4 animate-spin' aria-hidden />
               {t('deleteImpactLoading')}
             </p>
           ) : impact.isError ? (
-            <div role='alert' className='space-y-3 rounded-lg border border-amber-500/45 bg-amber-500/7 px-4 py-3'>
+            <div className='space-y-3 rounded-lg border border-amber-500/45 bg-amber-500/7 px-4 py-3'>
               <p className='flex items-start gap-2 font-medium'>
                 <AlertTriangle className='mt-0.5 h-4 w-4 shrink-0 text-amber-500' aria-hidden />
                 {t('deleteImpactError')}
@@ -77,10 +79,12 @@ export function MonitorDeleteDialog({
             </div>
           ) : impact.data && impact.data.length > 0 ? (
             <div className='space-y-2'>
-              <p className='font-medium'>{t('deleteImpactAffectedPages')}</p>
+              <p id={affectedPagesHeadingId} className='font-medium'>
+                {t('deleteImpactAffectedPages')}
+              </p>
               <ul
                 tabIndex={0}
-                aria-label={t('deleteImpactAffectedPages')}
+                aria-labelledby={affectedPagesHeadingId}
                 className='focus-visible:ring-ring max-h-60 space-y-2 overflow-y-auto rounded-md focus-visible:ring-2 focus-visible:outline-none'
               >
                 {impact.data.map((page) => (
