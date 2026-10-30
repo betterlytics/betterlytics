@@ -114,6 +114,7 @@ export default function MapCountryGeoJSON({
       const geoVisitor = visitorsByCode.get(featureId) ?? { code: featureId, visitors: 0 };
       if (!geoVisitor.visitors && hideWhenEmpty?.(featureId)) {
         layer.setStyle({ opacity: 0, fillOpacity: 0 });
+        registerFeature(featureId, null);
         return;
       }
 

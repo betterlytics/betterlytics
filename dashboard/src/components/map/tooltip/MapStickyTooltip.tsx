@@ -68,7 +68,7 @@ export default function MapStickyTooltip({ size = 'sm' }: MapStickyTooltipProps)
       style={{ transform: initialTransform }}
       className={cn(
         'map-sticky-tooltip leaflet-popup-content-wrapper',
-        'pointer-events-none fixed top-0 left-0 z-[51] flex flex-col will-change-transform',
+        'pointer-events-none fixed top-0 left-0 z-[31] flex flex-col will-change-transform',
       )}
     >
       <div className='leaflet-popup-content'>

@@ -39,3 +39,9 @@ export function queriedCountry(queryKey: readonly unknown[] | undefined): string
   const countryCode = (queryKey?.[1] as { input?: { countryCode?: unknown } } | undefined)?.input?.countryCode;
   return typeof countryCode === 'string' ? countryCode : undefined;
 }
+
+// Previous data only bridges a refetch of the same country, never another country's map
+export const placeholderForCountry =
+  (countryCode: string) =>
+  <T>(previous: T | undefined, previousQuery?: { queryKey: readonly unknown[] }): T | undefined =>
+    queriedCountry(previousQuery?.queryKey) === countryCode ? previous : undefined;
