@@ -2418,10 +2418,10 @@
       "deleteError": "Kunne ikke slette overvåker",
       "deleteImpactLoading": "Sjekker berørte statussider...",
       "deleteImpactError": "Vi kunne ikke sjekke hvilke statussider som bruker denne overvåkeren.",
-      "deleteImpactUnknownWarning": "Hvis du sletter denne overvåkeren, fjernes den fra alle statussider som bruker den. Publiserte sider kan forbli offentlige uten komponenter og viser normalt Ukjent. Åpne hendelser kan fortsatt heve statusen deres.",
+      "deleteImpactUnknownWarning": "Hvis du sletter denne overvåkeren, fjernes den fra alle statussider som bruker den. Publiserte sider kan forbli offentlige uten komponenter og viser normalt «Status utilgjengelig». Åpne hendelser kan fortsatt heve statusen deres.",
       "deleteImpactRetry": "Prøv igjen",
       "deleteImpactAffectedPages": "Denne overvåkeren fjernes fra disse statussidene:",
-      "deleteImpactEmptyWarning": "Denne publiserte siden forblir offentlig uten komponenter og viser normalt Ukjent. Åpne hendelser kan fortsatt heve statusen dens."
+      "deleteImpactEmptyWarning": "Denne publiserte siden forblir offentlig uten komponenter og viser normalt «Status utilgjengelig». Åpne hendelser kan fortsatt heve statusen dens."
     }
   },
   "monitoringDetailPage": {
@@ -2545,13 +2545,7 @@
       "discard": "Forkast"
     },
     "delete": {
-      "trigger": "Slett overvåker",
-      "title": "Slette denne overvåkeren?",
-      "description": "Denne handlingen kan ikke angres. Alle overvåkingsdata og hendelseshistorikk slettes permanent.",
-      "cancel": "Avbryt",
-      "confirm": "Slett overvåker",
-      "deleting": "Sletter...",
-      "error": "Kunne ikke slette overvåker"
+      "trigger": "Slett overvåker"
     },
     "sections": {
       "timing": "Tidsinnstillinger",
