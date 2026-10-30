@@ -18,15 +18,7 @@ vi.mock('@/repositories/clickhouse/monitoring.repository', () => ({
   ),
 }));
 vi.mock('@/repositories/postgres/statusPageIncident.repository', () => ({
-  listUnresolvedIncidents: vi.fn(async () => [
-    {
-      incidentId: 's-1',
-      title: 'Checkout slow',
-      statusPageId: 'p-1',
-      statusPageName: 'Shop',
-      startedAt: new Date(),
-    },
-  ]),
+  listUnresolvedIncidents: vi.fn(async () => [{ incidentId: 's-1' }]),
 }));
 
 beforeEach(() => {
@@ -35,13 +27,11 @@ beforeEach(() => {
 });
 
 describe('getDashboardAlerts', () => {
-  it('returns down monitors by display name and leaves paused monitors out', async () => {
+  it('returns down monitors and leaves paused monitors out', async () => {
     const alerts = await getDashboardAlerts('dashboard-1', 'site-1');
 
     expect(getOpenIncidentsForMonitors).toHaveBeenCalledWith(['up', 'down'], 'site-1');
-    expect(alerts.downMonitors).toEqual([
-      { monitorId: 'down', name: 'example.com/health', incidentId: 'i-1', startedAt: '2026-10-23T10:00:00Z' },
-    ]);
+    expect(alerts.downMonitors).toEqual([{ monitorId: 'down', incidentId: 'i-1' }]);
     expect(alerts.statusPageIncidents).toHaveLength(1);
   });
 

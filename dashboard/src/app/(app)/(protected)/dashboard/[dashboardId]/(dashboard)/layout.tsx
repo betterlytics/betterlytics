@@ -9,7 +9,6 @@ import { isFeatureEnabled } from '@/lib/feature-flags';
 import { VerificationBanner } from '@/components/accountVerification/VerificationBanner';
 import { IntegrationBanner } from '../IntegrationBanner';
 import { TimezoneFallbackBanner } from '../TimezoneFallbackBanner';
-import { MonitorDownBanner, StatusPageIncidentBanner } from '../DashboardAlertBanners';
 import { TermsRequiredModal } from '@/components/account/TermsRequiredModal';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { getUserBillingData } from '@/actions/billing.action';
@@ -61,8 +60,6 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
             <IntegrationBanner />
           </Suspense>
           <TimezoneFallbackBanner />
-          {isFeatureEnabled('enableUptimeMonitoring') && <MonitorDownBanner />}
-          {isFeatureEnabled('enablePublicStatusPages') && <StatusPageIncidentBanner />}
           {mustAcceptTerms && <TermsRequiredModal isOpen={true} />}
           <RealtimeQuerySync />
           {children}

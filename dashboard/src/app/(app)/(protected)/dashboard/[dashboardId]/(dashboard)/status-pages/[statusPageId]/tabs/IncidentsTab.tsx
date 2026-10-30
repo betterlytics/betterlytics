@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
   useReactTable,
   getCoreRowModel,
@@ -91,10 +91,7 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
     setEditorOpen(true);
   }, []);
 
-  // Linked from the dashboard's incident banner: open on active incidents with that one highlighted,
-  // so it isn't buried under newer resolved ones.
-  const linkedIncidentId = useSearchParams().get('incident');
-  const [stateFilter, setStateFilter] = useState<StateFilter>(linkedIncidentId ? 'active' : 'all');
+  const [stateFilter, setStateFilter] = useState<StateFilter>('all');
   const [searchInput, setSearchInput] = useState('');
   const [globalFilter, setGlobalFilter] = useState('');
   const [sorting, setSorting] = useState<SortingState>([{ id: 'started', desc: true }]);
@@ -526,9 +523,8 @@ export function IncidentsTab({ dashboardId, statusPageId, monitors }: IncidentsT
                         tabIndex={canMutate ? 0 : undefined}
                         className={cn(
                           'group',
-                          row.original.id === linkedIncidentId && 'bg-primary/5 dark:bg-primary/10',
                           canMutate &&
-                            'hover:bg-accent dark:hover:bg-primary/10 focus-visible:bg-accent dark:focus-visible:bg-primary/10 focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:outline-none focus-visible:ring-inset',
+                            'hover:bg-accent dark:hover:bg-primary/10 focus-visible:bg-accent dark:focus-visible:bg-primary/10 focus-visible:ring-ring cursor-pointer focus-visible:ring-2 focus-visible:ring-inset focus-visible:outline-none',
                         )}
                         onClick={canMutate ? () => openEdit(row.original) : undefined}
                         onKeyDown={

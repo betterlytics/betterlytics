@@ -43,7 +43,7 @@ import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { SidebarAlertBadge, SidebarDownDot } from './SidebarAlertBadge';
+import { SidebarAlertDot } from './SidebarAlertDot';
 
 const ICON_SIZE = 16;
 
@@ -214,18 +214,15 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                       <div className='flex items-center gap-2'>
                         <span className='dark:text-muted-foreground/90 relative'>
                           {item.icon}
-                          {item.key === 'monitoring' && showMonitorAlerts && <SidebarDownDot />}
+                          {item.key === 'monitoring' && showMonitorAlerts && <SidebarAlertDot kind='monitoring' />}
+                          {item.key === 'statusPages' && showStatusPageAlerts && (
+                            <SidebarAlertDot kind='statusPages' />
+                          )}
                         </span>
                         <span>{item.name}</span>
                       </div>
 
-                      <div className='flex items-center gap-1'>
-                        {item.key === 'monitoring' && showMonitorAlerts && <SidebarAlertBadge kind='monitoring' />}
-                        {item.key === 'statusPages' && showStatusPageAlerts && (
-                          <SidebarAlertBadge kind='statusPages' />
-                        )}
-                        {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
-                      </div>
+                      {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

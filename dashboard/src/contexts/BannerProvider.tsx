@@ -39,10 +39,6 @@ function isDismissed(id: string): boolean {
   return readDismissed().includes(id);
 }
 
-export function getDismissedBannerIds(): string[] {
-  return readDismissed();
-}
-
 const firedShownOnce = new Set<string>();
 
 type Banner = {

@@ -63,18 +63,9 @@ export async function countActiveIncidentsByStatusPage(dashboardId: string): Pro
 export async function listUnresolvedIncidents(dashboardId: string): Promise<UnresolvedStatusPageIncident[]> {
   const rows = await prisma.statusPageIncident.findMany({
     where: { dashboardId, deletedAt: null, status: { not: 'resolved' }, statusPage: { deletedAt: null } },
-    orderBy: { startedAt: 'desc' },
-    select: { id: true, title: true, startedAt: true, statusPage: { select: { id: true, name: true } } },
+    select: { id: true },
   });
-  return rows.map((row) =>
-    UnresolvedStatusPageIncidentSchema.parse({
-      incidentId: row.id,
-      title: row.title,
-      statusPageId: row.statusPage.id,
-      statusPageName: row.statusPage.name,
-      startedAt: row.startedAt,
-    }),
-  );
+  return rows.map((row) => UnresolvedStatusPageIncidentSchema.parse({ incidentId: row.id }));
 }
 
 export async function createStatusPageIncident(
