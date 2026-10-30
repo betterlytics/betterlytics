@@ -8421,6 +8421,19 @@ or you can use record.mirror to access the mirror instance during recording.`;
       errorFlushPending: false,
       rageBurst: null,
       rageTimer: null,
+      deadClickListening: false,
+      deadClicks: [],
+      deadClickTimer: null,
+      deadClickObserver: null,
+      deadClickRoots: [],
+      deadClickGesture: null,
+      deadClickGestureTimer: null,
+      deadClickHadSelection: false,
+      deadClickPressAt: null,
+      lastMutationAt: null,
+      lastSelectionChangeAt: null,
+      lastVisibilityChangeAt: null,
+      lastFocusChangeAt: null,
       // First page recorded in this page load; every segment reports it as the replay's start URL
       startUrl: null,
     };
@@ -8441,6 +8454,18 @@ or you can use record.mirror to access the mirror instance during recording.`;
     var RAGE_CLICK_MAX_DISTANCE_PX = 30;
     var RAGE_CLICK_MAX_GAP_MS = 1000;
     var RAGE_CLICK_MAX_SELECTOR_CHARS = 200;
+
+    // A dead click gets no reaction from the page; these follow PostHog's dead click detector
+    var DEAD_CLICK_MUTATION_MS = 2500;
+    var DEAD_CLICK_SCROLL_MS = 100;
+    var DEAD_CLICK_SELECTION_MS = 100;
+    // Visibility and window focus changes count on either side of the click
+    var DEAD_CLICK_FOCUS_MS = 1000;
+    var DEAD_CLICK_TIMEOUT_MS = DEAD_CLICK_MUTATION_MS * 1.1;
+    var DEAD_CLICK_CHECK_MS = 1000;
+    var DEAD_CLICK_DEDUPE_MS = 1000;
+    var DEAD_CLICK_IGNORE_CLASS = "bl-no-deadclick";
+    var DEAD_CLICK_TEXT_INPUT_TYPES = ["", "text", "search", "email", "password", "url", "tel", "number"];
 
     function hasReachedMinDuration() {
       if (!minReplayDurationSec) return true;
@@ -8469,6 +8494,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
       qs += "&event_count=" + payload.eventCount;
       if (payload.rageClickCount) {
         qs += "&rage_click_count=" + payload.rageClickCount;
+      }
+      if (payload.deadClickCount) {
+        qs += "&dead_click_count=" + payload.deadClickCount;
       }
       qs += "&chunk_id=" + encodeURIComponent(payload.chunkId);
       if (payload.encoding === "gzip") {
@@ -8532,10 +8560,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
       return entries;
     }
 
-    function countRageClicks(events) {
+    function countCustomEvents(events, tag) {
       var count = 0;
       events.forEach(function (event) {
-        if (event.type === 5 && event.data && event.data.tag === "rage_click") count++;
+        if (event.type === 5 && event.data && event.data.tag === tag) count++;
       });
       return count;
     }
@@ -8544,7 +8572,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       var seq = state.chunkSeq++;
       var chunkId = pageNonce + "-" + (seq < 10000 ? ("000" + seq).slice(-4) : seq);
       var errors = collectChunkErrors(events);
-      var rageClickCount = countRageClicks(events);
+      var rageClickCount = countCustomEvents(events, "rage_click");
+      var deadClickCount = countCustomEvents(events, "dead_click");
       return encodeReplayChunk(JSON.stringify(events)).then(function (enc) {
         if (errors.length) {
           var metadata = new TextEncoder().encode(JSON.stringify(errors));
@@ -8559,6 +8588,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         enc.startedAtMs = startedAtMs || state.startedAt;
         enc.eventCount = events.length;
         enc.rageClickCount = rageClickCount;
+        enc.deadClickCount = deadClickCount;
         enc.chunkId = chunkId;
         return enc;
       });
@@ -8735,6 +8765,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
       // An open burst would otherwise land in a fresh buffer that may never be uploaded
       if (state.rageBurst) emitRageBurst(state.rageBurst);
+      // Same for a pending click: report it unless the page has already reacted to it
+      checkDeadClicks(true);
       var events = state.errorMatrix[0].concat(state.errorMatrix[1] || []);
       if (events.length === 0) return Promise.resolve();
       // The ring buffer drops its oldest pages; start the replay at the checkout Meta that opens it
@@ -8803,6 +8835,8 @@ or you can use record.mirror to access the mirror instance during recording.`;
       if (state.stopping) return;
       state.stopping = true;
       endRageBurst();
+      // Mostly the page unloading, which is a reaction to whatever was just clicked
+      stopDeadClicks();
       try {
         if (state.recordingStop) {
           state.recordingStop();
@@ -8917,12 +8951,507 @@ or you can use record.mirror to access the mirror instance during recording.`;
       state.rageTimer = setTimeout(endRageBurst, RAGE_CLICK_MAX_GAP_MS);
     }
 
+    // Dead clicks: a click is queued, then checked about every second. It is alive if the DOM
+    // changed, something scrolled, the selection or caret moved, or the tab visibility or window
+    // focus changed, each within its window. Otherwise it is dead once one of those happens too
+    // late, or nothing has happened by DEAD_CLICK_TIMEOUT_MS.
+
+    function isBefore(delay, ms) {
+      return typeof delay === "number" && delay < ms;
+    }
+
+    function isAtLeast(delay, ms) {
+      return typeof delay === "number" && delay >= ms;
+    }
+
+    function priorDelay(timestamp, changedAt, ms) {
+      if (typeof changedAt !== "number") return undefined;
+      var delay = timestamp - changedAt;
+      return delay >= 0 && delay < ms ? delay : undefined;
+    }
+
+    function composedPathOf(e) {
+      try {
+        if (typeof e.composedPath === "function") return e.composedPath();
+      } catch (_) {}
+      return e.target ? [e.target] : [];
+    }
+
+    function deadClickTarget(e) {
+      var target = e.target;
+      try {
+        // A click inside an open shadow root is retargeted to its host
+        if (target && target.shadowRoot) return composedPathOf(e)[0] || target;
+      } catch (_) {}
+      return target || null;
+    }
+
+    function isElement(node) {
+      try {
+        return !!node && node.nodeType === 1;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function parentAcrossShadow(el) {
+      if (el.parentElement) return el.parentElement;
+      var parent = el.parentNode;
+      return parent && parent.nodeType === 11 && parent.host ? parent.host : null;
+    }
+
+    // The page root, an opted-out element or anything inside a link (the browser handles those)
+    function skipsDeadClick(el) {
+      if (!isElement(el) || el === document.documentElement) return true;
+      for (var node = el; node; node = parentAcrossShadow(node)) {
+        var tag = node.tagName.toLowerCase();
+        if (tag === "a") return true;
+        if (node.classList && node.classList.contains(DEAD_CLICK_IGNORE_CLASS)) return true;
+        if (tag === "body") break;
+      }
+      return false;
+    }
+
+    function isTextEditable(el) {
+      if (!isElement(el)) return false;
+      var tag = el.tagName.toLowerCase();
+      if (tag === "textarea") return true;
+      if (tag === "input") {
+        return DEAD_CLICK_TEXT_INPUT_TYPES.indexOf((el.getAttribute("type") || "").toLowerCase()) !== -1;
+      }
+      if (el.isContentEditable) return true;
+      var editable = el.getAttribute("contenteditable");
+      return editable === "true" || editable === "";
+    }
+
+    function nodeInGesture(node, gesture) {
+      var target = gesture.path[0];
+      try {
+        while (node) {
+          if (gesture.path.indexOf(node) !== -1 || (isElement(target) && target.contains(node))) {
+            return true;
+          }
+          node = node.getRootNode().host;
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    function selectionTouchesGesture(selection, gesture) {
+      var target = gesture.path[0];
+      var range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+      var sameRoot = false;
+      try {
+        sameRoot = !!range && range.startContainer.getRootNode() === target.getRootNode();
+      } catch (_) {}
+      if (sameRoot && isElement(target)) {
+        if (!range.collapsed) return range.intersectsNode(target);
+        var start = range.startContainer;
+        var node = isElement(start) ? start.childNodes[range.startOffset] || start : start;
+        return nodeInGesture(node, gesture);
+      }
+      return nodeInGesture(selection.focusNode, gesture) || nodeInGesture(selection.anchorNode, gesture);
+    }
+
+    function deepActiveElement() {
+      var active = document.activeElement;
+      while (active && active.shadowRoot && active.shadowRoot.activeElement) {
+        active = active.shadowRoot.activeElement;
+      }
+      return active;
+    }
+
+    function selectionSnapshot() {
+      var selection = document.getSelection();
+      var active = deepActiveElement();
+      var snapshot = [active];
+      if (selection) {
+        snapshot.push(
+          selection.type,
+          selection.anchorNode,
+          selection.anchorOffset,
+          selection.focusNode,
+          selection.focusOffset,
+        );
+      }
+      try {
+        if (active && typeof active.selectionStart === "number") {
+          snapshot.push(active.selectionStart, active.selectionEnd);
+        }
+      } catch (_) {}
+      return snapshot;
+    }
+
+    function sameSnapshot(a, b) {
+      if (a.length !== b.length) return false;
+      for (var i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+      }
+      return true;
+    }
+
+    // The press moves the caret or selection right away, but selectionchange can arrive well
+    // after the click, so also compare the state at the press with the state at the click
+    function selectionChangedByPress(gesture) {
+      if (sameSnapshot(gesture.snapshot, selectionSnapshot())) return false;
+      var active = deepActiveElement();
+      if (isTextEditable(active)) return nodeInGesture(active, gesture);
+      var selection = document.getSelection();
+      if (selection && selection.type === "Range") return selectionTouchesGesture(selection, gesture);
+      return gesture.selectionInitiallyRelated;
+    }
+
+    function clearDeadClickGesture() {
+      if (state.deadClickGestureTimer) {
+        clearTimeout(state.deadClickGestureTimer);
+        state.deadClickGestureTimer = null;
+      }
+      state.deadClickGesture = null;
+    }
+
+    function onDeadClickMouseDown(e) {
+      clearDeadClickGesture();
+      if (e.button !== 0) return;
+      var gesture = {
+        path: composedPathOf(e),
+        trusted: e.isTrusted,
+        selectionChanged: false,
+        selectionInitiallyRelated: false,
+        snapshot: [],
+        clickTarget: null,
+        clickDetail: null,
+      };
+      try {
+        var selection = document.getSelection();
+        gesture.selectionInitiallyRelated =
+          !!selection && selection.type === "Range" && selectionTouchesGesture(selection, gesture);
+        gesture.snapshot = selectionSnapshot();
+      } catch (_) {}
+      state.deadClickGesture = gesture;
+    }
+
+    function onDeadClickMouseUp(e) {
+      var gesture = state.deadClickGesture;
+      if (!gesture || e.button !== 0 || e.isTrusted !== gesture.trusted) return;
+      // The click goes to the nearest element the press and the release have in common
+      var path = composedPathOf(e);
+      for (var i = 0; i < gesture.path.length; i++) {
+        if (isElement(gesture.path[i]) && path.indexOf(gesture.path[i]) !== -1) {
+          gesture.clickTarget = gesture.path[i];
+          break;
+        }
+      }
+      gesture.clickDetail = e.detail;
+      // The click follows in the same task; drop a release that produced none
+      state.deadClickGestureTimer = setTimeout(clearDeadClickGesture, 0);
+    }
+
+    function onDeadClickMouseOut(e) {
+      // A release outside the document may never reach mouseup
+      if (e.relatedTarget === null) clearDeadClickGesture();
+    }
+
+    // Selecting text or placing a caret can take longer than a click, so a change during the
+    // press counts as well as one close to the click
+    function onDeadClickSelectionChange(e) {
+      var selection = document.getSelection();
+      var hadSelection = state.deadClickHadSelection;
+      var hasSelection = !!selection && selection.type === "Range";
+      state.deadClickHadSelection = hasSelection;
+
+      var focusNode = selection && selection.focusNode;
+      var focusElement = focusNode && (isElement(focusNode) ? focusNode : focusNode.parentElement);
+      var documentActive = document.activeElement;
+      var active = deepActiveElement();
+      var isEditing = isTextEditable(e.target) || isTextEditable(focusElement) || isTextEditable(active);
+      // A caret inside a closed shadow root shows up outside the focused element
+      var hasRetargetedCaret =
+        !!selection &&
+        selection.type === "Caret" &&
+        !!active &&
+        !active.shadowRoot &&
+        !!focusNode &&
+        focusNode !== documentActive &&
+        focusNode.contains(documentActive);
+
+      // Ordinary clicks move an invisible caret on content that isn't editable
+      if (!hadSelection && !hasSelection && !isEditing && !hasRetargetedCaret) return;
+
+      var now = Date.now();
+      state.lastSelectionChangeAt = now;
+
+      var gesture = state.deadClickGesture;
+      if (gesture && (hadSelection || hasSelection || isEditing)) {
+        var editor = null;
+        if (isTextEditable(e.target)) {
+          editor = e.target;
+        } else if (selection && selection.type === "Caret") {
+          if (isTextEditable(active) || hasRetargetedCaret) editor = active;
+          else if (isEditing) editor = focusElement;
+        }
+        var related = editor
+          ? nodeInGesture(editor, gesture)
+          : selection && (focusNode || selection.anchorNode)
+            ? selectionTouchesGesture(selection, gesture)
+            : hadSelection && !hasSelection && gesture.selectionInitiallyRelated;
+        gesture.selectionChanged = gesture.selectionChanged || !!related;
+      }
+
+      state.deadClicks.forEach(function (click) {
+        var delay = now - click.timestamp;
+        if (delay >= 0 && !(click.selectionDelay <= delay)) click.selectionDelay = delay;
+      });
+    }
+
+    function onDeadClickScroll() {
+      var now = Date.now();
+      state.deadClicks.forEach(function (click) {
+        if (typeof click.scrollDelay !== "number") click.scrollDelay = now - click.timestamp;
+      });
+    }
+
+    function onDeadClickMutations(records) {
+      var reacted = records.some(function (record) {
+        try {
+          // A change off the page is no reaction; older browsers lack isConnected
+          return record.target.isConnected !== false;
+        } catch (_) {
+          return false;
+        }
+      });
+      if (!reacted) return;
+      var now = Date.now();
+      state.lastMutationAt = now;
+      state.deadClicks.forEach(function (click) {
+        if (typeof click.mutationDelay !== "number") click.mutationDelay = now - click.timestamp;
+      });
+    }
+
+    function noteDeadClickLiveness(field, now) {
+      state.deadClicks.forEach(function (click) {
+        var delay = now - click.timestamp;
+        if (delay >= 0 && delay < DEAD_CLICK_FOCUS_MS && !(click[field] <= delay)) click[field] = delay;
+      });
+    }
+
+    // A click that opens a new tab hides this one, and a click can wake or focus the tab;
+    // either way it is a reaction, never a dead click
+    function noteDeadClickVisibilityChange() {
+      var now = Date.now();
+      if (document.visibilityState === "hidden") clearDeadClickGesture();
+      state.lastVisibilityChangeAt = now;
+      noteDeadClickLiveness("visibilityDelay", now);
+    }
+
+    // A click that opens a popup may only show as this window losing focus
+    function onDeadClickFocusChange() {
+      var now = Date.now();
+      state.lastFocusChangeAt = now;
+      noteDeadClickLiveness("focusDelay", now);
+    }
+
+    function onDeadClickBlur() {
+      clearDeadClickGesture();
+      onDeadClickFocusChange();
+    }
+
+    // Watch the document and any open shadow root the click went through, from before the
+    // page's own click handlers run
+    function observeDeadClickRoots(e) {
+      if (typeof MutationObserver === "undefined") return;
+      if (!state.deadClickObserver) {
+        state.deadClickObserver = new MutationObserver(onDeadClickMutations);
+      }
+      var roots = [document];
+      composedPathOf(e).forEach(function (node) {
+        try {
+          if (isElement(node) && node.shadowRoot) roots.push(node.shadowRoot);
+        } catch (_) {}
+      });
+      roots.forEach(function (root) {
+        if (state.deadClickRoots.indexOf(root) !== -1) return;
+        try {
+          state.deadClickObserver.observe(root, {
+            attributes: true,
+            characterData: true,
+            childList: true,
+            subtree: true,
+          });
+          state.deadClickRoots.push(root);
+        } catch (_) {}
+      });
+    }
+
+    function disconnectDeadClickObserver() {
+      if (state.deadClickObserver) state.deadClickObserver.disconnect();
+      state.deadClickRoots = [];
+    }
+
+    // Menus often open on the press rather than the click, so watch from the press on
+    function onDeadClickPointerDown(e) {
+      state.deadClickPressAt = Date.now();
+      observeDeadClickRoots(e);
+    }
+
+    function onDeadClick(e) {
+      var target = deadClickTarget(e);
+      if (!target) return;
+      var now = Date.now();
+      var click = { node: target, timestamp: now };
+      // Clicks from the keyboard or el.click() have no position
+      if (e.detail > 0 || e.clientX || e.clientY) {
+        click.x = e.clientX;
+        click.y = e.clientY;
+      }
+      // A page change during the press of this click is a reaction to it
+      var pressAt = state.deadClickPressAt;
+      state.deadClickPressAt = null;
+      if (
+        e.detail > 0 &&
+        typeof pressAt === "number" &&
+        typeof state.lastMutationAt === "number" &&
+        state.lastMutationAt >= pressAt
+      ) {
+        click.mutationDelay = 0;
+      }
+      var gesture = state.deadClickGesture;
+      if (
+        gesture &&
+        e.button === 0 &&
+        e.detail > 0 &&
+        e.detail === gesture.clickDetail &&
+        e.isTrusted === gesture.trusted &&
+        target === gesture.clickTarget
+      ) {
+        try {
+          click.selectionDuringGesture = gesture.selectionChanged || selectionChangedByPress(gesture);
+        } catch (_) {
+          click.selectionDuringGesture = gesture.selectionChanged;
+        }
+        clearDeadClickGesture();
+      }
+
+      var repeat = state.deadClicks.some(function (c) {
+        return c.node === target && Math.abs(c.timestamp - now) < DEAD_CLICK_DEDUPE_MS;
+      });
+      if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey || repeat || skipsDeadClick(target)) {
+        if (!state.deadClicks.length) disconnectDeadClickObserver();
+        return;
+      }
+
+      click.selectionDelay = priorDelay(now, state.lastSelectionChangeAt, DEAD_CLICK_SELECTION_MS);
+      click.visibilityDelay = priorDelay(now, state.lastVisibilityChangeAt, DEAD_CLICK_FOCUS_MS);
+      click.focusDelay = priorDelay(now, state.lastFocusChangeAt, DEAD_CLICK_FOCUS_MS);
+      observeDeadClickRoots(e);
+      state.deadClicks.push(click);
+      scheduleDeadClickCheck();
+    }
+
+    function scheduleDeadClickCheck() {
+      if (state.deadClicks.length && !state.deadClickTimer) {
+        state.deadClickTimer = setTimeout(function () {
+          state.deadClickTimer = null;
+          checkDeadClicks(false);
+        }, DEAD_CLICK_CHECK_MS);
+      }
+    }
+
+    // With `settle`, a click still waiting is reported now unless the page already reacted
+    function checkDeadClicks(settle) {
+      if (state.deadClickTimer) {
+        clearTimeout(state.deadClickTimer);
+        state.deadClickTimer = null;
+      }
+      var pending = state.deadClicks;
+      state.deadClicks = [];
+      var now = Date.now();
+      pending.forEach(function (click) {
+        var alive =
+          isBefore(click.mutationDelay, DEAD_CLICK_MUTATION_MS) ||
+          isBefore(click.scrollDelay, DEAD_CLICK_SCROLL_MS) ||
+          isBefore(click.selectionDelay, DEAD_CLICK_SELECTION_MS) ||
+          click.selectionDuringGesture === true ||
+          typeof click.visibilityDelay === "number" ||
+          typeof click.focusDelay === "number";
+        if (alive) return;
+        var timedOut =
+          isAtLeast(click.mutationDelay, DEAD_CLICK_MUTATION_MS) ||
+          isAtLeast(click.scrollDelay, DEAD_CLICK_SCROLL_MS) ||
+          isAtLeast(click.selectionDelay, DEAD_CLICK_SELECTION_MS) ||
+          now - click.timestamp >= DEAD_CLICK_TIMEOUT_MS;
+        if (timedOut || settle) emitDeadClick(click);
+        else state.deadClicks.push(click);
+      });
+      if (state.deadClicks.length) scheduleDeadClickCheck();
+      else if (state.deadClickPressAt === null) disconnectDeadClickObserver();
+    }
+
+    function emitDeadClick(click) {
+      try {
+        if (window.rrweb && typeof window.rrweb.record.addCustomEvent === "function") {
+          var payload = { timestamp: click.timestamp, selector: shortSelector(click.node) };
+          if (typeof click.x === "number") {
+            payload.x = click.x;
+            payload.y = click.y;
+          }
+          window.rrweb.record.addCustomEvent("dead_click", payload);
+        }
+      } catch (_) {}
+    }
+
+    var deadClickListeners = [
+      [window, "click", onDeadClick, { capture: true }],
+      [window, "pointerdown", onDeadClickPointerDown, { capture: true }],
+      [window, "mousedown", onDeadClickMouseDown, { capture: true }],
+      [window, "mouseup", onDeadClickMouseUp, { capture: true }],
+      [window, "mouseout", onDeadClickMouseOut, { capture: true }],
+      [window, "dragstart", clearDeadClickGesture, { capture: true }],
+      [window, "pointercancel", clearDeadClickGesture, { capture: true }],
+      // Capture sees scrolling inside elements too, not just the window
+      [window, "scroll", onDeadClickScroll, { capture: true, passive: true }],
+      [window, "focus", onDeadClickFocusChange, false],
+      [window, "blur", onDeadClickBlur, false],
+      [document, "selectionchange", onDeadClickSelectionChange, false],
+    ];
+
+    function startDeadClicks() {
+      if (state.deadClickListening) return;
+      state.deadClickListening = true;
+      try {
+        var selection = document.getSelection();
+        state.deadClickHadSelection = !!selection && selection.type === "Range";
+      } catch (_) {}
+      deadClickListeners.forEach(function (l) {
+        l[0].addEventListener(l[1], l[2], l[3]);
+      });
+    }
+
+    // Drops pending clicks without reporting them
+    function stopDeadClicks() {
+      if (state.deadClickTimer) {
+        clearTimeout(state.deadClickTimer);
+        state.deadClickTimer = null;
+      }
+      state.deadClicks = [];
+      state.deadClickPressAt = null;
+      disconnectDeadClickObserver();
+      clearDeadClickGesture();
+      if (!state.deadClickListening) return;
+      state.deadClickListening = false;
+      deadClickListeners.forEach(function (l) {
+        l[0].removeEventListener(l[1], l[2], l[3]);
+      });
+    }
+
     function handleRecordingEmit(e, isCheckout) {
-      // Rage clicks are only built from clicks recorded on an enabled page, so a burst
+      // Rage and dead clicks are only built from clicks recorded on an enabled page, so one
       // flushed on navigation to a disabled page still gets through
       if (
         isReplayEnabledOnPage() === false &&
-        (e.type == 5 && (e.data.tag === "Blacklist" || e.data.tag === "rage_click")) === false
+        (e.type == 5 &&
+          (e.data.tag === "Blacklist" ||
+            e.data.tag === "rage_click" ||
+            e.data.tag === "dead_click")) === false
       ) {
         return;
       }
@@ -9026,6 +9555,7 @@ or you can use record.mirror to access the mirror instance during recording.`;
         },
       });
       if (!state.startUrl) state.startUrl = normalizePageUrl(window.location.href);
+      startDeadClicks();
       emitReplayPageview(window.location.href, false);
       if (isSampledRecording) {
         startFlushLoop();
@@ -9084,6 +9614,9 @@ or you can use record.mirror to access the mirror instance during recording.`;
       } else {
         // Emit a burst from the previous page before the blacklist hides it
         endRageBurst();
+        // Report clicks that already timed out; the navigation is a reaction to the rest
+        checkDeadClicks(false);
+        stopDeadClicks();
         emitReplayBlacklist();
         stopRecording();
       }
@@ -9091,8 +9624,10 @@ or you can use record.mirror to access the mirror instance during recording.`;
 
     function setupEventListeners() {
       document.addEventListener("visibilitychange", function () {
+        noteDeadClickVisibilityChange();
         if (document.visibilityState === "hidden") {
           endRageBurst();
+          checkDeadClicks(false);
           flush(true);
         }
       });
