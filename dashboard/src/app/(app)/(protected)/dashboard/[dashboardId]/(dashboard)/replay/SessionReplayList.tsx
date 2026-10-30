@@ -102,34 +102,11 @@ export function SessionReplayList({
               </span>
             </div>
 
-            <p className='text-foreground mt-3 w-full truncate text-xs'>{session.start_url || t('unknownUrl')}</p>
-
-            <div className='text-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
-              <InfoBadge
-                tooltip={country?.name ?? tMisc('unknown')}
-                ariaLabel={country?.name ?? tMisc('unknown')}
-                icon={country?.code && <FlagIcon countryCode={country.code} countryName={country.name} />}
-              />
-              <InfoBadge
-                tooltip={browserName ?? tMisc('unknown')}
-                ariaLabel={browserName ?? tMisc('unknown')}
-                icon={browserName && <BrowserIcon name={browserName} />}
-              />
-
-              <InfoBadge
-                tooltip={osName ?? tMisc('unknown')}
-                ariaLabel={osName ?? tMisc('unknown')}
-                icon={osName && <OSIcon name={osName} />}
-              />
-
-              <InfoBadge
-                tooltip={deviceName ?? tMisc('unknown')}
-                ariaLabel={deviceName ?? tMisc('unknown')}
-                icon={deviceName && <DeviceIcon type={deviceName} />}
-              />
-
+            {/* Counts share the URL line so the card keeps its fixed height in the list */}
+            <div className='mt-3 flex w-full items-center gap-2 text-xs'>
+              <p className='text-foreground min-w-0 flex-1 truncate'>{session.start_url || t('unknownUrl')}</p>
               {(session.rage_click_count > 0 || session.dead_click_count > 0 || session.error_count > 0) && (
-                <span className='ml-auto inline-flex items-center gap-2'>
+                <span className='inline-flex shrink-0 items-center gap-2'>
                   {session.rage_click_count > 0 && (
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -173,6 +150,31 @@ export function SessionReplayList({
                   )}
                 </span>
               )}
+            </div>
+
+            <div className='text-foreground mt-3 flex flex-wrap items-center gap-2 text-xs'>
+              <InfoBadge
+                tooltip={country?.name ?? tMisc('unknown')}
+                ariaLabel={country?.name ?? tMisc('unknown')}
+                icon={country?.code && <FlagIcon countryCode={country.code} countryName={country.name} />}
+              />
+              <InfoBadge
+                tooltip={browserName ?? tMisc('unknown')}
+                ariaLabel={browserName ?? tMisc('unknown')}
+                icon={browserName && <BrowserIcon name={browserName} />}
+              />
+
+              <InfoBadge
+                tooltip={osName ?? tMisc('unknown')}
+                ariaLabel={osName ?? tMisc('unknown')}
+                icon={osName && <OSIcon name={osName} />}
+              />
+
+              <InfoBadge
+                tooltip={deviceName ?? tMisc('unknown')}
+                ariaLabel={deviceName ?? tMisc('unknown')}
+                icon={deviceName && <DeviceIcon type={deviceName} />}
+              />
             </div>
           </CardContent>
         </Card>
