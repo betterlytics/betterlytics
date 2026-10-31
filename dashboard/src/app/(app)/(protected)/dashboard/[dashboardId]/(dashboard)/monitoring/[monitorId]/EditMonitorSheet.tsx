@@ -2,7 +2,6 @@
 
 import { useState, useTransition, useCallback } from 'react';
 import { trpc } from '@/trpc/client';
-import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { Trash2 } from 'lucide-react';
@@ -50,7 +49,6 @@ export function EditMonitorSheet({
   const utils = trpc.useUtils();
   const [isPending, startTransition] = useTransition();
   const t = useTranslations('monitoringEditDialog');
-  const { data: session } = authClient.useSession();
 
   const { deleteMutation } = useMonitorMutations(dashboardId, monitor.id);
   const form = useMonitorForm({ mode: 'edit', monitor });
@@ -103,7 +101,6 @@ export function EditMonitorSheet({
     });
   }, [deleteMutation]);
 
-  const userEmail = session?.user.email;
   const sslMonitoringEnabled = !isHttpUrl(monitor.url) && form.state.checkSslErrors;
   const isHttpSite = !monitor.url.startsWith('https://');
 
@@ -125,15 +122,13 @@ export function EditMonitorSheet({
             <div className='flex-grow space-y-2 overflow-y-auto px-6 py-6'>
               <TimingSection form={form} isPending={isPending} defaultOpen={true} />
               <Separator />
-              {userEmail && (
-                <AlertsSection
-                  form={form}
-                  isPending={isPending}
-                  userEmail={userEmail}
-                  sslMonitoringEnabled={sslMonitoringEnabled}
-                  defaultOpen={false}
-                />
-              )}
+              <AlertsSection
+                form={form}
+                isPending={isPending}
+                alertRecipients={form.state.alertEmails}
+                sslMonitoringEnabled={sslMonitoringEnabled}
+                defaultOpen={false}
+              />
               <Separator />
               <AdvancedSettingsSection
                 form={form}
