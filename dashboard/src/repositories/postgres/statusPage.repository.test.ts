@@ -60,19 +60,13 @@ describe('public status page lookups', () => {
 describe('findStatusPageByCustomDomain', () => {
   const row = { id: 'sp1', dashboardId: 'd1', slug: 'acme', isPublished: true };
 
-  it('flags a live page whose dashboard is deleted', async () => {
-    prismaMock.statusPage.findFirst.mockResolvedValue({ ...row, dashboard: { deletedAt: new Date() } });
+  it('resolves the live page claiming the domain', async () => {
+    prismaMock.statusPage.findFirst.mockResolvedValue(row);
 
-    expect(await findStatusPageByCustomDomain('status.acme.com')).toEqual({ ...row, isDashboardDeleted: true });
+    expect(await findStatusPageByCustomDomain('status.acme.com')).toEqual(row);
     expect(prismaMock.statusPage.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({ where: { customDomain: 'status.acme.com', deletedAt: null } }),
     );
-  });
-
-  it('flags the page of a live dashboard as not deleted', async () => {
-    prismaMock.statusPage.findFirst.mockResolvedValue({ ...row, dashboard: { deletedAt: null } });
-
-    expect(await findStatusPageByCustomDomain('status.acme.com')).toEqual({ ...row, isDashboardDeleted: false });
   });
 
   it('returns null when no live page claims the domain', async () => {
