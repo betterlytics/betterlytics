@@ -28,12 +28,17 @@ export type StatusPagesCapabilities = {
   removeBranding: boolean;
 };
 
+export type SessionReplayCapabilities = {
+  maxRecordedSessions: number;
+};
+
 export type PlanCapabilities = {
   dashboards: DashboardCapabilities;
   monitoring: MonitoringCapabilities;
   emailReports: EmailReportCapabilities;
   dataRetention: DataRetentionCapabilities;
   statusPages: StatusPagesCapabilities;
+  sessionReplay: SessionReplayCapabilities;
 };
 
 export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
@@ -50,6 +55,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
     emailReports: { emailReportsEnabled: false },
     dataRetention: { maxDataRetentionDays: 365 },
     statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
+    sessionReplay: { maxRecordedSessions: 500 },
   },
   professional: {
     dashboards: { maxDashboards: 50, maxMembers: 50 },
@@ -64,6 +70,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
     emailReports: { emailReportsEnabled: true },
     dataRetention: { maxDataRetentionDays: 1095 },
     statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
+    sessionReplay: { maxRecordedSessions: 5_000 },
   },
   enterprise: {
     dashboards: { maxDashboards: 9999, maxMembers: 9999 },
@@ -78,6 +85,7 @@ export const PLAN_CAPABILITIES: Record<TierName, PlanCapabilities> = {
     emailReports: { emailReportsEnabled: true },
     dataRetention: { maxDataRetentionDays: 1825 },
     statusPages: { maxStatusPages: 9999, customDomain: true, removeBranding: true },
+    sessionReplay: { maxRecordedSessions: 50_000 },
   },
 };
 
@@ -99,6 +107,10 @@ export function isEmailReportsEnabled(tier: TierName): boolean {
 
 export function getMaxRetentionDaysForTier(tier: TierName): number {
   return PLAN_CAPABILITIES[tier].dataRetention.maxDataRetentionDays;
+}
+
+export function getRecordedSessionLimitForTier(tier: TierName): number {
+  return PLAN_CAPABILITIES[tier].sessionReplay.maxRecordedSessions;
 }
 
 export const MIN_DATA_RETENTION_DAYS = 180;

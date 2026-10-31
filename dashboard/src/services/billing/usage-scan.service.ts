@@ -5,9 +5,13 @@ import {
   findActiveSubscriptionsWithOwnedSites,
   updateSubscriptionPeriod,
 } from '@/repositories/postgres/subscription.repository';
-import { getDailyEventCountsForSites } from '@/repositories/clickhouse/usage.repository';
+import {
+  getDailyEventCountsForSites,
+  getDailyRecordedSessionCountsForSites,
+} from '@/repositories/clickhouse/usage.repository';
 import { type DailySiteUsage, type SubscriptionWithOwnedSites } from '@/entities/billing/billing.entities';
 import { toDateString } from '@/utils/dateFormatters';
+import type { DateString } from '@/types/dates';
 
 export type UsageThresholdKind = 'exceeded' | 'approaching';
 
@@ -64,20 +68,41 @@ export function indexUsageBySite(rows: DailySiteUsage[]): Map<string, DailySiteU
   return out;
 }
 
+function rowsForSubscription(
+  sub: SubscriptionWithOwnedSites,
+  bySite: Map<string, DailySiteUsage[]>,
+): DailySiteUsage[] {
+  return sub.siteIds.flatMap((siteId) => bySite.get(siteId) ?? []);
+}
+
 export function sumUsageForSubscription(
   sub: SubscriptionWithOwnedSites,
   bySite: Map<string, DailySiteUsage[]>,
 ): number {
   const periodStartMs = startOfDay(sub.currentPeriodStart).getTime();
-  let total = 0;
-  for (const siteId of sub.siteIds) {
-    const rows = bySite.get(siteId);
-    if (!rows) continue;
-    for (const row of rows) {
-      if (new Date(row.date).getTime() >= periodStartMs) total += row.total;
-    }
-  }
-  return total;
+  return rowsForSubscription(sub, bySite)
+    .filter((row) => new Date(row.date).getTime() >= periodStartMs)
+    .reduce((total, row) => total + row.total, 0);
+}
+
+/** Sessions count in the period of the UTC day they started, matching the account usage view. */
+export function sumRecordedSessionsForSubscription(
+  sub: SubscriptionWithOwnedSites,
+  bySite: Map<string, DailySiteUsage[]>,
+): number {
+  const periodStartDay = toDateString(sub.currentPeriodStart);
+  return rowsForSubscription(sub, bySite)
+    .filter((row) => row.date >= periodStartDay)
+    .reduce((total, row) => total + row.total, 0);
+}
+
+function getScanRange(subs: SubscriptionWithOwnedSites[]): { siteIds: string[]; earliestStart: DateString } {
+  const siteIds = [...new Set(subs.flatMap((s) => s.siteIds))];
+  const earliestStart = subs.reduce(
+    (min, s) => (s.currentPeriodStart < min ? s.currentPeriodStart : min),
+    subs[0].currentPeriodStart,
+  );
+  return { siteIds, earliestStart: toDateString(earliestStart) };
 }
 
 export async function loadUsageForSubscriptions(
@@ -85,12 +110,17 @@ export async function loadUsageForSubscriptions(
 ): Promise<Map<string, DailySiteUsage[]>> {
   if (subs.length === 0) return new Map();
 
-  const allSiteIds = [...new Set(subs.flatMap((s) => s.siteIds))];
-  const earliestStart = subs.reduce(
-    (min, s) => (s.currentPeriodStart < min ? s.currentPeriodStart : min),
-    subs[0].currentPeriodStart,
-  );
+  const { siteIds, earliestStart } = getScanRange(subs);
+  const rows = await getDailyEventCountsForSites(siteIds, earliestStart);
+  return indexUsageBySite(rows);
+}
 
-  const rows = await getDailyEventCountsForSites(allSiteIds, toDateString(earliestStart));
+export async function loadRecordedSessionsForSubscriptions(
+  subs: SubscriptionWithOwnedSites[],
+): Promise<Map<string, DailySiteUsage[]>> {
+  if (subs.length === 0) return new Map();
+
+  const { siteIds, earliestStart } = getScanRange(subs);
+  const rows = await getDailyRecordedSessionCountsForSites(siteIds, earliestStart);
   return indexUsageBySite(rows);
 }
