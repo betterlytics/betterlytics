@@ -66,7 +66,7 @@ function formatMonitor(summary: MonitorRangeSummary) {
 // where the analytics presets end at the start of today
 const CALENDAR_DAY_PRESETS = new Set(['7d', '28d', '90d']);
 
-function resolveMonitoringRange(input: z.infer<typeof McpListMonitorsInputSchema>) {
+function resolveMonitoringRange(input: z.infer<typeof McpDateRangeSchema>) {
   const { start, end } = resolveTimeRange(input);
   if (!CALENDAR_DAY_PRESETS.has(input.timeRange)) return { start, end };
 
@@ -133,7 +133,7 @@ export async function executeListMonitorIncidents(rawInput: unknown, siteId: str
   assertMonitoringEnabled();
 
   const input = McpListMonitorIncidentsInputSchema.parse(rawInput);
-  const { start, end } = resolveTimeRange(input);
+  const { start, end } = resolveMonitoringRange(input);
 
   const fetched = await getMonitorIncidentsForRange(dashboardId, siteId, {
     start,

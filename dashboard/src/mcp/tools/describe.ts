@@ -445,7 +445,7 @@ const MONITORING_TOOLS: ToolDescription[] = [
         type: 'string',
         required: true,
         description:
-          'Time range to search. Incidents overlapping the range are returned, including ones that started before it. Valid values are listed in the timeRanges field of this schema.',
+          'Time range to search. Incidents overlapping the range are returned, including ones that started before it. Valid values are listed in the timeRanges field of this schema. 7d, 28d and 90d cover that many calendar days including today, the same window list_monitors uses.',
       },
       TIMEZONE_INPUT,
       {

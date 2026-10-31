@@ -279,6 +279,27 @@ describe('executeListMonitorIncidents', () => {
     expect(getIncidents.mock.calls[0][2]).toMatchObject({ monitorId: 'mon-1', state: 'ongoing', limit: 6 });
   });
 
+  it.each(['7d', '28d', '90d', '24h'])('searches the same %s window as list_monitors', async (timeRange) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    getSummaries.mockResolvedValue([]);
+    getIncidents.mockResolvedValue([]);
+
+    try {
+      const input = { timeRange, timezone: 'Europe/Copenhagen' };
+      const monitors = await executeListMonitors(input, 'site-1', 'dash-1');
+      const incidents = await executeListMonitorIncidents(input, 'site-1', 'dash-1');
+
+      expect(incidents.time_range).toEqual(monitors.time_range);
+      expect(getIncidents.mock.calls[0][2]).toMatchObject({
+        start: new Date(monitors.time_range.start),
+        end: new Date(monitors.time_range.end),
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('does not flag truncation when the result lands exactly on the limit', async () => {
     getIncidents.mockResolvedValue([incident]);
 
