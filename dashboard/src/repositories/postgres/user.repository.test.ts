@@ -291,7 +291,7 @@ describe('deleteUserAccount', () => {
     await deleteUserAccount('user-1', deleteOwned);
 
     expect(prismaMock.dashboard.updateMany).toHaveBeenCalledWith({
-      where: { id: { in: ['dash-1'] } },
+      where: { id: { in: ['dash-1'] }, deletedAt: null },
       data: { deletedAt: expect.any(Date) },
     });
     expect(prismaMock.dashboardInvitation.updateMany).toHaveBeenCalledWith({

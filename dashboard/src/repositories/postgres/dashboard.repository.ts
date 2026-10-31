@@ -302,7 +302,7 @@ export async function softDeleteDashboardsWith(
   dashboardIds: string[],
 ): Promise<string[]> {
   const deletedAt = new Date();
-  await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt } });
+  await tx.dashboard.updateMany({ where: { id: { in: dashboardIds }, deletedAt: null }, data: { deletedAt } });
   const released = await tx.statusPage.updateManyAndReturn({
     where: { dashboardId: { in: dashboardIds }, deletedAt: null },
     data: { deletedAt },

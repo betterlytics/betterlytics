@@ -125,7 +125,7 @@ describe('deleteDashboard', () => {
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
     const { deletedAt } = prismaMock.dashboard.updateMany.mock.calls[0][0].data;
     expect(prismaMock.dashboard.updateMany).toHaveBeenCalledWith({
-      where: { id: { in: ['d1'] } },
+      where: { id: { in: ['d1'] }, deletedAt: null },
       data: { deletedAt },
     });
     expect(deletedAt).toBeInstanceOf(Date);
