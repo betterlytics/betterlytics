@@ -53,17 +53,21 @@ function toUptimeMonitorRef(check: Pick<MonitorCheck, 'id' | 'createdAt'>): Upti
   return { checkId: check.id, createdAt: check.createdAt };
 }
 
-// The last 24 whole hours, ending at the start of the next hour, in hourly buckets
-async function getUptimeBuckets24h(checks: Array<Pick<MonitorCheck, 'id' | 'createdAt'>>, siteId: string) {
-  const hourMs = 60 * 60 * 1000;
-  const rangeEnd = new Date(Math.ceil(Date.now() / hourMs) * hourMs);
-  const rangeStart = new Date(rangeEnd.getTime() - 24 * hourMs);
-  return getUptimeBuckets(checks.map(toUptimeMonitorRef), siteId, {
+// The last 24 real hours on the zone's hour boundaries, ending after the zone's current hour, in hourly buckets
+async function getUptimeBuckets24h(
+  checks: Array<Pick<MonitorCheck, 'id' | 'createdAt'>>,
+  siteId: string,
+  timezone: string,
+) {
+  const rangeEnd = moment.tz(timezone).startOf('hour').add(1, 'hour');
+  const rangeStart = rangeEnd.clone().subtract(24, 'hours').toDate();
+  const buckets = await getUptimeBuckets(checks.map(toUptimeMonitorRef), siteId, {
     rangeStart,
-    rangeEnd,
+    rangeEnd: rangeEnd.toDate(),
     granularity: 'hour',
-    timezone: 'UTC',
+    timezone,
   });
+  return { rangeStart, buckets };
 }
 
 export async function getMonitorCheck(dashboardId: string, monitorId: string) {
@@ -99,19 +103,19 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
   const checks = await listMonitorChecks(dashboardId);
   const checkIds = checks.map((check) => check.id);
 
-  const [openIncidents, lastResolvedIncidents, monitorsWithResults, tlsResults, latestCheckInfo, uptimeBuckets] =
+  const [openIncidents, lastResolvedIncidents, monitorsWithResults, tlsResults, latestCheckInfo, uptime24h] =
     await Promise.all([
       getOpenIncidentsForMonitors(checkIds, siteId),
       getLastResolvedIncidentForMonitors(checkIds, siteId),
       getMonitorsWithResults(checkIds, siteId),
       getLatestTlsResultsForMonitors(checkIds, siteId),
       getLatestCheckInfoForMonitors(checkIds, siteId),
-      getUptimeBuckets24h(checks, siteId),
+      getUptimeBuckets24h(checks, siteId, timezone),
     ]);
 
   return checks.map((check) => {
-    const rawBuckets = uptimeBuckets.get(check.id) ?? [];
-    const buckets = normalizeUptimeBuckets(rawBuckets, 24);
+    const rawBuckets = uptime24h.buckets.get(check.id) ?? [];
+    const buckets = normalizeUptimeBuckets(rawBuckets, uptime24h.rangeStart, 24);
     const hasResults = monitorsWithResults.has(check.id);
     const openIncident = openIncidents.get(check.id);
     const hasOpenIncident = openIncident != null;
@@ -155,7 +159,7 @@ export async function fetchMonitorMetrics(
     incidentSegments,
     lastResolvedIncidents,
     latencyStats,
-    uptimeBuckets,
+    hourlyUptime,
     latencySeries,
     incidentCount,
     latestCheckInfo,
@@ -164,13 +168,14 @@ export async function fetchMonitorMetrics(
     getIncidentSegments24h(monitorId, siteId),
     getLastResolvedIncidentForMonitors([monitorId], siteId),
     getLatency24h(monitorId, siteId),
-    getUptimeBuckets24h([monitor], siteId).then((buckets) => buckets.get(monitorId) ?? []),
+    getUptimeBuckets24h([monitor], siteId, timezone),
     getLatencySeries24h(monitorId, siteId),
     getIncidentCount24h(monitorId, siteId),
     getLatestCheckInfoForMonitors([monitorId], siteId).then((r) => r[monitorId] ?? null),
   ]);
 
-  const uptime24h = summarizeUptime(uptimeBuckets);
+  const monitorBuckets = hourlyUptime.buckets.get(monitorId) ?? [];
+  const uptime24h = summarizeUptime(monitorBuckets);
   const hasData = latestCheckInfo?.ts != null;
   const openIncident = openIncidents.get(monitorId);
   const hasOpenIncident = openIncident != null;
@@ -189,7 +194,7 @@ export async function fetchMonitorMetrics(
     uptime24hHours: uptime24h.monitoredSeconds / 60 / 60,
     incidents24h: incidentCount,
     incidentSegments24h: incidentSegments,
-    uptimeBuckets: normalizeUptimeBuckets(uptimeBuckets, 24),
+    uptimeBuckets: normalizeUptimeBuckets(monitorBuckets, hourlyUptime.rangeStart, 24),
     latency: latencyStats,
     latencySeries,
     effectiveIntervalSeconds: latestCheckInfo?.effectiveIntervalSeconds ?? null,

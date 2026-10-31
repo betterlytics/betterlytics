@@ -1,7 +1,7 @@
 import { safeSql, SQL, type SQLTaggedExpression } from '@/lib/safe-sql';
 import { BASessionQuery, type SessionsTableSelectableColumn } from '@/lib/ba-session-query';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
-import { matchAnyValueFilterSql } from '@/lib/filter-sql';
+import { filterValueToLikePattern, matchAnyValueFilterSql } from '@/lib/filter-sql';
 import type { QueryFilter } from '@/entities/analytics/filter.entities';
 import { GranularityRangeValues } from '@/utils/granularityRanges';
 import { getSessionMetricByKey, SESSION_METRIC_KEYS } from '@/mcp/registry/sessionMetrics';
@@ -182,7 +182,7 @@ function buildTimeSeriesQuery(opts: {
 /** Entry and exit page filters, with the same pattern and `*` semantics as the other filters. */
 function buildPageFilter(filter: McpSessionPageFilter, index: number) {
   const column = identifierSql(filter.column);
-  const patterns = filter.values.map((value) => value.replaceAll('*', '%'));
+  const patterns = filter.values.map(filterValueToLikePattern);
   const values = SQL.StringArray({ [`mcp_page_filter_${index}`]: patterns });
 
   return (

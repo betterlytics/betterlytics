@@ -1,5 +1,119 @@
 import type { ChangelogEntryData } from '@/entities/system/changelog.entities';
 
+const v152ChangelogEntryEn: ChangelogEntryData = {
+  metadata: {
+    version: 'v1.5.2',
+    releasedAt: '2026-10-28',
+    title: 'AI Traffic & Rage Click Detection',
+    summary:
+      'Visits from AI assistants like ChatGPT and Claude now have their own traffic category, and session replay can detect rage clicks to help you find frustrated visitors. This release also brings smarter filter suggestions, a new MCP tool for session metrics, clearer SSL alerts and a round of timezone fixes.',
+  },
+  sections: [
+    {
+      id: 'v152-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Visits from AI assistants such as ChatGPT, Claude, Gemini, Perplexity and Copilot have now been moved into their own AI category.',
+            'Session replay now detects rage clicks, when a visitor clicks the same spot again and again in quick succession.',
+            'Annotations on the overview chart can now be hidden and shown.',
+            'Status pages can now use a transparent header that blends into the page.',
+            'A new MCP tool lets your AI assistant report on bounce rate, visit duration, pages per session, and landing and exit pages, split by device, location, referrer or campaign.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filter suggestions now list the most common values first and show up to 200 values.',
+            'Session replays no longer store the query string or # fragment of page URLs.',
+            'Session replay now records more reliably when visitors move quickly between pages.',
+            'The replay player has refreshed visuals, including a new cursor and click animations.',
+            'When a monitor fails because of an SSL certificate problem, its alerts and incidents now name the exact problem.',
+            "After signing in, you're taken back to the page you were trying to open.",
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Charts now follow your selected timezone more consistently.',
+            'Filters now treat % and _ as regular characters. Previously they could act as hidden wildcards and match more than you typed. Use * for wildcard matching.',
+            'With console error capture turned on, errors logged with console.error now show their real message and stack trace instead of {}.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+const v152ChangelogModalEn: ChangelogEntryData = {
+  metadata: v152ChangelogEntryEn.metadata,
+  sections: [
+    {
+      id: 'v152-modal-new-features',
+      title: 'New Features',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Visits from AI assistants now have their own AI category.',
+            'Session replay now detects rage clicks.',
+            'Show or hide annotations on the overview chart.',
+            'Status pages can use a transparent header.',
+            'A new MCP tool for session metrics like bounce rate and visit duration.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-improvements',
+      title: 'Improvements',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Filter suggestions list the most common values first.',
+            'Session replays no longer store URL query strings or fragments.',
+            'Session replay records more reliably during fast page navigation.',
+            'Refreshed replay player visuals.',
+            'SSL alerts now name the exact certificate problem.',
+            'Signing in takes you back to the page you were trying to open.',
+            'Various usability improvements across the dashboard.',
+          ],
+        },
+      ],
+    },
+    {
+      id: 'v152-modal-fixes',
+      title: 'Fixes',
+      blocks: [
+        {
+          type: 'list',
+          items: [
+            'Charts follow your selected timezone more consistently.',
+            'Filters treat % and _ as regular characters.',
+            'Captured console errors show their real message and stack trace.',
+          ],
+        },
+      ],
+    },
+  ],
+};
+
 const v151ChangelogEntryEn: ChangelogEntryData = {
   metadata: {
     version: 'v1.5.1',
@@ -684,9 +798,10 @@ const v144ChangelogEntryEn: ChangelogEntryData = {
   ],
 };
 
-export const latestChangelogModalEn = v151ChangelogModalEn;
+export const latestChangelogModalEn = v152ChangelogModalEn;
 
 export const changelogEntriesEn: readonly ChangelogEntryData[] = [
+  v152ChangelogEntryEn,
   v151ChangelogEntryEn,
   v150ChangelogEntryEn,
   v149ChangelogEntryEn,

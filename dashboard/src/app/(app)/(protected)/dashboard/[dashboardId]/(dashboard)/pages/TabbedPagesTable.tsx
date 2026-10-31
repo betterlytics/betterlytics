@@ -80,7 +80,7 @@ export default function TabbedPagesTable({
         },
         {
           accessorKey: 'visitors',
-          header: t('visitors'),
+          header: t('sessions'),
           cell: ({ row }) => <TableCompareCell row={row.original} dataKey='visitors' formatter={formatNumber} />,
           accessorFn: (row) => row.current.visitors,
         },
