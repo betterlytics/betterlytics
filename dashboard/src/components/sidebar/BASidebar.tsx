@@ -40,7 +40,6 @@ import { DashboardDropdown } from './DashboardDropdown';
 
 import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
-import { Badge } from '../ui/badge';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { SidebarAlertDot, type SidebarAlertKind } from './SidebarAlertDot';
@@ -222,10 +221,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                         <span>{item.name}</span>
                       </div>
 
-                      <div className='flex items-center gap-2'>
-                        {item.alert && <SidebarAlertDot kind={item.alert} placement='end' />}
-                        {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
-                      </div>
+                      {item.alert && <SidebarAlertDot kind={item.alert} placement='end' />}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
