@@ -51,7 +51,7 @@ export const monitorsRouter = createRouter({
     }),
 
   activeAlerts: dashboardProcedure.query(async ({ ctx }) => {
-    if (ctx.authContext.isDemo) return { downMonitors: [], statusPageIncidents: [] };
+    if (ctx.authContext.isDemo) return { hasDownMonitors: false, hasUnresolvedStatusPageIncidents: false };
     return await getDashboardAlerts(ctx.authContext.dashboardId, ctx.authContext.siteId);
   }),
 

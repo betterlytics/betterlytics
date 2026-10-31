@@ -16,7 +16,7 @@ type SidebarAlertDotProps = {
 export function SidebarAlertDot({ kind, placement }: SidebarAlertDotProps) {
   const t = useTranslations('dashboard.sidebar');
   const alerts = useDashboardAlerts();
-  const active = (kind === 'monitoring' ? alerts?.downMonitors : alerts?.statusPageIncidents)?.length;
+  const active = kind === 'monitoring' ? alerts?.hasDownMonitors : alerts?.hasUnresolvedStatusPageIncidents;
   if (!active) return null;
 
   return (

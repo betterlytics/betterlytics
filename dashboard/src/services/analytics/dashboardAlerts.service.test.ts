@@ -1,24 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getDashboardAlerts } from '@/services/analytics/dashboardAlerts.service';
 import { getOpenIncidentsForMonitors } from '@/repositories/clickhouse/monitoring.repository';
-import { listUnresolvedIncidents } from '@/repositories/postgres/statusPageIncident.repository';
+import { countUnresolvedIncidents } from '@/repositories/postgres/statusPageIncident.repository';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 
 vi.mock('@/lib/feature-flags', () => ({ isFeatureEnabled: vi.fn(() => true) }));
 vi.mock('@/repositories/postgres/monitoring.repository', () => ({
   listMonitorChecks: vi.fn(async () => [
-    { id: 'up', name: 'Up', url: 'https://example.com', isEnabled: true },
-    { id: 'down', name: '', url: 'https://example.com/health', isEnabled: true },
-    { id: 'paused', name: 'Paused', url: 'https://example.com/paused', isEnabled: false },
+    { id: 'up', isEnabled: true },
+    { id: 'down', isEnabled: true },
+    { id: 'paused', isEnabled: false },
   ]),
 }));
 vi.mock('@/repositories/clickhouse/monitoring.repository', () => ({
-  getOpenIncidentsForMonitors: vi.fn(
-    async () => new Map([['down', { incidentId: 'i-1', startedAt: '2026-10-23T10:00:00Z' }]]),
-  ),
+  getOpenIncidentsForMonitors: vi.fn(async () => new Map([['down', { startedAt: '2026-10-23T10:00:00Z' }]])),
 }));
 vi.mock('@/repositories/postgres/statusPageIncident.repository', () => ({
-  listUnresolvedIncidents: vi.fn(async () => [{ incidentId: 's-1' }]),
+  countUnresolvedIncidents: vi.fn(async () => 1),
 }));
 
 beforeEach(() => {
@@ -27,12 +25,20 @@ beforeEach(() => {
 });
 
 describe('getDashboardAlerts', () => {
-  it('returns down monitors and leaves paused monitors out', async () => {
+  it('flags down monitors among the active ones and leaves paused monitors out', async () => {
     const alerts = await getDashboardAlerts('dashboard-1', 'site-1');
 
     expect(getOpenIncidentsForMonitors).toHaveBeenCalledWith(['up', 'down'], 'site-1');
-    expect(alerts.downMonitors).toEqual([{ monitorId: 'down', incidentId: 'i-1' }]);
-    expect(alerts.statusPageIncidents).toHaveLength(1);
+    expect(alerts).toEqual({ hasDownMonitors: true, hasUnresolvedStatusPageIncidents: true });
+  });
+
+  it('reports no down monitors when none has an open outage', async () => {
+    vi.mocked(getOpenIncidentsForMonitors).mockResolvedValueOnce(new Map());
+    vi.mocked(countUnresolvedIncidents).mockResolvedValueOnce(0);
+
+    const alerts = await getDashboardAlerts('dashboard-1', 'site-1');
+
+    expect(alerts).toEqual({ hasDownMonitors: false, hasUnresolvedStatusPageIncidents: false });
   });
 
   it('skips down monitors when uptime monitoring is disabled', async () => {
@@ -40,9 +46,9 @@ describe('getDashboardAlerts', () => {
 
     const alerts = await getDashboardAlerts('dashboard-1', 'site-1');
 
-    expect(alerts.downMonitors).toEqual([]);
+    expect(alerts.hasDownMonitors).toBe(false);
     expect(getOpenIncidentsForMonitors).not.toHaveBeenCalled();
-    expect(alerts.statusPageIncidents).toHaveLength(1);
+    expect(alerts.hasUnresolvedStatusPageIncidents).toBe(true);
   });
 
   it('skips status page incidents when public status pages are disabled', async () => {
@@ -50,8 +56,8 @@ describe('getDashboardAlerts', () => {
 
     const alerts = await getDashboardAlerts('dashboard-1', 'site-1');
 
-    expect(alerts.statusPageIncidents).toEqual([]);
-    expect(listUnresolvedIncidents).not.toHaveBeenCalled();
-    expect(alerts.downMonitors).toHaveLength(1);
+    expect(alerts.hasUnresolvedStatusPageIncidents).toBe(false);
+    expect(countUnresolvedIncidents).not.toHaveBeenCalled();
+    expect(alerts.hasDownMonitors).toBe(true);
   });
 });
