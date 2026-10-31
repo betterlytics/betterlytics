@@ -13,7 +13,7 @@ import {
 } from '@/entities/analytics/statusPage/publicStatusPage.entities';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import type { MonitorCheck, MonitorStatus } from '@/entities/analytics/monitoring.entities';
-import { weightedUptimePercent } from '@/entities/analytics/monitoring.helpers';
+import { summarizeUptime } from '@/entities/analytics/monitoring.helpers';
 import {
   deriveOverallUptime,
   deriveStatusWithIncidents,
@@ -24,7 +24,7 @@ import {
 import {
   getLatestCheckInfoForMonitors,
   getOpenIncidentsForMonitors,
-  getUptimeBucketsForMonitors,
+  getUptimeBuckets,
 } from '@/repositories/clickhouse/monitoring.repository';
 import {
   getPublishedStatusPageByCustomDomain,
@@ -38,9 +38,10 @@ import {
 } from '@/repositories/postgres/statusPageIncident.repository';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
 import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
-import { toDateTimeString } from '@/utils/dateFormatters';
 import { env } from '@/lib/env';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 function deriveMonitorStatus(
   isEnabled: boolean,
@@ -112,7 +113,7 @@ export async function getStatusPageStudioData(
       name: monitor.name ?? null,
       url: monitor.url,
       operationalState: monitor.operationalState,
-      uptimePercent: weightedUptimePercent(monitor.uptimeBuckets),
+      uptimePercent: monitor.uptimePercent,
     })),
   };
 }
@@ -192,19 +193,15 @@ async function assembleStatusPage(
   const checkIds = monitors.map((monitor) => monitor.monitorCheckId);
 
   const now = new Date();
-  const rangeEndDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
-  const rangeStart = toDateTimeString(new Date(rangeEndDate.getTime() - days * 24 * 60 * 60 * 1000));
-  const rangeEnd = toDateTimeString(rangeEndDate);
+  const rangeEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1));
+  const rangeStart = new Date(rangeEnd.getTime() - days * DAY_MS);
 
   const [bucketsByCheckId, openIncidents, latestCheckInfo, { publishedIncidents, updatesByIncident }] =
     await Promise.all([
-      getUptimeBucketsForMonitors(
+      getUptimeBuckets(
         monitors.map((monitor) => ({ checkId: monitor.monitorCheckId, createdAt: monitor.monitorCreatedAt })),
         siteId,
-        'UTC',
-        rangeStart,
-        rangeEnd,
-        days,
+        { rangeStart, rangeEnd, granularity: 'day', timezone: 'UTC' },
       ),
 
       getOpenIncidentsForMonitors(checkIds, siteId),
@@ -236,19 +233,26 @@ async function assembleStatusPage(
       ),
   );
 
-  const publicMonitors = monitors.map((monitor, index) => {
-    const buckets = bucketsByCheckId.get(monitor.monitorCheckId) ?? [];
+  const monitorUptimeTotals = monitors.map((monitor) =>
+    summarizeUptime(bucketsByCheckId.get(monitor.monitorCheckId) ?? []),
+  );
 
-    const dailyBuckets: PublicDailyUptimeBucket[] = buckets.map((bucket) => ({
-      date: bucket.bucket.slice(0, 10),
-      upRatio: bucket.upRatio == null ? null : Math.min(1, Math.max(0, bucket.upRatio)),
-    }));
+  const publicMonitors = monitors.map((monitor, index) => {
+    const upRatioByDate = new Map(
+      (bucketsByCheckId.get(monitor.monitorCheckId) ?? []).map((bucket) => [bucket.bucket.slice(0, 10), bucket.upRatio]),
+    );
+
+    // Every day of the window, with unmonitored days as no data
+    const dailyBuckets: PublicDailyUptimeBucket[] = Array.from({ length: days }, (_, day) => {
+      const date = new Date(rangeStart.getTime() + day * DAY_MS).toISOString().slice(0, 10);
+      return { date, upRatio: upRatioByDate.get(date) ?? null };
+    });
 
     return {
       key: String(index),
       publicName: monitor.publicName,
       status: monitorStatuses[index],
-      uptime: weightedUptimePercent(buckets),
+      uptime: monitorUptimeTotals[index].percent,
       days: dailyBuckets,
     };
   });
@@ -289,7 +293,7 @@ async function assembleStatusPage(
     theme: page.theme,
     overallStatus,
     lastUpdatedAt,
-    overallUptime: deriveOverallUptime(publicMonitors.map((monitor) => monitor.uptime)),
+    overallUptime: deriveOverallUptime(monitorUptimeTotals),
     hideBranding: options?.hideBranding ?? false,
     showPastIncidents: page.showPastIncidents,
     monitors: publicMonitors,
@@ -301,5 +305,6 @@ async function assembleStatusPage(
     monitorCheckIds: checkIds,
     detectedStatuses,
     incidentMonitorCheckIds: (incidents ?? []).map((entry) => entry.monitorCheckIds),
+    monitorUptimeTotals: monitorUptimeTotals.map(({ upSeconds, monitoredSeconds }) => ({ upSeconds, monitoredSeconds })),
   };
 }
