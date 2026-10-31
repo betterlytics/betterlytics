@@ -43,7 +43,7 @@ import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Badge } from '../ui/badge';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { SidebarAlertDot } from './SidebarAlertDot';
+import { SidebarAlertDot, type SidebarAlertKind } from './SidebarAlertDot';
 
 const ICON_SIZE = 16;
 
@@ -59,6 +59,7 @@ type SidebarItem = {
   icon: ReactElement;
   hidden?: boolean;
   hideOnMobile?: boolean;
+  alert?: SidebarAlertKind;
 };
 
 export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps) {
@@ -120,12 +121,14 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       key: 'monitoring',
       href: '/monitoring',
       icon: <Activity size={ICON_SIZE} />,
+      alert: showMonitorAlerts ? 'monitoring' : undefined,
     },
     {
       name: t('statusPages'),
       key: 'statusPages',
       href: '/status-pages',
       icon: <Radio size={ICON_SIZE} />,
+      alert: showStatusPageAlerts ? 'statusPages' : undefined,
     },
   ];
 
@@ -214,15 +217,15 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                       <div className='flex items-center gap-2'>
                         <span className='dark:text-muted-foreground/90 relative'>
                           {item.icon}
-                          {item.key === 'monitoring' && showMonitorAlerts && <SidebarAlertDot kind='monitoring' />}
-                          {item.key === 'statusPages' && showStatusPageAlerts && (
-                            <SidebarAlertDot kind='statusPages' />
-                          )}
+                          {item.alert && <SidebarAlertDot kind={item.alert} placement='icon' />}
                         </span>
                         <span>{item.name}</span>
                       </div>
 
-                      {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
+                      <div className='flex items-center gap-2'>
+                        {item.alert && <SidebarAlertDot kind={item.alert} placement='end' />}
+                        {['statusPages'].includes(item.key) && <Badge variant='outline'>Beta</Badge>}
+                      </div>
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
