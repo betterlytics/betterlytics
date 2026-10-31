@@ -12,7 +12,7 @@ function AlertDot({ kind, className }: { kind: SidebarAlertKind; className?: str
     <span
       className={cn(
         'size-2 shrink-0 rounded-full',
-        kind === 'monitoring' ? 'bg-destructive' : 'bg-muted-foreground',
+        kind === 'monitoring' ? 'bg-destructive' : 'dark:bg-muted-foreground bg-neutral-400',
         className,
       )}
     >
