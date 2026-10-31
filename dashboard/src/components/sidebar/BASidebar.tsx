@@ -42,7 +42,7 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { SidebarAlertDot, type SidebarAlertKind } from './SidebarAlertDot';
+import { SidebarAlertDot, SidebarAlertSummaryDot, type SidebarAlertKind } from './SidebarAlertDot';
 
 const ICON_SIZE = 16;
 
@@ -201,7 +201,15 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
 
         <SidebarSeparator className='mx-0 hidden group-data-[collapsible=icon]:block' />
 
-        <CollapsibleSidebarGroup label={t('categories.observability')} storageKey='sidebar-observability'>
+        <CollapsibleSidebarGroup
+          label={t('categories.observability')}
+          storageKey='sidebar-observability'
+          foldedIndicator={
+            (showMonitorAlerts || showStatusPageAlerts) && (
+              <SidebarAlertSummaryDot monitors={showMonitorAlerts} statusPages={showStatusPageAlerts} />
+            )
+          }
+        >
           <SidebarMenu>
             {observabilityItems
               .filter((item) => !item.hidden)
