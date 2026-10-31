@@ -67,9 +67,18 @@ export function FilterPillTooltip({ filter, disabled, children }: FilterPillTool
     closedOverRemoveRef.current = false;
   };
 
+  // Focus handed back by script after a click (closing the editor) is not focus-visible, so it opens nothing.
   const handleFocus = (e: FocusEvent<HTMLElement>) => {
     arrive(e);
-    if (overRemoveRef.current) e.preventDefault();
+    if (overRemoveRef.current || !(e.target as Element).matches(':focus-visible')) e.preventDefault();
+  };
+
+  // Tabbing to another section of the same pill keeps the tooltip open, except onto the remove button and its own tooltip.
+  const handleBlur = (e: FocusEvent<HTMLElement>) => {
+    const next = e.relatedTarget;
+    if (next instanceof Element && e.currentTarget.contains(next) && !next.closest('[data-pill-remove]')) {
+      e.preventDefault();
+    }
   };
 
   return (
@@ -80,6 +89,7 @@ export function FilterPillTooltip({ filter, disabled, children }: FilterPillTool
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         onFocus={handleFocus}
+        onBlur={handleBlur}
       >
         {children}
       </TooltipTrigger>
