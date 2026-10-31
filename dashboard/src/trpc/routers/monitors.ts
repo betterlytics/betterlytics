@@ -9,6 +9,7 @@ import {
   fetchLatestMonitorTlsResult,
   fetchMonitorDailyUptime,
 } from '@/services/analytics/monitoring.service';
+import { getDashboardAlerts } from '@/services/analytics/dashboardAlerts.service';
 import { toMonitorUptimePresentation } from '@/presenters/toMonitorUptimeDays';
 import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -48,6 +49,11 @@ export const monitorsRouter = createRouter({
     .query(async ({ ctx, input }) => {
       return await fetchLatestMonitorTlsResult(input.monitorId, ctx.authContext.siteId);
     }),
+
+  activeAlerts: dashboardProcedure.query(async ({ ctx }) => {
+    if (ctx.authContext.isDemo) return { hasDownMonitors: false, hasUnresolvedStatusPageIncidents: false };
+    return await getDashboardAlerts(ctx.authContext.dashboardId, ctx.authContext.siteId);
+  }),
 
   uptime: dashboardProcedure
     .input(z.object({ monitorId: z.string(), timezone: BATimeZone, days: z.number().optional().default(180) }))

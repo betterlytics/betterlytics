@@ -2162,7 +2162,9 @@
         "observability": "Osservabilità"
       },
       "collapseNav": "Comprimi navigazione",
-      "errorTracking": "Monitoraggio errori"
+      "errorTracking": "Monitoraggio errori",
+      "monitorsDown": "Monitor offline",
+      "activeIncidents": "Incidenti attivi sulle pagine di stato"
     },
     "settings": {
       "sidebar": {

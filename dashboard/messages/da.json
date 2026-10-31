@@ -2162,7 +2162,9 @@
         "observability": "Overvågning"
       },
       "collapseNav": "Skjul navigation",
-      "errorTracking": "Fejlsporing"
+      "errorTracking": "Fejlsporing",
+      "monitorsDown": "Monitorer nede",
+      "activeIncidents": "Aktive hændelser på statussider"
     },
     "settings": {
       "sidebar": {

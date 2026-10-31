@@ -1,6 +1,7 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
 import BASidebar from '@/components/sidebar/BASidebar';
 import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
+import { SidebarAlertSummaryDot } from '@/components/sidebar/SidebarAlertDot';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { Suspense } from 'react';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
@@ -40,10 +41,19 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
 
   const githubStarEligibilityPromise = getGithubStarPromptEligibility();
 
+  const showMonitorAlerts = isFeatureEnabled('enableUptimeMonitoring');
+  const showStatusPageAlerts = isFeatureEnabled('enablePublicStatusPages');
+
   return (
     <SidebarProvider>
       <BASidebar dashboardId={dashboardId} isDemo={false} />
-      <BAMobileSidebarTrigger />
+      <BAMobileSidebarTrigger
+        indicator={
+          (showMonitorAlerts || showStatusPageAlerts) && (
+            <SidebarAlertSummaryDot monitors={showMonitorAlerts} statusPages={showStatusPageAlerts} />
+          )
+        }
+      />
       <BannerProvider>
         {/* Bottom padding below md keeps page content clear of the floating mobile menu button */}
         <div className='flex w-full justify-center pb-20 md:pb-0'>

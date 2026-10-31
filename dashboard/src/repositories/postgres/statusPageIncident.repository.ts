@@ -56,6 +56,12 @@ export async function countActiveIncidentsByStatusPage(dashboardId: string): Pro
   return new Map(grouped.map((row) => [row.statusPageId, row._count._all]));
 }
 
+export async function countUnresolvedIncidents(dashboardId: string): Promise<number> {
+  return prisma.statusPageIncident.count({
+    where: { dashboardId, deletedAt: null, status: { not: 'resolved' }, statusPage: { deletedAt: null } },
+  });
+}
+
 export async function createStatusPageIncident(
   dashboardId: string,
   createdById: string,

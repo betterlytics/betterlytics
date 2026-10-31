@@ -2162,7 +2162,9 @@
         "observability": "Observability"
       },
       "collapseNav": "Collapse nav",
-      "errorTracking": "Error Tracking"
+      "errorTracking": "Error Tracking",
+      "monitorsDown": "Monitors down",
+      "activeIncidents": "Active status page incidents"
     },
     "settings": {
       "sidebar": {
