@@ -16,8 +16,9 @@ const prismaMock = vi.hoisted(() => ({
     update: vi.fn(),
     updateMany: vi.fn(),
   },
-  dashboard: { update: vi.fn() },
+  dashboard: { updateMany: vi.fn() },
   statusPage: { updateManyAndReturn: vi.fn() },
+  dashboardInvitation: { updateMany: vi.fn() },
   $transaction: vi.fn(),
 }));
 
@@ -122,18 +123,32 @@ describe('deleteDashboard', () => {
     expect(await deleteDashboard('d1')).toEqual(['acme']);
 
     expect(prismaMock.$transaction).toHaveBeenCalledTimes(1);
-    const { deletedAt } = prismaMock.dashboard.update.mock.calls[0][0].data;
-    expect(prismaMock.dashboard.update).toHaveBeenCalledWith({ where: { id: 'd1' }, data: { deletedAt } });
+    const { deletedAt } = prismaMock.dashboard.updateMany.mock.calls[0][0].data;
+    expect(prismaMock.dashboard.updateMany).toHaveBeenCalledWith({
+      where: { id: { in: ['d1'] } },
+      data: { deletedAt },
+    });
     expect(deletedAt).toBeInstanceOf(Date);
     expect(prismaMock.statusPage.updateManyAndReturn).toHaveBeenCalledWith({
-      where: { dashboardId: 'd1', deletedAt: null },
+      where: { dashboardId: { in: ['d1'] }, deletedAt: null },
       data: { deletedAt },
       select: { slug: true },
     });
   });
 
+  it('cancels the pending invitations of the deleted dashboard', async () => {
+    prismaMock.statusPage.updateManyAndReturn.mockResolvedValue([]);
+
+    await deleteDashboard('d1');
+
+    expect(prismaMock.dashboardInvitation.updateMany).toHaveBeenCalledWith({
+      where: { dashboardId: { in: ['d1'] }, status: 'pending' },
+      data: { status: 'cancelled' },
+    });
+  });
+
   it('wraps failures', async () => {
-    prismaMock.dashboard.update.mockRejectedValue(new Error('boom'));
+    prismaMock.dashboard.updateMany.mockRejectedValue(new Error('boom'));
 
     await expect(deleteDashboard('d1')).rejects.toThrow('Failed to delete dashboard d1.');
   });

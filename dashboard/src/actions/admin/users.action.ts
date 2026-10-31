@@ -9,6 +9,7 @@ import {
   type AdminUserListQuery,
 } from '@/entities/admin/adminUser.entities';
 import * as AdminUsersService from '@/services/admin/users.service';
+import { revalidateReleasedStatusPages } from '@/lib/statusPageRevalidation';
 
 const UserIdSchema = z.string().min(1);
 
@@ -106,6 +107,8 @@ export const deleteUserAction = withAdminAction(
     audit: async (userId: string, input: AdminDeleteUserInput) => ({ targetId: userId, payload: input }),
   },
   async (ctx: AdminCtx, userId: string, input: AdminDeleteUserInput) => {
-    await AdminUsersService.deleteUser(ctx.actor, UserIdSchema.parse(userId), AdminDeleteUserInputSchema.parse(input));
+    revalidateReleasedStatusPages(
+      await AdminUsersService.deleteUser(ctx.actor, UserIdSchema.parse(userId), AdminDeleteUserInputSchema.parse(input)),
+    );
   },
 );

@@ -18,7 +18,7 @@ import {
 import { DEFAULT_DASHBOARD_SETTINGS } from '@/entities/dashboard/dashboardSettings.entities';
 import { DEFAULT_SITE_CONFIG_VALUES } from '@/entities/dashboard/siteConfig.entities';
 import { DashboardMember, DashboardMemberSchema } from '@/entities/dashboard/invitation.entities';
-import { DashboardRole } from '@prisma/client';
+import { DashboardRole, type Prisma } from '@prisma/client';
 
 export async function findDashboardById(dashboardId: string): Promise<Dashboard> {
   try {
@@ -292,20 +292,32 @@ export async function getOwnedSitesWithDomain(
   }
 }
 
-/** Soft-deletes the dashboard and releases its status pages. Returns the released status page slugs. */
+/**
+ * The one place a dashboard is deleted: soft-deletes the dashboards, releases their live status pages'
+ * slugs and custom domains, and cancels pending invitations. The pages share the dashboards' deletedAt
+ * so a restore can tell them from pages the owner deleted earlier. Returns the released slugs.
+ */
+export async function softDeleteDashboardsWith(
+  tx: Prisma.TransactionClient,
+  dashboardIds: string[],
+): Promise<string[]> {
+  const deletedAt = new Date();
+  await tx.dashboard.updateMany({ where: { id: { in: dashboardIds } }, data: { deletedAt } });
+  const released = await tx.statusPage.updateManyAndReturn({
+    where: { dashboardId: { in: dashboardIds }, deletedAt: null },
+    data: { deletedAt },
+    select: { slug: true },
+  });
+  await tx.dashboardInvitation.updateMany({
+    where: { dashboardId: { in: dashboardIds }, status: 'pending' },
+    data: { status: 'cancelled' },
+  });
+  return released.map((page) => page.slug);
+}
+
 export async function deleteDashboard(dashboardId: string): Promise<string[]> {
   try {
-    return await prisma.$transaction(async (tx) => {
-      const deletedAt = new Date();
-      await tx.dashboard.update({ where: { id: dashboardId }, data: { deletedAt } });
-      // Same timestamp as the dashboard, so a restore can tell these from pages the owner deleted earlier
-      const released = await tx.statusPage.updateManyAndReturn({
-        where: { dashboardId, deletedAt: null },
-        data: { deletedAt },
-        select: { slug: true },
-      });
-      return released.map((page) => page.slug);
-    });
+    return await prisma.$transaction((tx) => softDeleteDashboardsWith(tx, [dashboardId]));
   } catch (error) {
     console.error(`Error deleting dashboard ${dashboardId}:`, error);
     throw new Error(`Failed to delete dashboard ${dashboardId}.`);
