@@ -2,14 +2,13 @@
 
 import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
-import MapLegend from '@/components/map/MapLegend';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
 import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
 import { useMapStyle } from '@/hooks/use-leaflet-style';
 import type { LatLngBoundsExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import React, { useEffect, useMemo, useState, useTransition } from 'react';
+import React, { useEffect, useMemo, useState, useTransition, type ReactNode } from 'react';
 import GeographyLoading from '@/components/loading/GeographyLoading';
 import { useTheme } from 'next-themes';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -18,6 +17,7 @@ type LeafletMapProps = WorldMapResponse & {
   showZoomControls?: boolean;
   initialZoom?: number;
   size?: 'sm' | 'lg';
+  children?: ReactNode;
 };
 
 export default function LeafletMap({
@@ -27,6 +27,7 @@ export default function LeafletMap({
   showZoomControls,
   size = 'sm',
   initialZoom,
+  children,
 }: LeafletMapProps) {
   const [worldGeoJson, setWorldGeoJson] = useState<GeoJSON.FeatureCollection | null>(null);
   const [mapComponents, setMapComponents] = useState<{
@@ -78,6 +79,9 @@ export default function LeafletMap({
     );
   }, [mapComponents, visitorData]);
 
+  // Leaflet only redraws paths on moveend, so the SVG must cover half a viewport of drag on each side
+  const renderer = useMemo(() => mapComponents?.L.svg({ padding: 0.5 }), [mapComponents]);
+
   if (isPending || !mapComponents || !worldGeoJson || !style) {
     return <GeographyLoading />;
   }
@@ -85,22 +89,23 @@ export default function LeafletMap({
   const { MapContainer, GeoJSON, Polygon } = mapComponents;
 
   return (
-    <div className='h-full w-full' key={debouncedTheme}>
+    <div className='relative h-full w-full' key={debouncedTheme}>
       {style.LeafletCSS}
-      <MapContainer
-        center={[20, 0]}
-        style={{ height: '100%', width: '100%' }}
-        zoom={initialZoom || 2}
-        zoomControl={showZoomControls}
-        maxBounds={worldBounds as LatLngBoundsExpression}
-        maxBoundsViscosity={0.5}
-        minZoom={1}
-        maxZoom={7}
-        zoomDelta={0.1}
-        zoomSnap={0.1}
-        attributionControl={false}
-      >
-        <MapSelectionContextProvider style={style}>
+      <MapSelectionContextProvider style={style}>
+        <MapContainer
+          center={[20, 0]}
+          style={{ height: '100%', width: '100%' }}
+          zoom={initialZoom || 2}
+          zoomControl={showZoomControls}
+          maxBounds={worldBounds as LatLngBoundsExpression}
+          maxBoundsViscosity={0.5}
+          renderer={renderer}
+          minZoom={1}
+          maxZoom={7}
+          zoomDelta={0.1}
+          zoomSnap={0.1}
+          attributionControl={false}
+        >
           <MapBackgroundLayer Polygon={Polygon} />
           <MapCountryGeoJSON
             GeoJSON={GeoJSON}
@@ -110,9 +115,9 @@ export default function LeafletMap({
             style={style}
           />
           <MapStickyTooltip size={size} />
-          <MapLegend maxVisitors={maxVisitors} />
-        </MapSelectionContextProvider>
-      </MapContainer>
+        </MapContainer>
+        {children}
+      </MapSelectionContextProvider>
     </div>
   );
 }

@@ -92,6 +92,10 @@ export function MapSelectionContextProvider({ children, style }: MapSelectionPro
           return { ...prev, ...next };
         }
 
+        if (!prev.hovered && !next.hovered) {
+          return prev;
+        }
+
         if (prev.hovered?.geoVisitor.country_code === next.hovered?.geoVisitor.country_code) {
           return { ...prev };
         }
