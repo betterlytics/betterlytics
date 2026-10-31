@@ -808,11 +808,11 @@ export async function getDetectedOutagesForMonitors(
 export async function getOpenIncidentsForMonitors(
   checkIds: string[],
   siteId: string,
-): Promise<Map<string, { incidentId: string; startedAt: string }>> {
+): Promise<Map<string, { startedAt: string }>> {
   if (!checkIds.length) return new Map();
 
   const query = safeSql`
-    SELECT check_id, toString(incident_id) AS incident_id, toString(started_at) AS started_at
+    SELECT check_id, toString(started_at) AS started_at
     FROM analytics.monitor_incidents FINAL
     WHERE check_id IN ({check_ids:Array(String)})
       AND site_id = {site_id:String}
@@ -823,14 +823,9 @@ export async function getOpenIncidentsForMonitors(
     .query(query.taggedSql, {
       params: { ...query.taggedParams, check_ids: checkIds, site_id: siteId },
     })
-    .toPromise()) as { check_id: string; incident_id: string; started_at: string }[];
+    .toPromise()) as { check_id: string; started_at: string }[];
 
-  return new Map(
-    rows.map((row) => [
-      row.check_id,
-      { incidentId: row.incident_id, startedAt: toIsoUtc(row.started_at) ?? row.started_at },
-    ]),
-  );
+  return new Map(rows.map((row) => [row.check_id, { startedAt: toIsoUtc(row.started_at) ?? row.started_at }]));
 }
 
 export async function getLastResolvedIncidentForMonitors(

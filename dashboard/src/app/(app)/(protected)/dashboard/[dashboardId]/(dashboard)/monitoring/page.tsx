@@ -23,6 +23,7 @@ export default async function MonitoringPage({ params }: MonitoringPageParams) {
       <MonitoringClient
         dashboardId={dashboardId}
         initialMonitors={monitors}
+        initialMonitorsAt={Date.now()}
         timezone={timezone}
         domain={dashboard.domain}
       />

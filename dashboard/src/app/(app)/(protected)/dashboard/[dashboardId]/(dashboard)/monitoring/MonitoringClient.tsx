@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { ArrowUpDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -16,7 +16,9 @@ import { compareDownFirst, monitorSortName, OPERATIONAL_STATE_PRIORITY } from '.
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { trpc, type BARouterOutputs } from '@/trpc/client';
-import { useDashboardAlertsQuery } from '@/hooks/use-dashboard-alerts';
+import { DASHBOARD_ALERTS_REFRESH_OPTIONS, useRefetchOnWindowFocus } from '@/hooks/use-dashboard-alerts';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 type FiltersCopy = {
   statusLabel: string;
@@ -74,34 +76,35 @@ const STATUS_FILTER_STATES: Record<StatusFilter, MonitorOperationalState[] | nul
 type MonitoringClientProps = {
   dashboardId: string;
   initialMonitors: BARouterOutputs['monitors']['list'];
+  /** When the server fetched `initialMonitors`; Back can hand down an older payload than the cached list. */
+  initialMonitorsAt: number;
   timezone: string;
   domain: string;
 };
 
-export function MonitoringClient({ dashboardId, initialMonitors, timezone, domain }: MonitoringClientProps) {
+export function MonitoringClient({
+  dashboardId,
+  initialMonitors,
+  initialMonitorsAt,
+  timezone,
+  domain,
+}: MonitoringClientProps) {
   const t = useTranslations('monitoringPage');
   const { caps } = useCapabilities();
-  const utils = trpc.useUtils();
 
-  const { data: monitors } = trpc.monitors.list.useQuery(
+  const { isDemo } = useDashboardAuth();
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
+  // Polling is pointless on the demo dashboard and when uptime monitoring is off.
+  const poll = !isDemo && isFeatureFlagEnabled('enableUptimeMonitoring');
+  const { data: monitors, refetch } = trpc.monitors.list.useQuery(
     { dashboardId, timezone },
-    { initialData: initialMonitors },
+    {
+      initialData: initialMonitors,
+      initialDataUpdatedAt: initialMonitorsAt,
+      ...(poll && DASHBOARD_ALERTS_REFRESH_OPTIONS),
+    },
   );
-
-  // A router.refresh() (e.g. after creating a monitor) hands down fresh server data.
-  useEffect(() => {
-    utils.monitors.list.setData({ dashboardId, timezone }, initialMonitors);
-  }, [utils, dashboardId, timezone, initialMonitors]);
-
-  // The alerts query behind the sidebar dot drives the list's refresh, so the two always load together.
-  const { dataUpdatedAt: alertsUpdatedAt } = useDashboardAlertsQuery();
-  const previousAlertsUpdatedAt = useRef(alertsUpdatedAt);
-  useEffect(() => {
-    if (previousAlertsUpdatedAt.current && previousAlertsUpdatedAt.current !== alertsUpdatedAt) {
-      utils.monitors.list.invalidate({ dashboardId, timezone });
-    }
-    previousAlertsUpdatedAt.current = alertsUpdatedAt;
-  }, [utils, dashboardId, timezone, alertsUpdatedAt]);
+  useRefetchOnWindowFocus(refetch, poll);
 
   const monitorCount = monitors.length;
   const maxMonitors = caps.monitoring.maxMonitors;
