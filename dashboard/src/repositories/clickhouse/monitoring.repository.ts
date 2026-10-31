@@ -65,6 +65,8 @@ function parseIncidentSegmentRow(row: IncidentSegmentRow): MonitorIncidentSegmen
 const PROBE_COVERAGE_PERMILLE = 1200;
 // Far enough back to reach the probe whose coverage runs into the range, with room for its duration
 const COVERAGE_LOOKBACK_MS = 24 * 60 * 60 * PROBE_COVERAGE_PERMILLE + 10 * 60 * 1000;
+// Far enough past the range to see a next check that started inside it but finished after it
+const COVERAGE_LOOKAHEAD_MS = 10 * 60 * 1000;
 
 export type UptimeMonitorRef = { checkId: string; createdAt: Date };
 
@@ -134,7 +136,7 @@ export async function getUptimeBuckets(
           AND site_id = {site_id:String}
           AND kind != 'tls'
           AND ts >= fromUnixTimestamp64Milli({lookback_start_ms:Int64}, 'UTC')
-          AND ts < fromUnixTimestamp64Milli({range_end_ms:Int64}, 'UTC')
+          AND ts < fromUnixTimestamp64Milli({lookahead_end_ms:Int64}, 'UTC')
       ),
       coverage AS (
         SELECT
@@ -213,6 +215,7 @@ export async function getUptimeBuckets(
         timezone: options.timezone,
         range_start_ms: rangeStartMs,
         range_end_ms: options.rangeEnd.getTime(),
+        lookahead_end_ms: options.rangeEnd.getTime() + COVERAGE_LOOKAHEAD_MS,
         lookback_start_ms: rangeStartMs - COVERAGE_LOOKBACK_MS,
         coverage_permille: PROBE_COVERAGE_PERMILLE,
       },
