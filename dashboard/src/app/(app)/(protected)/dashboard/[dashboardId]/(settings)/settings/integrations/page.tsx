@@ -3,6 +3,7 @@ import {
   getIntegrationsAction,
 } from '@/app/actions/dashboard/integrations.action';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { resolveDashboardContext } from '@/auth/auth-actions';
 import IntegrationsSettings from './IntegrationsSettings';
 
 type IntegrationsPageProps = {
@@ -11,6 +12,8 @@ type IntegrationsPageProps = {
 
 export default async function IntegrationsPage({ params }: IntegrationsPageProps) {
   const { dashboardId } = await params;
+  await resolveDashboardContext(dashboardId);
+
   const availableTypesPromise = getAvailableIntegrationTypesAction(dashboardId);
   const integrationsPromise = getIntegrationsAction(dashboardId);
   // Integrations are only ever triggered by uptime monitoring, so without it nothing will be delivered

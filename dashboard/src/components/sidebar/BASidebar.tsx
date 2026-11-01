@@ -35,6 +35,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { Suspense } from 'react';
 import type { ReactElement } from 'react';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/dashboard/dashboard.action';
+import { resolveDashboardContext } from '@/auth/auth-actions';
 import type { ServerActionResponse } from '@/middlewares/serverActionHandler';
 import { DashboardDropdown } from './DashboardDropdown';
 
@@ -60,6 +61,10 @@ type SidebarItem = {
 };
 
 export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps) {
+  if (!isDemo) {
+    await resolveDashboardContext(dashboardId);
+  }
+
   const currentDashboardPromise: Promise<Dashboard> = isDemo
     ? Promise.resolve({
         id: dashboardId,
