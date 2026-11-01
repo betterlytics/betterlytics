@@ -42,7 +42,7 @@ async function runUsageThresholdScan(): Promise<void> {
           currentUsage: usage,
           usageLimit: sub.eventLimit,
           usagePercentage: pct,
-          planName: formatPlanName(sub.tier),
+          planName: formatPlanName(sub.planId),
           currentPeriodStart: sub.currentPeriodStart,
           currentPeriodEnd: sub.currentPeriodEnd,
           upgradeUrl,

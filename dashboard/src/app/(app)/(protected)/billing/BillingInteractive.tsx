@@ -9,6 +9,7 @@ import { syncCheckoutSession } from '@/actions/stripe.action';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { SuccessCheckmark } from '@/components/billing/SuccessCheckmark';
 import type { UserBillingData } from '@/entities/billing/billing.entities';
+import { getPlan } from '@/lib/billing/catalog';
 
 const SUCCESS_AUTO_CLOSE_MS = 2400;
 
@@ -59,12 +60,12 @@ export function BillingInteractive({ billingData }: BillingInteractiveProps) {
           <DialogHeader className='sr-only'>
             <DialogTitle>{tCheckout('successTitle')}</DialogTitle>
             <DialogDescription>
-              {tCheckout('successDescription', { tier: billingData.subscription.tier })}
+              {tCheckout('successDescription', { tier: getPlan(billingData.subscription.planId).name })}
             </DialogDescription>
           </DialogHeader>
           <SuccessCheckmark
             label={tCheckout('successTitle')}
-            description={tCheckout('successDescription', { tier: billingData.subscription.tier })}
+            description={tCheckout('successDescription', { tier: getPlan(billingData.subscription.planId).name })}
           />
         </DialogContent>
       </Dialog>
