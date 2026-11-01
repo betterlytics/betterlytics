@@ -1,0 +1,94 @@
+@reference '../../../landing.css';
+
+@layer components {
+  /* rows reach 12px past the column so the focus ring clears the text; the hairlines stay aligned with it */
+  .options {
+    margin-inline: -12px;
+  }
+  .options > li {
+    position: relative;
+  }
+  .options > li + li::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    inset-inline: 12px;
+    height: 1px;
+    background: var(--color-rule-08);
+  }
+  .option {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    padding: 16px 12px;
+    border-radius: 10px;
+  }
+  label.option {
+    cursor: pointer;
+  }
+  label.option:hover .switch {
+    background: --alpha(var(--color-fg) / 22%);
+  }
+  label.option[data-on]:hover .switch {
+    background: var(--color-volt-lift);
+  }
+  .option:has(:focus-visible) {
+    outline: 2px solid var(--color-volt-lift);
+  }
+
+  .text {
+    display: grid;
+    gap: 2px;
+  }
+  .text b {
+    font-size: var(--text-body-sm);
+    line-height: 21px;
+    font-weight: 500;
+    letter-spacing: var(--tracking-ui);
+    color: var(--color-fg);
+  }
+  .text span {
+    font-size: var(--text-label);
+    line-height: 20px;
+    color: var(--color-muted);
+  }
+
+  .always {
+    padding: 3px 9px;
+    border: 1px solid var(--color-rule-10);
+    border-radius: 999px;
+    font-size: 11.5px;
+    line-height: 16px;
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  .switch {
+    position: relative;
+    width: 34px;
+    height: 20px;
+    border-radius: 999px;
+    background: --alpha(var(--color-fg) / 14%);
+    transition: background-color 0.25s var(--ease-out-expo);
+  }
+  .switch i {
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-fg);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+    transition: translate 0.3s var(--ease-out-expo);
+  }
+  .option[data-on] .switch {
+    background: var(--color-volt-lift);
+  }
+  .option[data-on] .switch i {
+    translate: 14px 0;
+    background: var(--color-white);
+  }
+}
