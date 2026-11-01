@@ -1,25 +1,16 @@
 import { z } from 'zod';
-import { SubscriptionTier as PrismaSubscriptionTier, Currency as PrismaCurrency } from '@prisma/client';
+import { Currency as PrismaCurrency } from '@prisma/client';
 import { addMonths, startOfDay } from 'date-fns';
+import { PlanIdSchema, freeSubscriptionDefaults, selfHostedPlan } from '@/lib/billing/catalog';
 
-export const TierSchema = z.nativeEnum(PrismaSubscriptionTier);
 export const CurrencySchema = z.nativeEnum(PrismaCurrency).default('USD');
 export const PaymentStatusSchema = z.enum(['paid', 'pending', 'failed', 'refunded', 'past-due']);
 
-export const STARTER_SUBSCRIPTION_STATIC = {
-  tier: PrismaSubscriptionTier.growth,
-  eventLimit: 10_000,
-  pricePerMonth: 0,
-  currency: PrismaCurrency.USD,
-  status: 'active' as const,
-  cancelAtPeriodEnd: false,
-};
-
-export function buildStarterSubscription() {
+export function buildFreeSubscription() {
   const currentPeriodStart = startOfDay(new Date());
   const currentPeriodEnd = addMonths(currentPeriodStart, 1);
   return {
-    ...STARTER_SUBSCRIPTION_STATIC,
+    ...freeSubscriptionDefaults(),
     currentPeriodStart,
     currentPeriodEnd,
   };
@@ -33,7 +24,7 @@ export function buildSelfHostedBillingData(): UserBillingData {
     isExistingPaidSubscriber: true,
     isFreePlanUser: false,
     subscription: {
-      tier: PrismaSubscriptionTier.enterprise,
+      planId: selfHostedPlan().id,
       eventLimit: 999_999_999,
       pricePerMonth: 0,
       currency: PrismaCurrency.USD,
@@ -60,7 +51,7 @@ export function buildSelfHostedBillingData(): UserBillingData {
 export const SubscriptionSchema = z.object({
   id: z.string(),
   userId: z.string(),
-  tier: TierSchema,
+  planId: PlanIdSchema,
   eventLimit: z.number(),
   pricePerMonth: z.number(),
   currency: CurrencySchema,
@@ -79,7 +70,7 @@ export const SubscriptionSchema = z.object({
 
 export const UpsertSubscriptionSchema = z.object({
   userId: z.string(),
-  tier: TierSchema,
+  planId: PlanIdSchema,
   status: z.string(),
   eventLimit: z.number(),
   pricePerMonth: z.number(),
@@ -160,7 +151,7 @@ export const SubscriptionWithOwnedSitesSchema = z.object({
   userId: z.string(),
   userEmail: z.string(),
   userName: z.string().nullable(),
-  tier: TierSchema,
+  planId: PlanIdSchema,
   eventLimit: z.number(),
   currentPeriodStart: z.date(),
   currentPeriodEnd: z.date(),
@@ -172,7 +163,7 @@ export const SubscriptionEndingSoonCandidateSchema = z.object({
   userId: z.string(),
   userEmail: z.string(),
   userName: z.string().nullable(),
-  tier: TierSchema,
+  planId: PlanIdSchema,
   currentPeriodEnd: z.date(),
 });
 
@@ -206,7 +197,7 @@ export const UserInvoiceSchema = z.object({
 
 export const UserBillingDataSchema = z.object({
   subscription: z.object({
-    tier: TierSchema,
+    planId: PlanIdSchema,
     eventLimit: z.number(),
     pricePerMonth: z.number(),
     currency: CurrencySchema,
@@ -221,7 +212,6 @@ export const UserBillingDataSchema = z.object({
 });
 
 export type Currency = z.infer<typeof CurrencySchema>;
-export type Tier = z.infer<typeof TierSchema>;
 export type Subscription = z.infer<typeof SubscriptionSchema>;
 export type UpsertSubscriptionData = z.infer<typeof UpsertSubscriptionSchema>;
 export type UsageData = z.infer<typeof UsageDataSchema>;

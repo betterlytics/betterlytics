@@ -18,6 +18,7 @@ import {
   type UsageBreakdown,
 } from '@/entities/billing/billing.entities';
 import { UserException } from '@/lib/exceptions';
+import { getPlan, isFreeBand } from '@/lib/billing/catalog';
 
 export async function getUserBillingStats(userId: string): Promise<UserBillingData> {
   try {
@@ -44,7 +45,7 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
     };
 
     const isExistingPaidSubscriber = subscription.paymentSubscriptionId !== null;
-    const isFreePlanUser = subscription.tier === 'growth' && subscription.pricePerMonth === 0;
+    const isFreePlanUser = isFreeBand(getPlan(subscription.planId), subscription.eventLimit);
 
     return UserBillingDataSchema.parse({
       subscription: { ...subscription },

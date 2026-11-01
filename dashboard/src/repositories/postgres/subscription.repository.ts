@@ -8,7 +8,7 @@ import {
   SubscriptionEndingSoonCandidateSchema,
   UpsertSubscriptionData,
   UpsertSubscriptionSchema,
-  buildStarterSubscription,
+  buildFreeSubscription,
 } from '@/entities/billing/billing.entities';
 import { addMonths, startOfDay } from 'date-fns';
 
@@ -20,7 +20,7 @@ export async function findActiveSubscriptionsWithOwnedSites(): Promise<Subscript
     },
     select: {
       userId: true,
-      tier: true,
+      planId: true,
       eventLimit: true,
       currentPeriodStart: true,
       currentPeriodEnd: true,
@@ -43,7 +43,7 @@ export async function findActiveSubscriptionsWithOwnedSites(): Promise<Subscript
       userId: s.userId,
       userEmail: s.user.email,
       userName: s.user.name,
-      tier: s.tier,
+      planId: s.planId,
       eventLimit: s.eventLimit,
       currentPeriodStart: s.currentPeriodStart,
       currentPeriodEnd: s.currentPeriodEnd,
@@ -67,13 +67,13 @@ export async function updateSubscriptionPeriod(
 
 export async function getUserSubscription(userId: string): Promise<Subscription | null> {
   try {
-    const starterSubscription = buildStarterSubscription();
+    const freeSubscription = buildFreeSubscription();
 
     const subscription = await prisma.subscription.upsert({
       where: { userId },
       create: {
         user: { connect: { id: userId } },
-        ...starterSubscription,
+        ...freeSubscription,
       },
       update: {},
     });
@@ -130,7 +130,7 @@ export async function setSubscriptionPaymentCustomerId(userId: string, paymentCu
     where: { userId },
     create: {
       user: { connect: { id: userId } },
-      ...buildStarterSubscription(),
+      ...buildFreeSubscription(),
       paymentCustomerId,
     },
     update: { paymentCustomerId },
@@ -170,7 +170,7 @@ export async function findSubscriptionsEndingSoon(endingBefore: Date): Promise<S
       },
       select: {
         userId: true,
-        tier: true,
+        planId: true,
         currentPeriodEnd: true,
         user: { select: { email: true, name: true } },
       },
@@ -181,7 +181,7 @@ export async function findSubscriptionsEndingSoon(endingBefore: Date): Promise<S
         userId: s.userId,
         userEmail: s.user.email,
         userName: s.user.name,
-        tier: s.tier,
+        planId: s.planId,
         currentPeriodEnd: s.currentPeriodEnd,
       }),
     );

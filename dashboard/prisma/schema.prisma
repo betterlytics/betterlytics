@@ -21,12 +21,6 @@ enum AvatarMode {
   gravatar
 }
 
-enum SubscriptionTier {
-  growth
-  professional
-  enterprise
-}
-
 enum DashboardRole {
   owner
   admin
@@ -600,7 +594,7 @@ model Subscription {
   userId String @unique
   
   // Plan configuration
-  tier SubscriptionTier // "growth", "professional", "enterprise"
+  planId String // Plan id from the billing catalog (dashboard/src/lib/billing/catalog)
   eventLimit Int // Selected event limit: 10_000, 50_000, 100_000, etc.
   pricePerMonth Int // Price in cents
   currency Currency @default(USD)

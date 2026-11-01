@@ -4,7 +4,7 @@ import { getIP } from 'better-auth/api';
 import { auth, getEnabledOAuthProviders } from '@/lib/better-auth';
 import { env } from '@/lib/env';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
-import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
+import { createFreeSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail } from '@/services/account/verification.service';
 import { enqueueEmail } from '@/services/email/email.service';
 import { setLocaleCookie } from '@/constants/cookies';
@@ -62,7 +62,7 @@ vi.mock('@/services/account/userSettings.service', () => ({
   getUserSettings: vi.fn(),
 }));
 vi.mock('@/services/billing/subscription.service', () => ({
-  createStarterSubscriptionForUser: vi.fn(),
+  createFreeSubscriptionForUser: vi.fn(),
 }));
 vi.mock('@/services/account/verification.service', () => ({
   sendVerificationEmail: vi.fn(),
@@ -300,7 +300,7 @@ describe('user create hook (onboarding side effects)', () => {
 
     await runCreateHook();
 
-    expect(createStarterSubscriptionForUser).not.toHaveBeenCalled();
+    expect(createFreeSubscriptionForUser).not.toHaveBeenCalled();
     expect(createDefaultUserSettings).not.toHaveBeenCalled();
     expect(sendVerificationEmail).not.toHaveBeenCalled();
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('rolled back'), { userId: 'user-1' });
@@ -312,7 +312,7 @@ describe('user create hook (onboarding side effects)', () => {
 
     await runCreateHook();
 
-    expect(createStarterSubscriptionForUser).toHaveBeenCalledWith('user-1');
+    expect(createFreeSubscriptionForUser).toHaveBeenCalledWith('user-1');
     expect(createDefaultUserSettings).toHaveBeenCalledWith('user-1', undefined);
   });
 
@@ -334,7 +334,7 @@ describe('user create hook (onboarding side effects)', () => {
 
   it('swallows side-effect failures (user creation must not fail)', async () => {
     vi.mocked(isFeatureEnabled).mockReturnValue(false);
-    vi.mocked(createStarterSubscriptionForUser).mockRejectedValue(new Error('db down'));
+    vi.mocked(createFreeSubscriptionForUser).mockRejectedValue(new Error('db down'));
 
     await expect(runCreateHook()).resolves.toBeUndefined();
     expect(createDefaultUserSettings).toHaveBeenCalled();

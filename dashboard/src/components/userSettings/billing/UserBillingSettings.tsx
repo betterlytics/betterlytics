@@ -17,6 +17,7 @@ import { derivePlanStatus } from '@/lib/billing/subscription-status';
 import UserSettingsSection from '../shared/UserSettingsSection';
 import SettingRow from '../shared/SettingRow';
 import UserBillingInvoicesSettings from './UserBillingInvoicesSettings';
+import { getPlan } from '@/lib/billing/catalog';
 
 interface UserBillingSettingsProps {
   onCloseDialog?: () => void;
@@ -100,7 +101,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
         <SettingRow
           label={
             <span className='flex items-center gap-2'>
-              <span className='capitalize'>{subscription.tier}</span>
+              <span>{getPlan(subscription.planId).name}</span>
               {isPaid && <PlanStatusBadge planStatus={planStatus} />}
             </span>
           }
@@ -143,7 +144,7 @@ export default function UserBillingSettings({ onCloseDialog }: UserBillingSettin
             label={t('cancellation.label')}
             description={t('cancellation.description')}
             action={
-              <CancelSubscriptionDialog tier={subscription.tier} isActive={canCancel}>
+              <CancelSubscriptionDialog planId={subscription.planId} isActive={canCancel}>
                 <Button variant='destructive' size='sm' className='cursor-pointer'>
                   {t('cancellation.cancel')}
                 </Button>
