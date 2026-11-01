@@ -2162,7 +2162,8 @@
         "observability": "Observerbarhet"
       },
       "collapseNav": "Skjul navigasjon",
-      "errorTracking": "Feilsporing"
+      "errorTracking": "Feilsporing",
+      "monitorsDown": "Monitorer nede"
     },
     "settings": {
       "sidebar": {

@@ -15,6 +15,10 @@ import { presentSslStatus } from './styles';
 import { compareDownFirst, monitorSortName, OPERATIONAL_STATE_PRIORITY } from './utils';
 import { computeDaysUntil } from '@/utils/dateHelpers';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
+import { trpc, type BARouterOutputs } from '@/trpc/client';
+import { DASHBOARD_ALERTS_REFRESH_OPTIONS, useRefetchOnWindowFocus } from '@/hooks/use-dashboard-alerts';
+import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
+import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 type FiltersCopy = {
   statusLabel: string;
@@ -71,13 +75,36 @@ const STATUS_FILTER_STATES: Record<StatusFilter, MonitorOperationalState[] | nul
 
 type MonitoringClientProps = {
   dashboardId: string;
-  monitors: MonitorWithStatus[];
+  initialMonitors: BARouterOutputs['monitors']['list'];
+  /** When the server fetched `initialMonitors`; Back can hand down an older payload than the cached list. */
+  initialMonitorsAt: number;
+  timezone: string;
   domain: string;
 };
 
-export function MonitoringClient({ dashboardId, monitors, domain }: MonitoringClientProps) {
+export function MonitoringClient({
+  dashboardId,
+  initialMonitors,
+  initialMonitorsAt,
+  timezone,
+  domain,
+}: MonitoringClientProps) {
   const t = useTranslations('monitoringPage');
   const { caps } = useCapabilities();
+
+  const { isDemo } = useDashboardAuth();
+  const { isFeatureFlagEnabled } = useClientFeatureFlags();
+  // Polling is pointless on the demo dashboard and when uptime monitoring is off.
+  const poll = !isDemo && isFeatureFlagEnabled('enableUptimeMonitoring');
+  const { data: monitors, refetch } = trpc.monitors.list.useQuery(
+    { dashboardId, timezone },
+    {
+      initialData: initialMonitors,
+      initialDataUpdatedAt: initialMonitorsAt,
+      ...(poll && DASHBOARD_ALERTS_REFRESH_OPTIONS),
+    },
+  );
+  useRefetchOnWindowFocus(refetch, poll);
 
   const monitorCount = monitors.length;
   const maxMonitors = caps.monitoring.maxMonitors;

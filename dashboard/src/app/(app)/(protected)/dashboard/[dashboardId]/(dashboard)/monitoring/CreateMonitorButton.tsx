@@ -8,6 +8,7 @@ import { UpgradeButton } from '@/components/billing/UpgradeButton';
 import { CreateMonitorDialog } from './CreateMonitorDialog';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
+import { trpc } from '@/trpc/client';
 
 type CreateMonitorButtonProps = {
   dashboardId: string;
@@ -30,6 +31,7 @@ export function CreateMonitorButton({
 }: CreateMonitorButtonProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+  const utils = trpc.useUtils();
   const t = useTranslations('monitoringPage.form');
   const tBanner = useTranslations('banners.featureNotEnabled.monitoring');
   const monitoringEnabled = useClientFeatureFlags().isFeatureFlagEnabled('enableUptimeMonitoring');
@@ -54,7 +56,10 @@ export function CreateMonitorButton({
       dashboardId={dashboardId}
       domain={domain}
       existingUrls={existingUrls}
-      onCreated={() => router.refresh()}
+      onCreated={() => {
+        utils.monitors.invalidate();
+        router.refresh();
+      }}
       trigger={
         monitoringEnabled ? (
           createButton(false)
