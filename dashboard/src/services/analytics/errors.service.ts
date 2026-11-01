@@ -35,21 +35,37 @@ import {
   upsertErrorGroup,
   bulkUpsertErrorGroup,
 } from '@/repositories/postgres/errorGroup.repository';
+import type { AuthContext } from '@/entities/auth/authContext.entities';
+import {
+  findDemoReplaySessionForError,
+  getDemoErrorGroup,
+  getDemoErrorGroups,
+  getDemoErrorGroupSidebarData,
+  getDemoErrorGroupTimestamps,
+  getDemoErrorGroupVolumes,
+  getDemoErrorOccurrence,
+  getDemoSessionTrailEvents,
+  hasDemoSessionReplay,
+} from '@/services/analytics/demoErrors.service';
+
+// Public demo visitors get static errors: real error messages can carry other users' URLs
+export type ErrorsContext = Pick<AuthContext, 'siteId' | 'dashboardId' | 'isDemo'>;
 
 export async function getErrorGroupForSite(
-  siteId: string,
-  dashboardId: string,
+  ctx: ErrorsContext,
   fingerprint: string,
 ): Promise<ErrorGroupRow | null> {
-  const row = await getErrorGroup(siteId, fingerprint);
+  if (ctx.isDemo) return getDemoErrorGroup(fingerprint);
+
+  const row = await getErrorGroup(ctx.siteId, fingerprint);
   if (!row) return null;
 
-  const statusMap = await getTrackedErrorGroups(dashboardId, [fingerprint]);
+  const statusMap = await getTrackedErrorGroups(ctx.dashboardId, [fingerprint]);
   return { ...row, status: statusMap[fingerprint] ?? 'unresolved' };
 }
 
 export async function getErrorGroupSidebarDataForSite(
-  siteId: string,
+  ctx: ErrorsContext,
   fingerprint: string,
   timezone: string,
   days = 30,
@@ -57,6 +73,9 @@ export async function getErrorGroupSidebarDataForSite(
   // Whole calendar days in the zone, ending after today so only today is partial
   const rangeEndDate = moment.tz(timezone).startOf('day').add(1, 'day');
   const rangeStartDate = rangeEndDate.clone().subtract(days, 'days');
+  if (ctx.isDemo) return getDemoErrorGroupSidebarData(fingerprint, timezone, rangeStartDate, rangeEndDate);
+
+  const { siteId } = ctx;
   const rangeStart = toDateTimeString(rangeStartDate.toDate());
   const rangeEnd = toDateTimeString(rangeEndDate.toDate());
 
@@ -69,11 +88,13 @@ export async function getErrorGroupSidebarDataForSite(
 }
 
 export async function getErrorOccurrenceForSite(
-  siteId: string,
+  ctx: ErrorsContext,
   fingerprint: string,
   offset: number,
 ): Promise<ErrorOccurrence | null> {
-  const raw = await getErrorOccurrence(siteId, fingerprint, offset);
+  if (ctx.isDemo) return getDemoErrorOccurrence(fingerprint, offset);
+
+  const raw = await getErrorOccurrence(ctx.siteId, fingerprint, offset);
   if (!raw) return null;
 
   let mechanism = '';
@@ -103,10 +124,12 @@ export async function getErrorOccurrenceForSite(
 }
 
 export async function getSessionTrailForSite(
-  siteId: string,
+  ctx: ErrorsContext,
   sessionId: string,
 ): Promise<GroupedSessionTrailEvent[]> {
-  const events = await getSessionTrailEvents(siteId, sessionId);
+  const events = ctx.isDemo
+    ? getDemoSessionTrailEvents(sessionId)
+    : await getSessionTrailEvents(ctx.siteId, sessionId);
   return groupConsecutiveEvents(events);
 }
 
@@ -139,27 +162,33 @@ function groupConsecutiveEvents(events: SessionTrailEvent[]): GroupedSessionTrai
   return groups;
 }
 
-export async function hasSessionReplayForSite(siteId: string, sessionId: string): Promise<boolean> {
-  return hasSessionReplay(siteId, sessionId);
+export async function hasSessionReplayForSite(ctx: ErrorsContext, sessionId: string): Promise<boolean> {
+  if (ctx.isDemo) return hasDemoSessionReplay(sessionId);
+  return hasSessionReplay(ctx.siteId, sessionId);
 }
 
-export async function findReplaySessionForErrorGroup(siteId: string, fingerprint: string): Promise<string | null> {
-  return findReplaySessionForError(siteId, fingerprint);
+export async function findReplaySessionForErrorGroup(
+  ctx: ErrorsContext,
+  fingerprint: string,
+): Promise<string | null> {
+  if (ctx.isDemo) return findDemoReplaySessionForError(fingerprint);
+  return findReplaySessionForError(ctx.siteId, fingerprint);
 }
 
-export async function hasAnyErrorsForSite(siteId: string): Promise<boolean> {
-  return hasAnyErrors(siteId);
+export async function hasAnyErrorsForSite(ctx: ErrorsContext): Promise<boolean> {
+  if (ctx.isDemo) return true;
+  return hasAnyErrors(ctx.siteId);
 }
 
-export async function getErrorGroupsForSite(
-  siteQuery: BASiteQuery,
-  dashboardId: string,
-): Promise<ErrorGroupRow[]> {
+// Filters other than the date range don't apply on the public demo, like demo session replay
+export async function getErrorGroupsForSite(ctx: ErrorsContext, siteQuery: BASiteQuery): Promise<ErrorGroupRow[]> {
+  if (ctx.isDemo) return getDemoErrorGroups(siteQuery);
+
   const rows = await getErrorGroups(siteQuery);
   if (rows.length === 0) return rows;
 
   const fingerprints = rows.map((r) => r.error_fingerprint);
-  const statusMap = await getTrackedErrorGroups(dashboardId, fingerprints);
+  const statusMap = await getTrackedErrorGroups(ctx.dashboardId, fingerprints);
 
   return rows.map((r) => ({
     ...r,
@@ -184,15 +213,18 @@ export async function bulkUpsertErrorGroupForSite(
 }
 
 export async function getErrorGroupTimestampsForSite(
-  siteId: string,
+  ctx: ErrorsContext,
   fingerprints: string[],
 ): Promise<ErrorGroupTimestamps> {
-  return getErrorGroupTimestamps(siteId, fingerprints);
+  if (ctx.isDemo) return getDemoErrorGroupTimestamps(fingerprints);
+  return getErrorGroupTimestamps(ctx.siteId, fingerprints);
 }
 
 export async function getErrorGroupVolumesForSite(
+  ctx: ErrorsContext,
   siteQuery: BASiteQuery,
   fingerprints: string[],
 ): Promise<ErrorGroupVolumeRow[]> {
+  if (ctx.isDemo) return getDemoErrorGroupVolumes(siteQuery, fingerprints);
   return getErrorGroupVolumes(siteQuery, fingerprints);
 }
