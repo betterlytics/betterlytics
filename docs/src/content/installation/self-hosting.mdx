@@ -498,6 +498,7 @@ All options are read from `.env` in the repository root. Database passwords, aut
   <EnvVar name="ALLOW_PRIVATE_TARGETS" default="true">Uptime monitors and webhooks may reach private and LAN addresses, any port is allowed, and webhooks may use `http://`. `localhost`, link-local and a few reserved addresses stay blocked. `false` limits them to public addresses on ports 80 and 443, see [Monitoring Internal Services](#monitoring-internal-services)</EnvVar>
   <EnvVar name="PUBLIC_ENABLE_FAVICON_FETCHING" default="true">Site icons in the dashboard are fetched server-side from DuckDuckGo (`icons.duckduckgo.com`), which learns each domain whose icon is shown. `false` stops these requests, and a generic globe icon is shown instead</EnvVar>
   <EnvVar name="LOG_LEVEL" default="info">Backend log level: `error`, `warn`, `info`, `debug` or `trace`</EnvVar>
+  <EnvVar name="UPDATE_CHECK_ENABLED" default="true">Once a day the dashboard asks GitHub for the latest stable Betterlytics release and shows admins a notice when it is newer than yours, see [Updating](#updating). The request goes to `api.github.com` and sends nothing about your instance or its users. `false` stops these requests and hides the notice</EnvVar>
   <EnvVar name="TELEMETRY_ENABLED" default="false">`true` sends us the Betterlytics version and a random instance ID once a day; the setup script sets it. Any other value turns it off, see [Telemetry](#telemetry)</EnvVar>
 </EnvTable>
 
@@ -511,6 +512,8 @@ docker compose up -d --wait
 ```
 
 Compose pulls the new image on its own. Backing up your data volumes before a major upgrade is a good idea.
+
+When a newer release is out, admins see the new version next to the running one at the bottom of the admin area's sidebar, linking to its release notes. To turn the check off, for example on an air-gapped server, set `UPDATE_CHECK_ENABLED=false` in `.env`.
 
 <Callout type="warning">
 Some releases run one-time database migrations on first boot, so don't interrupt the container while it starts. If a release needs a change on your side, such as a new required setting in `.env`, the instance stops at start and `docker compose logs` says what to change.
