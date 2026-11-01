@@ -2,14 +2,22 @@ import { ArrowLeft } from 'lucide-react';
 import NextLink from 'next/link';
 import type { BlogPost } from '@/content/blog';
 import { Heading, Lede } from '@/landing/components/ui/text';
-import { blogPath, formatBlogDate, isoDate, postAuthor } from '@/app/(landing)/blog/_lib/blog';
+import { cn } from '@/landing/lib/cn';
+import {
+  BLOG_GUTTER,
+  POST_COLUMN,
+  blogPath,
+  formatBlogDate,
+  isoDate,
+  postAuthor,
+} from '@/app/(landing)/blog/_lib/blog';
 import { PostMeta } from './postMeta';
 
 export function PostHeader({ post }: { post: BlogPost }) {
   const author = postAuthor(post);
   return (
-    <header className='px-(--inset) pt-16 pb-14 max-sm:px-(--pad) max-sm:pt-10 max-sm:pb-10'>
-      <div className='mx-auto max-w-[760px]'>
+    <header className={cn(BLOG_GUTTER, 'pt-16 pb-14 max-sm:pt-10 max-sm:pb-10')}>
+      <div className={POST_COLUMN}>
         <NextLink
           href={blogPath()}
           className='-my-1 inline-flex items-center gap-1.5 py-1 text-label text-muted transition-colors duration-180 ease-out-expo hover:text-fg'

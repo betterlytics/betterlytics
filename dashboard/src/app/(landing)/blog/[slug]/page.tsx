@@ -11,7 +11,7 @@ import { CtaSection } from '@/landing/components/sections/ctaSection';
 import { cn } from '@/landing/lib/cn';
 import { PostBody } from '@/app/(landing)/blog/_components/postBody';
 import { PostHeader } from '@/app/(landing)/blog/_components/postHeader';
-import { BLOG_LOCALE, blogPath } from '@/app/(landing)/blog/_lib/blog';
+import { BLOG_GUTTER, BLOG_LOCALE, POST_COLUMN, blogPath } from '@/app/(landing)/blog/_lib/blog';
 import { blogPostJsonLd, blogPostMetadata } from '@/app/(landing)/blog/_lib/seo';
 
 type Props = { params: Promise<{ slug: string }> };
@@ -55,7 +55,7 @@ export default async function BlogPostPage({ params }: Props) {
     <>
       <JsonLd data={blogPostJsonLd(post)} />
       <PageShell hero={<PostHeader post={post} />} after={<CtaSection />}>
-        <article className='px-(--inset) pt-12 pb-24 max-sm:px-(--pad) max-sm:pt-8 max-sm:pb-16'>
+        <article className={cn(BLOG_GUTTER, 'pt-12 pb-24 max-sm:pt-8 max-sm:pb-16')}>
           <Image
             src={post.cover.src}
             alt={post.cover.alt}
@@ -65,13 +65,16 @@ export default async function BlogPostPage({ params }: Props) {
             sizes='(width < 67.5rem) 100vw, 1000px'
             className='mx-auto aspect-[1200/630] w-full max-w-[1000px] border border-rule object-cover'
           />
-          <div className='mx-auto mt-14 max-w-[680px] max-sm:mt-10'>
+          <div className={cn(POST_COLUMN, 'mt-14 max-sm:mt-10')}>
             <PostBody source={post.source} />
           </div>
           {(older || newer) && (
             <nav
               aria-label='More posts'
-              className='mx-auto mt-20 grid max-w-[680px] grid-cols-2 gap-8 border-t border-rule pt-8 max-sm:grid-cols-1'
+              className={cn(
+                POST_COLUMN,
+                'mt-20 grid grid-cols-2 gap-8 border-t border-rule pt-8 max-sm:grid-cols-1',
+              )}
             >
               {older ? <NeighbourLink post={older} label='Previous post' /> : <span className='max-sm:hidden' />}
               {newer && <NeighbourLink post={newer} label='Next post' className='text-right max-sm:text-left' />}
