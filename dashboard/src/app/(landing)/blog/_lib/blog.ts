@@ -10,7 +10,6 @@ export const BLOG_COPY = {
     'Writing from the Betterlytics team on privacy-first analytics, GDPR, and how we build a cookieless analytics product.',
 };
 
-/** Readers who just finished a post get the demo rather than the docs. */
 export const BLOG_CTA = {
   title: 'Try Betterlytics on your own site',
   lede: 'Web analytics, session replay, errors and uptime in one cookieless dashboard, hosted in the EU. The free plan needs no credit card.',
@@ -23,7 +22,6 @@ export const BLOG_CTA = {
 /** Clear of the band's hatched walls, and in line with the post cards' text. */
 export const BLOG_GUTTER = 'px-[calc(var(--inset)+32px)] max-sm:px-(--pad)';
 
-/** One reading column, so the post header lines up with its body. */
 export const POST_COLUMN = 'mx-auto max-w-[680px]';
 
 export const blogPath = (slug?: string) => (slug ? `/blog/${slug}` : '/blog');

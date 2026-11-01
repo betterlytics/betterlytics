@@ -22,18 +22,6 @@ const DEFAULT_IMAGE = {
   height: 630,
 };
 
-export const DEFAULT_ROBOTS: Metadata['robots'] = {
-  index: true,
-  follow: true,
-  googleBot: {
-    index: true,
-    follow: true,
-    'max-video-preview': -1,
-    'max-image-preview': 'large',
-    'max-snippet': -1,
-  },
-};
-
 export async function generateSEO(
   { title, description, path, socialTitle = title, socialDescription = description }: SEOConfig,
   options?: { locale?: string; robots?: Metadata['robots']; localized?: boolean },
@@ -90,7 +78,17 @@ export async function generateSEO(
       site: '@betterlytics',
       creator: '@betterlytics',
     },
-    robots: options?.robots ?? DEFAULT_ROBOTS,
+    robots: options?.robots ?? {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
   };
 }
 
