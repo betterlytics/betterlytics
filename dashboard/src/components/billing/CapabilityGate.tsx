@@ -17,7 +17,7 @@ type CapabilityGateProps = {
  * <CapabilityGate allowed={caps.monitoring.httpMethodConfigurable}>
  *   {({ locked }) => (
  *     <Tabs disabled={locked}>
- *       <TabsTrigger>GET {locked && <ProBadge />}</TabsTrigger>
+ *       <TabsTrigger>GET {locked && <PlanBadge plan={planThatUnlocks((c) => c.monitoring.httpMethodConfigurable)} />}</TabsTrigger>
  *     </Tabs>
  *   )}
  * </CapabilityGate>

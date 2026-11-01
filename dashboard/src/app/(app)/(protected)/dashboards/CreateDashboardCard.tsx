@@ -6,8 +6,9 @@ import { Plus, Crown } from 'lucide-react';
 import { CreateDashboardDialog } from '@/app/(app)/(protected)/dashboards/CreateDashboardDialog';
 import { getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard.action';
 import { useTranslations } from 'next-intl';
-import { ProBadge } from '@/components/billing/ProBadge';
+import { PlanBadge } from '@/components/billing/PlanBadge';
 import { useBillingFlow } from '@/contexts/BillingFlowProvider';
+import { planThatUnlocks } from '@/lib/billing/catalog';
 
 export function CreateDashboardCard({
   dashboardStatsPromise,
@@ -19,7 +20,7 @@ export function CreateDashboardCard({
   const canCreateMore = dashboardStats.success && dashboardStats.data.canCreateMore;
 
   if (!canCreateMore) {
-    return <UpgradeCard />;
+    return <UpgradeCard currentLimit={dashboardStats.success ? dashboardStats.data.limit : 0} />;
   }
 
   return (
@@ -53,7 +54,7 @@ export function CreateDashboardCard({
   );
 }
 
-function UpgradeCard() {
+function UpgradeCard({ currentLimit }: { currentLimit: number }) {
   const t = useTranslations('dashboardsPage.upgradeCard');
   const { openPlanPicker } = useBillingFlow();
 
@@ -76,7 +77,7 @@ function UpgradeCard() {
       }}
     >
       <div className='absolute top-3 right-3'>
-        <ProBadge />
+        <PlanBadge plan={planThatUnlocks((c) => c.dashboards.maxDashboards > currentLimit)} />
       </div>
 
       <div className='flex h-full flex-col items-center justify-center gap-3'>
