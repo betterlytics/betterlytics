@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { authClient } from '@/lib/auth-client';
 import { toast } from 'sonner';
 import { ShieldCheck, Mail, CheckCircle } from 'lucide-react';
@@ -55,23 +56,27 @@ export function VerificationRequiredModal({
         </DialogHeader>
 
         <div className='space-y-4'>
-          <div className='rounded-lg bg-blue-50 p-4 dark:bg-blue-950/50'>
-            <h3 className='mb-2 font-medium text-blue-900 dark:text-blue-100'>{t('whyTitle')}</h3>
-            <ul className='space-y-1 text-sm text-blue-700 dark:text-blue-200'>
-              <li className='flex items-start gap-2'>
-                <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400' />
-                <span>{t('whyItems.secureBilling')}</span>
-              </li>
-              <li className='flex items-start gap-2'>
-                <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400' />
-                <span>{t('whyItems.notifications')}</span>
-              </li>
-              <li className='flex items-start gap-2'>
-                <CheckCircle className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500 dark:text-blue-400' />
-                <span>{t('whyItems.security')}</span>
-              </li>
-            </ul>
-          </div>
+          <Alert variant='info' icon={null}>
+            <AlertTitle role='heading' aria-level={3}>
+              {t('whyTitle')}
+            </AlertTitle>
+            <AlertDescription>
+              <ul className='mt-1 space-y-1'>
+                <li className='flex items-start gap-2'>
+                  <CheckCircle className='text-info mt-0.5 h-4 w-4 flex-shrink-0' />
+                  <span>{t('whyItems.secureBilling')}</span>
+                </li>
+                <li className='flex items-start gap-2'>
+                  <CheckCircle className='text-info mt-0.5 h-4 w-4 flex-shrink-0' />
+                  <span>{t('whyItems.notifications')}</span>
+                </li>
+                <li className='flex items-start gap-2'>
+                  <CheckCircle className='text-info mt-0.5 h-4 w-4 flex-shrink-0' />
+                  <span>{t('whyItems.security')}</span>
+                </li>
+              </ul>
+            </AlertDescription>
+          </Alert>
 
           <div className='text-center'>
             <p className='text-muted-foreground mb-4 text-sm'>
