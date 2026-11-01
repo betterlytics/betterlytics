@@ -1,13 +1,10 @@
 import { useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { getPlan, type PlanDefinition } from '@/lib/billing/catalog';
-import { isUnlimitedCount } from '@/lib/billing/capabilities';
+import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
 import { formatEventCount } from '@/utils/pricing';
 
 export type PlanFeatureLabel = { kind: 'header' | 'feature'; label: string };
-
-const DAYS_PER_YEAR = 365;
-const SECONDS_PER_MINUTE = 60;
 
 export function usePlanFeatures(volume: number) {
   const t = useTranslations('pricingCards');
@@ -15,7 +12,7 @@ export function usePlanFeatures(volume: number) {
 
   return useCallback(
     (plan: PlanDefinition): PlanFeatureLabel[] => {
-      const { dashboards, dataRetention, monitoring } = plan.capabilities;
+      const { dashboards, dataRetention, monitoring, statusPages } = plan.capabilities;
       return plan.highlights.map((item): PlanFeatureLabel => {
         switch (item.kind) {
           case 'events':
@@ -42,9 +39,7 @@ export function usePlanFeatures(volume: number) {
           case 'retention':
             return {
               kind: 'feature',
-              label: t('features.retentionYears', {
-                count: Math.round(dataRetention.maxDataRetentionDays / DAYS_PER_YEAR),
-              }),
+              label: t('features.retentionYears', { count: retentionYears(dataRetention.maxDataRetentionDays) }),
             };
           case 'uptime':
             return {
@@ -53,9 +48,11 @@ export function usePlanFeatures(volume: number) {
                 ? t('features.uptimeUnlimited')
                 : t('features.uptimeMonitors', {
                     count: monitoring.maxMonitors,
-                    minutes: monitoring.minIntervalSeconds / SECONDS_PER_MINUTE,
+                    minutes: checkIntervalMinutes(monitoring.minIntervalSeconds),
                   }),
             };
+          case 'statusPages':
+            return { kind: 'feature', label: t('features.statusPagesCount', { count: statusPages.maxStatusPages }) };
           case 'feature':
             return { kind: 'feature', label: t(`features.${item.key}`) };
         }

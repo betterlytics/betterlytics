@@ -20,7 +20,6 @@ export interface SubscriptionEndingSoonEmailData extends EmailData {
   userName: string | null;
   periodEnd: SerializableDate;
   billingUrl: string;
-  freePlanName: string;
   freeEventLimit: number;
   freeRetentionDays: number;
   affectedDashboards: string[];
@@ -43,7 +42,6 @@ export function SubscriptionEndingSoonEmail({
   userName,
   periodEnd,
   billingUrl,
-  freePlanName,
   freeEventLimit,
   freeRetentionDays,
   affectedDashboards,
@@ -52,7 +50,7 @@ export function SubscriptionEndingSoonEmail({
   const affectedDescription = describeAffectedDashboards(affectedDashboards);
 
   return (
-    <EmailLayout preview={`After ${endDate}, your account moves to the ${freePlanName} plan.`} campaign={CAMPAIGN}>
+    <EmailLayout preview={`After ${endDate}, your account moves to the free plan.`} campaign={CAMPAIGN}>
       <H1>Your subscription ends soon</H1>
 
       <Greeting userName={userName} />
@@ -61,7 +59,7 @@ export function SubscriptionEndingSoonEmail({
 
       <P>
         Your subscription is scheduled to end on <strong>{endDate}</strong>. After that, your account will be moved
-        to the {freePlanName} plan ({freeEventLimit.toLocaleString()} events/month).
+        to the free plan ({freeEventLimit.toLocaleString()} events/month).
       </P>
 
       {affectedDashboards.length > 0 && (
@@ -92,7 +90,6 @@ SubscriptionEndingSoonEmail.PreviewProps = {
   userName: 'John Doe',
   periodEnd: new Date('2026-06-15T00:00:00.000Z'),
   billingUrl: 'https://betterlytics.io/billing',
-  freePlanName: 'Growth',
   freeEventLimit: 10_000,
   freeRetentionDays: 365,
   affectedDashboards: ['example.com', 'shop.example.com'],

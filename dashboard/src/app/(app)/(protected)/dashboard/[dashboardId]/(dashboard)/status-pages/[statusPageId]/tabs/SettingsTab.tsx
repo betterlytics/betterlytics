@@ -3,10 +3,8 @@
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
-import { useCapabilities } from '@/contexts/CapabilitiesProvider';
-import { CapabilityGate } from '@/components/billing/CapabilityGate';
+import { useUpgrade } from '@/contexts/CapabilitiesProvider';
 import { PlanBadge } from '@/components/billing/PlanBadge';
-import { upgradeFor } from '@/lib/billing/catalog';
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { SlugField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/SlugField';
@@ -39,8 +37,7 @@ export function SettingsTab({
   isDeleting,
 }: SettingsTabProps) {
   const t = useTranslations('statusPagesPage.editor');
-  const { caps } = useCapabilities();
-  const customDomainLocked = !caps.statusPages.customDomain;
+  const customDomainUpgrade = useUpgrade((c) => c.statusPages.customDomain);
 
   return (
     <>
@@ -56,24 +53,20 @@ export function SettingsTab({
               hint={t('publicUrlHint')}
               mono
             />
-            <CapabilityGate allowed={!customDomainLocked}>
-              {({ locked }) => (
-                <LabeledTextField
-                  id='sp-domain'
-                  label={t('customDomain')}
-                  labelAdornment={<PlanBadge plan={upgradeFor(caps, (c) => c.statusPages.customDomain)} />}
-                  hint={t('customDomainHint')}
-                  hintPosition='top'
-                  placeholder={`status.${dashboardDomain}`}
-                  value={form.customDomain}
-                  onChange={(customDomain) => form.patch({ customDomain })}
-                  disabled={locked}
-                  error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
-                />
-              )}
-            </CapabilityGate>
+            <LabeledTextField
+              id='sp-domain'
+              label={t('customDomain')}
+              labelAdornment={<PlanBadge plan={customDomainUpgrade.plan} />}
+              hint={t('customDomainHint')}
+              hintPosition='top'
+              placeholder={`status.${dashboardDomain}`}
+              value={form.customDomain}
+              onChange={(customDomain) => form.patch({ customDomain })}
+              disabled={customDomainUpgrade.locked}
+              error={form.isCustomDomainValid ? null : t('customDomainInvalid')}
+            />
           </div>
-          {!customDomainLocked && (
+          {!customDomainUpgrade.locked && (
             <CustomDomainSetup
               customDomain={form.customDomain}
               slug={form.slug}

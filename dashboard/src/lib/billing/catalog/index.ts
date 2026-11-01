@@ -1,9 +1,7 @@
-import { z } from 'zod';
 import type { PlanCapabilities } from '@/lib/billing/capabilities';
 import { CAPABILITY_ENTITLED_STATUSES } from '@/lib/billing/subscription-status';
 import { CUSTOM_VOLUME, EVENT_STEPS, FREE_PLAN_ID, PLANS, SELF_HOSTED_PLAN_ID } from './plans';
 import {
-  PLAN_IDS,
   type BillingInterval,
   type PlanCurrency,
   type PlanDefinition,
@@ -12,9 +10,7 @@ import {
 } from './types';
 
 export * from './types';
-export { CUSTOM_VOLUME, EVENT_STEPS } from './plans';
-
-export const PlanIdSchema = z.enum(PLAN_IDS);
+export { EVENT_STEPS } from './plans';
 
 export const VOLUME_STOPS: readonly number[] = [...EVENT_STEPS, CUSTOM_VOLUME];
 
@@ -91,7 +87,6 @@ export function planForLookupKey(lookupKey: string): LookupKeyMatch | null {
   return LOOKUP_KEY_INDEX.get(lookupKey) ?? null;
 }
 
-/** The Stripe lookup key a customer may buy for this plan and volume, or null when it is not for sale. */
 export function purchasableLookupKey(
   planId: PlanId,
   events: number,
@@ -111,7 +106,6 @@ export function planThatUnlocks(check: (capabilities: PlanCapabilities) => boole
   return listedPlans().find((plan) => check(plan.capabilities)) ?? null;
 }
 
-/** Null when the capabilities already pass the check, otherwise the plan that unlocks it. */
 export function upgradeFor(
   capabilities: PlanCapabilities,
   check: (capabilities: PlanCapabilities) => boolean,

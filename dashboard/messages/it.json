@@ -1253,18 +1253,18 @@
       "custom": "Personalizzato",
       "growth": {
         "tagline": "Per progetti personali e piccoli siti.",
-        "ctaFree": "Inizia gratis",
         "cta": "Inizia"
       },
       "professional": {
         "tagline": "Per team che gestiscono più prodotti.",
-        "cta": "Inizia",
-        "badge": "Il più scelto"
+        "cta": "Inizia"
       },
       "enterprise": {
         "tagline": "Per traffico elevato, con SLA e supporto dedicato.",
         "cta": "Contattaci"
-      }
+      },
+      "badge": "Il più scelto",
+      "ctaFree": "Inizia gratis"
     },
     "cta": {
       "title": "Aggiungi uno script e guarda arrivare il tuo primo visitatore",
@@ -1961,7 +1961,8 @@
       "teamMembersCount": "{count, plural, one {# membro del team} other {Fino a # membri del team}}",
       "retentionYears": "{count, plural, one {Conservazione dati #+ anno} other {Conservazione dati #+ anni}}",
       "uptimeMonitors": "{count} monitor uptime con controlli {minutes, plural, one {ogni minuto} other {ogni # minuti}}",
-      "everythingIn": "Tutte le funzionalità di {name}, più:"
+      "everythingIn": "Tutte le funzionalità di {name}, più:",
+      "statusPagesCount": "{count, plural, one {# pagina di stato pubblica} other {# pagine di stato pubbliche}}"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",

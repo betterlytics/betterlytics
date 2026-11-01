@@ -4,7 +4,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { ComparisonTable } from '@/components/public/comparison-table';
 import { EVENT_STEPS, listedPlans, type PlanDefinition } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
-import { isUnlimitedCount } from '@/lib/billing/capabilities';
+import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
 
 type ValueMessage = { message: string; count?: number };
 
@@ -33,7 +33,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
         key: 'dataRetention',
         value: (plan) => ({
           message: 'yearsCount',
-          count: Math.floor(plan.capabilities.dataRetention.maxDataRetentionDays / 365),
+          count: retentionYears(plan.capabilities.dataRetention.maxDataRetentionDays),
         }),
       },
       { key: 'teamMembers', value: (plan) => limit('upToCount', plan.capabilities.dashboards.maxMembers) },
@@ -64,7 +64,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
         key: 'checkInterval',
         value: (plan) => ({
           message: 'minutesCount',
-          count: plan.capabilities.monitoring.minIntervalSeconds / 60,
+          count: checkIntervalMinutes(plan.capabilities.monitoring.minIntervalSeconds),
         }),
       },
       { key: 'sslMonitoring', value: true },
