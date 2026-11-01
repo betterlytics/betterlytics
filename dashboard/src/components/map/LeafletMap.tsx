@@ -140,6 +140,7 @@ export default function LeafletMap({
             renderer={renderer}
             zoomDelta={0.1}
             zoomSnap={0.1}
+            doubleClickZoom={false}
             attributionControl={false}
           >
             <MapBackgroundLayer Polygon={Polygon} onClick={selection?.onClear} />
