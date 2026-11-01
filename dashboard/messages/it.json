@@ -1256,30 +1256,25 @@
       "contactCta": "Contattaci",
       "plans": {
         "growth": {
-          "tagline": "Per progetti personali e piccoli siti.",
-          "cta": "Inizia"
+          "tagline": "Per progetti personali e piccoli siti."
         },
         "professional": {
-          "tagline": "Per team che gestiscono più prodotti.",
-          "cta": "Inizia"
+          "tagline": "Per team che gestiscono più prodotti."
         },
         "enterprise": {
-          "tagline": "Per traffico elevato, con SLA e supporto dedicato.",
-          "cta": "Contattaci"
+          "tagline": "Per traffico elevato, con SLA e supporto dedicato."
         },
         "free": {
-          "tagline": "Per progetti personali e piccoli siti.",
-          "cta": "Inizia"
+          "tagline": "Per progetti personali e piccoli siti."
         },
         "plus": {
-          "tagline": "Per una piccola azienda con pochi siti.",
-          "cta": "Inizia"
+          "tagline": "Per piccole aziende con pochi siti."
         },
         "business": {
-          "tagline": "Per agenzie, freelance e team.",
-          "cta": "Inizia"
+          "tagline": "Per agenzie, freelance e team in crescita."
         }
-      }
+      },
+      "cta": "Inizia"
     },
     "cta": {
       "title": "Aggiungi uno script e guarda arrivare il tuo primo visitatore",

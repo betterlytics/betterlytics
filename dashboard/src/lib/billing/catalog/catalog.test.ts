@@ -205,6 +205,10 @@ describe('parity with the pre-catalog plans', () => {
     });
   });
 
+  it('lists exactly the plans on sale today', () => {
+    expect(listedPlans().map((plan) => plan.id)).toEqual(['growth', 'professional', 'enterprise']);
+  });
+
   it('keeps the free plan at 10k events with Growth limits', () => {
     expect(freeSubscriptionDefaults()).toEqual({
       planId: 'growth',
@@ -238,40 +242,42 @@ describe('the agreed Free, Plus and Business plans', () => {
     expect(isFreeBand(free, 10_000)).toBe(true);
   });
 
-  it('caps sites and members per the agreed ladder', () => {
-    expect(getPlan('free').capabilities.dashboards).toEqual({ maxDashboards: 1, maxMembers: 1 });
-    expect(getPlan('plus').capabilities.dashboards).toEqual({ maxDashboards: 5, maxMembers: 3 });
-    expect(getPlan('business').capabilities.dashboards).toEqual({ maxDashboards: 25, maxMembers: 25 });
-  });
-
-  it('puts the status-page custom domain on Plus and branding removal on Business', () => {
-    expect(getPlan('plus').capabilities.statusPages).toEqual({
-      maxStatusPages: 1,
-      customDomain: true,
-      removeBranding: false,
+  it('gives each new plan exactly the agreed limits and service', () => {
+    const allChecks = {
+      httpMethodConfigurable: true,
+      customStatusCodes: true,
+      customHeaders: true,
+      keywordValidation: true,
+    };
+    expect(getPlan('free').capabilities).toEqual({
+      dashboards: { maxDashboards: 1, maxMembers: 1 },
+      monitoring: { maxMonitors: 1, minIntervalSeconds: 300, ...allChecks },
+      emailReports: { emailReportsEnabled: false },
+      dataRetention: { maxDataRetentionDays: 365 },
+      statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
     });
-    expect(getPlan('business').capabilities.statusPages).toEqual({
-      maxStatusPages: 3,
-      customDomain: true,
-      removeBranding: true,
+    expect(getPlan('plus').capabilities).toEqual({
+      dashboards: { maxDashboards: 5, maxMembers: 3 },
+      monitoring: { maxMonitors: 5, minIntervalSeconds: 60, ...allChecks },
+      emailReports: { emailReportsEnabled: true },
+      dataRetention: { maxDataRetentionDays: 730 },
+      statusPages: { maxStatusPages: 1, customDomain: true, removeBranding: false },
     });
+    expect(getPlan('business').capabilities).toEqual({
+      dashboards: { maxDashboards: 25, maxMembers: 25 },
+      monitoring: { maxMonitors: 50, minIntervalSeconds: 60, ...allChecks },
+      emailReports: { emailReportsEnabled: true },
+      dataRetention: { maxDataRetentionDays: 1095 },
+      statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
+    });
+    expect(getPlan('free').service).toEqual({ prioritySupport: false, dedicatedSupport: false, slaGuarantee: false });
+    expect(getPlan('plus').service).toEqual({ prioritySupport: false, dedicatedSupport: false, slaGuarantee: false });
+    expect(getPlan('business').service).toEqual({ prioritySupport: true, dedicatedSupport: false, slaGuarantee: false });
   });
 
-  it('gives every new plan every monitor check option', () => {
+  it('keeps the new plans unlisted and off sale', () => {
     for (const planId of ['free', 'plus', 'business'] as const) {
-      const { monitoring } = getPlan(planId).capabilities;
-      expect([
-        monitoring.httpMethodConfigurable,
-        monitoring.customStatusCodes,
-        monitoring.customHeaders,
-        monitoring.keywordValidation,
-      ]).toEqual([true, true, true, true]);
-    }
-  });
-
-  it('keeps the new plans off sale until they are listed', () => {
-    for (const planId of ['free', 'plus', 'business'] as const) {
-      if (getPlan(planId).listed) continue;
+      expect(getPlan(planId).listed).toBe(false);
       for (const events of EVENT_STEPS) {
         expect(purchasableLookupKey(planId, events)).toBeNull();
       }
