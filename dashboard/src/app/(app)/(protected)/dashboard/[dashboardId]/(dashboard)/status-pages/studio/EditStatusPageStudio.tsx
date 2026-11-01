@@ -9,6 +9,7 @@ import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { fetchStatusPageStudioDataAction } from '@/app/actions/analytics/statusPage.actions';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import { FlowOverlay } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlay';
 import { FlowOverlayHeader } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlayHeader';
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
@@ -141,10 +142,11 @@ function StudioBody({
 export function EditStatusPageStudio(props: EditStatusPageStudioProps) {
   const t = useTranslations('statusPagesPage.editor');
   const { dashboardId, statusPageId, form, onClose } = props;
+  const { timeZone } = useTimeRangeContext();
 
   const studioQuery = useQuery({
-    queryKey: ['statusPageStudio', dashboardId, statusPageId],
-    queryFn: () => fetchStatusPageStudioDataAction(dashboardId, statusPageId),
+    queryKey: ['statusPageStudio', dashboardId, statusPageId, timeZone],
+    queryFn: () => fetchStatusPageStudioDataAction(dashboardId, statusPageId, timeZone),
     staleTime: Infinity,
     gcTime: 0,
   });

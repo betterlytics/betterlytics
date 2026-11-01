@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { STATUS_PAGE_DEFAULT_ACCENT_COLOR } from '@/entities/analytics/statusPage/statusPage.entities';
 import { useDashboardNavigation } from '@/contexts/DashboardNavigationContext';
+import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
 import {
   createStatusPageAction,
   fetchStatusPageDraftPreviewAction,
@@ -181,9 +182,10 @@ export function CreateStatusPageStudio({
   onClose,
 }: CreateStatusPageStudioProps) {
   const t = useTranslations('statusPagesPage.editor');
+  const { timeZone } = useTimeRangeContext();
   const defaultsQuery = useQuery({
-    queryKey: ['statusPageDefaults', dashboardId],
-    queryFn: () => suggestStatusPageDefaultsAction(dashboardId),
+    queryKey: ['statusPageDefaults', dashboardId, timeZone],
+    queryFn: () => suggestStatusPageDefaultsAction(dashboardId, timeZone),
     staleTime: 0,
     gcTime: 0,
   });
