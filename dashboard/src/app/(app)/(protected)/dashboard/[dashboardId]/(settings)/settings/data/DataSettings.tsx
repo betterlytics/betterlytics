@@ -13,11 +13,15 @@ import { toast } from 'sonner';
 import { DestructiveActionDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
-import { ProBadge } from '@/components/billing/ProBadge';
-import { getMaxRetentionDaysForTier } from '@/lib/billing/capabilities';
+import { PlanBadge } from '@/components/billing/PlanBadge';
+import { listedPlans, planThatUnlocks } from '@/lib/billing/catalog';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
-const SELF_SERVE_MAX_RETENTION_DAYS = getMaxRetentionDaysForTier('professional');
+const SELF_SERVE_MAX_RETENTION_DAYS = Math.max(
+  ...listedPlans()
+    .filter((plan) => plan.selfServe)
+    .map((plan) => plan.capabilities.dataRetention.maxDataRetentionDays),
+);
 
 export default function DataSettings() {
   const dashboardId = useDashboardId();
@@ -120,7 +124,12 @@ export default function DataSettings() {
                       >
                         <span className='flex w-full items-center justify-between gap-2'>
                           <span>{t(`data.presets.${preset.i18nKey}`)}</span>
-                          {abovePlan && <ProBadge showIcon={false} />}
+                          {abovePlan && (
+                            <PlanBadge
+                              plan={planThatUnlocks((c) => c.dataRetention.maxDataRetentionDays >= preset.value)}
+                              showIcon={false}
+                            />
+                          )}
                         </span>
                       </SelectItem>
                     );
