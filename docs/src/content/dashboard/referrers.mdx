@@ -110,7 +110,7 @@ The referrer table is organized into tabs for easy analysis:
 
 ### Links Tagged with `utm_source`
 
-Many apps, including AI assistants like ChatGPT, open links without a referrer but add a `utm_source` tag, such as `utm_source=chatgpt.com`. When a visit's `utm_source` names a source Betterlytics recognises, by its domain (`chatgpt.com`) or its name (`chatgpt`, `google`, `facebook`) in any case, that source decides the category, ahead of the referrer. The visit then counts as AI, Search, Social or Email instead of Direct, and the table shows the `utm_source` value as its source.
+Many apps, including AI assistants like ChatGPT, open links without a referrer but add a `utm_source` tag, such as `utm_source=chatgpt.com`. When a visit's `utm_source` names a source Betterlytics recognises, by its domain (`chatgpt.com`) or its name (`chatgpt`, `google`, `facebook`) in any case, that source decides the category, ahead of the referrer. The visit then counts under that source's category, such as AI, Search or Social, instead of Direct, and the table shows the `utm_source` value as its source.
 
 Any other `utm_source` value, such as `newsletter`, doesn't change the category: the visit keeps its referrer's category, or counts as Direct when it has no referrer. Navigation between pages of your own site always stays internal, even when the page URL carries a `utm_source` tag. This also applies to traffic recorded in the past.
 
