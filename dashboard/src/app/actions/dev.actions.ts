@@ -3,32 +3,31 @@
 import { withUserAuth } from '@/auth/auth-actions';
 import { env } from '@/lib/env';
 import { upsertSubscription, getUserSubscription } from '@/repositories/postgres/subscription.repository';
-import { buildStarterSubscription } from '@/entities/billing/billing.entities';
-import { EVENT_RANGES, TIER_TO_PLANNAME_KEY, type TierName } from '@/lib/billing/plans';
+import { buildFreeSubscription } from '@/entities/billing/billing.entities';
+import { PlanIdSchema, getPlan, type PlanId } from '@/lib/billing/catalog';
 import type { User } from '@/entities/auth/session.entities';
 import { revalidatePath } from 'next/cache';
 
-export const updateDevSubscriptionAction = withUserAuth(async (user: User, tier: TierName) => {
+const UNLIMITED_EVENTS = 999_999_999;
+
+export const updateDevSubscriptionAction = withUserAuth(async (user: User, planId: PlanId) => {
   if (!env.IS_DEVELOPMENT) {
     throw new Error('Dev actions are only available in development mode');
   }
 
-  if (!(tier in TIER_TO_PLANNAME_KEY)) {
-    throw new Error(`Invalid tier: ${tier}`);
-  }
+  const plan = getPlan(PlanIdSchema.parse(planId));
 
   const currentSubscription = await getUserSubscription(user.id);
-  const { currentPeriodStart, currentPeriodEnd } = currentSubscription ?? buildStarterSubscription();
+  const { currentPeriodStart, currentPeriodEnd } = currentSubscription ?? buildFreeSubscription();
 
-  const firstRange = EVENT_RANGES[0];
-  const priceData = firstRange[tier === 'enterprise' ? 'professional' : tier];
+  const firstBand = plan.bands[0];
 
   await upsertSubscription({
     userId: user.id,
-    tier,
+    planId: plan.id,
     status: 'active',
-    eventLimit: tier === 'enterprise' ? 999_999_999 : firstRange.value,
-    pricePerMonth: tier === 'enterprise' ? 0 : Math.max(0, priceData.price.usd_cents),
+    eventLimit: firstBand?.events ?? UNLIMITED_EVENTS,
+    pricePerMonth: firstBand?.prices.month?.USD ?? 0,
     currency: 'USD',
     cancelAtPeriodEnd: false,
     currentPeriodStart,
