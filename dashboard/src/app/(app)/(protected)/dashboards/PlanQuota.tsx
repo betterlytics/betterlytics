@@ -16,6 +16,8 @@ export default async function PlanQuota({
   const locale = await getLocale();
   const { current, limit } = billing.data.usage;
   const percentage = Math.min(100, Math.round((current / Math.max(1, limit)) * 100));
+  const replay = billing.data.replayUsage;
+  const replayPercentage = Math.min(100, Math.round((replay.current / Math.max(1, replay.limit)) * 100));
   const tier = billing.data.subscription.tier;
   const isCanceled = billing.data.subscription.cancelAtPeriodEnd;
   const t = await getTranslations('components.billing');
@@ -53,6 +55,29 @@ export default async function PlanQuota({
           aria-valuemin={0}
           aria-valuemax={limit}
           aria-valuenow={current}
+        />
+      </div>
+
+      <div className='mt-1 flex items-center justify-between text-xs'>
+        <span className='font-medium'>{t('currentPlan.replayUsage')}</span>
+        <span>
+          {formatNumber(replay.current, locale)}
+          <span className='text-muted-foreground'>
+            {' '}
+            / {formatNumber(replay.limit, locale)} ({formatPercentage(replayPercentage, locale)})
+          </span>
+        </span>
+      </div>
+
+      <div className='bg-muted h-1.5 w-full rounded'>
+        <div
+          className='bg-primary h-1.5 rounded'
+          style={{ width: `${replayPercentage}%` }}
+          aria-label={t('currentPlan.replayUsage')}
+          role='progressbar'
+          aria-valuemin={0}
+          aria-valuemax={replay.limit}
+          aria-valuenow={replay.current}
         />
       </div>
 

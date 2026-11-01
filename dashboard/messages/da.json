@@ -2037,7 +2037,10 @@
         "name": "Alle dashboard-funktioner"
       },
       "sessionReplay": {
-        "name": "Sessionsafspilning"
+        "name": "Sessionsafspilning",
+        "values": {
+          "recordedSessions": "{count} sessioner / måned"
+        }
       },
       "funnels": {
         "name": "Tragter og konverteringer"
@@ -2828,6 +2831,8 @@
         "free": "Gratis",
         "eventUsage": "Event-forbrug",
         "usageProgress": "{current} af {limit} events",
+        "replayUsage": "Forbrug af sessionsafspilning",
+        "replayUsageProgress": "{current} af {limit} optagede sessioner",
         "resetsInDays": "Nulstilles om {days} dage",
         "expiresInDays": "Udløber om {days} dage",
         "manage": "Administrér abonnement",
@@ -3513,6 +3518,9 @@
           "title": "Forbrug",
           "eventsLabel": "Events",
           "eventsUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
+          "replaysLabel": "Sessionsafspilninger",
+          "replaysDescription": "Optagede sessioner i denne periode",
+          "replaysUsed": "{current} <muted>/ {limit} ({percentage})</muted>",
           "resetsInDays": "Nulstilles om {days} dage",
           "breakdown": {
             "byType": "Efter type",

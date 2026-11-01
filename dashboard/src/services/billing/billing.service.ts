@@ -8,16 +8,19 @@ import {
 } from '@/repositories/postgres/dashboard.repository';
 import {
   getUserEventCountForPeriod,
+  getUserRecordedSessionCountForPeriod,
   getUsageBreakdownForPeriod,
 } from '@/repositories/clickhouse/usage.repository';
 import { toDateString } from '@/utils/dateFormatters';
 import {
   UserBillingDataSchema,
+  type ReplayUsageData,
   type UsageData,
   type UserBillingData,
   type UsageBreakdown,
 } from '@/entities/billing/billing.entities';
 import { UserException } from '@/lib/exceptions';
+import { getRecordedSessionLimitForTier } from '@/lib/billing/capabilities';
 
 export async function getUserBillingStats(userId: string): Promise<UserBillingData> {
   try {
@@ -28,7 +31,11 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
 
     const siteIds = await getOwnedSiteIds(userId, true);
 
-    const currentUsage = await getUserEventCountForPeriod(siteIds, toDateString(subscription.currentPeriodStart));
+    const periodStart = toDateString(subscription.currentPeriodStart);
+    const [currentUsage, recordedSessions] = await Promise.all([
+      getUserEventCountForPeriod(siteIds, periodStart),
+      getUserRecordedSessionCountForPeriod(siteIds, periodStart),
+    ]);
 
     const usage: UsageData = {
       current: currentUsage,
@@ -43,12 +50,22 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
       },
     };
 
+    const recordedSessionLimit = getRecordedSessionLimitForTier(subscription.tier);
+    const replayUsage: ReplayUsageData = {
+      current: recordedSessions,
+      limit: recordedSessionLimit,
+      remaining: Math.max(0, recordedSessionLimit - recordedSessions),
+      isOverLimit: recordedSessions > recordedSessionLimit,
+      usagePercentage: (recordedSessions / recordedSessionLimit) * 100,
+    };
+
     const isExistingPaidSubscriber = subscription.paymentSubscriptionId !== null;
     const isFreePlanUser = subscription.tier === 'growth' && subscription.pricePerMonth === 0;
 
     return UserBillingDataSchema.parse({
       subscription: { ...subscription },
       usage,
+      replayUsage,
       isExistingPaidSubscriber,
       isFreePlanUser,
     });
