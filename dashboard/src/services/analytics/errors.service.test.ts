@@ -184,8 +184,8 @@ describe('error tracking on the public demo', () => {
     }
   });
 
-  it('shows a mix of statuses', async () => {
-    const statuses = (await getErrorGroupsForSite(DEMO, siteQueryFor('90d', 'day'))).map((group) => group.status);
+  it('shows a mix of statuses on the 7 day range demo visitors can pick', async () => {
+    const statuses = (await getErrorGroupsForSite(DEMO, siteQueryFor('7d', 'day'))).map((group) => group.status);
 
     expect(statuses.filter((status) => status === 'resolved')).toHaveLength(1);
     expect(statuses.filter((status) => status === 'ignored')).toHaveLength(1);

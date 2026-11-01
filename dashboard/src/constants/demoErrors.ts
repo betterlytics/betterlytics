@@ -329,7 +329,7 @@ export const DEMO_ERROR_GROUPS: DemoErrorGroup[] = [
     status: 'resolved',
     count: 91,
     firstSeenMinutesAgo: 34 * DAY,
-    lastSeenMinutesAgo: 9 * DAY + 5 * HOUR,
+    lastSeenMinutesAgo: 4 * DAY + 5 * HOUR,
     trend: 'steady',
     sessionIdPrefix: '82750164339027',
     hasReplay: false,
