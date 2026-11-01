@@ -16,7 +16,6 @@ function legacyMonthlyBands(planId: PlanId, prices: ReadonlyArray<readonly [numb
   }));
 }
 
-/** One price per slider step; EUR uses the same numbers as USD. */
 function monthlyBands(planId: PlanId, dollars: readonly number[]): PriceBand[] {
   return EVENT_STEPS.map((events, index) => {
     const cents = dollars[index] * 100;

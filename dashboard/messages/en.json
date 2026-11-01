@@ -1256,30 +1256,25 @@
       "contactCta": "Talk to sales",
       "plans": {
         "growth": {
-          "tagline": "For side projects and small sites.",
-          "cta": "Get started"
+          "tagline": "For side projects and small sites."
         },
         "professional": {
-          "tagline": "For teams running several products.",
-          "cta": "Get started"
+          "tagline": "For teams running several products."
         },
         "enterprise": {
-          "tagline": "For high traffic, with an SLA and dedicated support.",
-          "cta": "Talk to sales"
+          "tagline": "For high traffic, with an SLA and dedicated support."
         },
         "free": {
-          "tagline": "For side projects and personal sites.",
-          "cta": "Get started"
+          "tagline": "For side projects and personal sites."
         },
         "plus": {
-          "tagline": "For a small business with a few sites.",
-          "cta": "Get started"
+          "tagline": "For small businesses with a handful of sites."
         },
         "business": {
-          "tagline": "For agencies, freelancers and teams.",
-          "cta": "Get started"
+          "tagline": "For agencies, freelancers and growing teams."
         }
-      }
+      },
+      "cta": "Get started"
     },
     "cta": {
       "title": "Add one script and watch your first visitor arrive",

@@ -237,7 +237,7 @@ export function PricingPanel() {
                 cta={
                   quoted
                     ? sales
-                    : { label: free ? t('ctaFree') : t(`plans.${plan.id}.cta`), destination: 'signup' }
+                    : { label: free ? t('ctaFree') : t('cta'), destination: 'signup' }
                 }
               />
             );

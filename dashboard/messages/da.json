@@ -1256,30 +1256,25 @@
       "contactCta": "Kontakt salg",
       "plans": {
         "growth": {
-          "tagline": "Til sideprojekter og små websites.",
-          "cta": "Kom i gang"
+          "tagline": "Til sideprojekter og små websites."
         },
         "professional": {
-          "tagline": "Til teams med flere produkter.",
-          "cta": "Kom i gang"
+          "tagline": "Til teams med flere produkter."
         },
         "enterprise": {
-          "tagline": "Til høj trafik, med SLA og dedikeret support.",
-          "cta": "Kontakt salg"
+          "tagline": "Til høj trafik, med SLA og dedikeret support."
         },
         "free": {
-          "tagline": "Til sideprojekter og personlige websites.",
-          "cta": "Kom i gang"
+          "tagline": "Til sideprojekter og personlige websites."
         },
         "plus": {
-          "tagline": "Til en lille virksomhed med få websites.",
-          "cta": "Kom i gang"
+          "tagline": "Til små virksomheder med en håndfuld websites."
         },
         "business": {
-          "tagline": "Til bureauer, freelancere og teams.",
-          "cta": "Kom i gang"
+          "tagline": "Til bureauer, freelancere og voksende teams."
         }
-      }
+      },
+      "cta": "Kom i gang"
     },
     "cta": {
       "title": "Tilføj ét script og se din første besøgende dukke op",
