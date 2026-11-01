@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { CapabilityGate } from '@/components/billing/CapabilityGate';
-import { ProBadge } from '@/components/billing/ProBadge';
+import { PlanBadge } from '@/components/billing/PlanBadge';
+import { planThatUnlocks } from '@/lib/billing/catalog';
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
 import { type StatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { SlugField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/SlugField';
@@ -60,7 +61,7 @@ export function SettingsTab({
                 <LabeledTextField
                   id='sp-domain'
                   label={t('customDomain')}
-                  labelAdornment={locked && <ProBadge />}
+                  labelAdornment={locked && <PlanBadge plan={planThatUnlocks((c) => c.statusPages.customDomain)} />}
                   hint={t('customDomainHint')}
                   hintPosition='top'
                   placeholder={`status.${dashboardDomain}`}
