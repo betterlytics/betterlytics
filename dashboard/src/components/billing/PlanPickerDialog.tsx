@@ -18,6 +18,7 @@ interface PlanPickerDialogProps {
   billingData: UserBillingData;
   onPlanSelected: (plan: SelectedPlan) => void;
   initialEventLimit?: number;
+  reason?: string;
 }
 
 export function PlanPickerDialog({
@@ -26,6 +27,7 @@ export function PlanPickerDialog({
   billingData,
   onPlanSelected,
   initialEventLimit,
+  reason,
 }: PlanPickerDialogProps) {
   const t = useTranslations('components.billing.planPicker');
   const [comparisonOpen, setComparisonOpen] = useState(false);
@@ -52,7 +54,9 @@ export function PlanPickerDialog({
           <div className='px-3 pt-5 pb-6 sm:px-8 sm:pt-8'>
             <DialogHeader className='pb-3 sm:text-center'>
               <DialogTitle className='text-2xl sm:text-3xl'>{t('title')}</DialogTitle>
-              <DialogDescription className='sr-only'>{t('description')}</DialogDescription>
+              <DialogDescription className={reason ? 'text-sm sm:text-base' : 'sr-only'}>
+                {reason ?? t('description')}
+              </DialogDescription>
             </DialogHeader>
 
             <PricingComponent

@@ -1,24 +1,31 @@
 import { useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { getPlan, type PlanDefinition } from '@/lib/billing/catalog';
+import { EVENT_STEPS, getPlan, type PlanDefinition } from '@/lib/billing/catalog';
 import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
 import { formatEventCount } from '@/utils/pricing';
 
 export type PlanFeatureLabel = { kind: 'header' | 'feature'; label: string };
 
-export function usePlanFeatures(volume: number) {
+export function usePlanFeatures() {
   const t = useTranslations('pricingCards');
   const locale = useLocale();
 
   return useCallback(
-    (plan: PlanDefinition): PlanFeatureLabel[] => {
+    (plan: PlanDefinition, events: number): PlanFeatureLabel[] => {
       const { dashboards, dataRetention, monitoring, statusPages } = plan.capabilities;
       return plan.highlights.map((item): PlanFeatureLabel => {
         switch (item.kind) {
           case 'events':
             return {
               kind: 'feature',
-              label: t('features.upToEventsPerMonth', { events: formatEventCount(volume, locale) }),
+              label: t('features.upToEventsPerMonth', { events: formatEventCount(events, locale) }),
+            };
+          case 'eventsAboveSlider':
+            return {
+              kind: 'feature',
+              label: t('features.moreThanEventsPerMonth', {
+                events: formatEventCount(EVENT_STEPS[EVENT_STEPS.length - 1], locale),
+              }),
             };
           case 'everythingIn':
             return { kind: 'header', label: t('features.everythingIn', { name: getPlan(item.planId).name }) };
@@ -52,12 +59,15 @@ export function usePlanFeatures(volume: number) {
                   }),
             };
           case 'statusPages':
-            return { kind: 'feature', label: t('features.statusPagesCount', { count: statusPages.maxStatusPages }) };
+            return {
+              kind: 'feature',
+              label: t('features.statusPagesCount', { count: statusPages.maxStatusPages }),
+            };
           case 'feature':
             return { kind: 'feature', label: t(`features.${item.key}`) };
         }
       });
     },
-    [volume, locale, t],
+    [locale, t],
   );
 }
