@@ -3220,7 +3220,8 @@
       "noData": "Ingen geografiske data tilgængelige for den valgte periode",
       "loading": "Indlæser kort...",
       "visitors": "Besøgende",
-      "regionLoadError": "Kunne ikke indlæse regionsdata"
+      "regionLoadError": "Kunne ikke indlæse regionsdata",
+      "noRegionalMap": "Der findes ikke et regionalt kort for dette land"
     },
     "userJourney": {
       "steps": "Trin",
