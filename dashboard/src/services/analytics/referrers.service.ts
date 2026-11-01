@@ -6,9 +6,8 @@ import {
   getReferrerTrafficTrendBySource,
   getReferrerUrlRollup,
   getTopChannels,
-  getDailyReferralSessions,
-  getDailyReferralTrafficPercentage,
-  getDailyReferralSessionDuration,
+  getDailyReferralSummaryMetrics,
+  getReferralRangeMetrics,
   getTopReferrerSource,
 } from '@/repositories/clickhouse/index.repository';
 import {
@@ -57,39 +56,24 @@ export async function getTopChannelsForSite(siteQuery: BASiteQuery, limit = 10):
 export async function getReferrerSummaryWithChartsForSite(
   siteQuery: BASiteQuery,
 ): Promise<ReferrerSummaryWithCharts> {
-  const [referralSessionsChartData, referralPercentageChartData, avgSessionDurationChartData, topReferrerSource] =
-    await Promise.all([
-      getDailyReferralSessions(siteQuery),
-      getDailyReferralTrafficPercentage(siteQuery),
-      getDailyReferralSessionDuration(siteQuery),
-      getTopReferrerSource(siteQuery),
-    ]);
-
-  const referralSessions = referralSessionsChartData.reduce((sum, day) => sum + day.referralSessions, 0);
-
-  const avgReferralPercentage =
-    referralPercentageChartData.length > 0
-      ? referralPercentageChartData.reduce((sum, day) => sum + day.referralPercentage, 0) /
-        referralPercentageChartData.length
-      : 0;
-
-  const totalSessions =
-    avgReferralPercentage > 0 ? Math.round(referralSessions / (avgReferralPercentage / 100)) : referralSessions;
-
-  const avgSessionDuration =
-    avgSessionDurationChartData.length > 0
-      ? avgSessionDurationChartData.reduce((sum, day) => sum + day.avgSessionDuration, 0) /
-        avgSessionDurationChartData.length
-      : 0;
+  const [rangeMetrics, dailyMetrics, topReferrerSource] = await Promise.all([
+    getReferralRangeMetrics(siteQuery),
+    getDailyReferralSummaryMetrics(siteQuery),
+    getTopReferrerSource(siteQuery),
+  ]);
 
   const result = {
-    referralSessions,
-    totalSessions,
+    ...rangeMetrics,
     topReferrerSource,
-    avgSessionDuration: Number(avgSessionDuration.toFixed(1)),
-    referralSessionsChartData,
-    referralPercentageChartData,
-    avgSessionDurationChartData,
+    referralSessionsChartData: dailyMetrics.map(({ date, referralSessions }) => ({ date, referralSessions })),
+    referralPercentageChartData: dailyMetrics.map(({ date, referralPercentage }) => ({
+      date,
+      referralPercentage,
+    })),
+    avgSessionDurationChartData: dailyMetrics.map(({ date, avgSessionDuration }) => ({
+      date,
+      avgSessionDuration,
+    })),
   };
 
   return ReferrerSummaryWithChartsSchema.parse(result);
