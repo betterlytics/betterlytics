@@ -1251,20 +1251,30 @@
       "perMonth": "/mnd",
       "free": "Gratis",
       "custom": "Etter avtale",
-      "growth": {
-        "tagline": "For sideprosjekter og små nettsteder.",
-        "cta": "Kom i gang"
-      },
-      "professional": {
-        "tagline": "For team med flere produkter i drift.",
-        "cta": "Kom i gang"
-      },
-      "enterprise": {
-        "tagline": "For høy trafikk, med SLA og dedikert support.",
-        "cta": "Kontakt salg"
-      },
       "badge": "Mest populær",
-      "ctaFree": "Kom i gang gratis"
+      "ctaFree": "Kom i gang gratis",
+      "contactCta": "Kontakt salg",
+      "plans": {
+        "growth": {
+          "tagline": "For sideprosjekter og små nettsteder."
+        },
+        "professional": {
+          "tagline": "For team med flere produkter i drift."
+        },
+        "enterprise": {
+          "tagline": "For høy trafikk, med SLA og dedikert support."
+        },
+        "free": {
+          "tagline": "For sideprosjekter og personlige nettsteder."
+        },
+        "plus": {
+          "tagline": "For små bedrifter med noen få nettsteder."
+        },
+        "business": {
+          "tagline": "For byråer, frilansere og voksende team."
+        }
+      },
+      "cta": "Kom i gang"
     },
     "cta": {
       "title": "Legg inn ett skript og se den første besøkende tikke inn",
@@ -1941,7 +1951,10 @@
     "descriptions": {
       "growth": "Perfekt for små nettsteder og personlige prosjekter",
       "professional": "Avanserte funksjoner for voksende virksomheter",
-      "enterprise": "Komplett løsning for store organisasjoner"
+      "enterprise": "Komplett løsning for store organisasjoner",
+      "free": "For sideprosjekter og personlige nettsteder",
+      "plus": "For små bedrifter med noen få nettsteder",
+      "business": "For byråer, frilansere og voksende team"
     },
     "features": {
       "upToEventsPerMonth": "Opptil {events} hendelser/måned",
@@ -1962,7 +1975,9 @@
       "retentionYears": "{count, plural, other {#+ år datalagring}}",
       "uptimeMonitors": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}} med {minutes}-minutts sjekker",
       "everythingIn": "Alt i {name}, pluss:",
-      "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}"
+      "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}",
+      "statusPageCustomDomain": "Statusside på ditt eget domene",
+      "prioritySupport": "Prioritert support"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",

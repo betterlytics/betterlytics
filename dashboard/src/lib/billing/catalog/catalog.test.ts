@@ -78,7 +78,9 @@ describe('purchasing', () => {
   it('resolves every lookup key a subscription can carry back to its plan and volume', () => {
     for (const plan of ALL_PLANS) {
       for (const band of plan.bands) {
-        expect(planForLookupKey(band.lookupKeys.month!)).toEqual({ plan, events: band.events, interval: 'month' });
+        for (const [interval, lookupKey] of Object.entries(band.lookupKeys)) {
+          expect(planForLookupKey(lookupKey)).toEqual({ plan, events: band.events, interval });
+        }
       }
       for (const legacy of plan.legacyPrices) {
         expect(planForLookupKey(legacy.lookupKey)).toEqual({ plan, events: legacy.events, interval: legacy.interval });
@@ -203,6 +205,10 @@ describe('parity with the pre-catalog plans', () => {
     });
   });
 
+  it('lists exactly the plans on sale today', () => {
+    expect(listedPlans().map((plan) => plan.id)).toEqual(['growth', 'professional', 'enterprise']);
+  });
+
   it('keeps the free plan at 10k events with Growth limits', () => {
     expect(freeSubscriptionDefaults()).toEqual({
       planId: 'growth',
@@ -212,5 +218,69 @@ describe('parity with the pre-catalog plans', () => {
       status: 'active',
       cancelAtPeriodEnd: false,
     });
+  });
+});
+
+describe('the agreed Free, Plus and Business plans', () => {
+  const DOLLARS = {
+    plus: [9, 14, 19, 29, 49, 69, 89, 129, 169],
+    business: [19, 24, 29, 44, 74, 104, 134, 194, 254],
+  } as const;
+
+  it.each(Object.entries(DOLLARS))('prices %s at every step, with EUR equal to USD', (planId, dollars) => {
+    const plan = getPlan(planId as keyof typeof DOLLARS);
+    EVENT_STEPS.forEach((events, index) => {
+      expect(priceFor(plan, events, 'USD')).toBe(dollars[index] * 100);
+      expect(priceFor(plan, events, 'EUR')).toBe(dollars[index] * 100);
+      expect(bandFor(plan, events)?.lookupKeys.month).toBe(`${planId}_${events}_month`);
+    });
+  });
+
+  it('keeps Free at one zero-priced band of 10k events', () => {
+    const free = getPlan('free');
+    expect(free.bands).toHaveLength(1);
+    expect(isFreeBand(free, 10_000)).toBe(true);
+  });
+
+  it('gives each new plan exactly the agreed limits and service', () => {
+    const allChecks = {
+      httpMethodConfigurable: true,
+      customStatusCodes: true,
+      customHeaders: true,
+      keywordValidation: true,
+    };
+    expect(getPlan('free').capabilities).toEqual({
+      dashboards: { maxDashboards: 1, maxMembers: 1 },
+      monitoring: { maxMonitors: 1, minIntervalSeconds: 300, ...allChecks },
+      emailReports: { emailReportsEnabled: false },
+      dataRetention: { maxDataRetentionDays: 365 },
+      statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
+    });
+    expect(getPlan('plus').capabilities).toEqual({
+      dashboards: { maxDashboards: 5, maxMembers: 3 },
+      monitoring: { maxMonitors: 5, minIntervalSeconds: 60, ...allChecks },
+      emailReports: { emailReportsEnabled: true },
+      dataRetention: { maxDataRetentionDays: 730 },
+      statusPages: { maxStatusPages: 1, customDomain: true, removeBranding: false },
+    });
+    expect(getPlan('business').capabilities).toEqual({
+      dashboards: { maxDashboards: 25, maxMembers: 25 },
+      monitoring: { maxMonitors: 50, minIntervalSeconds: 60, ...allChecks },
+      emailReports: { emailReportsEnabled: true },
+      dataRetention: { maxDataRetentionDays: 1095 },
+      statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
+    });
+    expect(getPlan('free').service).toEqual({ prioritySupport: false, dedicatedSupport: false, slaGuarantee: false });
+    expect(getPlan('plus').service).toEqual({ prioritySupport: false, dedicatedSupport: false, slaGuarantee: false });
+    expect(getPlan('business').service).toEqual({ prioritySupport: true, dedicatedSupport: false, slaGuarantee: false });
+  });
+
+  it('keeps the new plans unlisted and off sale', () => {
+    for (const planId of ['free', 'plus', 'business'] as const) {
+      expect(getPlan(planId).listed).toBe(false);
+      for (const events of EVENT_STEPS) {
+        expect(purchasableLookupKey(planId, events)).toBeNull();
+      }
+    }
   });
 });
