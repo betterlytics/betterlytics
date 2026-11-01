@@ -2012,24 +2012,20 @@
       "sites": {
         "name": "Sites",
         "values": {
-          "upTo2": "Up to 2",
-          "upTo50": "Up to 50",
+          "upToCount": "Up to {count}",
           "unlimited": "Unlimited"
         }
       },
       "dataRetention": {
         "name": "Data retention",
         "values": {
-          "1year": "1+ year",
-          "3years": "3+ years",
-          "5years": "5+ years"
+          "yearsCount": "{count, plural, one {#+ year} other {#+ years}}"
         }
       },
       "teamMembers": {
         "name": "Team members",
         "values": {
-          "upTo3": "Up to 3",
-          "upTo50": "Up to 50",
+          "upToCount": "Up to {count}",
           "unlimited": "Unlimited"
         }
       },
@@ -2063,8 +2059,7 @@
       "uptimeMonitoring": {
         "name": "Uptime monitoring",
         "values": {
-          "1": "1 monitor",
-          "50": "50 monitors",
+          "monitorsCount": "{count, plural, one {# monitor} other {# monitors}}",
           "unlimited": "Unlimited monitors"
         }
       },
@@ -2074,8 +2069,7 @@
       "checkInterval": {
         "name": "Minimum check interval",
         "values": {
-          "5min": "5 min",
-          "1min": "1 min"
+          "minutesCount": "{count} min"
         }
       },
       "customHttpMethods": {
@@ -2093,8 +2087,7 @@
       "statusPages": {
         "name": "Public status pages",
         "values": {
-          "1": "1 status page",
-          "3": "3 status pages",
+          "statusPagesCount": "{count, plural, one {# status page} other {# status pages}}",
           "unlimited": "Unlimited status pages"
         }
       },
@@ -2843,11 +2836,7 @@
         "pastDue": "Past due",
         "inactive": "Inactive"
       },
-      "planNames": {
-        "growth": "Growth Plan",
-        "professional": "Pro Plan",
-        "enterprise": "Enterprise"
-      }
+      "planLabel": "{name} Plan"
     },
     "timeRange": {
       "disabled": "Disabled",

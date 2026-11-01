@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { EVENT_RANGES } from '@/lib/billing/plans';
+import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import { compactEventParts, formatEventCount } from './pricing';
 
 /** `_` stands for the no-break space CLDR puts between a number and some units. */
@@ -12,7 +12,7 @@ describe('formatEventCount', () => {
     ['it', '10K | 50K | 100K | 200K | 500K | 1_Mln | 2_Mln | 5_Mln | 10_Mln | 10_Mln+'],
     ['nb', '10k | 50k | 100k | 200k | 500k | 1_mill. | 2_mill. | 5_mill. | 10_mill. | 10_mill.+'],
   ] as const)('labels the pricing tiers in %s whatever the runtime ICU', (locale, expected) => {
-    const labels = EVENT_RANGES.map((range) => formatEventCount(range.value, locale)).join(' | ');
+    const labels = VOLUME_STOPS.map((stop) => formatEventCount(stop, locale)).join(' | ');
     expect(labels).toBe(nbsp(expected));
   });
 

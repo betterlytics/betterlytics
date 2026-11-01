@@ -2012,24 +2012,20 @@
       "sites": {
         "name": "Siti",
         "values": {
-          "upTo2": "Fino a 2",
-          "upTo50": "Fino a 50",
+          "upToCount": "Fino a {count}",
           "unlimited": "Illimitati"
         }
       },
       "dataRetention": {
         "name": "Conservazione dati",
         "values": {
-          "1year": "1+ anno",
-          "3years": "3+ anni",
-          "5years": "5+ anni"
+          "yearsCount": "{count, plural, one {#+ anno} other {#+ anni}}"
         }
       },
       "teamMembers": {
         "name": "Membri del team",
         "values": {
-          "upTo3": "Fino a 3",
-          "upTo50": "Fino a 50",
+          "upToCount": "Fino a {count}",
           "unlimited": "Illimitati"
         }
       },
@@ -2063,8 +2059,7 @@
       "uptimeMonitoring": {
         "name": "Monitoraggio uptime",
         "values": {
-          "1": "1 monitor",
-          "50": "50 monitor",
+          "monitorsCount": "{count, plural, one {# monitor} other {# monitor}}",
           "unlimited": "Monitor illimitati"
         }
       },
@@ -2074,8 +2069,7 @@
       "checkInterval": {
         "name": "Intervallo minimo di controllo",
         "values": {
-          "5min": "5 min",
-          "1min": "1 min"
+          "minutesCount": "{count} min"
         }
       },
       "customHttpMethods": {
@@ -2093,8 +2087,7 @@
       "statusPages": {
         "name": "Pagine di stato pubbliche",
         "values": {
-          "1": "1 pagina di stato",
-          "3": "3 pagine di stato",
+          "statusPagesCount": "{count, plural, one {# pagina di stato} other {# pagine di stato}}",
           "unlimited": "Pagine di stato illimitate"
         }
       },
@@ -2843,11 +2836,7 @@
         "pastDue": "Scaduto",
         "inactive": "Inattivo"
       },
-      "planNames": {
-        "growth": "Piano Growth",
-        "professional": "Piano Pro",
-        "enterprise": "Enterprise"
-      }
+      "planLabel": "Piano {name}"
     },
     "timeRange": {
       "disabled": "Disattivato",

@@ -2012,24 +2012,20 @@
       "sites": {
         "name": "Hjemmesider",
         "values": {
-          "upTo2": "Op til 2",
-          "upTo50": "Op til 50",
+          "upToCount": "Op til {count}",
           "unlimited": "Ubegrænsede"
         }
       },
       "dataRetention": {
         "name": "Dataopbevaring",
         "values": {
-          "1year": "1+ år",
-          "3years": "3+ år",
-          "5years": "5+ år"
+          "yearsCount": "{count, plural, one {#+ år} other {#+ år}}"
         }
       },
       "teamMembers": {
         "name": "Team-medlemmer",
         "values": {
-          "upTo3": "Op til 3",
-          "upTo50": "Op til 50",
+          "upToCount": "Op til {count}",
           "unlimited": "Ubegrænset"
         }
       },
@@ -2063,8 +2059,7 @@
       "uptimeMonitoring": {
         "name": "Oppetidsovervågning",
         "values": {
-          "1": "1 overvågning",
-          "50": "50 overvågninger",
+          "monitorsCount": "{count, plural, one {# overvågning} other {# overvågninger}}",
           "unlimited": "Ubegrænset overvågning"
         }
       },
@@ -2074,8 +2069,7 @@
       "checkInterval": {
         "name": "Minimum tjekinterval",
         "values": {
-          "5min": "5 min",
-          "1min": "1 min"
+          "minutesCount": "{count} min"
         }
       },
       "customHttpMethods": {
@@ -2093,8 +2087,7 @@
       "statusPages": {
         "name": "Offentlige statussider",
         "values": {
-          "1": "1 statusside",
-          "3": "3 statussider",
+          "statusPagesCount": "{count, plural, one {# statusside} other {# statussider}}",
           "unlimited": "Ubegrænsede statussider"
         }
       },
@@ -2843,11 +2836,7 @@
         "pastDue": "Forfalden",
         "inactive": "Inaktiv"
       },
-      "planNames": {
-        "growth": "Growth-plan",
-        "professional": "Pro-plan",
-        "enterprise": "Enterprise"
-      }
+      "planLabel": "{name}-plan"
     },
     "timeRange": {
       "disabled": "Deaktiveret",

@@ -8,7 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { PricingComponent } from '@/components/pricing/PricingComponent';
 import { FeatureComparisonSection } from '@/components/billing/FeatureComparisonSection';
-import { EVENT_RANGES } from '@/lib/billing/plans';
+import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import type { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData } from '@/entities/billing/billing.entities';
 
@@ -38,7 +38,7 @@ export function PlanPickerDialog({
 
   const initialRangeIndex = useMemo(() => {
     const eventLimit = initialEventLimit ?? billingData.subscription.eventLimit;
-    const idx = EVENT_RANGES.findIndex((r) => r.value === eventLimit);
+    const idx = VOLUME_STOPS.indexOf(eventLimit);
     return idx >= 0 ? idx : 0;
   }, [initialEventLimit, billingData.subscription.eventLimit]);
 
