@@ -1,6 +1,6 @@
 import type { PlanCapabilities } from '@/lib/billing/capabilities';
 import { CAPABILITY_ENTITLED_STATUSES } from '@/lib/billing/subscription-status';
-import { CUSTOM_VOLUME, EVENT_STEPS, FREE_PLAN_ID, PLANS, SELF_HOSTED_PLAN_ID } from './plans';
+import { CUSTOM_VOLUME, EVENT_STEPS, FREE_PLAN_ID, PLANS, RENAMED_PLAN_IDS, SELF_HOSTED_PLAN_ID } from './plans';
 import {
   type BillingInterval,
   type PlanCurrency,
@@ -18,6 +18,11 @@ const PLANS_BY_RANK = Object.values(PLANS).sort((a, b) => a.rank - b.rank);
 
 export function getPlan(id: PlanId): PlanDefinition {
   return PLANS[id];
+}
+
+/** Maps a stored plan id that was renamed at launch to its current id; other ids pass through. */
+export function currentPlanId(storedId: string): string {
+  return RENAMED_PLAN_IDS.get(storedId) ?? storedId;
 }
 
 export function listedPlans(): PlanDefinition[] {
@@ -88,8 +93,7 @@ export function offerFor(
   if (isFreePlan(plan)) return { kind: 'free', events: plan.bands[0].events };
 
   const cents = isQuoted(plan, events) ? null : priceFor(plan, events, currency, interval);
-  if (cents === null) return { kind: 'quoted', events };
-  return cents === 0 ? { kind: 'free', events } : { kind: 'paid', events, cents };
+  return cents === null ? { kind: 'quoted', events } : { kind: 'paid', events, cents };
 }
 
 export type LookupKeyMatch = { plan: PlanDefinition; events: number; interval: BillingInterval };

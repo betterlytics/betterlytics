@@ -6,6 +6,7 @@ import {
   PLAN_IDS,
   VOLUME_STOPS,
   bandFor,
+  currentPlanId,
   entitledPlan,
   freePlan,
   freeSubscriptionDefaults,
@@ -90,7 +91,7 @@ describe('plans on sale', () => {
     EVENT_STEPS.forEach((events, index) => {
       expect(priceFor(plan, events, 'USD')).toBe(dollars[index] * 100);
       expect(priceFor(plan, events, 'EUR')).toBe(dollars[index] * 100);
-      expect(bandFor(plan, events)?.lookupKeys.month).toBe(`${planId}_${events}_month`);
+      expect(bandFor(plan, events)?.lookupKeys.month).toBe(`${planId}_202611_${events}_month`);
     });
   });
 
@@ -190,12 +191,24 @@ describe('pre-launch subscriptions', () => {
   });
 });
 
+describe('plan ids renamed at launch', () => {
+  it('reads a Pro id written by an older deploy as Business', () => {
+    expect(currentPlanId('professional')).toBe('business');
+  });
+
+  it('leaves every current id alone', () => {
+    for (const id of PLAN_IDS) {
+      expect(currentPlanId(id)).toBe(id);
+    }
+  });
+});
+
 describe('purchasing', () => {
   it('only sells listed, self-serve, paid bands', () => {
     expect(purchasableLookupKey('free', 10_000)).toBeNull();
     expect(purchasableLookupKey('growth', 10_000)).toBeNull();
-    expect(purchasableLookupKey('plus', 10_000)).toBe('plus_10000_month');
-    expect(purchasableLookupKey('business', 50_000)).toBe('business_50000_month');
+    expect(purchasableLookupKey('plus', 10_000)).toBe('plus_202611_10000_month');
+    expect(purchasableLookupKey('business', 50_000)).toBe('business_202611_50000_month');
     expect(purchasableLookupKey('enterprise', 10_000)).toBeNull();
     expect(purchasableLookupKey('plus', 12_345)).toBeNull();
   });
@@ -275,7 +288,20 @@ describe('entitlement', () => {
     expect(upgradeFor(getPlan('plus').capabilities, hasReports)).toBeNull();
   });
 
-  it('gives self-hosted deploys every capability', () => {
-    expect(selfHostedPlan().id).toBe('enterprise');
+  it('gives self-hosted deploys at least the limits of every listed plan', () => {
+    const selfHosted = selfHostedPlan().capabilities;
+    for (const { capabilities: plan } of listedPlans()) {
+      expect(selfHosted.dashboards.maxDashboards).toBeGreaterThanOrEqual(plan.dashboards.maxDashboards);
+      expect(selfHosted.dashboards.maxMembers).toBeGreaterThanOrEqual(plan.dashboards.maxMembers);
+      expect(selfHosted.monitoring.maxMonitors).toBeGreaterThanOrEqual(plan.monitoring.maxMonitors);
+      expect(selfHosted.monitoring.minIntervalSeconds).toBeLessThanOrEqual(plan.monitoring.minIntervalSeconds);
+      expect(selfHosted.dataRetention.maxDataRetentionDays).toBeGreaterThanOrEqual(
+        plan.dataRetention.maxDataRetentionDays,
+      );
+      expect(selfHosted.statusPages.maxStatusPages).toBeGreaterThanOrEqual(plan.statusPages.maxStatusPages);
+    }
+    expect(Object.values(selfHosted.monitoring).every((value) => value !== false)).toBe(true);
+    expect(selfHosted.emailReports.emailReportsEnabled).toBe(true);
+    expect(selfHosted.statusPages).toMatchObject({ customDomain: true, removeBranding: true });
   });
 });
