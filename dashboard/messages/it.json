@@ -2415,7 +2415,13 @@
       "settings": "Impostazioni",
       "deleteConfirmTitle": "Eliminare il monitor?",
       "deleteConfirmDescription": "Questa azione eliminerà permanentemente il monitor e tutti i suoi dati.",
-      "deleteError": "Impossibile eliminare il monitor"
+      "deleteError": "Impossibile eliminare il monitor",
+      "deleteImpactLoading": "Verifica delle pagine di stato interessate...",
+      "deleteImpactError": "Non è stato possibile verificare quali pagine di stato usano questo monitor.",
+      "deleteImpactUnknownWarning": "Eliminando questo monitor verrà rimosso da tutte le pagine di stato che lo usano. Le pagine pubblicate potrebbero restare pubbliche senza componenti e normalmente mostrare “Stato non disponibile”. Gli incidenti aperti potrebbero comunque alzarne lo stato.",
+      "deleteImpactRetry": "Riprova",
+      "deleteImpactAffectedPages": "Questo monitor verrà rimosso da queste pagine di stato:",
+      "deleteImpactEmptyWarning": "Questa pagina pubblicata resterà pubblica senza componenti e normalmente mostrerà “Stato non disponibile”. Gli incidenti aperti potrebbero comunque alzarne lo stato."
     }
   },
   "monitoringDetailPage": {
@@ -2539,13 +2545,7 @@
       "discard": "Annulla modifiche"
     },
     "delete": {
-      "trigger": "Elimina monitor",
-      "title": "Eliminare questo monitor?",
-      "description": "Questa azione non può essere annullata. Tutti i dati di monitoraggio e la cronologia degli incidenti verranno eliminati definitivamente.",
-      "cancel": "Annulla",
-      "confirm": "Elimina monitor",
-      "deleting": "Eliminazione...",
-      "error": "Impossibile eliminare il monitor"
+      "trigger": "Elimina monitor"
     },
     "sections": {
       "timing": "Tempistiche",
