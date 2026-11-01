@@ -102,7 +102,7 @@ export function ActiveQueryFilters() {
                 className={cn(
                   'border-input divide-input max-w-max min-w-0 shrink grow basis-80 items-stretch gap-0 divide-x p-0 font-sans max-sm:max-w-full max-sm:flex-none',
                   pillBackground,
-                  queryFilters.length > 1 && 'max-sm:max-w-[85%]',
+                  queryFilters.length > 1 && 'max-sm:max-w-[calc(100%-1.5rem)]',
                   !initialIds.has(filter.id) && 'animate-filter-pill-added',
                   status.disabled && 'opacity-50',
                 )}
@@ -136,14 +136,19 @@ export function ActiveQueryFilters() {
           );
         })}
       </div>
-      <Button
-        variant='ghost'
-        size='sm'
-        className='text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground dark:hover:bg-primary-foreground/15 focus-visible:ring-primary-foreground/50 h-8.5 shrink-0 cursor-pointer px-2.5'
-        onClick={clearAll}
-      >
-        {t('clearAll')}
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant='ghost'
+            aria-label={t('clearAll')}
+            className='text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground dark:hover:bg-primary-foreground/15 focus-visible:ring-primary-foreground/50 size-8.5 shrink-0 cursor-pointer'
+            onClick={clearAll}
+          >
+            <XIcon className='size-4' />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>{t('clearAll')}</TooltipContent>
+      </Tooltip>
     </div>
   );
 }
