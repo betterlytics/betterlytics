@@ -34,7 +34,7 @@ export function PostCard({
           priority={lead}
           sizes={lead ? '(width < 75rem) 100vw, 800px' : '(width < 40rem) 100vw, (width < 62.5rem) 50vw, 440px'}
           className={cn(
-            'aspect-[1200/630] w-full object-cover transition-transform duration-500 ease-out-expo group-hover:scale-[1.02]',
+            'aspect-[1200/630] w-full object-cover',
             // fills the cell when the text beside it runs taller than the cover
             lead && '3xl:absolute 3xl:inset-0 3xl:aspect-auto 3xl:h-full',
           )}
@@ -49,7 +49,7 @@ export function PostCard({
         {tag && <p className='text-label leading-5 tracking-ui text-volt-text'>{tag}</p>}
         <Title
           className={cn(
-            'mt-2.5 font-medium text-balance text-fg',
+            'mt-2.5 font-medium text-balance text-fg transition-colors duration-180 ease-out-expo group-hover:text-volt-text',
             lead
               ? 'text-display-2 max-sm:text-[2rem] max-sm:leading-9 3xl:text-[2.5rem] 3xl:leading-[2.75rem]'
               : 'text-title leading-6 tracking-ui',
