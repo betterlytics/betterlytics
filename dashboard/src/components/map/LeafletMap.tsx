@@ -2,6 +2,7 @@
 
 import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
+import MapPopupAutoPan from '@/components/map/MapPopupAutoPan';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
 import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
@@ -115,6 +116,7 @@ export default function LeafletMap({
             style={style}
           />
           <MapStickyTooltip size={size} />
+          <MapPopupAutoPan />
         </MapContainer>
         {children}
       </MapSelectionContextProvider>
