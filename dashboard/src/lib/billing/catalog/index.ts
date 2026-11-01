@@ -32,11 +32,11 @@ export function selfHostedPlan(): PlanDefinition {
   return PLANS[SELF_HOSTED_PLAN_ID];
 }
 
-export function isCustomVolume(events: number): boolean {
+function isCustomVolume(events: number): boolean {
   return events > EVENT_STEPS[EVENT_STEPS.length - 1];
 }
 
-export function isQuoted(plan: PlanDefinition, events: number): boolean {
+function isQuoted(plan: PlanDefinition, events: number): boolean {
   return !plan.selfServe || isCustomVolume(events);
 }
 
@@ -58,6 +58,11 @@ function freeBand(plan: PlanDefinition): PriceBand | undefined {
   return plan.bands.find((band) => isZeroPriced(band, 'month'));
 }
 
+/** A plan that is only ever free, at one fixed allowance. */
+export function isFreePlan(plan: PlanDefinition): boolean {
+  return plan.bands.length === 1 && isZeroPriced(plan.bands[0], 'month');
+}
+
 /** Price in cents, or null when the plan has no self-serve price at that volume. */
 export function priceFor(
   plan: PlanDefinition,
@@ -66,6 +71,25 @@ export function priceFor(
   interval: BillingInterval = 'month',
 ): number | null {
   return bandFor(plan, events)?.prices[interval]?.[currency] ?? null;
+}
+
+export type PlanOffer =
+  | { kind: 'free'; events: number }
+  | { kind: 'paid'; events: number; cents: number }
+  | { kind: 'quoted'; events: number };
+
+/** What a plan's card offers at a slider volume. A free plan keeps its own allowance at any volume. */
+export function offerFor(
+  plan: PlanDefinition,
+  events: number,
+  currency: PlanCurrency,
+  interval: BillingInterval = 'month',
+): PlanOffer {
+  if (isFreePlan(plan)) return { kind: 'free', events: plan.bands[0].events };
+
+  const cents = isQuoted(plan, events) ? null : priceFor(plan, events, currency, interval);
+  if (cents === null) return { kind: 'quoted', events };
+  return cents === 0 ? { kind: 'free', events } : { kind: 'paid', events, cents };
 }
 
 export type LookupKeyMatch = { plan: PlanDefinition; events: number; interval: BillingInterval };

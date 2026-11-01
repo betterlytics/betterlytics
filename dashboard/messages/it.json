@@ -118,11 +118,11 @@
           },
           "freePlan": {
             "question": "Cosa include il piano gratuito?",
-            "answer": "Il piano Cloud gratuito include fino a 10.000 eventi tracciati, accesso completo alla dashboard e supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo. L'auto-hosting è gratuito senza limite di eventi."
+            "answer": "Il piano Free su Cloud copre 1 sito e fino a 10.000 eventi tracciati al mese. Include analisi web, session replay, tracciamento errori e monitoraggio uptime, oltre al supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo. L'auto-hosting è gratuito senza limite di eventi."
           },
           "cloud": {
             "question": "Come funziona l'hosting cloud?",
-            "answer": "Il nostro hosting cloud fornisce un'istanza Betterlytics completamente gestita con aggiornamenti automatici, backup e SLA di uptime del 99.9%. Nessuna gestione server richiesta!"
+            "answer": "Il nostro hosting cloud fornisce un'istanza Betterlytics completamente gestita con aggiornamenti automatici e backup. Con il piano Enterprise è disponibile uno SLA sull'uptime. Nessuna gestione server richiesta!"
           },
           "support": {
             "question": "Offrite supporto per istanze auto-ospitate?",
@@ -1255,15 +1255,6 @@
       "ctaFree": "Inizia gratis",
       "contactCta": "Contattaci",
       "plans": {
-        "growth": {
-          "tagline": "Per progetti personali e piccoli siti."
-        },
-        "professional": {
-          "tagline": "Per team che gestiscono più prodotti."
-        },
-        "enterprise": {
-          "tagline": "Per traffico elevato, con SLA e supporto dedicato."
-        },
         "free": {
           "tagline": "Per progetti personali e piccoli siti."
         },
@@ -1272,6 +1263,12 @@
         },
         "business": {
           "tagline": "Per agenzie, freelance e team in crescita."
+        },
+        "enterprise": {
+          "tagline": "Per traffico elevato e organizzazioni con requisiti di sicurezza o conformità."
+        },
+        "growth": {
+          "tagline": "Per progetti personali e piccoli siti."
         }
       },
       "cta": "Inizia"
@@ -1693,7 +1690,7 @@
           },
           "free": {
             "q": "Il monitoraggio uptime è gratuito?",
-            "a": "Il piano gratuito include un monitor per sito, controllato ogni cinque minuti, e una pagina di stato. Il piano Professional sblocca la configurazione avanzata: controlli ogni minuto, header personalizzati, codici di stato accettati e controlli per parola chiave, più monitor e pagine di stato, e il tuo dominio."
+            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. Header personalizzati, codici di stato accettati e controlli per parola chiave funzionano su tutti i piani. Con Plus ottieni cinque monitor con controlli ogni minuto e una pagina di stato sul tuo dominio. Con Business arrivi fino a 50 monitor e tre pagine di stato senza il branding Betterlytics."
           },
           "internal": {
             "q": "Posso monitorare servizi interni?",
@@ -1949,16 +1946,14 @@
   "pricingCards": {
     "periodPerMonth": "/mese",
     "descriptions": {
-      "growth": "Perfetto per piccoli siti web e progetti personali",
-      "professional": "Funzionalità avanzate per aziende in crescita",
-      "enterprise": "Soluzione completa per grandi organizzazioni",
       "free": "Per progetti personali e piccoli siti",
       "plus": "Per piccole aziende con pochi siti",
-      "business": "Per agenzie, freelance e team in crescita"
+      "business": "Per agenzie, freelance e team in crescita",
+      "enterprise": "Per traffico elevato e organizzazioni con requisiti di sicurezza o conformità",
+      "growth": "Per progetti personali e piccoli siti"
     },
     "features": {
       "upToEventsPerMonth": "Fino a {events} eventi/mese",
-      "customEventVolume": "Volume eventi personalizzato",
       "unlimitedSites": "Siti illimitati",
       "unlimitedTeamMembers": "Membri del team illimitati",
       "fullDashboard": "Dashboard di web analytics completa",
@@ -1968,20 +1963,24 @@
       "uptimeUnlimited": "Monitor uptime e pagine di stato illimitati",
       "statusPagesPro": "Pagine di stato white-label sul tuo dominio",
       "emailReports": "Report email pianificati",
-      "dedicatedSupport": "Supporto dedicato",
-      "slaGuarantee": "Garanzia SLA",
+      "slaGuarantee": "SLA di uptime con supporto prioritario",
       "sitesCount": "{count, plural, one {# sito} other {Fino a # siti}}",
-      "teamMembersCount": "{count, plural, one {# membro del team} other {Fino a # membri del team}}",
+      "teamMembersCount": "{count, plural, one {# membro del team} other {Fino a # membri del team per sito}}",
       "retentionYears": "{count, plural, one {Conservazione dati #+ anno} other {Conservazione dati #+ anni}}",
       "uptimeMonitors": "{count} monitor uptime con controlli {minutes, plural, one {ogni minuto} other {ogni # minuti}}",
       "everythingIn": "Tutte le funzionalità di {name}, più:",
       "statusPagesCount": "{count, plural, one {# pagina di stato pubblica} other {# pagine di stato pubbliche}}",
       "statusPageCustomDomain": "Pagina di stato sul tuo dominio",
-      "prioritySupport": "Supporto prioritario"
+      "prioritySupport": "Supporto prioritario",
+      "moreThanEventsPerMonth": "Oltre {events} eventi/mese",
+      "samlSso": "SAML SSO e SCIM",
+      "auditLog": "Registro di audit",
+      "dpaSecurityReviews": "DPA e revisioni di sicurezza",
+      "customRetention": "Conservazione dati personalizzata",
+      "customContracts": "Contratti annuali, fatturazione e condizioni personalizzate"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",
-      "contactSales": "Contatta vendite",
       "getStarted": "Inizia",
       "currentPlan": "Piano attuale",
       "changeToThisPlan": "Cambia a questo piano",
@@ -2016,7 +2015,7 @@
       "sites": {
         "name": "Siti",
         "values": {
-          "upToCount": "Fino a {count}",
+          "upToCount": "{count, plural, one {#} other {Fino a #}}",
           "unlimited": "Illimitati"
         }
       },
@@ -2027,9 +2026,9 @@
         }
       },
       "teamMembers": {
-        "name": "Membri del team",
+        "name": "Membri del team per sito",
         "values": {
-          "upToCount": "Fino a {count}",
+          "upToCount": "{count, plural, one {#} other {Fino a #}}",
           "unlimited": "Illimitati"
         }
       },
@@ -2227,11 +2226,6 @@
     "createCard": {
       "title": "Crea dashboard",
       "description": "Aggiungi una nuova dashboard"
-    },
-    "upgradeCard": {
-      "title": "Ti servono più dashboard?",
-      "description": "{plan} supporta fino a {count} siti",
-      "descriptionUnlimited": "{plan} supporta siti illimitati"
     }
   },
   "monitoring": {
@@ -2712,7 +2706,7 @@
         "errors": {
           "invalidDomain": "Dominio non valido"
         },
-        "limitTooltip": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre."
+        "limitReached": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre."
       }
     },
     "slider": {
@@ -2748,7 +2742,7 @@
           },
           "freeOption": {
             "q": "Esiste un'opzione gratuita?",
-            "a": "Sì! Il nostro piano Growth include 10.000 eventi gratuiti al mese per sempre. Nessuna carta di credito richiesta per iniziare."
+            "a": "Sì! Il nostro piano Free include 10.000 eventi al mese, gratis per sempre. Nessuna carta di credito richiesta per iniziare."
           },
           "cancelAnytime": {
             "q": "Posso annullare in qualsiasi momento?",

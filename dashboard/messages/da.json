@@ -118,11 +118,11 @@
           },
           "freePlan": {
             "question": "Hvad er inkluderet i den gratis plan?",
-            "answer": "Den gratis Cloud-plan inkluderer op til 10.000 sporede events, fuld adgang til dashboardet og community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger. Self-hosting er gratis uden grænse for events."
+            "answer": "Free-planen på Cloud dækker 1 hjemmeside og op til 10.000 sporede events pr. måned. Den inkluderer webanalyse, session replay, fejlsporing og oppetidsovervågning samt community-support. Perfekt til at komme i gang! Ingen kreditkort krævet, ingen bindinger. Self-hosting er gratis uden grænse for events."
           },
           "cloud": {
             "question": "Hvordan fungerer cloud-hosting?",
-            "answer": "Vores cloud-hosting giver en fuldt administreret Betterlytics-instans med automatiske opdateringer, backups og 99,9% oppetid. Ingen serveradministration krævet!"
+            "answer": "Vores cloud-hosting giver en fuldt administreret Betterlytics-instans med automatiske opdateringer og backups. En SLA for oppetid er tilgængelig på Enterprise-planen. Ingen serveradministration krævet!"
           },
           "support": {
             "question": "Tilbyder I support til self-hosted installationer?",
@@ -1253,17 +1253,8 @@
       "custom": "Efter aftale",
       "badge": "Mest populær",
       "ctaFree": "Kom i gang gratis",
-      "contactCta": "Kontakt salg",
+      "contactCta": "Kontakt os",
       "plans": {
-        "growth": {
-          "tagline": "Til sideprojekter og små websites."
-        },
-        "professional": {
-          "tagline": "Til teams med flere produkter."
-        },
-        "enterprise": {
-          "tagline": "Til høj trafik, med SLA og dedikeret support."
-        },
         "free": {
           "tagline": "Til sideprojekter og personlige websites."
         },
@@ -1272,6 +1263,12 @@
         },
         "business": {
           "tagline": "Til bureauer, freelancere og voksende teams."
+        },
+        "enterprise": {
+          "tagline": "Til høj trafik og organisationer med krav til sikkerhed eller compliance."
+        },
+        "growth": {
+          "tagline": "Til sideprojekter og personlige websites."
         }
       },
       "cta": "Kom i gang"
@@ -1693,7 +1690,7 @@
           },
           "free": {
             "q": "Er oppetidsovervågning gratis?",
-            "a": "Den gratis plan omfatter én monitor pr. site, tjekket hvert femte minut, og én statusside. Professional-planen åbner for mere avanceret opsætning: tjek hvert minut, egne headers, accepterede statuskoder og nøgleordstjek, flere monitorer og statussider samt dit eget domæne."
+            "a": "Ja. Free-planen omfatter én monitor, der tjekkes hvert femte minut, og én offentlig statusside med Betterlytics-branding. Egne headers, accepterede statuskoder og nøgleordstjek virker på alle planer. Plus giver dig fem monitorer med tjek hvert minut og en statusside på dit eget domæne. Business går op til 50 monitorer og tre statussider uden Betterlytics-branding."
           },
           "internal": {
             "q": "Kan jeg overvåge interne tjenester?",
@@ -1949,16 +1946,14 @@
   "pricingCards": {
     "periodPerMonth": "/måned",
     "descriptions": {
-      "growth": "Perfekt til små websites og personlige projekter",
-      "professional": "Avancerede funktioner til voksende virksomheder",
-      "enterprise": "Komplet løsning til store organisationer",
       "free": "Til sideprojekter og personlige websites",
       "plus": "Til små virksomheder med en håndfuld websites",
-      "business": "Til bureauer, freelancere og voksende teams"
+      "business": "Til bureauer, freelancere og voksende teams",
+      "enterprise": "Til høj trafik og organisationer med krav til sikkerhed eller compliance",
+      "growth": "Til sideprojekter og personlige websites"
     },
     "features": {
       "upToEventsPerMonth": "Op til {events} events/måned",
-      "customEventVolume": "Tilpasset event-mængde",
       "unlimitedSites": "Ubegrænsede hjemmesider",
       "unlimitedTeamMembers": "Ubegrænset antal team-medlemmer",
       "fullDashboard": "Komplet web-analytics dashboard",
@@ -1968,20 +1963,24 @@
       "uptimeUnlimited": "Ubegrænset antal uptime-monitorer og statussider",
       "statusPagesPro": "White-label statussider på dit eget domæne",
       "emailReports": "Planlagte e-mailrapporter",
-      "dedicatedSupport": "Dedikeret support",
-      "slaGuarantee": "SLA-garanti",
+      "slaGuarantee": "Oppetids-SLA med prioriteret support",
       "sitesCount": "{count, plural, one {# hjemmeside} other {Op til # hjemmesider}}",
-      "teamMembersCount": "{count, plural, one {# team-medlem} other {Op til # team-medlemmer}}",
+      "teamMembersCount": "{count, plural, one {# team-medlem} other {Op til # team-medlemmer pr. hjemmeside}}",
       "retentionYears": "{count, plural, other {#+ års dataopbevaring}}",
       "uptimeMonitors": "{count, plural, one {# uptime-monitor} other {# uptime-monitorer}} med {minutes}-minuts tjek",
       "everythingIn": "Alt i {name}, plus:",
       "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}",
       "statusPageCustomDomain": "Statusside på dit eget domæne",
-      "prioritySupport": "Prioriteret support"
+      "prioritySupport": "Prioriteret support",
+      "moreThanEventsPerMonth": "Mere end {events} events/måned",
+      "samlSso": "SAML SSO og SCIM",
+      "auditLog": "Revisionslog",
+      "dpaSecurityReviews": "DPA og sikkerhedsgennemgange",
+      "customRetention": "Tilpasset dataopbevaring",
+      "customContracts": "Årsaftaler, fakturering og tilpassede vilkår"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
-      "contactSales": "Kontakt salg",
       "getStarted": "Kom i gang",
       "currentPlan": "Nuværende plan",
       "changeToThisPlan": "Skift til denne plan",
@@ -2016,7 +2015,7 @@
       "sites": {
         "name": "Hjemmesider",
         "values": {
-          "upToCount": "Op til {count}",
+          "upToCount": "{count, plural, one {#} other {Op til #}}",
           "unlimited": "Ubegrænsede"
         }
       },
@@ -2027,9 +2026,9 @@
         }
       },
       "teamMembers": {
-        "name": "Team-medlemmer",
+        "name": "Team-medlemmer pr. hjemmeside",
         "values": {
-          "upToCount": "Op til {count}",
+          "upToCount": "{count, plural, one {#} other {Op til #}}",
           "unlimited": "Ubegrænset"
         }
       },
@@ -2227,11 +2226,6 @@
     "createCard": {
       "title": "Opret dashboard",
       "description": "Tilføj et nyt dashboard"
-    },
-    "upgradeCard": {
-      "title": "Brug for flere dashboards?",
-      "description": "{plan} understøtter op til {count} sites",
-      "descriptionUnlimited": "{plan} understøtter ubegrænsede sites"
     }
   },
   "monitoring": {
@@ -2712,7 +2706,7 @@
         "errors": {
           "invalidDomain": "Ugyldigt domæne"
         },
-        "limitTooltip": "Du har nået din dashboard-grænse. Opgrader din plan for at oprette flere dashboards."
+        "limitReached": "Du har nået din dashboard-grænse. Opgrader din plan for at oprette flere dashboards."
       }
     },
     "slider": {
@@ -2748,7 +2742,7 @@
           },
           "freeOption": {
             "q": "Er der en gratis mulighed?",
-            "a": "Ja! Vores Growth-plan inkluderer 10.000 gratis events pr. måned for altid. Intet kreditkort krævet for at komme i gang."
+            "a": "Ja! Vores Free-plan inkluderer 10.000 events pr. måned, gratis for altid. Intet kreditkort krævet for at komme i gang."
           },
           "cancelAnytime": {
             "q": "Kan jeg opsige når som helst?",
