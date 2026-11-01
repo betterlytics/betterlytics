@@ -116,6 +116,7 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     <Button
       variant='secondary'
       role='combobox'
+      data-query-filters-trigger=''
       className={
         'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]'
       }
