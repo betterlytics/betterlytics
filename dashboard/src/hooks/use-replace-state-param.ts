@@ -25,7 +25,7 @@ export function useReplaceStateParam(key: string) {
     (next: string | undefined) => {
       const search = replaceSearchParam(window.location.search, key, next);
       if (search === null) return;
-      window.history.replaceState(null, '', `${window.location.pathname}${search}`);
+      window.history.replaceState(null, '', `${window.location.pathname}${search}${window.location.hash}`);
     },
     [key],
   );

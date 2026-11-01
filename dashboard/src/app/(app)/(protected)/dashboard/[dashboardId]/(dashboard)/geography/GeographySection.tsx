@@ -33,14 +33,14 @@ export default function GeographySection({ subdivisionsEnabled = false }: { subd
 
   const selection = useMemo(
     () =>
-      panelAvailable
+      subdivisionsEnabled
         ? {
             selectedId: drilldown.countryCode ?? null,
             onToggle: drilldown.toggleCountry,
             onClear: drilldown.clearCountry,
           }
         : undefined,
-    [panelAvailable, drilldown.countryCode, drilldown.toggleCountry, drilldown.clearCountry],
+    [subdivisionsEnabled, drilldown.countryCode, drilldown.toggleCountry, drilldown.clearCountry],
   );
 
   return (
