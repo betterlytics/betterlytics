@@ -41,6 +41,14 @@ export function isUnlimitedCount(count: number): boolean {
   return count >= UNLIMITED_COUNT;
 }
 
+export function retentionYears(days: number): number {
+  return Math.floor(days / 365);
+}
+
+export function checkIntervalMinutes(seconds: number): number {
+  return seconds / 60;
+}
+
 export const MIN_DATA_RETENTION_DAYS = 180;
 
 export const UNLIMITED_DATA_RETENTION_DAYS = -1;

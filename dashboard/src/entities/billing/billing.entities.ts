@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { Currency as PrismaCurrency } from '@prisma/client';
 import { addMonths, startOfDay } from 'date-fns';
-import { PlanIdSchema, freeSubscriptionDefaults, selfHostedPlan } from '@/lib/billing/catalog';
+import { PLAN_IDS, freeSubscriptionDefaults, selfHostedPlan } from '@/lib/billing/catalog';
 
+export const PlanIdSchema = z.enum(PLAN_IDS);
 export const CurrencySchema = z.nativeEnum(PrismaCurrency).default('USD');
 export const PaymentStatusSchema = z.enum(['paid', 'pending', 'failed', 'refunded', 'past-due']);
 

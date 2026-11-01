@@ -41,6 +41,7 @@ export type PlanHighlight =
   | { kind: 'members' }
   | { kind: 'retention' }
   | { kind: 'uptime' }
+  | { kind: 'statusPages' }
   | {
       kind: 'feature';
       key:

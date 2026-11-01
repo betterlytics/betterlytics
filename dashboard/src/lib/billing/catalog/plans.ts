@@ -62,6 +62,7 @@ const growth: PlanDefinition = {
     { kind: 'members' },
     { kind: 'retention' },
     { kind: 'uptime' },
+    { kind: 'statusPages' },
     feature('fullDashboard'),
     feature('funnelsJourneys'),
     feature('sessionReplay'),
