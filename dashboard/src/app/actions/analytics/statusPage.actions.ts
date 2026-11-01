@@ -55,7 +55,7 @@ import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.e
 import { inspectStatusPageImage } from '@/lib/statusPageImage';
 import { findDashboardById } from '@/repositories/postgres/dashboard.repository';
 import { getMonitorChecksWithStatus } from '@/services/analytics/monitoring.service';
-import { getUserTimezone } from '@/lib/cookies';
+import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
 import { UserException } from '@/lib/exceptions';
 
 function assertStatusPagesEnabled() {
@@ -80,10 +80,9 @@ export const fetchStatusPageEditorDataAction = withDashboardAuthContext(
 );
 
 export const fetchStatusPageStudioDataAction = withDashboardAuthContext(
-  async (ctx: AuthContext, statusPageId: string) => {
-    const timezone = await getUserTimezone();
+  async (ctx: AuthContext, statusPageId: string, timezone: string) => {
     const [data, messages] = await Promise.all([
-      getStatusPageStudioData(ctx.dashboardId, statusPageId, ctx.siteId, timezone),
+      getStatusPageStudioData(ctx.dashboardId, statusPageId, ctx.siteId, BATimeZone.parse(timezone)),
       getMessages({ locale: 'en' }),
     ]);
     if (!data) return null;
@@ -262,25 +261,26 @@ async function computeStatusPageDefaults(dashboardId: string) {
   return { name, slug };
 }
 
-export const suggestStatusPageDefaultsAction = withDashboardAuthContext(async (ctx: AuthContext) => {
-  const timezone = await getUserTimezone();
-  const [{ name, slug }, monitors] = await Promise.all([
-    computeStatusPageDefaults(ctx.dashboardId),
-    getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId, timezone),
-  ]);
-  return {
-    name,
-    slug,
-    monitors: monitors.slice(0, STATUS_PAGE_LIMITS.MONITORS_MAX).map((monitor) => ({
-      monitorCheckId: monitor.id,
-      name: monitor.name ?? null,
-      url: monitor.url,
-      publicName: defaultPublicMonitorName(monitor),
-      operationalState: monitor.operationalState,
-      uptimePercent: monitor.uptimePercent,
-    })),
-  };
-});
+export const suggestStatusPageDefaultsAction = withDashboardAuthContext(
+  async (ctx: AuthContext, timezone: string) => {
+    const [{ name, slug }, monitors] = await Promise.all([
+      computeStatusPageDefaults(ctx.dashboardId),
+      getMonitorChecksWithStatus(ctx.dashboardId, ctx.siteId, BATimeZone.parse(timezone)),
+    ]);
+    return {
+      name,
+      slug,
+      monitors: monitors.slice(0, STATUS_PAGE_LIMITS.MONITORS_MAX).map((monitor) => ({
+        monitorCheckId: monitor.id,
+        name: monitor.name ?? null,
+        url: monitor.url,
+        publicName: defaultPublicMonitorName(monitor),
+        operationalState: monitor.operationalState,
+        uptimePercent: monitor.uptimePercent,
+      })),
+    };
+  },
+);
 
 export const checkStatusPageSlugAction = withDashboardAuthContext(
   async (_ctx: AuthContext, slug: string, excludeStatusPageId?: string) => {
