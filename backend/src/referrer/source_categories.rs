@@ -51,7 +51,8 @@ fn merge_referrer_categories(
     let ambiguous_names = ambiguous_source_names(&parsed, |name| name.to_string());
     let ambiguous_lowercase_names = ambiguous_source_names(&parsed, str::to_lowercase);
 
-    // Lowercased names go in first so a file's own domain and name keys win over them
+    // Separate passes, so a key that is both is decided by the later kind: domains win over names,
+    // and names over lowercased names, whatever order the file is iterated in
     for (medium, sources) in &parsed {
         let medium = normalize_referrer_medium(medium);
         for source_name in sources.keys() {
@@ -62,13 +63,18 @@ fn merge_referrer_categories(
         }
     }
 
+    for (medium, sources) in &parsed {
+        let medium = normalize_referrer_medium(medium);
+        for source_name in sources.keys() {
+            if !ambiguous_names.contains(source_name) {
+                insert_referrer_category_key(categories, source_name.clone(), &medium, InsertMode::Overwrite);
+            }
+        }
+    }
+
     for (medium, sources) in parsed {
         let medium = normalize_referrer_medium(&medium);
-        for (source_name, entry) in sources {
-            if !ambiguous_names.contains(&source_name) {
-                insert_referrer_category_key(categories, source_name, &medium, InsertMode::Overwrite);
-            }
-
+        for entry in sources.into_values() {
             for domain in entry.domains {
                 let normalized = normalize_referrer_key(&domain);
                 if normalized.is_empty() {
