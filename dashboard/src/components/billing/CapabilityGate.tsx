@@ -1,13 +1,8 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
-
 type CapabilityGateProps = {
   allowed: boolean;
   children: (props: { locked: boolean }) => React.ReactElement;
-  message?: string;
-  showTooltip?: boolean;
 };
 
 /**
@@ -17,27 +12,11 @@ type CapabilityGateProps = {
  * <CapabilityGate allowed={caps.monitoring.httpMethodConfigurable}>
  *   {({ locked }) => (
  *     <Tabs disabled={locked}>
- *       <TabsTrigger>GET {locked && <PlanBadge plan={planThatUnlocks((c) => c.monitoring.httpMethodConfigurable)} />}</TabsTrigger>
+ *       <TabsTrigger>GET <PlanBadge plan={upgradeFor(caps, (c) => c.monitoring.httpMethodConfigurable)} /></TabsTrigger>
  *     </Tabs>
  *   )}
  * </CapabilityGate>
  */
-export function CapabilityGate({ allowed, children, message, showTooltip = false }: CapabilityGateProps) {
-  const t = useTranslations('components.proFeature');
-
-  if (allowed) {
-    return children({ locked: false });
-  }
-
-  if (!showTooltip) {
-    return children({ locked: true });
-  }
-
-  const tooltipMessage = message ?? t('upgradeRequired');
-
-  return (
-    <DisabledTooltip disabled message={tooltipMessage}>
-      {() => children({ locked: true })}
-    </DisabledTooltip>
-  );
+export function CapabilityGate({ allowed, children }: CapabilityGateProps) {
+  return children({ locked: !allowed });
 }

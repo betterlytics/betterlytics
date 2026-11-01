@@ -18,7 +18,6 @@ import {
   type UsageBreakdown,
 } from '@/entities/billing/billing.entities';
 import { UserException } from '@/lib/exceptions';
-import { getPlan, isFreeBand } from '@/lib/billing/catalog';
 
 export async function getUserBillingStats(userId: string): Promise<UserBillingData> {
   try {
@@ -45,13 +44,11 @@ export async function getUserBillingStats(userId: string): Promise<UserBillingDa
     };
 
     const isExistingPaidSubscriber = subscription.paymentSubscriptionId !== null;
-    const isFreePlanUser = isFreeBand(getPlan(subscription.planId), subscription.eventLimit);
 
     return UserBillingDataSchema.parse({
       subscription: { ...subscription },
       usage,
       isExistingPaidSubscriber,
-      isFreePlanUser,
     });
   } catch (error) {
     console.error('Failed to get billing stats:', error);

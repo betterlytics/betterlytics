@@ -30,6 +30,7 @@ async function enqueueSubscriptionEndingSoon(candidate: SubscriptionEndingSoonCa
       userName: candidate.userName,
       periodEnd: candidate.currentPeriodEnd,
       billingUrl: `${sharedEmailEnv.publicBaseUrl}/billing`,
+      freePlanName: freePlan().name,
       freeEventLimit: FREE_EVENT_LIMIT,
       freeRetentionDays: FREE_RETENTION_DAYS,
       affectedDashboards,

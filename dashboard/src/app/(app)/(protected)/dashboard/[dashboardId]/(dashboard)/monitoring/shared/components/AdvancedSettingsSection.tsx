@@ -18,7 +18,7 @@ import { SectionHeader } from './SectionHeader';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { CapabilityGate } from '@/components/billing/CapabilityGate';
 import { PlanBadge } from '@/components/billing/PlanBadge';
-import { planThatUnlocks } from '@/lib/billing/catalog';
+import { upgradeFor } from '@/lib/billing/catalog';
 import type { MonitorFormInterface } from '../types';
 
 export type AdvancedSettingsSectionProps = {
@@ -81,9 +81,7 @@ export function AdvancedSettingsSection({
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               <Label className='text-sm font-medium'>{t('advanced.httpMethod.label')}</Label>
-              {!caps.monitoring.httpMethodConfigurable && (
-                <PlanBadge plan={planThatUnlocks((c) => c.monitoring.httpMethodConfigurable)} />
-              )}
+              <PlanBadge plan={upgradeFor(caps, (c) => c.monitoring.httpMethodConfigurable)} />
             </div>
             <p className='text-muted-foreground text-xs'>{t('advanced.httpMethod.description')}</p>
             <CapabilityGate allowed={caps.monitoring.httpMethodConfigurable}>
@@ -118,9 +116,7 @@ export function AdvancedSettingsSection({
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               <Label className='text-sm font-medium'>{t('advanced.expectedKeyword.label')}</Label>
-              {!caps.monitoring.keywordValidation && (
-                <PlanBadge plan={planThatUnlocks((c) => c.monitoring.keywordValidation)} />
-              )}
+              <PlanBadge plan={upgradeFor(caps, (c) => c.monitoring.keywordValidation)} />
             </div>
             <CapabilityGate allowed={caps.monitoring.keywordValidation}>
               {({ locked }) => (
@@ -153,7 +149,7 @@ export function AdvancedSettingsSection({
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               <Label className='text-sm font-medium'>{t('advanced.requestHeaders.label')}</Label>
-              {!caps.monitoring.customHeaders && <PlanBadge plan={planThatUnlocks((c) => c.monitoring.customHeaders)} />}
+              <PlanBadge plan={upgradeFor(caps, (c) => c.monitoring.customHeaders)} />
             </div>
             <p className='text-muted-foreground text-xs'>{t('advanced.requestHeaders.description')}</p>
             <CapabilityGate allowed={caps.monitoring.customHeaders}>
@@ -221,9 +217,7 @@ export function AdvancedSettingsSection({
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               <Label className='text-sm font-medium'>{t('advanced.acceptedStatusCodes.label')}</Label>
-              {!caps.monitoring.customStatusCodes && (
-                <PlanBadge plan={planThatUnlocks((c) => c.monitoring.customStatusCodes)} />
-              )}
+              <PlanBadge plan={upgradeFor(caps, (c) => c.monitoring.customStatusCodes)} />
             </div>
             <p className='text-muted-foreground text-xs'>{t('advanced.acceptedStatusCodes.description')}</p>
             <CapabilityGate allowed={caps.monitoring.customStatusCodes}>

@@ -14,7 +14,7 @@ import { DestructiveActionDialog } from '@/components/dialogs';
 import { PermissionGate } from '@/components/tooltip/PermissionGate';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { PlanBadge } from '@/components/billing/PlanBadge';
-import { listedPlans, planThatUnlocks } from '@/lib/billing/catalog';
+import { listedPlans, upgradeFor } from '@/lib/billing/catalog';
 import { useClientFeatureFlags } from '@/hooks/use-client-feature-flags';
 
 const SELF_SERVE_MAX_RETENTION_DAYS = Math.max(
@@ -124,12 +124,10 @@ export default function DataSettings() {
                       >
                         <span className='flex w-full items-center justify-between gap-2'>
                           <span>{t(`data.presets.${preset.i18nKey}`)}</span>
-                          {abovePlan && (
-                            <PlanBadge
-                              plan={planThatUnlocks((c) => c.dataRetention.maxDataRetentionDays >= preset.value)}
-                              showIcon={false}
-                            />
-                          )}
+                          <PlanBadge
+                            plan={upgradeFor(caps, (c) => c.dataRetention.maxDataRetentionDays >= preset.value)}
+                            showIcon={false}
+                          />
                         </span>
                       </SelectItem>
                     );

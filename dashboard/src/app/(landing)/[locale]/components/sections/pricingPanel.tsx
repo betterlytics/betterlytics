@@ -232,7 +232,7 @@ export function PricingPanel() {
                 tier={plan.id}
                 volume={volume}
                 pick={plan.featured}
-                name={t(`${plan.id}.name`)}
+                name={plan.name}
                 badge={plan.featured ? optionalCopy(plan, 'badge') : undefined}
                 tagline={t(`${plan.id}.tagline`)}
                 price={cents === null ? t('custom') : free ? t('free') : cents}

@@ -17,6 +17,7 @@ import {
   priceFor,
   purchasableLookupKey,
   selfHostedPlan,
+  upgradeFor,
 } from '@/lib/billing/catalog';
 import { PLANS } from './plans';
 
@@ -79,8 +80,21 @@ describe('purchasing', () => {
       for (const band of plan.bands) {
         expect(planForLookupKey(band.lookupKeys.month!)).toEqual({ plan, events: band.events, interval: 'month' });
       }
+      for (const legacy of plan.legacyPrices) {
+        expect(planForLookupKey(legacy.lookupKey)).toEqual({ plan, events: legacy.events, interval: legacy.interval });
+      }
     }
     expect(planForLookupKey('unknown_key')).toBeNull();
+  });
+
+  it('never sells a retired price', () => {
+    const retired = new Set(ALL_PLANS.flatMap((plan) => plan.legacyPrices.map((legacy) => legacy.lookupKey)));
+    for (const plan of ALL_PLANS) {
+      for (const events of EVENT_STEPS) {
+        const key = purchasableLookupKey(plan.id, events);
+        if (key) expect(retired.has(key)).toBe(false);
+      }
+    }
   });
 });
 
@@ -96,6 +110,12 @@ describe('entitlement', () => {
     expect(planThatUnlocks((c) => c.monitoring.customHeaders)?.id).toBe('professional');
     expect(planThatUnlocks((c) => c.dashboards.maxDashboards > 50)?.id).toBe('enterprise');
     expect(planThatUnlocks((c) => c.dashboards.maxDashboards > 10_000)).toBeNull();
+  });
+
+  it('only names an upgrade when the current capabilities fall short', () => {
+    const growth = getPlan('growth').capabilities;
+    expect(upgradeFor(growth, (c) => c.monitoring.customHeaders)?.id).toBe('professional');
+    expect(upgradeFor(getPlan('professional').capabilities, (c) => c.monitoring.customHeaders)).toBeNull();
   });
 
   it('gives self-hosted deploys every capability', () => {
