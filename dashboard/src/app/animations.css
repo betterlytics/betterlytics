@@ -235,4 +235,22 @@
       animation: none;
     }
   }
+
+  @keyframes filter-row-end-shade {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* Shown only while the filter row has more to scroll to; without scroll-driven animations it stays hidden. */
+  @supports (animation-timeline: scroll()) {
+    .animate-filter-row-end-shade {
+      animation: filter-row-end-shade linear both;
+      animation-timeline: --filter-row;
+      animation-range: calc(100% - 1.5rem) 100%;
+    }
+  }
 }
