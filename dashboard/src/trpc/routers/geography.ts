@@ -62,9 +62,7 @@ export const geographyRouter = createRouter({
   subdivisionMap: analyticsProcedure
     .input(z.object({ countryCode: z.string().regex(/^[A-Z]{2}$/) }))
     .query(async ({ ctx, input }) => {
-      if (!getQueryableGeoLevels().includes('subdivision_code')) {
-        return { visitorData: [], compareData: [], maxVisitors: 0 };
-      }
+      if (!getQueryableGeoLevels().includes('subdivision_code')) return subdivisionsToGeoMap([], []);
 
       const { main, compare } = ctx;
       const [subdivisions, compareSubdivisions] = await Promise.all([
