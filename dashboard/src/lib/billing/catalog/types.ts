@@ -1,6 +1,6 @@
 import type { PlanCapabilities } from '@/lib/billing/capabilities';
 
-export const PLAN_IDS = ['growth', 'professional', 'enterprise'] as const;
+export const PLAN_IDS = ['growth', 'professional', 'enterprise', 'free', 'plus', 'business'] as const;
 export type PlanId = (typeof PLAN_IDS)[number];
 
 export const PLAN_CURRENCIES = ['USD', 'EUR'] as const;
@@ -50,6 +50,8 @@ export type PlanHighlight =
         | 'sessionReplay'
         | 'errorTracking'
         | 'statusPagesPro'
+        | 'statusPageCustomDomain'
+        | 'prioritySupport'
         | 'emailReports'
         | 'customEventVolume'
         | 'dedicatedSupport'
