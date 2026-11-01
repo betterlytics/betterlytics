@@ -38,10 +38,13 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { key: 'sites', value: (plan) => limit('upToCount', plan.capabilities.dashboards.maxDashboards) },
       {
         key: 'dataRetention',
-        value: (plan) => ({
-          message: 'yearsCount',
-          count: retentionYears(plan.capabilities.dataRetention.maxDataRetentionDays),
-        }),
+        value: (plan) =>
+          plan.selfServe
+            ? {
+                message: 'yearsCount',
+                count: retentionYears(plan.capabilities.dataRetention.maxDataRetentionDays),
+              }
+            : { message: 'custom' },
       },
       { key: 'teamMembers', value: (plan) => limit('upToCount', plan.capabilities.dashboards.maxMembers) },
     ],
