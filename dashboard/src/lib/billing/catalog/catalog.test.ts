@@ -78,7 +78,9 @@ describe('purchasing', () => {
   it('resolves every lookup key a subscription can carry back to its plan and volume', () => {
     for (const plan of ALL_PLANS) {
       for (const band of plan.bands) {
-        expect(planForLookupKey(band.lookupKeys.month!)).toEqual({ plan, events: band.events, interval: 'month' });
+        for (const [interval, lookupKey] of Object.entries(band.lookupKeys)) {
+          expect(planForLookupKey(lookupKey)).toEqual({ plan, events: band.events, interval });
+        }
       }
       for (const legacy of plan.legacyPrices) {
         expect(planForLookupKey(legacy.lookupKey)).toEqual({ plan, events: legacy.events, interval: legacy.interval });
@@ -212,5 +214,67 @@ describe('parity with the pre-catalog plans', () => {
       status: 'active',
       cancelAtPeriodEnd: false,
     });
+  });
+});
+
+describe('the agreed Free, Plus and Business plans', () => {
+  const DOLLARS = {
+    plus: [9, 14, 19, 29, 49, 69, 89, 129, 169],
+    business: [19, 24, 29, 44, 74, 104, 134, 194, 254],
+  } as const;
+
+  it.each(Object.entries(DOLLARS))('prices %s at every step, with EUR equal to USD', (planId, dollars) => {
+    const plan = getPlan(planId as keyof typeof DOLLARS);
+    EVENT_STEPS.forEach((events, index) => {
+      expect(priceFor(plan, events, 'USD')).toBe(dollars[index] * 100);
+      expect(priceFor(plan, events, 'EUR')).toBe(dollars[index] * 100);
+      expect(bandFor(plan, events)?.lookupKeys.month).toBe(`${planId}_${events}_month`);
+    });
+  });
+
+  it('keeps Free at one zero-priced band of 10k events', () => {
+    const free = getPlan('free');
+    expect(free.bands).toHaveLength(1);
+    expect(isFreeBand(free, 10_000)).toBe(true);
+  });
+
+  it('caps sites and members per the agreed ladder', () => {
+    expect(getPlan('free').capabilities.dashboards).toEqual({ maxDashboards: 1, maxMembers: 1 });
+    expect(getPlan('plus').capabilities.dashboards).toEqual({ maxDashboards: 5, maxMembers: 3 });
+    expect(getPlan('business').capabilities.dashboards).toEqual({ maxDashboards: 25, maxMembers: 25 });
+  });
+
+  it('puts the status-page custom domain on Plus and branding removal on Business', () => {
+    expect(getPlan('plus').capabilities.statusPages).toEqual({
+      maxStatusPages: 1,
+      customDomain: true,
+      removeBranding: false,
+    });
+    expect(getPlan('business').capabilities.statusPages).toEqual({
+      maxStatusPages: 3,
+      customDomain: true,
+      removeBranding: true,
+    });
+  });
+
+  it('gives every new plan every monitor check option', () => {
+    for (const planId of ['free', 'plus', 'business'] as const) {
+      const { monitoring } = getPlan(planId).capabilities;
+      expect([
+        monitoring.httpMethodConfigurable,
+        monitoring.customStatusCodes,
+        monitoring.customHeaders,
+        monitoring.keywordValidation,
+      ]).toEqual([true, true, true, true]);
+    }
+  });
+
+  it('keeps the new plans off sale until they are listed', () => {
+    for (const planId of ['free', 'plus', 'business'] as const) {
+      if (getPlan(planId).listed) continue;
+      for (const events of EVENT_STEPS) {
+        expect(purchasableLookupKey(planId, events)).toBeNull();
+      }
+    }
   });
 });
