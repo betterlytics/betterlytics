@@ -263,11 +263,12 @@ export async function getTopChannels(siteQuery: BASiteQuery, limit: number = 10)
 
 const isReferralSession = safeSql`referrer_source_effective NOT IN ('direct', 'internal')`;
 const isMultiPageReferralSession = safeSql`${isReferralSession} AND pageview_count > 1`;
-const referralSessionDuration = safeSql`if(countIf(${isMultiPageReferralSession}) > 0, avgIf(dateDiff('second', session_start, session_end), ${isMultiPageReferralSession}), 0)`;
+// Mirrors SessionMetricSql.avgVisitDuration, limited to referral sessions
+const referralSessionDuration = safeSql`if(countIf(${isMultiPageReferralSession}) > 0, sumIf(dateDiff('second', session_start, session_end), ${isReferralSession}) / countIf(${isMultiPageReferralSession}), 0)`;
 
 /**
  * Referral summary over the whole range from session records, so each session counts once.
- * Duration leaves out single-pageview sessions, like the Overview's avg visit duration.
+ * Duration divides by multi-pageview sessions, like the Overview's avg visit duration.
  */
 export async function getReferralRangeMetrics(siteQuery: BASiteQuery): Promise<ReferralRangeMetrics> {
   const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
@@ -284,7 +285,7 @@ export async function getReferralRangeMetrics(siteQuery: BASiteQuery): Promise<R
     SELECT
       countIf(${isReferralSession}) AS referralSessions,
       ${SessionMetricSql.sessions} AS totalSessions,
-      round(${referralSessionDuration}, 1) AS avgSessionDuration
+      round(${referralSessionDuration}) AS avgSessionDuration
     FROM ${sessionSubQuery}
   `;
 
@@ -321,7 +322,7 @@ export async function getDailyReferralSummaryMetrics(
         ${granularityFunc('session_created_at')} AS date,
         countIf(${isReferralSession}) AS referralSessions,
         if(${SessionMetricSql.sessions} > 0, round(100 * referralSessions / ${SessionMetricSql.sessions}, 1), 0) AS referralPercentage,
-        round(${referralSessionDuration}, 1) AS avgSessionDuration
+        round(${referralSessionDuration}) AS avgSessionDuration
       FROM ${sessionSubQuery}
       GROUP BY date
       ORDER BY date ASC ${fill}

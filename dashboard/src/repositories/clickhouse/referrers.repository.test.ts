@@ -42,7 +42,7 @@ describe('referral summary queries', () => {
     expect(metrics).toEqual({ referralSessions: 1, totalSessions: 3, avgSessionDuration: 4800 });
   });
 
-  it('leaves single-pageview sessions out of the duration', async () => {
+  it('builds the duration like the Overview, dividing by multi-pageview sessions', async () => {
     query.mockReturnValue({
       toPromise: () => Promise.resolve([{ referralSessions: 0, totalSessions: 0, avgSessionDuration: 0 }]),
     });
@@ -50,7 +50,7 @@ describe('referral summary queries', () => {
     await getReferralRangeMetrics(siteQuery);
 
     expect(normalizedSql()).toContain(
-      "avgIf(dateDiff('second', session_start, session_end), referrer_source_effective NOT IN ('direct', 'internal') AND pageview_count > 1)",
+      "sumIf(dateDiff('second', session_start, session_end), referrer_source_effective NOT IN ('direct', 'internal')) / countIf(referrer_source_effective NOT IN ('direct', 'internal') AND pageview_count > 1)",
     );
   });
 
