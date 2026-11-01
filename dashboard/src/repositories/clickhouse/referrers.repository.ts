@@ -114,8 +114,9 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
       SELECT
         session_id,
         referrer_source_effective as source_type,
-        referrer_source_name as source_name,
-        referrer_url as source_url,
+        if(utm_source_category != '', 'utm_source', 'referrer') as source_origin,
+        if(source_origin = 'utm_source', utm_source, referrer_source_name) as source_name,
+        if(source_origin = 'utm_source', '', referrer_url) as source_url,
         count() as page_count,
         if(count() > 1,
           dateDiff('second', min(timestamp), max(timestamp)),
@@ -127,10 +128,11 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
         AND timestamp BETWEEN {start:DateTime} AND {end:DateTime}
         AND referrer_source_effective != 'internal'
         AND ${SQL.AND(filters)}
-      GROUP BY session_id, source_type, source_name, source_url
+      GROUP BY session_id, source_type, source_origin, source_name, source_url
     )
     SELECT
       source_type,
+      source_origin,
       source_name,
       source_url,
       count() * any(_sample_factor) as visits,
@@ -143,7 +145,7 @@ export async function getReferrerTableData(siteQuery: BASiteQuery, limit: number
         0
       ) as avg_visit_duration
     FROM session_data
-    GROUP BY source_type, source_name, source_url
+    GROUP BY source_type, source_origin, source_name, source_url
     ORDER BY visits DESC
     LIMIT {limit:UInt32}
   `;

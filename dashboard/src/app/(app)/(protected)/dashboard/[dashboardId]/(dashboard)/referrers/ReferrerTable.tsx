@@ -72,13 +72,18 @@ export default function ReferrerTable({ data = [], loading = false }: ReferrerTa
       minSize: 200,
       cell: ({ row }) => {
         const data = row.original.current;
-        const label = data.source_url
-          ? formatString(data.source_url)
-          : data.source_type.toLowerCase() === 'direct'
-            ? t('columns.direct')
-            : t('columns.unknown');
+        const isUtmSource = data.source_origin === 'utm_source';
+        const label = isUtmSource
+          ? formatString(data.source_name)
+          : data.source_url
+            ? formatString(data.source_url)
+            : data.source_type.toLowerCase() === 'direct'
+              ? t('columns.direct')
+              : t('columns.unknown');
         const handleClick = () => {
-          if (data.source_url && data.source_url.trim() !== '') {
+          if (isUtmSource) {
+            makeFilterClick('utm_source')(data.source_name);
+          } else if (data.source_url && data.source_url.trim() !== '') {
             makeFilterClick('referrer_url')(data.source_url);
             return;
           } else {

@@ -38,6 +38,8 @@ export const ReferrerSummaryWithChartsSchema = z.object({
 
 export const ReferrerTableRowSchema = z.object({
   source_type: z.string(),
+  // 'utm_source' when the visit's utm_source decided the category, and source_name holds that value
+  source_origin: z.enum(['referrer', 'utm_source']),
   source_name: z.string(),
   source_url: z.string(),
   visits: z.number().int().min(0),
@@ -69,7 +71,7 @@ export type ReferrerSummaryWithCharts = z.infer<typeof ReferrerSummaryWithCharts
 export type ReferrerTableRow = z.infer<typeof ReferrerTableRowSchema>;
 
 // Matches the GROUP BY of the referrer table query, so rows pair with the same referrer across periods.
-export type ReferrerTableKey = 'source_type' | 'source_name' | 'source_url';
-export const REFERRER_TABLE_KEY: ReferrerTableKey[] = ['source_type', 'source_name', 'source_url'];
+export type ReferrerTableKey = 'source_type' | 'source_origin' | 'source_name' | 'source_url';
+export const REFERRER_TABLE_KEY: ReferrerTableKey[] = ['source_type', 'source_origin', 'source_name', 'source_url'];
 export type ReferrerUrlRollupRow = z.infer<typeof ReferrerUrlRollupRowSchema>;
 export type TopChannel = z.infer<typeof TopChannelSchema>;

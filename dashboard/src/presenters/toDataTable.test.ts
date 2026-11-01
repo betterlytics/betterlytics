@@ -2,8 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { toDataTable } from '@/presenters/toDataTable';
 import { REFERRER_TABLE_KEY, ReferrerTableRow } from '@/entities/analytics/referrers.entities';
 
-const row = (source_type: string, source_name: string, source_url: string, visits: number): ReferrerTableRow => ({
+const row = (
+  source_type: string,
+  source_name: string,
+  source_url: string,
+  visits: number,
+  source_origin: ReferrerTableRow['source_origin'] = 'referrer',
+): ReferrerTableRow => ({
   source_type,
+  source_origin,
   source_name,
   source_url,
   visits,
@@ -18,8 +25,12 @@ describe('toDataTable with the referrer table key', () => {
     row('other', '', '', 2),
     row('search', 'Google', 'google.com', 8),
     row('social', 'Reddit', '', 3),
+    row('ai', 'chatgpt.com', '', 6, 'utm_source'),
+    row('ai', 'chatgpt.com', '', 1),
   ];
   const compare = [
+    row('ai', 'chatgpt.com', '', 5),
+    row('ai', 'chatgpt.com', '', 3, 'utm_source'),
     row('direct', '', '', 20),
     row('email', 'Newsletter', '', 2),
     row('other', '', '', 1),
@@ -44,6 +55,12 @@ describe('toDataTable with the referrer table key', () => {
   it('treats an empty-URL row with no previous match as new', () => {
     expect(find('social').compare).toBeUndefined();
     expect(find('social').change?.visits).toBe(300);
+  });
+
+  it('pairs a utm_source row only with the previous row of the same utm_source', () => {
+    const ai = result.filter((r) => r.source_type === 'ai');
+    expect(ai.find((r) => r.source_origin === 'utm_source')?.compare?.visits).toBe(3);
+    expect(ai.find((r) => r.source_origin === 'referrer')?.compare?.visits).toBe(5);
   });
 
   it('still pairs rows with a URL', () => {
