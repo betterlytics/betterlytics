@@ -4,7 +4,6 @@ import type { Job } from '@/worker/jobs/types';
 import { usageThresholdScanJobDefinition } from '@/worker/jobs/definitions';
 import {
   classifyUsageThreshold,
-  formatPlanName,
   getScannableSubscriptions,
   loadUsageForSubscriptions,
   sumUsageForSubscription,
@@ -12,6 +11,7 @@ import {
 import { enqueueEmail } from '@/services/email/email.service';
 import { createUserRecipientKey } from '@/services/email/recipient-key.service';
 import { sharedEmailEnv } from '@/lib/env/shared.env';
+import { getPlan } from '@/lib/billing/catalog';
 
 async function runUsageThresholdScan(): Promise<void> {
   const subs = await getScannableSubscriptions();
@@ -42,7 +42,7 @@ async function runUsageThresholdScan(): Promise<void> {
           currentUsage: usage,
           usageLimit: sub.eventLimit,
           usagePercentage: pct,
-          planName: formatPlanName(sub.planId),
+          planName: getPlan(sub.planId).name,
           currentPeriodStart: sub.currentPeriodStart,
           currentPeriodEnd: sub.currentPeriodEnd,
           upgradeUrl,

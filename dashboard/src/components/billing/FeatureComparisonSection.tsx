@@ -6,7 +6,6 @@ import { EVENT_STEPS, listedPlans, type PlanDefinition } from '@/lib/billing/cat
 import { formatEventCount } from '@/utils/pricing';
 import { isUnlimitedCount } from '@/lib/billing/capabilities';
 
-/** A message under `features.<key>.values`, with the count it formats. */
 type ValueMessage = { message: string; count?: number };
 
 type FeatureValue = boolean | ValueMessage | 'eventRange';

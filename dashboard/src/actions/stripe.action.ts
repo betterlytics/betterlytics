@@ -14,7 +14,7 @@ import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
 import { LIVE_SUBSCRIPTION_STATUSES } from '@/lib/billing/subscription-status';
 import { handleCheckoutCompleted } from '@/services/system/webhookHandlers.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { getPlan, purchasableLookupKey } from '@/lib/billing/catalog';
+import { purchasableLookupKey } from '@/lib/billing/catalog';
 import { z } from 'zod';
 
 async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
@@ -218,7 +218,7 @@ export const createStripeCustomerPortalSessionForCancellation = withUserAuth(asy
   }
 });
 
-export const createStripeCustomerPortalSession = withUserAuth(async (user: User, targetPlan?: SelectedPlan) => {
+export const createStripeCustomerPortalSession = withUserAuth(async (user: User) => {
   try {
     if (!user.emailVerified) {
       throw new Error('Attempting to create customer portal session with unverified email.');
@@ -230,60 +230,10 @@ export const createStripeCustomerPortalSession = withUserAuth(async (user: User,
       throw new Error('No Stripe customer found for this user');
     }
 
-    let configurationId: string | undefined;
-
-    const targetLookupKey = targetPlan ? purchasableLookupKey(targetPlan.planId, targetPlan.eventLimit) : null;
-
-    if (targetPlan && targetLookupKey) {
-      try {
-        const targetPrice = await getPriceByLookupKey(targetLookupKey);
-
-        const configuration = await stripe.billingPortal.configurations.create({
-          business_profile: {
-            headline: `Switching to ${getPlan(targetPlan.planId).name} plan with ${targetPlan.eventLimit.toLocaleString()} events`,
-          },
-          features: {
-            subscription_update: {
-              enabled: true,
-              default_allowed_updates: ['price', 'promotion_code'],
-              proration_behavior: 'always_invoice',
-              products: [
-                {
-                  product: targetPrice.product as string,
-                  prices: [targetPrice.id],
-                },
-              ],
-            },
-            payment_method_update: { enabled: true },
-            invoice_history: { enabled: true },
-            subscription_cancel: { enabled: true },
-          },
-        });
-
-        configurationId = configuration.id;
-      } catch (configError) {
-        console.warn('Failed to create custom configuration, using default:', configError);
-        // Fallback to default configuration
-      }
-    }
-
     const sessionParams: Stripe.BillingPortal.SessionCreateParams = {
       customer: subscription.paymentCustomerId,
       return_url: `${env.PUBLIC_BASE_URL}/billing`,
     };
-
-    if (configurationId) {
-      sessionParams.configuration = configurationId;
-    }
-
-    if (targetPlan && subscription.paymentSubscriptionId) {
-      sessionParams.flow_data = {
-        type: 'subscription_update',
-        subscription_update: {
-          subscription: subscription.paymentSubscriptionId,
-        },
-      };
-    }
 
     const portalSession = await stripe.billingPortal.sessions.create(sessionParams);
 

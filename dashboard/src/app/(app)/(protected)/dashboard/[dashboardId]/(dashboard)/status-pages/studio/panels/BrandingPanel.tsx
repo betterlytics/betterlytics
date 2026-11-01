@@ -7,7 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { CapabilityGate } from '@/components/billing/CapabilityGate';
 import { PlanBadge } from '@/components/billing/PlanBadge';
-import { planThatUnlocks } from '@/lib/billing/catalog';
+import { upgradeFor } from '@/lib/billing/catalog';
 import { STATUS_PAGE_LIMITS } from '@/entities/analytics/statusPage/statusPage.entities';
 import { AccentColorField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/AccentColorField';
 import { ThemeField } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/ThemeField';
@@ -86,7 +86,7 @@ export function BrandingPanel({ form }: BrandingPanelProps) {
               <Label htmlFor='studio-branding' className='cursor-pointer'>
                 {t('hideBranding')}
               </Label>
-              {brandingLocked && <PlanBadge plan={planThatUnlocks((c) => c.statusPages.removeBranding)} />}
+              <PlanBadge plan={upgradeFor(caps, (c) => c.statusPages.removeBranding)} />
             </span>
             <p className='text-muted-foreground text-xs'>{t('hideBrandingHint')}</p>
           </div>

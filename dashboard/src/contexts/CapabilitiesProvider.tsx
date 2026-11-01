@@ -14,13 +14,11 @@ export type { PlanCapabilities, MonitoringCapabilities, DashboardCapabilities };
 
 type CapabilitiesContextValue = {
   caps: PlanCapabilities;
-  plan: PlanDefinition;
   isLoading: boolean;
 };
 
 const CapabilitiesContext = createContext<CapabilitiesContextValue>({
   caps: freePlan().capabilities,
-  plan: freePlan(),
   isLoading: true,
 });
 
@@ -54,7 +52,7 @@ export function CapabilitiesProvider({ dashboardId, children }: CapabilitiesProv
 
   const value = useMemo<CapabilitiesContextValue>(() => {
     const resolved = isDemo ? selfHostedPlan() : plan;
-    return { caps: resolved.capabilities, plan: resolved, isLoading: isDemo ? false : isLoading };
+    return { caps: resolved.capabilities, isLoading: isDemo ? false : isLoading };
   }, [isDemo, plan, isLoading]);
 
   return <CapabilitiesContext.Provider value={value}>{children}</CapabilitiesContext.Provider>;

@@ -8,7 +8,6 @@ import {
 import { getDailyEventCountsForSites } from '@/repositories/clickhouse/usage.repository';
 import { type DailySiteUsage, type SubscriptionWithOwnedSites } from '@/entities/billing/billing.entities';
 import { toDateString } from '@/utils/dateFormatters';
-import { getPlan } from '@/lib/billing/catalog';
 
 export type UsageThresholdKind = 'exceeded' | 'approaching';
 
@@ -17,10 +16,6 @@ export function classifyUsageThreshold(pct: number): UsageThresholdKind | null {
   if (pct >= 100) return 'exceeded';
   if (pct >= 80) return 'approaching';
   return null;
-}
-
-export function formatPlanName(planId: SubscriptionWithOwnedSites['planId']): string {
-  return getPlan(planId).name;
 }
 
 function isFreeTierAndExpired(sub: SubscriptionWithOwnedSites): boolean {

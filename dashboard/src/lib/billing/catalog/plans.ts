@@ -1,7 +1,6 @@
 import { UNLIMITED_COUNT } from '@/lib/billing/capabilities';
 import type { PlanDefinition, PlanHighlight, PlanId, PriceBand } from './types';
 
-/** Monthly event volumes offered on the pricing slider. */
 export const EVENT_STEPS = [
   10_000, 50_000, 100_000, 200_000, 500_000, 1_000_000, 2_000_000, 5_000_000, 10_000_000,
 ] as const;
@@ -59,10 +58,10 @@ const growth: PlanDefinition = {
   service: { prioritySupport: false, dedicatedSupport: false, slaGuarantee: false },
   highlights: [
     { kind: 'events' },
-    feature('twoSites'),
-    feature('threeTeamMembers'),
-    feature('retention1PlusYear'),
-    feature('uptime1'),
+    { kind: 'sites' },
+    { kind: 'members' },
+    { kind: 'retention' },
+    { kind: 'uptime' },
     feature('fullDashboard'),
     feature('funnelsJourneys'),
     feature('sessionReplay'),
@@ -106,11 +105,11 @@ const professional: PlanDefinition = {
   },
   service: { prioritySupport: true, dedicatedSupport: false, slaGuarantee: false },
   highlights: [
-    { kind: 'header', key: 'everythingInStarter' },
-    feature('upTo50Sites'),
-    feature('upTo50TeamMembers'),
-    feature('retention3PlusYears'),
-    feature('uptime50'),
+    { kind: 'everythingIn', planId: 'growth' },
+    { kind: 'sites' },
+    { kind: 'members' },
+    { kind: 'retention' },
+    { kind: 'uptime' },
     feature('statusPagesPro'),
     feature('emailReports'),
   ],
@@ -142,11 +141,11 @@ const enterprise: PlanDefinition = {
   },
   service: { prioritySupport: true, dedicatedSupport: true, slaGuarantee: true },
   highlights: [
-    { kind: 'header', key: 'everythingInProfessional' },
-    feature('unlimitedSites'),
-    feature('unlimitedTeamMembers'),
-    feature('retention5PlusYears'),
-    feature('uptimeUnlimited'),
+    { kind: 'everythingIn', planId: 'professional' },
+    { kind: 'sites' },
+    { kind: 'members' },
+    { kind: 'retention' },
+    { kind: 'uptime' },
     feature('customEventVolume'),
     feature('dedicatedSupport'),
     feature('slaGuarantee'),

@@ -19,7 +19,7 @@ import { DashboardSettingsUpdate, MAX_REPORT_RECIPIENTS } from '@/entities/dashb
 import { useTranslations, useLocale } from 'next-intl';
 import { useCapabilities } from '@/contexts/CapabilitiesProvider';
 import { CapabilityGate } from '@/components/billing/CapabilityGate';
-import { planThatUnlocks } from '@/lib/billing/catalog';
+import { upgradeFor } from '@/lib/billing/catalog';
 
 const emailSchema = z.string().email();
 
@@ -158,9 +158,7 @@ export default function ReportsSettings({ emailsEnabled }: { emailsEnabled: bool
   const { settings, refreshSettings } = useSettings();
   const [isPending, startTransition] = useTransition();
   const { caps } = useCapabilities();
-  const reportsUpgradePlan = caps.emailReports.emailReportsEnabled
-    ? null
-    : planThatUnlocks((c) => c.emailReports.emailReportsEnabled);
+  const reportsUpgradePlan = upgradeFor(caps, (c) => c.emailReports.emailReportsEnabled);
 
   const [weeklyReports, setWeeklyReports] = useState(settings.weeklyReports ?? false);
   const [weeklyReportDay, setWeeklyReportDay] = useState(settings.weeklyReportDay ?? 1);

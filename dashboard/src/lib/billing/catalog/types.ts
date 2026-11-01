@@ -30,29 +30,24 @@ export type PlanService = {
   slaGuarantee: boolean;
 };
 
-/** Keys under `pricingCards.features` messages; `events` formats with the selected volume. */
+/**
+ * A pricing-card line. Limit lines (sites, members, retention, uptime) are worded from the plan's
+ * capabilities; `feature` lines are fixed keys under `pricingCards.features`.
+ */
 export type PlanHighlight =
   | { kind: 'events' }
-  | { kind: 'header'; key: 'everythingInStarter' | 'everythingInProfessional' }
+  | { kind: 'everythingIn'; planId: PlanId }
+  | { kind: 'sites' }
+  | { kind: 'members' }
+  | { kind: 'retention' }
+  | { kind: 'uptime' }
   | {
       kind: 'feature';
       key:
-        | 'twoSites'
-        | 'upTo50Sites'
-        | 'unlimitedSites'
-        | 'threeTeamMembers'
-        | 'upTo50TeamMembers'
-        | 'unlimitedTeamMembers'
-        | 'retention1PlusYear'
-        | 'retention3PlusYears'
-        | 'retention5PlusYears'
         | 'fullDashboard'
         | 'funnelsJourneys'
         | 'sessionReplay'
         | 'errorTracking'
-        | 'uptime1'
-        | 'uptime50'
-        | 'uptimeUnlimited'
         | 'statusPagesPro'
         | 'emailReports'
         | 'customEventVolume'
@@ -64,15 +59,11 @@ export type PlanDefinition = {
   id: PlanId;
   /** Brand name, shown untranslated in every locale, emails and Stripe. */
   name: string;
-  /** Badge label for features this plan unlocks. */
   shortName: string;
-  /** Shown on the pricing page and plan picker. */
   listed: boolean;
   /** Bought through checkout; false means "talk to us". */
   selfServe: boolean;
-  /** Order from cheapest to most complete. */
   rank: number;
-  /** Highlighted as the recommended plan on pricing surfaces. */
   featured: boolean;
   bands: readonly PriceBand[];
   legacyPrices: readonly LegacyPrice[];
