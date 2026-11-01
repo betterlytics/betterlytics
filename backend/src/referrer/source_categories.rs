@@ -48,12 +48,24 @@ fn merge_referrer_categories(
 
     let contents = std::fs::read_to_string(path)?;
     let parsed: ReferrerJson = serde_json::from_str(&contents)?;
-    let ambiguous_source_names = ambiguous_source_names(&parsed);
+    let ambiguous_names = ambiguous_source_names(&parsed, |name| name.to_string());
+    let ambiguous_lowercase_names = ambiguous_source_names(&parsed, str::to_lowercase);
+
+    // Lowercased names go in first so a file's own domain and name keys win over them
+    for (medium, sources) in &parsed {
+        let medium = normalize_referrer_medium(medium);
+        for source_name in sources.keys() {
+            let lowercase_name = source_name.to_lowercase();
+            if !ambiguous_names.contains(source_name) && !ambiguous_lowercase_names.contains(&lowercase_name) {
+                insert_referrer_category_key(categories, lowercase_name, &medium, InsertMode::Overwrite);
+            }
+        }
+    }
 
     for (medium, sources) in parsed {
         let medium = normalize_referrer_medium(&medium);
         for (source_name, entry) in sources {
-            if !ambiguous_source_names.contains(&source_name) {
+            if !ambiguous_names.contains(&source_name) {
                 insert_referrer_category_key(categories, source_name, &medium, InsertMode::Overwrite);
             }
 
@@ -71,19 +83,20 @@ fn merge_referrer_categories(
     Ok(())
 }
 
-fn ambiguous_source_names(parsed: &ReferrerJson) -> HashSet<String> {
-    let mut source_mediums: HashMap<&str, String> = HashMap::new();
+fn ambiguous_source_names(parsed: &ReferrerJson, key: impl Fn(&str) -> String) -> HashSet<String> {
+    let mut source_mediums: HashMap<String, String> = HashMap::new();
     let mut ambiguous = HashSet::new();
 
     for (medium, sources) in parsed {
         let medium = normalize_referrer_medium(medium);
         for source_name in sources.keys() {
-            if let Some(existing_medium) = source_mediums.get(source_name.as_str()) {
+            let name = key(source_name);
+            if let Some(existing_medium) = source_mediums.get(&name) {
                 if existing_medium != &medium {
-                    ambiguous.insert(source_name.clone());
+                    ambiguous.insert(name);
                 }
             } else {
-                source_mediums.insert(source_name.as_str(), medium.clone());
+                source_mediums.insert(name, medium.clone());
             }
         }
     }
@@ -288,9 +301,49 @@ mod tests {
         fs::remove_file(&path).unwrap();
 
         assert_eq!(categories.get("Google"), None);
+        assert_eq!(categories.get("google"), None);
         assert_eq!(categories.get("google.com").map(String::as_str), Some("search"));
         assert_eq!(categories.get("support.google.com").map(String::as_str), Some("other"));
         assert_eq!(categories.get("Gmail").map(String::as_str), Some("email"));
+        assert_eq!(categories.get("gmail").map(String::as_str), Some("email"));
+    }
+
+    #[test]
+    fn lowercased_source_names_are_keys_unless_ambiguous_or_a_domain() {
+        let path = std::env::temp_dir().join(format!(
+            "betterlytics-lowercase-referrers-{}.json",
+            SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos()
+        ));
+
+        fs::write(
+            &path,
+            r#"{
+                "ai": {
+                    "ChatGPT": { "domains": ["chatgpt.com"] },
+                    "Meta AI": { "domains": ["meta.ai"] }
+                },
+                "social": {
+                    "Example": { "domains": ["example.com"] },
+                    "chatgpt.com": { "domains": ["chatgpt.example"] }
+                },
+                "search": {
+                    "EXAMPLE": { "domains": ["search.example"] }
+                }
+            }"#,
+        ).unwrap();
+
+        let mut categories = HashMap::new();
+        merge_referrer_categories(&mut categories, &path, true).unwrap();
+
+        fs::remove_file(&path).unwrap();
+
+        assert_eq!(categories.get("chatgpt").map(String::as_str), Some("ai"));
+        assert_eq!(categories.get("ChatGPT").map(String::as_str), Some("ai"));
+        assert_eq!(categories.get("meta ai").map(String::as_str), Some("ai"));
+        assert_eq!(categories.get("example"), None);
+        assert_eq!(categories.get("Example").map(String::as_str), Some("social"));
+        assert_eq!(categories.get("EXAMPLE").map(String::as_str), Some("search"));
+        assert_eq!(categories.get("chatgpt.com").map(String::as_str), Some("ai"));
     }
 
     #[test]
@@ -338,6 +391,9 @@ mod tests {
             "poe.com",
         ] {
             assert_eq!(categories.get(domain).map(String::as_str), Some("ai"), "{domain}");
+        }
+        for name in ["chatgpt", "gemini", "claude", "perplexity", "copilot", "deepseek", "grok", "meta ai", "poe"] {
+            assert_eq!(categories.get(name).map(String::as_str), Some("ai"), "{name}");
         }
         assert_eq!(categories.get("google.com").map(String::as_str), Some("search"));
         assert_eq!(normalize_referrer_medium("ai"), "ai");
