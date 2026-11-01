@@ -1,9 +1,9 @@
 import { useEffect, type RefObject } from 'react';
 
-export function usePinnedHeader(ref: RefObject<HTMLElement | null>) {
+export function usePinnedHeader(ref: RefObject<HTMLElement | null>, enabled: boolean) {
   useEffect(() => {
     const header = ref.current;
-    if (!header) return;
+    if (!enabled || !header) return;
 
     let frame = 0;
 
@@ -37,5 +37,5 @@ export function usePinnedHeader(ref: RefObject<HTMLElement | null>) {
       window.removeEventListener('scroll', scheduleStuckUpdate);
       cancelAnimationFrame(frame);
     };
-  }, [ref]);
+  }, [ref, enabled]);
 }
