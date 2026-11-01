@@ -72,11 +72,7 @@ export default function MapCountryGeoJSON({
       layer.unbindTooltip();
       layer.unbindPopup();
 
-      layer.bindPopup(popupContainer, {
-        autoPan: true,
-        autoPanPadding: [25, 10],
-        closeButton: false,
-      });
+      layer.bindPopup(popupContainer, { autoPan: false, closeButton: false });
 
       layer.on({
         mouseover: (e) => {
