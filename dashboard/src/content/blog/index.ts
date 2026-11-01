@@ -1,6 +1,7 @@
 import 'server-only';
 import fs from 'node:fs';
 import path from 'node:path';
+import { imageSize } from 'image-size';
 import { getFrontmatter } from 'next-mdx-remote-client/utils';
 import { BlogFrontmatterSchema, type BlogFrontmatter } from '@/entities/blog/blogPost.entities';
 
@@ -10,26 +11,47 @@ const PUBLIC_DIR = path.join(process.cwd(), 'public');
 const POST_FILE = /^([a-z0-9]+(?:-[a-z0-9]+)*)\.mdx$/;
 const WORDS_PER_MINUTE = 220;
 
+/** Also the og:image size, which link previews crop to. */
+export const BLOG_COVER_SIZE = { width: 1200, height: 630 };
+
 export type BlogPost = BlogFrontmatter & {
   slug: string;
   source: string;
   readingMinutes: number;
 };
 
+function readCoverSize(bytes: Uint8Array) {
+  try {
+    return imageSize(bytes);
+  } catch {
+    return undefined;
+  }
+}
+
 /** Throws on any invalid post: a broken post must fail the build, not vanish from the blog. */
-function readPost(file: string): BlogPost {
+export function parseBlogPost(
+  file: string,
+  raw: string,
+  readCover: (src: string) => Uint8Array | undefined,
+): BlogPost {
   const slug = POST_FILE.exec(file)?.[1];
   if (!slug) {
     throw new Error(`Blog post ${file}: name it <slug>.mdx, the slug in lowercase words joined by hyphens`);
   }
-  const { frontmatter, strippedSource } = getFrontmatter(fs.readFileSync(path.join(POSTS_DIR, file), 'utf8'));
+  const { frontmatter, strippedSource } = getFrontmatter(raw);
   const parsed = BlogFrontmatterSchema.safeParse(frontmatter);
   if (!parsed.success) {
     throw new Error(`Blog post ${file} has invalid frontmatter:\n${parsed.error.message}`);
   }
   const { cover } = parsed.data;
-  if (!cover.src.startsWith(`/blog/${slug}/`) || !fs.existsSync(path.join(PUBLIC_DIR, cover.src))) {
+  const bytes = cover.src.startsWith(`/blog/${slug}/`) ? readCover(cover.src) : undefined;
+  if (!bytes) {
     throw new Error(`Blog post ${file}: its cover ${cover.src} must be a file in public/blog/${slug}/`);
+  }
+  const size = readCoverSize(bytes);
+  const { width, height } = BLOG_COVER_SIZE;
+  if (size?.width !== width || size.height !== height || (size.type !== 'png' && size.type !== 'jpg')) {
+    throw new Error(`Blog post ${file}: its cover must be a ${width}x${height} PNG or JPEG`);
   }
   const words = strippedSource.split(/\s+/).filter(Boolean).length;
   return {
@@ -38,6 +60,13 @@ function readPost(file: string): BlogPost {
     source: strippedSource,
     readingMinutes: Math.max(1, Math.round(words / WORDS_PER_MINUTE)),
   };
+}
+
+function readPost(file: string): BlogPost {
+  return parseBlogPost(file, fs.readFileSync(path.join(POSTS_DIR, file), 'utf8'), (src) => {
+    const coverPath = path.join(PUBLIC_DIR, src);
+    return fs.existsSync(coverPath) ? fs.readFileSync(coverPath) : undefined;
+  });
 }
 
 /** Every post on main is published: it goes out with the next release. */

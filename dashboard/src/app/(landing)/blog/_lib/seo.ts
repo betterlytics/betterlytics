@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import type { BlogPost } from '@/content/blog';
+import { BLOG_COVER_SIZE, type BlogPost } from '@/content/blog';
 import { env } from '@/lib/env';
 import { generateSEO, type SEOConfig } from '@/lib/seo';
 import { BLOG_COPY, BLOG_LOCALE, blogPath, blogUrl, isoDate, postAuthor } from './blog';
@@ -33,7 +33,7 @@ export async function blogPostMetadata(post: BlogPost): Promise<Metadata> {
     socialTitle: post.title,
   });
   const author = postAuthor(post).name;
-  const image = { url: post.cover.src, width: 1200, height: 630, alt: post.cover.alt };
+  const image = { url: post.cover.src, ...BLOG_COVER_SIZE, alt: post.cover.alt };
   return {
     ...metadata,
     authors: [{ name: author }],
