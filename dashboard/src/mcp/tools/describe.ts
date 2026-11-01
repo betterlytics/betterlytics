@@ -6,6 +6,7 @@ import { FILTER_COLUMNS, FILTER_OPERATORS } from '@/entities/analytics/filter.en
 import { getFilterColumnDescription } from '@/mcp/registry/filterColumns';
 import { TIME_RANGE_VALUES } from '@/utils/timeRanges';
 import { MCP_GRANULARITIES } from '@/mcp/entities/mcp.entities';
+import { DASHBOARD_ID_DESCRIPTION } from '@/mcp/context';
 
 type ToolInput = { name: string; type: string; required: boolean; description: string };
 type ToolDescription = { name: string; description: string; inputs: ToolInput[] };
@@ -18,7 +19,22 @@ const TIMEZONE_INPUT: ToolInput = {
   description: 'IANA time zone, e.g. "Europe/Berlin" or "UTC". Unknown time zones are rejected.',
 };
 
+const DASHBOARD_ID_INPUT: ToolInput = {
+  name: 'dashboardId',
+  type: 'string',
+  required: false,
+  description: DASHBOARD_ID_DESCRIPTION,
+};
+
+const LIST_DASHBOARDS_TOOL: ToolDescription = {
+  name: 'list_dashboards',
+  description:
+    "List the dashboards this connection can read, newest membership first, with each dashboard's id, domain and your role on it. Pass an id as dashboardId to the other tools.",
+  inputs: [],
+};
+
 type SchemaDescription = {
+  dashboards: { description: string };
   metrics: { key: string; description: string }[];
   dimensions: { key: string; description: string }[];
   filterColumns: { key: string; description: string; note?: string }[];
@@ -49,6 +65,10 @@ type QuerySessionsDescription = {
 
 export function getSchemaDescription(available: ToolAvailability): SchemaDescription {
   return {
+    dashboards: {
+      description:
+        'Every tool except describe and list_dashboards reads one dashboard. Call list_dashboards to see the dashboards this connection can read, then pass the id of the one to read as dashboardId. dashboardId may be left out when the connection can read only one dashboard.',
+    },
     metrics: METRICS.map((m) => ({ key: m.key, description: m.description })),
     dimensions: DIMENSIONS.map((d) => ({ key: d.key, description: d.description })),
     filterColumns: FILTER_COLUMNS.map((col) => {
@@ -95,235 +115,241 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
       unknown: 'An unknown time zone is rejected with an input validation error and returns no data.',
     },
     querySessions: QUERY_SESSIONS_DESCRIPTION,
-    tools: [
-      {
-        name: 'query',
-        description: 'Query analytics data with flexible metrics and dimensions.',
-        inputs: [
-          {
-            name: 'metrics',
-            type: 'string[]',
-            required: true,
-            description: 'Metrics to query (see metrics above). At least one required.',
-          },
-          {
-            name: 'dimensions',
-            type: 'string[]',
-            required: false,
-            description: 'Dimensions to group by (see dimensions above).',
-          },
-          {
-            name: 'timeRange',
-            type: 'string',
-            required: true,
-            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
-          },
-          {
-            name: 'startDate',
-            type: 'string',
-            required: false,
-            description: 'YYYY-MM-DD. Required when timeRange is "custom".',
-          },
-          {
-            name: 'endDate',
-            type: 'string',
-            required: false,
-            description: 'YYYY-MM-DD. Required when timeRange is "custom".',
-          },
-          TIMEZONE_INPUT,
-          {
-            name: 'filters',
-            type: 'array',
-            required: false,
-            description: 'Filters to apply (see filterFormat above).',
-          },
-          {
-            name: 'granularity',
-            type: 'string',
-            required: false,
-            description: 'Time-series granularity: "hour" or "day". Omit for aggregate totals.',
-          },
-          {
-            name: 'orderBy',
-            type: 'string',
-            required: false,
-            description: 'Field to sort by (see orderBy above). Defaults to first metric.',
-          },
-          { name: 'order', type: 'string', required: false, description: '"asc" or "desc". Defaults to "desc".' },
-          {
-            name: 'limit',
-            type: 'number',
-            required: false,
-            description: 'Max rows to return (1-10000). Defaults to 100.',
-          },
-        ],
-      },
-      QUERY_SESSIONS_TOOL,
-      {
-        name: 'user_journeys',
-        description:
-          'Analyze user navigation paths. Returns Sankey diagram data (nodes + links) showing page-to-page transitions.',
-        inputs: [
-          {
-            name: 'timeRange',
-            type: 'string',
-            required: true,
-            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
-          },
-          TIMEZONE_INPUT,
-          {
-            name: 'filters',
-            type: 'array',
-            required: false,
-            description: 'Filters to apply (see filterColumns and filterOperators above).',
-          },
-          {
-            name: 'maxSteps',
-            type: 'number',
-            required: false,
-            description: 'Maximum journey depth (2-10). Defaults to 3.',
-          },
-          {
-            name: 'limit',
-            type: 'number',
-            required: false,
-            description: 'Max number of top paths to return (1-500). Defaults to 50.',
-          },
-        ],
-      },
-      {
-        name: 'funnel_preview',
-        description:
-          'Run ad-hoc funnel analysis. Define ordered steps (filter conditions) to see visitor dropoff.',
-        inputs: [
-          {
-            name: 'timeRange',
-            type: 'string',
-            required: true,
-            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
-          },
-          TIMEZONE_INPUT,
-          {
-            name: 'steps',
-            type: 'array',
-            required: true,
-            description:
-              'Ordered funnel steps (min 2). Each: { name, column, operator, values } using filterColumns and filterOperators above.',
-          },
-          {
-            name: 'isStrict',
-            type: 'boolean',
-            required: false,
-            description:
-              'If true, steps must occur sequentially without other pages in between. Defaults to false.',
-          },
-        ],
-      },
-      {
-        name: 'list_funnels',
-        description: 'List saved funnels for this site with conversion data.',
-        inputs: [
-          {
-            name: 'timeRange',
-            type: 'string',
-            required: true,
-            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
-          },
-          TIMEZONE_INPUT,
-        ],
-      },
-      {
-        name: 'list_global_properties',
-        description:
-          'Discover the global properties recorded for this dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property\'s example values.',
-        inputs: [
-          {
-            name: 'timeRange',
-            type: 'string',
-            required: true,
-            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
-          },
-          TIMEZONE_INPUT,
-          {
-            name: 'key',
-            type: 'string',
-            required: false,
-            description:
-              'A property key as returned by this tool, e.g. "gp.plan". If given, returns example values for that key instead of the key list.',
-          },
-        ],
-      },
-      {
-        name: 'list_errors',
-        description:
-          'List client-side JavaScript errors grouped by type, sorted by occurrence count. Returns fingerprints, types, messages, counts, status, and timestamps.',
-        inputs: [
-          {
-            name: 'timeRange',
-            type: 'string',
-            required: true,
-            description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
-          },
-          TIMEZONE_INPUT,
-          {
-            name: 'search',
-            type: 'string',
-            required: false,
-            description:
-              'Case-insensitive text search across error type and message. E.g. "TypeError" or "Cannot read properties".',
-          },
-          {
-            name: 'fingerprint',
-            type: 'string',
-            required: false,
-            description:
-              'Look up a specific error by its fingerprint ID. Use a fingerprint from a previous list_errors call, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
-          },
-          {
-            name: 'filters',
-            type: 'array',
-            required: false,
-            description: 'Filters to narrow results. Same format as the query tool: { column, operator, values }.',
-          },
-          {
-            name: 'limit',
-            type: 'number',
-            required: false,
-            description: 'Max error groups to return (1-50). Defaults to 10.',
-          },
-        ],
-      },
-      {
-        name: 'get_error',
-        description:
-          'Get detailed info about a specific error: stack trace, browser/OS/device context, and breadcrumbs (user actions leading up to the error). Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
-        inputs: [
-          {
-            name: 'fingerprint',
-            type: 'string',
-            required: true,
-            description:
-              'The error fingerprint identifier. Use list_errors to find it, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
-          },
-          {
-            name: 'occurrenceOffset',
-            type: 'number',
-            required: false,
-            description: 'Occurrence index. 0 = latest, 1 = second latest, etc. Defaults to 0.',
-          },
-          {
-            name: 'includeBreadcrumbs',
-            type: 'boolean',
-            required: false,
-            description:
-              'Include breadcrumbs. The trail of user actions (page views, clicks, navigations) before the error. Defaults to true.',
-          },
-        ],
-      },
-      ...(available.uptimeMonitoring ? MONITORING_TOOLS : []),
-      ...(available.publicStatusPages ? STATUS_PAGE_TOOLS : []),
-    ],
+    tools: [LIST_DASHBOARDS_TOOL, ...dashboardTools(available).map(withDashboardIdInput)],
   };
+}
+
+function withDashboardIdInput(tool: ToolDescription): ToolDescription {
+  return { ...tool, inputs: [...tool.inputs, DASHBOARD_ID_INPUT] };
+}
+
+function dashboardTools(available: ToolAvailability): ToolDescription[] {
+  return [
+    {
+      name: 'query',
+      description: 'Query analytics data with flexible metrics and dimensions.',
+      inputs: [
+        {
+          name: 'metrics',
+          type: 'string[]',
+          required: true,
+          description: 'Metrics to query (see metrics above). At least one required.',
+        },
+        {
+          name: 'dimensions',
+          type: 'string[]',
+          required: false,
+          description: 'Dimensions to group by (see dimensions above).',
+        },
+        {
+          name: 'timeRange',
+          type: 'string',
+          required: true,
+          description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
+        },
+        {
+          name: 'startDate',
+          type: 'string',
+          required: false,
+          description: 'YYYY-MM-DD. Required when timeRange is "custom".',
+        },
+        {
+          name: 'endDate',
+          type: 'string',
+          required: false,
+          description: 'YYYY-MM-DD. Required when timeRange is "custom".',
+        },
+        TIMEZONE_INPUT,
+        {
+          name: 'filters',
+          type: 'array',
+          required: false,
+          description: 'Filters to apply (see filterFormat above).',
+        },
+        {
+          name: 'granularity',
+          type: 'string',
+          required: false,
+          description: 'Time-series granularity: "hour" or "day". Omit for aggregate totals.',
+        },
+        {
+          name: 'orderBy',
+          type: 'string',
+          required: false,
+          description: 'Field to sort by (see orderBy above). Defaults to first metric.',
+        },
+        { name: 'order', type: 'string', required: false, description: '"asc" or "desc". Defaults to "desc".' },
+        {
+          name: 'limit',
+          type: 'number',
+          required: false,
+          description: 'Max rows to return (1-10000). Defaults to 100.',
+        },
+      ],
+    },
+    QUERY_SESSIONS_TOOL,
+    {
+      name: 'user_journeys',
+      description:
+        'Analyze user navigation paths. Returns Sankey diagram data (nodes + links) showing page-to-page transitions.',
+      inputs: [
+        {
+          name: 'timeRange',
+          type: 'string',
+          required: true,
+          description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
+        },
+        TIMEZONE_INPUT,
+        {
+          name: 'filters',
+          type: 'array',
+          required: false,
+          description: 'Filters to apply (see filterColumns and filterOperators above).',
+        },
+        {
+          name: 'maxSteps',
+          type: 'number',
+          required: false,
+          description: 'Maximum journey depth (2-10). Defaults to 3.',
+        },
+        {
+          name: 'limit',
+          type: 'number',
+          required: false,
+          description: 'Max number of top paths to return (1-500). Defaults to 50.',
+        },
+      ],
+    },
+    {
+      name: 'funnel_preview',
+      description: 'Run ad-hoc funnel analysis. Define ordered steps (filter conditions) to see visitor dropoff.',
+      inputs: [
+        {
+          name: 'timeRange',
+          type: 'string',
+          required: true,
+          description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
+        },
+        TIMEZONE_INPUT,
+        {
+          name: 'steps',
+          type: 'array',
+          required: true,
+          description:
+            'Ordered funnel steps (min 2). Each: { name, column, operator, values } using filterColumns and filterOperators above.',
+        },
+        {
+          name: 'isStrict',
+          type: 'boolean',
+          required: false,
+          description: 'If true, steps must occur sequentially without other pages in between. Defaults to false.',
+        },
+      ],
+    },
+    {
+      name: 'list_funnels',
+      description: 'List saved funnels for the dashboard with conversion data.',
+      inputs: [
+        {
+          name: 'timeRange',
+          type: 'string',
+          required: true,
+          description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
+        },
+        TIMEZONE_INPUT,
+      ],
+    },
+    {
+      name: 'list_global_properties',
+      description:
+        "Discover the global properties recorded for the dashboard. Without a key, lists the property keys (each as a gp.<key> filter column); with a key, lists that property's example values.",
+      inputs: [
+        {
+          name: 'timeRange',
+          type: 'string',
+          required: true,
+          description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
+        },
+        TIMEZONE_INPUT,
+        {
+          name: 'key',
+          type: 'string',
+          required: false,
+          description:
+            'A property key as returned by this tool, e.g. "gp.plan". If given, returns example values for that key instead of the key list.',
+        },
+      ],
+    },
+    {
+      name: 'list_errors',
+      description:
+        'List client-side JavaScript errors grouped by type, sorted by occurrence count. Returns fingerprints, types, messages, counts, status, and timestamps.',
+      inputs: [
+        {
+          name: 'timeRange',
+          type: 'string',
+          required: true,
+          description: 'Time range preset. Valid values are listed in the timeRanges field of this schema.',
+        },
+        TIMEZONE_INPUT,
+        {
+          name: 'search',
+          type: 'string',
+          required: false,
+          description:
+            'Case-insensitive text search across error type and message. E.g. "TypeError" or "Cannot read properties".',
+        },
+        {
+          name: 'fingerprint',
+          type: 'string',
+          required: false,
+          description:
+            'Look up a specific error by its fingerprint ID. Use a fingerprint from a previous list_errors call, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+        },
+        {
+          name: 'filters',
+          type: 'array',
+          required: false,
+          description: 'Filters to narrow results. Same format as the query tool: { column, operator, values }.',
+        },
+        {
+          name: 'limit',
+          type: 'number',
+          required: false,
+          description: 'Max error groups to return (1-50). Defaults to 10.',
+        },
+      ],
+    },
+    {
+      name: 'get_error',
+      description:
+        'Get detailed info about a specific error: stack trace, browser/OS/device context, and breadcrumbs (user actions leading up to the error). Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+      inputs: [
+        {
+          name: 'fingerprint',
+          type: 'string',
+          required: true,
+          description:
+            'The error fingerprint identifier. Use list_errors to find it, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+        },
+        {
+          name: 'occurrenceOffset',
+          type: 'number',
+          required: false,
+          description: 'Occurrence index. 0 = latest, 1 = second latest, etc. Defaults to 0.',
+        },
+        {
+          name: 'includeBreadcrumbs',
+          type: 'boolean',
+          required: false,
+          description:
+            'Include breadcrumbs. The trail of user actions (page views, clicks, navigations) before the error. Defaults to true.',
+        },
+      ],
+    },
+    ...(available.uptimeMonitoring ? MONITORING_TOOLS : []),
+    ...(available.publicStatusPages ? STATUS_PAGE_TOOLS : []),
+  ];
 }
 
 const QUERY_SESSIONS_DESCRIPTION: QuerySessionsDescription = {
