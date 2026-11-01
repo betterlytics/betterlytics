@@ -1,5 +1,5 @@
 'use client';
-import { useRef } from 'react';
+import { useRef, type MouseEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { FilterIcon, XIcon } from 'lucide-react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
@@ -38,7 +38,15 @@ export function ActiveQueryFilters() {
     return null;
   }
 
-  const clearAll = () => {
+  // The band unmounts once it empties, so focus goes to the Filters button instead of falling to <body>.
+  const focusFiltersTrigger = (from: HTMLElement) =>
+    from
+      .closest('[data-slot=dashboard-filters]')
+      ?.querySelector<HTMLElement>('[data-query-filters-trigger]')
+      ?.focus({ preventScroll: true });
+
+  const clearAll = (event: MouseEvent<HTMLElement>) => {
+    focusFiltersTrigger(event.currentTarget);
     setQueryFilters([]);
     notifyFiltersUpdated(queryFilters, []);
   };
@@ -113,7 +121,10 @@ export function ActiveQueryFilters() {
                       data-pill-remove=''
                       aria-label={t('removeFilter')}
                       className='text-muted-foreground/80 hover:text-foreground focus-visible:text-foreground size-8 shrink-0 cursor-pointer rounded-none focus-visible:ring-inset'
-                      onClick={() => removeQueryFilter(filter.id)}
+                      onClick={(event) => {
+                        if (queryFilters.length === 1) focusFiltersTrigger(event.currentTarget);
+                        removeQueryFilter(filter.id);
+                      }}
                     >
                       <XIcon className='size-3.5' />
                     </Button>
