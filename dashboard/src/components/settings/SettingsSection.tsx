@@ -1,10 +1,11 @@
-import { ProBadge } from '@/components/billing/ProBadge';
+import { PlanBadge } from '@/components/billing/PlanBadge';
+import type { PlanDefinition } from '@/lib/billing/catalog';
 
 interface SettingsSectionProps {
   title: string;
   description?: string;
   children: React.ReactNode;
-  pro?: boolean;
+  upgradePlan?: PlanDefinition | null;
   headerExtra?: React.ReactNode;
 }
 
@@ -12,7 +13,7 @@ export default function SettingsSection({
   title,
   description,
   children,
-  pro,
+  upgradePlan,
   headerExtra,
 }: SettingsSectionProps) {
   return (
@@ -21,7 +22,7 @@ export default function SettingsSection({
         <div>
           <h2 className='text-md flex items-center gap-2 font-semibold'>
             {title}
-            {pro && <ProBadge />}
+            {upgradePlan && <PlanBadge plan={upgradePlan} />}
           </h2>
           {description && <p className='text-muted-foreground text-sm'>{description}</p>}
         </div>

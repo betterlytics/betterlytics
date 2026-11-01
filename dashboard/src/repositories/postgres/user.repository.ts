@@ -11,7 +11,7 @@ import {
   UserWithoutDashboardCandidate,
   UserWithoutDashboardCandidateSchema,
 } from '@/entities/auth/user.entities';
-import { buildStarterSubscription } from '@/entities/billing/billing.entities';
+import { buildFreeSubscription } from '@/entities/billing/billing.entities';
 import {
   AccountDeletionBlocker,
   AccountDeletionOutcome,
@@ -117,7 +117,7 @@ export async function createUser(
   try {
     const { passwordHash, ...userData } = CreateUserSchema.parse(data);
 
-    const subscriptionData = buildStarterSubscription();
+    const subscriptionData = buildFreeSubscription();
 
     const settingsData = {
       ...DEFAULT_USER_SETTINGS,

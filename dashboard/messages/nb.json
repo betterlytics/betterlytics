@@ -1252,22 +1252,19 @@
       "free": "Gratis",
       "custom": "Etter avtale",
       "growth": {
-        "name": "Growth",
         "tagline": "For sideprosjekter og små nettsteder.",
-        "ctaFree": "Kom i gang gratis",
         "cta": "Kom i gang"
       },
       "professional": {
-        "name": "Professional",
         "tagline": "For team med flere produkter i drift.",
-        "cta": "Kom i gang",
-        "badge": "Mest populær"
+        "cta": "Kom i gang"
       },
       "enterprise": {
-        "name": "Enterprise",
         "tagline": "For høy trafikk, med SLA og dedikert support.",
         "cta": "Kontakt salg"
-      }
+      },
+      "badge": "Mest populær",
+      "ctaFree": "Kom i gang gratis"
     },
     "cta": {
       "title": "Legg inn ett skript og se den første besøkende tikke inn",
@@ -1949,28 +1946,23 @@
     "features": {
       "upToEventsPerMonth": "Opptil {events} hendelser/måned",
       "customEventVolume": "Tilpasset hendelsesvolum",
-      "twoSites": "Opptil 2 nettsteder",
-      "upTo50Sites": "Opptil 50 nettsteder",
       "unlimitedSites": "Ubegrenset antall nettsteder",
-      "threeTeamMembers": "Opptil 3 teammedlemmer",
-      "upTo50TeamMembers": "Opptil 50 teammedlemmer",
       "unlimitedTeamMembers": "Ubegrenset antall teammedlemmer",
-      "retention1PlusYear": "1+ år datalagring",
-      "retention3PlusYears": "3+ år datalagring",
-      "retention5PlusYears": "5+ år datalagring",
       "fullDashboard": "Komplett dashboard for nettanalyse",
       "funnelsJourneys": "Trakter og brukerreiser",
       "sessionReplay": "Sesjonsopptak",
       "errorTracking": "Feilsporing",
-      "uptime1": "1 oppetidsmonitor og offentlig statusside",
-      "uptime50": "50 oppetidsmonitorer med 1-minutts sjekker",
       "uptimeUnlimited": "Ubegrenset antall oppetidsmonitorer og statussider",
       "statusPagesPro": "White-label statussider på ditt eget domene",
       "emailReports": "Planlagte e-postrapporter",
       "dedicatedSupport": "Dedikert support",
       "slaGuarantee": "SLA-garanti",
-      "everythingInStarter": "Alt i Growth, pluss:",
-      "everythingInProfessional": "Alt i Professional, pluss:"
+      "sitesCount": "{count, plural, one {# nettsted} other {Opptil # nettsteder}}",
+      "teamMembersCount": "{count, plural, one {# teammedlem} other {Opptil # teammedlemmer}}",
+      "retentionYears": "{count, plural, other {#+ år datalagring}}",
+      "uptimeMonitors": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}} med {minutes}-minutts sjekker",
+      "everythingIn": "Alt i {name}, pluss:",
+      "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
@@ -1991,10 +1983,7 @@
   },
   "pricingComparison": {
     "headers": {
-      "features": "Funksjoner",
-      "growth": "Vekst",
-      "professional": "Profesjonell",
-      "enterprise": "Bedrift"
+      "features": "Funksjoner"
     },
     "categories": {
       "usageLimits": "Bruk og grenser",
@@ -2012,24 +2001,20 @@
       "sites": {
         "name": "Nettsteder",
         "values": {
-          "upTo2": "Opptil 2",
-          "upTo50": "Opptil 50",
+          "upToCount": "Opptil {count}",
           "unlimited": "Ubegrenset"
         }
       },
       "dataRetention": {
         "name": "Datalagring",
         "values": {
-          "1year": "1+ år",
-          "3years": "3+ år",
-          "5years": "5+ år"
+          "yearsCount": "{count, plural, one {#+ år} other {#+ år}}"
         }
       },
       "teamMembers": {
         "name": "Teammedlemmer",
         "values": {
-          "upTo3": "Opptil 3",
-          "upTo50": "Opptil 50",
+          "upToCount": "Opptil {count}",
           "unlimited": "Ubegrenset"
         }
       },
@@ -2063,8 +2048,7 @@
       "uptimeMonitoring": {
         "name": "Nedetidsovervåking",
         "values": {
-          "1": "1 overvåker",
-          "50": "50 monitorer",
+          "monitorsCount": "{count, plural, one {# overvåker} other {# monitorer}}",
           "unlimited": "Ubegrenset antall monitorer"
         }
       },
@@ -2074,8 +2058,7 @@
       "checkInterval": {
         "name": "Minimum kontrollintervall",
         "values": {
-          "5min": "5 min.",
-          "1min": "1 min."
+          "minutesCount": "{count} min."
         }
       },
       "customHttpMethods": {
@@ -2093,8 +2076,7 @@
       "statusPages": {
         "name": "Offentlige statussider",
         "values": {
-          "1": "1 statusside",
-          "3": "3 statussider",
+          "statusPagesCount": "{count, plural, one {# statusside} other {# statussider}}",
           "unlimited": "Ubegrenset antall statussider"
         }
       },
@@ -2233,8 +2215,8 @@
     },
     "upgradeCard": {
       "title": "Trenger du flere dashboard?",
-      "description": "Pro støtter opptil 50 nettsteder",
-      "cta": "Oppgrader til Pro"
+      "description": "{plan} støtter opptil {count} nettsteder",
+      "descriptionUnlimited": "{plan} støtter ubegrenset antall nettsteder"
     }
   },
   "monitoring": {
@@ -2722,8 +2704,7 @@
       "recommended": "anbefalt"
     },
     "proFeature": {
-      "badge": "Pro",
-      "upgradeRequired": "Oppgrader til Pro for å låse opp denne funksjonen"
+      "upgradeRequired": "Oppgrader til {plan} for å låse opp denne funksjonen"
     },
     "billing": {
       "navigation": {
@@ -2843,11 +2824,7 @@
         "pastDue": "Forfalt",
         "inactive": "Inaktiv"
       },
-      "planNames": {
-        "growth": "Growth-plan",
-        "professional": "Pro-plan",
-        "enterprise": "Bedrift"
-      }
+      "planLabel": "{name}-plan"
     },
     "timeRange": {
       "disabled": "Deaktivert",
@@ -3866,16 +3843,17 @@
     "statusPageImageBadType": "Bildet må være et PNG-, JPEG- eller WebP-bilde",
     "statusPageImageSvgUnsafe": "SVG-filen inneholder innhold som ikke støttes eller er utrygt",
     "capabilities": {
-      "dashboardLimit": "Du har nådd grensen for dashboards. Oppgrader til Pro for å opprette flere dashboards.",
-      "monitorLimit": "Du har nådd grensen for monitorer. Oppgrader til Pro for å opprette flere monitorer.",
-      "minInterval": "Raskere overvåkingsintervaller krever en profesjonell plan",
-      "httpMethod": "Tilpassede HTTP-metoder krever en profesjonell plan",
-      "statusCodes": "Tilpassede statuskoder krever en profesjonell plan",
-      "customHeaders": "Tilpassede forespørselshoder krever en profesjonell plan",
-      "keywordValidation": "Nøkkelordvalidering krever en profesjonell plan",
-      "statusPageLimit": "Du har nådd grensen for statussider. Oppgrader til Pro for å opprette flere statussider.",
-      "statusPageCustomDomain": "Eget domene krever en profesjonell plan",
-      "statusPageBranding": "Å fjerne Betterlytics-merking krever en profesjonell plan"
+      "dashboardLimit": "Du har nådd grensen for dashboards. Oppgrader til {plan} for å opprette flere dashboards.",
+      "monitorLimit": "Du har nådd grensen for monitorer. Oppgrader til {plan} for å opprette flere monitorer.",
+      "minInterval": "Raskere overvåkingsintervaller krever {plan}-planen",
+      "httpMethod": "Tilpassede HTTP-metoder krever {plan}-planen",
+      "statusCodes": "Tilpassede statuskoder krever {plan}-planen",
+      "customHeaders": "Tilpassede forespørselshoder krever {plan}-planen",
+      "keywordValidation": "Nøkkelordvalidering krever {plan}-planen",
+      "statusPageLimit": "Du har nådd grensen for statussider. Oppgrader til {plan} for å opprette flere statussider.",
+      "statusPageCustomDomain": "Eget domene krever {plan}-planen",
+      "statusPageBranding": "Å fjerne Betterlytics-merking krever {plan}-planen",
+      "limitReached": "Du har nådd grensen for planen din. Kontakt oss hvis du trenger mer."
     },
     "account": {
       "lastAdminCannotBeDeleted": "Den eneste administratorkontoen på denne instansen kan ikke slettes.",

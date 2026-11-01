@@ -4,10 +4,16 @@ import { Fragment, useRef, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
-import type { Tier } from '@/entities/billing/billing.entities';
 import { EventCountFlow } from '@/components/pricing/EventCountFlow';
 import { usePlanFeatures, type PlanFeatureLabel } from '@/components/pricing/usePlanFeatures';
-import { EVENT_RANGES, isContactSalesRange } from '@/lib/billing/plans';
+import {
+  VOLUME_STOPS,
+  isQuoted,
+  isFreeBand,
+  listedPlans,
+  priceFor,
+  type PlanId,
+} from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
@@ -57,7 +63,7 @@ function Check() {
 type PlanCta = { label: string; destination: 'signup' | 'contact' };
 
 type PlanProps = {
-  tier: Tier;
+  tier: PlanId;
   name: string;
   tagline: string;
   /** Cents, or a label such as 'Custom'. */
@@ -137,23 +143,18 @@ export function PricingPanel() {
   // drives the phone thumb nudge in the module
   const sliderSeen = useInView(sliderRef, 'read');
 
-  const range = EVENT_RANGES[rangeIndex];
-  const lastIndex = EVENT_RANGES.length - 1;
-  const contactSales = isContactSalesRange(range);
-  const featuresFor = usePlanFeatures(range);
+  const events = VOLUME_STOPS[rangeIndex];
+  const lastIndex = VOLUME_STOPS.length - 1;
+  const featuresFor = usePlanFeatures(events);
 
-  const cents = (tier: 'growth' | 'professional') => range[tier].price.usd_cents;
-  const price = (c: number) => (contactSales ? t('custom') : c === 0 ? t('free') : c);
-  const period = (c: number) => (contactSales || c === 0 ? undefined : t('perMonth'));
   const sales: PlanCta = { label: t('enterprise.cta'), destination: 'contact' };
-  const growthCents = cents('growth');
   // spelled as the shared feature labels spell it, so WithVolume can split on it
-  const volume = { value: range.value, figure: formatEventCount(range.value, locale) };
+  const volume = { value: events, figure: formatEventCount(events, locale) };
 
   const pickStop = (index: number) => {
     if (index === rangeIndex) return;
     setRangeIndex(index);
-    track.pricingVolume(EVENT_RANGES[index].value);
+    track.pricingVolume(VOLUME_STOPS[index]);
   };
 
   return (
@@ -161,7 +162,7 @@ export function PricingPanel() {
       <div className='mx-auto mb-11 flex w-full max-w-[640px] flex-col items-center gap-3.5'>
         <div className='flex items-baseline gap-2'>
           <b className='text-[26px] leading-7 font-medium tracking-[-0.8px] tabular-nums'>
-            <EventCountFlow value={range.value} className={FLUSH} />
+            <EventCountFlow value={events} className={FLUSH} />
           </b>
           <span className='text-label tracking-ui text-muted'>{t('monthlyEvents')}</span>
         </div>
@@ -174,7 +175,7 @@ export function PricingPanel() {
           data-seen={sliderSeen || undefined}
           value={[rangeIndex]}
           onValueChange={([v]) => setRangeIndex(v)}
-          onValueCommit={([v]) => track.pricingVolume(EVENT_RANGES[v].value)}
+          onValueCommit={([v]) => track.pricingVolume(VOLUME_STOPS[v])}
           min={0}
           max={lastIndex}
           step={1}
@@ -190,14 +191,14 @@ export function PricingPanel() {
               'max-sm:size-6 max-sm:before:absolute max-sm:before:-inset-3',
             )}
             aria-label={t('rangeLabel')}
-            aria-valuetext={t('rangeValueText', { events: formatEventCount(range.value, locale) })}
+            aria-valuetext={t('rangeValueText', { events: formatEventCount(events, locale) })}
           />
         </Slider.Root>
         {/* inset by the 9px thumb radius; aria-hidden since the slider already serves keyboards and screen readers */}
         <div className='relative -mt-0.5 h-4.5 w-full' aria-hidden>
-          {EVENT_RANGES.map((r, i) => (
+          {VOLUME_STOPS.map((stop, i) => (
             <button
-              key={r.value}
+              key={stop}
               type='button'
               tabIndex={-1}
               className={cn(
@@ -209,7 +210,7 @@ export function PricingPanel() {
               data-active={i === rangeIndex || undefined}
               onClick={() => pickStop(i)}
             >
-              {formatEventCount(r.value, locale)}
+              {formatEventCount(stop, locale)}
             </button>
           ))}
         </div>
@@ -217,41 +218,30 @@ export function PricingPanel() {
 
       <Panel>
         <div className='flex max-lg:flex-col max-sm:-mx-(--pad)'>
-          <Plan
-            tier='growth'
-            volume={volume}
-            name={t('growth.name')}
-            tagline={t('growth.tagline')}
-            price={price(growthCents)}
-            period={period(growthCents)}
-            features={featuresFor('growth')}
-            cta={
-              contactSales
-                ? sales
-                : { label: growthCents === 0 ? t('growth.ctaFree') : t('growth.cta'), destination: 'signup' }
-            }
-          />
-          <Plan
-            tier='professional'
-            volume={volume}
-            pick
-            name={t('professional.name')}
-            badge={t('professional.badge')}
-            tagline={t('professional.tagline')}
-            price={price(cents('professional'))}
-            period={period(cents('professional'))}
-            features={featuresFor('professional')}
-            cta={contactSales ? sales : { label: t('professional.cta'), destination: 'signup' }}
-          />
-          <Plan
-            tier='enterprise'
-            volume={volume}
-            name={t('enterprise.name')}
-            tagline={t('enterprise.tagline')}
-            price={t('custom')}
-            features={featuresFor('enterprise')}
-            cta={sales}
-          />
+          {listedPlans().map((plan) => {
+            const quoted = isQuoted(plan, events);
+            const cents = quoted ? null : priceFor(plan, events, CURRENCY);
+            const free = isFreeBand(plan, events);
+            return (
+              <Plan
+                key={plan.id}
+                tier={plan.id}
+                volume={volume}
+                pick={plan.featured}
+                name={plan.name}
+                badge={plan.featured ? t('badge') : undefined}
+                tagline={t(`${plan.id}.tagline`)}
+                price={cents === null ? t('custom') : free ? t('free') : cents}
+                period={cents === null || free ? undefined : t('perMonth')}
+                features={featuresFor(plan)}
+                cta={
+                  quoted
+                    ? sales
+                    : { label: free ? t('ctaFree') : t(`${plan.id}.cta`), destination: 'signup' }
+                }
+              />
+            );
+          })}
         </div>
       </Panel>
     </>

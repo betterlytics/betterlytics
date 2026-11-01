@@ -1252,22 +1252,19 @@
       "free": "Gratuito",
       "custom": "Personalizzato",
       "growth": {
-        "name": "Growth",
         "tagline": "Per progetti personali e piccoli siti.",
-        "ctaFree": "Inizia gratis",
         "cta": "Inizia"
       },
       "professional": {
-        "name": "Professional",
         "tagline": "Per team che gestiscono più prodotti.",
-        "cta": "Inizia",
-        "badge": "Il più scelto"
+        "cta": "Inizia"
       },
       "enterprise": {
-        "name": "Enterprise",
         "tagline": "Per traffico elevato, con SLA e supporto dedicato.",
         "cta": "Contattaci"
-      }
+      },
+      "badge": "Il più scelto",
+      "ctaFree": "Inizia gratis"
     },
     "cta": {
       "title": "Aggiungi uno script e guarda arrivare il tuo primo visitatore",
@@ -1949,28 +1946,23 @@
     "features": {
       "upToEventsPerMonth": "Fino a {events} eventi/mese",
       "customEventVolume": "Volume eventi personalizzato",
-      "twoSites": "Fino a 2 siti",
-      "upTo50Sites": "Fino a 50 siti",
       "unlimitedSites": "Siti illimitati",
-      "threeTeamMembers": "Fino a 3 membri del team",
-      "upTo50TeamMembers": "Fino a 50 membri del team",
       "unlimitedTeamMembers": "Membri del team illimitati",
-      "retention1PlusYear": "Conservazione dati 1+ anno",
-      "retention3PlusYears": "Conservazione dati 3+ anni",
-      "retention5PlusYears": "Conservazione dati 5+ anni",
       "fullDashboard": "Dashboard di web analytics completa",
       "funnelsJourneys": "Funnel e percorsi utente",
       "sessionReplay": "Session replay",
       "errorTracking": "Tracciamento errori",
-      "uptime1": "1 monitor uptime e pagina di stato pubblica",
-      "uptime50": "50 monitor uptime con controlli ogni minuto",
       "uptimeUnlimited": "Monitor uptime e pagine di stato illimitati",
       "statusPagesPro": "Pagine di stato white-label sul tuo dominio",
       "emailReports": "Report email pianificati",
       "dedicatedSupport": "Supporto dedicato",
       "slaGuarantee": "Garanzia SLA",
-      "everythingInStarter": "Tutte le funzionalità di Growth, più:",
-      "everythingInProfessional": "Tutte le funzionalità di Professional, più:"
+      "sitesCount": "{count, plural, one {# sito} other {Fino a # siti}}",
+      "teamMembersCount": "{count, plural, one {# membro del team} other {Fino a # membri del team}}",
+      "retentionYears": "{count, plural, one {Conservazione dati #+ anno} other {Conservazione dati #+ anni}}",
+      "uptimeMonitors": "{count} monitor uptime con controlli {minutes, plural, one {ogni minuto} other {ogni # minuti}}",
+      "everythingIn": "Tutte le funzionalità di {name}, più:",
+      "statusPagesCount": "{count, plural, one {# pagina di stato pubblica} other {# pagine di stato pubbliche}}"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",
@@ -1991,10 +1983,7 @@
   },
   "pricingComparison": {
     "headers": {
-      "features": "Funzionalità",
-      "growth": "Growth",
-      "professional": "Professional",
-      "enterprise": "Enterprise"
+      "features": "Funzionalità"
     },
     "categories": {
       "usageLimits": "Utilizzo e limiti",
@@ -2012,24 +2001,20 @@
       "sites": {
         "name": "Siti",
         "values": {
-          "upTo2": "Fino a 2",
-          "upTo50": "Fino a 50",
+          "upToCount": "Fino a {count}",
           "unlimited": "Illimitati"
         }
       },
       "dataRetention": {
         "name": "Conservazione dati",
         "values": {
-          "1year": "1+ anno",
-          "3years": "3+ anni",
-          "5years": "5+ anni"
+          "yearsCount": "{count, plural, one {#+ anno} other {#+ anni}}"
         }
       },
       "teamMembers": {
         "name": "Membri del team",
         "values": {
-          "upTo3": "Fino a 3",
-          "upTo50": "Fino a 50",
+          "upToCount": "Fino a {count}",
           "unlimited": "Illimitati"
         }
       },
@@ -2063,8 +2048,7 @@
       "uptimeMonitoring": {
         "name": "Monitoraggio uptime",
         "values": {
-          "1": "1 monitor",
-          "50": "50 monitor",
+          "monitorsCount": "{count, plural, one {# monitor} other {# monitor}}",
           "unlimited": "Monitor illimitati"
         }
       },
@@ -2074,8 +2058,7 @@
       "checkInterval": {
         "name": "Intervallo minimo di controllo",
         "values": {
-          "5min": "5 min",
-          "1min": "1 min"
+          "minutesCount": "{count} min"
         }
       },
       "customHttpMethods": {
@@ -2093,8 +2076,7 @@
       "statusPages": {
         "name": "Pagine di stato pubbliche",
         "values": {
-          "1": "1 pagina di stato",
-          "3": "3 pagine di stato",
+          "statusPagesCount": "{count, plural, one {# pagina di stato} other {# pagine di stato}}",
           "unlimited": "Pagine di stato illimitate"
         }
       },
@@ -2233,8 +2215,8 @@
     },
     "upgradeCard": {
       "title": "Ti servono più dashboard?",
-      "description": "Pro supporta fino a 50 siti",
-      "cta": "Passa a Pro"
+      "description": "{plan} supporta fino a {count} siti",
+      "descriptionUnlimited": "{plan} supporta siti illimitati"
     }
   },
   "monitoring": {
@@ -2722,8 +2704,7 @@
       "recommended": "consigliato"
     },
     "proFeature": {
-      "badge": "PRO",
-      "upgradeRequired": "Passa a Pro per sbloccare questa funzione"
+      "upgradeRequired": "Passa a {plan} per sbloccare questa funzione"
     },
     "billing": {
       "navigation": {
@@ -2843,11 +2824,7 @@
         "pastDue": "Scaduto",
         "inactive": "Inattivo"
       },
-      "planNames": {
-        "growth": "Piano Growth",
-        "professional": "Piano Pro",
-        "enterprise": "Enterprise"
-      }
+      "planLabel": "Piano {name}"
     },
     "timeRange": {
       "disabled": "Disattivato",
@@ -3866,16 +3843,17 @@
     "statusPageImageBadType": "L'immagine deve essere un file PNG, JPEG o WebP",
     "statusPageImageSvgUnsafe": "Il file SVG contiene contenuti non supportati o non sicuri",
     "capabilities": {
-      "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a Pro per crearne di più.",
-      "monitorLimit": "Hai raggiunto il limite di monitor. Passa a Pro per crearne di più.",
-      "minInterval": "Intervalli di monitoraggio più veloci richiedono un piano Professional",
-      "httpMethod": "Metodi HTTP personalizzati richiedono un piano Professional",
-      "statusCodes": "Codici di stato personalizzati richiedono un piano Professional",
-      "customHeaders": "Header di richiesta personalizzati richiedono un piano Professional",
-      "keywordValidation": "La validazione delle parole chiave richiede un piano Professional",
-      "statusPageLimit": "Hai raggiunto il limite di pagine di stato. Esegui l'upgrade a Pro per crearne altre.",
-      "statusPageCustomDomain": "I domini personalizzati richiedono un piano Professional",
-      "statusPageBranding": "La rimozione del branding Betterlytics richiede un piano Professional"
+      "dashboardLimit": "Hai raggiunto il limite di dashboard. Passa a {plan} per crearne di più.",
+      "monitorLimit": "Hai raggiunto il limite di monitor. Passa a {plan} per crearne di più.",
+      "minInterval": "Intervalli di monitoraggio più veloci richiedono il piano {plan}",
+      "httpMethod": "Metodi HTTP personalizzati richiedono il piano {plan}",
+      "statusCodes": "Codici di stato personalizzati richiedono il piano {plan}",
+      "customHeaders": "Header di richiesta personalizzati richiedono il piano {plan}",
+      "keywordValidation": "La validazione delle parole chiave richiede il piano {plan}",
+      "statusPageLimit": "Hai raggiunto il limite di pagine di stato. Esegui l'upgrade a {plan} per crearne altre.",
+      "statusPageCustomDomain": "I domini personalizzati richiedono il piano {plan}",
+      "statusPageBranding": "La rimozione del branding Betterlytics richiede il piano {plan}",
+      "limitReached": "Hai raggiunto il limite del tuo piano. Contattaci se ti serve di più."
     },
     "account": {
       "lastAdminCannotBeDeleted": "L'unico account amministratore di questa istanza non può essere eliminato.",

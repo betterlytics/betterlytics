@@ -13,19 +13,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { createStripeCustomerPortalSessionForCancellation } from '@/actions/stripe.action';
 import { toast } from 'sonner';
-import type { Tier } from '@/entities/billing/billing.entities';
+import { getPlan, type PlanId } from '@/lib/billing/catalog';
 import { ExternalLink } from 'lucide-react';
 
 interface CancelSubscriptionDialogProps {
   children: React.ReactNode;
-  tier: Tier;
+  planId: PlanId;
   isActive: boolean;
   onCloseDialog?: () => void;
 }
 
 export function CancelSubscriptionDialog({
   children,
-  tier,
+  planId,
   isActive,
   onCloseDialog,
 }: CancelSubscriptionDialogProps) {
@@ -53,7 +53,7 @@ export function CancelSubscriptionDialog({
           <AlertDialogTitle>Cancel Subscription</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to cancel your subscription? You'll be redirected to Stripe Customer Portal to
-            cancel your subscription. You'll still have access to your {tier} plan until the end of your current
+            cancel your subscription. You'll still have access to your {getPlan(planId).name} plan until the end of your current
             billing period, after which you'll be downgraded to the free plan.
           </AlertDialogDescription>
         </AlertDialogHeader>

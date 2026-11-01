@@ -43,7 +43,7 @@ describe('findActiveSubscriptionsWithOwnedSites', () => {
     prismaMock.subscription.findMany.mockResolvedValue([
       {
         userId: 'user-1',
-        tier: 'growth',
+        planId: 'growth',
         eventLimit: 10_000,
         currentPeriodStart,
         currentPeriodEnd,
@@ -61,7 +61,7 @@ describe('findActiveSubscriptionsWithOwnedSites', () => {
         userId: 'user-1',
         userEmail: 'owner@example.com',
         userName: 'Owner',
-        tier: 'growth',
+        planId: 'growth',
         eventLimit: 10_000,
         currentPeriodStart,
         currentPeriodEnd,

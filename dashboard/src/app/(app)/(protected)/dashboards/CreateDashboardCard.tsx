@@ -6,7 +6,9 @@ import { Plus, Crown } from 'lucide-react';
 import { CreateDashboardDialog } from '@/app/(app)/(protected)/dashboards/CreateDashboardDialog';
 import { getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard.action';
 import { useTranslations } from 'next-intl';
-import { ProBadge } from '@/components/billing/ProBadge';
+import { PlanBadge } from '@/components/billing/PlanBadge';
+import { planThatUnlocks, type PlanDefinition } from '@/lib/billing/catalog';
+import { isUnlimitedCount } from '@/lib/billing/capabilities';
 import Link from 'next/link';
 
 export function CreateDashboardCard({
@@ -19,7 +21,10 @@ export function CreateDashboardCard({
   const canCreateMore = dashboardStats.success && dashboardStats.data.canCreateMore;
 
   if (!canCreateMore) {
-    return <UpgradeCard />;
+    const limit = dashboardStats.success ? dashboardStats.data.limit : null;
+    return (
+      <UpgradeCard plan={limit === null ? null : planThatUnlocks((c) => c.dashboards.maxDashboards > limit)} />
+    );
   }
 
   return (
@@ -53,8 +58,9 @@ export function CreateDashboardCard({
   );
 }
 
-function UpgradeCard() {
+function UpgradeCard({ plan }: { plan: PlanDefinition | null }) {
   const t = useTranslations('dashboardsPage.upgradeCard');
+  const maxSites = plan?.capabilities.dashboards.maxDashboards;
 
   return (
     <Link href='/billing' className='block h-full'>
@@ -66,7 +72,7 @@ function UpgradeCard() {
         }}
       >
         <div className='absolute top-3 right-3'>
-          <ProBadge />
+          <PlanBadge plan={plan} />
         </div>
 
         <div className='flex h-full flex-col items-center justify-center gap-3'>
@@ -76,7 +82,13 @@ function UpgradeCard() {
 
           <div className='space-y-1'>
             <div className='text-foreground font-medium'>{t('title')}</div>
-            <div className='text-muted-foreground text-sm'>{t('description')}</div>
+            {plan && maxSites !== undefined && (
+              <div className='text-muted-foreground text-sm'>
+                {isUnlimitedCount(maxSites)
+                  ? t('descriptionUnlimited', { plan: plan.name })
+                  : t('description', { plan: plan.name, count: maxSites })}
+              </div>
+            )}
           </div>
         </div>
       </Card>

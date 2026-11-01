@@ -1,5 +1,4 @@
 import type { Stripe } from 'stripe';
-import type { TierName } from '@/lib/billing/plans';
 
 export type PlanStatus = 'active' | 'canceling' | 'pastDue' | 'inactive';
 
@@ -9,8 +8,6 @@ export function derivePlanStatus(status: string, cancelAtPeriodEnd: boolean): Pl
   if (status === 'active' || status === 'trialing') return 'active';
   return 'inactive';
 }
-
-const FREE_TIER: TierName = 'growth';
 
 // Single source of truth for how Stripe subscription statuses map to behavior.
 
@@ -43,7 +40,3 @@ export const TERMINAL_STATUSES = new Set<string>([
   'canceled',
   'incomplete_expired',
 ] satisfies Stripe.Subscription.Status[]);
-
-export function resolveEntitledTier(subscription: { tier: TierName; status: string }): TierName {
-  return CAPABILITY_ENTITLED_STATUSES.has(subscription.status) ? subscription.tier : FREE_TIER;
-}

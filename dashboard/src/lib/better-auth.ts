@@ -8,7 +8,7 @@ import { hashPassword, verifyPasswordHash } from '@/lib/password';
 import { env } from '@/lib/env';
 import { SESSION_MAX_AGE_SECONDS, SESSION_UPDATE_AGE_SECONDS } from '@/services/session.service';
 import { createDefaultUserSettings, getUserSettings } from '@/services/account/userSettings.service';
-import { createStarterSubscriptionForUser } from '@/services/billing/subscription.service';
+import { createFreeSubscriptionForUser } from '@/services/billing/subscription.service';
 import { sendVerificationEmail, VERIFICATION_LINK_EXPIRY_SECONDS } from '@/services/account/verification.service';
 import { sendTwoFactorChangedNotification } from '@/services/auth/twoFactorNotification.service';
 import { setLocaleCookie } from '@/constants/cookies';
@@ -283,7 +283,7 @@ export const auth = betterAuth({
           }
 
           try {
-            await createStarterSubscriptionForUser(user.id);
+            await createFreeSubscriptionForUser(user.id);
           } catch (error) {
             console.error('Failed to create initial subscription for new user:', error);
           }

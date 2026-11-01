@@ -7,16 +7,19 @@ import { CapabilityValidator, LazyValue, TranslationFn } from './base.validator'
 class DashboardCapabilityValidator extends CapabilityValidator {
   constructor(
     private readonly caps: DashboardCapabilities,
-    private readonly t: TranslationFn,
+    t: TranslationFn,
   ) {
-    super();
+    super(t);
   }
 
   dashboardLimit(currentCount: LazyValue<number>): this {
-    this.addCheck(async () => {
-      const count = await this.resolveLazy(currentCount);
-      return count < this.caps.maxDashboards;
-    }, this.t('capabilities.dashboardLimit'));
+    this.addCheck(
+      async () => {
+        const count = await this.resolveLazy(currentCount);
+        return count < this.caps.maxDashboards;
+      },
+      this.upgradeMessage('capabilities.dashboardLimit', (c) => c.dashboards.maxDashboards > this.caps.maxDashboards),
+    );
     return this;
   }
 }
