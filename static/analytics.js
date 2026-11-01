@@ -22,20 +22,25 @@
     script.setAttribute("data-server-url", serverUrl);
   }
 
-  var urlPatterns =
-    script
-      .getAttribute("data-dynamic-urls")
-      ?.split(",")
-      .filter(Boolean)
-      .map(function (p) {
-        p = p.trim();
-        return {
-          original: p,
-          regex: new RegExp(
-            `^${p.replace(/\*\*/g, "(.+)").replace(/\*/g, "([^/]+)")}`,
-          ),
-        };
-      }) ?? [];
+  function parseUrlPatterns(attribute) {
+    return (
+      script
+        .getAttribute(attribute)
+        ?.split(",")
+        .filter(Boolean)
+        .map(function (p) {
+          p = p.trim();
+          return {
+            original: p,
+            regex: new RegExp(
+              `^${p.replace(/\*\*/g, "(.+)").replace(/\*/g, "([^/]+)")}`,
+            ),
+          };
+        }) ?? []
+    );
+  }
+
+  var urlPatterns = parseUrlPatterns("data-dynamic-urls");
 
   var scriptsBaseUrl = script.getAttribute("data-scripts-base-url");
   if (!scriptsBaseUrl) {
@@ -63,6 +68,8 @@
     script.getAttribute("data-replay-on-error") === "true";
   var enableConsoleErrors =
     script.getAttribute("data-track-console-errors") === "true";
+  var enableFailedRequests =
+    script.getAttribute("data-track-failed-requests") === "true";
 
   var replaySamplePct = parseInt(
     script.getAttribute("data-replay-sample") || "5",
@@ -113,18 +120,25 @@
   var maxScrollDepthPx = 0;
   var currentDocHeight = 0;
 
-  function normalize(url) {
-    var urlObj = new URL(url);
-    var pathname = urlObj.pathname;
-    for (var i = 0; i < urlPatterns.length; i++) {
-      var match = urlPatterns[i].regex.exec(pathname);
+  // Returns the pathname with the first matching pattern applied, or null when none match
+  function applyUrlPatterns(patterns, pathname) {
+    for (var i = 0; i < patterns.length; i++) {
+      var match = patterns[i].regex.exec(pathname);
       if (match) {
-        var normalizedPath = `${urlPatterns[i].original.replace(
+        return `${patterns[i].original.replace(
           /\*\*/g,
           "*",
         )}${pathname.slice(match[0].length)}`;
-        return `${urlObj.origin}${normalizedPath}${urlObj.search}${urlObj.hash}`;
       }
+    }
+    return null;
+  }
+
+  function normalize(url) {
+    var urlObj = new URL(url);
+    var normalizedPath = applyUrlPatterns(urlPatterns, urlObj.pathname);
+    if (normalizedPath !== null) {
+      return `${urlObj.origin}${normalizedPath}${urlObj.search}${urlObj.hash}`;
     }
     return url;
   }
@@ -467,7 +481,7 @@
       return errorCounts[type] > 10;
     }
 
-    function captureError(err, mechanismType) {
+    function captureError(err, mechanismType, request) {
       var type, value, stack;
       if (err != null && typeof err === "object") {
         type = err.name ? String(err.name) : "Error";
@@ -491,14 +505,14 @@
       )
         return;
       if (isRateLimited(type)) return;
-      var errorExceptionsJson = JSON.stringify([
-        {
-          type: type,
-          value: value.substring(0, 1000),
-          mechanism: mechanismType,
-          stack: stack.substring(0, 10000),
-        },
-      ]);
+      var exception = {
+        type: type,
+        value: value.substring(0, 1000),
+        mechanism: mechanismType,
+        stack: stack.substring(0, 10000),
+      };
+      if (request) exception.request = request;
+      var errorExceptionsJson = JSON.stringify([exception]);
       sendEvent("client_error", { error_exceptions: errorExceptionsJson });
       if (window.__betterlytics_replay__?.notifyError) {
         window.__betterlytics_replay__.notifyError(type, errorExceptionsJson);
@@ -600,6 +614,186 @@
           _inConsoleCapture = false;
         }
       };
+    }
+
+    if (enableErrors && enableFailedRequests) {
+      var apiUrlPatterns = parseUrlPatterns("data-dynamic-api-urls");
+      // Network failures and timeouts only count for the page's own domain and its subdomains, since ad blockers fail third-party requests
+      var ownDomain = window.location.hostname.replace(/^www\./, "");
+      var ignoredRequestUrls = [];
+      try {
+        var serverUrlObj = new URL(serverUrl, window.location.href);
+        ignoredRequestUrls.push(
+          serverUrlObj.origin + serverUrlObj.pathname,
+          serverUrlObj.origin + "/replay/segment",
+        );
+      } catch (e) {}
+      var pageUnloading = false;
+      window.addEventListener("pagehide", function () {
+        pageUnloading = true;
+      });
+      window.addEventListener("pageshow", function () {
+        pageUnloading = false;
+      });
+
+      // Resolves the request to { method, urlObj, start }, or null for Betterlytics' own requests and unparsable URLs
+      function describeRequest(method, url) {
+        var urlObj = new URL(String(url), window.location.href);
+        if (!/^https?:$/.test(urlObj.protocol)) return null;
+        if (ignoredRequestUrls.indexOf(urlObj.origin + urlObj.pathname) !== -1)
+          return null;
+        return {
+          method: String(method || "GET").toUpperCase(),
+          urlObj: urlObj,
+          start: performance.now(),
+        };
+      }
+
+      function isOwnDomain(hostname) {
+        return hostname === ownDomain || hostname.endsWith("." + ownDomain);
+      }
+
+      function normalizeRequestUrl(urlObj) {
+        var pathname = urlObj.pathname;
+        var normalizedPath =
+          (urlObj.hostname === window.location.hostname
+            ? applyUrlPatterns(urlPatterns, pathname)
+            : null) ?? applyUrlPatterns(apiUrlPatterns, pathname);
+        return urlObj.origin + (normalizedPath ?? pathname);
+      }
+
+      // failureType: "http" (with the response status), "network" or "timeout"
+      function captureFailedRequest(req, mechanismType, failureType, status) {
+        if (failureType === "http") {
+          if (!(status >= 500 && status <= 599)) return;
+        } else if (pageUnloading || !isOwnDomain(req.urlObj.hostname)) {
+          return;
+        }
+        var url = normalizeRequestUrl(req.urlObj).substring(0, 1000);
+        var name, outcome;
+        if (failureType === "http") {
+          name = "HTTPError";
+          outcome = String(status);
+        } else if (failureType === "timeout") {
+          name = "TimeoutError";
+          outcome = "timed out";
+        } else {
+          name = "NetworkError";
+          outcome = "failed";
+        }
+        captureError(
+          { name: name, message: req.method + " " + url + " " + outcome },
+          mechanismType,
+          {
+            method: req.method,
+            url: url,
+            status_code: failureType === "http" ? status : null,
+            duration_ms: Math.round(performance.now() - req.start),
+            failure_type: failureType,
+          },
+        );
+      }
+
+      var _origFetch = window.fetch;
+      if (typeof _origFetch === "function") {
+        window.fetch = function (input, init) {
+          var req = null;
+          var signal = null;
+          try {
+            var isRequest =
+              input != null &&
+              typeof input === "object" &&
+              typeof input.url === "string";
+            req = describeRequest(
+              (init && init.method) || (isRequest ? input.method : "GET"),
+              isRequest ? input.url : input,
+            );
+            signal = (init && init.signal) || (isRequest ? input.signal : null);
+          } catch (e) {}
+          var promise = _origFetch.apply(this, arguments);
+          if (!req) return promise;
+          try {
+            // A side branch, so the page keeps the original promise and handles its own rejections
+            promise.then(
+              function (res) {
+                try {
+                  if (res.type !== "opaque" && res.type !== "opaqueredirect") {
+                    captureFailedRequest(req, "onfetch", "http", res.status);
+                  }
+                } catch (e) {}
+              },
+              function (err) {
+                try {
+                  if (signal && signal.aborted) {
+                    // AbortSignal.timeout() aborts with a TimeoutError; any other abort is the page cancelling
+                    if (
+                      signal.reason &&
+                      signal.reason.name === "TimeoutError"
+                    ) {
+                      captureFailedRequest(req, "onfetch", "timeout");
+                    }
+                  } else if (err && err.name === "TimeoutError") {
+                    captureFailedRequest(req, "onfetch", "timeout");
+                  } else if (!(err && err.name === "AbortError")) {
+                    captureFailedRequest(req, "onfetch", "network");
+                  }
+                } catch (e) {}
+              },
+            );
+          } catch (e) {}
+          return promise;
+        };
+      }
+
+      if (typeof XMLHttpRequest !== "undefined") {
+        var xhrProto = XMLHttpRequest.prototype;
+        var _origXhrOpen = xhrProto.open;
+        var _origXhrSend = xhrProto.send;
+        var xhrRequests = new WeakMap();
+        var xhrListening = new WeakSet();
+
+        function onXhrEvent(event) {
+          try {
+            var req = xhrRequests.get(this);
+            if (!req || !req.sent) return;
+            req.sent = false;
+            if (event.type === "load") {
+              captureFailedRequest(req, "onxhr", "http", this.status);
+            } else if (event.type === "error") {
+              captureFailedRequest(req, "onxhr", "network");
+            } else if (event.type === "timeout") {
+              captureFailedRequest(req, "onxhr", "timeout");
+            }
+          } catch (e) {}
+        }
+
+        xhrProto.open = function (method, url) {
+          try {
+            xhrRequests.delete(this);
+            var req = describeRequest(method, url);
+            if (req) xhrRequests.set(this, req);
+          } catch (e) {}
+          return _origXhrOpen.apply(this, arguments);
+        };
+
+        xhrProto.send = function () {
+          try {
+            var req = xhrRequests.get(this);
+            if (req) {
+              req.start = performance.now();
+              req.sent = true;
+              if (!xhrListening.has(this)) {
+                xhrListening.add(this);
+                // Listening for "abort" too clears the sent flag, so a cancelled request is never captured
+                ["load", "error", "timeout", "abort"].forEach(function (type) {
+                  this.addEventListener(type, onXhrEvent);
+                }, this);
+              }
+            }
+          } catch (e) {}
+          return _origXhrSend.apply(this, arguments);
+        };
+      }
     }
   }
 
