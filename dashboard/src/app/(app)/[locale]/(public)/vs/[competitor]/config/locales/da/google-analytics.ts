@@ -125,7 +125,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Ingen skjulte omkostninger',
-      content: `Google Analytics er "gratis", men den skjulte pris er din data. Enterprise-funktioner? GA360 har ingen offentlig pris; du skal kontakte Googles salgsteam.\n\nBetterlytics er transparent og starter fra $7/måned med en gratis plan. Session replay, monitoring og alle funktioner er inkluderet. Ingen overraskelser og ingen datamæssige kompromiser.`,
+      content: `Google Analytics er "gratis", men den skjulte pris er din data. Enterprise-funktioner? GA360 har ingen offentlig pris; du skal kontakte Googles salgsteam.\n\nBetterlytics er transparent og starter fra $9/måned med en gratis plan. Session replay, monitoring og alle andre moduler er inkluderet i alle planer. Ingen overraskelser og ingen datamæssige kompromiser.`,
       icon: 'dollar',
     },
     {

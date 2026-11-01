@@ -27,7 +27,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Simpel og forudsigelig prissætning',
-      betterlytics: 'Gratis plan til små sites. Betalte planer fra $7/måned med kernefunktioner inkluderet.',
+      betterlytics: 'Gratis plan til små sites. Betalte planer fra $9/måned med kernefunktioner inkluderet.',
       competitor:
         'Generøs gratis plan, men forbrugsbaseret prissætning på tværs af flere produkter bliver kompleks ved skalering.',
     },
@@ -121,7 +121,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Vid hvad du betaler',
-      content: `PostHog afregner separat for events, session recordings, feature flags, surveys og mere. Den gratis plan er generøs, men omkostningerne kan stige hurtigt, når dit brug vokser. Det gør de månedlige udgifter sværere at forudsige.\n\nHos os er det enkelt. Fast prissætning fra $7/måned med klare grænser. Session replay, monitoring og kerne-analytics er alle inkluderet. Du kan forstå din regning uden at skulle bruge et regneark.`,
+      content: `PostHog afregner separat for events, session recordings, feature flags, surveys og mere. Den gratis plan er generøs, men omkostningerne kan stige hurtigt, når dit brug vokser. Det gør de månedlige udgifter sværere at forudsige.\n\nHos os er det enkelt. Fast prissætning fra $9/måned med klare grænser. Session replay, monitoring og kerne-analytics er alle inkluderet. Du kan forstå din regning uden at skulle bruge et regneark.`,
       icon: 'dollar',
     },
     {
