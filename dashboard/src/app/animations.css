@@ -237,11 +237,26 @@
   }
 }
 
-/* Fades a horizontal scroller's trailing edge only while there is more to scroll to, so content at rest stays crisp. */
+/* Fades a horizontal scroller's edges only while there is more to scroll that way, so content at rest stays crisp. */
+@property --scroll-fade-start {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
 @property --scroll-fade-end {
   syntax: '<length>';
   inherits: false;
   initial-value: 0px;
+}
+
+@keyframes scroll-fade-start {
+  from {
+    --scroll-fade-start: 0px;
+  }
+  to {
+    --scroll-fade-start: 1.5rem;
+  }
 }
 
 @keyframes scroll-fade-end {
@@ -250,11 +265,22 @@
   }
 }
 
-@utility scroll-fade-end {
+@utility scroll-fade-x {
   @supports (animation-timeline: scroll()) {
-    mask-image: linear-gradient(to right, #000 calc(100% - var(--scroll-fade-end)), transparent);
-    animation: scroll-fade-end linear both;
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 var(--scroll-fade-start),
+      #000 calc(100% - var(--scroll-fade-end)),
+      transparent
+    );
+    animation:
+      scroll-fade-start linear both,
+      scroll-fade-end linear both;
     animation-timeline: scroll(self inline);
-    animation-range: calc(100% - 1.5rem) 100%;
+    /* Starts 1px in: from 0, Chrome leaves the start fade on at scroll 0 when the scroller loads already overflowing */
+    animation-range:
+      1px 1.5rem,
+      calc(100% - 1.5rem) 100%;
   }
 }
