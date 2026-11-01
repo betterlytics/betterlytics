@@ -1253,18 +1253,18 @@
       "custom": "Etter avtale",
       "growth": {
         "tagline": "For sideprosjekter og små nettsteder.",
-        "ctaFree": "Kom i gang gratis",
         "cta": "Kom i gang"
       },
       "professional": {
         "tagline": "For team med flere produkter i drift.",
-        "cta": "Kom i gang",
-        "badge": "Mest populær"
+        "cta": "Kom i gang"
       },
       "enterprise": {
         "tagline": "For høy trafikk, med SLA og dedikert support.",
         "cta": "Kontakt salg"
-      }
+      },
+      "badge": "Mest populær",
+      "ctaFree": "Kom i gang gratis"
     },
     "cta": {
       "title": "Legg inn ett skript og se den første besøkende tikke inn",
@@ -1961,7 +1961,8 @@
       "teamMembersCount": "{count, plural, one {# teammedlem} other {Opptil # teammedlemmer}}",
       "retentionYears": "{count, plural, other {#+ år datalagring}}",
       "uptimeMonitors": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}} med {minutes}-minutts sjekker",
-      "everythingIn": "Alt i {name}, pluss:"
+      "everythingIn": "Alt i {name}, pluss:",
+      "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",

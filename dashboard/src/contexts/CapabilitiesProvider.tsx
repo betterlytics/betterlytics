@@ -7,7 +7,13 @@ import type {
   MonitoringCapabilities,
   DashboardCapabilities,
 } from '@/lib/billing/capabilities';
-import { entitledPlan, freePlan, selfHostedPlan, type PlanDefinition } from '@/lib/billing/catalog';
+import {
+  entitledPlan,
+  freePlan,
+  planThatUnlocks,
+  selfHostedPlan,
+  type PlanDefinition,
+} from '@/lib/billing/catalog';
 import { useDashboardAuth } from './DashboardAuthProvider';
 
 export type { PlanCapabilities, MonitoringCapabilities, DashboardCapabilities };
@@ -60,4 +66,13 @@ export function CapabilitiesProvider({ dashboardId, children }: CapabilitiesProv
 
 export function useCapabilities(): CapabilitiesContextValue {
   return useContext(CapabilitiesContext);
+}
+
+export function useUpgrade(unlocks: (capabilities: PlanCapabilities) => boolean): {
+  locked: boolean;
+  plan: PlanDefinition | null;
+} {
+  const { caps } = useCapabilities();
+  const locked = !unlocks(caps);
+  return { locked, plan: locked ? planThatUnlocks(unlocks) : null };
 }

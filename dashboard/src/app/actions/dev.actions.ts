@@ -3,8 +3,8 @@
 import { withUserAuth } from '@/auth/auth-actions';
 import { env } from '@/lib/env';
 import { upsertSubscription, getUserSubscription } from '@/repositories/postgres/subscription.repository';
-import { buildFreeSubscription } from '@/entities/billing/billing.entities';
-import { PlanIdSchema, getPlan, type PlanId } from '@/lib/billing/catalog';
+import { PlanIdSchema, buildFreeSubscription } from '@/entities/billing/billing.entities';
+import { getPlan, type PlanId } from '@/lib/billing/catalog';
 import type { User } from '@/entities/auth/session.entities';
 import { revalidatePath } from 'next/cache';
 

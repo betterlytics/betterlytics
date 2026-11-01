@@ -16,7 +16,6 @@ const MAX_DASHBOARDS_LISTED = 3;
 export interface SubscriptionPaymentCancelledEmailData extends EmailData {
   userName: string | null;
   billingUrl: string;
-  freePlanName: string;
   freeEventLimit: number;
   freeRetentionDays: number;
   affectedDashboards: string[];
@@ -34,7 +33,6 @@ function describeAffectedDashboards(domains: string[]): string {
 export function SubscriptionPaymentCancelledEmail({
   userName,
   billingUrl,
-  freePlanName,
   freeEventLimit,
   freeRetentionDays,
   affectedDashboards,
@@ -55,7 +53,7 @@ export function SubscriptionPaymentCancelledEmail({
       </P>
 
       <P>
-        Your account has been moved to the {freePlanName} plan ({freeEventLimit.toLocaleString()} events/month). To
+        Your account has been moved to the free plan ({freeEventLimit.toLocaleString()} events/month). To
         restore your previous plan, update your payment method and resubscribe from your billing page.
       </P>
 
@@ -86,7 +84,6 @@ SubscriptionPaymentCancelledEmail.PreviewProps = {
   to: 'user@example.com',
   userName: 'John Doe',
   billingUrl: 'https://betterlytics.io/billing',
-  freePlanName: 'Growth',
   freeEventLimit: 10_000,
   freeRetentionDays: 365,
   affectedDashboards: ['example.com', 'shop.example.com'],

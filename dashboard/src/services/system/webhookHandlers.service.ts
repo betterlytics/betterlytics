@@ -225,7 +225,6 @@ async function sendSubscriptionPaymentCancelledNotification(userId: string, even
         to: user.email,
         userName: user.name,
         billingUrl: `${env.PUBLIC_BASE_URL}/billing`,
-        freePlanName: freePlan().name,
         freeEventLimit: freeSubscriptionDefaults().eventLimit,
         freeRetentionDays: freePlan().capabilities.dataRetention.maxDataRetentionDays,
         affectedDashboards,
