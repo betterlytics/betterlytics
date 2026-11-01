@@ -59,7 +59,7 @@ export function ActiveQueryFilters() {
       role='group'
       aria-label={t('activeFilters')}
       className={cn(
-        'bg-primary text-primary-foreground flex min-w-0 items-start gap-2 rounded-lg p-1 pl-3 transition-[opacity,translate] duration-200 ease-in-out motion-reduce:transition-none lg:basis-full',
+        'bg-primary text-primary-foreground flex min-w-0 items-start gap-2 rounded-lg p-1 pl-3 transition-[opacity,translate,margin] duration-200 ease-in-out in-data-stuck:mx-2 motion-reduce:transition-none sm:in-data-stuck:mx-4 lg:basis-full',
         isBandEntering && 'starting:-translate-y-1 starting:opacity-0',
       )}
     >
