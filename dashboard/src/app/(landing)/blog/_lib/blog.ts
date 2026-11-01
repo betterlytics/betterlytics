@@ -1,8 +1,7 @@
-import { BLOG_AUTHORS, type BlogAuthor } from '@/content/blog/authors';
+import { BLOG_AUTHORS, type BlogAuthor } from '@/entities/blog/blogPost.entities';
 import type { BlogPost } from '@/content/blog';
 import { env } from '@/lib/env';
 
-/** English-only: one URL per post, not a copy per locale. */
 export const BLOG_LOCALE = 'en';
 
 export const BLOG_COPY = {

@@ -111,9 +111,6 @@
     border: 1px solid var(--color-rule);
   }
 
-  .tableScroll {
-    overflow-x: auto;
-  }
   .prose table {
     width: 100%;
     border-collapse: collapse;

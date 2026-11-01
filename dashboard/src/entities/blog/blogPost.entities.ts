@@ -1,5 +1,18 @@
 import { z } from 'zod';
-import { BLOG_AUTHORS, type BlogAuthorKey } from '@/content/blog/authors';
+
+export type BlogAuthor = {
+  name: string;
+  role: string;
+  kind: 'Person' | 'Organization';
+  url?: string;
+};
+
+export const BLOG_AUTHORS = {
+  team: { name: 'The Betterlytics team', role: 'Betterlytics', kind: 'Organization' },
+  thomas: { name: 'Thomas Schauser', role: 'Co-founder & Engineer', kind: 'Person' },
+} as const satisfies Record<string, BlogAuthor>;
+
+type BlogAuthorKey = keyof typeof BLOG_AUTHORS;
 
 const AUTHOR_KEYS = Object.keys(BLOG_AUTHORS) as [BlogAuthorKey, ...BlogAuthorKey[]];
 

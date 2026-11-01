@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
   // blog posts are read from disk, which the standalone trace can't follow on its own
   outputFileTracingIncludes: {
     '/sitemap.xml': ['./src/content/blog/posts/**/*'],
-    '/blog/**/*': ['./src/content/blog/posts/**/*'],
+    '/blog/**': ['./src/content/blog/posts/**/*'],
   },
   async redirects() {
     return [
@@ -38,7 +38,6 @@ const nextConfig: NextConfig = {
       { source: '/register', destination: '/signup', permanent: true },
       { source: '/:locale/login', destination: '/:locale/signin', permanent: true },
       { source: '/:locale/register', destination: '/:locale/signup', permanent: true },
-      // the blog is English-only at one URL per post
       {
         source: `/:locale(${SUPPORTED_LANGUAGES.join('|')})/blog/:path*`,
         destination: '/blog/:path*',

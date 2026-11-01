@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import type { BlogPost } from '@/content/blog';
 import { env } from '@/lib/env';
+import { DEFAULT_ROBOTS } from '@/lib/seo';
 import { BLOG_COPY, blogUrl, isoDate, postAuthor } from './blog';
 
 const FEED = { 'application/rss+xml': `${blogUrl()}/rss.xml` };
@@ -11,6 +12,7 @@ export function blogIndexMetadata(): Metadata {
     title: `${BLOG_COPY.title} | Betterlytics`,
     description: BLOG_COPY.description,
     alternates: { canonical: blogUrl(), types: FEED },
+    robots: DEFAULT_ROBOTS,
     openGraph: {
       type: 'website',
       url: blogUrl(),
@@ -31,7 +33,7 @@ export function blogPostMetadata(post: BlogPost): Metadata {
     description: post.description,
     authors: [{ name: postAuthor(post).name }],
     alternates: { canonical: blogUrl(post.slug), types: FEED },
-    robots: post.draft ? { index: false, follow: false } : undefined,
+    robots: post.draft ? { index: false, follow: false } : DEFAULT_ROBOTS,
     openGraph: {
       type: 'article',
       url: blogUrl(post.slug),

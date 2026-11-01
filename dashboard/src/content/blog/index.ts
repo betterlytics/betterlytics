@@ -4,9 +4,10 @@ import path from 'node:path';
 import { getFrontmatter } from 'next-mdx-remote-client/utils';
 import { BlogFrontmatterSchema, type BlogFrontmatter } from '@/entities/blog/blogPost.entities';
 
-export const BLOG_POSTS_DIR = path.join(process.cwd(), 'src/content/blog/posts');
+const POSTS_DIR = path.join(process.cwd(), 'src/content/blog/posts');
+const PUBLIC_DIR = path.join(process.cwd(), 'public');
 
-const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const POST_FILE = /^([a-z0-9]+(?:-[a-z0-9]+)*)\.mdx$/;
 const WORDS_PER_MINUTE = 220;
 
 export type BlogPost = BlogFrontmatter & {
@@ -17,14 +18,18 @@ export type BlogPost = BlogFrontmatter & {
 
 /** Throws on any invalid post: a broken post must fail the build, not vanish from the blog. */
 function readPost(file: string): BlogPost {
-  const slug = file.replace(/\.mdx$/, '');
-  if (!SLUG_PATTERN.test(slug)) {
-    throw new Error(`Blog post ${file}: the file name is the URL slug, so use lowercase words joined by hyphens`);
+  const slug = POST_FILE.exec(file)?.[1];
+  if (!slug) {
+    throw new Error(`Blog post ${file}: name it <slug>.mdx, the slug in lowercase words joined by hyphens`);
   }
-  const { frontmatter, strippedSource } = getFrontmatter(fs.readFileSync(path.join(BLOG_POSTS_DIR, file), 'utf8'));
+  const { frontmatter, strippedSource } = getFrontmatter(fs.readFileSync(path.join(POSTS_DIR, file), 'utf8'));
   const parsed = BlogFrontmatterSchema.safeParse(frontmatter);
   if (!parsed.success) {
     throw new Error(`Blog post ${file} has invalid frontmatter:\n${parsed.error.message}`);
+  }
+  const { cover } = parsed.data;
+  if (!cover.src.startsWith(`/blog/${slug}/`) || !fs.existsSync(path.join(PUBLIC_DIR, cover.src))) {
+    throw new Error(`Blog post ${file}: its cover ${cover.src} must be a file in public/blog/${slug}/`);
   }
   const words = strippedSource.split(/\s+/).filter(Boolean).length;
   return {
@@ -37,8 +42,8 @@ function readPost(file: string): BlogPost {
 
 export function getAllBlogPosts(): BlogPost[] {
   return fs
-    .readdirSync(BLOG_POSTS_DIR)
-    .filter((file) => file.endsWith('.mdx'))
+    .readdirSync(POSTS_DIR)
+    .filter((file) => !file.startsWith('.'))
     .map(readPost)
     .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 }

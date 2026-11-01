@@ -1,10 +1,9 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { evaluate } from 'next-mdx-remote-client/rsc';
-import { describe, expect, it } from 'vitest';
-import { BLOG_MDX_OPTIONS } from '@/app/(landing)/blog/_lib/mdx';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BlogFrontmatterSchema } from '@/entities/blog/blogPost.entities';
-import { getAllBlogPosts } from './index';
+import { getAllBlogPosts, getPublishedBlogPosts, getViewableBlogPosts } from './index';
+import { BLOG_MDX_COMPONENTS, BLOG_MDX_OPTIONS } from './mdx';
 
 const VALID = {
   title: 'A title long enough',
@@ -35,14 +34,29 @@ describe('BlogFrontmatterSchema', () => {
   });
 });
 
-// getAllBlogPosts throws on a bad slug or frontmatter, which fails this file
-describe.each(getAllBlogPosts().map((post) => [post.slug, post] as const))('blog post %s', (_, post) => {
-  it('has its cover in public/', () => {
-    expect(fs.existsSync(path.join(process.cwd(), 'public', post.cover.src))).toBe(true);
+describe('drafts', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
   });
 
-  it('compiles', async () => {
-    const { error } = await evaluate({ source: post.source, options: BLOG_MDX_OPTIONS });
+  it('show under next dev only', () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    expect(getViewableBlogPosts().some((post) => post.draft)).toBe(false);
+    expect(getPublishedBlogPosts().some((post) => post.draft)).toBe(false);
+    vi.stubEnv('NODE_ENV', 'development');
+    expect(getViewableBlogPosts()).toHaveLength(getAllBlogPosts().length);
+  });
+});
+
+// getAllBlogPosts throws on a bad file name, frontmatter or cover, which fails this file
+describe.each(getAllBlogPosts().map((post) => [post.slug, post] as const))('blog post %s', (_, post) => {
+  it('compiles and renders', async () => {
+    const { content, error } = await evaluate({
+      source: post.source,
+      options: BLOG_MDX_OPTIONS,
+      components: BLOG_MDX_COMPONENTS,
+    });
     expect(error).toBeUndefined();
+    expect(() => renderToStaticMarkup(content)).not.toThrow();
   });
 });
