@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { getPublishedBlogPosts } from '@/content/blog';
 import { env } from '@/lib/env';
-import { isFeatureEnabled } from '@/lib/feature-flags';
+import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
 import { getCompetitorSlugs } from './(app)/[locale]/(public)/vs/[competitor]/config';
 
@@ -127,7 +127,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  const posts = isFeatureEnabled('isCloud') ? getPublishedBlogPosts() : [];
+  const posts = isClientFeatureEnabled('isCloud') ? getPublishedBlogPosts() : [];
   if (posts.length > 0) {
     entries.push({
       url: `${baseUrl}/blog`,

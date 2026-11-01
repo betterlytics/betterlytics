@@ -9,7 +9,7 @@ import { PostCard } from './_components/postCard';
 import { BLOG_COPY, BLOG_LOCALE } from './_lib/blog';
 import { blogIndexMetadata } from './_lib/seo';
 
-export const metadata = blogIndexMetadata();
+export const generateMetadata = blogIndexMetadata;
 
 export default function BlogIndexPage() {
   setRequestLocale(BLOG_LOCALE);

@@ -1,59 +1,53 @@
 import type { Metadata } from 'next';
 import type { BlogPost } from '@/content/blog';
 import { env } from '@/lib/env';
-import { DEFAULT_ROBOTS } from '@/lib/seo';
-import { BLOG_COPY, blogUrl, isoDate, postAuthor } from './blog';
+import { generateSEO, type SEOConfig } from '@/lib/seo';
+import { BLOG_COPY, BLOG_LOCALE, blogPath, blogUrl, isoDate, postAuthor } from './blog';
 
-const FEED = { 'application/rss+xml': `${blogUrl()}/rss.xml` };
-
-/** No hreflang alternates, unlike generateSEO: the blog has one English URL per page. */
-export function blogIndexMetadata(): Metadata {
+/** Unlocalized, so no hreflang alternates: the blog has one English URL per page. */
+async function blogSEO(config: Omit<SEOConfig, 'structuredDataType'>): Promise<Metadata> {
+  const metadata = await generateSEO(
+    { ...config, structuredDataType: 'webpage' },
+    { locale: BLOG_LOCALE, localized: false },
+  );
   return {
-    title: `${BLOG_COPY.title} | Betterlytics`,
-    description: BLOG_COPY.description,
-    alternates: { canonical: blogUrl(), types: FEED },
-    robots: DEFAULT_ROBOTS,
-    openGraph: {
-      type: 'website',
-      url: blogUrl(),
-      siteName: 'Betterlytics',
-      locale: 'en_US',
-      title: 'The Betterlytics blog',
-      description: BLOG_COPY.description,
-      images: [{ url: '/og_image.jpg', width: 1200, height: 630 }],
-    },
-    twitter: { card: 'summary_large_image', site: '@betterlytics', images: ['/og_image.jpg'] },
+    ...metadata,
+    alternates: { ...metadata.alternates, types: { 'application/rss+xml': `${blogUrl()}/rss.xml` } },
   };
 }
 
-export function blogPostMetadata(post: BlogPost): Metadata {
-  const image = { url: post.cover.src, width: 1200, height: 630, alt: post.cover.alt };
-  return {
+export function blogIndexMetadata(): Promise<Metadata> {
+  return blogSEO({
+    title: `${BLOG_COPY.title} | Betterlytics`,
+    description: BLOG_COPY.description,
+    path: blogPath(),
+    socialTitle: 'The Betterlytics blog',
+  });
+}
+
+export async function blogPostMetadata(post: BlogPost): Promise<Metadata> {
+  const metadata = await blogSEO({
     title: `${post.title} | Betterlytics`,
     description: post.description,
-    authors: [{ name: postAuthor(post).name }],
-    alternates: { canonical: blogUrl(post.slug), types: FEED },
-    robots: post.draft ? { index: false, follow: false } : DEFAULT_ROBOTS,
+    path: blogPath(post.slug),
+    socialTitle: post.title,
+  });
+  const author = postAuthor(post).name;
+  const image = { url: post.cover.src, width: 1200, height: 630, alt: post.cover.alt };
+  return {
+    ...metadata,
+    authors: [{ name: author }],
+    robots: post.draft ? { index: false, follow: false } : metadata.robots,
     openGraph: {
+      ...metadata.openGraph,
       type: 'article',
-      url: blogUrl(post.slug),
-      siteName: 'Betterlytics',
-      locale: 'en_US',
-      title: post.title,
-      description: post.description,
       publishedTime: isoDate(post.publishedAt),
       modifiedTime: isoDate(post.updatedAt ?? post.publishedAt),
-      authors: [postAuthor(post).name],
+      authors: [author],
       tags: post.tags,
       images: [image],
     },
-    twitter: {
-      card: 'summary_large_image',
-      site: '@betterlytics',
-      title: post.title,
-      description: post.description,
-      images: [image],
-    },
+    twitter: { ...metadata.twitter, images: [image] },
   };
 }
 
