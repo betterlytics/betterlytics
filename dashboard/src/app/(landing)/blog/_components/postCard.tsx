@@ -7,7 +7,15 @@ import { blogPath } from '@/app/(landing)/blog/_lib/blog';
 import { DraftBadge, META_ROW, PostDateline } from './postMeta';
 
 /** Laid out like the landing's FeatureGrid cells; the title's ::after makes the whole cell the link. */
-export function PostCard({ post, lead = false }: { post: BlogPost; lead?: boolean }) {
+export function PostCard({
+  post,
+  lead = false,
+  headingAs: Title = 'h2',
+}: {
+  post: BlogPost;
+  lead?: boolean;
+  headingAs?: 'h2' | 'h3';
+}) {
   const [tag] = post.tags;
   return (
     <article className={cn('group relative flex h-full flex-col', lead && '3xl:grid 3xl:grid-cols-[3fr_2fr]')}>
@@ -42,7 +50,7 @@ export function PostCard({ post, lead = false }: { post: BlogPost; lead?: boolea
           <DraftBadge post={post} />
           {tag}
         </p>
-        <h2
+        <Title
           className={cn(
             'mt-2.5 font-medium text-balance text-fg',
             lead
@@ -56,7 +64,7 @@ export function PostCard({ post, lead = false }: { post: BlogPost; lead?: boolea
           >
             {post.title}
           </NextLink>
-        </h2>
+        </Title>
         <p
           className={cn(
             'mt-2.5 mb-7 text-pretty text-muted',

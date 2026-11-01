@@ -2,7 +2,13 @@ import { evaluate } from 'next-mdx-remote-client/rsc';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BlogFrontmatterSchema } from '@/entities/blog/blogPost.entities';
-import { getAllBlogPosts, getPublishedBlogPosts, getViewableBlogPosts } from './index';
+import {
+  getAllBlogPosts,
+  getPublishedBlogPosts,
+  getRelatedBlogPosts,
+  getViewableBlogPosts,
+  type BlogPost,
+} from './index';
 import { BLOG_MDX_COMPONENTS, BLOG_MDX_OPTIONS } from './mdx';
 
 const VALID = {
@@ -45,6 +51,16 @@ describe('drafts', () => {
     expect(getPublishedBlogPosts().some((post) => post.draft)).toBe(false);
     vi.stubEnv('NODE_ENV', 'development');
     expect(getViewableBlogPosts()).toHaveLength(getAllBlogPosts().length);
+  });
+});
+
+describe('getRelatedBlogPosts', () => {
+  const post = (slug: string, tags: string[]) => ({ slug, tags }) as BlogPost;
+
+  it('puts posts sharing the first tag first, keeps the newest-first order, and skips the post itself', () => {
+    const posts = [post('a', ['Product']), post('b', ['Guides']), post('c', ['Product']), post('d', ['Product'])];
+    expect(getRelatedBlogPosts(posts[0], 3, posts).map((p) => p.slug)).toEqual(['c', 'd', 'b']);
+    expect(getRelatedBlogPosts(posts[1], 2, posts).map((p) => p.slug)).toEqual(['a', 'c']);
   });
 });
 

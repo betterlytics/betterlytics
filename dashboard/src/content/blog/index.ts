@@ -60,3 +60,12 @@ export function getViewableBlogPosts(): BlogPost[] {
 export function getBlogPost(slug: string): BlogPost | undefined {
   return getViewableBlogPosts().find((post) => post.slug === slug);
 }
+
+/** Posts sharing the first tag come first; the sort is stable, so each group stays newest-first. */
+export function getRelatedBlogPosts(post: BlogPost, limit = 3, posts = getViewableBlogPosts()): BlogPost[] {
+  const [tag] = post.tags;
+  return posts
+    .filter((other) => other.slug !== post.slug)
+    .sort((a, b) => Number(b.tags.includes(tag)) - Number(a.tags.includes(tag)))
+    .slice(0, limit);
+}
