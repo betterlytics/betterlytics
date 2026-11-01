@@ -68,6 +68,15 @@ export const OnboardingDashboardCandidateSchema = z.object({
   ownerName: z.string().nullable(),
 });
 
+export const TrackingSilentRecipientSchema = z.object({
+  dashboardId: z.string(),
+  siteId: z.string(),
+  domain: z.string(),
+  ownerEmail: UserSchema.shape.email,
+  ownerName: z.string().nullable(),
+  ownerTimezone: z.string().nullable(),
+});
+
 export type Dashboard = z.infer<typeof DashboardSchema>;
 export type DashboardWithMemberCount = z.infer<typeof DashboardWithMemberCountSchema>;
 export type DashboardWriteData = z.infer<typeof DashboardWriteSchema>;
@@ -75,3 +84,4 @@ export type DashboardFindByUserData = z.infer<typeof DashboardFindByUserSchema>;
 export type DashboardUser = z.infer<typeof DashboardUserSchema>;
 export type DashboardWithSiteConfig = z.infer<typeof DashboardWithSiteConfigSchema>;
 export type OnboardingDashboardCandidate = z.infer<typeof OnboardingDashboardCandidateSchema>;
+export type TrackingSilentRecipient = z.infer<typeof TrackingSilentRecipientSchema>;
