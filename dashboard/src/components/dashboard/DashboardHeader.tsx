@@ -12,7 +12,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ title, children, pinnable = true }: DashboardHeaderProps) {
   const ref = useRef<HTMLDivElement>(null);
-  usePinnedHeader(ref);
+  usePinnedHeader(ref, pinnable);
 
   return (
     <div
@@ -26,6 +26,7 @@ export function DashboardHeader({ title, children, pinnable = true }: DashboardH
           'xl:top-(--topbar-height) xl:has-data-[slot=dashboard-filters]:sticky',
           'data-stuck:shadow-[0_10px_12px_-6px_var(--background)]',
           'max-xl:data-stuck:[clip-path:inset(var(--pinned-header-band-offset)_0_-1.5rem_0)]',
+          'max-xl:data-stuck:*:invisible max-xl:data-stuck:[&_[data-slot=active-filters-band]]:visible',
         ],
       )}
     >
