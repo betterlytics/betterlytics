@@ -2,7 +2,7 @@
 
 import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState, type AnimationEvent } from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -112,8 +112,30 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
 
   const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
 
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  // A pinned header below xl hides this trigger behind the topbar, so the editor sits under the filter band instead,
+  // re-measured every frame so it follows the header pinning and unpinning while open.
+  const anchorRef = useRef({
+    getBoundingClientRect: () => {
+      const trigger = triggerRef.current;
+      if (!trigger) return new DOMRect();
+      const band = trigger
+        .closest('[data-slot=dashboard-filters]')
+        ?.querySelector('[data-slot=active-filters-band]');
+      return (band && getComputedStyle(trigger).visibility === 'hidden' ? band : trigger).getBoundingClientRect();
+    },
+  });
+
+  // Mounted after the trigger, so Strict Mode re-attaching the trigger's ref cannot reclaim the anchor from it.
+  const [isAnchorMounted, setIsAnchorMounted] = useState(false);
+  useEffect(() => {
+    setIsAnchorMounted(true);
+  }, []);
+
   const trigger = (
     <Button
+      ref={triggerRef}
       variant='secondary'
       role='combobox'
       data-query-filters-trigger=''
@@ -165,10 +187,12 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
 
   return (
     <Popover {...props} open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+      {isAnchorMounted && <PopoverAnchor virtualRef={anchorRef} />}
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
         className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl'
         align='start'
+        updatePositionStrategy='always'
         onAnimationEnd={handleContentAnimationEnd}
         onOpenAutoFocus={handleOpenAutoFocus}
         onCloseAutoFocus={handleCloseAutoFocus}
