@@ -67,7 +67,7 @@ export function ActiveQueryFilters() {
         <FilterIcon aria-hidden className='size-4' />
       </span>
       {/* No intrinsic width, so the chips never widen a shrink-to-fit container like Geography's floating card */}
-      <div className='max-sm:scroll-fade-end flex min-w-0 flex-1 flex-wrap gap-1 [contain:inline-size] max-sm:-my-px max-sm:[scrollbar-width:none] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:py-px'>
+      <div className='max-sm:scroll-fade-x flex min-w-0 flex-1 flex-wrap gap-1 [contain:inline-size] max-sm:-my-px max-sm:[scrollbar-width:none] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:py-px'>
         {queryFilters.map((filter) => {
           const status = getColumnStatus(filter.column);
           const disabledMessage = getDisabledMessage(status);
