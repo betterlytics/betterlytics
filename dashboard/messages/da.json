@@ -3069,6 +3069,7 @@
       "toastFilterAdded": "Tilføjet",
       "toastFilterRemoved": "Fjernet",
       "removeFilter": "Fjern filter",
+      "pillMoreValues": "+{count, number} mere, klik for at se alle",
       "notAvailableOnPage": "Ikke tilgængelig på denne side"
     },
     "funnels": {
