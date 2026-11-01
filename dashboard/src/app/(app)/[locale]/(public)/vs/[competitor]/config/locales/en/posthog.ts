@@ -27,7 +27,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Simple, Predictable Pricing',
-      betterlytics: 'Free forever for small sites. Paid plans from $7/month with core features included.',
+      betterlytics: 'Free forever for small sites. Paid plans from $9/month with core features included.',
       competitor:
         'Generous free tier, but usage-based billing across multiple products gets complex as you scale.',
     },
@@ -122,7 +122,7 @@ export const posthog: ComparisonLocaleContent = {
     },
     {
       title: 'Know What You Pay',
-      content: `PostHog bills separately for events, session recordings, feature flags, surveys, and more. Their free tier is generous, but costs can spike as you scale. This can make monthly costs harder to predict as usage grows.\n\nWe keep it simple: flat pricing from $7/month with clear event limits. Session replay, monitoring, and core analytics included. No spreadsheet required to figure out what you owe.`,
+      content: `PostHog bills separately for events, session recordings, feature flags, surveys, and more. Their free tier is generous, but costs can spike as you scale. This can make monthly costs harder to predict as usage grows.\n\nWe keep it simple: flat pricing from $9/month with clear event limits. Session replay, monitoring, and core analytics included. No spreadsheet required to figure out what you owe.`,
       icon: 'dollar',
     },
     {

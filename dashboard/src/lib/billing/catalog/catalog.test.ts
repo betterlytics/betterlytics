@@ -6,12 +6,15 @@ import {
   PLAN_IDS,
   VOLUME_STOPS,
   bandFor,
+  currentPlanId,
   entitledPlan,
   freePlan,
   freeSubscriptionDefaults,
   getPlan,
   isFreeBand,
+  isFreePlan,
   listedPlans,
+  offerFor,
   planForLookupKey,
   planThatUnlocks,
   priceFor,
@@ -22,6 +25,13 @@ import {
 import { PLANS } from './plans';
 
 const ALL_PLANS = Object.values(PLANS);
+
+const ALL_CHECKS = {
+  httpMethodConfigurable: true,
+  customStatusCodes: true,
+  customHeaders: true,
+  keywordValidation: true,
+};
 
 describe('catalog invariants', () => {
   it('keys every plan by its own id and covers every stored plan id', () => {
@@ -43,8 +53,8 @@ describe('catalog invariants', () => {
     expect(new Set(keys).size).toBe(keys.length);
   });
 
-  it('gives every listed self-serve plan a price at every slider step, rising with volume', () => {
-    for (const plan of listedPlans().filter((p) => p.selfServe)) {
+  it('gives every listed paid plan a price at every slider step, rising with volume', () => {
+    for (const plan of listedPlans().filter((p) => p.selfServe && !isFreePlan(p))) {
       expect(plan.bands.map((band) => band.events)).toEqual([...EVENT_STEPS]);
       for (const currency of PLAN_CURRENCIES) {
         const prices = EVENT_STEPS.map((events) => priceFor(plan, events, currency)!);
@@ -66,13 +76,141 @@ describe('catalog invariants', () => {
   });
 });
 
+describe('plans on sale', () => {
+  const DOLLARS = {
+    plus: [9, 14, 19, 29, 49, 69, 89, 129, 169],
+    business: [19, 24, 29, 44, 74, 104, 134, 194, 254],
+  } as const;
+
+  it('lists Free, Plus, Business and Enterprise', () => {
+    expect(listedPlans().map((plan) => plan.id)).toEqual(['free', 'plus', 'business', 'enterprise']);
+  });
+
+  it.each(Object.entries(DOLLARS))('prices %s at every step, with EUR equal to USD', (planId, dollars) => {
+    const plan = getPlan(planId as keyof typeof DOLLARS);
+    EVENT_STEPS.forEach((events, index) => {
+      expect(priceFor(plan, events, 'USD')).toBe(dollars[index] * 100);
+      expect(priceFor(plan, events, 'EUR')).toBe(dollars[index] * 100);
+      expect(bandFor(plan, events)?.lookupKeys.month).toBe(`${planId}_202611_${events}_month`);
+    });
+  });
+
+  it('starts new accounts on Free at 10k events', () => {
+    expect(freeSubscriptionDefaults()).toEqual({
+      planId: 'free',
+      eventLimit: 10_000,
+      pricePerMonth: 0,
+      currency: 'USD',
+      status: 'active',
+      cancelAtPeriodEnd: false,
+    });
+  });
+
+  it('gives each plan exactly the agreed limits and service', () => {
+    expect(getPlan('free').capabilities).toEqual({
+      dashboards: { maxDashboards: 1, maxMembers: 1 },
+      monitoring: { maxMonitors: 1, minIntervalSeconds: 300, ...ALL_CHECKS },
+      emailReports: { emailReportsEnabled: false },
+      dataRetention: { maxDataRetentionDays: 365 },
+      statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
+    });
+    expect(getPlan('plus').capabilities).toEqual({
+      dashboards: { maxDashboards: 5, maxMembers: 3 },
+      monitoring: { maxMonitors: 5, minIntervalSeconds: 60, ...ALL_CHECKS },
+      emailReports: { emailReportsEnabled: true },
+      dataRetention: { maxDataRetentionDays: 730 },
+      statusPages: { maxStatusPages: 1, customDomain: true, removeBranding: false },
+    });
+    expect(getPlan('business').capabilities).toEqual({
+      dashboards: { maxDashboards: 25, maxMembers: 25 },
+      monitoring: { maxMonitors: 50, minIntervalSeconds: 60, ...ALL_CHECKS },
+      emailReports: { emailReportsEnabled: true },
+      dataRetention: { maxDataRetentionDays: 1095 },
+      statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
+    });
+    expect(getPlan('enterprise').capabilities).toEqual({
+      dashboards: { maxDashboards: 9999, maxMembers: 9999 },
+      monitoring: { maxMonitors: 9999, minIntervalSeconds: 60, ...ALL_CHECKS },
+      emailReports: { emailReportsEnabled: true },
+      dataRetention: { maxDataRetentionDays: 1825 },
+      statusPages: { maxStatusPages: 9999, customDomain: true, removeBranding: true },
+    });
+    expect(getPlan('free').service).toEqual({
+      prioritySupport: false,
+      dedicatedSupport: false,
+      slaGuarantee: false,
+    });
+    expect(getPlan('plus').service).toEqual({
+      prioritySupport: false,
+      dedicatedSupport: false,
+      slaGuarantee: false,
+    });
+    expect(getPlan('business').service).toEqual({
+      prioritySupport: true,
+      dedicatedSupport: false,
+      slaGuarantee: false,
+    });
+    expect(getPlan('enterprise').service).toEqual({
+      prioritySupport: true,
+      dedicatedSupport: true,
+      slaGuarantee: true,
+    });
+  });
+});
+
+describe('pre-launch subscriptions', () => {
+  it('keeps billing paid Growth on Plus and Pro on Business at every volume', () => {
+    for (const events of EVENT_STEPS.slice(1)) {
+      expect(planForLookupKey(`growth_${events}_events`)).toEqual({
+        plan: getPlan('plus'),
+        events,
+        interval: 'month',
+      });
+    }
+    for (const events of EVENT_STEPS) {
+      expect(planForLookupKey(`professional_${events}_events`)).toEqual({
+        plan: getPlan('business'),
+        events,
+        interval: 'month',
+      });
+    }
+  });
+
+  it('keeps free Growth accounts on their old site and member limits, with everything new Free has', () => {
+    const growth = getPlan('growth');
+    expect(growth).toMatchObject({ name: 'Free', listed: false });
+    expect(isFreePlan(growth)).toBe(true);
+    expect(planForLookupKey('growth_10000_events')).toEqual({ plan: growth, events: 10_000, interval: 'month' });
+    expect(growth.capabilities).toEqual({
+      dashboards: { maxDashboards: 2, maxMembers: 3 },
+      monitoring: { maxMonitors: 1, minIntervalSeconds: 300, ...ALL_CHECKS },
+      emailReports: { emailReportsEnabled: false },
+      dataRetention: { maxDataRetentionDays: 365 },
+      statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
+    });
+  });
+});
+
+describe('plan ids renamed at launch', () => {
+  it('reads a Pro id written by an older deploy as Business', () => {
+    expect(currentPlanId('professional')).toBe('business');
+  });
+
+  it('leaves every current id alone', () => {
+    for (const id of PLAN_IDS) {
+      expect(currentPlanId(id)).toBe(id);
+    }
+  });
+});
+
 describe('purchasing', () => {
   it('only sells listed, self-serve, paid bands', () => {
+    expect(purchasableLookupKey('free', 10_000)).toBeNull();
     expect(purchasableLookupKey('growth', 10_000)).toBeNull();
-    expect(purchasableLookupKey('growth', 50_000)).toBe('growth_50000_events');
-    expect(purchasableLookupKey('professional', 10_000)).toBe('professional_10000_events');
+    expect(purchasableLookupKey('plus', 10_000)).toBe('plus_202611_10000_month');
+    expect(purchasableLookupKey('business', 50_000)).toBe('business_202611_50000_month');
     expect(purchasableLookupKey('enterprise', 10_000)).toBeNull();
-    expect(purchasableLookupKey('professional', 12_345)).toBeNull();
+    expect(purchasableLookupKey('plus', 12_345)).toBeNull();
   });
 
   it('resolves every lookup key a subscription can carry back to its plan and volume', () => {
@@ -83,7 +221,11 @@ describe('purchasing', () => {
         }
       }
       for (const legacy of plan.legacyPrices) {
-        expect(planForLookupKey(legacy.lookupKey)).toEqual({ plan, events: legacy.events, interval: legacy.interval });
+        expect(planForLookupKey(legacy.lookupKey)).toEqual({
+          plan,
+          events: legacy.events,
+          interval: legacy.interval,
+        });
       }
     }
     expect(planForLookupKey('unknown_key')).toBeNull();
@@ -100,187 +242,66 @@ describe('purchasing', () => {
   });
 });
 
+describe('pricing card offers', () => {
+  it('keeps Free at its own allowance whatever the slider volume', () => {
+    expect(offerFor(getPlan('free'), 500_000, 'USD')).toEqual({ kind: 'free', events: 10_000 });
+    expect(offerFor(getPlan('free'), VOLUME_STOPS.at(-1)!, 'EUR')).toEqual({ kind: 'free', events: 10_000 });
+  });
+
+  it('prices paid plans at the slider volume and quotes past the largest step', () => {
+    expect(offerFor(getPlan('plus'), 10_000, 'EUR')).toEqual({ kind: 'paid', events: 10_000, cents: 900 });
+    expect(offerFor(getPlan('business'), 1_000_000, 'USD')).toEqual({
+      kind: 'paid',
+      events: 1_000_000,
+      cents: 10400,
+    });
+    expect(offerFor(getPlan('plus'), VOLUME_STOPS.at(-1)!, 'USD')).toEqual({
+      kind: 'quoted',
+      events: VOLUME_STOPS.at(-1),
+    });
+  });
+
+  it('always quotes Enterprise', () => {
+    expect(offerFor(getPlan('enterprise'), 10_000, 'USD')).toEqual({ kind: 'quoted', events: 10_000 });
+  });
+});
+
 describe('entitlement', () => {
   it('grants the plan on record only while the subscription is in good standing', () => {
-    expect(entitledPlan({ planId: 'professional', status: 'active' }).id).toBe('professional');
-    expect(entitledPlan({ planId: 'professional', status: 'trialing' }).id).toBe('professional');
-    expect(entitledPlan({ planId: 'professional', status: 'past_due' }).id).toBe(freePlan().id);
-    expect(entitledPlan({ planId: 'professional', status: 'canceled' }).id).toBe(freePlan().id);
+    expect(entitledPlan({ planId: 'business', status: 'active' }).id).toBe('business');
+    expect(entitledPlan({ planId: 'business', status: 'trialing' }).id).toBe('business');
+    expect(entitledPlan({ planId: 'business', status: 'past_due' }).id).toBe('free');
+    expect(entitledPlan({ planId: 'business', status: 'canceled' }).id).toBe('free');
   });
 
   it('names the cheapest listed plan that unlocks a capability', () => {
-    expect(planThatUnlocks((c) => c.monitoring.customHeaders)?.id).toBe('professional');
-    expect(planThatUnlocks((c) => c.dashboards.maxDashboards > 50)?.id).toBe('enterprise');
+    expect(planThatUnlocks((c) => c.emailReports.emailReportsEnabled)?.id).toBe('plus');
+    expect(planThatUnlocks((c) => c.statusPages.removeBranding)?.id).toBe('business');
+    expect(planThatUnlocks((c) => c.dashboards.maxDashboards > 25)?.id).toBe('enterprise');
     expect(planThatUnlocks((c) => c.dashboards.maxDashboards > 10_000)).toBeNull();
   });
 
   it('only names an upgrade when the current capabilities fall short', () => {
-    const growth = getPlan('growth').capabilities;
-    expect(upgradeFor(growth, (c) => c.monitoring.customHeaders)?.id).toBe('professional');
-    expect(upgradeFor(getPlan('professional').capabilities, (c) => c.monitoring.customHeaders)).toBeNull();
+    const hasReports = (c: { emailReports: { emailReportsEnabled: boolean } }) =>
+      c.emailReports.emailReportsEnabled;
+    expect(upgradeFor(getPlan('growth').capabilities, hasReports)?.id).toBe('plus');
+    expect(upgradeFor(getPlan('plus').capabilities, hasReports)).toBeNull();
   });
 
-  it('gives self-hosted deploys every capability', () => {
-    expect(selfHostedPlan().id).toBe('enterprise');
-  });
-});
-
-describe('parity with the pre-catalog plans', () => {
-  const PRICES_USD_EUR = {
-    growth: [
-      [10_000, 0, 0],
-      [50_000, 700, 600],
-      [100_000, 1400, 1200],
-      [200_000, 2500, 2200],
-      [500_000, 3900, 3400],
-      [1_000_000, 5900, 5100],
-      [2_000_000, 8900, 7700],
-      [5_000_000, 12900, 12000],
-      [10_000_000, 16900, 14700],
-    ],
-    professional: [
-      [10_000, 700, 600],
-      [50_000, 1100, 1000],
-      [100_000, 2100, 1800],
-      [200_000, 3800, 3300],
-      [500_000, 5900, 5200],
-      [1_000_000, 8900, 7700],
-      [2_000_000, 13400, 11600],
-      [5_000_000, 19400, 16900],
-      [10_000_000, 25400, 22100],
-    ],
-  } as const;
-
-  it.each(Object.entries(PRICES_USD_EUR))('keeps every %s price and lookup key', (planId, rows) => {
-    const plan = getPlan(planId as keyof typeof PRICES_USD_EUR);
-    for (const [events, usd, eur] of rows) {
-      expect(priceFor(plan, events, 'USD')).toBe(usd);
-      expect(priceFor(plan, events, 'EUR')).toBe(eur);
-      expect(bandFor(plan, events)?.lookupKeys.month).toBe(`${planId}_${events}_events`);
+  it('gives self-hosted deploys at least the limits of every listed plan', () => {
+    const selfHosted = selfHostedPlan().capabilities;
+    for (const { capabilities: plan } of listedPlans()) {
+      expect(selfHosted.dashboards.maxDashboards).toBeGreaterThanOrEqual(plan.dashboards.maxDashboards);
+      expect(selfHosted.dashboards.maxMembers).toBeGreaterThanOrEqual(plan.dashboards.maxMembers);
+      expect(selfHosted.monitoring.maxMonitors).toBeGreaterThanOrEqual(plan.monitoring.maxMonitors);
+      expect(selfHosted.monitoring.minIntervalSeconds).toBeLessThanOrEqual(plan.monitoring.minIntervalSeconds);
+      expect(selfHosted.dataRetention.maxDataRetentionDays).toBeGreaterThanOrEqual(
+        plan.dataRetention.maxDataRetentionDays,
+      );
+      expect(selfHosted.statusPages.maxStatusPages).toBeGreaterThanOrEqual(plan.statusPages.maxStatusPages);
     }
-  });
-
-  it('keeps every plan limit', () => {
-    expect(getPlan('growth').capabilities).toEqual({
-      dashboards: { maxDashboards: 2, maxMembers: 3 },
-      monitoring: {
-        maxMonitors: 1,
-        minIntervalSeconds: 300,
-        httpMethodConfigurable: false,
-        customStatusCodes: false,
-        customHeaders: false,
-        keywordValidation: false,
-      },
-      emailReports: { emailReportsEnabled: false },
-      dataRetention: { maxDataRetentionDays: 365 },
-      statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
-    });
-    expect(getPlan('professional').capabilities).toEqual({
-      dashboards: { maxDashboards: 50, maxMembers: 50 },
-      monitoring: {
-        maxMonitors: 50,
-        minIntervalSeconds: 60,
-        httpMethodConfigurable: true,
-        customStatusCodes: true,
-        customHeaders: true,
-        keywordValidation: true,
-      },
-      emailReports: { emailReportsEnabled: true },
-      dataRetention: { maxDataRetentionDays: 1095 },
-      statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
-    });
-    expect(getPlan('enterprise').capabilities).toEqual({
-      dashboards: { maxDashboards: 9999, maxMembers: 9999 },
-      monitoring: {
-        maxMonitors: 9999,
-        minIntervalSeconds: 60,
-        httpMethodConfigurable: true,
-        customStatusCodes: true,
-        customHeaders: true,
-        keywordValidation: true,
-      },
-      emailReports: { emailReportsEnabled: true },
-      dataRetention: { maxDataRetentionDays: 1825 },
-      statusPages: { maxStatusPages: 9999, customDomain: true, removeBranding: true },
-    });
-  });
-
-  it('lists exactly the plans on sale today', () => {
-    expect(listedPlans().map((plan) => plan.id)).toEqual(['growth', 'professional', 'enterprise']);
-  });
-
-  it('keeps the free plan at 10k events with Growth limits', () => {
-    expect(freeSubscriptionDefaults()).toEqual({
-      planId: 'growth',
-      eventLimit: 10_000,
-      pricePerMonth: 0,
-      currency: 'USD',
-      status: 'active',
-      cancelAtPeriodEnd: false,
-    });
-  });
-});
-
-describe('the agreed Free, Plus and Business plans', () => {
-  const DOLLARS = {
-    plus: [9, 14, 19, 29, 49, 69, 89, 129, 169],
-    business: [19, 24, 29, 44, 74, 104, 134, 194, 254],
-  } as const;
-
-  it.each(Object.entries(DOLLARS))('prices %s at every step, with EUR equal to USD', (planId, dollars) => {
-    const plan = getPlan(planId as keyof typeof DOLLARS);
-    EVENT_STEPS.forEach((events, index) => {
-      expect(priceFor(plan, events, 'USD')).toBe(dollars[index] * 100);
-      expect(priceFor(plan, events, 'EUR')).toBe(dollars[index] * 100);
-      expect(bandFor(plan, events)?.lookupKeys.month).toBe(`${planId}_${events}_month`);
-    });
-  });
-
-  it('keeps Free at one zero-priced band of 10k events', () => {
-    const free = getPlan('free');
-    expect(free.bands).toHaveLength(1);
-    expect(isFreeBand(free, 10_000)).toBe(true);
-  });
-
-  it('gives each new plan exactly the agreed limits and service', () => {
-    const allChecks = {
-      httpMethodConfigurable: true,
-      customStatusCodes: true,
-      customHeaders: true,
-      keywordValidation: true,
-    };
-    expect(getPlan('free').capabilities).toEqual({
-      dashboards: { maxDashboards: 1, maxMembers: 1 },
-      monitoring: { maxMonitors: 1, minIntervalSeconds: 300, ...allChecks },
-      emailReports: { emailReportsEnabled: false },
-      dataRetention: { maxDataRetentionDays: 365 },
-      statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
-    });
-    expect(getPlan('plus').capabilities).toEqual({
-      dashboards: { maxDashboards: 5, maxMembers: 3 },
-      monitoring: { maxMonitors: 5, minIntervalSeconds: 60, ...allChecks },
-      emailReports: { emailReportsEnabled: true },
-      dataRetention: { maxDataRetentionDays: 730 },
-      statusPages: { maxStatusPages: 1, customDomain: true, removeBranding: false },
-    });
-    expect(getPlan('business').capabilities).toEqual({
-      dashboards: { maxDashboards: 25, maxMembers: 25 },
-      monitoring: { maxMonitors: 50, minIntervalSeconds: 60, ...allChecks },
-      emailReports: { emailReportsEnabled: true },
-      dataRetention: { maxDataRetentionDays: 1095 },
-      statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
-    });
-    expect(getPlan('free').service).toEqual({ prioritySupport: false, dedicatedSupport: false, slaGuarantee: false });
-    expect(getPlan('plus').service).toEqual({ prioritySupport: false, dedicatedSupport: false, slaGuarantee: false });
-    expect(getPlan('business').service).toEqual({ prioritySupport: true, dedicatedSupport: false, slaGuarantee: false });
-  });
-
-  it('keeps the new plans unlisted and off sale', () => {
-    for (const planId of ['free', 'plus', 'business'] as const) {
-      expect(getPlan(planId).listed).toBe(false);
-      for (const events of EVENT_STEPS) {
-        expect(purchasableLookupKey(planId, events)).toBeNull();
-      }
-    }
+    expect(Object.values(selfHosted.monitoring).every((value) => value !== false)).toBe(true);
+    expect(selfHosted.emailReports.emailReportsEnabled).toBe(true);
+    expect(selfHosted.statusPages).toMatchObject({ customDomain: true, removeBranding: true });
   });
 });

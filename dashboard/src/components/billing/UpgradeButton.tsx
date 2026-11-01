@@ -16,7 +16,7 @@ export function UpgradeButton({ children, className }: UpgradeButtonProps) {
   return (
     <Button
       variant='outline'
-      onClick={openPlanPicker}
+      onClick={() => openPlanPicker()}
       className={cn(
         'cursor-pointer gap-2 whitespace-nowrap',
         'border-amber-500/30 text-amber-600 dark:text-amber-500',

@@ -2,18 +2,8 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { getDashboardOwnerBillingData } from '@/actions/billing.action';
-import type {
-  PlanCapabilities,
-  MonitoringCapabilities,
-  DashboardCapabilities,
-} from '@/lib/billing/capabilities';
-import {
-  entitledPlan,
-  freePlan,
-  planThatUnlocks,
-  selfHostedPlan,
-  type PlanDefinition,
-} from '@/lib/billing/catalog';
+import type { PlanCapabilities, MonitoringCapabilities, DashboardCapabilities } from '@/lib/billing/capabilities';
+import { entitledPlan, freePlan, selfHostedPlan, upgradeFor, type PlanDefinition } from '@/lib/billing/catalog';
 import { useDashboardAuth } from './DashboardAuthProvider';
 
 export type { PlanCapabilities, MonitoringCapabilities, DashboardCapabilities };
@@ -73,6 +63,5 @@ export function useUpgrade(unlocks: (capabilities: PlanCapabilities) => boolean)
   plan: PlanDefinition | null;
 } {
   const { caps } = useCapabilities();
-  const locked = !unlocks(caps);
-  return { locked, plan: locked ? planThatUnlocks(unlocks) : null };
+  return { locked: !unlocks(caps), plan: upgradeFor(caps, unlocks) };
 }

@@ -6,14 +6,7 @@ import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { EventCountFlow } from '@/components/pricing/EventCountFlow';
 import { usePlanFeatures, type PlanFeatureLabel } from '@/components/pricing/usePlanFeatures';
-import {
-  VOLUME_STOPS,
-  isQuoted,
-  isFreeBand,
-  listedPlans,
-  priceFor,
-  type PlanId,
-} from '@/lib/billing/catalog';
+import { VOLUME_STOPS, listedPlans, offerFor, type PlanId } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
@@ -79,11 +72,14 @@ type PlanProps = {
 function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, volume }: PlanProps) {
   const locale = useLocale();
   return (
+    // a subgrid of five rows shared across plans, so prices and buttons stay level when a tagline wraps
     <div
       className={cn(
-        'relative flex flex-1 flex-col border-rule-10 p-9 transition-ink not-first:border-l first:pl-0',
-        'max-lg:px-0 max-lg:py-7 max-lg:not-first:border-t max-lg:not-first:border-l-0 max-sm:px-(--pad) max-sm:first:pl-(--pad)',
-        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-lg:px-4 max-sm:px-(--pad)',
+        'relative row-span-5 grid grid-rows-subgrid border-rule-10 p-9 transition-ink',
+        '3xl:not-first:border-l 3xl:first:pl-0',
+        'md:max-3xl:odd:pl-0 md:max-3xl:even:border-l md:max-3xl:nth-[n+3]:border-t',
+        'max-md:px-0 max-md:py-7 max-md:not-first:border-t max-sm:px-(--pad)',
+        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-md:px-4 max-sm:px-(--pad)',
       )}
     >
       <div className='mb-1 flex items-center gap-3'>
@@ -94,8 +90,7 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
           </span>
         ) : null}
       </div>
-      {/* two lines tall so prices stay level across columns when a tagline wraps */}
-      <p className='mb-4 min-h-11 text-body-sm leading-[22px] text-muted max-lg:min-h-0'>{tagline}</p>
+      <p className='mb-4 text-body-sm leading-[22px] text-muted'>{tagline}</p>
       {/* fixed height so swapping a figure for a word doesn't shift the plans */}
       <div className='mb-2.5 flex h-11 items-baseline gap-1.5'>
         <b className='text-[42px] leading-11 font-medium tracking-[-1.5px] tabular-nums'>
@@ -145,7 +140,7 @@ export function PricingPanel() {
 
   const events = VOLUME_STOPS[rangeIndex];
   const lastIndex = VOLUME_STOPS.length - 1;
-  const featuresFor = usePlanFeatures(events);
+  const featuresFor = usePlanFeatures();
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
   // spelled as the shared feature labels spell it, so WithVolume can split on it
@@ -217,11 +212,9 @@ export function PricingPanel() {
       </div>
 
       <Panel>
-        <div className='flex max-lg:flex-col max-sm:-mx-(--pad)'>
+        <div className='grid max-sm:-mx-(--pad) md:grid-cols-2 3xl:grid-cols-4'>
           {listedPlans().map((plan) => {
-            const quoted = isQuoted(plan, events);
-            const cents = quoted ? null : priceFor(plan, events, CURRENCY);
-            const free = isFreeBand(plan, events);
+            const offer = offerFor(plan, events, CURRENCY);
             return (
               <Plan
                 key={plan.id}
@@ -231,13 +224,13 @@ export function PricingPanel() {
                 name={plan.name}
                 badge={plan.featured ? t('badge') : undefined}
                 tagline={t(`plans.${plan.id}.tagline`)}
-                price={cents === null ? t('custom') : free ? t('free') : cents}
-                period={cents === null || free ? undefined : t('perMonth')}
-                features={featuresFor(plan)}
+                price={offer.kind === 'paid' ? offer.cents : offer.kind === 'free' ? t('free') : t('custom')}
+                period={offer.kind === 'paid' ? t('perMonth') : undefined}
+                features={featuresFor(plan, offer.events)}
                 cta={
-                  quoted
+                  offer.kind === 'quoted'
                     ? sales
-                    : { label: free ? t('ctaFree') : t('cta'), destination: 'signup' }
+                    : { label: offer.kind === 'free' ? t('ctaFree') : t('cta'), destination: 'signup' }
                 }
               />
             );
