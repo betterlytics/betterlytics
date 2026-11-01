@@ -1,4 +1,4 @@
-import { getPublishedBlogPosts } from '@/content/blog';
+import { getBlogPosts } from '@/content/blog';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { BLOG_COPY, blogUrl } from '@/app/(landing)/blog/_lib/blog';
 
@@ -11,7 +11,7 @@ export function GET() {
   if (!isClientFeatureEnabled('isCloud')) {
     return new Response(null, { status: 404 });
   }
-  const posts = getPublishedBlogPosts();
+  const posts = getBlogPosts();
   const items = posts.map((post) =>
     [
       '<item>',

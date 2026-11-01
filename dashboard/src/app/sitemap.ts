@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getPublishedBlogPosts } from '@/content/blog';
+import { getBlogPosts } from '@/content/blog';
 import { env } from '@/lib/env';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { SUPPORTED_LANGUAGES, type SupportedLanguages } from '@/constants/i18n';
@@ -127,7 +127,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  const posts = isClientFeatureEnabled('isCloud') ? getPublishedBlogPosts() : [];
+  const posts = isClientFeatureEnabled('isCloud') ? getBlogPosts() : [];
   if (posts.length > 0) {
     entries.push({
       url: `${baseUrl}/blog`,

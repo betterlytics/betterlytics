@@ -1,7 +1,7 @@
 import { Rss } from 'lucide-react';
 import { notFound, redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
-import { getViewableBlogPosts } from '@/content/blog';
+import { getBlogPosts } from '@/content/blog';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { Panel, Section } from '@/landing/components/ui/frame';
@@ -19,8 +19,7 @@ export default function BlogIndexPage() {
   if (!isClientFeatureEnabled('isCloud')) {
     redirect('/dashboards');
   }
-  const [lead, ...rest] = getViewableBlogPosts();
-  // unlinked and out of the sitemap until the first post is published
+  const [lead, ...rest] = getBlogPosts();
   if (!lead) notFound();
 
   return (

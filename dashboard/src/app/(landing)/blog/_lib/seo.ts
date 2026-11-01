@@ -37,7 +37,6 @@ export async function blogPostMetadata(post: BlogPost): Promise<Metadata> {
   return {
     ...metadata,
     authors: [{ name: author }],
-    robots: post.draft ? { index: false, follow: false } : metadata.robots,
     openGraph: {
       ...metadata.openGraph,
       type: 'article',

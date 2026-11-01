@@ -15,11 +15,6 @@ function MetaItem({ icon, children }: { icon: ReactNode; children: ReactNode }) 
   );
 }
 
-export function DraftBadge({ post }: { post: BlogPost }) {
-  if (!post.draft) return null;
-  return <span className='rounded-full border border-warn/40 px-2 text-caption text-warn'>Draft</span>;
-}
-
 export function PostDateline({ post }: { post: BlogPost }) {
   return (
     <>
@@ -37,7 +32,6 @@ export function PostMeta({ post, className }: { post: BlogPost; className?: stri
   const [tag] = post.tags;
   return (
     <p className={cn(META_ROW, className)}>
-      <DraftBadge post={post} />
       {tag && (
         <MetaItem icon={<Tag aria-hidden className={ICON} />}>
           <span className='text-fg'>{tag}</span>

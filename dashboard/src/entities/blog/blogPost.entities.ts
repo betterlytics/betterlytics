@@ -36,7 +36,6 @@ export const BlogFrontmatterSchema = z
         alt: z.string().min(10),
       })
       .strict(),
-    draft: z.boolean().default(false),
   })
   .strict();
 

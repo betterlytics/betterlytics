@@ -7,7 +7,6 @@ tags: ['Company']
 cover:
   src: /blog/meet-betterlytics/cover.jpg
   alt: 'The Betterlytics dashboard overview: visitor metrics above a 28-day traffic chart, with top pages and countries below'
-draft: true
 ---
 
 Most product teams now run four or five different SaaS tools to understand what their users are doing on their site. One for analytics. One for errors. One for uptime. One for session replay. One for performance. None of them know about each other.
@@ -24,7 +23,7 @@ We were one of those teams, building a Vendor Management System, until we got ti
 
 ## What is Betterlytics?
 
-Betterlytics is one dashboard for the signals that tell you what is happening on your site: traffic, behavior, errors, uptime, performance, and session replay. It runs on Rust and ClickHouse, is open source under AGPL-3.0, and ships a single tracking script under two kilobytes. Everything is in one product, on one page.
+Betterlytics is one dashboard for the signals that tell you what is happening on your site: traffic, behavior, errors, uptime, performance, and session replay. It runs on Rust and ClickHouse, is open source under AGPL-3.0, and ships a single tracking script of about 3.5 KB. Everything is in one product, on one page.
 
 Most teams currently stitch this together from four or five separate SaaS products. We thought it would be more useful if all of those signals lived in the same place, queryable against each other. So we built that.
 
@@ -65,7 +64,7 @@ When you decide to build one product instead of five, you get to make some defau
 
 **Cookieless tracking.** The analytics, replay, error, and performance signals all share one tracker. That tracker does not need a persistent identifier, so we left cookies out entirely. The byproduct: you do not need a cookie banner for any of it.
 
-**EU hosting.** Because we run our own infrastructure for every category, every byte of customer data stays inside the EU. Most stacks of specialist tools end up touching three or four regions in practice.
+**EU hosting.** Because we run our own infrastructure for every category, all of your analytics data is stored in the EU, on servers in Germany. Most stacks of specialist tools end up touching three or four regions in practice.
 
 **Open source under AGPL-3.0.** A specialist tool published as open source is useful. An all-in-one tool published as open source is a different proposition. You can run a meaningful part of your observability stack on your own hardware. The full source is on [GitHub](https://github.com/betterlytics/betterlytics).
 

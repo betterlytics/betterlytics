@@ -4,7 +4,7 @@ import type { BlogPost } from '@/content/blog';
 import { Corners } from '@/landing/components/ui/frame';
 import { cn } from '@/landing/lib/cn';
 import { blogPath } from '@/app/(landing)/blog/_lib/blog';
-import { DraftBadge, META_ROW, PostDateline } from './postMeta';
+import { META_ROW, PostDateline } from './postMeta';
 
 /** Laid out like the landing's FeatureGrid cells; the title's ::after makes the whole cell the link. */
 export function PostCard({
@@ -46,10 +46,7 @@ export function PostCard({
           lead && '3xl:justify-center 3xl:px-12 3xl:py-12',
         )}
       >
-        <p className='flex items-center gap-2.5 text-label leading-5 tracking-ui text-volt-text'>
-          <DraftBadge post={post} />
-          {tag}
-        </p>
+        {tag && <p className='text-label leading-5 tracking-ui text-volt-text'>{tag}</p>}
         <Title
           className={cn(
             'mt-2.5 font-medium text-balance text-fg',

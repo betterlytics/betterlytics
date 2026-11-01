@@ -1,14 +1,8 @@
 import { evaluate } from 'next-mdx-remote-client/rsc';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { BlogFrontmatterSchema } from '@/entities/blog/blogPost.entities';
-import {
-  getAllBlogPosts,
-  getPublishedBlogPosts,
-  getRelatedBlogPosts,
-  getViewableBlogPosts,
-  type BlogPost,
-} from './index';
+import { getBlogPosts, getRelatedBlogPosts, type BlogPost } from './index';
 import { BLOG_MDX_COMPONENTS, BLOG_MDX_OPTIONS } from './mdx';
 
 const VALID = {
@@ -20,16 +14,15 @@ const VALID = {
 };
 
 describe('BlogFrontmatterSchema', () => {
-  it('accepts a minimal post and defaults tags and draft', () => {
+  it('accepts a minimal post and defaults tags', () => {
     const parsed = BlogFrontmatterSchema.parse(VALID);
     expect(parsed.tags).toEqual([]);
-    expect(parsed.draft).toBe(false);
     expect(parsed.publishedAt.toISOString()).toBe('2026-11-01T00:00:00.000Z');
   });
 
   it('rejects unknown keys, unknown authors, bad dates and covers outside public/blog', () => {
     for (const post of [
-      { ...VALID, keywords: ['seo'] },
+      { ...VALID, draft: true },
       { ...VALID, author: 'nobody' },
       { ...VALID, publishedAt: '1 November 2026' },
       { ...VALID, cover: { ...VALID.cover, src: '/images/cover.png' } },
@@ -37,20 +30,6 @@ describe('BlogFrontmatterSchema', () => {
     ]) {
       expect(BlogFrontmatterSchema.safeParse(post).success).toBe(false);
     }
-  });
-});
-
-describe('drafts', () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it('show under next dev only', () => {
-    vi.stubEnv('NODE_ENV', 'production');
-    expect(getViewableBlogPosts().some((post) => post.draft)).toBe(false);
-    expect(getPublishedBlogPosts().some((post) => post.draft)).toBe(false);
-    vi.stubEnv('NODE_ENV', 'development');
-    expect(getViewableBlogPosts()).toHaveLength(getAllBlogPosts().length);
   });
 });
 
@@ -64,8 +43,8 @@ describe('getRelatedBlogPosts', () => {
   });
 });
 
-// getAllBlogPosts throws on a bad file name, frontmatter or cover, which fails this file
-describe.each(getAllBlogPosts().map((post) => [post.slug, post] as const))('blog post %s', (_, post) => {
+// getBlogPosts throws on a bad file name, frontmatter or cover, which fails this file
+describe.each(getBlogPosts().map((post) => [post.slug, post] as const))('blog post %s', (_, post) => {
   it('compiles and renders', async () => {
     const { content, error } = await evaluate({
       source: post.source,

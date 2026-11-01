@@ -40,7 +40,8 @@ function readPost(file: string): BlogPost {
   };
 }
 
-export function getAllBlogPosts(): BlogPost[] {
+/** Every post on main is published: it goes out with the next release. */
+export function getBlogPosts(): BlogPost[] {
   return fs
     .readdirSync(POSTS_DIR)
     .filter((file) => !file.startsWith('.'))
@@ -48,21 +49,12 @@ export function getAllBlogPosts(): BlogPost[] {
     .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
 }
 
-export function getPublishedBlogPosts(): BlogPost[] {
-  return getAllBlogPosts().filter((post) => !post.draft);
-}
-
-/** Adds drafts under `next dev` only, so they can be previewed but never ship. */
-export function getViewableBlogPosts(): BlogPost[] {
-  return process.env.NODE_ENV === 'development' ? getAllBlogPosts() : getPublishedBlogPosts();
-}
-
 export function getBlogPost(slug: string): BlogPost | undefined {
-  return getViewableBlogPosts().find((post) => post.slug === slug);
+  return getBlogPosts().find((post) => post.slug === slug);
 }
 
 /** Posts sharing the first tag come first; the sort is stable, so each group stays newest-first. */
-export function getRelatedBlogPosts(post: BlogPost, limit = 3, posts = getViewableBlogPosts()): BlogPost[] {
+export function getRelatedBlogPosts(post: BlogPost, limit = 3, posts = getBlogPosts()): BlogPost[] {
   const [tag] = post.tags;
   return posts
     .filter((other) => other.slug !== post.slug)
