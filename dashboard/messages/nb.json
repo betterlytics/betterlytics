@@ -1302,6 +1302,7 @@
       },
       "resources": {
         "docs": "Dokumentasjon",
+        "blog": "Blogg",
         "changelog": "Endringslogg",
         "status": "Driftsstatus"
       },

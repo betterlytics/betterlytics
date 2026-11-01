@@ -1302,6 +1302,7 @@
       },
       "resources": {
         "docs": "Documentation",
+        "blog": "Blog",
         "changelog": "Changelog",
         "status": "Status"
       },
