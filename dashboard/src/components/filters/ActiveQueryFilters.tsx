@@ -59,7 +59,7 @@ export function ActiveQueryFilters() {
       role='group'
       aria-label={t('activeFilters')}
       className={cn(
-        'bg-primary text-primary-foreground flex min-w-0 items-start gap-2 rounded-lg p-1 pl-3 transition-[opacity,translate,margin] duration-200 ease-in-out in-data-stuck:mx-2 motion-reduce:transition-none max-sm:[timeline-scope:--filter-row] sm:in-data-stuck:mx-4 lg:basis-full',
+        'bg-primary text-primary-foreground flex min-w-0 items-start gap-2 rounded-lg p-1 pl-3 transition-[opacity,translate,margin] duration-200 ease-in-out in-data-stuck:mx-2 motion-reduce:transition-none sm:in-data-stuck:mx-4 lg:basis-full',
         isBandEntering && 'starting:-translate-y-1 starting:opacity-0',
       )}
     >
@@ -67,7 +67,7 @@ export function ActiveQueryFilters() {
         <FilterIcon aria-hidden className='size-4' />
       </span>
       {/* No intrinsic width, so the chips never widen a shrink-to-fit container like Geography's floating card */}
-      <div className='flex min-w-0 flex-1 flex-wrap gap-1 [contain:inline-size] max-sm:-my-px max-sm:[scrollbar-width:none] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:py-px max-sm:[scroll-timeline:--filter-row_inline]'>
+      <div className='max-sm:scroll-fade-end flex min-w-0 flex-1 flex-wrap gap-1 [contain:inline-size] max-sm:-my-px max-sm:[scrollbar-width:none] max-sm:flex-nowrap max-sm:overflow-x-auto max-sm:py-px'>
         {queryFilters.map((filter) => {
           const status = getColumnStatus(filter.column);
           const disabledMessage = getDisabledMessage(status);
@@ -136,14 +136,6 @@ export function ActiveQueryFilters() {
           );
         })}
       </div>
-      {/* Fades a pill cut off at the phone row's edge into its own colour rather than the band's blue */}
-      <span
-        aria-hidden
-        className={cn(
-          pillBackground,
-          'animate-filter-row-end-shade pointer-events-none relative z-1 -ml-8 hidden h-8.5 w-6 shrink-0 bg-transparent bg-linear-to-r from-transparent to-(--pill-bg) opacity-0 max-sm:block',
-        )}
-      />
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
