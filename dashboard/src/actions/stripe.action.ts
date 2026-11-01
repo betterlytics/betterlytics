@@ -14,6 +14,7 @@ import { findActivePriceByLookupKey } from '@/lib/billing/stripe-prices';
 import { LIVE_SUBSCRIPTION_STATUSES } from '@/lib/billing/subscription-status';
 import { handleCheckoutCompleted } from '@/services/system/webhookHandlers.service';
 import { isFeatureEnabled } from '@/lib/feature-flags';
+import { getPlan, purchasableLookupKey } from '@/lib/billing/catalog';
 import { z } from 'zod';
 
 async function getPriceByLookupKey(lookupKey: string): Promise<Stripe.Price> {
@@ -67,19 +68,12 @@ export const createStripeCheckoutSession = withUserAuth(
         throw new Error('Attempting to purchase with unverified email.');
       }
 
-      if (validatedPlan.price_cents === 0 && validatedPlan.tier === 'growth') {
-        throw new Error('Free plans do not require checkout');
+      const lookupKey = purchasableLookupKey(validatedPlan.planId, validatedPlan.eventLimit);
+      if (!lookupKey) {
+        throw new Error(`Plan ${validatedPlan.planId} at ${validatedPlan.eventLimit} events is not for sale`);
       }
 
-      if (validatedPlan.tier === 'enterprise') {
-        throw new Error('Custom plans require manual setup');
-      }
-
-      if (!validatedPlan.lookup_key) {
-        throw new Error('No lookup key provided for plan');
-      }
-
-      const price = await getPriceByLookupKey(validatedPlan.lookup_key);
+      const price = await getPriceByLookupKey(lookupKey);
       const customerId = await getOrCreateStripeCustomer(user);
 
       if (await hasLiveSubscription(customerId)) {
@@ -110,7 +104,7 @@ export const createStripeCheckoutSession = withUserAuth(
         expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
         metadata: {
           userId: user.id,
-          lookupKey: validatedPlan.lookup_key,
+          lookupKey,
           requestedCurrency: validatedPlan.currency,
           effectiveCurrency,
           isInitialSubscription: 'true',
@@ -238,13 +232,15 @@ export const createStripeCustomerPortalSession = withUserAuth(async (user: User,
 
     let configurationId: string | undefined;
 
-    if (targetPlan?.lookup_key) {
+    const targetLookupKey = targetPlan ? purchasableLookupKey(targetPlan.planId, targetPlan.eventLimit) : null;
+
+    if (targetPlan && targetLookupKey) {
       try {
-        const targetPrice = await getPriceByLookupKey(targetPlan.lookup_key);
+        const targetPrice = await getPriceByLookupKey(targetLookupKey);
 
         const configuration = await stripe.billingPortal.configurations.create({
           business_profile: {
-            headline: `Switching to ${targetPlan.tier} plan with ${targetPlan.eventLimit.toLocaleString()} events`,
+            headline: `Switching to ${getPlan(targetPlan.planId).name} plan with ${targetPlan.eventLimit.toLocaleString()} events`,
           },
           features: {
             subscription_update: {
