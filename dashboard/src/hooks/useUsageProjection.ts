@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { EVENT_RANGES } from '@/lib/billing/plans';
+import { VOLUME_STOPS } from '@/lib/billing/catalog';
 import type { UsageData } from '@/entities/billing/billing.entities';
 
 export interface UsageProjection {
@@ -16,8 +16,8 @@ export function useUsageProjection(usage?: UsageData): UsageProjection | null {
 
     const rawProjected = usage.current * (totalTime / elapsedTime);
 
-    const foundIndex = EVENT_RANGES.findIndex((range) => range.value >= rawProjected);
-    const suggestedRangeIndex = foundIndex === -1 ? EVENT_RANGES.length - 1 : foundIndex;
+    const foundIndex = VOLUME_STOPS.findIndex((stop) => stop >= rawProjected);
+    const suggestedRangeIndex = foundIndex === -1 ? VOLUME_STOPS.length - 1 : foundIndex;
 
     return { suggestedRangeIndex };
   }, [usage]);
