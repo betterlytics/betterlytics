@@ -19,9 +19,16 @@ const execute = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/feature-flags', () => ({ isFeatureEnabled: () => true }));
-// The tool modules are kept for their input schemas; their database clients are never reached.
-vi.mock('@/lib/clickhouse', () => ({ clickhouse: {} }));
-vi.mock('@/lib/postgres', () => ({ default: {} }));
+// The tool modules are kept for their input schemas; the services behind them are never reached.
+vi.mock('@/lib/env', () => ({ env: {} }));
+vi.mock('@/services/analytics/userJourney.service', () => ({}));
+vi.mock('@/services/analytics/funnels.service', () => ({}));
+vi.mock('@/services/analytics/errors.service', () => ({}));
+vi.mock('@/services/analytics/monitoring.service', () => ({}));
+vi.mock('@/services/analytics/statusPage.service', () => ({}));
+vi.mock('@/services/analytics/publicStatusPage.service', () => ({}));
+vi.mock('@/services/analytics/statusPageIncident.service', () => ({}));
+vi.mock('@/repositories/clickhouse/globalProperties.repository', () => ({}));
 vi.mock('@/mcp/tools/query', () => ({ executeQuery: execute.executeQuery }));
 vi.mock('@/mcp/tools/querySessions', () => ({ executeQuerySessions: execute.executeQuerySessions }));
 vi.mock('@/mcp/tools/userJourneys', async (importOriginal) => ({
