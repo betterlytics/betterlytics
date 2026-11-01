@@ -6,7 +6,7 @@ export const matomo: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Matomo: Moderne og lettvekts alternativ',
     description:
-      'Sammenlign Betterlytics med Matomo Cloud. Få moderne analyse uten kompleksitet, plugins eller serveradministrasjon. Session replay og overvåking inkludert. Fra $7/måned.',
+      'Sammenlign Betterlytics med Matomo Cloud. Få moderne analyse uten kompleksitet, plugins eller serveradministrasjon. Session replay og overvåking inkludert. Fra $9/måned.',
   },
   hero: {
     title: 'Ser du etter et alternativ til Matomo?',
@@ -27,7 +27,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Enkel prising',
-      betterlytics: 'Gratisnivå tilgjengelig. Betalte planer fra $7/måned, alt inkludert.',
+      betterlytics: 'Gratisnivå tilgjengelig. Betalte planer fra $9/måned, alle moduler inkludert.',
       competitor:
         'Selvhostet har kostnader til infrastruktur og vedlikehold. Cloud-planer starter høyere med betalte tillegg.',
     },
@@ -111,12 +111,12 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Den reelle kostnaden av "gratis"',
-      content: `Matomos selvhostede versjon er gratis å laste ned, men du betaler for servere, vedlikeholdstid og premium-plugins som øktopptak. Matomo Cloud starter på $19/måned og skalerer med sidevisninger.\n\nBetterlytics har et gratisnivå for små nettsteder. Betalte planer starter på $7/måned med alt inkludert: session replay, overvåking, ingen tilleggsgebyrer. Det du ser er det du betaler.`,
+      content: `Matomos selvhostede versjon er gratis å laste ned, men du betaler for servere, vedlikeholdstid og premium-plugins som øktopptak. Matomo Cloud starter på $19/måned og skalerer med sidevisninger.\n\nBetterlytics har et gratisnivå for små nettsteder. Betalte planer starter på $9/måned, og alle planer inkluderer session replay og overvåking uten tilleggsgebyrer. Det du ser er det du betaler.`,
       icon: 'dollar',
     },
     {
       title: 'Alt på ett sted',
-      content: `Matomo har omfattende analyse, men øktopptak er en betalt plugin, og oppetidsovervåking finnes ikke. Grensesnittet er kraftig, men kan oppleves overveldende.\n\nBetterlytics samler analyse, session replay, oppetidsovervåking med varsler via Slack, Discord og Teams, samt ytelsessporing i én løsning. Ett rent grensesnitt, ingen plugins å kjøpe, ingen betalingsmurer i betalte planer.`,
+      content: `Matomo har omfattende analyse, men øktopptak er en betalt plugin, og oppetidsovervåking finnes ikke. Grensesnittet er kraftig, men kan oppleves overveldende.\n\nBetterlytics samler analyse, session replay, oppetidsovervåking med varsler via Slack, Discord og Teams, samt ytelsessporing i én løsning. Ett rent grensesnitt, ingen plugins å kjøpe, alle moduler i alle planer.`,
       icon: 'layers',
     },
   ],
