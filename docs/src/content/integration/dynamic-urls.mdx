@@ -270,6 +270,10 @@ Dynamic URL normalization only affects the path portion of URLs. Query parameter
 
 This ensures your marketing attribution remains intact while still normalizing the private path components.
 
+## Failed request URLs
+
+If you capture failed requests in [Error Tracking](/integration/errors#failed-requests), request URLs use your `data-dynamic-urls` patterns for your own host, plus a separate `data-dynamic-api-urls` attribute with the same syntax for API paths. See [Grouping request URLs](/integration/errors#grouping-request-urls).
+
 ## Pattern Matching Rules
 
 ### Case Sensitivity

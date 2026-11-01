@@ -36,6 +36,8 @@ Self-hosting? Load `analytics.js` from your instance and send events to it, with
 | --- | --- | --- | --- |
 | `data-track-errors` | boolean | `false` | Enables error tracking. |
 | `data-track-console-errors` | boolean | `false` | Also captures `console.error()` calls. Requires `data-track-errors="true"`. |
+| `data-track-failed-requests` | boolean | `false` | Also captures failed `fetch` and `XMLHttpRequest` requests. Requires `data-track-errors="true"`. See [Failed requests](#failed-requests). |
+| `data-dynamic-api-urls` | string | none | Comma-separated patterns that group request URLs with ids, in the same syntax as [`data-dynamic-urls`](/integration/dynamic-urls). See [Grouping request URLs](#grouping-request-urls). |
 | `data-replay-on-error` | boolean | `false` | Captures a replay when an error occurs, even for sessions not sampled for regular recording. Requires `data-replay="true"` and consent. See [Error-triggered replay](#error-triggered-replay). |
 
 ### Using the npm package
@@ -63,11 +65,57 @@ See the package docs for the full API and options: [@betterlytics/tracker on npm
 
 ## What gets captured
 
-Betterlytics captures three types of errors:
+Betterlytics captures four types of errors:
 
 - **JavaScript errors**: runtime errors like `TypeError`, `ReferenceError`, etc. that are not caught by your code.
 - **Failed promises**: promises that reject without being handled.
 - **Console errors** (optional): `console.error()` calls. Enable with `data-track-console-errors="true"`.
+- **Failed requests** (optional): `fetch` and `XMLHttpRequest` requests that get a 5xx response, fail on the network or time out. Enable with `data-track-failed-requests="true"`. See [Failed requests](#failed-requests).
+
+## Failed requests
+
+With `data-track-failed-requests="true"`, Betterlytics records failed requests made by your page:
+
+```html
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-siteid"
+  data-track-errors="true"
+  data-track-failed-requests="true"
+>
+</script>
+```
+
+- **5xx responses** from any domain appear as `HTTPError`, for example `GET https://example.com/api/orders 503`.
+- **Network failures** appear as `NetworkError` and **timeouts** as `TimeoutError`, but only for requests to your site's own domain and its subdomains (a leading `www.` is ignored). Requests to other domains often fail because of ad blockers, so they are skipped.
+- 1xx to 4xx responses, requests your page cancels, opaque `no-cors` responses and Betterlytics' own requests are never recorded.
+- Only the method, the URL without its query string and fragment, the status code, the duration and the failure type are sent. Query strings, headers and request or response bodies are never sent.
+
+Failures with the same method, URL and status (or failure type) are grouped into one error. Your page's requests behave exactly as before.
+
+An unhandled network failure in your own code can also show up separately as an uncaught `TypeError: Failed to fetch`.
+
+### Grouping request URLs
+
+Request URLs with ids, like `/api/orders/123` and `/api/orders/456`, form separate error groups until you add a pattern for them. Use `data-dynamic-api-urls` with the same wildcards as [Dynamic URLs](/integration/dynamic-urls), matched on the request path:
+
+```html
+<script
+  async
+  src="https://betterlytics.io/analytics.js"
+  data-site-id="your-siteid"
+  data-track-errors="true"
+  data-track-failed-requests="true"
+  data-dynamic-urls="/users/*"
+  data-dynamic-api-urls="/api/orders/*,/api/users/*/invoices/*"
+>
+</script>
+```
+
+With this configuration, a failed `GET /api/orders/123` is recorded as `GET https://example.com/api/orders/* 503`.
+
+Requests to your page's own host try your `data-dynamic-urls` patterns first and then `data-dynamic-api-urls`. Requests to other hosts only use `data-dynamic-api-urls`.
 
 ## Errors and Session Replay
 
@@ -128,6 +176,7 @@ Error messages may occasionally contain sensitive data, such as URLs with user I
 - **No errors appearing**: Verify `data-track-errors="true"` is set on your analytics script.
 - **Missing stack traces**: If you only see `"Script error."`, see [Scripts hosted on a CDN or different domain](#scripts-hosted-on-a-cdn-or-different-domain).
 - **Console errors not captured**: Set `data-track-console-errors="true"` alongside `data-track-errors="true"`.
+- **Failed requests not captured**: Set `data-track-failed-requests="true"` alongside `data-track-errors="true"`. Network failures and timeouts are only recorded for your own domain and its subdomains.
 
 ---
 
