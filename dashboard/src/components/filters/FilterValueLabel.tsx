@@ -1,5 +1,6 @@
 'use client';
 
+import { type ReactNode } from 'react';
 import { useLocale } from 'next-intl';
 import { hasFlag } from 'country-flag-icons';
 import { BrowserIcon, DeviceIcon, FlagIcon, OSIcon, type FlagIconProps } from '@/components/icons';
@@ -11,34 +12,48 @@ import { getCountryName } from '@/utils/countryCodes';
 import { cn } from '@/lib/utils';
 
 const ICON_SIZE = 'size-[1.1em]';
+const FLAG_SIZE = 'h-[1.1em] w-[1.65em]';
 
-function FilterValueIcon({ column, value }: { column: FilterColumn; value: string }) {
+type FilterValueIconProps = {
+  column: FilterColumn;
+  value: string;
+  // Renders an empty box of the icon's footprint instead, for copies that only need the width.
+  placeholder?: boolean;
+};
+
+export function FilterValueIcon({ column, value, placeholder = false }: FilterValueIconProps) {
   const locale = useLocale();
 
   switch (column) {
     case 'country_code': {
       const code = value.toUpperCase();
       if (!hasFlag(code)) return null;
+      if (placeholder) return <span className={cn('inline-block', FLAG_SIZE)} />;
       return (
         <FlagIcon countryCode={code as FlagIconProps['countryCode']} countryName={getCountryName(value, locale)} />
       );
     }
     case 'browser':
-      return resolveBrowser(value) ? <BrowserIcon name={value} className={ICON_SIZE} /> : null;
+      if (!resolveBrowser(value)) return null;
+      return placeholder ? <IconPlaceholder /> : <BrowserIcon name={value} className={ICON_SIZE} />;
     case 'os':
-      return resolveOSIcon(value) ? <OSIcon name={value} className={ICON_SIZE} /> : null;
+      if (!resolveOSIcon(value)) return null;
+      return placeholder ? <IconPlaceholder /> : <OSIcon name={value} className={ICON_SIZE} />;
     case 'device_type':
-      return resolveDeviceIcon(value) ? <DeviceIcon type={value} className={ICON_SIZE} /> : null;
+      if (!resolveDeviceIcon(value)) return null;
+      return placeholder ? <IconPlaceholder /> : <DeviceIcon type={value} className={ICON_SIZE} />;
     default:
       return null;
   }
 }
 
+const IconPlaceholder = () => <span className={cn('inline-block', ICON_SIZE)} />;
+
 type FilterValueLabelProps = {
   column: FilterColumn;
   value: string;
   className?: string;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export function FilterValueLabel({ column, value, className, children }: FilterValueLabelProps) {
