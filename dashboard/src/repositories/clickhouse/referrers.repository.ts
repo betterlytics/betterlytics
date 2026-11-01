@@ -5,12 +5,10 @@ import {
   ReferrerTrafficBySourceRowSchema,
   TopChannel,
   TopChannelSchema,
-  DailyReferralSessionsRow,
-  DailyReferralSessionsRowSchema,
-  DailyReferralPercentageRow,
-  DailyReferralPercentageRowSchema,
-  DailyReferralSessionDurationRow,
-  DailyReferralSessionDurationRowSchema,
+  DailyReferralSummaryMetricsRow,
+  DailyReferralSummaryMetricsRowSchema,
+  ReferralRangeMetrics,
+  ReferralRangeMetricsSchema,
   ReferrerUrlRollupRow,
   ReferrerUrlRollupRowSchema,
 } from '@/entities/analytics/referrers.entities';
@@ -18,6 +16,8 @@ import { clickhouse } from '@/lib/clickhouse';
 import { BAQuery } from '@/lib/ba-query';
 import { safeSql, SQL } from '@/lib/safe-sql';
 import { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
+import { BASessionQuery } from '@/lib/ba-session-query';
+import { SessionMetricSql } from '@/lib/session-metrics-sql';
 
 /**
  * Get the distribution of referrers by source type using unique sessions
@@ -261,30 +261,68 @@ export async function getTopChannels(siteQuery: BASiteQuery, limit: number = 10)
   return TopChannelSchema.array().parse(result);
 }
 
+const isReferralSession = safeSql`referrer_source_effective NOT IN ('direct', 'internal')`;
+const isMultiPageReferralSession = safeSql`${isReferralSession} AND pageview_count > 1`;
+const referralSessionDuration = safeSql`if(countIf(${isMultiPageReferralSession}) > 0, avgIf(dateDiff('second', session_start, session_end), ${isMultiPageReferralSession}), 0)`;
+
 /**
- * Get daily referral sessions chart data (aggregated across all sources)
+ * Referral summary over the whole range from session records, so each session counts once.
+ * Duration leaves out single-pageview sessions, like the Overview's avg visit duration.
  */
-export async function getDailyReferralSessions(siteQuery: BASiteQuery): Promise<DailyReferralSessionsRow[]> {
+export async function getReferralRangeMetrics(siteQuery: BASiteQuery): Promise<ReferralRangeMetrics> {
+  const { siteId, queryFilters, startDateTime, endDateTime } = siteQuery;
+
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['session_start', 'session_end', 'pageview_count', 'referrer_source_effective'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
+
+  const query = safeSql`
+    SELECT
+      countIf(${isReferralSession}) AS referralSessions,
+      ${SessionMetricSql.sessions} AS totalSessions,
+      round(${referralSessionDuration}, 1) AS avgSessionDuration
+    FROM ${sessionSubQuery}
+  `;
+
+  const result = await clickhouse.query(query.taggedSql, { params: query.taggedParams }).toPromise();
+
+  return ReferralRangeMetricsSchema.parse(result[0]);
+}
+
+/**
+ * Referral sparkline series from session records, each session placed in the bucket it started in
+ */
+export async function getDailyReferralSummaryMetrics(
+  siteQuery: BASiteQuery,
+): Promise<DailyReferralSummaryMetricsRow[]> {
   const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
-  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
+  const { fill, timeWrapper, granularityFunc } = BASessionQuery.getSessionStartRange(
     granularity,
     timezone,
     startDateTime,
     endDateTime,
   );
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
+
+  const sessionSubQuery = BASessionQuery.getSessionTableSubQuery(
+    ['session_created_at', 'session_start', 'session_end', 'pageview_count', 'referrer_source_effective'],
+    queryFilters,
+    siteId,
+    startDateTime,
+    endDateTime,
+  );
+
   const query = timeWrapper(
     safeSql`
       SELECT
-        ${granularityFunc('timestamp')} as date,
-        uniq(session_id) * any(_sample_factor) as referralSessions
-      FROM analytics.events ${sample}
-      WHERE site_id = {site_id:String}
-        AND ${range}
-        AND referrer_source_effective != 'direct'
-        AND referrer_source_effective != 'internal'
-        AND ${SQL.AND(filters)}
+        ${granularityFunc('session_created_at')} AS date,
+        countIf(${isReferralSession}) AS referralSessions,
+        if(${SessionMetricSql.sessions} > 0, round(100 * referralSessions / ${SessionMetricSql.sessions}, 1), 0) AS referralPercentage,
+        round(${referralSessionDuration}, 1) AS avgSessionDuration
+      FROM ${sessionSubQuery}
       GROUP BY date
       ORDER BY date ASC ${fill}
       LIMIT 10080
@@ -292,125 +330,10 @@ export async function getDailyReferralSessions(siteQuery: BASiteQuery): Promise<
   );
 
   const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
-      },
-    })
+    .query(query.taggedSql, { params: query.taggedParams })
     .toPromise()) as unknown[];
 
-  return result.map((row) => DailyReferralSessionsRowSchema.parse(row));
-}
-
-/**
- * Get daily referral traffic percentage chart data
- */
-export async function getDailyReferralTrafficPercentage(
-  siteQuery: BASiteQuery,
-): Promise<DailyReferralPercentageRow[]> {
-  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
-  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
-    granularity,
-    timezone,
-    startDateTime,
-    endDateTime,
-  );
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
-  const query = timeWrapper(
-    safeSql`
-      WITH daily_stats AS (
-        SELECT
-          ${granularityFunc('timestamp')} as date,
-          uniq(session_id) * any(_sample_factor) as totalSessions,
-          uniqIf(session_id, referrer_source_effective != 'direct' AND referrer_source_effective != 'internal') * any(_sample_factor) as referralSessions
-        FROM analytics.events ${sample}
-        WHERE site_id = {site_id:String}
-          AND ${range}
-          AND ${SQL.AND(filters)}
-        GROUP BY date
-      )
-      SELECT
-        date,
-        if(totalSessions > 0,
-          round(referralSessions / totalSessions * 100, 1),
-          0
-        ) as referralPercentage
-      FROM daily_stats
-      ORDER BY date ASC ${fill}
-      LIMIT 10080
-    `,
-  );
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
-      },
-    })
-    .toPromise()) as unknown[];
-
-  return result.map((row) => DailyReferralPercentageRowSchema.parse(row));
-}
-
-/**
- * Get daily average session duration chart data for referral traffic
- */
-export async function getDailyReferralSessionDuration(
-  siteQuery: BASiteQuery,
-): Promise<DailyReferralSessionDurationRow[]> {
-  const { siteId, queryFilters, granularity, timezone, startDateTime, endDateTime } = siteQuery;
-  const { range, fill, timeWrapper, granularityFunc } = BAQuery.getTimestampRange(
-    granularity,
-    timezone,
-    startDateTime,
-    endDateTime,
-  );
-  const filters = BAQuery.getFilterQuery(queryFilters);
-  const { sample } = await BAQuery.getSampling(siteQuery.siteId, startDateTime, endDateTime);
-  const query = timeWrapper(
-    safeSql`
-      WITH session_durations AS (
-        SELECT
-          ${granularityFunc('timestamp')} as date,
-          session_id,
-          max(timestamp) - min(timestamp) as session_duration_seconds
-        FROM analytics.events ${sample}
-        WHERE site_id = {site_id:String}
-          AND ${range}
-          AND referrer_source_effective != 'direct'
-          AND referrer_source_effective != 'internal'
-          AND ${SQL.AND(filters)}
-        GROUP BY date, session_id
-      )
-      SELECT
-        date,
-        round(avg(session_duration_seconds), 1) as avgSessionDuration
-      FROM session_durations
-      GROUP BY date
-      ORDER BY date ASC ${fill}
-      LIMIT 10080
-    `,
-  );
-
-  const result = (await clickhouse
-    .query(query.taggedSql, {
-      params: {
-        ...query.taggedParams,
-        site_id: siteId,
-        start_date: startDateTime,
-        end_date: endDateTime,
-      },
-    })
-    .toPromise()) as unknown[];
-
-  return result.map((row) => DailyReferralSessionDurationRowSchema.parse(row));
+  return DailyReferralSummaryMetricsRowSchema.array().parse(result);
 }
 
 /**
