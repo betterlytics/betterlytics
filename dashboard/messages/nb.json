@@ -2593,6 +2593,8 @@
       "title": "Varsler",
       "enabled": "På",
       "enableAlerts": "Aktiver varsler",
+      "emailRecipients": "E-postvarsler sendes til {recipients}",
+      "noEmailRecipient": "Ingen e-postmottaker",
       "description": "Få varsel når overvåkeren går ned, gjenopprettes eller når SSL-sertifikater er i ferd med å utløpe.",
       "onDown": "Varsel ved nedetid",
       "onDownDescription": "Send varsel når overvåkeren går ned",

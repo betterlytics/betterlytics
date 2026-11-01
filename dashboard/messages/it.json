@@ -2593,6 +2593,8 @@
       "title": "Avvisi",
       "enabled": "Attivo",
       "enableAlerts": "Attiva avvisi",
+      "emailRecipients": "Gli avvisi email vengono inviati a {recipients}",
+      "noEmailRecipient": "Nessun destinatario email",
       "description": "Ricevi notifiche quando il monitor va offline, torna online o quando i certificati SSL stanno per scadere.",
       "onDown": "Avviso quando offline",
       "onDownDescription": "Invia un avviso quando il monitor va offline",

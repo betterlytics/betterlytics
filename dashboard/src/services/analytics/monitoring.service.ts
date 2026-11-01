@@ -4,6 +4,7 @@ import moment from 'moment-timezone';
 import { toDateTimeString } from '@/utils/dateFormatters';
 
 import {
+  type MonitorCheck,
   MonitorCheckCreate,
   MonitorCheckUpdate,
   type IncidentState,
@@ -15,8 +16,8 @@ import {
   type MonitorRangeSummary,
   type MonitorResult,
   type MonitorTlsResult,
-  type MonitorUptimeBucket,
 } from '@/entities/analytics/monitoring.entities';
+import { summarizeUptime } from '@/entities/analytics/monitoring.helpers';
 import {
   createMonitorCheck,
   getMonitorCheckById,
@@ -39,15 +40,35 @@ import {
   getLatencySeries24h,
   getIncidentCount24h,
   getLastResolvedIncidentForMonitors,
-  getUptime24h,
-  getUptimeBuckets24h,
-  getUptimeStatsForMonitors,
   getLatencyStatsForMonitors,
   getMonitorIncidentsInRange,
-  getMonitorDailyUptime,
   getIncidentSegments24h,
+  getUptimeBuckets,
+  type UptimeMonitorRef,
 } from '@/repositories/clickhouse/monitoring.repository';
 import { normalizeUptimeBuckets } from '@/presenters/toMonitorMetrics';
+import { formatDayKey } from '@/utils/timezone';
+
+function toUptimeMonitorRef(check: Pick<MonitorCheck, 'id' | 'createdAt'>): UptimeMonitorRef {
+  return { checkId: check.id, createdAt: check.createdAt };
+}
+
+// The last 24 real hours on the zone's hour boundaries, ending after the zone's current hour, in hourly buckets
+async function getUptimeBuckets24h(
+  checks: Array<Pick<MonitorCheck, 'id' | 'createdAt'>>,
+  siteId: string,
+  timezone: string,
+) {
+  const rangeEnd = moment.tz(timezone).startOf('hour').add(1, 'hour');
+  const rangeStart = rangeEnd.clone().subtract(24, 'hours').toDate();
+  const buckets = await getUptimeBuckets(checks.map(toUptimeMonitorRef), siteId, {
+    rangeStart,
+    rangeEnd: rangeEnd.toDate(),
+    granularity: 'hour',
+    timezone,
+  });
+  return { rangeStart, buckets };
+}
 
 export async function getMonitorCheck(dashboardId: string, monitorId: string) {
   return getMonitorCheckById(dashboardId, monitorId);
@@ -78,48 +99,23 @@ export async function countMonitorChecks(dashboardId: string): Promise<number> {
   return countMonitorChecksRepo(dashboardId);
 }
 
-// The last 24 real hours on the zone's hour boundaries, ending after the zone's current hour
-function getLast24hRange(timezone: string) {
-  const rangeEnd = moment.tz(timezone).startOf('hour').add(1, 'hour');
-  const rangeStartDate = rangeEnd.clone().subtract(24, 'hours').toDate();
-  return {
-    rangeStartDate,
-    rangeStart: toDateTimeString(rangeStartDate),
-    rangeEnd: toDateTimeString(rangeEnd.toDate()),
-  };
-}
-
 export async function getMonitorChecksWithStatus(dashboardId: string, siteId: string, timezone: string) {
   const checks = await listMonitorChecks(dashboardId);
   const checkIds = checks.map((check) => check.id);
 
-  const { rangeStartDate, rangeStart, rangeEnd } = getLast24hRange(timezone);
-
-  const [openIncidents, lastResolvedIncidents, monitorsWithResults, tlsResults, latestCheckInfo] =
+  const [openIncidents, lastResolvedIncidents, monitorsWithResults, tlsResults, latestCheckInfo, uptime24h] =
     await Promise.all([
       getOpenIncidentsForMonitors(checkIds, siteId),
       getLastResolvedIncidentForMonitors(checkIds, siteId),
       getMonitorsWithResults(checkIds, siteId),
       getLatestTlsResultsForMonitors(checkIds, siteId),
       getLatestCheckInfoForMonitors(checkIds, siteId),
+      getUptimeBuckets24h(checks, siteId, timezone),
     ]);
 
-  // Calculate uptime buckets for each monitor using ClickHouse
-  const uptimeBuckets = await Promise.all(
-    checks.map(async (check) => ({
-      id: check.id,
-      buckets: await getUptimeBuckets24h(check.id, siteId, check.createdAt, timezone, rangeStart, rangeEnd),
-    })),
-  ).then((results) =>
-    results.reduce<Record<string, MonitorUptimeBucket[]>>((acc, { id, buckets }) => {
-      acc[id] = buckets;
-      return acc;
-    }, {}),
-  );
-
   return checks.map((check) => {
-    const rawBuckets = uptimeBuckets[check.id] ?? [];
-    const buckets = normalizeUptimeBuckets(rawBuckets, rangeStartDate, 24);
+    const rawBuckets = uptime24h.buckets.get(check.id) ?? [];
+    const buckets = normalizeUptimeBuckets(rawBuckets, uptime24h.rangeStart, 24);
     const hasResults = monitorsWithResults.has(check.id);
     const openIncident = openIncidents.get(check.id);
     const hasOpenIncident = openIncident != null;
@@ -138,6 +134,7 @@ export async function getMonitorChecksWithStatus(dashboardId: string, siteId: st
       effectiveIntervalSeconds: checkInfo?.effectiveIntervalSeconds ?? null,
       backoffLevel: checkInfo?.backoffLevel ?? null,
       uptimeBuckets: buckets,
+      uptimePercent: summarizeUptime(rawBuckets).percent,
       tls: tlsResults[check.id] ?? null,
       operationalState,
       currentStateSince,
@@ -157,15 +154,12 @@ export async function fetchMonitorMetrics(
     throw new Error('Monitor not found');
   }
 
-  const { rangeStartDate, rangeStart, rangeEnd } = getLast24hRange(timezone);
-
   const [
     openIncidents,
     incidentSegments,
     lastResolvedIncidents,
-    uptimeStats,
     latencyStats,
-    uptimeBuckets,
+    hourlyUptime,
     latencySeries,
     incidentCount,
     latestCheckInfo,
@@ -173,17 +167,15 @@ export async function fetchMonitorMetrics(
     getOpenIncidentsForMonitors([monitorId], siteId),
     getIncidentSegments24h(monitorId, siteId),
     getLastResolvedIncidentForMonitors([monitorId], siteId),
-    getUptime24h(monitorId, siteId, monitor.createdAt, rangeStart, rangeEnd),
     getLatency24h(monitorId, siteId),
-    getUptimeBuckets24h(monitorId, siteId, monitor.createdAt, timezone, rangeStart, rangeEnd),
+    getUptimeBuckets24h([monitor], siteId, timezone),
     getLatencySeries24h(monitorId, siteId),
     getIncidentCount24h(monitorId, siteId),
     getLatestCheckInfoForMonitors([monitorId], siteId).then((r) => r[monitorId] ?? null),
   ]);
 
-  const uptime24hPercent =
-    uptimeStats.totalSeconds > 0 ? (uptimeStats.uptimeSeconds / uptimeStats.totalSeconds) * 100 : null;
-  const uptime24hHours = uptimeStats.totalSeconds / 60 / 60;
+  const monitorBuckets = hourlyUptime.buckets.get(monitorId) ?? [];
+  const uptime24h = summarizeUptime(monitorBuckets);
   const hasData = latestCheckInfo?.ts != null;
   const openIncident = openIncidents.get(monitorId);
   const hasOpenIncident = openIncident != null;
@@ -198,11 +190,11 @@ export async function fetchMonitorMetrics(
   return {
     lastCheckAt: latestCheckInfo?.ts ?? null,
     lastStatus: latestCheckInfo?.status ?? null,
-    uptime24hPercent,
-    uptime24hHours,
+    uptime24hPercent: uptime24h.percent,
+    uptime24hHours: uptime24h.monitoredSeconds / 60 / 60,
     incidents24h: incidentCount,
     incidentSegments24h: incidentSegments,
-    uptimeBuckets: normalizeUptimeBuckets(uptimeBuckets, rangeStartDate, 24),
+    uptimeBuckets: normalizeUptimeBuckets(monitorBuckets, hourlyUptime.rangeStart, 24),
     latency: latencyStats,
     latencySeries,
     effectiveIntervalSeconds: latestCheckInfo?.effectiveIntervalSeconds ?? null,
@@ -225,12 +217,22 @@ export async function fetchMonitorDailyUptime(
   }
 
   // Day boundaries in the zone the buckets use, so the last bucket is the zone's today
-  const rangeEndDate = moment.tz(timezone).startOf('day').add(1, 'day');
-  const rangeStartDate = rangeEndDate.clone().subtract(days, 'days');
-  const rangeStart = toDateTimeString(rangeStartDate.toDate());
-  const rangeEnd = toDateTimeString(rangeEndDate.toDate());
+  const rangeEnd = moment.tz(timezone).startOf('day').add(1, 'day');
+  const rangeStart = rangeEnd.clone().subtract(days, 'days');
 
-  return getMonitorDailyUptime(monitorId, siteId, monitor.createdAt, timezone, rangeStart, rangeEnd, days);
+  const buckets = await getUptimeBuckets([toUptimeMonitorRef(monitor)], siteId, {
+    rangeStart: rangeStart.toDate(),
+    rangeEnd: rangeEnd.toDate(),
+    granularity: 'day',
+    timezone,
+  });
+
+  return (buckets.get(monitorId) ?? []).map(({ bucket, upRatio, monitoredSeconds, upSeconds }) => ({
+    date: formatDayKey(new Date(bucket), timezone),
+    upRatio,
+    monitoredSeconds,
+    upSeconds,
+  }));
 }
 
 export async function fetchRecentMonitorResults(
@@ -272,17 +274,18 @@ export async function getMonitorSummariesForRange(
   const rangeStart = toDateTimeString(start);
   const rangeEnd = toDateTimeString(end);
 
-  const [openIncidents, lastResolvedIncidents, latestCheckInfo, uptimeStats, latencyStats, tlsResults] =
+  const [openIncidents, lastResolvedIncidents, latestCheckInfo, uptimeBuckets, latencyStats, tlsResults] =
     await Promise.all([
       getOpenIncidentsForMonitors(checkIds, siteId),
       getLastResolvedIncidentForMonitors(checkIds, siteId),
       getLatestCheckInfoForMonitors(checkIds, siteId),
-      getUptimeStatsForMonitors(
-        checks.map((check) => ({ checkId: check.id, createdAt: check.createdAt })),
-        siteId,
-        rangeStart,
-        rangeEnd,
-      ),
+      // Buckets are clipped to the exact range, so their sum is the range's figure
+      getUptimeBuckets(checks.map(toUptimeMonitorRef), siteId, {
+        rangeStart: start,
+        rangeEnd: end,
+        granularity: 'day',
+        timezone: 'UTC',
+      }),
       getLatencyStatsForMonitors(checkIds, siteId, rangeStart, rangeEnd),
       getLatestTlsResultsForMonitors(checkIds, siteId),
     ]);
@@ -291,7 +294,7 @@ export async function getMonitorSummariesForRange(
     const checkInfo = latestCheckInfo[check.id];
     const openIncident = openIncidents.get(check.id);
     const operationalState = deriveOperationalState(check.isEnabled, checkInfo?.ts != null, openIncident != null);
-    const uptime = uptimeStats.get(check.id) ?? { uptimeSeconds: 0, totalSeconds: 0 };
+    const uptime = summarizeUptime(uptimeBuckets.get(check.id) ?? []);
 
     return {
       monitor: check,
@@ -305,9 +308,9 @@ export async function getMonitorSummariesForRange(
       lastStatus: checkInfo?.status ?? null,
       effectiveIntervalSeconds: checkInfo?.effectiveIntervalSeconds ?? null,
       backoffLevel: checkInfo?.backoffLevel ?? null,
-      uptimePercent: uptime.totalSeconds > 0 ? (uptime.uptimeSeconds / uptime.totalSeconds) * 100 : null,
-      uptimeSeconds: uptime.uptimeSeconds,
-      totalSeconds: uptime.totalSeconds,
+      uptimePercent: uptime.percent,
+      uptimeSeconds: uptime.upSeconds,
+      monitoredSeconds: uptime.monitoredSeconds,
       latency: latencyStats.get(check.id) ?? { avgMs: null, minMs: null, maxMs: null },
       tls: tlsResults[check.id] ?? null,
     };

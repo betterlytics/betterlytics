@@ -1,7 +1,8 @@
 import { z } from 'zod';
+import moment from 'moment-timezone';
 import { McpDateRangeSchema, customDateRangeRefinement, dateOrderRefinement } from '@/mcp/entities/mcp.entities';
 import { resolveTimeRange } from '@/mcp/utils/resolveTimeRange';
-import { round } from '@/mcp/utils/round';
+import { floorUptime, round } from '@/mcp/utils/round';
 import {
   IncidentStateSchema,
   type MonitorIncidentWithMonitor,
@@ -40,9 +41,9 @@ function formatMonitor(summary: MonitorRangeSummary) {
     effective_check_interval_seconds: summary.effectiveIntervalSeconds,
     backoff_level: summary.backoffLevel,
     uptime: {
-      percent: round(summary.uptimePercent, 3),
-      up_seconds: summary.uptimeSeconds,
-      measured_seconds: summary.totalSeconds,
+      percent: floorUptime(summary.uptimePercent, 2),
+      up_seconds: round(summary.uptimeSeconds, 3),
+      measured_seconds: round(summary.monitoredSeconds, 3),
     },
     response_time_ms: {
       avg: round(summary.latency.avgMs, 1),
@@ -61,13 +62,26 @@ function formatMonitor(summary: MonitorRangeSummary) {
   };
 }
 
+// Monitoring's "last N days" are N calendar days including today, as on the monitor detail page,
+// where the analytics presets end at the start of today
+const CALENDAR_DAY_PRESETS = new Set(['7d', '28d', '90d']);
+
+function resolveMonitoringRange(input: z.infer<typeof McpDateRangeSchema>) {
+  const { start, end } = resolveTimeRange(input);
+  if (!CALENDAR_DAY_PRESETS.has(input.timeRange)) return { start, end };
+
+  const shift = (date: Date) => moment.tz(date, input.timezone).add(1, 'day').toDate();
+  return { start: shift(start), end: shift(end) };
+}
+
 export async function executeListMonitors(rawInput: unknown, siteId: string, dashboardId: string) {
   assertMonitoringEnabled();
 
   const input = McpListMonitorsInputSchema.parse(rawInput);
-  const { start, end } = resolveTimeRange(input);
+  const { start, end } = resolveMonitoringRange(input);
 
-  const monitors = await getMonitorSummariesForRange(dashboardId, siteId, start, end);
+  // The resolved end is the range's last second, and uptime needs an exclusive end to include it
+  const monitors = await getMonitorSummariesForRange(dashboardId, siteId, start, new Date(end.getTime() + 1000));
 
   return {
     monitors: monitors.map(formatMonitor),
@@ -119,7 +133,7 @@ export async function executeListMonitorIncidents(rawInput: unknown, siteId: str
   assertMonitoringEnabled();
 
   const input = McpListMonitorIncidentsInputSchema.parse(rawInput);
-  const { start, end } = resolveTimeRange(input);
+  const { start, end } = resolveMonitoringRange(input);
 
   const fetched = await getMonitorIncidentsForRange(dashboardId, siteId, {
     start,

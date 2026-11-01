@@ -1,5 +1,5 @@
 import BATopbar from '@/components/topbar/BATopbar';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import BASidebarProvider from '@/components/sidebar/BASidebarProvider';
 import BASidebar from '@/components/sidebar/BASidebar';
 import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
 import ScrollReset from '@/components/ScrollReset';
@@ -40,7 +40,7 @@ export default async function DashboardLayoutShell({
     <DashboardNavigationProvider basePath={basePath} dashboardId={dashboardId} isDemo={isDemo}>
       <section>
         <BATopbar />
-        <SidebarProvider>
+        <BASidebarProvider>
           <BASidebar dashboardId={dashboardId} isDemo={isDemo} />
           <BAMobileSidebarTrigger />
           <main className='bg-background w-full overflow-x-hidden'>
@@ -53,7 +53,7 @@ export default async function DashboardLayoutShell({
               <IntegrationManager />
             </Suspense>
           )}
-        </SidebarProvider>
+        </BASidebarProvider>
       </section>
     </DashboardNavigationProvider>
   );

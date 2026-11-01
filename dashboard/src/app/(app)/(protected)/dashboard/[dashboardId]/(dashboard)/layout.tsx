@@ -1,4 +1,4 @@
-import { SidebarProvider } from '@/components/ui/sidebar';
+import BASidebarProvider from '@/components/sidebar/BASidebarProvider';
 import BASidebar from '@/components/sidebar/BASidebar';
 import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
 import { SidebarAlertSummaryDot } from '@/components/sidebar/SidebarAlertDot';
@@ -45,7 +45,7 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
   const showStatusPageAlerts = isFeatureEnabled('enablePublicStatusPages');
 
   return (
-    <SidebarProvider>
+    <BASidebarProvider>
       <BASidebar dashboardId={dashboardId} isDemo={false} />
       <BAMobileSidebarTrigger
         indicator={
@@ -78,6 +78,6 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
       <Suspense fallback={null}>
         <GithubStarCard eligibilityPromise={githubStarEligibilityPromise} />
       </Suspense>
-    </SidebarProvider>
+    </BASidebarProvider>
   );
 }

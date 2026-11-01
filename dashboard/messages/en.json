@@ -2593,6 +2593,8 @@
       "title": "Alerts",
       "enabled": "On",
       "enableAlerts": "Enable alerts",
+      "emailRecipients": "Email alerts go to {recipients}",
+      "noEmailRecipient": "No email recipient",
       "description": "Get notified when your monitor goes down, recovers, or when SSL certificates are expiring.",
       "onDown": "Alert on down",
       "onDownDescription": "Send an alert when the monitor goes down",

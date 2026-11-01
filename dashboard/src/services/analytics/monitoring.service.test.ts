@@ -1,28 +1,27 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import moment from 'moment-timezone';
 import { fetchMonitorDailyUptime, fetchMonitorMetrics } from '@/services/analytics/monitoring.service';
-import {
-  getMonitorDailyUptime,
-  getUptime24h,
-  getUptimeBuckets24h,
-} from '@/repositories/clickhouse/monitoring.repository';
+import { getUptimeBuckets } from '@/repositories/clickhouse/monitoring.repository';
 
 vi.mock('@/repositories/postgres/monitoring.repository', () => ({
-  getMonitorCheckById: vi.fn(async () => ({ createdAt: new Date('2026-01-01T00:00:00Z') })),
+  getMonitorCheckById: vi.fn(async () => ({
+    id: 'monitor-1',
+    createdAt: new Date('2026-01-01T00:00:00Z'),
+  })),
 }));
 vi.mock('@/repositories/postgres/statusPage.repository', () => ({}));
 vi.mock('@/repositories/clickhouse/monitoring.repository', () => ({
-  getMonitorDailyUptime: vi.fn(async () => []),
+  getUptimeBuckets: vi.fn(async () => new Map()),
   getOpenIncidentsForMonitors: vi.fn(async () => new Map()),
   getIncidentSegments24h: vi.fn(async () => []),
   getLastResolvedIncidentForMonitors: vi.fn(async () => new Map()),
-  getUptime24h: vi.fn(async () => ({ uptimeSeconds: 0, totalSeconds: 0 })),
   getLatency24h: vi.fn(async () => ({ avgMs: null, minMs: null, maxMs: null })),
-  getUptimeBuckets24h: vi.fn(async () => []),
   getLatencySeries24h: vi.fn(async () => []),
   getIncidentCount24h: vi.fn(async () => 0),
   getLatestCheckInfoForMonitors: vi.fn(async () => ({})),
 }));
+
+const uptimeBuckets = vi.mocked(getUptimeBuckets);
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -36,55 +35,66 @@ afterEach(() => {
 describe('fetchMonitorDailyUptime', () => {
   it.each([
     // Tokyo is already on 09-27 at 20:00 UTC
-    ['Asia/Tokyo', '2026-03-31 15:00:00', '2026-09-27 15:00:00'],
-    ['America/Los_Angeles', '2026-03-31 07:00:00', '2026-09-27 07:00:00'],
+    ['Asia/Tokyo', '2026-03-31T15:00:00.000Z', '2026-09-27T15:00:00.000Z'],
+    ['America/Los_Angeles', '2026-03-31T07:00:00.000Z', '2026-09-27T07:00:00.000Z'],
   ])('ends the range after today in %s', async (timezone, rangeStart, rangeEnd) => {
     vi.setSystemTime(new Date('2026-09-26T20:00:00Z'));
 
     await fetchMonitorDailyUptime('monitor-1', 'dashboard-1', 'site-1', timezone, 180);
 
-    expect(getMonitorDailyUptime).toHaveBeenCalledWith(
-      'monitor-1',
-      'site-1',
-      expect.any(Date),
+    expect(uptimeBuckets).toHaveBeenCalledWith([{ checkId: 'monitor-1', createdAt: expect.any(Date) }], 'site-1', {
+      rangeStart: new Date(rangeStart),
+      rangeEnd: new Date(rangeEnd),
+      granularity: 'day',
       timezone,
-      rangeStart,
-      rangeEnd,
-      180,
+    });
+  });
+
+  it('keys each day bucket by its calendar day in the zone', async () => {
+    vi.setSystemTime(new Date('2026-09-26T20:00:00Z'));
+    uptimeBuckets.mockResolvedValueOnce(
+      new Map([
+        [
+          'monitor-1',
+          [{ bucket: '2026-09-26T15:00:00.000Z', upRatio: 0.5, monitoredSeconds: 7200, upSeconds: 3600 }],
+        ],
+      ]),
     );
+
+    const days = await fetchMonitorDailyUptime('monitor-1', 'dashboard-1', 'site-1', 'Asia/Tokyo', 180);
+
+    expect(days).toEqual([{ date: '2026-09-27', upRatio: 0.5, monitoredSeconds: 7200, upSeconds: 3600 }]);
   });
 });
 
 describe('fetchMonitorMetrics 24h pills', () => {
   it.each([
     // 10:50 local: the last pill is 10:00 to 11:00 Kolkata
-    ['Asia/Kolkata', '2026-10-23T05:20:00Z', '2026-10-22 05:30:00', '2026-10-23 05:30:00'],
+    ['Asia/Kolkata', '2026-10-23T05:20:00Z', '2026-10-22T05:30:00Z', '2026-10-23T05:30:00Z'],
     // 11:05 local: the last pill is 11:00 to 12:00 Kathmandu
-    ['Asia/Kathmandu', '2026-10-23T05:20:00Z', '2026-10-22 06:15:00', '2026-10-23 06:15:00'],
-    ['UTC', '2026-10-23T05:20:00Z', '2026-10-22 06:00:00', '2026-10-23 06:00:00'],
+    ['Asia/Kathmandu', '2026-10-23T05:20:00Z', '2026-10-22T06:15:00Z', '2026-10-23T06:15:00Z'],
+    ['UTC', '2026-10-23T05:20:00Z', '2026-10-22T06:00:00Z', '2026-10-23T06:00:00Z'],
   ])('buckets on local hours in %s', async (timezone, now, rangeStart, rangeEnd) => {
     vi.setSystemTime(new Date(now));
-    vi.mocked(getUptimeBuckets24h).mockResolvedValueOnce([
-      { bucket: new Date(`${rangeStart.replace(' ', 'T')}Z`).toISOString(), upRatio: 0.5, totalSeconds: 3600 },
-    ]);
+    uptimeBuckets.mockResolvedValueOnce(
+      new Map([['monitor-1', [{ bucket: rangeStart, upRatio: 0.5, monitoredSeconds: 3600, upSeconds: 1800 }]]]),
+    );
 
     const metrics = await fetchMonitorMetrics('dashboard-1', 'monitor-1', 'site-1', timezone);
 
-    expect(getUptimeBuckets24h).toHaveBeenCalledWith(
-      'monitor-1',
-      'site-1',
-      expect.any(Date),
+    expect(uptimeBuckets).toHaveBeenCalledWith([{ checkId: 'monitor-1', createdAt: expect.any(Date) }], 'site-1', {
+      rangeStart: new Date(rangeStart),
+      rangeEnd: new Date(rangeEnd),
+      granularity: 'hour',
       timezone,
-      rangeStart,
-      rangeEnd,
-    );
-    expect(getUptime24h).toHaveBeenCalledWith('monitor-1', 'site-1', expect.any(Date), rangeStart, rangeEnd);
+    });
 
     const localTimes = metrics.uptimeBuckets.map((b) => moment.tz(b.bucket, timezone).format('mm'));
     expect(metrics.uptimeBuckets).toHaveLength(24);
     expect(new Set(localTimes)).toEqual(new Set(['00']));
     expect(metrics.uptimeBuckets[0].upRatio).toBe(0.5);
     expect(metrics.uptimeBuckets[23].bucket).toBe(moment.tz(now, timezone).startOf('hour').toISOString());
+    expect(metrics.uptime24hPercent).toBe(50);
   });
 
   it('keeps one pill per real hour across the autumn DST change', async () => {

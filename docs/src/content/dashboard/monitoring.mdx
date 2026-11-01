@@ -105,7 +105,7 @@ This helps you balance between fast alerts (lower values) and avoiding false ala
 
 ### Email Alerts
 
-Alerts are sent to the dashboard owner's email address.
+Email alerts are sent to the person who created the monitor.
 
 <Callout type="info">
 Want alerts in Slack, Discord, Teams, or on your phone? Set up [notifications](/dashboard/integrations) to receive monitoring alerts in the tools you already use.
@@ -275,6 +275,26 @@ You can filter to show only errors for quick debugging.
 ### Daily Uptime (180 Days)
 
 A calendar-style grid showing daily uptime percentages. Hover over any day to see the exact percentage.
+
+The figures next to the grid cover the last 7, 30, 90 and 180 calendar days in your timezone, today included.
+
+## How Uptime Is Calculated
+
+Every uptime percentage in Betterlytics uses the same calculation: the monitor detail page, the monitoring list, status pages and the [MCP server](/dashboard/mcp). The same monitor over the same period always shows the same number.
+
+Uptime is the time your site was up divided by the time it was monitored.
+
+- **Each check covers its own interval.** A check counts as monitored time from the moment it runs until the next check, up to its check interval plus 20% to allow for timing jitter. A monitor checked every 24 hours is monitored around the clock, the same as one checked every minute.
+- **Backoff doesn't hide downtime.** When a failing site makes us check less often, each check covers its longer interval, so the whole outage counts as downtime.
+- **Downtime comes from incidents.** Time inside an open incident counts as down, but only while the monitor was being checked.
+- **Unmonitored time doesn't count.** Time before a monitor was created, while it was paused, or after its last check expired counts as neither up nor down. A day with no monitored time shows as "no data", a partly monitored day shows its uptime over the part that was monitored, and a period with no monitored time at all has no percentage.
+- **SSL certificate checks are separate.** Certificate problems don't affect uptime.
+
+A status page's overall uptime adds up the up time and the monitored time of all its monitors, so a monitor with three days of data weighs less than one with ninety.
+
+<Callout type="warning">
+Uptime only reflects what our checks saw. If our own checking is interrupted, nothing is recorded for that time, so the monitor counts as unmonitored and any downtime during it stays invisible.
+</Callout>
 
 ## SSL Certificate Details
 

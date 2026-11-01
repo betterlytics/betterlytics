@@ -44,7 +44,7 @@ const summary: MonitorRangeSummary = {
   backoffLevel: 2,
   uptimePercent: 99.98765,
   uptimeSeconds: 86391,
-  totalSeconds: 86400,
+  monitoredSeconds: 86400,
   latency: { avgMs: 120.456, minMs: 90.1, maxMs: 800.99 },
   tls: { ts: '2026-02-01T10:00:00.000Z', status: 'ok', reasonCode: null, tlsNotAfter: '2026-06-01T00:00:00.000Z' },
 };
@@ -89,7 +89,7 @@ describe('executeListMonitors', () => {
       name: 'API health',
       operational_state: 'up',
       last_status: 'ok',
-      uptime: { percent: 99.988, up_seconds: 86391, measured_seconds: 86400 },
+      uptime: { percent: 99.98, up_seconds: 86391, measured_seconds: 86400 },
       response_time_ms: { avg: 120.5, min: 90.1, max: 801 },
     });
   });
@@ -126,8 +126,80 @@ describe('executeListMonitors', () => {
     expect(result.total).toBe(120);
   });
 
+  it("rounds uptime down to the status page's two decimals, so any downtime never reads 100", async () => {
+    getSummaries.mockResolvedValue([{ ...summary, uptimePercent: 99.99965 }]);
+
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
+
+    expect(result.monitors[0].uptime.percent).toBe(99.99);
+  });
+
+  it('covers N calendar days including today for the day presets, as the monitor detail page does', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    getSummaries.mockResolvedValue([]);
+
+    try {
+      const result = await executeListMonitors({ timeRange: '7d', timezone: 'UTC' }, 'site-1', 'dash-1');
+
+      expect(getSummaries).toHaveBeenCalledWith(
+        'dash-1',
+        'site-1',
+        new Date('2026-10-17T00:00:00Z'),
+        new Date('2026-10-24T00:00:00Z'),
+      );
+      expect(result.time_range).toEqual({ start: '2026-10-17T00:00:00.000Z', end: '2026-10-23T23:59:59.000Z' });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('starts the day presets on the calendar day in the requested zone', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    getSummaries.mockResolvedValue([]);
+
+    try {
+      await executeListMonitors({ timeRange: '7d', timezone: 'Europe/Copenhagen' }, 'site-1', 'dash-1');
+
+      expect(getSummaries).toHaveBeenCalledWith(
+        'dash-1',
+        'site-1',
+        new Date('2026-10-16T22:00:00Z'),
+        new Date('2026-10-23T22:00:00Z'),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('includes the last second of a custom range, so a fully monitored day is a whole day', async () => {
+    getSummaries.mockResolvedValue([]);
+
+    await executeListMonitors(
+      { timeRange: 'custom', startDate: '2026-10-22', endDate: '2026-10-22', timezone: 'UTC' },
+      'site-1',
+      'dash-1',
+    );
+
+    expect(getSummaries).toHaveBeenCalledWith(
+      'dash-1',
+      'site-1',
+      new Date('2026-10-22T00:00:00Z'),
+      new Date('2026-10-23T00:00:00Z'),
+    );
+  });
+
+  it('rounds the seconds to milliseconds', async () => {
+    getSummaries.mockResolvedValue([{ ...summary, uptimeSeconds: 250211.99899999998, monitoredSeconds: 259212 }]);
+
+    const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
+
+    expect(result.monitors[0].uptime).toMatchObject({ up_seconds: 250211.999, measured_seconds: 259212 });
+  });
+
   it('reports null uptime when nothing was measured', async () => {
-    getSummaries.mockResolvedValue([{ ...summary, uptimePercent: null, uptimeSeconds: 0, totalSeconds: 0 }]);
+    getSummaries.mockResolvedValue([{ ...summary, uptimePercent: null, uptimeSeconds: 0, monitoredSeconds: 0 }]);
 
     const result = await executeListMonitors({ timeRange: '24h', timezone: 'UTC' }, 'site-1', 'dash-1');
 
@@ -205,6 +277,27 @@ describe('executeListMonitorIncidents', () => {
     );
 
     expect(getIncidents.mock.calls[0][2]).toMatchObject({ monitorId: 'mon-1', state: 'ongoing', limit: 6 });
+  });
+
+  it.each(['7d', '28d', '90d', '24h'])('searches the same %s window as list_monitors', async (timeRange) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-23T12:00:00Z'));
+    getSummaries.mockResolvedValue([]);
+    getIncidents.mockResolvedValue([]);
+
+    try {
+      const input = { timeRange, timezone: 'Europe/Copenhagen' };
+      const monitors = await executeListMonitors(input, 'site-1', 'dash-1');
+      const incidents = await executeListMonitorIncidents(input, 'site-1', 'dash-1');
+
+      expect(incidents.time_range).toEqual(monitors.time_range);
+      expect(getIncidents.mock.calls[0][2]).toMatchObject({
+        start: new Date(monitors.time_range.start),
+        end: new Date(monitors.time_range.end),
+      });
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('does not flag truncation when the result lands exactly on the limit', async () => {
