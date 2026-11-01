@@ -43,7 +43,6 @@ export async function blogPostMetadata(post: BlogPost): Promise<Metadata> {
       publishedTime: isoDate(post.publishedAt),
       modifiedTime: isoDate(post.updatedAt ?? post.publishedAt),
       authors: [author],
-      tags: post.tags,
       images: [image],
     },
     twitter: { ...metadata.twitter, images: [image] },
@@ -64,7 +63,6 @@ export function blogPostJsonLd(post: BlogPost) {
       inLanguage: 'en',
       url: blogUrl(post.slug),
       mainEntityOfPage: blogUrl(post.slug),
-      keywords: post.tags.length > 0 ? post.tags.join(', ') : undefined,
       author: { '@type': author.kind, name: author.name, ...(author.url && { url: author.url }) },
       publisher: {
         '@type': 'Organization',

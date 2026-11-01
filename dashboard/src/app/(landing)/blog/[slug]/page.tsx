@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { notFound, redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { JsonLd } from '@/components/JsonLd';
-import { getBlogPost, getRelatedBlogPosts, getBlogPosts } from '@/content/blog';
+import { getBlogPost, getOtherBlogPosts, getBlogPosts } from '@/content/blog';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { CtaSection } from '@/landing/components/sections/ctaSection';
@@ -37,7 +37,7 @@ export default async function BlogPostPage({ params }: Props) {
   }
   const post = getBlogPost(slug);
   if (!post) notFound();
-  const related = getRelatedBlogPosts(post);
+  const related = getOtherBlogPosts(post);
 
   return (
     <>

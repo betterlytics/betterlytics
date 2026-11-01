@@ -20,7 +20,6 @@ export function GET() {
       `<guid isPermaLink="true">${blogUrl(post.slug)}</guid>`,
       `<pubDate>${post.publishedAt.toUTCString()}</pubDate>`,
       `<description>${escapeXml(post.description)}</description>`,
-      ...post.tags.map((tag) => `<category>${escapeXml(tag)}</category>`),
       '</item>',
     ].join(''),
   );

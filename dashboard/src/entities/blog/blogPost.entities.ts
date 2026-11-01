@@ -28,7 +28,6 @@ export const BlogFrontmatterSchema = z
     publishedAt: IsoDateSchema,
     updatedAt: IsoDateSchema.optional(),
     author: z.enum(AUTHOR_KEYS),
-    tags: z.array(z.string().min(1)).max(4).default([]),
     // also the og:image, so a 1200x630 PNG or JPEG: some link previews still skip WebP
     cover: z
       .object({

@@ -4,7 +4,7 @@ import type { BlogPost } from '@/content/blog';
 import { Corners } from '@/landing/components/ui/frame';
 import { cn } from '@/landing/lib/cn';
 import { blogPath } from '@/app/(landing)/blog/_lib/blog';
-import { META_ROW, PostDateline } from './postMeta';
+import { PostMeta } from './postMeta';
 
 /** Laid out like the landing's FeatureGrid cells; the title's ::after makes the whole cell the link. */
 export function PostCard({
@@ -16,7 +16,6 @@ export function PostCard({
   lead?: boolean;
   headingAs?: 'h2' | 'h3';
 }) {
-  const [tag] = post.tags;
   return (
     <article className={cn('group relative flex h-full flex-col', lead && '3xl:grid 3xl:grid-cols-[3fr_2fr]')}>
       <Corners />
@@ -46,10 +45,9 @@ export function PostCard({
           lead && '3xl:justify-center 3xl:px-12 3xl:py-12',
         )}
       >
-        {tag && <p className='text-label leading-5 tracking-ui text-volt-text'>{tag}</p>}
         <Title
           className={cn(
-            'mt-2.5 font-medium text-balance text-fg transition-colors duration-180 ease-out-expo group-hover:text-volt-text',
+            'font-medium text-balance text-fg transition-colors duration-180 ease-out-expo group-hover:text-volt-text',
             lead
               ? 'text-display-2 max-sm:text-[2rem] max-sm:leading-9 3xl:text-[2.5rem] 3xl:leading-[2.75rem]'
               : 'text-title leading-6 tracking-ui',
@@ -70,9 +68,7 @@ export function PostCard({
         >
           {post.description}
         </p>
-        <p className={cn(META_ROW, 'mt-auto text-caption')}>
-          <PostDateline post={post} />
-        </p>
+        <PostMeta post={post} className='mt-auto text-caption' />
       </div>
     </article>
   );
