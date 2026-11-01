@@ -2,13 +2,15 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { ComparisonTable } from '@/components/public/comparison-table';
-import { EVENT_STEPS, listedPlans, type PlanDefinition } from '@/lib/billing/catalog';
+import { listedPlans, type PlanDefinition } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
 
 type ValueMessage = { message: string; count?: number };
 
-type FeatureValue = boolean | ValueMessage | 'eventRange';
+type EventRange = { minEvents: number; maxEvents: number };
+
+type FeatureValue = boolean | ValueMessage | EventRange;
 
 interface Feature {
   key: string;
@@ -23,11 +25,16 @@ interface FeatureCategory {
 const limit = (message: string, count: number): ValueMessage =>
   isUnlimitedCount(count) ? { message: 'unlimited' } : { message, count };
 
+const eventRange = (plan: PlanDefinition): EventRange => ({
+  minEvents: plan.bands[0].events,
+  maxEvents: plan.bands[plan.bands.length - 1].events,
+});
+
 const FEATURE_CATEGORIES: FeatureCategory[] = [
   {
     key: 'usageLimits',
     features: [
-      { key: 'monthlyEvents', value: (plan) => (plan.selfServe ? 'eventRange' : { message: 'custom' }) },
+      { key: 'monthlyEvents', value: (plan) => (plan.selfServe ? eventRange(plan) : { message: 'custom' }) },
       { key: 'sites', value: (plan) => limit('upToCount', plan.capabilities.dashboards.maxDashboards) },
       {
         key: 'dataRetention',
@@ -97,15 +104,14 @@ export function FeatureComparisonSection() {
   const locale = useLocale();
   const plans = listedPlans();
 
-  const formatEventRange = () => {
-    const min = formatEventCount(EVENT_STEPS[0], locale);
-    const max = formatEventCount(EVENT_STEPS[EVENT_STEPS.length - 1], locale);
-    return `${min} – ${max}+`;
+  const formatEventRange = ({ minEvents, maxEvents }: EventRange) => {
+    const min = formatEventCount(minEvents, locale);
+    return minEvents === maxEvents ? min : `${min} – ${formatEventCount(maxEvents, locale)}+`;
   };
 
   const formatValue = (featureKey: string, value: FeatureValue) => {
     if (typeof value === 'boolean') return value;
-    if (value === 'eventRange') return formatEventRange();
+    if ('minEvents' in value) return formatEventRange(value);
     const { message, count } = value;
     return td(`features.${featureKey}.values.${message}`, count === undefined ? undefined : { count });
   };
