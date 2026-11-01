@@ -6,6 +6,10 @@ vi.mock('@/lib/clickhouse', () => ({
   clickhouse: { query },
 }));
 
+vi.mock('@/lib/ba-query', () => ({
+  BAQuery: { getSampling: vi.fn() },
+}));
+
 import { getDailyReferralSummaryMetrics, getReferralRangeMetrics } from './referrers.repository';
 import type { BASiteQuery } from '@/entities/analytics/analyticsQuery.entities';
 
