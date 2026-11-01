@@ -6,7 +6,6 @@ import type { PlanDefinition } from '@/lib/billing/catalog';
 import { Crown } from 'lucide-react';
 
 type PlanBadgeProps = {
-  /** The plan that unlocks the feature, usually from `planThatUnlocks`. Renders nothing when no plan does. */
   plan: PlanDefinition | null;
   className?: string;
   showIcon?: boolean;

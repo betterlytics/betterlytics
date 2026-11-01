@@ -16,14 +16,9 @@ export { CUSTOM_VOLUME, EVENT_STEPS } from './plans';
 
 export const PlanIdSchema = z.enum(PLAN_IDS);
 
-/** Every stop on the pricing slider, ending with the quoted volume past the largest step. */
 export const VOLUME_STOPS: readonly number[] = [...EVENT_STEPS, CUSTOM_VOLUME];
 
 const PLANS_BY_RANK = Object.values(PLANS).sort((a, b) => a.rank - b.rank);
-
-export function isPlanId(value: string): value is PlanId {
-  return (PLAN_IDS as readonly string[]).includes(value);
-}
 
 export function getPlan(id: PlanId): PlanDefinition {
   return PLANS[id];
@@ -45,7 +40,6 @@ export function isCustomVolume(events: number): boolean {
   return events > EVENT_STEPS[EVENT_STEPS.length - 1];
 }
 
-/** Priced by conversation rather than checkout: a plan that is not self-serve, or volume past the largest step. */
 export function isQuoted(plan: PlanDefinition, events: number): boolean {
   return !plan.selfServe || isCustomVolume(events);
 }
@@ -64,7 +58,7 @@ export function isFreeBand(plan: PlanDefinition, events: number, interval: Billi
   return band !== undefined && isZeroPriced(band, interval);
 }
 
-export function freeBand(plan: PlanDefinition): PriceBand | undefined {
+function freeBand(plan: PlanDefinition): PriceBand | undefined {
   return plan.bands.find((band) => isZeroPriced(band, 'month'));
 }
 
@@ -115,6 +109,14 @@ export function purchasableLookupKey(
 /** The cheapest listed plan whose capabilities pass the check, used to name the plan an upgrade unlocks. */
 export function planThatUnlocks(check: (capabilities: PlanCapabilities) => boolean): PlanDefinition | null {
   return listedPlans().find((plan) => check(plan.capabilities)) ?? null;
+}
+
+/** Null when the capabilities already pass the check, otherwise the plan that unlocks it. */
+export function upgradeFor(
+  capabilities: PlanCapabilities,
+  check: (capabilities: PlanCapabilities) => boolean,
+): PlanDefinition | null {
+  return check(capabilities) ? null : planThatUnlocks(check);
 }
 
 /** A failed or unpaid subscription keeps its plan on record but gets the free plan's capabilities. */

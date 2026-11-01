@@ -5,7 +5,6 @@ interface SettingsSectionProps {
   title: string;
   description?: string;
   children: React.ReactNode;
-  /** The plan that unlocks this section, shown as a badge next to the title. */
   upgradePlan?: PlanDefinition | null;
   headerExtra?: React.ReactNode;
 }

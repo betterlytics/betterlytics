@@ -22,7 +22,6 @@ export function buildSelfHostedBillingData(): UserBillingData {
 
   return {
     isExistingPaidSubscriber: true,
-    isFreePlanUser: false,
     subscription: {
       planId: selfHostedPlan().id,
       eventLimit: 999_999_999,
@@ -208,7 +207,6 @@ export const UserBillingDataSchema = z.object({
   }),
   usage: UsageDataSchema,
   isExistingPaidSubscriber: z.boolean(),
-  isFreePlanUser: z.boolean(),
 });
 
 export type Currency = z.infer<typeof CurrencySchema>;
