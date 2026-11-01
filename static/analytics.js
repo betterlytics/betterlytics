@@ -712,36 +712,32 @@
           } catch (e) {}
           var promise = _origFetch.apply(this, arguments);
           if (!req) return promise;
-          try {
-            // A side branch, so the page keeps the original promise and handles its own rejections
-            promise.then(
-              function (res) {
-                try {
-                  if (res.type !== "opaque" && res.type !== "opaqueredirect") {
-                    captureFailedRequest(req, "onfetch", "http", res.status);
-                  }
-                } catch (e) {}
-              },
-              function (err) {
-                try {
-                  if (signal && signal.aborted) {
-                    // AbortSignal.timeout() aborts with a TimeoutError; any other abort is the page cancelling
-                    if (
-                      signal.reason &&
-                      signal.reason.name === "TimeoutError"
-                    ) {
-                      captureFailedRequest(req, "onfetch", "timeout");
-                    }
-                  } else if (err && err.name === "TimeoutError") {
+          // Chained and passed through, so a rejection stays unhandled exactly when the page doesn't handle it
+          return promise.then(
+            function (res) {
+              try {
+                if (res.type !== "opaque" && res.type !== "opaqueredirect") {
+                  captureFailedRequest(req, "onfetch", "http", res.status);
+                }
+              } catch (e) {}
+              return res;
+            },
+            function (err) {
+              try {
+                if (signal && signal.aborted) {
+                  // AbortSignal.timeout() aborts with a TimeoutError; any other abort is the page cancelling
+                  if (signal.reason && signal.reason.name === "TimeoutError") {
                     captureFailedRequest(req, "onfetch", "timeout");
-                  } else if (!(err && err.name === "AbortError")) {
-                    captureFailedRequest(req, "onfetch", "network");
                   }
-                } catch (e) {}
-              },
-            );
-          } catch (e) {}
-          return promise;
+                } else if (err && err.name === "TimeoutError") {
+                  captureFailedRequest(req, "onfetch", "timeout");
+                } else if (!(err && err.name === "AbortError")) {
+                  captureFailedRequest(req, "onfetch", "network");
+                }
+              } catch (e) {}
+              throw err;
+            },
+          );
         };
       }
 
