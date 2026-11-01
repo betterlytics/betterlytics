@@ -46,6 +46,13 @@ describe('rateLimitKeys', () => {
     }
   });
 
+  it('counts describe and list_dashboards against the credential even when they are given a dashboardId', async () => {
+    for (const name of ['describe', 'list_dashboards']) {
+      const keys = await rateLimitKeys(several, async () => toolCall(name, { dashboardId: 'dash-blog' }));
+      expect(keys).toEqual(['mcp-token:2']);
+    }
+  });
+
   it('counts a dashboardId outside the allowed set against the credential', async () => {
     const keys = await rateLimitKeys(several, async () => toolCall('query', { dashboardId: 'site-blog' }));
     expect(keys).toEqual(['mcp-token:2']);
