@@ -8,6 +8,7 @@ import { getPublicEnvironmentVariables } from '@/services/system/environment.ser
 import { PublicEnvironmentVariablesProvider } from '@/contexts/PublicEnvironmentVariablesContextProvider';
 import { env } from '@/lib/env';
 import { getCachedAuthorizedContext, requireAuth } from '@/auth/auth-actions';
+import { resolveDashboardAuthResult } from '@/auth/api-auth';
 import { DashboardAuthProvider } from '@/contexts/DashboardAuthProvider';
 import { InvitationJoinedToast } from '@/app/(app)/(protected)/InvitationJoinedToast';
 import BATopbar from '@/components/topbar/BATopbar';
@@ -33,7 +34,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
     if (env.DEMO_DASHBOARD_ID && dashboardId === env.DEMO_DASHBOARD_ID) {
       redirect(`/share/${dashboardId}`);
     }
-    redirect('/signin');
+    redirect('/dashboards');
   }
 
   const publicEnvironmentVariables = getPublicEnvironmentVariables();
@@ -76,6 +77,14 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 
 export async function generateMetadata({ params }: { params: Promise<{ dashboardId: string }> }) {
   const { dashboardId } = await params;
+
+  // Renders in parallel with the layout, so it must not redirect on no access: the layout's redirect wins
+  // and a second one would be logged as an unhandled rejection.
+  const access = await resolveDashboardAuthResult(dashboardId);
+  if (access.error) {
+    return { title: 'Betterlytics' };
+  }
+
   const dashboard = await getCurrentDashboardAction(dashboardId);
 
   return {
