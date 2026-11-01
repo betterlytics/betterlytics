@@ -67,5 +67,9 @@ export type DailyReferralPercentageRow = z.infer<typeof DailyReferralPercentageR
 export type DailyReferralSessionDurationRow = z.infer<typeof DailyReferralSessionDurationRowSchema>;
 export type ReferrerSummaryWithCharts = z.infer<typeof ReferrerSummaryWithChartsSchema>;
 export type ReferrerTableRow = z.infer<typeof ReferrerTableRowSchema>;
+
+// Matches the GROUP BY of the referrer table query, so rows pair with the same referrer across periods.
+export type ReferrerTableKey = 'source_type' | 'source_name' | 'source_url';
+export const REFERRER_TABLE_KEY: ReferrerTableKey[] = ['source_type', 'source_name', 'source_url'];
 export type ReferrerUrlRollupRow = z.infer<typeof ReferrerUrlRollupRowSchema>;
 export type TopChannel = z.infer<typeof TopChannelSchema>;
