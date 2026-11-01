@@ -4,38 +4,27 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useDashboardAlerts } from '@/hooks/use-dashboard-alerts';
 
-export type SidebarAlertKind = 'monitoring' | 'statusPages';
-
-function AlertDot({ kind, className }: { kind: SidebarAlertKind; className?: string }) {
+function AlertDot({ className }: { className?: string }) {
   const t = useTranslations('dashboard.sidebar');
   return (
-    <span
-      className={cn(
-        'size-2 shrink-0 rounded-full',
-        kind === 'monitoring' ? 'bg-destructive' : 'dark:bg-muted-foreground bg-neutral-400',
-        className,
-      )}
-    >
-      <span className='sr-only'>{kind === 'monitoring' ? t('monitorsDown') : t('activeIncidents')}</span>
+    <span className={cn('bg-destructive size-2 shrink-0 rounded-full', className)}>
+      <span className='sr-only'>{t('monitorsDown')}</span>
     </span>
   );
 }
 
 type SidebarAlertDotProps = {
-  kind: SidebarAlertKind;
   /** At the end of the row in the expanded sidebar, on the icon in the collapsed one. */
   placement: 'end' | 'icon';
 };
 
-/** Red dot for down monitors, neutral dot for unresolved status page incidents. */
-export function SidebarAlertDot({ kind, placement }: SidebarAlertDotProps) {
+/** Red dot on the Monitoring item while a monitor is down. */
+export function SidebarAlertDot({ placement }: SidebarAlertDotProps) {
   const alerts = useDashboardAlerts();
-  const active = kind === 'monitoring' ? alerts?.hasDownMonitors : alerts?.hasUnresolvedStatusPageIncidents;
-  if (!active) return null;
+  if (!alerts?.hasDownMonitors) return null;
 
   return (
     <AlertDot
-      kind={kind}
       className={
         placement === 'end'
           ? 'group-data-[collapsible=icon]:hidden'
@@ -45,17 +34,9 @@ export function SidebarAlertDot({ kind, placement }: SidebarAlertDotProps) {
   );
 }
 
-type SidebarAlertSummaryDotProps = {
-  monitors: boolean;
-  statusPages: boolean;
-  className?: string;
-};
-
-/** One dot for wherever the item dots are out of sight (a folded group, the closed mobile menu); red wins over neutral. */
-export function SidebarAlertSummaryDot({ monitors, statusPages, className }: SidebarAlertSummaryDotProps) {
+/** The same dot for wherever the Monitoring item is out of sight (a folded group, the closed mobile menu). */
+export function SidebarAlertSummaryDot({ className }: { className?: string }) {
   const alerts = useDashboardAlerts();
-  if (monitors && alerts?.hasDownMonitors) return <AlertDot kind='monitoring' className={className} />;
-  if (statusPages && alerts?.hasUnresolvedStatusPageIncidents)
-    return <AlertDot kind='statusPages' className={className} />;
-  return null;
+  if (!alerts?.hasDownMonitors) return null;
+  return <AlertDot className={className} />;
 }

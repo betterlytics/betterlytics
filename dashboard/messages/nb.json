@@ -2163,8 +2163,7 @@
       },
       "collapseNav": "Skjul navigasjon",
       "errorTracking": "Feilsporing",
-      "monitorsDown": "Monitorer nede",
-      "activeIncidents": "Aktive hendelser på statussider"
+      "monitorsDown": "Monitorer nede"
     },
     "settings": {
       "sidebar": {

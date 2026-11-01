@@ -42,7 +42,7 @@ import { getTranslations } from 'next-intl/server';
 import { ActiveUsersLabel } from './ActiveUsersLabel';
 import { Dashboard } from '@/entities/dashboard/dashboard.entities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
-import { SidebarAlertDot, SidebarAlertSummaryDot, type SidebarAlertKind } from './SidebarAlertDot';
+import { SidebarAlertDot, SidebarAlertSummaryDot } from './SidebarAlertDot';
 
 const ICON_SIZE = 16;
 
@@ -58,7 +58,7 @@ type SidebarItem = {
   icon: ReactElement;
   hidden?: boolean;
   hideOnMobile?: boolean;
-  alert?: SidebarAlertKind;
+  alert?: boolean;
 };
 
 export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps) {
@@ -77,7 +77,6 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
   const t = await getTranslations('dashboard.sidebar');
 
   const showMonitorAlerts = !isDemo && isFeatureEnabled('enableUptimeMonitoring');
-  const showStatusPageAlerts = !isDemo && isFeatureEnabled('enablePublicStatusPages');
 
   const analyticsItems: SidebarItem[] = [
     { name: t('overview'), key: 'overview', href: '', icon: <LayoutDashboard size={ICON_SIZE} /> },
@@ -120,14 +119,13 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
       key: 'monitoring',
       href: '/monitoring',
       icon: <Activity size={ICON_SIZE} />,
-      alert: showMonitorAlerts ? 'monitoring' : undefined,
+      alert: showMonitorAlerts,
     },
     {
       name: t('statusPages'),
       key: 'statusPages',
       href: '/status-pages',
       icon: <Radio size={ICON_SIZE} />,
-      alert: showStatusPageAlerts ? 'statusPages' : undefined,
     },
   ];
 
@@ -204,11 +202,7 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
         <CollapsibleSidebarGroup
           label={t('categories.observability')}
           storageKey='sidebar-observability'
-          foldedIndicator={
-            (showMonitorAlerts || showStatusPageAlerts) && (
-              <SidebarAlertSummaryDot monitors={showMonitorAlerts} statusPages={showStatusPageAlerts} />
-            )
-          }
+          foldedIndicator={showMonitorAlerts && <SidebarAlertSummaryDot />}
         >
           <SidebarMenu>
             {observabilityItems
@@ -224,12 +218,12 @@ export default async function BASidebar({ dashboardId, isDemo }: BASidebarProps)
                       <div className='flex items-center gap-2'>
                         <span className='dark:text-muted-foreground/90 relative'>
                           {item.icon}
-                          {item.alert && <SidebarAlertDot kind={item.alert} placement='icon' />}
+                          {item.alert && <SidebarAlertDot placement='icon' />}
                         </span>
                         <span>{item.name}</span>
                       </div>
 
-                      {item.alert && <SidebarAlertDot kind={item.alert} placement='end' />}
+                      {item.alert && <SidebarAlertDot placement='end' />}
                     </FilterPreservingLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

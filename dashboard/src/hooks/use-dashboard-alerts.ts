@@ -5,7 +5,7 @@ import { trpc } from '@/trpc/client';
 import { useDashboardId } from '@/hooks/use-dashboard-id';
 import { useDashboardAuth } from '@/contexts/DashboardAuthProvider';
 
-/** Shared by the sidebar dots and the Monitoring list: every minute (the shortest monitor interval) while the tab is
+/** Shared by the sidebar dot and the Monitoring list: every minute (the shortest monitor interval) while the tab is
  *  visible, and right away when it is shown again. */
 export const DASHBOARD_ALERTS_REFRESH_OPTIONS = {
   refetchInterval: 60 * 1000,
@@ -26,7 +26,7 @@ export function useRefetchOnWindowFocus(
   }, [refetch, enabled]);
 }
 
-/** Whether a monitor is down and whether a status page incident is unresolved, behind the sidebar dots. */
+/** Whether a monitor is down, behind the sidebar dot. */
 export function useDashboardAlerts() {
   const dashboardId = useDashboardId();
   const { isDemo } = useDashboardAuth();

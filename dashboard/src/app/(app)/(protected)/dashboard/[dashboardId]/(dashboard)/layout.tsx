@@ -41,18 +41,11 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
 
   const githubStarEligibilityPromise = getGithubStarPromptEligibility();
 
-  const showMonitorAlerts = isFeatureEnabled('enableUptimeMonitoring');
-  const showStatusPageAlerts = isFeatureEnabled('enablePublicStatusPages');
-
   return (
     <BASidebarProvider>
       <BASidebar dashboardId={dashboardId} isDemo={false} />
       <BAMobileSidebarTrigger
-        indicator={
-          (showMonitorAlerts || showStatusPageAlerts) && (
-            <SidebarAlertSummaryDot monitors={showMonitorAlerts} statusPages={showStatusPageAlerts} />
-          )
-        }
+        indicator={isFeatureEnabled('enableUptimeMonitoring') && <SidebarAlertSummaryDot />}
       />
       <BannerProvider>
         {/* Bottom padding below md keeps page content clear of the floating mobile menu button */}

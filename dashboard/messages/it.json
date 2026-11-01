@@ -2163,8 +2163,7 @@
       },
       "collapseNav": "Comprimi navigazione",
       "errorTracking": "Monitoraggio errori",
-      "monitorsDown": "Monitor offline",
-      "activeIncidents": "Incidenti attivi sulle pagine di stato"
+      "monitorsDown": "Monitor offline"
     },
     "settings": {
       "sidebar": {

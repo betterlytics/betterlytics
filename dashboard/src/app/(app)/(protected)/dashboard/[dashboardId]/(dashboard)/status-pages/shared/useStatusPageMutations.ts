@@ -7,7 +7,6 @@ import {
   deleteStatusPageAction,
   setStatusPagePublishedAction,
 } from '@/app/actions/analytics/statusPage.actions';
-import { trpc } from '@/trpc/client';
 
 export function useSetStatusPagePublishedMutation(dashboardId: string, opts?: { onSuccess?: () => void }) {
   const t = useTranslations('statusPagesPage');
@@ -24,12 +23,9 @@ export function useSetStatusPagePublishedMutation(dashboardId: string, opts?: { 
 
 export function useDeleteStatusPageMutation(dashboardId: string, opts?: { onSuccess?: () => void }) {
   const t = useTranslations('statusPagesPage');
-  const utils = trpc.useUtils();
   return useMutation({
     mutationFn: (statusPageId: string) => deleteStatusPageAction(dashboardId, statusPageId),
     onSuccess: () => {
-      // Its open incidents stop counting towards the sidebar dot.
-      utils.monitors.activeAlerts.invalidate({ dashboardId });
       toast.success(t('editor.deleted'));
       opts?.onSuccess?.();
     },

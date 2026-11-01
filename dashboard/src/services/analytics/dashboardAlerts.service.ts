@@ -3,7 +3,6 @@
 import type { DashboardAlerts } from '@/entities/analytics/dashboardAlerts.entities';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { listMonitorChecks } from '@/repositories/postgres/monitoring.repository';
-import { countUnresolvedIncidents } from '@/repositories/postgres/statusPageIncident.repository';
 import { getOpenIncidentsForMonitors } from '@/repositories/clickhouse/monitoring.repository';
 
 async function hasDownMonitors(dashboardId: string, siteId: string): Promise<boolean> {
@@ -15,10 +14,6 @@ async function hasDownMonitors(dashboardId: string, siteId: string): Promise<boo
 }
 
 export async function getDashboardAlerts(dashboardId: string, siteId: string): Promise<DashboardAlerts> {
-  const [downMonitors, unresolvedIncidents] = await Promise.all([
-    isFeatureEnabled('enableUptimeMonitoring') ? hasDownMonitors(dashboardId, siteId) : false,
-    isFeatureEnabled('enablePublicStatusPages') ? countUnresolvedIncidents(dashboardId) : 0,
-  ]);
-
-  return { hasDownMonitors: downMonitors, hasUnresolvedStatusPageIncidents: unresolvedIncidents > 0 };
+  if (!isFeatureEnabled('enableUptimeMonitoring')) return { hasDownMonitors: false };
+  return { hasDownMonitors: await hasDownMonitors(dashboardId, siteId) };
 }
