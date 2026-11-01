@@ -1,8 +1,17 @@
 'use client';
 
-import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState, type AnimationEvent } from 'react';
+import {
+  ComponentProps,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type AnimationEvent,
+} from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -113,25 +122,23 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
 
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const [editorOffset, setEditorOffset] = useState({ side: 4, align: 0 });
 
-  // A pinned header below xl hides this trigger behind the topbar, so the editor sits under the filter band instead,
-  // re-measured every frame so it follows the header pinning and unpinning while open.
-  const anchorRef = useRef({
-    getBoundingClientRect: () => {
-      const trigger = triggerRef.current;
-      if (!trigger) return new DOMRect();
-      const band = trigger
-        .closest('[data-slot=dashboard-filters]')
-        ?.querySelector('[data-slot=active-filters-band]');
-      return (band && getComputedStyle(trigger).visibility === 'hidden' ? band : trigger).getBoundingClientRect();
-    },
-  });
-
-  // Mounted after the trigger, so Strict Mode re-attaching the trigger's ref cannot reclaim the anchor from it.
-  const [isAnchorMounted, setIsAnchorMounted] = useState(false);
-  useEffect(() => {
-    setIsAnchorMounted(true);
-  }, []);
+  // A pinned header below xl hides this trigger behind the topbar, so the editor is offset to open under the band instead.
+  useLayoutEffect(() => {
+    if (!isPopoverOpen) return;
+    const trigger = triggerRef.current;
+    const band = trigger
+      ?.closest('[data-slot=dashboard-filters]')
+      ?.querySelector('[data-slot=active-filters-band]');
+    if (!trigger || !band || getComputedStyle(trigger).visibility !== 'hidden') {
+      setEditorOffset({ side: 4, align: 0 });
+      return;
+    }
+    const triggerRect = trigger.getBoundingClientRect();
+    const bandRect = band.getBoundingClientRect();
+    setEditorOffset({ side: bandRect.bottom - triggerRect.bottom + 4, align: bandRect.left - triggerRect.left });
+  }, [isPopoverOpen]);
 
   const trigger = (
     <Button
@@ -187,12 +194,12 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
 
   return (
     <Popover {...props} open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-      {isAnchorMounted && <PopoverAnchor virtualRef={anchorRef} />}
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
         className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl'
         align='start'
-        updatePositionStrategy='always'
+        sideOffset={editorOffset.side}
+        alignOffset={editorOffset.align}
         onAnimationEnd={handleContentAnimationEnd}
         onOpenAutoFocus={handleOpenAutoFocus}
         onCloseAutoFocus={handleCloseAutoFocus}
