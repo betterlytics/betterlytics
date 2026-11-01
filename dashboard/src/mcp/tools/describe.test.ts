@@ -98,20 +98,27 @@ describe('getSchemaDescription', () => {
     const { tools } = getSchemaDescription(ALL_ENABLED);
 
     const monitors = tools.find((t) => t.name === 'list_monitors');
-    expect(monitors?.inputs.map((i) => i.name)).toEqual(['timeRange', 'timezone']);
+    expect(monitors?.inputs.map((i) => i.name)).toEqual(['timeRange', 'timezone', 'dashboardId']);
 
     const incidents = tools.find((t) => t.name === 'list_monitor_incidents');
-    expect(incidents?.inputs.map((i) => i.name)).toEqual(['timeRange', 'timezone', 'monitorId', 'state', 'limit']);
+    expect(incidents?.inputs.map((i) => i.name)).toEqual([
+      'timeRange',
+      'timezone',
+      'monitorId',
+      'state',
+      'limit',
+      'dashboardId',
+    ]);
   });
 
   it('includes the status page tools with their documented inputs', () => {
     const { tools } = getSchemaDescription(ALL_ENABLED);
 
     const pages = tools.find((t) => t.name === 'list_status_pages');
-    expect(pages?.inputs.map((i) => i.name)).toEqual(['statusPageId']);
+    expect(pages?.inputs.map((i) => i.name)).toEqual(['statusPageId', 'dashboardId']);
 
     const suggestions = tools.find((t) => t.name === 'list_incident_suggestions');
-    expect(suggestions?.inputs.map((i) => i.name)).toEqual(['statusPageId']);
+    expect(suggestions?.inputs.map((i) => i.name)).toEqual(['statusPageId', 'dashboardId']);
   });
 
   it('omits the optional tool groups when their deployment flags are off', () => {
@@ -183,5 +190,30 @@ describe('getSchemaDescription', () => {
     const query = tools.find((t) => t.name === 'query');
     const querySessions = tools.find((t) => t.name === 'query_sessions');
     expect(querySessions?.inputs.map((i) => i.name)).toEqual(query?.inputs.map((i) => i.name));
+  });
+
+  it('lists list_dashboards first, without inputs', () => {
+    const { tools } = getSchemaDescription(ALL_ENABLED);
+
+    expect(tools[0]).toMatchObject({ name: 'list_dashboards', inputs: [] });
+  });
+
+  it('gives every dashboard-scoped tool an optional dashboardId input pointing to list_dashboards', () => {
+    const { tools } = getSchemaDescription(ALL_ENABLED);
+    const dashboardTools = tools.filter((t) => t.name !== 'list_dashboards');
+
+    expect(dashboardTools.length).toBeGreaterThan(10);
+    for (const tool of dashboardTools) {
+      const input = tool.inputs.find((i) => i.name === 'dashboardId');
+      expect(input, tool.name).toMatchObject({ type: 'string', required: false });
+      expect(input?.description).toContain('list_dashboards');
+    }
+  });
+
+  it('explains how to pick a dashboard', () => {
+    const { dashboards } = getSchemaDescription(ALL_ENABLED);
+
+    expect(dashboards.description).toContain('dashboardId');
+    expect(dashboards.description).toContain('list_dashboards');
   });
 });

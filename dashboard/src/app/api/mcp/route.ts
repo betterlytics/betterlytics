@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
 import { WebStandardStreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js';
 import { validateToken } from '@/mcp/auth/token';
-import { createMcpServer, type McpContext } from '@/mcp/server';
-import { checkRateLimit } from '@/mcp/rate-limit';
+import { createMcpServer } from '@/mcp/server';
+import { checkMcpRateLimit, rateLimitKeys } from '@/mcp/rate-limit';
 import { mcpRateLimitHitsTotal } from '@/mcp/metrics';
 
 export const runtime = 'nodejs';
@@ -36,9 +36,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const context: McpContext = { siteId: result.tokenInfo.siteId, dashboardId: result.tokenInfo.dashboardId };
+  const { context } = result;
 
-  const { allowed, retryAfterMs } = checkRateLimit(context.siteId);
+  const { allowed, retryAfterMs } = checkMcpRateLimit(await rateLimitKeys(context, () => req.clone().json()));
   if (!allowed) {
     mcpRateLimitHitsTotal.inc();
     return Response.json(
