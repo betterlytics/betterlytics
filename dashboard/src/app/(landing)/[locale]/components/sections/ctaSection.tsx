@@ -3,14 +3,29 @@ import { buttonStyles } from '@/landing/components/ui/button';
 import { Heading, Lede } from '@/landing/components/ui/text';
 import { TrackedAnchor, TrackedLink } from '@/landing/components/ui/trackedLink';
 import { VoltCard, VoltCardActions } from '@/landing/components/ui/voltCard';
+import type { CtaDestination } from '@/landing/lib/analytics';
 import { cn } from '@/landing/lib/cn';
 import { LINKS } from '@/landing/lib/links';
 
-type CtaCopy = { title: string; lede: string; primary: string; secondary: string; secondaryHref?: string };
+type CtaCopy = {
+  title: string;
+  lede: string;
+  primary: string;
+  secondary: string;
+  secondaryHref?: string;
+  secondaryDestination?: CtaDestination;
+};
 
 export function CtaSection({ copy }: { copy?: CtaCopy }) {
   const t = useTranslations('landing.cta');
-  const { title, lede, primary, secondary, secondaryHref } = copy ?? {
+  const {
+    title,
+    lede,
+    primary,
+    secondary,
+    secondaryHref,
+    secondaryDestination = 'docs',
+  } = copy ?? {
     title: t('title'),
     lede: t('lede'),
     primary: t('primary'),
@@ -51,7 +66,7 @@ export function CtaSection({ copy }: { copy?: CtaCopy }) {
             className={buttonStyles({ variant: 'onVolt', size: 'lg' })}
             href={secondaryHref ?? LINKS.docs}
             placement='cta'
-            destination='docs'
+            destination={secondaryDestination}
           >
             {secondary}
           </TrackedAnchor>

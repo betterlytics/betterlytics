@@ -22,9 +22,21 @@ const DEFAULT_IMAGE = {
   height: 630,
 };
 
+export const DEFAULT_ROBOTS: Metadata['robots'] = {
+  index: true,
+  follow: true,
+  googleBot: {
+    index: true,
+    follow: true,
+    'max-video-preview': -1,
+    'max-image-preview': 'large',
+    'max-snippet': -1,
+  },
+};
+
 export async function generateSEO(
   { title, description, path, socialTitle = title, socialDescription = description }: SEOConfig,
-  options?: { locale?: string; robots?: Metadata['robots'] },
+  options?: { locale?: string; robots?: Metadata['robots']; localized?: boolean },
 ): Promise<Metadata> {
   const defaultLocale = routing.defaultLocale;
   const currentLocale = options?.locale ?? defaultLocale;
@@ -58,10 +70,7 @@ export async function generateSEO(
       telephone: false,
     },
     metadataBase: new URL(BASE_URL),
-    alternates: {
-      canonical: fullUrl,
-      languages,
-    },
+    alternates: options?.localized === false ? { canonical: fullUrl } : { canonical: fullUrl, languages },
     openGraph: {
       type: 'website',
       locale:
@@ -81,17 +90,7 @@ export async function generateSEO(
       site: '@betterlytics',
       creator: '@betterlytics',
     },
-    robots: options?.robots ?? {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
+    robots: options?.robots ?? DEFAULT_ROBOTS,
   };
 }
 
