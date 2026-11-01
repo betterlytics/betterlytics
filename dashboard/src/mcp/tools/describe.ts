@@ -296,7 +296,7 @@ export function getSchemaDescription(available: ToolAvailability): SchemaDescrip
       {
         name: 'get_error',
         description:
-          'Get detailed info about a specific error: stack trace, browser/OS/device context, and breadcrumbs (user actions leading up to the error). Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+          'Get detailed info about a specific error: stack trace, browser/OS/device context, request details for failed fetch/XHR requests, and breadcrumbs (user actions leading up to the error). Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
         inputs: [
           {
             name: 'fingerprint',

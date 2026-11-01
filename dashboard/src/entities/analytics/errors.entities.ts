@@ -51,6 +51,14 @@ export const StackFrameSchema = z.object({
   inApp: z.boolean(),
 });
 
+export const FailedRequestSchema = z.object({
+  method: z.string(),
+  url: z.string(),
+  status_code: z.number().int().nullable(),
+  duration_ms: z.number().nullable(),
+  failure_type: z.string(),
+});
+
 export const ErrorOccurrenceSchema = z.object({
   timestamp: z.date(),
   url: z.string(),
@@ -63,6 +71,7 @@ export const ErrorOccurrenceSchema = z.object({
   error_message: z.string(),
   mechanism: z.string(),
   frames: z.array(StackFrameSchema),
+  request: FailedRequestSchema.nullable(),
 });
 
 export const SessionTrailEventSchema = z.object({
@@ -82,6 +91,7 @@ export type ErrorGroupEnvironmentRow = z.infer<typeof ErrorGroupEnvironmentRowSc
 export type ErrorGroupVolumePoint = z.infer<typeof ErrorGroupVolumePointSchema>;
 export type RawErrorOccurrenceRow = z.infer<typeof RawErrorOccurrenceRowSchema>;
 export type StackFrame = z.infer<typeof StackFrameSchema>;
+export type FailedRequest = z.infer<typeof FailedRequestSchema>;
 export type ErrorOccurrence = z.infer<typeof ErrorOccurrenceSchema>;
 export type SessionTrailEvent = z.infer<typeof SessionTrailEventSchema>;
 

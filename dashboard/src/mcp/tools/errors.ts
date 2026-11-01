@@ -145,6 +145,7 @@ export async function executeGetError(rawInput: unknown, siteId: string) {
     device_type: occurrence.device_type,
     country_code: occurrence.country_code,
     mechanism: occurrence.mechanism,
+    request: occurrence.request ?? undefined,
     stacktrace: occurrence.frames.map((f) => ({
       function: f.fn,
       file: f.file,

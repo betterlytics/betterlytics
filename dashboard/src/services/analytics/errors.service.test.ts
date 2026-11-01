@@ -1,11 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { getErrorGroupSidebarDataForSite } from '@/services/analytics/errors.service';
-import { getErrorGroupDailyVolume } from '@/repositories/clickhouse/errors.repository';
+import { getErrorGroupSidebarDataForSite, getErrorOccurrenceForSite } from '@/services/analytics/errors.service';
+import { getErrorGroupDailyVolume, getErrorOccurrence } from '@/repositories/clickhouse/errors.repository';
 
 vi.mock('@/repositories/clickhouse/errors.repository', () => ({
   getErrorGroupBrowserBreakdown: vi.fn(async () => []),
   getErrorGroupDeviceTypeBreakdown: vi.fn(async () => []),
   getErrorGroupDailyVolume: vi.fn(async () => []),
+  getErrorOccurrence: vi.fn(),
 }));
 vi.mock('@/repositories/clickhouse/sessionReplays.repository', () => ({}));
 vi.mock('@/repositories/postgres/errorGroup.repository', () => ({}));
@@ -31,5 +32,52 @@ describe('getErrorGroupSidebarDataForSite', () => {
     await getErrorGroupSidebarDataForSite('site-1', 'fp-1', timezone);
 
     expect(getErrorGroupDailyVolume).toHaveBeenCalledWith('site-1', 'fp-1', timezone, rangeStart, rangeEnd);
+  });
+});
+
+describe('getErrorOccurrenceForSite', () => {
+  function mockOccurrence(exception: Record<string, unknown>) {
+    vi.mocked(getErrorOccurrence).mockResolvedValue({
+      timestamp: new Date('2026-09-26T20:00:00Z'),
+      url: 'https://example.com/',
+      browser: 'Chrome',
+      os: 'macOS',
+      device_type: 'desktop',
+      country_code: 'DK',
+      session_id: 'session-1',
+      error_type: String(exception.type),
+      error_message: String(exception.value),
+      error_exceptions: JSON.stringify([exception]),
+    });
+  }
+
+  it('returns the request details of a failed request', async () => {
+    const request = {
+      method: 'GET',
+      url: 'https://example.com/api/orders/*',
+      status_code: 503,
+      duration_ms: 120,
+      failure_type: 'http',
+    };
+    mockOccurrence({
+      type: 'HTTPError',
+      value: 'GET https://example.com/api/orders/* 503',
+      mechanism: 'onfetch',
+      stack: '',
+      request,
+    });
+
+    const occurrence = await getErrorOccurrenceForSite('site-1', 'fp-1', 0);
+
+    expect(occurrence?.mechanism).toBe('onfetch');
+    expect(occurrence?.request).toEqual(request);
+  });
+
+  it('returns no request details for other errors', async () => {
+    mockOccurrence({ type: 'TypeError', value: 'oops', mechanism: 'onuncaughtexception', stack: '' });
+
+    const occurrence = await getErrorOccurrenceForSite('site-1', 'fp-1', 0);
+
+    expect(occurrence?.request).toBeNull();
   });
 });

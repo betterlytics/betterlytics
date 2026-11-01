@@ -147,7 +147,7 @@ export function createMcpServer(context: McpContext): McpServer {
     'get_error',
     {
       description:
-        'Get detailed information about a specific error, including the full stack trace, browser/OS/device context, and the session trail of events leading up to the error. Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
+        'Get detailed information about a specific error, including the full stack trace, browser/OS/device context, the request details (method, URL, status code, duration, failure type) for failed fetch/XHR requests, and the session trail of events leading up to the error. Use the fingerprint from list_errors, or ask the user to retrieve it from the error details page in the Betterlytics dashboard.',
       inputSchema: McpGetErrorInputBaseSchema.shape,
     },
     (params) => runTool('get_error', () => executeGetError(params, context.siteId)),

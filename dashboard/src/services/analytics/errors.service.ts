@@ -22,6 +22,8 @@ import {
   ErrorGroupVolumePoint,
   ErrorGroupVolumeRow,
   ErrorOccurrence,
+  FailedRequest,
+  FailedRequestSchema,
   SessionTrailEvent,
   StackFrame,
   type ErrorGroupSidebarData,
@@ -78,11 +80,13 @@ export async function getErrorOccurrenceForSite(
 
   let mechanism = '';
   let frames: StackFrame[] = [];
+  let request: FailedRequest | null = null;
   try {
     const exceptions = JSON.parse(raw.error_exceptions);
     const ex = exceptions?.[0];
     mechanism = ex?.mechanism ?? '';
     frames = ex?.stack ? parseStackTrace(ex.stack) : [];
+    request = FailedRequestSchema.safeParse(ex?.request).data ?? null;
   } catch {
     // If we encounter a malformed exception_list we leave frames empty
   }
@@ -99,6 +103,7 @@ export async function getErrorOccurrenceForSite(
     error_message: raw.error_message,
     mechanism,
     frames,
+    request,
   };
 }
 
