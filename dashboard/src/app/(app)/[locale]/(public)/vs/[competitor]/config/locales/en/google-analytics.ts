@@ -124,7 +124,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'No Hidden Costs',
-      content: `Google Analytics is "free" but the hidden cost is giving Google your data. Enterprise features? GA360 pricing typically starts in the tens of thousands per year.\n\nBetterlytics is transparent. Starts at $7/month with a free tier. Session replay, monitoring, all features included. No surprise bills, no data trade-offs.`,
+      content: `Google Analytics is "free" but the hidden cost is giving Google your data. Enterprise features? GA360 pricing typically starts in the tens of thousands per year.\n\nBetterlytics is transparent. Starts at $9/month with a free tier. Session replay, monitoring and every other module included on every plan. No surprise bills, no data trade-offs.`,
       icon: 'dollar',
     },
     {

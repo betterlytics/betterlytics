@@ -126,7 +126,7 @@ export const googleAnalytics: ComparisonLocaleContent = {
     },
     {
       title: 'Nessun costo nascosto',
-      content: `Google Analytics è “gratuito”, ma il costo nascosto è cedere i tuoi dati a Google. Le funzionalità enterprise? I prezzi di GA360 partono spesso da decine di migliaia di dollari all’anno.\n\nBetterlytics è trasparente. Parte da $7/mese con un piano gratuito. Session replay, monitoring e tutte le funzionalità incluse. Nessuna sorpresa, nessun compromesso sui dati.`,
+      content: `Google Analytics è “gratuito”, ma il costo nascosto è cedere i tuoi dati a Google. Le funzionalità enterprise? I prezzi di GA360 partono spesso da decine di migliaia di dollari all’anno.\n\nBetterlytics è trasparente. Parte da $9/mese con un piano gratuito. Session replay, monitoring e tutti gli altri moduli inclusi in ogni piano. Nessuna sorpresa, nessun compromesso sui dati.`,
       icon: 'dollar',
     },
     {
