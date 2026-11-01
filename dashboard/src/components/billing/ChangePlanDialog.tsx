@@ -18,6 +18,7 @@ import {
   type PlanChangePhase,
 } from '@/hooks/useSubscriptionPlanChange';
 import type { SelectedPlan } from '@/types/pricing';
+import { getPlan, priceFor } from '@/lib/billing/catalog';
 import type {
   SubscriptionChangePreview,
   SubscriptionChangePreviewLine,
@@ -52,7 +53,7 @@ export function ChangePlanDialog({
   const { phase, begin, reset } = planChange;
 
   const previewQuery = useQuery({
-    queryKey: ['subscriptionChangePreview', targetPlan?.lookup_key, targetPlan?.currency],
+    queryKey: ['subscriptionChangePreview', targetPlan?.planId, targetPlan?.eventLimit, targetPlan?.currency],
     enabled: open && targetPlan !== null && (phase === 'idle' || phase === 'applying'),
     queryFn: async () => {
       if (!targetPlan) throw new Error('No plan selected');
@@ -101,7 +102,7 @@ export function ChangePlanDialog({
         {phase === 'success' ? (
           <SuccessCheckmark
             label={t('successLabel')}
-            description={targetPlan ? t('successDescription', { tier: targetPlan.tier }) : undefined}
+            description={targetPlan ? t('successDescription', { tier: getPlan(targetPlan.planId).name }) : undefined}
           />
         ) : phase === 'authenticating' ? (
           <PendingBody label={t('authenticatingLabel')} description={t('authenticatingDescription')} />
@@ -251,7 +252,8 @@ function PreviewBody({ query, targetPlan, locale }: PreviewBodyProps) {
   const isCredit = amountDue < 0;
 
   const amountAbs = Math.abs(amountDue);
-  const renewalAmount = nextRenewalAmount || targetPlan.price_cents;
+  const plan = getPlan(targetPlan.planId);
+  const renewalAmount = nextRenewalAmount || (priceFor(plan, targetPlan.eventLimit, targetPlan.currency) ?? 0);
   const renewalDateText = nextRenewalDate.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
@@ -260,7 +262,7 @@ function PreviewBody({ query, targetPlan, locale }: PreviewBodyProps) {
 
   const summaryKey = isCredit ? 'summaryCredit' : 'summaryCharge';
   const summary = t(summaryKey, {
-    tier: targetPlan.tier,
+    tier: plan.name,
     events: formatNumber(targetPlan.eventLimit, locale),
     amount: formatPrice(amountAbs, currency, locale),
     date: renewalDateText,
