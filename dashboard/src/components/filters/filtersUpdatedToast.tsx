@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { MinusIcon, PlusIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { FilterDescription } from '@/components/filters/FilterDescription';
-import { type QueryFilter } from '@/entities/analytics/filter.entities';
+import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
+import { diffQueryFilters, undoQueryFilterDiff, type QueryFilter } from '@/entities/analytics/filter.entities';
 import { generateTempId } from '@/utils/temporaryId';
 
 const FILTER_TOAST_DURATION_MS = 10000;
@@ -32,6 +33,22 @@ export function showFiltersUpdatedToast(props: FilterChanges & { onUndo: () => v
     // use the toast's full width.
     classNames: { content: 'w-full min-w-0', title: 'w-full min-w-0' },
   });
+}
+
+export function useNotifyFiltersUpdated() {
+  const { setQueryFilters } = useQueryFiltersContext();
+  return useCallback(
+    (prev: QueryFilter[], next: QueryFilter[]) => {
+      const { added, removed } = diffQueryFilters(prev, next);
+      if (added.length === 0 && removed.length === 0) return;
+      showFiltersUpdatedToast({
+        added,
+        removed,
+        onUndo: () => setQueryFilters((fs) => undoQueryFilterDiff(fs, { added, removed })),
+      });
+    },
+    [setQueryFilters],
+  );
 }
 
 /* The toast's Undo targets the query-filter state of the shell that hosts

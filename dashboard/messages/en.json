@@ -3070,7 +3070,9 @@
       "toastFilterRemoved": "Removed",
       "removeFilter": "Remove filter",
       "pillMoreValues": "+{count, number} more",
-      "notAvailableOnPage": "Not available on this page"
+      "notAvailableOnPage": "Not available on this page",
+      "activeFilters": "Active filters",
+      "clearAll": "Clear all"
     },
     "funnels": {
       "skeleton": {

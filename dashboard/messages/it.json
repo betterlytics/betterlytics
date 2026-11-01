@@ -3070,7 +3070,9 @@
       "toastFilterRemoved": "Rimosso",
       "removeFilter": "Rimuovi filtro",
       "pillMoreValues": "{count, plural, one {+# altro} other {+# altri}}",
-      "notAvailableOnPage": "Non disponibile in questa pagina"
+      "notAvailableOnPage": "Non disponibile in questa pagina",
+      "activeFilters": "Filtri attivi",
+      "clearAll": "Rimuovi tutti"
     },
     "funnels": {
       "skeleton": {
