@@ -44,6 +44,7 @@ export function AppTrackingScript({ globalProperties }: { globalProperties: Glob
       data-web-vitals='true'
       data-track-errors='true'
       data-track-console-errors='true'
+      data-track-failed-requests='true'
       data-global-properties={JSON.stringify(globalProperties)}
     />
   );
