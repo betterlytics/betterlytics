@@ -66,7 +66,6 @@ export type PlanDefinition = {
   id: PlanId;
   /** Brand name, shown untranslated in every locale, emails and Stripe. */
   name: string;
-  shortName: string;
   listed: boolean;
   /** Bought through checkout; false means "talk to us". */
   selfServe: boolean;

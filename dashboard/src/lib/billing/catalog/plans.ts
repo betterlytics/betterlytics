@@ -8,13 +8,17 @@ export const EVENT_STEPS = [
 /** Slider stop past the largest step, where volume is quoted rather than bought. */
 export const CUSTOM_VOLUME = 10_000_001;
 
-function monthlyBands(planId: PlanId, dollars: readonly number[]): PriceBand[] {
+/**
+ * Lookup keys carry the price list's version, so a price change adds bands under a new version and
+ * moves the old keys to `legacyPrices`, where they keep billing existing subscriptions.
+ */
+function monthlyBands(planId: PlanId, version: string, dollars: readonly number[]): PriceBand[] {
   return EVENT_STEPS.map((events, index) => {
     const cents = dollars[index] * 100;
     return {
       events,
       prices: { month: { USD: cents, EUR: cents } },
-      lookupKeys: { month: `${planId}_${events}_month` },
+      lookupKeys: { month: `${planId}_${version}_${events}_month` },
     };
   });
 }
@@ -32,7 +36,6 @@ const feature = (key: Extract<PlanHighlight, { kind: 'feature' }>['key']): PlanH
 const free: PlanDefinition = {
   id: 'free',
   name: 'Free',
-  shortName: 'Free',
   listed: true,
   selfServe: true,
   rank: 1,
@@ -80,12 +83,11 @@ const growth: PlanDefinition = {
 const plus: PlanDefinition = {
   id: 'plus',
   name: 'Plus',
-  shortName: 'Plus',
   listed: true,
   selfServe: true,
   rank: 2,
   featured: true,
-  bands: monthlyBands('plus', [9, 14, 19, 29, 49, 69, 89, 129, 169]),
+  bands: monthlyBands('plus', '202611', [9, 14, 19, 29, 49, 69, 89, 129, 169]),
   // Growth's free 10k step stays with the grandfathered plan above
   legacyPrices: retiredMonthlyPrices('growth', EVENT_STEPS.slice(1)),
   capabilities: {
@@ -118,12 +120,11 @@ const plus: PlanDefinition = {
 const business: PlanDefinition = {
   id: 'business',
   name: 'Business',
-  shortName: 'Business',
   listed: true,
   selfServe: true,
   rank: 3,
   featured: false,
-  bands: monthlyBands('business', [19, 24, 29, 44, 74, 104, 134, 194, 254]),
+  bands: monthlyBands('business', '202611', [19, 24, 29, 44, 74, 104, 134, 194, 254]),
   legacyPrices: retiredMonthlyPrices('professional', EVENT_STEPS),
   capabilities: {
     dashboards: { maxDashboards: 25, maxMembers: 25 },
@@ -155,7 +156,6 @@ const business: PlanDefinition = {
 const enterprise: PlanDefinition = {
   id: 'enterprise',
   name: 'Enterprise',
-  shortName: 'Enterprise',
   listed: true,
   selfServe: false,
   rank: 4,
@@ -204,3 +204,6 @@ export const FREE_PLAN_ID: PlanId = 'free';
 
 /** Plan whose capabilities self-hosted deploys (billing off) get. */
 export const SELF_HOSTED_PLAN_ID: PlanId = 'enterprise';
+
+/** Plan ids renamed at the November 2026 launch, still readable in case an older deploy writes one mid-rollout. */
+export const RENAMED_PLAN_IDS: ReadonlyMap<string, PlanId> = new Map([['professional', 'business']]);

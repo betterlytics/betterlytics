@@ -10,6 +10,7 @@ import type { SupportedLanguages } from '@/constants/i18n';
 import type { ReactNode } from 'react';
 import { env } from '@/lib/env';
 import { redirect } from 'next/navigation';
+import { freePlan, freeSubscriptionDefaults } from '@/lib/billing/catalog';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: SupportedLanguages }> }) {
   const { locale } = await params;
@@ -179,7 +180,13 @@ export default async function ContactPage() {
               <FAQItem question={t('faq.items.integrate.question')} answer={t('faq.items.integrate.answer')} />
               <FAQItem question={t('faq.items.gdpr.question')} answer={t('faq.items.gdpr.answer')} />
               <FAQItem question={t('faq.items.migrate.question')} answer={t('faq.items.migrate.answer')} />
-              <FAQItem question={t('faq.items.freePlan.question')} answer={t('faq.items.freePlan.answer')} />
+              <FAQItem
+                question={t('faq.items.freePlan.question')}
+                answer={t('faq.items.freePlan.answer', {
+                  sites: freePlan().capabilities.dashboards.maxDashboards,
+                  events: freeSubscriptionDefaults().eventLimit,
+                })}
+              />
               <FAQItem question={t('faq.items.cloud.question')} answer={t('faq.items.cloud.answer')} />
               <FAQItem question={t('faq.items.support.question')} answer={t('faq.items.support.answer')} />
             </div>

@@ -118,7 +118,7 @@
           },
           "freePlan": {
             "question": "Cosa include il piano gratuito?",
-            "answer": "Il piano Free su Cloud copre 1 sito e fino a 10.000 eventi tracciati al mese. Include analisi web, session replay, tracciamento errori e monitoraggio uptime, oltre al supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo. L'auto-hosting è gratuito senza limite di eventi."
+            "answer": "Il piano Free su Cloud copre {sites, plural, one {# sito} other {# siti}} e fino a {events, number} eventi tracciati al mese. Include analisi web, session replay, tracciamento errori e monitoraggio uptime, oltre al supporto della community. Perfetto per iniziare! Nessuna carta di credito richiesta, nessun vincolo. L'auto-hosting è gratuito senza limite di eventi."
           },
           "cloud": {
             "question": "Come funziona l'hosting cloud?",
@@ -1690,7 +1690,7 @@
           },
           "free": {
             "q": "Il monitoraggio uptime è gratuito?",
-            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. Header personalizzati, codici di stato accettati e controlli per parola chiave funzionano su tutti i piani. Con Plus ottieni cinque monitor con controlli ogni minuto e una pagina di stato sul tuo dominio. Con Business arrivi fino a 50 monitor e tre pagine di stato senza il branding Betterlytics."
+            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. Header personalizzati, codici di stato accettati e controlli per parola chiave funzionano su tutti i piani. I piani a pagamento aggiungono più monitor, controlli ogni minuto e pagine di stato sul tuo dominio, e Business rimuove il branding Betterlytics."
           },
           "internal": {
             "q": "Posso monitorare servizi interni?",
@@ -2022,7 +2022,8 @@
       "dataRetention": {
         "name": "Conservazione dati",
         "values": {
-          "yearsCount": "{count, plural, one {#+ anno} other {#+ anni}}"
+          "yearsCount": "{count, plural, one {#+ anno} other {#+ anni}}",
+          "custom": "Personalizzata"
         }
       },
       "teamMembers": {
@@ -2706,7 +2707,9 @@
         "errors": {
           "invalidDomain": "Dominio non valido"
         },
-        "limitReached": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre."
+        "limitReached": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre.",
+        "limitReachedPlan": "Hai raggiunto il limite di dashboard. {plan} supporta fino a {count} siti.",
+        "limitReachedUnlimitedPlan": "Hai raggiunto il limite di dashboard. {plan} supporta siti illimitati."
       }
     },
     "slider": {
@@ -2742,7 +2745,7 @@
           },
           "freeOption": {
             "q": "Esiste un'opzione gratuita?",
-            "a": "Sì! Il nostro piano Free include 10.000 eventi al mese, gratis per sempre. Nessuna carta di credito richiesta per iniziare."
+            "a": "Sì! Il nostro piano Free include {events, number} eventi al mese, gratis per sempre. Nessuna carta di credito richiesta per iniziare."
           },
           "cancelAnytime": {
             "q": "Posso annullare in qualsiasi momento?",

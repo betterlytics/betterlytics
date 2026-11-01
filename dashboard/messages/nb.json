@@ -118,7 +118,7 @@
           },
           "freePlan": {
             "question": "Hva er inkludert i gratisplanen?",
-            "answer": "Free-planen i skyløsningen dekker 1 nettsted og opptil 10 000 sporede hendelser per måned. Den inkluderer nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking, pluss fellesskapsstøtte. Perfekt for å komme i gang! Ingen kredittkort kreves, ingen bindingstid. Selvhosting er gratis uten grense for hendelser."
+            "answer": "Free-planen i skyløsningen dekker {sites, plural, one {# nettsted} other {# nettsteder}} og opptil {events, number} sporede hendelser per måned. Den inkluderer nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking, pluss fellesskapsstøtte. Perfekt for å komme i gang! Ingen kredittkort kreves, ingen bindingstid. Selvhosting er gratis uten grense for hendelser."
           },
           "cloud": {
             "question": "Hvordan fungerer skyløsningen?",
@@ -1690,7 +1690,7 @@
           },
           "free": {
             "q": "Er oppetidsovervåking gratis?",
-            "a": "Ja. Free-planen inkluderer én monitor, sjekket hvert femte minutt, og én offentlig statusside med Betterlytics-merking. Egne headere, godkjente statuskoder og nøkkelordsjekker fungerer på alle planer. Plus gir deg fem monitorer med sjekker hvert minutt og en statusside på ditt eget domene. Business går opp til 50 monitorer og tre statussider uten Betterlytics-merking."
+            "a": "Ja. Free-planen inkluderer én monitor, sjekket hvert femte minutt, og én offentlig statusside med Betterlytics-merking. Egne headere, godkjente statuskoder og nøkkelordsjekker fungerer på alle planer. Betalte planer gir flere monitorer, sjekker hvert minutt og statussider på ditt eget domene, og Business fjerner Betterlytics-merkingen."
           },
           "internal": {
             "q": "Kan jeg overvåke interne tjenester?",
@@ -2022,7 +2022,8 @@
       "dataRetention": {
         "name": "Datalagring",
         "values": {
-          "yearsCount": "{count, plural, one {#+ år} other {#+ år}}"
+          "yearsCount": "{count, plural, one {#+ år} other {#+ år}}",
+          "custom": "Tilpasset"
         }
       },
       "teamMembers": {
@@ -2706,7 +2707,9 @@
         "errors": {
           "invalidDomain": "Ugyldig domene"
         },
-        "limitReached": "Du har nådd dashboard-grensen din. Oppgrader planen din for å opprette flere dashboards."
+        "limitReached": "Du har nådd dashboard-grensen din. Oppgrader planen din for å opprette flere dashboards.",
+        "limitReachedPlan": "Du har nådd dashboard-grensen din. {plan} støtter opptil {count} nettsteder.",
+        "limitReachedUnlimitedPlan": "Du har nådd dashboard-grensen din. {plan} støtter ubegrenset antall nettsteder."
       }
     },
     "slider": {
@@ -2742,7 +2745,7 @@
           },
           "freeOption": {
             "q": "Finnes det en gratis plan?",
-            "a": "Ja! Free-planen vår inkluderer 10 000 hendelser per måned, gratis for alltid. Ingen kredittkort kreves for å komme i gang."
+            "a": "Ja! Free-planen vår inkluderer {events, number} hendelser per måned, gratis for alltid. Ingen kredittkort kreves for å komme i gang."
           },
           "cancelAnytime": {
             "q": "Kan jeg si opp når som helst?",

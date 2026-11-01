@@ -118,7 +118,7 @@
           },
           "freePlan": {
             "question": "What's included in the free plan?",
-            "answer": "The Free Cloud plan covers 1 site and up to 10,000 tracked events per month. It includes web analytics, session replay, error tracking and uptime monitoring, plus community support. Perfect for getting started! No credit card required, no strings attached. Self-hosting is free with no event limit."
+            "answer": "The Free Cloud plan covers {sites, plural, one {# site} other {# sites}} and up to {events, number} tracked events per month. It includes web analytics, session replay, error tracking and uptime monitoring, plus community support. Perfect for getting started! No credit card required, no strings attached. Self-hosting is free with no event limit."
           },
           "cloud": {
             "question": "How does the cloud hosting work?",
@@ -1690,7 +1690,7 @@
           },
           "free": {
             "q": "Is uptime monitoring free?",
-            "a": "Yes. The Free plan includes one monitor, checked every five minutes, and one public status page with Betterlytics branding. Custom headers, accepted status codes and keyword checks work on every plan. Plus gives you five monitors with one-minute checks and a status page on your own domain. Business goes up to 50 monitors and three status pages without Betterlytics branding."
+            "a": "Yes. The Free plan includes one monitor, checked every five minutes, and one public status page with Betterlytics branding. Custom headers, accepted status codes and keyword checks work on every plan. Paid plans add more monitors, one-minute checks and status pages on your own domain, and Business removes the Betterlytics branding."
           },
           "internal": {
             "q": "Can I monitor internal services?",
@@ -1984,7 +1984,7 @@
       "getStarted": "Get Started",
       "currentPlan": "Current Plan",
       "changeToThisPlan": "Change to This Plan",
-      "contactUs": "Contact Us"
+      "contactUs": "Talk to Us"
     },
     "badges": {
       "mostPopular": "Recommended",
@@ -2022,7 +2022,8 @@
       "dataRetention": {
         "name": "Data retention",
         "values": {
-          "yearsCount": "{count, plural, one {#+ year} other {#+ years}}"
+          "yearsCount": "{count, plural, one {#+ year} other {#+ years}}",
+          "custom": "Custom"
         }
       },
       "teamMembers": {
@@ -2706,7 +2707,9 @@
         "errors": {
           "invalidDomain": "Invalid domain"
         },
-        "limitReached": "You've reached your dashboard limit. Upgrade your plan to create more dashboards."
+        "limitReached": "You've reached your dashboard limit. Upgrade your plan to create more dashboards.",
+        "limitReachedPlan": "You've reached your dashboard limit. {plan} supports up to {count} sites.",
+        "limitReachedUnlimitedPlan": "You've reached your dashboard limit. {plan} supports unlimited sites."
       }
     },
     "slider": {
@@ -2742,7 +2745,7 @@
           },
           "freeOption": {
             "q": "Is there a free option?",
-            "a": "Yes! Our Free plan includes 10,000 events per month, free forever. No credit card required to get started."
+            "a": "Yes! Our Free plan includes {events, number} events per month, free forever. No credit card required to get started."
           },
           "cancelAnytime": {
             "q": "Can I cancel anytime?",
