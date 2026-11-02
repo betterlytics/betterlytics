@@ -120,7 +120,7 @@ export default function LeafletMap({
             style={style}
           />
           <MapStickyTooltip size={size} />
-          <MapPopupAutoPan />
+          <MapPopupAutoPan L={mapComponents.L} />
         </MapContainer>
         {children}
       </MapSelectionContextProvider>

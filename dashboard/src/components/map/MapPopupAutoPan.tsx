@@ -22,8 +22,10 @@ const toBox = (a: Point, b: Point): Box => ({
 
 const samePoint = (a: Point, b: Point) => Math.abs(a.x - b.x) <= 1 && Math.abs(a.y - b.y) <= 1;
 
+type MapPopupAutoPanProps = { L: typeof import('leaflet') };
+
 // While a popup is open maxBounds move by the room it needs, so Leaflet keeps limiting drag and zoom itself and glides back on close
-export default function MapPopupAutoPan() {
+export default function MapPopupAutoPan({ L }: MapPopupAutoPanProps) {
   const map = useMap();
 
   useEffect(() => {
@@ -32,7 +34,8 @@ export default function MapPopupAutoPan() {
     let openPopup: Popup | null = null;
     let disposed = false;
 
-    const makeRoom = (popup: Popup) => {
+    // After a zoom Leaflet pans into the bounds itself on the moveend that follows, so only the room it would not reach is panned to
+    const makeRoom = (popup: Popup, afterZoom = false) => {
       const element = popup.getElement();
       const bounds = restBounds ?? map.options.maxBounds;
       if (!element || popup !== openPopup || !isLatLngBounds(bounds)) return;
@@ -52,12 +55,10 @@ export default function MapPopupAutoPan() {
       const roomed = roomBand(band, size, rest, room);
       const northWest = map.unproject([roomed.min.x, roomed.min.y], zoom);
       const southEast = map.unproject([roomed.max.x, roomed.max.y], zoom);
-      map.setMaxBounds([
-        [northWest.lat, northWest.lng],
-        [southEast.lat, southEast.lng],
-      ]);
+      map.options.maxBounds = L.latLngBounds(northWest, southEast);
       const target = { x: rest.x + room.x, y: rest.y + room.y };
-      if (!samePoint(limitCenter(center, size, roomed), target)) {
+      const settled = afterZoom ? limitCenter(center, size, roomed) : center;
+      if (!samePoint(settled, target)) {
         map.panTo(map.unproject([target.x, target.y], zoom));
       }
     };
@@ -72,7 +73,7 @@ export default function MapPopupAutoPan() {
     };
 
     const onZoomEnd = () => {
-      if (openPopup) makeRoom(openPopup);
+      if (openPopup) makeRoom(openPopup, true);
     };
 
     const restoreBounds = () => {
@@ -107,7 +108,7 @@ export default function MapPopupAutoPan() {
       map.off('unload', dispose);
       dispose();
     };
-  }, [map]);
+  }, [map, L]);
 
   return null;
 }
