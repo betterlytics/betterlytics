@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  limitCenter,
   parseCssLength,
   popupPanOffset,
+  roomBand,
   sidebarOverlay,
+  type Box,
   type Overlay,
   type Rect,
 } from '@/components/map/popup-pan';
@@ -69,6 +72,50 @@ describe('popupPanOffset', () => {
       x: 100 - 264,
       y: 44 - 72,
     });
+  });
+});
+
+const box = (minX: number, minY: number, maxX: number, maxY: number): Box => ({
+  min: { x: minX, y: minY },
+  max: { x: maxX, y: maxY },
+});
+const view = { x: 1000, y: 800 };
+
+describe('limitCenter', () => {
+  it('leaves a view that sits inside a wider band alone', () => {
+    expect(limitCenter({ x: 2000, y: 1000 }, view, box(0, 0, 4000, 2000))).toEqual({ x: 2000, y: 1000 });
+  });
+
+  it('pushes a view back by the amount it pokes out of a wider band', () => {
+    expect(limitCenter({ x: 450, y: 1700 }, view, box(0, 0, 4000, 2000))).toEqual({ x: 500, y: 1600 });
+  });
+
+  it('pins a view wider than the band to its middle', () => {
+    expect(limitCenter({ x: 300, y: 100 }, view, box(0, 0, 800, 500))).toEqual({ x: 400, y: 250 });
+  });
+
+  it('ignores offsets of a pixel or less like Leaflet does', () => {
+    expect(limitCenter({ x: 499.5, y: 1000 }, view, box(0, 0, 4000, 2000))).toEqual({ x: 499.5, y: 1000 });
+  });
+});
+
+describe('roomBand', () => {
+  it('moves a band narrower than the view by the room, so the pinned view moves with it', () => {
+    expect(roomBand(box(0, 0, 800, 500), view, { x: 400, y: 250 }, { x: -30, y: -120 })).toEqual(
+      box(-30, -120, 770, 380),
+    );
+  });
+
+  it('grows a band wider than the view just enough to hold the view the popup needs', () => {
+    expect(roomBand(box(0, 0, 4000, 2000), view, { x: 2000, y: 500 }, { x: 50, y: -120 })).toEqual(
+      box(0, -20, 4000, 2000),
+    );
+  });
+
+  it('handles the axes independently', () => {
+    expect(roomBand(box(0, 0, 800, 2000), view, { x: 400, y: 500 }, { x: -30, y: -120 })).toEqual(
+      box(-30, -20, 770, 2000),
+    );
   });
 });
 

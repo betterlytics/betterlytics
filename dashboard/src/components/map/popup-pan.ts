@@ -2,6 +2,8 @@ export type Edge = 'top' | 'right' | 'bottom' | 'left';
 export type Rect = { top: number; right: number; bottom: number; left: number };
 export type Overlay = { edge: Edge; rect: Rect };
 export type Offset = { x: number; y: number };
+export type Point = { x: number; y: number };
+export type Box = { min: Point; max: Point };
 
 const GAP = 8;
 const MAX_PASSES = 3;
@@ -9,7 +11,7 @@ const EDGES: readonly Edge[] = ['top', 'right', 'bottom', 'left'];
 
 const isEdge = (value: string | undefined): value is Edge => EDGES.includes(value as Edge);
 
-const shift = (rect: Rect, { x, y }: Offset): Rect => ({
+export const shift = (rect: Rect, { x, y }: Offset): Rect => ({
   top: rect.top - y,
   bottom: rect.bottom - y,
   left: rect.left - x,
@@ -70,6 +72,30 @@ export function popupPanOffset(popup: Rect, container: Rect, overlays: Overlay[]
     total = { x: total.x + step.x, y: total.y + step.y };
   }
   return total;
+}
+
+// Leaflet's _rebound: a view wider than the band is pinned to its middle, otherwise pushed back inside
+const rebound = (left: number, right: number) =>
+  left + right > 0 ? Math.round(left - right) / 2 : Math.max(0, Math.ceil(left)) - Math.max(0, Math.floor(right));
+
+// Where Leaflet rests a view centred here, mirroring Map._limitCenter
+export function limitCenter(center: Point, size: Point, band: Box): Point {
+  const half = { x: size.x / 2, y: size.y / 2 };
+  const dx = rebound(band.min.x - (center.x - half.x), center.x + half.x - band.max.x);
+  const dy = rebound(band.min.y - (center.y - half.y), center.y + half.y - band.max.y);
+  if (Math.abs(dx) <= 1 && Math.abs(dy) <= 1) return center;
+  return { x: center.x + dx, y: center.y + dy };
+}
+
+// A band narrower than the view pins it to the middle, so it moves with the room; a wider one grows to the view the popup needs
+export function roomBand(band: Box, size: Point, rest: Point, room: Offset): Box {
+  const axis = (min: number, max: number, extent: number, at: number, by: number) =>
+    max - min < extent
+      ? [min + by, max + by]
+      : [Math.min(min, at + by - extent / 2), Math.max(max, at + by + extent / 2)];
+  const [minX, maxX] = axis(band.min.x, band.max.x, size.x, rest.x, room.x);
+  const [minY, maxY] = axis(band.min.y, band.max.y, size.y, rest.y, room.y);
+  return { min: { x: minX, y: minY }, max: { x: maxX, y: maxY } };
 }
 
 export function parseCssLength(value: string, rootFontSize: number): number {
