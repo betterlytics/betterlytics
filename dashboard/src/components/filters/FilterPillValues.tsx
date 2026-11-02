@@ -1,15 +1,6 @@
 'use client';
 
-import {
-  memo,
-  useCallback,
-  useLayoutEffect,
-  useRef,
-  useState,
-  type Dispatch,
-  type ReactNode,
-  type RefObject,
-} from 'react';
+import { memo, useCallback, useLayoutEffect, useRef, useState, type Dispatch, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
 import { useLocale, useTranslations } from 'next-intl';
 import { FilterPillSection } from '@/components/filters/FilterPillSection';
@@ -40,7 +31,6 @@ export const FilterPillValues = memo(function FilterPillValues({ filter, onOpen 
   const strategy = getFilterStrategy(filter.column);
   const count = filter.values.length;
   const mounted = mountedPillValueCount(filter.values);
-  const valuesRef = useRef<HTMLSpanElement>(null);
 
   const values: PillValue[] = filter.values.slice(0, mounted).map((value, index) => ({
     render: (placeholder) => (
@@ -66,9 +56,9 @@ export const FilterPillValues = memo(function FilterPillValues({ filter, onOpen 
       {count === 0 ? (
         <span className='text-muted-foreground'>{t('selector.selectValue')}</span>
       ) : (
-        <span ref={valuesRef} data-pill-values='' className='relative flex min-w-0'>
+        <span data-pill-values='' className='relative flex min-w-0'>
           <PillValuesLadder values={values} />
-          <PillMoreLabel valuesRef={valuesRef} values={filter.values} />
+          <PillMoreLabel values={filter.values} />
         </span>
       )}
     </FilterPillSection>
@@ -108,34 +98,36 @@ function PillOverflowFade({ value }: { value: PillValue }) {
   );
 }
 
-// Its own component, so a new count re-renders only the label and not the whole ladder.
-function PillMoreLabel({ valuesRef, values }: { valuesRef: RefObject<HTMLSpanElement | null>; values: string[] }) {
+/*
+ * Its own component, so a new count re-renders only the label and not the whole ladder. It reaches the values
+ * through its own parent element: a parent's ref is still unset while a child's layout effects run on mount.
+ */
+function PillMoreLabel({ values }: { values: string[] }) {
   const t = useTranslations('components.filters');
   const labelRef = useRef<HTMLSpanElement>(null);
   const [hidden, setHidden] = useState(0);
   const count = values.length;
 
   const measure = useCallback(() => {
-    const container = valuesRef.current;
-    if (container && labelRef.current) {
-      setHidden(hiddenPillValueCount(container, labelRef.current, count));
-    }
-  }, [valuesRef, count]);
+    const label = labelRef.current;
+    const container = label?.parentElement;
+    if (label && container) setHidden(hiddenPillValueCount(container, label, count));
+  }, [count]);
 
   // After every render, so the count follows edits, locale changes and its own text, whose width decides what it covers.
   useLayoutEffect(measure);
 
   useLayoutEffect(() => {
-    const container = valuesRef.current;
     const label = labelRef.current;
-    if (!container || !label) return;
+    const container = label?.parentElement;
+    if (!label || !container) return;
     // flushSync paints the new count in the same frame as the resize that changed it.
     const observer = new ResizeObserver(() => flushSync(measure));
     observer.observe(container);
     observer.observe(label);
     container.querySelectorAll('[data-pill-value]').forEach((value) => observer.observe(value));
     return () => observer.disconnect();
-  }, [valuesRef, measure, values]);
+  }, [measure, values]);
 
   return (
     <span
