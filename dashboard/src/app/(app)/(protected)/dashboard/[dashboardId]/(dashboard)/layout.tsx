@@ -26,6 +26,8 @@ type DashboardSidebarLayoutProps = {
 export default async function DashboardSidebarLayout({ params, children }: DashboardSidebarLayoutProps) {
   const { dashboardId } = await params;
   const session = await requireAuth();
+  // The sidebar starts dashboard requests before awaiting translations, so access is settled first to keep a
+  // redirect out of an unhandled promise.
   await resolveDashboardContext(dashboardId);
 
   const billingEnabled = isClientFeatureEnabled('enableBilling');

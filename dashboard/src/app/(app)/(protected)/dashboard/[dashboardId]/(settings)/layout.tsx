@@ -10,6 +10,8 @@ type SettingsSidebarLayoutProps = {
 
 export default async function SettingsSidebarLayout({ params, children }: SettingsSidebarLayoutProps) {
   const { dashboardId } = await params;
+  // The sidebar starts dashboard requests before awaiting translations, so access is settled first to keep a
+  // redirect out of an unhandled promise. requireAuth covers signed-out visitors on the demo dashboard.
   await requireAuth();
   await resolveDashboardContext(dashboardId);
 
