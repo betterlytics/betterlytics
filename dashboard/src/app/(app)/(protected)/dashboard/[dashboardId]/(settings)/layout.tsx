@@ -1,6 +1,7 @@
 import BASidebarProvider from '@/components/sidebar/BASidebarProvider';
 import SettingsSidebar from './settings/SettingsSidebar';
 import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
+import { requireAuth, resolveDashboardContext } from '@/auth/auth-actions';
 
 type SettingsSidebarLayoutProps = {
   params: Promise<{ dashboardId: string }>;
@@ -9,6 +10,8 @@ type SettingsSidebarLayoutProps = {
 
 export default async function SettingsSidebarLayout({ params, children }: SettingsSidebarLayoutProps) {
   const { dashboardId } = await params;
+  await requireAuth();
+  await resolveDashboardContext(dashboardId);
 
   return (
     <BASidebarProvider>

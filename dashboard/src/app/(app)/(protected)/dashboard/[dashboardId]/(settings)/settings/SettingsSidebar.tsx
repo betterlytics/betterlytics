@@ -17,7 +17,6 @@ import { getTranslations } from 'next-intl/server';
 import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { DashboardDropdown } from '@/components/sidebar/DashboardDropdown';
 import { getAllUserDashboardsAction, getCurrentDashboardAction } from '@/app/actions/index.actions';
-import { resolveDashboardContext } from '@/auth/auth-actions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { env } from '@/lib/env';
 
@@ -33,8 +32,6 @@ type SidebarItem = {
 };
 
 export default async function SettingsSidebar({ dashboardId }: SettingsSidebarProps) {
-  await resolveDashboardContext(dashboardId);
-
   const currentDashboardPromise = getCurrentDashboardAction(dashboardId);
 
   const allDashboardsPromise = getAllUserDashboardsAction();

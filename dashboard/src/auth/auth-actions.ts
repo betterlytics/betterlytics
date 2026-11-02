@@ -76,8 +76,8 @@ async function requireDashboardAuth(dashboardId: string): Promise<AuthContext> {
   return ctx;
 }
 
-// Dashboard segments render in parallel with the dashboard layout. A segment that starts dashboard requests
-// without awaiting them awaits this first, so a missing access redirects here instead of in an unhandled promise.
+// Dashboard segments render in parallel with the dashboard layout. A segment that starts a dashboard request and
+// then awaits something else awaits this first, so a missing access redirects here instead of in an unhandled promise.
 export async function resolveDashboardContext(dashboardId: string): Promise<AuthContext> {
   const result = await resolveDashboardAuthResult(dashboardId);
   if (result.error) {

@@ -78,8 +78,7 @@ export default async function DashboardLayout({ children, params }: DashboardLay
 export async function generateMetadata({ params }: { params: Promise<{ dashboardId: string }> }) {
   const { dashboardId } = await params;
 
-  // Renders in parallel with the layout, so it must not redirect on no access: the layout's redirect wins
-  // and a second one would be logged as an unhandled rejection.
+  // The layout owns the no-access redirect, so the title falls back instead of redirecting too.
   const access = await resolveDashboardAuthResult(dashboardId);
   if (access.error) {
     return { title: 'Betterlytics' };

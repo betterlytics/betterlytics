@@ -12,7 +12,7 @@ import { TimezoneFallbackBanner } from '../TimezoneFallbackBanner';
 import { TermsRequiredModal } from '@/components/account/TermsRequiredModal';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { getUserBillingData } from '@/actions/billing.action';
-import { requireAuth } from '@/auth/auth-actions';
+import { requireAuth, resolveDashboardContext } from '@/auth/auth-actions';
 import { CURRENT_TERMS_VERSION } from '@/constants/legal';
 import { RealtimeQuerySync } from '@/components/dashboard/RealtimeQuerySync';
 import GithubStarCard from '@/components/githubStar/GithubStarCard';
@@ -26,6 +26,7 @@ type DashboardSidebarLayoutProps = {
 export default async function DashboardSidebarLayout({ params, children }: DashboardSidebarLayoutProps) {
   const { dashboardId } = await params;
   const session = await requireAuth();
+  await resolveDashboardContext(dashboardId);
 
   const billingEnabled = isClientFeatureEnabled('enableBilling');
 
