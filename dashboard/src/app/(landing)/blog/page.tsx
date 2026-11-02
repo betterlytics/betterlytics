@@ -5,10 +5,10 @@ import { getBlogPosts } from '@/content/blog';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { Panel, Section } from '@/landing/components/ui/frame';
-import ruled from '@/landing/components/ui/ruledGrid.module.css';
 import { Heading, Lede } from '@/landing/components/ui/text';
 import { cn } from '@/landing/lib/cn';
 import { PostCard } from './_components/postCard';
+import { PostGrid } from './_components/postGrid';
 import { BLOG_COPY, BLOG_GUTTER, BLOG_LOCALE, blogPath } from './_lib/blog';
 import { blogIndexMetadata } from './_lib/seo';
 
@@ -44,17 +44,7 @@ export default function BlogIndexPage() {
         <Panel flush>
           <PostCard post={lead} lead />
         </Panel>
-        {rest.length > 0 && (
-          <Panel flush className='mt-16 max-sm:mt-12'>
-            <ul className={cn(ruled.grid, ruled.cols3)}>
-              {rest.map((post) => (
-                <li key={post.slug}>
-                  <PostCard post={post} />
-                </li>
-              ))}
-            </ul>
-          </Panel>
-        )}
+        {rest.length > 0 && <PostGrid posts={rest} className='mt-16 max-sm:mt-12' />}
       </Section>
     </PageShell>
   );

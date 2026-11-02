@@ -7,19 +7,17 @@ import { BLOG_COVER_SIZE, getBlogPost, getBlogPosts, getOtherBlogPosts } from '@
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { CtaSection } from '@/landing/components/sections/ctaSection';
-import { Panel, Section } from '@/landing/components/ui/frame';
-import ruled from '@/landing/components/ui/ruledGrid.module.css';
+import { Section } from '@/landing/components/ui/frame';
 import { cn } from '@/landing/lib/cn';
 import { PostBody } from '@/app/(landing)/blog/_components/postBody';
-import { PostCard } from '@/app/(landing)/blog/_components/postCard';
+import { PostGrid } from '@/app/(landing)/blog/_components/postGrid';
 import { PostHeader } from '@/app/(landing)/blog/_components/postHeader';
 import { BLOG_CTA, BLOG_GUTTER, BLOG_LOCALE, POST_COLUMN } from '@/app/(landing)/blog/_lib/blog';
 import { blogPostJsonLd, blogPostMetadata } from '@/app/(landing)/blog/_lib/seo';
 
 type Props = { params: Promise<{ slug: string }> };
 
-export const dynamicParams = false;
-
+// no `dynamicParams = false`: it rejects unknown slugs before notFound() runs, which skips the blog's not-found.tsx
 export function generateStaticParams() {
   return getBlogPosts().map(({ slug }) => ({ slug }));
 }
@@ -58,15 +56,7 @@ export default async function BlogPostPage({ params }: Props) {
         </article>
         {related.length > 0 && (
           <Section id='keep-reading' title='Keep *reading*'>
-            <Panel flush>
-              <ul className={cn(ruled.grid, ruled.cols3)}>
-                {related.map((other) => (
-                  <li key={other.slug}>
-                    <PostCard post={other} headingAs='h3' />
-                  </li>
-                ))}
-              </ul>
-            </Panel>
+            <PostGrid posts={related} headingAs='h3' />
           </Section>
         )}
       </PageShell>
