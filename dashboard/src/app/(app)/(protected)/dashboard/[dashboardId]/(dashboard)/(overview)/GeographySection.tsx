@@ -131,7 +131,7 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
           data: [],
           customContent: (
             <div className='h-[22rem] w-full'>
-              <LeafletMap {...worldMapData} showZoomControls={false} initialZoom={1}>
+              <LeafletMap {...worldMapData} initialZoom={1}>
                 <MapLegend maxVisitors={worldMapData.maxVisitors} className='absolute right-[1%] bottom-[1%]' />
               </LeafletMap>
             </div>

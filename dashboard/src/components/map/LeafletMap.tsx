@@ -37,7 +37,6 @@ export type MapSelectionControl = {
 };
 
 type LeafletMapProps = GeoMapResponse & {
-  showZoomControls?: boolean;
   initialZoom?: number;
   size?: 'sm' | 'lg';
   children?: ReactNode;
@@ -50,7 +49,6 @@ export default function LeafletMap({
   visitorData,
   compareData,
   maxVisitors,
-  showZoomControls,
   size = 'sm',
   initialZoom,
   children,
@@ -131,7 +129,7 @@ export default function LeafletMap({
           <MapContainer
             {...containerProps}
             style={{ height: '100%', width: '100%' }}
-            zoomControl={showZoomControls}
+            zoomControl={false}
             renderer={renderer}
             zoomDelta={0.1}
             zoomSnap={0.1}
