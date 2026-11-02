@@ -1,6 +1,6 @@
 'use client';
 import { useRef, type ReactNode } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { XIcon } from 'lucide-react';
 import { useQueryFiltersContext } from '@/contexts/QueryFiltersContextProvider';
 import { useQueryFiltersEditor, type QueryFilterPart } from '@/contexts/QueryFiltersEditorProvider';
@@ -13,7 +13,7 @@ import { FilterColumnLabel } from '@/components/filters/FilterColumnLabel';
 import { FilterValueLabel } from '@/components/filters/FilterValueLabel';
 import { FilterValueList } from '@/components/filters/FilterDescription';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
-import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { useFilterValueFormatter } from '@/hooks/use-filter-value-formatter';
 import { cn } from '@/lib/utils';
 
 const MAX_TOOLTIP_VALUES = 20;
@@ -121,8 +121,7 @@ function FilterPillSection({ className, onClick, children }: FilterPillSectionPr
 
 function FilterValuesTooltip({ filter, operator }: { filter: QueryFilter; operator: string }) {
   const t = useTranslations('components.filters');
-  const locale = useLocale();
-  const strategy = getFilterStrategy(filter.column);
+  const formatValue = useFilterValueFormatter();
   const visibleValues = filter.values.slice(0, MAX_TOOLTIP_VALUES);
   const hiddenCount = filter.values.length - visibleValues.length;
 
@@ -136,7 +135,7 @@ function FilterValuesTooltip({ filter, operator }: { filter: QueryFilter; operat
         {visibleValues.map((value) => (
           <li key={value}>
             <FilterValueLabel column={filter.column} value={value} className='flex'>
-              <span className='min-w-0 wrap-anywhere'>{strategy.formatValue(value, locale)}</span>
+              <span className='min-w-0 wrap-anywhere'>{formatValue(filter.column, value)}</span>
             </FilterValueLabel>
           </li>
         ))}
