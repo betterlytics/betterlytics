@@ -1,4 +1,4 @@
-import { SidebarProvider } from '@/components/ui/sidebar';
+import BASidebarProvider from '@/components/sidebar/BASidebarProvider';
 import SettingsSidebar from './settings/SettingsSidebar';
 import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
 
@@ -11,12 +11,12 @@ export default async function SettingsSidebarLayout({ params, children }: Settin
   const { dashboardId } = await params;
 
   return (
-    <SidebarProvider>
+    <BASidebarProvider>
       <SettingsSidebar dashboardId={dashboardId} />
       <BAMobileSidebarTrigger />
       <div className='flex w-full justify-center md:mt-14'>
         <div className='w-full max-w-2xl p-6'>{children}</div>
       </div>
-    </SidebarProvider>
+    </BASidebarProvider>
   );
 }

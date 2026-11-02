@@ -21,7 +21,7 @@ import { type PresentedMonitorUptime } from '@/presenters/toMonitorUptimeDays';
 import { ResponseTimeChart } from './ResponseTimeChart';
 import { useLocale, useTranslations } from 'next-intl';
 import { MonitoringTooltip } from './MonitoringTooltip';
-import { formatPercentage, formatTimeFromNow } from '@/utils/formatters';
+import { formatTimeFromNow, formatUptime } from '@/utils/formatters';
 import { getReasonTranslationKey } from '@/lib/monitorReasonCodes';
 import { cn } from '@/lib/utils';
 import { CardHeader, SectionCard, StatusDot, TimePeriodBadge } from '../components';
@@ -161,7 +161,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
   const getLabel = (upRatio: number | null) => {
     if (upRatio !== null) {
       return t('uptime.grid.uptimeLabel', {
-        value: formatPercentage(upRatio * 100, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2, trimHundred: true }),
+        value: formatUptime(upRatio * 100, locale),
       });
     }
     return tLabels('noData');
@@ -209,7 +209,7 @@ export function Uptime180DayCard({ uptime, title }: { title?: string; uptime?: P
                 </span>
                 <div className='text-right'>
                   <div className={presentUptimeTone(stat.percent).theme.text}>
-                    {stat.percent != null ? formatPercentage(stat.percent, locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '— %'}
+                    {stat.percent != null ? formatUptime(stat.percent, locale) : '— %'}
                   </div>
                   <div className='text-muted-foreground text-xs'>{downtimeLabel}</div>
                 </div>

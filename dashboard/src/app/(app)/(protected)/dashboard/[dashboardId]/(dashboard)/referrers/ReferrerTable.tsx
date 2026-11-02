@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { formatNumber, formatPercentage, formatString } from '@/utils/formatters';
 import { formatDuration } from '@/utils/dateFormatters';
-import { ReferrerTableRow } from '@/entities/analytics/referrers.entities';
+import { ReferrerTableKey, ReferrerTableRow } from '@/entities/analytics/referrers.entities';
 import { getReferrerColor } from '@/utils/referrerColors';
 import { Globe, Link } from 'lucide-react';
 import { DataTable } from '@/components/DataTable';
@@ -46,7 +46,7 @@ const SourceTypeBadge = ({ type }: { type: string }) => {
 };
 
 interface ReferrerTableProps {
-  data?: ToDataTable<'source_url', ReferrerTableRow>[];
+  data?: ToDataTable<ReferrerTableKey, ReferrerTableRow>[];
   loading?: boolean;
 }
 
@@ -65,7 +65,7 @@ export default function ReferrerTable({ data = [], loading = false }: ReferrerTa
     return row.current.source_type.toLowerCase() === activeTab.toLowerCase();
   });
 
-  const columns: ColumnDef<ToDataTable<'source_url', ReferrerTableRow>>[] = [
+  const columns: ColumnDef<ToDataTable<ReferrerTableKey, ReferrerTableRow>>[] = [
     {
       accessorKey: 'source',
       header: t('columns.source'),

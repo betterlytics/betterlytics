@@ -1,6 +1,7 @@
-import { SidebarProvider } from '@/components/ui/sidebar';
+import BASidebarProvider from '@/components/sidebar/BASidebarProvider';
 import BASidebar from '@/components/sidebar/BASidebar';
 import BAMobileSidebarTrigger from '@/components/sidebar/BAMobileSidebarTrigger';
+import { SidebarAlertSummaryDot } from '@/components/sidebar/SidebarAlertDot';
 import { BannerProvider } from '@/contexts/BannerProvider';
 import { Suspense } from 'react';
 import UsageAlertBanner from '@/components/billing/UsageAlertBanner';
@@ -41,9 +42,11 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
   const githubStarEligibilityPromise = getGithubStarPromptEligibility();
 
   return (
-    <SidebarProvider>
+    <BASidebarProvider>
       <BASidebar dashboardId={dashboardId} isDemo={false} />
-      <BAMobileSidebarTrigger />
+      <BAMobileSidebarTrigger
+        indicator={isFeatureEnabled('enableUptimeMonitoring') && <SidebarAlertSummaryDot />}
+      />
       <BannerProvider>
         {/* Bottom padding below md keeps page content clear of the floating mobile menu button */}
         <div className='flex w-full justify-center pb-20 md:pb-0'>
@@ -68,6 +71,6 @@ export default async function DashboardSidebarLayout({ params, children }: Dashb
       <Suspense fallback={null}>
         <GithubStarCard eligibilityPromise={githubStarEligibilityPromise} />
       </Suspense>
-    </SidebarProvider>
+    </BASidebarProvider>
   );
 }
