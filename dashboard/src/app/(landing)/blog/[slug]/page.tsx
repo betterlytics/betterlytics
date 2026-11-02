@@ -17,7 +17,9 @@ import { blogPostJsonLd, blogPostMetadata } from '@/app/(landing)/blog/_lib/seo'
 
 type Props = { params: Promise<{ slug: string }> };
 
-// no `dynamicParams = false`: it rejects unknown slugs before notFound() runs, which skips the blog's not-found.tsx
+// next.config.ts rewrites unknown slugs to one prerendered 404; this stops any that slip past from caching their own
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return getBlogPosts().map(({ slug }) => ({ slug }));
 }

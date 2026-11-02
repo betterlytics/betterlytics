@@ -1,5 +1,6 @@
 import type { NextConfig } from 'next';
 import { HTML_LIMITED_BOT_UA_RE } from 'next/dist/shared/lib/router/utils/html-bots';
+import * as fs from 'fs';
 import * as path from 'path';
 import dotenv from 'dotenv';
 import createNextIntlPlugin from 'next-intl/plugin';
@@ -13,6 +14,11 @@ const result = dotenv.config({ path: envPath });
 if (result.error) {
   console.warn('Could not load .env file from root:', result.error.message);
 }
+
+const BLOG_POST_SLUGS = fs
+  .readdirSync(path.join(process.cwd(), 'src/content/blog/posts'))
+  .filter((file) => file.endsWith('.mdx'))
+  .map((file) => file.slice(0, -'.mdx'.length));
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -53,6 +59,11 @@ const nextConfig: NextConfig = {
         {
           source: `/:segment((?!(?:${SUPPORTED_LANGUAGES.join('|')})$)[^/]+)`,
           destination: `/${process.env.NEXT_PUBLIC_DEFAULT_LANGUAGE ?? 'en'}/:segment`,
+        },
+        // Likewise every unknown blog URL would cache its own 404, so they share one prerendered page
+        {
+          source: `/blog/:path((?!(?:${BLOG_POST_SLUGS.join('|')})$).+)`,
+          destination: '/blog/not_found',
         },
       ],
       fallback: [],
