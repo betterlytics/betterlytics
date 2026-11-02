@@ -8,7 +8,7 @@ import { FilterPreservingLink } from '@/components/ui/FilterPreservingLink';
 import { ArrowRight } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useProgressTableFilterClick } from '@/hooks/use-progress-table-filter-click';
-import { type GeoLevel } from '@/entities/analytics/geography.entities';
+import { type GeoLevel, type GeoMapResponse } from '@/entities/analytics/geography.entities';
 import type { SupportedLanguages } from '@/constants/i18n';
 import dynamic from 'next/dynamic';
 import { useBAQueryParams } from '@/trpc/hooks';
@@ -17,6 +17,8 @@ import { useQueryState } from '@/hooks/use-query-state';
 import MapLegend from '@/components/map/MapLegend';
 
 const LeafletMap = dynamic(() => import('@/components/map/LeafletMap'), { ssr: false });
+
+const EMPTY_GEO_MAP: GeoMapResponse = { maxVisitors: 0, visitorData: [], compareData: [] };
 
 const GEO_LABEL_FORMATTERS: Record<GeoLevel, (value: string, locale: SupportedLanguages) => string> = {
   country_code: getCountryName,
@@ -104,7 +106,7 @@ export default function GeographySection({ enabledLevels }: GeographySectionProp
   });
 
   const worldMapState = useQueryState(worldMapQuery, activeTab === 'worldmap');
-  const worldMapData = worldMapQuery.data ?? { maxVisitors: 0, visitorData: [], compareData: [] };
+  const worldMapData = worldMapQuery.data ?? EMPTY_GEO_MAP;
   const activeState = {
     country_code: countryState,
     subdivision_code: subdivisionState,

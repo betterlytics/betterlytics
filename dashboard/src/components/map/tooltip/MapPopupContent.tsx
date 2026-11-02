@@ -1,26 +1,27 @@
 'use client';
 
-import { FlagIconProps } from '@/components/icons';
-import { CountryDisplay } from '@/components/language/CountryDisplay';
+import { MapFeatureTitle } from '@/components/map/tooltip/MapFeatureTitle';
 import { TrendPercentage } from '@/components/TrendPercentage';
 import { SupportedLanguages } from '@/constants/i18n';
-import type { GeoVisitorWithCompare } from '@/entities/analytics/geography.entities';
+import type { GeoFeatureVisitorWithCompare } from '@/entities/analytics/geography.entities';
 import { TimeRangeContextProps } from '@/contexts/TimeRangeContextProvider';
+import type { GeoFeatureDisplay } from '@/components/map/types';
 import { cn } from '@/lib/utils';
-import { getCountryName } from '@/utils/countryCodes';
 import { formatPrimaryRangeLabel } from '@/utils/formatPrimaryRangeLabel';
 import { formatLocalDateTime, LOCALE_STRING_OPTIONS } from '@/utils/dateFormatters';
 import { formatNumber } from '@/utils/formatters';
+import { calculatePercentageChange } from '@/utils/percentageChange';
 import { useTranslations } from 'next-intl';
 import React from 'react';
 
 export type MapPopupContentProps = {
-  geoVisitor?: GeoVisitorWithCompare;
+  geoVisitor?: GeoFeatureVisitorWithCompare;
   className?: string;
   locale: SupportedLanguages;
   size?: 'sm' | 'lg';
   t: ReturnType<typeof useTranslations<'components'>>;
   timeRangeCtx: TimeRangeContextProps;
+  display: GeoFeatureDisplay;
   onMouseEnter?: () => void;
 };
 
@@ -31,6 +32,7 @@ function MapPopupContentComponent({
   size = 'sm',
   t,
   timeRangeCtx,
+  display,
   onMouseEnter,
 }: MapPopupContentProps) {
   if (!geoVisitor) return null;
@@ -39,12 +41,7 @@ function MapPopupContentComponent({
   const resolvedCompare = timeRangeCtx.resolvedCompareRange;
   const rangeTooltipOptions = { ...LOCALE_STRING_OPTIONS, timeZone: timeRangeCtx.timeZone };
 
-  const percentageChange =
-    geoVisitor.compareVisitors !== undefined
-      ? geoVisitor.compareVisitors === 0 && geoVisitor.visitors > 0
-        ? undefined
-        : ((geoVisitor.visitors - geoVisitor.compareVisitors) / (geoVisitor.compareVisitors || 1)) * 100
-      : undefined;
+  const percentageChange = calculatePercentageChange(geoVisitor.visitors, geoVisitor.compareVisitors);
 
   const Row = ({
     color,
@@ -77,19 +74,15 @@ function MapPopupContentComponent({
         className,
       )}
     >
-      <CountryDisplay
-        className={cn(
-          'text-sm font-bold',
-          geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start',
-        )}
-        countryCode={geoVisitor.country_code as FlagIconProps['countryCode']}
-        countryName={getCountryName(geoVisitor.country_code, locale)}
+      <MapFeatureTitle
+        display={display}
+        className={geoVisitor.compareVisitors !== undefined ? 'justify-center' : 'justify-start'}
       />
       {geoVisitor.compareVisitors !== undefined && <div className='border-border my-2 border-t' />}
 
       <div className='flex items-center gap-1'>
         <span className='text-muted-foreground'>{t('geography.visitors')}</span>
-        {geoVisitor.compareVisitors !== undefined && percentageChange !== undefined ? (
+        {percentageChange !== undefined ? (
           <TrendPercentage percentage={percentageChange} withParenthesis withIcon locale={locale} />
         ) : (
           <span className='text-foreground ml-1'>{formatNumber(geoVisitor.visitors, locale)}</span>

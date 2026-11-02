@@ -9,6 +9,11 @@ import { useUserJourneyFilter } from '@/contexts/UserJourneyFilterContextProvide
 export function useSyncURLFilters() {
   const searchParams = useSearchParams();
   const applyingFromUrlRef = useRef<boolean>(false);
+  // Other params change through replaceState too and must not re-apply the filters
+  const filterParams = useMemo(
+    () => URL_SEARCH_PARAMS.map((param) => searchParams?.get(param) ?? '').join('\0'),
+    [searchParams],
+  );
 
   const { queryFilters, setQueryFilters } = useQueryFiltersContext();
   const {
@@ -90,7 +95,7 @@ export function useSyncURLFilters() {
     } finally {
       applyingFromUrlRef.current = false;
     }
-  }, [searchParams]);
+  }, [filterParams]);
 
   // State -> URL
   useEffect(() => {
