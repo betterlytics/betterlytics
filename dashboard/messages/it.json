@@ -2930,9 +2930,7 @@
         "errors": {
           "invalidDomain": "Dominio non valido"
         },
-        "limitReached": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre.",
-        "limitReachedPlan": "Hai raggiunto il limite di dashboard. {plan} supporta fino a {count} siti.",
-        "limitReachedUnlimitedPlan": "Hai raggiunto il limite di dashboard. {plan} supporta siti illimitati."
+        "limitTooltip": "Hai raggiunto il limite di dashboard. Aggiorna il piano per crearne altre."
       }
     },
     "slider": {

@@ -2930,9 +2930,7 @@
         "errors": {
           "invalidDomain": "Invalid domain"
         },
-        "limitReached": "You've reached your dashboard limit. Upgrade your plan to create more dashboards.",
-        "limitReachedPlan": "You've reached your dashboard limit. {plan} supports up to {count} sites.",
-        "limitReachedUnlimitedPlan": "You've reached your dashboard limit. {plan} supports unlimited sites."
+        "limitTooltip": "You've reached your dashboard limit. Upgrade your plan to create more dashboards."
       }
     },
     "slider": {
