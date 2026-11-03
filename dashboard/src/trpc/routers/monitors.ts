@@ -8,7 +8,9 @@ import {
   fetchMonitorIncidentSegments,
   fetchLatestMonitorTlsResult,
   fetchMonitorDailyUptime,
+  getMonitorDeletionImpact,
 } from '@/services/analytics/monitoring.service';
+import { getDashboardAlerts } from '@/services/analytics/dashboardAlerts.service';
 import { toMonitorUptimePresentation } from '@/presenters/toMonitorUptimeDays';
 import { BATimeZone } from '@/entities/analytics/analyticsQuery.entities';
 
@@ -49,10 +51,21 @@ export const monitorsRouter = createRouter({
       return await fetchLatestMonitorTlsResult(input.monitorId, ctx.authContext.siteId);
     }),
 
+  activeAlerts: dashboardProcedure.query(async ({ ctx }) => {
+    if (ctx.authContext.isDemo) return { hasDownMonitors: false };
+    return await getDashboardAlerts(ctx.authContext.dashboardId, ctx.authContext.siteId);
+  }),
+
   uptime: dashboardProcedure
     .input(z.object({ monitorId: z.string(), timezone: BATimeZone, days: z.number().optional().default(180) }))
     .query(async ({ ctx, input }) => {
       const rows = await fetchMonitorDailyUptime(input.monitorId, ctx.authContext.dashboardId, ctx.authContext.siteId, input.timezone, input.days);
       return toMonitorUptimePresentation(rows, input.timezone, input.days);
+    }),
+
+  deletionImpact: dashboardProcedure
+    .input(z.object({ monitorId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return await getMonitorDeletionImpact(ctx.authContext.dashboardId, input.monitorId);
     }),
 });

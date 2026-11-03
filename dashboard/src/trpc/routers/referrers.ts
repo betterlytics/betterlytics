@@ -12,6 +12,7 @@ import { getSortedCategories, toStackedAreaChart } from '@/presenters/toStackedA
 import { toDataTable } from '@/presenters/toDataTable';
 import { toHierarchicalDataTable } from '@/presenters/toHierarchicalDataTable';
 import { toSparklineSeries } from '@/presenters/toAreaChart';
+import { REFERRER_TABLE_KEY } from '@/entities/analytics/referrers.entities';
 
 const TOP_REFERRERS_LIMIT = 10;
 const REFERRER_TABLE_LIMIT = 100;
@@ -105,6 +106,6 @@ export const referrersRouter = createRouter({
       getReferrerTableDataForSite(main, REFERRER_TABLE_LIMIT),
       compare && getReferrerTableDataForSite(compare, REFERRER_TABLE_LIMIT),
     ]);
-    return toDataTable({ data, compare: compareData, categoryKey: 'source_url' });
+    return toDataTable({ data, compare: compareData, categoryKey: REFERRER_TABLE_KEY });
   }),
 });
