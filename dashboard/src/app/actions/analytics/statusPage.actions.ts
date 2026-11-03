@@ -4,7 +4,11 @@ import { createHash } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { getMessages, getTranslations } from 'next-intl/server';
 import z from 'zod';
-import { withDashboardAuthContext, withDashboardMutationAuthContext } from '@/auth/auth-actions';
+import {
+  withDashboardAuthContext,
+  withDashboardMemberAuthContext,
+  withDashboardMutationAuthContext,
+} from '@/auth/auth-actions';
 import { hasPermission } from '@/lib/permissions';
 import { isFeatureEnabled } from '@/lib/feature-flags';
 import { type AuthContext } from '@/entities/auth/authContext.entities';
@@ -79,7 +83,7 @@ export const fetchStatusPageEditorDataAction = withDashboardAuthContext(
   async (ctx: AuthContext, statusPageId: string) => getStatusPageEditorData(ctx.dashboardId, statusPageId),
 );
 
-export const fetchStatusPageStudioDataAction = withDashboardAuthContext(
+export const fetchStatusPageStudioDataAction = withDashboardMemberAuthContext(
   async (ctx: AuthContext, statusPageId: string, timezone: string) => {
     const [data, messages] = await Promise.all([
       getStatusPageStudioData(ctx.dashboardId, statusPageId, ctx.siteId, BATimeZone.parse(timezone)),
@@ -231,7 +235,7 @@ export const deleteStatusPageAction = withDashboardMutationAuthContext(
   { permission: 'canDeleteStatusPages' },
 );
 
-export const fetchStatusPageDraftPreviewAction = withDashboardAuthContext(async (ctx: AuthContext) => {
+export const fetchStatusPageDraftPreviewAction = withDashboardMemberAuthContext(async (ctx: AuthContext) => {
   const [payload, messages] = await Promise.all([
     getStatusPagePreviewDataForDashboard(ctx.dashboardId, ctx.siteId),
     getMessages({ locale: 'en' }),
@@ -261,7 +265,7 @@ async function computeStatusPageDefaults(dashboardId: string) {
   return { name, slug };
 }
 
-export const suggestStatusPageDefaultsAction = withDashboardAuthContext(
+export const suggestStatusPageDefaultsAction = withDashboardMemberAuthContext(
   async (ctx: AuthContext, timezone: string) => {
     const [{ name, slug }, monitors] = await Promise.all([
       computeStatusPageDefaults(ctx.dashboardId),
@@ -282,7 +286,7 @@ export const suggestStatusPageDefaultsAction = withDashboardAuthContext(
   },
 );
 
-export const checkStatusPageSlugAction = withDashboardAuthContext(
+export const checkStatusPageSlugAction = withDashboardMemberAuthContext(
   async (_ctx: AuthContext, slug: string, excludeStatusPageId?: string) => {
     const parsed = StatusPageSlugSchema.safeParse(slug);
     if (!parsed.success) {
