@@ -64,6 +64,7 @@ vi.mock('@/mcp/tools/statusPages', async (importOriginal) => ({
 }));
 
 import { createMcpServer } from '@/mcp/server';
+import { rateLimitKeys } from '@/mcp/rate-limit';
 
 const SHOP: McpDashboard = {
   dashboardId: 'dash-shop',
@@ -158,6 +159,24 @@ describe('createMcpServer', () => {
       }
       expect(tool.inputSchema.properties, tool.name).toHaveProperty('dashboardId');
       expect(tool.inputSchema.required ?? [], tool.name).not.toContain('dashboardId');
+    }
+  });
+
+  it('charges a tool to the named site only when it takes a dashboardId', async () => {
+    const client = await connect(single);
+    const { tools } = await client.listTools();
+
+    for (const tool of tools) {
+      const body = {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'tools/call',
+        params: { name: tool.name, arguments: { dashboardId: 'dash-blog' } },
+      };
+      const scoped = Object.hasOwn(tool.inputSchema.properties ?? {}, 'dashboardId');
+      expect(await rateLimitKeys(several, async () => body), tool.name).toEqual([
+        scoped ? 'site-blog' : 'mcp-token:2',
+      ]);
     }
   });
 
