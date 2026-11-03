@@ -7,29 +7,21 @@ import { CreateDashboardDialog } from '@/app/(app)/(protected)/dashboards/Create
 import { getUserDashboardStatsAction } from '@/app/actions/dashboard/dashboard.action';
 import { useTranslations } from 'next-intl';
 import { useBillingFlow } from '@/contexts/BillingFlowProvider';
-import { planThatUnlocks, type PlanDefinition } from '@/lib/billing/catalog';
-import { isUnlimitedCount } from '@/lib/billing/capabilities';
+import { planThatUnlocks } from '@/lib/billing/catalog';
 
 export function CreateDashboardCard({
   dashboardStatsPromise,
 }: {
   dashboardStatsPromise: ReturnType<typeof getUserDashboardStatsAction>;
 }) {
-  const t = useTranslations('components.dashboards.createDialog');
+  const t = useTranslations('validation.capabilities');
   const dashboardStats = use(dashboardStatsPromise);
   const { openPlanPicker } = useBillingFlow();
 
-  const limitReason = (plan: PlanDefinition | null) => {
-    if (!plan) return t('limitReached');
-    const sites = plan.capabilities.dashboards.maxDashboards;
-    return isUnlimitedCount(sites)
-      ? t('limitReachedUnlimitedPlan', { plan: plan.name })
-      : t('limitReachedPlan', { plan: plan.name, count: sites });
-  };
-
   if (dashboardStats.success && !dashboardStats.data.canCreateMore) {
     const { limit } = dashboardStats.data;
-    const reason = limitReason(planThatUnlocks((c) => c.dashboards.maxDashboards > limit));
+    const plan = planThatUnlocks((c) => c.dashboards.maxDashboards > limit);
+    const reason = plan ? t('dashboardLimit', { plan: plan.name }) : t('limitReached');
     return <CreateCard onClick={() => openPlanPicker(reason)} />;
   }
 

@@ -2708,9 +2708,7 @@
         "errors": {
           "invalidDomain": "Ugyldigt domæne"
         },
-        "limitReached": "Du har nået din dashboard-grænse. Opgrader din plan for at oprette flere dashboards.",
-        "limitReachedPlan": "Du har nået din dashboard-grænse. {plan} understøtter op til {count} sites.",
-        "limitReachedUnlimitedPlan": "Du har nået din dashboard-grænse. {plan} understøtter ubegrænsede sites."
+        "limitTooltip": "Du har nået din dashboard-grænse. Opgrader din plan for at oprette flere dashboards."
       }
     },
     "slider": {

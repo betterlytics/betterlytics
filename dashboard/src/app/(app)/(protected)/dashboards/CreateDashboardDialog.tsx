@@ -117,7 +117,7 @@ export function CreateDashboardDialog({ dashboardStatsPromise, trigger }: Create
         </div>
       </TooltipTrigger>
       <TooltipContent>
-        <p>{t('limitReached')}</p>
+        <p>{t('limitTooltip')}</p>
       </TooltipContent>
     </Tooltip>
   );
