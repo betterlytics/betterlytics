@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useLocale } from 'next-intl';
 import { type FilterColumn } from '@/entities/analytics/filter.entities';
-import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { useFilterValueFormatter } from '@/hooks/use-filter-value-formatter';
 import { findCountryName } from '@/utils/countryCodes';
 
 type SubdivisionNames = typeof import('@/utils/subdivisionCodes');
@@ -14,6 +14,7 @@ let loadedSubdivisionNames: SubdivisionNames | null = null;
  */
 export function useFilterValueNames(column: FilterColumn, wanted: boolean): (value: string) => string {
   const locale = useLocale();
+  const formatValue = useFilterValueFormatter();
   const [subdivisionNames, setSubdivisionNames] = useState(loadedSubdivisionNames);
 
   useEffect(() => {
@@ -38,9 +39,9 @@ export function useFilterValueNames(column: FilterColumn, wanted: boolean): (val
         case 'subdivision_code':
           return subdivisionNames?.getSubdivisionName(value, locale) ?? value;
         default:
-          return getFilterStrategy(column).formatValue(value, locale);
+          return formatValue(column, value);
       }
     },
-    [column, locale, subdivisionNames],
+    [column, locale, subdivisionNames, formatValue],
   );
 }
