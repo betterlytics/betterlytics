@@ -11,6 +11,7 @@ import {
   freePlan,
   freeSubscriptionDefaults,
   getPlan,
+  isCurrentOffer,
   isFreeBand,
   isFreePlan,
   listedPlans,
@@ -263,6 +264,42 @@ describe('pricing card offers', () => {
 
   it('always quotes Enterprise', () => {
     expect(offerFor(getPlan('enterprise'), 10_000, 'USD')).toEqual({ kind: 'quoted', events: 10_000 });
+  });
+});
+
+describe('current plan card', () => {
+  const card = (planId: 'free' | 'plus' | 'business' | 'enterprise', events: number, currency: 'USD' | 'EUR') => {
+    const plan = getPlan(planId);
+    return [plan, offerFor(plan, events, currency), currency] as const;
+  };
+
+  it('marks the card an account is on at today’s price', () => {
+    const subscription = {
+      planId: 'plus' as const,
+      eventLimit: 50_000,
+      pricePerMonth: 1400,
+      currency: 'USD' as const,
+    };
+    expect(isCurrentOffer(subscription, ...card('plus', 50_000, 'USD'))).toBe(true);
+    expect(isCurrentOffer(subscription, ...card('plus', 100_000, 'USD'))).toBe(false);
+    expect(isCurrentOffer(subscription, ...card('business', 50_000, 'USD'))).toBe(false);
+  });
+
+  it('marks no paid card for a retired price, since it is no longer sold', () => {
+    const exPro = {
+      planId: 'business' as const,
+      eventLimit: 10_000,
+      pricePerMonth: 600,
+      currency: 'EUR' as const,
+    };
+    expect(isCurrentOffer(exPro, ...card('business', 10_000, 'EUR'))).toBe(false);
+  });
+
+  it('marks the Free card for both the new and the older free plan, and never Enterprise', () => {
+    const free = { planId: 'free' as const, eventLimit: 10_000, pricePerMonth: 0, currency: 'USD' as const };
+    expect(isCurrentOffer(free, ...card('free', 500_000, 'USD'))).toBe(true);
+    expect(isCurrentOffer({ ...free, planId: 'growth' }, ...card('free', 10_000, 'USD'))).toBe(true);
+    expect(isCurrentOffer({ ...free, planId: 'enterprise' }, ...card('enterprise', 10_000, 'USD'))).toBe(false);
   });
 });
 

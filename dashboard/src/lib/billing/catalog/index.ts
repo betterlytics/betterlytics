@@ -96,6 +96,23 @@ export function offerFor(
   return cents === null ? { kind: 'quoted', events } : { kind: 'paid', events, cents };
 }
 
+/** Whether a card shows exactly what an account has. A retired price is no longer sold, so it matches no paid card. */
+export function isCurrentOffer(
+  subscription: { planId: PlanId; eventLimit: number; pricePerMonth: number; currency: PlanCurrency },
+  plan: PlanDefinition,
+  offer: PlanOffer,
+  currency: PlanCurrency,
+): boolean {
+  if (isFreePlan(plan)) return isFreePlan(PLANS[subscription.planId]);
+  return (
+    offer.kind === 'paid' &&
+    subscription.planId === plan.id &&
+    subscription.eventLimit === offer.events &&
+    subscription.currency === currency &&
+    subscription.pricePerMonth === offer.cents
+  );
+}
+
 export type LookupKeyMatch = { plan: PlanDefinition; events: number; interval: BillingInterval };
 
 const LOOKUP_KEY_INDEX = new Map<string, LookupKeyMatch>();
