@@ -2,13 +2,13 @@
 
 import { memo, useCallback, useLayoutEffect, useRef, useState, type Dispatch, type ReactNode } from 'react';
 import { flushSync } from 'react-dom';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { FilterPillSection } from '@/components/filters/FilterPillSection';
 import { FilterValueIcon } from '@/components/filters/FilterValueLabel';
 import { hiddenPillValueCount, mountedPillValueCount } from '@/components/filters/pillValuesOverflow';
 import { type QueryFiltersEditorTarget } from '@/contexts/QueryFiltersEditorProvider';
 import { type QueryFilter } from '@/entities/analytics/filter.entities';
-import { getFilterStrategy } from '@/entities/analytics/filterColumnStrategy';
+import { useFilterValueFormatter } from '@/hooks/use-filter-value-formatter';
 import { cn } from '@/lib/utils';
 
 type FilterPillValuesProps = {
@@ -27,8 +27,7 @@ type PillValue = { render: (placeholder: boolean) => ReactNode; rest?: boolean }
  */
 export const FilterPillValues = memo(function FilterPillValues({ filter, onOpen }: FilterPillValuesProps) {
   const t = useTranslations('components.filters');
-  const locale = useLocale();
-  const strategy = getFilterStrategy(filter.column);
+  const formatValue = useFilterValueFormatter();
   const count = filter.values.length;
   const mounted = mountedPillValueCount(filter.values);
 
@@ -38,7 +37,7 @@ export const FilterPillValues = memo(function FilterPillValues({ filter, onOpen 
         <span className='mr-1.5 inline-flex align-[-0.2em] empty:hidden'>
           <FilterValueIcon column={filter.column} value={value} placeholder={placeholder} />
         </span>
-        {strategy.formatValue(value, locale)}
+        {formatValue(filter.column, value)}
         {index < count - 1 && ','}
       </>
     ),
