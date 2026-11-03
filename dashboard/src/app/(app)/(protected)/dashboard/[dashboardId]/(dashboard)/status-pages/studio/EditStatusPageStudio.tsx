@@ -10,6 +10,7 @@ import { DisabledTooltip } from '@/components/tooltip/DisabledTooltip';
 import { defaultPublicMonitorName } from '@/entities/analytics/statusPage/statusPage.helpers';
 import { fetchStatusPageStudioDataAction } from '@/app/actions/analytics/statusPage.actions';
 import { useTimeRangeContext } from '@/contexts/TimeRangeContextProvider';
+import { holdForRedirect } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/holdForRedirect';
 import { FlowOverlay } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlay';
 import { FlowOverlayHeader } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/FlowOverlayHeader';
 import { type SlugStatus } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/constants';
@@ -146,7 +147,7 @@ export function EditStatusPageStudio(props: EditStatusPageStudioProps) {
 
   const studioQuery = useQuery({
     queryKey: ['statusPageStudio', dashboardId, statusPageId, timeZone],
-    queryFn: () => fetchStatusPageStudioDataAction(dashboardId, statusPageId, timeZone),
+    queryFn: () => holdForRedirect(fetchStatusPageStudioDataAction(dashboardId, statusPageId, timeZone)),
     staleTime: Infinity,
     gcTime: 0,
   });

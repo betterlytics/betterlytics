@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { checkStatusPageSlugAction } from '@/app/actions/analytics/statusPage.actions';
 import { type SlugStatus } from './constants';
+import { holdForRedirect } from './holdForRedirect';
 
 type UseSlugAvailabilityParams = {
   dashboardId: string;
@@ -32,7 +33,7 @@ export function useSlugAvailability({
     }
     let cancelled = false;
     setStatus('checking');
-    checkStatusPageSlugAction(dashboardId, debouncedSlug, excludeStatusPageId).then((result) => {
+    holdForRedirect(checkStatusPageSlugAction(dashboardId, debouncedSlug, excludeStatusPageId)).then((result) => {
       if (cancelled) return;
       setStatus(result.available ? 'available' : result.reason === 'taken' ? 'taken' : 'invalid');
     });

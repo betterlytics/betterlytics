@@ -22,6 +22,7 @@ import { FlowOverlayHeader } from '@/app/(app)/(protected)/dashboard/[dashboardI
 import { collectStagedImages } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/collectStagedImages';
 import { useStatusPageFormState } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageFormState';
 import { useSlugAvailability } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useSlugAvailability';
+import { holdForRedirect } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/holdForRedirect';
 import { useStatusPageValidation } from '@/app/(app)/(protected)/dashboard/[dashboardId]/(dashboard)/status-pages/shared/useStatusPageValidation';
 import { StudioShell } from './StudioShell';
 
@@ -69,7 +70,9 @@ function StudioForm({
   const commitMutation = useMutation({
     mutationFn: async (publish: boolean) => {
       const images = await collectStagedImages(form);
-      const page = await createStatusPageAction(dashboardId, { ...form.input, isPublished: publish }, images);
+      const page = await holdForRedirect(
+        createStatusPageAction(dashboardId, { ...form.input, isPublished: publish }, images),
+      );
       return { page, publish };
     },
     onSuccess: ({ page, publish }) => {
@@ -101,7 +104,7 @@ function StudioForm({
 
   const previewQuery = useQuery({
     queryKey: ['statusPageDraftPreview', dashboardId],
-    queryFn: () => fetchStatusPageDraftPreviewAction(dashboardId),
+    queryFn: () => holdForRedirect(fetchStatusPageDraftPreviewAction(dashboardId)),
     staleTime: Infinity,
     gcTime: 0,
   });
@@ -185,7 +188,7 @@ export function CreateStatusPageStudio({
   const { timeZone } = useTimeRangeContext();
   const defaultsQuery = useQuery({
     queryKey: ['statusPageDefaults', dashboardId, timeZone],
-    queryFn: () => suggestStatusPageDefaultsAction(dashboardId, timeZone),
+    queryFn: () => holdForRedirect(suggestStatusPageDefaultsAction(dashboardId, timeZone)),
     staleTime: 0,
     gcTime: 0,
   });
