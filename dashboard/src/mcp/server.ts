@@ -59,25 +59,13 @@ async function runTool(toolName: string, fn: () => Promise<unknown> | unknown): 
   }
 }
 
-function registerDashboardTool(
-  server: McpServer,
-  context: McpContext,
+type RegisterDashboardTool = (
   toolName: string,
   config: { description: string; inputSchema: z.ZodRawShape },
   execute: (params: unknown, dashboard: McpDashboard) => Promise<unknown>,
-) {
-  server.registerTool(
-    toolName,
-    {
-      description: config.description + DASHBOARD_HINT,
-      inputSchema: { ...config.inputSchema, dashboardId: DashboardIdInputSchema },
-    },
-    ({ dashboardId, ...params }: { dashboardId?: string }) =>
-      runTool(toolName, () => execute(params, resolveDashboard(context, dashboardId))),
-  );
-}
+) => void;
 
-export function createMcpServer(context: McpContext): McpServer {
+export function createMcpServer(context: McpContext) {
   const server = new McpServer({
     name: 'betterlytics',
     version: '0.1.0',
@@ -86,6 +74,20 @@ export function createMcpServer(context: McpContext): McpServer {
   const available: ToolAvailability = {
     uptimeMonitoring: isFeatureEnabled('enableUptimeMonitoring'),
     publicStatusPages: isFeatureEnabled('enablePublicStatusPages'),
+  };
+
+  const dashboardToolNames = new Set<string>();
+  const registerDashboardTool: RegisterDashboardTool = (toolName, config, execute) => {
+    dashboardToolNames.add(toolName);
+    server.registerTool(
+      toolName,
+      {
+        description: config.description + DASHBOARD_HINT,
+        inputSchema: { ...config.inputSchema, dashboardId: DashboardIdInputSchema },
+      },
+      ({ dashboardId, ...params }: { dashboardId?: string }) =>
+        runTool(toolName, () => execute(params, resolveDashboard(context, dashboardId))),
+    );
   };
 
   server.registerTool(
@@ -107,8 +109,6 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'query',
     {
       description:
@@ -119,8 +119,6 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'query_sessions',
     {
       description:
@@ -131,8 +129,6 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'user_journeys',
     {
       description:
@@ -143,8 +139,6 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'funnel_preview',
     {
       description:
@@ -155,8 +149,6 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'list_global_properties',
     {
       description:
@@ -167,8 +159,6 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'list_funnels',
     {
       description:
@@ -179,8 +169,6 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'list_errors',
     {
       description:
@@ -191,8 +179,6 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'get_error',
     {
       description:
@@ -203,19 +189,17 @@ export function createMcpServer(context: McpContext): McpServer {
   );
 
   if (available.uptimeMonitoring) {
-    registerMonitoringTools(server, context);
+    registerMonitoringTools(registerDashboardTool);
   }
   if (available.publicStatusPages) {
-    registerStatusPageTools(server, context);
+    registerStatusPageTools(registerDashboardTool);
   }
 
-  return server;
+  return { server, dashboardToolNames };
 }
 
-function registerMonitoringTools(server: McpServer, context: McpContext) {
+function registerMonitoringTools(registerDashboardTool: RegisterDashboardTool) {
   registerDashboardTool(
-    server,
-    context,
     'list_monitors',
     {
       description:
@@ -226,8 +210,6 @@ function registerMonitoringTools(server: McpServer, context: McpContext) {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'list_monitor_incidents',
     {
       description:
@@ -238,10 +220,8 @@ function registerMonitoringTools(server: McpServer, context: McpContext) {
   );
 }
 
-function registerStatusPageTools(server: McpServer, context: McpContext) {
+function registerStatusPageTools(registerDashboardTool: RegisterDashboardTool) {
   registerDashboardTool(
-    server,
-    context,
     'list_status_pages',
     {
       description:
@@ -252,8 +232,6 @@ function registerStatusPageTools(server: McpServer, context: McpContext) {
   );
 
   registerDashboardTool(
-    server,
-    context,
     'list_incident_suggestions',
     {
       description:

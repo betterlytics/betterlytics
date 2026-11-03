@@ -13,6 +13,8 @@ const BLOG = {
 const single: McpContext = { credentialId: 'mcp-token:1', dashboards: [SHOP] };
 const several: McpContext = { credentialId: 'mcp-token:2', dashboards: [SHOP, BLOG] };
 
+const DASHBOARD_TOOLS = new Set(['query']);
+
 const toolCall = (name: string, args: Record<string, unknown>, id = 1) => ({
   jsonrpc: '2.0',
   id,
@@ -24,12 +26,14 @@ describe('rateLimitKeys', () => {
   it('counts every request of a single-dashboard credential against its site without reading the body', async () => {
     const readBody = vi.fn();
 
-    expect(await rateLimitKeys(single, readBody)).toEqual(['site-shop']);
+    expect(await rateLimitKeys(single, DASHBOARD_TOOLS, readBody)).toEqual(['site-shop']);
     expect(readBody).not.toHaveBeenCalled();
   });
 
   it('counts a tool call against the site of the dashboard it names', async () => {
-    const keys = await rateLimitKeys(several, async () => toolCall('query', { dashboardId: 'dash-blog' }));
+    const keys = await rateLimitKeys(several, DASHBOARD_TOOLS, async () =>
+      toolCall('query', { dashboardId: 'dash-blog' }),
+    );
     expect(keys).toEqual(['site-blog']);
   });
 
@@ -42,29 +46,42 @@ describe('rateLimitKeys', () => {
       toolCall('query', {}),
     ];
     for (const body of bodies) {
-      expect(await rateLimitKeys(several, async () => body)).toEqual(['mcp-token:2']);
+      expect(await rateLimitKeys(several, DASHBOARD_TOOLS, async () => body)).toEqual(['mcp-token:2']);
     }
   });
 
   it('counts describe and list_dashboards against the credential even when they are given a dashboardId', async () => {
     for (const name of ['describe', 'list_dashboards']) {
-      const keys = await rateLimitKeys(several, async () => toolCall(name, { dashboardId: 'dash-blog' }));
+      const keys = await rateLimitKeys(several, DASHBOARD_TOOLS, async () =>
+        toolCall(name, { dashboardId: 'dash-blog' }),
+      );
       expect(keys).toEqual(['mcp-token:2']);
     }
   });
 
+  it('counts a tool that is not registered against the credential even when it is given a dashboardId', async () => {
+    const keys = await rateLimitKeys(several, DASHBOARD_TOOLS, async () =>
+      toolCall('no_such_tool', { dashboardId: 'dash-blog' }),
+    );
+    expect(keys).toEqual(['mcp-token:2']);
+  });
+
   it('counts a dashboardId outside the allowed set against the credential', async () => {
-    const keys = await rateLimitKeys(several, async () => toolCall('query', { dashboardId: 'site-blog' }));
+    const keys = await rateLimitKeys(several, DASHBOARD_TOOLS, async () =>
+      toolCall('query', { dashboardId: 'site-blog' }),
+    );
     expect(keys).toEqual(['mcp-token:2']);
   });
 
   it('falls back to the credential when the body is not JSON', async () => {
-    const keys = await rateLimitKeys(several, () => Promise.reject(new SyntaxError('Unexpected token')));
+    const keys = await rateLimitKeys(several, DASHBOARD_TOOLS, () =>
+      Promise.reject(new SyntaxError('Unexpected token')),
+    );
     expect(keys).toEqual(['mcp-token:2']);
   });
 
   it('counts each message of a batch against the site it reads', async () => {
-    const keys = await rateLimitKeys(several, async () => [
+    const keys = await rateLimitKeys(several, DASHBOARD_TOOLS, async () => [
       toolCall('query', { dashboardId: 'dash-shop' }, 1),
       toolCall('query', { dashboardId: 'dash-blog' }, 2),
       toolCall('describe', {}, 3),

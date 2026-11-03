@@ -64,7 +64,6 @@ vi.mock('@/mcp/tools/statusPages', async (importOriginal) => ({
 }));
 
 import { createMcpServer } from '@/mcp/server';
-import { rateLimitKeys } from '@/mcp/rate-limit';
 
 const SHOP: McpDashboard = {
   dashboardId: 'dash-shop',
@@ -120,7 +119,7 @@ const DASHBOARD_TOOLS = [
 ] as const;
 
 async function connect(context: McpContext) {
-  const server = createMcpServer(context);
+  const { server } = createMcpServer(context);
   const client = new Client({ name: 'test', version: '1.0.0' });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
   await Promise.all([server.connect(serverTransport), client.connect(clientTransport)]);
@@ -162,22 +161,13 @@ describe('createMcpServer', () => {
     }
   });
 
-  it('charges a tool to the named site only when it takes a dashboardId', async () => {
+  it('reports exactly the tools that take a dashboardId as dashboard-scoped', async () => {
     const client = await connect(single);
     const { tools } = await client.listTools();
+    const { dashboardToolNames } = createMcpServer(single);
 
-    for (const tool of tools) {
-      const body = {
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'tools/call',
-        params: { name: tool.name, arguments: { dashboardId: 'dash-blog' } },
-      };
-      const scoped = Object.hasOwn(tool.inputSchema.properties ?? {}, 'dashboardId');
-      expect(await rateLimitKeys(several, async () => body), tool.name).toEqual([
-        scoped ? 'site-blog' : 'mcp-token:2',
-      ]);
-    }
+    const scoped = tools.filter((t) => Object.hasOwn(t.inputSchema.properties ?? {}, 'dashboardId'));
+    expect([...dashboardToolNames].sort()).toEqual(scoped.map((t) => t.name).sort());
   });
 
   it('lists the dashboards in the context', async () => {

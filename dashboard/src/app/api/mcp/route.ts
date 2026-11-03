@@ -38,7 +38,11 @@ export async function POST(req: NextRequest) {
 
   const { context } = result;
 
-  const { allowed, retryAfterMs } = checkMcpRateLimit(await rateLimitKeys(context, () => req.clone().json()));
+  const { server, dashboardToolNames } = createMcpServer(context);
+
+  const { allowed, retryAfterMs } = checkMcpRateLimit(
+    await rateLimitKeys(context, dashboardToolNames, () => req.clone().json()),
+  );
   if (!allowed) {
     mcpRateLimitHitsTotal.inc();
     return Response.json(
@@ -47,7 +51,6 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const server = createMcpServer(context);
   const transport = new WebStandardStreamableHTTPServerTransport({ enableJsonResponse: true });
 
   try {
