@@ -9,7 +9,7 @@ import { SelectedPlan } from '@/types/pricing';
 import type { UserBillingData, Currency } from '@/entities/billing/billing.entities';
 import {
   getPlan,
-  isFreePlan,
+  isCurrentOffer,
   listedPlans,
   offerFor,
   type PlanDefinition,
@@ -38,12 +38,6 @@ interface PlanCard {
   isCurrent: boolean;
 }
 
-/** Free plans are interchangeable here: a grandfathered free account is "current" on the Free card. */
-function isCurrentPlan(subscription: UserBillingData['subscription'], plan: PlanDefinition, events: number) {
-  if (isFreePlan(plan)) return isFreePlan(getPlan(subscription.planId));
-  return subscription.planId === plan.id && subscription.eventLimit === events;
-}
-
 export function PricingCards({
   volume,
   currency,
@@ -59,12 +53,15 @@ export function PricingCards({
     () =>
       listedPlans().map((plan) => {
         const offer = offerFor(plan, volume, currency);
+        const subscription = billingData?.subscription;
+        const isCurrent = subscription ? isCurrentOffer(subscription, plan, offer, currency) : false;
         return {
           plan,
           offer,
           description: t(`descriptions.${plan.id}`),
-          features: featuresFor(plan, offer.events),
-          isCurrent: billingData ? isCurrentPlan(billingData.subscription, plan, offer.events) : false,
+          // an older free plan has larger limits than Free, so its card lists what the account really has
+          features: featuresFor(isCurrent && subscription ? getPlan(subscription.planId) : plan, offer.events),
+          isCurrent,
         };
       }),
     [volume, currency, billingData, featuresFor, t],
