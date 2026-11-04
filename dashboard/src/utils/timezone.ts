@@ -79,6 +79,11 @@ export function parseDayKey(dayKey: string, timeZone: string): Date {
   return moment.tz(dayKey, timeZone).toDate();
 }
 
+// Whether a YYYY-MM-DD string names a day that exists, which parseDayKey needs
+export function isValidDayKey(dayKey: string): boolean {
+  return moment.utc(dayKey, 'YYYY-MM-DD', true).isValid();
+}
+
 export function getSupportedTimezones(): string[] {
   try {
     const zones = Intl.supportedValuesOf('timeZone');
