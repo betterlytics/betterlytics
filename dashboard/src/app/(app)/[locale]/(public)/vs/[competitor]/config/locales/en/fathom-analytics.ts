@@ -39,7 +39,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Cookieless tracking', betterlytics: true, competitor: true },
           { name: 'GDPR-ready by default', betterlytics: true, competitor: true },
           { name: 'No cookie banner needed', betterlytics: true, competitor: true },
-          { name: 'EU data hosting', betterlytics: true, competitor: 'Optional' },
+          { name: 'EU data hosting', betterlytics: true, competitor: 'EU processing, US storage' },
           { name: 'Privacy-first by default', betterlytics: true, competitor: true },
           { name: 'No cross-site tracking', betterlytics: true, competitor: true },
           { name: 'Open source', betterlytics: true, competitor: false },
@@ -49,9 +49,9 @@ export const fathom: ComparisonLocaleContent = {
       {
         name: 'Performance & Speed',
         features: [
-          { name: 'Script size', betterlytics: '~3.5KB', competitor: '<2KB' },
+          { name: 'Script size', betterlytics: '~3.5KB', competitor: '~2KB' },
           { name: 'Page load impact', betterlytics: 'Minimal', competitor: 'Minimal' },
-          { name: 'Works with ad blockers', betterlytics: true, competitor: true },
+          { name: 'Works with ad blockers', betterlytics: true, competitor: 'Partial' },
         ],
       },
       {
@@ -64,7 +64,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Outbound link tracking', betterlytics: true, competitor: true },
           { name: 'Funnel analysis', betterlytics: true, competitor: false },
           { name: 'User journey tracking', betterlytics: true, competitor: false },
-          { name: 'Annotations', betterlytics: true, competitor: false },
+          { name: 'Annotations', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Client-side error tracking', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
@@ -80,7 +80,7 @@ export const fathom: ComparisonLocaleContent = {
           { name: 'Setup time', betterlytics: '<5 minutes', competitor: '<5 minutes' },
           { name: 'Learning curve', betterlytics: 'Gentle', competitor: 'Gentle' },
           { name: 'Simple, intuitive interface', betterlytics: true, competitor: true },
-          { name: 'Data retention', betterlytics: 'Up to 5 years', competitor: 'Forever' },
+          { name: 'Data retention', betterlytics: 'Up to 5 years', competitor: 'Full history while subscribed' },
         ],
       },
       {
@@ -118,7 +118,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Where Fathom Wins',
-      content: `Fathom has forever data retention (we keep up to 5 years), a GA4 importer for migrating historical data, and custom domains to reduce ad blocker interference. They've been around longer with a proven track record.\n\nBut if you want session replay, funnels, user journeys, and more, at a lower price with a free tier to start, we offer better value.`,
+      content: `Fathom keeps your full history for as long as you're subscribed (we keep up to 5 years) and has a GA4 importer for migrating historical data. They've been around longer with a proven track record.\n\nBut if you want session replay, funnels, user journeys, and more, at a lower price with a free tier to start, we offer better value.`,
       icon: 'target',
     },
   ],

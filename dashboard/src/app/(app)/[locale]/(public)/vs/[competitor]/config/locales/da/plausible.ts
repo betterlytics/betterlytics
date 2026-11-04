@@ -23,7 +23,7 @@ export const plausible: ComparisonLocaleContent = {
     {
       title: 'User journey tracking',
       betterlytics: 'Visualisér hvordan brugere bevæger sig gennem din hjemmeside side for side.',
-      competitor: 'Kun funnel-analyse. Ingen visualisering af individuelle user journeys.',
+      competitor: 'User journeys og funnels kræver Business-planen, fra $19/måned.',
     },
     {
       title: 'Indbygget monitoring',
@@ -48,7 +48,7 @@ export const plausible: ComparisonLocaleContent = {
       {
         name: 'Performance & hastighed',
         features: [
-          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '<2KB' },
+          { name: 'Script-størrelse', betterlytics: '~3,5KB', competitor: '~2,5KB' },
           { name: 'Indvirkning på sideindlæsning', betterlytics: 'Minimal', competitor: 'Minimal' },
           { name: 'Fungerer med ad blockers', betterlytics: true, competitor: 'Delvist' },
         ],
@@ -62,13 +62,17 @@ export const plausible: ComparisonLocaleContent = {
           { name: 'Funnel-analyse', betterlytics: true, competitor: true },
           { name: 'Campaign tracking (UTM)', betterlytics: true, competitor: true },
           { name: 'Tracking af udgående links', betterlytics: true, competitor: true },
-          { name: 'User journey tracking', betterlytics: true, competitor: false },
-          { name: 'Annotationer', betterlytics: true, competitor: false },
+          { name: 'User journey tracking', betterlytics: true, competitor: 'Kun på Business-planen' },
+          { name: 'Annotationer', betterlytics: true, competitor: true },
           { name: 'Session replay', betterlytics: true, competitor: false },
           { name: 'Performance monitoring', betterlytics: true, competitor: false },
           { name: 'Uptime monitoring', betterlytics: true, competitor: false },
           { name: 'Offentlige statussider', betterlytics: true, competitor: false },
-          { name: 'Notifikationsintegrationer (Slack, Discord osv.)', betterlytics: true, competitor: false },
+          {
+            name: 'Notifikationsintegrationer (Slack, Discord osv.)',
+            betterlytics: true,
+            competitor: 'E-mail/Slack-rapporter',
+          },
         ],
       },
       {
@@ -101,7 +105,7 @@ export const plausible: ComparisonLocaleContent = {
   detailedComparison: [
     {
       title: 'Samme værdier, forskellige værktøjer',
-      content: `Plausible og Betterlytics deler samme DNA. Privacy-first, lightweight, ingen cookies og GDPR-klar fra start. Begge er stærke alternativer til Google Analytics, hvis privatliv er vigtigt for dig.\n\nForskellen er værktøjssættet. Betterlytics inkluderer session replay, user journey tracking og monitoring. Plausible holder bevidst tingene minimale. Hvis du har brug for indsigt ud over pageviews og konverteringer, dækker vi behovet.`,
+      content: `Plausible og Betterlytics deler samme DNA. Privacy-first, lightweight, ingen cookies og GDPR-klar fra start. Begge er stærke alternativer til Google Analytics, hvis privatliv er vigtigt for dig.\n\nForskellen er værktøjssættet. Betterlytics inkluderer session replay og monitoring samt user journeys på alle planer. Plausible holder bevidst tingene minimale. Hvis du har brug for indsigt ud over pageviews og konverteringer, dækker vi behovet.`,
       icon: 'shield',
     },
     {

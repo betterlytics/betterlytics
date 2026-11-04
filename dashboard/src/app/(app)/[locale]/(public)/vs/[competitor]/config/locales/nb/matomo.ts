@@ -23,13 +23,13 @@ export const matomo: ComparisonLocaleContent = {
     {
       title: 'Ingen plugins nødvendig',
       betterlytics: 'Analyse, session replay og overvåking er inkludert. Ett verktøy, én pris.',
-      competitor: 'Kjerneanalyse er gratis, men øktopptak og varmekart krever betalte tillegg.',
+      competitor: 'Varmekart og øktopptak er inkludert i Cloud, men er betalte plugins når du selvhoster.',
     },
     {
       title: 'Enkel prising',
       betterlytics: 'Gratisnivå tilgjengelig. Betalte planer fra $7/måned, alt inkludert.',
       competitor:
-        'Selvhostet har kostnader til infrastruktur og vedlikehold. Cloud-planer starter høyere med betalte tillegg.',
+        'Selvhostet har kostnader til infrastruktur og vedlikehold. Cloud starter på €22/måned ($26) for 50 000 treff.',
     },
   ],
   comparison: {
@@ -40,7 +40,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Cookieless sporing', betterlytics: true, competitor: 'Valgfritt' },
           { name: 'GDPR-klar som standard', betterlytics: true, competitor: 'Med konfigurasjon' },
           { name: 'Ingen cookie-banner nødvendig', betterlytics: true, competitor: 'Med konfigurasjon' },
-          { name: 'EU-hosting av data', betterlytics: true, competitor: 'Valgfritt' },
+          { name: 'EU-hosting av data', betterlytics: true, competitor: true },
           { name: 'Personvernfokusert som standard', betterlytics: true, competitor: 'Valgfritt' },
           { name: 'Ingen sporing på tvers av nettsteder', betterlytics: true, competitor: true },
           { name: 'Fullt dataeierskap', betterlytics: true, competitor: true },
@@ -61,15 +61,19 @@ export const matomo: ComparisonLocaleContent = {
         features: [
           { name: 'Sanntidsdashbord', betterlytics: true, competitor: true },
           { name: 'Tilpassede hendelser', betterlytics: true, competitor: true },
-          { name: 'Globale egenskaper', betterlytics: true, competitor: 'Via egendefinerte variabler' },
+          { name: 'Globale egenskaper', betterlytics: true, competitor: 'Via egendefinerte dimensjoner' },
           { name: 'Kampanjesporing (UTM)', betterlytics: true, competitor: true },
-          { name: 'Sporing av brukerreiser', betterlytics: true, competitor: 'Begrenset' },
-          { name: 'Traktanalyse', betterlytics: true, competitor: 'Med tillegg' },
-          { name: 'Session replay', betterlytics: true, competitor: 'Med tillegg' },
-          { name: 'Ytelsesovervåking', betterlytics: true, competitor: false },
+          { name: 'Sporing av brukerreiser', betterlytics: true, competitor: true },
+          { name: 'Traktanalyse', betterlytics: true, competitor: true },
+          { name: 'Session replay', betterlytics: true, competitor: true },
+          { name: 'Ytelsesovervåking', betterlytics: true, competitor: 'Kun lastetider' },
           { name: 'Oppetidsovervåking', betterlytics: true, competitor: false },
           { name: 'Offentlige statussider', betterlytics: true, competitor: false },
-          { name: 'Varslingsintegrasjoner (Slack, Discord osv.)', betterlytics: true, competitor: 'Med plugins' },
+          {
+            name: 'Varslingsintegrasjoner (Slack, Discord osv.)',
+            betterlytics: true,
+            competitor: 'E-post, SMS, Slack',
+          },
         ],
       },
       {
@@ -79,7 +83,7 @@ export const matomo: ComparisonLocaleContent = {
           { name: 'Læringskurve', betterlytics: 'Mild', competitor: 'Moderat' },
           { name: 'Enkelt og intuitivt grensesnitt', betterlytics: true, competitor: false },
           { name: 'Ingen kompleks konfigurasjon', betterlytics: true, competitor: false },
-          { name: 'Datalagring', betterlytics: 'Opptil 5 år', competitor: 'Opptil 2 år' },
+          { name: 'Datalagring', betterlytics: 'Opptil 5 år', competitor: '2 år rådata, rapporter for alltid' },
         ],
       },
       {
@@ -87,13 +91,13 @@ export const matomo: ComparisonLocaleContent = {
         features: [
           { name: 'Gratisnivå tilgjengelig', betterlytics: true, competitor: false },
           { name: 'Transparent prising', betterlytics: true, competitor: 'Begrenset' },
-          { name: 'E-poststøtte', betterlytics: true, competitor: 'Betalt' },
+          { name: 'E-poststøtte', betterlytics: true, competitor: true },
         ],
       },
       {
         name: 'AI og integrasjoner',
         features: [
-          { name: 'MCP-server', betterlytics: true, competitor: false },
+          { name: 'MCP-server', betterlytics: true, competitor: true },
         ],
       },
     ],
@@ -111,12 +115,12 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Den reelle kostnaden av "gratis"',
-      content: `Matomos selvhostede versjon er gratis å laste ned, men du betaler for servere, vedlikeholdstid og premium-plugins som øktopptak. Matomo Cloud starter på $19/måned og skalerer med sidevisninger.\n\nBetterlytics har et gratisnivå for små nettsteder. Betalte planer starter på $7/måned med alt inkludert: session replay, overvåking, ingen tilleggsgebyrer. Det du ser er det du betaler.`,
+      content: `Matomos selvhostede versjon er gratis å laste ned, men du betaler for servere, vedlikeholdstid og premium-plugins som øktopptak. Matomo Cloud starter på €22/måned ($26) for 50 000 treff og øker med trafikken.\n\nBetterlytics har et gratisnivå for små nettsteder. Betalte planer starter på $7/måned med alt inkludert: session replay, overvåking, ingen tilleggsgebyrer. Det du ser er det du betaler.`,
       icon: 'dollar',
     },
     {
       title: 'Alt på ett sted',
-      content: `Matomo har omfattende analyse, men øktopptak er en betalt plugin, og oppetidsovervåking finnes ikke. Grensesnittet er kraftig, men kan oppleves overveldende.\n\nBetterlytics samler analyse, session replay, oppetidsovervåking med varsler via Slack, Discord og Teams, samt ytelsessporing i én løsning. Ett rent grensesnitt, ingen plugins å kjøpe, ingen betalingsmurer i betalte planer.`,
+      content: `Matomo har omfattende analyse, og Cloud inkluderer øktopptak, men oppetidsovervåking finnes ikke. Grensesnittet er kraftig, men kan oppleves overveldende.\n\nBetterlytics samler analyse, session replay, oppetidsovervåking med varsler via Slack, Discord og Teams, samt ytelsessporing i én løsning. Ett rent grensesnitt, ingen plugins å kjøpe, ingen betalingsmurer i betalte planer.`,
       icon: 'layers',
     },
   ],

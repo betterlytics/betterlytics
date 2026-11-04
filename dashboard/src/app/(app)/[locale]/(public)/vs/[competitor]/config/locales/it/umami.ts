@@ -20,17 +20,17 @@ export const umami: ComparisonLocaleContent = {
       betterlytics:
         'Session replay e tracciamento dei percorsi utente ti mostrano esattamente come i visitatori interagiscono con il tuo sito.',
       competitor:
-        'Si concentra su metriche aggregate. Nessun modo per vedere il comportamento dei singoli utenti o i loro percorsi di navigazione.',
+        'Report sui percorsi utente in ogni piano. Su Umami Cloud, session replay e heatmap partono dal piano Business da $200/mese.',
     },
     {
       title: 'Monitoraggio di uptime e performance',
       betterlytics: 'Monitora Core Web Vitals e la disponibilità del sito dallo stesso dashboard delle analytics.',
-      competitor: 'Solo analytics. Il monitoraggio di uptime e performance richiede strumenti separati.',
+      competitor: 'Misura i Core Web Vitals, ma non ha monitoraggio dell’uptime. Serve uno strumento separato.',
     },
     {
       title: 'Setup self-hosting più semplice',
       betterlytics: 'Distribuzione basata su Docker con configurazione minima. Operativo in pochi minuti.',
-      competitor: 'Richiede PostgreSQL o MySQL e diversi passaggi di configurazione manuale.',
+      competitor: 'Richiede PostgreSQL e diversi passaggi di configurazione manuale.',
     },
   ],
   comparison: {
@@ -50,7 +50,7 @@ export const umami: ComparisonLocaleContent = {
       {
         name: 'Performance e velocità',
         features: [
-          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~2–3KB' },
+          { name: 'Dimensione dello script', betterlytics: '~3,5KB', competitor: '~4KB' },
           { name: 'Impatto sul caricamento', betterlytics: 'Minimo', competitor: 'Minimo' },
           { name: 'Funziona con ad blocker', betterlytics: true, competitor: true },
         ],
@@ -60,15 +60,15 @@ export const umami: ComparisonLocaleContent = {
         features: [
           { name: 'Dashboard in tempo reale', betterlytics: true, competitor: true },
           { name: 'Eventi personalizzati', betterlytics: true, competitor: true },
-          { name: 'Proprietà globali', betterlytics: true, competitor: false },
+          { name: 'Proprietà globali', betterlytics: true, competitor: 'Tramite proprietà di sessione' },
           { name: 'Tracciamento campagne (UTM)', betterlytics: true, competitor: true },
           { name: 'Tracciamento link in uscita', betterlytics: true, competitor: true },
           { name: 'Analisi funnel', betterlytics: true, competitor: true },
           { name: 'Tracciamento dei percorsi utente', betterlytics: true, competitor: true },
           { name: 'Retention utenti', betterlytics: false, competitor: true },
-          { name: 'Annotazioni', betterlytics: true, competitor: false },
-          { name: 'Session replay', betterlytics: true, competitor: false },
-          { name: 'Monitoraggio performance', betterlytics: true, competitor: false },
+          { name: 'Annotazioni', betterlytics: true, competitor: true },
+          { name: 'Session replay', betterlytics: true, competitor: 'Da $200/mese' },
+          { name: 'Monitoraggio performance', betterlytics: true, competitor: true },
           { name: 'Monitoraggio uptime', betterlytics: true, competitor: false },
           { name: 'Pagine di stato pubbliche', betterlytics: true, competitor: false },
           { name: 'Integrazioni di notifica (Slack, Discord, ecc.)', betterlytics: true, competitor: false },
@@ -80,7 +80,7 @@ export const umami: ComparisonLocaleContent = {
           { name: 'Tempo di configurazione', betterlytics: '<5 minuti', competitor: '<5 minuti' },
           { name: 'Curva di apprendimento', betterlytics: 'Ridotta', competitor: 'Ridotta' },
           { name: 'Interfaccia semplice e intuitiva', betterlytics: true, competitor: true },
-          { name: 'Conservazione dei dati', betterlytics: 'Fino a 5 anni', competitor: 'Configurabile' },
+          { name: 'Conservazione dei dati', betterlytics: 'Fino a 5 anni', competitor: 'Da 6 mesi a 5 anni' },
         ],
       },
       {
@@ -95,7 +95,7 @@ export const umami: ComparisonLocaleContent = {
       {
         name: 'AI e integrazioni',
         features: [
-          { name: 'Server MCP', betterlytics: true, competitor: false },
+          { name: 'Server MCP', betterlytics: true, competitor: true },
         ],
       },
     ],
@@ -108,22 +108,22 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Capire il “perché” dietro i numeri',
-      content: `Umami mostra cosa è successo: visualizzazioni di pagina, referrer, eventi e conversioni. Pulito e diretto.\n\nBetterlytics aggiunge il session replay. Puoi vedere come gli utenti interagiscono con il tuo sito, dove cliccano, quanto scorrono e dove incontrano frizioni. Ideale quando vuoi capire il comportamento, non solo contare le visite.`,
+      content: `Umami mostra cosa è successo: visualizzazioni di pagina, referrer, eventi, conversioni e percorsi. Offre anche session replay e heatmap, ma su Umami Cloud partono dal piano Business da $200/mese.\n\nBetterlytics include il session replay in ogni piano, anche in quello gratuito. Puoi vedere come gli utenti interagiscono con il tuo sito, dove cliccano, quanto scorrono e dove incontrano frizioni. Ideale quando vuoi capire il comportamento, non solo contare le visite.`,
       icon: 'eye',
     },
     {
       title: 'Anticipa i problemi di downtime',
-      content: `Umami è focalizzato esclusivamente sulle analytics. Per il monitoraggio di uptime o performance è necessario utilizzare strumenti separati.\n\nBetterlytics include il monitoraggio dell’uptime e dei Core Web Vitals. Ricevi avvisi tramite Slack, Discord, Teams o webhook quando il sito è lento o non disponibile e puoi analizzare le performance insieme ai dati di traffico nello stesso dashboard.`,
+      content: `Umami misura i Core Web Vitals, ma non ha monitoraggio dell’uptime. Per controlli di uptime e avvisi è necessario uno strumento separato.\n\nBetterlytics include il monitoraggio dell’uptime e dei Core Web Vitals. Ricevi avvisi tramite Slack, Discord, Teams o webhook quando il sito è lento o non disponibile e puoi analizzare le performance insieme ai dati di traffico nello stesso dashboard.`,
       icon: 'gauge',
     },
     {
       title: 'Hosted o self-hosted',
-      content: `Entrambi gli strumenti supportano il self-hosting. Umami utilizza PostgreSQL o MySQL. Betterlytics utilizza Docker con ClickHouse.\n\nPer l’hosting gestito, Betterlytics parte da $7/mese con un piano gratuito. Umami Cloud parte da $20/mese. Entrambi offrono accesso completo alle funzionalità senza componenti aggiuntivi premium.`,
+      content: `Entrambi gli strumenti supportano il self-hosting. Umami utilizza PostgreSQL. Betterlytics utilizza Docker con ClickHouse.\n\nPer l’hosting gestito, entrambi hanno un piano gratuito. I piani a pagamento partono da $7/mese con Betterlytics e da $20/mese con Umami Cloud. Umami riserva session replay e heatmap al piano Business da $200/mese.`,
       icon: 'server',
     },
     {
       title: 'Dove Umami eccelle',
-      content: `Umami è eccellente per un’analytics semplice e pulita. Offre report di retention utenti, dashboard pubbliche condivisibili e una solida community open source.\n\nBetterlytics è ideale se desideri anche session replay, monitoraggio dell’uptime o tracking delle performance insieme alle analytics. Stessa attenzione alla privacy, con qualche strumento in più incluso.`,
+      content: `Umami è eccellente per un’analytics semplice e pulita. Offre report di retention utenti, dashboard pubbliche condivisibili e una solida community open source.\n\nBetterlytics è ideale se desideri anche monitoraggio dell’uptime e pagine di stato insieme alle analytics, oppure il session replay senza un piano da $200/mese. Stessa attenzione alla privacy, con qualche strumento in più incluso.`,
       icon: 'target',
     },
   ],
