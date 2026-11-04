@@ -57,7 +57,7 @@ export function useStatusPageEditor({
       queryClient.invalidateQueries({ queryKey: ['statusPageLivePreview', dashboardId, statusPage.id] });
       router.refresh();
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+    onError: (error) => toast.error(error.message || t('error')),
   });
 
   const publishMutation = useSetStatusPagePublishedMutation(dashboardId, { onSuccess: () => router.refresh() });

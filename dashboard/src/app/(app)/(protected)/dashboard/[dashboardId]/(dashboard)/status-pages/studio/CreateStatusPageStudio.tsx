@@ -86,7 +86,7 @@ function StudioForm({
       }
       router.push(resolveHref(`status-pages/${page.id}`));
     },
-    onError: (error) => toast.error(error instanceof Error ? error.message : t('error')),
+    onError: (error) => toast.error(error.message || t('error')),
   });
 
   const { pageInvalid, blockedReason: commitBlockReason } = useStatusPageValidation(form, slugStatus, {

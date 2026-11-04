@@ -33,10 +33,15 @@ export function useSlugAvailability({
     }
     let cancelled = false;
     setStatus('checking');
-    holdForRedirect(checkStatusPageSlugAction(dashboardId, debouncedSlug, excludeStatusPageId)).then((result) => {
-      if (cancelled) return;
-      setStatus(result.available ? 'available' : result.reason === 'taken' ? 'taken' : 'invalid');
-    });
+    holdForRedirect(checkStatusPageSlugAction(dashboardId, debouncedSlug, excludeStatusPageId)).then(
+      (result) => {
+        if (cancelled) return;
+        setStatus(result.available ? 'available' : result.reason === 'taken' ? 'taken' : 'invalid');
+      },
+      () => {
+        if (!cancelled) setStatus('idle');
+      },
+    );
     return () => {
       cancelled = true;
     };
