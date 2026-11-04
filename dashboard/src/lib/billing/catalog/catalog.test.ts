@@ -34,6 +34,13 @@ const ALL_CHECKS = {
   keywordValidation: true,
 };
 
+const NO_CHECKS = {
+  httpMethodConfigurable: false,
+  customStatusCodes: false,
+  customHeaders: false,
+  keywordValidation: false,
+};
+
 describe('catalog invariants', () => {
   it('keys every plan by its own id and covers every stored plan id', () => {
     expect(Object.keys(PLANS).sort()).toEqual([...PLAN_IDS].sort());
@@ -110,10 +117,11 @@ describe('plans on sale', () => {
   it('gives each plan exactly the agreed limits and service', () => {
     expect(getPlan('free').capabilities).toEqual({
       dashboards: { maxDashboards: 1, maxMembers: 1 },
-      monitoring: { maxMonitors: 1, minIntervalSeconds: 300, ...ALL_CHECKS },
+      monitoring: { maxMonitors: 1, minIntervalSeconds: 300, ...NO_CHECKS },
       emailReports: { emailReportsEnabled: false },
       dataRetention: { maxDataRetentionDays: 365 },
       statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
+      sessionReplay: { maxReplaysPerMonth: 500 },
     });
     expect(getPlan('plus').capabilities).toEqual({
       dashboards: { maxDashboards: 5, maxMembers: 3 },
@@ -121,6 +129,7 @@ describe('plans on sale', () => {
       emailReports: { emailReportsEnabled: true },
       dataRetention: { maxDataRetentionDays: 730 },
       statusPages: { maxStatusPages: 1, customDomain: true, removeBranding: false },
+      sessionReplay: { maxReplaysPerMonth: 5_000 },
     });
     expect(getPlan('business').capabilities).toEqual({
       dashboards: { maxDashboards: 25, maxMembers: 25 },
@@ -128,6 +137,7 @@ describe('plans on sale', () => {
       emailReports: { emailReportsEnabled: true },
       dataRetention: { maxDataRetentionDays: 1095 },
       statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
+      sessionReplay: { maxReplaysPerMonth: 25_000 },
     });
     expect(getPlan('enterprise').capabilities).toEqual({
       dashboards: { maxDashboards: 9999, maxMembers: 9999 },
@@ -135,6 +145,7 @@ describe('plans on sale', () => {
       emailReports: { emailReportsEnabled: true },
       dataRetention: { maxDataRetentionDays: 1825 },
       statusPages: { maxStatusPages: 9999, customDomain: true, removeBranding: true },
+      sessionReplay: { maxReplaysPerMonth: Number.MAX_SAFE_INTEGER },
     });
     expect(getPlan('free').service).toEqual({
       prioritySupport: false,
@@ -184,10 +195,11 @@ describe('pre-launch subscriptions', () => {
     expect(planForLookupKey('growth_10000_events')).toEqual({ plan: growth, events: 10_000, interval: 'month' });
     expect(growth.capabilities).toEqual({
       dashboards: { maxDashboards: 2, maxMembers: 3 },
-      monitoring: { maxMonitors: 1, minIntervalSeconds: 300, ...ALL_CHECKS },
+      monitoring: { maxMonitors: 1, minIntervalSeconds: 300, ...NO_CHECKS },
       emailReports: { emailReportsEnabled: false },
       dataRetention: { maxDataRetentionDays: 365 },
       statusPages: { maxStatusPages: 1, customDomain: false, removeBranding: false },
+      sessionReplay: { maxReplaysPerMonth: 500 },
     });
   });
 });
@@ -313,6 +325,7 @@ describe('entitlement', () => {
 
   it('names the cheapest listed plan that unlocks a capability', () => {
     expect(planThatUnlocks((c) => c.emailReports.emailReportsEnabled)?.id).toBe('plus');
+    expect(planThatUnlocks((c) => c.monitoring.keywordValidation)?.id).toBe('plus');
     expect(planThatUnlocks((c) => c.statusPages.removeBranding)?.id).toBe('business');
     expect(planThatUnlocks((c) => c.dashboards.maxDashboards > 25)?.id).toBe('enterprise');
     expect(planThatUnlocks((c) => c.dashboards.maxDashboards > 10_000)).toBeNull();
@@ -336,6 +349,9 @@ describe('entitlement', () => {
         plan.dataRetention.maxDataRetentionDays,
       );
       expect(selfHosted.statusPages.maxStatusPages).toBeGreaterThanOrEqual(plan.statusPages.maxStatusPages);
+      expect(selfHosted.sessionReplay.maxReplaysPerMonth).toBeGreaterThanOrEqual(
+        plan.sessionReplay.maxReplaysPerMonth,
+      );
     }
     expect(Object.values(selfHosted.monitoring).every((value) => value !== false)).toBe(true);
     expect(selfHosted.emailReports.emailReportsEnabled).toBe(true);

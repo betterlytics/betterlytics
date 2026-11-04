@@ -12,7 +12,7 @@ export function usePlanFeatures() {
 
   return useCallback(
     (plan: PlanDefinition, events: number): PlanFeatureLabel[] => {
-      const { dashboards, dataRetention, monitoring, statusPages } = plan.capabilities;
+      const { dashboards, dataRetention, monitoring, statusPages, sessionReplay } = plan.capabilities;
       return plan.highlights.map((item): PlanFeatureLabel => {
         switch (item.kind) {
           case 'events':
@@ -62,6 +62,11 @@ export function usePlanFeatures() {
             return {
               kind: 'feature',
               label: t('features.statusPagesCount', { count: statusPages.maxStatusPages }),
+            };
+          case 'replays':
+            return {
+              kind: 'feature',
+              label: t('features.replaysPerMonth', { count: sessionReplay.maxReplaysPerMonth }),
             };
           case 'feature':
             return { kind: 'feature', label: t(`features.${item.key}`) };

@@ -18,6 +18,13 @@ describe('monitoring upgrade messages', () => {
     await expect(validator.minInterval(60).validate()).rejects.toThrow('capabilities.minInterval:Plus');
   });
 
+  it('names Plus for keyword checks on Free', async () => {
+    const validator = await monitoringValidator(getPlan('free').capabilities.monitoring);
+    await expect(validator.expectedKeyword('Welcome', 'GET').validate()).rejects.toThrow(
+      'capabilities.keywordValidation:Plus',
+    );
+  });
+
   it('names the next plan up when the monitor limit is reached', async () => {
     const validator = await monitoringValidator(getPlan('plus').capabilities.monitoring);
     await expect(validator.monitorLimit(5).validate()).rejects.toThrow('capabilities.monitorLimit:Business');

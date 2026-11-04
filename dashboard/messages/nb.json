@@ -1708,7 +1708,7 @@
           },
           "free": {
             "q": "Er oppetidsovervåking gratis?",
-            "a": "Ja. Free-planen inkluderer én monitor, sjekket hvert femte minutt, og én offentlig statusside med Betterlytics-merking. Egne headere, godkjente statuskoder og nøkkelordsjekker fungerer på alle planer. Betalte planer gir flere monitorer, sjekker hvert minutt og statussider på ditt eget domene, og Business fjerner Betterlytics-merkingen."
+            "a": "Ja. Free-planen inkluderer én monitor, sjekket hvert femte minutt, og én offentlig statusside med Betterlytics-merking. Betalte planer gir flere monitorer, sjekker hvert minutt, nøkkelordsjekker, egne headere og godkjente statuskoder, og statussider på ditt eget domene. Business fjerner Betterlytics-merkingen."
           },
           "internal": {
             "q": "Kan jeg overvåke interne tjenester?",
@@ -2180,8 +2180,9 @@
       "unlimitedTeamMembers": "Ubegrenset antall teammedlemmer",
       "fullDashboard": "Komplett dashboard for nettanalyse",
       "funnelsJourneys": "Trakter og brukerreiser",
-      "sessionReplay": "Sesjonsopptak",
       "errorTracking": "Feilsporing",
+      "advancedChecks": "Nøkkelordsjekker, egne headere og statuskoder",
+      "replaysPerMonth": "{count, plural, one {# sesjonsopptak/måned} other {# sesjonsopptak/måned}}",
       "uptimeUnlimited": "Ubegrenset antall oppetidsmonitorer og statussider",
       "statusPagesPro": "White-label statussider på ditt eget domene",
       "emailReports": "Planlagte e-postrapporter",
@@ -2259,7 +2260,11 @@
         "name": "Alle dashboardfunksjoner"
       },
       "sessionReplay": {
-        "name": "Sesjonsavspilling"
+        "name": "Sesjonsavspilling",
+        "values": {
+          "perMonth": "{count, number}/måned",
+          "custom": "Tilpasset"
+        }
       },
       "funnels": {
         "name": "Trakter og konverteringer"
@@ -2306,6 +2311,9 @@
       },
       "customStatusCodes": {
         "name": "Tilpassede godkjente statuskoder"
+      },
+      "keywordChecks": {
+        "name": "Nøkkelordsjekker"
       },
       "notificationIntegrations": {
         "name": "Varslingsintegrasjoner (Slack, Discord osv.)"
