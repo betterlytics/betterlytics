@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, type CSSProperties } from 'react';
 import { Schibsted_Grotesk } from 'next/font/google';
-import { cn } from '@/landing/lib/cn';
-import styles from './inkedNumerals.module.css';
+import { cn } from '@/lib/utils';
+import styles from './InkedNumerals.module.css';
 
 const heavy = Schibsted_Grotesk({ subsets: ['latin'], weight: '800' });
 

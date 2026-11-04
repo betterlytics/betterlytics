@@ -1,8 +1,8 @@
-@reference '../../landing.css';
-
 @layer components {
+  /* the page sets --numeral-ink, --numeral-tint and --numeral-lens; the eases fall back to landing.css's values */
   .numerals {
-    --ink: var(--color-volt-text);
+    --pen: var(--ease-pen, cubic-bezier(0.3, 0.02, 0.15, 1));
+    --out: var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
     position: relative;
     width: min(88%, 820px);
   }
@@ -24,10 +24,10 @@
   .outline {
     --dash: 2000px;
     fill: none;
-    stroke: color-mix(in srgb, var(--ink) 75%, transparent);
+    stroke: color-mix(in srgb, var(--numeral-ink) 75%, transparent);
     stroke-width: 2px;
     stroke-dasharray: var(--dash) var(--dash);
-    animation: trace 1.6s var(--ease-pen) 0.1s both;
+    animation: trace 1.6s var(--pen) 0.1s both;
   }
   .outline text,
   .lensOutline text {
@@ -35,7 +35,7 @@
   }
   /* opaque fills under a group opacity, so where glyphs overlap the tint and hatch don't double */
   .tint {
-    fill: var(--color-volt);
+    fill: var(--numeral-tint);
     opacity: 0.14;
     animation: fade 0.8s ease 1.1s both;
   }
@@ -45,14 +45,14 @@
     animation: fade 0.8s ease 1.1s both;
   }
   .hatchLine {
-    stroke: var(--ink);
+    stroke: var(--numeral-ink);
     stroke-width: 2;
   }
 
   /* useLens moves the mask's circle and sets data-lens while the pointer is near */
   .lens {
     opacity: 0;
-    transition: opacity 0.45s var(--ease-out-expo);
+    transition: opacity 0.45s var(--out);
   }
   .numerals[data-lens] .lens {
     opacity: 1;
@@ -63,12 +63,12 @@
   }
   .crossLine {
     fill: none;
-    stroke: var(--color-volt-soft);
+    stroke: var(--numeral-lens);
     stroke-width: 2;
   }
   .lensOutline {
     fill: none;
-    stroke: var(--color-volt-soft);
+    stroke: var(--numeral-lens);
     stroke-width: 2px;
   }
 

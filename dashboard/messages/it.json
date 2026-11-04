@@ -7,9 +7,10 @@
       }
     },
     "notFound": {
-      "title": "404 - Pagina non trovata",
-      "description": "Questa pagina sembra essersi persa nella dimensione degli analytics. Non preoccuparti, abbiamo la soluzione!",
-      "goHome": "Vai alla home"
+      "title": "Pagina non trovata",
+      "description": "Questo link non porta da nessuna parte. La pagina potrebbe essere stata spostata, oppure l'indirizzo contiene un errore di battitura.",
+      "goToDashboards": "Vai alle dashboard",
+      "goHome": "Torna alla home"
     },
     "about": {
       "seo": {

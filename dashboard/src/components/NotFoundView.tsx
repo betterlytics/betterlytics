@@ -1,38 +1,37 @@
-import Image from 'next/image';
-import { Link } from '@/i18n/navigation';
+import NextLink from 'next/link';
 import { getTranslations } from 'next-intl/server';
+import Logo from '@/components/logo';
+import { InkedNumerals } from '@/components/notFound/InkedNumerals';
+import { buttonVariants } from '@/components/ui/button';
+import { Link } from '@/i18n/navigation';
+import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 
 export async function NotFoundView() {
   const t = await getTranslations('public.notFound');
 
   return (
-    <div className='bg-background text-foreground flex min-h-screen flex-col items-center justify-center pb-12'>
-      <div className='container mx-auto flex flex-col items-center justify-center space-y-12 px-4 text-center'>
-        <Image
-          src='/betterlytics-logo-full-dark-4098x2500.png'
-          alt='Betterlytics Logo - Light Mode'
-          width={300}
-          height={100}
-          className='object-contain dark:hidden'
-        />
-        <Image
-          src='/betterlytics-logo-full-light-4098x2500.png'
-          alt='Betterlytics Logo - Dark Mode'
-          width={300}
-          height={100}
-          className='hidden object-contain dark:block'
-        />
-        <div className='space-y-4'>
-          <h1 className='text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl'>{t('title')}</h1>
-          <p className='text-muted-foreground mx-auto max-w-[700px] md:text-xl'>{t('description')}</p>
-        </div>
-        <Link
-          href='/'
-          className='bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-ring inline-flex h-10 items-center justify-center rounded-md px-8 text-sm font-medium shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50'
-        >
-          {t('goHome')}
+    <div className='bg-background text-foreground flex min-h-screen flex-col'>
+      <header className='flex h-16 items-center px-6'>
+        <Link href='/' className='flex items-center'>
+          <Logo variant='simple' showText textSize='md' />
         </Link>
-      </div>
+      </header>
+      <main className='flex flex-1 flex-col items-center justify-center px-4 pb-16 text-center'>
+        <h1 className='sr-only'>{t('title')}</h1>
+        <InkedNumerals className='[--numeral-ink:var(--primary)] [--numeral-lens:var(--primary)] [--numeral-tint:var(--primary)] dark:[--numeral-ink:color-mix(in_oklch,var(--primary),white_30%)] dark:[--numeral-lens:color-mix(in_oklch,var(--primary),white_50%)]' />
+        <p className='mt-12 max-w-[46ch] text-lg text-balance md:text-xl'>{t('description')}</p>
+        <div className='mt-8 flex flex-wrap justify-center gap-3 max-sm:w-full max-sm:flex-col'>
+          {/* unlocalized: the signed-in app has no /da/dashboards */}
+          <NextLink href='/dashboards' className={buttonVariants({ size: 'lg' })}>
+            {t('goToDashboards')}
+          </NextLink>
+          {isClientFeatureEnabled('isCloud') && (
+            <Link href='/' className={buttonVariants({ variant: 'outline', size: 'lg' })}>
+              {t('goHome')}
+            </Link>
+          )}
+        </div>
+      </main>
     </div>
   );
 }

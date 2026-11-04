@@ -1,10 +1,10 @@
 import { useTranslations } from 'next-intl';
+import { InkedNumerals } from '@/components/notFound/InkedNumerals';
 import { Link } from '@/i18n/navigation';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { AppLink } from '@/landing/components/ui/appLink';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Lede } from '@/landing/components/ui/text';
-import { InkedNumerals } from './inkedNumerals';
 
 type NotFoundViewProps = {
   lede?: string;
@@ -26,7 +26,7 @@ export function NotFoundView({ lede, action }: NotFoundViewProps) {
             <h1 id='not-found-title' className='sr-only'>
               {t('title')}
             </h1>
-            <InkedNumerals />
+            <InkedNumerals className='[--numeral-ink:var(--color-volt-text)] [--numeral-lens:var(--color-volt-soft)] [--numeral-tint:var(--color-volt)]' />
             <Lede className='mt-14 max-w-[46ch] max-sm:mt-10'>{lede ?? t('lede')}</Lede>
             <div className='mt-9 flex flex-wrap justify-center gap-2.5 max-sm:mt-8 max-sm:w-full max-sm:flex-col'>
               <Link href={action?.href ?? '/'} className={buttonStyles({ variant: 'volt', size: 'lg' })}>

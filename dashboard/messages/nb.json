@@ -7,8 +7,9 @@
       }
     },
     "notFound": {
-      "title": "404 - Siden ble ikke funnet",
-      "description": "Denne siden ser ut til å ha forsvunnet inn i analysedimensjonen. Ingen grunn til bekymring — vi hjelper deg tilbake!",
+      "title": "Fant ikke siden",
+      "description": "Lenken fører ingen steder. Siden kan ha blitt flyttet, eller adressen har en skrivefeil.",
+      "goToDashboards": "Gå til dashboards",
       "goHome": "Tilbake til forsiden"
     },
     "about": {
