@@ -6,13 +6,13 @@ export const umami: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Umami: Session replay e monitoraggio inclusi',
     description:
-      'Confronta Betterlytics con Umami. Le stesse analytics leggere e orientate alla privacy, con session replay, percorsi utente e monitoraggio dell’uptime inclusi. Piano gratuito disponibile.',
+      'Confronta Betterlytics con Umami. Le stesse analytics leggere e orientate alla privacy, più monitoraggio dell’uptime, pagine di stato e session replay in ogni piano. Piano gratuito disponibile.',
   },
   hero: {
     title: 'Cerchi un’alternativa a Umami?',
     titleHighlight: 'alternativa',
     subtitle:
-      'Ti piace la semplicità di Umami? Ottieni la stessa analytics leggera e privacy-first, con session replay, percorsi utente e monitoraggio dell’uptime integrati.',
+      'Ti piace la semplicità di Umami? Ottieni la stessa analytics leggera e privacy-first, più monitoraggio dell’uptime, pagine di stato e session replay in ogni piano.',
   },
   keyDifferentiators: [
     {

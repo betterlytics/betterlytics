@@ -6,13 +6,13 @@ export const plausible: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Plausible: Più funzionalità, stessa privacy',
     description:
-      'Confronta Betterlytics con Plausible. Stesso approccio privacy-first, con session replay, percorsi utente e monitoraggio inclusi. Piano gratuito disponibile, da $7/mese.',
+      'Confronta Betterlytics con Plausible. Stesso approccio privacy-first, con session replay, monitoraggio dell’uptime e percorsi utente in ogni piano. Piano gratuito disponibile, da $7/mese.',
   },
   hero: {
     title: 'Cerchi un’alternativa a Plausible?',
     titleHighlight: 'alternativa',
     subtitle:
-      'Tutto ciò che offre Plausible, più session replay, percorsi utente, monitoring e molto altro. Stesso approccio privacy-first, insight più profondi.',
+      'Stesso approccio privacy-first di Plausible, più session replay, monitoraggio dell’uptime e percorsi utente in ogni piano.',
   },
   keyDifferentiators: [
     {
@@ -125,7 +125,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Quando Plausible è la scelta migliore',
-      content: `Plausible mantiene volutamente un ambito ristretto: analisi del traffico orientata alla privacy con una UI notoriamente minimalista. Se ti servono solo visualizzazioni di pagina, referrer e obiettivi di conversione senza funzionalità aggiuntive, il prodotto focalizzato e il brand consolidato di Plausible possono risultare la scelta più rassicurante.\n\nBetterlytics aggiunge session replay, percorsi utente, insight sulle prestazioni e monitoraggio senza rinunciare alla base privacy-first. Se sei pronto per un’analisi comportamentale più approfondita e meno fornitori da gestire, le funzionalità extra sono già incluse — senza dover integrare strumenti separati.`,
+      content: `Plausible mantiene volutamente un ambito ristretto: analisi del traffico orientata alla privacy con una UI notoriamente minimalista. Se ti servono solo visualizzazioni di pagina, referrer e obiettivi di conversione senza funzionalità aggiuntive, il prodotto focalizzato e il brand consolidato di Plausible possono risultare la scelta più rassicurante.\n\nBetterlytics aggiunge session replay, insight sulle prestazioni e monitoraggio senza rinunciare alla base privacy-first, con i percorsi utente inclusi in ogni piano. Se sei pronto per un’analisi comportamentale più approfondita e meno fornitori da gestire, le funzionalità extra sono già incluse — senza dover integrare strumenti separati.`,
       icon: 'target',
     },
   ],

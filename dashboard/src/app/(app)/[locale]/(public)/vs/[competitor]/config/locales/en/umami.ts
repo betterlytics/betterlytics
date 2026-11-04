@@ -6,13 +6,13 @@ export const umami: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Umami: Session Replay and Monitoring Included',
     description:
-      'Compare Betterlytics to Umami. Same lightweight, privacy-first analytics with session replay, user journeys, and uptime monitoring built in. Free tier available.',
+      'Compare Betterlytics to Umami. Same lightweight, privacy-first analytics, plus uptime monitoring, status pages, and session replay on every plan. Free tier available.',
   },
   hero: {
     title: 'Looking for an Umami Alternative?',
     titleHighlight: 'Alternative',
     subtitle:
-      "Love Umami's simplicity? Get the same lightweight, privacy-first analytics with session replay, user journeys, and uptime monitoring built in.",
+      "Love Umami's simplicity? Get the same lightweight, privacy-first analytics, plus uptime monitoring, status pages, and session replay on every plan.",
   },
   keyDifferentiators: [
     {

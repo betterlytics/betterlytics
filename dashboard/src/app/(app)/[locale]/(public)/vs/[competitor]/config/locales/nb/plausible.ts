@@ -6,13 +6,13 @@ export const plausible: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Plausible: Flere funksjoner, samme personvern',
     description:
-      'Sammenlign Betterlytics med Plausible. Samme personvernfokuserte tilnærming, pluss session replay, brukerreiser og overvåking. Gratisnivå tilgjengelig, fra $7/måned.',
+      'Sammenlign Betterlytics med Plausible. Samme personvernfokuserte tilnærming, pluss session replay, oppetidsovervåking og brukerreiser på alle planer. Gratisnivå tilgjengelig, fra $7/måned.',
   },
   hero: {
     title: 'Ser du etter et alternativ til Plausible?',
     titleHighlight: 'alternativ',
     subtitle:
-      'Alt Plausible tilbyr, pluss session replay, brukerreiser, overvåking og mer. Samme personvernfokuserte tilnærming, dypere innsikt.',
+      'Samme personvernfokuserte tilnærming som Plausible, pluss session replay, oppetidsovervåking og brukerreiser på alle planer.',
   },
   keyDifferentiators: [
     {
@@ -125,7 +125,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Når Plausible passer bedre',
-      content: `Plausible holder bevisst omfanget smalt: personvernfokusert trafikkanalyse med et kjent minimalistisk grensesnitt. Hvis du bare trenger sidevisninger, henvisere og konverteringsmål uten ekstra kompleksitet, kan Plausibles fokuserte produkt og etablerte merkevare være det tryggeste valget.\n\nBetterlytics legger til session replay, brukerreiser, ytelsesinnsikt og overvåking uten å gå på kompromiss med personverngrunnlaget. Hvis du er klar for dypere innsikt i atferd og færre leverandører, er den ekstra kapasiteten allerede innebygd; ingen ekstra verktøy å sy sammen.`,
+      content: `Plausible holder bevisst omfanget smalt: personvernfokusert trafikkanalyse med et kjent minimalistisk grensesnitt. Hvis du bare trenger sidevisninger, henvisere og konverteringsmål uten ekstra kompleksitet, kan Plausibles fokuserte produkt og etablerte merkevare være det tryggeste valget.\n\nBetterlytics legger til session replay, ytelsesinnsikt og overvåking uten å gå på kompromiss med personverngrunnlaget, og brukerreiser følger med på alle planer. Hvis du er klar for dypere innsikt i atferd og færre leverandører, er den ekstra kapasiteten allerede innebygd; ingen ekstra verktøy å sy sammen.`,
       icon: 'target',
     },
   ],

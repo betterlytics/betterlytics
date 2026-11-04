@@ -6,13 +6,13 @@ export const plausible: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Plausible: Flere funktioner, samme privatliv',
     description:
-      'Sammenlign Betterlytics med Plausible. Samme privatlivsvenlige tilgang plus session replay, brugerrejser og overvågning. Gratis plan tilgængelig, ingen bindinger.',
+      'Sammenlign Betterlytics med Plausible. Samme privatlivsvenlige tilgang plus session replay, oppetidsovervågning og brugerrejser på alle planer. Gratis plan tilgængelig, ingen bindinger.',
   },
   hero: {
     title: 'Leder du efter et alternativ til Plausible?',
     titleHighlight: 'alternativ',
     subtitle:
-      'Alt det Plausible tilbyder, plus session replay, user journeys, monitoring og mere. Samme privacy-first tilgang, dybere indsigt.',
+      'Samme privacy-first tilgang som Plausible, plus session replay, oppetidsovervågning og user journeys på alle planer.',
   },
   keyDifferentiators: [
     {
@@ -125,7 +125,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'Når Plausible passer bedre',
-      content: `Plausible holder sit fokus bevidst snævert: privatlivsvenlig trafikanalyse med en velkendt minimalistisk brugerflade. Hvis du kun har brug for sidevisninger, henvisninger og konverteringsmål uden ekstra kompleksitet, kan Plausibles fokuserede produkt og etablerede brand være det mest trygge valg.\n\nBetterlytics tilføjer session replay, brugerrejser, performance-indsigt og overvågning uden at gå på kompromis med privatlivsgrundlaget. Hvis du er klar til dybere indsigt i brugeradfærd og færre leverandører, er funktionaliteten allerede indbygget. Ingen ekstra værktøjer, der skal sammensættes.`,
+      content: `Plausible holder sit fokus bevidst snævert: privatlivsvenlig trafikanalyse med en velkendt minimalistisk brugerflade. Hvis du kun har brug for sidevisninger, henvisninger og konverteringsmål uden ekstra kompleksitet, kan Plausibles fokuserede produkt og etablerede brand være det mest trygge valg.\n\nBetterlytics tilføjer session replay, performance-indsigt og overvågning uden at gå på kompromis med privatlivsgrundlaget, og brugerrejser er med på alle planer. Hvis du er klar til dybere indsigt i brugeradfærd og færre leverandører, er funktionaliteten allerede indbygget. Ingen ekstra værktøjer, der skal sammensættes.`,
       icon: 'target',
     },
   ],
