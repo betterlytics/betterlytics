@@ -5,8 +5,15 @@ import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { EventCountFlow } from '@/components/pricing/EventCountFlow';
-import { usePlanFeatures, type PlanFeatureLabel } from '@/components/pricing/usePlanFeatures';
-import { VOLUME_STOPS, listedPlans, offerFor, type PlanId } from '@/lib/billing/catalog';
+import { useOfferVolumeLabel, usePlanFeatures, type PlanFeatureLabel } from '@/components/pricing/usePlanFeatures';
+import {
+  VOLUME_STOPS,
+  fitsVolume,
+  listedPlans,
+  offerFor,
+  recommendedPlanFor,
+  type PlanId,
+} from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
@@ -62,19 +69,36 @@ type PlanProps = {
   /** Cents, or a label such as 'Custom'. */
   price: number | string;
   period?: string;
+  volumeLabel: string;
   badge?: string;
   features: PlanFeatureLabel[];
   cta: PlanCta;
   pick?: boolean;
+  dimmed?: boolean;
   volume: SelectedVolume;
 };
 
-function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, volume }: PlanProps) {
+function Plan({
+  tier,
+  name,
+  tagline,
+  price,
+  period,
+  volumeLabel,
+  badge,
+  features,
+  cta,
+  pick,
+  dimmed,
+  volume,
+}: PlanProps) {
   const locale = useLocale();
   return (
     // a subgrid of five rows shared across plans, so prices and buttons stay level when a tagline wraps
     <div
+      data-dimmed={dimmed || undefined}
       className={cn(
+        styles.plan,
         'relative row-span-5 grid grid-rows-subgrid border-rule-10 p-9 transition-ink',
         '3xl:not-first:border-l 3xl:first:pl-0',
         'md:max-3xl:odd:pl-0 md:max-3xl:even:border-l md:max-3xl:nth-[n+3]:border-t',
@@ -91,22 +115,32 @@ function Plan({ tier, name, tagline, price, period, badge, features, cta, pick, 
         ) : null}
       </div>
       <p className='mb-4 text-body-sm leading-[22px] text-muted'>{tagline}</p>
-      {/* fixed height so swapping a figure for a word doesn't shift the plans */}
-      <div className='mb-2.5 flex h-11 items-baseline gap-1.5'>
-        <b className='text-[42px] leading-11 font-medium tracking-[-1.5px] tabular-nums'>
-          {typeof price === 'number' ? (
-            <NumberFlow className={FLUSH} value={price / 100} locales={locale} format={PRICE_FORMAT} willChange />
-          ) : (
-            price
-          )}
-        </b>
-        {period ? <span className='text-body-sm tracking-ui text-muted'>{period}</span> : null}
+      <div className='mb-2.5'>
+        {/* fixed height so swapping a figure for a word doesn't shift the plans */}
+        <div className='flex h-11 items-baseline gap-1.5'>
+          <b className='text-[42px] leading-11 font-medium tracking-[-1.5px] tabular-nums'>
+            {typeof price === 'number' ? (
+              <NumberFlow
+                className={FLUSH}
+                value={price / 100}
+                locales={locale}
+                format={PRICE_FORMAT}
+                willChange
+              />
+            ) : (
+              price
+            )}
+          </b>
+          {period ? <span className='text-body-sm tracking-ui text-muted'>{period}</span> : null}
+        </div>
+        <p className='mt-1.5 text-body-sm tracking-ui text-muted'>
+          <WithVolume text={volumeLabel} volume={volume} />
+        </p>
       </div>
       <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
-        {/* index key: the volume line's text changes but it must keep its element to animate */}
-        {features.map((f, i) => (
+        {features.map((f) => (
           <li
-            key={i}
+            key={f.label}
             className={cn(
               'flex items-start gap-[11px] py-[7px] text-body-sm leading-[21px] tracking-ui text-fg opacity-84',
               f.kind === 'header' && 'pb-[11px] font-semibold opacity-100',
@@ -141,6 +175,8 @@ export function PricingPanel() {
   const events = VOLUME_STOPS[rangeIndex];
   const lastIndex = VOLUME_STOPS.length - 1;
   const featuresFor = usePlanFeatures();
+  const volumeLabelFor = useOfferVolumeLabel();
+  const recommended = recommendedPlanFor(events);
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
   // spelled as the shared feature labels spell it, so WithVolume can split on it
@@ -215,18 +251,21 @@ export function PricingPanel() {
         <div className='grid max-sm:-mx-(--pad) md:grid-cols-2 3xl:grid-cols-4'>
           {listedPlans().map((plan) => {
             const offer = offerFor(plan, events, CURRENCY);
+            const isRecommended = plan.id === recommended?.id;
             return (
               <Plan
                 key={plan.id}
                 tier={plan.id}
                 volume={volume}
-                pick={plan.featured}
+                pick={isRecommended}
+                dimmed={!fitsVolume(plan, events)}
                 name={plan.name}
-                badge={plan.featured ? t('badge') : undefined}
+                badge={isRecommended ? t('badge') : undefined}
                 tagline={t(`plans.${plan.id}.tagline`)}
-                price={offer.kind === 'paid' ? offer.cents : offer.kind === 'free' ? t('free') : t('custom')}
-                period={offer.kind === 'paid' ? t('perMonth') : undefined}
-                features={featuresFor(plan, offer.events)}
+                price={offer.kind === 'paid' ? offer.cents : offer.kind === 'free' ? 0 : t('custom')}
+                period={offer.kind === 'quoted' ? undefined : t('perMonth')}
+                volumeLabel={volumeLabelFor(offer)}
+                features={featuresFor(plan)}
                 cta={
                   offer.kind === 'quoted'
                     ? sales

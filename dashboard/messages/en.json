@@ -1250,9 +1250,8 @@
       "rangeLabel": "Monthly event volume",
       "rangeValueText": "{events} events",
       "perMonth": "/month",
-      "free": "Free",
       "custom": "Custom",
-      "badge": "Most popular",
+      "badge": "Recommended",
       "ctaFree": "Get started free",
       "contactCta": "Talk to us",
       "plans": {
@@ -2175,22 +2174,22 @@
       "growth": "For side projects and personal sites"
     },
     "features": {
-      "upToEventsPerMonth": "Up to {events} events/month",
+      "eventsPerMonth": "{events} events/month",
       "unlimitedSites": "Unlimited sites",
       "unlimitedTeamMembers": "Unlimited team members",
       "fullDashboard": "Full web analytics dashboard",
       "funnelsJourneys": "Funnels & user journeys",
       "errorTracking": "Error tracking",
-      "advancedChecks": "Keyword, header and status code checks",
+      "advancedChecks": "Advanced uptime checks",
       "replaysPerMonth": "{count, plural, one {# session replay/month} other {# session replays/month}}",
       "uptimeUnlimited": "Unlimited uptime monitors & status pages",
-      "statusPagesPro": "White-label status pages on your own domain",
+      "statusPagesPro": "White-label status pages",
       "emailReports": "Scheduled email reports",
       "slaGuarantee": "Uptime SLA with priority support",
-      "sitesCount": "{count, plural, one {# site} other {Up to # sites}}",
-      "teamMembersCount": "{count, plural, one {# team member} other {Up to # team members per site}}",
-      "retentionYears": "{count, plural, one {#+ year data retention} other {#+ years data retention}}",
-      "uptimeMonitors": "{count, plural, one {# uptime monitor} other {# uptime monitors}} with {minutes}-minute checks",
+      "sitesCount": "{count, plural, one {# site} other {# sites}}",
+      "teamMembersCount": "{count, plural, one {# team member} other {# team members per site}}",
+      "retentionYears": "{count, plural, other {#-year data retention}}",
+      "uptimeMonitors": "{count, plural, one {# uptime monitor} other {# uptime monitors}}, {minutes}-minute checks",
       "everythingIn": "Everything in {name}, plus:",
       "statusPagesCount": "{count, plural, one {# public status page} other {# public status pages}}",
       "statusPageCustomDomain": "Status page on your own domain",
@@ -2200,7 +2199,7 @@
       "auditLog": "Audit log",
       "dpaSecurityReviews": "DPA and security reviews",
       "customRetention": "Custom data retention",
-      "customContracts": "Annual contracts, invoicing and custom terms"
+      "customContracts": "Custom contracts and invoicing"
     },
     "cta": {
       "getStartedForFree": "Get Started for Free",
@@ -2214,7 +2213,6 @@
       "current": "Current"
     },
     "labels": {
-      "free": "Free",
       "custom": "Custom"
     }
   },

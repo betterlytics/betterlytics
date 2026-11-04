@@ -1250,9 +1250,8 @@
       "rangeLabel": "Antall hendelser per måned",
       "rangeValueText": "{events} hendelser",
       "perMonth": "/mnd",
-      "free": "Gratis",
       "custom": "Etter avtale",
-      "badge": "Mest populær",
+      "badge": "Anbefalt",
       "ctaFree": "Kom i gang gratis",
       "contactCta": "Kontakt oss",
       "plans": {
@@ -2175,22 +2174,22 @@
       "growth": "For sideprosjekter og personlige nettsteder"
     },
     "features": {
-      "upToEventsPerMonth": "Opptil {events} hendelser/måned",
+      "eventsPerMonth": "{events} hendelser/måned",
       "unlimitedSites": "Ubegrenset antall nettsteder",
       "unlimitedTeamMembers": "Ubegrenset antall teammedlemmer",
       "fullDashboard": "Komplett dashboard for nettanalyse",
       "funnelsJourneys": "Trakter og brukerreiser",
       "errorTracking": "Feilsporing",
-      "advancedChecks": "Nøkkelordsjekker, egne headere og statuskoder",
+      "advancedChecks": "Avanserte oppetidssjekker",
       "replaysPerMonth": "{count, plural, one {# sesjonsopptak/måned} other {# sesjonsopptak/måned}}",
       "uptimeUnlimited": "Ubegrenset antall oppetidsmonitorer og statussider",
-      "statusPagesPro": "White-label statussider på ditt eget domene",
+      "statusPagesPro": "White-label statussider",
       "emailReports": "Planlagte e-postrapporter",
       "slaGuarantee": "Oppetids-SLA med prioritert support",
-      "sitesCount": "{count, plural, one {# nettsted} other {Opptil # nettsteder}}",
-      "teamMembersCount": "{count, plural, one {# teammedlem} other {Opptil # teammedlemmer per nettsted}}",
-      "retentionYears": "{count, plural, other {#+ år datalagring}}",
-      "uptimeMonitors": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}} med {minutes}-minutts sjekker",
+      "sitesCount": "{count, plural, one {# nettsted} other {# nettsteder}}",
+      "teamMembersCount": "{count, plural, one {# teammedlem} other {# teammedlemmer per nettsted}}",
+      "retentionYears": "{count, plural, other {# år datalagring}}",
+      "uptimeMonitors": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}}, {minutes}-minutts sjekker",
       "everythingIn": "Alt i {name}, pluss:",
       "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}",
       "statusPageCustomDomain": "Statusside på ditt eget domene",
@@ -2200,7 +2199,7 @@
       "auditLog": "Revisjonslogg",
       "dpaSecurityReviews": "DPA og sikkerhetsgjennomganger",
       "customRetention": "Tilpasset datalagring",
-      "customContracts": "Årsavtaler, fakturering og tilpassede vilkår"
+      "customContracts": "Tilpassede avtaler og fakturering"
     },
     "cta": {
       "getStartedForFree": "Kom i gang gratis",
@@ -2214,7 +2213,6 @@
       "current": "Nåværende"
     },
     "labels": {
-      "free": "Gratis",
       "custom": "Tilpasset"
     }
   },

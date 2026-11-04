@@ -59,7 +59,6 @@ const free: PlanDefinition = {
   },
   service: { prioritySupport: false, dedicatedSupport: false, slaGuarantee: false },
   highlights: [
-    { kind: 'events' },
     { kind: 'replays' },
     { kind: 'sites' },
     { kind: 'members' },
@@ -109,7 +108,6 @@ const plus: PlanDefinition = {
   service: { prioritySupport: false, dedicatedSupport: false, slaGuarantee: false },
   highlights: [
     { kind: 'everythingIn', planId: 'free' },
-    { kind: 'events' },
     { kind: 'replays' },
     { kind: 'sites' },
     { kind: 'members' },
@@ -148,7 +146,6 @@ const business: PlanDefinition = {
   service: { prioritySupport: true, dedicatedSupport: false, slaGuarantee: false },
   highlights: [
     { kind: 'everythingIn', planId: 'plus' },
-    { kind: 'events' },
     { kind: 'replays' },
     { kind: 'sites' },
     { kind: 'members' },
@@ -186,7 +183,6 @@ const enterprise: PlanDefinition = {
   service: { prioritySupport: true, dedicatedSupport: true, slaGuarantee: true },
   highlights: [
     { kind: 'everythingIn', planId: 'business' },
-    { kind: 'eventsAboveSlider' },
     { kind: 'sites' },
     { kind: 'members' },
     feature('samlSso'),
