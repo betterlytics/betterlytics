@@ -64,18 +64,23 @@ export function usePlanFeatures() {
   );
 }
 
-/** The events line under a plan's price, such as "100K events/month". */
+/** The events line under a plan's price, such as "100K events/month", with the count spelled in it. */
+export type VolumeLabel = { text: string; figure: string; events: number };
+
 export function useOfferVolumeLabel() {
   const t = useTranslations('pricingCards');
   const locale = useLocale();
 
   return useCallback(
-    (offer: PlanOffer) =>
-      offer.kind === 'quoted'
-        ? t('features.moreThanEventsPerMonth', {
-            events: formatEventCount(EVENT_STEPS[EVENT_STEPS.length - 1], locale),
-          })
-        : t('features.eventsPerMonth', { events: formatEventCount(offer.events, locale) }),
+    (offer: PlanOffer): VolumeLabel => {
+      const events = offer.kind === 'quoted' ? EVENT_STEPS[EVENT_STEPS.length - 1] : offer.events;
+      const figure = formatEventCount(events, locale);
+      const text =
+        offer.kind === 'quoted'
+          ? t('features.moreThanEventsPerMonth', { events: figure })
+          : t('features.eventsPerMonth', { events: figure });
+      return { text, figure, events };
+    },
     [locale, t],
   );
 }
