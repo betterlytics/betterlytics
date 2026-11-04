@@ -1122,13 +1122,7 @@
       "seo": {
         "title": "Betterlytics-priser: start gratis, betal efter events",
         "description": "Alle planer inkluderer webanalyse, session replay, fejlsporing og oppetidsovervågning. Start gratis og betal efter events pr. måned, eller host det selv gratis."
-      },
-      "titleEmphasis": "Simple, gennemsigtige",
-      "titleRest": "priser",
-      "subtitle": "Start gratis, opgrader når du har brug for mere. Ingen skjulte gebyrer, ingen overraskelser.",
-      "footer": "Start med vores gratis plan – intet kreditkort krævet.",
-      "comparisonTitle": "Sammenlign alle funktioner",
-      "exploreFeaturesLink": "Udforsk alle funktioner i detaljer"
+      }
     },
     "shareImage": {
       "alt": "“You shouldn’t need five tools to understand one website” over Betterlytics-dashboardet"
@@ -1272,6 +1266,13 @@
         }
       },
       "cta": "Kom i gang"
+    },
+    "pricingPage": {
+      "compareTitle": "Sammenlign alle funktioner",
+      "faqTitle": "Ofte stillede spørgsmål",
+      "note": "Gratis at starte, intet kreditkort nødvendigt. Priserne er i amerikanske dollars, og betaler du i euro, er beløbet det samme.",
+      "included": "Inkluderet",
+      "notIncluded": "Ikke inkluderet"
     },
     "cta": {
       "title": "Tilføj ét script og se din første besøgende dukke op",
@@ -2243,7 +2244,7 @@
       "dataRetention": {
         "name": "Dataopbevaring",
         "values": {
-          "yearsCount": "{count, plural, one {#+ år} other {#+ år}}",
+          "yearsCount": "{count, plural, one {# år} other {# år}}",
           "custom": "Tilpasset"
         }
       },
@@ -2340,27 +2341,6 @@
       },
       "slaGuarantee": {
         "name": "SLA-garanti"
-      }
-    },
-    "coreFeatures": {
-      "title": "Inkluderet i alle planer",
-      "subtitle": "Hver plan inkluderer vores fulde analysepakke",
-      "items": {
-        "realtimeAnalytics": "Realtidsanalyse",
-        "sessionReplay": "Sessionsafspilning",
-        "geographicInsights": "Geografiske indsigter",
-        "trafficSources": "Trafikkilder",
-        "utmCampaigns": "UTM-kampagnesporing",
-        "customEvents": "Brugerdefinerede hændelser",
-        "funnels": "Tragter og konverteringer",
-        "userJourneys": "Brugerrejser",
-        "webVitals": "Web Vitals",
-        "botFiltering": "Bot-filtrering",
-        "outboundLinks": "Udgående linksporing",
-        "advancedFiltering": "Avanceret filtrering",
-        "cookieFree": "Cookie-fri",
-        "gdprCcpa": "GDPR og CCPA klar",
-        "errorTracking": "Klientside-fejlsporing"
       }
     }
   },
