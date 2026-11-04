@@ -23,7 +23,8 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Ingen plugins nødvendige',
-      betterlytics: 'Analytics, session replay og monitoring er inkluderet. Ét værktøj og én pris.',
+      betterlytics:
+        'Analytics, session replay og monitoring er inkluderet i alle planer og i den gratis self-hosted version.',
       competitor:
         'Heatmaps og session recordings er inkluderet i Cloud, men er betalte plugins, når du self-hoster.',
     },
@@ -122,7 +123,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Alt samlet ét sted',
-      content: `Matomo har omfattende analytics, og Cloud inkluderer session recording, men uptime monitoring er ikke inkluderet. Interfacet er kraftfuldt, men kan føles overvældende.\n\nBetterlytics samler analytics, session replay, uptime monitoring med advarsler via Slack, Discord og Teams, samt performance tracking ét sted. Ét overskueligt interface, ingen plugins der skal købes, og ingen paywalls på betalte planer.`,
+      content: `Matomo Cloud dækker analytics og session recording, men har ingen uptime monitoring. Interfacet er kraftfuldt, men kan føles overvældende.\n\nBetterlytics samler analytics, session replay, uptime monitoring med advarsler via Slack, Discord og Teams, samt performance tracking ét sted. Ét overskueligt interface, ingen plugins der skal købes, og ingen paywalls på betalte planer.`,
       icon: 'layers',
     },
   ],

@@ -117,7 +117,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Der Fathom vinner',
-      content: `Fathom lagrer hele historikken så lenge du abonnerer (vi lagrer opptil 5 år), og har en GA4-importør for migrering av historiske data. De har vært lenger i markedet med en dokumentert merittliste.\n\nMen hvis du ønsker session replay, trakter, brukerreiser og mer, til en lavere pris med gratisnivå for oppstart, gir vi bedre verdi.`,
+      content: `Fathom lagrer hele historikken så lenge du abonnerer (vi lagrer opptil 5 år), og har en GA4-importør for migrering av historiske data. De har vært lenger i markedet med en dokumentert merittliste.\n\nMen hvis du ønsker datalagring i EU, session replay, trakter, brukerreiser og mer, til en lavere pris med gratisnivå for oppstart, gir vi bedre verdi.`,
       icon: 'target',
     },
   ],

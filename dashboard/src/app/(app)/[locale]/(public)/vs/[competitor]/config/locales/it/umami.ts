@@ -6,7 +6,7 @@ export const umami: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Umami: Session replay e monitoraggio inclusi',
     description:
-      'Confronta Betterlytics con Umami. Le stesse analytics leggere e orientate alla privacy, più monitoraggio dell’uptime, pagine di stato e session replay in ogni piano. Piano gratuito disponibile.',
+      'Confronta Betterlytics con Umami. Analytics privacy-first, più monitoraggio dell’uptime, pagine di stato e session replay in ogni piano. C’è un piano gratuito.',
   },
   hero: {
     title: 'Cerchi un’alternativa a Umami?',
@@ -18,12 +18,12 @@ export const umami: ComparisonLocaleContent = {
     {
       title: 'Analisi del comportamento integrata',
       betterlytics:
-        'Session replay e tracciamento dei percorsi utente ti mostrano esattamente come i visitatori interagiscono con il tuo sito.',
+        'Session replay e tracciamento dei percorsi utente ti mostrano esattamente come i visitatori interagiscono con il tuo sito. Entrambi inclusi in ogni piano, anche quello gratuito.',
       competitor:
-        'Report sui percorsi utente in ogni piano. Su Umami Cloud, session replay e heatmap partono dal piano Business da $200/mese.',
+        'Report sui percorsi utente in ogni piano. Su Umami Cloud, il session replay parte dal piano Business da $200/mese.',
     },
     {
-      title: 'Monitoraggio di uptime e performance',
+      title: 'Monitoraggio dell’uptime integrato',
       betterlytics: 'Monitora Core Web Vitals e la disponibilità del sito dallo stesso dashboard delle analytics.',
       competitor: 'Misura i Core Web Vitals, ma non ha monitoraggio dell’uptime. Serve uno strumento separato.',
     },
@@ -108,7 +108,7 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Capire il “perché” dietro i numeri',
-      content: `Umami mostra cosa è successo: visualizzazioni di pagina, referrer, eventi, conversioni e percorsi. Offre anche session replay e heatmap, ma su Umami Cloud partono dal piano Business da $200/mese.\n\nBetterlytics include il session replay in ogni piano, anche in quello gratuito. Puoi vedere come gli utenti interagiscono con il tuo sito, dove cliccano, quanto scorrono e dove incontrano frizioni. Ideale quando vuoi capire il comportamento, non solo contare le visite.`,
+      content: `Umami mostra cosa è successo: visualizzazioni di pagina, referrer, eventi, conversioni e percorsi. Offre anche il session replay, ma su Umami Cloud parte dal piano Business da $200/mese.\n\nBetterlytics include il session replay in ogni piano, anche in quello gratuito. Puoi vedere come gli utenti interagiscono con il tuo sito, dove cliccano, quanto scorrono e dove incontrano frizioni. Ideale quando vuoi capire il comportamento, non solo contare le visite.`,
       icon: 'eye',
     },
     {
@@ -118,12 +118,12 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Hosted o self-hosted',
-      content: `Entrambi gli strumenti supportano il self-hosting. Umami utilizza PostgreSQL. Betterlytics utilizza Docker con ClickHouse.\n\nPer l’hosting gestito, entrambi hanno un piano gratuito. I piani a pagamento partono da $7/mese con Betterlytics e da $20/mese con Umami Cloud. Umami riserva session replay e heatmap al piano Business da $200/mese.`,
+      content: `Entrambi gli strumenti supportano il self-hosting. Umami utilizza PostgreSQL. Betterlytics utilizza Docker con ClickHouse.\n\nPer l’hosting gestito, entrambi hanno un piano gratuito. I piani a pagamento partono da $7/mese con Betterlytics e da $20/mese con Umami Cloud. Umami riserva il session replay al piano Business da $200/mese.`,
       icon: 'server',
     },
     {
       title: 'Dove Umami eccelle',
-      content: `Umami è eccellente per un’analytics semplice e pulita. Offre report di retention utenti, dashboard pubbliche condivisibili e una solida community open source.\n\nBetterlytics è ideale se desideri anche monitoraggio dell’uptime e pagine di stato insieme alle analytics, oppure il session replay senza un piano da $200/mese. Stessa attenzione alla privacy, con qualche strumento in più incluso.`,
+      content: `Umami è eccellente per un’analytics semplice e pulita. Offre report di retention utenti, dashboard pubbliche condivisibili e una solida community open source.\n\nBetterlytics è ideale se desideri anche monitoraggio dell’uptime, pagine di stato e session replay in ogni piano, insieme alle analytics. Stessa attenzione alla privacy, con qualche strumento in più incluso.`,
       icon: 'target',
     },
   ],

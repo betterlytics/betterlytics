@@ -6,7 +6,7 @@ export const plausible: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Plausible: More Features, Same Privacy',
     description:
-      'Compare Betterlytics to Plausible. Same privacy-first approach, plus session replay, uptime monitoring, and user journeys on every plan. Free tier available, starting at $7/month.',
+      'Compare Betterlytics to Plausible. Same privacy focus, plus session replay, uptime monitoring and user journeys on every plan. Free tier, from $7/month.',
   },
   hero: {
     title: 'Looking for a Plausible Alternative?',
@@ -22,7 +22,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'User Journey Tracking',
-      betterlytics: 'Visualize how users navigate through your site page by page.',
+      betterlytics: 'Visualize how users navigate through your site page by page. Included on every plan.',
       competitor: 'User journeys and funnels need the Business plan, from $19/month.',
     },
     {
@@ -126,7 +126,7 @@ export const plausible: ComparisonLocaleContent = {
     },
     {
       title: 'When Plausible Fits Better',
-      content: `Plausible keeps its scope intentionally narrow: privacy-first traffic analytics with a famously minimalist UI. If you just need pageviews, referrers, and conversion goals with zero extra surface area, Plausible's focused product and established brand might be the more comfortable choice.\n\nBetterlytics adds session replay, performance insights, and monitoring without abandoning that privacy baseline, and user journeys come with every plan. If you're ready for deeper behavior insight and fewer vendors, the extra capability is already built in; no extra tools to stitch together.`,
+      content: `Plausible keeps its scope intentionally narrow: privacy-first traffic analytics with a famously minimalist UI. If you just need pageviews, referrers, and conversion goals with zero extra surface area, Plausible's focused product and established brand might be the more comfortable choice.\n\nBetterlytics adds session replay, performance insights, and monitoring without abandoning that privacy baseline. User journeys come with every plan. If you're ready for deeper behavior insight and fewer vendors, the extra capability is already built in; no extra tools to stitch together.`,
       icon: 'target',
     },
   ],

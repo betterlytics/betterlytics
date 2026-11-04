@@ -118,7 +118,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Where Fathom Wins',
-      content: `Fathom keeps your full history for as long as you're subscribed (we keep up to 5 years) and has a GA4 importer for migrating historical data. They've been around longer with a proven track record.\n\nBut if you want session replay, funnels, user journeys, and more, at a lower price with a free tier to start, we offer better value.`,
+      content: `Fathom keeps your full history for as long as you're subscribed (we keep up to 5 years) and has a GA4 importer for migrating historical data. They've been around longer with a proven track record.\n\nBut if you want EU data storage, session replay, funnels, user journeys, and more, at a lower price with a free tier to start, we offer better value.`,
       icon: 'target',
     },
   ],

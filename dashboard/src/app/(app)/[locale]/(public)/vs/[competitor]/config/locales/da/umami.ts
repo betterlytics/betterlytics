@@ -6,7 +6,7 @@ export const umami: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Umami: Session replay og overvågning inkluderet',
     description:
-      'Sammenlign Betterlytics med Umami. Samme letvægts, privatlivsvenlige analytics – plus oppetidsovervågning, statussider og session replay på alle planer. Gratis plan tilgængelig.',
+      'Sammenlign Betterlytics med Umami. Privatlivsvenlig analytics plus oppetidsovervågning, statussider og session replay på alle planer. Gratis plan tilgængelig.',
   },
   hero: {
     title: 'Leder du efter et alternativ til Umami?',
@@ -18,12 +18,12 @@ export const umami: ComparisonLocaleContent = {
     {
       title: 'Adfærdsanalyse er indbygget',
       betterlytics:
-        'Session replay og sporing af brugerrejser viser præcist, hvordan besøgende interagerer med dit website.',
+        'Session replay og sporing af brugerrejser viser præcist, hvordan besøgende interagerer med dit website. Begge er med på alle planer, også den gratis.',
       competitor:
-        'Rapporter over brugerrejser på alle planer. På Umami Cloud starter session replays og heatmaps på Business-planen til $200/måned.',
+        'Rapporter over brugerrejser på alle planer. På Umami Cloud starter session replays på Business-planen til $200/måned.',
     },
     {
-      title: 'Oppetids- og performanceovervågning',
+      title: 'Indbygget oppetidsovervågning',
       betterlytics: 'Følg Core Web Vitals og website-tilgængelighed i samme dashboard som dine analytics.',
       competitor: 'Måler Core Web Vitals, men har ingen oppetidsovervågning. Det kræver et separat værktøj.',
     },
@@ -108,7 +108,7 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Forstå “hvorfor” bag tallene',
-      content: `Umami viser, hvad der skete: sidevisninger, henvisninger, events, konverteringer og brugerrejser. Der er også session replays og heatmaps, men på Umami Cloud starter de på Business-planen til $200/måned.\n\nBetterlytics inkluderer session replay på alle planer, også den gratis. Du kan se, hvordan brugere interagerer med dit site, hvor de klikker, scroller og støder på friktion. Ideelt når du vil forstå adfærd – ikke kun tælle besøg.`,
+      content: `Umami viser, hvad der skete: sidevisninger, henvisninger, events, konverteringer og brugerrejser. Der er også session replays, men på Umami Cloud starter de på Business-planen til $200/måned.\n\nBetterlytics inkluderer session replay på alle planer, også den gratis. Du kan se, hvordan brugere interagerer med dit site, hvor de klikker, scroller og støder på friktion. Ideelt når du vil forstå adfærd – ikke kun tælle besøg.`,
       icon: 'eye',
     },
     {
@@ -118,12 +118,12 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Hosted eller self-hosted',
-      content: `Begge værktøjer understøtter self-hosting. Umami kører på PostgreSQL. Betterlytics bruger Docker med ClickHouse.\n\nTil managed hosting har begge en gratis plan. Betalte planer starter ved $7/måned hos Betterlytics og $20/måned hos Umami Cloud. Umami forbeholder session replays og heatmaps Business-planen til $200/måned.`,
+      content: `Begge værktøjer understøtter self-hosting. Umami kører på PostgreSQL. Betterlytics bruger Docker med ClickHouse.\n\nTil managed hosting har begge en gratis plan. Betalte planer starter ved $7/måned hos Betterlytics og $20/måned hos Umami Cloud. Umami forbeholder session replays Business-planen til $200/måned.`,
       icon: 'server',
     },
     {
       title: 'Hvor Umami er stærk',
-      content: `Umami er stærk til simpel webanalyse. Det tilbyder rapporter om brugerfastholdelse, offentlige dashboards og har et solidt open source-community.\n\nBetterlytics passer godt, hvis du også vil have oppetidsovervågning og statussider samlet ét sted, eller session replay uden en plan til $200/måned. Samme fokus på privatliv – med lidt flere værktøjer inkluderet.`,
+      content: `Umami er stærk til simpel webanalyse. Det tilbyder rapporter om brugerfastholdelse, offentlige dashboards og har et solidt open source-community.\n\nBetterlytics passer godt, hvis du også vil have oppetidsovervågning, statussider og session replay på alle planer samlet ét sted. Samme fokus på privatliv – med lidt flere værktøjer inkluderet.`,
       icon: 'target',
     },
   ],

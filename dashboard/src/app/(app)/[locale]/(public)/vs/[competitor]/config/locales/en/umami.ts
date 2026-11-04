@@ -6,7 +6,7 @@ export const umami: ComparisonLocaleContent = {
   seo: {
     title: 'Betterlytics vs Umami: Session Replay and Monitoring Included',
     description:
-      'Compare Betterlytics to Umami. Same lightweight, privacy-first analytics, plus uptime monitoring, status pages, and session replay on every plan. Free tier available.',
+      'Compare Betterlytics to Umami. Same privacy-first analytics, plus uptime monitoring, status pages and session replay on every plan. Free tier available.',
   },
   hero: {
     title: 'Looking for an Umami Alternative?',
@@ -18,12 +18,12 @@ export const umami: ComparisonLocaleContent = {
     {
       title: 'Behavioral Analytics Built In',
       betterlytics:
-        'Session replay and user journey tracking show you exactly how visitors interact with your site.',
+        'Session replay and user journey tracking show you exactly how visitors interact with your site. Both are on every plan, free tier included.',
       competitor:
-        'Journey reports on every plan. On Umami Cloud, session replays and heatmaps start at the $200/month Business plan.',
+        'Journey reports on every plan. On Umami Cloud, session replays start at the $200/month Business plan.',
     },
     {
-      title: 'Uptime & Performance Monitoring',
+      title: 'Uptime Monitoring Built In',
       betterlytics: 'Track Core Web Vitals and site availability from the same dashboard as your analytics.',
       competitor: 'Tracks Core Web Vitals, but has no uptime monitoring. That needs a separate tool.',
     },
@@ -109,7 +109,7 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Understand the "Why" Behind Metrics',
-      content: `Umami shows you what happened: pageviews, referrers, events, conversions and journeys. It also has session replays and heatmaps, but on Umami Cloud they start with the $200/month Business plan.\n\nBetterlytics includes session replay on every plan, free tier included. You can watch how users interact with your site, see where they click or scroll, and spot friction points. Useful when you want to understand behavior, not just count visits.`,
+      content: `Umami shows you what happened: pageviews, referrers, events, conversions and journeys. It also has session replays, but on Umami Cloud they start with the $200/month Business plan.\n\nBetterlytics includes session replay on every plan, free tier included. You can watch how users interact with your site, see where they click or scroll, and spot friction points. Useful when you want to understand behavior, not just count visits.`,
       icon: 'eye',
     },
     {
@@ -119,12 +119,12 @@ export const umami: ComparisonLocaleContent = {
     },
     {
       title: 'Hosted or Self-Hosted',
-      content: `Both tools support self-hosting. Umami runs on PostgreSQL. Betterlytics uses Docker with ClickHouse.\n\nFor managed hosting, both have a free tier. Betterlytics paid plans start at $7/month, Umami Cloud at $20/month. Umami keeps session replays and heatmaps for its $200/month Business plan.`,
+      content: `Both tools support self-hosting. Umami runs on PostgreSQL. Betterlytics uses Docker with ClickHouse.\n\nFor managed hosting, both have a free tier. Betterlytics paid plans start at $7/month, Umami Cloud at $20/month. Umami keeps session replays for its $200/month Business plan.`,
       icon: 'server',
     },
     {
       title: 'Where Umami Shines',
-      content: `Umami does simple analytics well. It has user retention reports, public shareable dashboards, and a solid open-source community.\n\nBetterlytics is a good fit if you also want uptime monitoring and status pages alongside your analytics, or session replay without a $200/month plan. Same privacy focus, a few more tools included.`,
+      content: `Umami does simple analytics well. It has user retention reports, public shareable dashboards, and a solid open-source community.\n\nBetterlytics is a good fit if you also want uptime monitoring, status pages, and session replay on every plan alongside your analytics. Same privacy focus, a few more tools included.`,
       icon: 'target',
     },
   ],

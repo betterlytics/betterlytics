@@ -117,7 +117,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Hvor Fathom er stærk',
-      content: `Fathom gemmer hele din historik, så længe du abonnerer (vi gemmer op til 5 år), og har en GA4-importer til migrering af historiske data. De har eksisteret længere og har et solidt track record.\n\nMen hvis du vil have session replay, funnels, user journeys og mere – til en lavere pris og med en gratis plan til at starte – tilbyder vi bedre værdi.`,
+      content: `Fathom gemmer hele din historik, så længe du abonnerer (vi gemmer op til 5 år), og har en GA4-importer til migrering af historiske data. De har eksisteret længere og har et solidt track record.\n\nMen hvis du vil have datalagring i EU, session replay, funnels, user journeys og mere – til en lavere pris og med en gratis plan til at starte – tilbyder vi bedre værdi.`,
       icon: 'target',
     },
   ],

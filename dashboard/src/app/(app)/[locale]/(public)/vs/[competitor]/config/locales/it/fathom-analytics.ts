@@ -125,7 +125,7 @@ export const fathom: ComparisonLocaleContent = {
     },
     {
       title: 'Dove Fathom eccelle',
-      content: `Fathom conserva tutto lo storico finché sei abbonato (noi fino a 5 anni) e offre un importer GA4 per migrare i dati storici. È una piattaforma solida con una lunga esperienza.\n\nMa se cerchi session replay, funnel, percorsi utente e più insight a un prezzo inferiore, con un piano gratuito per iniziare, Betterlytics offre più valore.`,
+      content: `Fathom conserva tutto lo storico finché sei abbonato (noi fino a 5 anni) e offre un importer GA4 per migrare i dati storici. È una piattaforma solida con una lunga esperienza.\n\nMa se cerchi dati archiviati in UE, session replay, funnel, percorsi utente e più insight a un prezzo inferiore, con un piano gratuito per iniziare, Betterlytics offre più valore.`,
       icon: 'target',
     },
   ],

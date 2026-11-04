@@ -22,7 +22,8 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'No Plugins Needed',
-      betterlytics: 'Analytics, session replay, and monitoring included. One tool, one price.',
+      betterlytics:
+        'Analytics, session replay, and monitoring included in every plan and in the free self-hosted version.',
       competitor: 'Heatmaps and session recordings are included in Cloud, but are paid plugins when self-hosted.',
     },
     {
@@ -121,7 +122,7 @@ export const matomo: ComparisonLocaleContent = {
     },
     {
       title: 'Everything in One Place',
-      content: `Matomo has comprehensive analytics, and Cloud includes session recording, but there's no uptime monitoring. The interface is powerful but can feel overwhelming.\n\nBetterlytics bundles analytics, session replay, uptime monitoring with alerts via Slack, Discord, and Teams, and performance tracking together. One clean interface, no plugins to buy, no paywalls on paid plans.`,
+      content: `Matomo Cloud covers analytics and session recording, but has no uptime monitoring. The interface is powerful but can feel overwhelming.\n\nBetterlytics bundles analytics, session replay, uptime monitoring with alerts via Slack, Discord, and Teams, and performance tracking together. One clean interface, no plugins to buy, no paywalls on paid plans.`,
       icon: 'layers',
     },
   ],
