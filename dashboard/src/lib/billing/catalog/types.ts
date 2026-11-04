@@ -31,8 +31,8 @@ export type PlanService = {
 };
 
 /**
- * A pricing-card line. Limit lines (sites, members, retention, uptime) are worded from the plan's
- * capabilities; `feature` lines are fixed keys under `pricingCards.features`.
+ * A pricing-card line. Limit lines (sites, members, retention, uptime, replays) are worded from the
+ * plan's capabilities; `feature` lines are fixed keys under `pricingCards.features`.
  */
 export type PlanHighlight =
   | { kind: 'events' }
@@ -43,13 +43,14 @@ export type PlanHighlight =
   | { kind: 'retention' }
   | { kind: 'uptime' }
   | { kind: 'statusPages' }
+  | { kind: 'replays' }
   | {
       kind: 'feature';
       key:
         | 'fullDashboard'
         | 'funnelsJourneys'
-        | 'sessionReplay'
         | 'errorTracking'
+        | 'advancedChecks'
         | 'statusPagesPro'
         | 'statusPageCustomDomain'
         | 'prioritySupport'

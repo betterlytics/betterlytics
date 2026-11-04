@@ -1690,7 +1690,7 @@
           },
           "free": {
             "q": "Il monitoraggio uptime è gratuito?",
-            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. Header personalizzati, codici di stato accettati e controlli per parola chiave funzionano su tutti i piani. I piani a pagamento aggiungono più monitor, controlli ogni minuto e pagine di stato sul tuo dominio, e Business rimuove il branding Betterlytics."
+            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. I piani a pagamento aggiungono più monitor, controlli ogni minuto, controlli per parola chiave, header personalizzati e codici di stato accettati, e pagine di stato sul tuo dominio. Business rimuove il branding Betterlytics."
           },
           "internal": {
             "q": "Posso monitorare servizi interni?",
@@ -1958,8 +1958,9 @@
       "unlimitedTeamMembers": "Membri del team illimitati",
       "fullDashboard": "Dashboard di web analytics completa",
       "funnelsJourneys": "Funnel e percorsi utente",
-      "sessionReplay": "Session replay",
       "errorTracking": "Tracciamento errori",
+      "advancedChecks": "Controlli per parola chiave, header e codici di stato",
+      "replaysPerMonth": "{count, plural, one {# session replay/mese} other {# session replay/mese}}",
       "uptimeUnlimited": "Monitor uptime e pagine di stato illimitati",
       "statusPagesPro": "Pagine di stato white-label sul tuo dominio",
       "emailReports": "Report email pianificati",
@@ -2037,7 +2038,11 @@
         "name": "Tutte le funzionalità dashboard"
       },
       "sessionReplay": {
-        "name": "Replay sessioni"
+        "name": "Replay sessioni",
+        "values": {
+          "perMonth": "{count, number}/mese",
+          "custom": "Personalizzato"
+        }
       },
       "funnels": {
         "name": "Funnel e conversioni"
@@ -2084,6 +2089,9 @@
       },
       "customStatusCodes": {
         "name": "Codici di stato accettati personalizzati"
+      },
+      "keywordChecks": {
+        "name": "Controlli per parola chiave"
       },
       "notificationIntegrations": {
         "name": "Integrazioni di notifica (Slack, Discord, ecc.)"

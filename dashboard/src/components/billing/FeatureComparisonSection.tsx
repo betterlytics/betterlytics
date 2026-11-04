@@ -58,7 +58,13 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { key: 'customEvents', value: true },
       { key: 'webVitals', value: true },
       { key: 'campaignTracking', value: true },
-      { key: 'sessionReplay', value: true },
+      {
+        key: 'sessionReplay',
+        value: (plan) =>
+          plan.selfServe
+            ? { message: 'perMonth', count: plan.capabilities.sessionReplay.maxReplaysPerMonth }
+            : { message: 'custom' },
+      },
       { key: 'errorTracking', value: true },
       { key: 'emailReports', value: (plan) => plan.capabilities.emailReports.emailReportsEnabled },
     ],
@@ -81,6 +87,7 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       { key: 'customHttpMethods', value: (plan) => plan.capabilities.monitoring.httpMethodConfigurable },
       { key: 'customRequestHeaders', value: (plan) => plan.capabilities.monitoring.customHeaders },
       { key: 'customStatusCodes', value: (plan) => plan.capabilities.monitoring.customStatusCodes },
+      { key: 'keywordChecks', value: (plan) => plan.capabilities.monitoring.keywordValidation },
       { key: 'notificationIntegrations', value: true },
       {
         key: 'statusPages',

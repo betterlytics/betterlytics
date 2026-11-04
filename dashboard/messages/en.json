@@ -1690,7 +1690,7 @@
           },
           "free": {
             "q": "Is uptime monitoring free?",
-            "a": "Yes. The Free plan includes one monitor, checked every five minutes, and one public status page with Betterlytics branding. Custom headers, accepted status codes and keyword checks work on every plan. Paid plans add more monitors, one-minute checks and status pages on your own domain, and Business removes the Betterlytics branding."
+            "a": "Yes. The Free plan includes one monitor, checked every five minutes, and one public status page with Betterlytics branding. Paid plans add more monitors, one-minute checks, keyword checks, custom headers and accepted status codes, and status pages on your own domain. Business removes the Betterlytics branding."
           },
           "internal": {
             "q": "Can I monitor internal services?",
@@ -1958,8 +1958,9 @@
       "unlimitedTeamMembers": "Unlimited team members",
       "fullDashboard": "Full web analytics dashboard",
       "funnelsJourneys": "Funnels & user journeys",
-      "sessionReplay": "Session replay",
       "errorTracking": "Error tracking",
+      "advancedChecks": "Keyword, header and status code checks",
+      "replaysPerMonth": "{count, plural, one {# session replay/month} other {# session replays/month}}",
       "uptimeUnlimited": "Unlimited uptime monitors & status pages",
       "statusPagesPro": "White-label status pages on your own domain",
       "emailReports": "Scheduled email reports",
@@ -2037,7 +2038,11 @@
         "name": "All dashboard features"
       },
       "sessionReplay": {
-        "name": "Session replay"
+        "name": "Session replay",
+        "values": {
+          "perMonth": "{count, number}/month",
+          "custom": "Custom"
+        }
       },
       "funnels": {
         "name": "Funnels & conversions"
@@ -2084,6 +2089,9 @@
       },
       "customStatusCodes": {
         "name": "Custom accepted status codes"
+      },
+      "keywordChecks": {
+        "name": "Keyword checks"
       },
       "notificationIntegrations": {
         "name": "Notification integrations (Slack, Discord, etc.)"
