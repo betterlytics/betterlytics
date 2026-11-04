@@ -35,8 +35,6 @@ export type PlanService = {
  * plan's capabilities; `feature` lines are fixed keys under `pricingCards.features`.
  */
 export type PlanHighlight =
-  | { kind: 'events' }
-  | { kind: 'eventsAboveSlider' }
   | { kind: 'everythingIn'; planId: PlanId }
   | { kind: 'sites' }
   | { kind: 'members' }

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { EVENT_STEPS, getPlan, type PlanDefinition } from '@/lib/billing/catalog';
+import { EVENT_STEPS, getPlan, type PlanDefinition, type PlanOffer } from '@/lib/billing/catalog';
 import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
 import { formatEventCount } from '@/utils/pricing';
 
@@ -8,25 +8,12 @@ export type PlanFeatureLabel = { kind: 'header' | 'feature'; label: string };
 
 export function usePlanFeatures() {
   const t = useTranslations('pricingCards');
-  const locale = useLocale();
 
   return useCallback(
-    (plan: PlanDefinition, events: number): PlanFeatureLabel[] => {
+    (plan: PlanDefinition): PlanFeatureLabel[] => {
       const { dashboards, dataRetention, monitoring, statusPages, sessionReplay } = plan.capabilities;
       return plan.highlights.map((item): PlanFeatureLabel => {
         switch (item.kind) {
-          case 'events':
-            return {
-              kind: 'feature',
-              label: t('features.upToEventsPerMonth', { events: formatEventCount(events, locale) }),
-            };
-          case 'eventsAboveSlider':
-            return {
-              kind: 'feature',
-              label: t('features.moreThanEventsPerMonth', {
-                events: formatEventCount(EVENT_STEPS[EVENT_STEPS.length - 1], locale),
-              }),
-            };
           case 'everythingIn':
             return { kind: 'header', label: t('features.everythingIn', { name: getPlan(item.planId).name }) };
           case 'sites':
@@ -73,6 +60,22 @@ export function usePlanFeatures() {
         }
       });
     },
+    [t],
+  );
+}
+
+/** The events line under a plan's price, such as "100K events/month". */
+export function useOfferVolumeLabel() {
+  const t = useTranslations('pricingCards');
+  const locale = useLocale();
+
+  return useCallback(
+    (offer: PlanOffer) =>
+      offer.kind === 'quoted'
+        ? t('features.moreThanEventsPerMonth', {
+            events: formatEventCount(EVENT_STEPS[EVENT_STEPS.length - 1], locale),
+          })
+        : t('features.eventsPerMonth', { events: formatEventCount(offer.events, locale) }),
     [locale, t],
   );
 }

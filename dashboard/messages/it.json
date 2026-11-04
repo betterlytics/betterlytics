@@ -1249,9 +1249,8 @@
       "rangeLabel": "Volume mensile di eventi",
       "rangeValueText": "{events} eventi",
       "perMonth": "/mese",
-      "free": "Gratuito",
       "custom": "Personalizzato",
-      "badge": "Il più scelto",
+      "badge": "Consigliato",
       "ctaFree": "Inizia gratis",
       "contactCta": "Contattaci",
       "plans": {
@@ -1953,22 +1952,22 @@
       "growth": "Per progetti personali e piccoli siti"
     },
     "features": {
-      "upToEventsPerMonth": "Fino a {events} eventi/mese",
+      "eventsPerMonth": "{events} eventi/mese",
       "unlimitedSites": "Siti illimitati",
       "unlimitedTeamMembers": "Membri del team illimitati",
       "fullDashboard": "Dashboard di web analytics completa",
       "funnelsJourneys": "Funnel e percorsi utente",
       "errorTracking": "Tracciamento errori",
-      "advancedChecks": "Controlli per parola chiave, header e codici di stato",
+      "advancedChecks": "Controlli uptime avanzati",
       "replaysPerMonth": "{count, plural, one {# session replay/mese} other {# session replay/mese}}",
       "uptimeUnlimited": "Monitor uptime e pagine di stato illimitati",
-      "statusPagesPro": "Pagine di stato white-label sul tuo dominio",
+      "statusPagesPro": "Pagine di stato white-label",
       "emailReports": "Report email pianificati",
       "slaGuarantee": "SLA di uptime con supporto prioritario",
-      "sitesCount": "{count, plural, one {# sito} other {Fino a # siti}}",
-      "teamMembersCount": "{count, plural, one {# membro del team} other {Fino a # membri del team per sito}}",
-      "retentionYears": "{count, plural, one {Conservazione dati #+ anno} other {Conservazione dati #+ anni}}",
-      "uptimeMonitors": "{count} monitor uptime con controlli {minutes, plural, one {ogni minuto} other {ogni # minuti}}",
+      "sitesCount": "{count, plural, one {# sito} other {# siti}}",
+      "teamMembersCount": "{count, plural, one {# membro del team} other {# membri del team per sito}}",
+      "retentionYears": "{count, plural, one {Conservazione dati # anno} other {Conservazione dati # anni}}",
+      "uptimeMonitors": "{count} monitor uptime, controlli {minutes, plural, one {ogni minuto} other {ogni # minuti}}",
       "everythingIn": "Tutte le funzionalità di {name}, più:",
       "statusPagesCount": "{count, plural, one {# pagina di stato pubblica} other {# pagine di stato pubbliche}}",
       "statusPageCustomDomain": "Pagina di stato sul tuo dominio",
@@ -1978,7 +1977,7 @@
       "auditLog": "Registro di audit",
       "dpaSecurityReviews": "DPA e revisioni di sicurezza",
       "customRetention": "Conservazione dati personalizzata",
-      "customContracts": "Contratti annuali, fatturazione e condizioni personalizzate"
+      "customContracts": "Contratti e fatturazione personalizzati"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",
@@ -1992,7 +1991,6 @@
       "current": "Attuale"
     },
     "labels": {
-      "free": "Gratuito",
       "custom": "Personalizzato"
     }
   },

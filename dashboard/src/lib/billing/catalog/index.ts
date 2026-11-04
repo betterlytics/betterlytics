@@ -37,12 +37,10 @@ export function selfHostedPlan(): PlanDefinition {
   return PLANS[SELF_HOSTED_PLAN_ID];
 }
 
-function isCustomVolume(events: number): boolean {
-  return events > EVENT_STEPS[EVENT_STEPS.length - 1];
-}
+const LARGEST_STEP = EVENT_STEPS[EVENT_STEPS.length - 1];
 
-function isQuoted(plan: PlanDefinition, events: number): boolean {
-  return !plan.selfServe || isCustomVolume(events);
+function isCustomVolume(events: number): boolean {
+  return events > LARGEST_STEP;
 }
 
 export function bandFor(plan: PlanDefinition, events: number): PriceBand | undefined {
@@ -83,7 +81,10 @@ export type PlanOffer =
   | { kind: 'paid'; events: number; cents: number }
   | { kind: 'quoted'; events: number };
 
-/** What a plan's card offers at a slider volume. A free plan keeps its own allowance at any volume. */
+/**
+ * What a plan's card offers at a slider volume. A free plan keeps its own allowance, and a self-serve plan
+ * past its largest step offers that step.
+ */
 export function offerFor(
   plan: PlanDefinition,
   events: number,
@@ -91,9 +92,23 @@ export function offerFor(
   interval: BillingInterval = 'month',
 ): PlanOffer {
   if (isFreePlan(plan)) return { kind: 'free', events: plan.bands[0].events };
+  if (!plan.selfServe) return { kind: 'quoted', events };
 
-  const cents = isQuoted(plan, events) ? null : priceFor(plan, events, currency, interval);
-  return cents === null ? { kind: 'quoted', events } : { kind: 'paid', events, cents };
+  const offered = Math.min(events, LARGEST_STEP);
+  const cents = priceFor(plan, offered, currency, interval);
+  return cents === null ? { kind: 'quoted', events: offered } : { kind: 'paid', events: offered, cents };
+}
+
+/** Whether a plan covers a slider volume: a free plan its allowance, self-serve plans the slider steps, sales-only plans beyond them. */
+export function fitsVolume(plan: PlanDefinition, events: number): boolean {
+  if (isFreePlan(plan)) return events <= plan.bands[0].events;
+  return plan.selfServe ? !isCustomVolume(events) : isCustomVolume(events);
+}
+
+/** The plan a pricing page highlights at a slider volume: the featured plan while it fits, otherwise the first that does. */
+export function recommendedPlanFor(events: number): PlanDefinition | null {
+  const fitting = listedPlans().filter((plan) => fitsVolume(plan, events));
+  return fitting.find((plan) => plan.featured) ?? fitting[0] ?? null;
 }
 
 /** Whether a card shows exactly what an account has. A retired price is no longer sold, so it matches no paid card. */

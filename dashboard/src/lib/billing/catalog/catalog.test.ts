@@ -8,6 +8,7 @@ import {
   bandFor,
   currentPlanId,
   entitledPlan,
+  fitsVolume,
   freePlan,
   freeSubscriptionDefaults,
   getPlan,
@@ -20,6 +21,7 @@ import {
   planThatUnlocks,
   priceFor,
   purchasableLookupKey,
+  recommendedPlanFor,
   selfHostedPlan,
   upgradeFor,
 } from '@/lib/billing/catalog';
@@ -261,7 +263,7 @@ describe('pricing card offers', () => {
     expect(offerFor(getPlan('free'), VOLUME_STOPS.at(-1)!, 'EUR')).toEqual({ kind: 'free', events: 10_000 });
   });
 
-  it('prices paid plans at the slider volume and quotes past the largest step', () => {
+  it('prices paid plans at the slider volume, and at their largest step past it', () => {
     expect(offerFor(getPlan('plus'), 10_000, 'EUR')).toEqual({ kind: 'paid', events: 10_000, cents: 900 });
     expect(offerFor(getPlan('business'), 1_000_000, 'USD')).toEqual({
       kind: 'paid',
@@ -269,13 +271,34 @@ describe('pricing card offers', () => {
       cents: 10400,
     });
     expect(offerFor(getPlan('plus'), VOLUME_STOPS.at(-1)!, 'USD')).toEqual({
-      kind: 'quoted',
-      events: VOLUME_STOPS.at(-1),
+      kind: 'paid',
+      events: 10_000_000,
+      cents: 16900,
     });
   });
 
   it('always quotes Enterprise', () => {
     expect(offerFor(getPlan('enterprise'), 10_000, 'USD')).toEqual({ kind: 'quoted', events: 10_000 });
+  });
+});
+
+describe('plans that fit a slider volume', () => {
+  const fitting = (events: number) =>
+    listedPlans()
+      .filter((plan) => fitsVolume(plan, events))
+      .map((plan) => plan.id);
+
+  it('fits Free within its allowance, paid plans up to the largest step and Enterprise past it', () => {
+    expect(fitting(10_000)).toEqual(['free', 'plus', 'business']);
+    expect(fitting(50_000)).toEqual(['plus', 'business']);
+    expect(fitting(EVENT_STEPS.at(-1)!)).toEqual(['plus', 'business']);
+    expect(fitting(VOLUME_STOPS.at(-1)!)).toEqual(['enterprise']);
+  });
+
+  it('recommends Plus while it fits, then Enterprise', () => {
+    expect(recommendedPlanFor(10_000)?.id).toBe('plus');
+    expect(recommendedPlanFor(EVENT_STEPS.at(-1)!)?.id).toBe('plus');
+    expect(recommendedPlanFor(VOLUME_STOPS.at(-1)!)?.id).toBe('enterprise');
   });
 });
 
