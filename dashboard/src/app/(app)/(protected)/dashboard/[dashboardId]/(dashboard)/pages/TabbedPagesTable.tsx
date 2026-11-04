@@ -73,7 +73,8 @@ export default function TabbedPagesTable({
                 className='cursor-pointer bg-transparent p-0 text-left text-sm font-medium transition-colors select-text'
                 title={t('filterByPath', { path })}
               >
-                {formatString(path)}
+                {/* formatString counts characters, so full-width paths also stop at the width of 50 Latin ones */}
+                <span className='max-w-[50ch] truncate'>{formatString(path)}</span>
               </Button>
             );
           },

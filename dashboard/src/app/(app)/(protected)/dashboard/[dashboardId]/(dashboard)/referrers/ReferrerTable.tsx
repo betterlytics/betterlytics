@@ -99,7 +99,7 @@ export default function ReferrerTable({ data = [], loading = false }: ReferrerTa
                 ) : (
                   <Link className='h-4 w-4 text-gray-500' />
                 )}
-                {label}
+                <span className='max-w-[50ch] truncate'>{label}</span>
               </span>
             </Button>
           </div>
