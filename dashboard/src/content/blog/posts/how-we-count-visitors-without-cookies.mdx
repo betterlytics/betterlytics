@@ -163,9 +163,11 @@ The daily hash gives up everything that needs memory across days. In return, onc
 
 ## What this means for consent
 
-We are not lawyers, and this post is not legal advice. What we can describe is what the system does. The tracking script stores nothing on the device unless you turn on session replay, the IP address is used in memory and never stored, and visitor IDs can't be linked across days or sites.
+Cookie banners exist because EU rules require consent before a site stores or reads information on a visitor's device. For analytics, error tracking and Core Web Vitals, the Betterlytics tracker stores nothing there, which takes away the usual reason for a banner. On top of that, the IP address is used in memory and never stored, and visitor IDs can't be linked across days or sites.
 
-Whether that lets you run Betterlytics without a consent banner depends on things we can't judge for you. Your country and its regulator's reading of the ePrivacy rules matter, since some regulators read the rule on accessing information from a device broadly, and the script does read the user agent and screen size. So do the other tools on your site and the Betterlytics features you enable. Session replay, custom events and global properties can all change the picture. Under the GDPR, an IP address usually counts as personal data even when it is only processed for a moment. Ask your data protection officer or a lawyer, and show them this post and the code it links.
+A few things can still call for consent. Session replay records the page, so it only runs once your site records consent. Custom events and global properties carry whatever data you choose to send. Other tools on your site may need consent of their own, and some regulators read the device rule broadly enough to cover the user agent and screen size the script reads. Under the GDPR, an IP address usually counts as personal data even when it is only processed for a moment, so the processing still needs a legal basis, which for cookieless analytics is often legitimate interest.
+
+We are not lawyers, and this post is not legal advice. When you document your setup, show this post and the code it links to your data protection officer.
 
 ## Read the code yourself
 
