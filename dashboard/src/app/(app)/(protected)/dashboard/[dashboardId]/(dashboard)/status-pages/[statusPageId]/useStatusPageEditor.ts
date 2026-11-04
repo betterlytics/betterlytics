@@ -45,7 +45,9 @@ export function useStatusPageEditor({
         return holdForRedirect(updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.settingsInput }));
       }
       const images = await collectStagedImages(form);
-      return holdForRedirect(updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.studioInput }, images));
+      return holdForRedirect(
+        updateStatusPageAction(dashboardId, { id: statusPage.id, ...form.studioInput }, images),
+      );
     },
     onSuccess: (page) => {
       if (page) {
