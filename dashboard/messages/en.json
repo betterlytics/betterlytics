@@ -10,7 +10,7 @@
       "title": "Page Not Found",
       "description": "This link leads nowhere. The page may have moved, or the address has a typo.",
       "goToDashboards": "Go to dashboards",
-      "goHome": "Back to the homepage"
+      "goBack": "Go back"
     },
     "about": {
       "seo": {

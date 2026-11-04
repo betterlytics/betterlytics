@@ -10,7 +10,7 @@
       "title": "Siden blev ikke fundet",
       "description": "Linket fører ingen steder hen. Siden kan være flyttet, eller der er en tastefejl i adressen.",
       "goToDashboards": "Gå til dashboards",
-      "goHome": "Tilbage til forsiden"
+      "goBack": "Gå tilbage"
     },
     "about": {
       "seo": {

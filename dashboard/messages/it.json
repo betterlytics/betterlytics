@@ -10,7 +10,7 @@
       "title": "Pagina non trovata",
       "description": "Questo link non porta da nessuna parte. La pagina potrebbe essere stata spostata, oppure l'indirizzo contiene un errore di battitura.",
       "goToDashboards": "Vai alle dashboard",
-      "goHome": "Torna alla home"
+      "goBack": "Torna indietro"
     },
     "about": {
       "seo": {
