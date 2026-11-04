@@ -1,4 +1,4 @@
-import type { ComponentPropsWithoutRef } from 'react';
+import type { ComponentPropsWithoutRef, ReactNode } from 'react';
 import type { EvaluateOptions, MDXComponents } from 'next-mdx-remote-client/rsc';
 import remarkGfm from 'remark-gfm';
 import { ZoomableImage } from './zoomableImage';
@@ -13,22 +13,28 @@ type FigureProps = {
   alt: string;
   width: number;
   height: number;
-  caption?: string;
+  caption?: ReactNode;
   wide?: boolean;
+  full?: boolean;
+  framed?: boolean;
+  children?: ReactNode;
 };
 
 /** Unframed figure for diagrams drawn on the page canvas; `wide` lets it run past the text column where there is room. */
-function Figure({ src, alt, width, height, caption, wide = false }: FigureProps) {
+// `full` matches the cover's width and `framed` keeps the 1px border screenshots need; children work as the caption.
+function Figure({ src, alt, width, height, caption, wide = false, full = false, framed = false, children }: FigureProps) {
+  const text = caption ?? children;
   return (
-    <figure data-wide={wide || undefined}>
+    <figure data-wide={wide || undefined} data-full={full || undefined} data-framed={framed || undefined}>
       <ZoomableImage src={src} alt={alt} width={width} height={height} />
-      {caption && <figcaption>{caption}</figcaption>}
+      {text && <figcaption>{text}</figcaption>}
     </figure>
   );
 }
 
 export const BLOG_MDX_COMPONENTS: MDXComponents = {
   Figure,
+  FullWidth: ({ children }: { children: ReactNode }) => <div data-full=''>{children}</div>,
   table: (props: ComponentPropsWithoutRef<'table'>) => (
     <div style={{ overflowX: 'auto' }}>
       <table {...props} />

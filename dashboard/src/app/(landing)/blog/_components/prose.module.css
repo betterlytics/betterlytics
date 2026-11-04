@@ -119,10 +119,21 @@
     width: var(--figure-width);
     margin-inline: calc((100% - var(--figure-width)) / 2);
   }
+  .prose [data-full] {
+    --full-width: max(100%, min(1000px, 100vw - 2 * (var(--inset) + 32px)));
+    width: var(--full-width);
+    margin-inline: calc((100% - var(--full-width)) / 2);
+  }
+  .prose div[data-full] {
+    margin-block: 2.25em;
+  }
   .prose figure img {
     display: block;
     width: 100%;
     border: 0;
+  }
+  .prose figure[data-framed] img {
+    border: 1px solid var(--color-rule);
   }
   .prose figcaption {
     max-width: 680px;
