@@ -10,6 +10,16 @@ export function createSlidingWindowLimiter(
   windowMs: number,
   maxRequests: number,
 ): (key: string) => RateLimitResult {
+  const checkAll = createAllOrNothingLimiter(windowMs, maxRequests);
+  return (key) => checkAll([key]);
+}
+
+// Checks several requests as one unit, where a key that repeats takes one slot per occurrence: either
+// every request fits and all are recorded, or none is recorded and retryAfterMs says when they all fit.
+export function createAllOrNothingLimiter(
+  windowMs: number,
+  maxRequests: number,
+): (keys: readonly string[]) => RateLimitResult {
   const windows = new Map<string, number[]>();
 
   setInterval(() => {
@@ -21,10 +31,7 @@ export function createSlidingWindowLimiter(
     }
   }, SWEEP_INTERVAL_MS).unref();
 
-  return function check(key: string): RateLimitResult {
-    const now = Date.now();
-    const cutoff = now - windowMs;
-
+  function liveTimestamps(key: string, cutoff: number): number[] {
     let timestamps = windows.get(key);
     if (!timestamps) {
       timestamps = [];
@@ -38,12 +45,33 @@ export function createSlidingWindowLimiter(
       timestamps.length = 0;
     }
 
-    if (timestamps.length >= maxRequests) {
-      const oldestInWindow = timestamps[0]!;
-      return { allowed: false, retryAfterMs: oldestInWindow + windowMs - now };
+    return timestamps;
+  }
+
+  return function check(keys: readonly string[]): RateLimitResult {
+    const now = Date.now();
+    const cutoff = now - windowMs;
+
+    const requested = new Map<string, number>();
+    for (const key of keys) {
+      requested.set(key, (requested.get(key) ?? 0) + 1);
     }
 
-    timestamps.push(now);
+    let retryAfterMs = 0;
+    for (const [key, count] of requested) {
+      const timestamps = liveTimestamps(key, cutoff);
+      const excess = timestamps.length + count - maxRequests;
+      if (excess > 0) {
+        // More requests than the limit never fit, so the longest honest answer is a whole window.
+        const freesSlotAt = timestamps[excess - 1] ?? now;
+        retryAfterMs = Math.max(retryAfterMs, freesSlotAt + windowMs - now);
+      }
+    }
+    if (retryAfterMs > 0) return { allowed: false, retryAfterMs };
+
+    for (const [key, count] of requested) {
+      windows.get(key)!.push(...Array<number>(count).fill(now));
+    }
     return { allowed: true, retryAfterMs: 0 };
   };
 }
