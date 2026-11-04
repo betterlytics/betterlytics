@@ -64,6 +64,9 @@ function readableDashboardId(message: unknown, dashboardToolInputs: ReadonlyMap<
   const call = CallToolRequestSchema.safeParse(message);
   if (!call.success) return undefined;
 
-  const { name, arguments: args } = call.data.params;
+  // This server does not support tasks, so a task-augmented call is refused before it reaches the tool.
+  const { name, arguments: args, task } = call.data.params;
+  if (task) return undefined;
+
   return dashboardToolInputs.get(name)?.safeParse(args).success ? args?.dashboardId : undefined;
 }

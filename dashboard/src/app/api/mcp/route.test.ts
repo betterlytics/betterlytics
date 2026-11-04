@@ -191,6 +191,18 @@ describe('POST /api/mcp', () => {
     expect((await post(read)).status).toBe(429);
   });
 
+  it('charges a task-augmented call, which the server refuses, to the credential', async () => {
+    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards('task') });
+    const read = toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
+
+    const refused = await post({ ...read, params: { ...read.params, task: { ttl: 1000 } } });
+    expect((await refused.json()).error.code).toBe(-32603);
+    expect(mocks.executeQuery).not.toHaveBeenCalled();
+
+    await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
+    expect((await post(read)).status).toBe(429);
+  });
+
   it('counts an invalid call of a single-dashboard credential against its site, as before', async () => {
     const { dashboards } = severalDashboards('single-invalid');
     mocks.validateToken.mockResolvedValue({

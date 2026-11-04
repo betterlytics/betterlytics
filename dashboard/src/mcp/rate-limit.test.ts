@@ -70,6 +70,12 @@ describe('rateLimitKeys', () => {
     expect(await keysFor(notification)).toEqual(['mcp-token:2']);
   });
 
+  it('counts a task-augmented call against the credential, as this server refuses it', async () => {
+    const call = toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-blog' });
+    const keys = await keysFor({ ...call, params: { ...call.params, task: { ttl: 1000 } } });
+    expect(keys).toEqual(['mcp-token:2']);
+  });
+
   it.each([
     ['a malformed message', { jsonrpc: '1.0', id: 2, method: 'tools/list' }],
     [
