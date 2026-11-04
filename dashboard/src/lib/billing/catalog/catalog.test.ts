@@ -288,10 +288,10 @@ describe('plans that fit a slider volume', () => {
       .filter((plan) => fitsVolume(plan, events))
       .map((plan) => plan.id);
 
-  it('fits Free within its allowance, paid plans up to the largest step and Enterprise past it', () => {
-    expect(fitting(10_000)).toEqual(['free', 'plus', 'business']);
-    expect(fitting(50_000)).toEqual(['plus', 'business']);
-    expect(fitting(EVENT_STEPS.at(-1)!)).toEqual(['plus', 'business']);
+  it('fits Free within its allowance, paid plans up to the largest step and Enterprise at any volume', () => {
+    expect(fitting(10_000)).toEqual(['free', 'plus', 'business', 'enterprise']);
+    expect(fitting(50_000)).toEqual(['plus', 'business', 'enterprise']);
+    expect(fitting(EVENT_STEPS.at(-1)!)).toEqual(['plus', 'business', 'enterprise']);
     expect(fitting(VOLUME_STOPS.at(-1)!)).toEqual(['enterprise']);
   });
 
