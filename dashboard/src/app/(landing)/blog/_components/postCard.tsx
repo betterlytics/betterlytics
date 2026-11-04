@@ -22,7 +22,7 @@ export function PostCard({
       <div
         className={cn(
           'overflow-hidden border-b border-rule-08',
-          lead && '3xl:relative 3xl:min-h-[400px] 3xl:border-r 3xl:border-b-0',
+          lead && '3xl:flex 3xl:items-center 3xl:border-r 3xl:border-b-0 3xl:p-8',
         )}
       >
         <Image
@@ -30,12 +30,8 @@ export function PostCard({
           alt=''
           {...BLOG_COVER_SIZE}
           priority={lead}
-          sizes={lead ? '(width < 75rem) 100vw, 800px' : '(width < 40rem) 100vw, (width < 62.5rem) 50vw, 440px'}
-          className={cn(
-            'aspect-[1200/630] w-full object-cover',
-            // fills the cell when the text beside it runs taller than the cover
-            lead && '3xl:absolute 3xl:inset-0 3xl:aspect-auto 3xl:h-full',
-          )}
+          sizes={lead ? '(width < 75rem) 100vw, 740px' : '(width < 40rem) 100vw, (width < 62.5rem) 50vw, 440px'}
+          className={cn('aspect-[1200/630] w-full object-cover', lead && '3xl:border 3xl:border-rule')}
         />
       </div>
       <div
