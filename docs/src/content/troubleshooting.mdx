@@ -261,7 +261,7 @@ Webflow's "Custom Code → Footer" injects scripts right before `</body>`. That 
 Cross-tool comparisons rarely line up, because every analytics tool defines visitors and sessions differently. A few specifics about how Betterlytics counts compared to cookie-based tools like Google Analytics:
 
 - **Unique visitors are counted daily.** Visitors are identified by a privacy-preserving daily hash, so the same person visiting on three different days is counted as three unique visitors. Cookie-based tools that persist an ID for months will report a lower unique-visitor number over a long date range.
-- **Cookieless analytics aren't blocked by cookie banners.** Cookie-based tools only count visitors who accept the banner, often a fraction of real traffic. Betterlytics doesn't need consent for basic counts, so it tends to report more visitors than GA on the same site.
+- **Cookieless analytics aren't blocked by cookie banners.** Cookie-based tools only count visitors who accept the banner, often a fraction of real traffic. Betterlytics sets no cookies, so its counts don't wait on a banner, and it tends to report more visitors than GA on the same site.
 - **Known bots are filtered server-side.** Tools that don't filter bots will show inflated traffic compared to Betterlytics.
 - **A small share of visitors block all analytics.** This affects every tool, including Betterlytics, but the share is small.
 
