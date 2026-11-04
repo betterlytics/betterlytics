@@ -1932,6 +1932,12 @@
         "primary": "Inizia a registrare gratis",
         "secondary": "Leggi la documentazione sul replay"
       }
+    },
+    "notFound": {
+      "title": "Pagina non trovata",
+      "lede": "Questo link non porta da nessuna parte. La pagina potrebbe essere stata spostata, oppure l'indirizzo contiene un errore di battitura.",
+      "action": "Torna alla home",
+      "secondary": "Vedi tutte le funzionalità"
     }
   },
   "pricingSlider": {

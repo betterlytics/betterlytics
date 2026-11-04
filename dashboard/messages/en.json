@@ -1932,6 +1932,12 @@
         "primary": "Start recording free",
         "secondary": "Read the replay docs"
       }
+    },
+    "notFound": {
+      "title": "Page Not Found",
+      "lede": "This link leads nowhere. The page may have moved, or the address has a typo.",
+      "action": "Back to the homepage",
+      "secondary": "View all features"
     }
   },
   "pricingSlider": {

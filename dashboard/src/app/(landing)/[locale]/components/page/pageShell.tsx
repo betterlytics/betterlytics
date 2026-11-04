@@ -7,7 +7,15 @@ import { BrandMarkDefs } from '@/landing/components/ui/brandMark';
 import { cn } from '@/landing/lib/cn';
 import { IDS } from '@/landing/lib/ids';
 
-export function PageShell({ hero, children, after }: { hero: ReactNode; children: ReactNode; after?: ReactNode }) {
+export function PageShell({
+  hero,
+  children,
+  after,
+}: {
+  hero: ReactNode;
+  children?: ReactNode;
+  after?: ReactNode;
+}) {
   const t = useTranslations('landing.nav');
   return (
     // clips the 100vw bleed rules (100vw includes a classic scrollbar); not on body, as touch browsers still pan the viewport
@@ -31,7 +39,7 @@ export function PageShell({ hero, children, after }: { hero: ReactNode; children
           <div className='relative before:bleed-rule before:top-0 before:z-2 before:bg-rule max-sm:before:hidden'>
             {hero}
           </div>
-          <Band>{children}</Band>
+          {children ? <Band>{children}</Band> : null}
           {after}
         </main>
         <LandingFooter />

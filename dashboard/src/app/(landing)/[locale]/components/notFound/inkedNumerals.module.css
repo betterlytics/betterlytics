@@ -1,0 +1,96 @@
+@reference '../../landing.css';
+
+@layer components {
+  .numerals {
+    --ink: var(--color-volt-text);
+    position: relative;
+    width: min(88%, 820px);
+  }
+
+  .svg {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+    user-select: none;
+  }
+  .svg text {
+    font-size: 1000px;
+  }
+
+  /* non-scaling dashes are in screen pixels: 2000px outruns the longest outline at the 820px cap */
+  .outline {
+    --dash: 2000px;
+    fill: none;
+    stroke: color-mix(in srgb, var(--ink) 75%, transparent);
+    stroke-width: 2px;
+    stroke-dasharray: var(--dash) var(--dash);
+    animation: trace 1.6s var(--ease-pen) 0.1s both;
+  }
+  .outline text,
+  .lensOutline text {
+    vector-effect: non-scaling-stroke;
+  }
+  /* opaque fills under a group opacity, so where glyphs overlap the tint and hatch don't double */
+  .tint {
+    fill: var(--color-volt);
+    opacity: 0.14;
+    animation: fade 0.8s ease 1.1s both;
+  }
+  .hatch {
+    fill: url(#not-found-hatch);
+    opacity: 0.35;
+    animation: fade 0.8s ease 1.1s both;
+  }
+  .hatchLine {
+    stroke: var(--ink);
+    stroke-width: 2;
+  }
+
+  /* useLens moves the mask's circle and sets data-lens while the pointer is near */
+  .lens {
+    opacity: 0;
+    transition: opacity 0.45s var(--ease-out-expo);
+  }
+  .numerals[data-lens] .lens {
+    opacity: 1;
+  }
+  .cross {
+    fill: url(#not-found-cross);
+    opacity: 0.6;
+  }
+  .crossLine {
+    fill: none;
+    stroke: var(--color-volt-soft);
+    stroke-width: 2;
+  }
+  .lensOutline {
+    fill: none;
+    stroke: var(--color-volt-soft);
+    stroke-width: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .outline,
+    .tint,
+    .hatch {
+      animation: none;
+    }
+  }
+
+  @keyframes trace {
+    from {
+      stroke-dashoffset: var(--dash);
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+}

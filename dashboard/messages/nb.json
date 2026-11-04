@@ -1932,6 +1932,12 @@
         "primary": "Start opptak gratis",
         "secondary": "Les dokumentasjonen om opptak"
       }
+    },
+    "notFound": {
+      "title": "Fant ikke siden",
+      "lede": "Lenken fører ingen steder. Siden kan ha blitt flyttet, eller adressen har en skrivefeil.",
+      "action": "Tilbake til forsiden",
+      "secondary": "Se alle funksjoner"
     }
   },
   "pricingSlider": {
