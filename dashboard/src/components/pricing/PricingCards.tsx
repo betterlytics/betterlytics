@@ -1,7 +1,6 @@
 'use client';
 
 import { Check } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
@@ -22,6 +21,9 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
 import { useOfferVolumeLabel, usePlanFeatures, type PlanFeatureLabel } from './usePlanFeatures';
+
+/** Cancels NumberFlow's mask padding, so the price lays out like text and shares a baseline with the period. */
+const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
 
 interface PricingCardsProps {
   volume: number;
@@ -84,7 +86,7 @@ export function PricingCards({
           target={mode === 'billing' ? '_blank' : undefined}
           rel={mode === 'billing' ? 'noopener noreferrer' : undefined}
         >
-          <Button className='w-full cursor-pointer' variant={isRecommended ? 'default' : 'outline'}>
+          <Button size='lg' className='w-full cursor-pointer' variant={isRecommended ? 'default' : 'outline'}>
             {t('cta.contactUs')}
           </Button>
         </Link>
@@ -97,13 +99,14 @@ export function PricingCards({
     if (mode === 'billing' && billingData) {
       if (isCurrent) {
         return (
-          <Button className='w-full' variant='secondary' disabled>
+          <Button size='lg' className='w-full' variant='secondary' disabled>
             {t('cta.currentPlan')}
           </Button>
         );
       }
       return (
         <Button
+          size='lg'
           className='w-full cursor-pointer'
           variant={variant}
           onClick={() => onPlanSelect?.({ planId: plan.id, eventLimit: offer.events, currency })}
@@ -116,7 +119,7 @@ export function PricingCards({
 
     return (
       <Link href='/signup' className='w-full'>
-        <Button className='w-full cursor-pointer' variant={variant}>
+        <Button size='lg' className='w-full cursor-pointer' variant={variant}>
           {startLabel}
         </Button>
       </Link>
@@ -124,69 +127,74 @@ export function PricingCards({
   };
 
   return (
-    <div className={cn('grid gap-6 md:grid-cols-2 xl:grid-cols-4', className)}>
+    <div
+      className={cn('bg-card grid overflow-hidden rounded-2xl border md:grid-cols-2 xl:grid-cols-4', className)}
+    >
       {cards.map((card) => {
         const { plan, offer } = card;
         return (
-          <Card
+          <div
             key={plan.id}
-            // shares six rows with the other cards, so prices and buttons stay level when a description wraps
+            data-slot='plan-card'
+            // five rows shared with the other plans, so prices and buttons stay level when a description wraps
             className={cn(
-              'row-span-6 grid grid-rows-subgrid gap-0 rounded-2xl p-6 transition-opacity duration-200',
-              card.isRecommended
-                ? 'border-blue-500/70 bg-gradient-to-b from-blue-600/10 via-blue-600/5 to-transparent ring-1 ring-blue-500/40'
-                : 'border-border/70 bg-card/80',
-              !card.fits && 'opacity-50 focus-within:opacity-100 hover:opacity-100',
+              'relative row-span-5 grid grid-rows-subgrid p-7',
+              'max-md:not-first:border-t md:max-xl:even:border-l md:max-xl:nth-[n+3]:border-t xl:not-first:border-l',
+              card.isRecommended && 'bg-primary/5 shadow-[inset_0_2px_0_var(--color-primary)]',
+              // the rows fade rather than the plan, so the rules between plans stay crisp
+              '[&>*]:transition-opacity [&>*]:duration-200',
+              !card.fits && '[&:focus-within>*]:opacity-100 [&:hover>*]:opacity-100 [&>*]:opacity-50',
             )}
           >
-            <div className='flex flex-wrap items-center gap-2'>
-              <h3 className='text-xl font-semibold'>{plan.name}</h3>
-              {card.isRecommended && (
-                <Badge className='rounded-full border-transparent bg-blue-600 text-white'>
-                  {t('badges.mostPopular')}
-                </Badge>
-              )}
+            {card.isRecommended && (
+              <span className='bg-primary text-primary-foreground absolute top-0.5 right-7 rounded-b-md px-2.5 pt-0.5 pb-1 text-[11px] font-medium'>
+                {t('badges.mostPopular')}
+              </span>
+            )}
+            <div className='flex items-center gap-2'>
+              <h3 className='text-lg font-semibold tracking-tight'>{plan.name}</h3>
               {card.isCurrent && (
                 <Badge variant='secondary' className='rounded-full'>
                   {t('badges.current')}
                 </Badge>
               )}
             </div>
-            <p className='text-muted-foreground mt-2 text-sm'>{card.description}</p>
-            <div className='mt-6 flex h-10 items-baseline gap-1'>
-              {offer.kind === 'quoted' ? (
-                <span className='text-4xl leading-10 font-bold tracking-tight'>{t('labels.custom')}</span>
-              ) : (
-                <>
-                  <NumberFlow
-                    className='-translate-y-[0.2em] text-4xl leading-10 font-bold tracking-tight tabular-nums'
-                    value={offer.kind === 'paid' ? offer.cents / 100 : 0}
-                    locales='en-US'
-                    format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
-                    willChange
-                  />
-                  <span className='text-muted-foreground text-base'>{t('periodPerMonth')}</span>
-                </>
-              )}
+            <p className='text-muted-foreground mt-1.5 text-sm leading-relaxed text-pretty'>{card.description}</p>
+            <div className='mt-6'>
+              <div className='flex h-11 items-baseline gap-1.5'>
+                <b className='text-[2.5rem] leading-11 font-medium tracking-[-0.035em] tabular-nums'>
+                  {offer.kind === 'quoted' ? (
+                    t('labels.custom')
+                  ) : (
+                    <NumberFlow
+                      className={FLUSH}
+                      value={offer.kind === 'paid' ? offer.cents / 100 : 0}
+                      locales='en-US'
+                      format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
+                      willChange
+                    />
+                  )}
+                </b>
+                {offer.kind !== 'quoted' && (
+                  <span className='text-muted-foreground text-sm'>{t('periodPerMonth')}</span>
+                )}
+              </div>
+              <p className='text-foreground/80 mt-2.5 text-sm'>{card.volumeLabel}</p>
             </div>
-            <p className='text-muted-foreground mt-1 text-sm'>{card.volumeLabel}</p>
             <div className='mt-6'>{renderButton(card)}</div>
-            <ul className='border-border/70 mt-6 space-y-3 border-t pt-6'>
+            <ul className='mt-7 space-y-3 border-t pt-7'>
               {card.features.map((feature) => (
-                <li key={feature.label} className='flex items-start gap-3'>
-                  <Check className='mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500' />
+                <li key={feature.label} className='flex items-start gap-2.5 text-sm'>
+                  <Check className='text-primary mt-0.5 size-4 shrink-0' />
                   <span
-                    className={cn(
-                      'text-sm',
-                      feature.kind === 'header' ? 'text-foreground font-semibold' : 'text-foreground/90',
-                    )}
+                    className={feature.kind === 'header' ? 'text-foreground font-medium' : 'text-foreground/80'}
                   >
                     {feature.label}
                   </span>
                 </li>
               ))}
             </ul>
-          </Card>
+          </div>
         );
       })}
     </div>

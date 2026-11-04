@@ -99,10 +99,10 @@ export function offerFor(
   return cents === null ? { kind: 'quoted', events: offered } : { kind: 'paid', events: offered, cents };
 }
 
-/** Whether a plan covers a slider volume: a free plan its allowance, self-serve plans the slider steps, sales-only plans beyond them. */
+/** Whether a plan covers a slider volume: a free plan its allowance, self-serve plans the slider steps, sales-only plans any volume. */
 export function fitsVolume(plan: PlanDefinition, events: number): boolean {
   if (isFreePlan(plan)) return events <= plan.bands[0].events;
-  return plan.selfServe ? !isCustomVolume(events) : isCustomVolume(events);
+  return !plan.selfServe || !isCustomVolume(events);
 }
 
 /** The plan a pricing page highlights at a slider volume: the featured plan while it fits, otherwise the first that does. */
