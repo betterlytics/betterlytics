@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+import { z } from 'zod';
 import type { McpContext, McpDashboard } from '@/mcp/context';
 
 const execute = vi.hoisted(() => ({
@@ -64,6 +65,7 @@ vi.mock('@/mcp/tools/statusPages', async (importOriginal) => ({
 }));
 
 import { createMcpServer } from '@/mcp/server';
+import { rateLimitKeys } from '@/mcp/rate-limit';
 
 const SHOP: McpDashboard = {
   dashboardId: 'dash-shop',
@@ -164,10 +166,20 @@ describe('createMcpServer', () => {
   it('reports exactly the tools that take a dashboardId as dashboard-scoped', async () => {
     const client = await connect(single);
     const { tools } = await client.listTools();
-    const { dashboardToolNames } = createMcpServer(single);
+    const { dashboardToolInputs } = createMcpServer(single);
 
     const scoped = tools.filter((t) => Object.hasOwn(t.inputSchema.properties ?? {}, 'dashboardId'));
-    expect([...dashboardToolNames].sort()).toEqual(scoped.map((t) => t.name).sort());
+    expect([...dashboardToolInputs.keys()].sort()).toEqual(scoped.map((t) => t.name).sort());
+  });
+
+  it('keeps the refinements out of the published schema of a refined tool', async () => {
+    const client = await connect(single);
+    const { tools } = await client.listTools();
+
+    const query = tools.find((t) => t.name === 'query')!;
+    expect(query.inputSchema.type).toBe('object');
+    expect(query.inputSchema.required).toEqual(expect.arrayContaining(['timeRange', 'timezone', 'metrics']));
+    expect(query.inputSchema.properties).toHaveProperty('metrics');
   });
 
   it('lists the dashboards in the context', async () => {
@@ -222,6 +234,144 @@ describe('createMcpServer', () => {
       expect(result.isError).toBe(true);
       expect(text(result)).toBe('Error: Dashboard not found');
       expect(fn).not.toHaveBeenCalled();
+    });
+
+    it('charges a site for valid arguments, the same site the call reads', async () => {
+      const { dashboardToolInputs } = createMcpServer(several);
+
+      const keys = await rateLimitKeys(several, dashboardToolInputs, async () => ({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'tools/call',
+        params: { name, arguments: { ...args, dashboardId: 'dash-blog' } },
+      }));
+      expect(keys).toEqual(['site-blog']);
+    });
+  });
+
+  // Invalid arguments of each tool, and the real execute function that has to reject them too: what
+  // the rate limit treats as unable to read a site must be what the tool refuses before reading it.
+  const CUSTOM_RANGE = { timeRange: 'custom', timezone: 'UTC' };
+  const IMPOSSIBLE_DATE = { ...CUSTOM_RANGE, startDate: '2026-02-31', endDate: '2026-03-01' };
+  const MISSING_DATE = { ...CUSTOM_RANGE, startDate: '2026-02-01' };
+  const REVERSED_DATES = { ...CUSTOM_RANGE, startDate: '2026-03-01', endDate: '2026-02-01' };
+  const rangeRejections = (extra: Record<string, unknown> = {}) => [
+    { ...extra },
+    { ...extra, ...IMPOSSIBLE_DATE },
+    { ...extra, ...MISSING_DATE },
+    { ...extra, ...REVERSED_DATES },
+    { ...extra, ...RANGE, timezone: 'Not/AZone' },
+  ];
+  const INVALID_ARGS = [
+    {
+      name: 'query',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/query')>('@/mcp/tools/query')).executeQuery,
+      cases: [
+        ...rangeRejections({ metrics: ['visitors'] }),
+        { ...RANGE, metrics: [] },
+        { ...RANGE, metrics: ['nope'] },
+      ],
+    },
+    {
+      name: 'query_sessions',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/querySessions')>('@/mcp/tools/querySessions'))
+          .executeQuerySessions,
+      cases: [
+        ...rangeRejections({ metrics: ['sessions'] }),
+        { ...RANGE, metrics: [] },
+        { ...RANGE, metrics: ['sessions'], orderBy: 'date' },
+        { ...RANGE, metrics: ['sessions'], orderBy: 'bounce_rate' },
+      ],
+    },
+    {
+      name: 'user_journeys',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/userJourneys')>('@/mcp/tools/userJourneys'))
+          .executeUserJourneys,
+      cases: [...rangeRejections(), { ...RANGE, maxSteps: 1 }],
+    },
+    {
+      name: 'funnel_preview',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/funnelPreview')>('@/mcp/tools/funnelPreview'))
+          .executeFunnelPreview,
+      cases: [...rangeRejections({ steps: [STEP, STEP] }), { ...RANGE, steps: [STEP] }],
+    },
+    {
+      name: 'list_global_properties',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/globalProperties')>('@/mcp/tools/globalProperties'))
+          .executeListGlobalProperties,
+      cases: [...rangeRejections(), { ...RANGE, key: 'gp.' }, { ...RANGE, key: 'x'.repeat(65) }],
+    },
+    {
+      name: 'list_funnels',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/listFunnels')>('@/mcp/tools/listFunnels'))
+          .executeListFunnels,
+      cases: rangeRejections(),
+    },
+    {
+      name: 'list_errors',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/errors')>('@/mcp/tools/errors')).executeListErrors,
+      cases: [...rangeRejections(), { ...RANGE, limit: 0 }, { ...IMPOSSIBLE_DATE, fingerprint: 'fp-1' }],
+    },
+    {
+      name: 'get_error',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/errors')>('@/mcp/tools/errors')).executeGetError,
+      cases: [{}, { fingerprint: 'fp-1', occurrenceOffset: -1 }],
+    },
+    {
+      name: 'list_monitors',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/monitoring')>('@/mcp/tools/monitoring'))
+          .executeListMonitors,
+      cases: rangeRejections(),
+    },
+    {
+      name: 'list_monitor_incidents',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/monitoring')>('@/mcp/tools/monitoring'))
+          .executeListMonitorIncidents,
+      cases: [...rangeRejections(), { ...RANGE, state: 'nope' }, { ...RANGE, limit: 0 }],
+    },
+    {
+      name: 'list_status_pages',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/statusPages')>('@/mcp/tools/statusPages'))
+          .executeListStatusPages,
+      cases: [{ statusPageId: 1 }],
+    },
+    {
+      name: 'list_incident_suggestions',
+      load: async () =>
+        (await vi.importActual<typeof import('@/mcp/tools/statusPages')>('@/mcp/tools/statusPages'))
+          .executeListIncidentSuggestions,
+      cases: [{ statusPageId: 1 }],
+    },
+  ];
+
+  it('covers every dashboard-scoped tool in the invalid argument table', () => {
+    expect(INVALID_ARGS.map((t) => t.name)).toEqual(DASHBOARD_TOOLS.map((t) => t.name));
+  });
+
+  describe.each(INVALID_ARGS)('$name with invalid arguments', ({ name, load, cases }) => {
+    it.each(cases)('charges the credential and the tool refuses it before reading: %j', async (args) => {
+      const { dashboardToolInputs } = createMcpServer(several);
+      const keys = await rateLimitKeys(several, dashboardToolInputs, async () => ({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'tools/call',
+        params: { name, arguments: { ...args, dashboardId: 'dash-blog' } },
+      }));
+      expect(keys).toEqual(['mcp-token:2']);
+
+      const executeTool = (await load()) as (input: unknown, ...ids: string[]) => Promise<unknown>;
+      await expect(executeTool(args, 'site-blog', 'dash-blog')).rejects.toBeInstanceOf(z.ZodError);
     });
   });
 });

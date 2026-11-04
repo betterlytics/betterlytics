@@ -38,10 +38,10 @@ export async function POST(req: NextRequest) {
 
   const { context } = result;
 
-  const { server, dashboardToolNames } = createMcpServer(context);
+  const { server, dashboardToolInputs } = createMcpServer(context);
 
   const { allowed, retryAfterMs } = checkMcpRateLimit(
-    await rateLimitKeys(context, dashboardToolNames, () => req.clone().json()),
+    await rateLimitKeys(context, dashboardToolInputs, () => req.clone().json()),
   );
   if (!allowed) {
     mcpRateLimitHitsTotal.inc();

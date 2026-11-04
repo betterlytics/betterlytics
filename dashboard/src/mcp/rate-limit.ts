@@ -1,45 +1,52 @@
-import { createSlidingWindowLimiter, type RateLimitResult } from '@/lib/rate-limit';
+import type { ZodTypeAny } from 'zod';
+import {
+  CallToolRequestSchema,
+  isInitializeRequest,
+  isJSONRPCRequest,
+  JSONRPCMessageSchema,
+} from '@modelcontextprotocol/sdk/types.js';
+import { createAllOrNothingLimiter } from '@/lib/rate-limit';
 import type { McpContext } from '@/mcp/context';
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 60;
 
-const checkRateLimit = createSlidingWindowLimiter(WINDOW_MS, MAX_REQUESTS);
+// A batch over any limit is answered with one 429, so it must use no quota at all.
+export const checkMcpRateLimit = createAllOrNothingLimiter(WINDOW_MS, MAX_REQUESTS);
 
 // A credential with one dashboard counts every request against its site, as before multi-dashboard
-// support. With several, each JSON-RPC message counts against the site it reads: a call to a
-// dashboard-scoped tool naming an allowed dashboardId counts against that site, anything else (handshake,
-// tools/list, describe, list_dashboards, unknown tools, unknown ids) against the credential.
+// support. With several, each JSON-RPC message counts against the site it can read: a call to a
+// dashboard-scoped tool naming an allowed dashboardId, with arguments the tool's own schema accepts,
+// counts against that site. Anything else (handshake, tools/list, describe, list_dashboards, unknown
+// tools, unknown ids, invalid arguments, requests the transport rejects) counts against the credential.
 export async function rateLimitKeys(
   context: McpContext,
-  dashboardToolNames: ReadonlySet<string>,
+  dashboardToolInputs: ReadonlyMap<string, ZodTypeAny>,
   readBody: () => Promise<unknown>,
 ): Promise<string[]> {
   if (context.dashboards.length === 1) return [context.dashboards[0]!.siteId];
 
   const body = await readBody().catch(() => null);
-  const messages = Array.isArray(body) && body.length > 0 ? body : [body];
+  const messages: unknown[] = Array.isArray(body) && body.length > 0 ? body : [body];
+  const dispatched = isDispatched(messages);
   return messages.map((message) => {
-    const dashboardId = toolCallDashboardId(message, dashboardToolNames);
+    const dashboardId = dispatched ? readableDashboardId(message, dashboardToolInputs) : undefined;
     const dashboard = context.dashboards.find((d) => d.dashboardId === dashboardId);
     return dashboard?.siteId ?? context.credentialId;
   });
 }
 
-function toolCallDashboardId(message: unknown, dashboardToolNames: ReadonlySet<string>): unknown {
-  if (typeof message !== 'object' || message === null) return undefined;
-  const { method, params } = message as {
-    method?: unknown;
-    params?: { name?: unknown; arguments?: { dashboardId?: unknown } };
-  };
-  if (method !== 'tools/call' || !dashboardToolNames.has(params?.name as string)) return undefined;
-  return params?.arguments?.dashboardId;
+// One malformed message, or an initialize sharing a batch, makes the transport reject every message.
+function isDispatched(messages: unknown[]): boolean {
+  if (!messages.every((message) => JSONRPCMessageSchema.safeParse(message).success)) return false;
+  return messages.length === 1 || !messages.some(isInitializeRequest);
 }
 
-export function checkMcpRateLimit(keys: string[]): RateLimitResult {
-  for (const key of keys) {
-    const result = checkRateLimit(key);
-    if (!result.allowed) return result;
-  }
-  return { allowed: true, retryAfterMs: 0 };
+function readableDashboardId(message: unknown, dashboardToolInputs: ReadonlyMap<string, ZodTypeAny>): unknown {
+  if (!isJSONRPCRequest(message)) return undefined;
+  const call = CallToolRequestSchema.safeParse(message);
+  if (!call.success) return undefined;
+
+  const { name, arguments: args } = call.data.params;
+  return dashboardToolInputs.get(name)?.safeParse(args).success ? args?.dashboardId : undefined;
 }
