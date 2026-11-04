@@ -61,7 +61,7 @@ The shallow version of "all in one" is five small graphs on one page. The useful
 
 When you decide to build one product instead of five, you get to make some defaults that the specialists cannot easily make. We picked a few.
 
-**Cookieless tracking.** The analytics, replay, error, and performance signals all share one tracker. That tracker does not need a persistent identifier, so we left cookies out entirely. The byproduct: you do not need a cookie banner for any of it.
+**Cookieless tracking.** The analytics, replay, error, and performance signals all share one tracker. That tracker does not need a persistent identifier, so we left cookies out entirely. Nothing is stored on your visitors' devices for analytics, errors, or performance. That removes the usual reason for a cookie banner. Session replay is the exception and only runs once your site records consent. [How we count visitors without cookies](/blog/how-we-count-visitors-without-cookies) shows exactly what the tracker does.
 
 **EU hosting.** Because every category runs on the same infrastructure, all of it stays in the EU: analytics, errors and uptime on our servers in Germany, and session replays in Cloudflare R2's EU region. Most stacks of specialist tools end up touching three or four regions in practice.
 
