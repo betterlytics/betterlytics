@@ -45,7 +45,7 @@ const toolCall = (name: string, args: Record<string, unknown>, id = 1) => ({
   params: { name, arguments: args },
 });
 
-function post(body: unknown) {
+function post(body: unknown, headers: Record<string, string> = {}) {
   mocks.executeQuery.mockClear();
   return POST(
     new NextRequest('http://localhost/api/mcp', {
@@ -54,6 +54,7 @@ function post(body: unknown) {
         authorization: 'Bearer btl_test',
         'content-type': 'application/json',
         accept: 'application/json, text/event-stream',
+        ...headers,
       },
       body: JSON.stringify(body),
     }),
@@ -174,6 +175,20 @@ describe('POST /api/mcp', () => {
 
     expect((await callTool('query', read)).status).toBe(200);
     expect((await callTool('query', read)).status).toBe(429);
+  });
+
+  it.each([
+    ['Accept', { accept: 'application/json' }, 406],
+    ['Content-Type', { 'content-type': 'text/plain' }, 415],
+    ['Mcp-Protocol-Version', { 'mcp-protocol-version': '1999-01-01' }, 400],
+  ])('charges a call the transport rejects for its %s header to the credential', async (name, headers, status) => {
+    mocks.validateToken.mockResolvedValue({ valid: true, context: severalDashboards(`header-${name}`) });
+    const read = toolCall('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
+
+    expect((await post(read, headers)).status).toBe(status);
+
+    await exhaust('query', { ...QUERY_ARGS, dashboardId: 'dash-a' });
+    expect((await post(read)).status).toBe(429);
   });
 
   it('counts an invalid call of a single-dashboard credential against its site, as before', async () => {

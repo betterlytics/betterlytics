@@ -1,9 +1,11 @@
 import type { ZodTypeAny } from 'zod';
+import { isJsonContentType } from '@modelcontextprotocol/sdk/shared/mediaType.js';
 import {
   CallToolRequestSchema,
   isInitializeRequest,
   isJSONRPCRequest,
   JSONRPCMessageSchema,
+  SUPPORTED_PROTOCOL_VERSIONS,
 } from '@modelcontextprotocol/sdk/types.js';
 import { createAllOrNothingLimiter } from '@/lib/rate-limit';
 import type { McpContext } from '@/mcp/context';
@@ -22,18 +24,33 @@ export const checkMcpRateLimit = createAllOrNothingLimiter(WINDOW_MS, MAX_REQUES
 export async function rateLimitKeys(
   context: McpContext,
   dashboardToolInputs: ReadonlyMap<string, ZodTypeAny>,
-  readBody: () => Promise<unknown>,
+  req: Request,
 ): Promise<string[]> {
   if (context.dashboards.length === 1) return [context.dashboards[0]!.siteId];
 
-  const body = await readBody().catch(() => null);
+  const body = await req
+    .clone()
+    .json()
+    .catch(() => null);
   const messages: unknown[] = Array.isArray(body) && body.length > 0 ? body : [body];
-  const dispatched = isDispatched(messages);
+  const dispatched = hasDispatchableHeaders(req.headers) && isDispatched(messages);
   return messages.map((message) => {
     const dashboardId = dispatched ? readableDashboardId(message, dashboardToolInputs) : undefined;
     const dashboard = context.dashboards.find((d) => d.dashboardId === dashboardId);
     return dashboard?.siteId ?? context.credentialId;
   });
+}
+
+// The headers the transport checks before it runs anything; route.test.ts holds this to the real one.
+function hasDispatchableHeaders(headers: Headers): boolean {
+  const accept = headers.get('accept');
+  const protocolVersion = headers.get('mcp-protocol-version');
+  return (
+    !!accept?.includes('application/json') &&
+    accept.includes('text/event-stream') &&
+    isJsonContentType(headers.get('content-type')) &&
+    (protocolVersion === null || SUPPORTED_PROTOCOL_VERSIONS.includes(protocolVersion))
+  );
 }
 
 // One malformed message, or an initialize sharing a batch, makes the transport reject every message.

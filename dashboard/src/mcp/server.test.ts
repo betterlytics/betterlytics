@@ -132,6 +132,14 @@ function text(result: Awaited<ReturnType<Client['callTool']>>) {
   return (result.content as { type: string; text: string }[])[0]!.text;
 }
 
+function toolCallRequest(name: string, args: Record<string, unknown>) {
+  return new Request('http://localhost/api/mcp', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name, arguments: args } }),
+  });
+}
+
 beforeEach(() => {
   vi.clearAllMocks();
   for (const fn of Object.values(execute)) fn.mockResolvedValue({ ok: true });
@@ -239,12 +247,11 @@ describe('createMcpServer', () => {
     it('charges a site for valid arguments, the same site the call reads', async () => {
       const { dashboardToolInputs } = createMcpServer(several);
 
-      const keys = await rateLimitKeys(several, dashboardToolInputs, async () => ({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'tools/call',
-        params: { name, arguments: { ...args, dashboardId: 'dash-blog' } },
-      }));
+      const keys = await rateLimitKeys(
+        several,
+        dashboardToolInputs,
+        toolCallRequest(name, { ...args, dashboardId: 'dash-blog' }),
+      );
       expect(keys).toEqual(['site-blog']);
     });
   });
@@ -362,12 +369,11 @@ describe('createMcpServer', () => {
   describe.each(INVALID_ARGS)('$name with invalid arguments', ({ name, load, cases }) => {
     it.each(cases)('charges the credential and the tool refuses it before reading: %j', async (args) => {
       const { dashboardToolInputs } = createMcpServer(several);
-      const keys = await rateLimitKeys(several, dashboardToolInputs, async () => ({
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'tools/call',
-        params: { name, arguments: { ...args, dashboardId: 'dash-blog' } },
-      }));
+      const keys = await rateLimitKeys(
+        several,
+        dashboardToolInputs,
+        toolCallRequest(name, { ...args, dashboardId: 'dash-blog' }),
+      );
       expect(keys).toEqual(['mcp-token:2']);
 
       const executeTool = (await load()) as (input: unknown, ...ids: string[]) => Promise<unknown>;
