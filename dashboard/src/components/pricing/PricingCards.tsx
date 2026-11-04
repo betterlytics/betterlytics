@@ -20,7 +20,8 @@ import { Dispatch, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
-import { useOfferVolumeLabel, usePlanFeatures, type PlanFeatureLabel } from './usePlanFeatures';
+import { EventCountText } from './EventCountFlow';
+import { useOfferVolumeLabel, usePlanFeatures, type PlanFeatureLabel, type VolumeLabel } from './usePlanFeatures';
 
 /** Cancels NumberFlow's mask padding, so the price lays out like text and shares a baseline with the period. */
 const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
@@ -38,7 +39,7 @@ interface PlanCard {
   plan: PlanDefinition;
   offer: PlanOffer;
   description: string;
-  volumeLabel: string;
+  volumeLabel: VolumeLabel;
   features: readonly PlanFeatureLabel[];
   fits: boolean;
   isRecommended: boolean;
@@ -179,7 +180,9 @@ export function PricingCards({
                   <span className='text-muted-foreground text-sm'>{t('periodPerMonth')}</span>
                 )}
               </div>
-              <p className='text-foreground/80 mt-2.5 text-sm'>{card.volumeLabel}</p>
+              <p className='text-foreground/80 mt-2.5 text-sm'>
+                <EventCountText {...card.volumeLabel} />
+              </p>
             </div>
             <div className='mt-6'>{renderButton(card)}</div>
             <ul className='mt-7 space-y-3 border-t pt-7'>

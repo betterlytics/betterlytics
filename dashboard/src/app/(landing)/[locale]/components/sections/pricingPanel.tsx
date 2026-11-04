@@ -1,11 +1,16 @@
 'use client';
 
-import { Fragment, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { EventCountFlow } from '@/components/pricing/EventCountFlow';
-import { useOfferVolumeLabel, usePlanFeatures, type PlanFeatureLabel } from '@/components/pricing/usePlanFeatures';
+import { EventCountFlow, EventCountText } from '@/components/pricing/EventCountFlow';
+import {
+  useOfferVolumeLabel,
+  usePlanFeatures,
+  type PlanFeatureLabel,
+  type VolumeLabel,
+} from '@/components/pricing/usePlanFeatures';
 import {
   VOLUME_STOPS,
   fitsVolume,
@@ -31,21 +36,6 @@ const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDig
 /** Cancels NumberFlow's mask padding so a figure lays out like text. */
 const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
 
-type SelectedVolume = { value: number; figure: string };
-
-function WithVolume({ text, volume }: { text: string; volume: SelectedVolume }) {
-  return (
-    <span>
-      {text.split(volume.figure).map((part, i) => (
-        <Fragment key={i}>
-          {i > 0 && <EventCountFlow value={volume.value} />}
-          {part}
-        </Fragment>
-      ))}
-    </span>
-  );
-}
-
 function Check() {
   return (
     <svg className='mt-[3px] size-3.5 flex-none text-volt-soft' viewBox='0 0 16 16' fill='none' aria-hidden>
@@ -69,29 +59,15 @@ type PlanProps = {
   /** Cents, or a label such as 'Custom'. */
   price: number | string;
   period?: string;
-  volumeLabel: string;
+  volumeLabel: VolumeLabel;
   badge?: string;
   features: PlanFeatureLabel[];
   cta: PlanCta;
   pick?: boolean;
   dimmed?: boolean;
-  volume: SelectedVolume;
 };
 
-function Plan({
-  tier,
-  name,
-  tagline,
-  price,
-  period,
-  volumeLabel,
-  badge,
-  features,
-  cta,
-  pick,
-  dimmed,
-  volume,
-}: PlanProps) {
+function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features, cta, pick, dimmed }: PlanProps) {
   const locale = useLocale();
   return (
     // a subgrid of five rows shared across plans, so prices and buttons stay level when a tagline wraps
@@ -134,7 +110,7 @@ function Plan({
           {period ? <span className='text-body-sm tracking-ui text-muted'>{period}</span> : null}
         </div>
         <p className='mt-1.5 text-body-sm tracking-ui text-muted'>
-          <WithVolume text={volumeLabel} volume={volume} />
+          <EventCountText {...volumeLabel} />
         </p>
       </div>
       <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
@@ -147,7 +123,7 @@ function Plan({
             )}
           >
             <Check />
-            <WithVolume text={f.label} volume={volume} />
+            <span>{f.label}</span>
           </li>
         ))}
       </ul>
@@ -179,8 +155,6 @@ export function PricingPanel() {
   const recommended = recommendedPlanFor(events);
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
-  // spelled as the shared feature labels spell it, so WithVolume can split on it
-  const volume = { value: events, figure: formatEventCount(events, locale) };
 
   const pickStop = (index: number) => {
     if (index === rangeIndex) return;
@@ -256,7 +230,6 @@ export function PricingPanel() {
               <Plan
                 key={plan.id}
                 tier={plan.id}
-                volume={volume}
                 pick={isRecommended}
                 dimmed={!fitsVolume(plan, events)}
                 name={plan.name}
