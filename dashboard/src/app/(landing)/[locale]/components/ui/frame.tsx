@@ -9,13 +9,15 @@ import { Heading, Lede } from './text';
 type SectionProps = {
   id: string;
   title?: string;
+  /** h1 when the section opens its page. */
+  titleAs?: 'h1' | 'h2';
   lede?: string;
   balanced?: boolean;
   className?: string;
   children: ReactNode;
 };
 
-export function Section({ id, title, lede, balanced = true, className, children }: SectionProps) {
+export function Section({ id, title, titleAs = 'h2', lede, balanced = true, className, children }: SectionProps) {
   const titleId = `${id}-title`;
   return (
     <section
@@ -26,7 +28,12 @@ export function Section({ id, title, lede, balanced = true, className, children 
       <div className='relative z-1'>
         {title ? (
           <div className='mb-20 flex flex-col items-center gap-4 text-center max-lg:mb-12'>
-            <Heading as='h2' size='display-2' id={titleId} className={balanced ? undefined : 'max-sm:text-wrap'}>
+            <Heading
+              as={titleAs}
+              size='display-2'
+              id={titleId}
+              className={balanced ? undefined : 'max-sm:text-wrap'}
+            >
               <Emphasis text={title} as={Underline} />
             </Heading>
             {lede ? <Lede className='max-w-[62ch] text-muted'>{lede}</Lede> : null}

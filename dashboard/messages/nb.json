@@ -1121,13 +1121,7 @@
       "seo": {
         "title": "Betterlytics-priser: start gratis, betal etter hendelser",
         "description": "Alle planer har nettanalyse, sesjonsopptak, feilsporing og oppetidsovervåking. Start gratis og betal etter hendelser per måned, eller host det selv gratis."
-      },
-      "titleEmphasis": "Enkle, transparente",
-      "titleRest": "priser",
-      "subtitle": "Start gratis, oppgrader når du trenger mer. Ingen skjulte avgifter, ingen overraskelser.",
-      "footer": "Start med gratisplanen vår — ingen kredittkort kreves.",
-      "comparisonTitle": "Sammenlign alle funksjoner",
-      "exploreFeaturesLink": "Utforsk alle funksjoner i detalj"
+      }
     },
     "shareImage": {
       "alt": "«You shouldn’t need five tools to understand one website» over Betterlytics-dashboardet"
@@ -1271,6 +1265,13 @@
         }
       },
       "cta": "Kom i gang"
+    },
+    "pricingPage": {
+      "compareTitle": "Sammenlign alle funksjoner",
+      "faqTitle": "Ofte stilte spørsmål",
+      "note": "Gratis å starte, ingen kredittkort trengs. Prisene er i amerikanske dollar, og betaler du i euro, er beløpet det samme.",
+      "included": "Inkludert",
+      "notIncluded": "Ikke inkludert"
     },
     "cta": {
       "title": "Legg inn ett skript og se den første besøkende tikke inn",
@@ -2021,7 +2022,7 @@
       "dataRetention": {
         "name": "Datalagring",
         "values": {
-          "yearsCount": "{count, plural, one {#+ år} other {#+ år}}",
+          "yearsCount": "{count, plural, one {# år} other {# år}}",
           "custom": "Tilpasset"
         }
       },
@@ -2118,27 +2119,6 @@
       },
       "slaGuarantee": {
         "name": "SLA-garanti"
-      }
-    },
-    "coreFeatures": {
-      "title": "Inkludert i alle planer",
-      "subtitle": "Hver plan kommer med hele analysepakken vår",
-      "items": {
-        "realtimeAnalytics": "Sanntidsanalyse",
-        "sessionReplay": "Sesjonsavspilling",
-        "geographicInsights": "Geografisk innsikt",
-        "trafficSources": "Trafikkilder",
-        "utmCampaigns": "UTM-kampanjesporing",
-        "customEvents": "Tilpassede hendelser",
-        "funnels": "Trakter og konverteringer",
-        "userJourneys": "Brukerreiser",
-        "webVitals": "Web-vitals",
-        "botFiltering": "Bot-filtrering",
-        "outboundLinks": "Sporing av utgående lenker",
-        "advancedFiltering": "Avansert filtrering",
-        "cookieFree": "Informasjonskapselfri",
-        "gdprCcpa": "Klar for GDPR og CCPA",
-        "errorTracking": "Klientside-feilsporing"
       }
     }
   },

@@ -1121,13 +1121,7 @@
       "seo": {
         "title": "Prezzi Betterlytics: inizia gratis, paga per eventi",
         "description": "Ogni piano include analisi web, session replay, tracciamento errori e uptime. Inizia gratis e paga in base agli eventi mensili, o fai self-hosting gratis."
-      },
-      "titleEmphasis": "Prezzi semplici e",
-      "titleRest": "trasparenti",
-      "subtitle": "Inizia gratis, aggiorna quando ne hai bisogno. Nessun costo nascosto, nessuna sorpresa.",
-      "footer": "Inizia con il nostro piano gratuito - nessuna carta di credito richiesta.",
-      "comparisonTitle": "Confronta tutte le funzionalità",
-      "exploreFeaturesLink": "Esplora tutte le funzionalità in dettaglio"
+      }
     },
     "shareImage": {
       "alt": "“You shouldn’t need five tools to understand one website” sopra la dashboard di Betterlytics"
@@ -1271,6 +1265,13 @@
         }
       },
       "cta": "Inizia"
+    },
+    "pricingPage": {
+      "compareTitle": "Confronta tutte le funzionalità",
+      "faqTitle": "Domande frequenti",
+      "note": "Inizi gratis, senza carta di credito. I prezzi sono in dollari USA e, se paghi in euro, l'importo è lo stesso.",
+      "included": "Incluso",
+      "notIncluded": "Non incluso"
     },
     "cta": {
       "title": "Aggiungi uno script e guarda arrivare il tuo primo visitatore",
@@ -2021,7 +2022,7 @@
       "dataRetention": {
         "name": "Conservazione dati",
         "values": {
-          "yearsCount": "{count, plural, one {#+ anno} other {#+ anni}}",
+          "yearsCount": "{count, plural, one {# anno} other {# anni}}",
           "custom": "Personalizzata"
         }
       },
@@ -2118,27 +2119,6 @@
       },
       "slaGuarantee": {
         "name": "Garanzia SLA"
-      }
-    },
-    "coreFeatures": {
-      "title": "Incluso in tutti i piani",
-      "subtitle": "Ogni piano include la nostra suite completa di analytics",
-      "items": {
-        "realtimeAnalytics": "Analytics in tempo reale",
-        "sessionReplay": "Replay sessioni",
-        "geographicInsights": "Insights geografici",
-        "trafficSources": "Fonti di traffico",
-        "utmCampaigns": "Tracciamento campagne UTM",
-        "customEvents": "Eventi personalizzati",
-        "funnels": "Funnel e conversioni",
-        "userJourneys": "Percorsi utente",
-        "webVitals": "Web Vitals",
-        "botFiltering": "Filtraggio bot",
-        "outboundLinks": "Tracciamento link in uscita",
-        "advancedFiltering": "Filtri avanzati",
-        "cookieFree": "Senza cookie",
-        "gdprCcpa": "Pronto per GDPR e CCPA",
-        "errorTracking": "Monitoraggio errori lato client"
       }
     }
   },

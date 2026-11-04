@@ -1121,13 +1121,7 @@
       "seo": {
         "title": "Betterlytics pricing: start free, pay by monthly events",
         "description": "Every plan includes web analytics, session replay, error tracking and uptime monitoring. Start free and pay by monthly events, or self-host at no cost."
-      },
-      "titleEmphasis": "Simple, transparent",
-      "titleRest": "pricing",
-      "subtitle": "Start free, upgrade when you need more. No hidden fees, no surprises.",
-      "footer": "Start with our free plan - no credit card required.",
-      "comparisonTitle": "Compare all features",
-      "exploreFeaturesLink": "Explore all features in detail"
+      }
     },
     "shareImage": {
       "alt": "“You shouldn’t need five tools to understand one website” above the Betterlytics dashboard"
@@ -1271,6 +1265,13 @@
         }
       },
       "cta": "Get started"
+    },
+    "pricingPage": {
+      "compareTitle": "Compare all features",
+      "faqTitle": "Frequently asked questions",
+      "note": "Free to start, no credit card needed. Prices are in US dollars, and paying in euros costs the same amount.",
+      "included": "Included",
+      "notIncluded": "Not included"
     },
     "cta": {
       "title": "Add one script and watch your first visitor arrive",
@@ -2021,7 +2022,7 @@
       "dataRetention": {
         "name": "Data retention",
         "values": {
-          "yearsCount": "{count, plural, one {#+ year} other {#+ years}}",
+          "yearsCount": "{count, plural, one {# year} other {# years}}",
           "custom": "Custom"
         }
       },
@@ -2118,27 +2119,6 @@
       },
       "slaGuarantee": {
         "name": "SLA guarantee"
-      }
-    },
-    "coreFeatures": {
-      "title": "Included in all plans",
-      "subtitle": "Every plan comes with our full analytics suite",
-      "items": {
-        "realtimeAnalytics": "Real-time analytics",
-        "sessionReplay": "Session replay",
-        "geographicInsights": "Geographic insights",
-        "trafficSources": "Traffic sources",
-        "utmCampaigns": "UTM campaign tracking",
-        "customEvents": "Custom events",
-        "funnels": "Funnels & conversions",
-        "userJourneys": "User journeys",
-        "webVitals": "Web Vitals",
-        "botFiltering": "Bot filtering",
-        "outboundLinks": "Outbound link tracking",
-        "advancedFiltering": "Advanced filtering",
-        "cookieFree": "Cookie-free",
-        "gdprCcpa": "GDPR & CCPA ready",
-        "errorTracking": "Client-side error tracking"
       }
     }
   },
