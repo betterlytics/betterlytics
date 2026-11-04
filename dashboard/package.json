@@ -103,6 +103,7 @@
     "react-dom": "^19.0.4",
     "react-email": "^6.9.1",
     "react-leaflet": "^5.0.0",
+    "react-medium-image-zoom": "^5.4.9",
     "react-qr-code": "^2.0.18",
     "react-window": "^2.1.2",
     "recharts": "^2.15.3",

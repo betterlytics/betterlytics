@@ -111,6 +111,28 @@
     border: 1px solid var(--color-rule);
   }
 
+  .prose figure {
+    margin-block: 2.25em;
+  }
+  .prose figure[data-wide] {
+    --figure-width: max(100%, min(840px, 100vw - 2 * (var(--inset) + 32px)));
+    width: var(--figure-width);
+    margin-inline: calc((100% - var(--figure-width)) / 2);
+  }
+  .prose figure img {
+    display: block;
+    width: 100%;
+    border: 0;
+  }
+  .prose figcaption {
+    max-width: 680px;
+    margin: 0.875em auto 0;
+    font-size: var(--text-body-sm);
+    line-height: 1.5;
+    text-align: center;
+    color: var(--color-muted);
+  }
+
   .prose table {
     width: 100%;
     border-collapse: collapse;
