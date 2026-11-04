@@ -1,0 +1,183 @@
+---
+title: 'How Betterlytics counts visitors without cookies'
+description: 'A walk through the code behind our cookieless visitor counts: a salted hash that changes daily, what we store, what we delete, and where the numbers go wrong.'
+publishedAt: '2026-11-01'
+author: team
+cover:
+  src: /blog/how-we-count-visitors-without-cookies/cover.jpg
+  alt: 'Placeholder cover for the post on cookieless visitor counting'
+---
+
+A visitor count has to answer one question for every pageview: have we seen this person before? Most analytics tools answer it with a cookie. The first visit stores a random ID in the browser, every later visit reads it back, and the tool counts people by that ID for as long as the cookie lives.
+
+Betterlytics answers the question on the server, and only for one day at a time. The backend turns each request into a salted hash of a few coarse details, then replaces the salt every day and deletes the old ones. This post walks through the code that does it, what ends up in our database, and the cases where the count comes out wrong. All of it is open source, and the files are linked at the end so you can check each claim.
+
+> **In short**
+>
+> - The tracking script sets no cookies. It uses localStorage only when session replay is on, and keeps no ID there.
+> - The visitor ID is a SHA-256 hash of a daily random salt, the network part of the IP address, a screen size class, the browser, the operating system and the site's domain.
+> - Each salt is deleted after at most two days. After that, nobody can work out what went into the IDs made with it, us included.
+> - The IP address is never written to the database.
+> - The same person counts as a new visitor every day, and people on one network with identical setups can count as one.
+
+## What the tracking script sends
+
+Each pageview is one `POST` from the tracking script to our `/event` endpoint. The body holds the site ID, the event name, the page URL, the referrer, the browser's user-agent string, the screen size and a timestamp. Like every HTTP request, it also arrives with the visitor's IP address.
+
+The script never reads or writes `document.cookie`. It touches `localStorage` only when a site turns on session replay. In that case it keeps two small entries. The first records whether this visit was picked for recording, so replay stays on or off across page loads, and it is ignored after 30 minutes without a page load. The second records that the site called `setReplayConsent(true)`. The sampling entry is only written once consent is present, and neither entry holds an identifier. With replay off, the tracker stores nothing in the browser at all.
+
+## How a request becomes a visitor ID
+
+Before anything is stored, the Rust backend reduces the request to six values and hashes them.
+
+<Figure
+  wide
+  src='/blog/how-we-count-visitors-without-cookies/visitor-id-inputs.webp'
+  width={1680}
+  height={1008}
+  alt="What a request carries next to what goes into the hash: 203.0.113.42 becomes 203.0.113.0, the user agent becomes chrome 130 on windows, a 1920x1080 screen becomes desktop, and blog.example.com becomes example.com. SHA-256 with today's salt turns them into the visitor ID 82b4556f0ff8a2c1."
+  caption="Four request values are cut down, then hashed with today's salt into a 64-bit visitor ID."
+/>
+
+| Input | What goes into the hash |
+|---|---|
+| IP address | The network part only: `203.0.113.0` for IPv4 (last block set to zero), the first four groups for IPv6 |
+| Device type | `mobile`, `tablet`, `laptop` or `desktop`, decided by screen width (breakpoints at 576, 992 and 1440 pixels) |
+| Browser | Family and major version, such as `chrome` and `130` |
+| Operating system | Family only, such as `windows` |
+| Domain | The site's registrable domain, so `blog.example.com` and `example.com` are the same |
+| Salt | 16 random bytes that change every day |
+
+The full IP address is shortened before it reaches the hash, so it never becomes part of the ID. The hash itself is a few lines in `fingerprint.rs`:
+
+```rust
+let mut hasher = Sha256::new();
+hasher.update(salt.as_slice());
+hasher.update(format!(
+    "{}:{}:{}:{}:{}:{}",
+    anonymized_ip, device_category, browser_family,
+    browser_major_version, os_family, domain
+));
+
+let result = hasher.finalize();
+u64::from_be_bytes(result[..8].try_into().expect("always produces 32 bytes"))
+```
+
+The first 8 bytes of the SHA-256 digest become a 64-bit number, and that number is the visitor ID stored with each event. Two pageviews with the same inputs on the same day get the same ID. If any input changes, the salt included, the ID changes completely.
+
+The domain is in the hash because every site on Betterlytics shares the same daily salt. Without it, one person reading two unrelated sites on the same day would get the same ID on both. With it, the two IDs have nothing in common.
+
+## A new salt every day
+
+The salt is what stops the hash from being a permanent label. Without one, the same six values would give the same ID forever, and anyone who knew a visitor's network and browser could compute it.
+
+The salt service in `salt/mod.rs` keeps one salt per UTC day. Each one is 16 bytes from the operating system's random number generator, stored in a Postgres table called `AnalyticsSalt`. The backend also holds today's and yesterday's salt in memory, so hashing an event never waits on the database.
+
+Rotation is lazy. The first event after midnight UTC starts a background task that inserts a salt for the new day and deletes every salt older than yesterday:
+
+```rust
+// Keep only today + yesterday; anything older is deleted
+// so old fingerprints become irreversible.
+let cutoff = today.pred_opt().unwrap_or(today);
+conn.execute(
+    r#"DELETE FROM "AnalyticsSalt" WHERE "saltDate" < $1"#,
+    &[&cutoff],
+)
+.await?;
+```
+
+The insert uses `ON CONFLICT DO NOTHING`. When several backend instances see the new day at once, the first insert wins and every instance reads the same salt back.
+
+A salt therefore exists from the first event of its day until the first event two days later, which is at most about 48 hours. Then it is gone from memory and from the database.
+
+<Figure
+  wide
+  src='/blog/how-we-count-visitors-without-cookies/salt-lifetime.webp'
+  width={1680}
+  height={896}
+  alt="Three UTC days, Monday to Wednesday. Monday's salt hashes visitors on Monday, is kept on Tuesday only as a midnight bridge, and is deleted on Wednesday. Tuesday's and Wednesday's salts follow the same pattern, one day later each."
+  caption="Each salt hashes one day's visitors, only bridges sessions the next day, and is deleted the day after."
+/>
+
+## Why deleting the salt matters
+
+While a salt exists, the hash can in principle be reversed by guessing. The browser, OS, device type and domain are stored next to the visitor ID, so the only unknown input is the network part of the IP address. For IPv4 that is 2^24 possibilities, about 16.7 million, which an ordinary computer can try one by one. Someone holding both the salt and the event data could work out which network an ID came from. They would learn the network and nothing finer, because the full address never went into the hash.
+
+Deleting the salt ends that. Once it is gone, the IDs made with it are 64-bit numbers with no way back to their inputs, for us or for anyone who copies the database later. They also can't be linked to any other day's IDs, because the salt that would connect them no longer exists.
+
+## Sessions and midnight
+
+A session is a run of events from one visitor with no gap longer than 30 minutes. The backend keeps active sessions in memory, looked up by site and visitor ID, and gives each new session a random 64-bit ID. The session ID is drawn at random, so it says nothing about the visitor.
+
+Midnight needs one extra step. A visitor reading an article at 23:58 UTC gets a new visitor ID once the salt rotates after midnight. To keep the visit in one piece, the backend also computes the ID that visitor would have had with yesterday's salt and checks it when today's ID has no session. That lookup is the only thing yesterday's salt is used for.
+
+## What we store, and what we never store
+
+Each event becomes one row in ClickHouse. Apart from the event itself (page path, referrer, campaign parameters, custom event data), the row holds the visitor ID, the session ID, the device type, the browser and its version, the OS and its version, and the network operator's ASN number and name. Where an install turns geolocation on, the row also gets a country, and optionally a region and city, from a lookup in a local MaxMind database.
+
+The backend shortens the IP address before every lookup, and the row has no column for it, so neither the full address nor the shortened one is stored. The full address stays in memory only while the request is handled. Session replay uploads are the one exception, where it is part of a bot-check cache key for up to ten minutes.
+
+| Stored with each event | Never stored |
+|---|---|
+| Visitor ID (the daily hash) and session ID | The IP address, full or shortened |
+| Device type, browser and version, OS and version | Any salt older than yesterday |
+| Network operator, and location if enabled | An ID in the visitor's browser |
+
+## Where the counts are wrong
+
+A daily hash has known errors. They are the price of not keeping an ID, and you should know them before you compare our numbers with another tool's.
+
+**A returning visitor is new every day.** Someone who reads your blog on Monday and again on Tuesday is two visitors. The dashboard counts distinct visitor IDs over the date range you pick, so a 30-day visitor number is roughly the sum of the daily numbers, which is higher than the number of people. For the same reason, Betterlytics can't tell you how many visitors came back, or build retention cohorts.
+
+**Days start at midnight UTC.** The salt follows UTC, not your site's time zone. For a site in New York, the visitor day turns over at 7 or 8 in the evening local time, depending on daylight saving.
+
+**A visit across midnight counts twice.** The session stays whole, but its events before and after midnight carry different visitor IDs, so a date range that covers both days counts that person twice.
+
+**One person can become two.** If anything that goes into the hash changes during the day, the visitor gets a new ID and a new session. A phone that moves from Wi-Fi to mobile data gets a new network address. A browser that updates to a new major version changes the version. Moving the browser to a screen in a different size class can change the device type.
+
+**Several people can become one.** Visitors on the same network (the same first three blocks of an IPv4 address) with the same device type, browser version and OS get the same ID. Offices, schools and mobile carriers that put many customers behind shared addresses all cause this. Sessions are looked up by visitor ID, so those people also share a session, and two colleagues reading your site at the same time look like one visit with twice the pageviews.
+
+<Figure
+  wide
+  src='/blog/how-we-count-visitors-without-cookies/split-and-merge.webp'
+  width={1680}
+  height={1008}
+  alt="Two counting errors. One phone that moves from Wi-Fi on 203.0.113.0 to mobile data on 198.51.100.0 gets two different visitor IDs. Two colleagues on 203.0.113.0, both using Chrome 130 on Windows laptops, share one visitor ID."
+  caption="A network change splits one person into two visitors. A shared network and an identical setup merge two people into one."
+/>
+
+## How this compares with cookies and fingerprinting
+
+A **cookie ID** is a random value stored in the browser on the first visit. It recognizes one browser for as long as the cookie lasts; Google Analytics' `_ga` cookie, for example, lasts two years by default. That long memory is what makes returning-visitor and retention reports possible. It also means writing to the visitor's device, which in the EU falls under the ePrivacy rules on device storage, and it is why most cookie-based setups sit behind a consent banner. Visitors who decline usually go uncounted.
+
+**Persistent fingerprinting** builds a stable ID from many browser details, such as canvas rendering, installed fonts, audio hardware and time zone. It needs no storage and survives cleared cookies, which makes it a tracking technique by design. European regulators have said it can fall under the same consent rules as cookies.
+
+| | Cookie ID | Persistent fingerprint | Betterlytics daily hash |
+|---|---|---|---|
+| Where the ID lives | In the browser | Recomputed from browser details | On the server only |
+| How long it recognizes someone | As long as the cookie lasts | Until those details change | One UTC day |
+| Returning visitors and retention | Yes | Yes | No |
+| Same ID across different sites | Possible with third-party cookies | Yes | No, the domain is in the hash |
+
+The daily hash gives up everything that needs memory across days. In return, once a salt is deleted, the IDs made with it can't be tied to a network, a person or any other day.
+
+## What this means for consent
+
+We are not lawyers, and this post is not legal advice. What we can describe is what the system does. The tracking script stores nothing on the device unless you turn on session replay, the IP address is used in memory and never stored, and visitor IDs can't be linked across days or sites.
+
+Whether that lets you run Betterlytics without a consent banner depends on things we can't judge for you. Your country and its regulator's reading of the ePrivacy rules matter, since some regulators read the rule on accessing information from a device broadly, and the script does read the user agent and screen size. So do the other tools on your site and the Betterlytics features you enable. Session replay, custom events and global properties can all change the picture. Under the GDPR, an IP address usually counts as personal data even when it is only processed for a moment. Ask your data protection officer or a lawyer, and show them this post and the code it links.
+
+## Read the code yourself
+
+Everything above comes from these files in [the Betterlytics repository](https://github.com/betterlytics/betterlytics):
+
+- [`static/analytics.js`](https://github.com/betterlytics/betterlytics/blob/main/static/analytics.js) is the tracking script, including the replay-only `localStorage` use.
+- [`backend/src/analytics/fingerprint.rs`](https://github.com/betterlytics/betterlytics/blob/main/backend/src/analytics/fingerprint.rs) builds the hash.
+- [`backend/src/ip_parser/mod.rs`](https://github.com/betterlytics/betterlytics/blob/main/backend/src/ip_parser/mod.rs) shortens the IP address in `anonymize_ip`.
+- [`backend/src/salt/mod.rs`](https://github.com/betterlytics/betterlytics/blob/main/backend/src/salt/mod.rs) creates, rotates and deletes the daily salts.
+- [`backend/src/visitor/mod.rs`](https://github.com/betterlytics/betterlytics/blob/main/backend/src/visitor/mod.rs) and [`backend/src/session/mod.rs`](https://github.com/betterlytics/betterlytics/blob/main/backend/src/session/mod.rs) assign visitor IDs and sessions, including the midnight bridge.
+- [`backend/src/db/models.rs`](https://github.com/betterlytics/betterlytics/blob/main/backend/src/db/models.rs) defines the event row written to ClickHouse.
+
+Self-hosted installs run the same backend, so all of this applies to them too. If you find a place where the code and this post disagree, [open an issue](https://github.com/betterlytics/betterlytics/issues) and we will fix whichever one is wrong.
+
+To see the counts on a real site, the [live demo](/demo) is open, and you can [start a free account](/signup) whenever you want to try it on yours.
