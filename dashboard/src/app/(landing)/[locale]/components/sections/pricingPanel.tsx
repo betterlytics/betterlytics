@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { EventCountFlow, EventCountText, FLUSH } from '@/components/pricing/EventCountFlow';
+import { EventCountFlow, EventCountText, FLUSH, QUICK_ROLL } from '@/components/pricing/EventCountFlow';
 import { usePlanCards, type PlanFeatureLabel, type VolumeLabel } from '@/components/pricing/usePlanFeatures';
 import { VOLUME_STOPS, type PlanId } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
@@ -88,6 +88,7 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
                 locales={locale}
                 format={PRICE_FORMAT}
                 willChange
+                {...QUICK_ROLL}
               />
             ) : (
               price
