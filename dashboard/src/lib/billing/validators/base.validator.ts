@@ -42,7 +42,6 @@ export abstract class CapabilityValidator {
     return this;
   }
 
-  /** Names the plan that passes `unlocks`, or says the limit is the highest we sell. */
   protected upgradeMessage(key: UpgradeMessageKey, unlocks: (capabilities: PlanCapabilities) => boolean): string {
     const plan = planThatUnlocks(unlocks);
     return plan ? this.t(key, { plan: plan.name }) : this.t('capabilities.limitReached');
