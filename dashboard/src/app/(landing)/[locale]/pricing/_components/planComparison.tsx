@@ -47,7 +47,7 @@ export function PlanComparison() {
               <th
                 scope='colgroup'
                 colSpan={columns.length + 1}
-                className='px-7 pt-8 pb-3 text-caption font-semibold tracking-[0.14em] text-muted uppercase max-md:px-5'
+                className='bg-fg/3 px-7 py-3 text-body-sm font-medium text-fg max-md:px-5'
               >
                 <span className='max-md:sticky max-md:left-5'>{category.name}</span>
               </th>
