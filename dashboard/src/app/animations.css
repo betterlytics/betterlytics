@@ -236,3 +236,10 @@
     }
   }
 }
+
+/* Typed as a colour so the filter band's surface and the fade over its cut pill change shade together. */
+@property --band-bg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
