@@ -1242,7 +1242,6 @@
       "monthlyEvents": "Eventi mensili",
       "rangeLabel": "Volume mensile di eventi",
       "rangeValueText": "{events} eventi",
-      "currency": "Valuta",
       "perMonth": "/mese",
       "custom": "Personalizzato",
       "badge": "Consigliato",

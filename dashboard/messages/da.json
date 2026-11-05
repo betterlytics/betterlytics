@@ -1242,7 +1242,6 @@
       "monthlyEvents": "Månedlige events",
       "rangeLabel": "Antal events pr. måned",
       "rangeValueText": "{events} events",
-      "currency": "Valuta",
       "perMonth": "/måned",
       "custom": "Efter aftale",
       "badge": "Anbefalet",
