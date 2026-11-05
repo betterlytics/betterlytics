@@ -9,7 +9,8 @@ const escapeXml = (value: string) =>
 
 export function GET() {
   if (!isClientFeatureEnabled('isCloud')) {
-    return new Response(null, { status: 404 });
+    // Next can't cache an empty body, so self-host would log a cache error on every request
+    return new Response('Not Found', { status: 404 });
   }
   const posts = getBlogPosts();
   const items = posts.map((post) =>
