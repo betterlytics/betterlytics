@@ -1446,7 +1446,7 @@
         },
         "uptime": {
           "title": "Oppetidsovervåking",
-          "body": "Sjekker så ofte som hvert minutt, varsler der teamet ditt snakker sammen, og en statusside."
+          "body": "Sjekker så ofte som hvert 30. sekund, varsler der teamet ditt snakker sammen, og en statusside."
         }
       }
     },
@@ -1458,16 +1458,16 @@
       "hero": {
         "eyebrow": "Oppetidsovervåking",
         "title": "Vit når nettstedet ditt går ned, og hva det kostet deg",
-        "lede": "Sjekker helt ned til hvert minutt, varsler der teamet ditt snakker sammen, SSL-varsler og en offentlig statusside. I dashboardet som allerede viser trafikken din.",
+        "lede": "Sjekker helt ned til hvert 30. sekund, varsler der teamet ditt snakker sammen, SSL-varsler og en offentlig statusside. I dashboardet som allerede viser trafikken din.",
         "primary": "Start overvåking gratis",
         "secondary": "Les dokumentasjonen",
         "proof": "Vår egen statusside kjører på det"
       },
       "specs": {
         "interval": {
-          "unit": "min",
+          "unit": "sek.",
           "label": "Sjekkintervall",
-          "body": "Sjekk så ofte som hvert minutt, eller så sjelden som én gang i døgnet."
+          "body": "Sjekk så ofte som hvert 30. sekund, eller så sjelden som én gang i døgnet."
         },
         "ssl": {
           "unit": "dager",
@@ -1667,7 +1667,7 @@
           },
           "often": {
             "q": "Hvor ofte sjekker Betterlytics nettstedet mitt?",
-            "a": "Så ofte som hvert minutt, eller så sjelden som én gang i døgnet. Du velger intervallet for hver monitor."
+            "a": "Så ofte som hvert 30. sekund, eller så sjelden som én gang i døgnet. Du velger intervallet for hver monitor, og planen din bestemmer det korteste."
           },
           "false": {
             "q": "Hvordan unngår dere falske alarmer?",
@@ -1691,7 +1691,7 @@
           },
           "free": {
             "q": "Er oppetidsovervåking gratis?",
-            "a": "Ja. Free-planen inkluderer én monitor, sjekket hvert femte minutt, og én offentlig statusside med Betterlytics-merking. Betalte planer gir flere monitorer, sjekker hvert minutt, nøkkelordsjekker, egne headere og godkjente statuskoder, og statussider på ditt eget domene. Business fjerner Betterlytics-merkingen."
+            "a": "Ja. Free-planen inkluderer én monitor, sjekket hvert femte minutt, og én offentlig statusside med Betterlytics-merking. Betalte planer gir flere monitorer, sjekker hvert minutt, nøkkelordsjekker, egne headere og godkjente statuskoder, og statussider på ditt eget domene. Business gir sjekker hvert 30. sekund og fjerner Betterlytics-merkingen."
           },
           "internal": {
             "q": "Kan jeg overvåke interne tjenester?",
