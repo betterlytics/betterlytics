@@ -28,9 +28,11 @@ export function PageShell({ hero, children, after }: { hero: ReactNode; children
       >
         <Nav />
         <main id={IDS.main} className='relative'>
-          <div className='relative before:bleed-rule before:top-0 before:z-2 before:bg-rule max-sm:before:hidden'>
-            {hero}
-          </div>
+          {hero ? (
+            <div className='relative before:bleed-rule before:top-0 before:z-2 before:bg-rule max-sm:before:hidden'>
+              {hero}
+            </div>
+          ) : null}
           <Band>{children}</Band>
           {after}
         </main>
