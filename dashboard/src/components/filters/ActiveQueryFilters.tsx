@@ -280,8 +280,9 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
       tabIndex={-1}
       onClick={handleBandClick}
       className={cn(
-        'bg-primary text-primary-foreground flex min-w-0 items-start gap-2 rounded-lg p-1 pl-3 shadow-md transition-[opacity,translate] duration-200 ease-out outline-none motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0',
-        toggleable && 'cursor-pointer',
+        'text-primary-foreground flex min-w-0 items-start gap-2 rounded-lg bg-(--band-bg) p-1 pl-3 shadow-md transition-[opacity,translate,--band-bg] duration-200 ease-out outline-none [--band-bg:var(--primary)] motion-reduce:transition-none starting:-translate-y-1 starting:opacity-0',
+        toggleable &&
+          'cursor-pointer hover:not-has-[button:not([data-band-toggle]):hover]:[--band-bg:color-mix(in_oklab,var(--primary)_85%,var(--primary-foreground))]',
       )}
     >
       <span className='relative flex h-8.5 shrink-0 items-center pr-1.5'>
@@ -310,7 +311,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
                 data-band-more=''
                 className={cn(
                   'relative flex h-full items-center text-xs font-medium whitespace-nowrap tabular-nums',
-                  'before:to-primary before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-linear-to-r before:from-transparent',
+                  'before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-linear-to-r before:from-transparent before:to-(--band-bg)',
                 )}
               >
                 {t('pillMoreValues', { count: hidden })}
@@ -318,6 +319,7 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
             )}
             <button
               type='button'
+              data-band-toggle=''
               aria-expanded={expanded}
               aria-label={t('toggleFilters')}
               onClick={() => setState(expanded ? 'collapsing' : 'expanded')}
