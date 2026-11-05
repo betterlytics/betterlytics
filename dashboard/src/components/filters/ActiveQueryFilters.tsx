@@ -142,60 +142,87 @@ export function ActiveQueryFilters({ variant = 'row' }: ActiveQueryFiltersProps)
 
 type FilterBandProps = { pills: ReactNode[]; label: string; onClearAll: MouseEventHandler<HTMLElement> };
 
+const PEEK_MIN_WIDTH = 40;
+
 /*
- * One row of pills at their natural width, clipped at the edge, with the cut faded under "+N more". The band only
- * exists after scrolling, so it is never server rendered and the count is simply measured. While something is
- * hidden, a click anywhere but a live control toggles the band open and shut; clearing all is offered once every pill
- * shows.
+ * The pills always wrap, at one width in both states, so no pill moves when the band opens: collapsed is the same
+ * list clipped to its first row. Whatever space that row has left shows a faded peek of the next pill, a second
+ * inert copy of it. The band only exists after scrolling, so it is never server rendered and everything is simply
+ * measured.
  */
 function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
   const t = useTranslations('components.filters');
   const bandRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLDivElement>(null);
   const heightRef = useRef<number | null>(null);
+  const wrappedAtRef = useRef(-Infinity);
   const [hidden, setHidden] = useState(0);
+  const [peekLeft, setPeekLeft] = useState<number | null>(null);
   const [state, setState] = useState<'collapsed' | 'expanded' | 'collapsing'>('collapsed');
   const count = pills.length;
   const expanded = state === 'expanded';
-  // The pills stay wrapped while the band slides shut, so the rows leave under the closing edge.
-  const wrapped = state !== 'collapsed';
+  // The lower rows stay in view while the band slides shut, so they leave under the closing edge.
+  const open = state !== 'collapsed';
 
-  /*
-   * A pill counts as hidden once its end passes the middle of the fade before "+N more". Past that point everything
-   * is inert, down to the sections of the cut pill, so clicks there fall through to the band and expand it.
-   */
   const measure = useCallback(() => {
+    const band = bandRef.current;
     const row = rowRef.current;
-    if (!row) return;
-    const items = [...row.querySelectorAll<HTMLElement>(':scope > [data-filter-pill]')];
-    const more = row.parentElement?.querySelector<HTMLElement>('[data-band-more]');
-    const edge = more
-      ? more.getBoundingClientRect().left - parseFloat(getComputedStyle(more, '::before').width) / 2
-      : row.getBoundingClientRect().right;
-    const past = (element: Element) => element.getBoundingClientRect().right > edge + 0.5;
-    const first = wrapped ? -1 : items.findIndex(past);
+    const items = row ? [...row.querySelectorAll<HTMLElement>(':scope > [data-filter-pill]')] : [];
+    if (!band || !row || items.length === 0) return;
+    const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+    const top = items[0].offsetTop;
+    let first = items.findIndex((item) => item.offsetTop > top);
+    const toggle = toggleRef.current;
+    if (!toggle) {
+      if (first >= 0) wrappedAtRef.current = band.clientWidth;
+    } else if (first >= 0) {
+      /*
+       * The toggle makes the row narrower than it is without it, so the layout cannot say whether the toggle is
+       * still needed. The pill widths can, with two guards against flipping back and forth: squeezed pills have no
+       * width of their own to add up, and a band width that already wrapped without the toggle is not tried again.
+       */
+      const content = row.getBoundingClientRect().width;
+      const widths = items.map((item) => item.getBoundingClientRect().width);
+      const spare =
+        toggle.getBoundingClientRect().width - (toggle.lastElementChild?.getBoundingClientRect().width ?? 0);
+      const needed = widths.reduce((sum, width) => sum + width, 0) + gap * (items.length - 1);
+      const squeezed = widths.some((width) => width >= content - 0.5);
+      if (!squeezed && needed <= content + spare - 0.5 && band.clientWidth > wrappedAtRef.current) first = -1;
+    }
     items.forEach((item, index) => {
-      item.toggleAttribute('inert', first >= 0 && index > first);
-      item.toggleAttribute('data-no-tooltip', index === first);
-      item.querySelectorAll('[data-pill-part], [data-pill-remove]').forEach((section) => {
-        section.toggleAttribute('inert', index === first && past(section));
-        // An empty title keeps the band's toggle title off the live controls.
-        section.setAttribute('title', '');
-      });
+      item.toggleAttribute('inert', !open && first >= 0 && index >= first);
+      // An empty title keeps the band's toggle title off the live controls.
+      item
+        .querySelectorAll('[data-pill-part], [data-pill-remove]')
+        .forEach((section) => section.setAttribute('title', ''));
     });
-    if (!wrapped) setHidden(first < 0 ? 0 : count - first);
-  }, [count, wrapped]);
+    setHidden(first < 0 ? 0 : count - first);
+    if (first < 0) {
+      setPeekLeft(null);
+      if (open) setState('collapsed');
+      return;
+    }
+    const last = items[first - 1];
+    const left = last.offsetLeft + last.offsetWidth + gap;
+    setPeekLeft(row.clientWidth - left >= PEEK_MIN_WIDTH ? left : null);
+  }, [count, open]);
+
+  // New pills have new widths, so what wrapped before says nothing about them.
+  useLayoutEffect(() => {
+    wrappedAtRef.current = -Infinity;
+  }, [pills]);
 
   useLayoutEffect(measure);
 
   useLayoutEffect(() => {
     const row = rowRef.current;
-    if (!row || wrapped) return;
+    if (!row) return;
     const observer = new ResizeObserver(() => flushSync(measure));
     observer.observe(row);
     row.querySelectorAll(':scope > [data-filter-pill]').forEach((item) => observer.observe(item));
     return () => observer.disconnect();
-  }, [measure, pills, wrapped]);
+  }, [measure, pills]);
 
   // Slides the band between one row and all of them, with the timing of the accordion animations.
   useLayoutEffect(() => {
@@ -253,22 +280,38 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
     const firstHidden = count - hidden;
     flushSync(() => setState('expanded'));
     rowRef.current
-      ?.querySelectorAll('[data-filter-pill]')
+      ?.querySelectorAll(':scope > [data-filter-pill]')
       [firstHidden]?.querySelector<HTMLElement>('[data-pill-part]')
       ?.focus({ preventScroll: true });
   };
 
-  const showsMore = !wrapped && hidden > 0;
-  const toggleable = wrapped || hidden > 0;
+  const toggleable = hidden > 0;
 
   const toggle = () => (expanded ? setState('collapsing') : expand());
 
-  // Live controls handle their own clicks; anywhere else on the band, the cut pill included, toggles it.
+  // Live controls handle their own clicks; anywhere else on the band, the peek included, toggles it.
   const handleBandClick = (event: MouseEvent<HTMLElement>) => {
     if (!toggleable) return;
     if (event.target instanceof Element && event.target.closest('button')) return;
     toggle();
   };
+
+  const clearAllButton = (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant='ghost'
+          title=''
+          aria-label={t('clearAll')}
+          className='text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground dark:hover:bg-primary-foreground/15 size-8.5 shrink-0 cursor-pointer'
+          onClick={onClearAll}
+        >
+          <Trash2 className='size-4' />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{t('clearAll')}</TooltipContent>
+    </Tooltip>
+  );
 
   return (
     <div
@@ -297,26 +340,50 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
       <div
         ref={rowRef}
         className={cn(
-          'flex min-w-0 flex-1 gap-1',
-          wrapped ? 'flex-wrap' : 'overflow-clip [&>[data-filter-pill]]:max-w-80',
+          'relative flex min-w-0 flex-1 flex-wrap gap-1 [&>[data-filter-pill]]:max-w-[min(20rem,100%)]',
+          !open && 'h-8.5 overflow-clip',
         )}
       >
         {pills}
-      </div>
-      <div className='flex shrink-0 flex-col items-end gap-1 [--ring:var(--primary-foreground)]'>
-        {toggleable && (
-          <div className='flex h-8.5 items-center'>
-            {showsMore && (
-              <span
-                data-band-more=''
-                className={cn(
-                  'relative flex h-full items-center text-xs font-medium whitespace-nowrap tabular-nums',
-                  'before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-10 before:bg-linear-to-r before:from-transparent before:to-(--band-bg)',
-                )}
-              >
-                {t('pillMoreValues', { count: hidden })}
-              </span>
+        {toggleable && peekLeft !== null && (
+          <div
+            aria-hidden
+            inert
+            style={{ left: peekLeft }}
+            className={cn(
+              'absolute top-0 right-0 flex h-8.5 overflow-clip transition-opacity duration-200 motion-reduce:transition-none',
+              '[&_[data-filter-pill]]:max-w-80 [&_[data-filter-pill]]:animate-none',
+              // The fade is part of the peek, so the two dim as one and the peek's cut edge never shows through.
+              'after:absolute after:inset-y-0 after:right-0 after:w-6 after:bg-linear-to-r after:from-transparent after:to-(--band-bg) sm:after:w-10',
+              expanded && 'opacity-0',
             )}
+          >
+            {pills[count - hidden]}
+          </div>
+        )}
+        {/* Phones drop the "+N more" label, so there a bare fade marks the overflow when there is no room for a peek. */}
+        {toggleable && peekLeft === null && (
+          <span
+            aria-hidden
+            className={cn(
+              'pointer-events-none absolute top-0 right-0 h-8.5 w-6 bg-linear-to-r from-transparent to-(--band-bg) transition-opacity duration-200 motion-reduce:transition-none sm:hidden',
+              expanded && 'opacity-0',
+            )}
+          />
+        )}
+      </div>
+      <div className='flex shrink-0 flex-col items-end justify-between gap-1 self-stretch [--ring:var(--primary-foreground)]'>
+        {toggleable ? (
+          <div ref={toggleRef} className='flex h-8.5 items-center'>
+            <span
+              aria-hidden={expanded}
+              className={cn(
+                'text-xs font-medium whitespace-nowrap tabular-nums transition-opacity duration-200 max-sm:hidden',
+                expanded && 'opacity-0',
+              )}
+            >
+              {t('pillMoreValues', { count: hidden })}
+            </span>
             <button
               type='button'
               data-band-toggle=''
@@ -336,23 +403,10 @@ function FilterBand({ pills, label, onClearAll }: FilterBandProps) {
               />
             </button>
           </div>
+        ) : (
+          clearAllButton
         )}
-        {!showsMore && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant='ghost'
-                title=''
-                aria-label={t('clearAll')}
-                className='text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground dark:hover:bg-primary-foreground/15 size-8.5 shrink-0 cursor-pointer'
-                onClick={onClearAll}
-              >
-                <Trash2 className='size-4' />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{t('clearAll')}</TooltipContent>
-          </Tooltip>
-        )}
+        {toggleable && open && clearAllButton}
       </div>
     </div>
   );
