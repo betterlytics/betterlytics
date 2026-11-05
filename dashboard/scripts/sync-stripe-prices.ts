@@ -3,11 +3,10 @@ import { PLANS } from '../src/lib/billing/catalog/plans';
 import type { PlanDefinition } from '../src/lib/billing/catalog/types';
 
 /*
- * Brings Stripe in line with the plan catalog: one product per plan and event volume, holding that
- * volume's prices.
- *   --phase=prices  any time before a deploy: adds the catalog's prices, which nothing buys until then
- *   --phase=launch  right after the deploy: renames the retired plans' products, makes the new prices
- *                   their default and archives the retired prices, which keep billing their subscriptions
+ * Syncs Stripe with the plan catalog, one product per plan and event volume.
+ *   --phase=prices  before the deploy: adds the catalog's prices
+ *   --phase=launch  after the deploy, since archived prices can't be bought: renames the retired
+ *                   products, makes the new prices their default and archives the retired prices
  * Dry run unless --apply; a live key also needs --live.
  *   pnpm --filter dashboard exec tsx --env-file=../.env scripts/sync-stripe-prices.ts --phase=prices
  */
@@ -91,7 +90,7 @@ function newProductId(offer: Offer): string {
   return `${offer.plan.id}_${offer.events}_events`;
 }
 
-/** The retired price's product when the volume was sold before, so its customers' invoices carry on under it. */
+/** Reuses the retired price's product, so existing customers' invoices carry on under it. */
 async function productFor(stripe: Stripe, offer: Offer): Promise<Stripe.Product | null> {
   if (offer.retiredLookupKey) {
     const retired = await priceByLookupKey(stripe, offer.retiredLookupKey);

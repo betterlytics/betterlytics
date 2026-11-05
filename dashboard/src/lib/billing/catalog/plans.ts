@@ -23,7 +23,6 @@ function monthlyBands(planId: PlanId, version: string, dollars: readonly number[
   });
 }
 
-/** Prices of the plans sold before November 2026, still billing the subscriptions moved onto their successors. */
 function retiredMonthlyPrices(retiredPlan: 'growth' | 'professional', steps: readonly number[]): LegacyPrice[] {
   return steps.map((events) => ({ lookupKey: `${retiredPlan}_${events}_events`, events, interval: 'month' }));
 }
@@ -71,7 +70,6 @@ const free: PlanDefinition = {
   ],
 };
 
-/** Free as it was before November 2026. Accounts that joined then keep its 2 sites and 3 members per site. */
 const growth: PlanDefinition = {
   ...free,
   id: 'growth',
@@ -202,11 +200,9 @@ export const PLANS: Readonly<Record<PlanId, PlanDefinition>> = {
   growth,
 };
 
-/** Plan new accounts start on, and accounts return to when a paid subscription lapses, is canceled or is past due. */
 export const FREE_PLAN_ID: PlanId = 'free';
 
-/** Plan whose capabilities self-hosted deploys (billing off) get. */
 export const SELF_HOSTED_PLAN_ID: PlanId = 'enterprise';
 
-/** Plan ids renamed at the November 2026 launch, still readable in case an older deploy writes one mid-rollout. */
+/** Still read in case an older deploy writes a renamed id mid-rollout. */
 export const RENAMED_PLAN_IDS: ReadonlyMap<string, PlanId> = new Map([['professional', 'business']]);

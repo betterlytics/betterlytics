@@ -17,7 +17,7 @@ export type PriceBand = {
   lookupKeys: Partial<Record<BillingInterval, string>>;
 };
 
-/** A retired Stripe price that keeps billing existing subscriptions on this plan but can no longer be bought. */
+/** A retired Stripe price: it still bills existing subscriptions but can't be bought. */
 export type LegacyPrice = {
   lookupKey: string;
   events: number;
@@ -30,10 +30,7 @@ export type PlanService = {
   slaGuarantee: boolean;
 };
 
-/**
- * A pricing-card line. Limit lines (sites, members, retention, uptime, replays) are worded from the
- * plan's capabilities; `feature` lines are fixed keys under `pricingCards.features`.
- */
+/** Limit lines are worded from the plan's capabilities; `feature` lines are keys under `pricingCards.features`. */
 export type PlanHighlight =
   | { kind: 'everythingIn'; planId: PlanId }
   | { kind: 'sites' }
@@ -66,7 +63,6 @@ export type PlanDefinition = {
   /** Brand name, shown untranslated in every locale, emails and Stripe. */
   name: string;
   listed: boolean;
-  /** Bought through checkout; false means "talk to us". */
   selfServe: boolean;
   rank: number;
   featured: boolean;

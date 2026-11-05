@@ -40,7 +40,6 @@ export type PlanCapabilities = {
   sessionReplay: SessionReplayCapabilities;
 };
 
-/** Count limits at or above this read as unlimited. */
 export const UNLIMITED_COUNT = Number.MAX_SAFE_INTEGER;
 
 export function isUnlimitedCount(count: number): boolean {
