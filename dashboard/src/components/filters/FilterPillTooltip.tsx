@@ -39,7 +39,15 @@ export function FilterPillTooltip({ filter, disabled, children }: FilterPillTool
   // A delay started over a section can still fire after the pointer reached the remove button, so it is refused there.
   const handleOpenChange = (next: boolean) => {
     const pill = pillRef.current;
-    setOpen(next && !disabled && !overRemoveRef.current && pill !== null && pillHidesValues(pill));
+    // The band marks a pill it cuts off, where the centred tooltip would sit partly out of sight.
+    setOpen(
+      next &&
+        !disabled &&
+        !overRemoveRef.current &&
+        pill !== null &&
+        !pill.hasAttribute('data-no-tooltip') &&
+        pillHidesValues(pill),
+    );
   };
 
   const arrive = (e: SyntheticEvent<HTMLElement>) => {
@@ -93,7 +101,7 @@ export function FilterPillTooltip({ filter, disabled, children }: FilterPillTool
       >
         {children}
       </TooltipTrigger>
-      <TooltipContent side='bottom' className='z-40 max-w-xs'>
+      <TooltipContent side='bottom' className='max-w-xs'>
         {filter.values.length > 1 ? (
           <div className='flex flex-col gap-1.5 text-xs'>
             <div className='flex items-center gap-1 font-medium'>
