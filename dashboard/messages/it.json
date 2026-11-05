@@ -2723,7 +2723,7 @@
           },
           "exceedLimit": {
             "q": "Cosa succede se supero il limite di eventi?",
-            "a": "Continueremo a tracciare i tuoi eventi e riceverai un'email quando superi il limite. Se superi i limiti per più di 30 giorni, i dati in eccesso potrebbero essere eliminati."
+            "a": "Continuiamo a tracciare i tuoi eventi e ti inviamo un'email quando ti avvicini al limite o lo superi. Se il tuo account continua a superare il limite senza un upgrade, potremmo bloccarlo finché non esegui l'upgrade. I tuoi dati vengono comunque conservati."
           },
           "annualBilling": {
             "q": "Offrite la fatturazione annuale?",

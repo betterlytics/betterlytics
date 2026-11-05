@@ -2723,7 +2723,7 @@
           },
           "exceedLimit": {
             "q": "Hva skjer hvis jeg overskrider hendelsesgrensen min?",
-            "a": "Vi fortsetter å spore hendelsene dine og sender en e-post når du overskrider grensen. Hvis du overskrider grensen i mer enn 30 dager, kan overskytende data bli slettet."
+            "a": "Vi fortsetter å spore hendelsene dine og sender deg en e-post når du nærmer deg grensen eller passerer den. Hvis kontoen din fortsetter å gå over grensen uten oppgradering, kan vi låse den til du oppgraderer. Dataene dine beholdes uansett."
           },
           "annualBilling": {
             "q": "Tilbyr dere årlig fakturering?",

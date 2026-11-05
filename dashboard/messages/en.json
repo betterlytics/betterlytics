@@ -2723,7 +2723,7 @@
           },
           "exceedLimit": {
             "q": "What happens if I exceed my event limit?",
-            "a": "We will continue tracking your events and you will receive an email notification when you exceed your limit. If you exceed your limits for more than 30 days, there is a chance that your excessive tracked data will be deleted."
+            "a": "We keep tracking your events and email you when you get close to your limit or pass it. If your account keeps going over without an upgrade, we may lock it until you upgrade. Your data is kept either way."
           },
           "annualBilling": {
             "q": "Do you offer annual billing?",

@@ -2723,7 +2723,7 @@
           },
           "exceedLimit": {
             "q": "Hvad sker der, hvis jeg overskrider min event-grænse?",
-            "a": "Vi fortsætter med at spore dine events og sender en e-mail, når du overskrider din grænse. Hvis du overskrider grænsen i mere end 30 dage, kan overskydende data blive slettet."
+            "a": "Vi fortsætter med at spore dine events og sender dig en e-mail, når du nærmer dig din grænse, eller når du overskrider den. Hvis din konto bliver ved med at overskride grænsen uden en opgradering, kan vi låse den, indtil du opgraderer. Dine data bevares under alle omstændigheder."
           },
           "annualBilling": {
             "q": "Tilbyder I årlig fakturering?",
