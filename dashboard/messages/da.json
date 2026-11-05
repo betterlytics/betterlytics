@@ -2192,6 +2192,7 @@
       "teamMembersCount": "{count, plural, one {# team-medlem} other {# team-medlemmer pr. hjemmeside}}",
       "retentionYears": "{count, plural, other {# års dataopbevaring}}",
       "uptimeMonitors": "{count, plural, one {# uptime-monitor} other {# uptime-monitorer}}, {minutes}-minuts tjek",
+      "uptimeMonitorsSeconds": "{count, plural, one {# uptime-monitor} other {# uptime-monitorer}}, {seconds}-sekunders tjek",
       "everythingIn": "Alt i {name}, plus:",
       "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}",
       "statusPageCustomDomain": "Statusside på dit eget domæne",
@@ -2300,7 +2301,8 @@
       "checkInterval": {
         "name": "Minimum tjekinterval",
         "values": {
-          "minutesCount": "{count} min"
+          "minutesCount": "{count} min",
+          "secondsCount": "{count} sek."
         }
       },
       "customHttpMethods": {

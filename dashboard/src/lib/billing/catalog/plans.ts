@@ -132,7 +132,7 @@ const business: PlanDefinition = {
     dashboards: { maxDashboards: 25, maxMembers: 25 },
     monitoring: {
       maxMonitors: 50,
-      minIntervalSeconds: 60,
+      minIntervalSeconds: 30,
       httpMethodConfigurable: true,
       customStatusCodes: true,
       customHeaders: true,
@@ -169,7 +169,7 @@ const enterprise: PlanDefinition = {
     dashboards: { maxDashboards: UNLIMITED_COUNT, maxMembers: UNLIMITED_COUNT },
     monitoring: {
       maxMonitors: UNLIMITED_COUNT,
-      minIntervalSeconds: 60,
+      minIntervalSeconds: 30,
       httpMethodConfigurable: true,
       customStatusCodes: true,
       customHeaders: true,

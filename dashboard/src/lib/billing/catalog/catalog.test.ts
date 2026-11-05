@@ -136,7 +136,7 @@ describe('plans on sale', () => {
     });
     expect(getPlan('business').capabilities).toEqual({
       dashboards: { maxDashboards: 25, maxMembers: 25 },
-      monitoring: { maxMonitors: 50, minIntervalSeconds: 60, ...ALL_CHECKS },
+      monitoring: { maxMonitors: 50, minIntervalSeconds: 30, ...ALL_CHECKS },
       emailReports: { emailReportsEnabled: true },
       dataRetention: { maxDataRetentionDays: 1095 },
       statusPages: { maxStatusPages: 3, customDomain: true, removeBranding: true },
@@ -144,7 +144,7 @@ describe('plans on sale', () => {
     });
     expect(getPlan('enterprise').capabilities).toEqual({
       dashboards: { maxDashboards: UNLIMITED_COUNT, maxMembers: UNLIMITED_COUNT },
-      monitoring: { maxMonitors: UNLIMITED_COUNT, minIntervalSeconds: 60, ...ALL_CHECKS },
+      monitoring: { maxMonitors: UNLIMITED_COUNT, minIntervalSeconds: 30, ...ALL_CHECKS },
       emailReports: { emailReportsEnabled: true },
       dataRetention: { maxDataRetentionDays: 1825 },
       statusPages: { maxStatusPages: UNLIMITED_COUNT, customDomain: true, removeBranding: true },
