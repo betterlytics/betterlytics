@@ -2,6 +2,8 @@
 
 import MapBackgroundLayer from '@/components/map/MapBackgroundLayer';
 import MapCountryGeoJSON from '@/components/map/MapCountryGeoJSON';
+import { POLE_LATITUDE, unclampedMercator } from '@/components/map/map-crs';
+import MapPopupAutoPan from '@/components/map/MapPopupAutoPan';
 import MapStickyTooltip from '@/components/map/tooltip/MapStickyTooltip';
 import { MapSelectionContextProvider } from '@/contexts/MapSelectionContextProvider';
 import type { WorldMapResponse } from '@/entities/analytics/geography.entities';
@@ -74,10 +76,12 @@ export default function LeafletMap({
     if (!mapComponents?.L) return null;
     const hasAntarctica = visitorData.some((d) => d.country_code === 'AQ' && d.visitors);
     return mapComponents.L.latLngBounds(
-      mapComponents.L.latLng(hasAntarctica ? -100 : -60, -220),
-      mapComponents.L.latLng(100, 220),
+      mapComponents.L.latLng(hasAntarctica ? -POLE_LATITUDE : -60, -220),
+      mapComponents.L.latLng(POLE_LATITUDE, 220),
     );
   }, [mapComponents, visitorData]);
+
+  const crs = useMemo(() => mapComponents && unclampedMercator(mapComponents.L), [mapComponents]);
 
   // Leaflet only redraws paths on moveend, so the SVG must cover half a viewport of drag on each side
   const renderer = useMemo(() => mapComponents?.L.svg({ padding: 0.5 }), [mapComponents]);
@@ -97,6 +101,7 @@ export default function LeafletMap({
           style={{ height: '100%', width: '100%' }}
           zoom={initialZoom || 2}
           zoomControl={showZoomControls}
+          crs={crs ?? undefined}
           maxBounds={worldBounds as LatLngBoundsExpression}
           maxBoundsViscosity={0.5}
           renderer={renderer}
@@ -115,6 +120,7 @@ export default function LeafletMap({
             style={style}
           />
           <MapStickyTooltip size={size} />
+          <MapPopupAutoPan L={mapComponents.L} />
         </MapContainer>
         {children}
       </MapSelectionContextProvider>
