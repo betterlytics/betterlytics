@@ -16,6 +16,7 @@ export default function UserJourneySection() {
   return (
     <QuerySection
       query={query}
+      className='min-w-0'
       fallback={
         <div className='flex h-[60svh] items-center justify-center overflow-hidden'>
           <Spinner size='xl' />

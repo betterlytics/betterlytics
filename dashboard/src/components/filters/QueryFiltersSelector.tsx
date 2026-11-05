@@ -1,6 +1,15 @@
 'use client';
 
-import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState, type AnimationEvent } from 'react';
+import {
+  ComponentProps,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type AnimationEvent,
+} from 'react';
 import { ChevronDownIcon, FilterIcon } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -112,10 +121,31 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
 
   const activeFilterCount = useAllowedQueryFilters(nonEmptyFilters).length;
 
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const [editorOffset, setEditorOffset] = useState({ side: 4, align: 0 });
+
+  // A pinned header below xl hides this trigger behind the topbar, so the editor is offset to open under the band instead.
+  useLayoutEffect(() => {
+    if (!isPopoverOpen) return;
+    const trigger = triggerRef.current;
+    const band = trigger
+      ?.closest('[data-slot=dashboard-filters]')
+      ?.querySelector('[data-slot=active-filters-band]');
+    if (!trigger || !band || getComputedStyle(trigger).visibility !== 'hidden') {
+      setEditorOffset({ side: 4, align: 0 });
+      return;
+    }
+    const triggerRect = trigger.getBoundingClientRect();
+    const bandRect = band.getBoundingClientRect();
+    setEditorOffset({ side: bandRect.bottom - triggerRect.bottom + 4, align: bandRect.left - triggerRect.left });
+  }, [isPopoverOpen]);
+
   const trigger = (
     <Button
+      ref={triggerRef}
       variant='secondary'
       role='combobox'
+      data-query-filters-trigger=''
       className={
         'border-input dark:bg-input/30 dark:hover:bg-input/50 hover:bg-accent min-w-[200px] cursor-pointer justify-between border bg-transparent shadow-xs transition-[color,box-shadow]'
       }
@@ -168,6 +198,8 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
       <PopoverContent
         className='w-[620px] max-w-[calc(100svw-48px)] border p-2 shadow-2xl'
         align='start'
+        sideOffset={editorOffset.side}
+        alignOffset={editorOffset.align}
         onAnimationEnd={handleContentAnimationEnd}
         onOpenAutoFocus={handleOpenAutoFocus}
         onCloseAutoFocus={handleCloseAutoFocus}

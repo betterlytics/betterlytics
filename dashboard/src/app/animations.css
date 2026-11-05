@@ -216,7 +216,7 @@
 
   @keyframes filter-pill-flash {
     0% {
-      box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary) 50%, transparent);
+      box-shadow: 0 0 0 1px color-mix(in oklab, var(--primary-foreground) 70%, transparent);
     }
     100% {
       box-shadow: 0 0 0 1px transparent;
@@ -234,5 +234,53 @@
     .animate-filter-pill-added {
       animation: none;
     }
+  }
+}
+
+/* Fades a horizontal scroller's edges only while there is more to scroll that way, so content at rest stays crisp. */
+@property --scroll-fade-start {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --scroll-fade-end {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes scroll-fade-start {
+  from {
+    --scroll-fade-start: 0px;
+  }
+  to {
+    --scroll-fade-start: 1.5rem;
+  }
+}
+
+@keyframes scroll-fade-end {
+  from {
+    --scroll-fade-end: 1.5rem;
+  }
+}
+
+@utility scroll-fade-x {
+  @supports (animation-timeline: scroll()) {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 var(--scroll-fade-start),
+      #000 calc(100% - var(--scroll-fade-end)),
+      transparent
+    );
+    animation:
+      scroll-fade-start linear both,
+      scroll-fade-end linear both;
+    animation-timeline: scroll(self inline);
+    /* Starts 1px in: from 0, Chrome leaves the start fade on at scroll 0 when the scroller loads already overflowing */
+    animation-range:
+      1px 1.5rem,
+      calc(100% - 1.5rem) 100%;
   }
 }
