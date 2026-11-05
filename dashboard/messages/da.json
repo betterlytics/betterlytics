@@ -2963,6 +2963,10 @@
           "paymentMethods": {
             "q": "Hvilke betalingsmetoder accepterer I?",
             "a": "Vi accepterer alle større kreditkort (Visa, MasterCard, American Express) og understøtter sikre betalinger via vores betalingsudbyder."
+          },
+          "payInEuros": {
+            "q": "Kan jeg betale i euro?",
+            "a": "Ja. Alle planer koster det samme beløb i euro som i dollars, og du vælger valuta, når du opgraderer."
           }
         }
       },
