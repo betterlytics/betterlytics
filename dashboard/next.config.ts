@@ -33,9 +33,8 @@ const nextConfig: NextConfig = {
     webpackMemoryOptimizations: true,
     serverSourceMaps: true,
   },
-  // blog posts are read from disk, which the standalone trace can't follow on its own
+  // the daily re-render reads posts from disk, which the standalone trace can't follow on its own
   outputFileTracingIncludes: {
-    '/sitemap.xml': ['./src/content/blog/posts/**/*'],
     '/blog/**': ['./src/content/blog/posts/**/*'],
   },
   async redirects() {

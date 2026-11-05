@@ -1,7 +1,7 @@
 ---
 title: 'How Betterlytics counts visitors without cookies'
 description: 'A walk through the code behind our cookieless visitor counts: a salted hash that changes daily, what we store, what we delete, and where the numbers go wrong.'
-publishedAt: '2026-11-01'
+publishedAt: '2026-11-01 09:20'
 author: team
 cover:
   src: /blog/how-we-count-visitors-without-cookies/cover.jpg
@@ -36,8 +36,7 @@ Before anything is stored, the Rust backend takes four values from the request: 
   width={1680}
   height={1008}
   alt="What a request carries next to what goes into the hash: 203.0.113.42 becomes 203.0.113.0, the user agent becomes chrome 130 on windows, a 1920x1080 screen becomes desktop, and blog.example.com becomes example.com. SHA-256 with today's salt turns them into the visitor ID 82b4556f0ff8a2c1."
-  caption="Four request values are cut down, then hashed with today's salt into a 64-bit visitor ID."
-/>
+>Four request values are cut down, then hashed with today's salt into a 64-bit visitor ID.</Figure>
 
 | Input | What goes into the hash |
 |---|---|
@@ -98,8 +97,7 @@ A salt therefore exists from the first event of its day until the first event tw
   width={1680}
   height={896}
   alt="Three UTC days, Monday to Wednesday. Monday's salt hashes visitors on Monday, is kept on Tuesday only as a midnight bridge, and is deleted on Wednesday. Tuesday's and Wednesday's salts follow the same pattern, one day later each."
-  caption="Each salt hashes one day's visitors, only bridges sessions the next day, and is deleted the day after."
-/>
+>Each salt hashes one day's visitors, only bridges sessions the next day, and is deleted the day after.</Figure>
 
 ## Why deleting the salt matters
 
@@ -151,8 +149,7 @@ A daily hash has known errors. They are the price of not keeping an ID, and you 
   width={1680}
   height={1008}
   alt="Two counting errors. One phone that moves from Wi-Fi on 203.0.113.0 to mobile data on 198.51.100.0 gets two different visitor IDs. Two colleagues on 203.0.113.0, both using Chrome 130 on Windows laptops, share one visitor ID."
-  caption="A network change splits one person into two visitors. A shared network and an identical setup merge two people into one."
-/>
+>A network change splits one person into two visitors. A shared network and an identical setup merge two people into one.</Figure>
 
 Taken together, the visitor count tells you roughly how many people came each day. It can't follow one person over time, so use it to compare days, pages and sources.
 

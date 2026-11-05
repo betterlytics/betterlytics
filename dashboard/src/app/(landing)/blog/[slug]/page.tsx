@@ -1,10 +1,9 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { JsonLd } from '@/components/JsonLd';
 import { BLOG_COVER_IMAGE, getBlogPost, getBlogPosts, getOtherBlogPosts } from '@/content/blog';
-import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { CtaSection } from '@/landing/components/sections/ctaSection';
 import { Section } from '@/landing/components/ui/frame';
@@ -17,7 +16,7 @@ import { blogPostJsonLd, blogPostMetadata } from '@/app/(landing)/blog/_lib/seo'
 
 type Props = { params: Promise<{ slug: string }> };
 
-// next.config.ts rewrites unknown slugs to one prerendered 404; this stops any that slip past from caching their own
+// unknown slugs share one 404 (see the blog rewrite in next.config.ts)
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -32,9 +31,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
   setRequestLocale(BLOG_LOCALE);
-  if (!isClientFeatureEnabled('isCloud')) {
-    redirect('/dashboards');
-  }
   const post = getBlogPost(slug);
   if (!post) notFound();
   const related = getOtherBlogPosts(post);

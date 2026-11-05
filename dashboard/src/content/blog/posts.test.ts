@@ -16,7 +16,7 @@ function pngHeader(width: number, height: number) {
   return bytes;
 }
 
-const source = (coverSrc: string) =>
+const source = (coverSrc: string, body = 'Body.') =>
   [
     '---',
     "title: 'A title long enough'",
@@ -28,7 +28,7 @@ const source = (coverSrc: string) =>
     "  alt: 'A cover image alt text'",
     '---',
     '',
-    'Body.',
+    body,
   ].join('\n');
 
 const VALID = {
@@ -40,8 +40,11 @@ const VALID = {
 };
 
 describe('BlogFrontmatterSchema', () => {
-  it('accepts a minimal post and parses its date', () => {
+  it('accepts a minimal post and parses its date, with an optional UTC time', () => {
     expect(BlogFrontmatterSchema.parse(VALID).publishedAt.toISOString()).toBe('2026-11-01T00:00:00.000Z');
+    expect(
+      BlogFrontmatterSchema.parse({ ...VALID, publishedAt: '2026-11-01 09:30' }).publishedAt.toISOString(),
+    ).toBe('2026-11-01T09:30:00.000Z');
   });
 
   it('rejects unknown keys, unknown authors, bad dates and covers outside public/blog', () => {
@@ -50,6 +53,9 @@ describe('BlogFrontmatterSchema', () => {
       { ...VALID, tags: ['Company'] },
       { ...VALID, author: 'nobody' },
       { ...VALID, publishedAt: '1 November 2026' },
+      { ...VALID, publishedAt: '2026-02-30' },
+      { ...VALID, publishedAt: '2026-11-01 25:00' },
+      { ...VALID, publishedAt: '2026-11-01T09:30' },
       { ...VALID, cover: { ...VALID.cover, src: '/images/cover.png' } },
       { ...VALID, cover: { ...VALID.cover, src: '/blog/a-post/cover.webp' } },
     ]) {
@@ -87,6 +93,29 @@ describe('parseBlogPost', () => {
     ]) {
       expect(() => parseBlogPost('a-post.mdx', source(cover), () => bytes)).toThrow(/1200x630 PNG or JPEG/);
     }
+  });
+
+  it('checks every image in the post exists in its folder, and that a Figure states its real size', () => {
+    const figure = (src: string) =>
+      `<Figure src='${src}' alt="A > in the alt" width={800} height={400}>Caption</Figure>`;
+    const assets = (figureBytes: Buffer | undefined) => (src: string) =>
+      src === cover ? validCover() : figureBytes;
+    const parse = (body: string, figureBytes: Buffer | undefined) =>
+      parseBlogPost('a-post.mdx', source(cover, body), assets(figureBytes));
+
+    expect(parse(figure('/blog/a-post/chart.png'), pngHeader(800, 400)).slug).toBe('a-post');
+    expect(() => parse(figure('/blog/a-post/chart.png'), undefined)).toThrow(
+      /must be a file in public\/blog\/a-post\//,
+    );
+    expect(() => parse(figure('/blog/other-post/chart.png'), pngHeader(800, 400))).toThrow(
+      /public\/blog\/a-post\//,
+    );
+    expect(() => parse(figure('/blog/a-post/chart.png'), pngHeader(800, 401))).toThrow(
+      /says 800x400, but the image is 800x401/,
+    );
+    expect(() => parse('![A chart](/blog/a-post/chart.png)', undefined)).toThrow(
+      /must be a file in public\/blog\/a-post\//,
+    );
   });
 });
 

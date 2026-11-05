@@ -63,7 +63,7 @@ export function blogPostJsonLd(post: BlogPost) {
       inLanguage: 'en',
       url: blogUrl(post.slug),
       mainEntityOfPage: blogUrl(post.slug),
-      author: { '@type': author.kind, name: author.name, ...(author.url && { url: author.url }) },
+      author: { '@type': author.kind, name: author.name },
       publisher: {
         '@type': 'Organization',
         name: 'Betterlytics',

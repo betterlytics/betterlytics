@@ -23,7 +23,11 @@ export type BlogPost = BlogFrontmatter & {
   readingMinutes: number;
 };
 
-function readCoverSize(bytes: Uint8Array) {
+// an opening <Figure …> tag; quoted and braced attribute values may contain '>'
+const FIGURE_TAG = /<Figure\b(?:[^>"'{}]|"[^"]*"|'[^']*'|\{[^}]*\})*>/g;
+const MARKDOWN_IMAGE = /!\[[^\]]*\]\((\/[^)\s]+)/g;
+
+function readImageSize(bytes: Uint8Array) {
   try {
     return imageSize(bytes);
   } catch {
@@ -31,11 +35,16 @@ function readCoverSize(bytes: Uint8Array) {
   }
 }
 
+function attribute(tag: string, name: string) {
+  const match = new RegExp(`\\b${name}=(?:"([^"]*)"|'([^']*)'|\\{(\\d+)\\})`).exec(tag);
+  return match?.[1] ?? match?.[2] ?? match?.[3];
+}
+
 /** Throws on any invalid post: a broken post must fail the build, not vanish from the blog. */
 export function parseBlogPost(
   file: string,
   raw: string,
-  readCover: (src: string) => Uint8Array | undefined,
+  readAsset: (src: string) => Uint8Array | undefined,
 ): BlogPost {
   const slug = POST_FILE.exec(file)?.[1];
   if (!slug) {
@@ -46,16 +55,44 @@ export function parseBlogPost(
   if (!parsed.success) {
     throw new Error(`Blog post ${file} has invalid frontmatter:\n${parsed.error.message}`);
   }
+  const readOwnAsset = (src: string | undefined) =>
+    src?.startsWith(`/blog/${slug}/`) ? readAsset(src) : undefined;
+
   const { cover } = parsed.data;
-  const bytes = cover.src.startsWith(`/blog/${slug}/`) ? readCover(cover.src) : undefined;
-  if (!bytes) {
+  const coverBytes = readOwnAsset(cover.src);
+  if (!coverBytes) {
     throw new Error(`Blog post ${file}: its cover ${cover.src} must be a file in public/blog/${slug}/`);
   }
-  const size = readCoverSize(bytes);
+  const coverSize = readImageSize(coverBytes);
   const { width, height } = BLOG_COVER_SIZE;
-  if (size?.width !== width || size.height !== height || (size.type !== 'png' && size.type !== 'jpg')) {
+  if (
+    coverSize?.width !== width ||
+    coverSize.height !== height ||
+    (coverSize.type !== 'png' && coverSize.type !== 'jpg')
+  ) {
     throw new Error(`Blog post ${file}: its cover must be a ${width}x${height} PNG or JPEG`);
   }
+
+  for (const [tag] of strippedSource.matchAll(FIGURE_TAG)) {
+    const src = attribute(tag, 'src');
+    const bytes = readOwnAsset(src);
+    if (!bytes) {
+      throw new Error(`Blog post ${file}: the Figure image ${src} must be a file in public/blog/${slug}/`);
+    }
+    const size = readImageSize(bytes);
+    const declared = `${attribute(tag, 'width')}x${attribute(tag, 'height')}`;
+    if (`${size?.width}x${size?.height}` !== declared) {
+      throw new Error(
+        `Blog post ${file}: the Figure for ${src} says ${declared}, but the image is ${size?.width}x${size?.height}`,
+      );
+    }
+  }
+  for (const [, src] of strippedSource.matchAll(MARKDOWN_IMAGE)) {
+    if (!readOwnAsset(src)) {
+      throw new Error(`Blog post ${file}: the image ${src} must be a file in public/blog/${slug}/`);
+    }
+  }
+
   const words = strippedSource.split(/\s+/).filter(Boolean).length;
   return {
     ...parsed.data,
@@ -67,8 +104,8 @@ export function parseBlogPost(
 
 function readPost(file: string): BlogPost {
   return parseBlogPost(file, fs.readFileSync(path.join(POSTS_DIR, file), 'utf8'), (src) => {
-    const coverPath = path.join(PUBLIC_DIR, src);
-    return fs.existsSync(coverPath) ? fs.readFileSync(coverPath) : undefined;
+    const assetPath = path.join(PUBLIC_DIR, src);
+    return fs.existsSync(assetPath) ? fs.readFileSync(assetPath) : undefined;
   });
 }
 

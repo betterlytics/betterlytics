@@ -32,7 +32,7 @@ export function PostHeader({ post }: { post: BlogPost }) {
         <Lede className='mt-5 text-pretty text-muted'>{post.description}</Lede>
         <p className='mt-8 text-label tracking-ui text-muted'>
           By <span className='text-fg'>{author.name}</span>
-          {author.kind === 'Person' && `, ${author.role}`}
+          {author.role && `, ${author.role}`}
           {post.updatedAt && (
             <>
               {' · Updated '}

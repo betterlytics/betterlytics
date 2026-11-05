@@ -1,8 +1,7 @@
 import { Rss } from 'lucide-react';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { getBlogPosts } from '@/content/blog';
-import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { Panel, Section } from '@/landing/components/ui/frame';
 import { Heading, Lede } from '@/landing/components/ui/text';
@@ -16,9 +15,6 @@ export const generateMetadata = blogIndexMetadata;
 
 export default function BlogIndexPage() {
   setRequestLocale(BLOG_LOCALE);
-  if (!isClientFeatureEnabled('isCloud')) {
-    redirect('/dashboards');
-  }
   const [lead, ...rest] = getBlogPosts();
   if (!lead) notFound();
 

@@ -1,7 +1,5 @@
 import NextLink from 'next/link';
-import { redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
-import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Heading, Lede } from '@/landing/components/ui/text';
@@ -11,10 +9,6 @@ import { BLOG_GUTTER, BLOG_LOCALE, blogPath } from './_lib/blog';
 /** The blog sits outside [locale], so the app's catch-all 404 never reaches it. */
 export default function BlogNotFound() {
   setRequestLocale(BLOG_LOCALE);
-  if (!isClientFeatureEnabled('isCloud')) {
-    redirect('/dashboards');
-  }
-
   return (
     <>
       <title>Page Not Found | Betterlytics</title>

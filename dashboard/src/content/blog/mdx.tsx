@@ -13,31 +13,21 @@ type FigureProps = {
   alt: string;
   width: number;
   height: number;
-  caption?: ReactNode;
   wide?: boolean;
   full?: boolean;
   framed?: boolean;
   children?: ReactNode;
 };
 
-/** Unframed figure for diagrams drawn on the page canvas; `wide` lets it run past the text column where there is room. */
-// `full` matches the cover's width and `framed` keeps the 1px border screenshots need; children work as the caption.
-function Figure({
-  src,
-  alt,
-  width,
-  height,
-  caption,
-  wide = false,
-  full = false,
-  framed = false,
-  children,
-}: FigureProps) {
-  const text = caption ?? children;
+/**
+ * Children are the caption. `wide` runs past the text column where there is room, `full` matches the cover's width,
+ * and `framed` adds the 1px border screenshots need (diagrams sit unframed on the page canvas).
+ */
+function Figure({ src, alt, width, height, wide = false, full = false, framed = false, children }: FigureProps) {
   return (
     <figure data-wide={wide || undefined} data-full={full || undefined} data-framed={framed || undefined}>
       <ZoomableImage src={src} alt={alt} width={width} height={height} />
-      {text && <figcaption>{text}</figcaption>}
+      {children && <figcaption>{children}</figcaption>}
     </figure>
   );
 }

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-/** Every unknown /blog URL is rewritten here (next.config.ts), so misses are served from this one prerendered 404. */
+/** The target of the blog rewrite in next.config.ts. */
 export default function BlogNotFoundTarget() {
   return notFound();
 }
