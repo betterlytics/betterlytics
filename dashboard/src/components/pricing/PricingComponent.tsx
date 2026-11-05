@@ -21,10 +21,9 @@ import {
 } from '@/components/ui/select';
 
 interface PricingComponentProps {
-  onPlanSelect?: Dispatch<SelectedPlan>;
+  onPlanSelect: Dispatch<SelectedPlan>;
   initialRangeIndex?: number;
-  className?: string;
-  billingData?: UserBillingData;
+  billingData: UserBillingData;
   defaultCurrency?: Currency;
   lockedCurrency?: Currency;
   stickyControls?: boolean;
@@ -33,7 +32,6 @@ interface PricingComponentProps {
 export function PricingComponent({
   onPlanSelect,
   initialRangeIndex = 0,
-  className = '',
   billingData,
   defaultCurrency = 'USD',
   lockedCurrency,
@@ -44,7 +42,7 @@ export function PricingComponent({
   const [selectedRangeIndex, setSelectedRangeIndex] = useState(initialRangeIndex);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>(lockedCurrency ?? defaultCurrency);
   const currentVolume = VOLUME_STOPS[selectedRangeIndex];
-  const projection = useUsageProjection(billingData?.usage);
+  const projection = useUsageProjection(billingData.usage);
   const recommendedVolume = projection ? VOLUME_STOPS[projection.suggestedRangeIndex] : null;
 
   const handleCurrencyChange = useCallback((currency: string) => {
@@ -53,7 +51,7 @@ export function PricingComponent({
 
   return (
     <NumberFlowGroup>
-      <div className={className}>
+      <div>
         <div
           className={cn(
             stickyControls
@@ -105,7 +103,6 @@ export function PricingComponent({
         <PricingCards
           volume={currentVolume}
           onPlanSelect={onPlanSelect}
-          mode={onPlanSelect ? 'billing' : 'landing'}
           billingData={billingData}
           currency={selectedCurrency}
         />

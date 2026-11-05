@@ -1,6 +1,16 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { EVENT_STEPS, getPlan, type PlanDefinition, type PlanOffer } from '@/lib/billing/catalog';
+import {
+  EVENT_STEPS,
+  fitsVolume,
+  getPlan,
+  listedPlans,
+  offerFor,
+  recommendedPlanFor,
+  type PlanCurrency,
+  type PlanDefinition,
+  type PlanOffer,
+} from '@/lib/billing/catalog';
 import { checkIntervalMinutes, isUnlimitedCount, retentionYears } from '@/lib/billing/capabilities';
 import { formatEventCount } from '@/utils/pricing';
 
@@ -64,7 +74,6 @@ export function usePlanFeatures() {
   );
 }
 
-/** The events line under a plan's price, such as "100K events/month", with the count spelled in it. */
 export type VolumeLabel = { text: string; figure: string; events: number };
 
 export function useOfferVolumeLabel() {
@@ -83,4 +92,33 @@ export function useOfferVolumeLabel() {
     },
     [locale, t],
   );
+}
+
+export type PlanCard = {
+  plan: PlanDefinition;
+  offer: PlanOffer;
+  fits: boolean;
+  isRecommended: boolean;
+  volumeLabel: VolumeLabel;
+  features: PlanFeatureLabel[];
+};
+
+export function usePlanCards(volume: number, currency: PlanCurrency): PlanCard[] {
+  const featuresFor = usePlanFeatures();
+  const volumeLabelFor = useOfferVolumeLabel();
+
+  return useMemo(() => {
+    const recommended = recommendedPlanFor(volume);
+    return listedPlans().map((plan) => {
+      const offer = offerFor(plan, volume, currency);
+      return {
+        plan,
+        offer,
+        fits: fitsVolume(plan, volume),
+        isRecommended: plan.id === recommended?.id,
+        volumeLabel: volumeLabelFor(offer),
+        features: featuresFor(plan),
+      };
+    });
+  }, [volume, currency, featuresFor, volumeLabelFor]);
 }
