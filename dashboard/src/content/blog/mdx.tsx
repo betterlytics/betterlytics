@@ -22,7 +22,17 @@ type FigureProps = {
 
 /** Unframed figure for diagrams drawn on the page canvas; `wide` lets it run past the text column where there is room. */
 // `full` matches the cover's width and `framed` keeps the 1px border screenshots need; children work as the caption.
-function Figure({ src, alt, width, height, caption, wide = false, full = false, framed = false, children }: FigureProps) {
+function Figure({
+  src,
+  alt,
+  width,
+  height,
+  caption,
+  wide = false,
+  full = false,
+  framed = false,
+  children,
+}: FigureProps) {
   const text = caption ?? children;
   return (
     <figure data-wide={wide || undefined} data-full={full || undefined} data-framed={framed || undefined}>
