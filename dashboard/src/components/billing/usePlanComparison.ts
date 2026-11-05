@@ -105,7 +105,6 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
   },
 ];
 
-/** The plan comparison table's rows and columns, worded for the current locale. */
 export function usePlanComparison() {
   const t = useTranslations('pricingComparison');
   const td = (key: string, values?: { count: number }) => t(key as Parameters<typeof t>[0], values);

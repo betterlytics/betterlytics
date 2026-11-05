@@ -9,7 +9,6 @@ import { Heading, Lede } from './text';
 type SectionProps = {
   id: string;
   title?: string;
-  /** h1 when the section opens its page. */
   titleAs?: 'h1' | 'h2';
   lede?: string;
   balanced?: boolean;
