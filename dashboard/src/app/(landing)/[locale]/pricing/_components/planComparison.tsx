@@ -62,8 +62,8 @@ export function PlanComparison() {
                     {value === true ? (
                       <Included label={t('included')} />
                     ) : value === false ? (
-                      <span className='text-muted/50' role='img' aria-label={t('notIncluded')}>
-                        –
+                      <span className='text-muted' role='img' aria-label={t('notIncluded')}>
+                        —
                       </span>
                     ) : (
                       value
