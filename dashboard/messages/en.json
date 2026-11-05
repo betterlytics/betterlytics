@@ -1253,7 +1253,7 @@
           "tagline": "For side projects and personal sites."
         },
         "plus": {
-          "tagline": "For small businesses with a handful of sites."
+          "tagline": "For busy side projects and small businesses."
         },
         "business": {
           "tagline": "For agencies, freelancers and growing teams."
@@ -2169,7 +2169,7 @@
     "periodPerMonth": "/month",
     "descriptions": {
       "free": "For side projects and personal sites",
-      "plus": "For small businesses with a handful of sites",
+      "plus": "For busy side projects and small businesses",
       "business": "For agencies, freelancers and growing teams",
       "enterprise": "For high traffic and organizations with security or compliance requirements",
       "growth": "For side projects and personal sites"

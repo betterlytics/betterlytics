@@ -1253,7 +1253,7 @@
           "tagline": "Per progetti personali e piccoli siti."
         },
         "plus": {
-          "tagline": "Per piccole aziende con pochi siti."
+          "tagline": "Per progetti personali molto visitati e piccole aziende."
         },
         "business": {
           "tagline": "Per agenzie, freelance e team in crescita."
@@ -2169,7 +2169,7 @@
     "periodPerMonth": "/mese",
     "descriptions": {
       "free": "Per progetti personali e piccoli siti",
-      "plus": "Per piccole aziende con pochi siti",
+      "plus": "Per progetti personali molto visitati e piccole aziende",
       "business": "Per agenzie, freelance e team in crescita",
       "enterprise": "Per traffico elevato e organizzazioni con requisiti di sicurezza o conformità",
       "growth": "Per progetti personali e piccoli siti"
