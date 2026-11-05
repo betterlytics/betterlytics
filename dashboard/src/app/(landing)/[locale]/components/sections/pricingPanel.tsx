@@ -4,21 +4,9 @@ import { useRef, useState } from 'react';
 import * as Slider from '@radix-ui/react-slider';
 import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
-import { EventCountFlow, EventCountText } from '@/components/pricing/EventCountFlow';
-import {
-  useOfferVolumeLabel,
-  usePlanFeatures,
-  type PlanFeatureLabel,
-  type VolumeLabel,
-} from '@/components/pricing/usePlanFeatures';
-import {
-  VOLUME_STOPS,
-  fitsVolume,
-  listedPlans,
-  offerFor,
-  recommendedPlanFor,
-  type PlanId,
-} from '@/lib/billing/catalog';
+import { EventCountFlow, EventCountText, FLUSH } from '@/components/pricing/EventCountFlow';
+import { usePlanCards, type PlanFeatureLabel, type VolumeLabel } from '@/components/pricing/usePlanFeatures';
+import { VOLUME_STOPS, type PlanId } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
@@ -33,8 +21,6 @@ import styles from './pricingPanel.module.css';
 /** USD only here, though billing also offers EUR. */
 const CURRENCY = 'USD';
 const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
-/** Cancels NumberFlow's mask padding so a figure lays out like text. */
-const FLUSH = '[--number-flow-mask-height:0.25em] -my-(--number-flow-mask-height)';
 
 function Check() {
   return (
@@ -150,9 +136,7 @@ export function PricingPanel() {
 
   const events = VOLUME_STOPS[rangeIndex];
   const lastIndex = VOLUME_STOPS.length - 1;
-  const featuresFor = usePlanFeatures();
-  const volumeLabelFor = useOfferVolumeLabel();
-  const recommended = recommendedPlanFor(events);
+  const cards = usePlanCards(events, CURRENCY);
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
 
@@ -223,22 +207,20 @@ export function PricingPanel() {
 
       <Panel>
         <div className='grid max-sm:-mx-(--pad) md:grid-cols-2 3xl:grid-cols-4'>
-          {listedPlans().map((plan) => {
-            const offer = offerFor(plan, events, CURRENCY);
-            const isRecommended = plan.id === recommended?.id;
+          {cards.map(({ plan, offer, fits, isRecommended, volumeLabel, features }) => {
             return (
               <Plan
                 key={plan.id}
                 tier={plan.id}
                 pick={isRecommended}
-                dimmed={!fitsVolume(plan, events)}
+                dimmed={!fits}
                 name={plan.name}
                 badge={isRecommended ? t('badge') : undefined}
                 tagline={t(`plans.${plan.id}.tagline`)}
                 price={offer.kind === 'paid' ? offer.cents : offer.kind === 'free' ? 0 : t('custom')}
                 period={offer.kind === 'quoted' ? undefined : t('perMonth')}
-                volumeLabel={volumeLabelFor(offer)}
-                features={featuresFor(plan)}
+                volumeLabel={volumeLabel}
+                features={features}
                 cta={
                   offer.kind === 'quoted'
                     ? sales
