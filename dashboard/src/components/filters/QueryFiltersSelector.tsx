@@ -99,16 +99,19 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
     if (!e.defaultPrevented) interactedOutsideRef.current = true;
   }, []);
 
-  // Closing hands focus back to the pill section that opened the editor, while that pill still exists.
+  // Closing hands focus back to the pill section that opened the editor, or to the band itself while it shows.
   const handleCloseAutoFocus = useCallback(
     (e: Event) => {
-      if (!target || interactedOutsideRef.current) return;
-      const section = document.querySelector<HTMLElement>(
-        `[data-filter-pill="${CSS.escape(target.filterId)}"] [data-pill-part="${target.part}"]`,
-      );
+      if (interactedOutsideRef.current) return;
+      const band = document.querySelector<HTMLElement>('[data-slot=active-filters-band]');
+      const section = target
+        ? (band ?? document).querySelector<HTMLElement>(
+            `[data-filter-pill="${CSS.escape(target.filterId)}"] [data-pill-part="${target.part}"]`,
+          )
+        : band;
       if (!section) return;
       e.preventDefault();
-      section.focus();
+      section.focus({ preventScroll: true });
     },
     [target],
   );
@@ -124,14 +127,14 @@ export default function QueryFiltersSelector(props: QueryFiltersSelectorProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const [editorOffset, setEditorOffset] = useState({ side: 4, align: 0 });
 
-  // A pinned header below xl hides this trigger behind the topbar, so the editor is offset to open under the band instead.
+  // The band only shows once this trigger has scrolled away, so the editor is offset to open under the band instead.
   useLayoutEffect(() => {
     if (!isPopoverOpen) return;
     const trigger = triggerRef.current;
     const band = trigger
       ?.closest('[data-slot=dashboard-filters]')
       ?.querySelector('[data-slot=active-filters-band]');
-    if (!trigger || !band || getComputedStyle(trigger).visibility !== 'hidden') {
+    if (!trigger || !band) {
       setEditorOffset({ side: 4, align: 0 });
       return;
     }
