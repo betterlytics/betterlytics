@@ -2741,6 +2741,10 @@
           "paymentMethods": {
             "q": "Quali metodi di pagamento accettate?",
             "a": "Accettiamo tutte le principali carte di credito (Visa, MasterCard, American Express) e supportiamo pagamenti sicuri tramite il nostro processore di pagamenti."
+          },
+          "payInEuros": {
+            "q": "Posso pagare in euro?",
+            "a": "Sì. Ogni piano costa lo stesso importo in euro e in dollari, e scegli la valuta quando passi a un piano a pagamento."
           }
         }
       },

@@ -16,6 +16,7 @@ export async function getBillingFaq() {
       },
       { q: t('items.cancelAnytime.q'), a: t('items.cancelAnytime.a') },
       { q: t('items.paymentMethods.q'), a: t('items.paymentMethods.a') },
+      { q: t('items.payInEuros.q'), a: t('items.payInEuros.a') },
     ],
   };
 }
