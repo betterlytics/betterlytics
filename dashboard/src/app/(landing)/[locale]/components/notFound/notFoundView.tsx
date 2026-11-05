@@ -6,12 +6,7 @@ import { AppLink } from '@/landing/components/ui/appLink';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Lede } from '@/landing/components/ui/text';
 
-type NotFoundViewProps = {
-  lede?: string;
-  action?: { label: string; href: string };
-};
-
-export function NotFoundView({ lede, action }: NotFoundViewProps) {
+export function NotFoundView() {
   const t = useTranslations('landing.notFound');
   return (
     <>
@@ -27,10 +22,10 @@ export function NotFoundView({ lede, action }: NotFoundViewProps) {
               {t('title')}
             </h1>
             <InkedNumerals className='font-extrabold [--numeral-ink:var(--color-volt-text)] [--numeral-lens:var(--color-volt-soft)] [--numeral-tint:var(--color-volt)]' />
-            <Lede className='mt-14 max-w-[46ch] max-sm:mt-10'>{lede ?? t('lede')}</Lede>
+            <Lede className='mt-14 max-w-[46ch] max-sm:mt-10'>{t('lede')}</Lede>
             <div className='mt-9 flex flex-wrap justify-center gap-2.5 max-sm:mt-8 max-sm:w-full max-sm:flex-col'>
-              <Link href={action?.href ?? '/'} className={buttonStyles({ variant: 'volt', size: 'lg' })}>
-                {action?.label ?? t('action')}
+              <Link href='/' className={buttonStyles({ variant: 'volt', size: 'lg' })}>
+                {t('action')}
               </Link>
               <AppLink href='/features' className={buttonStyles({ variant: 'line', size: 'lg' })}>
                 {t('secondary')}
