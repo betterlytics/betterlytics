@@ -1,6 +1,7 @@
 import 'server-only';
 import fs from 'node:fs';
 import path from 'node:path';
+import { cache } from 'react';
 import { imageSize } from 'image-size';
 import { getFrontmatter } from 'next-mdx-remote-client/utils';
 import { BlogFrontmatterSchema, type BlogFrontmatter } from '@/entities/blog/blogPost.entities';
@@ -110,13 +111,13 @@ function readPost(file: string): BlogPost {
 }
 
 /** Every post on main is published: it goes out with the next release. */
-export function getBlogPosts(): BlogPost[] {
-  return fs
+export const getBlogPosts = cache((): BlogPost[] =>
+  fs
     .readdirSync(POSTS_DIR)
     .filter((file) => !file.startsWith('.'))
     .map(readPost)
-    .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime());
-}
+    .sort((a, b) => b.publishedAt.getTime() - a.publishedAt.getTime()),
+);
 
 export function getBlogPost(slug: string): BlogPost | undefined {
   return getBlogPosts().find((post) => post.slug === slug);
