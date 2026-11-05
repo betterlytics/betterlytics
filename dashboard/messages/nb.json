@@ -1252,7 +1252,7 @@
           "tagline": "For sideprosjekter og personlige nettsteder."
         },
         "plus": {
-          "tagline": "For små bedrifter med noen få nettsteder."
+          "tagline": "For sideprosjekter med mye trafikk og små bedrifter."
         },
         "business": {
           "tagline": "For byråer, frilansere og voksende team."
@@ -1947,7 +1947,7 @@
     "periodPerMonth": "/måned",
     "descriptions": {
       "free": "For sideprosjekter og personlige nettsteder",
-      "plus": "For små bedrifter med noen få nettsteder",
+      "plus": "For sideprosjekter med mye trafikk og små bedrifter",
       "business": "For byråer, frilansere og voksende team",
       "enterprise": "For høy trafikk og organisasjoner med krav til sikkerhet eller samsvar",
       "growth": "For sideprosjekter og personlige nettsteder"
