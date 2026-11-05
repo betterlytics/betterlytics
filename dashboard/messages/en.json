@@ -1970,6 +1970,7 @@
       "teamMembersCount": "{count, plural, one {# team member} other {# team members per site}}",
       "retentionYears": "{count, plural, other {#-year data retention}}",
       "uptimeMonitors": "{count, plural, one {# uptime monitor} other {# uptime monitors}}, {minutes}-minute checks",
+      "uptimeMonitorsSeconds": "{count, plural, one {# uptime monitor} other {# uptime monitors}}, {seconds}-second checks",
       "everythingIn": "Everything in {name}, plus:",
       "statusPagesCount": "{count, plural, one {# public status page} other {# public status pages}}",
       "statusPageCustomDomain": "Status page on your own domain",
@@ -2078,7 +2079,8 @@
       "checkInterval": {
         "name": "Minimum check interval",
         "values": {
-          "minutesCount": "{count} min"
+          "minutesCount": "{count} min",
+          "secondsCount": "{count} sec"
         }
       },
       "customHttpMethods": {

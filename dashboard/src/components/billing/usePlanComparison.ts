@@ -75,10 +75,10 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
       },
       {
         key: 'checkInterval',
-        value: (plan) => ({
-          message: 'minutesCount',
-          count: checkIntervalMinutes(plan.capabilities.monitoring.minIntervalSeconds),
-        }),
+        value: ({ capabilities: { monitoring } }) =>
+          monitoring.minIntervalSeconds < 60
+            ? { message: 'secondsCount', count: monitoring.minIntervalSeconds }
+            : { message: 'minutesCount', count: checkIntervalMinutes(monitoring.minIntervalSeconds) },
       },
       { key: 'sslMonitoring', value: true },
       { key: 'customHttpMethods', value: (plan) => plan.capabilities.monitoring.httpMethodConfigurable },

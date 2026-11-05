@@ -1970,6 +1970,7 @@
       "teamMembersCount": "{count, plural, one {# teammedlem} other {# teammedlemmer per nettsted}}",
       "retentionYears": "{count, plural, other {# år datalagring}}",
       "uptimeMonitors": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}}, {minutes}-minutts sjekker",
+      "uptimeMonitorsSeconds": "{count, plural, one {# oppetidsmonitor} other {# oppetidsmonitorer}}, {seconds}-sekunders sjekker",
       "everythingIn": "Alt i {name}, pluss:",
       "statusPagesCount": "{count, plural, one {# offentlig statusside} other {# offentlige statussider}}",
       "statusPageCustomDomain": "Statusside på ditt eget domene",
@@ -2078,7 +2079,8 @@
       "checkInterval": {
         "name": "Minimum kontrollintervall",
         "values": {
-          "minutesCount": "{count} min."
+          "minutesCount": "{count} min.",
+          "secondsCount": "{count} sek."
         }
       },
       "customHttpMethods": {

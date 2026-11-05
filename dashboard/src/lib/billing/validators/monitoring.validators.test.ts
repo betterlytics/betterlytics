@@ -25,6 +25,11 @@ describe('monitoring upgrade messages', () => {
     );
   });
 
+  it('names Business for 30-second checks on Plus', async () => {
+    const validator = await monitoringValidator(getPlan('plus').capabilities.monitoring);
+    await expect(validator.minInterval(30).validate()).rejects.toThrow('capabilities.minInterval:Business');
+  });
+
   it('names the next plan up when the monitor limit is reached', async () => {
     const validator = await monitoringValidator(getPlan('plus').capabilities.monitoring);
     await expect(validator.monitorLimit(5).validate()).rejects.toThrow('capabilities.monitorLimit:Business');
@@ -32,6 +37,6 @@ describe('monitoring upgrade messages', () => {
 
   it('passes within the plan', async () => {
     const validator = await monitoringValidator(getPlan('business').capabilities.monitoring);
-    await expect(validator.minInterval(60).monitorLimit(10).validate()).resolves.toBeUndefined();
+    await expect(validator.minInterval(30).monitorLimit(10).validate()).resolves.toBeUndefined();
   });
 });

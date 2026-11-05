@@ -50,10 +50,15 @@ export function usePlanFeatures() {
               kind: 'feature',
               label: isUnlimitedCount(monitoring.maxMonitors)
                 ? t('features.uptimeUnlimited')
-                : t('features.uptimeMonitors', {
-                    count: monitoring.maxMonitors,
-                    minutes: checkIntervalMinutes(monitoring.minIntervalSeconds),
-                  }),
+                : monitoring.minIntervalSeconds < 60
+                  ? t('features.uptimeMonitorsSeconds', {
+                      count: monitoring.maxMonitors,
+                      seconds: monitoring.minIntervalSeconds,
+                    })
+                  : t('features.uptimeMonitors', {
+                      count: monitoring.maxMonitors,
+                      minutes: checkIntervalMinutes(monitoring.minIntervalSeconds),
+                    }),
             };
           case 'statusPages':
             return {
