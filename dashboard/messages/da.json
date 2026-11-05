@@ -2238,7 +2238,7 @@
       "sites": {
         "name": "Hjemmesider",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Op til #}}",
+          "count": "{count, number}",
           "unlimited": "Ubegrænsede"
         }
       },
@@ -2252,7 +2252,7 @@
       "teamMembers": {
         "name": "Team-medlemmer pr. hjemmeside",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Op til #}}",
+          "count": "{count, number}",
           "unlimited": "Ubegrænset"
         }
       },
