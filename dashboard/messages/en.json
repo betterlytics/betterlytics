@@ -1243,7 +1243,6 @@
       "monthlyEvents": "Monthly events",
       "rangeLabel": "Monthly event volume",
       "rangeValueText": "{events} events",
-      "currency": "Currency",
       "perMonth": "/month",
       "custom": "Custom",
       "badge": "Recommended",
