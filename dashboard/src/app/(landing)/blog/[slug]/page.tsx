@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { notFound, redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { JsonLd } from '@/components/JsonLd';
-import { BLOG_COVER_SIZE, getBlogPost, getBlogPosts, getOtherBlogPosts } from '@/content/blog';
+import { BLOG_COVER_IMAGE, getBlogPost, getBlogPosts, getOtherBlogPosts } from '@/content/blog';
 import { isClientFeatureEnabled } from '@/lib/client-feature-flags';
 import { PageShell } from '@/landing/components/page/pageShell';
 import { CtaSection } from '@/landing/components/sections/ctaSection';
@@ -47,9 +47,8 @@ export default async function BlogPostPage({ params }: Props) {
           <Image
             src={post.cover.src}
             alt={post.cover.alt}
-            {...BLOG_COVER_SIZE}
+            {...BLOG_COVER_IMAGE}
             priority
-            sizes='(width < 67.5rem) 100vw, 1000px'
             className='mx-auto aspect-[1200/630] w-full max-w-[1000px] border border-rule object-cover'
           />
           <div className={cn(POST_COLUMN, 'mt-14 max-sm:mt-10')}>

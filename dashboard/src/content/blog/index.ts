@@ -14,6 +14,9 @@ const WORDS_PER_MINUTE = 220;
 /** Also the og:image size, which link previews crop to. */
 export const BLOG_COVER_SIZE = { width: 1200, height: 630 };
 
+/** next/image props for covers: they ship at their final size, and Next's WebP re-encode turns their dark gradients into blocks. */
+export const BLOG_COVER_IMAGE = { ...BLOG_COVER_SIZE, unoptimized: true } as const;
+
 export type BlogPost = BlogFrontmatter & {
   slug: string;
   source: string;

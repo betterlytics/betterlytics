@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import NextLink from 'next/link';
-import { BLOG_COVER_SIZE, type BlogPost } from '@/content/blog';
+import { BLOG_COVER_IMAGE, type BlogPost } from '@/content/blog';
 import { Corners } from '@/landing/components/ui/frame';
 import { cn } from '@/landing/lib/cn';
 import { blogPath } from '@/app/(landing)/blog/_lib/blog';
@@ -28,9 +28,8 @@ export function PostCard({
         <Image
           src={post.cover.src}
           alt=''
-          {...BLOG_COVER_SIZE}
+          {...BLOG_COVER_IMAGE}
           priority={lead}
-          sizes={lead ? '(width < 75rem) 100vw, 740px' : '(width < 40rem) 100vw, (width < 62.5rem) 50vw, 440px'}
           className={cn('aspect-[1200/630] w-full object-cover', lead && '3xl:border 3xl:border-rule')}
         />
       </div>
