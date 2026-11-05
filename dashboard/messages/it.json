@@ -1464,7 +1464,7 @@
         },
         "uptime": {
           "title": "Monitoraggio uptime",
-          "body": "Controlli anche ogni minuto, avvisi dove il tuo team già comunica e una pagina di stato."
+          "body": "Controlli anche ogni 30 secondi, avvisi dove il tuo team già comunica e una pagina di stato."
         }
       }
     },
@@ -1476,16 +1476,16 @@
       "hero": {
         "eyebrow": "Monitoraggio uptime",
         "title": "Scopri quando il tuo sito va offline, e quanto ti è costato",
-        "lede": "Controlli anche ogni minuto, avvisi dove il tuo team già comunica, notifiche SSL e una pagina di stato pubblica. Nella dashboard che contiene già il tuo traffico.",
+        "lede": "Controlli anche ogni 30 secondi, avvisi dove il tuo team già comunica, notifiche SSL e una pagina di stato pubblica. Nella dashboard che contiene già il tuo traffico.",
         "primary": "Inizia a monitorare gratis",
         "secondary": "Leggi la documentazione",
         "proof": "La usiamo anche per la nostra pagina di stato"
       },
       "specs": {
         "interval": {
-          "unit": "min",
+          "unit": "sec",
           "label": "Intervallo di controllo",
-          "body": "Controlli anche ogni minuto, o anche solo una volta al giorno."
+          "body": "Controlli anche ogni 30 secondi, o anche solo una volta al giorno."
         },
         "ssl": {
           "unit": "giorni",
@@ -1685,7 +1685,7 @@
           },
           "often": {
             "q": "Ogni quanto Betterlytics controlla il mio sito?",
-            "a": "Anche ogni minuto, o anche solo una volta al giorno. Scegli tu l’intervallo per ciascun monitor."
+            "a": "Anche ogni 30 secondi, o anche solo una volta al giorno. Scegli tu l’intervallo per ciascun monitor, e il piano stabilisce quello più breve."
           },
           "false": {
             "q": "Come evitate i falsi allarmi?",
@@ -1709,7 +1709,7 @@
           },
           "free": {
             "q": "Il monitoraggio uptime è gratuito?",
-            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. I piani a pagamento aggiungono più monitor, controlli ogni minuto, controlli per parola chiave, header personalizzati e codici di stato accettati, e pagine di stato sul tuo dominio. Business rimuove il branding Betterlytics."
+            "a": "Sì. Il piano Free include un monitor, controllato ogni cinque minuti, e una pagina di stato pubblica con il branding Betterlytics. I piani a pagamento aggiungono più monitor, controlli ogni minuto, controlli per parola chiave, header personalizzati e codici di stato accettati, e pagine di stato sul tuo dominio. Business aggiunge controlli ogni 30 secondi e rimuove il branding Betterlytics."
           },
           "internal": {
             "q": "Posso monitorare servizi interni?",

@@ -1464,7 +1464,7 @@
         },
         "uptime": {
           "title": "Uptime monitoring",
-          "body": "Checks as often as every minute, alerts where your team talks, and a status page."
+          "body": "Checks as often as every 30 seconds, alerts where your team talks, and a status page."
         }
       }
     },
@@ -1476,16 +1476,16 @@
       "hero": {
         "eyebrow": "Uptime monitoring",
         "title": "Know when your site goes down, and what it cost you",
-        "lede": "Checks as often as every minute, alerts where your team talks, SSL warnings and a public status page. In the dashboard that already holds your traffic.",
+        "lede": "Checks as often as every 30 seconds, alerts where your team talks, SSL warnings and a public status page. In the dashboard that already holds your traffic.",
         "primary": "Start monitoring free",
         "secondary": "Read the docs",
         "proof": "Our own status page runs on it"
       },
       "specs": {
         "interval": {
-          "unit": "min",
+          "unit": "sec",
           "label": "Check interval",
-          "body": "Check as often as every minute, or as rarely as once a day."
+          "body": "Check as often as every 30 seconds, or as rarely as once a day."
         },
         "ssl": {
           "unit": "days",
@@ -1685,7 +1685,7 @@
           },
           "often": {
             "q": "How often does Betterlytics check my site?",
-            "a": "As often as every minute, or as rarely as once a day. You choose the interval for each monitor."
+            "a": "As often as every 30 seconds, or as rarely as once a day. You choose the interval for each monitor, and your plan sets the shortest."
           },
           "false": {
             "q": "How do you avoid false alarms?",
@@ -1709,7 +1709,7 @@
           },
           "free": {
             "q": "Is uptime monitoring free?",
-            "a": "Yes. The Free plan includes one monitor, checked every five minutes, and one public status page with Betterlytics branding. Paid plans add more monitors, one-minute checks, keyword checks, custom headers and accepted status codes, and status pages on your own domain. Business removes the Betterlytics branding."
+            "a": "Yes. The Free plan includes one monitor, checked every five minutes, and one public status page with Betterlytics branding. Paid plans add more monitors, one-minute checks, keyword checks, custom headers and accepted status codes, and status pages on your own domain. Business adds 30-second checks and removes the Betterlytics branding."
           },
           "internal": {
             "q": "Can I monitor internal services?",
