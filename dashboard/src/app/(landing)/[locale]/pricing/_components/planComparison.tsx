@@ -29,15 +29,11 @@ export function PlanComparison() {
       <table className='w-full min-w-[680px] border-collapse text-left'>
         <thead>
           <tr className={BAND}>
-            <th scope='col' className={cn(ROW_HEAD, BAND, 'w-[34%] px-7 pt-7 pb-5')}>
+            <th scope='col' className={cn(ROW_HEAD, BAND, 'w-[34%] px-7 py-5')}>
               <span className='sr-only'>{featureColumnLabel}</span>
             </th>
             {columns.map((column) => (
-              <th
-                key={column.label}
-                scope='col'
-                className='px-4 pt-7 pb-5 text-center text-title font-medium text-fg'
-              >
+              <th key={column.label} scope='col' className='px-4 py-5 text-center text-title font-medium text-fg'>
                 {column.label}
               </th>
             ))}
