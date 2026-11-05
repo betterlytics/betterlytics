@@ -62,10 +62,10 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
       className={cn(
         styles.plan,
         'relative row-span-5 grid grid-rows-subgrid border-rule-10 p-9 transition-ink',
-        '3xl:not-first:border-l 3xl:first:pl-0',
-        'md:max-3xl:odd:pl-0 md:max-3xl:even:border-l md:max-3xl:nth-[n+3]:border-t',
-        'max-md:px-0 max-md:py-7 max-md:not-first:border-t max-sm:px-(--pad)',
-        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)] max-md:px-4 max-sm:px-(--pad)',
+        '3xl:not-first:border-l',
+        'md:max-3xl:even:border-l md:max-3xl:nth-[n+3]:border-t',
+        'max-md:py-7 max-md:not-first:border-t max-sm:px-(--pad)',
+        pick && 'bg-volt/10 shadow-[inset_0_2px_0_var(--color-volt-lift)]',
       )}
     >
       <div className='mb-1 flex items-center gap-3'>
@@ -209,7 +209,7 @@ export function PricingPanel() {
         </div>
       </div>
 
-      <Panel>
+      <Panel flush>
         <div className='grid max-sm:-mx-(--pad) md:grid-cols-2 3xl:grid-cols-4'>
           {cards.map(({ plan, offer, fits, isRecommended, volumeLabel, features }) => {
             return (
