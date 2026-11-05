@@ -32,7 +32,8 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
     key: 'usageLimits',
     features: [
       { key: 'monthlyEvents', value: (plan) => (plan.selfServe ? eventRange(plan) : { message: 'custom' }) },
-      { key: 'sites', value: (plan) => limit('upToCount', plan.capabilities.dashboards.maxDashboards) },
+      { key: 'sites', value: (plan) => limit('count', plan.capabilities.dashboards.maxDashboards) },
+      { key: 'teamMembers', value: (plan) => limit('count', plan.capabilities.dashboards.maxMembers) },
       {
         key: 'dataRetention',
         value: (plan) =>
@@ -43,7 +44,6 @@ const FEATURE_CATEGORIES: FeatureCategory[] = [
               }
             : { message: 'custom' },
       },
-      { key: 'teamMembers', value: (plan) => limit('upToCount', plan.capabilities.dashboards.maxMembers) },
     ],
   },
   {

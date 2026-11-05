@@ -2016,7 +2016,7 @@
       "sites": {
         "name": "Nettsteder",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Opptil #}}",
+          "count": "{count, number}",
           "unlimited": "Ubegrenset"
         }
       },
@@ -2030,7 +2030,7 @@
       "teamMembers": {
         "name": "Teammedlemmer per nettsted",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Opptil #}}",
+          "count": "{count, number}",
           "unlimited": "Ubegrenset"
         }
       },

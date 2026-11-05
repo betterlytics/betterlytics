@@ -2016,7 +2016,7 @@
       "sites": {
         "name": "Siti",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Fino a #}}",
+          "count": "{count, number}",
           "unlimited": "Illimitati"
         }
       },
@@ -2030,7 +2030,7 @@
       "teamMembers": {
         "name": "Membri del team per sito",
         "values": {
-          "upToCount": "{count, plural, one {#} other {Fino a #}}",
+          "count": "{count, number}",
           "unlimited": "Illimitati"
         }
       },
