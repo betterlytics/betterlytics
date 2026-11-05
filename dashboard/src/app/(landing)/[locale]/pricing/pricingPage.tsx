@@ -11,17 +11,11 @@ export function PricingPage({ faq }: { faq: FaqItem[] }) {
   const t = useTranslations('landing.pricing');
   const tPage = useTranslations('landing.pricingPage');
   return (
-    <PageShell
-      hero={
-        <Section id={IDS.pricing} title={t('title')} titleAs='h1' lede={t('lede')} className='pt-24 max-lg:pt-16'>
-          <PricingPanel />
-          <p className='mx-auto mt-8 max-w-[62ch] text-center text-label text-pretty text-muted'>
-            {tPage('note')}
-          </p>
-        </Section>
-      }
-      after={<CtaSection />}
-    >
+    <PageShell hero={null} after={<CtaSection />}>
+      <Section id={IDS.pricing} title={t('title')} titleAs='h1' lede={t('lede')} className='pt-24 max-lg:pt-16'>
+        <PricingPanel />
+        <p className='mx-auto mt-8 max-w-[62ch] text-center text-label text-pretty text-muted'>{tPage('note')}</p>
+      </Section>
       <Section id='compare' title={tPage('compareTitle')}>
         <Panel flush framed>
           <PlanComparison />
