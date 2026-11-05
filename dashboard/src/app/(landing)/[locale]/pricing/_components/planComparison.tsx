@@ -2,7 +2,6 @@ import { useTranslations } from 'next-intl';
 import { usePlanComparison } from '@/components/billing/usePlanComparison';
 import { cn } from '@/landing/lib/cn';
 
-/** Pinned while the table scrolls sideways on phones. */
 const ROW_HEAD = 'bg-canvas max-md:sticky max-md:left-0 max-md:z-1 max-md:w-[150px] max-md:px-5';
 
 function Included({ label }: { label: string }) {

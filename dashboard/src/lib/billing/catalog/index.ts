@@ -81,10 +81,6 @@ export type PlanOffer =
   | { kind: 'paid'; events: number; cents: number }
   | { kind: 'quoted'; events: number };
 
-/**
- * What a plan's card offers at a slider volume. A free plan keeps its own allowance, and a self-serve plan
- * past its largest step offers that step.
- */
 export function offerFor(
   plan: PlanDefinition,
   events: number,
@@ -99,13 +95,11 @@ export function offerFor(
   return cents === null ? { kind: 'quoted', events: offered } : { kind: 'paid', events: offered, cents };
 }
 
-/** Whether a plan covers a slider volume: a free plan its allowance, self-serve plans the slider steps, sales-only plans any volume. */
 export function fitsVolume(plan: PlanDefinition, events: number): boolean {
   if (isFreePlan(plan)) return events <= plan.bands[0].events;
   return !plan.selfServe || !isCustomVolume(events);
 }
 
-/** The plan a pricing page highlights at a slider volume: the featured plan while it fits, otherwise the first that does. */
 export function recommendedPlanFor(events: number): PlanDefinition | null {
   const fitting = listedPlans().filter((plan) => fitsVolume(plan, events));
   return fitting.find((plan) => plan.featured) ?? fitting[0] ?? null;

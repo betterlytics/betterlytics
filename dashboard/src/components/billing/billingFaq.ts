@@ -1,7 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { freeSubscriptionDefaults } from '@/lib/billing/catalog';
 
-/** The pricing questions on the billing page and the public pricing page. */
 export async function getBillingFaq() {
   const t = await getTranslations('components.billing.faq');
   return {
