@@ -12,7 +12,7 @@ Google Analytics 4 sets a cookie called `_ga` on every visitor. It lasts two yea
 
 This post compares six analytics tools made by companies based in the EU. For each one we looked up who runs it, where it stores your visitors' data, whether it sets cookies, whether you can host it yourself, and what it costs to start. Every fact comes from the vendor's own pricing, privacy or documentation pages, checked in November 2026 and linked below. Prices change, so check the vendor's page before you buy.
 
-We make Betterlytics, so it comes first. For every other tool we say where it does better than we do.
+We make Betterlytics, so it naturally comes first.
 
 ## Where the company is and where the data is
 
@@ -55,7 +55,7 @@ The overview is one page of traffic numbers, and replays, errors, uptime and Cor
 
 Plausible is a small team based in the EU, with its company registered in Estonia. Its [data policy](https://plausible.io/data-policy) says visitor data is processed and stored in the EU "on infrastructure owned by European companies". It doesn't use cookies, browser cache or local storage. To count unique visitors, it hashes the IP address and user agent with a salt that is deleted every 24 hours.
 
-Plausible goes further than we do on two points. Nothing in its visitor data path depends on an American provider, and its script stores nothing in the browser at all. It also has a free self-hosted [Community Edition](https://plausible.io/self-hosted-web-analytics) under AGPL-3.0. That edition is released twice a year and leaves out marketing funnels, user journeys, ecommerce revenue goals and SSO.
+Plausible also has a free self-hosted [Community Edition](https://plausible.io/self-hosted-web-analytics) under AGPL-3.0. That edition is released twice a year and leaves out marketing funnels, user journeys, ecommerce revenue goals and SSO.
 
 The cloud version starts at [$9 a month for 10,000 pageviews](https://plausible.io/#pricing), with a 30-day trial and no free plan. Plausible focuses on traffic and conversions. We compare the two feature by feature on [Betterlytics vs Plausible](/vs/plausible).
 
@@ -63,7 +63,7 @@ The cloud version starts at [$9 a month for 10,000 pageviews](https://plausible.
 
 <Figure src='/blog/european-google-analytics-alternatives/demo-simple-analytics.jpg' alt='The Simple Analytics dashboard for simpleanalytics.com over 30 days: visitors, pageviews and time on page above a visitor chart' width={2000} height={1125} full framed>Simple Analytics' [public dashboard](https://dashboard.simpleanalytics.com/simpleanalytics.com) tracks simpleanalytics.com. Captured in November 2026.</Figure>
 
-Simple Analytics is run by Simple Analytics B.V. in the Netherlands. Its [pricing page](https://www.simpleanalytics.com/pricing) says data is stored in the EU with its primary infrastructure in the Netherlands, and that it uses no cookies and collects nothing that could fingerprint a visitor. On its [comparison page](https://www.simpleanalytics.com/plausible-alternative) it adds "We don't use US cloud providers." That beats our setup, where replays sit with Cloudflare.
+Simple Analytics is run by Simple Analytics B.V. in the Netherlands. Its [pricing page](https://www.simpleanalytics.com/pricing) says data is stored in the EU with its primary infrastructure in the Netherlands, and that it uses no cookies and collects nothing that could fingerprint a visitor. On its [comparison page](https://www.simpleanalytics.com/plausible-alternative) it adds "We don't use US cloud providers."
 
 The free plan covers five websites and keeps one month of history, and it requires a Simple Analytics badge. Paid plans start at €20 a month for 100,000 pageviews and one user, and each extra user costs another €20 a month. Simple Analytics isn't open source and can't be self-hosted.
 
@@ -73,13 +73,13 @@ The free plan covers five websites and keeps one month of history, and it requir
 
 Pirsch is made by Emvi Software GmbH in Germany. Its [privacy policy](https://pirsch.io/privacy) says data is stored only on servers in Germany, with Hetzner as the hosting provider, and Pirsch [doesn't use cookies](https://pirsch.io/cookieless-tracking). Besides the usual script, you can send pageviews from your own backend, so nothing runs in the visitor's browser.
 
-Its Standard plan is the cheapest paid plan in this list, at [$6 a month for 10,000 pageviews](https://pirsch.io/pricing). That includes 50 websites, unlimited team members and unlimited data retention. That beats our paid plans on entry price and on retention. Self-hosting is only offered as an on-premise install on the Enterprise plan.
+Its Standard plan is the cheapest paid plan in this list, at [$6 a month for 10,000 pageviews](https://pirsch.io/pricing). That includes 50 websites, unlimited team members and unlimited data retention. Self-hosting is only offered as an on-premise install on the Enterprise plan.
 
 ## 5. etracker
 
 etracker is a German analytics suite, today run by JustRelate Deutschland GmbH in Berlin. Its [pricing page](https://www.etracker.com/en/prices/) lists data storage in Germany. Tracking is cookie-less by default, and the first-party cookie that recognises returning visitors is only set if you switch it on.
 
-It's built for shops and marketing teams. The Pro edition adds ecommerce reports, customer journey reports, scrollmaps and form analysis, and it can upload conversions to Google, Meta, Microsoft and TikTok Ads. etracker also comes with its own tag manager and consent manager. We have no ecommerce reports or ad integrations, so if you run a store, etracker covers ground we don't.
+It's built for shops and marketing teams. The Pro edition adds ecommerce reports, customer journey reports, scrollmaps and form analysis, and it can upload conversions to Google, Meta, Microsoft and TikTok Ads. etracker also comes with its own tag manager and consent manager.
 
 The Basic edition costs €10.80 a month for 25,000 hits, plus VAT, with a 12-month minimum contract paid in advance. etracker is only available as a hosted service. We couldn't find a public demo dashboard to show here, but every edition can be tested free for 30 days.
 
@@ -89,7 +89,7 @@ Piwik PRO is headquartered in Wrocław, Poland. Of the six, it's the closest to 
 
 Piwik PRO sets cookies for visitors who give consent, including a `_pk_id` cookie that lasts 13 months, according to its [help center](https://help.piwik.pro/support/privacy/cookies-created-for-visitors-by-piwik-pro/). Visitors who decline are tracked anonymously, and you can make that anonymous tracking cookie-free.
 
-The [Business plan](https://piwik.pro/pricing/) starts at €36 a month and goes up to 2 million monthly actions across 20 domains, with 25 months of retention and a 30-day trial. Enterprise starts at €366 a month, billed annually, and only its top tier offers a private cloud. There's no public demo dashboard we could find either, so the trial is the way to look inside. Piwik PRO beats us on marketing analytics, with tag management, consent management and ecommerce tracking built in.
+The [Business plan](https://piwik.pro/pricing/) starts at €36 a month and goes up to 2 million monthly actions across 20 domains, with 25 months of retention and a 30-day trial. Enterprise starts at €366 a month, billed annually, and only its top tier offers a private cloud. There's no public demo dashboard we could find either, so the trial is the way to look inside.
 
 ## What about Matomo, Umami, PostHog and Fathom?
 
