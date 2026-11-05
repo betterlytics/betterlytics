@@ -3,6 +3,8 @@ import { usePlanComparison } from '@/components/billing/usePlanComparison';
 import { cn } from '@/landing/lib/cn';
 
 const ROW_HEAD = 'bg-canvas max-md:sticky max-md:left-0 max-md:z-1 max-md:w-[150px] max-md:px-5';
+// opaque, so the sticky first cell still hides what scrolls under it on phones
+const BAND = 'bg-[color-mix(in_srgb,var(--color-fg)_3%,var(--color-canvas))]';
 
 function Included({ label }: { label: string }) {
   return (
@@ -26,9 +28,9 @@ export function PlanComparison() {
     <div className='overflow-x-auto'>
       <table className='w-full min-w-[680px] border-collapse text-left'>
         <thead>
-          <tr>
-            <th scope='col' className={cn(ROW_HEAD, 'w-[34%] px-7 pt-7 pb-5 text-label font-normal text-muted')}>
-              {featureColumnLabel}
+          <tr className={BAND}>
+            <th scope='col' className={cn(ROW_HEAD, BAND, 'w-[34%] px-7 pt-7 pb-5')}>
+              <span className='sr-only'>{featureColumnLabel}</span>
             </th>
             {columns.map((column) => (
               <th
@@ -47,7 +49,7 @@ export function PlanComparison() {
               <th
                 scope='colgroup'
                 colSpan={columns.length + 1}
-                className='bg-fg/3 px-7 py-3 text-body-sm font-medium text-fg max-md:px-5'
+                className={cn(BAND, 'px-7 py-3 text-body-sm font-medium text-fg max-md:px-5')}
               >
                 <span className='max-md:sticky max-md:left-5'>{category.name}</span>
               </th>
