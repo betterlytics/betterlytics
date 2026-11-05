@@ -1243,6 +1243,7 @@
       "monthlyEvents": "Hendelser per måned",
       "rangeLabel": "Antall hendelser per måned",
       "rangeValueText": "{events} hendelser",
+      "currency": "Valuta",
       "perMonth": "/mnd",
       "custom": "Etter avtale",
       "badge": "Anbefalt",
@@ -1270,7 +1271,7 @@
     "pricingPage": {
       "compareTitle": "Sammenlign alle funksjoner",
       "faqTitle": "Ofte stilte spørsmål",
-      "note": "Gratis å starte, ingen kredittkort trengs. Prisene er i amerikanske dollar, og betaler du i euro, er beløpet det samme.",
+      "note": "Gratis å starte, ingen kredittkort trengs.",
       "included": "Inkludert",
       "notIncluded": "Ikke inkludert"
     },

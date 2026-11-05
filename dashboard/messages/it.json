@@ -1243,6 +1243,7 @@
       "monthlyEvents": "Eventi mensili",
       "rangeLabel": "Volume mensile di eventi",
       "rangeValueText": "{events} eventi",
+      "currency": "Valuta",
       "perMonth": "/mese",
       "custom": "Personalizzato",
       "badge": "Consigliato",
@@ -1270,7 +1271,7 @@
     "pricingPage": {
       "compareTitle": "Confronta tutte le funzionalità",
       "faqTitle": "Domande frequenti",
-      "note": "Inizi gratis, senza carta di credito. I prezzi sono in dollari USA e, se paghi in euro, l'importo è lo stesso.",
+      "note": "Inizi gratis, senza carta di credito.",
       "included": "Incluso",
       "notIncluded": "Non incluso"
     },
