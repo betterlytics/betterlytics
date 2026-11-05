@@ -26,7 +26,7 @@ export function NotFoundView({ lede, action }: NotFoundViewProps) {
             <h1 id='not-found-title' className='sr-only'>
               {t('title')}
             </h1>
-            <InkedNumerals className='[--numeral-ink:var(--color-volt-text)] [--numeral-lens:var(--color-volt-soft)] [--numeral-tint:var(--color-volt)]' />
+            <InkedNumerals className='font-extrabold [--numeral-ink:var(--color-volt-text)] [--numeral-lens:var(--color-volt-soft)] [--numeral-tint:var(--color-volt)]' />
             <Lede className='mt-14 max-w-[46ch] max-sm:mt-10'>{lede ?? t('lede')}</Lede>
             <div className='mt-9 flex flex-wrap justify-center gap-2.5 max-sm:mt-8 max-sm:w-full max-sm:flex-col'>
               <Link href={action?.href ?? '/'} className={buttonStyles({ variant: 'volt', size: 'lg' })}>

@@ -1,13 +1,10 @@
 'use client';
 
 import { useEffect, useRef, type CSSProperties } from 'react';
-import { Schibsted_Grotesk } from 'next/font/google';
 import { cn } from '@/lib/utils';
 import styles from './InkedNumerals.module.css';
 
-const heavy = Schibsted_Grotesk({ subsets: ['latin'], weight: '800' });
-
-/* Schibsted Grotesk 800 at 1000 units: each digit's ink from its origin; a 4 rises 703, the 0 overshoots 16 each way */
+/* Schibsted Grotesk 800, which the page sets, at 1000 units: each digit's ink from its origin; a 4 rises 703, the 0 overshoots 16 each way */
 const INK = { '4': [16, 625], '0': [31, 609] } as const;
 const OVERLAP = 60;
 
@@ -101,11 +98,7 @@ export function InkedNumerals({ className }: { className?: string }) {
       role='img'
       aria-label='404'
     >
-      <svg
-        className={cn(styles.svg, heavy.className)}
-        viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.width} ${VIEW.height}`}
-        aria-hidden
-      >
+      <svg className={styles.svg} viewBox={`${VIEW.x} ${VIEW.y} ${VIEW.width} ${VIEW.height}`} aria-hidden>
         <defs>
           <pattern
             id='not-found-hatch'

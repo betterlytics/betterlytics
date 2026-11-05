@@ -19,7 +19,8 @@ import './landing.css';
 const sans = Schibsted_Grotesk({
   variable: '--font-landing-sans',
   subsets: ['latin'],
-  weight: ['400', '500', '600'],
+  // 800 is for the 404's numerals: Google serves one variable file for all four weights, so it adds no download
+  weight: ['400', '500', '600', '800'],
 });
 
 const mono = IBM_Plex_Mono({
