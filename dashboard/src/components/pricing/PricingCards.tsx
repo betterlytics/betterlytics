@@ -11,7 +11,7 @@ import { Dispatch, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
-import { EventCountText, FLUSH } from './EventCountFlow';
+import { EventCountText, FLUSH, QUICK_ROLL } from './EventCountFlow';
 import { usePlanCards, usePlanFeatures, type PlanCard } from './usePlanFeatures';
 
 interface PricingCardsProps {
@@ -122,6 +122,7 @@ export function PricingCards({ volume, currency, onPlanSelect, billingData }: Pr
                       locales='en-US'
                       format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
                       willChange
+                      {...QUICK_ROLL}
                     />
                   )}
                 </b>
