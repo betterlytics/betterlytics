@@ -6,7 +6,7 @@ import NumberFlow from '@number-flow/react';
 import { useLocale, useTranslations } from 'next-intl';
 import { EventCountFlow, EventCountText, FLUSH } from '@/components/pricing/EventCountFlow';
 import { usePlanCards, type PlanFeatureLabel, type VolumeLabel } from '@/components/pricing/usePlanFeatures';
-import { VOLUME_STOPS, type PlanId } from '@/lib/billing/catalog';
+import { PLAN_CURRENCIES, VOLUME_STOPS, type PlanCurrency, type PlanId } from '@/lib/billing/catalog';
 import { formatEventCount } from '@/utils/pricing';
 import { buttonStyles } from '@/landing/components/ui/button';
 import { Panel } from '@/landing/components/ui/frame';
@@ -16,11 +16,8 @@ import { useInView } from '@/landing/hooks/useInView';
 import { track } from '@/landing/lib/analytics';
 import { cn } from '@/landing/lib/cn';
 import { vars } from '@/landing/lib/cssVars';
+import segmented from '@/landing/components/ui/segmented.module.css';
 import styles from './pricingPanel.module.css';
-
-/** USD only here, though billing also offers EUR. */
-const CURRENCY = 'USD';
-const PRICE_FORMAT = { style: 'currency', currency: CURRENCY, maximumFractionDigits: 0 } as const;
 
 function Check() {
   return (
@@ -44,6 +41,7 @@ type PlanProps = {
   tagline: string;
   /** Cents, or a label such as 'Custom'. */
   price: number | string;
+  currency: PlanCurrency;
   period?: string;
   volumeLabel: VolumeLabel;
   badge?: string;
@@ -53,7 +51,20 @@ type PlanProps = {
   dimmed?: boolean;
 };
 
-function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features, cta, pick, dimmed }: PlanProps) {
+function Plan({
+  tier,
+  name,
+  tagline,
+  price,
+  currency,
+  period,
+  volumeLabel,
+  badge,
+  features,
+  cta,
+  pick,
+  dimmed,
+}: PlanProps) {
   const locale = useLocale();
   return (
     // a subgrid of five rows shared across plans, so prices and buttons stay level when a tagline wraps
@@ -86,7 +97,7 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
                 className={FLUSH}
                 value={price / 100}
                 locales={locale}
-                format={PRICE_FORMAT}
+                format={{ style: 'currency', currency, maximumFractionDigits: 0 }}
                 willChange
               />
             ) : (
@@ -140,7 +151,8 @@ export function PricingPanel() {
 
   const events = VOLUME_STOPS[rangeIndex];
   const lastIndex = VOLUME_STOPS.length - 1;
-  const cards = usePlanCards(events, CURRENCY);
+  const [currency, setCurrency] = useState<PlanCurrency>('USD');
+  const cards = usePlanCards(events, currency);
 
   const sales: PlanCta = { label: t('contactCta'), destination: 'contact' };
 
@@ -207,6 +219,18 @@ export function PricingPanel() {
             </button>
           ))}
         </div>
+        <div className={cn(segmented.segmented, 'mt-1.5')} role='group' aria-label={t('currency')}>
+          {PLAN_CURRENCIES.map((option) => (
+            <button
+              key={option}
+              type='button'
+              aria-pressed={currency === option}
+              onClick={() => setCurrency(option)}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
       </div>
 
       <Panel>
@@ -222,6 +246,7 @@ export function PricingPanel() {
                 badge={isRecommended ? t('badge') : undefined}
                 tagline={t(`plans.${plan.id}.tagline`)}
                 price={offer.kind === 'paid' ? offer.cents : offer.kind === 'free' ? 0 : t('custom')}
+                currency={currency}
                 period={offer.kind === 'quoted' ? undefined : t('perMonth')}
                 volumeLabel={volumeLabel}
                 features={features}

@@ -8,6 +8,7 @@ import { vars } from '@/landing/lib/cssVars';
 import { LINKS } from '@/landing/lib/links';
 import { type MockMonitor, StatusPageMock } from './statusPageMock';
 import styles from './statusShowcase.module.css';
+import segmented from '@/landing/components/ui/segmented.module.css';
 
 const POINTS = ['monitors', 'history', 'updates', 'brand', 'domain'] as const;
 
@@ -76,7 +77,7 @@ export function StatusShowcase() {
         <div className='mt-8 border-t border-rule-08 pt-6 transition-ink'>
           <Label className='mb-4 block'>{t('try')}</Label>
           <div className='flex flex-wrap items-center gap-x-7 gap-y-4'>
-            <div className={styles.segmented} role='group' aria-label={t('theme')}>
+            <div className={segmented.segmented} role='group' aria-label={t('theme')}>
               {(['light', 'dark'] as const).map((value) => (
                 <button key={value} type='button' aria-pressed={theme === value} onClick={() => setTheme(value)}>
                   {t(value)}
