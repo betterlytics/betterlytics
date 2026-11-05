@@ -178,7 +178,7 @@ const enterprise: PlanDefinition = {
     emailReports: { emailReportsEnabled: true },
     dataRetention: { maxDataRetentionDays: 1825 },
     statusPages: { maxStatusPages: UNLIMITED_COUNT, customDomain: true, removeBranding: true },
-    sessionReplay: { maxReplaysPerMonth: Number.MAX_SAFE_INTEGER },
+    sessionReplay: { maxReplaysPerMonth: UNLIMITED_COUNT },
   },
   service: { prioritySupport: true, dedicatedSupport: true, slaGuarantee: true },
   highlights: [

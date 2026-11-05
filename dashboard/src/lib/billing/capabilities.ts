@@ -41,7 +41,7 @@ export type PlanCapabilities = {
 };
 
 /** Count limits at or above this read as unlimited. */
-export const UNLIMITED_COUNT = 9999;
+export const UNLIMITED_COUNT = Number.MAX_SAFE_INTEGER;
 
 export function isUnlimitedCount(count: number): boolean {
   return count >= UNLIMITED_COUNT;

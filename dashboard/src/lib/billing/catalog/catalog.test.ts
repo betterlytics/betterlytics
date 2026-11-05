@@ -25,6 +25,7 @@ import {
   selfHostedPlan,
   upgradeFor,
 } from '@/lib/billing/catalog';
+import { UNLIMITED_COUNT } from '@/lib/billing/capabilities';
 import { PLANS } from './plans';
 
 const ALL_PLANS = Object.values(PLANS);
@@ -142,12 +143,12 @@ describe('plans on sale', () => {
       sessionReplay: { maxReplaysPerMonth: 25_000 },
     });
     expect(getPlan('enterprise').capabilities).toEqual({
-      dashboards: { maxDashboards: 9999, maxMembers: 9999 },
-      monitoring: { maxMonitors: 9999, minIntervalSeconds: 60, ...ALL_CHECKS },
+      dashboards: { maxDashboards: UNLIMITED_COUNT, maxMembers: UNLIMITED_COUNT },
+      monitoring: { maxMonitors: UNLIMITED_COUNT, minIntervalSeconds: 60, ...ALL_CHECKS },
       emailReports: { emailReportsEnabled: true },
       dataRetention: { maxDataRetentionDays: 1825 },
-      statusPages: { maxStatusPages: 9999, customDomain: true, removeBranding: true },
-      sessionReplay: { maxReplaysPerMonth: Number.MAX_SAFE_INTEGER },
+      statusPages: { maxStatusPages: UNLIMITED_COUNT, customDomain: true, removeBranding: true },
+      sessionReplay: { maxReplaysPerMonth: UNLIMITED_COUNT },
     });
     expect(getPlan('free').service).toEqual({
       prioritySupport: false,
@@ -351,7 +352,7 @@ describe('entitlement', () => {
     expect(planThatUnlocks((c) => c.monitoring.keywordValidation)?.id).toBe('plus');
     expect(planThatUnlocks((c) => c.statusPages.removeBranding)?.id).toBe('business');
     expect(planThatUnlocks((c) => c.dashboards.maxDashboards > 25)?.id).toBe('enterprise');
-    expect(planThatUnlocks((c) => c.dashboards.maxDashboards > 10_000)).toBeNull();
+    expect(planThatUnlocks((c) => c.dashboards.maxDashboards > UNLIMITED_COUNT)).toBeNull();
   });
 
   it('only names an upgrade when the current capabilities fall short', () => {
