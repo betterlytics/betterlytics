@@ -99,29 +99,33 @@ function Plan({ tier, name, tagline, price, period, volumeLabel, badge, features
           <EventCountText {...volumeLabel} />
         </p>
       </div>
-      <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
-        {features.map((f) => (
-          <li
-            key={f.label}
-            className={cn(
-              'flex items-start gap-[11px] py-[7px] text-body-sm leading-[21px] tracking-ui text-fg opacity-84',
-              f.kind === 'header' && 'pb-[11px] font-semibold opacity-100',
-            )}
-          >
-            <Check />
-            <span>{f.label}</span>
-          </li>
-        ))}
-      </ul>
-      <TrackedLink
-        className={buttonStyles({ variant: pick ? 'volt' : 'line', className: 'group mt-auto w-full p-[13px]' })}
-        href={`/${cta.destination}`}
-        placement='pricing'
-        destination={cta.destination}
-        plan={tier}
-      >
-        <RollLabel text={cta.label} />
-      </TrackedLink>
+      <div>
+        <ul className='mt-3 mb-[26px] border-t border-rule-08 pt-[22px] transition-ink'>
+          {features.map((f) => (
+            <li
+              key={f.label}
+              className={cn(
+                'flex items-start gap-[11px] py-[7px] text-body-sm leading-[21px] tracking-ui text-fg opacity-84',
+                f.kind === 'header' && 'pb-[11px] font-semibold opacity-100',
+              )}
+            >
+              <Check />
+              <span>{f.label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <TrackedLink
+          className={buttonStyles({ variant: pick ? 'volt' : 'line', className: 'group w-full p-[13px]' })}
+          href={`/${cta.destination}`}
+          placement='pricing'
+          destination={cta.destination}
+          plan={tier}
+        >
+          <RollLabel text={cta.label} />
+        </TrackedLink>
+      </div>
     </div>
   );
 }
