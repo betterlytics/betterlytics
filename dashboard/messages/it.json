@@ -1251,20 +1251,30 @@
       "perMonth": "/mese",
       "free": "Gratuito",
       "custom": "Personalizzato",
-      "growth": {
-        "tagline": "Per progetti personali e piccoli siti.",
-        "cta": "Inizia"
-      },
-      "professional": {
-        "tagline": "Per team che gestiscono più prodotti.",
-        "cta": "Inizia"
-      },
-      "enterprise": {
-        "tagline": "Per traffico elevato, con SLA e supporto dedicato.",
-        "cta": "Contattaci"
-      },
       "badge": "Il più scelto",
-      "ctaFree": "Inizia gratis"
+      "ctaFree": "Inizia gratis",
+      "contactCta": "Contattaci",
+      "plans": {
+        "growth": {
+          "tagline": "Per progetti personali e piccoli siti."
+        },
+        "professional": {
+          "tagline": "Per team che gestiscono più prodotti."
+        },
+        "enterprise": {
+          "tagline": "Per traffico elevato, con SLA e supporto dedicato."
+        },
+        "free": {
+          "tagline": "Per progetti personali e piccoli siti."
+        },
+        "plus": {
+          "tagline": "Per piccole aziende con pochi siti."
+        },
+        "business": {
+          "tagline": "Per agenzie, freelance e team in crescita."
+        }
+      },
+      "cta": "Inizia"
     },
     "cta": {
       "title": "Aggiungi uno script e guarda arrivare il tuo primo visitatore",
@@ -1941,7 +1951,10 @@
     "descriptions": {
       "growth": "Perfetto per piccoli siti web e progetti personali",
       "professional": "Funzionalità avanzate per aziende in crescita",
-      "enterprise": "Soluzione completa per grandi organizzazioni"
+      "enterprise": "Soluzione completa per grandi organizzazioni",
+      "free": "Per progetti personali e piccoli siti",
+      "plus": "Per piccole aziende con pochi siti",
+      "business": "Per agenzie, freelance e team in crescita"
     },
     "features": {
       "upToEventsPerMonth": "Fino a {events} eventi/mese",
@@ -1962,7 +1975,9 @@
       "retentionYears": "{count, plural, one {Conservazione dati #+ anno} other {Conservazione dati #+ anni}}",
       "uptimeMonitors": "{count} monitor uptime con controlli {minutes, plural, one {ogni minuto} other {ogni # minuti}}",
       "everythingIn": "Tutte le funzionalità di {name}, più:",
-      "statusPagesCount": "{count, plural, one {# pagina di stato pubblica} other {# pagine di stato pubbliche}}"
+      "statusPagesCount": "{count, plural, one {# pagina di stato pubblica} other {# pagine di stato pubbliche}}",
+      "statusPageCustomDomain": "Pagina di stato sul tuo dominio",
+      "prioritySupport": "Supporto prioritario"
     },
     "cta": {
       "getStartedForFree": "Inizia gratis",

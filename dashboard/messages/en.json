@@ -1251,20 +1251,30 @@
       "perMonth": "/month",
       "free": "Free",
       "custom": "Custom",
-      "growth": {
-        "tagline": "For side projects and small sites.",
-        "cta": "Get started"
-      },
-      "professional": {
-        "tagline": "For teams running several products.",
-        "cta": "Get started"
-      },
-      "enterprise": {
-        "tagline": "For high traffic, with an SLA and dedicated support.",
-        "cta": "Talk to sales"
-      },
       "badge": "Most popular",
-      "ctaFree": "Get started free"
+      "ctaFree": "Get started free",
+      "contactCta": "Talk to sales",
+      "plans": {
+        "growth": {
+          "tagline": "For side projects and small sites."
+        },
+        "professional": {
+          "tagline": "For teams running several products."
+        },
+        "enterprise": {
+          "tagline": "For high traffic, with an SLA and dedicated support."
+        },
+        "free": {
+          "tagline": "For side projects and personal sites."
+        },
+        "plus": {
+          "tagline": "For small businesses with a handful of sites."
+        },
+        "business": {
+          "tagline": "For agencies, freelancers and growing teams."
+        }
+      },
+      "cta": "Get started"
     },
     "cta": {
       "title": "Add one script and watch your first visitor arrive",
@@ -1941,7 +1951,10 @@
     "descriptions": {
       "growth": "Perfect for small websites and personal projects",
       "professional": "Advanced features for growing businesses",
-      "enterprise": "Complete solution for large organizations"
+      "enterprise": "Complete solution for large organizations",
+      "free": "For side projects and personal sites",
+      "plus": "For small businesses with a handful of sites",
+      "business": "For agencies, freelancers and growing teams"
     },
     "features": {
       "upToEventsPerMonth": "Up to {events} events/month",
@@ -1962,7 +1975,9 @@
       "retentionYears": "{count, plural, one {#+ year data retention} other {#+ years data retention}}",
       "uptimeMonitors": "{count, plural, one {# uptime monitor} other {# uptime monitors}} with {minutes}-minute checks",
       "everythingIn": "Everything in {name}, plus:",
-      "statusPagesCount": "{count, plural, one {# public status page} other {# public status pages}}"
+      "statusPagesCount": "{count, plural, one {# public status page} other {# public status pages}}",
+      "statusPageCustomDomain": "Status page on your own domain",
+      "prioritySupport": "Priority support"
     },
     "cta": {
       "getStartedForFree": "Get Started for Free",
